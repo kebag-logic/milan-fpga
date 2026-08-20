@@ -774,10 +774,18 @@ def test_baremetal_profile_contract():
         arm -- the label list that arm carries -- and `other` is the right-hand
         side of every assignment reached any other way. A register the bus can
         write is exactly the arms in `labels`, so this is what makes the
-        address model a CHECKED fact rather than an assumption."""
+        address model a CHECKED fact rather than an assumption.
+
+        BOTH assignment operators are read. This used to see `<=` only,
+        which made the reset rule below VACUOUS against a blocking reset:
+        `adp_ctrl = 32'h0000_0A01;` left `other` empty, the rule had nothing
+        to iterate, and it passed without asserting anything. Verilator's
+        BLKSEQ would have caught it, but only under `-Wall`, which this
+        project does not use."""
         tokens = [(t.start(), t.group()) for t in case_token_re.finditer(csr)]
         assign_re = re.compile(
-            rf"\b{re.escape(signal)}\b\s*(?:\[[^\]]*\])?\s*<=\s*([^;]*);")
+            rf"\b{re.escape(signal)}\b\s*(?:\[[^\]]*\])?\s*"
+            rf"(?:<=|=)\s*([^;]*);")
 
         def depth_at(pos, start):
             depth = 0
@@ -856,6 +864,11 @@ def test_baremetal_profile_contract():
                 f"{rtl_name} (CSR 0x{model.rtl_address(rtl_name):03x}), " \
                 "or the register answers to an address the firmware " \
                 f"census does not watch; write decode reaches it {governed}"
+            assert other, \
+                f"the RTL must give {signal} a reset value, and it has " \
+                f"none: with no assignment outside the write decode, {port} " \
+                "holds whatever the fabric brings up and this rule would " \
+                "otherwise pass by having nothing to check"
             for rhs in other:
                 assert sv_literal_re.match(rhs), \
                     f"the RTL writes {signal} outside the CSR write decode " \
@@ -1100,16 +1113,19 @@ def test_baremetal_profile_contract():
         def within(span, pos):
             return span[0] <= pos < span[1]
 
-        # 1. Only milan_reg() may FORM a CSR address, by base or by cast, so
-        #    no other code can fabricate a pointer into the register file.
-        for pattern, what in (
-                (r"\bMILAN_CSR_BASE\b", "the CSR base"),
-                (r"\(\s*volatile\s+uint32_t\s*\*\s*\)", "a CSR pointer cast")):
-            for use in re.finditer(pattern, code):
-                assert within(reg_span, use.start()), \
-                    f"only milan_reg() may form a CSR address, but {what} is " \
-                    "used outside it: a raw store there reaches a control " \
-                    "register without passing the bit-0 census"
+        # 1. Only milan_reg() may FORM a CSR address. This is no longer a
+        #    rule about text: assert_compiled_census_is_clean() asks the
+        #    COMPILER which functions materialise a window address, so a
+        #    typedef'd pointer type, a register-access macro, a struct
+        #    overlay, an `->` store and an inline-asm template are all seen
+        #    without any of them being recognised in C. The one textual
+        #    remnant is the base NAME, kept because it gives a better message
+        #    than an address census can and costs nothing.
+        for use in re.finditer(r"\bMILAN_CSR_BASE\b", code):
+            assert within(reg_span, use.start()), \
+                "only milan_reg() may form a CSR address, but the CSR base " \
+                "is used outside it: a raw store there reaches a control " \
+                "register without passing the bit-0 census"
         # 2. ... and only milan_read()/milan_write() may call it, so the one
         #    dereference-store through it stays the one inside milan_write().
         for use in re.finditer(r"\bmilan_reg\s*\(", code):
@@ -1138,98 +1154,6 @@ def test_baremetal_profile_contract():
             assert not re.search(r"\bmilan_(?:reg|read|write)\b", body), \
                 f"#define {name} aliases a CSR primitive: every CSR store " \
                 "must be spelled milan_write() so the census can see it"
-        # 5. ... and every STORE THROUGH A POINTER in the file is one of the
-        #    four the firmware ships. Rules 1 to 4 name the ingredients a CSR
-        #    store is USUALLY built from; this one names the stores.
-        assert_store_set_is_closed(code, source)
-
-    #: Every store THROUGH A POINTER the firmware ships, pinned as a SET.
-    #:
-    #: Rule 1 above refuses ONE cast spelling, `(volatile uint32_t *)`, and
-    #: that is a denylist with a single entry: `volatile unsigned int *`,
-    #: `uint32_t volatile *` and a `(void *)` into a local are the same store
-    #: to the compiler and none of them matches it. It is the same failure
-    #: mode as an include regex narrower than the preprocessor, in the oldest
-    #: rule here. So the stores are pinned rather than the casts: a store is
-    #: found by what it IS, a dereference or a subscript on the left of an
-    #: assignment, and the cast that formed the pointer does not matter.
-    firmware_pointer_stores = (
-        "*milan_reg(offset) = value",
-        "*value = (uint64_t)parsed",
-        "*value = seconds * 1000000000ull + nanoseconds",
-        "dst[i] = src[i]",
-    )
-    #: ... and every cast to a POINTER, pinned the same way and for a reason
-    #: the store set alone does not cover. A store can be spelled `*p = v`,
-    #: `p[i] = v`, `p->m = v`, `(*p)++` or a memcpy, and enumerating THOSE is
-    #: the trap this whole round is about. A cast is where an address BECOMES
-    #: a pointer, so pinning the casts bounds address formation whatever the
-    #: store looks like: every one of those spellings still needs a cast (or
-    #: MILAN_CSR_BASE, or milan_reg(), both already pinned) to name a control
-    #: register in the first place.
-    firmware_pointer_casts = (
-        "(volatile uint32_t *)",
-        "(const volatile uint8_t *)",
-        "(volatile uint8_t *)",
-        "(const unsigned char *)",
-    )
-    pointer_cast_re = re.compile(
-        r"\([ \t]*[A-Za-z_][A-Za-z0-9_ \t]*\*(?:[ \t]*\*)*[ \t]*\)")
-    #: An assignment operator, simple or compound, and never a comparison.
-    assign_op_re = re.compile(
-        r"(?<![=!<>+\-*/%&|^])(?:[-+*/%&|^]|<<|>>)?=(?!=)")
-    subscript_lhs_re = re.compile(r"\A\w+[ \t]*\[[^\]]*\]\Z")
-
-    def pointer_stores(code):
-        """`(start, stop)` for every store through a pointer in `code`.
-
-        The left-hand side is taken back to the statement's start. A
-        DECLARATION with an initialiser is not a store, because its `*` is a
-        pointer declarator and its text names a type first; an assignment
-        inside a call's argument list is skipped for the same reason its
-        parentheses do not balance."""
-        found = []
-        for op in assign_op_re.finditer(code):
-            start = max(code.rfind(char, 0, op.start()) for char in ";{}") + 1
-            lhs = code[start:op.start()]
-            # A `for (i = 0; ...)` head leaves an unmatched `)` behind; step
-            # the statement's start past it so the loop BODY's store is seen
-            # and reported as itself rather than with the loop head attached.
-            while lhs.count("(") < lhs.count(")"):
-                cut = lhs.index(")") + 1
-                start, lhs = start + cut, lhs[cut:]
-            if lhs.count("(") > lhs.count(")"):
-                continue
-            text = lhs.strip()
-            if not (text.startswith("*") or subscript_lhs_re.match(text)):
-                continue
-            stop = code.find(";", op.end())
-            found.append((start, len(code) if stop < 0 else stop))
-        return found
-
-    def assert_store_set_is_closed(code, source):
-        """The firmware's stores through a pointer are pinned to the four it
-        ships, so a CSR store cannot be built from a cast this gate never
-        thought to name.
-
-        COST: a fifth pointer store is RED until it is added above. That is
-        the tripwire: whoever adds one has to decide, in this gate, whether
-        its target can be a control register."""
-        casts = [" ".join(m.group(0).split())
-                 for m in pointer_cast_re.finditer(code)]
-        assert casts == list(firmware_pointer_casts), \
-            "the firmware's casts to a pointer are pinned: a cast is where " \
-            "an address becomes a pointer, so naming ONE cast spelling " \
-            "leaves `volatile unsigned int *`, `uint32_t volatile *` and " \
-            f"`(void *)` free to name a control register; found {casts}"
-        found = [" ".join(source[at:to].split())
-                 for at, to in pointer_stores(code)]
-        assert found == list(firmware_pointer_stores), \
-            "the firmware's stores through a pointer are pinned: a store is " \
-            "a store whatever cast formed the pointer, and naming one cast " \
-            "spelling leaves `volatile unsigned int *`, `uint32_t volatile " \
-            f"*` and a (void *) into a local all reaching a CSR; found {found}"
-
     #: The firmware's translation unit is milan_baremetal.c plus exactly
     #: these. Pinned as a SET rather than derived, because there is nothing
     #: here to derive it from: the whole point is that a twelfth include is
@@ -1382,33 +1306,173 @@ def test_baremetal_profile_contract():
                 "single-translation-unit check is satisfied honestly while " \
                 "the closure reads the wrong file"
 
-    #: The firmware's inline asm, pinned the way the include set is. An asm
-    #: store carries NO textual signature any other rule here matches: no
-    #: milan_write, no milan_reg, no MILAN_CSR_BASE and no cast, so a literal
-    #: address in an asm template reaches a control register past all of
-    #: them. The firmware already uses asm for its fences, so this is
-    #: idiomatic here rather than exotic.
-    firmware_asm = (
-        '__asm__ volatile("fence iorw, iorw" ::: "memory")',
-        '__asm__ volatile("fence rw, rw" ::: "memory")')
-    asm_re = re.compile(r"\b(?:__asm__|__asm|asm)\b")
+    #: ---- the compiled census -------------------------------------------
+    #:
+    #: Rounds five to eight converted every rule here from a denylist of
+    #: dangerous spellings into a permitted SET. That was the right
+    #: correction and it retired several axes. It has a floor: a set is only
+    #: as wide as the RECOGNIZER that fills it, and the recognizers were
+    #: regexes over C. `((milan_adp_block)0x90000600u)->ctrl = 1u;` is a
+    #: cast, a store and an entity advertise, and no regex here saw any of
+    #: the three.
+    #:
+    #: So this stops reading C and asks the compiler. Emit assembly, then
+    #: require that no function except milan_reg() MATERIALISES an address
+    #: inside the Milan CSR window. A typedef'd pointer type, a
+    #: register-access macro, a struct overlay, an `->` store, a subscript
+    #: store, a qualifier after the star and an inline-asm template all
+    #: reduce to the same immediate, so none of them has to be recognised.
+    #:
+    #: This REPLACES the pointer-cast set, the pointer-store set, the
+    #: inline-asm set and rule 1's cast half. It cannot be out-spelled,
+    #: because the thing doing the recognising is the thing that defines
+    #: what the spellings mean.
+    csr_window = re.search(
+        r"(?m)^MILAN_CSR_BASE\s*=\s*(0x[0-9A-Fa-f_]+)", soc_source)
+    csr_window_size = re.search(
+        r"(?m)^MILAN_CSR_SIZE\s*=\s*(0x[0-9A-Fa-f_]+)", soc_source)
+    assert csr_window and csr_window_size, \
+        "sw/litex/milan_soc.py no longer states the Milan CSR window"
+    csr_base = int(csr_window.group(1).replace("_", ""), 16)
+    csr_size = int(csr_window_size.group(1).replace("_", ""), 16)
+    #: Immediates as the assembler prints them, in any base and either sign,
+    #: and never a label suffix (`.L4`) or a register number.
+    asm_immediate_re = re.compile(
+        r"(?<![\w.])(-?(?:0[xX][0-9A-Fa-f]+|\d+))(?![\w.])")
+    asm_noise_re = re.compile(r"^\s*\.(?:cfi|file|loc|size|ident|align|globl)")
+    #: The values the census compile substitutes for the generated headers.
+    #: Every one is asserted OUTSIDE the window below, so a stub cannot
+    #: silently manufacture a hit or mask one.
+    census_defines = {
+        "SPIFLASH_BASE": 0x2000_0000,
+        "MILAN_AEM_DESC_BASE": 0x7F70_0000,
+        "MILAN_ENTITY_ID_LO": 0x1122_3344, "MILAN_ENTITY_ID_HI": 0x5566_7788,
+        "MILAN_MODEL_ID_LO": 0x0A0B_0C0D, "MILAN_MODEL_ID_HI": 0x0102_0304,
+        "MILAN_STATION_MAC_LO": 0x3, "MILAN_STATION_MAC_HI": 0x200,
+        "MILAN_SR_VID": 2, "MILAN_LWSRP_CTRL_RESET": 0x10,
+        "MILAN_N_TALKERS": 1, "MILAN_AEM_FLASH_OFFSET": 0x00E0_0000,
+        "MILAN_AEM_IMAGE_BYTES": 4096, "MILAN_AEM_IMAGE_CRC32": 0xDEAD_BEEF,
+    }
+    #: The RV32 cross compiler is the real target and the only one that can
+    #: assemble the firmware's RISC-V asm; a host compiler answers every
+    #: C-level shape and FAILS LOUDLY on the asm rather than passing it.
+    census_compilers = (
+        os.path.join(os.path.expanduser("~"),
+                     "br-milan-rv32/host/bin/riscv32-linux-gcc"),
+        "riscv64-elf-gcc", "riscv32-unknown-elf-gcc", "cc", "gcc")
 
-    def assert_asm_set_is_closed(code, source):
-        """Inline asm is pinned to the two fences the firmware ships.
+    def census_headers(root):
+        """The stub header set the census compiles against, written from
+        `census_defines` plus the window base read out of milan_soc.py, so
+        no address in it is mirrored from anywhere."""
+        for leaf in ("generated", "hw", "libbase"):
+            os.makedirs(os.path.join(root, leaf), exist_ok=True)
+        for name, value in census_defines.items():
+            assert not csr_base <= value < csr_base + csr_size, \
+                f"census stub {name} lands inside the CSR window and would " \
+                "manufacture a hit the firmware never makes"
+        body = "\n".join(f"#define {n} 0x{v:x}u"
+                         for n, v in census_defines.items())
+        write = {
+            "generated/mem.h": f"#pragma once\n#define MILAN_CSR_BASE "
+                               f"0x{csr_base:x}u\n{body}\n",
+            "generated/soc.h": "#pragma once\n",
+            "hw/common.h": "#pragma once\n",
+            "libbase/crc.h": "#pragma once\nunsigned int crc32("
+                             "const unsigned char *b, unsigned int n);\n",
+            "system.h": "#pragma once\nvoid cdelay(int i);\n",
+            "command.h": "#pragma once\n#define SYSTEM_CMDS 0\n"
+                         "#define define_command(n, h, d, g) static void "
+                         "(*const n##_c)(int, char **) "
+                         "__attribute__((unused)) = h\n",
+            "init.h": "#pragma once\n#define define_init_func(f) static void "
+                      "(*const f##_i)(void) __attribute__((unused)) = f\n",
+        }
+        for leaf, text in write.items():
+            with open(os.path.join(root, leaf), "w") as fh:
+                fh.write(text)
 
-        COST: a third asm statement is RED until it is added above, which is
-        the point. Whoever adds one has to decide, in this gate, whether its
-        template can store into a control register."""
-        found = []
-        for use in asm_re.finditer(code):
-            stop = code.find(";", use.start())
-            assert stop >= 0, "an inline-asm statement is never closed"
-            found.append(" ".join(source[use.start():stop].split()))
-        assert found == list(firmware_asm), \
-            "the firmware's inline asm is pinned: an asm template carries no " \
-            "milan_write, no milan_reg, no MILAN_CSR_BASE and no cast, so a " \
-            "literal address in one stores to a control register past every " \
-            f"rule in the CSR store closure; found {found}"
+    def census_compiler():
+        for candidate in census_compilers:
+            try:
+                probe = subprocess.run([candidate, "--version"],
+                                       capture_output=True, text=True)
+            except (OSError, ValueError):
+                continue
+            if probe.returncode == 0:
+                return candidate
+        return None
+
+    #: The CSR address helper's name, derived from the shipping firmware so
+    #: the printed summary cannot drift from what the census enforces.
+    reg_helper_name = re.search(
+        r"\bstatic\s+inline\s+volatile\s+uint32_t\s*\*\s*(\w+)\s*\(",
+        firmware_source).group(1)
+    #: Every mutant that reaches a control register outside milan_reg()
+    #: fails on this one sentence, whatever spelled it.
+    CENSUS_PIN = "materialises one elsewhere"
+
+    def assert_compiled_census_is_clean(firmware, label="firmware"):
+        """No function but milan_reg() may materialise a CSR window address.
+
+        Measured on the COMPILER's output, not on the firmware's text.
+
+        SCOPE, stated so it is not mistaken for more: this censuses ADDRESS
+        FORMATION, which is what bounds every store, read and asm template
+        that could reach a control register. It does not say which register
+        or which bit; the milan_write() census above does that, and it is
+        sound precisely because this makes milan_write() the only way in."""
+        # The address helper's NAME is derived from the firmware, not
+        # mirrored here: assert_csr_store_closure() pins the same definition.
+        helper = re.search(
+            r"\bstatic\s+inline\s+volatile\s+uint32_t\s*\*\s*(\w+)\s*\(",
+            blanked(firmware))
+        assert helper, \
+            "the compiled census cannot find the firmware's CSR address " \
+            "helper, so it cannot say which function is allowed to form an " \
+            "address; refusing rather than censusing against a guess"
+        reg_name = helper.group(1)
+        compiler = census_compiler()
+        assert compiler, \
+            "the compiled census needs a C compiler and found none of " \
+            f"{list(census_compilers)}: this gate cannot bound CSR stores " \
+            "by reading C, so it refuses to report a result it did not take"
+        with tempfile.TemporaryDirectory(prefix="milan-census-") as root:
+            census_headers(root)
+            source = os.path.join(root, "milan_baremetal.c")
+            with open(source, "w") as fh:
+                fh.write(firmware)
+            assembly = os.path.join(root, "census.s")
+            built = subprocess.run(
+                [compiler, "-std=gnu99", "-O0", "-fno-inline", "-S",
+                 "-o", assembly, f"-I{root}", source],
+                capture_output=True, text=True)
+            assert built.returncode == 0, \
+                f"the compiled census could not build the {label}: a source " \
+                "this gate cannot compile is a source whose CSR stores it " \
+                "cannot census, so it fails rather than skip; " \
+                f"{built.stderr.strip().splitlines()[-1:]}"
+            text = open(assembly, encoding="utf-8", errors="replace").read()
+        hits, where = [], "<file scope>"
+        for line in text.splitlines():
+            named = re.match(r"^([A-Za-z_][\w.]*):", line)
+            if named:
+                where = named.group(1)
+            if asm_noise_re.match(line):
+                continue
+            for token in asm_immediate_re.findall(line):
+                value = int(token, 0) & 0xFFFF_FFFF
+                if csr_base <= value < csr_base + csr_size and \
+                        where != reg_name:
+                    hits.append((where, f"0x{value:08x}",
+                                 " ".join(line.split())))
+        assert not hits, \
+            f"only {reg_name}() may form a CSR address, and the COMPILED " \
+            f"{label} materialises one elsewhere: an address inside the " \
+            f"Milan CSR window (0x{csr_base:08x}..0x{csr_base + csr_size:08x})"\
+            f" reaches a control register without passing the bit-0 census, " \
+            f"whatever cast, typedef, macro, member access or asm template " \
+            f"spelled it; found {hits[:3]}"
 
     #: Make's assignment modifiers, as a repeatable group rather than a list
     #: of the ones someone thought of: `export` alone was enough to slip a
@@ -1561,146 +1625,211 @@ def test_baremetal_profile_contract():
             rules.append(current)
         return rules, assignments
 
+    #: ---- the make plan -------------------------------------------------
+    #:
+    #: The same correction as the compiled census, one language over. Every
+    #: rule that used to live here parsed the Makefile with regexes, and make
+    #: has more assignment syntax than the regexes had: `define NAME` /
+    #: `endef` is a sixth flavour that `make_rules()` skipped as a directive,
+    #: which re-opened four shapes earlier rounds had explicitly closed. The
+    #: archive pin knew `$(AR)` and not `${AR}`, which make treats as one.
+    #:
+    #: So this asks make. `make -Bn` prints the recipe lines it WOULD run,
+    #: and a second `-f` fragment of `$(info ...)` reports the final expanded
+    #: variables. The Makefile under test runs against a stub environment
+    #: whose values are SENTINELS, so every token in the output that is not a
+    #: sentinel is something this Makefile added.
+    #:
+    #: This REPLACES the OBJECTS parser, the archive pin, the producing-rule
+    #: pin, the Makefile include set, the assignable-name allowlist, the
+    #: derived text-deciding variables and the CFLAGS token set.
+    make_sentinels = {
+        "CC": "__CC__", "AR": "__AR__", "CFLAGS": "__BASE_CFLAGS__",
+        "BIOS_DIRECTORY": "__BIOS__",
+    }
+    make_probe = (
+        "$(info PROBE_CFLAGS=[$(CFLAGS)])\n"
+        "$(info PROBE_OBJECTS=[$(OBJECTS)])\n"
+        "$(info PROBE_LIBDIR=[$(LIBMILAN_BAREMETAL_DIRECTORY)])\n"
+        "$(info PROBE_VPATH=[$(origin VPATH)])\n"
+        "$(info PROBE_COMPILE=[$(value compile)])\n")
+
+    def make_plan(makefile, expected):
+        """`(variables, recipe_lines)` for what make would actually do.
+
+        Hazards, all measured rather than assumed, and all fatal if ignored:
+        `-B` is mandatory because a stale artefact makes plain `-n` print
+        nothing and exit 0; the run directory must be pristine for the same
+        reason and because `-include $(OBJECTS:.o=.d)` dies on a stale `.d`;
+        and NO variable may be passed on make's command line, because a
+        command-line assignment silently overrides the Makefile and hides
+        exactly the mutation being tested. `--eval` is not usable: it is
+        processed before makefiles are read and reports empty."""
+        stem = expected[:-2]
+        with tempfile.TemporaryDirectory(prefix="milan-make-") as root:
+            soc = os.path.join(root, "soc")
+            run = os.path.join(root, "run")
+            src = os.path.join(root, "src")
+            gen = os.path.join(root, "include", "generated")
+            for leaf in (os.path.join(soc, "software"), run, src, gen):
+                os.makedirs(leaf, exist_ok=True)
+            # Every object the Makefile names needs a source for make to
+            # find a rule for it; the CONTENT is irrelevant, only the path.
+            # Stubbing them all is a HARNESS convenience, not a gate rule:
+            # without it a second object makes make exit 2 with its own
+            # message, which is still a detection but a less informative one
+            # than showing make compiling and archiving two translation
+            # units.
+            for named in set(re.findall(r"\b([\w.-]+)\.o\b", makefile)):
+                open(os.path.join(src, named + ".c"), "w").close()
+            open(os.path.join(src, stem + ".c"), "w").close()
+            with open(os.path.join(gen, "variables.mak"), "w") as fh:
+                fh.write(f"SOC_DIRECTORY = {soc}\n"
+                         f"BIOS_DIRECTORY = "
+                         f"{make_sentinels['BIOS_DIRECTORY']}\n"
+                         f"LIBMILAN_BAREMETAL_DIRECTORY = {src}\n")
+            with open(os.path.join(soc, "software", "common.mak"), "w") as fh:
+                fh.write(f"CC = {make_sentinels['CC']}\n"
+                         f"AR = {make_sentinels['AR']}\n"
+                         f"CFLAGS = {make_sentinels['CFLAGS']}\n"
+                         "define compile\n$(CC) -c $(CFLAGS) $(1) $< -o $@\n"
+                         "endef\n")
+            with open(os.path.join(run, "Makefile"), "w") as fh:
+                fh.write(makefile)
+            probe = os.path.join(root, "probe.mk")
+            with open(probe, "w") as fh:
+                fh.write(make_probe)
+            def run_make(extra_env):
+                environ = dict(os.environ)
+                environ.pop("MAKEFLAGS", None)
+                environ.update(extra_env)
+                return subprocess.run(
+                    ["make", "-Bn", "-f", "Makefile", "-f", probe],
+                    cwd=run, capture_output=True, text=True, env=environ)
+
+            plan = run_make({})
+            # ... and again under a HOSTILE environment. `make -e` (however
+            # it is switched on, MAKEFLAGS included) lets an environment
+            # variable override a Makefile assignment, which decides what
+            # gets compiled from outside the file entirely. Rather than
+            # enumerate the options that do that, run the plan twice and
+            # require it to be the same plan.
+            hostile = run_make({
+                "LIBMILAN_BAREMETAL_DIRECTORY": os.path.join(root, "hostile"),
+                "CFLAGS": "__HOSTILE_CFLAGS__",
+                "OBJECTS": "hostile.o",
+            })
+        # An exit code is a FINDING, never "no findings": when a mutation
+        # names a source this harness did not stub, make exits 2 and its own
+        # message names the extra object.
+        assert plan.returncode == 0, \
+            "make could not plan this Makefile, so what it builds is " \
+            "unknown and this gate refuses rather than report a clean " \
+            f"result it did not take; make said " \
+            f"{(plan.stderr.strip().splitlines() or ['?'])[-1]!r}"
+        assert hostile.returncode == plan.returncode and \
+            hostile.stdout == plan.stdout, \
+            "this Makefile lets the ENVIRONMENT decide what gets compiled: " \
+            "planned under a hostile environment it builds something else, " \
+            "so the file this gate reads is not necessarily the file the " \
+            "build compiles"
+        variables = dict(re.findall(r"(?m)^PROBE_(\w+)=\[(.*)\]$",
+                                    plan.stdout + plan.stderr))
+        recipes = [" ".join(line.split())
+                   for line in plan.stdout.splitlines()
+                   if not line.startswith("PROBE_") and line.strip()]
+        return variables, recipes
+
     def assert_single_translation_unit(makefile, expected):
-        """The firmware image is built from exactly the one `.c` this reads.
+        """The firmware image is built from exactly the one `.c` this reads,
+        with exactly the flags this gate accounts for.
 
         Every closure rule above reads ONE file and calls it the firmware.
         That is only true while the firmware IS one translation unit: a
         second object file is a second place a CSR store can live, with its
         own base, its own helper and its own init hook, and none of the rules
-        above would ever see it. So the object list is read off the Makefile
-        cumulatively, and a list this gate cannot evaluate is refused rather
-        than half-read.
+        above would ever see it.
 
-        Three separate questions have to hold together, and closing only one
-        of them leaves the axis open:
+        Asked of make rather than of a regex, that is four readings of one
+        plan: which sources get compiled, with which flags, into which
+        objects, and which of those objects get archived.
 
-        * WHICH objects reach the archive. That is the OBJECTS list and the
-          archive recipe below.
-        * WHAT the one object is built FROM. A pattern rule demands no
-          objects, but the rule that BUILDS the one object decides what goes
-          into it: an explicit `milan_baremetal.o:` override can link two
-          sources with `ld -r` while OBJECTS and the archive recipe stay
-          exactly as they are. So the producing rule is pinned too.
-        * WHICH TEXT this Makefile is. A fourth `include` line is new text in
-          this file, so the include set is pinned rather than trusted.
-        * WHICH TEXT THE RECIPE COMPILES. Pinning the rule is not enough
-          while a variable can move the file out from under it: a
-          `CFLAGS += -include milan_bringup.c` hands the compiler a whole
-          source with no `#include` line for the pinned include set to catch,
-          leaves the object count at one and the rule untouched. So the names
-          that decide the compiled text are DERIVED from the producing rule
-          rather than listed. Listing them is what missed
-          `LIBMILAN_BAREMETAL_DIRECTORY`, the rule's own prerequisite
-          variable, which points `%.c` at a different file entirely; the
-          derivation yields it without anyone having to think of it.
-
-        SCOPE: this reads the firmware's own Makefile. The two LiteX-supplied
-        fragments and the compiler's own `.d` fragment are trusted BY NAME
-        (see makefile_includes), and so is the toolchain's link line. One
-        FILE, as opposed to one object, is
-        assert_directive_set_is_closed()."""
-        includes = makefile_include_re.findall(makefile)
-        assert [" ".join(line.split()) for line in includes] == \
-            list(makefile_includes), \
-            "the Makefile's include set is pinned: a fragment this gate does " \
-            "not read can assign OBJECTS, add a prerequisite or override the " \
-            f"rule that builds the one object; found {includes}"
-        rules, assignments = make_rules(makefile)
-        # ... knowing WHICH object is archived is not knowing what that object
-        # is built FROM. Exactly one rule may be able to produce it, and it
-        # must be the pattern rule compiling one `.c`. This runs before the
-        # assignment scan because the scan DERIVES its variable names from it.
-        producers = [rule for rule in rules
-                     if any(target == expected or
-                            ("%" in target and re.fullmatch(
-                                re.escape(target).replace("%", ".*"), expected))
-                            for target in rule[0])]
-        assert len(producers) == 1, \
-            f"exactly one rule may build {expected}, or an explicit rule " \
-            "overrides the pattern rule and decides what goes into the one " \
-            "object while OBJECTS and the archive recipe stay untouched; " \
-            f"found {[rule[0] for rule in producers]}"
-        targets, prerequisites, recipe = producers[0]
-        assert targets == ["%.o"] and len(prerequisites) == 1 and \
-            prerequisites[0].endswith("/%.c") and recipe == ["$(compile)"], \
-            f"{expected} must be built by the pattern rule from ONE `.c` " \
-            "with $(compile), or the object this gate calls one translation " \
-            f"unit is linked from several; found {targets}: " \
-            f"{prerequisites} / {recipe}"
-        assert expected[:-2] + ".c" == os.path.basename(firmware_path), \
-            f"the pattern rule builds {expected}, which is not the firmware " \
-            "file this gate reads"
-        # Every variable the producing rule NAMES decides which text gets
-        # compiled, so setting any of them here moves the file. VPATH joins
-        # them because make consults it whatever the rule says.
-        deciding = set(make_var_re.findall(
-            " ".join(targets + prerequisites + recipe))) | {"VPATH"}
-        for name, value in assignments:
-            # The DERIVED reason first, because it is the specific one: it
-            # says why this particular name moves the compiled text.
-            assert name not in deciding, \
-                f"this Makefile must not set {name}: it decides WHICH text " \
-                f"the rule that builds {expected} compiles, so setting it " \
-                "here moves the file this gate calls the firmware"
-            assert name in makefile_assigns, \
-                f"this Makefile may only assign {list(makefile_assigns)}, " \
-                f"not {name}: a name this gate has no rule for can change " \
-                "which text gets compiled, or change what make itself does, " \
-                "and asking which names are dangerous is a question with no " \
-                "end to it"
-            assert not injecting_flag_re.search(value), \
-                f"{name} must not inject a file into the translation unit: " \
-                "-include/-imacros hand the compiler a whole source with no " \
-                "#include line, so the pinned include set never sees it and " \
-                f"the object count never moves; found {value.strip()!r}"
-            # ... and a search path is not an injection but it decides which
-            # FILE a pinned angle-bracket name resolves to, which is the same
-            # escape reached through resolution rather than through text.
-            for path in include_flag_re.findall(value):
-                assert path in firmware_include_paths, \
-                    f"{name} must not add the search path {path!r}: -I " \
-                    "decides which file a pinned include name resolves to, " \
-                    "so it puts this repository's text behind that name " \
-                    "without the name changing"
-            # ... and the general form of that, so `-iquote` and `-isystem`
-            # do not need to be named to be refused.
-            if name == "CFLAGS":
-                # A self-reference is how `:=` spells an append. It adds no
-                # flag, so it is not a new token.
-                unknown = [t for t in value.split()
-                           if t not in firmware_cflags and
-                           t not in (f"$({name})", f"${{{name}}}")]
-                assert not unknown, \
-                    f"this Makefile may only add {list(firmware_cflags)} to " \
-                    f"CFLAGS, not {unknown}: a flag this gate has no rule " \
-                    "for can add a search path (-iquote, -isystem, " \
-                    "-idirafter), inject a file, or change what the one " \
-                    "recipe compiles"
-        assert not re.search(
-            r"(?m)^[ \t]*vpath\b",
-            re.sub(r"(?m)#[^\n]*", "", re.sub(r"\\\n", " ", makefile))), \
-            "this Makefile must not set a vpath: it decides which file the " \
-            "pattern rule's %.c resolves to, so it moves the file this gate " \
-            "calls the firmware"
-        objects = makefile_objects(makefile)
-        assert objects is not None, \
-            "the bare-metal firmware must stay ONE translation unit, and " \
-            "this gate cannot evaluate the Makefile's OBJECTS list (a " \
-            "variable, a function, a wildcard or a shell assignment), so it " \
-            "refuses it rather than read one line and assume the rest"
+        SCOPE: this reads the firmware's own Makefile against a stub
+        environment. What LiteX's own fragments contribute is represented by
+        the sentinels, so this bounds what THIS Makefile adds, not what LiteX
+        supplies."""
+        stem = expected[:-2]
+        # make reports what it would do with the files that EXIST. A
+        # fragment named here but shipped later is invisible to it, and
+        # `-include` of a missing file is silently skipped, so the include
+        # set stays pinned as an exact set of whole lines. This is the one
+        # Makefile rule the plan does not subsume.
+        includes = [" ".join(line.split())
+                    for line in makefile_include_re.findall(makefile)]
+        assert includes == list(makefile_includes), \
+            "the Makefile's include set is pinned: make can only plan the " \
+            "fragments that exist, so a fragment named here and shipped " \
+            "later can assign OBJECTS or override the rule that builds the " \
+            f"one object without this gate ever seeing it; found {includes}"
+        variables, recipes = make_plan(makefile, expected)
+        objects = variables.get("OBJECTS", "").split()
         assert objects == [expected], \
             "the bare-metal firmware must stay ONE translation unit, or the " \
             "CSR store closure this gate proves covers only part of the " \
-            f"image; Makefile builds {objects}"
-        archive = [line.strip() for line in
-                   re.findall(r"(?m)^\t[ \t]*(\$\(AR\)[^\n]*)$", makefile)]
-        assert len(archive) == 1 and re.fullmatch(
-            r"\$\(AR\)[ \t]+[A-Za-z]+[ \t]+\$@[ \t]+\$\(OBJECTS\)",
-            archive[0]), \
-            "the library recipe must archive exactly $(OBJECTS), or an " \
-            "object the OBJECTS list never named reaches the image and the " \
-            f"CSR store closure covers only part of it; found {archive}"
+            f"image; make builds {objects}"
+        compiles = [line for line in recipes
+                    if make_sentinels["CC"] in line]
+        archives = [line for line in recipes
+                    if make_sentinels["AR"] in line]
+        sources = sorted({token for line in compiles
+                          for token in line.split() if token.endswith(".c")})
+        assert len(compiles) == 1 and sources == [
+            os.path.join(variables.get("LIBDIR", ""), stem + ".c")], \
+            f"make must compile exactly one source, {stem}.c, or the object " \
+            "this gate calls one translation unit is built from several; " \
+            f"make compiles {sources}"
+        assert len(archives) == 1 and \
+            [t for t in archives[0].split() if t.endswith(".o")] == [expected],\
+            "make must archive exactly the one object, or an object the " \
+            "OBJECTS list never named reaches the image; make runs " \
+            f"{archives}"
+        # ... and the flags, because a flag can move the compiled text as
+        # surely as a rule can: -include injects a whole source, -I/-iquote
+        # decide which file a pinned include name resolves to.
+        added = [token for token in variables.get("CFLAGS", "").split()
+                 if token not in make_sentinels.values()]
+        assert added == [f"-I{make_sentinels['BIOS_DIRECTORY']}"], \
+            "this Makefile may add only its one include path to CFLAGS: a " \
+            "flag this gate has no rule for can inject a source (-include, " \
+            "-imacros) or decide which file a pinned include name resolves " \
+            f"to (-I, -iquote, -isystem, -idirafter); make expands {added}"
+        assert variables.get("VPATH") == "undefined", \
+            "this Makefile must not set VPATH: it decides which file the " \
+            "pattern rule's %.c resolves to, so it moves the file this gate " \
+            "calls the firmware"
+        assert os.path.basename(variables.get("LIBDIR", "")) == "src", \
+            "the source directory make compiles from is not the one this " \
+            "gate reads, so every rule above is reading a file the build " \
+            f"does not compile; make uses {variables.get('LIBDIR')!r}"
+
+    def anchored(text, needle, what, start=0):
+        """`text.index(needle)`, but failing with a message that names the
+        property instead of a bare `ValueError: substring not found`.
+
+        The three boot-path anchors are pinned by literal identifier, so
+        renaming a function used to abort the whole suite with no message at
+        all, which left the next author nothing to act on. Round two settled
+        that renaming a LOCAL is not a boot-contract change; renaming a
+        function is not one either, and until this gate can find these by
+        shape rather than by name, the refusal at least has to say so."""
+        at = text.find(needle, start)
+        assert at >= 0, \
+            f"this gate finds {what} by the literal identifier {needle!r} " \
+            "and the firmware no longer spells it that way. Renaming it is " \
+            "not a boot-contract change, but this gate cannot follow the " \
+            "rename: update the anchor here, or teach it to find the " \
+            "function by shape"
+        return at
 
     def assert_boot_contract(firmware, docs, csr, makefile=None,
                              listing=None):
@@ -1719,20 +1848,26 @@ def test_baremetal_profile_contract():
         assert_directive_set_is_closed(firmware, source)
         assert_include_resolution_is_pinned(
             firmware_listing if listing is None else listing)
-        assert_asm_set_is_closed(firmware, source)
+        # ... and ask the COMPILER which functions form a CSR address, rather
+        # than asking a regex what a cast, a store or an asm statement is.
+        assert_compiled_census_is_clean(source)
         model = CsrModel(firmware, csr)
         # The name-to-address table is only half the address model; the write
         # decode is the other half, and it is what says each entity-enable
         # register answers to ONE address.
         assert_decode_is_one_to_one(csr, model)
-        load_start = firmware.index("static int load_aem_image(void)")
-        load_end = firmware.index("static void milan_init(void)", load_start)
+        load_start = anchored(firmware, "static int load_aem_image(void)",
+                              "the AEM verifier")
+        load_end = anchored(firmware, "static void milan_init(void)",
+                            "the boot entry point", load_start)
         load_source = firmware[load_start:load_end]
         # Before any textual rule: prove the text this gate reads is the text
         # the compiler compiles.
         assert_preprocessor_visible(firmware, (load_start, load_end))
-        init_start = firmware.index("static void milan_init(void)")
-        init_end = firmware.index("define_init_func(milan_init)", init_start)
+        init_start = anchored(firmware, "static void milan_init(void)",
+                              "the boot entry point")
+        init_end = anchored(firmware, "define_init_func(milan_init)",
+                            "the boot entry point's init hook", init_start)
         init_source = firmware[init_start:init_end]
         configure = re.search(r"\bconfigure_fabric\s*\(\s*\)\s*;", init_source)
         load = re.search(
@@ -1987,8 +2122,10 @@ def test_baremetal_profile_contract():
     #: message blaming the firmware for a defect in this construction.
     firmware_code = blanked(firmware_source)
     source_model = CsrModel(firmware_source, csr_source)
-    init_start = firmware_code.index("static void milan_init(void)")
-    init_end = firmware_code.index("define_init_func(milan_init)", init_start)
+    init_start = anchored(firmware_code, "static void milan_init(void)",
+                          "the boot entry point")
+    init_end = anchored(firmware_code, "define_init_func(milan_init)",
+                        "the boot entry point's init hook", init_start)
     source_init = firmware_source[init_start:init_end]
     init_code = firmware_code[init_start:init_end]
     source_guard = re.search(
@@ -2007,7 +2144,9 @@ def test_baremetal_profile_contract():
         firmware_code)
     assert source_load
     load_statement = firmware_source[source_load.start():source_load.end()]
-    source_load_start = firmware_code.index("static int load_aem_image(void)")
+    source_load_start = anchored(
+        firmware_code, "static int load_aem_image(void)",
+        "the AEM verifier")
     source_load_end = firmware_code.index(
         "static void milan_init(void)", source_load_start)
     source_load_function = firmware_source[source_load_start:source_load_end]
@@ -2350,6 +2489,14 @@ def test_baremetal_profile_contract():
         objects_value_to = _objects_hash
     second_object = "milan_bringup.o"
 
+    objects_span_at = source_objects_assigns[0].start()
+    objects_span_to = source_objects_assigns[-1].end()
+
+    def objects_valued_line(line):
+        """The Makefile with EVERY OBJECTS assignment replaced by `line`."""
+        return (makefile_source[:objects_span_at] + line +
+                makefile_source[objects_span_to:])
+
     def objects_valued(text):
         """The Makefile with its LAST OBJECTS assignment carrying `text`,
         spliced at the offsets the parser itself reported: a second `.c` in
@@ -2373,7 +2520,7 @@ def test_baremetal_profile_contract():
         "second object archived past OBJECTS")
     #: Pin the reason on the LIST the parser reported, not just on the rule:
     #: a refusal that never saw the second object proves nothing about it.
-    both_objects = f"Makefile builds {[firmware_object, second_object]}"
+    both_objects = f"make builds {[firmware_object, second_object]}"
     # ---- and the axis measured at the RIGHT boundary. One OBJECT is not one
     # FILE, and one archive entry is not one SOURCE. All three of these leave
     # the OBJECTS list at exactly one object, so the check above is SATISFIED
@@ -2411,45 +2558,70 @@ def test_baremetal_profile_contract():
         f'??=include "{second_object[:-2]}.c"')
     #: A directive this gate has no rule for at all.
     undefined_constant = after_includes(f"#undef {adp_name}")
-    #: An inline-asm store: no milan_write, no milan_reg, no MILAN_CSR_BASE
-    #: and no cast, so every rule in the CSR store closure has nothing to
-    #: match. The address is a literal for exactly that reason.
-    #: ---- the cast spellings rule 1 never named. Each is the same store to
-    #: the compiler as the one spelling rule 1 does name, and each used to
-    #: pass with the store closure otherwise intact.
+    #: ---- stores that reach the entity-enable register without any of the
+    #: ingredients the CSR store closure names. Each is a REAL pre-AEM
+    #: advertise: the address is MILAN_CSR_BASE + A_ADP_CTRL, derived from
+    #: milan_soc.py and the RTL decode table rather than mirrored, so the
+    #: mutant fails for the defect its label claims. An earlier revision of
+    #: these four stored to 0xf000_0600, which is the LiteX CSR bank and not
+    #: ADP_CTRL at all, so they reddened on an address-blind rule while
+    #: demonstrating no entity enable whatsoever.
     def stored_before_aem(statement, label):
         return replace_once(firmware_source, source_adp_clear + ";",
                             statement + "\n\t" + source_adp_clear + ";", label)
 
-    raw_address = f"0x{0xf0000000 + source_model.adp:08x}u"
+    adp_window_address = csr_base + source_model.adp
+    raw_address = f"0x{adp_window_address:08x}u"
     widened_cast_store = stored_before_aem(
         f"*(volatile unsigned int *){raw_address} = 1u;",
         "store through a widened cast")
     reordered_cast_store = stored_before_aem(
         f"*(uint32_t volatile *){raw_address} = 1u;",
         "store through a reordered cast")
-    #: ... and the shape the closure docstring used to concede outright: a
-    #: pointer held in a local, formed by a cast that names no type at all.
+    #: ... a pointer held in a local, formed by a cast that names no type.
     local_pointer_store = stored_before_aem(
         f"volatile uint32_t *adp = (void *){raw_address};\n\t*adp = 1u;",
         "store through a pointer held in a local")
-    #: ... and a store that adds NO cast at all, so it is the STORE set and
-    #: not the cast set that has to catch it: a helper storing through its
-    #: own parameter. Where that parameter POINTS is exactly what this gate
-    #: cannot read, which is why a new store is refused rather than traced.
+    #: ... and the four shapes no RECOGNIZER in this file ever saw: a
+    #: typedef'd pointer type behind a register-access macro, a struct
+    #: overlay with an `->` store, a typedef'd pointer with a subscript
+    #: store, and a qualifier after the star. All four are ordinary embedded
+    #: idioms and all four passed the complete suite before the census.
+    typedef_macro_store = replace_once(
+        stored_before_aem("MILAN_ADP_REG = 1u;", "register-access macro store"),
+        "static int aem_loaded;",
+        "typedef volatile uint32_t *milan_csr_p;\n"
+        f"#define MILAN_ADP_REG (*(milan_csr_p){raw_address})\n\n"
+        "static int aem_loaded;", "register-access macro")
+    overlay_member_store = replace_once(
+        stored_before_aem(f"((milan_adp_block){raw_address})->ctrl = 1u;",
+                          "struct-overlay member store"),
+        "static int aem_loaded;",
+        "typedef struct { volatile uint32_t ctrl; } *milan_adp_block;\n\n"
+        "static int aem_loaded;", "struct overlay typedef")
+    typedef_subscript_store = replace_once(
+        stored_before_aem(f"((milan_csr_pp){raw_address})[0] = 1u;",
+                          "typedef subscript store"),
+        "static int aem_loaded;",
+        "typedef volatile uint32_t *milan_csr_pp;\n\n"
+        "static int aem_loaded;", "subscript typedef")
+    qualified_cast_store = stored_before_aem(
+        f"((volatile uint32_t *const){raw_address})[0] = 1u;",
+        "store through a qualifier-after-star cast")
+    #: ... and a store with no cast at all, through a helper's parameter.
     helper_pointer_store = replace_once(
-        stored_before_aem("milan_poke(&milan_shadow);",
+        stored_before_aem(f"milan_poke((void *){raw_address});",
                           "store through a helper's parameter"),
         "static void configure_fabric(void)",
-        "static uint32_t milan_shadow;\n\n"
         "static void milan_poke(volatile uint32_t *reg)\n{\n\t*reg = 1u;\n}"
         "\n\nstatic void configure_fabric(void)", "pointer-store helper")
-    asm_store_enable = replace_once(
-        firmware_source, source_adp_clear + ";",
-        '__asm__ volatile("li t0, 0xf0000600\\n"\n'
+    #: ... and an inline-asm store, whose template carries no C construct at
+    #: all. The address is spliced from the same derived constant.
+    asm_store_enable = stored_before_aem(
+        f'__asm__ volatile("li t0, {raw_address[:-1]}\\n"\n'
         '\t                 "li t1, 1\\n"\n'
-        '\t                 "sw t1, 0(t0)\\n" ::: "t0", "t1", "memory");\n\t'
-        + source_adp_clear + ";", "inline-asm store to ADP_CTRL")
+        '\t                 "sw t1, 0(t0)\\n" ::: "t0", "t1", "memory");',
+        "inline-asm store to ADP_CTRL")
     #: An explicit rule for the one object overrides the pattern rule and
     #: decides what goes INTO it, with OBJECTS and the archive untouched.
     linked_objects = (
@@ -2485,7 +2657,6 @@ def test_baremetal_profile_contract():
         f"CFLAGS += -include {second_object[:-2]}.c")
     recompiled_objects = after_objects(
         f"compile = $(CC) $(CFLAGS) -c -o $@ $< {second_object[:-2]}.c")
-    vpath_objects = after_objects(f"vpath %.c ../{second_object[:-2]}")
     #: ... and the same injection behind make's other modifier keywords, and
     #: written against a target so make inherits it down the prerequisite
     #: chain. An assignment regex narrower than make is the same defect as an
@@ -2500,13 +2671,16 @@ def test_baremetal_profile_contract():
         f"{make_var_re.findall(source_producer_prereq)[0]} = ./shadow")
     #: ... and a name that changes what MAKE does rather than what the rule
     #: names, which no derivation from the rule can reach.
-    unpinned_assignment = after_objects("MAKEFLAGS += -e")
     #: ---- and RESOLUTION: a pinned name whose FILE this repository supplies.
     #: Neither of these changes a name anywhere. The first is a listing, the
     #: second a search path, and both put this repository's text behind an
     #: include the gate believes it has pinned.
     shadowed_quoted_include = firmware_listing + ("command.h",)
     shadowed_search_path = after_objects("CFLAGS += -Ishadow")
+    #: An object list the ENVIRONMENT can override. `?=` looks equivalent
+    #: and is not: make treats an environment variable as defined, so this
+    #: builds whatever `OBJECTS` says outside the file.
+    environment_objects = objects_valued_line(f"OBJECTS ?= {firmware_object}")
     #: ... and the search-path flag that is not spelled -I, which is how the
     #: -I rule turned out to be a denylist the moment it was written.
     quoted_search_path = after_objects("CFLAGS += -iquote shadow")
@@ -2535,7 +2709,7 @@ def test_baremetal_profile_contract():
         """The one LITERAL assignment to `signal` in the RTL: its reset value,
         found by what it is rather than by the line it sits on."""
         found = [m.group(0) for m in re.finditer(
-            rf"\b{re.escape(signal)}\s*<=\s*([^;]*);", csr_source)
+            rf"\b{re.escape(signal)}\s*(?:<=|=)\s*([^;]*);", csr_source)
             if sv_literal_re.match(m.group(1))]
         assert len(found) == 1 and csr_source.count(found[0]) == 1, \
             f"{signal} reset mutation found no unique literal reset: {found}"
@@ -2565,6 +2739,21 @@ def test_baremetal_profile_contract():
                     "ADP_CTRL readback default"),
         "ADP_CTRL readback default agreeing with the raised reset")
 
+    #: ---- and the two shapes that made the reset rule vacuous. The reader
+    #: saw `<=` only, so a BLOCKING reset left it nothing to iterate and it
+    #: passed by having nothing to check; a deleted reset did the same. Both
+    #: reddened the suite from the mutation scaffolding with a message
+    #: blaming a mutation for a change in the RTL, which is the
+    #: tolerant-reader / literal-mutator defect this PR has now fixed three
+    #: times. Both must fail from assert_decode_is_one_to_one().
+    blocking_reset_enabled = replace_once(
+        csr_source, adp_reset_statement,
+        raised_bit0(adp_reset_statement, "ADP_CTRL blocking reset").replace(
+            "<=", " =", 1),
+        "ADP_CTRL reset written blocking with the enable bit set")
+    absent_reset = replace_once(
+        csr_source, adp_reset_statement, "", "ADP_CTRL reset value deleted")
+
     def condensed(text):
         return re.sub(r"\s+", "", text)
 
@@ -2593,7 +2782,13 @@ def test_baremetal_profile_contract():
     objects_spellings = tuple(
         f"{prefix}OBJECTS {operator} {firmware_object}{trailer}"
         for prefix in ("", "override ", "export ")
-        for operator in ("=", ":=", "::=", "?=")
+        # `?=` is deliberately NOT here. make says it is not an equivalent
+        # spelling: `?=` sets only if the variable is undefined, and a
+        # variable present in the ENVIRONMENT counts as defined, so
+        # `OBJECTS=hostile.o make` builds something else entirely. The
+        # regex parser called it equivalent for three rounds; the plan,
+        # taken twice under a hostile environment, says otherwise.
+        for operator in ("=", ":=", "::=")
         for trailer in ("", "\t# the one translation unit")
     ) + (
         # ... and the two shapes that used to fail the SUITE from the
@@ -2607,13 +2802,12 @@ def test_baremetal_profile_contract():
     #: equivalent when an earlier assignment exists: `?=` after a definition
     #: is ignored and make would build the earlier list, so the gate would be
     #: right to refuse it and the suite would be wrong to call it a spelling.
-    objects_span = (source_objects_assigns[0].start(),
-                    source_objects_assigns[-1].end())
+
     for spelling in objects_spellings:
         assert_boot_contract(
             firmware_source, docs_source, csr_source,
-            makefile_source[:objects_span[0]] + spelling +
-            makefile_source[objects_span[1]:])
+            makefile_source[:objects_span_at] + spelling +
+            makefile_source[objects_span_to:])
 
     mutations = (
         ("old AEM-gated PTP documentation", firmware_source,
@@ -2811,10 +3005,10 @@ def test_baremetal_profile_contract():
          both_objects, continued_objects),
         ("object list this gate cannot evaluate", firmware_source,
          docs_source, csr_source,
-         "cannot evaluate the Makefile's OBJECTS list", wildcard_objects),
+         "must stay ONE translation unit", wildcard_objects),
         ("second object archived past the OBJECTS list", firmware_source,
          docs_source, csr_source,
-         "the library recipe must archive exactly $(OBJECTS)",
+         "make must archive exactly the one object",
          archived_objects),
         # ---- one OBJECT is not one FILE. Each of these keeps the object
         # list at exactly one, so the rules above pass honestly while the
@@ -2841,23 +3035,28 @@ def test_baremetal_profile_contract():
          "the firmware's preprocessing directives are pinned"),
         # ---- and the store mechanism with no textual signature at all.
         ("entity enabled by an inline-asm store to the CSR address",
-         asm_store_enable, docs_source, csr_source,
-         "the firmware's inline asm is pinned"),
+         asm_store_enable, docs_source, csr_source, CENSUS_PIN),
         # ---- the cast spellings rule 1 never named. Naming ONE cast is a
         # denylist of one; pinning the STORES is the set.
         ("entity enabled through a widened pointer cast",
-         widened_cast_store, docs_source, csr_source,
-         "the firmware's casts to a pointer are pinned"),
+         widened_cast_store, docs_source, csr_source, CENSUS_PIN),
         ("entity enabled through a reordered pointer cast",
-         reordered_cast_store, docs_source, csr_source,
-         "the firmware's casts to a pointer are pinned"),
+         reordered_cast_store, docs_source, csr_source, CENSUS_PIN),
         ("entity enabled through a pointer held in a local",
-         local_pointer_store, docs_source, csr_source,
-         "the firmware's casts to a pointer are pinned"),
-        # ... and one that adds no cast, so the STORE set has to catch it.
+         local_pointer_store, docs_source, csr_source, CENSUS_PIN),
         ("entity enabled by a helper storing through its parameter",
-         helper_pointer_store, docs_source, csr_source,
-         "the firmware's stores through a pointer are pinned"),
+         helper_pointer_store, docs_source, csr_source, CENSUS_PIN),
+        # ---- the four shapes no recognizer in this file ever saw. Each is
+        # an ordinary embedded idiom and each passed the complete suite at
+        # cc2ee861; only the compiled census sees them.
+        ("entity enabled through a typedef'd pointer and an access macro",
+         typedef_macro_store, docs_source, csr_source, CENSUS_PIN),
+        ("entity enabled through a struct overlay and an -> store",
+         overlay_member_store, docs_source, csr_source, CENSUS_PIN),
+        ("entity enabled through a typedef'd pointer and a subscript store",
+         typedef_subscript_store, docs_source, csr_source, CENSUS_PIN),
+        ("entity enabled through a qualifier-after-star cast",
+         qualified_cast_store, docs_source, csr_source, CENSUS_PIN),
         # ---- and RESOLUTION: a pinned NAME is not a pinned FILE.
         ("pinned include shadowed by a file beside the firmware",
          firmware_source, docs_source, csr_source,
@@ -2865,44 +3064,54 @@ def test_baremetal_profile_contract():
          shadowed_quoted_include),
         ("pinned include shadowed by an added -I search path",
          firmware_source, docs_source, csr_source,
-         "must not add the search path", shadowed_search_path),
+         "may add only its one include path to CFLAGS", shadowed_search_path),
+        ("object list the environment can override", firmware_source,
+         docs_source, csr_source,
+         "lets the ENVIRONMENT decide what gets compiled", environment_objects),
         ("pinned include shadowed by an -iquote search path",
          firmware_source, docs_source, csr_source,
-         "may only add ['-I$(BIOS_DIRECTORY)'] to CFLAGS",
+         "may add only its one include path to CFLAGS",
          quoted_search_path),
         ("one object linked from two sources by an explicit rule",
          firmware_source, docs_source, csr_source,
-         f"exactly one rule may build {firmware_object}", linked_objects),
+         "make must compile exactly one source", linked_objects),
         ("objects added by a Makefile fragment this gate does not read",
          firmware_source, docs_source, csr_source,
          "the Makefile's include set is pinned", fragment_objects),
         # ... and pinning the rule is not pinning what the rule compiles.
         ("second source injected by a -include compiler flag",
          firmware_source, docs_source, csr_source,
-         "must not inject a file into the translation unit", injected_source),
+         "make must compile exactly one source", injected_source),
         ("compile recipe redefined to take a second source", firmware_source,
-         docs_source, csr_source, "this Makefile must not set compile",
+         docs_source, csr_source, "make must compile exactly one source",
          recompiled_objects),
-        ("vpath moving which file the pattern rule compiles", firmware_source,
-         docs_source, csr_source, "this Makefile must not set a vpath",
-         vpath_objects),
+        # A `vpath %.c` mutant used to sit here and it is RETIRED, not
+        # lost: the plan shows it changes nothing, because the pattern
+        # rule's prerequisite is an explicit `$(DIR)/%.c` path that vpath
+        # never applies to. The text rule that refused it was refusing a
+        # non-defect. A vpath that DID move the compiled file would change
+        # the compile line, which the plan reads.
         # ... behind make's other modifier keywords, and target-specific.
         ("second source injected by an exported assignment", firmware_source,
          docs_source, csr_source,
-         "must not inject a file into the translation unit", exported_injection),
+         "make must compile exactly one source", exported_injection),
         ("second source injected by a target-specific assignment",
          firmware_source, docs_source, csr_source,
-         "must not inject a file into the translation unit", target_injection),
+         "make must compile exactly one source", target_injection),
         # ... and the producing rule's own prerequisite variable, pointed at
         # a different tree entirely.
         ("the compiled source directory moved out from under the rule",
          firmware_source, docs_source, csr_source,
-         "this Makefile must not set "
-         f"{make_var_re.findall(source_producer_prereq)[0]}",
+         "make could not plan this Makefile",
          shadowed_source_dir),
-        ("a Makefile variable this gate has no rule for", firmware_source,
-         docs_source, csr_source, "this Makefile may only assign",
-         unpinned_assignment),
+        # A `MAKEFLAGS += -e` mutant used to sit here and it is RETIRED
+        # for the same reason as the vpath one: measured against GNU make
+        # 4.4.1, `-e` added to MAKEFLAGS inside a Makefile does not change
+        # what THIS run expands (it reaches sub-makes, and this Makefile
+        # spawns none), so the plan is identical and there is no defect to
+        # refuse. What WOULD let the environment decide is caught: the plan
+        # is taken twice, once under a hostile environment, and `OBJECTS ?=`
+        # is refused on exactly that.
         # ---- and the reset values: the census governs who may SET bit 0,
         # and says nothing about the value bit 0 holds before the first write.
         ("ADP_CTRL reset value advertising the entity", firmware_source,
@@ -2911,6 +3120,11 @@ def test_baremetal_profile_contract():
         ("PP_CTRL reset value enabling the protocol processor",
          firmware_source, docs_source, pp_reset_enabled,
          "the RTL must reset pp_ctrl_r with bit 0 CLEAR"),
+        ("ADP_CTRL reset written blocking with the enable bit set",
+         firmware_source, docs_source, blocking_reset_enabled,
+         "the RTL must reset adp_ctrl with bit 0 CLEAR"),
+        ("ADP_CTRL given no reset value at all", firmware_source, docs_source,
+         absent_reset, "the RTL must give adp_ctrl a reset value"),
         ("ADP_CTRL reset and readback default both advertising",
          firmware_source, docs_source, consistent_reset_enabled,
          "the RTL must reset adp_ctrl with bit 0 CLEAR"),
@@ -2928,66 +3142,68 @@ def test_baremetal_profile_contract():
           f"{len(reset_spellings)}/{len(reset_spellings)} equivalent reset "
           f"spellings and {len(objects_spellings)}/{len(objects_spellings)} "
           "equivalent object-list spellings accepted")
-    print("  [gate 1b] ... and the text this reads is the WHOLE translation "
-          "unit: one FILE, by the firmware's DIRECTIVE set pinned after "
-          "translation phases 1 and 2, so a macro operand, a spliced "
-          "directive and a %: digraph are all the #include they are to the "
-          "compiler; one OBJECT, by an OBJECTS list read cumulatively across "
-          "every make assignment flavour and archived as exactly $(OBJECTS); "
-          "one SOURCE, by the one pattern rule compiling one .c with "
-          "$(compile), the Makefile's own include set pinned, and no "
-          "assignment able to move the compiled text, over names DERIVED "
-          "from that rule rather than listed; one RESOLUTION for each pinned "
-          "include name, by the firmware's directory listing and the CFLAGS "
-          "token set, since a pinned NAME is not a pinned FILE; and one set "
-          "of STORE MECHANISMS, by the inline-asm set, the pointer-cast set "
-          "and the pointer-store set, so a store is refused whatever cast "
-          "formed it and whatever the assignment is spelled like")
-    print("  [gate 1b] ... no preprocessor "
-          "conditional and no continued #define outside the QSPI-slot group "
-          "whose BOTH arms the verifier's return rule classifies, no "
-          "label/goto/switch in milan_init() and the three boot steps "
-          "unconditional at its top level, the guarded block holding the two "
-          "enables and their printf and nothing else, no pointer to the "
-          "verdict, every non-zero return of the verifier placed after the "
-          "CRC refusal, and each enable register written from exactly ONE "
-          f"decode arm ({adp_label} and {pp_label}), driving its enable port "
-          "from bit 0, and reset with that bit CLEAR")
-    print("  [gate 1b] ONE axis is a checked fact (the write decode, against "
-          "the RTL's own case arms); the rest are closed by REFUSING the "
-          "constructs that would break them, which costs real firmware. All "
-          "of these are RED until this gate is updated to expect them: any "
-          "multi-line #define anywhere in the file, any #ifdef outside "
-          "load_aem_image() including one in a UART handler, any extra "
-          "statement inside the guarded block, a twelfth #include even of "
-          "<string.h>, any #pragma/#line/#error/#undef, a third inline-asm "
-          "statement, a fourth Makefile include, any recipe for the one "
-          "object other than the pattern rule's $(compile), any new Makefile "
-          "variable at all even an unused DEPFILES = $(patsubst ...), any "
-          "new CFLAGS token at all including -Os and -DFOO as well as "
-          "-include and -iquote, a fifth store through a pointer, a fifth "
-          "cast to a pointer, and any new file in the firmware's directory "
-          "including a README")
+    print("  [gate 1b] ... and the text this reads is the text that runs, "
+          "asked of the TOOLS rather than of regexes over three languages. "
+          "The COMPILER says which functions form a CSR address: no function "
+          f"but {reg_helper_name}() materialises an address in the Milan CSR "
+          f"window (0x{csr_base:08x}..0x{csr_base + csr_size:08x}) in the "
+          "compiled output, so a typedef'd pointer, a register-access macro, "
+          "a struct overlay, an -> store, a subscript store, a "
+          "qualifier-after-star cast and an inline-asm template are all "
+          "refused without any of them being recognised in C. MAKE says what "
+          "gets built: one object, from one source, with one added flag, "
+          "archived once, and the same plan under a hostile environment")
+    print("  [gate 1b] ... plus the rules that are NOT parsing questions: the "
+          "firmware's directive set and include resolution, the Makefile's "
+          "include set (make can only plan fragments that exist), no "
+          "preprocessor conditional and no continued #define outside the "
+          "QSPI-slot group whose BOTH arms the verifier's return rule "
+          "classifies, no label/goto/switch in milan_init() and the three "
+          "boot steps unconditional at its top level, the guarded block "
+          "holding the two enables and their printf and nothing else, no "
+          "pointer to the verdict, and every non-zero return of the verifier "
+          "placed after the CRC refusal")
+    print("  [gate 1b] ... and the RTL decode facts, which are the checked "
+          f"part: {adp_label} and {pp_label} each written from exactly ONE "
+          "decode arm, each driving its enable port from bit 0, and each "
+          "reset with that bit CLEAR, read over BOTH assignment operators so "
+          "a blocking reset cannot pass by leaving the rule nothing to check")
+    print("  [gate 1b] COSTS, and this round REMOVED more than it added. "
+          "Still RED: any multi-line #define anywhere in the file, any "
+          "#ifdef outside load_aem_image(), any extra statement inside the "
+          "guarded block, a twelfth #include even of <string.h>, any "
+          "#pragma/#line/#error/#undef, a fourth Makefile include, any new "
+          "file in the firmware's directory including a README, an OBJECTS "
+          "?= (which make says is NOT an equivalent spelling, since the "
+          "environment can override it), any new CFLAGS token at all "
+          "including -Os and -DFOO, an RTL reset hoisted to a named "
+          "constant, an RTL enable port or write address respelled, and a "
+          "renamed boot-path function, which now names the property instead "
+          "of raising a bare ValueError")
+    print("  [gate 1b] ... and GIVEN BACK by the two instruments: the "
+          "pointer-cast set, the pointer-store set, the inline-asm set, the "
+          "assignable-variable allowlist, the CFLAGS token set, the "
+          "producing-rule pin, the archive-recipe pin and the OBJECTS "
+          "parser. A fifth pointer store, a third inline-asm fence and an "
+          "unrelated DEPFILES variable are all GREEN again, because the "
+          "compiler and make answer for them. A new CFLAGS token is NOT "
+          "given back: -Os and -DFOO stay RED, because make reports the "
+          "flags but nothing here decides which of them are safe, and the "
+          "exact token set is what still bounds -I/-iquote/-isystem")
     print("  [gate 1b] NOT proved here: the values the build's -D set and the "
           "generated headers supply (image bytes, CRC, entity ids - gate 28 "
           "owns those), that crc32() is a CRC, and anything about an "
           "interrupt vector, which is REFUSED by the no-label check rather "
           "than modelled")
-    print("  [gate 1b] TRUSTED, not proved, and the axis that matters is NOT "
-          "who wrote the file, it is whether this repository can decide "
-          "which file a pinned name RESOLVES to. Resolution is pinned for "
-          "all "
-          f"{len(firmware_includes)}: the firmware's directory holds exactly "
-          f"{list(firmware_directory)} so no quoted name can be shadowed "
-          "beside it, and CFLAGS may add only "
-          f"{list(firmware_cflags)} so no search path can be prepended. What "
-          "is still trusted is the CONTENT behind each resolved name: "
-          f"{len(firmware_includes_third_party)} third-party headers and the "
-          "two LiteX Makefile fragments are not this repository's text at "
-          f"all, while {', '.join(firmware_includes_generated)} and the "
-          "compiler's .d fragment are written by this repository's own "
-          "builder. The pinned claim is that no new NAME and no new "
-          "RESOLUTION joins unseen, which is smaller than reading them")
+    print("  [gate 1b] TRUSTED, not proved: the census compiles against "
+          "STUB headers whose every address is asserted outside the CSR "
+          "window, and the make plan runs against a STUB LiteX environment "
+          "whose values are sentinels, so both bound what THIS repository's "
+          "firmware and Makefile add, not what LiteX supplies. Resolution is "
+          f"pinned for all {len(firmware_includes)} include names; the "
+          "CONTENT behind each resolved name is trusted, and of those "
+          f"{', '.join(firmware_includes_generated)} are written by this "
+          "repository's own builder")
     print("  [gate 1b] OPEN, no refusal reaches them, tracked as issue #153: "
           "the rule tying the comparison to a real CRC is an EXISTENCE test, "
           "so a constant assigned to the compared local in the compiled arm, "

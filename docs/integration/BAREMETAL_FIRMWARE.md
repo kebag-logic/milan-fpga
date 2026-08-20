@@ -88,6 +88,52 @@ A missing or corrupt image leaves the AVDECC entity disabled while the PHC and
 fabric gPTP plane continue independently. The UART status line then reports
 `AEM=disabled`; it is not treated as a quiet healthy boot.
 
+### Editing contract for this firmware
+
+Gate 1b in `sw/builder/test_builder.py` proves that boot order against the
+firmware, its Makefile and the CSR RTL, and it enforces the constraints below
+so it can. They apply to `sw/firmware/milan_baremetal/milan_baremetal.c` and
+`sw/firmware/milan_baremetal/Makefile` only. The gate prints this list at run
+time; if the two ever disagree, the gate is authoritative and this section is
+the defect.
+
+Two of the constraints are answered by tools rather than by reading text, and
+neither costs anything to edit around:
+
+- **Any CSR store must go through `milan_write()`.** The gate compiles the
+  firmware and requires that no function except `milan_reg()` forms an
+  address inside the Milan CSR window. Casts, typedefs, register-access
+  macros, struct overlays, member and subscript stores and inline assembly
+  are all allowed shapes; what is refused is reaching a control register
+  outside the one helper.
+- **The Makefile must build one object from one source.** The gate asks
+  `make -Bn` what it would do rather than parsing the file, so every make
+  assignment flavour is covered.
+
+The rest are refusals, and each one costs a legitimate edit:
+
+| Constraint | Why the gate needs it |
+|---|---|
+| No multi-line `#define` anywhere in the file | the gate reads macro bodies one physical line at a time |
+| No `#ifdef`/`#if` outside `load_aem_image()` | the gate would read one arm while the compiler takes the other |
+| No `#pragma`, `#line`, `#error`, `#undef` or `#include_next` | the gate has no rule for them, so it refuses rather than ignores |
+| The `#include` set is exactly the eleven headers listed in the gate | a twelfth include is text in the translation unit no rule reads |
+| No new file in `sw/firmware/milan_baremetal/` | a quoted include resolves against this directory first, so a file here can shadow a pinned header |
+| `CFLAGS` gains only `-I$(BIOS_DIRECTORY)` | `-I`, `-iquote`, `-isystem` and `-include` decide which file a pinned name resolves to |
+| The Makefile's `include` set is exactly its three lines | `make` can only plan fragments that exist |
+| `OBJECTS` may not use `?=` | `make` treats an environment variable as defined, so `?=` lets the environment choose the object list |
+| No label, `goto`, `switch`, `case` or `default` in `milan_init()` | containment inside the guard is not the same as being reached through it |
+| The guarded block holds the two enables and their `printf` and nothing else | anything else in it is unclassified and something for control to be steered at |
+| The address of `aem_loaded` may not be taken | a pointer would write the verdict with no assignment the gate can see |
+| The RTL reset for `adp_ctrl`/`pp_ctrl_r` must be a literal with bit 0 clear | a named constant is not a value the gate can evaluate |
+| `o_adp_enable`/`o_pp_enable` must be `assign <port> = <reg>[0];` | the gate censuses that exact bit |
+| Renaming `load_aem_image`, `milan_init` or `configure_fabric` | the gate finds them by literal identifier; the refusal names the property and the anchor to update |
+
+Adding any of these is a one-line change in the gate plus a mutation-table
+entry, not a redesign. What the gate does **not** prove is recorded beside
+the list it prints, including that the CRC comparison is over the buffer the
+hardware serves (issue #153).
+
 ## Fabric gPTP option
 
 `board.features.fabric_gptp` defaults to `false`; the shipping AX7101 YAML
