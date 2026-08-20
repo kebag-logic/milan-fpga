@@ -20,12 +20,12 @@ record) carry the engine's internals and measured cost.
 ## The shape
 
 `GPTP_PLANE_EN_P` (milan_datapath parameter, DEFAULT ON) elaborates
-`KL_gptp_shadow` with four seams. The end-station builder and LiteX CLI have the
-same default and always pass the chosen value into RTL. `--no-fabric-gptp` (or
-`board.features.fabric_gptp: false`) is the retained software comparison arm.
-Every Linux profile must state that exception while its rootfs still starts
-ptp4l; the builder and direct LiteX CLI reject Linux plus fabric gPTP because
-two PHC owners are not a valid image.
+`KL_gptp_shadow` with four seams. The end-station builder's omitted feature is
+on; the direct LiteX CLI resolves an omitted owner from the software profile:
+bare-metal selects fabric and Linux selects the retained software comparison
+arm. Named Linux recipes still state `--no-fabric-gptp` so their ownership is
+visible at the call site. An explicit Linux plus fabric-gPTP request is rejected
+because two PHC owners are not a valid image.
 
 The option also carries `GPTP_UCODE_HEX_P`. In a shipping SoC build this is an
 absolute path to the builder's per-config 1,024-word image, generated from the
@@ -142,8 +142,8 @@ on a booted board (`tu=0` while synchronised) before #116 closes.
 | `tb/verilator/gptp_plane` | byte, REAL counter | the engine steers the parent's `timestamp_counter` closed-loop; the phc_ns_i observing check |
 | `tb/verilator/gptp_shadow` | WIDE, real counter + boundary stamper | the fabric slice with no harness timestamps at all; classify/transport/gearbox/stamper; 5 mutations |
 | `tb/verilator/clkvalid` fabric leg | validity bank | software leases cannot clear `tu`; fabric sync clears it after Annex B holdover and cannot expire like a daemon lease |
-| `tb/verilator/milan_dp` obj_gptp | the whole datapath | the omitted option elaborates the default-ON shipping 1x1 shape; old GM/parent/pdelay/CLKV writes cannot override the fabric bank; boot Pdelay_Req reaches the MAC; no Announce without asCapable |
-| `tb/verilator/milan_dp` explicit-off legs | the whole datapath | the [GPTP-OPT] tripwire: CSR adjfine and adjtime still reach `timestamp_counter` through the effective muxes (a polarity swap goes red) |
+| `tb/verilator/milan_dp` obj_gptp | the whole datapath | the omitted option elaborates the default-ON shipping 1x1 shape; old GM/parent/pdelay/CLKV writes cannot override the fabric bank; boot Pdelay_Req reaches the MAC and no Announce escapes without asCapable; a real peer then establishes nonzero GM/parent/pdelay and the exact committed values reach GET_AVB_INFO/GET_AS_PATH on the MAC wire |
+| `tb/verilator/milan_dp` explicit-off legs | the whole datapath | the [GPTP-OPT] tripwire: CSR adjfine and adjtime still reach `timestamp_counter` through the effective muxes (a polarity swap goes red); a GM commit deliberately placed between GET_AS_PATH selectors proves one response cannot mix publication generations |
 
 The option-ON verdict from #114's old Linux/sound-card shape was RED: the
 baseline alone synthesized at 93.84% LUT and failed default placement. #120

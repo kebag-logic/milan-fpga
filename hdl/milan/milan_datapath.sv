@@ -2944,15 +2944,17 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [63:0] pp_amap_edit_record_w, pp_amap_edit_value_w;
   logic [63:0] pp_amap_edit_data_w;
   wire        pp_amap_edit_wait_w;
-  // Milan-info gather face (GET_STREAM_INFO / GET_AVB_INFO / GET_AS_PATH)
-  wire        pp_gsi_req_w;
-  wire  [1:0] pp_gsi_kind_w;
+  // Milan-info gather face (GET_STREAM_INFO / GET_AVB_INFO / GET_AS_PATH).
+  // The public probes let the datapath harness place a live publication
+  // commit exactly between two gathers; no CSR exposes that handshake phase.
+  wire        pp_gsi_req_w  /* verilator public_flat_rd */;
+  wire  [1:0] pp_gsi_kind_w /* verilator public_flat_rd */;
   wire [15:0] pp_gsi_desc_type_w, pp_gsi_desc_index_w;
-  wire  [3:0] pp_gsi_sel_w;
-  wire  [7:0] pp_gsi_ord_w;
+  wire  [3:0] pp_gsi_sel_w  /* verilator public_flat_rd */;
+  wire  [7:0] pp_gsi_ord_w  /* verilator public_flat_rd */;
   wire [63:0] pp_gsi_prop_fmt_w;
   logic [63:0] pp_gsi_data_w;
-  wire        pp_gsi_wait_w;
+  wire        pp_gsi_wait_w /* verilator public_flat_rd */;
   //! CRF PDU strobe from the tx counter delta; deferred one cycle when an
   //! AAF frame pulse occupies the diag event port (events are ~8.5 k/s
   //! against a 50+ MHz clock, so the skid never accumulates)
@@ -4249,6 +4251,16 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   logic        gsi_srv1_r, gsi_srv2_r;
   logic [63:0] gsi_data_r;
   logic [63:0] gsi_ans_raw_w;   //! written by the answer comb block below
+  //! GET_AVB_INFO and GET_AS_PATH are assembled from several gather words.
+  //! Snapshot every value those commands expose before selector 0 is served,
+  //! then hold it for the remaining selectors: a gPTP publication commit or
+  //! a config write between gathers must not produce a cross-generation PDU.
+  logic [63:0] gsi_gm_snap_r, gsi_parent_snap_r;
+  logic [31:0] gsi_pdelay_snap_r;
+  logic  [7:0] gsi_domain_snap_r;
+  logic        gsi_link_snap_r, gsi_ascap_snap_r;
+  logic  [2:0] gsi_prio_snap_r;
+  logic [11:0] gsi_vid_snap_r;
   wire gsi_sel_match_w = (gsiq_kind_r  == pp_gsi_kind_w)
                       && (gsiq_type_r  == pp_gsi_desc_type_w)
                       && (gsiq_index_r == pp_gsi_desc_index_w)
@@ -4259,6 +4271,14 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       gsiq_kind_r <= 2'd0;  gsiq_type_r <= 16'd0; gsiq_index_r <= 16'd0;
       gsiq_sel_r  <= 4'd0;  gsiq_ord_r  <= 8'd0;
       gsi_srv1_r  <= 1'b0;  gsi_srv2_r  <= 1'b0;  gsi_data_r <= 64'd0;
+      gsi_gm_snap_r     <= 64'd0;
+      gsi_parent_snap_r <= 64'd0;
+      gsi_pdelay_snap_r <= 32'd0;
+      gsi_domain_snap_r <= 8'd0;
+      gsi_link_snap_r   <= 1'b0;
+      gsi_ascap_snap_r  <= 1'b0;
+      gsi_prio_snap_r   <= 3'd0;
+      gsi_vid_snap_r    <= 12'd0;
     end else begin
       gsiq_kind_r  <= pp_gsi_kind_w;
       gsiq_type_r  <= pp_gsi_desc_type_w;
@@ -4268,6 +4288,21 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       gsi_srv1_r   <= pp_gsi_req_w && gsi_sel_match_w;
       gsi_srv2_r   <= pp_gsi_req_w && gsi_sel_match_w && gsi_srv1_r;
       gsi_data_r   <= gsi_ans_raw_w;
+      //! Selector 0 begins both multi-word gPTP commands. The registered
+      //! server may spend two setup cycles on that first selector, so the
+      //! !srv condition captures until service starts and never afterwards.
+      if (pp_gsi_req_w && (pp_gsi_kind_w != 2'd0)
+          && (pp_gsi_sel_w == 4'd0) && (pp_gsi_ord_w == 8'd0)
+          && !gsi_srv1_r && !gsi_srv2_r) begin
+        gsi_gm_snap_r     <= cfg_adp_gptp_gm;
+        gsi_parent_snap_r <= cfg_as_parent;
+        gsi_pdelay_snap_r <= cfg_gptp_pdelay;
+        gsi_domain_snap_r <= cfg_adp_gptp_domain;
+        gsi_link_snap_r   <= eff_link_w;
+        gsi_ascap_snap_r  <= clkv_as_cap_w;
+        gsi_prio_snap_r   <= pp_cd_srp_class_a_prio_w;
+        gsi_vid_snap_r    <= pp_cd_srp_class_a_vid_w;
+      end
     end
   end
 
@@ -4535,32 +4570,32 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       end
       2'd1: begin                            // ---- GET_AVB_INFO ----
         unique case (gsiq_sel_r)
-          4'd0: gsi_ans_raw_w = cfg_adp_gptp_gm;
-          4'd1: gsi_ans_raw_w = {cfg_gptp_pdelay,
-                                 cfg_adp_gptp_domain,
-                                 {3'd0, 1'b1, !eff_link_w, 1'b1, 1'b1,
-                                  clkv_as_cap_w},
+          4'd0: gsi_ans_raw_w = gsi_gm_snap_r;
+          4'd1: gsi_ans_raw_w = {gsi_pdelay_snap_r,
+                                 gsi_domain_snap_r,
+                                 {3'd0, 1'b1, !gsi_link_snap_r, 1'b1, 1'b1,
+                                  gsi_ascap_snap_r},
                                  16'd1};     // one msrp mapping: class A
           4'd8: gsi_ans_raw_w = (gsiq_ord_r == 8'd0)
                               ? {32'd0, 8'd6,       // SRclassID A
-                                 {5'd0, pp_cd_srp_class_a_prio_w},
-                                 {4'd0, pp_cd_srp_class_a_vid_w}}
+                                 {5'd0, gsi_prio_snap_r},
+                                 {4'd0, gsi_vid_snap_r}}
                               : 64'd0;
           default: gsi_ans_raw_w = 64'd0;
         endcase
       end
       default: begin                         // ---- GET_AS_PATH ----
         unique case (gsiq_sel_r)
-          4'd0: gsi_ans_raw_w = (|cfg_adp_gptp_gm)
-                              ? (((|cfg_as_parent) &&
-                                  (cfg_as_parent != cfg_adp_gptp_gm))
+          4'd0: gsi_ans_raw_w = (|gsi_gm_snap_r)
+                              ? (((|gsi_parent_snap_r) &&
+                                  (gsi_parent_snap_r != gsi_gm_snap_r))
                                  ? 64'd2 : 64'd1)
                               : 64'd0;
-          4'd8: gsi_ans_raw_w = ((gsiq_ord_r == 8'd0) && (|cfg_adp_gptp_gm))
-                              ? cfg_adp_gptp_gm
-                              : ((gsiq_ord_r == 8'd1) && (|cfg_as_parent) &&
-                                 (cfg_as_parent != cfg_adp_gptp_gm))
-                              ? cfg_as_parent : 64'd0;
+          4'd8: gsi_ans_raw_w = ((gsiq_ord_r == 8'd0) && (|gsi_gm_snap_r))
+                              ? gsi_gm_snap_r
+                              : ((gsiq_ord_r == 8'd1) && (|gsi_parent_snap_r) &&
+                                 (gsi_parent_snap_r != gsi_gm_snap_r))
+                              ? gsi_parent_snap_r : 64'd0;
           default: gsi_ans_raw_w = 64'd0;
         endcase
       end

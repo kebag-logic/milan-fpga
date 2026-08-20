@@ -9,7 +9,8 @@
 //
 //   small-1x-50MHz  : N_STREAMS=1,  MILAN_CLK_FREQ_HZ=50e6  (cfg_arty family)
 //   mid-4x-100MHz   : N_STREAMS=4,  MILAN_CLK_FREQ_HZ=100e6 (4x4 direction)
-//   tdm8-8x-100MHz  : N_STREAMS=8,  AUDIO_IF_SLOTS_P=8      (TDM front-end)
+//   product-ax7101-1x1-tdm8: N_STREAMS=1, AUDIO_IF_SLOTS_P=8
+//                             (shipping TDM8/fabric-gPTP shape)
 //
 // There is NO elaboration-level taps-off parameter (KL_aaf_latency_taps is
 // always instantiated; its runtime knob is LTAP_CTRL[1]) - the runtime-off

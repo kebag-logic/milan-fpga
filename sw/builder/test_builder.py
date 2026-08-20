@@ -672,15 +672,42 @@ def test_gptp_product_default_and_legacy_option():
 
     soc_source = open(os.path.join(ROOT, "sw/litex/milan_soc.py")).read()
     assert "p_GPTP_PLANE_EN_P=int(bool(gptp_plane))" in soc_source
-    assert 'ap.set_defaults(fabric_gptp=True)' in soc_source
+    assert 'ap.set_defaults(fabric_gptp=None)' in soc_source
+    assert ('args.fabric_gptp = args.software_profile == "baremetal"'
+            in soc_source)
     assert '"--no-fabric-gptp"' in soc_source
     assert ('args.fabric_gptp and args.software_profile == "linux"'
             in soc_source)
     assert "would both own the PHC" in soc_source
+
+    # Execute the two retained Linux recipe functions, not merely a source
+    # substring: their emitted argv is what build.sh passes to milan_soc.py.
+    build_source = open(os.path.join(ROOT, "sw/litex/build.sh")).read()
+    funcs = []
+    for name in ("cfg_ax8x8", "cfg_arty"):
+        match = re.search(rf"(?ms)^{name}\(\) \{{.*?^\}}$", build_source)
+        assert match, f"missing named recipe {name}"
+        funcs.append(match.group(0))
+    proc = subprocess.run(
+        ["bash", "-c", "\n".join(funcs) + "\ncfg_ax8x8\ncfg_arty\n"],
+        check=True, text=True, capture_output=True)
+    recipe_lines = [shlex.split(line) for line in proc.stdout.splitlines()
+                    if line.strip()]
+    assert len(recipe_lines) == 2
+    for argv in recipe_lines:
+        assert argv[argv.index("--software-profile") + 1] == "linux"
+        assert "--no-fabric-gptp" in argv
+        assert "--fabric-gptp" not in argv
+    sweep_extra = open(os.path.join(ROOT, "sw/litex/sweep_extra.sh")).read()
+    assert "--software-profile linux --no-fabric-gptp" in sweep_extra
+    sw_readme = open(os.path.join(ROOT, "sw/README.md")).read()
+    for line in sw_readme.splitlines():
+        if line.startswith("./milan_soc.py"):
+            assert "--no-fabric-gptp" in line
     print("  [gate 1c] fabric gPTP is the omission/default on the bare-metal "
-          "product and emits its ROM; the Linux comparison is explicit "
-          "--no-fabric-gptp, retains ptp4l config, and a two-owner "
-          "Linux+fabric request is rejected")
+          "product and emits its ROM; direct Linux omission resolves to the "
+          "software owner, every retained Linux recipe is explicitly "
+          "--no-fabric-gptp, and a two-owner request is rejected")
 
 
 def test_gptp_rootfs_handoff_preserves_software_config():
@@ -3511,10 +3538,12 @@ def _optional_block_cli_consumption(soc):
                 f"a dedicated `{name}=` keyword; the missing key defaults "
                 "to PRESENT and the prune flag becomes a silent no-op")
 
-    # every --no-* flag main() DECLARES must be one main() also READS, and it
-    # must stay an off-by-default store_true. `default=True` on a --no-* flag
-    # inverts the lever in silence (an UNFLAGGED build takes the pruned path),
-    # and a flag nothing reads is decorative ABI wearing a CLI hat.
+    # Every declared --no-* flag must be one main() also READS, and hardware
+    # prune flags must stay off-by-default store_true. --no-fabric-gptp is the
+    # sole policy selector: it is the store_false half of an ownership choice,
+    # not an OPTIONAL_BLOCKS area lever. `default=True` on a prune flag inverts
+    # the lever in silence, and a prune flag nothing reads is decorative ABI
+    # wearing a CLI hat.
     read = {n.attr for n in ast.walk(mains[0]) if isinstance(n, ast.Attribute)
             and isinstance(n.value, ast.Name) and n.value.id == "args"}
     for call in ast.walk(mains[0]):
@@ -3525,6 +3554,8 @@ def _optional_block_cli_consumption(soc):
                 and str(call.args[0].value).startswith("--no-")):
             continue
         flag = call.args[0].value
+        if flag == "--no-fabric-gptp":
+            continue
         opts = {kw.arg: kw.value for kw in call.keywords if kw.arg}
         named = opts.get("dest")
         dest = named.value if isinstance(named, ast.Constant) else \

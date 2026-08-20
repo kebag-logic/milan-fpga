@@ -4,9 +4,10 @@
 # Host-plane coverage harness for milan_datapath.sv in the SILICON SHAPE.
 #
 # The milan_dp suite proves the wrapper at the RTL DEFAULT shape (N_STREAMS=1,
-# PB_PREFILL_C shrunk); this suite elaborates the exact parameter set the
-# cfg_ax8x8 build ships (sw/litex/build.sh -> milan_soc.py argv mapping, see
-# README.md) and asserts on the HOST-FACING lanes: host RX AXIS delivery,
+# PB_PREFILL_C shrunk); this suite elaborates both retained Linux comparison
+# shapes and the exact bare-metal cfg_ax7101 product parameter set
+# (sw/litex/build.sh -> milan_soc.py argv mapping, see README.md), then asserts
+# on the HOST-FACING lanes: host RX AXIS delivery,
 # ts-record production, filter no-leak both ways, observer purity under host
 # backpressure - the lane family whose silicon regression class the green
 # default-shape suites cannot see.
@@ -66,7 +67,14 @@ G_AX8X8 = -GN_STREAMS=8 -GMILAN_CLK_FREQ_HZ=100000000 -GAUDIO_IF_SLOTS_P=0 \
 # ---- cfg-sweep smoke shapes (case e) ---------------------------------------
 G_SMALL = -GN_STREAMS=1 -GMILAN_CLK_FREQ_HZ=50000000  -GAUDIO_IF_SLOTS_P=0 -GSOUND_CARD_P=1 -GGPTP_PLANE_EN_P=0
 G_N4    = -GN_STREAMS=4 -GMILAN_CLK_FREQ_HZ=100000000 -GAUDIO_IF_SLOTS_P=0 -GSOUND_CARD_P=1 -GGPTP_PLANE_EN_P=0
-G_TDM8  = -GN_STREAMS=8 -GMILAN_CLK_FREQ_HZ=100000000 -GAUDIO_IF_SLOTS_P=8 -GSOUND_CARD_P=1
+# ---- shipping cfg_ax7101 product ------------------------------------------
+# Exact argv mapping from cfg_ax7101 / endstation_ax7101_1x1_tdm8:
+#   one stream, 50 MHz, TDM8 master, eight wire channels, loopback present,
+#   headless, I2S playback and render LPF pruned. GPTP_PLANE_EN_P is omitted
+#   deliberately: this leg proves the product DEFAULT ON, not a forced -G1.
+G_PRODUCT = -GN_STREAMS=1 -GMILAN_CLK_FREQ_HZ=50000000 \
+            -GAUDIO_IF_SLOTS_P=8 -GAUDIO_IF_MASTER_P=1 \
+            -GTALKER_WIRE_CHANS_P=8 -GLOOPBACK_P=1 -GI2SPB_P=0 -GLPF_P=0
 # ---- item-4 TDM32 MASTER (case e, 2026-07-28): the shape the AX7101
 #      8x8 argv now emits - `--audio-interface tdm32
 #      --audio-interface-master --talker-wire-chans 8`. This is the L1
@@ -156,6 +164,7 @@ CFG_DIR    = ../../../configs/generated
 SHAPE_1x1  = +incdir+$(CFG_DIR)/endstation_arty_current
 SHAPE_4x4  = +incdir+$(CFG_DIR)/endstation_arty_4x4
 SHAPE_8x8  = +incdir+$(CFG_DIR)/endstation_ax7101_8x8
+SHAPE_AX1x1 = +incdir+$(CFG_DIR)/endstation_ax7101_1x1_tdm8
 
 build:
 	$(VERILATOR) $(SHAPE_8x8) $(VFLAGS_COMMON) --Mdir obj_ax8x8 $(G_AX8X8) \
@@ -167,9 +176,9 @@ build:
 	$(VERILATOR) $(SHAPE_4x4) $(VFLAGS_COMMON) --Mdir obj_n4 $(G_N4) \
 		-CFLAGS "-DNSTREAMS_TB=4 -DMILAN_CLK_TB=100000000 -DSHAPE_NAME=\\\"mid-4x-100MHz\\\"" \
 		$(SRCS) sim_smoke.cpp -o Vhostplane_smoke_n4
-	$(VERILATOR) $(SHAPE_8x8) $(VFLAGS_COMMON) --Mdir obj_tdm8 $(G_TDM8) \
-		-CFLAGS "-DNSTREAMS_TB=8 -DMILAN_CLK_TB=100000000 -DTDM_SHAPE_TB=1 -DFABRIC_GPTP_TB=1 -DSHAPE_NAME=\\\"tdm8-8x-100MHz\\\"" \
-		$(SRCS) sim_smoke.cpp -o Vhostplane_smoke_tdm8
+	$(VERILATOR) $(SHAPE_AX1x1) $(VFLAGS_COMMON) --Mdir obj_product $(G_PRODUCT) \
+		-CFLAGS "-DNSTREAMS_TB=1 -DMILAN_CLK_TB=50000000 -DTDM_SHAPE_TB=1 -DFABRIC_GPTP_TB=1 -DSHAPE_NAME=\\\"product-ax7101-1x1-tdm8\\\"" \
+		$(SRCS) sim_smoke.cpp -o Vhostplane_smoke_product
 	$(VERILATOR) $(SHAPE_8x8) $(VFLAGS_COMMON) --Mdir obj_tdm32m $(G_TDM32M) \
 		-CFLAGS "-DNSTREAMS_TB=8 -DMILAN_CLK_TB=100000000 -DTDM_SHAPE_TB=1 -DSHAPE_NAME=\\\"tdm32master-8x-100MHz\\\"" \
 		$(SRCS) sim_smoke.cpp -o Vhostplane_smoke_tdm32m
@@ -215,17 +224,17 @@ ucode.hex: $(PP_DIR)/aecp/ucode/gen_ucode.py
 	python3 $< -o $@
 
 gptp_ucode.hex: $(GPTP_DIR)/ucode/gen_gptp_ucode.py
-	python3 $< --clk-hz 100000000 -o $@
+	python3 $< --clk-hz 50000000 -o $@
 
 run: ltn_rom.hex ucode.hex gptp_ucode.hex banner build guards
 	@rc=0; \
 	./obj_ax8x8/Vhostplane_ax8x8        || rc=1; \
 	./obj_small/Vhostplane_smoke_small  || rc=1; \
 	./obj_n4/Vhostplane_smoke_n4        || rc=1; \
-	./obj_tdm8/Vhostplane_smoke_tdm8    || rc=1; \
+	./obj_product/Vhostplane_smoke_product || rc=1; \
 	./obj_tdm32m/Vhostplane_smoke_tdm32m || rc=1; \
 	exit $$rc
 
 clean:
 	rm -f ltn_rom.hex ucode.hex gptp_ucode.hex
-	rm -rf obj_ax8x8 obj_small obj_n4 obj_tdm8 obj_tdm32m
+	rm -rf obj_ax8x8 obj_small obj_n4 obj_product obj_tdm32m

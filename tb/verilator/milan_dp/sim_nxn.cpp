@@ -469,8 +469,75 @@ static void lo() { dut->axis_clk = 0; dut->gtx_clk = 0; dut->clk_audio_i = 0;
                    rmem_edge(); dmem_edge(); }
 static void hi() { dut->axis_clk = 1; dut->gtx_clk = 1; dut->clk_audio_i = 1; dut->eval(); }
 static unsigned long tkd_dirty_seen = 0;
+
+// Adversarial GSI update hook. It launches one ordinary AXI write only after
+// selector 0 of GET_AS_PATH has completed and selector 8 is waiting. That
+// places a coherent GM commit between two gathers without reaching into the
+// implementation's state, and makes the command-lifetime snapshot observable
+// at the real PP -> response-buffer -> MAC boundary.
+struct GsiAtomicHook {
+    bool active = false;
+    bool saw_sel0 = false;
+    bool launched = false;
+    bool accepted = false;
+    bool done = false;
+    uint16_t addr = 0;
+    uint32_t data = 0;
+};
+static GsiAtomicHook gsi_atomic;
+
+static void gsi_atomic_pre() {
+    if (!gsi_atomic.active) return;
+    const bool req = dut->rootp->milan_datapath__DOT__pp_gsi_req_w;
+    const unsigned kind = dut->rootp->milan_datapath__DOT__pp_gsi_kind_w;
+    const unsigned sel = dut->rootp->milan_datapath__DOT__pp_gsi_sel_w;
+    const unsigned ord = dut->rootp->milan_datapath__DOT__pp_gsi_ord_w;
+    const bool wait = dut->rootp->milan_datapath__DOT__pp_gsi_wait_w;
+    if (req && kind == 2 && sel == 0 && ord == 0 && !wait)
+        gsi_atomic.saw_sel0 = true;
+    if (gsi_atomic.saw_sel0 && !gsi_atomic.launched
+        && req && kind == 2 && sel == 8 && ord == 0 && wait) {
+        dut->s_axi_awaddr = gsi_atomic.addr;
+        dut->s_axi_awvalid = 1;
+        dut->s_axi_wdata = gsi_atomic.data;
+        dut->s_axi_wstrb = 0xF;
+        dut->s_axi_wvalid = 1;
+        dut->s_axi_bready = 1;
+        gsi_atomic.launched = true;
+    }
+}
+
+static bool gsi_atomic_after_lo() {
+    return gsi_atomic.active && gsi_atomic.launched
+        && !gsi_atomic.accepted
+        && dut->s_axi_awready && dut->s_axi_wready;
+}
+
+static bool gsi_atomic_response_after_lo() {
+    return gsi_atomic.active && gsi_atomic.accepted
+        && dut->s_axi_bvalid && dut->s_axi_bready;
+}
+
+static void gsi_atomic_after_hi(bool accepted, bool response) {
+    if (accepted) {
+        gsi_atomic.accepted = true;
+        dut->s_axi_awvalid = 0;
+        dut->s_axi_wvalid = 0;
+    }
+    if (response) {
+        gsi_atomic.done = true;
+        gsi_atomic.active = false;
+        dut->s_axi_bready = 0;
+    }
+}
+
 static void step() {
-    lo(); hi();
+    gsi_atomic_pre();
+    lo();
+    const bool hook_accept = gsi_atomic_after_lo();
+    const bool hook_response = gsi_atomic_response_after_lo();
+    hi();
+    gsi_atomic_after_hi(hook_accept, hook_response);
     tkd_dirty_seen |= dut->rootp->milan_datapath__DOT__tkd_dirty_p_w;
 }
 
@@ -634,11 +701,15 @@ static void inject(const uint8_t* f, size_t len, int drain = 1200) {
         } else {
             dut->s_axis_mac_rx_tvalid = 0; dut->s_axis_mac_rx_tlast = 0;
         }
+        gsi_atomic_pre();
         lo();
+        const bool hook_accept = gsi_atomic_after_lo();
+        const bool hook_response = gsi_atomic_response_after_lo();
         bool in_acc = dut->s_axis_mac_rx_tvalid && dut->s_axis_mac_rx_tready;
         pcm_sample();
         acmp_sniff();
         hi();
+        gsi_atomic_after_hi(hook_accept, hook_response);
         if (in_acc) idx++;
     }
     dut->s_axis_mac_rx_tvalid = 0;
@@ -713,7 +784,10 @@ static std::vector<uint8_t> await_aecp(int cyc = 200000,
     cur.reserve(1514);                  // one Ethernet frame off the TX trunk
     dut->m_axis_mac_tx_tready = 1;
     for (int c = 0; c < cyc && resp.empty(); c++) {
+        gsi_atomic_pre();
         lo();
+        const bool hook_accept = gsi_atomic_after_lo();
+        const bool hook_response = gsi_atomic_response_after_lo();
         if (dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready) {
             for (int l = 0; l < 8; l++)
                 if ((dut->m_axis_mac_tx_tkeep >> l) & 1)
@@ -736,6 +810,7 @@ static std::vector<uint8_t> await_aecp(int cyc = 200000,
             }
         }
         hi();
+        gsi_atomic_after_hi(hook_accept, hook_response);
     }
     return resp;
 }
@@ -5181,6 +5256,54 @@ int main(int argc, char** argv) {
                       && r[50] == 0x3C && r[51] == 0xC0 && r[52] == 0xC6
                       && r[53] == 0xFF && r[54] == 0xFE && r[55] == 0x02
                       && r[56] == 0x10 && r[57] == 0xAA), 1);
+
+            // Snapshot atomicity under an update BETWEEN gathers. GM-B's
+            // low half is staged now; the hook commits its high half only
+            // after selector 0 completes and selector 8/ordinal 0 is waiting.
+            // This response must remain wholly bank A, while the next command
+            // must see wholly bank B. The hook-phase assertions make this a
+            // timing test rather than two ordinary before/after reads.
+            axi_write(0x624, 0x50607080u);       // stage GM-B low, no commit
+            gsi_atomic = GsiAtomicHook{};
+            gsi_atomic.active = true;
+            gsi_atomic.addr = 0x628;
+            gsi_atomic.data = 0x10203040u;       // commit GM-B at selector 8
+            seq = sq++;
+            r = aecp_xact(0x0028, seq, gp);
+            ck("B2 atomic: selector 0 completed before the update",
+               gsi_atomic.saw_sel0, 1);
+            ck("B2 atomic: GM commit launched between gathers",
+               gsi_atomic.launched, 1);
+            ck("B2 atomic: inter-gather AXI commit was accepted",
+               gsi_atomic.accepted && gsi_atomic.done, 1);
+            ck("B2 atomic: first response stays wholly [GM-A,parent-A]",
+               (long)(aecp_status(r) == 0 && r.size() >= 58
+                      && ((((unsigned)r[16] & 7) << 8) | r[17]) == 32
+                      && (((unsigned)r[40] << 8) | r[41]) == 2
+                      && r[42] == 0x00 && r[43] == 0x1B && r[44] == 0xC5
+                      && r[45] == 0x00 && r[46] == 0x00 && r[47] == 0xC0
+                      && r[48] == 0xFF && r[49] == 0xEF
+                      && r[50] == 0x3C && r[51] == 0xC0 && r[52] == 0xC6
+                      && r[53] == 0xFF && r[54] == 0xFE && r[55] == 0x02
+                      && r[56] == 0x10 && r[57] == 0xAA), 1);
+            ck("B2 atomic: live GM low committed to bank B",
+               axi_read(0x624), 0x50607080u);
+            ck("B2 atomic: live GM high committed to bank B",
+               axi_read(0x628), 0x10203040u);
+            seq = sq++;
+            r = aecp_xact(0x0028, seq, gp);
+            ck("B2 atomic: next response is wholly [GM-B,parent-A]",
+               (long)(aecp_status(r) == 0 && r.size() >= 58
+                      && ((((unsigned)r[16] & 7) << 8) | r[17]) == 32
+                      && (((unsigned)r[40] << 8) | r[41]) == 2
+                      && r[42] == 0x10 && r[43] == 0x20 && r[44] == 0x30
+                      && r[45] == 0x40 && r[46] == 0x50 && r[47] == 0x60
+                      && r[48] == 0x70 && r[49] == 0x80
+                      && r[50] == 0x3C && r[51] == 0xC0 && r[52] == 0xC6
+                      && r[53] == 0xFF && r[54] == 0xFE && r[55] == 0x02
+                      && r[56] == 0x10 && r[57] == 0xAA), 1);
+            axi_write(0x624, 0x00C0FFEFu);
+            axi_write(0x628, 0x001BC500u);       // restore bank A
 
             // Parent equal to GM is deduplicated, and a parent without a GM
             // is never emitted as a rootless path.

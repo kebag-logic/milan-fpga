@@ -1,7 +1,7 @@
 <!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
 # milan_dp — the `milan_datapath` integration suite
 
-`make` builds **ten elaborations** of `hdl/milan/milan_datapath.sv` (the PS-less
+`make` builds **eleven elaborations** of `hdl/milan/milan_datapath.sv` (the PS-less
 Section A.9 wrapper the LiteX SoC instantiates) and runs a self-checking harness
 against each. `make` exits non-zero if any leg fails; **gate on the exit code**,
 never on grepping the log — a compile error prints no `FAIL` line at all.
@@ -18,6 +18,7 @@ never on grepping the log — a compile error prints no `FAIL` line at all.
 | `obj_txg` | `sim_txgrant.cpp` | `endstation_arty_current` | the CPU DMA-TX lane under control-lane load |
 | `obj_ax1x1` | `sim_main.cpp` | `endstation_ax7101_1x1_tdm8` | the shape the AX7101 actually flashes |
 | `obj_aclk` | `sim_aclk.cpp` | same, TRUE 391/1591 clk_audio ratio | the media-grid drift RATE |
+| `obj_gptp` | `sim_gptp.cpp` | `endstation_ax7101_1x1_tdm8`, RTL gPTP default on, 2 MHz timer compression | peer-driven fabric publication through the live CSR and byte-exact GET_AVB_INFO/GET_AS_PATH wire responses; no-peer boot gating remains covered |
 
 ## Contents
 

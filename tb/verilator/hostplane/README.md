@@ -84,7 +84,8 @@ Drift notes observed while deriving the mapping (2026-07-25):
   knob provably cannot perturb stream data. Structural half of the purity
   claim: `syn/yosys/check_tap_purity.sh`.
 * **[E] cfg-sweep smoke** (`sim_smoke.cpp`) — the case-A/B kernel re-run at
-  `small-1x-50MHz` (cfg_arty family), `mid-4x-100MHz`, `tdm8-8x-100MHz`
+  `small-1x-50MHz` (cfg_arty family), `mid-4x-100MHz`,
+  `product-ax7101-1x1-tdm8`
   (`AUDIO_IF_SLOTS_P=8`). The runtime taps-off variant lives in case D.
   An elaboration-level taps-off parameter **now exists** (`LTAP_P`,
   [AREA_BUDGET.md](../../../docs/design/AREA_BUDGET.md) tier 1, default

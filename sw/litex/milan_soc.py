@@ -6732,7 +6732,11 @@ def main():
                             action="store_false",
                             help="retain the legacy ptp4l/statd publication path "
                                  "for bring-up comparison")
-    ap.set_defaults(fabric_gptp=True)
+    # Keep an omitted owner coherent with the selected software image. The
+    # bare-metal product gets the fabric default; the still-live Linux rootfs
+    # gets the explicit comparison owner unless the caller asks (and is then
+    # refused) for an unsafe two-owner image.
+    ap.set_defaults(fabric_gptp=None)
     ap.add_argument("--no-render-lpf", action="store_true",
                     help="AREA LEVER (banked, docs/design/AREA_BUDGET.md): prune "
                          "KL_pcm_lpf, the 2nd-order Butterworth on the DAC render tap. "
@@ -6955,6 +6959,9 @@ def main():
                          "is set via --sys-clk-freq. See docs/findings/LATENCY_INVESTIGATION.md §8.")
     builder_args(ap)
     args = ap.parse_args()
+
+    if args.fabric_gptp is None:
+        args.fabric_gptp = args.software_profile == "baremetal"
 
     if args.software_profile == "baremetal":
         if args.cpu != "vexiiriscv" or args.xlen != 32 or args.cpu_count != 1:

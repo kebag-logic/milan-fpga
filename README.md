@@ -53,7 +53,7 @@ Terms → [glossary](docs/GLOSSARY.md).
 
 ### Current control-plane boundary
 
-Firmware VERSION `0x0002_0053` uses `hdl/milan/KL_pp_shadow.sv` and the pinned
+Firmware VERSION `0x0002_0055` uses `hdl/milan/KL_pp_shadow.sv` and the pinned
 `protocol-processor` as its only IEEE 1722.1 and SRP control plane. MAAP remains
 in this repository. There is no legacy fallback.
 

@@ -74,12 +74,12 @@ milestone **M-A2**. Captured output:
 
 ```sh
 cd litex
-./milan_soc.py                 # NIC (CSR only): elaborate + EXPORT gateware, no Vivado ✅
-./milan_soc.py --full          # FULL FPGA solution: NIC + DMA (Section A.6) + MAC/PHY (Section A.7) ✅ elaborates
-./milan_soc.py --no-milan      # bare SoC, fully self-contained (P&R-ready) ✅
-./milan_soc.py --xlen 32       # RV32 + sv32 MMU
-./milan_soc.py --full --build  # + run Vivado P&R -> bitstream  (needs Artix-7 in Vivado — see Status)
-./milan_soc.py --build --load  # + program the board
+./milan_soc.py --no-fabric-gptp                 # Linux NIC export, no Vivado ✅
+./milan_soc.py --full --no-fabric-gptp          # Linux NIC + DMA + MAC/PHY ✅
+./milan_soc.py --no-milan --no-fabric-gptp      # bare SoC (no Milan/gPTP fabric) ✅
+./milan_soc.py --xlen 32 --no-fabric-gptp       # Linux RV32 + sv32 MMU
+./milan_soc.py --full --no-fabric-gptp --build  # + Vivado P&R
+./milan_soc.py --no-fabric-gptp --build --load  # + program the board
 ```
 
 ## Boot Linux (needs the board / a bitstream)

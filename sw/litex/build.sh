@@ -159,7 +159,7 @@ cfg_ax8x8() {    # 8-stream (64ch) shape. History: the 07-24 close used
                  # context (deleted 2026-08-13 with the legacy plane). Result
                  # 2026-07-24: WNS +0.080, LUT 85.15%, TNS 0 (all seeds close).
     echo "--board ax7101 --cpu vexiiriscv --cpu-count 1 --software-profile linux \
-          --all-blocks --coherent-dma --sound-card \
+          --all-blocks --coherent-dma --sound-card --no-fabric-gptp \
           --milan-clk-freq 100e6 --with-spiflash --flashboot full --gtx-tx-invert \
           --timing-opt --floorplan --l2-bytes 16384 \
           --scala-args=--lsu-l1-refill-count=8 --scala-args=--lsu-hardware-prefetch=rpt \
@@ -199,7 +199,7 @@ cfg_arty() {     # Arty A7-100 small endstation: MII 100M, QSPI flashboot (probe
     # both boards; the old kernel-at-0 / JTAG-SRAM-only layout died with the
     # manifest-full port - see board_facts above + docs/integration/QSPI_FLASHBOOT.md).
     echo "--board arty --cpu vexiiriscv --cpu-count 2 --software-profile linux \
-          --all-blocks --coherent-dma --sound-card \
+          --all-blocks --coherent-dma --sound-card --no-fabric-gptp \
           --sys-clk-freq 83.333e6 --milan-clk-freq 50e6 --with-spiflash --flashboot full \
           --uart-baudrate 115200 --timing-opt --strip-probes --l2-bytes 65536 \
           --scala-args=--lsu-l1-refill-count=8 --scala-args=--lsu-hardware-prefetch=rpt \
