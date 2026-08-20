@@ -88,6 +88,166 @@ A missing or corrupt image leaves the AVDECC entity disabled while the PHC and
 fabric gPTP plane continue independently. The UART status line then reports
 `AEM=disabled`; it is not treated as a quiet healthy boot.
 
+### Editing contract for this firmware
+
+Gate 1b in `sw/builder/test_builder.py` checks the shipped boot-order spelling
+and rejects the mutation classes listed below. It proves the enumerated
+address, reset, placement and build-plan facts; it does **not** prove the
+semantic C control/data-flow property, and the known escapes below still
+report `ALL GATES PASS`. The constraints apply to
+`sw/firmware/milan_baremetal/milan_baremetal.c` and
+`sw/firmware/milan_baremetal/Makefile` only. The gate prints both its checked
+facts and open limits at run time; neither this page nor the gate output may
+claim more than those measured facts.
+
+One constraint is answered by a tool rather than by reading text:
+
+- **The Makefile must build one object from one source.** The gate asks
+  `make -Bn` what it would do rather than parsing the file, so every make
+  assignment flavour is covered, and it pins the SET of commands make would
+  run rather than scanning them for dangerous flags. That is why an injection
+  spelled `-Wp,-include,hdr`, `@response.file` or `-iwithprefixbefore` is
+  refused without any of them being named, and it is also why a benign
+  `AR += v` is refused: the rule has no list, so it has nothing to fall
+  behind and no way to make an exception.
+
+A second tool check runs alongside the text rules, and it is an **addition**
+rather than a replacement. Where an RV32 cross compiler is available, the gate
+compiles the firmware and requires that no function except `milan_reg()`
+materialises an address inside the Milan CSR window; where one is not, it
+stands down and says so in its printed verdict.
+
+**What this gate does not prove.** The CRC check has a measured control-flow
+escape. Gate 1b finds the `crc32()` assignment and mismatch block and requires
+every non-zero return to appear later in the same preprocessor arm. Those are
+textual placement facts, not dominance. This warning-clean edit passes both
+the base and current gate while skipping the assignment and comparison:
+
+```c
+goto crc_ok;
+got = crc32((const unsigned char *)MILAN_AEM_DESC_BASE,
+            MILAN_AEM_IMAGE_BYTES);
+if (got != MILAN_AEM_IMAGE_CRC32) {
+        ...
+        return 0;
+}
+crc_ok:
+return 1;
+```
+
+The assignment and mismatch block still exist textually and the non-zero
+return is later in the same arm. Gate 1b builds no CFG, so none of those facts
+proves the CRC decision executed. A structured `do`/`break` bypass has the same
+effect without `goto`, so another keyword refusal is not a proof. The
+verifier/control-flow half of the replacement is tracked on #153.
+
+The source and compiled store instruments also have a shared blind spot and it
+is not closed. The cast set only recognises a cast whose text
+contains a `*`, and the store set only recognises a left-hand side that starts
+with `*` or is `name[...]`; the census exempts `milan_reg()` by name and
+matches printed integer literals. So a cast with no `*` combined with a `->`
+or subscript store is outside **both**, and this walks through today:
+
+```c
+typedef struct { volatile uint32_t ctrl; } *milan_adp_blk;
+...
+((milan_adp_blk)0x90000600u)->ctrl = 1u;      /* ADP_CTRL[0], pre-AEM */
+```
+
+That is a durable pre-AEM entity advertise and the gate reports `ALL GATES
+PASS`. It is not a regression: it passes at every commit in this lane's range.
+Closing the full advertise-after-verification property requires #153 and #162
+together. #153 owns the verifier/control-flow proof and the
+`entity_advertise()` choke point; #162 owns a census that resolves CSR store
+targets by value rather than matching printed literals. The choke point alone
+does not close paged-base `->` or subscript stores, and value resolution alone
+does not prove CRC success was reached. Neither issue alone is a replacement.
+
+**And a second blind spot, on the Makefile side, from the same cause one step
+over.** The recipe pin reads what `make -Bn` PRINTS, which is text make has
+already expanded. A name this Makefile references but nothing defines expands
+to nothing, so the pinned commands come out byte-identical and the environment
+decides what the compiler actually gets:
+
+```make
+CFLAGS += $(MILAN_EXTRA_CFLAGS)
+```
+
+```
+$ make -Bn                                            # what the gate sees
+... -c __BASE_CFLAGS__ -I__BIOS__ <src>/milan_baremetal.c -o milan_baremetal.o
+$ MILAN_EXTRA_CFLAGS='-include ../shadow.h' make -Bn  # what a real build runs
+... -c __BASE_CFLAGS__ -I__BIOS__ -include ../shadow.h <src>/... -o ...
+```
+
+The gate's hostile double-run does not see it either: it perturbs three fixed
+names, and an assignment that defers to a fourth is invisible to it.
+`CFLAGS += $(EXTRA_CFLAGS)` is an ordinary idiom, not a contrivance.
+
+The class is worth stating because it is the same mechanism that stopped the
+compiled census from replacing the text rules: **an instrument that reads a
+RESULT cannot see what an undefined name would have contributed.** Reading the
+Makefile's own TEXT saw `$(MILAN_EXTRA_CFLAGS)` and refused it; reading make's
+result sees an empty expansion and has nothing to refuse.
+
+The fix is derivable and is tracked rather than implemented here: probe
+`$(origin NAME)` for every name the Makefile references and refuse
+`undefined`. Measured against this Makefile, every real name is `file` or
+`default` and the escape is the only `undefined`, with one caveat for whoever
+implements it: the accepted `tags:` case references `$(CTAGS)`, which is also
+`undefined`, so the check has to be scoped to names that reach the pinned
+recipes. See #162.
+
+**Outside what any recipe pin can reach at all**, and recorded here rather
+than turned into rules, because no pin over printed commands can see them:
+`export CPATH` and `export COMPILER_PATH`, which GCC itself reads from the
+environment; `SHELL := ...`, which changes what executes the printed command;
+`.EXPORT_ALL_VARIABLES:`; and `$(shell ...)`, which runs at parse time, during
+the gate's own plan run, before any recipe is printed.
+
+Read the constraints below as what they are: they bound the spellings they
+recognise, and they cost real edits to do it.
+
+- **Any CSR store must go through `milan_write()`.** Only `milan_reg()` may
+  use `MILAN_CSR_BASE` or a `(volatile uint32_t *)` cast. The set of pointer
+  casts, the set of pointer stores and the set of inline-asm statements in the
+  file are each pinned, so a fifth cast, a fifth store or a third `asm` is
+  refused until it is added to the gate.
+
+The rest are refusals, and each one costs a legitimate edit:
+
+| Constraint | Why the gate needs it |
+|---|---|
+| A fifth pointer cast, a fifth pointer store or a third `asm` statement | the compiled census does not cover all three, so the sets are what bound address formation |
+| No multi-line `#define` anywhere in the file | the gate reads macro bodies one physical line at a time |
+| No C backslash-newline anywhere in the file | translation phase 2 deletes the pair and can join tokens before an offset-preserving text census; a real preprocessor-token reader may retire this refusal |
+| No `#ifdef`/`#if` outside `load_aem_image()` | the gate would read one arm while the compiler takes the other |
+| No `#pragma`, `#line`, `#error`, `#undef` or `#include_next` | the gate has no rule for them, so it refuses rather than ignores |
+| The `#include` set is exactly the eleven headers listed in the gate | a twelfth include is text in the translation unit no rule reads |
+| No new file in `sw/firmware/milan_baremetal/` | a quoted include resolves against this directory first, so a file here can shadow a pinned header |
+| `CFLAGS` gains only `-I$(BIOS_DIRECTORY)` | held now by the recipe pin rather than by a flag rule: the compile command is pinned whole, so any added flag changes it |
+| The Makefile's `include` set is exactly its three lines | `make` can only plan fragments that exist |
+| `OBJECTS` may not use `?=` | `make` treats an environment variable as defined, so `?=` lets the environment choose the object list |
+| No label, `goto`, `switch`, `case` or `default` in `milan_init()` | containment inside the guard is not the same as being reached through it |
+| The guarded block holds the two enables and their `printf` and nothing else | anything else in it is unclassified and something for control to be steered at |
+| The address of `aem_loaded` may not be taken | a pointer would write the verdict with no assignment the gate can see |
+| The RTL reset for `adp_ctrl`/`pp_ctrl_r` must be a literal with bit 0 clear | a named constant is not a value the gate can evaluate |
+| `o_adp_enable`/`o_pp_enable` must be `assign <port> = <reg>[0];` | the gate censuses that exact bit |
+| Renaming `load_aem_image`, `milan_init` or `configure_fabric` | the gate finds them by literal identifier; the refusal names the property and the anchor to update |
+| Renaming the verdict `aem_loaded` | same, and the message says so rather than reporting a boot-order defect |
+| REORDERING existing functions, with nothing added or removed | the cast and store sets are compared as ordered lists |
+| A read-only `#define` accessor wrapping `milan_read()` | it hides a CSR primitive from the operand census; the macro contains no store |
+| `##`, `%:` or `??` anywhere in the file | token pasting and the alternate spellings of `#` |
+| FACTORING the CSR accessors, e.g. a `milan_set(offset, bits)` read-modify-write helper | the census places writes by RESOLVED address, and an `offset` parameter has none. **Remedy:** keep the call sites naming a register constant, or teach `CsrModel.address()` to follow the parameter, which is a data-flow change and belongs with #153 |
+| Hoisting the enable mask to a named constant | the OR mask must be a value the gate can evaluate, so `\| MILAN_ENTITY_ENABLE` is not recognised as the enable write. **Remedy:** leave the mask a literal, or add the name to the firmware's `#define` table so `constant_value()` can resolve it |
+| ANY change to the two commands `make` runs, a benign `AR += v` or `CC += -Wall` included | the recipe set is pinned rather than scanned for dangerous flag spellings, and the price of having no list is that benign changes are refused too. **Remedy:** add the changed command to `expected_recipes` in the gate and a mutation-table entry beside it |
+
+The listed refusals bound only the spellings they recognise. The open CRC
+reachability/provenance cases belong to #153; retiring the store-recognition
+families also requires #162's value-resolving census. No refusal family is
+deleted until the joint replacement rejects the recorded escapes by
+measurement.
+
 ## Fabric gPTP option
 
 `board.features.fabric_gptp` defaults to `false`; the shipping AX7101 YAML
