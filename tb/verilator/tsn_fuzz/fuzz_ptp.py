@@ -261,6 +261,11 @@ class Campaign:
         for name, _bits, con in model.fields:
             if name in skip or name not in got or not con:
                 continue
+            # Dispatch order matches tsn_model.legal()/illegal() exactly:
+            # value, values, range, mask. No field declares two kinds today,
+            # but a grader that resolved a combination differently from the
+            # generator that produced the stimulus would be judging by one
+            # rule what was built by another.
             if "value" in con:
                 if name in gaps:
                     self.eq_or_gap("%s.%s" % (label, name), got[name],
@@ -268,14 +273,14 @@ class Campaign:
                 else:
                     self.rep.eq("%s.%s" % (label, name), got[name],
                                 int(con["value"]))
-            elif "range" in con:
-                lo, hi = int(con["range"][0]), int(con["range"][1])
-                self.rep.ck("%s.%s in [%d,%d]" % (label, name, lo, hi),
-                            lo <= got[name] <= hi, "got=%d" % got[name])
             elif "values" in con:
                 self.rep.ck("%s.%s legal" % (label, name),
                             got[name] in [int(v) for v in con["values"]],
                             "got=%d" % got[name])
+            elif "range" in con:
+                lo, hi = int(con["range"][0]), int(con["range"][1])
+                self.rep.ck("%s.%s in [%d,%d]" % (label, name, lo, hi),
+                            lo <= got[name] <= hi, "got=%d" % got[name])
             elif "mask" in con:
                 # A mask names the DEFINED bits; the spec claim is that no bit
                 # outside that set is set. tsn_model already reads masks this
