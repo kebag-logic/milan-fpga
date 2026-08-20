@@ -7,6 +7,17 @@ requests as review objects, and repository documentation as durable knowledge.
 This file tells AI agents how to work efficiently in that system. It supplements
 [CONTRIBUTING.md](CONTRIBUTING.md); when the two differ, [CONTRIBUTING.md](CONTRIBUTING.md) is authoritative.
 
+## Contents
+
+- **[1. Repository model](#1-repository-model)** — What each GitHub and repository artifact is for, and the rule that project state must be public rather than living in a session.
+- **[2. Authority and efficient context loading](#2-authority-and-efficient-context-loading)** — The order to read things in, why not to read the whole repository, and what to do when the Issue and a requirement disagree.
+- **[3. Agent identities and roles](#3-agent-identities-and-roles)** — Session prefixes, the executor/reviewer split, and the requirement that an executor never approves its own work.
+- **[4. Public task contract](#4-public-task-contract)** — What an Issue must contain before work starts, why settled scope rather than size decides readiness, and that new findings become new Issues.
+- **[5. Executor procedure](#5-executor-procedure)** — The steps before the first edit, what to do during implementation, and the two public comments an executor owes.
+- **[6. Reviewer procedure](#6-reviewer-procedure)** — Reviewing from public state alone, the lenses to cover, and the severity classification every finding carries.
+- **[7. Completion and merge](#7-completion-and-merge)** — The full bar a task must clear, and the rule that an agent does not merge without explicit maintainer authorization.
+- **[8. Non-negotiable rules](#8-non-negotiable-rules)** — The short list that overrides convenience, including one agent per branch and never weakening a test to obtain a pass.
+
 ## 1. Repository model
 
 - **GitHub Issue** — public task contract.
