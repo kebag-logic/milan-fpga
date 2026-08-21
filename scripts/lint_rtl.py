@@ -414,6 +414,66 @@ def axis_lib():
     return os.path.relpath(axis, ROOT) if os.path.isdir(axis) else None
 
 
+#: The trees lint reads to RESOLVE the modules hdl/ instantiates, each with the
+#: directory whose absence makes axis_lib()/submodule_sources() skip it. These
+#: are exactly the paths those two functions test, kept in one place so the
+#: refusal below cannot drift from what the sweep actually consumes.
+REQUIRED_TREES = [
+    ("third_party/verilog-axis", "third_party/verilog-axis/rtl",
+     "the Forencich AXIS `-y` resolution root"),
+    ("protocol-processor", "protocol-processor/hdl",
+     "KL_pp_shadow's protocol_processor_top and its reset cone"),
+    ("gptp-processor", "gptp-processor/hdl",
+     "KL_gptp_shadow's KL_gptp_engine"),
+]
+
+
+def _tree_has_sources(rel):
+    """True only if the tree exists AND holds source files lint would read.
+
+    isdir alone is not enough: a submodule checked out to a pin with an empty
+    `hdl/`, or a partial checkout, passes isdir yet contributes no sources, so
+    the count still drops while the refusal below would not fire. So this walks
+    for a `.sv`/`.v` under the tree (skipping the non-source `doc`/`rom`/`ucode`
+    dirs, as submodule_sources does), and an empty tree is treated as absent
+    ([R0] on PR #198).
+    """
+    root = os.path.join(ROOT, rel)
+    if not os.path.isdir(root):
+        return False
+    for _base, dirs, files in os.walk(root):
+        dirs[:] = [d for d in dirs if d not in ("doc", "rom", "ucode")]
+        if any(f.endswith((".sv", ".v")) for f in files):
+            return True
+    return False
+
+
+def missing_resolution_trees(present=None):
+    """(label, why) for every resolution tree lint needs that is absent or empty.
+
+    The COUNT lint prints depends on every tree here: without its sources
+    Verilator cannot bind the modules hdl/ instantiates, the reset/logic cone
+    it needs to SEE a finding is incomplete, and the finding drops out of the
+    count. Measured 2026-08-21: protocol-processor absent drops two hdl/milan
+    SYNCASYNCNET findings, 99 -> 97. A fresh `git worktree add` has NO
+    submodules, so a lane running the documented `scripts/lint_rtl.py` there
+    reads a lower count AND is invited to tighten the ratchet to a number the
+    real tree cannot meet (#186). Today an absent tree also raises a loud
+    MODMISSING that the elaboration gate turns into an exit-1 (so no lowered
+    budget is written), but that failure re-prints the misleading tighten hint
+    and would not fire for a tree whose absence dropped findings WITHOUT a
+    MODMISSING; refusing up front over an incomplete resolution set is the
+    clean and future-proof answer, the pp_srcs.py shape.
+
+    external/ is deliberately NOT here: it is an SSH-only submodule lint never
+    reads. The full local-bar init set is in CONTRIBUTING 2.2. `present`
+    overrides the presence test so the self-test drives every arm.
+    """
+    present = present or _tree_has_sources
+    return [(label, why) for label, rel, why in REQUIRED_TREES
+            if not present(rel)]
+
+
 INCLUDE_RE = re.compile(r'^\s*`include\s+"([^"]+)"', re.M)
 
 
@@ -749,6 +809,44 @@ def self_test(verilator):
                 rc = 1
                 for f in found:
                     print("        unexpected: %s" % f.replace("\n", " "))
+    # #186: the resolution-tree refusal, proven on its pure predicate so it runs
+    # on any box. End to end it is the negative control in the PR: remove a tree
+    # and the gate exits 2, not the ratchet-tighten 1.
+    all_absent = {label for label, _ in
+                  missing_resolution_trees(present=lambda rel: False)}
+    if all_absent != {label for label, _, _ in REQUIRED_TREES}:
+        print("  [self-test] resolution-refusal REFUSE   FAILED "
+              "(absent trees not all flagged: %s)" % sorted(all_absent))
+        rc = 1
+    elif missing_resolution_trees(present=lambda rel: True):
+        print("  [self-test] resolution-refusal REFUSE   FAILED "
+              "(a present tree was flagged absent)")
+        rc = 1
+    else:
+        print("  [self-test] resolution-refusal REFUSE   OK (every absent "
+              "resolution tree refuses; none flagged when present)")
+    # A present-but-EMPTY tree must read as absent: isdir True is not enough,
+    # or a submodule pinned to an empty hdl/ under-counts without refusing
+    # ([R0] on PR #198). Proven on real temp dirs, no submodule needed.
+    with tempfile.TemporaryDirectory() as td:
+        empty = os.path.join(td, "empty")
+        sourced = os.path.join(td, "sourced")
+        os.makedirs(empty)
+        os.makedirs(sourced)
+        open(os.path.join(sourced, "m.sv"), "w").write("module m; endmodule\n")
+        saved = ROOT
+        try:
+            globals()["ROOT"] = td
+            bad = _tree_has_sources("empty") or not _tree_has_sources("sourced")
+        finally:
+            globals()["ROOT"] = saved
+        if bad:
+            print("  [self-test] empty-tree-is-absent      FAILED "
+                  "(empty dir passed, or a sourced dir failed)")
+            rc = 1
+        else:
+            print("  [self-test] empty-tree-is-absent      OK (a present but "
+                  "source-empty tree reads as absent)")
     return rc
 
 
@@ -838,6 +936,32 @@ def main():
     # is the fast pragma-only mode.
     if a.pragmas or (a.self_test and not a.check):
         return rc
+
+    # REFUSE before measuring anything if a resolution tree is absent or empty.
+    # The sweep below and the budget-lowering path further down would otherwise
+    # run over a tree missing the sources hdl/ instantiates and under-count,
+    # inviting a ratchet tighten (--check). Today an absent tree also raises a
+    # MODMISSING the elaboration gate turns into an exit-1 before any budget is
+    # written, so the danger is the misleading tighten hint rather than a silent
+    # lower-write - but that backstop does not cover a present-but-empty tree,
+    # nor a future resolution tree whose absence drops findings without a
+    # MODMISSING. A clean up-front refusal covers all of them (#186). This is
+    # exit 2, a setup refusal, deliberately NOT the exit-1 tighten path.
+    missing = missing_resolution_trees()
+    if missing:
+        print("LINT SETUP: REFUSED - a source tree lint reads to resolve hdl/ "
+              "is not checked out, so the violation count would be "
+              "under-reported:")
+        for label, why in missing:
+            print("  missing: %-26s (%s)" % (label, why))
+        print("  A fresh `git worktree add` inherits no submodules. Initialise "
+              "them (no network needed for these three):")
+        print("    git submodule update --init %s"
+              % " ".join(label for label, _ in missing))
+        print("  Refused rather than counted: a violation count over an "
+              "incomplete resolution set proves nothing and must not read as a "
+              "pass, nor invite a ratchet tighten - the pp_srcs.py rule.")
+        return 2
 
     decls = declarations()
     gaps = coverage_gaps(decls)
