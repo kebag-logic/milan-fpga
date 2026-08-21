@@ -54,14 +54,52 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # A documentation-only pull request must not pay a LiteX install, a
+      # VexiiRiscv checkout and a Scala run. scripts/ci_scope.py is the
+      # repository's one answer to "does this change need the RTL toolchain",
+      # and it fails safe: an empty diff and an unresolvable base both come
+      # back `true`. Raised against this workflow by [R1] while reviewing
+      # PR #176, which introduces that classifier.
+      - name: Decide whether this head needs an elaboration
+        id: scope
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          set -euo pipefail
+          # ci_scope.py arrives with PR #176. Until that lands this file may
+          # not exist, and the safe answer to "is this change RTL relevant"
+          # when the classifier is absent is yes.
+          if [ ! -f scripts/ci_scope.py ]; then
+            echo "rtl=true" >> "$GITHUB_OUTPUT"
+            echo "no scripts/ci_scope.py yet: elaborating unconditionally"
+            exit 0
+          fi
+          python3 scripts/ci_scope.py --selftest
+          if [ "$EVENT_NAME" != pull_request ]; then
+            echo "rtl=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if [ -n "$PR_BASE_SHA" ] \
+             && git cat-file -e "$PR_BASE_SHA^{commit}" 2>/dev/null; then
+            git diff --name-only "$PR_BASE_SHA" "$GITHUB_SHA" > "$RUNNER_TEMP/changed"
+          else
+            git ls-files > "$RUNNER_TEMP/changed"
+          fi
+          echo "rtl=$(python3 scripts/ci_scope.py < "$RUNNER_TEMP/changed")" >> "$GITHUB_OUTPUT"
 
       # The elaboration reads the protocol-processor and gptp-processor source
       # lists through scripts/pp_srcs.py, which REFUSES to emit an empty list.
       # Without the submodules it fails before the datapath is reached.
       - name: Fetch the processor sources the elaboration reads
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
         run: git submodule update --init protocol-processor gptp-processor
 
       - uses: actions/setup-python@v5
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
         with:
           python-version: '3.12'
 
@@ -73,6 +111,7 @@ jobs:
       # The revisions are pinned in sw/litex/litex_pins.txt so that an
       # upstream commit cannot redden a PR that changed nothing.
       - name: Install LiteX at the pinned revisions
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
         run: |
           python3 -m pip install --quiet pyyaml
           python3 -m pip install --quiet -r sw/litex/litex_pins.txt
@@ -82,6 +121,7 @@ jobs:
       # the only reason this job needs a JVM at all, and the result caches: a
       # cold run pays about 90 s for it, a warm one nothing.
       - name: Cache the CPU netlist arguments and the Scala toolchain
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
         uses: actions/cache@v4
         with:
           path: |
@@ -93,6 +133,7 @@ jobs:
           restore-keys: elaborate-vexii-
 
       - name: Install sbt
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
         run: |
           sbt --version >/dev/null 2>&1 && exit 0
           curl -fsSL --retry 3 -o /tmp/sbt.tgz \
@@ -106,6 +147,7 @@ jobs:
       # restated: a pin copied to a second place goes stale in silence, and
       # the symptom is a netlist from the wrong CPU source, not a red build.
       - name: Place the VexiiRiscv source at the revision LiteX pins
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
         run: |
           python3 scripts/ci_litex_env.py
           mkdir -p ~/vexii-netlist-args
@@ -119,9 +161,11 @@ jobs:
       # red. --require-elaboration turns a missing interpreter into a failure
       # rather than a skip.
       - name: Elaboration gates
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
         run: python3 sw/builder/test_builder.py --require-elaboration
 
       - name: Keep the generated CPU netlist arguments for the next run
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
         if: always()
         run: |
           cp -n "$(python3 -c 'import pythondata_cpu_vexiiriscv as p; print(p.data_location)')"/*.py \
