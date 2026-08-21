@@ -7,7 +7,7 @@
 #
 # These are use-before-declaration defects real on dev and invisible to the
 # Verilator/sv2v bar; fixing them (moving each declaration above first use)
-# is issue #133, not this gate's lane. Lowering an entry is a normal commit:
+# is issue #193, not this gate's lane. Lowering an entry is a normal commit:
 #     scripts/xvlog_gate.py && git add scripts/xvlog.budget
 #
 # total 3 finding(s)

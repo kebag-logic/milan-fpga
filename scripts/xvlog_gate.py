@@ -52,6 +52,7 @@ package that will not analyse, 2 = usage or setup error.
 """
 
 import argparse
+import hashlib
 import os
 import pathlib
 import re
@@ -118,7 +119,17 @@ class Finding:
 
     @property
     def key(self):
-        return f"{self.path}|{self.code}|{self.identifier}"
+        # Most VRFC errors name an identifier, and that is the stable key. Some
+        # (a syntax error, an unopenable include) carry none, and keying two
+        # DISTINCT such defects in one file as `path|code|` would collapse them:
+        # once one is grandfathered, a different one of the same code hides
+        # behind the banked key. So an identifier-less finding is discriminated
+        # by a short hash of its message - stable across line moves, unlike the
+        # line number, and distinct per defect ([R1] on PR #194).
+        ident = self.identifier or (
+            "#" + hashlib.sha1(self.message.encode("utf-8",
+                                                   "replace")).hexdigest()[:8])
+        return f"{self.path}|{self.code}|{ident}"
 
     def detail(self):
         loc = f":{','.join(self.lines)}" if self.lines else ""
@@ -383,6 +394,18 @@ def _selftest_logic():
     if new != ["c"] or gone != ["b"]:
         problems.append(f"diff: expected new=['c'] gone=['b'], "
                         f"got new={new} gone={gone}")
+
+    # Identifier-less findings must not collapse: two DISTINCT ones in a file
+    # get distinct keys (by message hash), two identical ones share a key.
+    a = Finding("m.sv", "VRFC 10-2989", "", "1", "cannot resolve ALPHA")
+    b = Finding("m.sv", "VRFC 10-2989", "", "2", "cannot resolve BETA")
+    c = Finding("m.sv", "VRFC 10-2989", "", "9", "cannot resolve ALPHA")
+    if a.key == b.key:
+        problems.append("empty-identifier: distinct messages collapsed to one "
+                        f"key {a.key}")
+    if a.key != c.key:
+        problems.append("empty-identifier: identical messages got different "
+                        f"keys {a.key} vs {c.key}")
     return problems
 
 
