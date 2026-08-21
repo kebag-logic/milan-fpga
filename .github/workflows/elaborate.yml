@@ -165,8 +165,7 @@ jobs:
         run: python3 sw/builder/test_builder.py --require-elaboration
 
       - name: Keep the generated CPU netlist arguments for the next run
-        if: ${{ steps.scope.outputs.rtl == 'true' }}
-        if: always()
+        if: ${{ always() && steps.scope.outputs.rtl == 'true' }}
         run: |
           cp -n "$(python3 -c 'import pythondata_cpu_vexiiriscv as p; print(p.data_location)')"/*.py \
             ~/vexii-netlist-args/ 2>/dev/null || true
