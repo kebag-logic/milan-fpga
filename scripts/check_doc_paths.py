@@ -62,6 +62,15 @@ LEDGER_MARKER = "docs-check: allow-dead-refs"
 #: prose - so they are recorded here rather than deleted. The gate refuses
 #: SILENT additions: a new dangling path fails until someone writes the reason.
 ALLOW = {
+    # STACKED-BRANCH ABSENCE, not a dead reference. The elaboration workflow
+    # gates its heavy steps on this classifier and TESTING.md says so; the
+    # script itself arrives with PR #176, which is on `dev`, while this work
+    # is stacked on a base predating it. The workflow falls back to
+    # elaborating unconditionally while the file is absent, and the entry
+    # goes away when the stack retargets to `dev` and the path resolves.
+    "scripts/ci_scope.py":
+        "arrives with PR #176 on dev; this stack predates it and the "
+        "workflow falls back to unconditional elaboration until retarget",
     "tb/utests/802_1q_traffic_shaper/tb_credit_based_shaper.sv":
         "removed bench, named by REQUIREMENTS/TODO to record that "
         "tb/verilator/cbs supersedes it",

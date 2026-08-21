@@ -766,6 +766,55 @@ host-only.
   `verilog-axis` and `protocol-processor`. The docs workflow also initializes
   `protocol-processor` before running the builder gate. Local commands:
   [Section 2 of `../../QUICKSTART.md`](../../QUICKSTART.md#2-track-1--simulate-no-fpga-no-vendor-tools).
+* **The SoC is elaborated, and by whom is the open question** (2026-08-21,
+  issues #154, #156 and #185). Every argv-to-RTL-parameter chain in this
+  repository used to be proven by source-text greps against
+  `sw/litex/milan_soc.py`, and three separate blockers in three lanes on one
+  day were that one gap: a flag parsed, threaded part of the way, and never
+  reaching the parameter it names. In one of them a reviewer severed the
+  chain at two independent hops and got `ALL GATES PASS` both times.
+
+  Two gates in [`sw/builder/test_builder.py`](../../sw/builder/test_builder.py)
+  close that class. Gate 23f patches `Instance` in the executed module's
+  namespace and reads the live `p_*` keyword arguments, so what is graded is
+  what elaboration would hand Vivado; eleven negative controls sever the
+  chain hop by hop and require it to go red. Gate 23g asserts every
+  `build.sh` recipe and every `sweep.sh` leg reaches that same `Instance`
+  with the flow tail its own launcher appends, `--build` included, which is
+  the flag every shape gate in the tree excludes.
+
+  Both need a LiteX interpreter, and **CI now installs one**.
+  [`.github/workflows/elaborate.yml`](../../.github/workflows/elaborate.yml)
+  runs on pushes to `dev`/`main`, on pull requests, and on manual dispatch.
+  It installs the revisions pinned in
+  [`sw/litex/litex_pins.txt`](../../sw/litex/litex_pins.txt), places the
+  VexiiRiscv checkout at the revision LiteX itself names, runs
+  [`sw/litex/patches/apply.sh`](../../sw/litex/patches/apply.sh), and then
+  runs `sw/builder/test_builder.py --require-elaboration`.
+
+  The patch series is the reason that install is three steps and not one.
+  Upstream LiteX has no `baremetal` VexiiRiscv variant, which is the shipping
+  AX profile, and the revision it pins rejects the `--scala-args` four of the
+  five configs pass. [`sw/litex/patches`](../../sw/litex/patches) has always
+  carried the series that closes both, but until 2026-08-21 nothing in CI ran
+  `apply.sh` and no gate compared its result, so it had silently stopped
+  applying. Gate 23h now reconstructs it. #185 carries that measurement.
+
+  A documentation-only pull request pays for none of it: every heavy step is
+  gated on `scripts/ci_scope.py`, the classifier PR #176 added, and that
+  classifier fails safe - an empty diff or an unresolvable base both come
+  back RTL-relevant. Were the script ever absent the workflow would say so in
+  its log and elaborate unconditionally rather than guess. The workflow's
+  scheduling policy, what makes its check red and what only skips, is the
+  `Elaboration` section of [`CI_WORKFLOWS.md`](CI_WORKFLOWS.md).
+
+  What the workflow does **not** prove is stated in its own output:
+
+  | property | why |
+  |---|---|
+  | the verdict **names every arm that did not run** | `ALL GATES PASS EXCEPT n NOT RUN`, with the reason, is the honest line when a gate declines. A gate that prints its own SKIP and lets the verdict print a green is how the absence of a proof comes to read as the presence of one |
+  | `--require-elaboration` **fails** rather than skips | so the day the job is enabled, a broken install cannot quietly return it to the state it was written to end. Two things fail it: no interpreter, and an interpreter whose VexiiRiscv rejects the `--l2-*` arguments the series adds. A recipe recorded as unrunnable (#184's Arty leg) skips only when it fails with exactly the recorded diagnostic; any other failure on that row, and any other generator failure, is red. The verdict line says which arms did not run instead of claiming every arm ran |
+  | LiteX is **pinned** in [`sw/litex/litex_pins.txt`](../../sw/litex/litex_pins.txt) | an install from master turns an upstream commit into a red on a pull request that changed nothing, and `migen` on PyPI is stale code sharing a version number with the git tree, which fails at `csr.py:64` on any interpreter newer than 3.10 |
 * **The Verilator version matters, and distro packages are not enough.**
   Measured 2026-07-26 by running the suites under each version in a container:
 
