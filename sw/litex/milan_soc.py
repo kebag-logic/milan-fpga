@@ -569,6 +569,8 @@ _MILAN_DATAPATH_SOURCES = [
     "protocol-processor/hdl/packet_engine/KL_pp_originator.sv",
     "protocol-processor/hdl/packet_engine/KL_pp_trace_ring.sv",
     "protocol-processor/hdl/packet_engine/KL_pp_side_port.sv",
+    "protocol-processor/hdl/packet_engine/KL_pp_release_merge.sv",
+    "protocol-processor/hdl/aecp/KL_aecp_ca_originator.sv",
     "protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv",
     "protocol-processor/hdl/adp/KL_adp_engine.sv",
     "protocol-processor/hdl/maap/KL_pp_maap.sv",

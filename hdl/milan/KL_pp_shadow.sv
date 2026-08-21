@@ -891,6 +891,15 @@ module KL_pp_shadow #(
       .entity_enable_i     (enable_i),
       .link_up_i           (link_up_i),
       .gm_change_i         (gm_change_i),
+
+      // asCapable-change term of the ASP notification trigger. Tied inert
+      // because this parent exposes no asCapable-change strobe; the gPTP
+      // plane hands up `gm_change_i` and nothing else. Note what this does
+      // and does not cost: the engine computes `ev_asp_i = gm_change_i ||
+      // gsi_asp_chg_i`, so the ASP trigger stays LIVE on a GM change and
+      // only the asCapable term is missing. Tracked with the counter-change
+      // ports as milan-fpga issue #169.
+      .gsi_asp_chg_i       (1'b0),
       .gm_id_i             (gm_id_i),
       .gptp_domain_i       (gptp_domain_i),
 
@@ -1008,6 +1017,20 @@ module KL_pp_shadow #(
       .nvm_dev_busy_i      (nvm_busy_r),
       .nvm_dev_done_i      (nvm_done_r),
       .nvm_dev_err_i       (1'b0),
+
+      // Counter-change notification trigger, arriving with the AECP
+      // notification engine. Tied inert because this parent has no
+      // counter-change event source: nothing here strobes "the counter for
+      // descriptor (type, index) moved". Tying it is NOT the integration --
+      // it is the honest statement that the integration does not exist yet,
+      // and it holds current behaviour exactly, since the pin predates this
+      // build and no unsolicited counter notification has ever fired.
+      // Driving these three is tracked as milan-fpga issue #169. Declared
+      // here rather than waived in the linter so a reader of the RTL sees
+      // the tie and its reason, instead of the pin silently floating.
+      .ctr_change_i            (1'b0),
+      .ctr_change_desc_type_i  (16'd0),
+      .ctr_change_desc_index_i (16'd0),
 
       .host_req_valid_i    (hb_pend_r),
       .host_we_i           (hb_we_r),

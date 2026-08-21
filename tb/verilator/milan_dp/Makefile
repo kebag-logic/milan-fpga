@@ -99,6 +99,8 @@ PP_SRCS = $(PP_DIR)/common/pp_pkg.sv $(PP_DIR)/srp/srp_pkg.sv \
        $(PP_DIR)/packet_engine/KL_pp_originator.sv \
        $(PP_DIR)/packet_engine/KL_pp_trace_ring.sv \
        $(PP_DIR)/packet_engine/KL_pp_side_port.sv \
+       $(PP_DIR)/packet_engine/KL_pp_release_merge.sv \
+       $(PP_DIR)/aecp/KL_aecp_ca_originator.sv \
        $(PP_DIR)/packet_engine/KL_pp_nvm_port.sv \
        $(PP_DIR)/adp/KL_adp_engine.sv \
        $(PP_DIR)/maap/KL_pp_maap.sv \
