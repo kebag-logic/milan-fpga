@@ -290,11 +290,11 @@ and a high finding rate is not evidence of good targeting.
 The case in Issue #166 is the argument, and it is worth stating exactly, since
 an approximation of it would be the same defect the rule is about. On
 protocol-processor #13, thirteen consecutive rounds asked whether the harness
-proved what it claimed and whether the document describing it was true. The
-round that ended that run opens "Thirteen rounds, and this is the first"
-positive one. Every round found something real and every fix was correct. Those
-rounds ran two lenses, `Tests` and `Docs`, and the later ones say so in their
-own first line: seven consecutive answers are headed "Doc-only".
+proved what it claimed and whether the document describing it was true. Twelve
+found something real, every fix was correct, and the thirteenth opens "Thirteen
+rounds, and this is the first" positive one. Those rounds ran two lenses,
+`Tests` and `Docs`, and the later ones say so in their own first line: seven
+consecutive answers are headed "Doc-only".
 
 Three lenses went unapplied for all thirteen. When `RTL` was finally run, as a
 separate round on the same head, it found two defects in the shipped RTL that no
