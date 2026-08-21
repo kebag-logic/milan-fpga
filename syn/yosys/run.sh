@@ -83,25 +83,33 @@ SYNTH="${YOSYS_SYNTH:-synth}"
 # status explicitly: command substitution in an assignment otherwise hides a
 # refusal and an empty source list can elaborate a meaningless shadow wrapper.
 PP="$R/protocol-processor/hdl"
-# --list PRINTS NAMES AND MUST NOT NEED SOURCES. The inventory's name column
+# python3 IS NEEDED ON EVERY PATH, `--list` included: the shard selector
+# scripts/yosys_shards.py runs below for every invocation. Only the SOURCE
+# DERIVATION under it is conditional, so this check stays unconditional -
+# otherwise an absent interpreter surfaces as `Yosys shard selector fails its
+# own self-test`, which reads as a repository defect rather than a missing
+# runtime ([R0] on PR #191).
+command -v python3 >/dev/null || {
+  echo "missing tool: python3 (required by scripts/yosys_shards.py, and by" >&2
+  echo "  scripts/pp_srcs.py on every path except --list)" >&2
+  exit 2
+}
+
+# `--list` PRINTS NAMES AND MUST NOT NEED SOURCES. The inventory's name column
 # is the first field of each `tops` row and no source path contributes to it,
 # but this script used to derive the submodule source list before reaching the
-# --list exit, so `--list` required a checked-out protocol-processor while
+# `--list` exit, so `--list` required a checked-out protocol-processor while
 # saying twice above that it required nothing. That was invisible until a CI
 # job called it from a checkout without submodules and `yosys-portability`
 # went red in seven seconds with every shard passing (#190).
 #
-# The placeholder is deliberately a path that cannot exist. --list exits long
+# The placeholder is deliberately a path that cannot exist. `--list` exits long
 # before any top is built, so it is never read; if a later change moves that
 # exit, yosys fails on a missing file rather than synthesising an empty source
 # list, which is the failure `pp_srcs.py` refuses to allow in the first place.
 if [ "$LIST" -eq 1 ]; then
   PP_SRCS="@pp-srcs-not-derived-for---list@"
 else
-  command -v python3 >/dev/null || {
-    echo "missing tool: python3 (required by scripts/pp_srcs.py)" >&2
-    exit 2
-  }
   PP_DERIVED="$(python3 "$R/scripts/pp_srcs.py" --prefix "$PP")" || exit 2
   PP_SRCS="$PP_DERIVED $R/hdl/milan/KL_pp_shadow.sv $R/hdl/milan/KL_pp_maap_shim.sv"
 fi
