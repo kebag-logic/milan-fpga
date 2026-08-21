@@ -14,8 +14,8 @@ This file tells AI agents how to work efficiently in that system. It supplements
 - **[3. Agent identities and roles](#3-agent-identities-and-roles)** — Session prefixes, the executor/reviewer split, and the requirement that an executor never approves its own work.
 - **[4. Public task contract](#4-public-task-contract)** — What an Issue must contain before work starts, why settled scope rather than size decides readiness, and that new findings become new Issues.
 - **[5. Executor procedure](#5-executor-procedure)** — The steps before the first edit, what to do during implementation, and the two public comments an executor owes.
-- **[6. Reviewer procedure](#6-reviewer-procedure)** — Reviewing from public state alone, the lenses to cover, and the severity classification every finding carries.
-- **[7. Completion and merge](#7-completion-and-merge)** — The full bar a task must clear, and the rule that an agent does not merge without explicit maintainer authorization.
+- **[6. Reviewer procedure](#6-reviewer-procedure)** — Reviewing from public state alone, the lenses to cover, the severity every finding carries, and the split between findings against the deliverable and findings against the instruments that measure it.
+- **[7. Completion and merge](#7-completion-and-merge)** — The full bar a task must clear, when to stop reviewing and ask for authorization, and the rule that an agent does not merge without explicit maintainer authorization.
 - **[8. Non-negotiable rules](#8-non-negotiable-rules)** — The short list that overrides convenience, including never letting two agents edit one branch concurrently, and never weakening a test to obtain a pass.
 
 ## 1. Repository model
@@ -204,7 +204,10 @@ Review at least these lenses.
 - Obsolete requirements or documents were not accidentally restored.
 - The PR and Issue contain enough evidence for another cold reviewer.
 
-Classify every finding:
+Classify every finding twice: by severity, and by what it is a finding
+*against*.
+
+Severity:
 
 - `BLOCKER` — incorrect, unsafe, or non-compliant; must fix before merge.
 - `MAJOR` — substantial correctness, design, or test weakness; normally blocking.
@@ -212,11 +215,46 @@ Classify every finding:
 - `SUGGESTION` — optional improvement.
 - `PASS` — no blocking finding for the assigned review lens.
 
+Target, which is `deliverable` or `instrument`:
+
+- `deliverable` — the work the Issue asked for. A finding is against the
+  deliverable when fixing it changes whether one of the Issue's frozen
+  acceptance criteria (section 4) holds.
+- `instrument` — the gates, harnesses, fixtures, scripts and published figures
+  built to demonstrate the deliverable. A finding is against an instrument when
+  fixing it leaves every acceptance criterion exactly as true or false as it
+  was.
+
+The test is that question and not the reviewer's sense of importance. An
+instrument finding can be severe, and severity is recorded independently. What
+the target decides is not how much the finding matters but which lane owns it.
+
+The two are decided per Issue, not per artifact type. When the Issue asked for a
+gate, that gate IS the deliverable and a defect in it is a `deliverable`
+finding; the instruments are then whatever was built to demonstrate the gate
+works, such as its mutation table or its self-test fixtures. The same file can
+be the deliverable in one lane and an instrument in the next. Apply the
+acceptance-criteria test rather than reading the label off the path.
+
+**An instrument finding does not block the merge it was found on.** File it as
+its own Issue, link it from the PR, and continue. It is not waived, dismissed,
+or downgraded; it is moved to a lane where it can be fixed without holding the
+deliverable hostage.
+
+This exists because verification scaffolding has no natural end. Every gate can
+carry a gate, and a reviewer who keeps looking will keep finding real defects in
+the instruments long after the deliverable has stopped changing. Without this
+split the loop's only exit is a reviewer finding nothing, which is not a bound.
+Issue #166 records the case that produced this rule: a suite that was correct
+and unchanged for seven commits, and six further review rounds, every one of
+them a genuine finding, none of them against the suite.
+
 Use this concise format:
 
 ```text
-[R<n>] <SEVERITY> — <path:line or artifact> — <title>
+[R<n>] <SEVERITY> <deliverable|instrument> — <path:line or artifact> — <title>
 Requirement/evidence: <why this is a finding>
+Target rationale: <which acceptance criterion changes truth, or why none does>
 Impact: <failure mode>
 Required change: <what must be true, without prescribing unnecessary design>
 Verification: <how the fix will be checked>
@@ -224,6 +262,11 @@ Verification: <how the fix will be checked>
 
 A review round that discovers defects is not approval of later fixes. Re-review
 the corrected commit and publish a new verdict.
+
+**A round that produces no `deliverable` finding is a positive result, and it
+must be published as one.** State plainly that the deliverable is ready, listing
+the instrument findings and the Issues they became. That sentence is what ends
+the round; it is not a silence for the executor to read past.
 
 ## 7. Completion and merge
 
@@ -233,7 +276,9 @@ A task is complete only when:
 - required tests and local verification gates pass;
 - no undocumented requirement/interface change remains;
 - the full review bar in [CONTRIBUTING.md](CONTRIBUTING.md) is met;
-- blocking and major findings are fixed and re-reviewed;
+- blocking and major findings **against the deliverable** are fixed and
+  re-reviewed, and instrument findings are filed as their own Issues;
+- the most recent review round produced no `deliverable` finding;
 - no review round remains in flight;
 - the candidate merge result is validated;
 - the change lands in `dev`;
@@ -244,12 +289,21 @@ A task is complete only when:
 Green CI alone is not proof of correctness. A PR must not be merged by an agent
 unless a maintainer explicitly authorizes that merge.
 
+Once the bar above is met, the executor's next act is to request that
+authorization. Requesting another review round instead is a decision, not a
+default, and it needs a stated reason: naming a specific untested property of
+the deliverable, not the general possibility that an instrument could be
+sharper. An executor is the worst-placed party to judge when to stop, because
+the incentive always points at one more round while findings keep arriving.
+
 ## 8. Non-negotiable rules
 
 - Never let two agents edit the same branch/worktree concurrently.
 - Never change another active lane's branch.
 - Never hide a material assumption or specification conflict in code.
 - Never weaken a test or acceptance criterion solely to obtain a pass.
+- Never hold a finished deliverable open on instrument findings alone, and
+  never let an instrument finding be dropped instead of filed.
 - Never treat generated prose or an agent summary as more authoritative than the
   linked requirement and executable evidence.
 - Never publish private chain-of-thought; publish concise conclusions and evidence.
