@@ -216,6 +216,19 @@ if ! selftest_out=$(cd "$ROOT" && \
   exit 2
 fi
 
+# Fourth of the family: syn/yosys/check_list_hermetic.sh proves `run.sh --list`
+# needs only itself and scripts/yosys_shards.py - not a submodule, not
+# pp_srcs.py - which is the property the yosys-portability aggregate depends on
+# and the one #190 broke. It builds a submodule-free tree and its own negative
+# control, needs no yosys or sv2v, and is the durable check #191 deferred (#192).
+if ! selftest_out=$(cd "$ROOT" && bash "$ROOT/syn/yosys/check_list_hermetic.sh" 2>&1); then
+  echo "$selftest_out" >&2
+  echo "ABORTING: syn/yosys/check_list_hermetic.sh fails: run.sh --list no" >&2
+  echo "longer stands alone, so the portability aggregate could redden on a" >&2
+  echo "submodule-free checkout again (#190)." >&2
+  exit 2
+fi
+
 mkdir -p "$OUT"
 rm -f "$OUT"/*.log            # a stale log from a previous sweep is not evidence
 
