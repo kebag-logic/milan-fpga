@@ -30,8 +30,18 @@ rejections too, and PR #128 merged over exactly those while an
 uppercase-`NEGATIVE`-only reader saw nothing. Clean-lens and finding lines
 (`[R<n>] PASS/BLOCKER/MAJOR/...`) are NOT verdicts and are skipped for verdict
 purposes, and `NEGATIVE` excludes the compound "negative control", so a PASS
-line reading "PASS ... negative-control" is not mistaken for a rejection. See
-_line_verdict.
+line reading "PASS ... negative-control" is not mistaken for a rejection, and
+"not validated (for merge)" / "cannot validate" are rejections while
+"VALIDATED" is the positive pole of that axis (#111, #112). See _line_verdict.
+
+SCOPE. This is a NAMED-DIALECT parser, not an NLP one: it reads the AGENTS.md
+section 6 convention (`[R<n>] POSITIVE`/`NEGATIVE`, `[R<n>] BLOCKER`) plus the
+handful of rejection phrasings this corpus actually uses. It deliberately does
+NOT try to understand arbitrary prose - a reviewer who states a rejection only
+as free text ("this needs more work", an unprefixed `**Verdict: ...**` line)
+is off-convention and can be missed; the fix for that is to publish the verdict
+as `[R<n>] NEGATIVE`, not to grow this regex without bound. That boundary is
+the honest one after three rounds of dialect-chasing ([R]/[R1]/[R2]).
 
 TOOL ABSENCE IS UNKNOWN, NEVER A PASS. With no `gh`, or a `gh` that errors, the
 gate exits 2 (cannot run), never 0. The `--selftest` needs no network: it drives
@@ -58,8 +68,11 @@ DEFAULT_BASE = "dev"
 DEFAULT_LIMIT = 20
 
 #: A reviewer line. `[A<n>]` (author) lines are deliberately not matched - only
-#: a reviewer publishes a verdict.
-_RLINE_RE = re.compile(r"^\s*\[R\d+\]")
+#: a reviewer publishes a verdict. A leading markdown header (`##`/`###`) or
+#: bold (`**`) is allowed, because reviews write findings as `### [R1] BLOCKER`
+#: and verdicts as `## [R1] POSITIVE` headers ([R2] on this PR).
+_LEAD = r"^\s*#*\s*\**\s*"
+_RLINE_RE = re.compile(_LEAD + r"\[R\d+\]")
 #: A findings / clean-lens line: `[R<n>]` then one of the section-6 severity
 #: or PASS tokens. These are NOT the top verdict, and their PROSE routinely
 #: contains verdict words that are not verdicts - a `PASS` lens line says
@@ -67,16 +80,26 @@ _RLINE_RE = re.compile(r"^\s*\[R\d+\]")
 #: those as a verdict flips a POSITIVE-reviewed clean merge to negative-merge
 #: (PR #199 did exactly that under the first cut of this parser, [R1]).
 _FINDING_LEAD_RE = re.compile(
-    r"^\s*\[R\d+\]\s*(?:\*\*\s*)?(PASS|BLOCKER|MAJOR|MINOR|SUGGESTION)\b", re.I)
-#: A rejection: `NEGATIVE` (but not the compound "negative control", this
-#: repo's own test vocabulary), `DO NOT MERGE`, `REQUEST CHANGES`.
+    _LEAD + r"\[R\d+\]\s*(?:\*\*\s*)?(PASS|BLOCKER|MAJOR|MINOR|SUGGESTION)\b",
+    re.I)
+#: A rejection, in the dialects this corpus actually uses: `NEGATIVE` (but not
+#: the compound "negative control", this repo's own test vocabulary),
+#: `DO NOT MERGE`, `REQUEST CHANGES`, and "not validated (for merge)" /
+#: "cannot validate" ([R2]: PR #111 merged over "still not validated for merge").
+#: This is a NAMED-DIALECT parser, not a prose NLP one - see the WHAT IT READS /
+#: SCOPE note in the module docstring.
 _NEG_RE = re.compile(
-    r"\bNEGATIVE\b(?![-\s]control)|\bDO\s+NOT\s+MERGE\b|\bREQUEST[-\s]CHANGES\b",
+    r"\bNEGATIVE\b(?![-\s]control)|\bDO\s+NOT\s+MERGE\b|\bREQUEST[-\s]CHANGES\b"
+    r"|\bnot\s+validated\b|\bcannot\s+validate\b",
     re.I)
 #: "not [yet] a positive [review]" - a rejection (PR #128). The `a` keeps it
 #: off praise like "not only positive but excellent".
 _NOT_A_POSITIVE_RE = re.compile(r"\bnot\b(?:\s+yet)?\s+a\s+positive\b", re.I)
-_POSITIVE_RE = re.compile(r"\bPOSITIVE\b", re.I)
+#: An acceptance: `POSITIVE`, or `VALIDATED` (the positive pole of the same
+#: axis as "not validated"; #112 clears its blockers with "... VALIDATED"). The
+#: `not validated` rejection is checked FIRST in _line_verdict, so it wins over
+#: the `VALIDATED` substring it contains.
+_POSITIVE_RE = re.compile(r"\bPOSITIVE\b|\bVALIDATED\b", re.I)
 #: `Closes/Fixes/Resolves` (optional `:`) then one or more `#N`, comma- or
 #: `and`-separated. A digit is required, so the template's bare
 #: "Closes/relates to: #" placeholder names nothing. `\b` before the keyword
@@ -389,9 +412,46 @@ def selftest():
         problems.append("case15 negative-control-in-a-PASS-line must not flag: "
                         "%s" % [x.line() for x in assess_pr(p15, openf(set()))])
 
+    # 16. THE #111 MISS: merged over a standing "still not validated for merge
+    # / the blockers remain" with only author [A1] follow-ups after ([R2]).
+    p16 = {"number": 111, "mergedAt": "2026-08-18T19:15:59Z", "body": "x",
+           "reviews": [], "comments": [
+               {"body": "[R0] this PR is not validated for merge yet. "
+                        "Blocking: 1.",
+                "createdAt": "2026-08-18T16:28:07Z"},
+               {"body": "[R0] Status recheck: still not validated for merge. "
+                        "The blockers remain.",
+                "createdAt": "2026-08-18T17:33:45Z"},
+               {"body": "[A1] Every blocker is answered at de4b319.",
+                "createdAt": "2026-08-18T18:53:59Z"}]}
+    if [x.reason for x in assess_pr(p16, openf(set()))] != ["negative-merge"]:
+        problems.append("case16 not-validated: %s"
+                        % [x.line() for x in assess_pr(p16, openf(set()))])
+
+    # 17. ...and the positive pole clears: #112 iterates "cannot validate" then
+    # ends "[R1] VALIDATED" before merge, so it must NOT be flagged.
+    p17 = {"number": 112, "mergedAt": "2026-08-18T18:31:48Z", "body": "x",
+           "reviews": [{"body": "[R0] cannot validate: a store leaks.",
+                        "submittedAt": "2026-08-18T15:49:43Z"},
+                       {"body": "[R1] VALIDATED. Every outstanding item "
+                                "verified.",
+                        "submittedAt": "2026-08-18T18:31:45Z"}], "comments": []}
+    if assess_pr(p17, openf(set())):
+        problems.append("case17 validated-clears must be clean: %s"
+                        % [x.line() for x in assess_pr(p17, openf(set()))])
+
+    # 18. A `### [R1] BLOCKER` markdown-header finding line is still a finding
+    # (not a verdict), and a `## [R1] POSITIVE` header is still the verdict.
+    p18 = {"number": 900, "mergedAt": "2026-08-21T00:00:03Z", "body": "x",
+           "reviews": [{"body": "## [R1] POSITIVE\n### [R1] MINOR Docs - a nit",
+                        "submittedAt": "2026-08-21T00:00:00Z"}], "comments": []}
+    if assess_pr(p18, openf(set())):
+        problems.append("case18 header-formatted POSITIVE must be clean: %s"
+                        % [x.line() for x in assess_pr(p18, openf(set()))])
+
     for p in problems:
         print("  SELFTEST FAILED: %s" % p)
-    n = 15
+    n = 18
     print("check_merge_review_integrity self-test: %d checks: %d PASS, %d FAIL"
           % (n, n - len(problems), len(problems)))
     return 1 if problems else 0
