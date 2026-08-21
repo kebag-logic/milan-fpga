@@ -209,15 +209,19 @@ repository elaborated the SoC, so a behavioural proof of these chains existed
 on two branches and ran nowhere.  `.github/workflows/elaborate.yml` installs
 the pinned LiteX of sw/litex/litex_pins.txt and runs this file with
 --require-elaboration, which FAILS rather than skips when no interpreter can
-import migen + litex.  Everywhere else they SKIP, and skip() puts them in the
-verdict so the absence of the proof cannot read as the presence of one.
+import migen + litex, or when the one it finds carries a VexiiRiscv that
+rejects the --l2-* arguments the patch series adds.  Everywhere else they
+SKIP, and skip() puts them in the verdict so the absence of the proof cannot
+read as the presence of one.
 
 Run: python3 sw/builder/test_builder.py   (or pytest sw/builder/test_builder.py)
      python3 sw/builder/test_builder.py --require-elaboration   (the CI job)
 """
 
 import ast
+import contextlib
 import copy
+import io
 import json
 import os
 import re
@@ -270,6 +274,14 @@ SKIPPED = []
 #: not, in the one job that exists to elaborate.  Without this, a broken
 #: install in the elaboration job degrades to the exact green #154 is about.
 NO_LITEX = "no-litex"
+
+#: The other kind it refuses: an interpreter was found, and its VexiiRiscv
+#: rejects an --l2-* argument that only the series in sw/litex/patches
+#: teaches it.  On a bench that is a recorded gap; in the one job that
+#: installs the series (elaborate.yml) it is a setup failure, and a row skip
+#: must not absorb a setup failure in the job that exists to prove the
+#: toolchain ([R0] on PR #188).
+TOOLCHAIN = "toolchain"
 
 
 def skip(gate, why, kind="row"):
@@ -4071,16 +4083,15 @@ BUILD_OUT_TOKEN = "@BUILD_OUT@"
 #: profile (bare-metal, no ptp4l, no phc2sys) that is a bitstream with no
 #: time source and no signal.
 #:
-#: And it is the only shape that ELABORATES ANYWHERE BUT THIS BENCH.  The
-#: Linux 8x8 and Arty profiles pass `--scala-args=--l2-down-pending` and
+#: And it was once thought to be the only shape that elaborates anywhere
+#: but this bench, which was wrong in both directions (#185): on a stock
+#: toolchain NO shape elaborates - this one needs the `baremetal` CPU
+#: variant, the four Linux shapes pass `--scala-args=--l2-down-pending` and
 #: `--scala-args=--l2-general-slots`, which the VexiiRiscv revision LiteX
-#: pins does not accept; they work here because the checkout under
-#: ~/litex-milan carries an UNCOMMITTED 40-line patch to
-#: VexiiRiscv/src/main/scala/vexiiriscv/soc/litex/Soc.scala that adds those
-#: two options (measured 2026-08-21; that patch also carries the cacheless
-#: `unified` bus area the bare-metal shape needs at netlist time).  Choosing
-#: the 8x8 shape here would make this gate SKIP in the CI it was written for.
-#: The dependency itself is issue #185.
+#: pins rejects - and with the series in sw/litex/patches applied, which
+#: apply.sh does and gate 23h proves, every shape but #184's Arty leg does.
+#: The series is carried in this repository; nothing about it is a local
+#: modification.
 BEHAVIOURAL_CFG = "ax7101_1x1_tdm8"
 
 
@@ -4182,7 +4193,19 @@ def _instance_params(python, runs, mutations=()):
                 f"(rc={proc.returncode})\n{proc.stdout[-2000:]}"
                 f"\n{proc.stderr[-2000:]}")
             with open(result) as fh:
-                out[label] = seen[key] = json.load(fh)
+                row = json.load(fh)
+            if "error" in row:
+                # The CPU wrapper runs its Scala generator as a CHILD of the
+                # probe, on the process's own file descriptors, so the
+                # probe's Python-level redirect never sees it, and the only
+                # place scopt's refusal of an --l2-* argument is spelled out
+                # is this stream.  Keep its tail next to the error for
+                # _classify_recipe.  A dozen lines would not do: measured
+                # 2026-08-21, the refusal sits 17 lines above the end of a
+                # stack trace.
+                row["child_output"] = "\n".join(
+                    (proc.stdout + "\n" + proc.stderr).splitlines()[-200:])
+            out[label] = seen[key] = row
         left = os.listdir(build_out)
         assert not left, (
             "the Instance spy no longer stops the elaboration: a run carrying "
@@ -4470,20 +4493,25 @@ def test_optional_block_instance_gate_bites():
 #  a smoke gate, not a shape gate: the shape comparison already exists and is
 #  sound.
 
-#: Recipes that are known NOT to elaborate, with the ticket that owns each.
+#: Recipes that are known NOT to elaborate, with the ticket that owns each
+#: and the EXACT diagnostic the ticket records, as a regular expression the
+#: probe's `<ExceptionType>: <message>` line must match in full.
 #: An entry here is a RECORDED failure, not a waiver: the gate still runs the
-#: recipe, still reports the error, and goes RED if a listed recipe starts
-#: working - because then the note is stale and the ticket is done.  Keeping
-#: the list this way is what stops "expected to fail" from becoming "nobody
-#: looks".
+#: recipe, still reports the error, goes RED if a listed recipe starts
+#: working - because then the note is stale and the ticket is done - and
+#: goes RED if it fails for ANY OTHER reason than the one recorded, because
+#: a row that skips on any error is a row nobody looks at ([R0] on PR #188:
+#: the first version accepted every error here, so a new parser, a broken
+#: tool install or a regression in this very recipe would have been reported
+#: as #184 and left the verdict green).
 KNOWN_UNRUNNABLE = {
-    "sweep.sh arty": "#184: milan_soc.py binds o_media_lrclk_o to "
-                     "tdm_pads.lrclk, a subsignal only the AX7101 platform "
-                     "declares, so this TDM-master leg dies with "
-                     "AttributeError before the Instance. Recorded rather "
-                     "than fixed here - the fix is a per-board binding "
-                     "decision and the Arty is a retired DUT (USER "
-                     "2026-08-01: AX7101 is the sole DUT)",
+    "sweep.sh arty": (
+        "#184: milan_soc.py binds o_media_lrclk_o to tdm_pads.lrclk, a "
+        "subsignal only the AX7101 platform declares, so this TDM-master leg "
+        "dies with AttributeError before the Instance. Recorded rather than "
+        "fixed here - the fix is a per-board binding decision and the Arty "
+        "is a retired DUT (USER 2026-08-01: AX7101 is the sole DUT)",
+        r"AttributeError: 'Record' object has no attribute 'lrclk'"),
 }
 
 
@@ -4560,18 +4588,74 @@ def _recipe_cases():
 OUT_DIR_TOKEN = BUILD_OUT_TOKEN
 
 
-def _is_unpatched_vexii(argv, err):
-    """True when this failure is #185's, and not the recipe's own.
+#: What a STOCK VexiiRiscv says to an --l2-* argument that only the series
+#: in sw/litex/patches teaches it.  The generator is a Scala program whose
+#: options scopt parses; handed one it does not know, it prints
+#:     [error] Error: Unknown option --l2-down-pending=4
+#:     [error] Try --help for more information.
+#: and sbt fails the runMain, which LiteX surfaces as a CalledProcessError
+#: whose message is the sbt command line, PythonArgsGen included.  Observed
+#: 2026-08-21 by handing the bench's generator `--l2-bogus-option=1`; the
+#: two option names below are the ones the pinned revision rejects (#185).
+UNPATCHED_VEXII_RE = re.compile(
+    r"Unknown option --l2-(down-pending|general-slots)")
+L2_SCALA_ARGS = ("--scala-args=--l2-down-pending",
+                 "--scala-args=--l2-general-slots")
 
-    BOTH halves are required, so a real failure cannot borrow the excuse: the
-    recipe must actually pass one of the two `--scala-args` the stock
-    upstream VexiiRiscv rejects, AND the failure must be the CPU wrapper's
-    own generator call rather than anything downstream of it.
+#: The five things one gate-23g recipe result can be.
+RECIPE_RAN, RECIPE_RECORDED, RECIPE_TOOLCHAIN, RECIPE_STALE, RECIPE_FAILED = (
+    "ran", "recorded", "toolchain", "stale", "failed")
+
+
+def _classify_recipe(label, argv, row):
+    """(verdict, detail) for one recipe's probe result.
+
+    EVERY SKIP IS PINNED TO ITS EXACT DIAGNOSTIC.  The first version of this
+    gate skipped a recorded row on ANY error, and skipped any failure whose
+    text mentioned PythonArgsGen as "#185's": a new parser bug, a Scala
+    compile error, a missing sbt or a regression in the recipe itself would
+    all have been reported as the old, known, harmless reason and left the
+    verdict green ([R0] on PR #188).  Now a recorded row must fail with the
+    error its ticket records, and the toolchain skip needs all three of: the
+    recipe passes one of the two --l2-* arguments, the failure is the CPU
+    generator's own sbt run, and that run's output carries scopt's refusal
+    of an --l2-* argument.  Anything else is a failure of the recipe.
     """
-    return (any(a.startswith("--scala-args=--l2-down-pending")
-                or a.startswith("--scala-args=--l2-general-slots")
-                for a in argv)
-            and "PythonArgsGen" in err)
+    err = row.get("error")
+    if label in KNOWN_UNRUNNABLE:
+        why, signature = KNOWN_UNRUNNABLE[label]
+        if err is None:
+            return RECIPE_STALE, (
+                f"{label}: RECORDED as unrunnable ({why}) but it elaborated "
+                "- delete the entry and close the ticket")
+        if re.fullmatch(signature, err):
+            return RECIPE_RECORDED, (
+                f"{label} is RECORDED as unrunnable and was not proved: {why}")
+        return RECIPE_FAILED, (
+            f"{label}: RECORDED as unrunnable for `{signature}` but failed "
+            f"DIFFERENTLY, which the record does not cover: {_why_failed(row)}")
+    if err is None:
+        return RECIPE_RAN, ""
+    generator_text = "\n".join(
+        t for t in (row.get("output"), row.get("child_output")) if t)
+    if (any(a.startswith(L2_SCALA_ARGS) for a in argv)
+            and err.startswith("CalledProcessError:")
+            and "PythonArgsGen" in err
+            and UNPATCHED_VEXII_RE.search(generator_text)):
+        # NOT a defect in the recipe, and not something this gate can
+        # decide: on a stock upstream VexiiRiscv these recipes cannot
+        # elaborate at all, because two of their --scala-args exist only
+        # in the patch #185 is about.  Naming it is the whole value here
+        # - silently passing would say CI proved a recipe it never ran.
+        return RECIPE_TOOLCHAIN, (
+            f"{label} needs the VexiiRiscv patch of #185 (--l2-down-pending "
+            "/ --l2-general-slots), which this interpreter's checkout does "
+            "not carry - its generator printed scopt's `Unknown option` - so "
+            "it was NOT proved to reach the Instance; run "
+            "sw/litex/patches/apply.sh")
+    return RECIPE_FAILED, (
+        f'{label}: never reached Instance("milan_datapath"): '
+        f"{_why_failed(row)}")
 
 
 def test_every_recipe_elaborates():
@@ -4594,32 +4678,19 @@ def test_every_recipe_elaborates():
     got = _instance_params(python, cases)
     bad, stale, ran = [], [], 0
     for label, argv in cases:
-        err = got[label].get("error")
-        if label in KNOWN_UNRUNNABLE:
-            if err is None:
-                stale.append(f"{label}: RECORDED as unrunnable "
-                             f"({KNOWN_UNRUNNABLE[label]}) but it elaborated "
-                             "- delete the entry and close the ticket")
-            else:
-                skip("gate 23g", f"{label} is RECORDED as unrunnable and was "
-                                 f"not proved: {KNOWN_UNRUNNABLE[label]}")
-            continue
-        if err is not None and _is_unpatched_vexii(argv, err):
-            # NOT a defect in the recipe, and not something this gate can
-            # decide: on a stock upstream VexiiRiscv these recipes cannot
-            # elaborate at all, because two of their --scala-args exist only
-            # in the patch #185 is about.  Naming it is the whole value here
-            # - silently passing would say CI proved a recipe it never ran.
-            skip("gate 23g", f"{label} needs the VexiiRiscv patch of #185 "
-                             "(--l2-down-pending / --l2-general-slots), which "
-                             "this interpreter's checkout does not carry, so "
-                             "it was NOT proved to reach the Instance")
-            continue
-        if err is not None:
-            bad.append(f"{label}: never reached "
-                       f'Instance("milan_datapath"): {err}')
-            continue
-        ran += 1
+        verdict, detail = _classify_recipe(label, argv, got[label])
+        if verdict == RECIPE_RAN:
+            ran += 1
+        elif verdict == RECIPE_RECORDED:
+            skip("gate 23g", detail)
+        elif verdict == RECIPE_TOOLCHAIN:
+            # A row skip on a bench; in the job that installs the series it
+            # is a setup failure, and --require-elaboration refuses it.
+            skip("gate 23g", detail, TOOLCHAIN)
+        elif verdict == RECIPE_STALE:
+            stale.append(detail)
+        else:
+            bad.append(detail)
     assert not bad + stale, "gate 23g:\n  " + "\n  ".join(bad + stale)
     print(f"  [gate 23g] {ran}/{len(cases)} shipped recipes reach "
           f'Instance("milan_datapath") in {time.time() - t0:.0f} s, each with '
@@ -4649,6 +4720,86 @@ def test_recipe_smoke_gate_bites():
     print(f"  [gate 23g mutation] {len(controls)}/{len(controls)} recipes "
           "stripped of --entity-gen-dir refused to elaborate, which is #156 "
           "item 1 replayed on the recipes that shipped it")
+
+
+def test_recipe_skip_classifier_bites():
+    """Gate 23g negative controls for the SKIP classifier; they need no LiteX.
+
+    The skips are the part of gate 23g that can turn a failure into a green,
+    so they are graded on every box, interpreter or not.  Each arm hands the
+    production classifier a result shaped like a real one - the recorded
+    Arty error and scopt's refusal are the texts observed on 2026-08-21,
+    verbatim - and requires the verdict [R0] asked for on PR #188: a
+    recorded row failing for a different reason FAILS, a generator failure
+    without scopt's refusal FAILS, the refusal on a recipe that passes no
+    --l2-* argument FAILS, and only the two exact shapes skip.  The
+    --require-elaboration verdict is graded the same way: a toolchain skip
+    fails it, a recorded row does not, and the line it prints says which.
+    """
+    arty = "sweep.sh arty"
+    assert arty in KNOWN_UNRUNNABLE, "these controls replay the recorded Arty row"
+    l2 = ["--scala-args=--l2-down-pending=4",
+          "--scala-args=--l2-general-slots=8"]
+    gen = ("CalledProcessError: Command 'cd /v/ext/VexiiRiscv && sbt "
+           "\"runMain vexiiriscv.soc.litex.PythonArgsGen --xlen=32 "
+           "--l2-down-pending=4 --python-file=/v/x.py\"' returned non-zero "
+           "exit status 1.")
+    refusal = ("[error] Error: Unknown option --l2-down-pending=4\n"
+               "[error] Try --help for more information.")
+    trace = "\n".join(f"[error] \tat scala.App.main(App.scala:{n})"
+                      for n in range(40))
+    arms = [
+        ("recorded row failing as recorded", arty, [],
+         {"error": "AttributeError: 'Record' object has no attribute 'lrclk'"},
+         RECIPE_RECORDED),
+        ("recorded row failing DIFFERENTLY", arty, [],
+         {"error": "SoCError: ", "output": "a refusal #184 never recorded"},
+         RECIPE_FAILED),
+        ("recorded row that elaborated", arty, [], {"params": {}},
+         RECIPE_STALE),
+        ("--l2 recipe on a stock VexiiRiscv", "build.sh cfg_ax8x8", l2,
+         {"error": gen, "child_output": refusal + "\n" + trace},
+         RECIPE_TOOLCHAIN),
+        ("--l2 recipe whose generator failed for ANOTHER reason",
+         "build.sh cfg_ax8x8", l2,
+         {"error": gen, "child_output": "[error] Soc.scala:12: not found: "
+                                        "value l2DownPending\n" + trace},
+         RECIPE_FAILED),
+        ("the refusal on a recipe passing NO --l2 argument",
+         "build.sh cfg_ax7101", ["--cpu-variant=baremetal"],
+         {"error": gen, "child_output": refusal}, RECIPE_FAILED),
+        ("no sbt at all", "build.sh cfg_ax8x8", l2,
+         {"error": "FileNotFoundError: [Errno 2] No such file or directory: "
+                   "'sbt'"}, RECIPE_FAILED),
+        ("a recipe that ran", "build.sh cfg_ax7101", [],
+         {"params": {"p_X": 1}}, RECIPE_RAN),
+    ]
+    for name, label, argv, row, want in arms:
+        got, _detail = _classify_recipe(label, argv, row)
+        assert got == want, \
+            f"gate 23g classifier: {name}: want {want}, got {got}"
+    verdicts = [
+        ("a toolchain skip", [("gate 23g", "stock VexiiRiscv", TOOLCHAIN)],
+         1, "could not"),
+        ("no interpreter", [("gate 23f", "no interpreter", NO_LITEX)],
+         1, "could not"),
+        ("a recorded row only", [("gate 23g", "#184", "row")], 0,
+         "did not run for recorded reasons"),
+        ("nothing skipped", [], 0, "every elaboration arm ran"),
+    ]
+    for name, skipped, want_rc, want_text in verdicts:
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            rc = _require_elaboration_verdict(skipped)
+        assert rc == want_rc and want_text in buf.getvalue(), (
+            f"--require-elaboration verdict with {name}: want rc {want_rc} "
+            f"saying {want_text!r}, got rc {rc}: {buf.getvalue().strip()!r}")
+    print(f"  [gate 23g classifier] {len(arms)}/{len(arms)} shaped results "
+          f"and {len(verdicts)}/{len(verdicts)} --require-elaboration "
+          "verdicts graded as [R0] on PR #188 requires: only the recorded "
+          "Arty error and scopt's own refusal of an --l2-* argument skip, "
+          "the latter fails --require-elaboration, and every other failure "
+          "fails")
 
 
 #  gate 23h (issue #185) - THE TOOLCHAIN THIS SOC IS BUILT WITH IS THE ONE
@@ -4950,6 +5101,37 @@ def test_toolchain_patch_gate_bites():
           f"{tail} where a later patch sits on the same hunks so the "
           "reachable state is the whole tail - what a half-finished "
           "apply.sh leaves. No arm passes by reversing anything twice")
+
+
+def _require_elaboration_verdict(skipped):
+    """Exit status for --require-elaboration, printed with its reason.
+
+    Refuses a run in which the argv -> Instance chain was not observed with
+    the toolchain this repository describes: no interpreter (NO_LITEX), or
+    an interpreter whose VexiiRiscv rejects the --l2-* arguments the series
+    adds (TOOLCHAIN), which in the one job that installs that series is a
+    setup failure and not a recorded gap ([R0] on PR #188).  Rows a gate
+    declined for a RECORDED reason pass, and the line printed says so rather
+    than claiming every arm ran while one is listed above as not run.
+    """
+    missing = [(g, w) for g, w, k in skipped if k in (NO_LITEX, TOOLCHAIN)]
+    if missing:
+        print("\n--require-elaboration: this run was asked to observe the "
+              "argv -> Instance chain with the toolchain this repository "
+              "describes, and could not:")
+        for gate, why in missing:
+            print(f"  - [{gate}] {why}")
+        return 1
+    rows = [(g, w) for g, w, k in skipped if k not in (NO_LITEX, TOOLCHAIN)]
+    if rows:
+        print("--require-elaboration: an interpreter carrying the patch "
+              "series was found and no elaboration arm was skipped for a "
+              f"toolchain reason; {len(rows)} arm(s) did not run for "
+              "recorded reasons, listed above, and this verdict does not "
+              "cover them")
+    else:
+        print("--require-elaboration: every elaboration arm ran")
+    return 0
 
 
 # ======================================================== gates 24c / 24d ====
@@ -6850,6 +7032,7 @@ if __name__ == "__main__":
                test_optional_block_instance_gate_bites,
                test_every_recipe_elaborates,
                test_recipe_smoke_gate_bites,
+               test_recipe_skip_classifier_bites,
                test_toolchain_patches_are_applied,
                test_toolchain_patch_gate_bites,
                test_tdm_master_binding_reaches_the_pins,
@@ -6884,13 +7067,6 @@ if __name__ == "__main__":
     # --require-elaboration is what stops the ONE job that exists to
     # elaborate from reporting a green when its LiteX install broke.  Rows a
     # gate declined for a recorded reason still pass; "there is no LiteX
-    # here" does not.
+    # here" and "this VexiiRiscv is unpatched" do not.
     if "--require-elaboration" in sys.argv:
-        missing = [(g, w) for g, w, k in SKIPPED if k == NO_LITEX]
-        if missing:
-            print("\n--require-elaboration: this run was asked to observe "
-                  "the argv -> Instance chain and could not:")
-            for gate, why in missing:
-                print(f"  - [{gate}] {why}")
-            sys.exit(1)
-        print("--require-elaboration: every elaboration arm ran")
+        sys.exit(_require_elaboration_verdict(SKIPPED))

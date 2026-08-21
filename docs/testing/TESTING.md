@@ -815,7 +815,7 @@ host-only.
   | property | why |
   |---|---|
   | the verdict **names every arm that did not run** | `ALL GATES PASS EXCEPT n NOT RUN`, with the reason, is the honest line when a gate declines. A gate that prints its own SKIP and lets the verdict print a green is how the absence of a proof comes to read as the presence of one |
-  | `--require-elaboration` **fails** rather than skips | so the day the job is enabled, a broken install cannot quietly return it to the state it was written to end |
+  | `--require-elaboration` **fails** rather than skips | so the day the job is enabled, a broken install cannot quietly return it to the state it was written to end. Two things fail it: no interpreter, and an interpreter whose VexiiRiscv rejects the `--l2-*` arguments the series adds. A recipe recorded as unrunnable (#184's Arty leg) skips only when it fails with exactly the recorded diagnostic; any other failure on that row, and any other generator failure, is red. The verdict line says which arms did not run instead of claiming every arm ran |
   | LiteX is **pinned** in [`sw/litex/litex_pins.txt`](../../sw/litex/litex_pins.txt) | an install from master turns an upstream commit into a red on a pull request that changed nothing, and `migen` on PyPI is stale code sharing a version number with the git tree, which fails at `csr.py:64` on any interpreter newer than 3.10 |
 * **The Verilator version matters, and distro packages are not enough.**
   Measured 2026-07-26 by running the suites under each version in a container:

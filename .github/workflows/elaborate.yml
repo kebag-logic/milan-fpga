@@ -32,10 +32,13 @@ name: elaborate
 # is about three minutes, most of it one Scala run per distinct CPU argument
 # set; warm it is under one.
 #
-# --require-elaboration fails the job when no LiteX interpreter is found,
-# rather than skipping the gates and reporting the green this workflow exists
-# to end. Everywhere else those gates SKIP and the verdict says
-# `ALL GATES PASS EXCEPT n NOT RUN` and names them.
+# --require-elaboration fails the job when no LiteX interpreter is found, and
+# when the one found carries a VexiiRiscv that rejects the --l2-* arguments
+# the series adds (the generator prints scopt's `Unknown option`), rather
+# than skipping the gates and reporting the green this workflow exists to
+# end. A row a gate declines for a RECORDED reason (#184's Arty leg) is named
+# in the verdict, not absorbed. Everywhere else those gates SKIP and the
+# verdict says `ALL GATES PASS EXCEPT n NOT RUN` and names them.
 
 on:
   push:
@@ -179,8 +182,10 @@ jobs:
       # The gate that could not run in CI, running in CI. Gates 23f/23g
       # observe what elaboration hands Instance("milan_datapath"); their
       # mutation arms sever the chain hop by hop and require the gate to go
-      # red. --require-elaboration turns a missing interpreter into a failure
-      # rather than a skip.
+      # red. --require-elaboration turns a missing interpreter, and an
+      # interpreter whose VexiiRiscv is unpatched, into a failure rather
+      # than a skip; only a row with a recorded, exactly matching failure
+      # may skip.
       # Upstream cannot build this design. The series is what makes the
       # `baremetal` variant and the --l2-* arguments exist; gate 23h proves
       # the result is upstream plus exactly these patches.
