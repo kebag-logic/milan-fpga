@@ -257,8 +257,21 @@ A task is complete only when:
 - the full review bar in [CONTRIBUTING.md](CONTRIBUTING.md) is met;
 - blocking and major findings are fixed and re-reviewed;
 - **every lens in section 6 has been covered clean**, and the covering round is
-  named for each. A lens is covered clean by a round that applied it and
-  produced no `BLOCKER` or `MAJOR` **under that lens**. Coverage is judged per
+  named for each. A lens is covered clean by a round that applied it and left no
+  `BLOCKER`, `MAJOR` or `MINOR` **open under that lens**. `SUGGESTION` is
+  optional by definition and does not affect coverage.
+
+  Open, not merely un-blocking. **A finding moved to another Issue is not
+  resolved**: the defect is still in the tree, and moving the paperwork does not
+  move the code. This is the case the rule exists for and it is not
+  hypothetical. On protocol-processor #13 a round applied the RTL lens, found a
+  latch held in every state and a missing timeout that lets a silent device
+  wedge the port, published **POSITIVE**, and deferred both to new Issues. That
+  PR merged, those Issues are still open, and the RTL is unchanged. Under a
+  severity test that round covers the lens; under this one it does not.
+
+  Severity therefore cannot be the coverage test on its own, or downgrading a
+  finding becomes the cheapest way to bank a lens. Coverage is judged per
   lens, not per round: a round that finds a blocker in one lens still covers
   any other lens it applied cleanly, and findings elsewhere do not un-cover a
   lens already covered. Reading this per round would mean a clean lens never
@@ -292,8 +305,10 @@ and the lens already yielding findings is always the cheapest to run again.
 - Never change another active lane's branch.
 - Never hide a material assumption or specification conflict in code.
 - Never weaken a test or acceptance criterion solely to obtain a pass.
-- Never re-run a covered lens in place of an uncovered one, and never report a
-  lens as covered without having applied it.
+- Never re-run a lens already covered CLEAN in place of one never applied, and
+  never report a lens as covered without having applied it. Re-running a lens
+  to check a fix is required, not discouraged: a lens is not covered clean
+  while a finding under it is open.
 - Never treat generated prose or an agent summary as more authoritative than the
   linked requirement and executable evidence.
 - Never publish private chain-of-thought; publish concise conclusions and evidence.
