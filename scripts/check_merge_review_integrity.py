@@ -25,9 +25,13 @@ last verdict BEFORE the merge decides. An unanswered `BLOCKER` finding - one no
 later POSITIVE verdict cleared - counts the same as a NEGATIVE.
 
 The verdict LEXICON is wider than the bare word and case-folded: `REQUEST
-CHANGES`, `DO NOT MERGE` (PR #123, #128) and a negated `positive` ("not yet a
-positive review") are rejections too, and PR #128 merged over exactly those
-while an uppercase-`NEGATIVE`-only reader saw nothing. See _line_verdict.
+CHANGES`, `DO NOT MERGE` (PR #123, #128) and "not [yet] a positive review" are
+rejections too, and PR #128 merged over exactly those while an
+uppercase-`NEGATIVE`-only reader saw nothing. Clean-lens and finding lines
+(`[R<n>] PASS/BLOCKER/MAJOR/...`) are NOT verdicts and are skipped for verdict
+purposes, and `NEGATIVE` excludes the compound "negative control", so a PASS
+line reading "PASS ... negative-control" is not mistaken for a rejection. See
+_line_verdict.
 
 TOOL ABSENCE IS UNKNOWN, NEVER A PASS. With no `gh`, or a `gh` that errors, the
 gate exits 2 (cannot run), never 0. The `--selftest` needs no network: it drives
@@ -56,9 +60,23 @@ DEFAULT_LIMIT = 20
 #: A reviewer line. `[A<n>]` (author) lines are deliberately not matched - only
 #: a reviewer publishes a verdict.
 _RLINE_RE = re.compile(r"^\s*\[R\d+\]")
-#: A `positive` that a preceding `not` turns into a rejection, e.g. PR #128's
-#: "this is not yet a positive review".
-_NOT_POSITIVE_RE = re.compile(r"\bNOT\b[\sA-Z]{0,24}\bPOSITIVE\b")
+#: A findings / clean-lens line: `[R<n>]` then one of the section-6 severity
+#: or PASS tokens. These are NOT the top verdict, and their PROSE routinely
+#: contains verdict words that are not verdicts - a `PASS` lens line says
+#: "PASS ... negative-control", a finding says "the blockers remain". Reading
+#: those as a verdict flips a POSITIVE-reviewed clean merge to negative-merge
+#: (PR #199 did exactly that under the first cut of this parser, [R1]).
+_FINDING_LEAD_RE = re.compile(
+    r"^\s*\[R\d+\]\s*(?:\*\*\s*)?(PASS|BLOCKER|MAJOR|MINOR|SUGGESTION)\b", re.I)
+#: A rejection: `NEGATIVE` (but not the compound "negative control", this
+#: repo's own test vocabulary), `DO NOT MERGE`, `REQUEST CHANGES`.
+_NEG_RE = re.compile(
+    r"\bNEGATIVE\b(?![-\s]control)|\bDO\s+NOT\s+MERGE\b|\bREQUEST[-\s]CHANGES\b",
+    re.I)
+#: "not [yet] a positive [review]" - a rejection (PR #128). The `a` keeps it
+#: off praise like "not only positive but excellent".
+_NOT_A_POSITIVE_RE = re.compile(r"\bnot\b(?:\s+yet)?\s+a\s+positive\b", re.I)
+_POSITIVE_RE = re.compile(r"\bPOSITIVE\b", re.I)
 #: `Closes/Fixes/Resolves` (optional `:`) then one or more `#N`, comma- or
 #: `and`-separated. A digit is required, so the template's bare
 #: "Closes/relates to: #" placeholder names nothing. `\b` before the keyword
@@ -71,27 +89,27 @@ _CLOSES_RE = re.compile(
 def _line_verdict(line):
     """(verdict, is_blocker) for one `[R<n>]` line.
 
-    The lexicon is wider than the bare word and CASE-FOLDED, because this
-    repo's reviews reject in more than one dialect: `REQUEST CHANGES` and
-    `DO NOT MERGE` (PR #123, #128) and a negated `positive` ("not yet a
-    positive review") are real NEGATIVE verdicts, and PR #128 MERGED over
-    exactly those while an uppercase-`NEGATIVE`-only parser saw nothing. An
-    explicit rejection word outranks a `positive` on the same line: that is
-    the safe bias for a post-merge AUDIT, where a flagged-but-cleared PR costs
-    a human re-check and a MISSED one is a bad merge nobody sees (#180). The
-    verdict-first convention (AGENTS.md section 6) means the ambiguous both-on-
-    one-line case does not arise in the corpus; where it did, this errs toward
-    flagging.
+    A FINDINGS or CLEAN-LENS line (`[R<n>] PASS/BLOCKER/MAJOR/MINOR/SUGGESTION
+    ...`) is never a top verdict: its prose carries verdict words that are not
+    verdicts, so it is skipped for verdict purposes - a `BLOCKER` finding line
+    is still recorded as an (uncleared) blocker, but a `PASS ... negative-
+    control` line is neither. Otherwise the rejection lexicon is wider than the
+    bare word and case-folded: `REQUEST CHANGES`, `DO NOT MERGE` (PR #123,
+    #128) and "not [yet] a positive review" are rejections too, and #128
+    MERGED over exactly those while an uppercase-`NEGATIVE`-only parser saw
+    nothing. `NEGATIVE` is word-anchored and excludes the compound "negative
+    control", which is this repo's own test vocabulary ([R1] re-review: reading
+    it as a verdict flipped the clean, POSITIVE-reviewed PR #199 to
+    negative-merge).
     """
-    upper = line.upper()
-    blocker = "BLOCKER" in upper
-    if ("NEGATIVE" in upper or "DO NOT MERGE" in upper
-            or "REQUEST CHANGES" in upper or "REQUEST-CHANGES" in upper
-            or _NOT_POSITIVE_RE.search(upper)):
-        return "NEGATIVE", blocker
-    if "POSITIVE" in upper:
-        return "POSITIVE", blocker
-    return None, blocker
+    lead = _FINDING_LEAD_RE.match(line)
+    if lead:
+        return None, lead.group(1).upper() == "BLOCKER"
+    if _NEG_RE.search(line) or _NOT_A_POSITIVE_RE.search(line):
+        return "NEGATIVE", False
+    if _POSITIVE_RE.search(line):
+        return "POSITIVE", False
+    return None, False
 
 
 class Finding:
@@ -356,9 +374,24 @@ def selftest():
         problems.append("case14 colon-closes / discloses false-match: %s"
                         % [x.line() for x in f14])
 
+    # 15. THE #199 REGRESSION: a POSITIVE review whose PASS-lens line mentions
+    # "negative-control" (this repo's own test vocabulary) must NOT be read as a
+    # merge against a NEGATIVE. The first cut of the widened lexicon flipped
+    # exactly this clean, POSITIVE-reviewed PR to negative-merge ([R1]).
+    p15 = {"number": 199, "mergedAt": "2026-08-21T19:28:18Z", "body": "x",
+           "reviews": [], "comments": [
+               {"body": "[R0] Cleared-context review. **POSITIVE.** All met.\n"
+                        "[R0] PASS Conformance - prints PASS positive + PASS "
+                        "negative-control + OK, exit 0.\n"
+                        "[R0] MINOR Robustness - the grep is looser than needed.",
+                "createdAt": "2026-08-21T19:19:54Z"}]}
+    if assess_pr(p15, openf(set())):
+        problems.append("case15 negative-control-in-a-PASS-line must not flag: "
+                        "%s" % [x.line() for x in assess_pr(p15, openf(set()))])
+
     for p in problems:
         print("  SELFTEST FAILED: %s" % p)
-    n = 14
+    n = 15
     print("check_merge_review_integrity self-test: %d checks: %d PASS, %d FAIL"
           % (n, n - len(problems), len(problems)))
     return 1 if problems else 0
