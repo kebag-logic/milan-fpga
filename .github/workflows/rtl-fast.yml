@@ -6,11 +6,15 @@ on:
   pull_request:
     types: [opened, reopened, synchronize, ready_for_review, converted_to_draft]
 
+# A newer commit makes an older verdict irrelevant. This also releases a
+# hosted runner immediately when an executor resumes work on the same PR.
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 env:
+  # Distro Verilator versions have measured incompatibilities with these
+  # harnesses. Keep the same deliberate pin as the exhaustive workflow.
   VERILATOR_VERSION: v5.050
 
 jobs:
@@ -23,6 +27,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
       - name: Classify the change conservatively
         id: scope
         env:
@@ -32,19 +37,23 @@ jobs:
         run: |
           set -euo pipefail
           python3 scripts/ci_scope.py --selftest
+
           base=""
           if [ "$EVENT_NAME" = pull_request ]; then
             base="$PR_BASE_SHA"
           else
             base="$PUSH_BEFORE_SHA"
           fi
+
           if [ -n "$base" ] \
              && [ "$base" != 0000000000000000000000000000000000000000 ] \
              && git cat-file -e "$base^{commit}" 2>/dev/null; then
             git diff --name-only "$base" "$GITHUB_SHA" > "$RUNNER_TEMP/changed-files"
           else
+            # An unknown base must never turn a real change into docs-only.
             git ls-files > "$RUNNER_TEMP/changed-files"
           fi
+
           echo "Changed files:"
           sed 's/^/  /' "$RUNNER_TEMP/changed-files"
           rtl="$(python3 scripts/ci_scope.py < "$RUNNER_TEMP/changed-files")"
@@ -60,12 +69,14 @@ jobs:
       - uses: actions/checkout@v4
       - name: Fetch RTL dependencies
         run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
+
       - name: Cache the pinned Verilator build
         id: cache-verilator
         uses: actions/cache@v4
         with:
           path: /opt/verilator
           key: verilator-${{ env.VERILATOR_VERSION }}-${{ runner.os }}
+
       - name: Build Verilator from source on cache miss
         if: ${{ steps.cache-verilator.outputs.cache-hit != 'true' }}
         run: |
@@ -80,6 +91,7 @@ jobs:
           ./configure --prefix=/opt/verilator
           make -j"$(nproc)"
           sudo make install
+
       - name: Run the ratcheted whole-tree lint gate
         run: |
           echo "/opt/verilator/bin" >> "$GITHUB_PATH"
@@ -132,6 +144,8 @@ jobs:
             --top KL_pp_shadow \
             --top KL_gptp_shadow
 
+  # This stable aggregate is the required fast verdict. Skipped RTL jobs are a
+  # deliberate docs-only result; failures and cancellations remain failures.
   rtl-fast:
     name: rtl-fast
     if: ${{ always() && !cancelled() }}

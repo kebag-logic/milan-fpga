@@ -78,6 +78,13 @@ flowchart LR
    branch* — a PR is not the place to discover the sweep is red.
 4. **Open the PR** against `dev`, with the template below and the
    self-test results as a **comment** (a comment is evidence, not approval).
+   Open it as a draft while the head is changing. The fast hosted workflow runs
+   on every update. Mark it ready only after the complete local bar is recorded;
+   that state starts the exhaustive hosted Verilator and Yosys jobs on the exact
+   head. A later commit starts them again. Convert the PR back to draft before
+   resuming exploratory work. See the
+   [CI workflow policy](docs/testing/CI_WORKFLOWS.md) for the scheduling and
+   cancellation contract.
 5. **Review with multiple agents, each with CLEARED context.** Not forks of
    the author's session: agents that have never seen the reasoning that
    produced the diff. An agent that helped write a change will re-derive the
@@ -170,13 +177,12 @@ flowchart LR
 
    Its `--selftest` runs inside `scripts/run_all_suites.sh` next to
    `suite_tally.py`'s, so the tool cannot rot into a green that means nothing
-   between merges. The check *itself* is still a thing a person runs: nothing
-   here can schedule a post-merge action, and CI does not run on `dev`
-   at all (both workflows are `on: push: branches: [main]`). That gap is worth
-   closing separately. A `push: [dev]` trigger would run the bar and the
-   containment self-test on the merge result. It would still need an explicit
-   `check_merge_containment.py --merged-prs` step to render a live containment
-   verdict.
+   between merges. Both hosted workflows now run on pushes to `dev`: the fast
+   workflow gives the immediate lint/BDD/elaboration verdict, and the
+   exhaustive workflow validates the actual merge tree with all Verilator and
+   Yosys shards. Neither can detect commits pushed to a feature branch after
+   merge, so `check_merge_containment.py --merged-prs` remains an explicit live
+   check before the card moves to *Done*.
 
    **Do not hand-roll it by reading `git log` output.** The script uses
    `git rev-list --count` and `git merge-base --is-ancestor` because one prints
@@ -212,8 +218,10 @@ flowchart LR
      syn/yosys/run.sh
      ```
 
-     The optional status applies only to the remote jobs. The local Verilator
-     sweep and Yosys portability sweep are mandatory merge evidence.
+     The optional status applies only to the remote jobs. Marking a PR ready
+     schedules them on its exact head; a later commit invalidates that evidence
+     and schedules them again. The local Verilator sweep and Yosys portability
+     sweep remain mandatory merge evidence.
 
 Two board rules that go with it:
 

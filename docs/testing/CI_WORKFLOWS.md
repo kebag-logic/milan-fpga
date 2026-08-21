@@ -6,11 +6,11 @@ reduce the local verification bar in [CONTRIBUTING.md](../../CONTRIBUTING.md).
 
 ## Contents
 
-- **[Fast feedback](#fast-feedback)** — What runs on every pull-request update and why docs-only changes avoid RTL tool setup.
-- **[Exhaustive validation](#exhaustive-validation)** — When the full Verilator and Yosys inventories run and how exact-head evidence is preserved.
-- **[Pull-request state](#pull-request-state)** — How draft and ready states control hosted long jobs without changing local responsibilities.
-- **[Local commands](#local-commands)** — The serial commands that remain the authoritative developer-side gates.
-- **[Failure and cancellation semantics](#failure-and-cancellation-semantics)** — How missing artifacts, superseded commits, and resumed work are handled.
+- **[Fast feedback](#fast-feedback)** - What runs on every pull-request update and why docs-only changes avoid RTL tool setup.
+- **[Exhaustive validation](#exhaustive-validation)** - When the full Verilator and Yosys inventories run and how exact-head evidence is preserved.
+- **[Pull-request state](#pull-request-state)** - How draft and ready states control hosted long jobs without changing local responsibilities.
+- **[Local commands](#local-commands)** - The serial commands that remain the authoritative developer-side gates.
+- **[Failure and cancellation semantics](#failure-and-cancellation-semantics)** - How missing artifacts, superseded commits, and resumed work are handled.
 
 ## Fast feedback
 
@@ -46,15 +46,14 @@ portability pass.
 
 GitHub executes scheduled workflows only from the default branch. The repository
 currently develops on `dev` while `main` is the default, so the nightly trigger
-is staged by this change but does not become active until the same workflow
-revision reaches `main`. Pull requests and pushes to `dev` are covered
-immediately.
+is staged by this change but does not become active until the workflow revision
+reaches `main`. Pull requests and pushes to `dev` are covered immediately.
 
 The workflow keeps the public aggregate names `verilator-suites` and
 `yosys-portability`.
 
 Verilator runs the complete suite inventory on four workers. The aggregate
-rejects missing, unexpected, or duplicate suite logs before trusting the
+rejects missing, unexpected, or duplicate suite logs before it trusts the
 combined tally. Specialized dependencies are installed only by their stable
 owners: `tsn_fuzz` owns the pinned packet generator, and `chmap_capture` owns
 the Yosys/sv2v netlist leg. The shard selector self-test pins both assumptions.
