@@ -119,3 +119,10 @@ syn/yosys/*.hex
 
 # local agent scratch, never shipped
 .claude/
+
+# Vivado xvlog leaves these in its working dir; scripts/xvlog_gate.py runs it
+# in a tempdir, but a raw `xvlog` invocation from the tree would drop them here.
+xvlog.pb
+xvlog.log
+xsim.dir/
+.Xil/

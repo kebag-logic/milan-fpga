@@ -229,6 +229,19 @@ if ! selftest_out=$(cd "$ROOT" && bash "$ROOT/syn/yosys/check_list_hermetic.sh" 
   exit 2
 fi
 
+# Fifth of the family: xvlog_gate.py is a Vivado front-end parse gate whose
+# LIVE detection needs xvlog and so only runs on a bench box, but its parser,
+# its dedup and its ratchet diff are pure Python and rot the same way the tally
+# does. --selftest exercises those arms and skips the xvlog one cleanly, so the
+# gate cannot rot into a green between the bench runs that use it (#132).
+if ! selftest_out=$(cd "$ROOT" && \
+        python3 "$ROOT/scripts/xvlog_gate.py" --selftest 2>&1); then
+  echo "$selftest_out" >&2
+  echo "ABORTING: scripts/xvlog_gate.py fails its own self-test, so its" >&2
+  echo "front-end findings cannot be trusted either." >&2
+  exit 2
+fi
+
 mkdir -p "$OUT"
 rm -f "$OUT"/*.log            # a stale log from a previous sweep is not evidence
 

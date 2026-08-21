@@ -277,6 +277,17 @@ Two board rules that go with it:
   entry naming the reason **and where the reason is recorded**.
   `--pragmas` alone is instantaneous and is the useful pre-commit hook:
   `echo 'python3 scripts/lint_rtl.py --pragmas' >> .git/hooks/pre-commit`.
+- **Parse with Vivado's front-end before you push, on a bench box**:
+  `python3 scripts/xvlog_gate.py --check`. The lint ratchet, the Verilator
+  sweep and the Yosys gate all lower SystemVerilog through Verilator/sv2v, so a
+  construct Vivado is stricter about (use-before-declaration is the first one
+  found) is invisible to the whole bar (#132). The gate runs `xvlog -sv` over
+  every `hdl/` module, ratchets today's findings in
+  [`scripts/xvlog.budget`](scripts/xvlog.budget) keyed on identity so a
+  compensating swap cannot hide, and SKIPS cleanly with a visible marker when no
+  Vivado is present, so it is inert in CI and never a false green. Its
+  `--selftest` runs in [`scripts/run_all_suites.sh`](scripts/run_all_suites.sh)
+  next to the others.
 - **A build input never lists the protocol-processor sources, it derives
   them**: [`scripts/pp_srcs.py`](scripts/pp_srcs.py) reads the submodule tree
   and emits the list, packages first (detected by reading each file for a
