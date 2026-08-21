@@ -8,6 +8,7 @@ reduce the local verification bar in [CONTRIBUTING.md](../../CONTRIBUTING.md).
 
 - **[Fast feedback](#fast-feedback)** — What runs on every pull-request update and why docs-only changes avoid RTL tool setup.
 - **[Exhaustive validation](#exhaustive-validation)** — When the full Verilator and Yosys inventories run and how exact-head evidence is preserved.
+- **[Elaboration](#elaboration)** — The one job that installs LiteX and observes what elaboration hands the datapath Instance, and what makes it red.
 - **[Pull-request state](#pull-request-state)** — How draft and ready states control hosted long jobs without changing local responsibilities.
 - **[Local commands](#local-commands)** — The serial commands that remain the authoritative developer-side gates.
 - **[Failure and cancellation semantics](#failure-and-cancellation-semantics)** — How missing artifacts, superseded commits, and resumed work are handled.
@@ -72,6 +73,41 @@ top. The `yosys-portability` aggregate rejects:
 The tap-purity report remains informational in the combined Yosys script, which
 preserves the existing local policy. Its result is still recorded exactly once.
 
+## Elaboration
+
+[The elaboration workflow](../../.github/workflows/elaborate.yml) runs on every
+pull-request update, on every push to `dev` and `main`, and on manual dispatch.
+It is the one job that installs LiteX. It exists because no other job can
+observe what elaboration hands `Instance("milan_datapath")` (#154): every
+argv-to-parameter chain used to be proven by source-text greps against
+`sw/litex/milan_soc.py`, and a flag severed on its way to the parameter it
+names read green at two independent hops.
+
+It uses the same change classification as the fast workflow. A docs-only
+change skips every step after the classification and the `elaborate` check
+still completes. A relevant change installs the pinned LiteX of
+[`sw/litex/litex_pins.txt`](../../sw/litex/litex_pins.txt), places the
+VexiiRiscv source at the revision LiteX itself pins, applies the patch series
+in [`sw/litex/patches/`](../../sw/litex/patches/) with its `apply.sh`, and runs
+`sw/builder/test_builder.py --require-elaboration`: gates 23f, 23g and 23h and
+their mutation arms. Upstream LiteX elaborates no configuration in this tree
+(#185), so the series is a required install step and gate 23h proves the
+installed trees are upstream plus exactly that series.
+
+Two caches, deliberately split. The Scala toolchain is content-addressed and
+keeps a broad fallback. The generated CPU metadata does not: its key hashes the
+configs, `milan_soc.py`, `build.sh`, `sweep.sh`, the pins and the patch series,
+with no prefix fallback, because LiteX names those files from the CPU
+arguments alone and skips the generator whenever the file exists, so a stale
+entry would elaborate metadata built by the previous toolchain while reporting
+green.
+
+The `elaborate` check fails when no interpreter can import LiteX, when the
+interpreter's VexiiRiscv rejects the `--l2-*` arguments the series adds, and
+when any gate fails. A recipe recorded as unrunnable (#184's Arty leg) skips
+only when it fails with exactly the recorded diagnostic, and the verdict names
+every arm that did not run rather than claiming every arm ran.
+
 ## Pull-request state
 
 Open implementation PRs as drafts while work is changing. The fast workflow
@@ -110,6 +146,14 @@ Useful read-only inspection commands are:
 scripts/run_all_suites.sh --shard 0/4 --list
 syn/yosys/run.sh --list
 syn/yosys/run.sh --shard 0/4 --list
+```
+
+The elaboration gates run locally against any interpreter that imports
+LiteX; without one they skip and the verdict says so:
+
+```sh
+MILAN_LITEX_PYTHON=$HOME/litex-milan/venv/bin/python3 \
+  python3 sw/builder/test_builder.py --require-elaboration
 ```
 
 The fast Yosys mode is diagnostic only:

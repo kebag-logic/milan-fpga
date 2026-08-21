@@ -800,15 +800,13 @@ host-only.
   `apply.sh` and no gate compared its result, so it had silently stopped
   applying. Gate 23h now reconstructs it. #185 carries that measurement.
 
-  A documentation-only pull request is meant to pay for none of it: every
-  heavy step is gated on `scripts/ci_scope.py`, the classifier PR #176 adds,
-  and that classifier fails safe - an empty diff or an unresolvable base both
-  come back RTL-relevant. **That script is not on this branch yet**, because
-  this work is stacked on a base predating #176; while it is absent the
-  workflow says so in its log and elaborates unconditionally rather than
-  guessing. The skip becomes real when this stack retargets to `dev`, and
-  #176's scheduling-policy page - which also exists only on `dev` - gains
-  this workflow's row in the same move.
+  A documentation-only pull request pays for none of it: every heavy step is
+  gated on `scripts/ci_scope.py`, the classifier PR #176 added, and that
+  classifier fails safe - an empty diff or an unresolvable base both come
+  back RTL-relevant. Were the script ever absent the workflow would say so in
+  its log and elaborate unconditionally rather than guess. The workflow's
+  scheduling policy, what makes its check red and what only skips, is the
+  `Elaboration` section of [`CI_WORKFLOWS.md`](CI_WORKFLOWS.md).
 
   What the workflow does **not** prove is stated in its own output:
 
