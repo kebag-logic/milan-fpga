@@ -11,7 +11,8 @@
 #   ./run.sh --mode elaborate --top TOP       # fast hierarchy/process smoke
 #   YOSYS_SYNTH=synth_ecp5 ./run.sh           # target a real device
 #
-# Requires yosys and sv2v except for --list.
+# Requires yosys and sv2v except for --list, which needs neither those nor a
+# checked-out protocol-processor: it prints names only (#190).
 
 set -u
 
@@ -82,12 +83,28 @@ SYNTH="${YOSYS_SYNTH:-synth}"
 # status explicitly: command substitution in an assignment otherwise hides a
 # refusal and an empty source list can elaborate a meaningless shadow wrapper.
 PP="$R/protocol-processor/hdl"
-command -v python3 >/dev/null || {
-  echo "missing tool: python3 (required by scripts/pp_srcs.py)" >&2
-  exit 2
-}
-PP_DERIVED="$(python3 "$R/scripts/pp_srcs.py" --prefix "$PP")" || exit 2
-PP_SRCS="$PP_DERIVED $R/hdl/milan/KL_pp_shadow.sv $R/hdl/milan/KL_pp_maap_shim.sv"
+# --list PRINTS NAMES AND MUST NOT NEED SOURCES. The inventory's name column
+# is the first field of each `tops` row and no source path contributes to it,
+# but this script used to derive the submodule source list before reaching the
+# --list exit, so `--list` required a checked-out protocol-processor while
+# saying twice above that it required nothing. That was invisible until a CI
+# job called it from a checkout without submodules and `yosys-portability`
+# went red in seven seconds with every shard passing (#190).
+#
+# The placeholder is deliberately a path that cannot exist. --list exits long
+# before any top is built, so it is never read; if a later change moves that
+# exit, yosys fails on a missing file rather than synthesising an empty source
+# list, which is the failure `pp_srcs.py` refuses to allow in the first place.
+if [ "$LIST" -eq 1 ]; then
+  PP_SRCS="@pp-srcs-not-derived-for---list@"
+else
+  command -v python3 >/dev/null || {
+    echo "missing tool: python3 (required by scripts/pp_srcs.py)" >&2
+    exit 2
+  }
+  PP_DERIVED="$(python3 "$R/scripts/pp_srcs.py" --prefix "$PP")" || exit 2
+  PP_SRCS="$PP_DERIVED $R/hdl/milan/KL_pp_shadow.sv $R/hdl/milan/KL_pp_maap_shim.sv"
+fi
 
 # top | source files (interface modules go through their flat wrapper)
 tops=(
