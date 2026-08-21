@@ -5,7 +5,8 @@
 #
 # Run every Verilator testbench suite under tb/verilator/ and summarise.
 #
-#   scripts/run_all_suites.sh [outdir] [--wait]
+#   scripts/run_all_suites.sh [outdir] [--wait] [--shard INDEX/TOTAL]
+#   scripts/run_all_suites.sh [--shard INDEX/TOTAL] --list
 #
 # Each suite is a directory with its own Makefile; the default target builds
 # and runs every shape that suite owns (several own more than one - milan_dp
@@ -78,14 +79,42 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 WAIT=0
 OUT=""
-for arg in "$@"; do
-  case "$arg" in
-    --wait) WAIT=1 ;;
-    -*)     echo "unknown option: $arg" >&2; exit 2 ;;
-    *)      OUT="$arg" ;;
+SHARD="0/1"
+LIST=0
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    --wait) WAIT=1; shift ;;
+    --list) LIST=1; shift ;;
+    --shard)
+      [ "$#" -ge 2 ] || { echo "--shard needs INDEX/TOTAL" >&2; exit 2; }
+      SHARD="$2"; shift 2 ;;
+    --shard=*) SHARD="${1#--shard=}"; shift ;;
+    -*)        echo "unknown option: $1" >&2; exit 2 ;;
+    *)
+      [ -z "$OUT" ] || { echo "more than one output directory" >&2; exit 2; }
+      OUT="$1"; shift ;;
   esac
 done
 OUT="${OUT:-$ROOT/.suite-logs}"
+
+# Selection is delegated to a self-tested helper. Its default 0/1 result is
+# exactly the old lexical glob order, so local callers remain an unsharded
+# full sweep. --list is intentionally read-only and takes no sweep lock.
+if [ "$LIST" = 1 ]; then
+  exec python3 "$ROOT/scripts/suite_shards.py" \
+    --suite-root "$ROOT/tb/verilator" --shard "$SHARD"
+fi
+
+if ! selected_out=$(python3 "$ROOT/scripts/suite_shards.py" \
+      --suite-root "$ROOT/tb/verilator" --shard "$SHARD" 2>&1); then
+  echo "$selected_out" >&2
+  exit 2
+fi
+mapfile -t suites < <(printf '%s' "$selected_out")
+if [ "${#suites[@]}" -eq 0 ]; then
+  echo "shard $SHARD owns no suites; choose fewer workers" >&2
+  exit 2
+fi
 
 # --- concurrency guard -------------------------------------------------------
 # Scope is the repo root, which is exactly the collision domain: the obj_* dirs
@@ -144,6 +173,13 @@ if ! selftest_out=$(python3 "$ROOT/scripts/suite_tally.py" --selftest 2>&1); the
   exit 2
 fi
 
+if ! selftest_out=$(python3 "$ROOT/scripts/suite_shards.py" --selftest 2>&1); then
+  echo "$selftest_out" >&2
+  echo "ABORTING: scripts/suite_shards.py fails its own self-test, so the" >&2
+  echo "selected workers cannot be trusted to cover every suite once." >&2
+  exit 2
+fi
+
 # Same argument, different gate: check_merge_containment.py decides whether a
 # merge left work behind, and a review pointed out it was wired into nothing at
 # all -- its only caller was a sentence in CONTRIBUTING.md telling a human to
@@ -184,9 +220,9 @@ mkdir -p "$OUT"
 rm -f "$OUT"/*.log            # a stale log from a previous sweep is not evidence
 
 pass=0; fail=0; tmo=0; failed=""; timedout=""
-for d in "$ROOT"/tb/verilator/*/; do
-  suite=$(basename "$d")
-  [ -f "$d/Makefile" ] || continue
+echo "shard: $SHARD   selected suites: ${#suites[@]}"
+for suite in "${suites[@]}"; do
+  d="$ROOT/tb/verilator/$suite"
   timeout "$TMO" make -C "$d" > "$OUT/$suite.log" 2>&1
   rc=$?
   case $rc in

@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Tally the check counts out of a Verilator sweep's per-suite logs.
 
-    python3 scripts/suite_tally.py <logdir> [--quiet]
+    python3 scripts/suite_tally.py <logdir>... [--quiet]
+        [--expect-suite-root <tb/verilator>]
 
 ``<logdir>`` is the directory ``scripts/run_all_suites.sh`` writes
 ``<suite>.log`` into (default ``.suite-logs/``).  This script is the *only*
@@ -81,6 +82,7 @@ could not fail.
 
 import re
 import sys
+from collections import Counter
 from pathlib import Path
 
 # --- the recognised summary shapes -------------------------------------------
@@ -439,6 +441,60 @@ def selftest():
             bad += 1
             print(f"       expected rc={want_rc}")
 
+    # --- SHARDED INVENTORY --------------------------------------------------
+    # Parallel workers are only faster if their union is still the serial
+    # sweep. These cases reach the exact multi-directory CLI the aggregate
+    # GitHub job uses and prove that omissions, additions, and double ownership
+    # all fail before a combined headline can be trusted.
+    for name, layout, want_rc, want_out, why in (
+        ("inventory-exact",
+         ({"left": {"a": "checks: 2   failures: 0\n"},
+                    "right": {"b": "checks: 3   failures: 0\n"}},
+          ("a", "b")),
+         0, "checks: 5   in-suite failures: 0",
+         "disjoint shard logs reproduce the serial tally"),
+        ("inventory-missing",
+         ({"left": {"a": "checks: 2   failures: 0\n"}}, ("a", "b")),
+         1, "MISSING     b", "one omitted serial suite fails closed"),
+        ("inventory-unexpected",
+         ({"left": {"a": "checks: 2   failures: 0\n",
+                     "c": "checks: 4   failures: 0\n"}}, ("a", "b")),
+         1, "UNEXPECTED  c", "a stale or invented suite log fails closed"),
+        ("inventory-duplicate",
+         ({"left": {"a": "checks: 2   failures: 0\n"},
+                    "right": {"a": "checks: 2   failures: 0\n",
+                              "b": "checks: 3   failures: 0\n"}},
+          ("a", "b")),
+         1, "DUPLICATE   a", "two workers owning one suite fails closed"),
+    ):
+        log_layout, expected = layout
+        with tempfile.TemporaryDirectory() as td:
+            base = Path(td)
+            suite_root = base / "suites"
+            suite_root.mkdir()
+            for suite in expected:
+                suite_dir = suite_root / suite
+                suite_dir.mkdir()
+                (suite_dir / "Makefile").write_text("all:\n\t@true\n")
+            logdirs = []
+            for dirname, logs in log_layout.items():
+                logdir = base / dirname
+                logdir.mkdir()
+                logdirs.append(logdir)
+                for stem, body in logs.items():
+                    (logdir / f"{stem}.log").write_text(body)
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf), \
+                    contextlib.redirect_stderr(io.StringIO()):
+                rc = main([sys.argv[0], *map(str, logdirs), "--quiet",
+                           "--expect-suite-root", str(suite_root)])
+        out = buf.getvalue()
+        ok = rc == want_rc and want_out in out
+        print(f"  {'ok  ' if ok else 'FAIL'} {name:<32} rc={rc}  -- {why}")
+        if not ok:
+            bad += 1
+            print(f"       expected rc={want_rc} and {want_out!r} in output")
+
     # --- the CAMPAIGN GUARD --------------------------------------------------
     # The guard protects 164 checks that nothing else protects, because the
     # suite's own 2-check floor lifts it clear of NOCOUNT. A review pointed out
@@ -562,18 +618,70 @@ def main(argv):
         print("  in scripts/suite_tally.py, or a SUITE-SKIP: line saying why")
         print("  the campaign ran nothing.")
         return 1
-    args = [a for a in argv[1:] if not a.startswith("-")]
-    quiet = "--quiet" in argv[1:]
-    if len(args) != 1:
-        sys.stderr.write("usage: suite_tally.py <logdir> [--quiet]\n")
+    quiet = False
+    expected_root = None
+    logdir_args = []
+    pos = 1
+    while pos < len(argv):
+        arg = argv[pos]
+        if arg == "--quiet":
+            quiet = True
+            pos += 1
+        elif arg == "--expect-suite-root":
+            if pos + 1 >= len(argv):
+                sys.stderr.write("suite_tally: --expect-suite-root needs a path\n")
+                return 2
+            expected_root = Path(argv[pos + 1])
+            pos += 2
+        elif arg.startswith("-"):
+            sys.stderr.write(f"suite_tally: unknown option {arg}\n")
+            return 2
+        else:
+            logdir_args.append(arg)
+            pos += 1
+    if not logdir_args:
+        sys.stderr.write("usage: suite_tally.py <logdir>... [--quiet] "
+                         "[--expect-suite-root <dir>]\n")
         return 2
 
-    logdir = Path(args[0])
-    logs = sorted(logdir.glob("*.log"))
+    logdirs = [Path(arg) for arg in logdir_args]
+    logs = sorted((log for logdir in logdirs for log in logdir.glob("*.log")),
+                  key=lambda path: (path.stem, str(path)))
     if not logs:
-        sys.stderr.write(f"suite_tally: no *.log under {logdir} -- nothing to "
+        rendered = ", ".join(map(str, logdirs))
+        sys.stderr.write(f"suite_tally: no *.log under {rendered} -- nothing to "
                          f"tally, which is an unknown, not a zero\n")
         return 2
+
+    inventory_findings = []
+    counts = Counter(log.stem for log in logs)
+    for suite, count in sorted(counts.items()):
+        if count > 1:
+            inventory_findings.append(
+                ("DUPLICATE", suite, f"appears in {count} shard log directories"))
+    if expected_root is not None:
+        try:
+            expected = {
+                path.name for path in expected_root.iterdir()
+                if path.is_dir() and (path / "Makefile").is_file()
+            }
+        except OSError as exc:
+            sys.stderr.write(f"suite_tally: cannot read expected suite root "
+                             f"{expected_root}: {exc}\n")
+            return 2
+        if not expected:
+            sys.stderr.write(f"suite_tally: no suite Makefiles under expected "
+                             f"root {expected_root}\n")
+            return 2
+        actual = set(counts)
+        inventory_findings.extend(
+            ("MISSING", suite, "no shard produced its log")
+            for suite in sorted(expected - actual)
+        )
+        inventory_findings.extend(
+            ("UNEXPECTED", suite, "not present in the serial suite inventory")
+            for suite in sorted(actual - expected)
+        )
 
     total_checks = total_fails = 0
     nocount = []
@@ -613,6 +721,15 @@ def main(argv):
 
     print(f"checks: {total_checks}   in-suite failures: {total_fails}")
 
+    if inventory_findings:
+        print()
+        print("ACCOUNTING FAILURE -- shard logs do not equal the serial suite "
+              "inventory:")
+        for finding, suite, reason in inventory_findings:
+            print(f"  {finding:<11} {suite}: {reason}")
+        print("  The combined check total is not exhaustive and must not be "
+              "treated as the serial sweep.")
+
     #! Printed ALWAYS, including --quiet, and above the accounting verdicts:
     #! the total being smaller than usual is the thing a reader most needs
     #! told, and it is not a failure so nothing else would say it.
@@ -623,7 +740,7 @@ def main(argv):
         for suite, reason in skip_findings:
             print(f"  SKIPPED  {suite}: {reason}")
 
-    bad = False
+    bad = bool(inventory_findings)
     if nocount:
         bad = True
         print()

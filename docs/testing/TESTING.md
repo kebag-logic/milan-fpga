@@ -255,6 +255,15 @@ emits five summary shapes, and 29 of 57 suite logs matched none of them and
 contributed a silent zero — shown by adding 66 assertions to a suite and
 watching the printed total not move). Rerun the sweep for both figures.
 
+With no options the script remains the mandatory serial local sweep. GitHub
+uses four isolated `--shard INDEX/4` workers to reduce wall time, then keeps
+`verilator-suites` as a small aggregate required check. That aggregate compares
+the uploaded log names with the live `tb/verilator/*/Makefile` inventory and
+fails on a missing, unexpected, or multiply-owned suite before trusting the
+combined tally. `scripts/run_all_suites.sh --shard 0/4 --list` shows a worker's
+deterministic selection without building it; sharding is a scheduling detail,
+not permission to validate only one quarter locally.
+
 > **This table SHRANK on 2026-08-13, and that is the first time it ever has.**
 > The standing rule was that every round grows it. Thirteen suites — `aecp`,
 > `aempatch`, `acmp`, `acmp_lstn`, `persist`, `adp`, `adp_advertise`,
