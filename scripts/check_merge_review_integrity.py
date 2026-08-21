@@ -24,6 +24,11 @@ EITHER the formal `reviews[].body` (newer PRs) OR the issue `comments[].body`
 last verdict BEFORE the merge decides. An unanswered `BLOCKER` finding - one no
 later POSITIVE verdict cleared - counts the same as a NEGATIVE.
 
+The verdict LEXICON is wider than the bare word and case-folded: `REQUEST
+CHANGES`, `DO NOT MERGE` (PR #123, #128) and a negated `positive` ("not yet a
+positive review") are rejections too, and PR #128 merged over exactly those
+while an uppercase-`NEGATIVE`-only reader saw nothing. See _line_verdict.
+
 TOOL ABSENCE IS UNKNOWN, NEVER A PASS. With no `gh`, or a `gh` that errors, the
 gate exits 2 (cannot run), never 0. The `--selftest` needs no network: it drives
 the pure `assess_pr` core over fixtures, including the mandated negative control
@@ -48,18 +53,45 @@ RC_OK, RC_FINDING, RC_CANNOT_RUN = 0, 1, 2
 DEFAULT_BASE = "dev"
 DEFAULT_LIMIT = 20
 
-#: A verdict line: `[R<n>]` then, somewhere on the line, POSITIVE or NEGATIVE,
-#: with or without the markdown bold the comment form uses. `[A<n>]` (author)
-#: lines are deliberately not matched - only a reviewer publishes a verdict.
-_VERDICT_RE = re.compile(r"^\s*\[R\d+\][^\n]*?\*{0,2}(POSITIVE|NEGATIVE)\*{0,2}",
-                         re.M)
-#: A BLOCKER finding line, same reviewer-line anchor.
-_BLOCKER_RE = re.compile(r"^\s*\[R\d+\][^\n]*?\bBLOCKER\b", re.M)
-#: `Closes/Fixes/Resolves #N`. A digit is required, so the PR template's bare
-#: "Closes/relates to: #" placeholder names nothing.
+#: A reviewer line. `[A<n>]` (author) lines are deliberately not matched - only
+#: a reviewer publishes a verdict.
+_RLINE_RE = re.compile(r"^\s*\[R\d+\]")
+#: A `positive` that a preceding `not` turns into a rejection, e.g. PR #128's
+#: "this is not yet a positive review".
+_NOT_POSITIVE_RE = re.compile(r"\bNOT\b[\sA-Z]{0,24}\bPOSITIVE\b")
+#: `Closes/Fixes/Resolves` (optional `:`) then one or more `#N`, comma- or
+#: `and`-separated. A digit is required, so the template's bare
+#: "Closes/relates to: #" placeholder names nothing. `\b` before the keyword
+#: keeps `discloses`/`prefixes` from matching.
 _CLOSES_RE = re.compile(
-    r"\b(?:clos(?:e|es|ed)|fix(?:e|es|ed)?|resolv(?:e|es|ed))\s+#(\d+)",
-    re.I)
+    r"\b(?:clos(?:e|es|ed)|fix(?:e|es|ed)?|resolv(?:e|es|ed))\b\s*:?\s*"
+    r"(#\d+(?:\s*(?:,|and)\s*#\d+)*)", re.I)
+
+
+def _line_verdict(line):
+    """(verdict, is_blocker) for one `[R<n>]` line.
+
+    The lexicon is wider than the bare word and CASE-FOLDED, because this
+    repo's reviews reject in more than one dialect: `REQUEST CHANGES` and
+    `DO NOT MERGE` (PR #123, #128) and a negated `positive` ("not yet a
+    positive review") are real NEGATIVE verdicts, and PR #128 MERGED over
+    exactly those while an uppercase-`NEGATIVE`-only parser saw nothing. An
+    explicit rejection word outranks a `positive` on the same line: that is
+    the safe bias for a post-merge AUDIT, where a flagged-but-cleared PR costs
+    a human re-check and a MISSED one is a bad merge nobody sees (#180). The
+    verdict-first convention (AGENTS.md section 6) means the ambiguous both-on-
+    one-line case does not arise in the corpus; where it did, this errs toward
+    flagging.
+    """
+    upper = line.upper()
+    blocker = "BLOCKER" in upper
+    if ("NEGATIVE" in upper or "DO NOT MERGE" in upper
+            or "REQUEST CHANGES" in upper or "REQUEST-CHANGES" in upper
+            or _NOT_POSITIVE_RE.search(upper)):
+        return "NEGATIVE", blocker
+    if "POSITIVE" in upper:
+        return "POSITIVE", blocker
+    return None, blocker
 
 
 class Finding:
@@ -90,10 +122,22 @@ def _verdict_events(pr):
 
 
 def _scan_body(body, when, events):
-    for m in _VERDICT_RE.finditer(body):
-        events.append((when, m.group(1).upper(), False))
-    for _ in _BLOCKER_RE.finditer(body):
-        events.append((when, "BLOCKER", True))
+    for line in body.splitlines():
+        if not _RLINE_RE.match(line):
+            continue
+        verdict, blocker = _line_verdict(line)
+        if verdict:
+            events.append((when, verdict, False))
+        if blocker:
+            events.append((when, "BLOCKER", True))
+
+
+def _closed_issue_numbers(body):
+    """Every issue number a `Closes/Fixes #a, #b` names, comma/`and` lists too."""
+    nums = set()
+    for m in _CLOSES_RE.finditer(body or ""):
+        nums.update(int(x) for x in re.findall(r"#(\d+)", m.group(1)))
+    return nums
 
 
 def assess_pr(pr, issue_is_open):
@@ -127,7 +171,7 @@ def assess_pr(pr, issue_is_open):
                 "merged %s carrying a BLOCKER no later POSITIVE verdict cleared"
                 % (merged_at or "?")))
 
-    for n in sorted({int(x) for x in _CLOSES_RE.findall(pr.get("body") or "")}):
+    for n in sorted(_closed_issue_numbers(pr.get("body") or "")):
         if issue_is_open(n):
             findings.append(Finding(
                 pr["number"], "open-issue",
@@ -272,9 +316,49 @@ def selftest():
         problems.append("case10 vacuity: the core found nothing on the "
                         "positive fixture, so a stub would pass the suite")
 
+    # 11. THE #128 CORPUS CASE: merged over `REQUEST CHANGES / DO NOT MERGE`
+    # then a `not yet a positive review`, with no bare-word NEGATIVE anywhere.
+    # This is verbatim what merged over the old parser (it saw zero verdicts).
+    p11 = {"number": 128, "mergedAt": "2026-08-19T20:06:28Z", "body": "x",
+           "comments": [
+               {"body": "[R0] REQUEST CHANGES / DO NOT MERGE at head `b1e0b37`.",
+                "createdAt": "2026-08-19T18:55:40Z"},
+               {"body": "[R0] ROUND 2: the leak is RESOLVED, but this is not "
+                        "yet a positive review.",
+                "createdAt": "2026-08-19T19:07:32Z"}], "reviews": []}
+    f11 = assess_pr(p11, openf(set()))
+    if [x.reason for x in f11] != ["negative-merge"]:
+        problems.append("case11 request-changes/not-positive: %s"
+                        % [x.line() for x in f11])
+
+    # 12. A lowercase verdict is still a verdict.
+    p12 = {"number": 129, "mergedAt": "2026-08-20T10:00:00Z", "body": "x",
+           "reviews": [{"body": "[R0] negative - the boot order is wrong",
+                        "submittedAt": "2026-08-20T09:00:00Z"}], "comments": []}
+    if [x.reason for x in assess_pr(p12, openf(set()))] != ["negative-merge"]:
+        problems.append("case12 lowercase-negative")
+
+    # 13. A comma-separated `Closes #a, #b`: the TRAILING one, still open, must
+    # be reported - the old `\s+#` form dropped everything after the first.
+    p13 = {"number": 130, "mergedAt": "2026-08-20T10:00:00Z",
+           "body": "Closes #12, #13.\n[R0] POSITIVE",
+           "reviews": [], "comments": []}
+    f13 = assess_pr(p13, openf({13}))          # #12 closed, #13 open
+    if [x.reason for x in f13] != ["open-issue"] or "#13" not in f13[0].detail:
+        problems.append("case13 comma-list-closes: %s" % [x.line() for x in f13])
+
+    # 14. `Closes: #14` (colon) and `discloses #99` (must NOT match).
+    p14 = {"number": 131, "mergedAt": "2026-08-20T10:00:00Z",
+           "body": "Fixes: #14. This discloses #99 as related.\n[R0] POSITIVE",
+           "reviews": [], "comments": []}
+    f14 = assess_pr(p14, lambda n: True)       # both would be open if matched
+    if [x.reason for x in f14] != ["open-issue"] or "#14" not in f14[0].detail:
+        problems.append("case14 colon-closes / discloses false-match: %s"
+                        % [x.line() for x in f14])
+
     for p in problems:
         print("  SELFTEST FAILED: %s" % p)
-    n = 10
+    n = 14
     print("check_merge_review_integrity self-test: %d checks: %d PASS, %d FAIL"
           % (n, n - len(problems), len(problems)))
     return 1 if problems else 0
