@@ -783,18 +783,34 @@ host-only.
   with the flow tail its own launcher appends, `--build` included, which is
   the flag every shape gate in the tree excludes.
 
-  Both need a LiteX interpreter, and **CI has none yet**.
+  Both need a LiteX interpreter, and **CI now installs one**.
   [`.github/workflows/elaborate.yml`](../../.github/workflows/elaborate.yml)
-  is written and is `workflow_dispatch` only, because no config in this tree
-  elaborates on a stock toolchain. Upstream LiteX has no `baremetal`
-  VexiiRiscv variant, which is the shipping AX profile, and the revision it
-  pins rejects the `--scala-args` four of the five configs pass.
-  [`sw/litex/patches`](../../sw/litex/patches) carries the series that closes
-  both and `apply.sh` applies it, but nothing in CI runs that script and no
-  gate compares its result, so it had stopped applying. #185 carries the
-  measurement.
+  runs on pushes to `dev`/`main`, on pull requests, and on manual dispatch.
+  It installs the revisions pinned in
+  [`sw/litex/litex_pins.txt`](../../sw/litex/litex_pins.txt), places the
+  VexiiRiscv checkout at the revision LiteX itself names, runs
+  [`sw/litex/patches/apply.sh`](../../sw/litex/patches/apply.sh), and then
+  runs `sw/builder/test_builder.py --require-elaboration`.
 
-  What holds meanwhile is that the gap is **visible instead of silent**:
+  The patch series is the reason that install is three steps and not one.
+  Upstream LiteX has no `baremetal` VexiiRiscv variant, which is the shipping
+  AX profile, and the revision it pins rejects the `--scala-args` four of the
+  five configs pass. [`sw/litex/patches`](../../sw/litex/patches) has always
+  carried the series that closes both, but until 2026-08-21 nothing in CI ran
+  `apply.sh` and no gate compared its result, so it had silently stopped
+  applying. Gate 23h now reconstructs it. #185 carries that measurement.
+
+  A documentation-only pull request is meant to pay for none of it: every
+  heavy step is gated on `scripts/ci_scope.py`, the classifier PR #176 adds,
+  and that classifier fails safe - an empty diff or an unresolvable base both
+  come back RTL-relevant. **That script is not on this branch yet**, because
+  this work is stacked on a base predating #176; while it is absent the
+  workflow says so in its log and elaborates unconditionally rather than
+  guessing. The skip becomes real when this stack retargets to `dev`, and
+  #176's scheduling-policy page - which also exists only on `dev` - gains
+  this workflow's row in the same move.
+
+  What the workflow does **not** prove is stated in its own output:
 
   | property | why |
   |---|---|

@@ -4732,43 +4732,63 @@ def _patch_targets(patch):
     return got
 
 
-def _reconstruct(python, series, break_patch=None):
+def _mirror(tmp, real):
+    """Where `real` lives inside the scratch mirror.
+
+    THE MIRROR IS KEYED BY ABSOLUTE REALPATH, and that is the whole fix for
+    the aliasing defect [R0] found on PR #189. Two of the six patches name
+    the SAME physical file through different roots: 0005 reaches
+    `.../ext/VexiiRiscv/src/.../Soc.scala` as a path under the
+    pythondata package, and the L2 patch reaches it as `src/.../Soc.scala`
+    under the VexiiRiscv checkout itself. Keyed by (tree, relative path)
+    they landed in two scratch files and were graded independently, so the
+    two patches never had to COMPOSE on the one file they share - which is
+    the same "grade a stacked series one patch at a time" mistake this gate
+    exists to replace. Mirroring the real absolute path makes them collide
+    onto one scratch file with no special case, because
+    realpath(<pythondata root>)/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv
+    IS realpath(<vexiiriscv root>).
+    """
+    return os.path.join(tmp, os.path.realpath(real).lstrip(os.sep))
+
+
+def _reconstruct(python, series, roots=None):
     """Problems with "the live trees are pristine upstream plus this series".
 
     THE SERIES IS STACKED, so no patch can be graded on its own: 0003 is
     diffed on top of 0001 and both rewrite the same boot.c hunks, so asking
     "does 0001 reverse-apply?" against a correctly patched tree answers no.
-    That is the same mistake apply.sh used to make in the other direction.
 
-    So the whole series is reversed, in reverse order, on a COPY of just the
-    files it touches - which lands on pristine upstream without downloading
-    one - and then applied forward again. Every step must succeed and the
-    result must equal the live files byte for byte. `break_patch` reverses one
-    extra patch at the end, which is how the control proves this can fail.
+    So the whole series is reversed, in reverse order, on a mirror of just
+    the files it touches - which lands on pristine upstream without
+    downloading one - and then applied forward again. Every step must
+    succeed and the result must equal the live files byte for byte.
+
+    `roots` overrides where the live trees are read from, which is how the
+    negative control feeds this same production code a fixture instead of
+    the real install.
     """
     problems = []
+    roots = roots or {key: _tree_root(python, key) for key, _ in series}
     with tempfile.TemporaryDirectory() as tmp:
         live = {}
         for key, patch in series:
-            root = _tree_root(python, key)
+            root = roots[key]
             for rel in _patch_targets(os.path.join(PATCH_DIR, patch)):
                 src = os.path.join(root, rel)
                 if not os.path.exists(src):
                     problems.append(f"{patch}: {key} has no {rel} at all")
                     continue
-                dst = os.path.join(tmp, key, rel)
-                if (key, rel) not in live:
+                dst = _mirror(tmp, src)
+                if dst not in live:
                     os.makedirs(os.path.dirname(dst), exist_ok=True)
                     shutil.copy2(src, dst)
-                    live[(key, rel)] = src
+                    live[dst] = src
         if problems:
             return problems
-        order = list(series)
-        if break_patch:
-            order = order + [break_patch]
-        for key, patch in reversed(order):
+        for key, patch in reversed(series):
             rc = subprocess.run(
-                ["git", "-C", os.path.join(tmp, key), "apply", "--reverse",
+                ["git", "-C", _mirror(tmp, roots[key]), "apply", "--reverse",
                  os.path.join(PATCH_DIR, patch)], capture_output=True)
             if rc.returncode != 0:
                 problems.append(
@@ -4780,7 +4800,7 @@ def _reconstruct(python, series, break_patch=None):
                 return problems
         for key, patch in series:
             rc = subprocess.run(
-                ["git", "-C", os.path.join(tmp, key), "apply",
+                ["git", "-C", _mirror(tmp, roots[key]), "apply",
                  os.path.join(PATCH_DIR, patch)], capture_output=True)
             if rc.returncode != 0:
                 problems.append(
@@ -4788,13 +4808,12 @@ def _reconstruct(python, series, break_patch=None):
                     "reversal produced, so the series is not self-consistent "
                     "in its own order")
                 return problems
-        for (key, rel), src in sorted(live.items()):
-            if open(os.path.join(tmp, key, rel), "rb").read() != \
-                    open(src, "rb").read():
+        for dst, src in sorted(live.items()):
+            if open(dst, "rb").read() != open(src, "rb").read():
                 problems.append(
-                    f"{key}/{rel}: upstream plus the series does not "
-                    "reproduce the installed file, so the tree carries a "
-                    "change no patch here records")
+                    f"{os.path.relpath(dst, tmp)}: upstream plus the series "
+                    "does not reproduce the installed file, so the tree "
+                    "carries a change no patch here records")
     return problems
 
 
@@ -4814,6 +4833,27 @@ def test_toolchain_patches_are_applied():
         "0002-vexiiriscv-l2-depth-args sat unapplied while four configs "
         f"needed it: only in the directory {sorted(on_disk - listed)}, only "
         f"in SERIES {sorted(listed - on_disk)}")
+    # CO-LOCATED TARGETS MUST SHARE ONE SCRATCH FILE, asserted rather than
+    # assumed, because grading them apart is the defect [R0] found: two
+    # patches naming one physical file were reconstructed independently and
+    # never had to compose. Any pair with the same realpath must map to the
+    # same mirror path, and the shared files are named in the output so a
+    # reader can see which patches have to agree with each other.
+    roots = {key: _tree_root(python, key) for key, _ in series}
+    by_real, by_mirror = {}, {}
+    for key, patch in series:
+        for rel in _patch_targets(os.path.join(PATCH_DIR, patch)):
+            src = os.path.join(roots[key], rel)
+            by_real.setdefault(os.path.realpath(src), set()).add(patch)
+            by_mirror.setdefault(_mirror("/m", src), set()).add(patch)
+    for real, pats in by_real.items():
+        mirrors = {_mirror("/m", real)}
+        assert len(mirrors) == 1 and by_mirror.get(_mirror("/m", real)) >= pats, (
+            f"{real} is named by {sorted(pats)} but does not resolve to one "
+            "scratch file, so those patches would be graded apart")
+    shared = {os.path.basename(r): sorted(p)
+              for r, p in by_real.items() if len(p) > 1}
+
     problems = _reconstruct(python, series)
     assert not problems, "gate 23h:\n  " + "\n  ".join(problems)
     files = {(k, r) for k, p in series
@@ -4821,33 +4861,95 @@ def test_toolchain_patches_are_applied():
     print(f"  [gate 23h] the {len(series)} patches in sw/litex/patches are the "
           f"{len(on_disk)} apply.sh applies, and reversing them off this "
           f"interpreter's trees and re-applying them reproduces all "
-          f"{len(files)} installed files byte for byte. Upstream LiteX has no "
+          f"{len(by_real)} installed files byte for byte, including "
+          f"{len(shared)} that two patches share and must therefore compose "
+          f"on ({shared}). Upstream LiteX has no "
           "`baremetal` VexiiRiscv variant and the revision it pins rejects "
           "the --l2-* arguments four configs pass, so this is what lets gates "
           "23f/23g elaborate at all. It says nothing about whether the "
           "patches are CORRECT, only that the tree is the one described here")
 
 
-def test_toolchain_patch_gate_bites():
-    """Gate 23h negative control - a tree missing one patch must redden it.
+def _missing_patch_fixture(python, series, fx, index):
+    """(roots, missing) - a REACHABLE tree that genuinely lacks series[index].
 
-    Run against the same scratch copy the gate uses, never the live install:
-    a gate that proves itself by breaking the tree the rest of the run
-    depends on is worse than no gate. One extra reversal per case is exactly
-    the state apply.sh left behind for an unknown length of time."""
+    Two shapes, and the first is preferred because it is exact. Reversing
+    ONLY the patch under test works for the last patch touching each file,
+    and then exactly one patch is absent. Where a later patch rewrote the
+    same hunks - 0003 sits on 0001, the L2 patch sits on 0005 - that single
+    reversal is not a state anyone can reach, so the fallback reverses the
+    whole tail from that index. That IS reachable: it is what apply.sh
+    leaves behind when it dies partway, the very state that opened #185.
+
+    `git apply --reverse` is atomic without --reject, so a refused attempt
+    leaves the mirror untouched and the fallback can run on it directly.
+    """
+    roots = {key: _tree_root(python, key) for key, _ in series}
+    for key, patch in series:
+        for rel in _patch_targets(os.path.join(PATCH_DIR, patch)):
+            src = os.path.join(roots[key], rel)
+            dst = _mirror(fx, src)
+            if not os.path.exists(dst):
+                os.makedirs(os.path.dirname(dst), exist_ok=True)
+                shutil.copy2(src, dst)
+    fx_roots = {key: _mirror(fx, root) for key, root in roots.items()}
+
+    def reverse(entry):
+        key, patch = entry
+        return subprocess.run(
+            ["git", "-C", fx_roots[key], "apply", "--reverse",
+             os.path.join(PATCH_DIR, patch)], capture_output=True).returncode
+
+    if reverse(series[index]) == 0:
+        return fx_roots, [series[index][1]]
+    for entry in reversed(series[index:]):
+        if reverse(entry) != 0:
+            return None, []
+    return fx_roots, [patch for _k, patch in series[index:]]
+
+
+def test_toolchain_patch_gate_bites():
+    """Gate 23h negative control - a tree missing a patch must redden it.
+
+    REAL FIXTURES, NOT A DOUBLE REVERSAL. The first version of this control
+    appended the patch under test to the series and reversed it twice, so
+    what it actually proved was that a patch cannot be reversed twice, and
+    the advertised tally said nothing about detecting a missing patch ([R0]
+    on PR #189). Each arm now builds a mirror of the installed trees that
+    genuinely lacks a patch and feeds THAT through the production validator,
+    so the thing graded is the thing that ships.
+    """
     python = _litex_or_skip("gate 23h mutation")
     if python is None:
         return
     series = _patch_series()
-    for case in series:
-        problems = _reconstruct(python, series, break_patch=case)
-        assert problems, (
-            f"gate 23h would NOT have noticed {case[1]} missing from the "
-            f"installed {case[0]}")
-    print(f"  [gate 23h mutation] {len(series)}/{len(series)} patches removed "
-          "one at a time from the reconstructed tree were each rejected, so "
-          "the gate above fails for the state it exists to catch rather than "
-          "passing on the strength of a directory listing")
+    exact, tail, unreachable = 0, 0, []
+    for i in range(len(series)):
+        with tempfile.TemporaryDirectory() as fx:
+            roots, missing = _missing_patch_fixture(python, series, fx, i)
+            if roots is None:
+                unreachable.append(series[i][1])
+                continue
+            problems = _reconstruct(python, series, roots=roots)
+            assert problems, (
+                f"gate 23h would NOT have noticed {missing} missing from the "
+                f"installed {series[i][0]}")
+            assert any(m in p for m in missing for p in problems), (
+                f"gate 23h reddened for a patch that was NOT missing: it was "
+                f"given a tree lacking {missing} and complained {problems[:1]}")
+            if len(missing) == 1:
+                exact += 1
+            else:
+                tail += 1
+    assert not unreachable, (
+        "these arms could not build a reachable fixture, so they proved "
+        f"nothing: {unreachable}")
+    print(f"  [gate 23h mutation] {exact + tail}/{len(series)} fixtures "
+          f"rejected by the production validator, naming a patch the tree "
+          f"genuinely lacked: {exact} with exactly one patch reversed out, "
+          f"{tail} where a later patch sits on the same hunks so the "
+          "reachable state is the whole tail - what a half-finished "
+          "apply.sh leaves. No arm passes by reversing anything twice")
 
 
 # ======================================================== gates 24c / 24d ====

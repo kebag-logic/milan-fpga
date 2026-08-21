@@ -28,10 +28,13 @@ WHAT IT DOES. Two things a `pip install` cannot:
      the wrong CPU source. If the call cannot be found the script REFUSES,
      because guessing a revision is the thing it exists to prevent.
 
-WHAT IT DOES NOT DO. It does not make every recipe elaborable. The Linux 8x8
-and Arty shapes pass --scala-args the pinned VexiiRiscv does not accept and
-build here only against an uncommitted local patch (#185); gate 23g names each
-one it could not run rather than passing over it.
+WHAT IT DOES NOT DO. It places the VexiiRiscv SOURCE and nothing else. The
+patches that make this tree elaborable at all are carried in
+sw/litex/patches/ and applied by that directory's apply.sh, which is a
+separate step and must run after this one - upstream LiteX has no `baremetal`
+VexiiRiscv variant and the revision it pins rejects the --scala-args four of
+the five configs pass (#185). Gate 23g names any recipe it could not run
+rather than passing over it.
 
 Run: python3 scripts/ci_litex_env.py [--check]
      --check reports what it would do and changes nothing.

@@ -118,7 +118,19 @@ jobs:
       # Python file, once per distinct argument set, by running Scala. That is
       # the only reason this job needs a JVM at all, and the result caches: a
       # cold run pays about 90 s for it, a warm one nothing.
-      - name: Cache the CPU netlist arguments and the Scala toolchain
+      # TWO CACHES, NOT ONE, and the split is the correctness fix rather than a
+      # tidy-up. The Scala toolchain is content-addressed by coursier and safe
+      # to share across every revision, so it keeps a broad fallback. The
+      # GENERATED CPU METADATA is not: LiteX names those .py files from
+      # `interface-metadata-v1 + metadata_args` - the CPU ARGUMENTS - and
+      # skips PythonArgsGen entirely when the file already exists
+      # (litex/soc/cores/cpu/vexiiriscv/core.py). Nothing in that name
+      # covers the Scala source. So a cache entry made before a pin or patch
+      # changed still satisfies the lookup, and the job elaborates metadata
+      # built by the OLD generator while reporting green - the one component
+      # this workflow exists to prove would stop being from-scratch ([R0] on
+      # PR #189).
+      - name: Cache the Scala toolchain
         if: ${{ steps.scope.outputs.rtl == 'true' }}
         uses: actions/cache@v4
         with:
@@ -126,9 +138,20 @@ jobs:
             ~/.cache/coursier
             ~/.sbt
             ~/.ivy2
-            ~/vexii-netlist-args
-          key: elaborate-vexii-${{ hashFiles('configs/*.yaml', 'sw/litex/milan_soc.py', 'sw/litex/build.sh', 'sw/litex/sweep.sh') }}
-          restore-keys: elaborate-vexii-
+          key: elaborate-sbt-${{ runner.os }}
+          restore-keys: elaborate-sbt-
+
+      # NO restore-keys HERE, deliberately. A prefix fallback is exactly the
+      # mechanism that hands over .py metadata from another toolchain head; a
+      # miss must cost one ~90 s Scala run, never a silent wrong answer. The
+      # key covers every input that can change what the generator emits: the
+      # argv sources, the pinned revisions, and the patch series itself.
+      - name: Cache the generated CPU metadata
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
+        uses: actions/cache@v4
+        with:
+          path: ~/vexii-netlist-args
+          key: elaborate-vexii-${{ hashFiles('configs/*.yaml', 'sw/litex/milan_soc.py', 'sw/litex/build.sh', 'sw/litex/sweep.sh', 'sw/litex/litex_pins.txt', 'sw/litex/patches/**') }}
 
       - name: Install sbt
         if: ${{ steps.scope.outputs.rtl == 'true' }}
@@ -162,6 +185,7 @@ jobs:
       # `baremetal` variant and the --l2-* arguments exist; gate 23h proves
       # the result is upstream plus exactly these patches.
       - name: Apply the toolchain patch series
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
         run: sw/litex/patches/apply.sh
 
       # The gates that could not run in CI, running in CI. 23f/23g observe

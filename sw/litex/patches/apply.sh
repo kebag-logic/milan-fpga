@@ -106,10 +106,60 @@ apply_all() {
 # boot.c and the Makefile, so the sources it compiles have to be there first.
 xz_dir() { echo "$(tree_root litex)/litex/soc/software/bios/xz"; }
 
+# --reverse MUST PROVE THE TREE IS PRISTINE, not merely that it tried.
+# revert_all() is best-effort ON PURPOSE - as the normalisation step of a
+# forward apply, a patch it cannot reverse is fine, because apply_all() then
+# refuses it by name. As the WHOLE of `--reverse` that same tolerance is a
+# false success: one locally edited hunk leaves that patch applied while the
+# others come out, and the caller is told the toolchain is pristine ([R0] on
+# PR #189).
+#
+# THE TEST IS THE COMPLETE SERIES, NOT EACH PATCH. Two weaker invariants were
+# written first and both were wrong, for the same reason the series is stacked:
+#   * "the patch no longer reverse-applies" calls an EDITED hunk absent, since
+#     an edited file matches neither state. Measured: it passed a tree in which
+#     0002-liteeth was still applied with one changed line.
+#   * "every patch forward-applies" fails on a genuinely pristine tree, because
+#     0003 is diffed on top of 0001 and composes only after it.
+# So apply the whole series in order - which succeeds only from pristine - and
+# then unwind exactly what went on, leaving the caller as it found them.
+verify_pristine() {
+    local entry key file root i applied=0 ok=1
+    for (( i=0; i<${#SERIES[@]}; i++ )); do
+        entry="${SERIES[$i]}"; key="${entry%% *}"; file="${entry##* }"
+        root="$(tree_root "$key")"
+        if [ ! -d "$root" ] || ! git -C "$root" apply "$HERE/$file" 2>/dev/null
+        then
+            echo "[patches] ERROR: $key is not pristine for $file - it is" >&2
+            echo "[patches]   neither cleanly reversed nor cleanly applied." >&2
+            ok=0
+            break
+        fi
+        applied=$((applied + 1))
+    done
+    for (( i=applied-1; i>=0; i-- )); do
+        entry="${SERIES[$i]}"; key="${entry%% *}"; file="${entry##* }"
+        root="$(tree_root "$key")"
+        git -C "$root" apply --reverse "$HERE/$file" 2>/dev/null || true
+    done
+    if [ -e "$(xz_dir)" ]; then
+        echo "[patches] ERROR: $(xz_dir) still exists." >&2
+        ok=0
+    fi
+    [ "$ok" -eq 1 ]
+}
+
 revert_all
 rm -rf "$(xz_dir)"
 if [ -n "$REV" ]; then
-    echo "[patches] bios/xz removed; series reversed."
+    if ! verify_pristine; then
+        echo "[patches] --reverse did NOT fully reverse the series, so this" >&2
+        echo "[patches]   tree is in a MIXED state and is not pristine. Fix" >&2
+        echo "[patches]   the reported file(s) by hand - a local edit to a" >&2
+        echo "[patches]   patched hunk is the usual cause - and re-run." >&2
+        exit 1
+    fi
+    echo "[patches] bios/xz removed; series reversed (verified absent)."
     exit 0
 fi
 mkdir -p "$(xz_dir)"
