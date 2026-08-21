@@ -8,7 +8,7 @@ tree from the active Python env; re-run after every LiteX/LiteEth update).
 
 - **[0002-liteeth-gmii-tx-clk-invert.patch — GMII TX clock phase option](#0002-liteeth-gmii-tx-clk-invertpatch--gmii-tx-clock-phase-option)** — Forwards `gtx_clk` 180° out of phase, and the measured verdict for the AX7101/RTL8211E: REQUIRED once the TX launch FFs are IOB-packed — 25-40 % corrupt frames edge-aligned vs 20/20 pings and zero CRC errors inverted. Also says what it is *not*: this was never the silence bug.
 - **[0001-milan-linux-flashboot.patch — QSPI Linux flash-boot](#0001-milan-linux-flashbootpatch--qspi-linux-flash-boot)** — A BIOS boot method that copies the Linux images out of memory-mapped QSPI into DRAM instead of waiting on a serial upload. Names the three BIOS files it touches, and why it registers at priority -10 (ahead of serialboot, which stays as fallback) and compiles to nothing on non-Milan builds.
-- **[0002-vexiiriscv-l2-depth-args.patch — VexiiRiscv L2 geometry args](#0002-vexiiriscv-l2-depth-argspatch--vexiiriscv-l2-geometry-args)** — The L2-experiment patch that `apply.sh` deliberately does NOT apply — apply it by hand only. Read this if you were confused by the duplicate `0002-` prefix: it targets a different tree.
+- **[0002-vexiiriscv-l2-depth-args.patch — VexiiRiscv L2 geometry args](#0002-vexiiriscv-l2-depth-argspatch--vexiiriscv-l2-geometry-args)** — The VexiiRiscv L2 arguments four of the five configs pass, so `apply.sh` applies it too as of 2026-08-21. Read this if you were confused by the duplicate `0002-` prefix: it targets a different tree.
 - **[0004-vexiiriscv-baremetal-variant.patch](#0004-vexiiriscv-baremetal-variantpatch)** — Adds the one-hart RV32I plus `zicsr`/`zifencei` Vexii variant with machine mode only and no MMU, predictor, counters, FPU or L1 cache.
 - **[0005-vexiiriscv-cacheless-litex.patch](#0005-vexiiriscv-cacheless-litexpatch)** — Replaces Vexii's L1 assumptions with a shared cacheless TileLink topology so CPU and non-coherent Milan DMA still reach peripherals and LiteDRAM.
 - **[Usage](#usage)** — The `apply.sh` verbs (apply, `--reverse`, `PYTHON=` for a specific env), why you must re-run after every LiteX upgrade, and the copy-paste recipe for re-diffing a patch that no longer applies.
@@ -48,11 +48,17 @@ the patch is inert on non-Milan builds.
 ## `0002-vexiiriscv-l2-depth-args.patch` — VexiiRiscv L2 geometry args
 
 Exposes VexiiRiscv L2 depth/geometry arguments used by the performance
-campaign's L2 experiments (see [`CHANGELOG.md`](../../../CHANGELOG.md) / `docs/findings/`). **Not
-applied by `apply.sh`** — apply it manually (`patch -p1 -d <pythia/litex
-tree>`) only when building VexiiRiscv with a non-default L2. (Yes, the file
-shares the `0002-` prefix with the LiteEth patch — they target different
-trees.)
+campaign's L2 experiments (see [`CHANGELOG.md`](../../../CHANGELOG.md) / `docs/findings/`).
+**Applied by `apply.sh` since 2026-08-21.** It used to say "not applied,
+apply it by hand for a non-default L2", and that description outlived the
+fact: four of the five end-station configs now pass
+`--scala-args=--l2-down-pending`, so without this patch `sweep.sh arty`,
+`build.sh cfg_arty`, `build.sh cfg_ax8x8` and the 8x8 config cannot elaborate
+at all. A patch every shipping Linux recipe needs is not an optional one
+(#185). It targets the Scala checkout inside the pythondata package rather
+than a Python package, which is why `apply.sh` resolves it separately. (Yes,
+the file shares the `0002-` prefix with the LiteEth patch — they target
+different trees.)
 
 ## `0004-vexiiriscv-baremetal-variant.patch`
 

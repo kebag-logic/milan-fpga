@@ -167,6 +167,7 @@ cfg_ax8x8() {    # 8-stream (64ch) shape. History: the 07-24 close used
           --num-streams 8 --audio-interface tdm32 --audio-interface-master \
           --talker-wire-chans 8 --no-latency-taps --no-i2s-playback \
           --aaf-playback \
+          --entity-gen-dir $SOC_DIR/../../configs/generated/endstation_ax7101_8x8 \
           --no-render-lpf --cbs-queues-mask 0x18 --synth-directive AreaOptimized_high \
           --opt-directive ExploreArea --place-directive AltSpreadLogic_high"
                  # --aaf-playback (task #31, 2026-08-02) = KL_pcm_tx host
@@ -204,6 +205,7 @@ cfg_arty() {     # Arty A7-100 small endstation: MII 100M, QSPI flashboot (probe
           --uart-baudrate 115200 --timing-opt --strip-probes --l2-bytes 65536 \
           --scala-args=--lsu-l1-refill-count=8 --scala-args=--lsu-hardware-prefetch=rpt \
           --scala-args=--l2-down-pending=8 --scala-args=--l2-general-slots=16 \
+          --entity-gen-dir $SOC_DIR/../../configs/generated/endstation_arty_current \
           --rx-queues 2 --hs-page-bytes 16384"
 }
 

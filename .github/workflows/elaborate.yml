@@ -1,0 +1,207 @@
+name: elaborate
+
+# WHY THIS WORKFLOW EXISTS (issues #154, #156).
+#
+# Every argv-to-RTL-parameter chain in this repository used to be proven by
+# source-text greps against sw/litex/milan_soc.py, because NO CI JOB
+# ELABORATED THE SOC. Three separate blockers in three lanes on one day were
+# that gap: a flag parsed, threaded part of the way, and never reaching the
+# parameter it names. In one of them a reviewer severed the chain at two
+# independent hops and read ALL GATES PASS both times.
+#
+# The behavioural proof existed - gate 23f patches `Instance` in the executed
+# module's namespace and reads the live p_* keyword arguments - and it skipped
+# in CI, because docs.yml installs pyyaml and rtl.yml installs behave and
+# neither has LiteX. That is the whole crux: the proof existed and CI could
+# not run it.
+#
+# So this job installs LiteX and runs it. It is separate from docs.yml because
+# it is the only job in the tree that needs a JVM and a Scala build, and a
+# documentation PR should not pay for that.
+#
+# NO CONFIG IN THIS TREE ELABORATES ON A STOCK TOOLCHAIN (#185), so this job
+# does not install one. Upstream LiteX has no `baremetal` VexiiRiscv variant,
+# which is the whole shipping AX profile, and the VexiiRiscv revision it pins
+# rejects the --l2-* arguments four of the five configs pass.
+# sw/litex/patches/ carries the six patches that close both, and apply.sh
+# applies them. Until 2026-08-21 nothing ran that script end to end and the
+# series had stopped applying; gate 23h now reconstructs it and compares.
+#
+# The whole job is therefore: pinned revisions, the VexiiRiscv checkout at the
+# revision LiteX itself names, the patch series, and then the gates. Cold it
+# is about three minutes, most of it one Scala run per distinct CPU argument
+# set; warm it is under one.
+#
+# --require-elaboration fails the job when no LiteX interpreter is found, and
+# when the one found carries a VexiiRiscv that rejects the --l2-* arguments
+# the series adds (the generator prints scopt's `Unknown option`), rather
+# than skipping the gates and reporting the green this workflow exists to
+# end. A row a gate declines for a RECORDED reason (#184's Arty leg) is named
+# in the verdict, not absorbed. Everywhere else those gates SKIP and the
+# verdict says `ALL GATES PASS EXCEPT n NOT RUN` and names them.
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: elaborate-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  elaborate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # A documentation-only pull request must not pay a LiteX install, a
+      # VexiiRiscv checkout and a Scala run. scripts/ci_scope.py is the
+      # repository's one answer to "does this change need the RTL toolchain",
+      # and it fails safe: an empty diff and an unresolvable base both come
+      # back `true`. Raised against this workflow by [R1] while reviewing
+      # PR #176, which introduces that classifier.
+      - name: Decide whether this head needs an elaboration
+        id: scope
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          set -euo pipefail
+          # ci_scope.py arrives with PR #176. Until that lands this file may
+          # not exist, and the safe answer to "is this change RTL relevant"
+          # when the classifier is absent is yes.
+          if [ ! -f scripts/ci_scope.py ]; then
+            echo "rtl=true" >> "$GITHUB_OUTPUT"
+            echo "no scripts/ci_scope.py yet: elaborating unconditionally"
+            exit 0
+          fi
+          python3 scripts/ci_scope.py --selftest
+          if [ "$EVENT_NAME" != pull_request ]; then
+            echo "rtl=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if [ -n "$PR_BASE_SHA" ] \
+             && git cat-file -e "$PR_BASE_SHA^{commit}" 2>/dev/null; then
+            git diff --name-only "$PR_BASE_SHA" "$GITHUB_SHA" > "$RUNNER_TEMP/changed"
+          else
+            git ls-files > "$RUNNER_TEMP/changed"
+          fi
+          echo "rtl=$(python3 scripts/ci_scope.py < "$RUNNER_TEMP/changed")" >> "$GITHUB_OUTPUT"
+
+      # The elaboration reads the protocol-processor and gptp-processor source
+      # lists through scripts/pp_srcs.py, which REFUSES to emit an empty list.
+      # Without the submodules it fails before the datapath is reached.
+      - name: Fetch the processor sources the elaboration reads
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
+        run: git submodule update --init protocol-processor gptp-processor
+
+      - uses: actions/setup-python@v5
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
+        with:
+          python-version: '3.12'
+
+      # LiteX ships from git, not PyPI, and so does migen: the PyPI migen wheel
+      # and the m-labs git tree share the version number 0.9.2 and are
+      # different code, and only the git one can walk Python 3.11+ bytecode in
+      # its CSR-name tracer. Installed from PyPI the SoC dies at csr.py:64,
+      # measured 2026-08-21. pythondata-cpu-vexiiriscv is not on PyPI at all.
+      # The revisions are pinned in sw/litex/litex_pins.txt so that an
+      # upstream commit cannot redden a PR that changed nothing.
+      - name: Install LiteX at the pinned revisions
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
+        run: |
+          python3 -m pip install --quiet pyyaml
+          python3 -m pip install --quiet -r sw/litex/litex_pins.txt
+
+      # The VexiiRiscv wrapper turns its CPU arguments into a small generated
+      # Python file, once per distinct argument set, by running Scala. That is
+      # the only reason this job needs a JVM at all, and the result caches: a
+      # cold run pays about 90 s for it, a warm one nothing.
+      # TWO CACHES, NOT ONE, and the split is the correctness fix rather than a
+      # tidy-up. The Scala toolchain is content-addressed by coursier and safe
+      # to share across every revision, so it keeps a broad fallback. The
+      # GENERATED CPU METADATA is not: LiteX names those .py files from
+      # `interface-metadata-v1 + metadata_args` - the CPU ARGUMENTS - and
+      # skips PythonArgsGen entirely when the file already exists
+      # (litex/soc/cores/cpu/vexiiriscv/core.py). Nothing in that name
+      # covers the Scala source. So a cache entry made before a pin or patch
+      # changed still satisfies the lookup, and the job elaborates metadata
+      # built by the OLD generator while reporting green - the one component
+      # this workflow exists to prove would stop being from-scratch ([R0] on
+      # PR #189).
+      - name: Cache the Scala toolchain
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/coursier
+            ~/.sbt
+            ~/.ivy2
+          key: elaborate-sbt-${{ runner.os }}
+          restore-keys: elaborate-sbt-
+
+      # NO restore-keys HERE, deliberately. A prefix fallback is exactly the
+      # mechanism that hands over .py metadata from another toolchain head; a
+      # miss must cost one ~90 s Scala run, never a silent wrong answer. The
+      # key covers every input that can change what the generator emits: the
+      # argv sources, the pinned revisions, and the patch series itself.
+      - name: Cache the generated CPU metadata
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
+        uses: actions/cache@v4
+        with:
+          path: ~/vexii-netlist-args
+          key: elaborate-vexii-${{ hashFiles('configs/*.yaml', 'sw/litex/milan_soc.py', 'sw/litex/build.sh', 'sw/litex/sweep.sh', 'sw/litex/litex_pins.txt', 'sw/litex/patches/**') }}
+
+      - name: Install sbt
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
+        run: |
+          sbt --version >/dev/null 2>&1 && exit 0
+          curl -fsSL --retry 3 -o /tmp/sbt.tgz \
+            https://github.com/sbt/sbt/releases/download/v1.10.7/sbt-1.10.7.tgz
+          sudo tar xzf /tmp/sbt.tgz -C /opt
+          echo /opt/sbt/bin >> "$GITHUB_PATH"
+
+      # LiteX's own git_setup returns immediately unless --update-repo asks it
+      # to clone, and milan_soc.py never passes that, so the Scala source has
+      # to be placed here. The revision is DERIVED from LiteX rather than
+      # restated: a pin copied to a second place goes stale in silence, and
+      # the symptom is a netlist from the wrong CPU source, not a red build.
+      - name: Place the VexiiRiscv source at the revision LiteX pins
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
+        run: |
+          python3 scripts/ci_litex_env.py
+          mkdir -p ~/vexii-netlist-args
+          cp -n ~/vexii-netlist-args/*.py \
+            "$(python3 -c 'import pythondata_cpu_vexiiriscv as p; print(p.data_location)')/" \
+            2>/dev/null || true
+
+      # The gate that could not run in CI, running in CI. Gates 23f/23g
+      # observe what elaboration hands Instance("milan_datapath"); their
+      # mutation arms sever the chain hop by hop and require the gate to go
+      # red. --require-elaboration turns a missing interpreter, and an
+      # interpreter whose VexiiRiscv is unpatched, into a failure rather
+      # than a skip; only a row with a recorded, exactly matching failure
+      # may skip.
+      # Upstream cannot build this design. The series is what makes the
+      # `baremetal` variant and the --l2-* arguments exist; gate 23h proves
+      # the result is upstream plus exactly these patches.
+      - name: Apply the toolchain patch series
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
+        run: sw/litex/patches/apply.sh
+
+      # The gates that could not run in CI, running in CI. 23f/23g observe
+      # what elaboration hands Instance("milan_datapath"); their mutation arms
+      # sever the chain hop by hop and require the gate to go red.
+      - name: Elaboration gates
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
+        run: python3 sw/builder/test_builder.py --require-elaboration
+
+      - name: Keep the generated CPU netlist arguments for the next run
+        if: ${{ always() && steps.scope.outputs.rtl == 'true' }}
+        run: |
+          cp -n "$(python3 -c 'import pythondata_cpu_vexiiriscv as p; print(p.data_location)')"/*.py \
+            ~/vexii-netlist-args/ 2>/dev/null || true

@@ -19,7 +19,7 @@ build/boot recipe stays in [`sw/README.md`](../../sw/README.md) and
 - **[3. Building](#3-building)** — The ship-shape command line to copy, and the useful distinction: without `--build` you get elaboration and Verilog export with **no vendor tools at all**. Vivado is currently the only P&R backend wired for this board.
 - **[4. The flags that are not optional](#4-the-flags-that-are-not-optional)** — Four flags and the exact failure each one prevents. `--coherent-dma` is not implied by `--all-blocks` and its absence looks like all-zero skbs and a garbage destination MAC; `--gtx-tx-invert` is the difference between 25–40 % corrupt frames and none.
 - **[5. Simulation (milan_sim.py)](#5-simulation-milan_simpy)** — A single non-interactive command that boots the BIOS on a softcore and reads `"MILN"` back through the real datapath — the SoC-level rung between the RTL harnesses and silicon.
-- **[6. Patches (patches/)](#6-patches-patches)** — Three patches applied in place to your LiteX/LiteEth trees, re-run after every LiteX update. Note that the VexiiRiscv L2-geometry one is **not** applied by `apply.sh` — apply it by hand for non-default L2.
+- **[6. Patches (patches/)](#6-patches-patches)** — The six patches applied in place to your LiteX/LiteEth/VexiiRiscv trees. Upstream cannot build any shape of this design without them, so this is a required install step and not a tuning one, and a gate now proves the result.
 - **[7. Reproducibility - versions](#7-reproducibility---versions)** — There is no pinned requirements file; this is the list of known-good anchors instead (LiteX `a1e1c36`, openFPGALoader ≥ v1.1.1, the `verilog-axis` gitlink) and what to do when `apply.sh` fails after an upgrade.
 - **[8. The Migen DMA sims and on-target tools](#8-the-migen-dma-sims-and-on-target-tools)** — The six commands to run after touching ring or BD logic, straight from the interpreter with no pytest. Also flags that the `tools_*.c` benchmarks are board-side research instruments, not part of any build.
 
@@ -273,24 +273,53 @@ NaxRiscv and the same `add_milan_datapath()` as the board build.
 
 ## 6. Patches (`patches/`)
 
-Applied **in place** to the active Python env's LiteX/LiteEth trees by
-`patches/apply.sh` (idempotent; **re-run after every LiteX update**):
+Applied **in place** to the active Python env's LiteX/LiteEth/VexiiRiscv
+trees by `patches/apply.sh` (idempotent; **re-run after every LiteX update**).
+
+**This is a required step, not a tuning one.** Upstream LiteX cannot build any
+shape of this design: it has no `baremetal` VexiiRiscv variant, and the
+VexiiRiscv revision it pins rejects the `--l2-*` arguments four of the five
+configs pass. Measured over all five configs on 2026-08-21, a stock install
+elaborates none of them.
+
+`apply.sh` normalises before it applies, so it converges from a partially
+applied tree instead of refusing. It has to: `0003` is diffed on top of
+`0001` and both rewrite the same `boot.c` hunks, and the older per-patch
+check called that state broken. Nothing ran the script end to end, so the
+series had stopped applying for an unknown length of time and two patches had
+drifted from the tree the boards are built from. `test_builder.py` gate 23h
+now reverses the series off the installed trees, re-applies it and requires
+the result to be byte-identical, with a control that removes one patch at a
+time and requires the gate to fail.
 
 | Patch | What it does |
 |---|---|
 | `0001-milan-linux-flashboot.patch` | Adds the `linux_flashboot` BIOS boot method (runs before serialboot; inert without the `MILAN_FLASHBOOT_*` constants that `--with-spiflash` emits) |
 | `0002-liteeth-gmii-tx-clk-invert.patch` | Adds `tx_clk_invert` to `LiteEthPHYGMII` → the `--gtx-tx-invert` flag |
-| `0002-vexiiriscv-l2-depth-args.patch` | Exposes VexiiRiscv L2 depth/geometry args used by the perf campaign's L2 experiments. **Not applied by `apply.sh`** - apply manually when building VexiiRiscv with non-default L2 |
+| `0002-vexiiriscv-l2-depth-args.patch` | Exposes the VexiiRiscv `--l2-down-pending` / `--l2-general-slots` args. **Applied by `apply.sh` since 2026-08-21**: four of the five end-station configs pass them, so without it those four cannot elaborate at all (#185) |
+| `0003-milan-flashboot-xz-kernel.patch` | xz-compressed kernel support in `linux_flashboot`. Diffed **on top of 0001**, which is why apply order is not alphabetical |
+| `0004-vexiiriscv-baremetal-variant.patch` | The LiteX `baremetal` VexiiRiscv variant. Upstream has no such variant, and it is the shipping AX profile |
+| `0005-vexiiriscv-cacheless-litex.patch` | The cacheless iBus/dBus fabric and direct DMA path the bare-metal shape needs at netlist time |
 
 Details and re-diff instructions: [`patches/README.md`](../../sw/litex/patches/README.md).
 
 ## 7. Reproducibility - versions
 
-There is currently **no pinned requirements file**; patches are diffed
-against LiteX `master`. Known-good anchors, recorded from working builds:
+Revisions are pinned in
+[`sw/litex/litex_pins.txt`](../../sw/litex/litex_pins.txt), which also records
+why each one is a git revision rather than a PyPI release. The full install is
+three steps, in this order:
+
+```sh
+python3 -m pip install -r sw/litex/litex_pins.txt
+python3 scripts/ci_litex_env.py    # the VexiiRiscv checkout at the revision LiteX pins
+sw/litex/patches/apply.sh          # the six patches
+```
+
+Known-good anchors, recorded from working builds:
 
 * LiteX git `a1e1c36` (from `evidence/hw_naxriscv_reads_MILN.log` - the
-  on-silicon M-A2 run).
+  on-silicon M-A2 run), which is what `litex_pins.txt` pins.
 * openFPGALoader ≥ v1.1.1; Vivado with Artix-7 support for `--build`.
 * `verilog-axis` submodule pinned by the gitlink
   (`git submodule update --init third_party/verilog-axis` - required for any
