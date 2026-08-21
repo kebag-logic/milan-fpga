@@ -80,13 +80,13 @@ SYNTH="${YOSYS_SYNTH:-synth}"
 # THE PROTOCOL PROCESSOR IS THE CONTROL PLANE (scenario B, 2026-08-13).
 # Packages precede importers. Order mirrors tb/verilator/milan_dp/Makefile.
 PP="$R/protocol-processor/hdl"
-PP_SRCS="$PP/common/pp_pkg.sv $PP/srp/srp_pkg.sv $PP/acmp/pp_acmp_pkg.sv $PP/adp/pp_adp_pkg.sv $PP/common/KL_pp_prng.sv $PP/common/KL_pp_timer_service.sv $PP/packet_engine/KL_pp_rx_validator.sv $PP/packet_engine/KL_pp_rx_slots.sv $PP/packet_engine/KL_pp_normalizer.sv $PP/packket_engine/KL_pp_dispatch.sv $PP/packet_engine/KL_pp_tx_slots.sv $PP/packet_engine/KL_pp_tx_arbiter.sv $PP/packket_engine/KL_pp_scoreboard.sv $PP/packket_engine/KL_pp_event_router.sv $PP/packet_engine/KL_pp_originator.sv $PP/packet_engine/KL_pp_trace_ring.sv $PP/packket_engine/KL_pp_side_port.sv $PP/packet_engine/KL_pp_nvm_port.sv $PP/adp/KL_adp_engine.sv $PP/maap/KL_pp_maap.sv $PP/acmp/KL_pp_acmp_listener.sv $PP/acmp/KL_acmp_talker.sv $PP/acmp/KL_acmp_nvm_shadow.sv $PP/srp/KL_srp_decoder.sv $PP/srp/KL_srp_domain.sv $PP/srp/KL_srp_vlan.sv $PP/srp/KL_srp_admission.sv $PP/srp/KL_srp_talker_fsm.sv $PP/srp/KL_srp_listener_fsm.sv $PP/srp/KL_srp_encoder.sv $PP/srp/KL_srp_top.sv $PP/aecp/ucpu_pkg.sv $PP/aecp/KL_aecp_ucpu.sv $PP/aecp/KL_aecp_desc_store.sv $PP/aecp/KL_aecp_dyn_state.sv $PP/aecp/KL_aecp_resp_buf.sv $PP/aecp/KL_aecp_engine.sv $PP/aecp/KL_aecp_notify.sv $PP/top/KL_mrp_strip.sv $PP/top/protocol_processor_top.sv $R/hdl/milan/KL_pp_shadow.sv $R/hdl/milan/KL_pp_maap_shim.sv"
+PP_SRCS="$PP/common/pp_pkg.sv $PP/srp/srp_pkg.sv $PP/acmp/pp_acmp_pkg.sv $PP/adp/pp_adp_pkg.sv $PP/common/KL_pp_prng.sv $PP/common/KL_pp_timer_service.sv $PP/packet_engine/KL_pp_rx_validator.sv $PP/packet_engine/KL_pp_rx_slots.sv $PP/packet_engine/KL_pp_normalizer.sv $PP/packet_engine/KL_pp_dispatch.sv $PP/packet_engine/KL_pp_tx_slots.sv $PP/packet_engine/KL_pp_tx_arbiter.sv $PP/packet_engine/KL_pp_scoreboard.sv $PP/packet_engine/KL_pp_event_router.sv $PP/packet_engine/KL_pp_originator.sv $PP/packet_engine/KL_pp_trace_ring.sv $PP/packet_engine/KL_pp_side_port.sv $PP/packet_engine/KL_pp_nvm_port.sv $PP/adp/KL_adp_engine.sv $PP/maap/KL_pp_maap.sv $PP/acmp/KL_pp_acmp_listener.sv $PP/acmp/KL_acmp_talker.sv $PP/acmp/KL_acmp_nvm_shadow.sv $PP/srp/KL_srp_decoder.sv $PP/srp/KL_srp_domain.sv $PP/srp/KL_srp_vlan.sv $PP/srp/KL_srp_admission.sv $PP/srp/KL_srp_talker_fsm.sv $PP/srp/KL_srp_listener_fsm.sv $PP/srp/KL_srp_encoder.sv $PP/srp/KL_srp_top.sv $PP/aecp/ucpu_pkg.sv $PP/aecp/KL_aecp_ucpu.sv $PP/aecp/KL_aecp_desc_store.sv $PP/aecp/KL_aecp_dyn_state.sv $PP/aecp/KL_aecp_resp_buf.sv $PP/aecp/KL_aecp_engine.sv $PP/aecp/KL_aecp_notify.sv $PP/top/KL_mrp_strip.sv $PP/top/protocol_processor_top.sv $R/hdl/milan/KL_pp_shadow.sv $R/hdl/milan/KL_pp_maap_shim.sv"
 
 # top | source files (interface modules go through their flat wrapper)
 tops=(
   "tcam|$F/tcam.sv"
   "cdc_pulse|$C/cdc_pulse.sv"
-  "cdc_handshake|$/cdc_handshake.sv"
+  "cdc_handshake|$C/cdc_handshake.sv"
   "adp_tx_arbiter|$D/adp_tx_arbiter.sv"
   "rx_mac_filter|$F/tcam.sv $F/rx_mac_filter.sv $C/tx_ifg_gasket.sv"
   "milan_csr|$R/hdl/common/csr/milan_csr.sv"
