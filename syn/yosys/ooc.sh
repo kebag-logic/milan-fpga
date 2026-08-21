@@ -27,13 +27,15 @@ TMP="${OOC_TMP:-$(mktemp -d)}"; mkdir -p "$TMP"
 
 # The protocol processor is the control plane (scenario B): milan_datapath
 # instantiates KL_pp_shadow unconditionally, so its sources are datapath
-# sources and belong in DP_SRCS. Packages first. Order mirrors
-# syn/yosys/run.sh's PP_SRCS and tb/verilator/milan_dp/Makefile's.
+# sources and belong in DP_SRCS. Packages first.
 PP="$R/protocol-processor/hdl"
 # Derived from the submodule tree; see scripts/pp_srcs.py. The parent's own
 # two files stay explicit because they are this repository's, not the
-# submodule's.
-PP_SRCS="$(python3 "$R/scripts/pp_srcs.py" --prefix "$PP") $R/hdl/milan/KL_pp_shadow.sv $R/hdl/milan/KL_pp_maap_shim.sv"
+# submodule's. The status is taken rather than discarded: `$(...)` in an
+# assignment drops it, and the generator's refusal to emit an empty list is
+# worth nothing on this side of the process boundary if nobody reads it.
+PP_DERIVED="$(python3 "$R/scripts/pp_srcs.py" --prefix "$PP")" || exit 2
+PP_SRCS="$PP_DERIVED $R/hdl/milan/KL_pp_shadow.sv $R/hdl/milan/KL_pp_maap_shim.sv"
 
 # ...and with the processor comes its ROM. protocol_processor_top $readmemh's
 # the ACMP listener transition image by the RELATIVE name "ltn_rom.hex", which

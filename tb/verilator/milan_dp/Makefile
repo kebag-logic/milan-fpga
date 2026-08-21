@@ -89,7 +89,15 @@ P  = $(RTL_DIR)/ieee8021as/ptp_timestamp
 # inputs used to carry it by hand, each naming another as authoritative, and all
 # four went stale together the moment the pin moved. The parent's own two files
 # stay explicit: they are this repository's, not the submodule's.
-PP_SRCS := $(shell python3 $(CURDIR)/../../../scripts/pp_srcs.py --prefix $(PP_DIR)) \
+PP_DERIVED := $(shell python3 $(CURDIR)/../../../scripts/pp_srcs.py --prefix $(PP_DIR))
+# TAKE THE STATUS. $(shell) discards it, so the generator's refusal to emit an
+# empty list does not cross the process boundary on its own: without this the
+# submodule half simply vanishes from PP_SRCS and make carries on to build a
+# datapath with no control plane in it.
+ifneq ($(.SHELLSTATUS),0)
+$(error scripts/pp_srcs.py failed; the protocol-processor submodule source list could not be derived)
+endif
+PP_SRCS := $(PP_DERIVED) \
        $(RTL_DIR)/milan/KL_pp_shadow.sv $(RTL_DIR)/milan/KL_pp_maap_shim.sv
 
 # the gPTP plane (issue #114): parsed by every leg (the instantiation

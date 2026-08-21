@@ -33,14 +33,23 @@ TMP="$(mktemp -d)"
 # pp_adp_pkg/pp_acmp_pkg, and milan_datapath instantiates KL_pp_shadow
 # unconditionally - so this variable now feeds BOTH the standalone KL_pp_shadow
 # top and the milan_datapath entry. Packages first: their importers follow.
-# Order mirrors tb/verilator/milan_dp/Makefile's PP_SRCS.
 PP="$R/protocol-processor/hdl"
+
+# python3 is checked WITH the synthesis tools and BEFORE the list is built,
+# because the list is now derived by a script rather than typed out, so the
+# interpreter is a hard dependency of the variable itself.
+for t in python3 sv2v yosys; do command -v $t >/dev/null || { echo "missing tool: $t (see syn/yosys/README.md)"; exit 2; }; done
+
 # Derived from the submodule tree, not listed here: four build inputs used to
 # carry this list by hand and each named another as authoritative. They stay
 # correct until the pin moves, and nothing compared them against the tree.
-PP_SRCS="$(python3 "$R/scripts/pp_srcs.py" --prefix "$PP") $R/hdl/milan/KL_pp_shadow.sv $R/hdl/milan/KL_pp_maap_shim.sv"
-
-for t in sv2v yosys; do command -v $t >/dev/null || { echo "missing tool: $t (see syn/yosys/README.md)"; exit 2; }; done
+# TAKE THE STATUS. `$(...)` inside an assignment throws the exit code away and
+# `set -u` never sees an empty-but-defined variable, so the generator's refusal
+# to emit an empty list - its whole guarantee - does not survive the process
+# boundary unless it is read here. Without this, an absent submodule synthesises
+# a KL_pp_shadow top with no plane inside it.
+PP_DERIVED="$(python3 "$R/scripts/pp_srcs.py" --prefix "$PP")" || exit 2
+PP_SRCS="$PP_DERIVED $R/hdl/milan/KL_pp_shadow.sv $R/hdl/milan/KL_pp_maap_shim.sv"
 
 # protocol_processor_top $readmemh's its ACMP transition ROM by a RELATIVE
 # name, and yosys resolves that against ITS OWN working directory - not against

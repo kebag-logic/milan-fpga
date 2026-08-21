@@ -540,17 +540,21 @@ class MilanNIC(LiteXModule):
                            entity_gen_dir=entity_gen_dir)
 
 
-# The milan_datapath source set (ordered: packages first). Mirrors the milan_dp
-# Verilator Makefile and the syn/yosys entry  -  the single source of truth for what
-# the §A.9 wrapper is built from.
+# The milan_datapath source set (ordered: packages first) for the §A.9 wrapper.
+# It used to say it mirrored the milan_dp Verilator Makefile and the syn/yosys
+# entry, calling those the single source of truth while each of them said the
+# same of another: nothing held the authority and every copy drifted together.
 #
 # THE PROTOCOL PROCESSOR IS PART OF THE DATAPATH NOW (scenario B, 2026-08-13).
 # milan_datapath instantiates KL_pp_shadow UNCONDITIONALLY - there is no
 # PP_PLANE_P any more - so the submodule's files are datapath files, not an
 # opt-in extra. They come FIRST because their packages must be declared before
-# the modules that import them, and the order below is copied from the
-# authoritative `PP_SRCS` in tb/verilator/milan_dp/Makefile. Paths are repo-root
-# relative like every other entry here (add_source joins them onto `base`).
+# the modules that import them, which scripts/pp_srcs.py guarantees by reading
+# each file for a `package` declaration rather than trusting a name. Paths are
+# repo-root relative like every other entry here (add_source joins them onto
+# `base`). This comment used to call tb/verilator/milan_dp/Makefile the
+# authoritative list; that file said the same of nothing, so the authority was
+# circular and the instruction to copy it is what recreated the drift.
 def _pp_sources():
     """Submodule design sources, derived from the tree by scripts/pp_srcs.py."""
     import importlib.util
