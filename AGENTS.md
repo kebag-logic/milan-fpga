@@ -151,8 +151,16 @@ Acceptance criteria: <met/not met with evidence>
 Open risks/questions: none | <details>
 ```
 
-Open the PR against `dev`. Self-test results belong in a PR comment as evidence,
-not as a review verdict.
+Open the PR against `dev` as a draft while implementation is changing. The
+`rtl-fast` workflow runs on every update. Before marking the PR ready, run and
+record the complete local gates required by [CONTRIBUTING.md](CONTRIBUTING.md).
+Marking it ready starts the hosted exhaustive Verilator and Yosys gates on the
+exact PR head. A later commit invalidates that evidence and starts them again;
+convert the PR back to draft before resuming exploratory work. The detailed
+scheduling and cancellation contract is in the
+[CI workflow policy](docs/testing/CI_WORKFLOWS.md).
+
+Self-test results belong in a PR comment as evidence, not as a review verdict.
 
 ## 6. Reviewer procedure
 
@@ -318,6 +326,9 @@ A task is complete only when:
 
 - all acceptance criteria are met;
 - required tests and local verification gates pass;
+- the current PR head has a successful `rtl-fast` verdict;
+- an RTL/tooling-relevant PR head has exact-head `verilator-suites` and
+  `yosys-portability` evidence after it is marked ready;
 - no undocumented requirement/interface change remains;
 - the full review bar in [CONTRIBUTING.md](CONTRIBUTING.md) is met;
 - blocking and major findings are fixed and re-reviewed;
@@ -370,8 +381,10 @@ A task is complete only when:
 - authoritative documentation is current;
 - the Issue is manually closed and moved to `Done`.
 
-Green CI alone is not proof of correctness. A PR must not be merged by an agent
-unless a maintainer explicitly authorizes that merge.
+The hosted long-gate schedule does not weaken the mandatory local commands in
+[CONTRIBUTING.md](CONTRIBUTING.md). Green CI alone is not proof of correctness.
+A PR must not be merged by an agent unless a maintainer explicitly authorizes
+that merge.
 
 Lens coverage is the bar because it is the one property the motivating failure
 lacked. It is enumerable rather than a threshold: the lenses are the list in

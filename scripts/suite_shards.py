@@ -67,15 +67,16 @@ def selftest():
               f"deterministic={deterministic}")
         bad += 0 if ok else 1
 
-    # Pin the useful four-worker geometry as well as the abstract set proof.
-    # These are the longest landmarks in a measured cache-hit GitHub sweep;
-    # putting each on a distinct worker avoids an accidental hash-rule change
-    # rebuilding the old serial critical path inside one shard.
+    # Pin runtime landmarks and the two specialized dependency owners. The
+    # workflow installs tsn-gen only for tsn_fuzz's worker and Yosys/sv2v only
+    # for chmap_capture's worker, so an assignment-rule change must fail here.
     landmarks = {
         "milan_dp": 0,
         "pp_shadow": 1,
         "mmcm_servo": 2,
         "hostplane": 3,
+        "tsn_fuzz": 1,
+        "chmap_capture": 3,
     }
     got = {suite: shard_owner(suite, 4) for suite in landmarks}
     ok = got == landmarks

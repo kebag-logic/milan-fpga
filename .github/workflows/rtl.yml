@@ -1,35 +1,81 @@
-name: rtl
+name: rtl-full
 
 on:
   push:
-    branches: [main]
+    branches: [dev]
   pull_request:
+    types: [opened, reopened, synchronize, ready_for_review, converted_to_draft]
+  workflow_dispatch:
+  # GitHub schedules only the default branch. This becomes active when this
+  # workflow revision reaches main; pushes to dev are covered immediately.
+  schedule:
+    - cron: "17 1 * * *"
 
-# A newer commit makes an older run irrelevant. Free its four hosted runners
-# immediately instead of making the useful run queue behind stale evidence.
+# Marking a PR draft again starts a no-op run in the same group and cancels any
+# obsolete exhaustive work. A later commit to a ready PR replaces old evidence.
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 env:
-  # Pinned to the version the harnesses are developed and gated against.
-  # Distro Verilator is NOT usable here - see docs/testing/TESTING.md §7:
-  #   5.020 (Ubuntu 24.04)  cannot BUILD the datapath harnesses at all
-  #                         (BLKLOOPINIT on legal SystemVerilog).
-  #   5.032 (Debian trixie) builds, but read back 0 on 6 checks of the AECP
-  #                         suite of the day (that suite is gone with the
-  #                         1722.1 plane; the version defect it exposed is not).
-  # Both measured. Bump this pin deliberately, never incidentally.
   VERILATOR_VERSION: v5.050
-  # The tsn_fuzz suite is a required field campaign. Pin its packet generator
-  # so suite accounting never degrades to an uncounted local-only skip.
   TSN_GEN_REV: fde652067d3618f47fba2c2e8eb05f6c9f6fa97f
 
 jobs:
-  # The full Verilator suite sweep needs verilog-axis and protocol-processor.
-  # Both use anonymous HTTPS so a fork can fetch them too.
+  full-ci-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      run_full: ${{ steps.gate.outputs.run_full }}
+      rtl: ${{ steps.gate.outputs.rtl }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Decide whether this exact head needs the exhaustive gates
+        id: gate
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_DRAFT: ${{ github.event.pull_request.draft }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          set -euo pipefail
+          python3 scripts/ci_scope.py --selftest
+
+          if [ "$EVENT_NAME" != pull_request ]; then
+            echo "rtl=true" >> "$GITHUB_OUTPUT"
+            echo "run_full=true" >> "$GITHUB_OUTPUT"
+            echo "Non-PR event: exhaustive validation required."
+            exit 0
+          fi
+
+          if [ -n "$PR_BASE_SHA" ] \
+             && git cat-file -e "$PR_BASE_SHA^{commit}" 2>/dev/null; then
+            git diff --name-only "$PR_BASE_SHA" "$GITHUB_SHA" \
+              > "$RUNNER_TEMP/changed-files"
+          else
+            git ls-files > "$RUNNER_TEMP/changed-files"
+          fi
+
+          echo "Changed files:"
+          sed 's/^/  /' "$RUNNER_TEMP/changed-files"
+          rtl="$(python3 scripts/ci_scope.py < "$RUNNER_TEMP/changed-files")"
+          run_full=false
+          if [ "$PR_DRAFT" = false ] && [ "$rtl" = true ]; then
+            run_full=true
+          fi
+          echo "rtl=$rtl" >> "$GITHUB_OUTPUT"
+          echo "run_full=$run_full" >> "$GITHUB_OUTPUT"
+          echo "draft=$PR_DRAFT rtl=$rtl run_full=$run_full"
+
+  # The exhaustive inventory remains four-way and fail-closed. Specialized
+  # setup is installed only on the stable shard that owns the relevant suite;
+  # scripts/suite_shards.py self-tests those ownership assumptions.
   verilator-shards:
     name: Verilator shard ${{ matrix.shard }}/4
+    needs: full-ci-gate
+    if: ${{ needs.full-ci-gate.outputs.run_full == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 120
     strategy:
@@ -38,7 +84,7 @@ jobs:
         shard: [0, 1, 2, 3]
     steps:
       - uses: actions/checkout@v4
-      - name: Fetch the RTL submodules
+      - name: Fetch RTL dependencies
         run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
 
       - name: Cache the pinned Verilator build
@@ -48,10 +94,10 @@ jobs:
           path: /opt/verilator
           key: verilator-${{ env.VERILATOR_VERSION }}-${{ runner.os }}
 
-      - name: Build Verilator from source (cache miss only)
-        if: steps.cache-verilator.outputs.cache-hit != 'true'
+      - name: Build Verilator from source on cache miss
+        if: ${{ steps.cache-verilator.outputs.cache-hit != 'true' }}
         run: |
-          set -eu
+          set -euo pipefail
           sudo apt-get update -qq
           sudo apt-get install -y --no-install-recommends \
             git make autoconf g++ flex bison libfl2 libfl-dev help2man perl python3
@@ -67,59 +113,46 @@ jobs:
         run: |
           echo "/opt/verilator/bin" >> "$GITHUB_PATH"
           /opt/verilator/bin/verilator --version
+          /opt/verilator/bin/verilator --version | grep -F "${VERILATOR_VERSION#v}"
 
-      # RTL lint, BEFORE the 100-minute sweep so a lint break is a ~1 min
-      # verdict rather than something you wait an hour to be told. It is a STEP
-      # and not its own job on purpose: it needs exactly this Verilator, at
-      # exactly this pin, and a separate job would either restore the same
-      # cache twice or - on a cache miss - build Verilator twice in parallel
-      # for a check that runs in nine seconds.
-      #   * --check fails on a NEW violation (per-directory ratchet in
-      #     scripts/lint.budget); today's 188 are grandfathered and printed.
-      #   * --self-test proves the malformed-pragma gate still bites, which is
-      #     never ratcheted: `lint_off CODE // prose` builds under 5.050 and
-      #     does NOT build under 5.020.
-      - name: RTL lint (whole hdl/, ratcheted)
-        run: python3 scripts/lint_rtl.py --check --self-test
+      - name: Prove specialized suite ownership
+        env:
+          SHARD: ${{ matrix.shard }}
+        run: |
+          set -euo pipefail
+          python3 scripts/suite_shards.py --selftest
+          scripts/run_all_suites.sh --shard "$SHARD/4" --list \
+            > "$RUNNER_TEMP/owned-suites"
+          echo "Shard $SHARD owns:"
+          sed 's/^/  /' "$RUNNER_TEMP/owned-suites"
+          case "$SHARD" in
+            1) grep -Fx tsn_fuzz "$RUNNER_TEMP/owned-suites" ;;
+            3) grep -Fx chmap_capture "$RUNNER_TEMP/owned-suites" ;;
+          esac
 
-      # Every build input derives the submodule source list rather than listing
-      # it. This gate is the backstop against a literal coming back: a new
-      # consumer, or a derivation reverted to a hand-written list. It cannot
-      # catch a stale copy that no longer exists, which is the point -- it
-      # catches the copy being re-created.
-      - name: Submodule source list is derived, not copied
-        run: python3 scripts/pp_srcs.py --check --selftest
-
-      # The chmap_capture lane's netcheck leg synthesizes KL_chan_map_capture
-      # with yosys and re-simulates the netlist, which is how the VERSION
-      # 0x0030 class of hazard is pinned: RTL green while synthesized silicon
-      # shifted the map-write indexing. Without yosys on PATH that leg dies
-      # with exit 127 AFTER its own 184 checks have already passed, so the
-      # sweep reports a failing suite whose log says zero failures.
-      #
-      # sv2v comes too, and is not optional: the leg lowers the module to
-      # Verilog-2005 first, because the yosys Ubuntu ships (0.33) cannot
-      # parse the SystemVerilog size casts this file uses. Same pin as the
-      # yosys-portability job below, which already lowers this exact module.
-      - name: Install yosys for the netlist-level suite legs
+      - name: Install Yosys for the netlist-level suite owner
+        if: ${{ matrix.shard == 3 }}
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y --no-install-recommends yosys
           yosys -V
 
-      - name: Install sv2v from the upstream release
+      - name: Install sv2v for the netlist-level suite owner
+        if: ${{ matrix.shard == 3 }}
         run: |
-          set -eu
+          set -euo pipefail
           ver=v0.0.12
           url="https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip"
           curl -fsSL "$url" -o /tmp/sv2v.zip
           unzip -q -o /tmp/sv2v.zip -d /tmp/sv2v
-          sudo install -m755 "$(find /tmp/sv2v -name sv2v -type f | head -1)" /usr/local/bin/sv2v
+          sudo install -m755 "$(find /tmp/sv2v -name sv2v -type f | head -1)" \
+            /usr/local/bin/sv2v
           sv2v --version
 
-      - name: Build the pinned tsn-gen field oracle
+      - name: Build the pinned tsn-gen field oracle on its suite owner
+        if: ${{ matrix.shard == 1 }}
         run: |
-          set -eu
+          set -euo pipefail
           git clone --filter=blob:none \
             https://github.com/kebag-logic/tsn-gen.git "$RUNNER_TEMP/tsn-gen"
           git -C "$RUNNER_TEMP/tsn-gen" checkout "$TSN_GEN_REV"
@@ -132,13 +165,13 @@ jobs:
           test -x "$RUNNER_TEMP/tsn-gen/build/traffic-gen/packet_gen"
           echo "TSN_GEN_ROOT=$RUNNER_TEMP/tsn-gen" >> "$GITHUB_ENV"
 
-      - name: Run this suite shard
-        run: scripts/run_all_suites.sh "$RUNNER_TEMP/suite-logs" --shard "${{ matrix.shard }}/4"
+      - name: Run this exhaustive suite shard
+        run: |
+          scripts/run_all_suites.sh "$RUNNER_TEMP/suite-logs" \
+            --shard "${{ matrix.shard }}/4"
 
-      # Always upload: the final required check proves that the four artifacts
-      # are an exhaustive, disjoint copy of the serial suite inventory.
       - name: Upload this shard's suite logs
-        if: always()
+        if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
           name: suite-logs-${{ matrix.shard }}
@@ -146,20 +179,14 @@ jobs:
           if-no-files-found: error
           retention-days: 3
 
-  # Preserve the public required-check name while moving the expensive work to
-  # four isolated workers. This job fails if any worker failed OR if their logs
-  # omit, duplicate, or invent a suite relative to tb/verilator/.
   verilator-suites:
     name: verilator-suites
-    # Still aggregate ordinary worker failures, but let concurrency cancellation
-    # stop the obsolete run instead of keeping it alive for this bookkeeping.
-    if: ${{ !cancelled() }}
-    needs: verilator-shards
+    if: ${{ always() && !cancelled() && needs.full-ci-gate.outputs.run_full == 'true' }}
+    needs: [full-ci-gate, verilator-shards]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-
       - name: Download every shard's logs
         id: download-logs
         continue-on-error: true
@@ -167,9 +194,8 @@ jobs:
         with:
           pattern: suite-logs-*
           path: ${{ runner.temp }}/all-suite-logs
-
       - name: Prove exhaustive ownership and tally every log
-        if: always()
+        if: ${{ always() }}
         run: |
           shopt -s nullglob
           roots=("$RUNNER_TEMP"/all-suite-logs/suite-logs-*)
@@ -179,62 +205,95 @@ jobs:
           fi
           python3 scripts/suite_tally.py "${roots[@]}" --quiet \
             --expect-suite-root tb/verilator
-
-      - name: Require every shard worker to pass
-        if: always()
+      - name: Require every Verilator worker to pass
+        if: ${{ always() }}
         env:
           SHARD_RESULT: ${{ needs.verilator-shards.result }}
         run: |
           if [ "$SHARD_RESULT" != success ]; then
-            echo "one or more Verilator shard workers ended: $SHARD_RESULT" >&2
+            echo "one or more Verilator workers ended: $SHARD_RESULT" >&2
             exit 1
           fi
 
-  # BDD conformance suite (Gherkin, tests/features). Offline by default - the
-  # Python models in tests/steps mirror the RTL, so it needs no DUT binary and
-  # no simulator, and it runs in seconds. It is the spec-facing counterpart to
-  # the Verilator suites: those prove the RTL does what it does, this proves it
-  # does what the standard says. USER standing order: it runs on EVERY
-  # verification round, so it is a gate, not a ritual.
-  bdd-conformance:
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    steps:
-      - uses: actions/checkout@v4
-      - name: Fetch the processor model inputs
-        run: git submodule update --init protocol-processor
-      - name: Install behave
-        run: python3 -m pip install --quiet behave
-      - name: Run the suite
-        working-directory: tests
-        run: behave --no-capture -f plain
-
-  # Vendor-independence gate: every top must synthesise under Yosys, which is
-  # what keeps the ECP5 target reachable and keeps vendor primitives from
-  # creeping back in. Needs sv2v, which is NOT in the Ubuntu repos - the
-  # prebuilt release binary is the supported route (same as QUICKSTART.md).
-  # Distro Yosys IS fine here: nothing above depends on its version.
-  yosys-portability:
+  # Weighted longest-processing-time assignment isolates the two dominant
+  # tops and balances the remaining 44 without changing the local serial gate.
+  yosys-shards:
+    name: Yosys shard ${{ matrix.shard }}/4
+    needs: full-ci-gate
+    if: ${{ needs.full-ci-gate.outputs.run_full == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3]
     steps:
       - uses: actions/checkout@v4
-      - name: Fetch the RTL submodules
-        # gptp-processor feeds the KL_gptp_shadow top's source list
+      - name: Fetch RTL dependencies
         run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
       - name: Install Yosys
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y --no-install-recommends yosys
           yosys -V
-      - name: Install sv2v from the upstream release
+      - name: Install the pinned sv2v release
         run: |
-          set -eu
+          set -euo pipefail
           ver=v0.0.12
           url="https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip"
           curl -fsSL "$url" -o /tmp/sv2v.zip
           unzip -q -o /tmp/sv2v.zip -d /tmp/sv2v
-          sudo install -m755 "$(find /tmp/sv2v -name sv2v -type f | head -1)" /usr/local/bin/sv2v
+          sudo install -m755 "$(find /tmp/sv2v -name sv2v -type f | head -1)" \
+            /usr/local/bin/sv2v
           sv2v --version
-      - name: Portability sweep
-        run: syn/yosys/run.sh
+      - name: Run this weighted portability shard
+        run: |
+          syn/yosys/run.sh --shard "${{ matrix.shard }}/4" \
+            --results "$RUNNER_TEMP/yosys-results"
+      - name: Upload per-top and structural evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: yosys-results-${{ matrix.shard }}
+          path: ${{ runner.temp }}/yosys-results
+          if-no-files-found: error
+          retention-days: 3
+
+  yosys-portability:
+    name: yosys-portability
+    if: ${{ always() && !cancelled() && needs.full-ci-gate.outputs.run_full == 'true' }}
+    needs: [full-ci-gate, yosys-shards]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download every shard's evidence
+        id: download-results
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          pattern: yosys-results-*
+          path: ${{ runner.temp }}/all-yosys-results
+      - name: Reconcile the live inventory and structural gates
+        if: ${{ always() }}
+        run: |
+          set -euo pipefail
+          syn/yosys/run.sh --list > "$RUNNER_TEMP/expected-yosys-tops"
+          shopt -s nullglob
+          roots=("$RUNNER_TEMP"/all-yosys-results/yosys-results-*)
+          if [ "${#roots[@]}" -eq 0 ]; then
+            mkdir -p "$RUNNER_TEMP/all-yosys-results/none"
+            roots=("$RUNNER_TEMP/all-yosys-results/none")
+          fi
+          python3 scripts/yosys_tally.py "${roots[@]}" \
+            --expected "$RUNNER_TEMP/expected-yosys-tops" \
+            --require-structural
+      - name: Require every Yosys worker to pass
+        if: ${{ always() }}
+        env:
+          SHARD_RESULT: ${{ needs.yosys-shards.result }}
+        run: |
+          if [ "$SHARD_RESULT" != success ]; then
+            echo "one or more Yosys workers ended: $SHARD_RESULT" >&2
+            exit 1
+          fi

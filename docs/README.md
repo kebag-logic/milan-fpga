@@ -16,6 +16,7 @@ records verified behavior and the remaining mandatory gaps:
 | Understand the design | [Architecture](overview/ARCHITECTURE.md) |
 | Locate each subsystem | [System domain map](overview/SYSTEM_DOMAIN_MAP.md) |
 | Run a boardless check | [Quickstart](../QUICKSTART.md) |
+| Understand CI scheduling | [CI workflow policy](testing/CI_WORKFLOWS.md) |
 | Assess Milan v1.2 status | [Current Milan v1.2 audit](testing/MILAN_V12_AUDIT_2026-08-16.md) |
 | Find a requirement | [FR/NFR register](reference/FR_NFR.md) |
 | Check canonical feature status | [Milan feature status ledger](reference/MILAN_FEATURE_STATUS.md) |
@@ -73,6 +74,7 @@ and `aem_desc.map` files in the sibling rootfs overlay when it is present.
 |---|---|
 | [Testing guide](testing/TESTING.md) | Verification layers and exact commands |
 | [Running tests](testing/RUNNING_TESTS.md) | Layered execution runbook |
+| [CI workflow policy](testing/CI_WORKFLOWS.md) | Fast draft feedback and full exact-head gates |
 | [Simulation](testing/SIMULATION.md) | RTL and SoC simulation boundaries |
 | [BDD suite](../tests/README.md) | 15 features, 338 scenarios, and 1,615 steps in the 2026-08-18 run |
 | [Verilator suites](../tb/verilator/README.md) | RTL harness inventory |
