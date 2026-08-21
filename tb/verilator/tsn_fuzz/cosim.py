@@ -42,6 +42,7 @@ class Report:
         self.failures = []
         self.gaps = []
         self.sections = []          # [(name, npass, nfail, ngap)]
+        self.checks = []            # [(section, label)] every asserted check
         self._section = None
         self._counts = None
         self.dut = dut
@@ -63,6 +64,12 @@ class Report:
             self.sections.append((self._section, *self._counts))
 
     def ck(self, what, ok, detail=""):
+        # Every asserted check is recorded, pass or fail: the graded SET is what
+        # ran, not what passed. `_write_results` emits it so a model pin dropped
+        # or swapped changes the committed artifact by NAME, not only by a count
+        # (#150). Only the label is kept - the detail carries run-varying values
+        # and would make the artifact non-reproducible.
+        self.checks.append((self._section, what))
         if ok:
             self.npass += 1
             if self._counts:
@@ -128,6 +135,30 @@ class Report:
                 for name, p, f, g in self.sections:
                     out.append("| %s | %d | %d | %d |" % (name, p, f, g))
                 out.append("")
+            if self.checks:
+                # The per-field graded set (#150): every check that ran, grouped
+                # by section, labels sorted and de-duplicated so the list is
+                # reproducible run to run. A model pin dropped or swapped for
+                # another changes a line here even when the section counts do
+                # not, so check_results_fresh's whole-file diff catches it and
+                # names the field, closing the compensating-swap hole a
+                # count-only compare leaves open.
+                out += ["## Graded checks", "",
+                        "The set of checks this campaign asserts, one per line. "
+                        "This is committed and diffed, not just counted, so a "
+                        "lost or swapped model pin is named. Do not hand-edit.",
+                        ""]
+                by_section, order = {}, []
+                for sec, label in self.checks:
+                    key = sec or "(top level)"
+                    if key not in by_section:
+                        by_section[key] = set()
+                        order.append(key)
+                    by_section[key].add(label)
+                for key in order:
+                    out += ["### %s" % key, ""]
+                    out += ["* %s" % label for label in sorted(by_section[key])]
+                    out.append("")
             if self.gaps:
                 out += ["## Known gaps (tracked, not failures)", ""]
                 for sec, what, detail in self.gaps:
