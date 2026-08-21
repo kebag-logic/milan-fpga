@@ -70,6 +70,13 @@ reviewer** before implementation starts. Roles should rotate across tasks:
 
 An executor never approves its own work.
 
+**The reviewer assigns a finding's lens, and the executor may not re-label it.**
+The label decides which lens banks coverage under section 7, so leaving it
+unowned puts the completion test in the hands of the party the test is about. An
+executor that believes a finding is filed under the wrong lens says so in the
+thread and the reviewer re-files it; where the two disagree, both lenses are
+recorded and neither is covered clean.
+
 [CONTRIBUTING.md](CONTRIBUTING.md) currently requires two positive reviews, including one external
 to the implementation lane. With two AI systems, use a separate cleared-context
 review session for the lane's internal review and the other AI system for the
@@ -164,9 +171,26 @@ Read, in order:
 
 Review at least these lenses. They are named and countable, and section 7
 measures completion against them, so record which lens each finding came from
-and which lenses a round covered.
+and which lenses a round covered. Each carries a short token, given below its
+heading, because the full names run to thirty-six characters and a line already
+carrying a severity, a path and a title cannot also carry that. Use the token.
+
+**This list is the normative one.** [CONTRIBUTING.md](CONTRIBUTING.md) also
+names review angles, in different words and a different number of them; those
+are guidance for what to look at, and these five are what section 7 counts.
+
+**The lenses overlap on purpose and are not a partition.** A timeout rule is
+named under `Conformance`, under `RTL` and under `Robustness`, and a real
+missing timeout is honestly all three. So a finding attributable to more than
+one lens is recorded under **each** of them, and none of those lenses is
+covered clean by the round that found it. Recording it under the closest-looking
+single name is what makes mislabelling profitable: the other lenses bank a clean
+result they did not earn, and no reader can tell an honest mislabel from a
+deliberate one.
 
 ### Requirement and protocol conformance
+
+Token: `Conformance`
 
 - Every acceptance criterion is actually satisfied.
 - Cited IEEE 1722/1722.1/Milan behavior is interpreted correctly.
@@ -174,6 +198,8 @@ and which lenses a round covered.
   rules are correct.
 
 ### RTL and architecture
+
+Token: `RTL`
 
 - Clock and reset assumptions are valid.
 - CDC uses only approved primitives and patterns.
@@ -183,6 +209,8 @@ and which lenses a round covered.
 - Existing module/interface contracts remain valid.
 
 ### Robustness
+
+Token: `Robustness`
 
 - malformed and truncated input;
 - minimum/maximum values;
@@ -194,6 +222,8 @@ and which lenses a round covered.
 
 ### Tests
 
+Token: `Tests`
+
 - Each new test can fail for the defect it claims to detect.
 - Positive, negative, and boundary behavior is covered.
 - Real integration wiring is tested where practical.
@@ -201,6 +231,8 @@ and which lenses a round covered.
 - Tests do not merely reproduce implementation assumptions.
 
 ### Documentation
+
+Token: `Docs`
 
 - Changed contracts are reflected in authoritative docs.
 - Obsolete requirements or documents were not accidentally restored.
@@ -232,20 +264,51 @@ nothing.** A lens is covered when it was applied, not when it was listed. "I
 read the RTL against the clause and found nothing" is a result section 7 needs;
 silence about a lens is not.
 
+**A clean lens is reported in the same format as a finding, and carries the
+same evidence.** Every finding must name a `path:line or artifact`; the clean
+result must too, because that is the claim section 7 reads to release a merge.
+Requiring evidence for the statements that do not unlock a merge and none for
+the one that does is the asymmetry that lets a round bank a lens on its word:
+
+```text
+[R<n>] PASS <lens> — <path:line or artifact> — <what was checked and against what>
+```
+
+The artifact field names what was actually examined, at the head under review.
+"Reviewed the RTL" is not an artifact and neither is a module name on its own;
+a second reviewer must be able to open what is named and disagree. A lens whose
+scope has no matching file in the diff is still covered by naming the artifact
+that made it inapplicable. One line per clean lens, or an equivalent table with
+the same three fields.
+
 **Prefer the lens covered least.** A reviewer who keeps applying the lens that
 keeps producing findings is doing the most productive-feeling and least
 informative thing available: the yield stays high because that artifact is deep,
 not because it is the right place to look. Depth in one lens is not coverage,
 and a high finding rate is not evidence of good targeting.
 
-The case in Issue #166 is the argument. On protocol-processor #13, twelve
-consecutive rounds asked whether the harness proved what it claimed. Every round
-found something real and every fix was correct. None asked whether the DUT was
-right. When a different angle was finally run it found defects in the RTL itself
-that no amount of further harness review would have reached, including a latch
-held in every state and a missing timeout that lets a silent device wedge the
-port forever. The failure was not that review continued too long. It was that
-twenty-one rounds bought depth in one lens and left others untouched.
+The case in Issue #166 is the argument, and it is worth stating exactly, since
+an approximation of it would be the same defect the rule is about. On
+protocol-processor #13, thirteen consecutive rounds asked whether the harness
+proved what it claimed and whether the document describing it was true. The
+round that ended that run opens "Thirteen rounds, and this is the first"
+positive one. Every round found something real and every fix was correct. Those
+rounds ran two lenses, `Tests` and `Docs`, and the later ones say so in their
+own first line: seven consecutive answers are headed "Doc-only".
+
+Three lenses went unapplied for all thirteen. When `RTL` was finally run, as a
+separate round on the same head, it found two defects in the shipped RTL that no
+further harness review would have reached: `done_seen_r` latched in every state
+with no outstanding command, and no timeout or abort, so a silent device wedges
+the port forever.
+
+That round published `POSITIVE` and moved both defects to new Issues. The PR
+merged. At the merged head `5121dce`, `hdl/packet_engine/KL_pp_nvm_port.sv:153`
+still reads `if (dev_done_i) done_seen_r <= 1'b1;`, and both Issues are open.
+So the failure was not that review continued too long, and it was not that the
+missing lens was never run. It was that thirteen rounds bought depth in two
+lenses, and that the round which finally widened was allowed to bank the lens it
+widened into while leaving what it found in the tree.
 
 ## 7. Completion and merge
 
@@ -257,9 +320,30 @@ A task is complete only when:
 - the full review bar in [CONTRIBUTING.md](CONTRIBUTING.md) is met;
 - blocking and major findings are fixed and re-reviewed;
 - **every lens in section 6 has been covered clean**, and the covering round is
-  named for each. A lens is covered clean by a round that applied it and left no
-  `BLOCKER`, `MAJOR` or `MINOR` **open under that lens**. `SUGGESTION` is
-  optional by definition and does not affect coverage.
+  named for each **with the exact head it covered**. A lens is covered clean by
+  a round that applied it and left no `BLOCKER`, `MAJOR` or `MINOR` **open under
+  that lens**. `SUGGESTION` is optional by definition and does not affect
+  coverage.
+
+  **Coverage is banked against a commit, not against a round.** A later commit
+  that changes any artifact within a lens's scope un-covers that lens, and it
+  must be covered again at a head that includes the change. Otherwise the bar is
+  satisfiable by covering lenses early and then rewriting what they covered,
+  which is the ordinary shape of a lane answering findings across many commits
+  rather than an exotic abuse of the rule. On protocol-processor #13 the round
+  that covered the harness ran at `c47ef19b`; twelve commits later the merge head
+  carried a new 886-line figure gate and a modified `sim_main.cpp`, so the round
+  nameable for `Tests` had never seen the tests that merged.
+
+  So the completion ledger is three columns, not two: **lens, covering round,
+  head**. A ledger whose heads are not the merge candidate, or an ancestor of it
+  that nothing in that lens's scope has touched since, does not clear this bullet.
+
+  **The ledger is published by a reviewer, or explicitly accepted by one.** Every
+  other bullet here is an executor's claim about its own work, which is why
+  section 3 says an executor never approves its own work. This one decides
+  whether review is finished, so it is the one bullet the party under review
+  cannot assemble alone.
 
   Open, not merely un-blocking. **A finding moved to another Issue is not
   resolved**: the defect is still in the tree, and moving the paperwork does not
