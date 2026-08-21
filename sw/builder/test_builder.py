@@ -200,6 +200,7 @@ import json
 import os
 import re
 import shlex
+import shutil
 import struct
 import subprocess
 import sys
@@ -636,6 +637,100 @@ def test_baremetal_profile_contract():
             i = stop
         return "".join(out)
 
+    def blanked_sv(source):
+        """SystemVerilog code with comments and string literals blanked.
+
+        This deliberately does not treat a single quote as a character-literal
+        delimiter: in SystemVerilog it begins sized and unsized number
+        literals.  Newlines and offsets remain unchanged so mutation spans
+        still index the raw source.
+        """
+        out, i, n = list(source), 0, len(source)
+
+        def erase(start, stop):
+            for k in range(start, stop):
+                if out[k] != "\n":
+                    out[k] = " "
+
+        while i < n:
+            pair = source[i:i + 2]
+            if pair == "/*":
+                close = source.find("*/", i + 2)
+                assert close >= 0, \
+                    "datapath integration proof found an unterminated " \
+                    "SystemVerilog block comment"
+                stop = close + 2
+                erase(i, stop)
+            elif pair == "//":
+                stop = source.find("\n", i)
+                stop = n if stop < 0 else stop
+                erase(i, stop)
+            elif source[i] == '"':
+                stop = i + 1
+                while stop < n and source[stop] != '"':
+                    stop += 2 if source[stop] == "\\" else 1
+                assert stop < n, \
+                    "datapath integration proof found an unterminated " \
+                    "SystemVerilog string literal"
+                stop += 1
+                erase(i, stop)
+            else:
+                i += 1
+                continue
+            i = stop
+        return "".join(out)
+
+    def assert_direct_scope(source, stop, reason, require_item_start=True):
+        """The checked SV item is unconditional in the supplied arm.
+
+        Intentional outer generate arms are removed before their bodies are
+        passed here. Any further generate/begin/case/fork nesting is therefore
+        a conditional wrapper around text this bounded model would otherwise
+        mistake for an elaborated connection. The suffix after the preceding
+        module-item semicolon closes the implicit ``if (...) item`` and
+        ``for (...) item`` forms, which need no begin/generate keywords.
+        """
+        depth = {"block": 0, "generate": 0, "case": 0, "fork": 0}
+        opening = {
+            "begin": "block", "generate": "generate",
+            "case": "case", "casex": "case", "casez": "case",
+            "fork": "fork"}
+        closing = {
+            "end": "block", "endgenerate": "generate",
+            "endcase": "case", "join": "fork",
+            "join_any": "fork", "join_none": "fork"}
+        for token in re.finditer(
+                r"\b(?:begin|end|generate|endgenerate|case|casex|casez|"
+                r"endcase|fork|join|join_any|join_none)\b", source[:stop]):
+            word = token.group(0)
+            if word in opening:
+                depth[opening[word]] += 1
+            else:
+                kind = closing[word]
+                assert depth[kind] > 0, \
+                    f"{reason}: malformed SystemVerilog scope before the " \
+                    "checked connection"
+                depth[kind] -= 1
+        assert not any(depth.values()), \
+            f"{reason}: checked connection must be an unconditional item " \
+            "in its inspected generate arm"
+
+        if not require_item_start:
+            return
+        prior_semicolon = source.rfind(";", 0, stop)
+        prefix = source[prior_semicolon + 1:stop]
+        prefix = re.sub(
+            r"\b(?:end|endgenerate|endcase|join|join_any|join_none)\b"
+            r"(?:\s*:\s*[A-Za-z_$][A-Za-z0-9_$]*)?", "", prefix)
+        # Compiler directives are closed separately after every connection
+        # check. Leave their verdict there so an inactive `ifdef mutant is
+        # reason-pinned to the directive-set property, while an implicit
+        # module-item ``if (...) assign`` still fails here.
+        prefix = re.sub(r"`[^\r\n]*", "", prefix)
+        assert not prefix.strip(), \
+            f"{reason}: checked connection must not be selected by an " \
+            "implicit conditional-generate item"
+
     #: Every preprocessor conditional directive, one physical line each.
     cpp_directive_re = re.compile(
         r"(?m)^[ \t]*#[ \t]*(if|ifdef|ifndef|elif|else|endif)\b")
@@ -911,6 +1006,72 @@ def test_baremetal_profile_contract():
         r"\bstatic\s+inline\s+void\s+milan_write\s*\(\s*unsigned\s+int\s+"
         r"(?P<offset>\w+)\s*,\s*uint32_t\s+(?P<value>\w+)\s*\)\s*\{")
 
+    def csr_literal_default(csr, rtl_name):
+        """The literal in ``csr_default``'s live, top-level address case.
+
+        A bare whole-file regex can take an A_ID arm from a dead procedural
+        case while the live case serves a numeric-equivalent address.  Bound
+        the lookup to the one canonical ``unique case (a)`` in the function,
+        require that case to be the function's direct body after the default
+        assignment, and require the selected item to be at that case's own
+        depth.  The separately-run CSR Verilator harness owns the behavioral
+        claim that this literal is what an AXI read actually returns.
+        """
+        functions = list(re.finditer(
+            r"\bfunction\s+automatic\s+\[\s*31\s*:\s*0\s*\]\s+"
+            r"csr_default\s*\(\s*input\s+\[\s*10\s*:\s*0\s*\]\s+a\s*\)"
+            r"\s*;(?P<body>.*?)\bendfunction\b", csr, re.DOTALL))
+        assert len(functions) == 1, \
+            "the RTL must define exactly one canonical csr_default function"
+        body = functions[0].group("body")
+        cases = list(re.finditer(
+            r"\bunique\s+case\s*\(\s*a\s*\)", body))
+        assert len(cases) == 1, \
+            "the RTL csr_default function must have one unique case (a)"
+        case = cases[0]
+        assert re.fullmatch(
+            r"\s*csr_default\s*=\s*32\s*'\s*[hH]0\s*;\s*",
+            body[:case.start()]), \
+            "RTL csr_default's address case must be a direct top-level item " \
+            "after its literal-zero default"
+
+        depth, case_stop = 0, None
+        for token in case_token_re.finditer(body, case.start()):
+            if token.group(0) == "endcase":
+                depth -= 1
+                if depth == 0:
+                    case_stop = token.start()
+                    case_end = token.end()
+                    break
+            else:
+                depth += 1
+        assert case_stop is not None, \
+            "the RTL csr_default function's unique case (a) is not closed"
+        assert not body[case_end:].strip(), \
+            "the RTL csr_default address case must be the function's last " \
+            "top-level item"
+        case_body = body[case.end():case_stop]
+        low_eleven = (
+            r"(?:\[\s*10\s*:\s*0\s*\]|\[\s*0\s*\+:\s*11\s*\])")
+        matches = list(re.finditer(
+            rf"\b{re.escape(rtl_name)}\s*{low_eleven}\s*:\s*"
+            r"csr_default\s*=\s*(?P<value>[^;]+);", case_body))
+        assert len(matches) == 1, \
+            f"the RTL csr_default canonical case must define {rtl_name} " \
+            "exactly once"
+        nested_depth = 0
+        for token in case_token_re.finditer(case_body, 0, matches[0].start()):
+            nested_depth += -1 if token.group(0) == "endcase" else 1
+        assert nested_depth == 0, \
+            f"RTL csr_default {rtl_name} item must be live in its canonical " \
+            "top-level case"
+        literal = matches[0].group("value")
+        value = sv_literal_value(literal)
+        assert value is not None, \
+            f"the RTL {rtl_name} readback default must remain a literal, " \
+            f"not {literal.strip()!r}"
+        return value
+
     class CsrModel:
         """The firmware's #define table resolved against the register
         addresses the RTL actually decodes.
@@ -924,7 +1085,17 @@ def test_baremetal_profile_contract():
         def __init__(self, firmware, csr):
             code = blanked(firmware)
             self.decoded = {}
-            for name, digits in csr_address_re.findall(csr):
+            seen_names = set()
+            address_matches = list(csr_address_re.finditer(csr))
+            for match in address_matches:
+                name, digits = match.groups()
+                assert_direct_scope(
+                    csr, match.start(),
+                    "RTL CSR address declarations must be unconditional "
+                    "module-scope items", require_item_start=False)
+                assert name not in seen_names, \
+                    f"RTL CSR address name {name} must be declared exactly once"
+                seen_names.add(name)
                 self.decoded.setdefault(int(digits.replace("_", ""), 16), name)
             assert self.decoded, "the RTL no longer declares a CSR decode table"
             self.defines = {}
@@ -937,6 +1108,8 @@ def test_baremetal_profile_contract():
             self.phc = self.rtl_address("A_PTP_CTRL")
             self.pp = self.rtl_address("A_PP_CTRL")
             self.adp = self.rtl_address("A_ADP_CTRL")
+            self.identity = self.rtl_address("A_ID")
+            self.identity_default = csr_literal_default(csr, "A_ID")
 
         def rtl_address(self, rtl_name):
             for address, name in self.decoded.items():
@@ -2144,7 +2317,352 @@ def test_baremetal_profile_contract():
 
     def assert_boot_contract(firmware, docs, csr, makefile=None,
                              listing=None, datapath=None):
-        datapath = datapath_source if datapath is None else datapath
+        raw_datapath = datapath_source if datapath is None else datapath
+        # Read code, not plausible-looking text in comments.  This is a
+        # distinct lexer from blanked(): an apostrophe starts a numeric
+        # literal in SystemVerilog rather than a C character literal.
+        datapath = blanked_sv(raw_datapath)
+        csr_code = blanked_sv(csr)
+
+        def assert_sv_directive_set(raw, code, includes, reason):
+            matches = list(re.finditer(
+                r"`[ \t]*(?P<name>[A-Za-z_][A-Za-z0-9_$]*)\b", code))
+            names = tuple(match.group("name") for match in matches)
+            expected_names = (
+                "default_nettype", *("include" for _ in includes),
+                "default_nettype")
+            assert names == expected_names, \
+                f"{reason}: expected directives {expected_names}, found " \
+                f"{names}"
+            actual_includes = []
+            for match in matches:
+                if match.group("name") != "include":
+                    continue
+                line_end = raw.find("\n", match.end())
+                line_end = len(raw) if line_end < 0 else line_end
+                include = re.fullmatch(
+                    r"[ \t]*`[ \t]*include[ \t]+"
+                    r"\"(?P<path>[^\"\r\n]+)\"[ \t]*",
+                    raw[match.start():line_end])
+                assert include, \
+                    f"{reason}: each `include operand must be one literal path"
+                actual_includes.append(include.group("path"))
+            assert tuple(actual_includes) == tuple(includes), \
+                f"{reason}: expected included fragments {tuple(includes)}, " \
+                f"found {tuple(actual_includes)}"
+
+        assert_sv_directive_set(
+            csr, csr_code,
+            ("gen/lwsrp_csr_defaults.svh",
+             "gen/adp_shape_defaults.svh"),
+            "CSR integration proof requires unconditional live "
+            "SystemVerilog text")
+        # Reject compiler-selected datapath text before any endpoint or
+        # reference-count check can take credit for an incidental mismatch.
+        # The shipping includes and paired `default_nettype directives are
+        # the only live directives admitted by this bounded model.
+        assert_sv_directive_set(
+            raw_datapath, datapath,
+            ("ethernet_events.svh", "gen/adp_shape_defaults.svh"),
+            "datapath integration proof requires unconditional live "
+            "SystemVerilog text")
+
+        def direct_port(ports, port, value, reason):
+            matches = list(re.finditer(
+                rf"\.{re.escape(port)}\s*\(\s*(?P<value>[^)]*?)\s*\)",
+                ports))
+            assert len(matches) == 1, \
+                f"{reason}: .{port} must be connected exactly once"
+            actual = re.sub(r"\s+", "", matches[0].group("value"))
+            expected = re.sub(r"\s+", "", value)
+            assert actual == expected, \
+                f"{reason}: expected .{port}({value})"
+
+        def reference_census(source, expected, reason):
+            """Pin every code-token reference to named bounded-proof nets.
+
+            Exact endpoint expressions do not establish sole-driver
+            ownership: a resolved ``wand`` can retain the expected assignment
+            and add a second ADP-controlled driver.  Comments have already
+            been blanked, so an exact identifier census makes every added
+            driver or alias use visible without pretending to parse general
+            SystemVerilog data flow.
+            """
+            for name, count in expected.items():
+                found = len(re.findall(rf"\b{re.escape(name)}\b", source))
+                assert found == count, \
+                    f"{reason}: {name} must have exactly {count} live " \
+                    f"references, found {found}"
+
+        def direct_initializer(source, declaration, signal, value, reason):
+            """One direct module-scope wire initializer with an exact RHS."""
+            matches = list(re.finditer(
+                rf"(?m)^[ \t]*{declaration}[ \t]*=[ \t]*"
+                r"(?P<value>[^;]+);", source))
+            assert len(matches) == 1, \
+                f"{reason}: {signal} must have exactly one ordinary-wire " \
+                "initializer"
+            actual = re.sub(r"\s+", "", matches[0].group("value"))
+            expected_value = re.sub(r"\s+", "", value)
+            assert actual == expected_value, \
+                f"{reason}: unexpected {signal} initializer " \
+                f"{matches[0].group('value').strip()!r}"
+            assert_direct_scope(source, matches[0].start(), reason)
+
+        def direct_assignment(lhs, rhs, reason, source=None):
+            source = datapath if source is None else source
+            matches = list(re.finditer(
+                rf"(?m)^[ \t]*assign[ \t]+{re.escape(lhs)}[ \t]*="
+                r"(?P<value>[^;]+);", source))
+            assert len(matches) == 1, \
+                f"{reason}: {lhs} must have exactly one continuous assignment"
+            assert re.fullmatch(rf"\s*{re.escape(rhs)}\s*",
+                                matches[0].group("value")), \
+                f"{reason}: expected assign {lhs} = {rhs};"
+            assert_direct_scope(source, matches[0].start(), reason)
+
+        def instance_ports(source, module, instance, reason):
+            matches = list(re.finditer(
+                rf"\b{re.escape(module)}\b\s*#\s*\([^;]*?\)\s*"
+                rf"{re.escape(instance)}\s*\((?P<ports>.*?)\)\s*;",
+                source, re.DOTALL))
+            assert len(matches) == 1, \
+                f"{reason}: expected exactly one {module} {instance} instance"
+            assert_direct_scope(source, matches[0].start(), reason)
+            return matches[0].group("ports")
+
+        id_readback_reason = (
+            "RTL A_ID readback plumbing must preserve the canonical "
+            "csr_default ROM and direct AXI read address")
+        direct_initializer(
+            csr_code,
+            r"wire[ \t]+\[\s*ADDR_WIDTH\s*-\s*1\s*:\s*0\s*\]"
+            r"[ \t]+rd_addr",
+            "rd_addr", "s_axi_araddr", id_readback_reason)
+        rom_initializers = [
+            match for match in re.finditer(
+                r"\binitial\s+begin\b(?P<body>.*?)\bend\b",
+                csr_code, re.DOTALL)
+            if re.search(r"\bdflt_rom\b", match.group("body"))]
+        assert len(rom_initializers) == 1, \
+            f"{id_readback_reason}: expected one dflt_rom initial block"
+        assert re.fullmatch(
+            r"\s*for\s*\(\s*int\s+k\s*=\s*0\s*;\s*k\s*<\s*512\s*;"
+            r"\s*k\+\+\s*\)\s*dflt_rom\s*\[\s*k\s*\]\s*=\s*"
+            r"csr_default\s*\(\s*11\s*'\s*\(\s*k\s*\*\s*4\s*\)\s*\)"
+            r"\s*;\s*", rom_initializers[0].group("body")), \
+            f"{id_readback_reason}: dflt_rom must be initialized solely " \
+            "from csr_default(11'(k * 4))"
+        reference_census(
+            csr_code, {"dflt_rom": 3, "rd_addr": 15}, id_readback_reason)
+
+        phc_binding_reason = (
+            "milan_csr PHC output must drive cfg_ptp_enable directly")
+        csr_ports = instance_ports(
+            datapath, "milan_csr", "csr", phc_binding_reason)
+        phc_csr_ports = (
+            ("o_ptp_enable", "cfg_ptp_enable"),
+            ("o_ptp_incr", "cfg_ptp_incr"),
+            ("o_ptp_adj", "cfg_ptp_adj"),
+            ("o_ptp_tod_wr", "cfg_ptp_tod_wr"),
+            ("o_ptp_offset", "cfg_ptp_offset"),
+            ("o_ptp_cmd_load", "cfg_ptp_cmd_load"),
+            ("o_ptp_cmd_adjust", "cfg_ptp_cmd_adjust"),
+            ("o_ptp_cmd_snapshot", "cfg_ptp_cmd_snapshot"),
+            ("o_ptp_ingress_lat", "cfg_ptp_ingress_lat"),
+            ("o_ptp_egress_lat", "cfg_ptp_egress_lat"),
+            ("i_ptp_tod", "ptp_tod_rd"),
+            ("i_ptp_tod_valid", "ptp_tod_rd_valid"),
+        )
+        for port, value in phc_csr_ports:
+            direct_port(csr_ports, port, value, phc_binding_reason)
+
+        phc_source_reason = (
+            "milan_csr PHC output assignments must remain direct and "
+            "independent of ADP and protocol-processor state")
+        for lhs, rhs in (
+                ("o_ptp_enable", "ptp_ctrl[0]"),
+                ("o_ptp_incr", "ptp_incr"),
+                ("o_ptp_adj", "ptp_adj"),
+                ("o_ptp_tod_wr", "{ptp_twhi, ptp_twlo}"),
+                ("o_ptp_offset", "{ptp_ofhi, ptp_oflo}"),
+                ("o_ptp_cmd_load", "ptp_load_p"),
+                ("o_ptp_cmd_adjust", "ptp_adj_p"),
+                ("o_ptp_cmd_snapshot", "ptp_snap_p"),
+                ("o_ptp_ingress_lat", "ptp_ilat"),
+                ("o_ptp_egress_lat", "ptp_elat")):
+            direct_assignment(lhs, rhs, phc_source_reason, csr_code)
+        reference_census(
+            csr_code,
+            {port: 2 for port, _value in phc_csr_ports
+             if port.startswith("o_")},
+            phc_source_reason)
+
+        phc_net_reason = (
+            "datapath PHC nets must retain sole-driver reference ownership")
+        reference_census(
+            datapath,
+            {
+                "cfg_ptp_enable": 3,
+                "cfg_ptp_incr": 3,
+                "cfg_ptp_adj": 3,
+                "cfg_ptp_tod_wr": 3,
+                "cfg_ptp_offset": 3,
+                "cfg_ptp_cmd_load": 4,
+                "cfg_ptp_cmd_adjust": 4,
+                "cfg_ptp_cmd_snapshot": 3,
+                "cfg_ptp_ingress_lat": 3,
+                "cfg_ptp_egress_lat": 3,
+                "ptp_tod_rd": 3,
+                "ptp_tod_rd_valid": 3,
+                "eff_ptp_adj_w": 2,
+                "eff_ptp_offset_w": 2,
+                "eff_ptp_adjust_w": 2,
+                "gptp_adj_w": 4,
+                "gptp_step_we_w": 4,
+                "gptp_step_w": 4,
+            }, phc_net_reason)
+        direct_initializer(
+            datapath,
+            r"wire[ \t]+\[\s*31\s*:\s*0\s*\][ \t]+eff_ptp_adj_w",
+            "eff_ptp_adj_w",
+            "(GPTP_PLANE_EN_P != 1'b0) ? unsigned'(gptp_adj_w) : "
+            "cfg_ptp_adj",
+            "effective PHC adjustment must select only gPTP or CSR control")
+        direct_initializer(
+            datapath,
+            r"wire[ \t]+\[\s*63\s*:\s*0\s*\][ \t]+eff_ptp_offset_w",
+            "eff_ptp_offset_w",
+            "(GPTP_PLANE_EN_P != 1'b0) ? gptp_step_w : cfg_ptp_offset",
+            "effective PHC offset must select only gPTP or CSR control")
+        direct_initializer(
+            datapath, r"wire[ \t]+eff_ptp_adjust_w",
+            "eff_ptp_adjust_w",
+            "(GPTP_PLANE_EN_P != 1'b0) ? gptp_step_we_w : "
+            "cfg_ptp_cmd_adjust",
+            "effective PHC adjust strobe must select only gPTP or CSR "
+            "control")
+        ptp_clock_reason = (
+            "ptp_timestamp clocks and resets must be direct and independent "
+            "of AEM, ADP and protocol-processor gates")
+        phc_reason = (
+            "ptp_timestamp PHC enable must be driven directly by "
+            "cfg_ptp_enable")
+        ptp_ports = instance_ports(
+            datapath, "ptp_ts_top", "ptp_timestamp", phc_reason)
+        for port, value in (
+                ("gtx_clk", "gtx_clk"),
+                ("gtx_resetn", "gtx_resetn"),
+                ("axis_clk", "axis_clk"),
+                ("axis_resetn", "axis_resetn")):
+            direct_port(ptp_ports, port, value, ptp_clock_reason)
+        direct_port(ptp_ports, "i_ptp_enable", "cfg_ptp_enable", phc_reason)
+        phc_control_reason = (
+            "ptp_timestamp PHC controls and readback must remain direct and "
+            "independent of AEM, ADP and protocol-processor gates")
+        for port, value in (
+                ("i_ptp_incr", "cfg_ptp_incr"),
+                ("i_ptp_adj", "eff_ptp_adj_w"),
+                ("i_ptp_tod_wr", "cfg_ptp_tod_wr"),
+                ("i_ptp_offset", "eff_ptp_offset_w"),
+                ("i_ptp_cmd_load", "cfg_ptp_cmd_load"),
+                ("i_ptp_cmd_adjust", "eff_ptp_adjust_w"),
+                ("i_ptp_cmd_snapshot", "cfg_ptp_cmd_snapshot"),
+                ("i_ptp_ingress_lat", "cfg_ptp_ingress_lat"),
+                ("i_ptp_egress_lat", "cfg_ptp_egress_lat"),
+                ("o_ptp_tod_rd", "ptp_tod_rd"),
+                ("o_ptp_tod_rd_valid", "ptp_tod_rd_valid"),
+                ("o_tx_ts_ready", "evt_tx_ts_ready"),
+                ("o_ptp_now", "ptp_now_w")):
+            direct_port(ptp_ports, port, value, phc_control_reason)
+
+        timestamp_reason = (
+            "external MAC RX must traverse ptp_timestamp directly")
+        for port, value in (
+                ("s_axis_rx_tdata", "rx_axis_to_ts.tdata"),
+                ("s_axis_rx_tkeep", "rx_axis_to_ts.tkeep"),
+                ("s_axis_rx_tvalid", "rx_axis_to_ts.tvalid"),
+                ("s_axis_rx_tlast", "rx_axis_to_ts.tlast"),
+                ("s_axis_rx_tready", "rx_axis_to_ts.tready"),
+                ("m_axis_rx_tdata", "rx_axis_ptp_to_filt.tdata"),
+                ("m_axis_rx_tkeep", "rx_axis_ptp_to_filt.tkeep"),
+                ("m_axis_rx_tvalid", "rx_axis_ptp_to_filt.tvalid"),
+                ("m_axis_rx_tlast", "rx_axis_ptp_to_filt.tlast"),
+                ("m_axis_rx_tready", "rx_axis_ptp_to_filt.tready")):
+            direct_port(ptp_ports, port, value, timestamp_reason)
+
+        rx_arms = re.search(
+            r"\bgenerate\s+if\s*\(\s*RXFILT_P\s*!=\s*0\s*\)\s*"
+            r"begin\s*:\s*g_rx_filter\b(?P<enabled>.*?)"
+            r"\bend\s+else\s+begin\s*:\s*g_no_rx_filter\b"
+            r"(?P<bypass>.*?)\bend\s+endgenerate\b",
+            datapath, re.DOTALL)
+        assert rx_arms, \
+            "timestamped MAC RX must traverse both RXFILT_P arms directly"
+        assert_direct_scope(
+            datapath, rx_arms.start(),
+            "timestamped MAC RX must traverse both RXFILT_P arms directly")
+        enabled_reason = (
+            "timestamped MAC RX must traverse the enabled RX-filter arm "
+            "directly")
+        rx_filter_ports = instance_ports(
+            rx_arms.group("enabled"), "rx_mac_filter", "rx_filter",
+            enabled_reason)
+        for port, value in (
+                ("clk_i", "axis_clk"),
+                ("rst_n", "axis_resetn"),
+                ("addr_filter_en_i", "cfg_tcam_addr_filt_en"),
+                ("promisc_i", "cfg_mac_promisc"),
+                ("allmulti_i", "cfg_mac_allmulti"),
+                ("station_mac_i",
+                 "{cfg_mac_addr[7:0], cfg_mac_addr[15:8], "
+                 "cfg_mac_addr[23:16], cfg_mac_addr[31:24], "
+                 "cfg_mac_addr[39:32], cfg_mac_addr[47:40]}"),
+                ("mc_hash_i", "cfg_mc_hash"),
+                ("tcam_wr_en_i", "cfg_tcam_wr_en"),
+                ("tcam_wr_index_i", "cfg_tcam_wr_index[3:0]"),
+                ("tcam_wr_valid_i", "cfg_tcam_wr_valid"),
+                ("tcam_wr_key_i", "cfg_tcam_wr_key"),
+                ("tcam_wr_mask_i", "cfg_tcam_wr_mask"),
+                ("tcam_wr_action_i", "cfg_tcam_wr_action"),
+                ("s_tdata", "rx_axis_ptp_to_filt.tdata"),
+                ("s_tkeep", "rx_axis_ptp_to_filt.tkeep"),
+                ("s_tvalid", "rx_axis_ptp_to_filt.tvalid"),
+                ("s_tlast", "rx_axis_ptp_to_filt.tlast"),
+                ("s_tready", "rx_axis_ptp_to_filt.tready"),
+                ("m_tdata", "rx_axis_to_dma.tdata"),
+                ("m_tkeep", "rx_axis_to_dma.tkeep"),
+                ("m_tvalid", "rx_axis_to_dma.tvalid"),
+                ("m_tlast", "rx_axis_to_dma.tlast"),
+                ("m_tready", "rx_axis_to_dma.tready")):
+            direct_port(rx_filter_ports, port, value, enabled_reason)
+        filter_policy_reason = (
+            "reset-time RX filter policy must remain independent of ADP")
+        direct_port(
+            rx_filter_ports, "default_pass_i", "cfg_tcam_default_pass",
+            filter_policy_reason)
+        direct_port(
+            csr_ports, "o_tcam_default_pass", "cfg_tcam_default_pass",
+            filter_policy_reason)
+        direct_assignment(
+            "o_tcam_default_pass", "tcam_ctrl[0]", filter_policy_reason,
+            csr_code)
+        reference_census(
+            datapath, {"cfg_tcam_default_pass": 3}, filter_policy_reason)
+        reference_census(
+            csr_code, {"o_tcam_default_pass": 2}, filter_policy_reason)
+        bypass_reason = (
+            "timestamped MAC RX must traverse the bypass RX-filter arm "
+            "directly")
+        for lhs, rhs in (
+                ("rx_axis_to_dma.tdata", "rx_axis_ptp_to_filt.tdata"),
+                ("rx_axis_to_dma.tkeep", "rx_axis_ptp_to_filt.tkeep"),
+                ("rx_axis_to_dma.tvalid", "rx_axis_ptp_to_filt.tvalid"),
+                ("rx_axis_to_dma.tlast", "rx_axis_ptp_to_filt.tlast"),
+                ("rx_axis_ptp_to_filt.tready", "rx_axis_to_dma.tready")):
+            direct_assignment(
+                lhs, rhs, bypass_reason, rx_arms.group("bypass"))
+
         gptp_plane = re.search(
             r"\bgenerate\s+if\s*\(\s*GPTP_PLANE_EN_P\s*\)\s*"
             r"begin\s*:\s*g_gptp_plane\b(?P<body>.*?)"
@@ -2153,17 +2671,13 @@ def test_baremetal_profile_contract():
         assert gptp_plane, \
             "fabric gPTP must be elaborated solely by GPTP_PLANE_EN_P, " \
             "without an AEM, ADP or protocol-processor runtime gate"
-        gptp_shadow = re.search(
-            r"\bKL_gptp_shadow\b.*?\)\s*u_gptp_shadow\s*\("
-            r"(?P<ports>.*?)\);", gptp_plane.group("body"), re.DOTALL)
-        assert gptp_shadow, \
-            "the option-on fabric gPTP plane must instantiate KL_gptp_shadow"
-        shadow_ports = gptp_shadow.group("ports")
-
-        def direct_port(ports, port, value):
-            return re.search(
-                rf"\.{re.escape(port)}\s*\(\s*{re.escape(value)}\s*\)",
-                ports)
+        assert_direct_scope(
+            datapath, gptp_plane.start(),
+            "fabric gPTP must be elaborated solely by GPTP_PLANE_EN_P")
+        shadow_ports = instance_ports(
+            gptp_plane.group("body"), "KL_gptp_shadow", "u_gptp_shadow",
+            "the option-on fabric gPTP plane must instantiate "
+            "KL_gptp_shadow directly")
 
         for port, value in (
                 ("clk_i", "axis_clk"), ("rst_n", "axis_resetn"),
@@ -2171,28 +2685,36 @@ def test_baremetal_profile_contract():
                 ("rx_tkeep_i", "rx_axis_to_dma.tkeep"),
                 ("rx_tvalid_i", "rx_axis_to_dma.tvalid"),
                 ("rx_tready_i", "rx_axis_to_dma.tready"),
-                ("rx_tlast_i", "rx_axis_to_dma.tlast")):
-            assert direct_port(shadow_ports, port, value), \
-                "fabric gPTP RX and control inputs must observe the live " \
-                "datapath directly, independent of AEM, ADP and " \
-                f"protocol-processor gates: expected .{port}({value})"
+                ("rx_tlast_i", "rx_axis_to_dma.tlast"),
+                ("phc_ns_i", "ptp_now_w"),
+                ("phc_adj_o", "gptp_adj_w"),
+                ("phc_step_we_o", "gptp_step_we_w"),
+                ("phc_step_o", "gptp_step_w"),
+                ("txts_valid_i", "gts_valid_w"),
+                ("txts_ns_i", "gts_ns_w"),
+                ("txts_seq_i", "gts_seq_w"),
+                ("tx_sent_o", "gtx_sent_w")):
+            direct_port(
+                shadow_ports, port, value,
+                "fabric gPTP RX and control inputs must observe the live "
+                "datapath directly, independent of AEM, ADP and "
+                "protocol-processor gates")
         for port, value in (
                 ("tx_tdata_o", "gtx_tdata_w"),
                 ("tx_tkeep_o", "gtx_tkeep_w"),
                 ("tx_tvalid_o", "gtx_tvalid_w"),
                 ("tx_tlast_o", "gtx_tlast_w"),
                 ("tx_tready_i", "gtx_tready_w")):
-            assert direct_port(shadow_ports, port, value), \
-                "fabric gPTP TX handshake must leave KL_gptp_shadow " \
-                f"directly: expected .{port}({value})"
+            direct_port(
+                shadow_ports, port, value,
+                "fabric gPTP TX handshake must leave KL_gptp_shadow directly")
 
-        gptp_mux = re.search(
-            r"\badp_tx_arbiter\b.*?\)\s*gptp_ctl_mux\s*\("
-            r"(?P<ports>.*?)\);", gptp_plane.group("body"), re.DOTALL)
-        assert gptp_mux, \
-            "the option-on fabric gPTP plane must feed gptp_ctl_mux"
-        gptp_mux_ports = gptp_mux.group("ports")
+        gptp_mux_ports = instance_ports(
+            gptp_plane.group("body"), "adp_tx_arbiter", "gptp_ctl_mux",
+            "the option-on fabric gPTP plane must feed gptp_ctl_mux "
+            "directly")
         for port, value in (
+                ("clk_i", "axis_clk"), ("rst_n", "axis_resetn"),
                 ("s_adp_tdata", "gtx_tdata_w"),
                 ("s_adp_tkeep", "gtx_tkeep_w"),
                 ("s_adp_tvalid", "gtx_tvalid_w"),
@@ -2203,18 +2725,36 @@ def test_baremetal_profile_contract():
                 ("m_tvalid", "ctlg3_tvalid"),
                 ("m_tlast", "ctlg3_tlast"),
                 ("m_tready", "ctlg3_tready")):
-            assert direct_port(gptp_mux_ports, port, value), \
-                "fabric gPTP TX must traverse gptp_ctl_mux directly, " \
-                "independent of AEM, ADP and protocol-processor gates: " \
-                f"expected .{port}({value})"
+            direct_port(
+                gptp_mux_ports, port, value,
+                "fabric gPTP TX must traverse gptp_ctl_mux directly, "
+                "independent of AEM, ADP and protocol-processor gates")
 
-        boundary_mux = re.search(
-            r"\badp_tx_arbiter\b.*?\)\s*adp_tx_mux\s*\("
-            r"(?P<ports>.*?)\);", datapath, re.DOTALL)
-        assert boundary_mux, \
-            "the fabric gPTP/control stream must reach the MAC-boundary mux"
-        boundary_ports = boundary_mux.group("ports")
+        txstamp_reason = (
+            "fabric gPTP TX timestamp feedback must remain direct and "
+            "independent of AEM, ADP and protocol-processor gates")
+        txstamp_ports = instance_ports(
+            gptp_plane.group("body"), "KL_gptp_txstamp", "u_gptp_txstamp",
+            txstamp_reason)
         for port, value in (
+                ("clk_i", "axis_clk"), ("rst_n", "axis_resetn"),
+                ("tx_tdata_i", "tx_axis_to_mac.tdata"),
+                ("tx_tvalid_i", "tx_axis_to_mac.tvalid"),
+                ("tx_tready_i", "tx_axis_to_mac.tready"),
+                ("tx_tlast_i", "tx_axis_to_mac.tlast"),
+                ("phc_ns_i", "ptp_now_w"),
+                ("armed_i", "gtx_sent_w"),
+                ("ts_valid_o", "gts_valid_w"),
+                ("ts_ns_o", "gts_ns_w"),
+                ("ts_seq_o", "gts_seq_w")):
+            direct_port(txstamp_ports, port, value, txstamp_reason)
+
+        boundary_ports = instance_ports(
+            datapath, "adp_tx_arbiter", "adp_tx_mux",
+            "the fabric gPTP/control stream must reach the MAC-boundary mux "
+            "directly")
+        for port, value in (
+                ("clk_i", "axis_clk"), ("rst_n", "axis_resetn"),
                 ("s_adp_tdata", "ctlg3_tdata"),
                 ("s_adp_tkeep", "ctlg3_tkeep"),
                 ("s_adp_tvalid", "ctlg3_tvalid"),
@@ -2225,20 +2765,11 @@ def test_baremetal_profile_contract():
                 ("m_tvalid", "tx_axis_to_mac.tvalid"),
                 ("m_tlast", "tx_axis_to_mac.tlast"),
                 ("m_tready", "tx_axis_to_mac.tready")):
-            assert direct_port(boundary_ports, port, value), \
-                "fabric gPTP control output must reach the MAC-boundary " \
-                "arbiter directly, independent of AEM, ADP and " \
-                f"protocol-processor gates: expected .{port}({value})"
-
-        def direct_assignment(lhs, rhs, reason):
-            matches = list(re.finditer(
-                rf"(?m)^[ \t]*assign[ \t]+{re.escape(lhs)}[ \t]*="
-                r"(?P<value>[^;]+);", datapath))
-            assert len(matches) == 1, \
-                f"{reason}: {lhs} must have exactly one continuous assignment"
-            assert re.fullmatch(rf"\s*{re.escape(rhs)}\s*",
-                                matches[0].group("value")), \
-                f"{reason}: expected assign {lhs} = {rhs};"
+            direct_port(
+                boundary_ports, port, value,
+                "fabric gPTP control output must reach the MAC-boundary "
+                "arbiter directly, independent of AEM, ADP and "
+                "protocol-processor gates")
 
         # The arbiter's output is still only an internal promise. Close the
         # path at the externally visible MAC handshake in both directions so
@@ -2263,6 +2794,22 @@ def test_baremetal_profile_contract():
             direct_assignment(
                 lhs, rhs,
                 "external MAC RX handshake must drive rx_axis_to_ts directly")
+        reference_census(
+            datapath,
+            {
+                "m_axis_mac_tx_tdata": 2,
+                "m_axis_mac_tx_tkeep": 2,
+                "m_axis_mac_tx_tvalid": 4,
+                "m_axis_mac_tx_tlast": 4,
+                "m_axis_mac_tx_tready": 4,
+                "s_axis_mac_rx_tdata": 2,
+                "s_axis_mac_rx_tkeep": 2,
+                "s_axis_mac_rx_tvalid": 4,
+                "s_axis_mac_rx_tlast": 4,
+                "s_axis_mac_rx_tready": 4,
+            },
+            "external MAC handshake ports must retain sole-driver/reference "
+            "ownership")
 
         # The whole closure below reads ONE file. Prove that is the whole
         # firmware before reading a line of it.
@@ -2284,12 +2831,18 @@ def test_baremetal_profile_contract():
         # window immediate at all.
         assert_asm_set_is_closed(firmware, source)
 
-        model = CsrModel(firmware, csr)
+        model = CsrModel(firmware, csr_code)
+        assert model.defines.get("MILAN_ID") == model.identity, \
+            "firmware MILAN_ID must resolve to the RTL A_ID address, or the " \
+            "boot guard can validate a different CSR"
+        assert model.defines.get("MILAN_ID_MAGIC") == model.identity_default, \
+            "firmware MILAN_ID_MAGIC must equal the RTL A_ID readback " \
+            "default, or the boot guard can accept a forged identity value"
         # The name-to-address table is only half the address model; the write
         # decode is the other half, and it is what says each entity-enable
         # register answers to ONE address.
-        assert_decode_is_one_to_one(csr, model)
-        ptp_enable_assignment(csr)
+        assert_decode_is_one_to_one(csr_code, model)
+        ptp_enable_assignment(csr_code)
         load_start = anchored(firmware, "static int load_aem_image(void)",
                               "the AEM verifier")
         load_end = anchored(firmware, "static void milan_init(void)",
@@ -2517,7 +3070,7 @@ def test_baremetal_profile_contract():
         assert not model.writes(firmware, model.phc), \
             "firmware must not write the reset-enabled PHC " \
             f"({model.label(model.phc)})"
-        _ptp_reset, reset_value = ptp_reset_assignment(csr)
+        _ptp_reset, reset_value = ptp_reset_assignment(csr_code)
         assert reset_value == 1, \
             "bare-metal PHC contract requires the documented enabled reset"
 
@@ -2630,6 +3183,111 @@ def test_baremetal_profile_contract():
                                  capture_output=True, text=True)
         return got.stdout.strip() == "evil.o"
 
+    verilator = shutil.which("verilator")
+    rtl_mutant_elaboration = {"requested": 0, "passed": 0}
+    datapath_lint_context = {}
+
+    def _datapath_lint_sources():
+        """The real milan_dp source closure, with absolute paths.
+
+        The harness Makefile is already the repository's single exported
+        source-list owner for the integration top.  Reuse it instead of
+        copying a second list into this gate, then replace only the mutated
+        CSR/datapath files in a temporary compilation.
+        """
+        if datapath_lint_context:
+            return datapath_lint_context["sources"]
+        suite = os.path.join(ROOT, "tb/verilator/milan_dp")
+        planned = subprocess.run(
+            ["make", "-s", "print-srcs"], cwd=suite,
+            capture_output=True, text=True)
+        assert planned.returncode == 0, \
+            "RTL-mutant elaboration could not derive milan_dp sources: " \
+            f"{planned.stderr.strip()}"
+        sources = tuple(os.path.abspath(os.path.join(suite, source))
+                        for source in shlex.split(planned.stdout))
+        assert sources and all(os.path.isfile(source) for source in sources), \
+            "RTL-mutant elaboration source closure contains a missing file"
+        assert os.path.abspath(csr_path) in sources and \
+            os.path.abspath(datapath_path) in sources, \
+            "RTL-mutant elaboration source closure lost milan_csr/datapath"
+        datapath_lint_context["sources"] = sources
+        return sources
+
+    def assert_rtl_mutant_elaborates(label, csr, datapath, count=True):
+        """Require each behavior-changing RTL control to be valid RTL.
+
+        A recognizer rejecting malformed text proves nothing about the
+        hardware property.  On a runner carrying Verilator, lint the mutated
+        file set as the real integration top (option-on gPTP) before the
+        mutation can contribute to the reported total.  The documentation
+        job deliberately carries no Verilator; that condition is reported as
+        a stand-down rather than being called elaborated evidence.
+        """
+        changed_csr = csr != csr_source
+        changed_datapath = datapath is not None and datapath != datapath_source
+        if not changed_csr and not changed_datapath:
+            return
+        if count:
+            rtl_mutant_elaboration["requested"] += 1
+        if not verilator:
+            return
+
+        with tempfile.TemporaryDirectory(prefix="milan-rtl-mutant-") as tmp:
+            mutated_csr = os.path.join(tmp, "milan_csr.sv")
+            mutated_datapath = os.path.join(tmp, "milan_datapath.sv")
+            if changed_csr:
+                with open(mutated_csr, "w", encoding="utf-8") as fh:
+                    fh.write(csr)
+            if changed_datapath:
+                with open(mutated_datapath, "w", encoding="utf-8") as fh:
+                    fh.write(datapath)
+
+            common = [
+                verilator, "--lint-only", "--sv", "-Wno-fatal",
+                "-Wno-DECLFILENAME", "-Wno-UNUSEDSIGNAL",
+                "-Wno-WIDTHEXPAND", "-Wno-WIDTHTRUNC",
+                "-Wno-UNUSEDPARAM", "-Wno-PINCONNECTEMPTY",
+                "-Wno-IMPORTSTAR", "-Wno-CASEINCOMPLETE",
+                "-Wno-EOFNEWLINE", "-Wno-PINMISSING",
+                "-Wno-SELRANGE", "-Wno-TIMESCALEMOD",
+                "--Mdir", os.path.join(tmp, "obj")]
+            include_dirs = (
+                os.path.join(ROOT, "configs/generated/endstation_arty_current"),
+                os.path.join(ROOT, "hdl/common"),
+                os.path.join(ROOT, "hdl/common/csr"),
+                os.path.join(ROOT, "hdl/common/eth_event_counter"),
+                os.path.join(ROOT, "hdl/ieee17221/adp"),
+                os.path.join(ROOT, "hdl/ieee8021q/ts"),
+                os.path.join(ROOT, "hdl/ieee8021as/ptp_timestamp"),
+                os.path.join(ROOT, "third_party/verilog-axis/rtl"),
+            )
+            common += ["-I" + path for path in include_dirs]
+
+            if changed_datapath:
+                sources = []
+                for source in _datapath_lint_sources():
+                    if source == os.path.abspath(csr_path) and changed_csr:
+                        source = mutated_csr
+                    elif source == os.path.abspath(datapath_path):
+                        source = mutated_datapath
+                    sources.append(source)
+                command = common + [
+                    "--top-module", "milan_datapath",
+                    "-GGPTP_PLANE_EN_P=1", "-GPB_PREFILL_C=2",
+                    "-GCLKV_QTICK_CYC_P=4096", "-GLDIAG_IVAL_CYC_P=256",
+                    "-GDIAG_TICK_CYC_P=256"] + sources
+            else:
+                command = common + ["--top-module", "milan_csr", mutated_csr]
+            result = subprocess.run(
+                command, cwd=ROOT, stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT, text=True)
+            assert result.returncode == 0, \
+                f"{label} RTL mutation does not elaborate and cannot count " \
+                "as a control:\n" + "\n".join(result.stdout.splitlines()[-24:])
+        if count:
+            rtl_mutant_elaboration["passed"] += 1
+
     def assert_rejected(label, firmware, docs, csr, because,
                         makefile=None, listing=None, datapath=None):
         try:
@@ -2640,6 +3298,7 @@ def test_baremetal_profile_contract():
             # nothing about the safety property, so pin the reason too.
             assert because in str(exc), \
                 f"{label} mutation was rejected for the wrong reason: {exc}"
+            assert_rtl_mutant_elaborates(label, csr, datapath)
             return
         raise AssertionError(f"{label} mutation passed the boot-contract gate")
 
@@ -2650,7 +3309,45 @@ def test_baremetal_profile_contract():
     #: raw text instead made a comment in the guard fail the SUITE with a
     #: message blaming the firmware for a defect in this construction.
     firmware_code = blanked(firmware_source)
-    source_model = CsrModel(firmware_source, csr_source)
+    source_model = CsrModel(firmware_source, blanked_sv(csr_source))
+
+    def with_define_value(baseline, name, new_value, label):
+        """Replace one object-like firmware #define value by parsed span."""
+        code = blanked(baseline)
+        define = re.search(
+            rf"(?m)^[ \t]*#[ \t]*define[ \t]+{re.escape(name)}[ \t]+"
+            r"(?P<value>[^\r\n]*?)[ \t]*$", code)
+        assert define, f"{label} mutation lost #define {name}"
+        changed = (baseline[:define.start("value")] + new_value +
+                   baseline[define.end("value"):])
+        assert changed != baseline, f"{label} mutation did not change {name}"
+        return changed
+
+    source_version = re.search(
+        r"\bparameter\s+logic\s*\[\s*31\s*:\s*0\s*\]\s+VERSION\s*=\s*"
+        r"(?P<literal>[0-9]+\s*'\s*[hH]\s*[0-9A-Fa-f_]+)", csr_source)
+    assert source_version, \
+        "CSR identity mutations lost the RTL VERSION literal"
+    source_version_value = sv_literal_value(source_version.group("literal"))
+    assert source_version_value is not None
+    identity_at_version = with_define_value(
+        firmware_source, "MILAN_ID",
+        f"0x{source_model.rtl_address('A_VERSION'):03x}u",
+        "identity address repointed to VERSION")
+    identity_magic_at_version = with_define_value(
+        firmware_source, "MILAN_ID_MAGIC",
+        f"0x{source_version_value:08x}u",
+        "identity magic changed to VERSION")
+    identity_magic_at_sample = with_define_value(
+        firmware_source, "MILAN_ID_MAGIC", "(id)",
+        "identity magic replaced by the sampled value")
+    identity_magic_at_sample_expr = with_define_value(
+        firmware_source, "MILAN_ID_MAGIC", "(id | 0u)",
+        "identity magic replaced by a warning-clean sampled expression")
+    identity_contract_at_version = with_define_value(
+        identity_at_version, "MILAN_ID_MAGIC",
+        f"0x{source_version_value:08x}u",
+        "identity contract repointed to VERSION")
     init_start = anchored(firmware_code, "static void milan_init(void)",
                           "the boot entry point")
     init_end = anchored(firmware_code, "define_init_func(milan_init)",
@@ -2702,9 +3399,9 @@ def test_baremetal_profile_contract():
     crc_body, crc_close = braced_span(
         source_load_code, source_crc_guard, "CRC mismatch refusal")
     source_crc_block = source_load_function[crc_body:crc_close]
-    source_reset, _reset_value = ptp_reset_assignment(csr_source)
+    source_reset, _reset_value = ptp_reset_assignment(blanked_sv(csr_source))
     source_reset_statement = source_reset.group(0)
-    source_ptp_enable = ptp_enable_assignment(csr_source)
+    source_ptp_enable = ptp_enable_assignment(blanked_sv(csr_source))
     source_ptp_enable_statement = source_ptp_enable.group(0)
     source_fabric = re.search(
         r"static\s+void\s+configure_fabric\s*\(\s*void\s*\)\s*\{",
@@ -2848,7 +3545,7 @@ def test_baremetal_profile_contract():
     #: rule already trusts, now naming a different register.
     spare_name = next(
         name for name, value in sorted(source_model.defines.items())
-        if value in source_model.decoded and
+        if name != "MILAN_ID" and value in source_model.decoded and
         value not in (source_model.pp, source_model.adp, source_model.phc) and
         not source_model.writes(firmware_source, value))
     spare_at = re.search(rf"(?m)^#define\s+{spare_name}\s+\S+[ \t]*$",
@@ -2947,12 +3644,190 @@ def test_baremetal_profile_contract():
         source_identity_read_statement +
         f"\n\t{source_identity_read.group('name')} = MILAN_ID_MAGIC;",
         "overwritten CSR identity sample")
+    identity_address_comment_decoy = replace_once(
+        csr_source,
+        "    A_ID          = 'h000,",
+        "    // A_ID = 'h000, inactive textual decoy\n"
+        "    A_ID          = 'h01C,",
+        "commented A_ID address decoy")
+    identity_default_comment_decoy = replace_once(
+        csr_source,
+        "      A_ID[10:0]:         csr_default = 32'h4D49_4C4E;      "
+        "// \"MILN\"",
+        "      // A_ID[10:0]: csr_default = 32'h4D49_4C4E; "
+        "inactive decoy\n"
+        "      A_ID[0 +: 11]:      csr_default = 32'hDEAD_BEEF;",
+        "commented A_ID default decoy")
+    identity_conditional_decoy = replace_once(
+        csr_source,
+        "    A_ID          = 'h000, A_VERSION = 'h004,",
+        "`ifdef PR187_SAFE_ID\n"
+        "    A_ID          = 'h000,\n"
+        "`else\n"
+        "    A_ID          = 'h01C,\n"
+        "`endif\n"
+        "    A_VERSION     = 'h004,",
+        "preprocessor-selected A_ID address decoy")
+    identity_static_generate_decoy = replace_once(
+        csr_source,
+        "  localparam [ADDR_WIDTH-1:0]\n"
+        "    A_ID          = 'h000, A_VERSION = 'h004,",
+        "  generate if (1'b0) begin : g_pr187_safe_id\n"
+        "  localparam [ADDR_WIDTH-1:0]\n"
+        "    A_ID          = 'h000, A_VERSION = 'h004, "
+        "PR187_DEAD_C = 'h7FC;\n"
+        "  end endgenerate\n"
+        "  localparam [ADDR_WIDTH-1:0]\n"
+        "    A_ID          = 'h01C, A_VERSION = 'h004,",
+        "inactive static-generate A_ID address decoy")
+    identity_dead_default_case = replace_once(
+        csr_source,
+        "    csr_default = 32'h0;\n"
+        "    unique case (a)\n"
+        "      A_ID[10:0]:         csr_default = 32'h4D49_4C4E;      "
+        "// \"MILN\"",
+        "    csr_default = 32'h0;\n"
+        "    if (1'b0)\n"
+        "      case (a)\n"
+        "        A_ID[10:0]: csr_default = 32'h4D49_4C4E;\n"
+        "        default: ;\n"
+        "      endcase\n"
+        "    unique case (a)\n"
+        "      11'h000:            csr_default = 32'hDEAD_BEEF;",
+        "A_ID default hidden in a dead procedural case")
+    identity_rom_fill_forged = replace_once(
+        csr_source,
+        "    for (int k = 0; k < 512; k++) dflt_rom[k] = "
+        "csr_default(11'(k * 4));",
+        "    for (int k = 0; k < 512; k++) dflt_rom[k] =\n"
+        "        (k == 0) ? 32'hDEAD_BEEF : csr_default(11'(k * 4));",
+        "forged A_ID defaults-ROM fill")
+    identity_read_address_offset = replace_once(
+        csr_source,
+        "  wire [ADDR_WIDTH-1:0] rd_addr = s_axi_araddr;",
+        "  wire [ADDR_WIDTH-1:0] rd_addr = s_axi_araddr + A_VERSION;",
+        "offset CSR read address")
+
+    def gate_instance_port(source, module, instance, port, value, label):
+        instances = list(re.finditer(
+            rf"\b{re.escape(module)}\b\s*#\s*\([^;]*?\)\s*"
+            rf"{re.escape(instance)}\s*\((?P<ports>.*?)\)\s*;",
+            source, re.DOTALL))
+        assert len(instances) == 1, \
+            f"{label} mutation found {len(instances)} {instance} instances"
+        found = instances[0]
+        ports = found.group("ports")
+        connections = list(re.finditer(
+            rf"\.{re.escape(port)}\s*\(\s*(?P<value>[^)]*?)\s*\)",
+            ports))
+        assert len(connections) == 1 and re.fullmatch(
+            rf"\s*{re.escape(value)}\s*", connections[0].group("value")), \
+            f"{label} mutation lost .{port}({value})"
+        connection = connections[0]
+        start = found.start("ports") + connection.start("value")
+        stop = found.start("ports") + connection.end("value")
+        return source[:start] + f"{value} & cfg_adp_enable" + source[stop:]
+
     phc_gated_by_adp = replace_once(
         csr_source, source_ptp_enable_statement,
         re.sub(r"ptp_ctrl\s*\[\s*0\s*\]",
                "ptp_ctrl[0] & adp_ctrl[0]",
                source_ptp_enable_statement, count=1),
         "PHC output gated by ADP")
+    phc_increment_source_gated_by_adp = replace_once(
+        csr_source,
+        "  assign o_ptp_incr         = ptp_incr;",
+        "  assign o_ptp_incr         = "
+        "ptp_incr & {32{adp_ctrl[0]}};",
+        "milan_csr PHC increment output gated by ADP")
+    phc_consumer_gated_by_adp = replace_once(
+        datapath_source,
+        ".i_ptp_enable      (cfg_ptp_enable),",
+        ".i_ptp_enable      (cfg_ptp_enable & cfg_adp_enable),",
+        "ptp_timestamp PHC consumer gated by ADP")
+    phc_increment_gated_by_adp = replace_once(
+        datapath_source,
+        ".i_ptp_incr        (cfg_ptp_incr),",
+        ".i_ptp_incr        (cfg_ptp_incr & {32{cfg_adp_enable}}),",
+        "ptp_timestamp PHC increment gated by ADP")
+    phc_binding_gated_by_adp = replace_once(
+        replace_once(
+            datapath_source,
+            "  wire        cfg_ptp_enable;",
+            "  wire        cfg_ptp_enable;\n"
+            "  wire        cfg_ptp_enable_raw;\n"
+            "  assign cfg_ptp_enable = "
+            "cfg_ptp_enable_raw & cfg_adp_enable;",
+            "ADP-gated PHC binding wire"),
+        ".o_ptp_enable      (cfg_ptp_enable),",
+        ".o_ptp_enable      (cfg_ptp_enable_raw),",
+        "ADP-gated milan_csr PHC output binding")
+    phc_wand_second_driver = replace_once(
+        datapath_source,
+        "  wire        cfg_ptp_enable;",
+        "  wand        cfg_ptp_enable;\n"
+        "  and (cfg_ptp_enable, cfg_adp_enable, 1'b1);",
+        "ADP-controlled second PHC-enable driver")
+    phc_effective_adjust_gated_by_adp = replace_once(
+        datapath_source,
+        "                               ? unsigned'(gptp_adj_w)   : "
+        "cfg_ptp_adj;",
+        "                               ? unsigned'(gptp_adj_w)   : "
+        "(cfg_ptp_adj & {32{cfg_adp_enable}});",
+        "effective PHC frequency adjustment gated by ADP")
+    phc_effective_offset_gated_by_adp = replace_once(
+        datapath_source,
+        "                               ? gptp_step_w             : "
+        "cfg_ptp_offset;",
+        "                               ? gptp_step_w             : "
+        "(cfg_ptp_offset & {64{cfg_adp_enable}});",
+        "effective PHC offset gated by ADP")
+    phc_effective_strobe_gated_by_adp = replace_once(
+        datapath_source,
+        "                               ? gptp_step_we_w          : "
+        "cfg_ptp_cmd_adjust;",
+        "                               ? gptp_step_we_w          : "
+        "(cfg_ptp_cmd_adjust & cfg_adp_enable);",
+        "effective PHC adjustment strobe gated by ADP")
+    gptp_gated_timestamp_gtx_reset = gate_instance_port(
+        datapath_source, "ptp_ts_top", "ptp_timestamp", "gtx_resetn",
+        "gtx_resetn", "ptp_timestamp gtx reset gate")
+    gptp_gated_timestamp_axis_reset = gate_instance_port(
+        datapath_source, "ptp_ts_top", "ptp_timestamp", "axis_resetn",
+        "axis_resetn", "ptp_timestamp axis reset gate")
+    gptp_gated_timestamp_ingress = replace_once(
+        datapath_source,
+        ".s_axis_rx_tvalid(rx_axis_to_ts.tvalid),",
+        ".s_axis_rx_tvalid(rx_axis_to_ts.tvalid & cfg_adp_enable),",
+        "ptp_timestamp RX ingress gate")
+    gptp_gated_timestamp_ready = replace_once(
+        replace_once(
+            datapath_source,
+            "\n  ptp_ts_top #(\n",
+            "\n  wire rx_ts_tready_raw_w;\n"
+            "  assign rx_axis_to_ts.tready = "
+            "rx_ts_tready_raw_w & cfg_adp_enable;\n\n"
+            "  ptp_ts_top #(\n",
+            "ptp_timestamp raw RX-ready wire"),
+        ".s_axis_rx_tready(rx_axis_to_ts.tready),",
+        ".s_axis_rx_tready(rx_ts_tready_raw_w),",
+        "ptp_timestamp RX ready gate")
+    gptp_gated_filter_ingress = replace_once(
+        datapath_source,
+        ".s_tvalid(rx_axis_ptp_to_filt.tvalid),",
+        ".s_tvalid(rx_axis_ptp_to_filt.tvalid & cfg_adp_enable),",
+        "enabled RX-filter ingress gate")
+    gptp_gated_filter_clock = gate_instance_port(
+        datapath_source, "rx_mac_filter", "rx_filter", "clk_i",
+        "axis_clk", "enabled RX-filter clock gate")
+    gptp_gated_filter_reset = gate_instance_port(
+        datapath_source, "rx_mac_filter", "rx_filter", "rst_n",
+        "axis_resetn", "enabled RX-filter reset gate")
+    gptp_filter_policy_gated_by_adp = replace_once(
+        datapath_source,
+        ".default_pass_i (cfg_tcam_default_pass),",
+        ".default_pass_i (cfg_tcam_default_pass & cfg_adp_enable),",
+        "RX-filter default policy gated by ADP")
     gptp_gated_datapath = replace_once(
         datapath_source, ".rst_n           (axis_resetn),",
         ".rst_n           (axis_resetn && cfg_adp_enable),",
@@ -2973,6 +3848,12 @@ def test_baremetal_profile_contract():
         ".s_adp_tvalid(ctlg3_tvalid),",
         ".s_adp_tvalid(ctlg3_tvalid && cfg_adp_enable),",
         "fabric gPTP MAC-boundary gate")
+    gptp_gated_control_mux_reset = gate_instance_port(
+        datapath_source, "adp_tx_arbiter", "gptp_ctl_mux", "rst_n",
+        "axis_resetn", "fabric gPTP control-mux reset gate")
+    gptp_gated_boundary_mux_reset = gate_instance_port(
+        datapath_source, "adp_tx_arbiter", "adp_tx_mux", "rst_n",
+        "axis_resetn", "fabric gPTP boundary-mux reset gate")
     def runtime_gate_assignment(source, lhs, label):
         matches = list(re.finditer(
             rf"(?m)^[ \t]*assign[ \t]+{re.escape(lhs)}[ \t]*="
@@ -2989,6 +3870,64 @@ def test_baremetal_profile_contract():
     gptp_gated_external_rx = runtime_gate_assignment(
         datapath_source, "rx_axis_to_ts.tvalid",
         "external MAC RX valid gate")
+    gptp_wand_second_driver_external_tx = replace_once(
+        replace_once(
+            datapath_source,
+            "  output wire                     m_axis_mac_tx_tvalid,",
+            "  output wand                     m_axis_mac_tx_tvalid,",
+            "resolved external MAC TX valid port"),
+        "  assign m_axis_mac_tx_tvalid = tx_axis_to_mac.tvalid;",
+        "  assign m_axis_mac_tx_tvalid = tx_axis_to_mac.tvalid;\n"
+        "  and (m_axis_mac_tx_tvalid, cfg_adp_enable, 1'b1);",
+        "ADP-controlled second external TX-valid driver")
+    gptp_gated_filter_bypass = runtime_gate_assignment(
+        datapath_source, "rx_axis_to_dma.tvalid",
+        "bypass RX-filter ingress gate")
+    gptp_commented_external_tx = replace_once(
+        datapath_source,
+        "  assign m_axis_mac_tx_tvalid = tx_axis_to_mac.tvalid;",
+        "  /* assign m_axis_mac_tx_tvalid = tx_axis_to_mac.tvalid; */\n"
+        "  `define PR187_TX_VALID(value) ((value) & cfg_adp_enable)\n"
+        "  assign m_axis_mac_tx_tvalid = "
+        "`PR187_TX_VALID(tx_axis_to_mac.tvalid);\n"
+        "  `undef PR187_TX_VALID",
+        "commented direct external TX decoy with live macro gate")
+    gptp_inactive_external_tx = replace_once(
+        datapath_source,
+        "  assign m_axis_mac_tx_tvalid = tx_axis_to_mac.tvalid;",
+        "  `ifdef PR187_SAFE_DIRECT_TX\n"
+        "  assign m_axis_mac_tx_tvalid = tx_axis_to_mac.tvalid;\n"
+        "  `endif",
+        "inactive conditional external TX decoy")
+    gptp_static_generate_external_tx = replace_once(
+        datapath_source,
+        "  assign m_axis_mac_tx_tvalid = tx_axis_to_mac.tvalid;",
+        "  generate if (1'b0) begin : g_pr187_safe_tx\n"
+        "  assign m_axis_mac_tx_tvalid = tx_axis_to_mac.tvalid;\n"
+        "  end else begin : g_pr187_live_tx\n"
+        "  and (m_axis_mac_tx_tvalid, tx_axis_to_mac.tvalid, "
+        "cfg_adp_enable);\n"
+        "  end endgenerate",
+        "inactive static-generate external TX decoy")
+    gptp_midline_directive_external_tx = replace_once(
+        datapath_source,
+        "  assign m_axis_mac_tx_tvalid = tx_axis_to_mac.tvalid;",
+        "  wire pr187_d0_w; `define PR187_ASSIGN assign\n"
+        "  wire pr187_d1_w; `ifdef PR187_SAFE_DIRECT_TX\n"
+        "  assign m_axis_mac_tx_tvalid = tx_axis_to_mac.tvalid;\n"
+        "  wire pr187_d2_w; `else\n"
+        "  wire pr187_d3_w; `PR187_ASSIGN m_axis_mac_tx_tvalid = "
+        "tx_axis_to_mac.tvalid & cfg_adp_enable;\n"
+        "  wire pr187_d4_w; `endif",
+        "mid-line conditional external TX decoy")
+    gptp_implicit_generate_external_tx = replace_once(
+        datapath_source,
+        "  assign m_axis_mac_tx_tvalid = tx_axis_to_mac.tvalid;",
+        "  if (1'b0)\n"
+        "    assign m_axis_mac_tx_tvalid = tx_axis_to_mac.tvalid;\n"
+        "  else assign m_axis_mac_tx_tvalid = "
+        "tx_axis_to_mac.tvalid & cfg_adp_enable;",
+        "implicit conditional-generate external TX decoy")
 
     unconditional_guard = guard_statement.replace("aem_loaded", "1", 1)
     inverted_guard = guard_statement.replace("aem_loaded", "!aem_loaded", 1)
@@ -3773,6 +4712,44 @@ def test_baremetal_profile_contract():
         ("old AEM-gated PTP documentation", firmware_source,
          replace_once(docs_source, old_claim.group(0), old_order, "old ordering"),
          csr_source, "bare-metal boot contract lost"),
+        ("CSR identity contract repointed to VERSION",
+         identity_contract_at_version, docs_source, csr_source,
+         "firmware MILAN_ID must resolve to the RTL A_ID address"),
+        ("CSR identity magic changed to the VERSION value",
+         identity_magic_at_version, docs_source, csr_source,
+         "firmware MILAN_ID_MAGIC must equal the RTL A_ID readback default"),
+        ("CSR identity magic replaced by the sampled value",
+         identity_magic_at_sample, docs_source, csr_source,
+         "firmware MILAN_ID_MAGIC must equal the RTL A_ID readback default"),
+        ("CSR identity magic replaced by a sampled expression",
+         identity_magic_at_sample_expr, docs_source, csr_source,
+         "firmware MILAN_ID_MAGIC must equal the RTL A_ID readback default"),
+        ("RTL A_ID address hidden behind a comment decoy", firmware_source,
+         docs_source, identity_address_comment_decoy,
+         "firmware MILAN_ID must resolve to the RTL A_ID address"),
+        ("RTL A_ID default hidden behind a comment decoy", firmware_source,
+         docs_source, identity_default_comment_decoy,
+         "firmware MILAN_ID_MAGIC must equal the RTL A_ID readback default"),
+        ("RTL A_ID address selected through an inactive preprocessor arm",
+         firmware_source, docs_source, identity_conditional_decoy,
+         "CSR integration proof requires unconditional live "
+         "SystemVerilog text"),
+        ("RTL A_ID address hidden in an inactive static generate arm",
+         firmware_source, docs_source, identity_static_generate_decoy,
+         "RTL CSR address declarations must be unconditional module-scope "
+         "items"),
+        ("RTL A_ID default hidden in a dead procedural case",
+         firmware_source, docs_source, identity_dead_default_case,
+         "RTL csr_default's address case must be a direct top-level item "
+         "after its literal-zero default"),
+        ("RTL A_ID defaults-ROM fill forged", firmware_source, docs_source,
+         identity_rom_fill_forged,
+         "RTL A_ID readback plumbing must preserve the canonical "
+         "csr_default ROM and direct AXI read address"),
+        ("RTL A_ID read address offset", firmware_source, docs_source,
+         identity_read_address_offset,
+         "RTL A_ID readback plumbing must preserve the canonical "
+         "csr_default ROM and direct AXI read address"),
         ("CSR identity mismatch guard removed", missing_identity_guard,
          docs_source, csr_source,
          "firmware must reject a mismatched CSR identity"),
@@ -3924,7 +4901,76 @@ def test_baremetal_profile_contract():
          "bare-metal PHC contract requires the documented enabled reset"),
         ("PHC output gated by ADP", firmware_source, docs_source,
          phc_gated_by_adp,
-         "PHC enable output must be driven directly by PTP_CTRL[0]"),
+         "milan_csr PHC output assignments must remain direct and "
+         "independent"),
+        ("milan_csr PHC increment output gated by ADP", firmware_source,
+         docs_source, phc_increment_source_gated_by_adp,
+         "milan_csr PHC output assignments must remain direct and "
+         "independent"),
+        ("milan_csr PHC output binding gated by ADP", firmware_source,
+         docs_source, csr_source,
+         "milan_csr PHC output must drive cfg_ptp_enable directly",
+         None, None, phc_binding_gated_by_adp),
+        ("PHC enable hidden behind a resolved second driver", firmware_source,
+         docs_source, csr_source,
+         "datapath PHC nets must retain sole-driver reference ownership",
+         None, None, phc_wand_second_driver),
+        ("ptp_timestamp PHC consumer gated by ADP", firmware_source,
+         docs_source, csr_source,
+         "ptp_timestamp PHC enable must be driven directly by "
+         "cfg_ptp_enable", None, None, phc_consumer_gated_by_adp),
+        ("ptp_timestamp PHC increment gated by ADP", firmware_source,
+         docs_source, csr_source,
+         "ptp_timestamp PHC controls and readback must remain direct and "
+         "independent", None, None, phc_increment_gated_by_adp),
+        ("effective PHC frequency adjustment gated by ADP", firmware_source,
+         docs_source, csr_source,
+         "effective PHC adjustment must select only gPTP or CSR control",
+         None, None, phc_effective_adjust_gated_by_adp),
+        ("effective PHC offset gated by ADP", firmware_source,
+         docs_source, csr_source,
+         "effective PHC offset must select only gPTP or CSR control",
+         None, None, phc_effective_offset_gated_by_adp),
+        ("effective PHC adjustment strobe gated by ADP", firmware_source,
+         docs_source, csr_source,
+         "effective PHC adjust strobe must select only gPTP or CSR control",
+         None, None, phc_effective_strobe_gated_by_adp),
+        ("ptp_timestamp gtx reset gated by ADP", firmware_source,
+         docs_source, csr_source,
+         "ptp_timestamp clocks and resets must be direct and independent",
+         None, None, gptp_gated_timestamp_gtx_reset),
+        ("ptp_timestamp axis reset gated by ADP", firmware_source,
+         docs_source, csr_source,
+         "ptp_timestamp clocks and resets must be direct and independent",
+         None, None, gptp_gated_timestamp_axis_reset),
+        ("ptp_timestamp RX ingress valid gated by ADP", firmware_source,
+         docs_source, csr_source,
+         "external MAC RX must traverse ptp_timestamp directly",
+         None, None, gptp_gated_timestamp_ingress),
+        ("ptp_timestamp RX ready gated by ADP", firmware_source,
+         docs_source, csr_source,
+         "external MAC RX must traverse ptp_timestamp directly",
+         None, None, gptp_gated_timestamp_ready),
+        ("enabled RX-filter ingress valid gated by ADP", firmware_source,
+         docs_source, csr_source,
+         "timestamped MAC RX must traverse the enabled RX-filter arm "
+         "directly", None, None, gptp_gated_filter_ingress),
+        ("enabled RX-filter clock gated by ADP", firmware_source,
+         docs_source, csr_source,
+         "timestamped MAC RX must traverse the enabled RX-filter arm "
+         "directly", None, None, gptp_gated_filter_clock),
+        ("enabled RX-filter reset gated by ADP", firmware_source,
+         docs_source, csr_source,
+         "timestamped MAC RX must traverse the enabled RX-filter arm "
+         "directly", None, None, gptp_gated_filter_reset),
+        ("RX-filter default policy gated by ADP", firmware_source,
+         docs_source, csr_source,
+         "reset-time RX filter policy must remain independent of ADP",
+         None, None, gptp_filter_policy_gated_by_adp),
+        ("bypass RX-filter ingress valid gated by ADP", firmware_source,
+         docs_source, csr_source,
+         "timestamped MAC RX must traverse the bypass RX-filter arm "
+         "directly", None, None, gptp_gated_filter_bypass),
         ("fabric gPTP reset gated by ADP", firmware_source, docs_source,
          csr_source,
          "fabric gPTP RX and control inputs must observe the live datapath "
@@ -3937,14 +4983,48 @@ def test_baremetal_profile_contract():
          docs_source, csr_source,
          "fabric gPTP TX must traverse gptp_ctl_mux directly", None, None,
          gptp_gated_local_egress),
+        ("fabric gPTP control-mux reset gated by ADP", firmware_source,
+         docs_source, csr_source,
+         "fabric gPTP TX must traverse gptp_ctl_mux directly", None, None,
+         gptp_gated_control_mux_reset),
         ("fabric gPTP MAC-boundary valid gated by ADP", firmware_source,
          docs_source, csr_source,
          "fabric gPTP control output must reach the MAC-boundary arbiter "
          "directly", None, None, gptp_gated_boundary_egress),
+        ("fabric gPTP boundary-mux reset gated by ADP", firmware_source,
+         docs_source, csr_source,
+         "fabric gPTP control output must reach the MAC-boundary arbiter "
+         "directly", None, None, gptp_gated_boundary_mux_reset),
         ("external MAC TX valid gated by ADP", firmware_source,
          docs_source, csr_source,
          "external MAC TX handshake must be driven directly by "
          "tx_axis_to_mac", None, None, gptp_gated_external_tx),
+        ("external MAC TX valid hidden behind a resolved second driver",
+         firmware_source, docs_source, csr_source,
+         "external MAC handshake ports must retain sole-driver/reference "
+         "ownership", None, None, gptp_wand_second_driver_external_tx),
+        ("commented direct TX decoy with live macro gate", firmware_source,
+         docs_source, csr_source,
+         "datapath integration proof requires unconditional live "
+         "SystemVerilog text", None, None, gptp_commented_external_tx),
+        ("direct TX connection made an inactive conditional", firmware_source,
+         docs_source, csr_source,
+         "datapath integration proof requires unconditional live "
+         "SystemVerilog text", None, None, gptp_inactive_external_tx),
+        ("direct TX connection put in an inactive static generate arm",
+         firmware_source, docs_source, csr_source,
+         "external MAC TX handshake must be driven directly by "
+         "tx_axis_to_mac", None, None, gptp_static_generate_external_tx),
+        ("direct TX decoy selected by mid-line compiler directives",
+         firmware_source, docs_source, csr_source,
+         "datapath integration proof requires unconditional live "
+         "SystemVerilog text", None, None,
+         gptp_midline_directive_external_tx),
+        ("direct TX decoy selected by an implicit conditional generate",
+         firmware_source, docs_source, csr_source,
+         "external MAC TX handshake must be driven directly by "
+         "tx_axis_to_mac", None, None,
+         gptp_implicit_generate_external_tx),
         ("external MAC RX valid gated by ADP", firmware_source,
          docs_source, csr_source,
          "external MAC RX handshake must drive rx_axis_to_ts directly",
@@ -4212,17 +5292,60 @@ def test_baremetal_profile_contract():
         )
     for mutation in mutations:
         assert_rejected(*mutation)
-    print("  [gate 1b] bounded boot-contract model: PHC/gPTP live from reset "
-          "and independent of AEM; the milan_reg()/milan_read()/milan_write() "
-          "bodies pin address and value provenance, and recognised "
+    if verilator:
+        try:
+            assert_rtl_mutant_elaborates(
+                "non-elaborable RTL self-test",
+                csr_source + "\nmodule pr187_unclosed_control(\n",
+                None, count=False)
+        except AssertionError as exc:
+            assert "does not elaborate and cannot count" in str(exc), exc
+        else:
+            raise AssertionError(
+                "RTL-mutant elaboration accepted a deliberately malformed "
+                "SystemVerilog control")
+        assert rtl_mutant_elaboration["passed"] == \
+            rtl_mutant_elaboration["requested"], \
+            "not every RTL mutation was elaborated before being counted"
+        rtl_mutant_note = (
+            f"{rtl_mutant_elaboration['passed']}/"
+            f"{rtl_mutant_elaboration['requested']} RTL mutation variants "
+            "elaborated as the real option-on milan_datapath or milan_csr "
+            "top before counting, and the deliberately malformed RTL "
+            "self-test was refused; ")
+        mutation_tally = (
+            f"{len(mutations)}/{len(mutations)} mutations rejected on the "
+            "safety property they break; ")
+    else:
+        counted = len(mutations) - rtl_mutant_elaboration["requested"]
+        rtl_mutant_note = (
+            "RTL mutation elaboration STOOD DOWN for all "
+            f"{rtl_mutant_elaboration['requested']} RTL variants because "
+            "Verilator is unavailable on this runner; they remain "
+            "reason-pinned structural rejections but are not claimed as "
+            "elaborated mutation evidence here; ")
+        mutation_tally = (
+            f"{counted}/{counted} non-RTL mutations rejected on the safety "
+            "property they break; the structurally rejected RTL variants "
+            "are excluded from this mutation count; ")
+    print("  [gate 1b] bounded boot-contract model: the PHC CSR output, "
+          "datapath binding and ptp_timestamp consumer are direct, and "
+          "comment-blanked CSR, MAC, timestamp, both RXFILT_P-arm, shadow "
+          "and TX-mux facts are direct in their inspected generate arms and "
+          "free of comment, preprocessor and static-generate decoys; "
+          "PHC/gPTP are "
+          "live from reset and independent of AEM; the "
+          "milan_reg()/milan_read()/milan_write() "
+          "bodies pin address and value provenance, the firmware identity "
+          "offset and magic equal RTL A_ID's address and default, and "
+          "recognised "
           f"whole-firmware milan_write() calls set {pp_label}[0] then "
           f"{adp_label}[0] only after the AEM "
           "verdict, censused by ADDRESS off the RTL decode table so a second "
           "#define is the same register. The source and compiled instruments "
           "run together; the source-only uncovered store class and the "
           "census stand-down consequence are named below; "
-          f"{len(mutations)}/{len(mutations)} mutations rejected on the "
-          "safety property they break; " +
+          + mutation_tally + rtl_mutant_note +
           ("the phase-2 splice mutants compiled on the exact RV32 target "
            "(bare splice warning-clean; space, tab, form-feed and "
            "vertical-tab splices accepted with diagnostics); "
@@ -4286,9 +5409,17 @@ def test_baremetal_profile_contract():
           "arm only; verifier CFG reachability remains open")
     print("  [gate 1b] ... and the RTL integration facts, which are the "
           "checked part: o_ptp_enable is driven directly from PTP_CTRL[0]; "
-          "the fabric gPTP RX path, shadow TX handshake, control mux and "
-          "MAC-boundary mux plus the external MAC RX/TX handshakes are "
-          "direct and carry no AEM/ADP/PP gate; "
+          "the milan_csr instance binds it directly to cfg_ptp_enable and "
+          "ptp_timestamp consumes that net with direct clocks, resets, PHC "
+          "controls and readback; "
+          "external MAC RX "
+          "traverses ptp_timestamp, both RXFILT_P arms and the fabric-gPTP "
+          "shadow directly; shadow TX/timestamp feedback, the control mux, "
+          "MAC-boundary mux and external MAC TX handshake also have direct "
+          "data, clock and reset connections. Comments and nested static "
+          "generate arms cannot supply a decoy connection, and no directive "
+          "at any column may select an "
+          "inactive arm; none of those seams carries an AEM/ADP/PP gate; "
           f"{adp_label} and {pp_label} are each written from exactly ONE "
           "decode arm, each driving its enable port from bit 0, and each "
           "reset with that bit CLEAR, read over BOTH assignment operators so "
@@ -4307,6 +5438,10 @@ def test_baremetal_profile_contract():
           "?= (make says the environment can override it), any new CFLAGS "
           "token including -Os and -DFOO, an RTL reset hoisted to a named "
           "constant, an RTL enable port or write address respelled, and a "
+          "SystemVerilog CSR or datapath directive other than that file's "
+          "shipped includes and paired `default_nettype directives, moving "
+          "a checked item into a nested or implicit conditional-generate "
+          "arm, and a "
           "renamed boot-path function, which names the property instead of "
           "raising a bare ValueError. Three more, measured and previously "
           "undisclosed: REORDERING two existing functions (the cast and "

@@ -101,8 +101,18 @@ below still report `ALL GATES PASS`. The constraints apply to
 `sw/firmware/milan_baremetal/Makefile`, plus the named CSR and datapath
 integration expressions. The CSR Verilator harness separately drives
 `PTP_CTRL` and `ADP_CTRL` through all four combinations and observes
-`o_ptp_enable`, so the direct PHC ownership claim is behavioral as well as
-structural. The gate prints both its checked facts and open limits at run time;
+`o_ptp_enable`, so CSR-output PHC ownership is behavioral. The `milan_csr`
+output binding and connection onward to `ptp_timestamp.i_ptp_enable`, plus the
+enumerated gPTP handshake, clock and reset seams, are structural checks over
+comment-blanked SystemVerilog. Each match must be a direct item in its inspected
+generate arm, and every backtick token in both the CSR and datapath files is
+closed to that file's two shipped includes and paired `default_nettype`
+directives. The identity check also follows the canonical `csr_default(A_ID)`
+literal through the defaults-ROM fill and the direct AXI read address. On a
+runner carrying Verilator, every CSR/datapath mutation must still elaborate as
+the real `milan_csr` top or option-on `milan_datapath` source closure before it
+counts; without Verilator that layer explicitly stands down and is not reported
+as elaborated evidence. The gate prints both its checked facts and open limits at run time;
 neither this page nor the gate output may claim more than those measured facts.
 
 One constraint is answered by a tool rather than by reading text:
@@ -227,10 +237,13 @@ The rest are refusals, and each one costs a legitimate edit:
 
 | Constraint | Why the gate needs it |
 |---|---|
-| `o_ptp_enable` is driven directly by `ptp_ctrl[0]` | PHC startup is independent of AEM/ADP; the CSR harness also proves writes to `ADP_CTRL` cannot force or gate the output |
-| Fabric gPTP RX, shadow TX, `gptp_ctl_mux`, MAC-boundary arbitration and external MAC RX/TX handshakes are direct | checking only an internal instance or arbiter misses a downstream `tvalid && cfg_adp_enable` gate that makes the plane externally silent before AEM succeeds |
+| `o_ptp_enable` is driven directly by `ptp_ctrl[0]`, the `milan_csr` instance binds it directly to `cfg_ptp_enable`, and `ptp_timestamp` directly consumes that net with ungated clocks, resets, increment/adjust/TOD controls and readback | PHC startup is independent of AEM/ADP from the CSR register through the actual timestamp consumer; the CSR harness separately proves writes to `ADP_CTRL` cannot force or gate the module output |
+| External RX, `ptp_timestamp`, both enabled and bypass `RXFILT_P` arms, the filter's reset-time policy/programming seams, fabric-gPTP shadow RX/TX and timestamp feedback, `gptp_ctl_mux`, MAC-boundary arbitration and external TX handshakes use direct data, clock and reset connections | checking only an endpoint or data port misses an internal/downstream valid, policy or reset gate that makes the plane externally silent before AEM succeeds |
+| CSR and datapath structural checks ignore comments, census every backtick token at any column and require each checked item to be direct in its inspected generate arm | inactive comment, preprocessor or static-generate text must not stand in for a live gated connection; a future directive or nested generate requires an elaborated checker or an explicit update to this bounded model |
 | `milan_reg()` is exactly base plus its argument and `milan_read()` directly dereferences that result | every call-site claim depends on those helpers preserving the register address and loaded value; helper-body refactors must update the model and its mutations |
+| Firmware `MILAN_ID` and `MILAN_ID_MAGIC` equal the comment-blanked, directive-closed RTL `A_ID` address and readback default | otherwise inactive decoy text can hide a live address/value change that teaches the token-level guard to validate a different CSR or forged identity |
 | The `MILAN_ID` local is not assigned or addressed between its CSR read and mismatch guard | otherwise an intervening `id = MILAN_ID_MAGIC` forges the verdict while preserving every ordering anchor |
+| The identity refusal remains the exact `if (id != MILAN_ID_MAGIC)` spelling | an equivalent comparison such as `if ((id ^ MILAN_ID_MAGIC) != 0u)` is refused because this bounded model anchors the mismatch block by that exact expression; accepting another form requires extending the recognizer and its paired controls |
 | A fifth pointer cast, a fifth pointer store or a third `asm` statement | the compiled census does not cover all three, so the sets are what bound address formation |
 | No multi-line `#define` anywhere in the file | the gate reads macro bodies one physical line at a time |
 | No C backslash-newline anywhere in the file | translation phase 2 deletes the pair and can join tokens before an offset-preserving text census; independent space, tab, form-feed and vertical-tab mutants pin every whitespace form the recognizer accepts; a real preprocessor-token reader may retire this refusal |
