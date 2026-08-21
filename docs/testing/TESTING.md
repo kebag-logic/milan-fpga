@@ -786,10 +786,13 @@ host-only.
   Both need a LiteX interpreter, and **CI has none yet**.
   [`.github/workflows/elaborate.yml`](../../.github/workflows/elaborate.yml)
   is written and is `workflow_dispatch` only, because no config in this tree
-  elaborates on a stock toolchain: about 184 lines of uncommitted patch
-  across four third-party trees supply the `baremetal` CPU variant the
-  shipping AX shape is built on and the `--scala-args` the Linux shapes
-  pass. #185 carries that measurement and the decision.
+  elaborates on a stock toolchain. Upstream LiteX has no `baremetal`
+  VexiiRiscv variant, which is the shipping AX profile, and the revision it
+  pins rejects the `--scala-args` four of the five configs pass.
+  [`sw/litex/patches`](../../sw/litex/patches) carries the series that closes
+  both and `apply.sh` applies it, but nothing in CI runs that script and no
+  gate compares its result, so it had stopped applying. #185 carries the
+  measurement.
 
   What holds meanwhile is that the gap is **visible instead of silent**:
 

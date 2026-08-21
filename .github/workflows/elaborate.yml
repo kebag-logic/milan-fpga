@@ -23,11 +23,11 @@ name: elaborate
 # 2026-08-21: NO config in this tree elaborates on a stock toolchain. The
 # shipping AX shape asks for a `baremetal` VexiiRiscv variant upstream LiteX
 # does not have; the four Linux shapes pass --scala-args the pinned VexiiRiscv
-# does not accept. Both come from about 184 lines of uncommitted patch across
-# four third-party trees under ~/litex-milan, which #185 measures and whose
-# fix is a maintainer decision. Until that decision is made this job would
-# install correctly and then fail on every config, so its triggers are
-# withheld and it runs only on manual dispatch.
+# does not accept. sw/litex/patches carries the series that closes both, and
+# apply.sh applies it, but nothing in CI runs that script and no gate compares
+# its result - so it had stopped applying, which #185 measures. Until that is
+# fixed this job would install correctly and then fail on every config, so its
+# triggers are withheld and it runs only on manual dispatch.
 #
 # Gates 23f and 23g run today on any interpreter that has a working LiteX,
 # which is how they were validated. Everywhere else they SKIP, the verdict
@@ -65,12 +65,13 @@ jobs:
         with:
           python-version: '3.12'
 
-      # LiteX ships from git, not PyPI: the PyPI releases lag by more than a
-      # year and their VexiiRiscv wrapper does not carry the pinned-revision
-      # setup this job depends on. The revisions are in sw/litex/litex_pins.txt
-      # with the reason they are pinned; master of 2026-08-21 cannot elaborate
-      # this SoC at all, so an unpinned install would redden PRs that changed
-      # nothing.
+      # LiteX ships from git, not PyPI, and so does migen: the PyPI migen wheel
+      # and the m-labs git tree share the version number 0.9.2 and are
+      # different code, and only the git one can walk Python 3.11+ bytecode in
+      # its CSR-name tracer. Installed from PyPI the SoC dies at csr.py:64,
+      # measured 2026-08-21. pythondata-cpu-vexiiriscv is not on PyPI at all.
+      # The revisions are pinned in sw/litex/litex_pins.txt so that an
+      # upstream commit cannot redden a PR that changed nothing.
       - name: Install LiteX at the pinned revisions
         run: |
           python3 -m pip install --quiet pyyaml
