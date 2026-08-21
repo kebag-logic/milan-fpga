@@ -155,6 +155,7 @@ flowchart LR
    ```bash
    python3 scripts/check_merge_containment.py origin/<branch>
    python3 scripts/check_merge_containment.py --merged-prs   # the last 20 PRs
+   python3 scripts/check_merge_review_integrity.py           # NEGATIVE merges / open Issues
    ```
 
    It exits non-zero and names the count when commits are left behind. Replayed

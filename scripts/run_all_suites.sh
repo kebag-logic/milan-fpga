@@ -242,6 +242,20 @@ if ! selftest_out=$(cd "$ROOT" && \
   exit 2
 fi
 
+# Sixth of the family: check_merge_review_integrity.py reports a PR that merged
+# against a NEGATIVE review or left its linked Issue open. The scan itself is a
+# post-merge act over the GitHub window and cannot run from here, but its
+# --selftest drives the pure assess_pr core over fixtures - including the
+# negative control and a vacuity arm - so the detector cannot rot into a green
+# that means nothing (#180), exactly as the containment self-test above.
+if ! selftest_out=$(cd "$ROOT" && \
+        python3 "$ROOT/scripts/check_merge_review_integrity.py" --selftest 2>&1); then
+  echo "$selftest_out" >&2
+  echo "ABORTING: scripts/check_merge_review_integrity.py fails its own" >&2
+  echo "self-test, so its review-integrity findings cannot be trusted." >&2
+  exit 2
+fi
+
 mkdir -p "$OUT"
 rm -f "$OUT"/*.log            # a stale log from a previous sweep is not evidence
 
