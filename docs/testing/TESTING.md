@@ -766,6 +766,38 @@ host-only.
   `verilog-axis` and `protocol-processor`. The docs workflow also initializes
   `protocol-processor` before running the builder gate. Local commands:
   [Section 2 of `../../QUICKSTART.md`](../../QUICKSTART.md#2-track-1--simulate-no-fpga-no-vendor-tools).
+* **The SoC is elaborated, and by whom is the open question** (2026-08-21,
+  issues #154, #156 and #185). Every argv-to-RTL-parameter chain in this
+  repository used to be proven by source-text greps against
+  `sw/litex/milan_soc.py`, and three separate blockers in three lanes on one
+  day were that one gap: a flag parsed, threaded part of the way, and never
+  reaching the parameter it names. In one of them a reviewer severed the
+  chain at two independent hops and got `ALL GATES PASS` both times.
+
+  Two gates in [`sw/builder/test_builder.py`](../../sw/builder/test_builder.py)
+  close that class. Gate 23f patches `Instance` in the executed module's
+  namespace and reads the live `p_*` keyword arguments, so what is graded is
+  what elaboration would hand Vivado; eleven negative controls sever the
+  chain hop by hop and require it to go red. Gate 23g asserts every
+  `build.sh` recipe and every `sweep.sh` leg reaches that same `Instance`
+  with the flow tail its own launcher appends, `--build` included, which is
+  the flag every shape gate in the tree excludes.
+
+  Both need a LiteX interpreter, and **CI has none yet**.
+  [`.github/workflows/elaborate.yml`](../../.github/workflows/elaborate.yml)
+  is written and is `workflow_dispatch` only, because no config in this tree
+  elaborates on a stock toolchain: about 184 lines of uncommitted patch
+  across four third-party trees supply the `baremetal` CPU variant the
+  shipping AX shape is built on and the `--scala-args` the Linux shapes
+  pass. #185 carries that measurement and the decision.
+
+  What holds meanwhile is that the gap is **visible instead of silent**:
+
+  | property | why |
+  |---|---|
+  | the verdict **names every arm that did not run** | `ALL GATES PASS EXCEPT n NOT RUN`, with the reason, is the honest line when a gate declines. A gate that prints its own SKIP and lets the verdict print a green is how the absence of a proof comes to read as the presence of one |
+  | `--require-elaboration` **fails** rather than skips | so the day the job is enabled, a broken install cannot quietly return it to the state it was written to end |
+  | LiteX is **pinned** in [`sw/litex/litex_pins.txt`](../../sw/litex/litex_pins.txt) | an install from master turns an upstream commit into a red on a pull request that changed nothing, and `migen` on PyPI is stale code sharing a version number with the git tree, which fails at `csr.py:64` on any interpreter newer than 3.10 |
 * **The Verilator version matters, and distro packages are not enough.**
   Measured 2026-07-26 by running the suites under each version in a container:
 

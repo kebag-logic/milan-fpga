@@ -1,0 +1,53 @@
+# SPDX-FileCopyrightText: 2026 Kebag Logic
+# SPDX-License-Identifier: CERN-OHL-W-2.0
+#
+# The LiteX this project elaborates against, pinned.
+#
+# WHY IT IS PINNED. LiteX installs from git master (README.md and
+# QUICKSTART.md both run litex_setup.py), so "the LiteX we build with" means
+# whatever master was on the day somebody installed. That is fine for a bench
+# where the install already happened and is never touched; it is not fine for
+# a job that installs fresh on every run, where it turns an upstream commit
+# into a red on a pull request that changed nothing. That is how a gate gets
+# switched off. Pinned, an upstream move is a deliberate bump with a
+# measurement attached.
+#
+# WHAT THE REVISIONS ARE. Exactly what the bench venv under ~/litex-milan
+# carries, read out of those checkouts on 2026-08-21. That is the install
+# every shipping bitstream in this project was elaborated by, so pinning to it
+# makes CI elaborate the same LiteX the boards were built with rather than a
+# second one that merely also works.
+#
+# THIS LIST IS NOT SUFFICIENT ON ITS OWN, and the file would be a lie if it
+# did not say so. Installing exactly these revisions still cannot elaborate
+# any config in this tree, measured 2026-08-21 over all five: the shipping AX
+# shape asks for a `baremetal` VexiiRiscv variant upstream LiteX does not
+# have, and the four Linux shapes pass --scala-args the pinned VexiiRiscv
+# does not accept. Both come from uncommitted patches in the bench's own
+# checkouts, about 184 lines across four third-party trees. Issue #185
+# carries the measurement and the decision. Until that decision is made these
+# pins reproduce the bench's LiteX and NOT the bench's ability to build.
+#
+# THE FOUR Lite* CORES ARE THE ONES A REAL ELABORATION IMPORTS, measured by
+# reading sys.modules after an elaboration rather than by listing what looks
+# plausible. litex-boards is here because it is part of what this project
+# calls a LiteX interpreter, not because the SoC imports it.
+#
+# BUMPING ONE. Change the line, run the elaboration gates, and record the
+# before and after in the PR. scripts/ci_litex_env.py takes the VexiiRiscv
+# revision from LiteX itself, so bumping litex here can move that too.
+
+# migen COMES FROM GIT AND NOT FROM PyPI, and this is not a preference. The
+# PyPI wheel and the git tree both call themselves 0.9.2 and they are not the
+# same code: the wheel's CSR-name tracer walks CPython bytecode using the
+# CALL_FUNCTION family, which Python 3.11 replaced. Installed from PyPI it
+# cannot elaborate this SoC on any modern interpreter and fails with
+# `csr.py:64 Cannot extract CSR name from code`. litex_setup.py installs from
+# git, which is why the bench has never seen this.
+git+https://github.com/m-labs/migen.git@4c2ae8dfeea37f235b52acb8166f12acaaae4f7c
+git+https://github.com/enjoy-digital/litex.git@a1e1c3652ec2f1346ebaea7663d2867f393ae2c4
+git+https://github.com/enjoy-digital/litedram.git@f9b75e0347fc43267d083f7ff5965170fe8f9a58
+git+https://github.com/enjoy-digital/liteeth.git@276c9e37fb4d92a5c0f30d39a51c20f42a59cf93
+git+https://github.com/litex-hub/litespi.git@02d5a209bc0010d33ddb506ba18e736636d4109a
+git+https://github.com/litex-hub/litex-boards.git@9ac53c7a11f2571ba2c9f165f468ae021a4f9bda
+git+https://github.com/litex-hub/pythondata-cpu-vexiiriscv.git@15cfab529a17c473d0fc75edf3f409eb374cef35
