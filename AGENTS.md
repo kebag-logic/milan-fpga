@@ -256,8 +256,14 @@ A task is complete only when:
 - no undocumented requirement/interface change remains;
 - the full review bar in [CONTRIBUTING.md](CONTRIBUTING.md) is met;
 - blocking and major findings are fixed and re-reviewed;
-- **every lens in section 6 has been covered by a round that produced no
-  `BLOCKER` or `MAJOR` under it**, and the covering round is named for each;
+- **every lens in section 6 has been covered clean**, and the covering round is
+  named for each. A lens is covered clean by a round that applied it and
+  produced no `BLOCKER` or `MAJOR` **under that lens**. Coverage is judged per
+  lens, not per round: a round that finds a blocker in one lens still covers
+  any other lens it applied cleanly, and findings elsewhere do not un-cover a
+  lens already covered. Reading this per round would mean a clean lens never
+  counts while any other lens is dirty, which is the unbounded loop again
+  wearing a different collar;
 - no review round remains in flight;
 - the candidate merge result is validated;
 - the change lands in `dev`;
