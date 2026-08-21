@@ -570,12 +570,15 @@ def test_baremetal_profile_contract():
     docs_path = os.path.join(
         ROOT, "docs/integration/BAREMETAL_FIRMWARE.md")
     csr_path = os.path.join(ROOT, "hdl/common/csr/milan_csr.sv")
+    datapath_path = os.path.join(ROOT, "hdl/milan/milan_datapath.sv")
     with open(firmware_path, encoding="utf-8") as fh:
         firmware_source = fh.read()
     with open(docs_path, encoding="utf-8") as fh:
         docs_source = fh.read()
     with open(csr_path, encoding="utf-8") as fh:
         csr_source = fh.read()
+    with open(datapath_path, encoding="utf-8") as fh:
+        datapath_source = fh.read()
     with open(os.path.join(os.path.dirname(firmware_path), "Makefile"),
               encoding="utf-8") as fh:
         makefile_source = fh.read()
@@ -701,7 +704,7 @@ def test_baremetal_profile_contract():
                 f"(#{directive.group(1)} outside load_aem_image()): this " \
                 "gate would read one arm while the compiler takes the other"
         continued = re.search(
-            r"(?m)^[ \t]*#[ \t]*define\b[^\n]*\\[ \t]*$", code)
+            r"(?m)^[ \t]*#[ \t]*define\b[^\n]*\\[ \t\f\v]*$", code)
         assert not continued, \
             "firmware must not continue a #define across lines: this gate " \
             "reads a macro body one physical line at a time, so a " \
@@ -712,7 +715,7 @@ def test_baremetal_profile_contract():
         # preserving reader that substitutes spaces sees two identifiers.
         # Scan RAW source and refuse the language construct; blanked text is
         # already too late, and line_spliced() intentionally preserves offsets.
-        splice = re.search(r"\\(?:\r\n|[\n\r])", source)
+        splice = re.search(r"\\[ \t\f\v]*(?:\r\n|[\n\r])", source)
         assert not splice, \
             "firmware must not splice physical source lines with backslash-" \
             "newline: C translation phase 2 deletes the pair before " \
@@ -1658,12 +1661,14 @@ def test_baremetal_profile_contract():
             f"whatever cast, typedef, macro, member access or asm template " \
             f"spelled it; found {hits[:3]}"
 
-    def assert_target_compiles(firmware, label):
-        """Prove one mutation is warning-clean C for the exact RV32 target.
+    def assert_target_compiles(firmware, label, allow_warnings=False):
+        """Prove one mutation is accepted C for the exact RV32 target.
 
         A source-text rule may reject the mutation before the assembly census
         runs. Its reason-pinned RED counts only after this independent compile
-        proves that the compiler accepts the construct the rule refuses.
+        proves that the compiler accepts the construct the rule refuses. Most
+        mutants must be warning-clean; translation-phase whitespace is the one
+        intentional exception because GCC accepts it with a diagnostic.
         """
         compiler = census_compiler()
         if not compiler or not census_used.get("target"):
@@ -1673,14 +1678,16 @@ def test_baremetal_profile_contract():
             source = os.path.join(root, "milan_baremetal.c")
             with open(source, "w") as fh:
                 fh.write(firmware)
+            flags = [compiler, "-std=gnu99", "-Wall", "-Wextra"]
+            if not allow_warnings:
+                flags.append("-Werror")
             built = subprocess.run(
-                [compiler, "-std=gnu99", "-Wall", "-Wextra", "-Werror",
-                 "-O0", "-fno-inline", "-S", "-o",
-                 os.path.join(root, "mutation.s"), f"-I{root}", source],
+                flags + ["-O0", "-fno-inline", "-S", "-o",
+                         os.path.join(root, "mutation.s"), f"-I{root}", source],
                 capture_output=True, text=True)
         assert built.returncode == 0, \
-            f"{label} must compile warning-clean for RV32 before its gate " \
-            f"verdict counts; {built.stderr.strip().splitlines()[-2:]}"
+            f"{label} must compile for RV32 before its gate verdict counts; " \
+            f"{built.stderr.strip().splitlines()[-2:]}"
         return True
 
     #: Make's assignment modifiers, as a repeatable group rather than a list
@@ -2063,7 +2070,29 @@ def test_baremetal_profile_contract():
         return at
 
     def assert_boot_contract(firmware, docs, csr, makefile=None,
-                             listing=None):
+                             listing=None, datapath=None):
+        datapath = datapath_source if datapath is None else datapath
+        gptp_plane = re.search(
+            r"\bgenerate\s+if\s*\(\s*GPTP_PLANE_EN_P\s*\)\s*"
+            r"begin\s*:\s*g_gptp_plane\b(?P<body>.*?)"
+            r"\bend\s+else\s+begin\s*:\s*g_gptp_off\b",
+            datapath, re.DOTALL)
+        assert gptp_plane, \
+            "fabric gPTP must be elaborated solely by GPTP_PLANE_EN_P, " \
+            "without an AEM, ADP or protocol-processor runtime gate"
+        gptp_shadow = re.search(
+            r"\bKL_gptp_shadow\b.*?\)\s*u_gptp_shadow\s*\("
+            r"(?P<ports>.*?)\);", gptp_plane.group("body"), re.DOTALL)
+        assert gptp_shadow, \
+            "the option-on fabric gPTP plane must instantiate KL_gptp_shadow"
+        shadow_ports = gptp_shadow.group("ports")
+        assert re.search(r"\.clk_i\s*\(\s*axis_clk\s*\)", shadow_ports) and \
+               re.search(r"\.rst_n\s*\(\s*axis_resetn\s*\)", shadow_ports) and \
+               not re.search(r"\b(?:cfg_adp_enable|pp_enable_w|aem_loaded)\b",
+                             shadow_ports), \
+            "fabric gPTP must run from axis_clk and reset directly from " \
+            "axis_resetn, without an AEM, ADP or protocol-processor gate"
+
         # The whole closure below reads ONE file. Prove that is the whole
         # firmware before reading a line of it.
         assert_single_translation_unit(
@@ -2102,12 +2131,41 @@ def test_baremetal_profile_contract():
         init_end = anchored(firmware, "define_init_func(milan_init)",
                             "the boot entry point's init hook", init_start)
         init_source = firmware[init_start:init_end]
+        identity_read = re.search(
+            r"\buint32_t\s+(?P<name>\w+)\s*=\s*"
+            r"milan_read\s*\(\s*MILAN_ID\s*\)\s*;", init_source)
+        identity_guard = re.search(
+            rf"\bif\s*\(\s*{re.escape(identity_read.group('name')) if identity_read else 'id'}"
+            r"\s*!=\s*MILAN_ID_MAGIC\s*\)\s*\{", init_source)
         configure = re.search(r"\bconfigure_fabric\s*\(\s*\)\s*;", init_source)
         load = re.search(
             r"\baem_loaded\s*=\s*load_aem_image\s*\(\s*\)\s*;",
             init_source)
         guard = re.search(
             r"\bif\s*\(\s*aem_loaded\s*\)\s*\{", init_source)
+        assert identity_read and identity_guard, \
+            "firmware must reject a mismatched CSR identity before " \
+            "configuring fabric or verifying the AEM image"
+        identity_body, identity_close = braced_span(
+            init_source, identity_guard, "CSR identity mismatch guard")
+        identity_block = init_source[identity_body:identity_close]
+        identity_returns = list(re.finditer(r"\breturn\s*;", identity_block))
+        identity_return_is_top_level = False
+        if len(identity_returns) == 1:
+            identity_return = identity_returns[0]
+            return_head = max(identity_block.rfind(char, 0,
+                                                    identity_return.start())
+                              for char in ";{}")
+            return_depth = (
+                identity_block.count("{", 0, identity_return.start()) -
+                identity_block.count("}", 0, identity_return.start()))
+            identity_return_is_top_level = (
+                return_depth == 0 and
+                not identity_block[
+                    return_head + 1:identity_return.start()].strip())
+        assert identity_return_is_top_level, \
+            "CSR identity mismatch guard must return before fabric " \
+            "configuration and AEM verification"
         assert configure and load and guard, \
             "firmware must configure, load AEM, then guard entity enable. " \
             "NOTE, because this message has misdiagnosed a rename before: " \
@@ -2117,9 +2175,11 @@ def test_baremetal_profile_contract():
             "order is fine and it is this gate that cannot follow the " \
             f"rename; found configure={bool(configure)} load={bool(load)} " \
             f"guard={bool(guard)}"
-        positions = [configure.start(), load.start(), guard.start()]
+        positions = [identity_read.start(), identity_guard.start(),
+                     configure.start(), load.start(), guard.start()]
         assert positions == sorted(positions), \
-            "firmware no longer configures, verifies AEM, then checks its verdict"
+            "firmware must check CSR identity, configure fabric, verify AEM, " \
+            "then check the verifier verdict"
         # Textual containment is not REACHABILITY. Every positional rule below
         # proves an enable sits between the guard's braces; none of them proves
         # control gets there only by taking the guard. A label reached by a
@@ -2158,6 +2218,8 @@ def test_baremetal_profile_contract():
                 f"{depth - 1} block(s) deep: a condition this gate cannot " \
                 "evaluate can drop it from the boot path"
 
+        unconditional(identity_read, "the CSR identity read")
+        unconditional(identity_guard, "the CSR identity mismatch guard")
         unconditional(configure, "the fabric configuration step")
         unconditional(load, "the AEM verifier call")
         unconditional(guard, "the AEM-success guard")
@@ -2376,9 +2438,10 @@ def test_baremetal_profile_contract():
         return got.stdout.strip() == "evil.o"
 
     def assert_rejected(label, firmware, docs, csr, because,
-                        makefile=None, listing=None):
+                        makefile=None, listing=None, datapath=None):
         try:
-            assert_boot_contract(firmware, docs, csr, makefile, listing)
+            assert_boot_contract(firmware, docs, csr, makefile, listing,
+                                 datapath)
         except (AssertionError, ValueError) as exc:
             # A mutation rejected on an incidental anchor mismatch proves
             # nothing about the safety property, so pin the reason too.
@@ -2401,6 +2464,17 @@ def test_baremetal_profile_contract():
                         "the boot entry point's init hook", init_start)
     source_init = firmware_source[init_start:init_end]
     init_code = firmware_code[init_start:init_end]
+    source_identity_guard = re.search(
+        r"\bif\s*\(\s*\w+\s*!=\s*MILAN_ID_MAGIC\s*\)\s*\{",
+        init_code)
+    assert source_identity_guard, \
+        "CSR identity-check mutations lost the mismatch guard"
+    identity_body, identity_close = braced_span(
+        init_code, source_identity_guard, "CSR identity mismatch guard")
+    source_identity_block = source_init[
+        source_identity_guard.start():identity_close + 1]
+    source_identity_statement = source_init[
+        source_identity_guard.start():source_identity_guard.end()]
     source_guard = re.search(
         r"\bif\s*\(\s*aem_loaded\s*\)\s*\{", init_code)
     guard_statement = source_init[source_guard.start():source_guard.end()]
@@ -2436,6 +2510,17 @@ def test_baremetal_profile_contract():
     fabric_body_at, fabric_body_to = braced_span(
         firmware_code, source_fabric, "configure_fabric()")
     source_fabric_body = firmware_source[fabric_body_at:fabric_body_to]
+    source_reg_def = re.search(
+        r"\bstatic\s+inline\s+volatile\s+uint32_t\s*\*\s*milan_reg\s*\(\s*"
+        r"unsigned\s+int\s+(?P<offset>\w+)\s*\)\s*\{", firmware_code)
+    assert source_reg_def, "address-helper mutations lost milan_reg()"
+    source_reg_body_at, _source_reg_body_to = braced_span(
+        firmware_code, source_reg_def, "milan_reg()")
+    source_reg_signature = firmware_source[
+        source_reg_def.start():source_reg_def.end()]
+    reflowed_reg_signature = (
+        "static inline\nvolatile uint32_t *\nmilan_reg(\n\tunsigned int "
+        f"{source_reg_def.group('offset')})\n{{")
     source_configure = re.search(
         r"\bconfigure_fabric\s*\(\s*\)\s*;", init_code)
     assert source_configure
@@ -2546,6 +2631,12 @@ def test_baremetal_profile_contract():
             "milan_write", "milan_" + "\\" + "\n" + "write", 1) + ";")
     phase2_splice_compiled = assert_target_compiles(
         phase2_spliced_call_enable, "phase-2 token-splice mutation")
+    phase2_whitespace_spliced_call_enable = enabled_before_aem(
+        early_adp_enable.replace(
+            "milan_write", "milan_" + "\\" + " \n" + "write", 1) + ";")
+    phase2_whitespace_splice_compiled = assert_target_compiles(
+        phase2_whitespace_spliced_call_enable,
+        "phase-2 whitespace token-splice mutation", allow_warnings=True)
     pointer_call_enable = replace_once(
         enabled_before_aem(
             f"milan_poke({adp_name}, milan_read({adp_name}) | 1u);"),
@@ -2581,6 +2672,29 @@ def test_baremetal_profile_contract():
         r"Enable\s+the\s+protocol\s+processor",
         "Enable the PTP clock, protocol processor",
         old_claim.group(0), count=1)
+    missing_identity_guard = replace_once(
+        firmware_source, source_identity_block, "",
+        "removed CSR identity mismatch guard")
+    source_identity_return = re.search(r"\breturn\s*;", source_identity_block)
+    assert source_identity_return, \
+        "CSR identity-check mutations lost the mismatch return"
+    identity_block_without_return = replace_once(
+        source_identity_block, source_identity_return.group(0), "(void)0;",
+        "removed CSR identity mismatch return")
+    missing_identity_return = replace_once(
+        firmware_source, source_identity_block, identity_block_without_return,
+        "CSR identity mismatch block without return")
+    inverted_identity_statement = source_identity_statement.replace(
+        "!=", "==", 1)
+    assert inverted_identity_statement != source_identity_statement, \
+        "inverted CSR identity mismatch mutation did not apply"
+    inverted_identity_guard = replace_once(
+        firmware_source, source_identity_statement,
+        inverted_identity_statement, "inverted CSR identity mismatch guard")
+    gptp_gated_datapath = replace_once(
+        datapath_source, ".rst_n           (axis_resetn),",
+        ".rst_n           (axis_resetn && cfg_adp_enable),",
+        "fabric gPTP reset gate")
 
     unconditional_guard = guard_statement.replace("aem_loaded", "1", 1)
     inverted_guard = guard_statement.replace("aem_loaded", "!aem_loaded", 1)
@@ -2677,6 +2791,9 @@ def test_baremetal_profile_contract():
         "\tprint_tod(gettime_ns());\n}",
         "\tMILAN_ENTITY_UP();\n\tprint_tod(gettime_ns());\n}",
         "macro enable reached from a UART handler")
+    formfeed_macro_enable = macro_enable.replace("\\\n", "\\\f\n", 1)
+    assert formfeed_macro_enable != macro_enable, \
+        "form-feed continuation-line macro mutation did not apply"
     verdict_pointer = replace_once(
         replace_once(firmware_source, load_statement,
                      load_statement +
@@ -3043,12 +3160,12 @@ def test_baremetal_profile_contract():
     #: A store added inside the helper the census exempts BY NAME. Rule 1
     #: is satisfied (the use is inside reg_span) and the census skips the
     #: function, so only the cast SET sees the fifth cast.
-    helper_body_store = replace_once(
-        firmware_source,
-        "\treturn (volatile uint32_t *)(MILAN_CSR_BASE + offset);",
-        f"\t*(volatile uint32_t *)(MILAN_CSR_BASE + {adp_name}) = 1u;\n"
-        "\treturn (volatile uint32_t *)(MILAN_CSR_BASE + offset);",
-        "store added inside the exempted address helper")
+    helper_body_store = (
+        firmware_source[:source_reg_body_at] +
+        f"\n\t*(volatile uint32_t *)(MILAN_CSR_BASE + {adp_name}) = 1u;" +
+        firmware_source[source_reg_body_at:])
+    assert helper_body_store != firmware_source, \
+        "store added inside the exempted address helper mutation did not apply"
     #: An address the compiler never prints as a whole-window immediate: at
     #: -O0 it is built with slli/ori, so the census's regex has nothing to
     #: match. This is not only adversarial: a firmware serving two CSR bases
@@ -3218,8 +3335,9 @@ def test_baremetal_profile_contract():
     #: statement is involved, so a rename upstream does not silently turn an
     #: accepted case into a no-op.
     #: SCOPE, so a green loop is not read as general false-RED coverage.
-    #: All 13 sit in ONE region: the enable/clear/guard block and comment
-    #: blanking. They are the 13 that were prose in the PR body precisely
+    #: All but the address-helper reflow sit in ONE region: the
+    #: enable/clear/guard block and comment blanking. They were prose in the PR
+    #: body precisely
     #: BECAUSE they had already been measured GREEN, so the set stops
     #: exactly where the refusal starts. Nothing here touches the cast set,
     #: the store set, the asm set, the directive set, the include set, the
@@ -3233,6 +3351,9 @@ def test_baremetal_profile_contract():
     accepted_pp_clear = source_pp_clear
     accepted_adp_clear = source_adp_clear
     accepted_cases = {
+        "reflowed milan_reg() return type and argument":
+            replace_once(firmware_source, source_reg_signature,
+                         reflowed_reg_signature, "reflowed milan_reg()"),
         "unrelated | 2u write to an already-decoded register":
             replace_once(firmware_source, accepted_adp_clear + ";",
                          accepted_adp_clear + ";\n\tmilan_write("
@@ -3335,6 +3456,15 @@ def test_baremetal_profile_contract():
         ("old AEM-gated PTP documentation", firmware_source,
          replace_once(docs_source, old_claim.group(0), old_order, "old ordering"),
          csr_source, "bare-metal boot contract lost"),
+        ("CSR identity mismatch guard removed", missing_identity_guard,
+         docs_source, csr_source,
+         "firmware must reject a mismatched CSR identity"),
+        ("CSR identity mismatch guard does not return", missing_identity_return,
+         docs_source, csr_source,
+         "CSR identity mismatch guard must return"),
+        ("CSR identity mismatch guard inverted", inverted_identity_guard,
+         docs_source, csr_source,
+         "firmware must reject a mismatched CSR identity"),
         ("unconditional entity enable",
          replace_once(firmware_source, guard_statement, unconditional_guard,
                       "unconditional guard"), docs_source, csr_source,
@@ -3419,6 +3549,9 @@ def test_baremetal_profile_contract():
         ("entity enabled through a phase-2-spliced call name",
          phase2_spliced_call_enable, docs_source, csr_source,
          "firmware must not splice physical source lines with backslash-newline"),
+        ("entity enabled through a whitespace-separated phase-2 splice",
+         phase2_whitespace_spliced_call_enable, docs_source, csr_source,
+         "firmware must not splice physical source lines with backslash-newline"),
         ("entity enabled through a function pointer", pointer_call_enable,
          docs_source, csr_source,
          "milan_write must always be called, never used as a value"),
@@ -3464,6 +3597,10 @@ def test_baremetal_profile_contract():
          replace_once(csr_source, source_reset_statement,
                       "ptp_ctrl <= 32'h0;", "PHC reset"),
          "bare-metal PHC contract requires the documented enabled reset"),
+        ("fabric gPTP reset gated by ADP", firmware_source, docs_source,
+         csr_source,
+         "fabric gPTP must run from axis_clk and reset directly from "
+         "axis_resetn", None, None, gptp_gated_datapath),
         # ---- the preprocessor: this gate reads one arm, the compiler takes
         # the other, and the arm it reads is the safe one by construction.
         ("AEM guard selected by a build flag", preprocessor_guard,
@@ -3474,6 +3611,9 @@ def test_baremetal_profile_contract():
          "firmware must not select boot code with the preprocessor"),
         ("entity enable hidden in a continuation-line macro body",
          macro_enable, docs_source, csr_source,
+         "firmware must not continue a #define across lines"),
+        ("entity enable hidden after form-feed macro continuation whitespace",
+         formfeed_macro_enable, docs_source, csr_source,
          "firmware must not continue a #define across lines"),
         # ... and the same defect without the preprocessor: a compile-time
         # constant condition deletes a boot step from the image while every
@@ -3722,13 +3862,16 @@ def test_baremetal_profile_contract():
           f"calls set {pp_label}[0] then {adp_label}[0] only after the AEM "
           "verdict, censused by ADDRESS off the RTL decode table so a second "
           "#define is the same register. The source and compiled instruments "
-          "run together; their shared uncovered store class is named below; "
+          "run together; the source-only uncovered store class and the "
+          "census stand-down consequence are named below; "
           f"{len(mutations)}/{len(mutations)} mutations rejected on the "
           "safety property they break; " +
-          ("the phase-2 splice mutant compiled warning-clean on the exact "
-           "RV32 target; " if phase2_splice_compiled else
-           "the phase-2 splice mutant is reason-pinned but its compile proof "
-           "is SKIPPED here because no RV32 compiler is available; ") +
+          ("the phase-2 splice mutants compiled on the exact RV32 target "
+           "(bare splice warning-clean, whitespace splice accepted with its "
+           "diagnostic); " if phase2_splice_compiled and
+           phase2_whitespace_splice_compiled else
+           "the phase-2 splice mutants are reason-pinned but their compile "
+           "proof is SKIPPED here because no RV32 compiler is available; ") +
           ("" if makeflags_e_bites else
            "(the MAKEFLAGS += -e entry is SKIPPED on this machine: its make "
            "does not honour -e from inside a makefile, so the construct "
@@ -3780,7 +3923,8 @@ def test_baremetal_profile_contract():
           "preprocessor conditional and no continued #define outside the "
           "QSPI-slot group whose BOTH arms the verifier's return rule "
           "classifies, no label/goto/switch in milan_init() and the three "
-          "boot steps unconditional at its top level, the guarded block "
+          "boot steps plus the CSR identity check unconditional at its top "
+          "level, the guarded block "
           "holding the two enables and their printf and nothing else, no "
           "pointer to the verdict, and every non-zero return of the verifier "
           "placed after the CRC refusal by source position and preprocessor "
@@ -3828,15 +3972,23 @@ def test_baremetal_profile_contract():
           "GREEN. Two refusals stay retired: a vpath cannot move this "
           "build's compiled file because vpath is consulted only for a "
           "prerequisite that does not exist and this one always does")
-    print("  [gate 1b] NOT PROVED, and this is the honest headline: the two "
-          "instruments have a SHARED blind spot. The cast set recognises "
-          "only a cast whose text carries a *, the store set only an lhs "
-          "that starts with * or is name[...], and the census exempts "
-          f"{reg_helper_name}() by name and matches printed literals. So a "
-          "cast with no * plus an -> or subscript store is outside BOTH: "
-          "`((milan_adp_blk)0x90000600u)->ctrl = 1u;` is a durable pre-AEM "
-          "entity advertise and this gate passes it. Not a regression, it "
-          "passes at every commit in this lane; tracked on #153 and #162")
+    if census_used.get("target"):
+        store_gap = (
+            "The source rules alone do not recognise a cast with no * plus "
+            "an -> or subscript store, but the live RV32 compiled census "
+            "rejects `((milan_adp_blk)0x90000600u)->ctrl = 1u;` by the "
+            "materialised CSR address. The source gap is therefore covered "
+            "on this machine.")
+    else:
+        store_gap = (
+            "The source rules do not recognise a cast with no * plus an -> "
+            "or subscript store, and the compiled census stood down. In this "
+            "condition `((milan_adp_blk)0x90000600u)->ctrl = 1u;` is outside "
+            "both active instruments, creates a durable pre-AEM entity "
+            "advertise, and passes this gate.")
+    print("  [gate 1b] NOT PROVED on every supported runner: " + store_gap +
+          " Closing the unconditional property remains tracked on #153 and "
+          "#162")
     print("  [gate 1b] ... and a second blind spot, same cause one step over: "
           "the recipe pin reads what make PRINTS, which is already expanded, "
           "so a name this Makefile references and nothing defines expands to "
