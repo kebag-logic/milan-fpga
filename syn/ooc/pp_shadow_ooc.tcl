@@ -17,37 +17,28 @@
 #
 #   cd <workdir>
 #   python3 <pp>/hdl/acmp/rom/gen_ltn_rom.py -o ltn_rom.hex
+#   python3 <pp>/hdl/aecp/ucode/gen_ucode.py -o ucode.hex
 #   vivado -mode batch -source <repo>/syn/ooc/pp_shadow_ooc.tcl -nojournal -log ooc.log
+#
+# BOTH images, and both by RELATIVE name, because their modules $readmemh them
+# that way and Vivado resolves the name against ITS OWN working directory, not
+# against the source file. A missing one is a CRITICAL WARNING ending in
+# "ignoring", not an error, so the run completes and reports an area for a ROM
+# full of X. ucode.hex became necessary when this file stopped naming a subset
+# of the plane by hand: the AECP uCPU was one of the eight sources the old
+# literal had gone stale by. syn/yosys/run.sh generates both, for this reason.
 
 set REPO [file normalize [file dirname [info script]]/../..]
 set PP   $REPO/protocol-processor/hdl
 set AXIS $REPO/third_party/verilog-axis/rtl
 
-# packages first, then the engines, then the consumer wrapper — tb/pp_top order
-read_verilog -sv \
-  $PP/common/pp_pkg.sv $PP/srp/srp_pkg.sv $PP/acmp/pp_acmp_pkg.sv $PP/adp/pp_adp_pkg.sv \
-  $PP/common/KL_pp_prng.sv $PP/common/KL_pp_timer_service.sv \
-  $PP/packet_engine/KL_pp_rx_validator.sv \
-  $PP/packet_engine/KL_pp_rx_slots.sv \
-  $PP/packet_engine/KL_pp_normalizer.sv \
-  $PP/packet_engine/KL_pp_dispatch.sv \
-  $PP/packet_engine/KL_pp_tx_slots.sv \
-  $PP/packet_engine/KL_pp_tx_arbiter.sv \
-  $PP/packet_engine/KL_pp_scoreboard.sv \
-  $PP/packet_engine/KL_pp_event_router.sv \
-  $PP/packet_engine/KL_pp_originator.sv \
-  $PP/packet_engine/KL_pp_trace_ring.sv \
-  $PP/packet_engine/KL_pp_side_port.sv \
-  $PP/packet_engine/KL_pp_nvm_port.sv \
-  $PP/adp/KL_adp_engine.sv \
-  $PP/acmp/KL_pp_acmp_listener.sv $PP/acmp/KL_acmp_talker.sv \
-  $PP/acmp/KL_acmp_nvm_shadow.sv \
-  $PP/srp/KL_srp_decoder.sv $PP/srp/KL_srp_domain.sv \
-  $PP/srp/KL_srp_vlan.sv $PP/srp/KL_srp_admission.sv \
-  $PP/srp/KL_srp_talker_fsm.sv $PP/srp/KL_srp_listener_fsm.sv \
-  $PP/srp/KL_srp_encoder.sv $PP/srp/KL_srp_top.sv \
-  $PP/top/KL_mrp_strip.sv $PP/top/protocol_processor_top.sv \
-  $REPO/hdl/milan/KL_pp_shadow.sv
+# The submodule sources are DERIVED (scripts/pp_srcs.py), not listed here. This
+# file used to carry a sixth hand-written copy of that list and it was stale by
+# eight sources, the whole AECP engine among them, which Vivado reports only as
+# `module not found`. Packages come first because a package must be declared
+# before its importers; the generator guarantees that ordering.
+set PP_SRCS [exec python3 $REPO/scripts/pp_srcs.py --prefix $PP]
+read_verilog -sv {*}$PP_SRCS
 
 # the Forencich frame FIFO is plain Verilog-2001
 read_verilog $AXIS/axis_fifo.v

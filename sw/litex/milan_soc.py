@@ -540,63 +540,38 @@ class MilanNIC(LiteXModule):
                            entity_gen_dir=entity_gen_dir)
 
 
-# The milan_datapath source set (ordered: packages first). Mirrors the milan_dp
-# Verilator Makefile and the syn/yosys entry  -  the single source of truth for what
-# the §A.9 wrapper is built from.
+# The milan_datapath source set (ordered: packages first) for the §A.9 wrapper.
+# It used to say it mirrored the milan_dp Verilator Makefile and the syn/yosys
+# entry, calling those the single source of truth while each of them said the
+# same of another: nothing held the authority and every copy drifted together.
 #
 # THE PROTOCOL PROCESSOR IS PART OF THE DATAPATH NOW (scenario B, 2026-08-13).
 # milan_datapath instantiates KL_pp_shadow UNCONDITIONALLY - there is no
 # PP_PLANE_P any more - so the submodule's files are datapath files, not an
 # opt-in extra. They come FIRST because their packages must be declared before
-# the modules that import them, and the order below is copied from the
-# authoritative `PP_SRCS` in tb/verilator/milan_dp/Makefile. Paths are repo-root
-# relative like every other entry here (add_source joins them onto `base`).
+# the modules that import them, which scripts/pp_srcs.py guarantees by reading
+# each file for a `package` declaration rather than trusting a name. Paths are
+# repo-root relative like every other entry here (add_source joins them onto
+# `base`). This comment used to call tb/verilator/milan_dp/Makefile the
+# authoritative list; that file said the same of nothing, so the authority was
+# circular and the instruction to copy it is what recreated the drift.
+def _pp_sources():
+    """Submodule design sources, derived from the tree by scripts/pp_srcs.py."""
+    import importlib.util
+    root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    spec = importlib.util.spec_from_file_location(
+        "pp_srcs", os.path.join(root, "scripts", "pp_srcs.py"))
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod.pp_sources()
+
+
 _MILAN_DATAPATH_SOURCES = [
-    "protocol-processor/hdl/common/pp_pkg.sv",
-    "protocol-processor/hdl/srp/srp_pkg.sv",
-    "protocol-processor/hdl/acmp/pp_acmp_pkg.sv",
-    "protocol-processor/hdl/adp/pp_adp_pkg.sv",
-    "protocol-processor/hdl/common/KL_pp_prng.sv",
-    "protocol-processor/hdl/common/KL_pp_timer_service.sv",
-    "protocol-processor/hdl/packet_engine/KL_pp_rx_validator.sv",
-    "protocol-processor/hdl/packet_engine/KL_pp_rx_slots.sv",
-    "protocol-processor/hdl/packet_engine/KL_pp_normalizer.sv",
-    "protocol-processor/hdl/packet_engine/KL_pp_dispatch.sv",
-    "protocol-processor/hdl/packet_engine/KL_pp_tx_slots.sv",
-    "protocol-processor/hdl/packet_engine/KL_pp_tx_arbiter.sv",
-    "protocol-processor/hdl/packet_engine/KL_pp_scoreboard.sv",
-    "protocol-processor/hdl/packet_engine/KL_pp_event_router.sv",
-    "protocol-processor/hdl/packet_engine/KL_pp_originator.sv",
-    "protocol-processor/hdl/packet_engine/KL_pp_trace_ring.sv",
-    "protocol-processor/hdl/packet_engine/KL_pp_side_port.sv",
-    "protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv",
-    "protocol-processor/hdl/adp/KL_adp_engine.sv",
-    "protocol-processor/hdl/maap/KL_pp_maap.sv",
-    "protocol-processor/hdl/acmp/KL_pp_acmp_listener.sv",
-    "protocol-processor/hdl/acmp/KL_acmp_talker.sv",
-    "protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv",
-    "protocol-processor/hdl/srp/KL_srp_decoder.sv",
-    "protocol-processor/hdl/srp/KL_srp_domain.sv",
-    "protocol-processor/hdl/srp/KL_srp_vlan.sv",
-    "protocol-processor/hdl/srp/KL_srp_admission.sv",
-    "protocol-processor/hdl/srp/KL_srp_talker_fsm.sv",
-    "protocol-processor/hdl/srp/KL_srp_listener_fsm.sv",
-    "protocol-processor/hdl/srp/KL_srp_encoder.sv",
-    "protocol-processor/hdl/srp/KL_srp_top.sv",
-    # the AECP engine: the uCPU, the DRAM-backed descriptor store it reads
-    # through, and the engine that binds them onto the packet engine's AECP
-    # pop face. Packages and leaves before the top that instantiates them —
-    # Vivado reported the omission as `module KL_aecp_engine not found`, not
-    # as a missing file, which is why the source list is the thing to check.
-    "protocol-processor/hdl/aecp/ucpu_pkg.sv",
-    "protocol-processor/hdl/aecp/KL_aecp_ucpu.sv",
-    "protocol-processor/hdl/aecp/KL_aecp_desc_store.sv",
-    "protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv",
-    "protocol-processor/hdl/aecp/KL_aecp_resp_buf.sv",
-    "protocol-processor/hdl/aecp/KL_aecp_engine.sv",
-    "protocol-processor/hdl/aecp/KL_aecp_notify.sv",
-    "protocol-processor/hdl/top/KL_mrp_strip.sv",
-    "protocol-processor/hdl/top/protocol_processor_top.sv",
+    # The submodule half is DERIVED from the tree; see scripts/pp_srcs.py.
+    # This list used to name tb/verilator/milan_dp/Makefile as authoritative
+    # while that file named none, so the authority was circular and all four
+    # copies went stale together the moment the submodule pin moved.
+    *_pp_sources(),
     # the two consumer-side wrappers that bind it into this datapath: the
     # shadow/substitution wrapper and the block-vs-per-source MAAP adapter.
     "hdl/milan/KL_pp_shadow.sv", "hdl/milan/KL_pp_maap_shim.sv",

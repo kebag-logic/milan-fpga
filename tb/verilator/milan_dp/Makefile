@@ -85,33 +85,19 @@ P  = $(RTL_DIR)/ieee8021as/ptp_timestamp
 # sources. They come FIRST: their packages must be declared before the modules
 # that import them. This list is exported by `print-srcs`, so tb/verilator/
 # pp_shadow gets it without keeping a second copy that could drift.
-PP_SRCS = $(PP_DIR)/common/pp_pkg.sv $(PP_DIR)/srp/srp_pkg.sv \
-       $(PP_DIR)/acmp/pp_acmp_pkg.sv $(PP_DIR)/adp/pp_adp_pkg.sv \
-       $(PP_DIR)/common/KL_pp_prng.sv $(PP_DIR)/common/KL_pp_timer_service.sv \
-       $(PP_DIR)/packet_engine/KL_pp_rx_validator.sv \
-       $(PP_DIR)/packet_engine/KL_pp_rx_slots.sv \
-       $(PP_DIR)/packet_engine/KL_pp_normalizer.sv \
-       $(PP_DIR)/packet_engine/KL_pp_dispatch.sv \
-       $(PP_DIR)/packet_engine/KL_pp_tx_slots.sv \
-       $(PP_DIR)/packet_engine/KL_pp_tx_arbiter.sv \
-       $(PP_DIR)/packet_engine/KL_pp_scoreboard.sv \
-       $(PP_DIR)/packet_engine/KL_pp_event_router.sv \
-       $(PP_DIR)/packet_engine/KL_pp_originator.sv \
-       $(PP_DIR)/packet_engine/KL_pp_trace_ring.sv \
-       $(PP_DIR)/packet_engine/KL_pp_side_port.sv \
-       $(PP_DIR)/packet_engine/KL_pp_nvm_port.sv \
-       $(PP_DIR)/adp/KL_adp_engine.sv \
-       $(PP_DIR)/maap/KL_pp_maap.sv \
-       $(PP_DIR)/acmp/KL_pp_acmp_listener.sv $(PP_DIR)/acmp/KL_acmp_talker.sv \
-       $(PP_DIR)/acmp/KL_acmp_nvm_shadow.sv \
-       $(PP_DIR)/srp/KL_srp_decoder.sv $(PP_DIR)/srp/KL_srp_domain.sv \
-       $(PP_DIR)/srp/KL_srp_vlan.sv $(PP_DIR)/srp/KL_srp_admission.sv \
-       $(PP_DIR)/srp/KL_srp_talker_fsm.sv $(PP_DIR)/srp/KL_srp_listener_fsm.sv \
-       $(PP_DIR)/srp/KL_srp_encoder.sv $(PP_DIR)/srp/KL_srp_top.sv \
-       $(PP_DIR)/aecp/ucpu_pkg.sv $(PP_DIR)/aecp/KL_aecp_ucpu.sv \
-       $(PP_DIR)/aecp/KL_aecp_desc_store.sv $(PP_DIR)/aecp/KL_aecp_dyn_state.sv $(PP_DIR)/aecp/KL_aecp_resp_buf.sv \
-       $(PP_DIR)/aecp/KL_aecp_engine.sv $(PP_DIR)/aecp/KL_aecp_notify.sv \
-       $(PP_DIR)/top/KL_mrp_strip.sv $(PP_DIR)/top/protocol_processor_top.sv \
+# The submodule half is DERIVED from the tree, not listed here. Four build
+# inputs used to carry it by hand, each naming another as authoritative, and all
+# four went stale together the moment the pin moved. The parent's own two files
+# stay explicit: they are this repository's, not the submodule's.
+PP_DERIVED := $(shell python3 $(CURDIR)/../../../scripts/pp_srcs.py --prefix $(PP_DIR))
+# TAKE THE STATUS. $(shell) discards it, so the generator's refusal to emit an
+# empty list does not cross the process boundary on its own: without this the
+# submodule half simply vanishes from PP_SRCS and make carries on to build a
+# datapath with no control plane in it.
+ifneq ($(.SHELLSTATUS),0)
+$(error scripts/pp_srcs.py failed; the protocol-processor submodule source list could not be derived)
+endif
+PP_SRCS := $(PP_DERIVED) \
        $(RTL_DIR)/milan/KL_pp_shadow.sv $(RTL_DIR)/milan/KL_pp_maap_shim.sv
 
 # the gPTP plane (issue #114): parsed by every leg (the instantiation

@@ -260,6 +260,26 @@ Two board rules that go with it:
   entry naming the reason **and where the reason is recorded**.
   `--pragmas` alone is instantaneous and is the useful pre-commit hook:
   `echo 'python3 scripts/lint_rtl.py --pragmas' >> .git/hooks/pre-commit`.
+- **A build input never lists the protocol-processor sources, it derives
+  them**: [`scripts/pp_srcs.py`](scripts/pp_srcs.py) reads the submodule tree
+  and emits the list, packages first (detected by reading each file for a
+  `package` declaration, not by its name). Every consumer calls it --
+  [`syn/yosys/run.sh`](syn/yosys/run.sh),
+  [`syn/yosys/ooc.sh`](syn/yosys/ooc.sh),
+  [`tb/verilator/milan_dp/Makefile`](tb/verilator/milan_dp/Makefile),
+  [`sw/litex/milan_soc.py`](sw/litex/milan_soc.py),
+  [`syn/ooc/pp_shadow_ooc.tcl`](syn/ooc/pp_shadow_ooc.tcl) and
+  [`syn/ooc/dp_srcs.py`](syn/ooc/dp_srcs.py) -- and each takes the exit status
+  rather than discarding it, because the script refuses to emit an empty list
+  and an empty list builds cleanly while proving nothing. `--check` fails if
+  any tracked file outside the script's `PROSE_OK` table names a submodule
+  source literally, so a new build input is caught the first time it names one
+  and no consumer list has to be maintained. Prose that legitimately cites a
+  source path adds the **exact literal** to `PROSE_OK` with its reason; a
+  whole-file exemption is not available, because that is how a cited path
+  becomes a hand-written list again. `--selftest` drives the check over
+  synthetic trees and runs in the same CI step, so the gate cannot rot into a
+  green that means nothing.
 - **A `// verilator lint_off X` needs a justification**, exactly like a
   tied-off input does — an unexplained suppression is the same defect class
   as an unexplained tie. Put the reason next to the code AND a

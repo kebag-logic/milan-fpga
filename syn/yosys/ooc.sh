@@ -27,10 +27,15 @@ TMP="${OOC_TMP:-$(mktemp -d)}"; mkdir -p "$TMP"
 
 # The protocol processor is the control plane (scenario B): milan_datapath
 # instantiates KL_pp_shadow unconditionally, so its sources are datapath
-# sources and belong in DP_SRCS. Packages first. Order mirrors
-# syn/yosys/run.sh's PP_SRCS and tb/verilator/milan_dp/Makefile's.
+# sources and belong in DP_SRCS. Packages first.
 PP="$R/protocol-processor/hdl"
-PP_SRCS="$PP/common/pp_pkg.sv $PP/srp/srp_pkg.sv $PP/acmp/pp_acmp_pkg.sv $PP/adp/pp_adp_pkg.sv $PP/common/KL_pp_prng.sv $PP/common/KL_pp_timer_service.sv $PP/packet_engine/KL_pp_rx_validator.sv $PP/packet_engine/KL_pp_rx_slots.sv $PP/packet_engine/KL_pp_normalizer.sv $PP/packet_engine/KL_pp_dispatch.sv $PP/packet_engine/KL_pp_tx_slots.sv $PP/packet_engine/KL_pp_tx_arbiter.sv $PP/packet_engine/KL_pp_scoreboard.sv $PP/packet_engine/KL_pp_event_router.sv $PP/packet_engine/KL_pp_originator.sv $PP/packet_engine/KL_pp_trace_ring.sv $PP/packet_engine/KL_pp_side_port.sv $PP/packet_engine/KL_pp_nvm_port.sv $PP/adp/KL_adp_engine.sv $PP/maap/KL_pp_maap.sv $PP/acmp/KL_pp_acmp_listener.sv $PP/acmp/KL_acmp_talker.sv $PP/acmp/KL_acmp_nvm_shadow.sv $PP/srp/KL_srp_decoder.sv $PP/srp/KL_srp_domain.sv $PP/srp/KL_srp_vlan.sv $PP/srp/KL_srp_admission.sv $PP/srp/KL_srp_talker_fsm.sv $PP/srp/KL_srp_listener_fsm.sv $PP/srp/KL_srp_encoder.sv $PP/srp/KL_srp_top.sv $PP/aecp/ucpu_pkg.sv $PP/aecp/KL_aecp_ucpu.sv $PP/aecp/KL_aecp_desc_store.sv $PP/aecp/KL_aecp_dyn_state.sv $PP/aecp/KL_aecp_resp_buf.sv $PP/aecp/KL_aecp_engine.sv $PP/aecp/KL_aecp_notify.sv $PP/top/KL_mrp_strip.sv $PP/top/protocol_processor_top.sv $R/hdl/milan/KL_pp_shadow.sv $R/hdl/milan/KL_pp_maap_shim.sv"
+# Derived from the submodule tree; see scripts/pp_srcs.py. The parent's own
+# two files stay explicit because they are this repository's, not the
+# submodule's. The status is taken rather than discarded: `$(...)` in an
+# assignment drops it, and the generator's refusal to emit an empty list is
+# worth nothing on this side of the process boundary if nobody reads it.
+PP_DERIVED="$(python3 "$R/scripts/pp_srcs.py" --prefix "$PP")" || exit 2
+PP_SRCS="$PP_DERIVED $R/hdl/milan/KL_pp_shadow.sv $R/hdl/milan/KL_pp_maap_shim.sv"
 
 # ...and with the processor comes its ROM. protocol_processor_top $readmemh's
 # the ACMP listener transition image by the RELATIVE name "ltn_rom.hex", which

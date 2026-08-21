@@ -82,6 +82,14 @@ jobs:
       - name: RTL lint (whole hdl/, ratcheted)
         run: python3 scripts/lint_rtl.py --check --self-test
 
+      # Every build input derives the submodule source list rather than listing
+      # it. This gate is the backstop against a literal coming back: a new
+      # consumer, or a derivation reverted to a hand-written list. It cannot
+      # catch a stale copy that no longer exists, which is the point -- it
+      # catches the copy being re-created.
+      - name: Submodule source list is derived, not copied
+        run: python3 scripts/pp_srcs.py --check --selftest
+
       # The chmap_capture lane's netcheck leg synthesizes KL_chan_map_capture
       # with yosys and re-simulates the netlist, which is how the VERSION
       # 0x0030 class of hazard is pinned: RTL green while synthesized silicon
