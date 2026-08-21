@@ -110,7 +110,7 @@ for spec in "${tops[@]}"; do
   (cd "$TMP" && yosys -p "read_verilog $TMP/$top.ooc.v;$chp synth_xilinx -family xc7 -top $top -flatten; stat; write_json $TMP/$top.ooc.json") \
     > "$TMP/$top.ooc.log" 2>&1
   if [ $? -ne 0 ]; then
-    printf "%-28s yosys FAIL: %s\n" "$top" "$(grep -oiE 'ERROR.*' "$TMP/$top.ooc.log" | head -1)"; continue
+    printf "%-28s yosys FAIL: %s\n" "$top" "$(grep -oE 'ERROR:.*' "$TMP/$top.ooc.log" | head -1)"; continue
   fi
   # count from the final (post-flatten) `stat` block only. yosys prints
   # "<count>   <CELLTYPE>", so the count is $1 and the type is $2.
