@@ -1,0 +1,127 @@
+name: elaborate
+
+# WHY THIS WORKFLOW EXISTS (issues #154, #156).
+#
+# Every argv-to-RTL-parameter chain in this repository used to be proven by
+# source-text greps against sw/litex/milan_soc.py, because NO CI JOB
+# ELABORATED THE SOC. Three separate blockers in three lanes on one day were
+# that gap: a flag parsed, threaded part of the way, and never reaching the
+# parameter it names. In one of them a reviewer severed the chain at two
+# independent hops and read ALL GATES PASS both times.
+#
+# The behavioural proof existed - gate 23f patches `Instance` in the executed
+# module's namespace and reads the live p_* keyword arguments - and it skipped
+# in CI, because docs.yml installs pyyaml and rtl.yml installs behave and
+# neither has LiteX. That is the whole crux: the proof existed and CI could
+# not run it.
+#
+# So this job installs LiteX and runs it. It is separate from docs.yml because
+# it is the only job in the tree that needs a JVM and a Scala build, and a
+# documentation PR should not pay for that.
+#
+# NOT ENABLED YET, AND THIS FILE IS HERE SO THE REASON IS READABLE. Measured
+# 2026-08-21: NO config in this tree elaborates on a stock toolchain. The
+# shipping AX shape asks for a `baremetal` VexiiRiscv variant upstream LiteX
+# does not have; the four Linux shapes pass --scala-args the pinned VexiiRiscv
+# does not accept. Both come from about 184 lines of uncommitted patch across
+# four third-party trees under ~/litex-milan, which #185 measures and whose
+# fix is a maintainer decision. Until that decision is made this job would
+# install correctly and then fail on every config, so its triggers are
+# withheld and it runs only on manual dispatch.
+#
+# Gates 23f and 23g run today on any interpreter that has a working LiteX,
+# which is how they were validated. Everywhere else they SKIP, the verdict
+# says `ALL GATES PASS EXCEPT n NOT RUN` and names them, and
+# --require-elaboration turns a missing interpreter into a failure rather
+# than a skip. That is what stops the absence of the proof from reading as
+# the presence of one while this job is off.
+
+on:
+  # Manual only until #185 is decided. The push/pull_request triggers below
+  # are the intended ones and are commented rather than deleted, so enabling
+  # this job is one edit and not a rediscovery.
+  workflow_dispatch:
+  # push:
+  #   branches: [main, dev]
+  # pull_request:
+
+concurrency:
+  group: elaborate-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  elaborate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # The elaboration reads the protocol-processor and gptp-processor source
+      # lists through scripts/pp_srcs.py, which REFUSES to emit an empty list.
+      # Without the submodules it fails before the datapath is reached.
+      - name: Fetch the processor sources the elaboration reads
+        run: git submodule update --init protocol-processor gptp-processor
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # LiteX ships from git, not PyPI: the PyPI releases lag by more than a
+      # year and their VexiiRiscv wrapper does not carry the pinned-revision
+      # setup this job depends on. The revisions are in sw/litex/litex_pins.txt
+      # with the reason they are pinned; master of 2026-08-21 cannot elaborate
+      # this SoC at all, so an unpinned install would redden PRs that changed
+      # nothing.
+      - name: Install LiteX at the pinned revisions
+        run: |
+          python3 -m pip install --quiet pyyaml
+          python3 -m pip install --quiet -r sw/litex/litex_pins.txt
+
+      # The VexiiRiscv wrapper turns its CPU arguments into a small generated
+      # Python file, once per distinct argument set, by running Scala. That is
+      # the only reason this job needs a JVM at all, and the result caches: a
+      # cold run pays about 90 s for it, a warm one nothing.
+      - name: Cache the CPU netlist arguments and the Scala toolchain
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/coursier
+            ~/.sbt
+            ~/.ivy2
+            ~/vexii-netlist-args
+          key: elaborate-vexii-${{ hashFiles('configs/*.yaml', 'sw/litex/milan_soc.py', 'sw/litex/build.sh', 'sw/litex/sweep.sh') }}
+          restore-keys: elaborate-vexii-
+
+      - name: Install sbt
+        run: |
+          sbt --version >/dev/null 2>&1 && exit 0
+          curl -fsSL --retry 3 -o /tmp/sbt.tgz \
+            https://github.com/sbt/sbt/releases/download/v1.10.7/sbt-1.10.7.tgz
+          sudo tar xzf /tmp/sbt.tgz -C /opt
+          echo /opt/sbt/bin >> "$GITHUB_PATH"
+
+      # LiteX's own git_setup returns immediately unless --update-repo asks it
+      # to clone, and milan_soc.py never passes that, so the Scala source has
+      # to be placed here. The revision is DERIVED from LiteX rather than
+      # restated: a pin copied to a second place goes stale in silence, and
+      # the symptom is a netlist from the wrong CPU source, not a red build.
+      - name: Place the VexiiRiscv source at the revision LiteX pins
+        run: |
+          python3 scripts/ci_litex_env.py
+          mkdir -p ~/vexii-netlist-args
+          cp -n ~/vexii-netlist-args/*.py \
+            "$(python3 -c 'import pythondata_cpu_vexiiriscv as p; print(p.data_location)')/" \
+            2>/dev/null || true
+
+      # The gate that could not run in CI, running in CI. Gates 23f/23g
+      # observe what elaboration hands Instance("milan_datapath"); their
+      # mutation arms sever the chain hop by hop and require the gate to go
+      # red. --require-elaboration turns a missing interpreter into a failure
+      # rather than a skip.
+      - name: Elaboration gates
+        run: python3 sw/builder/test_builder.py --require-elaboration
+
+      - name: Keep the generated CPU netlist arguments for the next run
+        if: always()
+        run: |
+          cp -n "$(python3 -c 'import pythondata_cpu_vexiiriscv as p; print(p.data_location)')"/*.py \
+            ~/vexii-netlist-args/ 2>/dev/null || true

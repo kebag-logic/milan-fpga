@@ -190,8 +190,30 @@ Gates (gaps item 4, generator round):
       no AAF (5.3.3.4 exclusivity), every advertised Base rate is one the
       AUDIO_UNIT reports (5.3.3.3), and no descriptor outgrows the store's
       576-octet line buffer (1722.1-2021 Table 7-8: 138 + 8*N + 2*R).
+  30. THE ARGV REALLY REACHES THE RTL PARAMETER, observed rather than read
+      (gate 23f, issue #154): the shipping AX argv goes through the REAL
+      milan_soc.py main() once per optional block, and what is graded is the
+      p_* keyword arguments Instance("milan_datapath", ...) is handed.  Eleven
+      negative controls sever the chain hop by hop and require the gate to go
+      red, two of them the exact hops a reviewer severed on #135 while reading
+      ALL GATES PASS.  Gate 23d holds the same chain by the SPELLING of the
+      statements it walks and cannot see any of them.
+  31. EVERY SHIPPED RECIPE CAN ACTUALLY RUN (gate 23g, issue #156): every
+      build.sh recipe and every sweep.sh leg reaches that same Instance, with
+      the flow tail its own launcher appends and `--build` included, because
+      a guard that reads args.build is invisible to every shape gate in the
+      tree.  Two recipes could not launch at all until this gate ran.
+
+BOTH NEED LiteX, which is why they were worth the trouble: no CI job in this
+repository elaborated the SoC, so a behavioural proof of these chains existed
+on two branches and ran nowhere.  `.github/workflows/elaborate.yml` installs
+the pinned LiteX of sw/litex/litex_pins.txt and runs this file with
+--require-elaboration, which FAILS rather than skips when no interpreter can
+import migen + litex.  Everywhere else they SKIP, and skip() puts them in the
+verdict so the absence of the proof cannot read as the presence of one.
 
 Run: python3 sw/builder/test_builder.py   (or pytest sw/builder/test_builder.py)
+     python3 sw/builder/test_builder.py --require-elaboration   (the CI job)
 """
 
 import ast
@@ -204,6 +226,7 @@ import struct
 import subprocess
 import sys
 import tempfile
+import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(HERE))
@@ -229,6 +252,33 @@ CONFIGS = {
 }
 OUT = os.path.join(HERE, "out")
 SWEEP = os.path.join(ROOT, "sw/litex/sweep.sh")
+BUILD_SH = os.path.join(ROOT, "sw/litex/build.sh")
+
+#: Every gate arm that could not run, in the order it declined.  A gate that
+#: prints its SKIP and then lets `main()` print ALL GATES PASS with exit 0
+#: turns the ABSENCE of a proof into the presence of one, which is the whole
+#: subject of #154: gate 23f was written, reviewed and merged into a lane, and
+#: the reason it protected nothing is that it skipped where it mattered and
+#: the verdict never said so.  Record instead, and let the verdict name them.
+SKIPPED = []
+
+#: The skip kind `--require-elaboration` refuses.  A row a gate could not run
+#: for a RECORDED reason is a normal skip; "there is no LiteX on this box" is
+#: not, in the one job that exists to elaborate.  Without this, a broken
+#: install in the elaboration job degrades to the exact green #154 is about.
+NO_LITEX = "no-litex"
+
+
+def skip(gate, why, kind="row"):
+    """Record one gate arm that could not run, and say so on stdout.
+
+    `gate` is the bracketed name the gate prints under, `why` the condition
+    that has to change for it to run.  Both end up in main()'s verdict, so
+    "why" is read by somebody deciding whether the green they are looking at
+    covers the thing they are about to merge - write it for that reader.
+    """
+    SKIPPED.append((gate, why, kind))
+    print(f"  [{gate}] SKIP: {why}")
 #: The TRACKED entity definition - now ONE file, the shape include a gateware
 #: `include-s.  Path comes from the builder that writes it, so there is one
 #: spelling of it.  Its old partner hdl/ieee17221/aecp/gen/aecp_aem_rom.svh is
@@ -1128,8 +1178,8 @@ def _real_totals(path):
 
 def test_resource_calibration():
     if not os.path.exists(REAL_RPT):
-        print(f"  [gate 11] SKIP: real report not on disk ({REAL_RPT}) - "
-              "calibration gate needs the mf48 build tree")
+        skip("gate 11", f"real report not on disk ({REAL_RPT}) - the "
+                        "calibration gate needs the mf48 build tree")
         return
     real = _real_totals(REAL_RPT)
     est = eb.build(CONFIGS["arty_current"], OUT)["resource_estimate"]
@@ -2375,7 +2425,7 @@ def test_platform_dt_and_driver_shape():
         print(f"  [gate 19b] {cfg_name}: {len(pairs)} window bases "
               f"BYTE-MATCH the real LiteX csr.csv ({os.path.basename(os.path.dirname(csv))})")
     if not checked:
-        print("  [gate 19b] SKIP csr.csv cross-check: no build tree on disk")
+        skip("gate 19b", "csr.csv cross-check: no build tree on disk")
     checked = 0
     for cfg_name, board in (("arty_current", "arty"), ("ax7101_8x8", "ax7101")):
         dts = DEPLOYED_DTS[board]
@@ -2418,8 +2468,8 @@ def test_platform_dt_and_driver_shape():
               f"base + kl,rsc-clk-mhz + the station MAC MATCH the deployed "
               f"{os.path.basename(dts)}")
     if not checked:
-        print("  [gate 19b] SKIP deployed-.dts cross-check: sibling repo "
-              "milan-tests-avb not on disk")
+        skip("gate 19b", "deployed-.dts cross-check: sibling repo "
+                         "milan-tests-avb not on disk")
 
 
 def test_platform_rejects():
@@ -3875,6 +3925,707 @@ def test_optional_block_consumption_gate_bites():
           "that would prune an UNFLAGGED build included")
 
 
+# ========================================================== gates 23f/23g ====
+#  THE BEHAVIOURAL ELABORATION PROOF (issues #154 and #156).
+#
+#  Gate 23d is a SPELLING proof.  It parses main() and asserts that every
+#  `--no-<block>` argparse value is handed to the MilanSoC(...) call, which
+#  closes the defect that shipped - a block declared in OPTIONAL_BLOCKS, in
+#  argparse, in the RTL and in AREA_BUDGET, and threaded nowhere - and nothing
+#  further.  THREE MORE HOPS stand between that call and the parameter the RTL
+#  reads, and every one of them is the same defect class:
+#
+#      main()               -> MilanSoC(optional_blocks=..., render_lpf=...)
+#      MilanSoC.__init__    -> MilanNIC(optional_blocks=..., render_lpf=...)
+#      MilanNIC.__init__    -> add_milan_datapath(optional_blocks=...)
+#      add_milan_datapath   -> dp_params[f"p_{param}"] = 0
+#                           -> Instance("milan_datapath", **dp_params)
+#
+#  A value that reaches the constructor and is then dropped, renamed or
+#  inverted on any of those hops is INVISIBLE to gate 23d, and its symptom is
+#  the #130 symptom exactly: the config declares the prune, the build plan
+#  tabulates it, the resource estimate books the saving, and the bitstream
+#  ships WITH the block.  #154 counts three incidents of it across two flags,
+#  and in the `--fabric-gptp` case a reviewer severed the chain at TWO
+#  independent hops and read `ALL GATES PASS` both times.
+#
+#  So these gates do what #130 asked for in as many words: "build a config
+#  with the block pruned and assert p_<PARAM>=0 appears in the emitted
+#  Instance parameters".  They run the REAL argv through the REAL
+#  milan_soc.py main() and READ THE PARAMETERS THAT REACH
+#  Instance("milan_datapath", ...).  Nothing is re-implemented and nothing is
+#  pattern-matched: `Instance` itself is the observation point, so what is
+#  graded is what the elaboration would hand Vivado.  Vivado never runs - the
+#  spy raises the moment the Instance is constructed, about 0.9 s after the
+#  process starts.
+#
+#  BOTH POLARITIES, because the flags have both.  The seven OPTIONAL_BLOCKS
+#  rows default PRESENT and pass their parameter ONLY when pruned (a default
+#  build emits a byte-identical top .v, the AAF_PLAYBACK_P discipline).
+#  `sound_card` and `fabric_gptp` are the mirror image - the RTL defaults are
+#  SOUND_CARD_P=0 and GPTP_PLANE_EN_P=0 and the parameter is passed only when
+#  the block is PRESENT - so they are graded upside down rather than assumed
+#  to follow the others.
+#
+#  WHAT THESE GATES DO NOT PROVE, stated here and in their own output because
+#  #154 asks the mechanism to say so:
+#    * not that the RTL parameter DOES anything - that a `parameter int X`
+#      exists and guards a generate with an else arm is gate 23d's, and what
+#      the guarded logic costs is the OOC area work's;
+#    * not that the bitstream places, times or boots;
+#    * not that a recipe builds the SoC its config describes - gate 1e and
+#      scripts/check_sweep_shape.py compare recipe argv against config, and
+#      #155 carries the ten flags where they currently disagree;
+#    * nothing at all, on a machine with no LiteX interpreter.  There the arms
+#      SKIP, and `skip()` puts them in main()'s verdict so the absence of the
+#      proof cannot read as the presence of one.
+
+#: The child program.  It runs under the LiteX interpreter, execs
+#: milan_soc.py's SOURCE (optionally mutated) as a module whose __file__ is
+#: the real path - so REPO_ROOT, the platforms/ search path and every
+#: generated-image lookup resolve exactly as they do in a build - patches that
+#: module's own `Instance` to a spy, and calls main().  The result goes to a
+#: FILE, never to stdout: add_milan_datapath spawns the ACMP/AECP image
+#: generators as SUBPROCESSES and their output reaches fd 1 whatever this
+#: process redirects.
+_INSTANCE_PROBE = r'''
+import contextlib, io, json, logging, os, sys, types
+
+spec = json.load(open(sys.argv[1], encoding="utf-8"))
+soc_path = spec["soc_path"]
+source = open(soc_path, encoding="utf-8").read()
+for old, new, want in spec["mutations"]:
+    got = source.count(old)
+    if got != want:
+        raise SystemExit("mutation %r matched %d times, want %d"
+                         % (old, got, want))
+    source = source.replace(old, new)
+
+logging.disable(logging.CRITICAL)
+sys.path.insert(0, os.path.dirname(soc_path))
+
+
+class _Reached(Exception):
+    """Carries the parameters Instance("milan_datapath", ...) was given."""
+
+    def __init__(self, params):
+        Exception.__init__(self)
+        self.params = params
+
+
+mod = types.ModuleType("milan_soc_probe")
+mod.__file__ = soc_path
+sys.modules[mod.__name__] = mod
+exec(compile(source, soc_path, "exec"), mod.__dict__)
+_real_instance = mod.Instance
+
+
+def _spy(*args, **kwargs):
+    if args and args[0] == "milan_datapath":
+        raise _Reached({k: v for k, v in kwargs.items() if k.startswith("p_")})
+    return _real_instance(*args, **kwargs)
+
+
+mod.Instance = _spy
+sys.argv = ["milan_soc.py"] + spec["argv"]
+sink = io.StringIO()
+try:
+    with contextlib.redirect_stdout(sink), contextlib.redirect_stderr(sink):
+        mod.main()
+    out = {"error": 'no Instance("milan_datapath") was constructed'}
+except _Reached as reached:
+    out = {"params": reached.params}
+except BaseException as exc:            # reported to the gate, not raised
+    # The captured output goes WITH the error, because LiteX reports through
+    # a logger rather than through the exception: SoCError carries an empty
+    # str() and everything a reader needs is in the stream this process
+    # redirected. Without the tail, a CI failure here says "SoCError:" and
+    # nothing else, which is a gate nobody can act on.
+    tail = sink.getvalue().strip().splitlines()[-12:]
+    out = {"error": "%s: %s" % (type(exc).__name__, exc),
+           "output": "\n".join(tail)}
+
+with open(spec["result"], "w", encoding="utf-8") as fh:
+    json.dump(out, fh)
+'''
+
+#: sw/litex, the directory every real build runs milan_soc.py from.  NOT the
+#: LiteX repo parent: `import litex` from there resolves to the checkout
+#: directory as a namespace package and the import fails.
+SOC_DIR = os.path.join(ROOT, "sw/litex")
+
+#: The config whose argv drives gate 23f: the SHIPPING AX shape (USER
+#: 2026-08-05, 1x1x8 TDM8), and it is the shipping one that matters here for
+#: two independent reasons.
+#:
+#: It is the only config that carries `--fabric-gptp`, which is #135's
+#: incident - nothing tied the parsed flag to p_GPTP_PLANE_EN_P, and on THIS
+#: profile (bare-metal, no ptp4l, no phc2sys) that is a bitstream with no
+#: time source and no signal.
+#:
+#: And it is the only shape that ELABORATES ANYWHERE BUT THIS BENCH.  The
+#: Linux 8x8 and Arty profiles pass `--scala-args=--l2-down-pending` and
+#: `--scala-args=--l2-general-slots`, which the VexiiRiscv revision LiteX
+#: pins does not accept; they work here because the checkout under
+#: ~/litex-milan carries an UNCOMMITTED 40-line patch to
+#: VexiiRiscv/src/main/scala/vexiiriscv/soc/litex/Soc.scala that adds those
+#: two options (measured 2026-08-21; that patch also carries the cacheless
+#: `unified` bus area the bare-metal shape needs at netlist time).  Choosing
+#: the 8x8 shape here would make this gate SKIP in the CI it was written for.
+#: The dependency itself is issue #185.
+BEHAVIOURAL_CFG = "ax7101_1x1_tdm8"
+
+
+def _litex_python():
+    """An interpreter that can import migen + litex + litex_boards, or None.
+
+    Search order: $MILAN_LITEX_PYTHON (a path), this interpreter, then the
+    venv sweep.sh puts on PATH for every real build - READ OUT OF sweep.sh,
+    never restated here, because a second spelling of the build interpreter
+    is a second thing that has to stay true.
+    """
+    cands = [os.environ.get("MILAN_LITEX_PYTHON"), sys.executable]
+    m = re.search(r'export PATH="?\$HOME/([^/"\s:]+)/venv/bin',
+                  open(SWEEP).read())
+    if m:
+        cands.append(os.path.join(os.path.expanduser("~"), m.group(1),
+                                  "venv", "bin", "python3"))
+    for cand in cands:
+        if not cand or not os.path.exists(cand):
+            continue
+        if subprocess.run([cand, "-c", "import migen, litex, litex_boards"],
+                          cwd=SOC_DIR, capture_output=True).returncode == 0:
+            return cand
+    return None
+
+
+#: The one place that decides "no LiteX here".  Both gates and both mutation
+#: arms ask it, so a box where the interpreter appears half-way through a run
+#: cannot have one arm skip and the next one grade.
+_LITEX_PY = []
+
+
+def _litex_or_skip(gate):
+    """The LiteX interpreter, or None with the skip already recorded."""
+    if not _LITEX_PY:
+        _LITEX_PY.append(_litex_python())
+    if _LITEX_PY[0] is None:
+        skip(gate, "no interpreter here can import migen + litex + "
+                   "litex_boards, so NO argv -> Instance parameter chain was "
+                   "observed in this run (point MILAN_LITEX_PYTHON at one, or "
+                   "run scripts/ci_litex_env.py). Gate 23d holds the argv -> "
+                   "MilanSoC half structurally, by the SPELLING of the "
+                   "statements it walks", NO_LITEX)
+    return _LITEX_PY[0]
+
+
+def _instance_params(python, runs, mutations=()):
+    """{label: {"params": ...} or {"error": ...}} for each (label, argv) run.
+
+    ONE CHILD PROCESS PER RUN, deliberately.  migen/LiteX accumulate enough
+    per-elaboration state that a second SoC built in the same interpreter
+    costs ~40 percent more than the first and a sixteenth costs seven times
+    as much (measured: 0.88 s -> 6.28 s, and clearing the tracebacks and
+    collecting does not touch it).  A fresh process is flat at ~0.9 s.
+
+    PYTHONHASHSEED is pinned for the same reason the sweep staggers its
+    launches: the CPU wrapper builds its argument string from a SET, so an
+    unpinned hash seed spells those arguments differently in every process,
+    misses the pinned core's netlist cache, and pays a ~90 s cold `sbt` run
+    EACH TIME.
+    """
+    env = dict(os.environ, PYTHONHASHSEED="0")
+    out, seen = {}, {}
+    with tempfile.TemporaryDirectory() as tmp:
+        for label, argv in runs:
+            # Several labels share one command line on purpose - the shipping
+            # argv is simultaneously the prune baseline, the sound card's
+            # ABSENT side and the gPTP plane's PRESENT side - and elaborating
+            # the same thing three times buys nothing.
+            key = tuple(argv)
+            if key in seen:
+                out[label] = seen[key]
+                continue
+            spec = os.path.join(tmp, "spec.json")
+            result = os.path.join(tmp, "result.json")
+            if os.path.exists(result):
+                os.unlink(result)
+            with open(spec, "w") as fh:
+                json.dump({"soc_path": os.path.join(SOC_DIR, "milan_soc.py"),
+                           "result": result, "argv": argv,
+                           "mutations": [list(m) for m in mutations]}, fh)
+            proc = subprocess.run([python, "-", spec], input=_INSTANCE_PROBE,
+                                  text=True, cwd=SOC_DIR, env=env,
+                                  capture_output=True)
+            assert os.path.exists(result), (
+                f"{label}: the milan_soc.py probe wrote no result "
+                f"(rc={proc.returncode})\n{proc.stdout[-2000:]}"
+                f"\n{proc.stderr[-2000:]}")
+            with open(result) as fh:
+                out[label] = seen[key] = json.load(fh)
+    return out
+
+
+#: The two inverted rows, and they are inverted for DIFFERENT reasons: the
+#: sound card is a Linux-only surface the shipping bare-metal profile drops,
+#: the fabric gPTP plane is an area-funded option the Linux profile does not
+#: take.  (flag, {parameter: the value a PRESENT build must pass}).
+#:
+#: `None` means "must appear, value unconstrained" - the ONE case is the gPTP
+#: microcode image, whose path is a build-tree location and not a constant.
+#: It is graded rather than ignored because the ROM is half of what the flag
+#: buys: a plane parameter of 1 with no image is #135's symptom with an extra
+#: step, an enabled plane that never leaves reset.  A row lists EVERY
+#: parameter its flag moves, so "changed nothing else" stays an exact test
+#: instead of a set difference nobody reads.
+PRESENT_ONLY_BLOCKS = {
+    "sound_card": ("--sound-card", {"p_SOUND_CARD_P": 1}),
+    "fabric_gptp": ("--fabric-gptp", {"p_GPTP_PLANE_EN_P": 1,
+                                      "p_GPTP_UCODE_HEX_P": None}),
+}
+
+
+def _why_failed(row):
+    """One probe failure as text, with the captured output when there is any.
+
+    LiteX reports through a logger, so several of its refusals arrive as an
+    exception whose str() is empty; the reason is in the stream the probe
+    redirected.  Both halves are printed or the gate is unactionable.
+    """
+    err = row.get("error", "no result")
+    out = (row.get("output") or "").strip()
+    return f"{err}\n      " + out.replace("\n", "\n      ") if out else err
+
+
+def _prune_contract(got, rows, inverted=()):
+    """Every prune-contract violation in one probe result set, as text.
+
+    ONE grader, shared by the gates and by their negative controls, so a
+    mutation is proved to turn THE GATE red rather than some weaker
+    restatement of it.  `rows` are the OPTIONAL_BLOCKS names to grade against
+    the "present" baseline; `inverted` names PRESENT_ONLY_BLOCKS rows, each
+    graded against its OWN `<name>_present`/`<name>` pair.
+    """
+    bad = []
+
+    def params(label):
+        row = got.get(label) or {"error": "case not run"}
+        if "params" not in row:
+            bad.append(f"{label}: {_why_failed(row)}")
+            return None
+        return row["params"]
+
+    base = params("present") if rows else None
+    for name in rows:
+        flag, param, _why = eb.OPTIONAL_BLOCKS[name]
+        key = f"p_{param}"
+        pruned = params(name)
+        if base is not None and key in base:
+            bad.append(f"{name}: a build that prunes NOTHING already passes "
+                       f"{key}={base[key]!r} - the default Instance is no "
+                       "longer the shipping one")
+        if base is None or pruned is None:
+            continue
+        if pruned.get(key) != 0:
+            bad.append(
+                f"{name}: `{flag}` reached argparse but "
+                f'Instance("milan_datapath") got {key}='
+                f"{pruned.get(key, '<absent>')!r}, want 0 - the config "
+                "declares the prune, the plan tabulates it, the estimate "
+                "books it, and the bitstream ships WITH the block (#130)")
+        rest = {k: v for k, v in pruned.items() if k != key}
+        if rest != base:
+            bad.append(f"{name}: `{flag}` changed Instance parameters other "
+                       f"than {key}: "
+                       f"{sorted(set(rest) ^ set(base)) or 'a value'}")
+    for name in inverted:
+        flag, wants = PRESENT_ONLY_BLOCKS[name]
+        on, off = params(f"{name}_present"), params(name)
+        for key, want in wants.items():
+            if on is not None and (on.get(key, KeyError) == KeyError
+                                   or (want is not None
+                                       and on.get(key) != want)):
+                bad.append(
+                    f"{name}: a build WITH `{flag}` got {key}="
+                    f"{on.get(key, '<absent>')!r}, want "
+                    f"{'any value' if want is None else repr(want)} - the "
+                    "RTL default is 0, so this is a row whose parameters are "
+                    "passed when the block is PRESENT")
+            if off is not None and key in off:
+                bad.append(f"{name}: a build WITHOUT `{flag}` still passes "
+                           f"{key}={off[key]!r}")
+        if on is not None and off is not None:
+            rest = {k: v for k, v in on.items() if k not in wants}
+            if rest != off:
+                bad.append(f"{name}: dropping `{flag}` changed parameters "
+                           f"other than {sorted(wants)}: "
+                           f"{sorted(set(rest) ^ set(off)) or 'a value'}")
+    return bad
+
+
+def _config_argv(name):
+    """(cfg, the config's OWN emitted argv, with --entity-gen-dir attached).
+
+    eb.build() is what writes both the generated include dir the argv points
+    at and the platform_shape.json milan_soc.py reads, so it runs first.
+    """
+    cfg = eb.load_config(CONFIGS[name])
+    eb.build(CONFIGS[name], OUT)
+    gen = os.path.join(ROOT, "configs/generated", cfg["name"])
+    assert os.path.isdir(gen), \
+        f"{gen}: this config has no generated include dir"
+    return cfg, eb.emit_soc_argv(cfg) + ["--entity-gen-dir", gen]
+
+
+def _behavioural_runs():
+    """(cfg, [(label, argv)]) for the full 23f case set.
+
+    The baseline is the config's OWN emitted argv with the prune flags taken
+    out, so every case differs from a real shipping command line by exactly
+    the token under test.  The shipping shape declares the gPTP plane and no
+    sound card, so it IS the gPTP row's present side and the sound card's
+    absent side; _instance_params elaborates that command line once.
+    """
+    cfg, argv = _config_argv(BEHAVIOURAL_CFG)
+    flags = {f for f, _p, _w in eb.OPTIONAL_BLOCKS.values()}
+    present = [a for a in argv if a not in flags]
+    assert "--sound-card" not in present and "--fabric-gptp" in present, \
+        f"{cfg['name']} no longer has the polarities this gate grades " \
+        "against - it must ship the gPTP plane and no sound card"
+    runs = [("present", present)]
+    runs += [(name, present + [flag])
+             for name, (flag, _p, _w) in eb.OPTIONAL_BLOCKS.items()]
+    runs += [("sound_card_present", present + ["--sound-card"]),
+             ("sound_card", present),
+             ("fabric_gptp_present", present),
+             ("fabric_gptp", _drop_flag(present, "--fabric-gptp", 0))]
+    return cfg, runs
+
+
+def _drop_flag(argv, flag, nargs):
+    """argv without `flag` and its nargs values.  Asserts it was there."""
+    assert flag in argv, f"{flag} is not on this argv: {' '.join(argv)}"
+    i = argv.index(flag)
+    return argv[:i] + argv[i + 1 + nargs:]
+
+
+def test_optional_blocks_reach_the_instance():
+    """gate 23f - THE BEHAVIOURAL PRUNE PROOF (issues #130, #154).
+
+    Every OPTIONAL_BLOCKS row plus the two PRESENT_ONLY_BLOCKS rows, both
+    directions, graded on the parameters that actually reach
+    Instance("milan_datapath", ...) in a real elaboration of the shipping
+    configs.  A prune must land as `p_<PARAM>=0` AND MUST CHANGE NOTHING ELSE
+    - a flag that prunes the wrong block is the same silent lie as a flag
+    that prunes nothing."""
+    python = _litex_or_skip("gate 23f")
+    if python is None:
+        return
+    cfg, runs = _behavioural_runs()
+    t0 = time.time()
+    got = _instance_params(python, runs)
+    bad = _prune_contract(got, list(eb.OPTIONAL_BLOCKS),
+                          list(PRESENT_ONLY_BLOCKS))
+    assert not bad, "gate 23f:\n  " + "\n  ".join(bad)
+    base = got["present"]["params"]
+    print(f"  [gate 23f] {len({tuple(a) for _l, a in runs})} real "
+          f"milan_soc.py elaborations of {cfg['name']}, the shipping AX "
+          f"shape, in {time.time() - t0:.0f} s: each of the "
+          f"{len(eb.OPTIONAL_BLOCKS)} --no-* flags lands as p_<PARAM>=0 in "
+          f'the Instance("milan_datapath") parameters and moves NOTHING '
+          f"else, a build that prunes nothing passes none of them "
+          f"({len(base)} parameters, byte-identical top .v), and both "
+          f"inverted rows land the other way up: p_SOUND_CARD_P=1 with "
+          f"--sound-card, and p_GPTP_PLANE_EN_P=1 WITH its microcode image "
+          f"with --fabric-gptp, both absent without them. This grades what "
+          f"elaboration HANDS the module, not "
+          f"what the module DOES with it (gate 23d) and not that the "
+          f"bitstream places or boots")
+
+
+def test_optional_block_instance_gate_bites():
+    """Gate 23f negative controls - the hops a spelling gate cannot see.
+
+    Each row deletes, renames or inverts ONE link of the argv -> Instance
+    chain in milan_soc.py's source and re-runs the gate's OWN grader over the
+    same real elaborations, so what is proved is that THE GATE goes red, not
+    that some weaker restatement of it does.
+
+    Eight of the eleven leave every OTHER gate in this file green, which is
+    the whole reason this gate exists.  The three that do NOT are gate 23d's
+    own: the dropped `not args.no_maap` handoff is exactly what 23d was
+    written for, and the renamed parameter trips its `p_<PARAM>=0` grep.
+    They are kept here so the two gates' division of labour is stated rather
+    than assumed - and so a later relaxation of 23d cannot quietly reopen
+    them."""
+    python = _litex_or_skip("gate 23f mutation")
+    if python is None:
+        return
+    _cfg, runs = _behavioural_runs()
+    cases = {label: argv for label, argv in runs}
+    # (why it is the #130 class, the source edit, which rows it must redden)
+    controls = [
+        ("main() drops ONE --no-* handoff",
+         [("not args.no_maap", "True", 1)], ["maap"], []),
+        ("MilanSoC never forwards optional_blocks to MilanNIC",
+         [("optional_blocks=optional_blocks,\n                              "
+           "    cbs_queues_mask=cbs_queues_mask,",
+           "cbs_queues_mask=cbs_queues_mask,", 1)], ["latency_taps"], []),
+        ("MilanSoC never forwards render_lpf to MilanNIC",
+         [("render_lpf=bool(render_lpf),\n", "", 1)], ["render_lpf"], []),
+        ("MilanNIC never forwards optional_blocks to add_milan_datapath",
+         [("render_lpf=render_lpf, optional_blocks=optional_blocks,",
+           "render_lpf=render_lpf,", 1)], ["maap"], []),
+        ("the pruned keyword is dropped inside add_milan_datapath",
+         [("blocks[k] = blocks[k] and bool(v)", "blocks[k] = True", 1)],
+         ["media_clock_servo"], []),
+        ("no parameter is ever emitted for a pruned block",
+         [("        if not blocks[k]:", "        if False:", 1)],
+         ["i2s_playback"], []),
+        ("the emitted parameter is renamed on its way to the Instance",
+         [('dp_params[f"p_{param}"] = 0', 'dp_params[f"p_{param}_X"] = 0', 1)],
+         ["rx_mac_filter"], []),
+        ("the prune predicate is INVERTED",
+         [("        if not blocks[k]:", "        if blocks[k]:", 1)],
+         ["datapath_probes"], []),
+        ("the sound-card row's own predicate is inverted",
+         [('    if sound_card:\n        dp_params["p_SOUND_CARD_P"] = 1',
+           '    if not sound_card:\n        dp_params["p_SOUND_CARD_P"] = 1',
+           1)], [], ["sound_card"]),
+        # The two #135 hops, verbatim: a reviewer severed the --fabric-gptp
+        # chain at each of them and read ALL GATES PASS both times.
+        ("main() never hands --fabric-gptp to MilanSoC (#135, hop 1)",
+         [("gptp_plane=args.fabric_gptp,", "gptp_plane=False,", 1)],
+         [], ["fabric_gptp"]),
+        ("the gPTP plane parameter is never emitted (#135, hop 2)",
+         [('        dp_params["p_GPTP_PLANE_EN_P"] = 1',
+           "        pass", 1)], [], ["fabric_gptp"]),
+    ]
+    t0 = time.time()
+    for why, mutations, rows, inverted in controls:
+        labels = ["present"] + rows if rows else []
+        labels += [f"{n}_present" for n in inverted] + list(inverted)
+        got = _instance_params(python, [(lbl, cases[lbl]) for lbl in labels],
+                               mutations)
+        bad = _prune_contract(got, rows, inverted)
+        assert bad, (f"gate 23f accepted a milan_soc.py in which {why} "
+                     f"({mutations[0][0]!r} -> {mutations[0][1]!r})")
+        want = (rows or inverted)[0]
+        assert any(line.startswith(f"{want}:") for line in bad), \
+            f"{why}: gate 23f went red for the wrong row: {bad}"
+    print(f"  [gate 23f mutation] {len(controls)}/{len(controls)} broken "
+          f"links of the argv -> Instance chain rejected in "
+          f"{time.time() - t0:.0f} s: a dropped CLI handoff, two dropped "
+          "constructor keywords, a dropped keyword inside "
+          "add_milan_datapath, a suppressed parameter, a renamed parameter, "
+          "both prune polarities inverted, and BOTH #135 hops - severed "
+          "independently, each one a bitstream with no time source")
+
+
+#  gate 23g (issue #156) - EVERY SHIPPED RECIPE CAN ACTUALLY RUN.
+#
+#  Every shape gate this repo has compares a recipe's argv against the config
+#  it claims to build.  NOTHING RAN THE ARGV.  A recipe can agree with its
+#  config flag for flag and still be unable to elaborate, and #156 records
+#  three findings that turned out to be that one gap - two build.sh recipes
+#  that could not launch at all for want of `--entity-gen-dir`, a flow-flag
+#  blind spot that let a late `and not args.build` leave the whole suite
+#  green while the real launcher line built the wrong SoC, and a sweep leg
+#  that cannot elaborate at all.
+#
+#  THE FLOW TAIL IS PART OF THE RECIPE HERE, and that is the load-bearing
+#  difference from gate 1e and scripts/check_sweep_shape.py.  Both of those
+#  exclude FLOW_FLAGS from the comparison, for the good reason that Vivado
+#  directives are not part of the end-station definition - but that makes
+#  `--build` invisible to every gate in the tree, and `--build` is on every
+#  real launcher line.  This gate appends the tail each launcher appends.
+#
+#  It asserts ONLY that the recipe reaches Instance("milan_datapath").  It is
+#  a smoke gate, not a shape gate: the shape comparison already exists and is
+#  sound.
+
+#: Recipes that are known NOT to elaborate, with the ticket that owns each.
+#: An entry here is a RECORDED failure, not a waiver: the gate still runs the
+#: recipe, still reports the error, and goes RED if a listed recipe starts
+#: working - because then the note is stale and the ticket is done.  Keeping
+#: the list this way is what stops "expected to fail" from becoming "nobody
+#: looks".
+KNOWN_UNRUNNABLE = {
+    "sweep.sh arty": "#184: milan_soc.py binds o_media_lrclk_o to "
+                     "tdm_pads.lrclk, a subsignal only the AX7101 platform "
+                     "declares, so this TDM-master leg dies with "
+                     "AttributeError before the Instance. Recorded rather "
+                     "than fixed here - the fix is a per-board binding "
+                     "decision and the Arty is a retired DUT (USER "
+                     "2026-08-01: AX7101 is the sole DUT)",
+}
+
+
+def _shell_recipes(path, pattern, flags=0):
+    """{name: argv} from a shell file, one entry per `pattern` match.
+
+    `pattern` must capture (name, body).  The body is the raw shell word
+    salad a recipe echoes; `$SOC_DIR` is the only variable a recipe uses and
+    it resolves to sw/litex in every launcher, so it is the only one expanded
+    - anything else left unexpanded is an assertion failure rather than a
+    token silently handed to argparse with a `$` in it.
+    """
+    text = open(path, encoding="utf-8").read()
+    out = {}
+    for name, body in re.findall(pattern, text, flags):
+        body = body.replace("\\\n", " ").replace("$SOC_DIR", SOC_DIR)
+        argv = shlex.split(body)
+        assert not [a for a in argv if "$" in a], \
+            f"{os.path.basename(path)} {name}: unexpanded shell variable in " \
+            f"{[a for a in argv if '$' in a]} - this gate would hand it to " \
+            "argparse verbatim"
+        out[name] = argv
+    assert out, f"{path}: no recipe matched {pattern!r} - the launcher was " \
+                "reshaped and this gate stopped testing anything"
+    return out
+
+
+def _recipe_cases():
+    """(label, argv) for every build.sh recipe and every sweep.sh board leg.
+
+    The flow tail each launcher appends is appended here too, `--build`
+    included, because a guard that reads args.build is invisible to every
+    other gate in the tree (#156 item 2).  --output-dir gets a real path so
+    the recipe is refused for its own reasons and not for a missing one.
+    """
+    out = []
+    # build.sh: `cfg_<name>() { ... echo "<argv>" }`, tail from its own exec
+    # line, read out of build.sh rather than restated.
+    tail = re.search(r"exec python3 milan_soc\.py \$args \$\{EXTRA\[\*\]:-\}"
+                     r'(.*?)"\s*$', open(BUILD_SH, encoding="utf-8").read(),
+                     re.M)
+    assert tail, "build.sh no longer execs milan_soc.py the way this gate reads"
+    build_tail = shlex.split(tail.group(1).replace("$out", OUT_DIR_TOKEN))
+    for name, argv in _shell_recipes(
+            BUILD_SH, r'^cfg_(\w+)\(\)[^\n]*\n(?:[^\n]*\n)*?\s*echo "(.*?)"\n',
+            re.M | re.S).items():
+        out.append((f"build.sh cfg_{name}", argv + build_tail))
+    # sweep.sh: OPTS per board from its own case table, plus the BASE tail and
+    # the per-directive launch tail.
+    sweep = open(SWEEP, encoding="utf-8").read()
+    base = re.search(r'BASE="python3 \$R/sw/litex/milan_soc\.py \$OPTS(.*?)"',
+                     sweep, re.S)
+    assert base, "sweep.sh no longer composes BASE the way this gate reads"
+    sweep_tail = shlex.split(base.group(1).replace("\\\n", " ")
+                             .replace("$CFG_GEN", "$CFG_GEN"))
+    for board, argv in _shell_recipes(
+            SWEEP, r'^\s{2}(\w+)\)\s+OPTS="(.*?)";\s*L2=', re.M | re.S).items():
+        cfg = re.search(r'^\s{2}%s\)\s+NS=\d+;\s*CFG=\$\{SWEEP_CFG:-([^}]+)\}'
+                        % board, sweep, re.M)
+        assert cfg, f"sweep.sh names no default config for the {board} leg"
+        gen = os.path.join(ROOT, "configs/generated",
+                           os.path.basename(cfg.group(1))[:-len(".yaml")])
+        tail = [gen if a == "$CFG_GEN" else a for a in sweep_tail]
+        out.append((f"sweep.sh {board}", argv + tail +
+                    ["--place-directive", "AltSpreadLogic_high",
+                     "--output-dir", OUT_DIR_TOKEN]))
+    return out
+
+
+#: Stand-in for the launcher's own `$out`/`$W/build_...` directory.  Replaced
+#: with a real temp path per run: milan_soc.py must be refused for its own
+#: reasons, never for an output directory that does not exist.
+OUT_DIR_TOKEN = "@OUTDIR@"
+
+
+def _is_unpatched_vexii(argv, err):
+    """True when this failure is #185's, and not the recipe's own.
+
+    BOTH halves are required, so a real failure cannot borrow the excuse: the
+    recipe must actually pass one of the two `--scala-args` the stock
+    upstream VexiiRiscv rejects, AND the failure must be the CPU wrapper's
+    own generator call rather than anything downstream of it.
+    """
+    return (any(a.startswith("--scala-args=--l2-down-pending")
+                or a.startswith("--scala-args=--l2-general-slots")
+                for a in argv)
+            and "PythonArgsGen" in err)
+
+
+def test_every_recipe_elaborates():
+    """gate 23g - every build.sh recipe and sweep.sh leg REACHES the Instance.
+
+    #156: nothing in this tree ever ran a recipe.  Two of them could not
+    launch at all, for the better part of a year, and every shape gate was
+    green throughout."""
+    python = _litex_or_skip("gate 23g")
+    if python is None:
+        return
+    for name in CONFIGS:                # every --entity-gen-dir a recipe names
+        eb.build(CONFIGS[name], OUT)
+    cases = _recipe_cases()
+    t0 = time.time()
+    with tempfile.TemporaryDirectory() as tmp:
+        runs = [(label, [tmp if a == OUT_DIR_TOKEN else a for a in argv])
+                for label, argv in cases]
+        got = _instance_params(python, runs)
+    bad, stale, ran = [], [], 0
+    for label, argv in cases:
+        err = got[label].get("error")
+        if label in KNOWN_UNRUNNABLE:
+            if err is None:
+                stale.append(f"{label}: RECORDED as unrunnable "
+                             f"({KNOWN_UNRUNNABLE[label]}) but it elaborated "
+                             "- delete the entry and close the ticket")
+            else:
+                skip("gate 23g", f"{label} is RECORDED as unrunnable and was "
+                                 f"not proved: {KNOWN_UNRUNNABLE[label]}")
+            continue
+        if err is not None and _is_unpatched_vexii(argv, err):
+            # NOT a defect in the recipe, and not something this gate can
+            # decide: on a stock upstream VexiiRiscv these recipes cannot
+            # elaborate at all, because two of their --scala-args exist only
+            # in the patch #185 is about.  Naming it is the whole value here
+            # - silently passing would say CI proved a recipe it never ran.
+            skip("gate 23g", f"{label} needs the VexiiRiscv patch of #185 "
+                             "(--l2-down-pending / --l2-general-slots), which "
+                             "this interpreter's checkout does not carry, so "
+                             "it was NOT proved to reach the Instance")
+            continue
+        if err is not None:
+            bad.append(f"{label}: never reached "
+                       f'Instance("milan_datapath"): {err}')
+            continue
+        ran += 1
+    assert not bad + stale, "gate 23g:\n  " + "\n  ".join(bad + stale)
+    print(f"  [gate 23g] {ran}/{len(cases)} shipped recipes reach "
+          f'Instance("milan_datapath") in {time.time() - t0:.0f} s, each with '
+          "the flow tail its own launcher appends (--build included, the "
+          "flag every shape gate excludes). This proves a recipe RUNS, not "
+          "that it builds the SoC its config describes - that comparison is "
+          "gate 1e's and #155 carries where the two disagree")
+
+
+def test_recipe_smoke_gate_bites():
+    """Gate 23g negative control - a recipe that cannot launch must redden it.
+
+    The mutation is the REAL #156 item 1, replayed: strip `--entity-gen-dir`
+    from a recipe and milan_soc.py refuses with "this build needs its
+    end-station config". Two recipes shipped exactly that way."""
+    python = _litex_or_skip("gate 23g mutation")
+    if python is None:
+        return
+    cases = [c for c in _recipe_cases() if c[0] not in KNOWN_UNRUNNABLE]
+    with tempfile.TemporaryDirectory() as tmp:
+        controls = []
+        for label, argv in cases[:1] + cases[-1:]:
+            argv = [tmp if a == OUT_DIR_TOKEN else a for a in argv]
+            controls.append((label, _drop_flag(argv, "--entity-gen-dir", 1)))
+        got = _instance_params(python, controls)
+    for label, _argv in controls:
+        assert got[label].get("error") is not None, (
+            f"gate 23g accepted `{label}` with --entity-gen-dir stripped - "
+            "the exact shape #156 item 1 shipped")
+    print(f"  [gate 23g mutation] {len(controls)}/{len(controls)} recipes "
+          "stripped of --entity-gen-dir refused to elaborate, which is #156 "
+          "item 1 replayed on the recipes that shipped it")
+
+
 # ======================================================== gates 24c / 24d ====
 #  PER-BOARD AUDIO FRONT-END ROUTING - the L1 binding, one board at a time.
 #
@@ -4848,8 +5599,8 @@ def test_entity_identity_is_derived_not_mirrored():
          builds (sweep_config(), READ from sweep.sh - never restated here, the
          gate-9 rule). A stale file cannot survive."""
     if not os.path.exists(S50MILAN):
-        print("  [gate 25] SKIP identity-derivation cross-check: sibling repo "
-              "milan-tests-avb not on disk")
+        skip("gate 25", "identity-derivation cross-check: sibling repo "
+                        "milan-tests-avb not on disk")
         return
     code = _sh_code(S50MILAN)
     seen = set()
@@ -5769,6 +6520,10 @@ if __name__ == "__main__":
                test_optional_block_prune_accounting,
                test_optional_block_names_reach_the_rtl,
                test_optional_block_consumption_gate_bites,
+               test_optional_blocks_reach_the_instance,
+               test_optional_block_instance_gate_bites,
+               test_every_recipe_elaborates,
+               test_recipe_smoke_gate_bites,
                test_tdm_master_binding_reaches_the_pins,
                test_tdm_master_binding_gate_bites,
                test_front_end_routing_per_board,
@@ -5787,4 +6542,27 @@ if __name__ == "__main__":
                test_per_row_format_facts_are_per_row):
         print(f"{fn.__name__}:")
         fn()
-    print("ALL GATES PASS")
+    # The verdict names what did not run.  Printing SKIP inside a gate and
+    # then printing ALL GATES PASS here is how a reviewer severed the
+    # --fabric-gptp chain at two hops and read a green both times (#154).
+    if SKIPPED:
+        print(f"\n{len(SKIPPED)} GATE ARM(S) DID NOT RUN - this verdict does "
+              "not cover them:")
+        for gate, why, _kind in SKIPPED:
+            print(f"  - [{gate}] {why}")
+        print(f"ALL GATES PASS EXCEPT {len(SKIPPED)} NOT RUN")
+    else:
+        print("ALL GATES PASS")
+    # --require-elaboration is what stops the ONE job that exists to
+    # elaborate from reporting a green when its LiteX install broke.  Rows a
+    # gate declined for a recorded reason still pass; "there is no LiteX
+    # here" does not.
+    if "--require-elaboration" in sys.argv:
+        missing = [(g, w) for g, w, k in SKIPPED if k == NO_LITEX]
+        if missing:
+            print("\n--require-elaboration: this run was asked to observe "
+                  "the argv -> Instance chain and could not:")
+            for gate, why in missing:
+                print(f"  - [{gate}] {why}")
+            sys.exit(1)
+        print("--require-elaboration: every elaboration arm ran")
