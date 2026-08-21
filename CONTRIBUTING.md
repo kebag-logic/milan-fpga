@@ -81,9 +81,15 @@ flowchart LR
 5. **Review with multiple agents, each with CLEARED context.** Not forks of
    the author's session: agents that have never seen the reasoning that
    produced the diff. An agent that helped write a change will re-derive the
-   same blind spot when asked to check it. Give each one a different lens —
-   clause conformance, wire format and response sizing, test adequacy and
-   whether the tests can actually fail — and let them read the diff cold.
+   same blind spot when asked to check it. Give each one a different lens and
+   let them read the diff cold. **The lens list is
+   [`AGENTS.md` reviewer procedure](AGENTS.md#6-reviewer-procedure)** —
+   `Conformance`, `RTL`, `Robustness`,
+   `Tests`, `Docs` — and those five names are the ones a completion ledger
+   counts, so report coverage in them. The angles this file used to list here
+   (clause conformance, wire format and response sizing, test adequacy, whether
+   the tests can actually fail) are examples of what to look at within them,
+   not a second list to report against.
 
    **Two positive reviews are the merge bar, and one of them must be
    EXTERNAL.** One from this lane's own review agents, at least one from an
