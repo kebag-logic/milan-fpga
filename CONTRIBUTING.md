@@ -78,19 +78,18 @@ flowchart LR
    branch* — a PR is not the place to discover the sweep is red.
 4. **Open the PR** against `dev`, with the template below and the
    self-test results as a **comment** (a comment is evidence, not approval).
-   Open it as a draft while the head is changing. The fast hosted workflow runs
-   on every update. Mark it ready only after the complete local bar is recorded;
-   that state starts the exhaustive hosted Verilator and Yosys jobs on the exact
-   head. A later commit starts them again. Convert the PR back to draft before
-   resuming exploratory work. See the
-   [CI workflow policy](docs/testing/CI_WORKFLOWS.md) for the scheduling and
-   cancellation contract.
 5. **Review with multiple agents, each with CLEARED context.** Not forks of
    the author's session: agents that have never seen the reasoning that
    produced the diff. An agent that helped write a change will re-derive the
-   same blind spot when asked to check it. Give each one a different lens —
-   clause conformance, wire format and response sizing, test adequacy and
-   whether the tests can actually fail — and let them read the diff cold.
+   same blind spot when asked to check it. Give each one a different lens and
+   let them read the diff cold. **The lens list is
+   [`AGENTS.md` reviewer procedure](AGENTS.md#6-reviewer-procedure)** —
+   `Conformance`, `RTL`, `Robustness`,
+   `Tests`, `Docs` — and those five names are the ones a completion ledger
+   counts, so report coverage in them. The angles this file used to list here
+   (clause conformance, wire format and response sizing, test adequacy, whether
+   the tests can actually fail) are examples of what to look at within them,
+   not a second list to report against.
 
    **Two positive reviews are the merge bar, and one of them must be
    EXTERNAL.** One from this lane's own review agents, at least one from an
@@ -177,12 +176,13 @@ flowchart LR
 
    Its `--selftest` runs inside `scripts/run_all_suites.sh` next to
    `suite_tally.py`'s, so the tool cannot rot into a green that means nothing
-   between merges. Both hosted workflows now run on pushes to `dev`: the fast
-   workflow gives the immediate lint/BDD/elaboration verdict, and the
-   exhaustive workflow validates the actual merge tree with all Verilator and
-   Yosys shards. Neither can detect commits pushed to a feature branch after
-   merge, so `check_merge_containment.py --merged-prs` remains an explicit live
-   check before the card moves to *Done*.
+   between merges. The check *itself* is still a thing a person runs: nothing
+   here can schedule a post-merge action, and CI does not run on `dev`
+   at all (both workflows are `on: push: branches: [main]`). That gap is worth
+   closing separately. A `push: [dev]` trigger would run the bar and the
+   containment self-test on the merge result. It would still need an explicit
+   `check_merge_containment.py --merged-prs` step to render a live containment
+   verdict.
 
    **Do not hand-roll it by reading `git log` output.** The script uses
    `git rev-list --count` and `git merge-base --is-ancestor` because one prints
@@ -218,10 +218,8 @@ flowchart LR
      syn/yosys/run.sh
      ```
 
-     The optional status applies only to the remote jobs. Marking a PR ready
-     schedules them on its exact head; a later commit invalidates that evidence
-     and schedules them again. The local Verilator sweep and Yosys portability
-     sweep remain mandatory merge evidence.
+     The optional status applies only to the remote jobs. The local Verilator
+     sweep and Yosys portability sweep are mandatory merge evidence.
 
 Two board rules that go with it:
 
@@ -268,6 +266,26 @@ Two board rules that go with it:
   entry naming the reason **and where the reason is recorded**.
   `--pragmas` alone is instantaneous and is the useful pre-commit hook:
   `echo 'python3 scripts/lint_rtl.py --pragmas' >> .git/hooks/pre-commit`.
+- **A build input never lists the protocol-processor sources, it derives
+  them**: [`scripts/pp_srcs.py`](scripts/pp_srcs.py) reads the submodule tree
+  and emits the list, packages first (detected by reading each file for a
+  `package` declaration, not by its name). Every consumer calls it --
+  [`syn/yosys/run.sh`](syn/yosys/run.sh),
+  [`syn/yosys/ooc.sh`](syn/yosys/ooc.sh),
+  [`tb/verilator/milan_dp/Makefile`](tb/verilator/milan_dp/Makefile),
+  [`sw/litex/milan_soc.py`](sw/litex/milan_soc.py),
+  [`syn/ooc/pp_shadow_ooc.tcl`](syn/ooc/pp_shadow_ooc.tcl) and
+  [`syn/ooc/dp_srcs.py`](syn/ooc/dp_srcs.py) -- and each takes the exit status
+  rather than discarding it, because the script refuses to emit an empty list
+  and an empty list builds cleanly while proving nothing. `--check` fails if
+  any tracked file outside the script's `PROSE_OK` table names a submodule
+  source literally, so a new build input is caught the first time it names one
+  and no consumer list has to be maintained. Prose that legitimately cites a
+  source path adds the **exact literal** to `PROSE_OK` with its reason; a
+  whole-file exemption is not available, because that is how a cited path
+  becomes a hand-written list again. `--selftest` drives the check over
+  synthetic trees and runs in the same CI step, so the gate cannot rot into a
+  green that means nothing.
 - **A `// verilator lint_off X` needs a justification**, exactly like a
   tied-off input does — an unexplained suppression is the same defect class
   as an unexplained tie. Put the reason next to the code AND a

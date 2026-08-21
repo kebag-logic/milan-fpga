@@ -100,6 +100,9 @@ jobs:
           PATH="/opt/verilator/bin:$PATH" \
             python3 scripts/lint_rtl.py --check --self-test
 
+      - name: Prove protocol-processor source lists are derived
+        run: python3 scripts/pp_srcs.py --check --selftest
+
   bdd-conformance:
     runs-on: ubuntu-latest
     timeout-minutes: 20
