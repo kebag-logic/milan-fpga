@@ -175,9 +175,11 @@ and which lenses a round covered. Each carries a short token, given below its
 heading, because the full names run to thirty-six characters and a line already
 carrying a severity, a path and a title cannot also carry that. Use the token.
 
-**This list is the normative one.** [CONTRIBUTING.md](CONTRIBUTING.md) also
-names review angles, in different words and a different number of them; those
-are guidance for what to look at, and these five are what section 7 counts.
+**These five names are the ones a completion ledger counts**, and
+[CONTRIBUTING.md](CONTRIBUTING.md) says so where it assigns lenses, so the
+precedence rule at the top of this file has nothing to resolve. The angles named
+there are examples of what to look at within a lens, not a second list to report
+against.
 
 **The lenses overlap on purpose and are not a partition.** A timeout rule is
 named under `Conformance`, under `RTL` and under `Robustness`, and a real
