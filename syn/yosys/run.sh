@@ -11,7 +11,8 @@
 #   ./run.sh --mode elaborate --top TOP       # fast hierarchy/process smoke
 #   YOSYS_SYNTH=synth_ecp5 ./run.sh           # target a real device
 #
-# Requires yosys and sv2v except for --list.
+# Requires python3 on every path, plus yosys and sv2v except for --list, which
+# needs neither those nor a checked-out submodule: it prints names only (#190).
 
 set -u
 
@@ -21,7 +22,8 @@ usage: syn/yosys/run.sh [options]
 
   --shard INDEX/TOTAL    select one deterministic weighted shard (default 0/1)
   --top NAME             select one explicit top; may be repeated
-  --list                 print selected top names without requiring tools
+  --list                 print selected top names; python3 only, no sv2v,
+                         yosys or submodule checkout
   --mode full|elaborate  full synthesis or fast hierarchy/process smoke
   --results DIRECTORY    write one machine-readable result per top/gate
   --no-structural        do not run the tied-input and tap-purity checks
@@ -82,12 +84,37 @@ SYNTH="${YOSYS_SYNTH:-synth}"
 # status explicitly: command substitution in an assignment otherwise hides a
 # refusal and an empty source list can elaborate a meaningless shadow wrapper.
 PP="$R/protocol-processor/hdl"
+# python3 IS NEEDED ON EVERY PATH, `--list` included: the shard selector
+# scripts/yosys_shards.py runs below for every invocation. Only the SOURCE
+# DERIVATION under it is conditional, so this check stays unconditional -
+# otherwise an absent interpreter surfaces as `Yosys shard selector fails its
+# own self-test`, which reads as a repository defect rather than a missing
+# runtime ([R0] on PR #191).
 command -v python3 >/dev/null || {
-  echo "missing tool: python3 (required by scripts/pp_srcs.py)" >&2
+  echo "missing tool: python3 (required by scripts/yosys_shards.py, and by" >&2
+  echo "  scripts/pp_srcs.py on every path except --list)" >&2
   exit 2
 }
-PP_DERIVED="$(python3 "$R/scripts/pp_srcs.py" --prefix "$PP")" || exit 2
-PP_SRCS="$PP_DERIVED $R/hdl/milan/KL_pp_shadow.sv $R/hdl/milan/KL_pp_maap_shim.sv"
+
+# `--list` PRINTS NAMES AND MUST NOT NEED SOURCES. The inventory's name column
+# is the first field of each `tops` row and no source path contributes to it,
+# but this script used to derive the submodule source list before reaching the
+# `--list` exit, so `--list` required a checked-out protocol-processor while
+# saying twice above that it required nothing. That was invisible until a CI
+# job called it from a checkout without submodules and `yosys-portability`
+# went red in seven seconds with every shard passing (#190).
+#
+# The placeholder is deliberately a path that cannot exist. `--list` exits long
+# before any top is built, so it is never read; if a later change moves that
+# exit, sv2v (the first tool to open the sources) fails on a missing file rather
+# than synthesising an empty source list, which is the failure `pp_srcs.py`
+# refuses to allow in the first place.
+if [ "$LIST" -eq 1 ]; then
+  PP_SRCS="@pp-srcs-not-derived-for---list@"
+else
+  PP_DERIVED="$(python3 "$R/scripts/pp_srcs.py" --prefix "$PP")" || exit 2
+  PP_SRCS="$PP_DERIVED $R/hdl/milan/KL_pp_shadow.sv $R/hdl/milan/KL_pp_maap_shim.sv"
+fi
 
 # top | source files (interface modules go through their flat wrapper)
 tops=(
@@ -224,15 +251,21 @@ record_result() {
   mv "$tmp_out" "$out"
 }
 
-# Relative $readmemh images must exist in Yosys's working directory.
+# Relative $readmemh images must exist in Yosys's working directory, so they
+# are generated into $TMP and Yosys runs from there. They used to be written
+# into the CALLER's directory, which for the documented invocation (this script
+# run from the repository root: CONTRIBUTING 2.1, both CI workers) is the root
+# of the checkout, where nothing ignores them; only `syn/yosys/*.hex` is, which
+# covers the `make` flow and no other. Three such images rode into a commit of
+# PR #191 exactly that way, byte-identical to what this block generates.
 if [ -f "$R/protocol-processor/hdl/acmp/rom/gen_ltn_rom.py" ]; then
-  python3 "$R/protocol-processor/hdl/acmp/rom/gen_ltn_rom.py" -o ltn_rom.hex >/dev/null 2>&1 || true
+  python3 "$R/protocol-processor/hdl/acmp/rom/gen_ltn_rom.py" -o "$TMP/ltn_rom.hex" >/dev/null 2>&1 || true
 fi
 if [ -f "$R/protocol-processor/hdl/aecp/ucode/gen_ucode.py" ]; then
-  python3 "$R/protocol-processor/hdl/aecp/ucode/gen_ucode.py" -o ucode.hex >/dev/null 2>&1 || true
+  python3 "$R/protocol-processor/hdl/aecp/ucode/gen_ucode.py" -o "$TMP/ucode.hex" >/dev/null 2>&1 || true
 fi
 if [ -f "$R/gptp-processor/hdl/ucode/gen_gptp_ucode.py" ]; then
-  python3 "$R/gptp-processor/hdl/ucode/gen_gptp_ucode.py" -o gptp_ucode.hex >/dev/null 2>&1 || true
+  python3 "$R/gptp-processor/hdl/ucode/gen_gptp_ucode.py" -o "$TMP/gptp_ucode.hex" >/dev/null 2>&1 || true
 fi
 
 if [ "$MODE" = full ]; then
@@ -262,7 +295,7 @@ for name in "${selected_names[@]}"; do
   else
     program="read_verilog $TMP/$top.v; hierarchy -check -top $top; proc; opt_clean; check -assert; stat -top $top"
   fi
-  yosys -p "$program" > "$TMP/$top.yos.log" 2>&1
+  (cd "$TMP" && yosys -p "$program") > "$TMP/$top.yos.log" 2>&1
   rc=$?
   cells="$(awk '/=== design hierarchy ===/{f=1} f && /^[[:space:]]+[0-9]+ cells$/{print $1; exit}' "$TMP/$top.yos.log")"
   if [ "$rc" -eq 0 ]; then
