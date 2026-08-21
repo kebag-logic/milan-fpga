@@ -222,6 +222,7 @@ import json
 import os
 import re
 import shlex
+import shutil
 import struct
 import subprocess
 import sys
@@ -253,6 +254,8 @@ CONFIGS = {
 OUT = os.path.join(HERE, "out")
 SWEEP = os.path.join(ROOT, "sw/litex/sweep.sh")
 BUILD_SH = os.path.join(ROOT, "sw/litex/build.sh")
+PATCH_DIR = os.path.join(ROOT, "sw/litex/patches")
+APPLY_SH = os.path.join(PATCH_DIR, "apply.sh")
 
 #: Every gate arm that could not run, in the order it declined.  A gate that
 #: prints its SKIP and then lets `main()` print ALL GATES PASS with exit 0
@@ -4648,6 +4651,205 @@ def test_recipe_smoke_gate_bites():
           "item 1 replayed on the recipes that shipped it")
 
 
+#  gate 23h (issue #185) - THE TOOLCHAIN THIS SOC IS BUILT WITH IS THE ONE
+#  THIS REPOSITORY DESCRIBES.
+#
+#  Upstream LiteX cannot build any shape of this design. It has no `baremetal`
+#  VexiiRiscv variant, which is the whole #120/#125 downgrade and the shipping
+#  AX profile, and the VexiiRiscv revision it pins does not accept the
+#  `--l2-down-pending` / `--l2-general-slots` four of the five configs pass.
+#  sw/litex/patches/ carries the six patches that close that, and apply.sh
+#  applies them.
+#
+#  NOTHING RAN IT. Measured 2026-08-21: the series had not applied cleanly for
+#  an unknown length of time, and there was no way to notice, because the only
+#  reader was a person following a document. Two failures had accumulated:
+#
+#    * 0003 was diffed against pristine upstream while 0001 rewrites the same
+#      boot.c hunks, so apply.sh died on the third patch and never reached the
+#      two that follow it;
+#    * 0002-liteeth had fallen 25 lines behind the tree the boards are built
+#      from - the ext_reset input KL_link_guard drives was only ever in the
+#      bench's working copy.
+#
+#  A third was by design and had outlived it: the L2 patch was documented as
+#  "apply it by hand for non-default L2" from a time when it WAS optional, and
+#  four configs now pass those arguments, so `apply.sh` completing successfully
+#  still left a tree that could not elaborate them.
+#
+#  So this gate asks the two questions that would have caught all three:
+#  is every patch in the directory actually in the series apply.sh applies, and
+#  is every patch in that series actually applied to the trees this interpreter
+#  imports. Both are answered against the live install, not against text.
+#
+#  WHAT IT DOES NOT PROVE: that the patches are CORRECT, that upstream still
+#  wants them, or that the built bitstream works. It proves the tree you are
+#  elaborating with is the tree this repository says you should be elaborating
+#  with, which is the property that was silently untrue.
+
+#: The tree keys apply.sh resolves, and how to resolve each from a LiteX
+#: interpreter. Read here rather than restated: `vexiiriscv` is the Scala
+#: checkout INSIDE the pythondata package, which is why it cannot be found the
+#: way a Python package is.
+_TREE_EXPR = {
+    "vexiiriscv": "import pythondata_cpu_vexiiriscv as p, os; "
+                  "print(os.path.join(p.data_location, 'ext', 'VexiiRiscv'))",
+}
+
+
+def _patch_series():
+    """[(tree key, patch filename)] read out of apply.sh's own SERIES array.
+
+    The list is READ, never restated, for the reason the gate exists: a patch
+    that is in the directory and not in the series is exactly the shape the
+    L2 one had, and a second copy of the list here could hold it while
+    apply.sh dropped it.
+    """
+    src = open(APPLY_SH, encoding="utf-8").read()
+    block = re.search(r"^SERIES=\((.*?)^\)", src, re.M | re.S)
+    assert block, "apply.sh no longer declares a SERIES array this gate can read"
+    rows = re.findall(r'"\s*(\S+)\s+(\S+\.patch)\s*"', block.group(1))
+    assert rows, "apply.sh's SERIES array is empty or reshaped"
+    return rows
+
+
+def _tree_root(python, key):
+    """The directory apply.sh's patch paths are relative to, for one tree key."""
+    expr = _TREE_EXPR.get(
+        key, f"import {key}, os; "
+             f"print(os.path.dirname(os.path.dirname({key}.__file__)))")
+    got = subprocess.run([python, "-c", expr], capture_output=True, text=True)
+    assert got.returncode == 0, \
+        f"{key}: this interpreter cannot locate the tree ({got.stderr.strip()})"
+    return got.stdout.strip()
+
+
+def _patch_targets(patch):
+    """The paths one patch rewrites, relative to its tree root."""
+    got = re.findall(r"^\+\+\+ b/(\S+)", open(patch, encoding="utf-8").read(),
+                     re.M)
+    assert got, f"{patch}: no target files - is it a valid diff?"
+    return got
+
+
+def _reconstruct(python, series, break_patch=None):
+    """Problems with "the live trees are pristine upstream plus this series".
+
+    THE SERIES IS STACKED, so no patch can be graded on its own: 0003 is
+    diffed on top of 0001 and both rewrite the same boot.c hunks, so asking
+    "does 0001 reverse-apply?" against a correctly patched tree answers no.
+    That is the same mistake apply.sh used to make in the other direction.
+
+    So the whole series is reversed, in reverse order, on a COPY of just the
+    files it touches - which lands on pristine upstream without downloading
+    one - and then applied forward again. Every step must succeed and the
+    result must equal the live files byte for byte. `break_patch` reverses one
+    extra patch at the end, which is how the control proves this can fail.
+    """
+    problems = []
+    with tempfile.TemporaryDirectory() as tmp:
+        live = {}
+        for key, patch in series:
+            root = _tree_root(python, key)
+            for rel in _patch_targets(os.path.join(PATCH_DIR, patch)):
+                src = os.path.join(root, rel)
+                if not os.path.exists(src):
+                    problems.append(f"{patch}: {key} has no {rel} at all")
+                    continue
+                dst = os.path.join(tmp, key, rel)
+                if (key, rel) not in live:
+                    os.makedirs(os.path.dirname(dst), exist_ok=True)
+                    shutil.copy2(src, dst)
+                    live[(key, rel)] = src
+        if problems:
+            return problems
+        order = list(series)
+        if break_patch:
+            order = order + [break_patch]
+        for key, patch in reversed(order):
+            rc = subprocess.run(
+                ["git", "-C", os.path.join(tmp, key), "apply", "--reverse",
+                 os.path.join(PATCH_DIR, patch)], capture_output=True)
+            if rc.returncode != 0:
+                problems.append(
+                    f"{patch}: does not reverse out of the live {key}, so "
+                    "that tree is not upstream plus this series. Either the "
+                    "patch was never applied (run sw/litex/patches/apply.sh) "
+                    "or the file drifted (re-diff per "
+                    "sw/litex/patches/README.md)")
+                return problems
+        for key, patch in series:
+            rc = subprocess.run(
+                ["git", "-C", os.path.join(tmp, key), "apply",
+                 os.path.join(PATCH_DIR, patch)], capture_output=True)
+            if rc.returncode != 0:
+                problems.append(
+                    f"{patch}: does not re-apply to the pristine {key} the "
+                    "reversal produced, so the series is not self-consistent "
+                    "in its own order")
+                return problems
+        for (key, rel), src in sorted(live.items()):
+            if open(os.path.join(tmp, key, rel), "rb").read() != \
+                    open(src, "rb").read():
+                problems.append(
+                    f"{key}/{rel}: upstream plus the series does not "
+                    "reproduce the installed file, so the tree carries a "
+                    "change no patch here records")
+    return problems
+
+
+def test_toolchain_patches_are_applied():
+    """gate 23h - the LiteX being elaborated with is the one this repo describes.
+
+    Reconstruction, not inspection: the series is reversed off a copy of the
+    live files and applied again, and the result must be the live files."""
+    python = _litex_or_skip("gate 23h")
+    if python is None:
+        return
+    series = _patch_series()
+    on_disk = {f for f in os.listdir(PATCH_DIR) if f.endswith(".patch")}
+    listed = {f for _k, f in series}
+    assert listed == on_disk, (
+        "sw/litex/patches and apply.sh's SERIES disagree, which is how "
+        "0002-vexiiriscv-l2-depth-args sat unapplied while four configs "
+        f"needed it: only in the directory {sorted(on_disk - listed)}, only "
+        f"in SERIES {sorted(listed - on_disk)}")
+    problems = _reconstruct(python, series)
+    assert not problems, "gate 23h:\n  " + "\n  ".join(problems)
+    files = {(k, r) for k, p in series
+             for r in _patch_targets(os.path.join(PATCH_DIR, p))}
+    print(f"  [gate 23h] the {len(series)} patches in sw/litex/patches are the "
+          f"{len(on_disk)} apply.sh applies, and reversing them off this "
+          f"interpreter's trees and re-applying them reproduces all "
+          f"{len(files)} installed files byte for byte. Upstream LiteX has no "
+          "`baremetal` VexiiRiscv variant and the revision it pins rejects "
+          "the --l2-* arguments four configs pass, so this is what lets gates "
+          "23f/23g elaborate at all. It says nothing about whether the "
+          "patches are CORRECT, only that the tree is the one described here")
+
+
+def test_toolchain_patch_gate_bites():
+    """Gate 23h negative control - a tree missing one patch must redden it.
+
+    Run against the same scratch copy the gate uses, never the live install:
+    a gate that proves itself by breaking the tree the rest of the run
+    depends on is worse than no gate. One extra reversal per case is exactly
+    the state apply.sh left behind for an unknown length of time."""
+    python = _litex_or_skip("gate 23h mutation")
+    if python is None:
+        return
+    series = _patch_series()
+    for case in series:
+        problems = _reconstruct(python, series, break_patch=case)
+        assert problems, (
+            f"gate 23h would NOT have noticed {case[1]} missing from the "
+            f"installed {case[0]}")
+    print(f"  [gate 23h mutation] {len(series)}/{len(series)} patches removed "
+          "one at a time from the reconstructed tree were each rejected, so "
+          "the gate above fails for the state it exists to catch rather than "
+          "passing on the strength of a directory listing")
+
+
 # ======================================================== gates 24c / 24d ====
 #  PER-BOARD AUDIO FRONT-END ROUTING - the L1 binding, one board at a time.
 #
@@ -6546,6 +6748,8 @@ if __name__ == "__main__":
                test_optional_block_instance_gate_bites,
                test_every_recipe_elaborates,
                test_recipe_smoke_gate_bites,
+               test_toolchain_patches_are_applied,
+               test_toolchain_patch_gate_bites,
                test_tdm_master_binding_reaches_the_pins,
                test_tdm_master_binding_gate_bites,
                test_front_end_routing_per_board,

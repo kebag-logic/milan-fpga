@@ -19,31 +19,29 @@ name: elaborate
 # it is the only job in the tree that needs a JVM and a Scala build, and a
 # documentation PR should not pay for that.
 #
-# NOT ENABLED YET, AND THIS FILE IS HERE SO THE REASON IS READABLE. Measured
-# 2026-08-21: NO config in this tree elaborates on a stock toolchain. The
-# shipping AX shape asks for a `baremetal` VexiiRiscv variant upstream LiteX
-# does not have; the four Linux shapes pass --scala-args the pinned VexiiRiscv
-# does not accept. sw/litex/patches carries the series that closes both, and
-# apply.sh applies it, but nothing in CI runs that script and no gate compares
-# its result - so it had stopped applying, which #185 measures. Until that is
-# fixed this job would install correctly and then fail on every config, so its
-# triggers are withheld and it runs only on manual dispatch.
+# NO CONFIG IN THIS TREE ELABORATES ON A STOCK TOOLCHAIN (#185), so this job
+# does not install one. Upstream LiteX has no `baremetal` VexiiRiscv variant,
+# which is the whole shipping AX profile, and the VexiiRiscv revision it pins
+# rejects the --l2-* arguments four of the five configs pass.
+# sw/litex/patches/ carries the six patches that close both, and apply.sh
+# applies them. Until 2026-08-21 nothing ran that script end to end and the
+# series had stopped applying; gate 23h now reconstructs it and compares.
 #
-# Gates 23f and 23g run today on any interpreter that has a working LiteX,
-# which is how they were validated. Everywhere else they SKIP, the verdict
-# says `ALL GATES PASS EXCEPT n NOT RUN` and names them, and
-# --require-elaboration turns a missing interpreter into a failure rather
-# than a skip. That is what stops the absence of the proof from reading as
-# the presence of one while this job is off.
+# The whole job is therefore: pinned revisions, the VexiiRiscv checkout at the
+# revision LiteX itself names, the patch series, and then the gates. Cold it
+# is about three minutes, most of it one Scala run per distinct CPU argument
+# set; warm it is under one.
+#
+# --require-elaboration fails the job when no LiteX interpreter is found,
+# rather than skipping the gates and reporting the green this workflow exists
+# to end. Everywhere else those gates SKIP and the verdict says
+# `ALL GATES PASS EXCEPT n NOT RUN` and names them.
 
 on:
-  # Manual only until #185 is decided. The push/pull_request triggers below
-  # are the intended ones and are commented rather than deleted, so enabling
-  # this job is one edit and not a rediscovery.
+  push:
+    branches: [main, dev]
+  pull_request:
   workflow_dispatch:
-  # push:
-  #   branches: [main, dev]
-  # pull_request:
 
 concurrency:
   group: elaborate-${{ github.workflow }}-${{ github.ref }}
@@ -160,6 +158,15 @@ jobs:
       # mutation arms sever the chain hop by hop and require the gate to go
       # red. --require-elaboration turns a missing interpreter into a failure
       # rather than a skip.
+      # Upstream cannot build this design. The series is what makes the
+      # `baremetal` variant and the --l2-* arguments exist; gate 23h proves
+      # the result is upstream plus exactly these patches.
+      - name: Apply the toolchain patch series
+        run: sw/litex/patches/apply.sh
+
+      # The gates that could not run in CI, running in CI. 23f/23g observe
+      # what elaboration hands Instance("milan_datapath"); their mutation arms
+      # sever the chain hop by hop and require the gate to go red.
       - name: Elaboration gates
         if: ${{ steps.scope.outputs.rtl == 'true' }}
         run: python3 sw/builder/test_builder.py --require-elaboration

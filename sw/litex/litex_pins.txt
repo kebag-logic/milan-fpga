@@ -23,10 +23,16 @@
 # any config in this tree, measured 2026-08-21 over all five: the shipping AX
 # shape asks for a `baremetal` VexiiRiscv variant upstream LiteX does not
 # have, and the four Linux shapes pass --scala-args the pinned VexiiRiscv
-# does not accept. sw/litex/patches carries the series that closes both and
-# apply.sh applies it, but nothing in CI runs that script and no gate compares
-# its result, so it had stopped applying (#185). Until that is fixed these
-# pins reproduce the bench's LiteX and NOT the bench's ability to build.
+# does not accept. Both are supplied by sw/litex/patches/, so a working
+# install is three steps and not one:
+#
+#   python3 -m pip install -r sw/litex/litex_pins.txt
+#   python3 scripts/ci_litex_env.py      # the VexiiRiscv checkout LiteX pins
+#   sw/litex/patches/apply.sh            # the six patches
+#
+# test_builder.py gate 23h reconstructs that result and compares it against
+# the installed tree, so a series that stops applying is a red rather than a
+# discovery six months later (#185).
 #
 # THE FOUR Lite* CORES ARE THE ONES A REAL ELABORATION IMPORTS, measured by
 # reading sys.modules after an elaboration rather than by listing what looks
