@@ -237,6 +237,17 @@ Two board rules that go with it:
   pattern). Copy (`cp -r`), never symlink, `third_party/` into a worktree —
   a symlink escapes to the main repo and builds silently stale RTL; then
   delete the copied submodule's `.git` file.
+- **A fresh worktree inherits no submodules, and the honest local bar needs
+  three of them.** `git worktree add` does not initialise submodules, so before
+  any local gate run, in one command:
+  `git submodule update --init third_party/verilog-axis protocol-processor gptp-processor`.
+  These three are what the Verilator suites, the Yosys gate and
+  [`scripts/lint_rtl.py`](scripts/lint_rtl.py) read, and are exactly what CI
+  initialises. Lint now REFUSES (exit 2, not the ratchet-tighten exit 1) rather
+  than under-count when one is absent (#186): a count over an incomplete
+  resolution set drops findings and would invite a tighten to a number the real
+  tree cannot meet. The `external` submodule is SSH-only and no sim, lint or
+  synthesis gate reads it, so it is deliberately NOT in that command.
 - **Commits: one line, no trailers.** The private bench suite is referenced
   only as *the bench suite* (evidence token `BENCH`) in committed text —
   never by any external name.

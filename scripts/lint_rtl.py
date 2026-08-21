@@ -414,6 +414,41 @@ def axis_lib():
     return os.path.relpath(axis, ROOT) if os.path.isdir(axis) else None
 
 
+#: The trees lint reads to RESOLVE the modules hdl/ instantiates, each with the
+#: directory whose absence makes axis_lib()/submodule_sources() skip it. These
+#: are exactly the paths those two functions test, kept in one place so the
+#: refusal below cannot drift from what the sweep actually consumes.
+REQUIRED_TREES = [
+    ("third_party/verilog-axis", "third_party/verilog-axis/rtl",
+     "the Forencich AXIS `-y` resolution root"),
+    ("protocol-processor", "protocol-processor/hdl",
+     "KL_pp_shadow's protocol_processor_top and its reset cone"),
+    ("gptp-processor", "gptp-processor/hdl",
+     "KL_gptp_shadow's KL_gptp_engine"),
+]
+
+
+def missing_resolution_trees(exists=None):
+    """(label, why) for every resolution tree lint needs that is absent.
+
+    The COUNT lint prints depends on every tree here: without one, Verilator
+    cannot bind the modules hdl/ instantiates, the reset/logic cone it needs to
+    SEE a finding is incomplete, and the finding silently disappears. Measured
+    2026-08-21: protocol-processor absent drops two hdl/milan SYNCASYNCNET
+    findings, 99 -> 97, and a fresh `git worktree add` has NO submodules, so a
+    lane running the documented `scripts/lint_rtl.py` there reads a lower count
+    AND is invited to tighten the ratchet to a number the real tree cannot meet
+    (#186). Refusing over an incomplete resolution set is the pp_srcs.py shape:
+    a count that proves nothing must not read as a pass.
+
+    external/ is deliberately NOT here: it is an SSH-only submodule lint never
+    reads. The full local-bar init set is in CONTRIBUTING 2.2. `exists`
+    overrides the directory test so the self-test drives every arm.
+    """
+    exists = exists or (lambda rel: os.path.isdir(os.path.join(ROOT, rel)))
+    return [(label, why) for label, rel, why in REQUIRED_TREES if not exists(rel)]
+
+
 INCLUDE_RE = re.compile(r'^\s*`include\s+"([^"]+)"', re.M)
 
 
@@ -749,6 +784,22 @@ def self_test(verilator):
                 rc = 1
                 for f in found:
                     print("        unexpected: %s" % f.replace("\n", " "))
+    # #186: the resolution-tree refusal, proven on its pure predicate so it runs
+    # on any box. End to end it is the negative control in the PR: remove a tree
+    # and the gate exits 2, not the ratchet-tighten 1.
+    all_absent = {label for label, _ in
+                  missing_resolution_trees(exists=lambda rel: False)}
+    if all_absent != {label for label, _, _ in REQUIRED_TREES}:
+        print("  [self-test] resolution-refusal REFUSE   FAILED "
+              "(absent trees not all flagged: %s)" % sorted(all_absent))
+        rc = 1
+    elif missing_resolution_trees(exists=lambda rel: True):
+        print("  [self-test] resolution-refusal REFUSE   FAILED "
+              "(a present tree was flagged absent)")
+        rc = 1
+    else:
+        print("  [self-test] resolution-refusal REFUSE   OK (every absent "
+              "resolution tree refuses; none flagged when present)")
     return rc
 
 
@@ -838,6 +889,28 @@ def main():
     # is the fast pragma-only mode.
     if a.pragmas or (a.self_test and not a.check):
         return rc
+
+    # REFUSE before measuring anything if a resolution tree is absent. Both the
+    # sweep below and the budget-lowering path further down would otherwise run
+    # over a tree missing the sources hdl/ instantiates, under-count, and either
+    # invite a ratchet tighten (--check) or quietly WRITE that lower number
+    # (default) - reddening dev for findings that were there all along (#186).
+    # This is exit 2, a setup refusal, deliberately NOT the exit-1 tighten path.
+    missing = missing_resolution_trees()
+    if missing:
+        print("LINT SETUP: REFUSED - a source tree lint reads to resolve hdl/ "
+              "is not checked out, so the violation count would be "
+              "under-reported:")
+        for label, why in missing:
+            print("  missing: %-26s (%s)" % (label, why))
+        print("  A fresh `git worktree add` inherits no submodules. Initialise "
+              "them (no network needed for these three):")
+        print("    git submodule update --init %s"
+              % " ".join(label for label, _ in missing))
+        print("  Refused rather than counted: a violation count over an "
+              "incomplete resolution set proves nothing and must not read as a "
+              "pass, nor invite a ratchet tighten - the pp_srcs.py rule.")
+        return 2
 
     decls = declarations()
     gaps = coverage_gaps(decls)
