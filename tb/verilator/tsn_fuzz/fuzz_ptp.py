@@ -405,6 +405,15 @@ class Campaign:
             self.rep.eq("boot req EtherType", m.ethertype,
                         int(con["ethertype"]["value"]))
         self.grade_tx(models["pdelay_req"], req, "tx_pdreq")
+        # OUR device emits correctionField 0 on Pdelay_Req. The shared tsn-gen
+        # model deliberately leaves it UNCONSTRAINED, because 802.1AS Table 11-5
+        # gives Pdelay_Req a correctionField role so a conformant requester MAY
+        # send nonzero - a fact about the standard, not about us. That is why
+        # the pin was removed from the model (#150); the assertion about what
+        # THIS implementation transmits belongs here, beside the frame, not in
+        # the oracle. grade_tx cannot carry it, so it is stated explicitly.
+        self.rep.eq("tx_pdreq.correction_field is 0 (our device; #150)",
+                    m.correction_field, 0)
         self.rep.eq("boot req source identity", m.source_clock_identity,
                     OUR_CID)
         # Milan: no Announce, no Sync before asCapable
