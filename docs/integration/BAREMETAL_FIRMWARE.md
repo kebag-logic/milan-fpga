@@ -20,7 +20,7 @@ The capability rows on this page are checked against the
 ## Contents
 
 - **[Build contract](#build-contract)** — The checked shipping shape, its cacheless one-hart RV32I invariants, the 50 MHz Milan/CPU clock boundary and the configuration-owned gPTP ROM.
-- **[Boot and AEM image](#boot-and-aem-image)** — The raw QSPI descriptor-image slot and the identity, copy and CRC checks that must pass before the protocol processor and ADP are enabled.
+- **[Boot and AEM image](#boot-and-aem-image)** — The raw QSPI descriptor-image slot and the identity, copy and CRC checks that must pass before either compatibility enable bit may activate the shared AVDECC control plane.
 - **[Fabric gPTP option](#fabric-gptp-option)** — How the shipping YAML opts into the fabric plane without changing the RTL default or taking #116's software-retirement work.
 - **[UART commands](#uart-commands)** — The status, TAI set/get and explicit UTC conversion commands, followed by the non-disruptive host smoke invocation.
 - **[Optional Linux sound-card surface](#optional-linux-sound-card-surface)** — What the shipping build removes with `sound_card: false`, what audio fabric remains, and how retained Linux bring-up builds opt back in.
@@ -75,14 +75,16 @@ reset and the option-on fabric gPTP plane starts independently of the AVDECC
 AEM image. Firmware therefore does not gate either one on AEM verification.
 It performs this order:
 
-1. Keep ADP and the protocol processor disabled while the PHC and fabric gPTP
-   plane remain active.
+1. Keep both compatibility enable bits clear, leaving the shared AVDECC
+   control plane disabled while the PHC and fabric gPTP plane remain active.
 2. Program the generated entity ID, model ID, station MAC, SR VID, stream
    counts, lwSRP policy, MAAP count and CRF/AAF controls.
 3. Copy the raw AEM image from QSPI to the protocol processor's paired DRAM
    window and verify its CRC32.
-4. Enable the protocol processor and then the ADP entity only after the
-   identity check and AEM verification succeed.
+4. After the identity check and AEM verification succeed, set the
+   `PP_CTRL[0]` and legacy `ADP_CTRL[0]` compatibility enable bits. The
+   controls are ORed into one shared control-plane enable, so either bit alone
+   enables it.
 
 A missing or corrupt image leaves the AVDECC entity disabled while the PHC and
 fabric gPTP plane continue independently. The UART status line then reports
@@ -226,7 +228,8 @@ The rest are refusals, and each one costs a legitimate edit:
 | Constraint | Why the gate needs it |
 |---|---|
 | `o_ptp_enable` is driven directly by `ptp_ctrl[0]` | PHC startup is independent of AEM/ADP; the CSR harness also proves writes to `ADP_CTRL` cannot force or gate the output |
-| Fabric gPTP RX, shadow TX, `gptp_ctl_mux` and MAC-boundary arbitration handshakes are direct | checking only the shadow instance misses a downstream `tvalid && cfg_adp_enable` gate that makes the plane externally silent before AEM succeeds |
+| Fabric gPTP RX, shadow TX, `gptp_ctl_mux`, MAC-boundary arbitration and external MAC RX/TX handshakes are direct | checking only an internal instance or arbiter misses a downstream `tvalid && cfg_adp_enable` gate that makes the plane externally silent before AEM succeeds |
+| `milan_reg()` is exactly base plus its argument and `milan_read()` directly dereferences that result | every call-site claim depends on those helpers preserving the register address and loaded value; helper-body refactors must update the model and its mutations |
 | The `MILAN_ID` local is not assigned or addressed between its CSR read and mismatch guard | otherwise an intervening `id = MILAN_ID_MAGIC` forges the verdict while preserving every ordering anchor |
 | A fifth pointer cast, a fifth pointer store or a third `asm` statement | the compiled census does not cover all three, so the sets are what bound address formation |
 | No multi-line `#define` anywhere in the file | the gate reads macro bodies one physical line at a time |

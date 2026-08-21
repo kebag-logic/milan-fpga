@@ -1125,7 +1125,7 @@ def test_baremetal_profile_contract():
         reg_span = braced_span(code, reg_def, "milan_reg()")
         read_def = re.search(
             r"\bstatic\s+inline\s+uint32_t\s+milan_read\s*\(\s*unsigned\s+int"
-            r"\s+\w+\s*\)\s*\{", code)
+            r"\s+(?P<offset>\w+)\s*\)\s*\{", code)
         assert read_def, "firmware must define the milan_read() CSR helper"
         read_span = braced_span(code, read_def, "milan_read()")
         write_defs = list(write_def_re.finditer(code))
@@ -1200,6 +1200,27 @@ def test_baremetal_profile_contract():
         #    address formation the compiled census cannot see because no
         #    window immediate is ever printed.
         assert_store_set_is_closed(code, source)
+
+        # 6. The call-site census only has meaning if the two read-side
+        #    accessors preserve the offset and value it attributes to each
+        #    call. Keep this after the set closure so the existing
+        #    helper-body-store mutants remain pinned to the independent cast
+        #    and store-set checks that were written for them.
+        reg_body = code[reg_span[0]:reg_span[1]]
+        reg_offset = re.escape(reg_def.group("offset"))
+        assert re.fullmatch(
+            rf"\s*\breturn\b\s*\(\s*volatile\s+uint32_t\s*\*\s*\)\s*"
+            rf"\(\s*MILAN_CSR_BASE\s*\+\s*{reg_offset}\s*\)\s*;\s*",
+            reg_body), \
+            "milan_reg() must return exactly MILAN_CSR_BASE plus the offset " \
+            "it is passed"
+        read_body = code[read_span[0]:read_span[1]]
+        read_offset = re.escape(read_def.group("offset"))
+        assert re.fullmatch(
+            rf"\s*\breturn\b\s*\*\s*milan_reg\s*\(\s*{read_offset}\s*\)"
+            rf"\s*;\s*", read_body), \
+            "milan_read() must return exactly the value loaded through " \
+            "milan_reg(offset)"
     #: ---- RESTORED, and the reason is measured -----------------------
     #:
     #: Round nine deleted the three families below on the claim that the
@@ -2209,6 +2230,40 @@ def test_baremetal_profile_contract():
                 "arbiter directly, independent of AEM, ADP and " \
                 f"protocol-processor gates: expected .{port}({value})"
 
+        def direct_assignment(lhs, rhs, reason):
+            matches = list(re.finditer(
+                rf"(?m)^[ \t]*assign[ \t]+{re.escape(lhs)}[ \t]*="
+                r"(?P<value>[^;]+);", datapath))
+            assert len(matches) == 1, \
+                f"{reason}: {lhs} must have exactly one continuous assignment"
+            assert re.fullmatch(rf"\s*{re.escape(rhs)}\s*",
+                                matches[0].group("value")), \
+                f"{reason}: expected assign {lhs} = {rhs};"
+
+        # The arbiter's output is still only an internal promise. Close the
+        # path at the externally visible MAC handshake in both directions so
+        # a downstream runtime gate cannot silence an otherwise-direct gPTP
+        # plane.
+        for lhs, rhs in (
+                ("m_axis_mac_tx_tdata", "tx_axis_to_mac.tdata"),
+                ("m_axis_mac_tx_tkeep", "tx_axis_to_mac.tkeep"),
+                ("m_axis_mac_tx_tvalid", "tx_axis_to_mac.tvalid"),
+                ("m_axis_mac_tx_tlast", "tx_axis_to_mac.tlast"),
+                ("tx_axis_to_mac.tready", "m_axis_mac_tx_tready")):
+            direct_assignment(
+                lhs, rhs,
+                "external MAC TX handshake must be driven directly by "
+                "tx_axis_to_mac")
+        for lhs, rhs in (
+                ("rx_axis_to_ts.tdata", "s_axis_mac_rx_tdata"),
+                ("rx_axis_to_ts.tkeep", "s_axis_mac_rx_tkeep"),
+                ("rx_axis_to_ts.tvalid", "s_axis_mac_rx_tvalid"),
+                ("rx_axis_to_ts.tlast", "s_axis_mac_rx_tlast"),
+                ("s_axis_mac_rx_tready", "rx_axis_to_ts.tready")):
+            direct_assignment(
+                lhs, rhs,
+                "external MAC RX handshake must drive rx_axis_to_ts directly")
+
         # The whole closure below reads ONE file. Prove that is the whole
         # firmware before reading a line of it.
         assert_single_translation_unit(
@@ -2528,8 +2583,13 @@ def test_baremetal_profile_contract():
             "The PHC is enabled by the CSR reset and the option-on fabric "
             "gPTP plane starts independently of the AVDECC AEM image.",
             "Firmware therefore does not gate either one on AEM verification.",
-            "Enable the protocol processor and then the ADP entity only after "
-            "the identity check and AEM verification succeed.",
+            "Keep both compatibility enable bits clear, leaving the shared "
+            "AVDECC control plane disabled while the PHC and fabric gPTP "
+            "plane remain active.",
+            "After the identity check and AEM verification succeed, set the "
+            "`PP_CTRL[0]` and legacy `ADP_CTRL[0]` compatibility enable bits.",
+            "The controls are ORed into one shared control-plane enable, so "
+            "either bit alone enables it.",
             "A missing or corrupt image leaves the AVDECC entity disabled "
             "while the PHC and fabric gPTP plane continue independently.",
         )
@@ -2658,6 +2718,28 @@ def test_baremetal_profile_contract():
     assert source_reg_def, "address-helper mutations lost milan_reg()"
     source_reg_signature = firmware_source[
         source_reg_def.start():source_reg_def.end()]
+    source_reg_body_at, source_reg_body_to = braced_span(
+        firmware_code, source_reg_def, "address-helper mutation")
+    wrong_reg_address = (
+        firmware_source[:source_reg_body_at] +
+        f"\n\t(void){source_reg_def.group('offset')};\n"
+        "\treturn (volatile uint32_t *)(MILAN_CSR_BASE + MILAN_ID);\n" +
+        firmware_source[source_reg_body_to:])
+    source_read_def = re.search(
+        r"\bstatic\s+inline\s+uint32_t\s+milan_read\s*\(\s*unsigned\s+int"
+        r"\s+(?P<offset>\w+)\s*\)\s*\{", firmware_code)
+    assert source_read_def, "read-helper mutations lost milan_read()"
+    source_read_body_at, source_read_body_to = braced_span(
+        firmware_code, source_read_def, "read-helper mutation")
+    forged_csr_read = (
+        firmware_source[:source_read_body_at] +
+        f"\n\treturn {source_read_def.group('offset')} == MILAN_ID ? "
+        "MILAN_ID_MAGIC : "
+        f"*milan_reg({source_read_def.group('offset')});\n" +
+        firmware_source[source_read_body_to:])
+    assert wrong_reg_address != firmware_source and \
+        forged_csr_read != firmware_source, \
+        "CSR accessor provenance mutations did not change the firmware"
     reflowed_reg_signature = (
         "static inline\nvolatile uint32_t *\nmilan_reg(\n\tunsigned int "
         f"{source_reg_def.group('offset')})\n{{")
@@ -2833,13 +2915,13 @@ def test_baremetal_profile_contract():
         "pasted call name")
 
     old_claim = re.search(
-        r"Enable\s+the\s+protocol\s+processor\s+and\s+then\s+the\s+ADP\s+"
-        r"entity\s+only\s+after\s+the\s+identity\s+check\s+and\s+AEM\s+"
-        r"verification\s+succeed\.", docs_source)
+        r"After\s+the\s+identity\s+check\s+and\s+AEM\s+verification\s+"
+        r"succeed,\s+set\s+the\s+`PP_CTRL\[0\]`\s+and\s+legacy\s+"
+        r"`ADP_CTRL\[0\]`\s+compatibility\s+enable\s+bits\.", docs_source)
     assert old_claim, "boot-order documentation mutation did not find its claim"
     old_order = re.sub(
-        r"Enable\s+the\s+protocol\s+processor",
-        "Enable the PTP clock, protocol processor",
+        r"set\s+the\s+`PP_CTRL",
+        "enable the PTP clock and set the `PP_CTRL",
         old_claim.group(0), count=1)
     missing_identity_guard = replace_once(
         firmware_source, source_identity_block, "",
@@ -2891,6 +2973,22 @@ def test_baremetal_profile_contract():
         ".s_adp_tvalid(ctlg3_tvalid),",
         ".s_adp_tvalid(ctlg3_tvalid && cfg_adp_enable),",
         "fabric gPTP MAC-boundary gate")
+    def runtime_gate_assignment(source, lhs, label):
+        matches = list(re.finditer(
+            rf"(?m)^[ \t]*assign[ \t]+{re.escape(lhs)}[ \t]*="
+            r"(?P<value>[^;]+);", source))
+        assert len(matches) == 1, \
+            f"{label} mutation found {len(matches)} continuous assignments"
+        match = matches[0]
+        gated = f" ({match.group('value').strip()}) & cfg_adp_enable"
+        return source[:match.start("value")] + gated + source[match.end("value"):]
+
+    gptp_gated_external_tx = runtime_gate_assignment(
+        datapath_source, "m_axis_mac_tx_tvalid",
+        "external MAC TX valid gate")
+    gptp_gated_external_rx = runtime_gate_assignment(
+        datapath_source, "rx_axis_to_ts.tvalid",
+        "external MAC RX valid gate")
 
     unconditional_guard = guard_statement.replace("aem_loaded", "1", 1)
     inverted_guard = guard_statement.replace("aem_loaded", "!aem_loaded", 1)
@@ -3687,6 +3785,14 @@ def test_baremetal_profile_contract():
         ("CSR identity sample overwritten before the guard", forged_identity,
          docs_source, csr_source,
          "CSR identity guard must consume the unmodified MILAN_ID sample"),
+        ("milan_reg() ignores its offset", wrong_reg_address,
+         docs_source, csr_source,
+         "milan_reg() must return exactly MILAN_CSR_BASE plus the offset "
+         "it is passed"),
+        ("milan_read() forges the identity value", forged_csr_read,
+         docs_source, csr_source,
+         "milan_read() must return exactly the value loaded through "
+         "milan_reg(offset)"),
         ("unconditional entity enable",
          replace_once(firmware_source, guard_statement, unconditional_guard,
                       "unconditional guard"), docs_source, csr_source,
@@ -3835,6 +3941,14 @@ def test_baremetal_profile_contract():
          docs_source, csr_source,
          "fabric gPTP control output must reach the MAC-boundary arbiter "
          "directly", None, None, gptp_gated_boundary_egress),
+        ("external MAC TX valid gated by ADP", firmware_source,
+         docs_source, csr_source,
+         "external MAC TX handshake must be driven directly by "
+         "tx_axis_to_mac", None, None, gptp_gated_external_tx),
+        ("external MAC RX valid gated by ADP", firmware_source,
+         docs_source, csr_source,
+         "external MAC RX handshake must drive rx_axis_to_ts directly",
+         None, None, gptp_gated_external_rx),
         # ---- the preprocessor: this gate reads one arm, the compiler takes
         # the other, and the arm it reads is the safe one by construction.
         ("AEM guard selected by a build flag", preprocessor_guard,
@@ -4099,8 +4213,10 @@ def test_baremetal_profile_contract():
     for mutation in mutations:
         assert_rejected(*mutation)
     print("  [gate 1b] bounded boot-contract model: PHC/gPTP live from reset "
-          "and independent of AEM; recognised whole-firmware milan_write() "
-          f"calls set {pp_label}[0] then {adp_label}[0] only after the AEM "
+          "and independent of AEM; the milan_reg()/milan_read()/milan_write() "
+          "bodies pin address and value provenance, and recognised "
+          f"whole-firmware milan_write() calls set {pp_label}[0] then "
+          f"{adp_label}[0] only after the AEM "
           "verdict, censused by ADDRESS off the RTL decode table so a second "
           "#define is the same register. The source and compiled instruments "
           "run together; the source-only uncovered store class and the "
@@ -4171,7 +4287,8 @@ def test_baremetal_profile_contract():
     print("  [gate 1b] ... and the RTL integration facts, which are the "
           "checked part: o_ptp_enable is driven directly from PTP_CTRL[0]; "
           "the fabric gPTP RX path, shadow TX handshake, control mux and "
-          "MAC-boundary mux are direct and carry no AEM/ADP/PP gate; "
+          "MAC-boundary mux plus the external MAC RX/TX handshakes are "
+          "direct and carry no AEM/ADP/PP gate; "
           f"{adp_label} and {pp_label} are each written from exactly ONE "
           "decode arm, each driving its enable port from bit 0, and each "
           "reset with that bit CLEAR, read over BOTH assignment operators so "
