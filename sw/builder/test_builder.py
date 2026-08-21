@@ -4054,6 +4054,11 @@ with open(spec["result"], "w", encoding="utf-8") as fh:
 #: directory as a namespace package and the import fails.
 SOC_DIR = os.path.join(ROOT, "sw/litex")
 
+#: Placeholder an argv uses for "the launcher's --output-dir".  _instance_params
+#: substitutes its own scratch directory and then proves that directory is
+#: still empty, which is how the spy's cheapness stops being an assumption.
+BUILD_OUT_TOKEN = "@BUILD_OUT@"
+
 #: The config whose argv drives gate 23f: the SHIPPING AX shape (USER
 #: 2026-08-05, 1x1x8 TDM8), and it is the shipping one that matters here for
 #: two independent reasons.
@@ -4137,7 +4142,19 @@ def _instance_params(python, runs, mutations=()):
     env = dict(os.environ, PYTHONHASHSEED="0")
     out, seen = {}, {}
     with tempfile.TemporaryDirectory() as tmp:
+        # THE SPY MUST STOP THE ELABORATION, not merely witness it, and the
+        # empty directory below is what proves it.  Every recipe run carries
+        # `--build`; if the spy ever raised too LATE - after Builder() was
+        # constructed - LiteX would write its gateware and software trees in
+        # here and invoke Vivado, and every assertion in these gates would
+        # still pass because the parameters were still read correctly.  A
+        # harness whose own cheapness is assumed rather than checked is the
+        # thing these gates exist to stop.  Borrowed from gate 1e on the #116
+        # lane (PR #135), which had this and this file did not.
+        build_out = os.path.join(tmp, "build-out")
+        os.makedirs(build_out)
         for label, argv in runs:
+            argv = [build_out if a == BUILD_OUT_TOKEN else a for a in argv]
             # Several labels share one command line on purpose - the shipping
             # argv is simultaneously the prune baseline, the sound card's
             # ABSENT side and the gPTP plane's PRESENT side - and elaborating
@@ -4163,6 +4180,12 @@ def _instance_params(python, runs, mutations=()):
                 f"\n{proc.stderr[-2000:]}")
             with open(result) as fh:
                 out[label] = seen[key] = json.load(fh)
+        left = os.listdir(build_out)
+        assert not left, (
+            "the Instance spy no longer stops the elaboration: a run carrying "
+            f"--build wrote {left} into its output directory, so these runs "
+            "are not the sub-second read-back they are documented to be and "
+            "a real Vivado build was reached")
     return out
 
 
@@ -4528,9 +4551,10 @@ def _recipe_cases():
 
 
 #: Stand-in for the launcher's own `$out`/`$W/build_...` directory.  Replaced
-#: with a real temp path per run: milan_soc.py must be refused for its own
-#: reasons, never for an output directory that does not exist.
-OUT_DIR_TOKEN = "@OUTDIR@"
+#: with the probe runner's own scratch path: milan_soc.py must be refused for
+#: its own reasons, never for an output directory that does not exist, and
+#: that directory has to be one _instance_params can afterwards prove empty.
+OUT_DIR_TOKEN = BUILD_OUT_TOKEN
 
 
 def _is_unpatched_vexii(argv, err):
@@ -4560,10 +4584,11 @@ def test_every_recipe_elaborates():
         eb.build(CONFIGS[name], OUT)
     cases = _recipe_cases()
     t0 = time.time()
-    with tempfile.TemporaryDirectory() as tmp:
-        runs = [(label, [tmp if a == OUT_DIR_TOKEN else a for a in argv])
-                for label, argv in cases]
-        got = _instance_params(python, runs)
+    # The --output-dir token is left FOR _instance_params to substitute, so
+    # the directory these `--build` runs are pointed at is the one it can
+    # afterwards prove empty. Substituting a local temp here would put the
+    # proof out of its reach, which is the point of the token.
+    got = _instance_params(python, cases)
     bad, stale, ran = [], [], 0
     for label, argv in cases:
         err = got[label].get("error")
@@ -4611,12 +4636,9 @@ def test_recipe_smoke_gate_bites():
     if python is None:
         return
     cases = [c for c in _recipe_cases() if c[0] not in KNOWN_UNRUNNABLE]
-    with tempfile.TemporaryDirectory() as tmp:
-        controls = []
-        for label, argv in cases[:1] + cases[-1:]:
-            argv = [tmp if a == OUT_DIR_TOKEN else a for a in argv]
-            controls.append((label, _drop_flag(argv, "--entity-gen-dir", 1)))
-        got = _instance_params(python, controls)
+    controls = [(label, _drop_flag(argv, "--entity-gen-dir", 1))
+                for label, argv in cases[:1] + cases[-1:]]
+    got = _instance_params(python, controls)
     for label, _argv in controls:
         assert got[label].get("error") is not None, (
             f"gate 23g accepted `{label}` with --entity-gen-dir stripped - "
