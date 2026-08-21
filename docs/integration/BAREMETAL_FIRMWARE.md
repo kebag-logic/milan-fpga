@@ -141,12 +141,11 @@ proves the CRC decision executed. A structured `do`/`break` bypass has the same
 effect without `goto`, so another keyword refusal is not a proof. The
 verifier/control-flow half of the replacement is tracked on #153.
 
-The source and compiled store instruments also have a shared blind spot and it
-is not closed. The cast set only recognises a cast whose text
-contains a `*`, and the store set only recognises a left-hand side that starts
-with `*` or is `name[...]`; the census exempts `milan_reg()` by name and
-matches printed integer literals. So a cast with no `*` combined with a `->`
-or subscript store is outside **both**, and this walks through today:
+The source store instrument has an uncovered class. The cast set only
+recognises a cast whose text contains a `*`, and the store set only recognises
+a left-hand side that starts with `*` or is `name[...]`. A cast with no `*`
+combined with a `->` or subscript store is therefore outside the source
+instrument:
 
 ```c
 typedef struct { volatile uint32_t ctrl; } *milan_adp_blk;
@@ -154,9 +153,11 @@ typedef struct { volatile uint32_t ctrl; } *milan_adp_blk;
 ((milan_adp_blk)0x90000600u)->ctrl = 1u;      /* ADP_CTRL[0], pre-AEM */
 ```
 
-That is a durable pre-AEM entity advertise and the gate reports `ALL GATES
-PASS`. It is not a regression: it passes at every commit in this lane's range.
-Closing the full advertise-after-verification property requires #153 and #162
+That is a durable pre-AEM entity advertise. When an RV32 cross compiler is
+available, the compiled census sees the materialised CSR address and rejects
+the edit. When the compiled census stands down for want of that compiler, the
+edit is outside both active instruments and the gate reports `ALL GATES PASS`.
+Closing the property on every supported runner still requires #153 and #162
 together. #153 owns the verifier/control-flow proof and the
 `entity_advertise()` choke point; #162 owns a census that resolves CSR store
 targets by value rather than matching printed literals. The choke point alone
