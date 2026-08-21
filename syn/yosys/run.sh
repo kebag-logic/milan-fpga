@@ -303,7 +303,11 @@ for name in "${selected_names[@]}"; do
     record_result top "$top" PASS 1 "$MODE" "${cells:-?}"
     pass=$((pass + 1))
   else
-    reason="$(grep -iE '^ERROR' "$TMP/$top.yos.log" | head -1)"
+    # yosys 0.66 (the version a bench box may run) prints a $readmemh failure as
+    # `<file>:<line>: ERROR: ...`, so an anchored `^ERROR` matches nothing and the
+    # reason column comes out EMPTY - indistinguishable from an OOM-killed tool
+    # (#192). Match ERROR wherever it sits and drop the path:line prefix.
+    reason="$(grep -oE 'ERROR:.*' "$TMP/$top.yos.log" | head -1)"
     printf "  [FAIL] %-22s yosys: %s\n" "$top" "$reason"
     record_result top "$top" FAIL 1 "$MODE" "${cells:-?}"
     fail=$((fail + 1))
