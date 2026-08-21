@@ -92,13 +92,16 @@ fabric gPTP plane continue independently. The UART status line then reports
 
 Gate 1b in `sw/builder/test_builder.py` checks the shipped boot-order spelling
 and rejects the mutation classes listed below. It proves the enumerated
-address, reset, placement and build-plan facts; it does **not** prove the
-semantic C control/data-flow property, and the known escapes below still
-report `ALL GATES PASS`. The constraints apply to
+address, reset, placement, live gPTP wiring and build-plan facts; it does
+**not** prove the semantic C control/data-flow property, and the known escapes
+below still report `ALL GATES PASS`. The constraints apply to
 `sw/firmware/milan_baremetal/milan_baremetal.c` and
-`sw/firmware/milan_baremetal/Makefile` only. The gate prints both its checked
-facts and open limits at run time; neither this page nor the gate output may
-claim more than those measured facts.
+`sw/firmware/milan_baremetal/Makefile`, plus the named CSR and datapath
+integration expressions. The CSR Verilator harness separately drives
+`PTP_CTRL` and `ADP_CTRL` through all four combinations and observes
+`o_ptp_enable`, so the direct PHC ownership claim is behavioral as well as
+structural. The gate prints both its checked facts and open limits at run time;
+neither this page nor the gate output may claim more than those measured facts.
 
 One constraint is answered by a tool rather than by reading text:
 
@@ -115,7 +118,10 @@ A second tool check runs alongside the text rules, and it is an **addition**
 rather than a replacement. Where an RV32 cross compiler is available, the gate
 compiles the firmware and requires that no function except `milan_reg()`
 materialises an address inside the Milan CSR window; where one is not, it
-stands down and says so in its printed verdict.
+stands down and says so in its printed verdict. A deterministic host-only
+self-test supplies a compiler selection that is known not to be RV32, makes
+any attempted compile fail, and checks that the same observed no-run verdict
+produces the printed `STOOD DOWN` claim.
 
 **What this gate does not prove.** The CRC check has a measured control-flow
 escape. Gate 1b finds the `crc32()` assignment and mismatch block and requires
@@ -219,9 +225,12 @@ The rest are refusals, and each one costs a legitimate edit:
 
 | Constraint | Why the gate needs it |
 |---|---|
+| `o_ptp_enable` is driven directly by `ptp_ctrl[0]` | PHC startup is independent of AEM/ADP; the CSR harness also proves writes to `ADP_CTRL` cannot force or gate the output |
+| Fabric gPTP RX, shadow TX, `gptp_ctl_mux` and MAC-boundary arbitration handshakes are direct | checking only the shadow instance misses a downstream `tvalid && cfg_adp_enable` gate that makes the plane externally silent before AEM succeeds |
+| The `MILAN_ID` local is not assigned or addressed between its CSR read and mismatch guard | otherwise an intervening `id = MILAN_ID_MAGIC` forges the verdict while preserving every ordering anchor |
 | A fifth pointer cast, a fifth pointer store or a third `asm` statement | the compiled census does not cover all three, so the sets are what bound address formation |
 | No multi-line `#define` anywhere in the file | the gate reads macro bodies one physical line at a time |
-| No C backslash-newline anywhere in the file | translation phase 2 deletes the pair and can join tokens before an offset-preserving text census; a real preprocessor-token reader may retire this refusal |
+| No C backslash-newline anywhere in the file | translation phase 2 deletes the pair and can join tokens before an offset-preserving text census; independent space, tab, form-feed and vertical-tab mutants pin every whitespace form the recognizer accepts; a real preprocessor-token reader may retire this refusal |
 | No `#ifdef`/`#if` outside `load_aem_image()` | the gate would read one arm while the compiler takes the other |
 | No `#pragma`, `#line`, `#error`, `#undef` or `#include_next` | the gate has no rule for them, so it refuses rather than ignores |
 | The `#include` set is exactly the eleven headers listed in the gate | a twelfth include is text in the translation unit no rule reads |

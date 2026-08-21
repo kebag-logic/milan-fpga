@@ -1059,6 +1059,19 @@ def test_baremetal_profile_contract():
             f"unsupported ptp_ctrl reset literal: {literal}"
         return match, value
 
+    def ptp_enable_assignment(csr):
+        """The PHC enable output and the register bit that solely drives it."""
+        matches = list(re.finditer(
+            r"\bassign\s+o_ptp_enable\s*=\s*(?P<value>[^;]+);", csr))
+        assert len(matches) == 1, \
+            "bare-metal PHC contract requires exactly one o_ptp_enable " \
+            "continuous assignment"
+        value = matches[0].group("value")
+        assert re.fullmatch(r"\s*ptp_ctrl\s*\[\s*0\s*\]\s*", value), \
+            "PHC enable output must be driven directly by PTP_CTRL[0], " \
+            "independent of ADP, AEM and protocol-processor gates"
+        return matches[0]
+
     def crc_mismatch_guard(load_source):
         """The `if` that refuses a CRC mismatch, found by the comparison it
         makes rather than by the name of the local it compares -- renaming a
@@ -1588,7 +1601,19 @@ def test_baremetal_profile_contract():
     #: fails on this one sentence, whatever spelled it.
     CENSUS_PIN = "materialises one elsewhere"
 
-    def assert_compiled_census_is_clean(firmware, label="firmware"):
+    def format_census_verdict(verdict):
+        """Render only an execution state the census actually observed."""
+        assert verdict["ran"] == verdict["target"], \
+            "compiled-census verdict contradicts its execution state"
+        compiler = os.path.basename(verdict.get("compiler") or "no")
+        if verdict["ran"]:
+            return f"answered by {compiler}"
+        return (f"STOOD DOWN: {compiler} compiler is not the RV32 target, "
+                "so the compiled census did not run and the text rules "
+                "above carry this on their own")
+
+    def assert_compiled_census_is_clean(firmware, label="firmware",
+                                        selection=None, runner=None):
         """No function but milan_reg() may materialise a CSR window address.
 
         Measured on the COMPILER's output, not on the firmware's text.
@@ -1608,26 +1633,32 @@ def test_baremetal_profile_contract():
             "helper, so it cannot say which function is allowed to form an " \
             "address; refusing rather than censusing against a guess"
         reg_name = helper.group(1)
-        compiler = census_compiler()
-        if compiler and not census_used.get("target"):
+        if selection is None:
+            compiler = census_compiler()
+            target = bool(census_used.get("target"))
+        else:
+            compiler = selection.get("compiler")
+            target = bool(selection.get("target"))
+        if compiler and not target:
             # GENUINELY stand down. The previous revision printed
             # "STOOD DOWN" and then ran the census anyway: `-S` does not
             # assemble, so a host compiler emits most of the firmware fine
             # and returned a real x86 verdict while the printed line said
             # the text rules were carrying it alone. A stand-down message
             # that is false is worse than no stand-down.
-            return
+            return {"compiler": compiler, "target": False, "ran": False}
         assert compiler, \
             "the compiled census needs a C compiler and found none of " \
             f"{list(census_compilers)}: this gate cannot bound CSR stores " \
             "by reading C, so it refuses to report a result it did not take"
+        run = subprocess.run if runner is None else runner
         with tempfile.TemporaryDirectory(prefix="milan-census-") as root:
             census_headers(root)
             source = os.path.join(root, "milan_baremetal.c")
             with open(source, "w") as fh:
                 fh.write(firmware)
             assembly = os.path.join(root, "census.s")
-            built = subprocess.run(
+            built = run(
                 [compiler, "-std=gnu99", "-O0", "-fno-inline", "-S",
                  "-o", assembly, f"-I{root}", source],
                 capture_output=True, text=True)
@@ -1660,6 +1691,27 @@ def test_baremetal_profile_contract():
             f" reaches a control register without passing the bit-0 census, " \
             f"whatever cast, typedef, macro, member access or asm template " \
             f"spelled it; found {hits[:3]}"
+        return {"compiler": compiler, "target": True, "ran": True}
+
+    # Force the non-target branch without depending on which compilers the
+    # machine happens to have. If stand-down ever invokes the compiler, the
+    # runner makes this focused gate fail; the formatter then proves the text
+    # printed to users describes that same observed no-run verdict.
+    host_only_calls = []
+
+    def forbidden_host_census(*args, **kwargs):
+        host_only_calls.append((args, kwargs))
+        raise AssertionError("host-only compiled census ran after stand-down")
+
+    host_only_verdict = assert_compiled_census_is_clean(
+        firmware_source, "host-only stand-down self-test",
+        selection={"compiler": "host-only-cc", "target": False},
+        runner=forbidden_host_census)
+    host_only_note = format_census_verdict(host_only_verdict)
+    assert not host_only_calls and not host_only_verdict["ran"] and \
+           "STOOD DOWN" in host_only_note and \
+           "compiled census did not run" in host_only_note, \
+        "host-only census execution and its printed stand-down claim diverge"
 
     def assert_target_compiles(firmware, label, allow_warnings=False):
         """Prove one mutation is accepted C for the exact RV32 target.
@@ -2086,12 +2138,76 @@ def test_baremetal_profile_contract():
         assert gptp_shadow, \
             "the option-on fabric gPTP plane must instantiate KL_gptp_shadow"
         shadow_ports = gptp_shadow.group("ports")
-        assert re.search(r"\.clk_i\s*\(\s*axis_clk\s*\)", shadow_ports) and \
-               re.search(r"\.rst_n\s*\(\s*axis_resetn\s*\)", shadow_ports) and \
-               not re.search(r"\b(?:cfg_adp_enable|pp_enable_w|aem_loaded)\b",
-                             shadow_ports), \
-            "fabric gPTP must run from axis_clk and reset directly from " \
-            "axis_resetn, without an AEM, ADP or protocol-processor gate"
+
+        def direct_port(ports, port, value):
+            return re.search(
+                rf"\.{re.escape(port)}\s*\(\s*{re.escape(value)}\s*\)",
+                ports)
+
+        for port, value in (
+                ("clk_i", "axis_clk"), ("rst_n", "axis_resetn"),
+                ("rx_tdata_i", "rx_axis_to_dma.tdata"),
+                ("rx_tkeep_i", "rx_axis_to_dma.tkeep"),
+                ("rx_tvalid_i", "rx_axis_to_dma.tvalid"),
+                ("rx_tready_i", "rx_axis_to_dma.tready"),
+                ("rx_tlast_i", "rx_axis_to_dma.tlast")):
+            assert direct_port(shadow_ports, port, value), \
+                "fabric gPTP RX and control inputs must observe the live " \
+                "datapath directly, independent of AEM, ADP and " \
+                f"protocol-processor gates: expected .{port}({value})"
+        for port, value in (
+                ("tx_tdata_o", "gtx_tdata_w"),
+                ("tx_tkeep_o", "gtx_tkeep_w"),
+                ("tx_tvalid_o", "gtx_tvalid_w"),
+                ("tx_tlast_o", "gtx_tlast_w"),
+                ("tx_tready_i", "gtx_tready_w")):
+            assert direct_port(shadow_ports, port, value), \
+                "fabric gPTP TX handshake must leave KL_gptp_shadow " \
+                f"directly: expected .{port}({value})"
+
+        gptp_mux = re.search(
+            r"\badp_tx_arbiter\b.*?\)\s*gptp_ctl_mux\s*\("
+            r"(?P<ports>.*?)\);", gptp_plane.group("body"), re.DOTALL)
+        assert gptp_mux, \
+            "the option-on fabric gPTP plane must feed gptp_ctl_mux"
+        gptp_mux_ports = gptp_mux.group("ports")
+        for port, value in (
+                ("s_adp_tdata", "gtx_tdata_w"),
+                ("s_adp_tkeep", "gtx_tkeep_w"),
+                ("s_adp_tvalid", "gtx_tvalid_w"),
+                ("s_adp_tlast", "gtx_tlast_w"),
+                ("s_adp_tready", "gtx_tready_w"),
+                ("m_tdata", "ctlg3_tdata"),
+                ("m_tkeep", "ctlg3_tkeep"),
+                ("m_tvalid", "ctlg3_tvalid"),
+                ("m_tlast", "ctlg3_tlast"),
+                ("m_tready", "ctlg3_tready")):
+            assert direct_port(gptp_mux_ports, port, value), \
+                "fabric gPTP TX must traverse gptp_ctl_mux directly, " \
+                "independent of AEM, ADP and protocol-processor gates: " \
+                f"expected .{port}({value})"
+
+        boundary_mux = re.search(
+            r"\badp_tx_arbiter\b.*?\)\s*adp_tx_mux\s*\("
+            r"(?P<ports>.*?)\);", datapath, re.DOTALL)
+        assert boundary_mux, \
+            "the fabric gPTP/control stream must reach the MAC-boundary mux"
+        boundary_ports = boundary_mux.group("ports")
+        for port, value in (
+                ("s_adp_tdata", "ctlg3_tdata"),
+                ("s_adp_tkeep", "ctlg3_tkeep"),
+                ("s_adp_tvalid", "ctlg3_tvalid"),
+                ("s_adp_tlast", "ctlg3_tlast"),
+                ("s_adp_tready", "ctlg3_tready"),
+                ("m_tdata", "tx_axis_to_mac.tdata"),
+                ("m_tkeep", "tx_axis_to_mac.tkeep"),
+                ("m_tvalid", "tx_axis_to_mac.tvalid"),
+                ("m_tlast", "tx_axis_to_mac.tlast"),
+                ("m_tready", "tx_axis_to_mac.tready")):
+            assert direct_port(boundary_ports, port, value), \
+                "fabric gPTP control output must reach the MAC-boundary " \
+                "arbiter directly, independent of AEM, ADP and " \
+                f"protocol-processor gates: expected .{port}({value})"
 
         # The whole closure below reads ONE file. Prove that is the whole
         # firmware before reading a line of it.
@@ -2118,6 +2234,7 @@ def test_baremetal_profile_contract():
         # decode is the other half, and it is what says each entity-enable
         # register answers to ONE address.
         assert_decode_is_one_to_one(csr, model)
+        ptp_enable_assignment(csr)
         load_start = anchored(firmware, "static int load_aem_image(void)",
                               "the AEM verifier")
         load_end = anchored(firmware, "static void milan_init(void)",
@@ -2146,6 +2263,20 @@ def test_baremetal_profile_contract():
         assert identity_read and identity_guard, \
             "firmware must reject a mismatched CSR identity before " \
             "configuring fabric or verifying the AEM image"
+        identity_between = init_source[
+            identity_read.end():identity_guard.start()]
+        identity_name = re.escape(identity_read.group("name"))
+        identity_write = re.search(
+            rf"(?:\+\+|--)\s*\b{identity_name}\b|"
+            rf"\b{identity_name}\b\s*(?:\+\+|--|"
+            rf"(?:<<|>>|[-+*/%|&^])?=(?!=))",
+            identity_between)
+        identity_address = re.search(
+            rf"(?<!&)&(?!&)\s*\b{identity_name}\b", identity_between)
+        assert not identity_write and not identity_address, \
+            "CSR identity guard must consume the unmodified MILAN_ID " \
+            "sample: no assignment, increment or pointer write may replace " \
+            "the value between its CSR read and mismatch comparison"
         identity_body, identity_close = braced_span(
             init_source, identity_guard, "CSR identity mismatch guard")
         identity_block = init_source[identity_body:identity_close]
@@ -2253,7 +2384,7 @@ def test_baremetal_profile_contract():
         # miss something the other holds. The census runs LAST so that a
         # reduced-mode census (no cross compiler, see below) never takes a
         # verdict away from a rule that answers on every machine.
-        assert_compiled_census_is_clean(source)
+        compiled_census_verdict = assert_compiled_census_is_clean(source)
         # The census places a write by the ADDRESS its operand reaches, so an
         # operand this gate cannot resolve to a decoded register is an
         # unclassifiable store: refuse it rather than leave it unexamined.
@@ -2409,8 +2540,10 @@ def test_baremetal_profile_contract():
             "documentation restored the false AEM-gated PTP ordering"
         assert "firmware sets the PHC epoch explicitly" not in words, \
             "documentation claims an automatic epoch write firmware does not make"
+        return compiled_census_verdict
 
-    assert_boot_contract(firmware_source, docs_source, csr_source)
+    baseline_census_verdict = assert_boot_contract(
+        firmware_source, docs_source, csr_source)
 
     def replace_once(source, old, new, label):
         changed = source.replace(old, new, 1)
@@ -2464,6 +2597,13 @@ def test_baremetal_profile_contract():
                         "the boot entry point's init hook", init_start)
     source_init = firmware_source[init_start:init_end]
     init_code = firmware_code[init_start:init_end]
+    source_identity_read = re.search(
+        r"\buint32_t\s+(?P<name>\w+)\s*=\s*"
+        r"milan_read\s*\(\s*MILAN_ID\s*\)\s*;", init_code)
+    assert source_identity_read, \
+        "CSR identity-check mutations lost the MILAN_ID read"
+    source_identity_read_statement = source_init[
+        source_identity_read.start():source_identity_read.end()]
     source_identity_guard = re.search(
         r"\bif\s*\(\s*\w+\s*!=\s*MILAN_ID_MAGIC\s*\)\s*\{",
         init_code)
@@ -2504,6 +2644,8 @@ def test_baremetal_profile_contract():
     source_crc_block = source_load_function[crc_body:crc_close]
     source_reset, _reset_value = ptp_reset_assignment(csr_source)
     source_reset_statement = source_reset.group(0)
+    source_ptp_enable = ptp_enable_assignment(csr_source)
+    source_ptp_enable_statement = source_ptp_enable.group(0)
     source_fabric = re.search(
         r"static\s+void\s+configure_fabric\s*\(\s*void\s*\)\s*\{",
         firmware_code)
@@ -2514,13 +2656,32 @@ def test_baremetal_profile_contract():
         r"\bstatic\s+inline\s+volatile\s+uint32_t\s*\*\s*milan_reg\s*\(\s*"
         r"unsigned\s+int\s+(?P<offset>\w+)\s*\)\s*\{", firmware_code)
     assert source_reg_def, "address-helper mutations lost milan_reg()"
-    source_reg_body_at, _source_reg_body_to = braced_span(
-        firmware_code, source_reg_def, "milan_reg()")
     source_reg_signature = firmware_source[
         source_reg_def.start():source_reg_def.end()]
     reflowed_reg_signature = (
         "static inline\nvolatile uint32_t *\nmilan_reg(\n\tunsigned int "
         f"{source_reg_def.group('offset')})\n{{")
+
+    def accepted_reg_reflow(baseline):
+        """Return the accepted helper reflow, including an already-reflowed
+        live baseline without asking replace_once() to perform a no-op."""
+        code = blanked(baseline)
+        reg_def = re.search(
+            r"\bstatic\s+inline\s+volatile\s+uint32_t\s*\*\s*milan_reg\s*"
+            r"\(\s*unsigned\s+int\s+(?P<offset>\w+)\s*\)\s*\{", code)
+        assert reg_def, "accepted address-helper reflow lost milan_reg()"
+        signature = baseline[reg_def.start():reg_def.end()]
+        target = (
+            "static inline\nvolatile uint32_t *\nmilan_reg(\n\tunsigned int "
+            f"{reg_def.group('offset')})\n{{")
+        if signature == target:
+            return baseline
+        return replace_once(baseline, signature, target,
+                            "reflowed milan_reg()")
+
+    reflowed_firmware = accepted_reg_reflow(firmware_source)
+    assert accepted_reg_reflow(reflowed_firmware) == reflowed_firmware, \
+        "an already-reflowed live milan_reg() baseline is not idempotent"
     source_configure = re.search(
         r"\bconfigure_fabric\s*\(\s*\)\s*;", init_code)
     assert source_configure
@@ -2631,12 +2792,20 @@ def test_baremetal_profile_contract():
             "milan_write", "milan_" + "\\" + "\n" + "write", 1) + ";")
     phase2_splice_compiled = assert_target_compiles(
         phase2_spliced_call_enable, "phase-2 token-splice mutation")
-    phase2_whitespace_spliced_call_enable = enabled_before_aem(
-        early_adp_enable.replace(
-            "milan_write", "milan_" + "\\" + " \n" + "write", 1) + ";")
-    phase2_whitespace_splice_compiled = assert_target_compiles(
-        phase2_whitespace_spliced_call_enable,
-        "phase-2 whitespace token-splice mutation", allow_warnings=True)
+    phase2_whitespace_splices = tuple(
+        (name,
+         enabled_before_aem(
+             early_adp_enable.replace(
+                 "milan_write", "milan_" + "\\" + separator + "\n" +
+                 "write", 1) + ";"))
+        for name, separator in (("space", " "), ("tab", "\t"),
+                                ("form-feed", "\f"),
+                                ("vertical-tab", "\v")))
+    phase2_whitespace_compile_results = tuple(
+        (name, assert_target_compiles(
+            mutation, f"phase-2 {name} token-splice mutation",
+            allow_warnings=True))
+        for name, mutation in phase2_whitespace_splices)
     pointer_call_enable = replace_once(
         enabled_before_aem(
             f"milan_poke({adp_name}, milan_read({adp_name}) | 1u);"),
@@ -2691,10 +2860,37 @@ def test_baremetal_profile_contract():
     inverted_identity_guard = replace_once(
         firmware_source, source_identity_statement,
         inverted_identity_statement, "inverted CSR identity mismatch guard")
+    forged_identity = replace_once(
+        firmware_source, source_identity_read_statement,
+        source_identity_read_statement +
+        f"\n\t{source_identity_read.group('name')} = MILAN_ID_MAGIC;",
+        "overwritten CSR identity sample")
+    phc_gated_by_adp = replace_once(
+        csr_source, source_ptp_enable_statement,
+        re.sub(r"ptp_ctrl\s*\[\s*0\s*\]",
+               "ptp_ctrl[0] & adp_ctrl[0]",
+               source_ptp_enable_statement, count=1),
+        "PHC output gated by ADP")
     gptp_gated_datapath = replace_once(
         datapath_source, ".rst_n           (axis_resetn),",
         ".rst_n           (axis_resetn && cfg_adp_enable),",
         "fabric gPTP reset gate")
+    gptp_gated_ingress = replace_once(
+        datapath_source,
+        ".rx_tvalid_i     (rx_axis_to_dma.tvalid),",
+        ".rx_tvalid_i     (rx_axis_to_dma.tvalid && cfg_adp_enable),",
+        "fabric gPTP ingress gate")
+    gptp_gated_local_egress = replace_once(
+        datapath_source,
+        ".s_adp_tvalid(gtx_tvalid_w), .s_adp_tlast (gtx_tlast_w),",
+        ".s_adp_tvalid(gtx_tvalid_w && cfg_adp_enable), "
+        ".s_adp_tlast (gtx_tlast_w),",
+        "fabric gPTP local egress gate")
+    gptp_gated_boundary_egress = replace_once(
+        datapath_source,
+        ".s_adp_tvalid(ctlg3_tvalid),",
+        ".s_adp_tvalid(ctlg3_tvalid && cfg_adp_enable),",
+        "fabric gPTP MAC-boundary gate")
 
     unconditional_guard = guard_statement.replace("aem_loaded", "1", 1)
     inverted_guard = guard_statement.replace("aem_loaded", "!aem_loaded", 1)
@@ -3160,12 +3356,30 @@ def test_baremetal_profile_contract():
     #: A store added inside the helper the census exempts BY NAME. Rule 1
     #: is satisfied (the use is inside reg_span) and the census skips the
     #: function, so only the cast SET sees the fifth cast.
-    helper_body_store = (
-        firmware_source[:source_reg_body_at] +
-        f"\n\t*(volatile uint32_t *)(MILAN_CSR_BASE + {adp_name}) = 1u;" +
-        firmware_source[source_reg_body_at:])
-    assert helper_body_store != firmware_source, \
-        "store added inside the exempted address helper mutation did not apply"
+    def helper_body_store_for(baseline, label):
+        """Add the exempted-helper escape relative to `baseline` itself."""
+        code = blanked(baseline)
+        reg_def = re.search(
+            r"\bstatic\s+inline\s+volatile\s+uint32_t\s*\*\s*milan_reg\s*"
+            r"\(\s*unsigned\s+int\s+\w+\s*\)\s*\{", code)
+        assert reg_def, f"{label}: address-helper mutation lost milan_reg()"
+        body_at, _body_to = braced_span(code, reg_def, f"{label} milan_reg()")
+        changed = (
+            baseline[:body_at] +
+            f"\n\t*(volatile uint32_t *)(MILAN_CSR_BASE + {adp_name}) = 1u;" +
+            baseline[body_at:])
+        assert changed != baseline, \
+            f"{label}: store inside the exempted address helper did not apply"
+        return changed
+
+    helper_store_baselines = [
+        ("reflowed live-source" if reflowed_firmware == firmware_source
+         else "shipping", firmware_source)]
+    if reflowed_firmware != firmware_source:
+        helper_store_baselines.append(("reflowed", reflowed_firmware))
+    helper_body_store_mutations = tuple(
+        (label, helper_body_store_for(baseline, label))
+        for label, baseline in helper_store_baselines)
     #: An address the compiler never prints as a whole-window immediate: at
     #: -O0 it is built with slli/ori, so the census's regex has nothing to
     #: match. This is not only adversarial: a firmware serving two CSR bases
@@ -3351,9 +3565,6 @@ def test_baremetal_profile_contract():
     accepted_pp_clear = source_pp_clear
     accepted_adp_clear = source_adp_clear
     accepted_cases = {
-        "reflowed milan_reg() return type and argument":
-            replace_once(firmware_source, source_reg_signature,
-                         reflowed_reg_signature, "reflowed milan_reg()"),
         "unrelated | 2u write to an already-decoded register":
             replace_once(firmware_source, accepted_adp_clear + ";",
                          accepted_adp_clear + ";\n\tmilan_write("
@@ -3412,6 +3623,14 @@ def test_baremetal_profile_contract():
                 accepted_adp_clear + ";\n\t" + accepted_pp_clear + ";\n\t"
                 + configure_statement, "clears relocated into milan_init()"),
     }
+    if reflowed_firmware != firmware_source:
+        accepted_cases["reflowed milan_reg() return type and argument"] = \
+            reflowed_firmware
+    else:
+        # The live file already carries the accepted reflow. The baseline
+        # call above is its positive arm; helper_body_store_mutations carries
+        # the paired negative arm relative to this exact spelling.
+        assert source_reg_signature == reflowed_reg_signature
     for label, accepted in accepted_cases.items():
         assert accepted != firmware_source, \
             f"accepted case {label!r} did not change the firmware, so it " \
@@ -3465,6 +3684,9 @@ def test_baremetal_profile_contract():
         ("CSR identity mismatch guard inverted", inverted_identity_guard,
          docs_source, csr_source,
          "firmware must reject a mismatched CSR identity"),
+        ("CSR identity sample overwritten before the guard", forged_identity,
+         docs_source, csr_source,
+         "CSR identity guard must consume the unmodified MILAN_ID sample"),
         ("unconditional entity enable",
          replace_once(firmware_source, guard_statement, unconditional_guard,
                       "unconditional guard"), docs_source, csr_source,
@@ -3549,9 +3771,6 @@ def test_baremetal_profile_contract():
         ("entity enabled through a phase-2-spliced call name",
          phase2_spliced_call_enable, docs_source, csr_source,
          "firmware must not splice physical source lines with backslash-newline"),
-        ("entity enabled through a whitespace-separated phase-2 splice",
-         phase2_whitespace_spliced_call_enable, docs_source, csr_source,
-         "firmware must not splice physical source lines with backslash-newline"),
         ("entity enabled through a function pointer", pointer_call_enable,
          docs_source, csr_source,
          "milan_write must always be called, never used as a value"),
@@ -3597,10 +3816,25 @@ def test_baremetal_profile_contract():
          replace_once(csr_source, source_reset_statement,
                       "ptp_ctrl <= 32'h0;", "PHC reset"),
          "bare-metal PHC contract requires the documented enabled reset"),
+        ("PHC output gated by ADP", firmware_source, docs_source,
+         phc_gated_by_adp,
+         "PHC enable output must be driven directly by PTP_CTRL[0]"),
         ("fabric gPTP reset gated by ADP", firmware_source, docs_source,
          csr_source,
-         "fabric gPTP must run from axis_clk and reset directly from "
-         "axis_resetn", None, None, gptp_gated_datapath),
+         "fabric gPTP RX and control inputs must observe the live datapath "
+         "directly", None, None, gptp_gated_datapath),
+        ("fabric gPTP ingress valid gated by ADP", firmware_source,
+         docs_source, csr_source,
+         "fabric gPTP RX and control inputs must observe the live datapath "
+         "directly", None, None, gptp_gated_ingress),
+        ("fabric gPTP local egress valid gated by ADP", firmware_source,
+         docs_source, csr_source,
+         "fabric gPTP TX must traverse gptp_ctl_mux directly", None, None,
+         gptp_gated_local_egress),
+        ("fabric gPTP MAC-boundary valid gated by ADP", firmware_source,
+         docs_source, csr_source,
+         "fabric gPTP control output must reach the MAC-boundary arbiter "
+         "directly", None, None, gptp_gated_boundary_egress),
         # ---- the preprocessor: this gate reads one arm, the compiler takes
         # the other, and the arm it reads is the safe one by construction.
         ("AEM guard selected by a build flag", preprocessor_guard,
@@ -3800,9 +4034,6 @@ def test_baremetal_profile_contract():
          firmware_source, docs_source, pp_reset_enabled,
          "the RTL must reset pp_ctrl_r with bit 0 CLEAR"),
         # ---- reopened by the round-nine deletions, closed again here.
-        ("entity enabled by a store inside the exempted address helper",
-         helper_body_store, docs_source, csr_source,
-         "the firmware's casts to a pointer are pinned"),
         ("entity enabled through a CSR base held in a variable",
          paged_base_store, docs_source, csr_source,
          # Pinned on rule 1's own words, not the prefix the census shares,
@@ -3826,6 +4057,16 @@ def test_baremetal_profile_contract():
          firmware_source, docs_source, consistent_reset_enabled,
          "the RTL must reset adp_ctrl with bit 0 CLEAR"),
     )
+    mutations += tuple(
+        (f"entity enabled through a {name} phase-2 token splice", mutation,
+         docs_source, csr_source,
+         "firmware must not splice physical source lines with backslash-newline")
+        for name, mutation in phase2_whitespace_splices)
+    mutations += tuple(
+        (f"entity enabled by a store inside the exempted address helper "
+         f"({label} baseline)", mutation, docs_source, csr_source,
+         "the firmware's casts to a pointer are pinned")
+        for label, mutation in helper_body_store_mutations)
     #: The four shapes ONLY the compiled census catches. They are in the
     #: table when the census is live and named as skipped when it is not,
     #: because a machine without a cross compiler cannot answer them at all
@@ -3841,7 +4082,7 @@ def test_baremetal_profile_contract():
         ("entity enabled through a qualifier-after-star cast",
          qualified_cast_store, docs_source, csr_source, CENSUS_PIN),
     )
-    if census_used.get("target"):
+    if baseline_census_verdict["ran"]:
         mutations += census_only_mutations
     #: `MAKEFLAGS += -e` only lets the environment override on a make that
     #: re-reads MAKEFLAGS mid-parse. Include the entry where it bites and
@@ -3867,16 +4108,18 @@ def test_baremetal_profile_contract():
           f"{len(mutations)}/{len(mutations)} mutations rejected on the "
           "safety property they break; " +
           ("the phase-2 splice mutants compiled on the exact RV32 target "
-           "(bare splice warning-clean, whitespace splice accepted with its "
-           "diagnostic); " if phase2_splice_compiled and
-           phase2_whitespace_splice_compiled else
+           "(bare splice warning-clean; space, tab, form-feed and "
+           "vertical-tab splices accepted with diagnostics); "
+           if phase2_splice_compiled and all(
+               result for _name, result in phase2_whitespace_compile_results)
+           else
            "the phase-2 splice mutants are reason-pinned but their compile "
            "proof is SKIPPED here because no RV32 compiler is available; ") +
           ("" if makeflags_e_bites else
            "(the MAKEFLAGS += -e entry is SKIPPED on this machine: its make "
            "does not honour -e from inside a makefile, so the construct "
            "does nothing to detect here) ") +
-          ("" if census_used.get("target") else
+          ("" if baseline_census_verdict["ran"] else
            f"({len(census_only_mutations)} entries are SKIPPED on this "
            "machine: they are the shapes ONLY the compiled census catches, "
            "and it stood down for want of an RV32 compiler. To be precise, "
@@ -3891,7 +4134,8 @@ def test_baremetal_profile_contract():
           f"edits and {len(accepted_makefiles)}/{len(accepted_makefiles)} "
           "legitimate Makefile edits accepted, which until this round were "
           "prose in a PR body and are now the only executable statement this "
-          "gate has of what a legitimate edit IS")
+          "gate has of what a legitimate edit IS; deterministic host-only "
+          "stand-down execution/wording self-test passed")
     print("  [gate 1b] ... and the text this reads is the text that runs, by "
           "TEXT RULES and by TOOLS together, because each has been measured "
           "to miss what the other holds. The text rules bound address "
@@ -3901,12 +4145,7 @@ def test_baremetal_profile_contract():
           "-Bn plan is read, not the lines carrying a sentinel, so one "
           "source, one object, no link step, one added flag, and the same "
           "plan again under a hostile environment")
-    census_note = (
-        f"answered by {os.path.basename(census_used.get('compiler') or '?')}"
-        if census_used.get("target") else
-        f"STOOD DOWN: {os.path.basename(census_used.get('compiler') or 'no')}"
-        " compiler is not the RV32 target, so the text rules above carry "
-        "this on their own")
+    census_note = format_census_verdict(baseline_census_verdict)
     print("  [gate 1b] ... and the COMPILER is asked as well, as an ADDITION "
           "and not a replacement: no function but "
           f"{reg_helper_name}() may materialise an address in the Milan CSR "
@@ -3923,14 +4162,17 @@ def test_baremetal_profile_contract():
           "preprocessor conditional and no continued #define outside the "
           "QSPI-slot group whose BOTH arms the verifier's return rule "
           "classifies, no label/goto/switch in milan_init() and the three "
-          "boot steps plus the CSR identity check unconditional at its top "
-          "level, the guarded block "
+          "boot steps plus the unmodified CSR identity sample and check "
+          "unconditional at its top level, the guarded block "
           "holding the two enables and their printf and nothing else, no "
           "pointer to the verdict, and every non-zero return of the verifier "
           "placed after the CRC refusal by source position and preprocessor "
           "arm only; verifier CFG reachability remains open")
-    print("  [gate 1b] ... and the RTL decode facts, which are the checked "
-          f"part: {adp_label} and {pp_label} each written from exactly ONE "
+    print("  [gate 1b] ... and the RTL integration facts, which are the "
+          "checked part: o_ptp_enable is driven directly from PTP_CTRL[0]; "
+          "the fabric gPTP RX path, shadow TX handshake, control mux and "
+          "MAC-boundary mux are direct and carry no AEM/ADP/PP gate; "
+          f"{adp_label} and {pp_label} are each written from exactly ONE "
           "decode arm, each driving its enable port from bit 0, and each "
           "reset with that bit CLEAR, read over BOTH assignment operators so "
           "a blocking reset cannot pass by leaving the rule nothing to check")
@@ -3972,7 +4214,7 @@ def test_baremetal_profile_contract():
           "GREEN. Two refusals stay retired: a vpath cannot move this "
           "build's compiled file because vpath is consulted only for a "
           "prerequisite that does not exist and this one always does")
-    if census_used.get("target"):
+    if baseline_census_verdict["ran"]:
         store_gap = (
             "The source rules alone do not recognise a cast with no * plus "
             "an -> or subscript store, but the live RV32 compiled census "
