@@ -402,6 +402,20 @@ SELFTEST = [
                      "| everything else | 330 | 0 | 8 |"),
      art(T1).replace("| everything else | 330 | 0 | 9 |",
                      "| everything else | 330 | 0 | 8 |"), UNVERIFIABLE),
+    # ...and fail is the third column, the one with the most consequence: it
+    # reads PASS at the top of an artifact while being red in the middle. The
+    # pass and gap columns each have an arm above; without this one, a mutant
+    # that compares pass+gaps and DROPS fail from the `ss != at` coherence
+    # check leaves the whole self-test green (measured: it is the one survivor
+    # of the second-order battery in #152). Both sides carry the same fail
+    # incoherence - the section rows sum to one fail the headline does not
+    # report - so a pass-only comparison reaches a clean OK over a file that
+    # disagrees with itself about whether anything failed.
+    ("only the fail column disagrees", RAN,
+     art(T1).replace("| everything else | 330 | 0 | 9 |",
+                     "| everything else | 330 | 1 | 9 |"),
+     art(T1).replace("| everything else | 330 | 0 | 9 |",
+                     "| everything else | 330 | 1 | 9 |"), UNVERIFIABLE),
     # THE SCOPING IS THE PROPERTY, so it gets arms of its own. Rows under a
     # different heading are not section rows: drop the heading scoping, or
     # match the heading by prefix instead of exactly, and the row below is
