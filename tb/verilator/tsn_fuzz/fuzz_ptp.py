@@ -212,6 +212,29 @@ class Campaign:
     def drain_tx(self):
         self.scan = len(self.txq)
 
+    def quiet_window(self, tries=80):
+        """Tick 10,000-cycle blocks until the plane is silent for two.
+
+        The plane is a timer-driven TALKER (as grandmaster a Sync every
+        125 ms and an Announce every second, a Pdelay_Req every second at
+        any time), so a window a probe may call quiet has to be FOUND, not
+        assumed: an empty window right before an injection is what makes
+        "the injected frame drew this" a measurement rather than a
+        coincidence. Two empty blocks say where the plane has NOT just
+        transmitted; they say nothing about the next scheduled event, so
+        the caller still has to tell a collision from a dispatch (the
+        caller here does it by the drop counter, and re-rolls only the
+        collision).
+        """
+        runs = 0
+        for _ in range(tries):
+            mark = len(self.txq)
+            self.tick(1)
+            runs = runs + 1 if len(self.txq) == mark else 0
+            if runs >= 2:
+                return True
+        return False
+
     def tx_of_type(self, mtype, since=0):
         return [f for f in self.txq[since:]
                 if len(f) > 14 and (f[14] & 0xF) == mtype]
@@ -543,14 +566,72 @@ class Campaign:
                                 % (kind, field, v),
                                 after[S_RXDROP], before[S_RXDROP] + 1)
                     self.stable("%s %s=%d" % (kind, field, v), before, after)
-        # unknown message types with a full header: dropped, counted
+        # unknown message types with a full header: refused, counted, and
+        # -- the half that matters -- SILENT. Both properties are graded
+        # because the two are independent: between the #11 rework and
+        # FPGA-gPTP #22's fix such a frame was neither refused NOR silent
+        # (it dispatched into the timer program, which TRANSMITS), and the
+        # two candidate fixes for #22 would each have satisfied only one
+        # of them, a parser drop arm moving the counter and an
+        # entry-table no-op stopping the transmission. The pinned parser
+        # takes the first route and the silence follows from it; a suite
+        # that graded only the counter could not tell the two apart.
+        #
+        # The silence probe is measured against a quiet window: empty
+        # blocks first (so the plane's own 125 ms Sync and 1 s Pdelay_Req
+        # cadence cannot account for what follows), then one frame, then
+        # one 10,000-cycle block. Before the fix one unlisted-type frame
+        # drew one Pdelay_Req in that block against zero for the
+        # un-injected control, and twenty drew ten (802.1AS-2011 11.5.2.2
+        # and Figure 11-8 leave the interval timer the only exit).
         for mt in (0x1, 0x4, 0x5, 0x6, 0x7, 0x9, 0xD, 0xE, 0xF):
-            before = self.state()
-            after = self.send(wire.ptp_frame(mt, bytes(20),
-                                             sequence_id=self.nseq("x")))
-            self.rep.eq("unknown message type 0x%X: dropped and counted" % mt,
-                        after[S_RXDROP], before[S_RXDROP] + 1)
+            # Up to four attempts, and the ATTEMPT REPORTED is the first
+            # one that either passes or fails for the reason this probe
+            # exists. A 10,000-cycle block is a 25th of the 125 ms Sync
+            # interval, so a window can carry the plane's own scheduled
+            # Sync and Follow_Up however quiet its predecessors were (once
+            # across the nine types, measured), and only THAT is worth
+            # re-rolling. The two cases are distinguishable without
+            # guessing: the plane's own cadence rides a frame the parser
+            # REFUSED, so the drop counter advanced; a frame the parser
+            # dispatched draws its transmission with the counter standing
+            # still. So a missing drop ends the loop immediately and is
+            # reported, and a retry can only ever re-roll a window whose
+            # injected frame was already refused. Discarding a failing
+            # attempt would make an INTERMITTENT regression -- the arm
+            # working on alternate frames, which is the likely shape here
+            # since the dispatch outcome is already bank-state dependent
+            # -- pass by rerolling, with a log byte-identical to a clean
+            # run because passing checks are not printed.
+            quiet, drawn, tries = False, None, 0
+            for tries in range(1, 5):
+                quiet = self.quiet_window()
+                before = self.state()
+                mark = len(self.txq)
+                self.send(wire.ptp_frame(mt, bytes(20),
+                                         sequence_id=self.nseq("x")))
+                self.tick(1)
+                drawn = len(self.txq) - mark
+                after = self.state()
+                if after[S_RXDROP] != before[S_RXDROP] + 1:
+                    break                 # not refused: this attempt IS it
+                if quiet and drawn == 0:
+                    break
+            self.rep.ck("unknown type 0x%X: a quiet window precedes it" % mt,
+                        quiet, "%d attempt(s)" % tries)
+            self.rep.eq("unknown message type 0x%X: dropped and counted"
+                        % mt, after[S_RXDROP], before[S_RXDROP] + 1)
+            self.rep.eq("unknown message type 0x%X: draws no transmission "
+                        "(11.5.2.2)" % mt, drawn, 0)
             self.stable("unknown type 0x%X" % mt, before, after)
+            # servo and pdelay ride with the silence: a request the
+            # dispatch drew would be ANSWERED by the bench responder, and
+            # a republished neighborPropDelay is the same defect one step
+            # downstream
+            self.rep.eq("unknown message type 0x%X: offset unmoved" % mt,
+                        after[S_OFFSET], before[S_OFFSET])
+            self.rep.eq("unknown message type 0x%X: peer delay unmoved"
+                        % mt, after[S_PDELAY], before[S_PDELAY])
         # classify negatives: never enter, never cost a drop
         for label, frame in (
                 ("AVTP ethertype", wire.ptp_sync(sequence_id=1,
@@ -570,8 +651,14 @@ class Campaign:
         after = self.send(wire.ptp_sync(sequence_id=3)[:15])
         self.rep.eq("15-byte gPTP runt: parser drop counted",
                     after[S_RXDROP], before[S_RXDROP] + 1)
-        # truncation at the per-type minimum boundary (parser min_len map)
-        for kind, min_frame in (("sync", 58), ("follow_up", 58),
+        # truncation at the per-type minimum boundary (parser min_len map).
+        # The boundary is the LEGAL frame: the 14-byte Ethernet header
+        # (11.4.1 NOTE) plus the message of 802.1AS-2011 Table 11-8 (Sync 44)
+        # and Table 10-7 (Announce 64), and for the Follow_Up the 76 octets
+        # of Table 11-9, whose Follow_Up information TLV is a FIELD of the
+        # message and not a suffix (11.4.4.2.2, 11.4.4.3): 90 bytes since
+        # FPGA-gPTP #11, where the donor enforced it
+        for kind, min_frame in (("sync", 58), ("follow_up", 90),
                                 ("announce", 78), ("pdelay_req", 48)):
             f = good[kind]()
             before = self.state()
@@ -840,6 +927,68 @@ class Campaign:
         after = self.tick(2)
         self.rep.eq("domain-0 Follow_Up after a domain-5 Sync: offset unmoved",
                     after[S_OFFSET], before[S_OFFSET])
+        # 802.1AS-2011 Table 11-9 makes the Follow_Up information TLV a
+        # field of the 76-octet message (11.4.4.2.2 places it first after
+        # the fixed fields; 11.4.4.3.2 to 11.4.4.3.5 fix its header at
+        # tlvType 0x3, lengthField 28, organizationId 00-80-C2 and
+        # organizationSubType 1), so a TLV-less, a physically truncated, a
+        # wrong-tlvType and a short-DECLARED Follow_Up are each refused at
+        # the parser, ahead of the servo (FPGA-gPTP #11); #140 asks for
+        # both failure modes, bytes missing from the wire and a
+        # messageLength that lies about them. None of the five may consume
+        # the pending Sync: the complete Follow_Up after all of them still
+        # pairs with it.
+        self.refresh_master()
+        sq = self.nseq("sync")
+        st = self.state()
+        at = self.phc_of(st)
+        self.send(wire.ptp_sync(sequence_id=sq, flags=0x0208))
+        # 40 us of skew: an accepted malformed Follow_Up would move the
+        # published offset far outside the band a clean pair lands in
+        bad_origin = at - 40000 - D_NOM
+        full = wire.ptp_follow_up(sequence_id=sq, origin_ns=bad_origin)
+        self.rep.eq("a complete Follow_Up is 90 bytes (Table 11-9: 76 octets)",
+                    len(full), 90)
+        for label, frame in (
+                ("TLV-less Follow_Up (58 B)",
+                 wire.ptp_follow_up(sequence_id=sq, origin_ns=bad_origin,
+                                    tlv=False)),
+                ("Follow_Up declaring 76 cut at 89 B", full[:89]),
+                ("Follow_Up with tlvType 0x0008",
+                 wire.ptp_follow_up(sequence_id=sq, origin_ns=bad_origin,
+                                    tlv_type=0x0008)),
+                # DECLARED length, not physical truncation: these two are
+                # the complete 90 bytes and only messageLength lies, so the
+                # parser's header arm at octets 2..3 is the only thing that
+                # can refuse them (11.4.2.2 counts every octet through the
+                # last TLV). 44 is the length the pre-#11 shape declared,
+                # 75 one octet short of Table 11-9
+                ("complete Follow_Up declaring messageLength 44",
+                 wire.ptp_follow_up(sequence_id=sq, origin_ns=bad_origin,
+                                    message_length=44)),
+                ("complete Follow_Up declaring messageLength 75",
+                 wire.ptp_follow_up(sequence_id=sq, origin_ns=bad_origin,
+                                    message_length=75))):
+            before = self.state()
+            after = self.send(frame)
+            self.rep.eq("%s: dropped and counted" % label,
+                        after[S_RXDROP], before[S_RXDROP] + 1)
+            self.rep.eq("%s: offset unmoved" % label,
+                        after[S_OFFSET], before[S_OFFSET])
+            self.rep.eq("%s: sync verdict unmoved" % label,
+                        after[S_FLAGS] & FL_SYNCOK,
+                        before[S_FLAGS] & FL_SYNCOK)
+            self.stable(label, before, after)
+        # the pending Sync survived all three refusals: 5 us of skew, so the
+        # pairing is proven by a value no earlier state in this section holds
+        self.send(wire.ptp_follow_up(sequence_id=sq,
+                                     origin_ns=at - 5000 - D_NOM))
+        after = self.tick(2)
+        off = (after[S_OFFSET] - (1 << 32) if after[S_OFFSET] >> 31
+               else after[S_OFFSET])
+        self.rep.ck("the complete Follow_Up still pairs with the pending Sync",
+                    abs(off - 5000) <= 300, "offset=%d" % off)
+
         # the servo recovers on the next clean pair
         self.refresh_master()
         st = pair(1000)
