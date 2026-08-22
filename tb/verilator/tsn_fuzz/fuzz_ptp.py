@@ -914,6 +914,15 @@ class Campaign:
             if drop is not None:
                 self.rep.eq("%s: drop counted" % label,
                             after[S_RXDROP], before[S_RXDROP] + 1)
+            else:
+                # a qualifyAnnounce refusal is NOT a header drop: the frame
+                # is well formed and the parser hands it over, and the
+                # 10.3.10.2.1 rules refuse it before BTCA. The counter
+                # holding is the whole accounting a refusal has (the donor
+                # keeps no qualification counter), so it is asserted, not
+                # merely left unchecked
+                self.rep.eq("%s: parser drop counter unmoved" % label,
+                            after[S_RXDROP], before[S_RXDROP])
 
         # parser-owned rejects: bad_r drops them at the header, counted, and
         # GM / parent / asCapable hold. The domain arm is the FPGA-gPTP #6
@@ -925,21 +934,28 @@ class Campaign:
                      transport_specific=0)
         reject_probe("better vector, domain 5 (8.1: single domain 0)",
                      None, drop=1, domain_number=5)
-        # qualifyAnnounce rejects: tracked gaps (#7)
+        # qualifyAnnounce (10.3.10.2.1), hard assertions since FPGA-gPTP #7:
+        # (a) an Announce claiming our own clockIdentity, (b) stepsRemoved
+        # at or above 255 -- the field is 16 bits, so its LOW BYTE is not
+        # the test -- and (c) our identity anywhere in the path trace, which
+        # is the loop an end station meets without forgery: our own Announce
+        # returned by a bridge, arriving with us as the FIRST hop
         reject_probe("better vector, own sourcePortIdentity (10.3.10.2.1a)",
-                     7, drop=None, source_clock_identity=OUR_CID,
+                     None, drop=None, source_clock_identity=OUR_CID,
                      src=wire.GPTP_PEER2_MAC)
         reject_probe("better vector, stepsRemoved 255 (10.3.10.2.1b)",
-                     7, drop=None, steps_removed=255)
-        # 10.3.10.2.1c: our identity anywhere in the path trace disqualifies
-        self.become_gm()
-        after = self.send(wire.ptp_announce(
-            sequence_id=self.nseq("announce"), gm_identity=0x3333,
-            gm_priority1=1, source_clock_identity=PEER2_CID,
-            src=wire.GPTP_PEER2_MAC, path_trace=[0x3333, OUR_CID]))
-        self.eq_or_gap("better vector, our id in the path trace "
-                       "(10.3.10.2.1c): rejected", self.gm_of(after),
-                       OUR_CID, 7)
+                     None, drop=None, steps_removed=255)
+        reject_probe("better vector, stepsRemoved 0x0100 (10.3.10.2.1b)",
+                     None, drop=None, steps_removed=0x0100)
+        reject_probe("better vector, our id in the path trace "
+                     "(10.3.10.2.1c)", None, drop=None, gm_identity=0x3333,
+                     path_trace=[0x3333, OUR_CID])
+        reject_probe("better vector, our id as the FIRST path-trace hop "
+                     "(10.3.10.2.1c)", None, drop=None, gm_identity=0x3333,
+                     path_trace=[OUR_CID, PEER2_CID])
+        reject_probe("better vector, our id the only path-trace hop "
+                     "(10.3.10.2.1c)", None, drop=None, gm_identity=0x3333,
+                     path_trace=[OUR_CID])
 
         # truncated-at-75 better announce (parser min is 78): parser-dropped
         self.become_gm()
