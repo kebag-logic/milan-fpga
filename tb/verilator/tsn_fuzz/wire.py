@@ -338,16 +338,21 @@ def ptp_sync(sequence_id=0, **kw):
     return ptp_frame(PTP_SYNC, ts80(0), sequence_id=sequence_id, **kw)
 
 
-def ptp_follow_up(sequence_id=0, origin_ns=0, tlv=True,
+def ptp_follow_up(sequence_id=0, origin_ns=0, tlv=True, tlv_type=0x0003,
                   cumulative_scaled_rate_offset=0, gm_time_base_indicator=0,
                   **kw):
-    """Follow_Up: precise origin + (default) the information TLV (76 B PDU)."""
+    """Follow_Up: precise origin + (default) the information TLV (76 B PDU).
+
+    `tlv=False` builds the 44-octet shape that omits the TLV Table 11-9 makes
+    a field of the message; `tlv_type` injects a wrong tlvType (11.4.4.3.2
+    fixes it at 0x3). Both are refusal probes, not legal frames.
+    """
     kw.setdefault("flags", 0x0008)                 # ptpTimescale
     kw.setdefault("control", 0x02)
     kw.setdefault("log_message_interval", 0xFD)
     body = ts80(origin_ns)
     if tlv:
-        body += struct.pack(">HH", 0x0003, 28)     # information TLV
+        body += struct.pack(">HH", tlv_type, 28)   # information TLV
         body += b"\x00\x80\xc2" + b"\x00\x00\x01"  # org id + org subtype 1
         body += struct.pack(">IH",
                             cumulative_scaled_rate_offset & 0xFFFFFFFF,

@@ -543,13 +543,20 @@ class Campaign:
                                 % (kind, field, v),
                                 after[S_RXDROP], before[S_RXDROP] + 1)
                     self.stable("%s %s=%d" % (kind, field, v), before, after)
-        # unknown message types with a full header: dropped, counted
+        # unknown message types with a full header: dropped, counted.
+        # FPGA-gPTP #22, MEASURED at the #11 pin: retiring the per-type
+        # minimum flag left the end-of-frame gate with no term that a frame
+        # of an unlisted messageType fails, so such a frame is no longer
+        # refused -- it dispatches uncounted into the timer program, which
+        # transmits: a burst of twenty such frames drew ten Pdelay_Req out
+        # of the 11.5.2.2 interval on this slice. Each type keeps its own
+        # probe and its own gap, so each turns green on its own.
         for mt in (0x1, 0x4, 0x5, 0x6, 0x7, 0x9, 0xD, 0xE, 0xF):
             before = self.state()
             after = self.send(wire.ptp_frame(mt, bytes(20),
                                              sequence_id=self.nseq("x")))
-            self.rep.eq("unknown message type 0x%X: dropped and counted" % mt,
-                        after[S_RXDROP], before[S_RXDROP] + 1)
+            self.eq_or_gap("unknown message type 0x%X: dropped and counted"
+                           % mt, after[S_RXDROP], before[S_RXDROP] + 1, 22)
             self.stable("unknown type 0x%X" % mt, before, after)
         # classify negatives: never enter, never cost a drop
         for label, frame in (
@@ -570,8 +577,14 @@ class Campaign:
         after = self.send(wire.ptp_sync(sequence_id=3)[:15])
         self.rep.eq("15-byte gPTP runt: parser drop counted",
                     after[S_RXDROP], before[S_RXDROP] + 1)
-        # truncation at the per-type minimum boundary (parser min_len map)
-        for kind, min_frame in (("sync", 58), ("follow_up", 58),
+        # truncation at the per-type minimum boundary (parser min_len map).
+        # The boundary is the LEGAL frame: the 14-byte Ethernet header
+        # (11.4.1 NOTE) plus the message of 802.1AS-2011 Table 11-8 (Sync 44)
+        # and Table 10-7 (Announce 64), and for the Follow_Up the 76 octets
+        # of Table 11-9, whose Follow_Up information TLV is a FIELD of the
+        # message and not a suffix (11.4.4.2.2, 11.4.4.3): 90 bytes since
+        # FPGA-gPTP #11, where the donor enforced it
+        for kind, min_frame in (("sync", 58), ("follow_up", 90),
                                 ("announce", 78), ("pdelay_req", 48)):
             f = good[kind]()
             before = self.state()
@@ -840,6 +853,54 @@ class Campaign:
         after = self.tick(2)
         self.rep.eq("domain-0 Follow_Up after a domain-5 Sync: offset unmoved",
                     after[S_OFFSET], before[S_OFFSET])
+        # 802.1AS-2011 Table 11-9 makes the Follow_Up information TLV a
+        # field of the 76-octet message (11.4.4.2.2 places it first after
+        # the fixed fields; 11.4.4.3.2 to 11.4.4.3.5 fix its header at
+        # tlvType 0x3, lengthField 28, organizationId 00-80-C2 and
+        # organizationSubType 1), so a TLV-less, a physically truncated and
+        # a wrong-tlvType Follow_Up are each refused at the parser, ahead of
+        # the servo (FPGA-gPTP #11). None of the three may consume the
+        # pending Sync: the complete Follow_Up after all three still pairs
+        # with it.
+        self.refresh_master()
+        sq = self.nseq("sync")
+        st = self.state()
+        at = self.phc_of(st)
+        self.send(wire.ptp_sync(sequence_id=sq, flags=0x0208))
+        # 40 us of skew: an accepted malformed Follow_Up would move the
+        # published offset far outside the band a clean pair lands in
+        bad_origin = at - 40000 - D_NOM
+        full = wire.ptp_follow_up(sequence_id=sq, origin_ns=bad_origin)
+        self.rep.eq("a complete Follow_Up is 90 bytes (Table 11-9: 76 octets)",
+                    len(full), 90)
+        for label, frame in (
+                ("TLV-less Follow_Up (58 B)",
+                 wire.ptp_follow_up(sequence_id=sq, origin_ns=bad_origin,
+                                    tlv=False)),
+                ("Follow_Up declaring 76 cut at 89 B", full[:89]),
+                ("Follow_Up with tlvType 0x0008",
+                 wire.ptp_follow_up(sequence_id=sq, origin_ns=bad_origin,
+                                    tlv_type=0x0008))):
+            before = self.state()
+            after = self.send(frame)
+            self.rep.eq("%s: dropped and counted" % label,
+                        after[S_RXDROP], before[S_RXDROP] + 1)
+            self.rep.eq("%s: offset unmoved" % label,
+                        after[S_OFFSET], before[S_OFFSET])
+            self.rep.eq("%s: sync verdict unmoved" % label,
+                        after[S_FLAGS] & FL_SYNCOK,
+                        before[S_FLAGS] & FL_SYNCOK)
+            self.stable(label, before, after)
+        # the pending Sync survived all three refusals: 5 us of skew, so the
+        # pairing is proven by a value no earlier state in this section holds
+        self.send(wire.ptp_follow_up(sequence_id=sq,
+                                     origin_ns=at - 5000 - D_NOM))
+        after = self.tick(2)
+        off = (after[S_OFFSET] - (1 << 32) if after[S_OFFSET] >> 31
+               else after[S_OFFSET])
+        self.rep.ck("the complete Follow_Up still pairs with the pending Sync",
+                    abs(off - 5000) <= 300, "offset=%d" % off)
+
         # the servo recovers on the next clean pair
         self.refresh_master()
         st = pair(1000)
