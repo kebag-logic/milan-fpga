@@ -1787,6 +1787,12 @@ def test_baremetal_profile_contract():
         os.path.join(os.path.expanduser("~"),
                      "br-milan-rv32/host/bin/riscv32-linux-gcc"),
         "riscv64-elf-gcc", "riscv32-unknown-elf-gcc", "cc", "gcc")
+    #: The flag sets that can make one of those candidates the RV32 target,
+    #: tried in order. The EMPTY one comes first because a compiler built
+    #: for rv32 may carry no multilib for a bare `rv32i`, so driving one
+    #: that needs no driving would stand the census down on the very tool
+    #: it exists for.
+    rv32_drivers = ((), ("-march=rv32i", "-mabi=ilp32"))
 
     def census_headers(root):
         """The stub header set the census compiles against, written from
@@ -1825,36 +1831,128 @@ def test_baremetal_profile_contract():
     #: firmware's RISC-V asm, which is what makes the census authoritative.
     census_used = {}
 
+    def rv32_probe_source(xlen):
+        """The census probe: the RISC-V asm the firmware also writes, under
+        a guard on the width the compiler is about to compile FOR.
+
+        The probe used to be the asm alone, and `riscv64-elf-gcc` assembles
+        `nop` with a `t0` clobber exactly as an RV32 GCC does. So a 64-bit
+        compiler answered YES to "are you the exact RV32 target", every
+        census was then taken with 64-bit pointers, and the firmware's own
+        `(volatile uint32_t *)(MILAN_CSR_BASE + offset)` became an -Werror
+        int-to-pointer-cast RED that failed the suite on a pristine tree
+        (#206). __riscv_xlen is the compiler's own statement of that width,
+        so no multilib default can out-spell it."""
+        return (f"#if !defined(__riscv_xlen) || __riscv_xlen != {xlen}\n"
+                f"#error \"this compiler is not a {xlen}-bit RISC-V target\"\n"
+                "#endif\n"
+                "void f(void){__asm__ volatile(\"nop\" ::: \"t0\");}\n")
+
+    def census_probe(candidate, driver, xlen=32, runner=None):
+        """Compile the probe once; True when `candidate` driven by `driver`
+        IS a RISC-V target of `xlen` bits."""
+        run = subprocess.run if runner is None else runner
+        with tempfile.TemporaryDirectory(prefix="milan-cc-") as probe_dir:
+            probe_path = os.path.join(probe_dir, "probe.c")
+            with open(probe_path, "w") as fh:
+                fh.write(rv32_probe_source(xlen))
+            built = run(
+                [candidate] + list(driver) +
+                ["-S", "-o", os.path.join(probe_dir, "p.s"), probe_path],
+                capture_output=True, text=True)
+        return built.returncode == 0
+
+    def census_rv32_driver(candidate, runner=None):
+        """The first flag set that makes `candidate` the RV32 target, or
+        None when none of them does."""
+        for driver in rv32_drivers:
+            if census_probe(candidate, driver, runner=runner):
+                return driver
+        return None
+
+    #: The census's OWN assembly has to be 32-bit, not just the compiler it
+    #: was taken with. The probe proves the candidate CAN be driven at RV32;
+    #: only the emitted assembly proves the census invocation WAS. GCC states
+    #: it, so read it back rather than trusting the argv: [R1] on PR #212
+    #: built a wrapper that honours the rv32 flags everywhere except the
+    #: census call, and only the four census-only mutants caught it, and only
+    #: indirectly.
+    census_arch_re = re.compile(r'^\s*\.attribute\s+arch\s*,\s*"([^"]*)"',
+                                re.M)
+    census_arch_seen = {"stated": 0, "unstated": 0}
+
+    def assert_census_arch_is_rv32(assembly_text, label):
+        """The arch the census assembly declares, or None when the toolchain
+        declares none. A toolchain that states nothing cannot be blamed for
+        it, so the absence is REPORTED rather than reddened."""
+        found = census_arch_re.search(assembly_text)
+        arch = found.group(1) if found else None
+        assert arch is None or arch.startswith("rv32"), \
+            f"the compiled census of the {label} was emitted for {arch}, " \
+            "not for an rv32 target: the probe adopted this compiler as the " \
+            "RV32 target and the census invocation did not follow it there, " \
+            "so every pointer width, address and immediate in the assembly " \
+            "this gate is about to read belongs to a different machine"
+        return arch
+
+    assert assert_census_arch_is_rv32(
+        '\t.attribute arch, "rv32i2p1_m2p0"\n', "arch self-test") == \
+        "rv32i2p1_m2p0", \
+        "the census arch check cannot read the directive GCC actually emits"
+    try:
+        assert_census_arch_is_rv32('\t.attribute arch, "rv64i2p1"\n',
+                                   "arch self-test")
+    except AssertionError as exc:
+        assert "not for an rv32 target" in str(exc), exc
+    else:
+        raise AssertionError(
+            "the census arch check accepted rv64 assembly, so it cannot say "
+            "which machine the census it reads was taken on")
+    assert assert_census_arch_is_rv32("\tnop\n", "arch self-test") is None, \
+        "assembly with no arch attribute must come back unstated, not " \
+        "invented: a toolchain that declares none cannot be blamed for it"
+
+    def census_candidate_answers(candidate):
+        try:
+            version = subprocess.run([candidate, "--version"],
+                                     capture_output=True, text=True)
+        except (OSError, ValueError):
+            return False
+        return version.returncode == 0
+
     def census_compiler():
         if census_used:
             return census_used.get("compiler")
-        probe_src = ("void f(void){__asm__ volatile(\"nop\" ::: \"t0\");}\n")
-        for candidate in census_compilers:
-            try:
-                version = subprocess.run([candidate, "--version"],
-                                         capture_output=True, text=True)
-            except (OSError, ValueError):
-                continue
-            if version.returncode:
-                continue
-            with tempfile.TemporaryDirectory(prefix="milan-cc-") as probe_dir:
-                probe_path = os.path.join(probe_dir, "probe.c")
-                with open(probe_path, "w") as fh:
-                    fh.write(probe_src)
-                built = subprocess.run(
-                    [candidate, "-S", "-o", os.path.join(probe_dir, "p.s"),
-                     probe_path], capture_output=True, text=True)
-            census_used.update(compiler=candidate,
-                               target=built.returncode == 0)
-            return candidate
-        census_used.update(compiler=None, target=False)
-        return None
+        present = [c for c in census_compilers if census_candidate_answers(c)]
+        for candidate in present:
+            driver = census_rv32_driver(candidate)
+            if driver is not None:
+                census_used.update(compiler=candidate, target=True,
+                                   flags=tuple(driver))
+                return candidate
+        #: Nothing here is the RV32 target, driven or bare. Name the first
+        #: compiler that at least ANSWERS, so the stand-down says which tool
+        #: declined rather than reporting a bare "no": on a box whose only
+        #: RISC-V GCC is 64-bit-only, that name is the actionable half.
+        census_used.update(compiler=present[0] if present else None,
+                           target=False, flags=())
+        return census_used["compiler"]
 
     #: The CSR address helper's name, derived from the shipping firmware so
-    #: the printed summary cannot drift from what the census enforces.
-    reg_helper_name = re.search(
+    #: the printed summary cannot drift from what the census enforces. A
+    #: firmware with no such helper -- an EMPTY milan_baremetal.c is the
+    #: degenerate case -- used to reach `.group(1)` on None and fail the
+    #: suite with an AttributeError blaming nothing, which is the one kind
+    #: of red a gate must never produce (#206).
+    reg_helper_declaration = re.search(
         r"\bstatic\s+inline\s+volatile\s+uint32_t\s*\*\s*(\w+)\s*\(",
-        firmware_source).group(1)
+        firmware_source)
+    assert reg_helper_declaration, \
+        "the firmware declares no `static inline volatile uint32_t *` CSR " \
+        "address helper, so this gate cannot name the one function that is " \
+        "allowed to form a CSR address and cannot scope the census it is " \
+        "about to take; refusing rather than reporting a bounded result"
+    reg_helper_name = reg_helper_declaration.group(1)
     #: Every mutant that reaches a control register outside milan_reg()
     #: fails on this one sentence, whatever spelled it.
     CENSUS_PIN = "materialises one elsewhere"
@@ -1864,11 +1962,18 @@ def test_baremetal_profile_contract():
         assert verdict["ran"] == verdict["target"], \
             "compiled-census verdict contradicts its execution state"
         compiler = os.path.basename(verdict.get("compiler") or "no")
+        driver = " ".join(verdict.get("flags") or ())
         if verdict["ran"]:
-            return f"answered by {compiler}"
-        return (f"STOOD DOWN: {compiler} compiler is not the RV32 target, "
-                "so the compiled census did not run and the text rules "
-                "above carry this on their own")
+            arch = verdict.get("arch")
+            return (f"answered by {compiler}" +
+                    (f", driven at RV32 with {driver}" if driver else
+                     ", which is the RV32 target with no flags") +
+                    (f", emitting {arch} assembly" if arch else
+                     ", whose assembly declares no arch attribute"))
+        return (f"STOOD DOWN: {compiler} compiler is not the RV32 target and "
+                "no flag set here drives it as one, so the compiled census "
+                "did not run and the text rules above carry this on their "
+                "own")
 
     def assert_compiled_census_is_clean(firmware, label="firmware",
                                         selection=None, runner=None):
@@ -1894,9 +1999,11 @@ def test_baremetal_profile_contract():
         if selection is None:
             compiler = census_compiler()
             target = bool(census_used.get("target"))
+            driver = tuple(census_used.get("flags") or ())
         else:
             compiler = selection.get("compiler")
             target = bool(selection.get("target"))
+            driver = tuple(selection.get("flags") or ())
         if compiler and not target:
             # GENUINELY stand down. The previous revision printed
             # "STOOD DOWN" and then ran the census anyway: `-S` does not
@@ -1904,7 +2011,8 @@ def test_baremetal_profile_contract():
             # and returned a real x86 verdict while the printed line said
             # the text rules were carrying it alone. A stand-down message
             # that is false is worse than no stand-down.
-            return {"compiler": compiler, "target": False, "ran": False}
+            return {"compiler": compiler, "target": False, "ran": False,
+                    "flags": driver}
         assert compiler, \
             "the compiled census needs a C compiler and found none of " \
             f"{list(census_compilers)}: this gate cannot bound CSR stores " \
@@ -1917,18 +2025,33 @@ def test_baremetal_profile_contract():
                 fh.write(firmware)
             assembly = os.path.join(root, "census.s")
             built = run(
-                [compiler, "-std=gnu99", "-O0", "-fno-inline", "-S",
+                [compiler] + list(driver) +
+                ["-std=gnu99", "-O0", "-fno-inline", "-S",
                  "-o", assembly, f"-I{root}", source],
                 capture_output=True, text=True)
             if built.returncode != 0:
                 # Reached only when the compiler IS the RV32 target, since a
                 # non-target one returned above without compiling anything.
+                #
+                # DECIDED, not overlooked ([R1] SUGGESTION on PR #212): this
+                # stays a RED and does not become a stand-down. An RV32
+                # toolchain with unusable headers therefore reddens a clean
+                # checkout, which is the class #206 exists to remove, but the
+                # alternative lets a firmware this gate genuinely cannot
+                # census pass as "the toolchain's fault". Telling the two
+                # apart needs a positive control compiled first, which is a
+                # design of its own; not reachable on either toolchain this
+                # repository is built with, and recorded in
+                # docs/integration/BAREMETAL_FIRMWARE.md rather than left to
+                # be rediscovered.
                 raise AssertionError(
                     f"the compiled census could not build the {label} with "
                     f"{compiler}, which IS the RV32 target: a source this "
                     "gate cannot compile is a source whose CSR stores it "
                     f"cannot census; {built.stderr.strip().splitlines()[-1:]}")
             text = open(assembly, encoding="utf-8", errors="replace").read()
+        arch = assert_census_arch_is_rv32(text, label)
+        census_arch_seen["stated" if arch else "unstated"] += 1
         hits, where = [], "<file scope>"
         for line in text.splitlines():
             named = re.match(r"^([A-Za-z_][\w.]*):", line)
@@ -1949,7 +2072,8 @@ def test_baremetal_profile_contract():
             f" reaches a control register without passing the bit-0 census, " \
             f"whatever cast, typedef, macro, member access or asm template " \
             f"spelled it; found {hits[:3]}"
-        return {"compiler": compiler, "target": True, "ran": True}
+        return {"compiler": compiler, "target": True, "ran": True,
+                "flags": driver, "arch": arch}
 
     # Force the non-target branch without depending on which compilers the
     # machine happens to have. If stand-down ever invokes the compiler, the
@@ -1971,6 +2095,87 @@ def test_baremetal_profile_contract():
            "compiled census did not run" in host_only_note, \
         "host-only census execution and its printed stand-down claim diverge"
 
+    #: ... and the SECOND way a candidate is not the target, which is the
+    #: one that got through: a 64-bit RISC-V GCC. It assembles the probe's
+    #: asm, so the old probe called it the exact RV32 target; the census it
+    #: would then take is a 64-bit census, printed beside a line claiming
+    #: RV32. Both halves are self-tested here without depending on which
+    #: compilers this machine happens to carry.
+    #:
+    #: First the probe's own decision, over the three shapes a box can
+    #: present, driven through a stub so the answer is the same everywhere.
+    def stub_compiler(accepts):
+        """A compiler that succeeds only for the driver flag sets in
+        `accepts`, and records every argv it was handed."""
+        seen = []
+
+        def run(command, **kwargs):
+            seen.append(tuple(command))
+            #: The probe's argv is [cc] + driver + [-S, -o, out, src], so
+            #: the driver is what is left after both fixed ends. Reading it
+            #: back this way is also what proves the flags REACH the
+            #: compiler rather than being recorded and dropped.
+            return subprocess.CompletedProcess(
+                command, 0 if tuple(command[1:-4]) in accepts else 1, "", "")
+        return run, seen
+
+    native_run, native_seen = stub_compiler({()})
+    assert census_rv32_driver("stub-rv32-gcc", runner=native_run) == (), \
+        "a compiler that is ALREADY the RV32 target must be taken bare: " \
+        "driving it with an -march its multilib set may not carry would " \
+        "stand the census down on the one tool it exists for"
+    assert len(native_seen) == 1, \
+        "the RV32 probe kept probing after a candidate had answered"
+    driven_run, driven_seen = stub_compiler({rv32_drivers[1]})
+    assert census_rv32_driver("stub-rv64-multilib-gcc",
+                              runner=driven_run) == rv32_drivers[1], \
+        "a 64-bit RISC-V GCC with an rv32 multilib must be DRIVEN as RV32, " \
+        "not accepted as it stands"
+    assert len(driven_seen) == 2 and \
+        tuple(driven_seen[1][1:-4]) == rv32_drivers[1], \
+        "the RV32 driver flags did not reach the compiler that needs them"
+    rv64_only_run, rv64_only_seen = stub_compiler(set())
+    assert census_rv32_driver("stub-rv64-only-gcc",
+                              runner=rv64_only_run) is None, \
+        "a candidate that no flag set here drives as RV32 must be refused " \
+        "by the probe, not adopted as the exact RV32 target"
+    assert len(rv64_only_seen) == len(rv32_drivers), \
+        "the RV32 probe gave up before it had tried every driver"
+
+    #: ... and then the consequence, exactly as the host-only case above:
+    #: a refused candidate compiles NOTHING and says so in the words the
+    #: user reads.
+    rv64_calls = []
+
+    def forbidden_rv64_census(*args, **kwargs):
+        rv64_calls.append((args, kwargs))
+        raise AssertionError("64-bit compiled census ran after stand-down")
+
+    rv64_verdict = assert_compiled_census_is_clean(
+        firmware_source, "64-bit-candidate stand-down self-test",
+        selection={"compiler": "riscv64-elf-gcc", "target": False},
+        runner=forbidden_rv64_census)
+    rv64_note = format_census_verdict(rv64_verdict)
+    assert not rv64_calls and not rv64_verdict["ran"] and \
+           "STOOD DOWN" in rv64_note and "riscv64-elf-gcc" in rv64_note and \
+           "compiled census did not run" in rv64_note, \
+        "64-bit-candidate census execution and its printed stand-down " \
+        "claim diverge"
+
+    #: ANTI-VACUITY, on the real tool this run selected: the same probe
+    #: asking for a 64-bit target must FAIL under the very flags the census
+    #: is about to use. A width guard that has never been seen to refuse
+    #: anything is not evidence that the census is a 32-bit census.
+    rv32_probe_refused_64 = False
+    if census_compiler() and census_used.get("target"):
+        rv32_probe_refused_64 = True
+        assert not census_probe(census_used["compiler"],
+                                census_used["flags"], xlen=64), \
+            "the census probe accepts a 64-bit target under the flags it " \
+            f"selected for {census_used['compiler']}, so it is not deciding " \
+            "the register width and the census it authorises could be a " \
+            "64-bit census printed as the RV32 one"
+
     def assert_target_compiles(firmware, label, allow_warnings=False):
         """Prove one mutation is accepted C for the exact RV32 target.
 
@@ -1983,12 +2188,17 @@ def test_baremetal_profile_contract():
         compiler = census_compiler()
         if not compiler or not census_used.get("target"):
             return False
+        driver = list(census_used.get("flags") or ())
         with tempfile.TemporaryDirectory(prefix="milan-compile-") as root:
             census_headers(root)
             source = os.path.join(root, "milan_baremetal.c")
             with open(source, "w") as fh:
                 fh.write(firmware)
-            flags = [compiler, "-std=gnu99", "-Wall", "-Wextra"]
+            #: The SAME driver the probe selected. Without it a multilib
+            #: riscv64 GCC compiled every mutant for RV64, where the
+            #: firmware's own 32-bit pointer cast is an -Werror error, and
+            #: the failure was reported as a defect in the mutation (#206).
+            flags = [compiler] + driver + ["-std=gnu99", "-Wall", "-Wextra"]
             if not allow_warnings:
                 flags.append("-Werror")
             built = subprocess.run(
@@ -3221,6 +3431,18 @@ def test_baremetal_profile_contract():
 
     baseline_census_verdict = assert_boot_contract(
         firmware_source, docs_source, csr_source)
+    #: A stand-down that is only PRINTED inside the gate is the shape of
+    #: #154: the gate says it declined, main() then says ALL GATES PASS, and
+    #: the absence of a proof reads as the presence of one. Register it, so
+    #: the final verdict counts and names it (#206).
+    if not baseline_census_verdict["ran"]:
+        skip("gate 1b",
+             "the compiled CSR-address census: "
+             f"{os.path.basename(baseline_census_verdict['compiler'] or 'no')}"
+             " is not the RV32 target and no flag set here drives it as one, "
+             "so the four census-only mutations, the phase-2 splice compile "
+             "proofs and the census of the shipping firmware itself did not "
+             "run")
 
     def replace_once(source, old, new, label):
         changed = source.replace(old, new, 1)
@@ -4481,6 +4703,29 @@ def test_baremetal_profile_contract():
     helper_body_store_mutations = tuple(
         (label, helper_body_store_for(baseline, label))
         for label, baseline in helper_store_baselines)
+    #: WHY these two stay pinned on the cast set instead of on the
+    #: address-helper provenance rule that names the same function (#206).
+    #: Rule 6's own comment records the ordering; this MEASURES what the
+    #: ordering buys. The compiled census exempts the helper BY NAME, so a
+    #: store planted inside it is invisible to the census -- and these two
+    #: are the only mutants left that demonstrate the cast set catching a
+    #: shape the census cannot see, which is the evidence round nine
+    #: deleted and #187 restored. Re-pinning them on the provenance rule
+    #: would retire that evidence; the provenance rule already has its own
+    #: reason-pinned mutant ("milan_reg() ignores its offset"). So: run the
+    #: census over each of them here and require it to come back CLEAN.
+    helper_store_census_blind = 0
+    helper_store_census_asked = 0
+    if baseline_census_verdict["ran"]:
+        helper_store_census_asked = len(helper_body_store_mutations)
+        for label, mutation in helper_body_store_mutations:
+            blind = assert_compiled_census_is_clean(
+                mutation, f"exempted-helper store, {label} baseline")
+            assert blind["ran"], \
+                "the exempted-helper blindness control did not actually " \
+                "run the census, so it proves nothing about which " \
+                "instrument has to catch this shape"
+            helper_store_census_blind += 1
     #: An address the compiler never prints as a whole-window immediate: at
     #: -O0 it is built with slli/ori, so the census's regex has nothing to
     #: match. This is not only adversarial: a firmware serving two CSR bases
@@ -5320,8 +5565,14 @@ def test_baremetal_profile_contract():
          docs_source, csr_source,
          "firmware must not splice physical source lines with backslash-newline")
         for name, mutation in phase2_whitespace_splices)
+    #: The label names the INSTRUMENT, because the rule that fires and the
+    #: rule the function name suggests are not the same one and the reason
+    #: pin is the honest half: rule 5 (the cast set) runs before rule 6 (the
+    #: helper's return provenance) deliberately, and the blindness control
+    #: beside the mutants' definition measures what that ordering buys.
     mutations += tuple(
-        (f"entity enabled by a store inside the exempted address helper "
+        (f"entity enabled by a store inside the exempted address helper, "
+         f"refused by the CAST SET and invisible to the census "
          f"({label} baseline)", mutation, docs_source, csr_source,
          "the firmware's casts to a pointer are pinned")
         for label, mutation in helper_body_store_mutations)
@@ -5354,6 +5605,40 @@ def test_baremetal_profile_contract():
              "lets the ENVIRONMENT decide what gets compiled",
              env_override_flags),
         )
+    else:
+        #: Registered, like the census and Verilator arms, because dropping
+        #: this entry moves the tally silently and the verdict has to say so
+        #: ([R1] on PR #212 measured 98/98 -> 97/97 with the arm printed
+        #: mid-log and absent from the verdict). The WORDING is deliberately
+        #: not the other two's: nothing is missing from this runner. The
+        #: construct is present and simply does nothing on a make that does
+        #: not re-read MAKEFLAGS mid-parse, so the mutant would be a control
+        #: that cannot fail rather than an instrument that is unavailable.
+        skip("gate 1b",
+             "the MAKEFLAGS += -e mutation: this make does not re-read "
+             "MAKEFLAGS mid-parse, so the construct hands the environment "
+             "nothing here and the entry would be a control with nothing to "
+             "detect. No tool is missing from this runner; the mutant has "
+             "no effect to observe on THIS make")
+    #: NEGATIVE CONTROL for the reason pin itself, which is what turns "the
+    #: mutant was refused" into "the mutant was refused BY THE RULE IT
+    #: BREAKS". The elaboration layer, the census and the recognizer each
+    #: had a self-test proving they can fail; this had none, and replacing
+    #: its assertion with `assert True or because in str(exc)` left the
+    #: focused gate green at 144/144 (#206). Run it with a mutant that IS
+    #: rejected, under a reason no rule in this file prints.
+    try:
+        assert_rejected("reason-pin negative control", wrong_reg_address,
+                        docs_source, csr_source,
+                        "a reason no rule in this gate has ever printed")
+    except AssertionError as exc:
+        assert "mutation was rejected for the wrong reason" in str(exc), \
+            f"the reason-pin control failed for the wrong reason: {exc}"
+    else:
+        raise AssertionError(
+            "assert_rejected() accepted a mutation refused under a reason it "
+            "was never given, so every `because` above is decorative and the "
+            "mutation table proves only that something said no")
     for mutation in mutations:
         assert_rejected(*mutation)
     if verilator:
@@ -5382,6 +5667,16 @@ def test_baremetal_profile_contract():
             "safety property they break; ")
     else:
         counted = len(mutations) - rtl_mutant_elaboration["requested"]
+        #: Registered, not merely printed, for the same reason as the census
+        #: stand-down above: this arm declined and the final verdict has to
+        #: say so (#206). The malformed-RTL self-test is inside the same
+        #: branch, so it is named here rather than left to vanish silently.
+        skip("gate 1b",
+             "RTL mutation elaboration: no Verilator on this runner, so all "
+             f"{rtl_mutant_elaboration['requested']} RTL mutation variants "
+             "counted as structural rejections only, and the deliberately "
+             "malformed-RTL self-test that proves the elaborator can refuse "
+             "did not run")
         rtl_mutant_note = (
             "RTL mutation elaboration STOOD DOWN for all "
             f"{rtl_mutant_elaboration['requested']} RTL variants because "
@@ -5392,13 +5687,47 @@ def test_baremetal_profile_contract():
             f"{counted}/{counted} non-RTL mutations rejected on the safety "
             "property they break; the structurally rejected RTL variants "
             "are excluded from this mutation count; ")
+    #: Both clauses below are gated on the SAME condition as the
+    #: measurement they report. The CI shape (only cc and gcc, no Verilator,
+    #: no RV32 compiler) used to read "refused a 64-bit target under this
+    #: run's own flags" beside "0/0 exempted-helper stores were measured
+    #: INVISIBLE", and neither had happened: the live re-probe is gated on a
+    #: candidate having been adopted and the blindness control on the census
+    #: having run ([R1] on PR #212). A stand-down message that is false is
+    #: worse than no stand-down, and that applies to this fix's own output.
+    if rv32_probe_refused_64:
+        live_probe_note = (
+            ", and on this run's live invocation ("
+            + (" ".join(census_used.get("flags") or ()) or "no driver flags")
+            + ") the probe refused a 64-bit target while "
+            f"{census_arch_seen['stated']} census compile(s) declared an "
+            f"rv32 arch and {census_arch_seen['unstated']} declared none")
+    else:
+        live_probe_note = (
+            "; NOT measured on this run: no candidate here is the RV32 "
+            "target, so there was no live invocation to re-probe at 64 bits "
+            "and no census assembly to read an arch attribute out of")
+    if helper_store_census_asked:
+        helper_blind_note = (
+            f"; and {helper_store_census_blind}/{helper_store_census_asked} "
+            "exempted-helper stores were measured INVISIBLE to the compiled "
+            "census, which is why they stay pinned on the cast set")
+    else:
+        helper_blind_note = (
+            "; the exempted-helper blindness control did NOT run here, "
+            "because the census stood down, so on this runner those two "
+            "mutants stay pinned on the cast set with that measurement "
+            "absent")
     print("  [gate 1b] bounded boot-contract model: the PHC CSR output, "
           "datapath binding and ptp_timestamp consumer are direct, and "
           "comment-blanked CSR, MAC, timestamp, both RXFILT_P-arm, shadow "
           "and TX-mux facts are direct in their inspected generate arms and "
           "free of comment, preprocessor and static-generate decoys; "
           "PHC/gPTP are "
-          "live from reset and independent of AEM; the "
+          "live from reset TO THE ptp_timestamp PORT and independent of "
+          "AEM, which is where this gate's measurement stops: a tie-off "
+          "INSIDE ptp_ts_top still elaborates and is milan_dp's to catch; "
+          "the "
           "milan_reg()/milan_read()/milan_write() "
           "bodies pin address and value provenance, the firmware identity "
           "offset and magic equal RTL A_ID's address and default, and "
@@ -5438,7 +5767,15 @@ def test_baremetal_profile_contract():
           "legitimate Makefile edits accepted, which until this round were "
           "prose in a PR body and are now the only executable statement this "
           "gate has of what a legitimate edit IS; deterministic host-only "
-          "stand-down execution/wording self-test passed")
+          "and 64-bit-candidate stand-down execution/wording self-tests "
+          "passed, the RV32 probe decided all three candidate shapes "
+          "(already RV32, 64-bit with an rv32 multilib, 64-bit only) "
+          "against a stub, and the census arch check accepted rv32 "
+          "assembly, refused rv64 assembly and reported unattributed "
+          "assembly as unstated"
+          + live_probe_note +
+          "; the reason pin refused a wrong `because`"
+          + helper_blind_note)
     print("  [gate 1b] ... and the text this reads is the text that runs, by "
           "TEXT RULES and by TOOLS together, because each has been measured "
           "to miss what the other holds. The text rules bound address "
