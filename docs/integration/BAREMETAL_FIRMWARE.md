@@ -113,7 +113,12 @@ runner carrying Verilator, every CSR/datapath mutation must still elaborate as
 the real `milan_csr` top or option-on `milan_datapath` source closure before it
 counts; without Verilator that layer explicitly stands down, is not reported
 as elaborated evidence, and is registered so the suite's closing line reads
-`ALL GATES PASS EXCEPT n NOT RUN` and names it. The gate prints both its
+`ALL GATES PASS EXCEPT n NOT RUN` and names it. Every arm of gate 1b that can
+decline is registered that way: the RTL elaboration layer, the compiled
+census, and the `MAKEFLAGS += -e` entry on a make that does not re-read
+MAKEFLAGS mid-parse. The last of those is not a missing tool; the construct
+is present and simply has nothing to detect on that make, and its skip text
+says so. The gate prints both its
 checked facts and open limits at run time;
 neither this page nor the gate output may claim more than those measured facts.
 
@@ -145,12 +150,38 @@ rather than being adopted. Without the width guard a 64-bit GCC was accepted
 as "the exact RV32 target", every mutation compile then ran at 64 bits, and
 the firmware's own `(volatile uint32_t *)(MILAN_CSR_BASE + offset)` became an
 `-Werror` int-to-pointer-cast that failed the suite on a pristine tree (#206).
-Three self-tests hold it: a stub compiler drives the probe through all three
-candidate shapes (already RV32, 64-bit with an rv32 multilib, 64-bit only), a
-deterministic host-only and a deterministic 64-bit-candidate selection each
-make any attempted compile fail and check that the same observed no-run
-verdict produces the printed `STOOD DOWN` claim, and the probe is re-run
-against the live compiler asking for a 64-bit target, which must fail.
+The compiler is not taken at its word twice over: every census compile's own
+`.attribute arch` is read back out of the assembly the gate is about to
+census, because a wrapper can honour `-march=rv32i` on the probe and drop it
+on the census call. A toolchain that declares no arch attribute is reported
+as declaring none rather than blamed for it.
+
+Five self-tests hold this. Four of them run on any machine, RISC-V compiler
+or not: (a) a stub compiler drives the probe through all three candidate
+shapes (already RV32, 64-bit with an rv32 multilib, 64-bit only) and the
+recorded argv is read back to prove the driver flags reach the compiler;
+(b) a deterministic host-only selection and (c) a deterministic
+64-bit-candidate selection each make any attempted compile fail and check
+that the same observed no-run verdict produces the printed `STOOD DOWN`
+claim; and (d) the arch check is driven over `rv32` text, `rv64` text and
+text with no attribute at all. The fifth runs only on a runner where the
+census is live: the probe is re-run against the adopted compiler, under this
+run's own flags, asking for a 64-bit target, and must fail. Where no
+candidate is adopted there is nothing to re-probe, so the census stands down,
+the closing verdict names that arm, and the gate's evidence line says the
+live measurement did not happen instead of claiming it did.
+
+**A pristine tree can still redden for a toolchain reason, and that is a
+deliberate open item.** Where the census compiler IS the RV32 target and the
+census compile nevertheless fails, the gate raises rather than standing down:
+a source it cannot compile is a source whose CSR stores it cannot census, and
+converting that into a stand-down would let a genuinely uncensusable firmware
+pass. The message names the compiler and quotes its last diagnostic, so the
+attribution is correct, but a toolchain with unusable headers therefore
+reddens a clean checkout. Separating "this toolchain cannot compile any
+conforming source" from "this source is uncensusable" needs a positive
+control compiled first, which is a design of its own and is not part of #206.
+It is not reachable on either toolchain this repository is built with.
 
 **What this gate does not prove.** The CRC check has a measured control-flow
 escape. Gate 1b finds the `crc32()` assignment and mismatch block and requires

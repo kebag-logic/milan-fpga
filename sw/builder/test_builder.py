@@ -1870,6 +1870,48 @@ def test_baremetal_profile_contract():
                 return driver
         return None
 
+    #: The census's OWN assembly has to be 32-bit, not just the compiler it
+    #: was taken with. The probe proves the candidate CAN be driven at RV32;
+    #: only the emitted assembly proves the census invocation WAS. GCC states
+    #: it, so read it back rather than trusting the argv: [R1] on PR #212
+    #: built a wrapper that honours the rv32 flags everywhere except the
+    #: census call, and only the four census-only mutants caught it, and only
+    #: indirectly.
+    census_arch_re = re.compile(r'^\s*\.attribute\s+arch\s*,\s*"([^"]*)"',
+                                re.M)
+    census_arch_seen = {"stated": 0, "unstated": 0}
+
+    def assert_census_arch_is_rv32(assembly_text, label):
+        """The arch the census assembly declares, or None when the toolchain
+        declares none. A toolchain that states nothing cannot be blamed for
+        it, so the absence is REPORTED rather than reddened."""
+        found = census_arch_re.search(assembly_text)
+        arch = found.group(1) if found else None
+        assert arch is None or arch.startswith("rv32"), \
+            f"the compiled census of the {label} was emitted for {arch}, " \
+            "not for an rv32 target: the probe adopted this compiler as the " \
+            "RV32 target and the census invocation did not follow it there, " \
+            "so every pointer width, address and immediate in the assembly " \
+            "this gate is about to read belongs to a different machine"
+        return arch
+
+    assert assert_census_arch_is_rv32(
+        '\t.attribute arch, "rv32i2p1_m2p0"\n', "arch self-test") == \
+        "rv32i2p1_m2p0", \
+        "the census arch check cannot read the directive GCC actually emits"
+    try:
+        assert_census_arch_is_rv32('\t.attribute arch, "rv64i2p1"\n',
+                                   "arch self-test")
+    except AssertionError as exc:
+        assert "not for an rv32 target" in str(exc), exc
+    else:
+        raise AssertionError(
+            "the census arch check accepted rv64 assembly, so it cannot say "
+            "which machine the census it reads was taken on")
+    assert assert_census_arch_is_rv32("\tnop\n", "arch self-test") is None, \
+        "assembly with no arch attribute must come back unstated, not " \
+        "invented: a toolchain that declares none cannot be blamed for it"
+
     def census_candidate_answers(candidate):
         try:
             version = subprocess.run([candidate, "--version"],
@@ -1922,9 +1964,12 @@ def test_baremetal_profile_contract():
         compiler = os.path.basename(verdict.get("compiler") or "no")
         driver = " ".join(verdict.get("flags") or ())
         if verdict["ran"]:
+            arch = verdict.get("arch")
             return (f"answered by {compiler}" +
                     (f", driven at RV32 with {driver}" if driver else
-                     ", which is the RV32 target with no flags"))
+                     ", which is the RV32 target with no flags") +
+                    (f", emitting {arch} assembly" if arch else
+                     ", whose assembly declares no arch attribute"))
         return (f"STOOD DOWN: {compiler} compiler is not the RV32 target and "
                 "no flag set here drives it as one, so the compiled census "
                 "did not run and the text rules above carry this on their "
@@ -1987,12 +2032,26 @@ def test_baremetal_profile_contract():
             if built.returncode != 0:
                 # Reached only when the compiler IS the RV32 target, since a
                 # non-target one returned above without compiling anything.
+                #
+                # DECIDED, not overlooked ([R1] SUGGESTION on PR #212): this
+                # stays a RED and does not become a stand-down. An RV32
+                # toolchain with unusable headers therefore reddens a clean
+                # checkout, which is the class #206 exists to remove, but the
+                # alternative lets a firmware this gate genuinely cannot
+                # census pass as "the toolchain's fault". Telling the two
+                # apart needs a positive control compiled first, which is a
+                # design of its own; not reachable on either toolchain this
+                # repository is built with, and recorded in
+                # docs/integration/BAREMETAL_FIRMWARE.md rather than left to
+                # be rediscovered.
                 raise AssertionError(
                     f"the compiled census could not build the {label} with "
                     f"{compiler}, which IS the RV32 target: a source this "
                     "gate cannot compile is a source whose CSR stores it "
                     f"cannot census; {built.stderr.strip().splitlines()[-1:]}")
             text = open(assembly, encoding="utf-8", errors="replace").read()
+        arch = assert_census_arch_is_rv32(text, label)
+        census_arch_seen["stated" if arch else "unstated"] += 1
         hits, where = [], "<file scope>"
         for line in text.splitlines():
             named = re.match(r"^([A-Za-z_][\w.]*):", line)
@@ -2014,7 +2073,7 @@ def test_baremetal_profile_contract():
             f"whatever cast, typedef, macro, member access or asm template " \
             f"spelled it; found {hits[:3]}"
         return {"compiler": compiler, "target": True, "ran": True,
-                "flags": driver}
+                "flags": driver, "arch": arch}
 
     # Force the non-target branch without depending on which compilers the
     # machine happens to have. If stand-down ever invokes the compiler, the
@@ -2107,7 +2166,9 @@ def test_baremetal_profile_contract():
     #: asking for a 64-bit target must FAIL under the very flags the census
     #: is about to use. A width guard that has never been seen to refuse
     #: anything is not evidence that the census is a 32-bit census.
+    rv32_probe_refused_64 = False
     if census_compiler() and census_used.get("target"):
+        rv32_probe_refused_64 = True
         assert not census_probe(census_used["compiler"],
                                 census_used["flags"], xlen=64), \
             "the census probe accepts a 64-bit target under the flags it " \
@@ -5544,6 +5605,21 @@ def test_baremetal_profile_contract():
              "lets the ENVIRONMENT decide what gets compiled",
              env_override_flags),
         )
+    else:
+        #: Registered, like the census and Verilator arms, because dropping
+        #: this entry moves the tally silently and the verdict has to say so
+        #: ([R1] on PR #212 measured 98/98 -> 97/97 with the arm printed
+        #: mid-log and absent from the verdict). The WORDING is deliberately
+        #: not the other two's: nothing is missing from this runner. The
+        #: construct is present and simply does nothing on a make that does
+        #: not re-read MAKEFLAGS mid-parse, so the mutant would be a control
+        #: that cannot fail rather than an instrument that is unavailable.
+        skip("gate 1b",
+             "the MAKEFLAGS += -e mutation: this make does not re-read "
+             "MAKEFLAGS mid-parse, so the construct hands the environment "
+             "nothing here and the entry would be a control with nothing to "
+             "detect. No tool is missing from this runner; the mutant has "
+             "no effect to observe on THIS make")
     #: NEGATIVE CONTROL for the reason pin itself, which is what turns "the
     #: mutant was refused" into "the mutant was refused BY THE RULE IT
     #: BREAKS". The elaboration layer, the census and the recognizer each
@@ -5611,6 +5687,37 @@ def test_baremetal_profile_contract():
             f"{counted}/{counted} non-RTL mutations rejected on the safety "
             "property they break; the structurally rejected RTL variants "
             "are excluded from this mutation count; ")
+    #: Both clauses below are gated on the SAME condition as the
+    #: measurement they report. The CI shape (only cc and gcc, no Verilator,
+    #: no RV32 compiler) used to read "refused a 64-bit target under this
+    #: run's own flags" beside "0/0 exempted-helper stores were measured
+    #: INVISIBLE", and neither had happened: the live re-probe is gated on a
+    #: candidate having been adopted and the blindness control on the census
+    #: having run ([R1] on PR #212). A stand-down message that is false is
+    #: worse than no stand-down, and that applies to this fix's own output.
+    if rv32_probe_refused_64:
+        live_probe_note = (
+            ", and on this run's live invocation ("
+            + (" ".join(census_used.get("flags") or ()) or "no driver flags")
+            + ") the probe refused a 64-bit target while "
+            f"{census_arch_seen['stated']} census compile(s) declared an "
+            f"rv32 arch and {census_arch_seen['unstated']} declared none")
+    else:
+        live_probe_note = (
+            "; NOT measured on this run: no candidate here is the RV32 "
+            "target, so there was no live invocation to re-probe at 64 bits "
+            "and no census assembly to read an arch attribute out of")
+    if helper_store_census_asked:
+        helper_blind_note = (
+            f"; and {helper_store_census_blind}/{helper_store_census_asked} "
+            "exempted-helper stores were measured INVISIBLE to the compiled "
+            "census, which is why they stay pinned on the cast set")
+    else:
+        helper_blind_note = (
+            "; the exempted-helper blindness control did NOT run here, "
+            "because the census stood down, so on this runner those two "
+            "mutants stay pinned on the cast set with that measurement "
+            "absent")
     print("  [gate 1b] bounded boot-contract model: the PHC CSR output, "
           "datapath binding and ptp_timestamp consumer are direct, and "
           "comment-blanked CSR, MAC, timestamp, both RXFILT_P-arm, shadow "
@@ -5663,11 +5770,12 @@ def test_baremetal_profile_contract():
           "and 64-bit-candidate stand-down execution/wording self-tests "
           "passed, the RV32 probe decided all three candidate shapes "
           "(already RV32, 64-bit with an rv32 multilib, 64-bit only) "
-          "against a stub and refused a 64-bit target under this run's own "
-          f"flags, the reason pin refused a wrong `because`, and "
-          f"{helper_store_census_blind}/{helper_store_census_asked} "
-          "exempted-helper stores were measured INVISIBLE to the compiled "
-          "census, which is why they stay pinned on the cast set")
+          "against a stub, and the census arch check accepted rv32 "
+          "assembly, refused rv64 assembly and reported unattributed "
+          "assembly as unstated"
+          + live_probe_note +
+          "; the reason pin refused a wrong `because`"
+          + helper_blind_note)
     print("  [gate 1b] ... and the text this reads is the text that runs, by "
           "TEXT RULES and by TOOLS together, because each has been measured "
           "to miss what the other holds. The text rules bound address "
