@@ -111,8 +111,10 @@ directives. The identity check also follows the canonical `csr_default(A_ID)`
 literal through the defaults-ROM fill and the direct AXI read address. On a
 runner carrying Verilator, every CSR/datapath mutation must still elaborate as
 the real `milan_csr` top or option-on `milan_datapath` source closure before it
-counts; without Verilator that layer explicitly stands down and is not reported
-as elaborated evidence. The gate prints both its checked facts and open limits at run time;
+counts; without Verilator that layer explicitly stands down, is not reported
+as elaborated evidence, and is registered so the suite's closing line reads
+`ALL GATES PASS EXCEPT n NOT RUN` and names it. The gate prints both its
+checked facts and open limits at run time;
 neither this page nor the gate output may claim more than those measured facts.
 
 One constraint is answered by a tool rather than by reading text:
@@ -130,10 +132,25 @@ A second tool check runs alongside the text rules, and it is an **addition**
 rather than a replacement. Where an RV32 cross compiler is available, the gate
 compiles the firmware and requires that no function except `milan_reg()`
 materialises an address inside the Milan CSR window; where one is not, it
-stands down and says so in its printed verdict. A deterministic host-only
-self-test supplies a compiler selection that is known not to be RV32, makes
-any attempted compile fail, and checks that the same observed no-run verdict
-produces the printed `STOOD DOWN` claim.
+stands down, says so in its printed verdict, and registers that stand-down so
+the suite's closing line names it.
+
+**A candidate is the RV32 target only if it says it is.** The probe that
+selects the compiler is RISC-V assembly under a guard on `__riscv_xlen`,
+because `riscv64-elf-gcc` assembles that asm exactly as an RV32 GCC does. A
+candidate is tried bare first, then driven with `-march=rv32i -mabi=ilp32`,
+and the flag set that answered is carried into every census and mutation
+compile the gate makes; a candidate no flag set drives at 32 bits stands down
+rather than being adopted. Without the width guard a 64-bit GCC was accepted
+as "the exact RV32 target", every mutation compile then ran at 64 bits, and
+the firmware's own `(volatile uint32_t *)(MILAN_CSR_BASE + offset)` became an
+`-Werror` int-to-pointer-cast that failed the suite on a pristine tree (#206).
+Three self-tests hold it: a stub compiler drives the probe through all three
+candidate shapes (already RV32, 64-bit with an rv32 multilib, 64-bit only), a
+deterministic host-only and a deterministic 64-bit-candidate selection each
+make any attempted compile fail and check that the same observed no-run
+verdict produces the printed `STOOD DOWN` claim, and the probe is re-run
+against the live compiler asking for a 64-bit target, which must fail.
 
 **What this gate does not prove.** The CRC check has a measured control-flow
 escape. Gate 1b finds the `crc32()` assignment and mismatch block and requires
@@ -174,7 +191,9 @@ typedef struct { volatile uint32_t ctrl; } *milan_adp_blk;
 That is a durable pre-AEM entity advertise. When an RV32 cross compiler is
 available, the compiled census sees the materialised CSR address and rejects
 the edit. When the compiled census stands down for want of that compiler, the
-edit is outside both active instruments and the gate reports `ALL GATES PASS`.
+edit is outside both active instruments and the gate still passes, under a
+closing line that reads `ALL GATES PASS EXCEPT n NOT RUN` and names the
+census arm as one of the `n`.
 Closing the property on every supported runner still requires #153 and #162
 together. #153 owns the verifier/control-flow proof and the
 `entity_advertise()` choke point; #162 owns a census that resolves CSR store
@@ -244,7 +263,7 @@ The rest are refusals, and each one costs a legitimate edit:
 | Firmware `MILAN_ID` and `MILAN_ID_MAGIC` equal the comment-blanked, directive-closed RTL `A_ID` address and readback default | otherwise inactive decoy text can hide a live address/value change that teaches the token-level guard to validate a different CSR or forged identity |
 | The `MILAN_ID` local is not assigned or addressed between its CSR read and mismatch guard | otherwise an intervening `id = MILAN_ID_MAGIC` forges the verdict while preserving every ordering anchor |
 | The identity refusal remains the exact `if (id != MILAN_ID_MAGIC)` spelling | an equivalent comparison such as `if ((id ^ MILAN_ID_MAGIC) != 0u)` is refused because this bounded model anchors the mismatch block by that exact expression; accepting another form requires extending the recognizer and its paired controls |
-| A fifth pointer cast, a fifth pointer store or a third `asm` statement | the compiled census does not cover all three, so the sets are what bound address formation |
+| A fifth pointer cast, a fifth pointer store or a third `asm` statement | the compiled census does not cover all three, so the sets are what bound address formation; a store planted inside the address helper the census exempts by name is measured invisible to the census on every run where the census is live, which is why those 2 mutants stay reason-pinned on the cast set rather than on the helper's own return-provenance rule (that rule keeps its own mutant, "milan_reg() ignores its offset") |
 | No multi-line `#define` anywhere in the file | the gate reads macro bodies one physical line at a time |
 | No C backslash-newline anywhere in the file | translation phase 2 deletes the pair and can join tokens before an offset-preserving text census; independent space, tab, form-feed and vertical-tab mutants pin every whitespace form the recognizer accepts; a real preprocessor-token reader may retire this refusal |
 | No `#ifdef`/`#if` outside `load_aem_image()` | the gate would read one arm while the compiler takes the other |
