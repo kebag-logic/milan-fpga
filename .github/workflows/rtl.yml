@@ -259,7 +259,10 @@ jobs:
       # Refuse evidence for any tree but this run's (#174, decision 2): every
       # shard must carry a TARGET_SHA equal to the gate's target, to this
       # job's GITHUB_SHA and to its checkout. A missing record is a failure,
-      # never a skip; so is an empty download.
+      # never a skip; so is an empty download, and so is any count of shard
+      # directories but the worker matrix size (--expect). scripts/ci_events.py
+      # derives this step's script from the download step and the matrix and
+      # pins it, its keys, its env and its `if` verbatim.
       - name: Require every shard to have validated this run's SHA
         if: ${{ always() }}
         env:
@@ -267,7 +270,7 @@ jobs:
         run: |
           shopt -s nullglob
           roots=("$RUNNER_TEMP"/all-suite-logs/suite-logs-*)
-          python3 scripts/ci_events.py --require-target-sha \
+          python3 scripts/ci_events.py --require-target-sha --expect 4 \
             --sha gate="$GATE_SHA" --sha run="$GITHUB_SHA" \
             --sha checkout="$(git rev-parse HEAD)" -- "${roots[@]}"
 
@@ -378,7 +381,7 @@ jobs:
         run: |
           shopt -s nullglob
           roots=("$RUNNER_TEMP"/all-yosys-results/yosys-results-*)
-          python3 scripts/ci_events.py --require-target-sha \
+          python3 scripts/ci_events.py --require-target-sha --expect 4 \
             --sha gate="$GATE_SHA" --sha run="$GITHUB_SHA" \
             --sha checkout="$(git rev-parse HEAD)" -- "${roots[@]}"
 

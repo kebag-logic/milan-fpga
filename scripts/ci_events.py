@@ -130,6 +130,29 @@ REQUIRED_SHA_ARGS = {
     "checkout": '--sha checkout="$(git rev-parse HEAD)"',
 }
 SHA_LABEL_RE = re.compile(r"--sha\s+([A-Za-z_]+)=")
+EXPECT_RE = re.compile(r"--expect\s+(\S+)")
+#: The keys a pinned step may carry, and nothing else ([R1] on PR #204,
+#: third round): a key beside the script decides whether, on which events,
+#: or by which interpreter the script runs. `if: false`, `if: ${{
+#: github.event_name == 'pull_request' }}`, `shell: bash -n {0}`,
+#: `continue-on-error: true`, a `timeout-minutes`, a `working-directory`,
+#: an extra `GH_HOST` or `GH_CONFIG_DIR` in env: each left the script text
+#: canonical and the assertion dead. So the key set is pinned, the env key
+#: set is pinned, and the verifier step's one permitted `if` is pinned.
+ASSERT_STEP_KEYS = ("name", "env", "run")
+ASSERT_STEP_ENV = ("GH_TOKEN",)
+VERIFY_STEP_KEYS = ("name", "if", "env", "run")
+VERIFY_STEP_IF = "${{ always() }}"
+VERIFY_STEP_ENV = ("GATE_SHA",)
+#: Job keys that stop a job, or its steps, from running as written. The
+#: gate job carries none of them; an aggregate job carries its documented
+#: `if` and nothing else from this list; the workflow carries no top-level
+#: `defaults` (a `defaults.run.shell: bash -n {0}` parses every script and
+#: executes none).
+JOB_NEUTER_KEYS = ("if", "continue-on-error", "defaults")
+AGGREGATE_JOB_IF = ("${{ always() && !cancelled() && "
+                    f"needs.{GATE_JOB}.outputs.run_full == 'true' }}}}")
+RUNNER_TEMP_PREFIX = "${{ runner.temp }}/"
 #: Public check names the merge bar reads (AGENTS.md section 7), per file.
 PUBLIC_NAMES = {
     RTL_FULL: ("verilator-suites", "yosys-portability"),
@@ -352,6 +375,10 @@ def check_rtl_full(c, wf, policy):
         c.item(prints, path, f"job `{GATE_JOB}` must print the event name and "
                "GITHUB_SHA in one step")
         check_default_branch_step(c, path, gate)
+        check_job_keys(c, path, GATE_JOB, gate)
+    c.item("defaults" not in wf, path, "the workflow must carry no top-level "
+           f"`defaults` (found {wf.get('defaults')!r}): a `defaults.run.shell`"
+           " changes how every script runs")
 
     # Every job that uploads evidence records the SHA first; every job that
     # downloads evidence verifies it against the gate's output.
@@ -378,6 +405,122 @@ def check_rtl_full(c, wf, policy):
                    f"job `{jid}` must need `{GATE_JOB}` to read its output")
             if vsteps:
                 check_sha_sources(c, path, jid, vsteps[0])
+                check_verify_step(c, path, wf, jid, job, vsteps[0])
+            check_job_keys(c, path, jid, job, allowed_if=AGGREGATE_JOB_IF)
+
+
+def check_job_keys(c, path, jid, job, allowed_if=None):
+    """A job that must run as written carries no `if` (or exactly the one
+    documented), no `continue-on-error`, no `defaults`; each refusal names
+    the key."""
+    for key in JOB_NEUTER_KEYS:
+        if key not in job:
+            continue
+        if key == "if" and allowed_if is not None:
+            got = str(job.get("if")).strip()
+            c.item(got == allowed_if, path, f"job `{jid}` `if` must be exactly "
+                   f"`{allowed_if}` (found `{got}`)")
+            continue
+        c.item(False, path, f"job `{jid}` must carry no `{key}` "
+               f"(found {job.get(key)!r}): it decides whether the job runs "
+               "as written")
+    if allowed_if is not None:
+        c.item("if" in job, path, f"job `{jid}` must carry its documented "
+               f"`if` `{allowed_if}`")
+
+
+def pinned_step_keys(c, path, what, step, keys, env_keys):
+    """A pinned step carries exactly `keys`, its env exactly `env_keys`;
+    every surplus or missing key is named."""
+    have = [k for k in step.keys() if isinstance(k, str)]
+    extra = sorted(set(have) - set(keys))
+    missing = [k for k in keys if k not in have]
+    for key in ("if", "shell", "continue-on-error"):
+        if key in extra:
+            c.item(False, path, f"{what} must carry no `{key}` "
+                   f"(found {step.get(key)!r}): it decides whether or how "
+                   "the script runs")
+    c.item(not extra and not missing, path, f"{what} keys must be exactly "
+           f"{', '.join(keys)}" + (f"; surplus: {', '.join(extra)}" if extra
+                                   else "")
+           + (f"; missing: {', '.join(missing)}" if missing else ""))
+    env = step.get("env") if isinstance(step.get("env"), dict) else {}
+    env_have = sorted(str(k) for k in env.keys())
+    env_extra = sorted(set(env_have) - set(env_keys))
+    env_missing = [k for k in env_keys if k not in env_have]
+    c.item(not env_extra and not env_missing, path, f"{what} env must be "
+           f"exactly {', '.join(env_keys)}"
+           + (f"; surplus: {', '.join(env_extra)} (a GH_HOST or GH_CONFIG_DIR"
+              " redirects gh away from this repository)" if env_extra else "")
+           + (f"; missing: {', '.join(env_missing)}" if env_missing else ""))
+
+
+def matrix_size(wf, job):
+    """The shard count of the worker job this aggregate needs: the length of
+    that job's `strategy.matrix.shard` list, derived, not restated."""
+    needs = job.get("needs")
+    needs = needs if isinstance(needs, list) else [needs]
+    for n in needs:
+        worker = jobs(wf).get(n) if isinstance(n, str) else None
+        strat = worker.get("strategy") if isinstance(worker, dict) else None
+        matrix = strat.get("matrix") if isinstance(strat, dict) else None
+        shard = matrix.get("shard") if isinstance(matrix, dict) else None
+        if isinstance(shard, list) and shard:
+            return len(shard)
+    return None
+
+
+def canonical_verify_script(wf, job):
+    """The verifier step's script, derived from the job's own download step
+    (where the shards land, what they are called) and the worker matrix
+    (how many there are). None when the job has no usable download step."""
+    dl = next((s for s in steps(job) if uses(s, "actions/download-artifact")),
+              None)
+    with_ = dl.get("with") if isinstance(dl, dict) and isinstance(
+        dl.get("with"), dict) else {}
+    pattern, dest = with_.get("pattern"), with_.get("path")
+    n = matrix_size(wf, job)
+    if (not isinstance(pattern, str) or not isinstance(dest, str)
+            or not dest.startswith(RUNNER_TEMP_PREFIX) or n is None):
+        return None
+    base = dest[len(RUNNER_TEMP_PREFIX):].strip("/")
+    return (
+        "shopt -s nullglob",
+        f'roots=("$RUNNER_TEMP"/{base}/{pattern})',
+        f"python3 scripts/ci_events.py {VERIFY_FLAG} --expect {n} "
+        + " ".join(REQUIRED_SHA_ARGS[l] for l in REQUIRED_SHA_LABELS)
+        + ' -- "${roots[@]}"',
+    )
+
+
+def check_verify_step(c, path, wf, jid, job, step):
+    """The aggregate's verifier step: pinned keys, the one permitted `if`,
+    env exactly GATE_SHA, and a script equal to the derived canonical form
+    (so `--expect` is the worker matrix size and no line can reassign a
+    source before the call)."""
+    what = f"job `{jid}` verifier step"
+    pinned_step_keys(c, path, what, step, VERIFY_STEP_KEYS, VERIFY_STEP_ENV)
+    got_if = str(step.get("if", "")).strip()
+    c.item(got_if == VERIFY_STEP_IF, path, f"{what} `if` must be exactly "
+           f"`{VERIFY_STEP_IF}` (found `{got_if}`): any other condition can "
+           "skip the verification, and a skipped step passes the job")
+    run = step.get("run") if isinstance(step.get("run"), str) else ""
+    lines = normalize_script(run)
+    canon = canonical_verify_script(wf, job)
+    c.item(canon is not None, path, f"{what}: the download step must name a "
+           f"`pattern` and a `path` under `{RUNNER_TEMP_PREFIX}`, and the "
+           "aggregate must need a worker with a `strategy.matrix.shard` list")
+    if canon is None:
+        return
+    script = " ".join(lines)
+    m = EXPECT_RE.search(script)
+    want_n = canon[2].split("--expect ")[1].split()[0]
+    c.item(m is not None and m.group(1) == want_n, path, f"{what} must pass "
+           f"--expect {want_n}, the worker matrix size "
+           f"(found {m.group(1) if m else 'no --expect'})")
+    c.item(tuple(lines) == canon, path, f"{what} script is not the canonical "
+           f"form derived from its download step and worker matrix: expected "
+           f"exactly {list(canon)} (found {lines})")
 
 
 def check_sha_sources(c, path, jid, step):
@@ -429,6 +572,8 @@ def check_default_branch_step(c, path, gate):
         return
     step = found[0]
     text = step_text(step)
+    pinned_step_keys(c, path, "the default-branch step", step,
+                     ASSERT_STEP_KEYS, ASSERT_STEP_ENV)
     env = step.get("env") if isinstance(step.get("env"), dict) else {}
     token = str(env.get("GH_TOKEN", "")).strip()
     c.item(token == "${{ github.token }}", path, "the default-branch step "
@@ -501,11 +646,19 @@ def check(parsed):
 # --require-target-sha: the aggregate-side verifier
 # --------------------------------------------------------------------------
 
-def check_records(shas, roots):
+def check_records(shas, roots, expect):
     """`shas` maps a label (gate, run, checkout) to the SHA that source
-    reports; `roots` are the downloaded shard directories. Returns
+    reports; `roots` are the downloaded shard directories; `expect` is the
+    worker matrix size, which the root count must equal. Returns
     (findings, lines): every finding is a refusal, lines are the verdict."""
+    if not isinstance(expect, int) or expect < 1:
+        raise CannotRun("--expect <n> is required: the number of shard "
+                        "directories the worker matrix produces")
     findings, lines = [], []
+    if len(roots) != expect:
+        findings.append(f"expected {expect} shard director(y/ies), the worker "
+                        f"matrix size, found {len(roots)}: a missing or "
+                        "surplus shard is a failure, not a skip")
     missing = [l for l in REQUIRED_SHA_LABELS if l not in shas]
     unknown = sorted(set(shas) - set(REQUIRED_SHA_LABELS))
     if missing or unknown:
@@ -802,6 +955,51 @@ def _mutations():
         s["run"] = s["run"].replace(VERIFY_FLAG,
                                     VERIFY_FLAG + ' --sha extra="$GITHUB_SHA"')
 
+    # The third-round escapes: keys beside a canonical script ([R1]).
+    def set_step_key(getter, key, value):
+        def f(w):
+            getter(w)[key] = value
+        return f
+
+    def set_env_key(getter, key, value):
+        def f(w):
+            getter(w)["env"][key] = value
+        return f
+
+    def set_job_key(jid, key, value):
+        def f(w):
+            jobs(w[RTL_FULL])[jid][key] = value
+        return f
+
+    def m_top_defaults(w):
+        w[RTL_FULL]["defaults"] = {"run": {"shell": "bash -n {0}"}}
+
+    def m_verify_assigns_gate(w):
+        s = verify_step(w, "verilator-suites")
+        s["run"] = 'GATE_SHA="$GITHUB_SHA"\n' + s["run"]
+
+    def m_verify_expect_wrong(w):
+        s = verify_step(w, "yosys-portability")
+        assert "--expect 4" in s["run"]
+        s["run"] = s["run"].replace("--expect 4", "--expect 3")
+
+    def m_verify_expect_missing(w):
+        s = verify_step(w, "verilator-suites")
+        assert "--expect 4 " in s["run"]
+        s["run"] = s["run"].replace("--expect 4 ", "")
+
+    def m_matrix_grows_expect_stays(w):
+        jobs(w[RTL_FULL])["verilator-shards"]["strategy"]["matrix"]["shard"].append(4)
+
+    def m_aggregate_if_loosened(w):
+        jobs(w[RTL_FULL])["verilator-suites"]["if"] = "${{ always() }}"
+
+    def m_aggregate_if_dropped(w):
+        del jobs(w[RTL_FULL])["yosys-portability"]["if"]
+
+    va = lambda w: verify_step(w, "verilator-suites")  # noqa: E731
+    ya = lambda w: verify_step(w, "yosys-portability")  # noqa: E731
+
     def m_docs_no_check(w):
         for job in jobs(w[DOCS]).values():
             for s in steps(job):
@@ -905,6 +1103,66 @@ def _mutations():
          m_drop_sha("yosys-portability", "checkout"), "missing: checkout"),
         ("rtl verilator-suites passes an unknown --sha label", m_extra_sha,
          "unknown: extra"),
+        # [R1] third round: escapes beside the script.
+        ("E9 assert step if: false", set_step_key(db_step, "if", False),
+         "must carry no `if`"),
+        ("E10 assert step if: pull_request only",
+         set_step_key(db_step, "if", "${{ github.event_name == 'pull_request' }}"),
+         "must carry no `if`"),
+        ("E11 assert step shell: bash -n",
+         set_step_key(db_step, "shell", "bash -n {0}"), "must carry no `shell`"),
+        ("E12 full-ci-gate continue-on-error",
+         set_job_key(GATE_JOB, "continue-on-error", True),
+         "must carry no `continue-on-error`"),
+        ("E13 full-ci-gate if: not schedule",
+         set_job_key(GATE_JOB, "if", "${{ github.event_name != 'schedule' }}"),
+         "must carry no `if`"),
+        ("E14 assert step env GH_HOST",
+         set_env_key(db_step, "GH_HOST", "example.invalid"), "surplus: GH_HOST"),
+        ("E14b assert step env GH_CONFIG_DIR",
+         set_env_key(db_step, "GH_CONFIG_DIR", "/tmp/gh"), "surplus: GH_CONFIG_DIR"),
+        ("E17 full-ci-gate defaults.run.shell bash -n",
+         set_job_key(GATE_JOB, "defaults", {"run": {"shell": "bash -n {0}"}}),
+         "must carry no `defaults`"),
+        ("workflow-level defaults.run.shell", m_top_defaults,
+         "no top-level `defaults`"),
+        ("assert step extra key working-directory",
+         set_step_key(db_step, "working-directory", "/tmp"),
+         "surplus: working-directory"),
+        ("assert step continue-on-error",
+         set_step_key(db_step, "continue-on-error", True),
+         "must carry no `continue-on-error`"),
+        ("S8 verilator-suites verifier if: false", set_step_key(va, "if", False),
+         "`if` must be exactly"),
+        ("yosys-portability verifier if: pull_request only",
+         set_step_key(ya, "if", "${{ github.event_name == 'pull_request' }}"),
+         "`if` must be exactly"),
+        ("verifier step shell: bash -n", set_step_key(ya, "shell", "bash -n {0}"),
+         "must carry no `shell`"),
+        ("verifier step continue-on-error",
+         set_step_key(va, "continue-on-error", True),
+         "must carry no `continue-on-error`"),
+        ("verifier step env GITHUB_SHA override",
+         set_env_key(va, "GITHUB_SHA", "0" * 40), "surplus: GITHUB_SHA"),
+        ("S5 verifier script reassigns GATE_SHA", m_verify_assigns_gate,
+         "not the canonical form"),
+        ("R4 verifier --expect disagrees with the matrix", m_verify_expect_wrong,
+         "--expect 4"),
+        ("R4 verifier without --expect", m_verify_expect_missing,
+         "no --expect"),
+        ("R4 matrix grows, --expect stays", m_matrix_grows_expect_stays,
+         "--expect 5"),
+        ("aggregate job if loosened", m_aggregate_if_loosened,
+         "`if` must be exactly"),
+        ("aggregate job if dropped", m_aggregate_if_dropped,
+         "documented `if`"),
+        ("aggregate job continue-on-error",
+         set_job_key("verilator-suites", "continue-on-error", True),
+         "must carry no `continue-on-error`"),
+        ("aggregate job defaults.run.shell",
+         set_job_key("yosys-portability", "defaults",
+                     {"run": {"shell": "bash -n {0}"}}),
+         "must carry no `defaults`"),
         ("rtl public name verilator-suites renamed",
          m_rename_job(RTL_FULL, "verilator-suites"), "`verilator-suites`"),
         ("rtl public name yosys-portability renamed",
@@ -1015,50 +1273,63 @@ def selftest(root):
         three = dict(gate=sha, run=sha, checkout=sha)
         cases = []
         roots = shards(4)
-        f, _ = check_records(three, roots)
-        cases.append(("four matching records pass", not f))
+        f, _ = check_records(three, roots, 4)
+        cases.append(("four matching records with --expect 4 pass", not f))
+        f, _ = check_records(three, roots[:3], 4)
+        cases.append(("three of four shard directories are refused",
+                      any("expected 4" in x and "found 3" in x for x in f)))
+        f, _ = check_records(three, roots, 3)
+        cases.append(("a surplus shard directory is refused",
+                      any("expected 3" in x and "found 4" in x for x in f)))
+        try:
+            check_records(three, roots, None)
+        except CannotRun:
+            cases.append(("a missing --expect cannot run", True))
+        else:
+            cases.append(("a missing --expect cannot run", False))
         (roots[2] / RECORD).unlink()
-        f, _ = check_records(three, roots)
+        f, _ = check_records(three, roots, 4)
         cases.append(("a missing record is refused and named",
                       any("suite-logs-2" in x and "missing" in x for x in f)))
         roots = shards(4)
         (roots[1] / RECORD).write_text(other + "\n")
-        f, _ = check_records(three, roots)
+        f, _ = check_records(three, roots, 4)
         cases.append(("a record for another tree is refused",
                       any("suite-logs-1" in x and other in x for x in f)))
         (roots[1] / RECORD).write_text("not-a-sha\n")
-        f, _ = check_records(three, roots)
+        f, _ = check_records(three, roots, 4)
         cases.append(("a malformed record is refused",
                       any("not a commit id" in x for x in f)))
         roots = shards(4)
-        f, _ = check_records(dict(gate=sha, run=other, checkout=sha), roots)
+        f, _ = check_records(dict(gate=sha, run=other, checkout=sha), roots, 4)
         cases.append(("gate/run disagreement is refused",
                       any("disagree" in x for x in f)))
-        f, _ = check_records(dict(gate=sha, run=sha, checkout=""), roots)
+        f, _ = check_records(dict(gate=sha, run=sha, checkout=""), roots, 4)
         cases.append(("an empty source SHA is refused",
                       any("checkout" in x and "not a 40-digit" in x for x in f)))
-        f, _ = check_records(three, [])
+        f, _ = check_records(three, [], 4)
         cases.append(("no shard directory at all is refused, not skipped",
-                      any("produced nothing" in x for x in f)))
+                      any("produced nothing" in x for x in f)
+                      and any("found 0" in x for x in f)))
         none = base / "none"
         none.mkdir()
-        f, _ = check_records(three, [none])
+        f, _ = check_records(three, [none], 1)
         cases.append(("the empty placeholder directory is refused",
                       any("none" in x and "missing" in x for x in f)))
         roots = shards(4)
-        f, _ = check_records(dict(gate=sha, run=sha), roots)
+        f, _ = check_records(dict(gate=sha, run=sha), roots, 4)
         cases.append(("a dropped checkout source is refused",
                       any("missing: checkout" in x for x in f)))
-        f, _ = check_records(dict(run=sha, checkout=sha), roots)
+        f, _ = check_records(dict(run=sha, checkout=sha), roots, 4)
         cases.append(("a dropped gate source is refused",
                       any("missing: gate" in x for x in f)))
-        f, _ = check_records(dict(gate=sha), roots)
+        f, _ = check_records(dict(gate=sha), roots, 4)
         cases.append(("a lone gate source is refused",
                       any("missing: run, checkout" in x for x in f)))
-        f, _ = check_records({}, roots)
+        f, _ = check_records({}, roots, 4)
         cases.append(("no source at all is refused",
                       any("missing: gate, run, checkout" in x for x in f)))
-        f, _ = check_records(dict(three, extra=sha), roots)
+        f, _ = check_records(dict(three, extra=sha), roots, 4)
         cases.append(("an unknown source label is refused",
                       any("unknown: extra" in x for x in f)))
         for name, ok in cases:
@@ -1081,12 +1352,23 @@ def selftest(root):
                         "    --require-default-branch \\\n"
                         '    --event "$GITHUB_EVENT_NAME" \\\n'
                         '    --observed "$observed"\n')
+    for s in steps(jobs(world[RTL_FULL])["yosys-portability"]):
+        if VERIFY_FLAG in step_text(s):
+            s["run"] = ("shopt   -s nullglob\n"
+                        'roots=("$RUNNER_TEMP"/all-yosys-results/yosys-results-*)\n'
+                        "python3 scripts/ci_events.py \\\n"
+                        "  --require-target-sha --expect 4 \\\n"
+                        '  --sha gate="$GATE_SHA" \\\n'
+                        '  --sha run="$GITHUB_SHA" \\\n'
+                        '  --sha checkout="$(git rev-parse HEAD)" \\\n'
+                        '  -- "${roots[@]}"\n')
     checked_arms += 1
     if check(world).findings:
-        problems.append("whitespace-only reformatting of the canonical script "
+        problems.append("whitespace-only reformatting of the canonical scripts "
                         f"was refused: {check(world).findings}")
     else:
-        print("  ok   canonical pin is whitespace-invariant")
+        print("  ok   canonical pins are whitespace-invariant (assert step "
+              "and verifier step)")
 
     # --require-default-branch arms: the decision for every event class. An
     # inverted or weakened comparison fails one of these, which is what makes
@@ -1163,7 +1445,7 @@ def run_check(root):
     return RC_OK
 
 
-def run_require(sha_args, roots):
+def run_require(sha_args, roots, expect):
     shas = {}
     for arg in sha_args:
         if "=" not in arg:
@@ -1174,7 +1456,12 @@ def run_require(sha_args, roots):
             print(f"ci_events: --sha {label} given twice")
             return RC_CANNOT_RUN
         shas[label] = value.strip()
-    findings, lines = check_records(shas, [pathlib.Path(r) for r in roots])
+    try:
+        findings, lines = check_records(shas, [pathlib.Path(r) for r in roots],
+                                        expect)
+    except CannotRun as exc:
+        print(f"ci_events: cannot run: {exc}")
+        return RC_CANNOT_RUN
     for line in lines:
         print(line)
     for f in findings:
@@ -1214,6 +1501,9 @@ def main(argv):
     parser.add_argument("--sha", action="append", default=[],
                         metavar="LABEL=SHA",
                         help="a source of the run's SHA (gate, run, checkout)")
+    parser.add_argument("--expect", type=int, default=None, metavar="N",
+                        help="shard directories the worker matrix produces "
+                             "(--require-target-sha)")
     parser.add_argument("--event", default="",
                         help="GITHUB_EVENT_NAME (--require-default-branch)")
     parser.add_argument("--observed", default="",
@@ -1228,7 +1518,7 @@ def main(argv):
         return selftest(args.root)
     if args.require_default_branch:
         return run_require_default_branch(args.event, args.observed)
-    return run_require(args.sha, args.roots)
+    return run_require(args.sha, args.roots, args.expect)
 
 
 if __name__ == "__main__":

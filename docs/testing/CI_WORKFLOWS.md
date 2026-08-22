@@ -135,21 +135,46 @@ not agreement. A pull-request or push run prints the value and carries on:
 those runs are about the tree, not the setting, and a contributor's PR must
 not go red for a repository setting it cannot change. A drift is therefore
 visible on every run and fatal on the first run it would misdirect, instead
-of surfacing as a nightly that silently stopped. `ci_events.py --check`
-requires the step, its token and its fail-closed shape, and pins the step's
-script verbatim (whitespace aside) to three lines: `set -euo pipefail`, one
-unconditional `observed="$(gh api ...)"` read, one verifier call after it. A
-substring recognizer was fooled by a decoy, a literal `observed=dev` beside a
-`gh api` inside `if false`; the pin refuses it, and the structural reasons
-name what a deviation did: a second assignment, a value not sourced from the
-live call, control flow around the read, a comment line, the call before the
-read. `--selftest` covers the step removed, the token missing, the live read
-replaced by an echo, the event not passed, the step neutered by
-`continue-on-error` or `|| true`, the decoy itself, a literal after the real
-read and after the call, `gh api` in a comment only, `observed` from another
-command, two assignments, the call before the read, an extra line, a missing
-`set` line, a whitespace-only reformatting that must still pass, and the
-decision itself for every event class.
+of surfacing as a nightly that silently stopped. `ci_events.py --check` holds
+the assertion in its fail-closed shape, which is exactly these four things:
+
+1. **The script text.** The step's `run:` is pinned verbatim (whitespace
+   aside) to three lines: `set -euo pipefail`, one unconditional
+   `observed="$(gh api ...)"` read, one verifier call after it. A substring
+   recognizer was fooled by a decoy, a literal `observed=dev` beside a
+   `gh api` inside `if false`; the pin refuses it, and the structural reasons
+   name what a deviation did: a second assignment, a value not sourced from
+   the live call, control flow around the read, a comment line, the call
+   before the read.
+2. **The step keys.** The step carries exactly `name`, `env` and `run`, and
+   its `env` exactly `GH_TOKEN`. A key beside a canonical script decides
+   whether, on which events, or by which interpreter it runs: `if: false`,
+   an `if:` naming only the events the assertion does not govern,
+   `shell: bash -n {0}` (parsed, never executed), `continue-on-error`, a
+   `working-directory`, or a `GH_HOST` / `GH_CONFIG_DIR` that points `gh`
+   away from this repository. Each refusal names the key.
+3. **The job keys.** `full-ci-gate` carries no `if`, no `continue-on-error`
+   and no `defaults`, and the workflow carries no top-level `defaults` (a
+   `defaults.run.shell: bash -n {0}` parses every script and executes none).
+4. **The verifier steps.** Each aggregate's `--require-target-sha` step
+   carries exactly `name`, `if`, `env` and `run`; its `if` is exactly
+   `${{ always() }}` (any other condition can skip the verification, and a
+   skipped step passes the job); its `env` exactly `GATE_SHA`; and its
+   script equals a canonical form derived from the job's own download step
+   and the worker matrix, so `--expect` is the shard count and no line can
+   reassign a source before the call. The aggregate jobs keep their
+   documented `if` verbatim and carry no `continue-on-error` or `defaults`.
+
+`--selftest` covers, one at a time: the step removed, the token missing, the
+live read replaced by an echo, the event not passed, `|| true`, the decoy
+itself, a literal after the real read and after the call, `gh api` in a
+comment only, `observed` from another command, two assignments, the call
+before the read, an extra line, a missing `set` line; each key escape above
+on the step, on the job, on the workflow and on the verifier steps; a
+verifier that reassigns `GATE_SHA`, passes the wrong `--expect`, passes none,
+or keeps `--expect` while the matrix grows; an aggregate `if` loosened or
+dropped; a whitespace-only reformatting of both scripts that must still pass;
+and the decision itself for every event class.
 
 ## One authoritative SHA
 
@@ -169,12 +194,14 @@ validates one tree. The workflow makes that explicit and machine-checked
   uploads. The file is neither a `*.log` nor a `*.result`, so neither tally
   reads it;
 - both aggregates run `scripts/ci_events.py --require-target-sha` over the
-  downloaded shards before they tally anything, passing exactly three
-  sources, `--sha gate="$GATE_SHA"` (the gate's `target_sha` through the step
-  env), `--sha run="$GITHUB_SHA"` and `--sha checkout="$(git rev-parse
-  HEAD)"`, and print the SHA in their verdict. The verifier refuses any other
-  source set, a dropped source or an unknown label included, so an aggregate
-  cannot quietly stop proving that the gate, the run and its checkout agree.
+  downloaded shards before they tally anything, passing `--expect 4` (the
+  worker matrix size) and exactly three sources, `--sha gate="$GATE_SHA"`
+  (the gate's `target_sha` through the step env), `--sha run="$GITHUB_SHA"`
+  and `--sha checkout="$(git rev-parse HEAD)"`, and print the SHA in their
+  verdict. The verifier refuses any other source set, a dropped source or an
+  unknown label included, and any shard-directory count but `--expect`, so
+  an aggregate cannot quietly stop proving that the gate, the run and its
+  checkout agree, or tally three shards as four.
 
 The aggregates refuse, and the check fails rather than skips:
 
@@ -183,7 +210,8 @@ The aggregates refuse, and the check fails rather than skips:
 - a record that is not a 40-digit hexadecimal commit id;
 - a record naming any tree but this run's;
 - a gate `target_sha`, aggregate `GITHUB_SHA` and aggregate checkout that are
-  not one value, or a source set that is not exactly those three.
+  not one value, or a source set that is not exactly those three;
+- fewer or more shard directories than the worker matrix produces.
 
 `scripts/ci_events.py --check` holds the workflow files to this contract and
 to the trigger contract above: no `actions/checkout` step in `rtl.yml`
