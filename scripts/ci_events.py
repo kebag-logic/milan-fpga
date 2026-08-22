@@ -100,6 +100,36 @@ VERIFY_FLAG = "--require-target-sha"
 #: must be the default.
 DEFAULT_BRANCH_FLAG = "--require-default-branch"
 DEFAULT_BRANCH_EVENTS = ("schedule", "workflow_dispatch")
+#: The default-branch step's script, pinned verbatim after whitespace
+#: normalization ([R1] on PR #204, second round). A substring recognizer was
+#: fooled by a decoy: `observed=dev` beside a `gh api` inside `if false`.
+#: So the script is held to exactly these three lines, one unconditional
+#: live read into `observed` and one verifier call after it, and the
+#: structural reasons in check_default_branch_step name what a deviation
+#: did before the whole-script comparison refuses it.
+CANONICAL_OBSERVED = ('observed="$(gh api "repos/$GITHUB_REPOSITORY" '
+                      '--jq .default_branch 2>/dev/null || echo unreadable)"')
+CANONICAL_CALL = ("python3 scripts/ci_events.py --require-default-branch "
+                  '--event "$GITHUB_EVENT_NAME" --observed "$observed"')
+CANONICAL_DEFAULT_BRANCH_SCRIPT = ("set -euo pipefail", CANONICAL_OBSERVED,
+                                   CANONICAL_CALL)
+OBSERVED_ASSIGNMENT = re.compile(
+    r"(?:^|[;&|(]\s*|\b(?:export|local|declare|readonly|typeset)\s+)"
+    r"observed\s*\+?=")
+CONTROL_FLOW = re.compile(
+    r"(?:^|[;&|(]\s*)(?:if|case|for|while|until|select|function)\b"
+    r"|\b(?:then|fi|esac|do|done)\b|\(\)\s*\{")
+#: The SHA sources every aggregate passes to --require-target-sha, exactly:
+#: the gate's exported target, the aggregate's own run, and its checkout.
+#: The verifier refuses any other set ([R1], second round: with `run` and
+#: `checkout` dropped from both aggregates, everything stayed green).
+REQUIRED_SHA_LABELS = ("gate", "run", "checkout")
+REQUIRED_SHA_ARGS = {
+    "gate": '--sha gate="$GATE_SHA"',
+    "run": '--sha run="$GITHUB_SHA"',
+    "checkout": '--sha checkout="$(git rev-parse HEAD)"',
+}
+SHA_LABEL_RE = re.compile(r"--sha\s+([A-Za-z_]+)=")
 #: Public check names the merge bar reads (AGENTS.md section 7), per file.
 PUBLIC_NAMES = {
     RTL_FULL: ("verilator-suites", "yosys-portability"),
@@ -337,14 +367,55 @@ def check_rtl_full(c, wf, policy):
                    f"first write GITHUB_SHA into {RECORD}, checked against "
                    f"{ref}")
         if any(uses(s, "actions/download-artifact") for s in ss):
-            verifies = any(VERIFY_FLAG in step_text(s) and ref in step_text(s)
-                           and "ci_events.py" in step_text(s) for s in ss)
+            vsteps = [s for s in ss if VERIFY_FLAG in step_text(s)
+                      and "ci_events.py" in step_text(s)]
+            verifies = any(ref in step_text(s) for s in vsteps)
             c.item(verifies, path, f"job `{jid}` downloads evidence and must "
                    f"run scripts/ci_events.py {VERIFY_FLAG} against {ref}")
             needs = job.get("needs")
             needs = needs if isinstance(needs, list) else [needs]
             c.item(GATE_JOB in needs, path,
                    f"job `{jid}` must need `{GATE_JOB}` to read its output")
+            if vsteps:
+                check_sha_sources(c, path, jid, vsteps[0])
+
+
+def check_sha_sources(c, path, jid, step):
+    """An aggregate passes exactly the three SHA sources, each in the form
+    that binds it to what it claims: the gate's exported target through the
+    step env, the aggregate's own GITHUB_SHA, and its checkout HEAD."""
+    run = step.get("run") if isinstance(step.get("run"), str) else ""
+    script = " ".join(normalize_script(run))
+    labels = SHA_LABEL_RE.findall(script)
+    missing = [l for l in REQUIRED_SHA_LABELS if l not in labels]
+    unknown = sorted(set(labels) - set(REQUIRED_SHA_LABELS))
+    dup = sorted({l for l in labels if labels.count(l) > 1})
+    c.item(not missing and not unknown and not dup, path,
+           f"job `{jid}` must pass --sha for exactly "
+           f"{', '.join(REQUIRED_SHA_LABELS)}"
+           + (f"; missing: {', '.join(missing)}" if missing else "")
+           + (f"; unknown: {', '.join(unknown)}" if unknown else "")
+           + (f"; repeated: {', '.join(dup)}" if dup else ""))
+    for label, want in REQUIRED_SHA_ARGS.items():
+        c.item(want in script, path, f"job `{jid}` must pass {want} "
+               f"(the {label} source in its binding form)")
+    env = step.get("env") if isinstance(step.get("env"), dict) else {}
+    gate_ref = f"${{{{ needs.{GATE_JOB}.outputs.{GATE_OUTPUT} }}}}"
+    c.item(str(env.get("GATE_SHA", "")).strip() == gate_ref, path,
+           f"job `{jid}` must bind GATE_SHA to {gate_ref} in the step env")
+
+
+def normalize_script(run):
+    """Whitespace-normalized lines of a step script: continuation lines
+    joined, runs of blanks collapsed, blank lines dropped. Comment lines stay,
+    because a comment is not canonical either."""
+    joined = re.sub(r"\\\n", " ", run or "")
+    lines = []
+    for raw in joined.splitlines():
+        line = " ".join(raw.split())
+        if line:
+            lines.append(line)
+    return lines
 
 
 def check_default_branch_step(c, path, gate):
@@ -362,13 +433,35 @@ def check_default_branch_step(c, path, gate):
     token = str(env.get("GH_TOKEN", "")).strip()
     c.item(token == "${{ github.token }}", path, "the default-branch step "
            f"must carry GH_TOKEN: ${{{{ github.token }}}} (found {token!r})")
-    c.item("ci_events.py" in text and "gh api" in text
-           and "$GITHUB_REPOSITORY" in text and ".default_branch" in text,
-           path, "the default-branch step must read the live setting with "
-           "gh api repos/$GITHUB_REPOSITORY --jq .default_branch")
-    c.item('--event "$GITHUB_EVENT_NAME"' in text and "--observed" in text,
-           path, "the default-branch step must pass --event "
-           "\"$GITHUB_EVENT_NAME\" and --observed to the verifier")
+    run = step.get("run") if isinstance(step.get("run"), str) else ""
+    lines = normalize_script(run)
+    code = [(i, l) for i, l in enumerate(lines) if not l.startswith("#")]
+    # Structural reasons first, so a refusal names what went wrong.
+    assigns = [(i, l) for i, l in code if OBSERVED_ASSIGNMENT.search(l)]
+    c.item(len(assigns) == 1, path, "the default-branch step must assign "
+           f"`observed` exactly once (found {len(assigns)}): a second "
+           "assignment shadows the live value")
+    c.item(bool(assigns) and all(l == CANONICAL_OBSERVED for _, l in assigns),
+           path, "the default-branch step's observed value is not sourced "
+           f"from the live API call: expected exactly {CANONICAL_OBSERVED} "
+           f"(found {[l for _, l in assigns] or 'no assignment'})")
+    flow = [l for _, l in code if CONTROL_FLOW.search(l)]
+    c.item(not flow, path, "the default-branch step must read the setting "
+           f"unconditionally: control flow found ({flow})")
+    comments = [l for l in lines if l.startswith("#")]
+    c.item(not comments, path, "the default-branch step script carries no "
+           "comment lines (a `gh api` in a comment reads nothing; comments "
+           f"belong above the step): {comments}")
+    calls = [(i, l) for i, l in code if DEFAULT_BRANCH_FLAG in l]
+    c.item(len(calls) == 1 and calls[0][1] == CANONICAL_CALL, path,
+           "the default-branch step must call the verifier exactly as "
+           f"`{CANONICAL_CALL}` (found {[l for _, l in calls]})")
+    c.item(bool(assigns) and bool(calls) and calls[-1][0] > assigns[0][0],
+           path, "the verifier call must follow the live read")
+    c.item(tuple(lines) == CANONICAL_DEFAULT_BRANCH_SCRIPT, path,
+           "the default-branch step script is not the canonical form: "
+           f"expected exactly {list(CANONICAL_DEFAULT_BRANCH_SCRIPT)} "
+           f"(found {lines})")
     neutered = bool(step.get("continue-on-error")) or "|| true" in text
     c.item(not neutered, path, "the default-branch step must fail closed: "
            "no continue-on-error, no `|| true`")
@@ -413,6 +506,15 @@ def check_records(shas, roots):
     reports; `roots` are the downloaded shard directories. Returns
     (findings, lines): every finding is a refusal, lines are the verdict."""
     findings, lines = [], []
+    missing = [l for l in REQUIRED_SHA_LABELS if l not in shas]
+    unknown = sorted(set(shas) - set(REQUIRED_SHA_LABELS))
+    if missing or unknown:
+        findings.append("the SHA sources must be exactly "
+                        f"{', '.join(REQUIRED_SHA_LABELS)}"
+                        + (f"; missing: {', '.join(missing)}" if missing else "")
+                        + (f"; unknown: {', '.join(unknown)}" if unknown else "")
+                        + ": an aggregate that drops a source cannot prove "
+                        "the gate, the run and its checkout agree")
     for label, sha in shas.items():
         if not SHA_RE.match(sha or ""):
             findings.append(f"{label} SHA {sha!r} is not a 40-digit lowercase "
@@ -642,6 +744,64 @@ def _mutations():
         s = db_step(w)
         s["run"] = s["run"].rstrip("\n") + " || true\n"
 
+    def set_db_script(w, *lines):
+        db_step(w)["run"] = "\n".join(lines) + "\n"
+
+    def m_db_decoy_if_false(w):
+        # The reviewer's decoy: a literal beside an unreachable live read.
+        set_db_script(w, "set -euo pipefail", "observed=dev", "if false; then",
+                      "  " + CANONICAL_OBSERVED, "fi", CANONICAL_CALL)
+
+    def m_db_literal_after_call(w):
+        set_db_script(w, *CANONICAL_DEFAULT_BRANCH_SCRIPT, "observed=dev")
+
+    def m_db_literal_after_read(w):
+        set_db_script(w, "set -euo pipefail", CANONICAL_OBSERVED,
+                      "observed=dev", CANONICAL_CALL)
+
+    def m_db_gh_api_in_comment(w):
+        set_db_script(w, "set -euo pipefail", "# " + CANONICAL_OBSERVED,
+                      "observed=dev", CANONICAL_CALL)
+
+    def m_db_other_command(w):
+        set_db_script(w, "set -euo pipefail",
+                      'observed="$(git symbolic-ref --short '
+                      'refs/remotes/origin/HEAD | sed s,origin/,,)"',
+                      CANONICAL_CALL)
+
+    def m_db_two_assignments(w):
+        set_db_script(w, "set -euo pipefail", CANONICAL_OBSERVED,
+                      CANONICAL_OBSERVED, CANONICAL_CALL)
+
+    def m_db_call_before_read(w):
+        set_db_script(w, "set -euo pipefail", CANONICAL_CALL,
+                      CANONICAL_OBSERVED)
+
+    def m_db_extra_line(w):
+        set_db_script(w, *CANONICAL_DEFAULT_BRANCH_SCRIPT, "echo done")
+
+    def m_db_no_set(w):
+        set_db_script(w, CANONICAL_OBSERVED, CANONICAL_CALL)
+
+    def verify_step(w, jid):
+        for s in steps(jobs(w[RTL_FULL])[jid]):
+            if VERIFY_FLAG in step_text(s):
+                return s
+        raise AssertionError(f"fixture drift: no verifier step in {jid}")
+
+    def m_drop_sha(jid, label):
+        def f(w):
+            s = verify_step(w, jid)
+            want = REQUIRED_SHA_ARGS[label]
+            assert want in s["run"], f"fixture drift: {want} not in {jid}"
+            s["run"] = s["run"].replace(want + " ", "").replace(want, "")
+        return f
+
+    def m_extra_sha(w):
+        s = verify_step(w, "verilator-suites")
+        s["run"] = s["run"].replace(VERIFY_FLAG,
+                                    VERIFY_FLAG + ' --sha extra="$GITHUB_SHA"')
+
     def m_docs_no_check(w):
         for job in jobs(w[DOCS]).values():
             for s in steps(job):
@@ -709,6 +869,42 @@ def _mutations():
          m_db_continue_on_error, "fail closed"),
         ("rtl default-branch step neutered by || true", m_db_or_true,
          "fail closed"),
+        ("rtl default-branch decoy: observed=dev beside gh api in `if false`",
+         m_db_decoy_if_false, "not sourced from the live API call"),
+        ("rtl default-branch decoy: control flow around the live read",
+         m_db_decoy_if_false, "unconditionally"),
+        ("rtl default-branch literal observed=dev after the real call",
+         m_db_literal_after_call, "exactly once (found 2)"),
+        ("rtl default-branch literal observed=dev after the real read",
+         m_db_literal_after_read, "exactly once (found 2)"),
+        ("rtl default-branch gh api inside a comment only",
+         m_db_gh_api_in_comment, "not sourced from the live API call"),
+        ("rtl default-branch comment line in the script",
+         m_db_gh_api_in_comment, "no comment lines"),
+        ("rtl default-branch observed from a different command",
+         m_db_other_command, "not sourced from the live API call"),
+        ("rtl default-branch two observed assignments",
+         m_db_two_assignments, "exactly once (found 2)"),
+        ("rtl default-branch verifier called before the read",
+         m_db_call_before_read, "must follow the live read"),
+        ("rtl default-branch script with an extra line", m_db_extra_line,
+         "not the canonical form"),
+        ("rtl default-branch script without set -euo pipefail", m_db_no_set,
+         "not the canonical form"),
+        ("rtl verilator-suites drops --sha gate",
+         m_drop_sha("verilator-suites", "gate"), "missing: gate"),
+        ("rtl verilator-suites drops --sha run",
+         m_drop_sha("verilator-suites", "run"), "missing: run"),
+        ("rtl verilator-suites drops --sha checkout",
+         m_drop_sha("verilator-suites", "checkout"), "missing: checkout"),
+        ("rtl yosys-portability drops --sha gate",
+         m_drop_sha("yosys-portability", "gate"), "missing: gate"),
+        ("rtl yosys-portability drops --sha run",
+         m_drop_sha("yosys-portability", "run"), "missing: run"),
+        ("rtl yosys-portability drops --sha checkout",
+         m_drop_sha("yosys-portability", "checkout"), "missing: checkout"),
+        ("rtl verilator-suites passes an unknown --sha label", m_extra_sha,
+         "unknown: extra"),
         ("rtl public name verilator-suites renamed",
          m_rename_job(RTL_FULL, "verilator-suites"), "`verilator-suites`"),
         ("rtl public name yosys-portability renamed",
@@ -849,12 +1045,48 @@ def selftest(root):
         f, _ = check_records(three, [none])
         cases.append(("the empty placeholder directory is refused",
                       any("none" in x and "missing" in x for x in f)))
+        roots = shards(4)
+        f, _ = check_records(dict(gate=sha, run=sha), roots)
+        cases.append(("a dropped checkout source is refused",
+                      any("missing: checkout" in x for x in f)))
+        f, _ = check_records(dict(run=sha, checkout=sha), roots)
+        cases.append(("a dropped gate source is refused",
+                      any("missing: gate" in x for x in f)))
+        f, _ = check_records(dict(gate=sha), roots)
+        cases.append(("a lone gate source is refused",
+                      any("missing: run, checkout" in x for x in f)))
+        f, _ = check_records({}, roots)
+        cases.append(("no source at all is refused",
+                      any("missing: gate, run, checkout" in x for x in f)))
+        f, _ = check_records(dict(three, extra=sha), roots)
+        cases.append(("an unknown source label is refused",
+                      any("unknown: extra" in x for x in f)))
         for name, ok in cases:
             checked_arms += 1
             if ok:
                 print(f"  ok   records: {name}")
             else:
                 problems.append(f"records arm failed: {name}")
+
+    # The canonical pin is whitespace-invariant: re-indenting and continuing
+    # the same three lines differently is the same script and must pass.
+    world = copy.deepcopy(pristine)
+    for s in steps(jobs(world[RTL_FULL])[GATE_JOB]):
+        if DEFAULT_BRANCH_FLAG in step_text(s):
+            s["run"] = ("  set   -euo pipefail\n\n"
+                        '  observed="$(gh api "repos/$GITHUB_REPOSITORY" \\\n'
+                        "      --jq .default_branch 2>/dev/null \\\n"
+                        '      || echo unreadable)"\n'
+                        "  python3 scripts/ci_events.py \\\n"
+                        "    --require-default-branch \\\n"
+                        '    --event "$GITHUB_EVENT_NAME" \\\n'
+                        '    --observed "$observed"\n')
+    checked_arms += 1
+    if check(world).findings:
+        problems.append("whitespace-only reformatting of the canonical script "
+                        f"was refused: {check(world).findings}")
+    else:
+        print("  ok   canonical pin is whitespace-invariant")
 
     # --require-default-branch arms: the decision for every event class. An
     # inverted or weakened comparison fails one of these, which is what makes
@@ -942,9 +1174,6 @@ def run_require(sha_args, roots):
             print(f"ci_events: --sha {label} given twice")
             return RC_CANNOT_RUN
         shas[label] = value.strip()
-    if not shas:
-        print("ci_events: --require-target-sha needs at least one --sha label=sha")
-        return RC_CANNOT_RUN
     findings, lines = check_records(shas, [pathlib.Path(r) for r in roots])
     for line in lines:
         print(line)

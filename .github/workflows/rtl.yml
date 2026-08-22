@@ -65,8 +65,9 @@ jobs:
       # naming what they saw (a value they could not read refuses too). PR and
       # push runs are about the tree, not the setting: they print the value
       # and carry on, so a drift is visible on every run and fatal on the runs
-      # it would misdirect. scripts/ci_events.py holds the decision and this
-      # step's fail-closed shape.
+      # it would misdirect. scripts/ci_events.py holds the decision and pins
+      # this step's script verbatim (whitespace aside): one unconditional
+      # live read into `observed`, one verifier call after it, nothing else.
       - name: Assert the repository default branch is dev
         env:
           GH_TOKEN: ${{ github.token }}

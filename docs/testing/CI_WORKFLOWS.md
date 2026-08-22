@@ -31,7 +31,12 @@ pull-request update and on every push to `dev`. It produces one stable
 A change containing only living documentation or an Issue template skips the
 Verilator and Yosys setup jobs. The aggregate still completes, so a docs-only PR
 does not leave a required verdict pending. Mixed changes are treated as RTL
-relevant. An empty or unresolvable diff is also treated as RTL relevant.
+relevant. An empty or unresolvable diff is also treated as RTL relevant. A
+submodule pointer (`protocol-processor`, `gptp-processor`, `external`,
+`third_party/...`, read from `.gitmodules`) or `.gitmodules` itself is never
+docs-only: it moves the RTL the sweep elaborates without touching a file under
+`hdl/`, and `scripts/ci_scope.py --selftest` proves a classifier that files
+any one of them as documentation is rejected.
 
 The elaboration smoke proves that the integration-heavy source lists lower and
 resolve. It does not replace generic synthesis and must not be reported as a
@@ -131,10 +136,20 @@ those runs are about the tree, not the setting, and a contributor's PR must
 not go red for a repository setting it cannot change. A drift is therefore
 visible on every run and fatal on the first run it would misdirect, instead
 of surfacing as a nightly that silently stopped. `ci_events.py --check`
-requires the step, its token and its fail-closed shape; `--selftest` covers
-the step removed, the token missing, the live read replaced by an echo, the
-event not passed, the step neutered by `continue-on-error` or `|| true`, and
-the decision itself for every event class.
+requires the step, its token and its fail-closed shape, and pins the step's
+script verbatim (whitespace aside) to three lines: `set -euo pipefail`, one
+unconditional `observed="$(gh api ...)"` read, one verifier call after it. A
+substring recognizer was fooled by a decoy, a literal `observed=dev` beside a
+`gh api` inside `if false`; the pin refuses it, and the structural reasons
+name what a deviation did: a second assignment, a value not sourced from the
+live call, control flow around the read, a comment line, the call before the
+read. `--selftest` covers the step removed, the token missing, the live read
+replaced by an echo, the event not passed, the step neutered by
+`continue-on-error` or `|| true`, the decoy itself, a literal after the real
+read and after the call, `gh api` in a comment only, `observed` from another
+command, two assignments, the call before the read, an extra line, a missing
+`set` line, a whitespace-only reformatting that must still pass, and the
+decision itself for every event class.
 
 ## One authoritative SHA
 
@@ -154,8 +169,12 @@ validates one tree. The workflow makes that explicit and machine-checked
   uploads. The file is neither a `*.log` nor a `*.result`, so neither tally
   reads it;
 - both aggregates run `scripts/ci_events.py --require-target-sha` over the
-  downloaded shards before they tally anything, and print the SHA in their
-  verdict.
+  downloaded shards before they tally anything, passing exactly three
+  sources, `--sha gate="$GATE_SHA"` (the gate's `target_sha` through the step
+  env), `--sha run="$GITHUB_SHA"` and `--sha checkout="$(git rev-parse
+  HEAD)"`, and print the SHA in their verdict. The verifier refuses any other
+  source set, a dropped source or an unknown label included, so an aggregate
+  cannot quietly stop proving that the gate, the run and its checkout agree.
 
 The aggregates refuse, and the check fails rather than skips:
 
@@ -164,7 +183,7 @@ The aggregates refuse, and the check fails rather than skips:
 - a record that is not a 40-digit hexadecimal commit id;
 - a record naming any tree but this run's;
 - a gate `target_sha`, aggregate `GITHUB_SHA` and aggregate checkout that are
-  not one value.
+  not one value, or a source set that is not exactly those three.
 
 `scripts/ci_events.py --check` holds the workflow files to this contract and
 to the trigger contract above: no `actions/checkout` step in `rtl.yml`
