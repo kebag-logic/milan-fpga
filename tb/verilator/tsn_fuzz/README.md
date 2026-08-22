@@ -78,7 +78,19 @@ flowchart LR
   field's width and its spec constraint (`value` / `values` / `range` /
   `mask`); `tsn_model.py` turns those into per-field *legal* and *illegal*
   probe sets, plus reproducible constrained-random field sets via
-  `packet_gen --seed`.
+  `packet_gen --seed`. **Exactly one kind per field.** A field declaring two
+  or more (say `value: 3` beside `values: [1, 2, 3]`) is refused, fail-closed,
+  with one message naming the field and every kind it declares. The rule is
+  a single predicate, `tsn_model.kind_conflict()`, and `legal()`, `illegal()`
+  and `fuzz_ptp.grade_tx()` all ask it before they dispatch, so the three
+  readers cannot resolve a combination three ways (#151). Upstream resolves
+  it a fourth way -- `packet_builder.cpp::pickValue` merges `value` into
+  `values` and drops a `mask` or `range` standing beside them -- which is why
+  the combination is refused rather than re-resolved. No model at the pinned
+  tsn-gen rev declares two kinds (0 of 241 constrained fields across the 31
+  model files), so the campaign tallies do not move; `test_grade_tx.py`
+  proves the refusal by mutating the predicate and watching every refusal
+  case go red.
 * **`wire.py` owns the bytes.** It encodes/decodes the REAL 1722.1 layouts —
   the ones the silicon-proven C++ testbenches and the deployed boards use —
   and self-tests against their vectors (`python3 wire.py`).
