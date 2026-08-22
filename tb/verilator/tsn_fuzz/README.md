@@ -54,9 +54,14 @@ count betrays it. Deleting the pinned parser's type arm turns 29 checks
 red, 27 of them the three properties (nine each) and two the servo
 state the drawn exchanges republish; making the end-of-frame gate
 dispatch what it counts turns exactly the nine program-count checks red
-and nothing else in the group. Both figures are re-measured whenever a
-property joins the group, because each new property re-prices every
-mutation quoted about it.
+and nothing else in the group. Both figures need re-measuring, and the
+triggers are not the same one: ANY check joining the campaign, anywhere,
+moves every PASS count quoted anywhere, because a mutation figure is
+"total minus the ones that failed"; only a check joining THIS group
+moves its FAIL counts. The pass side is the fragile half, since a probe
+added at the other end of the file re-prices it. Quote fail counts in
+committed documents where you can, for that reason, and re-measure a
+quoted pass count whenever the campaign total moves.
 
 The FPGA-gPTP #7, #8 and #10 allowances are still in the file and no
 longer fire at this pin: #136, #141 and #137 turn each into an ordinary

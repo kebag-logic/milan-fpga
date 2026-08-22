@@ -566,6 +566,14 @@ class Campaign:
                                 % (kind, field, v),
                                 after[S_RXDROP], before[S_RXDROP] + 1)
                     self.stable("%s %s=%d" % (kind, field, v), before, after)
+        # NOTE on quoting numbers about this group, learned the hard way
+        # twice: a mutation figure is "campaign total minus what failed", so
+        # ANY check added anywhere in this file re-prices every PASS count
+        # quoted about any mutation, in the README, in a PR body or here,
+        # while only a check added to THIS group moves its FAIL counts. A
+        # sixth Pdelay_Req probe in another section is enough. Re-measure
+        # before quoting, and prefer the fail side in anything committed.
+        #
         # unknown message types with a full header: refused, counted, and
         # -- the half that matters -- SILENT. Both properties are graded
         # because the two are independent: between the #11 rework and
