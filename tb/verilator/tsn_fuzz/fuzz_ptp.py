@@ -66,7 +66,7 @@ def require_ptp_models(rep):
 # state_dump() word order — must match cosim_ptp.cpp (APPEND ONLY)
 (S_FLAGS, S_GM_HI, S_GM_LO, S_PAR_HI, S_PAR_LO, S_PDELAY, S_OFFSET,
  S_TAPDROP, S_RXDROP, S_PHC_HI, S_PHC_LO, S_TXCNT, S_TXTSSEQ, S_TXTSCNT,
- S_PDEXP) = range(15)
+ S_PDEXP, S_PROGRUN) = range(16)
 
 FL_PRESENT, FL_AMGM, FL_ASCAP, FL_SYNCOK = 1, 2, 4, 8
 
@@ -584,6 +584,7 @@ class Campaign:
         # drew one Pdelay_Req in that block against zero for the
         # un-injected control, and twenty drew ten (802.1AS-2011 11.5.2.2
         # and Figure 11-8 leave the interval timer the only exit).
+        attempts = []
         for mt in (0x1, 0x4, 0x5, 0x6, 0x7, 0x9, 0xD, 0xE, 0xF):
             # Up to four attempts, and the ATTEMPT REPORTED is the first
             # one that either passes or fails for the reason this probe
@@ -604,7 +605,7 @@ class Campaign:
             # -- pass by rerolling, with a log byte-identical to a clean
             # run because passing checks are not printed.
             quiet, drawn, tries = False, None, 0
-            for tries in range(1, 5):
+            for tries in range(1, 5):    # attempts, reported below
                 quiet = self.quiet_window()
                 before = self.state()
                 mark = len(self.txq)
@@ -617,8 +618,23 @@ class Campaign:
                     break                 # not refused: this attempt IS it
                 if quiet and drawn == 0:
                     break
+            attempts.append((mt, tries))
             self.rep.ck("unknown type 0x%X: a quiet window precedes it" % mt,
                         quiet, "%d attempt(s)" % tries)
+            # The re-roll above is safe only because a frame the parser
+            # REFUSED cannot also have dispatched: that is what lets a
+            # non-empty window with an advanced drop counter be blamed on
+            # the plane's own cadence. Assert it rather than trust it. The
+            # engine brings `dbg_busy_o` out of the slice and the bench
+            # wrapper counts its rising edges, so "did anything run?" is a
+            # question about the window, not about an instant: a refused
+            # frame must leave the uCPU program count exactly where it was.
+            # Without this, a donor change that both counted AND dispatched
+            # would put every attempt on the benign path and the re-roll
+            # would hide it -- the same hiding the attempt-discarding loop
+            # was fixed for in #210's second review round.
+            self.rep.eq("unknown message type 0x%X: ran no program" % mt,
+                        after[S_PROGRUN], before[S_PROGRUN])
             self.rep.eq("unknown message type 0x%X: dropped and counted"
                         % mt, after[S_RXDROP], before[S_RXDROP] + 1)
             self.rep.eq("unknown message type 0x%X: draws no transmission "
@@ -632,6 +648,16 @@ class Campaign:
                         after[S_OFFSET], before[S_OFFSET])
             self.rep.eq("unknown message type 0x%X: peer delay unmoved"
                         % mt, after[S_PDELAY], before[S_PDELAY])
+        # The attempt counts belong in the log even when everything passes:
+        # `rep.ck`'s detail is printed on failure only, so a run that needed
+        # four windows per type would otherwise read exactly like one that
+        # needed one, and a rising collision rate (a changed cadence, a
+        # different block size) would be invisible until the day it runs out
+        # of retries.
+        self.rep.note("unlisted-type windows: %s (%d re-roll(s) over %d "
+                      "types)"
+                      % (" ".join("0x%X:%d" % a for a in attempts),
+                         sum(t - 1 for _, t in attempts), len(attempts)))
         # classify negatives: never enter, never cost a drop
         for label, frame in (
                 ("AVTP ethertype", wire.ptp_sync(sequence_id=1,
