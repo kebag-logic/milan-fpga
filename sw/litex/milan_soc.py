@@ -689,6 +689,10 @@ def _arty_serial_io(name, pmod):
     AUDIO_IF_I2S_PAIR_P -> KL_pair_blend) runs BOTH front-ends, I2S as pair
     slot 0 ("channels 1/2 stay the I2S Pmod", USER 2026-07-28).
 
+    This five-signal TDM header deliberately has no `lrclk` subsignal.  The
+    AX7101 J11 `lrclk` is an optional media-grid observation point, not part
+    of the TDM bus; MilanSoC leaves that output internal on boards without it.
+
     The parameterization is deliberate: the add_extension CALL LINE names the
     resource ("tdm") and the connector ("pmodb") as string literals, which is
     exactly what sw/litex/platforms/board_audio_routing.py reads as the
@@ -5986,6 +5990,12 @@ class MilanSoC(SoCCore):
                 # except here (the AX7101 'pmoda' elaboration break,
                 # 2026-07-13).
                 self.tdm_pads = platform.request("tdm", loose=True)
+                # `lrclk` is an AX7101-only J11 media-grid TEST POINT, not a
+                # required member of a TDM resource.  The Arty Pmod header has
+                # the five bus signals above and legitimately omits it, so the
+                # subsignal's presence - not merely `tdm_pads` - decides
+                # whether the observation output reaches a package pin.
+                _media_lrclk = getattr(self.tdm_pads, "lrclk", None)
                 dp_ports.update(
                     # TDM8 divides the audio clock itself (no cd_audio_tdm -
                     # see the audio_tdm_hz note above); TDM16/32 get the
@@ -5994,7 +6004,8 @@ class MilanSoC(SoCCore):
                                                 else "audio"),
                     o_tdm_bclk_o  = (self.tdm_pads.bclk if self.tdm_pads
                                      else Signal()),
-                    o_media_lrclk_o = (self.tdm_pads.lrclk if self.tdm_pads
+                    o_media_lrclk_o = (_media_lrclk
+                                       if _media_lrclk is not None
                                        else Signal()),
                     o_tdm_fsync_o = (self.tdm_pads.fsync if self.tdm_pads
                                      else Signal()),

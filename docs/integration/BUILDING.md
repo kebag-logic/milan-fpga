@@ -175,6 +175,12 @@ xc7a100t**csg324-1** (SAME die, SLOWER speedgrade  -  expect tighter WNS at
 `--strip-probes`. Role: AVDECC/Milan interop peer and the 100 Mbit CBS
 test point (`is_1g=0` slope branch); not a throughput peer.
 
+Its Pmod B TDM header routes `mclk`, `bclk`, `fsync`, `din`, and `dout`.
+Unlike the AX7101 J11 resource, it has no `lrclk`: that signal is an optional
+media-grid observation point rather than part of the TDM bus, so
+`o_media_lrclk_o` remains internal on the Arty while the master still
+elaborates and drives the complete five-signal header.
+
 ### Adding a configuration
 
 1. Add `cfg_<name>() { echo "--board ... --cpu ..."; }` next to the others.

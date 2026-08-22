@@ -4503,16 +4503,9 @@ def test_optional_block_instance_gate_bites():
 #: a row that skips on any error is a row nobody looks at ([R0] on PR #188:
 #: the first version accepted every error here, so a new parser, a broken
 #: tool install or a regression in this very recipe would have been reported
-#: as #184 and left the verdict green).
-KNOWN_UNRUNNABLE = {
-    "sweep.sh arty": (
-        "#184: milan_soc.py binds o_media_lrclk_o to tdm_pads.lrclk, a "
-        "subsignal only the AX7101 platform declares, so this TDM-master leg "
-        "dies with AttributeError before the Instance. Recorded rather than "
-        "fixed here - the fix is a per-board binding decision and the Arty "
-        "is a retired DUT (USER 2026-08-01: AX7101 is the sole DUT)",
-        r"AttributeError: 'Record' object has no attribute 'lrclk'"),
-}
+#: as the old known failure and left the verdict green).  Empty since #184:
+#: the Arty TDM resource legitimately omits the AX7101-only lrclk test point.
+KNOWN_UNRUNNABLE = {}
 
 
 def _shell_recipes(path, pattern, flags=0):
@@ -4607,7 +4600,7 @@ RECIPE_RAN, RECIPE_RECORDED, RECIPE_TOOLCHAIN, RECIPE_STALE, RECIPE_FAILED = (
     "ran", "recorded", "toolchain", "stale", "failed")
 
 
-def _classify_recipe(label, argv, row):
+def _classify_recipe(label, argv, row, known_unrunnable=None):
     """(verdict, detail) for one recipe's probe result.
 
     EVERY SKIP IS PINNED TO ITS EXACT DIAGNOSTIC.  The first version of this
@@ -4621,9 +4614,10 @@ def _classify_recipe(label, argv, row):
     generator's own sbt run, and that run's output carries scopt's refusal
     of an --l2-* argument.  Anything else is a failure of the recipe.
     """
+    known = KNOWN_UNRUNNABLE if known_unrunnable is None else known_unrunnable
     err = row.get("error")
-    if label in KNOWN_UNRUNNABLE:
-        why, signature = KNOWN_UNRUNNABLE[label]
+    if label in known:
+        why, signature = known[label]
         if err is None:
             return RECIPE_STALE, (
                 f"{label}: RECORDED as unrunnable ({why}) but it elaborated "
@@ -4727,9 +4721,9 @@ def test_recipe_skip_classifier_bites():
 
     The skips are the part of gate 23g that can turn a failure into a green,
     so they are graded on every box, interpreter or not.  Each arm hands the
-    production classifier a result shaped like a real one - the recorded
-    Arty error and scopt's refusal are the texts observed on 2026-08-21,
-    verbatim - and requires the verdict [R0] asked for on PR #188: a
+    production classifier a result shaped like a real one - the former Arty
+    error and scopt's refusal are the texts observed on 2026-08-21, verbatim -
+    and requires the verdict [R0] asked for on PR #188: a synthetic
     recorded row failing for a different reason FAILS, a generator failure
     without scopt's refusal FAILS, the refusal on a recipe that passes no
     --l2-* argument FAILS, and only the two exact shapes skip.  The
@@ -4737,7 +4731,14 @@ def test_recipe_skip_classifier_bites():
     fails it, a recorded row does not, and the line it prints says which.
     """
     arty = "sweep.sh arty"
-    assert arty in KNOWN_UNRUNNABLE, "these controls replay the recorded Arty row"
+    assert arty not in KNOWN_UNRUNNABLE, \
+        "#184 is fixed, so its live recorded-failure row must stay deleted"
+    recorded = {
+        arty: (
+            "synthetic #184 row: the board resource lacks the optional lrclk "
+            "test point",
+            r"AttributeError: 'Record' object has no attribute 'lrclk'"),
+    }
     l2 = ["--scala-args=--l2-down-pending=4",
           "--scala-args=--l2-general-slots=8"]
     gen = ("CalledProcessError: Command 'cd /v/ext/VexiiRiscv && sbt "
@@ -4775,7 +4776,7 @@ def test_recipe_skip_classifier_bites():
          {"params": {"p_X": 1}}, RECIPE_RAN),
     ]
     for name, label, argv, row, want in arms:
-        got, _detail = _classify_recipe(label, argv, row)
+        got, _detail = _classify_recipe(label, argv, row, recorded)
         assert got == want, \
             f"gate 23g classifier: {name}: want {want}, got {got}"
     verdicts = [
@@ -4796,10 +4797,10 @@ def test_recipe_skip_classifier_bites():
             f"saying {want_text!r}, got rc {rc}: {buf.getvalue().strip()!r}")
     print(f"  [gate 23g classifier] {len(arms)}/{len(arms)} shaped results "
           f"and {len(verdicts)}/{len(verdicts)} --require-elaboration "
-          "verdicts graded as [R0] on PR #188 requires: only the recorded "
-          "Arty error and scopt's own refusal of an --l2-* argument skip, "
-          "the latter fails --require-elaboration, and every other failure "
-          "fails")
+          "verdicts graded as [R0] on PR #188 requires: a synthetic recorded "
+          "Arty error and scopt's own refusal of an --l2-* argument are the "
+          "only skip shapes, a stale #184 row and every other failure fail, "
+          "and the toolchain skip fails --require-elaboration")
 
 
 #  gate 23h (issue #185) - THE TOOLCHAIN THIS SOC IS BUILT WITH IS THE ONE
