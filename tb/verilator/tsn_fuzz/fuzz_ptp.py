@@ -262,11 +262,23 @@ class Campaign:
         for name, _bits, con in model.fields:
             if name in skip or name not in got or not con:
                 continue
+            # ONE KIND PER FIELD, and tsn_model decides it, not this grader. A
+            # field declaring two kinds is refused before any dispatch, with
+            # the message legal()/illegal() raise for the same field, so the
+            # three readers cannot resolve a combination three ways (#151).
+            # The producer resolves it a fourth: packet_builder.cpp::pickValue
+            # merges `value` into `values` and drops a `mask` or `range`
+            # standing beside them, while the chain below used to stop at the
+            # first kind it met, so `value: 3` beside `values: [1, 2, 3]`
+            # would have graded a frame carrying 1 RED and blamed the DUT.
+            refused = tsn_model.kind_conflict(name, con)
+            if refused:
+                self.rep.ck("%s.%s declares one constraint kind"
+                            % (label, name), False, refused)
+                continue
             # Dispatch order matches tsn_model.legal()/illegal() exactly:
-            # value, values, range, mask. No field declares two kinds today,
-            # but a grader that resolved a combination differently from the
-            # generator that produced the stimulus would be judging by one
-            # rule what was built by another.
+            # value, values, range, mask. With one kind per field the order
+            # decides nothing; it is kept identical so the three stay diffable.
             if "value" in con:
                 if name in gaps:
                     self.eq_or_gap("%s.%s" % (label, name), got[name],

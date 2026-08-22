@@ -20,7 +20,7 @@ The capability rows on this page are checked against the
 ## Contents
 
 - **[Build contract](#build-contract)** — The checked shipping shape, its cacheless one-hart RV32I invariants, the 50 MHz Milan/CPU clock boundary and the configuration-owned gPTP ROM.
-- **[Boot and AEM image](#boot-and-aem-image)** — The raw QSPI descriptor-image slot and the identity, copy and CRC checks that must pass before the protocol processor and ADP are enabled.
+- **[Boot and AEM image](#boot-and-aem-image)** — The raw QSPI descriptor-image slot and the identity, copy and CRC checks that must pass before either compatibility enable bit may activate the shared AVDECC control plane.
 - **[Fabric gPTP option](#fabric-gptp-option)** — How the shipping YAML opts into the fabric plane without changing the RTL default or taking #116's software-retirement work.
 - **[UART commands](#uart-commands)** — The status, TAI set/get and explicit UTC conversion commands, followed by the non-disruptive host smoke invocation.
 - **[Optional Linux sound-card surface](#optional-linux-sound-card-surface)** — What the shipping build removes with `sound_card: false`, what audio fabric remains, and how retained Linux bring-up builds opt back in.
@@ -70,18 +70,209 @@ builder-generated protocol-processor entity image:
 
 `deploy.sh flash-images` writes the AEM image raw. It must not receive a
 LiteX FBI header. At build time the firmware receives the image length, CRC32
-and DRAM destination as generated constants. At boot it performs this order:
+and DRAM destination as generated constants. The PHC is enabled by the CSR
+reset and the option-on fabric gPTP plane starts independently of the AVDECC
+AEM image. Firmware therefore does not gate either one on AEM verification.
+It performs this order:
 
-1. Keep ADP and the protocol processor disabled.
+1. Keep both compatibility enable bits clear, leaving the shared AVDECC
+   control plane disabled while the PHC and fabric gPTP plane remain active.
 2. Program the generated entity ID, model ID, station MAC, SR VID, stream
    counts, lwSRP policy, MAAP count and CRF/AAF controls.
 3. Copy the raw AEM image from QSPI to the protocol processor's paired DRAM
    window and verify its CRC32.
-4. Enable the PTP clock, protocol processor and ADP entity only after the
-   identity check and AEM verification succeed.
+4. After the identity check and AEM verification succeed, set the
+   `PP_CTRL[0]` and legacy `ADP_CTRL[0]` compatibility enable bits. The
+   controls are ORed into one shared control-plane enable, so either bit alone
+   enables it.
 
-A missing or corrupt image leaves the entity disabled. The UART status line
-then reports `AEM=disabled`; it is not treated as a quiet healthy boot.
+A missing or corrupt image leaves the AVDECC entity disabled while the PHC and
+fabric gPTP plane continue independently. The UART status line then reports
+`AEM=disabled`; it is not treated as a quiet healthy boot.
+
+### Editing contract for this firmware
+
+Gate 1b in `sw/builder/test_builder.py` checks the shipped boot-order spelling
+and rejects the mutation classes listed below. It proves the enumerated
+address, reset, placement, live gPTP wiring and build-plan facts; it does
+**not** prove the semantic C control/data-flow property, and the known escapes
+below still report `ALL GATES PASS`. The constraints apply to
+`sw/firmware/milan_baremetal/milan_baremetal.c` and
+`sw/firmware/milan_baremetal/Makefile`, plus the named CSR and datapath
+integration expressions. The CSR Verilator harness separately drives
+`PTP_CTRL` and `ADP_CTRL` through all four combinations and observes
+`o_ptp_enable`, so CSR-output PHC ownership is behavioral. The `milan_csr`
+output binding and connection onward to `ptp_timestamp.i_ptp_enable`, plus the
+enumerated gPTP handshake, clock and reset seams, are structural checks over
+comment-blanked SystemVerilog. Each match must be a direct item in its inspected
+generate arm, and every backtick token in both the CSR and datapath files is
+closed to that file's two shipped includes and paired `default_nettype`
+directives. The identity check also follows the canonical `csr_default(A_ID)`
+literal through the defaults-ROM fill and the direct AXI read address. On a
+runner carrying Verilator, every CSR/datapath mutation must still elaborate as
+the real `milan_csr` top or option-on `milan_datapath` source closure before it
+counts; without Verilator that layer explicitly stands down and is not reported
+as elaborated evidence. The gate prints both its checked facts and open limits at run time;
+neither this page nor the gate output may claim more than those measured facts.
+
+One constraint is answered by a tool rather than by reading text:
+
+- **The Makefile must build one object from one source.** The gate asks
+  `make -Bn` what it would do rather than parsing the file, so every make
+  assignment flavour is covered, and it pins the SET of commands make would
+  run rather than scanning them for dangerous flags. That is why an injection
+  spelled `-Wp,-include,hdr`, `@response.file` or `-iwithprefixbefore` is
+  refused without any of them being named, and it is also why a benign
+  `AR += v` is refused: the rule has no list, so it has nothing to fall
+  behind and no way to make an exception.
+
+A second tool check runs alongside the text rules, and it is an **addition**
+rather than a replacement. Where an RV32 cross compiler is available, the gate
+compiles the firmware and requires that no function except `milan_reg()`
+materialises an address inside the Milan CSR window; where one is not, it
+stands down and says so in its printed verdict. A deterministic host-only
+self-test supplies a compiler selection that is known not to be RV32, makes
+any attempted compile fail, and checks that the same observed no-run verdict
+produces the printed `STOOD DOWN` claim.
+
+**What this gate does not prove.** The CRC check has a measured control-flow
+escape. Gate 1b finds the `crc32()` assignment and mismatch block and requires
+every non-zero return to appear later in the same preprocessor arm. Those are
+textual placement facts, not dominance. This warning-clean edit passes both
+the base and current gate while skipping the assignment and comparison:
+
+```c
+goto crc_ok;
+got = crc32((const unsigned char *)MILAN_AEM_DESC_BASE,
+            MILAN_AEM_IMAGE_BYTES);
+if (got != MILAN_AEM_IMAGE_CRC32) {
+        ...
+        return 0;
+}
+crc_ok:
+return 1;
+```
+
+The assignment and mismatch block still exist textually and the non-zero
+return is later in the same arm. Gate 1b builds no CFG, so none of those facts
+proves the CRC decision executed. A structured `do`/`break` bypass has the same
+effect without `goto`, so another keyword refusal is not a proof. The
+verifier/control-flow half of the replacement is tracked on #153.
+
+The source store instrument has an uncovered class. The cast set only
+recognises a cast whose text contains a `*`, and the store set only recognises
+a left-hand side that starts with `*` or is `name[...]`. A cast with no `*`
+combined with a `->` or subscript store is therefore outside the source
+instrument:
+
+```c
+typedef struct { volatile uint32_t ctrl; } *milan_adp_blk;
+...
+((milan_adp_blk)0x90000600u)->ctrl = 1u;      /* ADP_CTRL[0], pre-AEM */
+```
+
+That is a durable pre-AEM entity advertise. When an RV32 cross compiler is
+available, the compiled census sees the materialised CSR address and rejects
+the edit. When the compiled census stands down for want of that compiler, the
+edit is outside both active instruments and the gate reports `ALL GATES PASS`.
+Closing the property on every supported runner still requires #153 and #162
+together. #153 owns the verifier/control-flow proof and the
+`entity_advertise()` choke point; #162 owns a census that resolves CSR store
+targets by value rather than matching printed literals. The choke point alone
+does not close paged-base `->` or subscript stores, and value resolution alone
+does not prove CRC success was reached. Neither issue alone is a replacement.
+
+**And a second blind spot, on the Makefile side, from the same cause one step
+over.** The recipe pin reads what `make -Bn` PRINTS, which is text make has
+already expanded. A name this Makefile references but nothing defines expands
+to nothing, so the pinned commands come out byte-identical and the environment
+decides what the compiler actually gets:
+
+```make
+CFLAGS += $(MILAN_EXTRA_CFLAGS)
+```
+
+```
+$ make -Bn                                            # what the gate sees
+... -c __BASE_CFLAGS__ -I__BIOS__ <src>/milan_baremetal.c -o milan_baremetal.o
+$ MILAN_EXTRA_CFLAGS='-include ../shadow.h' make -Bn  # what a real build runs
+... -c __BASE_CFLAGS__ -I__BIOS__ -include ../shadow.h <src>/... -o ...
+```
+
+The gate's hostile double-run does not see it either: it perturbs three fixed
+names, and an assignment that defers to a fourth is invisible to it.
+`CFLAGS += $(EXTRA_CFLAGS)` is an ordinary idiom, not a contrivance.
+
+The class is worth stating because it is the same mechanism that stopped the
+compiled census from replacing the text rules: **an instrument that reads a
+RESULT cannot see what an undefined name would have contributed.** Reading the
+Makefile's own TEXT saw `$(MILAN_EXTRA_CFLAGS)` and refused it; reading make's
+result sees an empty expansion and has nothing to refuse.
+
+The fix is derivable and is tracked rather than implemented here: probe
+`$(origin NAME)` for every name the Makefile references and refuse
+`undefined`. Measured against this Makefile, every real name is `file` or
+`default` and the escape is the only `undefined`, with one caveat for whoever
+implements it: the accepted `tags:` case references `$(CTAGS)`, which is also
+`undefined`, so the check has to be scoped to names that reach the pinned
+recipes. See #162.
+
+**Outside what any recipe pin can reach at all**, and recorded here rather
+than turned into rules, because no pin over printed commands can see them:
+`export CPATH` and `export COMPILER_PATH`, which GCC itself reads from the
+environment; `SHELL := ...`, which changes what executes the printed command;
+`.EXPORT_ALL_VARIABLES:`; and `$(shell ...)`, which runs at parse time, during
+the gate's own plan run, before any recipe is printed.
+
+Read the constraints below as what they are: they bound the spellings they
+recognise, and they cost real edits to do it.
+
+- **Any CSR store must go through `milan_write()`.** Only `milan_reg()` may
+  use `MILAN_CSR_BASE` or a `(volatile uint32_t *)` cast. The set of pointer
+  casts, the set of pointer stores and the set of inline-asm statements in the
+  file are each pinned, so a fifth cast, a fifth store or a third `asm` is
+  refused until it is added to the gate.
+
+The rest are refusals, and each one costs a legitimate edit:
+
+| Constraint | Why the gate needs it |
+|---|---|
+| `o_ptp_enable` is driven directly by `ptp_ctrl[0]`, the `milan_csr` instance binds it directly to `cfg_ptp_enable`, and `ptp_timestamp` directly consumes that net with ungated clocks, resets, increment/adjust/TOD controls and readback | PHC startup is independent of AEM/ADP from the CSR register through the actual timestamp consumer; the CSR harness separately proves writes to `ADP_CTRL` cannot force or gate the module output |
+| External RX, `ptp_timestamp`, both enabled and bypass `RXFILT_P` arms, the filter's reset-time policy/programming seams, fabric-gPTP shadow RX/TX and timestamp feedback, `gptp_ctl_mux`, MAC-boundary arbitration and external TX handshakes use direct data, clock and reset connections | checking only an endpoint or data port misses an internal/downstream valid, policy or reset gate that makes the plane externally silent before AEM succeeds |
+| CSR and datapath structural checks ignore comments, census every backtick token at any column and require each checked item to be direct in its inspected generate arm | inactive comment, preprocessor or static-generate text must not stand in for a live gated connection; a future directive or nested generate requires an elaborated checker or an explicit update to this bounded model |
+| `milan_reg()` is exactly base plus its argument and `milan_read()` directly dereferences that result | every call-site claim depends on those helpers preserving the register address and loaded value; helper-body refactors must update the model and its mutations |
+| Firmware `MILAN_ID` and `MILAN_ID_MAGIC` equal the comment-blanked, directive-closed RTL `A_ID` address and readback default | otherwise inactive decoy text can hide a live address/value change that teaches the token-level guard to validate a different CSR or forged identity |
+| The `MILAN_ID` local is not assigned or addressed between its CSR read and mismatch guard | otherwise an intervening `id = MILAN_ID_MAGIC` forges the verdict while preserving every ordering anchor |
+| The identity refusal remains the exact `if (id != MILAN_ID_MAGIC)` spelling | an equivalent comparison such as `if ((id ^ MILAN_ID_MAGIC) != 0u)` is refused because this bounded model anchors the mismatch block by that exact expression; accepting another form requires extending the recognizer and its paired controls |
+| A fifth pointer cast, a fifth pointer store or a third `asm` statement | the compiled census does not cover all three, so the sets are what bound address formation |
+| No multi-line `#define` anywhere in the file | the gate reads macro bodies one physical line at a time |
+| No C backslash-newline anywhere in the file | translation phase 2 deletes the pair and can join tokens before an offset-preserving text census; independent space, tab, form-feed and vertical-tab mutants pin every whitespace form the recognizer accepts; a real preprocessor-token reader may retire this refusal |
+| No `#ifdef`/`#if` outside `load_aem_image()` | the gate would read one arm while the compiler takes the other |
+| No `#pragma`, `#line`, `#error`, `#undef` or `#include_next` | the gate has no rule for them, so it refuses rather than ignores |
+| The `#include` set is exactly the eleven headers listed in the gate | a twelfth include is text in the translation unit no rule reads |
+| No new file in `sw/firmware/milan_baremetal/` | a quoted include resolves against this directory first, so a file here can shadow a pinned header |
+| `CFLAGS` gains only `-I$(BIOS_DIRECTORY)` | held now by the recipe pin rather than by a flag rule: the compile command is pinned whole, so any added flag changes it |
+| The Makefile's `include` set is exactly its three lines | `make` can only plan fragments that exist |
+| `OBJECTS` may not use `?=` | `make` treats an environment variable as defined, so `?=` lets the environment choose the object list |
+| No label, `goto`, `switch`, `case` or `default` in `milan_init()` | containment inside the guard is not the same as being reached through it |
+| The guarded block holds the two enables and their `printf` and nothing else | anything else in it is unclassified and something for control to be steered at |
+| The address of `aem_loaded` may not be taken | a pointer would write the verdict with no assignment the gate can see |
+| The RTL reset for `adp_ctrl`/`pp_ctrl_r` must be a literal with bit 0 clear | a named constant is not a value the gate can evaluate |
+| `o_adp_enable`/`o_pp_enable` must be `assign <port> = <reg>[0];` | the gate censuses that exact bit |
+| Renaming `load_aem_image`, `milan_init` or `configure_fabric` | the gate finds them by literal identifier; the refusal names the property and the anchor to update |
+| Renaming the verdict `aem_loaded` | same, and the message says so rather than reporting a boot-order defect |
+| REORDERING existing functions, with nothing added or removed | the cast and store sets are compared as ordered lists |
+| A read-only `#define` accessor wrapping `milan_read()` | it hides a CSR primitive from the operand census; the macro contains no store |
+| `##`, `%:` or `??` anywhere in the file | token pasting and the alternate spellings of `#` |
+| FACTORING the CSR accessors, e.g. a `milan_set(offset, bits)` read-modify-write helper | the census places writes by RESOLVED address, and an `offset` parameter has none. **Remedy:** keep the call sites naming a register constant, or teach `CsrModel.address()` to follow the parameter, which is a data-flow change and belongs with #153 |
+| Hoisting the enable mask to a named constant | the OR mask must be a value the gate can evaluate, so `\| MILAN_ENTITY_ENABLE` is not recognised as the enable write. **Remedy:** leave the mask a literal, or add the name to the firmware's `#define` table so `constant_value()` can resolve it |
+| ANY change to the two commands `make` runs, a benign `AR += v` or `CC += -Wall` included | the recipe set is pinned rather than scanned for dangerous flag spellings, and the price of having no list is that benign changes are refused too. **Remedy:** add the changed command to `expected_recipes` in the gate and a mutation-table entry beside it |
+
+The listed refusals bound only the spellings they recognise. The open CRC
+reachability/provenance cases belong to #153; retiring the store-recognition
+families also requires #162's value-resolving census. No refusal family is
+deleted until the joint replacement rejects the recorded escapes by
+measurement.
 
 ## Fabric gPTP option
 
@@ -94,8 +285,11 @@ using the generator's example identity or clock defaults.
 This #120 integration does not change the RTL default or the CSR compatibility
 surface. The #116 flip still owns the default-on transition and retirement of
 the remaining software-era CSR/readback behavior. The bare-metal firmware
-sets the PHC epoch explicitly; after that, the fabric plane owns adjfine and
-adjtime in an option-on build.
+exposes explicit UART commands for setting the PHC epoch; the fabric plane
+owns adjfine and adjtime in an option-on build. When an external grandmaster
+is selected, that plane steps and disciplines the PHC; a free-running or
+grandmaster board uses `milan_settime` or `milan_utc` to establish its TAI
+epoch.
 
 ## UART commands
 

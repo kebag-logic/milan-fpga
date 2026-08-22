@@ -5,8 +5,9 @@
 tsn-gen protocol-model access — the field/constraint oracle for the campaign.
 
 tsn-gen carries the SPEC FIELD MODEL of every 1722.1 PDU: each field's bit
-width plus its spec constraint (`expected:` value / values / range / mask).
-This module turns that model into test material:
+width plus its spec constraint (`expected:` value / values / range / mask,
+exactly ONE kind per field -- see `kind_conflict`). This module turns that
+model into test material:
 
   * `Message.fields`          ordered (name, bits, constraint) for a PDU
   * `Message.legal(field)`    spec-LEGAL probe values for one field
@@ -58,6 +59,44 @@ def available():
     return os.path.isfile(PACKET_GEN) and os.access(PACKET_GEN, os.X_OK)
 
 
+#: the constraint kinds the model grammar allows under `expected:`. Upstream
+#: reads exactly these four (tsn-gen parser/src/protocol.cpp) and nothing else.
+CONSTRAINT_KINDS = ("value", "values", "range", "mask")
+
+
+def kind_conflict(name, con):
+    """ONE CONSTRAINT KIND PER FIELD, decided here and nowhere else (#151).
+
+    `con` is a field's `expected:` mapping. Returns None when it declares at
+    most one kind, else the refusal message naming the field and every kind
+    it declares. Every reader that dispatches on the kind -- `legal()`,
+    `illegal()` and fuzz_ptp's `grade_tx()` -- asks this first, so a field
+    carrying two kinds is refused the same way by all three instead of being
+    resolved three ways.
+
+    Why refuse rather than merge: the producer resolves a combination by its
+    own precedence (packet_builder.cpp::pickValue draws from value+values if
+    either is present, else from range, and applies mask only to an
+    unconstrained draw), and every consumer here used to take the first kind
+    the if/elif chain met. Those agree only while no field declares two; the
+    day one did, a frame the generator calls legal would be graded RED and
+    the failure would blame the DUT. There is no meaning for a field carrying
+    two kinds that three components could be trusted to share, so the
+    ambiguity is refused at the source rather than re-resolved.
+
+    Every key of the mapping counts as a declared kind. A key outside the
+    grammar already fails closed in grade_tx when it stands alone (#146);
+    beside a known kind it used to be ignored in silence, and now it is
+    refused by this rule with its name in the message.
+    """
+    kinds = sorted(con)
+    if len(kinds) < 2:
+        return None
+    return ("field %s declares %d constraint kinds (%s); a field takes exactly "
+            "one of %s, so it is refused"
+            % (name, len(kinds), ", ".join(kinds), "/".join(CONSTRAINT_KINDS)))
+
+
 class Message:
     """One PDU's spec field model, loaded from its tsn-gen YAML."""
 
@@ -105,8 +144,15 @@ class Message:
 
     # --------------------------------------------------------------- probes
     def legal(self, name):
-        """Spec-LEGAL probe values for one field (deduped, width-clamped)."""
+        """Spec-LEGAL probe values for one field (deduped, width-clamped).
+
+        Raises ValueError when the field declares more than one constraint
+        kind: `kind_conflict` is the one rule, and this is one of its readers.
+        """
         bits, exp = self.vars[name]
+        refused = kind_conflict(name, exp)
+        if refused:
+            raise ValueError(refused)
         full = (1 << bits) - 1
         out = []
         if "value" in exp:
@@ -126,8 +172,15 @@ class Message:
         return sorted({v & full for v in out})
 
     def illegal(self, name):
-        """Spec-ILLEGAL probe values (empty when the field is unconstrained)."""
+        """Spec-ILLEGAL probe values (empty when the field is unconstrained).
+
+        Raises ValueError on a field declaring more than one kind, exactly as
+        `legal()` does and for the same reason.
+        """
         bits, exp = self.vars[name]
+        refused = kind_conflict(name, exp)
+        if refused:
+            raise ValueError(refused)
         full = (1 << bits) - 1
         out = []
         if "value" in exp:
