@@ -226,24 +226,35 @@ entirely in the `ptp4l` config.
 
 The split follows the current architecture
 ([`../overview/ARCHITECTURE.md`](../overview/ARCHITECTURE.md);
-[`../traceability/ieee8021as.md`](../traceability/ieee8021as.md) header):
-**protocol in software, time in fabric.**
+[`../traceability/ieee8021as.md`](../traceability/ieee8021as.md) header)
+and depends on the gPTP option. With `GPTP_PLANE_EN_P` off it is **protocol
+in software, time in fabric**, the table below. With it on (the shipping
+AX7101 bare-metal shape) the fabric gPTP plane ([GPTP_PLANE.md](GPTP_PLANE.md))
+runs the protocol as well: BMCA, the Sync/Follow_Up and Pdelay state machines
+and the servo move into `gptp-processor`, to the Milan v1.2 profile of IEEE
+802.1AS-2011, and the `ptp4l` row below does not apply; what stays software
+until #116 (the CSR readback words, the `tu` lease, the rootfs daemons of the
+Linux profiles) is listed on that page.
 
 | Agent | Where | Job |
 |-------|-------|-----|
 | `timestamp_counter` + `ptp_csr_sync` | fabric | the PHC: rate/offset/absolute set, snapshot reads |
 | `ptp_ts_top` / `ptp_ts_core` | fabric | per-frame event-message timestamps, both directions |
 | dma-ts ring + kl-eth | fabric + driver | records to DRAM; `/dev/ptp0` clock ops; `SO_TIMESTAMPING` |
-| `ptp4l` | softcore | BMCA, Announce/Sync/Pdelay state machines, the clock servo |
+| `ptp4l` | softcore (option OFF) | BMCA, Announce/Sync/Pdelay state machines, the clock servo; with `GPTP_PLANE_EN_P` on these run in the fabric gPTP plane (`gptp-processor`) |
 | `phc2sys` | softcore | PHC -> `CLOCK_REALTIME` |
 | `gptp2csr.sh` | softcore daemon | publishes gPTP state into fabric CSRs: GM id 0x624/0x628 (the LOCAL clock id when we are GM), measured pdelay 0x6E4, AS_PATH parent bridge 0x730/0x734 from `PARENT_DATA_SET` — so ADP answers with wire truth (the AEM half of that
 sentence is retired: the entity model is now a static descriptor image in DRAM
 and no daemon writes into it) ([`../findings/BENCH_TOPOLOGY.md`](../findings/BENCH_TOPOLOGY.md) section 8) — **and since 2026-07-28 leases the AVTP `tu` sync claim into `CLKV_CTRL` 0x778**, because whether the PHC is disciplined is a servo fact no fabric signal can observe. It is a *lease*, renewed every loop and expiring by itself, so a claim cannot outlive the daemon that made it. Until this existed both boards emitted `tu = 1` on every AAF and CRF frame from boot while genuinely synchronised — see [`../reference/REGISTER_MAP.md`](../reference/REGISTER_MAP.md) `0x778` |
 | `stream_phc_sync.sh` | softcore daemon | media/PHC watchdog; dormant while `ptp4l` holds SLAVE or MASTER |
 
-The fabric never builds a PTP message (row AS-10 marks that N/A for RTL);
-`ptp4l` never sees a raw timestamp race — the fabric guarantees exact
-pairing by construction.
+With the gPTP option OFF the fabric never builds a PTP message: the table
+above is the software path. With `GPTP_PLANE_EN_P` on, the fabric gPTP plane
+([GPTP_PLANE.md](GPTP_PLANE.md)) runs the protocol and builds all six message
+types itself to the Milan v1.2 profile of IEEE 802.1AS-2011, graded by the
+tsn-gen 802.1AS models (row AS-10); what stays software until #116 is listed
+on that page. In either build `ptp4l` never sees a raw timestamp race: the
+fabric guarantees exact pairing by construction.
 
 ## 3. The media clock
 
@@ -616,9 +627,12 @@ Partial or missing, each with its row id:
 * **M-CLK-5 — MISSING**: Milan 7.6 media-clock reference election /
   domain propagation logic on top of the (implemented) command layer —
   row M-CLK-5.
-* **AS-10 — tooling gap**: no tsn_gen gPTP frame model; building one is the
-  enabler for replaying the blocked AS-6 BMCA variant without the bench
-  switch — [`../traceability/ieee8021as.md`](../traceability/ieee8021as.md).
+* **AS-10 -- models present, bench replay open**: tsn-gen carries the 802.1AS
+  frame models at the CI pin and `tb/verilator/tsn_fuzz/fuzz_ptp.py` grades
+  the fabric plane's own Announce/Sync/Follow_Up/Pdelay against them (the
+  #123 campaign); replaying the blocked AS-6 BMCA variant on the bench with
+  packet_gen as the claimant instead of the switch is still to be wired up --
+  [`../traceability/ieee8021as.md`](../traceability/ieee8021as.md).
 * **Servo residuals**: `auto_repair` stays 0 until the one-shot ClkReg
   readback is blessed on the bench, and the winning `ps_invert` polarity is
   still a CSR knob rather than the RTL default —

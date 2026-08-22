@@ -8,6 +8,18 @@ page is the integration architecture of record for #114; the donor
 repo's own pages under `gptp-processor/docs/` (the resource-validation
 record) carry the engine's internals and measured cost.
 
+Normative edition: the plane's wire formats and state machines follow the
+Milan v1.2 profile (section 4.2.6) of IEEE 802.1AS-2011 with Cor1-2013 and
+Cor2-2015, so a clause cited on this page or in the donor's pages is
+802.1AS-2011 unless marked otherwise. The controlField is the 11.4.2.7 /
+Table 11-7 value per message (Sync 0x0, Follow_Up 0x2, Announce and the
+three Pdelay messages 0x5), not the 0 of 802.1AS-2020 10.6.2.2.13; receivers
+ignore the byte in both editions (IEEE 1588-2008 13.3.2.10, IEEE 1588-2019
+13.3.2.13). The hardware-assist scope (PHC, timestamping planes) keeps its
+802.1AS-2020 references in [REQUIREMENTS.md](../../REQUIREMENTS.md) section 2
+and the [802.1AS traceability table](../traceability/ieee8021as.md); the
+decision is recorded on #139.
+
 ## Contents
 
 - **[The shape](#the-shape)** -- one option, four seams
@@ -117,11 +129,12 @@ why it carries no VERSION bump.
 
 | bench | faces | proves |
 |---|---|---|
-| gptp-processor `tb/verilator/*` | byte, model counter | the 802.1AS state machines, servo math, 34 mutations |
+| gptp-processor `tb/verilator/*` | byte, model counter | the 802.1AS state machines, servo math, and the donor's planted-mutation ladder; its count lives in the donor's engine bench README under `gptp-processor/tb/verilator/engine/` at the pinned SHA and is not mirrored here, where it would drift at every repin |
 | `tb/verilator/gptp_plane` | byte, REAL counter | the engine steers the parent's `timestamp_counter` closed-loop; the phc_ns_i observing check |
 | `tb/verilator/gptp_shadow` | WIDE, real counter + boundary stamper | the fabric slice with no harness timestamps at all; classify/transport/gearbox/stamper; 5 mutations |
 | `tb/verilator/milan_dp` obj_gptp | the whole datapath | option-ON elaborates at the shipping 1x1 ENTITY shape (the leg's own -G set, 2 MHz clock -- not the obj_ax1x1 argv); the boot Pdelay_Req reaches the real MAC boundary; NO Announce without asCapable |
 | `tb/verilator/milan_dp` default legs | the whole datapath | the [GPTP-OPT] tripwire: with the option OFF, CSR adjfine and adjtime still reach `timestamp_counter` through the eff muxes (a polarity swap goes red) |
+| `tb/verilator/tsn_fuzz` (`fuzz_ptp.py`) | byte, the tsn-gen 802.1AS models at the CI pin | the plane's own Announce / Sync / Follow_Up / Pdelay field-by-field against the Milan v1.2 profile of 802.1AS-2011 (the Table 11-7 control byte among them), parser drop/ignore gates, BTCA under fuzz, the two-sided asCapable canary; the tally and the tracked gaps live in the generated [`hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md`](../../hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md) |
 
 The option-ON verdict from #114's old Linux/sound-card shape was RED: the
 baseline alone synthesized at 93.84% LUT and failed default placement. #120
