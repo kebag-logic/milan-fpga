@@ -654,12 +654,14 @@ class Campaign:
         # truncation at the per-type minimum boundary (parser min_len map).
         # The boundary is the LEGAL frame: the 14-byte Ethernet header
         # (11.4.1 NOTE) plus the message of 802.1AS-2011 Table 11-8 (Sync 44)
-        # and Table 10-7 (Announce 64), and for the Follow_Up the 76 octets
-        # of Table 11-9, whose Follow_Up information TLV is a FIELD of the
+        # and Table 10-7 (Announce 64), for the Follow_Up the 76 octets of
+        # Table 11-9, whose Follow_Up information TLV is a FIELD of the
         # message and not a suffix (11.4.4.2.2, 11.4.4.3): 90 bytes since
-        # FPGA-gPTP #11, where the donor enforced it
+        # FPGA-gPTP #11, and for the Pdelay_Req the 54 octets of Table
+        # 11-11, whose two ten-octet reserved fields are message fields
+        # like any other: 68 bytes since FPGA-gPTP #12
         for kind, min_frame in (("sync", 58), ("follow_up", 90),
-                                ("announce", 78), ("pdelay_req", 48)):
+                                ("announce", 78), ("pdelay_req", 68)):
             f = good[kind]()
             before = self.state()
             after = self.send(f[:min_frame - 1])
@@ -747,6 +749,57 @@ class Campaign:
         bad = [f for f in self.tx_of_type(wire.PTP_PDELAY_RESP)
                if wire.PtpMsg(f).sequence_id == 0x4398]
         self.rep.eq("a domain-5 request draws no response", len(bad), 0)
+
+        # 802.1AS-2011 Table 11-11 gives the Pdelay_Req 54 octets: the
+        # 34-octet header and TWO ten-octet reserved fields (IEEE 1588-2008
+        # 13.9 pads the request to the response's length so the timestamps
+        # traverse identical paths). A header-only request and one cut
+        # inside the reserved fields are refused at the parser, ahead of
+        # the responder, so neither draws the Pdelay_Resp + Resp_Follow_Up
+        # pair that would put our t2 and t3 on the wire (FPGA-gPTP #12).
+        for label, seq, frame in (
+                ("header-only Pdelay_Req (48 B)", 0x4396,
+                 wire.ptp_pdelay_req(
+                     sequence_id=0x4396, body_octets=0,
+                     source_clock_identity=PEER2_CID,
+                     src=wire.GPTP_PEER2_MAC)),
+                ("Pdelay_Req declaring 54 cut at 67 B", 0x4397,
+                 wire.ptp_pdelay_req(
+                     sequence_id=0x4397,
+                     source_clock_identity=PEER2_CID,
+                     src=wire.GPTP_PEER2_MAC)[:67])):
+            self.drain_tx()
+            before = self.state()
+            after = self.send(frame)
+            self.rep.eq("%s: dropped and counted" % label,
+                        after[S_RXDROP], before[S_RXDROP] + 1)
+            self.stable(label, before, after)
+            self.tick(20)
+            self.rep.eq("%s: no Pdelay_Resp" % label,
+                        len([f for f in self.tx_of_type(wire.PTP_PDELAY_RESP)
+                             if wire.PtpMsg(f).sequence_id == seq]), 0)
+            self.rep.eq("%s: no Pdelay_Resp_Follow_Up" % label,
+                        len([f for f in
+                             self.tx_of_type(wire.PTP_PDELAY_RESP_FU)
+                             if wire.PtpMsg(f).sequence_id == seq]), 0)
+        # neither refusal poisons the responder: the complete 54-octet
+        # request right after them is answered with its own sequence
+        self.drain_tx()
+        good_seq = 0x4395
+        self.send(wire.ptp_pdelay_req(sequence_id=good_seq,
+                                      source_clock_identity=PEER2_CID,
+                                      source_port_number=2,
+                                      src=wire.GPTP_PEER2_MAC))
+        resp = self.wait_tx(wire.PTP_PDELAY_RESP, SECOND)
+        self.rep.ck("a complete request after the refusals is answered",
+                    resp is not None and
+                    wire.PtpMsg(resp).sequence_id == good_seq,
+                    "seq=%s" % (resp and wire.PtpMsg(resp).sequence_id))
+        rfu = self.wait_tx(wire.PTP_PDELAY_RESP_FU, SECOND)
+        self.rep.ck("its Resp_Follow_Up pairs it",
+                    rfu is not None and
+                    wire.PtpMsg(rfu).sequence_id == good_seq,
+                    "seq=%s" % (rfu and wire.PtpMsg(rfu).sequence_id))
 
         # a Pdelay_Resp_Follow_Up matching NO outstanding exchange must be
         # ignored (11.2.15.3): requestingPortIdentity is qualified, but the

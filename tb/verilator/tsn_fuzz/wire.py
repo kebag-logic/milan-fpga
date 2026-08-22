@@ -361,11 +361,18 @@ def ptp_follow_up(sequence_id=0, origin_ns=0, tlv=True, tlv_type=0x0003,
     return ptp_frame(PTP_FOLLOW_UP, body, sequence_id=sequence_id, **kw)
 
 
-def ptp_pdelay_req(sequence_id=0, **kw):
-    """Pdelay_Req (54 B PDU): two reserved 10-byte fields."""
+def ptp_pdelay_req(sequence_id=0, body_octets=20, **kw):
+    """Pdelay_Req (54 B PDU): two reserved 10-byte fields.
+
+    `body_octets` shortens the body for the refusal probes: Table 11-11
+    makes both reserved fields fields of the message, so anything below the
+    default 20 is not a Pdelay_Req (`body_octets=0` is the header-only shape
+    of FPGA-gPTP #12, declared messageLength 34).
+    """
     kw.setdefault("control", 0x05)
     kw.setdefault("log_message_interval", 0x00)    # Milan Table 4.1: 1 s
-    return ptp_frame(PTP_PDELAY_REQ, bytes(20), sequence_id=sequence_id, **kw)
+    return ptp_frame(PTP_PDELAY_REQ, bytes(body_octets),
+                     sequence_id=sequence_id, **kw)
 
 
 def ptp_pdelay_resp(sequence_id=0, t2_ns=0, requesting_clock_identity=GPTP_OUR_CID,
