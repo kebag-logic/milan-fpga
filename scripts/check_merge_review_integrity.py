@@ -225,8 +225,10 @@ def assess_pr(pr, issue_is_open):
         if issue_is_open(n):
             findings.append(Finding(
                 pr["number"], "open-issue",
-                "body says it closes #%d, which is still OPEN (a `dev` merge "
-                "does not auto-close it)" % n))
+                "body says it closes #%d, which is still OPEN (the merge did "
+                "not close it: not a keyword form GitHub reads, merged before "
+                "2026-08-22 when `dev` was not the default branch, or "
+                "reopened since)" % n))
     return findings
 
 
