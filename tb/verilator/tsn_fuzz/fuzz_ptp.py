@@ -251,8 +251,14 @@ class Campaign:
     def phc_of(st):
         return (st[S_PHC_HI] << 32) | st[S_PHC_LO]
 
-    def stable(self, label, before, after, mask=FL_PRESENT | FL_ASCAP):
-        """The stability canary: flags/GM/parent unmoved by a probe."""
+    def stable(self, label, before, after,
+               mask=FL_PRESENT | FL_AMGM | FL_ASCAP):
+        """The stability canary: flags/GM/parent unmoved by a probe.
+
+        FL_AMGM is in the mask so a refusal that cleared the grandmaster
+        flag while leaving gm_of() == OUR_CID cannot pass the GM check
+        alone (the #218 review measured that hole at 547/0).
+        """
         self.rep.eq("%s: flags stable" % label,
                     after[S_FLAGS] & mask, before[S_FLAGS] & mask)
         self.rep.eq("%s: GM unmoved" % label,
@@ -854,21 +860,175 @@ class Campaign:
                     wire.PtpMsg(rfu).sequence_id == good_seq,
                     "seq=%s" % (rfu and wire.PtpMsg(rfu).sequence_id))
 
-        # a Pdelay_Resp_Follow_Up matching NO outstanding exchange must be
-        # ignored (11.2.15.3): requestingPortIdentity is qualified, but the
-        # sequenceId is not, so one stale frame poisons the delay and drops
-        # asCapable — tracked as #8. Destructive, so re-climb after it.
-        before = self.state()
-        after = self.send(wire.ptp_pdelay_resp_fu(
-            sequence_id=0xEEEE, t3_ns=1000,
-            requesting_clock_identity=OUR_CID,
-            source_clock_identity=PEER_CID))
-        moved = (after[S_PDELAY] != before[S_PDELAY] or
-                 (after[S_FLAGS] & FL_ASCAP) != (before[S_FLAGS] & FL_ASCAP))
-        self.eq_or_gap("stale Pdelay_Resp_Follow_Up ignored (11.2.15.3)",
-                       moved, False, 8)
-        if not self.state()[S_FLAGS] & FL_ASCAP:
-            self.climb("re-climb after the respFU poison probe")
+        # 802.1AS-2011 11.2.15.3 (Figure 11-8): a Pdelay_Resp_Follow_Up is
+        # consumed ONLY behind the Pdelay_Resp that answered our outstanding
+        # request, from that responder. Hard assertions since FPGA-gPTP #8;
+        # each unmatched frame carries our requestingPortIdentity, so
+        # nothing but the pairing rule can refuse it, and a consumed one
+        # would publish its own t3 and clear asCapable.
+        def unpaired_probe(label, frame):
+            before = self.state()
+            after = self.send(frame)
+            self.rep.eq("%s: peer delay unmoved" % label,
+                        after[S_PDELAY], before[S_PDELAY])
+            self.rep.eq("%s: asCapable unmoved" % label,
+                        after[S_FLAGS] & FL_ASCAP,
+                        before[S_FLAGS] & FL_ASCAP)
+            self.stable(label, before, after)
+
+        # (a) NOTHING ARMED. Until a Pdelay_Resp answers our outstanding
+        # request the pairing register holds no sequence, and every
+        # Follow_Up must be refused on that alone.
+        unpaired_probe(
+            "stale Pdelay_Resp_Follow_Up ignored (11.2.15.3)",
+            wire.ptp_pdelay_resp_fu(
+                sequence_id=0xEEEE, t3_ns=1000,
+                requesting_clock_identity=OUR_CID,
+                source_clock_identity=PEER_CID))
+        # sequence 0 ahead of any Pdelay_Resp: "armed with sequence 0" is
+        # not "nothing armed", so a pairing register cleared to zero must
+        # not read as a match
+        unpaired_probe(
+            "sequence-0 Pdelay_Resp_Follow_Up ahead of its Resp ignored",
+            wire.ptp_pdelay_resp_fu(
+                sequence_id=0, t3_ns=3000,
+                requesting_clock_identity=OUR_CID,
+                source_clock_identity=PEER_CID))
+
+        # (b) ARMED. The two compares of Figure 11-8's
+        # WAITING_FOR_PDELAY_RESP_FOLLOW_UP arm -- the sequenceId and the
+        # responder's sourcePortIdentity -- can only be exercised once the
+        # pairing IS armed, and arming it needs a Pdelay_Resp carrying the
+        # sequenceId of the request THE PLANE sent. That value is read from
+        # the transmitted request itself: the bench's own injected-request
+        # counter is a different number entirely, and a probe built on it
+        # tests nothing (measured: with the counter as the base, deleting
+        # either compare left this campaign green).
+        # The bench responder is taken off for one exchange so the request
+        # stays outstanding for us to answer by hand. That costs one lost
+        # response, which the ladder absorbs; nothing here completes an
+        # exchange, so no neighborPropDelay is computed and the Milan
+        # 4.2.6.1.1 threshold is never approached.
+        self.responder(False)
+        self.drain_tx()
+        oreq = self.wait_tx(wire.PTP_PDELAY_REQ, 4 * SECOND)
+        if self.rep.ck("an unanswered request to arm against",
+                       oreq is not None):
+            oseq = wire.PtpMsg(oreq).sequence_id
+            self.tick(4)
+            armed_t2 = self.phc_of(self.state()) - 3000
+
+            # #207 item 1: a foreign-domain response pair never reaches the
+            # pairing at all (8.1; IEEE 1588-2008 9.5.1) and is counted
+            # twice. It carries the plane's OWN outstanding sequenceId and
+            # our requestingPortIdentity, so nothing but the domainNumber
+            # arm can refuse it: were that arm removed the Resp would arm
+            # the pairing and the Follow_Up would complete the exchange,
+            # which is what makes "peer delay unmoved" load-bearing here.
+            before = self.state()
+            self.send(wire.ptp_pdelay_resp(
+                sequence_id=oseq, t2_ns=armed_t2, domain_number=5,
+                requesting_clock_identity=OUR_CID,
+                source_clock_identity=PEER_CID))
+            after = self.send(wire.ptp_pdelay_resp_fu(
+                sequence_id=oseq, t3_ns=armed_t2 + 200, domain_number=5,
+                requesting_clock_identity=OUR_CID,
+                source_clock_identity=PEER_CID))
+            self.rep.eq(
+                "domain-5 Pdelay response pair: both dropped and counted",
+                after[S_RXDROP], before[S_RXDROP] + 2)
+            self.rep.eq("domain-5 Pdelay response pair: peer delay unmoved",
+                        after[S_PDELAY], before[S_PDELAY])
+            self.stable("domain-5 Pdelay response pair", before, after)
+
+            # the RESP half of the same pairing (Figure 11-8's
+            # WAITING_FOR_PDELAY_RESP arm): a Pdelay_Resp whose sequenceId
+            # is not the outstanding one must arm NOTHING, so the Follow_Up
+            # behind it cannot complete an exchange either. The low bytes
+            # agree, so a Resp compare narrowed to one byte arms here and
+            # the pair then publishes its own delay.
+            wrong = (oseq ^ 0x0100) & 0xFFFF
+            self.send(wire.ptp_pdelay_resp(
+                sequence_id=wrong, t2_ns=armed_t2,
+                requesting_clock_identity=OUR_CID,
+                source_clock_identity=PEER_CID))
+            unpaired_probe(
+                "Pdelay_Resp at seq ^ 0x0100 arms nothing (11.2.15.3)",
+                wire.ptp_pdelay_resp_fu(
+                    sequence_id=wrong, t3_ns=armed_t2 + 200,
+                    requesting_clock_identity=OUR_CID,
+                    source_clock_identity=PEER_CID))
+
+            # arm it for real: domain 0, our requestingPortIdentity, the
+            # plane's outstanding sequenceId, from the usual responder
+            self.send(wire.ptp_pdelay_resp(
+                sequence_id=oseq, t2_ns=armed_t2,
+                requesting_clock_identity=OUR_CID,
+                source_clock_identity=PEER_CID))
+            # the armed sequence with its HIGH byte flipped: the low bytes
+            # agree, so a compare narrowed to one byte takes this frame and
+            # publishes its t3
+            unpaired_probe(
+                "ARMED: Follow_Up at seq ^ 0x0100 ignored (11.2.15.3)",
+                wire.ptp_pdelay_resp_fu(
+                    sequence_id=(oseq ^ 0x0100) & 0xFFFF,
+                    t3_ns=armed_t2 + 200,
+                    requesting_clock_identity=OUR_CID,
+                    source_clock_identity=PEER_CID))
+            # the armed sequence from a DIFFERENT responder: Figure 11-8
+            # requires the Follow_Up's sourcePortIdentity to equal the
+            # Pdelay_Resp's, and this is the only probe that drives that
+            # compare -- the identity half of issue #141's acceptance
+            unpaired_probe(
+                "ARMED: Follow_Up from another responder ignored (11.2.15.3)",
+                wire.ptp_pdelay_resp_fu(
+                    sequence_id=oseq, t3_ns=armed_t2 + 200,
+                    requesting_clock_identity=OUR_CID,
+                    source_clock_identity=PEER2_CID))
+        self.responder(True)
+
+        # Figure 11-8 as corrected by Cor2-2015: a COMPLETED exchange
+        # cannot be completed again. The bench responder answers the
+        # plane's request from PEER_CID, so replaying a Resp + Follow_Up
+        # pair for that same sequenceId, from that same responder, is a
+        # replay of a completed exchange. A pairing that re-armed after
+        # completion would recompute neighborPropDelay from the replay and
+        # publish it; the identical pair and one with t3 pushed 2 us out
+        # must both leave the published delay and asCapable where the real
+        # exchange left them. No drought is involved: the responder stays
+        # on, so nothing here can walk the lost-response count.
+        self.drain_tx()
+        req = self.wait_tx(wire.PTP_PDELAY_REQ, 4 * SECOND)
+        if self.rep.ck("a completed exchange to replay", req is not None):
+            rseq = wire.PtpMsg(req).sequence_id
+            self.tick(4)
+            done = self.state()
+            t2 = self.phc_of(done) - 3000
+
+            def replay(t3_extra):
+                self.send(wire.ptp_pdelay_resp(
+                    sequence_id=rseq, t2_ns=t2,
+                    requesting_clock_identity=OUR_CID,
+                    source_clock_identity=PEER_CID))
+                return self.send(wire.ptp_pdelay_resp_fu(
+                    sequence_id=rseq, t3_ns=t2 + 200 + t3_extra,
+                    requesting_clock_identity=OUR_CID,
+                    source_clock_identity=PEER_CID))
+
+            after = replay(0)
+            self.rep.eq("identical replay of a completed pair: "
+                        "peer delay unmoved", after[S_PDELAY],
+                        done[S_PDELAY])
+            self.rep.eq("identical replay of a completed pair: "
+                        "asCapable unmoved", after[S_FLAGS] & FL_ASCAP,
+                        done[S_FLAGS] & FL_ASCAP)
+            after = replay(2000)
+            self.rep.eq("t3-skewed replay of a completed pair: "
+                        "peer delay unmoved", after[S_PDELAY],
+                        done[S_PDELAY])
+            self.rep.eq("t3-skewed replay of a completed pair: "
+                        "asCapable unmoved", after[S_FLAGS] & FL_ASCAP,
+                        done[S_FLAGS] & FL_ASCAP)
 
     # ----------------------------------------------------------- 8 BTCA
     def btca(self):
@@ -1209,14 +1369,17 @@ class Campaign:
                     if name in fs:
                         kw[name] = int(fs[name])
                 kw.pop("message_length", None)     # length follows the body
-                # pdelay answers carry a FOREIGN requestingPortIdentity so
-                # the qualification that DOES work filters them: the
-                # multi-responder cease is §10 and the stale-seq poison is
-                # the #8 gap probe, both proven separately — the storm is
-                # about field robustness, not those two known paths
+                # pdelay answers now carry OUR requestingPortIdentity and
+                # random sequence ids: since FPGA-gPTP #8 the 11.2.15.3
+                # pairing is what filters them, so the storm drives the
+                # qualification itself instead of being kept away from it
+                # by a foreign requester (which the parser's own arm
+                # already refused). The multi-responder cease is section
+                # 10's; here the canary is that none of this moves
+                # asCapable.
                 if kind in ("pdelay_resp", "pdelay_resp_fu"):
                     kw["source_clock_identity"] = PEER2_CID
-                    kw["requesting_clock_identity"] = 0xBADBADBADBADBAD0
+                    kw["requesting_clock_identity"] = OUR_CID
                     kw["sequence_id"] = 0xEE00 + (sent & 0xFF)
                 build = BUILD[kind]
                 if kind == "announce":
