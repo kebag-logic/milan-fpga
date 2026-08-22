@@ -36,8 +36,10 @@
 //                sequenceId AND messageType, because the control lane does
 //                not traverse ptp_ts_top's stamper. The engine consumes
 //                the sequence tag today; the type tag is carried to its
-//                boundary and mirrored on dbg_txts_type_o until the
-//                submodule matches on both (milan-fpga #214,
+//                boundary and presented live on dbg_txts_type_o, the
+//                PORT and not a register, so it is valid in the same
+//                cycle the engine samples the face, until the submodule
+//                matches on both (milan-fpga #214,
 //                Mister-M-alt/FPGA-gPTP#28), because a sequenceId alone
 //                cannot separate a Pdelay_Req from a Pdelay_Resp when the
 //                two counters coincide.
@@ -120,7 +122,7 @@ module KL_gptp_shadow #(
     output wire         dbg_tspush_v_o,   //! bench probes: side-FIFO push
     output wire  [63:0] dbg_tspush_o,
     output wire         dbg_tspop_v_o,    //! side-FIFO pop (engine sof)
-    output logic [3:0]  dbg_txts_type_o   //! the last returned type tag
+    output wire  [3:0]  dbg_txts_type_o   //! the stamp's type tag, live
 );
 
   localparam int unsigned KEEP_W_C = TDATA_WIDTH_P / 8;
@@ -491,17 +493,19 @@ module KL_gptp_shadow #(
     else if (adj_we_w) phc_adj_o <= $signed(adj_val_w);
   end
 
-  //! The stamper's messageType tag, held for the last returned stamp. The
-  //! engine's txts_* face takes the sequenceId only at the pinned
-  //! submodule, so the second half of the tag stops here and is published
-  //! for the bench and for forensics; when the engine matches on both
-  //! (Mister-M-alt/FPGA-gPTP#28) this register feeds its port instead of
-  //! only this output. Holding rather than pulsing keeps it readable after
-  //! the one-cycle txts_valid_i, exactly like the stamp itself.
-  always_ff @(posedge clk_i) begin : txts_type_hold
-    if (!rst_n)            dbg_txts_type_o <= 4'd0;
-    else if (txts_valid_i) dbg_txts_type_o <= txts_type_i;
-  end
+  //! The stamper's messageType tag, passed straight through. NOT
+  //! registered here, deliberately: the stamper already holds
+  //! {ts_ns_o, ts_seq_o, ts_type_o} in registers, and the engine samples
+  //! the txts_* face COMBINATIONALLY in the cycle txts_valid_i is high
+  //! (KL_gptp_engine.sv:278-280 latches txts_seq_i there). A register in
+  //! this path would add no persistence and one cycle of lag, so at the
+  //! sampling cycle it would still carry the PREVIOUS stamp's type and a
+  //! consumer would credit one leg's egress time to another's claim --
+  //! the mis-crediting of Mister-M-alt/FPGA-gPTP#28 over again, off by a
+  //! leg instead of a sequence. When the engine matches on both tags this
+  //! wire feeds its port; tb/verilator/gptp_shadow asserts the equality
+  //! AT the valid cycle so the lag cannot come back.
+  assign dbg_txts_type_o = txts_type_i;
 
   // ======================================================================= //
   //  TX gearbox: 1 B/clk up to wide beats, whole frames onto the lane      //

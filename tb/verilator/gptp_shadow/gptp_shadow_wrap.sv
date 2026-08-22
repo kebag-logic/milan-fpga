@@ -69,8 +69,9 @@ module gptp_shadow_wrap #(
     //! the stamper's messageType tag, beside the sequence tag: a returning
     //! stamp must name the frame it belongs to by BOTH (milan-fpga #214)
     output wire [3:0]  dbg_txts_type_o,
-    //! the same tag after the slice has held it, so the bench sees what
-    //! the engine boundary will see
+    //! the same tag where the engine boundary sees it: the slice PORT,
+    //! combinational, so it must equal the stamper's in the very cycle
+    //! txts_valid_i is high. A register here would lag by a leg
     output wire [3:0]  dbg_slice_type_o
 );
 

@@ -110,6 +110,13 @@ static uint16_t last_txts_seq = 0xFFFF;
 //! while a Pdelay_Resp echoes the peer's and the two can coincide.
 struct Stamp { uint16_t seq; uint8_t type; uint64_t ns; };
 static std::vector<Stamp> stamps;
+//! #214: the slice port must carry the tag AT the cycle the face is valid,
+//! not one stamp later. The engine samples txts_* combinationally on the
+//! valid pulse (KL_gptp_engine.sv:278-280), so a registered mirror would
+//! read the PREVIOUS stamp's type there and credit one leg's egress time
+//! to another leg's claim. Every valid cycle is compared, and the count is
+//! asserted non-zero so the check cannot pass by never running.
+static int slice_skews = 0, slice_valids = 0;
 static std::vector<std::vector<uint8_t>> txf;   // unpacked lane frames
 static std::vector<uint64_t> tx_sof_phc;        // phc at each frame's beat0
 static std::vector<uint8_t> cur;
@@ -130,6 +137,8 @@ static void tick() {
     if (dut->dbg_tspop_v_o)  g_popped.push_back(dut->dbg_rx_ts_o);
   }
   if (dut->dbg_txts_v_o) {
+    slice_valids++;
+    if (dut->dbg_slice_type_o != dut->dbg_txts_type_o) slice_skews++;
     last_txts_seq = dut->dbg_txts_seq_o;
     stamps.push_back({(uint16_t)dut->dbg_txts_seq_o,
                       (uint8_t)dut->dbg_txts_type_o, dut->dbg_txts_o});
@@ -643,6 +652,63 @@ int main(int argc, char **argv) {
     expect("mixed traffic: pops + gPTP sheds == the 60 gPTP frames sent",
            (int)g_popped.size() + (int)sheds, npair);
   }
+
+  // ---- 13: #214 -- the master role puts the other three types on the
+  // lane. Until here the run emits Pdelay_Req, Pdelay_Resp and its
+  // Follow_Up only, so the tag would be proved for three of the
+  // six types the plane transmits and a mutation correct for everything
+  // but Announce would pass. With no announce refreshed the receipt timeout
+  // expires, the plane becomes grandmaster, and Announce, Sync and
+  // Follow_Up join the lane. Last, because a plane that is its own
+  // grandmaster no longer consumes the peer syncs the earlier phases use.
+  {
+    size_t before = txf.size();        // the first Announce rides the
+    uint64_t spent = 0;                // transition itself, so mark first
+    while (!(dut->pub_flags_o & FL_AMGM) && spent < 16000000ull) {
+      run_svc(200000);
+      spent += 200000;
+    }
+    expect("quiet ride to grandmaster",
+           (dut->pub_flags_o & FL_AMGM) ? 1 : 0, 1);
+    run_svc(1400000);                  // an announce interval and then some
+    int saw_ann = 0, saw_sync = 0, saw_fu = 0;
+    for (size_t k = before; k < txf.size(); k++) {
+      if (txf[k].size() <= 14) continue;
+      int t = txf[k][14] & 0xF;
+      if (t == 0xB) saw_ann = 1;
+      if (t == 0x0) saw_sync = 1;
+      if (t == 0x8) saw_fu = 1;
+    }
+    expect("as master: an Announce reached the lane", saw_ann, 1);
+    expect("as master: a Sync reached the lane", saw_sync, 1);
+    expect("as master: its Follow_Up reached the lane", saw_fu, 1);
+  }
+
+  // #214: the tag must be right where the engine reads it, every time
+  expect("the slice port carried a tag at every stamp", slice_valids > 0, 1);
+  expect("the slice port never lags the stamper at the valid cycle",
+         slice_skews, 0);
+  // ...and every stamp must name ITS OWN frame. One stamp per transmitted
+  // frame, in order (the stamper's armed counting), so the pairing is
+  // positional and the tags are checked against the frame's own header
+  // bytes for EVERY type the run emits rather than a hard-coded few. Six
+  // is what this plane transmits: Sync 0x0, Pdelay_Req 0x2, Pdelay_Resp
+  // 0x3, Follow_Up 0x8, Pdelay_Resp_Follow_Up 0xA and Announce 0xB
+  // (802.1AS-2011 Table 11-3 and Table 10-5).
+  expect("one stamp per transmitted frame", (int)stamps.size(),
+         (int)txf.size());
+  int tag_wrong = 0, seq_wrong = 0, types_seen = 0, mask = 0;
+  for (size_t k = 0; k < stamps.size() && k < txf.size(); k++) {
+    if (txf[k].size() < 46) continue;
+    int t = txf[k][14] & 0xF;
+    if (stamps[k].type != t) tag_wrong++;
+    if (stamps[k].seq != (uint16_t)((txf[k][44] << 8) | txf[k][45]))
+      seq_wrong++;
+    if (!(mask & (1 << t))) { mask |= 1 << t; types_seen++; }
+  }
+  expect("every stamp carries its own frame's messageType", tag_wrong, 0);
+  expect("every stamp carries its own frame's sequenceId", seq_wrong, 0);
+  expect("the tag is proved for all six transmitted types", types_seen, 6);
 
   printf("%d checks: %d PASS, %d FAIL\n", checks, checks - fails, fails);
   delete dut;
