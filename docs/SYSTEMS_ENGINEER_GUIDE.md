@@ -124,7 +124,7 @@ audio end-station (talker + listener) on the wire.
   is software's job.
 - **Standards implemented**: IEEE 1722-2016 (AVTP/AAF/CRF/MAAP), IEEE 1722.1-2021 (ATDECC:
   ADP, ACMP, and AECP as **`READ_DESCRIPTOR` plus the §9.3.5 duty to respond — no other
-  command is implemented**), IEEE 802.1AS-2020 (gPTP), IEEE 802.1Q-2022
+  command is implemented**), IEEE 802.1AS-2020 (gPTP, the hardware-assist scope; the fabric gPTP plane follows the Milan v1.2 profile of 802.1AS-2011), IEEE 802.1Q-2022
   (VLAN/PCP, CBS credit-based shaper, MSRP/MVRP), all under the **Milan v1.2** profile.
 - **Direction**: a 1-NIC end-station today, evolving toward a 4-port AVB switch; the
   NaxRiscv→VexiiRiscv softcore migration that this direction drove is now as-built.

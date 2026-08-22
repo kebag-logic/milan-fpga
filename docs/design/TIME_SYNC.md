@@ -226,15 +226,22 @@ entirely in the `ptp4l` config.
 
 The split follows the current architecture
 ([`../overview/ARCHITECTURE.md`](../overview/ARCHITECTURE.md);
-[`../traceability/ieee8021as.md`](../traceability/ieee8021as.md) header):
-**protocol in software, time in fabric.**
+[`../traceability/ieee8021as.md`](../traceability/ieee8021as.md) header)
+and depends on the gPTP option. With `GPTP_PLANE_EN_P` off it is **protocol
+in software, time in fabric**, the table below. With it on (the shipping
+AX7101 bare-metal shape) the fabric gPTP plane ([GPTP_PLANE.md](GPTP_PLANE.md))
+runs the protocol as well: BMCA, the Sync/Follow_Up and Pdelay state machines
+and the servo move into `gptp-processor`, to the Milan v1.2 profile of IEEE
+802.1AS-2011, and the `ptp4l` row below does not apply; what stays software
+until #116 (the CSR readback words, the `tu` lease, the rootfs daemons of the
+Linux profiles) is listed on that page.
 
 | Agent | Where | Job |
 |-------|-------|-----|
 | `timestamp_counter` + `ptp_csr_sync` | fabric | the PHC: rate/offset/absolute set, snapshot reads |
 | `ptp_ts_top` / `ptp_ts_core` | fabric | per-frame event-message timestamps, both directions |
 | dma-ts ring + kl-eth | fabric + driver | records to DRAM; `/dev/ptp0` clock ops; `SO_TIMESTAMPING` |
-| `ptp4l` | softcore | BMCA, Announce/Sync/Pdelay state machines, the clock servo |
+| `ptp4l` | softcore (option OFF) | BMCA, Announce/Sync/Pdelay state machines, the clock servo; with `GPTP_PLANE_EN_P` on these run in the fabric gPTP plane (`gptp-processor`) |
 | `phc2sys` | softcore | PHC -> `CLOCK_REALTIME` |
 | `gptp2csr.sh` | softcore daemon | publishes gPTP state into fabric CSRs: GM id 0x624/0x628 (the LOCAL clock id when we are GM), measured pdelay 0x6E4, AS_PATH parent bridge 0x730/0x734 from `PARENT_DATA_SET` — so ADP answers with wire truth (the AEM half of that
 sentence is retired: the entity model is now a static descriptor image in DRAM

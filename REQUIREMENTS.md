@@ -30,7 +30,11 @@ IEEE 802 standards and is driven by a Linux network driver:
 * **IEEE 802.1Q** traffic classification and queuing (PCP → traffic class).
 * **IEEE 802.1Qav** credit-based shaper (CBS) for the SR classes.
 * **IEEE 802.1AS / IEEE 1588** gPTP hardware timestamping (**timestamp + a
-  disciplinable clock**; transport/BMCA stay in software).
+  disciplinable clock**). Transport/BMCA are split by the gPTP option: with
+  `GPTP_PLANE_EN_P` off they stay in software (`ptp4l` on the softcore over the
+  802.1AS-2020 hardware-assist scope); with it on, the shipping AX7101 shape,
+  the fabric gPTP plane (`gptp-processor`) runs them to the Milan v1.2 profile
+  of IEEE 802.1AS-2011, as section 2 says.
 * **IEEE 802.3** MAC configuration and management so the block also behaves like
   a traditional MAC (station address, filters, speed/duplex, statistics),
   configurable over a **memory-mapped** register interface (and/or MDIO).
