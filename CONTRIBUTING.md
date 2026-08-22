@@ -62,7 +62,7 @@ flowchart LR
     G -->|clean| M[merge to dev]
     M --> C[branch stops moving<br/>run containment]
     C -->|finding| F[follow-up issue + PR]
-    C -->|clean| D[close issue manually<br/>Done]
+    C -->|clean| D[card to Done<br/>issue closed by the merge]
 ```
 
 1. **Move the issue to *In progress*** on the project board before the first
@@ -71,9 +71,11 @@ flowchart LR
    built twice on 2026-08-16 because the issue was filed after the work
    started.
 2. **Cut the branch from the issue**: `gh issue develop <N> --base dev`.
-   This links the branch and issue on GitHub. Because `dev` is not the
-   repository's default branch, merging its PR does not auto-close the issue.
-   Close the issue manually only after the post-merge containment check passes.
+   This links the branch and issue on GitHub. Since 2026-08-22 `dev` is the
+   repository's default branch, so a PR body carrying `Closes #N` closes the
+   issue when the PR merges; the board's *Done* still waits for the post-merge
+   containment check. Before that date `main` was the default and the keyword
+   never fired, which is why older issues were closed by hand.
 3. **Do the work on that branch**, with the Section 3 verification bar met *on the
    branch* — a PR is not the place to discover the sweep is red.
 4. **Open the PR** against `dev`, with the template below and the
@@ -169,8 +171,9 @@ flowchart LR
    #86 a round was in flight. For #77 the stated bar had been met, but review
    did not stop. A check run at merge time cannot see later pushes. The moment
    that catches them is the one where the card moves to *Done*. Once
-   containment is clean, close the issue manually and move its project item to
-   *Done*.
+   containment is clean, move the project item to *Done*; the merge closed the
+   issue itself when the PR body carried `Closes #N`, so close it by hand only
+   when it did not.
 
    `--no-fetch` disables Git ref refresh only. A `--merged-prs` sweep still
    queries GitHub for the merged PR list and branch timeline evidence.
@@ -178,12 +181,13 @@ flowchart LR
    Its `--selftest` runs inside `scripts/run_all_suites.sh` next to
    `suite_tally.py`'s, so the tool cannot rot into a green that means nothing
    between merges. The check *itself* is still a thing a person runs: nothing
-   here can schedule a post-merge action, and CI does not run on `dev`
-   at all (both workflows are `on: push: branches: [main]`). That gap is worth
-   closing separately. A `push: [dev]` trigger would run the bar and the
-   containment self-test on the merge result. It would still need an explicit
-   `check_merge_containment.py --merged-prs` step to render a live containment
-   verdict.
+   here schedules a post-merge action. Every push to `dev` runs the hosted
+   gates on the merge result (`rtl-fast.yml`, `rtl.yml`, `docs.yml` and
+   `elaborate.yml` all subscribe `push: dev`; the event contract is in
+   [docs/testing/CI_WORKFLOWS.md](docs/testing/CI_WORKFLOWS.md)), and the
+   Verilator sweep carries this self-test with it, but no workflow runs
+   `check_merge_containment.py --merged-prs`, so a live containment verdict is
+   still rendered by hand.
 
    **Do not hand-roll it by reading `git log` output.** The script uses
    `git rev-list --count` and `git merge-base --is-ancestor` because one prints

@@ -759,8 +759,12 @@ host-only.
 * **CI now runs the RTL gates too** (2026-07-26).
   [`.github/workflows/docs.yml`](../../.github/workflows/docs.yml) runs the docs
   gate (twice — the second time with `.git` deleted, so the tarball/zip path
-  stays honest), the traceability no-drift gate and the end-station builder
-  gates; [`.github/workflows/rtl.yml`](../../.github/workflows/rtl.yml) runs the
+  stays honest), the traceability no-drift gate, the end-station builder
+  gates and the CI event and SHA contract gate
+  ([`scripts/ci_events.py`](../../scripts/ci_events.py) `--check` and
+  `--selftest`, which hold the four workflow files to the trigger, cron,
+  public-name and one-SHA contract that
+  [`CI_WORKFLOWS.md`](CI_WORKFLOWS.md) states); [`.github/workflows/rtl.yml`](../../.github/workflows/rtl.yml) runs the
   whole Verilator sweep via [`scripts/run_all_suites.sh`](../../scripts/run_all_suites.sh), the ratcheted RTL lint
   (Section 4b) and the Yosys portability sweep. The RTL jobs initialize both
   `verilog-axis` and `protocol-processor`. The docs workflow also initializes

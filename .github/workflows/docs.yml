@@ -2,7 +2,7 @@ name: docs
 
 on:
   push:
-    branches: [main]
+    branches: [dev, main]
   pull_request:
 
 jobs:
@@ -29,6 +29,17 @@ jobs:
           python3 sw/builder/test_builder.py
       - name: SoC source-list gate (Vivado would fail 40 min in without this)
         run: python3 scripts/check_soc_sources.py
+
+      # CI event and SHA contract gate (#174, #181): the four workflow files
+      # and docs/testing/CI_WORKFLOWS.md must agree on the triggers, the cron
+      # time, the public check names, cancel-in-progress and the one-SHA rule
+      # (no checkout overrides `ref`; workers record it, aggregates verify it).
+      # --selftest mutates each item on in-memory copies and requires a
+      # finding for each. Placed after the builder gates, which install pyyaml.
+      - name: CI event and SHA contract gate
+        run: |
+          python3 scripts/ci_events.py --check
+          python3 scripts/ci_events.py --selftest
 
       # Cited-path gate: a backticked `hdl/...` in prose is the first thing a
       # reader follows and nothing else links it to the tree. Two tree-wide

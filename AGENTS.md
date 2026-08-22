@@ -379,7 +379,8 @@ A task is complete only when:
 - the change lands in `dev`;
 - post-merge containment is clean;
 - authoritative documentation is current;
-- the Issue is manually closed and moved to `Done`.
+- the Issue is closed (by the merge through `Closes #N`, or by hand) and
+  moved to `Done`.
 
 The hosted long-gate schedule does not weaken the mandatory local commands in
 [CONTRIBUTING.md](CONTRIBUTING.md). Green CI alone is not proof of correctness.

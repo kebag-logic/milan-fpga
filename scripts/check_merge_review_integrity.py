@@ -11,10 +11,19 @@ nothing detected either:
      historical evidence), and it merged anyway. A maintainer overriding a
      NEGATIVE is a legitimate act - so this does NOT block a merge - but after
      the fact nobody could tell it happened.
-  2. A PR whose body says `Closes #N` merged and left #N open. GitHub only
-     auto-closes a linked Issue when the PR merges into the DEFAULT branch;
-     here PRs merge into `dev`, so `Closes #N` never fires and the Issue sits
-     open with its work already shipped (#159 did exactly this).
+  2. A PR whose body says `Closes #N` merged and left #N open. Until
+     2026-08-22 that was the ordinary outcome: GitHub auto-closes a linked
+     Issue only when the PR merges into the DEFAULT branch, the default was
+     `main`, and every PR merged into `dev`, so `Closes #N` never fired and
+     the Issue sat open with its work already shipped (#159 did exactly
+     this). Since 2026-08-22 `dev` IS the default branch (#174, decision 3)
+     and the keyword fires on merge. The check stays, for three reasons: a
+     body in the template's former `Closes/relates to: #N` form, or any other
+     form GitHub does not read as a keyword, still leaves the Issue open; the
+     merged-PR window reaches back into the history where the keyword never
+     fired; and an Issue reopened after its PR merged should not sit unnoticed
+     either. What it reports is the same fact in every case: shipped work
+     whose Issue is open.
 
 WHAT IT READS. The verdict is not GitHub's formal review decision - this repo's
 reviews are COMMENT-type, so `reviewDecision` is always blank. The `[R<n>]
@@ -216,8 +225,10 @@ def assess_pr(pr, issue_is_open):
         if issue_is_open(n):
             findings.append(Finding(
                 pr["number"], "open-issue",
-                "body says it closes #%d, which is still OPEN (a `dev` merge "
-                "does not auto-close it)" % n))
+                "body says it closes #%d, which is still OPEN (the merge did "
+                "not close it: not a keyword form GitHub reads, merged before "
+                "2026-08-22 when `dev` was not the default branch, or "
+                "reopened since)" % n))
     return findings
 
 
