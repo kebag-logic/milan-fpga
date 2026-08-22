@@ -6,12 +6,14 @@ reduce the local verification bar in [CONTRIBUTING.md](../../CONTRIBUTING.md).
 
 ## Contents
 
-- **[Fast feedback](#fast-feedback)** — What runs on every pull-request update and why docs-only changes avoid RTL tool setup.
-- **[Exhaustive validation](#exhaustive-validation)** — When the full Verilator and Yosys inventories run and how exact-head evidence is preserved.
-- **[Elaboration](#elaboration)** — The one job that installs LiteX and observes what elaboration hands the datapath Instance, and what makes it red.
-- **[Pull-request state](#pull-request-state)** — How draft and ready states control hosted long jobs without changing local responsibilities.
-- **[Local commands](#local-commands)** — The serial commands that remain the authoritative developer-side gates.
-- **[Failure and cancellation semantics](#failure-and-cancellation-semantics)** — How missing artifacts, superseded commits, and resumed work are handled.
+- **[Fast feedback](#fast-feedback)** -- What runs on every pull-request update and why docs-only changes avoid RTL tool setup.
+- **[Exhaustive validation](#exhaustive-validation)** -- When the full Verilator and Yosys inventories run and how exact-head evidence is preserved.
+- **[Nightly and manual dispatch](#nightly-and-manual-dispatch)** -- The cron on the tip of `dev`, how to start a run by hand, and the two situations in which an agent should.
+- **[Elaboration](#elaboration)** -- The one job that installs LiteX and observes what elaboration hands the datapath Instance, and what makes it red.
+- **[Pull-request state](#pull-request-state)** -- How draft and ready states control hosted long jobs without changing local responsibilities.
+- **[Issue closing on merge](#issue-closing-on-merge)** -- What `Closes #N` does now that `dev` is the default branch, and what still waits for containment.
+- **[Local commands](#local-commands)** -- The serial commands that remain the authoritative developer-side gates.
+- **[Failure and cancellation semantics](#failure-and-cancellation-semantics)** -- How missing artifacts, superseded commits, and resumed work are handled.
 
 ## Fast feedback
 
@@ -41,14 +43,17 @@ portability pass.
 - a non-draft PR is opened or updated;
 - a draft PR is marked ready for review;
 - `dev` receives a push;
-- the nightly schedule starts after this workflow revision reaches the
-  repository's default branch;
-- a maintainer starts it manually.
+- the nightly schedule fires, at 01:17 UTC (`17 1 * * *`), on the tip of `dev`;
+- someone dispatches it by hand, on any branch.
 
-GitHub executes scheduled workflows only from the default branch. The repository
-currently develops on `dev` while `main` is the default, so the nightly trigger
-is staged by this change but does not become active until the workflow revision
-reaches `main`. Pull requests and pushes to `dev` are covered immediately.
+`dev` has been the repository default branch since 2026-08-22 (#174, decision
+3; `main` is the release branch, fast-forwarded deliberately). GitHub runs
+scheduled workflows from the default branch only, so the cron validates the
+tip of `dev` as it stands at 01:17 UTC, and `workflow_dispatch` is launchable
+for any branch. Both paths are in
+[Nightly and manual dispatch](#nightly-and-manual-dispatch). Until 2026-08-22
+the default was `main`, which carried neither trigger, and no scheduled or
+dispatched run had ever occurred; the first scheduled run is recorded on #174.
 
 The workflow keeps the public aggregate names `verilator-suites` and
 `yosys-portability`.
@@ -72,6 +77,45 @@ top. The `yosys-portability` aggregate rejects:
 
 The tap-purity report remains informational in the combined Yosys script, which
 preserves the existing local policy. Its result is still recorded exactly once.
+
+## Nightly and manual dispatch
+
+**The nightly** validates whatever `dev` points at when the cron fires. Its
+value is environment drift: the Verilator cache, the apt Yosys, the pinned
+`tsn-gen` revision and the LiteX pins all move under a tree that did not, and
+without the nightly the next pull request is the first thing to find out. A
+red nightly on a tree whose last push was green is therefore a toolchain or
+dependency finding, not a regression of the tree; file it as an Issue against
+the pin or cache it names. `gh run list --workflow rtl.yml --event schedule`
+lists the scheduled runs.
+
+**Manual dispatch** starts the exhaustive workflow on the tip of a branch:
+
+```sh
+gh workflow run rtl.yml --ref <branch>
+gh run list --workflow rtl.yml --event workflow_dispatch --limit 3
+```
+
+The run uses the `rtl.yml` of that branch and validates that branch's tip,
+pinned as `GITHUB_SHA` like every other event; there are no inputs. Its
+concurrency group is the branch ref, so a dispatched run neither cancels nor
+is cancelled by a pull-request run of the same branch.
+
+An agent uses dispatch in two situations:
+
+1. **A draft head that needs exhaustive evidence without flipping ready.** The
+   draft state is the cost lever: hosted workers stay idle while a PR is
+   changing. When a draft needs the full inventory once, for example to
+   measure a sweep before asking for review, dispatch on the branch instead of
+   marking the PR ready and back.
+2. **Recovery after a cancelled or expired run.** A ready PR whose last full
+   run was cancelled by a later push that never completed, or whose artifacts
+   have passed their 3-day retention, is re-validated on its exact head
+   without an empty commit.
+
+The merge bar reads exact-head evidence. A dispatched run names the SHA it
+validated in its gate output, so a reviewer compares that line with the PR
+head before counting it.
 
 ## Elaboration
 
@@ -124,10 +168,30 @@ Before marking a PR ready:
 Marking the PR ready starts the hosted exhaustive jobs on that exact head. A
 later commit to a ready PR cancels obsolete work and starts a new full run.
 Convert the PR back to draft before resuming exploratory implementation. Do not
-claim hosted long-gate success for a commit other than the current PR head.
+claim hosted long-gate success for a commit other than the current PR head. A
+draft that needs the exhaustive gates once is dispatched by hand (see
+[Nightly and manual dispatch](#nightly-and-manual-dispatch)) rather than
+flipped ready and back.
 
 A docs-only ready PR remains cheap: the long workflow starts, classifies the
 diff, and skips its RTL workers with explicit skipped results.
+
+## Issue closing on merge
+
+Since `dev` became the default branch on 2026-08-22, a PR body carrying the
+GitHub keyword form `Closes #N` closes Issue N when the PR merges into `dev`.
+The PR template therefore carries separate `Closes #` and `Relates to #`
+lines; its former `Closes/relates to: #` line was not a form GitHub reads, and
+a body written that way leaves the Issue open.
+
+A closed Issue is not a finished one. The project board's Done transition
+still waits for the post-merge containment check that
+[CONTRIBUTING.md](../../CONTRIBUTING.md) requires, run when the branch has
+stopped moving; an Issue the merge closed whose card is not Done is in that
+window. `scripts/check_merge_review_integrity.py` keeps reporting a merged PR
+whose linked Issue is open, for bodies in a form GitHub does not read and for
+the history before 2026-08-22, when every PR merged into a non-default branch
+and the keyword never fired.
 
 ## Local commands
 
@@ -172,7 +236,8 @@ inventory and separately require every worker result to be `success`.
 Workflow concurrency is scoped to the PR or branch. A new commit cancels older
 runs because their evidence no longer describes the current head. Converting a
 PR to draft starts a no-op run in the same group, which releases hosted runners
-from obsolete exhaustive work.
+from obsolete exhaustive work. A dispatched run and a scheduled run are scoped
+to their branch ref, and a push to that branch cancels them the same way.
 
 Push validation on `dev` checks the actual merge result. It complements, but
 does not replace, the explicit post-merge containment check required by

@@ -18,7 +18,9 @@
 
 ## Linked Issue / roles
 
-Closes/relates to: #
+Closes #
+Relates to #
+<!-- `Closes #N` is the GitHub keyword form: `dev` is the default branch since 2026-08-22, so the Issue closes when this PR merges; name an Issue this PR must not close under `Relates to`. -->
 
 Executor: `[A<n>]`
 Internal cleared-context reviewer: `[R<n>]`
