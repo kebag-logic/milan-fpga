@@ -118,6 +118,24 @@ The merge bar reads exact-head evidence. A dispatched run names the SHA it
 validated in its gate output and in both aggregate verdicts, so a reviewer
 compares that line with the PR head before counting it.
 
+**The default-branch assertion.** The cron was inert for three weeks because
+the default branch was `main`, and no gate that reads files can see that
+repository setting. So `full-ci-gate` reads it live on every run, with
+`gh api repos/<owner>/<repo> --jq .default_branch` handed to
+`scripts/ci_events.py --require-default-branch`, and prints
+`default_branch=<observed> expected=dev event=<event>`. A scheduled or
+dispatched run refuses to continue unless the observed value is `dev`, naming
+the branch it saw; a value it could not read refuses too, since an unknown is
+not agreement. A pull-request or push run prints the value and carries on:
+those runs are about the tree, not the setting, and a contributor's PR must
+not go red for a repository setting it cannot change. A drift is therefore
+visible on every run and fatal on the first run it would misdirect, instead
+of surfacing as a nightly that silently stopped. `ci_events.py --check`
+requires the step, its token and its fail-closed shape; `--selftest` covers
+the step removed, the token missing, the live read replaced by an echo, the
+event not passed, the step neutered by `continue-on-error` or `|| true`, and
+the decision itself for every event class.
+
 ## One authoritative SHA
 
 GitHub pins `GITHUB_SHA` once per run, for every event: the pushed commit, the
@@ -151,7 +169,8 @@ The aggregates refuse, and the check fails rather than skips:
 `scripts/ci_events.py --check` holds the workflow files to this contract and
 to the trigger contract above: no `actions/checkout` step in `rtl.yml`
 overrides `ref`, every job that uploads an artifact records the SHA first,
-every job that downloads artifacts verifies it, the trigger lists, the
+every job that downloads artifacts verifies it, the gate carries the
+default-branch assertion in its fail-closed shape, the trigger lists, the
 `cancel-in-progress` rule and the public check names `rtl-fast`,
 `verilator-suites`, `yosys-portability` and `elaborate` are what this page
 says, and the cron time string on this page matches the YAML. Its

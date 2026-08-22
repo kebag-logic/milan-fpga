@@ -57,6 +57,25 @@ jobs:
           fi
           echo "target_sha=$GITHUB_SHA" >> "$GITHUB_OUTPUT"
 
+      # The cron was inert for three weeks because the default branch was
+      # `main` (#174), and no gate that reads files can see that repository
+      # setting. So the runs it governs read it live: a scheduled run
+      # validates the default branch's tip and a dispatch exists only because
+      # the workflow is on that branch, so both refuse unless it is `dev`,
+      # naming what they saw (a value they could not read refuses too). PR and
+      # push runs are about the tree, not the setting: they print the value
+      # and carry on, so a drift is visible on every run and fatal on the runs
+      # it would misdirect. scripts/ci_events.py holds the decision and this
+      # step's fail-closed shape.
+      - name: Assert the repository default branch is dev
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          observed="$(gh api "repos/$GITHUB_REPOSITORY" --jq .default_branch 2>/dev/null || echo unreadable)"
+          python3 scripts/ci_events.py --require-default-branch \
+            --event "$GITHUB_EVENT_NAME" --observed "$observed"
+
       - name: Decide whether this exact head needs the exhaustive gates
         id: gate
         env:

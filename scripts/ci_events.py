@@ -37,10 +37,23 @@ never a skip. `--check` refuses any `actions/checkout` step in rtl.yml that
 overrides `ref`, requires every artifact-uploading job to record the SHA and
 every artifact-downloading job to verify it.
 
+THE DEFAULT-BRANCH ASSERTION ([R1] on PR #204). The cron was inert because of
+a repository SETTING, and a gate that reads files cannot see a setting. So the
+gate job reads it live on every run (`gh api repos/$GITHUB_REPOSITORY --jq
+.default_branch`) and hands it to `--require-default-branch`: a scheduled or
+dispatched run refuses to continue unless the default branch is `dev`, naming
+the branch it saw, and refuses a value it could not read, since an unknown is
+not agreement. A pull-request or push run prints the value and carries on:
+those runs are about the tree, not the setting, and a contributor's PR must
+not go red for a setting it cannot change. `--check` requires the step, its
+token and its fail-closed shape (no `continue-on-error`, no `|| true`).
+
     scripts/ci_events.py --check        # the live tree against the contract
     scripts/ci_events.py --selftest     # mutation arms over in-memory copies
     scripts/ci_events.py --require-target-sha --sha gate=<sha> \\
         --sha run=<sha> --sha checkout=<sha> -- <shard-dir>...
+    scripts/ci_events.py --require-default-branch --event <event> \\
+        --observed <branch>
 
 Exit 0 = clean, 1 = a finding, 2 = cannot run (pyyaml absent, a file missing
 or unparseable, usage).
@@ -79,6 +92,14 @@ GATE_JOB = "full-ci-gate"
 GATE_OUTPUT = "target_sha"
 #: How an aggregate invokes the verifier (the first token after the script).
 VERIFY_FLAG = "--require-target-sha"
+#: How the gate invokes the live default-branch assertion, and the events
+#: whose run the repository default-branch setting governs: a schedule runs
+#: on the default branch's tip, a dispatch exists only because the workflow
+#: is on that branch. The expected branch is PUSH_BRANCH, derived, not a
+#: second literal: the branch the workflows run on push is the branch that
+#: must be the default.
+DEFAULT_BRANCH_FLAG = "--require-default-branch"
+DEFAULT_BRANCH_EVENTS = ("schedule", "workflow_dispatch")
 #: Public check names the merge bar reads (AGENTS.md section 7), per file.
 PUBLIC_NAMES = {
     RTL_FULL: ("verilator-suites", "yosys-portability"),
@@ -300,6 +321,7 @@ def check_rtl_full(c, wf, policy):
                      and "GITHUB_SHA" in step_text(s) for s in steps(gate))
         c.item(prints, path, f"job `{GATE_JOB}` must print the event name and "
                "GITHUB_SHA in one step")
+        check_default_branch_step(c, path, gate)
 
     # Every job that uploads evidence records the SHA first; every job that
     # downloads evidence verifies it against the gate's output.
@@ -323,6 +345,33 @@ def check_rtl_full(c, wf, policy):
             needs = needs if isinstance(needs, list) else [needs]
             c.item(GATE_JOB in needs, path,
                    f"job `{jid}` must need `{GATE_JOB}` to read its output")
+
+
+def check_default_branch_step(c, path, gate):
+    """The gate reads the repository default branch live and hands it to
+    --require-default-branch, in a shape that cannot be neutered quietly."""
+    found = [s for s in steps(gate) if DEFAULT_BRANCH_FLAG in step_text(s)]
+    c.item(len(found) == 1, path, f"job `{GATE_JOB}` must run scripts/"
+           f"ci_events.py {DEFAULT_BRANCH_FLAG} in exactly one step "
+           f"(found {len(found)})")
+    if len(found) != 1:
+        return
+    step = found[0]
+    text = step_text(step)
+    env = step.get("env") if isinstance(step.get("env"), dict) else {}
+    token = str(env.get("GH_TOKEN", "")).strip()
+    c.item(token == "${{ github.token }}", path, "the default-branch step "
+           f"must carry GH_TOKEN: ${{{{ github.token }}}} (found {token!r})")
+    c.item("ci_events.py" in text and "gh api" in text
+           and "$GITHUB_REPOSITORY" in text and ".default_branch" in text,
+           path, "the default-branch step must read the live setting with "
+           "gh api repos/$GITHUB_REPOSITORY --jq .default_branch")
+    c.item('--event "$GITHUB_EVENT_NAME"' in text and "--observed" in text,
+           path, "the default-branch step must pass --event "
+           "\"$GITHUB_EVENT_NAME\" and --observed to the verifier")
+    neutered = bool(step.get("continue-on-error")) or "|| true" in text
+    c.item(not neutered, path, "the default-branch step must fail closed: "
+           "no continue-on-error, no `|| true`")
 
 
 def check_rtl_fast(c, wf):
@@ -401,6 +450,37 @@ def check_records(shas, roots):
     else:
         lines.append(f"target-sha: OK, {len(roots)} record(s) all {expected}")
     return findings, lines
+
+
+# --------------------------------------------------------------------------
+# --require-default-branch: the live repository-setting assertion
+# --------------------------------------------------------------------------
+
+def check_default_branch(event, observed):
+    """(findings, lines) for one run's view of the repository default branch.
+
+    `event` is GITHUB_EVENT_NAME, `observed` what `gh api` returned (or the
+    placeholder the gate substitutes when it could not read it). The events
+    in DEFAULT_BRANCH_EVENTS refuse anything but PUSH_BRANCH, an unreadable
+    value included; every other event prints and continues."""
+    if not event:
+        raise CannotRun("--event is required: the decision depends on it")
+    observed = (observed or "").strip()
+    governed = event in DEFAULT_BRANCH_EVENTS
+    shown = observed or "<empty>"
+    lines = [f"default_branch={shown} expected={PUSH_BRANCH} event={event} "
+             f"({'governed' if governed else 'informational'})"]
+    if observed == PUSH_BRANCH:
+        lines.append("default-branch: OK")
+        return [], lines
+    if governed:
+        return [f"the repository default branch is {shown!r}, not "
+                f"{PUSH_BRANCH!r}: a {event} run would validate the wrong "
+                "branch; refusing"], lines
+    lines.append(f"default-branch: WARNING, {shown!r} is not {PUSH_BRANCH!r}; "
+                 f"this {event} run continues, the next scheduled or "
+                 "dispatched run will refuse")
+    return [], lines
 
 
 # --------------------------------------------------------------------------
@@ -532,6 +612,36 @@ def _mutations():
         job = jobs(w[RTL_FULL])["verilator-suites"]
         job["needs"] = [n for n in job["needs"] if n != GATE_JOB]
 
+    def db_step(w):
+        for s in steps(jobs(w[RTL_FULL])[GATE_JOB]):
+            if DEFAULT_BRANCH_FLAG in step_text(s):
+                return s
+        raise AssertionError("fixture drift: no default-branch step")
+
+    def m_db_step_removed(w):
+        strip_steps(w, RTL_FULL, GATE_JOB, DEFAULT_BRANCH_FLAG)
+
+    def m_db_token_missing(w):
+        del db_step(w)["env"]["GH_TOKEN"]
+
+    def m_db_no_live_read(w):
+        s = db_step(w)
+        assert "gh api" in s["run"]
+        s["run"] = s["run"].replace("gh api", "echo")
+
+    def m_db_event_not_passed(w):
+        s = db_step(w)
+        assert '--event "$GITHUB_EVENT_NAME"' in s["run"]
+        s["run"] = s["run"].replace('--event "$GITHUB_EVENT_NAME"',
+                                    "--event push")
+
+    def m_db_continue_on_error(w):
+        db_step(w)["continue-on-error"] = True
+
+    def m_db_or_true(w):
+        s = db_step(w)
+        s["run"] = s["run"].rstrip("\n") + " || true\n"
+
     def m_docs_no_check(w):
         for job in jobs(w[DOCS]).values():
             for s in steps(job):
@@ -587,6 +697,18 @@ def _mutations():
          m_yosys_aggregate_no_verify, VERIFY_FLAG),
         ("rtl aggregate no longer needs the gate", m_aggregate_without_gate,
          f"must need `{GATE_JOB}`"),
+        ("rtl default-branch step removed", m_db_step_removed,
+         "exactly one step"),
+        ("rtl default-branch step without GH_TOKEN", m_db_token_missing,
+         "GH_TOKEN"),
+        ("rtl default-branch step reads nothing live", m_db_no_live_read,
+         "gh api"),
+        ("rtl default-branch step without the event", m_db_event_not_passed,
+         "--event"),
+        ("rtl default-branch step neutered by continue-on-error",
+         m_db_continue_on_error, "fail closed"),
+        ("rtl default-branch step neutered by || true", m_db_or_true,
+         "fail closed"),
         ("rtl public name verilator-suites renamed",
          m_rename_job(RTL_FULL, "verilator-suites"), "`verilator-suites`"),
         ("rtl public name yosys-portability renamed",
@@ -734,6 +856,48 @@ def selftest(root):
             else:
                 problems.append(f"records arm failed: {name}")
 
+    # --require-default-branch arms: the decision for every event class. An
+    # inverted or weakened comparison fails one of these, which is what makes
+    # the YAML shape checks above worth having.
+    def refuses(event, observed):
+        f, _ = check_default_branch(event, observed)
+        return bool(f) and any(observed in x or "<empty>" in x for x in f)
+
+    def passes(event, observed):
+        f, _ = check_default_branch(event, observed)
+        return not f
+
+    def warns(event, observed):
+        f, lines = check_default_branch(event, observed)
+        return not f and any("WARNING" in x for x in lines)
+
+    db_cases = [
+        ("schedule on dev passes", passes("schedule", PUSH_BRANCH)),
+        ("dispatch on dev passes", passes("workflow_dispatch", PUSH_BRANCH)),
+        ("schedule on main refuses, naming main", refuses("schedule", "main")),
+        ("dispatch on main refuses", refuses("workflow_dispatch", "main")),
+        ("schedule with an unreadable value refuses",
+         refuses("schedule", "unreadable")),
+        ("schedule with an empty value refuses", refuses("schedule", "")),
+        ("schedule with surrounding whitespace still passes",
+         passes("schedule", f" {PUSH_BRANCH}\n")),
+        ("pull_request on main warns and continues",
+         warns("pull_request", "main")),
+        ("push on main warns and continues", warns("push", "main")),
+    ]
+    try:
+        check_default_branch("", PUSH_BRANCH)
+    except CannotRun:
+        db_cases.append(("a missing event cannot run", True))
+    else:
+        db_cases.append(("a missing event cannot run", False))
+    for name, ok in db_cases:
+        checked_arms += 1
+        if ok:
+            print(f"  ok   default-branch: {name}")
+        else:
+            problems.append(f"default-branch arm failed: {name}")
+
     if problems:
         for p in problems:
             print("  FAIL " + p)
@@ -789,6 +953,19 @@ def run_require(sha_args, roots):
     return RC_FINDING if findings else RC_OK
 
 
+def run_require_default_branch(event, observed):
+    try:
+        findings, lines = check_default_branch(event, observed)
+    except CannotRun as exc:
+        print(f"ci_events: cannot run: {exc}")
+        return RC_CANNOT_RUN
+    for line in lines:
+        print(line)
+    for f in findings:
+        print("  FAIL " + f)
+    return RC_FINDING if findings else RC_OK
+
+
 def main(argv):
     parser = argparse.ArgumentParser(
         description="Hold the CI workflow files to their documented event "
@@ -800,11 +977,19 @@ def main(argv):
                       help="mutation arms over in-memory copies")
     mode.add_argument("--require-target-sha", action="store_true",
                       help="verify every shard's TARGET_SHA record")
+    mode.add_argument("--require-default-branch", action="store_true",
+                      help="assert the live repository default branch for "
+                           "the events it governs")
     parser.add_argument("--root", type=pathlib.Path, default=ROOT,
                         help="repository root (default: this script's)")
     parser.add_argument("--sha", action="append", default=[],
                         metavar="LABEL=SHA",
                         help="a source of the run's SHA (gate, run, checkout)")
+    parser.add_argument("--event", default="",
+                        help="GITHUB_EVENT_NAME (--require-default-branch)")
+    parser.add_argument("--observed", default="",
+                        help="the default branch gh api reported "
+                             "(--require-default-branch)")
     parser.add_argument("roots", nargs="*",
                         help="shard evidence directories (--require-target-sha)")
     args = parser.parse_args(argv[1:])
@@ -812,6 +997,8 @@ def main(argv):
         return run_check(args.root)
     if args.selftest:
         return selftest(args.root)
+    if args.require_default_branch:
+        return run_require_default_branch(args.event, args.observed)
     return run_require(args.sha, args.roots)
 
 
