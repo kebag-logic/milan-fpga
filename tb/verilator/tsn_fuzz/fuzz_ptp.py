@@ -678,8 +678,11 @@ class Campaign:
         self.rep.eq("15-byte gPTP runt: parser drop counted",
                     after[S_RXDROP], before[S_RXDROP] + 1)
         # truncation at the per-type minimum boundary (parser min_len map).
-        # The boundary is the LEGAL frame: the 14-byte Ethernet header
-        # (11.4.1 NOTE) plus the message of 802.1AS-2011 Table 11-8 (Sync 44)
+        # The boundary is the LEGAL frame: the Ethernet header the bench
+        # puts in front of the PTP message, 14 bytes of DA, SA and
+        # EtherType (the 11.4.1 NOTE counts 18 for header AND FCS, and no
+        # FCS reaches this DUT), plus the message of 802.1AS-2011
+        # Table 11-8 (Sync 44)
         # and Table 10-7 (Announce 64), for the Follow_Up the 76 octets of
         # Table 11-9, whose Follow_Up information TLV is a FIELD of the
         # message and not a suffix (11.4.4.2.2, 11.4.4.3): 90 bytes since
@@ -779,10 +782,16 @@ class Campaign:
         # 802.1AS-2011 Table 11-11 gives the Pdelay_Req 54 octets: the
         # 34-octet header and TWO ten-octet reserved fields (IEEE 1588-2008
         # 13.9 pads the request to the response's length so the timestamps
-        # traverse identical paths). A header-only request and one cut
-        # inside the reserved fields are refused at the parser, ahead of
-        # the responder, so neither draws the Pdelay_Resp + Resp_Follow_Up
-        # pair that would put our t2 and t3 on the wire (FPGA-gPTP #12).
+        # traverse identical paths). Three shapes, one per way of falling
+        # short, refused at the parser ahead of the responder so none draws
+        # the Pdelay_Resp + Resp_Follow_Up pair that would put our t2 and
+        # t3 on the wire (FPGA-gPTP #12): the issue's header-only request
+        # (48 bytes, declaring an honest 34, refused by both the byte-count
+        # gate and the declared bound); one declaring the true 54 but cut
+        # at 67 bytes (the byte-count gate alone); and one physically
+        # complete at 68 bytes that LIES, declaring 34 (the declared bound
+        # alone -- without it the first two shapes leave that arm
+        # untested, since neither is a messageLength inconsistency).
         for label, seq, frame in (
                 ("header-only Pdelay_Req (48 B)", 0x4396,
                  wire.ptp_pdelay_req(
@@ -793,7 +802,17 @@ class Campaign:
                  wire.ptp_pdelay_req(
                      sequence_id=0x4397,
                      source_clock_identity=PEER2_CID,
-                     src=wire.GPTP_PEER2_MAC)[:67])):
+                     src=wire.GPTP_PEER2_MAC)[:67]),
+                # the DECLARED arm on its own: all 68 bytes are present and
+                # only messageLength lies, so the byte-count gate cannot
+                # refuse this one and the header arm at octets 2..3 is the
+                # only thing that can. 34 is the header-only length the
+                # issue's shape declared honestly; here it is a lie
+                ("complete Pdelay_Req declaring messageLength 34", 0x4394,
+                 wire.ptp_pdelay_req(
+                     sequence_id=0x4394, message_length=34,
+                     source_clock_identity=PEER2_CID,
+                     src=wire.GPTP_PEER2_MAC))):
             self.drain_tx()
             before = self.state()
             after = self.send(frame)

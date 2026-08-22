@@ -160,15 +160,15 @@ module gptp_shadow_wrap #(
   assign dbg_txts_seq_o = tsq_w;
 
   //! program-start counter: one per rising edge of the engine's busy line
-  logic        busy_q;
+  logic        busy_r;
   logic [15:0] prog_run_r;
-  always_ff @(posedge clk_i or negedge rst_n) begin : prog_run
+  always_ff @(posedge clk_i) begin : prog_run
     if (!rst_n) begin
-      busy_q     <= 1'b0;
+      busy_r     <= 1'b0;
       prog_run_r <= '0;
     end else begin
-      busy_q <= busy_w;
-      if (busy_w && !busy_q) prog_run_r <= prog_run_r + 16'd1;
+      busy_r <= busy_w;
+      if (busy_w && !busy_r) prog_run_r <= prog_run_r + 16'd1;
     end
   end
   assign dbg_prog_run_o = prog_run_r;
