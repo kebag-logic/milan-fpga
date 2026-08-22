@@ -1,15 +1,28 @@
 # Traceability — IEEE 802.1AS-2020 (gPTP) — hardware-assist scope
 
-Clause numbers are verified against the local standards PDF
+Clause numbers in the table are verified against the local standards PDF
 `$STANDARDS_DIR/802.1AS-2020.pdf`. Current implementation coverage is in the
 [generated module matrix](MODULE_MATRIX.md), and the current hardware/software
-boundary is in the [architecture guide](../overview/ARCHITECTURE.md). The
-**protocol** (BMCA,
-Announce/Sync/Pdelay state machines, servo) runs in `ptp4l`/linuxptp on the
-softcore; the **fabric** provides the PTP hardware clock and event-message
-timestamping. RTL rows therefore cover the timestamping/clock clauses; the
-protocol rows are SW and verified on the wire (BENCH features at the
-ProfiShark taps). The current Milan verdict, including gPTP blockers, is in the
+boundary is in the [architecture guide](../overview/ARCHITECTURE.md).
+
+**Two scopes, two editions.** This table is the hardware-assist scope: the PTP
+hardware clock and the event-message timestamping the **fabric** provides in
+every build, traced against 802.1AS-2020. With the gPTP option OFF the
+**protocol** (BMCA, Announce/Sync/Pdelay state machines, servo) runs in
+`ptp4l`/linuxptp on the softcore, so those rows are SW and verified on the wire
+(BENCH features at the ProfiShark taps). With `GPTP_PLANE_EN_P` on, the fabric
+gPTP plane ([GPTP_PLANE.md](../design/GPTP_PLANE.md), the `gptp-processor`
+submodule) runs the protocol and builds the messages itself, and its wire
+formats and state machines follow the Milan v1.2 profile (section 4.2.6) of
+IEEE 802.1AS-2011 with Cor1-2013 and Cor2-2015, not 802.1AS-2020: the
+controlField carries the 802.1AS-2011 11.4.2.7 / Table 11-7 value per message
+(Sync 0x0, Follow_Up 0x2, Announce and Pdelay 0x5) where 802.1AS-2020
+10.6.2.2.13 says 0; receivers ignore the byte in both editions (IEEE 1588-2008
+13.3.2.10, IEEE 1588-2019 13.3.2.13). The decision is recorded on #139 and in
+[REQUIREMENTS.md](../../REQUIREMENTS.md) section 2. The plane's own
+transmissions are graded field-by-field by the tsn-gen 802.1AS models in
+[`tb/verilator/tsn_fuzz`](../../tb/verilator/tsn_fuzz) (row AS-10). The current
+Milan verdict, including gPTP blockers, is in the
 [Milan v1.2 audit](../testing/MILAN_V12_AUDIT_2026-08-16.md).
 
 Modules: [`hdl/ieee8021as/ptp_timestamp/`](../../hdl/ieee8021as/ptp_timestamp) (`timestamp_counter`, `ptp_ts_core`,
@@ -26,11 +39,15 @@ Modules: [`hdl/ieee8021as/ptp_timestamp/`](../../hdl/ieee8021as/ptp_timestamp) (
 | AS-7 | 11.1 / 11.2 (MD sync SMs) | Sync/Follow_Up generation & receipt, rateRatio | ptp4l (SW) + HW timestamps | ✅ wire: BENCH es-1.1 half (sync 8/s at tap); SILICON both boards HW-ts green zero-overrides | 11.2: sync cadence + correct timestamps are what the whole media clock chain stands on. |
 | AS-8 | 11.2.19 (MDPdelayReq) | Peer delay measurement; asCapable determination | ptp4l (SW); PDELAY forensics CSR 0x6E4 | ✅ wire: BENCH es-1.1 half (pdelay 1/s); SILICON asCapable stable post-AS-3 fix | 11.2.19: asCapable=false silently removes the port from the gPTP domain — no error, just no sync. |
 | AS-9 | 8.1 / 10.6 (domain, intervals) | Single gPTP domain 0, standard message intervals | ptp4l config (S65 ships /usr/sbin prepend) | ✅ wire BENCH cadence checks | 10.6: wrong intervals violate the Milan profile even when sync converges. |
-| AS-10 | 11.4 (message formats) | Correct on-the-wire PTP message encoding | ptp4l (SW) | ✅ wire (tap dissection); ➖ RTL N/A — fabric never builds PTP messages; ❌ tsn_gen NO gPTP MODEL | 11.4: a gPTP YAML model would let packet_gen replay GM behaviors (BMCA fixtures) without the 255-claimant test machine. |
+| AS-10 | 11.4 (message formats; for the fabric plane 802.1AS-2011 11.4 per the Milan v1.2 profile, see the header) | Correct on-the-wire PTP message encoding | option OFF: ptp4l (SW); option ON (`GPTP_PLANE_EN_P`): the fabric plane builds Sync, Follow_Up, Announce, Pdelay_Req, Pdelay_Resp and Pdelay_Resp_Follow_Up ([`hdl/ieee8021as/gptp_plane/`](../../hdl/ieee8021as/gptp_plane), `gptp-processor`) | ✅ wire (tap dissection); ✅ RTL: the plane's own TX graded field-by-field against the tsn-gen 802.1AS models by [`tb/verilator/tsn_fuzz/fuzz_ptp.py`](../../tb/verilator/tsn_fuzz/fuzz_ptp.py) (the #123 campaign; the current tally and the tracked gaps live in the generated [`TEST_RESULTS.md`](../../hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md); controlField per Table 11-7 since #139); ✅ tsn_gen: the seven `8021as_*` models at the CI pin (`protocols/data_link/ptp`) | 11.4: a wrong header byte is visible to every capture-based conformance check even where peers ignore it; the models are the field oracle that found FPGA-gPTP #6 to #10. |
 | AS-11 | 12–16 (other media) | 802.11 / EPON / CSN media-dependent layers | — | ➖ N/A — full-duplex 802.3 only (Clause 11 applies) | Media out of scope. |
 | AS-12 | 10.3 (PortAnnounceInformation / ANNOUNCE_RECEIPT_TIMEOUT_EXPIRES) + 10.6 (intervals) | The announce/sync/pdelay cadence must hold **while the host is under load** -- a grandmaster that stops transmitting for `announceReceiptTimeout` × `announceInterval` (3 × 1 s) is correctly deposed by every peer, so cadence is what keeps the BMCA from ever being provoked | `ptp4l` (SW) + `RxSteer` ([`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py)) -- the ingress separation that keeps gPTP off the bulk ring | ✅ MODEL: [`tests/features/gptp_announce_receipt_timeout.feature`](../../tests/features/gptp_announce_receipt_timeout.feature) (10 scenarios: timeout boundary both sides + cadence budget fed real `pmc PORT_STATS_NP` deltas, one window that holds and one that breaks); ✅ SILICON 2026-07-28 A/B/A: `rx_queues: 1` ALINX loses the GM under a 935 Mb/s RX flood, `rx_queues: 2` Arty holds it, and the Arty reproduces the loss when `RxSteer.hash_sel` bypasses steering on the same board -- [`GPTP_GM_LOSS_UNDER_RX_LOAD.md`](../findings/GPTP_GM_LOSS_UNDER_RX_LOAD.md) | 10.3: this is defect **D7** ("when the device receives packets the gPTP GM changed for no reason"). The re-election is *conformant* -- the defect is upstream, in a build where bulk RX and gPTP share one ring and one NAPI so `ptp4l` never gets the CPU. [`configs/endstation_ax7101_8x8.yaml`](../../configs/endstation_ax7101_8x8.yaml) shipped `rx_queues: 1` until 861f411e (2026-07-28); it now ships `2` with the boot chain re-pinned, and the A/B/A evidence stands as the record of the 1-queue failure mode. |
 
-**tsn_gen status: ❌ NO MODEL.** A `data_link/gptp/` family (Sync/Follow_Up/
-Pdelay/Announce) is the enabler for the blocked AS-6 DUT-wins-BMCA
-recreation: packet_gen as the adjustable-priority claimant instead of the
-bench switch.
+**tsn_gen status: models present.** The `protocols/data_link/ptp/8021as_*`
+family (Sync, Follow_Up, Announce, Pdelay_Req, Pdelay_Resp,
+Pdelay_Resp_Follow_Up and the Ethernet header) exists at the CI-pinned tsn-gen
+revision and is consumed by `tb/verilator/tsn_fuzz/fuzz_ptp.py`, which grades
+the fabric plane's own transmissions and drives its BTCA probes in simulation
+(row AS-10). What the models do not yet replace is the bench-side recreation of
+the blocked AS-6 DUT-wins-BMCA variant: packet_gen as the adjustable-priority
+claimant instead of the bench switch remains to be wired into a BENCH feature.

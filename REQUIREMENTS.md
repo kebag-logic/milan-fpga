@@ -56,9 +56,27 @@ Software deliverables (sibling repos under `../`):
 | 802.1Q | IEEE 802.1Q-2018/2022 -- Bridges and Bridged Networks (classification, queuing, Section 8.6.8 CBS, Section 34 deltaBandwidth, clause 12 managed objects) |
 | 802.1Qav | IEEE 802.1Qav (Forwarding and Queuing for Time-Sensitive Streams -- CBS), folded into 802.1Q Section 8.6.8 |
 | 802.1AS | IEEE 802.1AS-2020 — gPTP (timing and synchronization) |
+| 802.1AS (Milan profile) | IEEE 802.1AS-2011 with Cor1-2013 and Cor2-2015, as profiled by Milan v1.2 section 4.2.6 -- the fabric gPTP plane's wire formats and state machines (`GPTP_PLANE_EN_P`, [docs/design/GPTP_PLANE.md](docs/design/GPTP_PLANE.md)); the controlField is the 11.4.2.7 / Table 11-7 value per message (Sync 0x0, Follow_Up 0x2, Announce and the three Pdelay messages 0x5) |
 | 1588 | IEEE 1588-2019 — Precision Time Protocol |
 | 802.3 | IEEE 802.3-2022 — Ethernet MAC, Clause 22 (MDIO), Clause 28 (autoneg), Clause 30 (management), Clause 31 (PAUSE) |
 | Linux | Kernel contracts: `net_device_ops`, `ptp_clock_info`, `ethtool_ops`, `ndo_setup_tc` (CBS/mqprio/taprio), phylib, `SIOCSHWTSTAMP` |
+
+**Two gPTP scopes.** The 802.1AS-2020 row covers the hardware-assist scope this
+register was written for: the PTP hardware clock, the timestamping planes,
+ingress/egress latency and the AS-1 to AS-12 rows of
+[docs/traceability/ieee8021as.md](docs/traceability/ieee8021as.md). The fabric
+gPTP plane that builds and parses the messages itself targets Milan v1.2, and
+Milan v1.2 section 4.2.6 defines gPTP by IEEE Std 802.1AS-2011,
+802.1AS-2011/Cor1-2013 and 802.1AS-2011/Cor2-2015 ("A PAAD shall implement all
+applicable requirements ... as defined by [802.1AS], [802.1AS-2011/Cor1], and
+[802.1AS-2011/Cor2]"); the plane therefore transmits the 802.1AS-2011 11.4.2.7 /
+Table 11-7 control values, where 802.1AS-2020 10.6.2.2.13 ("The value is 0.")
+would transmit 0. The two editions interoperate on this byte: IEEE 1588-2008
+13.3.2.10 deprecates its use by the receiver and IEEE 1588-2019 13.3.2.13 has it
+transmitted as 0 and ignored on receipt, so a 2020 peer accepts either value;
+what the Table 11-7 values buy is Milan conformance, which is what the tsn-gen
+802.1AS models and the Milan test plan grade. Decision recorded on #139
+(2026-08-22); no `REQ-*` row moves.
 
 ## 3. Missing elements to comply with the 802.1 configuration standards (gap analysis)
 
