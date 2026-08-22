@@ -32,8 +32,15 @@
 //                ingress-latency correction (REQ-PTP-06 lineage), and the
 //                silicon round (#117) measures it. The EGRESS timestamp
 //                comes back from KL_gptp_txstamp at the MAC boundary via
-//                the txts_* face, seq-matched, because the control lane
-//                does not traverse ptp_ts_top's stamper.
+//                the txts_* face, tagged with the transmitted frame's
+//                sequenceId AND messageType, because the control lane does
+//                not traverse ptp_ts_top's stamper. The engine consumes
+//                the sequence tag today; the type tag is carried to its
+//                boundary and mirrored on dbg_txts_type_o until the
+//                submodule matches on both (milan-fpga #214,
+//                Mister-M-alt/FPGA-gPTP#28), because a sequenceId alone
+//                cannot separate a Pdelay_Req from a Pdelay_Resp when the
+//                two counters coincide.
 //
 //                A control frame offered while the FIFO cannot take it is
 //                LOST and counted, never hidden (the tap cannot
@@ -85,6 +92,7 @@ module KL_gptp_shadow #(
     input  wire        txts_valid_i,
     input  wire [63:0] txts_ns_i,
     input  wire [15:0] txts_seq_i,
+    input  wire [3:0]  txts_type_i,   //! messageType of the stamped frame
 
     //! pulses at the FIRST accepted beat of each plane frame entering the
     //! merge chain -- the boundary stamper's take decision samples at a
@@ -111,7 +119,8 @@ module KL_gptp_shadow #(
     output wire  [63:0] dbg_rx_ts_o,      //! the ts entry feeding the engine
     output wire         dbg_tspush_v_o,   //! bench probes: side-FIFO push
     output wire  [63:0] dbg_tspush_o,
-    output wire         dbg_tspop_v_o     //! side-FIFO pop (engine sof)
+    output wire         dbg_tspop_v_o,    //! side-FIFO pop (engine sof)
+    output logic [3:0]  dbg_txts_type_o   //! the last returned type tag
 );
 
   localparam int unsigned KEEP_W_C = TDATA_WIDTH_P / 8;
@@ -480,6 +489,18 @@ module KL_gptp_shadow #(
   always_ff @(posedge clk_i) begin : adj_latch
     if (!rst_n)        phc_adj_o <= '0;
     else if (adj_we_w) phc_adj_o <= $signed(adj_val_w);
+  end
+
+  //! The stamper's messageType tag, held for the last returned stamp. The
+  //! engine's txts_* face takes the sequenceId only at the pinned
+  //! submodule, so the second half of the tag stops here and is published
+  //! for the bench and for forensics; when the engine matches on both
+  //! (Mister-M-alt/FPGA-gPTP#28) this register feeds its port instead of
+  //! only this output. Holding rather than pulsing keeps it readable after
+  //! the one-cycle txts_valid_i, exactly like the stamp itself.
+  always_ff @(posedge clk_i) begin : txts_type_hold
+    if (!rst_n)            dbg_txts_type_o <= 4'd0;
+    else if (txts_valid_i) dbg_txts_type_o <= txts_type_i;
   end
 
   // ======================================================================= //

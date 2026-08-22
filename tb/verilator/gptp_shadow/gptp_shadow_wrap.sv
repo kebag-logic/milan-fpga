@@ -65,10 +65,17 @@ module gptp_shadow_wrap #(
     //! window rather than of an instant. A frame the parser refuses must
     //! never move this: the refusal and the dispatch are exclusive, which
     //! is the invariant the tsn_fuzz unlisted-messageType probe rests on
-    output wire [15:0] dbg_prog_run_o
+    output wire [15:0] dbg_prog_run_o,
+    //! the stamper's messageType tag, beside the sequence tag: a returning
+    //! stamp must name the frame it belongs to by BOTH (milan-fpga #214)
+    output wire [3:0]  dbg_txts_type_o,
+    //! the same tag after the slice has held it, so the bench sees what
+    //! the engine boundary will see
+    output wire [3:0]  dbg_slice_type_o
 );
 
   logic               busy_w;
+  logic [3:0]         tst_w;
   logic signed [31:0] adj_w;
   logic               step_we_w;
   logic [63:0]        step_w;
@@ -121,6 +128,7 @@ module gptp_shadow_wrap #(
       .txts_valid_i    (tsv_w),
       .txts_ns_i       (tsn_w),
       .txts_seq_i      (tsq_w),
+      .txts_type_i     (tst_w),
       .tx_sent_o       (sent_w),
       .pub_gm_id_o     (pub_gm_id_o),
       .pub_parent_id_o (pub_parent_id_o),
@@ -136,7 +144,8 @@ module gptp_shadow_wrap #(
       .dbg_rx_ts_o     (dbg_rx_ts_o),
       .dbg_tspush_v_o  (dbg_tspush_v_o),
       .dbg_tspush_o    (dbg_tspush_o),
-      .dbg_tspop_v_o   (dbg_tspop_v_o)
+      .dbg_tspop_v_o   (dbg_tspop_v_o),
+      .dbg_txts_type_o (dbg_slice_type_o)
   );
 
   KL_gptp_txstamp #(
@@ -152,12 +161,14 @@ module gptp_shadow_wrap #(
       .armed_i    (sent_w),
       .ts_valid_o (tsv_w),
       .ts_ns_o    (tsn_w),
-      .ts_seq_o   (tsq_w)
+      .ts_seq_o   (tsq_w),
+      .ts_type_o  (tst_w)
   );
 
   assign dbg_txts_o    = tsn_w;
   assign dbg_txts_v_o  = tsv_w;
   assign dbg_txts_seq_o = tsq_w;
+  assign dbg_txts_type_o = tst_w;
 
   //! program-start counter: one per rising edge of the engine's busy line
   logic        busy_r;
