@@ -86,7 +86,9 @@ static Frame ptp(uint8_t mtype, uint16_t seq, uint64_t corr,
 //! Follow_Up; the parser refuses anything shorter (FPGA-gPTP #11), which is
 //! why the bench cannot send the 44-octet shape it used to.
 static Frame follow_up(uint16_t seq, uint64_t origin_ns) {
-  Frame g = ptp(0x8, seq, 0, 0x0000, 42);
+  // flags: ptpTimescale, "Reserved as TRUE" for a gPTP Follow_Up
+  // (802.1AS-2011 Table 11-6), which is what wire.py sends too
+  Frame g = ptp(0x8, seq, 0, 0x0008, 42);
   g.ts(origin_ns);
   g.u16(0x0003); g.u16(28);              // tlvType, lengthField (11.4.4.3.2/3)
   g.u8(0x00); g.u8(0x80); g.u8(0xC2);    // organizationId 00-80-C2

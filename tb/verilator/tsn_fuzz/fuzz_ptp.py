@@ -212,6 +212,26 @@ class Campaign:
     def drain_tx(self):
         self.scan = len(self.txq)
 
+    def quiet_window(self, tries=80):
+        """Tick 10,000-cycle blocks until the plane is silent for two.
+
+        The plane is a timer-driven TALKER (as grandmaster a Sync every
+        125 ms and an Announce every second, a Pdelay_Req every second at
+        any time), so a window a probe may call quiet has to be FOUND, not
+        assumed: an empty window right before an injection is the only
+        thing that makes "the injected frame drew this" a measurement
+        rather than a coincidence. Two consecutive empty blocks put the
+        next scheduled transmission at least a Sync interval away.
+        """
+        runs = 0
+        for _ in range(tries):
+            mark = len(self.txq)
+            self.tick(1)
+            runs = runs + 1 if len(self.txq) == mark else 0
+            if runs >= 2:
+                return True
+        return False
+
     def tx_of_type(self, mtype, since=0):
         return [f for f in self.txq[since:]
                 if len(f) > 14 and (f[14] & 0xF) == mtype]
@@ -543,21 +563,49 @@ class Campaign:
                                 % (kind, field, v),
                                 after[S_RXDROP], before[S_RXDROP] + 1)
                     self.stable("%s %s=%d" % (kind, field, v), before, after)
-        # unknown message types with a full header: dropped, counted.
-        # FPGA-gPTP #22, MEASURED at the #11 pin: retiring the per-type
-        # minimum flag left the end-of-frame gate with no term that a frame
-        # of an unlisted messageType fails, so such a frame is no longer
-        # refused -- it dispatches uncounted into the timer program, which
-        # transmits: a burst of twenty such frames drew ten Pdelay_Req out
-        # of the 11.5.2.2 interval on this slice. Each type keeps its own
-        # probe and its own gap, so each turns green on its own.
+        # unknown message types with a full header: refused, counted, and
+        # -- the half that matters -- SILENT. FPGA-gPTP #22, measured at
+        # the #11 pin: retiring the per-type minimum flag left the
+        # end-of-frame gate with no term such a frame fails, so it is no
+        # longer refused; it dispatches into the timer program, which
+        # TRANSMITS. Both properties are graded, and both are routed to
+        # #22, because the donor issue offers two fixes that would each
+        # satisfy only one of them: a parser drop arm moves the counter,
+        # while an entry-table no-op stops the transmission. A gap on the
+        # counter alone would turn green under the first fix with the
+        # plane still talking, and stay red under the second with the
+        # plane already correct.
+        #
+        # The silence probe is measured against a quiet window: two empty
+        # blocks first (so the plane's own 125 ms Sync and 1 s Pdelay_Req
+        # cadence cannot account for what follows), then one frame, then
+        # one 10,000-cycle block. On this slice one unlisted-type frame
+        # draws one Pdelay_Req in that block against zero for the
+        # un-injected control, and twenty draw ten (802.1AS-2011 11.5.2.2
+        # and Figure 11-8 leave the interval timer the only exit).
         for mt in (0x1, 0x4, 0x5, 0x6, 0x7, 0x9, 0xD, 0xE, 0xF):
+            self.rep.ck("unknown type 0x%X: a quiet window precedes it" % mt,
+                        self.quiet_window())
             before = self.state()
-            after = self.send(wire.ptp_frame(mt, bytes(20),
-                                             sequence_id=self.nseq("x")))
+            mark = len(self.txq)
+            self.send(wire.ptp_frame(mt, bytes(20),
+                                     sequence_id=self.nseq("x")))
+            self.tick(1)
+            drawn = len(self.txq) - mark
+            after = self.state()
             self.eq_or_gap("unknown message type 0x%X: dropped and counted"
                            % mt, after[S_RXDROP], before[S_RXDROP] + 1, 22)
+            self.eq_or_gap("unknown message type 0x%X: draws no transmission "
+                           "(11.5.2.2)" % mt, drawn, 0, 22)
             self.stable("unknown type 0x%X" % mt, before, after)
+            # servo and pdelay ride with the silence: the request the
+            # dispatch draws is ANSWERED by the bench responder, so a
+            # republished neighborPropDelay is the same defect one step
+            # downstream, and it clears when the transmission does
+            self.eq_or_gap("unknown message type 0x%X: offset unmoved" % mt,
+                           after[S_OFFSET], before[S_OFFSET], 22)
+            self.eq_or_gap("unknown message type 0x%X: peer delay unmoved"
+                           % mt, after[S_PDELAY], before[S_PDELAY], 22)
         # classify negatives: never enter, never cost a drop
         for label, frame in (
                 ("AVTP ethertype", wire.ptp_sync(sequence_id=1,
@@ -857,11 +905,13 @@ class Campaign:
         # field of the 76-octet message (11.4.4.2.2 places it first after
         # the fixed fields; 11.4.4.3.2 to 11.4.4.3.5 fix its header at
         # tlvType 0x3, lengthField 28, organizationId 00-80-C2 and
-        # organizationSubType 1), so a TLV-less, a physically truncated and
-        # a wrong-tlvType Follow_Up are each refused at the parser, ahead of
-        # the servo (FPGA-gPTP #11). None of the three may consume the
-        # pending Sync: the complete Follow_Up after all three still pairs
-        # with it.
+        # organizationSubType 1), so a TLV-less, a physically truncated, a
+        # wrong-tlvType and a short-DECLARED Follow_Up are each refused at
+        # the parser, ahead of the servo (FPGA-gPTP #11); #140 asks for
+        # both failure modes, bytes missing from the wire and a
+        # messageLength that lies about them. None of the five may consume
+        # the pending Sync: the complete Follow_Up after all of them still
+        # pairs with it.
         self.refresh_master()
         sq = self.nseq("sync")
         st = self.state()
@@ -880,7 +930,19 @@ class Campaign:
                 ("Follow_Up declaring 76 cut at 89 B", full[:89]),
                 ("Follow_Up with tlvType 0x0008",
                  wire.ptp_follow_up(sequence_id=sq, origin_ns=bad_origin,
-                                    tlv_type=0x0008))):
+                                    tlv_type=0x0008)),
+                # DECLARED length, not physical truncation: these two are
+                # the complete 90 bytes and only messageLength lies, so the
+                # parser's header arm at octets 2..3 is the only thing that
+                # can refuse them (11.4.2.2 counts every octet through the
+                # last TLV). 44 is the length the pre-#11 shape declared,
+                # 75 one octet short of Table 11-9
+                ("complete Follow_Up declaring messageLength 44",
+                 wire.ptp_follow_up(sequence_id=sq, origin_ns=bad_origin,
+                                    message_length=44)),
+                ("complete Follow_Up declaring messageLength 75",
+                 wire.ptp_follow_up(sequence_id=sq, origin_ns=bad_origin,
+                                    message_length=75))):
             before = self.state()
             after = self.send(frame)
             self.rep.eq("%s: dropped and counted" % label,

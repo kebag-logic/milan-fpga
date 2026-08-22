@@ -90,7 +90,9 @@ static Frame ptp(uint8_t mtype, uint16_t seq, uint64_t corr,
 //! Follow_Up; the parser refuses anything shorter (FPGA-gPTP #11), which is
 //! why the bench cannot send the 44-octet shape it used to.
 static Frame follow_up(uint16_t seq, uint64_t origin_ns) {
-  Frame g = ptp(0x8, seq, 0, 0x0000, 42);
+  // flags: ptpTimescale, "Reserved as TRUE" for a gPTP Follow_Up
+  // (802.1AS-2011 Table 11-6), which is what wire.py sends too
+  Frame g = ptp(0x8, seq, 0, 0x0008, 42);
   g.ts(origin_ns);
   g.u16(0x0003); g.u16(28);              // tlvType, lengthField (11.4.4.3.2/3)
   g.u8(0x00); g.u8(0x80); g.u8(0xC2);    // organizationId 00-80-C2
@@ -323,16 +325,19 @@ int main(int argc, char **argv) {
       sq++;
     }
     expect("one adjtime re-base", steps_seen.size(), steps_before + 1);
-    int64_t step = (int64_t)steps_seen.back();
+    // a bench that fails must REPORT, not crash: an empty vector here
+    // means the servo never stepped, which is exactly the interesting
+    // failure, and .back() on it takes the rest of the run with it
+    int64_t step = steps_seen.empty() ? 0 : (int64_t)steps_seen.back();
     expect("re-base near +1 ms",
-           step > 995000 && step < 1005000, 1);
+           !steps_seen.empty() && step > 995000 && step < 1005000, 1);
     int32_t final_off = (int32_t)dut->pub_offset_o;
     expect("measured offset locked",
            final_off > -150 && final_off < 150, 1);
     // +100 ppm of 8 ns/tick = 0.0008 ns/tick = 13,421 Q8.24 units
-    int32_t final_adj = (int32_t)adj_seen.back();
+    int32_t final_adj = adj_seen.empty() ? 0 : (int32_t)adj_seen.back();
     expect("addend at the +100 ppm ideal",
-           final_adj > 11408 && final_adj < 15434, 1);
+           !adj_seen.empty() && final_adj > 11408 && final_adj < 15434, 1);
     // the REAL proof: the counter's advance tracks the master's
     uint64_t c_now = phc();
     uint64_t m_now = mst_base + cyc * 8ull + cyc / 1250ull;
@@ -348,11 +353,14 @@ int main(int argc, char **argv) {
   // announce silence rides out the receipt timeout (pdelay keeps
   // asCapable alive) and the plane becomes grandmaster. A two-step Sync's
   // ten octets after the header are RESERVED and transmitted as zero
-  // (802.1AS-2011 Table 11-8, since FPGA-gPTP #10); the real time is the
-  // paired Follow_Up's preciseOriginTimestamp (11.4.4.2.1), and THAT is
-  // where the live timestamp_counter value must show -- the phc_ns_i
-  // observing check PR #113's review filed as its blind spot (the
-  // submodule's v6 gather consumer makes it observable)
+  // (802.1AS-2011 Table 11-8, since FPGA-gPTP #10); the real time rides
+  // the paired Follow_Up's preciseOriginTimestamp (11.4.4.2.1), which is
+  // what this phase checks. It is NOT the phc_ns_i observing check PR
+  // #113's review asked for: at this pin that input has no reader (no
+  // GATH is emitted and RTS1 is never read), the Follow_Up's origin comes
+  // from the TX timestamp this bench drives itself at :119-122, and a
+  // constant-tied phc_ns_i leaves the run green. Measured, tracked in
+  // milan-fpga #211; do not restate the blind spot as closed here.
   {
     expect("quiet ride to grandmaster",
            wait_flags(FL_AMGM, FL_AMGM, 10000000ull), 1);
