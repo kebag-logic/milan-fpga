@@ -14,8 +14,9 @@ plane, so the campaign grades BOTH directions:
                 8021as_* models (which pin the 802.1AS-2011 wire values and
                 the Milan v1.2 Table 4.1 cadence bytes)
     peer RX     per-field illegal probes: what the parser must DROP
-                (EtherType, transportSpecific, versionPTP, truncation) drops
-                and counts; what 11.4.1 says a receiver must IGNORE
+                (EtherType, transportSpecific, versionPTP, domainNumber,
+                truncation) drops and counts; what 11.4.1 says a receiver
+                must IGNORE
                 (reserved fields) is accepted unchanged; what the µcode owns
                 (BTCA compare, source matching, the Milan 4.2.6.2.5 cease
                 rule) moves state ONLY the way the clause says
@@ -519,11 +520,22 @@ class Campaign:
                 sequence_id=self.nseq("announce"), gm_identity=GMID,
                 gm_priority1=254, **kw),
         }
-        # parser-owned rejects: per model, every illegal transport/version
+        # parser-owned rejects: per model, every illegal transport/version/
+        # domain. domainNumber joined the header drop arms with FPGA-gPTP #6
+        # (802.1AS-2011 8.1: a gPTP domain is domain 0; IEEE 1588-2008 9.5.1:
+        # a message whose domainNumber does not match is not accepted for
+        # processing). The probe list is asserted non-empty first: a model
+        # that stopped pinning a field would otherwise skip the loop and
+        # the suite would stay green having checked nothing
         for kind, build in good.items():
             m = models[kind]
-            for field in ("transport_specific", "version_ptp"):
-                for v in m.illegal(field)[:3]:
+            for field in ("transport_specific", "version_ptp",
+                          "domain_number"):
+                probes = m.illegal(field)[:3]
+                self.rep.ck("%s %s: the model yields illegal probes"
+                            % (kind, field), len(probes) > 0,
+                            "%d probes" % len(probes))
+                for v in probes:
                     before = self.state()
                     after = self.send(build(**{field: v}))
                     self.rep.eq("%s %s=%d: dropped and counted"
@@ -633,6 +645,20 @@ class Campaign:
         bad = [f for f in self.tx_of_type(wire.PTP_PDELAY_RESP)
                if wire.PtpMsg(f).sequence_id == 0x4399]
         self.rep.eq("a version-3 request draws no response", len(bad), 0)
+        # a request in a foreign domain draws no response either: the same
+        # header drop arm covers the responder role (8.1; FPGA-gPTP #6)
+        self.drain_tx()
+        before = self.state()
+        after = self.send(wire.ptp_pdelay_req(sequence_id=0x4398,
+                                              domain_number=5,
+                                              source_clock_identity=PEER2_CID,
+                                              src=wire.GPTP_PEER2_MAC))
+        self.rep.eq("a domain-5 request: dropped and counted",
+                    after[S_RXDROP], before[S_RXDROP] + 1)
+        self.tick(20)
+        bad = [f for f in self.tx_of_type(wire.PTP_PDELAY_RESP)
+               if wire.PtpMsg(f).sequence_id == 0x4398]
+        self.rep.eq("a domain-5 request draws no response", len(bad), 0)
 
         # a Pdelay_Resp_Follow_Up matching NO outstanding exchange must be
         # ignored (11.2.15.3): requestingPortIdentity is qualified, but the
@@ -687,6 +713,7 @@ class Campaign:
             if issue is None:
                 self.rep.ck("%s: rejected, plane stays GM" % label, held,
                             "gm=%x" % self.gm_of(after))
+                self.stable(label, before, after)
             else:
                 self.eq_or_gap("%s: rejected, plane stays GM" % label,
                                self.gm_of(after), OUR_CID, issue)
@@ -694,13 +721,17 @@ class Campaign:
                 self.rep.eq("%s: drop counted" % label,
                             after[S_RXDROP], before[S_RXDROP] + 1)
 
-        # parser-owned rejects: these work today (bad_r drops them)
+        # parser-owned rejects: bad_r drops them at the header, counted, and
+        # GM / parent / asCapable hold. The domain arm is the FPGA-gPTP #6
+        # fix (8.1; IEEE 1588-2008 9.5.1); it is probed separately from the
+        # Sync/Follow_Up side in sync_pairs so one fixed path cannot hide
+        # the other
         reject_probe("better vector, version 1", None, drop=1, version_ptp=1)
         reject_probe("better vector, transportSpecific 0", None, drop=1,
                      transport_specific=0)
-        # qualifyAnnounce / domain rejects: tracked gaps
         reject_probe("better vector, domain 5 (8.1: single domain 0)",
-                     6, drop=None, domain_number=5)
+                     None, drop=1, domain_number=5)
+        # qualifyAnnounce rejects: tracked gaps (#7)
         reject_probe("better vector, own sourcePortIdentity (10.3.10.2.1a)",
                      7, drop=None, source_clock_identity=OUR_CID,
                      src=wire.GPTP_PEER2_MAC)
@@ -783,13 +814,31 @@ class Campaign:
             after = pair(**kw)
             self.rep.eq("%s: offset unmoved" % label, after[S_OFFSET], b_off)
             self.stable(label, before, after)
-        # a domain-5 pair MUST be ignored (8.1) but the servo consumes it —
-        # the same missing domain qualification as the BTCA side (#6)
+        # a domain-5 pair is refused at the header (8.1; IEEE 1588-2008
+        # 9.5.1): both frames drop before the servo can see them, so the
+        # offset, the sync verdict, GM, parent and asCapable hold and the
+        # drops are counted. Probed separately from the BTCA-side domain
+        # probe so one fixed path cannot hide the other (FPGA-gPTP #6)
         self.refresh_master()
         before = self.state()
         after = pair(delta=40000, domain=5)
-        self.eq_or_gap("pair in domain 5: offset unmoved",
-                       after[S_OFFSET], before[S_OFFSET], 6)
+        self.rep.eq("pair in domain 5: offset unmoved",
+                    after[S_OFFSET], before[S_OFFSET])
+        self.rep.eq("pair in domain 5: both dropped and counted",
+                    after[S_RXDROP], before[S_RXDROP] + 2)
+        self.rep.eq("pair in domain 5: sync verdict unmoved",
+                    after[S_FLAGS] & FL_SYNCOK, before[S_FLAGS] & FL_SYNCOK)
+        self.stable("pair in domain 5", before, after)
+        # the foreign Sync left no pending slot: a domain-0 Follow_Up with
+        # its sequence pairs with nothing, so the Sync side is proven on
+        # its own and not only through the Follow_Up's drop
+        st = self.state()
+        self.send(wire.ptp_follow_up(sequence_id=self.seq["sync"],
+                                     origin_ns=self.phc_of(st) - 40000
+                                     - D_NOM))
+        after = self.tick(2)
+        self.rep.eq("domain-0 Follow_Up after a domain-5 Sync: offset unmoved",
+                    after[S_OFFSET], before[S_OFFSET])
         # the servo recovers on the next clean pair
         self.refresh_master()
         st = pair(1000)
