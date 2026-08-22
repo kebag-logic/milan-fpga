@@ -564,48 +564,59 @@ class Campaign:
                                 after[S_RXDROP], before[S_RXDROP] + 1)
                     self.stable("%s %s=%d" % (kind, field, v), before, after)
         # unknown message types with a full header: refused, counted, and
-        # -- the half that matters -- SILENT. FPGA-gPTP #22, measured at
-        # the #11 pin: retiring the per-type minimum flag left the
-        # end-of-frame gate with no term such a frame fails, so it is no
-        # longer refused; it dispatches into the timer program, which
-        # TRANSMITS. Both properties are graded, and both are routed to
-        # #22, because the donor issue offers two fixes that would each
-        # satisfy only one of them: a parser drop arm moves the counter,
-        # while an entry-table no-op stops the transmission. A gap on the
-        # counter alone would turn green under the first fix with the
-        # plane still talking, and stay red under the second with the
-        # plane already correct.
+        # -- the half that matters -- SILENT. Both properties are graded
+        # because the two are independent: between the #11 rework and
+        # FPGA-gPTP #22's fix such a frame was neither refused NOR silent
+        # (it dispatched into the timer program, which TRANSMITS), and the
+        # two candidate fixes for #22 would each have satisfied only one
+        # of them, a parser drop arm moving the counter and an
+        # entry-table no-op stopping the transmission. The pinned parser
+        # takes the first route and the silence follows from it; a suite
+        # that graded only the counter could not tell the two apart.
         #
-        # The silence probe is measured against a quiet window: two empty
+        # The silence probe is measured against a quiet window: empty
         # blocks first (so the plane's own 125 ms Sync and 1 s Pdelay_Req
         # cadence cannot account for what follows), then one frame, then
-        # one 10,000-cycle block. On this slice one unlisted-type frame
-        # draws one Pdelay_Req in that block against zero for the
-        # un-injected control, and twenty draw ten (802.1AS-2011 11.5.2.2
+        # one 10,000-cycle block. Before the fix one unlisted-type frame
+        # drew one Pdelay_Req in that block against zero for the
+        # un-injected control, and twenty drew ten (802.1AS-2011 11.5.2.2
         # and Figure 11-8 leave the interval timer the only exit).
         for mt in (0x1, 0x4, 0x5, 0x6, 0x7, 0x9, 0xD, 0xE, 0xF):
+            # up to four attempts, and the MINIMUM is the measurement: a
+            # 10,000-cycle block is 1/25th of the 125 ms Sync interval, so
+            # about one window in 25 carries the plane's own scheduled
+            # Sync and Follow_Up however quiet its predecessors were (seen
+            # exactly once across the nine types). Retrying cannot hide a
+            # defect that draws a frame EVERY time, which is what a
+            # dispatched messageType does; it only refuses to blame the
+            # plane's cadence on the probe.
+            quiet, drawn, tries = False, None, 0
+            for tries in range(1, 5):
+                quiet = self.quiet_window()
+                before = self.state()
+                mark = len(self.txq)
+                self.send(wire.ptp_frame(mt, bytes(20),
+                                         sequence_id=self.nseq("x")))
+                self.tick(1)
+                drawn = len(self.txq) - mark
+                after = self.state()
+                if quiet and drawn == 0:
+                    break
             self.rep.ck("unknown type 0x%X: a quiet window precedes it" % mt,
-                        self.quiet_window())
-            before = self.state()
-            mark = len(self.txq)
-            self.send(wire.ptp_frame(mt, bytes(20),
-                                     sequence_id=self.nseq("x")))
-            self.tick(1)
-            drawn = len(self.txq) - mark
-            after = self.state()
-            self.eq_or_gap("unknown message type 0x%X: dropped and counted"
-                           % mt, after[S_RXDROP], before[S_RXDROP] + 1, 22)
-            self.eq_or_gap("unknown message type 0x%X: draws no transmission "
-                           "(11.5.2.2)" % mt, drawn, 0, 22)
+                        quiet, "%d attempt(s)" % tries)
+            self.rep.eq("unknown message type 0x%X: dropped and counted"
+                        % mt, after[S_RXDROP], before[S_RXDROP] + 1)
+            self.rep.eq("unknown message type 0x%X: draws no transmission "
+                        "(11.5.2.2)" % mt, drawn, 0)
             self.stable("unknown type 0x%X" % mt, before, after)
-            # servo and pdelay ride with the silence: the request the
-            # dispatch draws is ANSWERED by the bench responder, so a
-            # republished neighborPropDelay is the same defect one step
-            # downstream, and it clears when the transmission does
-            self.eq_or_gap("unknown message type 0x%X: offset unmoved" % mt,
-                           after[S_OFFSET], before[S_OFFSET], 22)
-            self.eq_or_gap("unknown message type 0x%X: peer delay unmoved"
-                           % mt, after[S_PDELAY], before[S_PDELAY], 22)
+            # servo and pdelay ride with the silence: a request the
+            # dispatch drew would be ANSWERED by the bench responder, and
+            # a republished neighborPropDelay is the same defect one step
+            # downstream
+            self.rep.eq("unknown message type 0x%X: offset unmoved" % mt,
+                        after[S_OFFSET], before[S_OFFSET])
+            self.rep.eq("unknown message type 0x%X: peer delay unmoved"
+                        % mt, after[S_PDELAY], before[S_PDELAY])
         # classify negatives: never enter, never cost a drop
         for label, frame in (
                 ("AVTP ethertype", wire.ptp_sync(sequence_id=1,

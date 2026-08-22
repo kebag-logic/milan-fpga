@@ -36,29 +36,30 @@ it every run), so they serve as both the field oracle and an independent
 decoder. It grades the plane's OWN transmissions field-by-field, drives
 per-field illegal probes at the parser, and asserts a two-sided asCapable
 canary: it must survive every malformed storm and fall in a response drought.
-It carries **20 tracked gaps** naming FPGA-gPTP #22: a frame whose
-messageType no handler claims is no longer refused at the parser's
-end-of-frame gate but dispatched, uncounted, into the timer program,
-which TRANSMITS (measured at the #140 pin, where the donor's #11 rework
-retired the per-type minimum flag that used to refuse it; one such frame
-draws one Pdelay_Req out of the 802.1AS-2011 11.5.2.2 interval against
-zero for a quiet control window, and twenty draw ten). Each of the nine
-types is graded on both properties -- the drop counter and the silence
-that follows it -- plus the servo state the drawn exchange republishes,
-because the donor issue offers one fix that would move only the counter
-and another that would restore only the silence: a gap watching one
-half would turn green with the plane still wrong.
+It carries **no tracked gaps** at the current pin. The one it carried
+during #140's review round, FPGA-gPTP #22, is fixed and closed: between
+the donor's #11 rework and that fix a frame whose messageType no handler
+claims was not refused at the parser but dispatched, uncounted, into the
+timer program, which TRANSMITS (measured on this slice: one such frame
+drew one Pdelay_Req out of the 802.1AS-2011 11.5.2.2 interval against
+zero for a quiet control window, and twenty drew ten). Each of the nine
+unlisted types is now graded on BOTH properties -- the drop counter and
+the silence that follows it -- plus the servo state a drawn exchange
+would republish, because the two are independent: the donor issue had
+one candidate fix that would have moved only the counter and another
+that would have restored only the silence. Deleting the pinned parser's
+type arm turns all eighteen of those checks red.
 
 The FPGA-gPTP #7, #8 and #10 allowances are still in the file and no
-longer fire at that pin: #136, #141 and #137 turn each into an ordinary
+longer fire at this pin: #136, #141 and #137 turn each into an ordinary
 assertion. The two FPGA-gPTP #6 domainNumber gaps closed with the
 donor's parser drop arm and the two FPGA-gPTP #9 control-byte gaps with its
 per-message TX control field, and all four are ordinary assertions now. A
 gap fires only on the mismatch, so each turns green on its own when the
 donor closes the issue.
 
-Current tally -- **164 AAF checks + 471 gPTP checks + 2 traceability
-contracts**, 0 failures, 20 known gaps, with `tsn-gen` installed. This is what
+Current tally -- **164 AAF checks + 491 gPTP checks + 2 traceability
+contracts**, 0 failures, 0 known gaps, with `tsn-gen` installed. This is what
 `make` prints; each campaign rewrites the same line into its `TEST_RESULTS.md`
 on
 every run, so the generated files are the fresher authority if this table and
@@ -67,7 +68,7 @@ they ever disagree:
 | campaign | checks | what it drives |
 |---|---:|---|
 | `fuzz_aaf.py`  | 164 | parser → rx-monitor → depacketizer — the **accept verdict** (wire `stream_id` vs bound, graded on the parser's own pre-match counters = the `0x8B4` APRB sources), per-field verdicts, lock survival |
-| `fuzz_ptp.py`  | 471 | the gPTP fabric slice: TX conformance of the plane's own Pdelay_Req/Announce/Sync/Follow_Up against the 802.1AS models (the per-message control byte of FPGA-gPTP #9 among the graded fields: Sync 0x0, Follow_Up 0x2, Announce and the Pdelay types 0x5), parser drop/ignore gates (the domainNumber arm of FPGA-gPTP #6 among them, probed on Announce, Sync/Follow_Up and Pdelay_Req separately), BTCA rejection under fuzz, servo pairing (with the TLV-less, truncated and wrong-tlvType Follow_Up refusals of FPGA-gPTP #11), the Milan 4.2.6.2.5 cease rule, and the two-sided asCapable canary; **9 gaps** track FPGA-gPTP #22 |
+| `fuzz_ptp.py`  | 491 | the gPTP fabric slice: TX conformance of the plane's own Pdelay_Req/Announce/Sync/Follow_Up against the 802.1AS models (the per-message control byte of FPGA-gPTP #9 among the graded fields: Sync 0x0, Follow_Up 0x2, Announce and the Pdelay types 0x5), parser drop/ignore gates (the domainNumber arm of FPGA-gPTP #6 among them, probed on Announce, Sync/Follow_Up and Pdelay_Req separately), BTCA rejection under fuzz, servo pairing (with the TLV-less, truncated and wrong-tlvType Follow_Up refusals of FPGA-gPTP #11), the Milan 4.2.6.2.5 cease rule, and the two-sided asCapable canary; **9 gaps** track FPGA-gPTP #22 |
 
 ## Contents
 
@@ -161,7 +162,7 @@ skip markers that deliberately do not:
 | line | when | counts |
 |---|---|---|
 | `== AAF/AVTP stream field campaign (tsn-gen driven): N pass, 0 fail, 0 known gaps ==` | tsn-gen present | **N** |
-| `== gPTP/802.1AS field campaign (tsn-gen driven): M pass, 0 fail, 20 known gaps ==` | tsn-gen present | **M** |
+| `== gPTP/802.1AS field campaign (tsn-gen driven): M pass, 0 fail, K known gaps ==` | tsn-gen present | **M** |
 | `traceability contracts (drift + ratchet): 2 checks: 2 PASS, 0 FAIL` | always, if the matrix check passed | **2** |
 | `campaign artifact freshness (<artifact>): 1 checks: 1 PASS, 0 FAIL` | tsn-gen present, once per campaign | **1** each |
 | `SUITE-SKIP: AAF/AVTP field campaign (tsn-gen absent; …)` | tsn-gen absent | **0** |
@@ -171,9 +172,9 @@ skip markers that deliberately do not:
 So the suite reports `2` on a machine without tsn-gen and `N + M + 4` with it.
 Each campaign is guarded independently: `suite_tally.py --campaign-guard` runs
 against each campaign's own log, so neither can drop its checks behind a
-reworded summary. (The gPTP campaign's `known gaps` count is nonzero and
-tracked — see the campaign table above; the guard counts pass/fail, and a gap
-is neither.)
+reworded summary. (The gPTP campaign's `known gaps` count is tracked
+separately — see the campaign table above; the guard counts pass/fail,
+and a gap is neither.)
 
 **The freshness lines are one check each, and only one.**
 `check_results_fresh.py` asserts that the committed `TEST_RESULTS.md` equals
@@ -248,10 +249,10 @@ campaigns on 2026-08-13:
   Follow_Up), not just what it accepts. The tracked gaps are the places a
   malformed frame DOES move state today, each with a dedicated probe and an
   FPGA-gPTP issue, so the canary stays honest about what it cannot yet
-  promise: today they are the nine unlisted messageTypes of FPGA-gPTP
-  #22, each graded twice, on the drop counter AND on the transmission
-  the dispatch draws, so neither half of that defect can close the gap
-  alone. The foreign-domain vector was the first gap to close (FPGA-gPTP
+  promise: today there are none, and the nine unlisted messageTypes that
+  were the last of them are graded twice over, on the drop counter AND
+  on the silence, because neither half of FPGA-gPTP #22 implied the
+  other. The foreign-domain vector was the first gap to close (FPGA-gPTP
   #6); its Announce and Sync/Follow_Up probes stayed separate so one fixed
   path cannot hide the other. The Sync and Follow_Up control byte (FPGA-gPTP
   #9) was the second: the 802.1AS models pin it per message, so `grade_tx`
