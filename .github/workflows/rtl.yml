@@ -5,9 +5,14 @@ on:
     branches: [dev]
   pull_request:
     types: [opened, reopened, synchronize, ready_for_review, converted_to_draft]
+  # The dispatcher chooses the ref (`gh workflow run rtl.yml --ref <branch>`)
+  # and there are no inputs: the run validates that ref's tip, pinned as
+  # GITHUB_SHA exactly like every other event.
   workflow_dispatch:
-  # GitHub schedules only the default branch. This becomes active when this
-  # workflow revision reaches main; pushes to dev are covered immediately.
+  # `dev` is the repository default branch (since 2026-08-22, #174), and
+  # GitHub schedules the default branch only, so this cron validates dev's
+  # tip at 01:17 UTC. scripts/ci_events.py holds docs/testing/CI_WORKFLOWS.md
+  # to the same time string.
   schedule:
     - cron: "17 1 * * *"
 
@@ -28,10 +33,29 @@ jobs:
     outputs:
       run_full: ${{ steps.gate.outputs.run_full }}
       rtl: ${{ steps.gate.outputs.rtl }}
+      target_sha: ${{ steps.target.outputs.target_sha }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      # One authoritative SHA per run (#174, decision 2). GitHub pins
+      # GITHUB_SHA for every event: a push or PR merge commit, the tip of dev
+      # for the schedule, the chosen ref's tip for a dispatch. Every job below
+      # checks out that SHA (no checkout overrides `ref`, which
+      # scripts/ci_events.py refuses), every worker records it beside its
+      # evidence, and both aggregates refuse evidence for any other tree.
+      - name: Print the event and pin the one SHA this run validates
+        id: target
+        run: |
+          set -euo pipefail
+          echo "event=$GITHUB_EVENT_NAME ref=$GITHUB_REF sha=$GITHUB_SHA"
+          head="$(git rev-parse HEAD)"
+          if [ "$head" != "$GITHUB_SHA" ]; then
+            echo "checkout HEAD $head is not GITHUB_SHA $GITHUB_SHA" >&2
+            exit 1
+          fi
+          echo "target_sha=$GITHUB_SHA" >> "$GITHUB_OUTPUT"
 
       - name: Decide whether this exact head needs the exhaustive gates
         id: gate
@@ -86,6 +110,23 @@ jobs:
       - uses: actions/checkout@v4
       - name: Fetch RTL dependencies
         run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
+
+      # Record the tree this worker validates beside its evidence, and refuse
+      # to start on any other. The record is not a *.log, so suite_tally.py
+      # never reads it; the verilator-suites aggregate does.
+      - name: Record the tree this worker validates
+        env:
+          TARGET_SHA: ${{ needs.full-ci-gate.outputs.target_sha }}
+        run: |
+          set -euo pipefail
+          head="$(git rev-parse HEAD)"
+          if [ "$head" != "$GITHUB_SHA" ] || [ "$GITHUB_SHA" != "$TARGET_SHA" ]; then
+            echo "checkout $head, GITHUB_SHA $GITHUB_SHA and gate target $TARGET_SHA must be one SHA" >&2
+            exit 1
+          fi
+          mkdir -p "$RUNNER_TEMP/suite-logs"
+          printf '%s\n' "$GITHUB_SHA" > "$RUNNER_TEMP/suite-logs/TARGET_SHA"
+          echo "target_sha=$GITHUB_SHA"
 
       - name: Cache the pinned Verilator build
         id: cache-verilator
@@ -194,6 +235,22 @@ jobs:
         with:
           pattern: suite-logs-*
           path: ${{ runner.temp }}/all-suite-logs
+
+      # Refuse evidence for any tree but this run's (#174, decision 2): every
+      # shard must carry a TARGET_SHA equal to the gate's target, to this
+      # job's GITHUB_SHA and to its checkout. A missing record is a failure,
+      # never a skip; so is an empty download.
+      - name: Require every shard to have validated this run's SHA
+        if: ${{ always() }}
+        env:
+          GATE_SHA: ${{ needs.full-ci-gate.outputs.target_sha }}
+        run: |
+          shopt -s nullglob
+          roots=("$RUNNER_TEMP"/all-suite-logs/suite-logs-*)
+          python3 scripts/ci_events.py --require-target-sha \
+            --sha gate="$GATE_SHA" --sha run="$GITHUB_SHA" \
+            --sha checkout="$(git rev-parse HEAD)" -- "${roots[@]}"
+
       - name: Prove exhaustive ownership and tally every log
         if: ${{ always() }}
         run: |
@@ -214,6 +271,7 @@ jobs:
             echo "one or more Verilator workers ended: $SHARD_RESULT" >&2
             exit 1
           fi
+          echo "verilator-suites: every worker succeeded at $GITHUB_SHA"
 
   # Weighted longest-processing-time assignment isolates the two dominant
   # tops and balances the remaining 44 without changing the local serial gate.
@@ -231,6 +289,23 @@ jobs:
       - uses: actions/checkout@v4
       - name: Fetch RTL dependencies
         run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
+
+      # Same record as the Verilator workers. Not a *.result, so yosys_tally.py
+      # never reads it; the yosys-portability aggregate does.
+      - name: Record the tree this worker validates
+        env:
+          TARGET_SHA: ${{ needs.full-ci-gate.outputs.target_sha }}
+        run: |
+          set -euo pipefail
+          head="$(git rev-parse HEAD)"
+          if [ "$head" != "$GITHUB_SHA" ] || [ "$GITHUB_SHA" != "$TARGET_SHA" ]; then
+            echo "checkout $head, GITHUB_SHA $GITHUB_SHA and gate target $TARGET_SHA must be one SHA" >&2
+            exit 1
+          fi
+          mkdir -p "$RUNNER_TEMP/yosys-results"
+          printf '%s\n' "$GITHUB_SHA" > "$RUNNER_TEMP/yosys-results/TARGET_SHA"
+          echo "target_sha=$GITHUB_SHA"
+
       - name: Install Yosys
         run: |
           sudo apt-get update -qq
@@ -274,6 +349,19 @@ jobs:
         with:
           pattern: yosys-results-*
           path: ${{ runner.temp }}/all-yosys-results
+
+      # Same refusal as verilator-suites, over the Yosys evidence.
+      - name: Require every shard to have validated this run's SHA
+        if: ${{ always() }}
+        env:
+          GATE_SHA: ${{ needs.full-ci-gate.outputs.target_sha }}
+        run: |
+          shopt -s nullglob
+          roots=("$RUNNER_TEMP"/all-yosys-results/yosys-results-*)
+          python3 scripts/ci_events.py --require-target-sha \
+            --sha gate="$GATE_SHA" --sha run="$GITHUB_SHA" \
+            --sha checkout="$(git rev-parse HEAD)" -- "${roots[@]}"
+
       - name: Reconcile the live inventory and structural gates
         if: ${{ always() }}
         run: |
@@ -297,3 +385,4 @@ jobs:
             echo "one or more Yosys workers ended: $SHARD_RESULT" >&2
             exit 1
           fi
+          echo "yosys-portability: every worker succeeded at $GITHUB_SHA"

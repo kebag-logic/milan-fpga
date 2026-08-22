@@ -9,6 +9,7 @@ reduce the local verification bar in [CONTRIBUTING.md](../../CONTRIBUTING.md).
 - **[Fast feedback](#fast-feedback)** -- What runs on every pull-request update and why docs-only changes avoid RTL tool setup.
 - **[Exhaustive validation](#exhaustive-validation)** -- When the full Verilator and Yosys inventories run and how exact-head evidence is preserved.
 - **[Nightly and manual dispatch](#nightly-and-manual-dispatch)** -- The cron on the tip of `dev`, how to start a run by hand, and the two situations in which an agent should.
+- **[One authoritative SHA](#one-authoritative-sha)** -- How every job of a run is pinned to one tree, what the workers record, what the aggregates refuse, and the gate that holds the files to this page.
 - **[Elaboration](#elaboration)** -- The one job that installs LiteX and observes what elaboration hands the datapath Instance, and what makes it red.
 - **[Pull-request state](#pull-request-state)** -- How draft and ready states control hosted long jobs without changing local responsibilities.
 - **[Issue closing on merge](#issue-closing-on-merge)** -- What `Closes #N` does now that `dev` is the default branch, and what still waits for containment.
@@ -114,8 +115,49 @@ An agent uses dispatch in two situations:
    without an empty commit.
 
 The merge bar reads exact-head evidence. A dispatched run names the SHA it
-validated in its gate output, so a reviewer compares that line with the PR
-head before counting it.
+validated in its gate output and in both aggregate verdicts, so a reviewer
+compares that line with the PR head before counting it.
+
+## One authoritative SHA
+
+GitHub pins `GITHUB_SHA` once per run, for every event: the pushed commit, the
+merge commit of a pull request, the tip of `dev` for a schedule, the tip of
+the chosen ref for a dispatch. Every `actions/checkout` step that does not
+override `ref` checks out that commit, so every job of an exhaustive run
+validates one tree. The workflow makes that explicit and machine-checked
+(#174, decision 2):
+
+- the `full-ci-gate` job prints `event=... ref=... sha=...`, refuses a
+  checkout whose `HEAD` is not `GITHUB_SHA`, and exports the SHA as its
+  `target_sha` output;
+- every Verilator and Yosys worker refuses to start unless its checkout, its
+  `GITHUB_SHA` and the gate's `target_sha` are one value, then writes that
+  value into a `TARGET_SHA` file beside its evidence, inside the artifact it
+  uploads. The file is neither a `*.log` nor a `*.result`, so neither tally
+  reads it;
+- both aggregates run `scripts/ci_events.py --require-target-sha` over the
+  downloaded shards before they tally anything, and print the SHA in their
+  verdict.
+
+The aggregates refuse, and the check fails rather than skips:
+
+- a shard directory without a `TARGET_SHA` record, including the empty
+  placeholder the aggregate creates when the download produced nothing;
+- a record that is not a 40-digit hexadecimal commit id;
+- a record naming any tree but this run's;
+- a gate `target_sha`, aggregate `GITHUB_SHA` and aggregate checkout that are
+  not one value.
+
+`scripts/ci_events.py --check` holds the workflow files to this contract and
+to the trigger contract above: no `actions/checkout` step in `rtl.yml`
+overrides `ref`, every job that uploads an artifact records the SHA first,
+every job that downloads artifacts verifies it, the trigger lists, the
+`cancel-in-progress` rule and the public check names `rtl-fast`,
+`verilator-suites`, `yosys-portability` and `elaborate` are what this page
+says, and the cron time string on this page matches the YAML. Its
+`--selftest` removes or alters each item on in-memory copies and requires
+the check to catch every one, and fails if the checker is stubbed to find
+nothing. Both run in the hosted docs job.
 
 ## Elaboration
 
@@ -230,8 +272,10 @@ syn/yosys/run.sh --mode elaborate --no-structural \
 ## Failure and cancellation semantics
 
 A worker is not trusted merely because an aggregate job was able to download
-something. Both aggregate jobs compare artifacts with the live repository
-inventory and separately require every worker result to be `success`.
+something. Both aggregate jobs refuse evidence recorded for any tree but the
+run's own (see [One authoritative SHA](#one-authoritative-sha)), compare
+artifacts with the live repository inventory, and separately require every
+worker result to be `success`.
 
 Workflow concurrency is scoped to the PR or branch. A new commit cancels older
 runs because their evidence no longer describes the current head. Converting a
