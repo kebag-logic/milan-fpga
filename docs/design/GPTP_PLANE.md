@@ -130,7 +130,7 @@ why it carries no VERSION bump.
 | bench | faces | proves |
 |---|---|---|
 | gptp-processor `tb/verilator/*` | byte, model counter | the 802.1AS state machines, servo math, and the donor's planted-mutation ladder; its count lives in the donor's engine bench README under `gptp-processor/tb/verilator/engine/` at the pinned SHA and is not mirrored here, where it would drift at every repin |
-| `tb/verilator/gptp_plane` | byte, REAL counter | the engine steers the parent's `timestamp_counter` closed-loop; the phc_ns_i observing check |
+| `tb/verilator/gptp_plane` | byte, REAL counter | the engine steers the parent's `timestamp_counter` closed-loop, and its transmitted Follow_Up carries a live timestamp while the two-step Sync body stays zero (Table 11-8). It does NOT observe the engine's own `phc_ns_i`: at the current submodule pin that input has no reader, so a tie-off there passes this bench ([#211](https://github.com/kebag-logic/milan-fpga/issues/211)). The slice's `timestamp_counter` wire is a different signal and IS covered, by `tb/verilator/gptp_shadow` |
 | `tb/verilator/gptp_shadow` | WIDE, real counter + boundary stamper | the fabric slice with no harness timestamps at all; classify/transport/gearbox/stamper; 5 mutations |
 | `tb/verilator/milan_dp` obj_gptp | the whole datapath | option-ON elaborates at the shipping 1x1 ENTITY shape (the leg's own -G set, 2 MHz clock -- not the obj_ax1x1 argv); the boot Pdelay_Req reaches the real MAC boundary; NO Announce without asCapable |
 | `tb/verilator/milan_dp` default legs | the whole datapath | the [GPTP-OPT] tripwire: with the option OFF, CSR adjfine and adjtime still reach `timestamp_counter` through the eff muxes (a polarity swap goes red) |

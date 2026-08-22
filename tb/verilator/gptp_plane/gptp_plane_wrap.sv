@@ -17,11 +17,15 @@
 //                                                  a level)
 //                  phc_step_*    ->  offset_i + cmd_adjust_i  (adjtime)
 //                  timestamp_out ->  phc_ns_i     (the clock it steers;
+//                                                  the ENGINE's port is
 //                                                  UNREAD at the current
 //                                                  submodule pin, so no
-//                                                  bench check observes
-//                                                  this wire: milan-fpga
-//                                                  #211)
+//                                                  check here observes it
+//                                                  (milan-fpga #211). The
+//                                                  SLICE's counter wire is
+//                                                  a different signal and
+//                                                  is covered by
+//                                                  tb/verilator/gptp_shadow)
 //
 //                The addend latch is the one piece of fabric the splice
 //                adds beyond wires; it lives here until then. The counter

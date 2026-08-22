@@ -218,10 +218,13 @@ class Campaign:
         The plane is a timer-driven TALKER (as grandmaster a Sync every
         125 ms and an Announce every second, a Pdelay_Req every second at
         any time), so a window a probe may call quiet has to be FOUND, not
-        assumed: an empty window right before an injection is the only
-        thing that makes "the injected frame drew this" a measurement
-        rather than a coincidence. Two consecutive empty blocks put the
-        next scheduled transmission at least a Sync interval away.
+        assumed: an empty window right before an injection is what makes
+        "the injected frame drew this" a measurement rather than a
+        coincidence. Two empty blocks say where the plane has NOT just
+        transmitted; they say nothing about the next scheduled event, so
+        the caller still has to tell a collision from a dispatch (the
+        caller here does it by the drop counter, and re-rolls only the
+        collision).
         """
         runs = 0
         for _ in range(tries):
@@ -582,14 +585,24 @@ class Campaign:
         # un-injected control, and twenty drew ten (802.1AS-2011 11.5.2.2
         # and Figure 11-8 leave the interval timer the only exit).
         for mt in (0x1, 0x4, 0x5, 0x6, 0x7, 0x9, 0xD, 0xE, 0xF):
-            # up to four attempts, and the MINIMUM is the measurement: a
-            # 10,000-cycle block is 1/25th of the 125 ms Sync interval, so
-            # about one window in 25 carries the plane's own scheduled
-            # Sync and Follow_Up however quiet its predecessors were (seen
-            # exactly once across the nine types). Retrying cannot hide a
-            # defect that draws a frame EVERY time, which is what a
-            # dispatched messageType does; it only refuses to blame the
-            # plane's cadence on the probe.
+            # Up to four attempts, and the ATTEMPT REPORTED is the first
+            # one that either passes or fails for the reason this probe
+            # exists. A 10,000-cycle block is a 25th of the 125 ms Sync
+            # interval, so a window can carry the plane's own scheduled
+            # Sync and Follow_Up however quiet its predecessors were (once
+            # across the nine types, measured), and only THAT is worth
+            # re-rolling. The two cases are distinguishable without
+            # guessing: the plane's own cadence rides a frame the parser
+            # REFUSED, so the drop counter advanced; a frame the parser
+            # dispatched draws its transmission with the counter standing
+            # still. So a missing drop ends the loop immediately and is
+            # reported, and a retry can only ever re-roll a window whose
+            # injected frame was already refused. Discarding a failing
+            # attempt would make an INTERMITTENT regression -- the arm
+            # working on alternate frames, which is the likely shape here
+            # since the dispatch outcome is already bank-state dependent
+            # -- pass by rerolling, with a log byte-identical to a clean
+            # run because passing checks are not printed.
             quiet, drawn, tries = False, None, 0
             for tries in range(1, 5):
                 quiet = self.quiet_window()
@@ -600,6 +613,8 @@ class Campaign:
                 self.tick(1)
                 drawn = len(self.txq) - mark
                 after = self.state()
+                if after[S_RXDROP] != before[S_RXDROP] + 1:
+                    break                 # not refused: this attempt IS it
                 if quiet and drawn == 0:
                     break
             self.rep.ck("unknown type 0x%X: a quiet window precedes it" % mt,

@@ -68,7 +68,7 @@ they ever disagree:
 | campaign | checks | what it drives |
 |---|---:|---|
 | `fuzz_aaf.py`  | 164 | parser → rx-monitor → depacketizer — the **accept verdict** (wire `stream_id` vs bound, graded on the parser's own pre-match counters = the `0x8B4` APRB sources), per-field verdicts, lock survival |
-| `fuzz_ptp.py`  | 491 | the gPTP fabric slice: TX conformance of the plane's own Pdelay_Req/Announce/Sync/Follow_Up against the 802.1AS models (the per-message control byte of FPGA-gPTP #9 among the graded fields: Sync 0x0, Follow_Up 0x2, Announce and the Pdelay types 0x5), parser drop/ignore gates (the domainNumber arm of FPGA-gPTP #6 among them, probed on Announce, Sync/Follow_Up and Pdelay_Req separately), BTCA rejection under fuzz, servo pairing (with the TLV-less, truncated and wrong-tlvType Follow_Up refusals of FPGA-gPTP #11), the Milan 4.2.6.2.5 cease rule, and the two-sided asCapable canary; **9 gaps** track FPGA-gPTP #22 |
+| `fuzz_ptp.py`  | 491 | the gPTP fabric slice: TX conformance of the plane's own Pdelay_Req/Announce/Sync/Follow_Up against the 802.1AS models (the per-message control byte of FPGA-gPTP #9 among the graded fields: Sync 0x0, Follow_Up 0x2, Announce and the Pdelay types 0x5), parser drop/ignore gates (the domainNumber arm of FPGA-gPTP #6 among them, probed on Announce, Sync/Follow_Up and Pdelay_Req separately), BTCA rejection under fuzz, servo pairing (with the TLV-less, truncated and wrong-tlvType Follow_Up refusals of FPGA-gPTP #11), the Milan 4.2.6.2.5 cease rule, and the two-sided asCapable canary; **no tracked gaps** at the current pin, and each of the nine unlisted messageTypes is graded on its counted drop AND on drawing no transmission (the two halves of the closed FPGA-gPTP #22) |
 
 ## Contents
 
@@ -173,7 +173,7 @@ So the suite reports `2` on a machine without tsn-gen and `N + M + 4` with it.
 Each campaign is guarded independently: `suite_tally.py --campaign-guard` runs
 against each campaign's own log, so neither can drop its checks behind a
 reworded summary. (The gPTP campaign's `known gaps` count is tracked
-separately — see the campaign table above; the guard counts pass/fail,
+separately (see the campaign table above); the guard counts pass/fail,
 and a gap is neither.)
 
 **The freshness lines are one check each, and only one.**
