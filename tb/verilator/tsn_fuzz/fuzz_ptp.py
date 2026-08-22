@@ -481,10 +481,12 @@ class Campaign:
         sync = self.wait_tx(wire.PTP_SYNC, 2 * SECOND)
         if self.rep.ck("Sync transmitted", sync is not None):
             sm = wire.PtpMsg(sync)
-            # control 0x0 (Table 11-7) and a zero reserved body (Table 11-8):
-            # both are transmit-only nonconformances tracked in the donor repo
+            # control 0x0 (Table 11-7) is an ordinary graded field since the
+            # donor's per-message TX control byte (FPGA-gPTP #9); the zero
+            # reserved body (Table 11-8) is still a transmit-only
+            # nonconformance tracked in the donor repo
             self.grade_tx(models["sync"], sync, "tx_sync",
-                          gaps={"control": 9, "origin_timestamp": 10})
+                          gaps={"origin_timestamp": 10})
             self.rep.eq("tx_sync source identity", sm.source_clock_identity,
                         OUR_CID)
             fu = self.wait_tx(wire.PTP_FOLLOW_UP, SECOND)
@@ -492,11 +494,10 @@ class Campaign:
                 fm = wire.PtpMsg(fu)
                 self.rep.eq("tx_fu sequence pairs its sync",
                             fm.sequence_id, sm.sequence_id)
-                # control 0x2 (Table 11-7) is the same TX-control gap
+                # control 0x2 (Table 11-7) is an ordinary graded field too
                 self.grade_tx(models["follow_up"], fu, "tx_fu",
                               skip=("precise_origin_seconds",
-                                    "precise_origin_ns"),
-                              gaps={"control": 9})
+                                    "precise_origin_ns"))
                 st2 = self.state()
                 self.rep.ck("tx_fu origin is live fabric time",
                             0 < fm.ts_total_ns <= self.phc_of(st2),
