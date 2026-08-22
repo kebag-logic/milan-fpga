@@ -202,6 +202,12 @@ int main(int argc, char** argv) {
   // TC3 -> q4 (SR-A), TC4/5 -> q1 (control), TC6/7 -> q2 (gPTP). No spare.
   ck("CLS_TCQ(reset)",   axi_read(A_CLS_TCQ),  0x004898C0);
   ck("PTP_CTRL(reset)",  axi_read(A_PTP_CTRL), 0x1);
+  // The shipping boot contract relies on PHC enable being independent of
+  // ADP/AEM: ADP resets disabled while PTP_CTRL resets enabled. Observing the
+  // output, not only readback, makes an `& adp_ctrl[0]` gate fail here.
+  ck("ADP disabled at PHC reset", axi_read(A_ADP_CTRL) & 1, 0);
+  dut->eval();
+  ck("o_ptp_enable(reset, ADP off)", dut->o_ptp_enable, 1);
   // DERIVED, not mirrored. The readback image once carried a hardcoded
   // 0x08000000 (the 125 MHz period) while the flop already derived from
   // MILAN_CLK_FREQ_HZ_P, so on the shipping 100 MHz milan domain the PHC
@@ -283,6 +289,20 @@ int main(int argc, char** argv) {
   printf("-- RW registers + output wiring --\n");
   axi_write(A_SCRATCH, 0xDEADBEEF);
   ck("SCRATCH rw", axi_read(A_SCRATCH), 0xDEADBEEF);
+
+  printf("-- PTP_CTRL directly owns PHC enable, independent of ADP --\n");
+  axi_write(A_PTP_CTRL, 0x0);
+  dut->eval();
+  ck("o_ptp_enable follows PTP_CTRL=0", dut->o_ptp_enable, 0);
+  axi_write(A_ADP_CTRL, 0x00000A01);     // turn ADP on while PTP stays off
+  dut->eval();
+  ck("ADP cannot force PHC on", dut->o_ptp_enable, 0);
+  axi_write(A_PTP_CTRL, 0x1);
+  dut->eval();
+  ck("o_ptp_enable follows PTP_CTRL=1", dut->o_ptp_enable, 1);
+  axi_write(A_ADP_CTRL, 0x00000A00);     // restore shipping ADP reset state
+  dut->eval();
+  ck("ADP off cannot gate PHC off", dut->o_ptp_enable, 1);
 
   axi_write(A_MAC_CTRL, 0x1F);
   ck("MAC_CTRL rw", axi_read(A_MAC_CTRL), 0x1F);
