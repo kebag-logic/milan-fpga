@@ -83,6 +83,25 @@ static Frame ptp(uint8_t mtype, uint16_t seq, uint64_t corr,
   return f;
 }
 
+//! A complete Follow_Up: 802.1AS-2011 Table 11-9 makes the information TLV
+//! of 11.4.4.3 a FIELD of the 76-octet message (11.4.4.2.2 places it first
+//! after the fixed fields), so the header's 34 octets, the 10-octet
+//! preciseOriginTimestamp and this 32-octet TLV are the shortest legal
+//! Follow_Up; the parser refuses anything shorter (FPGA-gPTP #11), which is
+//! why the bench cannot send the 44-octet shape it used to.
+static Frame follow_up(uint16_t seq, uint64_t origin_ns) {
+  Frame g = ptp(0x8, seq, 0, 0x0000, 42);
+  g.ts(origin_ns);
+  g.u16(0x0003); g.u16(28);              // tlvType, lengthField (11.4.4.3.2/3)
+  g.u8(0x00); g.u8(0x80); g.u8(0xC2);    // organizationId 00-80-C2
+  g.u8(0x00); g.u8(0x00); g.u8(0x01);    // organizationSubType 1
+  g.u32(0);                              // cumulativeScaledRateOffset
+  g.u16(0);                              // gmTimeBaseIndicator
+  g.u64(0); g.u32(0);                    // lastGmPhaseChange (12 octets)
+  g.u32(0);                              // scaledLastGmFreqChange
+  return g;
+}
+
 static Vgptp_plane_wrap *dut;
 static uint64_t cyc = 0;
 static std::vector<std::vector<uint8_t>> txf;
@@ -298,8 +317,7 @@ int main(int argc, char **argv) {
       f.ts(0);
       send_frame(f.b, local_rx);
       run(1000);
-      Frame g = ptp(0x8, sq, 0, 0x0000, 10);
-      g.ts(origin);
+      Frame g = follow_up(sq, origin);
       send_frame(g.b, local_rx + 500);
       run(4000);
       sq++;
@@ -326,12 +344,15 @@ int main(int argc, char **argv) {
            dut->pub_flags_o & FL_SYNCOK, FL_SYNCOK);
   }
 
-  // ---- 5: as master, the Sync origin carries the REAL counter -----------
+  // ---- 5: as master, the live counter rides the Follow_Up ---------------
   // announce silence rides out the receipt timeout (pdelay keeps
-  // asCapable alive), the plane becomes grandmaster, and its Sync's
-  // originTimestamp must be the live timestamp_counter value -- the
-  // phc_ns_i observing check PR #113's review filed as its blind spot
-  // (the submodule's v6 gather consumer makes it observable)
+  // asCapable alive) and the plane becomes grandmaster. A two-step Sync's
+  // ten octets after the header are RESERVED and transmitted as zero
+  // (802.1AS-2011 Table 11-8, since FPGA-gPTP #10); the real time is the
+  // paired Follow_Up's preciseOriginTimestamp (11.4.4.2.1), and THAT is
+  // where the live timestamp_counter value must show -- the phc_ns_i
+  // observing check PR #113's review filed as its blind spot (the
+  // submodule's v6 gather consumer makes it observable)
   {
     expect("quiet ride to grandmaster",
            wait_flags(FL_AMGM, FL_AMGM, 10000000ull), 1);
@@ -339,10 +360,17 @@ int main(int argc, char **argv) {
     std::vector<uint8_t> sy = wait_tx(0x0, 800000);
     expect("sync long enough to parse", sy.size() >= 58, 1);
     if (sy.size() >= 58) {
-      uint64_t origin = fld48(sy, 48) * 1000000000ull + fld32(sy, 54);
+      uint64_t body = fld48(sy, 48) * 1000000000ull + fld32(sy, 54);
+      expect("two-step Sync reserved body is zero (Table 11-8)", body, 0ull);
+    }
+    std::vector<uint8_t> fu = wait_tx(0x8, 800000);
+    expect("follow_up long enough to parse", fu.size() >= 90, 1);
+    if (fu.size() >= 90) {
+      uint64_t origin = fld48(fu, 48) * 1000000000ull + fld32(fu, 54);
       uint64_t now = phc();
       int64_t d = (int64_t)(now - origin);
-      expect("origin is the real counter", d >= 0 && d < 300000, 1);
+      expect("follow_up origin is the real counter",
+             d >= 0 && d < 300000, 1);
     }
   }
 

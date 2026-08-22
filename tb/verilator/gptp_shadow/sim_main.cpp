@@ -79,6 +79,25 @@ static Frame ptp(uint8_t mtype, uint16_t seq, uint64_t corr,
   return f;
 }
 
+//! A complete Follow_Up: 802.1AS-2011 Table 11-9 makes the information TLV
+//! of 11.4.4.3 a FIELD of the 76-octet message (11.4.4.2.2 places it first
+//! after the fixed fields), so the header's 34 octets, the 10-octet
+//! preciseOriginTimestamp and this 32-octet TLV are the shortest legal
+//! Follow_Up; the parser refuses anything shorter (FPGA-gPTP #11), which is
+//! why the bench cannot send the 44-octet shape it used to.
+static Frame follow_up(uint16_t seq, uint64_t origin_ns) {
+  Frame g = ptp(0x8, seq, 0, 0x0000, 42);
+  g.ts(origin_ns);
+  g.u16(0x0003); g.u16(28);              // tlvType, lengthField (11.4.4.3.2/3)
+  g.u8(0x00); g.u8(0x80); g.u8(0xC2);    // organizationId 00-80-C2
+  g.u8(0x00); g.u8(0x00); g.u8(0x01);    // organizationSubType 1
+  g.u32(0);                              // cumulativeScaledRateOffset
+  g.u16(0);                              // gmTimeBaseIndicator
+  g.u64(0); g.u32(0);                    // lastGmPhaseChange (12 octets)
+  g.u32(0);                              // scaledLastGmFreqChange
+  return g;
+}
+
 static Vgptp_shadow_wrap *dut;
 static uint64_t cyc = 0;
 static uint16_t last_txts_seq = 0xFFFF;
@@ -240,8 +259,7 @@ static void sync_pair(uint16_t seq, uint64_t origin_delta,
   uint64_t at = phc();
   send_wide(f.b);
   run(30);
-  Frame g = ptp(0x8, seq, 0, 0x0000, 10);
-  g.ts(at - origin_delta);
+  Frame g = follow_up(seq, at - origin_delta);
   send_wide(g.b);
   run(4000);
   if (measured_at) *measured_at = at;
@@ -315,8 +333,8 @@ int main(int argc, char **argv) {
       f.ts(0);
       send_wide(f.b);
       run(30);
-      Frame g = ptp(0x8, sq, 0, 0x0000, 10);
-      g.ts(origin + (uint64_t)D_NOM);   // cancel pd so offset -> 0
+      // cancel pd so offset -> 0
+      Frame g = follow_up(sq, origin + (uint64_t)D_NOM);
       send_wide(g.b);
       run(4000);
       sq++;

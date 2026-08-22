@@ -20,12 +20,13 @@ What it proves:
 | 2 | a live auto-answering peer raises asCapable at the second exchange |
 | 3 | a better announce is adopted; the publish bank carries the GM identity and role flags |
 | 4 | closed loop vs a +100 ppm master 1 ms ahead in counter time: ONE adjtime re-base near +1 ms (the correction negates the offset), the latched adjfine level lands at the +100 ppm ideal (13,421 Q8.24 units, within 15%), the measured offset locks under 150 ns, and the REAL counter's advance tracks the master's within 100 ns over the last four sync intervals |
-| 5 | announce silence rides to grandmaster and the transmitted Sync's originTimestamp is the live counter value -- phc_ns_i observed on the wire (a constant-tied mis-wire fails) |
+| 5 | announce silence rides to grandmaster; the two-step Sync's ten reserved octets are zero (802.1AS-2011 Table 11-8) and its paired Follow_Up's preciseOriginTimestamp is the live counter value -- phc_ns_i observed on the wire (a constant-tied mis-wire fails) |
 
 The `phc_ns_i` blind spot from PR #113's review is CLOSED: the
-submodule's v6 ucode consumes the live-clock input for the Sync
-originTimestamp, and phase 5 observes it on the wire -- tying
-`phc_ns_i` to a constant now fails the run.
+submodule's ucode consumes the live-clock input for the timestamp the
+Follow_Up carries (the Sync body is reserved and zeroed, Table 11-8),
+and phase 5 observes it on the wire -- tying `phc_ns_i` to a constant
+now fails the run.
 
 Timescale note: the bench clock is 2 MHz while the counter keeps its
 8.0 ns/tick shape, so counter time runs 62.5x slower than the bench
