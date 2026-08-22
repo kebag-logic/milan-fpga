@@ -127,7 +127,11 @@ Linux-throughput logic the audio path never touches  -  which removed the
 sys_clk critical path AND freed ~3 pct LUT), `--l2-bytes 16384`, place
 directive AltSpreadLogic_high. Closed 2026-07-24: WNS +0.080, LUT 85.15 pct,
 TNS 0, all seeds close (measured record in the `cfg_ax8x8` comment in
-`build.sh`).
+`build.sh`). The CPU is the RV32 single-hart VexiiRiscv every other artifact
+of this shape describes: since 2026-08-22 (#157) the recipe states
+`--xlen 32 --cpu-count 1`, so the 2026-07-24 figures, measured on the RV64
+core the recipe implied until then, are an upper bound rather than this
+recipe's own.
 
 #### Choosing the Ethernet port (`--eth-port`)
 
@@ -174,6 +178,10 @@ xc7a100t**csg324-1** (SAME die, SLOWER speedgrade  -  expect tighter WNS at
 --flashboot full`; the S25FL128S flashboot increment has landed) and
 `--strip-probes`. Role: AVDECC/Milan interop peer and the 100 Mbit CBS
 test point (`is_1g=0` slope branch); not a throughput peer.
+Its CPU is one RV32 VexiiRiscv hart (`--cpu-count 1 --xlen 32`, stated
+since 2026-08-22, #157, matching `configs/endstation_arty_current.yaml` and
+the `sweep.sh` arty leg). The Arty is a retired DUT, so the recipe is proven
+to elaborate by `sw/builder/test_builder.py` gate 23g rather than built.
 
 Its Pmod B TDM header routes `mclk`, `bclk`, `fsync`, `din`, and `dout`.
 Unlike the AX7101 J11 resource, it has no `lrclk`: that signal is an optional
@@ -218,17 +226,20 @@ exists so they cannot be forgotten:
 [`sw/litex/sweep.sh`](../../sw/litex/sweep.sh) refuses to launch unless the command line it composed
 equals the end-station config it claims to build. It checks `--num-streams`,
 `--rx-queues` and `--l2-bytes` against `configs/endstation_<shape>.yaml`, and
-`build.sh`'s `cfg_*` recipes against the same configs. Exit non-zero = no
-Vivado runs.
+`build.sh`'s `cfg_*` recipes against the same configs; for those recipes
+`--xlen` and `--cpu-count` must also be stated and equal the config's (since
+2026-08-22, #157: an absent flag inherits `milan_soc.py`'s RV64 default, not
+the builder's RV32). Exit non-zero = no Vivado runs.
 
 Why it exists: this class of bug is only visible on silicon and has now bitten
-three times.
+four times.
 
 | Date | Knob | Symptom |
 |---|---|---|
 | 2026-07-22 | `i_mac_events` | RMON counters fully tested, permanently zero on hardware (tied off in SoC glue) |
 | 2026-07-24 | `--rx-queues` | `sweep.sh` passed `1` for both boards; the deployed Arty gateware has 2. A queue-count change moves every DMA window by `0x74` under an unchanged DTB |
 | 2026-07-26 | `--num-streams` | `sweep.sh` passed **nothing**, so `sweep.sh ax7101` built the default 1x1 datapath while the config, the docs and the build directories all called it 8x8 |
+| 2026-08-22 | `--xlen` / `--cpu-count` | `build.sh cfg_ax8x8` and `cfg_arty` passed no `--xlen`; `milan_soc.py` defaults to 64 where the builder defaults to 32, so both elaborated RV64 under configs, a sweep table and a boot chain that are RV32 single-hart (#157) |
 
 Per board, `sweep.sh` sets the design defaults first and *then* sources
 `configs/generated/sweep_opts_<board>.sh`, so a fragment that predates a knob
@@ -238,7 +249,7 @@ rides as `NS=` (or, for the historical `sweep_opts_arty_4x4.sh`, inline in
 
 ```sh
 python3 scripts/check_sweep_shape.py              # static check, no shell/Vivado
-python3 scripts/check_sweep_shape.py --self-test  # + prove a wrong NS is rejected
+python3 scripts/check_sweep_shape.py --self-test  # + prove a wrong NS, xlen or cpu-count is rejected
 SWEEP_CFG=configs/endstation_arty_4x4.yaml sw/litex/sweep.sh arty 4x4   # non-default shape
 ```
 
