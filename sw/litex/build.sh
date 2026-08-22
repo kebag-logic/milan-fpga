@@ -164,25 +164,28 @@ cfg_ax8x8() {    # 8-stream (64ch) shape. History: the 07-24 close used
     # the deployed 0x00010022 gateware (x32f1_eto, a sweep build: this recipe
     # has never produced a bitstream) are all RV32 single-hart. An RV64 SoC
     # under the RV32 boot chain hangs at Liftoff with nothing naming the
-    # cause (8b5d0255). The 07-24 close above was measured on that RV64 core,
-    # so it is an upper bound for this recipe, not its figure.
+    # cause (8b5d0255). The 07-24 close above was measured on that RV64 core
+    # and its RV64-era refill/prefetch cache profile, so it is an upper bound
+    # for this recipe, not its figure.
     echo "--board ax7101 --cpu vexiiriscv --cpu-count 1 --xlen 32 --software-profile linux \
           --all-blocks --coherent-dma --sound-card \
           --milan-clk-freq 100e6 --with-spiflash --flashboot full --gtx-tx-invert \
-          --timing-opt --floorplan --l2-bytes 16384 \
-          --scala-args=--lsu-l1-refill-count=8 --scala-args=--lsu-hardware-prefetch=rpt \
+          --timing-opt --floorplan --eth-port e1 --l2-bytes 16384 \
+          --scala-args=--lsu-l1-refill-count=2 --scala-args=--l2-down-pending=4 \
+          --scala-args=--l2-general-slots=8 \
           --uart-baudrate 115200 --rx-queues 2 --strip-probes --hs-page-bytes 16384 \
           --num-streams 8 --audio-interface tdm32 --audio-interface-master \
           --talker-wire-chans 8 --no-latency-taps --no-i2s-playback \
-          --aaf-playback \
+          --aaf-playback --aaf-playback-streams 1 \
           --entity-gen-dir $SOC_DIR/../../configs/generated/endstation_ax7101_8x8 \
-          --no-render-lpf --cbs-queues-mask 0x18 --synth-directive AreaOptimized_high \
+          --no-render-lpf --no-datapath-probes --cbs-queues-mask 0x10 \
+          --synth-directive AreaOptimized_high \
           --opt-directive ExploreArea --place-directive AltSpreadLogic_high"
                  # --aaf-playback (task #31, 2026-08-02) = KL_pcm_tx host
                  # playback ring -> the chmap capture RING bucket: the ALSA
                  # playback direction (snd-kl-milan pb-dma window; DT
-                 # kl,playback-streams). ONE ring served (the START-SMALL
-                 # --aaf-playback-streams default; full-N OOC'd 2216 LUT,
+                 # kl,playback-streams). ONE ring served (stated explicitly;
+                 # full-N OOC'd 2216 LUT,
                  # one-ring ~1/8th) - its 4 pairs reach any talker's wire
                  # slots through the 64ch chmap. The render sample bank
                  # behind it is unloaded on this padless board and sweeps.
@@ -196,7 +199,7 @@ cfg_ax8x8() {    # 8-stream (64ch) shape. History: the 07-24 close used
                  # loop THD+N record, however, was measured THROUGH the filter
                  # and must be re-measured before it is quoted against this
                  # bitstream. Drop the flag to put the filter back.
-                 # eth-port defaults to e1 (the bench default, same as cfg_ax7101).
+                 # eth-port is pinned to e1 (the bench default, same as cfg_ax7101).
                  # If the AX cable is on e2, append `-- --eth-port e2`; AX42's guard
                  # reset scope covers either PHY's tx/gtx path.
 }
@@ -219,8 +222,8 @@ cfg_arty() {     # Arty A7-100 small endstation: MII 100M, QSPI flashboot (probe
           --all-blocks --coherent-dma --sound-card \
           --sys-clk-freq 83.333e6 --milan-clk-freq 50e6 --with-spiflash --flashboot full \
           --uart-baudrate 115200 --timing-opt --strip-probes --l2-bytes 65536 \
-          --scala-args=--lsu-l1-refill-count=8 --scala-args=--lsu-hardware-prefetch=rpt \
-          --scala-args=--l2-down-pending=8 --scala-args=--l2-general-slots=16 \
+          --scala-args=--lsu-l1-refill-count=2 --scala-args=--l2-down-pending=4 \
+          --scala-args=--l2-general-slots=8 --cbs-queues-mask 0x10 \
           --entity-gen-dir $SOC_DIR/../../configs/generated/endstation_arty_current \
           --rx-queues 2 --hs-page-bytes 16384"
 }
@@ -256,6 +259,7 @@ done
 #  refusing to launch Vivado if the model is missing or unbuildable. So the
 #  shape check below still covers only the `svh`; the descriptors now police
 #  themselves, per build, and cannot be another config's.)
+ENTITY_CFG_ax7101="configs/endstation_ax7101_1x1_tdm8.yaml"
 ENTITY_CFG_ax8x8="configs/endstation_ax7101_8x8.yaml"
 ENTITY_CFG_arty="configs/endstation_arty_current.yaml"
 for c in "${CONFIGS[@]}"; do

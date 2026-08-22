@@ -47,13 +47,24 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SWEEP = os.path.join(ROOT, "sw/litex/sweep.sh")
 BUILD = os.path.join(ROOT, "sw/litex/build.sh")
 
-# build.sh's named recipes are the OTHER path to a flashed bitstream (the
-# deployed ax8x8 gateware came from `build.sh ax8x8`), so they get the same
-# treatment: cfg function -> the end-station config it claims to build.
-# cfg_ax7101 has no counterpart (there is no 1x1 ax7101 config) and is skipped.
+# build.sh's named recipes are the OTHER path to a flashed bitstream, so they
+# get the same treatment: cfg function -> the end-station config it claims to
+# build. The deployed 8x8 image came from the x32f1_eto sweep; cfg_ax8x8 has
+# never produced a bitstream. This gate keeps that alternate recipe aligned
+# with the same graded config before anybody uses it.
 BUILD_CFGS = {
+    "ax7101": "configs/endstation_ax7101_1x1_tdm8.yaml",
     "ax8x8": "configs/endstation_ax7101_8x8.yaml",
     "arty":  "configs/endstation_arty_current.yaml",
+}
+
+# FLOW flags, not DESIGN flags: launch directives and per-run paths that
+# emit_soc_argv deliberately does not own. The config comparison ignores only
+# this explicit set; --entity-gen-dir is checked separately because it must
+# name the same config as BUILD_CFGS.
+FLOW_FLAGS = {
+    "--synth-directive", "--opt-directive", "--place-directive",
+    "--vivado-max-threads", "--output-dir", "--build",
 }
 
 # PINNED DIVERGENCES - live disagreements that are DELIBERATE (or at least
@@ -62,7 +73,7 @@ BUILD_CFGS = {
 # instead of being an untracked gap.
 #   (source, board/cfg, key): (source_value, config_value, reason)
 PINNED = {
-    # (empty) - the ax8x8 l2_bytes divergence was RESOLVED 2026-07-26 by
+    # The ax8x8 l2_bytes divergence was RESOLVED 2026-07-26 by
     # correcting configs/endstation_ax7101_8x8.yaml from 32768 to 16384.
     # The USER 32K authorisation belongs to the 1x1 bench shape
     # (build.sh cfg_ax7101, --rx-queues 2); cfg_ax8x8 is --l2-bytes 16384
@@ -81,9 +92,8 @@ PINNED = {
 # hangs at Liftoff with nothing naming the cause (8b5d0255, 2026-08-05). So
 # for these two flags an ABSENT flag is drift, not a default: the recipe must
 # state the value and it must equal what emit_soc_argv derives for the
-# config. Flag -> the key the drift report (and a PINNED entry) uses.
-# Deliberately NOT the whole flag-for-flag comparison the sweep.sh branch
-# makes: that widening, and the eight other divergences it surfaces, is #155.
+# config. The full flag-for-flag comparison below now subsumes these two flags;
+# this named set drives their dedicated absent-and-swapped negative controls.
 CPU_FLAGS = {"--xlen": "xlen", "--cpu-count": "cpu_count"}
 
 
@@ -262,57 +272,109 @@ def parse_build_sh(path=BUILD):
     return out
 
 
+def design_flags(flags):
+    """Drop launcher-only flags and compare the Scala profile as one value."""
+    design, scala = {}, []
+    for key, value in flags.items():
+        if key in FLOW_FLAGS:
+            continue
+        if key.startswith("--scala-args="):
+            scala.append(key[len("--scala-args="):])
+            continue
+        design[key] = value
+    if scala:
+        design["--scala-args"] = " ".join(sorted(scala))
+    return design
+
+
+def _entity_gen_dir_agrees(name, cfg_path, flags):
+    """Require a recipe to use the generated artifacts for its graded config."""
+    want = os.path.splitext(os.path.basename(cfg_path))[0]
+    got = flags.get("--entity-gen-dir")
+    msg = None
+    if got is True or not got:
+        msg = (f"cfg_{name}: no --entity-gen-dir. milan_soc.py refuses to "
+               f"launch without it, so this recipe cannot be run at all; it "
+               f"must name configs/generated/{want}")
+    elif os.path.basename(str(got).rstrip("/")) != want:
+        msg = (f"cfg_{name}: --entity-gen-dir names "
+               f"{os.path.basename(str(got).rstrip('/'))!r} but this recipe "
+               f"is graded against {os.path.basename(cfg_path)} - the "
+               f"gateware and generated artifacts would be different shapes")
+    if msg is None:
+        return []
+    print("SHAPE DRIFT: " + msg, file=sys.stderr)
+    return [msg]
+
+
 def check_build_sh(path=BUILD, quiet=False):
-    """build.sh recipe vs the end-station config it builds. Divergences listed
-    in PINNED are accepted (and re-verified); anything else is drift. `quiet`
-    drops the per-key agreement lines (the self-test's mutated copies have
-    nothing worth printing on the keys they left alone)."""
+    """Compare every build.sh design flag with emit_soc_argv, flag for flag.
+
+    Divergences listed in PINNED are accepted and re-verified against their
+    exact pair. Everything else is drift. This deliberately replaces the old
+    four-key subset, which could not see the #155 cache, CBS, port, playback,
+    or optional-block disagreements.
+    `quiet` suppresses successful agreement summaries while negative controls
+    exercise mutated copies.
+    """
     recipes = parse_build_sh(path)
     bad = []
+    unbound = sorted(set(recipes) - set(BUILD_CFGS))
+    for name in unbound:
+        msg = (f"build.sh cfg_{name} has no config binding in BUILD_CFGS; "
+               "an ungraded recipe could silently build a different shape")
+        print("SHAPE DRIFT: " + msg, file=sys.stderr)
+        bad.append(msg)
+
+    visited_pins = set()
     for name, cfg_path in sorted(BUILD_CFGS.items()):
         if name not in recipes:
-            bad.append(f"build.sh has no cfg_{name}")
+            msg = f"build.sh has no cfg_{name}"
+            print("SHAPE DRIFT: " + msg, file=sys.stderr)
+            bad.append(msg)
             continue
         f = recipes[name]
-        _b, c_ns, c_rxq, c_l2, c_lpf = config_shape(cfg_path)
-        got = {"num_streams": int(f.get("--num-streams", 1)),
-               "rx_queues":   int(f["--rx-queues"]),
-               "l2_bytes":    int(f["--l2-bytes"]),
-               "render_lpf":  "--no-render-lpf" not in f}
-        want = {"num_streams": c_ns, "rx_queues": c_rxq, "l2_bytes": c_l2,
-                "render_lpf": c_lpf}
-        # The CPU keys: the config side is what the builder EMITS for this
-        # config, never a value restated here, and the recipe side is the
-        # token as written - "(absent)" when it is not, which equals no
-        # emitted value, so an omission is reported as the drift it is.
-        implied = parse_flags(design_opts_expected(cfg_path))
-        for flag, k in CPU_FLAGS.items():
-            got[k] = f.get(flag, "(absent)")
-            want[k] = implied.get(flag, "(absent)")
-        for k in sorted(got):
-            pin = PINNED.get(("build.sh", name, k))
+        local = _entity_gen_dir_agrees(name, cfg_path, f)
+        got = design_flags(f)
+        want = design_flags(parse_flags(design_opts_expected(cfg_path)))
+        got.pop("--entity-gen-dir", None)  # checked above, by config basename
+        n_ok = n_pin = 0
+        for k in sorted(set(got) | set(want)):
+            pin_key = ("build.sh", name, k)
+            pin = PINNED.get(pin_key)
+            g = got.get(k, "(absent)")
+            w = want.get(k, "(absent)")
             if pin is not None:
-                if (got[k], want[k]) != pin[:2]:
+                visited_pins.add(pin_key)
+                n_pin += 1
+                if (g, w) != tuple(pin[:2]):
                     msg = (f"cfg_{name}: PINNED divergence on {k} no longer "
-                           f"holds (build.sh {got[k]} / config {want[k]}, "
-                           f"pinned {pin[0]} / {pin[1]}) - revisit the pin")
+                           f"holds (build.sh {g!r} / config {w!r}, pinned "
+                           f"{pin[0]!r} / {pin[1]!r}) - revisit the pin")
                     print("SHAPE DRIFT: " + msg, file=sys.stderr)
-                    bad.append(msg)
-                else:
+                    local.append(msg)
+                elif not quiet:
                     print(f"  [sweep-shape] build.sh cfg_{name}: {k} "
-                          f"{got[k]} != config {want[k]} - PINNED, known")
-            elif got[k] != want[k]:
-                msg = (f"cfg_{name}: {k} {got[k]} != "
-                       f"{os.path.basename(cfg_path)} {want[k]}")
-                if k in CPU_FLAGS.values():
-                    msg += (" - a CPU key must be STATED and equal: absent, "
-                            "the flag inherits milan_soc.py's default, which "
-                            "is not the builder's (#157)")
+                          f"{g!r} != config {w!r} - PINNED, known: {pin[2]}")
+            elif g != w:
+                msg = (f"cfg_{name}: design flag {k}: build.sh {g!r} != "
+                       f"config-implied {w!r} (emit_soc_argv of "
+                       f"{os.path.basename(cfg_path)})")
                 print("SHAPE DRIFT: " + msg, file=sys.stderr)
-                bad.append(msg)
-            elif not quiet:
-                print(f"  [sweep-shape] build.sh cfg_{name}: {k} {got[k]} "
-                      f"== {os.path.basename(cfg_path)}")
+                local.append(msg)
+            else:
+                n_ok += 1
+        if not local and not quiet:
+            print(f"  [sweep-shape] build.sh cfg_{name}: {n_ok} design flags "
+                  f"agree with {os.path.basename(cfg_path)} flag for flag "
+                  f"({n_pin} PINNED), and --entity-gen-dir names it")
+        bad += local
+
+    for pin_key in sorted(set(PINNED) - visited_pins):
+        msg = (f"PINNED divergence {pin_key!r} was never visited; remove the "
+               "stale exception or restore the recipe/config binding")
+        print("SHAPE DRIFT: " + msg, file=sys.stderr)
+        bad.append(msg)
     return bad
 
 
@@ -322,9 +384,10 @@ def self_test_build_sh(path=BUILD):
     Two mutated copies of build.sh: the REAL defect replayed - every
     `--xlen N` and `--cpu-count N` stripped, so each recipe would inherit
     milan_soc.py's defaults - and its value-swapped cousin (xlen flipped
-    between 32 and 64, one more hart). Each must be rejected on BOTH CPU keys
-    of BOTH recipes, or a key is vacuous. Returns the (mutation, cfg, key)
-    triples the gate FAILED to reject; empty means every key bit."""
+    between 32 and 64, one more hart). Each must be rejected on BOTH CPU flags
+    of all three recipes, or a check is vacuous. Returns the
+    (mutation, cfg, flag) triples the gate FAILED to reject; empty means every
+    flag bit."""
     txt = open(path).read()
     mutations = {
         "absent": re.sub(r"--(?:xlen|cpu-count) \d+ ?", "", txt),
@@ -350,11 +413,28 @@ def self_test_build_sh(path=BUILD):
         finally:
             os.unlink(tmp)
         for name in BUILD_CFGS:
-            for k in CPU_FLAGS.values():
-                if not any(re.match(rf"cfg_{name}: (PINNED divergence on )?{k} ",
-                                    b) for b in bad):
-                    missed.append((label, name, k))
+            for flag in CPU_FLAGS:
+                drift = f"cfg_{name}: design flag {flag}:"
+                pinned = f"cfg_{name}: PINNED divergence on {flag} "
+                if not any(b.startswith(drift) or b.startswith(pinned)
+                           for b in bad):
+                    missed.append((label, name, flag))
     return missed
+
+
+def mutate_build_recipe(text, name, old, new):
+    """Change one flag fragment inside one named recipe for a negative test."""
+    match = re.search(rf"^cfg_{re.escape(name)}\(\)\s*\{{.*?^\}}",
+                      text, re.M | re.S)
+    if not match:
+        raise ValueError(f"cfg_{name} recipe not found")
+    recipe = match.group(0)
+    count = recipe.count(old)
+    if count != 1:
+        raise ValueError(
+            f"{old!r} matched {count} times in cfg_{name}, want 1")
+    mutated = recipe.replace(old, new)
+    return text[:match.start()] + mutated + text[match.end():]
 
 
 def run_static(sweep_path=SWEEP, quiet=False):
@@ -446,8 +526,97 @@ def main():
                   + ", ".join(f"{m}/cfg_{n}/{k}" for m, n, k in missed),
                   file=sys.stderr)
             return 2
-        print("  [self-test] OK: xlen and cpu_count rejected on "
+        print("  [self-test] OK: --xlen and --cpu-count rejected on "
               f"{len(BUILD_CFGS)} build.sh recipes, absent and swapped")
+
+        # Negative controls for the named-build branch. These span the seven
+        # #155 repairs and the config-artifact binding. CPU absence/value
+        # mutations are covered above. Each edit starts from the pristine
+        # recipe so one mismatch cannot mask another.
+        build_mutations = [
+            ("cfg_ax8x8 loses its explicit Ethernet port",
+             "ax8x8", "--eth-port e1", "", "design flag --eth-port:"),
+            ("cfg_ax8x8 falls back to the playback-ring default",
+             "ax8x8", "--aaf-playback-streams 1", "",
+             "design flag --aaf-playback-streams:"),
+            ("cfg_ax8x8 stops spending the datapath-probe prune",
+             "ax8x8", "--no-datapath-probes", "",
+             "design flag --no-datapath-probes:"),
+            ("cfg_ax8x8 restores the class-B CBS instance",
+             "ax8x8", "--cbs-queues-mask 0x10",
+             "--cbs-queues-mask 0x18", "design flag --cbs-queues-mask:"),
+            ("cfg_ax8x8 adds an RV64-era prefetch Scala word",
+             "ax8x8", "--scala-args=--l2-general-slots=8",
+             "--scala-args=--l2-general-slots=8 "
+             "--scala-args=--lsu-hardware-prefetch=rpt",
+             "design flag --scala-args:"),
+            ("cfg_arty loses its class-A CBS mask",
+             "arty", "--cbs-queues-mask 0x10", "",
+             "design flag --cbs-queues-mask:"),
+            ("cfg_arty restores an RV64-era Scala slot count",
+             "arty", "--scala-args=--l2-general-slots=8",
+             "--scala-args=--l2-general-slots=16",
+             "design flag --scala-args:"),
+            ("cfg_arty loses its generated entity directory",
+             "arty", "--entity-gen-dir "
+             "$SOC_DIR/../../configs/generated/endstation_arty_current", "",
+             "no --entity-gen-dir"),
+            ("cfg_ax8x8 points at another config's generated artifacts",
+             "ax8x8", "configs/generated/endstation_ax7101_8x8",
+             "configs/generated/endstation_ax7101_1x1_tdm8",
+             "--entity-gen-dir names"),
+        ]
+        btxt = open(BUILD).read()
+        for why, name, old, new, expected in build_mutations:
+            try:
+                mutated = mutate_build_recipe(btxt, name, old, new)
+            except ValueError as exc:
+                print(f"self-test: {exc}", file=sys.stderr)
+                return 2
+            with tempfile.NamedTemporaryFile("w", suffix=".sh",
+                                             delete=False) as f:
+                f.write(mutated)
+                tmp = f.name
+            try:
+                print(f"  [self-test] {why} - expecting REJECT:")
+                bad_mut = check_build_sh(tmp, quiet=True)
+            finally:
+                os.unlink(tmp)
+            if not any(expected in drift for drift in bad_mut):
+                print(f"self-test FAILED: {why} did not report {expected!r}",
+                      file=sys.stderr)
+                return 2
+            print(f"  [self-test] OK: {len(bad_mut)} drift(s) reported")
+
+        # A newly added cfg_* function must not escape grading merely because
+        # BUILD_CFGS was not extended with its declarative config.
+        unbound_recipe = (
+            "cfg_unbound_selftest() {\n"
+            "    echo \"--board arty --cpu vexiiriscv --cpu-count 1 "
+            "--xlen 32\"\n"
+            "}\n\n")
+        mutated, count = re.subn(r"^(SWEEP_DIRECTIVES=)",
+                                  unbound_recipe + r"\1", btxt,
+                                  count=1, flags=re.M)
+        if count != 1:
+            print("self-test: SWEEP_DIRECTIVES anchor not found in build.sh",
+                  file=sys.stderr)
+            return 2
+        with tempfile.NamedTemporaryFile("w", suffix=".sh",
+                                         delete=False) as f:
+            f.write(mutated)
+            tmp = f.name
+        try:
+            print("  [self-test] unbound cfg_* recipe - expecting REJECT:")
+            bad_mut = check_build_sh(tmp, quiet=True)
+        finally:
+            os.unlink(tmp)
+        if not any("cfg_unbound_selftest has no config binding" in drift
+                   for drift in bad_mut):
+            print("self-test FAILED: unbound cfg_* recipe was accepted",
+                  file=sys.stderr)
+            return 2
+        print("  [self-test] OK: unbound cfg_* recipe rejected")
     return 0
 
 

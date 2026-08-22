@@ -21,7 +21,7 @@ The shipping software-profile claims are checked against the
 
 - **[0. The pipeline, and where it can refuse you](#0-the-pipeline-and-where-it-can-refuse-you)** -- What runs between `build.sh` and a shippable bitstream, and the asymmetry that is the whole point: **only the shape gate is automatic**. Timing, area and the silicon checklist are all read by hand, so a build can pass timing and area and still not be ship-cleared.
 - **[1. Usage](#1-usage)** -- The invocation table -- both boards in parallel, the place sweep, `TAG=`, argument passthrough, `--dry-run`, and the `flash` verb. Plus where outputs land and the one-liner that tells you which Vivado phase a detached build is in.
-- **[2. The named configurations](#2-the-named-configurations)** -- What each `cfg_*` recipe actually pins: part and speedgrade, DRAM, flash, and why `ax8x8` drops to one RX queue and 16 KB L2 to close. Read the `--eth-port` sub-section before flashing an AX -- a bitstream is built for **one** port, a mismatch leaves the board with no network, and the recipe is verified by grepping the port back out of the build log rather than trusted.
+- **[2. The named configurations](#2-the-named-configurations)** -- What each `cfg_*` recipe actually pins: part and speedgrade, DRAM, flash, RX queues, and cache shape. Read the `--eth-port` sub-section before flashing an AX -- a bitstream is built for **one** port, a mismatch leaves the board with no network, and the recipe is verified by grepping the port back out of the build log rather than trusted.
 - **[3. The launch discipline (why the script is not just a for-loop)](#3-the-launch-discipline-why-the-script-is-not-just-a-for-loop)** -- Five rules, each paid for: Vivado *errors* above 32 threads, three concurrent builds maximum, a 90 s stagger because concurrent elaborations race on `.git/index.lock`, and detached process groups because a bulk task-kill once reaped four running builds mid-route. Section 3.1 adds the shape gate and the three separate times this class of drift reached silicon.
 - **[4. After the build: load + console, per board](#4-after-the-build-load--console-per-board)** -- Per-board JTAG and console invocations (select by serial -- `ttyUSB` numbers renumber on any replug), the v3 flash layout with the bitstream at offset 0, and the retired warning about the old kernel-at-offset-0 map. `hostplane_smoke.sh` is mandatory after every flash.
 - **[5. Gates before a build is "good"](#5-gates-before-a-build-is-good)** -- The three gates with their thresholds, including two hard-won caveats: keep AX margin above +0.03 because QSPI flashboot corrupted below it, and OOC-synth a module before believing its hierarchical utilization line.
@@ -121,17 +121,15 @@ three-directive placement sweep. See
 
 Same board, but deliberately retains the Linux bring-up flow, cached Vexii
 CPU, ALSA sound-card rings and full Linux flash manifest. It uses
-`--num-streams 8`,
-`--rx-queues 1` (drops the RX1 DMA RSC/TCP-coalescing engine  -  pure
-Linux-throughput logic the audio path never touches  -  which removed the
-sys_clk critical path AND freed ~3 pct LUT), `--l2-bytes 16384`, place
-directive AltSpreadLogic_high. Closed 2026-07-24: WNS +0.080, LUT 85.15 pct,
-TNS 0, all seeds close (measured record in the `cfg_ax8x8` comment in
-`build.sh`). The CPU is the RV32 single-hart VexiiRiscv every other artifact
-of this shape describes: since 2026-08-22 (#157) the recipe states
-`--xlen 32 --cpu-count 1`, so the 2026-07-24 figures, measured on the RV64
-core the recipe implied until then, are an upper bound rather than this
-recipe's own.
+`--num-streams 8`, `--rx-queues 2`, `--l2-bytes 16384`, and place directive
+AltSpreadLogic_high. The second RX queue is required because a one-queue build
+has no flow-steer block; under bulk traffic, ptp4l then shares the bulk ring and
+the GM can be deposed. The 2026-07-24 close (WNS +0.080, LUT 85.15 pct, TNS 0)
+used one RX queue plus the old RV64 CPU and RV64-era refill/prefetch cache
+profile, so those figures are only a historical upper bound, not a result for
+the current recipe. The CPU is the RV32 single-hart VexiiRiscv every other
+artifact of this shape describes: since 2026-08-22 (#157) the recipe states
+`--xlen 32 --cpu-count 1`.
 
 #### Choosing the Ethernet port (`--eth-port`)
 
@@ -143,7 +141,7 @@ other variant over JTAG.
 | | |
 |---|---|
 | default | **`e1`** (`milan_soc.py --eth-port`, `choices=[e1, e2]`) |
-| `build.sh cfg_ax8x8` / `cfg_ax7101` | inherit the default → **e1** |
+| `build.sh cfg_ax8x8` / `cfg_ax7101` | pin `--eth-port e1` explicitly |
 | `sweep.sh ax7101` | pins it explicitly in that board's `OPTS` line |
 | bench cable (2026-07-27) | **e1** |
 
@@ -162,8 +160,14 @@ recorded in the build itself:
 
 ```sh
 grep -m1 -oE 'milan_soc\.py.*' <build>/litex.log | grep -o '\-\-eth-port [a-z0-9]*'
-# no match  =>  built with the e1 default
+# no match  =>  no explicit port was recorded; verify the producing recipe
 ```
+
+`scripts/check_sweep_shape.py` compares every design flag in each named
+`build.sh` recipe with the arguments implied by its end-station config,
+including the explicitly stated `--xlen` and `--cpu-count`. There are no active
+`PINNED` exceptions: every disagreement, missing config binding, or mismatched
+generated-entity directory fails the gate.
 
 `e2` exists as the fallback for the 2026-07-22 **e1 GMII-RX hardware fault**
 (cold-soak-proven). If that fault resurfaces, **move the cable first, then
