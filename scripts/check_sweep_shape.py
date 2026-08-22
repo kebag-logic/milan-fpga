@@ -14,6 +14,10 @@ invisible until silicon:
   * 2026-07-26 (this gate): sweep.sh passed NO `--num-streams` AT ALL, so
     `sweep.sh ax7101` built the DEFAULT 1x1 datapath while the config, the docs
     and the build directories all called it 8x8.
+  * 2026-08-22 (#157): build.sh's Linux recipes passed NO `--xlen` AT ALL,
+    and milan_soc.py defaults it to 64 where the builder defaults it to 32,
+    so `build.sh cfg_ax8x8` and `cfg_arty` elaborated an RV64 core under
+    configs, a sweep table and a boot chain that are all RV32 single-hart.
 
 Same shape both times: a build knob that lives in the declarative end-station
 config, is NOT carried by the script that builds, and silently defaults.  This
@@ -67,6 +71,20 @@ PINNED = {
     # at 16384. Keep this dict as the place to record a DELIBERATE, dated
     # divergence rather than letting one go untracked.
 }
+
+# CPU WIDTH AND HART COUNT (2026-08-22, #157). The two entry points default
+# this one decision opposite ways: milan_soc.py --xlen defaults to 64, and
+# only its baremetal profile refuses anything else, while the builder's
+# SOC_DEFAULTS says 32 and one hart. A build.sh recipe that omitted --xlen
+# therefore elaborated an RV64 core under an RV32 config and an RV32 boot
+# chain, and the symptom of that is a board that prints a BIOS banner and
+# hangs at Liftoff with nothing naming the cause (8b5d0255, 2026-08-05). So
+# for these two flags an ABSENT flag is drift, not a default: the recipe must
+# state the value and it must equal what emit_soc_argv derives for the
+# config. Flag -> the key the drift report (and a PINNED entry) uses.
+# Deliberately NOT the whole flag-for-flag comparison the sweep.sh branch
+# makes: that widening, and the eight other divergences it surfaces, is #155.
+CPU_FLAGS = {"--xlen": "xlen", "--cpu-count": "cpu_count"}
 
 
 def _yaml():
@@ -244,9 +262,11 @@ def parse_build_sh(path=BUILD):
     return out
 
 
-def check_build_sh(path=BUILD):
+def check_build_sh(path=BUILD, quiet=False):
     """build.sh recipe vs the end-station config it builds. Divergences listed
-    in PINNED are accepted (and re-verified); anything else is drift."""
+    in PINNED are accepted (and re-verified); anything else is drift. `quiet`
+    drops the per-key agreement lines (the self-test's mutated copies have
+    nothing worth printing on the keys they left alone)."""
     recipes = parse_build_sh(path)
     bad = []
     for name, cfg_path in sorted(BUILD_CFGS.items()):
@@ -261,6 +281,14 @@ def check_build_sh(path=BUILD):
                "render_lpf":  "--no-render-lpf" not in f}
         want = {"num_streams": c_ns, "rx_queues": c_rxq, "l2_bytes": c_l2,
                 "render_lpf": c_lpf}
+        # The CPU keys: the config side is what the builder EMITS for this
+        # config, never a value restated here, and the recipe side is the
+        # token as written - "(absent)" when it is not, which equals no
+        # emitted value, so an omission is reported as the drift it is.
+        implied = parse_flags(design_opts_expected(cfg_path))
+        for flag, k in CPU_FLAGS.items():
+            got[k] = f.get(flag, "(absent)")
+            want[k] = implied.get(flag, "(absent)")
         for k in sorted(got):
             pin = PINNED.get(("build.sh", name, k))
             if pin is not None:
@@ -276,12 +304,57 @@ def check_build_sh(path=BUILD):
             elif got[k] != want[k]:
                 msg = (f"cfg_{name}: {k} {got[k]} != "
                        f"{os.path.basename(cfg_path)} {want[k]}")
+                if k in CPU_FLAGS.values():
+                    msg += (" - a CPU key must be STATED and equal: absent, "
+                            "the flag inherits milan_soc.py's default, which "
+                            "is not the builder's (#157)")
                 print("SHAPE DRIFT: " + msg, file=sys.stderr)
                 bad.append(msg)
-            else:
+            elif not quiet:
                 print(f"  [sweep-shape] build.sh cfg_{name}: {k} {got[k]} "
                       f"== {os.path.basename(cfg_path)}")
     return bad
+
+
+def self_test_build_sh(path=BUILD):
+    """Negative controls for the build.sh CPU keys (#157).
+
+    Two mutated copies of build.sh: the REAL defect replayed - every
+    `--xlen N` and `--cpu-count N` stripped, so each recipe would inherit
+    milan_soc.py's defaults - and its value-swapped cousin (xlen flipped
+    between 32 and 64, one more hart). Each must be rejected on BOTH CPU keys
+    of BOTH recipes, or a key is vacuous. Returns the (mutation, cfg, key)
+    triples the gate FAILED to reject; empty means every key bit."""
+    txt = open(path).read()
+    mutations = {
+        "absent": re.sub(r"--(?:xlen|cpu-count) \d+ ?", "", txt),
+        "swapped": re.sub(
+            r"--cpu-count (\d+)",
+            lambda m: f"--cpu-count {int(m.group(1)) + 1}",
+            re.sub(r"--xlen (\d+)",
+                   lambda m: f"--xlen {32 if m.group(1) == '64' else 64}",
+                   txt)),
+    }
+    missed = []
+    for label, mut in mutations.items():
+        if mut == txt:
+            sys.exit("self-test: could not mutate the CPU flags in build.sh "
+                     f"({label})")
+        with tempfile.NamedTemporaryFile("w", suffix=".sh", delete=False) as f:
+            f.write(mut)
+            tmp = f.name
+        try:
+            print(f"  [self-test] build.sh --xlen/--cpu-count {label} - "
+                  "expecting REJECT on both keys of every recipe:")
+            bad = check_build_sh(tmp, quiet=True)
+        finally:
+            os.unlink(tmp)
+        for name in BUILD_CFGS:
+            for k in CPU_FLAGS.values():
+                if not any(re.match(rf"cfg_{name}: (PINNED divergence on )?{k} ",
+                                    b) for b in bad):
+                    missed.append((label, name, k))
+    return missed
 
 
 def run_static(sweep_path=SWEEP, quiet=False):
@@ -367,6 +440,14 @@ def main():
             return 2
         print(f"  [self-test] OK: {len(bad_mut)} drift(s) reported for the "
               "mutated sweep.sh")
+        missed = self_test_build_sh()
+        if missed:
+            print("self-test FAILED: build.sh CPU-flag mutations accepted on "
+                  + ", ".join(f"{m}/cfg_{n}/{k}" for m, n, k in missed),
+                  file=sys.stderr)
+            return 2
+        print("  [self-test] OK: xlen and cpu_count rejected on "
+              f"{len(BUILD_CFGS)} build.sh recipes, absent and swapped")
     return 0
 
 

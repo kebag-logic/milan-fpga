@@ -158,7 +158,15 @@ cfg_ax8x8() {    # 8-stream (64ch) shape. History: the 07-24 close used
                  # a dedicated sweep read port in the then-current ACMP listener
                  # context (deleted 2026-08-13 with the legacy plane). Result
                  # 2026-07-24: WNS +0.080, LUT 85.15%, TNS 0 (all seeds close).
-    echo "--board ax7101 --cpu vexiiriscv --cpu-count 1 --software-profile linux \
+    # 2026-08-22 (#157): --xlen 32 is STATED. This recipe carried no --xlen
+    # from its creation (8a98d265, 07-24) and milan_soc.py defaults to 64, so
+    # it implied an RV64 core while the 8x8 config, SOC_DEFAULTS, sweep.sh and
+    # the deployed 0x00010022 gateware (x32f1_eto, a sweep build: this recipe
+    # has never produced a bitstream) are all RV32 single-hart. An RV64 SoC
+    # under the RV32 boot chain hangs at Liftoff with nothing naming the
+    # cause (8b5d0255). The 07-24 close above was measured on that RV64 core,
+    # so it is an upper bound for this recipe, not its figure.
+    echo "--board ax7101 --cpu vexiiriscv --cpu-count 1 --xlen 32 --software-profile linux \
           --all-blocks --coherent-dma --sound-card \
           --milan-clk-freq 100e6 --with-spiflash --flashboot full --gtx-tx-invert \
           --timing-opt --floorplan --l2-bytes 16384 \
@@ -199,7 +207,15 @@ cfg_arty() {     # Arty A7-100 small endstation: MII 100M, QSPI flashboot (probe
     # Flash = bitstream@0 + the full-manifest Linux images (QSPI self-boot on
     # both boards; the old kernel-at-0 / JTAG-SRAM-only layout died with the
     # manifest-full port - see board_facts above + docs/integration/QSPI_FLASHBOOT.md).
-    echo "--board arty --cpu vexiiriscv --cpu-count 2 --software-profile linux \
+    # 2026-08-22 (#157): --cpu-count 1 --xlen 32 are STATED, matching
+    # configs/endstation_arty_current.yaml, the sweep.sh arty leg and
+    # configs/generated/sweep_opts_arty.sh. The 2-hart count dated from the
+    # launcher's first commit (207192cc) and never matched a deployed Arty
+    # bitstream (the m0019 ship was one hart); the absent --xlen implied RV64
+    # through milan_soc.py's default. The Arty is a retired DUT
+    # (docs/findings/BENCH_TOPOLOGY.md), so this recipe is proven to reach
+    # the Instance (test_builder gate 23g), not built.
+    echo "--board arty --cpu vexiiriscv --cpu-count 1 --xlen 32 --software-profile linux \
           --all-blocks --coherent-dma --sound-card \
           --sys-clk-freq 83.333e6 --milan-clk-freq 50e6 --with-spiflash --flashboot full \
           --uart-baudrate 115200 --timing-opt --strip-probes --l2-bytes 65536 \
