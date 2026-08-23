@@ -66,7 +66,7 @@ def require_ptp_models(rep):
 # state_dump() word order — must match cosim_ptp.cpp (APPEND ONLY)
 (S_FLAGS, S_GM_HI, S_GM_LO, S_PAR_HI, S_PAR_LO, S_PDELAY, S_OFFSET,
  S_TAPDROP, S_RXDROP, S_PHC_HI, S_PHC_LO, S_TXCNT, S_TXTSSEQ, S_TXTSCNT,
- S_PDEXP) = range(15)
+ S_PDEXP, S_PROGRUN) = range(16)
 
 FL_PRESENT, FL_AMGM, FL_ASCAP, FL_SYNCOK = 1, 2, 4, 8
 
@@ -566,6 +566,14 @@ class Campaign:
                                 % (kind, field, v),
                                 after[S_RXDROP], before[S_RXDROP] + 1)
                     self.stable("%s %s=%d" % (kind, field, v), before, after)
+        # NOTE on quoting numbers about this group, learned the hard way
+        # twice: a mutation figure is "campaign total minus what failed", so
+        # ANY check added anywhere in this file re-prices every PASS count
+        # quoted about any mutation, in the README, in a PR body or here,
+        # while only a check added to THIS group moves its FAIL counts. A
+        # sixth Pdelay_Req probe in another section is enough. Re-measure
+        # before quoting, and prefer the fail side in anything committed.
+        #
         # unknown message types with a full header: refused, counted, and
         # -- the half that matters -- SILENT. Both properties are graded
         # because the two are independent: between the #11 rework and
@@ -584,6 +592,7 @@ class Campaign:
         # drew one Pdelay_Req in that block against zero for the
         # un-injected control, and twenty drew ten (802.1AS-2011 11.5.2.2
         # and Figure 11-8 leave the interval timer the only exit).
+        attempts = []
         for mt in (0x1, 0x4, 0x5, 0x6, 0x7, 0x9, 0xD, 0xE, 0xF):
             # Up to four attempts, and the ATTEMPT REPORTED is the first
             # one that either passes or fails for the reason this probe
@@ -604,7 +613,7 @@ class Campaign:
             # -- pass by rerolling, with a log byte-identical to a clean
             # run because passing checks are not printed.
             quiet, drawn, tries = False, None, 0
-            for tries in range(1, 5):
+            for tries in range(1, 5):    # attempts, reported below
                 quiet = self.quiet_window()
                 before = self.state()
                 mark = len(self.txq)
@@ -617,8 +626,23 @@ class Campaign:
                     break                 # not refused: this attempt IS it
                 if quiet and drawn == 0:
                     break
+            attempts.append((mt, tries))
             self.rep.ck("unknown type 0x%X: a quiet window precedes it" % mt,
                         quiet, "%d attempt(s)" % tries)
+            # The re-roll above is safe only because a frame the parser
+            # REFUSED cannot also have dispatched: that is what lets a
+            # non-empty window with an advanced drop counter be blamed on
+            # the plane's own cadence. Assert it rather than trust it. The
+            # engine brings `dbg_busy_o` out of the slice and the bench
+            # wrapper counts its rising edges, so "did anything run?" is a
+            # question about the window, not about an instant: a refused
+            # frame must leave the uCPU program count exactly where it was.
+            # Without this, a donor change that both counted AND dispatched
+            # would put every attempt on the benign path and the re-roll
+            # would hide it -- the same hiding the attempt-discarding loop
+            # was fixed for in #210's second review round.
+            self.rep.eq("unknown message type 0x%X: ran no program" % mt,
+                        after[S_PROGRUN], before[S_PROGRUN])
             self.rep.eq("unknown message type 0x%X: dropped and counted"
                         % mt, after[S_RXDROP], before[S_RXDROP] + 1)
             self.rep.eq("unknown message type 0x%X: draws no transmission "
@@ -632,6 +656,16 @@ class Campaign:
                         after[S_OFFSET], before[S_OFFSET])
             self.rep.eq("unknown message type 0x%X: peer delay unmoved"
                         % mt, after[S_PDELAY], before[S_PDELAY])
+        # The attempt counts belong in the log even when everything passes:
+        # `rep.ck`'s detail is printed on failure only, so a run that needed
+        # four windows per type would otherwise read exactly like one that
+        # needed one, and a rising collision rate (a changed cadence, a
+        # different block size) would be invisible until the day it runs out
+        # of retries.
+        self.rep.note("unlisted-type windows: %s (%d re-roll(s) over %d "
+                      "types)"
+                      % (" ".join("0x%X:%d" % a for a in attempts),
+                         sum(t - 1 for _, t in attempts), len(attempts)))
         # classify negatives: never enter, never cost a drop
         for label, frame in (
                 ("AVTP ethertype", wire.ptp_sync(sequence_id=1,
@@ -652,14 +686,19 @@ class Campaign:
         self.rep.eq("15-byte gPTP runt: parser drop counted",
                     after[S_RXDROP], before[S_RXDROP] + 1)
         # truncation at the per-type minimum boundary (parser min_len map).
-        # The boundary is the LEGAL frame: the 14-byte Ethernet header
-        # (11.4.1 NOTE) plus the message of 802.1AS-2011 Table 11-8 (Sync 44)
-        # and Table 10-7 (Announce 64), and for the Follow_Up the 76 octets
-        # of Table 11-9, whose Follow_Up information TLV is a FIELD of the
+        # The boundary is the LEGAL frame: the Ethernet header the bench
+        # puts in front of the PTP message, 14 bytes of DA, SA and
+        # EtherType (the 11.4.1 NOTE counts 18 for header AND FCS, and no
+        # FCS reaches this DUT), plus the message of 802.1AS-2011
+        # Table 11-8 (Sync 44)
+        # and Table 10-7 (Announce 64), for the Follow_Up the 76 octets of
+        # Table 11-9, whose Follow_Up information TLV is a FIELD of the
         # message and not a suffix (11.4.4.2.2, 11.4.4.3): 90 bytes since
-        # FPGA-gPTP #11, where the donor enforced it
+        # FPGA-gPTP #11, and for the Pdelay_Req the 54 octets of Table
+        # 11-11, whose two ten-octet reserved fields are message fields
+        # like any other: 68 bytes since FPGA-gPTP #12
         for kind, min_frame in (("sync", 58), ("follow_up", 90),
-                                ("announce", 78), ("pdelay_req", 48)):
+                                ("announce", 78), ("pdelay_req", 68)):
             f = good[kind]()
             before = self.state()
             after = self.send(f[:min_frame - 1])
@@ -747,6 +786,73 @@ class Campaign:
         bad = [f for f in self.tx_of_type(wire.PTP_PDELAY_RESP)
                if wire.PtpMsg(f).sequence_id == 0x4398]
         self.rep.eq("a domain-5 request draws no response", len(bad), 0)
+
+        # 802.1AS-2011 Table 11-11 gives the Pdelay_Req 54 octets: the
+        # 34-octet header and TWO ten-octet reserved fields (IEEE 1588-2008
+        # 13.9 pads the request to the response's length so the timestamps
+        # traverse identical paths). Three shapes, one per way of falling
+        # short, refused at the parser ahead of the responder so none draws
+        # the Pdelay_Resp + Resp_Follow_Up pair that would put our t2 and
+        # t3 on the wire (FPGA-gPTP #12): the issue's header-only request
+        # (48 bytes, declaring an honest 34, refused by both the byte-count
+        # gate and the declared bound); one declaring the true 54 but cut
+        # at 67 bytes (the byte-count gate alone); and one physically
+        # complete at 68 bytes that LIES, declaring 34 (the declared bound
+        # alone -- without it the first two shapes leave that arm
+        # untested, since neither is a messageLength inconsistency).
+        for label, seq, frame in (
+                ("header-only Pdelay_Req (48 B)", 0x4396,
+                 wire.ptp_pdelay_req(
+                     sequence_id=0x4396, body_octets=0,
+                     source_clock_identity=PEER2_CID,
+                     src=wire.GPTP_PEER2_MAC)),
+                ("Pdelay_Req declaring 54 cut at 67 B", 0x4397,
+                 wire.ptp_pdelay_req(
+                     sequence_id=0x4397,
+                     source_clock_identity=PEER2_CID,
+                     src=wire.GPTP_PEER2_MAC)[:67]),
+                # the DECLARED arm on its own: all 68 bytes are present and
+                # only messageLength lies, so the byte-count gate cannot
+                # refuse this one and the header arm at octets 2..3 is the
+                # only thing that can. 34 is the header-only length the
+                # issue's shape declared honestly; here it is a lie
+                ("complete Pdelay_Req declaring messageLength 34", 0x4394,
+                 wire.ptp_pdelay_req(
+                     sequence_id=0x4394, message_length=34,
+                     source_clock_identity=PEER2_CID,
+                     src=wire.GPTP_PEER2_MAC))):
+            self.drain_tx()
+            before = self.state()
+            after = self.send(frame)
+            self.rep.eq("%s: dropped and counted" % label,
+                        after[S_RXDROP], before[S_RXDROP] + 1)
+            self.stable(label, before, after)
+            self.tick(20)
+            self.rep.eq("%s: no Pdelay_Resp" % label,
+                        len([f for f in self.tx_of_type(wire.PTP_PDELAY_RESP)
+                             if wire.PtpMsg(f).sequence_id == seq]), 0)
+            self.rep.eq("%s: no Pdelay_Resp_Follow_Up" % label,
+                        len([f for f in
+                             self.tx_of_type(wire.PTP_PDELAY_RESP_FU)
+                             if wire.PtpMsg(f).sequence_id == seq]), 0)
+        # neither refusal poisons the responder: the complete 54-octet
+        # request right after them is answered with its own sequence
+        self.drain_tx()
+        good_seq = 0x4395
+        self.send(wire.ptp_pdelay_req(sequence_id=good_seq,
+                                      source_clock_identity=PEER2_CID,
+                                      source_port_number=2,
+                                      src=wire.GPTP_PEER2_MAC))
+        resp = self.wait_tx(wire.PTP_PDELAY_RESP, SECOND)
+        self.rep.ck("a complete request after the refusals is answered",
+                    resp is not None and
+                    wire.PtpMsg(resp).sequence_id == good_seq,
+                    "seq=%s" % (resp and wire.PtpMsg(resp).sequence_id))
+        rfu = self.wait_tx(wire.PTP_PDELAY_RESP_FU, SECOND)
+        self.rep.ck("its Resp_Follow_Up pairs it",
+                    rfu is not None and
+                    wire.PtpMsg(rfu).sequence_id == good_seq,
+                    "seq=%s" % (rfu and wire.PtpMsg(rfu).sequence_id))
 
         # a Pdelay_Resp_Follow_Up matching NO outstanding exchange must be
         # ignored (11.2.15.3): requestingPortIdentity is qualified, but the

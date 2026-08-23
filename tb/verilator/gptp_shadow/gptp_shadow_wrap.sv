@@ -58,9 +58,17 @@ module gptp_shadow_wrap #(
     output wire        dbg_tspush_v_o,
     output wire [63:0] dbg_tspush_o,
     output wire        dbg_tspop_v_o,
-    output wire [15:0] dbg_txts_seq_o
+    output wire [15:0] dbg_txts_seq_o,
+    //! how many times the engine's uCPU has STARTED a program. The engine
+    //! brings `dbg_busy_o` out of the slice already; this wrapper counts
+    //! its rising edges so a bench can ask "did anything dispatch?" of a
+    //! window rather than of an instant. A frame the parser refuses must
+    //! never move this: the refusal and the dispatch are exclusive, which
+    //! is the invariant the tsn_fuzz unlisted-messageType probe rests on
+    output wire [15:0] dbg_prog_run_o
 );
 
+  logic               busy_w;
   logic signed [31:0] adj_w;
   logic               step_we_w;
   logic [63:0]        step_w;
@@ -124,7 +132,7 @@ module gptp_shadow_wrap #(
       .dbg_tap_drop_o  (dbg_tap_drop_o),
       .dbg_rx_drop_o   (dbg_rx_drop_o),
       .dbg_ev_drop_o   (),
-      .dbg_busy_o      (),
+      .dbg_busy_o      (busy_w),
       .dbg_rx_ts_o     (dbg_rx_ts_o),
       .dbg_tspush_v_o  (dbg_tspush_v_o),
       .dbg_tspush_o    (dbg_tspush_o),
@@ -150,6 +158,20 @@ module gptp_shadow_wrap #(
   assign dbg_txts_o    = tsn_w;
   assign dbg_txts_v_o  = tsv_w;
   assign dbg_txts_seq_o = tsq_w;
+
+  //! program-start counter: one per rising edge of the engine's busy line
+  logic        busy_r;
+  logic [15:0] prog_run_r;
+  always_ff @(posedge clk_i) begin : prog_run
+    if (!rst_n) begin
+      busy_r     <= 1'b0;
+      prog_run_r <= '0;
+    end else begin
+      busy_r <= busy_w;
+      if (busy_w && !busy_r) prog_run_r <= prog_run_r + 16'd1;
+    end
+  end
+  assign dbg_prog_run_o = prog_run_r;
 
 endmodule : gptp_shadow_wrap
 `default_nettype wire

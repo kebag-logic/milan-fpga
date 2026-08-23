@@ -171,6 +171,7 @@ static std::vector<uint8_t> state_dump() {
         static_cast<uint32_t>(last_txts_seq),
         txts_cnt,
         static_cast<uint32_t>(pd_expect),
+        static_cast<uint32_t>(dut->dbg_prog_run_o),
     });
 }
 
