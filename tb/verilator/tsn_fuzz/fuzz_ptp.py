@@ -510,12 +510,14 @@ class Campaign:
         sync = self.wait_tx(wire.PTP_SYNC, 2 * SECOND)
         if self.rep.ck("Sync transmitted", sync is not None):
             sm = wire.PtpMsg(sync)
-            # control 0x0 (Table 11-7) is an ordinary graded field since the
-            # donor's per-message TX control byte (FPGA-gPTP #9); the zero
-            # reserved body (Table 11-8) is still a transmit-only
-            # nonconformance tracked in the donor repo
-            self.grade_tx(models["sync"], sync, "tx_sync",
-                          gaps={"origin_timestamp": 10})
+            # control 0x0 (Table 11-7) and the ten reserved bytes of a
+            # two-step Sync (Table 11-8, all zero) are ordinary graded
+            # fields: the donor's per-message TX control byte (FPGA-gPTP
+            # #9) and its zeroed Sync body (FPGA-gPTP #10, #137). The model
+            # grades origin_timestamp as the 80-bit zero body; the live
+            # egress time is graded on the paired Follow_Up below, so
+            # zeroing the Sync cannot hide a dead timestamp path
+            self.grade_tx(models["sync"], sync, "tx_sync")
             self.rep.eq("tx_sync source identity", sm.source_clock_identity,
                         OUR_CID)
             fu = self.wait_tx(wire.PTP_FOLLOW_UP, SECOND)

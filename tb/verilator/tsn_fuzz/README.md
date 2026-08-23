@@ -80,13 +80,16 @@ COMPLETED exchange, identical and t3-skewed, are refused too. Each of
 the three compares is pinned by a planted narrowing that the campaign
 catches by name, which is why the probes arm against the plane's own
 sequenceId rather than the bench's injected-request counter: on the
-counter every one of them passes with the compares deleted. The #10 allowance
-is still in the file and no longer fires at this pin: #137 turns it
-into an ordinary assertion. The two FPGA-gPTP #6 domainNumber gaps
+counter every one of them passes with the compares deleted. The
+FPGA-gPTP #10 allowance is gone as well: since #137 the ten reserved
+bytes of a two-step Sync (Table 11-8) are graded as an ordinary field,
+with the live egress time asserted on the paired Follow_Up, so no gap
+marker remains in the file. The two FPGA-gPTP #6 domainNumber gaps
 closed with the donor's parser drop arm and the two FPGA-gPTP #9
 control-byte gaps with its per-message TX control field, and all four
 are ordinary assertions now. A gap fires only on the mismatch, so each
-turns green on its own when the donor closes the issue.
+turns green on its own when the donor closes the issue; the machinery
+stays for the next tracked donor defect.
 
 Current tally -- **164 AAF checks + 582 gPTP checks + 2 traceability
 contracts**, 0 failures, 0 known gaps, with `tsn-gen` installed. This is what
