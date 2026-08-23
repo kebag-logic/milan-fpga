@@ -35,7 +35,7 @@ served on the wire while still having a known behavioral defect.
 | `notifications.controller-liveness` | `missing` | - |
 | `soc.baremetal-profile` | `implemented` | - |
 | `host.sound-card-option` | `implemented` | - |
-| `verification.long-gate-policy` | `implemented` | `local-required, remote-optional` |
+| `verification.long-gate-policy` | `implemented` | `local-required, remote-required` |
 <!-- milan-feature-status:end -->
 
 ## Exact command inventories

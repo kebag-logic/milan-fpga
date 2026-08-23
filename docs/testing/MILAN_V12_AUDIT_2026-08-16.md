@@ -41,7 +41,7 @@ Machine-checked status rows are defined by the
 | `state.nonvolatile-persistence` | `missing` | - |
 | `notifications.change-events` | `partial` | - |
 | `notifications.controller-liveness` | `missing` | - |
-| `verification.long-gate-policy` | `implemented` | `local-required, remote-optional` |
+| `verification.long-gate-policy` | `implemented` | `local-required, remote-required` |
 <!-- milan-feature-status:end -->
 
 ## Current verification record
@@ -68,8 +68,8 @@ The official controller decoder result is reproducible from the tracked DUT
 capture without relying on the audit prose. Run:
 
 The full local Verilator and Yosys portability sweeps are required validation
-evidence. Their long remote copies are optional and need not delay review after
-the local equivalents pass.
+evidence. The `dev merge bar` ruleset separately requires their stable remote
+aggregate contexts, so neither result substitutes for the other.
 
 ```console
 scripts/verify_la_avdecc_counters.sh

@@ -12,6 +12,7 @@ reduce the local verification bar in [CONTRIBUTING.md](../../CONTRIBUTING.md).
 - **[One authoritative SHA](#one-authoritative-sha)** -- How every job of a run is pinned to one tree, what the workers record, what the aggregates refuse, and the gate that holds the files to this page.
 - **[Elaboration](#elaboration)** -- The one job that installs LiteX and observes what elaboration hands the datapath Instance, and what makes it red.
 - **[Pull-request state](#pull-request-state)** -- How draft and ready states control hosted long jobs without changing local responsibilities.
+- **[Protected merge bar](#protected-merge-bar)** -- The active `dev` ruleset, its seven exact required contexts, and why its update policy is loose.
 - **[Issue closing on merge](#issue-closing-on-merge)** -- What `Closes #N` does now that `dev` is the default branch, and what still waits for containment.
 - **[Local commands](#local-commands)** -- The serial commands that remain the authoritative developer-side gates.
 - **[Failure and cancellation semantics](#failure-and-cancellation-semantics)** -- How missing artifacts, superseded commits, and resumed work are handled.
@@ -62,7 +63,9 @@ the default was `main`, which carried neither trigger, and no scheduled or
 dispatched run had ever occurred; the first scheduled run is recorded on #174.
 
 The workflow keeps the public aggregate names `verilator-suites` and
-`yosys-portability`.
+`yosys-portability`. Both are required contexts on `dev`: an RTL/tooling-
+relevant PR must run them successfully, while a docs-only PR emits them as
+explicit successful skipped results.
 
 Verilator runs the complete suite inventory on four workers. The aggregate
 rejects missing, unexpected, or duplicate suite logs before it trusts the
@@ -218,8 +221,8 @@ to the trigger contract above: no `actions/checkout` step in `rtl.yml`
 overrides `ref`, every job that uploads an artifact records the SHA first,
 every job that downloads artifacts verifies it, the gate carries the
 default-branch assertion in its fail-closed shape, the trigger lists, the
-`cancel-in-progress` rule and the public check names `rtl-fast`,
-`verilator-suites`, `yosys-portability` and `elaborate` are what this page
+`cancel-in-progress` rule and the public aggregate names `rtl-fast`,
+`verilator-suites`, `yosys-portability`, and `elaborate` are what this page
 says, and the cron time string on this page matches the YAML. Its
 `--selftest` removes or alters each item on in-memory copies and requires
 the check to catch every one, and fails if the checker is stubbed to find
@@ -282,7 +285,35 @@ draft that needs the exhaustive gates once is dispatched by hand (see
 flipped ready and back.
 
 A docs-only ready PR remains cheap: the long workflow starts, classifies the
-diff, and skips its RTL workers with explicit skipped results.
+diff, and skips its RTL workers with explicit skipped results. The two stable
+aggregate contexts are still emitted, so the ruleset never waits for a check
+name that the pull request cannot produce.
+
+## Protected merge bar
+
+The active repository ruleset named `dev merge bar` applies only to
+`refs/heads/dev`. It has no bypass actor and enforces four rules:
+
+- changes arrive through pull requests;
+- branch deletion is forbidden;
+- non-fast-forward updates are forbidden;
+- these seven exact status-check contexts are required: `rtl-fast`,
+  `docs-check`, `wire-accountability`, `docs-check-no-git`, `elaborate`,
+  `verilator-suites`, and `yosys-portability`.
+
+Required checks use the loose policy: an intervening merge to `dev` does not
+force the PR to rerun the 23--26 minute `milan_datapath` Yosys job merely to
+become current with the base. Reviewers still own exact-head and candidate-
+merge validation under [CONTRIBUTING.md](../../CONTRIBUTING.md).
+
+Conditional job skipping is part of the contract. A documentation-only PR
+must emit the two exhaustive aggregate checks as skipped and must complete the
+fast aggregate and `elaborate` check after their expensive steps skip. Do not
+add workflow-level `paths`, `paths-ignore`, or branch filtering to any required
+context: a workflow that never starts leaves its required name pending. The
+three documentation jobs are independent required siblings, so a failure in
+`wire-accountability` or `docs-check-no-git` blocks the PR even when
+`docs-check` itself succeeds.
 
 ## Issue closing on merge
 
