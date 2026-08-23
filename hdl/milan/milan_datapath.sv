@@ -668,6 +668,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! cfg_mac_addr is the platform LSB-first convention (the driver packs
   //! MAC_ADDR_LO/HI that way and the RX filter consumes it that way), and
   //! every protocol engine here wants the other one. Byte-reversed ONCE.
+  //! cfg_mac_addr belongs to the CSR <-> datapath block below; it is
+  //! declared here because this is its first reader and Vivado's front-end
+  //! rejects a use before the declaration (#193).
+  wire [47:0] cfg_mac_addr;
   wire [47:0] station_mac_be_w = {cfg_mac_addr[7:0],   cfg_mac_addr[15:8],
                                   cfg_mac_addr[23:16], cfg_mac_addr[31:24],
                                   cfg_mac_addr[39:32], cfg_mac_addr[47:40]};
@@ -1329,12 +1333,22 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! writer or boot seeder. The declared front-end routing stays selected
   //! after reset. Software writes the map through the CSR window and then
   //! uses CHMAP_CTRL[0] to select that crossbar in place of the front end.
+  //! cfg_chmap_enable (CHMAP_CTRL[0], documented with the chmap 0x900 fabric
+  //! below) is declared here ahead of its first reader (#193).
+  wire        cfg_chmap_enable;
   wire        cap_xbar_live_w = aecp_odmap_dyn_w | cfg_chmap_enable;
   wire        pkt_pv_w   = cap_xbar_live_w ? cmap_pv_w   : zf_pv_w;
   wire [4:0]  pkt_slot_w = cap_xbar_live_w ? cmap_slot_w : zf_slot_w;
   wire [23:0] pkt_l_w    = cap_xbar_live_w ? cmap_l_w    : zf_l_w;
   wire [23:0] pkt_r_w    = cap_xbar_live_w ? cmap_r_w    : zf_r_w;
 
+  //! lwsrp_adopt_valid/lwsrp_op_prio/lwsrp_op_vid: the Domain adoption
+  //! pair the AAF C-TAG muxes read, declared ahead of aaf_packetizer,
+  //! their first reader (#193); documented with the LWSRP_DOM 0x788
+  //! block below.
+  wire        lwsrp_adopt_valid;
+  wire [7:0]  lwsrp_op_prio;
+  wire [11:0] lwsrp_op_vid;
   KL_aaf_packetizer #(.N_TALKERS_P(N_STREAMS),
                       .WIRE_CHANS_P(TALKER_WIRE_CHANS_P)) aaf_packetizer (
     .clk_i (axis_clk), .rst_n (axis_resetn),
@@ -1409,7 +1423,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   // ==========================================================================
   wire        cfg_mac_tx_en, cfg_mac_rx_en, cfg_mac_promisc, cfg_mac_allmulti, cfg_mac_is_1g;
   wire [7:0]  cfg_mac_ifg;
-  wire [47:0] cfg_mac_addr;
+  //! cfg_mac_addr is declared above station_mac_be_w (its first reader)
   wire [63:0] cfg_mc_hash;
   wire        cfg_phy_reset_n;
 
@@ -1609,9 +1623,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! OPERATIONAL {priority, VID} every declaration serializes; when
   //! adopt_valid the AAF/CRF C-TAG muxes below take the same pair, so the
   //! reservation and the frames can never diverge. LWSRP_DOM 0x788.
-  wire        lwsrp_adopt_valid;
-  wire [7:0]  lwsrp_op_prio;
-  wire [11:0] lwsrp_op_vid;
+  //! (lwsrp_adopt_valid, lwsrp_op_prio and lwsrp_op_vid are declared above
+  //! aaf_packetizer, their first reader, #193)
   wire        lwsrp_tfail_valid;
   wire [7:0]  lwsrp_tfail_code, lwsrp_rx_drops;
   wire [15:0] lwsrp_tx_count, lwsrp_rx_pdus;
@@ -1625,6 +1638,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire        acmpl1_bound;
   wire [63:0] acmpl1_sid;
   wire [31:0] aecp_bdbg0_w, aecp_bdbg1_w, aecp_bdbg2_w;
+  //! pp_cd_acmp_bound_vlan_w belongs to the protocol processor class-D
+  //! face below; it is declared here because acmpl_vlan_w is its first
+  //! reader (#193).
+  wire [ACMP_SINKS_C*12-1:0] pp_cd_acmp_bound_vlan_w;
   //! the bound stream's VLAN, kept only for the 0x6A4 status word's field
   wire [11:0] acmpl_vlan_w = pp_cd_acmp_bound_vlan_w[11:0];
   //! ACMP listener bind record, republished from the protocol processor's
@@ -1680,8 +1697,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! chmap 0x900 fabric (docs/CHANNEL_MAP_64.md §6): CSR map-RAM write port +
   //! bypass arm. Default (cfg_chmap_enable=0) leaves the compliance audio path
   //! bit-identical (render/capture crossbars are muxed OUT of both the
-  //! packetizer feed and the i2s_playback feed).
-  wire        cfg_chmap_enable;
+  //! packetizer feed and the i2s_playback feed). cfg_chmap_enable itself is
+  //! declared above cap_xbar_live_w, its first reader.
   //! Render-side AECP map-write leg. Accepted input transactions project
   //! backed model clusters here; the CSR 0x900 window shares the writer.
   wire        aecp_dmap_wr_p_w;
@@ -1996,8 +2013,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   assign o_mac_addr     = cfg_mac_addr;
   assign o_mc_hash      = cfg_mc_hash;
   assign o_phy_reset_n  = cfg_phy_reset_n;
-  assign o_irq_csr      = csr_irq;
+  //! csr_irq: declared ahead of the o_irq_csr assign, its first reader (#193)
   wire   csr_irq;
+  assign o_irq_csr      = csr_irq;
 
   //! Synchronise the MAC speed[] indication (i_mac_speed, gtx_clk-domain) into
   //! axis_clk before it is used by the CSR readback and link-change detector.
@@ -2185,7 +2203,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [ACMP_SINKS_C*64-1:0] pp_cd_acmp_bound_eid_w;
   wire [ACMP_SINKS_C*64-1:0] pp_cd_acmp_bound_sid_w;
   wire [ACMP_SINKS_C*48-1:0] pp_cd_acmp_bound_dmac_w;
-  wire [ACMP_SINKS_C*12-1:0] pp_cd_acmp_bound_vlan_w;
+  //! (pp_cd_acmp_bound_vlan_w is declared above acmpl_vlan_w, its first
+  //! reader, #193)
   wire [31:0]                pp_cd_adp_avail_index_w /* verilator public_flat_rd */;
 
   //! ---- the shadow plane's maap request face, and the shim's answers ----
@@ -3105,6 +3124,16 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   assign aecp_resp_count = 16'd0;
   assign aecp_ctlr_diag = 32'd0;
   assign aemp_stat_w = 32'd0;  //! no AEM patch ingest
+  //! pp_aecp_pt_offset_*/pp_aecp_fmt_in_*/pp_aecp_fmt_out_*: the
+  //! processor per-row settings faces, declared ahead of the
+  //! aecp_in0_fmt fold, their first reader (#193); documented with the
+  //! KL_pp_shadow block below.
+  logic [ACMP_SRC_C*32-1:0]   pp_aecp_pt_offset_w;
+  logic [ACMP_SRC_C-1:0]      pp_aecp_pt_offset_v_w;
+  logic [ACMP_SINKS_C*64-1:0] pp_aecp_fmt_in_w;
+  logic [ACMP_SINKS_C-1:0]    pp_aecp_fmt_in_v_w;
+  logic [ACMP_SRC_C*64-1:0]   pp_aecp_fmt_out_w;
+  logic [ACMP_SRC_C-1:0]      pp_aecp_fmt_out_v_w;
   //! STREAM_INPUT[0]'s stream_format. NOT ZERO: KL_avtp_rx_monitor_ctx
   //! accepts frames against this value, so 0 rejects every conformant AAF
   //! PDU and stream 0 accepts NOTHING. The DEFAULT is the AEM ROM's old
@@ -3501,6 +3530,27 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   logic [7:0]  amap_seen_r;
   logic [15:0] amap_cnt_r;
   logic [63:0] amap_rec_r2;
+  //! amap_in_ent_w: the stage-A render-map entry, declared ahead of the
+  //! amap_answer_srv pipeline, its first reader (#193); driven by
+  //! amap_page_slot below.
+  logic [7:0] amap_in_ent_w;
+  //! amap_out_ent_w/amap_out_owner_v_w/amap_out_owner_w/amap_out_cluster_w:
+  //! the stage-A capture-map entry terms, declared ahead of
+  //! amap_answer_srv, their first reader (#193); driven by amap_out_slot
+  //! below.
+  logic [12:0] amap_out_ent_w;
+  logic        amap_out_owner_v_w;
+  logic [15:0] amap_out_owner_w;
+  logic [15:0] amap_out_cluster_w;
+  //! amap_slot_hit_w/amap_slot_rec_w: the direction select the sequential
+  //! accumulator consumes, declared ahead of amap_answer_srv, their first
+  //! reader (#193); the expressions stay below, past the terms they read.
+  wire        amap_slot_hit_w;
+  wire [63:0] amap_slot_rec_w;
+  //! amap_spo_w: the STREAM_PORT_OUTPUT selector, declared ahead of
+  //! amap_answer_srv, its first reader (#193); the expression stays below
+  //! with the OUTPUT-half constants it reads.
+  wire amap_spo_w;
   always_ff @(posedge axis_clk or negedge axis_resetn) begin : amap_answer_srv
     if (!axis_resetn) begin
       amapq_type_r <= 16'd0; amapq_index_r <= 16'd0; amapq_map_r <= 16'd0;
@@ -3597,7 +3647,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! stage A of the slot pipeline: the ADDRESS MATH and the 512-bit
   //! indexed read, nothing else - the result registers into
   //! amap_in_ent_q_r and stage B consumes it a cycle later
-  logic [7:0] amap_in_ent_w;
+  //! (amap_in_ent_w is declared above amap_answer_srv, its first
+  //! reader, #193)
   always_comb begin : amap_page_slot
     int unsigned off_c, g_c;
     off_c = (amap_page_ok_w ? 32'(amapq_map_r) : 32'd0)
@@ -3630,6 +3681,16 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     end
   end : amap_page_fmt
 
+  //! Output mappings need one fixed subset because a Stream Output has at
+  //! most eight audio channels (the OUTPUT half of the answer is below);
+  //! declared ahead of amap_answer, its first reader, because Vivado's
+  //! front-end rejects a constant used before its declaration (#193).
+  localparam int AMAP_OUT_NMAPS_C = 1;
+
+  //! amap_opage_ok_w belongs to the OUTPUT half below; it is declared
+  //! here because amap_answer is its first reader (#193).
+  wire amap_opage_ok_w = amap_spo_w
+                      && (amapq_map_r == 16'd0);
   always_comb begin : amap_answer
     unique case (amapq_sel_r)
       2'd0:    amap_ans_raw_w = {48'd0,
@@ -3654,15 +3715,14 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! the same role pools as the descriptor image. Output mappings need one
   //! fixed subset because a Stream Output has at most eight audio channels.
   localparam int AMAP_OUT_PORTS_C = ADP_DMAP_OUT_NPORTS_C;
-  localparam int AMAP_OUT_NMAPS_C = 1;
   localparam logic [15:0] DESC_STREAM_PORT_OUT_C = 16'h000F;
 
-  wire amap_spo_w = (amapq_type_r == DESC_STREAM_PORT_OUT_C)
-                 && (32'(amapq_index_r) < AMAP_OUT_PORTS_C)
-                 && (amapq_index_r < 16'd64)
-                 && ADP_DMAP_OUT_MASK_C[amapq_index_r[5:0]];
-  wire amap_opage_ok_w = amap_spo_w
-                      && (amapq_map_r == 16'd0);
+  //! (amap_spo_w is declared above amap_answer_srv, its first reader, #193)
+  assign amap_spo_w = (amapq_type_r == DESC_STREAM_PORT_OUT_C)
+                   && (32'(amapq_index_r) < AMAP_OUT_PORTS_C)
+                   && (amapq_index_r < 16'd64)
+                   && ADP_DMAP_OUT_MASK_C[amapq_index_r[5:0]];
+  //! (amap_opage_ok_w is declared above amap_answer, its first reader, #193)
 
   //! Resolve a vendor CSR write back into the addressed output port's AEM
   //! cluster coordinate. Transactional AECP writes already carry that
@@ -3694,10 +3754,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! falls inside the queried page - 7.4.44.2.1 read back off live routing
   //! per-slot terms of the OUTPUT walk, same sequential form
   //! stage A, output side: the 13-bit indexed read only
-  logic [12:0] amap_out_ent_w;
-  logic        amap_out_owner_v_w;
-  logic [15:0] amap_out_owner_w;
-  logic [15:0] amap_out_cluster_w;
+  //! (amap_out_ent_w, amap_out_owner_v_w, amap_out_owner_w and
+  //! amap_out_cluster_w are declared above amap_answer_srv, their first
+  //! reader, #193)
   always_comb begin : amap_out_slot
     amap_out_ent_w = (amap_opage_ok_w
              && (32'(amap_walk_j_r) < AMAP_OUT_KEYS_C))
@@ -3743,9 +3802,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   end : amap_out_fmt
 
   //! the direction select the sequential accumulator consumes
-  wire        amap_slot_hit_w = amap_spi_w ? amap_in_hit_w
+  //! (both nets are declared above amap_answer_srv, their first reader, #193)
+  assign      amap_slot_hit_w = amap_spi_w ? amap_in_hit_w
                               : amap_spo_w ? amap_out_hit_w : 1'b0;
-  wire [63:0] amap_slot_rec_w = amap_spi_w ? amap_in_rec_w : amap_out_rec_w;
+  assign      amap_slot_rec_w = amap_spi_w ? amap_in_rec_w : amap_out_rec_w;
 
   //! HOLD, not a ready - combinational flops again, never held
   assign pp_amap_data_w = amap_data_r;
@@ -4275,6 +4335,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
 
   //! Milan Tables 5.9/5.11 flags + Tables 5.10/5.12 flags_ex, per direction
   logic [31:0] gsi_flags_w, gsi_flags_ex_w;
+  //! pp_aecp_strm_started_w belongs to the KL_pp_shadow face below; it
+  //! is declared here because gsi_flag_law is its first reader (#193).
+  logic [ACMP_SINKS_C-1:0]  pp_aecp_strm_started_w;
   always_comb begin : gsi_flag_law
     gsi_flags_w    = 32'd0;
     gsi_flags_ex_w = 32'd0;
@@ -4383,6 +4446,12 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     : gsi_out_w     ? (sfv_base_ok_w
                        && (sfv_ch_w == sfv_decl_w[31:22]))
                     : 1'b0;
+  //! sfv_need_in_r belongs to the INPUT-side reduction below; it is
+  //! declared here because sfv_need_w is its first reader (#193).
+  logic [3:0] sfv_need_in_r [N_STREAMS];
+  //! sfv_need_out_w belongs to the OUTPUT-side reduction below; it is
+  //! declared here because sfv_need_w is its first reader (#193).
+  logic [ACMP_SRC_C*4-1:0] sfv_need_out_w;
   //! SURVIVES: the per-stream channels-required reductions below, judged
   //! against the proposal's channel count. The CRF rows carry no audio
   //! mappings, so they survive by construction.
@@ -4407,7 +4476,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   localparam int SFV_KW_C = (SFV_KEYS_C <= 2) ? 1 : $clog2(SFV_KEYS_C);
   logic [SFV_KW_C-1:0] sfv_cur_r;
   logic [3:0] sfv_acc_r     [N_STREAMS];
-  logic [3:0] sfv_need_in_r [N_STREAMS];
+  //! (sfv_need_in_r is declared above sfv_need_w, its first reader, #193)
   logic [3:0] sfv_nxt_w     [N_STREAMS];
   wire  [7:0] sfv_ent_w = amap_in_store_r[32'(sfv_cur_r)*8 +: 8];
   wire  [3:0] sfv_ent_need_w = {1'b0, sfv_ent_w[2:0]} + 4'd1;
@@ -4442,7 +4511,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! (key = stream*8 + channel), so the requirement is a per-stream
   //! priority over eight enable bits - combinational, no sweep. The CRF
   //! row's nibble stays zero: no audio mapping can reference it.
-  logic [ACMP_SRC_C*4-1:0] sfv_need_out_w;
+  //! (sfv_need_out_w is declared above sfv_need_w, its first reader, #193)
   always_comb begin : sfv_out_need
     sfv_need_out_w = '0;
     for (int s = 0; s < N_STREAMS; s++)
@@ -6474,17 +6543,15 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! shape (see the .N_STREAM_IN_P connection below), which is deliberately
   //! wider than N_STREAMS — a bare N_STREAMS-wide array would have truncated
   //! the started vector and silently dropped the top sinks' state.
-  logic [ACMP_SINKS_C-1:0]  pp_aecp_strm_started_w;
+  //! (pp_aecp_strm_started_w is declared above gsi_flag_law, its first
+  //! reader, #193)
   //! the per-row settings faces (issue #67): value beside valid bit, sized
   //! at the processor's ACMP shape so the CRF rows ride along (the CRF
   //! output's offset row IS its transit entry's source below). A value
   //! whose valid bit is clear is a reset zero - every consumer here FOLDS.
-  logic [ACMP_SRC_C*32-1:0]   pp_aecp_pt_offset_w;
-  logic [ACMP_SRC_C-1:0]      pp_aecp_pt_offset_v_w;
-  logic [ACMP_SINKS_C*64-1:0] pp_aecp_fmt_in_w;
-  logic [ACMP_SINKS_C-1:0]    pp_aecp_fmt_in_v_w;
-  logic [ACMP_SRC_C*64-1:0]   pp_aecp_fmt_out_w;
-  logic [ACMP_SRC_C-1:0]      pp_aecp_fmt_out_v_w;
+  //! (pp_aecp_pt_offset_w, pp_aecp_pt_offset_v_w, pp_aecp_fmt_in_w,
+  //! pp_aecp_fmt_in_v_w, pp_aecp_fmt_out_w and pp_aecp_fmt_out_v_w are
+  //! declared above the aecp_in0_fmt fold, their first reader, #193)
   logic                     pp_aecp_dyn_dirty_w;
 
   KL_pp_shadow #(
