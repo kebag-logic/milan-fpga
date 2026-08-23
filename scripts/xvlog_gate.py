@@ -126,8 +126,19 @@ class Finding:
         # behind the banked key. So an identifier-less finding is discriminated
         # by a short hash of its message - stable across line moves, unlike the
         # line number, and distinct per defect ([R1] on PR #194).
-        ident = self.identifier or (
-            "#" + hashlib.sha1(self.message.encode("utf-8",
+        # The discriminator is prefixed `~`, NOT `#`: the budget's trailing
+        # `# line(s) N` comment is stripped at the first `#`, so a `#`-keyed
+        # finding wrote one key and read back a different, truncated one --
+        # it could never be banked, only re-reported forever ([R0] on
+        # PR #222 proved it end to end). `~` cannot appear in a path, a
+        # VRFC code or an identifier.
+        # An ESCAPED SystemVerilog identifier is terminated by whitespace,
+        # which is a delimiter and not part of the name. It must not reach
+        # the key: the budget is line-based, so a trailing space would be
+        # invisible, would make `git diff --check` refuse the generated
+        # file, and would not survive the reader's strip.
+        ident = (self.identifier or "").strip() or (
+            "~" + hashlib.sha1(self.message.encode("utf-8",
                                                    "replace")).hexdigest()[:8])
         return f"{self.path}|{self.code}|{ident}"
 
@@ -252,33 +263,57 @@ _BUDGET_HEADER = [
     "# longer occurs (bank the fix). Keyed on identity, not a count, so a",
     "# compensating swap cannot hide (issue #150's lesson).",
     "#",
-    "# These are use-before-declaration defects real on dev and invisible to the",
-    "# Verilator/sv2v bar; fixing them (moving each declaration above first use)",
-    "# is issue #193, not this gate's lane. Lowering an entry is a normal commit:",
+    "# An entry is a construct Vivado's front-end REJECTS that the",
+    "# Verilator/sv2v bar cannot see - use-before-declaration is the first",
+    "# such class found (#132). Fixing one means changing the source, not",
+    "# this file; banking the fix is a normal commit:",
     "#     scripts/xvlog_gate.py && git add scripts/xvlog.budget",
+    "# An EMPTY list is the goal state, reached for the whole hdl/ tree by",
+    "# #193: the gate then fails on the first NEW finding rather than on a",
+    "# count, and no entry can be traded away against a fix.",
 ]
 
 
-def read_budget():
-    """The grandfathered finding keys, or None if the file is absent."""
-    if not BUDGET.exists():
+_LOC_COMMENT_RE = re.compile(r"\s+# line\(s\) [\d,]+\s*$")
+
+
+def read_budget(path=None):
+    """The grandfathered finding keys, or None if the file is absent.
+
+    The trailing `  # line(s) N` note is stripped by its OWN shape, not by
+    cutting at the first `#`: a key may legitimately contain that character
+    (an escaped SystemVerilog identifier such as ``\\hash#in~side``), and a
+    reader that cuts at it returns a key the writer never wrote, so the
+    finding can be reported forever and never banked ([R0] on PR #222 found
+    the `#`-prefixed discriminator case; this is the same defect's general
+    form). A whole-line `#` comment is still a comment.
+    """
+    path = path or BUDGET
+    if not path.exists():
         return None
     keys = set()
-    for line in BUDGET.read_text().splitlines():
-        line = line.split("#", 1)[0].strip()
+    for line in path.read_text().splitlines():
+        if line.lstrip().startswith("#"):
+            continue
+        line = _LOC_COMMENT_RE.sub("", line).strip()
         if line:
             keys.add(line)
     return keys
 
 
-def write_budget(findings):
+def write_budget(findings, path=None):
     lines = list(_BUDGET_HEADER)
     lines.append(f"#\n# total {len(findings)} finding(s)")
-    lines.append("")
+    # the blank separator belongs to the LIST, not to the header: with an
+    # empty ratchet (every finding fixed, #193) an unconditional one is a
+    # trailing blank line at EOF, which `git diff --check` refuses and the
+    # merge bar runs
+    if findings:
+        lines.append("")
     for f in sorted(findings, key=lambda x: x.key):
         loc = f"  # line(s) {','.join(f.lines)}" if f.lines else ""
         lines.append(f"{f.key}{loc}")
-    BUDGET.write_text("\n".join(lines) + "\n")
+    (path or BUDGET).write_text("\n".join(lines) + "\n")
 
 
 def _print_census(findings):
@@ -406,6 +441,56 @@ def _selftest_logic():
     if a.key != c.key:
         problems.append("empty-identifier: identical messages got different "
                         f"keys {a.key} vs {c.key}")
+    if "#" in a.key:
+        problems.append(f"empty-identifier: key {a.key} contains the budget's "
+                        "comment character, so read_budget would truncate it")
+
+    # ...and the budget must SERIALIZE and ROUND-TRIP in both its goal state
+    # (empty) and populated states. A populated list has one blank separator
+    # before its entries; an empty list ends at the total instead, because a
+    # trailing blank line fails `git diff --check`. A key the writer emits and
+    # the reader cannot parse makes the finding unbankable, which is the only
+    # escape hatch --check offers once the ratchet is empty (#193).
+    # The tracked ratchet is NEVER touched by this: the round-trip runs
+    # against a scratch file. run_all_suites.sh runs --selftest at the start
+    # of every sweep, so an arm that wrote scripts/xvlog.budget in place
+    # would leave synthetic entries in a tracked file if the process were
+    # killed mid-call, and SIGTERM/SIGKILL cannot be caught ([R0] on #222).
+    scratch = pathlib.Path(tempfile.mkdtemp(prefix="xvlog-budget-")) / "b"
+    try:
+        for case in ([], [a], [a, b],
+                     [a, Finding("m.sv", "VRFC 10-3380", "x", "3", "m")]):
+            write_budget(case, scratch)
+            rendered = scratch.read_text()
+            total = f"# total {len(case)} finding(s)"
+            if case and f"{total}\n\n" not in rendered:
+                problems.append("budget serialization: populated budget has "
+                                "no blank separator before its entries")
+            if not case and not rendered.endswith(f"{total}\n"):
+                problems.append("budget serialization: empty budget does not "
+                                "end at its total line")
+            back = read_budget(scratch)
+            want = {f.key for f in case}
+            if back != want:
+                problems.append(f"budget round-trip: wrote {sorted(want)}, "
+                                f"read back {sorted(back or [])}")
+            new_k, gone_k = _diff(want, back or set())
+            if new_k or gone_k:
+                problems.append(f"budget round-trip: --check would report "
+                                f"new={new_k} gone={gone_k} against its own "
+                                f"freshly written budget")
+        # a key carrying the comment character must survive too: the reader
+        # strips the location note by shape, not by cutting at the first `#`
+        esc = Finding("m.sv", "VRFC 10-3380", "\\hash#in~side ", "7", "m")
+        if esc.key.endswith(" ") or "\n" in esc.key:
+            problems.append(f"key {esc.key!r} carries trailing whitespace, "
+                            "which the budget format cannot represent")
+        write_budget([esc], scratch)
+        if read_budget(scratch) != {esc.key}:
+            problems.append("budget round-trip: a key containing '#' (an "
+                            "escaped identifier) did not survive the reader")
+    finally:
+        shutil.rmtree(scratch.parent, ignore_errors=True)
     return problems
 
 

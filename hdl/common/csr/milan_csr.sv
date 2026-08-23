@@ -891,6 +891,31 @@ module milan_csr #(
   logic         sweep_busy;              //! defaults -> shadow copy after reset
   logic [9:0]   sweep_cnt;
 
+  //! ------------------------------------------------------------------------
+  //! Declared EARLY (#193): the decode-stage wires below (wr_fire, rd_fire,
+  //! rd_is_slow_w, rds_valid_w, rds_done_w) read these registers, and
+  //! Vivado's front-end rejects an identifier used before its declaration
+  //! (VRFC 10-3380), which Verilator and sv2v accept. Each register is
+  //! driven by its own machine further down, where its documentation lives;
+  //! only the declarations moved.
+  //! ------------------------------------------------------------------------
+  logic        strm_dir_r;               //! A_STRM_SEL[8]: 0=listener, 1=talker
+  logic [3:0]  strm_idx_r;               //! A_STRM_SEL[3:0]: stream index
+  logic        lctx_wr_p_r;              //! LCTX CFG-word write pulse
+  logic [7:0]  lctx_wr_addr_r;
+  logic [31:0] lctx_wr_data_r;
+  logic        tctx_wr_p_r;              //! TCTX CFG-word write pulse
+  logic [6:0]  tctx_wr_addr_r;
+  logic [31:0] tctx_wr_data_r;
+  logic        snap_busy_r;              //! SNAP burst in flight
+  logic        rds_busy_r;               //! slow engine-window read in flight
+  logic        rds_dir_r;
+  logic [1:0]  rds_cyc_r;
+  //! P11 window selection range gate: out-of-range idx reads 0, writes are
+  //! ignored, SNAP latches zeros (the defined out-of-range behaviour)
+  wire win_in_range_w = strm_dir_r ? (32'(strm_idx_r) < N_TALKERS_P)
+                                   : (32'(strm_idx_r) < N_LISTENERS_P);
+
   //! wr_fire additionally holds off while a P11 engine CFG-word write
   //! request is pending (held until i_*_wr_rdy): a second AXI write landing
   //! mid-request would clobber the held addr/data. The engine accepts
@@ -1189,7 +1214,7 @@ module milan_csr #(
   localparam logic [31:0] ADP_LIST_C = {ADP_LISTENER_CAPS_C,
                                         16'(ADP_LISTENER_SINK_C)};
 
-  logic        strm_dir_r;               //! A_STRM_SEL[8]: 0=listener, 1=talker
+  //! strm_dir_r is declared with the early block above wr_fire (#193)
   logic        strm_lsn0_r;             //! A_STRM_SEL[9]: select the DEDICATED
                                         //! listener-0 lwSRP row. Its own bit, not
                                         //! {dir=0, idx=0}: that pattern is the
@@ -1198,7 +1223,7 @@ module milan_csr #(
                                         //! turned the idle window into a
                                         //! continuous row poll (milan_dp's qkill
                                         //! sweep caught the arbitration shift)
-  logic [3:0]  strm_idx_r;               //! A_STRM_SEL[3:0]: stream index
+  //! strm_idx_r is declared with the early block above wr_fire (#193)
   logic [31:0] stg_sid_lo_r, stg_sid_hi_r;   //! window write staging: stream_id
   logic [31:0] stg_dmac_lo_r, stg_dmac_hi_r; //! window write staging: DMAC
   //! WHICH {dir, idx} THE STAGING SET BELONGS TO (2026-07-30). The four
@@ -1216,12 +1241,8 @@ module milan_csr #(
   //! the other three words rather than mixing two streams' halves.
   logic [4:0]  stg_sel_r;
   logic        stg_vld_r;
-  logic        lctx_wr_p_r;              //! LCTX CFG-word write pulse
-  logic [7:0]  lctx_wr_addr_r;
-  logic [31:0] lctx_wr_data_r;
-  logic        tctx_wr_p_r;              //! TCTX CFG-word write pulse
-  logic [6:0]  tctx_wr_addr_r;
-  logic [31:0] tctx_wr_data_r;
+  //! the LCTX/TCTX CFG-word write request registers are declared with the
+  //! early block above wr_fire (#193)
   //! SRP ctx master: one pending provisioning write + continuous status poll
   logic        srp_wr_pend_r;            //! a row write awaits its grant
   logic        srp_wr_valid_r;           //! record valid (CTRL.en at commit)
@@ -1264,7 +1285,7 @@ module milan_csr #(
   //! SNAP shadow: the ONE permitted window shadow ([M-5.4.2.25] coherent
   //! counter block): [0] STATE, [1..10] CNT0..9, [11] PDUS
   logic [31:0] snap_shadow_r [0:11];
-  logic        snap_busy_r;
+  //! snap_busy_r is declared with the early block above wr_fire (#193)
   logic [2:0]  snap_st_r;                //! 0 idle,1 done-pulse,2 wait-free,3 arm,4 fetch
   logic        snap_dir_r;
   logic [3:0]  snap_idx_r;
@@ -1274,10 +1295,9 @@ module milan_csr #(
   logic        snap_req_r;               //! o_*_snap_req (dir-steered)
   logic        snap_rden_r;              //! o_*_rd_en during the burst
   logic [31:0] snap_m8_r;                //! LCTX w8 hold (STATE compose)
-  //! slow read: engine port-B backed window words (4-cycle fetch)
-  logic        rds_busy_r;
-  logic        rds_dir_r;
-  logic [1:0]  rds_cyc_r;
+  //! slow read: engine port-B backed window words (4-cycle fetch);
+  //! rds_busy_r, rds_dir_r and rds_cyc_r are declared with the early block
+  //! above wr_fire (#193)
   logic [4:0]  rds_word_r;
   logic [2:0]  rds_idx_r;               //! stream index latched at the fetch
 
@@ -1322,10 +1342,12 @@ module milan_csr #(
   end : mac_reinit_edge
   wire mac_reinit_rel_w = mac_reinit_q && !i_mac_reinit;
 
-  //! P11 window selection range gate: out-of-range idx reads 0, writes are
-  //! ignored, SNAP latches zeros (the defined out-of-range behaviour)
-  wire win_in_range_w = strm_dir_r ? (32'(strm_idx_r) < N_TALKERS_P)
-                                   : (32'(strm_idx_r) < N_LISTENERS_P);
+  //! The staging set belongs to the CURRENT {dir, idx} selection (the
+  //! ownership rule is documented with the lwSRP ctx master below, which
+  //! commits it). Declared here ahead of the write path, its first reader
+  //! (#193).
+  wire       stg_hit_w     = stg_vld_r && (stg_sel_r == {strm_dir_r,
+                                                         strm_idx_r});
 
   //! Register file write path: synchronous reset defaults, hardware event
   //! latching (before W1C), AXI-Lite register writes, W1C on IRQ_STATUS, and
@@ -2090,6 +2112,10 @@ module milan_csr #(
   //  plain-RW config register reads from the shadow BRAM.
   // ==========================================================================
   logic [31:0] live_mux;
+  //! Reset-epoch canary (documented with epoch_cnt below, which drives it):
+  //! a flop WITHOUT a reset clause, bitstream-initialised. Declared here
+  //! ahead of read_mux, its first reader (#193).
+  reg [7:0] rst_epoch_r = 8'd0;
   logic        live_hit;
 
   always_comb begin : read_mux
@@ -2243,6 +2269,12 @@ module milan_csr #(
   wire [47:0] mac_wire_w = {mac_alo[7:0], mac_alo[15:8], mac_alo[23:16],
                             mac_alo[31:24], mac_ahi[7:0], mac_ahi[15:8]};
   logic [31:0] strm_mux;
+  //! listener idx 0 addresses the DEDICATED sink-0 row when this build has
+  //! one (SRP_LSN0_ROW_P != 0) - the row-0 legacy pair keeps the talker-0
+  //! side, so talker-dir idx 0 stays excluded (flat CSRs serve it).
+  //! Declared here ahead of strm_read_mux, its first reader (#193); the
+  //! lwSRP ctx master that consumes it alongside is further down.
+  wire       srp_idx0_ls_w = strm_lsn0_r && (SRP_LSN0_ROW_P != 0);
   logic        strm_hit;
   always_comb begin : strm_read_mux
     logic [ADDR_WIDTH-1:0] coff;         //! CNT word offset
@@ -2518,7 +2550,7 @@ module milan_csr #(
   //! reset clause (bitstream-init 0, survive axis resets). Software compares
   //! epochs to detect hidden fabric resets that the config shadow masks
   //! (the 2026-07-19 link-bounce forensics: CSR reads lied after a reset).
-  reg [7:0] rst_epoch_r = 8'd0;
+  //! rst_epoch_r is declared above read_mux, its first reader (#193)
   reg       rstn_seen_r = 1'b0;
   always @(posedge aclk) begin : epoch_cnt
     rstn_seen_r <= aresetn;
@@ -2785,10 +2817,8 @@ module milan_csr #(
 
   //! lwSRP ctx master: continuous status poll of the selected extra row +
   //! one-deep provisioning write queue (committed by a window CTRL write)
-  //! listener idx 0 addresses the DEDICATED sink-0 row when this build has
-  //! one (SRP_LSN0_ROW_P != 0) - the row-0 legacy pair keeps the talker-0
-  //! side, so talker-dir idx 0 stays excluded (flat CSRs serve it).
-  wire       srp_idx0_ls_w = strm_lsn0_r && (SRP_LSN0_ROW_P != 0);
+  //! (srp_idx0_ls_w, the listener idx-0 dedicated-row select, is declared
+  //! above strm_read_mux, its first reader, #193)
   wire       srp_poll_w    = win_in_range_w &&
                              ((strm_idx_r != 4'd0) || srp_idx0_ls_w);
   wire [4:0] srp_sel_row_w = strm_dir_r
@@ -2805,8 +2835,8 @@ module milan_csr #(
   //! Ownership is by SELECTION, not spent by the commit: repeated CTRL writes
   //! at the index a sid was staged for keep that sid, so a re-enable cannot
   //! change a running stream's declared identity underneath it.
-  wire       stg_hit_w     = stg_vld_r && (stg_sel_r == {strm_dir_r,
-                                                         strm_idx_r});
+  //! (stg_hit_w, the staging-set ownership compare, is declared above the
+  //! register-file write path, its first reader, #193)
 
   always_ff @(posedge aclk) begin : strm_srp_master_S
     if (!aresetn) begin
