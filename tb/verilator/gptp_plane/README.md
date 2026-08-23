@@ -38,9 +38,10 @@ while the input is unread.
 Scope that carefully, because the same name means two things. What is
 unread is the ENGINE port, which is what this wrapper instantiates.
 The SLICE's `timestamp_counter` wire is read by
-`KL_gptp_shadow.sv:197` and `KL_gptp_txstamp.sv:95` and IS covered:
+`KL_gptp_shadow.sv`'s `ts_arr_r <= phc_ns_i` and `KL_gptp_txstamp.sv`'s
+first-beat `ts_r <= phc_ns_i` and IS covered:
 tying both slice consumers in `tb/verilator/gptp_shadow`'s wrapper to
-`64'd0` turns that bench red, 40 checks with 31 PASS and 9 FAIL. So a
+`64'd0` turns that bench red, 59 checks with 45 PASS and 14 FAIL. So a
 mis-wire of the counter into the shipped slice is caught; only the
 engine's own port is invisible. Tracked as
 [#211](https://github.com/kebag-logic/milan-fpga/issues/211), which

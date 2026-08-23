@@ -6088,6 +6088,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     wire                     gts_valid_w;
     wire [63:0]              gts_ns_w;
     wire [15:0]              gts_seq_w;
+    wire [3:0]               gts_type_w;
 
     KL_gptp_shadow #(
         .TDATA_WIDTH_P (TDATA_WIDTH),
@@ -6113,6 +6114,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
         .txts_valid_i    (gts_valid_w),
         .txts_ns_i       (gts_ns_w),
         .txts_seq_i      (gts_seq_w),
+        .txts_type_i     (gts_type_w),
         .tx_sent_o       (gtx_sent_w),
         .pub_gm_id_o     (gptp_pub_gm_w),
         .pub_parent_id_o (gptp_pub_parent_w),
@@ -6128,7 +6130,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
         .dbg_rx_ts_o     (),
         .dbg_tspush_v_o  (),
         .dbg_tspush_o    (),
-        .dbg_tspop_v_o   ()
+        .dbg_tspop_v_o   (),
+        .dbg_txts_type_o ()
     );
 
     adp_tx_arbiter #(.DATA_WIDTH(TDATA_WIDTH), .TO_LOG2_P(16)) gptp_ctl_mux (
@@ -6157,7 +6160,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
         .armed_i    (gtx_sent_w),
         .ts_valid_o (gts_valid_w),
         .ts_ns_o    (gts_ns_w),
-        .ts_seq_o   (gts_seq_w)
+        .ts_seq_o   (gts_seq_w),
+        .ts_type_o  (gts_type_w)
     );
   end else begin : g_gptp_off
     //! option off: the control lane passes straight through, the PHC

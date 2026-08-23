@@ -108,10 +108,19 @@ The plane has four seams:
   stamper (only the shaped data path does), so `KL_gptp_txstamp`
   observes the TRUE MAC boundary: armed by the plane's lane sof, it
   latches the counter at an 0x88F7 frame's first beat and returns
-  {ts, sequenceId} for the engine's pending exchange. Observer-pure
-  (`check_tap_purity` holds). One gPTP stack per port is the operating
-  assumption -- two transmitting stacks is itself invalid, and the A/B
-  bring-up keeps exactly one talking.
+  {ts, sequenceId, messageType} for the engine's pending exchange.
+  BOTH tags travel, since #214: a Pdelay_Req carries our own request
+  counter and a Pdelay_Resp echoes the peer's, so the 16-bit sequence
+  alone cannot say which leg a stamp belongs to, and on a link where
+  both ends run this plane the two counters start equal at boot and
+  advance together at 1 Hz. Two frames of one messageType are never
+  outstanding at once, so the pair separates them. The engine consumes
+  the sequence half today and the type half waits at its boundary
+  (`KL_gptp_shadow`'s `txts_type_i`, mirrored on `dbg_txts_type_o`)
+  until Mister-M-alt/FPGA-gPTP#28's follow-up matches on both.
+  Observer-pure (`check_tap_purity` holds). One gPTP stack per port is
+  the operating assumption -- two transmitting stacks is itself
+  invalid, and the A/B bring-up keeps exactly one talking.
 - **Inside the engine**, the ingress stamp ping-pongs with the message
   bank (stage at sof, commit at eof, length-qualified) -- the fabric
   bench found the single-register race this retires; the donor's
