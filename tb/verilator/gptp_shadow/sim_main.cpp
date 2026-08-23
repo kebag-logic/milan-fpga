@@ -112,7 +112,9 @@ struct Stamp { uint16_t seq; uint8_t type; uint64_t ns; };
 static std::vector<Stamp> stamps;
 //! #214: the slice port must carry the tag AT the cycle the face is valid,
 //! not one stamp later. The engine samples txts_* combinationally on the
-//! valid pulse (KL_gptp_engine.sv:278-280), so a registered mirror would
+//! valid pulse (KL_gptp_engine's `if (txts_valid_i) ... txts_pend_seq_r <=
+//! txts_seq_i`, cited by the assignment because the pin under it moves),
+//! so a registered mirror would
 //! read the PREVIOUS stamp's type there and credit one leg's egress time
 //! to another leg's claim. Every valid cycle is compared, and the count is
 //! asserted non-zero so the check cannot pass by never running.

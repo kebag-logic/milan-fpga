@@ -497,7 +497,9 @@ module KL_gptp_shadow #(
   //! registered here, deliberately: the stamper already holds
   //! {ts_ns_o, ts_seq_o, ts_type_o} in registers, and the engine samples
   //! the txts_* face COMBINATIONALLY in the cycle txts_valid_i is high
-  //! (KL_gptp_engine.sv:278-280 latches txts_seq_i there). A register in
+  //! (KL_gptp_engine's `if (txts_valid_i) ... txts_pend_seq_r <=
+  //! txts_seq_i` latches it there; no line number, the pin moves). A
+  //! register in
   //! this path would add no persistence and one cycle of lag, so at the
   //! sampling cycle it would still carry the PREVIOUS stamp's type and a
   //! consumer would credit one leg's egress time to another's claim --
