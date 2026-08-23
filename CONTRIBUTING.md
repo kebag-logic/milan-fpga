@@ -55,7 +55,9 @@ merge does not invalidate exact-head evidence by demanding another long Yosys
 run. It has no bypass actor; deletion and non-fast-forward updates of `dev` are
 also forbidden. A skipped conditional job satisfies its named context, but no
 required workflow may use path- or branch-level skipping that prevents the
-context from being emitted.
+context from being emitted. The exhaustive aggregates may skip only after
+`full-ci-gate` succeeds and explicitly selects the no-op path; a failed,
+cancelled, or output-less selector makes both aggregates run and fail closed.
 
 ```mermaid
 flowchart LR

@@ -166,7 +166,10 @@ the assertion in its fail-closed shape, which is exactly these four things:
    script equals a canonical form derived from the job's own download step
    and the worker matrix, so `--expect` is the shard count and no line can
    reassign a source before the call. The aggregate jobs keep their
-   documented `if` verbatim and carry no `continue-on-error` or `defaults`.
+   documented fail-closed `if` verbatim and carry no `continue-on-error` or
+   `defaults`: they skip only when `full-ci-gate` succeeded and explicitly
+   published `run_full=false`; any other selector result runs the aggregate
+   into the SHA/shard refusal path.
 
 `--selftest` covers, one at a time: the step removed, the token missing, the
 live read replaced by an echo, the event not passed, `|| true`, the decoy
@@ -208,6 +211,9 @@ validates one tree. The workflow makes that explicit and machine-checked
 
 The aggregates refuse, and the check fails rather than skips:
 
+- `full-ci-gate` fails, is cancelled, or does not publish an explicit
+  `run_full` result (only a successful `run_full=false` decision may skip an
+  aggregate);
 - a shard directory without a `TARGET_SHA` record, including the empty
   placeholder the aggregate creates when the download produced nothing;
 - a record that is not a 40-digit hexadecimal commit id;
@@ -308,12 +314,15 @@ merge validation under [CONTRIBUTING.md](../../CONTRIBUTING.md).
 
 Conditional job skipping is part of the contract. A documentation-only PR
 must emit the two exhaustive aggregate checks as skipped and must complete the
-fast aggregate and `elaborate` check after their expensive steps skip. Do not
-add workflow-level `paths`, `paths-ignore`, or branch filtering to any required
-context: a workflow that never starts leaves its required name pending. The
-three documentation jobs are independent required siblings, so a failure in
-`wire-accountability` or `docs-check-no-git` blocks the PR even when
-`docs-check` itself succeeds.
+fast aggregate and `elaborate` check after their expensive steps skip. That is
+permitted only when `full-ci-gate` itself succeeds and explicitly publishes
+`run_full=false`; a gate failure, cancellation, or missing output makes both
+aggregates run and fail on absent evidence, because a skipped required job
+would otherwise satisfy the ruleset. Do not add workflow-level `paths`,
+`paths-ignore`, or branch filtering to any required context: a workflow that
+never starts leaves its required name pending. The three documentation jobs
+are independent required siblings, so a failure in `wire-accountability` or
+`docs-check-no-git` blocks the PR even when `docs-check` itself succeeds.
 
 ## Issue closing on merge
 

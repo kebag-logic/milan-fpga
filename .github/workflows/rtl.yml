@@ -242,7 +242,11 @@ jobs:
 
   verilator-suites:
     name: verilator-suites
-    if: ${{ always() && !cancelled() && needs.full-ci-gate.outputs.run_full == 'true' }}
+    # Skip only an EXPLICIT no-op decision from a successful selector. If the
+    # selector fails, is cancelled, or never publishes run_full, this job must
+    # run and fail on the missing gate SHA/shards; SKIPPED satisfies a required
+    # GitHub context and would otherwise turn a selector failure into a pass.
+    if: ${{ always() && (needs.full-ci-gate.result != 'success' || needs.full-ci-gate.outputs.run_full != 'false') }}
     needs: [full-ci-gate, verilator-shards]
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -359,7 +363,8 @@ jobs:
 
   yosys-portability:
     name: yosys-portability
-    if: ${{ always() && !cancelled() && needs.full-ci-gate.outputs.run_full == 'true' }}
+    # Same fail-closed selector contract as verilator-suites above.
+    if: ${{ always() && (needs.full-ci-gate.result != 'success' || needs.full-ci-gate.outputs.run_full != 'false') }}
     needs: [full-ci-gate, yosys-shards]
     runs-on: ubuntu-latest
     timeout-minutes: 10
