@@ -10,15 +10,20 @@ cpio/libarchive just to enforce the pairing contract.
 """
 
 import argparse
+import binascii
 import gzip
+import io
 import json
 import lzma
 import os
 import stat
+import struct
 import sys
 import tempfile
 
 from gptp_owner_contract import GPTP_OWNERS
+from qspi_owner_transition import (TransitionError,
+                                   validate_artifact_pair)
 
 OWNERS = GPTP_OWNERS
 MARKER = b"etc/milan-gptp-software-owner"
@@ -70,17 +75,44 @@ def _normal_name(name):
 def _archive_stream(path):
     try:
         with open(path, "rb") as source:
-            prefix = source.read(6)
+            raw = source.read()
     except OSError as exc:
         raise ContractError(f"cannot read rootfs {path}: {exc}") from exc
+
+    payload = raw
+    container = ""
+    prefix = payload[:6]
+    if not (prefix.startswith(b"\xfd7zXZ\x00")
+            or prefix.startswith(b"\x1f\x8b")
+            or prefix in NEWC_MAGICS):
+        # Persistent QSPI stores Linux images as LiteX FBI records:
+        # little-endian payload length, CRC32, then the archive.  Accept that
+        # exact representation so flash-pair can prove the marker in the live
+        # installed rootfs rather than trusting a source-side assertion.
+        if len(raw) < 8:
+            raise ContractError(
+                "unsupported rootfs archive (need raw newc, .cpio.gz, .cpio.xz, or an FBI-wrapped form)")
+        size, wanted_crc = struct.unpack("<II", raw[:8])
+        if size != len(raw) - 8:
+            raise ContractError(
+                f"invalid FBI rootfs length {size}; file carries {len(raw) - 8} payload bytes")
+        payload = raw[8:]
+        got_crc = binascii.crc32(payload) & 0xFFFF_FFFF
+        if got_crc != wanted_crc:
+            raise ContractError(
+                f"FBI rootfs CRC mismatch: {got_crc:#x} != {wanted_crc:#x}")
+        container = "FBI-wrapped "
+        prefix = payload[:6]
+
+    source = io.BytesIO(payload)
     if prefix.startswith(b"\xfd7zXZ\x00"):
-        return lzma.open(path, "rb"), "xz"
+        return lzma.LZMAFile(source, "rb"), container + "xz"
     if prefix.startswith(b"\x1f\x8b"):
-        return gzip.open(path, "rb"), "gzip"
+        return gzip.GzipFile(fileobj=source, mode="rb"), container + "gzip"
     if prefix in NEWC_MAGICS:
-        return open(path, "rb"), "raw newc"
+        return source, container + "raw newc"
     raise ContractError(
-        "unsupported rootfs archive (need raw newc, .cpio.gz, or .cpio.xz)")
+        "unsupported rootfs payload (need raw newc, .cpio.gz, or .cpio.xz)")
 
 
 def marker_rows(path):
@@ -155,12 +187,23 @@ def _load_layout(path):
     return layout, owner
 
 
-def check_pair(layout_path, rootfs_path=None, expected_owner=None):
+def check_pair(layout_path, rootfs_path=None, expected_owner=None,
+               bit_path=None, expected_fpga_part=None):
     layout, owner = _load_layout(layout_path)
     if expected_owner is not None and owner != expected_owner:
         raise ContractError(
             f"layout owner is {owner!r}, selected build expects "
             f"{expected_owner!r}")
+    if expected_fpga_part is not None and bit_path is None:
+        raise ContractError("--expected-fpga-part requires --bit")
+    if bit_path is not None:
+        try:
+            bound = validate_artifact_pair(
+                layout_path, bit_path, expected_fpga_part)
+        except TransitionError as exc:
+            raise ContractError(f"layout/bitstream binding failed: {exc}") from exc
+        if bound["owner"] != owner:
+            raise ContractError("layout owner changed during bitstream binding")
 
     has_rootfs = any(row.get("name") == "rootfs"
                      for row in layout["images"])
@@ -168,7 +211,12 @@ def check_pair(layout_path, rootfs_path=None, expected_owner=None):
     # `kernel` layout whose rootfs arrives later over serialboot.  It still has
     # to name that exact archive here; otherwise the flash operation would
     # certify only half of the one-owner boot set.
-    needs_rootfs_check = has_rootfs or owner == "software"
+    # A serialboot caller supplies a rootfs even when it is not a QSPI-layout
+    # row.  Presence of that argument is itself a request to bind the archive;
+    # ignoring a marked fabric rootfs merely because manifest=none/kernel
+    # would recreate the two-owner bypass this checker exists to prevent.
+    needs_rootfs_check = (rootfs_path is not None or has_rootfs
+                          or owner == "software")
     if not needs_rootfs_check:
         return owner, "layout carries no rootfs image"
     if not rootfs_path:
@@ -217,11 +265,11 @@ def _newc(entries):
 def self_test():
     checks = 0
 
-    def expect(ok, layout, rootfs=None, expected=None):
+    def expect(ok, layout, rootfs=None, expected=None, bit=None, part=None):
         nonlocal checks
         checks += 1
         try:
-            check_pair(layout, rootfs, expected)
+            check_pair(layout, rootfs, expected, bit, part)
         except ContractError:
             if ok:
                 raise
@@ -318,6 +366,59 @@ def self_test():
             json.dump({"gptp_owner": "fabric", "manifest": "baremetal",
                        "images": [{"name": "aem"}]}, stream)
         expect(True, baremetal)
+        expect(True, baremetal, archives[False, "cpio.xz"])
+        expect(False, baremetal, archives[True, "cpio.xz"])
+
+        def fbi(payload):
+            return (struct.pack("<II", len(payload),
+                                binascii.crc32(payload) & 0xFFFF_FFFF)
+                    + payload)
+
+        fbi_plain = os.path.join(temp, "plain-rootfs.fbi")
+        fbi_marked = os.path.join(temp, "marked-rootfs.fbi")
+        plain_xz = open(archives[False, "cpio.xz"], "rb").read()
+        marked_xz = open(archives[True, "cpio.xz"], "rb").read()
+        with open(fbi_plain, "wb") as stream:
+            stream.write(fbi(plain_xz))
+        with open(fbi_marked, "wb") as stream:
+            stream.write(fbi(marked_xz))
+        expect(True, layout("fabric"), fbi_plain)
+        expect(True, layout("software"), fbi_marked)
+        corrupt_fbi = os.path.join(temp, "corrupt-rootfs.fbi")
+        with open(corrupt_fbi, "wb") as stream:
+            damaged = bytearray(fbi(marked_xz))
+            damaged[-1] ^= 1
+            stream.write(damaged)
+        expect(False, layout("software"), corrupt_fbi)
+
+        paired = os.path.join(temp, "paired")
+        os.makedirs(os.path.join(paired, "gateware"))
+        paired_bit = os.path.join(paired, "gateware", "board.bit")
+        from qspi_owner_transition import _fake_bit
+        _fake_bit(paired_bit, b"\xff" * 16 + b"\xaa\x99\x55\x66paired")
+        paired_layout = os.path.join(paired, "flashboot_layout.json")
+        with open(paired_layout, "w", encoding="utf-8") as stream:
+            json.dump({"gptp_owner": "fabric", "manifest": "full",
+                       "complete": True, "images": [
+                           {"name": "bitstream", "offset": 0,
+                            "budget": 0x400000},
+                           {"name": "rootfs", "offset": 0x400000,
+                            "budget": 0x100000},
+                       ]}, stream)
+        plain = archives[False, "cpio.xz"]
+        expect(True, paired_layout, plain, bit=paired_bit,
+               part="xc7a100tfgg484")
+        expect(False, paired_layout, plain, bit=paired_bit,
+               part="xc7a200tfbg484")
+        expect(False, paired_layout, plain,
+               part="xc7a100tfgg484")
+        expect(False, layout("fabric"), plain, bit=paired_bit,
+               part="xc7a100tfgg484")
+        corrupt_bit = os.path.join(paired, "gateware", "corrupt.bit")
+        with open(corrupt_bit, "wb") as stream:
+            stream.write(b"not a Xilinx bitstream")
+        expect(False, paired_layout, plain, bit=corrupt_bit,
+               part="xc7a100tfgg484")
 
     print(f"[gptp-owner] self-test: {checks}/{checks} checks pass")
 
@@ -327,6 +428,8 @@ def main(argv=None):
     parser.add_argument("--layout")
     parser.add_argument("--rootfs")
     parser.add_argument("--expected-owner", choices=OWNERS)
+    parser.add_argument("--bit")
+    parser.add_argument("--expected-fpga-part")
     parser.add_argument("--self-test", action="store_true")
     args = parser.parse_args(argv)
     if args.self_test:
@@ -336,7 +439,8 @@ def main(argv=None):
         parser.error("--layout is required")
     try:
         owner, detail = check_pair(
-            args.layout, args.rootfs, args.expected_owner)
+            args.layout, args.rootfs, args.expected_owner,
+            args.bit, args.expected_fpga_part)
     except ContractError as exc:
         print(f"[gptp-owner] REFUSED: {exc}", file=sys.stderr)
         return 2

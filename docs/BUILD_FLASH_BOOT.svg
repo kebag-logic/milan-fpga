@@ -3,7 +3,7 @@
 <rect width="2002" height="735" fill="#FAFAFA"/>
 <text x="40" y="56" font-size="30" font-weight="bold" fill="#263238">Build → Flash → Boot → Verify — the AX7101 pipeline</text>
 <text x="40" y="88" font-size="15" fill="#546E7A">One flow, four stages. Each stage lists the real commands (bold) and the load-bearing rules. Details: docs/integration/BUILDING · LITEX_SOC · QSPI_FLASHBOOT · findings/BENCH_TOPOLOGY.</text>
-<text x="40" y="112" font-size="15" fill="#546E7A">The one rule that costs a session if missed: flash one build directory only — compiled owner, bitstream and raw AEM must remain paired.</text>
+<text x="40" y="112" font-size="15" fill="#546E7A">Persistent writes require two exact build identities: live-proven installed BIT/LAYOUT and one fully prepared target set.</text>
 <rect x="40" y="150" width="440" height="369" rx="10" fill="#E8F5E9" stroke="#2E7D32" stroke-width="2"/>
 <rect x="40" y="150" width="440" height="56" rx="10" fill="#2E7D32" stroke="#2E7D32"/>
 <rect x="40" y="194" width="440" height="12" fill="#2E7D32"/>
@@ -29,14 +29,14 @@
 <text x="552" y="177" font-size="19" font-weight="bold" fill="#ffffff">2 · FLASH</text>
 <text x="552" y="195" font-size="12.5" fill="#ffffff" fill-opacity="0.92">JTAG → QSPI (16 MB)</text>
 <rect x="546" y="218" width="416" height="30" rx="5" fill="#263238"/>
-<text x="555" y="238" font-size="12.5" font-family="Menlo,Consolas,monospace" fill="#B9F6CA">build.sh flash ax7101:&lt;builddir&gt;</text>
-<text x="552" y="275" font-size="13" fill="#37474F">preflight: compiled owner = fabric</text>
-<text x="552" y="312" font-size="13" fill="#37474F">bitstream @0 · raw AEM @4 MiB</text>
-<text x="552" y="349" font-size="13" fill="#37474F">matched build dir + per-slot budget</text>
+<text x="555" y="238" font-size="12.5" font-family="Menlo,Consolas,monospace" fill="#B9F6CA">INSTALLED_BUILD=&lt;old&gt; build.sh flash ax7101:&lt;new&gt;</text>
+<text x="552" y="275" font-size="13" fill="#37474F">live-read QSPI@0; match exact old/new .bit</text>
+<text x="552" y="312" font-size="13" fill="#37474F">prepare target; CRC-check live Linux rootfs</text>
+<text x="552" y="349" font-size="13" fill="#37474F">software/full→fabric/bare: bit, then AEM</text>
 <text x="552" y="386" font-size="13" fill="#37474F">every write uses --verify</text>
-<text x="552" y="423" font-size="13" fill="#37474F">openFPGALoader -c ft232</text>
-<text x="552" y="460" font-size="13" fill="#37474F">RULE: flash the WHOLE set —</text>
-<text x="552" y="497" font-size="13" fill="#37474F">a gateware-only load won&#x27;t boot</text>
+<text x="552" y="423" font-size="13" fill="#37474F">retry recognizes source or target commit bit</text>
+<text x="552" y="460" font-size="13" fill="#37474F">direct partial writes: recovery escape only</text>
+<text x="552" y="497" font-size="13" fill="#37474F">boundary: torn offset-zero write needs A/B</text>
 <rect x="534" y="541" width="440" height="64" rx="8" fill="#ffffff" stroke="#EF6C00" stroke-width="1.6" stroke-dasharray="5 3"/>
 <text x="548" y="561" font-size="11.5" font-weight="bold" fill="#EF6C00">OUTPUT</text>
 <text x="548" y="579" font-size="12.5" fill="#212121">persistent QSPI image:</text>
@@ -80,6 +80,6 @@
 <text x="1536" y="596" font-size="12.5" fill="#212121">physical acceptance stays on #117</text>
 <rect x="40" y="639" width="1922" height="72" rx="10" fill="#FFEBEE" stroke="#C62828" stroke-width="2"/>
 <text x="60" y="665" font-size="15" font-weight="bold" fill="#C62828">↩ Recovery — the board is not a brick</text>
-<text x="60" y="687" font-size="12.8" fill="#37474F">power-host powerstrip off N &amp;&amp; powerstrip on N (outlet N is bench-specific) reverts to the known-good paired QSPI image · JTAG-load to SRAM tests without flashing</text>
-<text x="60" y="705" font-size="12.8" fill="#37474F">never mix a bitstream, layout and AEM from different build directories  ·  full field log: docs/limitations/TROUBLESHOOTING.md</text>
+<text x="60" y="687" font-size="12.8" fill="#37474F">retry flash-pair with the same installed reference (source/target commit bits are recognized) · JTAG-load to SRAM tests without persistent writes</text>
+<text x="60" y="705" font-size="12.8" fill="#37474F">a torn offset-zero erase/program needs physical recovery or A/B MultiBoot  ·  full field log: docs/limitations/TROUBLESHOOTING.md</text>
 </svg>

@@ -3,9 +3,9 @@
 The shipping AX7101 profile uses one RV32I VexiiRiscv hart in machine mode,
 with no supervisor mode, MMU, Linux, FPU, L1 cache, L2 cache or LiteX SDRAM
 cache. It uses the fabric gPTP plane bought by #114, now the product and RTL
-default. Linux remains a supported bring-up profile for the Arty and AX7101
-8x8 configurations; an explicit `fabric_gptp: false` profile is the retained
-software-owner comparison.
+default. Linux is also the supported product boot profile for the AX7101 8x8
+configuration without changing that owner; an explicit `fabric_gptp: false`
+profile is the retained software-owner comparison.
 
 The capability rows on this page are checked against the
 [Milan feature status ledger](../reference/MILAN_FEATURE_STATUS.md):
@@ -69,12 +69,18 @@ builder-generated protocol-processor entity image:
 | bitstream | `0x000000` | 4 MiB | raw FPGA configuration | FPGA configuration logic |
 | AEM image | `0x400000` | 64 KiB | raw `aem_desc.bin` beginning with `AEMI` | bare-metal firmware |
 
-`deploy.sh flash-images` writes the AEM image raw. It must not receive a
-LiteX FBI header. At build time the firmware receives the image length, CRC32
-and DRAM destination as generated constants. The PHC is enabled by the CSR
-reset and the option-on fabric gPTP plane starts independently of the AVDECC
-AEM image. Firmware therefore does not gate either one on AEM verification.
-It performs this order:
+`deploy.sh flash-pair` writes the AEM image raw as the non-bit member of a
+proved transition; it must not receive a LiteX FBI header. When moving from a
+software/full-Linux installation, the verified fabric bit is the first write
+and AEM is second, so fabric gPTP exists even if the transaction stops between
+them. This autonomous profile is also the mandatory bridge for a persistent
+owner change between fabric/full-Linux and software/full-Linux: flipping the
+single rootfs marker and the bitstream directly cannot avoid a zero- or
+two-owner reboot boundary. At build time the firmware receives the image length, CRC32 and DRAM
+destination as generated constants. The PHC is enabled by the CSR reset and the
+option-on fabric gPTP plane starts independently of the AVDECC AEM image.
+Firmware therefore does not gate either one on AEM verification. It performs
+this order:
 
 1. Keep both compatibility enable bits clear, leaving the shared AVDECC
    control plane disabled while the PHC and fabric gPTP plane remain active.

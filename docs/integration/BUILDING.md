@@ -86,7 +86,7 @@ cd sw/litex
 | `TAG=fold2 ./build.sh arty` | output dir `work/build_arty_fold2` (default TAG = mmddHHMM) |
 | `./build.sh arty -- --sys-clk-freq 90e6` | append/override milan_soc.py arguments |
 | `./build.sh ... --dry-run` | print the exact launch commands, start nothing |
-| `./build.sh flash <config>[:<builddir>]` | flash the newest matching build (or the named one) to QSPI: bitstream @0, then that build's manifest images - see section 4 |
+| `INSTALLED_BUILD=<current> ./build.sh flash <config>[:<target-builddir>]` | prove the current QSPI bitstream, then flash the target set in its owner-safe order — see section 4 |
 
 Outputs land in `~/litex-milan/work/build_<config>[_<directive>]_<TAG>/`
 with a `*.launch.log` next to each. Builds run detached; check progress with
@@ -117,11 +117,13 @@ flash manifest, `--gtx-tx-invert`, `--timing-opt --floorplan`, and a
 three-directive placement sweep. See
 [BAREMETAL_FIRMWARE.md](BAREMETAL_FIRMWARE.md).
 
-### `ax8x8`  -  AX7101 Linux option-off bring-up, 8-stream (64-channel) shape
+### `ax8x8`  -  AX7101 Linux + product fabric gPTP, 8-stream (64-channel) shape
 
-Same board, but deliberately retains the Linux bring-up flow as the explicit
-`--no-fabric-gptp` software-owner comparison, with cached Vexii CPU, ALSA
-sound-card rings and full Linux flash manifest. It uses
+Same board, but retains the Linux bring-up flow while keeping the
+product-default `--fabric-gptp` owner. Its unmarked rootfs starts no linuxptp
+graph; the Arty recipe remains the explicit option-OFF software comparison.
+The AX shape has a cached Vexii CPU, ALSA sound-card rings and full Linux flash
+manifest. It uses
 `--num-streams 8`, `--rx-queues 2`, `--l2-bytes 16384`, and place directive
 AltSpreadLogic_high. The second RX queue is required because a one-queue build
 has no flow-steer block; under bulk traffic, ptp4l then shares the bulk ring and
@@ -274,17 +276,44 @@ AX bare-metal manifest instead carries only raw `aem_desc.bin` at 4 MiB in a
 64 KiB slot; firmware itself is linked into ROM. Always read the build's
 `flashboot_layout.json`; details are in
 [QSPI_FLASHBOOT.md](QSPI_FLASHBOOT.md). Flash with
-`./build.sh flash <config>[:<builddir>]`. Before the bitstream write, the
-launcher checks that the named recipe's expected gPTP owner equals the
-`gptp_owner` enum compiled into that build's layout. For a layout carrying a
-rootfs it also opens the actual `ROOTFS=...` cpio archive: `software` requires
-exactly one regular `etc/milan-gptp-software-owner` entry; `fabric` and `none`
-require none. Missing legacy metadata, a missing/corrupt archive, or either
-inversion refuses the operation before programmer I/O. The verified bitstream
-write is followed by `deploy.sh flash-images`, which repeats that preflight and
-then applies per-image slot budgets plus `--verify`. `deploy.sh check-images`
-runs the same read-only check explicitly. JTAG load still runs a build from SRAM
-without touching flash.
+`INSTALLED_BUILD=<exact-current-build> ./build.sh flash
+<config>[:<target-builddir>]` (or supply explicit `INSTALLED_LAYOUT` and
+`INSTALLED_BIT`). The launcher delegates to `deploy.sh flash-pair`, which:
+
+1. binds each BIT/LAYOUT pair to one build directory and rejects `none`, partial
+   Linux, software-to-software persistent refreshes, a `.bit` whose FPGA part
+   differs from the selected programmer part, and a direct owner change between
+   fabric/full-Linux and software/full-Linux;
+2. opens the actual target `ROOTFS` cpio (`software` requires exactly one regular
+   `etc/milan-gptp-software-owner`) and pre-materializes/size-checks every target
+   image before a QSPI write;
+3. dumps live QSPI offset zero from the serial-selected board and byte-matches
+   the Xilinx `.bit` payload against the supplied installed or target artifact;
+4. writes every target non-bit image before the commit bit for fabric→software
+   and fabric→fabric, and writes a fabric/baremetal bit before AEM for
+   software→fabric/baremetal. Every write uses `--verify`.
+
+A direct fabric/full-Linux ↔ software/full-Linux change cannot preserve the
+one-owner invariant in one rootfs slot: bit-first yields fabric plus a marked
+rootfs, while rootfs-first yields software gateware plus an unmarked rootfs.
+Use the autonomous `ax7101` fabric/baremetal image as a proved two-transaction
+bridge. A live target full-Linux bit is considered complete only when every
+target non-bit image already byte-matches; it is never provenance for a repair.
+
+An assertion such as `INSTALLED_GPTP_OWNER=software` is not accepted as proof.
+Unknown/ambiguous readback, a wrong board/build, corrupt metadata, either marker
+inversion, or a missing/oversized last artifact refuses without a write.
+For a live full-Linux source, the transaction reads and CRC-checks the installed
+FBI rootfs and validates its marker against the installed layout owner.
+`deploy.sh check-images` retains the read-only target-pair check. Direct
+`flash`/`flash-images` are recovery primitives and require the explicit
+`ALLOW_NONATOMIC_FLASH=1` escape; named builds never set it. JTAG load still
+runs a build from SRAM without touching flash.
+
+The ordering guarantee covers every *completed, verified* programmer-write
+prefix and makes a failed transaction safely resumable. Power loss during the
+single offset-zero erase/program itself can still tear that bitstream; removing
+that hardware boundary requires an A/B or MultiBoot flash layout.
 
 After a Linux flash, run [`scripts/hostplane_smoke.sh`](../../scripts/hostplane_smoke.sh)
 on the board shell. A Linux build with sound-card surfaces intentionally off

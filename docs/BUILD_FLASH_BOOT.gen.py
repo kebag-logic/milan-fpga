@@ -23,14 +23,14 @@ STAGES = [
    ("GATE: WNS ≥ 0", 0),
  ], "gateware .bit + raw aem_desc.bin\n(no Linux boot images)"),
  ("2 · FLASH", "JTAG → QSPI (16 MB)", ORANGE, [
-   ("build.sh flash ax7101:<builddir>", 1),
-   ("preflight: compiled owner = fabric", 0),
-   ("bitstream @0 · raw AEM @4 MiB", 0),
-   ("matched build dir + per-slot budget", 0),
+   ("INSTALLED_BUILD=<old> build.sh flash ax7101:<new>", 1),
+   ("live-read QSPI@0; match exact old/new .bit", 0),
+   ("prepare target; CRC-check live Linux rootfs", 0),
+   ("software/full→fabric/bare: bit, then AEM", 0),
    ("every write uses --verify", 0),
-   ("openFPGALoader -c ft232", 0),
-   ("RULE: flash the WHOLE set —", 0),
-   ("a gateware-only load won't boot", 0),
+   ("retry recognizes source or target commit bit", 0),
+   ("direct partial writes: recovery escape only", 0),
+   ("boundary: torn offset-zero write needs A/B", 0),
  ], "persistent QSPI image:\nbitstream@0 · paired raw AEM image"),
  ("3 · BOOT", "on target · self-configures", BLUE, [
    ("power on / power-cycle", 1),
@@ -51,7 +51,7 @@ STAGES = [
    ("BENCH_TOPOLOGY.md = the rig", 0),
  ], "digitally validated candidate;\nphysical acceptance stays on #117"),
 ]
-RECOVERY = "Recovery — board wedged or won't boot:  power-host powerstrip off N && powerstrip on N  (reverts to the known-good paired QSPI image; outlet N is bench-specific) · JTAG-load a bitstream to SRAM to test without flashing · never mix a bitstream, layout and AEM from different build directories"
+RECOVERY = "Recovery — retry flash-pair with the same exact installed reference; it accepts the source or target commit bit · power-host powerstrip off N && powerstrip on N (outlet N is bench-specific) · JTAG-load to SRAM for nonpersistent tests · a torn offset-zero erase/program requires recovery or A/B MultiBoot"
 
 X0,Y0=40,150; CW,CG=440,54; HDR=56; RH,RGAP=30,7; PAD=12; OUT_H=64
 def stage_h(lines): return HDR+PAD+len(lines)*(RH+RGAP)-RGAP+PAD
@@ -69,7 +69,7 @@ def svg():
     o.append('<rect width="%d" height="%d" fill="#FAFAFA"/>'%(W,H))
     o.append('<text x="%d" y="56" font-size="30" font-weight="bold" fill="#263238">Build → Flash → Boot → Verify — the AX7101 pipeline</text>'%X0)
     o.append('<text x="%d" y="88" font-size="15" fill="#546E7A">One flow, four stages. Each stage lists the real commands (bold) and the load-bearing rules. Details: docs/integration/BUILDING · LITEX_SOC · QSPI_FLASHBOOT · findings/BENCH_TOPOLOGY.</text>'%X0)
-    o.append('<text x="%d" y="112" font-size="15" fill="#546E7A">The one rule that costs a session if missed: flash one build directory only — compiled owner, bitstream and raw AEM must remain paired.</text>'%X0)
+    o.append('<text x="%d" y="112" font-size="15" fill="#546E7A">Persistent writes require two exact build identities: live-proven installed BIT/LAYOUT and one fully prepared target set.</text>'%X0)
     for i,(name,tool,(fill,stroke),lines,out) in enumerate(STAGES):
         x=col_x(i)
         o.append('<rect x="%d" y="%d" width="%d" height="%d" rx="10" fill="%s" stroke="%s" stroke-width="2"/>'%(x,Y0,CW,box_h,fill,stroke))
@@ -97,8 +97,8 @@ def svg():
     # recovery banner
     o.append('<rect x="%d" y="%d" width="%d" height="72" rx="10" fill="%s" stroke="%s" stroke-width="2"/>'%(X0,rec_y,W-2*X0,RED[0],RED[1]))
     o.append('<text x="%d" y="%d" font-size="15" font-weight="bold" fill="%s">↩ Recovery — the board is not a brick</text>'%(X0+20,rec_y+26,RED[1]))
-    o.append('<text x="%d" y="%d" font-size="12.8" fill="#37474F">power-host powerstrip off N &amp;&amp; powerstrip on N (outlet N is bench-specific) reverts to the known-good paired QSPI image · JTAG-load to SRAM tests without flashing</text>'%(X0+20,rec_y+48))
-    o.append('<text x="%d" y="%d" font-size="12.8" fill="#37474F">never mix a bitstream, layout and AEM from different build directories  ·  full field log: docs/limitations/TROUBLESHOOTING.md</text>'%(X0+20,rec_y+66))
+    o.append('<text x="%d" y="%d" font-size="12.8" fill="#37474F">retry flash-pair with the same installed reference (source/target commit bits are recognized) · JTAG-load to SRAM tests without persistent writes</text>'%(X0+20,rec_y+48))
+    o.append('<text x="%d" y="%d" font-size="12.8" fill="#37474F">a torn offset-zero erase/program needs physical recovery or A/B MultiBoot  ·  full field log: docs/limitations/TROUBLESHOOTING.md</text>'%(X0+20,rec_y+66))
     o.append('</svg>')
     return "\n".join(o)
 
@@ -120,7 +120,7 @@ def drawio():
         nid=add(x,Y0,CW,box_h,"%s   —   %s\n\n%s"%(name,tool,body),fill,stroke,13,1); ids.append(nid)
         add(x,out_y,CW,OUT_H,"OUTPUT\n"+out,"#ffffff",stroke,12,0)
     for a,b in zip(ids,ids[1:]): edge(a,b)
-    add(X0,rec_y,W-2*X0,72,"↩ Recovery — the board is not a brick\npower-host powerstrip off N && powerstrip on N (known-good paired QSPI; outlet N is bench-specific) · JTAG-load to SRAM tests without flashing · never mix bitstream/layout/AEM build directories",RED[0],RED[1],13,1)
+    add(X0,rec_y,W-2*X0,72,"↩ Recovery — retry flash-pair with the same installed reference; source/target commit bits are recognized · JTAG-load to SRAM for nonpersistent tests · a torn offset-zero write needs physical recovery or A/B MultiBoot",RED[0],RED[1],13,1)
     body="\n".join(cells)
     return ('<mxfile host="app.diagrams.net"><diagram name="build-flash-boot">'
             '<mxGraphModel dx="1400" dy="900" grid="0" guides="1" tooltips="1" connect="1" arrows="1" fold="1" '

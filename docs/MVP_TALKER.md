@@ -109,6 +109,8 @@ discoverable but unreadable (banner above).
 
 ## Flash (v3 QSPI-boot, one verb)
 
-`build.sh flash arty:build_arty_<seed>_arty_v9` -> bitstream@0 + Image.xz +
-opensbi + dtb + rootfs. Set Arty JP1 -> QSPI at the bench; power-cycle boots
-gateware + Linux + S50milan -> streaming.
+`INSTALLED_BUILD=<exact-current-build> build.sh flash
+arty:build_arty_<seed>_arty_v9` live-proves the current bit, then commits the
+full bitstream@0 + Image.xz + OpenSBI + DTB + rootfs set in its verified safe
+order. Set Arty JP1 -> QSPI at the bench; power-cycle boots gateware + Linux +
+S50milan -> streaming.

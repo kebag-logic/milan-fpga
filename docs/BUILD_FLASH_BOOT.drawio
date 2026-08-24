@@ -15,14 +15,14 @@ gateware .bit + raw aem_desc.bin
 (no Linux boot images)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#2E7D32;fontSize=12;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#212121;" vertex="1" parent="1"><mxGeometry x="40" y="541" width="440" height="64" as="geometry"/></mxCell>
 <mxCell id="n5" value="2 · FLASH   —   JTAG → QSPI (16 MB)
 
-$ build.sh flash ax7101:&lt;builddir&gt;
-  preflight: compiled owner = fabric
-  bitstream @0 · raw AEM @4 MiB
-  matched build dir + per-slot budget
+$ INSTALLED_BUILD=&lt;old&gt; build.sh flash ax7101:&lt;new&gt;
+  live-read QSPI@0; match exact old/new .bit
+  prepare target; CRC-check live Linux rootfs
+  software/full→fabric/bare: bit, then AEM
   every write uses --verify
-  openFPGALoader -c ft232
-  RULE: flash the WHOLE set —
-  a gateware-only load won&#x27;t boot" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#EF6C00;fontSize=13;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#212121;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="534" y="150" width="440" height="369" as="geometry"/></mxCell>
+  retry recognizes source or target commit bit
+  direct partial writes: recovery escape only
+  boundary: torn offset-zero write needs A/B" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#EF6C00;fontSize=13;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#212121;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="534" y="150" width="440" height="369" as="geometry"/></mxCell>
 <mxCell id="n6" value="OUTPUT
 persistent QSPI image:
 bitstream@0 · paired raw AEM image" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#EF6C00;fontSize=12;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#212121;" vertex="1" parent="1"><mxGeometry x="534" y="541" width="440" height="64" as="geometry"/></mxCell>
@@ -53,5 +53,4 @@ physical acceptance stays on #117" style="rounded=1;whiteSpace=wrap;html=1;fillC
 <mxCell id="e11" style="endArrow=block;html=1;strokeColor=#455A64;strokeWidth=3;" edge="1" parent="1" source="n3" target="n5"><mxGeometry relative="1" as="geometry"/></mxCell>
 <mxCell id="e12" style="endArrow=block;html=1;strokeColor=#455A64;strokeWidth=3;" edge="1" parent="1" source="n5" target="n7"><mxGeometry relative="1" as="geometry"/></mxCell>
 <mxCell id="e13" style="endArrow=block;html=1;strokeColor=#455A64;strokeWidth=3;" edge="1" parent="1" source="n7" target="n9"><mxGeometry relative="1" as="geometry"/></mxCell>
-<mxCell id="n14" value="↩ Recovery — the board is not a brick
-power-host powerstrip off N &amp;&amp; powerstrip on N (known-good paired QSPI; outlet N is bench-specific) · JTAG-load to SRAM tests without flashing · never mix bitstream/layout/AEM build directories" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFEBEE;strokeColor=#C62828;fontSize=13;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#212121;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="40" y="639" width="1922" height="72" as="geometry"/></mxCell></root></mxGraphModel></diagram></mxfile>
+<mxCell id="n14" value="↩ Recovery — retry flash-pair with the same installed reference; source/target commit bits are recognized · JTAG-load to SRAM for nonpersistent tests · a torn offset-zero write needs physical recovery or A/B MultiBoot" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFEBEE;strokeColor=#C62828;fontSize=13;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#212121;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="40" y="639" width="1922" height="72" as="geometry"/></mxCell></root></mxGraphModel></diagram></mxfile>

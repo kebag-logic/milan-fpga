@@ -113,7 +113,7 @@ FLASHBOOT_ENTRY = 0x40F0_0000  # OpenSBI fw_jump entry
 FLASHBOOT_LAYOUT = {
     #  name       flash_offset      dram_addr        budget (v2 QSPI-boot layout)
     # v3 (2026-07-12): QSPI-booted BITSTREAM at 0x0 (compressed, config-read;
-    # flashed via `deploy.sh flash`, never fbi-wrapped) + XZ KERNEL: the slot
+    # committed by `deploy.sh flash-pair`, never fbi-wrapped) + XZ KERNEL: the slot
     # holds the kernel build's own Image.xz (MEASURED 2.52 MB, xz -9
     # --check=crc32) and the BIOS decompresses it with the vendored
     # xz_embedded (patch 0003; staged at kernel_addr+24 MB, 64 KB arena at
@@ -134,7 +134,7 @@ FLASHBOOT_LAYOUT = {
     # (fpga/buildroot commit trail) to land back under this budget WITH slack.
     # ONLY the rootfs ceiling and the two reserved slots move: the four boot
     # image offsets are untouched, so a bitstream built against v4 boots the
-    # same flash. `deploy.sh flash-images` prints each image's size next
+    # same flash. `deploy.sh flash-pair` prints each image's size next
     # to its budget before writing anything - READ THAT LINE, it is the
     # pre-flash check that the rootfs still fits (SAVED_STATE_FASTCONNECT.md
     # section 11 gate G0). See the OPEN ITEM note under FLASHBOOT_RESERVED.
@@ -154,7 +154,7 @@ FLASHBOOT_MANIFESTS = {
 FLASHBOOT_AEM = {"offset": 0x40_0000, "addr": 0x0, "size": 0x01_0000}
 
 # Writable slots. NOT boot images: the BIOS never copies them, deploy.sh never
-# writes them, and `build.sh flash` / `deploy.sh flash-images` MUST NOT erase
+# writes them, and `build.sh flash` / `deploy.sh flash-pair` MUST NOT erase
 # them on a reflash - a gateware update that silently wipes saved bindings and
 # fault logs is worse than not having them, because the entity then comes back
 # unbound *sometimes*.  They are declared here so that the flash map has ONE
@@ -6747,15 +6747,14 @@ def main():
     gptp_group = ap.add_mutually_exclusive_group()
     gptp_group.add_argument("--fabric-gptp", dest="fabric_gptp",
                             action="store_true",
-                            help="use the fabric gPTP plane (the baremetal "
-                                 "profile's default) and the builder's "
+                            help="use the fabric gPTP plane (the product "
+                                 "default for every Milan software profile) and the builder's "
                                  "MAC/priority/clock-specific ROM")
     gptp_group.add_argument("--no-fabric-gptp", dest="fabric_gptp",
                             action="store_false",
                             help="retain the software gPTP publication path "
-                                 "for comparison (the linux profile's default)")
-    # Omission follows the software profile; explicit mismatches are refused
-    # after parsing below.
+                                 "for the explicit Linux comparison")
+    # Resolve omission after parsing because --no-milan has no gPTP owner.
     ap.set_defaults(fabric_gptp=None)
     ap.add_argument("--no-render-lpf", action="store_true",
                     help="AREA LEVER (banked, docs/design/AREA_BUDGET.md): prune "
@@ -6992,15 +6991,9 @@ def main():
     elif args.flashboot == "baremetal":
         ap.error("--flashboot baremetal requires --software-profile baremetal")
     if args.fabric_gptp is None:
-        args.fabric_gptp = (args.software_profile == "baremetal"
-                            and not args.no_milan)
+        args.fabric_gptp = not args.no_milan
     if args.fabric_gptp and args.no_milan:
         ap.error("--fabric-gptp requires the Milan datapath")
-    if args.fabric_gptp and args.software_profile == "linux":
-        ap.error("--fabric-gptp is incompatible with --software-profile linux "
-                 "because both own the PHC; that profile is reserved for the "
-                 "explicit software-owner comparison. Use --no-fabric-gptp "
-                 "or the baremetal fabric-owner profile")
     if (not args.fabric_gptp and args.software_profile == "baremetal"
             and not args.no_milan):
         ap.error("--no-fabric-gptp leaves --software-profile baremetal with NO "
@@ -7240,7 +7233,7 @@ def main():
         print(f"[milan] entity model ({len(_desc_blob)} B) -> {_img_path} "
               f"@ 0x{soc._pp_windows['desc_base']:08x}")
     # Persist the flash-boot layout so deploy.sh writes the exact same offsets the BIOS
-    # was compiled with (single source of truth  -  see FLASHBOOT_LAYOUT / deploy.sh flash-images).
+    # was compiled with (single source of truth  -  see FLASHBOOT_LAYOUT / deploy.sh flash-pair).
     if getattr(soc, "_flashboot_layout", None):
         layout_path = os.path.join(builder.output_dir, "flashboot_layout.json")
         with open(layout_path, "w") as f:

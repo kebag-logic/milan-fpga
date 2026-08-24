@@ -404,10 +404,13 @@ as historical evidence only.
 ## 8. Acceptance (end-to-end)
 
 The interface is "done" when: (a) the driver binds via the generated DT and
-brings the link up through phylib; (b) `ethtool -T` advertises the PHC and
-`ptp4l`/`phc2sys` discipline the clock; (c) `tc qdisc … cbs offload 1` programs
-the HW shaper and SR streams meet their reservation while BE uses the remainder;
-(d) `ethtool -S` returns HW counters; (e) the CBS and CSR harnesses pass in CI.
+brings the link up through phylib; (b) `ethtool -T` advertises the PHC and the
+selected gPTP owner disciplines it and publishes coherent live state — the
+fabric plane in the shipping profile, or `ptp4l` plus sink-only `phc2sys` in
+the explicit option-off software comparison; (c) `tc qdisc … cbs offload 1`
+programs the HW shaper and SR streams meet their reservation while BE uses the
+remainder; (d) `ethtool -S` returns HW counters; (e) the CBS and CSR harnesses
+pass in CI.
 
 ## 9. Original brief (preserved)
 

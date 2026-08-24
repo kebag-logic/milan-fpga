@@ -331,7 +331,8 @@ The order is: build (Section 6) → flash a **matched image set** (a gateware-on
 will not boot) → boot Linux → bring the network up → connect a stream.
 
 1. [`docs/integration/QSPI_FLASHBOOT.md`](docs/integration/QSPI_FLASHBOOT.md) —
-   flash layout, `deploy.sh flash-images`, why the set must match.
+   flash layout, the live-proof `deploy.sh flash-pair` transaction, and why the
+   installed and target sets must both be exact.
 2. [`docs/limitations/TROUBLESHOOTING.md`](docs/limitations/TROUBLESHOOTING.md) —
    the field log: symptom → cause → fix, for boot, flash, link and stream faults.
 3. [`docs/testing/MILAN_V12_AUDIT_2026-08-16.md`](docs/testing/MILAN_V12_AUDIT_2026-08-16.md)

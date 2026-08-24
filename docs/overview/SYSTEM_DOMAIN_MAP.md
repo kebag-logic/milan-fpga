@@ -23,7 +23,7 @@ layout model with [`SYSTEM_DOMAIN_MAP.gen.py`](../SYSTEM_DOMAIN_MAP.gen.py)
 | **Milan datapath  -  RTL** | SystemVerilog / Verilog | FPGA fabric | The actual TSN logic in **milan-fpga** `hdl/`: `milan_datapath`/`milan_top`, `milan_csr` (the register ABI), the 802.1Q CBS shaper, PTP timestamp unit, 1722 AVTP + AVDECC ADP parsers, event counters, `rx_mac_filter`/`tcam`, CDC. |
 | **Vendored IP** | 3rd-party cores | FPGA fabric | VexiiRiscv/NaxRiscv (RV64 CPUs), LiteEth (MAC + GMII/RGMII PHY), LiteDRAM (DDR3), LiteSPI (QSPI), verilog-axis (Forencich). Not ours  -  pinned upstream. |
 | **Board / silicon** | physical |  -  | XC7A100T-2FGG484, DDR3 512 MB, 16 MB QSPI (N25Q128), RTL8211E GbE PHY, 200 MHz clock. |
-| **Host tooling** | Python / bash | dev host | `milan_soc.py` (SoC gen), `milan_dt.py` (device-tree gen), `deploy.sh` (build/load/flash/flash-images), `boot.sh`, `patches/apply.sh`, `crcfbigen`  -  they **generate, flash and boot** the whole stack. |
+| **Host tooling** | Python / bash | dev host | `milan_soc.py` (SoC gen), `milan_dt.py` (device-tree gen), `deploy.sh` (`flash-pair` live-proves and transactionally updates QSPI), `boot.sh`, `patches/apply.sh`, `crcfbigen` — they **generate, flash and boot** the whole stack. |
 
 The register map (`milan_csr`) is the contract that stitches three domains together: the RTL
 defines it, `milan_dt.py` publishes it into the device tree, and `kl-eth` consumes it  -  see

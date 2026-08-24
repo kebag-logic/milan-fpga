@@ -702,10 +702,15 @@ the opensbi image** (`FW_FDT_PATH`). Flashing a corrected `.dtb` into its slot c
 the fix is to **rebuild opensbi around the corrected tree** (`build_opensbi.sh` in the private
 test repo) and flash *that*.
 
-[`deploy.sh`](../../sw/litex/deploy.sh) `flash-images` now refuses the mismatch outright:
+[`deploy.sh`](../../sw/litex/deploy.sh) `flash-pair` now refuses the mismatch
+while preparing the complete target set, before any write:
 [`check_dtb_csr.py`](../../sw/litex/check_dtb_csr.py) validates the `kl,dma-ether` windows
 against the build's `csr.csv` for **both** `$DTB` and `$OPENSBI` - it carves the embedded FDT
-out of any binary, so the image that actually boots is the image that gets checked.
+out of any binary, so the image that actually boots is the image that gets checked. The same
+transaction then proves the live offset-zero `.bit` payload and orders verified writes by
+the installed→target owner direction. A full-Linux source also has its live FBI rootfs
+CRC and owner marker checked before writing; direct partial commands require the explicit
+`ALLOW_NONATOMIC_FLASH=1` recovery escape.
 
 **Lessons.**
 

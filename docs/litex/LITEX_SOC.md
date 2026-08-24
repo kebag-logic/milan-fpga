@@ -29,7 +29,7 @@ build/boot recipe stays in [`sw/README.md`](../../sw/README.md) and
 |---|---|---|
 | `milan_soc.py` | **The SoC.** CRG, CPU (VexiiRiscv/NaxRiscv), DDR3, LiteEth MAC, Milan datapath attach, ring-DMA engines, IRQs, QSPI flash-boot layout, CLI | everyone |
 | `platforms/alinx_ax7101.py` | The board: pins (clk200, UART, GMII "e1" + RGMII "e2" RTL8211E PHYs, DDR3 2×MT41J256M16 = 512 MB, N25Q128 QSPI, LEDs), `xc7a100t-fgg484-2`, openFPGALoader programming | board porters |
-| `deploy.sh` | Turnkey `build / load / flash / flash-images / console` for the AX7101; **encodes the known-good flag set** (Section 4) | everyone |
+| `deploy.sh` | Turnkey `build / load / flash-pair / console` for the AX7101; live-proves the installed QSPI owner and keeps direct partial writes behind an explicit recovery escape | everyone |
 | `milan_sim.py` | Verilator **SoC-level sim**: boots the LiteX BIOS on a softcore with the real `milan_datapath` at `0x9000_0000`, proves the CPU⇄CSR path (reads ID `"MILN"`, milestone M-A2) | everyone |
 | `patches/` | LiteX-ecosystem patches + `apply.sh` (Section 6) | everyone |
 | `test_ring_dma.py` (+ `test_ring_bd.py`, `test_ring_tx.py`, `test_ring_writeback.py`, `test_rx_steer.py`, `test_tx_bd.py`) | **Migen behavioral sims** of the DMA engines (self-checking, print `ALL PASS`); `test_ring_dma.py` is the base harness the others import | DMA developers |
@@ -198,7 +198,9 @@ The full named build configurations (`build.sh`) live in
 `FLASHBOOT_LAYOUT` / `FLASHBOOT_RESERVED` / `FLASHBOOT_MANIFESTS` in
 `milan_soc.py` are the **single source of truth** for the 16 MiB N25Q128
 layout; the build writes `flashboot_layout.json` so gateware and
-`deploy.sh flash-images` never drift. Guide:
+`deploy.sh flash-pair` never drifts from the compiled target and can prove the
+installed offset-zero payload plus the live FBI rootfs marker for a Linux
+source before choosing an order. Guide:
 [../integration/QSPI_FLASHBOOT.md](../integration/QSPI_FLASHBOOT.md).
 
 *What is at which offset, and what must a reflash never erase?* — the map,

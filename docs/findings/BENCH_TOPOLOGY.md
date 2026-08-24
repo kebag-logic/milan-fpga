@@ -211,7 +211,8 @@ cd ~/prjs-avb-on-fpga/milan-fpga && ./sw/litex/sweep.sh ax7101 <tag>
 # WNS: grep -B2 -A6 "Design Timing Summary" ~/litex-milan/work/build_*_<tag>/gateware/*_timing.rpt
 # Gate: WNS >= 0. Pick best seed.
 
-# AX7101 (current): AX_FTDI=210512180081 ./sw/litex/build.sh flash ax7101:<builddir>
+# AX7101 (current): AX_FTDI=210512180081 INSTALLED_BUILD=<exact-current-build> \
+#   ./sw/litex/build.sh flash ax7101:<target-builddir>
 # then cold-cycle: ssh <power-controller> 'powerstrip off 0; sleep 6; powerstrip on 0'
 # verify: devmem 0x90000004 reads the expected VERSION, and
 #         cat /sys/class/net/eth0/flags == 0x1203 (RX-shield posture, Section 8)
@@ -221,12 +222,14 @@ PATH="$HOME/litex-milan/venv/bin:$PATH" PYTHON="$HOME/litex-milan/venv/bin/pytho
 KERNEL=/tmp/scratch/Image.xz ROOTFS=/tmp/scratch/rootfs.cpio.xz \
 OPENSBI=~/the-private-test-repo/fpga/boot/opensbi_arty.bin \
 DTB=~/the-private-test-repo/fpga/boot/milan_arty_vexii.dtb \
+INSTALLED_BUILD=<exact-current-build> \
 ./sw/litex/build.sh flash arty:build_arty_<seed>_<tag>
 openFPGALoader --ftdi-serial <arty-ftdi-serial> -c digilent --reset   # then ~100 s boot
 
 # AX (QSPI boot since 2026-07-21: bitstream@0 + images, one verb):
 KERNEL=... ROOTFS=... OPENSBI=~/the-private-test-repo/fpga/boot/opensbi.bin \
 DTB=~/the-private-test-repo/fpga/dts/milan_ax7101_linux.dtb \
+INSTALLED_BUILD=<exact-current-build> \
 ./sw/litex/build.sh flash ax7101:build_ax7101_<seed>_<tag>
 # JTAG-load the same bit for the immediate session (belt until the
 # mode-pin self-config question is settled by an openFPGALoader --reset):

@@ -3728,17 +3728,11 @@ def load_config(path):
     # platform - a prune is only wrong RELATIVE to what the rest asked for.
     features = validate_features(load_features(brd.get("features")),
                                  cons, clocking, interface, srp, platform)
-    # The PHC takes exactly one owner.  Check ownership before the fabric
-    # plane's gptp-section dependency so a Linux config which merely omitted
-    # fabric_gptp is directed to the ownership choice, not told to add a
-    # section that its software-owner profile must not need.
-    if features["fabric_gptp"] and soc["software_profile"] == "linux":
-        raise ConfigError(
-            "board.features.fabric_gptp: true is incompatible with "
-            "soc.software_profile: linux because both own the PHC; that "
-            "profile is reserved for the explicit software-owner comparison. Select "
-            "fabric_gptp: false, or use the baremetal fabric-owner "
-            "profile.")
+    # The software profile selects the CPU/boot environment, not the PHC
+    # owner.  Linux is valid in both product-default fabric mode (unmarked
+    # rootfs: no linuxptp owner) and the explicit option-OFF comparison
+    # (marked rootfs: one software owner).  Bare metal has no software daemon,
+    # so it still requires the fabric plane.
     if not features["fabric_gptp"] and soc["software_profile"] == "baremetal":
         raise ConfigError(
             "board.features.fabric_gptp: false leaves "
@@ -4977,10 +4971,11 @@ def build(config_path, outdir=None, write_rtl=False, write_fragment=None):
             elif os.path.exists(p_owner):
                 os.unlink(p_owner)
                 print(f"  removed {p_owner} (fabric gPTP owns the PHC)")
-            # A fabric handoff deliberately leaves the sibling rootfs file
-            # alone: the explicit comparison may reuse the profile. Ownership
-            # itself is the generated marker above, so a fabric handoff removes
-            # the start permission without deleting tracked configuration.
+            # A fabric handoff deliberately leaves the sibling rootfs gptp
+            # configuration alone: the explicit comparison may reuse that
+            # profile. Ownership itself is the generated marker above, so a
+            # fabric handoff removes the start permission without deleting the
+            # tracked configuration.
             # THE DESCRIPTOR IMAGE, into the same rootfs the identity ships in.
             # /etc/init.d/S50milan loads it into the reserved `ppmem` window
             # before enabling ADP, because the processor serves READ_DESCRIPTOR

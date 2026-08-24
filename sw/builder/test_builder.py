@@ -219,6 +219,7 @@ Run: python3 sw/builder/test_builder.py   (or pytest sw/builder/test_builder.py)
 """
 
 import ast
+import binascii
 import contextlib
 import copy
 import gzip
@@ -246,7 +247,9 @@ sys.path.insert(0, SOC_DIR)
 import yaml  # noqa: E402
 
 import endstation_builder as eb  # noqa: E402
+import check_dtb_csr as dtb_csr  # noqa: E402
 import check_gptp_owner_pair as gptp_pair  # noqa: E402
+import qspi_owner_transition as qspi_transition  # noqa: E402
 #: The ONE reader of "which config owns the tracked entity definition"
 #: (gate 10).  Imported rather than re-implemented: a second answer to that
 #: question is how gate 10 came to assume a config in the first place.
@@ -8264,62 +8267,60 @@ def test_gptp_product_default_and_legacy_option():
     finally:
         os.unlink(default_cfg)
 
+    legacy_cfg = _variant(
+        CONFIGS["ax7101_8x8"],
+        lambda c: c["board"]["features"].__setitem__("fabric_gptp", False))
+    try:
+        with tempfile.TemporaryDirectory() as td:
+            legacy = eb.build(legacy_cfg, td)
+            assert legacy["cfg"]["features"]["fabric_gptp"] is False
+            assert "--no-fabric-gptp" in legacy["argv"]
+            assert "--fabric-gptp" not in legacy["argv"]
+            assert "gptp_ucode" not in legacy["paths"]
+            assert os.path.exists(os.path.join(
+                os.path.dirname(legacy["paths"]["entity_conf"]), "gptp.cfg"))
+            assert ("Fabric gPTP plane: **ABSENT (explicit "
+                    "`--no-fabric-gptp`)**" in legacy["plan"])
+            assert "RTL default" not in legacy["plan"]
+            assert "until #116" not in legacy["plan"]
+    finally:
+        os.unlink(legacy_cfg)
+
+    # Linux is a boot/CPU profile, not an automatic second PHC owner.  With
+    # fabric selected its unmarked rootfs starts no linuxptp graph; option-OFF
+    # above is the one mode which emits that permission.
     with tempfile.TemporaryDirectory() as td:
-        legacy = eb.build(CONFIGS["ax7101_8x8"], td)
-        assert legacy["cfg"]["features"]["fabric_gptp"] is False
-        assert "--no-fabric-gptp" in legacy["argv"]
-        assert "--fabric-gptp" not in legacy["argv"]
-        assert "gptp_ucode" not in legacy["paths"]
-        assert os.path.exists(os.path.join(
-            os.path.dirname(legacy["paths"]["entity_conf"]), "gptp.cfg"))
-        assert ("Fabric gPTP plane: **ABSENT (explicit "
-                "`--no-fabric-gptp`)**" in legacy["plan"])
-        assert "RTL default" not in legacy["plan"]
-        assert "until #116" not in legacy["plan"]
+        product_linux = eb.build(CONFIGS["ax7101_8x8"], td)
+        assert product_linux["cfg"]["soc"]["software_profile"] == "linux"
+        assert product_linux["cfg"]["features"]["fabric_gptp"] is True
+        assert "--fabric-gptp" in product_linux["argv"]
+        assert "--no-fabric-gptp" not in product_linux["argv"]
+        assert "gptp_ucode" in product_linux["paths"]
+        assert not os.path.exists(os.path.join(
+            os.path.dirname(product_linux["paths"]["entity_conf"]),
+            "gptp.cfg"))
 
-    owners = (
-        ("two", "ax7101_8x8", True,
-         ("software_profile: linux", "both own the PHC")),
-        ("zero", "ax7101_1x1_tdm8", False,
-         ("software_profile: baremetal", "NO PHC owner")),
-    )
-    for label, base, fabric, wanted in owners:
-        path = _variant(
-            CONFIGS[base], lambda c, v=fabric: _prune(c, fabric_gptp=v))
-        try:
-            try:
-                eb.load_config(path)
-            except eb.ConfigError as exc:
-                message = str(exc)
-                for fragment in wanted:
-                    assert fragment in message, (
-                        f"{label}-owner refusal omits {fragment!r}: {message}")
-            else:
-                raise AssertionError(f"a {label}-PHC-owner config was accepted")
-        finally:
-            os.unlink(path)
-
-    # Ownership is diagnosed before the fabric plane's gptp: dependency.
-    omitted = _variant(
-        CONFIGS["arty_current"],
-        lambda c: c["board"]["features"].pop("fabric_gptp", None))
+    zero_owner = _variant(
+        CONFIGS["ax7101_1x1_tdm8"],
+        lambda c: _prune(c, fabric_gptp=False))
     try:
         try:
-            eb.load_config(omitted)
+            eb.load_config(zero_owner)
         except eb.ConfigError as exc:
-            assert "both own the PHC" in str(exc), str(exc)
+            message = str(exc)
+            assert "software_profile: baremetal" in message
+            assert "NO PHC owner" in message
         else:
-            raise AssertionError("Linux accepted an omitted fabric ownership key")
+            raise AssertionError("a zero-PHC-owner baremetal config was accepted")
     finally:
-        os.unlink(omitted)
+        os.unlink(zero_owner)
 
     soc_source = open(os.path.join(ROOT, "sw/litex/milan_soc.py")).read()
     assert "p_GPTP_PLANE_EN_P=int(bool(gptp_plane))" in soc_source
     assert 'ap.set_defaults(fabric_gptp=None)' in soc_source
-    assert ('args.fabric_gptp = (args.software_profile == "baremetal"'
-            in soc_source)
+    assert 'args.fabric_gptp = not args.no_milan' in soc_source
     assert ('args.fabric_gptp and args.software_profile == "linux"'
-            in soc_source)
+            not in soc_source)
     assert ('not args.fabric_gptp and args.software_profile == "baremetal"'
             in soc_source)
 
@@ -8380,18 +8381,23 @@ def test_gptp_product_default_and_legacy_option():
     proc = subprocess.run(
         ["bash", "-c", "\n".join(funcs) + "\ncfg_ax8x8\ncfg_arty\n"],
         check=True, text=True, capture_output=True)
-    for argv in (shlex.split(line) for line in proc.stdout.splitlines()
-                 if line.strip()):
+    recipe_rows = [shlex.split(line) for line in proc.stdout.splitlines()
+                   if line.strip()]
+    assert len(recipe_rows) == 2, recipe_rows
+    for argv, owner_flag in zip(
+            recipe_rows, ("--fabric-gptp", "--no-fabric-gptp")):
         assert argv[argv.index("--software-profile") + 1] == "linux"
-        assert "--no-fabric-gptp" in argv
-        assert "--fabric-gptp" not in argv
+        assert owner_flag in argv
+        other = ("--no-fabric-gptp" if owner_flag == "--fabric-gptp"
+                 else "--fabric-gptp")
+        assert other not in argv
     assert "--software-profile linux --no-fabric-gptp" in open(
         os.path.join(ROOT, "sw/litex/sweep_extra.sh")).read()
     for line in open(os.path.join(ROOT, "sw/README.md")).read().splitlines():
         if line.startswith("./milan_soc.py"):
             assert "--no-fabric-gptp" in line
-    print("  [gate 1c] profile-following ownership defaults, artifacts, "
-          "explicit recipes, both invalid owner counts, and both Yosys "
+    print("  [gate 1c] product-default fabric ownership across baremetal and "
+          "Linux, explicit software comparison, zero-owner refusal, and both Yosys "
           "datapath manifests are pinned")
 
 
@@ -8431,8 +8437,14 @@ def test_gptp_rootfs_handoff_preserves_software_config():
                 "option-off handoff without gptp: omitted the owner marker"
             assert not os.path.exists(os.path.join(
                 os.path.dirname(arty["paths"]["entity_conf"]), "gptp.cfg"))
-            legacy = eb.build(CONFIGS["ax7101_8x8"], out,
-                              write_fragment=True)
+            legacy_cfg = _variant(
+                CONFIGS["ax7101_8x8"],
+                lambda c: c["board"]["features"].__setitem__(
+                    "fabric_gptp", False))
+            try:
+                legacy = eb.build(legacy_cfg, out, write_fragment=True)
+            finally:
+                os.unlink(legacy_cfg)
             assert os.path.exists(owner), \
                 "option-off handoff did not create the software-owner marker"
             assert "explicit option-OFF" in open(owner).read()
@@ -8453,7 +8465,15 @@ def test_gptp_rootfs_handoff_preserves_software_config():
         [sys.executable, pair_tool, "--self-test"], cwd=ROOT,
         text=True, capture_output=True)
     assert pair_self.returncode == 0, pair_self.stdout + pair_self.stderr
-    assert "32/32 checks pass" in pair_self.stdout
+    assert "42/42 checks pass" in pair_self.stdout
+
+    transition_tool = os.path.join(SOC_DIR, "qspi_owner_transition.py")
+    transition_self = subprocess.run(
+        [sys.executable, transition_tool, "--self-test"], cwd=ROOT,
+        text=True, capture_output=True)
+    assert transition_self.returncode == 0, \
+        transition_self.stdout + transition_self.stderr
+    assert "17/17 checks pass" in transition_self.stdout
 
     # A sweep's fallback layout is reconstructed only from constants compiled
     # into its soc.h.  Prove all three enum values round-trip, and that an old
@@ -8481,10 +8501,10 @@ def test_gptp_rootfs_handoff_preserves_software_config():
         assert missing.returncode != 0
         assert "MILAN_GPTP_OWNER" in missing.stdout + missing.stderr
 
-    # Exercise both shell entry points with a fake programmer.  The adversarial
-    # pair is fabric-owned gateware plus a marked rootfs.  deploy.sh must reject
-    # before its image loop, and build.sh must reject before it flashes the
-    # bitstream at offset zero; either log entry means the ordering regressed.
+    # Exercise all legacy partial shell entry points with a fake programmer.
+    # The adversarial pair is fabric-owned gateware plus a marked rootfs.
+    # check-images rejects the pair itself, while persistent partial commands
+    # and a named command with unknown installed state refuse before I/O.
     with tempfile.TemporaryDirectory() as td:
         fake_bin = os.path.join(td, "bin")
         build_dir = os.path.join(td, "build")
@@ -8529,7 +8549,14 @@ def test_gptp_rootfs_handoff_preserves_software_config():
         assert direct.returncode != 0, direct.stdout + direct.stderr
         assert "REFUSED" in direct.stdout + direct.stderr
         assert not os.path.exists(programmer_log), \
-            "deploy.sh invoked the programmer before owner preflight"
+            "deploy.sh allowed a direct partial persistent write"
+
+        checked = subprocess.run(
+            [os.path.join(SOC_DIR, "deploy.sh"), "check-images"],
+            cwd=SOC_DIR, env=env, text=True, capture_output=True)
+        assert checked.returncode != 0, checked.stdout + checked.stderr
+        assert "REFUSED" in checked.stdout + checked.stderr
+        assert not os.path.exists(programmer_log)
 
         direct_bit_env = dict(env)
         direct_bit_env["BIT"] = os.path.join(
@@ -8541,7 +8568,7 @@ def test_gptp_rootfs_handoff_preserves_software_config():
             direct_bit.stdout + direct_bit.stderr
         assert "REFUSED" in direct_bit.stdout + direct_bit.stderr
         assert not os.path.exists(programmer_log), \
-            "deploy.sh flashed a bitstream before owner preflight"
+            "deploy.sh allowed a direct offset-zero write"
 
         named = subprocess.run(
             [BUILD_SH, "flash", f"ax7101:{build_dir}"], cwd=SOC_DIR,
@@ -8549,10 +8576,475 @@ def test_gptp_rootfs_handoff_preserves_software_config():
         assert named.returncode != 0, named.stdout + named.stderr
         assert "REFUSED" in named.stdout + named.stderr
         assert not os.path.exists(programmer_log), \
-            "build.sh flashed the bitstream before owner preflight"
+            "build.sh trusted a target pair without installed-state proof"
 
-    print("  [gate 1d] 32 archive/enum arms, soc.h owner reconstruction, "
-          "and all three flash entry points refuse a mismatch before programmer I/O")
+    print("  [gate 1d] 42 archive/enum/FBI/artifact-binding arms, 17 transition parser/planner "
+          "arms, soc.h owner reconstruction, artifact mismatch rejection, "
+          "and all persistent partial/unknown-state entry points refuse "
+          "before programmer I/O")
+
+
+def test_qspi_owner_transition_completed_write_prefixes():
+    """Gate 1e: every supported persistent write prefix has one owner."""
+    with tempfile.TemporaryDirectory() as td:
+        fake_bin = os.path.join(td, "bin")
+        os.makedirs(fake_bin)
+        qspi = os.path.join(td, "qspi.bin")
+        log = os.path.join(td, "programmer.log")
+        count = os.path.join(td, "programmer.count")
+
+        fake_ofl = os.path.join(fake_bin, "openFPGALoader")
+        with open(fake_ofl, "w", encoding="utf-8") as stream:
+            stream.write(r'''#!/usr/bin/env python3
+import os, struct, sys
+
+args = sys.argv[1:]
+qspi = os.environ["OFL_QSPI"]
+log = os.environ["OFL_LOG"]
+count_path = os.environ["OFL_COUNT"]
+
+def value(flag, default=None):
+    try:
+        return args[args.index(flag) + 1]
+    except (ValueError, IndexError):
+        return default
+
+def bit_payload(path):
+    raw = open(path, "rb").read()
+    pos = 2 + struct.unpack_from(">H", raw, 0)[0]
+    pos += 2
+    while True:
+        kind = raw[pos]; pos += 1
+        if kind == ord("e"):
+            size = struct.unpack_from(">I", raw, pos)[0]; pos += 4
+            return raw[pos:pos + size]
+        size = struct.unpack_from(">H", raw, pos)[0]; pos += 2 + size
+
+serial = value("--ftdi-serial")
+if serial != os.environ.get("OFL_EXPECT_SERIAL", serial):
+    raise SystemExit(88)
+
+if "--dump-flash" in args:
+    size = int(value("--file-size"), 0)
+    off = int(value("-o", "0"), 0)
+    out = args[-1]
+    with open(qspi, "rb") as source, open(out, "wb") as sink:
+        source.seek(off)
+        sink.write(source.read(size))
+    with open(log, "a", encoding="utf-8") as trace:
+        trace.write(f"DUMP\t{off}\t{size}\n")
+    raise SystemExit(0)
+
+is_bit = "-f" in args or "--write-flash" in args and value("-o") is None
+is_raw = "--write-flash" in args and value("-o") is not None
+if not (is_bit or is_raw):
+    raise SystemExit(89)
+old_count = int(open(count_path).read()) if os.path.exists(count_path) else 0
+index = old_count + 1
+if int(os.environ.get("OFL_FAIL_BEFORE", "0")) == index:
+    with open(log, "a", encoding="utf-8") as trace:
+        trace.write(f"FAIL_BEFORE\t{index}\n")
+    raise SystemExit(91)
+if "--verify" not in args:
+    with open(log, "a", encoding="utf-8") as trace:
+        trace.write(f"NO_VERIFY\t{index}\n")
+    raise SystemExit(90)
+off = 0 if is_bit else int(value("-o"), 0)
+source_path = args[-1]
+data = bit_payload(source_path) if is_bit else open(source_path, "rb").read()
+with open(qspi, "r+b") as flash:
+    flash.seek(off)
+    flash.write(data)
+with open(count_path, "w", encoding="utf-8") as state:
+    state.write(str(index))
+with open(log, "a", encoding="utf-8") as trace:
+    trace.write(f"WRITE\t{index}\t{off}\tverify\t{os.path.basename(source_path)}\n")
+if int(os.environ.get("OFL_FAIL_AFTER", "0")) == index:
+    raise SystemExit(92)
+''')
+        os.chmod(fake_ofl, 0o755)
+
+        # This gate intentionally has no LiteX dependency. Implement only the
+        # crcfbigen output boundary and delegate every checker/planner command
+        # to the real interpreter.
+        fake_python = os.path.join(fake_bin, "fixture-python")
+        with open(fake_python, "w", encoding="utf-8") as stream:
+            stream.write(f'''#!{sys.executable}
+import binascii, os, struct, sys
+if sys.argv[1:3] == ["-m", "litex.soc.software.crcfbigen"]:
+    source = sys.argv[3]
+    output = sys.argv[sys.argv.index("-o") + 1]
+    data = open(source, "rb").read()
+    with open(output, "wb") as sink:
+        sink.write(struct.pack("<II", len(data), binascii.crc32(data) & 0xffffffff))
+        sink.write(data)
+    raise SystemExit(0)
+os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
+''')
+        os.chmod(fake_python, 0o755)
+
+        def make_build(name, owner, serial_payload, linux=False):
+            build = os.path.join(td, name)
+            os.makedirs(os.path.join(build, "gateware"))
+            bit = os.path.join(build, "gateware", "alinx_ax7101.bit")
+            payload = (b"\xff" * 16 + b"\xaa\x99\x55\x66" +
+                       serial_payload)
+            qspi_transition._fake_bit(bit, payload, name.encode())
+            layout = os.path.join(build, "flashboot_layout.json")
+            is_linux = owner == "software" or linux
+            if not is_linux:
+                images = [
+                    {"name": "bitstream", "offset": 0,
+                     "budget": 0x400000},
+                    {"name": "aem", "offset": 0x400000,
+                     "budget": 0x10000},
+                ]
+                body = {"manifest": "baremetal", "gptp_owner": owner,
+                        "complete": False, "images": images}
+                with open(os.path.join(build, "aem_desc.bin"), "wb") as out:
+                    out.write(b"AEMI" + serial_payload)
+            else:
+                images = [
+                    {"name": "bitstream", "offset": 0,
+                     "budget": 0x400000},
+                    {"name": "kernel", "offset": 0x400000,
+                     "budget": 0x100000},
+                    {"name": "opensbi", "offset": 0x500000,
+                     "budget": 0x10000},
+                    {"name": "dtb", "offset": 0x510000,
+                     "budget": 0x10000},
+                    {"name": "rootfs", "offset": 0x520000,
+                     "budget": 0x100000},
+                ]
+                body = {"manifest": "full", "gptp_owner": owner,
+                        "complete": True, "images": images}
+            with open(layout, "w", encoding="utf-8") as out:
+                json.dump(body, out)
+            return {"dir": build, "layout": layout, "bit": bit,
+                    "owner": owner, "payload": payload,
+                    "linux": is_linux}
+
+        fabric = make_build("fabric", "fabric", b"FABRIC-OWNER")
+        fabric_linux = make_build(
+            "fabric-linux", "fabric", b"FABRIC-LINUX-OWNER", linux=True)
+        software = make_build("software", "software", b"SOFTWARE-OWNER-LONG")
+        software2 = make_build("software2", "software", b"SOFTWARE-OWNER-NEW")
+        malformed = make_build("malformed", "software", b"MALFORMED-LAYOUT")
+        with open(malformed["layout"], encoding="utf-8") as source:
+            malformed_layout = json.load(source)
+        malformed_layout["images"][3]["offset"] = \
+            malformed_layout["images"][2]["offset"]
+        with open(malformed["layout"], "w", encoding="utf-8") as out:
+            json.dump(malformed_layout, out)
+        reserved_collision = make_build(
+            "reserved-collision", "software", b"RESERVED-COLLISION")
+        with open(reserved_collision["layout"], encoding="utf-8") as source:
+            reserved_layout = json.load(source)
+        reserved_layout["reserved"] = {
+            "journal": {"offset": 0x400000, "size": 0x10000}}
+        with open(reserved_collision["layout"], "w", encoding="utf-8") as out:
+            json.dump(reserved_layout, out)
+
+        marked_rootfs = os.path.join(td, "software-rootfs.cpio.gz")
+        marked_archive = gptp_pair._newc([
+            (b"./etc/milan-gptp-software-owner", b"option-OFF\n",
+             stat.S_IFREG),
+        ])
+        with open(marked_rootfs, "wb") as out:
+            out.write(gzip.compress(marked_archive))
+        plain_rootfs = os.path.join(td, "fabric-rootfs.cpio.gz")
+        plain_archive = gptp_pair._newc([
+            (b"./etc/hostname", b"milan\n", stat.S_IFREG),
+        ])
+        with open(plain_rootfs, "wb") as out:
+            out.write(gzip.compress(plain_archive))
+        kernel = os.path.join(td, "Image.xz")
+        opensbi = os.path.join(td, "opensbi.bin")
+        dtb = os.path.join(td, "milan.dtb")
+        for path, data in ((kernel, b"\xfd7zXZ\x00kernel"),
+                           (opensbi, b"opensbi"), (dtb, b"dtb")):
+            with open(path, "wb") as out:
+                out.write(data)
+
+        base_env = dict(os.environ)
+        base_env.update({
+            "PATH": fake_bin + os.pathsep + base_env.get("PATH", ""),
+            "PYTHON": fake_python,
+            "SERIAL": "TEST-SERIAL", "AX_FTDI": "TEST-SERIAL",
+            "CABLE": "ft232", "FPGA_PART": "xc7a100tfgg484",
+            "OFL_QSPI": qspi, "OFL_LOG": log, "OFL_COUNT": count,
+            "OFL_EXPECT_SERIAL": "TEST-SERIAL",
+            "KERNEL": kernel, "OPENSBI": opensbi, "DTB": dtb,
+            "ROOTFS": marked_rootfs,
+        })
+
+        def fbi_bytes(path):
+            data = open(path, "rb").read()
+            return (struct.pack("<II", len(data),
+                                binascii.crc32(data) & 0xffffffff)
+                    + data)
+
+        def reset_flash(source):
+            with open(qspi, "wb") as flash:
+                flash.truncate(16 * 1024 * 1024)
+                flash.seek(0)
+                flash.write(source["payload"])
+                if source["linux"]:
+                    source_rootfs = (marked_rootfs
+                                     if source["owner"] == "software"
+                                     else plain_rootfs)
+                    for offset, path in (
+                            (0x400000, kernel), (0x500000, opensbi),
+                            (0x510000, dtb), (0x520000, source_rootfs)):
+                        flash.seek(offset)
+                        flash.write(fbi_bytes(path))
+                else:
+                    with open(os.path.join(source["dir"], "aem_desc.bin"),
+                              "rb") as artifact:
+                        flash.seek(0x400000)
+                        flash.write(artifact.read())
+            for path in (log, count):
+                try:
+                    os.unlink(path)
+                except FileNotFoundError:
+                    pass
+
+        def env_for(source, target, fail_kind=None, fail_index=0):
+            env = dict(base_env)
+            env.update({"INSTALLED_LAYOUT": source["layout"],
+                        "INSTALLED_BIT": source["bit"],
+                        "LAYOUT": target["layout"], "BIT": target["bit"],
+                        "EXPECTED_GPTP_OWNER": target["owner"],
+                        "ROOTFS": (marked_rootfs if target["owner"] == "software"
+                                   else plain_rootfs)})
+            env.pop("OFL_FAIL_BEFORE", None)
+            env.pop("OFL_FAIL_AFTER", None)
+            if fail_kind:
+                env[f"OFL_FAIL_{fail_kind.upper()}"] = str(fail_index)
+            return env
+
+        deploy = os.path.join(SOC_DIR, "deploy.sh")
+
+        def run_pair(source, target, fail_kind=None, fail_index=0,
+                     reset=True, named=False):
+            if reset:
+                reset_flash(source)
+            env = env_for(source, target, fail_kind, fail_index)
+            if named:
+                config = "ax7101" if target["owner"] == "fabric" else "ax8x8"
+                argv = [BUILD_SH, "flash", f"{config}:{target['dir']}"]
+            else:
+                argv = [deploy, "flash-pair"]
+            return subprocess.run(argv, cwd=SOC_DIR, env=env, text=True,
+                                  capture_output=True)
+
+        def writes():
+            if not os.path.exists(log):
+                return []
+            rows = []
+            for line in open(log, encoding="utf-8"):
+                fields = line.rstrip("\n").split("\t")
+                if fields[0] == "WRITE":
+                    rows.append((int(fields[1]), int(fields[2]),
+                                 fields[3], fields[4]))
+            return rows
+
+        def live_bit(source, target):
+            with open(qspi, "rb") as flash:
+                live = flash.read(max(len(source["payload"]),
+                                      len(target["payload"])))
+            old = live[:len(source["payload"])] == source["payload"]
+            new = live[:len(target["payload"])] == target["payload"]
+            assert old ^ new, (
+                f"live bit must identify exactly one owner: "
+                f"{source['dir']} old={old}, {target['dir']} new={new}, "
+                f"prefix={live[:48].hex()}")
+            return source if old else target
+
+        def grade_prefix(source, target, rows):
+            active = live_bit(source, target)
+            assert active["owner"] in ("fabric", "software")
+            if active["linux"]:
+                marked = fbi_bytes(marked_rootfs)
+                plain = fbi_bytes(plain_rootfs)
+                with open(qspi, "rb") as flash:
+                    flash.seek(0x520000)
+                    rootfs = flash.read(max(len(marked), len(plain)))
+                has_marked = rootfs[:len(marked)] == marked
+                has_plain = rootfs[:len(plain)] == plain
+                assert has_marked ^ has_plain, (
+                    "active full-Linux bit has no exact paired rootfs")
+                owners = int(active["owner"] == "fabric") + int(has_marked)
+                assert owners == 1, (
+                    f"completed write prefix has {owners} gPTP owners: "
+                    f"bit={active['owner']} marked_rootfs={has_marked}")
+            if active is target and target["owner"] == "software":
+                # The software commit bit is last, after every boot image.
+                assert [row[1] for row in rows[-5:-1]] == [
+                    0x400000, 0x500000, 0x510000, 0x520000]
+            return active["owner"]
+
+        cases = ((fabric, software, 5,
+                  [0x400000, 0x500000, 0x510000, 0x520000, 0]),
+                 (software, fabric, 2, [0, 0x400000]),
+                 (fabric, fabric_linux, 5,
+                  [0x400000, 0x500000, 0x510000, 0x520000, 0]),
+                 (fabric_linux, fabric, 2, [0x400000, 0]))
+        checked_prefixes = 0
+        for source, target, total, wanted_offsets in cases:
+            clean = run_pair(source, target)
+            assert clean.returncode == 0, clean.stdout + clean.stderr
+            assert [row[1] for row in writes()] == wanted_offsets
+            assert all(row[2] == "verify" for row in writes())
+            assert live_bit(source, target) is target
+            for kind in ("before", "after"):
+                for index in range(1, total + 1):
+                    failed = run_pair(source, target, kind, index)
+                    assert failed.returncode != 0, failed.stdout + failed.stderr
+                    prefix = writes()
+                    expected = index - 1 if kind == "before" else index
+                    assert len(prefix) == expected, (kind, index, prefix)
+                    assert [row[1] for row in prefix] == wanted_offsets[:expected]
+                    grade_prefix(source, target, prefix)
+                    checked_prefixes += 1
+
+                    before_resume = len(prefix)
+                    resumed = run_pair(source, target, reset=False)
+                    assert resumed.returncode == 0, \
+                        resumed.stdout + resumed.stderr
+                    assert live_bit(source, target) is target
+                    appended = writes()[before_resume:]
+                    if (source["owner"], target["owner"], kind, index) == \
+                            ("software", "fabric", "after", 1):
+                        assert [row[1] for row in appended] == wanted_offsets[1:], \
+                            "target-bit recovery must finish every non-bit image"
+                    if (source["owner"], target["owner"], kind, index) == \
+                            ("fabric", "software", "after", total):
+                        assert not appended, \
+                            "target bit is the completed fabric->software commit"
+
+        # The named launcher must delegate to the same live-proof transaction.
+        named = run_pair(software, fabric, named=True)
+        assert named.returncode == 0, named.stdout + named.stderr
+        assert [row[1] for row in writes()] == [0, 0x400000]
+
+        # Whole-set preparation happens before even read-only programmer I/O.
+        reset_flash(fabric)
+        missing_env = env_for(fabric, software)
+        missing_env["ROOTFS"] = os.path.join(td, "missing-last-rootfs")
+        missing = subprocess.run([deploy, "flash-pair"], cwd=SOC_DIR,
+                                 env=missing_env, text=True,
+                                 capture_output=True)
+        assert missing.returncode != 0
+        assert not writes(), "missing last artifact caused a programmer write"
+        assert not os.path.exists(log), \
+            "missing last artifact caused read-only programmer I/O"
+
+        # A manifest-row parser failure must propagate before the live dump;
+        # process-substitution exit status cannot silently mean an empty set.
+        malformed_result = run_pair(fabric, malformed)
+        assert malformed_result.returncode != 0
+        assert not os.path.exists(log), \
+            "malformed image offsets caused programmer I/O"
+
+        reserved_result = run_pair(fabric, reserved_collision)
+        assert reserved_result.returncode != 0
+        assert not os.path.exists(log), \
+            "image/reservation offset collision caused programmer I/O"
+
+        # Persistent targets are identity evidence, never an mtime-selected
+        # convenience default.  Omission must fail before live QSPI access.
+        for omitted in ("BIT", "LAYOUT"):
+            reset_flash(fabric)
+            omitted_env = env_for(fabric, software)
+            omitted_env.pop(omitted)
+            refused = subprocess.run([deploy, "flash-pair"], cwd=SOC_DIR,
+                                     env=omitted_env, text=True,
+                                     capture_output=True)
+            assert refused.returncode != 0
+            assert not writes(), f"missing target {omitted} caused programmer I/O"
+            assert not os.path.exists(log), \
+                f"missing target {omitted} caused read-only programmer I/O"
+
+        # A live target bit is not transaction provenance.  A target software
+        # bit with an incomplete/non-matching Linux set must refuse rather than
+        # declaring an old manual bit-only write complete.
+        reset_flash(software)
+        with open(qspi, "r+b") as flash:
+            flash.seek(0x520000)
+            flash.write(b"incomplete-rootfs")
+        incomplete_target = subprocess.run(
+            [deploy, "flash-pair"], cwd=SOC_DIR,
+            env=env_for(fabric, software), text=True, capture_output=True)
+        assert incomplete_target.returncode != 0
+        assert not writes(), \
+            "incomplete live software target attempted an unsafe repair"
+
+        # The same provenance rule applies to full-Linux fabric targets.  A
+        # manually committed fabric bit can sit beside a stale marked rootfs;
+        # live bit identity alone cannot bless or safely resume that state.
+        reset_flash(fabric)
+        with open(qspi, "r+b") as flash:
+            flash.seek(0)
+            flash.write(fabric_linux["payload"])
+            flash.seek(0x520000)
+            with open(marked_rootfs, "rb") as artifact:
+                flash.write(artifact.read())
+        incomplete_fabric_linux = run_pair(
+            fabric, fabric_linux, reset=False)
+        assert incomplete_fabric_linux.returncode != 0
+        assert not writes(), \
+            "incomplete live fabric/Linux target attempted an unproved repair"
+
+        # Conversely, a live *installed* full-Linux bit is only half of its
+        # owner state.  The FBI header/CRC and marker in the live source rootfs
+        # must agree with the installed layout before the first write.
+        for source, wrong_rootfs in ((software, plain_rootfs),
+                                     (fabric_linux, marked_rootfs)):
+            reset_flash(source)
+            with open(qspi, "r+b") as flash:
+                flash.seek(0x520000)
+                flash.write(fbi_bytes(wrong_rootfs))
+            invalid_source = run_pair(source, fabric, reset=False)
+            assert invalid_source.returncode != 0
+            assert "installed live rootfs" in (
+                invalid_source.stdout + invalid_source.stderr)
+            assert not writes(), \
+                "invalid installed Linux owner state caused a programmer write"
+
+        # Flipping the Linux rootfs marker and its bitstream cannot be ordered
+        # safely in one slot: one order yields zero owners and the other two.
+        # The autonomous fabric/baremetal build is the required bridge.
+        for source, target in ((software, fabric_linux),
+                               (fabric_linux, software)):
+            refused_bridge = run_pair(source, target)
+            assert refused_bridge.returncode != 0
+            assert "fabric/baremetal bridge" in (
+                refused_bridge.stdout + refused_bridge.stderr)
+            assert not os.path.exists(log), \
+                "direct full-Linux owner change reached programmer I/O"
+
+        # A mutable owner string cannot substitute for exact live QSPI proof.
+        reset_flash(fabric)
+        with open(qspi, "r+b") as flash:
+            flash.write(b"\x00" * len(fabric["payload"]))
+        mismatch = subprocess.run([deploy, "flash-pair"], cwd=SOC_DIR,
+                                  env=env_for(fabric, software), text=True,
+                                  capture_output=True)
+        assert mismatch.returncode != 0
+        assert not writes(), "unidentified live bitstream caused a write"
+
+        # No safe single-slot software->software refresh is advertised.
+        refused = run_pair(software, software2)
+        assert refused.returncode != 0
+        assert not writes(), "software->software transaction wrote QSPI"
+
+    print(f"  [gate 1e] {checked_prefixes} injected before/after-write "
+          "prefixes across fabric-baremetal<->software and "
+          "fabric-baremetal<->fabric-Linux retain one live owner; every "
+          "prefix resumes, all writes verify, a live target is proven as a "
+          "complete set, and direct full-Linux owner changes plus malformed/"
+          "missing/unidentified/software-refresh negatives write nothing")
 
 
 def test_current_shape_matches_sweep_flags():
@@ -10368,6 +10860,33 @@ def test_platform_dt_and_driver_shape():
     if not checked:
         skip("gate 19b", "deployed-.dts cross-check: sibling repo "
                          "milan-tests-avb not on disk")
+
+    # The first CSR matching a DT window proves only its base.  Exercise the
+    # production checker's size guard with the real AX7101 capture/playback
+    # register shapes: both one-word-short mutations must name the last CSR
+    # that the truncated resource would strand.
+    pcm_regs = {
+        "milan_dma_pcm_base": 0xf0003120,
+        "milan_dma_pcm_cap": 0xf000313c,
+        "milan_dma_pb_cap": 0xf0003140,
+        "milan_dma_pb_over": 0xf0003170,
+    }
+    assert not dtb_csr.prefixed_window_errors(
+        pcm_regs, "milan_dma_pcm_", (0xf0003120, 0x20),
+        "kl,milan-pcm reg[0]")
+    assert not dtb_csr.prefixed_window_errors(
+        pcm_regs, "milan_dma_pb_", (0xf0003140, 0x34),
+        "kl,milan-pcm reg[2]")
+    cap_bad = dtb_csr.prefixed_window_errors(
+        pcm_regs, "milan_dma_pcm_", (0xf0003120, 0x1c),
+        "kl,milan-pcm reg[0]")
+    pb_bad = dtb_csr.prefixed_window_errors(
+        pcm_regs, "milan_dma_pb_", (0xf0003140, 0x30),
+        "kl,milan-pcm reg[2]")
+    assert len(cap_bad) == 1 and "milan_dma_pcm_cap" in cap_bad[0]
+    assert len(pb_bad) == 1 and "milan_dma_pb_over" in pb_bad[0]
+    print("  [gate 19b] PCM capture/playback DT window-size mutations "
+          "REFUSED at the first stranded CSR")
 
 
 def test_platform_rejects():
@@ -12255,8 +12774,9 @@ def _drop_flag(argv, flag, nargs):
 GPTP_PROFILE_CASES = (
     ("gptp baremetal default", "ax7101_1x1_tdm8", None, 1),
     ("gptp baremetal explicit", "ax7101_1x1_tdm8", "--fabric-gptp", 1),
-    ("gptp linux default", "ax7101_8x8", None, 0),
-    ("gptp linux explicit", "ax7101_8x8", "--no-fabric-gptp", 0),
+    ("gptp linux default", "ax7101_8x8", None, 1),
+    ("gptp linux fabric explicit", "ax7101_8x8", "--fabric-gptp", 1),
+    ("gptp linux option-off", "ax7101_8x8", "--no-fabric-gptp", 0),
 )
 
 
@@ -12295,10 +12815,13 @@ def _gptp_instance_runs():
     """Profile/default probes and the three supported shipping entry points."""
     runs, expected = [], {}
     cached = {}
+    # Each config's generated directory carries its own fabric microcode.  Do
+    # not borrow another configuration's ROM: that would silently break the
+    # identity/priority binding this gate is meant to preserve.
     for label, name, flag, want in GPTP_PROFILE_CASES:
         if name not in cached:
-            _cfg, argv = _config_argv(name)
-            cached[name] = _gptp_without_owner_flag(argv)
+            _cfg, base_argv = _config_argv(name)
+            cached[name] = _gptp_without_owner_flag(base_argv)
         argv = list(cached[name])
         if flag:
             argv.append(flag)
@@ -12352,7 +12875,7 @@ def _gptp_instance_contract(got, expected):
     for default, explicit in (("gptp baremetal default",
                                "gptp baremetal explicit"),
                               ("gptp linux default",
-                               "gptp linux explicit")):
+                               "gptp linux fabric explicit")):
         if default in params and explicit in params \
                 and params[default] != params[explicit]:
             changed = sorted(k for k in set(params[default]) | set(params[explicit])
@@ -12372,27 +12895,24 @@ def test_gptp_plane_reaches_the_instance():
     bad = _gptp_instance_contract(got, expected)
     assert not bad, "gate 1e:\n  " + "\n  ".join(bad)
 
-    # The two invalid owner counts are refused by the real CLI, not just by
-    # the declarative builder loader tested in gate 1c.
+    # Bare metal has no software daemon, so option-OFF is the sole zero-owner
+    # combination and is refused by the real CLI as well as the builder.
     cases = dict(runs)
     invalid = [
-        ("gptp two owners",
-         _gptp_without_owner_flag(cases["gptp linux explicit"])
-         + ["--fabric-gptp"]),
         ("gptp zero owners",
          _gptp_without_owner_flag(cases["gptp baremetal explicit"])
          + ["--no-fabric-gptp"]),
     ]
     refused = _instance_params(python, invalid)
-    for label, needle in (("gptp two owners", "both own the PHC"),
-                          ("gptp zero owners", "NO PHC owner")):
+    for label, needle in (("gptp zero owners", "NO PHC owner"),):
         assert "params" not in refused[label], \
             f"{label}: invalid ownership reached the datapath Instance"
         assert needle in _why_failed(refused[label]), \
             f"{label}: refusal did not name {needle!r}: {refused[label]}"
-    print(f"  [gate 1e] {len(runs)} real elaborations: profile defaults equal "
-          "their explicit forms; build.sh, sweep.sh and deploy.sh ship fabric "
-          "ownership; plane/ROM state agrees; both invalid owner counts refuse")
+    print(f"  [gate 1e] {len(runs)} real elaborations: the product fabric "
+          "default is identical across baremetal/Linux and to explicit ON; "
+          "Linux option-OFF reaches software ownership; build.sh, sweep.sh "
+          "and deploy.sh ship fabric ownership; zero-owner baremetal refuses")
 
 
 GPTP_INSTANCE_MUTATIONS = (
@@ -12410,15 +12930,15 @@ GPTP_INSTANCE_MUTATIONS = (
     ("the emitted parameter is tied on",
      [("p_GPTP_PLANE_EN_P=int(bool(gptp_plane))",
        "p_GPTP_PLANE_EN_P=int(True)", 1)],
-     "gptp linux explicit"),
+     "gptp linux option-off"),
     ("the emitted parameter is inverted",
      [("p_GPTP_PLANE_EN_P=int(bool(gptp_plane))",
        "p_GPTP_PLANE_EN_P=int(not gptp_plane)", 1)],
      "gptp baremetal explicit"),
-    ("the omission default stops following the profile",
-     [('args.fabric_gptp = (args.software_profile == "baremetal"',
-       'args.fabric_gptp = (args.software_profile == "linux"', 1)],
-     "gptp baremetal default"),
+    ("the omission default stops selecting the product owner",
+     [('args.fabric_gptp = not args.no_milan',
+       'args.fabric_gptp = False', 1)],
+     "gptp linux default"),
 )
 
 
@@ -12464,7 +12984,7 @@ def test_optional_blocks_reach_the_instance():
           f"else, a build that prunes nothing passes none of them "
           f"({len(base)} parameters, byte-identical top .v), and the "
           f"inverted row lands the other way up: p_SOUND_CARD_P=1 with "
-          f"--sound-card and absent without it. Fabric gPTP's profile-aware "
+          f"--sound-card and absent without it. Fabric gPTP's product "
           f"default is graded separately by gate 1e. This grades what "
           f"elaboration HANDS the module, not "
           f"what the module DOES with it (gate 23d) and not that the "
@@ -15077,6 +15597,7 @@ if __name__ == "__main__":
     for fn in (test_all_configs_build, test_baremetal_profile_contract,
                test_gptp_product_default_and_legacy_option,
                test_gptp_rootfs_handoff_preserves_software_config,
+               test_qspi_owner_transition_completed_write_prefixes,
                test_gptp_plane_reaches_the_instance,
                test_gptp_plane_instance_gate_bites,
                test_current_shape_matches_sweep_flags,

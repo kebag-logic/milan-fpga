@@ -265,10 +265,11 @@ The long form, with what is verified vs what needs a bench: [QUICKSTART.md](QUIC
 ## Build & flash a board
 
 `sw/litex/build.sh ax7101` (or `arty`) →
-`sw/litex/build.sh flash ax7101:<builddir>`. The launcher preflights the
-compiled gPTP owner and paired image set before its first QSPI write. The full
-flow, with the load-bearing rules (matched bitstream/layout/AEM, recovery) in
-one picture:
+`INSTALLED_BUILD=<exact-current-build> sw/litex/build.sh flash
+ax7101:<target-builddir>`. The launcher live-reads QSPI to prove the installed
+bitstream owner, preflights the complete target set, and selects the
+direction-safe verified write order. The full flow, with the load-bearing rules
+(matched bitstream/layout/AEM, recovery) in one picture:
 
 ![Build → Flash → Boot → Verify pipeline](docs/BUILD_FLASH_BOOT.png)
 

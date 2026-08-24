@@ -14,7 +14,8 @@
 #   reg[1]  contains milan_dma_tx_base  and milan_dma_tx_bd_base
 #   reg[2]  contains milan_dma_rx_base  and milan_dma_rx_bd_base
 #   reg[3]  contains milan_dma_ts_base
-#   kl,milan-pcm reg[0] == milan_dma_pcm_base   (when both sides have it)
+#   kl,milan-pcm reg[0] covers every milan_dma_pcm_* register (when present)
+#   kl,milan-pcm reg[2] covers every milan_dma_pb_* register (when present)
 #   litex,spiflash reg[0] == the csr.csv spiflash bank base (when both have it)
 #
 # Exit 0 = every applicable check passed; exit 1 = mismatch (stale dtb); exit 2 = usage.
@@ -111,6 +112,21 @@ def contains(win, addr):
     return off <= addr < off + ln
 
 
+def prefixed_window_errors(regs, prefix, win, label):
+    """Return every CSR named by ``prefix`` that lies outside ``win``.
+
+    Checking only the first register proves the base but not the size.  A
+    shortened DT window still lets the driver map the first word while later
+    capability/status registers fall outside the resource it was given.
+    """
+    return [
+        "%s 0x%x/+0x%x does not cover %s @ 0x%x"
+        % (label, win[0], win[1], name, addr)
+        for name, addr in sorted(regs.items())
+        if name.startswith(prefix) and not contains(win, addr)
+    ]
+
+
 def main():
     if len(sys.argv) != 3:
         sys.exit(2)
@@ -149,6 +165,10 @@ def main():
     if pcm and "milan_dma_pcm_base" in regs and pcm[0] != regs["milan_dma_pcm_base"]:
         bad.append("kl,milan-pcm reg[0] 0x%x != milan_dma_pcm_base 0x%x"
                    % (pcm[0], regs["milan_dma_pcm_base"]))
+    if pcm and len(pcm) >= 2:
+        bad += prefixed_window_errors(
+            regs, "milan_dma_pcm_", (pcm[0], pcm[1]),
+            "kl,milan-pcm reg[0]")
     # task #31 playback window: kl,milan-pcm reg[2] must BE the pb CSR block
     # (first register = milan_dma_pb_cap). Checked whenever both sides carry
     # it; a DT with a pb-dma window against a gateware without the block (or
@@ -160,6 +180,10 @@ def main():
        and pcm[4] != regs["milan_dma_pb_cap"]:
         bad.append("kl,milan-pcm reg[2] 0x%x != milan_dma_pb_cap 0x%x"
                    % (pcm[4], regs["milan_dma_pb_cap"]))
+    if pcm and len(pcm) >= 6:
+        bad += prefixed_window_errors(
+            regs, "milan_dma_pb_", (pcm[4], pcm[5]),
+            "kl,milan-pcm reg[2]")
     if pcm and len(pcm) < 6 and "milan_dma_pb_cap" in regs:
         bad.append("gateware has the playback CSR block (milan_dma_pb_cap) "
                    "but kl,milan-pcm has no pb-dma reg window")

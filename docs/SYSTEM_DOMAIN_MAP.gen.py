@@ -46,7 +46,7 @@ LAYERS = [
 SIDE = ("Host tooling", "Python / bash", YELLOW, [
     "milan_soc.py: SoC/gateware generator",
     "milan_dt.py: device-tree generator (csr.json→dts)",
-    "deploy.sh: build / load / flash / flash-images",
+    "deploy.sh: build / load / flash-pair (live QSPI owner proof)",
     "boot.sh: serialboot (+ FLASH_KERNEL mode)",
     "patches/apply.sh: BIOS linux_flashboot",
     "crcfbigen: FBI image wrapper"])

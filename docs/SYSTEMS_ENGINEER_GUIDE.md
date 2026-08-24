@@ -366,7 +366,8 @@ Each entry: the doc and **when to read it**. `→` marks the doc to start each s
   VexiiRiscv/NaxRiscv, DDR3, ring-DMA, LiteEth GMII MAC, QSPI flashboot, the mandatory flags).
   Read for the LiteX host internals. *(Refresh CPU/clock to 1-hart+L2-32K@100e6.)*
 - **[`docs/integration/QSPI_FLASHBOOT.md`](integration/QSPI_FLASHBOOT.md)** — how QSPI flash-boot works (bitstream@0 +
-  Image.xz via the xz_embedded BIOS decoder, the 16 MB constraint, deploy.sh flash-images).
+  Image.xz via the xz_embedded BIOS decoder, the 16 MB constraint, and the
+  live-installed-proof `deploy.sh flash-pair` transaction).
   Canonical flashboot reference.
 - **[`docs/integration/BOARD_PORTING_AX7101.md`](integration/BOARD_PORTING_AX7101.md)** — the worked "how a new board gets ported"
   story (pin provenance, the RGMII→**GMII** strap correction, 512 MB DDR3). Read before a new board.

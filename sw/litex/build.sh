@@ -54,16 +54,18 @@ board_facts() {  # -> "serial cable fpga_part flash_policy bit_name"
 }
 gptp_owner_for_config() {
     case "$1" in
-        ax7101)      echo fabric;;
-        ax8x8|arty) echo software;;
+        ax7101|ax8x8) echo fabric;;
+        arty)         echo software;;
         *)          return 1;;
     esac
 }
 
 # ---- flash subcommand: ./build.sh flash <config>[:<builddir>] ... ---------------
-# ax7101 -> deploy.sh flash-images (FBI wrap + per-image budget checks + --verify);
-#           needs KERNEL/OPENSBI/DTB/ROOTFS=<path> in the environment per the
-#           layout's manifest. arty -> bitstream to QSPI offset 0 with --verify.
+# Every persistent named-config write delegates to deploy.sh flash-pair. Supply
+# INSTALLED_LAYOUT + INSTALLED_BIT for the exact build currently in the board's
+# QSPI (or INSTALLED_BUILD=<dir> to derive both). The transaction proves that
+# bitstream by live readback, prepares the whole target set, then selects the
+# direction-safe verified write order.
 if [ "${1:-}" = "flash" ]; then
     shift
     [ $# -gt 0 ] || { echo "usage: $0 flash <config>[:<builddir>] ..." >&2; exit 2; }
@@ -92,46 +94,43 @@ if [ "${1:-}" = "flash" ]; then
         fi
         case "$policy" in
             boot)
-                # v3 QSPI-boot: gateware @0 THEN the image set (shifted offsets).
                 bit="$dir/gateware/$bitname"
                 [ -f "$bit" ] || { echo "[$c] missing $bit" >&2; exit 2; }
-                # Validate every cross-artifact ownership fact before the
-                # first QSPI write.  In particular, a fabric bitstream beside
-                # a marked rootfs would otherwise start two PHC owners, while
-                # option-off gateware beside an unmarked rootfs starts zero.
-                echo "== preflight [$c] OWNER=$expected_owner / ROOTFS PAIR =="
-                LAYOUT="$dir/flashboot_layout.json" \
-                    EXPECTED_GPTP_OWNER="$expected_owner" \
-                    "$SOC_DIR/deploy.sh" check-images
-                echo "== flash [$c] BITSTREAM @0 =="
-                out=$(openFPGALoader --ftdi-serial "$serial" -c "$cable" --fpga-part "$part" -f --verify "$bit" 2>&1) \
-                    || { echo "$out"; exit 1; }
-                echo "$out" | grep -qiE "error|can.t program" && { echo "[$c] BIT FLASH FAILED"; exit 1; }
-                echo "== flash [$c] IMAGES (v3 layout offsets) =="
+                installed_layout="${INSTALLED_LAYOUT:-}"
+                installed_bit="${INSTALLED_BIT:-}"
+                if [ -z "$installed_layout" ] || [ -z "$installed_bit" ]; then
+                    installed_build="${INSTALLED_BUILD:-}"
+                    [ -n "$installed_build" ] || {
+                        echo "[$c] flash REFUSED: set both INSTALLED_LAYOUT + INSTALLED_BIT, or INSTALLED_BUILD=<exact current build>." >&2
+                        exit 2; }
+                    case "$installed_build" in
+                        /*) ;;
+                        *) installed_build="$WORK/$installed_build" ;;
+                    esac
+                    installed_build=${installed_build%/}
+                    installed_layout="$installed_build/flashboot_layout.json"
+                    installed_bit="$installed_build/gateware/$bitname"
+                fi
+                [ -f "$installed_layout" ] || {
+                    echo "[$c] missing installed layout $installed_layout" >&2; exit 2; }
+                [ -f "$installed_bit" ] || {
+                    echo "[$c] missing installed bitstream $installed_bit" >&2; exit 2; }
+                echo "== flash-pair [$c] LIVE OWNER-STATE PROOF + ORDERED VERIFIED SET =="
                 SERIAL="$serial" CABLE="$cable" FPGA_PART="$part" \
                     LAYOUT="$dir/flashboot_layout.json" \
+                    BIT="$bit" \
+                    INSTALLED_LAYOUT="$installed_layout" \
+                    INSTALLED_BIT="$installed_bit" \
                     EXPECTED_GPTP_OWNER="$expected_owner" \
-                    "$SOC_DIR/deploy.sh" flash-images
-                echo "   done. Power-cycle to boot gateware + its paired firmware images from QSPI."
+                    "$SOC_DIR/deploy.sh" flash-pair
                 ;;
             images)
-                echo "== flash [$c] IMAGES -> QSPI (layout offsets; bitstream stays JTAG-SRAM) =="
-                SERIAL="$serial" CABLE="$cable" FPGA_PART="$part" \
-                    LAYOUT="$dir/flashboot_layout.json" \
-                    EXPECTED_GPTP_OWNER="$expected_owner" \
-                    "$SOC_DIR/deploy.sh" flash-images
+                echo "[$c] flash REFUSED: named persistent profiles must carry a complete bitstream+image set for flash-pair." >&2
+                exit 2
                 ;;
             bitstream)
-                bit="$dir/gateware/$bitname"
-                [ -f "$bit" ] || { echo "[$c] missing $bit" >&2; exit 2; }
-                echo "== flash [$c] BITSTREAM -> QSPI offset 0 (self-configures on power-up) =="
-                echo "   $bit"
-                # --fpga-part: the SPI proxy needs the device-package (openFPGALoader
-                # cannot infer it for every cable profile, and exits 0 on the miss)
-                out=$(openFPGALoader --ftdi-serial "$serial" -c "$cable" --fpga-part "$part" -f --verify "$bit" 2>&1) || { echo "$out"; exit 1; }
-                echo "$out" | tail -3
-                echo "$out" | grep -qiE "error|can't program" && { echo "[$c] FLASH FAILED"; exit 1; }
-                echo "   done. Power-cycle (or --reset) to boot the flashed gateware."
+                echo "[$c] flash REFUSED: named bitstream-only persistent writes cannot preserve an installed owner set." >&2
+                exit 2
                 ;;
         esac
     done
@@ -139,9 +138,9 @@ if [ "${1:-}" = "flash" ]; then
 fi
 
 # ---- named configurations -----------------------------------------------------
-cfg_ax7101() {   # shipping bare-metal shape: one cacheless RV32I hart. Linux
-                 # and the prior cached VexiiRiscv configurations remain in
-                 # cfg_ax8x8/cfg_arty as explicit bring-up profiles.
+cfg_ax7101() {   # shipping bare-metal shape: one cacheless RV32I hart. The
+                 # product Linux/fabric shape is cfg_ax8x8; cfg_arty retains
+                 # the explicit software-owner comparison.
     # BODY = the tdm8 internal-COMPLIANCE/ship set (byte-matched to the t529 sweep Command;
     # the nic-perf RV64 revision below had leaked back in as the bare body,
     # so an extras-less `--sweep ax7101` built prefetch-rpt/l2-16K/no-tdm8 -
@@ -189,7 +188,7 @@ cfg_ax8x8() {    # 8-stream (64ch) shape. History: the 07-24 close used
     # and its RV64-era refill/prefetch cache profile, so it is an upper bound
     # for this recipe, not its figure.
     echo "--board ax7101 --cpu vexiiriscv --cpu-count 1 --xlen 32 --software-profile linux \
-          --all-blocks --coherent-dma --sound-card --no-fabric-gptp \
+          --all-blocks --coherent-dma --sound-card --fabric-gptp \
           --milan-clk-freq 100e6 --with-spiflash --flashboot full --gtx-tx-invert \
           --timing-opt --floorplan --eth-port e1 --l2-bytes 16384 \
           --scala-args=--lsu-l1-refill-count=2 --scala-args=--l2-down-pending=4 \

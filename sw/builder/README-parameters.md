@@ -231,16 +231,22 @@ reserved ring. Physical capture/render, AAF, CRF and loopback fabric remain.
 When `fabric_gptp` is true, the builder requires a `gptp:` section, emits
 `--fabric-gptp`, and writes `gptp_ucode.hex` into the per-config output. The
 ROM's station MAC, priority1 and clock come from the same YAML as the AEM and
-SoC arguments. Every shipping config states the default fabric owner
-explicitly. `fabric_gptp: false` is the one software-owner comparison: its
+SoC arguments. Shipping/product AX configs state the default fabric owner
+explicitly; retained comparison configs state option-OFF explicitly.
+`fabric_gptp: false` is the one software-owner comparison: its
 rootfs fragment contains `/etc/milan-gptp-software-owner`, while an option-on
-fragment removes that marker. Owner/profile combinations that would start a
-software stack against fabric ownership are rejected. The mutable fragment is
-only an input to the next rootfs build, never proof about an existing image:
-gateware records its resolved `fabric|software|none` owner in
+fragment removes that marker. Linux is a CPU/boot profile and supports either
+owner; the exact rootfs marker is paired to the compiled owner before boot or
+deployment. Baremetal option-OFF is rejected because it has no software daemon.
+The mutable fragment is only an input to the next rootfs build, never proof
+about an existing image: gateware records its resolved `fabric|software|none` owner in
 `flashboot_layout.json` and `soc.h`, and the flash preflight inspects the marker
-inside the exact `ROOTFS` archive before its first QSPI write. Old layouts with
-no owner enum and either zero-owner/two-owner marker inversion fail closed.
+inside the exact `ROOTFS` archive before its first QSPI write. The persistent
+`flash-pair` path additionally byte-matches the live offset-zero QSPI payload
+against an exact installed BIT/LAYOUT pair, verifies the live FBI rootfs marker
+for a full-Linux source, and orders the full target set by transition direction.
+Old layouts with no owner enum, unidentified installed bits, and either
+zero-owner/two-owner marker inversion fail closed.
 
 The tier-1 set contains six
 `milan_datapath` blocks that a given deployment may not be able to use, each

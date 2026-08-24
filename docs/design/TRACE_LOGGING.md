@@ -621,9 +621,9 @@ python3 sw/dts/gen_mtd_partitions.py --check --dtc
 python3 sw/trace/test_trace_roundtrip.py        # ALL GATES PASS
 ```
 
-Then rebuild the gateware and **read `deploy.sh flash-images`' printed size vs
-budget line for `rootfs` before writing anything** — the rootfs slot is now
-6.375 MiB, not 8.5, and `deploy.sh` does not yet know that (see Section 13).
+Then rebuild the gateware and inspect `deploy.sh flash-pair`'s whole-set
+preparation line for `rootfs`. The transaction applies both the declared budget
+and reserved-slot ceiling before live readback or a write.
 
 ### T1 — the partitions appear
 
@@ -692,16 +692,11 @@ limiter doing its job rather than the daemon silently going quiet.
 
 ## 13. Open items
 
-* **`deploy.sh` does not know the rootfs slot shrank.** It derives each image's
-  ceiling from the *next image* offset in `flashboot_layout.json`, and the
-  reserved slots are exported under a separate `reserved` key it does not read —
-  so its printed `rootfs` budget is still `16 MiB − 0x78_0000`, and an oversized
-  rootfs would be accepted and would overwrite `journal`/`user`. Each image
-  entry now carries its own `budget` field; the fix is one line in
-  `do_flash_images()` preferring `budget` over the next-offset computation.
-  Deliberately left out of scope here; until it lands, the printed size line is
-  a manual check.
-* **`build.sh flash` / `deploy.sh flash-images` must never erase the writable
+* **CLOSED — deployment knows every reserved boundary.** `prepare_images()`
+  folds both the image budgets and the separate `reserved` offsets into each
+  ceiling, then completes all size checks before `flash-pair` performs live
+  readback or a write. An oversized rootfs cannot reach `journal`/`user`.
+* **`build.sh flash` / `deploy.sh flash-pair` must never erase the writable
   slots.** This was a shared requirement with the saved-state design (deleted
   2026-08-13), and it is now this page's alone — for the same reason: a
   gateware update that silently wipes the

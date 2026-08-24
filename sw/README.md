@@ -72,6 +72,18 @@ milestone **M-A2**. Captured output:
 
 ## Build the board SoC
 
+The product Linux path is the checked AX8x8 config: it generates and consumes
+that config's own gPTP ROM, while the rootfs remains unmarked and starts no
+linuxptp graph.
+
+```sh
+./litex/build.sh ax8x8 --dry-run                 # inspect the exact product argv
+./litex/build.sh ax8x8                           # Linux + fabric gPTP product build
+```
+
+The standalone invocations below deliberately select the option-OFF software
+comparison (except the documented bare SoC with no Milan PHC):
+
 ```sh
 cd litex
 ./milan_soc.py --no-fabric-gptp                 # Linux NIC export, no Vivado ✅
