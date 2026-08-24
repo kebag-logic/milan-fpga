@@ -125,7 +125,9 @@ tree that is not the revision this commit pins, and a malformed budget.
 """
 
 import argparse
+import contextlib
 import hashlib
+import io
 import os
 import pathlib
 import re
@@ -1254,6 +1256,20 @@ def _selftest_logic():
                                               files=["hdl/x.sv"])):
         problems.append("setup refusal: a tree at the pinned revision was "
                         "refused, so the gate would refuse on every lane")
+    # The refusal must exit 2, the SETUP code, not 1: exit 1 is the ratchet
+    # path and reads as "the tree got worse", which invites banking a smaller
+    # or different set rather than fixing the checkout.
+    buf = io.StringIO()
+    with contextlib.redirect_stderr(buf):
+        rc = _refuse_setup(unusable_submodule_trees(
+            states=_fixed("wrong-revision", actual=_OFF)))
+    if rc != 2:
+        problems.append(f"setup refusal: exited {rc}, not 2 - exit 1 is the "
+                        "ratchet path and would read as a regression")
+    if "REFUSED" not in buf.getvalue():
+        problems.append("setup refusal: nothing was printed to stderr, so the "
+                        "run would exit 2 with no reason given")
+
     # ...and the CLASSIFIER those states come from, against real git fixtures.
     problems += _selftest_tree_state()
 
