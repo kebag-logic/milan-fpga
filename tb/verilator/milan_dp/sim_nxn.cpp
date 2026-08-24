@@ -518,8 +518,17 @@ static unsigned long pp_ctr_evt_sin_seen = 0;
 static unsigned long pp_ctr_evt_sout_seen = 0;
 static bool pp_ctr_evt_avb_seen = false;
 static bool pp_ctr_evt_ckd_seen = false;
+//! Deterministic AS_PATH interleave witness: enabled only around the AXI
+//! PUBLISH placed after count capture. If selector 8 appears first, an old
+//! response could pass without exercising the gather-coherence boundary.
+static bool asp_cut_watch = false;
+static bool asp_cut_entry_seen = false;
 static void step() {
-    lo(); hi();
+    lo();
+    if (asp_cut_watch
+        && dut->rootp->milan_datapath__DOT__asp_resp_entry_w)
+        asp_cut_entry_seen = true;
+    hi();
     tkd_dirty_seen |= dut->rootp->milan_datapath__DOT__tkd_dirty_p_w;
     if (dut->rootp->milan_datapath__DOT__pp_ctr_evt_valid_w) {
         const unsigned ty = dut->rootp->milan_datapath__DOT__pp_ctr_evt_type_w;
@@ -674,7 +683,8 @@ static void acmp_sniff() {
 }
 
 // ---- inject one little-lane frame on the MAC RX port ----
-static void inject(const uint8_t* f, size_t len, int drain = 1200) {
+static void inject(const uint8_t* f, size_t len, int drain = 1200,
+                   bool tx_ready = true) {
     std::vector<uint64_t> beats;
     for (size_t bt = 0; bt < (len + 7) / 8; bt++) {
         uint64_t v = 0;
@@ -683,7 +693,7 @@ static void inject(const uint8_t* f, size_t len, int drain = 1200) {
         beats.push_back(v);
     }
     size_t idx = 0;
-    dut->m_axis_mac_tx_tready = 1;
+    dut->m_axis_mac_tx_tready = tx_ready ? 1 : 0;
     dut->m_axis_pcm_tready = 1;
     acmp_sniff_fr.clear();   // a fragment drained elsewhere is not a frame
     for (int c = 0; c < drain; c++) {
@@ -1337,12 +1347,39 @@ static void notify_section(bool timed) {
     // ---- (N7) PathTrace COMMIT is private; PUBLISH is atomic -----------
     //! 0x7DC/0x7E0 stage a clockIdentity and 0x7E4 bit 31 COMMITs it into
     //! the private image. Only bit 30 PUBLISHes the whole image + length.
-    //! The generation advances exactly when that published path changes;
-    //! its edge is the AS_PATH event the processor cannot derive.
+    //! The generation advances exactly when that canonical publication
+    //! changes. The root qualifies that edge against the complete served
+    //! {GM,count,tail} tuple before it becomes an AS_PATH event.
     notify_clear();
     const unsigned long gmchg_n7 = gm_changed_ctr();
-    const uint64_t asp_old = 0x0011223300000001ull;
-    const uint64_t asp_new = 0x445566778899AABBull;
+    const unsigned asp_alias_gen = (axi_read(0x7E4) >> 4) & 0xFu;
+    ck("[R0] count-alias arm starts with a grandmaster",
+       (unsigned long)(((uint64_t)axi_read(0x628) << 32) | axi_read(0x624)) != 0,
+       1);
+    //! Count 0 is the legacy spelling and count 1 the explicit spelling of
+    //! the same served sequence, {GM}. Neither direction may spend a
+    //! generation or emit a false Table 5.22 push.
+    axi_write(0x7E4, 0x40000001u);
+    drain_tx(NOTIFY_WIN);
+    ck("[R0] legacy count 0 -> explicit count 1 emits no AS_PATH push",
+       notify_count(0x0028, nullptr), 0);
+    ck("[R0] ...and spends no publication generation",
+       (axi_read(0x7E4) >> 4) & 0xFu, asp_alias_gen);
+    ck("[R0] ...while raw readback truthfully reports count 1",
+       axi_read(0x7E4) & 0xFu, 1);
+    notify_clear();
+    axi_write(0x7E4, 0x40000000u);
+    drain_tx(NOTIFY_WIN);
+    ck("[R0] explicit count 1 -> legacy count 0 emits no AS_PATH push",
+       notify_count(0x0028, nullptr), 0);
+    ck("[R0] ...and also spends no publication generation",
+       (axi_read(0x7E4) >> 4) & 0xFu, asp_alias_gen);
+
+    const uint64_t asp_old1 = 0x0011223300000001ull;
+    const uint64_t asp_old2 = 0x0011223300000002ull;
+    const uint64_t asp_new1 = 0x445566778899AA01ull;
+    const uint64_t asp_new2 = 0x445566778899AA02ull;
+    const uint64_t asp_new3 = 0x445566778899AA03ull;
     const auto asp_entry = [](const std::vector<uint8_t>& f, unsigned k) {
         uint64_t v = 0;
         const size_t off = 42 + 8 * k;
@@ -1350,13 +1387,17 @@ static void notify_section(bool timed) {
         for (unsigned b = 0; b < 8; b++) v = (v << 8) | f[off + b];
         return v;
     };
-    axi_write(0x7DC, (uint32_t)asp_old);
-    axi_write(0x7E0, (uint32_t)(asp_old >> 32));
-    axi_write(0x7E4, 0x80000000u | (1u << 8));           // commit slot 1
+    const auto asp_stage = [](unsigned slot, uint64_t value) {
+        axi_write(0x7DC, (uint32_t)value);
+        axi_write(0x7E0, (uint32_t)(value >> 32));
+        axi_write(0x7E4, 0x80000000u | (slot << 8));
+    };
+    asp_stage(1, asp_old1);
+    asp_stage(2, asp_old2);
     drain_tx(NOTIFY_WIN);
-    ck("[NOTIFY] initial COMMIT is private (no AS_PATH push)",
+    ck("[NOTIFY] initial COMMITs are private (no AS_PATH push)",
        notify_count(0x0028, nullptr), 0);
-    axi_write(0x7E4, 0x40000000u | 2u);                  // publish {GM, slot 1}
+    axi_write(0x7E4, 0x40000000u | 3u);       // publish {GM, old1, old2}
     drain_tx(NOTIFY_WIN);
     ck("[NOTIFY] first changed PUBLISH: one GET_AS_PATH to A",
        notify_count(0x0028, &CTL_A), 1);
@@ -1368,49 +1409,86 @@ static void notify_section(bool timed) {
     {
         const std::vector<uint8_t> gp(4, 0);
         const std::vector<uint8_t> sp = aecp_xact_from(CTL_B, 0x0028, sq++, gp);
-        ck("[NOTIFY] solicited GET_AS_PATH now answers count 2 (cdl 32)",
-           (long)(aecp_status(sp) == 0 && notify_cdl(sp) == 32
-                  && sp.size() >= 58
-                  && (((unsigned)sp[40] << 8) | sp[41]) == 2), 1);
+        ck("[NOTIFY] solicited GET_AS_PATH now answers count 3 (cdl 40)",
+           (long)(aecp_status(sp) == 0 && notify_cdl(sp) == 40
+                  && sp.size() >= 66
+                  && (((unsigned)sp[40] << 8) | sp[41]) == 3), 1);
         ck("[NOTIFY] ...entry 0 is the grandmaster",
            asp_entry(sp, 0), ((uint64_t)gm_hi << 32) | gm_cur_lo);
         ck("[NOTIFY] ...entry 1 is the first published slot",
-           asp_entry(sp, 1), asp_old);
+           asp_entry(sp, 1), asp_old1);
+        ck("[NOTIFY] ...entry 2 is the second published slot",
+           asp_entry(sp, 2), asp_old2);
         ck("[NOTIFY] ...AS_PATH push body == that solicited read",
            (long)notify_same_from(notify_last(0x0028, CTL_B), sp, 38), 1);
     }
 
-    //! THE MISSING ATOMICITY INTERVAL. Rewrite the live path's slot 1 and
-    //! COMMIT it, but do not PUBLISH. There must be no push, and a solicited
-    //! GET_AS_PATH on the real wire must still return the PRIOR publication.
-    //! The old single-array implementation passed the no-push check and then
-    //! failed this read by leaking asp_new immediately.
+    //! THE MISSING ATOMICITY INTERVAL. Rewrite both live tail slots, add a
+    //! third one and COMMIT all three privately, but do not PUBLISH. There
+    //! must be no push, and a solicited GET_AS_PATH on the real wire must
+    //! still return the PRIOR publication. The old single-array implementation
+    //! passed the no-push check and then leaked the new slots immediately.
     notify_clear();
     const unsigned asp_gen_old = (axi_read(0x7E4) >> 4) & 0xFu;
-    axi_write(0x7DC, (uint32_t)asp_new);
-    axi_write(0x7E0, (uint32_t)(asp_new >> 32));
-    axi_write(0x7E4, 0x80000000u | (1u << 8));           // private re-COMMIT
+    asp_stage(1, asp_new1);
+    asp_stage(2, asp_new2);
+    asp_stage(3, asp_new3);
     drain_tx(NOTIFY_WIN);
-    ck("[R0] re-COMMIT before PUBLISH emits no GET_AS_PATH push",
+    ck("[R0] three re-COMMITs before PUBLISH emit no GET_AS_PATH push",
        notify_count(0x0028, nullptr), 0);
     ck("[R0] ...and leaves the published generation unchanged",
        (axi_read(0x7E4) >> 4) & 0xFu, asp_gen_old);
     {
         const std::vector<uint8_t> gp(4, 0);
         const std::vector<uint8_t> sp = aecp_xact_from(CTL_A, 0x0028, sq++, gp);
-        ck("[R0] solicited GET_AS_PATH between COMMIT and PUBLISH stays count 2",
-           (long)(aecp_status(sp) == 0 && notify_cdl(sp) == 32
-                  && sp.size() >= 58
-                  && (((unsigned)sp[40] << 8) | sp[41]) == 2), 1);
-        ck("[R0] ...and serves the PRIOR published slot atomically",
-           asp_entry(sp, 1), asp_old);
+        ck("[R0] solicited GET_AS_PATH between COMMIT and PUBLISH stays count 3",
+           (long)(aecp_status(sp) == 0 && notify_cdl(sp) == 40
+                  && sp.size() >= 66
+                  && (((unsigned)sp[40] << 8) | sp[41]) == 3), 1);
+        ck("[R0] ...and serves PRIOR slot 1 atomically",
+           asp_entry(sp, 1), asp_old1);
+        ck("[R0] ...and serves PRIOR slot 2 atomically",
+           asp_entry(sp, 2), asp_old2);
     }
 
-    //! Positive control: PUBLISH the pending image. Both controllers must
-    //! now receive the event and the following solicited read must expose
-    //! asp_new, byte-identical to the pushed state.
+    //! THE IN-FLIGHT CUT. Launch a real solicited GET_AS_PATH with TX held so
+    //! no response byte can escape, stop on the exact first-count capture
+    //! edge, then PUBLISH while the processor is still gathering the rest of
+    //! that response. The in-flight body must remain wholly old; the next
+    //! response and the changed-path pushes must be wholly new.
     notify_clear();
-    axi_write(0x7E4, 0x40000000u | 2u);
+    const std::vector<uint8_t> gp_inflight(4, 0);
+    const std::vector<uint8_t> rq_inflight =
+        aecp_request(0x0028, sq++, gp_inflight, CTL_A);
+    inject(rq_inflight.data(), rq_inflight.size(),
+           (int)((rq_inflight.size() + 7) / 8), false);
+    bool asp_capture_seen = false;
+    for (int c = 0; c < 200000 && !asp_capture_seen; c++) {
+        lo();
+        asp_capture_seen =
+            dut->rootp->milan_datapath__DOT__asp_resp_capture_w;
+        hi();
+        uns_log_cycle++;
+    }
+    ck("[R0] in-flight GET_AS_PATH reached its first-count snapshot edge",
+       asp_capture_seen, 1);
+    asp_cut_entry_seen = false;
+    asp_cut_watch = asp_capture_seen;
+    axi_write(0x7E4, 0x40000000u | 4u);       // {GM, new1, new2, new3}
+    const bool asp_entry_before_publish = asp_cut_entry_seen
+        || dut->rootp->milan_datapath__DOT__asp_resp_entry_w;
+    asp_cut_watch = false;
+    ck("[R0] PUBLISH completed before the first path-entry gather request",
+       !asp_entry_before_publish, 1);
+    const std::vector<uint8_t> sp_inflight = await_aecp();
+    ck("[R0] PUBLISH during gather leaves in-flight response count wholly old",
+       (long)(aecp_status(sp_inflight) == 0 && notify_cdl(sp_inflight) == 40
+              && sp_inflight.size() >= 66
+              && (((unsigned)sp_inflight[40] << 8) | sp_inflight[41]) == 3), 1);
+    ck("[R0] ...and leaves tail entry 1 wholly old",
+       asp_entry(sp_inflight, 1), asp_old1);
+    ck("[R0] ...and leaves tail entry 2 wholly old",
+       asp_entry(sp_inflight, 2), asp_old2);
     drain_tx(NOTIFY_WIN);
     ck("[R0] changed PUBLISH sends GET_AS_PATH to A",
        notify_count(0x0028, &CTL_A), 1);
@@ -1420,8 +1498,13 @@ static void notify_section(bool timed) {
     {
         const std::vector<uint8_t> gp(4, 0);
         const std::vector<uint8_t> sp = aecp_xact_from(CTL_B, 0x0028, sq++, gp);
-        ck("[R0] solicited GET_AS_PATH after PUBLISH serves the NEW slot",
-           asp_entry(sp, 1), asp_new);
+        ck("[R0] solicited GET_AS_PATH after PUBLISH answers count 4 (cdl 48)",
+           (long)(aecp_status(sp) == 0 && notify_cdl(sp) == 48
+                  && sp.size() >= 74
+                  && (((unsigned)sp[40] << 8) | sp[41]) == 4), 1);
+        ck("[R0] ...serves NEW slot 1", asp_entry(sp, 1), asp_new1);
+        ck("[R0] ...serves NEW slot 2", asp_entry(sp, 2), asp_new2);
+        ck("[R0] ...serves NEW slot 3", asp_entry(sp, 3), asp_new3);
         ck("[R0] ...changed push body == that solicited read",
            (long)notify_same_from(notify_last(0x0028, CTL_B), sp, 38), 1);
     }
@@ -1432,7 +1515,7 @@ static void notify_section(bool timed) {
     //! the two changed publishes above prove the event path is reachable.
     notify_clear();
     const unsigned asp_gen_new = (axi_read(0x7E4) >> 4) & 0xFu;
-    axi_write(0x7E4, 0x40000000u | 2u);
+    axi_write(0x7E4, 0x40000000u | 4u);
     drain_tx(NOTIFY_WIN);
     ck("[R0] identical re-PUBLISH generates no false GET_AS_PATH notification",
        notify_count(0x0028, nullptr), 0);
@@ -1496,6 +1579,33 @@ static void notify_section(bool timed) {
         drain_tx(NOTIFY_WIN);
         notify_clear();
         const unsigned long gmchg_nogm = gm_changed_ctr();
+
+        //! A changed tail/count while GM=0 changes the private publication
+        //! available to a future grandmaster, but the served sequence remains
+        //! byte-identical empty NOW. The notification detector therefore
+        //! compares the served tuple, not the raw publication generation.
+        axi_write(0x7E4, 0x40000002u);
+        drain_tx(NOTIFY_WIN);
+        ck("[R0] changed PUBLISH with GM=0 emits no false AS_PATH push",
+           notify_count(0x0028, nullptr), 0);
+        ck("[R0] ...while raw publication count really moved to 2",
+           axi_read(0x7E4) & 0xFu, 2);
+        {
+            const std::vector<uint8_t> gp(4, 0);
+            const std::vector<uint8_t> sp =
+                aecp_xact_from(CTL_A, 0x0028, sq++, gp);
+            ck("[R0] ...and solicited GET_AS_PATH remains empty on the wire",
+               (long)(aecp_status(sp) == 0 && notify_cdl(sp) == 16
+                      && sp.size() >= 42
+                      && (((unsigned)sp[40] << 8) | sp[41]) == 0), 1);
+        }
+        notify_clear();
+        axi_write(0x7E4, 0x40000000u);             // restore legacy raw count
+        drain_tx(NOTIFY_WIN);
+        ck("[R0] changed withdrawal with GM=0 is equally silent",
+           notify_count(0x0028, nullptr), 0);
+        notify_clear();
+
         axi_write(0x62C, dom1);                       // domain change, GM = 0
         drain_tx(NOTIFY_WIN);
         ck("[NOTIFY] domain change with NO grandmaster: one unsolicited "

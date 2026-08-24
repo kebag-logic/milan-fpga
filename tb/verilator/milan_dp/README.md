@@ -182,10 +182,15 @@ re-COMMITs slot 1, and proves both zero push and a solicited read of the prior
 publication before PUBLISH. A changed `PUBLISH` through `0x7DC`/`0x7E4`
 atomically exposes the complete staged tail and count and pushes the new
 `GET_AS_PATH` bytes with no `GET_AVB_INFO`; an identical re-PUBLISH advances
-neither generation nor wire. Publishing while a response gather is in flight
-produces a coherent all-old or all-new vector, never mixed slots. The CSR unit
-arm also proves a combined COMMIT+PUBLISH uses the newly committed slot on that
-same edge. The FIRST grandmaster commit (zero to something) pushes both rows
+neither generation nor wire. Legacy count 0 and explicit count 1 are exercised
+in both directions and spend neither generation nor a push. The harness then
+holds TX, stops on the live first-count snapshot edge, changes the count and
+multiple slots, and proves PUBLISH completes before the first entry request;
+the in-flight wire body stays all-old and the next one is all-new. A separate
+GM=0 arm changes and withdraws a real two-entry
+publication while the served response stays empty, proving both false pushes
+are suppressed. The CSR unit arm also proves a combined COMMIT+PUBLISH uses the
+newly committed slot on that same edge. The FIRST grandmaster commit (zero to something) pushes both rows
 while the ADP
 GM_CHANGE duty stays untouched. The two arms that answer the Table 5.22
 fields the root used to hold silent run next: the gPTP domain number is

@@ -189,7 +189,7 @@ MAC/*` in [`REQUIREMENTS.md`](../../REQUIREMENTS.md).
   - [0x7A0  -  ACMP bind-restore  (saved-state fast-connect E1, Milan 5.5.3.5.2)](#0x7a0-----acmp-bind-restore--saved-state-fast-connect-e1-milan-55352) -- **Dead port.** Writes are accepted, the ack never asserts, and nothing is restored -- the ACMP context table it injected into is deleted. The `0xA5C35A3C` feature probe still passes, which is precisely why software must gate on `VERSION` major and not on the probe.
   - [0x7B8  -  Persistence-journal ingest  (saved-state fast-connect E3)](#0x7b8-----persistence-journal-ingest--saved-state-fast-connect-e3) -- **Unwired again at VERSION major 2: writes are accepted and DISCARDED, `JNL_STAT` and `JNL_SEQ` read structural zeros.** Milan v1.2 5.3.8.2 makes the saved bound state a *shall*; this build does not meet it, and nothing in this device restores a binding across a power cycle. The record format and verdict table are kept as the specification a replacement must satisfy.
   - [0x7C8  -  AEM dynamic-state patch port  (saved-state fast-connect E4)](#0x7c8-----aem-dynamic-state-patch-port--saved-state-fast-connect-e4) -- **Unwired: writes accepted and discarded.** The patch engine and the AEM store it wrote are both deleted, so there is no descriptor RAM to patch and no setter whose acceptance it could re-run. Kept as ABI and as specification.
-  - [0x7DC  -  AS_PATH staging: the published PathTrace  (gh #64 J4)](#0x7dc-----as_path-staging-the-published-pathtrace--gh-64-j4) -- COMMIT builds a private staging tail; a changed PUBLISH atomically replaces the coherent tail/count `GET_AS_PATH` serves and arms the Table 5.22 notification.
+  - [0x7DC  -  AS_PATH staging: the published PathTrace  (gh #64 J4)](#0x7dc-----as_path-staging-the-published-pathtrace--gh-64-j4) -- COMMIT builds a private staging tail; PUBLISH atomically replaces it, and Table 5.22 fires only when the controller-visible served sequence changes.
   - [0x800  -  Indexed per-stream window](#0x800-----indexed-per-stream-window) -- SELECT-then-read access to listener and talker contexts without duplicating decode logic. Index 0 aliases the legacy flat registers, `0xDEADDEAD` marks an unbacked word, and a staged stream id applies only to the selected index.
   - [0x870  -  AAF per-stage latency taps  (roadmap item-11, KL_aaf_latency_taps)](#0x870-----aaf-per-stage-latency-taps--roadmap-item-11-kl_aaf_latency_taps) -- Six inter-stage deltas as `{max,last}` plus a separate min word, in `axis_clk` cycles. They characterise an envelope, not one threaded frame -- the token is followed by order, so a shared MAC boundary can catch a nearer non-AAF edge. Like every group at `>= 0x800` it needs the read carve-out or the whole block reads 0.
   - [0x8B4  -  RX stream-parser probe  (APRB, avtp_stream_parser + milan_datapath)](#0x8b4-----rx-stream-parser-probe--aprb-avtp_stream_parser--milan_datapath) -- The only listener-side view **upstream** of the stream-table match, which is why a bound listener that accepts nothing used to be undiagnosable -- every other counter reads 0 in unison and none can say why. Ends with a three-row table that turns `PARSED`/`MATCHED` into a verdict.
@@ -1322,13 +1322,18 @@ under its grandmaster sees.
 There are two stores with deliberately different visibility. LO/HI plus
 COMMIT update a **staging bank** only; neither a solicited read nor the
 notification detector can observe a partially rebuilt tail. PUBLISH compares
-the staged tail/count with the published snapshot and, only when they differ,
-atomically transfers the complete tail and count and advances the generation.
-That generation edge is the `gsi_asp_chg_i` strobe the processor turns into an
-unsolicited `GET_AS_PATH` to every registered controller. An identical
-republish is silent. The response gather snapshots one published generation,
-so a PUBLISH interleaved with a multi-entry response yields either the complete
-old path or the complete new path, never a mixture.
+the staged tail/count with the canonical published snapshot and, only when they
+differ, atomically transfers the complete tail/count and advances generation;
+raw counts 0 and 1 remain distinct in readback but are the same GM-only path and
+do not spend a generation. The root qualifies that publication edge against
+the complete sequence `GET_AS_PATH` actually serves before driving
+`gsi_asp_chg_i`. Consequently every publish while GM=0 is silent because the
+served path remains empty, and GM arrival later emits one event carrying the
+latest tail. An identical republish is silent. The response gather snapshots
+GM, count and every tail slot at the first count request. The wire test completes
+a count-and-multi-slot PUBLISH after that capture and before the first entry
+request, yielding the complete old response while the next request gets the
+complete new path, never a mixture.
 
 The daemon's duty: stage each `clockIdentity` of the latest Announce's
 PathTrace TLV into slots 1..7 in order, then publish the length counting the
@@ -1339,7 +1344,7 @@ visibility and notification cutover.
 |--------|------|-----|-------|-------------|
 | `0x7DC` | `ASP_LO` | RW | `0` | Staged `clockIdentity[31:0]` |
 | `0x7E0` | `ASP_HI` | RW | `0` | Staged `clockIdentity[63:32]` |
-| `0x7E4` | `ASP_CMD` | W / RO live | `0` | `[31]` COMMIT the LO/HI identity into private staging slot `[10:8]` (1..7; slot 0 refused); `[30]` PUBLISH the complete private path with clamped length `[3:0]` (entries including the grandmaster), atomically replacing the published snapshot and bumping generation only when its count or active bytes change. Setting `[31]` and `[30]` together publishes the current LO/HI into the selected slot. Reads published `{gen[3:0], count[3:0]}` |
+| `0x7E4` | `ASP_CMD` | W / RO live | `0` | `[31]` COMMIT the LO/HI identity into private staging slot `[10:8]` (1..7; slot 0 refused); `[30]` PUBLISH the complete private path with clamped length `[3:0]` (entries including the grandmaster), atomically replacing the published snapshot and bumping generation only when its canonical count or active bytes change (raw 0 and 1 both mean GM-only and do not bump). Setting `[31]` and `[30]` together publishes the current LO/HI into the selected slot. Reads published `{gen[3:0], count[3:0]}` |
 
 ### 0x800  -  Indexed per-stream window
 

@@ -2007,8 +2007,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire        cfg_crf_en;
   wire [63:0] cfg_crf_sid;
   //! gh #64 J4 local PathTrace staging (CSR 0x7DC group): the published
-  //! tail GET_AS_PATH serves behind the grandmaster, and the publish
-  //! generation whose edge arms the processor's Table 5.22 AS_PATH push.
+  //! tail GET_AS_PATH serves behind the grandmaster. The notification edge is
+  //! derived below from the complete LIVE served sequence, not a raw CSR
+  //! generation: counts 0/1 alias to GM-only, and every tail aliases to empty
+  //! while no grandmaster exists.
   //! Slot count DERIVED from the port width (one source, as the CSR does).
   wire [7*64-1:0] asp_path_w;
   wire [3:0]      asp_count_w, asp_gen_w;
@@ -3116,8 +3118,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .rd_mreset_o (tkdiag_cnt_w[2*32 +: 32]),
     .rd_tu_o     (tkdiag_cnt_w[3*32 +: 32]),
     .rd_ftx_o    (tkdiag_cnt_w[4*32 +: 32]),
-    //! The processor notification trigger face is tracked by issue #69.
-    //! Keep the per-descriptor source visible and tested here until it lands.
+    //! The lossless per-descriptor arbiter below consumes this pulse and
+    //! drives the processor's Table 5.22 GET_COUNTERS notification (#69).
     .dirty_p_o   (tkd_dirty_p_w)
   );
 
@@ -4343,6 +4345,17 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   logic [63:0] asp_resp_gm_r;
   logic [3:0]  asp_resp_count_r;
   logic [7*64-1:0] asp_resp_path_r;
+  //! Public to the integration harness so it can place a PUBLISH on the exact
+  //! edge between the count capture and the remaining in-flight gathers.
+  wire asp_resp_capture_w /* verilator public_flat_rd */ =
+       pp_gsi_req_w && !gsi_req_q_r && (pp_gsi_kind_w == 2'd2)
+       && (pp_gsi_sel_w == 4'd0);
+  //! The harness watches this independently of TX backpressure. Its in-flight
+  //! cut must complete PUBLISH after the count snapshot but before the first
+  //! path-entry request, otherwise an all-old response would be a false-green
+  //! consequence of publishing after the gather had already finished.
+  wire asp_resp_entry_w /* verilator public_flat_rd */ =
+       pp_gsi_req_w && (pp_gsi_kind_w == 2'd2) && (pp_gsi_sel_w == 4'd8);
   wire gsi_sel_match_w = (gsiq_kind_r  == pp_gsi_kind_w)
                       && (gsiq_type_r  == pp_gsi_desc_type_w)
                       && (gsiq_index_r == pp_gsi_desc_index_w)
@@ -4367,8 +4380,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       gsi_srv1_r   <= pp_gsi_req_w && gsi_sel_match_w;
       gsi_srv2_r   <= pp_gsi_req_w && gsi_sel_match_w && gsi_srv1_r;
       gsi_data_r   <= gsi_ans_raw_w;
-      if (pp_gsi_req_w && !gsi_req_q_r && (pp_gsi_kind_w == 2'd2)
-          && (pp_gsi_sel_w == 4'd0)) begin
+      if (asp_resp_capture_w) begin
         asp_resp_gm_r    <= cfg_adp_gptp_gm;
         asp_resp_count_r <= (|cfg_adp_gptp_gm)
                           ? ((asp_count_w > 4'd1) ? asp_count_w : 4'd1)
@@ -4745,8 +4757,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //!     so the served answer and both detectors have one source. It
   //!     subsumes the old first-commit term: 0 -> nonzero IS a change of
   //!     cfg_adp_gptp_gm.
-  //!   * the PathTrace PUBLISH edge (0x7E4 bit 30 bumps asp_gen) - the same
-  //!     grandmaster with a new tail, which the processor cannot derive.
+  //!   * the served PathTrace snapshot moving - the same grandmaster with a
+  //!     new active tail/count, which the processor cannot derive. Compare
+  //!     what GET_AS_PATH actually serves, not asp_gen: raw counts 0 and 1
+  //!     are both GM-only, and all tail publications alias to empty while
+  //!     the grandmaster is zero.
   //!
   //! What is NOT a term is the gPTP domain number. It is a GET_AVB_INFO
   //! field (below) and an ADPDU field, but it is not a path entry, so a
@@ -4758,6 +4773,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! All of these are one-cycle strobes; the processor coalesces them into
   //! one push per class.
   logic gsi_ascap_q_r;
+  logic [3:0] gsi_asp_count_q_r;
+  logic [7*64-1:0] gsi_asp_path_q_r;
   logic [3:0] asp_gen_q_r;
   logic gsi_snap_v_r;
   logic [63:0] gsi_gm_q_r;
@@ -4766,6 +4783,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   always_ff @(posedge axis_clk) begin : gsi_change_edges
     if (!axis_resetn) begin
       gsi_ascap_q_r <= 1'b0;
+      gsi_asp_count_q_r <= 4'd0;
+      gsi_asp_path_q_r  <= '0;
       asp_gen_q_r   <= 4'd0;
       gsi_snap_v_r  <= 1'b0;
       gsi_gm_q_r    <= 64'd0;
@@ -4773,6 +4792,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       gsi_dom_q_r   <= 8'd0;
     end else begin
       gsi_ascap_q_r <= clkv_as_cap_w;
+      gsi_asp_count_q_r <= (|cfg_adp_gptp_gm)
+                           ? ((asp_count_w > 4'd1) ? asp_count_w : 4'd1)
+                           : 4'd0;
+      gsi_asp_path_q_r  <= (|cfg_adp_gptp_gm) ? asp_path_w : '0;
       asp_gen_q_r   <= asp_gen_w;
       gsi_snap_v_r  <= 1'b1;
       gsi_gm_q_r    <= cfg_adp_gptp_gm;
@@ -4788,7 +4811,19 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
                         && ((clkv_as_cap_w      != gsi_ascap_q_r)
                             || (eff_gptp_pdelay_w   != gsi_pdly_q_r)
                             || (cfg_adp_gptp_domain != gsi_dom_q_r)));
-  wire gsi_asp_chg_w = (asp_gen_w != asp_gen_q_r) || gsi_gm_chg_w;
+  //! One source for the event and the answer: compare the complete served
+  //! sequence. This suppresses both deterministic aliases that a raw publish
+  //! generation cannot see: 0 <-> 1 with a stable GM, and every publish while
+  //! GM=0. A later GM arrival still fires once through gsi_gm_chg_w and serves
+  //! the latest published tail.
+  wire [3:0] gsi_asp_count_w = (|cfg_adp_gptp_gm)
+                               ? ((asp_count_w > 4'd1) ? asp_count_w : 4'd1)
+                               : 4'd0;
+  wire [7*64-1:0] gsi_asp_path_w = (|cfg_adp_gptp_gm) ? asp_path_w : '0;
+  wire gsi_asp_chg_w = gsi_gm_chg_w
+                    || (gsi_snap_v_r && (asp_gen_w != asp_gen_q_r)
+                        && ((gsi_asp_count_w != gsi_asp_count_q_r)
+                            || (gsi_asp_path_w != gsi_asp_path_q_r)));
 
   //! IDENTIFY: the processor serves the CONTROL descriptor and stores its
   //! dynamic value. KL_pp_shadow exports aecp_identify_o into
@@ -4915,7 +4950,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //  parser on the same RX tap, matched to the BOUND stream_id the protocol
   //  processor publishes. Its counters reach local software through the 0x6B8
   //  A_STRMW_CNT CSR window and supported controller targets through solicited
-  //  GET_COUNTERS. The Table 5.22 notification scheduler remains open.
+  //  GET_COUNTERS and through the lossless dirty arbiter into the processor's
+  //  live Table 5.22 notification scheduler (#69).
   // ==========================================================================
   //! NXN §1.1 (P1): stream-table classification authority. Entry 0 aliases
   //! the processor's ACMP bound record combinationally; entries

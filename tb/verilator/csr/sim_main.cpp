@@ -1110,20 +1110,34 @@ int main(int argc, char** argv) {
   // 1722.1-2021 7.4.41.2 path_sequence instead of a two-entry guess. Slot 0
   // is the grandmaster and is NEVER stored here - it already lives at
   // ADP_GM 0x624/8, and a second copy is the derive-never-mirror defect.
-    // A publish is the ATOMIC cutover: it transfers the committed image and
-    // length together. The generation, which arms the Milan Table 5.22 push,
-    // advances only when those published values actually change.
+  // A publish is the ATOMIC cutover: it transfers the committed image and
+  // length together. Generation advances only when the canonical publication
+  // changes; the root then qualifies that edge against the complete served
+  // {GM,count,tail} tuple before it can arm a Milan Table 5.22 push.
   {
     long f0 = fails;
     printf("-- 0x7DC AS_PATH staging (gh #64 J4) --\n");
     const uint32_t A_ASP_LO = 0x7DC, A_ASP_HI = 0x7E0, A_ASP_CMD = 0x7E4;
 
-    // reset: nothing published. count 0 is the LEGACY arm, not "a path of
-    // length zero" - the builder keeps its old [GM, parent] derivation.
+    // Reset publishes the legacy count-0 spelling. With a nonzero GM, both
+    // count 0 and explicit count 1 serve the same one-entry path, {GM}; with
+    // GM zero the response is empty. No guessed parent is synthesized.
     ck("ASP_CMD reset {gen,count} = 0", axi_read(A_ASP_CMD), 0);
     ck("o_asp_count resets 0", dut->o_asp_count, 0);
     ck("o_asp_gen resets 0",   dut->o_asp_gen, 0);
     for (int k = 1; k <= 7; ++k) ck("slot resets 0", asp_slot(k), 0);
+
+    // Count 0 is the legacy spelling and count 1 the explicit spelling of
+    // the SAME served path, {GM}. Raw readback must preserve what software
+    // published, but an ABI alias is not a path change and spends no
+    // generation (the root notification test pins the matching wire silence).
+    axi_write(A_ASP_CMD, 0x40000001u);
+    ck("count 1 reads back explicitly", dut->o_asp_count, 1);
+    ck("legacy 0 -> explicit 1 spends no generation", dut->o_asp_gen, 0);
+    ck("ASP_CMD reports raw count 1 with gen 0", axi_read(A_ASP_CMD), 1);
+    axi_write(A_ASP_CMD, 0x40000000u);
+    ck("explicit 1 -> legacy 0 restores raw count", dut->o_asp_count, 0);
+    ck("explicit 1 -> legacy 0 spends no generation", dut->o_asp_gen, 0);
 
     // the staging pair reads back (plain-RW, like the E1 restore staging)
     axi_write(A_ASP_LO, 0xFFFE0210u);

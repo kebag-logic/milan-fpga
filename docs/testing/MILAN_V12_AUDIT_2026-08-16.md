@@ -248,12 +248,17 @@ the last complete PathTrace tail the daemon published through the `0x7DC`
 CSR group. Slot LO/HI writes and `COMMIT` update a private staging bank only;
 they cannot change a solicited response or arm a notification. A changed
 `PUBLISH` atomically transfers the complete staged tail and count to the
-published bank, advances the publication generation, and arms the Table 5.22
-`GET_AS_PATH` notification. Publishing content identical to the current
-snapshot is silent. The response gather holds one publication generation, so
-a publish interleaved with a read yields the complete old or complete new path,
-never a mixed vector. A tail that has not been published leaves the one-entry
-path seen by a leaf directly under its grandmaster.
+published bank and advances the publication generation only when its canonical
+path changes (legacy count 0 and explicit count 1 are the same GM-only path).
+The Table 5.22 detector separately compares the complete sequence the command
+actually serves, so any tail/count publication while the grandmaster is zero
+is silent rather than pushing an unchanged empty response. Publishing content
+identical to the current snapshot is also silent. The response gather snapshots
+GM, count and all tail slots at its first count request. The wire test then
+completes a count-and-multi-slot PUBLISH before the first entry request and
+proves the in-flight response wholly old and the next response wholly new. A
+tail that has not been published leaves the one-entry path seen by a leaf
+directly under its grandmaster.
 
 What the daemon must do for the report to be complete is stage every tail entry
 from the latest Announce PathTrace TLV and issue `PUBLISH` only after the tail

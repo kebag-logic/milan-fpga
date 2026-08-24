@@ -483,8 +483,8 @@ module milan_csr #(
   //! 802.1AS PathTrace TAIL - slots 1..7 are the traversed bridges, slot 0
   //! is ALWAYS the grandmaster and is never stored here (it lives at
   //! ADP_GM 0x624/0x628; duplicating it is the derive-never-mirror class).
-  //! o_asp_path bit [64*(k-1) +: 64] = slot k. count = 0 keeps the legacy
-  //! no-published-tail behavior in the response builder (GM only).
+  //! o_asp_path bit [64*(k-1) +: 64] = slot k. Counts 0 (legacy) and 1
+  //! (explicit) both describe the same GM-only served sequence.
   output wire [7*64-1:0]         o_asp_path,          //! published slots 1..7
   output wire [3:0]              o_asp_count,         //! published path length (entries incl the GM)
   output wire [3:0]              o_asp_gen,           //! generation (bumps when published path changes)
@@ -1289,7 +1289,13 @@ module milan_csr #(
   always_comb begin : asp_publish_next
     asp_publish_count_w = (s_axi_wdata[3:0] > ASP_COUNT_MAX_C)
                         ? ASP_COUNT_MAX_C : s_axi_wdata[3:0];
-    asp_publish_changed_w = (asp_publish_count_w != asp_count_r);
+    //! Counts 0 and 1 are two ABI spellings of the SAME served path: the
+    //! grandmaster and no tail. Preserve the raw count for truthful software
+    //! readback, but compare the canonical served length so 0 <-> 1 cannot
+    //! spend a generation or manufacture a Table 5.22 event.
+    asp_publish_changed_w =
+      (((asp_publish_count_w > 4'd1) ? asp_publish_count_w : 4'd1)
+       != ((asp_count_r > 4'd1) ? asp_count_r : 4'd1));
     for (int unsigned ak = 0; ak < ASP_SLOTS_C; ak++) begin
       asp_publish_slot_w[ak] = 64'd0;
       if (4'(ak + 2) <= asp_publish_count_w) begin
@@ -1809,8 +1815,10 @@ module milan_csr #(
           //! (derive-never-mirror). It cannot change o_asp_path. A PUBLISH
           //! ([30]) is the atomic cutover: all active slots and the clamped
           //! LENGTH become visible in this edge. The generation advances
-          //! only when that published count or those bytes change, so the
-          //! Milan Table 5.22 signature cannot fire on an identical publish.
+          //! only when the canonical published path changes: count 0 and
+          //! count 1 are the same GM-only sequence, and inactive bytes do not
+          //! participate. Thus the Table 5.22 signature cannot fire on an
+          //! identical or alias-only publish.
           //! COMMIT+PUBLISH in one command preserves the historical ABI by
           //! substituting the current {HI,LO} into the selected next slot.
           A_ASP_LO: asp_lo_r <= s_axi_wdata;

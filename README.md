@@ -153,11 +153,15 @@ and 5.4.5.3, issue #69). Persistence stays with issue #70.
 `GET_AS_PATH` serves the grandmaster followed by the latest PathTrace snapshot
 published through the 0x7DC group. LO/HI writes and slot COMMITs change only
 the staging bank. A changed PUBLISH atomically replaces the complete published
-tail and count, then arms the Table 5.22 notification; reads before that point
-keep the old path, and a response concurrent with PUBLISH is wholly old or
-wholly new. Re-publishing identical staged content is silent. A tail that is
-never published leaves a leaf directly under its grandmaster with a one-entry
-path.
+tail and count. The Table 5.22 edge compares the sequence `GET_AS_PATH`
+actually serves: legacy count 0 and explicit count 1 are the same GM-only
+path, and every tail aliases to an empty response while no grandmaster exists,
+so neither case emits a false push. Reads before PUBLISH keep the old path. A
+wire test snapshots the old count, completes a count-and-multi-slot PUBLISH
+before the first entry gather request, and proves that the in-flight response
+remains wholly old while the next response is wholly new. Re-publishing
+identical staged content is silent. A tail that is never published leaves a leaf
+directly under its grandmaster with a one-entry path.
 
 The dated evidence and exact gate results are recorded in
 [the 2026-08-16 audit](docs/testing/MILAN_V12_AUDIT_2026-08-16.md). The register
