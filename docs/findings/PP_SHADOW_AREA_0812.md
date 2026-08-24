@@ -69,6 +69,7 @@ anchors and to its 1,068 LUT µCPU measurement of record.
 ```sh
 cd <workdir>
 python3 <pp>/hdl/acmp/rom/gen_ltn_rom.py -o ltn_rom.hex
+python3 <pp>/hdl/aecp/ucode/gen_ucode.py -o ucode.hex
 PP_N_IN=1 PP_N_OUT=1 vivado -mode batch -source <repo>/syn/ooc/pp_shadow_ooc.tcl -nojournal
 ```
 
@@ -349,6 +350,28 @@ before anyone quotes these as vendor-neutral.
 `syn/ooc/pp_shadow_ooc.tcl` (this repo). `PP_N_IN` / `PP_N_OUT` select the
 shape and default to 8; the script prints the shape it used, because a
 utilization figure quoted without its shape is a figure that gets misapplied.
+
+Run it from an empty working directory outside the tree: both `$readmemh`
+images are generated into that directory, and the three reports land beside
+them.
+
+Both images are required, and the Instrument block above is the whole recipe.
+`ltn_rom.hex` on its own is not: the AECP microcode ROM reads `ucode.hex` by the
+same relative name, Vivado answers a missing image with a CRITICAL WARNING
+ending in "ignoring" rather than with an error, and the run completes and
+reports the area of a ROM full of X. On the 1x1 shape that omission understates
+the plane by 2,871 LUT (13,676 against 16,547) and by 5 block RAM tiles. The
+script refuses to synthesize unless both images are present, and its read set is
+derived from the `KL_pp_shadow` entry in `syn/yosys/run.sh` rather than
+assembled here, so it cannot again name a top it does not read.
+
+Figures at a later head, for scale rather than as a replacement: the same
+instrument at `dev` `04b55dad` with that read set corrected, protocol-processor
+pinned at `a25b5cc9`, reports 16,547 LUT / 19,473 FF / 17 BRAM / 4 DSP /
+WNS -0.486 ns at `N_STREAM_IN/OUT = 1`, and 22,817 LUT / 25,922 FF /
+24.5 BRAM / 4 DSP / WNS -7.573 ns at 8. The table under Result is the
+2026-08-12 measurement and stays that; the plane roughly doubled in between,
+most of it the AECP engine, its descriptor store and its microcoded core.
 
 ## THE SUBSTITUTION ON THE REAL BUILD — 2026-08-13
 
