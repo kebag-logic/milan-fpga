@@ -361,9 +361,24 @@ same relative name, Vivado answers a missing image with a CRITICAL WARNING
 ending in "ignoring" rather than with an error, and the run completes and
 reports the area of a ROM full of X. On the 1x1 shape that omission understates
 the plane by 2,871 LUT (13,676 against 16,547) and by 5 block RAM tiles. The
-script refuses to synthesize unless both images are present, and its read set is
-derived from the `KL_pp_shadow` entry in `syn/yosys/run.sh` rather than
-assembled here, so it cannot again name a top it does not read.
+script refuses to synthesize unless both images are present.
+
+Its read set is not assembled here. Both halves come from the `KL_pp_shadow`
+entry in `syn/yosys/run.sh`: the submodule half through `scripts/pp_srcs.py`,
+which `run.sh` calls and `syn/ooc/dp_srcs.py` calls, and the parent half from
+`run.sh`'s own `PP_SRCS` composition, which `dp_srcs.py` parses rather than
+reproduces. What that buys, exactly: the generator refuses to emit a list in
+which no source declares `module KL_pp_shadow` in active code, so a top outside
+its own read set is a named refusal instead of a Vivado `module not found`, and
+a source `run.sh` names that the tree does not carry is a named refusal instead
+of a short list at exit 0. Comment text and `ifdef`-guarded text are not active
+code and do not satisfy that check.
+
+Neither refusal is claimed further than it is gated.
+`.github/workflows/rtl-fast.yml` runs `syn/ooc/dp_srcs.py --selftest` (19 arms,
+including the block-commented declaration and a `run.sh` that drops the
+wrapper) and `syn/ooc/ooc_tcl_selftest.py` (5 arms, which drive this .tcl under
+`tclsh` with the Vivado commands stubbed), plus both expansions for real.
 
 Figures at a later head, for scale rather than as a replacement: the same
 instrument at `dev` `04b55dad` with that read set corrected, protocol-processor
