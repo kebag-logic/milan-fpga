@@ -86,6 +86,27 @@ It performs this order:
    controls are ORed into one shared control-plane enable, so either bit alone
    enables it.
 
+Step 4 lives in one function and nowhere else:
+
+```c
+static void entity_advertise(int verified)
+{
+        if (!verified)
+                return;
+        milan_write(MILAN_PP_CTRL, milan_read(MILAN_PP_CTRL) | 1u);
+        milan_write(MILAN_ADP_CTRL, milan_read(MILAN_ADP_CTRL) | 1u);
+        printf(...);
+}
+```
+
+`milan_init()` calls it exactly once, as `entity_advertise(aem_loaded)`. That
+is the choke point issue #153 asks for, and it is what lets the boot contract
+be proved by DATA FLOW rather than by refusing constructs across the file: the
+question becomes "which function stores the enable bit, and which edge
+dominates that store", and both are answered from the compiled code. There is
+no behaviour change: the same two writes, in the same order, after the same
+verdict.
+
 A missing or corrupt image leaves the AVDECC entity disabled while the PHC and
 fabric gPTP plane continue independently. The UART status line then reports
 `AEM=disabled`; it is not treated as a quiet healthy boot.
@@ -94,9 +115,12 @@ fabric gPTP plane continue independently. The UART status line then reports
 
 Gate 1b in `sw/builder/test_builder.py` checks the shipped boot-order spelling
 and rejects the mutation classes listed below. It proves the enumerated
-address, reset, placement, live gPTP wiring and build-plan facts; it does
-**not** prove the semantic C control/data-flow property, and the known escapes
-below still report `ALL GATES PASS`. The constraints apply to
+address, reset, placement, live gPTP wiring and build-plan facts by reading
+text, and, on a runner carrying the RV32 cross compiler, it proves the C
+control/data-flow property by RESOLVING the values in the assembly that
+compiler emits (issue #153). Where the compiler is absent both the compiled
+census and the resolver stand down together, the closing verdict names that
+arm, and the escapes recorded below are open again on that runner. The constraints apply to
 `sw/firmware/milan_baremetal/milan_baremetal.c` and
 `sw/firmware/milan_baremetal/Makefile`, plus the named CSR and datapath
 integration expressions. The CSR Verilator harness separately drives
@@ -183,35 +207,32 @@ conforming source" from "this source is uncensusable" needs a positive
 control compiled first, which is a design of its own and is not part of #206.
 It is not reachable on either toolchain this repository is built with.
 
-**What this gate does not prove.** The CRC check has a measured control-flow
-escape. Gate 1b finds the `crc32()` assignment and mismatch block and requires
-every non-zero return to appear later in the same preprocessor arm. Those are
-textual placement facts, not dominance. This warning-clean edit passes both
-the base and current gate while skipping the assignment and comparison:
+**The CRC decision is now proved, and by resolution rather than placement.**
+The source rule still only finds the `crc32()` assignment and requires every
+non-zero return to appear later in the same preprocessor arm, which are
+textual placement facts and not dominance. What proves the property is the
+RV32 resolver: it interprets the emitted assembly of `load_aem_image()`, reads
+the CRC call's operands back as values, tracks the compared value from the
+call that produced it, and then REMOVES the CFG edge the comparison takes when
+the values are equal and requires every reachable return to resolve to zero.
+Four shapes that passed every textual rule are mutation-table entries as a
+result, each rejected with the property named:
 
-```c
-goto crc_ok;
-got = crc32((const unsigned char *)MILAN_AEM_DESC_BASE,
-            MILAN_AEM_IMAGE_BYTES);
-if (got != MILAN_AEM_IMAGE_CRC32) {
-        ...
-        return 0;
-}
-crc_ok:
-return 1;
-```
+| Edit | Resolver verdict |
+|---|---|
+| `goto crc_ok;` past the comparison, `crc_ok:` on the non-zero return | `can hand back a verdict this gate cannot resolve to zero ... with the CRC-equality edge REMOVED` |
+| the same bypass spelled `do { ... break; ... } while (0)` | the same message, which is why banning `goto` was never the proof |
+| `got = MILAN_AEM_IMAGE_CRC32;` between the call and the comparison | `never compares the value crc32() HANDED BACK against MILAN_AEM_IMAGE_CRC32` |
+| the CRC taken over `SPIFLASH_BASE + MILAN_AEM_FLASH_OFFSET` | `takes its CRC over 0x20e00000, not over MILAN_AEM_DESC_BASE (0x7f700000)` |
 
-The assignment and mismatch block still exist textually and the non-zero
-return is later in the same arm. Gate 1b builds no CFG, so none of those facts
-proves the CRC decision executed. A structured `do`/`break` bypass has the same
-effect without `goto`, so another keyword refusal is not a proof. The
-verifier/control-flow half of the replacement is tracked on #153.
+None of the four is recognised as a construct. Each is answered by a value or
+by an edge, so a fifth spelling of the same defect needs no new rule.
 
-The source store instrument has an uncovered class. The cast set only
-recognises a cast whose text contains a `*`, and the store set only recognises
-a left-hand side that starts with `*` or is `name[...]`. A cast with no `*`
-combined with a `->` or subscript store is therefore outside the source
-instrument:
+The source store instrument has an uncovered class, and the resolver is what
+covers it. The cast set only recognises a cast whose text contains a `*`, and
+the store set only recognises a left-hand side that starts with `*` or is
+`name[...]`. A cast with no `*` combined with a `->` or subscript store is
+therefore outside the source instrument:
 
 ```c
 typedef struct { volatile uint32_t ctrl; } *milan_adp_blk;
@@ -219,18 +240,32 @@ typedef struct { volatile uint32_t ctrl; } *milan_adp_blk;
 ((milan_adp_blk)0x90000600u)->ctrl = 1u;      /* ADP_CTRL[0], pre-AEM */
 ```
 
-That is a durable pre-AEM entity advertise. When an RV32 cross compiler is
-available, the compiled census sees the materialised CSR address and rejects
-the edit. When the compiled census stands down for want of that compiler, the
-edit is outside both active instruments and the gate still passes, under a
-closing line that reads `ALL GATES PASS EXCEPT n NOT RUN` and names the
-census arm as one of the `n`.
-Closing the property on every supported runner still requires #153 and #162
-together. #153 owns the verifier/control-flow proof and the
-`entity_advertise()` choke point; #162 owns a census that resolves CSR store
-targets by value rather than matching printed literals. The choke point alone
-does not close paged-base `->` or subscript stores, and value resolution alone
-does not prove CRC success was reached. Neither issue alone is a replacement.
+That is a durable pre-AEM entity advertise. The compiled census sees the
+materialised CSR address and rejects that literal spelling. It does NOT see
+the same store through a base held in a variable, because at `-O0` the address
+is built with `slli`/`ori` and no window immediate is ever printed:
+
+```c
+static unsigned int csr_page = 0x9000u;
+...
+((milan_adp_blk)((csr_page << 16) | MILAN_ADP_CTRL))->ctrl = 1u;
+((milan_csr_page_p)((csr_page << 16) | MILAN_PP_CTRL))[0] = 1u;
+```
+
+Both were measured GREEN on the whole gate before the resolver existed.
+The resolver
+rejects both, because it computes the store address rather than matching one:
+`the compiled firmware STORES into the Milan CSR window (0x90000000..0x90010000)
+from configure_fabric(), at 0x90000600`. Its store census exempts nobody, the
+address helper included, so a store planted inside that helper is answered the
+same way; the compiled census remains blind to that one by construction, and
+both facts are measured on the same compile every run.
+
+When the RV32 compiler is absent, the census and the resolver stand down
+together and every edit above is outside all active instruments, under a
+closing line that reads `ALL GATES PASS EXCEPT n NOT RUN` naming that arm.
+What remains joint with #162 is the Makefile half: a second translation unit
+is a second place a CSR store can live, and no instrument here reads it.
 
 **And a second blind spot, on the Makefile side, from the same cause one step
 over.** The recipe pin reads what `make -Bn` PRINTS, which is text make has
@@ -295,17 +330,15 @@ The rest are refusals, and each one costs a legitimate edit:
 | The `MILAN_ID` local is not assigned or addressed between its CSR read and mismatch guard | otherwise an intervening `id = MILAN_ID_MAGIC` forges the verdict while preserving every ordering anchor |
 | The identity refusal remains the exact `if (id != MILAN_ID_MAGIC)` spelling | an equivalent comparison such as `if ((id ^ MILAN_ID_MAGIC) != 0u)` is refused because this bounded model anchors the mismatch block by that exact expression; accepting another form requires extending the recognizer and its paired controls |
 | A fifth pointer cast, a fifth pointer store or a third `asm` statement | the compiled census does not cover all three, so the sets are what bound address formation; a store planted inside the address helper the census exempts by name is measured invisible to the census on every run where the census is live, which is why those 2 mutants stay reason-pinned on the cast set rather than on the helper's own return-provenance rule (that rule keeps its own mutant, "milan_reg() ignores its offset") |
-| No multi-line `#define` anywhere in the file | the gate reads macro bodies one physical line at a time |
-| No C backslash-newline anywhere in the file | translation phase 2 deletes the pair and can join tokens before an offset-preserving text census; independent space, tab, form-feed and vertical-tab mutants pin every whitespace form the recognizer accepts; a real preprocessor-token reader may retire this refusal |
-| No `#ifdef`/`#if` outside `load_aem_image()` | the gate would read one arm while the compiler takes the other |
+| No C backslash-newline that JOINS two tokens | translation phase 2 deletes the pair and can join tokens before an offset-preserving text census; independent space, tab, form-feed and vertical-tab mutants pin every whitespace form the recognizer accepts. An ordinary continuation, which puts whitespace before the backslash, is GREEN |
+| No `#ifdef`/`#if` reaching `milan_init()`, `configure_fabric()`, `entity_advertise()` or the three CSR accessors, and none carrying a `#define`/`#undef`/`#include` wherever it sits | the gate would read one arm while the compiler takes the other where a TEXT rule still reads, and the address model reads every definition as unconditional text. A conditional in a UART command handler is GREEN |
 | No `#pragma`, `#line`, `#error`, `#undef` or `#include_next` | the gate has no rule for them, so it refuses rather than ignores |
 | The `#include` set is exactly the eleven headers listed in the gate | a twelfth include is text in the translation unit no rule reads |
 | No new file in `sw/firmware/milan_baremetal/` | a quoted include resolves against this directory first, so a file here can shadow a pinned header |
 | `CFLAGS` gains only `-I$(BIOS_DIRECTORY)` | held now by the recipe pin rather than by a flag rule: the compile command is pinned whole, so any added flag changes it |
 | The Makefile's `include` set is exactly its three lines | `make` can only plan fragments that exist |
 | `OBJECTS` may not use `?=` | `make` treats an environment variable as defined, so `?=` lets the environment choose the object list |
-| No label, `goto`, `switch`, `case` or `default` in `milan_init()` | containment inside the guard is not the same as being reached through it |
-| The guarded block holds the two enables and their `printf` and nothing else | anything else in it is unclassified and something for control to be steered at |
+| No label, `goto`, `switch`, `case` or `default` in `milan_init()` or `entity_advertise()` | containment inside the choke point is not the same as being reached through its verdict test; this is the textual half, and the resolver measures the dominance itself |
 | The address of `aem_loaded` may not be taken | a pointer would write the verdict with no assignment the gate can see |
 | The RTL reset for `adp_ctrl`/`pp_ctrl_r` must be a literal with bit 0 clear | a named constant is not a value the gate can evaluate |
 | `o_adp_enable`/`o_pp_enable` must be `assign <port> = <reg>[0];` | the gate censuses that exact bit |
@@ -318,11 +351,23 @@ The rest are refusals, and each one costs a legitimate edit:
 | Hoisting the enable mask to a named constant | the OR mask must be a value the gate can evaluate, so `\| MILAN_ENTITY_ENABLE` is not recognised as the enable write. **Remedy:** leave the mask a literal, or add the name to the firmware's `#define` table so `constant_value()` can resolve it |
 | ANY change to the two commands `make` runs, a benign `AR += v` or `CC += -Wall` included | the recipe set is pinned rather than scanned for dangerous flag spellings, and the price of having no list is that benign changes are refused too. **Remedy:** add the changed command to `expected_recipes` in the gate and a mutation-table entry beside it |
 
-The listed refusals bound only the spellings they recognise. The open CRC
-reachability/provenance cases belong to #153; retiring the store-recognition
-families also requires #162's value-resolving census. No refusal family is
-deleted until the joint replacement rejects the recorded escapes by
-measurement.
+The listed refusals bound only the spellings they recognise; what bounds the
+values is the resolver above. **Three rows left this table with #153**,
+and each left with an accepted case measured GREEN rather than with a claim:
+
+| Retired refusal | Accepted case now measured GREEN |
+|---|---|
+| the guarded block holds the two enables and their `printf` and nothing else | `cdelay(64);` between the two enables |
+| no `#ifdef`/`#if` outside `load_aem_image()` | `#ifdef MILAN_DEBUG_TOD` around a debug `printf` in a UART command handler |
+| no multi-line `#define` anywhere in the file | a two-line `#define MILAN_BOOT_BANNER` |
+
+What carries those properties now is a measurement over resolved values, not a
+narrowing by exception: control reaching an enable write is answered by
+removing the choke point's verdict edge, and an enable hidden in a continued
+macro body is answered by reading the compiled call, where the macro is
+already expanded. Retiring the remaining store-recognition families still
+requires #162's Makefile half. No further refusal family is deleted until a
+replacement rejects the recorded escapes by measurement.
 
 ## Fabric gPTP option
 
