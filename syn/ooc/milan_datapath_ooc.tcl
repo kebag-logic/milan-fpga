@@ -28,10 +28,11 @@ set REPO [file normalize [file dirname [info script]]/../..]
 set TAG  [expr {[info exists ::env(TAG)] ? $::env(TAG) : "base"}]
 puts "milan_datapath OOC: tag=$TAG"
 
-# The source list comes from syn/yosys/run.sh via dp_srcs.py — the ONE list
-# the portability gate proves elaborates. A copy of it here would drift, and
-# since the processor's files are part of that list now, a copy would drift a
-# whole control plane. Nothing is read outside it.
+# The source list is printed by syn/yosys/run.sh itself (`--emit`) and relayed
+# by dp_srcs.py -- the ONE list the portability gate proves elaborates. A copy
+# here would drift, and since the processor's files are part of that list now, a
+# copy would drift a whole control plane. Nothing is read outside it, and
+# nothing re-reads run.sh: dp_srcs.py checks the record run.sh hands it.
 set SRC_LINES [split [string trim [exec python3 $REPO/syn/ooc/dp_srcs.py]] "\n"]
 set SV {}
 set V  {}

@@ -363,22 +363,45 @@ reports the area of a ROM full of X. On the 1x1 shape that omission understates
 the plane by 2,871 LUT (13,676 against 16,547) and by 5 block RAM tiles. The
 script refuses to synthesize unless both images are present.
 
-Its read set is not assembled here. Both halves come from the `KL_pp_shadow`
-entry in `syn/yosys/run.sh`: the submodule half through `scripts/pp_srcs.py`,
-which `run.sh` calls and `syn/ooc/dp_srcs.py` calls, and the parent half from
-`run.sh`'s own `PP_SRCS` composition, which `dp_srcs.py` parses rather than
-reproduces. What that buys, exactly: the generator refuses to emit a list in
-which no source declares `module KL_pp_shadow` in active code, so a top outside
-its own read set is a named refusal instead of a Vivado `module not found`, and
-a source `run.sh` names that the tree does not carry is a named refusal instead
-of a short list at exit 0. Comment text and `ifdef`-guarded text are not active
-code and do not satisfy that check.
+Its read set is not assembled here, and it is not read out of `run.sh` either.
+`syn/yosys/run.sh --emit KL_pp_shadow` prints bash's own expansion of the same
+row the portability gate synthesises -- the top name, the preprocessor defines
+and include directories, the generated submodule half `scripts/pp_srcs.py`
+returned, and every source token -- and `syn/ooc/dp_srcs.py` checks that record.
+An earlier version recognised the `PP_SRCS` composition and the `tops` row as
+text, and a text recogniser accepts what bash does not: a generator path
+`run.sh` would fail to execute, a `--prefix` it never passes, a commented-out
+decoy row, a positional that is not a source. All four passed at rc=0 ([R0] on
+PR #240, round two) and all four are self-test arms now. What the shape buys is
+narrower and checkable: a `run.sh` edit moves this read set exactly as it moves
+the Yosys one, or fails both.
+
+What is refused, exactly:
+
+- a source `run.sh` names that the tree does not carry (exit 1), instead of a
+  short list at exit 0;
+- a token `run.sh` names that is not a `.sv`/`.v` source, or the same source
+  twice, or a generated half that only partly survives (exit 2) -- nothing is
+  filtered out silently;
+- a read set in which nothing declares `module KL_pp_shadow` (exit 2), so a
+  `-top` outside its own read set is a named refusal instead of a Vivado
+  `module not found`. That question is answered the way the toolchain answers
+  it, not by searching for the text: `dp_srcs.py` models the directive layer,
+  so a commented, `ifdef`-guarded or unexpanded-macro declaration is not one,
+  and it also asks `sv2v --top` -- the front end the Yosys gate already runs
+  over this same list -- with both required to agree. On a host with no `sv2v`
+  the model still refuses on its own; the cross-check is what is lost, and
+  `--require-front-end` turns that loss into a failure for the gate that can
+  assume the tool.
 
 Neither refusal is claimed further than it is gated.
-`.github/workflows/rtl-fast.yml` runs `syn/ooc/dp_srcs.py --selftest` (19 arms,
-including the block-commented declaration and a `run.sh` that drops the
-wrapper) and `syn/ooc/ooc_tcl_selftest.py` (5 arms, which drive this .tcl under
-`tclsh` with the Vivado commands stubbed), plus both expansions for real.
+`.github/workflows/rtl-fast.yml` runs `syn/ooc/dp_srcs.py --selftest` (33 arms:
+ten on the record, thirteen on the declaration -- block-commented,
+`ifdef`-guarded, in a string, and the three unexpanded-macro spellings -- and
+ten that run mutated copies of the real `run.sh` under real bash, four of them
+the round-two counterexamples above) and `syn/ooc/ooc_tcl_selftest.py` (5 arms,
+which drive this .tcl under `tclsh` with the Vivado commands stubbed), plus both
+expansions for real with `--require-front-end`.
 
 Figures at a later head, for scale rather than as a replacement: the same
 instrument at `dev` `04b55dad` with that read set corrected, protocol-processor

@@ -103,24 +103,6 @@ jobs:
       - name: Prove protocol-processor source lists are derived
         run: python3 scripts/pp_srcs.py --check --selftest
 
-      # The OOC instruments' refusals, in the gate rather than beside it. Both
-      # were added with manual evidence only, and a refusal nothing runs is a
-      # refusal that rots: deleting either left every hosted check green
-      # ([R0] on PR #240). The real expansions run too, so a parent source
-      # syn/yosys/run.sh names and the tree no longer has reddens here rather
-      # than in a Vivado log nobody reads.
-      - name: Prove the OOC read sets derive from run.sh and refuse a bad one
-        run: |
-          set -euo pipefail
-          command -v tclsh >/dev/null || {
-            sudo apt-get update -qq
-            sudo apt-get install -y --no-install-recommends tcl
-          }
-          python3 syn/ooc/dp_srcs.py --selftest
-          python3 syn/ooc/ooc_tcl_selftest.py
-          python3 syn/ooc/dp_srcs.py --top milan_datapath > /dev/null
-          python3 syn/ooc/dp_srcs.py --top KL_pp_shadow > /dev/null
-
   bdd-conformance:
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -164,6 +146,28 @@ jobs:
             --top milan_datapath \
             --top KL_pp_shadow \
             --top KL_gptp_shadow
+
+      # The OOC instruments' refusals, in the gate rather than beside it. Both
+      # were added with manual evidence only, and a refusal nothing runs is a
+      # refusal that rots: deleting either left every hosted check green
+      # ([R0] on PR #240). It runs in THIS job, not beside the lint, because
+      # syn/ooc/dp_srcs.py resolves the top through sv2v as well as through its
+      # own model of the directive layer, and the two must be checked against
+      # each other where the front end exists. --require-front-end makes an
+      # absent sv2v a failure rather than a quietly weaker check.
+      - name: Prove the OOC read sets come from run.sh and refuse a bad one
+        run: |
+          set -euo pipefail
+          command -v tclsh >/dev/null || {
+            sudo apt-get update -qq
+            sudo apt-get install -y --no-install-recommends tcl
+          }
+          python3 syn/ooc/dp_srcs.py --selftest
+          python3 syn/ooc/ooc_tcl_selftest.py
+          python3 syn/ooc/dp_srcs.py --top milan_datapath --require-front-end \
+            > /dev/null
+          python3 syn/ooc/dp_srcs.py --top KL_pp_shadow --require-front-end \
+            > /dev/null
 
   # This stable aggregate is the required fast verdict. Skipped RTL jobs are a
   # deliberate docs-only result; failures and cancellations remain failures.

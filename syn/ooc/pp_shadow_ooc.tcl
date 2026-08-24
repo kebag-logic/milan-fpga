@@ -37,17 +37,25 @@ set REPO [file normalize [file dirname [info script]]/../..]
 # it reads cannot be two different strings.
 set TOP KL_pp_shadow
 
-# The read set is DERIVED from the "KL_pp_shadow|..." entry in syn/yosys/run.sh
-# -- the same list the portability gate elaborates on every run -- exactly as
-# syn/ooc/milan_datapath_ooc.tcl derives the datapath's, and through the same
-# generator. This file used to assemble its own instead: scripts/pp_srcs.py for
-# the submodule half plus a hand-named axis_fifo.v. That covered every source
-# except one, and the one was $TOP itself, so the documented plane-area recipe
-# read 41 sources and stopped at `ERROR: [Synth 8-439] module 'KL_pp_shadow'
-# not found` (Issue #235). Deriving is not a tidier spelling of the same list:
-# dp_srcs.py refuses to emit a list in which nothing declares the top it was
-# asked for, so a -top outside its own read set is now a failure of the
-# generator rather than a Vivado error nobody can read.
+# The read set is what syn/yosys/run.sh ITSELF PRINTS for the "KL_pp_shadow|..."
+# entry -- the same list the portability gate elaborates on every run. dp_srcs.py
+# runs `run.sh --emit KL_pp_shadow` and checks the record; it does not read the
+# script, because a reader of a build file accepts what it has modelled and bash
+# accepts something else, and four such disagreements were measured on the
+# reading version ([R0] on PR #240, round two). Now a run.sh edit either moves
+# this read set exactly as it moves the Yosys one, or fails both.
+#
+# This file used to assemble its own list instead: scripts/pp_srcs.py for the
+# submodule half plus a hand-named axis_fifo.v. That covered every source except
+# one, and the one was $TOP itself, so the documented plane-area recipe read 41
+# sources and stopped at `ERROR: [Synth 8-439] module 'KL_pp_shadow' not found`
+# (Issue #235). What replaces it is not a tidier spelling of the same list:
+# dp_srcs.py refuses to emit a list unless the top RESOLVES in it -- its model of
+# the directive layer must see the declaration (a commented, `ifdef`-guarded or
+# unexpanded-macro one is not one), and sv2v, when installed, must resolve it
+# too. On a host without sv2v the model alone still refuses; only the
+# cross-check is lost, and `--require-front-end` (which CI passes and this file
+# does not) turns that loss into a failure.
 set SRC_LINES [split [string trim [exec python3 $REPO/syn/ooc/dp_srcs.py --top $TOP]] "\n"]
 set SV {}
 set V  {}
