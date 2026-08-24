@@ -149,7 +149,10 @@ those runs are about the tree, not the setting, and a contributor's PR must
 not go red for a repository setting it cannot change. A drift is therefore
 visible on every run and fatal on the first run it would misdirect, instead
 of surfacing as a nightly that silently stopped. `ci_events.py --check` holds
-the assertion in its fail-closed shape, which is exactly these four things:
+the assertion in its fail-closed shape. That shape is not only what the step
+says: a check that reads a step's contents and nothing about the conditions
+under which it runs holds the wrong perimeter, which is what #209 found. So it
+is exactly these six things:
 
 1. **The script text.** The step's `run:` is pinned verbatim (whitespace
    aside) to three lines: `set -euo pipefail`, one unconditional
@@ -166,10 +169,38 @@ the assertion in its fail-closed shape, which is exactly these four things:
    `shell: bash -n {0}` (parsed, never executed), `continue-on-error`, a
    `working-directory`, or a `GH_HOST` / `GH_CONFIG_DIR` that points `gh`
    away from this repository. Each refusal names the key.
-3. **The job keys.** `full-ci-gate` carries no `if`, no `continue-on-error`
-   and no `defaults`, and the workflow carries no top-level `defaults` (a
-   `defaults.run.shell: bash -n {0}` parses every script and executes none).
-4. **The verifier steps.** Each aggregate's `--require-target-sha` step
+3. **The job's run conditions.** `full-ci-gate` carries no `needs`, no `if`,
+   no `continue-on-error` and no `defaults`, and the workflow carries no
+   top-level `defaults` (a `defaults.run.shell: bash -n {0}` parses every
+   script and executes none). `needs` is one of them because a job that needs
+   another job is a dependent, and a dependent of a skipped job is skipped,
+   taking every assertion inside it: a `noop` job carrying
+   `if: ${{ github.event_name != 'schedule' }}` plus a `needs: [noop]` on the
+   gate leaves every pinned character in place and stops the assertion running
+   on the one event it exists for.
+4. **The step sequence.** The gate job carries exactly four steps, in this
+   order: the checkout with `fetch-depth: 0`, the pin step (`id: target`), the
+   default-branch step, and the decision step (`id: gate`). The order is part
+   of the contract, because the assertion runs the `ci_events.py` the checkout
+   brought and the decision diffs the tree that checkout produced; the count is
+   part of it too, because a step inserted anywhere runs before everything
+   after it and can change what those steps read, and an entry appended to
+   `GITHUB_PATH` puts another `gh` ahead of the runner's. A refusal names the
+   position, what belongs there, and what it found.
+5. **The sibling steps' keys.** The pin step, the decision step and the
+   checkout are pinned to their own key sets exactly as the default-branch
+   step is, so `if: false`, an `if:` naming only some events, a `shell:`, a
+   `continue-on-error` or a `working-directory` on any of them is refused by
+   name; the decision step's `env` is exactly `EVENT_NAME`, `PR_DRAFT` and
+   `PR_BASE_SHA`, and the checkout keeps `fetch-depth: 0` (the decision step
+   diffs against the pull request's base commit, which a shallow clone does
+   not carry). `if: false` on the pin step or on the decision step leaves the
+   assert step's script canonical and publishes no `run_full` at all.
+   Additionally, neither the workflow's top-level `env` nor `full-ci-gate`'s
+   own names any `GH_*` variable: the step's `env` is pinned to exactly
+   `GH_TOKEN`, but a `GH_HOST` or `GH_CONFIG_DIR` set at either level above it
+   reaches the same `gh` without appearing anywhere in the step.
+6. **The verifier steps.** Each aggregate's `--require-target-sha` step
    carries exactly `name`, `if`, `env` and `run`; its `if` is exactly
    `${{ always() }}` (any other condition can skip the verification, and a
    skipped step passes the job); its `env` exactly `GATE_SHA`; and its
@@ -186,7 +217,14 @@ live read replaced by an echo, the event not passed, `|| true`, the decoy
 itself, a literal after the real read and after the call, `gh api` in a
 comment only, `observed` from another command, two assignments, the call
 before the read, an extra line, a missing `set` line; each key escape above
-on the step, on the job, on the workflow and on the verifier steps; a
+on the step, on the job, on the workflow and on the verifier steps; the gate
+given a `needs` on a job that skips on `schedule`; `if: false`, an event-only
+`if`, a `shell:`, a `continue-on-error`, a `working-directory` and a dropped
+env key on the pin and decision steps; the assert step moved before the
+checkout; a `GITHUB_PATH` step inserted before it; the pin step removed; the
+pin and assert steps swapped; a checkout without `fetch-depth: 0`; a `GH_HOST`
+on the job and on the workflow; a shard denominator restated below its matrix
+size, restated while the matrix grows, and stale in a worker's display name; a
 verifier that reassigns `GATE_SHA`, passes the wrong `--expect`, passes none,
 or keeps `--expect` while the matrix grows; an aggregate `if` loosened or
 dropped; a whitespace-only reformatting of both scripts that must still pass;
@@ -218,6 +256,15 @@ validates one tree. The workflow makes that explicit and machine-checked
   unknown label included, and any shard-directory count but `--expect`, so
   an aggregate cannot quietly stop proving that the gate, the run and its
   checkout agree, or tally three shards as four.
+
+The shard count is stated once, by each worker's `strategy.matrix.shard` list.
+The worker passes `--shard ${{ matrix.shard }}/${{ strategy.job-total }}` and
+names itself the same way, so growing that list moves the split with it, and
+`--check` derives the aggregate's `--expect` from the same list rather than
+reading a number written beside it. A restated denominator is refused, whether
+it appears in a script or in a job name: with a matrix of five and a literal
+`/4`, shard 4/5's suites and tops are never produced while `--expect`, the
+uploaded artifact count and the downloaded shard count all still agree.
 
 The aggregates refuse, and the check fails rather than skips:
 

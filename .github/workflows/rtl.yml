@@ -116,8 +116,15 @@ jobs:
   # The exhaustive inventory remains four-way and fail-closed. Specialized
   # setup is installed only on the stable shard that owns the relevant suite;
   # scripts/suite_shards.py self-tests those ownership assumptions.
+  #
+  # The shard COUNT is stated once, by the matrix below. Every denominator is
+  # `${{ strategy.job-total }}`, the size of that matrix, so growing the list
+  # moves the split with it; a restated `/4` beside a matrix of three leaves
+  # shard 3/4's suites unproduced while every static count still agrees
+  # (#209). scripts/ci_events.py refuses a denominator that is neither the
+  # derived form nor this matrix's size.
   verilator-shards:
-    name: Verilator shard ${{ matrix.shard }}/4
+    name: Verilator shard ${{ matrix.shard }}/${{ strategy.job-total }}
     needs: full-ci-gate
     if: ${{ needs.full-ci-gate.outputs.run_full == 'true' }}
     runs-on: ubuntu-latest
@@ -179,10 +186,11 @@ jobs:
       - name: Prove specialized suite ownership
         env:
           SHARD: ${{ matrix.shard }}
+          SHARDS: ${{ strategy.job-total }}
         run: |
           set -euo pipefail
           python3 scripts/suite_shards.py --selftest
-          scripts/run_all_suites.sh --shard "$SHARD/4" --list \
+          scripts/run_all_suites.sh --shard "$SHARD/$SHARDS" --list \
             > "$RUNNER_TEMP/owned-suites"
           echo "Shard $SHARD owns:"
           sed 's/^/  /' "$RUNNER_TEMP/owned-suites"
@@ -229,7 +237,7 @@ jobs:
       - name: Run this exhaustive suite shard
         run: |
           scripts/run_all_suites.sh "$RUNNER_TEMP/suite-logs" \
-            --shard "${{ matrix.shard }}/4"
+            --shard "${{ matrix.shard }}/${{ strategy.job-total }}"
 
       - name: Upload this shard's suite logs
         if: ${{ always() }}
@@ -303,7 +311,7 @@ jobs:
   # Weighted longest-processing-time assignment isolates the two dominant
   # tops and balances the remaining 44 without changing the local serial gate.
   yosys-shards:
-    name: Yosys shard ${{ matrix.shard }}/4
+    name: Yosys shard ${{ matrix.shard }}/${{ strategy.job-total }}
     needs: full-ci-gate
     if: ${{ needs.full-ci-gate.outputs.run_full == 'true' }}
     runs-on: ubuntu-latest
@@ -350,7 +358,7 @@ jobs:
           sv2v --version
       - name: Run this weighted portability shard
         run: |
-          syn/yosys/run.sh --shard "${{ matrix.shard }}/4" \
+          syn/yosys/run.sh --shard "${{ matrix.shard }}/${{ strategy.job-total }}" \
             --results "$RUNNER_TEMP/yosys-results"
       - name: Upload per-top and structural evidence
         if: ${{ always() }}

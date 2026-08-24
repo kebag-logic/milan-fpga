@@ -51,6 +51,21 @@ those runs are about the tree, not the setting, and a contributor's PR must
 not go red for a setting it cannot change. `--check` requires the step, its
 token and its fail-closed shape (no `continue-on-error`, no `|| true`).
 
+WHETHER IT RUNS AT ALL (#209). The four items above hold what the gate job
+DOES. None of them held the conditions under which it does it, and GitHub has
+a separate lever for each of those: a `needs` on the gate makes it a dependent,
+and a dependent of a skipped job is skipped; an `if`, a `shell` or a
+`continue-on-error` on any step BESIDE the pinned one neuters that step while
+every pinned character stays put; a step inserted, removed or reordered
+changes what the steps after it read (an entry appended to GITHUB_PATH puts
+another `gh` first) or runs the assertion before the checkout has brought the
+script it calls; and an `env` on the job or on the workflow reaches the
+step's `gh` without appearing anywhere in the step. So `--check` also holds
+the gate job's `needs`, its exact step sequence, every step's key set, and
+the absence of any `GH_*` above the step. Separately, the worker shard
+denominator is derived from the matrix that produces the shards
+(`${{ strategy.job-total }}`) rather than restated beside it.
+
     scripts/ci_events.py --check        # the live tree against the contract
     scripts/ci_events.py --selftest     # mutation arms over in-memory copies
     scripts/ci_events.py --require-target-sha --sha gate=<sha> \\
@@ -147,12 +162,53 @@ ASSERT_STEP_ENV = ("GH_TOKEN",)
 VERIFY_STEP_KEYS = ("name", "if", "env", "run")
 VERIFY_STEP_IF = "${{ always() }}"
 VERIFY_STEP_ENV = ("GATE_SHA",)
-#: Job keys that stop a job, or its steps, from running as written. The
-#: gate job carries none of them; an aggregate job carries its documented
-#: fail-closed `if` and nothing else from this list; the workflow carries no top-level
+#: Job keys that decide whether a job runs at all, or runs as written, each
+#: with the reason a refusal names. Before #209 this gate held what the gate
+#: job DOES and nothing about the conditions under which it does it, so
+#: `needs` is here now: a gate that needs another job is a dependent, and a
+#: dependent of a skipped job is skipped, taking every assertion inside it.
+#: The gate job carries none of these keys. An aggregate job legitimately
+#: needs the gate to read its output and carries its documented fail-closed
+#: `if`, and nothing else from this list. The workflow carries no top-level
 #: `defaults` (a `defaults.run.shell: bash -n {0}` parses every script and
 #: executes none).
-JOB_NEUTER_KEYS = ("if", "continue-on-error", "defaults")
+JOB_NEUTER_KEYS = {
+    "needs": ("it makes the job a dependent, and a dependent of a skipped "
+              "job is skipped, taking every assertion in it"),
+    "if": "it decides whether the job runs at all",
+    "continue-on-error": "it turns the job's failure into a pass",
+    "defaults": "it decides by which interpreter every script in the job runs",
+}
+#: The gate job's steps carry these keys and no others. Pinning the assert
+#: step's keys while its siblings were unpinned held the wrong perimeter
+#: (#209): `if: false` on the pin step or on the decision step leaves the
+#: assert step's script canonical and its output empty.
+CHECKOUT_ACTION = "actions/checkout"
+CHECKOUT_STEP_KEYS = ("uses", "with")
+CHECKOUT_STEP_OPTIONAL = ("name",)
+CHECKOUT_FETCH_DEPTH = 0
+PIN_STEP_ID = "target"
+PIN_STEP_KEYS = ("name", "id", "run")
+DECIDE_STEP_ID = "gate"
+DECIDE_STEP_KEYS = ("name", "id", "env", "run")
+DECIDE_STEP_ENV = ("EVENT_NAME", "PR_DRAFT", "PR_BASE_SHA")
+#: `gh` reads its host, its token and its config directory from the process
+#: environment. The assert step's own env is pinned to exactly GH_TOKEN, but
+#: an `env` on the JOB or on the WORKFLOW reaches that `gh` without appearing
+#: anywhere in the step (#209, O11/O12), so neither level names a `GH_*`.
+GH_ENV_PREFIX = "GH_"
+#: The shard denominator a worker passes, and states in its display name. It
+#: is DERIVED from the matrix that defines it, or equal to that matrix's size:
+#: a third statement of the same number does not move when the matrix does,
+#: and the shards past it are never produced while every static count still
+#: agrees (#209, O9). `--expect` is already derived checker-side; this is the
+#: same rule on the worker side of the same number.
+DERIVED_SHARD_TOTAL = "${{ strategy.job-total }}"
+_EXPR = r"\$\{\{[^{}]*\}\}"   # one `${{ ... }}`, kept whole while scanning
+SHARD_ARG_RE = re.compile(r'--shard\s+"?((?:' + _EXPR + r'|[^\s"])+)"?')
+NAME_SHARD_RE = re.compile(r"\$\{\{\s*matrix\.shard\s*\}\}/((?:"
+                           + _EXPR + r'|[^\s"])+)')
+SHELL_VAR_RE = re.compile(r"^\$\{?([A-Za-z_][A-Za-z0-9_]*)\}?$")
 #: A skipped required context satisfies a GitHub ruleset. Therefore an
 #: aggregate may skip only the gate's explicit successful no-op decision. A
 #: failed/cancelled gate or an absent/malformed output makes the aggregate run;
@@ -263,6 +319,57 @@ def step_text(step):
 def uses(step, action):
     u = step.get("uses")
     return isinstance(u, str) and (u == action or u.startswith(action + "@"))
+
+
+def step_label(step):
+    """What a finding calls a step: its name, its `uses`, or its `id`."""
+    if not isinstance(step, dict):
+        return "no step at this position"
+    for key in ("name", "uses", "id"):
+        value = step.get(key)
+        if isinstance(value, str) and value.strip():
+            return f"`{value.strip()}`"
+    return "an unnamed step"
+
+
+def _is_checkout_step(step):
+    return uses(step, CHECKOUT_ACTION)
+
+
+def _is_pin_step(step):
+    return step.get("id") == PIN_STEP_ID
+
+
+def _is_assert_step(step):
+    return DEFAULT_BRANCH_FLAG in step_text(step)
+
+
+def _is_decide_step(step):
+    return step.get("id") == DECIDE_STEP_ID
+
+
+#: (label, recognizer, what it must be, keys, env keys, optional keys) for
+#: every step of the gate job, in the order they must appear. The SEQUENCE is
+#: the point: the assertion runs the `ci_events.py` the checkout brought and
+#: the decision diffs the tree that checkout produced, so a step moved before
+#: the checkout runs without the file it needs, a step inserted anywhere runs
+#: before everything after it and can change what they read, and a step
+#: removed takes its assertion with it. None of those three touches a single
+#: character of the pinned script text.
+GATE_STEPS = (
+    ("the gate checkout step", _is_checkout_step,
+     f"`uses: {CHECKOUT_ACTION}` with `fetch-depth: {CHECKOUT_FETCH_DEPTH}`",
+     CHECKOUT_STEP_KEYS, (), CHECKOUT_STEP_OPTIONAL),
+    ("the pin step", _is_pin_step,
+     f"the step with `id: {PIN_STEP_ID}` that prints the event and exports "
+     f"`{GATE_OUTPUT}`", PIN_STEP_KEYS, (), ()),
+    ("the default-branch step", _is_assert_step,
+     f"the step that runs `ci_events.py {DEFAULT_BRANCH_FLAG}`",
+     ASSERT_STEP_KEYS, ASSERT_STEP_ENV, ()),
+    ("the decision step", _is_decide_step,
+     f"the step with `id: {DECIDE_STEP_ID}` that publishes `run_full`",
+     DECIDE_STEP_KEYS, DECIDE_STEP_ENV, ()),
+)
 
 
 def cron_time(cron):
@@ -385,7 +492,10 @@ def check_rtl_full(c, wf, policy):
         c.item(prints, path, f"job `{GATE_JOB}` must print the event name and "
                "GITHUB_SHA in one step")
         check_default_branch_step(c, path, gate)
+        check_gate_steps(c, path, gate)
         check_job_keys(c, path, GATE_JOB, gate)
+        check_no_gh_env(c, path, f"job `{GATE_JOB}`", gate.get("env"))
+    check_no_gh_env(c, path, "the workflow's top-level", wf.get("env"))
     c.item("defaults" not in wf, path, "the workflow must carry no top-level "
            f"`defaults` (found {wf.get('defaults')!r}): a `defaults.run.shell`"
            " changes how every script runs")
@@ -416,14 +526,22 @@ def check_rtl_full(c, wf, policy):
             if vsteps:
                 check_sha_sources(c, path, jid, vsteps[0])
                 check_verify_step(c, path, wf, jid, job, vsteps[0])
-            check_job_keys(c, path, jid, job, allowed_if=AGGREGATE_JOB_IF)
+            check_job_keys(c, path, jid, job, allowed_if=AGGREGATE_JOB_IF,
+                           allow_needs=True)
+
+    # A sharded worker states its shard count once, in the matrix.
+    for jid, job in jobs(wf).items():
+        check_shard_denominator(c, path, jid, job)
 
 
-def check_job_keys(c, path, jid, job, allowed_if=None):
-    """A job that must run as written carries no `if` (or exactly the one
-    documented), no `continue-on-error`, no `defaults`; each refusal names
-    the key."""
-    for key in JOB_NEUTER_KEYS:
+def check_job_keys(c, path, jid, job, allowed_if=None, allow_needs=False):
+    """A job that must run as written carries none of the keys that decide
+    whether it runs at all: no `needs`, no `if` (or exactly the one
+    documented), no `continue-on-error`, no `defaults`. Each refusal names
+    the key and what that key does."""
+    for key, reason in JOB_NEUTER_KEYS.items():
+        if key == "needs" and allow_needs:
+            continue
         if key not in job:
             continue
         if key == "if" and allowed_if is not None:
@@ -432,18 +550,17 @@ def check_job_keys(c, path, jid, job, allowed_if=None):
                    f"`{allowed_if}` (found `{got}`)")
             continue
         c.item(False, path, f"job `{jid}` must carry no `{key}` "
-               f"(found {job.get(key)!r}): it decides whether the job runs "
-               "as written")
+               f"(found {job.get(key)!r}): {reason}")
     if allowed_if is not None:
         c.item("if" in job, path, f"job `{jid}` must carry its documented "
                f"`if` `{allowed_if}`")
 
 
-def pinned_step_keys(c, path, what, step, keys, env_keys):
-    """A pinned step carries exactly `keys`, its env exactly `env_keys`;
-    every surplus or missing key is named."""
+def pinned_step_keys(c, path, what, step, keys, env_keys, optional=()):
+    """A pinned step carries exactly `keys` (plus anything in `optional`),
+    its env exactly `env_keys`; every surplus or missing key is named."""
     have = [k for k in step.keys() if isinstance(k, str)]
-    extra = sorted(set(have) - set(keys))
+    extra = sorted(set(have) - set(keys) - set(optional))
     missing = [k for k in keys if k not in have]
     for key in ("if", "shell", "continue-on-error"):
         if key in extra:
@@ -459,10 +576,115 @@ def pinned_step_keys(c, path, what, step, keys, env_keys):
     env_extra = sorted(set(env_have) - set(env_keys))
     env_missing = [k for k in env_keys if k not in env_have]
     c.item(not env_extra and not env_missing, path, f"{what} env must be "
-           f"exactly {', '.join(env_keys)}"
+           f"exactly {', '.join(env_keys) or 'empty'}"
            + (f"; surplus: {', '.join(env_extra)} (a GH_HOST or GH_CONFIG_DIR"
               " redirects gh away from this repository)" if env_extra else "")
            + (f"; missing: {', '.join(env_missing)}" if env_missing else ""))
+
+
+def check_gate_steps(c, path, gate):
+    """The gate job's steps: which ones exist, in which order, and the keys
+    each may carry. check_default_branch_step holds the assert step's script
+    TEXT; this holds everything around it, which is what decides whether that
+    script runs at all (#209)."""
+    ss = steps(gate)
+    c.item(len(ss) == len(GATE_STEPS), path,
+           f"job `{GATE_JOB}` must carry exactly {len(GATE_STEPS)} steps, "
+           + ", ".join(spec[0] for spec in GATE_STEPS)
+           + f", in that order (found {len(ss)}): a step inserted here runs "
+           "before every step after it and can change what they read (an "
+           "entry appended to GITHUB_PATH puts another `gh` first), and a "
+           "step removed takes its assertion with it")
+    for n, (label, recognizer, want, keys, env_keys, optional) in enumerate(
+            GATE_STEPS, 1):
+        found = [s for s in ss if recognizer(s)]
+        step = found[0] if found else None
+        at = ss[n - 1] if len(ss) >= n else None
+        c.item(step is not None and at is step, path,
+               f"job `{GATE_JOB}` step {n} must be {label}, {want} (found "
+               f"{step_label(at)}): the assertion runs the ci_events.py the "
+               "checkout brought and the decision diffs the tree that "
+               "checkout produced, so this order is the contract, not a "
+               "preference")
+        if step is not None:
+            pinned_step_keys(c, path, label, step, keys, env_keys, optional)
+    checkout = next((s for s in ss if _is_checkout_step(s)), None)
+    with_ = checkout.get("with") if isinstance(checkout, dict) else None
+    depth = with_.get("fetch-depth") if isinstance(with_, dict) else None
+    c.item(depth == CHECKOUT_FETCH_DEPTH, path,
+           f"{GATE_STEPS[0][0]} must set `fetch-depth: "
+           f"{CHECKOUT_FETCH_DEPTH}` (found {depth!r}): the decision step "
+           "diffs this head against the pull request's base commit, which a "
+           "shallow clone does not carry, so a shallow gate silently falls "
+           "back to the whole file list")
+
+
+def check_no_gh_env(c, path, where, env):
+    """No `GH_*` above the assert step. Its own env is pinned to exactly
+    GH_TOKEN, but a job- or workflow-level `env: GH_HOST` reaches its `gh`
+    without appearing in the step at all (#209, O11/O12)."""
+    env = env if isinstance(env, dict) else {}
+    named = sorted(str(k) for k in env if str(k).startswith(GH_ENV_PREFIX))
+    c.item(not named, path, f"{where} `env` must name no `{GH_ENV_PREFIX}*` "
+           f"variable (found {', '.join(named)}): it reaches the "
+           "default-branch step's `gh` without appearing in that step, whose "
+           f"own env is pinned to exactly {', '.join(ASSERT_STEP_ENV)}")
+
+
+def shard_denominators(text):
+    """Every denominator of a `--shard <i>/<n>` argument in one script."""
+    out = []
+    for arg in SHARD_ARG_RE.findall(text or ""):
+        if "/" in arg:
+            out.append(arg.rsplit("/", 1)[1].strip())
+    return out
+
+
+def resolve_denominator(token, env):
+    """A denominator as written -> what it stands for. A `$NAME` is followed
+    once through the step's own env, which is where a derived value enters a
+    script; anything else stands for itself."""
+    m = SHELL_VAR_RE.match(token or "")
+    if m and isinstance(env, dict) and m.group(1) in env:
+        return str(env[m.group(1)]).strip()
+    return (token or "").strip()
+
+
+def check_shard_denominator(c, path, jid, job):
+    """A sharded worker states its shard count ONCE, in the matrix that
+    produces the shards. Every `--shard <i>/<n>` it passes, and the `<n>` in
+    its own display name, derives that count or equals it. A restated
+    denominator does not move when the matrix does: with a matrix of three
+    and a literal `/4`, shard 3/4's suites and tops are never produced and
+    every static count still agrees (#209, O9)."""
+    strat = job.get("strategy") if isinstance(job, dict) else None
+    matrix = strat.get("matrix") if isinstance(strat, dict) else None
+    shard = matrix.get("shard") if isinstance(matrix, dict) else None
+    if not isinstance(shard, list) or not shard:
+        return
+    size = str(len(shard))
+    seen = []
+    name = job.get("name")
+    if isinstance(name, str):
+        seen += [(f"job `{jid}` name", d, None)
+                 for d in NAME_SHARD_RE.findall(name)]
+    for n, step in enumerate(steps(job), 1):
+        env = step.get("env") if isinstance(step.get("env"), dict) else {}
+        run = step.get("run") if isinstance(step.get("run"), str) else ""
+        seen += [(f"job `{jid}` step {n}", d, env)
+                 for d in shard_denominators(run)]
+    c.item(bool(seen), path, f"job `{jid}` carries a `strategy.matrix.shard` "
+           "list and must pass `--shard <i>/<n>` to the tool it shards: a "
+           "matrix nothing reads splits nothing")
+    for where, token, env in seen:
+        got = resolve_denominator(token, env)
+        c.item(got in (DERIVED_SHARD_TOTAL, size), path,
+               f"{where}: the shard denominator `{token}` must be "
+               f"`{DERIVED_SHARD_TOTAL}` or the size of this job's "
+               f"`strategy.matrix.shard` list, {size} (it resolves to "
+               f"`{got}`): a restated denominator does not move when the "
+               "matrix does, and the shards past it are never produced while "
+               "every static count still agrees")
 
 
 def matrix_size(wf, job):
@@ -582,8 +804,8 @@ def check_default_branch_step(c, path, gate):
         return
     step = found[0]
     text = step_text(step)
-    pinned_step_keys(c, path, "the default-branch step", step,
-                     ASSERT_STEP_KEYS, ASSERT_STEP_ENV)
+    # Its keys and its env are pinned in check_gate_steps, beside its
+    # siblings': the same key on any step of this job has the same effect.
     env = step.get("env") if isinstance(step.get("env"), dict) else {}
     token = str(env.get("GH_TOKEN", "")).strip()
     c.item(token == "${{ github.token }}", path, "the default-branch step "
@@ -946,6 +1168,93 @@ def _mutations():
     def m_db_no_set(w):
         set_db_script(w, CANONICAL_OBSERVED, CANONICAL_CALL)
 
+    # #209: the conditions under which the gate job runs at all, rather than
+    # what it does once it runs.
+    def gate_step_list(w):
+        return jobs(w[RTL_FULL])[GATE_JOB]["steps"]
+
+    def pin_step(w):
+        return next(s for s in gate_step_list(w)
+                    if s.get("id") == PIN_STEP_ID)
+
+    def decide_step(w):
+        return next(s for s in gate_step_list(w)
+                    if s.get("id") == DECIDE_STEP_ID)
+
+    def m_gate_needs_a_skippable_job(w):
+        # O1: a `noop` job that skips on schedule, and a gate that needs it.
+        jobs(w[RTL_FULL])["noop"] = {
+            "if": "${{ github.event_name != 'schedule' }}",
+            "runs-on": "ubuntu-latest",
+            "steps": [{"run": "true"}],
+        }
+        jobs(w[RTL_FULL])[GATE_JOB]["needs"] = ["noop"]
+
+    def m_assert_before_checkout(w):
+        # O14: the assertion runs before the checkout brings the script.
+        ss = gate_step_list(w)
+        i = next(i for i, s in enumerate(ss)
+                 if DEFAULT_BRANCH_FLAG in step_text(s))
+        ss.insert(0, ss.pop(i))
+
+    def m_pin_and_assert_swapped(w):
+        ss = gate_step_list(w)
+        i = next(i for i, s in enumerate(ss) if s.get("id") == PIN_STEP_ID)
+        ss[i], ss[i + 1] = ss[i + 1], ss[i]
+
+    def m_gate_extra_path_step(w):
+        # O6: a step before the assertion that puts another `gh` first.
+        ss = gate_step_list(w)
+        i = next(i for i, s in enumerate(ss)
+                 if DEFAULT_BRANCH_FLAG in step_text(s))
+        ss.insert(i, {"name": "Prepare tools",
+                      "run": 'echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"\n'})
+
+    def m_pin_step_removed(w):
+        ss = gate_step_list(w)
+        del ss[next(i for i, s in enumerate(ss)
+                    if s.get("id") == PIN_STEP_ID)]
+
+    def m_checkout_shallow(w):
+        del gate_step_list(w)[0]["with"]["fetch-depth"]
+
+    def m_gate_env_gh_host(w):
+        jobs(w[RTL_FULL])[GATE_JOB]["env"] = {"GH_HOST": "example.invalid"}
+
+    def m_workflow_env_gh_host(w):
+        w[RTL_FULL]["env"]["GH_HOST"] = "example.invalid"
+
+    def m_decide_env_missing(w):
+        del decide_step(w)["env"]["PR_BASE_SHA"]
+
+    def restate_shards(w, jid, value):
+        """Turn a derived denominator back into a literal, everywhere the job
+        states it: the display name, every script, every step env."""
+        job = jobs(w[RTL_FULL])[jid]
+        assert DERIVED_SHARD_TOTAL in job["name"], f"fixture drift: {jid} name"
+        job["name"] = job["name"].replace(DERIVED_SHARD_TOTAL, value)
+        for st in steps(job):
+            if isinstance(st.get("run"), str):
+                st["run"] = st["run"].replace(DERIVED_SHARD_TOTAL, value)
+            env = st.get("env")
+            if isinstance(env, dict):
+                for k, v in list(env.items()):
+                    if str(v).strip() == DERIVED_SHARD_TOTAL:
+                        env[k] = value
+
+    def m_shard_denominator_stale(w):
+        # O9: the matrix grows, the restated denominator does not.
+        restate_shards(w, "verilator-shards", "4")
+        jobs(w[RTL_FULL])["verilator-shards"]["strategy"]["matrix"][
+            "shard"].append(4)
+
+    def m_shard_denominator_wrong(w):
+        restate_shards(w, "yosys-shards", "3")
+
+    def m_shard_name_stale(w):
+        job = jobs(w[RTL_FULL])["verilator-shards"]
+        job["name"] = job["name"].replace(DERIVED_SHARD_TOTAL, "3")
+
     def verify_step(w, jid):
         for s in steps(jobs(w[RTL_FULL])[jid]):
             if VERIFY_FLAG in step_text(s):
@@ -1181,6 +1490,49 @@ def _mutations():
          set_job_key("yosys-portability", "defaults",
                      {"run": {"shell": "bash -n {0}"}}),
          "must carry no `defaults`"),
+        # #209: the conditions under which the gate job and its steps run.
+        ("O1 full-ci-gate needs a job that skips on schedule",
+         m_gate_needs_a_skippable_job, "must carry no `needs`"),
+        ("O10 decision step if: false",
+         set_step_key(decide_step, "if", False), "must carry no `if`"),
+        ("O10b decision step if: pull_request only",
+         set_step_key(decide_step, "if",
+                      "${{ github.event_name == 'pull_request' }}"),
+         "must carry no `if`"),
+        ("O13 pin step if: false", set_step_key(pin_step, "if", False),
+         "must carry no `if`"),
+        ("O13b pin step continue-on-error",
+         set_step_key(pin_step, "continue-on-error", True),
+         "must carry no `continue-on-error`"),
+        ("O14 assert step moved before the checkout", m_assert_before_checkout,
+         "step 1 must be the gate checkout step"),
+        ("O6 a GITHUB_PATH step inserted before the assertion",
+         m_gate_extra_path_step, "must carry exactly 4 steps"),
+        ("gate pin step removed", m_pin_step_removed,
+         "must carry exactly 4 steps"),
+        ("gate pin and assert steps swapped", m_pin_and_assert_swapped,
+         "step 2 must be the pin step"),
+        ("gate checkout without fetch-depth: 0", m_checkout_shallow,
+         "fetch-depth: 0"),
+        ("decision step shell: bash -n",
+         set_step_key(decide_step, "shell", "bash -n {0}"),
+         "must carry no `shell`"),
+        ("decision step working-directory",
+         set_step_key(decide_step, "working-directory", "/tmp"),
+         "surplus: working-directory"),
+        ("decision step loses PR_BASE_SHA", m_decide_env_missing,
+         "missing: PR_BASE_SHA"),
+        ("O11 full-ci-gate job env GH_HOST", m_gate_env_gh_host,
+         "must name no `GH_*`"),
+        ("O12 workflow-level env GH_HOST", m_workflow_env_gh_host,
+         "must name no `GH_*`"),
+        # #209 O9: the shard denominator restated instead of derived.
+        ("O9 verilator matrix grows, the denominator is a literal",
+         m_shard_denominator_stale, "shard denominator"),
+        ("O9b yosys denominator below its matrix size",
+         m_shard_denominator_wrong, "shard denominator"),
+        ("O9c a worker name restates a stale denominator", m_shard_name_stale,
+         "name: the shard denominator"),
         ("rtl public name verilator-suites renamed",
          m_rename_job(RTL_FULL, "verilator-suites"), "`verilator-suites`"),
         ("rtl public name yosys-portability renamed",
