@@ -1089,9 +1089,12 @@ static std::vector<uint8_t> notify_set_name(const Ctlr& c, const char* name,
 static void notify_clear() { uns_log.clear(); uns_log_when.clear(); }
 
 static void notify_section(bool timed) {
-    printf("-- [NOTIFY] Milan 5.4.5 unsolicited notifications on the wire%s --\n",
-           timed ? " (TIMED: one processor ms = " : "");
-    if (timed) printf("%d cycles)\n", MS_CYC_TB);
+    if (timed)
+        printf("-- [NOTIFY] Milan 5.4.5 unsolicited notifications on the wire "
+               "(TIMED: one processor ms = %d cycles) --\n", MS_CYC_TB);
+    else
+        printf("-- [NOTIFY] Milan 5.4.5 unsolicited notifications on the "
+               "wire --\n");
     uint16_t sq = 0x6900;
     const uint8_t teid[8] = {0x02,0x00,0x00,0xFF,0xFE,0x00,0x00,0x01};
     const std::vector<uint8_t> name_key(8, 0);   // ENTITY,0 / name 0 / cfg 0
