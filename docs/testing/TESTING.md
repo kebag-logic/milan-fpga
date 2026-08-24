@@ -35,9 +35,11 @@ current protocol-level verdict is the
 > mask and compact five-counter layout. The block and integration suites grade
 > STREAM_START, STREAM_STOP, MEDIA_RESET, TIMESTAMP_UNCERTAIN and FRAMES_TX,
 > including wrap, reset-on-start, per-index isolation and missing-index refusal.
-> The Milan Table 5.22 unsolicited push is still open because the processor's
-> unsolicited TX lane has no counter-change producer. IDENTIFY and saved-state
-> persistence also remain open.
+> Counter dirty pulses feed the root's lossless descriptor arbiter and the
+> processor limits unsolicited `GET_COUNTERS` to at most one push per
+> descriptor per second. The same integration suite grades the remaining
+> Table 5.22 triggers and the departing-controller monitor. Root IDENTIFY and
+> saved-state persistence remain open.
 >
 > Verification is split deliberately. The processor's `pp_top` suite grades
 > the AECP response path, the root `milan_dp` suite grades the counter sources
@@ -73,7 +75,7 @@ Machine-checked status rows are defined by the
 | `stream-info.set-acc-lat` | `implemented` | - |
 | `crf.media-clock-consumption` | `missing` | - |
 | `state.nonvolatile-persistence` | `missing` | - |
-| `notifications.change-events` | `partial` | - |
+| `notifications.change-events` | `implemented` | - |
 | `verification.long-gate-policy` | `implemented` | `local-required, remote-required` |
 <!-- milan-feature-status:end -->
 
@@ -95,7 +97,7 @@ response-boundary and stopped CRF observation gaps that keep START/STOP partial.
 - **[6. On-silicon validation](#6-on-silicon-validation)** -- The mandatory post-flash step and the reason it exists: a build whose fabric paths run perfectly can still ship with a dead host plane, and every audio drill stays green while the kernel sees nothing. Then the bring-up order and where silicon measurements get logged.
 - **[6c. Controller-side validation -- la_avdecc and Hive](#6c-controller-side-validation----la_avdecc-and-hive)** -- The standing rule that every round validates with BOTH la_avdecc and Hive, and why our own tools cannot substitute: how to run the counters probe and read its CLEAN/DIRTY verdict, where the example controllers live, the feature-define ABI trap that SIGSEGVs at run time, and the Hive compile option that makes malformed responses look like a pass.
 - **[6b. Unattended campaigns -- status file and alert webhook](#6b-unattended-campaigns----status-file-and-alert-webhook)** -- The design contract for multi-day runs where silence means healthy: one STATUS word answering "alive and healthy" without parsing a log, the deliberate `FAILED` vs `BLOCKED` split (blocked never alerts -- that is the false alarm that teaches people to ignore the next one), a fire-once webhook, and why the primary record lives on the host.
-- **[7. Known gaps (kept honest)](#7-known-gaps-kept-honest)** -- The current CI boundary, including the missing Table 5.22 counter-change producer, remaining controller commands and the supported Verilator version.
+- **[7. Known gaps (kept honest)](#7-known-gaps-kept-honest)** -- The current CI boundary, including public IDENTIFY, persistence, commands outside the served inventory and the supported Verilator version.
 - **[Policy](#policy)** -- The two standing rules in three sentences: a DUT change ships with its harness update in the same commit, and a module is not done until it appears in layer 1 (and layer 4 unless vendor-gated).
 
 ## Which layer do I run?
@@ -716,9 +718,10 @@ host-only.
   invalid image reports a count of zero, so no index passes and the locate is
   never reached. `NO_SUCH_DESCRIPTOR` — the locate-miss status — is therefore
   only reachable against a loaded image, which makes the pair a useful
-  discriminator when a controller probe comes back empty. Remaining gaps
-  include the Milan Table 5.22 unsolicited counter-change producer, IDENTIFY,
-  saved-state persistence and commands still outside the served inventory.
+  discriminator when a controller probe comes back empty. The root now feeds
+  the rate-limited Milan Table 5.22 counter-change producer and the other
+  observable triggers; remaining gaps include the public IDENTIFY indication,
+  saved-state persistence and commands outside the served inventory.
   Milan Delta 7 `ACQUIRE_ENTITY` is graded for `NOT_SUPPORTED`, a zero owner,
   correct addressing, and the command-specific length. Three consequences
   remain easy to mistake for test failures:
@@ -736,8 +739,8 @@ host-only.
   * **Milan Table 5.4 per-STREAM_OUTPUT counters are implemented for solicited
     reads.** `KL_talker_diag_ctx` is instantiated for every declared AAF output
     and the CRF output, and `GET_COUNTERS` returns the compact Milan five-counter
-    layout. The Table 5.22 unsolicited push remains open because its change
-    producer is not connected to the processor's unsolicited TX lane.
+    layout. Each dirty source feeds the root's descriptor arbiter, and the
+    integrated `[NOTIFY]` tests grade its rate-limited Table 5.22 push.
 * **The datapath-level suites run in CI.** `pp_shadow`, `milan_dp` and
   `hostplane` elaborate `milan_datapath` with the protocol processor.
   [`.github/workflows/rtl.yml`](../../.github/workflows/rtl.yml) initializes the

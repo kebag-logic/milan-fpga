@@ -18,10 +18,17 @@ Allowed statuses are `implemented`, `partial`, `missing`, and `not-supported`.
 such as Milan's required `ACQUIRE_ENTITY` result. A `partial` command can be
 served on the wire while still having a known behavioral defect.
 
+An `implemented` row describes behavior in the pinned source tree; it does not
+waive dependency durability. A release candidate that changes a submodule
+gitlink must pin a commit reachable from that donor's durable default branch,
+then rerun the parent gates at the resulting exact head. A branch-only donor
+commit can be fetched today and still disappear tomorrow, so it is never merge
+evidence by itself.
+
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
-| `gateware.current-version` | `implemented` | `0x0002_0054` |
+| `gateware.current-version` | `implemented` | `0x0002_0055` |
 | `aem.served-command-set` | `implemented` | - |
 | `aem.acquire-entity-refusal` | `not-supported` | - |
 | `aem.mandatory-missing-set` | `implemented` | - |
@@ -31,8 +38,8 @@ served on the wire while still having a known behavioral defect.
 | `stream-info.set-acc-lat` | `implemented` | - |
 | `crf.media-clock-consumption` | `missing` | - |
 | `state.nonvolatile-persistence` | `missing` | - |
-| `notifications.change-events` | `partial` | - |
-| `notifications.controller-liveness` | `missing` | - |
+| `notifications.change-events` | `implemented` | - |
+| `notifications.controller-liveness` | `implemented` | - |
 | `soc.baremetal-profile` | `implemented` | - |
 | `host.sound-card-option` | `implemented` | - |
 | `verification.long-gate-policy` | `implemented` | `local-required, remote-required` |

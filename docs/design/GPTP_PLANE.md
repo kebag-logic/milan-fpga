@@ -128,11 +128,20 @@ The plane has four seams:
 
 ## What stays software until #116
 
-The CSR readback words (`ADP_GM` 0x624/8, `GPTP_PDELAY` 0x6E4, the
-0x730 AS_PATH group), the `tu` bit's CLKV lease, and the rootfs
-daemons. The #116 flip re-points them at the plane and carries the
-VERSION story; the splice changes no CSR-visible behavior, which is
-why it carries no VERSION bump.
+The CSR readback words (`ADP_GM` 0x624/8, `GPTP_PDELAY` 0x6E4, the legacy
+0x730 AS_PATH scratch pair and the 0x7DC PathTrace stage/publish group), the
+`tu` bit's CLKV lease, and the rootfs
+daemons. Two published words already reach the fabric consumers when
+the option is on, by the same `GPTP_PLANE_EN_P` selection: the
+grandmaster identity, and since 0x0055 `pub_pdelay_ns_o` as the
+`propagation_delay` `GET_AVB_INFO` serves. Reading either CSR back
+still returns the software-written word. The PathTrace tail remains a software
+publication: slot COMMITs are staging-only and a changed PUBLISH atomically
+replaces the tail/count that `GET_AS_PATH` serves. Notification compares the
+served sequence, so count 0/1 aliases and any publication while GM=0 are
+silent until a real controller-visible path exists. The #116 flip re-points the
+remaining words at the plane and carries the VERSION story; the splice changes
+no CSR-visible behavior, which is why it carries no VERSION bump.
 
 ## Verification map
 

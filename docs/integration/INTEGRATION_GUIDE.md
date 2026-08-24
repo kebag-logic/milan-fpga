@@ -26,9 +26,10 @@ is visible from the port list:
   command answers `BAD_ARGUMENTS`; a command aimed at another
   `target_entity_id`, and any AECP response arriving as input, are refused
   silently by design. Unsupported operations receive the conformant fallback,
-  which is not command coverage. The Milan Table 5.22 counter-change scheduler,
-  remaining mandatory commands, and saved-state persistence across a power cycle
-  are genuinely absent. Plan around that boundary if your product needs
+  which is not command coverage. The mandatory command inventory, its
+  command-driven notifications, the root-observed Table 5.22 triggers, and the
+  departing-controller monitor are implemented. Saved-state persistence across
+  a power cycle and commands outside that inventory are genuinely absent. Plan around that boundary if your product needs
   AECP -- and see Section 1.6, because the descriptor half comes with an integration
   obligation you inherit.
 
@@ -41,7 +42,7 @@ These integration-boundary claims are checked against the
 | `aem.served-command-set` | `implemented` | - |
 | `aem.mandatory-missing-set` | `implemented` | - |
 | `state.nonvolatile-persistence` | `missing` | - |
-| `notifications.change-events` | `partial` | - |
+| `notifications.change-events` | `implemented` | - |
 <!-- milan-feature-status:end -->
 
 This guide is the contract you integrate against. The two in-repo reference

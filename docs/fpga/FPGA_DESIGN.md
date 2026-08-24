@@ -40,9 +40,10 @@ audit.
 
 **An echo is not an implementation**, and this tree carries the consequences in
 RTL. Commands outside the processor's implemented inventory still use the
-fallback. The Milan Table 5.22 unsolicited counter-change scheduler, name
-access, stream-format and stream-info setters, and saved-state persistence
-remain absent. Live audio-map mutation is implemented. A
+fallback. Name access and the mandatory stream-format and stream-info setters
+are served, as are command-driven and root-observed Table 5.22 notifications
+and the departing-controller monitor. Saved-state persistence and commands
+outside the declared inventory remain absent. Live audio-map mutation is implemented. A
 stated capability boundary from an informed decision, not a regression and not a
 temporary blip. Section 1.2 names what it costs module by module.
 
@@ -56,7 +57,7 @@ These repeated claims are checked against the
 | `aem.mandatory-missing-set` | `implemented` | - |
 | `crf.media-clock-consumption` | `missing` | - |
 | `state.nonvolatile-persistence` | `missing` | - |
-| `notifications.change-events` | `partial` | - |
+| `notifications.change-events` | `implemented` | - |
 <!-- milan-feature-status:end -->
 
 **Where the descriptors come from.** `milan_datapath` exposes a read-only
@@ -179,8 +180,9 @@ inventory below that is present but idle:
    frame as late.
 3. **Milan Table 5.4 per-STREAM_OUTPUT counters are live.**
    `KL_talker_diag_ctx` is instantiated for every declared AAF output and the
-   CRF output. GET_COUNTERS serves the compact five-counter layout. The
-   Table 5.22 unsolicited change producer remains open. The **STREAM_INPUT**
+   CRF output. GET_COUNTERS serves the compact five-counter layout, and each
+   dirty source reaches the Table 5.22 scheduler through the root's lossless
+   descriptor arbiter. The **STREAM_INPUT**
    counters at the `0x6B8` `A_STRMW_CNT` window are unaffected and still live.
 
 One structural note for anyone wiring a board script: the entity enable is now
@@ -273,7 +275,7 @@ this table whenever `hdl/` changes shape.
 | `KL_avtp_rx_monitor_ctx` | shared NxN STREAM_INPUT diagnostic-counter engine — **live**, feeding the `0x6B8` `A_STRMW_CNT` window |
 | `KL_media_clock_restart` | the AVTP `mr` (media clock restart) level this end station transmits |
 | `KL_stream_table` | NxN stream-table authority (classification, Section 1.1 of the NxN doc) |
-| `KL_talker_diag_ctx` | Milan v1.2 Table 5.4 per-Stream-Output counters, instantiated once per declared AAF output plus CRF when present. Solicited GET_COUNTERS serves its compact five-counter layout; the Table 5.22 notification scheduler remains open. Its own suite is `tb/verilator/tkdiag` |
+| `KL_talker_diag_ctx` | Milan v1.2 Table 5.4 per-Stream-Output counters, instantiated once per declared AAF output plus CRF when present. Solicited GET_COUNTERS serves its compact five-counter layout; its dirty pulse feeds the root's Table 5.22 descriptor arbiter. Its own suite is `tb/verilator/tkdiag` |
 | `avtp_stream_parser` | AVTP stream-id + presentation-time extractor; carries the N-entry match table |
 
 ### `hdl/ieee1722/crf/`

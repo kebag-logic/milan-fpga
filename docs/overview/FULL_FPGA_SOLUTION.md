@@ -48,9 +48,9 @@ as input, is silently refused. `IDENTIFY_NOTIFICATION` (0x0026) as a command is
 `NOT_SUPPORTED` with no owner and is graded on the root wire.
 
 **An echo is not an implementation.** Operations outside the current processor
-inventory still use the fallback. The stream-format and stream-info setters,
-the Milan Table 5.22 counter-change scheduler, and saved-state
-persistence remain open. Live audio-map mutation is implemented. Nothing here
+inventory still use the fallback. The mandatory stream setters, the Milan
+Table 5.22 scheduler, and the departing-controller monitor are implemented;
+saved-state persistence remains open. Live audio-map mutation is implemented. Nothing here
 restores a binding across a power cycle. This is a stated capability boundary from an
 informed decision, not a regression and not a blip. Everywhere below where this
 page says "AVDECC in fabric", read it against these two paragraphs.
@@ -70,14 +70,14 @@ Machine-checked status rows are defined by the
 | `stream-info.set-acc-lat` | `implemented` | - |
 | `crf.media-clock-consumption` | `missing` | - |
 | `state.nonvolatile-persistence` | `missing` | - |
-| `notifications.change-events` | `partial` | - |
-| `notifications.controller-liveness` | `missing` | - |
+| `notifications.change-events` | `implemented` | - |
+| `notifications.controller-liveness` | `implemented` | - |
 <!-- milan-feature-status:end -->
 
-The START/STOP command path and AAF media gate exist, but issue #97 keeps the
-feature partial. Command success can precede the binding-record commit, and a
-stopped CRF input currently loses receive observation together with timing
-consumption.
+The START/STOP command path completes at the binding-record commit, and a
+stopped CRF input preserves receive observation while gating timing
+consumption. Power-cycle restoration of that state remains part of the
+nonvolatile-persistence gap.
 
 **The entity model lives in DDR3, not in a fabric ROM.** The processor's
 descriptor store fetches the model over a read-only master
@@ -166,7 +166,7 @@ Companion documents:
 |-------|-----------|-------|
 | **Media transport** | AVTP (IEEE 1722) AAF / CRF, 48/96/192 kHz | **in fabric** (AAF packetizer/depacketizer + CRF TX/RX, [`hdl/ieee1722/`](../../hdl/ieee1722), silicon-validated). The media-clock servos are present but structurally off -- Section 2.1 |
 | **Discovery + connection** | ADP, ACMP (talker and listener)  -  IEEE 1722.1-2021 + Milan v1.2 | **in fabric**, in the protocol processor ([`hdl/milan/KL_pp_shadow.sv`](../../hdl/milan/KL_pp_shadow.sv) → the pinned `protocol-processor` submodule) |
-| **Enumeration + control** | AECP / AEM, MVU | **in fabric, PARTIAL**. The processor's AECP uCPU serves the inventory listed in the current audit, including packed dynamic information, live audio-map mutation, and coherent SET_NAME/GET_NAME access. The builder and tracked board flow generate, verify, and load the descriptor image and its writable name table. Mandatory stream setters, Table 5.22, and saved-state persistence remain open. See Section 2.1 |
+| **Enumeration + control** | AECP / AEM, MVU | **in fabric, PARTIAL**. The processor's AECP uCPU serves the mandatory inventory listed in the current audit, including packed dynamic information, live audio-map mutation, coherent SET_NAME/GET_NAME access, notifications, and controller monitoring. The builder and tracked board flow generate, verify, and load the descriptor image and its writable name table. Saved-state persistence, root consumption of selected media-clock state, and commands outside the inventory remain open. See Section 2.1 |
 | **Address allocation** | MAAP (1722 Annex B) | **in fabric** (`KL_maap`, bridged to the processor's per-source ALLOC/RELEASE face by `hdl/milan/KL_pp_maap_shim.sv`) |
 | **Reservation** | SRP / MSRP / MVRP (802.1Q) | **in fabric**, in the protocol processor (the class-D SRP face drives the CBS slope and the talker gate) + HW TCAM filter |
 | **Timing** | gPTP / 802.1AS, PTP hardware clock | HW PHC + timestamping in every build; the protocol by option: `GPTP_PLANE_EN_P` off = SW `ptp4l` (the 802.1AS-2020 hardware-assist scope), on (the shipping AX7101 shape) = **in fabric**, the gPTP plane (`gptp-processor`, [`GPTP_PLANE.md`](../design/GPTP_PLANE.md)) to the Milan v1.2 profile of 802.1AS-2011 |
@@ -200,7 +200,8 @@ control and media boundary, and each has a place a bench will notice it:
    late.
 3. **Milan Table 5.4 per-STREAM_OUTPUT counters are live.**
    `KL_talker_diag_ctx` is instantiated per declared output and served through
-   GET_COUNTERS. The Table 5.22 unsolicited change producer remains open.
+   GET_COUNTERS. Its dirty pulses reach the processor's Table 5.22 scheduler
+   through the root's lossless per-descriptor arbiter.
    STREAM_INPUT counters remain live too.
 
 Also structural, and cheaper to learn here than on a wire capture: the entity
@@ -230,7 +231,7 @@ wedging the responder.
 | Control plane (ADP + ACMP + SRP) in fabric | ✅ in fabric, unconditional | [`hdl/milan/KL_pp_shadow.sv`](../../hdl/milan/KL_pp_shadow.sv) over the pinned `protocol-processor` submodule; harness [`tb/verilator/pp_shadow`](../../tb/verilator/pp_shadow) |
 | MAAP | ✅ in fabric, silicon-validated | [`hdl/ieee1722/maap/`](../../hdl/ieee1722/maap) + [`hdl/milan/KL_pp_maap_shim.sv`](../../hdl/milan/KL_pp_maap_shim.sv); the ALLOC_DA success **is** the talker DA gate |
 | **AECP / AEM enumeration** | ✅ **responder and image supply chain implemented**. `READ_DESCRIPTOR` serves the builder-generated DRAM image with command-specific success and error statuses | processor AECP uCPU, end-station builder image artifacts, and board-side `aemi-load`; see the preamble |
-| **AECP / AEM control** | ⚠️ **PARTIAL**. The processor serves the inventory listed in the current audit; unsupported operations receive the conformant fallback, which is not coverage | Solicited GET_COUNTERS is implemented for supported targets, including every declared Stream Output. The Table 5.22 scheduler, remaining mandatory commands, media-plane exposure of selected dynamic state, and persistence remain open |
+| **AECP / AEM control** | ⚠️ **PARTIAL**. The processor serves the mandatory inventory listed in the current audit; unsupported operations receive the conformant fallback, which is not coverage | Solicited GET_COUNTERS is implemented for supported targets, including every declared Stream Output. Command-change notifications, the Table 5.22 scheduler, and the departing-controller monitor are implemented. Media-plane exposure of selected dynamic state and persistence remain open |
 | Linux driver (kl-eth) | ✅ **on silicon**  -  ping/iperf/CBS + ring DMA (M-A5) | [`RX_RING_DMA.md` (archived)](../../historical_now_obsolete/findings/RX_RING_DMA.md), [`AVB_SWITCH_DIRECTION.md`](AVB_SWITCH_DIRECTION.md) |
 | Artix-7 bitstream + board bring-up | ✅ built + running on the AX7101 | `deploy.sh`, [`QSPI_FLASHBOOT.md`](../integration/QSPI_FLASHBOOT.md) |
 | SRP (MSRP/MVRP) + AAF/CRF media datapath | ✅ **in fabric** | SRP is the protocol processor's (its class-D face drives the CBS slope and the talker gate); media datapath [`hdl/ieee1722/aaf/`](../../hdl/ieee1722/aaf)+`crf/`, silicon-validated; per-clause glyphs live in the validation matrix |
@@ -466,7 +467,7 @@ Section 2.1). Kept here as the historical order, each item marked with its resul
 The full SoC builds, boots Linux, passes traffic, and runs discovery, connection,
 reservation and the media plane in fabric on silicon today. Its AECP responder
 serves the current inventory and the tracked flow supplies its descriptor image.
-The current audit lists the mandatory control, dynamic-state integration,
-notification, and persistence gaps. What is still open lives in the
+The current audit lists the remaining dynamic-state integration and
+persistence gaps. What is still open lives in the
 [current audit](../testing/MILAN_V12_AUDIT_2026-08-16.md) and the GitHub issue
 tracker.

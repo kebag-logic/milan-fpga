@@ -51,6 +51,7 @@
 #include <cstring>
 #include <cstdlib>
 #include <algorithm>
+#include <filesystem>
 #include <string>
 #include <vector>
 #include <map>
@@ -78,6 +79,15 @@ static void ck(const char* what, unsigned long got, unsigned long exp) {
     } else {
         printf("  [ok]   %-46s = 0x%lx\n", what, got);
     }
+}
+
+//! Milan Table 5.1 GPTP_GM_CHANGED, read WHERE IT IS COUNTED. The served
+//! GET_COUNTERS quadlet 5 is the same register (graded byte-for-byte in the
+//! timed arm of (N6)); reading the counter itself is what makes a DELTA of
+//! zero across one CSR write a statement about the increment condition
+//! rather than about the notification limiter in front of it.
+static unsigned long gm_changed_ctr() {
+    return dut->rootp->milan_datapath__DOT__ctr_gmchg_r;
 }
 
 // ---- AECP RESPONSE MEMORY model -------------------------------------------
@@ -310,13 +320,36 @@ static void dmem_edge() {
 // CWD: the harness already runs from tb/verilator/milan_dp - the processor
 // $readmemh's ltn_rom.hex and ucode.hex by relative name - so the generator
 // sits at a known relative depth.
+static std::string shell_quote(const std::string& arg) {
+    std::string quoted("'");
+    for (char c : arg)
+        quoted += (c == '\'') ? "'\\''" : std::string(1, c);
+    quoted += '\'';
+    return quoted;
+}
+
 static bool aemi_load(const char* cfg, std::string* why) {
-    char bin[160], js[160], log[160], bld[160], ovl[224], cmd[900];
-    const int pid = (int)getpid();               // parallel lanes share /tmp
-    snprintf(bin, sizeof bin, "/tmp/milan_nxn_aemi_%d.bin", pid);
-    snprintf(js,  sizeof js,  "/tmp/milan_nxn_aemi_%d.json", pid);
-    snprintf(log, sizeof log, "/tmp/milan_nxn_aemi_%d.log", pid);
-    snprintf(bld, sizeof bld, "/tmp/milan_nxn_bld_%d", pid);
+    // Respect the runner's scratch policy. Several CI/review lanes run these
+    // large binaries concurrently, and /tmp may have a much smaller per-user
+    // quota than TMPDIR. mkdtemp also removes the PID-reuse collision that the
+    // old four fixed /tmp names permitted.
+    const char* scratch = getenv("TMPDIR");
+    if (!scratch || !*scratch) scratch = "/tmp";
+    std::string temp_template = std::string(scratch) + "/milan_nxn_XXXXXX";
+    std::vector<char> temp_buf(temp_template.begin(), temp_template.end());
+    temp_buf.push_back('\0');
+    char* made = mkdtemp(temp_buf.data());
+    if (!made) {
+        *why = std::string("cannot create descriptor-image scratch under ")
+             + scratch;
+        return false;
+    }
+    const std::string temp_dir(made);
+    const std::string bin = temp_dir + "/image.bin";
+    const std::string js  = temp_dir + "/image.json";
+    const std::string log = temp_dir + "/generator.log";
+    const std::string bld = temp_dir + "/builder";
+    const std::string ovl = bld + "/" + cfg + "/aem_overlay.json";
 
     desc_img.clear();
     desc_want.clear();
@@ -324,25 +357,27 @@ static bool aemi_load(const char* cfg, std::string* why) {
 
     // The builder writes into <outdir>/<config-stem>/; no --write-rtl and no
     // --write-fragment, so it touches nothing tracked.
-    snprintf(cmd, sizeof cmd,
-             "python3 ../../../sw/builder/endstation_builder.py "
-             "../../../configs/%s.yaml -o %s > %s 2>&1", cfg, bld, log);
-    if (system(cmd) != 0) {
+    const std::string build_cmd =
+        "python3 ../../../sw/builder/endstation_builder.py "
+        + shell_quote(std::string("../../../configs/") + cfg + ".yaml")
+        + " -o " + shell_quote(bld) + " > " + shell_quote(log) + " 2>&1";
+    if (system(build_cmd.c_str()) != 0) {
         *why = std::string("endstation_builder.py failed; its output is in ")
              + log;
         return false;
     }
-    snprintf(ovl, sizeof ovl, "%s/%s/aem_overlay.json", bld, cfg);
 
-    snprintf(cmd, sizeof cmd,
-             "python3 ../../../avdecc/gen_aemi_image.py --overlay %s "
-             "-o %s --json %s --line-bytes 576 > %s 2>&1", ovl, bin, js, log);
-    if (system(cmd) != 0) {
+    const std::string image_cmd =
+        "python3 ../../../avdecc/gen_aemi_image.py --overlay "
+        + shell_quote(ovl) + " -o " + shell_quote(bin) + " --json "
+        + shell_quote(js) + " --line-bytes 576 > " + shell_quote(log)
+        + " 2>&1";
+    if (system(image_cmd.c_str()) != 0) {
         *why = std::string("gen_aemi_image.py failed; its output is in ") + log;
         return false;                            // the log is left for reading
     }
 
-    FILE* fh = fopen(bin, "rb");
+    FILE* fh = fopen(bin.c_str(), "rb");
     if (!fh) { *why = "the generator wrote no image"; return false; }
     uint8_t buf[4096];
     size_t n;
@@ -351,7 +386,7 @@ static bool aemi_load(const char* cfg, std::string* why) {
     fclose(fh);
 
     std::string doc;
-    fh = fopen(js, "rb");
+    fh = fopen(js.c_str(), "rb");
     if (!fh) { *why = "the generator wrote no document"; return false; }
     while ((n = fread(buf, 1, sizeof buf, fh)) > 0)
         doc.append((const char*)buf, n);
@@ -450,9 +485,15 @@ static bool aemi_load(const char* cfg, std::string* why) {
             return false;
         }
     }
-    remove(bin); remove(js); remove(log);
     if (desc_img.empty() || desc_want.empty() || name_want.empty()) {
         *why = "the generator produced an empty image, document or name table";
+        return false;
+    }
+    std::error_code cleanup_error;
+    std::filesystem::remove_all(temp_dir, cleanup_error);
+    if (cleanup_error) {
+        *why = std::string("descriptor-image scratch cleanup failed: ")
+             + cleanup_error.message() + " (" + temp_dir + ")";
         return false;
     }
     return true;
@@ -469,9 +510,38 @@ static void lo() { dut->axis_clk = 0; dut->gtx_clk = 0; dut->clk_audio_i = 0;
                    rmem_edge(); dmem_edge(); }
 static void hi() { dut->axis_clk = 1; dut->gtx_clk = 1; dut->clk_audio_i = 1; dut->eval(); }
 static unsigned long tkd_dirty_seen = 0;
+//! the Table 5.22 descriptor arbiter's scalar face toward the processor
+//! (issue #69): which {type, index} tuples it delivered since the last
+//! clear. A lossy arbiter (clear-all on pick, or no accumulation) shows up
+//! here as a missing tuple after simultaneous per-descriptor pulses.
+static unsigned long pp_ctr_evt_sin_seen = 0;
+static unsigned long pp_ctr_evt_sout_seen = 0;
+static bool pp_ctr_evt_avb_seen = false;
+static bool pp_ctr_evt_ckd_seen = false;
+//! Deterministic AS_PATH interleave witness: enabled only around the AXI
+//! PUBLISH placed after count capture. If selector 8 appears first, an old
+//! response could pass without exercising the gather-coherence boundary.
+static bool asp_cut_watch = false;
+static bool asp_cut_entry_seen = false;
 static void step() {
-    lo(); hi();
+    lo();
+    if (asp_cut_watch
+        && dut->rootp->milan_datapath__DOT__asp_resp_entry_w)
+        asp_cut_entry_seen = true;
+    hi();
     tkd_dirty_seen |= dut->rootp->milan_datapath__DOT__tkd_dirty_p_w;
+    if (dut->rootp->milan_datapath__DOT__pp_ctr_evt_valid_w) {
+        const unsigned ty = dut->rootp->milan_datapath__DOT__pp_ctr_evt_type_w;
+        const unsigned ix = dut->rootp->milan_datapath__DOT__pp_ctr_evt_index_w;
+        if (ty == 0x0005 && ix < sizeof(unsigned long) * 8)
+            pp_ctr_evt_sin_seen |= 1ul << ix;
+        else if (ty == 0x0006 && ix < sizeof(unsigned long) * 8)
+            pp_ctr_evt_sout_seen |= 1ul << ix;
+        else if (ty == 0x0009 && ix == 0)
+            pp_ctr_evt_avb_seen = true;
+        else if (ty == 0x0024 && ix == 0)
+            pp_ctr_evt_ckd_seen = true;
+    }
 }
 
 // ---- AXI4-Lite BFM (same protocol as the milan_dp legacy harness) ----
@@ -613,7 +683,8 @@ static void acmp_sniff() {
 }
 
 // ---- inject one little-lane frame on the MAC RX port ----
-static void inject(const uint8_t* f, size_t len, int drain = 1200) {
+static void inject(const uint8_t* f, size_t len, int drain = 1200,
+                   bool tx_ready = true) {
     std::vector<uint64_t> beats;
     for (size_t bt = 0; bt < (len + 7) / 8; bt++) {
         uint64_t v = 0;
@@ -622,7 +693,7 @@ static void inject(const uint8_t* f, size_t len, int drain = 1200) {
         beats.push_back(v);
     }
     size_t idx = 0;
-    dut->m_axis_mac_tx_tready = 1;
+    dut->m_axis_mac_tx_tready = tx_ready ? 1 : 0;
     dut->m_axis_pcm_tready = 1;
     acmp_sniff_fr.clear();   // a fragment drained elsewhere is not a frame
     for (int c = 0; c < drain; c++) {
@@ -685,26 +756,51 @@ static void inject_parked(const uint8_t* f, size_t len, int park_beat,
 }
 
 // ---- gh #58 D1 end-to-end: one AECP AEM transaction through the REAL RX
-// path, the response fished off the MAC TX trunk (subtype 0xFB; the only
-// 0xFB frames in this sim are our responses - nothing ever REGISTERs).
+// path, the response fished off the MAC TX trunk (subtype 0xFB).
 // dst MAC = the station MAC, which this harness leaves at its reset 0.
+//
+// CONTROLLER IDENTITIES (issue #69). Milan 5.4.5.2's exclusion rule - push
+// "to all registered controllers EXCEPT the requesting controller" - is only
+// observable with TWO registered controllers, so the requester is an argument
+// here: {source MAC, controller_entity_id}. CTL_A is the identity every
+// existing call has always used (the default keeps them byte-identical).
+struct Ctlr { uint8_t mac[6]; uint8_t eid[8]; };
+static const Ctlr CTL_A = {{0x68,0x05,0xCA,0x95,0xB2,0xD1},
+                           {0x68,0x05,0xCA,0xFF,0xFE,0x95,0xB2,0xD1}};
+static const Ctlr CTL_B = {{0x00,0x1B,0x21,0x44,0x55,0x66},
+                           {0x00,0x1B,0x21,0xFF,0xFE,0x44,0x55,0x66}};
 static std::vector<uint8_t> aecp_request(uint16_t cmd, uint16_t sq,
-                                         const std::vector<uint8_t>& pl) {
+                                         const std::vector<uint8_t>& pl,
+                                         const Ctlr& from = CTL_A) {
     const size_t flen = std::max<size_t>(60, 38 + pl.size());
     std::vector<uint8_t> f(flen, 0);
-    const uint8_t csrc[6] = {0x68,0x05,0xCA,0x95,0xB2,0xD1};
-    memcpy(f.data()+6, csrc, 6);
+    memcpy(f.data()+6, from.mac, 6);
     f[12]=0x22; f[13]=0xF0; f[14]=0xFB; f[15]=0x00;      // AECP AEM_COMMAND
     uint16_t cdl = (uint16_t)(12 + pl.size());
     f[16]=(uint8_t)((cdl >> 8) & 0x7); f[17]=(uint8_t)cdl;
     const uint8_t teid[8] = {0x02,0x00,0x00,0xFF,0xFE,0x00,0x00,0x01};
     memcpy(f.data()+18, teid, 8);                         // = A_ADP_EID
-    const uint8_t ceid[8] = {0x68,0x05,0xCA,0xFF,0xFE,0x95,0xB2,0xD1};
-    memcpy(f.data()+26, ceid, 8);
+    memcpy(f.data()+26, from.eid, 8);
     f[34]=(uint8_t)(sq >> 8); f[35]=(uint8_t)sq;
     f[36]=(uint8_t)((cmd >> 8) & 0x7F); f[37]=(uint8_t)cmd;
     for (size_t i = 0; i < pl.size(); i++) f[38+i] = pl[i];
     return f;
+}
+// THE UNSOLICITED LOG. Since the registry's triggers are live (#69), a
+// waiter for a solicited response can meet an AEM frame with the u bit
+// (IEEE 1722.1-2021 7.4.1, the unsolicited flag) or an AEM_COMMAND this
+// entity ORIGINATES (Milan 5.4.5.3 CONTROLLER_AVAILABLE) on the same trunk.
+// A controller demultiplexes on exactly those bits, and so does this bench:
+// every such frame is logged for the [NOTIFY] section and the waiter keeps
+// waiting for the echo of ITS command. Nothing is dropped on the floor.
+static std::vector<std::vector<uint8_t> > uns_log;
+static long uns_log_cycle = 0;                  // cycles walked by the watchers
+static std::vector<long> uns_log_when;          // uns_log_cycle at each frame
+static bool aecp_is_unsolicited(const std::vector<uint8_t>& f) {
+    return f.size() > 37 && (f[15] & 0xF) == 1 && (f[36] & 0x80) != 0;
+}
+static bool aecp_is_originated(const std::vector<uint8_t>& f) {
+    return f.size() > 37 && (f[15] & 0xF) == 0;   // an AEM_COMMAND we sent
 }
 static std::vector<uint8_t> await_aecp(int cyc = 200000) {
     std::vector<uint8_t> cur, resp;
@@ -718,19 +814,60 @@ static std::vector<uint8_t> await_aecp(int cyc = 200000) {
                     cur.push_back((dut->m_axis_mac_tx_tdata >> (8*l)) & 0xFF);
             if (dut->m_axis_mac_tx_tlast) {
                 if (cur.size() > 17 && cur[12] == 0x22 && cur[13] == 0xF0 &&
-                    cur[14] == 0xFB)
-                    resp = std::move(cur);      // hand over, do not copy
+                    cur[14] == 0xFB) {
+                    if (aecp_is_unsolicited(cur) || aecp_is_originated(cur)) {
+                        uns_log.push_back(cur);
+                        uns_log_when.push_back(uns_log_cycle);
+                    } else {
+                        resp = std::move(cur);  // hand over, do not copy
+                    }
+                }
                 cur.clear();
             }
         }
         hi();
+        uns_log_cycle++;
     }
     return resp;
+}
+// walk `cyc` cycles with the trunk open, logging every unsolicited or
+// originated AEM frame - the [NOTIFY] section's observation window
+static void drain_tx(int cyc) {
+    std::vector<uint8_t> cur;
+    cur.reserve(1514);
+    dut->m_axis_mac_tx_tready = 1;
+    for (int c = 0; c < cyc; c++) {
+        lo();
+        if (dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready) {
+            for (int l = 0; l < 8; l++)
+                if ((dut->m_axis_mac_tx_tkeep >> l) & 1)
+                    cur.push_back((dut->m_axis_mac_tx_tdata >> (8*l)) & 0xFF);
+            if (dut->m_axis_mac_tx_tlast) {
+                if (cur.size() > 17 && cur[12] == 0x22 && cur[13] == 0xF0 &&
+                    cur[14] == 0xFB &&
+                    (aecp_is_unsolicited(cur) || aecp_is_originated(cur))) {
+                    uns_log.push_back(cur);
+                    uns_log_when.push_back(uns_log_cycle);
+                }
+                cur.clear();
+            }
+        }
+        hi();
+        uns_log_cycle++;
+    }
 }
 static std::vector<uint8_t> aecp_xact(uint16_t cmd, uint16_t sq,
                                       const std::vector<uint8_t>& pl,
                                       int cyc = 200000) {
     const std::vector<uint8_t> f = aecp_request(cmd, sq, pl);
+    inject(f.data(), f.size(), 40);
+    return await_aecp(cyc);
+}
+static std::vector<uint8_t> aecp_xact_from(const Ctlr& from, uint16_t cmd,
+                                           uint16_t sq,
+                                           const std::vector<uint8_t>& pl,
+                                           int cyc = 200000) {
+    const std::vector<uint8_t> f = aecp_request(cmd, sq, pl, from);
     inject(f.data(), f.size(), 40);
     return await_aecp(cyc);
 }
@@ -886,6 +1023,868 @@ static const uint8_t* mkaaf(const uint8_t sid[8], uint8_t seq, uint8_t chans,
     return f;
 }
 
+// ======================================================================
+//  [NOTIFY] Milan v1.2 5.4.5 unsolicited notifications ON THE WIRE
+//  (issue #69). The processor proves its registry, scheduler, limiter and
+//  controller monitor in its own benches (tb/pp_top, tb/aecp_notify,
+//  tb/ca_originator); this section proves the INTEGRATION the parent owns:
+//    * the two inverted gates of 5.4.5.2 hold end to end through the real
+//      RX path, the real TX trunk and two distinct controllers - the
+//      requester never hears its own command, and a SET that stores the
+//      value already held is silent;
+//    * the Table 5.22 triggers THIS FABRIC drives reach registered
+//      controllers as AEM responses with u = 1: the counter-change
+//      descriptor arbiter (GET_COUNTERS), the changed PathTrace publication and
+//      the first grandmaster commit (GET_AS_PATH / GET_AVB_INFO);
+//    * the content bar of the notification-content test: the last
+//      unsolicited response is byte-identical, from the command body on,
+//      to the solicited response that follows it.
+//  Every count filters by command_type, descriptor and target controller,
+//  so a push another source legitimately fires mid-section (a streaming
+//  output's diag, say) can neither inflate nor mask a verdict.
+//
+//  WHAT ONLY THE TIMED LEG CAN SEE (obj_notify: the processor's timebase
+//  compressed through PP_TIM_DIV_US_P / PP_TIM_DIV_MS_P so one processor
+//  millisecond is MS_CYC_TB = 100 fabric cycles and a minute is runnable):
+//  the GET_COUNTERS one-per-descriptor-per-second limit measured as a
+//  withheld push RELEASED after >= 1000 ms, and the 5.4.5.3 departing-
+//  controller monitor - CONTROLLER_AVAILABLE 30 to 60 s after the last
+//  command, exactly one retry, then a targeted DEREGISTER notification.
+//  At the other legs' real timebase a processor second is 1e8 cycles,
+//  longer than the whole leg, and the first push of a descriptor may
+//  already have been spent before any controller registered: those legs
+//  grade the command-driven and class-pending (AVB_INFO / AS_PATH) pushes.
+// ======================================================================
+#ifndef MS_CYC_TB
+#define MS_CYC_TB 100000     // MILAN_CLK_FREQ_HZ / 1000 at the real timebase
+#endif
+static const int NOTIFY_WIN = 60000;   // cycles a push has to reach the trunk
+
+static uint16_t notify_cmd(const std::vector<uint8_t>& f) {
+    return (uint16_t)((((unsigned)f[36] & 0x7F) << 8) | f[37]);
+}
+static unsigned notify_cdl(const std::vector<uint8_t>& f) {
+    return (((unsigned)f[16] & 7) << 8) | f[17];
+}
+static long notify_seq(const std::vector<uint8_t>* f) {
+    return f ? (long)(((unsigned)f->at(34) << 8) | f->at(35)) : -1L;
+}
+//! a RESPONSE to controller c: its MAC is the destination and its entity_id
+//! is the controller_entity_id field
+static bool notify_to(const std::vector<uint8_t>& f, const Ctlr& c) {
+    return memcmp(f.data(), c.mac, 6) == 0 && memcmp(f.data() + 26, c.eid, 8) == 0;
+}
+//! a COMMAND this entity originates toward controller c: its MAC is the
+//! destination and its entity_id is the TARGET (IEEE 9.2.1.3), while the
+//! controller_entity_id field names the sender, this entity
+static const uint8_t NOTIFY_OWN_EID[8] = {0x02,0x00,0x00,0xFF,0xFE,0x00,0x00,0x01};
+static bool notify_cmd_to(const std::vector<uint8_t>& f, const Ctlr& c) {
+    return memcmp(f.data(), c.mac, 6) == 0 && memcmp(f.data() + 18, c.eid, 8) == 0
+        && memcmp(f.data() + 26, NOTIFY_OWN_EID, 8) == 0;
+}
+//! unsolicited frames in the log for command `cmd`, to `to` (any when null),
+//! naming descriptor {ty, ix} at the body (any when ty < 0)
+static long notify_count(uint16_t cmd, const Ctlr* to, int ty = -1, int ix = -1) {
+    long n = 0;
+    for (size_t i = 0; i < uns_log.size(); i++) {
+        const std::vector<uint8_t>& f = uns_log[i];
+        if (!aecp_is_unsolicited(f) || notify_cmd(f) != cmd) continue;
+        if (to && !notify_to(f, *to)) continue;
+        if (ty >= 0 && (f.size() < 42
+                        || (((unsigned)f[38] << 8) | f[39]) != (unsigned)ty
+                        || (((unsigned)f[40] << 8) | f[41]) != (unsigned)ix)) continue;
+        n++;
+    }
+    return n;
+}
+//! the LAST matching unsolicited frame - the one the content bar names
+static const std::vector<uint8_t>* notify_last(uint16_t cmd, const Ctlr& to,
+                                               int ty = -1, int ix = -1) {
+    const std::vector<uint8_t>* r = nullptr;
+    for (size_t i = 0; i < uns_log.size(); i++) {
+        const std::vector<uint8_t>& f = uns_log[i];
+        if (!aecp_is_unsolicited(f) || notify_cmd(f) != cmd || !notify_to(f, to)) continue;
+        if (ty >= 0 && (f.size() < 42
+                        || (((unsigned)f[38] << 8) | f[39]) != (unsigned)ty
+                        || (((unsigned)f[40] << 8) | f[41]) != (unsigned)ix)) continue;
+        r = &f;
+    }
+    return r;
+}
+//! the cycle stamp of the i-th matching frame (-1 when absent)
+static long notify_when(uint16_t cmd, const Ctlr& to, unsigned nth, bool originated) {
+    unsigned seen = 0;
+    for (size_t i = 0; i < uns_log.size(); i++) {
+        const std::vector<uint8_t>& f = uns_log[i];
+        const bool kind = originated ? aecp_is_originated(f) : aecp_is_unsolicited(f);
+        if (!kind || notify_cmd(f) != cmd) continue;
+        if (originated ? !notify_cmd_to(f, to) : !notify_to(f, to)) continue;
+        if (seen++ == nth) return uns_log_when[i];
+    }
+    return -1;
+}
+//! byte-identical from offset `off` on (the frames are the same length)
+static bool notify_same_from(const std::vector<uint8_t>* a,
+                             const std::vector<uint8_t>& b, size_t off) {
+    return a && a->size() == b.size() && a->size() > off
+        && std::equal(a->begin() + off, a->end(), b.begin() + off);
+}
+//! SET_NAME(ENTITY, 0, name_index 0 = entity_name, configuration 0)
+static std::vector<uint8_t> notify_set_name(const Ctlr& c, const char* name,
+                                            uint16_t sq) {
+    std::vector<uint8_t> pl(72, 0);
+    const size_t n = std::min<size_t>(strlen(name), 64);
+    memcpy(pl.data() + 8, name, n);
+    return aecp_xact_from(c, 0x0010, sq, pl);
+}
+static void notify_clear() { uns_log.clear(); uns_log_when.clear(); }
+
+static void notify_section(bool timed) {
+    if (timed)
+        printf("-- [NOTIFY] Milan 5.4.5 unsolicited notifications on the wire "
+               "(TIMED: one processor ms = %d cycles) --\n", MS_CYC_TB);
+    else
+        printf("-- [NOTIFY] Milan 5.4.5 unsolicited notifications on the "
+               "wire --\n");
+    uint16_t sq = 0x6900;
+    const uint8_t teid[8] = {0x02,0x00,0x00,0xFF,0xFE,0x00,0x00,0x01};
+    const std::vector<uint8_t> name_key(8, 0);   // ENTITY,0 / name 0 / cfg 0
+
+    // the name the image shipped, restored at the end so every later
+    // section reads the model it was generated against
+    const std::vector<uint8_t> g0 = aecp_xact_from(CTL_A, 0x0011, sq++, name_key);
+    ck("[NOTIFY] GET_NAME(ENTITY,0) answers SUCCESS (the restore point)",
+       g0.size() >= 110 ? aecp_status(g0) : -1, 0);
+    char name0[65]; memset(name0, 0, sizeof name0);
+    if (g0.size() >= 110) memcpy(name0, g0.data() + 46, 64);
+
+    // ---- (N1) two registered controllers, A and B ---------------------
+    const std::vector<uint8_t> fl0(4, 0);
+    if (timed) {
+        //! The link rose at reset, which moved LINK_UP and spent the
+        //! AVB_INTERFACE descriptor's immediate first push on an empty
+        //! registry at t = 0 ms. Walk past the processor's first second so
+        //! the counters arm below starts with every limiter window expired:
+        //! a change then pushes at once, and only the NEXT one is withheld.
+        while (uns_log_cycle < 1100L * MS_CYC_TB) drain_tx(NOTIFY_WIN);
+    }
+    notify_clear();
+    const std::vector<uint8_t> rA = aecp_xact_from(CTL_A, 0x0024, sq++, fl0);
+    const std::vector<uint8_t> rB = aecp_xact_from(CTL_B, 0x0024, sq++, fl0);
+    ck("[NOTIFY] REGISTER from controller A answers SUCCESS", aecp_status(rA), 0);
+    ck("[NOTIFY] REGISTER from controller B answers SUCCESS", aecp_status(rB), 0);
+    ck("[NOTIFY] ...B's response went to B (dst MAC + controller_entity_id)",
+       (long)(rB.size() >= 34 && notify_to(rB, CTL_B)), 1);
+
+    // ---- (N2) the exclusion gate: A's change reaches B, and only B -----
+    notify_clear();
+    const long t_set_a1 = uns_log_cycle;
+    const std::vector<uint8_t> sA1 = notify_set_name(CTL_A, "Notify-A1", sq++);
+    ck("[NOTIFY] SET_NAME from A (a real change) is SUCCESS",
+       sA1.size() >= 110 ? aecp_status(sA1) : -1, 0);
+    drain_tx(NOTIFY_WIN);
+    printf("  [i]    command-to-push latency: %ld cycles (SET_NAME injected to "
+           "the unsolicited frame's last beat)\n",
+           notify_when(0x0010, CTL_B, 0, false) >= 0
+               ? notify_when(0x0010, CTL_B, 0, false) - t_set_a1 : -1L);
+    ck("[NOTIFY] exactly ONE unsolicited SET_NAME egressed",
+       notify_count(0x0010, nullptr), 1);
+    ck("[NOTIFY] ...to controller B (dst MAC and controller_entity_id)",
+       notify_count(0x0010, &CTL_B), 1);
+    ck("[NOTIFY] ...and none to A, the requester (5.4.5.2 'except')",
+       notify_count(0x0010, &CTL_A), 0);
+    const std::vector<uint8_t>* nB1 = notify_last(0x0010, CTL_B);
+    ck("[NOTIFY] ...B's sequence_id starts at 0 (5.4.2.21: a new entry)",
+       notify_seq(nB1), 0);
+    ck("[NOTIFY] ...target_entity_id is this entity",
+       (long)(nB1 && memcmp(nB1->data() + 18, teid, 8) == 0), 1);
+    ck("[NOTIFY] ...status SUCCESS with the full cdl-84 SET_NAME body",
+       (long)(nB1 && nB1->size() >= 110 && aecp_status(*nB1) == 0
+              && notify_cdl(*nB1) == 84), 1);
+    ck("[NOTIFY] ...carrying the NEW name: current state, not history",
+       (long)notify_same_from(nB1, sA1, 38), 1);
+
+    // ---- (N3) the no-op gate: storing the value held pushes nothing ----
+    notify_clear();
+    const std::vector<uint8_t> sA2 = notify_set_name(CTL_A, "Notify-A1", sq++);
+    ck("[NOTIFY] SET_NAME of the value already held is SUCCESS",
+       sA2.size() >= 110 ? aecp_status(sA2) : -1, 0);
+    drain_tx(NOTIFY_WIN);
+    ck("[NOTIFY] ...and pushes NOTHING: no state was modified (5.4.5.2)",
+       notify_count(0x0010, nullptr), 0);
+
+    // ---- (N4) one sequence_id variable per registry entry ---------------
+    notify_clear();
+    const std::vector<uint8_t> sB1 = notify_set_name(CTL_B, "Notify-B1", sq++);
+    ck("[NOTIFY] SET_NAME from B is SUCCESS",
+       sB1.size() >= 110 ? aecp_status(sB1) : -1, 0);
+    drain_tx(NOTIFY_WIN);
+    ck("[NOTIFY] B's change reaches A alone",
+       (long)(notify_count(0x0010, &CTL_A) == 1
+              && notify_count(0x0010, &CTL_B) == 0), 1);
+    ck("[NOTIFY] ...A's entry starts its own sequence at 0",
+       notify_seq(notify_last(0x0010, CTL_A)), 0);
+    notify_clear();
+    const std::vector<uint8_t> sA3 = notify_set_name(CTL_A, "Notify-A3", sq++);
+    ck("[NOTIFY] a second change from A is SUCCESS",
+       sA3.size() >= 110 ? aecp_status(sA3) : -1, 0);
+    drain_tx(NOTIFY_WIN);
+    const std::vector<uint8_t>* nB2 = notify_last(0x0010, CTL_B);
+    ck("[NOTIFY] ...reaches B with sequence_id 1 (its entry advanced)",
+       notify_seq(nB2), 1);
+    ck("[NOTIFY] ...and A's entry did not move (independent per entry)",
+       notify_count(0x0010, &CTL_A), 0);
+
+    // ---- (N5) the content bar ---------------------------------------
+    const std::vector<uint8_t> gB = aecp_xact_from(CTL_B, 0x0011, sq++, name_key);
+    ck("[NOTIFY] GET_NAME right after is byte-identical from the body on",
+       (long)(gB.size() >= 110 && notify_same_from(nB2, gB, 38)), 1);
+
+    // ---- (N6) a grandmaster CHANGE: three Table 5.22 rows at once ------
+    //! GET_AVB_INFO (gptp_grandmaster_id), GET_AS_PATH (entry 0) and the
+    //! AVB_INTERFACE counters (GPTP_GM_CHANGED) all change on one commit.
+    //! The pair is COMMIT-ON-HI (milan_csr), so every change ends with a
+    //! HI write. A zero grandmaster first makes the later discovery arm
+    //! (N8) deterministic whatever the earlier sections left here.
+    const uint32_t gm_lo0 = axi_read(0x624), gm_hi0 = axi_read(0x628);
+    uint32_t gm_lo = 0x00C0FFEEu, gm_hi = 0x001BC500u;
+    if (gm_lo0 == gm_lo && gm_hi0 == gm_hi) gm_lo ^= 0x10u;
+    if ((gm_lo0 | gm_hi0) == 0) {
+        //! no grandmaster yet: discover one first, its pushes drained
+        axi_write(0x624, gm_lo); axi_write(0x628, gm_hi);
+        drain_tx(NOTIFY_WIN);
+        gm_lo ^= 0x10u;
+    }
+    notify_clear();
+    const unsigned long gmchg_n6 = gm_changed_ctr();
+    axi_write(0x624, gm_lo); axi_write(0x628, gm_hi);       // the CHANGE
+    uint32_t gm_cur_lo = gm_lo;                             // what the wire holds now
+    drain_tx(NOTIFY_WIN);
+    ck("[NOTIFY] GM change: one unsolicited GET_AVB_INFO to A",
+       notify_count(0x0027, &CTL_A), 1);
+    ck("[NOTIFY] GM change: GPTP_GM_CHANGED moved exactly once",
+       gm_changed_ctr() - gmchg_n6, 1);
+    ck("[NOTIFY] ...and one to B", notify_count(0x0027, &CTL_B), 1);
+    ck("[NOTIFY] GM change: one unsolicited GET_AS_PATH to A",
+       notify_count(0x0028, &CTL_A), 1);
+    ck("[NOTIFY] ...and one to B", notify_count(0x0028, &CTL_B), 1);
+    {
+        const std::vector<uint8_t> ga = {0x00, 0x09, 0x00, 0x00};
+        const std::vector<uint8_t> sa = aecp_xact_from(CTL_A, 0x0027, sq++, ga);
+        ck("[NOTIFY] ...AVB_INFO body == the solicited read that follows",
+           (long)(aecp_status(sa) == 0
+                  && notify_same_from(notify_last(0x0027, CTL_A), sa, 38)), 1);
+        ck("[NOTIFY] ...and it names the NEW grandmaster",
+           (long)(sa.size() >= 50 && sa[42] == (uint8_t)(gm_hi >> 24)
+                  && sa[49] == (uint8_t)gm_lo), 1);
+        const std::vector<uint8_t> gp(4, 0);
+        const std::vector<uint8_t> sp = aecp_xact_from(CTL_A, 0x0028, sq++, gp);
+        ck("[NOTIFY] ...AS_PATH body == the solicited read that follows",
+           (long)(aecp_status(sp) == 0
+                  && notify_same_from(notify_last(0x0028, CTL_A), sp, 38)), 1);
+    }
+    printf("  [i]    GM change also pushed GET_COUNTERS: AVB_INTERFACE %ld, "
+           "CLOCK_DOMAIN %ld, STREAM_INPUT %ld, STREAM_OUTPUT %ld (to A)\n",
+           notify_count(0x0029, &CTL_A, 0x0009, 0),
+           notify_count(0x0029, &CTL_A, 0x0024, 0),
+           notify_count(0x0029, &CTL_A, 0x0005, 0),
+           notify_count(0x0029, &CTL_A, 0x0006, 0));
+    if (timed) {
+        //! the counters arm needs a processor second to be runnable: the
+        //! FIRST push of a descriptor is immediate, every later one waits
+        //! until >= 1000 ms after the last emission. GPTP_GM_CHANGED moved
+        //! exactly once above, so AVB_INTERFACE 0 pushed exactly once...
+        ck("[NOTIFY-T] GM change: one GET_COUNTERS(AVB_INTERFACE,0) to A",
+           notify_count(0x0029, &CTL_A, 0x0009, 0), 1);
+        ck("[NOTIFY-T] ...and one to B",
+           notify_count(0x0029, &CTL_B, 0x0009, 0), 1);
+        const std::vector<uint8_t> gc = {0x00, 0x09, 0x00, 0x00};
+        const std::vector<uint8_t> sc = aecp_xact_from(CTL_A, 0x0029, sq++, gc);
+        const std::vector<uint8_t>* nc = notify_last(0x0029, CTL_A, 0x0009, 0);
+        ck("[NOTIFY-T] ...its body == the solicited GET_COUNTERS that follows",
+           (long)(aecp_status(sc) == 0 && notify_same_from(nc, sc, 38)), 1);
+        ck("[NOTIFY-T] ...with GPTP_GM_CHANGED (quadlet 5) nonzero in it",
+           (long)(nc && nc->size() >= 174
+                  && (nc->at(66) | nc->at(67) | nc->at(68) | nc->at(69)) != 0), 1);
+        //! ...and a SECOND change inside the same second is WITHHELD, then
+        //! RELEASED once the second has elapsed, carrying the state of the
+        //! moment it is emitted (so it equals the solicited read after it).
+        const long t_first = notify_when(0x0029, CTL_A, 0, false);
+        notify_clear();
+        gm_cur_lo = gm_lo ^ 0x20u;
+        axi_write(0x624, gm_cur_lo); axi_write(0x628, gm_hi);       // change 2
+        //! a 200 ms window: long enough for a push (they land in ~3000
+        //! cycles), and still inside the first push's second
+        drain_tx(200 * MS_CYC_TB);
+        ck("[NOTIFY-T] a second change within the second is withheld",
+           notify_count(0x0029, &CTL_A, 0x0009, 0), 0);
+        ck("[NOTIFY-T] ...while the class pushes (AVB_INFO) are not limited",
+           notify_count(0x0027, &CTL_A), 1);
+        //! walk to 1100 ms after the first emission, in NOTIFY_WIN slices
+        while (uns_log_cycle - t_first < 1100L * MS_CYC_TB) drain_tx(NOTIFY_WIN);
+        ck("[NOTIFY-T] ...and released after the second elapsed (A)",
+           notify_count(0x0029, &CTL_A, 0x0009, 0), 1);
+        ck("[NOTIFY-T] ...(B)", notify_count(0x0029, &CTL_B, 0x0009, 0), 1);
+        const long t_second = notify_when(0x0029, CTL_A, 0, false);
+        //! The processor measures its second from emission SELECTION to
+        //! emission selection; what the trunk sees is that second plus the
+        //! difference of two selection-to-wire latencies (a table walk, an
+        //! engine job and a TX slot each time), a few hundred microseconds
+        //! either way. The compliance interval floor is 900 ms; 990 ms here
+        //! leaves the limiter no room to be anything but the full second.
+        ck("[NOTIFY-T] ...>= 990 ms after the first on the wire (the limiter's "
+           "full second, less the selection-to-wire jitter)",
+           (long)(t_second >= 0 && (t_second - t_first) >= 990L * MS_CYC_TB), 1);
+        printf("  [i]    GET_COUNTERS(AVB_INTERFACE) wire interval: %ld cycles = "
+               "%.3f ms\n", t_second >= 0 ? (t_second - t_first) : -1L,
+               t_second >= 0 ? (double)(t_second - t_first) / MS_CYC_TB : -1.0);
+        const std::vector<uint8_t> sc2 = aecp_xact_from(CTL_A, 0x0029, sq++, gc);
+        ck("[NOTIFY-T] ...body == the solicited read that follows (current state)",
+           (long)(aecp_status(sc2) == 0
+                  && notify_same_from(notify_last(0x0029, CTL_A, 0x0009, 0), sc2, 38)), 1);
+    }
+
+    // ---- (N7) PathTrace COMMIT is private; PUBLISH is atomic -----------
+    //! 0x7DC/0x7E0 stage a clockIdentity and 0x7E4 bit 31 COMMITs it into
+    //! the private image. Only bit 30 PUBLISHes the whole image + length.
+    //! The generation advances exactly when that canonical publication
+    //! changes. The root qualifies that edge against the complete served
+    //! {GM,count,tail} tuple before it becomes an AS_PATH event.
+    notify_clear();
+    const unsigned long gmchg_n7 = gm_changed_ctr();
+    const unsigned asp_alias_gen = (axi_read(0x7E4) >> 4) & 0xFu;
+    ck("[R0] count-alias arm starts with a grandmaster",
+       (unsigned long)(((uint64_t)axi_read(0x628) << 32) | axi_read(0x624)) != 0,
+       1);
+    //! Count 0 is the legacy spelling and count 1 the explicit spelling of
+    //! the same served sequence, {GM}. Neither direction may spend a
+    //! generation or emit a false Table 5.22 push.
+    axi_write(0x7E4, 0x40000001u);
+    drain_tx(NOTIFY_WIN);
+    ck("[R0] legacy count 0 -> explicit count 1 emits no AS_PATH push",
+       notify_count(0x0028, nullptr), 0);
+    ck("[R0] ...and spends no publication generation",
+       (axi_read(0x7E4) >> 4) & 0xFu, asp_alias_gen);
+    ck("[R0] ...while raw readback truthfully reports count 1",
+       axi_read(0x7E4) & 0xFu, 1);
+    notify_clear();
+    axi_write(0x7E4, 0x40000000u);
+    drain_tx(NOTIFY_WIN);
+    ck("[R0] explicit count 1 -> legacy count 0 emits no AS_PATH push",
+       notify_count(0x0028, nullptr), 0);
+    ck("[R0] ...and also spends no publication generation",
+       (axi_read(0x7E4) >> 4) & 0xFu, asp_alias_gen);
+
+    const uint64_t asp_old1 = 0x0011223300000001ull;
+    const uint64_t asp_old2 = 0x0011223300000002ull;
+    const uint64_t asp_new1 = 0x445566778899AA01ull;
+    const uint64_t asp_new2 = 0x445566778899AA02ull;
+    const uint64_t asp_new3 = 0x445566778899AA03ull;
+    const auto asp_entry = [](const std::vector<uint8_t>& f, unsigned k) {
+        uint64_t v = 0;
+        const size_t off = 42 + 8 * k;
+        if (f.size() < off + 8) return v;
+        for (unsigned b = 0; b < 8; b++) v = (v << 8) | f[off + b];
+        return v;
+    };
+    const auto asp_stage = [](unsigned slot, uint64_t value) {
+        axi_write(0x7DC, (uint32_t)value);
+        axi_write(0x7E0, (uint32_t)(value >> 32));
+        axi_write(0x7E4, 0x80000000u | (slot << 8));
+    };
+    asp_stage(1, asp_old1);
+    asp_stage(2, asp_old2);
+    drain_tx(NOTIFY_WIN);
+    ck("[NOTIFY] initial COMMITs are private (no AS_PATH push)",
+       notify_count(0x0028, nullptr), 0);
+    axi_write(0x7E4, 0x40000000u | 3u);       // publish {GM, old1, old2}
+    drain_tx(NOTIFY_WIN);
+    ck("[NOTIFY] first changed PUBLISH: one GET_AS_PATH to A",
+       notify_count(0x0028, &CTL_A), 1);
+    ck("[NOTIFY] ...and one to B", notify_count(0x0028, &CTL_B), 1);
+    ck("[NOTIFY] ...and no GET_AVB_INFO (the grandmaster did not change)",
+       notify_count(0x0027, nullptr), 0);
+    ck("[NOTIFY] ...and GPTP_GM_CHANGED did not move either",
+       gm_changed_ctr() - gmchg_n7, 0);
+    {
+        const std::vector<uint8_t> gp(4, 0);
+        const std::vector<uint8_t> sp = aecp_xact_from(CTL_B, 0x0028, sq++, gp);
+        ck("[NOTIFY] solicited GET_AS_PATH now answers count 3 (cdl 40)",
+           (long)(aecp_status(sp) == 0 && notify_cdl(sp) == 40
+                  && sp.size() >= 66
+                  && (((unsigned)sp[40] << 8) | sp[41]) == 3), 1);
+        ck("[NOTIFY] ...entry 0 is the grandmaster",
+           asp_entry(sp, 0), ((uint64_t)gm_hi << 32) | gm_cur_lo);
+        ck("[NOTIFY] ...entry 1 is the first published slot",
+           asp_entry(sp, 1), asp_old1);
+        ck("[NOTIFY] ...entry 2 is the second published slot",
+           asp_entry(sp, 2), asp_old2);
+        ck("[NOTIFY] ...AS_PATH push body == that solicited read",
+           (long)notify_same_from(notify_last(0x0028, CTL_B), sp, 38), 1);
+    }
+
+    //! THE MISSING ATOMICITY INTERVAL. Rewrite both live tail slots, add a
+    //! third one and COMMIT all three privately, but do not PUBLISH. There
+    //! must be no push, and a solicited GET_AS_PATH on the real wire must
+    //! still return the PRIOR publication. The old single-array implementation
+    //! passed the no-push check and then leaked the new slots immediately.
+    notify_clear();
+    const unsigned asp_gen_old = (axi_read(0x7E4) >> 4) & 0xFu;
+    asp_stage(1, asp_new1);
+    asp_stage(2, asp_new2);
+    asp_stage(3, asp_new3);
+    drain_tx(NOTIFY_WIN);
+    ck("[R0] three re-COMMITs before PUBLISH emit no GET_AS_PATH push",
+       notify_count(0x0028, nullptr), 0);
+    ck("[R0] ...and leaves the published generation unchanged",
+       (axi_read(0x7E4) >> 4) & 0xFu, asp_gen_old);
+    {
+        const std::vector<uint8_t> gp(4, 0);
+        const std::vector<uint8_t> sp = aecp_xact_from(CTL_A, 0x0028, sq++, gp);
+        ck("[R0] solicited GET_AS_PATH between COMMIT and PUBLISH stays count 3",
+           (long)(aecp_status(sp) == 0 && notify_cdl(sp) == 40
+                  && sp.size() >= 66
+                  && (((unsigned)sp[40] << 8) | sp[41]) == 3), 1);
+        ck("[R0] ...and serves PRIOR slot 1 atomically",
+           asp_entry(sp, 1), asp_old1);
+        ck("[R0] ...and serves PRIOR slot 2 atomically",
+           asp_entry(sp, 2), asp_old2);
+    }
+
+    //! THE IN-FLIGHT CUT. Launch a real solicited GET_AS_PATH with TX held so
+    //! no response byte can escape, stop on the exact first-count capture
+    //! edge, then PUBLISH while the processor is still gathering the rest of
+    //! that response. The in-flight body must remain wholly old; the next
+    //! response and the changed-path pushes must be wholly new.
+    notify_clear();
+    const std::vector<uint8_t> gp_inflight(4, 0);
+    const std::vector<uint8_t> rq_inflight =
+        aecp_request(0x0028, sq++, gp_inflight, CTL_A);
+    inject(rq_inflight.data(), rq_inflight.size(),
+           (int)((rq_inflight.size() + 7) / 8), false);
+    bool asp_capture_seen = false;
+    for (int c = 0; c < 200000 && !asp_capture_seen; c++) {
+        lo();
+        asp_capture_seen =
+            dut->rootp->milan_datapath__DOT__asp_resp_capture_w;
+        hi();
+        uns_log_cycle++;
+    }
+    ck("[R0] in-flight GET_AS_PATH reached its first-count snapshot edge",
+       asp_capture_seen, 1);
+    asp_cut_entry_seen = false;
+    asp_cut_watch = asp_capture_seen;
+    axi_write(0x7E4, 0x40000000u | 4u);       // {GM, new1, new2, new3}
+    const bool asp_entry_before_publish = asp_cut_entry_seen
+        || dut->rootp->milan_datapath__DOT__asp_resp_entry_w;
+    asp_cut_watch = false;
+    ck("[R0] PUBLISH completed before the first path-entry gather request",
+       !asp_entry_before_publish, 1);
+    const std::vector<uint8_t> sp_inflight = await_aecp();
+    ck("[R0] PUBLISH during gather leaves in-flight response count wholly old",
+       (long)(aecp_status(sp_inflight) == 0 && notify_cdl(sp_inflight) == 40
+              && sp_inflight.size() >= 66
+              && (((unsigned)sp_inflight[40] << 8) | sp_inflight[41]) == 3), 1);
+    ck("[R0] ...and leaves tail entry 1 wholly old",
+       asp_entry(sp_inflight, 1), asp_old1);
+    ck("[R0] ...and leaves tail entry 2 wholly old",
+       asp_entry(sp_inflight, 2), asp_old2);
+    drain_tx(NOTIFY_WIN);
+    ck("[R0] changed PUBLISH sends GET_AS_PATH to A",
+       notify_count(0x0028, &CTL_A), 1);
+    ck("[R0] ...and to B", notify_count(0x0028, &CTL_B), 1);
+    ck("[R0] ...advances the publication generation once",
+       (axi_read(0x7E4) >> 4) & 0xFu, (asp_gen_old + 1u) & 0xFu);
+    {
+        const std::vector<uint8_t> gp(4, 0);
+        const std::vector<uint8_t> sp = aecp_xact_from(CTL_B, 0x0028, sq++, gp);
+        ck("[R0] solicited GET_AS_PATH after PUBLISH answers count 4 (cdl 48)",
+           (long)(aecp_status(sp) == 0 && notify_cdl(sp) == 48
+                  && sp.size() >= 74
+                  && (((unsigned)sp[40] << 8) | sp[41]) == 4), 1);
+        ck("[R0] ...serves NEW slot 1", asp_entry(sp, 1), asp_new1);
+        ck("[R0] ...serves NEW slot 2", asp_entry(sp, 2), asp_new2);
+        ck("[R0] ...serves NEW slot 3", asp_entry(sp, 3), asp_new3);
+        ck("[R0] ...changed push body == that solicited read",
+           (long)notify_same_from(notify_last(0x0028, CTL_B), sp, 38), 1);
+    }
+
+    //! Negative plus positive controls for changed-only generation. The
+    //! exact same staged bytes and count are not a path change, so an
+    //! identical re-publish must leave both the generation and wire silent;
+    //! the two changed publishes above prove the event path is reachable.
+    notify_clear();
+    const unsigned asp_gen_new = (axi_read(0x7E4) >> 4) & 0xFu;
+    axi_write(0x7E4, 0x40000000u | 4u);
+    drain_tx(NOTIFY_WIN);
+    ck("[R0] identical re-PUBLISH generates no false GET_AS_PATH notification",
+       notify_count(0x0028, nullptr), 0);
+    ck("[R0] ...and does not spend a publication generation",
+       (axi_read(0x7E4) >> 4) & 0xFu, asp_gen_new);
+
+    //! back to the leaf's one-entry path: a publish of length 0 (legacy),
+    //! itself an edge, drained so the later arms start clean
+    axi_write(0x7E4, 0x40000000u);
+    drain_tx(NOTIFY_WIN);
+
+    // ---- (N8) the FIRST grandmaster commit -------------------------------
+    //! Commit zero (a change from a nonzero id: pushes ride gm_change),
+    //! drain, then commit again: pp_gm_change_p_w stays LOW by design (no
+    //! ADP GM_CHANGE at every boot), yet the served gptp_grandmaster_id and
+    //! the path both went from nothing to something - the fabric's
+    //! first-commit term is what pushes here.
+    axi_write(0x624, 0); axi_write(0x628, 0);
+    drain_tx(NOTIFY_WIN);
+    notify_clear();
+    axi_write(0x624, gm_cur_lo); axi_write(0x628, gm_hi);
+    drain_tx(NOTIFY_WIN);
+    ck("[NOTIFY] first GM commit: one unsolicited GET_AVB_INFO to A",
+       notify_count(0x0027, &CTL_A), 1);
+    ck("[NOTIFY] ...and one to B", notify_count(0x0027, &CTL_B), 1);
+    ck("[NOTIFY] first GM commit: one unsolicited GET_AS_PATH to A",
+       notify_count(0x0028, &CTL_A), 1);
+    ck("[NOTIFY] ...and one to B", notify_count(0x0028, &CTL_B), 1);
+    ck("[NOTIFY] ...and the ADP duty untouched: no GM_CHANGE strobe, so no "
+       "AVB_INTERFACE counter push", notify_count(0x0029, nullptr, 0x0009, 0), 0);
+    {
+        const std::vector<uint8_t> gp(4, 0);
+        const std::vector<uint8_t> sp = aecp_xact_from(CTL_A, 0x0028, sq++, gp);
+        ck("[NOTIFY] ...the path is {GM} again (count 1)",
+           (long)(aecp_status(sp) == 0 && notify_cdl(sp) == 24
+                  && (((unsigned)sp[40] << 8) | sp[41]) == 1), 1);
+        ck("[NOTIFY] ...AS_PATH push body == that solicited read",
+           (long)notify_same_from(notify_last(0x0028, CTL_A), sp, 38), 1);
+    }
+
+    // ---- (N8b) the gPTP DOMAIN, and the no-grandmaster boundary ---------
+    //! Table 5.22 names gptp_domain_number as its own GET_AVB_INFO trigger,
+    //! and 0x62C is independently writable (802.1AS-2020 8.1 makes
+    //! domainNumber a configured attribute). The ADP GM_CHANGE strobe is
+    //! silent while the PREVIOUS grandmaster id is zero - the rule that stops
+    //! every boot announcing a change - so a domain write in the startup or
+    //! GM-loss window used to reach the served response with no push behind
+    //! it. This arm walks GM=0 BEFORE, DURING and AFTER a domain change, and
+    //! grades the repeat write for silence.
+    //! Body offsets, from the AEM command body at 38: descriptor_type 38,
+    //! descriptor_index 40, gptp_grandmaster_id 42, propagation_delay 50,
+    //! gptp_domain_number 54, flags 55, msrp_mappings_count 56.
+    {
+        const std::vector<uint8_t> ga = {0x00, 0x09, 0x00, 0x00};
+        const uint32_t dom0 = axi_read(0x62C) & 0xFFu;
+        const uint32_t dom1 = dom0 ^ 0x01u;
+
+        //! GM back to zero: the boundary state reset establishes and GM loss
+        //! returns to. Its own pushes drained before the arm starts.
+        axi_write(0x624, 0); axi_write(0x628, 0);
+        drain_tx(NOTIFY_WIN);
+        notify_clear();
+        const unsigned long gmchg_nogm = gm_changed_ctr();
+
+        //! A changed tail/count while GM=0 changes the private publication
+        //! available to a future grandmaster, but the served sequence remains
+        //! byte-identical empty NOW. The notification detector therefore
+        //! compares the served tuple, not the raw publication generation.
+        axi_write(0x7E4, 0x40000002u);
+        drain_tx(NOTIFY_WIN);
+        ck("[R0] changed PUBLISH with GM=0 emits no false AS_PATH push",
+           notify_count(0x0028, nullptr), 0);
+        ck("[R0] ...while raw publication count really moved to 2",
+           axi_read(0x7E4) & 0xFu, 2);
+        {
+            const std::vector<uint8_t> gp(4, 0);
+            const std::vector<uint8_t> sp =
+                aecp_xact_from(CTL_A, 0x0028, sq++, gp);
+            ck("[R0] ...and solicited GET_AS_PATH remains empty on the wire",
+               (long)(aecp_status(sp) == 0 && notify_cdl(sp) == 16
+                      && sp.size() >= 42
+                      && (((unsigned)sp[40] << 8) | sp[41]) == 0), 1);
+        }
+        notify_clear();
+        axi_write(0x7E4, 0x40000000u);             // restore legacy raw count
+        drain_tx(NOTIFY_WIN);
+        ck("[R0] changed withdrawal with GM=0 is equally silent",
+           notify_count(0x0028, nullptr), 0);
+        notify_clear();
+
+        axi_write(0x62C, dom1);                       // domain change, GM = 0
+        drain_tx(NOTIFY_WIN);
+        ck("[NOTIFY] domain change with NO grandmaster: one unsolicited "
+           "GET_AVB_INFO to A", notify_count(0x0027, &CTL_A), 1);
+        ck("[NOTIFY] ...and one to B", notify_count(0x0027, &CTL_B), 1);
+        ck("[NOTIFY] ...and the ADP duty stays silent: no GM_CHANGE, so no "
+           "AVB_INTERFACE counter push",
+           notify_count(0x0029, nullptr, 0x0009, 0), 0);
+        ck("[NOTIFY] ...and no GET_AS_PATH (the path did not change)",
+           notify_count(0x0028, nullptr), 0);
+        //! THE SYMMETRY THIS ARM EXISTS TO PIN. The GM-present twin of this
+        //! write is graded in (N8d) below with the same three negatives, so
+        //! a domain write behaves IDENTICALLY on both sides of the
+        //! grandmaster boundary: one GET_AVB_INFO per registered controller,
+        //! and nothing else. It used to differ purely because of the ADP
+        //! rule's `|pp_gm_id_q_r|` guard -- GM absent suppressed the false
+        //! events, GM present manufactured them -- and a state-dependent
+        //! answer to one write is the robustness defect, not just the false
+        //! events themselves.
+        ck("[NOTIFY] ...and GPTP_GM_CHANGED did not move",
+           gm_changed_ctr() - gmchg_nogm, 0);
+        {
+            const std::vector<uint8_t> sa = aecp_xact_from(CTL_A, 0x0027, sq++, ga);
+            ck("[NOTIFY] ...AVB_INFO body == the solicited read that follows",
+               (long)(aecp_status(sa) == 0
+                      && notify_same_from(notify_last(0x0027, CTL_A), sa, 38)), 1);
+            ck("[NOTIFY] ...and it names the NEW domain number",
+               (long)(sa.size() >= 58 ? sa[54] : -1), (long)dom1);
+        }
+        //! the no-op rule: the same value stored again is not a change
+        notify_clear();
+        axi_write(0x62C, dom1);
+        drain_tx(NOTIFY_WIN);
+        ck("[NOTIFY] the SAME domain written again pushes NOTHING",
+           notify_count(0x0027, nullptr), 0);
+
+        //! AFTER: a grandmaster arrives, then the domain moves again with one
+        //! present. The push is still exactly one per registered controller.
+        axi_write(0x624, gm_cur_lo); axi_write(0x628, gm_hi);
+        drain_tx(NOTIFY_WIN);
+
+        //! ---- (N8d) ONE ADP STROBE IS NOT THREE FACTS ------------------
+        //! The GM-present arm is where a single combined "the gPTP pair
+        //! moved" strobe does its damage, so it is graded here in TWO
+        //! halves that share one window and one limiter phase.
+        //!
+        //! The POSITIVE half first, because it also puts the GET_COUNTERS
+        //! one-second limiter in a KNOWN phase: move the grandmaster
+        //! IDENTITY and all three identity facts must fire - the served AS
+        //! path's entry 0 changed, Milan Table 5.1 GPTP_GM_CHANGED ("Number
+        //! of gPTP GM changes, since boot") moves exactly once, and the
+        //! AVB_INTERFACE counter block is dirty. Without this half, the
+        //! negative half below could pass by being unreachable.
+        notify_clear();
+        const unsigned long gmchg_id0 = gm_changed_ctr();
+        gm_cur_lo ^= 0x40u;
+        axi_write(0x624, gm_cur_lo); axi_write(0x628, gm_hi);
+        drain_tx(NOTIFY_WIN);
+        ck("[R0] a grandmaster IDENTITY change pushes GET_AS_PATH",
+           notify_count(0x0028, nullptr), 2);
+        ck("[R0] ...and increments GPTP_GM_CHANGED exactly once",
+           gm_changed_ctr() - gmchg_id0, 1);
+        long t_ctr_id = -1;
+        if (timed) {
+            ck("[R0] ...and pushes GET_COUNTERS(AVB_INTERFACE,0)",
+               notify_count(0x0029, nullptr, 0x0009, 0), 2);
+            t_ctr_id = notify_when(0x0029, CTL_A, 0, false);
+            //! walk past that push's second so the negative half below sees
+            //! a FREE limiter: a withheld push and a push that was never
+            //! armed look identical on the wire, and only one of them is
+            //! the property under test.
+            if (t_ctr_id >= 0)
+                while (uns_log_cycle - t_ctr_id < 1200L * MS_CYC_TB)
+                    drain_tx(NOTIFY_WIN);
+        }
+
+        //! The NEGATIVE half: the domain number alone. Milan Table 5.22
+        //! names gptp_domain_number a GET_AVB_INFO trigger and NOTHING
+        //! else. It is not the grandmaster, so GPTP_GM_CHANGED must not
+        //! move and no AVB_INTERFACE counter became dirty; it is not a path
+        //! entry, so the served AS path (entry 0 = the grandmaster, entries
+        //! 1.. = the published PathTrace tail) is byte-for-byte what it
+        //! was and Table 5.22's "the path sequence changes" is not met.
+        //! The ADP GM_CHANGE duty strobe legitimately covers BOTH fields -
+        //! 1722.1-2021 6.2.6 re-advertises on either, both being ADPDU
+        //! fields - and that is exactly why it may not be spent as any of
+        //! these three.
+        notify_clear();
+        const unsigned long gmchg_dom = gm_changed_ctr();
+        axi_write(0x62C, dom0);                       // back, GM present
+        drain_tx(NOTIFY_WIN);
+        ck("[NOTIFY] domain change WITH a grandmaster: one GET_AVB_INFO to A",
+           notify_count(0x0027, &CTL_A), 1);
+        ck("[NOTIFY] ...and one to B", notify_count(0x0027, &CTL_B), 1);
+        ck("[R0] domain-only change does not push unchanged GET_AS_PATH",
+           notify_count(0x0028, nullptr), 0);
+        ck("[R0] domain-only change does not increment GPTP_GM_CHANGED",
+           gm_changed_ctr() - gmchg_dom, 0);
+        if (timed)
+            ck("[R0] domain-only change does not push GET_COUNTERS",
+               notify_count(0x0029, nullptr, 0x0009, 0), 0);
+        {
+            const std::vector<uint8_t> sa = aecp_xact_from(CTL_A, 0x0027, sq++, ga);
+            ck("[NOTIFY] ...AVB_INFO body == the solicited read that follows",
+               (long)(aecp_status(sa) == 0
+                      && notify_same_from(notify_last(0x0027, CTL_A), sa, 38)), 1);
+            ck("[NOTIFY] ...restored to the configured domain number",
+               (long)(sa.size() >= 58 ? sa[54] : -1), (long)dom0);
+        }
+    }
+
+    // ---- (N8c) the measured propagation delay --------------------------
+    //! GPTP_PDELAY (0x6E4) is the ns neighbour measurement the gptp daemon
+    //! publishes (or, with the fabric plane elaborated, KL_gptp_shadow's own
+    //! pub_pdelay_ns_o - ONE selected source feeding both the served word and
+    //! its detector). It used to be written and DISCARDED, with
+    //! GET_AVB_INFO's propagation_delay a structural zero (audit B8).
+    //! 0 -> 1, 1 -> max, max -> max (silent), max -> 0, each graded on the
+    //! wire and against the solicited read that follows.
+    {
+        const std::vector<uint8_t> ga = {0x00, 0x09, 0x00, 0x00};
+        struct { uint32_t v; const char* what; long pushes; } steps[] = {
+            {0x00000001u, "0 -> 1 ns",              1},
+            {0xFFFFFFFFu, "1 -> 0xFFFFFFFF ns",     1},
+            {0xFFFFFFFFu, "0xFFFFFFFF again",       0},
+            {0x00000000u, "0xFFFFFFFF -> 0 ns",     1},
+        };
+        axi_write(0x6E4, 0);                    // the reset value, drained
+        drain_tx(NOTIFY_WIN);
+        for (unsigned k = 0; k < sizeof steps / sizeof steps[0]; k++) {
+            notify_clear();
+            axi_write(0x6E4, steps[k].v);
+            drain_tx(NOTIFY_WIN);
+            char msg[160];
+            snprintf(msg, sizeof msg,
+                     "[NOTIFY] propagation delay %s: %ld unsolicited "
+                     "GET_AVB_INFO to A", steps[k].what, steps[k].pushes);
+            ck(msg, notify_count(0x0027, &CTL_A), steps[k].pushes);
+            snprintf(msg, sizeof msg, "[NOTIFY] ...and %ld to B",
+                     steps[k].pushes);
+            ck(msg, notify_count(0x0027, &CTL_B), steps[k].pushes);
+            const std::vector<uint8_t> sa = aecp_xact_from(CTL_A, 0x0027, sq++, ga);
+            const uint32_t served = sa.size() >= 58
+                ? (((uint32_t)sa[50] << 24) | ((uint32_t)sa[51] << 16)
+                   | ((uint32_t)sa[52] << 8) | (uint32_t)sa[53]) : 0xDEADBEEFu;
+            snprintf(msg, sizeof msg, "[NOTIFY] ...GET_AVB_INFO serves it back "
+                     "(0x%08X, no longer a structural zero)", steps[k].v);
+            ck(msg, (long)(aecp_status(sa) == 0 && served == steps[k].v), 1);
+            if (steps[k].pushes) {
+                snprintf(msg, sizeof msg, "[NOTIFY] ...push body == that "
+                         "solicited read (%s)", steps[k].what);
+                ck(msg, (long)notify_same_from(notify_last(0x0027, CTL_A), sa, 38), 1);
+            }
+        }
+        //! ...and back to the reset value so every later section reads the
+        //! face the image shipped with
+        notify_clear();
+        drain_tx(NOTIFY_WIN);
+    }
+
+    if (timed) {
+        // ---- (N9) the departing-controller monitor (Milan 5.4.5.3) --------
+        //! B goes silent after its last command; A keeps talking (a GET
+        //! every 20 s re-arms A's monitor). The entity must probe B with
+        //! CONTROLLER_AVAILABLE 30..60 s after B's last command, retry
+        //! exactly once 250 ms later, then remove B and tell B alone.
+        //! B SPEAKS ONCE HERE so the graded window has an exact reference.
+        //! The monitor re-arms on any command from a registered controller,
+        //! so t_b_last is then B's command and not an estimate: without it
+        //! the reference was B's GET_AS_PATH several arms back, and every
+        //! millisecond any later arm spends came straight out of the 30 s
+        //! floor. That is a measurement bug in the harness, not a property
+        //! of the device, and it bites silently - it only ever makes a
+        //! conforming device look early.
+        const std::vector<uint8_t> ga = {0x00, 0x09, 0x00, 0x00};
+        aecp_xact_from(CTL_B, 0x0027, sq++, ga);
+        printf("  [i]    monitor arm: walking up to 70 s of processor time\n");
+        notify_clear();
+        const long t_b_last = uns_log_cycle;
+        long t_a_poll = uns_log_cycle;
+        long ms_walked = 0;
+        while (ms_walked < 70000L) {
+            drain_tx(NOTIFY_WIN);
+            ms_walked = (uns_log_cycle - t_b_last) / MS_CYC_TB;
+            if (uns_log_cycle - t_a_poll >= 20000L * MS_CYC_TB) {
+                const std::vector<uint8_t> r = aecp_xact_from(CTL_A, 0x0027, sq++, ga);
+                if (aecp_status(r) != 0) printf("  [i]    A's poll failed at %ld ms\n", ms_walked);
+                t_a_poll = uns_log_cycle;
+            }
+            if (notify_count(0x0025, &CTL_B) >= 1
+                && ms_walked > (notify_when(0x0025, CTL_B, 0, false) - t_b_last) / MS_CYC_TB + 2000L)
+                break;
+        }
+        const long p0 = notify_when(0x0003, CTL_B, 0, true);
+        const long p1 = notify_when(0x0003, CTL_B, 1, true);
+        const long p2 = notify_when(0x0003, CTL_B, 2, true);
+        const long d0 = notify_when(0x0025, CTL_B, 0, false);
+        printf("  [i]    CONTROLLER_AVAILABLE to B at %ld ms, retry at %ld ms, "
+               "DEREGISTER push at %ld ms (after B's last command)\n",
+               p0 >= 0 ? (p0 - t_b_last) / MS_CYC_TB : -1L,
+               p1 >= 0 ? (p1 - t_b_last) / MS_CYC_TB : -1L,
+               d0 >= 0 ? (d0 - t_b_last) / MS_CYC_TB : -1L);
+        ck("[NOTIFY-T] the entity ORIGINATED a CONTROLLER_AVAILABLE command to B",
+           (long)(p0 >= 0), 1);
+        ck("[NOTIFY-T] ...30 s to 60 s after B's last command",
+           (long)(p0 >= 0 && (p0 - t_b_last) >= 30000L * MS_CYC_TB
+                  && (p0 - t_b_last) <= 60000L * MS_CYC_TB), 1);
+        ck("[NOTIFY-T] ...addressed to B (dst MAC, target_entity_id) from "
+           "this entity (controller_entity_id), an AEM_COMMAND with cdl 12",
+           (long)(p0 >= 0 && [&]{
+               for (size_t i = 0; i < uns_log.size(); i++)
+                   if (uns_log_when[i] == p0)
+                       return aecp_is_originated(uns_log[i])
+                           && notify_cdl(uns_log[i]) == 12
+                           && uns_log[i].size() >= 60;
+               return false; }()), 1);
+        ck("[NOTIFY-T] exactly ONE retry (IEEE 9.3.6: retried is a bit)",
+           (long)(p1 >= 0 && p2 < 0), 1);
+        //! the originator times its 250 ms from ITS transmit; the trunk sees
+        //! that plus the difference of two slot-to-wire latencies, so the
+        //! wire interval sits a few hundred microseconds either side of it
+        printf("  [i]    probe-to-retry wire interval: %ld cycles = %.3f ms\n",
+               (p0 >= 0 && p1 >= 0) ? (p1 - p0) : -1L,
+               (p0 >= 0 && p1 >= 0) ? (double)(p1 - p0) / MS_CYC_TB : -1.0);
+        ck("[NOTIFY-T] ...250 ms after the first on the wire (the 9.3.6 "
+           "timeout, within 5 ms of it)",
+           (long)(p1 >= 0 && (p1 - p0) >= 245L * MS_CYC_TB
+                  && (p1 - p0) <= 255L * MS_CYC_TB), 1);
+        ck("[NOTIFY-T] silence removes B: unsolicited DEREGISTER_UNSOLICITED_"
+           "NOTIFICATION to B", notify_count(0x0025, &CTL_B), 1);
+        ck("[NOTIFY-T] ...within 1 s of the retry",
+           (long)(d0 >= 0 && p1 >= 0 && d0 > p1
+                  && (d0 - p1) <= 1000L * MS_CYC_TB), 1);
+        ck("[NOTIFY-T] ...and to B ONLY (Table 5.22: 'this controller only')",
+           notify_count(0x0025, &CTL_A), 0);
+        ck("[NOTIFY-T] A, which kept talking, was never probed",
+           notify_when(0x0003, CTL_A, 0, true) < 0 ? 1L : 0L, 1);
+        //! B is gone: A's next change has nobody to tell
+        notify_clear();
+        const std::vector<uint8_t> sA4 = notify_set_name(CTL_A, "Notify-A4", sq++);
+        ck("[NOTIFY-T] a change from A after B's removal is SUCCESS",
+           sA4.size() >= 110 ? aecp_status(sA4) : -1, 0);
+        drain_tx(NOTIFY_WIN);
+        ck("[NOTIFY-T] ...and pushes nothing: the registry no longer holds B",
+           notify_count(0x0010, nullptr), 0);
+        //! ...and B may come back
+        const std::vector<uint8_t> rB2 = aecp_xact_from(CTL_B, 0x0024, sq++, fl0);
+        ck("[NOTIFY-T] B re-registers after its removal (SUCCESS)",
+           aecp_status(rB2), 0);
+        notify_clear();
+        const std::vector<uint8_t> sA5 = notify_set_name(CTL_A, "Notify-A5", sq++);
+        drain_tx(NOTIFY_WIN);
+        ck("[NOTIFY-T] ...and hears A's next change, sequence restarted at 0",
+           (long)(sA5.size() >= 110 && aecp_status(sA5) == 0
+                  && notify_count(0x0010, &CTL_B) == 1
+                  && notify_seq(notify_last(0x0010, CTL_B)) == 0), 1);
+    }
+
+    // ---- (N10) deregistration, and the restore --------------------------
+    {
+        const std::vector<uint8_t> dB = aecp_xact_from(CTL_B, 0x0025, sq++, {});
+        ck("[NOTIFY] DEREGISTER from B answers SUCCESS", aecp_status(dB), 0);
+        notify_clear();
+        const std::vector<uint8_t> sA = notify_set_name(CTL_A, "Notify-A9", sq++);
+        ck("[NOTIFY] a change from A with B gone is SUCCESS",
+           sA.size() >= 110 ? aecp_status(sA) : -1, 0);
+        drain_tx(NOTIFY_WIN);
+        ck("[NOTIFY] ...and pushes nothing: A is the requester, B is gone",
+           notify_count(0x0010, nullptr), 0);
+        const std::vector<uint8_t> dA = aecp_xact_from(CTL_A, 0x0025, sq++, {});
+        ck("[NOTIFY] DEREGISTER from A answers SUCCESS", aecp_status(dA), 0);
+        const std::vector<uint8_t> s0 = notify_set_name(CTL_A, name0, sq++);
+        ck("[NOTIFY] the shipped entity_name is restored",
+           (long)(s0.size() >= 110 && aecp_status(s0) == 0
+                  && memcmp(s0.data() + 46, g0.data() + 46, 64) == 0), 1);
+        notify_clear();
+    }
+}
+
 int main(int argc, char** argv) {
     Verilated::commandArgs(argc, argv);
     dut = new Vmilan_datapath;
@@ -905,8 +1904,8 @@ int main(int argc, char** argv) {
     for (int i = 0; i < 8; i++) step();
 
     ck("ID == 'MILN'", axi_read(A_ID), 0x4D494C4E);
-    ck("VERSION 0x0054 carries the setters, their consumption and names",
-       axi_read(A_VERSION), 0x00020054);
+    ck("VERSION 0x0055 carries the Table 5.22 pushes and the controller monitor",
+       axi_read(A_VERSION), 0x00020055);
 
     //! ENTITY IDENTITY, PROVISIONED ONCE AND EARLY (moved here 2026-08-13).
     //! These two writes used to sit inside the N-sink ACMP ctx2 section,
@@ -1127,6 +2126,18 @@ int main(int argc, char** argv) {
                (long)((w35_2 >> 16) - (w35_0 >> 16)), 0);
             ck("[AECP-IMG] the response buffer reports no fault (word 36)",
                sp_read(SP_SNAPSHOT + 36, &spok) & 0x7u, 0);
+#ifdef NOTIFY_TIMED_TB
+            //! THE TIMED LEG ENDS HERE: the image is served, so the
+            //! notification section has names to set, and nothing after it
+            //! is clocked for a compressed processor timebase.
+            notify_section(true);
+            printf("--------------------------------------------------------------\n");
+            printf("checks: %ld   failures: %ld\n", checks, fails);
+            printf("RESULT: %s\n", fails ? "FAIL" : "PASS");
+            dut->final();
+            delete dut;
+            return fails ? 1 : 0;
+#endif
 
             // ---- [AECP-MODEL] every command, against the whole model ----
             // The two spot-checks above proved the store serves A descriptor.
@@ -1826,6 +2837,8 @@ int main(int argc, char** argv) {
         const std::vector<uint8_t> r = aecp_xact(0x0029, 0x4020, pl);
         ck("[CTRS] GET_COUNTERS(STREAM_INPUT,1) was ANSWERED",
            (long)(r.size() >= 174), 1);
+        ck("[CTRS] real input counter changes reached the descriptor arbiter",
+           pp_ctr_evt_sin_seen & 0x6ul, 0x6ul);
         if (r.size() >= 174) {
             ck("[CTRS] status SUCCESS(0), not NOT_IMPLEMENTED", aecp_status(r), 0);
             ck("[CTRS] cdl = 12 + 136", (((unsigned)r[16] & 7) << 8) | r[17], 148);
@@ -1951,13 +2964,19 @@ int main(int argc, char** argv) {
             }
 
             tkd_dirty_seen = 0;
+            pp_ctr_evt_sout_seen = 0;
             axi_write(A_AAF_CTRL, 0x00020003);
             axi_write(A_AAF_CTRL, 0x00020002);
             axi_write(A_CRFT_CTRL, 1);
             axi_write(A_CRFT_CTRL, 0);
+            //! the processor's face is scalar: give the lossless round-robin
+            //! one bounded sweep to serialise the simultaneous pulses
+            for (int i = 0; i < 2 * NSTREAMS_TB + 4; i++) step();
             const unsigned long all_dirty = (1ul << (NSTREAMS_TB + 1)) - 1ul;
             ck("[CTRS-OUT] every output asserted its raw dirty bit",
                tkd_dirty_seen & all_dirty, all_dirty);
+            ck("[CTRS-OUT] simultaneous output changes ALL reached the arbiter",
+               pp_ctr_evt_sout_seen & all_dirty, all_dirty);
             long isolated = 1;
             for (int out = 0; out <= NSTREAMS_TB; out++) {
                 const auto rr = sout((uint16_t)(0x4060 + out),
@@ -2138,6 +3157,7 @@ int main(int argc, char** argv) {
             axi_write(0x624, 0x00C0FFEEu);           // stage LO of gm A
             axi_write(0x628, 0x001BC500u);           // COMMIT gm A (discovery)
             snap_and_wait();
+            pp_ctr_evt_avb_seen = false;
             axi_write(0x624, 0x00C0FFEFu);           // stage LO of gm B
             axi_write(0x628, 0x001BC500u);           // COMMIT gm B (the change)
             snap_and_wait();
@@ -2149,6 +3169,8 @@ int main(int argc, char** argv) {
             const uint32_t gm1 = ctr_of(0x0009, 0, 5);
             ck("[CTRS2] GPTP_GM_CHANGED counted the A-to-B move",
                (long)(gm1 - gm0 >= 1), 1);
+            ck("[CTRS2] ...and the AVB_INTERFACE change reached the arbiter",
+               (long)pp_ctr_evt_avb_seen, 1);
 
             // -- the clock-domain family, by delta --------------------------
             //! the GM commits above are gPTP DISCONTINUITIES to the clock
@@ -2159,6 +3181,7 @@ int main(int argc, char** argv) {
             for (int i = 0; i < 15000; i++) step();
             const uint32_t lk0 = ctr_of(0x0024, 0, 0);
             const uint32_t ul0 = ctr_of(0x0024, 0, 1);
+            pp_ctr_evt_ckd_seen = false;
             ck("[CTRS2] CLOCK_DOMAIN mask = 0x3 (LOCKED, UNLOCKED)",
                (long)ctr_of(0x0024, 0, 32), 0x3);
             //! lock = the CLKV lease (0x778: [0] SYNC_OK, [15:4] lease in
@@ -2182,6 +3205,8 @@ int main(int argc, char** argv) {
             const uint32_t ulf = ctr_of(0x0024, 0, 1);
             ck("[CTRS2] LOCKED - UNLOCKED is 0 or 1 (the shall-invariant)",
                (long)(lkf - ulf <= 1), 1);
+            ck("[CTRS2] the clock-domain changes reached the arbiter",
+               (long)pp_ctr_evt_ckd_seen, 1);
 
             // -- the unclaimed stay unclaimed -------------------------------
             //! FRAMES_TX/RX + RX_CRC_ERROR live in mac_rmon's domain: the
@@ -5368,6 +6393,10 @@ int main(int argc, char** argv) {
         }
     }
 #endif
+
+    // Milan 5.4.5 on the wire (issue #69): every shape, after the image is
+    // served and the registry has been left clean by the sections above.
+    notify_section(false);
 
 #ifdef LOOPBACK_TB
     // ==================================================================

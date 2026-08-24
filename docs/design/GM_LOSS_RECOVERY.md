@@ -9,14 +9,14 @@ the grandmaster disappears, changes, or comes back.
 
 Current integration note: the measurements below predate the control-plane
 replacement. The current root keeps media-clock selection INTERNAL, and the
-general Table 5.22 notification producer is still missing. Mapping-change
-notifications are the implemented exception.
+Table 5.22 notification scheduler and departing-controller monitor are live
+since 0x0002_0055. The measured transient numbers below remain historical.
 
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
 | `crf.media-clock-consumption` | `missing` | - |
-| `notifications.change-events` | `partial` | - |
+| `notifications.change-events` | `implemented` | - |
 <!-- milan-feature-status:end -->
 
 ## Contents
@@ -133,13 +133,17 @@ working on both ends.
 - **ADP**: the advertiser self-detects the committed GM pair changing
   and emits an out-of-cycle ADPDU carrying the new
   `gptp_grandmaster_id` (Milan 5.6.3.5.7 / IEEE Figure 6-5 UPDATE GM).
-- **Counters**: `GPTP_GM_CHANGED` increments on the AVB_INTERFACE
-  (measured: 6 changes across the churn night). LINK_UP/DOWN share the
-  edge machinery.
-- **Unsolicited pushes** (Table 5.22, the 0x0024/0x0028 event law): the
-  VERSION `0x002B` implementation armed AVB_INTERFACE `GET_COUNTERS` and
-  `GET_AS_PATH` pushes. That producer was deleted during the control-plane
-  replacement and has not been restored in the current root.
+- **Counters**: the current `GPTP_GM_CHANGED` law increments only when the
+  grandmaster identity changes. A domain-only update still re-advertises the
+  changed ADPDU, but it is neither a GM counter event nor an AS_PATH change.
+  The historical bench measured 6 increments across the churn night;
+  LINK_UP/DOWN use their own physical edges.
+- **Unsolicited pushes** (Table 5.22, the 0x0024/0x0028 event law): since
+  0x0002_0055 the processor sends `GET_AVB_INFO`, `GET_AS_PATH`, and the
+  rate-limited AVB_INTERFACE `GET_COUNTERS` notifications driven by those
+  separated event facts. The replacement control plane also monitors silent
+  registered controllers and deregisters them after the required probe and
+  retry sequence.
 
 ## 6. The media layer — where the minutes used to go
 

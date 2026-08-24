@@ -29,7 +29,7 @@ Machine-checked status rows are defined by the
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
-| `gateware.current-version` | `implemented` | `0x0002_0054` |
+| `gateware.current-version` | `implemented` | `0x0002_0055` |
 | `aem.served-command-set` | `implemented` | - |
 | `aem.acquire-entity-refusal` | `not-supported` | - |
 | `aem.mandatory-missing-set` | `implemented` | - |
@@ -39,12 +39,17 @@ Machine-checked status rows are defined by the
 | `stream-info.set-acc-lat` | `implemented` | - |
 | `crf.media-clock-consumption` | `missing` | - |
 | `state.nonvolatile-persistence` | `missing` | - |
-| `notifications.change-events` | `partial` | - |
-| `notifications.controller-liveness` | `missing` | - |
+| `notifications.change-events` | `implemented` | - |
+| `notifications.controller-liveness` | `implemented` | - |
 | `verification.long-gate-policy` | `implemented` | `local-required, remote-required` |
 <!-- milan-feature-status:end -->
 
 ## Current verification record
+
+This is the dated record for the audit revision named in this file, not
+merge evidence for a later candidate. A repaired candidate must rerun every
+applicable gate at its exact parent and submodule SHAs and report those fresh
+counts in the pull request; counts in this table must not be carried forward.
 
 | Gate | Result | Interpretation |
 |---|---:|---|
@@ -94,7 +99,8 @@ The pinned processor currently dispatches or serves `READ_DESCRIPTOR`,
 `SET_CLOCK_SOURCE`, `GET_CLOCK_SOURCE`, Identify `SET_CONTROL` and
 `GET_CONTROL`, `START_STREAMING`, `STOP_STREAMING`, `SET_STREAM_INFO`,
 `GET_STREAM_INFO`,
-`IDENTIFY_NOTIFICATION`, `GET_AVB_INFO`, leaf-only `GET_AS_PATH`,
+`IDENTIFY_NOTIFICATION`, `GET_AVB_INFO`, `GET_AS_PATH` (grandmaster plus the
+atomically published PathTrace tail),
 `GET_COUNTERS`, `GET_AUDIO_MAP`, `ADD_AUDIO_MAPPINGS`,
 `REMOVE_AUDIO_MAPPINGS`, `GET_DYNAMIC_INFO`,
 `REGISTER_UNSOLICITED_NOTIFICATION`, and
@@ -194,14 +200,16 @@ media plane has not adopted.
 This blocks the media-clock behavior required by Milan sections 5.3.5, 5.3.11,
 and 7.2.2.
 
-### B4. Counter coverage and notification duty are incomplete
+### B4. CRF Stream Input counter coverage remains incomplete
 
 Solicited `GET_COUNTERS` now serves every declared Stream Output with the five
 mandatory Milan Table 5.17 counters in the compact quadlet layout. Counter
-updates also produce a per-descriptor dirty pulse. The processor notification
-block does not yet connect those pulses to the rate-limited `GET_COUNTERS`
-notification scheduler, so the full Milan Table 5.22 asynchronous behavior is
-not closed.
+updates also produce a per-descriptor dirty pulse, and since 0x0002_0055 the
+root serialises those pulses (AAF Stream Inputs, Stream Outputs, the AVB
+Interface and the Clock Domain) through a lossless round-robin onto the
+processor's counter-change face, whose scheduler pushes `GET_COUNTERS` at most
+once per descriptor per second. The Table 5.22 asynchronous behavior is closed
+for every descriptor the solicited face serves.
 
 The declared CRF Media Clock Input is a separate mandatory gap. The root gather
 face serves AAF Stream Input indices below `N_STREAMS`, but the appended CRF
@@ -209,37 +217,60 @@ Stream Input at index `N_STREAMS` returns an empty mask. Its Table 5.16 counter
 outputs and dirty source are unconnected. This leaves the CRF Stream Input
 requirements in Milan sections 5.3.8.10 and 5.4.2.25 open.
 
-This also blocks Milan section 5.4.5.2. Solicited reads serve AAF Stream Input,
-Stream Output, AVB Interface, and Clock Domain counters. The CRF Stream Input
-and the Table 5.22 notification path remain open under section 5.4.2.25.
+Solicited reads serve AAF Stream Input, Stream Output, AVB Interface, and
+Clock Domain counters, and each of those pushes its Table 5.22 notification.
+The CRF Stream Input has neither, and remains open under section 5.4.2.25.
 
-### B5. Registered-controller liveness monitoring is absent
+### B5. Registered-controller liveness monitoring (closed at 0x0002_0055)
 
-The processor stores unsolicited-notification registrations and applies the
-time-limited expiry policy, but it does not originate the random 30 to 60 s
-`CONTROLLER_AVAILABLE` monitor required by Milan section 5.4.5.3. It therefore
-cannot retry the probe once, re-arm the monitor on any response status, or
-remove a silent controller and send the targeted deregistration notification.
+The processor stores unsolicited-notification registrations, applies the
+time-limited expiry policy, and since 0x0002_0055 originates the random 30 to
+60 s `CONTROLLER_AVAILABLE` monitor required by Milan section 5.4.5.3: one
+retry 250 ms after an unanswered probe, a re-arm on any response status, and
+the removal of a silent controller with the deregistration notification sent
+to that controller alone. The command-driven half of section 5.4.5.2 closed in
+the same version: every successful state-changing command pushes to the other
+registered controllers and a no-op SET is silent.
 
-This is a mandatory controller-liveness gap, separate from the Table 5.22
-counter-change notification producer in B4.
+Evidence: `protocol-processor/tb/aecp_notify`,
+`protocol-processor/tb/ca_originator` and `protocol-processor/tb/pp_top` for
+the mechanism; the `[NOTIFY]` section of
+[`tb/verilator/milan_dp`](../../tb/verilator/milan_dp/README.md) for the wire
+behavior through the root, with its timed leg measuring the probe, the retry
+and the removal on the processor's compressed timebase (one of its
+milliseconds is 100 fabric cycles).
 
-### B6. Multi-bridge AS_PATH reporting is incomplete
+### B6. Multi-bridge AS_PATH reporting (closed at 0x0002_0055)
 
 The root gather face serves `GET_AS_PATH` as a zero-entry response when no
-grandmaster is known, or as a one-entry response containing only the
-grandmaster identity. The CSR PathTrace staging group stores and reads back a
-tail, but the root leaves its path, count, and generation outputs disconnected.
-The processor therefore never receives the traversed bridge identities.
+grandmaster is known, and otherwise as the grandmaster identity followed by
+the last complete PathTrace tail the daemon published through the `0x7DC`
+CSR group. Slot LO/HI writes and `COMMIT` update a private staging bank only;
+they cannot change a solicited response or arm a notification. A changed
+`PUBLISH` atomically transfers the complete staged tail and count to the
+published bank and advances the publication generation only when its canonical
+path changes (legacy count 0 and explicit count 1 are the same GM-only path).
+The Table 5.22 detector separately compares the complete sequence the command
+actually serves, so any tail/count publication while the grandmaster is zero
+is silent rather than pushing an unchanged empty response. Publishing content
+identical to the current snapshot is also silent. The response gather snapshots
+GM, count and all tail slots at its first count request. The wire test then
+completes a count-and-multi-slot PUBLISH before the first entry request and
+proves the in-flight response wholly old and the next response wholly new. A
+tail that has not been published leaves the one-entry path seen by a leaf
+directly under its grandmaster.
 
-This leaf-only behavior is useful but incomplete. A topology with one or more
-bridges is reported without those bridges, so the mandatory IEEE 1722.1 path
-semantics used by Milan are not closed.
+What the daemon must do for the report to be complete is stage every tail entry
+from the latest Announce PathTrace TLV and issue `PUBLISH` only after the tail
+is complete. The root serves only the controller-visible published snapshot; incomplete
+staging remains private.
 
-Evidence: the disconnected `o_asp_path`, `o_asp_count`, and `o_asp_gen` ports
-and the `GET_AS_PATH` gather selection in
-[`milan_datapath.sv`](../../hdl/milan/milan_datapath.sv), plus the staging
-status in [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md).
+Evidence: the `asp_served_count_w` / `asp_served_entry_w` selection and the
+`gsi_asp_chg_w` strobe in
+[`milan_datapath.sv`](../../hdl/milan/milan_datapath.sv), the `[NOTIFY]`
+atomic COMMIT/PUBLISH and identical-publish arms of `tb/verilator/milan_dp`,
+and the staging group in
+[`REGISTER_MAP.md`](../reference/REGISTER_MAP.md).
 
 ### B7. Identify control has no public indication
 
@@ -251,18 +282,32 @@ output is tied low, so no board indication can follow the control.
 Evidence: the `o_identify` assignment in
 [`milan_datapath.sv`](../../hdl/milan/milan_datapath.sv).
 
-### B8. GET_AVB_INFO omits the measured propagation delay
+### B8. GET_AVB_INFO propagation delay (closed at 0x0002_0055)
 
-Software can publish the measured neighbor propagation delay through
-`GPTP_PDELAY` at `0x6E4`, but the processor gather face does not consume that
-CSR. `GET_AVB_INFO` always returns zero for `propagation_delay`, even when the
-stored measurement is nonzero. This leaves the network-interface state
-required by Milan section 5.3.6.1 and the mandatory section 5.4.2.23 response
-incomplete.
+Software publishes the measured neighbor propagation delay through
+`GPTP_PDELAY` at `0x6E4`, and since 0x0002_0055 the root selects that word --
+or the fabric gPTP plane's own `pub_pdelay_ns_o` when `GPTP_PLANE_EN_P` is
+set, the same selection the grandmaster identity uses -- as the effective
+`propagation_delay` the gather face serves. One wire feeds both the served
+answer and its change detector, so the Milan section 5.4.2.23 response
+reports the stored measurement and a change to it is a Table 5.22
+`GET_AVB_INFO` trigger. Until then the CSR output was discarded and the served
+field was a structural zero.
 
-Evidence: the `GET_AVB_INFO` gather selection in
-[`milan_datapath.sv`](../../hdl/milan/milan_datapath.sv) and the `GPTP_PDELAY`
-entry in [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md).
+The same trigger set closed the two neighbouring gaps this finding sat beside:
+the gPTP domain number at `0x62C` and the grandmaster identity are
+snapshot-compared in the root, none of them conditioned on grandmaster
+presence, so a domain or delay update during startup or GM loss is announced
+rather than swallowed.
+
+Evidence: the `GET_AVB_INFO` gather selection and the `gsi_avb_chg_w` detector
+in [`milan_datapath.sv`](../../hdl/milan/milan_datapath.sv), the `GPTP_PDELAY`
+entry in [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md), and the domain and
+propagation-delay arms of the `[NOTIFY]` section of
+[`tb/verilator/milan_dp`](../../tb/verilator/milan_dp/README.md) -- two
+registered controllers, the delay walked 0 to 1 to `0xFFFFFFFF` to 0 with the
+repeat write silent, and every push body compared against the solicited
+`GET_AVB_INFO` that follows it.
 
 ### B9. The debug bypass can defeat talker admission
 
@@ -336,9 +381,9 @@ media gate in [`milan_datapath.sv`](../../hdl/milan/milan_datapath.sv).
    CRF PDU. `TIMESTAMP_UNCERTAIN` therefore counts transmitted wire state, not
    a later live clock verdict.
 7. Every served Stream Output counter update, including a healthy `FRAMES_TX`
-   interval, asserts the raw per-descriptor dirty source. Rate limiting and
-   notification coalescing remain the scheduler work identified in B4. The CRF
-   Stream Input counter and dirty connections remain open.
+   interval, asserts the raw per-descriptor dirty source, which the root now
+   delivers to the processor's rate-limited scheduler (B4). The CRF Stream
+   Input counter and dirty connections remain open.
 8. The integration proof now boots each simulation with its matching entity
    image, checks every declared output, rejects the first undeclared output
    with a full empty response body, and exercises real AAF and CRF enable
@@ -354,3 +399,9 @@ current evidence. A green regression is necessary, but it is not sufficient.
 The final review must include a synchronized clause matrix, zero unresolved
 mandatory rows, a successful bitstream and timing build, a matched-format
 physical interoperability run, and the intended external conformance process.
+
+Any candidate that changes `protocol-processor` must also use a durable gitlink:
+after fetching the donor repository's default branch, the exact pinned commit
+must be its ancestor. A branch-only donor commit is not mergeable evidence.
+Repin first, then rerun the parent repository's complete gate set at that exact
+superproject/submodule pair; results from an earlier gitlink do not transfer.

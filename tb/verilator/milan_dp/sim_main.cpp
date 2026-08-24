@@ -265,7 +265,7 @@ int main(int argc, char** argv) {
     // --- 1. CSR identity over AXI4-Lite (M-A2) ---
     printf("[CSR] identity + reset values\n");
     ck("ID == 'MILN'",  axi_read(A_ID),      0x4D494C4E);
-    ck("VERSION",       axi_read(A_VERSION), 0x00020054);
+    ck("VERSION",       axi_read(A_VERSION), 0x00020055);
     // link guard: TB leaves the eth toggles static -> unarmed = inert
     // (alive/alive, RUN, no reinit) exactly like a no-PHY top
     ck("LINKG unarmed", axi_read(0x774), 0x00000003);
@@ -1201,10 +1201,10 @@ int main(int argc, char** argv) {
         }
 
         // ------------------------------------------------------------------
-        // [ASPATH] gh #64 J4: local PathTrace staging and readback only.
-        // The root leaves the CSR path outputs disconnected, so this test does
-        // not prove GET_AS_PATH. The wire response remains the leaf-only
-        // grandmaster path. Here the datapath proves only the local ABI.
+        // [ASPATH] gh #64 J4 / gh #69: local PathTrace publication ABI.
+        // The wire-level GET_AS_PATH response and notification behavior live
+        // in sim_nxn; this leg pins the same changed-only generation contract
+        // at the CSR boundary.
         // ------------------------------------------------------------------
         {
             printf("[ASPATH] published 802.1AS PathTrace store (0x7DC)\n");
@@ -1224,14 +1224,14 @@ int main(int argc, char** argv) {
             ck("ASP: publish latches {gen 1, count 3}",
                axi_read(A_ASP_CMD), 0x00000013);
             axi_write(A_ASP_CMD, 0x40000003);        // bare re-publish
-            ck("ASP: a re-publish still bumps the generation",
-               axi_read(A_ASP_CMD), 0x00000023);
+            ck("ASP: an identical re-publish is silent",
+               axi_read(A_ASP_CMD), 0x00000013);
             axi_write(A_ASP_CMD, 0x4000000F);        // ask for 15 entries
-            ck("ASP: length saturates at the store's eight",
-               axi_read(A_ASP_CMD) & 0xF, 8);
+            ck("ASP: changed length saturates and advances generation",
+               axi_read(A_ASP_CMD), 0x00000028);
             axi_write(A_ASP_CMD, 0x40000000);        // withdraw
-            ck("ASP: count 0 returns to the legacy derivation",
-               axi_read(A_ASP_CMD) & 0xF, 0);
+            ck("ASP: withdrawal advances generation and returns to legacy",
+               axi_read(A_ASP_CMD), 0x00000030);
         }
 
         // restore the reset default (bypass=1) so later sections see legacy

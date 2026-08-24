@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "facts": {
-    "gateware_version": "0x0002_0054",
+    "gateware_version": "0x0002_0055",
     "served_aem_operations": [
       "ACQUIRE_ENTITY",
       "LOCK_ENTITY",
@@ -63,7 +63,7 @@
     {
       "id": "gateware.current-version",
       "status": "implemented",
-      "value": "0x0002_0054",
+      "value": "0x0002_0055",
       "summary": "Current gateware and processor integration version.",
       "documents": [
         "README.md",
@@ -255,8 +255,8 @@
     },
     {
       "id": "notifications.change-events",
-      "status": "partial",
-      "summary": "Registration and some change events exist, but the general command and counter notification duties remain open.",
+      "status": "implemented",
+      "summary": "Every successful state-changing command pushes to each registered controller except the requester; the Table 5.22 observed triggers are wired from the fabric -- counters at one push per descriptor per second, AS_PATH (grandmaster identity changes plus a changed atomic publish of the staged PathTrace tail/count), and a GET_AVB_INFO trigger that snapshot-compares every field the root serves (grandmaster identity, the effective propagation delay, the gPTP domain number, asCapable), none of them conditioned on grandmaster presence, with the SR class-A priority and VLAN ID detected by the processor off the wires it publishes.",
       "documents": [
         "README.md",
         "docs/CHANNEL_MAP_64.md",
@@ -280,8 +280,8 @@
     },
     {
       "id": "notifications.controller-liveness",
-      "status": "missing",
-      "summary": "The required CONTROLLER_AVAILABLE liveness monitor is absent.",
+      "status": "implemented",
+      "summary": "Registered controllers are probed with CONTROLLER_AVAILABLE 30 to 60 s after their last command, retried once, and removed with a targeted DEREGISTER notification when silent.",
       "documents": [
         "docs/MILAN_V12_ROADMAP.md",
         "docs/overview/ARCHITECTURE.md",

@@ -550,7 +550,7 @@ The notification claim in this section is checked against the
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
-| `notifications.change-events` | `partial` | - |
+| `notifications.change-events` | `implemented` | - |
 <!-- milan-feature-status:end -->
 
 Only frames the **CPU** sends (`s_axis_tx_*` into `milan_datapath`) traverse the
@@ -567,9 +567,10 @@ IFG gasket:
   stream**: the processor's AECP uCPU serves the current command inventory and
   emits a conformant `NOT_IMPLEMENTED` echo for commands outside it, driving the
   processor's solicited TX lane, so AECP frames do leave this device on the
-  control lane. The unsolicited lane emits the implemented audio-mapping change
-  notifications. General command-change responses and the Milan Table 5.22
-  counter-change producer remain open, so notification coverage is partial.
+  control lane. The unsolicited lane emits successful command-change responses
+  and the root-observed Milan Table 5.22 events. Counter changes arrive through
+  the lossless descriptor arbiter and are limited by the processor to one push
+  per descriptor per second. These frames use the same post-shaper control lane.
 
 So the q4/q3/q1 assignments bite for **CPU-originated** traffic today: a
 software AVDECC controller or a software MSRP stack lands on q1, gPTP from the

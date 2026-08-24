@@ -53,7 +53,7 @@ Terms → [glossary](docs/GLOSSARY.md).
 
 ### Current control-plane boundary
 
-Firmware VERSION `0x0002_0053` uses `hdl/milan/KL_pp_shadow.sv` and the pinned
+Firmware VERSION `0x0002_0055` uses `hdl/milan/KL_pp_shadow.sv` and the pinned
 `protocol-processor` as its only IEEE 1722.1 and SRP control plane. MAAP remains
 in this repository. There is no legacy fallback.
 
@@ -63,7 +63,7 @@ Machine-checked status rows are defined by the
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
-| `gateware.current-version` | `implemented` | `0x0002_0054` |
+| `gateware.current-version` | `implemented` | `0x0002_0055` |
 | `aem.served-command-set` | `implemented` | - |
 | `aem.acquire-entity-refusal` | `not-supported` | - |
 | `aem.mandatory-missing-set` | `implemented` | - |
@@ -73,7 +73,7 @@ Machine-checked status rows are defined by the
 | `stream-info.set-acc-lat` | `implemented` | - |
 | `crf.media-clock-consumption` | `missing` | - |
 | `state.nonvolatile-persistence` | `missing` | - |
-| `notifications.change-events` | `partial` | - |
+| `notifications.change-events` | `implemented` | - |
 <!-- milan-feature-status:end -->
 
 The current AECP implementation answers these operations with real behavior:
@@ -96,7 +96,8 @@ The current AECP implementation answers these operations with real behavior:
   binding-record commit, with stopped-CRF observation preserved (issue #97)
 - `SET_STREAM_INFO` with Milan's one sub-command (MSRP_ACC_LAT_VALID), setting
   the presentation-time offset the AAF and CRF framers stamp (issue #67)
-- `GET_STREAM_INFO`, `GET_AVB_INFO`, and leaf-only `GET_AS_PATH`
+- `GET_STREAM_INFO`, `GET_AVB_INFO`, and `GET_AS_PATH` (the grandmaster plus
+  the atomically published PathTrace tail)
 - `REGISTER_UNSOLICITED_NOTIFICATION` and `DEREGISTER_UNSOLICITED_NOTIFICATION`
 - `IDENTIFY_NOTIFICATION` commands with the required `BAD_ARGUMENTS` result
 - `GET_COUNTERS` for Stream Input, Stream Output, AVB Interface, and Clock Domain
@@ -134,21 +135,33 @@ clock-source selection now reaches the media plane's wrapper but nothing there
 reads it yet, and the sampling rate is stored and readable over AECP without
 being republished to the fabric at all.
 Identify control is stored but the root indication remains tied low.
-`GET_AVB_INFO` returns zero propagation delay instead of the value published at
-`GPTP_PDELAY`, and the writable AAF admission bypass remains a deployment
-hazard.
+`GET_AVB_INFO` returns the effective propagation delay: the value software
+publishes at `GPTP_PDELAY` with the fabric gPTP plane off, or the plane's
+published value with it on. The writable AAF admission bypass remains a
+deployment hazard.
 The integration also reports no nonvolatile backend, so required state does not
-survive a power cycle. Solicited Stream Output counters are now served; their
-rate-limited unsolicited notification path remains a separate task. These are
-compliance blockers, not documentation-only limitations.
+survive a power cycle. This is a compliance blocker, not a documentation-only
+limitation.
 The Stream Input START/STOP path completes at the binding record (issue #97):
 command success follows the record commit or the confirmed no-op, and a
 stopped CRF sink keeps observing and counting while only timing consumption
-and the restart echo gate. The 7.5.2 unsolicited response stays with issue
-#69 and persistence with issue #70.
-`GET_AS_PATH` reports only the grandmaster identity. The PathTrace staging tail
-is disconnected from the root processor interface, so multi-bridge topology is
-reported incompletely.
+and the restart echo gate. Since 0x0002_0055 every successful state-changing
+command pushes its unsolicited response to the other registered controllers,
+the Table 5.22 observed triggers (counters, AVB info, AS_PATH) are wired from
+the fabric, and silent controllers are probed and deregistered (Milan 5.4.5.2
+and 5.4.5.3, issue #69). Persistence stays with issue #70.
+`GET_AS_PATH` serves the grandmaster followed by the latest PathTrace snapshot
+published through the 0x7DC group. LO/HI writes and slot COMMITs change only
+the staging bank. A changed PUBLISH atomically replaces the complete published
+tail and count. The Table 5.22 edge compares the sequence `GET_AS_PATH`
+actually serves: legacy count 0 and explicit count 1 are the same GM-only
+path, and every tail aliases to an empty response while no grandmaster exists,
+so neither case emits a false push. Reads before PUBLISH keep the old path. A
+wire test snapshots the old count, completes a count-and-multi-slot PUBLISH
+before the first entry gather request, and proves that the in-flight response
+remains wholly old while the next response is wholly new. Re-publishing
+identical staged content is silent. A tail that is never published leaves a leaf
+directly under its grandmaster with a one-entry path.
 
 The dated evidence and exact gate results are recorded in
 [the 2026-08-16 audit](docs/testing/MILAN_V12_AUDIT_2026-08-16.md). The register
@@ -325,7 +338,7 @@ implementation boundary.
 > the AECP half of it has since been partly discharged. The RTL that carried
 > these packages is deleted: the ADP, ACMP and SRP items are now the protocol
 > processor's to satisfy. The processor's AECP uCPU serves **thirty** AEM
-> opcodes plus MVU `GET_MILAN_INFO` as of VERSION `0x0053`, so some AECP rows
+> opcodes plus MVU `GET_MILAN_INFO` as of VERSION `0x0055`, so some AECP rows
 > below are closed and some are not, and the per-clause status is **not** kept
 > here. [The current audit](docs/testing/MILAN_V12_AUDIT_2026-08-16.md) records
 > the exact evidence and remaining gaps. This table is kept

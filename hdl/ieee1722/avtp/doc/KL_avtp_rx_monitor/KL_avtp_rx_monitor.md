@@ -2,7 +2,7 @@
 - **File:** `hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv`
 - **Spec:** IEEE 1722.1-2021 Table 7-156, Milan v1.2 Section 5.4.5.3 / Table 5.16
 
-Milan STREAM_INPUT diagnostic-counter engine for the bound listener sink. Consumes the per-frame pulse bundle from `avtp_stream_parser` (which already matched the bound stream_id) and maintains the counters AECP `GET_COUNTERS` serves. The root does not connect its dirty pulse to an unsolicited counter-change producer. The counting contract is byte-extracted from the pipewire module-avb reference (`stream.c handle_aaf_packet` + `cmd-get-counters.c`): first-valid-PDU lock, 8-PDU seq-settle window, mismatch/interrupt at `lost >= 2`, 100 ms silence unlock, per-PDU format compare (a mismatched PDU counts only UNSUPPORTED_FORMAT), reset on the not-bound → bound edge. MEDIA_RESET counts the received `mr` bit's TOGGLES (IEEE 1722-2016 4.4.4.3; Milan Table 5.6 "the 'mr' bit was toggled in any of the received Stream Data AVTPDUs"), and LATE / EARLY the presentation-time compare. `pdu_accept_p_o` pulses for every FRAMES_RX-counted PDU, the commit verdict consumed by `KL_aaf_rx_depacketizer`.
+Milan STREAM_INPUT diagnostic-counter engine for the bound listener sink. Consumes the per-frame pulse bundle from `avtp_stream_parser` (which already matched the bound stream_id) and maintains the counters AECP `GET_COUNTERS` serves. The root accumulates its dirty pulse in the lossless descriptor arbiter that feeds the processor's rate-limited unsolicited counter scheduler. The counting contract is byte-extracted from the pipewire module-avb reference (`stream.c handle_aaf_packet` + `cmd-get-counters.c`): first-valid-PDU lock, 8-PDU seq-settle window, mismatch/interrupt at `lost >= 2`, 100 ms silence unlock, per-PDU format compare (a mismatched PDU counts only UNSUPPORTED_FORMAT), reset on the not-bound → bound edge. MEDIA_RESET counts the received `mr` bit's TOGGLES (IEEE 1722-2016 4.4.4.3; Milan Table 5.6 "the 'mr' bit was toggled in any of the received Stream Data AVTPDUs"), and LATE / EARLY the presentation-time compare. `pdu_accept_p_o` pulses for every FRAMES_RX-counted PDU, the commit verdict consumed by `KL_aaf_rx_depacketizer`.
 
 The notification boundary is checked against the
 [Milan feature status ledger](../../../../../docs/reference/MILAN_FEATURE_STATUS.md):
@@ -10,7 +10,7 @@ The notification boundary is checked against the
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
-| `notifications.change-events` | `partial` | - |
+| `notifications.change-events` | `implemented` | - |
 <!-- milan-feature-status:end -->
 
 ---
@@ -18,7 +18,7 @@ The notification boundary is checked against the
 ## Contents
 
 - **[Generics](#generics)** -- One parameter, and it is load-bearing: the clock frequency sizes the 100 ms silence-unlock timeout, so getting it wrong changes when a stream is declared unlocked rather than failing loudly.
-- **[Ports](#ports)** -- The matched-frame pulse bundle in, seven 32-bit Milan counters out. `pdu_accept_p_o` is the commit verdict the depacketizer acts on, `dirty_p_o` is an unconnected notification hook at the root, and `last_ts_o` is the media-clock hook surfaced at CSR `0x6C8`.
+- **[Ports](#ports)** -- The matched-frame pulse bundle in, seven 32-bit Milan counters out. `pdu_accept_p_o` is the commit verdict the depacketizer acts on, `dirty_p_o` feeds the root's notification arbiter, and `last_ts_o` is the media-clock hook surfaced at CSR `0x6C8`.
 - **[Integration](#integration)** -- Where it sits and where its counters come out -- the RX tap paired with the stream parser, feeding AECP `GET_COUNTERS` and the read-only CSR group `0x6B8`-`0x6C0`.
 
 ## Generics
@@ -49,7 +49,7 @@ The notification boundary is checked against the
 | `cnt_unsupported_fmt_o` | out | `logic [31:0]` | UNSUPPORTED_FORMAT (bit 8) |
 | `cnt_frames_rx_o` | out | `logic [31:0]` | FRAMES_RX (bit 11) |
 | `media_locked_o` | out | `logic` | Current lock state (level) |
-| `dirty_p_o` | out | `logic` | One-cycle pulse on any counter change; currently unconnected at the root |
+| `dirty_p_o` | out | `logic` | One-cycle pulse on any counter change; accumulated by the root's lossless per-descriptor notification arbiter |
 | `pdu_accept_p_o` | out | `logic` | One-cycle pulse per FRAMES_RX-counted PDU (depacketizer commit verdict) |
 | `last_ts_o` | out | `logic [31:0]` | avtp_timestamp of the last accepted PDU (media-clock hook, CSR 0x6C8) |
 

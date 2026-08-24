@@ -134,7 +134,7 @@ the [Milan feature status ledger](../reference/MILAN_FEATURE_STATUS.md):
 | Feature ID | Status | Canonical value |
 |---|---|---|
 | `aem.served-command-set` | `implemented` | - |
-| `notifications.change-events` | `partial` | - |
+| `notifications.change-events` | `implemented` | - |
 <!-- milan-feature-status:end -->
 
 - The ATDECC subsystem's own multi-page deep-dive (pages 1-9) and the minimal
@@ -150,7 +150,9 @@ the [Milan feature status ledger](../reference/MILAN_FEATURE_STATUS.md):
 - Two catalog entries were retired in the same pass: `atdecc_control_plane` (the
   fabric ADP/AECP/ACMP/MAAP control plane) and `unsol_slots` (the Milan Table
   5.22 unsolicited-notification slots). Both drew engines that no longer exist.
-  The general Table 5.22 producer remains absent, while audio-mapping changes
-  now use the processor's unsolicited lane. The control plane is now the
-  protocol processor, AECP included. See the status block at the top of
+  Their drawings remain retired, but their function does not: since 0x0055 the
+  protocol processor's unsolicited lane handles command-change responses and
+  the root-observed Table 5.22 triggers, including the per-descriptor counter
+  limiter. The control plane is now the protocol processor, AECP included. See
+  the status block at the top of
   [`../reference/REGISTER_MAP.md`](../reference/REGISTER_MAP.md).
