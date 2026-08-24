@@ -263,7 +263,8 @@ Two board rules that go with it:
   [`scripts/lint_rtl.py`](scripts/lint_rtl.py) read, and are exactly what CI
   initialises. Two of them, the processor pair, are also what
   [`scripts/xvlog_gate.py`](scripts/xvlog_gate.py) analyses, and it refuses the
-  same way when one is missing. Lint now REFUSES (exit 2, not the ratchet-tighten exit 1) rather
+  same way when one is missing. Lint now REFUSES (exit 2, not the
+  ratchet-tighten exit 1) rather
   than under-count when one is absent (#186): a count over an incomplete
   resolution set drops findings and would invite a tighten to a number the real
   tree cannot meet. The `external` submodule is SSH-only and no sim, lint or
