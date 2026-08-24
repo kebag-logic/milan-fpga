@@ -110,8 +110,11 @@ not addressed to this port, so an earlier draft of this file calling it
 harmless was wrong and the claim is gone. The campaign carried it as 2
 tracked gaps against FPGA-gPTP #36 for one review round; the pin now
 names a donor commit that compares bank word 7 against `OUR_PORTNUM_C`
-on both Pdelay receive messages, and both observables are ordinary
-assertions.
+on both Pdelay receive paths, and both observables are ordinary
+assertions. On the Pdelay_Resp the term sits beside the clockIdentity
+compare; on the Follow_Up path it sits at the head of the PDPOST leg,
+because `prog_rx_pdrfu`'s fixed slot has exactly 48 free words behind it
+and that is the SERVO leg's only home.
 
 **Four arms, four probes, each separable.** The portNumber arm exists on
 the Pdelay_Resp and on the Pdelay_Resp_Follow_Up, so a probe carrying a

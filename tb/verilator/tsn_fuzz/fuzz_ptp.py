@@ -966,8 +966,9 @@ class Campaign:
             # Pdelay_Resp is taken only when its requestingPortIdentity is
             # OURS. The figure qualifies the WHOLE identity, clockIdentity
             # AND portNumber, and since the pin this PR advances to the
-            # engine compares both (bank word 6 against S_CID, bank word 7
-            # against OUR_PORTNUM_C, one branch each). This probe drives
+            # engine compares both (prog_rx_pdresp: bank word 6 against
+            # S_CID, bank word 7 against OUR_PORTNUM_C, one branch each).
+            # This probe drives
             # the clockIdentity half; the portNumber half is driven at the
             # end of this section, on its own exchange, as an ordinary
             # assertion (FPGA-gPTP #36, landed).
@@ -1034,7 +1035,8 @@ class Campaign:
             # ones that drive them. It does not inspect the Follow_Up's
             # requestingPortIdentity; the engine's own header states the
             # figure's Follow_Up rule in exactly those terms. What checks
-            # the requesting identity here is prog_rx_pdrfu, ahead of the
+            # the requesting identity here is prog_rx_pdrfu and, for the
+            # portNumber half, the head of the PDPOST leg, ahead of the
             # pairing, because the engine chose to. Worth having and worth
             # pinning -- an unimplemented arm no test drives is
             # indistinguishable from a deleted one -- but it is hardening,
@@ -1129,7 +1131,11 @@ class Campaign:
         # where the real exchange had left 599, and asCapable fell, from
         # a frame not addressed to this port. Both halves are compared at
         # the pin this PR advances to (bank word 6 against S_CID, bank
-        # word 7 against OUR_PORTNUM_C), so these are ORDINARY
+        # word 7 against OUR_PORTNUM_C in prog_rx_pdresp, and the
+        # Follow_Up path's own portNumber term at the head of the PDPOST
+        # leg rather than in prog_rx_pdrfu, because prog_rx_pdrfu's fixed
+        # slot has exactly 48 free words behind it and that is the SERVO
+        # leg's only home), so these are ORDINARY
         # ASSERTIONS now, not eq_or_gap, and the campaign carries no
         # tracked gap for #36.
         #
