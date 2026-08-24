@@ -278,9 +278,14 @@ into that trigger -- the grandmaster identity, the effective propagation delay
 (0x62C) and the asCapable flag -- with none of the four conditioned on
 grandmaster presence, so a domain or delay update in the startup or GM-loss
 window is announced like any other; the SR class-A priority and VLAN ID are
-detected by the processor off the same wires it publishes. The 0x7DC PathTrace
-publish edge arms GET_AS_PATH, whose staged tail is now served behind the
-grandmaster. Silent controllers are probed with CONTROLLER_AVAILABLE
+detected by the processor off the same wires it publishes. GET_AS_PATH has its
+own two triggers and neither is the ADP strobe: the grandmaster identity
+snapshot moving (entry 0 of the served path) and the 0x7DC PathTrace publish
+edge (entries 1..), whose staged tail is served behind the grandmaster. The
+`GPTP_GM_CHANGED` counter, and therefore the AVB_INTERFACE GET_COUNTERS push,
+move on the grandmaster identity edge alone. A write to 0x62C with a stable
+grandmaster is a GET_AVB_INFO trigger and an ADP re-advertise, and is neither
+a path-sequence change nor a gPTP GM change. Silent controllers are probed with CONTROLLER_AVAILABLE
 30 to 60 s after their last command, retried once, and removed with a targeted
 DEREGISTER notification (5.4.5.3). No new CSRs.
 
@@ -900,9 +905,9 @@ seed) comes from `MAC_ADDR_{LO,HI}`, not this group.
 | `0x618` | `ADP_TALKER` | **RO** | `{ADP_TALKER_CAPS_C, ADP_TALKER_SRC_C}` | `[15:0]` talker_stream_sources, `[31:16]` talker_capabilities. **Hardwired from the end-station config, writes ignored** (VERSION `0x0015`). The values live in [`hdl/common/csr/gen/adp_shape_defaults.svh`](../../hdl/common/csr/gen/adp_shape_defaults.svh), GENERATED from `configs/endstation_*.yaml` by [`sw/builder/endstation_builder.py`](../../sw/builder/endstation_builder.py) in the same pass that emits this shape's AEM descriptor ROM. `ADP_TALKER_SRC_C` = the `STREAM_OUTPUT` descriptor count = the AAF talkers plus the CRF Media Clock Output when the config has one, and `milan_datapath` sizes its ACMP talker context array from **the same constant**, so the advertised range is the addressable range. `1` at 1×1, `N+1` at N×N. `ADP_TALKER_CAPS_C` = `IMPLEMENTED` \| `AUDIO_SOURCE` \| `MEDIA_CLOCK_SOURCE` **only when a CRF output exists** → `0x4001` at 1×1, `0x4801` at N×N |
 | `0x61C` | `ADP_LISTENER` | **RO** | `{ADP_LISTENER_CAPS_C, ADP_LISTENER_SINK_C}` | `[15:0]` listener_stream_sinks, `[31:16]` listener_capabilities. Same generated include, same rule: `ADP_LISTENER_SINK_C` = the `STREAM_INPUT` descriptor count = the AAF sinks plus the CRF sink → `2` at 1×1, `N+1` at N×N, and it sizes the ACMP listener context array. `ADP_LISTENER_CAPS_C` = `0x4801` wherever a CRF sink exists |
 | `0x620` | `ADP_CONTROLLER_CAPS` | RW | `0` | 🟡 **WRITE-ONLY SCRATCH** — controller_capabilities. Stored and read back; never reaches the wire |
-| `0x624` | `ADP_GPTP_GM_LO` | RW | `0` | gptp_grandmaster_id `[31:0]` |
-| `0x628` | `ADP_GPTP_GM_HI` | RW | `0` | gptp_grandmaster_id `[63:32]` |
-| `0x62C` | `ADP_GPTP_DOMAIN` | RW | `ADP_GPTP_DOMAIN_C` | `[7:0]` gptp_domain_number — ADPDU byte 48. Reset is **config-derived**: `gptp.domain`, the same line that becomes `domainNumber` in the generated `/etc/gptp.<board>.cfg`. Still writable (802.1AS-2020 8.1 makes `domainNumber` a configured attribute), but it no longer *has* to be written — and `aecp_csr_setup.sh` no longer clobbers it to `0` |
+| `0x624` | `ADP_GPTP_GM_LO` | RW | `0` | gptp_grandmaster_id `[31:0]`. Commit is on the HI write |
+| `0x628` | `ADP_GPTP_GM_HI` | RW | `0` | gptp_grandmaster_id `[63:32]`. A committed change of the **identity** is the one edge that increments `GPTP_GM_CHANGED` (Milan Table 5.1), arms the AVB_INTERFACE counter push and changes the served `GET_AS_PATH` entry 0. The first commit out of zero is excluded from the counter and from the ADP re-advertise (no boot announces a change that never happened), but it still changes the served path and the served AVB info |
+| `0x62C` | `ADP_GPTP_DOMAIN` | RW | `ADP_GPTP_DOMAIN_C` | `[7:0]` gptp_domain_number — ADPDU byte 48. Reset is **config-derived**: `gptp.domain`, the same line that becomes `domainNumber` in the generated `/etc/gptp.<board>.cfg`. Still writable (802.1AS-2020 8.1 makes `domainNumber` a configured attribute), but it no longer *has* to be written — and `aecp_csr_setup.sh` no longer clobbers it to `0`. A write here that changes the value re-advertises (it is an ADPDU field) and pushes an unsolicited `GET_AVB_INFO` (Table 5.22 names `gptp_domain_number`); it does **not** move `GPTP_GM_CHANGED`, does **not** arm an AVB_INTERFACE counter push and does **not** push `GET_AS_PATH`, because a domain number is neither the grandmaster nor a path entry |
 | `0x630` | `ADP_IDX0` | RW | `0` | `[15:0]` current_configuration_index, `[31:16]` identify_control_index |
 | `0x634` | `ADP_IDX1` | RW | `0` | 🟡 **WRITE-ONLY SCRATCH** — `[15:0]` interface_index. Stored and read back; never reaches the wire |
 | `0x638` | `ADP_ASSOC_ID_LO` | RW | `0` | 🟡 **WRITE-ONLY SCRATCH** — association_id `[31:0]`. Stored and read back; never reaches the wire |

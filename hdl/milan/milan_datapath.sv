@@ -2183,9 +2183,13 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! never disagree. Derive, never mirror.
   wire [ACMP_SRC_C*64-1:0]  pp_src_sid_w;
   //! 1722.1-2021 6.2.6 GM_CHANGE: an edge on the committed grandmaster pair
+  //! (id OR domain - both are ADPDU fields a re-advertise has to carry) and,
+  //! separately, an edge on the grandmaster IDENTITY alone. The two are not
+  //! the same fact and the consumers below do not want the same one.
   logic [63:0]              pp_gm_id_q_r;
   logic [7:0]               pp_gm_dom_q_r;
   logic                     pp_gm_change_p_w /* verilator public_flat_rd */;
+  logic                     pp_gm_id_change_p_w /* verilator public_flat_rd */;
   logic [TDATA_WIDTH-1:0]   pp_tx_tdata_w;
   logic [TDATA_WIDTH/8-1:0] pp_tx_tkeep_w;
   logic                     pp_tx_tvalid_w, pp_tx_tlast_w;
@@ -3341,11 +3345,16 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //!     link guard consumers and the ADP availability logic already treat
   //!     as "the AVB interface is up". Counting the raw PHY here would let
   //!     LINK_UP outrun what every other part of this device reports.
-  //!   * GM:     pp_gm_change_p_w - the strobe already derived for the
-  //!     processor's Milan Table 5.50 GM_CHANGE duty: a change of the
-  //!     nonzero grandmaster identity the daemon publishes. One source for
-  //!     both consumers, so GPTP_GM_CHANGED and the ADP GM_CHANGE
-  //!     re-announce can never disagree about how many times the GM moved.
+  //!   * GM:     pp_gm_id_change_p_w - a change of the nonzero grandmaster
+  //!     IDENTITY the daemon publishes, and nothing else. Milan Table 5.1
+  //!     defines GPTP_GM_CHANGED as "Number of gPTP GM changes, since
+  //!     boot", so the only edge that may move it is an edge of
+  //!     gptp_grandmaster_id. The ADP duty pp_gm_change_p_w is a WIDER
+  //!     strobe - it also rises when gptp_domain_number moves, because
+  //!     that is an ADPDU field and 1722.1-2021 6.2.6 re-advertises on it -
+  //!     and counting it here would report grandmaster changes that never
+  //!     happened. Two duties, two strobes, ONE shared identity compare
+  //!     (pp_gm_id_edge_w) so they can never disagree about the identity.
   //!   * media clock: ~clkv_tu_w. Milan leaves "locked" explicitly open
   //!     ("the definition of locked is left open to each manufacturer",
   //!     5.3.11.2); this build's definition is the CLKV lease verdict - the
@@ -3370,7 +3379,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! moves GPTP_GM_CHANGED in the same always_ff.
   wire ctr_avb_link_edge_w = eff_link_w != ctr_link_q_r;
   wire ctr_ckd_lock_edge_w = (~clkv_tu_w) != ctr_mclk_q_r;
-  wire ctr_avb_dirty_w = ctr_avb_link_edge_w || pp_gm_change_p_w;
+  wire ctr_avb_dirty_w = ctr_avb_link_edge_w || pp_gm_id_change_p_w;
   wire ctr_ckd_dirty_w = ctr_ckd_lock_edge_w;
   logic [31:0] ctr_linkup_r, ctr_linkdn_r;
   logic [31:0] ctr_gmchg_r /* verilator public_flat_rd */;
@@ -3391,7 +3400,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       //! to zero when it reaches the maximum value")
       if (ctr_avb_link_edge_w &&  eff_link_w) ctr_linkup_r <= ctr_linkup_r + 32'd1;
       if (ctr_avb_link_edge_w && !eff_link_w) ctr_linkdn_r <= ctr_linkdn_r + 32'd1;
-      if (pp_gm_change_p_w)             ctr_gmchg_r  <= ctr_gmchg_r  + 32'd1;
+      if (pp_gm_id_change_p_w)          ctr_gmchg_r  <= ctr_gmchg_r  + 32'd1;
       if (ctr_ckd_lock_edge_w && ~clkv_tu_w) ctr_mlock_r  <= ctr_mlock_r  + 32'd1;
       if (ctr_ckd_lock_edge_w &&  clkv_tu_w) ctr_munlock_r<= ctr_munlock_r+ 32'd1;
     end
@@ -4704,15 +4713,32 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! config-derived ADP_GPTP_DOMAIN_C, so without it a nonzero configured
   //! domain would fake a change at t=0 into an empty registry.
   //!
-  //! GET_AS_PATH keeps its own two terms: the FIRST grandmaster commit (an
-  //! empty path becoming {GM}, which pp_gm_change_p_w excludes by the ADP
-  //! rule above) and the PathTrace PUBLISH edge (0x7E4 bit 30 bumps
-  //! asp_gen) - the same grandmaster with a new tail, which the processor
-  //! cannot derive. All of these are one-cycle strobes; the processor
-  //! coalesces them into one push per class.
+  //! GET_AS_PATH keeps its own two terms, and NEITHER is the ADP strobe.
+  //! Milan Table 5.22 triggers GET_AS_PATH on "the path sequence changes",
+  //! and this fabric serves that sequence as entry 0 = the committed
+  //! grandmaster (0x624/0x628) followed by the published PathTrace tail.
+  //! So the two terms that move it are:
+  //!
+  //!   * gsi_gm_chg_w  - the grandmaster IDENTITY snapshot moving, which is
+  //!     entry 0 changing (and, at the zero boundary, the count going
+  //!     0 <-> 1). This is the SAME snapshot compare the AVB detector uses,
+  //!     so the served answer and both detectors have one source. It
+  //!     subsumes the old first-commit term: 0 -> nonzero IS a change of
+  //!     cfg_adp_gptp_gm.
+  //!   * the PathTrace PUBLISH edge (0x7E4 bit 30 bumps asp_gen) - the same
+  //!     grandmaster with a new tail, which the processor cannot derive.
+  //!
+  //! What is NOT a term is the gPTP domain number. It is a GET_AVB_INFO
+  //! field (below) and an ADPDU field, but it is not a path entry, so a
+  //! domain-only write with a stable grandmaster must push nothing here.
+  //! Routing pp_gm_change_p_w - the ADP duty, which carries the domain -
+  //! into an AS_PATH event is exactly that defect, and the processor's
+  //! ev_asp_i takes gsi_asp_chg_i alone for the same reason.
+  //!
+  //! All of these are one-cycle strobes; the processor coalesces them into
+  //! one push per class.
   logic gsi_ascap_q_r;
   logic [3:0] asp_gen_q_r;
-  logic gm_first_p_r;
   logic gsi_snap_v_r;
   logic [63:0] gsi_gm_q_r;
   logic [31:0] gsi_pdly_q_r;
@@ -4721,7 +4747,6 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     if (!axis_resetn) begin
       gsi_ascap_q_r <= 1'b0;
       asp_gen_q_r   <= 4'd0;
-      gm_first_p_r  <= 1'b0;
       gsi_snap_v_r  <= 1'b0;
       gsi_gm_q_r    <= 64'd0;
       gsi_pdly_q_r  <= 32'd0;
@@ -4729,19 +4754,21 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     end else begin
       gsi_ascap_q_r <= clkv_as_cap_w;
       asp_gen_q_r   <= asp_gen_w;
-      gm_first_p_r  <= (pp_gm_id_q_r == 64'd0) && (|cfg_adp_gptp_gm);
       gsi_snap_v_r  <= 1'b1;
       gsi_gm_q_r    <= cfg_adp_gptp_gm;
       gsi_pdly_q_r  <= eff_gptp_pdelay_w;
       gsi_dom_q_r   <= cfg_adp_gptp_domain;
     end
   end
-  wire gsi_avb_chg_w = gsi_snap_v_r
-                    && ((clkv_as_cap_w      != gsi_ascap_q_r)
-                        || (cfg_adp_gptp_gm     != gsi_gm_q_r)
-                        || (eff_gptp_pdelay_w   != gsi_pdly_q_r)
-                        || (cfg_adp_gptp_domain != gsi_dom_q_r));
-  wire gsi_asp_chg_w = (asp_gen_w != asp_gen_q_r) || gm_first_p_r;
+  //! the grandmaster-identity term, named once because BOTH detectors need
+  //! it and only one of them may see the domain
+  wire gsi_gm_chg_w  = gsi_snap_v_r && (cfg_adp_gptp_gm != gsi_gm_q_r);
+  wire gsi_avb_chg_w = gsi_gm_chg_w
+                    || (gsi_snap_v_r
+                        && ((clkv_as_cap_w      != gsi_ascap_q_r)
+                            || (eff_gptp_pdelay_w   != gsi_pdly_q_r)
+                            || (cfg_adp_gptp_domain != gsi_dom_q_r)));
+  wire gsi_asp_chg_w = (asp_gen_w != asp_gen_q_r) || gsi_gm_chg_w;
 
   //! IDENTIFY: the processor serves the CONTROL descriptor and stores its
   //! dynamic value. KL_pp_shadow exports aecp_identify_o into
@@ -6588,17 +6615,39 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! pair the 0x624/0x628/0x62C CSR words carry. An all-zero pair is "no
   //! commitment yet" and its first write is NOT a change - otherwise every
   //! boot would announce a grandmaster change that never happened.
+  //!
+  //! TWO FACTS, from ONE identity compare. pp_gm_id_edge_w is the
+  //! grandmaster IDENTITY moving; pp_gm_dom_edge_w is the gPTP domain
+  //! number moving under the same "a prior grandmaster existed" rule.
+  //!
+  //!   pp_gm_change_p_w    = id | domain  -> the ADP duty. Both fields are
+  //!     carried by the ADPDU, so either one changing is a re-advertise
+  //!     (1722.1-2021 6.2.6, Milan 5.6.3.5.7) and a GET_AVB_INFO trigger
+  //!     (Milan Table 5.22 names gptp_grandmaster_id AND
+  //!     gptp_domain_number).
+  //!   pp_gm_id_change_p_w = id           -> the GRANDMASTER moved, and
+  //!     only that. Milan Table 5.1 GPTP_GM_CHANGED counts "gPTP GM
+  //!     changes"; the served AS path's entry 0 is the grandmaster, so
+  //!     Table 5.22's "the path sequence changes" is an identity fact too.
+  //!     A domain-only write with a stable grandmaster must move NEITHER.
+  //!
+  //! Reusing one strobe for both made a domain write claim the grandmaster
+  //! and the path had changed when neither had; the compare is shared so the
+  //! two can never disagree about the identity, and the domain term is added
+  //! to exactly one of them.
+  wire pp_gm_id_edge_w  = (|pp_gm_id_q_r) & (pp_gm_id_q_r  != cfg_adp_gptp_gm);
+  wire pp_gm_dom_edge_w = (|pp_gm_id_q_r) & (pp_gm_dom_q_r != cfg_adp_gptp_domain);
   always_ff @(posedge axis_clk) begin : pp_gm_edge
     if (!axis_resetn) begin
-      pp_gm_id_q_r     <= 64'd0;
-      pp_gm_dom_q_r    <= 8'd0;
-      pp_gm_change_p_w <= 1'b0;
+      pp_gm_id_q_r        <= 64'd0;
+      pp_gm_dom_q_r       <= 8'd0;
+      pp_gm_change_p_w    <= 1'b0;
+      pp_gm_id_change_p_w <= 1'b0;
     end else begin
-      pp_gm_id_q_r     <= cfg_adp_gptp_gm;
-      pp_gm_dom_q_r    <= cfg_adp_gptp_domain;
-      pp_gm_change_p_w <= (|pp_gm_id_q_r) &
-                          ((pp_gm_id_q_r  != cfg_adp_gptp_gm) |
-                           (pp_gm_dom_q_r != cfg_adp_gptp_domain));
+      pp_gm_id_q_r        <= cfg_adp_gptp_gm;
+      pp_gm_dom_q_r       <= cfg_adp_gptp_domain;
+      pp_gm_change_p_w    <= pp_gm_id_edge_w | pp_gm_dom_edge_w;
+      pp_gm_id_change_p_w <= pp_gm_id_edge_w;
     end
   end : pp_gm_edge
 

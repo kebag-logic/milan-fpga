@@ -80,6 +80,15 @@ static void ck(const char* what, unsigned long got, unsigned long exp) {
     }
 }
 
+//! Milan Table 5.1 GPTP_GM_CHANGED, read WHERE IT IS COUNTED. The served
+//! GET_COUNTERS quadlet 5 is the same register (graded byte-for-byte in the
+//! timed arm of (N6)); reading the counter itself is what makes a DELTA of
+//! zero across one CSR write a statement about the increment condition
+//! rather than about the notification limiter in front of it.
+static unsigned long gm_changed_ctr() {
+    return dut->rootp->milan_datapath__DOT__ctr_gmchg_r;
+}
+
 // ---- AECP RESPONSE MEMORY model -------------------------------------------
 // PORTED VERBATIM IN SHAPE from tb/verilator/pp_shadow, which is the proven
 // one. Two hand-rolled attempts failed here before I copied it, and the reason
@@ -1205,11 +1214,14 @@ static void notify_section(bool timed) {
         gm_lo ^= 0x10u;
     }
     notify_clear();
+    const unsigned long gmchg_n6 = gm_changed_ctr();
     axi_write(0x624, gm_lo); axi_write(0x628, gm_hi);       // the CHANGE
     uint32_t gm_cur_lo = gm_lo;                             // what the wire holds now
     drain_tx(NOTIFY_WIN);
     ck("[NOTIFY] GM change: one unsolicited GET_AVB_INFO to A",
        notify_count(0x0027, &CTL_A), 1);
+    ck("[NOTIFY] GM change: GPTP_GM_CHANGED moved exactly once",
+       gm_changed_ctr() - gmchg_n6, 1);
     ck("[NOTIFY] ...and one to B", notify_count(0x0027, &CTL_B), 1);
     ck("[NOTIFY] GM change: one unsolicited GET_AS_PATH to A",
        notify_count(0x0028, &CTL_A), 1);
@@ -1296,6 +1308,7 @@ static void notify_section(bool timed) {
     //! generation - the edge this fabric hands the processor as the
     //! AS_PATH change it cannot derive (the grandmaster did not move).
     notify_clear();
+    const unsigned long gmchg_n7 = gm_changed_ctr();
     axi_write(0x7DC, 0x00000001u);
     axi_write(0x7E0, 0x00112233u);
     axi_write(0x7E4, 0x80000000u | (1u << 8));           // commit slot 1
@@ -1309,6 +1322,8 @@ static void notify_section(bool timed) {
     ck("[NOTIFY] ...and one to B", notify_count(0x0028, &CTL_B), 1);
     ck("[NOTIFY] ...and no GET_AVB_INFO (the grandmaster did not change)",
        notify_count(0x0027, nullptr), 0);
+    ck("[NOTIFY] ...and GPTP_GM_CHANGED did not move either",
+       gm_changed_ctr() - gmchg_n7, 0);
     {
         const std::vector<uint8_t> gp(4, 0);
         const std::vector<uint8_t> sp = aecp_xact_from(CTL_B, 0x0028, sq++, gp);
@@ -1380,6 +1395,7 @@ static void notify_section(bool timed) {
         axi_write(0x624, 0); axi_write(0x628, 0);
         drain_tx(NOTIFY_WIN);
         notify_clear();
+        const unsigned long gmchg_nogm = gm_changed_ctr();
         axi_write(0x62C, dom1);                       // domain change, GM = 0
         drain_tx(NOTIFY_WIN);
         ck("[NOTIFY] domain change with NO grandmaster: one unsolicited "
@@ -1390,6 +1406,17 @@ static void notify_section(bool timed) {
            notify_count(0x0029, nullptr, 0x0009, 0), 0);
         ck("[NOTIFY] ...and no GET_AS_PATH (the path did not change)",
            notify_count(0x0028, nullptr), 0);
+        //! THE SYMMETRY THIS ARM EXISTS TO PIN. The GM-present twin of this
+        //! write is graded in (N8d) below with the same three negatives, so
+        //! a domain write behaves IDENTICALLY on both sides of the
+        //! grandmaster boundary: one GET_AVB_INFO per registered controller,
+        //! and nothing else. It used to differ purely because of the ADP
+        //! rule's `|pp_gm_id_q_r|` guard -- GM absent suppressed the false
+        //! events, GM present manufactured them -- and a state-dependent
+        //! answer to one write is the robustness defect, not just the false
+        //! events themselves.
+        ck("[NOTIFY] ...and GPTP_GM_CHANGED did not move",
+           gm_changed_ctr() - gmchg_nogm, 0);
         {
             const std::vector<uint8_t> sa = aecp_xact_from(CTL_A, 0x0027, sq++, ga);
             ck("[NOTIFY] ...AVB_INFO body == the solicited read that follows",
@@ -1409,12 +1436,67 @@ static void notify_section(bool timed) {
         //! present. The push is still exactly one per registered controller.
         axi_write(0x624, gm_cur_lo); axi_write(0x628, gm_hi);
         drain_tx(NOTIFY_WIN);
+
+        //! ---- (N8d) ONE ADP STROBE IS NOT THREE FACTS ------------------
+        //! The GM-present arm is where a single combined "the gPTP pair
+        //! moved" strobe does its damage, so it is graded here in TWO
+        //! halves that share one window and one limiter phase.
+        //!
+        //! The POSITIVE half first, because it also puts the GET_COUNTERS
+        //! one-second limiter in a KNOWN phase: move the grandmaster
+        //! IDENTITY and all three identity facts must fire - the served AS
+        //! path's entry 0 changed, Milan Table 5.1 GPTP_GM_CHANGED ("Number
+        //! of gPTP GM changes, since boot") moves exactly once, and the
+        //! AVB_INTERFACE counter block is dirty. Without this half, the
+        //! negative half below could pass by being unreachable.
         notify_clear();
+        const unsigned long gmchg_id0 = gm_changed_ctr();
+        gm_cur_lo ^= 0x40u;
+        axi_write(0x624, gm_cur_lo); axi_write(0x628, gm_hi);
+        drain_tx(NOTIFY_WIN);
+        ck("[R0] a grandmaster IDENTITY change pushes GET_AS_PATH",
+           notify_count(0x0028, nullptr), 2);
+        ck("[R0] ...and increments GPTP_GM_CHANGED exactly once",
+           gm_changed_ctr() - gmchg_id0, 1);
+        long t_ctr_id = -1;
+        if (timed) {
+            ck("[R0] ...and pushes GET_COUNTERS(AVB_INTERFACE,0)",
+               notify_count(0x0029, nullptr, 0x0009, 0), 2);
+            t_ctr_id = notify_when(0x0029, CTL_A, 0, false);
+            //! walk past that push's second so the negative half below sees
+            //! a FREE limiter: a withheld push and a push that was never
+            //! armed look identical on the wire, and only one of them is
+            //! the property under test.
+            if (t_ctr_id >= 0)
+                while (uns_log_cycle - t_ctr_id < 1200L * MS_CYC_TB)
+                    drain_tx(NOTIFY_WIN);
+        }
+
+        //! The NEGATIVE half: the domain number alone. Milan Table 5.22
+        //! names gptp_domain_number a GET_AVB_INFO trigger and NOTHING
+        //! else. It is not the grandmaster, so GPTP_GM_CHANGED must not
+        //! move and no AVB_INTERFACE counter became dirty; it is not a path
+        //! entry, so the served AS path (entry 0 = the grandmaster, entries
+        //! 1.. = the published PathTrace tail) is byte-for-byte what it
+        //! was and Table 5.22's "the path sequence changes" is not met.
+        //! The ADP GM_CHANGE duty strobe legitimately covers BOTH fields -
+        //! 1722.1-2021 6.2.6 re-advertises on either, both being ADPDU
+        //! fields - and that is exactly why it may not be spent as any of
+        //! these three.
+        notify_clear();
+        const unsigned long gmchg_dom = gm_changed_ctr();
         axi_write(0x62C, dom0);                       // back, GM present
         drain_tx(NOTIFY_WIN);
         ck("[NOTIFY] domain change WITH a grandmaster: one GET_AVB_INFO to A",
            notify_count(0x0027, &CTL_A), 1);
         ck("[NOTIFY] ...and one to B", notify_count(0x0027, &CTL_B), 1);
+        ck("[R0] domain-only change does not push unchanged GET_AS_PATH",
+           notify_count(0x0028, nullptr), 0);
+        ck("[R0] domain-only change does not increment GPTP_GM_CHANGED",
+           gm_changed_ctr() - gmchg_dom, 0);
+        if (timed)
+            ck("[R0] domain-only change does not push GET_COUNTERS",
+               notify_count(0x0029, nullptr, 0x0009, 0), 0);
         {
             const std::vector<uint8_t> sa = aecp_xact_from(CTL_A, 0x0027, sq++, ga);
             ck("[NOTIFY] ...AVB_INFO body == the solicited read that follows",
@@ -1480,12 +1562,20 @@ static void notify_section(bool timed) {
         //! every 20 s re-arms A's monitor). The entity must probe B with
         //! CONTROLLER_AVAILABLE 30..60 s after B's last command, retry
         //! exactly once 250 ms later, then remove B and tell B alone.
-        //! B's last command was the GET_AS_PATH in (N7); A's was just now.
+        //! B SPEAKS ONCE HERE so the graded window has an exact reference.
+        //! The monitor re-arms on any command from a registered controller,
+        //! so t_b_last is then B's command and not an estimate: without it
+        //! the reference was B's GET_AS_PATH several arms back, and every
+        //! millisecond any later arm spends came straight out of the 30 s
+        //! floor. That is a measurement bug in the harness, not a property
+        //! of the device, and it bites silently - it only ever makes a
+        //! conforming device look early.
+        const std::vector<uint8_t> ga = {0x00, 0x09, 0x00, 0x00};
+        aecp_xact_from(CTL_B, 0x0027, sq++, ga);
         printf("  [i]    monitor arm: walking up to 70 s of processor time\n");
         notify_clear();
         const long t_b_last = uns_log_cycle;
         long t_a_poll = uns_log_cycle;
-        const std::vector<uint8_t> ga = {0x00, 0x09, 0x00, 0x00};
         long ms_walked = 0;
         while (ms_walked < 70000L) {
             drain_tx(NOTIFY_WIN);
