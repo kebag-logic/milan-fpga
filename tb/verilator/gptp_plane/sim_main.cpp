@@ -24,6 +24,11 @@
 //     within 15%), and the counter's advance tracking the master's
 //     over the last four intervals within 100 ns
 //
+// The harness derives every egress-return sequenceId and messageType from
+// the selected transmitted frame. Those checks keep this direct engine
+// interface honest, but this bench has no boundary stamper and proves
+// neither boundary extraction nor equal-sequence claim routing.
+//
 // Timescale: the bench clock is 2 MHz while the counter keeps its
 // 8.0 ns/tick shape, so "counter time" runs 62.5x slower than the
 // bench's timer millisecond. That is deliberate and self-consistent:
@@ -123,15 +128,38 @@ static std::vector<uint32_t> adj_seen;
 // port carries the live counter: tap_eng_phc_o is read from inside the
 // engine instance, so a constant tied onto the connection is visible here.
 static uint64_t eng_phc_bad = 0, eng_phc_lo = ~0ull, eng_phc_hi = 0;
+struct StampReturn {
+  size_t frame_idx;
+  uint16_t seq;
+  uint8_t type;
+  bool automatic;
+};
+static std::vector<StampReturn> stamp_returns;
+
+//! Fields reported by a boundary stamper come from the transmitted PTP
+//! header: messageType is frame byte 14's low nibble and sequenceId is
+//! frame bytes 44..45. Bounds return zero so an earlier missing-frame
+//! assertion reports cleanly instead of crashing the rest of the run.
+static uint16_t seq_of(const std::vector<uint8_t> &f) {
+  return f.size() > 45 ? (uint16_t)((f[44] << 8) | f[45]) : 0;
+}
+static uint8_t type_of(const std::vector<uint8_t> &f) {
+  return f.size() > 14 ? (uint8_t)(f[14] & 0xF) : 0;
+}
 
 static uint64_t phc() { return dut->phc_ns_o; }
 
 static void tick() {
   if (auto_pend >= 0 && !dut->txts_valid_i) {
+    size_t idx = (size_t)auto_pend;
     uint64_t ns = phc() + 200;
     dut->txts_valid_i = 1;
     dut->txts_ns_i = ns;
-    txns[auto_pend] = ns;
+    dut->txts_seq_i = idx < txf.size() ? seq_of(txf[idx]) : 0;
+    dut->txts_type_i = idx < txf.size() ? type_of(txf[idx]) : 0;
+    if (idx < txns.size()) txns[idx] = ns;
+    stamp_returns.push_back({idx, (uint16_t)dut->txts_seq_i,
+                             (uint8_t)dut->txts_type_i, true});
     auto_pend = -1;
   }
   dut->clk_i = 0; dut->eval();
@@ -176,8 +204,13 @@ static void send_frame(const std::vector<uint8_t> &bytes, uint64_t rx_ts) {
   dut->rx_valid_i = 0; dut->rx_sof_i = 0; dut->rx_eof_i = 0;
 }
 
-static void txts(uint64_t ns) {
-  dut->txts_valid_i = 1; dut->txts_ns_i = ns; dut->txts_seq_i = 0;
+static void txts_idx(size_t idx, uint64_t ns) {
+  dut->txts_valid_i = 1;
+  dut->txts_ns_i = ns;
+  dut->txts_seq_i = idx < txf.size() ? seq_of(txf[idx]) : 0;
+  dut->txts_type_i = idx < txf.size() ? type_of(txf[idx]) : 0;
+  stamp_returns.push_back({idx, (uint16_t)dut->txts_seq_i,
+                           (uint8_t)dut->txts_type_i, false});
   tick();
   dut->txts_valid_i = 0;
 }
@@ -239,12 +272,15 @@ static uint32_t fld32(const std::vector<uint8_t> &f, size_t o) {
 }
 
 static size_t tx_seen = 0;
-static std::vector<uint8_t> wait_tx(int mtype, uint64_t max_cycles) {
+static std::vector<uint8_t> wait_tx(int mtype, uint64_t max_cycles,
+                                    size_t *idx_out = nullptr) {
   for (uint64_t n = 0; n < max_cycles; n++) {
     while (tx_seen < txf.size()) {
       size_t i = tx_seen++;
-      if (mtype < 0 || (txf[i].size() > 14 && (txf[i][14] & 0xF) == mtype))
+      if (mtype < 0 || (txf[i].size() > 14 && (txf[i][14] & 0xF) == mtype)) {
+        if (idx_out) *idx_out = i;
         return txf[i];
+      }
     }
     tick();
     if ((n & 255) == 0) service_pdelay();
@@ -263,23 +299,26 @@ int main(int argc, char **argv) {
   dut->rx_err_i = 0; dut->rx_data_i = 0; dut->rx_ts_i = 0;
   dut->tx_ready_i = 1;
   dut->txts_valid_i = 0; dut->txts_ns_i = 0; dut->txts_seq_i = 0;
+  dut->txts_type_i = 0;
   for (int i = 0; i < 8; i++) tick();
   dut->rst_n = 1;
 
   // ---- 1: boot -> Pdelay_Req; one exchange is not capable ---------------
-  std::vector<uint8_t> req = wait_tx(0x2, 3200000);
+  size_t req_idx = 0;
+  std::vector<uint8_t> req = wait_tx(0x2, 3200000, &req_idx);
   expect("counter is ticking", phc() > 0, 1);
   expect("asCapable low at boot", dut->pub_flags_o & FL_ASCAP, 0);
   uint64_t t1 = phc() + 200;
-  txts(t1);
+  txts_idx(req_idx, t1);
   run(2000);
   {
+    uint16_t req_seq = seq_of(req);
     uint64_t t2 = peer_ns(t1 + 300), t3 = t2 + 20000, t4 = t1 + 21200;
-    Frame f = ptp(0x3, 0, 0, 0x0200, 20);
+    Frame f = ptp(0x3, req_seq, 0, 0x0200, 20);
     f.ts(t2); f.u64(OUR_CID); f.u16(1);
     send_frame(f.b, t4);
     run(4000);
-    Frame g = ptp(0xA, 0, 0, 0x0000, 20);
+    Frame g = ptp(0xA, req_seq, 0, 0x0000, 20);
     g.ts(t3); g.u64(OUR_CID); g.u16(1);
     send_frame(g.b, t4 + 1000);
     run(6000);
@@ -412,6 +451,30 @@ int main(int argc, char **argv) {
   // mis-wire the blind spot hid. Neither claims the engine uses the value.
   expect("engine phc port tracks counter", eng_phc_bad, 0);
   expect("engine phc port is live", eng_phc_hi > eng_phc_lo, 1);
+  // The existing behavior checks above make a bad tag operationally red:
+  // a wrong Pdelay_Req tag prevents the second exchange, and a wrong Sync
+  // tag prevents its Follow_Up. Grade the harness independently too, so a
+  // future constant or stale tag is named rather than surfacing only as a
+  // downstream timeout.
+  int tag_wrong = 0, auto_count = 0;
+  bool saw_nonzero_pdreq = false, saw_sync = false;
+  for (const StampReturn &r : stamp_returns) {
+    if (r.frame_idx >= txf.size() || txf[r.frame_idx].size() <= 45) {
+      tag_wrong++;
+      continue;
+    }
+    const std::vector<uint8_t> &f = txf[r.frame_idx];
+    if (r.seq != (uint16_t)((f[44] << 8) | f[45])) tag_wrong++;
+    if (r.type != (uint8_t)(f[14] & 0xF)) tag_wrong++;
+    if (!r.automatic) continue;
+    auto_count++;
+    if (r.type == 0x2 && r.seq != 0) saw_nonzero_pdreq = true;
+    if (r.type == 0x0) saw_sync = true;
+  }
+  expect("every return carries its selected frame's two tags", tag_wrong, 0);
+  expect("automatic timestamp return path exercised", auto_count > 0, 1);
+  expect("auto return covers a nonzero Pdelay sequence", saw_nonzero_pdreq, 1);
+  expect("auto return covers Sync messageType", saw_sync, 1);
 
   printf("%d checks: %d PASS, %d FAIL\n", checks, checks - fails, fails);
   delete dut;

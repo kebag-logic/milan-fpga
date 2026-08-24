@@ -46,13 +46,13 @@ drives itself.
 
 What an unread input still owes is its wiring, and that is what was
 silently unchecked. Measured on this bench before phase 6, at pin
-`c33fb1af`: tying `.phc_ns_i` to `64'd0` in `gptp_plane_wrap.sv` left
-the run at 18 checks, 18 PASS, and so did `64'd123456789`. The gate is
+`7def718e`: tying `.phc_ns_i` to `64'd0` in `gptp_plane_wrap.sv` left
+the run at 22 checks, 22 PASS, and so did `64'd123456789`. The gate is
 `tap_eng_phc_o`, read hierarchically from inside the engine instance so
 that the tie-off is visible to it; a tap on the wrapper's own
 `phc_ns_o` would have stayed green under exactly that tie-off, which is
-measured too. With phase 6 the same tie-off gives 20 checks, 18 PASS,
-2 FAIL, and a live-but-wrong connection (`phc_ns_o + 64'd1`) gives 19
+measured too. With phase 6 the same tie-off gives 24 checks, 22 PASS,
+2 FAIL, and a live-but-wrong connection (`phc_ns_o + 64'd1`) gives 23
 PASS, 1 FAIL.
 
 Scope that carefully, because the same name means two things. What is
@@ -61,9 +61,17 @@ The SLICE's `timestamp_counter` wire is read by
 `KL_gptp_shadow.sv`'s `ts_arr_r <= phc_ns_i` and `KL_gptp_txstamp.sv`'s
 first-beat `ts_r <= phc_ns_i` and IS covered:
 tying both slice consumers in `tb/verilator/gptp_shadow`'s wrapper to
-`64'd0` turns that bench red, 61 checks with 45 PASS and 16 FAIL. The
+`64'd0` turns that bench red, 136 checks with 102 PASS and 34 FAIL. The
 slice's own connection to the ENGINE port is a third thing again, and
 it was invisible until `gptp_shadow` grew the same wiring gate.
+
+The harness derives every injected egress return's `sequenceId` and
+`messageType` from the selected transmitted frame and grades both fields,
+including a nonzero Pdelay sequence and a Sync. This is interface regression
+coverage only: the bench injects timestamps directly into the engine and has
+no boundary stamper, so it proves neither boundary extraction nor
+equal-sequence claim routing. Those integration properties belong to
+`tb/verilator/gptp_shadow`.
 
 Timescale note: the bench clock is 2 MHz while the counter keeps its
 8.0 ns/tick shape, so counter time runs 62.5x slower than the bench

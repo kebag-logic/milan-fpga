@@ -115,16 +115,16 @@ The plane has four seams:
   both ends run this plane the two counters start equal at boot and
   advance together at 1 Hz. Two frames of one messageType are never
   outstanding at once, so the pair separates them. The engine consumes
-  the sequence half today and the type half waits at its boundary
-  (`KL_gptp_shadow`'s `txts_type_i`, mirrored on `dbg_txts_type_o`)
-  until Mister-M-alt/FPGA-gPTP#28's follow-up matches on both.
+  both halves at its boundary (`KL_gptp_shadow`'s `txts_type_i`, mirrored
+  on `dbg_txts_type_o`) and credits only the exact transmitter claim;
+  this is the parent integration of Mister-M-alt/FPGA-gPTP#28.
   Observer-pure (`check_tap_purity` holds). One gPTP stack per port is
   the operating assumption -- two transmitting stacks is itself
   invalid, and the A/B bring-up keeps exactly one talking.
 - **Inside the engine**, the ingress stamp ping-pongs with the message
   bank (stage at sof, commit at eof, length-qualified) -- the fabric
-  bench found the single-register race this retires; the donor's
-  engine v3 record carries the story.
+  bench found the single-register race this retires; the pinned donor's
+  engine record carries the story.
 - **The free-running PHC** reaches the engine on `phc_ns_i` and no
   program the shipped microcode runs reads it: the generator emits no
   `GATH`, and `RTS1`, the register the port feeds through
@@ -154,13 +154,13 @@ The plane has four seams:
   What an unread input still owes is its WIRING, and that was the
   actual defect this branch fixes: it accepts any connection in
   silence. Measured before
-  the fix, at pin `c33fb1af`, tying the slice's own connection to the
+  the fix, at pin `7def718e`, tying the slice's own connection to the
   engine (`KL_gptp_shadow.sv`, the `KL_gptp_engine` instance) to
-  `64'd0` left `tb/verilator/gptp_shadow` at 59 checks, 59 PASS -- a
+  `64'd0` left `tb/verilator/gptp_shadow` at 158 checks, 158 PASS -- a
   mis-wire of the shipped slice, invisible. Both benches now tap the
   ENGINE's port hierarchically and require it to equal the steered
-  counter cycle for cycle and to move; the same tie-off gives 61
-  checks, 59 PASS, 2 FAIL. Those checks prove the CONNECTION and never
+  counter cycle for cycle and to move; the same tie-off gives 160
+  checks, 158 PASS, 2 FAIL. Those checks prove the CONNECTION and never
   that the engine uses the value. Restoring a value consumer is donor
   work and would need a wire field or a published word that wants it,
   which 11.4 does not today.
@@ -179,7 +179,7 @@ why it carries no VERSION bump.
 |---|---|---|
 | gptp-processor `tb/verilator/*` | byte, model counter | the 802.1AS state machines, servo math, and the donor's planted-mutation ladder; its count lives in the donor's engine bench README under `gptp-processor/tb/verilator/engine/` at the pinned SHA and is not mirrored here, where it would drift at every repin |
 | `tb/verilator/gptp_plane` | byte, REAL counter | the engine steers the parent's `timestamp_counter` closed-loop, and its transmitted Follow_Up carries a live timestamp while the two-step Sync body stays zero (Table 11-8). It does not OBSERVE the engine's own `phc_ns_i`, because no program reads that port ([#211](https://github.com/kebag-logic/milan-fpga/issues/211)); it gates the WIRING instead, hierarchically at the engine instance, so a tie-off is red. The slice's `timestamp_counter` wire is a different signal again and IS covered, by `tb/verilator/gptp_shadow` |
-| `tb/verilator/gptp_shadow` | WIDE, real counter + boundary stamper | the fabric slice with no harness timestamps at all; classify/transport/gearbox/stamper; 5 mutations. Since PR #243 it also gates the slice's own connection to the engine's `phc_ns_i`, which passed tied to `64'd0` before; the outcome that gate belongs to is PROPOSED to #211, not decided |
+| `tb/verilator/gptp_shadow` | WIDE, real counter + boundary stamper | the fabric slice with no harness-provided timestamps; classify/transport/gearbox/stamper, positional pairing for all six transmitted types, and the two equal-sequence cross-type collisions proved by delaying/replaying complete real boundary tuples (Req vs Resp and Sync vs Resp). The same gate holds a response return while two same-type peer requests cross the production tap and a start/mid-frame-stalled wide lane; two valid Signaling chasers then reuse both donor message banks, proving the queued request's event snapshot preserves its requester identity, port and exact ingress `requestReceiptTimestamp` through bank churn. Independent request/Sync warm-reset phases prove the cadence and receipt-timer bootstrap. The 160-check run (158 before PR #243's two wiring checks) goes red when the engine's type input is tied off, donor matching is reduced to sequence-only, same-type response ownership or the whole queued-request snapshot is removed, only its saved timestamp is bypassed, stale timer ownership survives reset, the receipt timer is not bootstrapped, or the return-order gate is bypassed. Since PR #243 it also gates the slice's own connection to the engine's `phc_ns_i`, which passed tied to `64'd0` before: `dbg_eng_phc_o` is read hierarchically at `u_shadow.u_engine` and must equal the counter every cycle and move. The outcome that gate belongs to is PROPOSED to #211, not decided |
 | `tb/verilator/milan_dp` obj_gptp | the whole datapath | option-ON elaborates at the shipping 1x1 ENTITY shape (the leg's own -G set, 2 MHz clock -- not the obj_ax1x1 argv); the boot Pdelay_Req reaches the real MAC boundary; NO Announce without asCapable |
 | `tb/verilator/milan_dp` default legs | the whole datapath | the [GPTP-OPT] tripwire: with the option OFF, CSR adjfine and adjtime still reach `timestamp_counter` through the eff muxes (a polarity swap goes red) |
 | `tb/verilator/tsn_fuzz` (`fuzz_ptp.py`) | byte, the tsn-gen 802.1AS models at the CI pin | the plane's own Announce / Sync / Follow_Up / Pdelay field-by-field against the Milan v1.2 profile of 802.1AS-2011 (the Table 11-7 control byte among them), parser drop/ignore gates, BTCA under fuzz, the two-sided asCapable canary; the tally and the tracked gaps live in the generated [`hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md`](../../hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md) |
