@@ -377,8 +377,9 @@ int main(int argc, char **argv) {
   // Follow_Up's origin is the TX timestamp this bench drives itself at
   // :127-130, and every 802.1AS timestamp field is an event message's
   // ingress or egress stamp, so no wire field can carry the free-running
-  // PHC. milan-fpga #211 decided the engine's phc_ns_i stays unread and
-  // is gated by wiring instead; phase 6 is that gate.
+  // PHC. PR #243 proposes to milan-fpga #211 that the engine's phc_ns_i
+  // stay unread and be gated by wiring instead; phase 6 is that gate.
+  // The outcome is proposed, not decided, until #211 is amended.
   {
     expect("quiet ride to grandmaster",
            wait_flags(FL_AMGM, FL_AMGM, 10000000ull), 1);
@@ -401,8 +402,8 @@ int main(int argc, char **argv) {
   }
 
   // ---- 6: the engine's phc_ns_i is WIRED to the counter ------------------
-  // milan-fpga #211's decision: the port stays, unread by the shipped
-  // microprogram, because no 802.1AS field takes a free-running PHC --
+  // What PR #243 proposes to milan-fpga #211: the port stays, unread by
+  // the shipped microprogram, because no 802.1AS field takes a live PHC --
   // the one consumer it ever had (a GATH filling the two-step Sync body)
   // was removed by FPGA-gPTP #10 as a Table 11-8 violation. An unread
   // input accepts ANY wiring silently, so the contract this bench can

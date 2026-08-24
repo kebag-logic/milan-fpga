@@ -730,8 +730,8 @@ int main(int argc, char **argv) {
   expect("the tag is proved for all six transmitted types", types_seen, 6);
 
   // The engine's phc_ns_i is WIRED to the steered counter inside the
-  // slice. milan-fpga #211 decided the port stays unread by the shipped
-  // microprogram -- no 802.1AS field takes a free-running PHC, every
+  // slice. PR #243 proposes to milan-fpga #211 that the port stay unread
+  // by the shipped microprogram -- no 802.1AS field takes a live PHC, every
   // timestamp on the wire is an event message's ingress or egress stamp --
   // so connectivity is the only contract left to hold, and it is the one
   // a silicon mis-wire breaks. Neither check claims the engine uses the

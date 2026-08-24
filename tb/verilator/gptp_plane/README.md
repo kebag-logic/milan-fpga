@@ -23,13 +23,17 @@ What it proves:
 | 5 | announce silence rides to grandmaster; the two-step Sync's ten reserved octets are zero (802.1AS-2011 Table 11-8) and its paired Follow_Up carries a plausible live timestamp. It does NOT observe `phc_ns_i`: phase 6 is why |
 | 6 | the ENGINE's `phc_ns_i` port carries the steered counter, cycle for cycle, and moves. A WIRING gate, not an observation: it proves the connection, never that the engine uses the value |
 
-Phase 6 is the answer to
+Phase 6 is the answer this branch PROPOSES to
 [#211](https://github.com/kebag-logic/milan-fpga/issues/211), and the
 reasoning matters more than the two checks. `KL_gptp_engine`'s
 `phc_ns_i` has no reader in the shipped microprogram: the generator
 emits no `GATH` and `RTS1`, the register the port feeds through
-`disp_ts1_r`, is read by no program. That is settled rather than
-pending, because no 802.1AS field can carry a free-running clock read.
+`disp_ts1_r`, is read by no program. #211 records two outcomes and
+both need `gptp-processor` edits this repository cannot make, so PR
+#243 asked #211 for a third one, RETAIN UNREAD AND GATE THE WIRING;
+until a maintainer amends #211 that outcome is proposed, not decided.
+The argument for it is that no 802.1AS field can carry a free-running
+clock read.
 Every timestamp on the wire is an event message's ingress or egress
 stamp -- the Follow_Up's preciseOriginTimestamp is the Sync's egress
 time (11.4.4.2.1), the pdelay legs carry the exchange's own stamps --

@@ -129,21 +129,31 @@ The plane has four seams:
   program the shipped microcode runs reads it: the generator emits no
   `GATH`, and `RTS1`, the register the port feeds through
   `disp_ts1_r`, is read nowhere.
-  [#211](https://github.com/kebag-logic/milan-fpga/issues/211) decided
-  that stays so, because no 802.1AS field can carry a free-running
-  clock read. Every timestamp on the wire is an event message's
-  ingress or egress stamp -- the Follow_Up's preciseOriginTimestamp is
-  the Sync's egress time (11.4.4.2.1), the pdelay legs carry the
-  exchange's own stamps -- and the two-step Sync's ten octets after
-  the header are reserved and transmitted as zero (Table 11-8). The
-  one consumer the port ever had was a `GATH` filling that Sync body,
-  which was a Table 11-8 violation; FPGA-gPTP #10 removed it. The port
-  itself stays: it is the µCPU's gather source for local time and the
-  dispatch snapshot behind `RTS1`, the same base-ISA surface as the
-  engine's reserved `eff_*` strobes, and removing it is donor RTL
-  churn with an ISA cost and no wire benefit.
+  [#211](https://github.com/kebag-logic/milan-fpga/issues/211) asks
+  whether that should change. Both outcomes it records -- the engine
+  consumes the port, or the port, its dispatch register and the parent
+  wiring are removed -- need edits inside `gptp-processor`, which this
+  repository pins and does not own, so neither is landable from here.
+  PR #243 proposes a third outcome, RETAIN UNREAD AND GATE THE WIRING,
+  and has asked for it as a public amendment of #211's acceptance
+  criteria. Until a maintainer grants that amendment the outcome is
+  PROPOSED, not decided, and this section records the proposal rather
+  than a settled decision.
+  The reasoning offered for it: no 802.1AS field can carry a
+  free-running clock read. Every timestamp on the wire is an event
+  message's ingress or egress stamp -- the Follow_Up's
+  preciseOriginTimestamp is the Sync's egress time (11.4.4.2.1), the
+  pdelay legs carry the exchange's own stamps -- and the two-step
+  Sync's ten octets after the header are reserved and transmitted as
+  zero (Table 11-8). The one consumer the port ever had was a `GATH`
+  filling that Sync body, which was a Table 11-8 violation; FPGA-gPTP
+  #10 removed it. Removing the port instead is donor RTL churn with an
+  ISA cost and no wire benefit: it is the µCPU's gather source for
+  local time and the dispatch snapshot behind `RTS1`, the same
+  base-ISA surface as the engine's reserved `eff_*` strobes.
   What an unread input still owes is its WIRING, and that was the
-  actual defect: it accepts any connection in silence. Measured before
+  actual defect this branch fixes: it accepts any connection in
+  silence. Measured before
   the fix, at pin `c33fb1af`, tying the slice's own connection to the
   engine (`KL_gptp_shadow.sv`, the `KL_gptp_engine` instance) to
   `64'd0` left `tb/verilator/gptp_shadow` at 59 checks, 59 PASS -- a

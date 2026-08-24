@@ -19,8 +19,9 @@
 //                  timestamp_out ->  phc_ns_i     (the clock it steers;
 //                                                  the ENGINE's port is
 //                                                  UNREAD by the shipped
-//                                                  microprogram, decided
-//                                                  in milan-fpga #211, so
+//                                                  microprogram; PR #243
+//                                                  proposes that to #211,
+//                                                  pending amendment, so
 //                                                  it is gated by WIRING
 //                                                  and not by behaviour:
 //                                                  tap_eng_phc_o below.

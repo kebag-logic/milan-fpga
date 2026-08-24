@@ -32,8 +32,8 @@ no program reads accepts any wiring in silence, so connectivity is the
 only contract left to hold, and it is the one silicon breaks. With the
 gate the same tie-off gives 61 checks, 59 PASS, 2 FAIL. The two checks
 prove the CONNECTION and never that the engine uses the value; the
-decision that it should not is recorded in
-[#211](https://github.com/kebag-logic/milan-fpga/issues/211) and in
+proposal that it should not, and the amendment it needs from
+[#211](https://github.com/kebag-logic/milan-fpga/issues/211), are in
 [`docs/design/GPTP_PLANE.md`](../../../docs/design/GPTP_PLANE.md).
 
 This bench found the engine's ingress-stamp race (a chaser's sof
