@@ -607,6 +607,10 @@ harness checks egress `m_tdata` but **not `m_tkeep`**; a keep/last_be bug in the
 
 ## Section 19: kernel hangs after OpenSBI (no `Linux version`)  -  a STALE `litex_term` served the wrong boot manifest
 
+> Historical incident: `boot_flashkernel.json` and the `FLASH_KERNEL` shortcut
+> are now retired. The supported companion `boot.sh` uploads the complete,
+> preflighted tuple specifically to make this zero-kernel state unreachable.
+
 **Symptom (2026-07-05, FPU bring-up).** After loading a bitstream, the console showed the
 LiteX BIOS, then OpenSBI's full banner ending at `Boot HART MEDELEG …`, and then **nothing**  - 
 no `Linux version`, no panic, a silent hang at the OpenSBI→kernel handoff. It reproduced
@@ -706,7 +710,9 @@ test repo) and flash *that*.
 while preparing the complete target set, before any write:
 [`check_dtb_csr.py`](../../sw/litex/check_dtb_csr.py) validates the `kl,dma-ether` windows
 against the build's `csr.csv` for **both** `$DTB` and `$OPENSBI` - it carves the embedded FDT
-out of any binary, so the image that actually boots is the image that gets checked. The same
+out of any binary, so the image that actually boots is the image that gets checked. Deploy
+also supplies the layout's compiled `cpu_xlen`; the product RV32 path requires rv32 ISA plus
+sv32 and refuses an RV64/sv39 tree even when its MMIO windows match. The same
 transaction then proves the live offset-zero `.bit` payload and orders verified writes by
 the installed→target owner direction. A full-Linux source also has its live FBI rootfs
 CRC and owner marker checked before writing; direct partial commands require the explicit

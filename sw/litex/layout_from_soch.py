@@ -6,14 +6,19 @@ The sweep path skips main()'s json export, but the MILAN_FLASHBOOT_* constants
 in software/include/generated/soc.h are what the BIOS actually compiled —
 reconstructing from them can never drift from the gateware. Usage:
 
-    layout_from_soch.py <build_dir>
+    layout_from_soch.py <build_dir> [--bit <build/gateware/board.bit>]
 """
-import json, os, re, sys
+import argparse
+import glob
+import json
+import os
+import re
 
 from gptp_owner_contract import GPTP_OWNER_BY_CODE
+from qspi_owner_transition import TransitionError, bitstream_binding
 
 
-def main(build_dir):
+def main(build_dir, bit_path=None):
     soc_h = os.path.join(build_dir, "software/include/generated/soc.h")
     text = open(soc_h).read()
 
@@ -26,6 +31,11 @@ def main(build_dir):
         raise SystemExit(
             "layout: soc.h has no valid MILAN_GPTP_OWNER "
               "(0=none, 1=fabric, 2=software); refusing an unowned layout")
+    cpu_xlen = const("MILAN_CPU_XLEN")
+    if cpu_xlen not in (32, 64):
+        raise SystemExit(
+            "layout: soc.h has no valid MILAN_CPU_XLEN (32 or 64); "
+            "refusing an architecture-unbound layout")
 
     payloads = []
     for name in ("aem", "opensbi", "dtb", "kernel", "rootfs"):
@@ -66,9 +76,24 @@ def main(build_dir):
 
     layout = {"manifest": manifest,
               "gptp_owner": GPTP_OWNER_BY_CODE[owner_code],
+              "cpu_xlen": cpu_xlen,
               "entry": const("MILAN_FLASHBOOT_ENTRY"),
               "complete": "MILAN_FLASHBOOT_COMPLETE" in text,
               "images": images}
+    if images:
+        if bit_path is None:
+            candidates = sorted(glob.glob(
+                os.path.join(build_dir, "gateware", "*.bit")))
+            if len(candidates) != 1:
+                raise SystemExit(
+                    "layout: expected exactly one gateware/*.bit for payload "
+                    f"binding, found {len(candidates)}; pass --bit explicitly")
+            bit_path = candidates[0]
+        try:
+            layout.update(bitstream_binding(bit_path))
+        except TransitionError as exc:
+            raise SystemExit(
+                f"layout: cannot bind parsed bitstream {bit_path}: {exc}") from exc
     out = os.path.join(build_dir, "flashboot_layout.json")
     with open(out, "w") as f:
         json.dump(layout, f, indent=2)
@@ -76,4 +101,8 @@ def main(build_dir):
     print("[layout]", [(i["name"], hex(i["offset"])) for i in images])
 
 if __name__ == "__main__":
-    main(sys.argv[1])
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("build_dir")
+    parser.add_argument("--bit")
+    args = parser.parse_args()
+    main(args.build_dir, args.bit)

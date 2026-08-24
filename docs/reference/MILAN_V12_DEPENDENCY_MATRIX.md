@@ -115,7 +115,7 @@ is verified*, and which requirements are **not** Milan-driven.
 | `tsn-gen` | byte-exact AECP PDU specs + BDD features. **There is an AECP responder again**: `aecp_read_descriptor` is a real byte-exact test once a descriptor image is in DRAM (against a stock build it measures `BAD_ARGUMENTS`, i.e. the image gap), and every other AECP yaml measures the `NOT_IMPLEMENTED` echo's header discipline — the conformance floor, never command coverage. The repo-side AECP/ACMP/ADP/legacy fuzz campaigns are deleted; only the **AAF** campaign survives | `software-defined-tsn-stack/.../1722_1/aecp/*.yaml`, `.../tests/aecp_behave/features/*.feature`, `protocols/milan/aecp_read_descriptor.yaml` |
 | `vtb:<n>` | Verilator self-checking harness. `ls tb/verilator/` is authoritative; `pp_shadow` is the protocol processor's lane, and the `aecp` / `acmp` / `acmp_lstn` / `adp` / `lwsrp*` / `persist` / `aempatch` suites are deleted with their RTL | `tb/verilator/<n>` (`cbs`, `shaper_core`, `cls`, `ptp`, `ptp_sync`, `csr`, `pp_shadow`, `milan_dp`) |
 | `Hive` | AVDECC controller (enumerate/lock/connect/identify) | external |
-| `ptp4l`/`phc2sys`, `ethtool`, `tc cbs` | linuxptp + Linux net tooling | on-target |
+| `ptp4l`/`phc2sys`, `ethtool`, `tc cbs` | linuxptp (explicit software-owner option-off comparison only) + Linux net tooling | on-target |
 | `mrpd` / `maap` | OpenAvnu daemons — SUPERSEDED 2026-07-12: SRP/MAAP left software. **Re-pointed 2026-08-13**: SRP is now the **protocol processor's** (the lwSRP engine is deleted), MAAP is still this fabric's `KL_maap`; see [ARCHITECTURE_HW_SW_SPLIT.md](../ARCHITECTURE_HW_SW_SPLIT.md) | peer-side only |
 | `CONF` | the **Milan conformance plan** as recreated by the private bench suite | private test repo |
 

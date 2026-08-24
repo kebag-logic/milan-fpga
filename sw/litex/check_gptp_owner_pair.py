@@ -22,7 +22,7 @@ import sys
 import tempfile
 
 from gptp_owner_contract import GPTP_OWNERS
-from qspi_owner_transition import (TransitionError,
+from qspi_owner_transition import (TransitionError, bitstream_binding,
                                    validate_artifact_pair)
 
 OWNERS = GPTP_OWNERS
@@ -397,14 +397,16 @@ def self_test():
         from qspi_owner_transition import _fake_bit
         _fake_bit(paired_bit, b"\xff" * 16 + b"\xaa\x99\x55\x66paired")
         paired_layout = os.path.join(paired, "flashboot_layout.json")
-        with open(paired_layout, "w", encoding="utf-8") as stream:
-            json.dump({"gptp_owner": "fabric", "manifest": "full",
+        paired_body = {"gptp_owner": "fabric", "manifest": "full",
                        "complete": True, "images": [
                            {"name": "bitstream", "offset": 0,
                             "budget": 0x400000},
                            {"name": "rootfs", "offset": 0x400000,
                             "budget": 0x100000},
-                       ]}, stream)
+                       ]}
+        paired_body.update(bitstream_binding(paired_bit))
+        with open(paired_layout, "w", encoding="utf-8") as stream:
+            json.dump(paired_body, stream)
         plain = archives[False, "cpio.xz"]
         expect(True, paired_layout, plain, bit=paired_bit,
                part="xc7a100tfgg484")
@@ -418,6 +420,11 @@ def self_test():
         with open(corrupt_bit, "wb") as stream:
             stream.write(b"not a Xilinx bitstream")
         expect(False, paired_layout, plain, bit=corrupt_bit,
+               part="xc7a100tfgg484")
+        adjacent_bit = os.path.join(paired, "gateware", "other-owner.bit")
+        _fake_bit(adjacent_bit,
+                  b"\xff" * 16 + b"\xaa\x99\x55\x66software-owner")
+        expect(False, paired_layout, plain, bit=adjacent_bit,
                part="xc7a100tfgg484")
 
     print(f"[gptp-owner] self-test: {checks}/{checks} checks pass")

@@ -271,7 +271,7 @@ rows("r_steer", 15, 240, 710, [
 box("rxirq", 15, 310, 710, 60, "per-queue IRQ -> PLIC (rx-usecs-low moderation: +32%)",
     fill=SYS[0], stroke=SYS[1], font=9, parent="c_rxdma")
 
-cont("c_cpu", 800, 60, 740, 400, "VexiiRiscv cluster (RV64IMA)", stroke=SYS[1], fill="#faf6fc", parent="c_soc")
+cont("c_cpu", 800, 60, 740, 400, "VexiiRiscv cluster (product RV32IMA / sv32)", stroke=SYS[1], fill="#faf6fc", parent="c_soc")
 box("hart0", 15, 35, 340, 80, "hart 0\nlsu refill 8 · prefetch rpt", fill=SYS[0], stroke=SYS[1], parent="c_cpu")
 box("hart1", 375, 35, 350, 80, "hart 1\n(1-hart decision pending:\n58% LUTs datapoint)", fill=SYS[0], stroke=SYS[1], font=9, parent="c_cpu")
 rows("r_cpu", 15, 130, 710, [
@@ -290,10 +290,10 @@ box("kleth", 15, 35, 1490, 280,
     "• 2 RX queues x threaded NAPI · RSC ON @250 us · hs_pgsz=16384 <-> gateware --hs-page-bytes 16384 (STRICT)\n"
     "• 4-slot RX + pop-ordered CQ (wedge-free) · HW-TSO · chain-csum · ack-merge tout 512 us\n"
     "• identity provisioning once/boot: devmem 0x9000_0600 group (aecp_csr_setup.sh, caps 0x8588)\n"
-    "• NEXT: PHC /dev/ptpN + SO_TIMESTAMPING — the gPTP gate (ARCHITECTURE_HW_SW_SPLIT.md)",
+    "• PHC /dev/ptpN + SO_TIMESTAMPING expose the fabric clock; the product-default gPTP owner remains in fabric",
     fill=SYS[0], stroke=SYS[1], align="left", parent="c_drv")
 box("ptpd", 15, 335, 1490, 110,
-    "linuxptp: ptp4l (802.1AS BMCA + servo) + phc2sys — in the rootfs, unvalidated until the PHC lands;\nthen a small bridge writes GM id/domain -> CSR 0x624/0x628 on change (fabric re-advertises, AS_PATH stays true)",
+    "gPTP exact-one owner: product-default KL_gptp_shadow/gptp-processor owns BMCA, servo and pdelay and publishes GM/parent/PHC state;\nonly the explicit software-owner option-off comparison starts linuxptp + phc2sys/gptp2csr — never concurrently",
     fill=SYS[0], stroke=SYS[1], align="left", parent="c_drv")
 box("pw", 15, 465, 1490, 110,
     "media rev 3 (2026-08-13): softcore only fills a DMA PCM ring (ms cadence); fabric does SRP (MSRP/MVRP + admission),\nAAF framer (PTP presentation time) and the ACMP bind record - all three from the protocol processor. NO AECP anywhere.",

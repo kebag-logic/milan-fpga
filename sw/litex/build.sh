@@ -88,9 +88,10 @@ if [ "${1:-}" = "flash" ]; then
         fi
         dir=${dir%/}
         # sweep builds skip main()'s json export; reconstruct from the compiled
-        # BIOS constants (soc.h is the single source of truth either way)
+        # BIOS constants and bind them to the exact parsed bit payload.
         if [ ! -f "$dir/flashboot_layout.json" ] && [ -f "$dir/software/include/generated/soc.h" ]; then
-            "${PYTHON:-python3}" "$SOC_DIR/layout_from_soch.py" "$dir"
+            "${PYTHON:-python3}" "$SOC_DIR/layout_from_soch.py" "$dir" \
+                --bit "$dir/gateware/$bitname"
         fi
         case "$policy" in
             boot)

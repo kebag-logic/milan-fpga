@@ -30,6 +30,7 @@ import argparse
 import binascii
 
 from gptp_owner_contract import GPTP_OWNER_CODES
+from qspi_owner_transition import bitstream_binding
 
 from migen import ClockDomain, ClockDomainsRenamer, ClockSignal, ResetSignal, Instance, Signal, Mux, If, Cat, C, Array, FSM, NextValue, NextState, Memory
 from migen.genlib.cdc import MultiReg
@@ -5643,6 +5644,7 @@ class MilanSoC(SoCCore):
                  gptp_plane=None,
                  render_lpf=True, optional_blocks=None,
                  cbs_queues_mask=None, entity_gen_dir=None, **kwargs):
+        self._cpu_xlen = int(xlen)
         # Resolve the one PHC owner once, before it fans out into RTL, firmware
         # constants and the flash artifact contract.  `none` is a real state
         # for the documented --no-milan bare-SoC path; a missing value is not
@@ -5777,6 +5779,10 @@ class MilanSoC(SoCCore):
         # mutable rootfs overlay.  Encoding: 0=none, 1=fabric, 2=software.
         self.add_constant("MILAN_GPTP_OWNER",
                           GPTP_OWNER_CODES[self._gptp_owner])
+        # The full Linux artifact checker consumes the same compiled CPU width
+        # when rejecting an RV64/sv39 DTB under an RV32 build.  Sweep layouts
+        # reconstruct this value from soc.h rather than trusting a launcher.
+        self.add_constant("MILAN_CPU_XLEN", self._cpu_xlen)
         if software_profile == "baremetal":
             self.add_config("BIOS_NO_BOOT")
 
@@ -6543,6 +6549,7 @@ class MilanSoC(SoCCore):
                                   # with the marker inside the actual rootfs
                                   # archive before the first QSPI write.
                                   "gptp_owner": self._gptp_owner,
+                                  "cpu_xlen": self._cpu_xlen,
                                   "entry": (None if manifest_name == "baremetal"
                                             else FLASHBOOT_ENTRY),
                                   "complete": images == FLASHBOOT_MANIFESTS["full"],
@@ -7234,7 +7241,16 @@ def main():
               f"@ 0x{soc._pp_windows['desc_base']:08x}")
     # Persist the flash-boot layout so deploy.sh writes the exact same offsets the BIOS
     # was compiled with (single source of truth  -  see FLASHBOOT_LAYOUT / deploy.sh flash-pair).
+    # A runnable Vivado build also binds the JSON owner fact to the exact parsed
+    # configuration payload and FPGA part.  Elaboration-only layouts deliberately
+    # omit this binding and therefore cannot pass a persistent deploy check.
     if getattr(soc, "_flashboot_layout", None):
+        if args.build:
+            bit_path = builder.get_bitstream_filename(mode="sram")
+            if not os.path.isfile(bit_path):
+                raise RuntimeError(
+                    f"Vivado build produced no bitstream for layout binding: {bit_path}")
+            soc._flashboot_layout.update(bitstream_binding(bit_path))
         layout_path = os.path.join(builder.output_dir, "flashboot_layout.json")
         with open(layout_path, "w") as f:
             json.dump(soc._flashboot_layout, f, indent=2)

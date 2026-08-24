@@ -8465,7 +8465,7 @@ def test_gptp_rootfs_handoff_preserves_software_config():
         [sys.executable, pair_tool, "--self-test"], cwd=ROOT,
         text=True, capture_output=True)
     assert pair_self.returncode == 0, pair_self.stdout + pair_self.stderr
-    assert "42/42 checks pass" in pair_self.stdout
+    assert "43/43 checks pass" in pair_self.stdout
 
     transition_tool = os.path.join(SOC_DIR, "qspi_owner_transition.py")
     transition_self = subprocess.run(
@@ -8473,7 +8473,7 @@ def test_gptp_rootfs_handoff_preserves_software_config():
         text=True, capture_output=True)
     assert transition_self.returncode == 0, \
         transition_self.stdout + transition_self.stderr
-    assert "17/17 checks pass" in transition_self.stdout
+    assert "20/20 checks pass" in transition_self.stdout
 
     # A sweep's fallback layout is reconstructed only from constants compiled
     # into its soc.h.  Prove all three enum values round-trip, and that an old
@@ -8485,16 +8485,61 @@ def test_gptp_rootfs_handoff_preserves_software_config():
         soc_h = os.path.join(inc, "soc.h")
         for code, wanted in ((0, "none"), (1, "fabric"), (2, "software")):
             with open(soc_h, "w", encoding="utf-8") as stream:
-                stream.write(f"#define MILAN_GPTP_OWNER {code}\n")
+                stream.write(f"#define MILAN_GPTP_OWNER {code}\n"
+                             "#define MILAN_CPU_XLEN 32\n")
             proc = subprocess.run(
                 [sys.executable, layout_tool, td], text=True,
                 capture_output=True)
             assert proc.returncode == 0, proc.stdout + proc.stderr
             with open(os.path.join(td, "flashboot_layout.json"),
                       encoding="utf-8") as stream:
-                assert json.load(stream)["gptp_owner"] == wanted
+                rebuilt = json.load(stream)
+                assert rebuilt["gptp_owner"] == wanted
+                assert rebuilt["cpu_xlen"] == 32
+
+        # A real sweep layout carries payload rows and therefore must bind the
+        # exact .bit bytes, not merely discover a file in the same directory.
+        gateware = os.path.join(td, "gateware")
+        os.makedirs(gateware)
+        sweep_bit = os.path.join(gateware, "alinx_ax7101.bit")
+        qspi_transition._fake_bit(
+            sweep_bit, b"\xff" * 16 + b"\xaa\x99\x55\x66sweep-binding")
         with open(soc_h, "w", encoding="utf-8") as stream:
-            stream.write("#define CSR_DATA_WIDTH 32\n")
+            stream.write(
+                "#define MILAN_GPTP_OWNER 1\n"
+                "#define MILAN_CPU_XLEN 32\n"
+                "#define MILAN_FLASHBOOT_KERNEL_OFFSET 0x400000\n"
+                "#define MILAN_FLASHBOOT_KERNEL_ADDR 0x40000000\n"
+                "#define MILAN_FLASHBOOT_KERNEL_SIZE 0x300000\n"
+                "#define MILAN_FLASHBOOT_OPENSBI_OFFSET 0x700000\n"
+                "#define MILAN_FLASHBOOT_OPENSBI_ADDR 0x40f00000\n"
+                "#define MILAN_FLASHBOOT_OPENSBI_SIZE 0x60000\n"
+                "#define MILAN_FLASHBOOT_DTB_OFFSET 0x760000\n"
+                "#define MILAN_FLASHBOOT_DTB_ADDR 0x40ef0000\n"
+                "#define MILAN_FLASHBOOT_DTB_SIZE 0x20000\n"
+                "#define MILAN_FLASHBOOT_ROOTFS_OFFSET 0x780000\n"
+                "#define MILAN_FLASHBOOT_ROOTFS_ADDR 0x41000000\n"
+                "#define MILAN_FLASHBOOT_ROOTFS_SIZE 0x760000\n"
+                "#define MILAN_FLASHBOOT_COMPLETE 1\n")
+        bound = subprocess.run(
+            [sys.executable, layout_tool, td, "--bit", sweep_bit], text=True,
+            capture_output=True)
+        assert bound.returncode == 0, bound.stdout + bound.stderr
+        with open(os.path.join(td, "flashboot_layout.json"),
+                  encoding="utf-8") as stream:
+            rebuilt = json.load(stream)
+        for key, value in qspi_transition.bitstream_binding(sweep_bit).items():
+            assert rebuilt[key] == value
+
+        with open(soc_h, "w", encoding="utf-8") as stream:
+            stream.write("#define MILAN_GPTP_OWNER 1\n")
+        missing_xlen = subprocess.run(
+            [sys.executable, layout_tool, td], text=True,
+            capture_output=True)
+        assert missing_xlen.returncode != 0
+        assert "MILAN_CPU_XLEN" in missing_xlen.stdout + missing_xlen.stderr
+        with open(soc_h, "w", encoding="utf-8") as stream:
+            stream.write("#define MILAN_CPU_XLEN 32\n")
         missing = subprocess.run(
             [sys.executable, layout_tool, td], text=True,
             capture_output=True)
@@ -8578,8 +8623,8 @@ def test_gptp_rootfs_handoff_preserves_software_config():
         assert not os.path.exists(programmer_log), \
             "build.sh trusted a target pair without installed-state proof"
 
-    print("  [gate 1d] 42 archive/enum/FBI/artifact-binding arms, 17 transition parser/planner "
-          "arms, soc.h owner reconstruction, artifact mismatch rejection, "
+    print("  [gate 1d] 43 archive/enum/FBI/artifact-binding arms, 20 transition parser/planner "
+          "arms, soc.h owner/XLEN reconstruction, payload-digest binding, "
           "and all persistent partial/unknown-state entry points refuse "
           "before programmer I/O")
 
@@ -8718,6 +8763,7 @@ os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
                 ]
                 body = {"manifest": "full", "gptp_owner": owner,
                         "complete": True, "images": images}
+            body.update(qspi_transition.bitstream_binding(bit))
             with open(layout, "w", encoding="utf-8") as out:
                 json.dump(body, out)
             return {"dir": build, "layout": layout, "bit": bit,
@@ -10887,6 +10933,59 @@ def test_platform_dt_and_driver_shape():
     assert len(pb_bad) == 1 and "milan_dma_pb_over" in pb_bad[0]
     print("  [gate 19b] PCM capture/playback DT window-size mutations "
           "REFUSED at the first stranded CSR")
+
+    # CPU width is a boot artifact contract, not something CSR window equality
+    # can prove.  Exercise the exact RV32 identity, both independent stale
+    # dimensions, the supported RV64 arm, and the OpenSBI-embedded-FDT seam.
+    rv32_cpu = """
+        /dts-v1/;
+        / {
+          cpus {
+            cpu@0 {
+              device_type = "cpu";
+              riscv,isa = "rv32ima";
+              mmu-type = "riscv,sv32";
+              interrupt-controller { compatible = "riscv,cpu-intc"; };
+            };
+          };
+        };
+    """
+    rv64_cpu = rv32_cpu.replace("rv32ima", "rv64ima").replace(
+        "riscv,sv32", "riscv,sv39")
+    rv32_sv39 = rv32_cpu.replace("riscv,sv32", "riscv,sv39")
+    assert not dtb_csr.cpu_identity_errors(rv32_cpu, 32)
+    rv64_errors = dtb_csr.cpu_identity_errors(rv64_cpu, 32)
+    assert any("rv64ima" in error for error in rv64_errors)
+    assert any("sv39" in error for error in rv64_errors)
+    sv39_errors = dtb_csr.cpu_identity_errors(rv32_sv39, 32)
+    assert len(sv39_errors) == 1 and "sv39" in sv39_errors[0]
+    assert not dtb_csr.cpu_identity_errors(rv64_cpu, 64)
+
+    with tempfile.TemporaryDirectory() as td:
+        opensbi = os.path.join(td, "fw_jump.bin")
+        fake_fdt = dtb_csr.FDT_MAGIC + (16).to_bytes(4, "big") + b"FDTBYTES"
+        with open(opensbi, "wb") as stream:
+            stream.write(b"OPENSBI-RV64-PREFIX" + fake_fdt + b"TRAILER")
+        real_run = dtb_csr.subprocess.run
+        seen_embedded = []
+
+        def fake_dtc(argv, **kwargs):
+            blob = open(argv[-1], "rb").read()
+            seen_embedded.append(blob)
+            return subprocess.CompletedProcess(
+                argv, 0, stdout=rv64_cpu, stderr="")
+
+        dtb_csr.subprocess.run = fake_dtc
+        try:
+            embedded_dts = dtb_csr.decompile(opensbi)
+        finally:
+            dtb_csr.subprocess.run = real_run
+        assert seen_embedded == [fake_fdt]
+        embedded_errors = dtb_csr.cpu_identity_errors(embedded_dts, 32)
+        assert any("rv64ima" in error for error in embedded_errors)
+        assert any("sv39" in error for error in embedded_errors)
+    print("  [gate 19b] 5/5 RV32 identity, RV64 ISA, sv39 MMU, RV64 support, "
+          "and OpenSBI-embedded-FDT mutations graded")
 
 
 def test_platform_rejects():

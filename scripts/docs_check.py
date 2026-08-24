@@ -39,6 +39,11 @@ Checks, over every ``*.md`` file in the tree:
    sign in prose, and no un-anchored ``X.md Section N`` pointers. The archive
    and in-place-obsolete pages (first line ``[OBSOLETE + date]``, the regex
    lifted from ``check_archive.py``) are records of their time and exempt.
+7. **gPTP ownership semantics** — a present-tense claim that assigns linuxptp
+   normal-operation, policy-plane, BMCA or servo ownership must say that it is
+   the explicit software-owner/option-off comparison. The product default has
+   exactly one fabric owner. Diagram sources and generated text artifacts are
+   checked as well as Markdown.
 
 Exit 0 = clean; exit 1 = findings, one per line as ``path:line: message``.
 """
@@ -137,6 +142,21 @@ RETIRED = {
 # Bench/host-identifying patterns (generic shapes only — never the literals).
 LOCAL_RE = re.compile(
     r"amx-|/home/alex|enx[0-9a-f]{8,}|serial/by-id/usb-[A-Za-z0-9]|192\.168\.127"
+)
+
+# linuxptp remains valuable comparison/bench evidence, but it is not the
+# product-default gPTP owner.  Look at a three-line claim window so normal
+# Markdown wrapping cannot hide an unqualified ownership statement.  The
+# qualifier is intentionally architectural (owner/profile), not a vague
+# "optional": exactly-one ownership is the invariant this rule protects.
+GPTP_LINUX_RE = re.compile(r"\blinuxptp\b", re.IGNORECASE)
+GPTP_OWNER_CLAIM_RE = re.compile(
+    r"normal operation|policy[- ]shaped|policy plane|gPTP stack|BMCA|servo",
+    re.IGNORECASE,
+)
+GPTP_OWNER_QUALIFIER_RE = re.compile(
+    r"software[- ]owner|option[- ]off|comparison|historical|older",
+    re.IGNORECASE,
 )
 
 LINK_RE = re.compile(r"!?\[[^\]]*\]\(([^)\s]+)(?:\s+\"[^\"]*\")?\)")
@@ -475,20 +495,48 @@ def check_md(path, relpath, resolve, tracked_set):
     return findings
 
 
+def check_gptp_owner_claims(text, relpath, *, exempt_obsolete=True):
+    """Reject unqualified claims that make linuxptp the active gPTP owner."""
+    lines = text.splitlines()
+    if relpath.startswith("historical_now_obsolete/"):
+        return []
+    if (exempt_obsolete and lines
+            and OBSOLETE_HEADER_RE.fullmatch(lines[0])):
+        return []
+    findings = []
+    for index, line in enumerate(lines):
+        if not GPTP_LINUX_RE.search(line):
+            continue
+        lo, hi = max(0, index - 1), min(len(lines), index + 2)
+        window = " ".join(lines[lo:hi])
+        if (GPTP_OWNER_CLAIM_RE.search(window)
+                and not GPTP_OWNER_QUALIFIER_RE.search(window)):
+            findings.append(
+                f"{relpath}:{index + 1}: unqualified linuxptp gPTP-owner "
+                "claim — name the explicit software-owner option-off "
+                "comparison and retain the product-default fabric owner")
+    return findings
+
+
 def main():
     findings = []
     md = tracked("*.md")
     resolve = make_resolver(md)
     tracked_set = set(md)
     for rel in md:
-        findings.extend(check_md(REPO / rel, rel, resolve, tracked_set))
+        path = REPO / rel
+        findings.extend(check_md(path, rel, resolve, tracked_set))
+        findings.extend(check_gptp_owner_claims(
+            path.read_text(encoding="utf-8", errors="replace"), rel))
     # local-info sweep over diagram sources (text formats only)
     for pattern in ("docs/*.gen.py", "docs/*/*.gen.py", "docs/*.drawio",
                     "docs/*/*.drawio", "docs/*.svg", "docs/*/*.svg"):
         for rel in tracked(pattern):
-            for lineno, line in enumerate(
-                    (REPO / rel).read_text(encoding="utf-8",
-                                           errors="replace").splitlines(), 1):
+            diagram_text = (REPO / rel).read_text(
+                encoding="utf-8", errors="replace")
+            findings.extend(check_gptp_owner_claims(
+                diagram_text, rel, exempt_obsolete=False))
+            for lineno, line in enumerate(diagram_text.splitlines(), 1):
                 lm = LOCAL_RE.search(line)
                 if lm:
                     findings.append(f"{rel}:{lineno}: local info '{lm.group(0)}'")

@@ -35,7 +35,7 @@
 <text x="44" y="587" font-size="16" fill="#212121"><tspan> </tspan></text>
 <text x="916" y="587" font-size="11.5" fill="#2E7D32" text-anchor="end">dev host · Python → Verilog  (sw/litex/milan_soc.py)</text>
 <rect x="40" y="614" width="880" height="26" rx="4" fill="#ffffff" fill-opacity="0.72" stroke="#2E7D32" stroke-opacity="0.5" stroke-width="1"/>
-<text x="50" y="631" font-size="12.5" fill="#212121">MilanSoC (top: NaxRiscv + DDR3 + NIC + flash)   ·   _CRG (PLL/clocks/CDC)</text>
+<text x="50" y="631" font-size="12.5" fill="#212121">MilanSoC (top: VexiiRiscv RV32 + DDR3 + NIC + flash)   ·   _CRG (PLL/clocks/CDC)</text>
 <rect x="40" y="646" width="880" height="26" rx="4" fill="#ffffff" fill-opacity="0.72" stroke="#2E7D32" stroke-opacity="0.5" stroke-width="1"/>
 <text x="50" y="663" font-size="12.5" fill="#212121">MilanNIC / add_milan_datapath   ·   MilanMAC (LiteEth glue)</text>
 <rect x="40" y="678" width="880" height="26" rx="4" fill="#ffffff" fill-opacity="0.72" stroke="#2E7D32" stroke-opacity="0.5" stroke-width="1"/>
@@ -73,7 +73,7 @@
 <text x="44" y="1211" font-size="16" fill="#212121"><tspan> </tspan></text>
 <text x="916" y="1211" font-size="11.5" fill="#6A1B9A" text-anchor="end">FPGA fabric · 3rd-party cores</text>
 <rect x="40" y="1238" width="880" height="26" rx="4" fill="#ffffff" fill-opacity="0.72" stroke="#6A1B9A" stroke-opacity="0.5" stroke-width="1"/>
-<text x="50" y="1255" font-size="12.5" fill="#212121">NaxRiscv (RV64GC/sv39 CPU, SpinalHDL)   ·   LiteEth (MAC + GMII/RGMII PHY)</text>
+<text x="50" y="1255" font-size="12.5" fill="#212121">VexiiRiscv (product RV32/sv32 CPU, SpinalHDL; NaxRiscv historical)   ·   LiteEth (MAC + GMII/RGMII PHY)</text>
 <rect x="40" y="1270" width="880" height="26" rx="4" fill="#ffffff" fill-opacity="0.72" stroke="#6A1B9A" stroke-opacity="0.5" stroke-width="1"/>
 <text x="50" y="1287" font-size="12.5" fill="#212121">LiteDRAM (DDR3, A7DDRPHY)   ·   LiteSPI (QSPI flash)   ·   verilog-axis (Forencich)</text>
 <rect x="30" y="1322" width="900" height="120" rx="8" fill="#CFD8DC" stroke="#37474F" stroke-width="2"/>
@@ -95,7 +95,7 @@
 <rect x="980" y="206" width="320" height="26" rx="4" fill="#ffffff" fill-opacity="0.72" stroke="#F9A825" stroke-opacity="0.5" stroke-width="1"/>
 <text x="990" y="223" font-size="12.5" fill="#212121">deploy.sh: build / load / flash-pair (live QSPI owner proof)</text>
 <rect x="980" y="238" width="320" height="26" rx="4" fill="#ffffff" fill-opacity="0.72" stroke="#F9A825" stroke-opacity="0.5" stroke-width="1"/>
-<text x="990" y="255" font-size="12.5" fill="#212121">boot.sh: serialboot (+ FLASH_KERNEL mode)</text>
+<text x="990" y="255" font-size="12.5" fill="#212121">boot.sh: exact-pair serialboot (complete tuple)</text>
 <rect x="980" y="270" width="320" height="26" rx="4" fill="#ffffff" fill-opacity="0.72" stroke="#F9A825" stroke-opacity="0.5" stroke-width="1"/>
 <text x="990" y="287" font-size="12.5" fill="#212121">patches/apply.sh: BIOS linux_flashboot</text>
 <rect x="980" y="302" width="320" height="26" rx="4" fill="#ffffff" fill-opacity="0.72" stroke="#F9A825" stroke-opacity="0.5" stroke-width="1"/>

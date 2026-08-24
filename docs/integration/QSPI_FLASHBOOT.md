@@ -114,12 +114,20 @@ dropped the RX1 queue CSRs and moved dma-ts 0x3100→0x308c, dma-pcm
 0x3120→0x30ac). The DTB **must be regenerated from the build's `csr.csv`**
 and re-embedded into opensbi with every gateware change that touches the
 map — the symptom of a stale DTB is subtle (e.g. ptp4l "timed out while
-polling for tx timestamp" while everything else works).
+polling for tx timestamp" while everything else works). The same preflight
+passes the layout's compiled `cpu_xlen` to `check_dtb_csr.py`: an RV32 build
+requires `riscv,isa = "rv32…"` and `mmu-type = "riscv,sv32"` in both the slot
+DTB and the FDT embedded in OpenSBI, so an RV64/sv39 boot chain is refused even
+when every CSR window happens to match.
 
 **Matched-owner and installed-state rule (#116):** every new
-`flashboot_layout.json` carries the
-resolved `gptp_owner` enum compiled into `soc.h` (`fabric`, `software`, or the
-documented bare-SoC `none`). Before any write, `deploy.sh flash-pair` opens the
+`flashboot_layout.json` carries the resolved `gptp_owner` enum and `cpu_xlen`
+compiled into `soc.h` (`fabric`, `software`, or the documented bare-SoC
+`none`). A completed Vivado build also records `bitstream_payload_sha256` over
+the parsed configuration payload (the exact bytes openFPGALoader writes) and
+the `.bit` header's `bitstream_fpga_part`. Before any write, `deploy.sh
+flash-pair` requires both bindings to match the supplied BIT; directory
+adjacency is not artifact identity. It then opens the
 actual gzip/xz/raw-newc target `ROOTFS` archive. A software-owned build must
 contain exactly one regular `etc/milan-gptp-software-owner`; a fabric-owned
 full-Linux build must omit it, while a fabric/baremetal build carries the AEM
@@ -128,7 +136,8 @@ software→software, and direct owner changes between the two full-Linux marker
 states for the guaranteed persistent API.
 
 The transaction also requires `INSTALLED_LAYOUT` + `INSTALLED_BIT` (or the
-named launcher's `INSTALLED_BUILD`). It parses the Xilinx `.bit` payload, dumps
+named launcher's `INSTALLED_BUILD`). It verifies the layout SHA-256/part against
+the parsed Xilinx `.bit` payload, then dumps
 the same number of live bytes from QSPI offset zero on the serial-selected
 board, and accepts exactly one match: the supplied installed artifact, or the
 target artifact when resuming after its commit write. An owner string is not
@@ -136,14 +145,16 @@ installed-state evidence. If the live source is full Linux, `flash-pair` then
 reads its rootfs FBI header and bounded payload from QSPI, verifies the FBI CRC,
 decompresses the archive, and checks that live marker against the installed
 layout owner. Missing/unknown metadata, a short/ambiguous/mismatched readback, a
-wrong build directory, a `.bit` FPGA part that differs from the selected
-programmer part, corrupt source or target rootfs, duplicate markers, both zero/
+wrong build directory, a missing/mismatched payload digest, a `.bit` FPGA part
+that differs from the layout or selected programmer part, corrupt source or
+target rootfs, duplicate markers, both zero/
 two-owner inversions, and a missing or oversized *last* image all refuse before
 a write. A live target full-Linux bit is accepted only when every non-bit image
 already byte-matches the target; it is not treated as provenance for an unsafe
 repair. `deploy.sh check-images` retains the read-only target-pair preflight.
-Sweep fallback layouts reconstruct the enum from the compiled
-`MILAN_GPTP_OWNER` constant.
+Sweep fallback layouts reconstruct the enum and CPU width from the compiled
+`MILAN_GPTP_OWNER` / `MILAN_CPU_XLEN` constants, then hash the explicitly
+selected `.bit`; missing or ambiguous bit artifacts refuse reconstruction.
 
 Write order is part of the invariant:
 
@@ -212,15 +223,14 @@ which takes **~4 minutes**. This is the "gain time" feature: stage the large, st
 in the board's QSPI flash so the BIOS copies them straight into DRAM (quad SPI, ~10 MB/s)
 instead of trickling them over the wire.
 
-It has three cooperating pieces plus a host boot-list, all opt-in behind
+It has three cooperating pieces, all opt-in behind
 `milan_soc.py --with-spiflash` (included in `--all-blocks`):
 
 | piece | where | what |
 |-------|-------|------|
 | **flash core** | [`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py), [`sw/litex/platforms/alinx_ax7101.py`](../../sw/litex/platforms/alinx_ax7101.py) | memory-maps the on-board flash; emits the `MILAN_FLASHBOOT_*` layout constants |
 | **BIOS method** | [`sw/litex/patches/0001-milan-linux-flashboot.patch`](../../sw/litex/patches/0001-milan-linux-flashboot.patch) | `linux_flashboot` copies images flash→DRAM, boots (or pre-loads then defers to serialboot) |
-| **flashing** | `sw/litex/deploy.sh check-images` / `flash-pair` | pairs the target layout owner with the exact `$ROOTFS` marker, checks DTB/OpenSBI against `csr.csv`, materializes every image, live-matches QSPI offset zero to the exact installed/target `.bit` payload, verifies the live source FBI rootfs marker for Linux, then performs direction-ordered verified writes ([qspi_owner_transition.py](../../sw/litex/qspi_owner_transition.py), [check_gptp_owner_pair.py](../../sw/litex/check_gptp_owner_pair.py), [check_dtb_csr.py](../../sw/litex/check_dtb_csr.py)) |
-| **host boot-list** | `the-private-test-repo/fpga/boot/boot_flashkernel.json` | serial upload of only the *non*-flashed images (partial mode) |
+| **flashing** | `sw/litex/deploy.sh check-images` / `flash-pair` | SHA-256/part-binds each layout to its parsed `.bit` payload, pairs the target owner with the exact `$ROOTFS` marker, checks DTB/OpenSBI CSR windows and CPU XLEN/MMU, materializes every image, live-matches QSPI offset zero to the exact installed/target payload, verifies the live source FBI rootfs marker for Linux, then performs direction-ordered verified writes ([qspi_owner_transition.py](../../sw/litex/qspi_owner_transition.py), [check_gptp_owner_pair.py](../../sw/litex/check_gptp_owner_pair.py), [check_dtb_csr.py](../../sw/litex/check_dtb_csr.py)) |
 
 ---
 
@@ -307,7 +317,9 @@ before any BIOS runs.
 
 The build writes `<build>/flashboot_layout.json` (the single source of truth);
 `deploy.sh flash-pair` reads it, so the gateware's compiled-in offsets, gPTP
-owner, rootfs lease and flashing never drift.
+owner, CPU XLEN, rootfs lease and flashing never drift. A Vivado-produced copy
+is deployable only when its parsed payload SHA-256 and FPGA part are present;
+an elaboration-only JSON deliberately has no bit binding and fails closed.
 **Read the build's own copy** — the numbers above are a snapshot of the tree, and
 the `rootfs` budget in particular has already moved once (v4, 2026-07-26).
 
@@ -336,9 +348,11 @@ which stays as the fallback. The BIOS boot sequence tries methods in ascending p
 * **Full manifest:** `linux_flashboot` copies opensbi+dtb+kernel+rootfs, then
   `boot(0,0,0, 0x40f0_0000)`  -  the NaxRiscv `boot_helper` leaves `a0=hartid`, `a1=0`, exactly
   what the OpenSBI fw_jump expects (DTB is embedded via `FW_FDT_PATH`).
-* **Partial manifest:** `linux_flashboot` copies only the kernel to `0x4000_0000`, prints a
-  note and returns; serialboot then uploads OpenSBI+dtb+rootfs from `boot_flashkernel.json`
-  (which omits `Image` and lists `opensbi.bin` **last**, so litex_term jumps there).
+* **Partial manifest:** `linux_flashboot` copies only the kernel to `0x4000_0000`,
+  prints a note and returns. There is no active kernel-from-QSPI serialboot
+  shortcut: the companion `boot.sh` always uploads and verifies the complete
+  volatile kernel/OpenSBI/DTB/rootfs tuple. The partial layout remains only as
+  an explicit non-atomic recovery primitive.
 
 Each copy uses the BIOS's existing `copy_image_from_flash_to_ram`, which **CRC-checks** every
 image (LiteX FBI = `[length][crc32][data]`, little-endian header). A CRC/length failure aborts
@@ -390,10 +404,10 @@ full-Linux image and the product fabric/full-Linux image requires the shipping
 
 ### Recovery-only partial mode
 
-Partial `kernel` layouts are useful for lab serialboot iteration, but they are
-not an autonomously bootable software-owner set and are excluded from the
-persistent owner guarantee. The direct primitive therefore requires an
-explicit escape:
+Partial `kernel` layouts are not an autonomously bootable software-owner set
+and are excluded from both the persistent owner guarantee and the supported
+serialboot path. The direct primitive remains for lab recovery and therefore
+requires an explicit escape:
 
 ```sh
 ALLOW_NONATOMIC_FLASH=1 LAYOUT=<partial-build>/flashboot_layout.json \
@@ -401,19 +415,23 @@ KERNEL=/path/to/images/Image ROOTFS=/path/to/images/rootfs.cpio.xz \
     sw/litex/deploy.sh flash-images
 ```
 
-The escape still runs the owner/DTB checks, prepares the entire requested
+The escape still runs the owner/DTB checks (and a direct bit recovery verifies
+the layout's payload SHA-256/part), prepares the entire requested
 subset and uses verified writes. It does **not** prove live installed state or
 claim safe persistent ordering. Named `build.sh flash` never sets the escape.
 
 ### Iterate (the fast loop)
 
 ```sh
-sw/litex/deploy.sh load             # JTAG → SRAM (kernel stays in flash across reloads)
+sw/litex/deploy.sh load             # JTAG → SRAM (volatile)
 # then, in the-private-test-repo:
-O=<buildroot-out> FLASH_KERNEL=1 fpga/boot/boot.sh   # uploads opensbi+dtb+rootfs only (~9 MB)
+O=<buildroot-out> LAYOUT=<exact-layout> BIT=<exact-bit> \
+DTB=<exact-dtb> OPENSBI=<exact-fw_jump> fpga/boot/boot.sh
 ```
 
-The kernel is already in flash; the BIOS pre-loads it and serialboot handles the rest.
+The companion boot entry point verifies the owner/CPU/CSR tuple, loads the
+exact volatile bit, and uploads the complete Linux tuple. It deliberately does
+not trust a pre-existing QSPI kernel.
 
 ---
 

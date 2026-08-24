@@ -20,7 +20,7 @@ LAYERS = [
     "LiteX BIOS (ROM) + linux_flashboot (QSPI→DRAM image copy)",
     "OpenSBI: custom litex_nax platform (M-mode fw_jump, embedded DTB)"]),
  ("SoC integration: LiteX / Migen", "dev host · Python → Verilog  (sw/litex/milan_soc.py)", GREEN, [
-    "MilanSoC (top: NaxRiscv + DDR3 + NIC + flash)   ·   _CRG (PLL/clocks/CDC)",
+    "MilanSoC (top: VexiiRiscv RV32 + DDR3 + NIC + flash)   ·   _CRG (PLL/clocks/CDC)",
     "MilanNIC / add_milan_datapath   ·   MilanMAC (LiteEth glue)",
     "MilanDMA (WishboneDMA engines)   ·   MilanDebug (pipeline telemetry)"]),
  ("Milan datapath: RTL", "FPGA fabric · SystemVerilog / Verilog  (hdl/)", BLUE, [
@@ -37,7 +37,7 @@ LAYERS = [
     "               unsupported commands return NOT_IMPLEMENTED",
     "events: ethernet_events · event_counter"]),
  ("Vendored IP", "FPGA fabric · 3rd-party cores", PURPLE, [
-    "NaxRiscv (RV64GC/sv39 CPU, SpinalHDL)   ·   LiteEth (MAC + GMII/RGMII PHY)",
+    "VexiiRiscv (product RV32/sv32 CPU, SpinalHDL; NaxRiscv historical)   ·   LiteEth (MAC + GMII/RGMII PHY)",
     "LiteDRAM (DDR3, A7DDRPHY)   ·   LiteSPI (QSPI flash)   ·   verilog-axis (Forencich)"]),
  ("Board / silicon", "physical", DARK, [
     "XC7A100T-2FGG484 (Artix-7)  ·  DDR3 512 MB (MT41J256M16)",
@@ -47,7 +47,7 @@ SIDE = ("Host tooling", "Python / bash", YELLOW, [
     "milan_soc.py: SoC/gateware generator",
     "milan_dt.py: device-tree generator (csr.json→dts)",
     "deploy.sh: build / load / flash-pair (live QSPI owner proof)",
-    "boot.sh: serialboot (+ FLASH_KERNEL mode)",
+    "boot.sh: exact-pair serialboot (complete tuple)",
     "patches/apply.sh: BIOS linux_flashboot",
     "crcfbigen: FBI image wrapper"])
 

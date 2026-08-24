@@ -17,7 +17,7 @@
 • OpenSBI: custom litex_nax platform (M-mode fw_jump, embedded DTB)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE0B2;strokeColor=#EF6C00;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="30" y="426" width="900" height="120" as="geometry"/></mxCell>
 <mxCell id="n6" value="SoC integration: LiteX / Migen   |   dev host · Python → Verilog  (sw/litex/milan_soc.py)
 
-• MilanSoC (top: NaxRiscv + DDR3 + NIC + flash)   ·   _CRG (PLL/clocks/CDC)
+• MilanSoC (top: VexiiRiscv RV32 + DDR3 + NIC + flash)   ·   _CRG (PLL/clocks/CDC)
 • MilanNIC / add_milan_datapath   ·   MilanMAC (LiteEth glue)
 • MilanDMA (WishboneDMA engines)   ·   MilanDebug (pipeline telemetry)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#2E7D32;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="30" y="562" width="900" height="152" as="geometry"/></mxCell>
 <mxCell id="n7" value="Milan datapath: RTL   |   FPGA fabric · SystemVerilog / Verilog  (hdl/)
@@ -36,7 +36,7 @@
 • events: ethernet_events · event_counter" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#BBDEFB;strokeColor=#1565C0;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="30" y="730" width="900" height="440" as="geometry"/></mxCell>
 <mxCell id="n8" value="Vendored IP   |   FPGA fabric · 3rd-party cores
 
-• NaxRiscv (RV64GC/sv39 CPU, SpinalHDL)   ·   LiteEth (MAC + GMII/RGMII PHY)
+• VexiiRiscv (product RV32/sv32 CPU, SpinalHDL; NaxRiscv historical)   ·   LiteEth (MAC + GMII/RGMII PHY)
 • LiteDRAM (DDR3, A7DDRPHY)   ·   LiteSPI (QSPI flash)   ·   verilog-axis (Forencich)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1BEE7;strokeColor=#6A1B9A;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="30" y="1186" width="900" height="120" as="geometry"/></mxCell>
 <mxCell id="n9" value="Board / silicon   |   physical
 
@@ -47,6 +47,6 @@
 • milan_soc.py: SoC/gateware generator
 • milan_dt.py: device-tree generator (csr.json→dts)
 • deploy.sh: build / load / flash-pair (live QSPI owner proof)
-• boot.sh: serialboot (+ FLASH_KERNEL mode)
+• boot.sh: exact-pair serialboot (complete tuple)
 • patches/apply.sh: BIOS linux_flashboot
 • crcfbigen: FBI image wrapper" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF9C4;strokeColor=#F9A825;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="970" y="90" width="340" height="248" as="geometry"/></mxCell></root></mxGraphModel></diagram></mxfile>

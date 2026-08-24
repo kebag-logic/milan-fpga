@@ -3,9 +3,10 @@
 """Plan and identify power-fail-bounded gPTP-owner QSPI transitions.
 
 The installed owner is not an operator assertion.  It is the owner recorded by
-the layout that produced an exact Xilinx ``.bit`` artifact, after the raw
-payload of that artifact has been matched against a live offset-zero QSPI
-dump.  For a full-Linux source, ``deploy.sh flash-pair`` additionally verifies
+the layout whose SHA-256 and FPGA-part binding matches an exact parsed Xilinx
+``.bit`` configuration payload, after that payload has also been matched
+against a live offset-zero QSPI dump.  For a full-Linux source,
+``deploy.sh flash-pair`` additionally verifies
 the FBI CRC and owner marker in the live installed rootfs.  This module keeps
 the bit parsing, profile restrictions, ordering decision and readback
 classification testable without a programmer.
@@ -16,8 +17,10 @@ needs an A/B or MultiBoot layout and cannot be repaired by shell ordering.
 """
 
 import argparse
+import hashlib
 import json
 import os
+import re
 import struct
 import sys
 import tempfile
@@ -97,6 +100,15 @@ def bit_payload(path):
     return bit_info(path)[0]
 
 
+def bitstream_binding(path):
+    """Return the immutable layout fields that bind one parsed .bit payload."""
+    payload, part = bit_info(path)
+    return {
+        "bitstream_payload_sha256": hashlib.sha256(payload).hexdigest(),
+        "bitstream_fpga_part": part,
+    }
+
+
 def _load_layout(path):
     try:
         with open(path, encoding="utf-8") as stream:
@@ -166,6 +178,24 @@ def _bound_payload(layout_path, bit_path, label):
     if len(payload) > budget:
         raise TransitionError(
             f"{label} bitstream payload {len(payload)} B exceeds {budget} B slot")
+    wanted_digest = layout.get("bitstream_payload_sha256")
+    if (not isinstance(wanted_digest, str)
+            or re.fullmatch(r"[0-9a-f]{64}", wanted_digest) is None):
+        raise TransitionError(
+            f"{label} layout has no valid bitstream payload SHA-256 binding")
+    got_digest = hashlib.sha256(payload).hexdigest()
+    if got_digest != wanted_digest:
+        raise TransitionError(
+            f"{label} bitstream payload SHA-256 {got_digest} differs from "
+            f"layout binding {wanted_digest}")
+    wanted_part = layout.get("bitstream_fpga_part")
+    if not isinstance(wanted_part, str) or not wanted_part.strip():
+        raise TransitionError(
+            f"{label} layout has no valid bitstream FPGA part binding")
+    if _normal_part(part) != _normal_part(wanted_part):
+        raise TransitionError(
+            f"{label} bitstream FPGA part {part!r} differs from layout binding "
+            f"{wanted_part!r}")
     return layout, payload, part
 
 
@@ -175,7 +205,7 @@ def _normal_part(part):
 
 
 def validate_artifact_pair(layout_path, bit_path, expected_fpga_part=None):
-    """Bind one layout to its same-build Xilinx bitstream artifact."""
+    """Bind one layout to the SHA-256 and part of its Xilinx bitstream."""
     layout, payload, part = _bound_payload(layout_path, bit_path, "artifact")
     if (expected_fpga_part is not None and
             _normal_part(part) != _normal_part(expected_fpga_part)):
@@ -304,9 +334,11 @@ def self_test():
             rows = [{"name": n, "offset": 0 if n == "bitstream" else
                      0x400000 + i * 0x10000, "budget": 0x400000}
                     for i, n in enumerate(names)]
+            body = {"gptp_owner": owner, "manifest": manifest,
+                    "complete": complete, "images": rows}
+            body.update(bitstream_binding(bit))
             with open(layout, "w", encoding="utf-8") as stream:
-                json.dump({"gptp_owner": owner, "manifest": manifest,
-                           "complete": complete, "images": rows}, stream)
+                json.dump(body, stream)
             return layout, bit
 
         fab = build("fab", "fabric", "baremetal", False, b"fabric",
@@ -342,6 +374,35 @@ def self_test():
         os.symlink(sw[1], foreign_link)
         expect_error(lambda: validate_artifact_pair(
             fab2[0], foreign_link), "different build directories")
+        # This is the installed-owner trust seam: a valid bit copied beside a
+        # different build's mutable layout used to satisfy the directory test
+        # and inherit that layout's owner.  The payload digest must reject it.
+        adjacent_wrong = os.path.join(os.path.dirname(fab2[1]),
+                                      "adjacent-software.bit")
+        with open(sw[1], "rb") as source, open(adjacent_wrong, "wb") as sink:
+            sink.write(source.read())
+        expect_error(lambda: validate_artifact_pair(
+            fab2[0], adjacent_wrong), "payload SHA-256")
+
+        unbound = build("unbound", "fabric", "baremetal", False, b"unbound",
+                        ["bitstream", "aem"])
+        with open(unbound[0], encoding="utf-8") as stream:
+            unbound_layout = json.load(stream)
+        del unbound_layout["bitstream_payload_sha256"]
+        with open(unbound[0], "w", encoding="utf-8") as stream:
+            json.dump(unbound_layout, stream)
+        expect_error(lambda: validate_artifact_pair(*unbound),
+                     "no valid bitstream payload SHA-256")
+
+        wrong_part = build("wrong-part", "fabric", "baremetal", False,
+                           b"wrong-part", ["bitstream", "aem"])
+        with open(wrong_part[0], encoding="utf-8") as stream:
+            wrong_part_layout = json.load(stream)
+        wrong_part_layout["bitstream_fpga_part"] = "xc7a200tfbg484"
+        with open(wrong_part[0], "w", encoding="utf-8") as stream:
+            json.dump(wrong_part_layout, stream)
+        expect_error(lambda: validate_artifact_pair(*wrong_part),
+                     "differs from layout binding")
 
         live = os.path.join(temp, "qspi.bin")
         old_payload = bit_payload(fab[1])
@@ -379,6 +440,10 @@ def main(argv=None):
     p_plan.add_argument("--target-bit", required=True)
     p_plan.add_argument("--expected-target-owner")
     p_plan.add_argument("--expected-fpga-part")
+    p_validate = sub.add_parser("validate")
+    p_validate.add_argument("--layout", required=True)
+    p_validate.add_argument("--bit", required=True)
+    p_validate.add_argument("--expected-fpga-part")
     p_ident = sub.add_parser("identify")
     p_ident.add_argument("--dump", required=True)
     p_ident.add_argument("--installed-bit", required=True)
@@ -397,11 +462,17 @@ def main(argv=None):
                 "installed_owner", "installed_profile", "target_owner",
                 "order", "dump_bytes", "target_profile")))
             return 0
+        if args.command == "validate":
+            result = validate_artifact_pair(
+                args.layout, args.bit, args.expected_fpga_part)
+            print("\t".join(str(result[key]) for key in (
+                "owner", "part", "payload_bytes")))
+            return 0
         if args.command == "identify":
             print(identify(args.dump, args.installed_bit, args.target_bit,
                            args.expected_size))
             return 0
-        parser.error("choose plan, identify, or --self-test")
+        parser.error("choose plan, validate, identify, or --self-test")
     except TransitionError as exc:
         print(f"qspi owner transition REFUSED: {exc}", file=sys.stderr)
         return 2

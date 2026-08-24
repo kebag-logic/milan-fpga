@@ -125,12 +125,29 @@ do_check_images() {
     # perfect CSR readbacks (kl-eth maps reg windows by index) — refuse it here
     # rather than debug it on silicon again. The OPENSBI check is the decisive
     # one: the BIOS jumps a1=0, so the fdt EMBEDDED in opensbi (FW_FDT_PATH) is
-    # the only tree the kernel sees. Skipped only if dtc is unavailable.
-    local csrcsv img; csrcsv="$(dirname "$LAYOUT")/csr.csv"
-    if [ -f "$csrcsv" ] && command -v dtc >/dev/null; then
+    # the only tree the kernel sees.  The layout's compiled CPU width is part
+    # of the same contract: an RV64/sv39 tree must never pass for an RV32 SoC.
+    local csrcsv img expected_xlen; csrcsv="$(dirname "$LAYOUT")/csr.csv"
+    if [ -f "$csrcsv" ] && { [ -n "${DTB:-}" ] || [ -n "${OPENSBI:-}" ]; }; then
+        command -v dtc >/dev/null || {
+            echo "[deploy] image check REFUSED: dtc is required to verify DTB/OpenSBI." >&2
+            exit 2
+        }
+        expected_xlen=$("$PYTHON" - "$LAYOUT" <<'PY'
+import json, sys
+value = json.load(open(sys.argv[1], encoding="utf-8")).get("cpu_xlen")
+if type(value) is not int or value not in (32, 64):
+    raise SystemExit("layout has no valid cpu_xlen (32 or 64)")
+print(value)
+PY
+        ) || {
+            echo "[deploy] image check REFUSED: layout does not bind the compiled CPU width." >&2
+            exit 2
+        }
         for img in "${DTB:-}" "${OPENSBI:-}"; do
             [ -n "$img" ] || continue
-            "$PYTHON" "$HERE/check_dtb_csr.py" "$img" "$csrcsv" || {
+            "$PYTHON" "$HERE/check_dtb_csr.py" --expected-xlen "$expected_xlen" \
+                "$img" "$csrcsv" || {
                 echo "[deploy] flash-images REFUSED: $img does not match this build's csr.csv."
                 echo "[deploy] Rebuild it from the dts source (opensbi embeds the fdt — rebuild it too)."; exit 2; }
         done
@@ -365,12 +382,11 @@ do_flash() {
         echo "[deploy] flash REFUSED: no flashboot_layout.json owner contract." >&2
         exit 2; }
     do_check_images
-    local bit_build layout_build
-    bit_build=$(realpath "$(dirname "$BIT")/..")
-    layout_build=$(realpath "$(dirname "$LAYOUT")")
-    [ "$bit_build" = "$layout_build" ] || {
-        echo "[deploy] flash REFUSED: BIT and LAYOUT are from different build directories." >&2
-        exit 2; }
+    "$PYTHON" "$HERE/qspi_owner_transition.py" validate \
+        --layout "$LAYOUT" --bit "$BIT" --expected-fpga-part "$FPGA_PART" || {
+            echo "[deploy] flash REFUSED: BIT payload hash/part is not bound to LAYOUT." >&2
+            exit 2
+        }
     write_target_bit
 }
 

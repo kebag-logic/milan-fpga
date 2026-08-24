@@ -112,7 +112,10 @@ audio end-station (talker + listener) on the wire.
 - **The end-station**: a 1 Gb Ethernet NIC whose *data plane* (MAC, classifier, CBS shaper,
   PTP timestamp unit, AVTP/AAF/CRF streaming, MAAP) and whose *ADP/ACMP/SRP control plane*
   (the protocol processor, via `KL_pp_shadow`) are both implemented in fabric, and whose
-  *policy plane* (linuxptp, provisioning, the kl-eth driver) runs on the softcore under Linux.
+  *policy plane* (provisioning and the kl-eth driver) runs on the softcore under
+  Linux. Product-default BMCA, servo and pdelay run in the fabric
+  `gptp-processor`; `linuxptp` starts only in the explicit software-owner
+  option-off comparison.
   AECP/AEM is in fabric too, but partial: the processor serves its declared
   command inventory and returns the conformant fallback for unsupported commands.
 - **The dividing principle** (normative, [`docs/ARCHITECTURE_HW_SW_SPLIT.md`](ARCHITECTURE_HW_SW_SPLIT.md) rev 3):

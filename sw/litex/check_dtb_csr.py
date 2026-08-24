@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: (GPL-2.0 OR MIT)
 #
-# check_dtb_csr.py <dtb-or-dts> <csr.csv>  — refuse a stale device tree at flash time.
+# check_dtb_csr.py [--expected-xlen 32|64] <dtb-or-dts> <csr.csv>
+# — refuse a stale or wrong-architecture device tree at flash time.
 #
 # The kl-eth driver maps its kl,dma-ether reg windows BY INDEX, so a device tree
 # compiled against an older CSR layout lands every host-DMA register access on a
@@ -17,8 +18,12 @@
 #   kl,milan-pcm reg[0] covers every milan_dma_pcm_* register (when present)
 #   kl,milan-pcm reg[2] covers every milan_dma_pb_* register (when present)
 #   litex,spiflash reg[0] == the csr.csv spiflash bank base (when both have it)
+# With --expected-xlen, every cpu@N node must also carry the matching
+# riscv,isa width and Linux MMU type (RV32/sv32 or RV64/sv39).  This applies to
+# a standalone DTB and to the FDT carved from an OpenSBI fw_jump binary.
 #
 # Exit 0 = every applicable check passed; exit 1 = mismatch (stale dtb); exit 2 = usage.
+import argparse
 import csv
 import tempfile
 import re
@@ -127,15 +132,66 @@ def prefixed_window_errors(regs, prefix, win, label):
     ]
 
 
-def main():
-    if len(sys.argv) != 3:
-        sys.exit(2)
-    dts = decompile(sys.argv[1])
-    regs = csr_registers(sys.argv[2])
+def _property_strings(text, name):
+    """Return every quoted string in assignments to one exact DTS property."""
+    values = []
+    pattern = r"(?:^|\s)%s\s*=\s*([^;]*);" % re.escape(name)
+    for match in re.finditer(pattern, text, re.M):
+        values.extend(re.findall(r'"([^"]*)"', match.group(1)))
+    return values
+
+
+def cpu_identity_errors(dts, expected_xlen):
+    """Return CPU ISA/MMU mismatches for the requested Linux boot width."""
+    if expected_xlen not in (32, 64):
+        raise ValueError("expected_xlen must be 32 or 64")
+    # DTC flattens labels but preserves cpu@N nodes.  Permit one nested child
+    # (the per-hart interrupt-controller) while keeping each CPU's properties
+    # scoped to that node rather than accepting an unrelated global string.
+    node_re = re.compile(
+        r"(?:^|\s)cpu@[^\s{]+\s*\{((?:[^{}]|\{[^{}]*\})*)\};", re.S)
+    cpus = list(node_re.finditer(dts))
+    if not cpus:
+        return ["device tree has no cpu@N node to prove its RISC-V width"]
+
+    wanted_isa = f"rv{expected_xlen}"
+    wanted_mmu = {32: "riscv,sv32", 64: "riscv,sv39"}[expected_xlen]
+    bad = []
+    for index, match in enumerate(cpus):
+        body = match.group(1)
+        isa = _property_strings(body, "riscv,isa")
+        if not isa:
+            isa = _property_strings(body, "riscv,isa-base")
+        if len(isa) != 1:
+            bad.append(
+                f"cpu[{index}] needs exactly one riscv,isa/riscv,isa-base string")
+        elif not isa[0].lower().startswith(wanted_isa):
+            bad.append(
+                f"cpu[{index}] ISA {isa[0]!r} is not {wanted_isa} for the "
+                f"compiled RV{expected_xlen} SoC")
+
+        mmu = _property_strings(body, "mmu-type")
+        if len(mmu) != 1:
+            bad.append(f"cpu[{index}] needs exactly one mmu-type string")
+        elif mmu[0].lower() != wanted_mmu:
+            bad.append(
+                f"cpu[{index}] mmu-type {mmu[0]!r} is not {wanted_mmu!r} "
+                f"for the compiled RV{expected_xlen} SoC")
+    return bad
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--expected-xlen", type=int, choices=(32, 64))
+    parser.add_argument("artifact")
+    parser.add_argument("csr_csv")
+    args = parser.parse_args(argv)
+    dts = decompile(args.artifact)
+    regs = csr_registers(args.csr_csv)
 
     cells = node_reg_cells(dts, "kl,dma-ether")
     if cells is None:
-        sys.exit("check_dtb_csr: no kl,dma-ether node in %s" % sys.argv[1])
+        sys.exit("check_dtb_csr: no kl,dma-ether node in %s" % args.artifact)
     wins = [(cells[i], cells[i + 1]) for i in range(0, len(cells) - 1, 2)]
 
     # (window index, csr.csv register names that must fall inside it)
@@ -145,7 +201,8 @@ def main():
         (2, ["milan_dma_rx_base", "milan_dma_rx_bd_base"]),
         (3, ["milan_dma_ts_base"]),
     ]
-    bad = []
+    bad = (cpu_identity_errors(dts, args.expected_xlen)
+           if args.expected_xlen is not None else [])
     if len(wins) <= max(i for i, _ in contract):
         bad.append("kl,dma-ether has %d reg windows, contract needs %d"
                    % (len(wins), max(i for i, _ in contract) + 1))
@@ -212,11 +269,14 @@ def main():
                        % (win[0], win[1], regs["spiflash_master_cs"]))
 
     if bad:
-        print("check_dtb_csr: STALE device tree vs %s:" % sys.argv[2])
+        print("check_dtb_csr: STALE device tree vs %s:" % args.csr_csv)
         for b in bad:
             print("  - " + b)
         sys.exit(1)
-    print("check_dtb_csr: OK — %s windows match %s" % (sys.argv[1], sys.argv[2]))
+    arch = (f" and CPU identity is RV{args.expected_xlen}"
+            if args.expected_xlen is not None else "")
+    print("check_dtb_csr: OK — %s windows match %s%s"
+          % (args.artifact, args.csr_csv, arch))
 
 
 if __name__ == "__main__":

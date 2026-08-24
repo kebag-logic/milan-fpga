@@ -280,14 +280,16 @@ AX bare-metal manifest instead carries only raw `aem_desc.bin` at 4 MiB in a
 <config>[:<target-builddir>]` (or supply explicit `INSTALLED_LAYOUT` and
 `INSTALLED_BIT`). The launcher delegates to `deploy.sh flash-pair`, which:
 
-1. binds each BIT/LAYOUT pair to one build directory and rejects `none`, partial
-   Linux, software-to-software persistent refreshes, a `.bit` whose FPGA part
-   differs from the selected programmer part, and a direct owner change between
-   fabric/full-Linux and software/full-Linux;
+1. binds each BIT/LAYOUT pair by the SHA-256 of the parsed configuration payload
+   plus the `.bit` FPGA part (the shared directory is only a containment check),
+   and rejects `none`, partial Linux, software-to-software persistent refreshes,
+   a missing/mismatched binding, a part different from the selected programmer,
+   and a direct owner change between fabric/full-Linux and software/full-Linux;
 2. opens the actual target `ROOTFS` cpio (`software` requires exactly one regular
    `etc/milan-gptp-software-owner`) and pre-materializes/size-checks every target
    image before a QSPI write;
-3. dumps live QSPI offset zero from the serial-selected board and byte-matches
+3. checks both DTB copies against `csr.csv` and the layout's compiled CPU XLEN
+   (RV32 requires rv32/sv32), then dumps live QSPI offset zero and byte-matches
    the Xilinx `.bit` payload against the supplied installed or target artifact;
 4. writes every target non-bit image before the commit bit for fabric→software
    and fabric→fabric, and writes a fabric/baremetal bit before AEM for
