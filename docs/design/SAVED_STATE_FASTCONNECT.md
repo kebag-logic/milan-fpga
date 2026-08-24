@@ -213,6 +213,11 @@ round that only ever looked at the shipping default. The review's floor of 262
 > written out to the byte so it can be adopted verbatim (section 4.3). What it
 > is not: a settled contract. Nothing may encode or decode a names bank until
 > the amendment lands in the donor and a pin carrying it reaches `dev`.
+>
+> **Exactly one row of the table below diverges**: the name bank at `0x80`.
+> Every other group is one record per item group and index, which is what F07.8
+> already says, so the blocks, the id ranges and the fixed payload widths are
+> not in question and are not blocked.
 
 Records are allocated in fixed blocks by group, and the names group is
 **banked**: one record carries eight name slots of 64 bytes, indexed by the same
