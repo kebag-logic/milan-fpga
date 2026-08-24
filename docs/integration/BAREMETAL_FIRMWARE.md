@@ -261,6 +261,56 @@ address helper included, so a store planted inside that helper is answered the
 same way; the compiled census remains blind to that one by construction, and
 both facts are measured on the same compile every run.
 
+**What the store census does NOT resolve, stated exactly.** An earlier
+revision of the resolver built its store census only from stores whose address
+resolved to a number, so a store through a base it could not resolve was
+dropped before it was ever asked about and the gate reported a clean census
+over the subset it had understood. A base derived at run time is enough to
+reach that hole:
+
+```c
+typedef struct { volatile uint32_t ctrl; } *milan_dyn_adp_blk;
+...
+unsigned int runtime_page = milan_read(MILAN_ID) ^ (MILAN_ID_MAGIC ^ 0x9000u);
+((milan_dyn_adp_blk)((runtime_page << 16) | MILAN_ADP_CTRL))->ctrl = 1u;
+```
+
+The census now CLASSIFIES every store the compiler emits. Four classes are
+placed: an address that resolves to a number (answered by number, in or out of
+the window), a stack address, the address of an object this translation unit
+defines, and the address helper's own return, which is the single sanctioned
+way into the window and which exactly one function may store through. The
+arguments of a function this unit neither exports nor takes the address of are
+resolved from its call sites, which is what places the output-pointer writes in
+`parse_u64()` and `seconds_to_ns()` on the stack. Anything else is a REFUSAL,
+not an omission, and both shapes above are mutation-table entries as a result.
+
+Two stores in the shipping firmware are still not placed. They are DECLARED in
+`RESOLVER_STORE_RESIDUAL` and asserted exactly, so one more unplaceable store
+anywhere -- in these two functions or in any other -- is RED, and a residual
+that goes away must be retired here and in the gate in the same change:
+
+| Store | Why it is not placed |
+|---|---|
+| `load_aem_image()`: `dst[i] = src[i]` | the base `MILAN_AEM_DESC_BASE` resolves and is outside the window, but the loop index is not bounded by this lattice, so the sum is not placed |
+| `parse_u64()`: `errno = 0` | the base is what `__errno_location()` returns, and that function is not compiled in this translation unit |
+
+So the property this gate proves is: no store outside those two lands in the
+control window, and any new store it cannot place reddens the gate. It is not
+"every store is resolved", and the closing verdict says so on every run.
+
+**The block join is a meet over all predecessors.** The same round found the
+frame-memory join treating a slot missing from one side differently from a slot
+missing from the other, so a value stored on one incoming path of a diamond
+survived the join whenever that path was folded in second. CRC provenance and a
+verifier return value could then be invented out of block layout alone. Each
+block's entry state is now the meet over ALL its reachable predecessors,
+recomputed whenever one of them moves, and a key absent on any predecessor is
+unknown. Gate 1b measures it on two semantically equivalent diamond layouts
+that must agree, on the same diamond with the store on both predecessors that
+must resolve, and against the restored order-dependent join, which must
+disagree with itself across the two layouts.
+
 When the RV32 compiler is absent, the census and the resolver stand down
 together and every edit above is outside all active instruments, under a
 closing line that reads `ALL GATES PASS EXCEPT n NOT RUN` naming that arm.

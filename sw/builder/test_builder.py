@@ -673,6 +673,58 @@ class Rv32Tag(object):
         return f"<{self.what}>"
 
 
+class Rv32Stack(object):
+    """A STACK address: a frame register the prologue set and never moved,
+    displaced into a general register.
+
+    Kept as a VALUE rather than modelled as a frame slot, because the frame
+    it names may belong to a CALLER: `parse_u64(text, &seconds)` hands one
+    down, and keying it into the callee's own slot table would let two
+    different addresses share one key.  What it buys is the store census:
+    a store through it lands on the stack, which the linker places outside
+    the Milan CSR window, so the census can PLACE that store instead of
+    refusing it."""
+    __slots__ = ()
+
+    def __eq__(self, other):
+        return isinstance(other, Rv32Stack)
+
+    def __hash__(self):
+        return hash("stack")
+
+    def __repr__(self):
+        return "<stack>"
+
+
+class Rv32Where(object):
+    """WHERE a store landed when its address did NOT resolve to a number:
+    the class of base it went through, plus what is known about that base.
+
+    A store the resolver cannot place is not a store it may drop.  The
+    earlier revision reported only `(int_address, value)` pairs and the
+    census filtered on `isinstance(address, int)`, so every store through
+    an unresolved base vanished before it was ever asked about, and the
+    gate reported a clean census over the subset it happened to understand
+    ([R0] BLOCKER on PR #241).  Every store now arrives here classified,
+    and the census either PROVES the class lands outside the control window
+    or REFUSES."""
+    __slots__ = ("kind", "detail")
+
+    def __init__(self, kind, detail=None):
+        self.kind, self.detail = kind, detail
+
+    def __eq__(self, other):
+        return (isinstance(other, Rv32Where) and other.kind == self.kind and
+                other.detail == self.detail)
+
+    def __hash__(self):
+        return hash(("where", self.kind, self.detail))
+
+    def __repr__(self):
+        return (f"{self.kind}({self.detail})" if self.detail is not None
+                else f"{self.kind}(-)")
+
+
 class Rv32Bits(object):
     """Partial knowledge: bits known SET and bits known CLEAR in an
     otherwise unresolved value.  `milan_read(R) | 1u` resolves to no
@@ -870,25 +922,54 @@ class Rv32State(object):
                 del self.mem[key]
         self.regs[name] = value
 
-    def merge(self, other):
-        """Join: a value both states agree on survives, anything else
-        becomes "cannot say".  Monotone, so the fixpoint terminates."""
-        changed = False
-        for key in list(self.regs):
-            if key not in other.regs or self.regs[key] != other.regs[key]:
-                if self.regs[key] is not None:
-                    self.regs[key] = None
-                    changed = True
-        for key in list(self.mem):
-            if key not in other.mem or self.mem[key] != other.mem[key]:
-                if self.mem[key] is not None:
-                    self.mem[key] = None
-                    changed = True
-        for key, value in other.mem.items():
-            if key not in self.mem:
-                self.mem[key] = value
-                changed = True
-        return changed
+    def meet(self, other):
+        """Greatest lower bound with `other`: a value BOTH sides carry, and
+        agree on, survives; everything else becomes "cannot say".
+
+        Absent and unknown are the SAME reading here -- `get()` and the
+        frame-slot load both read a missing key as `None` -- so a key
+        missing on either side meets to unknown, which is what makes this
+        commutative and idempotent.
+
+        THE DEFECT THIS REPLACES ([R0] MAJOR on PR #241).  The earlier
+        `merge()` copied a slot IN from `other` when `self` did not have
+        it, so a value stored on ONE incoming path survived a join whenever
+        that path happened to be visited first.  The same program then
+        resolved differently under a different block layout, and CRC
+        provenance and return values could be invented by traversal order
+        alone.  `rv32_run()` below now takes this meet over ALL of a
+        block's predecessors rather than folding predecessors in one at a
+        time, so the answer is a function of the code and nothing else."""
+        for key, value in list(self.regs.items()):
+            if value is not None and (key not in other.regs or
+                                      other.regs[key] != value):
+                self.regs[key] = None
+        for key, value in list(self.mem.items()):
+            if value is not None and (key not in other.mem or
+                                      other.mem[key] != value):
+                self.mem[key] = None
+        return self
+
+    def frozen(self):
+        """The state as a comparable value, with absent and unknown spelled
+        the same way -- which is how every reader of it reads them.  This is
+        what the fixpoint compares, so "did this block's entry change" is
+        answered on MEANING rather than on dictionary shape."""
+        return (frozenset((key, value) for key, value in self.regs.items()
+                          if value is not None),
+                frozenset((key, value) for key, value in self.mem.items()
+                          if value is not None))
+
+
+def rv32_meet(states):
+    """The meet of a list of states.  No states at all means nothing is
+    known, which is the safe reading for a block with no reachable
+    predecessor.  Order-independent: `Rv32State.meet()` is commutative and
+    idempotent, so this is a set operation written as a fold."""
+    out = None
+    for state in states:
+        out = state.copy() if out is None else out.meet(state)
+    return out if out is not None else Rv32State()
 
 
 def rv32_step(state, mnem, ops, data, tags):
@@ -914,6 +995,16 @@ def rv32_step(state, mnem, ops, data, tags):
         return None
     if mnem in RV32_IMMOPS and len(args) == 3:
         source, raw = state.get(args[1]), args[2]
+        #: A frame register the prologue set and never moved, displaced
+        #: into a general register, IS a stack address: `addi a5,s0,-36` is
+        #: how `&seconds` reaches a callee. Only when the destination is
+        #: NOT itself a frame register, so the prologue's own
+        #: `addi s0,sp,32` keeps meaning "this function's frame" and the
+        #: slot model below is untouched.
+        if mnem == "addi" and source is None and \
+                args[1] in RV32_FRAME_REGS and args[0] not in RV32_FRAME_REGS:
+            state.set(args[0], Rv32Stack())
+            return None
         if isinstance(source, Rv32Sym):
             if raw.startswith("%lo("):
                 state.set(args[0], source)
@@ -972,10 +1063,17 @@ def rv32_step(state, mnem, ops, data, tags):
         elif base in RV32_FRAME_REGS and held is None:
             state.set(args[0], state.mem.get((base, offset)))
         return None
-    if mnem in RV32_STORES and len(args) == 2:
-        place = RV32_MEM_RE.match(args[1])
-        if not place:
-            return None
+    if mnem in RV32_STORES:
+        #: EVERY store is reported, classified by the base it goes through.
+        #: The two silent drops that used to live here -- an operand this
+        #: regex cannot read, and a base that resolved to nothing -- are
+        #: what let a store leave the census without ever being asked about
+        #: ([R0] BLOCKER on PR #241). A store the resolver cannot read is
+        #: the one it must refuse hardest, so it is reported as `unreadable`
+        #: rather than skipped.
+        place = RV32_MEM_RE.match(args[1]) if len(args) == 2 else None
+        if place is None:
+            return ("store", (Rv32Where("unreadable", f"{mnem} {ops}"), None))
         raw_off, base = place.group(1), place.group(2)
         held, value = state.get(base), state.get(args[0])
         offset = 0 if not raw_off or raw_off.startswith("%lo(") \
@@ -983,11 +1081,15 @@ def rv32_step(state, mnem, ops, data, tags):
         if isinstance(held, int):
             return ("store", ((held + offset) & RV32_MASK, value))
         if isinstance(held, Rv32Sym):
-            return ("symstore", held.name)
+            return ("symstore", (held.name, value))
+        if isinstance(held, Rv32Stack):
+            return ("store", (Rv32Where("stack"), value))
         if base in RV32_FRAME_REGS and held is None:
             state.mem[(base, offset)] = value
             return None
-        return ("store", (None, value))
+        if isinstance(held, Rv32Tag) and held.what.startswith("call:"):
+            return ("store", (Rv32Where("call", held.what[5:]), value))
+        return ("store", (Rv32Where("unplaced", repr(held)), value))
     if mnem in ("call", "jal", "jalr", "tail") and args:
         callee = args[-1].split("@")[0]
         handed = {reg: state.get(reg) for reg in
@@ -1020,13 +1122,35 @@ def rv32_run(body, data, tags=None, entry_regs=None, cut=None):
 
     `cut` removes one `(block, "taken"|"fall")` edge BEFORE the fixpoint,
     which is how this measures edge dominance: whatever is still reachable
-    without that edge is exactly what the edge does not dominate."""
+    without that edge is exactly what the edge does not dominate.
+
+    A block's entry state is the MEET OVER ALL its predecessors' settled
+    exit states, recomputed from scratch each time one of them moves, not a
+    running fold of whichever predecessor arrived first.  That is what
+    makes the result independent of block layout and of the order the
+    worklist happens to pop ([R0] MAJOR on PR #241)."""
     blocks, order, edges = rv32_blocks(body)
     if cut is not None:
         edges = dict(edges)
         edges[cut[0]] = [edge for edge in edges[cut[0]] if edge[1] != cut[1]]
     entry = order[0]
-    states = {entry: Rv32State(entry_regs or {})}
+    preds = {block: [] for block in order}
+    for block in order:
+        for succ, _kind in edges[block]:
+            preds[succ].append(block)
+    seed, exits = Rv32State(entry_regs or {}), {}
+
+    def joined(block):
+        """The meet over every predecessor that is REACHABLE, plus the
+        function's own entry state for the entry block.  An unreachable
+        predecessor contributes nothing, which is exactly what `cut` needs:
+        removing an edge must remove what flowed along it."""
+        parts = [exits[at] for at in preds[block] if at in exits]
+        if block == entry:
+            parts.append(seed)
+        return rv32_meet(parts)
+
+    states = {entry: joined(entry)}
     work, budget = [entry], 0
     while work and budget < 20000:
         budget += 1
@@ -1034,11 +1158,12 @@ def rv32_run(body, data, tags=None, entry_regs=None, cut=None):
         state = states[block].copy()
         for mnem, ops in blocks[block]:
             rv32_step(state, mnem, ops, data, tags or {})
+        exits[block] = state
         for succ, _kind in edges[block]:
-            if succ not in states:
-                states[succ] = state.copy()
-                work.append(succ)
-            elif states[succ].merge(state):
+            entering = joined(succ)
+            if succ not in states or \
+                    states[succ].frozen() != entering.frozen():
+                states[succ] = entering
                 work.append(succ)
     assert budget < 20000, \
         "the RV32 resolver did not reach a fixpoint, so its answer would " \
@@ -1055,7 +1180,9 @@ def rv32_run(body, data, tags=None, entry_regs=None, cut=None):
                 continue
             kind, payload = outcome
             if kind == "symstore":
-                seen["symstores"].add(payload)
+                name, value = payload
+                seen["symstores"].add(name)
+                seen["stores"].append((block, (Rv32Where("sym", name), value)))
             else:
                 seen[{"branch": "branches"}.get(kind, kind + "s")].append(
                     (block, payload))
@@ -1089,21 +1216,103 @@ def rv32_verdict_edge(run, produced, against=0):
     return None
 
 
+RV32_ARG_REGS = ("a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7")
+#: Every spelling in which the emitted code takes a symbol's ADDRESS: the
+#: `%hi`/`%lo`/`%pcrel` relocations, the `la`/`lla` pseudo-instructions, and
+#: a symbol emitted as a data word.  A function whose address is taken can
+#: be called from somewhere this unit cannot see, so its arguments may not
+#: be resolved from the call sites this unit does see.
+RV32_ADDRESS_TAKEN_RE = re.compile(
+    r"%(?:hi|lo|pcrel_hi|pcrel_lo|got_pcrel_hi|tprel_hi|tprel_lo)"
+    r"\(\s*([A-Za-z_.$][\w.$]*)"
+    r"|\b(?:lla|la|lui)\s+[a-z0-9]+\s*,\s*([A-Za-z_.$][\w.$]*)"
+    r"|^\s*\.(?:word|4byte|long|dword|8byte|quad)\s+([A-Za-z_.$][\w.$]*)\s*$")
+
+
+def rv32_address_taken(assembly):
+    """Every symbol whose address the emitted code forms."""
+    taken = set()
+    for line in assembly.splitlines():
+        for found in RV32_ADDRESS_TAKEN_RE.finditer(line):
+            taken.add(next(name for name in found.groups() if name))
+    return taken
+
+
+def rv32_call_seeds(runs, private):
+    """The entry registers a PRIVATE function can be resolved with: for
+    each argument register, the value every call site in this unit hands
+    it, or nothing when the sites disagree.
+
+    This is the interprocedural half of the store census.  `parse_u64()`
+    and `seconds_to_ns()` write through a caller's pointer, and intra-
+    procedurally that pointer is simply unknown -- which under the rule
+    that an unplaceable store is a REFUSAL would red the shipping
+    firmware.  Resolved from the call sites it becomes a stack address,
+    which is a class the census can PLACE."""
+    sites = {}
+    for run in runs.values():
+        for _at, (callee, handed) in run["calls"]:
+            if callee in private:
+                sites.setdefault(callee, []).append(handed)
+    seeds = {}
+    for name, handed in sites.items():
+        agreed = {}
+        for reg in RV32_ARG_REGS:
+            values = {site.get(reg) for site in handed}
+            if len(values) == 1:
+                value = values.pop()
+                if value is not None:
+                    agreed[reg] = value
+        seeds[name] = agreed
+    return seeds
+
+
 def rv32_unit(assembly):
     """Resolve the whole translation unit the census compiled.
 
     Two passes: the first finds every static the code STORES through, the
     second resolves loads only from statics nothing writes.  A static the
     firmware assigns at run time has no compile-time value, and reporting
-    one would be an invented fact rather than a resolved one."""
+    one would be an invented fact rather than a resolved one.
+
+    Then the arguments.  A function this unit does not export and whose
+    address it never forms is reached ONLY from the call sites in this
+    unit, so the values those sites agree on are the values it starts
+    with.  Iterated to a fixpoint, meeting the seeds each round so a
+    disagreement can only ever lose precision, and refusing outright if it
+    has not settled -- a partial walk is not a measurement."""
     data, functions = rv32_data(assembly), rv32_functions(assembly)
     written = set()
     for body in functions.values():
         written |= rv32_run(body, data)["symstores"]
     data = {name: value for name, value in data.items() if name not in written}
-    return {"data": data, "functions": functions,
-            "runs": {name: rv32_run(body, data)
-                     for name, body in functions.items()}}
+    exported = set(re.findall(r"^\s*\.globa?l\s+([\w.$]+)", assembly,
+                              re.MULTILINE))
+    addressed = rv32_address_taken(assembly)
+    private = {name for name in functions
+               if name not in exported and name not in addressed}
+    seeds, runs, rounds = {}, None, 0
+    while rounds < 8:
+        rounds += 1
+        runs = {name: rv32_run(body, data, entry_regs=seeds.get(name))
+                for name, body in functions.items()}
+        found = rv32_call_seeds(runs, private)
+        merged = {name: {reg: value
+                         for reg, value in found.get(name, {}).items()
+                         if name not in seeds or
+                         seeds[name].get(reg) == value}
+                  for name in functions}
+        merged = {name: agreed for name, agreed in merged.items() if agreed}
+        if merged == seeds:
+            break
+        seeds = merged
+    else:
+        raise AssertionError(
+            "the RV32 resolver's interprocedural argument seeding did not "
+            "settle, so its answer would depend on how many rounds it was "
+            "given rather than on the code")
+    return {"data": data, "functions": functions, "runs": runs,
+            "private": private, "seeds": seeds}
 
 
 def test_all_configs_build():
@@ -2545,6 +2754,50 @@ def test_baremetal_profile_contract():
     RESOLVER_STORE_PIN = "STORES into the Milan CSR window"
     RESOLVER_DOMINANCE_PIN = "CRC-equality edge REMOVED"
     RESOLVER_CHOKE_PIN = "not from entity_advertise()"
+    #: ... and the fourth, which is the one this round adds. A store whose
+    #: address the resolver cannot place is a REFUSAL, not an omission.
+    RESOLVER_UNPLACED_PIN = "STORE this gate cannot PLACE"
+    #: ... and the fifth: the address helper's return is the one address
+    #: this firmware may reach a control register through, so exactly one
+    #: function may store through it.
+    RESOLVER_HELPER_PIN = "exactly one function may store through it"
+    #: THE DECLARED RESIDUAL, and the reason it exists ([R0] BLOCKER on PR
+    #: #241).
+    #:
+    #: The census classifies EVERY store the compiler emits. Four classes
+    #: are PROVED to land outside the control window and need no entry
+    #: here: a resolved address (rule 1 answers it by number), a stack
+    #: address, the address of one of this unit's own statics, and the
+    #: address helper's own return -- the single sanctioned CSR store,
+    #: which rule 1c pins to exactly one function.
+    #:
+    #: What is left is what this analysis genuinely CANNOT say, and it is
+    #: two stores in the shipping firmware. Naming them here is what turns
+    #: "cannot say" into a refusal with a declared exception rather than
+    #: into silence: the census asserts this table EXACTLY, so one more
+    #: unplaceable store anywhere -- in these functions or in any other --
+    #: is RED, and one fewer is RED too, so a residual can only be retired
+    #: deliberately. docs/integration/BAREMETAL_FIRMWARE.md carries the
+    #: same two rows, which is where the published claim is narrowed to
+    #: what the code actually proves.
+    #:
+    #: Keyed on (function, class, callee) because those are facts about the
+    #: emitted code; the printed detail of an unplaced base is a rendering
+    #: of the lattice and is reported, not pinned.
+    RESOLVER_STORE_RESIDUAL = {
+        ("load_aem_image", "unplaced", None): (
+            1,
+            "the AEM copy loop stores through MILAN_AEM_DESC_BASE plus a "
+            "loop index; the base is resolved and outside the window, the "
+            "index is not bounded by this lattice, so the sum is not "
+            "placed"),
+        ("parse_u64", "call", "__errno_location"): (
+            1,
+            "`errno = 0` stores through the pointer __errno_location() "
+            "returns; that function is not compiled in this translation "
+            "unit, so its return value is outside what this census "
+            "resolves"),
+    }
 
     def format_census_verdict(verdict):
         """Render only an execution state the census actually observed."""
@@ -2711,7 +2964,8 @@ def test_baremetal_profile_contract():
         body, close = braced_span(code, found, "entity_advertise()")
         return found, body, close
 
-    def assert_resolved_boot_flow(assembly, model, label="firmware"):
+    def assert_resolved_boot_flow(assembly, model, label="firmware",
+                                  helper=None):
         """Answer the boot contract from the RESOLVED assembly.
 
         Four questions, each about a VALUE or an EDGE and none about a
@@ -2721,6 +2975,17 @@ def test_baremetal_profile_contract():
            Milan CSR window?  No exemption, not even the address helper:
            forming the address is that helper's job, storing through a
            resolved one is nobody's;
+        1b. and for every store whose address did NOT resolve: which class
+           of base did it go through, is that class proved to land outside
+           the window, and -- if not -- is it one of the two residuals this
+           gate DECLARES and publishes?  Anything else is a refusal.  The
+           earlier revision filtered these stores out before asking, so a
+           store the resolver could not place simply did not appear in the
+           census and the gate reported a clean result over the subset it
+           happened to understand ([R0] BLOCKER on PR #241);
+        1c. the address helper's own return is the ONE sanctioned way into
+           the window, so exactly one function may store through it, and it
+           must be the one question 2 censuses;
         2. which `milan_write()` calls assert bit 0 of PP_CTRL or ADP_CTRL,
            taking the register from the resolved first operand and the bit
            from the resolved second one?
@@ -2753,6 +3018,64 @@ def test_baremetal_profile_contract():
                 "the RESOLVED store address, so no cast, typedef, member " \
                 "access, subscript or shift-and-or address arithmetic " \
                 "changes the answer, and the address helper is NOT exempt"
+
+        # ---- 1b/1c. every store whose address did NOT resolve ------------
+        #
+        # PROVED classes, and why each is proved rather than assumed:
+        #   stack -- the base is a frame register the prologue set and never
+        #     moved, displaced; the stack lives in the SoC's RAM, which the
+        #     linker places outside the device window rule 1 measures.
+        #   sym -- the base is the address of an object DEFINED in this
+        #     translation unit; the window is device address space and holds
+        #     none of this unit's objects.
+        # Everything else is unplaced unless the declared residual names it.
+        reg_name = helper or reg_helper_name
+        residual, sanctioned = {}, []
+        for name, run in sorted(runs.items()):
+            for _at, (address, _value) in run["stores"]:
+                if isinstance(address, int) or address.kind in ("stack", "sym"):
+                    continue
+                if address.kind == "call" and address.detail == reg_name:
+                    sanctioned.append(name)
+                    continue
+                key = (name, address.kind,
+                       address.detail if address.kind == "call" else None)
+                seen_here = residual.setdefault(key, [0, set()])
+                seen_here[0] += 1
+                seen_here[1].add(repr(address))
+        unexpected = sorted(
+            f"{name}() through {kind}"
+            f"{'(' + str(detail) + ')' if detail else ''} "
+            f"x{count} {sorted(details)}"
+            for (name, kind, detail), (count, details) in residual.items()
+            if RESOLVER_STORE_RESIDUAL.get((name, kind, detail),
+                                           (0, ""))[0] != count)
+        assert not unexpected, \
+            f"the compiled {label} makes a {RESOLVER_UNPLACED_PIN} and that " \
+            "no declared residual accounts for: " + "; ".join(unexpected) + \
+            f". The declared residual is {sorted(RESOLVER_STORE_RESIDUAL)}. " \
+            "An address this gate cannot resolve is an address it cannot " \
+            "prove is outside the control window, so it REFUSES rather " \
+            "than omitting the store from the census: a runtime-derived " \
+            "page, a pointer this unit never forms, or a store operand " \
+            "this resolver cannot even read all land here"
+        missing = sorted(key for key in RESOLVER_STORE_RESIDUAL
+                         if key not in residual)
+        assert not missing, \
+            f"the compiled {label} no longer makes the unplaceable store(s) " \
+            f"this gate DECLARES as its residual: {missing}. A residual that " \
+            "has gone away must be retired from RESOLVER_STORE_RESIDUAL and " \
+            "from docs/integration/BAREMETAL_FIRMWARE.md in the same change, " \
+            "so the published claim never understates what is proved either"
+        assert len(sanctioned) == 1 and sanctioned == ["milan_write"], \
+            f"the compiled {label} stores through {reg_name}()'s return " \
+            f"from {sorted(set(sanctioned)) or 'nowhere'} " \
+            f"({len(sanctioned)} store(s)): that return is the ONE address " \
+            "this firmware may reach a control register through, so exactly " \
+            "one function may store through it and it must be the " \
+            "milan_write() whose operands the bit-0 census below reads. " \
+            "A second consumer of the helper's return is a control-register " \
+            "write outside the census, however it is spelled"
 
         # ---- 2. which resolved writes assert an enable bit ---------------
         enabling = []
@@ -2873,7 +3196,120 @@ def test_baremetal_profile_contract():
             "buffer": buffer_at, "bytes": byte_count, "crc": expected_crc,
             "functions": len(runs),
             "statics": len(unit["data"]),
+            "stores": sum(len(run["stores"]) for run in runs.values()),
+            "residual": sorted(
+                f"{name}() through {kind}"
+                f"{'(' + str(detail) + ')' if detail else ''} x{count}"
+                for (name, kind, detail), (count, _details)
+                in residual.items()),
+            "seeded": sorted(unit["seeds"]),
         }
+
+    #: ---- the CFG join's own self-test ([R0] MAJOR on PR #241) ---------
+    #:
+    #: A diamond: one predecessor writes a frame slot, the other does not,
+    #: and the block they join at reads that slot back.  A value that
+    #: reaches a join on ONE path only is not a value, so the answer must
+    #: be "cannot say" -- and, critically, it must be the SAME answer
+    #: whichever predecessor the block layout happens to put first.  Two
+    #: shapes, because the two things the slot feeds are the two things the
+    #: boot contract is proved with: the CRC comparison's provenance and
+    #: the verifier's return value.
+    def rv32_join_diamond(store_first, both=False, tail=None):
+        """One function, one diamond, `store_first` choosing WHICH
+        predecessor carries the store.  The two layouts are semantically
+        equivalent; only the block order differs."""
+        stored, empty = ["\tcall crc32", "\tsw a0,-20(s0)"], ["\tnop"]
+        taken, fallen = (stored, empty) if store_first else (empty, stored)
+        if both:
+            taken = fallen = stored
+        return "\n".join([
+            "diamond:", "\taddi sp,sp,-32", "\tsw ra,28(sp)",
+            "\tsw s0,24(sp)", "\taddi s0,sp,32", "\tbeqz a0,.L2",
+            *taken, "\tj .L3", ".L2:", *fallen, ".L3:", *(tail or [
+                "\tlw a4,-20(s0)", f"\tli a5,{_rv32_s32(crc_probe_value)}",
+                "\tbeq a4,a5,.L4", "\tli a0,0", "\tj .L5", ".L4:",
+                "\tli a0,1", ".L5:"]),
+            "\tlw ra,28(sp)", "\tlw s0,24(sp)", "\taddi sp,sp,32", "\tret"])
+
+    crc_probe_value = 0xDEAD_BEEF
+    crc_probe_tag = Rv32Tag("crc32")
+    return_tail = ["\tlw a0,-20(s0)"]
+
+    def rv32_join_answers(store_first, both=False):
+        """`(crc-provenance edge, returned values)` for one layout."""
+        body = rv32_functions(rv32_join_diamond(store_first, both))["diamond"]
+        run = rv32_run(body, {}, tags={"crc32": crc_probe_tag})
+        returns = rv32_run(
+            rv32_functions(rv32_join_diamond(store_first, both,
+                                             return_tail))["diamond"], {})
+        return (rv32_verdict_edge(run, crc_probe_tag, crc_probe_value),
+                [value for _at, value in returns["rets"]])
+
+    join_layouts = {first: rv32_join_answers(first) for first in (True, False)}
+    assert join_layouts[True] == join_layouts[False], \
+        "the RV32 resolver answers two SEMANTICALLY EQUIVALENT diamond " \
+        "layouts differently: with the store in the first predecessor it " \
+        f"reports {join_layouts[True]}, with the store in the other it " \
+        f"reports {join_layouts[False]}. A join that depends on which " \
+        "predecessor is visited first invents provenance out of block " \
+        "layout, and every CRC and verdict answer this gate gives rests " \
+        "on that join"
+    assert join_layouts[True] == (None, [None]), \
+        "a value stored on ONE incoming path of a diamond survived the " \
+        f"join: {join_layouts[True]}. It must be 'cannot say' -- the join " \
+        "is a MEET, and a key absent on any predecessor is unknown"
+    #: ... and the ANTI-VACUITY arm, so "both layouts agree on nothing" is
+    #: not passed off as a join measurement: the same diamond with the
+    #: store on BOTH predecessors must resolve, in both layouts.
+    both_layouts = {first: rv32_join_answers(first, both=True)
+                    for first in (True, False)}
+    assert both_layouts[True] == both_layouts[False] and \
+        both_layouts[True][0] is not None, \
+        "the diamond control cannot tell a resolved join from an " \
+        f"unresolved one ({both_layouts}), so its negative arm proves " \
+        "nothing: with the store on BOTH predecessors the CRC comparison " \
+        "must resolve to the value crc32() handed back"
+
+    #: ... and the NEGATIVE CONTROL for the control itself: restore the
+    #: predecessor-order-dependent join for the length of ONE measurement
+    #: and require the two layouts to DISAGREE. Without this the four
+    #: assertions above are a check that cannot go red -- exactly the shape
+    #: this gate keeps being bitten by.
+    def rv32_order_dependent_meet(self, other):
+        """The join exactly as it stood at a8083a29: a slot missing from
+        `self` is COPIED IN from `other`, so a value on one incoming path
+        survives whenever that path is folded in second."""
+        for key, value in list(self.regs.items()):
+            if value is not None and (key not in other.regs or
+                                      other.regs[key] != value):
+                self.regs[key] = None
+        for key, value in list(self.mem.items()):
+            if value is not None and (key not in other.mem or
+                                      other.mem[key] != value):
+                self.mem[key] = None
+        for key, value in other.mem.items():
+            if key not in self.mem:
+                self.mem[key] = value
+        return self
+
+    sound_meet = Rv32State.meet
+    try:
+        Rv32State.meet = rv32_order_dependent_meet
+        order_dependent = {first: rv32_join_answers(first)
+                           for first in (True, False)}
+    finally:
+        Rv32State.meet = sound_meet
+    assert order_dependent[True] != order_dependent[False], \
+        "the order-dependent join answered the two diamond layouts the " \
+        f"SAME way ({order_dependent}), so the layouts above do not " \
+        "distinguish the two joins and the join self-test proves nothing"
+    join_control_note = (
+        "the CFG join was measured order-INDEPENDENT on two equivalent "
+        f"diamond layouts ({join_layouts[True]} both ways), resolved on "
+        "the same diamond with the store on both predecessors, and the "
+        "restored order-dependent join was measured to disagree "
+        f"({order_dependent[True]} vs {order_dependent[False]})")
 
     # Force the non-target branch without depending on which compilers the
     # machine happens to have. If stand-down ever invokes the compiler, the
@@ -4254,8 +4690,16 @@ def test_baremetal_profile_contract():
         # can see. One compile feeds both instruments, so this measures the
         # same emitted code the census above matched over.
         if census_taken["ran"]:
+            #: The helper's name comes from the source THIS call censused,
+            #: not from the shipping firmware: rule 1c pins the one
+            #: sanctioned consumer of that helper's return, and pinning it
+            #: against a name a mutant may have moved would answer about the
+            #: wrong function.
             compiled_census_verdict["resolved"] = assert_resolved_boot_flow(
-                census_taken["text"], model)
+                census_taken["text"], model,
+                helper=re.search(
+                    r"\bstatic\s+inline\s+volatile\s+uint32_t\s*\*\s*(\w+)"
+                    r"\s*\(", firmware).group(1))
         return compiled_census_verdict
 
     baseline_census_verdict = assert_boot_contract(
@@ -5640,6 +6084,62 @@ def test_baremetal_profile_contract():
         "typedef volatile uint32_t *milan_csr_page_p;\n"
         f"static unsigned int csr_page = 0x{csr_base >> 16:04x}u;\n\n"
         "static int aem_loaded;", "paged subscript typedef")
+    #: ... and the shape [R0] on PR #241 planted: the page is not a static
+    #: this gate can read but a value the fabric hands back at RUN TIME,
+    #: laundered through an identity that makes it the CSR page. Nothing
+    #: resolves: no window immediate is printed, the store address is
+    #: `<runtime> << 16 | ADP_CTRL`, and the whole point is that the
+    #: resolver CANNOT say where it lands. Under the revision this answers
+    #: it was dropped from the census for exactly that reason and the gate
+    #: reported a clean 149/149 over it.
+    runtime_paged_store = replace_once(
+        stored_before_aem(
+            "unsigned int runtime_page =\n\t\tmilan_read(MILAN_ID) ^ "
+            f"(MILAN_ID_MAGIC ^ 0x{csr_base >> 16:04x}u);\n\t"
+            f"((milan_dyn_adp_blk)((runtime_page << 16) | {adp_name}))"
+            "->ctrl = 1u;",
+            "struct-overlay store through a RUNTIME-derived paged base"),
+        "static int aem_loaded;",
+        "typedef struct { volatile uint32_t ctrl; } *milan_dyn_adp_blk;\n\n"
+        "static int aem_loaded;", "runtime-paged struct overlay typedef")
+    #: ... and the class rule 1c exists for: a SECOND consumer of the
+    #: address helper's return. No window immediate is materialised (the
+    #: helper forms the address, which is its job), the store address does
+    #: not resolve (the helper is a call at the census's flags), the cast
+    #: names no `*` and the left-hand side does not start with one, so the
+    #: cast set, the store set, the compiled census and rule 1 are all
+    #: blind to it -- and it is a durable pre-AEM entity advertise.
+    helper_return_store = replace_once(
+        stored_before_aem(
+            f"((milan_word_p)milan_reg({adp_name}))->word = 1u;",
+            "store through a SECOND consumer of the address helper"),
+        "static int aem_loaded;",
+        "typedef struct { volatile uint32_t word; } *milan_word_p;\n\n"
+        "static int aem_loaded;", "helper-return struct overlay typedef")
+    #: ... and the RESOLVER's own answer to it, measured on its own so the
+    #: mutation-table pin above (the caller rule, which answers first) does
+    #: not leave rule 1c a rule with nothing behind it. Same pattern as the
+    #: exempted-helper blindness control: both instruments are asked, and
+    #: both answers are recorded.
+    helper_return_resolver_caught = 0
+    if baseline_census_verdict["ran"]:
+        _taken = census_take(helper_return_store, "helper-return store")
+        try:
+            assert_resolved_boot_flow(_taken["text"], source_model,
+                                      "helper-return store")
+        except AssertionError as exc:
+            assert RESOLVER_HELPER_PIN in str(exc), \
+                "the resolver refused the second consumer of the address " \
+                f"helper's return for the wrong reason: {exc}"
+            helper_return_resolver_caught = 1
+        else:
+            raise AssertionError(
+                "the resolver accepted a store through a SECOND consumer of "
+                "the address helper's return: no window immediate is "
+                "printed, the store address does not resolve and neither "
+                "the cast set nor the store set recognises the spelling, so "
+                "that shape would be open on every instrument but the "
+                "caller rule's regex")
     #: ---- and the verifier's CONTROL and DATA flow, which no positional
     #: rule reaches: two ways to the success return that never take the
     #: comparison, the comparison made against a value crc32() never
@@ -5681,6 +6181,21 @@ def test_baremetal_profile_contract():
                      "(SPIFLASH_BASE + MILAN_AEM_FLASH_OFFSET)",
                      "CRC operand repointed at the QSPI source"),
         "CRC taken over the QSPI source rather than the descriptor buffer")
+    #: ... and the control for the DECLARED RESIDUAL itself, without which
+    #: naming two unplaceable stores would be a hole rather than a
+    #: disclosure. A second unplaceable store is planted in one of the two
+    #: functions the residual already names, so no NEW key appears in the
+    #: census and only the COUNT moves. The residual is asserted exactly,
+    #: so it is RED; if it were a per-function exemption it would be green.
+    residual_count_store = replace_once(
+        replace_once(
+            firmware_source, crc_assign_text,
+            f"((milan_dyn_adp_blk)((((unsigned int)src[4]) << 16) | "
+            f"{adp_name}))->ctrl = 1u;\n\t" + crc_assign_text,
+            "second unplaceable store inside the AEM verifier"),
+        "static int aem_loaded;",
+        "typedef struct { volatile uint32_t ctrl; } *milan_dyn_adp_blk;\n\n"
+        "static int aem_loaded;", "residual-count struct overlay typedef")
 
     #: The asm spelling any RISC-V programmer writes. objdump annotates the
     #: store `# 90000600`, but no window immediate is ever printed, so the
@@ -6131,6 +6646,17 @@ def test_baremetal_profile_contract():
         ("entity enabled by storing through milan_reg()", reg_store_enable,
          docs_source, csr_source,
          "milan_reg() may be called only by milan_read()/milan_write()"),
+        #: ... and the same class spelled so that NO instrument but the
+        #: caller rule and the resolver's rule 1c can see it: the helper
+        #: forms the address (so no window immediate is printed and the
+        #: store address does not resolve), the cast names no `*` and the
+        #: left-hand side does not start with one. Pinned on the caller
+        #: rule because that rule answers first; that the RESOLVER also
+        #: refuses it, on the resolved provenance of the base rather than
+        #: on the call site, is measured separately below.
+        ("entity enabled through a second consumer of the address helper's "
+         "return", helper_return_store, docs_source, csr_source,
+         "milan_reg() may be called only by milan_read()/milan_write()"),
         ("entity enabled through a raw CSR pointer", raw_store_enable,
          docs_source, csr_source,
          "only milan_reg() may form a CSR address"),
@@ -6556,6 +7082,16 @@ def test_baremetal_profile_contract():
          overlay_paged_store, docs_source, csr_source, RESOLVER_STORE_PIN),
         ("entity enabled by a subscript store through a paged base",
          subscript_paged_store, docs_source, csr_source, RESOLVER_STORE_PIN),
+        #: ---- the two the store census answers only because an
+        #: unplaceable store is now a REFUSAL rather than an omission
+        #: ([R0] BLOCKER on PR #241). The first is the reviewer's own
+        #: control; the second moves the count of a DECLARED residual.
+        ("entity enabled by a struct-overlay store through a base derived "
+         "from a runtime CSR read", runtime_paged_store, docs_source,
+         csr_source, RESOLVER_UNPLACED_PIN),
+        ("a second store the resolver cannot place, added inside a function "
+         "whose residual is declared", residual_count_store, docs_source,
+         csr_source, RESOLVER_UNPLACED_PIN),
         ("AEM verifier reaching its success return by goto past the CRC "
          "comparison", goto_past_crc, docs_source, csr_source,
          RESOLVER_DOMINANCE_PIN),
@@ -6700,14 +7236,33 @@ def test_baremetal_profile_contract():
             "the same mutants were REJECTED by the resolver on the resolved "
             "store address, which is what makes 'an addition, not a "
             "replacement' a measurement here rather than a claim")
+        _resolved = baseline_census_verdict["resolved"]
         resolved_note = (
             ", and on this run it resolved "
-            f"{baseline_census_verdict['resolved']['statics']} single-word "
-            "static(s) and "
-            f"{baseline_census_verdict['resolved']['functions']} function(s) "
+            f"{_resolved['statics']} single-word static(s) and "
+            f"{_resolved['functions']} function(s) "
             "of the shipping firmware, reading the CRC operands back as "
-            f"0x{baseline_census_verdict['resolved']['buffer']:08x} for "
-            f"{baseline_census_verdict['resolved']['bytes']} bytes")
+            f"0x{_resolved['buffer']:08x} for "
+            f"{_resolved['bytes']} bytes, seeding the arguments of "
+            f"{len(_resolved['seeded'])} function(s) this unit neither "
+            "exports nor takes the address of from their call sites, and "
+            f"classifying all {_resolved['stores']} store(s) the compiler "
+            "emitted. THE CLAIM IS NARROWED TO WHAT THAT PROVES: "
+            + (f"{len(_resolved['residual'])} store(s) are NOT placed by "
+               "this analysis and are DECLARED rather than dropped -- "
+               + "; ".join(_resolved["residual"]) +
+               " -- so the census refuses any store outside that declared "
+               "residual instead of omitting it, and the residual is "
+               "asserted exactly, so one more unplaceable store anywhere "
+               "is RED. What the residual costs is stated in "
+               "docs/integration/BAREMETAL_FIRMWARE.md rather than left "
+               "for a reader to find; and the resolver was measured to "
+               f"refuse {helper_return_resolver_caught}/1 store through a "
+               "SECOND consumer of the address helper's return, a shape no "
+               "cast set, store set or immediate census sees"
+               if _resolved["residual"] else
+               "every store the compiler emitted was placed") +
+            "; and " + join_control_note)
     else:
         helper_blind_note = (
             "; the exempted-helper blindness control did NOT run here, "
@@ -6802,7 +7357,12 @@ def test_baremetal_profile_contract():
           "edges, so (a) no function -- the address helper included, it is "
           "NOT exempt -- stores to a resolved address in the CSR window, "
           "which answers a paged base built with slli/ori that prints no "
-          "window immediate; (b) the only resolved milan_write() asserting "
+          "window immediate, and EVERY OTHER STORE IS CLASSIFIED rather "
+          "than filtered out: a stack address, one of this unit's own "
+          "statics and the address helper's own return (which exactly one "
+          "function may store through) are proved outside or accounted "
+          "for, and anything else is refused unless the declared residual "
+          "below names it; (b) the only resolved milan_write() asserting "
           "bit 0 of PP_CTRL or ADP_CTRL is inside entity_advertise(), taken "
           "from the emitted operands so a macro body or a preprocessor arm "
           "cannot move it out of view; (c) removing the edge "
