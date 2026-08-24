@@ -145,6 +145,27 @@ static void tick() {
     engine_stamps.push_back({(uint16_t)dut->dbg_eng_txts_seq_o,
                              (uint8_t)dut->dbg_eng_txts_type_o,
                              dut->dbg_eng_txts_ns_o});
+  //! A transfer is the value presented immediately before the active edge.
+  //! Sampling after the edge loses a last beat when a producer drops valid
+  //! in response to that same handshake -- a distinction the backpressure
+  //! phase deliberately exercises.
+  if (dut->tx_tvalid_o && dut->tx_tready_i) {
+    if (tx_first) {
+      cur.clear();
+      in_tx = true;
+      tx_sof_phc.push_back(phc());
+    }
+    for (int i = 0; i < 8; i++)
+      if ((dut->tx_tkeep_o >> i) & 1)
+        cur.push_back((dut->tx_tdata_o >> (8 * i)) & 0xFF);
+    if (dut->tx_tlast_o) {
+      txf.push_back(cur);
+      in_tx = false;
+      tx_first = true;
+    } else {
+      tx_first = false;
+    }
+  }
   dut->clk_i = 1; dut->eval();
   if (g_ts_capture) {
     if (dut->dbg_tspush_v_o) g_pushed.push_back(dut->dbg_tspush_o);
@@ -156,22 +177,6 @@ static void tick() {
     last_txts_seq = dut->dbg_txts_seq_o;
     stamps.push_back({(uint16_t)dut->dbg_txts_seq_o,
                       (uint8_t)dut->dbg_txts_type_o, dut->dbg_txts_o});
-  }
-  if (dut->tx_tvalid_o && dut->tx_tready_i) {
-    if (tx_first) {
-      cur.clear();
-      in_tx = true;
-      tx_sof_phc.push_back(phc());
-    }
-    for (int i = 0; i < 8; i++)
-      if ((dut->tx_tkeep_o >> i) & 1) cur.push_back((dut->tx_tdata_o >> (8 * i)) & 0xFF);
-    if (dut->tx_tlast_o) {
-      txf.push_back(cur);
-      in_tx = false;
-      tx_first = true;
-    } else {
-      tx_first = false;
-    }
   }
   cyc++;
 }
@@ -275,8 +280,15 @@ static uint64_t fld48(const std::vector<uint8_t> &f, size_t o) {
   uint64_t v = 0; for (int i = 0; i < 6; i++) v = (v << 8) | f[o + i];
   return v;
 }
+static uint16_t fld16(const std::vector<uint8_t> &f, size_t o) {
+  return (uint16_t)(((uint16_t)f[o] << 8) | f[o + 1]);
+}
 static uint32_t fld32(const std::vector<uint8_t> &f, size_t o) {
   uint32_t v = 0; for (int i = 0; i < 4; i++) v = (v << 8) | f[o + i];
+  return v;
+}
+static uint64_t fld64(const std::vector<uint8_t> &f, size_t o) {
+  uint64_t v = 0; for (int i = 0; i < 8; i++) v = (v << 8) | f[o + i];
   return v;
 }
 static uint64_t timestamp_field_ns(const std::vector<uint8_t> &f, size_t o) {
@@ -864,6 +876,282 @@ int main(int argc, char **argv) {
     expect("as master: an Announce reached the lane", saw_ann, 1);
     expect("as master: a Sync reached the lane", saw_sync, 1);
     expect("as master: its Follow_Up reached the lane", saw_fu, 1);
+  }
+
+  // ---- 14: #40 -- same-type response ownership under real backpressure --
+  // Stop the production wide TX lane before two complete peer requests enter
+  // through the real tap/FIFO/parser path. Request 2 can therefore reach the
+  // donor while response 1 still has no boundary timestamp. Two valid
+  // Signaling chasers then reuse both ping-pong message banks. The one-slot
+  // test gate holds response 1's REAL stamper tuple: request 2 must stay
+  // behind the open response owner, retain its event snapshot through that
+  // bank churn, and keep its own requester identity and boundary time.
+  {
+    pd_on = false;
+    service_pdelay();
+    for (int k = 0; k < 2000 && (dut->tx_tvalid_o || in_tx); k++) tick();
+    //! Begin from a quiet, reset production lane so the first stalled frame
+    //! can only be response 1; post-reset periodic traffic is still more than
+    //! two million clocks away.
+    dut->rst_n = 0;
+    for (int i = 0; i < 8; i++) tick();
+    dut->rst_n = 1;
+    dut->tx_tready_i = 1;
+    pd_seen = txf.size();
+    tx_seen = txf.size();
+    run(512);
+
+    const uint16_t Q1 = 0x1111, Q2 = 0x2222;
+    const uint64_t C1 = PEER_CID, C2 = 0x001122FFFE334455ull;
+    const uint16_t P1 = 1, P2 = 2;
+    Frame q1 = ptp(0x2, Q1, 0, 0x0000, 20, C1);
+    q1.u64(0); q1.u64(0); q1.u32(0);
+    Frame q2 = ptp(0x2, Q2, 0, 0x0000, 20, C2);
+    q2.b[42] = (uint8_t)(P2 >> 8);
+    q2.b[43] = (uint8_t)P2;
+    q2.u64(0); q2.u64(0); q2.u32(0);
+
+    const size_t mark = txf.size();
+    const uint16_t evdrop0 = dut->dbg_ev_drop_o;
+    const uint16_t conflict0 = dut->dbg_txts_gate_conflict_o;
+    auto find_frame = [&](uint8_t mt, uint16_t seq) -> int {
+      for (size_t i = mark; i < txf.size(); i++)
+        if (txf[i].size() > 45 && (txf[i][14] & 0xF) == mt &&
+            fld16(txf[i], 44) == seq)
+          return (int)i;
+      return -1;
+    };
+
+    dut->txts_hold_type_i = 0x3;
+    dut->txts_hold_en_i = 1;
+    dut->tx_tready_i = 0;
+    const uint64_t Q1_RX = phc();
+    send_wide(q1.b);
+    const uint64_t Q2_RX = phc();
+    send_wide(q2.b);
+    Frame chase1 = ptp(0xC, 0xD00D, 0, 0x0000, 0);
+    Frame chase2 = ptp(0xC, 0xBEEF, 0, 0x0000, 0);
+    send_wide(chase1.b);
+    send_wide(chase2.b);
+    for (int k = 0; k < 200000 && !dut->tx_tvalid_o; k++) tick();
+    expect("backpressure: a production frame is presented",
+           dut->tx_tvalid_o, 1);
+    uint64_t start_data = dut->tx_tdata_o;
+    uint8_t start_keep = dut->tx_tkeep_o;
+    uint8_t start_last = dut->tx_tlast_o;
+    size_t start_frames = txf.size();
+    run(32);
+    expect("backpressure: start valid holds", dut->tx_tvalid_o, 1);
+    expect("backpressure: start data holds", dut->tx_tdata_o, start_data);
+    expect("backpressure: start keep holds", dut->tx_tkeep_o, start_keep);
+    expect("backpressure: start last holds", dut->tx_tlast_o, start_last);
+    expect("backpressure: start accepts no frame", txf.size(), start_frames);
+
+    dut->tx_tready_i = 1;
+    for (int k = 0; k < 200000 && !(in_tx && cur.size() >= 16); k++) tick();
+    expect("backpressure: a production body advances",
+           (in_tx && cur.size() >= 16) ? 1 : 0, 1);
+    dut->tx_tready_i = 0;
+    uint64_t mid_data = dut->tx_tdata_o;
+    uint8_t mid_keep = dut->tx_tkeep_o;
+    uint8_t mid_last = dut->tx_tlast_o;
+    size_t mid_size = cur.size();
+    run(32);
+    expect("backpressure: mid valid holds", dut->tx_tvalid_o, 1);
+    expect("backpressure: mid data holds", dut->tx_tdata_o, mid_data);
+    expect("backpressure: mid keep holds", dut->tx_tkeep_o, mid_keep);
+    expect("backpressure: mid last holds", dut->tx_tlast_o, mid_last);
+    expect("backpressure: mid accepts no byte", cur.size(), mid_size);
+    dut->tx_tready_i = 1;
+
+    int resp1 = -1;
+    for (int k = 0; k < 400000 &&
+                         (resp1 < 0 || !dut->dbg_txts_held_o); k++) {
+      tick();
+      resp1 = find_frame(0x3, Q1);
+    }
+    expect("same-type owner: response 1 sent", resp1 >= 0 ? 1 : 0, 1);
+    expect("same-type owner: response 1 stamp is held",
+           dut->dbg_txts_held_o, 1);
+    if (resp1 >= 0)
+      expect("backpressure: the stalled frame is response 1",
+             (size_t)resp1, mark);
+    dut->txts_hold_en_i = 0;
+    if (resp1 >= 0) {
+      expect("same-type owner: response 1 requestReceiptTimestamp",
+             timestamp_field_ns(txf[resp1], 48), Q1_RX);
+      expect("same-type owner: response 1 requester",
+             fld64(txf[resp1], 58), C1);
+      expect("same-type owner: response 1 port", fld16(txf[resp1], 66), P1);
+      expect("same-type owner: held sequence",
+             dut->dbg_txts_held_seq_o, Q1);
+      expect("same-type owner: held type",
+             dut->dbg_txts_held_type_o, 0x3);
+      if ((size_t)resp1 < stamps.size())
+        expect("same-type owner: held real boundary time",
+               dut->dbg_txts_held_ns_o, stamps[resp1].ns);
+    }
+    run(2000);
+    expect("same-type owner: response 2 waits for response 1 stamp",
+           find_frame(0x3, Q2) < 0 ? 1 : 0, 1);
+
+    while (dut->dbg_txts_v_o) tick();
+    dut->txts_release_i = 1;
+    tick();
+    dut->txts_release_i = 0;
+    tick();
+    expect("same-type owner: response 1 tuple releases once",
+           dut->dbg_txts_held_o, 0);
+
+    int fu1 = -1, resp2 = -1, fu2 = -1;
+    for (int k = 0; k < 600000 && (fu1 < 0 || resp2 < 0 || fu2 < 0); k++) {
+      tick();
+      fu1 = find_frame(0xA, Q1);
+      resp2 = find_frame(0x3, Q2);
+      fu2 = find_frame(0xA, Q2);
+    }
+    expect("same-type owner: Follow_Up 1 sent", fu1 >= 0 ? 1 : 0, 1);
+    expect("same-type owner: response 2 sent", resp2 >= 0 ? 1 : 0, 1);
+    expect("same-type owner: Follow_Up 2 sent", fu2 >= 0 ? 1 : 0, 1);
+    if (fu1 >= 0 && resp2 >= 0)
+      expect("same-type owner: Follow_Up 1 precedes response 2",
+             fu1 < resp2 ? 1 : 0, 1);
+    if (fu1 >= 0 && resp1 >= 0) {
+      expect("same-type owner: Follow_Up 1 requester",
+             fld64(txf[fu1], 58), C1);
+      expect("same-type owner: Follow_Up 1 port", fld16(txf[fu1], 66), P1);
+      if ((size_t)resp1 < stamps.size())
+        expect("same-type owner: Follow_Up 1 carries stamp 1",
+               timestamp_field_ns(txf[fu1], 48), stamps[resp1].ns);
+    }
+    if (resp2 >= 0) {
+      expect("same-type owner: response 2 requestReceiptTimestamp",
+             timestamp_field_ns(txf[resp2], 48), Q2_RX);
+      expect("same-type owner: response 2 requester",
+             fld64(txf[resp2], 58), C2);
+      expect("same-type owner: response 2 port", fld16(txf[resp2], 66), P2);
+    }
+    if (fu2 >= 0 && resp2 >= 0) {
+      expect("same-type owner: Follow_Up 2 requester",
+             fld64(txf[fu2], 58), C2);
+      expect("same-type owner: Follow_Up 2 port", fld16(txf[fu2], 66), P2);
+      if ((size_t)resp2 < stamps.size())
+        expect("same-type owner: Follow_Up 2 carries stamp 2",
+               timestamp_field_ns(txf[fu2], 48), stamps[resp2].ns);
+    }
+    expect("same-type owner: test gate loses no tuple",
+           dut->dbg_txts_gate_conflict_o, conflict0);
+    expect("same-type owner: event queue loses no request",
+           dut->dbg_ev_drop_o, evdrop0);
+    dut->tx_tready_i = 1;
+  }
+
+  // ---- 15: #41 -- warm reset cannot preserve a stale timer owner --------
+  // Hold a real Pdelay_Req stamp across reset. Scratch state intentionally
+  // survives warm reset for Milan cease history, but a pre-reset egress owner
+  // must be hidden until a fresh transmitter writes one; otherwise every
+  // later timer request remains suppressed forever.
+  {
+    pd_on = false;
+    pd_seen = txf.size();
+    dut->txts_hold_type_i = 0x2;
+    dut->txts_hold_en_i = 1;
+    tx_seen = txf.size();
+    size_t lost_req_idx = 0;
+    std::vector<uint8_t> lost_req = wait_tx(0x2, 4000000, &lost_req_idx);
+    for (int k = 0; k < 2000 && !dut->dbg_txts_held_o; k++) tick();
+    expect("warm reset request: request sent", lost_req.empty() ? 0 : 1, 1);
+    expect("warm reset request: real stamp held", dut->dbg_txts_held_o, 1);
+    if (!lost_req.empty()) {
+      expect("warm reset request: held type", dut->dbg_txts_held_type_o, 0x2);
+      expect("warm reset request: held sequence",
+             dut->dbg_txts_held_seq_o, fld16(lost_req, 44));
+      if (lost_req_idx < stamps.size())
+        expect("warm reset request: held boundary time",
+               dut->dbg_txts_held_ns_o, stamps[lost_req_idx].ns);
+    }
+    dut->txts_hold_en_i = 0;
+    dut->rst_n = 0;
+    for (int i = 0; i < 8; i++) tick();
+    dut->rst_n = 1;
+    dut->tx_tready_i = 1;
+    dut->txts_release_i = 0;
+    expect("warm reset request: volatile held tuple clears",
+           dut->dbg_txts_held_o, 0);
+
+    pd_seen = txf.size();
+    tx_seen = txf.size();
+    size_t fresh_req_idx = 0;
+    std::vector<uint8_t> fresh_req =
+        wait_tx(0x2, 4000000, &fresh_req_idx);
+    expect("warm reset request: cadence restarts",
+           fresh_req.empty() ? 0 : 1, 1);
+
+    // Re-answer that fresh request, then let the reset-armed receipt timer
+    // take the plane back through asCapable and autonomous mastership.
+    pd_seen = fresh_req.empty() ? txf.size() : fresh_req_idx;
+    pd_on = true;
+    service_pdelay();
+    expect("warm reset request: asCapable re-earned",
+           wait_flags(FL_ASCAP, FL_ASCAP, 8000000ull), 1);
+    expect("warm reset request: mastership recovers",
+           wait_flags(FL_AMGM, FL_AMGM, 12000000ull), 1);
+  }
+
+  // ---- 16: #41 -- warm reset cannot preserve a stale Sync owner ---------
+  // Lose a real master Sync return across reset independently of the request
+  // case. Boot must re-arm both cadence and announce-receipt timers: the
+  // plane re-earns capability, becomes master again, and emits a fresh Sync
+  // plus Follow_Up without any harness-supplied timestamp.
+  {
+    while (dut->dbg_txts_v_o) tick();
+    dut->txts_hold_type_i = 0x0;
+    dut->txts_hold_en_i = 1;
+    tx_seen = txf.size();
+    size_t lost_sync_idx = 0;
+    std::vector<uint8_t> lost_sync = wait_tx(0x0, 1000000, &lost_sync_idx);
+    for (int k = 0; k < 2000 && !dut->dbg_txts_held_o; k++) tick();
+    expect("warm reset Sync: Sync sent", lost_sync.empty() ? 0 : 1, 1);
+    expect("warm reset Sync: real stamp held", dut->dbg_txts_held_o, 1);
+    if (!lost_sync.empty()) {
+      expect("warm reset Sync: held type", dut->dbg_txts_held_type_o, 0x0);
+      expect("warm reset Sync: held sequence",
+             dut->dbg_txts_held_seq_o, fld16(lost_sync, 44));
+      if (lost_sync_idx < stamps.size())
+        expect("warm reset Sync: held boundary time",
+               dut->dbg_txts_held_ns_o, stamps[lost_sync_idx].ns);
+    }
+    dut->txts_hold_en_i = 0;
+    dut->rst_n = 0;
+    for (int i = 0; i < 8; i++) tick();
+    dut->rst_n = 1;
+    dut->tx_tready_i = 1;
+    dut->txts_release_i = 0;
+    expect("warm reset Sync: volatile held tuple clears",
+           dut->dbg_txts_held_o, 0);
+
+    pd_on = true;
+    pd_seen = txf.size();
+    expect("warm reset Sync: asCapable re-earned",
+           wait_flags(FL_ASCAP, FL_ASCAP, 8000000ull), 1);
+    expect("warm reset Sync: mastership recovers",
+           wait_flags(FL_AMGM, FL_AMGM, 12000000ull), 1);
+    tx_seen = txf.size();
+    size_t fresh_sync_idx = 0;
+    std::vector<uint8_t> fresh_sync =
+        wait_tx(0x0, 1000000, &fresh_sync_idx);
+    std::vector<uint8_t> fresh_fu = wait_tx(0x8, 200000);
+    expect("warm reset Sync: cadence restarts",
+           fresh_sync.empty() ? 0 : 1, 1);
+    expect("warm reset Sync: Follow_Up restarts",
+           fresh_fu.empty() ? 0 : 1, 1);
+    if (!fresh_sync.empty() && !fresh_fu.empty()) {
+      expect("warm reset Sync: Follow_Up sequence matches",
+             fld16(fresh_fu, 44), fld16(fresh_sync, 44));
+      if (fresh_sync_idx < stamps.size())
+        expect("warm reset Sync: Follow_Up carries fresh boundary time",
+               timestamp_field_ns(fresh_fu, 48), stamps[fresh_sync_idx].ns);
+    }
   }
 
   // #214: the tag must be right where the engine reads it, every time
