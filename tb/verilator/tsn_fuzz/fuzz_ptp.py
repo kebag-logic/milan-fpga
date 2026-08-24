@@ -1152,15 +1152,29 @@ class Campaign:
             # down: the complement of a 16-bit value can never equal it,
             # so this probe cannot quietly become a probe at OUR port the
             # day the plane's portNumber changes. A literal would.
-            foreign_pn = wire.PtpMsg(preq).source_port_number ^ 0xFFFF
+            our_pn = wire.PtpMsg(preq).source_port_number
+            foreign_pn = our_pn ^ 0xFFFF
             self.tick(4)
             pt2 = self.phc_of(self.state()) - 3000
             before = self.state()
             # right in every other respect: our clockIdentity, the
             # plane's own outstanding sequenceId, domain 0, the usual
             # responder. Only requestingPortIdentity.portNumber is a
-            # stranger's, so the missing half of that one arm is the only
-            # thing that can let this pair through.
+            # stranger's, so THIS ARM is the only thing that can refuse
+            # the pair.
+            #
+            # THE FOLLOW_UP CARRIES OUR OWN portNumber, and that is the
+            # whole design of this probe. While the arm was missing on
+            # both messages, a Follow_Up at the foreign portNumber was
+            # equivalent; the moment the arm landed on both it stopped
+            # being so, and a probe with the stranger's portNumber on
+            # BOTH frames is refused by EITHER arm -- measured here:
+            # bypassing the Pdelay_Resp arm alone left the campaign at
+            # 602 pass, 0 fail, because the Follow_Up arm caught what the
+            # Resp arm let through. That is a probe that cannot fail for
+            # the reason it names. With a perfect Follow_Up behind it,
+            # the Pdelay_Resp arm is the only thing standing between this
+            # pair and a completed exchange.
             self.send(wire.ptp_pdelay_resp(
                 sequence_id=pseq, t2_ns=pt2,
                 requesting_clock_identity=OUR_CID,
@@ -1169,7 +1183,7 @@ class Campaign:
             after = self.send(wire.ptp_pdelay_resp_fu(
                 sequence_id=pseq, t3_ns=pt2 + 200,
                 requesting_clock_identity=OUR_CID,
-                requesting_port_number=foreign_pn,
+                requesting_port_number=our_pn,
                 source_clock_identity=PEER_CID))
             gl = ("Pdelay_Resp at a foreign requesting portNumber arms "
                   "nothing (11.2.15.3)")
