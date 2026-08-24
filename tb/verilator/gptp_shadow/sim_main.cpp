@@ -110,6 +110,10 @@ static uint16_t last_txts_seq = 0xFFFF;
 //! while a Pdelay_Resp echoes the peer's and the two can coincide.
 struct Stamp { uint16_t seq; uint8_t type; uint64_t ns; };
 static std::vector<Stamp> stamps;
+//! The exact tuples after the test-only return-order gate. Unlike `stamps`,
+//! this stream records delivery to the engine, so the collision phases can
+//! prove response-first order rather than inferring it from emitted frames.
+static std::vector<Stamp> engine_stamps;
 //! #214: the slice port must carry the tag AT the cycle the face is valid,
 //! not one stamp later. The engine samples txts_* combinationally on the
 //! valid pulse (KL_gptp_engine's `if (txts_valid_i) ... txts_pend_seq_r <=
@@ -133,6 +137,14 @@ static uint64_t phc() { return dut->phc_ns_o; }
 
 static void tick() {
   dut->clk_i = 0; dut->eval();
+  //! Sample the engine face immediately before the active edge: a replay
+  //! valid is combinational from the held slot and is consumed at this edge,
+  //! then disappears when the slot clears. Post-edge sampling would miss the
+  //! very delivery whose order this trace exists to prove.
+  if (dut->dbg_eng_txts_v_o)
+    engine_stamps.push_back({(uint16_t)dut->dbg_eng_txts_seq_o,
+                             (uint8_t)dut->dbg_eng_txts_type_o,
+                             dut->dbg_eng_txts_ns_o});
   dut->clk_i = 1; dut->eval();
   if (g_ts_capture) {
     if (dut->dbg_tspush_v_o) g_pushed.push_back(dut->dbg_tspush_o);
@@ -263,6 +275,13 @@ static uint64_t fld48(const std::vector<uint8_t> &f, size_t o) {
   uint64_t v = 0; for (int i = 0; i < 6; i++) v = (v << 8) | f[o + i];
   return v;
 }
+static uint32_t fld32(const std::vector<uint8_t> &f, size_t o) {
+  uint32_t v = 0; for (int i = 0; i < 4; i++) v = (v << 8) | f[o + i];
+  return v;
+}
+static uint64_t timestamp_field_ns(const std::vector<uint8_t> &f, size_t o) {
+  return fld48(f, o) * 1000000000ull + fld32(f, o + 6);
+}
 static void announce(uint16_t seq, uint8_t p1, uint64_t gmid,
                      uint64_t src = PEER_CID) {
   Frame a = ptp(0xB, seq, 0, 0x0008, 30, src);
@@ -301,11 +320,18 @@ int main(int argc, char **argv) {
   dut->rx_tvalid_i = 0; dut->rx_tlast_i = 0; dut->rx_tdata_i = 0;
   dut->rx_tkeep_i = 0; dut->rx_tready_i = 1;
   dut->tx_tready_i = 1;
+  dut->txts_hold_en_i = 0; dut->txts_hold_type_i = 0;
+  dut->txts_release_i = 0;
   for (int i = 0; i < 8; i++) tick();
   dut->rst_n = 1;
 
   // ---- 1: boot -> Pdelay_Req byte-exact through the gearbox -------------
-  std::vector<uint8_t> req = wait_tx(0x2, 3200000);
+  // Hold its REAL boundary-stamper tuple so a same-sequence response can
+  // return first. Nothing is fabricated: only the delivery order changes.
+  dut->txts_hold_type_i = 0x2;
+  dut->txts_hold_en_i = 1;
+  size_t req_idx = 0;
+  std::vector<uint8_t> req = wait_tx(0x2, 3200000, &req_idx);
   if (!req.empty()) {
     expect("pdreq length", req.size(), 68);
     expect("pdreq DA", fld48(req, 0), 0x0180C200000Eull);
@@ -315,9 +341,21 @@ int main(int argc, char **argv) {
     expect("pdreq srcCID", fld48(req, 34), OUR_CID >> 16);
   }
   expect("asCapable low at boot", dut->pub_flags_o & FL_ASCAP, 0);
-  if (!req.empty())
-    expect("stamper extracted the req's seq", last_txts_seq,
-           (uint16_t)((req[44] << 8) | req[45]));
+  if (!req.empty()) {
+    uint16_t req_seq = (uint16_t)((req[44] << 8) | req[45]);
+    expect("stamper extracted the req's seq", last_txts_seq, req_seq);
+    expect("held request tuple keeps sequenceId",
+           dut->dbg_txts_held_seq_o, req_seq);
+    expect("held request tuple keeps messageType",
+           dut->dbg_txts_held_type_o, (uint8_t)(req[14] & 0xF));
+    if (req_idx < stamps.size()) {
+      expect("held request tuple keeps the real stamper time",
+             dut->dbg_txts_held_ns_o, stamps[req_idx].ns);
+      if (req_idx < tx_sof_phc.size())
+        expect("held request time is the frame's SOF PHC",
+               dut->dbg_txts_held_ns_o, tx_sof_phc[req_idx]);
+    }
+  }
   // #214: the stamp names the frame by BOTH tags. A Pdelay_Req is
   // messageType 0x2 (802.1AS-2011 Table 11-3), the low nibble of wire
   // byte 14, and the tag must be that frame's, not the previous one's.
@@ -327,6 +365,69 @@ int main(int argc, char **argv) {
     expect("the slice holds the same type at the engine boundary",
            dut->dbg_slice_type_o, (uint8_t)(req[14] & 0xF));
   }
+
+  // ---- 1c: equal-sequence Req/Resp claims, response stamp first ---------
+  // Both endpoints' request counters start at zero. While our type-2 claim
+  // still waits on the held real stamp, a peer request with the same sequence
+  // draws a type-3 response. Its stamp must build that response's type-A
+  // Follow_Up, and the unclaimed type-A stamp must leave our type-2 claim for
+  // the original tuple. Sequence-only credit fails all three observations.
+  expect("boot request stamp is held for collision", dut->dbg_txts_held_o, 1);
+  dut->txts_hold_en_i = 0;
+  uint16_t boot_clash = req.empty() ? 0 :
+      (uint16_t)((req[44] << 8) | req[45]);
+  size_t boot_eng_mark = engine_stamps.size();
+  uint16_t boot_ev_drop = dut->dbg_ev_drop_o;
+  {
+    size_t mark = txf.size();
+    tx_seen = mark;
+    Frame rq = ptp(0x2, boot_clash, 0, 0x0000, 20, PEER_CID);
+    rq.u64(0); rq.u64(0); rq.u32(0);
+    send_wide(rq.b);
+    size_t ri = 0;
+    std::vector<uint8_t> rsp = wait_tx(0x3, 200000, &ri);
+    std::vector<uint8_t> rfu = wait_tx(0xA, 200000);
+    expect("equal request sequences: the peer request is answered",
+           rsp.empty() ? 0 : 1, 1);
+    expect("response-first stamp builds its Resp_Follow_Up",
+           rfu.empty() ? 0 : 1, 1);
+    if (!rsp.empty())
+      expect("equal request sequences: Resp echoes the common sequence",
+             (uint16_t)((rsp[44] << 8) | rsp[45]), boot_clash);
+    if (!rfu.empty()) {
+      expect("equal request sequences: Resp_FU echoes the common sequence",
+             (uint16_t)((rfu[44] << 8) | rfu[45]), boot_clash);
+      if (ri < stamps.size())
+        expect("Resp_FU carries the response's own boundary stamp",
+               timestamp_field_ns(rfu, 48), stamps[ri].ns);
+    }
+    run(2000);  // let the unclaimed type-A stamp dispatch; donor #31 is open
+    expect("unclaimed Resp_FU stamp leaves the request tuple held",
+           dut->dbg_txts_held_o, 1);
+  }
+  dut->txts_release_i = 1;
+  tick();
+  dut->txts_release_i = 0;
+  tick();
+  expect("the original request tuple is released exactly once",
+         dut->dbg_txts_held_o, 0);
+  expect("request collision delivers exactly response, FU, request",
+         engine_stamps.size(), boot_eng_mark + 3);
+  if (engine_stamps.size() >= boot_eng_mark + 3) {
+    expect("request collision delivery 1 is Pdelay_Resp",
+           engine_stamps[boot_eng_mark].type, 0x3);
+    expect("request collision delivery 2 is unclaimed Resp_FU",
+           engine_stamps[boot_eng_mark + 1].type, 0xA);
+    expect("request collision delivery 3 is held Pdelay_Req",
+           engine_stamps[boot_eng_mark + 2].type, 0x2);
+    for (size_t k = boot_eng_mark; k < boot_eng_mark + 3; k++)
+      expect("all request-collision deliveries share sequenceId",
+             engine_stamps[k].seq, boot_clash);
+  }
+  expect("request collision gate had no overlap/overflow",
+         dut->dbg_txts_gate_conflict_o, 0);
+  expect("request collision changed no engine-event drop count",
+         dut->dbg_ev_drop_o, boot_ev_drop);
 
   // ---- 2: one fabric-timed exchange; not capable at one ------------------
   pd_seen = 0;                      // answer the boot request too
@@ -374,54 +475,6 @@ int main(int argc, char **argv) {
     }
     expect("closed loop locked",
            near((int32_t)dut->pub_offset_o, 0, 300), 1);
-  }
-
-  // ---- 4b: #214 -- a returning stamp names its OWN frame, by type -------
-  // The responder role puts a second transmitted type on the lane: a peer
-  // Pdelay_Req draws our Pdelay_Resp (0x3) and its Pdelay_Resp_Follow_Up
-  // (0xA). Each stamp must carry the messageType of the frame it belongs
-  // to, and the sequence tag alone cannot say which: this request reuses
-  // the sequenceId our own boot Pdelay_Req already spent, which is the
-  // collision the two-board link produces from boot (both ends count from
-  // zero at 1 Hz). Without the type tag the two stamps are
-  // indistinguishable at the engine boundary.
-  {
-    uint16_t clash = last_txts_seq;          // our own outstanding sequence
-    size_t before_n = stamps.size();
-    // 54 octets: the header plus the two ten-byte reserved fields of
-    // 802.1AS-2011 Table 11-11, which the pinned parser requires
-    Frame rq = ptp(0x2, clash, 0, 0x0000, 20, PEER_CID);
-    rq.u64(0); rq.u64(0); rq.u32(0);
-    send_wide(rq.b);
-    size_t ri = 0, fi = 0;
-    std::vector<uint8_t> rsp = wait_tx(0x3, 200000, &ri);
-    std::vector<uint8_t> rfu = wait_tx(0xA, 200000, &fi);
-    expect("responder answered the colliding request", rsp.empty() ? 0 : 1, 1);
-    expect("its Resp_Follow_Up followed", rfu.empty() ? 0 : 1, 1);
-    if (!rsp.empty() && !rfu.empty() && stamps.size() >= before_n + 2) {
-      // both carry the SAME sequenceId as our own outstanding request, so
-      // only the type separates them
-      expect("Resp echoes the colliding sequence",
-             (uint16_t)((rsp[44] << 8) | rsp[45]), clash);
-      expect("Resp_Follow_Up echoes it too",
-             (uint16_t)((rfu[44] << 8) | rfu[45]), clash);
-      int seen_resp = 0, seen_rfu = 0;
-      for (size_t k = before_n; k < stamps.size(); k++) {
-        if (stamps[k].seq != clash) continue;
-        if (stamps[k].type == 0x3) seen_resp++;
-        if (stamps[k].type == 0xA) seen_rfu++;
-      }
-      expect("a stamp carries messageType 0x3 for the Pdelay_Resp",
-             seen_resp, 1);
-      expect("a stamp carries messageType 0xA for its Follow_Up", seen_rfu, 1);
-      // the pairing is positional too: the stamps arrive in emission order,
-      // one per frame, which is what the stamper's armed counting promises
-      // for the plane's own lane
-      expect("two stamps for two frames, in order",
-             (int)(stamps.size() - before_n) >= 2 &&
-             stamps[before_n].type == 0x3 &&
-             stamps[before_n + 1].type == 0xA, 1);
-    }
   }
 
   // ---- 5: classify negatives ---------------------------------------------
@@ -666,12 +719,139 @@ int main(int argc, char **argv) {
   {
     size_t before = txf.size();        // the first Announce rides the
     uint64_t spent = 0;                // transition itself, so mark first
-    while (!(dut->pub_flags_o & FL_AMGM) && spent < 16000000ull) {
-      run_svc(200000);
-      spent += 200000;
+    size_t ann_stamp_mark = stamps.size();
+    while (!(dut->pub_flags_o & FL_AMGM) && spent < 18000000ull) {
+      run_svc(1000);
+      spent += 1000;
     }
     expect("quiet ride to grandmaster",
            (dut->pub_flags_o & FL_AMGM) ? 1 : 0, 1);
+
+    // Let the transition's Announce return and dispatch before arming the
+    // selective Sync hold. Otherwise an Announce emitted immediately after
+    // the first Sync can legitimately sit between the response-first pair
+    // and the replay, obscuring the exact 3,A,0 delivery proof.
+    bool ann_stamp_seen = false;
+    for (uint64_t n = 0; n < 2000000ull && !ann_stamp_seen; n += 1000) {
+      for (size_t k = ann_stamp_mark; k < stamps.size(); k++)
+        if (stamps[k].type == 0xB) ann_stamp_seen = true;
+      if (!ann_stamp_seen) run_svc(1000);
+    }
+    expect("master Announce stamp precedes the Sync collision",
+           ann_stamp_seen ? 1 : 0, 1);
+    run_svc(2000);                     // finish its timestamp handler
+
+    dut->txts_hold_type_i = 0x0;       // hold the next real Sync tuple
+    dut->txts_hold_en_i = 1;
+    spent = 0;
+    while (!dut->dbg_txts_held_o && spent < 500000ull) {
+      // Stop within 1,000 clocks of the held Sync, well inside the 125 ms
+      // Sync interval, so a second Sync cannot replace the same claim.
+      run_svc(1000);
+      spent += 1000;
+    }
+    expect("the selected master Sync stamp is held for collision",
+           dut->dbg_txts_held_o, 1);
+    expect("held Sync tuple keeps messageType",
+           dut->dbg_txts_held_type_o, 0x0);
+    dut->txts_hold_en_i = 0;
+
+    uint16_t clash = dut->dbg_txts_held_seq_o;
+    uint64_t sync_stamp_ns = dut->dbg_txts_held_ns_o;
+    uint16_t sync_ev_drop = dut->dbg_ev_drop_o;
+
+    // Locate the raw boundary tuple that the wrapper held. The full-run
+    // one-stamp-per-frame law below independently proves this positional map.
+    size_t sync_idx = 0;
+    bool held_sync_seen = false;
+    for (size_t k = before; k < txf.size() && k < stamps.size(); k++) {
+      if (txf[k].size() > 45 && (txf[k][14] & 0xF) == 0x0 &&
+          (uint16_t)((txf[k][44] << 8) | txf[k][45]) == clash &&
+          stamps[k].type == 0x0 && stamps[k].seq == clash &&
+          stamps[k].ns == sync_stamp_ns) {
+        sync_idx = k;
+        held_sync_seen = true;
+        break;
+      }
+    }
+    expect("held Sync has a real boundary tuple", held_sync_seen ? 1 : 0, 1);
+    if (held_sync_seen && sync_idx < tx_sof_phc.size())
+      expect("held Sync time is the frame's SOF PHC",
+             sync_stamp_ns, tx_sof_phc[sync_idx]);
+
+    if (held_sync_seen) {
+      size_t collision_mark = txf.size();
+      size_t sync_eng_mark = engine_stamps.size();
+      tx_seen = collision_mark;
+
+      // A peer request using the Sync sequence creates a type-3 claim with
+      // the same 16-bit sequence. Return its real stamp first. Only the type
+      // distinguishes the mandatory Resp_FU from our pending Sync Follow_Up.
+      Frame same = ptp(0x2, clash, 0, 0x0000, 20, PEER_CID);
+      same.u64(0); same.u64(0); same.u32(0);
+      send_wide(same.b);
+      size_t ri = 0;
+      std::vector<uint8_t> rsp = wait_tx(0x3, 200000, &ri);
+      std::vector<uint8_t> rfu = wait_tx(0xA, 200000);
+      expect("equal Sync/Resp sequences: the peer request is answered",
+             rsp.empty() ? 0 : 1, 1);
+      expect("response stamp builds Resp_FU rather than Sync Follow_Up",
+             rfu.empty() ? 0 : 1, 1);
+      if (!rfu.empty()) {
+        expect("equal Sync/Resp sequences: Resp_FU keeps the common sequence",
+               (uint16_t)((rfu[44] << 8) | rfu[45]), clash);
+        if (ri < stamps.size())
+          expect("equal Sync/Resp sequences: Resp_FU carries its own stamp",
+                 timestamp_field_ns(rfu, 48), stamps[ri].ns);
+      }
+      int premature_sync_fu = 0;
+      for (size_t k = collision_mark; k < txf.size(); k++)
+        if (txf[k].size() > 14 && (txf[k][14] & 0xF) == 0x8)
+          premature_sync_fu++;
+      expect("response and unclaimed Resp_FU leave Sync pending",
+             premature_sync_fu, 0);
+      run(2000);  // dispatch the unclaimed type-A stamp; donor #31 is open
+      expect("the original Sync tuple remains held after the type-A stamp",
+             dut->dbg_txts_held_o, 1);
+      expect("Sync collision has delivered response then unclaimed FU",
+             engine_stamps.size(), sync_eng_mark + 2);
+
+      dut->txts_release_i = 1;
+      tick();
+      dut->txts_release_i = 0;
+      tick();
+      expect("Sync collision delivers exactly response, FU, Sync",
+             engine_stamps.size(), sync_eng_mark + 3);
+      if (engine_stamps.size() >= sync_eng_mark + 3) {
+        expect("Sync collision delivery 1 is Pdelay_Resp",
+               engine_stamps[sync_eng_mark].type, 0x3);
+        expect("Sync collision delivery 2 is unclaimed Resp_FU",
+               engine_stamps[sync_eng_mark + 1].type, 0xA);
+        expect("Sync collision delivery 3 is held Sync",
+               engine_stamps[sync_eng_mark + 2].type, 0x0);
+        for (size_t k = sync_eng_mark; k < sync_eng_mark + 3; k++)
+          expect("all Sync-collision deliveries share sequenceId",
+                 engine_stamps[k].seq, clash);
+        expect("released engine tuple keeps the held Sync time",
+               engine_stamps[sync_eng_mark + 2].ns, sync_stamp_ns);
+      }
+      std::vector<uint8_t> fu = wait_tx(0x8, 200000);
+      expect("released Sync stamp builds its own Follow_Up",
+             fu.empty() ? 0 : 1, 1);
+      if (!fu.empty()) {
+        expect("released Sync Follow_Up keeps the common sequence",
+               (uint16_t)((fu[44] << 8) | fu[45]), clash);
+        expect("released Sync Follow_Up carries the Sync boundary stamp",
+               timestamp_field_ns(fu, 48), sync_stamp_ns);
+      }
+      expect("the held Sync tuple is consumed exactly once",
+             dut->dbg_txts_held_o, 0);
+      expect("Sync collision gate had no overlap/overflow",
+             dut->dbg_txts_gate_conflict_o, 0);
+      expect("Sync collision changed no engine-event drop count",
+             dut->dbg_ev_drop_o, sync_ev_drop);
+    }
+
     run_svc(1400000);                  // an announce interval and then some
     int saw_ann = 0, saw_sync = 0, saw_fu = 0;
     for (size_t k = before; k < txf.size(); k++) {

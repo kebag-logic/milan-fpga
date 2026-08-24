@@ -317,4 +317,4 @@ print-pp-srcs:
 	@echo $(PP_SRCS)
 
 clean:
-	rm -rf ltn_rom.hex ucode.hex obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_txg obj_ax1x1 obj_aclk obj_nxndv gen_divergent
+	rm -rf ltn_rom.hex ucode.hex gptp_ucode.hex obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_txg obj_ax1x1 obj_aclk obj_nxndv obj_gptp gen_divergent
