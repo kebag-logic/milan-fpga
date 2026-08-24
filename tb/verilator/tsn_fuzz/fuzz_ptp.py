@@ -961,6 +961,35 @@ class Campaign:
                     requesting_clock_identity=OUR_CID,
                     source_clock_identity=PEER_CID))
 
+            # 11.2.15.3 (Figure 11-8, WAITING_FOR_PDELAY_RESP), the THIRD
+            # arm of that state: besides the sequenceId and the domain, a
+            # Pdelay_Resp is taken only when its requestingPortIdentity is
+            # OURS. Every other probe in this section carries OUR_CID -
+            # correctly, since they drive the sequence and responder
+            # compares - so nothing drove this one, and the arm could be
+            # deleted in silence (issue #223 measured exactly that: with it
+            # gone the whole campaign stayed green).
+            #
+            # This Pdelay_Resp is right in every other respect: the plane's
+            # own outstanding sequenceId, domain 0, from the usual
+            # responder. Only the requestingPortIdentity is a stranger's,
+            # so nothing but this arm can refuse it -- which is what makes
+            # the Follow_Up behind it load-bearing. That Follow_Up carries
+            # OUR_CID and is otherwise perfect, so it would complete the
+            # exchange the instant the Resp armed anything: the delay it
+            # would publish is a delay measured against a conversation
+            # between two other stations.
+            self.send(wire.ptp_pdelay_resp(
+                sequence_id=oseq, t2_ns=armed_t2,
+                requesting_clock_identity=PEER2_CID,
+                source_clock_identity=PEER_CID))
+            unpaired_probe(
+                "Pdelay_Resp for another requester arms nothing (11.2.15.3)",
+                wire.ptp_pdelay_resp_fu(
+                    sequence_id=oseq, t3_ns=armed_t2 + 200,
+                    requesting_clock_identity=OUR_CID,
+                    source_clock_identity=PEER_CID))
+
             # arm it for real: domain 0, our requestingPortIdentity, the
             # plane's outstanding sequenceId, from the usual responder
             self.send(wire.ptp_pdelay_resp(
@@ -987,6 +1016,20 @@ class Campaign:
                     sequence_id=oseq, t3_ns=armed_t2 + 200,
                     requesting_clock_identity=OUR_CID,
                     source_clock_identity=PEER2_CID))
+            # the same arm on the OTHER half. The pairing is armed, and
+            # this Follow_Up carries the armed sequenceId from the armed
+            # responder, so both compares the probes above drive are
+            # satisfied: the requestingPortIdentity is the only thing
+            # wrong with it. The two halves qualify independently in the
+            # donor, and this probe plus the one before "arm it for real"
+            # are what make that separable here -- deleting the arm on one
+            # half must redden one probe and leave the other green.
+            unpaired_probe(
+                "ARMED: Follow_Up for another requester ignored (11.2.15.3)",
+                wire.ptp_pdelay_resp_fu(
+                    sequence_id=oseq, t3_ns=armed_t2 + 200,
+                    requesting_clock_identity=PEER2_CID,
+                    source_clock_identity=PEER_CID))
         self.responder(True)
 
         # Figure 11-8 as corrected by Cor2-2015: a COMPLETED exchange
