@@ -964,7 +964,14 @@ class Campaign:
             # 11.2.15.3 (Figure 11-8, WAITING_FOR_PDELAY_RESP), the THIRD
             # arm of that state: besides the sequenceId and the domain, a
             # Pdelay_Resp is taken only when its requestingPortIdentity is
-            # OURS. Every other probe in this section carries OUR_CID -
+            # OURS. The figure qualifies the WHOLE identity, clockIdentity
+            # AND portNumber; the engine compares the clockIdentity alone
+            # (one FMT_Q against the parser's bank word 6, and its own
+            # header says so: "the clockIdentity alone, never the
+            # portNumber"). This probe drives the half that exists. The
+            # missing half is driven at the end of this section as a
+            # TRACKED GAP against FPGA-gPTP #36, not left as a footnote.
+            # Every other probe in this section carries OUR_CID -
             # correctly, since they drive the sequence and responder
             # compares - so nothing drove this one, and the arm could be
             # deleted in silence (issue #223 measured exactly that: with it
@@ -1016,16 +1023,34 @@ class Campaign:
                     sequence_id=oseq, t3_ns=armed_t2 + 200,
                     requesting_clock_identity=OUR_CID,
                     source_clock_identity=PEER2_CID))
-            # the same arm on the OTHER half. The pairing is armed, and
-            # this Follow_Up carries the armed sequenceId from the armed
-            # responder, so both compares the probes above drive are
-            # satisfied: the requestingPortIdentity is the only thing
-            # wrong with it. The two halves qualify independently in the
-            # donor, and this probe plus the one before "arm it for real"
-            # are what make that separable here -- deleting the arm on one
-            # half must redden one probe and leave the other green.
+            # THE ENGINE'S OWN QUALIFICATION, NOT AN ARM OF THE FIGURE.
+            # The first cut of this probe called it the same Figure 11-8
+            # arm as the Pdelay_Resp one above, and the #238 review was
+            # right to refuse that. Figure 11-8's
+            # WAITING_FOR_PDELAY_RESP_FOLLOW_UP transition qualifies the
+            # Follow_Up on its sequenceId and on its sourcePortIdentity
+            # equalling the stored Pdelay_Resp's -- the two compares
+            # prog_leg_pdpost implements, and the two probes above are the
+            # ones that drive them. It does not inspect the Follow_Up's
+            # requestingPortIdentity; the engine's own header states the
+            # figure's Follow_Up rule in exactly those terms. What checks
+            # the requesting identity here is prog_rx_pdrfu, ahead of the
+            # pairing, because the engine chose to. Worth having and worth
+            # pinning -- an unimplemented arm no test drives is
+            # indistinguishable from a deleted one -- but it is hardening,
+            # so it is labelled hardening and is NOT conformance evidence
+            # for Figure 11-8.
+            #
+            # The pairing is armed, and this Follow_Up carries the armed
+            # sequenceId from the armed responder, so both of the figure's
+            # own compares are satisfied: the requesting identity is the
+            # only thing wrong with it. This probe plus the one before
+            # "arm it for real" are what make the two guards separable
+            # here -- deleting one must redden one probe and leave the
+            # other green.
             unpaired_probe(
-                "ARMED: Follow_Up for another requester ignored (11.2.15.3)",
+                "ARMED: Follow_Up for another requester ignored "
+                "(engine hardening, not Figure 11-8)",
                 wire.ptp_pdelay_resp_fu(
                     sequence_id=oseq, t3_ns=armed_t2 + 200,
                     requesting_clock_identity=PEER2_CID,
@@ -1074,6 +1099,88 @@ class Campaign:
             self.rep.eq("t3-skewed replay of a completed pair: "
                         "asCapable unmoved", after[S_FLAGS] & FL_ASCAP,
                         done[S_FLAGS] & FL_ASCAP)
+
+        # ---- the portNumber half of the Figure 11-8 arm: TRACKED GAP ----
+        #
+        # Figure 11-8's WAITING_FOR_PDELAY_RESP transition qualifies the
+        # response on the WHOLE requestingPortIdentity - clockIdentity
+        # == thisClock AND portNumber == thisPort. The engine implements
+        # the first and not the second: prog_rx_pdresp is one FMT_Q
+        # (64-bit) compare against the parser's bank word 6, and the
+        # portNumber the same parser lands in bank word 7 is never read.
+        # Its own header says as much - "the clockIdentity alone, never
+        # the portNumber". So a Pdelay_Resp carrying OUR clockIdentity at
+        # a portNumber that is not ours is taken today.
+        #
+        # This is REPORTED, not asserted. eq_or_gap makes each observable
+        # a tracked gap against FPGA-gPTP #36 while the compare is
+        # missing and an ordinary passing check the day it lands, so the
+        # campaign ratchets the defect out instead of pinning a number.
+        # What it must NOT do is stay invisible: the earlier round of
+        # this PR measured the same thing, kept the probe out of the
+        # tree, and left the generated artifact saying "0 known gaps"
+        # while a reproduced counterexample sat in an upstream issue.
+        #
+        # It is the one probe in this campaign a defect walks through, so
+        # it runs last, on its own exchange, and the damage is measured
+        # rather than absorbed: the exchange completes, neighborPropDelay
+        # takes a delay measured across a conversation this port is not
+        # part of, and asCapable falls. The two checks after it are
+        # ORDINARY assertions, and they are what keeps this gap from
+        # leaking a poisoned delay and a false asCapable into the BTCA,
+        # servo and canary sections downstream.
+        self.responder(False)
+        self.drain_tx()
+        preq = self.wait_tx(wire.PTP_PDELAY_REQ, 4 * SECOND)
+        if self.rep.ck("an unanswered request for the portNumber arm",
+                       preq is not None):
+            pseq = wire.PtpMsg(preq).sequence_id
+            # DERIVED from the plane's own portNumber, never written
+            # down: the complement of a 16-bit value can never equal it,
+            # so this probe cannot quietly become a probe at OUR port the
+            # day the plane's portNumber changes. A literal would.
+            foreign_pn = wire.PtpMsg(preq).source_port_number ^ 0xFFFF
+            self.tick(4)
+            pt2 = self.phc_of(self.state()) - 3000
+            before = self.state()
+            # right in every other respect: our clockIdentity, the
+            # plane's own outstanding sequenceId, domain 0, the usual
+            # responder. Only requestingPortIdentity.portNumber is a
+            # stranger's, so the missing half of that one arm is the only
+            # thing that can let this pair through.
+            self.send(wire.ptp_pdelay_resp(
+                sequence_id=pseq, t2_ns=pt2,
+                requesting_clock_identity=OUR_CID,
+                requesting_port_number=foreign_pn,
+                source_clock_identity=PEER_CID))
+            after = self.send(wire.ptp_pdelay_resp_fu(
+                sequence_id=pseq, t3_ns=pt2 + 200,
+                requesting_clock_identity=OUR_CID,
+                requesting_port_number=foreign_pn,
+                source_clock_identity=PEER_CID))
+            gl = ("Pdelay_Resp at a foreign requesting portNumber arms "
+                  "nothing (11.2.15.3)")
+            self.eq_or_gap("%s: peer delay unmoved" % gl,
+                           after[S_PDELAY], before[S_PDELAY], 36)
+            self.eq_or_gap("%s: asCapable unmoved" % gl,
+                           after[S_FLAGS] & FL_ASCAP,
+                           before[S_FLAGS] & FL_ASCAP, 36)
+        self.responder(True)
+        # what the tracked gap breaks, the plane must repair from real
+        # exchanges before the next section starts. Hard assertions: if
+        # the plane could NOT re-measure and re-climb, every section
+        # after this one would be grading a poisoned machine.
+        st = self.state()
+        spent = 0
+        while not (st[S_FLAGS] & FL_ASCAP) and spent < 16 * SECOND:
+            st = self.tick(200)
+            spent += 200 * 10000
+        self.rep.eq("after the tracked portNumber gap: asCapable is whole "
+                    "again", st[S_FLAGS] & FL_ASCAP, FL_ASCAP)
+        self.rep.ck("after the tracked portNumber gap: the delay is "
+                    "re-measured from real exchanges",
+                    abs((st[S_PDELAY] & 0xFFFFFFFF) - st[S_PDEXP]) <= 32,
+                    "pdelay=%d expect=%d" % (st[S_PDELAY], st[S_PDEXP]))
 
     # ----------------------------------------------------------- 8 BTCA
     def btca(self):
