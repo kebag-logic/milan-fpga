@@ -361,10 +361,11 @@ module KL_pp_shadow #(
     input  wire  [63:0] gsi_data_i,         //! the word
     input  wire         gsi_wait_i,         //! HOLD the beat (not a ready)
     input  wire         gsi_avb_chg_i,      //! integrator-side AVB-info word changed
-    //! integrator-side AS_PATH change. The processor derives a GRANDMASTER
-    //! change on its own; this pin is the one it cannot derive - the same
-    //! grandmaster with a newly published PathTrace tail (milan_datapath
-    //! drives it from the 0x7DC staging group's publish edge).
+    //! integrator-side SERVED AS_PATH sequence changed. This is the processor's
+    //! sole trigger: it MUST cover entry-0 grandmaster identity changes and
+    //! active published tail/count changes, while suppressing raw aliases such
+    //! as count 0/1 under a stable GM and every hidden tail while GM=0.
+    //! milan_datapath drives it from one complete served-sequence comparator.
     input  wire         gsi_asp_chg_i,
 
     //! ---- side-port host bridge (CSR-driven, one outstanding access) ----

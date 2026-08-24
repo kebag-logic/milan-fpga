@@ -33,8 +33,8 @@
 //! AN ECHO IS NOT AN IMPLEMENTATION - and since 0x0002_0054 no MANDATORY
 //! command answers the echo: the stream setters landed at 0x0053 and name
 //! access at 0x0054, and 0x0055 wires the Table 5.22 observed triggers
-//! (the per-descriptor counter-change arbiter, the asCapable edge, the
-//! first grandmaster commit, the PathTrace publish edge) into the
+//! (the per-descriptor counter-change arbiter and the complete served-state
+//! comparators for GET_AVB_INFO and GET_AS_PATH) into the
 //! processor's notification scheduler beside the command-driven pushes
 //! and the 5.4.5.3 controller monitor. Live audio-map mutation is
 //! implemented, but saved-state persistence is absent. SET_CLOCK_SOURCE is accepted by the
