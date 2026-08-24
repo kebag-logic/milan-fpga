@@ -27,6 +27,17 @@ jobs:
         run: |
           python3 -m pip install --quiet pyyaml
           python3 sw/builder/test_builder.py
+      # NVM record-space gate (#70): the persisted set has TWO capacities, the
+      # erase block and the port's record_id[7:0]. Only the first was ever
+      # checked, and the second overflows at 8x8 (292 records against 256 ids).
+      # --self-test runs five negative controls and fails if any of them
+      # passes, so no assertion here can quietly become vacuous. Placed after
+      # the builder gates: it needs pyyaml and the processor submodule, which
+      # both steps above provide.
+      - name: NVM record-space gate
+        run: |
+          python3 scripts/check_nvm_record_space.py
+          python3 scripts/check_nvm_record_space.py --self-test
       - name: SoC source-list gate (Vivado would fail 40 min in without this)
         run: python3 scripts/check_soc_sources.py
 
