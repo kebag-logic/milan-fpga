@@ -220,7 +220,10 @@ ordinal the AEMI name table uses, with the tail of the last bank zero-filled.
 The binding block base is not chosen here. It is `REC_ID_BASE_P` in
 `KL_acmp_nvm_shadow`, already fixed in landed gateware, and the gate READS it
 out of the donor RTL rather than restating it, so a donor that moves the
-parameter reddens the parent rather than silently aliasing.
+parameter reddens the parent rather than silently aliasing. The file it reads is
+located through [`scripts/pp_srcs.py`](../../scripts/pp_srcs.py)'s derived
+source list rather than by a hardcoded path, so a donor that renames or moves
+the module is followed rather than missed.
 
 The blocks are what makes this contract shape-independent. A record is placed at
 `base + index`, and a shape whose index leaves the block is a finding at the

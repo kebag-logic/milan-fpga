@@ -8,9 +8,9 @@ WHY THIS EXISTS. The first version of
 `docs/design/SAVED_STATE_FASTCONNECT.md` sized the saved set in BYTES and
 concluded that whole-image A/B promotion was affordable. That part was right.
 What it never checked was the other capacity in the same design: the processor's
-NVM port addresses a record by `record_id[7:0]`
-(`protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv`), and the donor's
-F07.8 framing says "one record per item group and index". One record per
+NVM port (`KL_pp_nvm_port` in the protocol-processor submodule) addresses a
+record by `record_id[7:0]`, and the donor's F07.8 framing says "one record per
+item group and index". One record per
 writable name at the 8x8 shape needs 235 ids on its own; the whole persisted
 inventory needs 292. The namespace holds 256. The design could not have been
 built as written, and no gate said so, because every check in the tree was
@@ -30,10 +30,12 @@ id, media clock reference):
      it cannot delimit BEFORE any device traffic
   5. the whole image fits one 64 KiB erase block  -- the A/B slot geometry
 
-The BINDING block base is READ from the donor RTL
-(`KL_acmp_nvm_shadow.REC_ID_BASE_P`), never mirrored here: that parameter is
-already fixed in landed gateware, so the allocation contract has to bend around
-it rather than restate it.
+The BINDING block base is READ from the donor RTL (`REC_ID_BASE_P` in
+`KL_acmp_nvm_shadow`), never mirrored here: that parameter is already fixed in
+landed gateware, so the allocation contract has to bend around it rather than
+restate it. The file it is read from is DERIVED through `scripts/pp_srcs.py`
+rather than named, so a donor that moves or renames the module is followed
+instead of silently missed.
 
 USAGE
   scripts/check_nvm_record_space.py              # every configs/endstation_*.yaml
@@ -138,22 +140,32 @@ MUTATIONS = {
     "image": _mut_image,
 }
 
-SHADOW = ROOT / "protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv"
+SHADOW_STEM = "KL_acmp_nvm_shadow"
 BASE_RE = re.compile(r"parameter\s+logic\s*\[7:0\]\s+REC_ID_BASE_P\s*=\s*8'h([0-9A-Fa-f]{2})")
+
+
+def shadow_path() -> Path:
+    """Locate the ACMP NVM shadow through the derived submodule source list."""
+    sys.path.insert(0, str(ROOT / "scripts"))
+    import pp_srcs
+    hits = [s for s in pp_srcs.pp_sources()
+            if Path(s).stem == SHADOW_STEM]
+    if len(hits) != 1:
+        sys.exit(f"FATAL: expected exactly one {SHADOW_STEM} source in the "
+                 f"derived submodule list, found {len(hits)}. The donor "
+                 f"renamed or duplicated it and this gate must be re-pointed, "
+                 f"not relaxed.")
+    return ROOT / hits[0]
 
 
 def binding_base() -> int:
     """Read REC_ID_BASE_P out of the donor RTL rather than mirroring it."""
-    if not SHADOW.exists():
-        sys.exit(f"FATAL: {SHADOW.relative_to(ROOT)} is missing -- run "
-                 f"`git submodule update --init protocol-processor` first. "
-                 f"This gate reads the BINDING record base from the donor "
-                 f"parameter and will not guess it.")
-    m = BASE_RE.search(SHADOW.read_text())
+    shadow = shadow_path()
+    m = BASE_RE.search(shadow.read_text())
     if not m:
-        sys.exit(f"FATAL: REC_ID_BASE_P not found in "
-                 f"{SHADOW.relative_to(ROOT)}; the donor moved the parameter "
-                 f"and this gate must be re-pointed, not relaxed.")
+        sys.exit(f"FATAL: REC_ID_BASE_P not found in {shadow.name}; the donor "
+                 f"moved the parameter and this gate must be re-pointed, not "
+                 f"relaxed.")
     return int(m.group(1), 16)
 
 
