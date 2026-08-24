@@ -170,6 +170,22 @@ static int load_aem_image(void)
 #endif
 }
 
+/*
+ * The ONLY place either compatibility enable bit is set.  The boot
+ * contract is a data-flow property -- no value reaches PP_CTRL[0] or
+ * ADP_CTRL[0] unless the AEM verifier's verdict says the image it checked
+ * matched -- and a single choke point is what lets that be measured by
+ * data flow instead of by refusing constructs across the whole file.
+ */
+static void entity_advertise(int verified)
+{
+	if (!verified)
+		return;
+	milan_write(MILAN_PP_CTRL, milan_read(MILAN_PP_CTRL) | 1u);
+	milan_write(MILAN_ADP_CTRL, milan_read(MILAN_ADP_CTRL) | 1u);
+	printf("Milan baremetal: fabric entity enabled; UART diagnostics ready.\n");
+}
+
 static void milan_init(void)
 {
 	uint32_t id = milan_read(MILAN_ID);
@@ -183,11 +199,7 @@ static void milan_init(void)
 	/* PHC and fabric gPTP are live from reset, independent of the AEM gate. */
 	configure_fabric();
 	aem_loaded = load_aem_image();
-	if (aem_loaded) {
-		milan_write(MILAN_PP_CTRL, milan_read(MILAN_PP_CTRL) | 1u);
-		milan_write(MILAN_ADP_CTRL, milan_read(MILAN_ADP_CTRL) | 1u);
-		printf("Milan baremetal: fabric entity enabled; UART diagnostics ready.\n");
-	}
+	entity_advertise(aem_loaded);
 }
 
 define_init_func(milan_init);
