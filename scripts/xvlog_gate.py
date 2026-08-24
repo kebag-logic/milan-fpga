@@ -355,7 +355,9 @@ class TreeState:
       unregistered    the path is not a 160000 gitlink in the superproject
                       index, or .gitmodules does not name it
       conflicted      the gitlink is unmerged - several index stages
-      absent          registered, but there is no directory
+      absent          registered, but there is nothing at the path - no
+                      directory, or the empty one a fresh clone and
+                      `git worktree add` leave behind
       uninitialised   registered, a directory, but the superproject has no
                       `submodule.<name>.url`: whatever is at the path is NOT
                       the registered checkout. This is git's own definition of
@@ -402,7 +404,8 @@ _STATE_WHAT = {
     "unregistered": "not a registered submodule of this commit "
                     "(no 160000 gitlink in the index, or no .gitmodules entry)",
     "conflicted": "the gitlink is UNMERGED - the pin itself is in conflict",
-    "absent": "registered, but nothing is checked out at the path",
+    "absent": "registered, but nothing is checked out at the path "
+              "(no directory, or an empty one)",
     "uninitialised": "NOT the registered checkout - the superproject has no "
                      "submodule url for it (`git submodule status` prints `-`)",
     "no-repository": "a directory that is not that repository's own top level "
@@ -506,7 +509,12 @@ def tree_state(label, tree, why, root=None):
         return state("unregistered")
     expected = revs[0]
     path = root / label
-    if not path.is_dir():
+    if not path.is_dir() or not any(path.iterdir()):
+        # An EMPTY directory is `absent`, not `uninitialised`: a fresh clone
+        # and `git worktree add` both leave the gitlink path as an empty
+        # directory, and that is the common case. Calling it "not the
+        # registered checkout" would send the reader hunting for a stray
+        # repository that is not there.
         return state("absent", expected)
     if _git(["config", "--get", f"submodule.{name}.url"], root).returncode:
         return state("uninitialised", expected, _foreign_head(path))
@@ -1052,8 +1060,11 @@ def _selftest_tree_state():
         aside = tmp / "aside"
         checkout.rename(aside)
         checkout.mkdir()
+        want("absent-empty-dir", "absent", rev_two)
+        (checkout / "hdl").mkdir()
+        (checkout / "hdl" / "a.sv").write_text("module a; endmodule\n")
         want("no-repository", "no-repository", rev_two)
-        checkout.rmdir()
+        shutil.rmtree(checkout)
         want("absent", "absent", rev_two)
 
         aside.rename(checkout)
