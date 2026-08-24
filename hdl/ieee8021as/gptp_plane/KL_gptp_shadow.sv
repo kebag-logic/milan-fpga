@@ -35,14 +35,12 @@
 //                the txts_* face, tagged with the transmitted frame's
 //                sequenceId AND messageType, because the control lane does
 //                not traverse ptp_ts_top's stamper. The engine consumes
-//                the sequence tag today; the type tag is carried to its
-//                boundary and presented live on dbg_txts_type_o, the
-//                PORT and not a register, so it is valid in the same
-//                cycle the engine samples the face, until the submodule
-//                matches on both (milan-fpga #214,
-//                Mister-M-alt/FPGA-gPTP#28), because a sequenceId alone
-//                cannot separate a Pdelay_Req from a Pdelay_Resp when the
-//                two counters coincide.
+//                BOTH tags at that boundary, with messageType presented
+//                live on the PORT rather than a register so it is valid
+//                in the same cycle the engine samples the face. The pair
+//                closes milan-fpga #214 / Mister-M-alt/FPGA-gPTP#28:
+//                sequenceId alone cannot separate a Pdelay_Req from a
+//                Pdelay_Resp when the two counters coincide.
 //
 //                A control frame offered while the FIFO cannot take it is
 //                LOST and counted, never hidden (the tap cannot
@@ -90,7 +88,7 @@ module KL_gptp_shadow #(
     output wire                       tx_tlast_o,
     input  wire                       tx_tready_i,
 
-    //! egress timestamp return (KL_gptp_txstamp, seq-matched)
+    //! egress timestamp return (KL_gptp_txstamp, type+sequence matched)
     input  wire        txts_valid_i,
     input  wire [63:0] txts_ns_i,
     input  wire [15:0] txts_seq_i,
@@ -465,6 +463,7 @@ module KL_gptp_shadow #(
       .txts_valid_i       (txts_valid_i),
       .txts_ns_i          (txts_ns_i),
       .txts_seq_i         (txts_seq_i),
+      .txts_type_i        (txts_type_i),
       .phc_ns_i           (phc_ns_i),
       .phc_addend_we_o    (adj_we_w),
       .phc_addend_o       (adj_val_w),
@@ -497,16 +496,15 @@ module KL_gptp_shadow #(
   //! registered here, deliberately: the stamper already holds
   //! {ts_ns_o, ts_seq_o, ts_type_o} in registers, and the engine samples
   //! the txts_* face COMBINATIONALLY in the cycle txts_valid_i is high
-  //! (KL_gptp_engine's `if (txts_valid_i) ... txts_pend_seq_r <=
-  //! txts_seq_i` latches it there; no line number, the pin moves). A
-  //! register in
-  //! this path would add no persistence and one cycle of lag, so at the
+  //! (KL_gptp_engine's `if (txts_valid_i)` latches both tag fields there;
+  //! no line number, the pin moves). A register in this path would add no
+  //! persistence and one cycle of lag, so at the
   //! sampling cycle it would still carry the PREVIOUS stamp's type and a
   //! consumer would credit one leg's egress time to another's claim --
   //! the mis-crediting of Mister-M-alt/FPGA-gPTP#28 over again, off by a
-  //! leg instead of a sequence. When the engine matches on both tags this
-  //! wire feeds its port; tb/verilator/gptp_shadow asserts the equality
-  //! AT the valid cycle so the lag cannot come back.
+  //! leg instead of a sequence. This same wire feeds the engine's type
+  //! port; tb/verilator/gptp_shadow asserts the equality AT the valid
+  //! cycle so the lag cannot come back.
   assign dbg_txts_type_o = txts_type_i;
 
   // ======================================================================= //

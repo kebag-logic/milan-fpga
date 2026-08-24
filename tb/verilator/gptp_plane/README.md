@@ -25,7 +25,7 @@ What it proves:
 The `phc_ns_i` blind spot from PR #113's review is RE-OPENED at the
 current submodule pin for the ENGINE's port, and this bench does not
 close it. Measured: tying `.phc_ns_i` to `64'd0` in
-`gptp_plane_wrap.sv` leaves the run at 18 checks, 18 PASS; on `dev` at
+`gptp_plane_wrap.sv` leaves the run at 22 checks, 22 PASS; on `dev` at
 the old pin `5c330fc8` the same tie failed `origin is the real
 counter`. `KL_gptp_engine`'s input has no reader at this pin: the
 microcode generator emits no `GATH` (FPGA-gPTP #10 removed the one that
@@ -47,6 +47,14 @@ engine's own port is invisible. Tracked as
 [#211](https://github.com/kebag-logic/milan-fpga/issues/211), which
 asks the real question: should the engine consume `phc_ns_i`, or is
 that port vestigial at this pin?
+
+The harness derives every injected egress return's `sequenceId` and
+`messageType` from the selected transmitted frame and grades both fields,
+including a nonzero Pdelay sequence and a Sync. This is interface regression
+coverage only: the bench injects timestamps directly into the engine and has
+no boundary stamper, so it proves neither boundary extraction nor
+equal-sequence claim routing. Those integration properties belong to
+`tb/verilator/gptp_shadow`.
 
 Timescale note: the bench clock is 2 MHz while the counter keeps its
 8.0 ns/tick shape, so counter time runs 62.5x slower than the bench

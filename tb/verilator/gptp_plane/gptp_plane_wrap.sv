@@ -58,10 +58,13 @@ module gptp_plane_wrap #(
     output logic        tx_eof_o,
     input  wire         tx_ready_i,
 
-    //! egress timestamp return
+    //! egress timestamp return. This direct-engine bench derives both tags
+    //! from the selected TX frame in its harness; it has no boundary stamper
+    //! and therefore does not prove boundary extraction or claim collisions.
     input  wire         txts_valid_i,
     input  wire  [63:0] txts_ns_i,
     input  wire  [15:0] txts_seq_i,
+    input  wire   [3:0] txts_type_i,
 
     //! the steered clock, observable
     output wire  [63:0] phc_ns_o,
@@ -135,6 +138,7 @@ module gptp_plane_wrap #(
       .txts_valid_i       (txts_valid_i),
       .txts_ns_i          (txts_ns_i),
       .txts_seq_i         (txts_seq_i),
+      .txts_type_i        (txts_type_i),
       .phc_ns_i           (phc_ns_o),
       .phc_addend_we_o    (adj_we_w),
       .phc_addend_o       (adj_val_w),
