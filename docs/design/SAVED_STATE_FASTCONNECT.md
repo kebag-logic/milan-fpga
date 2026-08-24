@@ -136,7 +136,9 @@ master that already exists. The fabric owns the verdict, never the media.**
 Three things make that the answer rather than a fabric-side flash master:
 
 1. **The whole set fits in one erase block, measured at both shapes.** With the
-   allocation of section 4, `scripts/check_nvm_record_space.py` measures
+   proposed allocation of section 4 -- and, at 19,464 bytes, with the
+   donor-conformant one too, so this reason does not depend on the amendment
+   section 4.3 asks for -- `scripts/check_nvm_record_space.py` measures
    **2,544 bytes** at the shipping `endstation_ax7101_1x1_tdm8` shape and
    **18,144 bytes** at `endstation_ax7101_8x8`, which is 27 percent of one
    64 KiB slot. Both fit one block with margin, so whole-image promotion is not
