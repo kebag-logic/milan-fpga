@@ -4262,7 +4262,12 @@ def test_baremetal_profile_contract():
              " is not the RV32 target and no flag set here drives it as one, "
              "so the four census-only mutations, the phase-2 splice compile "
              "proofs and the census of the shipping firmware itself did not "
-             "run")
+             "run -- and neither did the RESOLVING half (#153), which reads "
+             "the same compile: no resolved store census, no proof that the "
+             "verdict test dominates the enable writes, and no proof that "
+             "the CRC-equality edge dominates every non-zero verdict or that "
+             "the CRC was taken over MILAN_AEM_DESC_BASE, so its eight "
+             "mutations did not run either")
 
     def replace_once(source, old, new, label):
         changed = source.replace(old, new, 1)
@@ -5556,18 +5561,42 @@ def test_baremetal_profile_contract():
     #: would retire that evidence; the provenance rule already has its own
     #: reason-pinned mutant ("milan_reg() ignores its offset"). So: run the
     #: census over each of them here and require it to come back CLEAN.
+    #: ... and the POSITIVE arm, which is what #153 adds: the same mutant
+    #: run through the RESOLVER, which must REJECT it. The census exempts
+    #: the helper BY NAME and so cannot see a store planted in it; the
+    #: resolver censuses STORES and exempts nobody, so it answers the shape
+    #: by the address the store resolves to. Measuring both on one compile
+    #: is what makes "an addition, not a replacement" a measurement here
+    #: rather than a claim (process guard 2 from #143's close).
     helper_store_census_blind = 0
     helper_store_census_asked = 0
+    helper_store_resolver_caught = 0
     if baseline_census_verdict["ran"]:
         helper_store_census_asked = len(helper_body_store_mutations)
         for label, mutation in helper_body_store_mutations:
-            blind = assert_compiled_census_is_clean(
+            taken = census_take(
                 mutation, f"exempted-helper store, {label} baseline")
+            blind = assert_compiled_census_is_clean(
+                mutation, f"exempted-helper store, {label} baseline",
+                taken=taken)
             assert blind["ran"], \
                 "the exempted-helper blindness control did not actually " \
                 "run the census, so it proves nothing about which " \
                 "instrument has to catch this shape"
             helper_store_census_blind += 1
+            try:
+                assert_resolved_boot_flow(taken["text"], source_model,
+                                          f"exempted-helper store, {label}")
+            except AssertionError as exc:
+                assert RESOLVER_STORE_PIN in str(exc), \
+                    "the resolver refused the exempted-helper store for " \
+                    f"the wrong reason: {exc}"
+                helper_store_resolver_caught += 1
+            else:
+                raise AssertionError(
+                    "the resolver accepted a store inside the exempted "
+                    f"address helper ({label} baseline), so the shape the "
+                    "census is blind to is open on both instruments")
     #: An address the compiler never prints as a whole-window immediate: at
     #: -O0 it is built with slli/ori, so the census's regex has nothing to
     #: match. This is not only adversarial: a firmware serving two CSR bases
@@ -6657,13 +6686,28 @@ def test_baremetal_profile_contract():
         helper_blind_note = (
             f"; and {helper_store_census_blind}/{helper_store_census_asked} "
             "exempted-helper stores were measured INVISIBLE to the compiled "
-            "census, which is why they stay pinned on the cast set")
+            "census, which is why they stay pinned on the cast set, while "
+            f"{helper_store_resolver_caught}/{helper_store_census_asked} of "
+            "the same mutants were REJECTED by the resolver on the resolved "
+            "store address, which is what makes 'an addition, not a "
+            "replacement' a measurement here rather than a claim")
+        resolved_note = (
+            ", and on this run it resolved "
+            f"{baseline_census_verdict['resolved']['statics']} single-word "
+            "static(s) and "
+            f"{baseline_census_verdict['resolved']['functions']} function(s) "
+            "of the shipping firmware, reading the CRC operands back as "
+            f"0x{baseline_census_verdict['resolved']['buffer']:08x} for "
+            f"{baseline_census_verdict['resolved']['bytes']} bytes")
     else:
         helper_blind_note = (
             "; the exempted-helper blindness control did NOT run here, "
             "because the census stood down, so on this runner those two "
             "mutants stay pinned on the cast set with that measurement "
             "absent")
+        resolved_note = (
+            ". It did NOT run on this runner: it reads the assembly the "
+            "census compiles, so the census's stand-down stands it down too")
     print("  [gate 1b] bounded boot-contract model: the PHC CSR output, "
           "datapath binding and ptp_timestamp consumer are direct, and "
           "comment-blanked CSR, MAC, timestamp, both RXFILT_P-arm, shadow "
@@ -6742,18 +6786,41 @@ def test_baremetal_profile_contract():
           "exempts the address helper by name, it cannot see an address "
           "built with slli/ori, and it matches one asm spelling, all three "
           f"measured. This run: {census_note}")
+    print("  [gate 1b] ... and the resolving half (#153), which is what the "
+          "boot contract is actually PROVED by: an RV32 abstract "
+          "interpreter over that same emitted assembly computes the store "
+          "addresses, the call operands, the compared values and the CFG "
+          "edges, so (a) no function -- the address helper included, it is "
+          "NOT exempt -- stores to a resolved address in the CSR window, "
+          "which answers a paged base built with slli/ori that prints no "
+          "window immediate; (b) the only resolved milan_write() asserting "
+          "bit 0 of PP_CTRL or ADP_CTRL is inside entity_advertise(), taken "
+          "from the emitted operands so a macro body or a preprocessor arm "
+          "cannot move it out of view; (c) removing the edge "
+          "entity_advertise() takes on a non-zero verdict removes every "
+          "control-register write it reaches; and (d) the verifier's CRC is "
+          "taken over MILAN_AEM_DESC_BASE for MILAN_AEM_IMAGE_BYTES, the "
+          "compared value is tracked from the crc32() call that produced "
+          "it, and removing the CRC-equality edge leaves every reachable "
+          "return resolved to zero. Verifier CFG reachability and CRC "
+          "provenance are therefore MEASURED, not open. It resolves what "
+          "the compiler emitted for THIS translation unit at the census's "
+          "flags, and reports 'cannot say' as a REFUSAL wherever the "
+          "property needs an answer"
+          + resolved_note)
     print("  [gate 1b] ... plus the rules that are NOT parsing questions: the "
           "firmware's directive set and include resolution, the Makefile's "
           "include set (make can only plan fragments that exist), no "
-          "preprocessor conditional and no continued #define outside the "
+          "preprocessor conditional reaching the boot path or carrying a "
+          "definition and no token-joining backslash-newline, outside the "
           "QSPI-slot group whose BOTH arms the verifier's return rule "
-          "classifies, no label/goto/switch in milan_init() and the three "
-          "boot steps plus the unmodified CSR identity sample and check "
-          "unconditional at its top level, the guarded block "
-          "holding the two enables and their printf and nothing else, no "
-          "pointer to the verdict, and every non-zero return of the verifier "
-          "placed after the CRC refusal by source position and preprocessor "
-          "arm only; verifier CFG reachability remains open")
+          "classifies, no label/goto/switch in milan_init() or "
+          "entity_advertise() and the three boot steps plus the unmodified "
+          "CSR identity sample and check unconditional at its top level, one "
+          "PP and one ADP enable inside the choke point and exactly one call "
+          "to it carrying the verdict, no pointer to the verdict, and every "
+          "non-zero return of the verifier placed after the CRC refusal by "
+          "source position and preprocessor arm")
     print("  [gate 1b] ... and the RTL integration facts, which are the "
           "checked part: o_ptp_enable is driven directly from PTP_CTRL[0]; "
           "the milan_csr instance binds it directly to cfg_ptp_enable and "
@@ -6776,9 +6843,11 @@ def test_baremetal_profile_contract():
           "they are RESTORED, so the costs are back and stated rather than "
           "claimed away: a fifth store through a pointer, a fifth cast to a "
           "pointer and a third inline-asm statement are RED again. Also RED: "
-          "any C backslash-newline anywhere in the file (phase 2 deletes the "
-          "pair before tokens exist), any multi-line #define, any #ifdef outside "
-          "load_aem_image(), any extra statement inside the guarded block, a "
+          "a C backslash-newline that JOINS two tokens (phase 2 deletes the "
+          "pair before tokens exist), an #ifdef reaching milan_init(), "
+          "configure_fabric(), entity_advertise() or the three CSR "
+          "accessors, or carrying a #define/#undef/#include wherever it "
+          "sits, a "
           "twelfth #include even of <string.h>, any "
           "#pragma/#line/#error/#undef, a fourth Makefile include, any new "
           "file in the firmware's directory including a README, an OBJECTS "
@@ -6806,7 +6875,13 @@ def test_baremetal_profile_contract():
           "commands make runs is refused too, a benign AR += v or CC += "
           "-Wall included: that is the price of a rule with no list of "
           "spellings to fall behind. Remedy for that one: add the changed "
-          "command to expected_recipes and a mutation entry beside it")
+          "command to expected_recipes and a mutation entry beside it. "
+          "RETIRED this round by the entity-advertise choke point and the "
+          "resolver (#153), each with an accepted case measured GREEN "
+          "instead of a claim: an extra statement between the two enables, "
+          "an #ifdef in a UART command handler, and a multi-line #define. "
+          "The refusals they replace are gone, not narrowed by exception: "
+          "what carries them now is a measurement over resolved values")
     print("  [gate 1b] ... and what the make plan DID give back, which "
           "survives this round: every Makefile variable and rule shape the "
           "old parser pinned, so an unrelated DEPFILES = $(patsubst ...) is "
@@ -6816,17 +6891,22 @@ def test_baremetal_profile_contract():
     if baseline_census_verdict["ran"]:
         store_gap = (
             "The source rules alone do not recognise a cast with no * plus "
-            "an -> or subscript store, but the live RV32 compiled census "
-            "rejects `((milan_adp_blk)0x90000600u)->ctrl = 1u;` by the "
-            "materialised CSR address. The source gap is therefore covered "
-            "on this machine.")
+            "an -> or subscript store, but the live RV32 census rejects "
+            "`((milan_adp_blk)0x90000600u)->ctrl = 1u;` by the materialised "
+            "CSR address, and the resolver rejects the paged-base spellings "
+            "of it -- which print no window immediate at all -- by the "
+            "resolved store address. The source gap is therefore covered on "
+            "this machine.")
     else:
         store_gap = (
             "The source rules do not recognise a cast with no * plus an -> "
-            "or subscript store, and the compiled census stood down. In this "
-            "condition `((milan_adp_blk)0x90000600u)->ctrl = 1u;` is outside "
-            "both active instruments, creates a durable pre-AEM entity "
-            "advertise, and passes this gate.")
+            "or subscript store, and the compiled census and the resolver "
+            "both stood down with the compiler they share. In this condition "
+            "`((milan_adp_blk)0x90000600u)->ctrl = 1u;` is outside every "
+            "active instrument, creates a durable pre-AEM entity advertise, "
+            "and passes this gate; so does a non-zero verdict reached past "
+            "the CRC comparison, since the CFG measurement needs the same "
+            "compile.")
     print("  [gate 1b] NOT PROVED on every supported runner: " + store_gap +
           " Closing the unconditional property remains tracked on #153 and "
           "#162")
@@ -6865,18 +6945,17 @@ def test_baremetal_profile_contract():
           "CONTENT behind each resolved name is trusted, and of those "
           f"{', '.join(firmware_includes_generated)} are written by this "
           "repository's own builder")
-    print("  [gate 1b] OPEN, no current rule proves their control/data flow: "
-          "the rule tying the comparison to a real CRC is an EXISTENCE test, "
-          "so a constant assigned to the compared local in the compiled arm, "
-          "an overwrite between the crc32() call and the comparison, and a "
-          "CRC taken over the QSPI source instead of MILAN_AEM_DESC_BASE all "
-          "pass. A `goto crc_ok` before crc32(), with `crc_ok:` on the non-zero "
-          "return, also skips the comparison while every positional rule "
-          "passes; a structured do/break bypass shows that banning `goto` is "
-          "not a proof. The replacement is joint: #153 owns verifier CFG/data "
-          "flow and the entity_advertise() choke point; #162 owns a store "
-          "census that resolves values. Neither alone proves advertise-after-"
-          "verification")
+    print("  [gate 1b] CLOSED this round (#153), and each measured as a "
+          "mutation rather than argued: the source rule tying the comparison "
+          "to a real CRC is still an EXISTENCE test and still proves "
+          "nothing, but the resolver now answers all four shapes it left "
+          "open -- a constant assigned to the compared local between the "
+          "crc32() call and the comparison, a CRC over the QSPI source "
+          "instead of MILAN_AEM_DESC_BASE, a `goto` past the comparison to "
+          "the non-zero return, and the structured do/break bypass that "
+          "showed banning `goto` was not a proof. What REMAINS joint with "
+          "#162 is the Makefile half: a second translation unit is a second "
+          "place a CSR store can live, and no instrument here reads it")
 
     print("  [gate 1b] shipping AX: fabric gPTP option on with config-derived "
           "1024-word ROM; VexiiRiscv RV32I at 50 MHz through its supported "
