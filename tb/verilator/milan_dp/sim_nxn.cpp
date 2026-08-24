@@ -51,6 +51,7 @@
 #include <cstring>
 #include <cstdlib>
 #include <algorithm>
+#include <filesystem>
 #include <string>
 #include <vector>
 #include <map>
@@ -319,13 +320,36 @@ static void dmem_edge() {
 // CWD: the harness already runs from tb/verilator/milan_dp - the processor
 // $readmemh's ltn_rom.hex and ucode.hex by relative name - so the generator
 // sits at a known relative depth.
+static std::string shell_quote(const std::string& arg) {
+    std::string quoted("'");
+    for (char c : arg)
+        quoted += (c == '\'') ? "'\\''" : std::string(1, c);
+    quoted += '\'';
+    return quoted;
+}
+
 static bool aemi_load(const char* cfg, std::string* why) {
-    char bin[160], js[160], log[160], bld[160], ovl[224], cmd[900];
-    const int pid = (int)getpid();               // parallel lanes share /tmp
-    snprintf(bin, sizeof bin, "/tmp/milan_nxn_aemi_%d.bin", pid);
-    snprintf(js,  sizeof js,  "/tmp/milan_nxn_aemi_%d.json", pid);
-    snprintf(log, sizeof log, "/tmp/milan_nxn_aemi_%d.log", pid);
-    snprintf(bld, sizeof bld, "/tmp/milan_nxn_bld_%d", pid);
+    // Respect the runner's scratch policy. Several CI/review lanes run these
+    // large binaries concurrently, and /tmp may have a much smaller per-user
+    // quota than TMPDIR. mkdtemp also removes the PID-reuse collision that the
+    // old four fixed /tmp names permitted.
+    const char* scratch = getenv("TMPDIR");
+    if (!scratch || !*scratch) scratch = "/tmp";
+    std::string temp_template = std::string(scratch) + "/milan_nxn_XXXXXX";
+    std::vector<char> temp_buf(temp_template.begin(), temp_template.end());
+    temp_buf.push_back('\0');
+    char* made = mkdtemp(temp_buf.data());
+    if (!made) {
+        *why = std::string("cannot create descriptor-image scratch under ")
+             + scratch;
+        return false;
+    }
+    const std::string temp_dir(made);
+    const std::string bin = temp_dir + "/image.bin";
+    const std::string js  = temp_dir + "/image.json";
+    const std::string log = temp_dir + "/generator.log";
+    const std::string bld = temp_dir + "/builder";
+    const std::string ovl = bld + "/" + cfg + "/aem_overlay.json";
 
     desc_img.clear();
     desc_want.clear();
@@ -333,25 +357,27 @@ static bool aemi_load(const char* cfg, std::string* why) {
 
     // The builder writes into <outdir>/<config-stem>/; no --write-rtl and no
     // --write-fragment, so it touches nothing tracked.
-    snprintf(cmd, sizeof cmd,
-             "python3 ../../../sw/builder/endstation_builder.py "
-             "../../../configs/%s.yaml -o %s > %s 2>&1", cfg, bld, log);
-    if (system(cmd) != 0) {
+    const std::string build_cmd =
+        "python3 ../../../sw/builder/endstation_builder.py "
+        + shell_quote(std::string("../../../configs/") + cfg + ".yaml")
+        + " -o " + shell_quote(bld) + " > " + shell_quote(log) + " 2>&1";
+    if (system(build_cmd.c_str()) != 0) {
         *why = std::string("endstation_builder.py failed; its output is in ")
              + log;
         return false;
     }
-    snprintf(ovl, sizeof ovl, "%s/%s/aem_overlay.json", bld, cfg);
 
-    snprintf(cmd, sizeof cmd,
-             "python3 ../../../avdecc/gen_aemi_image.py --overlay %s "
-             "-o %s --json %s --line-bytes 576 > %s 2>&1", ovl, bin, js, log);
-    if (system(cmd) != 0) {
+    const std::string image_cmd =
+        "python3 ../../../avdecc/gen_aemi_image.py --overlay "
+        + shell_quote(ovl) + " -o " + shell_quote(bin) + " --json "
+        + shell_quote(js) + " --line-bytes 576 > " + shell_quote(log)
+        + " 2>&1";
+    if (system(image_cmd.c_str()) != 0) {
         *why = std::string("gen_aemi_image.py failed; its output is in ") + log;
         return false;                            // the log is left for reading
     }
 
-    FILE* fh = fopen(bin, "rb");
+    FILE* fh = fopen(bin.c_str(), "rb");
     if (!fh) { *why = "the generator wrote no image"; return false; }
     uint8_t buf[4096];
     size_t n;
@@ -360,7 +386,7 @@ static bool aemi_load(const char* cfg, std::string* why) {
     fclose(fh);
 
     std::string doc;
-    fh = fopen(js, "rb");
+    fh = fopen(js.c_str(), "rb");
     if (!fh) { *why = "the generator wrote no document"; return false; }
     while ((n = fread(buf, 1, sizeof buf, fh)) > 0)
         doc.append((const char*)buf, n);
@@ -459,9 +485,15 @@ static bool aemi_load(const char* cfg, std::string* why) {
             return false;
         }
     }
-    remove(bin); remove(js); remove(log);
     if (desc_img.empty() || desc_want.empty() || name_want.empty()) {
         *why = "the generator produced an empty image, document or name table";
+        return false;
+    }
+    std::error_code cleanup_error;
+    std::filesystem::remove_all(temp_dir, cleanup_error);
+    if (cleanup_error) {
+        *why = std::string("descriptor-image scratch cleanup failed: ")
+             + cleanup_error.message() + " (" + temp_dir + ")";
         return false;
     }
     return true;

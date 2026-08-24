@@ -6,6 +6,12 @@ Section A.9 wrapper the LiteX SoC instantiates) and runs a self-checking harness
 against each. `make` exits non-zero if any leg fails; **gate on the exit code**,
 never on grepping the log — a compile error prints no `FAIL` line at all.
 
+The `sim_nxn` legs regenerate their descriptor image in a unique directory
+under `TMPDIR` (falling back to `/tmp`) and remove it after a successful load.
+Set `TMPDIR` to a filesystem with enough quota when review lanes run in
+parallel. A failed generator deliberately leaves that directory and names its
+log in the failure so the artifact can be inspected.
+
 | objdir | harness | shape | what it is for |
 |---|---|---|---|
 | `obj_dir` | `sim_main.cpp` | `endstation_arty_current`, N=1 | the legacy section list: CSR, TX/RX, PTP, CLKV, CRF, RMON, link guard |
