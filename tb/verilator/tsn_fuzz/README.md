@@ -75,8 +75,18 @@ stale sequence and a sequence-0 Follow_Up are refused; with the
 pairing armed against the sequenceId THE PLANE sent, a Follow_Up whose
 high byte is flipped and one from a different responder are each
 refused by their own compare, and a Pdelay_Resp at the flipped
-sequence arms nothing. A foreign-domain pair and the replay of a
-COMPLETED exchange, identical and t3-skewed, are refused too. Each of
+sequence arms nothing. Since #223 the THIRD arm of that figure is
+driven negatively on both halves as well: a Pdelay_Resp that is right
+in every other respect but carries another station's
+requestingPortIdentity arms nothing, and with the pairing armed
+legitimately a Follow_Up carrying another station's requesting
+identity does not complete the exchange. Each reddens only its own
+half when that half's arm is deleted, so the two are separable. Only
+the clockIdentity of that identity is compared -- the donor's arm is a
+64-bit compare and the portNumber is not checked (measured, see the
+issue) -- which costs nothing on a single-port end station and is
+recorded rather than asserted. A foreign-domain pair and the replay of
+a COMPLETED exchange, identical and t3-skewed, are refused too. Each of
 the three compares is pinned by a planted narrowing that the campaign
 catches by name, which is why the probes arm against the plane's own
 sequenceId rather than the bench's injected-request counter: on the
