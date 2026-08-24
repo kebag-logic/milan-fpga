@@ -152,7 +152,7 @@ of surfacing as a nightly that silently stopped. `ci_events.py --check` holds
 the assertion in its fail-closed shape. That shape is not only what the step
 says: a check that reads a step's contents and nothing about the conditions
 under which it runs holds the wrong perimeter, which is what #209 found. So it
-is exactly these six things:
+is exactly these eight things:
 
 1. **The script text.** The step's `run:` is pinned verbatim (whitespace
    aside) to three lines: `set -euo pipefail`, one unconditional
@@ -213,7 +213,7 @@ is exactly these six things:
    mattered: `PR_DRAFT: "true"` is valid workflow YAML that keeps all three
    names and all four keys and makes a ready RTL pull request publish
    `run_full=false`, on which both worker matrices skip, both aggregates skip
-   under the no-op exception in item 7, and the skipped required contexts
+   under the no-op exception in item 8, and the skipped required contexts
    satisfy the ruleset -- a false green, not a refusal.
    `PR_BASE_SHA: ${{ github.sha }}` (a commit diffed against itself, so
    `rtl=false`) and `EVENT_NAME: pull_request` (a push, schedule or dispatch
