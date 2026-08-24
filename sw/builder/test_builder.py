@@ -8352,6 +8352,41 @@ def test_gptp_product_default_and_legacy_option():
     assert 'gen_ucode.py" -o "$TMP/ucode.hex"' in yosys_ooc
     assert 'gen_gptp_ucode.py" -o "$TMP/gptp_ucode.hex"' in yosys_ooc
 
+    # Vivado's consumer must expand the group rather than merely see its
+    # name. dp_srcs.py executes run.sh --emit, so bash itself resolves
+    # $GPTP_DP_SRCS; its self-test proves derivation fails closed and the
+    # live run below proves the shipping manifest carries the whole plane.
+    dp_srcs = os.path.join(ROOT, "syn/ooc/dp_srcs.py")
+    dp_self = subprocess.run(
+        [sys.executable, dp_srcs, "--selftest"], cwd=ROOT,
+        text=True, capture_output=True)
+    assert dp_self.returncode == 0, dp_self.stdout + dp_self.stderr
+    assert re.search(r"dp_srcs self-test: \d+ arm\(s\) passed",
+                     dp_self.stdout), dp_self.stdout
+    dp_live = subprocess.run(
+        [sys.executable, dp_srcs], cwd=ROOT, text=True, capture_output=True)
+    assert dp_live.returncode == 0, dp_live.stdout + dp_live.stderr
+    emitted = {os.path.basename(path) for path in dp_live.stdout.splitlines()}
+    for leaf in ("gptp_ucpu_pkg.sv", "KL_gptp_ucpu.sv",
+                 "KL_gptp_rx_parser.sv", "KL_gptp_tx_slot.sv",
+                 "KL_gptp_timer.sv", "KL_gptp_engine.sv",
+                 "KL_gptp_shadow.sv", "KL_gptp_txstamp.sv"):
+        assert leaf in emitted, f"Vivado OOC recogniser omitted {leaf}"
+
+    vivado_ooc = open(os.path.join(
+        ROOT, "syn/ooc/milan_datapath_ooc.tcl")).read()
+    for image, generic in (("ltn_rom.hex", "PP_TROM_HEX_P"),
+                           ("ucode.hex", "PP_UCODE_HEX_P"),
+                           ("gptp_ucode.hex", "GPTP_UCODE_HEX_P")):
+        assert image in vivado_ooc
+        assert generic in vivado_ooc
+    assert "file size $image" in vivado_ooc
+    for source in (yosys_run, yosys_ooc):
+        assert "|| true" not in "\n".join(
+            line for line in source.splitlines()
+            if "gen_ltn_rom.py" in line or "gen_ucode.py" in line
+            or "gen_gptp_ucode.py" in line)
+
     # A printed OOC failure must fail the command.  The old loop continued and
     # then returned rm(1)'s success, so a missing processor ROM produced a red
     # row in the log but a green CI step.  Exercise the production script with
@@ -8466,7 +8501,7 @@ def test_gptp_rootfs_handoff_preserves_software_config():
         [sys.executable, pair_tool, "--self-test"], cwd=ROOT,
         text=True, capture_output=True)
     assert pair_self.returncode == 0, pair_self.stdout + pair_self.stderr
-    assert "53/53 checks pass" in pair_self.stdout
+    assert "61/61 checks pass" in pair_self.stdout
 
     transition_tool = os.path.join(SOC_DIR, "qspi_owner_transition.py")
     transition_self = subprocess.run(
@@ -8623,7 +8658,7 @@ def test_gptp_rootfs_handoff_preserves_software_config():
         assert not os.path.exists(programmer_log), \
             "build.sh trusted a target pair without installed-state proof"
 
-    print("  [gate 1d] 53 archive/profile/enum/FBI/artifact-binding arms, 20 transition parser/planner "
+    print("  [gate 1d] 61 archive/profile/relocation/launcher/FBI/artifact-binding arms, 20 transition parser/planner "
           "arms, soc.h owner/XLEN reconstruction, payload-digest binding, "
           "and all persistent partial/unknown-state entry points refuse "
           "before programmer I/O")

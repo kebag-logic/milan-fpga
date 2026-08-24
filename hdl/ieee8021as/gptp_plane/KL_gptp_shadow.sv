@@ -526,7 +526,15 @@ module KL_gptp_shadow #(
         pub_gm_id_o     <= pub_gm_raw_w;
         pub_parent_id_o <= pub_parent_raw_w;
         pub_flags_o     <= pub_flags_raw_w;
-        pub_pdelay_ns_o <= pub_pdelay_raw_w;
+        // The donor keeps peer delay signed while grading the symmetric
+        // exchange: a small negative result is legal measurement noise and
+        // must not tear down asCapable.  This outward contract is different:
+        // CSR GPTP_PDELAY and GET_AVB_INFO carry an *unsigned* nanosecond
+        // value.  Publishing the two's-complement bits would turn -1 ns into
+        // 4.29 seconds.  Clamp only at this public-bank boundary so the
+        // donor's signed acceptance/servo arithmetic remains unchanged.
+        pub_pdelay_ns_o <= pub_pdelay_raw_w[31] ? 32'd0
+                                                : pub_pdelay_raw_w;
         pub_offset_o    <= pub_offset_raw_w;
         pub_annq_o      <= pub_annq_raw_w;
       end

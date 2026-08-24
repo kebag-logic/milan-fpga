@@ -325,6 +325,7 @@ static void send_wide(Vmilan_datapath *dut,
 
 static size_t pd_scan = 0;
 static int pd_answers = 0;
+static int64_t pd_target = 600;
 static int64_t pd_expect = 0;
 static void service_pdelay(Vmilan_datapath *dut) {
   while (pd_scan < tx_frames.size()) {
@@ -338,10 +339,10 @@ static void service_pdelay(Vmilan_datapath *dut) {
     run(dut, 300);
     const uint64_t now = sim_cyc * 8;
     const uint64_t t2 = 5000000ull + now;
-    const uint64_t residence = (now - t1) - 1200ull;
-    const uint64_t t3 = t2 + residence;
+    const int64_t residence = (int64_t)(now - t1) - 2 * pd_target;
+    const uint64_t t3 = t2 + (uint64_t)residence;
     const uint64_t t4_est = (sim_cyc + 1) * 8;
-    pd_expect = (int64_t)((t4_est - t1) - residence) / 2;
+    pd_expect = ((int64_t)(t4_est - t1) - residence) / 2;
     Frame resp = ptp(0x3, seq, 0, 0x0200, 20);
     resp.ts(t2);
     for (int i = 0; i < 10; i++) resp.u8(req[34 + i]);
@@ -586,6 +587,23 @@ int main(int argc, char **argv) {
          && (int64_t)(int32_t)pdelay <= pd_expect + 32, 1);
   expect("fabric asCapable reached the CSR", (axi_read(dut, 0x77C) >> 16) & 1, 1);
 
+  // Drive a legal small negative symmetric-delay result. The donor keeps the
+  // signed value for acceptance, but every parent public consumer is unsigned:
+  // CSR and the byte-exact GET_AVB_INFO field must see zero, not 0xffff_ffxx.
+  const int positive_answers = pd_answers;
+  pd_target = -40;
+  for (uint64_t n = 0; n < 10000000ull && pd_answers == positive_answers; n++) {
+    tick(dut);
+    if ((n & 255) == 0) service_pdelay(dut);
+  }
+  service_pdelay(dut);
+  expect("negative Pdelay exchange answered", pd_answers > positive_answers, 1);
+  run(dut, 10000);
+  expect("negative Pdelay model reached signed noise", pd_expect < 0, 1);
+  expect("negative Pdelay clamps in the public CSR", axi_read(dut, 0x6E4), 0);
+  expect("negative Pdelay retains asCapable",
+         (axi_read(dut, 0x77C) >> 16) & 1, 1);
+
   announce(dut, 0x7001);
   uint64_t gm = 0;
   for (int n = 0; n < 32 && gm != GMID; n++) {
@@ -610,8 +628,8 @@ int main(int argc, char **argv) {
          ? be32(avb, 38) : 0, 0x00090000u);
   expect("GET_AVB_INFO nonzero GM", avb.size() >= 50
          ? be64(avb, 42) : 0, GMID);
-  expect("GET_AVB_INFO live pdelay", avb.size() >= 54
-         ? be32(avb, 50) : 0, pdelay);
+  expect("GET_AVB_INFO byte-exact negative-delay clamp", avb.size() >= 54
+         ? be32(avb, 50) : ~0u, 0);
   expect("GET_AVB_INFO domain/flags/map", avb.size() >= 58
          ? be32(avb, 54) : 0, 0x00170001u);
   expect("GET_AVB_INFO exact class mapping", avb.size() >= 62

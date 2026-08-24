@@ -48,8 +48,10 @@ FPGA-only solution to done.
 > re-graded to the protocol processor. The open-gap ledger is
 > [`MILAN_COMPLIANCE_GAPS.md`](../MILAN_COMPLIANCE_GAPS.md).
 >
-> **Descriptor enumeration is reachable again — once the descriptor image is in
-> DRAM, which nothing in this repository does for you yet.** See A-5. **Known
+> **Descriptor enumeration is reachable once the descriptor image is in DRAM.**
+> The tracked builder/rootfs handoff supplies it only on an explicit deployment
+> transfer; inspection-only/custom flows that skip that handoff still answer
+> `BAD_ARGUMENTS`. See A-5. **Known
 > gap, kept visible:** Milan Δ7 `ACQUIRE_ENTITY` (`NOT_SUPPORTED` with
 > `owner_id` = 0) is **not** distinguished from the generic echo.
 
@@ -272,8 +274,9 @@ catalogued in
   the conformant `NOT_IMPLEMENTED` echo, which is a *protocol-conformance*
   behaviour (IEEE 1722.1 §9.3.5's duty to respond) and not coverage of any
   command; the two silent-refusal rules. Descriptor enumeration is reachable
-  **once the descriptor image is in DRAM, which nothing in this repository does
-  for you yet** — until then every `READ_DESCRIPTOR` answers `BAD_ARGUMENTS`,
+  **once the descriptor image is in DRAM.** The explicit builder/rootfs
+  deployment handoff now supplies it; a flow that skips that transfer still
+  answers `BAD_ARGUMENTS`,
   because the configuration range check runs before the locate and an invalid
   image reports `configurations_count` = 0. That makes the two error statuses a
   discriminator: `BAD_ARGUMENTS` everywhere means no image (or a corrupt one),

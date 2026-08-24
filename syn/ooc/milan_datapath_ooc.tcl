@@ -58,11 +58,12 @@ proc one_source {src_lines tail} {
   return [lindex $hits 0]
 }
 
-# BOTH control-plane $readmemh images, generated into the run directory
+# ALL THREE control-plane $readmemh images, generated into the run directory
 # before anything slow. protocol_processor_top reads its ACMP listener
-# transition ROM by the RELATIVE name "ltn_rom.hex" and KL_aecp_ucpu its
-# microcode by "ucode.hex" (UCODE_HEX_P); Vivado resolves both against ITS OWN
-# run directory. This recipe is documented to run from an EMPTY directory, so
+# transition ROM by the RELATIVE name "ltn_rom.hex", KL_aecp_ucpu its
+# microcode by "ucode.hex" (UCODE_HEX_P), and the default-on fabric gPTP
+# engine's KL_gptp_ucpu its microcode by "gptp_ucode.hex"
+# (GPTP_UCODE_HEX_P); Vivado resolves each against ITS OWN run directory. This recipe is documented to run from an EMPTY directory, so
 # it must generate what it requires: until #246 it generated only
 # ltn_rom.hex, and Vivado read the absent ucode.hex as an all-zero ROM behind
 # one CRITICAL WARNING (Synth 8-4445), constant-folded the AECP uCPU, and
@@ -146,16 +147,21 @@ proc positive_depth {name d} {
 
 set UCPU_PKG [one_source $SRC_LINES ucpu_pkg.sv]
 set ACMP_PKG [one_source $SRC_LINES pp_acmp_pkg.sv]
+set GPTP_PKG [one_source $SRC_LINES gptp_ucpu_pkg.sv]
 set UCODE_W [nibble_width UCODE_W_C [pkg_num $UCPU_PKG UCODE_W_C]]
 set UPC_W   [pkg_num $UCPU_PKG UPC_W_C]
 set TROM_W  [nibble_width TROM_W_C [pkg_num $ACMP_PKG TROM_W_C]]
 set TROM_D  [positive_depth TROM_DEPTH_C [pkg_num $ACMP_PKG TROM_DEPTH_C]]
+set GUCODE_W [nibble_width UCODE_W_C [pkg_num $GPTP_PKG UCODE_W_C]]
+set GUPC_W   [pkg_num $GPTP_PKG UPC_W_C]
 
 foreach {img gen digits words} [list \
     ltn_rom.hex $REPO/protocol-processor/hdl/acmp/rom/gen_ltn_rom.py \
                 [expr {$TROM_W / 4}] $TROM_D \
     ucode.hex   $REPO/protocol-processor/hdl/aecp/ucode/gen_ucode.py \
-                [expr {$UCODE_W / 4}] [expr {1 << $UPC_W}]] {
+                [expr {$UCODE_W / 4}] [expr {1 << $UPC_W}] \
+    gptp_ucode.hex $REPO/gptp-processor/hdl/ucode/gen_gptp_ucode.py \
+                [expr {$GUCODE_W / 4}] [expr {1 << $GUPC_W}]] {
   set tmp $img.gen.[pid]
   file delete -force $img $tmp
   exec python3 $gen -o $tmp
@@ -178,12 +184,14 @@ measurement (#246)."
 # drops it.
 set TROM_GENERIC  "PP_TROM_HEX_P=\"[file normalize ltn_rom.hex]\""
 set UCODE_GENERIC "PP_UCODE_HEX_P=\"[file normalize ucode.hex]\""
+set GUCODE_GENERIC "GPTP_UCODE_HEX_P=\"[file normalize gptp_ucode.hex]\""
 
 # And the refusal the tool itself already offers: a $readmem image Vivado
 # cannot open is CRITICAL WARNING Synth 8-4445 and a completed run with a
 # wrong number -- the one failure of this instrument that still returns a
 # figure. Promote it to an ERROR so any image this preflight does not cover
-# (a future option-ON gptp_ucode.hex, a renamed image) fails the run outright
+# (a renamed image, a fourth $readmemh this preflight has not met) fails the
+# run outright
 # instead of shaping the report. What must hold at synth_design is the
 # EFFECTIVE severity: a later downgrade of the same id is the same defect as
 # never promoting, and the self-test asserts the final state, not this line's
@@ -206,7 +214,8 @@ set INCS [list $REPO/hdl/common $REPO/hdl/common/csr \
                $REPO/configs/generated/endstation_arty_current]
 
 synth_design -mode out_of_context -top milan_datapath -part xc7a100tfgg484-2 \
-  -include_dirs $INCS -generic $TROM_GENERIC -generic $UCODE_GENERIC
+  -include_dirs $INCS -generic $TROM_GENERIC -generic $UCODE_GENERIC \
+  -generic $GUCODE_GENERIC
 
 create_clock -period 10.000 -name clk [get_ports -quiet axis_clk]
 report_utilization -hierarchical -file util_hier_$TAG.rpt

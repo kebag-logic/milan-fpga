@@ -6,9 +6,10 @@ The gateware build records its resolved owner in flashboot_layout.json.  Every
 supported Linux rootfs carries one positive, versioned owner profile; marker
 absence never grants fabric ownership.  The software profile additionally
 contains its permission marker and runnable linuxptp payload, while the fabric
-profile must contain none of those assets.  This checker reads gzip/xz/raw newc
-archives with the Python standard library so deploy hosts and CI do not need
-cpio/libarchive just to enforce the pairing contract.
+profile must contain no linuxptp executable or boot/service launch reference.
+This checker reads gzip/xz/raw newc archives with the Python standard library
+so deploy hosts and CI do not need cpio/libarchive just to enforce the pairing
+contract.
 """
 
 import argparse
@@ -18,6 +19,7 @@ import io
 import json
 import lzma
 import os
+import re
 import stat
 import struct
 import sys
@@ -47,6 +49,21 @@ SOFTWARE_FILES = (
     b"etc/default/ptp4l",
     b"etc/default/phc2sys",
 )
+LINUXPTP_BASENAMES = (b"ptp4l", b"ptp4l-rt", b"phc2sys", b"pmc")
+LAUNCHER_PREFIXES = (
+    b"etc/init.d/",
+    b"etc/rc.d/",
+    b"etc/systemd/",
+    b"etc/cron",
+    b"etc/local.d/",
+    b"lib/systemd/",
+    b"usr/lib/systemd/",
+)
+LAUNCHER_PATHS = (b"etc/inittab", b"etc/rc.local")
+MAX_INSPECT_PAYLOAD = 1024 * 1024
+LINUXPTP_TOKEN_RE = re.compile(
+    br"(?<![A-Za-z0-9_])(?:ptp4l(?:-rt)?|phc2sys|pmc)"
+    br"(?![A-Za-z0-9_])", re.I)
 NEWC_MAGICS = (b"070701", b"070702")
 
 
@@ -90,6 +107,53 @@ def _normal_name(name):
             raise ContractError("parent traversal in rootfs cpio path")
         parts.append(part)
     return b"/".join(parts)
+
+
+def _launcher_path(name):
+    """Paths whose contents can participate directly in boot/service launch."""
+    return (name in LAUNCHER_PATHS
+            or name.endswith((b".service", b".timer", b".socket"))
+            or any(name.startswith(prefix) for prefix in LAUNCHER_PREFIXES))
+
+
+def _payload(stream, size, magic, name, mode):
+    """Consume one payload, retaining only owner and launcher semantics.
+
+    Every small executable script is retained, even under a neutral path, so
+    an init script cannot hide linuxptp behind `/usr/local/bin/start-clock`.
+    Binary executables are discarded after their shebang probe; executable
+    *names* are validated separately.  Known launcher records (including
+    systemd units, which need no executable bit) are always retained.
+    """
+    checksum = magic == b"070702"
+    inspect_path = name == PROFILE or _launcher_path(name)
+    executable = stat.S_ISREG(mode) and bool(mode & 0o111)
+    inspect = inspect_path or executable
+    if inspect and size > MAX_INSPECT_PAYLOAD:
+        if inspect_path:
+            raise ContractError(
+                f"rootfs launcher/profile {name!r} is too large to inspect "
+                f"({size} > {MAX_INSPECT_PAYLOAD} bytes)")
+        # Large native executables are not launcher text.  A large shebang
+        # script is, and refusing it is safer than certifying uninspected boot
+        # behavior.
+        prefix = _read_exact(stream, min(size, 2), "executable payload probe")
+        got_sum = sum(prefix) & 0xFFFF_FFFF
+        if prefix == b"#!":
+            raise ContractError(
+                f"rootfs executable script {name!r} is too large to inspect")
+        got_sum = (got_sum + _consume(
+            stream, size - len(prefix), checksum=checksum)) & 0xFFFF_FFFF
+        return None, got_sum
+    if inspect:
+        data = _read_exact(stream, size, "inspectable rootfs payload")
+        got_sum = sum(data) & 0xFFFF_FFFF
+        # Retain arbitrary data only for named launch records.  A small native
+        # executable can contain the word ptp4l in symbols/help text without
+        # being a launcher; its basename is still graded below.
+        retained = data if inspect_path or data.startswith(b"#!") else None
+        return retained, got_sum
+    return None, _consume(stream, size, checksum=checksum)
 
 
 def _archive_stream(path):
@@ -139,9 +203,10 @@ def _archive_stream(path):
 def archive_entries(path):
     """Return normalized newc entries as ``name -> [(mode, payload)]``.
 
-    Payload is retained only for the small owner-profile record.  Keeping every
-    normalized name lets the profile check reject duplicate security-relevant
-    paths and software launchers without extracting an untrusted archive.
+    Payload is retained for the small owner-profile record, boot/service
+    records and executable scripts. Keeping every normalized name lets the
+    profile check reject duplicate security-relevant paths and relocated
+    linuxptp executables without extracting an untrusted archive.
     """
     stream, encoding = _archive_stream(path)
     entries = {}
@@ -166,14 +231,9 @@ def archive_entries(path):
                 raise ContractError("cpio name is not NUL terminated")
             name = _normal_name(raw_name[:-1])
             _consume(stream, (-(110 + namesize)) & 3)
-            payload = None
-            if name == PROFILE:
-                if size > 256:
-                    raise ContractError("rootfs owner profile is unreasonably large")
-                payload = _read_exact(stream, size, "rootfs owner profile")
-                got_sum = sum(payload) & 0xFFFF_FFFF
-            else:
-                got_sum = _consume(stream, size, checksum=(magic == b"070702"))
+            if name == PROFILE and size > 256:
+                raise ContractError("rootfs owner profile is unreasonably large")
+            payload, got_sum = _payload(stream, size, magic, name, mode)
             _consume(stream, (-size) & 3)
             if magic == b"070702" and got_sum != wanted_sum:
                 raise ContractError(
@@ -220,14 +280,44 @@ def _validate_rootfs_profile(entries, owner):
             f"rootfs gPTP owner profile is not exact versioned {owner!r} profile")
 
     _one_regular(entries, OWNER_INIT, "gPTP owner lifecycle", executable=True)
-    for path in entries:
-        if not path.startswith(b"etc/init.d/S"):
-            continue
-        base = path.rsplit(b"/", 1)[-1]
-        if b"ptp4l" in base or b"phc2sys" in base:
-            raise ContractError(
-                f"rootfs contains direct software-owner launcher {path.decode('ascii')}; "
-                "S65milan-gptp-owner must be sole lifecycle authority")
+
+    # Canonical paths are necessary for the software profile, but a denylist
+    # of those four paths is not sufficient for fabric ownership: Buildroot or
+    # an overlay can relocate the exact same executable to usr/bin or opt. Name
+    # every executable/symlink leaf independently of its directory. Software
+    # may carry only its four canonical payload paths; fabric may carry none.
+    allowed_tools = set(SOFTWARE_EXECUTABLES) if owner == "software" else set()
+    for path, rows in entries.items():
+        leaf = path.rsplit(b"/", 1)[-1].lower()
+        linuxptp_leaf = any(
+            leaf == name or leaf.startswith(name + b"-")
+            or leaf.startswith(name + b".")
+            for name in LINUXPTP_BASENAMES)
+        # SysV/systemd launch records conventionally prefix/suffix the daemon
+        # name (S65ptp4l, milan-ptp4l.service), so exact executable-leaf rules
+        # alone are not enough for lifecycle filenames.
+        linuxptp_leaf = linuxptp_leaf or (
+            _launcher_path(path)
+            and any(name in leaf for name in LINUXPTP_BASENAMES))
+        for mode, payload in rows:
+            executable_asset = (not stat.S_ISDIR(mode)
+                                and (not stat.S_ISREG(mode)
+                                     or bool(mode & 0o111)))
+            if linuxptp_leaf and executable_asset and path not in allowed_tools:
+                raise ContractError(
+                    "rootfs contains relocated/extra linuxptp executable "
+                    f"{path.decode('ascii', 'backslashreplace')}; "
+                    "S65milan-gptp-owner must be sole lifecycle authority")
+
+            # A neutral filename is not a neutral launcher. Scan every known
+            # boot/service record and every executable script; for the software
+            # profile only the one owner lifecycle is allowed to name tools.
+            if payload is not None and LINUXPTP_TOKEN_RE.search(payload):
+                if not (owner == "software" and path == OWNER_INIT):
+                    raise ContractError(
+                        "rootfs launcher/script outside the selected owner "
+                        "lifecycle references linuxptp: "
+                        f"{path.decode('ascii', 'backslashreplace')}")
     if owner == "software":
         _one_regular(entries, SOFTWARE_MARKER, "software-owner marker")
         for path in SOFTWARE_EXECUTABLES:
@@ -241,7 +331,8 @@ def _validate_rootfs_profile(entries, owner):
         if path in entries:
             raise ContractError(
                 f"fabric rootfs contains software-owner asset {path.decode('ascii')}")
-    return "versioned fabric profile without linuxptp payload"
+    return ("versioned fabric profile without linuxptp executables or "
+            "boot/service launch references")
 
 
 def _load_layout(path):
@@ -495,6 +586,83 @@ def self_test():
         ]
         expect(False, layout("software"),
                write_archive("software-with-launcher", software_launcher_rows))
+
+        # The original R0 bypass: valid fabric profile, the exact retired
+        # daemons relocated from usr/sbin to usr/bin, and a neutral-named init
+        # script. Fixed-path and launcher-basename denylists both accepted it.
+        relocated_rows = _profile_entries("fabric") + [
+            (b"usr/bin/ptp4l", b"tool", stat.S_IFREG | 0o111),
+            (b"usr/bin/phc2sys", b"tool", stat.S_IFREG | 0o111),
+            (b"etc/timesync.cfg", b"config\n", stat.S_IFREG),
+            (b"etc/init.d/S49timesync",
+             b"#!/bin/sh\n/usr/bin/ptp4l -f /etc/timesync.cfg\n"
+             b"/usr/bin/phc2sys -s CLOCK_REALTIME\n",
+             stat.S_IFREG | 0o111),
+        ]
+        expect(False, layout("fabric"),
+               write_archive("fabric-relocated-linuxptp", relocated_rows))
+
+        neutral_launcher_rows = _profile_entries("fabric") + [
+            (b"etc/init.d/S49timesync",
+             b"#!/bin/sh\nexec /opt/time/ptp4l-custom -f /etc/time.cfg\n",
+             stat.S_IFREG | 0o111),
+        ]
+        expect(False, layout("fabric"), write_archive(
+            "fabric-neutral-launcher", neutral_launcher_rows))
+
+        # An init script can name a neutral helper. Inspect executable scripts
+        # outside init.d as well, so the second hop cannot hide the daemon.
+        indirect_rows = _profile_entries("fabric") + [
+            (b"etc/init.d/S49timesync",
+             b"#!/bin/sh\nexec /usr/local/bin/start-clock\n",
+             stat.S_IFREG | 0o111),
+            (b"usr/local/bin/start-clock",
+             b"#!/bin/sh\nexec /usr/local/sbin/phc2sys -s CLOCK_REALTIME\n",
+             stat.S_IFREG | 0o111),
+        ]
+        expect(False, layout("fabric"),
+               write_archive("fabric-indirect-launcher", indirect_rows))
+
+        systemd_rows = _profile_entries("fabric") + [
+            (b"usr/lib/systemd/system/timesync.service",
+             b"[Service]\nExecStart=/usr/bin/ptp4l -i eth0\n",
+             stat.S_IFREG),
+        ]
+        expect(False, layout("fabric"),
+               write_archive("fabric-systemd-launcher", systemd_rows))
+
+        extra_software_launcher = _profile_entries("software") + [
+            (b"etc/init.d/S49timesync",
+             b"#!/bin/sh\nexec /usr/sbin/ptp4l -i eth0\n",
+             stat.S_IFREG | 0o111),
+        ]
+        expect(False, layout("software"), write_archive(
+            "software-second-lifecycle", extra_software_launcher))
+
+        relocated_symlink_rows = _profile_entries("fabric") + [
+            (b"opt/time/ptp4l", b"../../usr/sbin/clockd",
+             stat.S_IFLNK | 0o111),
+        ]
+        expect(False, layout("fabric"), write_archive(
+            "fabric-relocated-symlink", relocated_symlink_rows))
+
+        oversized_script_rows = _profile_entries("fabric") + [
+            (b"usr/local/bin/start-clock",
+             b"#!/bin/sh\n" + b"# pad\n" * (MAX_INSPECT_PAYLOAD // 6 + 1),
+             stat.S_IFREG | 0o111),
+        ]
+        expect(False, layout("fabric"), write_archive(
+            "fabric-oversized-script", oversized_script_rows))
+
+        # Documentation may name linuxptp without being executable or a boot
+        # record. The gate targets installed ownership semantics, not prose.
+        documented_rows = _profile_entries("fabric") + [
+            (b"usr/share/doc/milan/README",
+             b"The software comparison uses ptp4l; fabric images do not.\n",
+             stat.S_IFREG),
+        ]
+        expect(True, layout("fabric"),
+               write_archive("fabric-doc-mention", documented_rows))
 
         duplicate_layout = os.path.join(temp, "layout-duplicate-images.json")
         with open(duplicate_layout, "w", encoding="utf-8") as stream:

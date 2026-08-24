@@ -175,7 +175,12 @@ static void tick() {
     }
   }
   dut->clk_i = 1; dut->eval();
-  if (dut->rst_n) {
+  if (!dut->rst_n) {
+    // A later warm reset starts a new publication epoch.  Do not compare the
+    // reset value against the pre-reset bank and call that reset transition an
+    // uncommitted runtime publication.
+    pub_watch = false;
+  } else {
     if (!pub_watch) {
       pub_watch = true;
     } else {
@@ -243,6 +248,7 @@ static void send_wide(const std::vector<uint8_t> &bytes) {
 static const int64_t D_NOM = 600;
 static size_t pd_seen = 0;
 static bool pd_on = false;
+static int64_t pd_target = D_NOM;             // may be legal negative noise
 static int64_t pd_expect = 0;                // the last exchange's D
 
 static void service_pdelay() {
@@ -262,10 +268,10 @@ static void service_pdelay() {
     f.ts(t2); f.u64(OUR_CID); f.u16(1);
     // residence = (fabric turnaround) - 2*D_NOM, computed at send time;
     // the tap stamps t4 within a beat of the first wide beat below
-    uint64_t resid = (phc() - t1) - 2 * (uint64_t)D_NOM;
-    uint64_t t3 = t2 + resid;
+    int64_t resid = (int64_t)(phc() - t1) - 2 * pd_target;
+    uint64_t t3 = t2 + (uint64_t)resid;
     uint64_t t4_est = phc() + 8;             // the next tick's beat 0
-    pd_expect = (int64_t)((t4_est - t1) - resid) / 2;
+    pd_expect = ((int64_t)(t4_est - t1) - resid) / 2;
     send_wide(f.b);
     run(50);
     Frame g = ptp(0xA, seq, 0, 0x0000, 20);
@@ -484,6 +490,34 @@ int main(int argc, char **argv) {
   // ---- 3: the second exchange raises asCapable ---------------------------
   expect("capable at the second exchange",
          wait_flags(FL_ASCAP, FL_ASCAP, 6000000ull), 1);
+
+  // A symmetric exchange can legitimately measure a small negative delay.
+  // The donor must retain that signed value for its acceptance decision (and
+  // therefore keep asCapable), while the parent's unsigned public bank must
+  // publish zero.  Removing the sign-bit clamp exposes ~2^32 ns here; forcing
+  // every delay to zero instead fails the positive 600 ns phase above.
+  pd_target = -40;
+  for (uint64_t n = 0;
+       n < 6000000ull && !(pd_expect < 0 && dut->pub_pdelay_ns_o == 0);
+       n++) {
+    tick();
+    if ((n & 255) == 0) service_pdelay();
+  }
+  expect("negative pdelay exchange really measured below zero",
+         pd_expect < 0, 1);
+  expect("negative pdelay clamps at the unsigned publication boundary",
+         dut->pub_pdelay_ns_o, 0);
+  expect("negative pdelay noise preserves asCapable",
+         dut->pub_flags_o & FL_ASCAP, FL_ASCAP);
+  pd_target = D_NOM;
+  for (uint64_t n = 0;
+       n < 6000000ull && !(pd_expect > 0 && dut->pub_pdelay_ns_o > 0);
+       n++) {
+    tick();
+    if ((n & 255) == 0) service_pdelay();
+  }
+  expect("positive pdelay resumes after the clamp probe",
+         pd_expect > 0 && dut->pub_pdelay_ns_o > 0, 1);
 
   // ---- 4: adopt; offsets in range; the counter locks ---------------------
   announce(10, 100, GMID);

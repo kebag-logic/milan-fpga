@@ -1965,8 +1965,10 @@ audio-unit directive define the next fabric round:
    earning the `CompatibilityFlag::Milan` badge. The MVU family
    `GET_MILAN_INFO` rides on answers `NOT_IMPLEMENTED`, so the Milan identity
    handshake never completes. And la_avdecc's enumeration walk gets
-   `BAD_ARGUMENTS` for every type until a descriptor image is loaded into DRAM,
-   which nothing in this repository does.
+   `BAD_ARGUMENTS` for every type until a descriptor image is loaded into DRAM.
+   The tracked builder/rootfs handoff now generates, validates and loads that
+   image when deployment explicitly requests `--write-fragment`/`--write-rtl`;
+   inspection-only and custom flows that skip it remain intentionally empty.
 
    The CRF input's `0xF3F` tallies still exist inside `KL_crf_rx` and are
    CSR-readable. The STREAM_OUTPUT `0x1F` set does NOT: `KL_talker_diag_ctx` is

@@ -23,7 +23,13 @@ C="$R/hdl/common"; Q="$R/hdl/ieee8021q/ts"; P="$R/hdl/ieee8021as/ptp_timestamp"
 E="$R/hdl/common/eth_event_counter"; D="$R/hdl/ieee17221/adp"
 F="$R/hdl/ieee8021q/filtering"
 INC="-DSYNTHESIS -I $R/hdl/common -I $R/hdl/common/csr -I $Q -I $E -I $D -I $P"
-TMP="${OOC_TMP:-$(mktemp -d)}"; mkdir -p "$TMP"
+if [ -n "${OOC_TMP:-}" ]; then
+  TMP="$OOC_TMP"
+else
+  TMP="$(mktemp -d)" || exit 2
+  trap 'rm -rf "$TMP"' EXIT
+fi
+mkdir -p "$TMP" || exit 2
 
 # The protocol processor is the control plane (scenario B): milan_datapath
 # instantiates KL_pp_shadow unconditionally, so its sources are datapath
@@ -46,15 +52,27 @@ GPTP_DP_SRCS="$GPTP_ENGINE_SRCS $R/hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv $
 # repository root leaves nothing behind - the same fix syn/yosys/run.sh carries
 # (#191): only syn/yosys/*.hex is gitignored, so a stray ltn_rom.hex in the
 # caller's directory is one broad `git add` from being committed (#192).
-if [ -f "$R/protocol-processor/hdl/acmp/rom/gen_ltn_rom.py" ]; then
-  python3 "$R/protocol-processor/hdl/acmp/rom/gen_ltn_rom.py" -o "$TMP/ltn_rom.hex" >/dev/null 2>&1 || true
-fi
-if [ -f "$R/protocol-processor/hdl/aecp/ucode/gen_ucode.py" ]; then
-  python3 "$R/protocol-processor/hdl/aecp/ucode/gen_ucode.py" -o "$TMP/ucode.hex" >/dev/null 2>&1 || true
-fi
-if [ -f "$R/gptp-processor/hdl/ucode/gen_gptp_ucode.py" ]; then
-  python3 "$R/gptp-processor/hdl/ucode/gen_gptp_ucode.py" -o "$TMP/gptp_ucode.hex" >/dev/null 2>&1 || true
-fi
+for generator in \
+  "$R/protocol-processor/hdl/acmp/rom/gen_ltn_rom.py" \
+  "$R/protocol-processor/hdl/aecp/ucode/gen_ucode.py" \
+  "$R/gptp-processor/hdl/ucode/gen_gptp_ucode.py"; do
+  [ -f "$generator" ] || {
+    echo "OOC: required ROM generator is missing: $generator" >&2
+    exit 2
+  }
+done
+python3 "$R/protocol-processor/hdl/acmp/rom/gen_ltn_rom.py" -o "$TMP/ltn_rom.hex" >/dev/null || {
+  echo "OOC: ACMP transition-ROM generation failed" >&2; exit 2;
+}
+python3 "$R/protocol-processor/hdl/aecp/ucode/gen_ucode.py" -o "$TMP/ucode.hex" >/dev/null || {
+  echo "OOC: AECP microcode generation failed" >&2; exit 2;
+}
+python3 "$R/gptp-processor/hdl/ucode/gen_gptp_ucode.py" -o "$TMP/gptp_ucode.hex" >/dev/null || {
+  echo "OOC: gPTP microcode generation failed" >&2; exit 2;
+}
+for image in "$TMP/ltn_rom.hex" "$TMP/ucode.hex" "$TMP/gptp_ucode.hex"; do
+  [ -s "$image" ] || { echo "OOC: generated ROM is empty: $image" >&2; exit 2; }
+done
 
 DP_SRCS="$PP_SRCS $GPTP_DP_SRCS $C/ethernet_packet_pkg.sv $C/axi_stream_if.sv $A/axis_fifo.v $A/axis_demux.v $A/axis_arb_mux.v $A/arbiter.v $A/priority_encoder.v $Q/traffic_class_map.sv $Q/traffic_classifier.sv $Q/credit_based_shaper.sv $Q/traffic_shaping_core.sv $Q/traffic_queues.sv $Q/traffic_controller_802_1q.sv $P/timestamp_counter.sv $P/ptp_csr_sync.sv $C/cdc_pulse.sv $C/cdc_handshake.sv $C/axis_mux_rr_2in_1out.sv $P/ptp_ts_core.sv $P/ptp_ts_top.sv $F/tcam.sv $F/rx_mac_filter.sv $C/tx_ifg_gasket.sv $R/hdl/ieee1722/aaf/KL_pcm_lpf.sv $C/KL_link_guard.sv $D/adp_tx_arbiter.sv $E/ethernet_events.sv $E/event_counter.sv $R/hdl/common/csr/milan_csr.sv $R/hdl/ieee1722/aaf/aaf_talker_i2s.sv $R/hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv $R/hdl/ieee1722/avtp/avtp_subtype_pkg.sv $R/hdl/ieee1722/avtp/avtp_stream_parser.sv $R/hdl/ieee1722/avtp/KL_stream_table.sv $R/hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv $R/hdl/ieee1722/crf/KL_crf_rx.sv $R/hdl/ieee1722/crf/KL_crf_tx.sv $R/hdl/ieee1722/maap/KL_maap.sv $R/hdl/ieee1722/aaf/KL_i2s_playback.sv $R/hdl/ieee1722/aaf/KL_i2s_feed_mux.sv $R/hdl/ieee1722/aaf/KL_tone_gen.sv $R/hdl/ieee1722/aaf/KL_media_adv.sv $C/cdc_pair_fifo.sv $R/hdl/ieee1722/aaf/KL_pcm_route.sv $R/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv $R/hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv $R/hdl/ieee1722/aaf/KL_tdm_capture.sv $R/hdl/ieee1722/aaf/KL_aaf_packetizer.sv $R/hdl/ieee1722/crf/KL_mmcm_drp_servo.sv $R/hdl/ieee1722/crf/KL_media_nco.sv $R/hdl/ieee1722/aaf/KL_aaf_latency_taps.sv $R/hdl/ieee1722/aaf/KL_chan_map_capture.sv $R/hdl/ieee1722/aaf/KL_chan_map_render.sv $R/hdl/ieee1722/aaf/KL_pcm_tx.sv $R/hdl/ieee1722/aaf/KL_tdm_render.sv $R/hdl/ieee1722/avtp/KL_media_clock_restart.sv $R/hdl/milan/milan_datapath.sv $R/hdl/ieee1722/aaf/KL_tdm_capture_master.sv $R/hdl/ieee1722/aaf/KL_pair_blend.sv $R/hdl/ieee1722/aaf/KL_pair_zero_fill.sv $R/hdl/ieee1722/avtp/KL_talker_diag_ctx.sv $R/hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv"
 
@@ -176,5 +194,4 @@ for spec in "${tops[@]}"; do
                  top, lut, lrm, lut + lrm, ff, r36, r18, dsp, c4 }
   ' "$TMP/$top.ooc.log"
 done
-[ -n "${OOC_TMP:-}" ] || rm -rf "$TMP"
 exit "$ooc_fail"

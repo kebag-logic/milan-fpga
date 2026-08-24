@@ -27,8 +27,10 @@ deep-dive for the media plane; the scaling model behind it is
 > `{descriptor_type, descriptor_index}` stub), and it **answers every other
 > AECP command with a conformant `NOT_IMPLEMENTED` echo** — right
 > `message_type`, right length, right `controller_data_length`. Controller
-> enumeration is therefore **reachable** again — once the descriptor image is in
-> DRAM, which nothing in this repository does for you yet (§6).
+> enumeration is therefore **reachable** once the descriptor image is in DRAM.
+> The tracked builder/rootfs handoff supplies it only on an explicit deployment
+> transfer; inspection-only/custom flows that skip that handoff remain empty
+> (§6).
 >
 > What did **not** come back is every command that used to configure this media
 > plane. An echo is not an implementation, and none of the bullets below is

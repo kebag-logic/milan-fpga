@@ -270,8 +270,9 @@ this lane never runs beside a build.
    and gets no value from any of them. The checks that need only a
    well-formed AECP response, or that walk descriptors, are back in play:
    `READ_DESCRIPTOR` is answered, and answers `BAD_ARGUMENTS` until a
-   descriptor image is loaded into DRAM, which nothing in this repository does
-   for you — the microprogram's configuration range check runs before the
+   descriptor image is loaded into DRAM. The tracked builder/rootfs handoff
+   supplies it on an explicit deployment transfer; a custom flow that skips
+   that transfer stays empty — the microprogram's configuration range check runs before the
    locate, and an invalid image reports a configuration count of zero, so
    `NO_SUCH_DESCRIPTOR` is not even reachable until an image exists. Record the
    remainder as the boundary, and do not let a well-formed

@@ -39,9 +39,10 @@
 > change and no notification. Do not re-grade a row as covered because the
 > entity answered.
 >
-> **Descriptor enumeration is reachable again — once the descriptor image is in
-> DRAM, which nothing in this repository does for you yet.** The supply gap is
-> spelled out at the end of the next section; on a stock build every
+> **Descriptor enumeration is reachable once the descriptor image is in
+> DRAM.** The tracked builder/rootfs handoff supplies it on an explicit
+> deployment transfer; inspection-only/custom flows that skip that handoff
+> remain empty. In that state every
 > `READ_DESCRIPTOR` answers `BAD_ARGUMENTS` — the microprogram range-checks
 > `configuration_index` against `configurations_count` **before** it locates,
 > and an invalid image reports a count of zero, so no index passes and the

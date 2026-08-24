@@ -156,7 +156,7 @@ SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv
        $(RTL_DIR)/milan/milan_datapath.sv
 CPP  = sim_main.cpp
 
-.PHONY: all run soundcard-off clean
+.PHONY: all run gptp soundcard-off clean
 all: run
 
 # tier-1 optional blocks, ALL pruned at once (docs/design/AREA_BUDGET.md).
@@ -202,7 +202,13 @@ soundcard-off:
 	  -CFLAGS "-std=c++17 -O2" -o Vpcm_route_soundcard_off
 	./obj_soundcard_off/Vpcm_route_soundcard_off
 
-run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) soundcard-off
+gptp: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
+	$(VERILATOR) $(SHAPE_AX1x1) $(VFLAGS) --Mdir obj_gptp \
+	  -GMILAN_CLK_FREQ_HZ=2000000 \
+	  $(SRCS) sim_gptp.cpp -o Vmilan_dp_gptp
+	./obj_gptp/Vmilan_dp_gptp
+
+run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) soundcard-off gptp
 	$(VERILATOR) $(SHAPE_1x1) $(DP_VFLAGS) $(SRCS) $(CPP) -o Vmilan_dp_sim
 	$(VERILATOR) $(SHAPE_4x4) $(DP_VFLAGS) --Mdir obj_nxn -GN_STREAMS=4 $(SRCS) sim_nxn.cpp -o Vmilan_dp_nxn
 # the divergent-shape leg: arty_4x4's entity with input row 1 declaring the

@@ -10,8 +10,8 @@ hosted check green, which is the definition of a defense that rots.
 
 milan_datapath_ooc.tcl (#246) derives its read set from dp_srcs.py, finds its
 geometry packages IN that record, reads each geometry number from the ONE
-live declaration (comments stripped, name boundary-anchored), GENERATES both
-images into fresh temp targets, validates their exact geometry, and publishes
+live declaration (comments stripped, name boundary-anchored), GENERATES all
+three images into fresh temp targets, validates their exact geometry, and publishes
 by rename only after validation. Stale+no-op, one-token, truncated and
 malformed images, commented-out or duplicated declarations, and a record
 without the packages are all refusals before anything is read ([R-parallel]
@@ -25,7 +25,8 @@ safeguards:
 
   - every `-generic *_HEX_P=...` it receives must be quoted, absolute, an
     existing non-empty file, carry the CANONICAL basename for its parameter
-    (PP_UCODE_HEX_P -> ucode.hex, PP_TROM_HEX_P -> ltn_rom.hex), and hold
+    (PP_UCODE_HEX_P -> ucode.hex, PP_TROM_HEX_P -> ltn_rom.hex,
+    GPTP_UCODE_HEX_P -> gptp_ucode.hex), and hold
     that ROM's geometry, or the stub errors -- an existing-but-wrong file
     opens cleanly, so Synth 8-4445 never protects that case;
   - `set_msg_config` is MODELLED, not transcribed: the stub keeps the final
@@ -70,6 +71,8 @@ GEN_UCODE = os.path.join(REPO, "protocol-processor", "hdl", "aecp", "ucode",
                          "gen_ucode.py")
 GEN_LTN = os.path.join(REPO, "protocol-processor", "hdl", "acmp", "rom",
                        "gen_ltn_rom.py")
+GEN_GPTP = os.path.join(REPO, "gptp-processor", "hdl", "ucode",
+                        "gen_gptp_ucode.py")
 
 #: The Vivado commands the .tcl recipes call, stubbed as the docstring
 #: describes. The canonical-image map in synth_design is TEST knowledge: the
@@ -95,11 +98,12 @@ proc set_msg_config args {
 }
 proc synth_design args {
   set expect [dict create PP_TROM_HEX_P {ltn_rom.hex 8 128} \\
-                          PP_UCODE_HEX_P {ucode.hex 12 2048}]
+                          PP_UCODE_HEX_P {ucode.hex 12 2048} \\
+                          GPTP_UCODE_HEX_P {gptp_ucode.hex 12 1024}]
   for {set i 0} {$i < [llength $args]} {incr i} {
     if {[lindex $args $i] ne "-generic"} continue
     set g [lindex $args [expr {$i + 1}]]
-    if {![regexp {^(PP_[A-Z_]+_HEX_P)="(.*)"$} $g -> name val]} continue
+    if {![regexp {^((?:PP|GPTP)_[A-Z_]+_HEX_P)="(.*)"$} $g -> name val]} continue
     if {[file pathtype $val] ne "absolute"} {
       error "SYNTH-GENERIC-NOT-ABSOLUTE: $g"
     }
@@ -164,7 +168,7 @@ exec %(real)s "$@"
 """
 
 #: How many arms run. A deleted arm is a self-test that still prints a pass.
-ARMS = 33
+ARMS = 40
 
 _DERIVED = None
 
@@ -383,11 +387,11 @@ def selftest():
     # geometry), the EFFECTIVE severity of Synth 8-4445 there is ERROR, and
     # the read set the stubs recorded EQUALS what dp_srcs.py derives.
     def dp_positive(d, log):
-        for img in ("ltn_rom.hex", "ucode.hex"):
+        for img in ("ltn_rom.hex", "ucode.hex", "gptp_ucode.hex"):
             p = os.path.join(d, img)
             if not os.path.isfile(p) or os.path.getsize(p) == 0:
                 return "%s was not generated into the run directory" % img
-        for name in ("PP_TROM_HEX_P", "PP_UCODE_HEX_P"):
+        for name in ("PP_TROM_HEX_P", "PP_UCODE_HEX_P", "GPTP_UCODE_HEX_P"):
             if ("OOC-GENERIC-OK: %s" % name) not in log:
                 return "synth_design did not receive a valid %s generic" % name
         if EFFECTIVE_OK not in log:
@@ -492,10 +496,14 @@ def selftest():
             mut = _mutant(
                 r"set UCPU_PKG \[one_source \$SRC_LINES ucpu_pkg\.sv\]",
                 "set UCPU_PKG {%s}" % pkg, label)
-        else:
+        elif which == "acmp":
             mut = _mutant(
                 r"set ACMP_PKG \[one_source \$SRC_LINES pp_acmp_pkg\.sv\]",
                 "set ACMP_PKG {%s}" % pkg, label)
+        else:
+            mut = _mutant(
+                r"set GPTP_PKG \[one_source \$SRC_LINES gptp_ucpu_pkg\.sv\]",
+                "set GPTP_PKG {%s}" % pkg, label)
         return pkg, mut
 
     # Arm 22. [R0]'s exact plant: a stale value in a line comment above a
@@ -591,11 +599,13 @@ def selftest():
     # scripts/pp_srcs.py --check, and that trip is itself part of what this
     # plant is shown to hit on the real tree (PR #264 evidence).
     pp_root = "$REPO/protocol-processor" + "/hdl"
+    gp_root = "$REPO/gptp-processor" + "/hdl"
     mut = _mutant(
         r"set SRC_LINES \[split \[string trim \[exec python3 "
         r"\$REPO/syn/ooc/dp_srcs\.py\]\] \"\\n\"\]",
-        "set SRC_LINES [list %s/aecp/ucpu_pkg.sv %s/acmp/pp_acmp_pkg.sv]"
-        % (pp_root, pp_root),
+        "set SRC_LINES [list %s/aecp/ucpu_pkg.sv %s/acmp/pp_acmp_pkg.sv"
+        " %s/ucpu/gptp_ucpu_pkg.sv]"
+        % (pp_root, pp_root, gp_root),
         "srcs-hand-list")
     try:
         def hand_list_detected(d, log):
@@ -622,6 +632,60 @@ def selftest():
         arm("dp-mut-srcs-deleted", "SRC_LINES", False, tcl=mut)
     finally:
         os.unlink(mut)
+
+    # ---- the integrated gPTP engine's image (#116: default-on fabric) ----
+
+    # Arms 28-31. The third $readmemh image gets the identical contract:
+    # generator exit status taken, zero/one-word/malformed images refused
+    # against the geometry derived from gptp_ucpu_pkg.sv (1,024x48 at the
+    # pin), before anything is read.
+    dp_arm("dp-gptp-generator-fail", "planted gptp generator failure",
+           "gen_gptp_ucode.py",
+           "echo 'planted gptp generator failure' >&2\n  exit 3")
+    dp_arm("dp-gptp-empty", "0 words, expected exactly 1024",
+           "gen_gptp_ucode.py", ": > \"$out\"\n  exit 0")
+    dp_arm("dp-gptp-one-word", "1 words, expected exactly 1024",
+           "gen_gptp_ucode.py", "printf '000000000000\\n' > \"$out\"\n  exit 0")
+    dp_arm("dp-gptp-malformed", "not exactly 12 hex digits",
+           "gen_gptp_ucode.py",
+           "%s %s -o \"$out\" > /dev/null && "
+           "sed -i '5s/.*/00000000000Z/' \"$out\"\n  exit 0"
+           % (REAL_PYTHON, GEN_GPTP))
+
+    # Arm 32. MUTATION: the gptp generic deleted from synth_design's call.
+    mut = _mutant(r" \\\n  -generic \$GUCODE_GENERIC", "",
+                  "gptp-generic-deleted")
+    try:
+        arm("dp-mut-gptp-generic-deleted", None, True, tcl=mut,
+            check=lambda d, log: None
+            if "OOC-GENERIC-OK: GPTP_UCODE_HEX_P" not in log
+            else "the mutant still shows the gptp generic")
+    finally:
+        os.unlink(mut)
+
+    # Arm 33. MUTATION: the gptp generic cross-wired at the AECP image. It
+    # exists and opens; only the canonical-basename binding refuses it.
+    mut = _mutant(r'set GUCODE_GENERIC "GPTP_UCODE_HEX_P=\\"\[file normalize '
+                  r'gptp_ucode\.hex\]\\""',
+                  'set GUCODE_GENERIC "GPTP_UCODE_HEX_P=\\"[file normalize '
+                  'ucode.hex]\\""', "gptp-cross-wired")
+    try:
+        arm("dp-mut-gptp-cross-wired", "SYNTH-GENERIC-WRONG-IMAGE", False,
+            tcl=mut)
+    finally:
+        os.unlink(mut)
+
+    # Arm 34. The gptp package width gets the same non-nibble refusal.
+    pkg, mut = pkg_mutant(
+        "localparam int unsigned UCODE_W_C = 50;\n"
+        "localparam int unsigned UPC_W_C = 10;\n", "pkg-gptp-width-50",
+        which="gptp")
+    try:
+        arm("dp-pkg-gptp-width-50-not-nibble",
+            "not a positive nibble-aligned", False, tcl=mut)
+    finally:
+        os.unlink(mut)
+        os.unlink(pkg)
 
     if ran != ARMS:
         problems.append("SELF-TEST FAILED [arm-count]: ran %d arm(s), this "

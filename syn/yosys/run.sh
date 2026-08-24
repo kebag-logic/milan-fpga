@@ -326,15 +326,27 @@ record_result() {
 # of the checkout, where nothing ignores them; only `syn/yosys/*.hex` is, which
 # covers the `make` flow and no other. Three such images rode into a commit of
 # PR #191 exactly that way, byte-identical to what this block generates.
-if [ -f "$R/protocol-processor/hdl/acmp/rom/gen_ltn_rom.py" ]; then
-  python3 "$R/protocol-processor/hdl/acmp/rom/gen_ltn_rom.py" -o "$TMP/ltn_rom.hex" >/dev/null 2>&1 || true
-fi
-if [ -f "$R/protocol-processor/hdl/aecp/ucode/gen_ucode.py" ]; then
-  python3 "$R/protocol-processor/hdl/aecp/ucode/gen_ucode.py" -o "$TMP/ucode.hex" >/dev/null 2>&1 || true
-fi
-if [ -f "$R/gptp-processor/hdl/ucode/gen_gptp_ucode.py" ]; then
-  python3 "$R/gptp-processor/hdl/ucode/gen_gptp_ucode.py" -o "$TMP/gptp_ucode.hex" >/dev/null 2>&1 || true
-fi
+for generator in \
+  "$R/protocol-processor/hdl/acmp/rom/gen_ltn_rom.py" \
+  "$R/protocol-processor/hdl/aecp/ucode/gen_ucode.py" \
+  "$R/gptp-processor/hdl/ucode/gen_gptp_ucode.py"; do
+  [ -f "$generator" ] || {
+    echo "Yosys: required ROM generator is missing: $generator" >&2
+    exit 2
+  }
+done
+python3 "$R/protocol-processor/hdl/acmp/rom/gen_ltn_rom.py" -o "$TMP/ltn_rom.hex" >/dev/null || {
+  echo "Yosys: ACMP transition-ROM generation failed" >&2; exit 2;
+}
+python3 "$R/protocol-processor/hdl/aecp/ucode/gen_ucode.py" -o "$TMP/ucode.hex" >/dev/null || {
+  echo "Yosys: AECP microcode generation failed" >&2; exit 2;
+}
+python3 "$R/gptp-processor/hdl/ucode/gen_gptp_ucode.py" -o "$TMP/gptp_ucode.hex" >/dev/null || {
+  echo "Yosys: gPTP microcode generation failed" >&2; exit 2;
+}
+for image in "$TMP/ltn_rom.hex" "$TMP/ucode.hex" "$TMP/gptp_ucode.hex"; do
+  [ -s "$image" ] || { echo "Yosys: generated ROM is empty: $image" >&2; exit 2; }
+done
 
 if [ "$MODE" = full ]; then
   echo "== Yosys open-synthesis check ($SYNTH, via sv2v; shard $shard_index/$shard_total) =="

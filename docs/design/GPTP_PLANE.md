@@ -46,7 +46,12 @@ pairings are refused rather than silently producing two PHC owners.
 The option also carries `GPTP_UCODE_HEX_P`. In a shipping SoC build this is an
 absolute path to the builder's per-config 1,024-word image, generated from the
 same YAML station MAC, priority1 and Milan clock as the rest of the station.
-Self-contained benches retain the relative `gptp_ucode.hex` default.
+Self-contained benches retain the relative `gptp_ucode.hex` default. The Yosys
+and Vivado whole-datapath manifests expand all eight donor/parent gPTP sources;
+their recognizer rejects residual shell variables and missing files before
+emitting a list. All OOC flows generate and validate the gPTP image (beside the
+two protocol-processor ROMs) and fail if a generator is missing, fails, or
+emits an empty file.
 
 The plane has four seams:
 
@@ -144,6 +149,11 @@ two-half CSR read order. A GM/sync discontinuity asserts `tu` on that same
 edge, then the committed bank becomes visible; no consumer can see a new
 identity with an old-valid timestamp verdict. Software writes to the legacy
 publication and CLKV registers cannot manufacture live fabric health.
+The donor's peer-delay arithmetic stays signed: a small negative symmetric
+measurement remains acceptable and does not tear down asCapable. At the parent
+publication commit, that value is clamped to zero before entering the unsigned
+CSR/GET_AVB_INFO contract, so a legal -1 ns sample can never appear as
+`0xFFFF_FFFF` ns.
 
 With the option off, the legacy software contract remains intact: LO stages
 and HI commits each identity, `CLKV_CTRL` renews the compatibility lease, and
@@ -158,8 +168,8 @@ records the ownership change without allocating new CSR addresses.
 |---|---|---|
 | gptp-processor `tb/verilator/*` | byte, model counter | the 802.1AS state machines, servo math, and the donor's planted-mutation ladder; its count lives in the donor's engine bench README under `gptp-processor/tb/verilator/engine/` at the pinned SHA and is not mirrored here, where it would drift at every repin |
 | `tb/verilator/gptp_plane` | byte, REAL counter | the engine steers the parent's `timestamp_counter` closed-loop, and its transmitted Follow_Up carries a live timestamp while the two-step Sync body stays zero (Table 11-8). It does NOT observe the engine's own `phc_ns_i`: at the current submodule pin that input has no reader, so a tie-off there passes this bench ([#211](https://github.com/kebag-logic/milan-fpga/issues/211)). The slice's `timestamp_counter` wire is a different signal and IS covered, by `tb/verilator/gptp_shadow` |
-| `tb/verilator/gptp_shadow` | WIDE, real counter + boundary stamper | the fabric slice with no harness-provided timestamps; classify/transport/gearbox/stamper, positional pairing for all six transmitted types, and the two equal-sequence cross-type collisions proved by delaying/replaying complete real boundary tuples (Req vs Resp and Sync vs Resp). The same gate holds a response return while two same-type peer requests cross the production tap and a start/mid-frame-stalled wide lane; two valid Signaling chasers then reuse both donor message banks, proving the queued request's event snapshot preserves its requester identity, port and exact ingress `requestReceiptTimestamp` through bank churn. Independent request/Sync warm-reset phases prove the cadence and receipt-timer bootstrap. The 158-check run goes red when the engine's type input is tied off, donor matching is reduced to sequence-only, same-type response ownership or the whole queued-request snapshot is removed, only its saved timestamp is bypassed, stale timer ownership survives reset, the receipt timer is not bootstrapped, or the return-order gate is bypassed |
-| `tb/verilator/milan_dp` obj_gptp | the whole datapath | option-ON elaborates at the shipping 1x1 ENTITY shape (the leg's own -G set, 2 MHz clock -- not the obj_ax1x1 argv); the boot Pdelay_Req reaches the real MAC boundary; NO Announce without asCapable |
+| `tb/verilator/gptp_shadow` | WIDE, real counter + boundary stamper | the fabric slice with no harness-provided timestamps; classify/transport/gearbox/stamper, positional pairing for all six transmitted types, and the two equal-sequence cross-type collisions proved by delaying/replaying complete real boundary tuples (Req vs Resp and Sync vs Resp). The same gate holds a response return while two same-type peer requests cross the production tap and a start/mid-frame-stalled wide lane; two valid Signaling chasers then reuse both donor message banks, proving the queued request's event snapshot preserves its requester identity, port and exact ingress `requestReceiptTimestamp` through bank churn. Independent request/Sync warm-reset phases prove the cadence and receipt-timer bootstrap. The 171-check run also drives an accepted -40 ns exchange, requires public zero with asCapable retained, then restores a positive delay. It goes red when the public sign clamp, engine type input, donor type match, same-type ownership/snapshot, timer repairs, or return-order proof is removed |
+| `tb/verilator/milan_dp` obj_gptp | the whole datapath | option-ON elaborates at the shipping 1x1 ENTITY shape (the leg's own -G set, 2 MHz clock -- not the obj_ax1x1 argv); the boot Pdelay_Req reaches the real MAC boundary; NO Announce without asCapable; live positive and negative peer-delay exchanges reach CSR/clock validity, and GET_AVB_INFO carries the negative sample as byte-exact unsigned zero while preserving asCapable |
 | `tb/verilator/milan_dp` default legs | the whole datapath | the [GPTP-OPT] tripwire: with the option OFF, CSR adjfine and adjtime still reach `timestamp_counter` through the eff muxes (a polarity swap goes red) |
 | `tb/verilator/tsn_fuzz` (`fuzz_ptp.py`) | byte, the tsn-gen 802.1AS models at the CI pin | the plane's own Announce / Sync / Follow_Up / Pdelay field-by-field against the Milan v1.2 profile of 802.1AS-2011 (the Table 11-7 control byte among them), parser drop/ignore gates, BTCA under fuzz, the two-sided asCapable canary; the tally and the tracked gaps live in the generated [`hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md`](../../hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md) |
 

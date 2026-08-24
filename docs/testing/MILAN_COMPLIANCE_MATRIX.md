@@ -41,8 +41,9 @@
 >
 > **What the landing DID make reachable, and it is not on this page:**
 > descriptor-read enumeration — and only once a descriptor image is loaded into
-> DRAM, which nothing in this repository does for you yet, so on a stock build
-> every `READ_DESCRIPTOR` answers `BAD_ARGUMENTS` (the microprogram checks
+> DRAM. The tracked builder/rootfs deployment handoff now supplies it when
+> explicitly requested; an inspection-only/custom flow that skips the handoff
+> still answers `BAD_ARGUMENTS` (the microprogram checks
 > `configuration_index` against `configurations_count` before it locates, and an
 > invalid image reports a count of zero). `BAD_ARGUMENTS` to every read therefore
 > reads as "no image"; `NO_SUCH_DESCRIPTOR` reads as "image loaded, that
