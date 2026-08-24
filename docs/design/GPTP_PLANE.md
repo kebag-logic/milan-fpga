@@ -130,7 +130,11 @@ The plane has four seams:
 
 The CSR readback words (`ADP_GM` 0x624/8, `GPTP_PDELAY` 0x6E4, the
 0x730 AS_PATH group), the `tu` bit's CLKV lease, and the rootfs
-daemons. The #116 flip re-points them at the plane and carries the
+daemons. Two published words already reach the fabric consumers when
+the option is on, by the same `GPTP_PLANE_EN_P` selection: the
+grandmaster identity, and since 0x0055 `pub_pdelay_ns_o` as the
+`propagation_delay` `GET_AVB_INFO` serves. Reading either CSR back
+still returns the software-written word. The #116 flip re-points them at the plane and carries the
 VERSION story; the splice changes no CSR-visible behavior, which is
 why it carries no VERSION bump.
 

@@ -272,9 +272,15 @@ response to each registered controller except the requester, and a SET that
 stores the value already held is silent (Milan 5.4.5.2). The observed triggers
 feed the same scheduler: the fabric's per-descriptor counter changes reach the
 processor through a lossless round-robin (one push per descriptor per second),
-the asCapable edge and the first grandmaster commit arm GET_AVB_INFO, and the
-0x7DC PathTrace publish edge arms GET_AS_PATH, whose staged tail is now served
-behind the grandmaster. Silent controllers are probed with CONTROLLER_AVAILABLE
+every field of the GET_AVB_INFO answer the root serves is snapshot-compared
+into that trigger -- the grandmaster identity, the effective propagation delay
+(`GPTP_PDELAY` 0x6E4, consumed for the first time), the gPTP domain number
+(0x62C) and the asCapable flag -- with none of the four conditioned on
+grandmaster presence, so a domain or delay update in the startup or GM-loss
+window is announced like any other; the SR class-A priority and VLAN ID are
+detected by the processor off the same wires it publishes. The 0x7DC PathTrace
+publish edge arms GET_AS_PATH, whose staged tail is now served behind the
+grandmaster. Silent controllers are probed with CONTROLLER_AVAILABLE
 30 to 60 s after their last command, retried once, and removed with a targeted
 DEREGISTER notification (5.4.5.3). No new CSRs.
 
@@ -1107,7 +1113,7 @@ live** — they are the AVTP RX monitor's, not the control plane's.
 | `0x6D8` | `I2SPB_STAT` | RO/W1C | I2S playback drift rails: `[31:16]` underruns (silence frames), `[15:0]` overruns (pairs dropped). They measure free-running-48k drift; the current root does not consume the exported clock-source selection, so CRF discipline cannot retire them. Both rails saturate at `0xFFFF`; **W1C per half (2026-07-22, gaps 5b)**: a write with any bit of a half set restarts that half's counter (the other half is untouched; a zero write is inert; readback stays the live count). W1C was chosen over clear-on-bind: the rails are engine diagnostics, not Milan Table 5.6 stream counters. A bind-triggered clear would erase evidence mid-diagnosis and add a bind-path dependency, while W1C leaves the observation window entirely under software control |
 | `0x6DC` | `TONE_CTRL` | RW | `[0]` pilot tone enable: 1 kHz exact-period 48×24-bit sine replaces the I2S ADC on both talker channels (digital THD+N −148.1 dB; E2E acceptance ≤ −120 dBFS via `tone_thdn.py` on the listener ring dump). `[3:1]` **attenuation**, −6 dB steps applied as `TONE_TAB_C[idx] >>> att` (0 = 0 dBFS full scale, 7 = −42 dB); reset is `0`, so the power-on tone is 0 dBFS and any smaller amplitude was dialled in at the bench. A capture at amplitude 0.25 means `att = 2`, not a quarter-scale table: `8388607 >>> 2 = 2097151`, and `2097151 / 2^23 = 0.24999988`. Reduce before measuring through a sample-rate conversion or an analog stage, because a 0 dBFS sampled sine overshoots between samples (measured +0.91 dB through a 48 kHz to 44.1 kHz conversion) and would clip; at 48 kHz end to end the maxima land on table entries and 0 dBFS is safe. See the [obsolete historical media-clock finding](../findings/MEDIA_CLOCK_LOCK_0810.md) |
 | `0x6E0` | `I2SPB_TRIM` | RO | media-clock recovery servo: `[31:16]` signed NCO trim (LSB ≈ 15.3 ppm; fill-level servo steers playback rate to the talker), `[15:0]` FIFO fill (pairs). Rail events count MEDIA_RESET |
-| `0x6E4` | `GPTP_PDELAY` | RW | reset `0`: measured gPTP neighbor propagation delay in ns, written by the softcore gPTP daemon. The current processor gather face does not consume this CSR and returns zero in `GET_AVB_INFO`; see audit B8 |
+| `0x6E4` | `GPTP_PDELAY` | RW | reset `0`: measured gPTP neighbor propagation delay in ns, written by the softcore gPTP daemon. **Consumed since 0x0055**: it is the effective `propagation_delay` the gather face serves in `GET_AVB_INFO` (the fabric gPTP plane's own `pub_pdelay_ns_o` takes its place when `GPTP_PLANE_EN_P` is set, the same selection `ADP_GM` uses), and a change to the effective value is a Milan Table 5.22 `GET_AVB_INFO` trigger. It used to be written and discarded, with the served field a structural zero -- audit B8, now closed |
 | `0x6E8` | `ACMPL_DBG` | RO | 🔴 **STRUCTURAL ZERO**. Was the listener walker forensics — CLASSIFY entries, ACMP-subtype classifies, the flag bundle at the last ACMP classify, ACMP-base + listener-command hits. The walker is deleted. The protocol processor's own RX accounting (control frames in, FIFO drops, frames out) is at `PP_DIAG` `0x930` |
 | `0x6EC` | `AVTPRX_TSD` | RO | signed ts_delta = `avtp_timestamp - ptp_now` (ns) at the last accepted STREAM_INPUT[0] PDU -- the stream-sync error signal (LATE counts when delta < 0, EARLY beyond offset + margin; [Section 3.6 of `../design/TIME_SYNC.md`](../design/TIME_SYNC.md#36-aaf-presentation-time-against-the-phc)) |
 | `0x6F0` | `I2SPB_DBG` | RO | DAC-serial forensics: the exact 32 serial bits of the last LEFT half-frame as sent at the DAC pin (CDC-latched) |

@@ -256,7 +256,7 @@
     {
       "id": "notifications.change-events",
       "status": "implemented",
-      "summary": "Every successful state-changing command pushes to each registered controller except the requester; the Table 5.22 observed triggers (counters per descriptor per second, AVB info, AS_PATH) are wired from the fabric.",
+      "summary": "Every successful state-changing command pushes to each registered controller except the requester; the Table 5.22 observed triggers are wired from the fabric -- counters at one push per descriptor per second, AS_PATH, and a GET_AVB_INFO trigger that snapshot-compares every field the root serves (grandmaster identity, the effective propagation delay, the gPTP domain number, asCapable), none of them conditioned on grandmaster presence, with the SR class-A priority and VLAN ID detected by the processor off the wires it publishes.",
       "documents": [
         "README.md",
         "docs/CHANNEL_MAP_64.md",

@@ -173,7 +173,17 @@ with A's own sequence at 0, and the next change from A reaches B at sequence
 after it; a PathTrace PUBLISH through `0x7DC`/`0x7E4` pushes `GET_AS_PATH`
 with the two-entry path `{GM, slot 1}` and no `GET_AVB_INFO`; the FIRST
 grandmaster commit (zero to something) pushes both rows while the ADP
-GM_CHANGE duty stays untouched. `await_aecp` demultiplexes on the u bit and
+GM_CHANGE duty stays untouched. The two arms that answer the Table 5.22
+fields the root used to hold silent run next: the gPTP domain number is
+changed at `0x62C` with the grandmaster set back to ZERO -- the reset and
+GM-loss boundary where the ADP GM_CHANGE strobe is deliberately suppressed --
+and must still push one `GET_AVB_INFO` to each controller, with no counter
+push and no `GET_AS_PATH` behind it, the same value written again pushing
+nothing, and the same change repeated with a grandmaster present; then
+`GPTP_PDELAY` at `0x6E4` is walked 0 to 1 to `0xFFFFFFFF` to 0, each real
+move pushing once per controller and reading back in the solicited
+`propagation_delay` field, and the repeat of `0xFFFFFFFF` pushing zero times.
+`await_aecp` demultiplexes on the u bit and
 the originated-command message type, so a waiter for a solicited response
 never mistakes a push for its echo; the pushes land in `uns_log` with their
 cycle stamps. The timed leg (`obj_notify`) adds the counters row: a

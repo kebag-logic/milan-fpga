@@ -1358,6 +1358,122 @@ static void notify_section(bool timed) {
            (long)notify_same_from(notify_last(0x0028, CTL_A), sp, 38), 1);
     }
 
+    // ---- (N8b) the gPTP DOMAIN, and the no-grandmaster boundary ---------
+    //! Table 5.22 names gptp_domain_number as its own GET_AVB_INFO trigger,
+    //! and 0x62C is independently writable (802.1AS-2020 8.1 makes
+    //! domainNumber a configured attribute). The ADP GM_CHANGE strobe is
+    //! silent while the PREVIOUS grandmaster id is zero - the rule that stops
+    //! every boot announcing a change - so a domain write in the startup or
+    //! GM-loss window used to reach the served response with no push behind
+    //! it. This arm walks GM=0 BEFORE, DURING and AFTER a domain change, and
+    //! grades the repeat write for silence.
+    //! Body offsets, from the AEM command body at 38: descriptor_type 38,
+    //! descriptor_index 40, gptp_grandmaster_id 42, propagation_delay 50,
+    //! gptp_domain_number 54, flags 55, msrp_mappings_count 56.
+    {
+        const std::vector<uint8_t> ga = {0x00, 0x09, 0x00, 0x00};
+        const uint32_t dom0 = axi_read(0x62C) & 0xFFu;
+        const uint32_t dom1 = dom0 ^ 0x01u;
+
+        //! GM back to zero: the boundary state reset establishes and GM loss
+        //! returns to. Its own pushes drained before the arm starts.
+        axi_write(0x624, 0); axi_write(0x628, 0);
+        drain_tx(NOTIFY_WIN);
+        notify_clear();
+        axi_write(0x62C, dom1);                       // domain change, GM = 0
+        drain_tx(NOTIFY_WIN);
+        ck("[NOTIFY] domain change with NO grandmaster: one unsolicited "
+           "GET_AVB_INFO to A", notify_count(0x0027, &CTL_A), 1);
+        ck("[NOTIFY] ...and one to B", notify_count(0x0027, &CTL_B), 1);
+        ck("[NOTIFY] ...and the ADP duty stays silent: no GM_CHANGE, so no "
+           "AVB_INTERFACE counter push",
+           notify_count(0x0029, nullptr, 0x0009, 0), 0);
+        ck("[NOTIFY] ...and no GET_AS_PATH (the path did not change)",
+           notify_count(0x0028, nullptr), 0);
+        {
+            const std::vector<uint8_t> sa = aecp_xact_from(CTL_A, 0x0027, sq++, ga);
+            ck("[NOTIFY] ...AVB_INFO body == the solicited read that follows",
+               (long)(aecp_status(sa) == 0
+                      && notify_same_from(notify_last(0x0027, CTL_A), sa, 38)), 1);
+            ck("[NOTIFY] ...and it names the NEW domain number",
+               (long)(sa.size() >= 58 ? sa[54] : -1), (long)dom1);
+        }
+        //! the no-op rule: the same value stored again is not a change
+        notify_clear();
+        axi_write(0x62C, dom1);
+        drain_tx(NOTIFY_WIN);
+        ck("[NOTIFY] the SAME domain written again pushes NOTHING",
+           notify_count(0x0027, nullptr), 0);
+
+        //! AFTER: a grandmaster arrives, then the domain moves again with one
+        //! present. The push is still exactly one per registered controller.
+        axi_write(0x624, gm_cur_lo); axi_write(0x628, gm_hi);
+        drain_tx(NOTIFY_WIN);
+        notify_clear();
+        axi_write(0x62C, dom0);                       // back, GM present
+        drain_tx(NOTIFY_WIN);
+        ck("[NOTIFY] domain change WITH a grandmaster: one GET_AVB_INFO to A",
+           notify_count(0x0027, &CTL_A), 1);
+        ck("[NOTIFY] ...and one to B", notify_count(0x0027, &CTL_B), 1);
+        {
+            const std::vector<uint8_t> sa = aecp_xact_from(CTL_A, 0x0027, sq++, ga);
+            ck("[NOTIFY] ...AVB_INFO body == the solicited read that follows",
+               (long)(aecp_status(sa) == 0
+                      && notify_same_from(notify_last(0x0027, CTL_A), sa, 38)), 1);
+            ck("[NOTIFY] ...restored to the configured domain number",
+               (long)(sa.size() >= 58 ? sa[54] : -1), (long)dom0);
+        }
+    }
+
+    // ---- (N8c) the measured propagation delay --------------------------
+    //! GPTP_PDELAY (0x6E4) is the ns neighbour measurement the gptp daemon
+    //! publishes (or, with the fabric plane elaborated, KL_gptp_shadow's own
+    //! pub_pdelay_ns_o - ONE selected source feeding both the served word and
+    //! its detector). It used to be written and DISCARDED, with
+    //! GET_AVB_INFO's propagation_delay a structural zero (audit B8).
+    //! 0 -> 1, 1 -> max, max -> max (silent), max -> 0, each graded on the
+    //! wire and against the solicited read that follows.
+    {
+        const std::vector<uint8_t> ga = {0x00, 0x09, 0x00, 0x00};
+        struct { uint32_t v; const char* what; long pushes; } steps[] = {
+            {0x00000001u, "0 -> 1 ns",              1},
+            {0xFFFFFFFFu, "1 -> 0xFFFFFFFF ns",     1},
+            {0xFFFFFFFFu, "0xFFFFFFFF again",       0},
+            {0x00000000u, "0xFFFFFFFF -> 0 ns",     1},
+        };
+        axi_write(0x6E4, 0);                    // the reset value, drained
+        drain_tx(NOTIFY_WIN);
+        for (unsigned k = 0; k < sizeof steps / sizeof steps[0]; k++) {
+            notify_clear();
+            axi_write(0x6E4, steps[k].v);
+            drain_tx(NOTIFY_WIN);
+            char msg[160];
+            snprintf(msg, sizeof msg,
+                     "[NOTIFY] propagation delay %s: %ld unsolicited "
+                     "GET_AVB_INFO to A", steps[k].what, steps[k].pushes);
+            ck(msg, notify_count(0x0027, &CTL_A), steps[k].pushes);
+            snprintf(msg, sizeof msg, "[NOTIFY] ...and %ld to B",
+                     steps[k].pushes);
+            ck(msg, notify_count(0x0027, &CTL_B), steps[k].pushes);
+            const std::vector<uint8_t> sa = aecp_xact_from(CTL_A, 0x0027, sq++, ga);
+            const uint32_t served = sa.size() >= 58
+                ? (((uint32_t)sa[50] << 24) | ((uint32_t)sa[51] << 16)
+                   | ((uint32_t)sa[52] << 8) | (uint32_t)sa[53]) : 0xDEADBEEFu;
+            snprintf(msg, sizeof msg, "[NOTIFY] ...GET_AVB_INFO serves it back "
+                     "(0x%08X, no longer a structural zero)", steps[k].v);
+            ck(msg, (long)(aecp_status(sa) == 0 && served == steps[k].v), 1);
+            if (steps[k].pushes) {
+                snprintf(msg, sizeof msg, "[NOTIFY] ...push body == that "
+                         "solicited read (%s)", steps[k].what);
+                ck(msg, (long)notify_same_from(notify_last(0x0027, CTL_A), sa, 38), 1);
+            }
+        }
+        //! ...and back to the reset value so every later section reads the
+        //! face the image shipped with
+        notify_clear();
+        drain_tx(NOTIFY_WIN);
+    }
+
     if (timed) {
         // ---- (N9) the departing-controller monitor (Milan 5.4.5.3) --------
         //! B goes silent after its last command; A keeps talking (a GET

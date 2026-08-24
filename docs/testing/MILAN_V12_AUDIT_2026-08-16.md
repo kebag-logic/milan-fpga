@@ -264,18 +264,32 @@ output is tied low, so no board indication can follow the control.
 Evidence: the `o_identify` assignment in
 [`milan_datapath.sv`](../../hdl/milan/milan_datapath.sv).
 
-### B8. GET_AVB_INFO omits the measured propagation delay
+### B8. GET_AVB_INFO propagation delay (closed at 0x0002_0055)
 
-Software can publish the measured neighbor propagation delay through
-`GPTP_PDELAY` at `0x6E4`, but the processor gather face does not consume that
-CSR. `GET_AVB_INFO` always returns zero for `propagation_delay`, even when the
-stored measurement is nonzero. This leaves the network-interface state
-required by Milan section 5.3.6.1 and the mandatory section 5.4.2.23 response
-incomplete.
+Software publishes the measured neighbor propagation delay through
+`GPTP_PDELAY` at `0x6E4`, and since 0x0002_0055 the root selects that word --
+or the fabric gPTP plane's own `pub_pdelay_ns_o` when `GPTP_PLANE_EN_P` is
+set, the same selection the grandmaster identity uses -- as the effective
+`propagation_delay` the gather face serves. One wire feeds both the served
+answer and its change detector, so the Milan section 5.4.2.23 response
+reports the stored measurement and a change to it is a Table 5.22
+`GET_AVB_INFO` trigger. Until then the CSR output was discarded and the served
+field was a structural zero.
 
-Evidence: the `GET_AVB_INFO` gather selection in
-[`milan_datapath.sv`](../../hdl/milan/milan_datapath.sv) and the `GPTP_PDELAY`
-entry in [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md).
+The same trigger set closed the two neighbouring gaps this finding sat beside:
+the gPTP domain number at `0x62C` and the grandmaster identity are
+snapshot-compared in the root, none of them conditioned on grandmaster
+presence, so a domain or delay update during startup or GM loss is announced
+rather than swallowed.
+
+Evidence: the `GET_AVB_INFO` gather selection and the `gsi_avb_chg_w` detector
+in [`milan_datapath.sv`](../../hdl/milan/milan_datapath.sv), the `GPTP_PDELAY`
+entry in [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md), and the domain and
+propagation-delay arms of the `[NOTIFY]` section of
+[`tb/verilator/milan_dp`](../../tb/verilator/milan_dp/README.md) -- two
+registered controllers, the delay walked 0 to 1 to `0xFFFFFFFF` to 0 with the
+repeat write silent, and every push body compared against the solicited
+`GET_AVB_INFO` that follows it.
 
 ### B9. The debug bypass can defeat talker admission
 
