@@ -550,7 +550,7 @@ The notification claim in this section is checked against the
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
-| `notifications.change-events` | `partial` | - |
+| `notifications.change-events` | `implemented` | - |
 <!-- milan-feature-status:end -->
 
 Only frames the **CPU** sends (`s_axis_tx_*` into `milan_datapath`) traverse the

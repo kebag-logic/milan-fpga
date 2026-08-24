@@ -42,9 +42,12 @@
 
                 WHAT IS STILL OPEN, and is a compliance gap rather than a
                 design choice: SET_STREAM_FORMAT, SET_STREAM_INFO, name access,
-                the incomplete unsolicited-notification
-                trigger set, the departing-controller monitor and saved-state
-                persistence. The current verdict is in
+                saved-state persistence.
+                The unsolicited-notification trigger set and the
+                departing-controller monitor are SERVED since VERSION
+                0x0055: the four trigger pins above carry the edges only
+                the integrator can see, and the processor owns the registry,
+                the exclusion rule and the rate limit. The current verdict is in
                 docs/testing/MILAN_V12_AUDIT_2026-08-16.md. SET_CLOCK_SOURCE is accepted and
                 stored by the processor, and this wrapper exports the selected
                 value. The media plane does not consume it and therefore remains
@@ -292,6 +295,20 @@ module KL_pp_shadow #(
     input  wire  [31:0] ctr_data_i,         //! that quadlet, 1722.1 value order
     input  wire         ctr_wait_i,         //! HOLD the beat (not a ready)
 
+    //! ---- Table 5.22 GET_COUNTERS notification trigger (Milan 5.4.5.2) ----
+    //! The read face above is a PULL: it answers whatever the integrator's
+    //! counters hold when the processor asks. Nothing in it says WHEN a
+    //! counter moved, so the processor cannot know it owes a push. These
+    //! three pins are that missing edge, and they are a SCALAR face on
+    //! purpose: one changed descriptor per cycle, named by the same
+    //! {type, index} pair the read face uses. The integrator owns the
+    //! serialisation (milan_datapath's round-robin over its per-descriptor
+    //! dirty pulses), the processor owns the registry, the coalescing and
+    //! the one-push-per-descriptor-per-second limit.
+    input  wire         ctr_change_i,       //! one served descriptor's counters moved
+    input  wire  [15:0] ctr_change_desc_type_i,  //! AECPDU @24 of that descriptor
+    input  wire  [15:0] ctr_change_desc_index_i, //! AECPDU @26 of that descriptor
+
     //! ---- GET_AUDIO_MAP read face (1722.1-2021 7.4.44, Milan v1.2 5.4.2.26) ----
     //! Straight through to protocol_processor_top, names and directions
     //! unchanged - the counters bargain again. The processor parses the
@@ -344,6 +361,11 @@ module KL_pp_shadow #(
     input  wire  [63:0] gsi_data_i,         //! the word
     input  wire         gsi_wait_i,         //! HOLD the beat (not a ready)
     input  wire         gsi_avb_chg_i,      //! integrator-side AVB-info word changed
+    //! integrator-side AS_PATH change. The processor derives a GRANDMASTER
+    //! change on its own; this pin is the one it cannot derive - the same
+    //! grandmaster with a newly published PathTrace tail (milan_datapath
+    //! drives it from the 0x7DC staging group's publish edge).
+    input  wire         gsi_asp_chg_i,
 
     //! ---- side-port host bridge (CSR-driven, one outstanding access) ----
     input  wire        host_req_i,         //! single-cycle request strobe
@@ -955,6 +977,9 @@ module KL_pp_shadow #(
       .ctr_word_o          (ctr_word_o),
       .ctr_data_i          (ctr_data_i),
       .ctr_wait_i          (ctr_wait_i),
+      .ctr_change_i        (ctr_change_i),
+      .ctr_change_desc_type_i  (ctr_change_desc_type_i),
+      .ctr_change_desc_index_i (ctr_change_desc_index_i),
 
       .amap_req_o          (amap_req_o),
       .amap_desc_type_o    (amap_desc_type_o),
@@ -985,6 +1010,7 @@ module KL_pp_shadow #(
       .gsi_data_i          (gsi_data_i),
       .gsi_wait_i          (gsi_wait_i),
       .gsi_avb_chg_i       (gsi_avb_chg_i),
+      .gsi_asp_chg_i       (gsi_asp_chg_i),
 
       .restore_go_i        (restore_go_i),
       .restore_busy_o      (restore_busy_o),

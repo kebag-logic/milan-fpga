@@ -10,7 +10,7 @@ The notification boundary is checked against the
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
-| `notifications.change-events` | `partial` | - |
+| `notifications.change-events` | `implemented` | - |
 <!-- milan-feature-status:end -->
 
 ---

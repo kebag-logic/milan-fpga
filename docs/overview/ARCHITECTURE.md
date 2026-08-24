@@ -79,8 +79,8 @@ Machine-checked status rows are defined by the
 | `host.sound-card-option` | `implemented` | - |
 | `crf.media-clock-consumption` | `missing` | - |
 | `state.nonvolatile-persistence` | `missing` | - |
-| `notifications.change-events` | `partial` | - |
-| `notifications.controller-liveness` | `missing` | - |
+| `notifications.change-events` | `implemented` | - |
+| `notifications.controller-liveness` | `implemented` | - |
 <!-- milan-feature-status:end -->
 
 The START/STOP command path and AAF media gate exist, but issue #97 keeps the

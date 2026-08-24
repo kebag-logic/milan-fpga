@@ -41,7 +41,7 @@ These integration-boundary claims are checked against the
 | `aem.served-command-set` | `implemented` | - |
 | `aem.mandatory-missing-set` | `implemented` | - |
 | `state.nonvolatile-persistence` | `missing` | - |
-| `notifications.change-events` | `partial` | - |
+| `notifications.change-events` | `implemented` | - |
 <!-- milan-feature-status:end -->
 
 This guide is the contract you integrate against. The two in-repo reference

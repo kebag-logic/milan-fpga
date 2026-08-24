@@ -44,6 +44,15 @@ Feature: the AECP answer contract - served commands, fallback, and two silent ca
   served-command behavior, including GET_COUNTERS. Those paths are covered by
   their command-specific BDD features and RTL suites.
 
+  CONTROLLER_AVAILABLE (0x0003) is TRANSMIT-ONLY here and never becomes a
+  SERVED row: the device ORIGINATES it toward a registered controller whose
+  monitor expired (Milan 5.4.5.3, since 0x0002_0055) and consumes any
+  response status as liveness, while an inbound CONTROLLER_AVAILABLE command
+  still draws the NOT_IMPLEMENTED echo this feature grades. Do not read the
+  echo as a gap in the monitor: the originated probe, its single retry and the
+  targeted deregistration are graded by the timed milan_dp leg and by the
+  processor's tb/ca_originator.
+
   This is an OFFLINE model (tests/README.md T1); tests/steps/aecp_engine_steps.py
   lists the submodule sources it mirrors.
 

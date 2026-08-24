@@ -63,7 +63,7 @@ Machine-checked status rows are defined by the
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
-| `gateware.current-version` | `implemented` | `0x0002_0054` |
+| `gateware.current-version` | `implemented` | `0x0002_0055` |
 | `aem.served-command-set` | `implemented` | - |
 | `aem.acquire-entity-refusal` | `not-supported` | - |
 | `aem.mandatory-missing-set` | `implemented` | - |
@@ -73,7 +73,7 @@ Machine-checked status rows are defined by the
 | `stream-info.set-acc-lat` | `implemented` | - |
 | `crf.media-clock-consumption` | `missing` | - |
 | `state.nonvolatile-persistence` | `missing` | - |
-| `notifications.change-events` | `partial` | - |
+| `notifications.change-events` | `implemented` | - |
 <!-- milan-feature-status:end -->
 
 The current AECP implementation answers these operations with real behavior:
@@ -138,17 +138,19 @@ Identify control is stored but the root indication remains tied low.
 `GPTP_PDELAY`, and the writable AAF admission bypass remains a deployment
 hazard.
 The integration also reports no nonvolatile backend, so required state does not
-survive a power cycle. Solicited Stream Output counters are now served; their
-rate-limited unsolicited notification path remains a separate task. These are
-compliance blockers, not documentation-only limitations.
+survive a power cycle. This is a compliance blocker, not a documentation-only
+limitation.
 The Stream Input START/STOP path completes at the binding record (issue #97):
 command success follows the record commit or the confirmed no-op, and a
 stopped CRF sink keeps observing and counting while only timing consumption
-and the restart echo gate. The 7.5.2 unsolicited response stays with issue
-#69 and persistence with issue #70.
-`GET_AS_PATH` reports only the grandmaster identity. The PathTrace staging tail
-is disconnected from the root processor interface, so multi-bridge topology is
-reported incompletely.
+and the restart echo gate. Since 0x0002_0055 every successful state-changing
+command pushes its unsolicited response to the other registered controllers,
+the Table 5.22 observed triggers (counters, AVB info, AS_PATH) are wired from
+the fabric, and silent controllers are probed and deregistered (Milan 5.4.5.2
+and 5.4.5.3, issue #69). Persistence stays with issue #70.
+`GET_AS_PATH` serves the grandmaster followed by the PathTrace tail the daemon
+publishes through the 0x7DC staging group; a tail that is never published
+leaves the one-entry path a leaf directly under its grandmaster sees.
 
 The dated evidence and exact gate results are recorded in
 [the 2026-08-16 audit](docs/testing/MILAN_V12_AUDIT_2026-08-16.md). The register

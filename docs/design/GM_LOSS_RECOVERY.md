@@ -16,7 +16,7 @@ notifications are the implemented exception.
 | Feature ID | Status | Canonical value |
 |---|---|---|
 | `crf.media-clock-consumption` | `missing` | - |
-| `notifications.change-events` | `partial` | - |
+| `notifications.change-events` | `implemented` | - |
 <!-- milan-feature-status:end -->
 
 ## Contents

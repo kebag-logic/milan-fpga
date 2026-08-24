@@ -73,7 +73,7 @@ Machine-checked status rows are defined by the
 | `stream-info.set-acc-lat` | `implemented` | - |
 | `crf.media-clock-consumption` | `missing` | - |
 | `state.nonvolatile-persistence` | `missing` | - |
-| `notifications.change-events` | `partial` | - |
+| `notifications.change-events` | `implemented` | - |
 | `verification.long-gate-policy` | `implemented` | `local-required, remote-required` |
 <!-- milan-feature-status:end -->
 

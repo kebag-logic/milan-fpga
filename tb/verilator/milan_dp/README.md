@@ -18,6 +18,7 @@ never on grepping the log — a compile error prints no `FAIL` line at all.
 | `obj_txg` | `sim_txgrant.cpp` | `endstation_arty_current` | the CPU DMA-TX lane under control-lane load |
 | `obj_ax1x1` | `sim_main.cpp` | `endstation_ax7101_1x1_tdm8` | the shape the AX7101 actually flashes |
 | `obj_aclk` | `sim_aclk.cpp` | same, TRUE 391/1591 clk_audio ratio | the media-grid drift RATE |
+| `obj_notify` | `sim_nxn.cpp` (`NOTIFY_TIMED_TB`) | `endstation_ax7101_1x1_tdm8`, `PP_TIM_DIV_US_P=1` + `PP_TIM_DIV_MS_P=100` | Milan 5.4.5 TIMED: the GET_COUNTERS one-second limit and the 30-60 s departing-controller monitor, with the processor's timebase compressed so one of its milliseconds is 100 fabric cycles. Exits right after the image is served; every other `sim_nxn` leg runs the same `[NOTIFY]` section untimed |
 
 ## Contents
 
@@ -135,7 +136,7 @@ receive a conformant `NOT_IMPLEMENTED` echo with the command payload and length
 preserved and the frame padded to the 60-octet minimum. The exact inventory is
 gated by [`aecp_engine_steps.py`](../../../tests/steps/aecp_engine_steps.py) and
 the pinned processor's
-[`06_aecp_engine.md`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/a25b5cc9794b8e7f70f738548f4d674e9669b469/docs/architecture/06_aecp_engine.md).
+[`06_aecp_engine.md`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/44489453cf362c7a41c9e020f4896f967dc2a4d1/docs/architecture/06_aecp_engine.md).
 
 **This suite backs no descriptor memory, on purpose and on record.**
 `milan_datapath` exposes nine ports for the AEM image the store fetches
@@ -157,6 +158,37 @@ with a real `AEMI` image and grades `SUCCESS` with the descriptor bytes compared
 octet for octet, the locate miss, the bad configuration index, the
 `NOT_IMPLEMENTED` echo, the two silent-refusal cases, and the no-memory degrade
 with recovery.
+
+**`[NOTIFY]` is Milan 5.4.5 on the wire (issue #69).** Two controllers
+register (a second `{source MAC, controller_entity_id}` identity, `CTL_B`,
+beside the one every other call uses), and the section grades what reaches
+the TX trunk with the unsolicited bit: a `SET_NAME` from A produces exactly
+one push, to B, with B's sequence_id starting at 0 and the new name in the
+body (the 5.4.5.2 exclusion gate: a push to the requester FAILS); the same
+`SET_NAME` again pushes nothing (the no-op gate); B's change reaches A alone
+with A's own sequence at 0, and the next change from A reaches B at sequence
+1; the last push is byte-identical from the body on to the solicited
+`GET_NAME` that follows (the content bar). A grandmaster CHANGE pushes
+`GET_AVB_INFO` and `GET_AS_PATH` to both, each equal to the solicited read
+after it; a PathTrace PUBLISH through `0x7DC`/`0x7E4` pushes `GET_AS_PATH`
+with the two-entry path `{GM, slot 1}` and no `GET_AVB_INFO`; the FIRST
+grandmaster commit (zero to something) pushes both rows while the ADP
+GM_CHANGE duty stays untouched. `await_aecp` demultiplexes on the u bit and
+the originated-command message type, so a waiter for a solicited response
+never mistakes a push for its echo; the pushes land in `uns_log` with their
+cycle stamps. The timed leg (`obj_notify`) adds the counters row: a
+`GET_COUNTERS(AVB_INTERFACE, 0)` push on the GPTP_GM_CHANGED move, equal to
+the solicited read after it, a second move inside the same second WITHHELD
+and then RELEASED at the limiter's full second (measured on the wire, 990 ms
+floor for the selection-to-wire jitter), and the 5.4.5.3 monitor: the entity
+originates `CONTROLLER_AVAILABLE` to the silent controller 30 to 60 s after
+its last command, retries exactly once 250 ms later, removes it with a
+`DEREGISTER_UNSOLICITED_NOTIFICATION` to that controller alone within a
+second of the retry, never probes the controller that keeps talking, and
+accepts the removed one back with its sequence restarted at 0. The
+`[CTRS]`/`[CTRS-OUT]`/`[CTRS2]` sections also watch the descriptor arbiter's
+scalar face (`pp_ctr_evt_*`): simultaneous per-output pulses must ALL be
+delivered, which a clear-all picker or a non-accumulating pending set fails.
 
 `sim_nxn.cpp`'s `[T66]` covers the other side of the same coin.
 `GET_AUDIO_MAP` succeeds on both Stream Port directions, and

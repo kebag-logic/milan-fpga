@@ -56,7 +56,7 @@ These repeated claims are checked against the
 | `aem.mandatory-missing-set` | `implemented` | - |
 | `crf.media-clock-consumption` | `missing` | - |
 | `state.nonvolatile-persistence` | `missing` | - |
-| `notifications.change-events` | `partial` | - |
+| `notifications.change-events` | `implemented` | - |
 <!-- milan-feature-status:end -->
 
 **Where the descriptors come from.** `milan_datapath` exposes a read-only

@@ -68,7 +68,7 @@ assumption that AECP answers only one command.
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
-| `gateware.current-version` | `implemented` | `0x0002_0054` |
+| `gateware.current-version` | `implemented` | `0x0002_0055` |
 <!-- milan-feature-status:end -->
 
 | Region | Group | Class | 2026-08-13 truth | Rationale |

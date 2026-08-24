@@ -28,7 +28,7 @@ Machine-checked status rows are defined by the
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
-| `gateware.current-version` | `implemented` | `0x0002_0054` |
+| `gateware.current-version` | `implemented` | `0x0002_0055` |
 | `aem.served-command-set` | `implemented` | - |
 | `aem.acquire-entity-refusal` | `not-supported` | - |
 | `aem.mandatory-missing-set` | `implemented` | - |
@@ -38,8 +38,8 @@ Machine-checked status rows are defined by the
 | `stream-info.set-acc-lat` | `implemented` | - |
 | `crf.media-clock-consumption` | `missing` | - |
 | `state.nonvolatile-persistence` | `missing` | - |
-| `notifications.change-events` | `partial` | - |
-| `notifications.controller-liveness` | `missing` | - |
+| `notifications.change-events` | `implemented` | - |
+| `notifications.controller-liveness` | `implemented` | - |
 <!-- milan-feature-status:end -->
 
 The exact mandatory command gap is also machine-checked:
@@ -70,13 +70,13 @@ constants are the concrete decode. The feature ledger owns the canonical
 documented inventory, and the compliant bench gates its `SERVED` table against
 the processor RTL.
 
-**"Served" here means the command's own request/response contract.** It does
-**not** imply that every served state change has its unsolicited notification.
-The audio mapping writers enqueue their required successful-change
-notifications, including an idempotent ADD. The ordinary `SET_*` programs do
-not yet enqueue all notifications required by Milan Section 5.4.5.2 and IEEE Section 7.4.7;
-that shared gap remains tracked as #69. One more caveat worth naming here
-rather than burying: `0x0016`'s stored
+**"Served" here means the command's own request/response contract**, and
+since 0x0055 every served state change also has its unsolicited notification:
+each successful state-changing `SET_*`, the mapping writers (including an
+idempotent ADD) and START/STOP_STREAMING push to every registered controller
+except the requester, and a SET that stores the value already held is silent
+(Milan Section 5.4.5.2, IEEE Section 7.4.7; issue #69). One caveat worth
+naming here rather than burying: `0x0016`'s stored
 clock source reaches `milan_datapath` and is read by nothing (audit B3).
 
 `0x0006` used to carry a second caveat — it stored an index that
@@ -409,30 +409,41 @@ controller list (both *"cleared by a power cycle"*), and the IDENTIFY value
 
 ### P3.2 — unsolicited notification triggers (Milan 5.4.5.2 + Table 5.22)
 
-The registry, the fan-out and the sequence-per-controller are landed. What is
-open is the **trigger set**: every successful state-changing command must push
-to every registered controller *except the requester* (es-6.2 is an inverted
-gate — notifying the requester **fails**), plus the asynchronous triggers of
-Table 5.22: GET_STREAM_INFO field changes, GET_AVB_INFO changes, GET_AS_PATH
-changes, GET_COUNTERS (rate-limited to **≤1 per descriptor per second**), the
-LOCK auto-unlock, and auto-DEREGISTER.
+**Landed at 0x0055 (issue #69).** The registry, the fan-out and the
+sequence-per-controller were already in; the trigger set now is too: every
+successful state-changing command pushes to every registered controller
+*except the requester* (es-6.2 is an inverted gate: notifying the requester
+**fails**, and so does pushing on a SET that changes nothing), plus the
+asynchronous triggers of Table 5.22: GET_STREAM_INFO field changes,
+GET_AVB_INFO changes (the asCapable edge and the first grandmaster commit come
+from the fabric), GET_AS_PATH changes (the grandmaster change, and the 0x7DC
+PathTrace publish edge from the fabric), GET_COUNTERS (the fabric's
+per-descriptor dirty pulses reach the processor through a lossless
+round-robin; the processor limits each descriptor to **one push per
+second**), the LOCK auto-unlock, and auto-DEREGISTER. The parent proof is
+`tb/verilator/milan_dp`'s `[NOTIFY]` section on every shape, with the timed
+leg (`obj_notify`, the processor timebase compressed to 100 cycles per
+millisecond) measuring the one-second limit.
 
-Most of P2.3 lands its own trigger, so this is best done command-by-command
-rather than as one round. Blocks es-4.4, es-4.7, es-4.16, es-4.18, es-6.1,
-es-6.2, es-12.4, es-12.5, es-12.6, es-12.7.
+What stays open: the declared CRF Stream Input has no served counters, so it
+has no counter push either (audit B4).
 
 ### P3.3 — departing-controller detection (Milan 5.4.5.3)
 
-Per registered controller: a **random 30–60 s** monitor timer, reset by any
-valid AECP command from that controller; on expiry a `CONTROLLER_AVAILABLE`
-(`0x0003`) command with **one** retry per IEEE Section 9.3.6; any reply at all -- *"no
-matter the value of the status code"* — re-arms; silence removes the entry and
-sends a targeted unsolicited `DEREGISTER_UNSOLICITED_NOTIFICATION`.
+**Landed at 0x0055 (issue #69).** Per registered controller: a **random
+30–60 s** monitor timer, reset by any valid AECP command from that controller;
+on expiry a `CONTROLLER_AVAILABLE` (`0x0003`) command with **one** retry per
+IEEE Section 9.3.6; any reply at all -- *"no matter the value of the status
+code"* — re-arms; silence removes the entry and sends a targeted unsolicited
+`DEREGISTER_UNSOLICITED_NOTIFICATION`.
 
-This is the only place the device must **originate** an AECP command. The
-processor has `KL_pp_originator` (already used for the ACMP retry path) and a
-timer service, so the machinery exists. Blocks es-6.4, which measures the first
-probe at **27–66 s** and the retry within **250 ms**.
+This is the only place the device **originates** an AECP command, through
+`KL_aecp_ca_originator` on the processor's shared originator and timer
+service. The timed `milan_dp` leg (`obj_notify`) measures the first probe
+between 30 s and 60 s after the controller's last command, the single retry
+250 ms later, and the targeted deregistration within a second of it, while a
+controller that keeps talking is never probed (es-6.4 measures the first probe
+at **27–66 s** and the retry within **250 ms**).
 
 ---
 
@@ -493,7 +504,7 @@ So a `NOT_SUPPORTED` refusal must carry the full response body. This cost the
    MAP_CFG versus STREAM_CFG scoreboard exclusion, and root output
    reservations against local or SRP starts during write-back. Nonvolatile
    replay remains tracked by P3.1 and issue #70.
-8. **P3.3** departing-controller monitor.
+8. **P3.3** departing-controller monitor. Completed at 0x0055 with P3.2.
 9. **P3.1** persistence — largest, and the only one that needs a real flash
    backend rather than the blank-flash stub.
 10. **P2.5** GET_DYNAMIC_INFO. Completed 2026-08-17.

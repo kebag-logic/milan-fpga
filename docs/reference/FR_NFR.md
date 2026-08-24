@@ -127,8 +127,8 @@ These repeated claims are checked against the
 | `aem.mandatory-missing-set` | `implemented` | - |
 | `crf.media-clock-consumption` | `missing` | - |
 | `state.nonvolatile-persistence` | `missing` | - |
-| `notifications.change-events` | `partial` | - |
-| `notifications.controller-liveness` | `missing` | - |
+| `notifications.change-events` | `implemented` | - |
+| `notifications.controller-liveness` | `implemented` | - |
 <!-- milan-feature-status:end -->
 
 | Requirement group | Verdict | Where it lives now |

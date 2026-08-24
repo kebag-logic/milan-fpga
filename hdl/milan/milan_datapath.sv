@@ -32,10 +32,12 @@
 //! is BAD_ARGUMENTS.
 //! AN ECHO IS NOT AN IMPLEMENTATION - and since 0x0002_0054 no MANDATORY
 //! command answers the echo: the stream setters landed at 0x0053 and name
-//! access at 0x0054. The remaining gap surface is behavioral, not a
-//! command: the Table 5.22
-//! counter-change scheduler. Live audio-map mutation is implemented, but
-//! saved-state persistence is absent. SET_CLOCK_SOURCE is accepted by the
+//! access at 0x0054, and 0x0055 wires the Table 5.22 observed triggers
+//! (the per-descriptor counter-change arbiter, the asCapable edge, the
+//! first grandmaster commit, the PathTrace publish edge) into the
+//! processor's notification scheduler beside the command-driven pushes
+//! and the 5.4.5.3 controller monitor. Live audio-map mutation is
+//! implemented, but saved-state persistence is absent. SET_CLOCK_SOURCE is accepted by the
 //! processor, and its dynamic value reaches this wrapper, but the media plane does not
 //! consume it. The media clock remains pinned INTERNAL through
 //! CRF_CLK_SELECTED_C. If the descriptor image was never
@@ -1777,7 +1779,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [31:0] avtprx_locked_c, avtprx_unlocked_c, avtprx_intr_c;
   wire [31:0] avtprx_seqmm_c, avtprx_tu_c, avtprx_unsupp_c, avtprx_frx_c;
   wire        avtprx_locked;
-  //! per-context Table 5.22 counter-change pulses (gh #60 F2)
+  //! per-context Table 5.22 counter-change pulses (gh #60 F2), the
+  //! STREAM_INPUT source of the descriptor arbiter feeding the processor
+  wire [N_STREAMS-1:0] avtprx_dirty_p_w;
   wire        avtprx_accept_p;
   wire [31:0] avtprx_ts, avtprx_last_ts, avtprx_last_tsd;
   wire [15:0] pcmrx_pdus, pcmrx_drops;
@@ -1875,7 +1879,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //  is tu = 1 (no software lease): unknown clock == not valid.
   //  docs/findings/REF_LISTENER_TIMESTAMP_SWEEP_0727.md
   // ==========================================================================
-  wire        clkv_tu_w;
+  //! public: the milan_dp bench reads the verdict directly (Verilator
+  //! folds the wire into its readers once the counter-edge terms use it)
+  wire        clkv_tu_w /* verilator public_flat_rd */;
   //! the leased IEEE 802.1AS-2020 10.2.5.1 asCapable claim (gh #64 J3),
   //! sourced beside the tu verdict because it obeys the SAME lease: when the
   //! daemon stops renewing, both fall together and the entity answers
@@ -1989,8 +1995,13 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire        cfg_lpf_enable;
   wire        cfg_crf_en;
   wire [63:0] cfg_crf_sid;
-  //! gh #64 J4 local PathTrace staging (CSR 0x7DC group). Its outputs remain
-  //! disconnected below and GET_AS_PATH serves only cfg_adp_gptp_gm.
+  //! gh #64 J4 local PathTrace staging (CSR 0x7DC group): the published
+  //! tail GET_AS_PATH serves behind the grandmaster, and the publish
+  //! generation whose edge arms the processor's Table 5.22 AS_PATH push.
+  //! Slot count DERIVED from the port width (one source, as the CSR does).
+  wire [7*64-1:0] asp_path_w;
+  wire [3:0]      asp_count_w, asp_gen_w;
+  localparam int unsigned ASP_SLOTS_C = $bits(asp_path_w) / 64;
   wire [63:0] pcm_lpf_tdata;
   wire        pcm_lpf_tvalid;
   wire        pcm_lpf_active;
@@ -2602,9 +2613,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .o_linkg_dis        (cfg_linkg_dis),
     .o_linkg_freeze     (cfg_linkg_freeze),
     .o_as_parent_ckid   (),
-    .o_asp_path         (),
-    .o_asp_count        (),
-    .o_asp_gen          (),
+    .o_asp_path         (asp_path_w),
+    .o_asp_count        (asp_count_w),
+    .o_asp_gen          (asp_gen_w),
     .o_tcam_default_pass(cfg_tcam_default_pass),
     .o_tcam_addr_filt_en(cfg_tcam_addr_filt_en),
     .o_tcam_wr_en       (cfg_tcam_wr_en),
@@ -3341,6 +3352,15 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   localparam logic [31:0] CTR_VALID_CKD_C  = 32'h0000_0003;
 
   logic        ctr_link_q_r, ctr_mclk_q_r;
+  //! THE EDGES THE TWO FAMILIES COUNT, named once so the Milan Table 5.22
+  //! counter-change pulses below are the very conditions that increment a
+  //! served counter (derive, never mirror): a link edge moves LINK_UP or
+  //! LINK_DOWN, a lock edge moves LOCKED or UNLOCKED, and the GM strobe
+  //! moves GPTP_GM_CHANGED in the same always_ff.
+  wire ctr_avb_link_edge_w = eff_link_w != ctr_link_q_r;
+  wire ctr_ckd_lock_edge_w = (~clkv_tu_w) != ctr_mclk_q_r;
+  wire ctr_avb_dirty_w = ctr_avb_link_edge_w || pp_gm_change_p_w;
+  wire ctr_ckd_dirty_w = ctr_ckd_lock_edge_w;
   logic [31:0] ctr_linkup_r, ctr_linkdn_r;
   logic [31:0] ctr_gmchg_r /* verilator public_flat_rd */;
   logic [31:0] ctr_mlock_r, ctr_munlock_r;
@@ -3358,11 +3378,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       ctr_mclk_q_r <= ~clkv_tu_w;
       //! 32-bit and wrapping, exactly as both clauses specify ("wraps over
       //! to zero when it reaches the maximum value")
-      if ( eff_link_w && !ctr_link_q_r) ctr_linkup_r <= ctr_linkup_r + 32'd1;
-      if (!eff_link_w &&  ctr_link_q_r) ctr_linkdn_r <= ctr_linkdn_r + 32'd1;
+      if (ctr_avb_link_edge_w &&  eff_link_w) ctr_linkup_r <= ctr_linkup_r + 32'd1;
+      if (ctr_avb_link_edge_w && !eff_link_w) ctr_linkdn_r <= ctr_linkdn_r + 32'd1;
       if (pp_gm_change_p_w)             ctr_gmchg_r  <= ctr_gmchg_r  + 32'd1;
-      if (~clkv_tu_w && !ctr_mclk_q_r)  ctr_mlock_r  <= ctr_mlock_r  + 32'd1;
-      if ( clkv_tu_w &&  ctr_mclk_q_r)  ctr_munlock_r<= ctr_munlock_r+ 32'd1;
+      if (ctr_ckd_lock_edge_w && ~clkv_tu_w) ctr_mlock_r  <= ctr_mlock_r  + 32'd1;
+      if (ctr_ckd_lock_edge_w &&  clkv_tu_w) ctr_munlock_r<= ctr_munlock_r+ 32'd1;
     end
   end
 
@@ -4520,6 +4540,30 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
           sfv_need_out_w[4*s +: 4] = 4'(c + 1);
   end
 
+  //! ---- the served 802.1AS path (Milan 5.4.2.17 GET_AS_PATH) ----------
+  //! Entry 0 is ALWAYS the grandmaster the 0x624/0x628 CSR pair commits
+  //! (derive, never mirror: the J4 staging store refuses slot 0 for the
+  //! same reason). Entries 1.. are the PathTrace TAIL the daemon staged
+  //! and PUBLISHED through the 0x7DC group (slot k = path entry k), so a
+  //! bridged path reaches the wire instead of stopping at the local GM.
+  //! No grandmaster = an empty path, whatever the staging holds: a tail
+  //! without a head is not a path. A grandmaster with no published tail
+  //! is the one-entry path a leaf directly under its GM sees.
+  wire [3:0] asp_served_count_w = (|cfg_adp_gptp_gm)
+                                ? ((asp_count_w > 4'd1) ? asp_count_w : 4'd1)
+                                : 4'd0;
+  logic [63:0] asp_served_entry_w;
+  always_comb begin : asp_entry_pick
+    asp_served_entry_w = 64'd0;
+    if (32'(gsiq_ord_r) < 32'(asp_served_count_w)) begin
+      if (gsiq_ord_r == 8'd0) asp_served_entry_w = cfg_adp_gptp_gm;
+      else
+        for (int unsigned k = 1; k < ASP_SLOTS_C + 1; k++)
+          if (32'(gsiq_ord_r) == k)
+            asp_served_entry_w = asp_path_w[64*(k-1) +: 64];
+    end
+  end : asp_entry_pick
+
   always_comb begin : gsi_answer
     gsi_ans_raw_w = 64'd0;
     unique case (gsiq_kind_r)
@@ -4605,9 +4649,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       end
       default: begin                         // ---- GET_AS_PATH ----
         unique case (gsiq_sel_r)
-          4'd0: gsi_ans_raw_w = {63'd0, |cfg_adp_gptp_gm};
-          4'd8: gsi_ans_raw_w = ((gsiq_ord_r == 8'd0) && (|cfg_adp_gptp_gm))
-                              ? cfg_adp_gptp_gm : 64'd0;
+          4'd0: gsi_ans_raw_w = {60'd0, asp_served_count_w};
+          4'd8: gsi_ans_raw_w = asp_served_entry_w;
           default: gsi_ans_raw_w = 64'd0;
         endcase
       end
@@ -4616,13 +4659,33 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   assign pp_gsi_data_w = gsi_data_r;
   assign pp_gsi_wait_w = pp_gsi_req_w && !(gsi_srv2_r && gsi_sel_match_w);  //! live-match: see the counters face
 
+  //! ---- the two Table 5.22 trigger pins this fabric owns ---------------
   //! asCapable moved: the one AVB-info word this fabric changes OUTSIDE the
-  //! processor's sight - edge-detected here into the Table 5.22 trigger pin
+  //! processor's sight - edge-detected here into the GET_AVB_INFO trigger.
+  //! The FIRST grandmaster commit is the other: pp_gm_change_p_w deliberately
+  //! excludes the all-zero-to-GM transition (an ADP GM_CHANGE must not be
+  //! announced at every boot), yet it changes the served gptp_grandmaster_id
+  //! AND turns the empty path into {GM}, so both the GET_AVB_INFO and the
+  //! GET_AS_PATH words a registered controller holds are stale after it.
+  //! The PathTrace PUBLISH edge (0x7E4 bit 30 bumps asp_gen) is the AS_PATH
+  //! change the processor cannot derive: the same grandmaster with a new
+  //! tail. All three are one-cycle strobes; the processor coalesces them.
   logic gsi_ascap_q_r;
-  always_ff @(posedge axis_clk) begin : gsi_ascap_edge
-    if (!axis_resetn) gsi_ascap_q_r <= 1'b0;
-    else              gsi_ascap_q_r <= clkv_as_cap_w;
+  logic [3:0] asp_gen_q_r;
+  logic gm_first_p_r;
+  always_ff @(posedge axis_clk) begin : gsi_change_edges
+    if (!axis_resetn) begin
+      gsi_ascap_q_r <= 1'b0;
+      asp_gen_q_r   <= 4'd0;
+      gm_first_p_r  <= 1'b0;
+    end else begin
+      gsi_ascap_q_r <= clkv_as_cap_w;
+      asp_gen_q_r   <= asp_gen_w;
+      gm_first_p_r  <= (pp_gm_id_q_r == 64'd0) && (|cfg_adp_gptp_gm);
+    end
   end
+  wire gsi_avb_chg_w = (clkv_as_cap_w != gsi_ascap_q_r) || gm_first_p_r;
+  wire gsi_asp_chg_w = (asp_gen_w != asp_gen_q_r) || gm_first_p_r;
 
   //! IDENTIFY: the processor serves the CONTROL descriptor and stores its
   //! dynamic value. KL_pp_shadow exports aecp_identify_o into
@@ -5446,8 +5509,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .cnt_ts_valid_o     (avtprx_tv_c),
     .cnt_ts_not_valid_o (avtprx_tnv_c),
     .media_locked_o (avtprx_locked),
-    //! per-sink Table 5.22 counter-change pulse: no push registry, no reader
-    .dirty_p_o      (),
+    //! per-sink Table 5.22 counter-change pulses, one STREAM_INPUT source
+    //! of the pp_ctr_event arbiter below (the processor's GET_COUNTERS push)
+    .dirty_p_o      (avtprx_dirty_p_w),
     .pdu_accept_p_o   (avtprx_accept_p_w),
     .pdu_accept_idx_o (avtprx_accept_idx_w),
     .last_ts_o      (avtprx_last_ts),
@@ -6554,6 +6618,109 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! declared above the aecp_in0_fmt fold, their first reader, #193)
   logic                     pp_aecp_dyn_dirty_w;
 
+  //! ---- Milan Table 5.22 GET_COUNTERS trigger: the descriptor arbiter ----
+  //! The processor's face is SCALAR (one {type, index} per cycle) and it
+  //! keeps one dirty bit per served descriptor behind it, so this fabric
+  //! only has to hand over every changed tuple at least once. The sources
+  //! are the per-descriptor pulses of the blocks whose counters the
+  //! GET_COUNTERS face above serves: one bit per STREAM_INPUT (the rx
+  //! monitor), one per STREAM_OUTPUT (the talker diag, CRF output
+  //! included), AVB_INTERFACE 0 and CLOCK_DOMAIN 0 (the edge terms named
+  //! beside their counters). Each source bit stays PENDING until the
+  //! round-robin selects it, so simultaneous changes are all delivered and
+  //! a continuously changing low index cannot starve a higher one; a
+  //! re-pulse while pending is absorbed (the processor re-reads current
+  //! state, never history). Reviewed on PR 121 (its R1 mutation checks:
+  //! dropped accumulation and a lossy clear-all picker both red).
+  localparam int unsigned PP_CTR_EVT_N_C = N_STREAMS + ACMP_SRC_C + 2;
+  localparam int unsigned PP_CTR_RR_W_C = (PP_CTR_EVT_N_C > 1)
+                                         ? $clog2(PP_CTR_EVT_N_C) : 1;
+  logic [N_STREAMS-1:0]  pp_ctr_sin_pend_r,  pp_ctr_sin_pend_n;
+  logic [ACMP_SRC_C-1:0] pp_ctr_sout_pend_r, pp_ctr_sout_pend_n;
+  logic pp_ctr_avb_pend_r, pp_ctr_avb_pend_n;
+  logic pp_ctr_ckd_pend_r, pp_ctr_ckd_pend_n;
+  logic [PP_CTR_RR_W_C-1:0] pp_ctr_rr_r;
+  logic [PP_CTR_EVT_N_C-1:0] pp_ctr_all_pend_w;
+  logic        pp_ctr_evt_valid_w /* verilator public_flat_rd */;
+  logic [15:0] pp_ctr_evt_type_w  /* verilator public_flat_rd */;
+  logic [15:0] pp_ctr_evt_index_w /* verilator public_flat_rd */;
+
+  assign pp_ctr_all_pend_w = {pp_ctr_ckd_pend_r, pp_ctr_avb_pend_r,
+                              pp_ctr_sout_pend_r, pp_ctr_sin_pend_r};
+
+  always_comb begin : pp_ctr_event_pick
+    int unsigned pick;
+    pp_ctr_evt_valid_w = 1'b0;
+    pp_ctr_evt_type_w  = 16'd0;
+    pp_ctr_evt_index_w = 16'd0;
+    for (int unsigned off = 0; off < PP_CTR_EVT_N_C; off++) begin
+      pick = 32'(pp_ctr_rr_r) + off;
+      if (pick >= PP_CTR_EVT_N_C) pick = pick - PP_CTR_EVT_N_C;
+      if (!pp_ctr_evt_valid_w && pp_ctr_all_pend_w[pick]) begin
+        pp_ctr_evt_valid_w = 1'b1;
+        if (pick < N_STREAMS) begin
+          pp_ctr_evt_type_w  = DESC_STREAM_INPUT_C;
+          pp_ctr_evt_index_w = 16'(pick);
+        end else if (pick < (N_STREAMS + ACMP_SRC_C)) begin
+          pp_ctr_evt_type_w  = DESC_STREAM_OUTPUT_C;
+          pp_ctr_evt_index_w = 16'(pick - N_STREAMS);
+        end else if (pick == (N_STREAMS + ACMP_SRC_C)) begin
+          pp_ctr_evt_type_w  = DESC_AVB_INTERFACE_C;
+        end else begin
+          pp_ctr_evt_type_w  = DESC_CLOCK_DOMAIN_C;
+        end
+      end
+    end
+  end : pp_ctr_event_pick
+
+  always_comb begin : pp_ctr_event_next
+    pp_ctr_sin_pend_n  = pp_ctr_sin_pend_r  | avtprx_dirty_p_w;
+    pp_ctr_sout_pend_n = pp_ctr_sout_pend_r | tkd_dirty_p_w;
+    pp_ctr_avb_pend_n  = pp_ctr_avb_pend_r  | ctr_avb_dirty_w;
+    pp_ctr_ckd_pend_n  = pp_ctr_ckd_pend_r  | ctr_ckd_dirty_w;
+    for (int unsigned s = 0; s < N_STREAMS; s++) begin
+      if (pp_ctr_evt_valid_w
+          && (pp_ctr_evt_type_w == DESC_STREAM_INPUT_C)
+          && (pp_ctr_evt_index_w == 16'(s))) pp_ctr_sin_pend_n[s] = 1'b0;
+    end
+    for (int unsigned s = 0; s < ACMP_SRC_C; s++) begin
+      if (pp_ctr_evt_valid_w
+          && (pp_ctr_evt_type_w == DESC_STREAM_OUTPUT_C)
+          && (pp_ctr_evt_index_w == 16'(s))) pp_ctr_sout_pend_n[s] = 1'b0;
+    end
+    if (pp_ctr_evt_valid_w && (pp_ctr_evt_type_w == DESC_AVB_INTERFACE_C))
+      pp_ctr_avb_pend_n = 1'b0;
+    if (pp_ctr_evt_valid_w && (pp_ctr_evt_type_w == DESC_CLOCK_DOMAIN_C))
+      pp_ctr_ckd_pend_n = 1'b0;
+  end : pp_ctr_event_next
+
+  always_ff @(posedge axis_clk or negedge axis_resetn) begin : pp_ctr_event_queue
+    if (!axis_resetn) begin
+      pp_ctr_sin_pend_r  <= '0;
+      pp_ctr_sout_pend_r <= '0;
+      pp_ctr_avb_pend_r  <= 1'b0;
+      pp_ctr_ckd_pend_r  <= 1'b0;
+      pp_ctr_rr_r        <= '0;
+    end else begin
+      pp_ctr_sin_pend_r  <= pp_ctr_sin_pend_n;
+      pp_ctr_sout_pend_r <= pp_ctr_sout_pend_n;
+      pp_ctr_avb_pend_r  <= pp_ctr_avb_pend_n;
+      pp_ctr_ckd_pend_r  <= pp_ctr_ckd_pend_n;
+      //! the round-robin pointer moves past whatever was just delivered
+      if (pp_ctr_evt_valid_w) begin
+        if (pp_ctr_evt_type_w == DESC_CLOCK_DOMAIN_C)
+          pp_ctr_rr_r <= '0;
+        else if (pp_ctr_evt_type_w == DESC_STREAM_INPUT_C)
+          pp_ctr_rr_r <= PP_CTR_RR_W_C'(32'(pp_ctr_evt_index_w) + 1);
+        else if (pp_ctr_evt_type_w == DESC_STREAM_OUTPUT_C)
+          pp_ctr_rr_r <= PP_CTR_RR_W_C'(N_STREAMS
+                                        + 32'(pp_ctr_evt_index_w) + 1);
+        else
+          pp_ctr_rr_r <= PP_CTR_RR_W_C'(N_STREAMS + ACMP_SRC_C + 1);
+      end
+    end
+  end : pp_ctr_event_queue
+
   KL_pp_shadow #(
       .TDATA_WIDTH_P  (TDATA_WIDTH),
       .CLK_HZ_P       (MILAN_CLK_FREQ_HZ),
@@ -6625,6 +6792,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       .ctr_word_o        (pp_ctr_word_w),
       .ctr_data_i        (pp_ctr_data_w),
       .ctr_wait_i        (pp_ctr_wait_w),
+      //! Table 5.22 GET_COUNTERS trigger: the descriptor arbiter above
+      .ctr_change_i      (pp_ctr_evt_valid_w),
+      .ctr_change_desc_type_i (pp_ctr_evt_type_w),
+      .ctr_change_desc_index_i(pp_ctr_evt_index_w),
       //! GET_AUDIO_MAP: the processor asks, this file answers from the
       //! render map RAM (see the 7.4.44 answer block above)
       .amap_req_o        (pp_amap_req_w),
@@ -6657,7 +6828,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       .gsi_prop_fmt_o    (pp_gsi_prop_fmt_w),
       .gsi_data_i        (pp_gsi_data_w),
       .gsi_wait_i        (pp_gsi_wait_w),
-      .gsi_avb_chg_i     (clkv_as_cap_w != gsi_ascap_q_r),
+      .gsi_avb_chg_i     (gsi_avb_chg_w),
+      .gsi_asp_chg_i     (gsi_asp_chg_w),
       //! identity comes from the 0x600 CSR group, which is also what the
       //! generated entity model wrote - derive, never mirror.
       .entity_id_i       (cfg_adp_entity_id),

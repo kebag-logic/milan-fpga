@@ -29,7 +29,7 @@ Machine-checked status rows are defined by the
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
-| `gateware.current-version` | `implemented` | `0x0002_0054` |
+| `gateware.current-version` | `implemented` | `0x0002_0055` |
 | `aem.served-command-set` | `implemented` | - |
 | `aem.acquire-entity-refusal` | `not-supported` | - |
 | `aem.mandatory-missing-set` | `implemented` | - |
@@ -39,8 +39,8 @@ Machine-checked status rows are defined by the
 | `stream-info.set-acc-lat` | `implemented` | - |
 | `crf.media-clock-consumption` | `missing` | - |
 | `state.nonvolatile-persistence` | `missing` | - |
-| `notifications.change-events` | `partial` | - |
-| `notifications.controller-liveness` | `missing` | - |
+| `notifications.change-events` | `implemented` | - |
+| `notifications.controller-liveness` | `implemented` | - |
 | `verification.long-gate-policy` | `implemented` | `local-required, remote-required` |
 <!-- milan-feature-status:end -->
 
@@ -198,10 +198,12 @@ and 7.2.2.
 
 Solicited `GET_COUNTERS` now serves every declared Stream Output with the five
 mandatory Milan Table 5.17 counters in the compact quadlet layout. Counter
-updates also produce a per-descriptor dirty pulse. The processor notification
-block does not yet connect those pulses to the rate-limited `GET_COUNTERS`
-notification scheduler, so the full Milan Table 5.22 asynchronous behavior is
-not closed.
+updates also produce a per-descriptor dirty pulse, and since 0x0002_0055 the
+root serialises those pulses (AAF Stream Inputs, Stream Outputs, the AVB
+Interface and the Clock Domain) through a lossless round-robin onto the
+processor's counter-change face, whose scheduler pushes `GET_COUNTERS` at most
+once per descriptor per second. The Table 5.22 asynchronous behavior is closed
+for every descriptor the solicited face serves.
 
 The declared CRF Media Clock Input is a separate mandatory gap. The root gather
 face serves AAF Stream Input indices below `N_STREAMS`, but the appended CRF
@@ -209,37 +211,48 @@ Stream Input at index `N_STREAMS` returns an empty mask. Its Table 5.16 counter
 outputs and dirty source are unconnected. This leaves the CRF Stream Input
 requirements in Milan sections 5.3.8.10 and 5.4.2.25 open.
 
-This also blocks Milan section 5.4.5.2. Solicited reads serve AAF Stream Input,
-Stream Output, AVB Interface, and Clock Domain counters. The CRF Stream Input
-and the Table 5.22 notification path remain open under section 5.4.2.25.
+Solicited reads serve AAF Stream Input, Stream Output, AVB Interface, and
+Clock Domain counters, and each of those pushes its Table 5.22 notification.
+The CRF Stream Input has neither, and remains open under section 5.4.2.25.
 
-### B5. Registered-controller liveness monitoring is absent
+### B5. Registered-controller liveness monitoring (closed at 0x0002_0055)
 
-The processor stores unsolicited-notification registrations and applies the
-time-limited expiry policy, but it does not originate the random 30 to 60 s
-`CONTROLLER_AVAILABLE` monitor required by Milan section 5.4.5.3. It therefore
-cannot retry the probe once, re-arm the monitor on any response status, or
-remove a silent controller and send the targeted deregistration notification.
+The processor stores unsolicited-notification registrations, applies the
+time-limited expiry policy, and since 0x0002_0055 originates the random 30 to
+60 s `CONTROLLER_AVAILABLE` monitor required by Milan section 5.4.5.3: one
+retry 250 ms after an unanswered probe, a re-arm on any response status, and
+the removal of a silent controller with the deregistration notification sent
+to that controller alone. The command-driven half of section 5.4.5.2 closed in
+the same version: every successful state-changing command pushes to the other
+registered controllers and a no-op SET is silent.
 
-This is a mandatory controller-liveness gap, separate from the Table 5.22
-counter-change notification producer in B4.
+Evidence: `protocol-processor/tb/aecp_notify`,
+`protocol-processor/tb/ca_originator` and `protocol-processor/tb/pp_top` for
+the mechanism; the `[NOTIFY]` section of
+[`tb/verilator/milan_dp`](../../tb/verilator/milan_dp/README.md) for the wire
+behavior through the root, with its timed leg measuring the probe, the retry
+and the removal on the processor's compressed timebase (one of its
+milliseconds is 100 fabric cycles).
 
-### B6. Multi-bridge AS_PATH reporting is incomplete
+### B6. Multi-bridge AS_PATH reporting (closed at 0x0002_0055)
 
 The root gather face serves `GET_AS_PATH` as a zero-entry response when no
-grandmaster is known, or as a one-entry response containing only the
-grandmaster identity. The CSR PathTrace staging group stores and reads back a
-tail, but the root leaves its path, count, and generation outputs disconnected.
-The processor therefore never receives the traversed bridge identities.
+grandmaster is known, and otherwise as the grandmaster identity followed by
+the PathTrace tail the daemon publishes through the CSR staging group
+(`0x7DC`, slot k = path entry k, the publish command fixing the length). A
+tail that is never published leaves the one-entry path a leaf directly under
+its grandmaster sees. The publish edge also arms the Table 5.22 `GET_AS_PATH`
+notification, so a bridged topology reaches every registered controller.
 
-This leaf-only behavior is useful but incomplete. A topology with one or more
-bridges is reported without those bridges, so the mandatory IEEE 1722.1 path
-semantics used by Milan are not closed.
+What the daemon must do for the report to be complete is stage and publish
+the tail from the latest Announce it receives; the root serves whatever was
+published.
 
-Evidence: the disconnected `o_asp_path`, `o_asp_count`, and `o_asp_gen` ports
-and the `GET_AS_PATH` gather selection in
-[`milan_datapath.sv`](../../hdl/milan/milan_datapath.sv), plus the staging
-status in [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md).
+Evidence: the `asp_served_count_w` / `asp_served_entry_w` selection and the
+`gsi_asp_chg_w` strobe in
+[`milan_datapath.sv`](../../hdl/milan/milan_datapath.sv), the `[NOTIFY]`
+publish arm of `tb/verilator/milan_dp`, and the staging group in
+[`REGISTER_MAP.md`](../reference/REGISTER_MAP.md).
 
 ### B7. Identify control has no public indication
 
@@ -336,9 +349,9 @@ media gate in [`milan_datapath.sv`](../../hdl/milan/milan_datapath.sv).
    CRF PDU. `TIMESTAMP_UNCERTAIN` therefore counts transmitted wire state, not
    a later live clock verdict.
 7. Every served Stream Output counter update, including a healthy `FRAMES_TX`
-   interval, asserts the raw per-descriptor dirty source. Rate limiting and
-   notification coalescing remain the scheduler work identified in B4. The CRF
-   Stream Input counter and dirty connections remain open.
+   interval, asserts the raw per-descriptor dirty source, which the root now
+   delivers to the processor's rate-limited scheduler (B4). The CRF Stream
+   Input counter and dirty connections remain open.
 8. The integration proof now boots each simulation with its matching entity
    image, checks every declared output, rejects the first undeclared output
    with a full empty response body, and exercises real AAF and CRF enable

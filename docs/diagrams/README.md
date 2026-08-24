@@ -134,7 +134,7 @@ the [Milan feature status ledger](../reference/MILAN_FEATURE_STATUS.md):
 | Feature ID | Status | Canonical value |
 |---|---|---|
 | `aem.served-command-set` | `implemented` | - |
-| `notifications.change-events` | `partial` | - |
+| `notifications.change-events` | `implemented` | - |
 <!-- milan-feature-status:end -->
 
 - The ATDECC subsystem's own multi-page deep-dive (pages 1-9) and the minimal

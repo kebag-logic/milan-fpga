@@ -20,7 +20,7 @@ the [Milan feature status ledger](../reference/MILAN_FEATURE_STATUS.md):
 |---|---|---|
 | `aem.served-command-set` | `implemented` | - |
 | `crf.media-clock-consumption` | `missing` | - |
-| `notifications.change-events` | `partial` | - |
+| `notifications.change-events` | `implemented` | - |
 <!-- milan-feature-status:end -->
 
 ![The time-sync clock chain](../diagrams/timesync_chain.png)
