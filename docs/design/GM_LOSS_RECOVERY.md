@@ -162,7 +162,8 @@ the live publication bank.
 
 `fabric_gptp: false` is a supported diagnostic comparison, not an implicit
 fallback. The builder emits `GPTP_PLANE_EN_P=0` and creates
-`/etc/milan-gptp-software-owner`; only that marked image starts `ptp4l-rt`,
+the positive v1 software profile plus `/etc/milan-gptp-software-owner`; only
+that profiled image starts `ptp4l-rt`,
 `phc2sys`, and full `milan-statd` publication.
 
 In this arm the compatibility ABI remains:

@@ -3731,7 +3731,8 @@ def load_config(path):
     # The software profile selects the CPU/boot environment, not the PHC
     # owner.  Linux is valid in both product-default fabric mode (unmarked
     # rootfs: no linuxptp owner) and the explicit option-OFF comparison
-    # (marked rootfs: one software owner).  Bare metal has no software daemon,
+    # (positive software profile + permission marker: one software owner).
+    # Bare metal has no software daemon,
     # so it still requires the fabric plane.
     if not features["fabric_gptp"] and soc["software_profile"] == "baremetal":
         raise ConfigError(

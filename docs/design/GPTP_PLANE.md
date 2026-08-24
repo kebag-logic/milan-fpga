@@ -147,7 +147,8 @@ publication and CLKV registers cannot manufacture live fabric health.
 
 With the option off, the legacy software contract remains intact: LO stages
 and HI commits each identity, `CLKV_CTRL` renews the compatibility lease, and
-the marked rootfs image starts linuxptp plus the full publisher. This is a
+the positive v1 software rootfs profile plus its permission marker starts
+linuxptp and the full publisher. This is a
 comparison/bring-up shape, not the product default. VERSION `0x0002_0055`
 records the ownership change without allocating new CSR addresses.
 

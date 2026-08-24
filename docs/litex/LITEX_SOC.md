@@ -199,7 +199,7 @@ The full named build configurations (`build.sh`) live in
 `milan_soc.py` are the **single source of truth** for the 16 MiB N25Q128
 layout; the build writes `flashboot_layout.json` so gateware and
 `deploy.sh flash-pair` never drifts from the compiled target and can prove the
-installed offset-zero payload plus the live FBI rootfs marker for a Linux
+installed offset-zero payload plus the live FBI rootfs positive profile for a Linux
 source before choosing an order. Guide:
 [../integration/QSPI_FLASHBOOT.md](../integration/QSPI_FLASHBOOT.md).
 

@@ -7,7 +7,7 @@ the layout whose SHA-256 and FPGA-part binding matches an exact parsed Xilinx
 ``.bit`` configuration payload, after that payload has also been matched
 against a live offset-zero QSPI dump.  For a full-Linux source,
 ``deploy.sh flash-pair`` additionally verifies
-the FBI CRC and owner marker in the live installed rootfs.  This module keeps
+the FBI CRC and positive owner profile in the live installed rootfs. This module keeps
 the bit parsing, profile restrictions, ordering decision and readback
 classification testable without a programmer.
 

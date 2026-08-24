@@ -163,15 +163,15 @@ Write order is part of the invariant:
 | fabric/baremetal → software/full | kernel, OpenSBI, DTB, rootfs, then the software bit commit |
 | software/full → fabric/baremetal | fabric bit commit, then raw AEM |
 | fabric/baremetal → fabric/baremetal | raw AEM, then target fabric bit |
-| fabric/baremetal → fabric/full | kernel, OpenSBI, DTB, unmarked rootfs, then target fabric bit |
+| fabric/baremetal → fabric/full | kernel, OpenSBI, DTB, positive v1 fabric-profile rootfs, then target fabric bit |
 | fabric/full → fabric/baremetal | raw AEM, then target fabric bit |
-| fabric/full → fabric/full | target kernel, OpenSBI, DTB, unmarked rootfs, then target fabric bit |
+| fabric/full → fabric/full | target kernel, OpenSBI, DTB, positive v1 fabric-profile rootfs, then target fabric bit |
 | fabric/full ↔ software/full | refused directly; transition through fabric/baremetal in two proved transactions |
 | software/full → software/full | refused; a general safe refresh needs A/B boot-image slots |
 
 In the direct full-Linux owner change, writing the bit first would pair fabric
-with a marked rootfs (two owners), while writing the rootfs first would pair
-software gateware with an unmarked rootfs (zero owners). The autonomous
+with a software-profile rootfs (two owners), while writing the rootfs first would
+pair software gateware with a fabric-profile rootfs (zero owners). The autonomous
 fabric/baremetal image is therefore a required bridge, not a documentation
 convention. At every accepted boundary the old or new owner remains bootable.
 A process/tool failure can be retried with the same installed reference. This
@@ -230,7 +230,7 @@ It has three cooperating pieces, all opt-in behind
 |-------|-------|------|
 | **flash core** | [`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py), [`sw/litex/platforms/alinx_ax7101.py`](../../sw/litex/platforms/alinx_ax7101.py) | memory-maps the on-board flash; emits the `MILAN_FLASHBOOT_*` layout constants |
 | **BIOS method** | [`sw/litex/patches/0001-milan-linux-flashboot.patch`](../../sw/litex/patches/0001-milan-linux-flashboot.patch) | `linux_flashboot` copies images flash→DRAM, boots (or pre-loads then defers to serialboot) |
-| **flashing** | `sw/litex/deploy.sh check-images` / `flash-pair` | SHA-256/part-binds each layout to its parsed `.bit` payload, pairs the target owner with the exact `$ROOTFS` marker, checks DTB/OpenSBI CSR windows and CPU XLEN/MMU, materializes every image, live-matches QSPI offset zero to the exact installed/target payload, verifies the live source FBI rootfs marker for Linux, then performs direction-ordered verified writes ([qspi_owner_transition.py](../../sw/litex/qspi_owner_transition.py), [check_gptp_owner_pair.py](../../sw/litex/check_gptp_owner_pair.py), [check_dtb_csr.py](../../sw/litex/check_dtb_csr.py)) |
+| **flashing** | `sw/litex/deploy.sh check-images` / `flash-pair` | SHA-256/part-binds each layout to its parsed `.bit` payload, pairs the target owner with the exact positive `$ROOTFS` profile/payload, rejects legacy unprofiled Linux and owner `none`, checks DTB/OpenSBI CSR windows and CPU XLEN/MMU, materializes every image, live-matches QSPI offset zero to the exact installed/target payload, verifies the live source FBI rootfs profile for Linux, then performs direction-ordered verified writes ([qspi_owner_transition.py](../../sw/litex/qspi_owner_transition.py), [check_gptp_owner_pair.py](../../sw/litex/check_gptp_owner_pair.py), [check_dtb_csr.py](../../sw/litex/check_dtb_csr.py)) |
 
 ---
 
@@ -398,7 +398,8 @@ For a direct transaction, replace `INSTALLED_BUILD` with the exact
 variables, then invoke `sw/litex/deploy.sh flash-pair`.
 
 The software-owner option-OFF comparison is a generated config variant with
-`board.features.fabric_gptp: false` and a marked rootfs. Moving between that
+`board.features.fabric_gptp: false` and a positive v1 software-profile rootfs.
+Moving between that
 full-Linux image and the product fabric/full-Linux image requires the shipping
 `ax7101` fabric/baremetal build as the two-transaction bridge described above.
 

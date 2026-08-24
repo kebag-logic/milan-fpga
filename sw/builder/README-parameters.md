@@ -236,17 +236,18 @@ explicitly; retained comparison configs state option-OFF explicitly.
 `fabric_gptp: false` is the one software-owner comparison: its
 rootfs fragment contains `/etc/milan-gptp-software-owner`, while an option-on
 fragment removes that marker. Linux is a CPU/boot profile and supports either
-owner; the exact rootfs marker is paired to the compiled owner before boot or
+owner; the exact positive rootfs profile/payload is paired to the compiled owner before boot or
 deployment. Baremetal option-OFF is rejected because it has no software daemon.
 The mutable fragment is only an input to the next rootfs build, never proof
 about an existing image: gateware records its resolved `fabric|software|none` owner in
 `flashboot_layout.json` and `soc.h`, and the flash preflight inspects the marker
 inside the exact `ROOTFS` archive before its first QSPI write. The persistent
 `flash-pair` path additionally byte-matches the live offset-zero QSPI payload
-against an exact installed BIT/LAYOUT pair, verifies the live FBI rootfs marker
+against an exact installed BIT/LAYOUT pair, verifies the live FBI rootfs profile
 for a full-Linux source, and orders the full target set by transition direction.
 Old layouts with no owner enum, unidentified installed bits, and either
-zero-owner/two-owner marker inversion fail closed.
+zero-owner/two-owner profile inversion fail closed. Legacy unprofiled Linux
+archives and `gptp_owner: none` are rejected.
 
 The tier-1 set contains six
 `milan_datapath` blocks that a given deployment may not be able to use, each

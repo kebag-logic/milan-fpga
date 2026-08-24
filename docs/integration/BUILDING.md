@@ -120,7 +120,7 @@ three-directive placement sweep. See
 ### `ax8x8`  -  AX7101 Linux + product fabric gPTP, 8-stream (64-channel) shape
 
 Same board, but retains the Linux bring-up flow while keeping the
-product-default `--fabric-gptp` owner. Its unmarked rootfs starts no linuxptp
+product-default `--fabric-gptp` owner. Its positive v1 fabric-profile rootfs ships no linuxptp
 graph; the Arty recipe remains the explicit option-OFF software comparison.
 The AX shape has a cached Vexii CPU, ALSA sound-card rings and full Linux flash
 manifest. It uses
@@ -297,7 +297,7 @@ AX bare-metal manifest instead carries only raw `aem_desc.bin` at 4 MiB in a
 
 A direct fabric/full-Linux ↔ software/full-Linux change cannot preserve the
 one-owner invariant in one rootfs slot: bit-first yields fabric plus a marked
-rootfs, while rootfs-first yields software gateware plus an unmarked rootfs.
+rootfs, while rootfs-first yields software gateware plus a fabric-profile rootfs.
 Use the autonomous `ax7101` fabric/baremetal image as a proved two-transaction
 bridge. A live target full-Linux bit is considered complete only when every
 target non-bit image already byte-matches; it is never provenance for a repair.

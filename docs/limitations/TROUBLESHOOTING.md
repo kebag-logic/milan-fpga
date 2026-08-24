@@ -715,7 +715,7 @@ also supplies the layout's compiled `cpu_xlen`; the product RV32 path requires r
 sv32 and refuses an RV64/sv39 tree even when its MMIO windows match. The same
 transaction then proves the live offset-zero `.bit` payload and orders verified writes by
 the installed→target owner direction. A full-Linux source also has its live FBI rootfs
-CRC and owner marker checked before writing; direct partial commands require the explicit
+CRC and positive owner profile/payload checked before writing; direct partial commands require the explicit
 `ALLOW_NONATOMIC_FLASH=1` recovery escape.
 
 **Lessons.**

@@ -305,7 +305,8 @@ prepared_images_match() {
 
 prove_live_installed_rootfs() {
     # A live software/full or fabric/full bit is not by itself one-owner
-    # evidence: the persistent rootfs marker is the other half of that state.
+    # evidence: the persistent rootfs positive profile/payload is the other
+    # half of that state.
     # Read the FBI header first, bound its declared payload to the installed
     # layout slot, then CRC/decompress/inspect the exact live record.
     local tmp="$1" source_owner="$2"
@@ -358,7 +359,7 @@ PY
             echo "[deploy] installed live rootfs does not complete its declared one-owner state" >&2
             return 2
         }
-    echo "[deploy] live installed rootfs FBI CRC and owner marker match $source_owner"
+    echo "[deploy] live installed rootfs FBI CRC and positive owner profile match $source_owner"
 }
 
 write_target_bit() {

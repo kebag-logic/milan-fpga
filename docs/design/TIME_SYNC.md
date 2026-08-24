@@ -236,7 +236,8 @@ The split follows the current architecture
 `GPTP_PLANE_EN_P` defaults on: BMCA, Sync/Follow_Up, Pdelay, the servo and the
 public state bank all live in the fabric plane ([GPTP_PLANE.md](GPTP_PLANE.md)).
 The option-off arm is an explicit Linux comparison, selected by
-`fabric_gptp: false` and paired with a rootfs software-owner marker.
+`fabric_gptp: false` and paired with the positive v1 software rootfs profile,
+its permission marker, and runnable linuxptp payload.
 
 | Agent | Where | Job |
 |-------|-------|-----|
@@ -250,7 +251,7 @@ The option-off arm is an explicit Linux comparison, selected by
 
 With the option on, no software time daemon starts and writes to the legacy
 publication registers cannot change the live fabric-owned faces. With it off,
-the fabric never builds a PTP message and the marked rootfs starts the
+the fabric never builds a PTP message and the positive software-profile rootfs starts the
 compatibility stack. In both states timestamp pairing is guaranteed by the
 fabric transport; only the consumer of those records changes.
 

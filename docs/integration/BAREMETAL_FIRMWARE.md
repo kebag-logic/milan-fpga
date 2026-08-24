@@ -75,7 +75,7 @@ software/full-Linux installation, the verified fabric bit is the first write
 and AEM is second, so fabric gPTP exists even if the transaction stops between
 them. This autonomous profile is also the mandatory bridge for a persistent
 owner change between fabric/full-Linux and software/full-Linux: flipping the
-single rootfs marker and the bitstream directly cannot avoid a zero- or
+single rootfs profile and the bitstream directly cannot avoid a zero- or
 two-owner reboot boundary. At build time the firmware receives the image length, CRC32 and DRAM
 destination as generated constants. The PHC is enabled by the CSR reset and the
 option-on fabric gPTP plane starts independently of the AVDECC AEM image.

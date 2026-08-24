@@ -8286,9 +8286,9 @@ def test_gptp_product_default_and_legacy_option():
     finally:
         os.unlink(legacy_cfg)
 
-    # Linux is a boot/CPU profile, not an automatic second PHC owner.  With
-    # fabric selected its unmarked rootfs starts no linuxptp graph; option-OFF
-    # above is the one mode which emits that permission.
+    # Linux is a boot/CPU profile, not an automatic second PHC owner. With
+    # fabric selected its positive fabric rootfs profile ships no linuxptp
+    # graph; option-OFF above is the one mode which emits software permission.
     with tempfile.TemporaryDirectory() as td:
         product_linux = eb.build(CONFIGS["ax7101_8x8"], td)
         assert product_linux["cfg"]["soc"]["software_profile"] == "linux"
@@ -8457,15 +8457,16 @@ def test_gptp_rootfs_handoff_preserves_software_config():
           "without deleting its tracked profile; both generated-profile and "
           "stock-profile option-off builds recreate the marker")
 
-    # The archive reader itself grades raw/gzip/xz newc, both valid pairings,
-    # both inversions, none-owner, duplicate/wrong-type marker, corrupt input,
-    # unknown/missing metadata and the expected-owner recipe binding.
+    # The archive reader itself grades raw/gzip/xz newc, both positive versioned
+    # profiles, both inversions, legacy negative-capability archives, Linux with
+    # owner=none, duplicate/wrong-type records, missing/contaminating payload,
+    # corrupt input, unknown metadata and the expected-owner recipe binding.
     pair_tool = os.path.join(SOC_DIR, "check_gptp_owner_pair.py")
     pair_self = subprocess.run(
         [sys.executable, pair_tool, "--self-test"], cwd=ROOT,
         text=True, capture_output=True)
     assert pair_self.returncode == 0, pair_self.stdout + pair_self.stderr
-    assert "43/43 checks pass" in pair_self.stdout
+    assert "53/53 checks pass" in pair_self.stdout
 
     transition_tool = os.path.join(SOC_DIR, "qspi_owner_transition.py")
     transition_self = subprocess.run(
@@ -8547,7 +8548,8 @@ def test_gptp_rootfs_handoff_preserves_software_config():
         assert "MILAN_GPTP_OWNER" in missing.stdout + missing.stderr
 
     # Exercise all legacy partial shell entry points with a fake programmer.
-    # The adversarial pair is fabric-owned gateware plus a marked rootfs.
+    # The adversarial pair is fabric-owned gateware plus a positive software
+    # rootfs profile and runnable payload.
     # check-images rejects the pair itself, while persistent partial commands
     # and a named command with unknown installed state refuse before I/O.
     with tempfile.TemporaryDirectory() as td:
@@ -8561,11 +8563,9 @@ def test_gptp_rootfs_handoff_preserves_software_config():
             stream.write("#!/bin/sh\nprintf '%s\\n' \"$*\" >> \"$OFL_LOG\"\n")
         os.chmod(fake_ofl, 0o755)
 
-        rootfs = os.path.join(td, "marked.cpio.gz")
-        archive = gptp_pair._newc([
-            (b"./etc/milan-gptp-software-owner", b"option-OFF\n",
-             stat.S_IFREG),
-        ])
+        rootfs = os.path.join(td, "software-profile.cpio.gz")
+        archive = gptp_pair._newc(
+            gptp_pair._profile_entries("software"))
         with open(rootfs, "wb") as stream:
             stream.write(gzip.compress(archive))
         layout = os.path.join(build_dir, "flashboot_layout.json")
@@ -8623,7 +8623,7 @@ def test_gptp_rootfs_handoff_preserves_software_config():
         assert not os.path.exists(programmer_log), \
             "build.sh trusted a target pair without installed-state proof"
 
-    print("  [gate 1d] 43 archive/enum/FBI/artifact-binding arms, 20 transition parser/planner "
+    print("  [gate 1d] 53 archive/profile/enum/FBI/artifact-binding arms, 20 transition parser/planner "
           "arms, soc.h owner/XLEN reconstruction, payload-digest binding, "
           "and all persistent partial/unknown-state entry points refuse "
           "before programmer I/O")
@@ -8791,19 +8791,16 @@ os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
         with open(reserved_collision["layout"], "w", encoding="utf-8") as out:
             json.dump(reserved_layout, out)
 
-        marked_rootfs = os.path.join(td, "software-rootfs.cpio.gz")
-        marked_archive = gptp_pair._newc([
-            (b"./etc/milan-gptp-software-owner", b"option-OFF\n",
-             stat.S_IFREG),
-        ])
-        with open(marked_rootfs, "wb") as out:
-            out.write(gzip.compress(marked_archive))
-        plain_rootfs = os.path.join(td, "fabric-rootfs.cpio.gz")
-        plain_archive = gptp_pair._newc([
-            (b"./etc/hostname", b"milan\n", stat.S_IFREG),
-        ])
-        with open(plain_rootfs, "wb") as out:
-            out.write(gzip.compress(plain_archive))
+        software_rootfs = os.path.join(td, "software-rootfs.cpio.gz")
+        software_archive = gptp_pair._newc(
+            gptp_pair._profile_entries("software"))
+        with open(software_rootfs, "wb") as out:
+            out.write(gzip.compress(software_archive))
+        fabric_rootfs = os.path.join(td, "fabric-rootfs.cpio.gz")
+        fabric_archive = gptp_pair._newc(
+            gptp_pair._profile_entries("fabric"))
+        with open(fabric_rootfs, "wb") as out:
+            out.write(gzip.compress(fabric_archive))
         kernel = os.path.join(td, "Image.xz")
         opensbi = os.path.join(td, "opensbi.bin")
         dtb = os.path.join(td, "milan.dtb")
@@ -8821,7 +8818,7 @@ os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
             "OFL_QSPI": qspi, "OFL_LOG": log, "OFL_COUNT": count,
             "OFL_EXPECT_SERIAL": "TEST-SERIAL",
             "KERNEL": kernel, "OPENSBI": opensbi, "DTB": dtb,
-            "ROOTFS": marked_rootfs,
+            "ROOTFS": software_rootfs,
         })
 
         def fbi_bytes(path):
@@ -8836,9 +8833,9 @@ os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
                 flash.seek(0)
                 flash.write(source["payload"])
                 if source["linux"]:
-                    source_rootfs = (marked_rootfs
+                    source_rootfs = (software_rootfs
                                      if source["owner"] == "software"
-                                     else plain_rootfs)
+                                     else fabric_rootfs)
                     for offset, path in (
                             (0x400000, kernel), (0x500000, opensbi),
                             (0x510000, dtb), (0x520000, source_rootfs)):
@@ -8861,8 +8858,9 @@ os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
                         "INSTALLED_BIT": source["bit"],
                         "LAYOUT": target["layout"], "BIT": target["bit"],
                         "EXPECTED_GPTP_OWNER": target["owner"],
-                        "ROOTFS": (marked_rootfs if target["owner"] == "software"
-                                   else plain_rootfs)})
+                        "ROOTFS": (software_rootfs
+                                   if target["owner"] == "software"
+                                   else fabric_rootfs)})
             env.pop("OFL_FAIL_BEFORE", None)
             env.pop("OFL_FAIL_AFTER", None)
             if fail_kind:
@@ -8911,19 +8909,20 @@ os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
             active = live_bit(source, target)
             assert active["owner"] in ("fabric", "software")
             if active["linux"]:
-                marked = fbi_bytes(marked_rootfs)
-                plain = fbi_bytes(plain_rootfs)
+                software_profile = fbi_bytes(software_rootfs)
+                fabric_profile = fbi_bytes(fabric_rootfs)
                 with open(qspi, "rb") as flash:
                     flash.seek(0x520000)
-                    rootfs = flash.read(max(len(marked), len(plain)))
-                has_marked = rootfs[:len(marked)] == marked
-                has_plain = rootfs[:len(plain)] == plain
-                assert has_marked ^ has_plain, (
+                    rootfs = flash.read(max(len(software_profile),
+                                            len(fabric_profile)))
+                has_software = rootfs[:len(software_profile)] == software_profile
+                has_fabric = rootfs[:len(fabric_profile)] == fabric_profile
+                assert has_software ^ has_fabric, (
                     "active full-Linux bit has no exact paired rootfs")
-                owners = int(active["owner"] == "fabric") + int(has_marked)
+                owners = int(active["owner"] == "fabric") + int(has_software)
                 assert owners == 1, (
                     f"completed write prefix has {owners} gPTP owners: "
-                    f"bit={active['owner']} marked_rootfs={has_marked}")
+                    f"bit={active['owner']} software_profile={has_software}")
             if active is target and target["owner"] == "software":
                 # The software commit bit is last, after every boot image.
                 assert [row[1] for row in rows[-5:-1]] == [
@@ -9027,14 +9026,15 @@ os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
             "incomplete live software target attempted an unsafe repair"
 
         # The same provenance rule applies to full-Linux fabric targets.  A
-        # manually committed fabric bit can sit beside a stale marked rootfs;
+        # manually committed fabric bit can sit beside a stale software-profile
+        # rootfs;
         # live bit identity alone cannot bless or safely resume that state.
         reset_flash(fabric)
         with open(qspi, "r+b") as flash:
             flash.seek(0)
             flash.write(fabric_linux["payload"])
             flash.seek(0x520000)
-            with open(marked_rootfs, "rb") as artifact:
+            with open(software_rootfs, "rb") as artifact:
                 flash.write(artifact.read())
         incomplete_fabric_linux = run_pair(
             fabric, fabric_linux, reset=False)
@@ -9043,10 +9043,11 @@ os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
             "incomplete live fabric/Linux target attempted an unproved repair"
 
         # Conversely, a live *installed* full-Linux bit is only half of its
-        # owner state.  The FBI header/CRC and marker in the live source rootfs
-        # must agree with the installed layout before the first write.
-        for source, wrong_rootfs in ((software, plain_rootfs),
-                                     (fabric_linux, marked_rootfs)):
+        # owner state. The FBI header/CRC and positive profile/payload in the
+        # live source rootfs must agree with the installed layout before the
+        # first write.
+        for source, wrong_rootfs in ((software, fabric_rootfs),
+                                     (fabric_linux, software_rootfs)):
             reset_flash(source)
             with open(qspi, "r+b") as flash:
                 flash.seek(0x520000)
@@ -9058,7 +9059,7 @@ os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
             assert not writes(), \
                 "invalid installed Linux owner state caused a programmer write"
 
-        # Flipping the Linux rootfs marker and its bitstream cannot be ordered
+        # Flipping the Linux rootfs profile and its bitstream cannot be ordered
         # safely in one slot: one order yields zero owners and the other two.
         # The autonomous fabric/baremetal build is the required bridge.
         for source, target in ((software, fabric_linux),

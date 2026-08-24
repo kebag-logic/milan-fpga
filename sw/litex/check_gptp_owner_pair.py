@@ -2,9 +2,11 @@
 # SPDX-License-Identifier: (GPL-2.0 OR MIT)
 """Fail-closed gateware/rootfs gPTP-owner artifact check.
 
-The gateware build records its resolved owner in flashboot_layout.json.  A
-Linux rootfs grants the software owner permission with exactly one regular
-``etc/milan-gptp-software-owner`` entry.  This checker reads gzip/xz/raw newc
+The gateware build records its resolved owner in flashboot_layout.json.  Every
+supported Linux rootfs carries one positive, versioned owner profile; marker
+absence never grants fabric ownership.  The software profile additionally
+contains its permission marker and runnable linuxptp payload, while the fabric
+profile must contain none of those assets.  This checker reads gzip/xz/raw newc
 archives with the Python standard library so deploy hosts and CI do not need
 cpio/libarchive just to enforce the pairing contract.
 """
@@ -26,7 +28,25 @@ from qspi_owner_transition import (TransitionError, bitstream_binding,
                                    validate_artifact_pair)
 
 OWNERS = GPTP_OWNERS
-MARKER = b"etc/milan-gptp-software-owner"
+PROFILE = b"etc/milan-gptp-owner-profile"
+PROFILE_VERSION = b"milan-gptp-owner-profile-v1"
+PROFILE_PAYLOADS = {
+    owner: PROFILE_VERSION + b":" + owner.encode("ascii") + b"\n"
+    for owner in ("fabric", "software")
+}
+SOFTWARE_MARKER = b"etc/milan-gptp-software-owner"
+OWNER_INIT = b"etc/init.d/S65milan-gptp-owner"
+SOFTWARE_EXECUTABLES = (
+    b"usr/sbin/ptp4l",
+    b"usr/sbin/phc2sys",
+    b"usr/sbin/pmc",
+    b"usr/sbin/ptp4l-rt",
+)
+SOFTWARE_FILES = (
+    b"etc/gptp.cfg",
+    b"etc/default/ptp4l",
+    b"etc/default/phc2sys",
+)
 NEWC_MAGICS = (b"070701", b"070702")
 
 
@@ -87,8 +107,9 @@ def _archive_stream(path):
             or prefix in NEWC_MAGICS):
         # Persistent QSPI stores Linux images as LiteX FBI records:
         # little-endian payload length, CRC32, then the archive.  Accept that
-        # exact representation so flash-pair can prove the marker in the live
-        # installed rootfs rather than trusting a source-side assertion.
+        # exact representation so flash-pair can prove the positive profile and
+        # payload semantics in the live installed rootfs rather than trusting a
+        # source-side assertion.
         if len(raw) < 8:
             raise ContractError(
                 "unsupported rootfs archive (need raw newc, .cpio.gz, .cpio.xz, or an FBI-wrapped form)")
@@ -115,10 +136,15 @@ def _archive_stream(path):
         "unsupported rootfs payload (need raw newc, .cpio.gz, or .cpio.xz)")
 
 
-def marker_rows(path):
-    """Return mode values for exact normalized marker entries."""
+def archive_entries(path):
+    """Return normalized newc entries as ``name -> [(mode, payload)]``.
+
+    Payload is retained only for the small owner-profile record.  Keeping every
+    normalized name lets the profile check reject duplicate security-relevant
+    paths and software launchers without extracting an untrusted archive.
+    """
     stream, encoding = _archive_stream(path)
-    rows = []
+    entries = {}
     try:
         while True:
             header = _read_exact(stream, 110, "newc header")
@@ -140,14 +166,19 @@ def marker_rows(path):
                 raise ContractError("cpio name is not NUL terminated")
             name = _normal_name(raw_name[:-1])
             _consume(stream, (-(110 + namesize)) & 3)
-            got_sum = _consume(stream, size, checksum=(magic == b"070702"))
+            payload = None
+            if name == PROFILE:
+                if size > 256:
+                    raise ContractError("rootfs owner profile is unreasonably large")
+                payload = _read_exact(stream, size, "rootfs owner profile")
+                got_sum = sum(payload) & 0xFFFF_FFFF
+            else:
+                got_sum = _consume(stream, size, checksum=(magic == b"070702"))
             _consume(stream, (-size) & 3)
             if magic == b"070702" and got_sum != wanted_sum:
                 raise ContractError(
                     f"cpio CRC mismatch for {name!r}: {got_sum:#x} != "
                     f"{wanted_sum:#x}")
-            if name == MARKER:
-                rows.append(mode)
             if name == b"TRAILER!!!":
                 if size:
                     raise ContractError("cpio trailer carries a payload")
@@ -155,13 +186,62 @@ def marker_rows(path):
                 if any(trailing):
                     raise ContractError("non-padding data follows cpio trailer")
                 break
+            entries.setdefault(name, []).append((mode, payload))
     except ContractError:
         raise
     except (EOFError, OSError, lzma.LZMAError) as exc:
         raise ContractError(f"corrupt {encoding} rootfs archive: {exc}") from exc
     finally:
         stream.close()
-    return rows
+    return entries
+
+
+def _one_regular(entries, name, label, executable=False):
+    rows = entries.get(name, [])
+    if len(rows) != 1:
+        raise ContractError(
+            f"rootfs contains {len(rows)} {label} entries; want exactly one")
+    mode, payload = rows[0]
+    if not stat.S_ISREG(mode):
+        raise ContractError(f"rootfs {label} is not a regular file")
+    if executable and not mode & 0o111:
+        raise ContractError(f"rootfs {label} is not executable")
+    return payload
+
+
+def _validate_rootfs_profile(entries, owner):
+    if owner == "none":
+        raise ContractError("gptp_owner 'none' cannot be paired with a Linux rootfs")
+
+    payload = _one_regular(entries, PROFILE, "gPTP owner profile")
+    wanted = PROFILE_PAYLOADS[owner]
+    if payload != wanted:
+        raise ContractError(
+            f"rootfs gPTP owner profile is not exact versioned {owner!r} profile")
+
+    _one_regular(entries, OWNER_INIT, "gPTP owner lifecycle", executable=True)
+    for path in entries:
+        if not path.startswith(b"etc/init.d/S"):
+            continue
+        base = path.rsplit(b"/", 1)[-1]
+        if b"ptp4l" in base or b"phc2sys" in base:
+            raise ContractError(
+                f"rootfs contains direct software-owner launcher {path.decode('ascii')}; "
+                "S65milan-gptp-owner must be sole lifecycle authority")
+    if owner == "software":
+        _one_regular(entries, SOFTWARE_MARKER, "software-owner marker")
+        for path in SOFTWARE_EXECUTABLES:
+            _one_regular(entries, path, path.decode("ascii"), executable=True)
+        for path in SOFTWARE_FILES:
+            _one_regular(entries, path, path.decode("ascii"))
+        return "versioned software profile with runnable linuxptp payload"
+
+    forbidden = (SOFTWARE_MARKER,) + SOFTWARE_EXECUTABLES + SOFTWARE_FILES
+    for path in forbidden:
+        if path in entries:
+            raise ContractError(
+                f"fabric rootfs contains software-owner asset {path.decode('ascii')}")
+    return "versioned fabric profile without linuxptp payload"
 
 
 def _load_layout(path):
@@ -213,7 +293,7 @@ def check_pair(layout_path, rootfs_path=None, expected_owner=None,
     # certify only half of the one-owner boot set.
     # A serialboot caller supplies a rootfs even when it is not a QSPI-layout
     # row.  Presence of that argument is itself a request to bind the archive;
-    # ignoring a marked fabric rootfs merely because manifest=none/kernel
+    # ignoring an incompatible rootfs merely because manifest=none/kernel
     # would recreate the two-owner bypass this checker exists to prevent.
     needs_rootfs_check = (rootfs_path is not None or has_rootfs
                           or owner == "software")
@@ -225,21 +305,8 @@ def check_pair(layout_path, rootfs_path=None, expected_owner=None,
         raise ContractError(
             f"{reason}, but ROOTFS was not supplied for owner pairing")
 
-    rows = marker_rows(rootfs_path)
-    if len(rows) > 1:
-        raise ContractError(
-            f"rootfs contains {len(rows)} software-owner marker entries; want exactly one or zero")
-    if rows and not stat.S_ISREG(rows[0]):
-        raise ContractError("rootfs software-owner marker is not a regular file")
-    marked = len(rows) == 1
-    want_marked = owner == "software"
-    if marked != want_marked:
-        state = "present" if marked else "absent"
-        wanted = "present" if want_marked else "absent"
-        raise ContractError(
-            f"rootfs software-owner marker is {state}, but gateware owner "
-            f"{owner!r} requires it {wanted}")
-    return owner, f"rootfs marker {'present' if marked else 'absent'}"
+    detail = _validate_rootfs_profile(archive_entries(rootfs_path), owner)
+    return owner, detail
 
 
 def _newc(entries):
@@ -262,6 +329,25 @@ def _newc(entries):
     return bytes(out)
 
 
+def _profile_entries(owner):
+    """Return a minimal semantically complete rootfs profile for tests."""
+    if owner not in PROFILE_PAYLOADS:
+        raise ValueError(f"no Linux rootfs profile for owner {owner!r}")
+    rows = [
+        (b"etc/hostname", b"milan\n", stat.S_IFREG),
+        (PROFILE, PROFILE_PAYLOADS[owner], stat.S_IFREG),
+        (OWNER_INIT, b"#!/bin/sh\n", stat.S_IFREG | 0o111),
+    ]
+    if owner == "software":
+        rows.append((SOFTWARE_MARKER, b"explicit option-OFF\n",
+                     stat.S_IFREG))
+        rows.extend((path, b"tool", stat.S_IFREG | 0o111)
+                    for path in SOFTWARE_EXECUTABLES)
+        rows.extend((path, b"config\n", stat.S_IFREG)
+                    for path in SOFTWARE_FILES)
+    return rows
+
+
 def self_test():
     checks = 0
 
@@ -278,20 +364,28 @@ def self_test():
                 raise AssertionError("owner mismatch unexpectedly passed")
 
     with tempfile.TemporaryDirectory() as temp:
+        def write_archive(name, entries, suffix="cpio.xz"):
+            raw = _newc(entries)
+            if suffix == "cpio.gz":
+                raw = gzip.compress(raw)
+            elif suffix == "cpio.xz":
+                raw = lzma.compress(raw)
+            path = os.path.join(temp, f"{name}.{suffix}")
+            with open(path, "wb") as stream:
+                stream.write(raw)
+            return path
+
         archives = {}
-        for marked in (False, True):
-            entries = [(b"etc/hostname", b"milan\n", stat.S_IFREG)]
-            if marked:
-                entries.append((b"./etc/milan-gptp-software-owner",
-                                b"explicit option-OFF\n", stat.S_IFREG))
+        for rootfs_owner in ("fabric", "software"):
+            entries = _profile_entries(rootfs_owner)
             raw = _newc(entries)
             for suffix, data in (("cpio", raw),
                                  ("cpio.gz", gzip.compress(raw)),
                                  ("cpio.xz", lzma.compress(raw))):
-                path = os.path.join(temp, f"{'marked' if marked else 'plain'}.{suffix}")
+                path = os.path.join(temp, f"{rootfs_owner}.{suffix}")
                 with open(path, "wb") as stream:
                     stream.write(data)
-                archives[marked, suffix] = path
+                archives[rootfs_owner, suffix] = path
 
         def layout(owner, key=True):
             path = os.path.join(temp, f"layout-{owner}-{key}.json")
@@ -303,17 +397,30 @@ def self_test():
             return path
 
         for suffix in ("cpio", "cpio.gz", "cpio.xz"):
-            expect(True, layout("software"), archives[True, suffix])
-            expect(True, layout("fabric"), archives[False, suffix])
-            expect(True, layout("none"), archives[False, suffix])
-            expect(False, layout("software"), archives[False, suffix])
-            expect(False, layout("fabric"), archives[True, suffix])
-            expect(False, layout("none"), archives[True, suffix])
+            expect(True, layout("software"), archives["software", suffix])
+            expect(True, layout("fabric"), archives["fabric", suffix])
+            expect(False, layout("none"), archives["fabric", suffix])
+            expect(False, layout("software"), archives["fabric", suffix])
+            expect(False, layout("fabric"), archives["software", suffix])
+            expect(False, layout("none"), archives["software", suffix])
 
         expect(False, layout("fabric"), None)
-        expect(False, layout("fabric", key=False), archives[False, "cpio.xz"])
-        expect(False, layout("unknown"), archives[False, "cpio.xz"])
-        expect(False, layout("fabric"), archives[False, "cpio.xz"], "software")
+        expect(False, layout("fabric", key=False), archives["fabric", "cpio.xz"])
+        expect(False, layout("unknown"), archives["fabric", "cpio.xz"])
+        expect(False, layout("fabric"), archives["fabric", "cpio.xz"], "software")
+
+        # The old image was software-owning but had no positive owner profile.
+        # It is the concrete counterexample that marker-absence inference used
+        # to misclassify as fabric.
+        legacy_rows = [(b"etc/hostname", b"legacy\n", stat.S_IFREG),
+                       (OWNER_INIT, b"#!/bin/sh\n", stat.S_IFREG | 0o111)]
+        legacy_rows.extend((path, b"tool", stat.S_IFREG | 0o111)
+                           for path in SOFTWARE_EXECUTABLES)
+        legacy_rows.extend((path, b"config\n", stat.S_IFREG)
+                           for path in SOFTWARE_FILES)
+        legacy = write_archive("legacy-unmarked-software", legacy_rows)
+        expect(False, layout("fabric"), legacy)
+        expect(False, layout("software"), legacy)
 
         corrupt = os.path.join(temp, "corrupt.cpio.xz")
         with open(corrupt, "wb") as stream:
@@ -324,8 +431,7 @@ def self_test():
             stream.write(b"not a cpio archive")
         expect(False, layout("fabric"), unsupported)
 
-        duplicate = _newc([
-            (MARKER, b"one", stat.S_IFREG),
+        duplicate = _newc(_profile_entries("software") + [
             (b"./etc//milan-gptp-software-owner", b"two", stat.S_IFREG),
         ])
         duplicate_path = os.path.join(temp, "duplicate.cpio.gz")
@@ -334,59 +440,109 @@ def self_test():
         expect(False, layout("software"), duplicate_path)
 
         wrong_type = os.path.join(temp, "directory-marker.cpio.xz")
+        wrong_type_rows = [row for row in _profile_entries("software")
+                           if row[0] != SOFTWARE_MARKER]
+        wrong_type_rows.append((SOFTWARE_MARKER, b"", stat.S_IFDIR))
         with open(wrong_type, "wb") as stream:
-            stream.write(lzma.compress(_newc([
-                (MARKER, b"", stat.S_IFDIR),
-            ])))
+            stream.write(lzma.compress(_newc(wrong_type_rows)))
         expect(False, layout("software"), wrong_type)
 
         unsafe = os.path.join(temp, "absolute-marker.cpio.gz")
+        unsafe_rows = [row for row in _profile_entries("software")
+                       if row[0] != SOFTWARE_MARKER]
+        unsafe_rows.append((b"/" + SOFTWARE_MARKER, b"lease", stat.S_IFREG))
         with open(unsafe, "wb") as stream:
-            stream.write(gzip.compress(_newc([
-                (b"/" + MARKER, b"lease", stat.S_IFREG),
-            ])))
+            stream.write(gzip.compress(_newc(unsafe_rows)))
         expect(False, layout("software"), unsafe)
+
+        duplicate_profile = write_archive(
+            "duplicate-profile",
+            _profile_entries("fabric") + [
+                (b"./etc//milan-gptp-owner-profile",
+                 PROFILE_PAYLOADS["fabric"], stat.S_IFREG),
+            ])
+        expect(False, layout("fabric"), duplicate_profile)
+
+        wrong_version_rows = [
+            (path, (b"milan-gptp-owner-profile-v0:fabric\n"
+                    if path == PROFILE else payload), mode)
+            for path, payload, mode in _profile_entries("fabric")
+        ]
+        expect(False, layout("fabric"),
+               write_archive("wrong-profile-version", wrong_version_rows))
+
+        missing_tool_rows = [row for row in _profile_entries("software")
+                             if row[0] != b"usr/sbin/pmc"]
+        expect(False, layout("software"),
+               write_archive("software-missing-pmc", missing_tool_rows))
+
+        contaminated_rows = _profile_entries("fabric") + [
+            (b"usr/sbin/ptp4l", b"tool", stat.S_IFREG | 0o111),
+        ]
+        expect(False, layout("fabric"),
+               write_archive("fabric-with-linuxptp", contaminated_rows))
+
+        launcher_rows = _profile_entries("fabric") + [
+            (b"etc/init.d/S65ptp4l", b"#!/bin/sh\n",
+             stat.S_IFREG | 0o111),
+        ]
+        expect(False, layout("fabric"),
+               write_archive("fabric-with-launcher", launcher_rows))
+
+        software_launcher_rows = _profile_entries("software") + [
+            (b"etc/init.d/S66phc2sys", b"#!/bin/sh\n",
+             stat.S_IFREG | 0o111),
+        ]
+        expect(False, layout("software"),
+               write_archive("software-with-launcher", software_launcher_rows))
 
         duplicate_layout = os.path.join(temp, "layout-duplicate-images.json")
         with open(duplicate_layout, "w", encoding="utf-8") as stream:
             json.dump({"gptp_owner": "software", "images": [
                 {"name": "rootfs"}, {"name": "rootfs"}]}, stream)
-        expect(False, duplicate_layout, archives[True, "cpio.xz"])
+        expect(False, duplicate_layout, archives["software", "cpio.xz"])
 
         partial = os.path.join(temp, "layout-software-partial.json")
         with open(partial, "w", encoding="utf-8") as stream:
             json.dump({"gptp_owner": "software", "manifest": "kernel",
                        "images": [{"name": "kernel"}]}, stream)
         expect(False, partial)
-        expect(True, partial, archives[True, "cpio.xz"])
-        expect(False, partial, archives[False, "cpio.xz"])
+        expect(True, partial, archives["software", "cpio.xz"])
+        expect(False, partial, archives["fabric", "cpio.xz"])
 
         baremetal = os.path.join(temp, "layout-fabric-baremetal.json")
         with open(baremetal, "w", encoding="utf-8") as stream:
             json.dump({"gptp_owner": "fabric", "manifest": "baremetal",
                        "images": [{"name": "aem"}]}, stream)
         expect(True, baremetal)
-        expect(True, baremetal, archives[False, "cpio.xz"])
-        expect(False, baremetal, archives[True, "cpio.xz"])
+        expect(True, baremetal, archives["fabric", "cpio.xz"])
+        expect(False, baremetal, archives["software", "cpio.xz"])
+
+        none_baremetal = os.path.join(temp, "layout-none-baremetal.json")
+        with open(none_baremetal, "w", encoding="utf-8") as stream:
+            json.dump({"gptp_owner": "none", "manifest": "baremetal",
+                       "images": [{"name": "aem"}]}, stream)
+        expect(True, none_baremetal)
+        expect(False, none_baremetal, archives["fabric", "cpio.xz"])
 
         def fbi(payload):
             return (struct.pack("<II", len(payload),
                                 binascii.crc32(payload) & 0xFFFF_FFFF)
                     + payload)
 
-        fbi_plain = os.path.join(temp, "plain-rootfs.fbi")
-        fbi_marked = os.path.join(temp, "marked-rootfs.fbi")
-        plain_xz = open(archives[False, "cpio.xz"], "rb").read()
-        marked_xz = open(archives[True, "cpio.xz"], "rb").read()
-        with open(fbi_plain, "wb") as stream:
-            stream.write(fbi(plain_xz))
-        with open(fbi_marked, "wb") as stream:
-            stream.write(fbi(marked_xz))
-        expect(True, layout("fabric"), fbi_plain)
-        expect(True, layout("software"), fbi_marked)
+        fbi_fabric = os.path.join(temp, "fabric-rootfs.fbi")
+        fbi_software = os.path.join(temp, "software-rootfs.fbi")
+        fabric_xz = open(archives["fabric", "cpio.xz"], "rb").read()
+        software_xz = open(archives["software", "cpio.xz"], "rb").read()
+        with open(fbi_fabric, "wb") as stream:
+            stream.write(fbi(fabric_xz))
+        with open(fbi_software, "wb") as stream:
+            stream.write(fbi(software_xz))
+        expect(True, layout("fabric"), fbi_fabric)
+        expect(True, layout("software"), fbi_software)
         corrupt_fbi = os.path.join(temp, "corrupt-rootfs.fbi")
         with open(corrupt_fbi, "wb") as stream:
-            damaged = bytearray(fbi(marked_xz))
+            damaged = bytearray(fbi(software_xz))
             damaged[-1] ^= 1
             stream.write(damaged)
         expect(False, layout("software"), corrupt_fbi)
@@ -407,24 +563,24 @@ def self_test():
         paired_body.update(bitstream_binding(paired_bit))
         with open(paired_layout, "w", encoding="utf-8") as stream:
             json.dump(paired_body, stream)
-        plain = archives[False, "cpio.xz"]
-        expect(True, paired_layout, plain, bit=paired_bit,
+        fabric_rootfs = archives["fabric", "cpio.xz"]
+        expect(True, paired_layout, fabric_rootfs, bit=paired_bit,
                part="xc7a100tfgg484")
-        expect(False, paired_layout, plain, bit=paired_bit,
+        expect(False, paired_layout, fabric_rootfs, bit=paired_bit,
                part="xc7a200tfbg484")
-        expect(False, paired_layout, plain,
+        expect(False, paired_layout, fabric_rootfs,
                part="xc7a100tfgg484")
-        expect(False, layout("fabric"), plain, bit=paired_bit,
+        expect(False, layout("fabric"), fabric_rootfs, bit=paired_bit,
                part="xc7a100tfgg484")
         corrupt_bit = os.path.join(paired, "gateware", "corrupt.bit")
         with open(corrupt_bit, "wb") as stream:
             stream.write(b"not a Xilinx bitstream")
-        expect(False, paired_layout, plain, bit=corrupt_bit,
+        expect(False, paired_layout, fabric_rootfs, bit=corrupt_bit,
                part="xc7a100tfgg484")
         adjacent_bit = os.path.join(paired, "gateware", "other-owner.bit")
         _fake_bit(adjacent_bit,
                   b"\xff" * 16 + b"\xaa\x99\x55\x66software-owner")
-        expect(False, paired_layout, plain, bit=adjacent_bit,
+        expect(False, paired_layout, fabric_rootfs, bit=adjacent_bit,
                part="xc7a100tfgg484")
 
     print(f"[gptp-owner] self-test: {checks}/{checks} checks pass")
