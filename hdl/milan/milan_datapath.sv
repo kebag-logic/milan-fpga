@@ -4313,10 +4313,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //!    through the processor's published rows.
   //!  - a source's declared DA is the block-allocator law the maap shim
   //!    already applies (blk_addr + source), valid while a claim is held.
-  //!  - propagation_delay reads 0: the gPTP plane does not surface pDelay.
-  //!  - GET_AS_PATH answers count 1 = {grandmaster} (0 with no GM): the
-  //!    pathSequence a leaf directly under its GM sees; bridges between
-  //!    would lengthen the true TLV this fabric never receives.
+  //!  - propagation_delay is the selected effective gPTP measurement: the
+  //!    fabric plane when present, otherwise the GPTP_PDELAY CSR.
+  //!  - GET_AS_PATH answers one coherent published snapshot: count 1 =
+  //!    {grandmaster} (0 with no GM), followed by the PathTrace tail the
+  //!    daemon atomically publishes through the 0x7DC group.
 
   //! CLAMPED index widths - a 1-sink shape's 2-bit vectors must never be
   //! part-selected with a wider index (the lint ratchet's own catch)
@@ -4334,6 +4335,14 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   logic        gsi_srv1_r, gsi_srv2_r;
   logic [63:0] gsi_data_r;
   logic [63:0] gsi_ans_raw_w;   //! written by the answer comb block below
+  //! A GET_AS_PATH response gathers its count and then each entry on separate
+  //! requests. Snapshot the complete published path at the first count request
+  //! so a concurrent PUBLISH can select the next response but cannot splice
+  //! its bytes into one already in flight.
+  logic        gsi_req_q_r;
+  logic [63:0] asp_resp_gm_r;
+  logic [3:0]  asp_resp_count_r;
+  logic [7*64-1:0] asp_resp_path_r;
   wire gsi_sel_match_w = (gsiq_kind_r  == pp_gsi_kind_w)
                       && (gsiq_type_r  == pp_gsi_desc_type_w)
                       && (gsiq_index_r == pp_gsi_desc_index_w)
@@ -4344,7 +4353,12 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       gsiq_kind_r <= 2'd0;  gsiq_type_r <= 16'd0; gsiq_index_r <= 16'd0;
       gsiq_sel_r  <= 4'd0;  gsiq_ord_r  <= 8'd0;
       gsi_srv1_r  <= 1'b0;  gsi_srv2_r  <= 1'b0;  gsi_data_r <= 64'd0;
+      gsi_req_q_r <= 1'b0;
+      asp_resp_gm_r <= 64'd0;
+      asp_resp_count_r <= 4'd0;
+      asp_resp_path_r <= '0;
     end else begin
+      gsi_req_q_r  <= pp_gsi_req_w;
       gsiq_kind_r  <= pp_gsi_kind_w;
       gsiq_type_r  <= pp_gsi_desc_type_w;
       gsiq_index_r <= pp_gsi_desc_index_w;
@@ -4353,6 +4367,14 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       gsi_srv1_r   <= pp_gsi_req_w && gsi_sel_match_w;
       gsi_srv2_r   <= pp_gsi_req_w && gsi_sel_match_w && gsi_srv1_r;
       gsi_data_r   <= gsi_ans_raw_w;
+      if (pp_gsi_req_w && !gsi_req_q_r && (pp_gsi_kind_w == 2'd2)
+          && (pp_gsi_sel_w == 4'd0)) begin
+        asp_resp_gm_r    <= cfg_adp_gptp_gm;
+        asp_resp_count_r <= (|cfg_adp_gptp_gm)
+                          ? ((asp_count_w > 4'd1) ? asp_count_w : 4'd1)
+                          : 4'd0;
+        asp_resp_path_r  <= asp_path_w;
+      end
     end
   end
 
@@ -4569,18 +4591,16 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! No grandmaster = an empty path, whatever the staging holds: a tail
   //! without a head is not a path. A grandmaster with no published tail
   //! is the one-entry path a leaf directly under its GM sees.
-  wire [3:0] asp_served_count_w = (|cfg_adp_gptp_gm)
-                                ? ((asp_count_w > 4'd1) ? asp_count_w : 4'd1)
-                                : 4'd0;
+  wire [3:0] asp_served_count_w = asp_resp_count_r;
   logic [63:0] asp_served_entry_w;
   always_comb begin : asp_entry_pick
     asp_served_entry_w = 64'd0;
     if (32'(gsiq_ord_r) < 32'(asp_served_count_w)) begin
-      if (gsiq_ord_r == 8'd0) asp_served_entry_w = cfg_adp_gptp_gm;
+      if (gsiq_ord_r == 8'd0) asp_served_entry_w = asp_resp_gm_r;
       else
         for (int unsigned k = 1; k < ASP_SLOTS_C + 1; k++)
           if (32'(gsiq_ord_r) == k)
-            asp_served_entry_w = asp_path_w[64*(k-1) +: 64];
+            asp_served_entry_w = asp_resp_path_r[64*(k-1) +: 64];
     end
   end : asp_entry_pick
 

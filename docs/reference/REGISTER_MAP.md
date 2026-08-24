@@ -292,7 +292,9 @@ own two triggers and neither is the ADP strobe: the grandmaster identity
 snapshot moving (entry 0 of the served path) and a changed 0x7DC PathTrace
 PUBLISH (entries 1..). COMMIT edits a private staging bank; PUBLISH atomically
 replaces the complete published tail and count, and a response already being
-gathered stays on one coherent generation. The
+gathered stays on one coherent generation. The cutover occurs only when the
+count or active bytes differ from the prior publication; an identical publish
+is silent. The
 `GPTP_GM_CHANGED` counter, and therefore the AVB_INTERFACE GET_COUNTERS push,
 move on the grandmaster identity edge alone. A write to 0x62C with a stable
 grandmaster is a GET_AVB_INFO trigger and an ADP re-advertise, and is neither
@@ -1337,7 +1339,7 @@ visibility and notification cutover.
 |--------|------|-----|-------|-------------|
 | `0x7DC` | `ASP_LO` | RW | `0` | Staged `clockIdentity[31:0]` |
 | `0x7E0` | `ASP_HI` | RW | `0` | Staged `clockIdentity[63:32]` |
-| `0x7E4` | `ASP_CMD` | W / RO live | `0` | `[31]` COMMIT the LO/HI identity into staging slot `[10:8]` (1..7; slot 0 refused); `[30]` PUBLISH: compare the complete staged tail plus clamped length `[3:0]` (entries including the grandmaster) with the published snapshot, atomically replace it and bump the generation only when changed. Reads published `{gen[3:0], count[3:0]}` |
+| `0x7E4` | `ASP_CMD` | W / RO live | `0` | `[31]` COMMIT the LO/HI identity into private staging slot `[10:8]` (1..7; slot 0 refused); `[30]` PUBLISH the complete private path with clamped length `[3:0]` (entries including the grandmaster), atomically replacing the published snapshot and bumping generation only when its count or active bytes change. Setting `[31]` and `[30]` together publishes the current LO/HI into the selected slot. Reads published `{gen[3:0], count[3:0]}` |
 
 ### 0x800  -  Indexed per-stream window
 

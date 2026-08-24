@@ -992,7 +992,7 @@ static const uint8_t* mkaaf(const uint8_t sid[8], uint8_t seq, uint8_t chans,
 //      value already held is silent;
 //    * the Table 5.22 triggers THIS FABRIC drives reach registered
 //      controllers as AEM responses with u = 1: the counter-change
-//      descriptor arbiter (GET_COUNTERS), the PathTrace publish edge and
+//      descriptor arbiter (GET_COUNTERS), the changed PathTrace publication and
 //      the first grandmaster commit (GET_AS_PATH / GET_AVB_INFO);
 //    * the content bar of the notification-content test: the last
 //      unsolicited response is byte-identical, from the command body on,
@@ -1302,22 +1302,31 @@ static void notify_section(bool timed) {
                   && notify_same_from(notify_last(0x0029, CTL_A, 0x0009, 0), sc2, 38)), 1);
     }
 
-    // ---- (N7) the PathTrace PUBLISH: a longer path, the same GM ---------
-    //! 0x7DC/0x7E0 stage a clockIdentity, 0x7E4 bit 31 commits it into
-    //! slot [10:8], bit 30 publishes the length [3:0] and bumps the
-    //! generation - the edge this fabric hands the processor as the
-    //! AS_PATH change it cannot derive (the grandmaster did not move).
+    // ---- (N7) PathTrace COMMIT is private; PUBLISH is atomic -----------
+    //! 0x7DC/0x7E0 stage a clockIdentity and 0x7E4 bit 31 COMMITs it into
+    //! the private image. Only bit 30 PUBLISHes the whole image + length.
+    //! The generation advances exactly when that published path changes;
+    //! its edge is the AS_PATH event the processor cannot derive.
     notify_clear();
     const unsigned long gmchg_n7 = gm_changed_ctr();
-    axi_write(0x7DC, 0x00000001u);
-    axi_write(0x7E0, 0x00112233u);
+    const uint64_t asp_old = 0x0011223300000001ull;
+    const uint64_t asp_new = 0x445566778899AABBull;
+    const auto asp_entry = [](const std::vector<uint8_t>& f, unsigned k) {
+        uint64_t v = 0;
+        const size_t off = 42 + 8 * k;
+        if (f.size() < off + 8) return v;
+        for (unsigned b = 0; b < 8; b++) v = (v << 8) | f[off + b];
+        return v;
+    };
+    axi_write(0x7DC, (uint32_t)asp_old);
+    axi_write(0x7E0, (uint32_t)(asp_old >> 32));
     axi_write(0x7E4, 0x80000000u | (1u << 8));           // commit slot 1
     drain_tx(NOTIFY_WIN);
-    ck("[NOTIFY] a commit alone publishes nothing (no AS_PATH push)",
+    ck("[NOTIFY] initial COMMIT is private (no AS_PATH push)",
        notify_count(0x0028, nullptr), 0);
     axi_write(0x7E4, 0x40000000u | 2u);                  // publish {GM, slot 1}
     drain_tx(NOTIFY_WIN);
-    ck("[NOTIFY] the publish: one unsolicited GET_AS_PATH to A",
+    ck("[NOTIFY] first changed PUBLISH: one GET_AS_PATH to A",
        notify_count(0x0028, &CTL_A), 1);
     ck("[NOTIFY] ...and one to B", notify_count(0x0028, &CTL_B), 1);
     ck("[NOTIFY] ...and no GET_AVB_INFO (the grandmaster did not change)",
@@ -1331,14 +1340,73 @@ static void notify_section(bool timed) {
            (long)(aecp_status(sp) == 0 && notify_cdl(sp) == 32
                   && sp.size() >= 58
                   && (((unsigned)sp[40] << 8) | sp[41]) == 2), 1);
-        ck("[NOTIFY] ...entry 0 is the grandmaster, entry 1 the staged slot",
-           (long)(sp.size() >= 58
-                  && sp[42] == (uint8_t)(gm_hi >> 24) && sp[49] == (uint8_t)gm_cur_lo
-                  && sp[50] == 0x00 && sp[51] == 0x11 && sp[52] == 0x22
-                  && sp[53] == 0x33 && sp[57] == 0x01), 1);
+        ck("[NOTIFY] ...entry 0 is the grandmaster",
+           asp_entry(sp, 0), ((uint64_t)gm_hi << 32) | gm_cur_lo);
+        ck("[NOTIFY] ...entry 1 is the first published slot",
+           asp_entry(sp, 1), asp_old);
         ck("[NOTIFY] ...AS_PATH push body == that solicited read",
            (long)notify_same_from(notify_last(0x0028, CTL_B), sp, 38), 1);
     }
+
+    //! THE MISSING ATOMICITY INTERVAL. Rewrite the live path's slot 1 and
+    //! COMMIT it, but do not PUBLISH. There must be no push, and a solicited
+    //! GET_AS_PATH on the real wire must still return the PRIOR publication.
+    //! The old single-array implementation passed the no-push check and then
+    //! failed this read by leaking asp_new immediately.
+    notify_clear();
+    const unsigned asp_gen_old = (axi_read(0x7E4) >> 4) & 0xFu;
+    axi_write(0x7DC, (uint32_t)asp_new);
+    axi_write(0x7E0, (uint32_t)(asp_new >> 32));
+    axi_write(0x7E4, 0x80000000u | (1u << 8));           // private re-COMMIT
+    drain_tx(NOTIFY_WIN);
+    ck("[R0] re-COMMIT before PUBLISH emits no GET_AS_PATH push",
+       notify_count(0x0028, nullptr), 0);
+    ck("[R0] ...and leaves the published generation unchanged",
+       (axi_read(0x7E4) >> 4) & 0xFu, asp_gen_old);
+    {
+        const std::vector<uint8_t> gp(4, 0);
+        const std::vector<uint8_t> sp = aecp_xact_from(CTL_A, 0x0028, sq++, gp);
+        ck("[R0] solicited GET_AS_PATH between COMMIT and PUBLISH stays count 2",
+           (long)(aecp_status(sp) == 0 && notify_cdl(sp) == 32
+                  && sp.size() >= 58
+                  && (((unsigned)sp[40] << 8) | sp[41]) == 2), 1);
+        ck("[R0] ...and serves the PRIOR published slot atomically",
+           asp_entry(sp, 1), asp_old);
+    }
+
+    //! Positive control: PUBLISH the pending image. Both controllers must
+    //! now receive the event and the following solicited read must expose
+    //! asp_new, byte-identical to the pushed state.
+    notify_clear();
+    axi_write(0x7E4, 0x40000000u | 2u);
+    drain_tx(NOTIFY_WIN);
+    ck("[R0] changed PUBLISH sends GET_AS_PATH to A",
+       notify_count(0x0028, &CTL_A), 1);
+    ck("[R0] ...and to B", notify_count(0x0028, &CTL_B), 1);
+    ck("[R0] ...advances the publication generation once",
+       (axi_read(0x7E4) >> 4) & 0xFu, (asp_gen_old + 1u) & 0xFu);
+    {
+        const std::vector<uint8_t> gp(4, 0);
+        const std::vector<uint8_t> sp = aecp_xact_from(CTL_B, 0x0028, sq++, gp);
+        ck("[R0] solicited GET_AS_PATH after PUBLISH serves the NEW slot",
+           asp_entry(sp, 1), asp_new);
+        ck("[R0] ...changed push body == that solicited read",
+           (long)notify_same_from(notify_last(0x0028, CTL_B), sp, 38), 1);
+    }
+
+    //! Negative plus positive controls for changed-only generation. The
+    //! exact same staged bytes and count are not a path change, so an
+    //! identical re-publish must leave both the generation and wire silent;
+    //! the two changed publishes above prove the event path is reachable.
+    notify_clear();
+    const unsigned asp_gen_new = (axi_read(0x7E4) >> 4) & 0xFu;
+    axi_write(0x7E4, 0x40000000u | 2u);
+    drain_tx(NOTIFY_WIN);
+    ck("[R0] identical re-PUBLISH generates no false GET_AS_PATH notification",
+       notify_count(0x0028, nullptr), 0);
+    ck("[R0] ...and does not spend a publication generation",
+       (axi_read(0x7E4) >> 4) & 0xFu, asp_gen_new);
+
     //! back to the leaf's one-entry path: a publish of length 0 (legacy),
     //! itself an edge, drained so the later arms start clean
     axi_write(0x7E4, 0x40000000u);

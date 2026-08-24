@@ -171,14 +171,16 @@ with A's own sequence at 0, and the next change from A reaches B at sequence
 `GET_NAME` that follows (the content bar). A grandmaster CHANGE pushes
 `GET_AVB_INFO` and `GET_AS_PATH` to both, each equal to the solicited read
 after it. The PathTrace sequence proves the publication boundary rather than
-only the happy-path push: slot LO/HI writes plus `COMMIT` change private staging
-while a solicited read still returns the old published path and no push occurs;
-a changed `PUBLISH` through `0x7DC`/`0x7E4` atomically exposes the complete
-staged tail and count, then pushes `GET_AS_PATH` with no `GET_AVB_INFO`.
-Publishing while a response gather is in flight produces a coherent all-old or
-all-new vector, never mixed slots, and publishing content identical to the
-current snapshot is silent. The FIRST
-grandmaster commit (zero to something) pushes both rows while the ADP
+only the happy-path push: it publishes an initial `{GM, slot 1}`, privately
+re-COMMITs slot 1, and proves both zero push and a solicited read of the prior
+publication before PUBLISH. A changed `PUBLISH` through `0x7DC`/`0x7E4`
+atomically exposes the complete staged tail and count and pushes the new
+`GET_AS_PATH` bytes with no `GET_AVB_INFO`; an identical re-PUBLISH advances
+neither generation nor wire. Publishing while a response gather is in flight
+produces a coherent all-old or all-new vector, never mixed slots. The CSR unit
+arm also proves a combined COMMIT+PUBLISH uses the newly committed slot on that
+same edge. The FIRST grandmaster commit (zero to something) pushes both rows
+while the ADP
 GM_CHANGE duty stays untouched. The two arms that answer the Table 5.22
 fields the root used to hold silent run next: the gPTP domain number is
 changed at `0x62C` with the grandmaster set back to ZERO -- the reset and

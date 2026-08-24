@@ -263,7 +263,8 @@ staging remains private.
 Evidence: the `asp_served_count_w` / `asp_served_entry_w` selection and the
 `gsi_asp_chg_w` strobe in
 [`milan_datapath.sv`](../../hdl/milan/milan_datapath.sv), the `[NOTIFY]`
-publish arm of `tb/verilator/milan_dp`, and the staging group in
+atomic COMMIT/PUBLISH and identical-publish arms of `tb/verilator/milan_dp`,
+and the staging group in
 [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md).
 
 ### B7. Identify control has no public indication

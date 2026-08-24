@@ -130,8 +130,9 @@ static uint32_t axi_read(uint32_t a) {
   return v;
 }
 
-//! J4: slot k (1..7) out of the flattened o_asp_path vector. Slot k lives at
-//! bit [64*(k-1) +: 64], i.e. two 32-bit Verilator words starting at 2*(k-1).
+//! J4: PUBLISHED slot k (1..7) out of the flattened o_asp_path vector. Slot k
+//! lives at bit [64*(k-1) +: 64], i.e. two 32-bit Verilator words starting at
+//! 2*(k-1). The private COMMIT image is deliberately not a public port.
 static uint64_t asp_slot(int k) {
   const int w = 2 * (k - 1);
   return ((uint64_t)dut->o_asp_path[w + 1] << 32) | (uint32_t)dut->o_asp_path[w];
@@ -1109,8 +1110,9 @@ int main(int argc, char** argv) {
   // 1722.1-2021 7.4.41.2 path_sequence instead of a two-entry guess. Slot 0
   // is the grandmaster and is NEVER stored here - it already lives at
   // ADP_GM 0x624/8, and a second copy is the derive-never-mirror defect.
-  // A publish is the ATOMIC cutover: it latches the length and bumps the
-  // generation, which is what arms the Milan Table 5.22 push.
+    // A publish is the ATOMIC cutover: it transfers the committed image and
+    // length together. The generation, which arms the Milan Table 5.22 push,
+    // advances only when those published values actually change.
   {
     long f0 = fails;
     printf("-- 0x7DC AS_PATH staging (gh #64 J4) --\n");
@@ -1130,44 +1132,76 @@ int main(int argc, char** argv) {
     ck("ASP_HI readback", axi_read(A_ASP_HI), 0x3CC0C6FFu);
     ck("staging alone commits nothing", asp_slot(1), 0);
 
-    // commit slot 1 = the first bridge
+    // commit slot 1 = the first bridge. COMMIT edits only the private image:
+    // neither the externally visible bytes nor {count,gen} can move yet.
     axi_write(A_ASP_CMD, 0x80000100u);          // [31] commit, slot 1
-    ck("slot 1 committed", asp_slot(1), 0x3CC0C6FFFFFE0210ull);
+    ck("commit leaves published slot 1 unchanged", asp_slot(1), 0);
     ck("commit does not publish a count", dut->o_asp_count, 0);
     ck("commit does not bump the generation", dut->o_asp_gen, 0);
 
-    // commit slots 2 and 7 - the far end of the store must be reachable
+    // commit slots 2 and 7 - the far end of the private store must be
+    // reachable, while every published slot remains at its reset snapshot.
     axi_write(A_ASP_LO, 0x11111111u); axi_write(A_ASP_HI, 0xAABBCCDDu);
     axi_write(A_ASP_CMD, 0x80000200u);          // slot 2
     axi_write(A_ASP_LO, 0x77777777u); axi_write(A_ASP_HI, 0xDEADBEEFu);
     axi_write(A_ASP_CMD, 0x80000700u);          // slot 7
-    ck("slot 2 committed", asp_slot(2), 0xAABBCCDD11111111ull);
-    ck("slot 7 committed", asp_slot(7), 0xDEADBEEF77777777ull);
-    ck("slot 1 untouched by later commits", asp_slot(1), 0x3CC0C6FFFFFE0210ull);
+    ck("slot 2 commit stays private", asp_slot(2), 0);
+    ck("slot 7 commit stays private", asp_slot(7), 0);
+    ck("slot 1 still unpublished", asp_slot(1), 0);
 
     // SLOT 0 IS REFUSED. It is the grandmaster; the builder takes entry 0
     // from ADP_GM. Accepting it here would create a second, divergable copy.
     axi_write(A_ASP_LO, 0xDEADDEADu); axi_write(A_ASP_HI, 0xDEADDEADu);
     axi_write(A_ASP_CMD, 0x80000000u);          // commit "slot 0"
-    ck("slot 0 commit refused: slot 1 intact", asp_slot(1), 0x3CC0C6FFFFFE0210ull);
-    ck("slot 0 commit refused: slot 7 intact", asp_slot(7), 0xDEADBEEF77777777ull);
+    ck("slot 0 commit refused: published slot 1 intact", asp_slot(1), 0);
+    ck("slot 0 commit refused: published slot 7 intact", asp_slot(7), 0);
 
-    // publish: count 3 (GM + 2 bridges) and the generation bumps
+    // publish: count 3 (GM + 2 bridges), both active staged slots become
+    // visible on ONE edge, and the generation bumps exactly once. Slot 7 is
+    // outside this published path and is canonicalized to zero.
     axi_write(A_ASP_CMD, 0x40000003u);          // [30] publish, count 3
     ck("published count 3", dut->o_asp_count, 3);
     ck("generation bumped to 1", dut->o_asp_gen, 1);
     ck("ASP_CMD reads {gen 1, count 3}", axi_read(A_ASP_CMD), 0x00000013u);
+    ck("publish exposes slot 1", asp_slot(1), 0x3CC0C6FFFFFE0210ull);
+    ck("publish exposes slot 2", asp_slot(2), 0xAABBCCDD11111111ull);
+    ck("unpublished slot 7 stays zero", asp_slot(7), 0);
 
-    // a re-publish of the SAME length still bumps the generation: that is
-    // the whole point - the daemon says "this is current", and the push
-    // signature must move even when no identity changed.
+    // An identical re-publish is not a path-sequence change. It must neither
+    // move the generation nor arm a false Table 5.22 notification.
     axi_write(A_ASP_CMD, 0x40000003u);
-    ck("re-publish same count still bumps gen", dut->o_asp_gen, 2);
-    ck("ASP_CMD reads {gen 2, count 3}", axi_read(A_ASP_CMD), 0x00000023u);
+    ck("identical re-publish keeps generation", dut->o_asp_gen, 1);
+    ck("ASP_CMD stays {gen 1, count 3}", axi_read(A_ASP_CMD), 0x00000013u);
+
+    // Re-COMMIT slot 1 while count 3 is live. Its old published value must
+    // remain observable until PUBLISH; the changed publish then cuts over and
+    // advances the generation.
+    axi_write(A_ASP_LO, 0x99AABBCCu); axi_write(A_ASP_HI, 0x55667788u);
+    axi_write(A_ASP_CMD, 0x80000100u);
+    ck("re-commit cannot leak through published slot 1",
+       asp_slot(1), 0x3CC0C6FFFFFE0210ull);
+    ck("re-commit keeps generation", dut->o_asp_gen, 1);
+    axi_write(A_ASP_CMD, 0x40000003u);
+    ck("changed publish exposes new slot 1", asp_slot(1), 0x5566778899AABBCCull);
+    ck("changed publish bumps generation", dut->o_asp_gen, 2);
+
+    // Compatibility: COMMIT and PUBLISH may share one command. Nonblocking
+    // assignment ordering must not make the publish copy the previous staged
+    // slot; the current {HI,LO} is the value published and retained in stage.
+    axi_write(A_ASP_LO, 0x22222222u); axi_write(A_ASP_HI, 0xEEEEEEEEu);
+    axi_write(A_ASP_CMD, 0xC0000203u);          // commit slot 2 + publish count 3
+    ck("combined COMMIT+PUBLISH exposes current slot 2",
+       asp_slot(2), 0xEEEEEEEE22222222ull);
+    ck("combined changed command bumps generation", dut->o_asp_gen, 3);
+    axi_write(A_ASP_CMD, 0x40000003u);
+    ck("combined value persisted in staging", asp_slot(2), 0xEEEEEEEE22222222ull);
+    ck("identical publish after combined command stays silent", dut->o_asp_gen, 3);
 
     // the generation is a NIBBLE and wraps rather than saturating (a stuck
-    // generation would silently stop arming pushes)
-    for (int k = 0; k < 14; ++k) axi_write(A_ASP_CMD, 0x40000003u);
+    // generation would silently stop arming pushes). Every iteration is a
+    // REAL count change; identical publishes no longer spend generations.
+    for (int k = 0; k < 13; ++k)
+      axi_write(A_ASP_CMD, 0x40000000u | ((k & 1) ? 3u : 2u));
     ck("generation wraps at 16", dut->o_asp_gen, 0);
 
     // SATURATION: the store holds 7 bridges + the grandmaster, so a longer
@@ -1176,12 +1210,21 @@ int main(int argc, char** argv) {
     axi_write(A_ASP_CMD, 0x4000000Fu);          // publish count 15
     ck("published count clamps to 8", dut->o_asp_count, 8);
     ck("ASP_CMD count readback clamped", axi_read(A_ASP_CMD) & 0xF, 8);
+    ck("clamped publish exposes committed slot 7",
+       asp_slot(7), 0xDEADBEEF77777777ull);
+    axi_write(A_ASP_CMD, 0x4000000Fu);
+    ck("identical clamped publish keeps generation", dut->o_asp_gen, 1);
 
     // back to zero = back to the legacy arm, which is how a daemon that
-    // loses its Announce tap stops asserting a path it can no longer see
+    // loses its Announce tap stops asserting a path it can no longer see.
+    // Published inactive slots clear, but the private image survives and a
+    // later publish restores it without a new COMMIT.
     axi_write(A_ASP_CMD, 0x40000000u);
     ck("publish count 0 restores the legacy arm", dut->o_asp_count, 0);
-    ck("slots survive a zero publish", asp_slot(2), 0xAABBCCDD11111111ull);
+    ck("zero publish hides every tail slot", asp_slot(2), 0);
+    axi_write(A_ASP_CMD, 0x40000003u);
+    ck("private slots survive zero and can be republished",
+       asp_slot(2), 0xEEEEEEEE22222222ull);
 
     // a bare read of CMD must not move anything (it is a status word)
     uint32_t before_gen = dut->o_asp_gen;

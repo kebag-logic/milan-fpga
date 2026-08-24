@@ -107,7 +107,7 @@ module milan_csr #(
   //! (125 MHz -> 0x08000000); milan_datapath overrides with its own
   //! MILAN_CLK_FREQ_HZ so the two can never disagree.
   parameter int unsigned MILAN_CLK_FREQ_HZ_P = 125_000_000,
-  parameter logic [31:0] VERSION = 32'h0002_0055 //! Value returned by the read-only VERSION register ([31:16] major, [15:0] minor; the ENTITY firmware_version renders major.minor.rev). VERSIONING POLICY (USER 2026-08-11): MAJOR = entire redesign of blocks; MINOR = compliance fixes - FLAT and continuous across majors, because the register-map changelog and every >= feature gate key on it; REV (patch, entity.firmware_rev in the config) = bug-fix respins that change no CSR ABI. 0x0002 MAJOR = THE SCENARIO-B ERA OPENS: the protocol-processor architecture of record (v2.0, the protocol-processor submodule) replaces this 1722.1/SRP plane by direct substitution at parity; the minor carries on unbroken. 0x0055 = TABLE 5.22 NOTIFICATIONS AND THE CONTROLLER MONITOR ARE LIVE (issue 69). Every successful state-changing command pushes an unsolicited response to each registered controller except the requester, and a SET that stores the value already held is silent (Milan 5.4.5.2). The observed triggers feed the same scheduler: the fabric's per-descriptor counter changes reach the processor's GET_COUNTERS face through a lossless round-robin (the rx monitor, the talker diag, the AVB_INTERFACE link and GM edges, the CLOCK_DOMAIN lock edge; one push per descriptor per second), one snapshot comparator over the WHOLE GET_AVB_INFO answer arms that class - the grandmaster identity, the effective propagation delay (A_GPTP_PDELAY 0x6E4, CONSUMED for the first time instead of discarded, or the fabric gPTP plane's published value under GPTP_PLANE_EN_P), the gPTP domain number (A_ADP_DOMAIN 0x62C) and the asCapable flag, none of the four conditioned on grandmaster presence so that a domain or delay update during startup or GM loss is announced rather than swallowed by the ADP rule that suppresses a boot-time GM_CHANGE; the SR class-A priority and default VLAN ID are detected inside the processor off the same wires it publishes, which completes the six triggers Table 5.22 names for this response. The 0x7DC PathTrace publish edge arms GET_AS_PATH, whose staged tail is now SERVED behind the grandmaster instead of discarded. Registered controllers are probed with CONTROLLER_AVAILABLE 30 to 60 s after their last command, retried exactly once, and removed with a DEREGISTER notification to that controller alone when silent (5.4.5.3). Persistence remains issue 70. NO new CSRs. Prior: 0x0054 = GENERATED NAMES ARE LIVE AND COHERENT. SET_NAME and GET_NAME serve every semantic name in the generated AEM model. ENTITY supports indices 0 and 1, while every other named descriptor supports index 0. Responses use the full fixed cdl 84 body on success and refusal, a locked SET returns the current name, and SET, GET, and READ_DESCRIPTOR observe one writable overlay. Generated shape data sizes the table and the store loads large tables in bounded bursts. Persistence remains issue 70; unsolicited delivery remains issue 69, with change triggers exported. NO new CSRs. Prior: 0x0053 = THE STREAM SETTERS LAND, AND THE FABRIC CONSUMES THEM. Issue 67's remainder: SET_STREAM_FORMAT (both stream directions) and SET_STREAM_INFO (Milan 5.4.2.9's one sub-command: a Stream Output with exactly MSRP_ACC_LAT_VALID) are served by the processor with every clause refusal - per-descriptor STREAM_IS_RUNNING at dispatch (a bound input or a streaming output, 5.4.2.7/5.4.2.9), whole-command NOT_SUPPORTED on any other sub-flag, BAD_ARGUMENTS on a bit-31 offset, and one integrator gather that judges the PROPOSED format against the ADDRESSED ROW's declared base (the 48 kHz family for inputs, the row's own declared shape for outputs, the advertised CRF format for the CRF rows) AND every mapping-referenced channel surviving (Milan 5.4.2.7's SHALL), with refusals carrying the CURRENT format. The fabric CONSUMES the settings: a set presentation offset folds into the per-STREAM_OUTPUT transit entries the AAF and CRF framers stamp (entry k is row k, the CRF output included), GET_STREAM_INFO's latency word reads the same folded entry, the served current format is the setting when one exists, and STREAM_INPUT 0's RX acceptance follows the set format. The verdict's mapping reduction sweeps the render map one key per cycle and reads the stream-channel-keyed capture map combinationally; the CRF rows admit exactly the advertised CRF format and report it as current. SAME MINOR, WIRE-FACING: responses that answered NOT_IMPLEMENTED now execute, so both sim pins and the compliance inventory move together.
+  parameter logic [31:0] VERSION = 32'h0002_0055 //! Value returned by the read-only VERSION register ([31:16] major, [15:0] minor; the ENTITY firmware_version renders major.minor.rev). VERSIONING POLICY (USER 2026-08-11): MAJOR = entire redesign of blocks; MINOR = compliance fixes - FLAT and continuous across majors, because the register-map changelog and every >= feature gate key on it; REV (patch, entity.firmware_rev in the config) = bug-fix respins that change no CSR ABI. 0x0002 MAJOR = THE SCENARIO-B ERA OPENS: the protocol-processor architecture of record (v2.0, the protocol-processor submodule) replaces this 1722.1/SRP plane by direct substitution at parity; the minor carries on unbroken. 0x0055 = TABLE 5.22 NOTIFICATIONS AND THE CONTROLLER MONITOR ARE LIVE (issue 69). Every successful state-changing command pushes an unsolicited response to each registered controller except the requester, and a SET that stores the value already held is silent (Milan 5.4.5.2). The observed triggers feed the same scheduler: the fabric's per-descriptor counter changes reach the processor's GET_COUNTERS face through a lossless round-robin (the rx monitor, the talker diag, the AVB_INTERFACE link and GM edges, the CLOCK_DOMAIN lock edge; one push per descriptor per second), one snapshot comparator over the WHOLE GET_AVB_INFO answer arms that class - the grandmaster identity, the effective propagation delay (A_GPTP_PDELAY 0x6E4, CONSUMED for the first time instead of discarded, or the fabric gPTP plane's published value under GPTP_PLANE_EN_P), the gPTP domain number (A_ADP_DOMAIN 0x62C) and the asCapable flag, none of the four conditioned on grandmaster presence so that a domain or delay update during startup or GM loss is announced rather than swallowed by the ADP rule that suppresses a boot-time GM_CHANGE; the SR class-A priority and default VLAN ID are detected inside the processor off the same wires it publishes, which completes the six triggers Table 5.22 names for this response. The 0x7DC PathTrace changed-publication edge arms GET_AS_PATH: COMMIT remains private, PUBLISH atomically replaces the served tail, and an identical re-publish is silent. Registered controllers are probed with CONTROLLER_AVAILABLE 30 to 60 s after their last command, retried exactly once, and removed with a DEREGISTER notification to that controller alone when silent (5.4.5.3). Persistence remains issue 70. NO new CSRs. Prior: 0x0054 = GENERATED NAMES ARE LIVE AND COHERENT. SET_NAME and GET_NAME serve every semantic name in the generated AEM model. ENTITY supports indices 0 and 1, while every other named descriptor supports index 0. Responses use the full fixed cdl 84 body on success and refusal, a locked SET returns the current name, and SET, GET, and READ_DESCRIPTOR observe one writable overlay. Generated shape data sizes the table and the store loads large tables in bounded bursts. Persistence remains issue 70; unsolicited delivery remains issue 69, with change triggers exported. NO new CSRs. Prior: 0x0053 = THE STREAM SETTERS LAND, AND THE FABRIC CONSUMES THEM. Issue 67's remainder: SET_STREAM_FORMAT (both stream directions) and SET_STREAM_INFO (Milan 5.4.2.9's one sub-command: a Stream Output with exactly MSRP_ACC_LAT_VALID) are served by the processor with every clause refusal - per-descriptor STREAM_IS_RUNNING at dispatch (a bound input or a streaming output, 5.4.2.7/5.4.2.9), whole-command NOT_SUPPORTED on any other sub-flag, BAD_ARGUMENTS on a bit-31 offset, and one integrator gather that judges the PROPOSED format against the ADDRESSED ROW's declared base (the 48 kHz family for inputs, the row's own declared shape for outputs, the advertised CRF format for the CRF rows) AND every mapping-referenced channel surviving (Milan 5.4.2.7's SHALL), with refusals carrying the CURRENT format. The fabric CONSUMES the settings: a set presentation offset folds into the per-STREAM_OUTPUT transit entries the AAF and CRF framers stamp (entry k is row k, the CRF output included), GET_STREAM_INFO's latency word reads the same folded entry, the served current format is the setting when one exists, and STREAM_INPUT 0's RX acceptance follows the set format. The verdict's mapping reduction sweeps the render map one key per cycle and reads the stream-channel-keyed capture map combinationally; the CRF rows admit exactly the advertised CRF format and report it as current. SAME MINOR, WIRE-FACING: responses that answered NOT_IMPLEMENTED now execute, so both sim pins and the compliance inventory move together.
 
 )(
   input  wire                    aclk,           //! AXI-Lite clock (aclk / axis_clk domain)
@@ -484,10 +484,10 @@ module milan_csr #(
   //! is ALWAYS the grandmaster and is never stored here (it lives at
   //! ADP_GM 0x624/0x628; duplicating it is the derive-never-mirror class).
   //! o_asp_path bit [64*(k-1) +: 64] = slot k. count = 0 keeps the legacy
-  //! two-entry [GM, parent] derivation in the response builder.
-  output wire [7*64-1:0]         o_asp_path,          //! committed slots 1..7
+  //! no-published-tail behavior in the response builder (GM only).
+  output wire [7*64-1:0]         o_asp_path,          //! published slots 1..7
   output wire [3:0]              o_asp_count,         //! published path length (entries incl the GM)
-  output wire [3:0]              o_asp_gen,           //! publish generation (bumps per publish)
+  output wire [3:0]              o_asp_gen,           //! generation (bumps when published path changes)
   //! lwSRP attribute-context provisioning port (KL_lwsrp_top ctx_* shape):
   //! window CTRL commits for idx>0 write a row (sid/dmac staged via the
   //! window SID/DMAC words, TSpec from the legacy 0x690/0x6A0 regs); reads
@@ -738,19 +738,20 @@ module milan_csr #(
   //  PathTrace TLV (1722.1-2021 7.4.41.2 serves it as GET_AS_PATH). Slot 0
   //  = the grandmaster, NEVER stored here (ADP_GM 0x624/8 is it); slots
   //  1-7 = the traversed bridges, staged 64 bits at a time through LO/HI
-  //  and committed one slot per CMD write. A publish latches the path
-  //  LENGTH and bumps the generation - the response builder's Table 5.22
-  //  w_aspath_sig carries {count, gen}, so the publish edge IS the push
-  //  arm even when the slot bytes did not change. count = 0 (reset) keeps
-  //  the legacy two-entry [GM, parent] derivation: old daemons that only
-  //  write AS2_LO/HI 0x730/4 regress nothing.
+  //  and committed into a private slot image one CMD write at a time. A
+  //  publish atomically transfers the whole staged image and path LENGTH
+  //  to the served snapshot. It bumps the generation only when that
+  //  published {count, bytes} changes; the response builder's Table 5.22
+  //  w_aspath_sig carries {count, gen}, so an identical re-publish is
+  //  silent. count = 0 (reset) keeps the legacy no-published-tail behavior:
+  //  old daemons that never use this group still serve the GM-only path.
   //  NOTE the handover named 0x7B8-0x7C0 for this group; those addresses
   //  were taken by the E3 persistence-journal ingest before J4 landed, so
   //  the group lives at the next free words after ETH_GUARD instead.
   localparam [ADDR_WIDTH-1:0] A_ASP_LO  = 'h7DC;  //! RW: staged clockIdentity [31:0]
   localparam [ADDR_WIDTH-1:0] A_ASP_HI  = 'h7E0;  //! RW: staged clockIdentity [63:32]
   localparam [ADDR_WIDTH-1:0] A_ASP_CMD = 'h7E4;  //! W: [31] commit staged into slot [10:8] (1-7),
-                                                  //!    [30] publish {count = [3:0]} + gen bump;
+                                                  //!    [30] publish {count = [3:0]}; gen bumps on change;
                                                   //! R live: {24'd0, gen[3:0], count[3:0]}
   //! slot count DERIVED from the port that carries them (one source: change
   //! o_asp_path's width and the store, the reset sweep and the published
@@ -1269,12 +1270,37 @@ module milan_csr #(
   logic        aemp_sel_p, aemp_field_p, aemp_data_p;
   logic        aemp_commit_p, aemp_abort_p;
   logic [31:0] aemp_wdata_r;
-  //! J4 AS_PATH staging store (0x7DC group): 7 x 64 committed slots +
-  //! the LO/HI staging pair + the published {count, gen} pair
+  //! J4 AS_PATH staging store (0x7DC group): one private committed image,
+  //! one atomically published image, the LO/HI staging pair and {count, gen}
   logic [31:0] asp_lo_r, asp_hi_r;      //! staged clockIdentity halves
-  logic [63:0] asp_slot_r [0:ASP_SLOTS_C-1];  //! committed slots 1..7 (index k-1)
+  logic [63:0] asp_stage_slot_r [0:ASP_SLOTS_C-1]; //! COMMIT target, invisible
+  logic [63:0] asp_slot_r [0:ASP_SLOTS_C-1]; //! published slots 1..7 (index k-1)
   logic [3:0]  asp_count_r;             //! published path length (0 = legacy)
   logic [3:0]  asp_gen_r;               //! publish generation
+  logic [3:0]  asp_publish_count_w;      //! clamped count carried by this CMD
+  logic [63:0] asp_publish_slot_w [0:ASP_SLOTS_C-1]; //! atomic next snapshot
+  logic        asp_publish_changed_w;    //! next published count/bytes differ
+  //! Build the complete PUBLISH snapshot before the sequential cutover. A
+  //! command may set COMMIT and PUBLISH together; in that case the selected
+  //! slot must use the current {HI,LO}, not the pre-edge staging flop. Slots
+  //! outside the new count are canonical zeroes: they are not members of the
+  //! published path and cannot manufacture a notification when only private
+  //! staging beyond the published length changes.
+  always_comb begin : asp_publish_next
+    asp_publish_count_w = (s_axi_wdata[3:0] > ASP_COUNT_MAX_C)
+                        ? ASP_COUNT_MAX_C : s_axi_wdata[3:0];
+    asp_publish_changed_w = (asp_publish_count_w != asp_count_r);
+    for (int unsigned ak = 0; ak < ASP_SLOTS_C; ak++) begin
+      asp_publish_slot_w[ak] = 64'd0;
+      if (4'(ak + 2) <= asp_publish_count_w) begin
+        asp_publish_slot_w[ak] = asp_stage_slot_r[ak];
+        if (s_axi_wdata[31] && (s_axi_wdata[10:8] == 3'(ak + 1)))
+          asp_publish_slot_w[ak] = {asp_hi_r, asp_lo_r};
+      end
+      if (asp_publish_slot_w[ak] != asp_slot_r[ak])
+        asp_publish_changed_w = 1'b1;
+    end
+  end : asp_publish_next
   //! ACMP bind-restore commit state (E1): staging regs are plain-RW
   //! shadow-backed; the CMD holds the rest master req until the engine ack
   logic [31:0] rest_tklo, rest_tkhi, rest_meta, rest_ctlo, rest_cthi;
@@ -1457,13 +1483,15 @@ module milan_csr #(
       aemp_sel_p <= 1'b0; aemp_field_p <= 1'b0; aemp_data_p <= 1'b0;
       aemp_commit_p <= 1'b0; aemp_abort_p <= 1'b0; aemp_wdata_r <= 32'h0;
       //! J4: count = 0 at reset is the LEGACY arm - a gateware nobody
-      //! teaches to publish a path serves the [GM, parent] derivation, not
-      //! a truncated one. Slots stay 0 so a stale bridge id can never be
-      //! served by a later publish that names more entries than were
-      //! committed.
+      //! teaches to publish a path serves the GM-only derivation. Both slot
+      //! images stay 0 so a stale bridge id can never be served by a later
+      //! publish that names more entries than were committed.
       asp_lo_r <= 32'h0; asp_hi_r <= 32'h0;
       asp_count_r <= 4'h0; asp_gen_r <= 4'h0;
-      for (i = 0; i < ASP_SLOTS_C; i = i + 1) asp_slot_r[i] <= 64'h0;
+      for (i = 0; i < ASP_SLOTS_C; i = i + 1) begin
+        asp_stage_slot_r[i] <= 64'h0;
+        asp_slot_r[i]       <= 64'h0;
+      end
     end else begin
       // command strobes are single-cycle: default low, pulsed by writes below
       stats_snap_p <= 1'b0; stats_rst_p <= 1'b0;
@@ -1774,25 +1802,29 @@ module milan_csr #(
             end
           end
           //! J4 AS_PATH staging group (0x7DC): LO/HI are plain-RW staging
-          //! (is_plain_rw, readback via the shadow); CMD is the atomic
-          //! cutover. A COMMIT ([31]) moves the staged 64-bit clockIdentity
-          //! into the slot named by [10:8] - slot 0 is REFUSED because slot
-          //! 0 is the grandmaster and already lives at ADP_GM 0x624/8
-          //! (derive-never-mirror). A PUBLISH ([30]) latches the path LENGTH
-          //! from [3:0] and bumps the generation: that pair is what the
-          //! response builder's Milan Table 5.22 signature watches, so the
-          //! publish edge is the push arm even when no slot byte moved.
-          //! The length is CLAMPED to the eight the store can serve, so the
-          //! CMD readback never advertises entries the wire cannot carry.
+          //! (is_plain_rw, readback via the shadow). A COMMIT ([31]) moves
+          //! the staged 64-bit clockIdentity into the PRIVATE image's slot
+          //! named by [10:8] - slot 0 is REFUSED because slot 0 is the
+          //! grandmaster and already lives at ADP_GM 0x624/8
+          //! (derive-never-mirror). It cannot change o_asp_path. A PUBLISH
+          //! ([30]) is the atomic cutover: all active slots and the clamped
+          //! LENGTH become visible in this edge. The generation advances
+          //! only when that published count or those bytes change, so the
+          //! Milan Table 5.22 signature cannot fire on an identical publish.
+          //! COMMIT+PUBLISH in one command preserves the historical ABI by
+          //! substituting the current {HI,LO} into the selected next slot.
           A_ASP_LO: asp_lo_r <= s_axi_wdata;
           A_ASP_HI: asp_hi_r <= s_axi_wdata;
           A_ASP_CMD: begin
             if (s_axi_wdata[31] && (s_axi_wdata[10:8] != 3'd0))
-              asp_slot_r[s_axi_wdata[10:8] - 3'd1] <= {asp_hi_r, asp_lo_r};
+              asp_stage_slot_r[s_axi_wdata[10:8] - 3'd1]
+                <= {asp_hi_r, asp_lo_r};
             if (s_axi_wdata[30]) begin
-              asp_count_r <= (s_axi_wdata[3:0] > ASP_COUNT_MAX_C)
-                           ? ASP_COUNT_MAX_C : s_axi_wdata[3:0];
-              asp_gen_r   <= asp_gen_r + 4'd1;
+              asp_count_r <= asp_publish_count_w;
+              for (i = 0; i < ASP_SLOTS_C; i = i + 1)
+                asp_slot_r[i] <= asp_publish_slot_w[i];
+              if (asp_publish_changed_w)
+                asp_gen_r <= asp_gen_r + 4'd1;
             end
           end
           A_TCAM_CTRL: tcam_ctrl <= s_axi_wdata;
@@ -2587,7 +2619,9 @@ module milan_csr #(
   assign o_crft_sid         = {crft_sidhi, crft_sidlo};
   assign o_crft_dest_mac    = {crft_dmhi[15:0], crft_dmlo};
   assign o_as_parent_ckid   = {as2_hi, as2_lo};
-  //! J4: the committed PathTrace tail, flattened slot 1 first. The builder
+  //! J4: the published PathTrace tail, flattened slot 1 first. COMMIT edits
+  //! only the private image; PUBLISH replaces these active slots together.
+  //! The builder
   //! reads bit [64*(k-1) +: 64] as entry k of the served path sequence;
   //! entry 0 is the grandmaster and comes from ADP_GM, never from here.
   generate
