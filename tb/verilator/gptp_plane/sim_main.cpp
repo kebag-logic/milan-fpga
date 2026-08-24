@@ -116,6 +116,14 @@ static int auto_pend = -1;
 static std::vector<uint64_t> steps_seen;
 static std::vector<uint32_t> adj_seen;
 
+// ---- the engine's phc_ns_i port, watched as WIRING (milan-fpga #211) ------
+// The shipped microprogram reads that port nowhere (no GATH is emitted and
+// RTS1 is read by no program), so nothing this bench can do to the counter
+// changes a transmitted byte through it. What CAN be checked is that the
+// port carries the live counter: tap_eng_phc_o is read from inside the
+// engine instance, so a constant tied onto the connection is visible here.
+static uint64_t eng_phc_bad = 0, eng_phc_lo = ~0ull, eng_phc_hi = 0;
+
 static uint64_t phc() { return dut->phc_ns_o; }
 
 static void tick() {
@@ -128,6 +136,15 @@ static void tick() {
   }
   dut->clk_i = 0; dut->eval();
   dut->clk_i = 1; dut->eval();
+  if (dut->tap_eng_phc_o != dut->phc_ns_o) {
+    if (!eng_phc_bad)
+      printf("NOTE engine phc port %016llx != counter %016llx at cycle %llu\n",
+             (unsigned long long)dut->tap_eng_phc_o,
+             (unsigned long long)dut->phc_ns_o, (unsigned long long)cyc);
+    eng_phc_bad++;
+  }
+  if (dut->tap_eng_phc_o < eng_phc_lo) eng_phc_lo = dut->tap_eng_phc_o;
+  if (dut->tap_eng_phc_o > eng_phc_hi) eng_phc_hi = dut->tap_eng_phc_o;
   if (dut->tap_adj_we_o) adj_seen.push_back(dut->tap_adj_o);
   if (dut->tap_step_we_o) steps_seen.push_back(dut->tap_step_o);
   if (dut->tx_valid_o) {
@@ -356,15 +373,12 @@ int main(int argc, char **argv) {
   // ten octets after the header are RESERVED and transmitted as zero
   // (802.1AS-2011 Table 11-8, since FPGA-gPTP #10); the real time rides
   // the paired Follow_Up's preciseOriginTimestamp (11.4.4.2.1), which is
-  // what this phase checks. It is NOT the phc_ns_i observing check PR
-  // #113's review asked for: at this pin the ENGINE's input has no
-  // reader (no GATH is emitted and RTS1 is never read), the Follow_Up's
-  // origin comes from the TX timestamp this bench drives itself at
-  // :119-122, and a constant-tied phc_ns_i leaves the run green. The
-  // SLICE's counter wire is a different signal and IS covered, by
-  // tb/verilator/gptp_shadow (tying its two consumers gives 31 PASS,
-  // 9 FAIL). Measured, tracked in milan-fpga #211; do not restate the
-  // blind spot as closed here.
+  // what this phase checks. It is NOT an observation of phc_ns_i: the
+  // Follow_Up's origin is the TX timestamp this bench drives itself at
+  // :127-130, and every 802.1AS timestamp field is an event message's
+  // ingress or egress stamp, so no wire field can carry the free-running
+  // PHC. milan-fpga #211 decided the engine's phc_ns_i stays unread and
+  // is gated by wiring instead; phase 6 is that gate.
   {
     expect("quiet ride to grandmaster",
            wait_flags(FL_AMGM, FL_AMGM, 10000000ull), 1);
@@ -385,6 +399,18 @@ int main(int argc, char **argv) {
              d >= 0 && d < 300000, 1);
     }
   }
+
+  // ---- 6: the engine's phc_ns_i is WIRED to the counter ------------------
+  // milan-fpga #211's decision: the port stays, unread by the shipped
+  // microprogram, because no 802.1AS field takes a free-running PHC --
+  // the one consumer it ever had (a GATH filling the two-step Sync body)
+  // was removed by FPGA-gPTP #10 as a Table 11-8 violation. An unread
+  // input accepts ANY wiring silently, so the contract this bench can
+  // still hold is connectivity: the port must carry the live counter,
+  // cycle for cycle, and must move. Both fail on a tie-off, which is the
+  // mis-wire the blind spot hid. Neither claims the engine uses the value.
+  expect("engine phc port tracks counter", eng_phc_bad, 0);
+  expect("engine phc port is live", eng_phc_hi > eng_phc_lo, 1);
 
   printf("%d checks: %d PASS, %d FAIL\n", checks, checks - fails, fails);
   delete dut;

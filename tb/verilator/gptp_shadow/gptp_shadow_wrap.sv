@@ -72,7 +72,15 @@ module gptp_shadow_wrap #(
     //! the same tag where the engine boundary sees it: the slice PORT,
     //! combinational, so it must equal the stamper's in the very cycle
     //! txts_valid_i is high. A register here would lag by a leg
-    output wire [3:0]  dbg_slice_type_o
+    output wire [3:0]  dbg_slice_type_o,
+    //! the value the ENGINE's phc_ns_i port carries INSIDE the slice, read
+    //! hierarchically at u_shadow.u_engine and not from this wrapper's own
+    //! phc_ns_o. The shipped microprogram reads that port nowhere
+    //! (milan-fpga #211), so no behavioural check can observe it and the
+    //! slice's own connection at KL_gptp_shadow.sv accepts any wiring
+    //! silently: measured, tying it to 64'd0 left this bench at 59 PASS.
+    //! This tap gates the CONNECTION -- it never claims the value is used
+    output wire [63:0] dbg_eng_phc_o
 );
 
   logic               busy_w;
@@ -184,6 +192,12 @@ module gptp_shadow_wrap #(
     end
   end
   assign dbg_prog_run_o = prog_run_r;
+
+  //! hierarchical read of the engine's own input port: a tap on phc_ns_o
+  //! here would keep reading the live counter after the slice's internal
+  //! connection was tied off, which is the mis-wire this gate exists to
+  //! catch (milan-fpga #211)
+  assign dbg_eng_phc_o = u_shadow.u_engine.phc_ns_i;
 
 endmodule : gptp_shadow_wrap
 `default_nettype wire

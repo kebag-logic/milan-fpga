@@ -18,13 +18,15 @@
 //                  phc_step_*    ->  offset_i + cmd_adjust_i  (adjtime)
 //                  timestamp_out ->  phc_ns_i     (the clock it steers;
 //                                                  the ENGINE's port is
-//                                                  UNREAD at the current
-//                                                  submodule pin, so no
-//                                                  check here observes it
-//                                                  (milan-fpga #211). The
-//                                                  SLICE's counter wire is
-//                                                  a different signal and
-//                                                  is covered by
+//                                                  UNREAD by the shipped
+//                                                  microprogram, decided
+//                                                  in milan-fpga #211, so
+//                                                  it is gated by WIRING
+//                                                  and not by behaviour:
+//                                                  tap_eng_phc_o below.
+//                                                  The SLICE's counter
+//                                                  wire is a different
+//                                                  signal, covered by
 //                                                  tb/verilator/gptp_shadow)
 //
 //                The addend latch is the one piece of fabric the splice
@@ -65,6 +67,15 @@ module gptp_plane_wrap #(
 
     //! the steered clock, observable
     output wire  [63:0] phc_ns_o,
+
+    //! the value the ENGINE's phc_ns_i port actually carries, read from
+    //! inside the instance (NOT from a wrap-local wire): the shipped
+    //! microprogram reads that port nowhere, so no behavioural check in
+    //! this bench can observe it, and a constant tied onto the connection
+    //! below would otherwise pass the whole suite (milan-fpga #211). This
+    //! tap makes the CONNECTION observable -- it proves the port is wired
+    //! to the live counter, never that the engine uses the value
+    output wire  [63:0] tap_eng_phc_o,
 
     //! steering taps for the bench (observer only)
     output logic        tap_adj_we_o,
@@ -156,6 +167,11 @@ module gptp_plane_wrap #(
       .dbg_busy_o         (),
       .dbg_status_o       ()
   );
+
+  //! hierarchical read of the engine's own input port: a wrap-local wire
+  //! would still read `phc_ns_o` after the connection above was tied off,
+  //! which is the mis-wire this gate exists to catch (milan-fpga #211)
+  assign tap_eng_phc_o = u_engine.phc_ns_i;
 
   assign tap_adj_we_o  = adj_we_w;
   assign tap_adj_o     = adj_val_w;

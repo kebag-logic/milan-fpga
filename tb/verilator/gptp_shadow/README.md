@@ -22,6 +22,19 @@ fabric time.
 | 5 | an AVTP-ethertype frame between gPTP ones is invisible; a runt drops harmlessly and costs no drop count |
 | 6 | an OVERSIZE frame dropped inside the tap FIFO cannot skew the next sync's ingress stamp (falsifies an accept-time ts push -- the commit-pulse transport pairs stamps with DELIVERED frames only) |
 | 7 | a back-to-back burst overflows the tap FIFO: drops are COUNTED via the FIFO's overflow strobe (DROP_WHEN_FULL keeps s_ready high, so a ready-based counter is blind), and the plane keeps working afterwards |
+| all | #211: the slice wires the steered counter into the engine's `phc_ns_i`, and that connection is checked. The engine reads the port nowhere, so nothing behavioural can see it: `dbg_eng_phc_o` is read hierarchically at `u_shadow.u_engine` and must equal the counter every cycle, and must move |
+
+The `all` row closes a blind spot this bench had for its whole life,
+and the measurement is the argument: tying the ENGINE's connection
+inside `KL_gptp_shadow.sv` to `64'd0` -- a mis-wire of the shipped
+slice, not of a harness -- left the run at 59 checks, 59 PASS. An input
+no program reads accepts any wiring in silence, so connectivity is the
+only contract left to hold, and it is the one silicon breaks. With the
+gate the same tie-off gives 61 checks, 59 PASS, 2 FAIL. The two checks
+prove the CONNECTION and never that the engine uses the value; the
+decision that it should not is recorded in
+[#211](https://github.com/kebag-logic/milan-fpga/issues/211) and in
+[`docs/design/GPTP_PLANE.md`](../../../docs/design/GPTP_PLANE.md).
 
 This bench found the engine's ingress-stamp race (a chaser's sof
 overwrote the previous frame's stamp before its event dispatched --

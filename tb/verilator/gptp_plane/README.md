@@ -20,20 +20,36 @@ What it proves:
 | 2 | a live auto-answering peer raises asCapable at the second exchange |
 | 3 | a better announce is adopted; the publish bank carries the GM identity and role flags |
 | 4 | closed loop vs a +100 ppm master 1 ms ahead in counter time: ONE adjtime re-base near +1 ms (the correction negates the offset), the latched adjfine level lands at the +100 ppm ideal (13,421 Q8.24 units, within 15%), the measured offset locks under 150 ns, and the REAL counter's advance tracks the master's within 100 ns over the last four sync intervals |
-| 5 | announce silence rides to grandmaster; the two-step Sync's ten reserved octets are zero (802.1AS-2011 Table 11-8) and its paired Follow_Up carries a plausible live timestamp. It does NOT observe `phc_ns_i`: see the note below |
+| 5 | announce silence rides to grandmaster; the two-step Sync's ten reserved octets are zero (802.1AS-2011 Table 11-8) and its paired Follow_Up carries a plausible live timestamp. It does NOT observe `phc_ns_i`: phase 6 is why |
+| 6 | the ENGINE's `phc_ns_i` port carries the steered counter, cycle for cycle, and moves. A WIRING gate, not an observation: it proves the connection, never that the engine uses the value |
 
-The `phc_ns_i` blind spot from PR #113's review is RE-OPENED at the
-current submodule pin for the ENGINE's port, and this bench does not
-close it. Measured: tying `.phc_ns_i` to `64'd0` in
-`gptp_plane_wrap.sv` leaves the run at 18 checks, 18 PASS; on `dev` at
-the old pin `5c330fc8` the same tie failed `origin is the real
-counter`. `KL_gptp_engine`'s input has no reader at this pin: the
-microcode generator emits no `GATH` (FPGA-gPTP #10 removed the one that
-gathered the Sync body's origin), and `RTS1`, the register `phc_ns_i`
-feeds through `disp_ts1_r`, is read by no program. The Follow_Up's
-preciseOriginTimestamp comes from the TX timestamp instead, which this
-bench drives itself, so no assertion here can restore observability
-while the input is unread.
+Phase 6 is the answer to
+[#211](https://github.com/kebag-logic/milan-fpga/issues/211), and the
+reasoning matters more than the two checks. `KL_gptp_engine`'s
+`phc_ns_i` has no reader in the shipped microprogram: the generator
+emits no `GATH` and `RTS1`, the register the port feeds through
+`disp_ts1_r`, is read by no program. That is settled rather than
+pending, because no 802.1AS field can carry a free-running clock read.
+Every timestamp on the wire is an event message's ingress or egress
+stamp -- the Follow_Up's preciseOriginTimestamp is the Sync's egress
+time (11.4.4.2.1), the pdelay legs carry the exchange's own stamps --
+and the two-step Sync's own ten octets are reserved and transmitted as
+zero (Table 11-8). The one consumer the port ever had, a `GATH` filling
+that Sync body, was a Table 11-8 violation, and FPGA-gPTP #10 removed
+it. So no behavioural check here can observe the port, and one written
+anyway would be observing the harness: the TX timestamp this bench
+drives itself.
+
+What an unread input still owes is its wiring, and that is what was
+silently unchecked. Measured on this bench before phase 6, at pin
+`c33fb1af`: tying `.phc_ns_i` to `64'd0` in `gptp_plane_wrap.sv` left
+the run at 18 checks, 18 PASS, and so did `64'd123456789`. The gate is
+`tap_eng_phc_o`, read hierarchically from inside the engine instance so
+that the tie-off is visible to it; a tap on the wrapper's own
+`phc_ns_o` would have stayed green under exactly that tie-off, which is
+measured too. With phase 6 the same tie-off gives 20 checks, 18 PASS,
+2 FAIL, and a live-but-wrong connection (`phc_ns_o + 64'd1`) gives 19
+PASS, 1 FAIL.
 
 Scope that carefully, because the same name means two things. What is
 unread is the ENGINE port, which is what this wrapper instantiates.
@@ -41,12 +57,9 @@ The SLICE's `timestamp_counter` wire is read by
 `KL_gptp_shadow.sv`'s `ts_arr_r <= phc_ns_i` and `KL_gptp_txstamp.sv`'s
 first-beat `ts_r <= phc_ns_i` and IS covered:
 tying both slice consumers in `tb/verilator/gptp_shadow`'s wrapper to
-`64'd0` turns that bench red, 59 checks with 45 PASS and 14 FAIL. So a
-mis-wire of the counter into the shipped slice is caught; only the
-engine's own port is invisible. Tracked as
-[#211](https://github.com/kebag-logic/milan-fpga/issues/211), which
-asks the real question: should the engine consume `phc_ns_i`, or is
-that port vestigial at this pin?
+`64'd0` turns that bench red, 61 checks with 45 PASS and 16 FAIL. The
+slice's own connection to the ENGINE port is a third thing again, and
+it was invisible until `gptp_shadow` grew the same wiring gate.
 
 Timescale note: the bench clock is 2 MHz while the counter keeps its
 8.0 ns/tick shape, so counter time runs 62.5x slower than the bench

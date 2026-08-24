@@ -125,6 +125,35 @@ The plane has four seams:
   bank (stage at sof, commit at eof, length-qualified) -- the fabric
   bench found the single-register race this retires; the donor's
   engine v3 record carries the story.
+- **The free-running PHC** reaches the engine on `phc_ns_i` and no
+  program the shipped microcode runs reads it: the generator emits no
+  `GATH`, and `RTS1`, the register the port feeds through
+  `disp_ts1_r`, is read nowhere.
+  [#211](https://github.com/kebag-logic/milan-fpga/issues/211) decided
+  that stays so, because no 802.1AS field can carry a free-running
+  clock read. Every timestamp on the wire is an event message's
+  ingress or egress stamp -- the Follow_Up's preciseOriginTimestamp is
+  the Sync's egress time (11.4.4.2.1), the pdelay legs carry the
+  exchange's own stamps -- and the two-step Sync's ten octets after
+  the header are reserved and transmitted as zero (Table 11-8). The
+  one consumer the port ever had was a `GATH` filling that Sync body,
+  which was a Table 11-8 violation; FPGA-gPTP #10 removed it. The port
+  itself stays: it is the µCPU's gather source for local time and the
+  dispatch snapshot behind `RTS1`, the same base-ISA surface as the
+  engine's reserved `eff_*` strobes, and removing it is donor RTL
+  churn with an ISA cost and no wire benefit.
+  What an unread input still owes is its WIRING, and that was the
+  actual defect: it accepts any connection in silence. Measured before
+  the fix, at pin `c33fb1af`, tying the slice's own connection to the
+  engine (`KL_gptp_shadow.sv`, the `KL_gptp_engine` instance) to
+  `64'd0` left `tb/verilator/gptp_shadow` at 59 checks, 59 PASS -- a
+  mis-wire of the shipped slice, invisible. Both benches now tap the
+  ENGINE's port hierarchically and require it to equal the steered
+  counter cycle for cycle and to move; the same tie-off gives 61
+  checks, 59 PASS, 2 FAIL. Those checks prove the CONNECTION and never
+  that the engine uses the value. Restoring a value consumer is donor
+  work and would need a wire field or a published word that wants it,
+  which 11.4 does not today.
 
 ## What stays software until #116
 
@@ -139,8 +168,8 @@ why it carries no VERSION bump.
 | bench | faces | proves |
 |---|---|---|
 | gptp-processor `tb/verilator/*` | byte, model counter | the 802.1AS state machines, servo math, and the donor's planted-mutation ladder; its count lives in the donor's engine bench README under `gptp-processor/tb/verilator/engine/` at the pinned SHA and is not mirrored here, where it would drift at every repin |
-| `tb/verilator/gptp_plane` | byte, REAL counter | the engine steers the parent's `timestamp_counter` closed-loop, and its transmitted Follow_Up carries a live timestamp while the two-step Sync body stays zero (Table 11-8). It does NOT observe the engine's own `phc_ns_i`: at the current submodule pin that input has no reader, so a tie-off there passes this bench ([#211](https://github.com/kebag-logic/milan-fpga/issues/211)). The slice's `timestamp_counter` wire is a different signal and IS covered, by `tb/verilator/gptp_shadow` |
-| `tb/verilator/gptp_shadow` | WIDE, real counter + boundary stamper | the fabric slice with no harness timestamps at all; classify/transport/gearbox/stamper; 5 mutations |
+| `tb/verilator/gptp_plane` | byte, REAL counter | the engine steers the parent's `timestamp_counter` closed-loop, and its transmitted Follow_Up carries a live timestamp while the two-step Sync body stays zero (Table 11-8). It does not OBSERVE the engine's own `phc_ns_i`, because no program reads that port ([#211](https://github.com/kebag-logic/milan-fpga/issues/211)); it gates the WIRING instead, hierarchically at the engine instance, so a tie-off is red. The slice's `timestamp_counter` wire is a different signal again and IS covered, by `tb/verilator/gptp_shadow` |
+| `tb/verilator/gptp_shadow` | WIDE, real counter + boundary stamper | the fabric slice with no harness timestamps at all; classify/transport/gearbox/stamper; 5 mutations. Since #211 it also gates the slice's own connection to the engine's `phc_ns_i`, which passed tied to `64'd0` before |
 | `tb/verilator/milan_dp` obj_gptp | the whole datapath | option-ON elaborates at the shipping 1x1 ENTITY shape (the leg's own -G set, 2 MHz clock -- not the obj_ax1x1 argv); the boot Pdelay_Req reaches the real MAC boundary; NO Announce without asCapable |
 | `tb/verilator/milan_dp` default legs | the whole datapath | the [GPTP-OPT] tripwire: with the option OFF, CSR adjfine and adjtime still reach `timestamp_counter` through the eff muxes (a polarity swap goes red) |
 | `tb/verilator/tsn_fuzz` (`fuzz_ptp.py`) | byte, the tsn-gen 802.1AS models at the CI pin | the plane's own Announce / Sync / Follow_Up / Pdelay field-by-field against the Milan v1.2 profile of 802.1AS-2011 (the Table 11-7 control byte among them), parser drop/ignore gates, BTCA under fuzz, the two-sided asCapable canary; the tally and the tracked gaps live in the generated [`hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md`](../../hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md) |

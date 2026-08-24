@@ -131,9 +131,26 @@ static bool g_ts_capture = false;
 
 static uint64_t phc() { return dut->phc_ns_o; }
 
+// ---- the engine's phc_ns_i port, watched as WIRING (milan-fpga #211) ------
+// The shipped microprogram reads that port nowhere, so nothing this bench
+// can do to the counter changes a transmitted byte through it, and the
+// slice's own connection to it therefore accepts any wiring silently.
+// dbg_eng_phc_o is read from inside u_shadow.u_engine, so a constant tied
+// onto that connection is visible here.
+static uint64_t eng_phc_bad = 0, eng_phc_lo = ~0ull, eng_phc_hi = 0;
+
 static void tick() {
   dut->clk_i = 0; dut->eval();
   dut->clk_i = 1; dut->eval();
+  if (dut->dbg_eng_phc_o != dut->phc_ns_o) {
+    if (!eng_phc_bad)
+      printf("NOTE engine phc port %016llx != counter %016llx at cycle %llu\n",
+             (unsigned long long)dut->dbg_eng_phc_o,
+             (unsigned long long)dut->phc_ns_o, (unsigned long long)cyc);
+    eng_phc_bad++;
+  }
+  if (dut->dbg_eng_phc_o < eng_phc_lo) eng_phc_lo = dut->dbg_eng_phc_o;
+  if (dut->dbg_eng_phc_o > eng_phc_hi) eng_phc_hi = dut->dbg_eng_phc_o;
   if (g_ts_capture) {
     if (dut->dbg_tspush_v_o) g_pushed.push_back(dut->dbg_tspush_o);
     if (dut->dbg_tspop_v_o)  g_popped.push_back(dut->dbg_rx_ts_o);
@@ -711,6 +728,16 @@ int main(int argc, char **argv) {
   expect("every stamp carries its own frame's messageType", tag_wrong, 0);
   expect("every stamp carries its own frame's sequenceId", seq_wrong, 0);
   expect("the tag is proved for all six transmitted types", types_seen, 6);
+
+  // The engine's phc_ns_i is WIRED to the steered counter inside the
+  // slice. milan-fpga #211 decided the port stays unread by the shipped
+  // microprogram -- no 802.1AS field takes a free-running PHC, every
+  // timestamp on the wire is an event message's ingress or egress stamp --
+  // so connectivity is the only contract left to hold, and it is the one
+  // a silicon mis-wire breaks. Neither check claims the engine uses the
+  // value.
+  expect("engine phc port tracks counter", eng_phc_bad, 0);
+  expect("engine phc port is live", eng_phc_hi > eng_phc_lo, 1);
 
   printf("%d checks: %d PASS, %d FAIL\n", checks, checks - fails, fails);
   delete dut;
