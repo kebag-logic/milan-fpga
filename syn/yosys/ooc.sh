@@ -77,6 +77,15 @@ tops=(
   "tcam|$F/tcam.sv"
   "KL_pcm_lpf|$R/hdl/ieee1722/aaf/KL_pcm_lpf.sv"
   "milan_datapath|$DP_SRCS"
+  # The saved-state backing store's BEFORE/AFTER pair
+  # (docs/design/SAVED_STATE_FASTCONNECT.md section 8.3). These are
+  # sizing sketches under syn/ooc/sizing/, NOT shipping RTL: nothing
+  # instantiates them and hdl/ never sees them. They are here so the
+  # decision record can quote a measured bound for the backend that
+  # replaces KL_pp_shadow's blank-flash responder, at both shapes,
+  # through OOC_CHPARAM.
+  "KL_nvm_blankflash_sizer|$R/syn/ooc/sizing/KL_nvm_backend_sizer.sv"
+  "KL_nvm_backend_sizer|$R/syn/ooc/sizing/KL_nvm_backend_sizer.sv"
 )
 
 want=("$@")
