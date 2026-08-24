@@ -29,6 +29,8 @@ import json
 import argparse
 import binascii
 
+from gptp_owner_contract import GPTP_OWNER_CODES
+
 from migen import ClockDomain, ClockDomainsRenamer, ClockSignal, ResetSignal, Instance, Signal, Mux, If, Cat, C, Array, FSM, NextValue, NextState, Memory
 from migen.genlib.cdc import MultiReg
 from migen.genlib.resetsync import AsyncResetSynchronizer
@@ -497,7 +499,7 @@ class MilanNIC(LiteXModule):
                  desc_base=None, resp_base=None,
                  rx1_irq=None, milan_clk_hz=100_000_000, num_streams=1,
                  audio_if_slots=0, talker_wire_chans=2, audio_if_master=False,
-                 audio_if_i2s_pair=False, gptp_plane=False, sound_card=False,
+                 audio_if_i2s_pair=False, gptp_plane=None, sound_card=False,
                  aaf_playback=False, aaf_pb_streams=1,
                  loopback_lane=False,
                  render_lpf=True, optional_blocks=None,
@@ -576,7 +578,7 @@ _MILAN_DATAPATH_SOURCES = [
     # shadow/substitution wrapper and the block-vs-per-source MAAP adapter.
     "hdl/milan/KL_pp_shadow.sv", "hdl/milan/KL_pp_maap_shim.sv",
     # the gPTP plane (#114): milan_datapath instantiates KL_gptp_shadow and
-    # KL_gptp_txstamp under GPTP_PLANE_EN_P (default OFF), so Vivado must see
+    # KL_gptp_txstamp under GPTP_PLANE_EN_P (product default ON), so Vivado must see
     # the wrappers and the gptp-processor engine they wrap. Order mirrors the
     # authoritative GPTP_SRCS in tb/verilator/milan_dp/Makefile: the package
     # first, its importers after.
@@ -713,7 +715,7 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
                        milan_clk_hz=100_000_000, num_streams=1, audio_if_slots=0,
                        talker_wire_chans=2, audio_if_master=False,
                        audio_if_i2s_pair=False,
-                       gptp_plane=False,
+                       gptp_plane=None,
                        sound_card=False, aaf_playback=False, aaf_pb_streams=1,
                        loopback_lane=False,
                        render_lpf=True,
@@ -835,16 +837,25 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
     # and not one more declaration.
     # milan-fpga/ root - used by the source list AND the processor ROM path
     base = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # milan-fpga/
+    # Ownership is a per-build fact.  Raising here catches a caller which
+    # stopped forwarding the resolved value; bool(None) would silently choose
+    # the option-off plane even though the RTL product default is on.
+    if gptp_plane is None:
+        raise RuntimeError(
+            "add_milan_datapath needs gptp_plane=: resolve the PHC owner and "
+            "pass gptp_plane=True or gptp_plane=False")
     dp_params = dict(p_MILAN_CLK_FREQ_HZ=int(milan_clk_hz),
                      p_N_STREAMS=int(num_streams),
-                     p_AUDIO_IF_SLOTS_P=int(audio_if_slots))
+                     p_AUDIO_IF_SLOTS_P=int(audio_if_slots),
+                     # Always pass the option: an explicit legacy build must
+                     # override milan_datapath's product-default 1.
+                     p_GPTP_PLANE_EN_P=int(bool(gptp_plane)))
     if gptp_plane:
-        # #120 option-on shipping build. The builder generates this image from
+        # #116 product-default fabric build. The builder generates this image from
         # the SAME end-station YAML as the AEM: station MAC, gPTP priority1 and
         # Milan clock are therefore facts of one config, not parallel CLI
         # literals. Pass an absolute path because Vivado's run directory is
         # not the repository and a relative $readmemh silently yields zero ROM.
-        dp_params["p_GPTP_PLANE_EN_P"] = 1
         dp_params["p_GPTP_UCODE_HEX_P"] = _builder_out(
             entity_gen_dir, "gptp_ucode.hex")
     if sound_card:
@@ -5629,9 +5640,24 @@ class MilanSoC(SoCCore):
                  loopback_lane=False,
                  bus_standard="wishbone",
                  software_profile="linux",
-                 gptp_plane=False,
+                 gptp_plane=None,
                  render_lpf=True, optional_blocks=None,
                  cbs_queues_mask=None, entity_gen_dir=None, **kwargs):
+        # Resolve the one PHC owner once, before it fans out into RTL, firmware
+        # constants and the flash artifact contract.  `none` is a real state
+        # for the documented --no-milan bare-SoC path; a missing value is not
+        # allowed to masquerade as that state because old/partial layouts must
+        # fail closed at deployment.
+        if not with_milan:
+            self._gptp_owner = "none"
+        elif gptp_plane is True:
+            self._gptp_owner = "fabric"
+        elif gptp_plane is False:
+            self._gptp_owner = "software"
+        else:
+            raise ValueError(
+                "MilanSoC needs a resolved gptp_plane=True/False when the "
+                "Milan datapath is present")
         # ---- RISC-V core(s). Two cores are supported, selected by
         #      `cpu`: NaxRiscv (out-of-order, high IPC, ~100 MHz on this -2 Artix) or
         #      VexiiRiscv (in-order, higher fmax + smaller  -  the AVB-switch direction,
@@ -5746,6 +5772,11 @@ class MilanSoC(SoCCore):
                          ident=(f"Milan TSN SoC - {_cpu_human} RV{xlen} "
                                 f"{cpu_count}-core {software_profile}"),
                          **kwargs)
+        # Compiled into soc.h so layout_from_soch.py can reconstruct the exact
+        # ownership state for sweep artifacts without consulting a launcher or
+        # mutable rootfs overlay.  Encoding: 0=none, 1=fabric, 2=software.
+        self.add_constant("MILAN_GPTP_OWNER",
+                          GPTP_OWNER_CODES[self._gptp_owner])
         if software_profile == "baremetal":
             self.add_config("BIOS_NO_BOOT")
 
@@ -6121,7 +6152,9 @@ class MilanSoC(SoCCore):
                                   # never assigns them)
                                   audio_if_i2s_pair=(self.tdm_pads is not None
                                                      and _dma_i2s is not None),
-                                  gptp_plane=bool(gptp_plane),
+                                  # Preserve None so add_milan_datapath catches
+                                  # a severed ownership carrier.
+                                  gptp_plane=gptp_plane,
                                   sound_card=bool(sound_card),
                                   aaf_playback=aaf_pb,
                                   aaf_pb_streams=int(aaf_pb_streams),
@@ -6506,6 +6539,10 @@ class MilanSoC(SoCCore):
 
         images = FLASHBOOT_MANIFESTS[manifest_name]
         self._flashboot_layout = {"manifest": manifest_name,
+                                  # deploy.sh pairs this compiled gateware fact
+                                  # with the marker inside the actual rootfs
+                                  # archive before the first QSPI write.
+                                  "gptp_owner": self._gptp_owner,
                                   "entry": (None if manifest_name == "baremetal"
                                             else FLASHBOOT_ENTRY),
                                   "complete": images == FLASHBOOT_MANIFESTS["full"],
@@ -6707,11 +6744,19 @@ def main():
                     help="elaborate the Linux ALSA host surface: listener PCM capture "
                          "ring/CSR bank and, with --aaf-playback, host playback rings. "
                          "Default absent; AAF/TDM/I2S/render/loopback fabric remains.")
-    ap.add_argument("--fabric-gptp", action="store_true",
-                    help="enable the option-gated #114 fabric gPTP plane. The RTL "
-                         "default remains off until #116; the #120 shipping profile "
-                         "opts in explicitly and uses the end-station builder's "
-                         "MAC/priority/clock-specific gptp_ucode.hex.")
+    gptp_group = ap.add_mutually_exclusive_group()
+    gptp_group.add_argument("--fabric-gptp", dest="fabric_gptp",
+                            action="store_true",
+                            help="use the fabric gPTP plane (the baremetal "
+                                 "profile's default) and the builder's "
+                                 "MAC/priority/clock-specific ROM")
+    gptp_group.add_argument("--no-fabric-gptp", dest="fabric_gptp",
+                            action="store_false",
+                            help="retain the software gPTP publication path "
+                                 "for comparison (the linux profile's default)")
+    # Omission follows the software profile; explicit mismatches are refused
+    # after parsing below.
+    ap.set_defaults(fabric_gptp=None)
     ap.add_argument("--no-render-lpf", action="store_true",
                     help="AREA LEVER (banked, docs/design/AREA_BUDGET.md): prune "
                          "KL_pcm_lpf, the 2nd-order Butterworth on the DAC render tap. "
@@ -6946,8 +6991,21 @@ def main():
             ap.error("--software-profile baremetal uses --flashboot baremetal (or none)")
     elif args.flashboot == "baremetal":
         ap.error("--flashboot baremetal requires --software-profile baremetal")
+    if args.fabric_gptp is None:
+        args.fabric_gptp = (args.software_profile == "baremetal"
+                            and not args.no_milan)
     if args.fabric_gptp and args.no_milan:
         ap.error("--fabric-gptp requires the Milan datapath")
+    if args.fabric_gptp and args.software_profile == "linux":
+        ap.error("--fabric-gptp is incompatible with --software-profile linux "
+                 "because both own the PHC; that profile is reserved for the "
+                 "explicit software-owner comparison. Use --no-fabric-gptp "
+                 "or the baremetal fabric-owner profile")
+    if (not args.fabric_gptp and args.software_profile == "baremetal"
+            and not args.no_milan):
+        ap.error("--no-fabric-gptp leaves --software-profile baremetal with NO "
+                 "PHC owner: the bare-metal firmware has no gPTP daemon; drop "
+                 "--no-fabric-gptp or select --software-profile linux")
 
     # ---- L1 BINDING REFUSAL: the board must ROUTE the front-end it is asked
     #      for. BEFORE the platform is built, so an unbackable request is a

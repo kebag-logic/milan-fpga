@@ -108,7 +108,7 @@ Companion documents:
 ## Contents
 
 - **[1. What the full-FPGA solution is (high level)](#1-what-the-full-fpga-solution-is-high-level)** -- One ASCII block plus the four claims it makes: single-hart VexiiRiscv is what ships (NaxRiscv stays the CLI *default*), the datapath contains no vendor primitives, three boundaries are separately swappable, and only the final bitstream needs Vivado.
-- **[2. The protocol stack (high level)](#2-the-protocol-stack-high-level)** -- Plane by plane, the answer to "is this in fabric or in software?": media, control, reservation, timing, shaping and L2. gPTP is the one option-split plane (software `ptp4l` with `GPTP_PLANE_EN_P` off; the fabric gPTP plane with it on, the shipping shape); AECP/AEM is in fabric but partial, with a served inventory and explicit mandatory gaps that Section 2.1 prices in bench terms.
+- **[2. The protocol stack (high level)](#2-the-protocol-stack-high-level)** -- Plane by plane, the answer to "is this in fabric or in software?": media, control, reservation, timing, shaping and L2. gPTP defaults to one fabric owner; explicit option off is the retained software comparison. AECP/AEM is in fabric but partial, with a served inventory and explicit mandatory gaps that Section 2.1 prices in bench terms.
 - **[3. Status at a glance](#3-status-at-a-glance)** -- A layer-by-layer state table where every complete claim names the log or harness that backs it, including the milestone evidence files (`hw_*_MILN*.log`, the DDR3-800 memtest, and the M-A3 write-up). The AECP rows separate the implemented enumeration supply chain from partial mandatory control coverage.
 - **[4. Repository map (medium level)](#4-repository-map-medium-level)** -- The annotated tree: which spec clause each `hdl/` directory mirrors, and where the SoC, the builder, the harnesses and the portability check live.
 - **[5. The three datapath boundaries (medium level)](#5-the-three-datapath-boundaries-medium-level)** -- CSR, DMA and MAC taken one at a time, plus the event path. Worth reading for two facts: only the CSR *base* is host-specific (the offsets are the ABI), and the M-A2 log's `VERSION` word is stale by design -- only the `"MILN"` ID is the stable part of that check.
@@ -169,7 +169,7 @@ Companion documents:
 | **Enumeration + control** | AECP / AEM, MVU | **in fabric, PARTIAL**. The processor's AECP uCPU serves the mandatory inventory listed in the current audit, including packed dynamic information, live audio-map mutation, coherent SET_NAME/GET_NAME access, notifications, and controller monitoring. The builder and tracked board flow generate, verify, and load the descriptor image and its writable name table. Saved-state persistence, root consumption of selected media-clock state, and commands outside the inventory remain open. See Section 2.1 |
 | **Address allocation** | MAAP (1722 Annex B) | **in fabric** (`KL_maap`, bridged to the processor's per-source ALLOC/RELEASE face by `hdl/milan/KL_pp_maap_shim.sv`) |
 | **Reservation** | SRP / MSRP / MVRP (802.1Q) | **in fabric**, in the protocol processor (the class-D SRP face drives the CBS slope and the talker gate) + HW TCAM filter |
-| **Timing** | gPTP / 802.1AS, PTP hardware clock | HW PHC + timestamping in every build; the protocol by option: `GPTP_PLANE_EN_P` off = SW `ptp4l` (the 802.1AS-2020 hardware-assist scope), on (the shipping AX7101 shape) = **in fabric**, the gPTP plane (`gptp-processor`, [`GPTP_PLANE.md`](../design/GPTP_PLANE.md)) to the Milan v1.2 profile of 802.1AS-2011 |
+| **Timing** | gPTP / 802.1AS, PTP hardware clock | **In fabric by default**: `gptp-processor` owns the protocol, PHC steering and atomic public state ([`GPTP_PLANE.md`](../design/GPTP_PLANE.md)) to the Milan v1.2 profile of 802.1AS-2011. Explicit `GPTP_PLANE_EN_P=0` is the marked SW-linuxptp comparison |
 | **Shaping / QoS** | 802.1Qav CBS, 802.1Q PCP classification | HW (per-queue, only shaped queues) |
 | **L2 / L1** | 802.3 1G MAC, GMII PHY, dest-MAC filtering, RMON | HW MAC + fabric datapath |
 
@@ -367,7 +367,8 @@ litex_json2dts_linux build/csr.json > milan.dts
 sw/dts/milan_dt.py extract --platform litex build/csr.json --board sw/dts/boards/ax7101.json \
   > sw/dts/ir/milan-dt.litex.json
 sw/dts/milan_dt.py gen sw/dts/ir/milan-dt.litex.json >> milan.dts   # kl,dma-ether (generated, real addrs)
-# build Image + OpenSBI + Buildroot; boot; then bring the NIC up (ethtool/ptp4l/tc cbs)
+# build Image + OpenSBI + Buildroot; boot; then bring the NIC up (ethtool/tc cbs)
+# run ptp4l only in the explicit --no-fabric-gptp software-owner comparison
 # the builder emits aem_desc.bin, aem_desc.json, and aem_desc.map for the
 # selected configuration. Package the paired image and manifest, then run the
 # tracked board-side aemi-load utility before enabling the entity. A custom
@@ -449,7 +450,8 @@ Section 2.1). Kept here as the historical order, each item marked with its resul
 5. **Linux boot (M-A4)**  -  ✅ **DONE.** OpenSBI + kernel + Buildroot boot with the
    `kl,dma-ether` DT node (serial upload and QSPI flash-boot  -  [`QSPI_FLASHBOOT.md`](../integration/QSPI_FLASHBOOT.md)).
 6. **Driver bring-up (M-A5)**  -  ✅ **DONE.** `kl-eth` is up: `ping`, `ethtool -T` (PHC),
-   `ptp4l`, `tc … cbs offload`, and ring-DMA networking at the measured scoreboard
+   `tc … cbs offload`, and ring-DMA networking at the measured scoreboard;
+   the cited `ptp4l` run is historical option-off/Linux bring-up evidence
    ([`RX_RING_DMA.md` (archived)](../../historical_now_obsolete/findings/RX_RING_DMA.md), [`AVB_SWITCH_DIRECTION.md`](AVB_SWITCH_DIRECTION.md)). **M-A5 = "Milan on FPGA" closed.**
 7. **AVDECC protocols**  -  **SUPERSEDED 2026-08-13, and not uniformly.** The
    fabric ACMP/ADP/lwSRP engines this step delivered were silicon-validated and

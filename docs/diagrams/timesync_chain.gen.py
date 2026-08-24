@@ -5,7 +5,7 @@
 both an editable .drawio and a rendered .svg from ONE node/edge table.
 
 Content: the three clocks and how they chain -
-  wire -> PHY/MAC -> ptp_ts_top taps -> PHC <-> ptp4l/phc2sys <-> system clock
+  wire -> PHY/MAC -> fabric gPTP engine <-> PHC -> atomic publication bank
   PHC -> CRF -> MMCM-DRP servo -> audio MMCM -> media clock -> I2S/TDM
 with the CSR touchpoints labeled (offsets per docs/reference/REGISTER_MAP.md).
 Arrows are TIME/TIMESTAMP flow, not audio sample flow.
@@ -32,16 +32,16 @@ N = {
  # lane A - network time
  "wire":    (40,116,130,84,"1 GbE wire","802.1AS peer\n(AVB switch / board)",GREY,0),
  "phymac":  (205,116,150,84,"PHY + MAC","RGMII/GMII\nLiteEth or MilanMAC",BLUE,0),
- "tstap":   (390,116,250,84,"ptp_ts_top TX+RX taps","latch PHC @SOP, qualify @TLAST\n0x88F7 EVENT msgs only",BLUE,0),
- "tsring":  (675,116,200,84,"dma-ts record ring","16 B {ns, seq/type/dir}\nLiteX CSR (build/csr.csv)",BLUE,0),
- "kleth":   (910,116,190,84,"kl-eth driver","/dev/ptp0 + SO_TIMESTAMPING\nmatches {msgType, seq}",PURPLE,0),
- "ptp4l":   (1135,116,180,84,"ptp4l","BMCA + servo (softcore)\ningressLatency 3511/1490 ns",PURPLE,0),
- "hwnote":  (1350,116,370,84,"silicon record (2026-07-13)","peer delay 600 us (SW) -> 1.3 us (HW)\nslave lock rms 2-4 ns through the AVB switch",GREY,1),
+ "tstap":   (390,116,250,84,"KL_gptp_shadow RX/TX","delivered-frame RX stamp\nMAC-boundary TX stamp",BLUE,0),
+ "tsring":  (675,116,200,84,"timestamp transport","RX side FIFO + TX seq/type\nno software pairing race",BLUE,0),
+ "kleth":   (910,116,190,84,"KL_gptp_engine","BTCA + Pdelay + Sync\nPHC servo in fabric",BLUE,0),
+ "ptp4l":   (1135,116,180,84,"atomic publish bank","GM + parent + flags\npdelay + offset + annq",BLUE,0),
+ "hwnote":  (1350,116,370,84,"product ownership (0x0002_0055)","fabric is the default PHC/protocol/publication owner\nlinuxptp exists only in the explicit option-OFF image",GREY,1),
  # row 2 - the PHC hub + system-clock side
  "phc":     (40,290,330,96,"PHC - timestamp_counter","Q8.24 ns accumulator, datapath clock\nCSR 0x500 CTRL - 0x504 INCR - 0x508 ADJ - 0x520 CMD",GOLD,0),
- "phc2sys": (410,290,170,96,"phc2sys","PHC -> CLOCK_REALTIME\n(softcore daemon)",PURPLE,0),
- "sysclk":  (615,290,185,96,"system clock","Linux CLOCK_REALTIME\n(timers, userland)",PURPLE,0),
- "g2c":     (1190,290,330,96,"gptp2csr.sh","publishes GM 0x624/0x628 - pdelay 0x6E4\nAS_PATH parent 0x730/0x734 (ADP/AEM truth)",PURPLE,0),
+ "phc2sys": (410,290,170,96,"option-OFF only","ptp4l + phc2sys\nmarked comparison image",PURPLE,1),
+ "sysclk":  (615,290,185,96,"system clock","Linux CLOCK_REALTIME\nnot a media-path dependency",PURPLE,0),
+ "g2c":     (1190,290,330,96,"public gPTP consumers","CSR GM/parent/pdelay - GET_AVB_INFO/PATH\nCLKV asCapable/sync - every AVTP tu",BLUE,0),
  # AAF timestamp-consumer strip
  "aafpkt":  (40,445,300,76,"AAF packetizer","avtp_timestamp = ptp_now + PTO\n(PTO: SET_STREAM_INFO acc-lat, reset 2 ms)",ORANGE,0),
  "rxmon":   (380,445,300,76,"AVTP RX monitor","ts_delta 0x6EC = avtp_ts - ptp_now\nLATE / EARLY counters",ORANGE,0),
@@ -67,13 +67,13 @@ E = [
  ("tstap","phymac","",               [(390,175),(355,175)],"d"),
  ("tstap","tsring","",               [(640,158),(675,158)],"d"),
  ("tsring","kleth","",               [(875,158),(910,158)],"d"),
- ("kleth","ptp4l","",                [(1100,158),(1135,158)],"d"),
- ("ptp4l","phc","adjfine / adjtime / settime - CSR 0x500 group (via kl-eth)",
+ ("kleth","ptp4l","commit",          [(1100,158),(1135,158)],"d"),
+ ("kleth","phc","adjfine / adjtime (fabric owner); settime stays on CSR face",
                                      [(1225,200),(1225,246),(205,246),(205,290)],"c"),
  ("phc","tstap","ptp_now (64-bit ns)",[(100,290),(100,224),(515,224),(515,200)],"c"),
- ("phc","phc2sys","",                [(370,338),(410,338)],"c"),
+ ("phc","phc2sys","explicit comparison only",[(370,338),(410,338)],"c"),
  ("phc2sys","sysclk","",             [(580,338),(615,338)],"c"),
- ("ptp4l","g2c","PMC PARENT_DATA_SET",[(1280,200),(1280,290)],"c"),
+ ("ptp4l","g2c","one coherent generation",[(1280,200),(1280,290)],"c"),
  ("phc","aafpkt","ptp_now + PTO",    [(190,386),(190,445)],"c"),
  ("phc","rxmon","ptp_now",           [(330,386),(330,415),(530,415),(530,445)],"c"),
  ("phc","crftx","ptp_now",           [(350,386),(350,412),(845,412),(845,596)],"c"),
@@ -91,14 +91,14 @@ E = [
 
 LANE_LABELS = [
  (40,104,"NETWORK TIME - gPTP (802.1AS, domain 0)","#1565C0"),
- (40,278,"THE HUB - PTP hardware clock (PHC) and its software consumers","#B26A00"),
+ (40,278,"THE HUB - PTP hardware clock (PHC), comparison clock mirror, and public consumers","#B26A00"),
  (40,433,"AVTP TIMESTAMP CONSUMERS (presentation time against the PHC)","#EF6C00"),
  (40,566,"MEDIA CLOCK - CRF + MMCM-DRP servo (Milan v1.2 clause 7.3)","#2E7D32"),
  (40,584,"coherent chain: capture, CRF grid and (via the servo) the listener playback clock follow one audio-MMCM lineage - loop -83.9 dB (2026-07-23, converter floor)","#555555"),
 ]
 
 TITLE = "milan-fpga time sync - the three clocks and how they chain"
-SUB   = ("network PHC (gPTP)  ->  system clock (phc2sys)   -   PHC + CRF  ->  media clock (MMCM-DRP servo)"
+SUB   = ("fabric gPTP  ->  network PHC + atomic public state   -   PHC + CRF  ->  media clock (MMCM-DRP servo)"
          "   -   CSR offsets per docs/reference/REGISTER_MAP.md   -   arrows = time/timestamp flow, not audio samples")
 FOOT  = ("sources: hdl/ieee8021as/ptp_timestamp - hdl/ieee1722/crf - hdl/milan/milan_datapath.sv - sw/litex/milan_soc.py"
          "   -   regenerate: python3 docs/diagrams/timesync_chain.gen.py docs/diagrams/timesync_chain")

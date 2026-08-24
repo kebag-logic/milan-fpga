@@ -87,7 +87,7 @@ flowchart LR
 | 3 | **packetize** | `aaf_packetizer` (`KL_aaf_packetizer`) | accumulates a PDU's worth of pairs, then emits one AAF frame: VLAN tag from `AAF_CTRL[27:16]`, destination from `AAF_DMLO`/`AAF_DMHI`, source = the station MAC, `avtp_timestamp` = the PHC now plus the presentation offset AECP holds. Per-talker state lives in the TCTX rows the `0x800` window writes | `AAF_FRAMES` `0x660`, `AAF_PAIRS` `0x664`; `LTAP_TX_D0/D1` `0x87C`/`0x884` bracket the accumulate + serialize |
 | 4 | **admission** | `aaf_stream_en_w` inside the packetizer | a stream emits when the common AAF enable and MAAP term are true and its processor-owned ACMP talker and SRP bandwidth state grant admission. `AAF_CTRL[1]` is the documented debug bypass | `PP_STAT` `0x924`, `AAF_CTRL` `0x678`, and the processor class-D diagnostics |
 | 5 | **merge with the shaped lane** | `aaf_final_mux` (`adp_tx_arbiter`) | the packetizer output is the *low-rate* port of a two-input merger whose other port is the shaped CPU datapath. **This is the bypass**: no queue, no credit | — |
-| 6 | **merge with control** | `adp_tx_mux` (`adp_tx_arbiter`) | the protocol processor's packed ADP/ACMP/AECP/SRP stream merges with MAAP in `ctl_tx_mux`, passes through `ctl_ifg`, and joins the data lane here. CRF joins AAF on the data lane through `crf_dp_mux` | -- |
+| 6 | **merge with control** | `adp_tx_mux` / `gptp_ctl_mux` (`adp_tx_arbiter`) | the protocol processor's packed ADP/ACMP/AECP/SRP stream merges with MAAP in `ctl_tx_mux`, passes through `ctl_ifg`, and joins the data lane here. CRF joins AAF through `crf_dp_mux`. With the product-default option on, the fabric gPTP stream then joins at the final `gptp_ctl_mux`; it is downstream of the host queues and shaper | -- |
 | 7 | **control-lane IFG** | `ctl_ifg` (`tx_ifg_gasket`, `GAP_CYCLES = 512`) | spaces control frames so the MAC cannot eat one that arrives back-to-back behind another. **Control lane only** — audio and CPU data do not pass through it, so it costs no stream throughput | — |
 | 8 | **MAC** | `tx_axis_to_mac` → `m_axis_mac_tx_*` | out of `milan_datapath`, into the SoC's MilanMAC (LiteEth GMII), onto the wire | `STAT_TX_FIFO_GOOD_FRAME` `0x21C`; `LTAP_TX_D2` `0x88C` closes the chain |
 
@@ -105,8 +105,9 @@ accuracy ([EGRESS_QUEUE_MAP.md](../reference/EGRESS_QUEUE_MAP.md#why-gptp-sits-b
 ## 2. Egress: a frame the CPU sent (where the queue map applies)
 
 This is the lane the five queues, the classifier and the CBS actually govern:
-gPTP from `linuxptp`, a host AVDECC controller, a host MRP stack, and all bulk
-traffic.
+gPTP from `linuxptp` only in the explicit option-off comparison, a host AVDECC
+controller, a host MRP stack, and all bulk traffic. Product-default fabric gPTP
+uses the downstream merge described at hop 6 and never enters these queues.
 
 ```mermaid
 flowchart LR

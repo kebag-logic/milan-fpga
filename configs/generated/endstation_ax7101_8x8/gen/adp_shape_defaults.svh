@@ -92,7 +92,8 @@
   //! from gptp.domain, the register from a hardcoded
   //! `w 0x62C 0x00000000` in avdecc/aecp_csr_setup.sh - and agreed only
   //! because the shipping config happens to say 0. A config that said 1
-  //! would have run ptp4l on domain 1 while ADP advertised domain 0,
+  //! would have run the selected gPTP owner on domain 1 while ADP
+  //! advertised domain 0,
   //! silently. One YAML section, one number (USER 2026-08-05).
   localparam int ADP_GPTP_DOMAIN_C   = 0;
 

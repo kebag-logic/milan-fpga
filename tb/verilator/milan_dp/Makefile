@@ -69,11 +69,12 @@ VFLAGS = --cc --exe --build -j 0 \
          -GDIAG_TICK_CYC_P=256 \
          -CFLAGS "-std=c++17 -O2"
 
-# Most historical integration legs exercise the Linux host PCM ring. The RTL
-# default is now the shipping bare-metal shape (sound card absent), so those
-# legs opt in explicitly and a separate mutation-sensitive route harness below
-# proves the new zero side.
-DP_VFLAGS = $(VFLAGS) -GSOUND_CARD_P=1
+# Most historical integration legs exercise the retained Linux host-PCM and
+# software-gPTP shape. Both options are explicit; obj_gptp deliberately omits
+# the gPTP override and therefore proves the product default rather than a
+# forced -G1.
+GPTP_OFF_VFLAGS = $(VFLAGS) -GGPTP_PLANE_EN_P=0
+DP_VFLAGS = $(GPTP_OFF_VFLAGS) -GSOUND_CARD_P=1
 
 C  = $(RTL_DIR)/common
 Q  = $(RTL_DIR)/ieee8021q/ts
@@ -258,7 +259,7 @@ run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) soundcard-off
 # both PRUNED. Every one of those had desk coverage on its
 # own; the combination - which is the only combination that ever reaches a
 # board - had none, and three defects were living in it.
-	$(VERILATOR) $(SHAPE_AX1x1) $(VFLAGS) --Mdir obj_ax1x1 \
+	$(VERILATOR) $(SHAPE_AX1x1) $(GPTP_OFF_VFLAGS) --Mdir obj_ax1x1 \
 	  -GTALKER_WIRE_CHANS_P=$(AX_CHANS) -GAUDIO_IF_SLOTS_P=$(AX_SLOTS) \
 	  -GAUDIO_IF_MASTER_P=1 \
 	  -GLOOPBACK_P=1 -GI2SPB_P=$(AX_I2SPB) -GLPF_P=0 \
@@ -273,14 +274,14 @@ run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) soundcard-off
 # rather than an #ifdef through sim_nxn's 380-odd checks: none of those care
 # about the audio clock's rate, and re-clocking them to find out would be a
 # large blast radius for no gain.
-	$(VERILATOR) $(SHAPE_AX1x1) $(VFLAGS) --Mdir obj_aclk \
+	$(VERILATOR) $(SHAPE_AX1x1) $(GPTP_OFF_VFLAGS) --Mdir obj_aclk \
 	  -GTALKER_WIRE_CHANS_P=$(AX_CHANS) -GAUDIO_IF_SLOTS_P=$(AX_SLOTS) \
 	  -GAUDIO_IF_MASTER_P=1 \
 	  -GLOOPBACK_P=1 -GI2SPB_P=$(AX_I2SPB) -GLPF_P=0 \
 	  $(SRCS) sim_aclk.cpp -o Vmilan_dp_aclk
 	@echo "======================================================================"
 	$(VERILATOR) $(SHAPE_AX1x1) $(VFLAGS) --Mdir obj_gptp \
-	  -GGPTP_PLANE_EN_P=1 -GMILAN_CLK_FREQ_HZ=2000000 \
+	  -GMILAN_CLK_FREQ_HZ=2000000 \
 	  $(SRCS) sim_gptp.cpp -o Vmilan_dp_gptp
 # Milan 5.4.5 TIMED (issue #69): the processor's timebase compressed
 # 1000x through its own override parameters (PP_TIM_DIV_US_P = 1 clock per

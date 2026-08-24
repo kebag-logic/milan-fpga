@@ -221,12 +221,14 @@ Run: python3 sw/builder/test_builder.py   (or pytest sw/builder/test_builder.py)
 import ast
 import contextlib
 import copy
+import gzip
 import io
 import json
 import os
 import re
 import shlex
 import shutil
+import stat
 import struct
 import subprocess
 import sys
@@ -235,13 +237,16 @@ import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(HERE))
+SOC_DIR = os.path.join(ROOT, "sw/litex")
 sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.join(ROOT, "avdecc"))
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
+sys.path.insert(0, SOC_DIR)
 
 import yaml  # noqa: E402
 
 import endstation_builder as eb  # noqa: E402
+import check_gptp_owner_pair as gptp_pair  # noqa: E402
 #: The ONE reader of "which config owns the tracked entity definition"
 #: (gate 10).  Imported rather than re-implemented: a second answer to that
 #: question is how gate 10 came to assume a config in the first place.
@@ -4449,8 +4454,12 @@ def test_baremetal_profile_contract():
             r"\s*;\s*", rom_initializers[0].group("body")), \
             f"{id_readback_reason}: dflt_rom must be initialized solely " \
             "from csr_default(11'(k * 4))"
+        # The canonical read path has 15 references; fabric-owned coherent
+        # GM/parent snapshots add exactly four references per 64-bit identity
+        # (address membership, first-half ordering, and the two comparisons).
+        # Keep the total exact so an added alias/driver still fails closed.
         reference_census(
-            csr_code, {"dflt_rom": 3, "rd_addr": 15}, id_readback_reason)
+            csr_code, {"dflt_rom": 3, "rd_addr": 23}, id_readback_reason)
 
         phc_binding_reason = (
             "milan_csr PHC output must drive cfg_ptp_enable directly")
@@ -4515,7 +4524,10 @@ def test_baremetal_profile_contract():
                 "eff_ptp_offset_w": 2,
                 "eff_ptp_adjust_w": 2,
                 "gptp_adj_w": 4,
-                "gptp_step_we_w": 4,
+                # The engine step strobe has its original declaration,
+                # effective-PHC mux, engine port, and option-off tieoff plus
+                # the CLKV discontinuity observer added by #116.
+                "gptp_step_we_w": 5,
                 "gptp_step_w": 4,
             }, phc_net_reason)
         direct_initializer(
@@ -8235,6 +8247,314 @@ def test_baremetal_profile_contract():
           "profiles rejected before SoC generation")
 
 
+def test_gptp_product_default_and_legacy_option():
+    """Gate 1c: fabric is the product default; software is explicit."""
+    default_cfg = _variant(
+        CONFIGS["ax7101_1x1_tdm8"],
+        lambda c: c["board"]["features"].pop("fabric_gptp", None))
+    try:
+        with tempfile.TemporaryDirectory() as td:
+            result = eb.build(default_cfg, td)
+            assert result["cfg"]["features"]["fabric_gptp"] is True
+            assert "--fabric-gptp" in result["argv"]
+            assert "--no-fabric-gptp" not in result["argv"]
+            assert "gptp_ucode" in result["paths"]
+            assert not os.path.exists(os.path.join(
+                os.path.dirname(result["paths"]["entity_conf"]), "gptp.cfg"))
+    finally:
+        os.unlink(default_cfg)
+
+    with tempfile.TemporaryDirectory() as td:
+        legacy = eb.build(CONFIGS["ax7101_8x8"], td)
+        assert legacy["cfg"]["features"]["fabric_gptp"] is False
+        assert "--no-fabric-gptp" in legacy["argv"]
+        assert "--fabric-gptp" not in legacy["argv"]
+        assert "gptp_ucode" not in legacy["paths"]
+        assert os.path.exists(os.path.join(
+            os.path.dirname(legacy["paths"]["entity_conf"]), "gptp.cfg"))
+        assert ("Fabric gPTP plane: **ABSENT (explicit "
+                "`--no-fabric-gptp`)**" in legacy["plan"])
+        assert "RTL default" not in legacy["plan"]
+        assert "until #116" not in legacy["plan"]
+
+    owners = (
+        ("two", "ax7101_8x8", True,
+         ("software_profile: linux", "both own the PHC")),
+        ("zero", "ax7101_1x1_tdm8", False,
+         ("software_profile: baremetal", "NO PHC owner")),
+    )
+    for label, base, fabric, wanted in owners:
+        path = _variant(
+            CONFIGS[base], lambda c, v=fabric: _prune(c, fabric_gptp=v))
+        try:
+            try:
+                eb.load_config(path)
+            except eb.ConfigError as exc:
+                message = str(exc)
+                for fragment in wanted:
+                    assert fragment in message, (
+                        f"{label}-owner refusal omits {fragment!r}: {message}")
+            else:
+                raise AssertionError(f"a {label}-PHC-owner config was accepted")
+        finally:
+            os.unlink(path)
+
+    # Ownership is diagnosed before the fabric plane's gptp: dependency.
+    omitted = _variant(
+        CONFIGS["arty_current"],
+        lambda c: c["board"]["features"].pop("fabric_gptp", None))
+    try:
+        try:
+            eb.load_config(omitted)
+        except eb.ConfigError as exc:
+            assert "both own the PHC" in str(exc), str(exc)
+        else:
+            raise AssertionError("Linux accepted an omitted fabric ownership key")
+    finally:
+        os.unlink(omitted)
+
+    soc_source = open(os.path.join(ROOT, "sw/litex/milan_soc.py")).read()
+    assert "p_GPTP_PLANE_EN_P=int(bool(gptp_plane))" in soc_source
+    assert 'ap.set_defaults(fabric_gptp=None)' in soc_source
+    assert ('args.fabric_gptp = (args.software_profile == "baremetal"'
+            in soc_source)
+    assert ('args.fabric_gptp and args.software_profile == "linux"'
+            in soc_source)
+    assert ('not args.fabric_gptp and args.software_profile == "baremetal"'
+            in soc_source)
+
+    # The RTL default is ON, so every synthesis manifest which elaborates the
+    # whole datapath must carry the donor engine, wrapper and timestamp bridge.
+    # A standalone KL_gptp_shadow row is not evidence for milan_datapath: that
+    # exact split left hierarchy -check unresolved when #116 flipped default.
+    yosys_run = open(os.path.join(ROOT, "syn/yosys/run.sh")).read()
+    yosys_ooc = open(os.path.join(ROOT, "syn/yosys/ooc.sh")).read()
+    for source in (yosys_run, yosys_ooc):
+        for leaf in ("gptp_ucpu_pkg.sv", "KL_gptp_engine.sv",
+                     "KL_gptp_shadow.sv", "KL_gptp_txstamp.sv"):
+            assert leaf in source, f"Yosys datapath manifest omits {leaf}"
+        assert 'GPTP_DP_SRCS="$GPTP_ENGINE_SRCS ' in source
+    run_dp = re.search(r'"milan_datapath\|([^"\n]+)"', yosys_run)
+    assert run_dp and "$GPTP_DP_SRCS" in run_dp.group(1)
+    ooc_dp = re.search(r'^DP_SRCS="([^"\n]+)"', yosys_ooc, re.M)
+    assert ooc_dp and "$GPTP_DP_SRCS" in ooc_dp.group(1)
+    manifest_files = lambda text: {
+        token.rsplit("/", 1)[-1] for token in text.split()
+        if token.endswith((".sv", ".v"))
+    }
+    run_files = manifest_files(run_dp.group(1))
+    ooc_files = manifest_files(ooc_dp.group(1))
+    assert run_files == ooc_files, (
+        "Yosys datapath manifests drift: "
+        f"run-only={sorted(run_files - ooc_files)}, "
+        f"ooc-only={sorted(ooc_files - run_files)}")
+    assert 'gen_ucode.py" -o "$TMP/ucode.hex"' in yosys_ooc
+    assert 'gen_gptp_ucode.py" -o "$TMP/gptp_ucode.hex"' in yosys_ooc
+
+    # A printed OOC failure must fail the command.  The old loop continued and
+    # then returned rm(1)'s success, so a missing processor ROM produced a red
+    # row in the log but a green CI step.  Exercise the production script with
+    # a refusing sv2v shim; this is deliberately independent of Yosys versions.
+    with tempfile.TemporaryDirectory() as fake_home:
+        fake_sv2v = os.path.join(fake_home, "sv2v")
+        with open(fake_sv2v, "w") as f:
+            f.write("#!/bin/sh\nexit 17\n")
+        os.chmod(fake_sv2v, 0o755)
+        env = dict(os.environ)
+        env["HOME"] = fake_home
+        env["PATH"] = fake_home + os.pathsep + env.get("PATH", "")
+        ooc_probe = subprocess.run(
+            ["bash", os.path.join(ROOT, "syn/yosys/ooc.sh"),
+             "KL_chan_map_render"],
+            env=env, text=True, capture_output=True)
+        assert ooc_probe.returncode != 0, (
+            "syn/yosys/ooc.sh printed a tool failure but exited zero")
+        assert "sv2v FAIL" in ooc_probe.stdout, ooc_probe.stdout
+
+    build_source = open(os.path.join(ROOT, "sw/litex/build.sh")).read()
+    funcs = []
+    for name in ("cfg_ax8x8", "cfg_arty"):
+        match = re.search(rf"(?ms)^{name}\(\) \{{.*?^\}}$", build_source)
+        assert match, f"missing named recipe {name}"
+        funcs.append(match.group(0))
+    proc = subprocess.run(
+        ["bash", "-c", "\n".join(funcs) + "\ncfg_ax8x8\ncfg_arty\n"],
+        check=True, text=True, capture_output=True)
+    for argv in (shlex.split(line) for line in proc.stdout.splitlines()
+                 if line.strip()):
+        assert argv[argv.index("--software-profile") + 1] == "linux"
+        assert "--no-fabric-gptp" in argv
+        assert "--fabric-gptp" not in argv
+    assert "--software-profile linux --no-fabric-gptp" in open(
+        os.path.join(ROOT, "sw/litex/sweep_extra.sh")).read()
+    for line in open(os.path.join(ROOT, "sw/README.md")).read().splitlines():
+        if line.startswith("./milan_soc.py"):
+            assert "--no-fabric-gptp" in line
+    print("  [gate 1c] profile-following ownership defaults, artifacts, "
+          "explicit recipes, both invalid owner counts, and both Yosys "
+          "datapath manifests are pinned")
+
+
+def test_gptp_rootfs_handoff_preserves_software_config():
+    """Gate 1d: generated and deploy-time owner handoffs are fail-closed."""
+    with tempfile.TemporaryDirectory() as td, \
+            tempfile.TemporaryDirectory() as out:
+        sentinel = b"tracked software-plane configuration\n"
+        rootfs_cfg = os.path.join(td, "gptp.ax7101.cfg")
+        owner = os.path.join(td, eb.SOFTWARE_GPTP_OWNER_MARKER)
+        with open(rootfs_cfg, "wb") as stream:
+            stream.write(sentinel)
+        with open(owner, "w") as stream:
+            stream.write("stale owner\n")
+        old_rootfs = eb.ROOTFS_OVERLAY_ETC
+        old_gen_dir = eb.GEN_CONFIG_DIR
+        eb.ROOTFS_OVERLAY_ETC = td
+        # write_fragment is required to exercise the rootfs ownership handoff,
+        # but this gate must not transfer the repository's tracked per-board
+        # sweep fragments as a side effect. Redirect all generated ownership
+        # artifacts into the same temporary fixture.
+        eb.GEN_CONFIG_DIR = os.path.join(td, "generated")
+        try:
+            fabric = eb.build(CONFIGS["ax7101_1x1_tdm8"], out,
+                              write_fragment=True)
+            assert open(rootfs_cfg, "rb").read() == sentinel
+            assert not os.path.exists(os.path.join(
+                os.path.dirname(fabric["paths"]["entity_conf"]), "gptp.cfg"))
+            assert not os.path.exists(owner), \
+                "fabric handoff left the software-owner start marker"
+            # The Linux Arty comparison intentionally has no gptp: section;
+            # it consumes the rootfs stock profile, but option-OFF must still
+            # create the sole permission that starts the software owner.
+            arty = eb.build(CONFIGS["arty_current"], out,
+                            write_fragment=True)
+            assert os.path.exists(owner), \
+                "option-off handoff without gptp: omitted the owner marker"
+            assert not os.path.exists(os.path.join(
+                os.path.dirname(arty["paths"]["entity_conf"]), "gptp.cfg"))
+            legacy = eb.build(CONFIGS["ax7101_8x8"], out,
+                              write_fragment=True)
+            assert os.path.exists(owner), \
+                "option-off handoff did not create the software-owner marker"
+            assert "explicit option-OFF" in open(owner).read()
+            assert os.path.exists(os.path.join(
+                os.path.dirname(legacy["paths"]["entity_conf"]), "gptp.cfg"))
+        finally:
+            eb.ROOTFS_OVERLAY_ETC = old_rootfs
+            eb.GEN_CONFIG_DIR = old_gen_dir
+    print("  [gate 1d] fabric handoff removes the rootfs software-owner marker "
+          "without deleting its tracked profile; both generated-profile and "
+          "stock-profile option-off builds recreate the marker")
+
+    # The archive reader itself grades raw/gzip/xz newc, both valid pairings,
+    # both inversions, none-owner, duplicate/wrong-type marker, corrupt input,
+    # unknown/missing metadata and the expected-owner recipe binding.
+    pair_tool = os.path.join(SOC_DIR, "check_gptp_owner_pair.py")
+    pair_self = subprocess.run(
+        [sys.executable, pair_tool, "--self-test"], cwd=ROOT,
+        text=True, capture_output=True)
+    assert pair_self.returncode == 0, pair_self.stdout + pair_self.stderr
+    assert "32/32 checks pass" in pair_self.stdout
+
+    # A sweep's fallback layout is reconstructed only from constants compiled
+    # into its soc.h.  Prove all three enum values round-trip, and that an old
+    # soc.h with no owner cannot be converted into a bypass layout.
+    layout_tool = os.path.join(SOC_DIR, "layout_from_soch.py")
+    with tempfile.TemporaryDirectory() as td:
+        inc = os.path.join(td, "software/include/generated")
+        os.makedirs(inc)
+        soc_h = os.path.join(inc, "soc.h")
+        for code, wanted in ((0, "none"), (1, "fabric"), (2, "software")):
+            with open(soc_h, "w", encoding="utf-8") as stream:
+                stream.write(f"#define MILAN_GPTP_OWNER {code}\n")
+            proc = subprocess.run(
+                [sys.executable, layout_tool, td], text=True,
+                capture_output=True)
+            assert proc.returncode == 0, proc.stdout + proc.stderr
+            with open(os.path.join(td, "flashboot_layout.json"),
+                      encoding="utf-8") as stream:
+                assert json.load(stream)["gptp_owner"] == wanted
+        with open(soc_h, "w", encoding="utf-8") as stream:
+            stream.write("#define CSR_DATA_WIDTH 32\n")
+        missing = subprocess.run(
+            [sys.executable, layout_tool, td], text=True,
+            capture_output=True)
+        assert missing.returncode != 0
+        assert "MILAN_GPTP_OWNER" in missing.stdout + missing.stderr
+
+    # Exercise both shell entry points with a fake programmer.  The adversarial
+    # pair is fabric-owned gateware plus a marked rootfs.  deploy.sh must reject
+    # before its image loop, and build.sh must reject before it flashes the
+    # bitstream at offset zero; either log entry means the ordering regressed.
+    with tempfile.TemporaryDirectory() as td:
+        fake_bin = os.path.join(td, "bin")
+        build_dir = os.path.join(td, "build")
+        os.makedirs(fake_bin)
+        os.makedirs(os.path.join(build_dir, "gateware"))
+        programmer_log = os.path.join(td, "programmer.log")
+        fake_ofl = os.path.join(fake_bin, "openFPGALoader")
+        with open(fake_ofl, "w", encoding="utf-8") as stream:
+            stream.write("#!/bin/sh\nprintf '%s\\n' \"$*\" >> \"$OFL_LOG\"\n")
+        os.chmod(fake_ofl, 0o755)
+
+        rootfs = os.path.join(td, "marked.cpio.gz")
+        archive = gptp_pair._newc([
+            (b"./etc/milan-gptp-software-owner", b"option-OFF\n",
+             stat.S_IFREG),
+        ])
+        with open(rootfs, "wb") as stream:
+            stream.write(gzip.compress(archive))
+        layout = os.path.join(build_dir, "flashboot_layout.json")
+        with open(layout, "w", encoding="utf-8") as stream:
+            json.dump({"manifest": "full", "gptp_owner": "fabric",
+                       "images": [
+                           {"name": "bitstream", "offset": 0,
+                            "budget": 0x400000},
+                           {"name": "rootfs", "offset": 0x780000,
+                            "budget": 0x760000},
+                       ]}, stream)
+        with open(os.path.join(build_dir, "gateware/alinx_ax7101.bit"),
+                  "wb") as stream:
+            stream.write(b"test bitstream\n")
+
+        env = dict(os.environ)
+        env.update({"PATH": fake_bin + os.pathsep + env.get("PATH", ""),
+                    "OFL_LOG": programmer_log,
+                    "LAYOUT": layout, "ROOTFS": rootfs,
+                    "PYTHON": sys.executable,
+                    "SERIAL": "TEST", "CABLE": "ft232",
+                    "FPGA_PART": "xc7a100tfgg484"})
+        direct = subprocess.run(
+            [os.path.join(SOC_DIR, "deploy.sh"), "flash-images"],
+            cwd=SOC_DIR, env=env, text=True, capture_output=True)
+        assert direct.returncode != 0, direct.stdout + direct.stderr
+        assert "REFUSED" in direct.stdout + direct.stderr
+        assert not os.path.exists(programmer_log), \
+            "deploy.sh invoked the programmer before owner preflight"
+
+        direct_bit_env = dict(env)
+        direct_bit_env["BIT"] = os.path.join(
+            build_dir, "gateware/alinx_ax7101.bit")
+        direct_bit = subprocess.run(
+            [os.path.join(SOC_DIR, "deploy.sh"), "flash"], cwd=SOC_DIR,
+            env=direct_bit_env, text=True, capture_output=True)
+        assert direct_bit.returncode != 0, \
+            direct_bit.stdout + direct_bit.stderr
+        assert "REFUSED" in direct_bit.stdout + direct_bit.stderr
+        assert not os.path.exists(programmer_log), \
+            "deploy.sh flashed a bitstream before owner preflight"
+
+        named = subprocess.run(
+            [BUILD_SH, "flash", f"ax7101:{build_dir}"], cwd=SOC_DIR,
+            env=env, text=True, capture_output=True)
+        assert named.returncode != 0, named.stdout + named.stderr
+        assert "REFUSED" in named.stdout + named.stderr
+        assert not os.path.exists(programmer_log), \
+            "build.sh flashed the bitstream before owner preflight"
+
+    print("  [gate 1d] 32 archive/enum arms, soc.h owner reconstruction, "
+          "and all three flash entry points refuse a mismatch before programmer I/O")
+
+
 def test_current_shape_matches_sweep_flags():
     # The shipping Arty shape is the 4x4 tdm8-master since 2026-07-28 (the
     # 8.3b flash decision); sweep.sh's arty table says so, and this gate
@@ -8500,7 +8820,13 @@ def test_both_policies_valid():
         # an i2s interface implies a DAC: the mutated variant must not carry
         # the AX's 2026-07-28 i2s_playback/render_lpf area prunes, which
         # validate_features rightly refuses next to a declared DAC
-        c["board"]["features"] = {"sound_card": True}
+        # This remains a Linux comparison variant. Replacing the whole feature
+        # map must retain its explicit software PHC owner now that fabric gPTP
+        # is the product default.
+        c["board"]["features"] = {
+            "fabric_gptp": False,
+            "sound_card": True,
+        }
         set_policy(c, "cap-at-interface")
     p = _variant(CONFIGS["ax7101_8x8"], to_i2s)
     try:
@@ -11048,10 +11374,14 @@ def _optional_block_cli_consumption(soc):
                 f"a dedicated `{name}=` keyword; the missing key defaults "
                 "to PRESENT and the prune flag becomes a silent no-op")
 
-    # every --no-* flag main() DECLARES must be one main() also READS, and it
-    # must stay an off-by-default store_true. `default=True` on a --no-* flag
-    # inverts the lever in silence (an UNFLAGGED build takes the pruned path),
-    # and a flag nothing reads is decorative ABI wearing a CLI hat.
+    # Every ordinary --no-* flag main() DECLARES must be one main() also READS,
+    # and it must stay an off-by-default store_true. `--no-fabric-gptp` is the
+    # deliberate exception: it is the negative member of a mutually-exclusive
+    # owner group and therefore uses store_false on the shared fabric_gptp
+    # destination; gates 1c/1e grade both of its polarities and every carrier.
+    # `default=True` on an ordinary --no-* flag inverts the lever in silence
+    # (an UNFLAGGED build takes the pruned path), and a flag nothing reads is
+    # decorative ABI wearing a CLI hat.
     read = {n.attr for n in ast.walk(mains[0]) if isinstance(n, ast.Attribute)
             and isinstance(n.value, ast.Name) and n.value.id == "args"}
     for call in ast.walk(mains[0]):
@@ -11062,6 +11392,8 @@ def _optional_block_cli_consumption(soc):
                 and str(call.args[0].value).startswith("--no-")):
             continue
         flag = call.args[0].value
+        if flag == "--no-fabric-gptp":
+            continue
         opts = {kw.arg: kw.value for kw in call.keywords if kw.arg}
         named = opts.get("dest")
         dest = named.value if isinstance(named, ast.Constant) else \
@@ -11534,10 +11866,10 @@ def test_optional_block_consumption_gate_bites():
 #  BOTH POLARITIES, because the flags have both.  The seven OPTIONAL_BLOCKS
 #  rows default PRESENT and pass their parameter ONLY when pruned (a default
 #  build emits a byte-identical top .v, the AAF_PLAYBACK_P discipline).
-#  `sound_card` and `fabric_gptp` are the mirror image - the RTL defaults are
-#  SOUND_CARD_P=0 and GPTP_PLANE_EN_P=0 and the parameter is passed only when
-#  the block is PRESENT - so they are graded upside down rather than assumed
-#  to follow the others.
+#  `sound_card` is the mirror image - the RTL default is SOUND_CARD_P=0 and
+#  the parameter is passed only when the block is PRESENT - so it is graded
+#  upside down rather than assumed to follow the others. Fabric gPTP moved to
+#  the profile-aware gate 1e when #116 made its RTL default ON.
 #
 #  WHAT THESE GATES DO NOT PROVE, stated here and in their own output because
 #  #154 asks the mechanism to say so:
@@ -11624,7 +11956,6 @@ with open(spec["result"], "w", encoding="utf-8") as fh:
 #: sw/litex, the directory every real build runs milan_soc.py from.  NOT the
 #: LiteX repo parent: `import litex` from there resolves to the checkout
 #: directory as a namespace package and the import fails.
-SOC_DIR = os.path.join(ROOT, "sw/litex")
 
 #: Placeholder an argv uses for "the launcher's --output-dir".  _instance_params
 #: substitutes its own scratch directory and then proves that directory is
@@ -11772,10 +12103,12 @@ def _instance_params(python, runs, mutations=()):
     return out
 
 
-#: The two inverted rows, and they are inverted for DIFFERENT reasons: the
-#: sound card is a Linux-only surface the shipping bare-metal profile drops,
-#: the fabric gPTP plane is an area-funded option the Linux profile does not
-#: take.  (flag, {parameter: the value a PRESENT build must pass}).
+#: The inverted optional-block row: the sound card is a Linux-only surface the
+#: shipping bare-metal profile drops.  Fabric gPTP used to be another row here,
+#: but #116 made it the RTL/product default and made ownership profile-aware;
+#: gate 1e below therefore grades it across both profiles instead of pretending
+#: it can be toggled inside this one bare-metal recipe.  (flag, {parameter: the
+#: value a PRESENT build must pass}).
 #:
 #: `None` means "must appear, value unconstrained" - the ONE case is the gPTP
 #: microcode image, whose path is a build-tree location and not a constant.
@@ -11786,8 +12119,6 @@ def _instance_params(python, runs, mutations=()):
 #: instead of a set difference nobody reads.
 PRESENT_ONLY_BLOCKS = {
     "sound_card": ("--sound-card", {"p_SOUND_CARD_P": 1}),
-    "fabric_gptp": ("--fabric-gptp", {"p_GPTP_PLANE_EN_P": 1,
-                                      "p_GPTP_UCODE_HEX_P": None}),
 }
 
 
@@ -11896,15 +12227,13 @@ def _behavioural_runs():
     flags = {f for f, _p, _w in eb.OPTIONAL_BLOCKS.values()}
     present = [a for a in argv if a not in flags]
     assert "--sound-card" not in present and "--fabric-gptp" in present, \
-        f"{cfg['name']} no longer has the polarities this gate grades " \
-        "against - it must ship the gPTP plane and no sound card"
+        f"{cfg['name']} no longer has the polarity this gate grades " \
+        "against - it must ship no sound card"
     runs = [("present", present)]
     runs += [(name, present + [flag])
              for name, (flag, _p, _w) in eb.OPTIONAL_BLOCKS.items()]
     runs += [("sound_card_present", present + ["--sound-card"]),
-             ("sound_card", present),
-             ("fabric_gptp_present", present),
-             ("fabric_gptp", _drop_flag(present, "--fabric-gptp", 0))]
+             ("sound_card", present)]
     return cfg, runs
 
 
@@ -11915,10 +12244,203 @@ def _drop_flag(argv, flag, nargs):
     return argv[:i] + argv[i + 1 + nargs:]
 
 
+# =============================================================== gate 1e ====
+# The PHC ownership bit crosses four Python call boundaries before it becomes
+# p_GPTP_PLANE_EN_P.  Gate 1c proves the public spelling; this gate executes
+# the real SoC entry point and observes the parameters handed to
+# Instance("milan_datapath").  Both software profiles are graded with the
+# option omitted and stated explicitly, plus the shipping build/sweep/deploy
+# launchers.  The same grader is reused by mutations that cut each carrier.
+
+GPTP_PROFILE_CASES = (
+    ("gptp baremetal default", "ax7101_1x1_tdm8", None, 1),
+    ("gptp baremetal explicit", "ax7101_1x1_tdm8", "--fabric-gptp", 1),
+    ("gptp linux default", "ax7101_8x8", None, 0),
+    ("gptp linux explicit", "ax7101_8x8", "--no-fabric-gptp", 0),
+)
+
+
+def _gptp_without_owner_flag(argv):
+    return [a for a in argv
+            if a not in ("--fabric-gptp", "--no-fabric-gptp")]
+
+
+def _launcher_soc_argv(script, args):
+    """The milan_soc.py argv printed by a launcher's real dry-run path."""
+    proc = subprocess.run(["bash", script] + list(args), cwd=SOC_DIR,
+                          text=True, capture_output=True)
+    assert proc.returncode == 0, (
+        f"{os.path.basename(script)} {' '.join(args)} dry-run failed "
+        f"(rc={proc.returncode})\n{proc.stdout[-2000:]}\n"
+        f"{proc.stderr[-2000:]}")
+    rows = []
+    for line in proc.stdout.splitlines():
+        if "milan_soc.py" not in line:
+            continue
+        tokens = shlex.split(line.strip())
+        for i, token in enumerate(tokens):
+            if os.path.basename(token) == "milan_soc.py":
+                argv = tokens[i + 1:]
+                if "--output-dir" in argv:
+                    j = argv.index("--output-dir")
+                    argv[j + 1] = BUILD_OUT_TOKEN
+                rows.append(argv)
+                break
+    assert rows, (f"{os.path.basename(script)} {' '.join(args)} printed no "
+                  f"milan_soc.py argv\n{proc.stdout[-2000:]}")
+    return rows
+
+
+def _gptp_instance_runs():
+    """Profile/default probes and the three supported shipping entry points."""
+    runs, expected = [], {}
+    cached = {}
+    for label, name, flag, want in GPTP_PROFILE_CASES:
+        if name not in cached:
+            _cfg, argv = _config_argv(name)
+            cached[name] = _gptp_without_owner_flag(argv)
+        argv = list(cached[name])
+        if flag:
+            argv.append(flag)
+        argv += ["--output-dir", BUILD_OUT_TOKEN, "--build"]
+        runs.append((label, argv))
+        expected[label] = want
+
+    build_rows = _launcher_soc_argv(BUILD_SH, ["ax7101", "--dry-run"])
+    assert len(build_rows) == 1, \
+        f"build.sh ax7101 emitted {len(build_rows)} commands, want 1"
+    runs.append(("gptp build.sh shipping", build_rows[0]))
+    expected["gptp build.sh shipping"] = 1
+
+    deploy = os.path.join(SOC_DIR, "deploy.sh")
+    deploy_rows = _launcher_soc_argv(deploy, ["build", "--dry-run"])
+    assert len(deploy_rows) == 1, \
+        f"deploy.sh build emitted {len(deploy_rows)} commands, want 1"
+    runs.append(("gptp deploy.sh shipping", deploy_rows[0]))
+    expected["gptp deploy.sh shipping"] = 1
+
+    sweep_rows = [(label, argv) for label, argv in _recipe_cases()
+                  if label == "sweep.sh ax7101"]
+    assert len(sweep_rows) == 1, \
+        f"sweep.sh ax7101 yielded {len(sweep_rows)} recipes, want 1"
+    runs.append(("gptp sweep.sh shipping", sweep_rows[0][1]))
+    expected["gptp sweep.sh shipping"] = 1
+    return runs, expected
+
+
+def _gptp_instance_contract(got, expected):
+    """Every ownership violation in a probe set, shared with mutations."""
+    bad, params = [], {}
+    for label, want in expected.items():
+        row = got.get(label) or {"error": "case not run"}
+        if "params" not in row:
+            bad.append(f"{label}: never reached the datapath Instance: "
+                       f"{_why_failed(row)}")
+            continue
+        p = params[label] = row["params"]
+        if p.get("p_GPTP_PLANE_EN_P") != want:
+            bad.append(
+                f"{label}: p_GPTP_PLANE_EN_P="
+                f"{p.get('p_GPTP_PLANE_EN_P', '<absent>')!r}, want {want}")
+        has_rom = "p_GPTP_UCODE_HEX_P" in p
+        if has_rom != bool(want):
+            bad.append(f"{label}: gPTP ROM is "
+                       f"{'present' if has_rom else 'absent'} with plane "
+                       f"{'on' if want else 'off'}")
+        if has_rom and not os.path.isabs(p["p_GPTP_UCODE_HEX_P"]):
+            bad.append(f"{label}: gPTP ROM path is not absolute")
+    for default, explicit in (("gptp baremetal default",
+                               "gptp baremetal explicit"),
+                              ("gptp linux default",
+                               "gptp linux explicit")):
+        if default in params and explicit in params \
+                and params[default] != params[explicit]:
+            changed = sorted(k for k in set(params[default]) | set(params[explicit])
+                             if params[default].get(k) != params[explicit].get(k))
+            bad.append(f"{default}: omission differs from the explicit owner "
+                       f"at {changed}")
+    return bad
+
+
+def test_gptp_plane_reaches_the_instance():
+    """Gate 1e: both owner states reach the real RTL Instance."""
+    python = _litex_or_skip("gate 1e")
+    if python is None:
+        return
+    runs, expected = _gptp_instance_runs()
+    got = _instance_params(python, runs)
+    bad = _gptp_instance_contract(got, expected)
+    assert not bad, "gate 1e:\n  " + "\n  ".join(bad)
+
+    # The two invalid owner counts are refused by the real CLI, not just by
+    # the declarative builder loader tested in gate 1c.
+    cases = dict(runs)
+    invalid = [
+        ("gptp two owners",
+         _gptp_without_owner_flag(cases["gptp linux explicit"])
+         + ["--fabric-gptp"]),
+        ("gptp zero owners",
+         _gptp_without_owner_flag(cases["gptp baremetal explicit"])
+         + ["--no-fabric-gptp"]),
+    ]
+    refused = _instance_params(python, invalid)
+    for label, needle in (("gptp two owners", "both own the PHC"),
+                          ("gptp zero owners", "NO PHC owner")):
+        assert "params" not in refused[label], \
+            f"{label}: invalid ownership reached the datapath Instance"
+        assert needle in _why_failed(refused[label]), \
+            f"{label}: refusal did not name {needle!r}: {refused[label]}"
+    print(f"  [gate 1e] {len(runs)} real elaborations: profile defaults equal "
+          "their explicit forms; build.sh, sweep.sh and deploy.sh ship fabric "
+          "ownership; plane/ROM state agrees; both invalid owner counts refuse")
+
+
+GPTP_INSTANCE_MUTATIONS = (
+    ("main ties the parsed owner off",
+     [("gptp_plane=args.fabric_gptp,", "gptp_plane=False,", 1)],
+     "gptp baremetal explicit"),
+    ("MilanSoC drops its owner carrier",
+     [("\n" + " " * 34 + "gptp_plane=gptp_plane,\n",
+       "\n" + " " * 34 + "gptp_plane=None,\n", 1)],
+     "gptp baremetal explicit"),
+    ("MilanNIC drops its owner carrier",
+     [("\n" + " " * 27 + "gptp_plane=gptp_plane,\n",
+       "\n" + " " * 27 + "gptp_plane=None,\n", 1)],
+     "gptp baremetal explicit"),
+    ("the emitted parameter is tied on",
+     [("p_GPTP_PLANE_EN_P=int(bool(gptp_plane))",
+       "p_GPTP_PLANE_EN_P=int(True)", 1)],
+     "gptp linux explicit"),
+    ("the emitted parameter is inverted",
+     [("p_GPTP_PLANE_EN_P=int(bool(gptp_plane))",
+       "p_GPTP_PLANE_EN_P=int(not gptp_plane)", 1)],
+     "gptp baremetal explicit"),
+    ("the omission default stops following the profile",
+     [('args.fabric_gptp = (args.software_profile == "baremetal"',
+       'args.fabric_gptp = (args.software_profile == "linux"', 1)],
+     "gptp baremetal default"),
+)
+
+
+def test_gptp_plane_instance_gate_bites():
+    """Gate 1e negative controls: every Python carrier cut turns it red."""
+    python = _litex_or_skip("gate 1e mutation")
+    if python is None:
+        return
+    runs, expected = _gptp_instance_runs()
+    cases = dict(runs)
+    for why, mutations, label in GPTP_INSTANCE_MUTATIONS:
+        got = _instance_params(python, [(label, cases[label])], mutations)
+        bad = _gptp_instance_contract(got, {label: expected[label]})
+        assert bad, f"gate 1e accepted a tree where {why}"
+    print(f"  [gate 1e mutation] {len(GPTP_INSTANCE_MUTATIONS)}/"
+          f"{len(GPTP_INSTANCE_MUTATIONS)} owner-carrier cuts rejected")
+
+
 def test_optional_blocks_reach_the_instance():
     """gate 23f - THE BEHAVIOURAL PRUNE PROOF (issues #130, #154).
 
-    Every OPTIONAL_BLOCKS row plus the two PRESENT_ONLY_BLOCKS rows, both
+    Every OPTIONAL_BLOCKS row plus the sound-card PRESENT_ONLY_BLOCKS row, both
     directions, graded on the parameters that actually reach
     Instance("milan_datapath", ...) in a real elaboration of the shipping
     configs.  A prune must land as `p_<PARAM>=0` AND MUST CHANGE NOTHING ELSE
@@ -11940,10 +12462,10 @@ def test_optional_blocks_reach_the_instance():
           f"{len(eb.OPTIONAL_BLOCKS)} --no-* flags lands as p_<PARAM>=0 in "
           f'the Instance("milan_datapath") parameters and moves NOTHING '
           f"else, a build that prunes nothing passes none of them "
-          f"({len(base)} parameters, byte-identical top .v), and both "
-          f"inverted rows land the other way up: p_SOUND_CARD_P=1 with "
-          f"--sound-card, and p_GPTP_PLANE_EN_P=1 WITH its microcode image "
-          f"with --fabric-gptp, both absent without them. This grades what "
+          f"({len(base)} parameters, byte-identical top .v), and the "
+          f"inverted row lands the other way up: p_SOUND_CARD_P=1 with "
+          f"--sound-card and absent without it. Fabric gPTP's profile-aware "
+          f"default is graded separately by gate 1e. This grades what "
           f"elaboration HANDS the module, not "
           f"what the module DOES with it (gate 23d) and not that the "
           f"bitstream places or boots")
@@ -11957,8 +12479,8 @@ def test_optional_block_instance_gate_bites():
     same real elaborations, so what is proved is that THE GATE goes red, not
     that some weaker restatement of it does.
 
-    Eight of the eleven leave every OTHER gate in this file green, which is
-    the whole reason this gate exists.  The three that do NOT are gate 23d's
+    Most controls leave every OTHER gate in this file green, which is the
+    whole reason this gate exists.  The controls that do not are gate 23d's
     own: the dropped `not args.no_maap` handoff is exactly what 23d was
     written for, and the renamed parameter trips its `p_<PARAM>=0` grep.
     They are kept here so the two gates' division of labour is stated rather
@@ -11998,14 +12520,6 @@ def test_optional_block_instance_gate_bites():
          [('    if sound_card:\n        dp_params["p_SOUND_CARD_P"] = 1',
            '    if not sound_card:\n        dp_params["p_SOUND_CARD_P"] = 1',
            1)], [], ["sound_card"]),
-        # The two #135 hops, verbatim: a reviewer severed the --fabric-gptp
-        # chain at each of them and read ALL GATES PASS both times.
-        ("main() never hands --fabric-gptp to MilanSoC (#135, hop 1)",
-         [("gptp_plane=args.fabric_gptp,", "gptp_plane=False,", 1)],
-         [], ["fabric_gptp"]),
-        ("the gPTP plane parameter is never emitted (#135, hop 2)",
-         [('        dp_params["p_GPTP_PLANE_EN_P"] = 1',
-           "        pass", 1)], [], ["fabric_gptp"]),
     ]
     t0 = time.time()
     for why, mutations, rows, inverted in controls:
@@ -12024,8 +12538,8 @@ def test_optional_block_instance_gate_bites():
           f"{time.time() - t0:.0f} s: a dropped CLI handoff, two dropped "
           "constructor keywords, a dropped keyword inside "
           "add_milan_datapath, a suppressed parameter, a renamed parameter, "
-          "both prune polarities inverted, and BOTH #135 hops - severed "
-          "independently, each one a bitstream with no time source")
+          "and both prune polarities inverted; gate 1e separately owns the "
+          "profile-aware gPTP chain")
 
 
 #  gate 23g (issue #156) - EVERY SHIPPED RECIPE CAN ACTUALLY RUN.
@@ -14561,6 +15075,10 @@ def test_milan_base_formats_are_rate_complete():
 
 if __name__ == "__main__":
     for fn in (test_all_configs_build, test_baremetal_profile_contract,
+               test_gptp_product_default_and_legacy_option,
+               test_gptp_rootfs_handoff_preserves_software_config,
+               test_gptp_plane_reaches_the_instance,
+               test_gptp_plane_instance_gate_bites,
                test_current_shape_matches_sweep_flags,
                test_current_shape_matches_gen_aem_store,
                test_capability_marks, test_bad_configs_rejected,

@@ -129,7 +129,7 @@ number that cannot be stale; new rows on this page do not add one.
 | T-2 | CSR↔PHC clock-domain crossing |  -  | HW | `ptp_csr_sync`, `cdc_pulse/handshake` | ✅ | `RTL` ptp_sync, cdc (16); `SYN` |
 | T-3 | TX/RX hardware timestamping + metadata stream | 802.1AS | HW | `ptp_ts_top`, `ptp_ts_core` | ✅ | `RTL` ptp, milan_dp (TS AXIS path) |
 | T-4 | PHC on a fixed 125 MHz reference (REQ-PTP-07) | Milan | HW | `_CRG` gtx clock (§A.4) | 🟩 | `ELAB`; `BOARD` `ethtool -T eth0` PHC present |
-| T-5 | gPTP daemon lock (BMCA, sync/pdelay) | 802.1AS | SW | `ptp4l`/linuxptp on the softcore, over the fabric PHC | ✅ on silicon · 🟡 AS-4/AS-6 | `BOARD` `asCapable` + full sync through the reference AVB switch, pdelay both ways, offset rms 2-4 ns, HW timestamps with zero config overrides  -  [`GPTP_RXPAD_ROOTCAUSE.md`](../findings/GPTP_RXPAD_ROOTCAUSE.md), [`TIME_SYNC.md` §5](../design/TIME_SYNC.md#5-status-2026-07-25). Open: **AS-4** per-unit ingress/egress latency calibration, **AS-6** DUT-wins-BMCA (switch outranks every Milan-legal value) |
+| T-5 | gPTP daemon lock (BMCA, sync/pdelay) | 802.1AS | SW | `ptp4l`/linuxptp on the softcore, over the fabric PHC | ✅ on silicon · 🟡 AS-4/AS-6 | `BOARD` `asCapable` + full sync through the reference AVB switch, pdelay both ways, offset rms 2-4 ns, HW timestamps with zero config overrides  -  [`GPTP_RXPAD_ROOTCAUSE.md`](../findings/GPTP_RXPAD_ROOTCAUSE.md), [`TIME_SYNC.md` §5](../design/TIME_SYNC.md#5-status-updated-2026-08-23). Open: **AS-4** per-unit ingress/egress latency calibration, **AS-6** DUT-wins-BMCA (switch outranks every Milan-legal value) |
 
 ## 4. Discovery / control  -  AVDECC (IEEE 1722.1-2021 + Milan v1.2)
 

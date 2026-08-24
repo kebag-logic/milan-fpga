@@ -73,7 +73,7 @@ is opt-in per queue, and shaping `q0` once paced all best-effort TX to
 |-------|------|---------|---------------|---------|
 | **q4** | `SRA_CLASS` | **SR class A** — every AVB stream MSRP reserved, per the reservation domains | **PCP** (3) on the SR VID | **CBS** (802.1Qav) |
 | **q3** | `SRB_CLASS` | **SR class B** — not used today; provisioned so an MSRP class-B domain has somewhere to land | **PCP** (2) on the SR VID | **CBS** (802.1Qav) |
-| **q2** | `GPTP_CLASS` | 802.1AS / gPTP. Today these frames come from the CPU (the PTP daemon), so this is the CPU's sync lane | **DMAC** `01-80-C2-00-00-0E` + EtherType `0x88F7` | strict priority |
+| **q2** | `GPTP_CLASS` | 802.1AS / gPTP from the CPU in the explicit software-owner option-off comparison. Product-default fabric gPTP is injected downstream and does not traverse q2 | **DMAC** `01-80-C2-00-00-0E` + EtherType `0x88F7` | strict priority |
 | **q1** | `CONTROL_CLASS` | MAAP, MSRP, MVRP, and IEEE 1722.1-2021 ADP / ACMP / AECP | **DMAC** (reserved group address table) | strict priority |
 | **q0** | `BEST_EFFORT` | everything else, to and from the CPU | fallthrough | strict priority — **never CBS**, see below |
 
@@ -572,11 +572,12 @@ IFG gasket:
   the lossless descriptor arbiter and are limited by the processor to one push
   per descriptor per second. These frames use the same post-shaper control lane.
 
-So the q4/q3/q1 assignments bite for **CPU-originated** traffic today: a
-software AVDECC controller or a software MSRP stack lands on q1, gPTP from the
-PTP daemon lands on q2, and everything else lands on q0. Moving the fabric
-talker inside the shaper is a separate piece of work (the `is_1g` follow-up
-noted in `milan_datapath.sv`).
+So the q4/q3/q2/q1 assignments bite for **CPU-originated** traffic today: a
+software AVDECC controller or a software MSRP stack lands on q1, option-off
+software-owner gPTP lands on q2, and everything else lands on q0. The
+product-default fabric gPTP engine injects downstream of the classifier and
+shaper. Moving the fabric AAF talker inside the shaper is a separate piece of
+work (the `is_1g` follow-up noted in `milan_datapath.sv`).
 
 That bounds what `REQ-CLS-10` changes on the wire, and the honest version is
 worth stating: the fabric already emits ADP, ACMP, MAAP and the MSRP/MVRP

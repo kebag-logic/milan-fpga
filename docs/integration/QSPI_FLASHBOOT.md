@@ -111,6 +111,19 @@ and re-embedded into opensbi with every gateware change that touches the
 map — the symptom of a stale DTB is subtle (e.g. ptp4l "timed out while
 polling for tx timestamp" while everything else works).
 
+**Matched-owner rule (#116):** every new `flashboot_layout.json` carries the
+resolved `gptp_owner` enum compiled into `soc.h` (`fabric`, `software`, or the
+documented bare-SoC `none`). Before any image write, `deploy.sh flash-images`
+opens the actual gzip/xz/raw-newc `ROOTFS` archive. A software-owned build must
+contain exactly one regular `etc/milan-gptp-software-owner`; fabric and none
+must contain zero. `build.sh flash` runs the same check, also binds the enum to
+the named recipe, and does so before writing the bitstream at offset zero.
+Missing/unknown metadata, a missing or corrupt rootfs, duplicate markers, and
+both zero-owner/two-owner inversions are refusals. Use `deploy.sh check-images`
+for the read-only preflight. Sweep fallback layouts reconstruct the enum from
+the compiled `MILAN_GPTP_OWNER` constant, so a mutable source overlay is never
+treated as proof about an already-built artifact.
+
 **Boot timing truth (07-24):** power-on → network-up ≈ **7 min** (FPGA
 config and kernel are seconds; the rootfs init + S50milan devmem storm is
 the bulk). Warm boots (link already negotiated) ≈ 2.5–3 min. **Reachability
@@ -162,7 +175,7 @@ It has three cooperating pieces plus a host boot-list, all opt-in behind
 |-------|-------|------|
 | **flash core** | [`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py), [`sw/litex/platforms/alinx_ax7101.py`](../../sw/litex/platforms/alinx_ax7101.py) | memory-maps the on-board flash; emits the `MILAN_FLASHBOOT_*` layout constants |
 | **BIOS method** | [`sw/litex/patches/0001-milan-linux-flashboot.patch`](../../sw/litex/patches/0001-milan-linux-flashboot.patch) | `linux_flashboot` copies images flash→DRAM, boots (or pre-loads then defers to serialboot) |
-| **flashing** | `sw/litex/deploy.sh flash-images` | wraps each image as a LiteX FBI and writes it at the compiled-in offset; refuses a `$DTB` whose `kl,dma-ether` windows mismatch the build’s `csr.csv` ([check_dtb_csr.py](../../sw/litex/check_dtb_csr.py), [TROUBLESHOOTING Section 20](../limitations/TROUBLESHOOTING.md)) |
+| **flashing** | `sw/litex/deploy.sh check-images` / `flash-images` | before programmer I/O, pairs the layout's compiled gPTP owner with the exact marker state inside `$ROOTFS` and refuses a `$DTB` whose `kl,dma-ether` windows mismatch the build’s `csr.csv`; then wraps each image as a LiteX FBI and writes it at the compiled-in offset ([check_gptp_owner_pair.py](../../sw/litex/check_gptp_owner_pair.py), [check_dtb_csr.py](../../sw/litex/check_dtb_csr.py), [TROUBLESHOOTING Section 20](../limitations/TROUBLESHOOTING.md)) |
 | **host boot-list** | `the-private-test-repo/fpga/boot/boot_flashkernel.json` | serial upload of only the *non*-flashed images (partial mode) |
 
 ---
@@ -249,7 +262,8 @@ boot. The bitstream is in neither manifest — the FPGA config logic reads it
 before any BIOS runs.
 
 The build writes `<build>/flashboot_layout.json` (the single source of truth); `deploy.sh
-flash-images` reads it, so the gateware's compiled-in offsets and the flashing never drift.
+flash-images` reads it, so the gateware's compiled-in offsets, gPTP owner, rootfs lease and
+the flashing never drift.
 **Read the build's own copy** — the numbers above are a snapshot of the tree, and
 the `rootfs` budget in particular has already moved once (v4, 2026-07-26).
 
@@ -322,14 +336,18 @@ sw/litex/milan_soc.py --all-blocks --coherent-dma --milan-clk-freq 50e6 --with-s
 ### Flash the kernel once (partial mode)
 
 ```sh
-KERNEL=/path/to/images/Image  sw/litex/deploy.sh flash-images
+KERNEL=/path/to/images/Image ROOTFS=/path/to/images/rootfs.cpio.xz \
+    sw/litex/deploy.sh flash-images
 ```
 
-`flash-images` reads the newest `flashboot_layout.json` (override `LAYOUT=`), wraps each
+`flash-images` first runs the same read-only owner/DTB preflight exposed as
+`deploy.sh check-images`. It reads the newest `flashboot_layout.json` (override `LAYOUT=`), wraps each
 manifest image as an FBI (`crcfbigen -f -l`), size-checks it against its slot, and writes it
 with `openFPGALoader -o <offset> --write-flash --file-type raw --verify`. Only the images in
-the manifest need their env var (`KERNEL`/`OPENSBI`/`DTB`/`ROOTFS`); there are no
-machine-specific defaults.
+the manifest need their env var (`KERNEL`/`OPENSBI`/`DTB`/`ROOTFS`), except that a
+software-owned partial layout also requires `ROOTFS` so the serial-loaded half of
+the eventual boot set cannot bypass the owner check. There are no machine-specific
+defaults.
 
 ### Iterate (the fast loop)
 

@@ -67,7 +67,8 @@ had finished, twice, and concluded the path was dead.
 The script does four things, all necessary:
 
 1. raises `ktimers/0` to `chrt -f -p 70` — on PREEMPT_RT the driver's soft
-   hrtimer defers there at SCHED_FIFO **1**, below napi (50) and ptp4l (80);
+   hrtimer defers there at SCHED_FIFO **1**, below napi (50); the ptp4l (80)
+   comparison applies only to the explicit software-owner option-off profile;
 2. kills the PipeWire consumer stack, which is pure overhead for playback;
 3. writes the channel map (see below);
 4. `exec chrt -f 60 aplay -D hw:Milan,0 -f S32_BE -r 48000 -c 8

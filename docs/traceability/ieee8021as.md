@@ -7,7 +7,8 @@ boundary is in the [architecture guide](../overview/ARCHITECTURE.md).
 
 **Two scopes, two editions.** This table is the hardware-assist scope: the PTP
 hardware clock and the event-message timestamping the **fabric** provides in
-every build, traced against 802.1AS-2020. With the gPTP option OFF the
+every build, traced against 802.1AS-2020. The product default is now the
+option-ON fabric owner. With the explicit gPTP option OFF comparison, the
 **protocol** (BMCA, Announce/Sync/Pdelay state machines, servo) runs in
 `ptp4l`/linuxptp on the softcore, so the option-OFF half of those rows is SW and
 verified on the wire (BENCH features at the ProfiShark taps); rows AS-6 to

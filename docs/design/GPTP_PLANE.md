@@ -2,11 +2,18 @@
 # The fabric gPTP plane
 
 The time-sync plane of epic #110: the `gptp-processor` submodule's
-micro-coded 802.1AS engine spliced into the datapath as fabric, on the
-way to retiring `ptp4l`/`phc2sys`/the `milan-statd` mirror chain. This
-page is the integration architecture of record for #114; the donor
+micro-coded 802.1AS engine spliced into the datapath as the product's
+time owner. The default image does not start `ptp4l`, `phc2sys`, or the
+`milan-statd` GM/path/CLKV mirror chain. This page is the integration
+architecture of record for #114 and #116; the donor
 repo's own pages under `gptp-processor/docs/` (the resource-validation
 record) carry the engine's internals and measured cost.
+
+<!-- milan-feature-status:start -->
+| Feature ID | Status | Canonical value |
+|---|---|---|
+| `gptp.fabric-product-owner` | `implemented` | - |
+<!-- milan-feature-status:end -->
 
 Normative edition: the plane's wire formats and state machines follow the
 Milan v1.2 profile (section 4.2.6) of IEEE 802.1AS-2011 with Cor1-2013 and
@@ -24,16 +31,17 @@ decision is recorded on #139.
 
 - **[The shape](#the-shape)** -- one option, four seams
 - **[Timestamps](#timestamps)** -- where stamps are born and how they travel
-- **[What stays software until #116](#what-stays-software-until-116)** -- the flip boundary
+- **[The ownership boundary](#the-ownership-boundary)** -- default fabric owner and explicit software comparison
 - **[Verification map](#verification-map)** -- which bench proves what
 
 ## The shape
 
-`GPTP_PLANE_EN_P` (milan_datapath parameter, DEFAULT OFF) elaborates
-`KL_gptp_shadow` with four seams. #120's shipping AX7101 configuration opts in
-explicitly after its bare-metal and sound-card area buy-back; other builds
-remain bit-identical until they make the same product choice. #116 still owns
-the default flip and CSR compatibility transition.
+`GPTP_PLANE_EN_P` (milan_datapath parameter, **default ON**) elaborates
+`KL_gptp_shadow` with four seams. The builder emits the same value into every
+real build/sweep/deploy instance. The supported comparison is explicit
+`fabric_gptp: false`; it selects the software-owner ABI and causes the rootfs
+fragment to carry `/etc/milan-gptp-software-owner`. Invalid owner/profile
+pairings are refused rather than silently producing two PHC owners.
 
 The option also carries `GPTP_UCODE_HEX_P`. In a shipping SoC build this is an
 absolute path to the builder's per-config 1,024-word image, generated from the
@@ -126,22 +134,22 @@ The plane has four seams:
   bench found the single-register race this retires; the pinned donor's
   engine record carries the story.
 
-## What stays software until #116
+## The ownership boundary
 
-The CSR readback words (`ADP_GM` 0x624/8, `GPTP_PDELAY` 0x6E4, the legacy
-0x730 AS_PATH scratch pair and the 0x7DC PathTrace stage/publish group), the
-`tu` bit's CLKV lease, and the rootfs
-daemons. Two published words already reach the fabric consumers when
-the option is on, by the same `GPTP_PLANE_EN_P` selection: the
-grandmaster identity, and since 0x0055 `pub_pdelay_ns_o` as the
-`propagation_delay` `GET_AVB_INFO` serves. Reading either CSR back
-still returns the software-written word. The PathTrace tail remains a software
-publication: slot COMMITs are staging-only and a changed PUBLISH atomically
-replaces the tail/count that `GET_AS_PATH` serves. Notification compares the
-served sequence, so count 0/1 aliases and any publication while GM=0 are
-silent until a real controller-visible path exists. The #116 flip re-points the
-remaining words at the plane and carries the VERSION story; the splice changes
-no CSR-visible behavior, which is why it carries no VERSION bump.
+With the product-default option on, the fabric publication bank is the single
+source for `ADP_GM` 0x624/0x628, `GPTP_PDELAY` 0x6E4, the parent at
+0x730/0x734, GET_AVB_INFO, GET_AS_PATH, clock validity/asCapable and AVTP
+`tu`. GM and parent are each snapshotted as one 64-bit value across either
+two-half CSR read order. A GM/sync discontinuity asserts `tu` on that same
+edge, then the committed bank becomes visible; no consumer can see a new
+identity with an old-valid timestamp verdict. Software writes to the legacy
+publication and CLKV registers cannot manufacture live fabric health.
+
+With the option off, the legacy software contract remains intact: LO stages
+and HI commits each identity, `CLKV_CTRL` renews the compatibility lease, and
+the marked rootfs image starts linuxptp plus the full publisher. This is a
+comparison/bring-up shape, not the product default. VERSION `0x0002_0055`
+records the ownership change without allocating new CSR addresses.
 
 ## Verification map
 

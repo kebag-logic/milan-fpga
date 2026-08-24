@@ -61,6 +61,7 @@ entity:
 board:
   target: arty
   features:
+    fabric_gptp: false              # explicit Linux software-owner comparison
     sound_card: true
   constraints:
     sys_clk_hz: 83333000

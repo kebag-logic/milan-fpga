@@ -117,10 +117,11 @@ flash manifest, `--gtx-tx-invert`, `--timing-opt --floorplan`, and a
 three-directive placement sweep. See
 [BAREMETAL_FIRMWARE.md](BAREMETAL_FIRMWARE.md).
 
-### `ax8x8`  -  AX7101 Linux bring-up, 8-stream (64-channel) shape
+### `ax8x8`  -  AX7101 Linux option-off bring-up, 8-stream (64-channel) shape
 
-Same board, but deliberately retains the Linux bring-up flow, cached Vexii
-CPU, ALSA sound-card rings and full Linux flash manifest. It uses
+Same board, but deliberately retains the Linux bring-up flow as the explicit
+`--no-fabric-gptp` software-owner comparison, with cached Vexii CPU, ALSA
+sound-card rings and full Linux flash manifest. It uses
 `--num-streams 8`, `--rx-queues 2`, `--l2-bytes 16384`, and place directive
 AltSpreadLogic_high. The second RX queue is required because a one-queue build
 has no flow-steer block; under bulk traffic, ptp4l then shares the bulk ring and
@@ -273,10 +274,17 @@ AX bare-metal manifest instead carries only raw `aem_desc.bin` at 4 MiB in a
 64 KiB slot; firmware itself is linked into ROM. Always read the build's
 `flashboot_layout.json`; details are in
 [QSPI_FLASHBOOT.md](QSPI_FLASHBOOT.md). Flash with
-`./build.sh flash <config>[:<builddir>]`  -  bitstream write is verified,
-then the image set goes through `deploy.sh flash-images` (per-image slot
-budget checks + `--verify`). JTAG load still runs a build from SRAM without
-touching flash.
+`./build.sh flash <config>[:<builddir>]`. Before the bitstream write, the
+launcher checks that the named recipe's expected gPTP owner equals the
+`gptp_owner` enum compiled into that build's layout. For a layout carrying a
+rootfs it also opens the actual `ROOTFS=...` cpio archive: `software` requires
+exactly one regular `etc/milan-gptp-software-owner` entry; `fabric` and `none`
+require none. Missing legacy metadata, a missing/corrupt archive, or either
+inversion refuses the operation before programmer I/O. The verified bitstream
+write is followed by `deploy.sh flash-images`, which repeats that preflight and
+then applies per-image slot budgets plus `--verify`. `deploy.sh check-images`
+runs the same read-only check explicitly. JTAG load still runs a build from SRAM
+without touching flash.
 
 After a Linux flash, run [`scripts/hostplane_smoke.sh`](../../scripts/hostplane_smoke.sh)
 on the board shell. A Linux build with sound-card surfaces intentionally off

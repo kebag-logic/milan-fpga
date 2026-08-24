@@ -22,6 +22,7 @@
 VERILATOR ?= verilator
 RTL_DIR    = ../../../hdl
 PP_DIR     = ../../../protocol-processor/hdl
+GPTP_DIR   = ../../../gptp-processor/hdl
 AXIS_DIR   = ../../../third_party/verilog-axis/rtl
 TOP        = milan_datapath
 
@@ -58,12 +59,12 @@ VFLAGS_COMMON = --cc --exe --build -j 0 \
 #   (never set by the SoC) -> PB_PREFILL_C=0       (silicon default kept -
 #                             milan_dp shrinks it to 2; we do NOT)
 G_AX8X8 = -GN_STREAMS=8 -GMILAN_CLK_FREQ_HZ=100000000 -GAUDIO_IF_SLOTS_P=0 \
-          -GSOUND_CARD_P=1 -GAAF_PLAYBACK_P=1
+          -GSOUND_CARD_P=1 -GAAF_PLAYBACK_P=1 -GGPTP_PLANE_EN_P=0
 
 # ---- cfg-sweep smoke shapes (case e) ---------------------------------------
-G_SMALL = -GN_STREAMS=1 -GMILAN_CLK_FREQ_HZ=50000000  -GAUDIO_IF_SLOTS_P=0 -GSOUND_CARD_P=1
-G_N4    = -GN_STREAMS=4 -GMILAN_CLK_FREQ_HZ=100000000 -GAUDIO_IF_SLOTS_P=0 -GSOUND_CARD_P=1
-G_TDM8  = -GN_STREAMS=8 -GMILAN_CLK_FREQ_HZ=100000000 -GAUDIO_IF_SLOTS_P=8 -GSOUND_CARD_P=1
+G_SMALL = -GN_STREAMS=1 -GMILAN_CLK_FREQ_HZ=50000000  -GAUDIO_IF_SLOTS_P=0 -GSOUND_CARD_P=1 -GGPTP_PLANE_EN_P=0
+G_N4    = -GN_STREAMS=4 -GMILAN_CLK_FREQ_HZ=100000000 -GAUDIO_IF_SLOTS_P=0 -GSOUND_CARD_P=1 -GGPTP_PLANE_EN_P=0
+G_TDM8  = -GN_STREAMS=8 -GMILAN_CLK_FREQ_HZ=100000000 -GAUDIO_IF_SLOTS_P=8 -GSOUND_CARD_P=1 -GGPTP_PLANE_EN_P=0
 # ---- item-4 TDM32 MASTER (case e, 2026-07-28): the shape the AX7101
 #      8x8 argv now emits - `--audio-interface tdm32
 #      --audio-interface-master --talker-wire-chans 8`. This is the L1
@@ -76,7 +77,7 @@ G_TDM8  = -GN_STREAMS=8 -GMILAN_CLK_FREQ_HZ=100000000 -GAUDIO_IF_SLOTS_P=8 -GSOU
 #      98304000 = 2 x (32 slots x 32 bclk x 48000 fs) = 2 x 49.152 MHz.
 G_TDM32M = -GN_STREAMS=8 -GMILAN_CLK_FREQ_HZ=100000000 -GAUDIO_IF_SLOTS_P=32 \
            -GAUDIO_IF_MASTER_P=1 -GAUDIO_IF_CLK_HZ_P=98304000 -GTALKER_WIRE_CHANS_P=8 \
-           -GSOUND_CARD_P=1 -GAAF_PLAYBACK_P=1
+           -GSOUND_CARD_P=1 -GAAF_PLAYBACK_P=1 -GGPTP_PLANE_EN_P=0
 
 C  = $(RTL_DIR)/common
 Q  = $(RTL_DIR)/ieee8021q/ts
@@ -90,7 +91,12 @@ P  = $(RTL_DIR)/ieee8021as/ptp_timestamp
 # instantiates KL_pp_shadow unconditionally), so its sources come from the
 # ONE list that is proven to elaborate rather than a second copy here.
 PP_SRCS := $(shell $(MAKE) -s -C ../milan_dp print-pp-srcs)
-SRCS = $(PP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv \
+GPTP_SRCS = $(GPTP_DIR)/ucpu/gptp_ucpu_pkg.sv $(GPTP_DIR)/ucpu/KL_gptp_ucpu.sv \
+       $(GPTP_DIR)/wire/KL_gptp_rx_parser.sv $(GPTP_DIR)/wire/KL_gptp_tx_slot.sv \
+       $(GPTP_DIR)/common/KL_gptp_timer.sv $(GPTP_DIR)/top/KL_gptp_engine.sv \
+       $(RTL_DIR)/ieee8021as/gptp_plane/KL_gptp_shadow.sv \
+       $(RTL_DIR)/ieee8021as/gptp_plane/KL_gptp_txstamp.sv
+SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv \
        $(AXIS_DIR)/axis_fifo.v $(AXIS_DIR)/axis_demux.v $(AXIS_DIR)/axis_arb_mux.v \
        $(AXIS_DIR)/arbiter.v $(AXIS_DIR)/priority_encoder.v \
        $(Q)/traffic_class_map.sv $(Q)/traffic_classifier.sv $(Q)/credit_based_shaper.sv \

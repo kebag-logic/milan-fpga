@@ -135,10 +135,9 @@ clock-source selection now reaches the media plane's wrapper but nothing there
 reads it yet, and the sampling rate is stored and readable over AECP without
 being republished to the fabric at all.
 Identify control is stored but the root indication remains tied low.
-`GET_AVB_INFO` returns the effective propagation delay: the value software
-publishes at `GPTP_PDELAY` with the fabric gPTP plane off, or the plane's
-published value with it on. The writable AAF admission bypass remains a
-deployment hazard.
+`GET_AVB_INFO` now consumes the selected owner's coherent GM, propagation-delay,
+asCapable snapshot. The writable AAF admission bypass remains a deployment
+hazard.
 The integration also reports no nonvolatile backend, so required state does not
 survive a power cycle. This is a compliance blocker, not a documentation-only
 limitation.
@@ -176,17 +175,18 @@ equivalents exist on any distro. Each tier *adds* to the one above it.
 
 ```sh
 sudo pacman -S --needed gcc make python python-yaml verilator git
-git submodule update --init third_party/verilog-axis protocol-processor
+git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
 ```
 
 Verilator must be **≥ 5.050** — that is the CI pin, and CI builds it from source
 at that tag rather than trusting a distro package, because 5.020 (Ubuntu 24.04)
 cannot build four of the suites and 5.032 (Debian trixie) reads back zeros on six
 `aecp` checks. The measured table is in
-[Section 7 of docs/testing/TESTING.md](docs/testing/TESTING.md#7-known-gaps-kept-honest). The protocol processor is
-required by every datapath-level harness and is fetched over anonymous HTTPS.
+[Section 7 of docs/testing/TESTING.md](docs/testing/TESTING.md#7-known-gaps-kept-honest).
+The protocol and gPTP processors are required by the datapath-level harnesses
+and are fetched over anonymous HTTPS.
 The remaining submodules are not needed for this tier and may stay
-uninitialised: `external`, `gptp-processor`, and `third_party/buildroot`.
+uninitialised: `external` and `third_party/buildroot`.
 The processor architecture, compliance review, and SystemVerilog
 implementation live at
 <https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan>;
@@ -264,8 +264,11 @@ The long form, with what is verified vs what needs a bench: [QUICKSTART.md](QUIC
 
 ## Build & flash a board
 
-`./build.sh ax7101` (or `arty`) → `./deploy.sh flash` + `flash-images`. The full flow, with the
-load-bearing rules (compressed bitstream, matched image set, recovery) in one picture:
+`sw/litex/build.sh ax7101` (or `arty`) →
+`sw/litex/build.sh flash ax7101:<builddir>`. The launcher preflights the
+compiled gPTP owner and paired image set before its first QSPI write. The full
+flow, with the load-bearing rules (matched bitstream/layout/AEM, recovery) in
+one picture:
 
 ![Build → Flash → Boot → Verify pipeline](docs/BUILD_FLASH_BOOT.png)
 
@@ -296,9 +299,9 @@ ride the big arrow; dates assume the current cadence.
     ROADMAP                                                                                  |
     - deterministic - AEM persistence - redundancy net  - compliance test-house  - PCB bring-up ==>
       listener        journal (mtd)     cabled +          run (Milan v1.2)   (TCXO, audio
-      latency       - rootfs: boot-     failover proof  - 802.1AS            I/O, power)
-      (setpoint law,  resilient statd/ - temp-range       conformance      - EMC / safety
-      0x002E)         ptp4l, prio 248    timing signoff - PCB layout +     - factory
+      latency       - rootfs: validate  failover proof  - 802.1AS            I/O, power)
+      (setpoint law,  fabric ownership - temp-range       conformance      - EMC / safety
+      0x002E)         no old daemons     timing signoff - PCB layout +     - factory
     - software DLL  - dual-slot QSPI  - week-long soak    fab               provisioning
       (GM step        + golden image    + power-cycle                       (MAC/EUI-64,
       re-base)      - field update      torture as                          serials, test

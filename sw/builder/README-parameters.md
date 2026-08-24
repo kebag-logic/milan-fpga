@@ -218,7 +218,8 @@ reason the table exists.
 ## Optional blocks (`board.features:`) -- product options and tier-1 prunes
 
 `sound_card` controls the Linux host audio surface and `fabric_gptp` controls
-the #114 time-sync plane. Both product options default to `false`. The
+the #114/#116 time-sync owner. `sound_card` defaults to `false`;
+`fabric_gptp` defaults to `true`. The
 remaining keys are the
 [`docs/design/AREA_BUDGET.md`](../../docs/design/AREA_BUDGET.md) tier-1
 datapath blocks; they default to `true`.
@@ -230,8 +231,16 @@ reserved ring. Physical capture/render, AAF, CRF and loopback fabric remain.
 When `fabric_gptp` is true, the builder requires a `gptp:` section, emits
 `--fabric-gptp`, and writes `gptp_ucode.hex` into the per-config output. The
 ROM's station MAC, priority1 and clock come from the same YAML as the AEM and
-SoC arguments. The shipping AX7101 config opts in explicitly; the RTL default
-stays off until #116 changes the product default.
+SoC arguments. Every shipping config states the default fabric owner
+explicitly. `fabric_gptp: false` is the one software-owner comparison: its
+rootfs fragment contains `/etc/milan-gptp-software-owner`, while an option-on
+fragment removes that marker. Owner/profile combinations that would start a
+software stack against fabric ownership are rejected. The mutable fragment is
+only an input to the next rootfs build, never proof about an existing image:
+gateware records its resolved `fabric|software|none` owner in
+`flashboot_layout.json` and `soc.h`, and the flash preflight inspects the marker
+inside the exact `ROOTFS` archive before its first QSPI write. Old layouts with
+no owner enum and either zero-owner/two-owner marker inversion fail closed.
 
 The tier-1 set contains six
 `milan_datapath` blocks that a given deployment may not be able to use, each
@@ -242,7 +251,7 @@ whole section is optional.
 board:
   features:                    # optional; omit the block to keep everything
     sound_card: false          # default: no Linux PCM DMA/DT/AEM host surface
-    fabric_gptp: false         # default: fabric 802.1AS engine absent
+    fabric_gptp: true          # default: fabric owns 802.1AS + publication
     media_clock_servo: true
     latency_taps: true
     maap: true

@@ -16,7 +16,10 @@
 # What it does:
 #   AX7101 (console tmux '$AXSESS')  = GM: clockClass 6 / priority1 100
 #   Arty   (console tmux '$ARTYSESS') = slave: stock /etc/gptp.cfg
-# Both run ptp4l in HW-timestamp mode (no -S; linuxptp defaults to hardware
+# This is an explicit option-OFF compatibility test. Both images must carry
+# /etc/milan-gptp-software-owner; the script refuses a fabric-owned image so
+# it cannot start a second PHC owner. Both run ptp4l in HW-timestamp mode (no
+# -S; linuxptp defaults to hardware
 # and the kl-eth PHC + dma-ts ring are flash-default since hwts5). Gates:
 #   1. Arty reaches SLAVE with servo rms converging
 #   2. peerMeanPathDelay in the HW-grade range (~1-3 us; SW stamps read ~600 us)
@@ -37,6 +40,20 @@ conx() { # conx <session> <cmd> [timeout_s]
   done
   tmux capture-pane -t "$sess" -p -S -60 | sed -n "/S-$m/,/E-$m/p" | grep -v "^echo\|S-$m\|E-$m"
 }
+
+software_owner_or_refuse() { # session board-label
+  local sess=$1 board=$2
+  if ! conx "$sess" \
+      'if [ -f /etc/milan-gptp-software-owner ]; then echo OWNER-OK; else echo OWNER-MISSING; fi' \
+      8 | grep -q '^OWNER-OK$'; then
+    echo "REFUSED: $board is not an explicit option-OFF software-owner image."
+    echo "Do not start ptp4l beside the product-default fabric gPTP plane."
+    exit 2
+  fi
+}
+
+software_owner_or_refuse "$AXSESS" AX7101
+software_owner_or_refuse "$ARTYSESS" Arty
 
 echo "== gPTP direct-cable, HW timestamps (AX7101=GM cc6/prio100, Arty=slave) =="
 conx "$AXSESS" 'killall ptp4l 2>/dev/null; sleep 1;

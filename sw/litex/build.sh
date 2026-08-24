@@ -47,9 +47,16 @@ AX_FTDI="${AX_FTDI:-SET_AX_FTDI}"       # sentinel fails loudly in openFPGALoade
 ARTY_FTDI="${ARTY_FTDI:-SET_ARTY_FTDI}"
 board_facts() {  # -> "serial cable fpga_part flash_policy bit_name"
     case "$1" in
-        ax7101) echo "$AX_FTDI ft232    xc7a100tfgg484 boot      alinx_ax7101.bit";;
-        arty)   echo "$ARTY_FTDI digilent xc7a100tcsg324 boot      digilent_arty.bit";;
+        ax7101|ax8x8) echo "$AX_FTDI ft232    xc7a100tfgg484 boot      alinx_ax7101.bit";;
+        arty)          echo "$ARTY_FTDI digilent xc7a100tcsg324 boot      digilent_arty.bit";;
         *)      return 1;;
+    esac
+}
+gptp_owner_for_config() {
+    case "$1" in
+        ax7101)      echo fabric;;
+        ax8x8|arty) echo software;;
+        *)          return 1;;
     esac
 }
 
@@ -64,6 +71,8 @@ if [ "${1:-}" = "flash" ]; then
         c=${spec%%:*}; dir=${spec#*:}; [ "$dir" = "$spec" ] && dir=""
         facts=$(board_facts "$c") || { echo "unknown board config '$c'" >&2; exit 2; }
         read -r serial cable part policy bitname <<<"$facts"
+        expected_owner=$(gptp_owner_for_config "$c") || {
+            echo "[$c] no gPTP owner contract for this named config" >&2; exit 2; }
         if [ -z "$dir" ]; then
             # newest build dir containing the artifact this policy flashes
             # (|| true: an empty glob must reach the friendly error, not set -e)
@@ -86,19 +95,31 @@ if [ "${1:-}" = "flash" ]; then
                 # v3 QSPI-boot: gateware @0 THEN the image set (shifted offsets).
                 bit="$dir/gateware/$bitname"
                 [ -f "$bit" ] || { echo "[$c] missing $bit" >&2; exit 2; }
+                # Validate every cross-artifact ownership fact before the
+                # first QSPI write.  In particular, a fabric bitstream beside
+                # a marked rootfs would otherwise start two PHC owners, while
+                # option-off gateware beside an unmarked rootfs starts zero.
+                echo "== preflight [$c] OWNER=$expected_owner / ROOTFS PAIR =="
+                LAYOUT="$dir/flashboot_layout.json" \
+                    EXPECTED_GPTP_OWNER="$expected_owner" \
+                    "$SOC_DIR/deploy.sh" check-images
                 echo "== flash [$c] BITSTREAM @0 =="
                 out=$(openFPGALoader --ftdi-serial "$serial" -c "$cable" --fpga-part "$part" -f --verify "$bit" 2>&1) \
                     || { echo "$out"; exit 1; }
                 echo "$out" | grep -qiE "error|can.t program" && { echo "[$c] BIT FLASH FAILED"; exit 1; }
                 echo "== flash [$c] IMAGES (v3 layout offsets) =="
                 SERIAL="$serial" CABLE="$cable" FPGA_PART="$part" \
-                    LAYOUT="$dir/flashboot_layout.json" "$SOC_DIR/deploy.sh" flash-images
+                    LAYOUT="$dir/flashboot_layout.json" \
+                    EXPECTED_GPTP_OWNER="$expected_owner" \
+                    "$SOC_DIR/deploy.sh" flash-images
                 echo "   done. Power-cycle to boot gateware + its paired firmware images from QSPI."
                 ;;
             images)
                 echo "== flash [$c] IMAGES -> QSPI (layout offsets; bitstream stays JTAG-SRAM) =="
                 SERIAL="$serial" CABLE="$cable" FPGA_PART="$part" \
-                    LAYOUT="$dir/flashboot_layout.json" "$SOC_DIR/deploy.sh" flash-images
+                    LAYOUT="$dir/flashboot_layout.json" \
+                    EXPECTED_GPTP_OWNER="$expected_owner" \
+                    "$SOC_DIR/deploy.sh" flash-images
                 ;;
             bitstream)
                 bit="$dir/gateware/$bitname"
@@ -168,7 +189,7 @@ cfg_ax8x8() {    # 8-stream (64ch) shape. History: the 07-24 close used
     # and its RV64-era refill/prefetch cache profile, so it is an upper bound
     # for this recipe, not its figure.
     echo "--board ax7101 --cpu vexiiriscv --cpu-count 1 --xlen 32 --software-profile linux \
-          --all-blocks --coherent-dma --sound-card \
+          --all-blocks --coherent-dma --sound-card --no-fabric-gptp \
           --milan-clk-freq 100e6 --with-spiflash --flashboot full --gtx-tx-invert \
           --timing-opt --floorplan --eth-port e1 --l2-bytes 16384 \
           --scala-args=--lsu-l1-refill-count=2 --scala-args=--l2-down-pending=4 \
@@ -219,7 +240,7 @@ cfg_arty() {     # Arty A7-100 small endstation: MII 100M, QSPI flashboot (probe
     # (docs/findings/BENCH_TOPOLOGY.md), so this recipe is proven to reach
     # the Instance (test_builder gate 23g), not built.
     echo "--board arty --cpu vexiiriscv --cpu-count 1 --xlen 32 --software-profile linux \
-          --all-blocks --coherent-dma --sound-card \
+          --all-blocks --coherent-dma --sound-card --no-fabric-gptp \
           --sys-clk-freq 83.333e6 --milan-clk-freq 50e6 --with-spiflash --flashboot full \
           --uart-baudrate 115200 --timing-opt --strip-probes --l2-bytes 65536 \
           --scala-args=--lsu-l1-refill-count=2 --scala-args=--l2-down-pending=4 \

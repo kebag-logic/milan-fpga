@@ -6,11 +6,12 @@ SPDX-License-Identifier: CERN-OHL-W-2.0
 # Time synchronization — gPTP, the PHC, and the media clock
 
 How time works in this system, top to bottom: what 802.1AS (gPTP) gives us,
-where hardware timestamps are made and how they reach `ptp4l`, and how media
-clock recovery is designed. The current root does not consume the exported
+where fabric timestamps are made, how the integrated engine disciplines the
+PHC, and how media clock recovery is designed. The current root does not consume the exported
 clock-source selection, so its audio clock remains INTERNAL. Register offsets follow
 [`../reference/REGISTER_MAP.md`](../reference/REGISTER_MAP.md) (the CSR ABI
-authority); status claims carry their in-repo evidence. Written 2026-07-25.
+authority); status claims carry their in-repo evidence. Updated 2026-08-23 for
+the VERSION `0x0002_0055` ownership flip.
 
 Current command, clock-consumption, and notification claims are checked against
 the [Milan feature status ledger](../reference/MILAN_FEATURE_STATUS.md):
@@ -20,7 +21,8 @@ the [Milan feature status ledger](../reference/MILAN_FEATURE_STATUS.md):
 |---|---|---|
 | `aem.served-command-set` | `implemented` | - |
 | `crf.media-clock-consumption` | `missing` | - |
-| `notifications.change-events` | `implemented` | - |
+| `gptp.fabric-product-owner` | `implemented` | - |
+| `notifications.change-events` | `partial` | - |
 <!-- milan-feature-status:end -->
 
 ![The time-sync clock chain](../diagrams/timesync_chain.png)
@@ -39,7 +41,7 @@ the [Milan feature status ledger](../reference/MILAN_FEATURE_STATUS.md):
 - **[4. Time-related CSRs -- quick table](#4-time-related-csrs----quick-table)** -- Lists every time and media-clock register from the PHC controls through CRF measurements, latency taps, and the inactive servo status.
 - **[4a. Centered-FIFO regulation goal (USER 2026-08-07): +/- 125 us](#4a-centered-fifo-regulation-goal-user-2026-08-07---125-us)** -- The standing regulation target: the DAC elasticity FIFO stays centered and its wander holds within one class-A frame period (+/-6 pairs), earned by clock quality rather than buffer depth
 - **[4b. Grandmaster loss and recovery](#4b-grandmaster-loss-and-recovery)** -- Pointer to [GM_LOSS_RECOVERY.md](GM_LOSS_RECOVERY.md), the transient story: what a GM hand-off costs at each layer and why it is now one MEDIA_RESET click + ~100 ms with the lock held
-- **[5. Status (2026-07-25)](#5-status-2026-07-25)** -- Claim-by-claim, each with its evidence: peer delay 600 µs on software stamps → 1.3 µs on hardware, CRF board-to-board locked at +6.7 ppm, -83.9 dB loop THD+N at the converter floor. Then the honest half by row id -- no per-unit latency calibration exists, the BMCA recreation is blocked by a switch that outranks every Milan-legal value, and `PTP_INGRESS_LAT`/`PTP_EGRESS_LAT` are mapped but their fabric wires unconsumed. The doc-drift bullet this section used to carry is closed.
+- **[5. Status (updated 2026-08-23)](#5-status-updated-2026-08-23)** -- Evidence ledger for PHC/timestamp, gPTP and CRF/media-clock claims, followed by the remaining calibration, BMCA, Pdelay-edge and bench-acceptance gaps
 
 ## 1. Concept -- the three clocks
 
@@ -57,11 +59,10 @@ Three clocks exist on each board, chained in one direction:
    ([`hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv`](../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv)). This is the clock
    gPTP disciplines and the clock every hardware timestamp is drawn from.
    When the board is GM, the PHC free-runs and everyone else follows it.
-2. **The system clock** — Linux `CLOCK_REALTIME` on the softcore. `phc2sys`
-   copies the PHC into it so userland timestamps and timers agree with
-   network time ([current architecture](../overview/ARCHITECTURE.md)).
-   `ptp4l` disciplines it and `phc2sys` mirrors it to
-   CLOCK_REALTIME*). Nothing in the media path depends on it.
+2. **The system clock** — Linux `CLOCK_REALTIME` on softcore builds. Nothing
+   in the media path depends on it, and the default fabric-owner image does
+   not start `phc2sys`. The explicit option-off comparison may mirror the PHC
+   into it for Linux diagnostics.
 3. **The media clock:** the 24.576 MHz audio MMCM output, divided to the
    48 kHz sample grid that the I2S/TDM front-ends run on. It is a *physical*
    clock (a DAC cannot consume "nanoseconds"), so it cannot be written like
@@ -69,9 +70,10 @@ Three clocks exist on each board, chained in one direction:
    shipping root pins the source to INTERNAL and leaves both servo actuators
    disabled (section 3).
 
-The current chain, in one sentence: gPTP disciplines the PHC and timestamps
-frames, while the audio MMCM remains an independent internal clock. Consuming
-the exported clock-source selection is required before CRF can steer it.
+The current chain, in one sentence: the fabric gPTP engine disciplines the PHC
+and timestamps frames, while the audio MMCM remains an independent internal
+clock. Consuming the exported clock-source selection is required before CRF
+can steer it.
 
 ## 2. Mechanism -- the hardware timestamp path
 
@@ -79,8 +81,9 @@ the exported clock-source selection is required before CRF can steer it.
 
 `timestamp_counter.sv` is a fractional-nanosecond phase accumulator
 `{ns[63:0], frac[23:0]}`. Each tick adds `PTP_INCR + PTP_ADJ`, both Q8.24
-nanoseconds, which gives software the full linuxptp clock-ops set
-(REQ-PTP-01..04):
+nanoseconds. The fabric engine owns rate and offset adjustment in the default
+build; the CSR interface retains the complete clock-ops ABI for service and
+for the explicit software-owner comparison (REQ-PTP-01..04):
 
 * **rate** (`adjfine`): `PTP_ADJ` (0x508) is a signed per-tick addend;
 * **settime**: `PTP_TOD_WR_*` + `PTP_CMD[0]` loads an absolute time;
@@ -147,7 +150,7 @@ Both exchanges, as this design stamps them:
 > docs/diagrams/wd_gptp_pdelay.json`). Each tap's `ptp_ts_core` latches the
 > PHC at SOP and qualifies the record at TLAST (event messages only), so
 > `t1`/`t4` come from hardware records while the peer's `t2`/`t3` arrive
-> inside `Pdelay_Resp`/`Pdelay_Resp_Follow_Up`; `ptp4l` computes
+> inside `Pdelay_Resp`/`Pdelay_Resp_Follow_Up`; the active gPTP owner computes
 > `meanLinkDelay = ((t4 - t1) - (t3 - t2)) / 2` (802.1AS 11.2.19) and the
 > result is published at CSR 0x6E4 (section 4). Cadences per
 > [`../traceability/ieee8021as.md`](../traceability/ieee8021as.md) rows
@@ -185,7 +188,7 @@ complete the one pending timestamp-requested skb via `skb_tstamp_tx`
 (`SO_TIMESTAMPING`), RX records ride a small wire-order FIFO matched by
 order with `seq` as the consistency check.
 
-`o_tx_ts_ready` pulses `IRQ_STATUS[0]` (0x010) at core emission — which
+In the option-off Linux path, `o_tx_ts_ready` pulses `IRQ_STATUS[0]` (0x010) at core emission — which
 precedes the DMA landing by microseconds, so the driver pairs the IRQ drain
 with a NAPI-poll fallback and `ptp4l` runs `tx_timestamp_timeout` raised
 well above default (500 on the current images,
@@ -204,9 +207,10 @@ The taps stamp at the MAC-side AXIS boundary, not at the wire (802.1AS
 8.4.3's "reference plane"), so each board carries a constant correction in
 its `ptp4l` config.
 
-The values are **tap-measured** (ProfiShark, inline):
+The historical software-owner values are **tap-measured** (ProfiShark, inline):
 **ingressLatency 3511 ns on the Arty, 1490 ns on the AX7101, egressLatency
-0**, provisioned by `S50milan` at boot
+0**, provisioned into linuxptp by `S50milan` only for the explicitly marked
+option-off image
 ([`../findings/BENCH_TOPOLOGY.md`](../findings/BENCH_TOPOLOGY.md) section 8;
 [current Milan audit](../testing/MILAN_V12_AUDIT_2026-08-16.md)).
 
@@ -214,47 +218,41 @@ Uncompensated, the late RX stamps kept `asCapable` permanently false — the
 single biggest gPTP field bug of this project
 ([`../traceability/ieee8021as.md`](../traceability/ieee8021as.md) row AS-3).
 
-Two honest caveats, tracked as traceability rows: the constants are
+Three honest caveats, tracked as traceability rows: the constants are
 bench-calibrated per board *type*, with no per-unit calibration procedure,
 and the ingress/egress split was never measured separately — only the sum
 (row AS-4, MISSING). The fabric does expose `PTP_INGRESS_LAT`/`PTP_EGRESS_LAT`
 CSRs (0x540/0x544) for a future in-fabric correction, but today the exported
 wires terminate unused in `milan_datapath.sv` — the compensation lives
-entirely in the `ptp4l` config.
+entirely in the option-off `ptp4l` config. The default fabric plane's actual
+wire offset is therefore part of #117's physical acceptance and is not claimed
+from these historical constants.
 
 ### 2.5 Who runs where
 
 The split follows the current architecture
 ([`../overview/ARCHITECTURE.md`](../overview/ARCHITECTURE.md);
-[`../traceability/ieee8021as.md`](../traceability/ieee8021as.md) header)
-and depends on the gPTP option. With `GPTP_PLANE_EN_P` off it is **protocol
-in software, time in fabric**, the table below. With it on (the shipping
-AX7101 bare-metal shape) the fabric gPTP plane ([GPTP_PLANE.md](GPTP_PLANE.md))
-runs the protocol as well: BMCA, the Sync/Follow_Up and Pdelay state machines
-and the servo move into `gptp-processor`, to the Milan v1.2 profile of IEEE
-802.1AS-2011, and the `ptp4l` row below does not apply; what stays software
-until #116 (the CSR readback words, the `tu` lease, the rootfs daemons of the
-Linux profiles) is listed on that page.
+[`../traceability/ieee8021as.md`](../traceability/ieee8021as.md) header).
+`GPTP_PLANE_EN_P` defaults on: BMCA, Sync/Follow_Up, Pdelay, the servo and the
+public state bank all live in the fabric plane ([GPTP_PLANE.md](GPTP_PLANE.md)).
+The option-off arm is an explicit Linux comparison, selected by
+`fabric_gptp: false` and paired with a rootfs software-owner marker.
 
 | Agent | Where | Job |
 |-------|-------|-----|
 | `timestamp_counter` + `ptp_csr_sync` | fabric | the PHC: rate/offset/absolute set, snapshot reads |
 | `ptp_ts_top` / `ptp_ts_core` | fabric | per-frame event-message timestamps, both directions |
 | dma-ts ring + kl-eth | fabric + driver | records to DRAM; `/dev/ptp0` clock ops; `SO_TIMESTAMPING` |
-| `ptp4l` | softcore (option OFF) | BMCA, Announce/Sync/Pdelay state machines, the clock servo; with `GPTP_PLANE_EN_P` on these run in the fabric gPTP plane (`gptp-processor`) |
-| `phc2sys` | softcore | PHC -> `CLOCK_REALTIME` |
-| `gptp2csr.sh` | softcore daemon | publishes gPTP state into fabric CSRs: GM id 0x624/0x628 (the LOCAL clock id when we are GM), measured pdelay 0x6E4, and the latest Announce PathTrace tail through the 0x7DC staging/atomic-PUBLISH group — so ADP and the served AEM status answer with wire truth (the descriptor-image half of that
-sentence is retired: the entity model is now a static descriptor image in DRAM
-and no daemon writes into it) ([`../findings/BENCH_TOPOLOGY.md`](../findings/BENCH_TOPOLOGY.md) section 8) — **and since 2026-07-28 leases the AVTP `tu` sync claim into `CLKV_CTRL` 0x778**, because whether the PHC is disciplined is a servo fact no fabric signal can observe. It is a *lease*, renewed every loop and expiring by itself, so a claim cannot outlive the daemon that made it. Until this existed both boards emitted `tu = 1` on every AAF and CRF frame from boot while genuinely synchronised — see [`../reference/REGISTER_MAP.md`](../reference/REGISTER_MAP.md) `0x778` |
-| `stream_phc_sync.sh` | softcore daemon | media/PHC watchdog; dormant while `ptp4l` holds SLAVE or MASTER |
+| `gptp-processor` + `KL_gptp_shadow` | fabric (default) | BMCA, Announce/Sync/Pdelay, PHC servo, and one atomic GM/parent/pdelay/flags publication bank |
+| `KL_ptp_clock_validity` | fabric | derives AVTP `tu` and public asCapable from the engine; same-edge discontinuity plus Annex B.1.1 holdover |
+| `milan-statd --no-gptp --no-path` | softcore (default Linux image) | link recovery only; no ptp4l socket and no GM/path/pdelay/CLKV writes |
+| `ptp4l-rt` + `phc2sys` + full `milan-statd` | softcore (explicit option OFF only) | comparison owner: software BMCA/servo, system-clock mirror and compatibility publication/CLKV lease |
 
-With the gPTP option OFF the fabric never builds a PTP message: the table
-above is the software path. With `GPTP_PLANE_EN_P` on, the fabric gPTP plane
-([GPTP_PLANE.md](GPTP_PLANE.md)) runs the protocol and builds all six message
-types itself to the Milan v1.2 profile of IEEE 802.1AS-2011, graded by the
-tsn-gen 802.1AS models (row AS-10); what stays software until #116 is listed
-on that page. In either build `ptp4l` never sees a raw timestamp race: the
-fabric guarantees exact pairing by construction.
+With the option on, no software time daemon starts and writes to the legacy
+publication registers cannot change the live fabric-owned faces. With it off,
+the fabric never builds a PTP message and the marked rootfs starts the
+compatibility stack. In both states timestamp pairing is guaranteed by the
+fabric transport; only the consumer of those records changes.
 
 ## 3. The media clock
 
@@ -504,7 +502,7 @@ row yet") is **retired**: `GPTP_PDELAY` `0x6E4`, `AVTPRX_TSD` `0x6EC`,
 `AS2_LO/HI` `0x730`/`0x734`, the CRF sink group `0x738`-`0x74C`, the CRF talker
 group `0x750`-`0x764` and `MCSRV_CTRL[1]` `auto_repair` are all documented
 there. [`../findings/BENCH_TOPOLOGY.md`](../findings/BENCH_TOPOLOGY.md)
-section 8 remains the bench-side reading of the daemon-written ones.
+section 8 remains the bench-side reading of the option-off daemon-written arm.
 
 | Offset | Name | One line |
 |--------|------|----------|
@@ -519,10 +517,10 @@ section 8 remains the bench-side reading of the daemon-written ones.
 | `0x530/0x534` | `PTP_TOD_RD_LO/HI` | latched TOD from the snapshot round trip |
 | `0x540` | `PTP_INGRESS_LAT` | ingress latency correction, ns (fabric hook — unused today, section 2.4) |
 | `0x544` | `PTP_EGRESS_LAT` | egress latency correction, ns (same status) |
-| `0x624/0x628` | `ADP_GPTP_GM_LO/HI` | gptp_grandmaster_id published into ADP and the AEM `GET_AVB_INFO` / `GET_AS_PATH` gather faces (`gptp2csr.sh`) |
+| `0x624/0x628` | `ADP_GPTP_GM_LO/HI` | selected owner's coherent gptp_grandmaster_id: live fabric bank by default, staged software pair option-off |
 | `0x62C` | `ADP_GPTP_DOMAIN` | `[7:0]` gptp_domain_number |
 | `0x6C8` | `PCMRX_TS` | avtp_timestamp of the last ring-accepted PDU |
-| `0x6E4` | `A_GPTP_PDELAY` | measured neighbor propagation delay, ns (daemon-written with the fabric plane off; served by `GET_AVB_INFO`) |
+| `0x6E4` | `A_GPTP_PDELAY` | selected owner's measured neighbor propagation delay, ns |
 | `0x6EC` | `A_AVTPRX_TSD` | signed ts_delta at the last accepted AVTP PDU |
 | `0x730/0x734` | `A_AS2_LO/HI` | legacy parent-bridge scratch; not served by `GET_AS_PATH` |
 | `0x7DC-0x7E4` | `ASP_LO/HI/CMD` | stage PathTrace tail slots, then atomically PUBLISH the complete changed tail/count to `GET_AS_PATH` |
@@ -563,12 +561,12 @@ presentation-wait budget is a separate knob - see Section 3.6.)
 The transient story - what happens when the GM disappears, changes or
 returns, layer by layer with the 08-06/08-07 bench measurements - lives
 in its own document: [`GM_LOSS_RECOVERY.md`](GM_LOSS_RECOVERY.md).
-Headline: as of 0x002A/0x002B a GM hand-off costs one MEDIA_RESET click
-and ~100 ms with the lock HELD; the remaining minutes-scale trap is
-ptp4l's slew-after-first-step, cured operationally by one restart and
-structurally by the task-#22 DLL.
+Headline: the product path now detects and publishes the transition entirely
+in fabric, asserts `tu` on the commit edge, and has no daemon-restart or lease
+reacquisition step. The older minutes-scale linuxptp slew trap is retained in
+that page only as option-off comparison history.
 
-## 5. Status (2026-07-25)
+## 5. Status (updated 2026-08-23)
 
 Proven, with the evidence next to each claim:
 
@@ -612,11 +610,12 @@ Partial or missing, each with its row id:
   row AS-6; [current Milan audit](../testing/MILAN_V12_AUDIT_2026-08-16.md);
   [historical Milan traceability](../traceability/milan-v12.md)
   row M-DEV-1.
-* **M-DEV-2/3/4 — partial**: the Milan pdelay edge-case deltas (multiple
-  responses to one request, turnaround bound, negative pdelay handling) ride
-  on `ptp4l` and were never explicitly recreated; only the normal path is
-  wire-proven - [historical Milan traceability](../traceability/milan-v12.md)
-  section 1.
+* **M-DEV-2/3/4 — partial**: the historical option-off rows still lack a full
+  explicit bench recreation of the Milan pdelay edge-case deltas. The default
+  fabric plane now has hard malformed/stale/foreign-domain pairing,
+  multiple-responder and asCapable recovery assertions, but #117 still owns
+  its wire evidence - [historical Milan traceability](../traceability/milan-v12.md)
+  section 1 and [802.1AS traceability](../traceability/ieee8021as.md) AS-8.
 * **M-CLK-2 — MISSING**: the CRF stream rides untagged best-effort (an
   SR-tagged unregistered stream would be pruned to zero ports); it needs the
   second lwSRP listener/talker attribute — row M-CLK-2;

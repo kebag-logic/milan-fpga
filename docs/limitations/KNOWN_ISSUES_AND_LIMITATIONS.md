@@ -201,7 +201,7 @@ the property that mattered.
 | **MTU fixed at 1500** | A deliberate decision of the switch direction doc; no jumbo support |
 | **802.1 standards gaps** | The normative gap analysis (~60 items: SRP/MSRP, full gPTP stack, MVRP, …) is [`REQUIREMENTS.md`](../../REQUIREMENTS.md) §3 - read it before claiming Milan conformance. [../reference/MILAN_V12_DEPENDENCY_MATRIX.md](../reference/MILAN_V12_DEPENDENCY_MATRIX.md) traces what is covered |
 | **MDIO not fabric-driven — `MAC_STATUS` is SOFTWARE-published** | There is no hardware MDIO master anywhere in the design. LiteEth's `LiteEthPHYGMII`/`LiteEthPHYMII` expose **no** link, speed or duplex output — only `LiteEthPHYMDIO`, a software bit-bang register pair at the DT `phy` window (`0xf000_3800`, 0xc bytes). Since 2026-07-26 `milan_soc.py` no longer hardwires `i_link_up`/`i_full_duplex`/`i_mac_speed`: they come from the `milan_mac_link_status` CSR (`0xf000_381c`, fields `link_up[0] speed[2:1] full_duplex[3]`, reset = the old per-board constants), so software that reads the PHY over MDIO can publish the truth into `MAC_STATUS` 0x110 and into `o_mac_is_1g` (REQ-MAC-03). **Until the driver writes it, the register still reports its reset default** — that half needs `kl-eth` phylib work, and a fabric MDIO poller (new SystemVerilog) would be needed to make it hardware-driven | 
-| **No descriptor-image supply chain — the entity model is nobody's job yet** (2026-08-13) | `READ_DESCRIPTOR` is implemented and reaches the wire, but the model it serves has to be **loaded into DRAM by software**, and nothing here does that: the generator is in the submodule (`protocol-processor/hdl/aecp/desc/gen_desc_image.py`), no builder, script or boot step turns a config into its JSON or writes the image, and the `aecp_aem_rom.svh` the builder still emits belongs to the deleted `KL_aecp_aem_store`. A stock build therefore enumerates nothing. Closing this is three links of tooling, not RTL — §0 names them, [TROUBLESHOOTING §26](TROUBLESHOOTING.md) is the bench view |
+| **The external AEM image handoff is explicit, not automatic for custom flows** | `READ_DESCRIPTOR` serves a flat DRAM image. An explicit builder deployment transfer (`--write-fragment` or `--write-rtl`) now generates `aem_desc.bin`, its paired manifest/map and loader payload in the sibling rootfs overlay; tracked `S50milan` invokes `aemi-load` before identity programming and entity enable. The loader validates the manifest/window pairing, AEMI magic and firmware version and verifies DRAM readback. An ordinary builder inspection deliberately does not mutate the overlay, and a custom boot flow that omits the transfer/load receives `BAD_ARGUMENTS` until a valid image is supplied; a late valid load heals without gateware reset. [ENDSTATION_BUILDER.md](../ENDSTATION_BUILDER.md) owns the current contract and [TROUBLESHOOTING §26](TROUBLESHOOTING.md) owns the bench diagnosis |
 | **Open CBS requirements** | REQ-CBS-05/06/07 (credit-skew/pacing refinements) are open in [`REQUIREMENTS.md`](../../REQUIREMENTS.md) |
 | **Latent CBS slope truncation** | The CBS slope divide truncates: zero error only while configured slopes divide evenly (today's do). Documented in the CBS math section of [`REQUIREMENTS.md`](../../REQUIREMENTS.md) - re-check before exotic `tc cbs` configs |
 | **Media-clock servo: both knobs are BENCH-GATED, not settled** (2026-07-23) — **and since 2026-08-13 the servo is structurally off in every build** (§0.1), so neither knob is reachable: with `SET_CLOCK_SOURCE` unimplemented the clock source index is pinned at 0 and `A_MCSRV_STAT` reads its idle. The row below is the last state of a loop that is no longer engaged | The MMCM-DRP servo (`KL_mmcm_drp_servo`, `MCSRV_STAT`/`MCSRV_CTRL` at `0x8F8`/`0x8FC`) is silicon-proven as a loop — the coherent chain measured **−83.9 dB THD+N, the converter floor** — but neither `MCSRV_CTRL` bit is a settled default. `[0]` **`ps_invert`** exists because mf51 silicon stepped the fine phase shift *opposite* the UG472 reading and the rails went 25× worse under the servo; the winning polarity has not been baked into the RTL. `[1]` **`auto_repair`** defaults **0** = verify-only, so a CLKOUT0 divider mismatch is *reported*, never repaired. Both are open rows in [`../design/TIME_SYNC.md`](../design/TIME_SYNC.md) §5 |
@@ -251,33 +251,38 @@ the property that mattered.
 * **`--gtx-tx-invert` is required on the AX7101** - edge-aligned GMII TX
   launch is hold-marginal at the RTL8211E (25-40 % corrupt frames without
   it). Other boards must re-evaluate TX clock phase.
-* **A `0x0016` board stamps AVTP `tu = 1` on every stream frame until the
-  gPTP daemon leases the clock.** Nothing in fabric can observe whether the
-  PHC is disciplined - that fact lives in `ptp4l`'s servo - so `CLKV_CTRL`
-  `0x778` resets with `SYNC_OK = 0` and an expired lease, and unknown means
-  NOT valid. This is deliberate (the 2026-07-27 defect was the opposite
-  default: 31 M frames from a PHC 60 h off the domain, all claiming `tu = 0`
-  - [../findings/REF_LISTENER_TIMESTAMP_SWEEP_0727.md](../findings/REF_LISTENER_TIMESTAMP_SWEEP_0727.md)),
-  but it was **only half a fix**, and the other half shipped 2026-07-28: the
-  bench repo's `gptp2csr.sh` now leases the claim every loop (milan-tests-avb
-  `fpga/tools/gptp2csr.sh`, oracle `fpga/tests/test_gptp2csr_tu.sh`,
-  on-board acceptance `fpga/tests/accept_tu_lease.sh`). Read `CLKV_STAT[2]`
-  to tell "no daemon" from "daemon says unsynchronised". The talker does
-  **not** stop: Milan v1.2 5.3.7.3 forbids that.
-  **The half-fixed state was measured and was not benign.** With both boards
-  at `0x0001_0016` and *no* writer, `CLKV_STAT` read `0x00000005` on the
-  ALINX and the Arty and `CLKV_TUCNT` climbed at exactly **1.00/s since
-  boot** - `tu` set in **100 %** of observation intervals - while the ALINX
-  was a healthy grandmaster and the Arty was `SLAVE` at **-93 ns**. Leaving
-  `tu` asserted on a stable clock is itself a conformance failure: IEEE
-  1722-2016 PICS **AAF-10** (`AAF:M`) requires `tu = 0` when gPTP time is
-  stable, and Milan v1.2 4.4.2.3 has a Listener PAAD free-wheel its media
-  clock *after `tu` is reset*, so a talker that never resets it never lets a
-  conformant listener leave free-wheel.
-  **Deployment caveat:** the fix is board *software*. A board reflashed or
-  rebooted from an image built before 2026-07-28 carries the old
-  `gptp2csr.sh` and returns to `tu = 1` forever - check
-  `devmem 0x9000077C` and expect bit 1 set, not `0x5`.
+* **VERSION `0x0002_0055` defaults to fabric-owned clock validity; no daemon
+  lease is required.** The integrated `gptp-processor` publishes sync,
+  asCapable, GM identity and discontinuity coherently, and
+  `KL_ptp_clock_validity` drives AVTP `tu` from that selected-owner bank.
+  Software writes to `CLKV_CTRL` cannot forge live health in this build.
+  `CLKV_STAT[1]` is the engine sync verdict, `[16]` is engine asCapable, and
+  the compatibility-only no-lease bit `[2]` and lease count `[15:4]` are
+  structural zero. Focused `gptp_shadow`, `clkvalid`, `milan_dp` and CSR tests
+  cover that wiring and the option-off arm; integrated booted/two-board
+  physical acceptance of the default owner remains #117. The talker does not
+  stop on uncertainty: Milan v1.2 5.3.7.3 forbids that.
+
+  **Historical VERSION `0x0001_0016` and explicit option-off evidence.** The
+  fail-open defect before `0x0016` sent 31 M frames from a PHC 60 h off the
+  domain while claiming `tu = 0`
+  ([REF_LISTENER_TIMESTAMP_SWEEP_0727.md](../findings/REF_LISTENER_TIMESTAMP_SWEEP_0727.md)).
+  The first fail-closed lease build was also only half a deployment: with both
+  boards at `0x0001_0016` and no writer, `CLKV_STAT` was `0x00000005` on the
+  ALINX and Arty and `CLKV_TUCNT` climbed at exactly **1.00/s since boot**,
+  although the ALINX was a healthy grandmaster and the Arty was `SLAVE` at
+  **-93 ns**. Leaving `tu` asserted on a stable clock is itself a conformance
+  failure: IEEE 1722-2016 PICS **AAF-10** (`AAF:M`) requires `tu = 0` when
+  gPTP time is stable, and Milan v1.2 4.4.2.3 has a Listener PAAD leave
+  free-wheel after `tu` resets. The bench repo's `gptp2csr.sh` lease and its
+  decision/renewal oracles remain the compatibility solution.
+
+  **Deployment caveat applies only to `fabric_gptp: false`.** That explicit
+  comparison build still relies on the board image's `gptp2csr.sh`; an image
+  predating the 2026-07-28 lease update can remain at `tu = 1`. In a synced
+  option-off deployment, check `devmem 0x9000077C` for bit 1 set and bit 2
+  clear, rather than the historical `0x5`. Do not use this historical silicon
+  result as acceptance evidence for the `0x0055` default owner.
 
 ## 4. Operational hazards - lethal pairings (gateware ⇄ driver)
 

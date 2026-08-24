@@ -48,6 +48,7 @@ Machine-checked status rows are defined by the
 | Feature ID | Status | Canonical value |
 |---|---|---|
 | `gateware.current-version` | `implemented` | `0x0002_0055` |
+| `gptp.fabric-product-owner` | `implemented` | - |
 | `aem.served-command-set` | `implemented` | - |
 | `aem.acquire-entity-refusal` | `not-supported` | - |
 | `aem.mandatory-missing-set` | `implemented` | - |
@@ -103,9 +104,10 @@ of three verdicts:
 Two structural changes that break existing decoders and are called out at their
 own registers below:
 
-* **`A_TXARB_DIAG` `0x784` lane numbering changed.** The TX arbiter cascade
-  collapsed from eight muxes to four. Anything decoding that word by the old lane
-  numbers now reads the **wrong mux**.
+* **`A_TXARB_DIAG` `0x784` lane numbering changed.** Major 2 collapsed the old
+  eight-mux cascade to four; VERSION `0x0002_0055` adds lane 4 for
+  `gptp_ctl_mux`, making five in fabric-gPTP builds. Anything decoding that word
+  by the old lane numbers now reads the **wrong mux**.
 * **The entity enable is now two bits ORed.** `PP_CTRL[0]` at `0x920` **or** the
   historic `ADP_CTRL[0]` at `0x600` enables the entity — either one, because
   `ADP_CTRL.en` is the bit every existing board script writes and there is only
@@ -177,8 +179,8 @@ MAC/*` in [`REQUIREMENTS.md`](../../REQUIREMENTS.md).
   - [0x500  -  PTP hardware clock  (REQ-PTP-01..04, 06)](#0x500-----ptp-hardware-clock--req-ptp-0104-06) -- The Q8.24 rate controls and the settime/adjtime/gettime strobes that give linuxptp its full clock-ops set. The latency-correction pair has a fixed sign in hardware -- ingress subtracted, egress added -- and must be applied on one side only, never both.
   - [0x700  -  RX destination-MAC TCAM filter  (REQ-MAC-02)](#0x700-----rx-destination-mac-tcam-filter--req-mac-02) -- The exact alternative to the approximate hash filter: per-bit-masked destination-MAC match, one indexed entry per commit. Gives the whitelist and blacklist recipes and a worked ternary entry for a whole reserved multicast block.
   - [Link guard / MAC recovery (VERSION minor ≥ 0x0006)](#link-guard--mac-recovery-version-minor--0x0006) -- The link-bounce supervisor, added here after `0x774` was misread as a TCAM register. The chronogram is the payload: the two resets do **not** release together -- `eth_rst` drops half-way through SETTLE so both CDC pointer sets restart matched, which means reading the guard bit alone mid-episode gives you the wrong answer.
-  - [0x778  -  Clock validity: the AVTP tu verdict  (VERSION minor >= 0x0016)](#0x778-----clock-validity-the-avtp-tu-verdict--version-minor--0x0016) -- The register that stops this device claiming timestamps it cannot prove. Reset is `tu = 1`, so a board whose software never leases the sync claim declares uncertainty rather than health -- and the section explains why the fix is a header bit and **not** a stream gate: Milan 5.3.7.3 forbids stopping the stream and 1722 7.5 forbids `tv = 0` on AAF. Also draws the line between what fabric can see for itself (PHC steps, grandmaster changes) and what only `ptp4l` knows.
-  - [0x724  -  identity / playback / 802.1AS overlay](#0x724-----identity--playback--8021as-overlay) -- Five words the softcore daemons write so the fabric ADP/AEM engines answer with wire truth instead of ROM defaults -- board name, playback LPF enable, and the gPTP parent bridge clock identity behind AS_PATH.
+  - [0x778  -  Clock validity: the AVTP tu verdict  (VERSION minor >= 0x0016)](#0x778-----clock-validity-the-avtp-tu-verdict--version-minor--0x0016) -- The register that stops this device claiming timestamps it cannot prove. The default owner supplies sync/asCapable directly from the engine and makes lease fields structural zero; option off retains the fail-safe software lease. The section explains why the fix is a header bit and not a stream gate.
+  - [0x724  -  identity / playback / 802.1AS overlay](#0x724-----identity--playback--8021as-overlay) -- Board name and playback controls plus the selected-owner parent identity. Fabric mode serves a coherent live 64-bit snapshot; option off retains staged software publication.
   - [0x738  -  CRF media-clock sink  (Milan v1.2 7.3, KL_crf_rx)](#0x738-----crf-media-clock-sink--milan-v12-73-kl_crf_rx) -- The measurement half of clock recovery: lock takes 8 clean PDUs and drops after 100 ms of silence. The local CSR exposes only PDU, format-error, and sequence-error counts. The declared CRF Stream Input returns an empty AECP counter mask because the complete bank and dirty source are not connected at the root.
   - [0x750  -  CRF media-clock talker  (Milan v1.2 7.3.1, KL_crf_tx)](#0x750-----crf-media-clock-talker--milan-v12-731-kl_crf_tx) -- Emits 500 PDU/s timestamped off the real audio-MMCM sample grid. All four identity words treat **reset 0 as AUTO**, deriving stream id and dest MAC from the MAAP block -- which is why the claimed MAAP count has to be `N_STREAMS+1`.
   - [0x768  -  AECP GET_DYNAMIC_INFO scan forensics (BDBG) -- 🔴 STRUCTURAL ZERO](#0x768-----aecp-get_dynamic_info-scan-forensics-bdbg-----structural-zero) -- All three legacy words read a structural zero. The processor implements `GET_DYNAMIC_INFO` internally, but its batch scanner has no connection to this deleted fabric engine's BDBG ABI.
@@ -630,7 +632,7 @@ together  -  e.g. `tc mqprio` + `tc cbs offload`.
 | `0x540` | `PTP_INGRESS_LAT` | RW | `0` | ingress latency correction, ns  -  **SUBTRACTED** from every RX capture (the wire SFD preceded the AXIS SOP the tap stamps). Unsigned; the sign is fixed in HW, software never negates. |
 | `0x544` | `PTP_EGRESS_LAT` | RW | `0` | egress latency correction, ns  -  **ADDED** to every TX capture (the SFD follows the AXIS SOP) |
 
-Both reset to 0 = uncorrected. The bench currently applies its measured
+Both reset to 0 = uncorrected. The option-off bench applies its measured
 constants in `ptp4l` (`ingressLatency`); move the correction to one side or the
 other, **never both**, or it double-counts. These registers are the
 register half of REQ-PTP-06  -  true SFD capture needs a tap at the GMII/PHY
@@ -693,8 +695,15 @@ which is our shape. The lever is `tu` — Milan v1.2 4.3.5.2 ("A Talker PAAD
 **shall** set the AVTP `tu` bit as described in [AVTP, Clause 4.4.4.7]") and
 Annex B.1.1 (on a grandmaster change, `tu` **shall** be 1 for 0.25 s).
 
-**Where the evidence comes from.** Three terms, and the boundary between them
-is the honest part:
+**Default owner at VERSION `0x0002_0055`.** The integrated engine directly
+publishes synchronized and asCapable levels. A GM change or a healthy-to-
+unhealthy sync commit asserts a same-edge discontinuity pulse; PHC settime and
+adjtime remain fabric-visible discontinuities. `tu` is the OR of not-synced,
+the live discontinuity edge and the Annex B.1.1 holdover. The CLKV lease is
+not consulted, and its status fields read structural zero.
+
+**Compatibility evidence (explicit option OFF only).** Three terms, and the
+boundary between them is the honest part:
 
 | Term | Who knows it | How it reaches `tu` |
 |---|---|---|
@@ -702,21 +711,27 @@ is the honest part:
 | PHC **step** (settime / adjtime) | fabric, for itself — the `PTP_CMD` strobes | 0.25 s holdover, no software cooperation needed |
 | grandmaster change | the daemon already publishes it into `ADP_GM_LO/HI` for the advertiser | a change in that value arms the same holdover (Milan Annex B.1.1) |
 
-**Fail-safe by construction.** Reset is `SYNC_OK = 0` with an expired lease, so
+**The option-off arm fails safe by construction.** Reset is `SYNC_OK = 0` with an expired lease, so
 `tu = 1`. A gateware whose software never writes `CLKV_CTRL` emits `tu = 1` on
 every AAF and CRF frame — that is the correct answer, not a bug: we cannot
 prove the clock, so we must not claim it. A lease of `0` means "expire
 immediately" and is a legal way for software to say *never trust me*.
 
+The address layout below is shared by both owners. In fabric mode,
+`CLKV_CTRL` remains readable/writable compatibility storage but its writes do
+not affect live sync, asCapable or `tu`; `CLKV_STAT[1]`/`[16]` come from the
+engine and lease fields `[15:4]`/`[2]` read zero. The detailed lease behavior
+in the table applies to option off.
+
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
-| `0x778` | `CLKV_CTRL` | RW | `0x0000_0080` | `[0]` SYNC_OK — software asserts the PHC is disciplined to the gPTP domain. `[1]` **W1S** report a gPTP discontinuity software saw (servo reset, GM timing-source change); self-clearing, always reads 0. `[2]` **AS_CAPABLE** (gh #64 J3; lands with the next `VERSION` minor — probe `CLKV_STAT[16]` after writing it rather than gating on a number this build does not yet carry) — the daemon's IEEE 802.1AS-2020 10.2.5.1 `asCapable` verdict for this port, i.e. whether the two ends can interoperate via the 802.1AS protocol (`pmc GET PORT_DATA_SET_NP` prints it). It rides the **same lease** as `[0]`: latched only while `[15:4]` is non-zero, and cleared when the lease lapses, so a dead daemon answers `asCapable = false` by construction. It is a **level**, not a W1S — a renewal that leaves it clear is a report of *false*. Older gateware masked this bit to 0, so writing it is backward compatible. `[3]` and `[31:16]` are still masked to 0. `[15:4]` validity lease in **quarter-seconds**; **any** write to this register reloads it, and `0` = expire immediately. Reset = lease 8 (2 s) with **SYNC_OK clear** |
-| `0x77C` | `CLKV_STAT` | RO live | — | `[0]` `tu` as currently stamped on every outgoing stream frame, `[1]` sync_ok (the lease-backed claim), `[2]` no live lease (reset state, or the lease ran out), `[3]` inside a discontinuity holdover, `[15:4]` lease remaining in quarter-seconds, `[16]` **asCapable** (gh #64 J3; lands with the next `VERSION` minor) — the lease-backed `CLKV_CTRL[2]` claim as the fabric currently holds it. This is the exact bit `GET_AVB_INFO` serves as `AS_CAPABLE` (IEEE 1722.1-2021 7.4.40.2 flags bit 0) and the exact bit whose change arms the Milan v1.2 Table 5.22 push, so a controller's view and this register can never disagree |
+| `0x778` | `CLKV_CTRL` | RW | `0x0000_0080` | Selected-owner compatibility control. In product-default fabric mode it remains ABI-visible storage, but no write can alter the engine-backed sync, asCapable or `tu` verdict; `[1]` remains a self-clearing W1S bit. The field contract below is active only in the explicit option-off comparison: `[0]` SYNC_OK, `[1]` W1S gPTP discontinuity (servo reset or GM timing-source change), `[2]` AS_CAPABLE as a level, and `[15:4]` validity lease in quarter-seconds. SYNC_OK and AS_CAPABLE ride the same lease, any write reloads it, and zero expires immediately so a dead daemon fails closed. `[3]` and `[31:16]` are masked to zero. Reset is lease 8 (2 s) with SYNC_OK and AS_CAPABLE clear |
+| `0x77C` | `CLKV_STAT` | RO live | — | `[0]` `tu` as currently stamped on every outgoing stream frame, `[1]` selected-owner sync_ok, `[3]` inside a discontinuity holdover, and `[16]` selected-owner **asCapable**. In the product-default fabric mode, `[1]`/`[16]` come directly from the committed engine publication and the lease-only fields `[2]` no-live-lease plus `[15:4]` lease remaining read structural zero. In the explicit option-off comparison, `[1]`/`[16]` are the lease-backed `CLKV_CTRL[0]`/`[2]` claims, `[2]` reports an expired/missing lease, and `[15:4]` is the remaining quarter-seconds. `[16]` is the exact bit `GET_AVB_INFO` serves as `AS_CAPABLE` (IEEE 1722.1-2021 7.4.40.2 flags bit 0), so a controller's solicited view and this register cannot disagree |
 | `0x780` | `CLKV_TUCNT` | RO live | `0` | Milan v1.2 Table 5.4 / Table 5.6 `TIMESTAMP_UNCERTAIN` for the talker side: one increment per **1 s observation interval** in which `tu` was set at least once — **not** one per frame and **not** one per `tu` edge (that is the IEEE 1722.1-2021 Table 7-159 reading, which Milan overrides for a PAAD). Engine-wide: one PHC, so the value serves every STREAM_OUTPUT |
-| `0x784` | `TXARB_DIAG` | RO live | `0xA7000000` | (minor ≥ `0x001B`) TX-trunk arbiter lock supervision. `[7:0]` locked-now, `[15:8]` abort-sticky (a granted source abandoned its frame mid-packet; the arbiter closed the frame with one injected `tlast` beat and released the lock), `[23:16]` stall-sticky (a presented beat was refused downstream for a whole 2^17-cycle window — the block is **below** that mux, nothing was released), `[31:24]` constant tag `0xA7` (a zero read means the gateware predates the register). 🔴 **THE LANE NUMBERS CHANGED at VERSION major 2 — anything decoding this word by the old numbers reads the WRONG MUX.** The cascade collapsed from EIGHT muxes to FOUR: four of the control merges had only one source left once the planes that fed them were deleted, because the protocol processor emits ONE byte stream for every protocol it owns and arbitrates internally. **New lane order, LSB-first: `0` `ctl_tx` (protocol processor + MAAP → the control lane), `1` `aaf_final`, `2` `crf_dp`, `3` `adp_tx` (the MAC boundary mux). Bits `7:4` of each field read a STRUCTURAL ZERO** — there is no fifth-to-eighth arbiter to supervise, as opposed to four arbiters that happen never to have locked. It **was**: 0 `aecp_acmp`, 1 `ctl_tx`, 2 `srp_ctl`, 3 `lstn_ctl`, 4 `maap_ctl`, 5 `aaf_final`, 6 `crf_dp`, 7 `adp_tx`. Watchdog windows stay staggered shortest-upstream (control chain 2^15, data merges 2^16, MAC boundary 2^17) so only the true origin of a cascade starvation fires. Stickies clear only on reset — this register is forensics for the 07-29 wedge class (all TX dead, RX perfect), which by definition outlives every soft recovery path. Lane **3** (was lane 7) is the MAC boundary mux: its abort names an upstream trunk abort; its **stall** names the `mac_tx_cdc`/MAC side (H1), which `LINK_CTRL[1]`'s widened reinit scope (minor `0x001B`) now resets |
+| `0x784` | `TXARB_DIAG` | RO live | `0xA7000000` | (minor ≥ `0x001B`) TX-trunk arbiter lock supervision. `[7:0]` locked-now, `[15:8]` abort-sticky (a granted source abandoned its frame mid-packet; the arbiter closed the frame with one injected `tlast` beat and released the lock), `[23:16]` stall-sticky (a presented beat was refused downstream for the mux's watchdog window), `[31:24]` constant tag `0xA7` (a zero read means the gateware predates the register). 🔴 **THE LANE NUMBERS CHANGED at VERSION major 2 — anything decoding this word by the old numbers reads the WRONG MUX.** Major 2 first collapsed the old eight-mux cascade to four; VERSION `0x0002_0055` adds the fabric-gPTP control merge as lane 4. **Current lane order, LSB-first: `0` `ctl_tx` (protocol processor + MAAP), `1` `aaf_final`, `2` `crf_dp`, `3` `adp_tx` (the MAC-boundary mux), `4` `gptp_ctl_mux` (gPTP + the gasketed control branch).** Lane 4 is live with fabric gPTP and structural zero option off; bits `7:5` of each field are structural zero. It **was**, before major 2: 0 `aecp_acmp`, 1 `ctl_tx`, 2 `srp_ctl`, 3 `lstn_ctl`, 4 `maap_ctl`, 5 `aaf_final`, 6 `crf_dp`, 7 `adp_tx`. Watchdog windows stay staggered shortest-upstream: lane 0 is 2^15, lanes 1/2/4 are 2^16, and MAC-boundary lane 3 is 2^17, so only the true origin of a cascade starvation fires. Stickies clear only on reset — this register is forensics for the 07-29 wedge class (all TX dead, RX perfect), which by definition outlives every soft recovery path. Lane **3** retains the MAC-boundary verdict: its abort names an upstream trunk abort and its **stall** names the `mac_tx_cdc`/MAC side (H1), which `LINK_CTRL[1]`'s widened reinit scope (minor `0x001B`) resets |
 | `0x788` | `LWSRP_DOM` | RO live | `0x00030002` | the **operational SRP Domain pair** (Milan v1.2 4.2.7.2.1): `[11:0]` operational class-A VID, `[23:16]` operational class-A priority, `[24]` **adopt_valid** — the pair is a *received* Domain FirstValue the fabric ADOPTED after a class-A declaration that mismatched the pair then in force; 0 = the `{priority 3, LWSRP_VID}` defaults. 🟢 **LIVE, REPOINTED** — this word now follows the protocol processor's class-D SRP face (`srp_class_a_prio_o` / `srp_class_a_vid_o` / `srp_domain_adopted_o`), not a deleted applicant. Every consumer still moves together on adoption: the processor's own Domain FirstValue and MVRP VID, every TalkerAdvertise DataFrameParameters VID, and the AAF/CRF C-TAG `{PCP, VID}` mux in this fabric — the reservation and the frames are one pair by construction, and the domain boundary flag (`LWSRP_STATUS[5]`) compares received declarations against **this** pair, so the adopted network's own re-declarations heal it instead of re-latching it. Reverts to the defaults on lwSRP enable-fall and on link-down ONLY (the clause's own reset list: startup / Link Up). Software **follows** this register (e.g. to steer `AAF_CTRL[27:16]`-adjacent tooling); it never mirrors it into config — `LWSRP_VID` 0x684 and `AAF_CTRL[27:16]` stay the software-owned *defaults* |
 
-**The software contract, implemented 2026-07-28 in `gptp2csr.sh`.** The gPTP
+**The option-off software contract, implemented 2026-07-28.** The gPTP
 daemon that already publishes GM id (`0x624`/`0x628`) and pdelay (`0x6E4`) is
 the right place to lease this, and now does:
 it writes `CLKV_CTRL` = `{lease, 0, disc, sync_ok}` every loop, renewing the
@@ -755,10 +770,11 @@ makes `CLKV_TUCNT` climb, which reports a clock fault that is not there.
 > talker that never resets it never lets a conformant listener leave
 > free-wheel.
 
-**Reading it.** `CLKV_TUCNT` moving proves the path is alive; `CLKV_TUCNT`
-frozen at 0 with `CLKV_STAT[1]` set is a healthy clock. `CLKV_TUCNT` frozen at
-0 with `CLKV_STAT[0]` set would be the decorative-ABI shape and cannot happen —
-the counter and the bit come from the same register.
+**Reading it.** In fabric mode, `CLKV_STAT[1]` and `[16]` are the live engine
+sync/asCapable levels; `[15:4]` and `[2]` are zero. In option-off mode they
+retain the lease meanings in the table. In either arm, `CLKV_TUCNT` moving
+means at least one frame interval observed `tu=1`; frozen at zero with
+`CLKV_STAT[1]` set and `[0]` clear is a healthy clock.
 
 **What the state field and the two reset bits do over one episode** —
 *in what order are the two resets released, and why does that order matter?*
@@ -794,8 +810,8 @@ truth ([Section 2.5 of `../design/TIME_SYNC.md`](../design/TIME_SYNC.md#25-who-r
 | `0x724` | `ENT_NAME_LO` | RW | `0` | entity_name chars 0-3, `[7:0]` = char 0 (board-name overlay; all-zero = keep the ROM name) |
 | `0x728` | `ENT_NAME_HI` | RW | `0` | entity_name chars 4-7 |
 | `0x72C` | `LPF_CTRL` | RW | `0x1` | `[0]` playback biquad LPF enable (`KL_pcm_lpf`), on by default |
-| `0x730` | `AS2_LO` | RW | `0` | Legacy parent-bridge scratch `[31:0]`. Reads back locally; the root gather face does not consume it |
-| `0x734` | `AS2_HI` | RW | `0` | Legacy parent-bridge scratch `[63:32]`. Reads back locally; `GET_AS_PATH` ignores this pair and serves the grandmaster plus the published 0x7DC PathTrace tail |
+| `0x730` | `AS2_LO` | RO live / RW option-off | `0` | parent clockIdentity `[31:0]`. Fabric mode snapshots the complete live 64-bit parent on the first half read and holds it through the complementary half, in either order. Option off: LO stages the compatibility value |
+| `0x734` | `AS2_HI` | RO live / RW option-off | `0` | parent clockIdentity `[63:32]`. Fabric mode is the other half of the coherent snapshot. Option off: HI atomically commits `{HI, staged LO}`. GET_AS_PATH consumes the selected owner |
 
 ### 0x738  -  CRF media-clock sink  `(Milan v1.2 7.3, KL_crf_rx)`
 
@@ -903,9 +919,10 @@ seed) comes from `MAC_ADDR_{LO,HI}`, not this group.
 * **The advertise/depart command strobes at `0x640` are also write-only
   scratch.** The processor takes `link_up` as a *level* and runs its own timer
   service, so this file no longer synthesises an edge for it; the one event that
-  still reaches the processor from software is a **grandmaster change**, derived
-  from a write to the `0x624`/`0x628`/`0x62C` GM pair (IEEE 1722.1-2021 6.2.6
-  makes a gPTP grandmaster change a re-advertise event).
+  still reaches the processor is a **grandmaster change**. By default that
+  edge comes from the fabric publication bank; in the option-off comparison
+  it comes from the committed `0x624`/`0x628` software pair (IEEE
+  1722.1-2021 6.2.6 makes a gPTP grandmaster change a re-advertise event).
 
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
@@ -918,14 +935,14 @@ seed) comes from `MAC_ADDR_{LO,HI}`, not this group.
 | `0x618` | `ADP_TALKER` | **RO** | `{ADP_TALKER_CAPS_C, ADP_TALKER_SRC_C}` | `[15:0]` talker_stream_sources, `[31:16]` talker_capabilities. **Hardwired from the end-station config, writes ignored** (VERSION `0x0015`). The values live in [`hdl/common/csr/gen/adp_shape_defaults.svh`](../../hdl/common/csr/gen/adp_shape_defaults.svh), GENERATED from `configs/endstation_*.yaml` by [`sw/builder/endstation_builder.py`](../../sw/builder/endstation_builder.py) in the same pass that emits this shape's AEM descriptor ROM. `ADP_TALKER_SRC_C` = the `STREAM_OUTPUT` descriptor count = the AAF talkers plus the CRF Media Clock Output when the config has one, and `milan_datapath` sizes its ACMP talker context array from **the same constant**, so the advertised range is the addressable range. `1` at 1×1, `N+1` at N×N. `ADP_TALKER_CAPS_C` = `IMPLEMENTED` \| `AUDIO_SOURCE` \| `MEDIA_CLOCK_SOURCE` **only when a CRF output exists** → `0x4001` at 1×1, `0x4801` at N×N |
 | `0x61C` | `ADP_LISTENER` | **RO** | `{ADP_LISTENER_CAPS_C, ADP_LISTENER_SINK_C}` | `[15:0]` listener_stream_sinks, `[31:16]` listener_capabilities. Same generated include, same rule: `ADP_LISTENER_SINK_C` = the `STREAM_INPUT` descriptor count = the AAF sinks plus the CRF sink → `2` at 1×1, `N+1` at N×N, and it sizes the ACMP listener context array. `ADP_LISTENER_CAPS_C` = `0x4801` wherever a CRF sink exists |
 | `0x620` | `ADP_CONTROLLER_CAPS` | RW | `0` | 🟡 **WRITE-ONLY SCRATCH** — controller_capabilities. Stored and read back; never reaches the wire |
-| `0x624` | `ADP_GPTP_GM_LO` | RW | `0` | gptp_grandmaster_id `[31:0]`. Commit is on the HI write |
-| `0x628` | `ADP_GPTP_GM_HI` | RW | `0` | gptp_grandmaster_id `[63:32]`. A committed change of the **identity** is the one edge that increments `GPTP_GM_CHANGED` (Milan Table 5.1), arms the AVB_INTERFACE counter push and changes the served `GET_AS_PATH` entry 0. The first commit out of zero is excluded from the counter and from the ADP re-advertise (no boot announces a change that never happened), but it still changes the served path and the served AVB info |
-| `0x62C` | `ADP_GPTP_DOMAIN` | RW | `ADP_GPTP_DOMAIN_C` | `[7:0]` gptp_domain_number — ADPDU byte 48. Reset is **config-derived**: `gptp.domain`, the same line that becomes `domainNumber` in the generated `/etc/gptp.<board>.cfg`. Still writable (802.1AS-2020 8.1 makes `domainNumber` a configured attribute), but it no longer *has* to be written — and `aecp_csr_setup.sh` no longer clobbers it to `0`. A write here that changes the value re-advertises (it is an ADPDU field) and pushes an unsolicited `GET_AVB_INFO` (Table 5.22 names `gptp_domain_number`); it does **not** move `GPTP_GM_CHANGED`, does **not** arm an AVB_INTERFACE counter push and does **not** push `GET_AS_PATH`, because a domain number is neither the grandmaster nor a path entry |
+| `0x624` | `ADP_GPTP_GM_LO` | RO live / RW option-off | `0` | gptp_grandmaster_id `[31:0]`. Fabric mode snapshots the complete live 64-bit identity on the first half read and holds it through the complementary half, in either order. Option off: LO stages a software identity |
+| `0x628` | `ADP_GPTP_GM_HI` | RO live / RW option-off | `0` | gptp_grandmaster_id `[63:32]`. Fabric mode is the other half of the coherent snapshot. Option off: HI atomically commits `{HI, staged LO}` |
+| `0x62C` | `ADP_GPTP_DOMAIN` | RW | `ADP_GPTP_DOMAIN_C` | `[7:0]` gptp_domain_number — ADPDU byte 48. Reset is **config-derived**: `gptp.domain`, the same line that becomes `domainNumber` in the generated `/etc/gptp.<board>.cfg`. Still writable (802.1AS-2020 8.1 makes `domainNumber` a configured attribute), but it no longer *has* to be written — and `aecp_csr_setup.sh` no longer clobbers it to `0` |
 | `0x630` | `ADP_IDX0` | RW | `0` | `[15:0]` current_configuration_index, `[31:16]` identify_control_index |
 | `0x634` | `ADP_IDX1` | RW | `0` | 🟡 **WRITE-ONLY SCRATCH** — `[15:0]` interface_index. Stored and read back; never reaches the wire |
 | `0x638` | `ADP_ASSOC_ID_LO` | RW | `0` | 🟡 **WRITE-ONLY SCRATCH** — association_id `[31:0]`. Stored and read back; never reaches the wire |
 | `0x63C` | `ADP_ASSOC_ID_HI` | RW | `0` | 🟡 **WRITE-ONLY SCRATCH** — association_id `[63:32]`. Stored and read back; never reaches the wire |
-| `0x640` | `ADP_CMD` | W1S | `0` | 🟡 **WRITE-ONLY SCRATCH** — `[0]` advertise-now, `[1]` depart. Both strobes are accepted, self-clear as before, and land nowhere: the processor runs its own advertise timer off a `link_up` LEVEL and there is no port to command a send. The one software-triggered re-advertise left is a grandmaster change written to `0x624`/`0x628`/`0x62C` |
+| `0x640` | `ADP_CMD` | W1S | `0` | 🟡 **WRITE-ONLY SCRATCH** — `[0]` advertise-now, `[1]` depart. Both strobes are accepted, self-clear as before, and land nowhere: the processor runs its own advertise timer off a `link_up` LEVEL and there is no port to command a send. A selected-owner GM change triggers the live re-advertise path directly |
 | `0x644` | `ADP_STATUS` | RO | `0` | 🟢 **LIVE, REPOINTED** — `[31:0]` available_index, published by the protocol processor (`adp_next_avail_index_o`) and equal to the value on the wire. This is the one word of the ADP diagnostics that still measures something |
 
 The processor emits an 82-byte ADPDU (dst `91:E0:F0:01:00:00`, EtherType
@@ -1131,7 +1148,7 @@ live** — they are the AVTP RX monitor's, not the control plane's.
 | `0x6D8` | `I2SPB_STAT` | RO/W1C | I2S playback drift rails: `[31:16]` underruns (silence frames), `[15:0]` overruns (pairs dropped). They measure free-running-48k drift; the current root does not consume the exported clock-source selection, so CRF discipline cannot retire them. Both rails saturate at `0xFFFF`; **W1C per half (2026-07-22, gaps 5b)**: a write with any bit of a half set restarts that half's counter (the other half is untouched; a zero write is inert; readback stays the live count). W1C was chosen over clear-on-bind: the rails are engine diagnostics, not Milan Table 5.6 stream counters. A bind-triggered clear would erase evidence mid-diagnosis and add a bind-path dependency, while W1C leaves the observation window entirely under software control |
 | `0x6DC` | `TONE_CTRL` | RW | `[0]` pilot tone enable: 1 kHz exact-period 48×24-bit sine replaces the I2S ADC on both talker channels (digital THD+N −148.1 dB; E2E acceptance ≤ −120 dBFS via `tone_thdn.py` on the listener ring dump). `[3:1]` **attenuation**, −6 dB steps applied as `TONE_TAB_C[idx] >>> att` (0 = 0 dBFS full scale, 7 = −42 dB); reset is `0`, so the power-on tone is 0 dBFS and any smaller amplitude was dialled in at the bench. A capture at amplitude 0.25 means `att = 2`, not a quarter-scale table: `8388607 >>> 2 = 2097151`, and `2097151 / 2^23 = 0.24999988`. Reduce before measuring through a sample-rate conversion or an analog stage, because a 0 dBFS sampled sine overshoots between samples (measured +0.91 dB through a 48 kHz to 44.1 kHz conversion) and would clip; at 48 kHz end to end the maxima land on table entries and 0 dBFS is safe. See the [obsolete historical media-clock finding](../findings/MEDIA_CLOCK_LOCK_0810.md) |
 | `0x6E0` | `I2SPB_TRIM` | RO | media-clock recovery servo: `[31:16]` signed NCO trim (LSB ≈ 15.3 ppm; fill-level servo steers playback rate to the talker), `[15:0]` FIFO fill (pairs). Rail events count MEDIA_RESET |
-| `0x6E4` | `GPTP_PDELAY` | RW | reset `0`: measured gPTP neighbor propagation delay in ns, written by the softcore gPTP daemon. **Consumed since 0x0055**: it is the effective `propagation_delay` the gather face serves in `GET_AVB_INFO` (the fabric gPTP plane's own `pub_pdelay_ns_o` takes its place when `GPTP_PLANE_EN_P` is set, the same selection `ADP_GM` uses), and a change to the effective value is a Milan Table 5.22 `GET_AVB_INFO` trigger. It used to be written and discarded, with the served field a structural zero -- audit B8, now closed |
+| `0x6E4` | `GPTP_PDELAY` | RO live / RW option-off | reset `0`: selected owner's measured gPTP neighbor propagation delay in ns. Fabric mode reads the committed engine value and ignores software writes as a live source. Option off retains the software register. GET_AVB_INFO consumes this selected value |
 | `0x6E8` | `ACMPL_DBG` | RO | 🔴 **STRUCTURAL ZERO**. Was the listener walker forensics — CLASSIFY entries, ACMP-subtype classifies, the flag bundle at the last ACMP classify, ACMP-base + listener-command hits. The walker is deleted. The protocol processor's own RX accounting (control frames in, FIFO drops, frames out) is at `PP_DIAG` `0x930` |
 | `0x6EC` | `AVTPRX_TSD` | RO | signed ts_delta = `avtp_timestamp - ptp_now` (ns) at the last accepted STREAM_INPUT[0] PDU -- the stream-sync error signal (LATE counts when delta < 0, EARLY beyond offset + margin; [Section 3.6 of `../design/TIME_SYNC.md`](../design/TIME_SYNC.md#36-aaf-presentation-time-against-the-phc)) |
 | `0x6F0` | `I2SPB_DBG` | RO | DAC-serial forensics: the exact 32 serial bits of the last LEFT half-frame as sent at the DAC pin (CDC-latched) |

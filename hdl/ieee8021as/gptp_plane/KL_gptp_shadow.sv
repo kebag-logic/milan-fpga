@@ -15,8 +15,8 @@
 //                timestamp_counter's knobs (the adjfine pulse latches to a
 //                level here; adjtime passes through), and the publish bank
 //                (GM identity, parent identity, asCapable/sync flags, peer
-//                delay, offset) leaves as wires -- the words milan-statd
-//                mirrors today.
+//                delay, offset) is latched here as one six-word bank on the
+//                engine commit pulse before leaving the wrapper.
 //
 //                INGRESS TIMESTAMP TRANSPORT (the part a register latch
 //                gets wrong): the arrival timestamp is latched at each
@@ -110,6 +110,10 @@ module KL_gptp_shadow #(
     output logic [31:0] pub_offset_o,
     output logic [63:0] pub_annq_o,
     output logic        pub_commit_o,
+    //! Combinational pre-commit discontinuity. The outward bank is
+    //! registered on the engine commit, so a consumer sampling on that edge
+    //! otherwise still sees the old healthy GM/flags for one cycle.
+    output wire         pub_disc_o,
 
     //! diagnostics
     output logic [15:0] dbg_tap_drop_o,   //! frames lost at the tap FIFO
@@ -442,6 +446,18 @@ module KL_gptp_shadow #(
   logic [7:0] eng_tx_data_w;
   logic       adj_we_w;
   logic [31:0] adj_val_w;
+  logic [63:0] pub_gm_raw_w, pub_parent_raw_w, pub_annq_raw_w;
+  logic [31:0] pub_flags_raw_w, pub_pdelay_raw_w, pub_offset_raw_w;
+  logic        pub_commit_raw_w;
+
+  //! Same-edge warning for AVTP talkers. A GM change or a healthy-to-unhealthy
+  //! sync transition must assert tu before the registered outward bank moves;
+  //! waiting for pub_gm_id_o/pub_flags_o would leak one certain frame on the
+  //! commit edge. Other publication-only updates do not create a time
+  //! discontinuity and must not hold tu high continuously.
+  assign pub_disc_o = pub_commit_raw_w &&
+                      ((pub_gm_raw_w != pub_gm_id_o) ||
+                       (pub_flags_o[3] && !pub_flags_raw_w[3]));
 
   KL_gptp_engine #(
       .UCODE_HEX_P (UCODE_HEX_P),
@@ -469,18 +485,18 @@ module KL_gptp_shadow #(
       .phc_addend_o       (adj_val_w),
       .phc_step_we_o      (phc_step_we_o),
       .phc_step_o         (phc_step_o),
-      .pub_gm_id_o        (pub_gm_id_o),
-      .pub_parent_id_o    (pub_parent_id_o),
-      .pub_flags_o        (pub_flags_o),
-      .pub_pdelay_ns_o    (pub_pdelay_ns_o),
-      .pub_offset_o       (pub_offset_o),
-      .pub_annq_o         (pub_annq_o),
+      .pub_gm_id_o        (pub_gm_raw_w),
+      .pub_parent_id_o    (pub_parent_raw_w),
+      .pub_flags_o        (pub_flags_raw_w),
+      .pub_pdelay_ns_o    (pub_pdelay_raw_w),
+      .pub_offset_o       (pub_offset_raw_w),
+      .pub_annq_o         (pub_annq_raw_w),
       //! the raw selected PathTrace publication (donor #45) has no consumer
       //! in this slice yet: no CSR window is sized for 7 more qwords, so it
       //! is explicitly unconsumed here like the eff_* strobes below
       .pub_path_count_o   (),
       .pub_path_o         (),
-      .pub_commit_o       (pub_commit_o),
+      .pub_commit_o       (pub_commit_raw_w),
       .eff_nvm_stb_o      (),
       .eff_nvm_mark_o     (),
       .eff_notify_stb_o   (),
@@ -490,6 +506,32 @@ module KL_gptp_shadow #(
       .dbg_busy_o         (dbg_busy_o),
       .dbg_status_o       ()
   );
+
+  //! The donor updates individual publication words while handling an event
+  //! and ends the transaction with pub_commit_raw_w. Consumers must never see
+  //! a new GM paired with old flags, parent, or timing data, so the wrapper
+  //! publishes the complete six-word bank only at that boundary.
+  always_ff @(posedge clk_i) begin : publication_commit
+    if (!rst_n) begin
+      pub_gm_id_o     <= '0;
+      pub_parent_id_o <= '0;
+      pub_flags_o     <= '0;
+      pub_pdelay_ns_o <= '0;
+      pub_offset_o    <= '0;
+      pub_annq_o      <= '0;
+      pub_commit_o    <= 1'b0;
+    end else begin
+      pub_commit_o <= pub_commit_raw_w;
+      if (pub_commit_raw_w) begin
+        pub_gm_id_o     <= pub_gm_raw_w;
+        pub_parent_id_o <= pub_parent_raw_w;
+        pub_flags_o     <= pub_flags_raw_w;
+        pub_pdelay_ns_o <= pub_pdelay_raw_w;
+        pub_offset_o    <= pub_offset_raw_w;
+        pub_annq_o      <= pub_annq_raw_w;
+      end
+    end
+  end : publication_commit
 
   //! adjfine is a level at the counter: latch the engine's pulse
   always_ff @(posedge clk_i) begin : adj_latch

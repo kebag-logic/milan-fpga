@@ -30,7 +30,7 @@ Requirement keywords per RFC 2119 (**MUST / SHOULD / MAY**). Each requirement ha
 - **[4. Scalability architecture](#4-scalability-architecture)** -- How the three growth axes are actually meant to work: the JSON entity model as the scale-up knob, the control/media/time plane split as the basis for scale-out, an SMP-vs-AMP comparison with a worked 3-core diagram, and the sizing formula Section 4.5 admits is not yet populated.
 - **[5. Steps to comply with Milan v1.2 (procedure)](#5-steps-to-comply-with-milan-v12-procedure)** -- The ordered twelve-step path from bare platform to conformance run, each step citing the FRs it discharges. Ends with the explicit out-of-scope list -- redundancy, rates beyond 192 kHz, AEM authentication.
 - **[6. Traceability (summary)](#6-traceability-summary)** -- One compact table joining each functional area to its Milan clause, its entity-model artifact, and its plan milestone -- the index to use when you need "which requirement covers this".
-- **[7. Verification approach](#7-verification-approach)** -- Which evidence class answers which kind of requirement: Verilator harnesses for leaf blocks, controller/`ptp4l`/`tc` tooling for interop, YAML models for PDU byte-exactness, and repetition at full profile for the scale claims.
+- **[7. Verification approach](#7-verification-approach)** -- Which evidence class answers which kind of requirement: Verilator harnesses for leaf blocks, controller/fabric-gPTP/CSR/`tc` tooling for interop (with `ptp4l` confined to the option-off comparison), YAML models for PDU byte-exactness, and repetition at full profile for the scale claims.
 
 ## 1. Scope, actors, and the baseline system
 
@@ -44,11 +44,11 @@ One entity, one network port, on **one softcore**:
    ┌───────────────────────── AX7101 (xc7a100t) ────────────────────────┐
    │  VexiiRiscv core0 + Linux                                          │
    │   • PipeWire module-avb: ADP/AECP/ACMP/MAAP + AVDECC entity        │
-   │   • OpenAvnu mrpd: MSRP/MVRP   • linuxptp: gPTP (802.1AS)          │
+   │   • OpenAvnu mrpd: MSRP/MVRP   • linuxptp: option-off only         │
    │   • kl-eth driver: PHC, HW timestamps, CBS offload                 │
    ├───────────────────────────────────────────────────────────────────┤
-   │  FPGA datapath (HW): GMII MAC ─ 802.1Q classifier ─ 802.1Qav CBS   │
-   │                       ─ PTP timestamp ─ (AVTP talker/listener)     │
+   │  FPGA datapath (HW): integrated gPTP default owner + PHC steering  │
+   │    GMII MAC ─ 802.1Q classifier ─ CBS ─ AVTP talker/listener       │
    └───────────────────────────────────────────────────────────────────┘
                                    │ GMII 1 GbE
                                    ▼  AVB/TSN network (bridge)
@@ -317,9 +317,9 @@ The `kl,dma-ether` node describes the HW to the driver. Binding schema:
 | NFR-RES-01 | Baseline (1 core, stereo 48 k) MUST fit `xc7a100t` with headroom (target ≤ 60 % LUT) to leave room for scale-out. | M | A |
 | NFR-REL-01 | A stream fault (link flap, GM change, talker loss) MUST auto-recover without a reboot; counters MUST record the event. | M | T |
 | NFR-REL-02 | Watchdog/keepalive MUST detect a hung media core (AMP) and restart it without dropping the control plane. | S | T |
-| NFR-OBS-01 | The system MUST expose observability: `ethtool -S`, `ethtool -T`, `ptp4l` metrics, AVDECC counters, and per-core load. | S | D |
+| NFR-OBS-01 | The system MUST expose observability: `ethtool -S`, `ethtool -T`, fabric-gPTP status/publication counters and CSRs, AVDECC counters, and per-core load. The explicit option-off comparison additionally exposes `ptp4l` metrics. | S | D |
 | NFR-MAINT-01 | The entity model MUST be single-source (JSON) and shared HW/SW/test; divergence MUST be caught in CI. | M | I |
-| NFR-PORT-01 | The control/media software (PipeWire module-avb, mrpd, linuxptp) MUST build for RV64 Linux; RV32 fallback MUST remain possible. | S | A |
+| NFR-PORT-01 | The control/media software (PipeWire module-avb and mrpd) MUST build for RV64 Linux; RV32 fallback MUST remain possible. `linuxptp` carries the same portability requirement only for the explicit software-owner option-off profile. | S | A |
 | NFR-SEC-01 | Milan v1.2 does not mandate AEM authentication; the entity MUST advertise `AEM_AUTHENTICATION` = not-required and behave safely when unauthenticated. | M | I |
 
 ---
@@ -340,22 +340,24 @@ The `kl,dma-ether` node describes the HW to the driver. Binding schema:
 |-------|-----------|-----------|---------------|-----------|
 | **Control** | ADP, AECP/AEM+MVU, ACMP, MAAP, MSRP/MVRP, driver mgmt | soft (ms) | core0 (Linux) | 1 core (rarely the bottleneck) |
 | **Media** | AVTP talker/listener, sample transport, presentation-time, media-clock | hard (µs) | core0 (Linux RT thread) | **1 core per K streams** (AMP cores) |
-| **Time** | gPTP servo, PHC discipline, CRF gen/recover | hard (µs) | core0 + HW PHC | HW-assisted; 1 core |
+| **Time** | gPTP state machines/servo, PHC discipline, CRF gen/recover | hard (µs) | integrated fabric gPTP owner + HW PHC | hardware-owned by default; no Linux core |
 
 ### 4.3 SMP vs AMP (both required by NFR-SCOUT-01)
 - **SMP**  -  NaxRiscv coherent multi-core, one Linux image, LiteX SMP config. Media
   threads pinned to cores, `isolcpus`/`SCHED_FIFO` for determinism. *Easiest scale-up
   of stream/channel count; good for `P_CORES` 2–4.*
-- **AMP**  -  core0 runs Linux + the whole control/time plane; cores 1..N run a
-  bare-metal/RTOS **media engine** (AVTP encode/decode, DMA to the audio interface),
+- **AMP**  -  core0 runs Linux + the host control/driver plane while the
+  integrated fabric owns time; cores 1..N run a bare-metal/RTOS **media engine**
+  (AVTP encode/decode, DMA to the audio interface),
   no OS jitter. Control↔media via a shared-memory ring + IPI mailbox
   (NFR-SCOUT-03). *Best determinism; each media core adds a fixed stream budget.*
 
 ```
   AMP scale-out (P_CORES = 3, P_PORTS = 1):
-    core0  Linux: ADP/AECP/ACMP/MAAP/MSRP + gPTP servo + driver   (control+time)
+    core0  Linux: ADP/AECP/ACMP/MAAP/MSRP + driver               (control)
     core1  bare-metal media engine: AVTP talker/listener  stream set A
     core2  bare-metal media engine: AVTP talker/listener  stream set B
+    fabric integrated gPTP owner + PHC                            (time)
       │ shared-mem rings + IPI                     │ per-core DMA queues
       └──────────────► single coherent PHC ◄───────┘  (NFR-SCOUT-04)
                        single MAC / CBS / classifier (HW, arbitrated)
@@ -382,8 +384,10 @@ cites the FRs it satisfies and the milestone in
 
 1. **Platform up**  -  RISC-V Linux on the AX7101 with the HW datapath (MAC/CBS/
    classifier/PHC) and the driver (PHC, HW timestamps, CBS offload). *(M-A5)*
-2. **gPTP (802.1AS)**  -  run `linuxptp` as a time-aware endpoint on a fixed 125 MHz
-   PHC; verify ≤ 1 µs sync. *(FR-CLK-01/02, NFR-TIME-01)*
+2. **gPTP (802.1AS)**  -  enable the integrated fabric owner and verify its
+   wire/CSR/publication behavior plus ≤ 1 µs sync. Booted and two-board
+   acceptance remains #117. Only the explicit option-off comparison runs
+   `linuxptp` against the PHC. *(FR-CLK-01/02, NFR-TIME-01)*
 3. **Entity model**  -  select an `endstation_*.yaml` configuration. The
    builder generates `aem_desc.bin`, `aem_desc.json`, and `aem_desc.map`; the
    tracked board flow packages the pair and runs `aemi-load` at
@@ -402,7 +406,9 @@ cites the FRs it satisfies and the milestone in
 10. **Fault behavior**  -  stream-interruption/redundancy-off recovery, counters,
     IDENTIFY. *(FR-STR-04, NFR-REL-01, FR-MGT-01)*
 11. **Conformance**  -  run the internal Milan conformance plan (bench suite) + `srcs/the-private-test-repo`
-    (`avdecc_l2.py`, `ptp4l`, `tc cbs`) and the `tsn-gen` AECP PDU checks. *(all Ver=T)*
+    (`avdecc_l2.py`, fabric-gPTP capture/CSR oracles, `tc cbs`) and the
+    `tsn-gen` AECP PDU checks. Run `ptp4l` only for the option-off comparison.
+    *(all Ver=T)*
 12. **Scale**  -  re-run with the full entity model (8-ch, 48/96/192k) and with
     `P_CORES ≥ 2` (SMP then AMP) to prove Sections 3.3/3.4. *(NFR-SCUP/SCOUT)*
 
@@ -435,8 +441,9 @@ cites the FRs it satisfies and the milestone in
   datapath-level coverage is `tb/verilator/milan_dp`.
 - **Integration/interop:** Hive + `srcs/the-private-test-repo/controller/avdecc_l2.py`
   (ADP and ACMP; on AECP, GET_COUNTERS serves the declared counter banks and
-  the tracked flow loads the descriptor image before entity enable),
-  `ptp4l`/`phc2sys`, `tc qdisc … cbs offload`.
+  the tracked flow loads the descriptor image before entity enable), fabric
+  gPTP wire/CSR/publication checks, and `tc qdisc … cbs offload`.
+  `ptp4l`/`phc2sys` evidence applies only to the option-off comparison.
 - **PDU byte-exactness:** the AECP PDU model campaigns have a responder again.
   `aecp_read_descriptor` is a real byte-exact test **once an image is in DRAM**;
   the rest measure the echo's header discipline, which is the conformance floor

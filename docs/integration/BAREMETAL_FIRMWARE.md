@@ -2,10 +2,10 @@
 
 The shipping AX7101 profile uses one RV32I VexiiRiscv hart in machine mode,
 with no supervisor mode, MMU, Linux, FPU, L1 cache, L2 cache or LiteX SDRAM
-cache. It explicitly enables the fabric gPTP plane bought by #114; the RTL
-parameter still defaults off so other configurations do not change shape by
-accident. Linux remains a supported bring-up profile for the Arty and AX7101
-8x8 configurations.
+cache. It uses the fabric gPTP plane bought by #114, now the product and RTL
+default. Linux remains a supported bring-up profile for the Arty and AX7101
+8x8 configurations; an explicit `fabric_gptp: false` profile is the retained
+software-owner comparison.
 
 The capability rows on this page are checked against the
 [Milan feature status ledger](../reference/MILAN_FEATURE_STATUS.md):
@@ -15,13 +15,14 @@ The capability rows on this page are checked against the
 |---|---|---|
 | `soc.baremetal-profile` | `implemented` | - |
 | `host.sound-card-option` | `implemented` | - |
+| `gptp.fabric-product-owner` | `implemented` | - |
 <!-- milan-feature-status:end -->
 
 ## Contents
 
 - **[Build contract](#build-contract)** — The checked shipping shape, its cacheless one-hart RV32I invariants, the 50 MHz Milan/CPU clock boundary and the configuration-owned gPTP ROM.
 - **[Boot and AEM image](#boot-and-aem-image)** — The raw QSPI descriptor-image slot and the identity, copy and CRC checks that must pass before either compatibility enable bit may activate the shared AVDECC control plane.
-- **[Fabric gPTP option](#fabric-gptp-option)** — How the shipping YAML opts into the fabric plane without changing the RTL default or taking #116's software-retirement work.
+- **[Fabric gPTP option](#fabric-gptp-option)** — The default fabric owner, generated microcode, and explicit option-off software comparison.
 - **[UART commands](#uart-commands)** — The status, TAI set/get and explicit UTC conversion commands, followed by the non-disruptive host smoke invocation.
 - **[Optional Linux sound-card surface](#optional-linux-sound-card-surface)** — What the shipping build removes with `sound_card: false`, what audio fabric remains, and how retained Linux bring-up builds opt back in.
 - **[Verification gates](#verification-gates)** — The mandatory local bar, complete three-directive Vivado cell, timing-clean winner and measured resource buy-back that fund the fabric gPTP plane.
@@ -538,20 +539,21 @@ replacement rejects the recorded escapes by measurement.
 
 ## Fabric gPTP option
 
-`board.features.fabric_gptp` defaults to `false`; the shipping AX7101 YAML
-sets it to `true`. An option-on build elaborates `KL_gptp_shadow` with
+`board.features.fabric_gptp` defaults to `true`; every shipping YAML profile
+states the owner explicitly. An option-on build elaborates `KL_gptp_shadow` with
 `GPTP_PLANE_EN_P=1` and passes an absolute path to the builder-generated
 microcode image. A missing `gptp:` section is rejected instead of silently
 using the generator's example identity or clock defaults.
 
-This #120 integration does not change the RTL default or the CSR compatibility
-surface. The #116 flip still owns the default-on transition and retirement of
-the remaining software-era CSR/readback behavior. The bare-metal firmware
-exposes explicit UART commands for setting the PHC epoch; the fabric plane
-owns adjfine and adjtime in an option-on build. When an external grandmaster
-is selected, that plane steps and disciplines the PHC; a free-running or
-grandmaster board uses `milan_settime` or `milan_utc` to establish its TAI
-epoch.
+`fabric_gptp: false` is accepted only as the explicit software-owner
+comparison. It emits `GPTP_PLANE_EN_P=0` and a rootfs fragment containing
+`/etc/milan-gptp-software-owner`; the option-on fragment removes that marker.
+This prevents linuxptp/publication services from starting against the fabric
+owner. The bare-metal firmware exposes explicit UART commands for setting the
+PHC epoch; the fabric plane owns adjfine and adjtime. When an external
+grandmaster is selected, that plane steps and disciplines the PHC; a
+free-running or grandmaster board uses `milan_settime` or `milan_utc` to
+establish its TAI epoch.
 
 ## UART commands
 

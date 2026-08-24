@@ -32,7 +32,7 @@ entity:
 board:
   target: ax7101
   features:
-    fabric_gptp: true   # #114 plane, explicitly option-on for #120 shipping
+    fabric_gptp: true   # #114 plane, product default since #116 (kept explicit)
     sound_card: false    # shipping bare-metal fabric has no ALSA host rings
     i2s_playback: false   # the AX routes NO audio pads (_connectors = [])
     latency_taps: true    # item-11 telemetry: at 1x1 the taps fit with room
@@ -93,7 +93,7 @@ gptp:
   # posture" deliberately BEAT the switch's 246 claim so the board would win
   # the BMCA - useful for a bring-up bench, wrong for a shipping end station
   # and wrong for a compliance run. Change HERE, nowhere else. The rest are
-  # the software-clock truth ptp4l announces (linuxptp defaults).
+  # the local-clock dataset the fabric gPTP engine announces.
   priority1: 248
   priority2: 248
   clock_class: 248

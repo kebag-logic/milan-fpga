@@ -7,12 +7,15 @@
 #   JTAG    = Digilent FT232H (0403:6014)  -> openFPGALoader -c ft232 (IDCODE = xc7a100t)
 #   console = Silicon Labs CP2102N (10c4:ea60)
 #
-#   deploy.sh [all|build|load|flash|flash-images|console]     (default: all)
+#   deploy.sh [all|build|load|flash|check-images|flash-images|console] (default: all)
+#   deploy.sh build --dry-run                                (print, do not build)
 #     BAUD=115200   console baud (our SoC default; the factory demo is 9600)
 #     BIT=<path>    bitstream for `flash` (default: newest gateware/alinx_ax7101.bit)
 #     LAYOUT=<path> flashboot_layout.json for `flash-images` (default: newest build's)
 #     AEM/KERNEL/OPENSBI/DTB/ROOTFS=<path> manifest images for `flash-images` (only the images
 #                   named in the layout's manifest are required; no machine-specific defaults)
+#     EXPECTED_GPTP_OWNER=fabric|software|none additionally binds a named build
+#                   recipe to the owner compiled into LAYOUT (used by build.sh).
 #
 #  load  = JTAG -> SRAM (volatile, fast; gone on power-cycle). Default; use for iteration.
 #  flash = JTAG -> on-board QSPI flash (PERSISTENT bitstream at offset 0; the FPGA reloads it
@@ -28,6 +31,17 @@ set -euo pipefail
 
 HERE="$(cd "$(dirname "$(realpath "$0")")" && pwd)"
 STEP="${1:-all}"
+DRY=0
+if [ "${2:-}" = "--dry-run" ]; then
+    [ "$STEP" = build ] || {
+        echo "deploy: --dry-run is supported only with the build step" >&2
+        exit 2
+    }
+    DRY=1
+elif [ "$#" -gt 1 ]; then
+    echo "usage: $0 [all|build|load|flash|flash-images|console] [--dry-run for build]" >&2
+    exit 2
+fi
 BAUD="${BAUD:-115200}"
 CABLE="${CABLE:-ft232}"       # FT232H JTAG on the AX7101
 # TWO FTDI cables live on this bus since the Arty arrived (2026-07-11): always
@@ -58,31 +72,79 @@ FPGA_PART="${FPGA_PART:-xc7a100tfgg484}"
 # Direct DMA remains enabled, but no cache-coherency hub is elaborated because
 # the CPU itself is cacheless.
 MILAN_OPTS="--board ax7101 --cpu vexiiriscv --cpu-count 1 --xlen 32 --software-profile baremetal --all-blocks --coherent-dma --milan-clk-freq 50e6 --with-spiflash --flashboot baremetal --gtx-tx-invert --timing-opt --floorplan --eth-port e1 --no-i2s-playback --no-render-lpf --audio-interface tdm8 --audio-interface-master --talker-wire-chans 8 --cbs-queues-mask 0x10 --loopback-lane --fabric-gptp --entity-gen-dir $HERE/../../configs/generated/endstation_ax7101_1x1_tdm8 --l2-bytes 0 --rx-queues 2 --strip-probes --hs-page-bytes 16384"
-do_build()  { echo "[deploy] build  (Vivado P&R -> .bit)"; "$HERE/milan_soc.py" $MILAN_OPTS --build --uart-baudrate "$BAUD"; }
-do_load()   { echo "[deploy] load   (JTAG -> SRAM, volatile)"; "$HERE/milan_soc.py" $MILAN_OPTS --load --uart-baudrate "$BAUD"; }
+run_milan_soc() {
+    local label="$1"; shift
+    # MILAN_OPTS is a trusted, fixed launcher recipe. Deliberate word splitting
+    # preserves the historical command while making dry-run and execution share
+    # the exact same final argv.
+    set -- "$HERE/milan_soc.py" $MILAN_OPTS "$@"
+    if [ "$DRY" = 1 ]; then
+        printf "DRY [%s]\n  " "$label"
+        printf "%q " "$@"
+        printf "\n"
+    else
+        "$@"
+    fi
+}
+do_build() {
+    echo "[deploy] build  (Vivado P&R -> .bit)"
+    run_milan_soc "deploy build" --build --uart-baudrate "$BAUD"
+}
+do_load() {
+    echo "[deploy] load   (JTAG -> SRAM, volatile)"
+    run_milan_soc "deploy load" --load --uart-baudrate "$BAUD"
+}
 do_flash()  {
     [ -n "$BIT" ] && [ -f "$BIT" ] || { echo "[deploy] flash: no bitstream (set BIT=<path/to/alinx_ax7101.bit>)"; exit 2; }
-    # The build's layout owns the bitstream budget. Fall back to the current
-    # 4 MiB slot only when an older standalone bitstream has no layout JSON.
-    local sz budget; sz=$(stat -c%s "$BIT"); budget=$((4*1024*1024))
-    if [ -n "$LAYOUT" ] && [ -f "$LAYOUT" ]; then
-        budget=$("$PYTHON" - "$LAYOUT" <<'PY'
+    [ -n "$LAYOUT" ] && [ -f "$LAYOUT" ] || {
+        echo "[deploy] flash REFUSED: the bitstream has no flashboot_layout.json owner contract." >&2
+        exit 2
+    }
+    # Direct bitstream flashing is also a QSPI ownership transition. Pair it
+    # before touching offset zero, and require BIT + LAYOUT from one build dir
+    # so two individually valid artifacts cannot be selected independently.
+    do_check_images
+    local bit_build layout_build
+    bit_build=$(realpath "$(dirname "$BIT")/..")
+    layout_build=$(realpath "$(dirname "$LAYOUT")")
+    [ "$bit_build" = "$layout_build" ] || {
+        echo "[deploy] flash REFUSED: BIT and LAYOUT are from different build directories." >&2
+        echo "[deploy]   BIT build:    $bit_build" >&2
+        echo "[deploy]   LAYOUT build: $layout_build" >&2
+        exit 2
+    }
+    # The paired build's layout owns the bitstream budget; legacy standalone
+    # bitstreams are intentionally refused above because they carry no owner.
+    local sz budget; sz=$(stat -c%s "$BIT")
+    budget=$("$PYTHON" - "$LAYOUT" <<'PY'
 import json, sys
 layout = json.load(open(sys.argv[1]))
 row = next(image for image in layout["images"] if image["name"] == "bitstream")
 print(int(row.get("budget") or row.get("size")))
 PY
 )
-    fi
     [ "$sz" -le "$budget" ] || {
         echo "[deploy] flash REFUSED: bitstream $sz B exceeds the $budget B gateware slot."
         exit 2; }
     echo "[deploy] flash  (JTAG -> QSPI flash @0x0, PERSISTENT, $sz B): $BIT"
     $OFL -c "$CABLE" -f "$BIT"          # -f/--write-flash; add --reset to reboot from flash
 }
-do_flash_images() {
+do_check_images() {
     [ -n "$LAYOUT" ] && [ -f "$LAYOUT" ] || {
-        echo "[deploy] flash-images: no flashboot_layout.json (build --with-spiflash, or set LAYOUT=<path>)"; exit 2; }
+        echo "[deploy] image check: no flashboot_layout.json (build --with-spiflash, or set LAYOUT=<path>)"; exit 2; }
+    # #116 owner contract: inspect the ACTUAL rootfs archive against the owner
+    # enum compiled into this gateware.  Missing/legacy metadata, unreadable
+    # archives and either inverted marker state are hard errors.  build.sh calls
+    # this before flashing the bitstream; flash-images calls it again before its
+    # first image write, so no mismatch can leave a half-updated board.
+    local pair_args=(--layout "$LAYOUT")
+    [ -z "${ROOTFS:-}" ] || pair_args+=(--rootfs "$ROOTFS")
+    [ -z "${EXPECTED_GPTP_OWNER:-}" ] || \
+        pair_args+=(--expected-owner "$EXPECTED_GPTP_OWNER")
+    "$PYTHON" "$HERE/check_gptp_owner_pair.py" "${pair_args[@]}" || {
+        echo "[deploy] image check REFUSED: gateware/rootfs gPTP owners do not form one-owner image." >&2
+        exit 2
+    }
     # A device tree from an older CSR layout kills the whole host plane with
     # perfect CSR readbacks (kl-eth maps reg windows by index) — refuse it here
     # rather than debug it on silicon again. The OPENSBI check is the decisive
@@ -97,6 +159,10 @@ do_flash_images() {
                 echo "[deploy] Rebuild it from the dts source (opensbi embeds the fdt — rebuild it too)."; exit 2; }
         done
     fi
+    echo "[deploy] image preflight OK: $LAYOUT"
+}
+do_flash_images() {
+    do_check_images
     echo "[deploy] flash-images  (JTAG -> QSPI flash): layout $LAYOUT"
     local tmp; tmp="$(mktemp -d)"; trap 'rm -rf "$tmp"' RETURN
     # name<TAB>offset<TAB>ceiling for each manifest image. The ceiling is the
@@ -177,8 +243,9 @@ case "$STEP" in
     build)        do_build ;;
     load)         do_load ;;
     flash)        do_flash ;;
+    check-images) do_check_images ;;
     flash-images) do_flash_images ;;
     console)      do_console ;;
     all)          do_build; do_load; do_console ;;
-    *) echo "usage: $0 [all|build|load|flash|flash-images|console]"; exit 2 ;;
+    *) echo "usage: $0 [all|build|load|flash|check-images|flash-images|console]"; exit 2 ;;
 esac

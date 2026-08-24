@@ -30,6 +30,7 @@ enum {
   A_ADP_TALK=0x618, A_ADP_LIST=0x61C,
   A_ADP_GMLO=0x624, A_ADP_GMHI=0x628, A_ADP_DOMAIN=0x62C,
   A_ADP_IDX0=0x630, A_ADP_CMD=0x640, A_ADP_STATUS=0x644,
+  A_AS2_LO=0x730, A_AS2_HI=0x734,
   A_TCAM_CTRL=0x700, A_TCAM_KLO=0x704, A_TCAM_KHI=0x708, A_TCAM_MLO=0x70C,
   A_TCAM_MHI=0x710, A_TCAM_ACT=0x714, A_TCAM_CMD=0x718,
 };
@@ -495,6 +496,18 @@ int main(int argc, char** argv) {
   axi_write(A_ADP_GMHI, 0x00112233);
   dut->eval();
   ck("GM restore committed", dut->o_adp_gptp_gm, 0x0011223344556677ULL);
+  axi_write(A_AS2_LO, 0xCCDDEEFF);
+  axi_write(A_AS2_HI, 0x8899AABB);
+  ck("parent initial pair committed", dut->o_as_parent_ckid,
+     0x8899AABBCCDDEEFFULL);
+  axi_write(A_AS2_LO, 0x01234567);
+  ck("parent LO staged: consumers keep the old pair", dut->o_as_parent_ckid,
+     0x8899AABBCCDDEEFFULL);
+  ck("parent LO shadow exposes the staged word", axi_read(A_AS2_LO),
+     0x01234567);
+  axi_write(A_AS2_HI, 0xFEDCBA98);
+  ck("parent HI atomically commits both halves", dut->o_as_parent_ckid,
+     0xFEDCBA9801234567ULL);
   axi_write(A_ADP_DOMAIN, 0x00000005);
   dut->eval();
   ck("o_adp_gptp_domain", dut->o_adp_gptp_domain, 5);

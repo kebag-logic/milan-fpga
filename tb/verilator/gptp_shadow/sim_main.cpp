@@ -36,6 +36,8 @@ static const uint64_t OUR_CID = 0x02A1B2FFFEC3D4E5ull;
 static const uint64_t PEER_CID = 0x0080E1FFFE112233ull;
 static const uint32_t OUR_CQ = 0xF8FE436A;
 static const uint64_t GMID = 0x00AACCFFFE010203ull;
+static const uint64_t GMID2 = 0x00AACCFFFE010204ull;
+static const uint64_t PEER2_CID = 0x0080E1FFFE112244ull;
 
 static const uint32_t FL_PRESENT = 1, FL_AMGM = 2, FL_ASCAP = 4,
                       FL_SYNCOK = 8;
@@ -129,6 +131,12 @@ static std::vector<uint8_t> cur;
 static bool in_tx = false;
 static bool tx_first = true;
 
+//! The complete outward bank may change only with its commit pulse.
+static bool pub_watch = false;
+static uint64_t last_pub_gm, last_pub_parent, last_pub_annq;
+static uint32_t last_pub_flags, last_pub_pdelay, last_pub_offset;
+static unsigned pub_commits, pub_changes, pub_unguarded_changes;
+
 //! issue #122: capture the ingress-ts ring push/pop stamps during a burst
 static std::vector<uint64_t> g_pushed, g_popped;
 static bool g_ts_capture = false;
@@ -167,6 +175,29 @@ static void tick() {
     }
   }
   dut->clk_i = 1; dut->eval();
+  if (dut->rst_n) {
+    if (!pub_watch) {
+      pub_watch = true;
+    } else {
+      const bool changed = dut->pub_gm_id_o != last_pub_gm
+                        || dut->pub_parent_id_o != last_pub_parent
+                        || dut->pub_flags_o != last_pub_flags
+                        || dut->pub_pdelay_ns_o != last_pub_pdelay
+                        || dut->pub_offset_o != last_pub_offset
+                        || dut->pub_annq_o != last_pub_annq;
+      if (changed) {
+        pub_changes++;
+        if (!dut->pub_commit_o) pub_unguarded_changes++;
+      }
+    }
+    if (dut->pub_commit_o) pub_commits++;
+    last_pub_gm = dut->pub_gm_id_o;
+    last_pub_parent = dut->pub_parent_id_o;
+    last_pub_flags = dut->pub_flags_o;
+    last_pub_pdelay = dut->pub_pdelay_ns_o;
+    last_pub_offset = dut->pub_offset_o;
+    last_pub_annq = dut->pub_annq_o;
+  }
   if (g_ts_capture) {
     if (dut->dbg_tspush_v_o) g_pushed.push_back(dut->dbg_tspush_o);
     if (dut->dbg_tspop_v_o)  g_popped.push_back(dut->dbg_rx_ts_o);
@@ -458,6 +489,7 @@ int main(int argc, char **argv) {
   announce(10, 100, GMID);
   expect("adopted", dut->pub_flags_o & 3, FL_PRESENT);
   expect("pub gm id", dut->pub_gm_id_o, GMID);
+  expect("pub parent id", dut->pub_parent_id_o, PEER_CID);
   {
     // offset = tap_stamp - (origin + pd): origin is written so the true
     // offset is ~+1000 ns; the tap stamps within a couple of beats
@@ -489,6 +521,18 @@ int main(int argc, char **argv) {
            near((int32_t)dut->pub_offset_o, 0, 300), 1);
   }
 
+  // A better Announce moves the registered bank on the same edge on which
+  // talkers may launch. The pre-commit discontinuity must make tu visible
+  // to both consumer-equivalent launch registers on that edge.
+  run_svc(512);
+  expect("healthy bank clears tu before GM switch", dut->ts_uncertain_o, 0);
+  const uint16_t disc_before = dut->disc_launch_count_o;
+  announce(0x2F0, 90, GMID2, PEER2_CID);
+  expect("better Announce selects the new GM", dut->pub_gm_id_o, GMID2);
+  expect("registered bank emitted a pre-commit discontinuity",
+         dut->disc_launch_count_o > disc_before, 1);
+  expect("AAF same-edge launch samples tu=1", dut->aaf_launch_tu_o, 1);
+  expect("CRF same-edge launch samples tu=1", dut->crf_launch_tu_o, 1);
   // ---- 5: classify negatives ---------------------------------------------
   {
     uint32_t pd_before = dut->pub_pdelay_ns_o;
@@ -1179,6 +1223,11 @@ int main(int argc, char **argv) {
   expect("every stamp carries its own frame's messageType", tag_wrong, 0);
   expect("every stamp carries its own frame's sequenceId", seq_wrong, 0);
   expect("the tag is proved for all six transmitted types", types_seen, 6);
+
+  expect("publication bank changed under stimulus", pub_changes > 0, 1);
+  expect("publication commit pulse observed", pub_commits > 0, 1);
+  expect("every publication change was commit-qualified",
+         pub_unguarded_changes, 0);
 
   printf("%d checks: %d PASS, %d FAIL\n", checks, checks - fails, fails);
   delete dut;
