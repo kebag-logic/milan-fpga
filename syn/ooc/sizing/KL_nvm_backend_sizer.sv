@@ -459,9 +459,6 @@ module KL_nvm_backend_sizer #(
       end else if (commit_ack_w) begin
         commit_busy_r <= 1'b0;
         dirty_r       <= 1'b0;
-        // recovery: stale clears only when a completed transaction leaves
-        // nothing outstanding
-        if (backed_r) stale_r <= 1'b0;
       end else if (commit_busy_r && ms_tick_w && (commit_r != 16'd0)) begin
         commit_r <= commit_r - 16'd1;
         if (commit_r == 16'd1) begin
@@ -477,7 +474,12 @@ module KL_nvm_backend_sizer #(
 
   assign nvm_backed_o  = backed_r;
   assign nvm_dirty_o   = dirty_r;
-  assign nvm_stale_o   = stale_r;
+  //! Section 9.2's recovery rule, and what makes the (backed=1, dirty=0,
+  //! stale=1) row of section 9.3 unreachable AT THE READ BOUNDARY rather than
+  //! merely brief: once the writer is live again and nothing is outstanding,
+  //! the loss has been made good by definition, so the published bit is
+  //! masked. The latch keeps the memory; the face never shows the pair.
+  assign nvm_stale_o   = stale_r & ~(backed_r & ~dirty_r);
   assign nvm_verdict_o = verdict_r;
 
   // =======================================================================

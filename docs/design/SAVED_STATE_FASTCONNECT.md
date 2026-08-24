@@ -61,7 +61,7 @@ it.
 - **[5. Where it lives in the 16 MB QSPI](#5-where-it-lives-in-the-16-mb-qspi)** -- The two reserved slots and why `journal` is raw rather than a filesystem, plus the rule a reflash must obey. Cited by `milan_soc.py` as the map's single source of truth, and 5.1 re-derives every citation of this page at this head: zero unresolved, because the five RTL comments round 2 left stale are repaired against the register map.
 - **[6. The record image format: KLJ2](#6-the-record-image-format-klj2)** -- A new versioned container, not KLJ1 carried forward: byte-level field widths, the endianness seam between the little-endian container and the big-endian records, the exact CRC coverage, the identity and shape binding, and an eleven-row acceptance order with a verdict code per failure.
 - **[7. Durability: the A/B contract](#7-durability-the-ab-contract)** -- The write and read rules in full, and the property they buy: at every instant of a commit at least one slot holds a complete image whose CRC closes.
-- **[8. Where the image lives in fabric, and what it costs](#8-where-the-image-lives-in-fabric-and-what-it-costs)** -- The memory is settled (the reserved DRAM window, not BRAM) and so is the transfer (ordinary loads and stores, no DMA and no CSR data window), with the measured slack behind both. Then the area, MEASURED: a synthesizable before/after pair OOC-mapped at both shapes, bounded at 536 LUT and 216 FF, and calibrated against three blocks already in the tree.
+- **[8. Where the image lives in fabric, and what it costs](#8-where-the-image-lives-in-fabric-and-what-it-costs)** -- The memory is settled (the reserved DRAM window, not BRAM) and so is the transfer (ordinary loads and stores, no DMA and no CSR data window), with the measured slack behind both. Then the area, MEASURED: a synthesizable before/after pair OOC-mapped at both shapes, bounded at 539 LUT and 216 FF, and calibrated against three blocks already in the tree.
 - **[9. What the fabric may claim: the durability and liveness contract](#9-what-the-fabric-may-claim-the-durability-and-liveness-contract)** -- Why an answered-once bit cannot report a writer that wedges later, and the replacement: a live `nvm_backed` with a revocation list, `nvm_dirty` and `nvm_stale`, the rule that says when the loss is forgiven, all eight bit combinations with the one that cannot occur named, and the two deadlines derived from the flash datasheet rather than chosen.
 - **[10. Kernel and boot-side work](#10-kernel-and-boot-side-work)** -- Five items, and the reason `/proc/mtd` staying empty is permanent rather than a misconfiguration. Cited by `gen_mtd_partitions.py`, whose section 10 reference had nothing to resolve to until now.
 - **[11. Bench recipe](#11-bench-recipe)** -- G0, G0b and G1, which run today, and what G1 means on a baremetal profile where no MTD device ever probes. Cited by `gen_mtd_partitions.py` and `milan_soc.py`.
@@ -83,7 +83,7 @@ it.
 | A write path on the shipping profile | **ABSENT** | the baremetal firmware reads flash through the XIP window and has no erase or program path |
 | The record set fits the namespace | **PROPOSED HERE**, gated; blocked on a donor F07.8 amendment | sections 4.2 and 4.3, `scripts/check_nvm_record_space.py` |
 | The backing store | **DECIDED HERE**, not built | sections 3 and 8 |
-| The backend's area | **MEASURED HERE**, upper bound | section 8.3: 536 LUT / 216 FF OOC at 8x8, against 35 LUT / 21 FF for the responder it replaces |
+| The backend's area | **MEASURED HERE**, upper bound | section 8.3: 539 LUT / 216 FF OOC at 8x8, against 35 LUT / 21 FF for the responder it replaces |
 | The liveness and commit deadlines | **DECIDED HERE**, gated | section 9.4, and check 7 of `scripts/check_nvm_record_space.py` |
 
 **Which donor commit.** `dev` pins the processor at `a25b5cc9`, which carries
@@ -651,18 +651,18 @@ which is the only mapping this repository judges an area lever on.
 | top | shape | LUT | FF | RAMB36 | DSP | CARRY4 |
 |---|---|---|---|---|---|---|
 | `KL_nvm_blankflash_sizer` (before) | -- | **35** | 21 | 0 | 0 | 5 |
-| `KL_nvm_backend_sizer` (after) | 1x1 | **412** | 216 | 0 | 6 | 92 |
-| `KL_nvm_backend_sizer` (after) | 8x8 | **475** | 216 | 0 | 6 | 90 |
-| `KL_nvm_backend_sizer`, `-nodsp` | 1x1 | **515** | 216 | 0 | 0 | 118 |
-| `KL_nvm_backend_sizer`, `-nodsp` | 8x8 | **536** | 216 | 0 | 0 | 116 |
+| `KL_nvm_backend_sizer` (after) | 1x1 | **427** | 216 | 0 | 6 | 92 |
+| `KL_nvm_backend_sizer` (after) | 8x8 | **460** | 216 | 0 | 6 | 90 |
+| `KL_nvm_backend_sizer`, `-nodsp` | 1x1 | **523** | 216 | 0 | 0 | 118 |
+| `KL_nvm_backend_sizer`, `-nodsp` | 8x8 | **539** | 216 | 0 | 0 | 116 |
 
 The six `DSP48E1` are the constant-stride multiplies in the region decoder,
 which the default `synth_xilinx` mapping happily hands to a DSP. Both mappings
 are published because either is a legal implementation, and the `-nodsp` column
-is the LUT-only worst case: **the backend costs at most 536 LUT and 216 FF**,
+is the LUT-only worst case: **the backend costs at most 539 LUT and 216 FF**,
 which is **0.85 percent of the XC7A100T's 63,400 LUT** and 0.17 percent of its
-126,800 FF. The delta over what ships today is **+501 LUT and +195 FF** at 8x8
-in the LUT-only mapping, or +440 LUT, +195 FF and +6 DSP48E1 with DSP inference
+126,800 FF. The delta over what ships today is **+504 LUT and +195 FF** at 8x8
+in the LUT-only mapping, or +425 LUT, +195 FF and +6 DSP48E1 with DSP inference
 left on.
 
 Calibration, measured in the same run so the figure is anchored rather than
@@ -676,7 +676,7 @@ because in context it shares decode and constants with its neighbours, so the
 in-context delta is always the smaller and truer number. It is also
 pre-placement, and `scripts/area_baseline.py` records that post-synth numbers
 move by thousands of LUT and that out-of-context numbers do not preserve rank
-order. So this bounds the decision -- 536 LUT cannot invalidate the selected
+order. So this bounds the decision -- 539 LUT cannot invalidate the selected
 architecture on a device where the area campaign is fought in single-digit
 percentages -- and it does not replace the post-place delta.
 
@@ -733,7 +733,7 @@ covered: the sketch carries the per-port prefix table a real backend needs. The
 one that remains is the datapath, which moves one byte per handshake rather
 than coalescing into words, so the figure bounds the decode and control cost
 rather than every possible datapath. A coalescing variant would add a word
-buffer and a lane mux, which is tens of LUT on a 536-LUT block.
+buffer and a lane mux, which is tens of LUT on a 539-LUT block.
 
 ## 9. What the fabric may claim: the durability and liveness contract
 
@@ -780,12 +780,26 @@ bounded-retry exhaustion.
 point since reset. It is not set by a build that never had a writer: that is
 the `(0,\*,0)` "never backed" state, which is a different and honest thing.
 
-**`nvm_stale` clears** on the first COMPLETED commit, after `nvm_backed` is
-true again, that leaves `nvm_dirty` at 0 -- that is, when everything the outage
-left outstanding is durable again. It is cleared atomically with the
-acknowledgement that drops `nvm_dirty`, which is why `(backed=1, dirty=0,
-stale=1)` is not a state software can read (section 9.3). Nothing else clears
-it but reset.
+**`nvm_stale` clears** when `nvm_backed` is true again AND `nvm_dirty` is 0 --
+that is, when the writer is live and nothing the outage left outstanding is
+still un-durable. Two cases fall out of that one rule:
+
+- Nothing was outstanding when the writer was lost. The loss cost nothing, so
+  the bit clears as soon as liveness returns.
+- Something was outstanding. The bit stays set through the recovery until the
+  commit that makes `nvm_dirty` 0 completes.
+
+The published bit is **masked** by that same condition, so
+`(backed=1, dirty=0, stale=1)` cannot appear on the CSR face at all, not even
+for the cycle between a heartbeat and the internal latch clearing. That is what
+makes the row unreachable in section 9.3 rather than merely brief, and it costs
+one gate:
+
+```
+nvm_stale_published = nvm_stale_latch AND NOT (nvm_backed AND NOT nvm_dirty)
+```
+
+Nothing else clears the latch but reset.
 
 The rule is deliberately NOT "clears when a writer answers again". A writer
 that comes back has proved liveness, not durability; the changes accepted while
@@ -803,7 +817,7 @@ than left off the table. Round 2's version of this table had five rows and used
 |---|---|---|---|---|
 | `1` | `0` | `0` | yes | **Durable.** Everything committed is in a slot |
 | `1` | `1` | `0` | yes | **In flight.** A commit is inside the debounce window or in progress; a power cut here loses the marked changes and nothing else |
-| `1` | `0` | `1` | **no** | Unreachable by construction: `nvm_stale` clears atomically with the acknowledgement that clears `nvm_dirty`, so no read can observe the pair |
+| `1` | `0` | `1` | **no** | Unreachable by construction: the published `nvm_stale` is masked by exactly this condition (section 9.2), so no read can observe the pair |
 | `1` | `1` | `1` | yes | **Recovering.** The writer is answering again, but changes accepted during the outage are still not durable. Reads as backed, because a commit will now complete, and as stale, because one has not yet |
 | `0` | `0` | `0` | yes | **Never backed, nothing outstanding.** Reset state, and the state of a build with no writer |
 | `0` | `1` | `0` | yes | **Never backed, changes accepted.** A controller SET landed before any writer answered. Nothing is backed and nothing claims to be |
@@ -1120,6 +1134,6 @@ so nothing here moves when the pin does.
 - [ ] `scripts/area_baseline.py --compare` post-place at both
       `endstation_ax7101_1x1_tdm8` and `endstation_ax7101_8x8`, against the
       section 8.3 OOC bound. The OOC figure is an upper bound and the in-context
-      delta should come in under it; a post-place delta ABOVE 536 LUT means the
+      delta should come in under it; a post-place delta ABOVE 539 LUT means the
       shipping module diverged from the candidate that was priced, and the
       divergence has to be explained rather than absorbed.
