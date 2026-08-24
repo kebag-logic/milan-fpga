@@ -858,8 +858,17 @@ class Rv32State(object):
         return 0 if name in ("zero", "x0") else self.regs.get(name)
 
     def set(self, name, value):
-        if name not in ("zero", "x0"):
-            self.regs[name] = value
+        if name in ("zero", "x0"):
+            return
+        if name in RV32_FRAME_REGS:
+            # The frame slots are keyed by (register, displacement), so a
+            # frame register that MOVES makes every slot named through it a
+            # different location. Drop them rather than let one key stand
+            # for two addresses: this interpreter may say "cannot say", and
+            # may not say the wrong thing.
+            for key in [key for key in self.mem if key[0] == name]:
+                del self.mem[key]
+        self.regs[name] = value
 
     def merge(self, other):
         """Join: a value both states agree on survives, anything else
