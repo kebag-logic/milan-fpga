@@ -261,7 +261,9 @@ Two board rules that go with it:
   `git submodule update --init third_party/verilog-axis protocol-processor gptp-processor`.
   These three are what the Verilator suites, the Yosys gate and
   [`scripts/lint_rtl.py`](scripts/lint_rtl.py) read, and are exactly what CI
-  initialises. Lint now REFUSES (exit 2, not the ratchet-tighten exit 1) rather
+  initialises. Two of them, the processor pair, are also what
+  [`scripts/xvlog_gate.py`](scripts/xvlog_gate.py) analyses, and it refuses the
+  same way when one is missing. Lint now REFUSES (exit 2, not the ratchet-tighten exit 1) rather
   than under-count when one is absent (#186): a count over an incomplete
   resolution set drops findings and would invite a tighten to a number the real
   tree cannot meet. The `external` submodule is SSH-only and no sim, lint or
@@ -300,12 +302,28 @@ Two board rules that go with it:
   sweep and the Yosys gate all lower SystemVerilog through Verilator/sv2v, so a
   construct Vivado is stricter about (use-before-declaration is the first one
   found) is invisible to the whole bar (#132). The gate runs `xvlog -sv` over
-  every `hdl/` module, ratchets today's findings in
-  [`scripts/xvlog.budget`](scripts/xvlog.budget) keyed on identity so a
-  compensating swap cannot hide, and SKIPS cleanly with a visible marker when no
-  Vivado is present, so it is inert in CI and never a false green. Its
+  every tracked `.sv` **and** `.v` under `hdl/` and over the pinned control
+  plane (`protocol-processor/hdl`, `gptp-processor/hdl`), ratchets today's
+  findings in [`scripts/xvlog.budget`](scripts/xvlog.budget) keyed on identity
+  so a compensating swap cannot hide, and SKIPS cleanly with a visible marker
+  when no Vivado is present, so it is inert in CI and never a false green. Its
   `--selftest` runs in [`scripts/run_all_suites.sh`](scripts/run_all_suites.sh)
-  next to the others.
+  next to the others. Two things to know before you run it (#224, #236):
+  - With a processor submodule absent or empty it **REFUSES** (exit 2, naming
+    the tree and the init command) instead of reporting a smaller clean set,
+    the same shape and the same #186 reason as the lint refusal above. The
+    budget carries the two populations in **separate sections**, so donor debt
+    is never traded against `hdl/` debt; a processor key is spelled
+    `<submodule>:<path>` so this generated file is not read as a hand-written
+    copy of the submodule source list.
+  - It **analyses; it does not elaborate**, and one real class lives only in
+    elaboration. Splitting a declaration-with-initialiser (`reg [7:0] r =
+    8'd0;`) into a bare declaration plus a continuous `assign` is not
+    equivalent, and `xvlog`, Verilator 5.050 under `-Wall`, `sv2v` and Yosys
+    all accept the broken form silently. Only `xelab` rejects it
+    (`VRFC 10-9171`), and no gate in this repository runs `xelab`. If your
+    change moves declarations around, that construct has **no gate** -- check
+    it by hand and say so in the PR.
 - **A build input never lists the protocol-processor sources, it derives
   them**: [`scripts/pp_srcs.py`](scripts/pp_srcs.py) reads the submodule tree
   and emits the list, packages first (detected by reading each file for a
