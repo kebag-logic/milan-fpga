@@ -22,7 +22,7 @@ fabric time.
 | 5 | an AVTP-ethertype frame between gPTP ones is invisible; a runt drops harmlessly and costs no drop count |
 | 6 | an OVERSIZE frame dropped inside the tap FIFO cannot skew the next sync's ingress stamp (falsifies an accept-time ts push -- the commit-pulse transport pairs stamps with DELIVERED frames only) |
 | 7 | a back-to-back burst overflows the tap FIFO: drops are COUNTED via the FIFO's overflow strobe (DROP_WHEN_FULL keeps s_ready high, so a ready-based counter is blind), and the plane keeps working afterwards |
-| all | #211: the slice wires the steered counter into the engine's `phc_ns_i`, and that connection is checked. The engine reads the port nowhere, so nothing behavioural can see it: `dbg_eng_phc_o` is read hierarchically at `u_shadow.u_engine` and must equal the counter every cycle, and must move |
+| all | PR #243, PROPOSED to #211 and not decided: the slice wires the steered counter into the engine's `phc_ns_i`, and that connection is checked. The engine reads the port nowhere, so nothing behavioural can see it: `dbg_eng_phc_o` is read hierarchically at `u_shadow.u_engine` and must equal the counter every cycle, and must move |
 
 The `all` row closes a blind spot this bench had for its whole life,
 and the measurement is the argument: tying the ENGINE's connection
