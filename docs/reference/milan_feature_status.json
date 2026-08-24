@@ -319,8 +319,8 @@
     {
       "id": "verification.long-gate-policy",
       "status": "implemented",
-      "value": "local-required, remote-optional",
-      "summary": "Local Verilator and Yosys sweeps are mandatory; their long remote copies are optional.",
+      "value": "local-required, remote-required",
+      "summary": "Local Verilator and Yosys sweeps remain mandatory, and the dev ruleset also requires their stable hosted contexts.",
       "documents": [
         "CONTRIBUTING.md",
         "docs/reference/MILAN_FEATURE_STATUS.md",

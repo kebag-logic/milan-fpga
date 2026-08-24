@@ -32,10 +32,13 @@ exhaustive workflow makes that explicit: the gate job prints event, ref and SHA
 and exports `target_sha`; every worker writes GITHUB_SHA into a TARGET_SHA file
 beside its evidence; both aggregates run `--require-target-sha` over the
 downloaded shards and refuse a missing record, a record naming another tree, or
-a gate/run/checkout SHA that is not one value. A missing record is a failure,
-never a skip. `--check` refuses any `actions/checkout` step in rtl.yml that
-overrides `ref`, requires every artifact-uploading job to record the SHA and
-every artifact-downloading job to verify it.
+a gate/run/checkout SHA that is not one value. An aggregate skips only when the
+gate succeeded and explicitly published `run_full=false`; a gate failure,
+cancellation or missing output makes the aggregate run into that refusal path.
+A missing record is a failure, never a skip. `--check` refuses any
+`actions/checkout` step in rtl.yml that overrides `ref`, requires every
+artifact-uploading job to record the SHA and every artifact-downloading job to
+verify it.
 
 THE DEFAULT-BRANCH ASSERTION ([R1] on PR #204). The cron was inert because of
 a repository SETTING, and a gate that reads files cannot see a setting. So the
@@ -146,12 +149,19 @@ VERIFY_STEP_IF = "${{ always() }}"
 VERIFY_STEP_ENV = ("GATE_SHA",)
 #: Job keys that stop a job, or its steps, from running as written. The
 #: gate job carries none of them; an aggregate job carries its documented
-#: `if` and nothing else from this list; the workflow carries no top-level
+#: fail-closed `if` and nothing else from this list; the workflow carries no top-level
 #: `defaults` (a `defaults.run.shell: bash -n {0}` parses every script and
 #: executes none).
 JOB_NEUTER_KEYS = ("if", "continue-on-error", "defaults")
-AGGREGATE_JOB_IF = ("${{ always() && !cancelled() && "
-                    f"needs.{GATE_JOB}.outputs.run_full == 'true' }}}}")
+#: A skipped required context satisfies a GitHub ruleset. Therefore an
+#: aggregate may skip only the gate's explicit successful no-op decision. A
+#: failed/cancelled gate or an absent/malformed output makes the aggregate run;
+#: its target-SHA and shard reconciliation then fail closed.
+AGGREGATE_JOB_IF = (
+    "${{ always() && "
+    f"(needs.{GATE_JOB}.result != 'success' || "
+    f"needs.{GATE_JOB}.outputs.run_full != 'false') }}}}"
+)
 RUNNER_TEMP_PREFIX = "${{ runner.temp }}/"
 #: Public check names the merge bar reads (AGENTS.md section 7), per file.
 PUBLIC_NAMES = {
@@ -997,6 +1007,12 @@ def _mutations():
     def m_aggregate_if_dropped(w):
         del jobs(w[RTL_FULL])["yosys-portability"]["if"]
 
+    def m_aggregate_fail_open(w):
+        jobs(w[RTL_FULL])["verilator-suites"]["if"] = (
+            "${{ always() && !cancelled() && "
+            "needs.full-ci-gate.outputs.run_full == 'true' }}"
+        )
+
     va = lambda w: verify_step(w, "verilator-suites")  # noqa: E731
     ya = lambda w: verify_step(w, "yosys-portability")  # noqa: E731
 
@@ -1156,6 +1172,8 @@ def _mutations():
          "`if` must be exactly"),
         ("aggregate job if dropped", m_aggregate_if_dropped,
          "documented `if`"),
+        ("aggregate skips when its selector fails", m_aggregate_fail_open,
+         "`if` must be exactly"),
         ("aggregate job continue-on-error",
          set_job_key("verilator-suites", "continue-on-error", True),
          "must carry no `continue-on-error`"),

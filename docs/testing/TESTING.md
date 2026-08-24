@@ -74,13 +74,13 @@ Machine-checked status rows are defined by the
 | `crf.media-clock-consumption` | `missing` | - |
 | `state.nonvolatile-persistence` | `missing` | - |
 | `notifications.change-events` | `partial` | - |
-| `verification.long-gate-policy` | `implemented` | `local-required, remote-optional` |
+| `verification.long-gate-policy` | `implemented` | `local-required, remote-required` |
 <!-- milan-feature-status:end -->
 
 The local full Verilator and Yosys portability sweeps are mandatory validation
-evidence. Their long GitHub copies are optional and do not block review when
-the local equivalents pass. Issue #97 owns the response-boundary and stopped
-CRF observation gaps that keep START/STOP partial.
+evidence. The `dev merge bar` ruleset also requires their stable GitHub
+aggregate contexts; neither copy substitutes for the other. Issue #97 owns the
+response-boundary and stopped CRF observation gaps that keep START/STOP partial.
 
 ## Contents
 

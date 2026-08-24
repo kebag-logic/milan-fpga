@@ -44,8 +44,20 @@ The long-gate policy is machine-checked against the
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
-| `verification.long-gate-policy` | `implemented` | `local-required, remote-optional` |
+| `verification.long-gate-policy` | `implemented` | `local-required, remote-required` |
 <!-- milan-feature-status:end -->
+
+The active `dev merge bar` repository ruleset requires a pull request and these
+seven exact status-check contexts: `rtl-fast`, `docs-check`,
+`wire-accountability`, `docs-check-no-git`, `elaborate`, `verilator-suites`, and
+`yosys-portability`. The required-check policy is loose, so an intervening
+merge does not invalidate exact-head evidence by demanding another long Yosys
+run. It has no bypass actor; deletion and non-fast-forward updates of `dev` are
+also forbidden. A skipped conditional job satisfies its named context, but no
+required workflow may use path- or branch-level skipping that prevents the
+context from being emitted. The exhaustive aggregates may skip only after
+`full-ci-gate` succeeds and explicitly selects the no-op path; a failed,
+cancelled, or output-less selector makes both aggregates run and fail closed.
 
 ```mermaid
 flowchart LR
@@ -211,11 +223,12 @@ flowchart LR
      constant from one side and the microprogram's entry point from the other
      does not fail to elaborate — the µCPU executes ROM fill and answers a
      well-formed response carrying garbage.
-   - **The two long GitHub jobs are optional; their local gates are not.**
-     `verilator-suites` and `yosys-portability` are informational GitHub checks.
-     A PR may merge without waiting for them, including while GitHub reports
-     `MERGEABLE/UNSTABLE`. Before the PR is marked validated, run both equivalent
-     gates locally and record their results on the PR:
+   - **The two long GitHub aggregates and their local gates are independently
+     required.** `verilator-suites` and `yosys-portability` must both be emitted
+     on the PR head and must conclude successfully for RTL/tooling-relevant
+     work. A docs-only PR emits them as successful skipped contexts. Before the
+     PR is marked validated, run both equivalent gates locally and record their
+     results on the PR:
 
      ```bash
      suite_logs=$(mktemp -d)
@@ -223,8 +236,8 @@ flowchart LR
      syn/yosys/run.sh
      ```
 
-     The optional status applies only to the remote jobs. The local Verilator
-     sweep and Yosys portability sweep are mandatory merge evidence.
+     A hosted pass does not replace the local evidence, and a local pass does
+     not waive the ruleset's hosted contexts.
 
 Two board rules that go with it:
 
