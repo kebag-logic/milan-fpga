@@ -263,7 +263,8 @@ Two board rules that go with it:
   [`scripts/lint_rtl.py`](scripts/lint_rtl.py) read, and are exactly what CI
   initialises. Two of them, the processor pair, are also what
   [`scripts/xvlog_gate.py`](scripts/xvlog_gate.py) analyses, and it refuses the
-  same way when one is missing. Lint now REFUSES (exit 2, not the
+  same way -- but against the **gitlink**, so a standalone clone dropped at the
+  path or a checkout moved off the pin is refused too, not counted. Lint now REFUSES (exit 2, not the
   ratchet-tighten exit 1) rather
   than under-count when one is absent (#186): a count over an incomplete
   resolution set drops findings and would invite a tighten to a number the real
@@ -310,13 +311,18 @@ Two board rules that go with it:
   when no Vivado is present, so it is inert in CI and never a false green. Its
   `--selftest` runs in [`scripts/run_all_suites.sh`](scripts/run_all_suites.sh)
   next to the others. Two things to know before you run it (#224, #236):
-  - With a processor submodule absent or empty it **REFUSES** (exit 2, naming
-    the tree and the init command) instead of reporting a smaller clean set,
-    the same shape and the same #186 reason as the lint refusal above. The
-    budget carries the two populations in **separate sections**, so donor debt
-    is never traded against `hdl/` debt; a processor key is spelled
-    `<submodule>:<path>` so this generated file is not read as a hand-written
-    copy of the submodule source list.
+  - **The processor population is the superproject's gitlink, or the gate
+    REFUSES** (exit 2, before it enumerates anything, naming the state, the
+    expected and actual revisions and the remediation). Absent, empty,
+    uninitialised, a standalone clone sitting at the path, a registered
+    submodule at another revision, or one with local modifications to tracked
+    files: each of those is a population the pin does not stand behind, and a
+    default run would rewrite the ratchet from it. Same shape and same #186
+    reason as the lint refusal above. Check with `git submodule status` -- a
+    `-` or `+` prefix is a refusal. The budget carries the two populations in
+    **separate sections**, so donor debt is never traded against `hdl/` debt;
+    a processor key is spelled `<submodule>:<path>` so this generated file is
+    not read as a hand-written copy of the submodule source list.
   - It **analyses; it does not elaborate**, and one real class lives only in
     elaboration. Splitting a declaration-with-initialiser (`reg [7:0] r =
     8'd0;`) into a bare declaration plus a continuous `assign` is not
