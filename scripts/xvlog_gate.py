@@ -65,6 +65,16 @@ findings into 5. TreeState below enumerates every state that answers REFUSE and
 why each one would otherwise pass; nothing is enumerated until the tree is the
 pinned population.
 
+AND THE GITLINK IS READ WHOLE, NOT FILTERED. [R0] round 2 reproduced the same
+class one level down: an index record set of `160000` stage 2 beside `100644`
+stage 3, and a one-sided `160000` stage 2, are both UNMERGED - `git submodule
+status` prints `U000...` - yet keeping the one surviving `160000` SHA made each
+read as a resolved pin and enumerated all 40 processor sources. The accepted
+index shape is now exactly ONE record at the path, mode `160000`, stage `0`;
+any other stage, any other mode, any extra record, an unparsable record or a
+record only UNDER the path refuses before enumeration, census, budget read or
+budget write. _index_pin below is that enumeration.
+
 ONE FINDING PER MODULE, NOT ONE PER OCCURRENCE. xvlog stops at the first error in
 a compilation unit and prints only the 10-8530 cascade after it, so a module with
 many use-before-declaration occurrences yields ONE finding, naming the first
@@ -349,15 +359,31 @@ class TreeState:
 
     That is the pin-bump false green #236 exists to close, so the check is now
     the superproject's declaration compared against the checkout, and it
-    refuses BEFORE anything is enumerated. `state` is one of, in the order
-    they are decided:
+    refuses BEFORE anything is enumerated.
 
-      unregistered    the path is not a 160000 gitlink in the superproject
-                      index, or .gitmodules does not name it
-      conflicted      the gitlink is unmerged - several index stages
+    Reading that declaration LOOSELY is the same class one level down, and
+    [R0] round 2 reproduced it twice: an index holding `160000` stage 2 beside
+    `100644` stage 3, and one holding only `160000` stage 2. `git submodule
+    status` printed `U000...` for both; keeping the surviving `160000` SHA
+    made each read as a resolved pin and enumerated all 40 sources. The index
+    shape is therefore matched whole against the ONE usable shape (see
+    _index_pin), never filtered down to the records that look usable.
+
+    `state` is one of, in the order they are decided:
+
+      unregistered    the index carries no stage 0 160000 gitlink AT the
+                      path - no record at all, a tracked file or symlink at
+                      the path, or the contents committed as ordinary files
+                      under it - or .gitmodules does not name it
+      conflicted      the index is UNMERGED at the path: any record at stage
+                      1, 2 or 3, more than one record, or a record that will
+                      not parse. There is no revision the next commit carries,
+                      whatever surviving SHA a filter would have kept
       absent          registered, but there is nothing at the path - no
                       directory, or the empty one a fresh clone and
                       `git worktree add` leave behind
+      not-a-directory registered, but a file or a symlink sits at the gitlink
+                      path where the checkout must be
       uninitialised   registered, a directory, but the superproject has no
                       `submodule.<name>.url`: whatever is at the path is NOT
                       the registered checkout. This is git's own definition of
@@ -401,11 +427,15 @@ class TreeState:
 #: so a state cannot be added without a remediation, and read by the refusal
 #: rather than restated at the print site.
 _STATE_WHAT = {
-    "unregistered": "not a registered submodule of this commit "
-                    "(no 160000 gitlink in the index, or no .gitmodules entry)",
-    "conflicted": "the gitlink is UNMERGED - the pin itself is in conflict",
+    "unregistered": "not a registered submodule of this commit (no stage 0 "
+                    "160000 gitlink in the index, or no .gitmodules entry)",
+    "conflicted": "the gitlink is UNMERGED - the pin itself is in conflict, "
+                  "so the index names NO revision the next commit carries",
     "absent": "registered, but nothing is checked out at the path "
               "(no directory, or an empty one)",
+    "not-a-directory": "registered, but what sits at the path is NOT a "
+                       "directory - a file or a symlink where the checkout "
+                       "must be",
     "uninitialised": "NOT the registered checkout - the superproject has no "
                      "submodule url for it (`git submodule status` prints `-`)",
     "no-repository": "a directory that is not that repository's own top level "
@@ -424,6 +454,8 @@ _STATE_FIX = {
     "conflicted": "resolve the conflicted gitlink, then "
                   "`git submodule update --init {label}`",
     "absent": "git submodule update --init {label}",
+    "not-a-directory": "remove the file or symlink at {label}, then "
+                       "`git submodule update --init {label}`",
     "uninitialised": "git submodule update --init {label}   "
                      "(move any standalone checkout at the path aside first)",
     "no-repository": "git submodule update --init {label}",
@@ -452,25 +484,88 @@ def _gitmodules_name(label, root=None):
     return None
 
 
-def _gitlink_revisions(label, root=None):
-    """Every index stage's gitlink revision at `label` (usually one, or none).
+#: One `git ls-files --stage -z` record: mode, object, stage, path. Anchored
+#: and total on purpose - a record this does not match is REFUSED rather than
+#: guessed at, because a record the gate cannot read is a pin it cannot prove.
+_INDEX_RECORD_RE = re.compile(r"^([0-7]{6}) ([0-9a-f]{40,64}) ([0-3])\t(.*)$",
+                              re.S)
+
+
+def _index_pin(label, root=None):
+    """Classify the INDEX at `label`. Returns `(kind, revision, detail)`.
+
+    `kind` is `ok`, `conflicted` or `unregistered`; `revision` is filled only
+    for `ok`; `detail` is what the refusal prints as the ACTUAL state.
+
+    THE PINNED POPULATION IS EXACTLY ONE INDEX RECORD: mode `160000`, stage
+    `0`, at exactly this path. That is the only index shape in which git names
+    a revision the next commit will carry, so it is the only shape accepted,
+    and every other shape is refused BY CONSTRUCTION - the whole record set is
+    matched against the one usable shape, never filtered down to the records
+    that look usable. [R0] round 2 on PR #242 reproduced two escapes from
+    filtering, both on a tree where `git submodule status` printed
+    `U000...`: `160000` stage 2 beside `100644` stage 3, and a one-sided
+    `160000` stage 2 with no other side. Keeping the surviving `160000` SHA
+    made each read as a resolved pin, all 40 sources were enumerated, and a
+    default run would have rewritten the ratchet from one side of an
+    unresolved conflict.
+
+    Every index state a submodule path can be in, and where each lands:
+
+      no record at the path            unregistered  (tracked files UNDER the
+                                                      path are counted and
+                                                      named: contents
+                                                      committed as ordinary
+                                                      files are not a gitlink)
+      one record, stage 0, `160000`    ok            <- the only pin
+      one record, stage 0, other mode  unregistered  (a file or a symlink is
+                                                      tracked AT the path)
+      any record at stage 1, 2 or 3    conflicted    (unmerged: git's `U`)
+      more than one record             conflicted
+      a record this cannot parse       conflicted
+
+    Records are matched on path EQUALITY: `git ls-files -- <dir>` also lists
+    everything under a tracked directory, and a processor whose contents were
+    committed as ordinary files must read as "no gitlink", never as "many
+    conflict stages".
 
     The INDEX, not HEAD, on purpose: that is what `git submodule status`
     compares a checkout against, and it is the revision the next commit will
     carry. A deliberate pin bump that is staged therefore agrees with a
     checkout moved to match it; a checkout moved on its own does not, and that
-    disagreement is precisely the false green #236 closes. More than one entry
-    means an unmerged gitlink.
+    disagreement is precisely the false green #236 closes.
     """
-    out = _git(["ls-files", "--stage", "--", label], root or ROOT)
+    out = _git(["ls-files", "--stage", "-z", "--", label], root or ROOT)
     if out.returncode:
-        return []
-    revs = []
-    for line in out.stdout.splitlines():
-        parts = line.split(None, 2)
-        if len(parts) >= 2 and parts[0] == "160000":
-            revs.append(parts[1])
-    return revs
+        return ("unregistered", "",
+                "`git ls-files --stage` could not read the index at the path")
+    at, under = [], 0
+    for entry in out.stdout.split("\0"):
+        if not entry:
+            continue
+        m = _INDEX_RECORD_RE.match(entry)
+        if m is None:
+            return ("conflicted", "",
+                    f"an index record this gate cannot parse: {entry!r}")
+        mode, obj, stage, path = (m.group(1), m.group(2),
+                                  int(m.group(3)), m.group(4))
+        if path == label:
+            at.append((mode, obj, stage))
+        else:
+            under += 1
+    shown = ", ".join(f"stage {s} mode {m} {o}" for m, o, s in at)
+    if len(at) > 1 or any(s for _m, _o, s in at):
+        return ("conflicted", "", f"{len(at)} index record(s): {shown}")
+    if not at:
+        return ("unregistered", "",
+                "no index record at the path"
+                + (f", and {under} tracked file(s) under it" if under else ""))
+    mode, obj, _stage = at[0]
+    if mode != "160000":
+        return ("unregistered", "",
+                f"a stage 0 mode {mode} entry ({obj}) - a tracked file or "
+                "symlink AT the path, not a gitlink")
+    return ("ok", obj, f"stage 0 mode 160000 {obj}")
 
 
 def _foreign_head(path):
@@ -501,14 +596,24 @@ def tree_state(label, tree, why, root=None):
     def state(name, expected="", actual="", files=None):
         return TreeState(label, tree, why, name, expected, actual, files)
 
-    revs = _gitlink_revisions(label, root)
-    if len(revs) > 1:
-        return state("conflicted", " / ".join(sorted(set(revs))))
+    kind, expected, detail = _index_pin(label, root)
+    if kind == "conflicted":
+        return state("conflicted", "", detail)
     name = _gitmodules_name(label, root)
-    if not revs or name is None:
-        return state("unregistered")
-    expected = revs[0]
+    if kind != "ok":
+        return state("unregistered", "", detail)
+    if name is None:
+        return state("unregistered", expected,
+                     "a stage 0 gitlink, but .gitmodules names no submodule "
+                     "at this path")
     path = root / label
+    if path.is_symlink() or (path.exists() and not path.is_dir()):
+        # Decided BEFORE is_dir(): a symlink to a directory answers True to
+        # is_dir(), and git never checks a submodule out as one.
+        return state("not-a-directory", expected,
+                     "a symlink at the gitlink path, not a checkout"
+                     if path.is_symlink() else
+                     "a file at the gitlink path, not a checkout")
     if not path.is_dir() or not any(path.iterdir()):
         # An EMPTY directory is `absent`, not `uninitialised`: a fresh clone
         # and `git worktree add` both leave the gitlink path as an empty
@@ -958,7 +1063,11 @@ def _selftest_tree_state():
     proves the CLASSIFIER reaches it, which is where [R0] on PR #242 found the
     escape - the old check asked only whether the path was the top of some
     repository with tracked sources, so a standalone clone at the gitlink path
-    and a checkout moved off the pin both classified as usable.
+    and a checkout moved off the pin both classified as usable. Round 2 found
+    the same class in the INDEX parser: an unmerged path whose one surviving
+    `160000` record was read as a resolved pin. The arms below therefore drive
+    the real index through `git update-index --index-info` and check git's own
+    `U` verdict beside the classifier's.
 
     Everything is built by hand in a temp dir: a donor repository with three
     revisions, and a superproject whose .gitmodules and INDEX gitlink are
@@ -999,14 +1108,36 @@ def _selftest_tree_state():
         (super_ / ".gitmodules").write_text(
             f'[submodule "{label}"]\n\tpath = {label}\n\turl = {donor}\n')
 
-        def pin(*entries):
-            """Rewrite the index gitlink; several entries = an unmerged pin."""
-            text = f"0 {'0' * 40} 0\t{label}\n"
-            text += "".join(f"160000 {rev} {stage}\t{label}\n"
-                            for rev, stage in entries)
+        def index_info(text):
+            """Write raw index records - the only way to build a fixture that
+            is unmerged, or mixed-mode, without a real merge conflict."""
             subprocess.run(["git", "update-index", "--index-info"],
                            cwd=str(super_), input=text,
                            capture_output=True, text=True)
+
+        def pin(*entries):
+            """Rewrite the index record(s) AT the path, clearing them first.
+
+            An entry is `(rev, stage)` - a gitlink - or `(mode, obj, stage)`
+            for the non-gitlink modes an unmerged path can carry. Several
+            entries, or any nonzero stage, is what git calls unmerged.
+            """
+            text = f"0 {'0' * 40} 0\t{label}\n"
+            for entry in entries:
+                mode, obj, stage = (entry if len(entry) == 3
+                                    else ("160000",) + entry)
+                text += f"{mode} {obj} {stage}\t{label}\n"
+            index_info(text)
+
+        def git_agrees_unmerged(case):
+            """git's own verdict on the fixture, so the arm cannot pass over a
+            state git does not consider unmerged in the first place."""
+            got = _git(["submodule", "status", label], super_).stdout.strip()
+            if not got.startswith("U"):
+                problems.append(f"tree_state [{case}]: the fixture is not "
+                                f"unmerged to git either - `git submodule "
+                                f"status` printed {got!r}, so the arm proves "
+                                "nothing")
 
         def state():
             return tree_state(label, tree, "the selftest fixture", root=super_)
@@ -1074,6 +1205,81 @@ def _selftest_tree_state():
 
         pin((rev_one, "1"), (rev_two, "2"), (rev_empty, "3"))
         want("conflicted", "conflicted")
+        git_agrees_unmerged("conflicted")
+
+        # [R0] round 2 on PR #242: the shapes a filter that keeps only the
+        # 160000 records cannot see. Both were reproduced on the real
+        # protocol-processor gitlink, and both classified `ok` at 40 files.
+        # A blob object so a stage can carry a non-gitlink mode; any content
+        # will do, only the mode is under test.
+        blob = _git(["hash-object", "-w", str(donor / "README.md")],
+                    super_).stdout.strip()
+        # The checkout is put back ON the surviving stage's revision on
+        # purpose: that is the reviewer's state, and it is the only one where
+        # a filter's leftover SHA reads as a FALSE GREEN rather than merely as
+        # the wrong refusal. Without it these arms would still pass over a
+        # `wrong-revision` verdict and prove far less.
+        _git(["checkout", "-q", "--detach", rev_two], checkout)
+
+        pin((rev_two, "2"), ("100644", blob, "3"))
+        st = want("conflicted-gitlink-vs-file", "conflicted")
+        git_agrees_unmerged("conflicted-gitlink-vs-file")
+        if st.state == "conflicted" and (rev_two not in st.actual
+                                         or blob not in st.actual):
+            problems.append("tree_state [conflicted-gitlink-vs-file]: the "
+                            "refusal does not name both sides of the "
+                            "conflict, so a reader cannot tell which is which")
+        # ...and the classifier must reach the exit-2 SETUP refusal from a
+        # real index fixture, not only from an injected state. Guarded on the
+        # verdict: _refuse_setup only ever sees unusable states in production,
+        # and handing it an `ok` one would crash the arm that is already
+        # reporting the real failure.
+        if not st.ok:
+            buf = io.StringIO()
+            with contextlib.redirect_stderr(buf):
+                rc = _refuse_setup([st])
+            if rc != 2 or "REFUSED" not in buf.getvalue():
+                problems.append(f"tree_state [conflicted-gitlink-vs-file]: "
+                                f"the refusal exited {rc} with "
+                                f"{len(buf.getvalue())} byte(s) on stderr, "
+                                "not 2 with a printed reason")
+
+        pin((rev_two, "2"), ("120000", blob, "3"))
+        want("conflicted-gitlink-vs-symlink", "conflicted")
+        git_agrees_unmerged("conflicted-gitlink-vs-symlink")
+
+        pin((rev_two, "2"))
+        want("conflicted-one-sided", "conflicted")
+        git_agrees_unmerged("conflicted-one-sided")
+
+        # A stage 0 record that is not a gitlink at all: the path is TRACKED,
+        # so `git ls-files` answers, but nothing pins a revision there.
+        pin(("100644", blob, "0"))
+        want("tracked-file-at-the-path", "unregistered")
+
+        # The contents committed as ordinary files. `git ls-files -- <path>`
+        # lists everything UNDER the path too, so more than one record turns
+        # up here as well; calling that "many conflict stages" would refuse
+        # with the wrong reason and the wrong fix. TWO of them, so an arm that
+        # matched by prefix instead of by equality cannot pass this by
+        # reaching the same verdict through the mode check.
+        nested = [f"{label}/hdl/a.sv", f"{label}/hdl/b.sv"]
+        pin()
+        index_info("".join(f"100644 {blob} 0\t{n}\n" for n in nested))
+        want("contents-committed-as-files", "unregistered", "",
+             "2 tracked file(s) under it")
+        index_info("".join(f"0 {'0' * 40} 0\t{n}\n" for n in nested))
+
+        pin((rev_two, "0"))
+        aside = tmp / "file-at-the-path"
+        checkout.rename(aside)
+        checkout.write_text("not a checkout\n")
+        want("not-a-directory", "not-a-directory", rev_two, "a file")
+        checkout.unlink()
+        checkout.symlink_to(aside)
+        want("symlink-at-the-path", "not-a-directory", rev_two, "a symlink")
+        checkout.unlink()
+        aside.rename(checkout)
 
         pin()
         want("unregistered", "unregistered")
@@ -1221,7 +1427,9 @@ def _selftest_logic():
     # review reproduced are `uninitialised` (a standalone clone dropped at the
     # gitlink path) and `wrong-revision` (a registered submodule moved off the
     # pin); the previous refusal returned NOTHING for both and the census
-    # called them "the pinned processors".
+    # called them "the pinned processors". Round 2 reproduced two more, both
+    # `conflicted`: an unmerged index whose one surviving `160000` record was
+    # read as a resolved pin.
     _PIN = "a25b5cc9794b8e7f70f738548f4d674e9669b469"
     _OFF = "44489453cf362c7a41c9e020f4896f967dc2a4d1"
 
@@ -1231,8 +1439,18 @@ def _selftest_logic():
 
     refusing = {
         "absent": _fixed("absent"),
-        "unregistered": _fixed("unregistered", expected=""),
-        "conflicted": _fixed("conflicted", expected=f"{_PIN} / {_OFF}"),
+        "unregistered": _fixed("unregistered", expected="",
+                               actual="no index record at the path"),
+        # The round-2 escape shape: unmerged, with no stage 0 to name. The
+        # refusal has no single expected revision to print, so it must print
+        # the whole record set instead - that is what tells a reader which
+        # side is which.
+        "conflicted": _fixed("conflicted", expected="",
+                             actual=f"2 index record(s): stage 2 mode 160000 "
+                                    f"{_PIN}, stage 3 mode 100644 {_OFF}"),
+        "not-a-directory": _fixed("not-a-directory",
+                                  actual="a file at the gitlink path, not a "
+                                         "checkout"),
         "uninitialised": _fixed("uninitialised",
                                 actual=f"{_OFF} in an unregistered "
                                        "repository at the path"),
