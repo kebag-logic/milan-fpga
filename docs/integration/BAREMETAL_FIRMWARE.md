@@ -278,12 +278,18 @@ unsigned int runtime_page = milan_read(MILAN_ID) ^ (MILAN_ID_MAGIC ^ 0x9000u);
 The census now CLASSIFIES every store the compiler emits. Four classes are
 placed: an address that resolves to a number (answered by number, in or out of
 the window), a stack address, the address of an object this translation unit
-defines, and the address helper's own return, which is the single sanctioned
-way into the window and which exactly one function may store through. The
+DEFINES (a symbol it merely references is placed by the linker, not by this
+unit, so `extern volatile uint32_t r; r = 1u;` is refused), and the address
+helper's own return, which is the single sanctioned way into the window and
+which exactly one function may store through. The
 arguments of a function this unit neither exports nor takes the address of are
 resolved from its call sites, which is what places the output-pointer writes in
 `parse_u64()` and `seconds_to_ns()` on the stack. Anything else is a REFUSAL,
-not an omission, and both shapes above are mutation-table entries as a result.
+not an omission. Four mutation-table entries carry it: the runtime-derived base
+above, a second unplaceable store planted inside a function the residual already
+names (so the residual is pinned by count rather than exempting a function), a
+store through an `extern` symbol the linker places, and a second consumer of the
+address helper's return.
 
 Two stores in the shipping firmware are still not placed. They are DECLARED in
 `RESOLVER_STORE_RESIDUAL` and asserted exactly, so one more unplaceable store

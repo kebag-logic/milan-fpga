@@ -1238,6 +1238,26 @@ def rv32_address_taken(assembly):
     return taken
 
 
+def rv32_defined(assembly):
+    """Every symbol this translation unit DEFINES: a label it emits, or an
+    object it reserves with `.comm`/`.lcomm`.
+
+    The store census needs this to place a store through a symbol's address.
+    `extern volatile uint32_t r; r = 1;` also stores through a symbol, and
+    where that symbol LANDS is the linker's decision, not this unit's -- so
+    a symbol this unit does not define is not one it may place."""
+    defined = set()
+    for line in assembly.splitlines():
+        label = re.match(r"^([A-Za-z_.$][\w.$]*):", line)
+        if label:
+            defined.add(label.group(1))
+            continue
+        reserved = re.match(r"^\s*\.l?comm\s+([\w.$]+)", line)
+        if reserved:
+            defined.add(reserved.group(1))
+    return defined
+
+
 def rv32_call_seeds(runs, private):
     """The entry registers a PRIVATE function can be resolved with: for
     each argument register, the value every call site in this unit hands
@@ -1312,7 +1332,8 @@ def rv32_unit(assembly):
             "settle, so its answer would depend on how many rounds it was "
             "given rather than on the code")
     return {"data": data, "functions": functions, "runs": runs,
-            "private": private, "seeds": seeds}
+            "private": private, "seeds": seeds,
+            "defined": rv32_defined(assembly)}
 
 
 def test_all_configs_build():
@@ -3025,21 +3046,25 @@ def test_baremetal_profile_contract():
         #   stack -- the base is a frame register the prologue set and never
         #     moved, displaced; the stack lives in the SoC's RAM, which the
         #     linker places outside the device window rule 1 measures.
-        #   sym -- the base is the address of an object DEFINED in this
-        #     translation unit; the window is device address space and holds
-        #     none of this unit's objects.
+        #   sym -- the base is the address of an object this translation unit
+        #     DEFINES; the window is device address space and holds none of
+        #     this unit's objects. A symbol it merely REFERENCES is placed by
+        #     the linker, not by this unit, so it does not qualify.
         # Everything else is unplaced unless the declared residual names it.
         reg_name = helper or reg_helper_name
+        defined = unit["defined"]
         residual, sanctioned = {}, []
         for name, run in sorted(runs.items()):
             for _at, (address, _value) in run["stores"]:
-                if isinstance(address, int) or address.kind in ("stack", "sym"):
+                if isinstance(address, int) or address.kind == "stack" or \
+                        (address.kind == "sym" and address.detail in defined):
                     continue
                 if address.kind == "call" and address.detail == reg_name:
                     sanctioned.append(name)
                     continue
                 key = (name, address.kind,
-                       address.detail if address.kind == "call" else None)
+                       address.detail if address.kind in ("call", "sym")
+                       else None)
                 seen_here = residual.setdefault(key, [0, set()])
                 seen_here[0] += 1
                 seen_here[1].add(repr(address))
@@ -6102,6 +6127,17 @@ def test_baremetal_profile_contract():
         "static int aem_loaded;",
         "typedef struct { volatile uint32_t ctrl; } *milan_dyn_adp_blk;\n\n"
         "static int aem_loaded;", "runtime-paged struct overlay typedef")
+    #: ... and the class the `sym` placement rule is bounded by: a store
+    #: through a symbol this translation unit only REFERENCES. Where that
+    #: symbol lands is the linker's decision, so the census may not place
+    #: it -- and it is an ordinary embedded idiom, not only an attack.
+    #: No cast, no `*`, no subscript: nothing above it sees this shape.
+    extern_symbol_store = replace_once(
+        stored_before_aem("milan_linker_adp = 1u;",
+                          "store through an extern the linker places"),
+        "static int aem_loaded;",
+        "extern volatile uint32_t milan_linker_adp;\n\n"
+        "static int aem_loaded;", "extern linker-placed symbol")
     #: ... and the class rule 1c exists for: a SECOND consumer of the
     #: address helper's return. No window immediate is materialised (the
     #: helper forms the address, which is its job), the store address does
@@ -7092,6 +7128,9 @@ def test_baremetal_profile_contract():
         ("a second store the resolver cannot place, added inside a function "
          "whose residual is declared", residual_count_store, docs_source,
          csr_source, RESOLVER_UNPLACED_PIN),
+        ("entity enabled through an extern symbol the linker places",
+         extern_symbol_store, docs_source, csr_source,
+         RESOLVER_UNPLACED_PIN),
         ("AEM verifier reaching its success return by goto past the CRC "
          "comparison", goto_past_crc, docs_source, csr_source,
          RESOLVER_DOMINANCE_PIN),
