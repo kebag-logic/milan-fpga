@@ -192,7 +192,8 @@ is exactly these six things:
    step is, so `if: false`, an `if:` naming only some events, a `shell:`, a
    `continue-on-error` or a `working-directory` on any of them is refused by
    name; the decision step's `env` is exactly `EVENT_NAME`, `PR_DRAFT` and
-   `PR_BASE_SHA`, and the checkout keeps `fetch-depth: 0` (the decision step
+   `PR_BASE_SHA`, each bound to the source expression item 6 requires, and
+   the checkout keeps `fetch-depth: 0` (the decision step
    diffs against the pull request's base commit, which a shallow clone does
    not carry). `if: false` on the pin step or on the decision step leaves the
    assert step's script canonical and publishes no `run_full` at all.
@@ -200,7 +201,36 @@ is exactly these six things:
    own names any `GH_*` variable: the step's `env` is pinned to exactly
    `GH_TOKEN`, but a `GH_HOST` or `GH_CONFIG_DIR` set at either level above it
    reaches the same `gh` without appearing anywhere in the step.
-6. **The verifier steps.** Each aggregate's `--require-target-sha` step
+6. **The env bindings.** A pinned step's `env` is held as a name *and* the
+   source expression that name is bound to, because the name is not the
+   contract. The decision step carries
+   `EVENT_NAME: ${{ github.event_name }}`,
+   `PR_DRAFT: ${{ github.event.pull_request.draft }}` and
+   `PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}`; the
+   default-branch step carries `GH_TOKEN: ${{ github.token }}`; each verifier
+   step binds `GATE_SHA` to `full-ci-gate`'s `target_sha` output, derived from
+   that job and output rather than restated. Names alone held nothing where it
+   mattered: `PR_DRAFT: "true"` is valid workflow YAML that keeps all three
+   names and all four keys and makes a ready RTL pull request publish
+   `run_full=false`, on which both worker matrices skip, both aggregates skip
+   under the no-op exception in item 7, and the skipped required contexts
+   satisfy the ruleset -- a false green, not a refusal.
+   `PR_BASE_SHA: ${{ github.sha }}` (a commit diffed against itself, so
+   `rtl=false`) and `EVENT_NAME: pull_request` (a push, schedule or dispatch
+   run taking the pull-request branch) arrive at the same place. A refusal
+   names the step, the variable, the expression required and the one found.
+7. **The decision step's script.** Pinned verbatim after whitespace
+   normalization, the way the default-branch step's is, and refused by naming
+   the first line that differs rather than dumping the script. The bindings in
+   item 6 hold what the step reads; this holds what it does with what it read,
+   because `run_full=true` rewritten to `run_full=false` changes no pinned
+   name and no pinned key and publishes the explicit no-op on every ready RTL
+   pull request. The structural reason is checked first: the selector's
+   `--selftest` runs exactly once and before the script reads the selector's
+   answer, so a selector is never trusted to decide a run without its own
+   proof. Re-indenting the script or wrapping a continuation differently is
+   the same script and still passes.
+8. **The verifier steps.** Each aggregate's `--require-target-sha` step
    carries exactly `name`, `if`, `env` and `run`; its `if` is exactly
    `${{ always() }}` (any other condition can skip the verification, and a
    skipped step passes the job); its `env` exactly `GATE_SHA`; and its
@@ -220,15 +250,20 @@ before the read, an extra line, a missing `set` line; each key escape above
 on the step, on the job, on the workflow and on the verifier steps; the gate
 given a `needs` on a job that skips on `schedule`; `if: false`, an event-only
 `if`, a `shell:`, a `continue-on-error`, a `working-directory` and a dropped
-env key on the pin and decision steps; the assert step moved before the
+env key on the pin and decision steps; `PR_DRAFT` forced to `true`,
+`PR_BASE_SHA` rebound to `${{ github.sha }}`, `EVENT_NAME` hard-coded to
+`pull_request`, `GH_TOKEN` rebound to another token and a verifier's
+`GATE_SHA` rebound to its own run; the decision script rewritten to publish
+`run_full=false` always and stripped of the selector's self-test; the assert
+step moved before the
 checkout; a `GITHUB_PATH` step inserted before it; the pin step removed; the
 pin and assert steps swapped; a checkout without `fetch-depth: 0`; a `GH_HOST`
 on the job and on the workflow; a shard denominator restated below its matrix
 size, restated while the matrix grows, and stale in a worker's display name; a
 verifier that reassigns `GATE_SHA`, passes the wrong `--expect`, passes none,
 or keeps `--expect` while the matrix grows; an aggregate `if` loosened or
-dropped; a whitespace-only reformatting of both scripts that must still pass;
-and the decision itself for every event class.
+dropped; a whitespace-only reformatting of all three canonical scripts that
+must still pass; and the decision itself for every event class.
 
 ## One authoritative SHA
 

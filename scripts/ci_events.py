@@ -158,10 +158,27 @@ EXPECT_RE = re.compile(r"--expect\s+(\S+)")
 #: canonical and the assertion dead. So the key set is pinned, the env key
 #: set is pinned, and the verifier step's one permitted `if` is pinned.
 ASSERT_STEP_KEYS = ("name", "env", "run")
-ASSERT_STEP_ENV = ("GH_TOKEN",)
 VERIFY_STEP_KEYS = ("name", "if", "env", "run")
 VERIFY_STEP_IF = "${{ always() }}"
-VERIFY_STEP_ENV = ("GATE_SHA",)
+#: Every pinned step's `env`, as the BINDING each name must carry, never the
+#: name alone ([R0] on PR #239). Holding the names while leaving the
+#: expressions free held nothing where it mattered: `PR_DRAFT: "true"` is
+#: valid workflow YAML, keeps all three pinned names and all four pinned
+#: keys, and makes a ready RTL pull request publish `run_full=false`. Both
+#: worker matrices then skip, both aggregates skip under their documented
+#: no-op exception, and a skipped required context satisfies the ruleset, so
+#: the run is a false green rather than a refusal. `PR_BASE_SHA:
+#: ${{ github.sha }}` (a diff of a commit against itself, so `rtl=false`) and
+#: `EVENT_NAME: pull_request` (a push, schedule or dispatch run taking the
+#: pull-request branch) reach the same place by the same route. So the
+#: mapping is the contract and pinned_step_keys compares the value: there is
+#: no longer any way to pin an env name in this file without saying what it
+#: must be bound to. GATE_SHA is derived from the job and the output it
+#: reads, never restated.
+ASSERT_STEP_ENV = {"GH_TOKEN": "${{ github.token }}"}
+VERIFY_STEP_ENV = {
+    "GATE_SHA": f"${{{{ needs.{GATE_JOB}.outputs.{GATE_OUTPUT} }}}}",
+}
 #: Job keys that decide whether a job runs at all, or runs as written, each
 #: with the reason a refusal names. Before #209 this gate held what the gate
 #: job DOES and nothing about the conditions under which it does it, so
@@ -191,7 +208,52 @@ PIN_STEP_ID = "target"
 PIN_STEP_KEYS = ("name", "id", "run")
 DECIDE_STEP_ID = "gate"
 DECIDE_STEP_KEYS = ("name", "id", "env", "run")
-DECIDE_STEP_ENV = ("EVENT_NAME", "PR_DRAFT", "PR_BASE_SHA")
+DECIDE_STEP_ENV = {
+    "EVENT_NAME": "${{ github.event_name }}",
+    "PR_DRAFT": "${{ github.event.pull_request.draft }}",
+    "PR_BASE_SHA": "${{ github.event.pull_request.base.sha }}",
+}
+#: The decision step's script, pinned verbatim after whitespace
+#: normalization, exactly as the default-branch step's is. The bindings above
+#: hold what this step READS; this holds what it DOES with what it read.
+#: `run_full=true` rewritten to `run_full=false`, or the selector's
+#: `--selftest` replaced by `true`, changes no pinned name and no pinned key,
+#: and each publishes the no-op decision (or drops the selector's own proof)
+#: with every other contract item green -- both measured on a copy of the
+#: tree while answering [R0] on PR #239. The lines are the NORMALIZED form
+#: (continuations joined, runs of blanks collapsed), so a re-indentation or a
+#: differently wrapped continuation is the same script and still passes.
+CANONICAL_DECIDE_SCRIPT = (
+    "set -euo pipefail",
+    "python3 scripts/ci_scope.py --selftest",
+    'if [ "$EVENT_NAME" != pull_request ]; then',
+    'echo "rtl=true" >> "$GITHUB_OUTPUT"',
+    'echo "run_full=true" >> "$GITHUB_OUTPUT"',
+    'echo "Non-PR event: exhaustive validation required."',
+    "exit 0",
+    "fi",
+    'if [ -n "$PR_BASE_SHA" ] && git cat-file -e "$PR_BASE_SHA^{commit}" '
+    "2>/dev/null; then",
+    'git diff --name-only "$PR_BASE_SHA" "$GITHUB_SHA" > '
+    '"$RUNNER_TEMP/changed-files"',
+    "else",
+    'git ls-files > "$RUNNER_TEMP/changed-files"',
+    "fi",
+    'echo "Changed files:"',
+    "sed 's/^/ /' \"$RUNNER_TEMP/changed-files\"",
+    'rtl="$(python3 scripts/ci_scope.py < "$RUNNER_TEMP/changed-files")"',
+    "run_full=false",
+    'if [ "$PR_DRAFT" = false ] && [ "$rtl" = true ]; then',
+    "run_full=true",
+    "fi",
+    'echo "rtl=$rtl" >> "$GITHUB_OUTPUT"',
+    'echo "run_full=$run_full" >> "$GITHUB_OUTPUT"',
+    'echo "draft=$PR_DRAFT rtl=$rtl run_full=$run_full"',
+)
+#: The selector's own proof, and the line that consumes the selector's
+#: answer: the proof runs once, and before the answer is read.
+SELECTOR_SELFTEST = "python3 scripts/ci_scope.py --selftest"
+SELECTOR_READ = "python3 scripts/ci_scope.py <"
 #: `gh` reads its host, its token and its config directory from the process
 #: environment. The assert step's own env is pinned to exactly GH_TOKEN, but
 #: an `env` on the JOB or on the WORKFLOW reaches that `gh` without appearing
@@ -359,10 +421,10 @@ def _is_decide_step(step):
 GATE_STEPS = (
     ("the gate checkout step", _is_checkout_step,
      f"`uses: {CHECKOUT_ACTION}` with `fetch-depth: {CHECKOUT_FETCH_DEPTH}`",
-     CHECKOUT_STEP_KEYS, (), CHECKOUT_STEP_OPTIONAL),
+     CHECKOUT_STEP_KEYS, {}, CHECKOUT_STEP_OPTIONAL),
     ("the pin step", _is_pin_step,
      f"the step with `id: {PIN_STEP_ID}` that prints the event and exports "
-     f"`{GATE_OUTPUT}`", PIN_STEP_KEYS, (), ()),
+     f"`{GATE_OUTPUT}`", PIN_STEP_KEYS, {}, ()),
     ("the default-branch step", _is_assert_step,
      f"the step that runs `ci_events.py {DEFAULT_BRANCH_FLAG}`",
      ASSERT_STEP_KEYS, ASSERT_STEP_ENV, ()),
@@ -492,6 +554,7 @@ def check_rtl_full(c, wf, policy):
         c.item(prints, path, f"job `{GATE_JOB}` must print the event name and "
                "GITHUB_SHA in one step")
         check_default_branch_step(c, path, gate)
+        check_decide_step(c, path, gate)
         check_gate_steps(c, path, gate)
         check_job_keys(c, path, GATE_JOB, gate)
         check_no_gh_env(c, path, f"job `{GATE_JOB}`", gate.get("env"))
@@ -558,7 +621,11 @@ def check_job_keys(c, path, jid, job, allowed_if=None, allow_needs=False):
 
 def pinned_step_keys(c, path, what, step, keys, env_keys, optional=()):
     """A pinned step carries exactly `keys` (plus anything in `optional`),
-    its env exactly `env_keys`; every surplus or missing key is named."""
+    and its env is exactly `env_keys`, a NAME -> EXPRESSION mapping: the
+    names it carries and, for each, the source it is bound to. Every surplus
+    key, missing key and rebound value is named. Holding the names alone let
+    `PR_DRAFT: "true"` pass every item in this file ([R0] on PR #239), so the
+    binding is checked here, once, for every pinned step there is."""
     have = [k for k in step.keys() if isinstance(k, str)]
     extra = sorted(set(have) - set(keys) - set(optional))
     missing = [k for k in keys if k not in have]
@@ -580,6 +647,15 @@ def pinned_step_keys(c, path, what, step, keys, env_keys, optional=()):
            + (f"; surplus: {', '.join(env_extra)} (a GH_HOST or GH_CONFIG_DIR"
               " redirects gh away from this repository)" if env_extra else "")
            + (f"; missing: {', '.join(env_missing)}" if env_missing else ""))
+    for name, want in env_keys.items():
+        if name not in env:
+            continue
+        got = str(env.get(name)).strip()
+        c.item(got == want, path, f"{what} must bind `{name}` to `{want}` "
+               f"(found `{got}`): the name is not the contract, the source "
+               "expression behind it is, and a rebound value leaves every "
+               "pinned name and key in place while changing what the script "
+               "reads")
 
 
 def check_gate_steps(c, path, gate):
@@ -617,6 +693,48 @@ def check_gate_steps(c, path, gate):
            "diffs this head against the pull request's base commit, which a "
            "shallow clone does not carry, so a shallow gate silently falls "
            "back to the whole file list")
+
+
+def script_difference(got, want):
+    """The first line where a script differs from its canonical form, named
+    rather than dumped: a whole-script listing of a twenty-line script buries
+    the one line that moved."""
+    for i in range(max(len(got), len(want))):
+        g = got[i] if i < len(got) else None
+        w = want[i] if i < len(want) else None
+        if g != w:
+            return (f"line {i + 1} must be {w!r} (found {g!r}); "
+                    f"{len(want)} line(s) expected, {len(got)} found")
+    return f"{len(want)} line(s) expected, {len(got)} found"
+
+
+def check_decide_step(c, path, gate):
+    """The decision step publishes `run_full`, the one value that decides
+    whether the exhaustive gates run at all. Its keys and its env bindings
+    are held in check_gate_steps; this holds its script, verbatim after
+    whitespace normalization, the way the default-branch step's is. Binding
+    the inputs without holding the body would leave `run_full=true` ->
+    `run_full=false` a legal edit ([R0] on PR #239)."""
+    found = [s for s in steps(gate) if _is_decide_step(s)]
+    c.item(len(found) == 1, path, f"job `{GATE_JOB}` must carry exactly one "
+           f"step with `id: {DECIDE_STEP_ID}` (found {len(found)})")
+    if len(found) != 1:
+        return
+    run = found[0].get("run") if isinstance(found[0].get("run"), str) else ""
+    lines = normalize_script(run)
+    proofs = [i for i, l in enumerate(lines) if l == SELECTOR_SELFTEST]
+    reads = [i for i, l in enumerate(lines) if SELECTOR_READ in l]
+    c.item(len(proofs) == 1 and bool(reads) and proofs[0] < min(reads), path,
+           f"the decision step must run `{SELECTOR_SELFTEST}` exactly once "
+           "and before it reads the selector's answer (self-test at "
+           f"{proofs}, reads at {reads}): a selector trusted without its own "
+           "proof decides whether this run validates anything")
+    c.item(tuple(lines) == CANONICAL_DECIDE_SCRIPT, path,
+           "the decision step script is not the canonical form: "
+           + script_difference(lines, CANONICAL_DECIDE_SCRIPT)
+           + "; this script publishes `run_full`, so a line changed here "
+           "selects the no-op path with every pinned name and key still in "
+           "place")
 
 
 def check_no_gh_env(c, path, where, env):
@@ -774,10 +892,8 @@ def check_sha_sources(c, path, jid, step):
     for label, want in REQUIRED_SHA_ARGS.items():
         c.item(want in script, path, f"job `{jid}` must pass {want} "
                f"(the {label} source in its binding form)")
-    env = step.get("env") if isinstance(step.get("env"), dict) else {}
-    gate_ref = f"${{{{ needs.{GATE_JOB}.outputs.{GATE_OUTPUT} }}}}"
-    c.item(str(env.get("GATE_SHA", "")).strip() == gate_ref, path,
-           f"job `{jid}` must bind GATE_SHA to {gate_ref} in the step env")
+    # GATE_SHA's own binding is held by VERIFY_STEP_ENV through
+    # pinned_step_keys, with every other pinned step's env.
 
 
 def normalize_script(run):
@@ -804,12 +920,10 @@ def check_default_branch_step(c, path, gate):
         return
     step = found[0]
     text = step_text(step)
-    # Its keys and its env are pinned in check_gate_steps, beside its
-    # siblings': the same key on any step of this job has the same effect.
-    env = step.get("env") if isinstance(step.get("env"), dict) else {}
-    token = str(env.get("GH_TOKEN", "")).strip()
-    c.item(token == "${{ github.token }}", path, "the default-branch step "
-           f"must carry GH_TOKEN: ${{{{ github.token }}}} (found {token!r})")
+    # Its keys, its env names and the expression each name is bound to are
+    # pinned in check_gate_steps beside its siblings': the same key on any
+    # step of this job has the same effect, and ASSERT_STEP_ENV is the one
+    # place that says GH_TOKEN must be `${{ github.token }}`.
     run = step.get("run") if isinstance(step.get("run"), str) else ""
     lines = normalize_script(run)
     code = [(i, l) for i, l in enumerate(lines) if not l.startswith("#")]
@@ -1227,6 +1341,22 @@ def _mutations():
     def m_decide_env_missing(w):
         del decide_step(w)["env"]["PR_BASE_SHA"]
 
+    def m_decide_script_no_op(w):
+        # O16: the guarded `run_full=true` becomes `run_full=false`. Every
+        # pinned key, every pinned name and every binding survives.
+        s = decide_step(w)
+        assert re.search(r"^\s*run_full=true$", s["run"], re.M), (
+            "fixture drift: no bare `run_full=true` in the decision step")
+        s["run"] = re.sub(r"^(\s*)run_full=true$", r"\1run_full=false",
+                          s["run"], count=1, flags=re.M)
+
+    def m_decide_script_unproven_selector(w):
+        # O16b: the selector decides the run without its own self-test.
+        s = decide_step(w)
+        assert SELECTOR_SELFTEST in s["run"], (
+            "fixture drift: the decision step does not self-test the selector")
+        s["run"] = s["run"].replace(SELECTOR_SELFTEST, "true", 1)
+
     def restate_shards(w, jid, value):
         """Turn a derived denominator back into a literal, everywhere the job
         states it: the display name, every script, every step env."""
@@ -1522,6 +1652,28 @@ def _mutations():
          "surplus: working-directory"),
         ("decision step loses PR_BASE_SHA", m_decide_env_missing,
          "missing: PR_BASE_SHA"),
+        # #209 O15/O16: the decision step's env bound to another source, and
+        # its script rewritten, each leaving every pinned name and key alone.
+        ("O15 decision step PR_DRAFT forced true",
+         set_env_key(decide_step, "PR_DRAFT", "true"),
+         "must bind `PR_DRAFT`"),
+        ("O15b decision step PR_BASE_SHA rebound to this run's own SHA",
+         set_env_key(decide_step, "PR_BASE_SHA", "${{ github.sha }}"),
+         "must bind `PR_BASE_SHA`"),
+        ("O15c decision step EVENT_NAME hard-coded to pull_request",
+         set_env_key(decide_step, "EVENT_NAME", "pull_request"),
+         "must bind `EVENT_NAME`"),
+        ("O15d assert step GH_TOKEN rebound to another token",
+         set_env_key(db_step, "GH_TOKEN", "${{ secrets.OTHER_TOKEN }}"),
+         "must bind `GH_TOKEN`"),
+        ("O15e verifier step GATE_SHA rebound to its own run",
+         set_env_key(va, "GATE_SHA", "${{ github.sha }}"),
+         "must bind `GATE_SHA`"),
+        ("O16 decision script publishes the no-op decision always",
+         m_decide_script_no_op, "decision step script is not the canonical"),
+        ("O16b decision script drops the selector's self-test",
+         m_decide_script_unproven_selector,
+         "before it reads the selector's answer"),
         ("O11 full-ci-gate job env GH_HOST", m_gate_env_gh_host,
          "must name no `GH_*`"),
         ("O12 workflow-level env GH_HOST", m_workflow_env_gh_host,
@@ -1722,6 +1874,10 @@ def selftest(root):
                         "    --require-default-branch \\\n"
                         '    --event "$GITHUB_EVENT_NAME" \\\n'
                         '    --observed "$observed"\n')
+    for s in steps(jobs(world[RTL_FULL])[GATE_JOB]):
+        if s.get("id") == DECIDE_STEP_ID:
+            s["run"] = "\n".join("   " + l if l.strip() else ""
+                                  for l in s["run"].splitlines()) + "\n"
     for s in steps(jobs(world[RTL_FULL])["yosys-portability"]):
         if VERIFY_FLAG in step_text(s):
             s["run"] = ("shopt   -s nullglob\n"
@@ -1737,8 +1893,8 @@ def selftest(root):
         problems.append("whitespace-only reformatting of the canonical scripts "
                         f"was refused: {check(world).findings}")
     else:
-        print("  ok   canonical pins are whitespace-invariant (assert step "
-              "and verifier step)")
+        print("  ok   canonical pins are whitespace-invariant (assert step, "
+              "decision step and verifier step)")
 
     # --require-default-branch arms: the decision for every event class. An
     # inverted or weakened comparison fails one of these, which is what makes
