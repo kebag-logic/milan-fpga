@@ -3336,6 +3336,27 @@ def test_baremetal_profile_contract():
         "restored order-dependent join was measured to disagree "
         f"({order_dependent[True]} vs {order_dependent[False]})")
 
+    #: ---- and the DEGENERATE case for the store classifier, so its
+    #: fail-closed default is not a branch nobody has ever taken. GCC does
+    #: not emit the `sw rd, symbol, rt` pseudo-instruction for this
+    #: firmware, so the only way to know the resolver refuses a store it
+    #: cannot even READ is to hand it one.
+    unreadable_run = rv32_run(rv32_functions(
+        "unreadable:\n\tli a5,1\n\tsw a5,pr241_target,a4\n\tret\n"
+    )["unreadable"], {})
+    unreadable_stores = [address for _at, (address, _v)
+                         in unreadable_run["stores"]
+                         if isinstance(address, Rv32Where) and
+                         address.kind == "unreadable"]
+    assert len(unreadable_stores) == 1, \
+        "the RV32 resolver dropped a store whose operand it cannot read " \
+        f"({unreadable_run['stores']}): an unreadable store is the one it " \
+        "must refuse hardest, so it may not be the one that vanishes"
+    store_classes_note = (
+        "the store classifier's fail-closed default was measured on a store "
+        "operand the resolver cannot read (`sw a5,pr241_target,a4`), which "
+        f"it reported as {unreadable_stores[0]!r} rather than dropping")
+
     # Force the non-target branch without depending on which compilers the
     # machine happens to have. If stand-down ever invokes the compiler, the
     # runner makes this focused gate fail; the formatter then proves the text
@@ -7301,7 +7322,7 @@ def test_baremetal_profile_contract():
                "cast set, store set or immediate census sees"
                if _resolved["residual"] else
                "every store the compiler emitted was placed") +
-            "; and " + join_control_note)
+            "; " + store_classes_note + "; and " + join_control_note)
     else:
         helper_blind_note = (
             "; the exempted-helper blindness control did NOT run here, "

@@ -289,7 +289,10 @@ not an omission. Four mutation-table entries carry it: the runtime-derived base
 above, a second unplaceable store planted inside a function the residual already
 names (so the residual is pinned by count rather than exempting a function), a
 store through an `extern` symbol the linker places, and a second consumer of the
-address helper's return.
+address helper's return. The classifier's fail-closed default -- a store operand
+the resolver cannot even read -- is measured on a hand-written `sw rd, sym, rt`,
+because GCC never emits that pseudo-instruction here and an unexercised
+fail-closed branch is a claim rather than a measurement.
 
 Two stores in the shipping firmware are still not placed. They are DECLARED in
 `RESOLVER_STORE_RESIDUAL` and asserted exactly, so one more unplaceable store
@@ -303,7 +306,10 @@ that goes away must be retired here and in the gate in the same change:
 
 So the property this gate proves is: no store outside those two lands in the
 control window, and any new store it cannot place reddens the gate. It is not
-"every store is resolved", and the closing verdict says so on every run.
+"every store is resolved", and the closing verdict says so on every run. One
+more thing is assumed rather than proved here and is named for the same reason:
+the `stack` class rests on the SoC's memory map, where the stack is RAM and not
+the device window this rule measures.
 
 **The block join is a meet over all predecessors.** The same round found the
 frame-memory join treating a slot missing from one side differently from a slot
