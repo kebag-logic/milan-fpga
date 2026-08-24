@@ -116,7 +116,12 @@ for spec in "${tops[@]}"; do
   # produced: docs/design/AREA_BUDGET.md).
   chp=""
   for kv in ${OOC_CHPARAM:-}; do chp="$chp chparam -set ${kv%%=*} ${kv#*=} $top;"; done
-  (cd "$TMP" && yosys -p "read_verilog $TMP/$top.ooc.v;$chp synth_xilinx -family xc7 -top $top -flatten; stat; write_json $TMP/$top.ooc.json") \
+  # OOC_NODSP=1 maps constant multipliers to LUT+CARRY4 instead of DSP48E1.
+  # Both mappings are legal, and a block whose only DSPs come from constant
+  # strides is priced honestly only if BOTH are published: the DSP column
+  # hides LUTs, and the LUT-only column is the worst case.
+  nodsp=""; [ -n "${OOC_NODSP:-}" ] && nodsp=" -nodsp"
+  (cd "$TMP" && yosys -p "read_verilog $TMP/$top.ooc.v;$chp synth_xilinx -family xc7$nodsp -top $top -flatten; stat; write_json $TMP/$top.ooc.json") \
     > "$TMP/$top.ooc.log" 2>&1
   if [ $? -ne 0 ]; then
     printf "%-28s yosys FAIL: %s\n" "$top" "$(grep -oE 'ERROR:.*' "$TMP/$top.ooc.log" | head -1)"; continue

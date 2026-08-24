@@ -692,17 +692,30 @@ to be measured before committing, and it is measured above.
 **Reproduce it:**
 
 ```sh
-syn/yosys/ooc.sh KL_nvm_blankflash_sizer
+# the before, and the three calibration blocks in the same run
+syn/yosys/ooc.sh KL_nvm_blankflash_sizer KL_maap tcam KL_chan_map_render
+
+# the after, at the 1x1 shape; prefix OOC_NODSP=1 for the LUT-only column
 OOC_CHPARAM="N_STREAM_IN_P=2 N_STREAM_OUT_P=2 N_SPORT_IN_P=1 N_SPORT_OUT_P=1 \
              N_AUDIO_UNIT_P=1 N_CLK_DOM_P=1 N_NAME_BANK_P=4 MAP_BYTES_P=136" \
   syn/yosys/ooc.sh KL_nvm_backend_sizer
+
+# the after, at the 8x8 shape
 OOC_CHPARAM="N_STREAM_IN_P=9 N_STREAM_OUT_P=9 N_SPORT_IN_P=8 N_SPORT_OUT_P=8 \
              N_AUDIO_UNIT_P=1 N_CLK_DOM_P=1 N_NAME_BANK_P=30 MAP_BYTES_P=256" \
   syn/yosys/ooc.sh KL_nvm_backend_sizer
 ```
 
+`OOC_NODSP=1` is added to `ooc.sh` by this PR for the same reason both columns
+are published: a block whose only DSPs come from constant strides is priced
+honestly only if the LUT-only mapping is shown as well, because the DSP column
+hides LUTs.
+
 `KL_nvm_blankflash_sizer` takes no `OOC_CHPARAM`: it has no parameters, and
-passing any makes yosys refuse with `Can't find object for defparam`.
+passing any makes yosys refuse with `Can't find object for defparam`. That is
+also the negative control for the two `OOC_CHPARAM` runs above -- the 1x1 and
+8x8 columns differ, so the parameters are reaching the design rather than being
+silently ignored.
 
 **Why the sketch is not under `hdl/`.** It is not shipping RTL. Nothing
 instantiates it, `milan_soc.py` does not register it, and `scripts/lint_rtl.py`
