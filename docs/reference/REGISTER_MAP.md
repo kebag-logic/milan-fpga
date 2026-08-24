@@ -28,10 +28,18 @@ and control data length. Invalid targets and response-as-input cases are
 silently refused as required. The inventory is synchronized between
 `tests/steps/aecp_engine_steps.py` and the RTL dispatch.
 
-The remaining gaps include the Milan Table 5.22 unsolicited counter-change
-producer, root-level IDENTIFY indication, saved-state persistence and commands
-outside the served inventory. Milan Delta 7 `ACQUIRE_ENTITY` receives the
-command-specific `NOT_SUPPORTED` response with a zero owner.
+The command-change notifications, root-observed Milan Table 5.22 triggers, and
+departing-controller monitor are live since 0x0055. Remaining gaps include the
+root-level IDENTIFY indication, saved-state persistence, the declared CRF
+Stream Input's counter bank, and commands outside the served inventory. Milan
+Delta 7 `ACQUIRE_ENTITY` receives the command-specific `NOT_SUPPORTED`
+response with a zero owner.
+
+The processor gitlink is a required build input, not vendored source. A release
+candidate must pin a commit reachable from the donor's durable default branch;
+the fact that a feature-branch-only object can currently be fetched is not
+durability evidence. After any repin, validate this parent at the new exact
+head.
 
 Machine-checked status rows are defined by the
 [Milan feature status ledger](MILAN_FEATURE_STATUS.md):
@@ -120,9 +128,10 @@ they are not discovered by surprise:
    0 ns would be a presentation time in the past and every listener would drop
    every frame as late.
 3. **Milan Table 5.4 per-STREAM_OUTPUT diagnostic counters are live for
-   solicited reads.** `KL_talker_diag_ctx` is instantiated per declared output
-   and GET_COUNTERS serves the compact five-counter layout. The Table 5.22
-   unsolicited change producer remains open. Supported regular STREAM_INPUT
+   solicited reads and notifications.** `KL_talker_diag_ctx` is instantiated
+   per declared output, GET_COUNTERS serves the compact five-counter layout,
+   and each dirty pulse reaches the rate-limited Table 5.22 scheduler through
+   the root's lossless descriptor arbiter. Supported regular STREAM_INPUT
    banks remain live; the CRF Media Clock Input's complete Table 5.16 bank is
    not connected to the current solicited gather face. Issue #97 also tracks
    the stopped-state gate that currently hides CRF receives from observation
@@ -180,7 +189,7 @@ MAC/*` in [`REQUIREMENTS.md`](../../REQUIREMENTS.md).
   - [0x7A0  -  ACMP bind-restore  (saved-state fast-connect E1, Milan 5.5.3.5.2)](#0x7a0-----acmp-bind-restore--saved-state-fast-connect-e1-milan-55352) -- **Dead port.** Writes are accepted, the ack never asserts, and nothing is restored -- the ACMP context table it injected into is deleted. The `0xA5C35A3C` feature probe still passes, which is precisely why software must gate on `VERSION` major and not on the probe.
   - [0x7B8  -  Persistence-journal ingest  (saved-state fast-connect E3)](#0x7b8-----persistence-journal-ingest--saved-state-fast-connect-e3) -- **Unwired again at VERSION major 2: writes are accepted and DISCARDED, `JNL_STAT` and `JNL_SEQ` read structural zeros.** Milan v1.2 5.3.8.2 makes the saved bound state a *shall*; this build does not meet it, and nothing in this device restores a binding across a power cycle. The record format and verdict table are kept as the specification a replacement must satisfy.
   - [0x7C8  -  AEM dynamic-state patch port  (saved-state fast-connect E4)](#0x7c8-----aem-dynamic-state-patch-port--saved-state-fast-connect-e4) -- **Unwired: writes accepted and discarded.** The patch engine and the AEM store it wrote are both deleted, so there is no descriptor RAM to patch and no setter whose acceptance it could re-run. Kept as ABI and as specification.
-  - [0x7DC  -  AS_PATH staging: the published PathTrace  (gh #64 J4)](#0x7dc-----as_path-staging-the-published-pathtrace--gh-64-j4) -- The PathTrace tail the daemon stages and publishes; since 0x0055 `GET_AS_PATH` serves it behind the grandmaster and the publish edge arms the Table 5.22 AS_PATH notification.
+  - [0x7DC  -  AS_PATH staging: the published PathTrace  (gh #64 J4)](#0x7dc-----as_path-staging-the-published-pathtrace--gh-64-j4) -- COMMIT builds a private staging tail; a changed PUBLISH atomically replaces the coherent tail/count `GET_AS_PATH` serves and arms the Table 5.22 notification.
   - [0x800  -  Indexed per-stream window](#0x800-----indexed-per-stream-window) -- SELECT-then-read access to listener and talker contexts without duplicating decode logic. Index 0 aliases the legacy flat registers, `0xDEADDEAD` marks an unbacked word, and a staged stream id applies only to the selected index.
   - [0x870  -  AAF per-stage latency taps  (roadmap item-11, KL_aaf_latency_taps)](#0x870-----aaf-per-stage-latency-taps--roadmap-item-11-kl_aaf_latency_taps) -- Six inter-stage deltas as `{max,last}` plus a separate min word, in `axis_clk` cycles. They characterise an envelope, not one threaded frame -- the token is followed by order, so a shared MAC boundary can catch a nearer non-AAF edge. Like every group at `>= 0x800` it needs the read carve-out or the whole block reads 0.
   - [0x8B4  -  RX stream-parser probe  (APRB, avtp_stream_parser + milan_datapath)](#0x8b4-----rx-stream-parser-probe--aprb-avtp_stream_parser--milan_datapath) -- The only listener-side view **upstream** of the stream-table match, which is why a bound listener that accepts nothing used to be undiagnosable -- every other counter reads 0 in unison and none can say why. Ends with a three-row table that turns `PARSED`/`MATCHED` into a verdict.
@@ -217,7 +226,7 @@ MAC/*` in [`REQUIREMENTS.md`](../../REQUIREMENTS.md).
 | `0x7A0` | ACMP bind-restore (E1) — **dead port: writes accepted, ack never asserts** |
 | `0x7B8` | Persistence-journal ingest (E3) — **writes accepted and discarded; nothing is restored** |
 | `0x7C8` | AEM dynamic-state patch port (E4) — **writes accepted and discarded** |
-| `0x7DC` | AS_PATH staging: the published PathTrace tail `GET_AS_PATH` serves behind the grandmaster (0x0055) |
+| `0x7DC` | AS_PATH staging plus atomic publication of the coherent PathTrace tail `GET_AS_PATH` serves behind the grandmaster (0x0055) |
 | `0x800` | Indexed per-stream window (NxN streams, SEL/SNAP + 0x810-0x868) |
 | `0x870` | AAF per-stage latency taps (item-11, `KL_aaf_latency_taps`) |
 | `0x8B4` | RX stream-parser probe (the pre-match listener view) |
@@ -280,8 +289,10 @@ grandmaster presence, so a domain or delay update in the startup or GM-loss
 window is announced like any other; the SR class-A priority and VLAN ID are
 detected by the processor off the same wires it publishes. GET_AS_PATH has its
 own two triggers and neither is the ADP strobe: the grandmaster identity
-snapshot moving (entry 0 of the served path) and the 0x7DC PathTrace publish
-edge (entries 1..), whose staged tail is served behind the grandmaster. The
+snapshot moving (entry 0 of the served path) and a changed 0x7DC PathTrace
+PUBLISH (entries 1..). COMMIT edits a private staging bank; PUBLISH atomically
+replaces the complete published tail and count, and a response already being
+gathered stays on one coherent generation. The
 `GPTP_GM_CHANGED` counter, and therefore the AVB_INTERFACE GET_COUNTERS push,
 move on the grandmaster identity edge alone. A write to 0x62C with a stable
 grandmaster is a GET_AVB_INFO trigger and an ADP re-advertise, and is neither
@@ -782,7 +793,7 @@ truth ([Section 2.5 of `../design/TIME_SYNC.md`](../design/TIME_SYNC.md#25-who-r
 | `0x728` | `ENT_NAME_HI` | RW | `0` | entity_name chars 4-7 |
 | `0x72C` | `LPF_CTRL` | RW | `0x1` | `[0]` playback biquad LPF enable (`KL_pcm_lpf`), on by default |
 | `0x730` | `AS2_LO` | RW | `0` | Legacy parent-bridge scratch `[31:0]`. Reads back locally; the root gather face does not consume it |
-| `0x734` | `AS2_HI` | RW | `0` | Legacy parent-bridge scratch `[63:32]`. Reads back locally; `GET_AS_PATH` ignores this pair and serves only the grandmaster identity |
+| `0x734` | `AS2_HI` | RW | `0` | Legacy parent-bridge scratch `[63:32]`. Reads back locally; `GET_AS_PATH` ignores this pair and serves the grandmaster plus the published 0x7DC PathTrace tail |
 
 ### 0x738  -  CRF media-clock sink  `(Milan v1.2 7.3, KL_crf_rx)`
 
@@ -1304,20 +1315,29 @@ with entry 0 = the grandmaster the `ADP_GM` pair commits (slot 0 is refused
 here for exactly that reason: derive, never mirror) followed by the published
 slots 1..count-1. No grandmaster is an empty path whatever the staging holds;
 a grandmaster with no published tail is the one-entry path a leaf directly
-under its grandmaster sees. The PUBLISH command is also the Table 5.22 arm:
-its generation bump is the `gsi_asp_chg_i` strobe the processor turns into an
-unsolicited `GET_AS_PATH` to every registered controller, so a publish whose
-bytes did not move still pushes (Milan 5.4.5.2 leaves that to the publisher).
+under its grandmaster sees.
+
+There are two stores with deliberately different visibility. LO/HI plus
+COMMIT update a **staging bank** only; neither a solicited read nor the
+notification detector can observe a partially rebuilt tail. PUBLISH compares
+the staged tail/count with the published snapshot and, only when they differ,
+atomically transfers the complete tail and count and advances the generation.
+That generation edge is the `gsi_asp_chg_i` strobe the processor turns into an
+unsolicited `GET_AS_PATH` to every registered controller. An identical
+republish is silent. The response gather snapshots one published generation,
+so a PUBLISH interleaved with a multi-entry response yields either the complete
+old path or the complete new path, never a mixture.
 
 The daemon's duty: stage each `clockIdentity` of the latest Announce's
 PathTrace TLV into slots 1..7 in order, then publish the length counting the
-grandmaster. A commit alone changes nothing on the wire.
+grandmaster. A COMMIT alone changes nothing externally; PUBLISH is the single
+visibility and notification cutover.
 
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
 | `0x7DC` | `ASP_LO` | RW | `0` | Staged `clockIdentity[31:0]` |
 | `0x7E0` | `ASP_HI` | RW | `0` | Staged `clockIdentity[63:32]` |
-| `0x7E4` | `ASP_CMD` | W / RO live | `0` | `[31]` commit the staged identity into slot `[10:8]` (1..7; slot 0 refused); `[30]` publish: latch the path length `[3:0]` (entries including the grandmaster, clamped to 8) and bump the generation, which is the AS_PATH notification trigger. Reads `{gen[3:0], count[3:0]}` |
+| `0x7E4` | `ASP_CMD` | W / RO live | `0` | `[31]` COMMIT the LO/HI identity into staging slot `[10:8]` (1..7; slot 0 refused); `[30]` PUBLISH: compare the complete staged tail plus clamped length `[3:0]` (entries including the grandmaster) with the published snapshot, atomically replace it and bump the generation only when changed. Reads published `{gen[3:0], count[3:0]}` |
 
 ### 0x800  -  Indexed per-stream window
 

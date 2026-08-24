@@ -61,8 +61,9 @@ not ours and for an AECP response arriving as input.
 `aecp_read_descriptor.feature`, `aecp_response_contract.feature` and
 `counters_contract_milan.feature` cover the standards-facing contract. The
 processor `pp_top` suite and root `milan_dp` suite cover the RTL and integrated
-wire path. The Milan Table 5.22 unsolicited counter-change producer and
-commands outside the served inventory remain explicit gaps.
+wire path. The root suite covers the Milan Table 5.22 notification paths and
+the departing-controller monitor; commands outside the served inventory and
+saved-state persistence remain explicit gaps.
 
 These repeated claims are checked against the
 [Milan feature status ledger](../docs/reference/MILAN_FEATURE_STATUS.md):

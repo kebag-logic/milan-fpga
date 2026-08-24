@@ -18,6 +18,13 @@ Allowed statuses are `implemented`, `partial`, `missing`, and `not-supported`.
 such as Milan's required `ACQUIRE_ENTITY` result. A `partial` command can be
 served on the wire while still having a known behavioral defect.
 
+An `implemented` row describes behavior in the pinned source tree; it does not
+waive dependency durability. A release candidate that changes a submodule
+gitlink must pin a commit reachable from that donor's durable default branch,
+then rerun the parent gates at the resulting exact head. A branch-only donor
+commit can be fetched today and still disappear tomorrow, so it is never merge
+evidence by itself.
+
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|

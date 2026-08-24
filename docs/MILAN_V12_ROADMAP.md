@@ -415,9 +415,10 @@ successful state-changing command pushes to every registered controller
 *except the requester* (es-6.2 is an inverted gate: notifying the requester
 **fails**, and so does pushing on a SET that changes nothing), plus the
 asynchronous triggers of Table 5.22: GET_STREAM_INFO field changes,
-GET_AVB_INFO changes (the asCapable edge and the first grandmaster commit come
-from the fabric), GET_AS_PATH changes (the grandmaster change, and the 0x7DC
-PathTrace publish edge from the fabric), GET_COUNTERS (the fabric's
+GET_AVB_INFO changes (the root snapshot-compares every field it serves and the
+processor detects the SR class-A pair), GET_AS_PATH changes (a grandmaster
+identity change, or a changed 0x7DC PUBLISH that atomically replaces the
+staged PathTrace tail and count), GET_COUNTERS (the fabric's
 per-descriptor dirty pulses reach the processor through a lossless
 round-robin; the processor limits each descriptor to **one push per
 second**), the LOCK auto-unlock, and auto-DEREGISTER. The parent proof is
@@ -427,6 +428,11 @@ millisecond) measuring the one-second limit.
 
 What stays open: the declared CRF Stream Input has no served counters, so it
 has no counter push either (audit B4).
+
+For AS_PATH, COMMIT is deliberately not a publish operation: it changes a
+staging slot that neither solicited reads nor notifications observe. PUBLISH
+makes the full staged tail and count visible in one cutover; an in-flight read
+sees one coherent generation, and an identical republish is a no-op.
 
 ### P3.3 — departing-controller detection (Milan 5.4.5.3)
 

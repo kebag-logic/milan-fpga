@@ -46,6 +46,11 @@ Machine-checked status rows are defined by the
 
 ## Current verification record
 
+This is the dated record for the audit revision named in this file, not
+merge evidence for a later candidate. A repaired candidate must rerun every
+applicable gate at its exact parent and submodule SHAs and report those fresh
+counts in the pull request; counts in this table must not be carried forward.
+
 | Gate | Result | Interpretation |
 |---|---:|---|
 | All 50 `tb/verilator/*/Makefile` suites | PASS | Every suite returned zero. Some suites still print explicit gap messages, so exit status alone is not a compliance verdict. |
@@ -94,7 +99,8 @@ The pinned processor currently dispatches or serves `READ_DESCRIPTOR`,
 `SET_CLOCK_SOURCE`, `GET_CLOCK_SOURCE`, Identify `SET_CONTROL` and
 `GET_CONTROL`, `START_STREAMING`, `STOP_STREAMING`, `SET_STREAM_INFO`,
 `GET_STREAM_INFO`,
-`IDENTIFY_NOTIFICATION`, `GET_AVB_INFO`, leaf-only `GET_AS_PATH`,
+`IDENTIFY_NOTIFICATION`, `GET_AVB_INFO`, `GET_AS_PATH` (grandmaster plus the
+atomically published PathTrace tail),
 `GET_COUNTERS`, `GET_AUDIO_MAP`, `ADD_AUDIO_MAPPINGS`,
 `REMOVE_AUDIO_MAPPINGS`, `GET_DYNAMIC_INFO`,
 `REGISTER_UNSOLICITED_NOTIFICATION`, and
@@ -194,7 +200,7 @@ media plane has not adopted.
 This blocks the media-clock behavior required by Milan sections 5.3.5, 5.3.11,
 and 7.2.2.
 
-### B4. Counter coverage and notification duty are incomplete
+### B4. CRF Stream Input counter coverage remains incomplete
 
 Solicited `GET_COUNTERS` now serves every declared Stream Output with the five
 mandatory Milan Table 5.17 counters in the compact quadlet layout. Counter
@@ -238,15 +244,21 @@ milliseconds is 100 fabric cycles).
 
 The root gather face serves `GET_AS_PATH` as a zero-entry response when no
 grandmaster is known, and otherwise as the grandmaster identity followed by
-the PathTrace tail the daemon publishes through the CSR staging group
-(`0x7DC`, slot k = path entry k, the publish command fixing the length). A
-tail that is never published leaves the one-entry path a leaf directly under
-its grandmaster sees. The publish edge also arms the Table 5.22 `GET_AS_PATH`
-notification, so a bridged topology reaches every registered controller.
+the last complete PathTrace tail the daemon published through the `0x7DC`
+CSR group. Slot LO/HI writes and `COMMIT` update a private staging bank only;
+they cannot change a solicited response or arm a notification. A changed
+`PUBLISH` atomically transfers the complete staged tail and count to the
+published bank, advances the publication generation, and arms the Table 5.22
+`GET_AS_PATH` notification. Publishing content identical to the current
+snapshot is silent. The response gather holds one publication generation, so
+a publish interleaved with a read yields the complete old or complete new path,
+never a mixed vector. A tail that has not been published leaves the one-entry
+path seen by a leaf directly under its grandmaster.
 
-What the daemon must do for the report to be complete is stage and publish
-the tail from the latest Announce it receives; the root serves whatever was
-published.
+What the daemon must do for the report to be complete is stage every tail entry
+from the latest Announce PathTrace TLV and issue `PUBLISH` only after the tail
+is complete. The root serves only the controller-visible published snapshot; incomplete
+staging remains private.
 
 Evidence: the `asp_served_count_w` / `asp_served_entry_w` selection and the
 `gsi_asp_chg_w` strobe in
@@ -381,3 +393,9 @@ current evidence. A green regression is necessary, but it is not sufficient.
 The final review must include a synchronized clause matrix, zero unresolved
 mandatory rows, a successful bitstream and timing build, a matched-format
 physical interoperability run, and the intended external conformance process.
+
+Any candidate that changes `protocol-processor` must also use a durable gitlink:
+after fetching the donor repository's default branch, the exact pinned commit
+must be its ancestor. A branch-only donor commit is not mergeable evidence.
+Repin first, then rerun the parent repository's complete gate set at that exact
+superproject/submodule pair; results from an earlier gitlink do not transfer.

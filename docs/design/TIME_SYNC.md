@@ -243,7 +243,7 @@ Linux profiles) is listed on that page.
 | dma-ts ring + kl-eth | fabric + driver | records to DRAM; `/dev/ptp0` clock ops; `SO_TIMESTAMPING` |
 | `ptp4l` | softcore (option OFF) | BMCA, Announce/Sync/Pdelay state machines, the clock servo; with `GPTP_PLANE_EN_P` on these run in the fabric gPTP plane (`gptp-processor`) |
 | `phc2sys` | softcore | PHC -> `CLOCK_REALTIME` |
-| `gptp2csr.sh` | softcore daemon | publishes gPTP state into fabric CSRs: GM id 0x624/0x628 (the LOCAL clock id when we are GM), measured pdelay 0x6E4, AS_PATH parent bridge 0x730/0x734 from `PARENT_DATA_SET` — so ADP answers with wire truth (the AEM half of that
+| `gptp2csr.sh` | softcore daemon | publishes gPTP state into fabric CSRs: GM id 0x624/0x628 (the LOCAL clock id when we are GM), measured pdelay 0x6E4, and the latest Announce PathTrace tail through the 0x7DC staging/atomic-PUBLISH group — so ADP and the served AEM status answer with wire truth (the descriptor-image half of that
 sentence is retired: the entity model is now a static descriptor image in DRAM
 and no daemon writes into it) ([`../findings/BENCH_TOPOLOGY.md`](../findings/BENCH_TOPOLOGY.md) section 8) — **and since 2026-07-28 leases the AVTP `tu` sync claim into `CLKV_CTRL` 0x778**, because whether the PHC is disciplined is a servo fact no fabric signal can observe. It is a *lease*, renewed every loop and expiring by itself, so a claim cannot outlive the daemon that made it. Until this existed both boards emitted `tu = 1` on every AAF and CRF frame from boot while genuinely synchronised — see [`../reference/REGISTER_MAP.md`](../reference/REGISTER_MAP.md) `0x778` |
 | `stream_phc_sync.sh` | softcore daemon | media/PHC watchdog; dormant while `ptp4l` holds SLAVE or MASTER |
@@ -373,7 +373,9 @@ interval/type increments `fmt_err`) and produces the two servo inputs:
   Solicited `GET_COUNTERS` serves the supported CLOCK_DOMAIN bank through the
   processor counter face. The selected source remains structurally INTERNAL in
   this integration, so the served lock pair cannot follow a CRF selection.
-  The Milan Table 5.22 unsolicited counter-change scheduler also remains open.
+  Its counter-change pulse reaches the Milan Table 5.22 scheduler, so the
+  served CLOCK_DOMAIN bank also gets the per-descriptor, at-most-once-per-second
+  unsolicited `GET_COUNTERS` path.
 
 The followed stream comes from the CRF sink bind (ACMP listener sink 1 —
 the bind wins) with the CSR pair 0x738/0x73C/0x740 as the manual bench
@@ -517,12 +519,13 @@ section 8 remains the bench-side reading of the daemon-written ones.
 | `0x530/0x534` | `PTP_TOD_RD_LO/HI` | latched TOD from the snapshot round trip |
 | `0x540` | `PTP_INGRESS_LAT` | ingress latency correction, ns (fabric hook — unused today, section 2.4) |
 | `0x544` | `PTP_EGRESS_LAT` | egress latency correction, ns (same status) |
-| `0x624/0x628` | `ADP_GPTP_GM_LO/HI` | gptp_grandmaster_id published into ADP (`gptp2csr.sh`); the AEM path is gone — the entity model is a DRAM descriptor image, not a CSR-fed store |
+| `0x624/0x628` | `ADP_GPTP_GM_LO/HI` | gptp_grandmaster_id published into ADP and the AEM `GET_AVB_INFO` / `GET_AS_PATH` gather faces (`gptp2csr.sh`) |
 | `0x62C` | `ADP_GPTP_DOMAIN` | `[7:0]` gptp_domain_number |
 | `0x6C8` | `PCMRX_TS` | avtp_timestamp of the last ring-accepted PDU |
-| `0x6E4` | `A_GPTP_PDELAY` | measured neighbor propagation delay, ns (daemon-written) |
+| `0x6E4` | `A_GPTP_PDELAY` | measured neighbor propagation delay, ns (daemon-written with the fabric plane off; served by `GET_AVB_INFO`) |
 | `0x6EC` | `A_AVTPRX_TSD` | signed ts_delta at the last accepted AVTP PDU |
-| `0x730/0x734` | `A_AS2_LO/HI` | AS_PATH parent bridge clock id (0 = none/unknown) |
+| `0x730/0x734` | `A_AS2_LO/HI` | legacy parent-bridge scratch; not served by `GET_AS_PATH` |
+| `0x7DC-0x7E4` | `ASP_LO/HI/CMD` | stage PathTrace tail slots, then atomically PUBLISH the complete changed tail/count to `GET_AS_PATH` |
 | `0x738` | `A_CRF_CTRL` | `[0]` CRF sink enable; RO `[31]` locked |
 | `0x73C/0x740` | `A_CRF_SIDLO/HI` | CRF sink stream_id |
 | `0x744` | `A_CRF_DELTA` | RO signed `crf_ts - ptp_now` (phase) |
