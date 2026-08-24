@@ -709,10 +709,13 @@ instantiates it, `milan_soc.py` does not register it, and `scripts/lint_rtl.py`
 sweeps `hdl/` and would treat it as a module the SoC forgot to wire. Keeping it
 in `syn/ooc/sizing/` states its status structurally. It is not therefore
 unchecked: both tops pass `verilator --lint-only -Wall` and the run is recorded
-on the PR. The three simplifications it makes are named in its own header, and
-the one that could under-count -- the variable-length channel-map records --
-is covered, because the sketch carries the per-port prefix table a real backend
-needs.
+on the PR. The three simplifications it makes are named in its own header. The
+one that could under-count most, the variable-length channel-map records, is
+covered: the sketch carries the per-port prefix table a real backend needs. The
+one that remains is the datapath, which moves one byte per handshake rather
+than coalescing into words, so the figure bounds the decode and control cost
+rather than every possible datapath. A coalescing variant would add a word
+buffer and a lane mux, which is tens of LUT on a 536-LUT block.
 
 ## 9. What the fabric may claim: the durability and liveness contract
 

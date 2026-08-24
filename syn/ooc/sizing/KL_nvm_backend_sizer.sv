@@ -40,10 +40,13 @@
 //        record bases are not a constant stride. The sketch carries the
 //        16-entry prefix table a real backend needs, loaded through the CSR
 //        face, so that cost IS in the number.
-//    (b) memory writes are one byte per handshake with a write strobe rather
-//        than coalesced into words. That is not a throughput loss: the port
-//        itself streams one byte per handshake (KL_pp_nvm_port F02.8), so the
-//        memory side is already matched to the source.
+//    (b) memory accesses are one byte per handshake -- a write strobe per
+//        byte, and a word fetch per read byte -- rather than coalesced into
+//        words. That is not a throughput loss: the port itself streams one
+//        byte per handshake (KL_pp_nvm_port F02.8), so the memory side is
+//        already matched to the source. A coalescing implementation would
+//        add a word buffer and a lane mux, so this figure bounds the DECODE
+//        and CONTROL cost rather than every possible datapath.
 //    (c) the container CRC-32 of section 6 is NOT here. It is the reader's,
 //        not the backend's -- the backend moves record bytes between the port
 //        and the image; the acceptance order of section 6.2 runs above it.
