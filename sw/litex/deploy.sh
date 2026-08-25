@@ -199,7 +199,12 @@ materialize_images() {
     # Materialize this list synchronously: a failing process substitution is
     # otherwise invisible to the while-loop status and could look like an
     # empty, successfully prepared image set.
-    "$PYTHON" - "$LAYOUT" "$FLASH_SIZE" > "$manifest_rows" <<'PY'
+    # The explicit status check matters twice over: this function is called
+    # from an `if !` condition (check-images), where set -e is suppressed
+    # for the whole call tree, so a failing manifest derivation would
+    # otherwise leave an EMPTY rows file that reads as a successfully
+    # prepared (and empty) image set.
+    "$PYTHON" - "$LAYOUT" "$FLASH_SIZE" > "$manifest_rows" <<'PY' || return 2
 import json, sys
 d = json.load(open(sys.argv[1])); fs = int(sys.argv[2])
 imgs = d["images"]
