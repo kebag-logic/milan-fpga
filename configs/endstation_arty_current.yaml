@@ -73,15 +73,15 @@ board:
   target: arty                       # arty | ax7101
   features:
     fabric_gptp: true               # the one product owner (#259: bare-metal only, no Linux comparison)
-    sound_card: true                 # Linux bring-up board retains ALSA rings
+    sound_card: false                # retired surface (#259): no Linux ALSA host rings
   constraints:                       # physical facts -> milan_soc.py argv
     sys_clk_hz: 83333000             # 83.333e6: the DDR3-666 window
     milan_clk_hz: 50000000           # dense datapath in its own 50 MHz domain
-    l2_bytes: 65536
+    l2_bytes: 0                      # #259 bare-metal cacheless product
     phy: mii-100                     # DP83848 MII (arty) | gmii-1g (ax7101)
     gtx_tx_invert: false             # GMII-only knob (ax7101)
     floorplan: false
-    flashboot: full                  # none | kernel | full (N25Q128 QSPI)
+    flashboot: baremetal             # #259: the {bitstream, aem} manifest (N25Q128 QSPI)
     uart_baudrate: 115200
     rx_queues: 2                     # ingress fan-out. Since 2026-07-26 the
                                      # split is gPTP (q1) vs everything else
@@ -154,7 +154,6 @@ platform:                            # device tree + driver-visible layout
                                      # contradicts these addresses is
                                      # REFUSED (the 5ce9a13 CSR-rot rule).
     dma-ts: 0xf0003100
-    pcm-dma: 0xf0003120
 
 clocking:
   sampling_rate_hz: 48000            # current media clock (AAF base rate)

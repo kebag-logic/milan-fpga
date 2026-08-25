@@ -32,7 +32,7 @@ board:
   target: ax7101
   features:
     fabric_gptp: true   # the one product owner (#116, #259: the Linux/linuxptp owner is retired)
-    sound_card: true     # Linux bring-up shape retains ALSA capture/playback
+    sound_card: false    # retired surface (#259): no Linux ALSA host rings
     # AREA_BUDGET tier-1 prunes, applied 2026-07-28 when the 0x0019 fabric
     # (per-index counters, the all-context mirror, the silence fill, the
     # journal) took the 8x8 to 66,290 LUTs against the xc7a100t's 63,400
@@ -57,18 +57,14 @@ board:
   constraints:
     sys_clk_hz: 100000000            # milan_soc.py default (sweep passes none)
     milan_clk_hz: 100000000          # single fast domain (AX timing CLOSED)
-    l2_bytes: 16384                  # USER 2026-07-29: BACK to the AX's
-                                     # measured-close 16K (the 07-24 close was
-                                     # at 16K, WNS +0.080). The 07-28 32K
-                                     # uniformity reference stands on the ARTY
-                                     # only: at 32K the AX packs but times
-                                     # -1.0..-1.8 across six configurations -
-                                     # a congestion wall at ~89%/100 MHz that
-                                     # the smaller L2 directly relieves.
+    l2_bytes: 0                      # #259 bare-metal cacheless product; the
+                                     # Linux-era 16K close (07-24, WNS +0.080)
+                                     # and the 32K congestion wall are
+                                     # historical records in git history.
     phy: gmii-1g                     # RTL8211E GMII
     gtx_tx_invert: true              # PHY samples mid-bit (GMII-TX fix)
     floorplan: true
-    flashboot: full
+    flashboot: baremetal             # #259: the {bitstream, aem} manifest
     uart_baudrate: 115200
     rx_queues: 2                     # RAISED 1 -> 2 on 2026-07-28 with the
                                      # reflash that carries it (D7 root cause,
@@ -150,7 +146,6 @@ platform:
                                      # is not re-verified is the rotted-DTB
                                      # dead-hardware mimic all over again.
     dma-ts: 0xf0003100
-    pcm-dma: 0xf0003120
 
 gptp:
   # ONE source (USER 2026-08-05): these values generate BOTH the
@@ -255,9 +250,10 @@ audio_interface:
                                      # from the platform declaration above
                                      # plus the pools below - never hardcoded.
     pools:
-      host: 8                        # the ALSA/PipeWire lane for this port's
-                                     # stream (8ch per subdevice, the chmap64
-                                     # directive's 8 x 8 x 8ch geometry)
+                                     # host: retired (#259, historical): the
+                                     # ALSA/PipeWire lane (8ch per subdevice,
+                                     # the chmap64 8 x 8 x 8ch geometry) left
+                                     # with the Linux sound-card surface.
       pilot: true                    # one KL_tone_gen Pilot cluster per
                                      # talker port (D8; fan-out onto many
                                      # stream channels is legal SELECTION and
@@ -305,16 +301,10 @@ audio_interface:
                                      # campaign lands and the power-on map
                                      # returns to the loopback pool by
                                      # itself - one fact, both consumers.
-      playback_rings: 1              # milan_soc --aaf-playback-streams (the
-                                     # KL_pcm_tx rings behind the `host`
-                                     # pool). sw/litex/build.sh passes
-                                     # --aaf-playback with this default, so
-                                     # ONE 8-channel host ring exists and the
-                                     # 64ch chmap places its 4 pairs onto any
-                                     # talker's wire slots. Declaring it here
-                                     # is what stops the host templates from
-                                     # striding into rings 1..7 that are not
-                                     # elaborated.
+                                     # playback_rings: retired (#259,
+                                     # historical): the KL_pcm_tx host rings
+                                     # behind the retired `host` pool left
+                                     # with the Linux sound-card surface.
 
 streams:
   listeners:

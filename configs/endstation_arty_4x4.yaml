@@ -62,18 +62,16 @@ board:
   target: arty
   features:
     fabric_gptp: true               # the one product owner (#259: bare-metal only, no Linux comparison)
-    sound_card: true
+    sound_card: false               # retired surface (#259): no Linux ALSA host rings
   constraints:
     sys_clk_hz: 83333000
     milan_clk_hz: 50000000
-    l2_bytes: 16384                  # USER 2026-07-29: 16K next build (halved
-                                     # from the 07-28 32K reference; uniform
-                                     # with the AX 8x8 shape that closed, and
-                                     # the space lever for the 0x001B fabric)
+    l2_bytes: 0                      # #259 bare-metal cacheless product (the
+                                     # Linux-era 16K cache words are historical)
     phy: mii-100
     gtx_tx_invert: false
     floorplan: false
-    flashboot: full
+    flashboot: baremetal             # #259: the {bitstream, aem} manifest
     uart_baudrate: 115200
     rx_queues: 2
     hs_page_bytes: 16384
@@ -103,7 +101,6 @@ platform:
   boot_chain_pin:                    # 2-queue arty map (same as the deployed
                                      # shape - this config keeps rx_queues 2)
     dma-ts: 0xf0003100
-    pcm-dma: 0xf0003120
 
 clocking:
   sampling_rate_hz: 48000

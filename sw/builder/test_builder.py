@@ -8522,8 +8522,13 @@ def test_gptp_rootfs_handoff_preserves_software_config():
             tempfile.TemporaryDirectory() as out:
         stale_cfg = os.path.join(td, "gptp.ax7101.cfg")
         stale_owner = os.path.join(td, "milan-gptp-software-owner")
+        stale_entity = os.path.join(td, "milan-entity.ax7101.conf")
+        stale_aem = os.path.join(td, "milan-aem", "aem_desc.bin")
+        os.makedirs(os.path.dirname(stale_aem))
         for path, payload in ((stale_cfg, "stale ptp4l fragment\n"),
-                              (stale_owner, "stale owner\n")):
+                              (stale_owner, "stale owner\n"),
+                              (stale_entity, "stale identity\n"),
+                              (stale_aem, "stale descriptor image\n")):
             with open(path, "w") as stream:
                 stream.write(payload)
         old_rootfs = eb.ROOTFS_OVERLAY_ETC
@@ -8542,6 +8547,18 @@ def test_gptp_rootfs_handoff_preserves_software_config():
                 "handoff left the retired software-owner marker"
             assert not os.path.exists(stale_cfg), \
                 "handoff left the retired ptp4l fragment"
+            # #259: the overlay is a retired DESTINATION. The stale identity
+            # conf and descriptor set are deleted, and the handoff writes
+            # NOTHING new there: after it runs the fixture holds only the
+            # redirected generated/ dir.
+            assert not os.path.exists(stale_entity), \
+                "handoff left the retired overlay identity conf"
+            assert not os.path.exists(stale_aem), \
+                "handoff left the retired overlay descriptor image"
+            leftover = sorted(name for name in os.listdir(td)
+                              if name != "generated")
+            assert not leftover, \
+                f"handoff wrote into the retired overlay: {leftover}"
         finally:
             eb.ROOTFS_OVERLAY_ETC = old_rootfs
             eb.GEN_CONFIG_DIR = old_gen_dir

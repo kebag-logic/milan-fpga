@@ -60,12 +60,12 @@ Outputs (into OUTDIR/<config-stem>/):
   build_plan.md     - human-readable build plan. Shapes beyond current RTL
                       capability (NxN streams, TDM/AES3/SPDIF interfaces,
                       non-48k rates) VALIDATE but are marked "planned".
-  milan-entity.conf - the BOARD-SOFTWARE half of the identity: entity_id,
+  milan-entity.conf - the board-software half of the identity: entity_id,
                       entity_model_id, stream counts and SR VID as shell
-                      variables, sourced by the rootfs /etc/init.d/S50milan
-                      before it programs 0x604/0x608/0x60C/0x610. Also
-                      written into the buildroot rootfs overlay (see
-                      ROOTFS_OVERLAY_ETC) by --write-rtl/--write-fragment.
+                      variables. Historical consumer (#259): the retired
+                      rootfs /etc/init.d/S50milan; kept in the out dir as
+                      the reviewable identity record. The handoff DELETES
+                      stale rootfs-overlay copies and writes none.
   gptp_ucode.hex   - when board.features.fabric_gptp is true, the fabric
                       engine ROM with station MAC, priority1 and fabric clock
                       derived from this same config.
@@ -73,14 +73,11 @@ Plus (repo-level, single-sourced so nothing can drift):
   configs/generated/sweep_opts_<board>.sh - shell fragment (OPTS/L2/RXQ)
                       sourced by sw/litex/sweep.sh; the inline tables there
                       are the loud FALLBACK only.
-  <rootfs overlay>/etc/milan-entity.<board>.conf - the identity the flashed
-                      board programs into the ADP/AEM CSRs. Same rule, same
-                      moment: the config that owns the board's bitstream owns
-                      its advertised identity.
-  <rootfs overlay>/etc/milan-aem/aem_desc.{bin,json,map}
-                    - the processor descriptor image, paired manifest, and
-                      readable map. Written only by --write-fragment or
-                      --write-rtl when the sibling overlay is present.
+  <rootfs overlay>/etc/... - RETIRED destination (#259, historical): the
+                      identity conf, owner marker, ptp4l fragment and
+                      milan-aem descriptor set are deleted there when found,
+                      never written; the product identity ships in the AEM
+                      image beside the bitstream.
   hdl/common/csr/gen/lwsrp_csr_defaults.svh - the CSR-facing SUBSET of the
                       lwSRP table (0x680 reset words + the PriorityAndRank
                       byte), `include-d BY hdl/common/csr/milan_csr.sv: the
@@ -301,20 +298,16 @@ AES3_BLOCK_FRAMES = 192           #: AES3-2009 4.3 channel-status block
 SOC_DEFAULTS = dict(
     cpu="vexiiriscv",
     cpu_count=1,
-    software_profile="linux",
+    software_profile="baremetal",
     xlen=32,
     all_blocks=True,
     coherent_dma=True,
     timing_opt=True,
-    # the PROVEN rv32 CPU words (launch_x32f1 -> sweep.sh BASE, 08-05/06):
-    # the rv64-era set (refill 8, rpt prefetch, 8/16 queues) lived on here
-    # as a THIRD drifted copy after the sweep fix - one source now, and it
-    # is the silicon-proven one
-    scala_args=[
-        "--lsu-l1-refill-count=2",
-        "--l2-down-pending=4",
-        "--l2-general-slots=8",
-    ],
+    # #259: the bare-metal product is cacheless; the Linux-era cache words
+    # ("the PROVEN rv32 CPU words", launch_x32f1 -> sweep.sh BASE, 08-05/06)
+    # are retired with the profile that consumed them and live in git
+    # history, not here.
+    scala_args=[],
 )
 
 # What the RTL supports TODAY (milan_datapath.sv). Anything beyond validates
@@ -485,10 +478,13 @@ RX_ADDRESS_FILTERS = ("hardware", "software", "promiscuous")
 
 # ------------------------------------------------------ platform / DT shape --
 # Item-4 emitter: the device-tree node shape + the driver-visible layout.
-# THE bug class this closes shipped in 5ce9a13: rx-queues is per board, the
-# DMA window map is a FUNCTION of it, and a DTB built against the other
-# board's count maps every window onto the wrong registers (CSR rot,
-# TROUBLESHOOTING 20) - silent until the host plane is dead.
+# Retired surface (#259, historical): the DTB consumer was the Linux host
+# plane and no product image carries one; the emitter stays only so the
+# recorded bug class below remains reproducible from history. THE bug class
+# this closed shipped in 5ce9a13 (historical, #259): rx-queues is per board,
+# the DMA window map is a FUNCTION of it, and a DTB built against the other
+# board's count (retired surface) maps every window onto the wrong registers
+# (CSR rot, TROUBLESHOOTING 20) - silent until the host plane is dead.
 #
 # LiteX allocates CSR addresses in submodule-registration order
 # (sw/litex/milan_soc.py MilanDMA.__init__), so the map is deterministic:
@@ -2003,8 +1999,9 @@ ROOTFS_OVERLAY_ETC = os.environ.get(
 
 
 def entity_conf_overlay_path(board_target):
-    """Where <board>'s generated identity ships, or None when the rootfs
-    overlay is not on this disk (bare container / fpga repo alone)."""
+    """Where <board>'s generated identity once shipped (retired Linux rootfs
+    overlay, #259, historical): the handoff only DELETES stale copies here,
+    it writes nothing. None when the sibling overlay is not on this disk."""
     if not os.path.isdir(ROOTFS_OVERLAY_ETC):
         return None
     return os.path.join(ROOTFS_OVERLAY_ETC,
@@ -2058,10 +2055,10 @@ def _entity_model_image(cfg, overlay):
         # whether the image on the board is the one they think it is
         "config": os.path.basename(str(cfg.get("source", ""))),
     }
-    # The loader ships WITH the image, from milan-fpga's one copy. A second
-    # copy maintained in the rootfs would be a script that drifts from the
-    # manifest format it parses, and the failure would be a board that reports
-    # a successful load of nothing.
+    # The loader ships WITH the image, from milan-fpga's one copy (the
+    # retired rootfs destination is historical, #259). A second copy would
+    # be a script that drifts from the manifest format it parses, and the
+    # failure would be a board that reports a successful load of nothing.
     with open(os.path.join(repo, "scripts", "load_entity_model.sh"),
               encoding="utf-8") as fh:
         loader = fh.read()
@@ -2870,6 +2867,11 @@ def load_features(raw):
     if not isinstance(v, bool):
         raise ConfigError("board.features.sound_card must be a boolean; "
                           "false = host capture/playback rings absent")
+    if v:
+        raise ConfigError(
+            "board.features.sound_card: true is retired (#259): the "
+            "bare-metal product has no Linux ALSA host surface; state "
+            "false or omit the key")
     out["sound_card"] = v
     v = raw.get("fabric_gptp", True)
     if not isinstance(v, bool):
@@ -3458,9 +3460,13 @@ def load_config(path):
                           f"{target} ({binfo['phy']})")
     if cons["gtx_tx_invert"] and not binfo["gmii_knobs"]:
         raise ConfigError(f"gtx_tx_invert is a GMII knob; {target} is {binfo['phy']}")
-    if cons["flashboot"] not in ("none", "baremetal", "kernel", "full"):
+    if cons["flashboot"] in ("kernel", "full"):
         raise ConfigError(
-            f"flashboot '{cons['flashboot']}' not none|baremetal|kernel|full")
+            f"flashboot '{cons['flashboot']}' is a retired Linux boot chain "
+            "(#259): the product manifest is baremetal (or none)")
+    if cons["flashboot"] not in ("none", "baremetal"):
+        raise ConfigError(
+            f"flashboot '{cons['flashboot']}' not none|baremetal")
     if not 1 <= cons["rx_queues"] <= 2:
         raise ConfigError(f"rx_queues {cons['rx_queues']} outside 1..2")
     # shaper queue count = ethernet_packet_pkg::NUMBER_OF_QUEUES; the CBS
@@ -3780,8 +3786,10 @@ def load_config(path):
     soc = dict(SOC_DEFAULTS, **(cfg.get("soc") or {}))
     if soc["cpu"] not in ("vexiiriscv", "naxriscv"):
         raise ConfigError(f"soc.cpu '{soc['cpu']}' unknown")
-    if soc["software_profile"] not in ("baremetal", "linux"):
-        raise ConfigError("soc.software_profile must be baremetal or linux")
+    if soc["software_profile"] != "baremetal":
+        raise ConfigError(
+            f"soc.software_profile '{soc['software_profile']}' is retired "
+            "(#259): the product and repository are bare-metal only")
     if int(soc["xlen"]) not in (32, 64):
         raise ConfigError("soc.xlen must be 32 or 64")
     soc["xlen"] = int(soc["xlen"])
@@ -3792,8 +3800,6 @@ def load_config(path):
             raise ConfigError("baremetal SoC requires l2_bytes: 0 and no cache/prefetch scala_args")
         if cons["flashboot"] not in ("baremetal", "none"):
             raise ConfigError("baremetal SoC requires flashboot: baremetal (or none)")
-    elif cons["flashboot"] == "baremetal":
-        raise ConfigError("flashboot: baremetal requires soc.software_profile: baremetal")
 
     # the framer's emitted width, for the TSpec derivation (802.1Q
     # 35.2.2.8.4 a): the frame the talker WILL PRODUCE). Computed on a shim
@@ -4153,8 +4159,8 @@ def emit_design_opts(cfg):
     # fabric_gptp false never survives load_config (#259), so the emitted
     # owner flag is unconditionally the fabric plane.
     argv += ["--fabric-gptp"]
-    if cfg["features"]["sound_card"]:
-        argv += ["--sound-card"]
+    # sound_card: true never survives load_config (#259), and milan_soc.py
+    # refuses the retired --sound-card flag anyway; nothing is emitted.
     # the KL_pcm_tx host rings behind the `host` pool. Emitted from the SAME
     # fabric declaration the AEM host clusters come from - caught 2026-08-05
     # by check_dtb_csr at FLASH time: the fragment carried no playback flag,
@@ -4677,14 +4683,11 @@ def emit_features_line(cfg):
           ("- Fabric gPTP plane: **PRESENT** (`--fabric-gptp`; "
            "`GPTP_PLANE_EN_P=1`)."
            if cfg["features"]["fabric_gptp"] else
-           "- Fabric gPTP plane: **ABSENT (explicit `--no-fabric-gptp`)**. "
-           "The retained software-owner comparison supplies gPTP."),
-          ("- Linux sound-card surface: **PRESENT** (`--sound-card`; PCM "
-           "capture/playback rings and their LiteX CSR banks)."
-           if cfg["features"]["sound_card"] else
-           "- Linux sound-card surface: **ABSENT (default)**. PCM host rings, "
-           "their CSR banks and AVTP-RX-to-ring route are not elaborated; "
-           "AAF/TDM/I2S/render/crossbar fabric remains."), ""]
+           "- Fabric gPTP plane: **ABSENT**: verification-only hardware "
+           "with zero gPTP owners, never flashable (#259)."),
+          ("- Sound-card surface: retired (#259, historical). PCM host "
+           "rings, their CSR banks and the AVTP-RX-to-ring route are not "
+           "elaborated; AAF/TDM/I2S/render/crossbar fabric remains."), ""]
     pruned = [k for k in OPTIONAL_BLOCKS if not cfg["features"][k]]
     if not pruned:
         ln.append("- ALL PRESENT (the default). This gateware contains every "
@@ -4973,8 +4976,9 @@ def build(config_path, outdir=None, write_rtl=False, write_fragment=None):
         with open(p_sweep, "w") as f:
             f.write(sweep)
     # ...and the board-software half of the SAME transfer: the identity the
-    # flashed image programs into the ADP/AEM CSRs. It ships in the buildroot
-    # rootfs overlay (sibling repo), so it moves with `--write-fragment` /
+    # flashed image programs into the ADP/AEM CSRs. It once shipped in the
+    # retired buildroot rootfs overlay (#259, historical; the handoff now
+    # deletes stale copies), so it moves with `--write-fragment` /
     # `--write-rtl` and never on a throwaway variant build. Same moment as the
     # bitstream flags on purpose - a shape change that regenerates the AEM ROM
     # regenerates the model id that names it, or neither.
@@ -4988,49 +4992,29 @@ def build(config_path, outdir=None, write_rtl=False, write_fragment=None):
     if os.path.exists(p_out_gptp):
         os.unlink(p_out_gptp)
     p_ent_overlay = entity_conf_overlay_path(cfg["board_target"])
-    if write_fragment:
-        if p_ent_overlay:
-            with open(p_ent_overlay, "w") as f:
-                f.write(entity_conf)
-            # #259: the option-OFF software owner is retired. A handoff
-            # deletes its retired artifacts (the permission marker and the
-            # generated ptp4l fragment) so no stale Linux service contract
-            # lingers beside the shipped identity.
-            for retired in (
-                    os.path.join(os.path.dirname(p_ent_overlay),
-                                 "milan-gptp-software-owner"),
-                    os.path.join(os.path.dirname(p_ent_overlay),
-                                 f"gptp.{cfg['board_target']}.cfg")):
-                if os.path.exists(retired):
-                    os.unlink(retired)
-                    print(f"  removed retired {retired}")
-            # THE DESCRIPTOR IMAGE, into the same rootfs the identity ships in.
-            # /etc/init.d/S50milan loads it into the reserved `ppmem` window
-            # before enabling ADP, because the processor serves READ_DESCRIPTOR
-            # from DRAM and has nothing on-die. The manifest beside it carries
-            # the base, so the loader never restates an address.
-            #
-            # Written HERE, not by the SoC build, because this is where the
-            # window is decided (`pp_mem_phys`) and where the identity the
-            # descriptors belong to is written - the id and the descriptors it
-            # names must not be able to move apart, which is the same reason
-            # milan-entity.<board>.conf is generated rather than hand-kept.
-            for path, blob in _entity_model_image(cfg, overlay).items():
-                p_img = os.path.join(os.path.dirname(p_ent_overlay),
-                                     "milan-aem", path)
-                os.makedirs(os.path.dirname(p_img), exist_ok=True)
-                mode = "wb" if isinstance(blob, bytes) else "w"
-                with open(p_img, mode) as f:
-                    f.write(blob)
-                if p_img.endswith(".sh"):
-                    os.chmod(p_img, 0o755)
-                print(f"  wrote {p_img}")
-        else:
-            print(f"[endstation_builder] WARNING: rootfs overlay etc/ not on "
-                  f"disk ({ROOTFS_OVERLAY_ETC}) - the flashed image's "
-                  f"identity was NOT refreshed; re-run where milan-tests-avb "
-                  f"is checked out, or set MILAN_ROOTFS_OVERLAY_ETC",
-                  file=sys.stderr)
+    if write_fragment and p_ent_overlay:
+        # #259: the Linux rootfs overlay is a retired destination. The
+        # product identity ships in the AEM image beside the bitstream
+        # (milan_soc.py writes aem_desc.bin next to the layout), so the
+        # handoff WRITES NOTHING here any more: it only deletes the stale
+        # copies a pre-#259 run left (the identity conf, the software-owner
+        # permission marker, the generated ptp4l fragment, and the
+        # milan-aem descriptor set) so no retired Linux service contract
+        # lingers looking current.
+        etc_dir = os.path.dirname(p_ent_overlay)
+        retired = [p_ent_overlay,
+                   os.path.join(etc_dir, "milan-gptp-software-owner"),
+                   os.path.join(etc_dir, f"gptp.{cfg['board_target']}.cfg")]
+        aem_dir = os.path.join(etc_dir, "milan-aem")
+        if os.path.isdir(aem_dir):
+            retired += [os.path.join(aem_dir, name)
+                        for name in sorted(os.listdir(aem_dir))]
+        for path in retired:
+            if os.path.isfile(path):
+                os.unlink(path)
+                print(f"  removed retired {path}")
+        if os.path.isdir(aem_dir) and not os.listdir(aem_dir):
+            os.rmdir(aem_dir)
     # per-CONFIG (not per-board) shape include: an include dir whose `gen/`
     # holds this config's entity definition, so a harness or a build selects
     # a shape by pointing +incdir at it. The 1x1 copy is byte-identical to

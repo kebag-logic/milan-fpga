@@ -33,7 +33,7 @@ board:
   target: ax7101
   features:
     fabric_gptp: true   # #114 plane, product default since #116 (kept explicit)
-    sound_card: false    # shipping bare-metal fabric has no ALSA host rings
+    sound_card: false    # retired surface (#259): no Linux ALSA host rings
     i2s_playback: false   # the AX routes NO audio pads (_connectors = [])
     latency_taps: true    # item-11 telemetry: at 1x1 the taps fit with room
                           # to spare, and the 0.44% stress-late residue wants
