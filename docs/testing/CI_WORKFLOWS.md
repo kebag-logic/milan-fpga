@@ -266,12 +266,21 @@ is exactly these ten things:
     `continue-on-error` or `defaults`. A job added later that depends on the
     gate lands in the consumer class and is refused until it carries that
     `if`, so this perimeter is closed under addition rather than being a
-    list of the escapes earlier rounds happened to find. Separately, no
-    expression anywhere in either RTL workflow may read an output a job does
-    not publish, or read it from a job it does not list in `needs`: both
-    mistakes evaluate to the empty string, so every comparison against them
-    is false and every job gated on them skips. The audit resolves GitHub's
-    dotted, bracket and mixed static spellings --
+    list of the escapes earlier rounds happened to find. The closure runs in
+    both directions ([R2] on PR #239): every job an aggregate lists in its
+    own `needs` is classified too, as the selector, as a consumer, or as a
+    held contributor that carries no `needs`, `if`, `continue-on-error` or
+    `defaults` of its own. A job wired straight into an aggregate without
+    needing the selector, as `bdd-conformance` is, previously landed in no
+    class, so an `if: false` on it retired the specification suite with
+    every hosted context green and the aggregate accepting the skip.
+    Separately, no expression anywhere in either RTL workflow may read an
+    output a job does not publish, and no static `needs` chain of any kind,
+    `.result` as well as `.outputs.<name>`, may name a job the reader does
+    not list in `needs`: each mistake evaluates to the empty string, so
+    every comparison against it is false and every step or job gated on it
+    skips. The audit resolves GitHub's dotted, bracket and mixed static
+    spellings --
     `needs.<job>.outputs.<name>`, `needs['job'].outputs.name` and
     `needs['job']['outputs']['name']` -- as the same reference. A dynamic
     `needs[...]` access is refused because the producer and output cannot be
@@ -281,14 +290,33 @@ is exactly these ten things:
     `verilator-lint` and `yosys-elaboration`, and is held by the same check.
     Its aggregate counts a skipped consumer as a pass on purpose, since a
     docs-only change legitimately runs no RTL lint. Therefore the producer is
-    held too: `changes` carries no `needs`, `if`, `continue-on-error` or
-    `defaults`; the workflow carries no top-level `defaults`; and its exact
+    held too: `changes` carries no `needs`, `if`, `continue-on-error`,
+    `defaults` or job-level `env`; the workflow carries no top-level
+    `defaults`; and its exact
     two-step sequence is `actions/checkout@v4` with full history followed by
     the `scope` step. That step's keys and three env bindings are pinned, and
     its normalized canonical script must self-test `ci_scope.py`, derive the
     conservative changed-file set, read the selector answer and publish that
     answer. An empty or forced-false publication can no longer skip both RTL
     consumers into the accepted docs-only path.
+
+    The verdict half of the fast lane is held the same way ([R2] on PR
+    #239). Because the aggregate runs under `always() && !cancelled()`, its
+    one verdict step is the entire conversion of four job results into the
+    required `rtl-fast` context, and an `if` on that step, a result binding
+    rebound to the literal `success`, or a `case` widened to
+    `success|skipped|failure` each turned a FAILED fast job into a green
+    required context while every job key stayed canonical. So the aggregate
+    must list every other job of the workflow in its `needs`, which also
+    refuses an entry quietly dropped from the verdict; its single step
+    carries exactly `name`, `env` and `run`; its env is derived from that
+    `needs` list, one `<JOB>_RESULT` name per needed job bound to
+    `${{ needs.<job>.result }}`; and its normalized script equals the
+    canonical form derived from the same list, whose `case` accepts exactly
+    `success` and `skipped`. Each public check name (`verilator-suites`,
+    `yosys-portability`, `rtl-fast`, `elaborate`) must be carried by exactly
+    one job, so a second job renamed to a required name cannot make the
+    ruleset's binding ambiguous.
 
 `--selftest` covers, one at a time: the step removed, the token missing, the
 live read replaced by an echo, the event not passed, `|| true`, the decoy
@@ -324,7 +352,15 @@ env rebound, the scope script made to export `rtl=false` and stripped of its
 self-test, checkout/scope swapped, checkout made shallow, and a workflow
 `defaults.run.shell` inserted; dotted/bracket, all-bracket and mixed
 `needs...outputs` references to missing dependencies or outputs, plus a
-dynamic bracket reference; a whitespace-only reformatting of all four
+dynamic bracket reference; the fast verdict step given `if: false`, a
+`shell` and a `continue-on-error`, its lint result binding rebound to the
+literal `success`, and its `case` widened to accept `failure`;
+`bdd-conformance` dropped from the aggregate's `needs` and a new fast job
+left outside them; `bdd-conformance` itself given `if: false`, a
+`continue-on-error` and a `defaults.run.shell`; a `.result` read from a job
+outside `needs`, in the dotted and in the bracket spelling; `verilator-lint`
+renamed to the public name `rtl-fast`; a job-level `env` on the fast
+selector; a whitespace-only reformatting of all five
 canonical scripts that must still pass; and the decision itself for every
 event class.
 

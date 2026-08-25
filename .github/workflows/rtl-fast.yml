@@ -180,17 +180,17 @@ jobs:
       - name: Require every applicable fast gate to pass
         env:
           CHANGES_RESULT: ${{ needs.changes.result }}
-          LINT_RESULT: ${{ needs.verilator-lint.result }}
-          BDD_RESULT: ${{ needs.bdd-conformance.result }}
-          YOSYS_RESULT: ${{ needs.yosys-elaboration.result }}
+          VERILATOR_LINT_RESULT: ${{ needs.verilator-lint.result }}
+          BDD_CONFORMANCE_RESULT: ${{ needs.bdd-conformance.result }}
+          YOSYS_ELABORATION_RESULT: ${{ needs.yosys-elaboration.result }}
         run: |
           set -euo pipefail
           bad=0
           for pair in \
             "changes:$CHANGES_RESULT" \
-            "verilator-lint:$LINT_RESULT" \
-            "bdd-conformance:$BDD_RESULT" \
-            "yosys-elaboration:$YOSYS_RESULT"; do
+            "verilator-lint:$VERILATOR_LINT_RESULT" \
+            "bdd-conformance:$BDD_CONFORMANCE_RESULT" \
+            "yosys-elaboration:$YOSYS_ELABORATION_RESULT"; do
             name="${pair%%:*}"
             result="${pair#*:}"
             printf '%-24s %s\n' "$name" "$result"

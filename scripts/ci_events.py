@@ -66,6 +66,18 @@ the absence of any `GH_*` above the step. Separately, the worker shard
 denominator is derived from the matrix that produces the shards
 (`${{ strategy.job-total }}`) rather than restated beside it.
 
+THE FAST VERDICT ([R2] on PR #239). rtl-fast.yml's aggregate accepts skipped
+consumers on purpose, so its one verdict step is the entire conversion of
+four job results into the required `rtl-fast` context, and it was outside
+the perimeter: an `if` on the step, a result binding rebound to `success`,
+or a `case` widened to accept `failure` each made a FAILED fast job a green
+required context. So the aggregate must need every other job of that
+workflow; every job an aggregate needs is the selector, a consumer, or
+itself held; the verdict step's keys, env bindings and script are derived
+from that `needs` list; each public check name is carried by exactly one
+job; and the reference audit covers every static `needs` chain, `.result`
+included, not only `.outputs.`.
+
     scripts/ci_events.py --check        # the live tree against the contract
     scripts/ci_events.py --selftest     # mutation arms over in-memory copies
     scripts/ci_events.py --require-target-sha --sha gate=<sha> \\
@@ -337,6 +349,16 @@ CANONICAL_FAST_SCOPE_SCRIPT = (
 #: exactly why that workflow's published answer has to be pinned by content
 #: too: rebind it and every consumer skips into that pass.
 FAST_AGGREGATE_JOB_IF = "${{ always() && !cancelled() }}"
+#: The fast aggregate's one verdict step. That step is the entire conversion
+#: of four job results into the required `rtl-fast` context ([R2] on PR
+#: #239): the job itself runs under `always() && !cancelled()`, so an `if` on
+#: the step, a rebound result binding, or a `case` widened to accept
+#: `failure` each leaves every job key canonical while a FAILED consumer
+#: still yields a green required context. So the step's keys are pinned, its
+#: env is derived from the aggregate's `needs` (one `<JOB>_RESULT` name per
+#: needed job, bound to `${{ needs.<job>.result }}`), and its script is the
+#: canonical form derived from the same list.
+FAST_VERDICT_STEP_KEYS = ("name", "env", "run")
 
 
 def step_output_ref(step_id, name):
@@ -347,6 +369,40 @@ def step_output_ref(step_id, name):
 def needs_output_ref(job_id, name):
     """`needs.<job>.outputs.<name>`, built rather than restated."""
     return "needs." + job_id + ".outputs." + name
+
+
+def needs_result_ref(job_id):
+    """`${{ needs.<job>.result }}`, built rather than restated."""
+    return "${{ needs." + job_id + ".result }}"
+
+
+def fast_result_env_name(job_id):
+    """The env name the fast verdict step reads one needed job's result
+    through, derived from the job id, never a second list:
+    `verilator-lint` -> `VERILATOR_LINT_RESULT`."""
+    return job_id.upper().replace("-", "_") + "_RESULT"
+
+
+def canonical_fast_verdict_script(needed):
+    """The fast verdict step's script, derived from the aggregate's `needs`:
+    one `job:$JOB_RESULT` pair per needed job, in `needs` order, and a `case`
+    that accepts exactly `success` and `skipped`."""
+    pairs = " ".join('"%s:$%s"' % (j, fast_result_env_name(j))
+                     for j in needed)
+    return (
+        "set -euo pipefail",
+        "bad=0",
+        f"for pair in {pairs}; do",
+        'name="${pair%%:*}"',
+        'result="${pair#*:}"',
+        "printf '%-24s %s\\n' \"$name\" \"$result\"",
+        'case "$result" in',
+        "success|skipped) ;;",
+        "*) bad=1 ;;",
+        "esac",
+        "done",
+        '[ "$bad" -eq 0 ]',
+    )
 
 
 def consumer_job_if(job_id, name):
@@ -602,11 +658,21 @@ def check_cancel_in_progress(c, path, wf):
 
 
 def check_public_names(c, path, wf):
-    names = {display_name(jid, j) for jid, j in jobs(wf).items()}
+    """Each public check-run name the merge bar reads is carried by exactly
+    one job. Existence alone held nothing ([R2] on PR #239): a second job
+    renamed to the aggregate's display name publishes a second check run
+    under the required name, and which of the two the ruleset binds is
+    ambiguous."""
+    all_jobs = jobs(wf)
     for want in PUBLIC_NAMES.get(path, ()):
-        c.item(want in names, path,
-               f"public check name `{want}` must exist as a job (found "
-               f"{sorted(names)})")
+        carriers = [jid for jid, j in all_jobs.items()
+                    if display_name(jid, j) == want]
+        c.item(len(carriers) == 1, path,
+               f"public check name `{want}` must be carried by exactly one "
+               f"job (carried by {carriers or 'none'}, jobs are "
+               f"{sorted(all_jobs)}): the merge bar reads this name, and two "
+               "jobs publishing it make which run the ruleset binds "
+               "ambiguous")
 
 
 def check_rtl_full(c, wf, policy):
@@ -802,9 +868,18 @@ def context_access_chain(text, start):
     return parts, dynamic, pos
 
 
-def needs_output_references(text):
-    """Static `(producer, output)` refs and unresolved `needs[...]` chains."""
+def needs_context_references(text):
+    """Static `needs` context chains in one scalar: `(producer, output)`
+    refs, every producer any static chain names, and unresolved chains.
+
+    The producer set covers every second component, `.result` included, not
+    only `.outputs.` ([R2] on PR #239): a `needs.<job>.result` read from a
+    job outside `needs` is the same empty string the `.outputs.` audit
+    exists for, so stopping at `.outputs.` left `.result` a silent skip. A
+    bare `needs` with no chain (as in `toJSON(needs)`) names no producer and
+    is not audited here."""
     refs = set()
+    producers = set()
     unresolved = set()
     for match in NEEDS_WORD_RE.finditer(text or ""):
         parts, dynamic, end = context_access_chain(text, match.end())
@@ -812,12 +887,15 @@ def needs_output_references(text):
             shown = text[match.start():end].strip() or "needs[...]"
             unresolved.add(shown)
             continue
+        if not parts:
+            continue
+        producers.add(parts[0])
         if len(parts) >= 2 and parts[1] == "outputs":
             if len(parts) < 3:
                 unresolved.add(text[match.start():end].strip())
             else:
                 refs.add((parts[0], parts[2]))
-    return refs, unresolved
+    return refs, producers, unresolved
 
 
 def check_publication_path(c, path, wf):
@@ -832,7 +910,11 @@ def check_publication_path(c, path, wf):
     class carries a pinned `if`. A job added tomorrow that depends on the
     selector lands in the consumer class and reddens until it carries that
     `if`, instead of arriving outside every contract the way both worker
-    matrices and both fast-lane consumers did (#209, [R0] rounds 1-3)."""
+    matrices and both fast-lane consumers did (#209, [R0] rounds 1-3).
+    Closure runs in both directions ([R2] on PR #239): every job an
+    aggregate needs is also classified, so a contributor wired straight into
+    the aggregate without needing the selector is held to run as written
+    rather than landing in no class."""
     sel = SELECTOR_JOB[path]
     want = SELECTOR_OUTPUTS[path]
     decision = SELECTOR_DECISION[path]
@@ -857,12 +939,33 @@ def check_publication_path(c, path, wf):
                        allowed_if=(AGGREGATE_IF[path] if aggregate
                                    else consumer_job_if(sel, decision)))
 
+    # [R2] on PR #239: a job wired straight into an aggregate's `needs`
+    # without itself needing the selector, as `bdd-conformance` is, landed in
+    # no class above, so an `if: false` on it disabled the specification
+    # suite with every hosted context green and the aggregate accepting the
+    # skip. So every job an aggregate needs is classified: the selector, a
+    # consumer (classified above), or itself held to run as written.
+    for jid, job in all_jobs.items():
+        if display_name(jid, job) not in public:
+            continue
+        for member in sorted(set(needs_list(job))):
+            mjob = all_jobs.get(member)
+            if not isinstance(mjob, dict):
+                c.item(False, path, f"job `{jid}` needs `{member}`, which "
+                       "must exist as a job in this workflow")
+                continue
+            if member == sel or sel in needs_list(mjob):
+                continue
+            check_job_keys(c, path, member, mjob)
+
     for jid, job in all_jobs.items():
         refs = set()
+        producers = set()
         unresolved = set()
         for scalar in all_scalars(job):
-            found, unknown = needs_output_references(scalar)
+            found, named, unknown = needs_context_references(scalar)
             refs.update(found)
+            producers.update(named)
             unresolved.update(unknown)
         for expression in sorted(unresolved):
             c.item(False, path, f"job `{jid}` uses `{expression}`, a dynamic "
@@ -879,11 +982,14 @@ def check_publication_path(c, path, wf):
                    f"{sorted(declared)}): an expression naming an output no "
                    "job declares is the empty string, so every comparison "
                    "against it is false and every job gated on it skips")
+        for producer in sorted(producers):
             c.item(producer in needs_list(job), path,
-                   f"job `{jid}` reads `{needs_output_ref(producer, name)}` "
-                   f"and must list `{producer}` in its `needs` (found "
+                   f"job `{jid}` reads the `needs.{producer}` context and "
+                   f"must list `{producer}` in its `needs` (found "
                    f"{needs_list(job)}): outside `needs` the expression is "
-                   "the empty string")
+                   "the empty string, so a `.result` or `.outputs` guard "
+                   "built on it is quietly false and the step or job it "
+                   "guards skips")
 
 
 def check_job_keys(c, path, jid, job, allowed_if=None, allow_needs=False):
@@ -1274,6 +1380,11 @@ def check_fast_selector(c, wf):
         return
 
     check_job_keys(c, RTL_FAST, FAST_SELECTOR_JOB, selector)
+    c.item("env" not in selector, RTL_FAST,
+           f"job `{FAST_SELECTOR_JOB}` must carry no `env` (found "
+           f"{sorted(map(str, selector.get('env') or {}))}): a job-level "
+           "value reaches the scope script without appearing in the pinned "
+           "step, whose own env is the selector's whole input contract")
     c.item("defaults" not in wf, RTL_FAST,
            "the fast workflow must carry no top-level `defaults` "
            f"(found {wf.get('defaults')!r}): a `defaults.run.shell` changes "
@@ -1336,11 +1447,69 @@ def check_fast_selector(c, wf):
                "docs-only path")
 
 
+def check_fast_aggregate(c, wf):
+    """Hold the verdict half of the fast lane ([R2] on PR #239).
+
+    The fast aggregate runs under `always() && !cancelled()`, so once its job
+    keys are canonical the ONLY thing standing between a failed consumer and
+    a green required context is its verdict step. An `if` on that step skips
+    it and the job succeeds with `verilator-lint` FAILED; a result binding
+    rebound to the literal `success` converts one named failure into a pass;
+    a `case` widened to `success|skipped|failure` accepts them all. None of
+    those touches a job key or the selector's publication path. So the
+    verdict step is held the way the exhaustive workflow's verifier steps
+    are: pinned keys, env derived from the aggregate's `needs`, script
+    derived from the same list. The `needs` list itself must name every
+    other job of the workflow, so no fast job can fail outside the required
+    context's view and none can be quietly dropped from it."""
+    all_jobs = jobs(wf)
+    public = set(PUBLIC_NAMES.get(RTL_FAST, ()))
+    for jid, job in all_jobs.items():
+        if display_name(jid, job) not in public:
+            continue
+        needed = needs_list(job)
+        others = [j for j in all_jobs if j != jid]
+        missing = [j for j in others if j not in needed]
+        surplus = [j for j in needed if j not in others]
+        c.item(not missing and not surplus, RTL_FAST,
+               f"job `{jid}` must need every other job of this workflow, "
+               f"{', '.join(others)}"
+               + (f"; missing: {', '.join(missing)}" if missing else "")
+               + (f"; surplus: {', '.join(surplus)}" if surplus else "")
+               + ": a fast job outside the aggregate's `needs` can fail "
+               "with the required context still green, and a dropped entry "
+               "silently removes that job's result from the verdict")
+        ss = steps(job)
+        c.item(len(ss) == 1, RTL_FAST,
+               f"job `{jid}` must carry exactly one step, its verdict step "
+               f"(found {len(ss)}): a step inserted beside the verdict can "
+               "change what it reads, and a removed one takes the verdict "
+               "with it")
+        if len(ss) != 1:
+            continue
+        what = f"job `{jid}` verdict step"
+        env_want = {fast_result_env_name(j): needs_result_ref(j)
+                    for j in needed}
+        pinned_step_keys(c, RTL_FAST, what, ss[0], FAST_VERDICT_STEP_KEYS,
+                         env_want)
+        run = ss[0].get("run") if isinstance(ss[0].get("run"), str) else ""
+        lines = normalize_script(run)
+        canon = canonical_fast_verdict_script(needed)
+        c.item(tuple(lines) == canon, RTL_FAST,
+               f"{what} script is not the canonical form derived from the "
+               "aggregate's `needs`: "
+               + script_difference(lines, canon)
+               + "; this script is the whole required fast verdict, so a "
+               "widened `case` or a dropped pair turns a named failure into "
+               "a pass")
+
+
 def check_rtl_fast(c, wf):
     check_push_and_pr(c, RTL_FAST, wf, exact_types=True)
     check_cancel_in_progress(c, RTL_FAST, wf)
     check_public_names(c, RTL_FAST, wf)
     check_fast_selector(c, wf)
+    check_fast_aggregate(c, wf)
     # The same selector -> outputs -> consumer path as the exhaustive
     # workflow, and the same false green if it is left unheld: this
     # aggregate counts a skipped consumer as a pass.
@@ -1795,6 +1964,49 @@ def _mutations():
                  if "behave --no-capture" in step_text(s)]
         assert len(found) == 1, "fixture drift: no unique BDD run step"
         return found[0]
+
+    def fast_aggregate_job(w):
+        return jobs(w[RTL_FAST])["rtl-fast"]
+
+    def fast_verdict_step(w):
+        ss = [s for s in fast_aggregate_job(w).get("steps", [])
+              if isinstance(s, dict)]
+        assert len(ss) == 1, "fixture drift: fast aggregate is not one step"
+        return ss[0]
+
+    def m_fast_verdict_case_widened(w):
+        s = fast_verdict_step(w)
+        assert "success|skipped)" in s["run"], (
+            "fixture drift: no accept case in the fast verdict")
+        s["run"] = s["run"].replace("success|skipped)",
+                                    "success|skipped|failure)", 1)
+
+    def m_fast_aggregate_forgets_bdd(w):
+        # The whole trace of `bdd-conformance` removed from the aggregate
+        # consistently: the `needs` entry, the env binding and the loop pair,
+        # so the derived env and script agree with the shrunk `needs` and the
+        # only refusal left is the `needs` universe itself.
+        agg = fast_aggregate_job(w)
+        assert "bdd-conformance" in agg["needs"], (
+            "fixture drift: the aggregate does not need bdd-conformance")
+        agg["needs"] = [n for n in agg["needs"] if n != "bdd-conformance"]
+        step = fast_verdict_step(w)
+        del step["env"]["BDD_CONFORMANCE_RESULT"]
+        pair = '"bdd-conformance:$BDD_CONFORMANCE_RESULT"'
+        step["run"], n = re.subn(r"\s*" + re.escape(pair) + r" \\", "",
+                                 step["run"])
+        assert n == 1, "fixture drift: no bdd pair line in the verdict loop"
+
+    def m_fast_new_unaggregated_job(w):
+        jobs(w[RTL_FAST])["extra-check"] = {
+            "runs-on": "ubuntu-latest",
+            "steps": [{"run": "true"}],
+        }
+
+    def m_fast_lint_masquerades_as_aggregate(w):
+        job = jobs(w[RTL_FAST])["verilator-lint"]
+        job["name"] = "rtl-fast"
+        job["if"] = FAST_AGGREGATE_JOB_IF
 
     def m_fast_scope_publishes_false(w):
         # The selector still self-tests and reads the real answer, but exports
@@ -2272,6 +2484,64 @@ def _mutations():
          m_fast_bdd_needs_expression(
              "${{ needs[format('{0}', 'changes')].outputs.rtl == 'true' }}"),
          "cannot resolve statically"),
+        # [R2] O23: the fast aggregate's verdict step, the one conversion of
+        # four job results into the required context. Each arm leaves every
+        # job key and the selector's whole publication path canonical.
+        ("O23 fast verdict step if: false",
+         set_step_key(fast_verdict_step, "if", False),
+         "verdict step must carry no `if`"),
+        ("O23b fast verdict lint result rebound to the literal success",
+         set_env_key(fast_verdict_step, "VERILATOR_LINT_RESULT", "success"),
+         "must bind `VERILATOR_LINT_RESULT`"),
+        ("O23c fast verdict case widened to accept failure",
+         m_fast_verdict_case_widened,
+         "verdict step script is not the canonical form"),
+        ("O23d fast verdict step continue-on-error",
+         set_step_key(fast_verdict_step, "continue-on-error", True),
+         "verdict step must carry no `continue-on-error`"),
+        ("O23e fast verdict step shell: bash -n",
+         set_step_key(fast_verdict_step, "shell", "bash -n {0}"),
+         "verdict step must carry no `shell`"),
+        # [R2] O24: the aggregate's `needs` universe. Membership in that list
+        # is what puts a fast job's result inside the verdict at all.
+        ("O24 fast aggregate drops bdd-conformance from its verdict",
+         m_fast_aggregate_forgets_bdd, "missing: bdd-conformance"),
+        ("O24b a new fast job lands outside the aggregate's needs",
+         m_fast_new_unaggregated_job, "missing: extra-check"),
+        # [R2] O25: a gate contributor that does not need the selector,
+        # exactly bdd-conformance's shape, held to run as written.
+        ("O25 bdd-conformance job if: false",
+         set_job_if(RTL_FAST, "bdd-conformance", False),
+         "job `bdd-conformance` must carry no `if`"),
+        ("O25b bdd-conformance continue-on-error",
+         set_job_key_at(RTL_FAST, "bdd-conformance",
+                        "continue-on-error", True),
+         "job `bdd-conformance` must carry no `continue-on-error`"),
+        ("O25c bdd-conformance defaults.run.shell bash -n",
+         set_job_key_at(RTL_FAST, "bdd-conformance", "defaults",
+                        {"run": {"shell": "bash -n {0}"}}),
+         "job `bdd-conformance` must carry no `defaults`"),
+        # [R2] O26: a `.result` chain read from a job outside `needs` is the
+        # same empty string O22 refuses for `.outputs.`, in the spelling the
+        # fast verdict itself uses four lines from its accept case.
+        ("O26 a .result read from a job outside needs",
+         m_fast_bdd_needs_expression(
+             "${{ needs.changes.result == 'success' }}"),
+         "must list `changes` in its `needs`"),
+        ("O26b the bracket spelling of the same .result read",
+         m_fast_bdd_needs_expression(
+             "${{ needs['changes']['result'] == 'success' }}"),
+         "must list `changes` in its `needs`"),
+        # [R2] O27: the public required name carried by a second job.
+        ("O27 verilator-lint renamed to the public name rtl-fast",
+         m_fast_lint_masquerades_as_aggregate,
+         "carried by exactly one job"),
+        # [R2] O28: a job-level env on the fast selector reaches the scope
+        # script without appearing in the pinned step.
+        ("O28 fast selector job-level env EVENT_NAME literal",
+         set_job_key_at(RTL_FAST, FAST_SELECTOR_JOB, "env",
+                        {"EVENT_NAME": "pull_request"}),
+         "must carry no `env`"),
         # #209 O9: the shard denominator restated instead of derived.
         ("O9 verilator matrix grows, the denominator is a literal",
          m_shard_denominator_stale, "shard denominator"),
@@ -2476,6 +2746,10 @@ def selftest(root):
         if s.get("id") == FAST_SCOPE_STEP_ID:
             s["run"] = "\n".join("   " + l if l.strip() else ""
                                   for l in s["run"].splitlines()) + "\n"
+    for s in steps(jobs(world[RTL_FAST])["rtl-fast"]):
+        if isinstance(s.get("run"), str):
+            s["run"] = "\n".join("   " + l if l.strip() else ""
+                                  for l in s["run"].splitlines()) + "\n"
     for s in steps(jobs(world[RTL_FULL])["yosys-portability"]):
         if VERIFY_FLAG in step_text(s):
             s["run"] = ("shopt   -s nullglob\n"
@@ -2492,7 +2766,8 @@ def selftest(root):
                         f"was refused: {check(world).findings}")
     else:
         print("  ok   canonical pins are whitespace-invariant (assert step, "
-              "decision step, fast scope step and verifier step)")
+              "decision step, fast scope step, fast verdict step and "
+              "verifier step)")
 
     # --require-default-branch arms: the decision for every event class. An
     # inverted or weakened comparison fails one of these, which is what makes
