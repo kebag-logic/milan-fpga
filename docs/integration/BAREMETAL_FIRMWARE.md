@@ -102,10 +102,36 @@ static void entity_advertise(int verified)
 `milan_init()` calls it exactly once, as `entity_advertise(aem_loaded)`. That
 is the choke point issue #153 asks for, and it is what lets the boot contract
 be proved by DATA FLOW rather than by refusing constructs across the file: the
-question becomes "which function stores the enable bit, and which edge
-dominates that store", and both are answered from the compiled code. There is
+question becomes "which function stores the enable bit, which edge dominates
+that store, and which value that edge was handed", and all three are answered
+from the compiled code. There is
 no behaviour change: the same two writes, in the same order, after the same
 verdict.
+
+A choke point is only a choke point if it has ONE entrance, and proving the
+inside of the function does not prove that. An earlier revision of this page
+rested the claim on the dominance measurement alone, which runs
+`entity_advertise()` in isolation on a synthetic argument, so this control
+passed every gate that revision had:
+
+```c
+static void (*advertise_hook)(int) = entity_advertise;
+...
+        advertise_hook(1);            /* from the UART status handler */
+```
+
+Every enable stays inside the choke point, the local `if (!verified)` still
+dominates both writes, and the one literal call site still reads
+`entity_advertise(aem_loaded)` -- and after an AEM CRC failure the UART status
+command advertises the entity anyway. Gate 1b now measures the ENTRANCES too,
+fail-closed: the choke point may be neither exported nor address-taken, no line
+of the emitted assembly may name it except its own definition and a direct
+`call`, the firmware may transfer control through no register at all, exactly
+one call edge may reach the choke point and it must come from `milan_init()`,
+and the value that edge hands it is tracked from the `load_aem_image()` call
+that produced it. A call edge the resolver cannot place, or an argument it
+cannot trace back to the verifier, is a REFUSAL and never a default of
+"verified".
 
 A missing or corrupt image leaves the AVDECC entity disabled while the PHC and
 fabric gPTP plane continue independently. The UART status line then reports
@@ -311,6 +337,41 @@ more thing is assumed rather than proved here and is named for the same reason:
 the `stack` class rests on the SoC's memory map, where the stack is RAM and not
 the device window this rule measures.
 
+**And what the store census does not answer at all: the choke point's
+ENTRANCES.** Every question above is about what `entity_advertise()` CONTAINS
+and what its verdict test dominates, and the dominance question runs the
+function in isolation on a synthetic argument, so between them they prove
+dominance for one execution and for no call edge the firmware actually has. The
+resolver therefore asks a fifth question of the same assembly: `entity_advertise`
+appears in no `.globl` and its address is formed nowhere, no line of the emitted
+assembly names it except the four a private function called by name produces
+(its label, its `.type`, its `.size` and a `call` operand), this unit emits no
+`jalr` or `jr` through a register at all, exactly one call edge reaches the
+choke point and it is in `milan_init()`, and the value handed on that edge is
+the tag the `load_aem_image()` call produced. A call edge it cannot place, and
+an argument it cannot trace to the verifier, are REFUSALS, never a default of
+"verified". The symbol-use rule is a WHITELIST for the same reason: a list of
+spellings to refuse is the recognizer shape this whole question exists to
+retire, and `.set alias,entity_advertise` exports neither this name nor its
+address while still handing another unit a global symbol that calls the choke
+point. Five mutation-table entries carry it, and each was measured to
+PASS the whole boot-contract gate on the revision that preceded them, where the
+tally read `153/153 mutations rejected`:
+
+| Edit | Resolver verdict |
+|---|---|
+| `static void (*advertise_hook)(int) = entity_advertise;` called as `advertise_hook(1)` from the UART status handler | `forms the ADDRESS of entity_advertise(), which is an ENTRANCE into the choke point this gate cannot tie to the AEM verdict` |
+| a second direct call spelled `entity_advertise(1), (void)0;`, which the source rule's call counter does not match because no `;` follows the parenthesis | `enters entity_advertise() from ['milan_init', 'milan_status_handler'], not from milan_init() exactly once` |
+| `#define aem_verdict aem_loaded` and `aem_verdict = 1;` after the verifier, which the assignment rule does not see because it names no `aem_loaded` | `enters entity_advertise() with [1] rather than with the one value load_aem_image() handed back` |
+| an indirect call whose target is not the choke point at all, `static void (*tod_hook)(uint64_t) = print_tod;` called as `tod_hook(...)`, so the unplaceable-edge rule is exercised on its own rather than behind the address-taken rule | `transfers control through a register this resolver cannot tie to a symbol ... : milan_status_handler() at .L41 through s1` |
+| `void entity_advertise_public(int) __attribute__((alias("entity_advertise")));`, which exports a name that calls the choke point without exporting this name or forming its address | `names entity_advertise() in a form this gate does not recognise ... : ['.set entity_advertise_public,entity_advertise']` |
+
+Answering the third needed a resolver change of its own, because at `-O0` the
+verdict reaches the call through the static: a word stored into one of this
+unit's own symbols and read back with `lw` before the next call is now a value,
+and every symbol slot is dropped at each call and at each store the resolver
+cannot place, so nothing survives a write it did not see.
+
 **The block join is a meet over all predecessors.** The same round found the
 frame-memory join treating a slot missing from one side differently from a slot
 missing from the other, so a value stored on one incoming path of a diamond
@@ -402,6 +463,9 @@ The rest are refusals, and each one costs a legitimate edit:
 | `OBJECTS` may not use `?=` | `make` treats an environment variable as defined, so `?=` lets the environment choose the object list |
 | No label, `goto`, `switch`, `case` or `default` in `milan_init()` or `entity_advertise()` | containment inside the choke point is not the same as being reached through its verdict test; this is the textual half, and the resolver measures the dominance itself |
 | The address of `aem_loaded` may not be taken | a pointer would write the verdict with no assignment the gate can see |
+| `entity_advertise` may not be exported, its address may not be formed anywhere in the firmware, and no other line of the emitted assembly may name it -- an `__attribute__((alias))` included | the arguments of a function another translation unit can name, or a table can hold, are not the arguments this unit's call sites show, so nothing here can say what verdict the choke point is entered with. The symbol-use rule is a whitelist of the four forms a private direct-called function produces, so a spelling nobody anticipated is refused rather than missed. **Remedy:** keep it `static` and call it directly |
+| No indirect call and no tail transfer through a register, anywhere in the firmware | an instrument that cannot place a call edge must refuse it: a target it cannot resolve is exactly the one that could be the choke point. **Remedy:** call through a name, or model indirect targets and argument provenance completely, which is a data-flow change of its own |
+| The one call edge into `entity_advertise()` must come from `milan_init()` and hand it the value `load_aem_image()` returned | the value is tracked from its PRODUCER through the emitted code, so an alias, a macro body or an assignment between the verifier and the call does not change the answer, and an argument the resolver cannot resolve is refused rather than read as verified |
 | The RTL reset for `adp_ctrl`/`pp_ctrl_r` must be a literal with bit 0 clear | a named constant is not a value the gate can evaluate |
 | `o_adp_enable`/`o_pp_enable` must be `assign <port> = <reg>[0];` | the gate censuses that exact bit |
 | Renaming `load_aem_image`, `milan_init` or `configure_fabric` | the gate finds them by literal identifier; the refusal names the property and the anchor to update |

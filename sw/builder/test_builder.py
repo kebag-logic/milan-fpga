@@ -1057,9 +1057,19 @@ def rv32_step(state, mnem, ops, data, tags):
         offset = 0 if not raw_off or raw_off.startswith("%lo(") \
             else _rv32_s32(_rv32_imm(raw_off) or 0)
         if isinstance(held, Rv32Sym):
-            if mnem == "lw" and held.offset + offset == 0 and \
-                    held.name in data:
+            #: A static this unit WRITES has no compile-time value, but a
+            #: word this function stored into it and reads back before the
+            #: next call IS a value, and that round trip is exactly how the
+            #: boot path hands the AEM verdict to the choke point ([R0]
+            #: BLOCKER on PR #241, third round). Only `lw`: a byte or
+            #: half-word read of the slot is a partial reading, which is a
+            #: WRONG value rather than a missing one.
+            place_at = held.offset + offset
+            if mnem == "lw" and place_at == 0 and held.name in data:
                 state.set(args[0], data[held.name])
+            elif mnem == "lw":
+                state.set(args[0],
+                          state.mem.get(("sym", held.name, place_at)))
         elif base in RV32_FRAME_REGS and held is None:
             state.set(args[0], state.mem.get((base, offset)))
         return None
@@ -1073,6 +1083,7 @@ def rv32_step(state, mnem, ops, data, tags):
         #: rather than skipped.
         place = RV32_MEM_RE.match(args[1]) if len(args) == 2 else None
         if place is None:
+            _rv32_forget_symbols(state)
             return ("store", (Rv32Where("unreadable", f"{mnem} {ops}"), None))
         raw_off, base = place.group(1), place.group(2)
         held, value = state.get(base), state.get(args[0])
@@ -1081,6 +1092,8 @@ def rv32_step(state, mnem, ops, data, tags):
         if isinstance(held, int):
             return ("store", ((held + offset) & RV32_MASK, value))
         if isinstance(held, Rv32Sym):
+            state.mem[("sym", held.name, held.offset + offset)] = \
+                value if mnem == "sw" else None
             return ("symstore", (held.name, value))
         if isinstance(held, Rv32Stack):
             return ("store", (Rv32Where("stack"), value))
@@ -1088,12 +1101,21 @@ def rv32_step(state, mnem, ops, data, tags):
             state.mem[(base, offset)] = value
             return None
         if isinstance(held, Rv32Tag) and held.what.startswith("call:"):
+            _rv32_forget_symbols(state)
             return ("store", (Rv32Where("call", held.what[5:]), value))
+        _rv32_forget_symbols(state)
         return ("store", (Rv32Where("unplaced", repr(held)), value))
-    if mnem in ("call", "jal", "jalr", "tail") and args:
+    #: `jr <reg>` that is not the return is a tail transfer through a
+    #: register, which is the same unplaceable edge as `jalr <reg>` and is
+    #: reported as one; `jr ra` falls through to the return below.
+    if (mnem in ("call", "jal", "jalr", "tail") or
+            (mnem == "jr" and args and args[0] not in ("ra", "x1"))) and args:
         callee = args[-1].split("@")[0]
         handed = {reg: state.get(reg) for reg in
                   ("a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7")}
+        #: A callee may write any static this unit holds, so the symbol
+        #: slots do not cross a call.
+        _rv32_forget_symbols(state)
         for reg in RV32_CALLER_SAVED:
             state.set(reg, None)
         state.set("a0", tags.get(callee, Rv32Tag(f"call:{callee}")))
@@ -1217,6 +1239,28 @@ def rv32_verdict_edge(run, produced, against=0):
 
 
 RV32_ARG_REGS = ("a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7")
+#: Every name that can only be a REGISTER.  A transfer whose target operand
+#: is one of these is INDIRECT: this interpreter reads the emitted operand,
+#: and a register it cannot tie to a symbol is a call edge it cannot place.
+RV32_REG_NAMES = frozenset(
+    ("zero", "ra", "sp", "gp", "tp", "fp") +
+    tuple(f"x{n}" for n in range(32)) +
+    tuple(f"t{n}" for n in range(7)) +
+    tuple(f"s{n}" for n in range(12)) + RV32_ARG_REGS)
+
+
+def _rv32_forget_symbols(state):
+    """Drop every symbol slot the state holds.
+
+    Called wherever a write this resolver CANNOT place may have landed on
+    one of this unit's statics: any call, and any store whose base did not
+    resolve.  A resolved numeric address and a stack address are not in that
+    class -- statics are symbolic in this model and the stack is a different
+    object -- so those two leave the slots alone."""
+    for key in [key for key in state.mem if key[0] == "sym"]:
+        del state.mem[key]
+
+
 #: Every spelling in which the emitted code takes a symbol's ADDRESS: the
 #: `%hi`/`%lo`/`%pcrel` relocations, the `la`/`lla` pseudo-instructions, and
 #: a symbol emitted as a data word.  A function whose address is taken can
@@ -1332,8 +1376,8 @@ def rv32_unit(assembly):
             "settle, so its answer would depend on how many rounds it was "
             "given rather than on the code")
     return {"data": data, "functions": functions, "runs": runs,
-            "private": private, "seeds": seeds,
-            "defined": rv32_defined(assembly)}
+            "private": private, "seeds": seeds, "exported": exported,
+            "addressed": addressed, "defined": rv32_defined(assembly)}
 
 
 def test_all_configs_build():
@@ -2782,6 +2826,16 @@ def test_baremetal_profile_contract():
     #: this firmware may reach a control register through, so exactly one
     #: function may store through it.
     RESOLVER_HELPER_PIN = "exactly one function may store through it"
+    #: ... and the sixth and seventh, which are this round's ([R0] BLOCKER
+    #: on PR #241, third round). The choke point is proved from the inside
+    #: by the dominance rule above; these two prove its ENTRANCES. A call
+    #: edge this resolver cannot place, and an argument it cannot trace back
+    #: to the AEM verifier, are REFUSALS -- never a default of "verified".
+    RESOLVER_ENTRANCE_PIN = (
+        "ENTRANCE into the choke point this gate cannot tie to the AEM "
+        "verdict")
+    RESOLVER_VERDICT_PIN = (
+        "entered with a verdict this gate cannot trace to the AEM verifier")
     #: THE DECLARED RESIDUAL, and the reason it exists ([R0] BLOCKER on PR
     #: #241).
     #:
@@ -2989,9 +3043,19 @@ def test_baremetal_profile_contract():
                                   helper=None):
         """Answer the boot contract from the RESOLVED assembly.
 
-        Four questions, each about a VALUE or an EDGE and none about a
+        Five questions, each about a VALUE or an EDGE and none about a
         spelling:
 
+        0. how is the choke point ENTERED?  Every question below is about
+           its INSIDE, and question 3 hands it a synthetic verdict, so on
+           their own they prove dominance for one execution rather than for
+           the call edges the firmware has.  So: the choke point is neither
+           exported nor address-taken, this unit makes no transfer through a
+           register at all, exactly one call edge reaches the choke point and
+           it comes from milan_init(), and the value that edge hands it is
+           the one load_aem_image() produced.  A call edge this resolver
+           cannot place, and an argument it cannot trace to the verifier, are
+           REFUSALS ([R0] BLOCKER on PR #241);
         1. does any function STORE to an address this resolves inside the
            Milan CSR window?  No exemption, not even the address helper:
            forming the address is that helper's job, storing through a
@@ -3018,12 +3082,104 @@ def test_baremetal_profile_contract():
         """
         unit = rv32_unit(assembly)
         runs = unit["runs"]
-        for needed in ("entity_advertise", "load_aem_image", "milan_write"):
+        for needed in ("entity_advertise", "load_aem_image", "milan_write",
+                       "milan_init"):
             assert needed in unit["functions"], \
                 f"the compiled {label} defines no {needed}(), so the " \
                 "resolved boot-flow measurement has nothing to answer " \
                 "about; refusing rather than reporting a bounded result"
         window = f"0x{csr_base:08x}..0x{csr_base + csr_size:08x}"
+
+        # ---- 0. every ENTRANCE into the choke point ----------------------
+        #
+        # Questions 2 and 3 below are about the INSIDE of the choke point:
+        # which writes it holds, and that its verdict test dominates them.
+        # Neither says how it is ENTERED, and question 3 runs it in
+        # isolation on a SYNTHETIC verdict, so between them they prove
+        # dominance for one execution and for no call edge the firmware
+        # actually has. A table holding the choke point's address, called
+        # from a UART handler with a literal 1, keeps every enable inside
+        # the choke point, keeps the local `if (!verified)` dominating them,
+        # keeps the one literal call site spelled
+        # `entity_advertise(aem_loaded)` -- and advertises the entity after
+        # an AEM CRC failure ([R0] BLOCKER on PR #241, third round).
+        #
+        # So the ARGUMENT LATTICE is closed at the entrance as well, and it
+        # is closed FAIL-CLOSED at both ends: a call edge this resolver
+        # cannot place, and an argument it cannot trace back to the AEM
+        # verifier, are REFUSALS. Neither is ever read as "verified".
+        choke = "entity_advertise"
+        reached = ("exports" if choke in unit["exported"]
+                   else "forms the ADDRESS of")
+        assert choke not in unit["exported"] and \
+            choke not in unit["addressed"], \
+            f"the compiled {label} {reached} {choke}(), which is an " \
+            f"{RESOLVER_ENTRANCE_PIN}: a symbol another translation unit " \
+            "can name, or an address parked in a table and reached through " \
+            "jalr, is a call site this unit's assembly never shows, so no " \
+            "rule here can say what verdict the choke point is entered " \
+            "with, and the dominance measured below would hold for a " \
+            "synthetic argument and for nothing else"
+        #: ... and the same fact WHITELISTED rather than blacklisted, which
+        #: is the shape the rule above cannot have on its own: a list of
+        #: spellings to refuse is the recognizer this ticket exists to
+        #: retire, and `.set alias,entity_advertise` is neither an export of
+        #: this name nor an address of it while still handing another unit a
+        #: global symbol that calls the choke point. So: the four forms the
+        #: compiler emits for a private function called by name are listed,
+        #: and every other line naming it is a refusal.
+        allowed_use = re.compile(
+            rf"^{re.escape(choke)}:$"
+            rf"|^\.type\s+{re.escape(choke)},\s*@function$"
+            rf"|^\.size\s+{re.escape(choke)},\s*\.-{re.escape(choke)}$"
+            rf"|^call\s+{re.escape(choke)}$")
+        names_choke = re.compile(rf"(?<![\w.$]){re.escape(choke)}(?![\w.$])")
+        stray_use = sorted({" ".join(line.split())
+                            for line in assembly.splitlines()
+                            if names_choke.search(line) and
+                            not allowed_use.match(" ".join(line.split()))})
+        assert not stray_use, \
+            f"the compiled {label} names {choke}() in a form this gate does " \
+            "not recognise as the definition of a private function or a " \
+            f"direct call to it, so it must read it as an " \
+            f"{RESOLVER_ENTRANCE_PIN}: {stray_use}"
+        unplaceable = sorted(
+            f"{name}() at {at} through {callee}"
+            for name, run in runs.items()
+            for at, (callee, _handed) in run["calls"]
+            if callee in RV32_REG_NAMES)
+        assert not unplaceable, \
+            f"the compiled {label} transfers control through a register " \
+            "this resolver cannot tie to a symbol, which it must read as " \
+            f"an {RESOLVER_ENTRANCE_PIN}: " + "; ".join(unplaceable) + \
+            ". An instrument that cannot place a call edge must REFUSE it " \
+            f"rather than assume where it goes, because {choke}() is " \
+            "precisely what it cannot rule out"
+        entrances = sorted(
+            (name, at) for name, run in runs.items()
+            for at, (callee, _handed) in run["calls"] if callee == choke)
+        assert [name for name, _at in entrances] == ["milan_init"], \
+            f"the compiled {label} enters {choke}() from " \
+            f"{[name for name, _at in entrances] or 'nowhere'}, not from " \
+            "milan_init() exactly once: a second call site is an " \
+            f"{RESOLVER_ENTRANCE_PIN}, and one edge from the boot path is " \
+            "what makes the argument resolved next the only argument this " \
+            "function is ever handed"
+        verdict_tag = Rv32Tag("load_aem_image")
+        boot = rv32_run(unit["functions"]["milan_init"], unit["data"],
+                        tags={"load_aem_image": verdict_tag})
+        handed_verdict = [handed["a0"]
+                          for _at, (callee, handed) in boot["calls"]
+                          if callee == choke]
+        assert handed_verdict == [verdict_tag], \
+            f"the compiled {label} enters {choke}() with " \
+            f"{handed_verdict!r} rather than with the one value " \
+            f"load_aem_image() handed back, so it is {RESOLVER_VERDICT_PIN}"\
+            ". The argument is tracked from its PRODUCER through the "\
+            "emitted code, so an alias, a macro body or an assignment "\
+            "between the verifier and the call does not change the answer " \
+            "-- and an argument this resolver cannot resolve is a REFUSAL, " \
+            "never a default of verified"
 
         # ---- 1. resolved stores into the control window ------------------
         for name, run in sorted(runs.items()):
@@ -3228,6 +3384,8 @@ def test_baremetal_profile_contract():
                 for (name, kind, detail), (count, _details)
                 in residual.items()),
             "seeded": sorted(unit["seeds"]),
+            "entrances": [f"{name}()" for name, _at in entrances],
+            "calls": sum(len(run["calls"]) for run in runs.values()),
         }
 
     #: ---- the CFG join's own self-test ([R0] MAJOR on PR #241) ---------
@@ -5653,6 +5811,75 @@ def test_baremetal_profile_contract():
     formfeed_macro_enable = macro_enable.replace("\\\n", "\\\f\n", 1)
     assert formfeed_macro_enable != macro_enable, \
         "form-feed continuation-line macro mutation did not apply"
+
+    #: ---- the ENTRANCES into the choke point ([R0] BLOCKER on PR #241,
+    #: third round). Every rule above answers about the INSIDE of
+    #: entity_advertise(): which writes it holds, and that its verdict test
+    #: dominates them. None of them answers how it is ENTERED, and the
+    #: dominance measurement hands it a SYNTHETIC verdict, so on its own it
+    #: holds for one execution rather than for the call edges the firmware
+    #: really has. These three are the classes of entrance that leaves open.
+    #:
+    #: 1. the reviewer's own control: the choke point's ADDRESS is stored in
+    #:    a table and a UART handler calls it through that table with a
+    #:    literal 1. Warning-clean on the exact RV32 target at -O0
+    #:    -fno-inline and at -O2 under -std=gnu99 -Wall -Wextra -Werror.
+    address_taken_choke = replace_once(
+        replace_once(
+            firmware_source, "static int load_aem_image(void)",
+            "static void (*advertise_hook)(int) = entity_advertise;\n\n"
+            "static int load_aem_image(void)",
+            "choke point's address stored in a table"),
+        "\tprint_tod(gettime_ns());\n}",
+        "\tadvertise_hook(1);\n\tprint_tod(gettime_ns());\n}",
+        "choke point entered through a function pointer")
+    #: 2. a SECOND direct call, spelled so the source rule's call counter
+    #:    does not see it: that counter matches `entity_advertise(...)` only
+    #:    where a `;` follows the closing parenthesis, and a comma expression
+    #:    puts an operand there instead. Nothing is indirect and no address
+    #:    is taken; there are simply two call edges into the choke point.
+    second_direct_call = replace_once(
+        firmware_source, "\tprint_tod(gettime_ns());\n}",
+        "\tentity_advertise(1), (void)0;\n\tprint_tod(gettime_ns());\n}",
+        "second direct call to the choke point")
+    #: 3. the single call edge KEPT and its ARGUMENT overwritten after the
+    #:    verifier has run, through an ALIAS the assignment recognizer above
+    #:    cannot see: that rule pins every spelling that NAMES aem_loaded,
+    #:    and an object-like #define names something else. Every anchor the
+    #:    source rules read survives -- one assignment, still from
+    #:    load_aem_image(), one call, still `entity_advertise(aem_loaded)`,
+    #:    and no address of the verdict taken anywhere.
+    verdict_replaced_before_call = replace_once(
+        replace_once(
+            firmware_source, "static int aem_loaded;",
+            "static int aem_loaded;\n#define aem_verdict aem_loaded",
+            "verdict alias"),
+        load_statement, load_statement + "\n\taem_verdict = 1;",
+        "verdict overwritten through an alias")
+    #: 4. an indirect call whose target is NOT the choke point, so the
+    #:    unplaceable-call-edge rule is exercised on its own rather than
+    #:    behind the address-taken rule that answers mutant 1 first. An
+    #:    unexercised fail-closed branch is a claim, not a measurement.
+    indirect_call_elsewhere = replace_once(
+        replace_once(
+            firmware_source, "static int load_aem_image(void)",
+            "static void (*tod_hook)(uint64_t) = print_tod;\n\n"
+            "static int load_aem_image(void)",
+            "print helper's address stored in a table"),
+        "\tprint_tod(gettime_ns());\n}",
+        "\ttod_hook(gettime_ns());\n}",
+        "print helper called through a function pointer")
+    #: 5. a GLOBAL ALIAS of the choke point: `.globl entity_advertise_public`
+    #:    plus `.set entity_advertise_public,entity_advertise`. It exports a
+    #:    name that calls the choke point without exporting THIS name and
+    #:    without forming its address, so it passes the export and
+    #:    address-taken rule and is caught only by the whitelist beside it.
+    aliased_choke = replace_once(
+        firmware_source, "static int load_aem_image(void)",
+        "void entity_advertise_public(int)\n"
+        "\t__attribute__((alias(\"entity_advertise\")));\n\n"
+        "static int load_aem_image(void)",
+        "global alias of the choke point")
     verdict_pointer = replace_once(
         replace_once(firmware_source, load_statement,
                      load_statement +
@@ -7170,6 +7397,21 @@ def test_baremetal_profile_contract():
         ("entity enable hidden after form-feed macro continuation "
          "whitespace", formfeed_macro_enable, docs_source, csr_source,
          RESOLVER_CHOKE_PIN),
+        ("choke point's address stored in a table and called through it "
+         "from a UART handler", address_taken_choke, docs_source, csr_source,
+         RESOLVER_ENTRANCE_PIN),
+        ("a second direct call to the choke point, spelled past the source "
+         "rule's call counter", second_direct_call, docs_source, csr_source,
+         RESOLVER_ENTRANCE_PIN),
+        ("the verifier's verdict overwritten through an alias the assignment "
+         "rule cannot see", verdict_replaced_before_call, docs_source,
+         csr_source, RESOLVER_VERDICT_PIN),
+        ("an indirect call whose target is not the choke point at all",
+         indirect_call_elsewhere, docs_source, csr_source,
+         RESOLVER_ENTRANCE_PIN),
+        ("a global alias of the choke point, which exports neither this "
+         "name nor its address", aliased_choke, docs_source, csr_source,
+         RESOLVER_ENTRANCE_PIN),
     )
     if baseline_census_verdict["ran"]:
         mutations += census_only_mutations + resolver_only_mutations
@@ -7322,6 +7564,11 @@ def test_baremetal_profile_contract():
                "cast set, store set or immediate census sees"
                if _resolved["residual"] else
                "every store the compiler emitted was placed") +
+            f"; it placed all {_resolved['calls']} call edge(s) the "
+            "compiler emitted, of which "
+            f"{len(_resolved['entrances'])} enter(s) the choke point, from "
+            f"{', '.join(_resolved['entrances']) or 'nowhere'}, carrying "
+            "the value load_aem_image() returned"
             "; " + store_classes_note + "; and " + join_control_note)
     else:
         helper_blind_note = (
@@ -7431,7 +7678,14 @@ def test_baremetal_profile_contract():
           "taken over MILAN_AEM_DESC_BASE for MILAN_AEM_IMAGE_BYTES, the "
           "compared value is tracked from the crc32() call that produced "
           "it, and removing the CRC-equality edge leaves every reachable "
-          "return resolved to zero. Verifier CFG reachability and CRC "
+          "return resolved to zero; and (e) the choke point is neither "
+          "exported nor address-taken, this unit transfers control through "
+          "no register at all, entity_advertise() is entered exactly once "
+          "and only from milan_init(), and the value that edge hands it is "
+          "tracked from the load_aem_image() call that produced it -- so "
+          "the dominance in (c) is proved for the argument the firmware "
+          "really passes and not only for a synthetic one. Verifier CFG "
+          "reachability and CRC "
           "provenance are therefore MEASURED, not open. It resolves what "
           "the compiler emitted for THIS translation unit at the census's "
           "flags, and reports 'cannot say' as a REFUSAL wherever the "
