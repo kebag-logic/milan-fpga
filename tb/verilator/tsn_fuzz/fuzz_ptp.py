@@ -1392,7 +1392,10 @@ class Campaign:
 
         # a legal deep path trace is capped at 8 published hops but adopts;
         # wire-legal means the announced grandmaster heads the path and the
-        # count is stepsRemoved+1 (10.5.3.3.4)
+        # count is stepsRemoved+1 (10.5.3.3.4). Until #217 this 164-octet
+        # frame was also the campaign's only above-minimum Announce
+        # acceptance; the suffix_accept section now carries that duty by
+        # name, so this fixture may be reshaped for the cap's own reasons
         self.become_gm()
         after = self.send(wire.ptp_announce(
             sequence_id=self.nseq("announce"), gm_identity=0x4444,
@@ -1540,7 +1543,161 @@ class Campaign:
         self.rep.ck("recovery pair: offset back near +1000",
                     abs(off - 1000) <= 300, "offset=%d" % off)
 
-    # ---------------------------------------------------------- 10 cease
+    # --------------------------------------- 10 the accept side (issue #217)
+    def suffix_accept(self):
+        self.rep.section("the accept side of the length oracle: one "
+                         "over-minimum frame per parsed type, accepted "
+                         "and ACTED ON")
+        # The truncation probes prove one byte below each per-type minimum
+        # is refused; without this section nothing proves an octet ABOVE it
+        # is accepted, so a parser narrowed to exact length would pass the
+        # whole campaign (issue #217 -- Announce alone had incidental
+        # coverage through the qualification fixtures). One probe per
+        # parsed type carries the same legal 12-octet suffix TLV
+        # (11.4.2.2: messageLength counts through the last TLV; 11.4.1: an
+        # unrecognized TLV is ignored) and must be acted on downstream --
+        # parser admission alone could pass against a plane that admits
+        # and then discards. Each probe's teeth are proven by its own
+        # planted narrowing, N10 to N15 in the README's mutation table:
+        # restrict the parser's declared-length arm to that one type's
+        # exact minimum and the probe here goes red by name.
+        suf = wire.ptp_suffix_tlv()
+
+        # Sync and Follow_Up: consumed and STEERED. The steering deltas
+        # (3 us, 7 us) are values no earlier section leaves in the servo,
+        # so the offset landing near them proves THIS pair was consumed.
+        self.master = (GMID, 100)
+        self.refresh_master()
+        self.tick(2)
+
+        def steer(label, delta, sync_suffix, fu_suffix):
+            self.refresh_master()
+            sq = self.nseq("sync")
+            before = self.state()
+            at = self.phc_of(before)
+            self.send(wire.ptp_sync(sequence_id=sq, suffix=sync_suffix))
+            after = self.send(wire.ptp_follow_up(
+                sequence_id=sq, origin_ns=at - delta - D_NOM,
+                suffix=fu_suffix))
+            self.rep.eq("%s: parser drop counter unmoved" % label,
+                        after[S_RXDROP], before[S_RXDROP])
+            st = self.tick(2)
+            off = (st[S_OFFSET] - (1 << 32) if st[S_OFFSET] >> 31
+                   else st[S_OFFSET])
+            self.rep.ck("%s: consumed and steered, offset lands near %+d"
+                        % (label, delta), abs(off - delta) <= 300,
+                        "offset=%d" % off)
+
+        steer("suffixed Sync, 44 plus 12 declared 56", 3000, suf, b"")
+        steer("suffixed Follow_Up, 76 plus 12 declared 88", 7000, b"", suf)
+
+        # Pdelay_Req: ANSWERED. Same downstream oracle as the reserved-
+        # garbage probe: the responder role only sees a request the parser
+        # admitted.
+        self.drain_tx()
+        seq = 0x51A0
+        before = self.state()
+        after = self.send(wire.ptp_pdelay_req(
+            sequence_id=seq, suffix=suf, source_clock_identity=PEER2_CID,
+            source_port_number=2, src=wire.GPTP_PEER2_MAC))
+        self.rep.eq("suffixed Pdelay_Req, 54 plus 12 declared 66: parser "
+                    "drop counter unmoved",
+                    after[S_RXDROP], before[S_RXDROP])
+        resp = self.wait_tx(wire.PTP_PDELAY_RESP, SECOND)
+        self.rep.ck("suffixed Pdelay_Req, 54 plus 12 declared 66: answered "
+                    "with its own sequence",
+                    resp is not None and
+                    wire.PtpMsg(resp).sequence_id == seq,
+                    "seq=%s" % (resp and wire.PtpMsg(resp).sequence_id))
+
+        # Pdelay_Resp and Pdelay_Resp_Follow_Up: the pair COMPLETES the
+        # exchange -- the published neighborPropDelay is re-measured from
+        # it. One hand exchange per type, the suffix on that type's frame
+        # only, so a narrowing refuses exactly the frame under test: a
+        # dropped Resp arms nothing and a dropped Follow_Up completes
+        # nothing, and in both cases the delay stands still. The hand
+        # exchange's timing is not the bench responder's (t4 - t1 spans
+        # the observation ticks), so the delay it publishes is a value no
+        # real exchange leaves; the recovery ladder behind each -- the
+        # same one the foreign-portNumber probe proved -- re-measures and
+        # re-climbs before anything else is graded.
+        def exchange_completes(label, resp_suffix, rfu_suffix):
+            self.responder(False)
+            mark = len(self.txq)
+            self.drain_tx()
+            got_req = self.wait_tx(wire.PTP_PDELAY_REQ,
+                                   4 * SECOND) is not None
+            self.tick(4)
+            # answer the NEWEST outstanding request: the pairing arms
+            # against the plane's latest sequence, and a 1 s cadence can
+            # put a second request inside wait_tx's observation window
+            reqs = self.tx_of_type(wire.PTP_PDELAY_REQ, mark)
+            self.drain_tx()
+            if not self.rep.ck("%s: an unanswered request to answer"
+                               % label, got_req and len(reqs) > 0):
+                self.responder(True)
+                return
+            rq = wire.PtpMsg(reqs[-1])
+            t2 = self.phc_of(self.state()) + 5_000_000
+            before = self.state()
+            self.send(wire.ptp_pdelay_resp(
+                sequence_id=rq.sequence_id, t2_ns=t2,
+                requesting_clock_identity=OUR_CID,
+                requesting_port_number=rq.source_port_number,
+                source_clock_identity=PEER_CID, suffix=resp_suffix))
+            self.send(wire.ptp_pdelay_resp_fu(
+                sequence_id=rq.sequence_id, t3_ns=t2 + 200,
+                requesting_clock_identity=OUR_CID,
+                requesting_port_number=rq.source_port_number,
+                source_clock_identity=PEER_CID, suffix=rfu_suffix))
+            after = self.tick(2)
+            self.rep.eq("%s: parser drop counter unmoved" % label,
+                        after[S_RXDROP], before[S_RXDROP])
+            self.rep.ck("%s: the exchange completes, peer delay "
+                        "re-measured" % label,
+                        after[S_PDELAY] != before[S_PDELAY],
+                        "pdelay %d -> %d" % (before[S_PDELAY],
+                                             after[S_PDELAY]))
+            self.responder(True)
+            st = self.state()
+            spent = 0
+            while not (st[S_FLAGS] & FL_ASCAP) and spent < 16 * SECOND:
+                st = self.tick(200)
+                spent += 200 * 10000
+            self.rep.eq("after the %s probe: asCapable is whole" % label,
+                        st[S_FLAGS] & FL_ASCAP, FL_ASCAP)
+            self.rep.ck("after the %s probe: the delay is re-measured "
+                        "from real exchanges" % label,
+                        abs((st[S_PDELAY] & 0xFFFFFFFF) - st[S_PDEXP]) <= 32,
+                        "pdelay=%d expect=%d" % (st[S_PDELAY], st[S_PDEXP]))
+
+        exchange_completes("suffixed Pdelay_Resp, 54 plus 12 declared 66",
+                           suf, b"")
+        exchange_completes("suffixed Pdelay_Resp_Follow_Up, 54 plus 12 "
+                           "declared 66", b"", suf)
+
+        # Announce: ADOPTED, and NAMED for length acceptance. Until this
+        # probe the only over-minimum Announce acceptances were the
+        # qualification fixtures and the 12-hop cap probe, whose lengths
+        # are incidental to their purpose (issue #217): narrow any of
+        # them for its own reason and the coverage vanished in silence.
+        self.become_gm()
+        before = self.state()
+        self.send(wire.ptp_announce(
+            sequence_id=self.nseq("announce"), gm_identity=0x7777,
+            gm_priority1=100, source_clock_identity=PEER2_CID,
+            src=wire.GPTP_PEER2_MAC, suffix=suf))
+        after = self.tick(2)
+        self.rep.eq("suffixed Announce, 76 plus 12 declared 88: parser "
+                    "drop counter unmoved",
+                    after[S_RXDROP], before[S_RXDROP])
+        self.rep.eq("suffixed Announce, 76 plus 12 declared 88: length "
+                    "accepted, better vector ADOPTED",
+                    self.gm_of(after), 0x7777)
+        # let the adopted vector expire: the next section starts from GM
+        self.become_gm()
+
+    # ---------------------------------------------------------- 11 cease
     def cease(self):
         self.rep.section("Milan 4.2.6.2.5: multiple responders cease "
                          "Pdelay_Req; duplicates do not")
@@ -1606,7 +1763,7 @@ class Campaign:
                     kept >= 4, "kept=%d" % kept)
         self.responder(True)
 
-    # --------------------------------------------------------- 11 storms
+    # --------------------------------------------------------- 12 storms
     def storms(self, models, rounds):
         # climb FIRST (it opens its own section) so the storm checks below
         # are attributed to the storm section, not the re-climb
@@ -1674,7 +1831,7 @@ class Campaign:
         self.rep.eq("STATE STABLE: still adopts the master after the storms",
                     self.gm_of(st), GMID)
 
-    # -------------------------------------------------------- 12 drought
+    # -------------------------------------------------------- 13 drought
     def drought(self):
         self.rep.section("the two-sided canary: asCapable falls in a "
                          "response drought, then climbs again")
@@ -1734,6 +1891,7 @@ def main():
         c.responder_correct(models)
         c.btca()
         c.sync_pairs()
+        c.suffix_accept()
         c.cease()
         c.storms(models, args.rounds)
         c.drought()
