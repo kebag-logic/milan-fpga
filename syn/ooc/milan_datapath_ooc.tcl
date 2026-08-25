@@ -37,18 +37,69 @@ puts "milan_datapath OOC: tag=$TAG"
 # ltn_rom.hex, and Vivado read the absent ucode.hex as an all-zero ROM behind
 # one CRITICAL WARNING (Synth 8-4445), constant-folded the AECP uCPU, and
 # completed rc=0 with a full, plausible utilization report 7,923 LUT under
-# the shipping design. `exec` takes each generator's exit status (a failed
-# generator aborts the script); the check after it refuses an image a
-# generator left missing or empty, exactly pp_shadow_ooc.tcl's contract.
-foreach {img gen} [list \
-    ltn_rom.hex $REPO/protocol-processor/hdl/acmp/rom/gen_ltn_rom.py \
-    ucode.hex   $REPO/protocol-processor/hdl/aecp/ucode/gen_ucode.py] {
-  exec python3 $gen -o $img
-  if {![file exists $img] || [file size $img] == 0} {
-    error "milan_datapath OOC: $img is missing or empty in [pwd] after its\
-generator ($gen) exited 0. Refusing to synthesize: an area report built on a\
-ROM Vivado could not open is not a measurement (#246)."
+# the shipping design.
+#
+# The contract, per image ([R-parallel] on PR #264 closed the survivors):
+#   - the target is DELETED first, generation goes to a fresh temp file, and
+#     the image is published by rename only after it validates, so a stale
+#     file in the run directory plus a no-op generator can never be measured;
+#   - `exec` takes the generator's exit status (a failed generator aborts);
+#   - the image must hold EXACTLY its ROM's geometry, derived from the
+#     pinned packages (never copied here, where it would drift): after
+#     //-comment stripping, depth words of width/4 hex digits, x/z refused.
+#     $readmemh part-fills a short image with X and Vivado prices the X-ROM;
+#     a one-word "non-empty" image is the same lie as an absent one.
+set PP $REPO/protocol-processor/hdl
+
+proc pkg_num {path name} {
+  set fh [open $path r]; set text [read $fh]; close $fh
+  if {![regexp "$name\\s*=\\s*(\\d+)" $text -> v]} {
+    error "milan_datapath OOC: cannot derive $name from $path (geometry\
+source moved?)"
   }
+  return $v
+}
+
+proc rom_check {path digits words} {
+  set fh [open $path r]; set lines [split [read $fh] "\n"]; close $fh
+  set n 0
+  foreach line $lines {
+    regsub {//.*$} $line "" line
+    foreach tok [split $line] {
+      if {$tok eq ""} continue
+      incr n
+      if {![regexp {^[0-9a-fA-F]+$} $tok] || [string length $tok] != $digits} {
+        return "word $n ($tok) is not exactly $digits hex digits"
+      }
+    }
+  }
+  if {$n != $words} { return "$n words, expected exactly $words" }
+  return ""
+}
+
+set UCODE_W [pkg_num $PP/aecp/ucpu_pkg.sv UCODE_W_C]
+set UPC_W   [pkg_num $PP/aecp/ucpu_pkg.sv UPC_W_C]
+set TROM_W  [pkg_num $PP/acmp/pp_acmp_pkg.sv TROM_W_C]
+set TROM_D  [pkg_num $PP/acmp/pp_acmp_pkg.sv TROM_DEPTH_C]
+
+foreach {img gen digits words} [list \
+    ltn_rom.hex $REPO/protocol-processor/hdl/acmp/rom/gen_ltn_rom.py \
+                [expr {$TROM_W / 4}] $TROM_D \
+    ucode.hex   $REPO/protocol-processor/hdl/aecp/ucode/gen_ucode.py \
+                [expr {$UCODE_W / 4}] [expr {1 << $UPC_W}]] {
+  set tmp $img.gen.[pid]
+  file delete -force $img $tmp
+  exec python3 $gen -o $tmp
+  set diag "the generator exited 0 leaving no file"
+  if {[file exists $tmp]} { set diag [rom_check $tmp $digits $words] }
+  if {$diag ne ""} {
+    file delete -force $tmp
+    error "milan_datapath OOC: $img is malformed after generation by $gen:\
+$diag (expected ${words}x[expr {$digits * 4}]-bit). Refusing to synthesize:\
+an area report built on a ROM \$readmemh part-fills with X is not a\
+measurement (#246)."
+  }
+  file rename -force $tmp $img
 }
 
 # The absolute paths reach synth_design as generics, so the figure cannot

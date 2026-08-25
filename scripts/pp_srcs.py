@@ -94,6 +94,11 @@ PROSE_OK = {
     "sw/litex/milan_soc.py": (
         {"protocol-processor/hdl/top/protocol_processor_top.sv"},
         "a comment citing a submodule line number, not a source entry"),
+    "syn/ooc/milan_datapath_ooc.tcl": (
+        {"$PP/aecp/ucpu_pkg.sv", "$PP/acmp/pp_acmp_pkg.sv"},
+        "ROM geometry DERIVED by reading the pinned packages at run time "
+        "(#246): read targets for a validation bound, not compile entries; "
+        "the compile list stays derived through syn/ooc/dp_srcs.py"),
     "tests/steps/aecp_engine_steps.py": (
         {"protocol-processor/hdl/aecp/KL_aecp_desc_store.sv",
          "protocol-processor/hdl/aecp/KL_aecp_engine.sv",
