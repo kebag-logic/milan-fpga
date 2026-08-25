@@ -81,6 +81,22 @@ def check_pair(layout_path, expected_owner=None,
         raise ContractError(
             f"layout manifest {manifest!r} is a retired Linux boot chain "
             "(#259): the product manifest is 'baremetal'")
+    # [R-parallel] on #228: a manifest merely NOT-retired passed, so
+    # {manifest: 'not-baremetal', images: []} was approved as a flashable
+    # set. The one product manifest is 'baremetal', exactly, and the one
+    # product row set is exactly {bitstream, aem}: an absent row is an
+    # unflashable set, a surplus row is an unreviewed write.
+    if manifest != "baremetal":
+        raise ContractError(
+            f"layout manifest {manifest!r} is not the bare-metal product "
+            "manifest 'baremetal'")
+    required = {"bitstream", "aem"}
+    if names != required:
+        missing = sorted(required - names)
+        surplus = sorted(names - required)
+        raise ContractError(
+            "layout images are not exactly the bare-metal {bitstream, aem} "
+            f"set: missing {missing}, surplus {surplus}")
 
     if owner != "fabric":
         detail = ("has no gPTP owner" if owner == "none"
@@ -127,11 +143,13 @@ def self_test():
 
     with tempfile.TemporaryDirectory() as temp:
         def layout(owner, key=True, manifest="baremetal", extra_rows=(),
-                   name=None):
+                   name=None, rows="both"):
             path = os.path.join(
                 temp, name or f"layout-{owner}-{key}-{manifest}.json")
-            rows = [{"name": "bitstream", "offset": 0, "budget": 0x400000},
-                    {"name": "aem", "offset": 0x400000, "budget": 0x10000}]
+            bit_row = {"name": "bitstream", "offset": 0, "budget": 0x400000}
+            aem_row = {"name": "aem", "offset": 0x400000, "budget": 0x10000}
+            rows = {"both": [bit_row, aem_row], "empty": [],
+                    "no-aem": [bit_row], "no-bitstream": [aem_row]}[rows]
             rows += [dict(row) for row in extra_rows]
             body = {"images": rows}
             if manifest is not None:
@@ -163,6 +181,28 @@ def self_test():
         for manifest in RETIRED_MANIFESTS:
             expect(False, layout("fabric", manifest=manifest,
                                  name=f"retired-{manifest}.json"))
+        # [R-parallel] on #228: the exact reproduction this tool approved,
+        # {manifest: 'not-baremetal', fabric owner, cpu_xlen, no rows}, and
+        # each exact-set refusal beside it: the manifest must be exactly
+        # 'baremetal' and the rows exactly {bitstream, aem}.
+        repro = os.path.join(temp, "repro-not-baremetal.json")
+        with open(repro, "w", encoding="utf-8") as stream:
+            json.dump({"manifest": "not-baremetal", "gptp_owner": "fabric",
+                       "cpu_xlen": 32, "images": []}, stream)
+        expect(False, repro)
+        expect(False, layout("fabric", manifest=None,
+                             name="manifest-missing.json"))
+        expect(False, layout("fabric", manifest="Baremetal",
+                             name="manifest-case.json"))
+        expect(False, layout("fabric", rows="empty", name="no-rows.json"))
+        expect(False, layout("fabric", rows="no-aem", name="no-aem.json"))
+        expect(False, layout("fabric", rows="no-bitstream",
+                             name="no-bitstream.json"))
+        expect(False, layout("fabric",
+                             extra_rows=({"name": "extra",
+                                          "offset": 0x500000,
+                                          "budget": 0x1000},),
+                             name="surplus-row.json"))
         # Malformed layouts stay refusals, never crashes.
         expect(False, layout("fabric", extra_rows=({"name": "aem",
                                                     "offset": 0x600000},),

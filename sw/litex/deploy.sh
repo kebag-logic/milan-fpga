@@ -11,8 +11,9 @@
 #             (default: all)
 #   deploy.sh build --dry-run                                (print, do not build)
 #     BAUD=115200   console baud (our SoC default; the factory demo is 9600)
-#     BIT=<path>    bitstream for `flash-pair` (required there; other steps default
-#                   to the newest gateware/alinx_ax7101.bit)
+#     BIT=<path>    bitstream for `flash-pair` and `check-images` (both bind
+#                   the layout to its exact payload digest and FPGA part;
+#                   other steps default to the newest gateware/alinx_ax7101.bit)
 #     LAYOUT=<path> target flashboot_layout.json (required for flash-pair; other
 #                   steps default to the newest build's)
 #     AEM=<path>    target AEM descriptor image (defaults to the layout's
@@ -117,11 +118,23 @@ do_check_images() {
     # Retired Linux boot-chain rows, the retired software owner, and missing
     # or legacy metadata are hard errors. flash-pair runs this while
     # materializing the whole set, before its first write.
-    local pair_args=(--layout "$LAYOUT")
+    # [R-parallel] on #228: this advertised standalone verdict once ran on
+    # --layout alone, so a layout naming nonexistent artifacts (or none)
+    # still printed "image preflight OK". The verdict now requires the
+    # target artifacts themselves: the bitstream must exist non-empty and
+    # bind (payload sha256 + FPGA part) through the owner-pair check, and
+    # the complete non-bit target set is materialized and size-checked
+    # below with zero programmer I/O, exactly as flash-pair consumes it.
+    [ -n "$BIT" ] && [ -f "$BIT" ] && [ -s "$BIT" ] || {
+        echo "[deploy] image check REFUSED: set BIT=<target .bit> (a target set without its bitstream is not flashable)" >&2
+        exit 2
+    }
+    local pair_args=(--layout "$LAYOUT" --bit "$BIT"
+        --expected-fpga-part "$FPGA_PART")
     [ -z "${EXPECTED_GPTP_OWNER:-}" ] || \
         pair_args+=(--expected-owner "$EXPECTED_GPTP_OWNER")
     "$PYTHON" "$HERE/check_gptp_owner_pair.py" "${pair_args[@]}" || {
-        echo "[deploy] image check REFUSED: the layout is not a fabric-owned bare-metal image set." >&2
+        echo "[deploy] image check REFUSED: the layout is not a bound fabric-owned bare-metal image set." >&2
         exit 2
     }
     # The compiled CPU width is part of the artifact's identity binding: the
@@ -142,7 +155,15 @@ PY
         echo "[deploy] image check REFUSED: layout does not bind the compiled CPU width." >&2
         exit 2
     }
-    echo "[deploy] image preflight OK: $LAYOUT"
+    local tmp rows
+    tmp="$(mktemp -d)"; rows="$tmp/images.tsv"
+    if ! materialize_images "$tmp" "$rows"; then
+        rm -rf -- "$tmp"
+        echo "[deploy] image check REFUSED: the target image set does not materialize inside its layout budgets." >&2
+        exit 2
+    fi
+    rm -rf -- "$tmp"
+    echo "[deploy] image preflight OK: $LAYOUT (bound to $BIT, xlen $expected_xlen)"
 }
 
 run_ofl() {
@@ -159,14 +180,20 @@ run_ofl() {
 }
 
 prepare_images() {
+    # The full preflight (which itself materializes once, into its own tmp),
+    # then the materialization whose rows the write loop consumes.
+    do_check_images
+    materialize_images "$1" "$2" || exit 2
+}
+
+materialize_images() {
     # Materialize and size-check EVERY non-bit target before a single QSPI
     # write. A missing/oversized last image must not strand a partially updated
     # set merely because the old implementation discovered it inside its write
-    # loop.
+    # loop. No programmer I/O happens here; check-images runs this too.
     local tmp="$1" rows="$2" manifest_rows
     manifest_rows="$tmp/layout-rows.tsv"
     : > "$rows"
-    do_check_images
     # name<TAB>offset<TAB>ceiling for each manifest image. The ceiling is the
     # earliest of its declared budget, the next image/reservation, or 16 MiB.
     # Materialize this list synchronously: a failing process substitution is
