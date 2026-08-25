@@ -8549,7 +8549,7 @@ def test_gptp_rootfs_handoff_preserves_software_config():
         [sys.executable, pair_tool, "--self-test"], cwd=ROOT,
         text=True, capture_output=True)
     assert pair_self.returncode == 0, pair_self.stdout + pair_self.stderr
-    assert "22/22 checks pass" in pair_self.stdout
+    assert "29/29 checks pass" in pair_self.stdout
 
     transition_tool = os.path.join(SOC_DIR, "qspi_owner_transition.py")
     transition_self = subprocess.run(
@@ -8714,11 +8714,131 @@ def test_gptp_rootfs_handoff_preserves_software_config():
         assert not os.path.exists(programmer_log), \
             "build.sh trusted a target pair without installed-state proof"
 
+    # check-images false approvals ([R-parallel] on #228): the advertised
+    # standalone verdict once ran on --layout alone, so a layout naming no
+    # flashable artifact at all still printed "image preflight OK". Every
+    # arm asserts its refusal AND zero programmer access; the positive arm
+    # proves a complete bound pair still passes with zero programmer access.
+    with tempfile.TemporaryDirectory() as td:
+        fake_bin = os.path.join(td, "bin")
+        build_dir = os.path.join(td, "build")
+        os.makedirs(fake_bin)
+        os.makedirs(os.path.join(build_dir, "gateware"))
+        programmer_log = os.path.join(td, "programmer.log")
+        fake_ofl = os.path.join(fake_bin, "openFPGALoader")
+        with open(fake_ofl, "w", encoding="utf-8") as stream:
+            stream.write("#!/bin/sh\nprintf '%s\\n' \"$*\" >> \"$OFL_LOG\"\n")
+        os.chmod(fake_ofl, 0o755)
+
+        bit = os.path.join(build_dir, "gateware", "alinx_ax7101.bit")
+        qspi_transition._fake_bit(
+            bit, b"\xff" * 16 + b"\xaa\x99\x55\x66check-images")
+        other_bit = os.path.join(build_dir, "gateware", "other.bit")
+        qspi_transition._fake_bit(
+            other_bit, b"\xff" * 16 + b"\xaa\x99\x55\x66other-payload")
+        rows = [{"name": "bitstream", "offset": 0, "budget": 0x400000},
+                {"name": "aem", "offset": 0x400000, "budget": 0x10000}]
+
+        def write_layout(name, body):
+            path = os.path.join(build_dir, name)
+            with open(path, "w", encoding="utf-8") as stream:
+                json.dump(body, stream)
+            return path
+
+        def bound_body(**kw):
+            body = {"gptp_owner": "fabric", "manifest": "baremetal",
+                    "cpu_xlen": 32,
+                    "images": [dict(row) for row in rows]}
+            body.update(qspi_transition.bitstream_binding(bit))
+            body.update(kw)
+            return body
+
+        aem = os.path.join(build_dir, "aem_desc.bin")
+        with open(aem, "wb") as stream:
+            stream.write(b"AEMI" + b"\x00" * 60)
+
+        def check_images(layout, expect_ok, needle, arm, **env_over):
+            env = dict(os.environ)
+            env.update({"PATH": fake_bin + os.pathsep + env.get("PATH", ""),
+                        "OFL_LOG": programmer_log, "LAYOUT": layout,
+                        "BIT": bit, "AEM": aem,
+                        "PYTHON": sys.executable, "SERIAL": "TEST",
+                        "CABLE": "ft232", "FPGA_PART": "xc7a100tfgg484"})
+            env.update(env_over)
+            proc = subprocess.run(
+                [os.path.join(SOC_DIR, "deploy.sh"), "check-images"],
+                cwd=SOC_DIR, env=env, text=True, capture_output=True)
+            out = proc.stdout + proc.stderr
+            if expect_ok:
+                assert proc.returncode == 0, f"{arm}: {out}"
+            else:
+                assert proc.returncode != 0, \
+                    f"{arm}: a broken target set passed check-images\n{out}"
+            assert needle in out, f"{arm}: wanted {needle!r} in\n{out}"
+            assert not os.path.exists(programmer_log), \
+                f"{arm}: check-images reached the programmer"
+
+        check_images(write_layout("ok.json", bound_body()),
+                     True, "image preflight OK", "complete bound pair")
+        # The reviewer's reproduction (a): a manifest merely NOT-retired,
+        # fabric owner, no rows at all.
+        check_images(write_layout("repro-a.json",
+                                  {"manifest": "not-baremetal",
+                                   "gptp_owner": "fabric", "cpu_xlen": 32,
+                                   "images": []}),
+                     False, "not the bare-metal product manifest",
+                     "not-baremetal manifest")
+        # The reviewer's reproduction (b): nominal rows, no binding
+        # metadata, artifacts named but nonexistent.
+        unbound = {"gptp_owner": "fabric", "manifest": "baremetal",
+                   "cpu_xlen": 32, "images": [dict(row) for row in rows]}
+        check_images(write_layout("repro-b.json", unbound),
+                     False, "set BIT=", "nonexistent artifacts",
+                     BIT=os.path.join(build_dir, "missing.bit"),
+                     AEM=os.path.join(build_dir, "missing.bin"))
+        check_images(write_layout("unbound.json", unbound),
+                     False, "bitstream payload SHA-256 binding",
+                     "binding metadata absent")
+        body = bound_body()
+        body["images"] = [dict(rows[0])]
+        check_images(write_layout("no-aem-row.json", body),
+                     False, "missing ['aem']", "aem row removed")
+        body = bound_body()
+        body["images"] = [dict(rows[1])]
+        check_images(write_layout("no-bit-row.json", body),
+                     False, "missing ['bitstream']", "bitstream row removed")
+        body = bound_body()
+        body["images"].append({"name": "extra", "offset": 0x500000,
+                               "budget": 0x1000})
+        check_images(write_layout("surplus-row.json", body),
+                     False, "surplus ['extra']", "surplus row")
+        mismatched = {"gptp_owner": "fabric", "manifest": "baremetal",
+                      "cpu_xlen": 32,
+                      "images": [dict(row) for row in rows]}
+        mismatched.update(qspi_transition.bitstream_binding(other_bit))
+        check_images(write_layout("mismatched.json", mismatched),
+                     False, "binding failed", "bit payload mismatch")
+        body = bound_body()
+        del body["cpu_xlen"]
+        check_images(write_layout("no-xlen.json", body),
+                     False, "compiled CPU width", "cpu_xlen removed")
+        check_images(write_layout("no-aem-file.json", bound_body()),
+                     False, "set AEM=", "aem artifact missing",
+                     AEM=os.path.join(build_dir, "missing.bin"))
+        big_aem = os.path.join(build_dir, "aem_big.bin")
+        with open(big_aem, "wb") as stream:
+            stream.write(b"A" * 0x10001)
+        check_images(write_layout("oversize.json", bound_body()),
+                     False, "exceeds its", "aem oversize",
+                     AEM=big_aem)
+
     print("  [gate 1d] 22 bare-metal owner/binding arms, 19 transition "
           "parser/planner arms, soc.h owner/XLEN reconstruction with the "
           "retired software owner and Linux boot chain refused (#259), "
-          "payload-digest binding, and all persistent partial/unknown-state "
-          "entry points refuse before programmer I/O")
+          "payload-digest binding, all persistent partial/unknown-state "
+          "entry points refusing before programmer I/O, and 11 check-images "
+          "arms proving the standalone verdict binds and materializes the "
+          "exact bare-metal target set with zero programmer access")
 
 
 def test_qspi_owner_transition_completed_write_prefixes():
