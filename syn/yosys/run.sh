@@ -7,6 +7,7 @@
 #
 #   ./run.sh                                  # full serial gate, every top
 #   ./run.sh --list                           # print the authoritative inventory
+#   ./run.sh --emit KL_pp_shadow              # one top's record, for a consumer
 #   ./run.sh --shard 0/4 --results out/       # one weighted CI worker
 #   ./run.sh --mode elaborate --top TOP       # fast hierarchy/process smoke
 #   YOSYS_SYNTH=synth_ecp5 ./run.sh           # target a real device
@@ -24,6 +25,8 @@ usage: syn/yosys/run.sh [options]
   --top NAME             select one explicit top; may be repeated
   --list                 print selected top names; python3 only, no sv2v,
                          yosys or submodule checkout
+  --emit NAME            print one top's machine-readable inventory record
+                         (top=/define=/incdir=/derived=/src= lines) and exit
   --mode full|elaborate  full synthesis or fast hierarchy/process smoke
   --results DIRECTORY    write one machine-readable result per top/gate
   --no-structural        do not run the tied-input and tap-purity checks
@@ -34,6 +37,7 @@ EOF
 SHARD="0/1"
 MODE="full"
 LIST=0
+EMIT=""
 RESULTS=""
 NO_STRUCTURAL=0
 REQUESTED_TOPS=()
@@ -56,6 +60,10 @@ while [ "$#" -gt 0 ]; do
       RESULTS="$2"; shift 2 ;;
     --results=*) RESULTS="${1#--results=}"; shift ;;
     --list) LIST=1; shift ;;
+    --emit)
+      [ "$#" -ge 2 ] || { echo "--emit needs a top NAME" >&2; exit 2; }
+      EMIT="$2"; shift 2 ;;
+    --emit=*) EMIT="${1#--emit=}"; shift ;;
     --no-structural) NO_STRUCTURAL=1; shift ;;
     -h|--help) usage; exit 0 ;;
     *) echo "unknown option: $1" >&2; usage >&2; exit 2 ;;
@@ -69,6 +77,13 @@ if [ "${#REQUESTED_TOPS[@]}" -gt 0 ] && [ "$SHARD" != "0/1" ]; then
   echo "--top and a non-default --shard are mutually exclusive" >&2
   exit 2
 fi
+# --list deliberately derives NO sources; --emit is a source record. Answering
+# both at once would have to emit the "@pp-srcs-not-derived-for---list@"
+# placeholder as if it were a file.
+if [ -n "$EMIT" ] && [ "$LIST" -eq 1 ]; then
+  echo "--emit and --list are mutually exclusive" >&2
+  exit 2
+fi
 
 export PATH="$HOME/.local/bin:$PATH"
 R="$(cd "$(dirname "$0")/../.." && pwd)"
@@ -76,7 +91,27 @@ A="$R/third_party/verilog-axis/rtl"
 C="$R/hdl/common"; Q="$R/hdl/ieee8021q/ts"; P="$R/hdl/ieee8021as/ptp_timestamp"
 E="$R/hdl/common/eth_event_counter"; D="$R/hdl/ieee17221/adp"
 F="$R/hdl/ieee8021q/filtering"
-INC="-DSYNTHESIS -I $R/hdl/common -I $R/hdl/common/csr -I $Q -I $E -I $D -I $P"
+# PREPROCESSOR INPUTS AS LISTS, NOT AS ONE FLAG STRING. syn/ooc/dp_srcs.py asks
+# this script for them (`--emit`) and hands them to the same front end; a flag
+# string would have to be re-split by that consumer, and a consumer that re-reads
+# this file rather than being handed its contents is the defect class of #235.
+DEFINES=(SYNTHESIS)
+INCDIRS=("$R/hdl/common" "$R/hdl/common/csr" "$Q" "$E" "$D" "$P")
+
+# milan_datapath and nothing else `include's the elaboration-shape header. Named
+# once here so the flags the gate passes and the record `--emit` prints are the
+# same list.
+incdirs_for() {
+  case "$1" in
+    milan_datapath) printf '%s\n' "$R/configs/generated/endstation_arty_current" ;;
+  esac
+  printf '%s\n' "${INCDIRS[@]}"
+}
+inc_flags_for() {
+  local d
+  for d in "${DEFINES[@]}"; do printf -- '-D%s ' "$d"; done
+  while IFS= read -r d; do printf -- '-I %s ' "$d"; done < <(incdirs_for "$1")
+}
 SYNTH="${YOSYS_SYNTH:-synth}"
 
 # THE PROTOCOL PROCESSOR IS THE CONTROL PLANE (scenario B, 2026-08-13).
@@ -177,6 +212,32 @@ for spec in "${tops[@]}"; do
   all_names+=("$name")
   spec_by_name[$name]="$spec"
 done
+
+# `--emit NAME` HANDS ONE TOP'S RECORD TO A SECOND CONSUMER instead of letting
+# it read this file. syn/ooc/dp_srcs.py, which feeds the Vivado out-of-context
+# scripts, used to recognise the PP_SRCS composition and the `tops` row as text,
+# and a text recogniser accepts what bash does not: a generator path this script
+# would fail to execute, an argument it never passes, a commented-out row, a
+# positional that is not a source ([R0] on PR #240). Everything printed below is
+# bash's own expansion of the array the gate synthesises, so a mutation of this
+# file either moves both consumers or fails both.
+if [ -n "$EMIT" ]; then
+  [ "${spec_by_name[$EMIT]+set}" = set ] || {
+    echo "unknown top: $EMIT" >&2
+    exit 2
+  }
+  emit_spec="${spec_by_name[$EMIT]}"
+  printf 'top=%s\n' "$EMIT"
+  for emit_d in "${DEFINES[@]}"; do printf 'define=%s\n' "$emit_d"; done
+  while IFS= read -r emit_d; do printf 'incdir=%s\n' "$emit_d"; done \
+    < <(incdirs_for "$EMIT")
+  # The generated half, named so the consumer can assert it survived whole.
+  for emit_f in ${PP_DERIVED:-}; do printf 'derived=%s\n' "$emit_f"; done
+  # UNQUOTED on purpose: this is the same word splitting that builds sv2v's
+  # argument list below, so the record cannot hold a token the gate would not.
+  for emit_f in ${emit_spec#*|}; do printf 'src=%s\n' "$emit_f"; done
+  exit 0
+fi
 
 python3 "$R/scripts/yosys_shards.py" --selftest >/dev/null || {
   echo "Yosys shard selector fails its own self-test" >&2
@@ -279,9 +340,7 @@ for name in "${selected_names[@]}"; do
   spec="${spec_by_name[$name]}"
   top="${spec%%|*}"
   srcs="${spec#*|}"
-  inc="$INC"
-  [ "$top" = "milan_datapath" ] && \
-    inc="-I $R/configs/generated/endstation_arty_current $INC"
+  inc="$(inc_flags_for "$top")"
 
   if ! sv2v --top="$top" $inc $srcs > "$TMP/$top.v" 2> "$TMP/$top.sv2v.err"; then
     printf "  [FAIL] %-22s sv2v: %s\n" "$top" "$(head -1 "$TMP/$top.sv2v.err")"

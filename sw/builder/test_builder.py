@@ -7229,12 +7229,19 @@ REGMAP_MD = os.path.join(ROOT, "docs/reference/REGISTER_MAP.md")
 #: Everything that compiles hdl/common/csr/milan_csr.sv. Since 11944cd that
 #: file `include-s gen/lwsrp_csr_defaults.svh, so each of these must carry
 #: hdl/common/csr as an include dir (gate 20a). (path, regex proving it).
+#:
+#: syn/yosys/run.sh spells its include dirs as an INCDIRS array rather than as
+#: one -I flag string, because syn/ooc/dp_srcs.py asks that script for them
+#: (`run.sh --emit`) instead of re-reading the file (PR #240). The property this
+#: row checks is unchanged - the directory must be in the list run.sh compiles
+#: with - so only the spelling of the proof moved, and dropping the entry from
+#: INCDIRS still fails here.
 CSR_INCDIR_CONSUMERS = (
     ("tb/verilator/csr/Makefile", r"\+incdir\+\$\(RTL_DIR\)/common/csr"),
     ("tb/verilator/milan_dp/Makefile", r"\+incdir\+\$\(RTL_DIR\)/common/csr"),
     ("tb/verilator/hostplane/Makefile", r"\+incdir\+\$\(RTL_DIR\)/common/csr"),
     ("sw/litex/milan_soc.py", r"\"hdl/common/csr\""),
-    ("syn/yosys/run.sh", r"-I \$R/hdl/common/csr"),
+    ("syn/yosys/run.sh", r"INCDIRS=\([^)]*\"\$R/hdl/common/csr\""),
 )
 
 #: Real build trees / sibling repo used by the optional cross-check gates.

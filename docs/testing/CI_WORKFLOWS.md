@@ -27,7 +27,17 @@ pull-request update and on every push to `dev`. It produces one stable
 - ratcheted whole-tree Verilator lint for RTL/tooling-relevant changes;
 - BDD conformance;
 - a Yosys/sv2v elaboration smoke for `milan_datapath`, `KL_pp_shadow`, and
-  `KL_gptp_shadow` when RTL or its tooling changes.
+  `KL_gptp_shadow` when RTL or its tooling changes;
+- the source-list checkers' own self-tests, and the two out-of-context read
+  sets expanded for real, so a source `syn/yosys/run.sh` names and the tree no
+  longer carries fails here rather than inside Vivado. Those read sets are
+  printed by `run.sh --emit` rather than read out of it, and nothing in the
+  record is filtered: a token that is not a `.sv`/`.v` source is refused, not
+  dropped. The declaration of the top is resolved through `sv2v --top`, which
+  this job installs, and through nothing else -- three models of the directive
+  layer were each accepted and then broken by a construct they did not model
+  ([R0] on PR #240, rounds one to three), so a missing front end is a refusal
+  with no flag to soften it.
 
 A change containing only living documentation or an Issue template skips the
 Verilator and Yosys setup jobs. The aggregate still completes, so a docs-only PR

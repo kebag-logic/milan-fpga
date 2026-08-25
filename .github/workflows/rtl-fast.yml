@@ -147,6 +147,27 @@ jobs:
             --top KL_pp_shadow \
             --top KL_gptp_shadow
 
+      # The OOC instruments' refusals, in the gate rather than beside it. Both
+      # were added with manual evidence only, and a refusal nothing runs is a
+      # refusal that rots: deleting either left every hosted check green
+      # ([R0] on PR #240). It runs in THIS job, not beside the lint, because
+      # syn/ooc/dp_srcs.py answers "does the read set declare the top" with the
+      # front end and with nothing else -- three models of the directive layer
+      # were each broken by a construct they did not model ([R0] rounds one to
+      # three) -- so its self-test needs the sv2v this job installs, and an
+      # absent sv2v is a refusal there is no flag to soften.
+      - name: Prove the OOC read sets come from run.sh and refuse a bad one
+        run: |
+          set -euo pipefail
+          command -v tclsh >/dev/null || {
+            sudo apt-get update -qq
+            sudo apt-get install -y --no-install-recommends tcl
+          }
+          python3 syn/ooc/dp_srcs.py --selftest
+          python3 syn/ooc/ooc_tcl_selftest.py
+          python3 syn/ooc/dp_srcs.py --top milan_datapath > /dev/null
+          python3 syn/ooc/dp_srcs.py --top KL_pp_shadow > /dev/null
+
   # This stable aggregate is the required fast verdict. Skipped RTL jobs are a
   # deliberate docs-only result; failures and cancellations remain failures.
   rtl-fast:

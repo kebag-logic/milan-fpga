@@ -69,10 +69,16 @@ anchors and to its 1,068 LUT µCPU measurement of record.
 ```sh
 cd <workdir>
 python3 <pp>/hdl/acmp/rom/gen_ltn_rom.py -o ltn_rom.hex
+python3 <pp>/hdl/aecp/ucode/gen_ucode.py -o ucode.hex
 PP_N_IN=1 PP_N_OUT=1 vivado -mode batch -source <repo>/syn/ooc/pp_shadow_ooc.tcl -nojournal
 ```
 
 Vivado 2026.1, `xc7a100t-fgg484-2`, `-mode out_of_context`, 100 MHz.
+`sv2v` must be on `PATH` as well: the read set comes from
+`syn/yosys/run.sh --emit` through `syn/ooc/dp_srcs.py`, which resolves
+`KL_pp_shadow` inside that set with `sv2v --top` and refuses to emit a
+list when nothing answers. The [tool table](../../README.md) carries the
+install line.
 
 ## Result
 
@@ -349,6 +355,82 @@ before anyone quotes these as vendor-neutral.
 `syn/ooc/pp_shadow_ooc.tcl` (this repo). `PP_N_IN` / `PP_N_OUT` select the
 shape and default to 8; the script prints the shape it used, because a
 utilization figure quoted without its shape is a figure that gets misapplied.
+
+Run it from an empty working directory outside the tree: both `$readmemh`
+images are generated into that directory, and the three reports land beside
+them.
+
+Both images are required, and the Instrument block above is the whole recipe.
+`ltn_rom.hex` on its own is not: the AECP microcode ROM reads `ucode.hex` by the
+same relative name, Vivado answers a missing image with a CRITICAL WARNING
+ending in "ignoring" rather than with an error, and the run completes and
+reports the area of a ROM full of X. On the 1x1 shape that omission understates
+the plane by 2,871 LUT (13,676 against 16,547) and by 5 block RAM tiles. The
+script refuses to synthesize unless both images are present.
+
+Its read set is not assembled here, and it is not read out of `run.sh` either.
+`syn/yosys/run.sh --emit KL_pp_shadow` prints bash's own expansion of the same
+row the portability gate synthesises -- the top name, the preprocessor defines
+and include directories, the generated submodule half `scripts/pp_srcs.py`
+returned, and every source token -- and `syn/ooc/dp_srcs.py` checks that record.
+An earlier version recognised the `PP_SRCS` composition and the `tops` row as
+text, and a text recogniser accepts what bash does not: a generator path
+`run.sh` would fail to execute, a `--prefix` it never passes, a commented-out
+decoy row, a positional that is not a source. All four passed at rc=0 ([R0] on
+PR #240, round two) and all four are self-test arms now. What the shape buys is
+narrower and checkable: a `run.sh` edit moves this read set exactly as it moves
+the Yosys one, or fails both.
+
+What is refused, exactly:
+
+- a source `run.sh` names that the tree does not carry (exit 1), instead of a
+  short list at exit 0;
+- a token `run.sh` names that is not a `.sv`/`.v` source, or the same source
+  twice, or a generated half that only partly survives (exit 2) -- nothing is
+  filtered out silently;
+- a read set in which nothing declares `module KL_pp_shadow` (exit 2), so a
+  `-top` outside its own read set is a named refusal instead of a Vivado
+  `module not found`. That question is answered by `sv2v --top` -- the front
+  end the Yosys gate already runs over this same list -- and by nothing else.
+  `dp_srcs.py` used to carry its own model of the directive layer so a host
+  without `sv2v` still got an answer, and three shapes of that model were each
+  accepted here and then broken by a construct they did not model: a block
+  comment ([R0] on PR #240, round one), an unexpanded macro BODY (round two),
+  and a declaration passed as the actual ARGUMENT of a multiline macro
+  invocation (round three), the last of which the model read as code while
+  `sv2v` answered `Could not find top module KL_pp_shadow`. Deciding which
+  `module` keyword survives macro expansion is what a preprocessor does, so the
+  model is gone rather than patched again and **`sv2v` is required to run this
+  recipe**, exactly as it is required by `syn/yosys/run.sh`, which owns the read
+  set. Without it `dp_srcs.py` refuses and names the missing tool; there is no
+  flag that turns that back into an emission.
+
+Neither refusal is claimed further than it is gated.
+`.github/workflows/rtl-fast.yml` runs `syn/ooc/dp_srcs.py --selftest` (35 arms:
+eleven on the record, the last of them proving a missing front end refuses;
+thirteen that put one construct each in a one-file read set and ask the REAL
+`sv2v` -- block-commented, line-commented, `ifdef`-guarded, in a string, a
+name-only mention, a prefix of the top, the three unexpanded-macro-body
+spellings and the round-three macro argument, plus a plain declaration and a
+macro-EXPANDED one that must both expand clean so the group cannot pass on a
+front end that refuses everything; and eleven that run mutated copies of the
+real `run.sh` under real bash, four of them the round-two counterexamples above
+and the last three the round-two and round-three constructs on the real read
+set, with and without a front end) and `syn/ooc/ooc_tcl_selftest.py` (5 arms,
+which drive this .tcl under `tclsh` with the Vivado commands stubbed), plus both
+expansions for real.
+
+Figures at a later head, for scale rather than as a replacement: the same
+instrument at `235-ooc-reads-its-top` `6ebbd17f` (on `dev` `cb444a09`), with
+that read set corrected and protocol-processor pinned at `3770ae02`, reads
+45 sources (44 SystemVerilog + 1 Verilog) and reports 20,945 LUT / 23,191 FF /
+17 BRAM / 4 DSP / WNS -5.466 ns with 1,651 failing endpoints at
+`N_STREAM_IN/OUT = 1`, and 27,743 LUT / 30,195 FF / 24.5 BRAM / 4 DSP /
+WNS -9.073 ns with 2,932 failing endpoints at 8. Both are post-synthesis
+out-of-context, so the WNS carries no placed-and-routed verdict. The table under
+Result is the 2026-08-12 measurement and stays that; the plane has roughly
+tripled at 1x1 since, most of it the AECP engine, its descriptor store and its
+microcoded core.
 
 ## THE SUBSTITUTION ON THE REAL BUILD — 2026-08-13
 

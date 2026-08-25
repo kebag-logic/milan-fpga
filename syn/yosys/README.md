@@ -71,6 +71,15 @@ the array.
   targets — `make ecp5` maps e.g. `tcam`→~1.7 k `TRELLIS_FF`, `milan_csr`→~2.2 k.
 - `axis_fifo`'s large cell count is its default `DEPTH=4096` RAM; instances in the
   design set a small depth.
+- `run.sh --emit NAME` prints one top's inventory record (`top=` / `define=` /
+  `incdir=` / `derived=` / `src=` lines) and exits. It exists so a second
+  consumer does not have to read this script: the Vivado out-of-context flow
+  (`syn/ooc/dp_srcs.py`) asks for the record instead of recognising the
+  `tops=()` row and the `PP_SRCS` composition as text. A recogniser accepts
+  what it has modelled and bash accepts something else, and four such
+  disagreements were measured on the recognising version (PR #240). Anything
+  printed is bash's own expansion of the row this script is about to
+  synthesise, so an edit here moves both consumers or fails both.
 
 ## `ooc.sh` — AREA measurement (a different question from `run.sh`)
 
