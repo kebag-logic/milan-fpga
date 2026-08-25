@@ -3271,10 +3271,11 @@ int main(int argc, char** argv) {
     //! while CHMAP_LOOP proves those keys do not alias a physical output.
     //!
     //! GEOMETRY ACROSS LEGS: this file elaborates under the 4x4 header
-    //! (4 channels -> 4 clusters/port) and the 8x8 header (8 -> 8), while
-    //! the descriptor image is always the 1x1 config's (ONE
-    //! STREAM_PORT_INPUT). Both provisioned clusters sit below 4 so every
-    //! leg serves them; number_of_maps is 1 in every leg (page = clusters).
+    //! (4 channels -> 4 clusters/port) and the 8x8 header, while the
+    //! descriptor image is always the 1x1 config's (ONE
+    //! STREAM_PORT_INPUT). On the arty legs both provisioned clusters sit
+    //! below 4 so the served path is proven there; the 8x8 header retired
+    //! its input pool (#259) and pins the zero-cluster posture instead.
     {
         printf("-- GET_AUDIO_MAP: the wire vs the CHMAP_LOOP readback --\n");
         enum { A_CHMAP_CTRL = 0x900, A_CHMAP_SEL = 0x904,
@@ -3299,8 +3300,10 @@ int main(int argc, char** argv) {
         const uint32_t e0 = loop_rd(0), e1 = loop_rd(1), e2 = loop_rd(2),
                        e3 = loop_rd(3);
 #ifdef AAF_PB_TB
-        ck("[AMAP] AX host cluster 0 does not alias RMAP", (long)e0, 0x00);
-        ck("[AMAP] AX host cluster 1 does not alias RMAP", (long)e1, 0x00);
+        ck("[AMAP] retired input key 0 does not alias RMAP (#259)",
+           (long)e0, 0x00);
+        ck("[AMAP] retired input key 1 does not alias RMAP (#259)",
+           (long)e1, 0x00);
 #else
         ck("[AMAP] LOOP reads cluster 0 = {en, avb 1.1}", (long)e0, 0x89);
         ck("[AMAP] LOOP reads cluster 1 = {en, RING 5}",  (long)e1, 0xC5);
@@ -3313,12 +3316,14 @@ int main(int argc, char** argv) {
         //! ({en, src 0}) at global cluster g means {stream idx[5:3],
         //! channel idx[2:0], cluster_offset g (base 0 on port 0),
         //! cluster_channel 0 (mono clusters)}
+#ifndef AAF_PB_TB
         auto rec_of = [](uint32_t ent, uint32_t g, uint8_t* out) {
             out[0] = 0; out[1] = (uint8_t)((ent >> 3) & 7);
             out[2] = 0; out[3] = (uint8_t)(ent & 7);
             out[4] = 0; out[5] = (uint8_t)g;
             out[6] = 0; out[7] = 0;
         };
+#endif
 
         std::vector<uint8_t> pl(8, 0);
         pl[1] = 0x0E;                                 // STREAM_PORT_INPUT 0
@@ -3326,24 +3331,45 @@ int main(int argc, char** argv) {
         ck("[AMAP] GET_AUDIO_MAP(SPI 0, page 0) was ANSWERED",
            (long)(r.size() >= 60), 1);
         if (r.size() >= 60) {
+#ifdef AAF_PB_TB
+            // #259: bare-metal retired the host input pool, so this leg's
+            // SPI declares ZERO clusters. The correct answer for a port
+            // with nothing to map is NOT_IMPLEMENTED with zero maps; the
+            // arty legs keep proving the served path.
+            ck("[AMAP] status NOT_IMPLEMENTED(11): input maps retired (#259)",
+               aecp_status(r), 11);
+            ck("[AMAP] cdl = 24 (no records)",
+               (long)((((unsigned)r[16] & 7) << 8) | r[17]), 24);
+            ck("[AMAP] the frame is as long as it claims", (long)r.size(),
+               60);
+#else
             ck("[AMAP] status SUCCESS(0), not NOT_IMPLEMENTED",
                aecp_status(r), 0);
             ck("[AMAP] cdl = 24 + 8*2 (two records)",
                (long)((((unsigned)r[16] & 7) << 8) | r[17]), 40);
             ck("[AMAP] the frame is as long as it claims", (long)r.size(),
                66);
+#endif
             ck("[AMAP] descriptor_type echoed",
                (long)(((unsigned)r[38] << 8) | r[39]), 0x000E);
             ck("[AMAP] descriptor_index echoed",
                (long)(((unsigned)r[40] << 8) | r[41]), 0);
             ck("[AMAP] map_index echoed",
                (long)(((unsigned)r[42] << 8) | r[43]), 0);
+#ifdef AAF_PB_TB
+            ck("[AMAP] number_of_maps = 0: no partition remains (#259)",
+               (long)(((unsigned)r[44] << 8) | r[45]), 0);
+            ck("[AMAP] number_of_mappings = 0",
+               (long)(((unsigned)r[46] << 8) | r[47]), 0);
+#else
             ck("[AMAP] number_of_maps = the ONE fixed partition",
                (long)(((unsigned)r[44] << 8) | r[45]), 1);
             ck("[AMAP] number_of_mappings = 2 (the RING entry excluded)",
                (long)(((unsigned)r[46] << 8) | r[47]), 2);
+#endif
             ck("[AMAP] reserved zero",
                (long)(((unsigned)r[48] << 8) | r[49]), 0);
+#ifndef AAF_PB_TB
             uint8_t want0[8], want1[8];
             rec_of(0x89, 0, want0);
             rec_of(0x83, 2, want1);
@@ -3354,17 +3380,30 @@ int main(int argc, char** argv) {
             }
             ck("[AMAP] both records equal the LOOP-derived expectation",
                bad, 0);
+#endif
         }
 
         //! the 7.4.44.1 page rule: map_index 1 of a 1-page port
         pl[5] = 0x01;
         const std::vector<uint8_t> rb = aecp_xact(0x002B, 0x4031, pl);
+#ifdef AAF_PB_TB
+        // #259: with zero input clusters there is no page to rule on -
+        // the retirement answer outranks the page check
+        ck("[AMAP] page 1 also answers NOT_IMPLEMENTED(11) (#259)",
+           aecp_status(rb), 11);
+        ck("[AMAP] ...with zero maps and an EMPTY page",
+           (long)(rb.size() >= 50
+                  ? (long)((((unsigned)rb[44] << 8) | rb[45]) << 16
+                           | (((unsigned)rb[46] << 8) | rb[47]))
+                  : -1), 0x00000000);
+#else
         ck("[AMAP] page 1 answers BAD_ARGUMENTS(7)", aecp_status(rb), 7);
         ck("[AMAP] ...with the real number_of_maps and an EMPTY page",
            (long)(rb.size() >= 50
                   ? (long)((((unsigned)rb[44] << 8) | rb[45]) << 16
                            | (((unsigned)rb[46] << 8) | rb[47]))
                   : -1), 0x00010000);
+#endif
 
         //! the image is the existence authority: probe the first SPI index
         //! absent from this leg's matching entity model
@@ -4509,6 +4548,21 @@ int main(int argc, char** argv) {
                 ck("#67 baseline: the base format is in force",
                    aecp_status(r2), 0);
                 std::vector<uint8_t> ra = aecp_xact(0x002C, sq2++, ap);
+#ifdef AAF_PB_TB
+                // #259: bare-metal retired the host input pool, so this
+                // leg's Stream Port Inputs declare ZERO clusters - the
+                // mapping never lands and no format member can orphan it.
+                // The arty legs keep proving the served survival path.
+                ck("#67 input ADD refuses: retired input clusters (#259)",
+                   aecp_status(ra), 7);
+                for (int i = 0; i < 200; i++) step();   // a sweep refresh
+                r2 = aecp_xact(0x0008, sq2++, sf_pl(0x0005, hi_in, fmt_1ch));
+                ck("#67 the 1ch member is free: nothing mapped to orphan",
+                   aecp_status(r2), 0);
+                r2 = aecp_xact(0x0008, sq2++, sf_pl(0x0005, hi_in, fmt_2ch));
+                ck("#67 the 2ch member is free too",
+                   aecp_status(r2), 0);
+#else
                 ck("#67 ADD_AUDIO_MAPPINGS(channel 2 of the high input) "
                    "SUCCEEDS", aecp_status(ra), 0);
                 for (int i = 0; i < 200; i++) step();   // a sweep refresh
@@ -4518,11 +4572,17 @@ int main(int argc, char** argv) {
                 r2 = aecp_xact(0x0008, sq2++, sf_pl(0x0005, hi_in, fmt_2ch));
                 ck("#67 2ch still orphans channel 2 (needs 3)",
                    aecp_status(r2), 7);
+#endif
                 r2 = aecp_xact(0x0008, sq2++, sf_pl(0x0005, hi_in, fmt_base));
                 ck("#67 the 8ch base still satisfies the mapping",
                    aecp_status(r2), 0);
                 ra = aecp_xact(0x002D, sq2++, ap);
+#ifdef AAF_PB_TB
+                ck("#67 input REMOVE refuses the same retired surface (#259)",
+                   aecp_status(ra), 7);
+#else
                 ck("#67 REMOVE_AUDIO_MAPPINGS SUCCEEDS", aecp_status(ra), 0);
+#endif
                 for (int i = 0; i < 200; i++) step();
                 r2 = aecp_xact(0x0008, sq2++, sf_pl(0x0005, hi_in, fmt_1ch));
                 ck("#67 ...and the 1ch format is accepted once the mapping "
@@ -4537,11 +4597,19 @@ int main(int argc, char** argv) {
                 r2 = aecp_xact(0x0008, sq2++, sf_pl(0x0005, hi_in, fmt_base));
                 ck("#67 restore: the base format is back", aecp_status(r2), 0);
                 ra = aecp_xact(0x002C, sq2++, ap);
+#ifdef AAF_PB_TB
+                ck("#67 ...and the base does not revive the surface (#259)",
+                   aecp_status(ra), 7);
+                ra = aecp_xact(0x002D, sq2++, ap);
+                ck("#67 cleanup REMOVE refuses too: nothing landed (#259)",
+                   aecp_status(ra), 7);
+#else
                 ck("#67 ...and the same ADD succeeds under the base again",
                    aecp_status(ra), 0);
                 ra = aecp_xact(0x002D, sq2++, ap);
                 ck("#67 cleanup: the probe mapping is removed",
                    aecp_status(ra), 0);
+#endif
             }
 
             // a BOUND input refuses STREAM_IS_RUNNING (sink 0 is bound here)
@@ -5674,14 +5742,16 @@ int main(int argc, char** argv) {
             ck(w, bad, 0);
             return aecp_status(r);
         };
+        // Port 0's generated CMAP templates, {valid, half, src[2:0],
+        // idxh[3:0], idx[3:0]}. #259 retired the 8-cluster host RING pool
+        // (src 3), so the port block is 9 clusters: the pilot TONE at
+        // offset 0 (src 4, valid) then 8 declared-but-unbacked loopback
+        // clusters (src 5, valid clear).
         auto out_word = [](int co) -> uint32_t {
-            if (co < 8)
-                return 0x1000u | ((co & 1) ? 0x0800u : 0)
-                     | 0x0300u | (uint32_t(co) >> 1);
-            if (co == 8) return 0x1400u;
-            if (co < 17)
-                return (((co - 9) & 1) ? 0x0800u : 0)
-                     | 0x0500u | (uint32_t(co - 9) >> 1);
+            if (co == 0) return 0x1400u;
+            if (co < 9)
+                return (((co - 1) & 1) ? 0x0800u : 0)
+                     | 0x0500u | (uint32_t(co - 1) >> 1);
             return 0u;
         };
         // Read the authoritative protocol map and find one exact row. This
@@ -5715,7 +5785,8 @@ int main(int argc, char** argv) {
         // ADD has no CMAP word to change and must still commit its ownership
         // sideband. This makes the state-only commit arm observable.
         {
-            const int sc = 2, co = 9;
+            const int sc = 2, co = 1;    // the first loopback cluster (#259
+                                         // moved the pool base from 9 to 1)
             const uint32_t ctrl_before = axi_read(A_CHMAP_CTRL2);
             axi_write(A_CHMAP_CTRL2, ctrl_before | 1u);
             axi_write(A_CHMAP_SEL2, 0x100 | sc);
@@ -5743,7 +5814,9 @@ int main(int argc, char** argv) {
             const unsigned declared_clusters =
                 (spo && spo->size() >= 14) ? model_be16(*spo, 12) : 0;
             ck("T66: generated output port declares clusters",
-               (long)declared_clusters, 17);
+               (long)declared_clusters, 9);   // pilot + 8 loopback; the
+                                              // 8-cluster host pool is
+                                              // retired (#259)
             long accepted = 0, stored = 0, roundtripped = 0, removed = 0;
             for (unsigned co = 0; co < declared_clusters; ++co) {
                 const int sc = 2;
@@ -5889,11 +5962,12 @@ int main(int argc, char** argv) {
             ck("T66: late invalid ADD made no partial write", cap_ram(3), 0);
         }
 
-        // The model declares loopback clusters 9..16 even when this shipping
-        // shape does not elaborate that source pool. The source-valid marker
-        // stays clear in CMAP but must not shrink the protocol mapping domain.
+        // The model declares loopback clusters 1..8 (#259) even when this
+        // shipping shape does not elaborate that source pool. The source-valid
+        // marker stays clear in CMAP but must not shrink the protocol mapping
+        // domain.
         {
-            const int lsc = 2, lco = 9;
+            const int lsc = 2, lco = 1;
             ck("T66: published loopback cluster ADD succeeds",
                dmap_cmd("ADD-unbacked", CMD_ADD_AUDIO_MAPPINGS,
                         1, &lsc, &lco), 0);
@@ -5904,7 +5978,7 @@ int main(int argc, char** argv) {
             ck("T66: idempotent unbacked cluster ADD succeeds",
                dmap_cmd("ADD-unbacked-idempotent", CMD_ADD_AUDIO_MAPPINGS,
                         1, &lsc, &lco), 0);
-            const int other_co = 10;
+            const int other_co = 2;
             ck("T66: another cluster cannot replace an unbacked owner",
                dmap_cmd("ADD-unbacked-conflict", CMD_ADD_AUDIO_MAPPINGS,
                         1, &lsc, &other_co, 7), 7);
@@ -5989,66 +6063,62 @@ int main(int argc, char** argv) {
                (long)(((unsigned)r[44] << 8) | r[45]), 1);
         }
 
-        // Input mappings use the full generated model store. AX7101 input
-        // clusters are host-only, so even key 0 must not write physical
-        // RMAP, while port 7 cluster 7 proves global key 63 is addressable.
+        // #259: bare-metal retired the host input pool, so every Stream
+        // Port Input declares ZERO clusters. Walk the full FORMER surface
+        // (port 0 key 0, the page of eight on port 6, port 7 cluster 7):
+        // every ADD/REMOVE must refuse BAD_ARGUMENTS without touching
+        // physical RMAP, and GET_AUDIO_MAP must answer the NOT_IMPLEMENTED
+        // zero-map posture. The arty legs keep proving the served path.
         {
-            // The generated 8x8 shape says one eight-cluster page per input
-            // port. Submit exactly that complete legal set in one command,
-            // then read the page back before removing it in one command.
             const int full_sc[8] = {0, 1, 2, 3, 4, 5, 6, 7};
             const int full_co[8] = {0, 1, 2, 3, 4, 5, 6, 7};
-            ck("T66: generated full input page ADD succeeds atomically",
+            ck("T66: retired full input page ADD refuses (#259)",
                dmap_cmd("ADD-input-full-page", CMD_ADD_AUDIO_MAPPINGS,
-                        8, full_sc, full_co, 0, 6, 0, DT_SPI), 0);
+                        8, full_sc, full_co, 7, 6, 0, DT_SPI), 7);
             std::vector<uint8_t> fpl = {
                 (uint8_t)(DT_SPI >> 8), (uint8_t)DT_SPI, 0x00, 0x06,
                 0x00, 0x00, 0x00, 0x00 };
             const uint16_t fseq = sq++;
             auto fr = aecp_xact(CMD_GET_AUDIO_MAP, fseq, fpl);
-            ck("T66: generated full input page reads back all eight rows",
-               (long)(aecp_status(fr) == 0 && fr.size() >= 114
-                      && (((unsigned)fr[44] << 8) | fr[45]) == 1
-                      && (((unsigned)fr[46] << 8) | fr[47]) == 8), 1);
-            ck("T66: generated full input page REMOVE succeeds atomically",
+            ck("T66: retired input port answers NOT_IMPLEMENTED, zero maps",
+               (long)(aecp_status(fr) == 11 && fr.size() >= 50
+                      && (((unsigned)fr[44] << 8) | fr[45]) == 0
+                      && (((unsigned)fr[46] << 8) | fr[47]) == 0), 1);
+            ck("T66: retired full input page REMOVE refuses (#259)",
                dmap_cmd("REMOVE-input-full-page", CMD_REMOVE_AUDIO_MAPPINGS,
-                        8, full_sc, full_co, 0, 6, 0, DT_SPI), 0);
+                        8, full_sc, full_co, 7, 6, 0, DT_SPI), 7);
 
             const int sc0 = 1, co0 = 0;
-            ck("T66: host input ADD on port 0 succeeds",
+            ck("T66: retired input ADD on port 0 refuses (#259)",
                dmap_cmd("ADD-input-zero", CMD_ADD_AUDIO_MAPPINGS,
-                        1, &sc0, &co0, 0, 0, 0, DT_SPI), 0);
-            ck("T66: host input mapping does not alias physical RMAP",
+                        1, &sc0, &co0, 7, 0, 0, DT_SPI), 7);
+            ck("T66: refused input ADD does not touch physical RMAP",
                ren_ram(0), 0);
 
             const int sch = 2, coh = 7;
-            ck("T66: input ADD reaches port 7 cluster 7",
+            ck("T66: retired input ADD at port 7 cluster 7 refuses (#259)",
                dmap_cmd("ADD-input-high", CMD_ADD_AUDIO_MAPPINGS,
-                        1, &sch, &coh, 0, 7, 0, DT_SPI), 0);
+                        1, &sch, &coh, 7, 7, 0, DT_SPI), 7);
             std::vector<uint8_t> pl = {
                 (uint8_t)(DT_SPI >> 8), (uint8_t)DT_SPI, 0x00, 0x07,
                 0x00, 0x00, 0x00, 0x00 };
             const uint16_t seq = sq++;
             auto r = aecp_xact(CMD_GET_AUDIO_MAP, seq, pl);
-            ck("T66: high input mapping reads back from model store",
-               (long)(aecp_status(r) == 0 && r.size() >= 58
-                      && (((unsigned)r[44] << 8) | r[45]) == 1
-                      && (((unsigned)r[46] << 8) | r[47]) == 1
-                      && r[50] == 0 && r[51] == 0
-                      && r[52] == 0 && r[53] == sch
-                      && r[54] == 0 && r[55] == coh
-                      && r[56] == 0 && r[57] == 0), 1);
+            ck("T66: port 7 stays at the zero-map posture too",
+               (long)(aecp_status(r) == 11 && r.size() >= 50
+                      && (((unsigned)r[44] << 8) | r[45]) == 0
+                      && (((unsigned)r[46] << 8) | r[47]) == 0), 1);
 
             const int bad = 8;
             ck("T66: input cluster one past port 7 is rejected",
                dmap_cmd("ADD-input-past", CMD_ADD_AUDIO_MAPPINGS,
                         1, &sch, &bad, 7, 7, 0, DT_SPI), 7);
-            ck("T66: high input cleanup REMOVE succeeds",
+            ck("T66: high input REMOVE refuses like its ADD (#259)",
                dmap_cmd("REMOVE-input-high", CMD_REMOVE_AUDIO_MAPPINGS,
-                        1, &sch, &coh, 0, 7, 0, DT_SPI), 0);
-            ck("T66: input zero cleanup REMOVE succeeds",
+                        1, &sch, &coh, 7, 7, 0, DT_SPI), 7);
+            ck("T66: input zero REMOVE refuses like its ADD (#259)",
                dmap_cmd("REMOVE-input-zero", CMD_REMOVE_AUDIO_MAPPINGS,
-                        1, &sc0, &co0, 0, 0, 0, DT_SPI), 0);
+                        1, &sc0, &co0, 7, 0, 0, DT_SPI), 7);
         }
 
         // ---- (B2) the Milan-mandatory set the demotion round landed ------
@@ -6068,17 +6138,20 @@ int main(int argc, char** argv) {
                       && ((((unsigned)r[16] & 7) << 8) | r[17]) == 16
                       && r[38] == 0 && r[41] == 0), 1);
 
-            // Seed one physical output mapping and one host-only input
-            // mapping. The CSR debug writer is a non-ATDECC path, so Milan
-            // 5.4.2.27 and 5.4.2.28 require both to remain immutable while
-            // LOCK_ENTITY is held, including their protocol ownership rows.
+            // Seed one physical output mapping. The CSR debug writer is a
+            // non-ATDECC path, so Milan 5.4.2.27 and 5.4.2.28 require it to
+            // remain immutable while LOCK_ENTITY is held, including its
+            // protocol ownership row.
             const int lock_sc = 0, lock_co = 0;
             ck("B2: lock test output mapping setup succeeds",
                dmap_cmd("ADD-lock-output", CMD_ADD_AUDIO_MAPPINGS,
                         1, &lock_sc, &lock_co, 0, 0, 1, DT_SPO), 0);
-            ck("B2: lock test input mapping setup succeeds",
+            // #259: no input clusters remain, so no input ownership row can
+            // be seeded - the 5.4.2.27/28 lock law is proven on the output
+            // row, and the input side pins the retired refusal instead.
+            ck("B2: retired input mapping setup refuses (#259)",
                dmap_cmd("ADD-lock-input", CMD_ADD_AUDIO_MAPPINGS,
-                        1, &lock_sc, &lock_co, 0, 0, 0, DT_SPI), 0);
+                        1, &lock_sc, &lock_co, 7, 0, 0, DT_SPI), 7);
 
             // LOCK -> SUCCESS naming the taker; foreign LOCK -> ENTITY_LOCKED
             std::vector<uint8_t> lk(16, 0);
@@ -6103,8 +6176,8 @@ int main(int argc, char** argv) {
                cap_ram(8), out_word(lock_co));
             ck("B2: locked CSR write preserves output protocol ownership",
                map_has(DT_SPO, 0, 1, lock_sc, lock_co), 1);
-            ck("B2: locked CSR write preserves input protocol ownership",
-               map_has(DT_SPI, 0, 0, lock_sc, lock_co), 1);
+            ck("B2: input ownership stays absent under lock (#259)",
+               map_has(DT_SPI, 0, 0, lock_sc, lock_co), 0);
 
             // UNLOCK and prove the same local writes become effective.
             std::vector<uint8_t> ul(16, 0); ul[3] = 0x01;
@@ -6123,7 +6196,7 @@ int main(int argc, char** argv) {
                cap_ram(8), 0);
             ck("B2: unlocked CSR write clears output protocol ownership",
                map_has(DT_SPO, 0, 1, lock_sc, lock_co), 0);
-            ck("B2: unlocked CSR write clears input protocol ownership",
+            ck("B2: input ownership still absent after unlock (#259)",
                map_has(DT_SPI, 0, 0, lock_sc, lock_co), 0);
             axi_write(A_CHMAP_CTRL2, 0);
             // ACQUIRE: the Milan 5.4.2.1 refusal, command echoed
