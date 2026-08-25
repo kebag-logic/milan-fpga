@@ -307,15 +307,21 @@ def ptp_frame(message_type, body=b"", *, transport_specific=1, reserved0=0,
               flags=0, correction_field=0, reserved2=0,
               source_clock_identity=GPTP_PEER_CID, source_port_number=1,
               sequence_id=0, control=0x05, log_message_interval=0x7F,
+              suffix=b"",
               dst=GPTP_MCAST_MAC, src=GPTP_PEER_MAC, ethertype=ETHERTYPE_GPTP):
     """One 802.1AS frame: every header field individually probe-able.
 
     `message_length=None` derives the spec value (34 + body); pass an int to
     inject a wrong length. Field names match the tsn-gen 8021as_* models so
     the campaign can map oracle probes onto builder kwargs by name.
+    `suffix` appends octets AFTER the per-type body with the derived
+    messageLength covering them (11.4.2.2 counts every octet through the
+    last TLV), so a trailing TLV rides a truthful declaration; every
+    per-type builder passes it through, which is what the campaign's
+    over-minimum acceptance probes are built on.
     """
     if message_length is None:
-        message_length = 34 + len(body)
+        message_length = 34 + len(body) + len(suffix)
     hdr = struct.pack(">BBH",
                       ((transport_specific & 0xF) << 4) | (message_type & 0xF),
                       ((reserved0 & 0xF) << 4) | (version_ptp & 0xF),
@@ -327,7 +333,7 @@ def ptp_frame(message_type, body=b"", *, transport_specific=1, reserved0=0,
     hdr += struct.pack(">QH", source_clock_identity, source_port_number & 0xFFFF)
     hdr += struct.pack(">HBB", sequence_id & 0xFFFF, control & 0xFF,
                        log_message_interval & 0xFF)
-    return dst + src + struct.pack(">H", ethertype) + hdr + body
+    return dst + src + struct.pack(">H", ethertype) + hdr + body + suffix
 
 
 def ptp_sync(sequence_id=0, **kw):
@@ -420,6 +426,22 @@ def ptp_announce(sequence_id=0, gm_identity=0, gm_priority1=248, gm_priority2=24
         for cid in path_trace:
             body += struct.pack(">Q", cid)
     return ptp_frame(PTP_ANNOUNCE, body, sequence_id=sequence_id, **kw)
+
+
+def ptp_suffix_tlv(data=b"\xa5\x5a"):
+    """A well-formed ORGANIZATION_EXTENSION TLV no consumer claims (12 B).
+
+    IEEE 1588-2008 14.3: tlvType 0x0003, an even lengthField covering
+    organizationId, organizationSubType and the payload; 802.1AS-2011
+    11.4.1 makes a receiver ignore a TLV it does not recognize and attempt
+    the next. Appended via the builders' `suffix=`, this is the campaign's
+    legal above-minimum carrier: 4 octets of header plus organizationId
+    00-80-C2, a private organizationSubType and the payload.
+    """
+    value = b"\x00\x80\xc2" + b"\x7f\x00\x01" + data
+    if len(value) & 1:
+        value += b"\x00"
+    return struct.pack(">HH", 0x0003, len(value)) + value
 
 
 class PtpMsg:
@@ -593,6 +615,27 @@ def _selftest():
     an0 = ptp_announce(sequence_id=3, gm_identity=1, path_trace=[])
     if len(an0) != 78 or PtpMsg(an0).message_length != 64:
         print("  [FAIL] Announce TLV-less shape: len=%d" % len(an0))
+        ok = False
+
+    # the over-minimum carrier: a 12-octet suffix TLV rides every builder
+    # with the derived messageLength covering it (11.4.2.2)
+    tv = ptp_suffix_tlv()
+    if len(tv) != 12 or tv[:4] != b"\x00\x03\x00\x08" or len(tv) & 1:
+        print("  [FAIL] suffix TLV shape: len=%d hdr=%s" % (len(tv),
+                                                            tv[:4].hex()))
+        ok = False
+    ss = ptp_sync(sequence_id=7, suffix=tv)
+    if len(ss) != 70 or PtpMsg(ss).message_length != 56 \
+            or ss[:-len(tv)] != ptp_sync(sequence_id=7,
+                                         message_length=56):
+        print("  [FAIL] suffixed Sync: len=%d ml=%d"
+              % (len(ss), PtpMsg(ss).message_length))
+        ok = False
+    sa = ptp_announce(sequence_id=3, gm_identity=1, suffix=tv)
+    if len(sa) != 102 or PtpMsg(sa).message_length != 88 \
+            or not sa.endswith(tv):
+        print("  [FAIL] suffixed Announce: len=%d ml=%d"
+              % (len(sa), PtpMsg(sa).message_length))
         ok = False
 
     print("  [ ok ] wire codecs match the RTL-testbench vectors" if ok else "  WIRE SELFTEST FAILED")
