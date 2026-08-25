@@ -35,22 +35,36 @@ silently filtering an input is exactly how the fourth escape worked. A mutation
 of run.sh now either moves this consumer the same way it moves Yosys, or fails
 both.
 
-THE TOP MUST RESOLVE, NOT MERELY APPEAR. The other half of Issue #235 is a read
-set that contains every source except the module the consumer passes to
-`synth_design -top`: pp_shadow_ooc.tcl read 41 sources and Vivado answered
-`ERROR: [Synth 8-439] module 'KL_pp_shadow' not found`. Checking for the text
-`module <top>` is not that check. A block comment satisfied it ([R0], round
-one), and after comments were stripped an unexpanded macro body still did: the
-three lines `` `define UNUSED `` / `module KL_pp_shadow;` / `endmodule`, joined
-by trailing backslashes, returned rc=0 with 43 files while sv2v answered
-`Could not find top module KL_pp_shadow` and Yosys `Module 'KL_pp_shadow' not
-found` ([R0], round two). Both answers are the preprocessor's, not the text's.
-So `declares()` runs `preprocess()` -- a model of the directive layer that
-consumes a `define` and everything its backslashes carry, drops conditional
-regions unevaluated, and drops every other directive line -- and
-`sv2v_verdict()` asks the front end the gate itself uses. Both must say yes.
-Neither alone is trusted: the model runs where no front end is installed, and
-the front end catches a model that has drifted from the language.
+THE TOP MUST RESOLVE, NOT MERELY APPEAR, AND ONLY A FRONT END SAYS SO. The other
+half of Issue #235 is a read set that contains every source except the module
+the consumer passes to `synth_design -top`: pp_shadow_ooc.tcl read 41 sources
+and Vivado answered `ERROR: [Synth 8-439] module 'KL_pp_shadow' not found`.
+Whether a `module` keyword is code is decided by the directive layer, and three
+successive MODELS of that layer were each accepted here and then broken, all in
+the same direction, all by [R0] on PR #240:
+
+1. round one -- a text search for `module <top>`. A block comment satisfied it.
+2. round two -- comments and strings stripped first. An unexpanded macro body
+   still satisfied it: `` `define UNUSED `` / `module KL_pp_shadow;` /
+   `endmodule`, joined by trailing backslashes, returned rc=0 while sv2v
+   answered `Could not find top module KL_pp_shadow` and Yosys `Module
+   'KL_pp_shadow' not found`.
+3. round three -- `define` bodies consumed and directive lines dropped. A
+   multiline macro INVOCATION still satisfied it: `` `define DISCARD(x) ``,
+   then `` `DISCARD( `` / the declaration / `)`. The model dropped the
+   invocation line and read its ARGUMENT text as code; sv2v again answered
+   `Could not find top module KL_pp_shadow`.
+
+Three rounds, three spellings, one question: which of these `module` keywords
+survives macro expansion. Answering that completely is a preprocessor, and a
+preprocessor is the front end -- so the model is GONE rather than patched a
+fourth time. `sv2v_verdict()`, the front end syn/yosys/run.sh already runs over
+these same lists, is now the ONLY answerer. No front end therefore means no
+answer, and no answer is a refusal: there is no mode in which this file
+approximates top resolution, because an approximation that disagrees with the
+toolchain is exactly what all three rounds measured. That costs no new tool --
+`sv2v` is already required by syn/yosys/run.sh, the authority that defines this
+read set, and listed in README.md's tool table.
 
 `--top` selects the entry; it defaults to `milan_datapath`.
 Used by syn/ooc/milan_datapath_ooc.tcl and syn/ooc/pp_shadow_ooc.tcl.
@@ -95,7 +109,7 @@ LINKED = ("hdl", "scripts", "protocol-processor", "gptp-processor",
 
 #: How many arms selftest() must run. A deleted arm is a self-test that still
 #: prints a pass, so the count is declared and checked rather than counted.
-ARMS = 33
+ARMS = 35
 
 
 def _reader(path):
@@ -158,84 +172,7 @@ def parse_record(text, top, run_sh=RUN_SH):
 
 
 # --------------------------------------------------------------------------
-# does the read set declare the top
-
-
-DIRECTIVE = re.compile(r"^[ \t]*`(\w+)")
-
-
-def preprocess(text):
-    """`text` reduced to what the directive layer would hand the parser.
-
-    Comments and string literals go first, in ONE pass, because they nest the
-    wrong way for two: `//` inside a string opens no comment, and `"` inside a
-    comment opens no string. What is removed becomes spaces, so line structure
-    -- what the declaration pattern anchors on -- survives.
-
-    Then the directive layer, line by line:
-
-    * a `define` line, and every line a trailing backslash carries after it, is
-      MACRO TEXT. It is not code until something expands the macro, and nothing
-      here does. This is the escape that reopened after round one: three lines
-      of unexpanded macro body read as a module declaration to any text search
-      and to no front end.
-    * `ifdef`/`ifndef`/`elsif`/`else`/`endif` regions are dropped rather than
-      evaluated. This file cannot know the `+define+` set the consumer passes,
-      and the question is whether the top is CERTAINLY in the read set.
-    * every other directive line -- `include`, `timescale`, `undef`, a bare
-      macro invocation -- is dropped with its continuations for the same
-      reason: what it brings in is not visible from here.
-
-    The bias is deliberate. A declaration this model cannot see is reported as
-    absent even when a front end would find it; that is a refusal to emit, not
-    a silent pass, and `sv2v_verdict()` below distinguishes the two cases.
-    """
-    out, i, n = [], 0, len(text)
-    while i < n:
-        two = text[i:i + 2]
-        if two == "//":
-            j = text.find("\n", i)
-            j = n if j < 0 else j
-        elif two == "/*":
-            j = text.find("*/", i + 2)
-            j = n if j < 0 else j + 2
-        elif text[i] == '"':
-            j = i + 1
-            while j < n and text[j] != '"':
-                j += 2 if text[j] == "\\" else 1
-            j = min(j + 1, n)
-        else:
-            out.append(text[i])
-            i += 1
-            continue
-        out.append(re.sub(r"[^\n]", " ", text[i:j]))
-        i = j
-
-    kept, depth, carried = [], 0, False
-    for line in "".join(out).split("\n"):
-        continues = line.rstrip().endswith("\\")
-        if carried:
-            kept.append("")
-            carried = continues
-            continue
-        directive = DIRECTIVE.match(line)
-        if directive:
-            name = directive.group(1)
-            if name in ("ifdef", "ifndef"):
-                depth += 1
-            elif name == "endif":
-                depth = max(0, depth - 1)
-            kept.append("")
-            carried = continues
-            continue
-        kept.append("" if depth else line)
-    return "\n".join(kept)
-
-
-def declares(text, top):
-    """True if `text` declares `module <top>` where the parser would see it."""
-    return re.search(r"^[ \t]*module\s+(?:automatic\s+|static\s+)?%s\b"
-                     % re.escape(top), preprocess(text), re.M) is not None
+# does the read set declare the top -- asked of the front end, of nothing else
 
 
 def sv2v_verdict(files, top, incdirs, defines,
@@ -244,8 +181,9 @@ def sv2v_verdict(files, top, incdirs, defines,
 
     Returns (verdict, note): True, False, or None when the front end gave no
     top-resolution answer -- absent, or failed for some other reason. None is
-    never treated as a pass; it is reported, and `--require-front-end` turns it
-    into a refusal so a gate cannot lose this oracle without saying so.
+    not a weaker pass, and there is no flag that makes it one: `build()` refuses
+    on it. The alternative is this file answering from its own model of the
+    language, and that is the escape of all three [R0] rounds.
 
     The invocation is the one syn/yosys/run.sh already makes for the same list.
     """
@@ -274,8 +212,7 @@ def sv2v_verdict(files, top, incdirs, defines,
 # the checks
 
 
-def build(top, rec, exists=os.path.exists, read=_reader,
-          front_end=sv2v_verdict, require_front_end=False):
+def build(top, rec, exists=os.path.exists, front_end=sv2v_verdict):
     """Check the authority's record for `top`. Returns (files, problems, rc)."""
     files = rec["src"]
 
@@ -327,40 +264,32 @@ def build(top, rec, exists=os.path.exists, read=_reader,
 
     # 3. THE TOP ITSELF -- ISSUE #235. Every check above compares the list
     # against what went into it, and all of them pass on a list that contains
-    # everything except the one module the consumer names as `-top`. Resolve it
-    # the way the toolchain does: through the directive layer, and through the
-    # front end the gate runs. Both must agree, in both directions.
-    modelled = any(declares(read(f), top) for f in files)
+    # everything except the one module the consumer names as `-top`. Only the
+    # front end answers this. Whether a `module` keyword is code is a question
+    # about macro expansion, three models of the directive layer were each
+    # broken here by a construct they did not model (module docstring), and a
+    # fourth model would be a fourth round -- so no front end is a REFUSAL, not
+    # a quietly weaker check, and this file has no tool-absent mode at all.
     verdict, note = front_end(files, top, rec["incdir"], rec["define"])
 
+    if verdict is None:
+        return files, ["dp_srcs: no front end resolved `module %s` in the %d "
+                       "source(s) run.sh names for %s: %s. This flow does not "
+                       "answer that question itself: three text/directive "
+                       "models of it were each accepted and then broken by a "
+                       "construct they did not model ([R0] on PR #240, rounds "
+                       "one to three), so an unanswered question is a refusal "
+                       "and not an emission. Install %s -- README.md's tool "
+                       "table has it, and syn/yosys/run.sh, which owns this "
+                       "read set, already requires it."
+                       % (top, len(files), top, note, FRONT_END)], 2
     if verdict is False:
         return files, ["dp_srcs: %s does not resolve `%s` in the %d source(s) "
                        "run.sh names for it:\n  %s\nSynthesis reads every one "
                        "of them and then fails with `module '%s' not found` "
                        "(Issue #235), which reads as a missing module and is "
-                       "really a read set that never declared the top.%s"
-                       % (FRONT_END, top, len(files), note, top,
-                          "" if not modelled else
-                          "\n  This file's own model DID see a declaration, so "
-                          "the model is wrong about the language here and must "
-                          "be fixed, not relaxed.")], 2
-    if not modelled:
-        return files, ["dp_srcs: none of the %d source(s) run.sh names for %s "
-                       "declares `module %s` where the directive layer leaves "
-                       "it: a commented, `ifdef`-guarded or unexpanded-macro "
-                       "declaration is not one. Synthesis would read every "
-                       "source and fail with `module '%s' not found` "
-                       "(Issue #235).%s"
-                       % (len(files), top, top, top,
-                          ("\n  %s resolved it, so the declaration is "
-                           "reachable only through expansion this file will "
-                           "not perform; declare the module plainly."
-                           % FRONT_END) if verdict is True else "")], 2
-    if verdict is None and require_front_end:
-        return files, ["dp_srcs: --require-front-end was given and no front end "
-                       "confirmed `module %s`: %s. A gate that silently loses "
-                       "this oracle is a gate that stops testing the escape it "
-                       "was added for." % (top, note)], 2
+                       "really a read set that never declared the top."
+                       % (FRONT_END, top, len(files), note, top)], 2
     return files, [], 0
 
 
@@ -397,14 +326,21 @@ def selftest(top="faketop", real_top="KL_pp_shadow"):
     Every arm drives the real `build()`, `parse_record()` or `ask_authority()`,
     so stubbing any of them to return no problems fails this.
 
-    Three groups. The record arms inject a synthetic record, so they need no
-    tree. The declaration arms inject synthetic text and a stub front end. The
-    authority arms run REAL BASH over a mutated copy of the real
-    syn/yosys/run.sh from a link farm, and the last of them runs the real front
-    end over the real read set: those need the protocol-processor and
-    verilog-axis submodules and sv2v, and they refuse rather than skip when
-    either is absent, because every escape of round two lived exactly in the gap
-    between what a parser modelled and what bash and the front end do.
+    Three groups, and the middle one CHANGED SHAPE in round three. The record
+    arms inject a synthetic record and stub the front end, because they are
+    about the record. The front-end arms used to assert what a model of the
+    directive layer believed about a construct; they now put each construct in a
+    one-file read set and ask the REAL `sv2v`, so what is asserted is the
+    toolchain's answer and not a belief about the language. Two of them run the
+    other way -- a plain declaration and a macro-EXPANDED one must both expand
+    clean -- so this group cannot be passing on a front end that refuses
+    everything. The authority arms run REAL BASH over a mutated copy of the real
+    syn/yosys/run.sh from a link farm.
+
+    The front-end and authority arms need `sv2v` and the protocol-processor and
+    verilog-axis submodules, and they refuse rather than skip when either is
+    absent: every escape this file has had lived in the gap between something
+    modelled here and what bash and the front end actually do.
     """
     problems, ran = [], 0
     src = ["/r/a.sv", "/r/b.sv", "/r/" + PLANE, "/r/top.sv"]
@@ -416,39 +352,26 @@ def selftest(top="faketop", real_top="KL_pp_shadow"):
         rec.update(over)
         return rec
 
-    text = {f: "module %s;\nendmodule\n" % os.path.basename(f)[:-3] for f in src}
-    # The real top: declared, and ALSO named in a comment above it, so a clean
-    # pass cannot be a pass on the comment.
-    text["/r/top.sv"] = ("// %s: the wrapper this entry is built around\n"
-                         "module %s #(\n) ();\nendmodule\n" % (top, top))
     gone = set()
 
     def stub_front_end(verdict, note=""):
         return lambda *a, **k: (verdict, note)
 
-    def run(rec, fe=None, require=False):
+    def run(rec, fe=None):
         return build(top, rec, exists=lambda f: f not in gone,
-                     read=lambda f: text.get(f, ""),
-                     front_end=fe or stub_front_end(True),
-                     require_front_end=require)
+                     front_end=fe or stub_front_end(True))
 
-    def arm(name, want, rec=None, fe=None, require=False, call=None):
+    def arm(name, want, rec=None, fe=None, call=None):
         nonlocal ran
         ran += 1
         if call:
             _rec, bad, rc = call()
         else:
-            _files, bad, rc = run(rec, fe, require)
+            _files, bad, rc = run(rec, fe)
         if not any(want in b for b in bad) or rc == 0:
             problems.append("SELF-TEST FAILED [%s]: expected a finding naming "
                             "%r at rc!=0, got rc=%d %s"
                             % (name, want, rc, bad or "no findings"))
-
-    def decl_arm(name, body, fe=None, want=None):
-        saved, text["/r/top.sv"] = text["/r/top.sv"], body
-        arm(name, want or "declares `module %s` where the directive layer" % top,
-            record(), fe)
-        text["/r/top.sv"] = saved
 
     # ---- record arms -----------------------------------------------------
     # Arm 0. ANTI-VACUITY: the well-formed record expands clean. Without it
@@ -502,75 +425,121 @@ def selftest(top="faketop", real_top="KL_pp_shadow"):
     arm("plane-lost", "(the control plane itself)",
         record(src=["/r/a.sv", "/r/top.sv"], derived=["/r/a.sv"]))
 
-    # ---- declaration arms ------------------------------------------------
-    # Arm 10. ISSUE #235: every source present and correct, none declares the
-    # top. Vivado's answer to this list is `module not found`.
-    decl_arm("top-not-in-read-set", "module something_else;\nendmodule\n")
+    # Arm 10. THE CONTRACT: no front end, no answer, no emission. The record is
+    # well-formed and its sources are on disk; nothing answered whether the top
+    # resolves, and that alone is the refusal. Deleting the `verdict is None`
+    # arm of build() is what this bites, and that deletion is the whole of what
+    # the tool-absent mode used to be.
+    arm("no-front-end-is-a-refusal", "no front end resolved",
+        record(), stub_front_end(None, "sv2v is not on PATH"))
 
-    # Arm 11. One step subtler: the file is NAMED after the top and does not
-    # declare it, which a file-name check would pass.
-    decl_arm("named-not-declared", "// %s lives here\n" % top)
-
-    # Arms 12-16. THE DECLARATION IS TEXT, NOT CODE ([R0] round one).
-    decl_arm("block-commented-declaration",
-             "/*\nmodule %s;\nendmodule\n*/\n" % top)
-    decl_arm("inactive-conditional-declaration",
-             "`ifdef SOME_DEFINE\nmodule %s;\nendmodule\n`endif\n" % top)
-    decl_arm("declaration-inside-a-string",
-             'localparam string S = "\nmodule %s;\n";\n' % top)
-    decl_arm("line-commented-declaration",
-             "// module %s;\n// endmodule\n" % top)
-    decl_arm("prefix-of-the-top-declared", "module %s_shim;\nendmodule\n" % top)
-
-    # Arms 17-19. THE DECLARATION IS TEXT, NOT PREPROCESSED CODE ([R0] round
-    # two). An unexpanded macro body is not a declaration; arm 17 is the exact
-    # three-line construct the reviewer drove the real `build()` with.
-    decl_arm("macro-body-declaration",
-             "`define UNUSED \\\nmodule %s; \\\nendmodule\n" % top)
-    decl_arm("macro-body-one-line",
-             "`define UNUSED module %s; endmodule\n" % top)
-    decl_arm("macro-body-after-a-comment",
-             "`define UNUSED /* keep */ \\\nmodule %s; \\\nendmodule\n" % top)
-
-    # Arm 20. The front end resolves no such top and the model saw one. The
-    # front end wins, and the finding says the model must be fixed.
-    arm("front-end-refuses-what-the-model-saw", "does not resolve",
-        record(), stub_front_end(False, "Could not find top module"))
-
-    # Arm 21. The other direction: the front end resolves it and the model
-    # cannot. Also a refusal -- an emitted list must be provable from here too.
-    decl_arm("front-end-only", "module something_else;\nendmodule\n",
-             stub_front_end(True),
-             want="reachable only through expansion")
-
-    # Arm 22. No front end, and a caller that said it required one.
-    arm("front-end-required-and-absent", "--require-front-end was given",
-        record(), stub_front_end(None, "sv2v is not on PATH"), require=True)
-
-    # ---- authority arms --------------------------------------------------
-    # These run REAL BASH over a mutated real run.sh, and the reviewer's four
-    # round-two counterexamples are four of them. A tree without submodules
-    # cannot answer them, and a skip here is the false green they exist to
-    # close, so their absence is reported as a failure.
+    # ---- front-end arms --------------------------------------------------
+    # From here the REAL front end runs, so its absence is a failure and not a
+    # skip: these arms ARE the top-resolution check now.
     if not (os.path.exists(RUN_SH) and shutil.which("bash")
             and os.path.exists(os.path.join(REPO, "protocol-processor", "hdl"))
             and os.path.exists(os.path.join(REPO, "third_party",
                                             "verilog-axis", "rtl"))):
-        problems.append("SELF-TEST FAILED [authority-arms]: syn/yosys/run.sh, "
-                        "bash and the protocol-processor and verilog-axis "
-                        "submodules are all required. The round-two escapes "
-                        "were all disagreements between a parser and bash, so "
-                        "skipping these arms is skipping the finding.")
+        problems.append("SELF-TEST FAILED [front-end-and-authority-arms]: "
+                        "syn/yosys/run.sh, bash and the protocol-processor and "
+                        "verilog-axis submodules are all required. The "
+                        "round-two escapes were all disagreements between a "
+                        "parser and bash, so skipping these arms is skipping "
+                        "the finding.")
         return problems, ran
     if shutil.which(FRONT_END) is None:
-        problems.append("SELF-TEST FAILED [authority-arms]: %s is not on PATH. "
-                        "It is the oracle for the macro-body escape, and the "
-                        "Yosys gate already requires it." % FRONT_END)
+        problems.append("SELF-TEST FAILED [front-end-and-authority-arms]: %s is "
+                        "not on PATH. It is the only answerer for the "
+                        "declaration question, and the Yosys gate already "
+                        "requires it." % FRONT_END)
         return problems, ran
 
     real = _reader(RUN_SH)
     tmp = tempfile.mkdtemp(prefix="dp-srcs-selftest-")
     try:
+        def one_file(name, body, want="does not resolve", clean=False):
+            """One synthetic source, the real front end, nothing in between.
+
+            `clean=True` is the other direction: the front end resolves the top
+            and the flow must emit. Two arms use it, because a group of arms
+            that only ever expects a refusal passes on a front end that refuses
+            everything.
+            """
+            nonlocal ran
+            ran += 1
+            path = os.path.join(tmp, name + ".sv")
+            with open(path, "w") as fh:
+                fh.write(body)
+            _files, bad, rc = build(top, {"top": [top], "define": [],
+                                          "incdir": [], "derived": [],
+                                          "src": [path]})
+            if clean:
+                if rc or bad:
+                    problems.append("SELF-TEST FAILED [%s]: %s resolves this "
+                                    "declaration, so the list must expand "
+                                    "clean; got rc=%d %s"
+                                    % (name, FRONT_END, rc, bad))
+                return
+            if rc == 0 or not any(want in b for b in bad):
+                problems.append("SELF-TEST FAILED [%s]: expected a finding "
+                                "naming %r at rc!=0, got rc=%d %s"
+                                % (name, want, rc, bad or "no findings"))
+
+        # Arm 11. ANTI-VACUITY for this group: a plain declaration expands
+        # clean through the real front end.
+        one_file("plain-declaration", "module %s;\nendmodule\n" % top,
+                 clean=True)
+
+        # Arm 12. ISSUE #235 itself: sources present and correct, none of them
+        # declaring the top. This is the list Vivado answers `module not found`.
+        one_file("top-not-in-read-set", "module something_else;\nendmodule\n")
+
+        # Arm 13. One step subtler: a file NAMED after the top that does not
+        # declare it, which a file-name check would pass.
+        one_file("named-not-declared", "// %s lives here\n" % top)
+
+        # Arms 14-18. THE DECLARATION IS TEXT, NOT CODE ([R0] round one).
+        one_file("block-commented-declaration",
+                 "/*\nmodule %s;\nendmodule\n*/\n" % top)
+        one_file("line-commented-declaration",
+                 "// module %s;\n// endmodule\n" % top)
+        one_file("inactive-conditional-declaration",
+                 "`ifdef SOME_DEFINE\nmodule %s;\nendmodule\n`endif\n" % top)
+        one_file("declaration-inside-a-string",
+                 'module other;\n'
+                 '  localparam string S = "module %s; endmodule";\n'
+                 'endmodule\n' % top)
+        one_file("prefix-of-the-top-declared",
+                 "module %s_shim;\nendmodule\n" % top)
+
+        # Arms 19-21. THE DECLARATION IS TEXT, NOT PREPROCESSED CODE ([R0]
+        # round two): an unexpanded macro BODY, in its three spellings.
+        one_file("macro-body-declaration",
+                 "`define UNUSED \\\nmodule %s; \\\nendmodule\n" % top)
+        one_file("macro-body-one-line",
+                 "`define UNUSED module %s; endmodule\n" % top)
+        one_file("macro-body-after-a-comment",
+                 "`define UNUSED /* keep */ \\\nmodule %s; \\\nendmodule\n"
+                 % top)
+
+        # Arm 22. [R0] ROUND THREE, the construct that closed the model: the
+        # declaration is the ACTUAL ARGUMENT of a multiline macro invocation,
+        # so it is argument text the expansion discards. The round-two model
+        # dropped the invocation line and read the argument as code.
+        one_file("macro-argument-declaration",
+                 "`define DISCARD(x)\n`DISCARD(\nmodule %s;\nendmodule\n)\n"
+                 % top)
+
+        # Arm 23. The OTHER direction, and the reason a model cannot stand in
+        # for the front end even conservatively: here the text carries no
+        # declaration at all and the expansion produces one. The front end
+        # resolves it, so the flow must emit -- the deleted model refused this.
+        one_file("macro-expanded-declaration",
+                 "`define D module %s; endmodule\n`D\n" % top, clean=True)
+
+        # ---- authority arms ----------------------------------------------
+        # These run REAL BASH over a mutated real run.sh, and the reviewer's
+        # four round-two counterexamples are four of them.
         def relative(root, rec):
             """The record's sources as the authority's own tree spells them.
             Each arm gets its own shadow root, so absolute paths differ by
@@ -597,20 +566,20 @@ def selftest(top="faketop", real_top="KL_pp_shadow"):
                                 "naming %r at rc!=0, got rc=%d %s"
                                 % (name, want, rc, bad or "no findings"))
 
-        # Arm 23. ANTI-VACUITY over the REAL authority: the untouched run.sh
+        # Arm 24. ANTI-VACUITY over the REAL authority: the untouched run.sh
         # expands clean through real bash and the real front end.
         ran += 1
         base_root, base_path = _shadow(real, tmp)
         base, bad, rc = ask_authority(real_top, base_path)
         base_src = relative(base_root, base) if rc == 0 else []
         if rc == 0:
-            _f, bad, rc = build(real_top, base, require_front_end=True)
+            _f, bad, rc = build(real_top, base)
         if rc or bad or len(base_src) < 2:
             problems.append("SELF-TEST FAILED [real-authority-clean]: the "
                             "untouched run.sh must expand clean, got rc=%d %s, "
                             "%d source(s)" % (rc, bad, len(base_src)))
 
-        # Arm 24. [R0] round two, mutation 1: the generator token is suffixed.
+        # Arm 25. [R0] round two, mutation 1: the generator token is suffixed.
         # The old recogniser accepted the expected path as a SUBSTRING and
         # returned rc=0 with 43 files; bash executes a nonexistent file and
         # takes run.sh's own `|| exit 2`.
@@ -619,7 +588,7 @@ def selftest(top="faketop", real_top="KL_pp_shadow"):
                                       '"$R/scripts/pp_srcs.py.broken"'),
                   "so there is no read set to emit")
 
-        # Arm 25. Mutation 2: the generator's --prefix points at a tree that
+        # Arm 26. Mutation 2: the generator's --prefix points at a tree that
         # does not exist. The old recogniser ignored the invocation it claimed
         # to validate and ran its own; bash hands sv2v paths that are not there.
         authority("generator-prefix-diverted",
@@ -627,7 +596,7 @@ def selftest(top="faketop", real_top="KL_pp_shadow"):
                                       '--prefix "$PP/not-the-tree"'),
                   "missing sources")
 
-        # Arm 26. Mutation 3: a valid shell COMMENT above the live row, spelt
+        # Arm 27. Mutation 3: a valid shell COMMENT above the live row, spelt
         # so a text selector prefers it. The old recogniser emitted 42 files and
         # dropped axis_fifo.v; bash ignores the line entirely, so the correct
         # answer is the unchanged read set -- which is the property that proves
@@ -639,71 +608,89 @@ def selftest(top="faketop", real_top="KL_pp_shadow"):
                       '  "KL_pp_shadow|$A/axis_fifo.v $PP_SRCS"\n'),
                   None, expect_src=base_src)
 
-        # Arm 27. Mutation 4: a positional that is not a source. The old
+        # Arm 28. Mutation 4: a positional that is not a source. The old
         # recogniser filtered it out before the missing-source check.
         authority("unaccounted-positional",
                   lambda t: t.replace('PP_SRCS="$PP_DERIVED ',
                                       'PP_SRCS="$PP_DERIVED $PP/ghost.svh '),
                   "are not .sv/.v sources")
 
-        # Arm 28. The same positional spelt as a source that is not on disk.
+        # Arm 29. The same positional spelt as a source that is not on disk.
         authority("missing-positional",
                   lambda t: t.replace('PP_SRCS="$PP_DERIVED ',
                                       'PP_SRCS="$PP_DERIVED $PP/ghost.sv '),
                   "missing sources")
 
-        # Arm 29. [R0] round one, mutation D2, now through real bash: run.sh
+        # Arm 30. [R0] round one, mutation D2, now through real bash: run.sh
         # drops the wrapper that declares the top. It stayed green at
         # 16,547 LUT when this file composed the parent half itself.
         authority("run-sh-drops-the-top",
                   lambda t: t.replace(" $R/hdl/milan/KL_pp_shadow.sv", ""),
                   "does not resolve `%s`" % real_top)
 
-        # Arm 30. A top no row defines. run.sh answers, this flow reports it.
+        # Arm 31. A top no row defines. run.sh answers, this flow reports it.
         ran += 1
         _rec, bad, rc = ask_authority("othertop", _shadow(real, tmp)[1])
         if rc == 0 or not any("unknown top: othertop" in b for b in bad):
             problems.append("SELF-TEST FAILED [unknown-top]: expected the "
                             "authority's own refusal, got rc=%d %s" % (rc, bad))
 
-        # Arm 31. THE ROUND-TWO BLOCKER, END TO END. The real read set, with the
-        # file that declares the top replaced on disk by the reviewer's exact
-        # unexpanded macro body, driven through real bash and the REAL front
-        # end. `sv2v --top` answers `Could not find top module`; so must this.
-        ran += 1
-        shadow_src = os.path.join(tmp, "KL_pp_shadow.sv")
-        with open(shadow_src, "w") as fh:
-            fh.write("`define UNUSED \\\nmodule %s; \\\nendmodule\n" % real_top)
-        macro_root, macro_path = _shadow(
-            real.replace("$R/hdl/milan/KL_pp_shadow.sv", shadow_src), tmp)
-        rec, bad, rc = ask_authority(real_top, macro_path)
-        if rc == 0:
-            _f, bad, rc = build(real_top, rec, require_front_end=True)
-        if rc == 0 or not any("does not resolve" in b for b in bad):
-            problems.append("SELF-TEST FAILED [macro-body-real-front-end]: the "
-                            "real read set with an unexpanded macro body in "
-                            "place of the top must be refused by %s; got rc=%d "
-                            "%s" % (FRONT_END, rc, bad))
-        if len(relative(macro_root, rec)) != len(base_src):
-            problems.append("SELF-TEST FAILED [macro-body-real-front-end]: the "
-                            "mutation must change only the top's TEXT, and it "
-                            "changed the read set (%d vs %d source(s))"
-                            % (len(relative(macro_root, rec)), len(base_src)))
+        # Arms 32-34. THE TWO REOPENED ESCAPES, END TO END, ON THE REAL READ
+        # SET. The file that declares the top is replaced on disk by the
+        # round-two construct and then by the round-three one, and the whole
+        # real record is driven through real bash. Only the top's TEXT moves,
+        # which each arm asserts by comparing the source count with arm 24's.
+        def real_set_with(name, body):
+            path = os.path.join(tmp, name + ".sv")
+            with open(path, "w") as fh:
+                fh.write(body)
+            return _shadow(
+                real.replace("$R/hdl/milan/KL_pp_shadow.sv", path), tmp)
 
-        # Arm 32. THE SAME SET WITH NO FRONT END AT ALL. A Vivado host need not
-        # carry sv2v, so the directive-layer model has to close this escape on
-        # its own; this arm is what stops a later change from leaning on the
-        # oracle and leaving that host with the round-two behaviour.
-        ran += 1
-        rec, bad, rc = ask_authority(real_top, macro_path)
-        if rc == 0:
-            _f, bad, rc = build(real_top, rec,
-                                front_end=lambda *a, **k: (None, "no front end"))
-        want = "declares `module %s` where the directive layer" % real_top
-        if rc == 0 or not any(want in b for b in bad):
-            problems.append("SELF-TEST FAILED [macro-body-model-alone]: with no "
-                            "front end the model must still refuse the macro "
-                            "body; got rc=%d %s" % (rc, bad))
+        def real_text_arm(name, root, path, fe, want):
+            nonlocal ran
+            ran += 1
+            rec, bad, rc = ask_authority(real_top, path)
+            if rc == 0:
+                _f, bad, rc = build(real_top, rec, front_end=fe)
+            if rc == 0 or not any(want in b for b in bad):
+                problems.append("SELF-TEST FAILED [%s]: expected a finding "
+                                "naming %r at rc!=0, got rc=%d %s"
+                                % (name, want, rc, bad or "no findings"))
+            if len(relative(root, rec)) != len(base_src):
+                problems.append("SELF-TEST FAILED [%s]: the mutation must "
+                                "change only the top's TEXT, and it changed "
+                                "the read set (%d vs %d source(s))"
+                                % (name, len(relative(root, rec)),
+                                   len(base_src)))
+
+        macro_root, macro_path = real_set_with(
+            "round2_body", "`define UNUSED \\\nmodule %s; \\\nendmodule\n"
+            % real_top)
+        arg_root, arg_path = real_set_with(
+            "round3_argument",
+            "`define DISCARD(x)\n`DISCARD(\nmodule %s;\nendmodule\n)\n"
+            % real_top)
+
+        # Arm 32. Round two's unexpanded macro body, real front end.
+        real_text_arm("macro-body-real-front-end", macro_root, macro_path,
+                      sv2v_verdict, "does not resolve")
+
+        # Arm 33. ROUND THREE's macro argument, real front end. At the previous
+        # head this same input reached `build()` and the front end refused it
+        # there too; what had to change is the arm below.
+        real_text_arm("macro-argument-real-front-end", arg_root, arg_path,
+                      sv2v_verdict, "does not resolve")
+
+        # Arm 34. ROUND THREE with NO FRONT END -- the path a Vivado host that
+        # has not installed sv2v takes. At the previous head this returned rc=0
+        # with no findings, because a model of the directive layer answered in
+        # the front end's place; there is no such model now, so the answer is a
+        # refusal naming the missing tool. Restoring the `verdict is None` pass
+        # is what reddens here.
+        real_text_arm("macro-argument-no-front-end", arg_root, arg_path,
+                      lambda *a, **k: (None, "no front end"),
+                      "no front end resolved")
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
 
@@ -722,9 +709,6 @@ def main() -> int:
                     help="the run.sh entry to expand (default: milan_datapath)")
     ap.add_argument("--selftest", action="store_true",
                     help="prove each check fails on a planted defect")
-    ap.add_argument("--require-front-end", action="store_true",
-                    help="refuse unless %s confirms the top resolves"
-                         % FRONT_END)
     args = ap.parse_args()
 
     if args.selftest:
@@ -739,8 +723,7 @@ def main() -> int:
     files, problems, rc = [], [], 0
     rec, problems, rc = ask_authority(args.top)
     if rc == 0:
-        files, problems, rc = build(args.top, rec,
-                                    require_front_end=args.require_front_end)
+        files, problems, rc = build(args.top, rec)
     for p in problems:
         print(p, file=sys.stderr)
     if rc:

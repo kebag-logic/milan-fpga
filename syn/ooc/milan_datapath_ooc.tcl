@@ -32,7 +32,9 @@ puts "milan_datapath OOC: tag=$TAG"
 # by dp_srcs.py -- the ONE list the portability gate proves elaborates. A copy
 # here would drift, and since the processor's files are part of that list now, a
 # copy would drift a whole control plane. Nothing is read outside it, and
-# nothing re-reads run.sh: dp_srcs.py checks the record run.sh hands it.
+# nothing re-reads run.sh: dp_srcs.py checks the record run.sh hands it, and
+# resolves $TOP in it through `sv2v --top`, so sv2v is required to run this
+# script as well as the Yosys gate (README.md's tool table).
 set SRC_LINES [split [string trim [exec python3 $REPO/syn/ooc/dp_srcs.py]] "\n"]
 set SV {}
 set V  {}

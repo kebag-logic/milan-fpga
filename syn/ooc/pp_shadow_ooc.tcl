@@ -50,12 +50,14 @@ set TOP KL_pp_shadow
 # one, and the one was $TOP itself, so the documented plane-area recipe read 41
 # sources and stopped at `ERROR: [Synth 8-439] module 'KL_pp_shadow' not found`
 # (Issue #235). What replaces it is not a tidier spelling of the same list:
-# dp_srcs.py refuses to emit a list unless the top RESOLVES in it -- its model of
-# the directive layer must see the declaration (a commented, `ifdef`-guarded or
-# unexpanded-macro one is not one), and sv2v, when installed, must resolve it
-# too. On a host without sv2v the model alone still refuses; only the
-# cross-check is lost, and `--require-front-end` (which CI passes and this file
-# does not) turns that loss into a failure.
+# dp_srcs.py refuses to emit a list unless the top RESOLVES in it, and it asks
+# `sv2v --top` -- the front end syn/yosys/run.sh already runs over this same
+# list -- because that is the only thing that answers the question. It used to
+# carry a model of the directive layer for hosts without sv2v; three shapes of
+# that model were each broken by a construct they did not model ([R0] on PR
+# #240, rounds one to three), so the model is gone and sv2v is REQUIRED here.
+# Without it this script stops before Vivado starts, naming the missing tool,
+# rather than emitting a list whose top may not be in it.
 set SRC_LINES [split [string trim [exec python3 $REPO/syn/ooc/dp_srcs.py --top $TOP]] "\n"]
 set SV {}
 set V  {}
