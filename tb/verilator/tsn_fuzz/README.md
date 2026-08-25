@@ -140,7 +140,14 @@ Pdelay_Resp arm bypassed and that probe as first written, the then
 602-check campaign stayed at 602 pass, 0 fail. The Pdelay_Resp probe therefore puts the
 stranger's portNumber on the RESPONSE only and a perfect Follow_Up
 behind it, and the Follow_Up probe drives the armed pairing. Bypassing
-any one of the four arms reddens that arm's probe and no other. Two
+any one of the four arms reddens that arm's probe and no other. A
+second Pdelay_Resp pair differs from our portNumber ONLY in the high
+byte: the complement differs in both bytes, so a compare silently
+narrowed below 16 bits (the class that bit the clockIdentity half,
+FPGA-gPTP #30) would still refuse every complement probe, and the
+high-byte pair is what a narrowing plant (donor `FMT_W` to `FMT_B` on
+the portNumber compare) reddens, by that probe's own name and no
+other. Two
 ordinary assertions follow the Pdelay_Resp probe, that asCapable is
 whole and the delay is re-measured from real exchanges: they were what
 stopped the tracked gap from poisoning every section after it, and they
@@ -161,7 +168,7 @@ are ordinary assertions now. A gap fires only on the mismatch, so each
 turns green on its own when the donor closes the issue; the machinery
 stays for the next tracked donor defect.
 
-Current tally -- **164 AAF checks + 617 gPTP checks + 2 traceability
+Current tally -- **164 AAF checks + 620 gPTP checks + 2 traceability
 contracts**, 0 failures, 0 known gaps, with `tsn-gen`
 installed. This is what
 `make` prints; each campaign rewrites the same line into its `TEST_RESULTS.md`
@@ -172,7 +179,7 @@ they ever disagree:
 | campaign | checks | what it drives |
 |---|---:|---|
 | `fuzz_aaf.py`  | 164 | parser → rx-monitor → depacketizer — the **accept verdict** (wire `stream_id` vs bound, graded on the parser's own pre-match counters = the `0x8B4` APRB sources), per-field verdicts, lock survival |
-| `fuzz_ptp.py`  | 617 | the gPTP fabric slice: TX conformance of the plane's own Pdelay_Req/Announce/Sync/Follow_Up against the 802.1AS models (the per-message control byte of FPGA-gPTP #9 among the graded fields: Sync 0x0, Follow_Up 0x2, Announce and the Pdelay types 0x5), parser drop/ignore gates (the domainNumber arm of FPGA-gPTP #6 among them, probed on Announce, Sync/Follow_Up and Pdelay_Req separately), BTCA rejection under fuzz (the three 10.3.10.2.1 qualifications of FPGA-gPTP #7 hard-asserted on wire-legal fixtures, each refusal leaving the parser drop counter unmoved, and the strict PathTrace wire rules of FPGA-gPTP #45 -- head not the announced grandmaster, count not stepsRemoved+1 -- pinned as counted parser drops), servo pairing (with the TLV-less, truncated, wrong-tlvType and short-declared Follow_Up refusals of FPGA-gPTP #11), the responder role (with the header-only and truncated Pdelay_Req refusals of FPGA-gPTP #12, neither drawing a response pair), the Milan 4.2.6.2.5 cease rule, and the two-sided asCapable canary; **no tracked gap** at the current pin, the last two having closed with the donor's portNumber compare (FPGA-gPTP #36), and each of the nine unlisted messageTypes is graded on three properties, its counted drop, drawing no transmission, and the engine's uCPU running no program at all (the closed FPGA-gPTP #22 could have been half-fixed in either of two ways, and the third property catches a parser that counts a frame AND dispatches it) |
+| `fuzz_ptp.py`  | 620 | the gPTP fabric slice: TX conformance of the plane's own Pdelay_Req/Announce/Sync/Follow_Up against the 802.1AS models (the per-message control byte of FPGA-gPTP #9 among the graded fields: Sync 0x0, Follow_Up 0x2, Announce and the Pdelay types 0x5), parser drop/ignore gates (the domainNumber arm of FPGA-gPTP #6 among them, probed on Announce, Sync/Follow_Up and Pdelay_Req separately), BTCA rejection under fuzz (the three 10.3.10.2.1 qualifications of FPGA-gPTP #7 hard-asserted on wire-legal fixtures, each refusal leaving the parser drop counter unmoved, and the strict PathTrace wire rules of FPGA-gPTP #45 -- head not the announced grandmaster, count not stepsRemoved+1 -- pinned as counted parser drops), servo pairing (with the TLV-less, truncated, wrong-tlvType and short-declared Follow_Up refusals of FPGA-gPTP #11), the responder role (with the header-only and truncated Pdelay_Req refusals of FPGA-gPTP #12, neither drawing a response pair), the Milan 4.2.6.2.5 cease rule, and the two-sided asCapable canary; **no tracked gap** at the current pin, the last two having closed with the donor's portNumber compare (FPGA-gPTP #36), and each of the nine unlisted messageTypes is graded on three properties, its counted drop, drawing no transmission, and the engine's uCPU running no program at all (the closed FPGA-gPTP #22 could have been half-fixed in either of two ways, and the third property catches a parser that counts a frame AND dispatches it) |
 
 ## Contents
 

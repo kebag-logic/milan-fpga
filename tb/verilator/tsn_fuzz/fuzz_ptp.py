@@ -1198,6 +1198,42 @@ class Campaign:
             self.rep.eq("%s: asCapable unmoved" % gl,
                         after[S_FLAGS] & FL_ASCAP,
                         before[S_FLAGS] & FL_ASCAP)
+        # WIDTH-PINNING PROBE ([R2] of PR #238): a portNumber differing
+        # from ours ONLY in the high byte. The complement probe above
+        # differs in both bytes, so a compare silently narrowed below 16
+        # bits would still refuse it -- the same silent-narrowing class
+        # the clockIdentity half was bitten by (FPGA-gPTP #30). This pair
+        # is refused only by the full 16-bit compare: same design, the
+        # stranger's portNumber on the RESPONSE only, a perfect Follow_Up
+        # behind it. The N9 plant (donor FMT_W narrowed to FMT_B) reddens
+        # exactly this probe and no other.
+        self.drain_tx()
+        preq = self.wait_tx(wire.PTP_PDELAY_REQ, 4 * SECOND)
+        if self.rep.ck("an unanswered request for the portNumber width "
+                       "probe", preq is not None):
+            pseq = wire.PtpMsg(preq).sequence_id
+            our_pn = wire.PtpMsg(preq).source_port_number
+            hi_pn = our_pn ^ 0xFF00
+            self.tick(4)
+            pt2 = self.phc_of(self.state()) - 3000
+            before = self.state()
+            self.send(wire.ptp_pdelay_resp(
+                sequence_id=pseq, t2_ns=pt2,
+                requesting_clock_identity=OUR_CID,
+                requesting_port_number=hi_pn,
+                source_clock_identity=PEER_CID))
+            after = self.send(wire.ptp_pdelay_resp_fu(
+                sequence_id=pseq, t3_ns=pt2 + 200,
+                requesting_clock_identity=OUR_CID,
+                requesting_port_number=our_pn,
+                source_clock_identity=PEER_CID))
+            gl = ("Pdelay_Resp at a high-byte-only foreign requesting "
+                  "portNumber arms nothing (11.2.15.3, 16-bit compare)")
+            self.rep.eq("%s: peer delay unmoved" % gl,
+                        after[S_PDELAY], before[S_PDELAY])
+            self.rep.eq("%s: asCapable unmoved" % gl,
+                        after[S_FLAGS] & FL_ASCAP,
+                        before[S_FLAGS] & FL_ASCAP)
         self.responder(True)
         # whatever this probe disturbs, the plane must repair from real
         # exchanges before the next section starts. Hard assertions, and
