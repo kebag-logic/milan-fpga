@@ -281,33 +281,22 @@ AX bare-metal manifest instead carries only raw `aem_desc.bin` at 4 MiB in a
 `INSTALLED_BIT`). The launcher delegates to `deploy.sh flash-pair`, which:
 
 1. binds each BIT/LAYOUT pair by the SHA-256 of the parsed configuration payload
-   plus the `.bit` FPGA part (the shared directory is only a containment check),
-   and rejects `none`, partial Linux, software-to-software persistent refreshes,
-   a missing/mismatched binding, a part different from the selected programmer,
-   and a direct owner change between fabric/full-Linux and software/full-Linux;
-2. opens the actual target `ROOTFS` cpio (`software` requires exactly one regular
-   `etc/milan-gptp-software-owner`) and pre-materializes/size-checks every target
-   image before a QSPI write;
-3. checks both DTB copies against `csr.csv` and the layout's compiled CPU XLEN
-   (RV32 requires rv32/sv32), then dumps live QSPI offset zero and byte-matches
-   the Xilinx `.bit` payload against the supplied installed or target artifact;
-4. writes every target non-bit image before the commit bit for fabric→software
-   and fabric→fabric, and writes a fabric/baremetal bit before AEM for
-   software→fabric/baremetal. Every write uses `--verify`.
+   plus the `.bit` FPGA part (the shared directory is only a containment check)
+   and the compiled CPU width, and rejects a missing/mismatched binding or a
+   part different from the selected programmer;
+2. requires the fabric owner on the bare-metal {bitstream, aem} manifest, and
+   refuses every retired Linux boot image, the retired software owner, and
+   owner `none` before programmer I/O (#259);
+3. pre-materializes/size-checks every target image, then dumps live QSPI
+   offset zero and byte-matches the Xilinx `.bit` payload against the
+   supplied installed or target artifact;
+4. writes the target AEM image before the commit bit, every write with
+   `--verify`, so each completed prefix boots exactly one fabric owner.
 
-A direct fabric/full-Linux ↔ software/full-Linux change cannot preserve the
-one-owner invariant in one rootfs slot: bit-first yields fabric plus a marked
-rootfs, while rootfs-first yields software gateware plus a fabric-profile rootfs.
-Use the autonomous `ax7101` fabric/baremetal image as a proved two-transaction
-bridge. A live target full-Linux bit is considered complete only when every
-target non-bit image already byte-matches; it is never provenance for a repair.
-
-An assertion such as `INSTALLED_GPTP_OWNER=software` is not accepted as proof.
-Unknown/ambiguous readback, a wrong board/build, corrupt metadata, either marker
-inversion, or a missing/oversized last artifact refuses without a write.
-For a live full-Linux source, the transaction reads and CRC-checks the installed
-FBI rootfs and validates its marker against the installed layout owner.
-`deploy.sh check-images` retains the read-only target-pair check. Direct
+An assertion such as `INSTALLED_GPTP_OWNER=fabric` is not accepted as proof.
+Unknown/ambiguous readback, a wrong board/build, corrupt metadata, or a
+missing/oversized last artifact refuses without a write.
+`deploy.sh check-images` retains the read-only target check. Direct
 `flash`/`flash-images` are recovery primitives and require the explicit
 `ALLOW_NONATOMIC_FLASH=1` escape; named builds never set it. JTAG load still
 runs a build from SRAM without touching flash.

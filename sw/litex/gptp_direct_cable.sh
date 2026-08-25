@@ -1,4 +1,16 @@
 #!/usr/bin/env bash
+# gptp_direct_cable.sh — RETIRED (#259, USER directive 2026-08-25).
+#
+# This bench flow validated the SOFTWARE gPTP owner (ptp4l on two Linux
+# images over a direct cable). That owner and its images are retired: the
+# product is bare-metal only and the fabric plane is the one gPTP owner, so
+# there is no software-owner image left for this script to drive. The body
+# below is preserved as the measured bring-up procedure; the refusal here
+# keeps it from ever starting a retired daemon beside the fabric owner.
+echo "RETIRED (#259): the software gPTP owner and its Linux images no longer exist;" >&2
+echo "this bench script is preserved as history and refuses to run." >&2
+exit 2
+
 # gptp_direct_cable.sh — turnkey two-node gPTP validation over a DIRECT cable,
 # HARDWARE timestamps on both ends (Phase B gateware, hwts5/eto_hwts_ax2+).
 #

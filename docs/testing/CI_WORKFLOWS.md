@@ -458,7 +458,12 @@ and the complete dependency set. Its mutation suite independently removes every
 tree, redirects or disables checkout, moves setup on either side of that order,
 and disables or replaces the setup and builder calls. A local run with an
 already initialized worktree is not evidence that a fresh hosted checkout has
-the sources.
+the sources. The same contract pins one exact sv2v v0.0.12 install per
+builder job, before the call and under the elaboration job's live RTL-scope
+`if`: `dp_srcs.py` refuses to resolve a top without a front end, so a runner
+without sv2v turns the builder gate red rather than green, and the mutation
+suite drops the install, drifts its version, moves it after the call, and
+disables its condition.
 
 Two caches, deliberately split. The Scala toolchain is content-addressed and
 keeps a broad fallback. The generated CPU metadata does not: its key hashes the

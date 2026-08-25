@@ -15,10 +15,13 @@
 #                   to the newest gateware/alinx_ax7101.bit)
 #     LAYOUT=<path> target flashboot_layout.json (required for flash-pair; other
 #                   steps default to the newest build's)
-#     AEM/KERNEL/OPENSBI/DTB/ROOTFS=<path> target manifest images (only the images
-#                   named in the layout's manifest are required; no machine-specific defaults)
-#     EXPECTED_GPTP_OWNER=fabric|software|none additionally binds a named build
-#                   recipe to the owner compiled into LAYOUT (used by build.sh).
+#     AEM=<path>    target AEM descriptor image (defaults to the layout's
+#                   sibling aem_desc.bin). The product image set is bare-metal
+#                   {bitstream, aem} ONLY: the Linux kernel/OpenSBI/DTB/rootfs
+#                   slots are retired (#259) and any layout naming them refuses.
+#     EXPECTED_GPTP_OWNER=fabric additionally binds a named build recipe to
+#                   the owner compiled into LAYOUT (used by build.sh); every
+#                   non-fabric owner is refused as retired.
 #     INSTALLED_LAYOUT=<path> + INSTALLED_BIT=<path> name the exact build
 #                   currently in QSPI. flash-pair proves that claim by live
 #                   offset-zero readback before choosing its write order.
@@ -109,85 +112,36 @@ do_load() {
 do_check_images() {
     [ -n "$LAYOUT" ] && [ -f "$LAYOUT" ] || {
         echo "[deploy] image check: no flashboot_layout.json (build --with-spiflash, or set LAYOUT=<path>)"; exit 2; }
-    # #116 owner contract: inspect the ACTUAL rootfs archive against the owner
-    # enum compiled into this gateware.  Missing/legacy metadata, unreadable
-    # archives and either inverted marker state are hard errors. flash-pair
-    # runs this while materializing the whole set, before its first write.
+    # #116/#259 owner contract: the layout must record the fabric plane as the
+    # image's one gPTP owner and must be a bare-metal {bitstream, aem} set.
+    # Retired Linux boot-chain rows, the retired software owner, and missing
+    # or legacy metadata are hard errors. flash-pair runs this while
+    # materializing the whole set, before its first write.
     local pair_args=(--layout "$LAYOUT")
-    [ -z "${ROOTFS:-}" ] || pair_args+=(--rootfs "$ROOTFS")
     [ -z "${EXPECTED_GPTP_OWNER:-}" ] || \
         pair_args+=(--expected-owner "$EXPECTED_GPTP_OWNER")
     "$PYTHON" "$HERE/check_gptp_owner_pair.py" "${pair_args[@]}" || {
-        echo "[deploy] image check REFUSED: gateware/rootfs gPTP owners do not form one-owner image." >&2
+        echo "[deploy] image check REFUSED: the layout is not a fabric-owned bare-metal image set." >&2
         exit 2
     }
-    # A device tree from an older CSR layout kills the whole host plane with
-    # perfect CSR readbacks (kl-eth maps reg windows by index) — refuse it here
-    # rather than debug it on silicon again. The OPENSBI check is the decisive
-    # one: the BIOS jumps a1=0, so the fdt EMBEDDED in opensbi (FW_FDT_PATH) is
-    # the only tree the kernel sees.  The layout's compiled CPU width is part
-    # of the same contract: an RV64/sv39 tree must never pass for an RV32 SoC.
-    #
-    # FAIL CLOSED ([R0] on PR #228): a manifest that names an opensbi or dtb
-    # image IS the full-Linux boot chain, and every validation input for that
-    # chain is then required, never optional. The old guard keyed the whole
-    # block on the sibling csr.csv existing, so DELETING csr.csv skipped the
-    # CPU-width, dtc and CSR-window checks and still printed preflight OK.
-    # Absence of a validation input now refuses the deploy before any
-    # programmer I/O.
-    local csrcsv img img_path expected_xlen boot_rows
-    csrcsv="$(dirname "$LAYOUT")/csr.csv"
-    boot_rows=$("$PYTHON" - "$LAYOUT" <<'PY'
-import json, sys
-layout = json.load(open(sys.argv[1], encoding="utf-8"))
-names = {row.get("name") for row in layout.get("images", [])
-         if isinstance(row, dict)}
-print(len({"opensbi", "dtb"} & names))
-PY
-    ) || {
-        echo "[deploy] image check REFUSED: cannot read the layout image manifest." >&2
-        exit 2
-    }
-    if [ "$boot_rows" -gt 0 ] || \
-            { [ -f "$csrcsv" ] && { [ -n "${DTB:-}" ] || [ -n "${OPENSBI:-}" ]; }; }; then
-        # The compiled CPU width binds first, independent of every other
-        # input: a layout that does not state it cannot be validated at all.
-        expected_xlen=$("$PYTHON" - "$LAYOUT" <<'PY'
+    # The compiled CPU width is part of the artifact's identity binding: the
+    # bare-metal firmware and its BIOS are XLEN-exact, and an old layout that
+    # does not state the width cannot be validated at all. The retired Linux
+    # DTB/OpenSBI CSR-window chain (#259) was removed together with its boot
+    # path; the pair check above already refused any layout naming those
+    # slots, so the width is the one boot-chain binding left to hold here.
+    local expected_xlen
+    expected_xlen=$("$PYTHON" - "$LAYOUT" <<'PY'
 import json, sys
 value = json.load(open(sys.argv[1], encoding="utf-8")).get("cpu_xlen")
 if type(value) is not int or value not in (32, 64):
     raise SystemExit("layout has no valid cpu_xlen (32 or 64)")
 print(value)
 PY
-        ) || {
-            echo "[deploy] image check REFUSED: layout does not bind the compiled CPU width." >&2
-            exit 2
-        }
-        command -v dtc >/dev/null || {
-            echo "[deploy] image check REFUSED: dtc is required to verify DTB/OpenSBI." >&2
-            exit 2
-        }
-        [ -f "$csrcsv" ] || {
-            echo "[deploy] image check REFUSED: no sibling csr.csv beside $LAYOUT; the CSR map is the validation input for the DTB/OpenSBI boot chain, and a full-Linux target without it cannot be proven." >&2
-            exit 2
-        }
-        if [ "$boot_rows" -gt 0 ]; then
-            for img in DTB OPENSBI; do
-                img_path="${!img:-}"
-                [ -n "$img_path" ] && [ -f "$img_path" ] || {
-                    echo "[deploy] image check REFUSED: full-Linux manifest needs $img=<path> so its boot chain can be validated (got '${img_path:-unset}')." >&2
-                    exit 2
-                }
-            done
-        fi
-        for img in "${DTB:-}" "${OPENSBI:-}"; do
-            [ -n "$img" ] || continue
-            "$PYTHON" "$HERE/check_dtb_csr.py" --expected-xlen "$expected_xlen" \
-                "$img" "$csrcsv" || {
-                echo "[deploy] image check REFUSED: $img does not match this build's csr.csv."
-                echo "[deploy] Rebuild it from the dts source (opensbi embeds the fdt — rebuild it too)."; exit 2; }
-        done
-    fi
+    ) || {
+        echo "[deploy] image check REFUSED: layout does not bind the compiled CPU width." >&2
+        exit 2
+    }
     echo "[deploy] image preflight OK: $LAYOUT"
 }
 
@@ -271,20 +225,9 @@ PY
                 # transition planner validates its offset/budget separately.
                 echo "[deploy]   bitstream slot @ 0x$(printf %06x "$off")"
                 continue ;;
-            kernel)
-                src="${KERNEL:-}"
-                # layout v3: the kernel slot expects the kernel build's
-                # Image.xz (plain LZMA2; xz_embedded needs --check=crc32).
-                # Given a raw Image, compress it here.
-                if [ -n "$src" ] && [ -f "$src" ] && \
-                        [ "$(head -c6 "$src" | od -An -tx1 | tr -d ' \n')" != "fd377a585a00" ]; then
-                    echo "[deploy]   kernel: raw Image -> xz -9 --check=crc32 (slot expects Image.xz)"
-                    xz -9 --check=crc32 -T0 -c "$src" > "$tmp/Image.xz"
-                    src="$tmp/Image.xz"
-                fi ;;
-            opensbi) src="${OPENSBI:-}" ;;
-            dtb)     src="${DTB:-}" ;;
-            rootfs)  src="${ROOTFS:-}" ;;
+            # kernel/opensbi/dtb/rootfs: RETIRED (#259). The owner-pair check
+            # already refused any layout naming them, so reaching one here is
+            # an internal inconsistency and takes the unknown-image refusal.
             aem)
                 src="${AEM:-$(dirname "$LAYOUT")/aem_desc.bin}"
                 wrap=0 ;;
@@ -339,64 +282,6 @@ prepared_images_match() {
     done < "$rows"
 }
 
-prove_live_installed_rootfs() {
-    # A live software/full or fabric/full bit is not by itself one-owner
-    # evidence: the persistent rootfs positive profile/payload is the other
-    # half of that state.
-    # Read the FBI header first, bound its declared payload to the installed
-    # layout slot, then CRC/decompress/inspect the exact live record.
-    local tmp="$1" source_owner="$2"
-    local slot="$tmp/installed-rootfs-slot.tsv"
-    local header="$tmp/installed-rootfs-header.bin"
-    local live_rootfs="$tmp/installed-rootfs.fbi"
-    "$PYTHON" - "$INSTALLED_LAYOUT" "$FLASH_SIZE" > "$slot" <<'PY'
-import json, sys
-layout = json.load(open(sys.argv[1]))
-flash_size = int(sys.argv[2])
-rows = [row for row in layout.get("images", [])
-        if isinstance(row, dict) and row.get("name") == "rootfs"]
-if len(rows) != 1:
-    raise SystemExit("installed full-Linux layout needs exactly one rootfs row")
-row = rows[0]
-off = row.get("offset")
-budget = row.get("budget", row.get("size"))
-if type(off) is not int or type(budget) is not int or off < 0 or budget <= 8:
-    raise SystemExit("installed rootfs row needs a non-negative integer offset and budget > 8")
-if off + budget > flash_size:
-    raise SystemExit("installed rootfs slot exceeds the QSPI device")
-print(f"{off}\t{budget}")
-PY
-    local off budget total
-    IFS=$'\t' read -r off budget < "$slot"
-    [ -n "$off" ] && [ -n "$budget" ] || {
-        echo "[deploy] installed rootfs slot metadata is incomplete" >&2
-        return 2
-    }
-    run_ofl -c "$CABLE" --fpga-part "$FPGA_PART" -o "$off" \
-        --dump-flash --file-size 8 "$header"
-    total=$("$PYTHON" - "$header" "$budget" <<'PY'
-import struct, sys
-raw = open(sys.argv[1], "rb").read()
-budget = int(sys.argv[2])
-if len(raw) != 8:
-    raise SystemExit("live rootfs FBI header is short")
-size, _crc = struct.unpack("<II", raw)
-if size <= 0 or size + 8 > budget:
-    raise SystemExit(
-        f"live rootfs FBI length {size} exceeds installed slot budget {budget}")
-print(size + 8)
-PY
-    )
-    run_ofl -c "$CABLE" --fpga-part "$FPGA_PART" -o "$off" \
-        --dump-flash --file-size "$total" "$live_rootfs"
-    "$PYTHON" "$HERE/check_gptp_owner_pair.py" \
-        --layout "$INSTALLED_LAYOUT" --bit "$INSTALLED_BIT" \
-        --expected-fpga-part "$FPGA_PART" --rootfs "$live_rootfs" || {
-            echo "[deploy] installed live rootfs does not complete its declared one-owner state" >&2
-            return 2
-        }
-    echo "[deploy] live installed rootfs FBI CRC and positive owner profile match $source_owner"
-}
 
 write_target_bit() {
     echo "[deploy] write+verify bitstream @ 0x000000: $BIT"
@@ -471,26 +356,19 @@ do_flash_pair() {
         --expected-size "$dump_bytes") || exit 2
     echo "[deploy] live bit identity: $state artifact; $installed_owner -> $target_owner; $order"
 
-    if [ "$state" = installed ] && [ "$installed_profile" != fabric-baremetal ]; then
-        prove_live_installed_rootfs "$tmp" "$installed_owner"
-    fi
-
     if [ "$state" = target ]; then
         if prepared_images_match "$rows" "$tmp/target-image-readback.bin"; then
             echo "[deploy] target bit and every target image already match"
-        elif [ "$target_profile" = fabric-baremetal ]; then
-            # A live bare-metal fabric commit bit ignores every Linux slot and
-            # owns gPTP independently of AEM, so repairing AEM is safe.
-            write_prepared_images "$rows"
         else
-            echo "[deploy] flash-pair REFUSED: target $target_profile bit is live but its boot image set is not exact." >&2
-            echo "[deploy] A full-Linux repair has no proven single-slot provenance; restore a proved fabric/baremetal bridge first." >&2
-            exit 2
+            # The planner admits only fabric-baremetal profiles (#259). A live
+            # bare-metal fabric commit bit owns gPTP independently of AEM, so
+            # repairing the AEM image beside it is safe.
+            write_prepared_images "$rows"
         fi
-    elif [ "$order" = bit-first ]; then
-        write_target_bit
-        write_prepared_images "$rows"
     else
+        # The one supported plan order: the old autonomous fabric owner stays
+        # live until every target non-bit image has verified, then the target
+        # bit commits.
         write_prepared_images "$rows"
         write_target_bit
     fi

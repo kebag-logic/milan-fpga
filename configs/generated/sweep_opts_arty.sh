@@ -12,7 +12,7 @@
 # tables are the fallback, and scripts/check_sweep_shape.py refuses
 # a launch whose effective flags disagree with SWEEP_CFG. Regenerate:
 #   python3 sw/builder/endstation_builder.py <cfg.yaml>
-OPTS="--board arty --sys-clk-freq 83.333e6 --milan-clk-freq 50e6 --num-streams 4 --audio-interface tdm8 --audio-interface-master --talker-wire-chans 4 --cbs-queues-mask 0x10 --no-fabric-gptp --sound-card --cpu vexiiriscv --software-profile linux --xlen 32 --all-blocks --coherent-dma --with-spiflash --flashboot full --timing-opt --l2-bytes 16384 --scala-args=--lsu-l1-refill-count=2 --scala-args=--l2-down-pending=4 --scala-args=--l2-general-slots=8 --uart-baudrate 115200 --rx-queues 2 --strip-probes --hs-page-bytes 16384 --cpu-count 1"
+OPTS="--board arty --sys-clk-freq 83.333e6 --milan-clk-freq 50e6 --num-streams 4 --audio-interface tdm8 --audio-interface-master --talker-wire-chans 4 --cbs-queues-mask 0x10 --fabric-gptp --sound-card --cpu vexiiriscv --software-profile linux --xlen 32 --all-blocks --coherent-dma --with-spiflash --flashboot full --timing-opt --l2-bytes 16384 --scala-args=--lsu-l1-refill-count=2 --scala-args=--l2-down-pending=4 --scala-args=--l2-general-slots=8 --uart-baudrate 115200 --rx-queues 2 --strip-probes --hs-page-bytes 16384 --cpu-count 1"
 NS=4
 L2=16384
 RXQ=2

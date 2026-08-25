@@ -14,7 +14,7 @@ case "$BOARD" in
   *) echo "unknown board $BOARD" >&2; exit 2;;
 esac
 BASE="python3 $(dirname "$(realpath "$0")")/milan_soc.py $OPTS --cpu vexiiriscv \
- --software-profile linux --no-fabric-gptp \
+ --software-profile linux --fabric-gptp \
  --all-blocks --coherent-dma --with-spiflash --flashboot full --timing-opt \
  --l2-bytes ${L2} --scala-args=--lsu-l1-refill-count=8 \
  --scala-args=--lsu-hardware-prefetch=rpt --scala-args=--l2-down-pending=8 \

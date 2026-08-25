@@ -15,9 +15,10 @@ a recreation, not an official compliance-lab run).
 
 The product-default configuration now has one integrated fabric gPTP owner.
 Its atomic publication bank supplies GM, parent, propagation delay, asCapable,
-sync and discontinuity to CSR, AECP and AVTP `tu` consumers. Explicit
-`fabric_gptp: false` is the retained software-owner comparison and is the only
-profile in which the legacy `ptp4l` publication/CLKV lease evidence applies.
+sync and discontinuity to CSR, AECP and AVTP `tu` consumers. The software
+owner is retired (#259): option-off survives only as verification-only
+hardware, and the historical `ptp4l` publication/CLKV lease evidence below is
+read as that retired arm's record.
 Rows M-DEV-1 through M-DEV-4 and M-DEV-13c below reflect that owner split.
 Focused RTL evidence does not claim the booted/two-board acceptance owned by
 #117.
@@ -141,7 +142,7 @@ processor's side-port snapshot window, reached through
 **not** at the parent's 0x648 CSR, which stays a structural zero.
 ## Contents
 
-- **[STATUS VERSION 0x0002_0055 — gPTP product ownership](#status-version-0x0002_0055--gptp-product-ownership)** — The shipping profile has one fabric gPTP owner and a coherent publication bank; the software-owner arm is an explicit option-off comparison, while booted two-board acceptance remains with issue #117.
+- **[STATUS VERSION 0x0002_0055 — gPTP product ownership](#status-version-0x0002_0055--gptp-product-ownership)** — The shipping profile has one fabric gPTP owner and a coherent publication bank; the software-owner arm is retired (#259) and option-off survives only as verification-only hardware, while booted two-board acceptance remains with issue #117.
 - **[STATUS 2026-08-13 — the control plane this file profiles was replaced](#status-2026-08-13--the-control-plane-this-file-profiles-was-replaced)** — This file is retained as an obsolete historical trace. Discovery, connection management, reservation, and AECP moved to the protocol processor; current command, notification, and monitor status comes from the machine-checked Milan feature-status ledger. Unamended historical verdicts below are not current inventory. The missing descriptor-image load and 5.3.8.2 saved-state path remain real gaps.
 - **[1. Device-level requirements (Milan §4)](#1-device-level-requirements-milan-4)** — 16 rows on gPTP posture, MRP timers and talker/listener obligations. The gPTP half is daemon-side and untouched; the MRP/SRP half (M-DEV-5..10) is now 🔵 the protocol processor's, and M-DEV-13d records what the fabric still composes and what it can no longer prove.
 - **[2. Discovery deltas (Milan §5.6)](#2-discovery-deltas-milan-56)** — Three rows on ADP under Milan, all 🔵 PROCESSOR. M-ADP-3 is still the one that matters operationally — it is the SM that lets a listener self-heal when its talker reboots — and it is also the clearest example of the evidence loss: nothing in this repository tests it any more.

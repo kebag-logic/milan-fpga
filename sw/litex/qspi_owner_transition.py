@@ -133,28 +133,30 @@ def _load_layout(path):
 
 
 def _profile(layout, label):
+    """The one product profile: fabric-owned bare-metal {bitstream, aem}.
+
+    #259 (USER directive 2026-08-25) retires the Linux boot chain and the
+    option-OFF software owner entirely. A layout naming any retired Linux
+    image row, a retired manifest, or any owner other than 'fabric' is not a
+    flashable product artifact and is refused before planning."""
     owner = layout["gptp_owner"]
     names = {row["name"] for row in layout["images"]}
     manifest = layout.get("manifest")
-    if owner == "fabric":
-        if manifest == "baremetal" and names == {"bitstream", "aem"}:
-            return owner, "baremetal"
-        full = {"bitstream", "kernel", "opensbi", "dtb", "rootfs"}
-        if (manifest == "full" and layout.get("complete") is True
-                and names == full):
-            # Fabric gPTP is autonomous even when Linux is the boot payload;
-            # the paired rootfs is unmarked and starts no linuxptp owner.
-            return owner, "linux"
+    retired_rows = sorted(names & {"kernel", "opensbi", "dtb", "rootfs"})
+    if retired_rows or manifest in ("full", "kernel"):
+        what = retired_rows or [repr(manifest)]
         raise TransitionError(
-            f"{label} fabric owner is neither an autonomous baremetal nor complete full-Linux image set")
-    if owner == "software":
-        wanted = {"bitstream", "kernel", "opensbi", "dtb", "rootfs"}
-        if (manifest != "full" or layout.get("complete") is not True
-                or names != wanted):
-            raise TransitionError(
-                f"{label} software owner is not a complete full-Linux image set")
-        return owner, "linux"
-    raise TransitionError(f"{label} owner {owner!r} is not an exact-one profile")
+            f"{label} layout names a retired Linux boot chain "
+            f"({', '.join(str(w) for w in what)}): the product is bare-metal "
+            "only (#259)")
+    if owner != "fabric":
+        raise TransitionError(
+            f"{label} owner {owner!r} is not flashable: the bare-metal "
+            "product's one gPTP owner is the fabric plane (#259)")
+    if manifest == "baremetal" and names == {"bitstream", "aem"}:
+        return owner, "baremetal"
+    raise TransitionError(
+        f"{label} fabric owner is not the autonomous baremetal image set")
 
 
 def _bound_payload(layout_path, bit_path, label):
@@ -243,26 +245,11 @@ def plan(installed_layout, installed_bit, target_layout, target_bit,
     if old_payload == new_payload:
         raise TransitionError(
             "installed and target bitstream payloads are identical; live state is ambiguous")
-    # A full-Linux owner change also flips the rootfs permission marker.  With
-    # one rootfs slot, writing the bit first produces fabric+marked (two
-    # owners), while writing the rootfs first produces software+unmarked (zero
-    # owners).  The autonomous fabric/baremetal image is the safe bridge in
-    # either direction; do not pretend bit ordering alone solves this case.
-    if old_owner != new_owner and (
-            (old_owner == "fabric" and old_boot == "linux") or
-            (new_owner == "fabric" and new_boot == "linux")):
-        raise TransitionError(
-            "direct fabric/full-Linux and software/full-Linux owner changes "
-            "need a fabric/baremetal bridge")
-    if old_owner == "software" and new_owner == "software":
-        raise TransitionError(
-            "software-to-software persistent refresh has no safe single-slot order")
-    if old_owner == "software" and new_owner == "fabric":
-        order = "bit-first"
-    else:
-        # fabric->software and fabric->fabric both keep the old autonomous
-        # fabric owner until every target non-bit image has verified.
-        order = "images-first"
+    # Both profiles resolved to fabric-baremetal above (#259 refused every
+    # other shape), so the one supported transition is a fabric refresh: the
+    # old autonomous fabric owner stays live until every target non-bit image
+    # has verified, then the target bit commits.
+    order = "images-first"
     return {
         "installed_owner": old_owner,
         "installed_profile": f"{old_owner}-{old_boot}",
@@ -345,8 +332,6 @@ def self_test():
                     ["bitstream", "aem"])
         sw = build("sw", "software", "full", True, b"software",
                    ["bitstream", "kernel", "opensbi", "dtb", "rootfs"])
-        sw2 = build("sw2", "software", "full", True, b"software2",
-                    ["bitstream", "kernel", "opensbi", "dtb", "rootfs"])
         fab_linux = build(
             "fab-linux", "fabric", "full", True, b"fabric-linux",
             ["bitstream", "kernel", "opensbi", "dtb", "rootfs"])
@@ -354,32 +339,40 @@ def self_test():
                      ["bitstream", "aem"])
         partial = build("partial", "software", "kernel", False, b"partial",
                         ["bitstream", "kernel"])
+        none_bm = build("none-bm", "none", "baremetal", False, b"none-bm",
+                        ["bitstream", "aem"])
 
-        assert plan(*fab, *sw)["order"] == "images-first"; checks += 1
-        assert plan(*sw, *fab)["order"] == "bit-first"; checks += 1
+        # The one supported transition: a fabric-baremetal refresh, target bit
+        # last so the old autonomous owner stays live until every image holds.
         assert plan(*fab, *fab2)["order"] == "images-first"; checks += 1
-        expect_error(lambda: plan(*fab_linux, *sw), "fabric/baremetal bridge")
-        expect_error(lambda: plan(*sw, *fab_linux), "fabric/baremetal bridge")
-        assert plan(*fab, *fab_linux)["order"] == "images-first"; checks += 1
-        expect_error(lambda: plan(*sw, *partial), "complete full-Linux")
-        expect_error(lambda: plan(*sw, *sw), "identical")
-        expect_error(lambda: plan(*sw, *sw2), "software-to-software")
-        expect_error(lambda: plan(*sw, *fab, expected_target_owner="software"),
+        # Every retired Linux artifact refuses, as INSTALLED and as TARGET:
+        # the software owner, the fabric/full-Linux payload, and the partial
+        # kernel set are all pre-#259 shapes with no flash path left.
+        expect_error(lambda: plan(*fab, *sw), "retired Linux boot chain")
+        expect_error(lambda: plan(*sw, *fab), "retired Linux boot chain")
+        expect_error(lambda: plan(*fab, *fab_linux), "retired Linux boot chain")
+        expect_error(lambda: plan(*fab_linux, *fab), "retired Linux boot chain")
+        expect_error(lambda: plan(*fab, *partial), "retired Linux boot chain")
+        # An ownerless bare-metal set is not a product image either.
+        expect_error(lambda: plan(*fab, *none_bm), "not flashable")
+        expect_error(lambda: plan(*fab, *fab), "identical")
+        expect_error(lambda: plan(*fab, *fab2,
+                                  expected_target_owner="software"),
                      "selected recipe expects")
-        expect_error(lambda: plan(*sw, *fab,
+        expect_error(lambda: plan(*fab, *fab2,
                                   expected_fpga_part="xc7a200tfbg484"),
                      "programmer part")
         foreign_link = os.path.join(
             os.path.dirname(fab2[1]), "foreign-build.bit")
-        os.symlink(sw[1], foreign_link)
+        os.symlink(fab[1], foreign_link)
         expect_error(lambda: validate_artifact_pair(
             fab2[0], foreign_link), "different build directories")
         # This is the installed-owner trust seam: a valid bit copied beside a
         # different build's mutable layout used to satisfy the directory test
         # and inherit that layout's owner.  The payload digest must reject it.
         adjacent_wrong = os.path.join(os.path.dirname(fab2[1]),
-                                      "adjacent-software.bit")
-        with open(sw[1], "rb") as source, open(adjacent_wrong, "wb") as sink:
+                                      "adjacent-fabric.bit")
+        with open(fab[1], "rb") as source, open(adjacent_wrong, "wb") as sink:
             sink.write(source.read())
         expect_error(lambda: validate_artifact_pair(
             fab2[0], adjacent_wrong), "payload SHA-256")

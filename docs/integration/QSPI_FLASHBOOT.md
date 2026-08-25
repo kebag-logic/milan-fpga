@@ -4,7 +4,7 @@
 
 - **[The device at a glance](#the-device-at-a-glance)** — The to-scale flash map, generated from the same `load_map()` that emits the kernel's `fixed-partitions` node — so map, device tree and picture cannot drift apart. The generator also re-runs the overlap/alignment check and prints the verdict *onto* the drawing, which is how a broken map becomes visible before flash time.
 - **[Layout "baremetal" - shipping AX7101](#layout-baremetal---shipping-ax7101)** — The two-slot bitstream plus raw AEM manifest, why it has no kernel or FBI wrapper, and the paired-image verification required before firmware enables ADP.
-- **[Layout "full" — LINUX BRING-UP TRUTH (2026-07-24, silicon-verified end-to-end)](#layout-full--linux-bring-up-truth-2026-07-24-silicon-verified-end-to-end)** — The retained Linux slot table, plus two traps that have each bitten twice: the `dtb` slot is a **decoy** — the kernel boots on the FDT embedded in OpenSBI — and LiteX CSR addresses shift whenever the gateware block set changes, so a stale DTB produces symptoms as oblique as a ptp4l tx-timestamp timeout. Ends with real boot timing: ~7 min cold to network-up, so probe windows need ≥ 8 min.
+- **[Layout "full" — RETIRED LINUX BRING-UP HISTORY (#259; silicon-verified 2026-07-24)](#layout-full--retired-linux-bring-up-history-259-silicon-verified-2026-07-24)** — The measured five-slot Linux bring-up record, retired by #259: no tool flashes this manifest any more, and the section survives only as the silicon-verified history behind the bare-metal contract.
 - **[Layout v3 — SUPERSEDED HISTORY (2026-07-12; offsets no longer deployed)](#layout-v3--superseded-history-2026-07-12-offsets-no-longer-deployed)** — Historical: these offsets are not what ships. Kept for the reasoning that is still true — why the kernel is flashed as `Image.xz` (there is no non-EFI self-extracting kernel on RISC-V), the xz stream rule the vendored decoder imposes, and the four cooperating pieces the whole feature is built from.
 - **[The hard constraint: 16 MB flash vs 23 MB of images](#the-hard-constraint-16-mb-flash-vs-23-mb-of-images)** — Why there are two manifests at all: 16 MB of device against ~23 MB of un-slimmed images. Bannered — the arithmetic is permanent but the kernel-at-offset-0 arrangement it argued for is pre-v3 and has not shipped since 2026-07-12. The slot map inside is now read off `FLASHBOOT_LAYOUT` and starts with the bitstream, matching the deployed table above.
 - **[How the boot works](#how-the-boot-works)** — The boot-method priority chain and what full vs partial each do. The reassuring part: every copy is CRC-checked from the FBI header, so an empty or half-written flash falls through to serialboot rather than bricking the boot.
@@ -71,13 +71,19 @@ INSTALLED_BUILD=<exact-current-build> \
 
 `deploy.sh flash-pair` proves the live installed offset-zero payload, selects
 `<target-builddir>/aem_desc.bin` by default, prepares/checks the whole target,
-and uses direction-aware verified writes. For software/full-Linux→fabric/
-baremetal it commits the fabric bit first and AEM second; a retry recognizes
-either source or target bit. See
+and uses verified writes. The one supported transition is the fabric-baremetal
+refresh: AEM verifies first, the target bit commits last, and a retry
+recognizes either source or target bit. Layouts naming the retired Linux boot
+images or a non-fabric owner refuse before any programmer I/O (#259). See
 [BAREMETAL_FIRMWARE.md](BAREMETAL_FIRMWARE.md) for boot ordering and UART
 validation.
 
-## Layout "full" — LINUX BRING-UP TRUTH (2026-07-24, silicon-verified end-to-end)
+## Layout "full" — RETIRED LINUX BRING-UP HISTORY (#259; silicon-verified 2026-07-24)
+
+> **Retired (#259, USER directive 2026-08-25).** The product is bare-metal
+> only: the `full`/`kernel` manifests, the rootfs, OpenSBI, the DTB slot and
+> the software gPTP owner are no longer flashable, and every tool below
+> refuses them. This section is preserved as the measured bring-up record.
 
 The layout of record is the `--flashboot full` manifest baked into the
 gateware BIOS (`flashboot_layout.json` in every build dir — ALWAYS read the
@@ -120,20 +126,16 @@ requires `riscv,isa = "rv32…"` and `mmu-type = "riscv,sv32"` in both the slot
 DTB and the FDT embedded in OpenSBI, so an RV64/sv39 boot chain is refused even
 when every CSR window happens to match.
 
-**Matched-owner and installed-state rule (#116):** every new
+**Matched-owner and installed-state rule (#116/#259):** every new
 `flashboot_layout.json` carries the resolved `gptp_owner` enum and `cpu_xlen`
-compiled into `soc.h` (`fabric`, `software`, or the documented bare-SoC
-`none`). A completed Vivado build also records `bitstream_payload_sha256` over
-the parsed configuration payload (the exact bytes openFPGALoader writes) and
-the `.bit` header's `bitstream_fpga_part`. Before any write, `deploy.sh
-flash-pair` requires both bindings to match the supplied BIT; directory
-adjacency is not artifact identity. It then opens the
-actual gzip/xz/raw-newc target `ROOTFS` archive. A software-owned build must
-contain exactly one regular `etc/milan-gptp-software-owner`; a fabric-owned
-full-Linux build must omit it, while a fabric/baremetal build carries the AEM
-set and does not boot that rootfs. It rejects `none`, partial Linux,
-software→software, and direct owner changes between the two full-Linux marker
-states for the guaranteed persistent API.
+compiled into `soc.h`. The only flashable owner is `fabric` on the bare-metal
+{bitstream, aem} manifest: `none`, the retired `software` owner, and any
+layout naming a retired Linux boot image refuse before programmer I/O. A
+completed Vivado build also records `bitstream_payload_sha256` over the
+parsed configuration payload (the exact bytes openFPGALoader writes) and the
+`.bit` header's `bitstream_fpga_part`; before any write, `deploy.sh
+flash-pair` requires both bindings to match the supplied BIT - directory
+adjacency is not artifact identity.
 
 The transaction also requires `INSTALLED_LAYOUT` + `INSTALLED_BIT` (or the
 named launcher's `INSTALLED_BUILD`). It verifies the layout SHA-256/part against
@@ -141,17 +143,14 @@ the parsed Xilinx `.bit` payload, then dumps
 the same number of live bytes from QSPI offset zero on the serial-selected
 board, and accepts exactly one match: the supplied installed artifact, or the
 target artifact when resuming after its commit write. An owner string is not
-installed-state evidence. If the live source is full Linux, `flash-pair` then
-reads its rootfs FBI header and bounded payload from QSPI, verifies the FBI CRC,
-decompresses the archive, and checks that live marker against the installed
-layout owner. Missing/unknown metadata, a short/ambiguous/mismatched readback, a
-wrong build directory, a missing/mismatched payload digest, a `.bit` FPGA part
-that differs from the layout or selected programmer part, corrupt source or
-target rootfs, duplicate markers, both zero/
-two-owner inversions, and a missing or oversized *last* image all refuse before
-a write. A live target full-Linux bit is accepted only when every non-bit image
-already byte-matches the target; it is not treated as provenance for an unsafe
-repair. `deploy.sh check-images` retains the read-only target-pair preflight.
+installed-state evidence. Missing/unknown metadata, a
+short/ambiguous/mismatched readback, a wrong build directory, a
+missing/mismatched payload digest, a `.bit` FPGA part that differs from the
+layout or selected programmer part, and a missing or oversized *last* image
+all refuse before a write. A live target bit beside a stale AEM gets an
+AEM-only repair, because the autonomous fabric commit bit owns gPTP
+independently of AEM. `deploy.sh check-images` retains the read-only
+target preflight.
 Sweep fallback layouts reconstruct the enum and CPU width from the compiled
 `MILAN_GPTP_OWNER` / `MILAN_CPU_XLEN` constants, then hash the explicitly
 selected `.bit`; missing or ambiguous bit artifacts refuse reconstruction.
@@ -160,20 +159,11 @@ Write order is part of the invariant:
 
 | installed → target | completed verified writes |
 |---|---|
-| fabric/baremetal → software/full | kernel, OpenSBI, DTB, rootfs, then the software bit commit |
-| software/full → fabric/baremetal | fabric bit commit, then raw AEM |
 | fabric/baremetal → fabric/baremetal | raw AEM, then target fabric bit |
-| fabric/baremetal → fabric/full | kernel, OpenSBI, DTB, positive v1 fabric-profile rootfs, then target fabric bit |
-| fabric/full → fabric/baremetal | raw AEM, then target fabric bit |
-| fabric/full → fabric/full | target kernel, OpenSBI, DTB, positive v1 fabric-profile rootfs, then target fabric bit |
-| fabric/full ↔ software/full | refused directly; transition through fabric/baremetal in two proved transactions |
-| software/full → software/full | refused; a general safe refresh needs A/B boot-image slots |
+| anything naming a retired Linux artifact (#259) | refused before programmer I/O |
+| owner `none` or the retired `software` owner | refused before programmer I/O |
 
-In the direct full-Linux owner change, writing the bit first would pair fabric
-with a software-profile rootfs (two owners), while writing the rootfs first would
-pair software gateware with a fabric-profile rootfs (zero owners). The autonomous
-fabric/baremetal image is therefore a required bridge, not a documentation
-convention. At every accepted boundary the old or new owner remains bootable.
+At every accepted boundary the old or new fabric owner remains bootable.
 A process/tool failure can be retried with the same installed reference. This
 does not make a single flash slot electrically atomic: power loss *during*
 offset-zero erase/program can tear the only bitstream. A/B or Xilinx MultiBoot
@@ -230,7 +220,7 @@ It has three cooperating pieces, all opt-in behind
 |-------|-------|------|
 | **flash core** | [`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py), [`sw/litex/platforms/alinx_ax7101.py`](../../sw/litex/platforms/alinx_ax7101.py) | memory-maps the on-board flash; emits the `MILAN_FLASHBOOT_*` layout constants |
 | **BIOS method** | [`sw/litex/patches/0001-milan-linux-flashboot.patch`](../../sw/litex/patches/0001-milan-linux-flashboot.patch) | `linux_flashboot` copies images flash→DRAM, boots (or pre-loads then defers to serialboot) |
-| **flashing** | `sw/litex/deploy.sh check-images` / `flash-pair` | SHA-256/part-binds each layout to its parsed `.bit` payload, pairs the target owner with the exact positive `$ROOTFS` profile/payload, rejects legacy unprofiled Linux and owner `none`, and scans the parsed archive for relocated linuxptp executables plus direct/indirect SysV, systemd and executable-script launch references outside `S65milan-gptp-owner`. It also checks DTB/OpenSBI CSR windows and CPU XLEN/MMU, materializes every image, live-matches QSPI offset zero to the exact installed/target payload, verifies the live source FBI rootfs profile for Linux, then performs direction-ordered verified writes ([qspi_owner_transition.py](../../sw/litex/qspi_owner_transition.py), [check_gptp_owner_pair.py](../../sw/litex/check_gptp_owner_pair.py), [check_dtb_csr.py](../../sw/litex/check_dtb_csr.py)) |
+| **flashing** | `sw/litex/deploy.sh check-images` / `flash-pair` | SHA-256/part-binds each layout to its parsed `.bit` payload and its compiled CPU width, requires the fabric owner on the bare-metal {bitstream, aem} manifest, refuses every retired Linux boot image and the retired software owner (#259) before programmer I/O, materializes every image, live-matches QSPI offset zero to the exact installed/target payload, then performs verified writes with the target bit last ([qspi_owner_transition.py](../../sw/litex/qspi_owner_transition.py), [check_gptp_owner_pair.py](../../sw/litex/check_gptp_owner_pair.py)) |
 
 ---
 

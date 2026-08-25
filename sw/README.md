@@ -86,10 +86,12 @@ comparison (except the documented bare SoC with no Milan PHC):
 
 ```sh
 cd litex
-./milan_soc.py --no-fabric-gptp                 # Linux NIC export, no Vivado ✅
-./milan_soc.py --full --no-fabric-gptp          # Linux NIC + DMA + MAC/PHY ✅
+# --no-fabric-gptp = the verification-only option-off elaboration (#259):
+# zero gPTP owners, no builder ROM needed, never a product image.
+./milan_soc.py --no-fabric-gptp                 # NIC export smoke, no Vivado ✅
+./milan_soc.py --full --no-fabric-gptp          # NIC + DMA + MAC/PHY smoke ✅
 ./milan_soc.py --no-milan --no-fabric-gptp      # bare SoC, no Milan PHC ✅
-./milan_soc.py --xlen 32 --no-fabric-gptp       # Linux RV32 + sv32 MMU
+./milan_soc.py --xlen 32 --no-fabric-gptp       # RV32 elaboration smoke
 ./milan_soc.py --full --no-fabric-gptp --build  # + run Vivado P&R
 ./milan_soc.py --no-fabric-gptp --build --load  # + program the board
 ```

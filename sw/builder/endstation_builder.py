@@ -1993,10 +1993,6 @@ GEN_CONFIG_DIR = "configs/generated"
 #: /proc/device-tree/model), written by the same --write-fragment moment that
 #: hands a board's bitstream flags over - one owner for "what this board is".
 ENTITY_CONF_NAME = "milan-entity.conf"
-#: Generated into the sibling rootfs only for the explicit option-OFF Linux
-#: comparison.  Its absence is the product default and makes the rootfs start
-#: no ptp4l/phc2sys/publication owner.
-SOFTWARE_GPTP_OWNER_MARKER = "milan-gptp-software-owner"
 #: `/etc` of the flashed rootfs overlay. In the SIBLING repo (milan-tests-avb)
 #: because that is where the image is built; overridable for a checkout that
 #: lives elsewhere, and simply SKIPPED when it is not on disk.
@@ -2850,8 +2846,8 @@ def load_features(raw):
 
     Datapath tier-1 blocks retain their historical PRESENT default. The Linux
     host sound-card surface defaults absent; the fabric gPTP plane is the
-    product default since #116, with an explicit false value retaining the
-    software-owner comparison build.
+    product default since #116 and mandatory since #259 (false is refused:
+    option-off is a verification-only elaboration, not a product config).
     """
     raw = raw or {}
     if not isinstance(raw, dict):
@@ -2878,8 +2874,8 @@ def load_features(raw):
     v = raw.get("fabric_gptp", True)
     if not isinstance(v, bool):
         raise ConfigError("board.features.fabric_gptp must be a boolean; "
-                          "true = fabric time-sync plane (the default), false "
-                          "= legacy software-owner comparison")
+                          "true = fabric time-sync plane (the default and "
+                          "the only product value, #259)")
     out["fabric_gptp"] = v
     return out
 
@@ -3444,11 +3440,9 @@ def load_config(path):
         raise ConfigError("crf_sink needs 'crf' in media_clock_sources")
 
     # gPTP clock attributes: ONE source for the AVB_INTERFACE descriptor's
-    # static clock fields, the fabric uCPU image, and (only for the explicit
-    # option-OFF owner) the generated ptp4l config. Fabric ownership requires
-    # this section; an option-OFF comparison may omit it and consume the
-    # rootfs's stock /etc/gptp.cfg, but still receives the software-owner
-    # marker. Present => the section joins
+    # static clock fields and the fabric uCPU image. Fabric ownership (every
+    # product configuration, #259) requires this section. Present => the
+    # section joins
     # model_shape, so a changed clock posture rotates a hash-derived
     # entity_model_id (controllers cache descriptor content by model id -
     # measured 2026-08-05: a stale cached model offered ports the flashed
@@ -3728,21 +3722,19 @@ def load_config(path):
     # platform - a prune is only wrong RELATIVE to what the rest asked for.
     features = validate_features(load_features(brd.get("features")),
                                  cons, clocking, interface, srp, platform)
-    # The software profile selects the CPU/boot environment, not the PHC
-    # owner.  Linux is valid in both product-default fabric mode (unmarked
-    # rootfs: no linuxptp owner) and the explicit option-OFF comparison
-    # (positive software profile + permission marker: one software owner).
-    # Bare metal has no software daemon,
-    # so it still requires the fabric plane.
-    if not features["fabric_gptp"] and soc["software_profile"] == "baremetal":
+    # #259 (USER directive 2026-08-25): the product is bare-metal only and
+    # its one gPTP owner is the fabric plane. The former option-OFF Linux
+    # software owner is retired, so a product configuration cannot opt out:
+    # an option-off elaboration exists only as verification-only hardware,
+    # driven directly through milan_soc.py by the test gates, never through
+    # a tracked end-station configuration.
+    if not features["fabric_gptp"]:
         raise ConfigError(
-            "board.features.fabric_gptp: false leaves "
-            "soc.software_profile: baremetal with NO PHC owner: that image "
-            "carries no ptp4l, no phc2sys and no gPTP daemon of any kind, "
-            "and this config elaborates no fabric engine either, so the "
-            "clock free-runs and CLKV_STAT never clears tu. Select "
-            "fabric_gptp: true, or soc.software_profile: linux for the "
-            "explicit software comparison.")
+            "board.features.fabric_gptp: false is retired (#259): the "
+            "product has NO PHC owner without the fabric plane - the "
+            "software/Linux owner no longer exists - and option-off is a "
+            "verification-only elaboration, not a product configuration. "
+            "Select fabric_gptp: true.")
     if features["fabric_gptp"] and gptp is None:
         raise ConfigError(
             "board.features.fabric_gptp requires a gptp: section so the "
@@ -4069,10 +4061,9 @@ def emit_design_opts(cfg):
     # one fact, so an AEM can never advertise a lane the bitstream lacks.
     if cfg["interface"].get("cluster_fabric", {}).get("loopback_lane"):
         argv += ["--loopback-lane"]
-    if cfg["features"]["fabric_gptp"]:
-        argv += ["--fabric-gptp"]
-    else:
-        argv += ["--no-fabric-gptp"]
+    # fabric_gptp false never survives load_config (#259), so the emitted
+    # owner flag is unconditionally the fabric plane.
+    argv += ["--fabric-gptp"]
     if cfg["features"]["sound_card"]:
         argv += ["--sound-card"]
     # the KL_pcm_tx host rings behind the `host` pool. Emitted from the SAME
@@ -4220,44 +4211,6 @@ def emit_entity_conf(cfg):
 
 
 # ----------------------------------------------------------- aem_overlay ----
-def emit_gptp_cfg(cfg):
-    """Render the option-OFF ptp4l half of the shared gptp: section.
-
-    Fabric builds consume the same values in their uCPU image but emit no
-    daemon artifact. An option-OFF config without a gptp: section uses the
-    rootfs stock profile; this function is called only when the section exists.
-    clock_accuracy / offset_scaled_log_variance have no ptp4l keys: they
-    describe the selected owner's local clock and live in the AVB_INTERFACE
-    descriptor.
-    """
-    gp = cfg["gptp"]
-    return (
-        "# GENERATED by sw/builder/endstation_builder.py from "
-        f"{cfg['source']} - DO NOT EDIT.\n"
-        "# The gptp: section of that config is the ONE source for these\n"
-        "# values AND the AVB_INTERFACE descriptor's clock fields, so the\n"
-        "# entity cannot advertise a posture its selected owner does not run.\n"
-        "# Transport block per the proven bench profile (HW stamps, P2P,\n"
-        "# L2, the 500 ms tx_timestamp_timeout DRAM-drain remedy).\n"
-        "[global]\n"
-        "gmCapable               1\n"
-        "clientOnly              1\n"
-        f"priority1               {gp['priority1']}\n"
-        f"priority2               {gp['priority2']}\n"
-        f"clockClass              {gp['clock_class']}\n"
-        f"domainNumber            {gp['domain']}\n"
-        "network_transport       L2\n"
-        "delay_mechanism         P2P\n"
-        "transportSpecific       0x1\n"
-        "ptp_dst_mac             01:80:C2:00:00:0E\n"
-        "follow_up_info          1\n"
-        "neighborPropDelayThresh 2000\n"
-        f"logAnnounceInterval     {gp['log_announce_interval']}\n"
-        f"logSyncInterval         {gp['log_sync_interval']}\n"
-        f"logMinPdelayReqInterval {gp['log_pdelay_interval']}\n"
-        "tx_timestamp_timeout    500\n"
-        "# per-board wire-reference correction (S50milan seds the value)\n"
-        "ingressLatency          0\n")
 
 
 def emit_aem_overlay(cfg):
@@ -4940,43 +4893,29 @@ def build(config_path, outdir=None, write_rtl=False, write_fragment=None):
     p_ent = os.path.join(d, ENTITY_CONF_NAME)
     with open(p_ent, "w") as f:
         f.write(entity_conf)
-    # The ptp4l file belongs only to the explicit software comparison arm.
-    # Fabric builds still consume the same gptp facts for their uCPU image,
-    # but must not leave a daemon configuration in the image handoff.
-    gptp_cfg = None
+    # #259: the ptp4l daemon configuration is a retired Linux service
+    # artifact. Nothing generates it any more; a stale copy from a pre-#259
+    # run is deleted so the handoff cannot resurrect the retired owner.
     p_out_gptp = os.path.join(d, "gptp.cfg")
-    if (cfg.get("gptp") is not None and
-            not cfg["features"]["fabric_gptp"]):
-        gptp_cfg = emit_gptp_cfg(cfg)
-        with open(p_out_gptp, "w") as f:
-            f.write(gptp_cfg)
-    elif os.path.exists(p_out_gptp):
+    if os.path.exists(p_out_gptp):
         os.unlink(p_out_gptp)
     p_ent_overlay = entity_conf_overlay_path(cfg["board_target"])
     if write_fragment:
         if p_ent_overlay:
             with open(p_ent_overlay, "w") as f:
                 f.write(entity_conf)
-            p_gp = os.path.join(os.path.dirname(p_ent_overlay),
-                                f"gptp.{cfg['board_target']}.cfg")
-            p_owner = os.path.join(os.path.dirname(p_ent_overlay),
-                                   SOFTWARE_GPTP_OWNER_MARKER)
-            if gptp_cfg is not None:
-                with open(p_gp, "w") as f:
-                    f.write(gptp_cfg)
-                print(f"  wrote {p_gp}")
-            if not cfg["features"]["fabric_gptp"]:
-                with open(p_owner, "w") as f:
-                    f.write("# Generated: explicit option-OFF software gPTP owner.\n")
-                print(f"  wrote {p_owner}")
-            elif os.path.exists(p_owner):
-                os.unlink(p_owner)
-                print(f"  removed {p_owner} (fabric gPTP owns the PHC)")
-            # A fabric handoff deliberately leaves the sibling rootfs gptp
-            # configuration alone: the explicit comparison may reuse that
-            # profile. Ownership itself is the generated marker above, so a
-            # fabric handoff removes the start permission without deleting the
-            # tracked configuration.
+            # #259: the option-OFF software owner is retired. A handoff
+            # deletes its retired artifacts (the permission marker and the
+            # generated ptp4l fragment) so no stale Linux service contract
+            # lingers beside the shipped identity.
+            for retired in (
+                    os.path.join(os.path.dirname(p_ent_overlay),
+                                 "milan-gptp-software-owner"),
+                    os.path.join(os.path.dirname(p_ent_overlay),
+                                 f"gptp.{cfg['board_target']}.cfg")):
+                if os.path.exists(retired):
+                    os.unlink(retired)
+                    print(f"  removed retired {retired}")
             # THE DESCRIPTOR IMAGE, into the same rootfs the identity ships in.
             # /etc/init.d/S50milan loads it into the reserved `ppmem` window
             # before enabling ADP, because the processor serves READ_DESCRIPTOR

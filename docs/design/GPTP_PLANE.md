@@ -3,8 +3,9 @@
 
 The time-sync plane of epic #110: the `gptp-processor` submodule's
 micro-coded 802.1AS engine spliced into the datapath as the product's
-time owner. The default image does not start `ptp4l`, `phc2sys`, or the
-`milan-statd` GM/path/CLKV mirror chain. This page is the integration
+time owner. The product is bare-metal only (#259): no image starts `ptp4l`,
+`phc2sys`, or the `milan-statd` GM/path/CLKV mirror chain, because those
+retired software agents no longer exist as product paths. This page is the integration
 architecture of record for #114 and #116; the donor
 repo's own pages under `gptp-processor/docs/` (the resource-validation
 record) carry the engine's internals and measured cost.
@@ -38,10 +39,10 @@ decision is recorded on #139.
 
 `GPTP_PLANE_EN_P` (milan_datapath parameter, **default ON**) elaborates
 `KL_gptp_shadow` with four seams. The builder emits the same value into every
-real build/sweep/deploy instance. The supported comparison is explicit
-`fabric_gptp: false`; it selects the software-owner ABI and causes the rootfs
-fragment to carry `/etc/milan-gptp-software-owner`. Invalid owner/profile
-pairings are refused rather than silently producing two PHC owners.
+real build/sweep/deploy instance. `fabric_gptp: false` is refused for product
+configurations (#259 retired the software owner); the option-off ABI remains
+reachable only through `milan_soc.py --no-fabric-gptp` as verification-only
+hardware with zero gPTP owners, and its artifacts are not flashable.
 
 The option also carries `GPTP_UCODE_HEX_P`. In a shipping SoC build this is an
 absolute path to the builder's per-config 1,024-word image, generated from the
@@ -166,13 +167,13 @@ publication commit, that value is clamped to zero before entering the unsigned
 CSR/GET_AVB_INFO contract, so a legal -1 ns sample can never appear as
 `0xFFFF_FFFF` ns.
 
-With the option off, the legacy software contract remains intact: LO stages
-and HI commits each identity, `CLKV_CTRL` renews the compatibility lease, and
-the 0x7DC COMMIT/PUBLISH bank supplies the full PathTrace tail behind the GM,
-with #227's canonical alias and in-flight snapshot semantics. In this mode
-the positive v1 software rootfs profile plus its permission marker starts
-linuxptp and the full publisher. This is a
-comparison/bring-up shape, not the product default. VERSION `0x0002_0055`
+With the option off, the legacy staging ABI remains intact as
+verification-only hardware: LO stages and HI commits each identity,
+`CLKV_CTRL` renews the compatibility lease, and the 0x7DC COMMIT/PUBLISH
+bank supplies the full PathTrace tail behind the GM, with #227's canonical
+alias and in-flight snapshot semantics. Nothing runs against that ABI in any
+product image (#259 retired linuxptp and the software publisher); the benches
+in the verification map below are its only writers. VERSION `0x0002_0055`
 records the ownership change without allocating new CSR addresses.
 
 ## Verification map

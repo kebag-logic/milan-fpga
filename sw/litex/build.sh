@@ -240,7 +240,7 @@ cfg_arty() {     # Arty A7-100 small endstation: MII 100M, QSPI flashboot (probe
     # (docs/findings/BENCH_TOPOLOGY.md), so this recipe is proven to reach
     # the Instance (test_builder gate 23g), not built.
     echo "--board arty --cpu vexiiriscv --cpu-count 1 --xlen 32 --software-profile linux \
-          --all-blocks --coherent-dma --sound-card --no-fabric-gptp \
+          --all-blocks --coherent-dma --sound-card --fabric-gptp \
           --sys-clk-freq 83.333e6 --milan-clk-freq 50e6 --with-spiflash --flashboot full \
           --uart-baudrate 115200 --timing-opt --strip-probes --l2-bytes 65536 \
           --scala-args=--lsu-l1-refill-count=2 --scala-args=--l2-down-pending=4 \

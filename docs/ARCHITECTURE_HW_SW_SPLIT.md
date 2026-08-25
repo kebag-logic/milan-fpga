@@ -18,10 +18,11 @@ normative delimitation; the rev-2 `atdecc_architecture.drawio` page
 Rev 4 makes the integrated gPTP processor the product owner as well. The
 fabric owns BMCA, peer delay, the PHC servo and the atomic GM/parent/pdelay/
 sync publication bank. Public CSR, protocol and AVTP `tu` consumers read that
-bank directly. Linux `ptp4l`, `phc2sys` and the GM/path/CLKV publisher are not
-started by the default image. An explicit option-off comparison build retains
-the software-owner ABI and is marked in the rootfs; the two owners are never
-active in one image.
+bank directly. The product is bare-metal only (#259): no Linux image, no
+`ptp4l`/`phc2sys`, and no software gPTP owner exist as product paths. An
+explicit option-off elaboration retains the option-off CSR ABI as
+verification-only hardware with zero gPTP owners; it is not a supported
+product image and the flash tools refuse its artifacts.
 
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
@@ -103,11 +104,11 @@ the framer, the reservation gate and connection liveness are fabric work.
 | **ACMP** (CONNECT_TX / PROBE_TX / GET_TX_STATE, the BIND_RX ladder) | fabric | rev 3 | the processor's talker + listener pair; the result is republished as a **bind record** on the class-D face, which is what every consumer in `milan_datapath` reads. `ACMPL_STATE` no longer tracks PROBING/SETTLED — take `bound` as the truth |
 | **The talker DA gate** | fabric | rev 3 | `acmp_declaring_o` asserts only after a MAAP `ALLOC_DA` success through `KL_pp_maap_shim`, so AAF admission is still "a destination address exists AND the source is declaring" |
 | kl-eth driver (rings, NAPI, ethtool, CSR) | softcore | silicon | Linux 6.x, kl,dma-ether |
-| kl-eth PHC (`/dev/ptpN`) + SO_TIMESTAMPING | softcore | silicon | exposes the fabric counter/timestamps to linuxptp; HW-ts green zero-overrides |
-| gPTP protocol (BMCA, servo, pdelay) | **fabric** | rev 4, product default | `KL_gptp_shadow` wraps the pinned `gptp-processor`; it owns Announce/Sync/Follow_Up/Pdelay, disciplines the PHC, and atomically publishes GM, parent, pdelay, sync and asCapable. The explicit option-off comparison build instead starts linuxptp and retains the software-owned CSR ABI |
+| kl-eth PHC (`/dev/ptpN`) + SO_TIMESTAMPING | softcore | silicon (historical Linux bring-up; retired product path, #259) | exposed the fabric counter/timestamps to linuxptp; HW-ts green zero-overrides |
+| gPTP protocol (BMCA, servo, pdelay) | **fabric** | rev 4, product default | `KL_gptp_shadow` wraps the pinned `gptp-processor`; it owns Announce/Sync/Follow_Up/Pdelay, disciplines the PHC, and atomically publishes GM, parent, pdelay, sync and asCapable. An option-off elaboration retains the software-era CSR ABI as verification-only hardware; the linuxptp comparison owner is retired (#259) |
 | Media clock **source selection** | **neither** | **NOT IMPLEMENTED** | `SET_CLOCK_SOURCE` was the only writer of the live CLOCK_DOMAIN `clock_source_index`; pinned at 0 = the INTERNAL media clock for the life of the build |
 | Saved-state / fast-connect persistence | **neither** | **NOT IMPLEMENTED** | the journal is deleted; the processor's NVM face is answered by a blank-flash responder, so a restore walk always completes with zero records. Milan v1.2 5.3.8.2 wants saved state; this build does not have it and says so structurally |
-| gPTP public state (GM, parent, pdelay, sync/asCapable, `tu`) | **fabric** | rev 4, product default | One committed publication bank feeds CSR `0x624/0x628`, `0x6E4`, `0x730/0x734`, GET_AVB_INFO, GET_AS_PATH and every AVTP talker. A same-edge discontinuity makes `tu=1` before the new bank is externally visible; 64-bit CSR identities are coherent in either read order. Option off retains the staged software writes and CLKV lease solely as the explicit comparison owner |
+| gPTP public state (GM, parent, pdelay, sync/asCapable, `tu`) | **fabric** | rev 4, product default | One committed publication bank feeds CSR `0x624/0x628`, `0x6E4`, `0x730/0x734`, GET_AVB_INFO, GET_AS_PATH and every AVTP talker. A same-edge discontinuity makes `tu=1` before the new bank is externally visible; 64-bit CSR identities are coherent in either read order. Option off retains the staged software writes and CLKV lease solely as verification-only ABI (#259: no comparison owner exists) |
 | **SRP** (MSRP Talker Advertise TX, Listener Ready RX, MVRP VLAN registration, ≤75 % SR-class bandwidth gate) | **fabric** | rev 3 | the protocol processor's, consumed as **wires**: `srp_active_o` + `srp_granted_slope_bps_o` drive the CBS idleSlope and gate TX (FR-SRP-03). The 11-module `lwSRP` engine is deleted; at `0x680` the domain word, granted slope and over-limit bit are repointed and live, while the MRPDU counters read structural zeros. Ordering note: the processor asserts activity and slope in the SAME cycle where `KL_lwsrp_bw_gate` staged them — at worst equal on the opening edge, briefly conservative on the closing one; neither edge lets a stream transmit against an un-budgeted slope |
 | MAAP (multicast MAC allocation) | **fabric** | silicon | `KL_maap` probe/defend/announce (CSR 0x6CC-0x6D4), now also serving the processor's per-source ALLOC/RELEASE face through [`hdl/milan/KL_pp_maap_shim.sv`](../hdl/milan/KL_pp_maap_shim.sv) out of the same block claim |
 | **AAF framer** (AVTP talker payloads) | **fabric** | silicon | PCM via a DMA audio ring -> fabric packetizer stamps presentation time from the PTP counter -> class-A CBS queue; zero per-frame CPU; RTL + harness, silicon-validated |
@@ -158,8 +159,9 @@ Three losses are functional, not paperwork, and each is where a bench meets it:
    one time owner. The engine consumes ingress/egress timestamps, applies
    adjfine/adjtime, and publishes the state used by the public CSR/protocol
    faces. `settime` remains available through the CSR face for boot/service.
-   Only an explicit option-off comparison image exposes the PHC to `ptp4l`
-   and mirrors it to `CLOCK_REALTIME` with `phc2sys`.
+   The retired software owner (#259) never runs: an option-off elaboration
+   is verification-only hardware whose staging ABI exists for comparison
+   benches, not for any daemon.
 4. **DMA audio ring** (next, with the AAF framer) — the PCM crossing: SW
    fills samples at millisecond cadence; the fabric framer consumes, stamps
    presentation time (PTP counter + offset), packetizes, and feeds class A.
@@ -187,8 +189,7 @@ Three losses are functional, not paperwork, and each is where a bench meets it:
 - gPTP carries periodic wire deadlines and its state gates the truth of every
   presentation timestamp. Keeping the engine, PHC steering and publication
   bank in fabric removes scheduler and daemon-death states from that contract.
-  Linuxptp remains installed only for the deliberately selected option-off
-  comparison image.
+  No linuxptp installation exists in the product (#259: bare-metal only).
 
 ## Open decisions (flagged, not blocking)
 

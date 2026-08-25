@@ -228,26 +228,21 @@ When `sound_card` is false, the builder rejects host role-pools and playback
 rings, and emits no `--sound-card`, PCM DMA window, PCM device-tree node or
 reserved ring. Physical capture/render, AAF, CRF and loopback fabric remain.
 
-When `fabric_gptp` is true, the builder requires a `gptp:` section, emits
-`--fabric-gptp`, and writes `gptp_ucode.hex` into the per-config output. The
-ROM's station MAC, priority1 and clock come from the same YAML as the AEM and
-SoC arguments. Shipping/product AX configs state the default fabric owner
-explicitly; retained comparison configs state option-OFF explicitly.
-`fabric_gptp: false` is the one software-owner comparison: its
-rootfs fragment contains `/etc/milan-gptp-software-owner`, while an option-on
-fragment removes that marker. Linux is a CPU/boot profile and supports either
-owner; the exact positive rootfs profile/payload is paired to the compiled owner before boot or
-deployment. Baremetal option-OFF is rejected because it has no software daemon.
-The mutable fragment is only an input to the next rootfs build, never proof
-about an existing image: gateware records its resolved `fabric|software|none` owner in
-`flashboot_layout.json` and `soc.h`, and the flash preflight inspects the marker
-inside the exact `ROOTFS` archive before its first QSPI write. The persistent
-`flash-pair` path additionally byte-matches the live offset-zero QSPI payload
-against an exact installed BIT/LAYOUT pair, verifies the live FBI rootfs profile
-for a full-Linux source, and orders the full target set by transition direction.
-Old layouts with no owner enum, unidentified installed bits, and either
-zero-owner/two-owner profile inversion fail closed. Legacy unprofiled Linux
-archives and `gptp_owner: none` are rejected.
+When `fabric_gptp` is true (the only accepted value, #259), the builder
+requires a `gptp:` section, emits `--fabric-gptp`, and writes
+`gptp_ucode.hex` into the per-config output. The ROM's station MAC,
+priority1 and clock come from the same YAML as the AEM and SoC arguments.
+`fabric_gptp: false` is refused: the software-owner comparison, its rootfs
+marker and ptp4l fragment are retired (#259), a handoff deletes stale copies
+of both, and the option-off elaboration survives only as verification-only
+hardware behind `milan_soc.py --no-fabric-gptp`. Gateware records its
+resolved `fabric|none` owner in `flashboot_layout.json` and `soc.h`; the
+flash preflight accepts only the fabric owner on the bare-metal
+{bitstream, aem} manifest and refuses retired Linux artifacts before its
+first QSPI write. The persistent `flash-pair` path additionally byte-matches
+the live offset-zero QSPI payload against an exact installed BIT/LAYOUT
+pair. Old layouts with no owner enum and unidentified installed bits fail
+closed.
 
 The tier-1 set contains six
 `milan_datapath` blocks that a given deployment may not be able to use, each

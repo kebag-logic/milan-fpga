@@ -31,7 +31,7 @@ Companion to [TIME_SYNC.md](TIME_SYNC.md) for steady state and
 - **[4. Public recovery surface](#4-public-recovery-surface)** — The selected-owner mapping into legacy CSRs, GET_AVB_INFO, GET_AS_PATH and AAF/CRF `tu`, with coherent multiword snapshots and ineffective software writes in fabric mode
 - **[5. End-to-end timeline](#5-end-to-end-timeline)** — The ordered loss-to-recovery sequence from receipt timeout through atomic publication, Annex B holdover and restored servo lock
 - **[6. Media and notification behavior](#6-media-and-notification-behavior)** — What continues during a time transition, what remains pinned to the internal media clock, and how selected-owner changes feed the complete Table 5.22 scheduler
-- **[7. Explicit option-off comparison](#7-explicit-option-off-comparison)** — The marked software-owner profile, its staged publication and CLKV lease ABI, and the historical daemon-restart evidence that does not describe product-default recovery
+- **[7. Verification-only option-off elaboration](#7-verification-only-option-off-elaboration)** — What remains of the retired software-owner arm (#259): the option-off staging/lease CSR ABI as bench-driven verification hardware, with no daemon, no rootfs profile, and no product image behind it.
 
 ## 1. The active owner
 
@@ -164,15 +164,15 @@ scheduler sends the resulting unsolicited response to every other registered
 controller; the timed integration leg also grades controller probing and
 removal.
 
-## 7. Explicit option-off comparison
+## 7. Verification-only option-off elaboration
 
-`fabric_gptp: false` is a supported diagnostic comparison, not an implicit
-fallback. The builder emits `GPTP_PLANE_EN_P=0` and creates
-the positive v1 software profile plus `/etc/milan-gptp-software-owner`; only
-that profiled image starts `ptp4l-rt`,
-`phc2sys`, and full `milan-statd` publication.
+`fabric_gptp: false` is RETIRED for configurations (#259): the software
+owner, its rootfs profile/marker and the `ptp4l-rt`/`phc2sys`/`milan-statd`
+publication chain no longer exist as product paths. The option-off form
+survives only as verification-only hardware, elaborated directly through
+`milan_soc.py --no-fabric-gptp` and driven by the benches.
 
-In this arm the compatibility ABI remains:
+In that elaboration the compatibility ABI remains:
 
 - software stages GM/parent LO and commits on HI;
 - `CLKV_CTRL` carries sync, discontinuity and asCapable plus a renewable

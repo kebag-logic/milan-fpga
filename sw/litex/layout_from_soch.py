@@ -31,6 +31,11 @@ def main(build_dir, bit_path=None):
         raise SystemExit(
             "layout: soc.h has no valid MILAN_GPTP_OWNER "
               "(0=none, 1=fabric, 2=software); refusing an unowned layout")
+    if GPTP_OWNER_BY_CODE[owner_code] == "software":
+        raise SystemExit(
+            "layout: soc.h records the retired software gPTP owner (#259): "
+            "the bare-metal product's one owner is the fabric plane, and a "
+            "verification-only option-off elaboration has no flashable layout")
     cpu_xlen = const("MILAN_CPU_XLEN")
     if cpu_xlen not in (32, 64):
         raise SystemExit(
@@ -51,12 +56,14 @@ def main(build_dir, bit_path=None):
         payloads.append(row)
 
     names = {row["name"] for row in payloads}
+    retired = sorted(names & {"kernel", "opensbi", "dtb", "rootfs"})
+    if retired:
+        raise SystemExit(
+            f"layout: soc.h names retired Linux boot images {retired}: the "
+            "product is bare-metal only (#259); this build predates that "
+            "policy and cannot produce a flashable layout")
     if names == {"aem"}:
         manifest = "baremetal"
-    elif names == {"kernel"}:
-        manifest = "kernel"
-    elif names == {"opensbi", "dtb", "kernel", "rootfs"}:
-        manifest = "full"
     elif not names:
         manifest = "none"
     else:

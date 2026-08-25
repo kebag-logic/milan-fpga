@@ -154,8 +154,9 @@ owner publishes the bounded PathTrace from the selected Announce: no entries
 without a GM or when that Announce has no PathTrace TLV; otherwise the GM is
 followed by up to seven traversed identities in wire order. The engine and
 wrapper commit the complete count/tail atomically; software writes cannot forge
-it. In the explicit option-off comparison, the GM is followed by the latest
-PathTrace snapshot published through the 0x7DC group.
+it. In the verification-only option-off elaboration (#259 retired the
+software comparison owner), the GM is followed by the latest PathTrace
+snapshot published through the 0x7DC group.
 LO/HI writes and slot COMMITs change only the staging bank, while PUBLISH
 atomically replaces the complete tail and count. In both modes the Table 5.22
 edge compares the canonical sequence actually served. Fabric count 0 and 1 are

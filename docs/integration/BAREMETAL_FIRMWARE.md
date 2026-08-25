@@ -3,9 +3,10 @@
 The shipping AX7101 profile uses one RV32I VexiiRiscv hart in machine mode,
 with no supervisor mode, MMU, Linux, FPU, L1 cache, L2 cache or LiteX SDRAM
 cache. It uses the fabric gPTP plane bought by #114, now the product and RTL
-default. Linux is also the supported product boot profile for the AX7101 8x8
-configuration without changing that owner; an explicit `fabric_gptp: false`
-profile is the retained software-owner comparison.
+default. The product is bare-metal only (#259, USER directive 2026-08-25):
+no Linux boot profile, rootfs, or software gPTP owner is supported.
+`fabric_gptp: false` is refused for product configurations; an option-off
+elaboration exists only as verification-only hardware with zero gPTP owners.
 
 The capability rows on this page are checked against the
 [Milan feature status ledger](../reference/MILAN_FEATURE_STATUS.md):
@@ -22,7 +23,7 @@ The capability rows on this page are checked against the
 
 - **[Build contract](#build-contract)** — The checked shipping shape, its cacheless one-hart RV32I invariants, the 50 MHz Milan/CPU clock boundary and the configuration-owned gPTP ROM.
 - **[Boot and AEM image](#boot-and-aem-image)** — The raw QSPI descriptor-image slot and the identity, copy and CRC checks that must pass before either compatibility enable bit may activate the shared AVDECC control plane.
-- **[Fabric gPTP option](#fabric-gptp-option)** — The default fabric owner, generated microcode, and explicit option-off software comparison.
+- **[Fabric gPTP option](#fabric-gptp-option)** — The default fabric owner, generated microcode, and the verification-only option-off elaboration (#259 retired the software comparison).
 - **[UART commands](#uart-commands)** — The status, TAI set/get and explicit UTC conversion commands, followed by the non-disruptive host smoke invocation.
 - **[Optional Linux sound-card surface](#optional-linux-sound-card-surface)** — What the shipping build removes with `sound_card: false`, what audio fabric remains, and how retained Linux bring-up builds opt back in.
 - **[Verification gates](#verification-gates)** — The mandatory local bar, complete three-directive Vivado cell, timing-clean winner and measured resource buy-back that fund the fabric gPTP plane.
@@ -37,8 +38,8 @@ these statements hold:
 - CPU is VexiiRiscv, XLEN is 32, and `cpu_count` is one.
 - `l2_bytes` is zero, no FPU is selected, and no cache or prefetch Scala
   arguments are present.
-- `flashboot` is `baremetal` or `none`; the `baremetal` manifest cannot be
-  selected under the Linux profile.
+- `flashboot` is `baremetal` or `none`; these are the only flashable
+  manifests (#259 retired the Linux `full`/`kernel` boot chains).
 - The Vexii netlist ISA is RV32I plus `zicsr` and `zifencei`. Machine mode is
   the only privilege level and the CPU has no MMU.
 - The cacheless CPU side and the 64-bit Milan plane run at 50 MHz. Vexii's
@@ -70,14 +71,13 @@ builder-generated protocol-processor entity image:
 | AEM image | `0x400000` | 64 KiB | raw `aem_desc.bin` beginning with `AEMI` | bare-metal firmware |
 
 `deploy.sh flash-pair` writes the AEM image raw as the non-bit member of a
-proved transition; it must not receive a LiteX FBI header. When moving from a
-software/full-Linux installation, the verified fabric bit is the first write
-and AEM is second, so fabric gPTP exists even if the transaction stops between
-them. This autonomous profile is also the mandatory bridge for a persistent
-owner change between fabric/full-Linux and software/full-Linux: flipping the
-single rootfs profile and the bitstream directly cannot avoid a zero- or
-two-owner reboot boundary. At build time the firmware receives the image length, CRC32 and DRAM
-destination as generated constants. The PHC is enabled by the CSR reset and the
+proved transition; it must not receive a LiteX FBI header. The one supported
+transition is a fabric-baremetal refresh: the target AEM image verifies
+first and the target bit commits last, so the old autonomous fabric owner
+stays live at every incomplete prefix. Layouts naming the retired Linux boot
+images (kernel/OpenSBI/DTB/rootfs, #259) or a non-fabric owner are refused
+before any programmer I/O. At build time the firmware receives the image
+length, CRC32 and DRAM destination as generated constants. The PHC is enabled by the CSR reset and the
 option-on fabric gPTP plane starts independently of the AVDECC AEM image.
 Firmware therefore does not gate either one on AEM verification. It performs
 this order:
@@ -551,11 +551,13 @@ states the owner explicitly. An option-on build elaborates `KL_gptp_shadow` with
 microcode image. A missing `gptp:` section is rejected instead of silently
 using the generator's example identity or clock defaults.
 
-`fabric_gptp: false` is accepted only as the explicit software-owner
-comparison. It emits `GPTP_PLANE_EN_P=0` and a rootfs fragment containing
-`/etc/milan-gptp-software-owner`; the option-on fragment removes that marker.
-This prevents linuxptp/publication services from starting against the fabric
-owner. The bare-metal firmware exposes explicit UART commands for setting the
+`fabric_gptp: false` is refused for product configurations (#259: the
+software/Linux owner is retired, so an option-off image would run zero gPTP
+owners). The option-off elaboration remains reachable only through
+`milan_soc.py --no-fabric-gptp` as verification-only hardware; its artifacts
+are not flashable and a builder handoff deletes any stale retired
+software-owner marker or ptp4l fragment (#259) it finds. The bare-metal
+firmware exposes explicit UART commands for setting the
 PHC epoch; the fabric plane owns adjfine and adjtime. When an external
 grandmaster is selected, that plane steps and disciplines the PHC; a
 free-running or grandmaster board uses `milan_settime` or `milan_utc` to

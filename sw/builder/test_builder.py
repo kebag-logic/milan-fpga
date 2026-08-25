@@ -8267,31 +8267,33 @@ def test_gptp_product_default_and_legacy_option():
     finally:
         os.unlink(default_cfg)
 
-    legacy_cfg = _variant(
-        CONFIGS["ax7101_8x8"],
-        lambda c: c["board"]["features"].__setitem__("fabric_gptp", False))
-    try:
-        with tempfile.TemporaryDirectory() as td:
-            legacy = eb.build(legacy_cfg, td)
-            assert legacy["cfg"]["features"]["fabric_gptp"] is False
-            assert "--no-fabric-gptp" in legacy["argv"]
-            assert "--fabric-gptp" not in legacy["argv"]
-            assert "gptp_ucode" not in legacy["paths"]
-            assert os.path.exists(os.path.join(
-                os.path.dirname(legacy["paths"]["entity_conf"]), "gptp.cfg"))
-            assert ("Fabric gPTP plane: **ABSENT (explicit "
-                    "`--no-fabric-gptp`)**" in legacy["plan"])
-            assert "RTL default" not in legacy["plan"]
-            assert "until #116" not in legacy["plan"]
-    finally:
-        os.unlink(legacy_cfg)
+    # #259: fabric_gptp false is a RETIRED product state for every profile.
+    # The refusal must name the policy and bite on the Linux-profile config
+    # exactly as on the bare-metal one; the option-off elaboration survives
+    # only through milan_soc.py directly (proven by gate 1e's real runs).
+    for base in ("ax7101_8x8", "ax7101_1x1_tdm8"):
+        retired_cfg = _variant(
+            CONFIGS[base],
+            lambda c: c["board"]["features"].__setitem__(
+                "fabric_gptp", False))
+        try:
+            try:
+                eb.load_config(retired_cfg)
+            except eb.ConfigError as exc:
+                message = str(exc)
+                assert "retired (#259)" in message
+                assert "verification-only" in message
+            else:
+                raise AssertionError(
+                    f"{base}: the retired option-off product configuration "
+                    "was accepted")
+        finally:
+            os.unlink(retired_cfg)
 
-    # Linux is a boot/CPU profile, not an automatic second PHC owner. With
-    # fabric selected its positive fabric rootfs profile ships no linuxptp
-    # graph; option-OFF above is the one mode which emits software permission.
+    # Every product configuration is fabric-owned; no ptp4l fragment is
+    # generated for any of them (#259 retired the daemon artifact).
     with tempfile.TemporaryDirectory() as td:
         product_linux = eb.build(CONFIGS["ax7101_8x8"], td)
-        assert product_linux["cfg"]["soc"]["software_profile"] == "linux"
         assert product_linux["cfg"]["features"]["fabric_gptp"] is True
         assert "--fabric-gptp" in product_linux["argv"]
         assert "--no-fabric-gptp" not in product_linux["argv"]
@@ -8300,29 +8302,19 @@ def test_gptp_product_default_and_legacy_option():
             os.path.dirname(product_linux["paths"]["entity_conf"]),
             "gptp.cfg"))
 
-    zero_owner = _variant(
-        CONFIGS["ax7101_1x1_tdm8"],
-        lambda c: _prune(c, fabric_gptp=False))
-    try:
-        try:
-            eb.load_config(zero_owner)
-        except eb.ConfigError as exc:
-            message = str(exc)
-            assert "software_profile: baremetal" in message
-            assert "NO PHC owner" in message
-        else:
-            raise AssertionError("a zero-PHC-owner baremetal config was accepted")
-    finally:
-        os.unlink(zero_owner)
-
     soc_source = open(os.path.join(ROOT, "sw/litex/milan_soc.py")).read()
     assert "p_GPTP_PLANE_EN_P=int(bool(gptp_plane))" in soc_source
     assert 'ap.set_defaults(fabric_gptp=None)' in soc_source
     assert 'args.fabric_gptp = not args.no_milan' in soc_source
     assert ('args.fabric_gptp and args.software_profile == "linux"'
             not in soc_source)
+    # #259: option-off no longer couples to any software profile. The soc
+    # accepts it on every profile as VERIFICATION-ONLY hardware, says so on
+    # stdout, and never emits the retired software owner into soc.h.
     assert ('not args.fabric_gptp and args.software_profile == "baremetal"'
-            in soc_source)
+            not in soc_source)
+    assert "VERIFICATION-ONLY" in soc_source
+    assert 'self._gptp_owner = "software"' not in soc_source
 
     # The RTL default is ON, so every synthesis manifest which elaborates the
     # whole datapath must carry the donor engine, wrapper and timestamp bridge.
@@ -8419,89 +8411,68 @@ def test_gptp_product_default_and_legacy_option():
     recipe_rows = [shlex.split(line) for line in proc.stdout.splitlines()
                    if line.strip()]
     assert len(recipe_rows) == 2, recipe_rows
-    for argv, owner_flag in zip(
-            recipe_rows, ("--fabric-gptp", "--no-fabric-gptp")):
-        assert argv[argv.index("--software-profile") + 1] == "linux"
-        assert owner_flag in argv
-        other = ("--no-fabric-gptp" if owner_flag == "--fabric-gptp"
-                 else "--fabric-gptp")
-        assert other not in argv
-    assert "--software-profile linux --no-fabric-gptp" in open(
-        os.path.join(ROOT, "sw/litex/sweep_extra.sh")).read()
-    for line in open(os.path.join(ROOT, "sw/README.md")).read().splitlines():
-        if line.startswith("./milan_soc.py"):
-            assert "--no-fabric-gptp" in line
-    print("  [gate 1c] product-default fabric ownership across baremetal and "
-          "Linux, explicit software comparison, zero-owner refusal, and both Yosys "
-          "datapath manifests are pinned")
+    # #259: every named recipe is fabric-owned; --no-fabric-gptp survives
+    # nowhere in a launcher (the option-off elaboration is a direct
+    # milan_soc.py verification run, never a recipe).
+    for argv in recipe_rows:
+        assert "--fabric-gptp" in argv
+        assert "--no-fabric-gptp" not in argv
+    for launcher in ("sw/litex/sweep.sh", "sw/litex/build.sh",
+                     "sw/litex/sweep_extra.sh"):
+        assert "--no-fabric-gptp" not in open(
+            os.path.join(ROOT, launcher)).read(), launcher
+    print("  [gate 1c] product-default fabric ownership across every "
+          "configuration and launcher recipe, the #259 option-off refusal, "
+          "and both Yosys datapath manifests are pinned")
 
 
 def test_gptp_rootfs_handoff_preserves_software_config():
-    """Gate 1d: generated and deploy-time owner handoffs are fail-closed."""
+    """Gate 1d: retired-owner artifacts are deleted, deploy tools fail closed.
+
+    #259 retired the rootfs software owner. A builder handoff must DELETE the
+    retired permission marker and ptp4l fragment it finds in the sibling
+    overlay (a stale Linux service contract must not linger beside the
+    shipped identity), and must never create either again.
+    """
     with tempfile.TemporaryDirectory() as td, \
             tempfile.TemporaryDirectory() as out:
-        sentinel = b"tracked software-plane configuration\n"
-        rootfs_cfg = os.path.join(td, "gptp.ax7101.cfg")
-        owner = os.path.join(td, eb.SOFTWARE_GPTP_OWNER_MARKER)
-        with open(rootfs_cfg, "wb") as stream:
-            stream.write(sentinel)
-        with open(owner, "w") as stream:
-            stream.write("stale owner\n")
+        stale_cfg = os.path.join(td, "gptp.ax7101.cfg")
+        stale_owner = os.path.join(td, "milan-gptp-software-owner")
+        for path, payload in ((stale_cfg, "stale ptp4l fragment\n"),
+                              (stale_owner, "stale owner\n")):
+            with open(path, "w") as stream:
+                stream.write(payload)
         old_rootfs = eb.ROOTFS_OVERLAY_ETC
         old_gen_dir = eb.GEN_CONFIG_DIR
         eb.ROOTFS_OVERLAY_ETC = td
-        # write_fragment is required to exercise the rootfs ownership handoff,
-        # but this gate must not transfer the repository's tracked per-board
+        # This gate must not transfer the repository's tracked per-board
         # sweep fragments as a side effect. Redirect all generated ownership
         # artifacts into the same temporary fixture.
         eb.GEN_CONFIG_DIR = os.path.join(td, "generated")
         try:
             fabric = eb.build(CONFIGS["ax7101_1x1_tdm8"], out,
                               write_fragment=True)
-            assert open(rootfs_cfg, "rb").read() == sentinel
             assert not os.path.exists(os.path.join(
                 os.path.dirname(fabric["paths"]["entity_conf"]), "gptp.cfg"))
-            assert not os.path.exists(owner), \
-                "fabric handoff left the software-owner start marker"
-            # The Linux Arty comparison intentionally has no gptp: section;
-            # it consumes the rootfs stock profile, but option-OFF must still
-            # create the sole permission that starts the software owner.
-            arty = eb.build(CONFIGS["arty_current"], out,
-                            write_fragment=True)
-            assert os.path.exists(owner), \
-                "option-off handoff without gptp: omitted the owner marker"
-            assert not os.path.exists(os.path.join(
-                os.path.dirname(arty["paths"]["entity_conf"]), "gptp.cfg"))
-            legacy_cfg = _variant(
-                CONFIGS["ax7101_8x8"],
-                lambda c: c["board"]["features"].__setitem__(
-                    "fabric_gptp", False))
-            try:
-                legacy = eb.build(legacy_cfg, out, write_fragment=True)
-            finally:
-                os.unlink(legacy_cfg)
-            assert os.path.exists(owner), \
-                "option-off handoff did not create the software-owner marker"
-            assert "explicit option-OFF" in open(owner).read()
-            assert os.path.exists(os.path.join(
-                os.path.dirname(legacy["paths"]["entity_conf"]), "gptp.cfg"))
+            assert not os.path.exists(stale_owner), \
+                "handoff left the retired software-owner marker"
+            assert not os.path.exists(stale_cfg), \
+                "handoff left the retired ptp4l fragment"
         finally:
             eb.ROOTFS_OVERLAY_ETC = old_rootfs
             eb.GEN_CONFIG_DIR = old_gen_dir
-    print("  [gate 1d] fabric handoff removes the rootfs software-owner marker "
-          "without deleting its tracked profile; both generated-profile and "
-          "stock-profile option-off builds recreate the marker")
+    print("  [gate 1d] the handoff deletes retired software-owner artifacts "
+          "(#259) and generates no daemon configuration")
 
-    # The archive reader itself grades raw/gzip/xz newc, both positive versioned
-    # profiles, both inversions, legacy negative-capability archives, Linux with
-    # owner=none, duplicate/wrong-type records, missing/contaminating payload,
-    # corrupt input, unknown metadata and the expected-owner recipe binding.
+    # The pair tool grades the bare-metal owner contract: the fabric set
+    # passes, retired Linux rows/manifests and non-fabric owners refuse, the
+    # binding arms hold, and the retired --rootfs argument is refused.
     pair_tool = os.path.join(SOC_DIR, "check_gptp_owner_pair.py")
     pair_self = subprocess.run(
         [sys.executable, pair_tool, "--self-test"], cwd=ROOT,
         text=True, capture_output=True)
     assert pair_self.returncode == 0, pair_self.stdout + pair_self.stderr
-    assert "68/68 checks pass" in pair_self.stdout
+    assert "22/22 checks pass" in pair_self.stdout
 
     transition_tool = os.path.join(SOC_DIR, "qspi_owner_transition.py")
     transition_self = subprocess.run(
@@ -8509,17 +8480,18 @@ def test_gptp_rootfs_handoff_preserves_software_config():
         text=True, capture_output=True)
     assert transition_self.returncode == 0, \
         transition_self.stdout + transition_self.stderr
-    assert "20/20 checks pass" in transition_self.stdout
+    assert "19/19 checks pass" in transition_self.stdout
 
     # A sweep's fallback layout is reconstructed only from constants compiled
-    # into its soc.h.  Prove all three enum values round-trip, and that an old
-    # soc.h with no owner cannot be converted into a bypass layout.
+    # into its soc.h.  Prove the two living enum values round-trip, that the
+    # RETIRED software owner (#259) is refused rather than reconstructed, and
+    # that an old soc.h with no owner cannot be converted into a bypass layout.
     layout_tool = os.path.join(SOC_DIR, "layout_from_soch.py")
     with tempfile.TemporaryDirectory() as td:
         inc = os.path.join(td, "software/include/generated")
         os.makedirs(inc)
         soc_h = os.path.join(inc, "soc.h")
-        for code, wanted in ((0, "none"), (1, "fabric"), (2, "software")):
+        for code, wanted in ((0, "none"), (1, "fabric")):
             with open(soc_h, "w", encoding="utf-8") as stream:
                 stream.write(f"#define MILAN_GPTP_OWNER {code}\n"
                              "#define MILAN_CPU_XLEN 32\n")
@@ -8532,6 +8504,28 @@ def test_gptp_rootfs_handoff_preserves_software_config():
                 rebuilt = json.load(stream)
                 assert rebuilt["gptp_owner"] == wanted
                 assert rebuilt["cpu_xlen"] == 32
+        with open(soc_h, "w", encoding="utf-8") as stream:
+            stream.write("#define MILAN_GPTP_OWNER 2\n"
+                         "#define MILAN_CPU_XLEN 32\n")
+        retired_owner = subprocess.run(
+            [sys.executable, layout_tool, td], text=True,
+            capture_output=True)
+        assert retired_owner.returncode != 0
+        assert "retired" in (retired_owner.stdout + retired_owner.stderr)
+        # A pre-#259 soc.h carrying the Linux flashboot constants is a
+        # retired build; reconstruction must refuse it, not resurrect it.
+        with open(soc_h, "w", encoding="utf-8") as stream:
+            stream.write("#define MILAN_GPTP_OWNER 1\n"
+                         "#define MILAN_CPU_XLEN 32\n"
+                         "#define MILAN_FLASHBOOT_ROOTFS_OFFSET 0x780000\n"
+                         "#define MILAN_FLASHBOOT_ROOTFS_ADDR 0x41000000\n"
+                         "#define MILAN_FLASHBOOT_ROOTFS_SIZE 0x760000\n")
+        retired_chain = subprocess.run(
+            [sys.executable, layout_tool, td], text=True,
+            capture_output=True)
+        assert retired_chain.returncode != 0
+        assert "retired Linux boot images" in (
+            retired_chain.stdout + retired_chain.stderr)
 
         # A real sweep layout carries payload rows and therefore must bind the
         # exact .bit bytes, not merely discover a file in the same directory.
@@ -8544,19 +8538,9 @@ def test_gptp_rootfs_handoff_preserves_software_config():
             stream.write(
                 "#define MILAN_GPTP_OWNER 1\n"
                 "#define MILAN_CPU_XLEN 32\n"
-                "#define MILAN_FLASHBOOT_KERNEL_OFFSET 0x400000\n"
-                "#define MILAN_FLASHBOOT_KERNEL_ADDR 0x40000000\n"
-                "#define MILAN_FLASHBOOT_KERNEL_SIZE 0x300000\n"
-                "#define MILAN_FLASHBOOT_OPENSBI_OFFSET 0x700000\n"
-                "#define MILAN_FLASHBOOT_OPENSBI_ADDR 0x40f00000\n"
-                "#define MILAN_FLASHBOOT_OPENSBI_SIZE 0x60000\n"
-                "#define MILAN_FLASHBOOT_DTB_OFFSET 0x760000\n"
-                "#define MILAN_FLASHBOOT_DTB_ADDR 0x40ef0000\n"
-                "#define MILAN_FLASHBOOT_DTB_SIZE 0x20000\n"
-                "#define MILAN_FLASHBOOT_ROOTFS_OFFSET 0x780000\n"
-                "#define MILAN_FLASHBOOT_ROOTFS_ADDR 0x41000000\n"
-                "#define MILAN_FLASHBOOT_ROOTFS_SIZE 0x760000\n"
-                "#define MILAN_FLASHBOOT_COMPLETE 1\n")
+                "#define MILAN_FLASHBOOT_AEM_OFFSET 0x400000\n"
+                "#define MILAN_FLASHBOOT_AEM_ADDR 0x40000000\n"
+                "#define MILAN_FLASHBOOT_AEM_SIZE 0x10000\n")
         bound = subprocess.run(
             [sys.executable, layout_tool, td, "--bit", sweep_bit], text=True,
             capture_output=True)
@@ -8583,10 +8567,10 @@ def test_gptp_rootfs_handoff_preserves_software_config():
         assert "MILAN_GPTP_OWNER" in missing.stdout + missing.stderr
 
     # Exercise all legacy partial shell entry points with a fake programmer.
-    # The adversarial pair is fabric-owned gateware plus a positive software
-    # rootfs profile and runnable payload.
-    # check-images rejects the pair itself, while persistent partial commands
-    # and a named command with unknown installed state refuse before I/O.
+    # The adversarial artifact is a layout still naming the retired Linux
+    # rootfs slot (#259). check-images rejects the layout itself, while
+    # persistent partial commands and a named command with unknown installed
+    # state refuse before I/O.
     with tempfile.TemporaryDirectory() as td:
         fake_bin = os.path.join(td, "bin")
         build_dir = os.path.join(td, "build")
@@ -8598,11 +8582,6 @@ def test_gptp_rootfs_handoff_preserves_software_config():
             stream.write("#!/bin/sh\nprintf '%s\\n' \"$*\" >> \"$OFL_LOG\"\n")
         os.chmod(fake_ofl, 0o755)
 
-        rootfs = os.path.join(td, "software-profile.cpio.gz")
-        archive = gptp_pair._newc(
-            gptp_pair._profile_entries("software"))
-        with open(rootfs, "wb") as stream:
-            stream.write(gzip.compress(archive))
         layout = os.path.join(build_dir, "flashboot_layout.json")
         with open(layout, "w", encoding="utf-8") as stream:
             json.dump({"manifest": "full", "gptp_owner": "fabric",
@@ -8619,7 +8598,7 @@ def test_gptp_rootfs_handoff_preserves_software_config():
         env = dict(os.environ)
         env.update({"PATH": fake_bin + os.pathsep + env.get("PATH", ""),
                     "OFL_LOG": programmer_log,
-                    "LAYOUT": layout, "ROOTFS": rootfs,
+                    "LAYOUT": layout,
                     "PYTHON": sys.executable,
                     "SERIAL": "TEST", "CABLE": "ft232",
                     "FPGA_PART": "xc7a100tfgg484"})
@@ -8658,14 +8637,21 @@ def test_gptp_rootfs_handoff_preserves_software_config():
         assert not os.path.exists(programmer_log), \
             "build.sh trusted a target pair without installed-state proof"
 
-    print("  [gate 1d] 68 archive/profile/relocation/launcher/lifecycle/FBI/artifact-binding arms, 20 transition parser/planner "
-          "arms, soc.h owner/XLEN reconstruction, payload-digest binding, "
-          "and all persistent partial/unknown-state entry points refuse "
-          "before programmer I/O")
+    print("  [gate 1d] 22 bare-metal owner/binding arms, 19 transition "
+          "parser/planner arms, soc.h owner/XLEN reconstruction with the "
+          "retired software owner and Linux boot chain refused (#259), "
+          "payload-digest binding, and all persistent partial/unknown-state "
+          "entry points refuse before programmer I/O")
 
 
 def test_qspi_owner_transition_completed_write_prefixes():
-    """Gate 1e: every supported persistent write prefix has one owner."""
+    """Gate 1e: every supported persistent write prefix has one owner.
+
+    #259: the one supported persistent image set is the fabric-owned
+    bare-metal {bitstream, aem} pair and the one transition is its refresh.
+    Retired Linux artifacts (software owner, full/kernel manifests, rootfs
+    rows) refuse with zero programmer I/O, and the compiled CPU-width
+    binding fails closed."""
     with tempfile.TemporaryDirectory() as td:
         fake_bin = os.path.join(td, "bin")
         os.makedirs(fake_bin)
@@ -8763,156 +8749,60 @@ os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
 ''')
         os.chmod(fake_python, 0o755)
 
-        # A hermetic dtc: check_dtb_csr.py shells out to `dtc`, and this gate
-        # must not depend on a host device-tree-compiler. The fake carries a
-        # dts payload through a magic-framed pseudo-FDT both ways, so the
-        # production decompile() path (carve at the FDT magic, decompile the
-        # carved blob) runs unmodified over these fixtures.
-        fake_dtc = os.path.join(fake_bin, "dtc")
-        with open(fake_dtc, "w", encoding="utf-8") as stream:
-            stream.write(f'''#!{sys.executable}
-import sys
-args = sys.argv[1:]
-def value(flag):
-    return args[args.index(flag) + 1]
-src = args[-1]
-if value("-I") == "dts":
-    data = open(src, "rb").read()
-    blob = (b"\\xd0\\x0d\\xfe\\xed"
-            + (len(data) + 8).to_bytes(4, "big") + data)
-    open(value("-o"), "wb").write(blob)
-else:
-    blob = open(src, "rb").read()
-    size = int.from_bytes(blob[4:8], "big")
-    sys.stdout.write(blob[8:size].decode())
-''')
-        os.chmod(fake_dtc, 0o755)
-
-        # The boot-chain fixtures the fail-closed preflight validates: an
-        # RV32/sv32 tree whose kl,dma-ether windows match the fixture csr.csv,
-        # and its RV64/sv39 twin for the mismatch arms.
-        rv32_dts = """/dts-v1/;
-/ {
-  cpus {
-    cpu@0 {
-      device_type = "cpu";
-      riscv,isa = "rv32ima";
-      mmu-type = "riscv,sv32";
-    };
-  };
-  ethernet@f0000000 {
-    compatible = "kl,dma-ether";
-    reg = <0x90000000 0x10000 0xf0000000 0x100
-           0xf0001000 0x100 0xf0002000 0x100>;
-  };
-};
-"""
-        rv64_dts = rv32_dts.replace("rv32ima", "rv64ima").replace(
-            "riscv,sv32", "riscv,sv39")
-        csr_csv_rows = (
-            "csr_register,milan_dma_tx_base,0xf0000000,1,rw\n"
-            "csr_register,milan_dma_tx_bd_base,0xf0000008,1,rw\n"
-            "csr_register,milan_dma_rx_base,0xf0001000,1,rw\n"
-            "csr_register,milan_dma_rx_bd_base,0xf0001008,1,rw\n"
-            "csr_register,milan_dma_ts_base,0xf0002000,1,rw\n")
-
-        def fdt_blob(dts_text):
-            data = dts_text.encode()
-            return (b"\xd0\x0d\xfe\xed"
-                    + (len(data) + 8).to_bytes(4, "big") + data)
-
-        kernel = os.path.join(td, "Image.xz")
-        opensbi = os.path.join(td, "opensbi.bin")
-        dtb = os.path.join(td, "milan.dtb")
-        dtb_rv64 = os.path.join(td, "milan-rv64.dtb")
-        opensbi_rv64 = os.path.join(td, "opensbi-rv64.bin")
-        for path, data in ((kernel, b"\xfd7zXZ\x00kernel"),
-                           (opensbi, b"OPENSBI" + fdt_blob(rv32_dts)),
-                           (dtb, fdt_blob(rv32_dts)),
-                           (dtb_rv64, fdt_blob(rv64_dts)),
-                           (opensbi_rv64, b"OPENSBI" + fdt_blob(rv64_dts))):
-            with open(path, "wb") as out:
-                out.write(data)
-
-        def make_build(name, owner, serial_payload, linux=False):
+        def make_build(name, owner, serial_payload, manifest="baremetal",
+                       extra_rows=(), cpu_xlen=32):
             build = os.path.join(td, name)
             os.makedirs(os.path.join(build, "gateware"))
             bit = os.path.join(build, "gateware", "alinx_ax7101.bit")
-            payload = (b"\xff" * 16 + b"\xaa\x99\x55\x66" +
-                       serial_payload)
+            payload = (b"\xff" * 16 + b"\xaa\x99\x55\x66" + serial_payload)
             qspi_transition._fake_bit(bit, payload, name.encode())
             layout = os.path.join(build, "flashboot_layout.json")
-            is_linux = owner == "software" or linux
-            if not is_linux:
-                images = [
-                    {"name": "bitstream", "offset": 0,
-                     "budget": 0x400000},
-                    {"name": "aem", "offset": 0x400000,
-                     "budget": 0x10000},
-                ]
-                body = {"manifest": "baremetal", "gptp_owner": owner,
-                        "complete": False, "images": images}
-                with open(os.path.join(build, "aem_desc.bin"), "wb") as out:
-                    out.write(b"AEMI" + serial_payload)
-            else:
-                images = [
-                    {"name": "bitstream", "offset": 0,
-                     "budget": 0x400000},
-                    {"name": "kernel", "offset": 0x400000,
-                     "budget": 0x100000},
-                    {"name": "opensbi", "offset": 0x500000,
-                     "budget": 0x10000},
-                    {"name": "dtb", "offset": 0x510000,
-                     "budget": 0x10000},
-                    {"name": "rootfs", "offset": 0x520000,
-                     "budget": 0x100000},
-                ]
-                body = {"manifest": "full", "gptp_owner": owner,
-                        "cpu_xlen": 32, "complete": True, "images": images}
-                # The sibling csr.csv is a REQUIRED validation input for a
-                # full-Linux manifest since the fail-closed preflight ([R0]
-                # on PR #228); its windows match the rv32 dts fixture.
-                with open(os.path.join(build, "csr.csv"), "w",
-                          encoding="utf-8") as out:
-                    out.write(csr_csv_rows)
+            images = [
+                {"name": "bitstream", "offset": 0, "budget": 0x400000},
+                {"name": "aem", "offset": 0x400000, "budget": 0x10000},
+            ] + [dict(row) for row in extra_rows]
+            body = {"manifest": manifest, "gptp_owner": owner,
+                    "complete": False, "images": images}
+            if cpu_xlen is not None:
+                body["cpu_xlen"] = cpu_xlen
             body.update(qspi_transition.bitstream_binding(bit))
             with open(layout, "w", encoding="utf-8") as out:
                 json.dump(body, out)
+            with open(os.path.join(build, "aem_desc.bin"), "wb") as out:
+                out.write(b"AEMI" + serial_payload)
             return {"dir": build, "layout": layout, "bit": bit,
-                    "owner": owner, "payload": payload,
-                    "linux": is_linux}
+                    "owner": owner, "payload": payload}
 
-        fabric = make_build("fabric", "fabric", b"FABRIC-OWNER")
-        fabric_linux = make_build(
-            "fabric-linux", "fabric", b"FABRIC-LINUX-OWNER", linux=True)
-        software = make_build("software", "software", b"SOFTWARE-OWNER-LONG")
-        software2 = make_build("software2", "software", b"SOFTWARE-OWNER-NEW")
-        malformed = make_build("malformed", "software", b"MALFORMED-LAYOUT")
+        fabric = make_build("fabric", "fabric", b"FABRIC-OWNER-A")
+        fabric2 = make_build("fabric2", "fabric", b"FABRIC-OWNER-B")
+        # Retired pre-#259 artifacts, used only by the refusal arms below.
+        linux_rows = (
+            {"name": "kernel", "offset": 0x500000, "budget": 0x100000},
+            {"name": "opensbi", "offset": 0x600000, "budget": 0x10000},
+            {"name": "dtb", "offset": 0x610000, "budget": 0x10000},
+            {"name": "rootfs", "offset": 0x620000, "budget": 0x100000},
+        )
+        software_full = make_build("software-full", "software",
+                                   b"SOFTWARE-RETIRED", manifest="full",
+                                   extra_rows=linux_rows)
+        fabric_linux = make_build("fabric-linux", "fabric",
+                                  b"FABRIC-LINUX-RETIRED", manifest="full",
+                                  extra_rows=linux_rows)
+        none_owner = make_build("none-owner", "none", b"NONE-OWNER")
+        malformed = make_build("malformed", "fabric", b"MALFORMED-LAYOUT")
         with open(malformed["layout"], encoding="utf-8") as source:
             malformed_layout = json.load(source)
-        malformed_layout["images"][3]["offset"] = \
-            malformed_layout["images"][2]["offset"]
+        malformed_layout["images"][1]["offset"] = 0
         with open(malformed["layout"], "w", encoding="utf-8") as out:
             json.dump(malformed_layout, out)
         reserved_collision = make_build(
-            "reserved-collision", "software", b"RESERVED-COLLISION")
+            "reserved-collision", "fabric", b"RESERVED-COLLISION")
         with open(reserved_collision["layout"], encoding="utf-8") as source:
             reserved_layout = json.load(source)
         reserved_layout["reserved"] = {
             "journal": {"offset": 0x400000, "size": 0x10000}}
         with open(reserved_collision["layout"], "w", encoding="utf-8") as out:
             json.dump(reserved_layout, out)
-
-        software_rootfs = os.path.join(td, "software-rootfs.cpio.gz")
-        software_archive = gptp_pair._newc(
-            gptp_pair._profile_entries("software"))
-        with open(software_rootfs, "wb") as out:
-            out.write(gzip.compress(software_archive))
-        fabric_rootfs = os.path.join(td, "fabric-rootfs.cpio.gz")
-        fabric_archive = gptp_pair._newc(
-            gptp_pair._profile_entries("fabric"))
-        with open(fabric_rootfs, "wb") as out:
-            out.write(gzip.compress(fabric_archive))
 
         base_env = dict(os.environ)
         base_env.update({
@@ -8922,35 +8812,17 @@ else:
             "CABLE": "ft232", "FPGA_PART": "xc7a100tfgg484",
             "OFL_QSPI": qspi, "OFL_LOG": log, "OFL_COUNT": count,
             "OFL_EXPECT_SERIAL": "TEST-SERIAL",
-            "KERNEL": kernel, "OPENSBI": opensbi, "DTB": dtb,
-            "ROOTFS": software_rootfs,
         })
-
-        def fbi_bytes(path):
-            data = open(path, "rb").read()
-            return (struct.pack("<II", len(data),
-                                binascii.crc32(data) & 0xffffffff)
-                    + data)
 
         def reset_flash(source):
             with open(qspi, "wb") as flash:
                 flash.truncate(16 * 1024 * 1024)
                 flash.seek(0)
                 flash.write(source["payload"])
-                if source["linux"]:
-                    source_rootfs = (software_rootfs
-                                     if source["owner"] == "software"
-                                     else fabric_rootfs)
-                    for offset, path in (
-                            (0x400000, kernel), (0x500000, opensbi),
-                            (0x510000, dtb), (0x520000, source_rootfs)):
-                        flash.seek(offset)
-                        flash.write(fbi_bytes(path))
-                else:
-                    with open(os.path.join(source["dir"], "aem_desc.bin"),
-                              "rb") as artifact:
-                        flash.seek(0x400000)
-                        flash.write(artifact.read())
+                with open(os.path.join(source["dir"], "aem_desc.bin"),
+                          "rb") as artifact:
+                    flash.seek(0x400000)
+                    flash.write(artifact.read())
             for path in (log, count):
                 try:
                     os.unlink(path)
@@ -8962,10 +8834,7 @@ else:
             env.update({"INSTALLED_LAYOUT": source["layout"],
                         "INSTALLED_BIT": source["bit"],
                         "LAYOUT": target["layout"], "BIT": target["bit"],
-                        "EXPECTED_GPTP_OWNER": target["owner"],
-                        "ROOTFS": (software_rootfs
-                                   if target["owner"] == "software"
-                                   else fabric_rootfs)})
+                        "EXPECTED_GPTP_OWNER": target["owner"]})
             env.pop("OFL_FAIL_BEFORE", None)
             env.pop("OFL_FAIL_AFTER", None)
             if fail_kind:
@@ -8980,8 +8849,7 @@ else:
                 reset_flash(source)
             env = env_for(source, target, fail_kind, fail_index)
             if named:
-                config = "ax7101" if target["owner"] == "fabric" else "ax8x8"
-                argv = [BUILD_SH, "flash", f"{config}:{target['dir']}"]
+                argv = [BUILD_SH, "flash", f"ax7101:{target['dir']}"]
             else:
                 argv = [deploy, "flash-pair"]
             return subprocess.run(argv, cwd=SOC_DIR, env=env, text=True,
@@ -9010,254 +8878,149 @@ else:
                 f"prefix={live[:48].hex()}")
             return source if old else target
 
-        def grade_prefix(source, target, rows):
-            active = live_bit(source, target)
-            assert active["owner"] in ("fabric", "software")
-            if active["linux"]:
-                software_profile = fbi_bytes(software_rootfs)
-                fabric_profile = fbi_bytes(fabric_rootfs)
-                with open(qspi, "rb") as flash:
-                    flash.seek(0x520000)
-                    rootfs = flash.read(max(len(software_profile),
-                                            len(fabric_profile)))
-                has_software = rootfs[:len(software_profile)] == software_profile
-                has_fabric = rootfs[:len(fabric_profile)] == fabric_profile
-                assert has_software ^ has_fabric, (
-                    "active full-Linux bit has no exact paired rootfs")
-                owners = int(active["owner"] == "fabric") + int(has_software)
-                assert owners == 1, (
-                    f"completed write prefix has {owners} gPTP owners: "
-                    f"bit={active['owner']} software_profile={has_software}")
-            if active is target and target["owner"] == "software":
-                # The software commit bit is last, after every boot image.
-                assert [row[1] for row in rows[-5:-1]] == [
-                    0x400000, 0x500000, 0x510000, 0x520000]
-            return active["owner"]
+        # The one supported transition: a fabric refresh, aem verified first
+        # and the target bit committed last, so every completed write prefix
+        # boots exactly one fabric owner.
+        wanted_offsets = [0x400000, 0]
+        total = len(wanted_offsets)
+        clean = run_pair(fabric, fabric2)
+        assert clean.returncode == 0, clean.stdout + clean.stderr
+        assert [row[1] for row in writes()] == wanted_offsets
+        assert all(row[2] == "verify" for row in writes())
+        assert live_bit(fabric, fabric2) is fabric2
 
-        cases = ((fabric, software, 5,
-                  [0x400000, 0x500000, 0x510000, 0x520000, 0]),
-                 (software, fabric, 2, [0, 0x400000]),
-                 (fabric, fabric_linux, 5,
-                  [0x400000, 0x500000, 0x510000, 0x520000, 0]),
-                 (fabric_linux, fabric, 2, [0x400000, 0]))
         checked_prefixes = 0
-        for source, target, total, wanted_offsets in cases:
-            clean = run_pair(source, target)
-            assert clean.returncode == 0, clean.stdout + clean.stderr
-            assert [row[1] for row in writes()] == wanted_offsets
-            assert all(row[2] == "verify" for row in writes())
-            assert live_bit(source, target) is target
-            for kind in ("before", "after"):
-                for index in range(1, total + 1):
-                    failed = run_pair(source, target, kind, index)
-                    assert failed.returncode != 0, failed.stdout + failed.stderr
-                    prefix = writes()
-                    expected = index - 1 if kind == "before" else index
-                    assert len(prefix) == expected, (kind, index, prefix)
-                    assert [row[1] for row in prefix] == wanted_offsets[:expected]
-                    grade_prefix(source, target, prefix)
-                    checked_prefixes += 1
-
-                    before_resume = len(prefix)
-                    resumed = run_pair(source, target, reset=False)
-                    assert resumed.returncode == 0, \
-                        resumed.stdout + resumed.stderr
-                    assert live_bit(source, target) is target
-                    appended = writes()[before_resume:]
-                    if (source["owner"], target["owner"], kind, index) == \
-                            ("software", "fabric", "after", 1):
-                        assert [row[1] for row in appended] == wanted_offsets[1:], \
-                            "target-bit recovery must finish every non-bit image"
-                    if (source["owner"], target["owner"], kind, index) == \
-                            ("fabric", "software", "after", total):
-                        assert not appended, \
-                            "target bit is the completed fabric->software commit"
+        for kind in ("before", "after"):
+            for index in range(1, total + 1):
+                failed = run_pair(fabric, fabric2, kind, index)
+                assert failed.returncode != 0, failed.stdout + failed.stderr
+                prefix = writes()
+                expected = index - 1 if kind == "before" else index
+                assert len(prefix) == expected, (kind, index, prefix)
+                assert [row[1] for row in prefix] == wanted_offsets[:expected]
+                live_bit(fabric, fabric2)     # exactly one owner, always
+                checked_prefixes += 1
+                resumed = run_pair(fabric, fabric2, reset=False)
+                assert resumed.returncode == 0, \
+                    resumed.stdout + resumed.stderr
+                assert live_bit(fabric, fabric2) is fabric2
 
         # The named launcher must delegate to the same live-proof transaction.
-        named = run_pair(software, fabric, named=True)
+        named = run_pair(fabric, fabric2, named=True)
         assert named.returncode == 0, named.stdout + named.stderr
-        assert [row[1] for row in writes()] == [0, 0x400000]
+        assert [row[1] for row in writes()] == wanted_offsets
+
+        # A live target bit with a stale AEM beside it is safely repaired:
+        # the autonomous fabric commit bit owns gPTP independently of AEM.
+        reset_flash(fabric)
+        with open(qspi, "r+b") as flash:
+            flash.seek(0)
+            flash.write(fabric2["payload"])
+        repair = run_pair(fabric, fabric2, reset=False)
+        assert repair.returncode == 0, repair.stdout + repair.stderr
+        assert [row[1] for row in writes()] == [0x400000], \
+            "AEM repair beside a live fabric commit bit must write AEM only"
+        assert live_bit(fabric, fabric2) is fabric2
 
         # Whole-set preparation happens before even read-only programmer I/O.
         reset_flash(fabric)
-        missing_env = env_for(fabric, software)
-        missing_env["ROOTFS"] = os.path.join(td, "missing-last-rootfs")
+        missing_env = env_for(fabric, fabric2)
+        missing_env["AEM"] = os.path.join(td, "missing-aem.bin")
         missing = subprocess.run([deploy, "flash-pair"], cwd=SOC_DIR,
                                  env=missing_env, text=True,
                                  capture_output=True)
         assert missing.returncode != 0
-        assert not writes(), "missing last artifact caused a programmer write"
+        assert not writes(), "missing AEM artifact caused a programmer write"
         assert not os.path.exists(log), \
-            "missing last artifact caused read-only programmer I/O"
+            "missing AEM artifact caused read-only programmer I/O"
 
-        # A manifest-row parser failure must propagate before the live dump;
-        # process-substitution exit status cannot silently mean an empty set.
-        malformed_result = run_pair(fabric, malformed)
-        assert malformed_result.returncode != 0
-        assert not os.path.exists(log), \
-            "malformed image offsets caused programmer I/O"
-
-        reserved_result = run_pair(fabric, reserved_collision)
-        assert reserved_result.returncode != 0
-        assert not os.path.exists(log), \
-            "image/reservation offset collision caused programmer I/O"
-
-        # FAIL CLOSED ([R0] on PR #228): absence of a boot-chain validation
-        # input must refuse the deploy, never skip the check. Each arm removes
-        # or corrupts exactly one input of the full-Linux preflight and
-        # requires a refusal with zero programmer I/O.
-        def refuse_boot_chain(label, needle, env_mutate):
-            reset_flash(fabric)
-            env = env_for(fabric, software)
-            env_mutate(env)
-            refused = subprocess.run([deploy, "flash-pair"], cwd=SOC_DIR,
-                                     env=env, text=True, capture_output=True)
+        def refuse_before_io(label, source, target, needle):
+            reset_flash(source)
+            refused = subprocess.run(
+                [deploy, "flash-pair"], cwd=SOC_DIR,
+                env=env_for(source, target), text=True, capture_output=True)
             output = refused.stdout + refused.stderr
             assert refused.returncode != 0, f"{label}: accepted\n{output}"
-            assert needle in output, f"{label}: refusal names no cause\n{output}"
-            assert not writes(), f"{label} caused a programmer write"
+            assert needle in output, f"{label}: no {needle!r}\n{output}"
             assert not os.path.exists(log), \
-                f"{label} caused read-only programmer I/O"
+                f"{label} reached programmer I/O"
 
-        # 1. The sibling csr.csv is deleted: the old guard silently skipped
-        # every DTB/OpenSBI and CPU-width check on exactly this input.
-        software_csr = os.path.join(software["dir"], "csr.csv")
-        saved_csr = open(software_csr, encoding="utf-8").read()
-        os.unlink(software_csr)
-        refuse_boot_chain("missing csr.csv", "csr.csv", lambda env: None)
-        with open(software_csr, "w", encoding="utf-8") as out:
-            out.write(saved_csr)
+        # Retired Linux artifacts refuse in BOTH transaction roles (#259).
+        refuse_before_io("retired software target", fabric, software_full,
+                         "retired Linux boot chain")
+        refuse_before_io("retired software installed", software_full, fabric,
+                         "retired Linux boot chain")
+        refuse_before_io("retired fabric/full-Linux target", fabric,
+                         fabric_linux, "retired Linux boot chain")
+        refuse_before_io("ownerless bare-metal target", fabric, none_owner,
+                         "not flashable")
 
-        # 2 + 3. The layout does not bind the compiled CPU width, or binds an
-        # impossible one.
+        # A manifest-row parser failure must propagate before the live dump.
+        refuse_before_io("malformed image offsets", fabric, malformed,
+                         "unique")
+        refuse_before_io("image/reservation collision", fabric,
+                         reserved_collision, "reserved")
+
+        # The compiled CPU width binds fail-closed ([R0] on PR #228): a
+        # layout that does not state it, or states an impossible one, refuses
+        # before any programmer I/O.
         for label, mutate_xlen in (("missing cpu_xlen",
                                     lambda body: body.pop("cpu_xlen")),
                                    ("invalid cpu_xlen",
                                     lambda body: body.update(cpu_xlen=16))):
-            with open(software["layout"], encoding="utf-8") as source:
+            with open(fabric2["layout"], encoding="utf-8") as source:
                 unbound_body = json.load(source)
             mutate_xlen(unbound_body)
-            # Same build directory as the bit: the transition planner refuses
-            # a cross-directory pair before the preflight would run.
-            unbound_layout = os.path.join(software["dir"],
+            unbound_layout = os.path.join(fabric2["dir"],
                                           "unbound-layout.json")
             with open(unbound_layout, "w", encoding="utf-8") as out:
                 json.dump(unbound_body, out)
-            refuse_boot_chain(
-                label, "compiled CPU width",
-                lambda env: env.update(LAYOUT=unbound_layout))
+            reset_flash(fabric)
+            env = env_for(fabric, fabric2)
+            env["LAYOUT"] = unbound_layout
+            refused = subprocess.run([deploy, "flash-pair"], cwd=SOC_DIR,
+                                     env=env, text=True, capture_output=True)
+            output = refused.stdout + refused.stderr
+            assert refused.returncode != 0, f"{label}: accepted\n{output}"
+            assert "compiled CPU width" in output, f"{label}\n{output}"
+            assert not os.path.exists(log), f"{label} reached programmer I/O"
             os.unlink(unbound_layout)
-
-        # 4. The DTB input is absent entirely for a full-Linux manifest.
-        refuse_boot_chain("absent DTB", "DTB=<path>",
-                          lambda env: env.pop("DTB"))
-
-        # 5 + 6. A wrong-architecture DTB, and an OpenSBI whose EMBEDDED FDT
-        # is wrong (the only tree the kernel ever sees on this boot path).
-        refuse_boot_chain("RV64 DTB against the RV32 layout",
-                          "does not match this build's csr.csv",
-                          lambda env: env.update(DTB=dtb_rv64))
-        refuse_boot_chain("RV64 FDT embedded in OpenSBI",
-                          "does not match this build's csr.csv",
-                          lambda env: env.update(OPENSBI=opensbi_rv64))
 
         # Persistent targets are identity evidence, never an mtime-selected
         # convenience default.  Omission must fail before live QSPI access.
         for omitted in ("BIT", "LAYOUT"):
             reset_flash(fabric)
-            omitted_env = env_for(fabric, software)
+            omitted_env = env_for(fabric, fabric2)
             omitted_env.pop(omitted)
             refused = subprocess.run([deploy, "flash-pair"], cwd=SOC_DIR,
                                      env=omitted_env, text=True,
                                      capture_output=True)
             assert refused.returncode != 0
-            assert not writes(), f"missing target {omitted} caused programmer I/O"
             assert not os.path.exists(log), \
-                f"missing target {omitted} caused read-only programmer I/O"
-
-        # A live target bit is not transaction provenance.  A target software
-        # bit with an incomplete/non-matching Linux set must refuse rather than
-        # declaring an old manual bit-only write complete.
-        reset_flash(software)
-        with open(qspi, "r+b") as flash:
-            flash.seek(0x520000)
-            flash.write(b"incomplete-rootfs")
-        incomplete_target = subprocess.run(
-            [deploy, "flash-pair"], cwd=SOC_DIR,
-            env=env_for(fabric, software), text=True, capture_output=True)
-        assert incomplete_target.returncode != 0
-        assert not writes(), \
-            "incomplete live software target attempted an unsafe repair"
-
-        # The same provenance rule applies to full-Linux fabric targets.  A
-        # manually committed fabric bit can sit beside a stale software-profile
-        # rootfs;
-        # live bit identity alone cannot bless or safely resume that state.
-        reset_flash(fabric)
-        with open(qspi, "r+b") as flash:
-            flash.seek(0)
-            flash.write(fabric_linux["payload"])
-            flash.seek(0x520000)
-            with open(software_rootfs, "rb") as artifact:
-                flash.write(artifact.read())
-        incomplete_fabric_linux = run_pair(
-            fabric, fabric_linux, reset=False)
-        assert incomplete_fabric_linux.returncode != 0
-        assert not writes(), \
-            "incomplete live fabric/Linux target attempted an unproved repair"
-
-        # Conversely, a live *installed* full-Linux bit is only half of its
-        # owner state. The FBI header/CRC and positive profile/payload in the
-        # live source rootfs must agree with the installed layout before the
-        # first write.
-        for source, wrong_rootfs in ((software, fabric_rootfs),
-                                     (fabric_linux, software_rootfs)):
-            reset_flash(source)
-            with open(qspi, "r+b") as flash:
-                flash.seek(0x520000)
-                flash.write(fbi_bytes(wrong_rootfs))
-            invalid_source = run_pair(source, fabric, reset=False)
-            assert invalid_source.returncode != 0
-            assert "installed live rootfs" in (
-                invalid_source.stdout + invalid_source.stderr)
-            assert not writes(), \
-                "invalid installed Linux owner state caused a programmer write"
-
-        # Flipping the Linux rootfs profile and its bitstream cannot be ordered
-        # safely in one slot: one order yields zero owners and the other two.
-        # The autonomous fabric/baremetal build is the required bridge.
-        for source, target in ((software, fabric_linux),
-                               (fabric_linux, software)):
-            refused_bridge = run_pair(source, target)
-            assert refused_bridge.returncode != 0
-            assert "fabric/baremetal bridge" in (
-                refused_bridge.stdout + refused_bridge.stderr)
-            assert not os.path.exists(log), \
-                "direct full-Linux owner change reached programmer I/O"
+                f"missing target {omitted} caused programmer I/O"
 
         # A mutable owner string cannot substitute for exact live QSPI proof.
         reset_flash(fabric)
         with open(qspi, "r+b") as flash:
             flash.write(b"\x00" * len(fabric["payload"]))
         mismatch = subprocess.run([deploy, "flash-pair"], cwd=SOC_DIR,
-                                  env=env_for(fabric, software), text=True,
+                                  env=env_for(fabric, fabric2), text=True,
                                   capture_output=True)
         assert mismatch.returncode != 0
         assert not writes(), "unidentified live bitstream caused a write"
 
-        # No safe single-slot software->software refresh is advertised.
-        refused = run_pair(software, software2)
-        assert refused.returncode != 0
-        assert not writes(), "software->software transaction wrote QSPI"
+        # An identical-payload refresh is ambiguous and refused.
+        refuse_before_io("identical payloads", fabric, fabric, "identical")
 
     print(f"  [gate 1e] {checked_prefixes} injected before/after-write "
-          "prefixes across fabric-baremetal<->software and "
-          "fabric-baremetal<->fabric-Linux retain one live owner; every "
-          "prefix resumes, all writes verify, a live target is proven as a "
-          "complete set, direct full-Linux owner changes plus malformed/"
-          "missing/unidentified/software-refresh negatives write nothing, "
-          "and six boot-chain fail-closed arms (csr.csv, cpu_xlen x2, "
-          "absent DTB, RV64 DTB, RV64 OpenSBI FDT) refuse before I/O")
+          "prefixes across the fabric-baremetal refresh retain one live "
+          "owner and every prefix resumes; all writes verify; a live target "
+          "bit gets an AEM-only repair; retired Linux artifacts (#259), the "
+          "ownerless owner, malformed/collision layouts, missing artifacts, "
+          "missing cpu_xlen x2 and an unidentified live bit all refuse "
+          "before programmer I/O")
+
+
 
 
 def test_current_shape_matches_sweep_flags():
@@ -9524,12 +9287,11 @@ def test_both_policies_valid():
         c["audio_interface"]["kind"] = "i2s_philips"
         # an i2s interface implies a DAC: the mutated variant must not carry
         # the AX's 2026-07-28 i2s_playback/render_lpf area prunes, which
-        # validate_features rightly refuses next to a declared DAC
-        # This remains a Linux comparison variant. Replacing the whole feature
-        # map must retain its explicit software PHC owner now that fabric gPTP
-        # is the product default.
+        # validate_features rightly refuses next to a declared DAC.
+        # #259: the replaced feature map keeps the fabric owner - option-off
+        # is refused for every configuration, this policy variant included.
         c["board"]["features"] = {
-            "fabric_gptp": False,
+            "fabric_gptp": True,
             "sound_card": True,
         }
         set_policy(c, "cap-at-interface")
@@ -13042,7 +12804,7 @@ GPTP_PROFILE_CASES = (
     ("gptp baremetal explicit", "ax7101_1x1_tdm8", "--fabric-gptp", 1),
     ("gptp linux default", "ax7101_8x8", None, 1),
     ("gptp linux fabric explicit", "ax7101_8x8", "--fabric-gptp", 1),
-    ("gptp linux option-off", "ax7101_8x8", "--no-fabric-gptp", 0),
+    ("gptp baremetal option-off", "ax7101_1x1_tdm8", "--no-fabric-gptp", 0),
 )
 
 
@@ -13161,24 +12923,20 @@ def test_gptp_plane_reaches_the_instance():
     bad = _gptp_instance_contract(got, expected)
     assert not bad, "gate 1e:\n  " + "\n  ".join(bad)
 
-    # Bare metal has no software daemon, so option-OFF is the sole zero-owner
-    # combination and is refused by the real CLI as well as the builder.
-    cases = dict(runs)
-    invalid = [
-        ("gptp zero owners",
-         _gptp_without_owner_flag(cases["gptp baremetal explicit"])
-         + ["--no-fabric-gptp"]),
-    ]
-    refused = _instance_params(python, invalid)
-    for label, needle in (("gptp zero owners", "NO PHC owner"),):
-        assert "params" not in refused[label], \
-            f"{label}: invalid ownership reached the datapath Instance"
-        assert needle in _why_failed(refused[label]), \
-            f"{label}: refusal did not name {needle!r}: {refused[label]}"
+    # #259: option-off is VERIFICATION-ONLY hardware on every profile. The
+    # bare-metal option-off case above already proves it reaches the real
+    # Instance with the plane off; here the soc must have said so out loud
+    # (zero gPTP owners, not a supported product image).
+    off_run = got.get("gptp baremetal option-off", {})
+    assert "params" in off_run, \
+        "option-off verification elaboration did not reach the Instance"
+    # The out-loud announcement itself is pinned as source text by gate 1c
+    # ("VERIFICATION-ONLY" in milan_soc.py, beside the removed coupling).
     print(f"  [gate 1e] {len(runs)} real elaborations: the product fabric "
           "default is identical across baremetal/Linux and to explicit ON; "
-          "Linux option-OFF reaches software ownership; build.sh, sweep.sh "
-          "and deploy.sh ship fabric ownership; zero-owner baremetal refuses")
+          "bare-metal option-OFF elaborates as announced verification-only "
+          "hardware (#259); build.sh, sweep.sh and deploy.sh ship fabric "
+          "ownership")
 
 
 GPTP_INSTANCE_MUTATIONS = (
@@ -13196,7 +12954,7 @@ GPTP_INSTANCE_MUTATIONS = (
     ("the emitted parameter is tied on",
      [("p_GPTP_PLANE_EN_P=int(bool(gptp_plane))",
        "p_GPTP_PLANE_EN_P=int(True)", 1)],
-     "gptp linux option-off"),
+     "gptp baremetal option-off"),
     ("the emitted parameter is inverted",
      [("p_GPTP_PLANE_EN_P=int(bool(gptp_plane))",
        "p_GPTP_PLANE_EN_P=int(not gptp_plane)", 1)],

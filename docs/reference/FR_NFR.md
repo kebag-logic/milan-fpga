@@ -317,7 +317,7 @@ The `kl,dma-ether` node describes the HW to the driver. Binding schema:
 | NFR-RES-01 | Baseline (1 core, stereo 48 k) MUST fit `xc7a100t` with headroom (target ≤ 60 % LUT) to leave room for scale-out. | M | A |
 | NFR-REL-01 | A stream fault (link flap, GM change, talker loss) MUST auto-recover without a reboot; counters MUST record the event. | M | T |
 | NFR-REL-02 | Watchdog/keepalive MUST detect a hung media core (AMP) and restart it without dropping the control plane. | S | T |
-| NFR-OBS-01 | The system MUST expose observability: `ethtool -S`, `ethtool -T`, fabric-gPTP status/publication counters and CSRs, AVDECC counters, and per-core load. The explicit option-off comparison additionally exposes `ptp4l` metrics. | S | D |
+| NFR-OBS-01 | The system MUST expose observability: `ethtool -S`, `ethtool -T`, fabric-gPTP status/publication counters and CSRs, AVDECC counters, and per-core load. (The retired option-off software arm, #259, once additionally exposed `ptp4l` metrics.) | S | D |
 | NFR-MAINT-01 | The entity model MUST be single-source (JSON) and shared HW/SW/test; divergence MUST be caught in CI. | M | I |
 | NFR-PORT-01 | The control/media software (PipeWire module-avb and mrpd) MUST build for RV64 Linux; RV32 fallback MUST remain possible. `linuxptp` carries the same portability requirement only for the explicit software-owner option-off profile. | S | A |
 | NFR-SEC-01 | Milan v1.2 does not mandate AEM authentication; the entity MUST advertise `AEM_AUTHENTICATION` = not-required and behave safely when unauthenticated. | M | I |

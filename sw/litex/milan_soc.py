@@ -5655,7 +5655,11 @@ class MilanSoC(SoCCore):
         elif gptp_plane is True:
             self._gptp_owner = "fabric"
         elif gptp_plane is False:
-            self._gptp_owner = "software"
+            # Verification-only option-off elaboration (#259): the retired
+            # software owner no longer exists, and this image runs no gPTP
+            # owner of any kind. Recording "none" keeps the flash tools
+            # refusing it as a product image.
+            self._gptp_owner = "none"
         else:
             raise ValueError(
                 "MilanSoC needs a resolved gptp_plane=True/False when the "
@@ -5779,9 +5783,9 @@ class MilanSoC(SoCCore):
         # mutable rootfs overlay.  Encoding: 0=none, 1=fabric, 2=software.
         self.add_constant("MILAN_GPTP_OWNER",
                           GPTP_OWNER_CODES[self._gptp_owner])
-        # The full Linux artifact checker consumes the same compiled CPU width
-        # when rejecting an RV64/sv39 DTB under an RV32 build.  Sweep layouts
-        # reconstruct this value from soc.h rather than trusting a launcher.
+        # The deploy preflight binds the compiled CPU width as part of the
+        # bare-metal artifact identity.  Sweep layouts reconstruct this value
+        # from soc.h rather than trusting a launcher.
         self.add_constant("MILAN_CPU_XLEN", self._cpu_xlen)
         if software_profile == "baremetal":
             self.add_config("BIOS_NO_BOOT")
@@ -6545,9 +6549,9 @@ class MilanSoC(SoCCore):
 
         images = FLASHBOOT_MANIFESTS[manifest_name]
         self._flashboot_layout = {"manifest": manifest_name,
-                                  # deploy.sh pairs this compiled gateware fact
-                                  # with the marker inside the actual rootfs
-                                  # archive before the first QSPI write.
+                                  # deploy.sh refuses to flash any layout whose
+                                  # compiled owner is not the fabric plane
+                                  # (#259: bare-metal only, no rootfs pairing).
                                   "gptp_owner": self._gptp_owner,
                                   "cpu_xlen": self._cpu_xlen,
                                   "entry": (None if manifest_name == "baremetal"
@@ -6759,8 +6763,11 @@ def main():
                                  "MAC/priority/clock-specific ROM")
     gptp_group.add_argument("--no-fabric-gptp", dest="fabric_gptp",
                             action="store_false",
-                            help="retain the software gPTP publication path "
-                                 "for the explicit Linux comparison")
+                            help="elaborate the option-off comparison plane. "
+                                 "VERIFICATION-ONLY hardware (#259): the image "
+                                 "has no gPTP owner, is not a supported "
+                                 "product image, and the flash tools refuse "
+                                 "its artifacts")
     # Resolve omission after parsing because --no-milan has no gPTP owner.
     ap.set_defaults(fabric_gptp=None)
     ap.add_argument("--no-render-lpf", action="store_true",
@@ -7001,11 +7008,13 @@ def main():
         args.fabric_gptp = not args.no_milan
     if args.fabric_gptp and args.no_milan:
         ap.error("--fabric-gptp requires the Milan datapath")
-    if (not args.fabric_gptp and args.software_profile == "baremetal"
-            and not args.no_milan):
-        ap.error("--no-fabric-gptp leaves --software-profile baremetal with NO "
-                 "PHC owner: the bare-metal firmware has no gPTP daemon; drop "
-                 "--no-fabric-gptp or select --software-profile linux")
+    if not args.fabric_gptp and not args.no_milan:
+        # No refusal, one loud fact (#259): with the fabric plane off there is
+        # NO gPTP owner in this image - the retired software owner does not
+        # exist and bare metal ships no daemon. The elaboration stays
+        # available as the verification-only option-off comparison.
+        print("milan_soc: --no-fabric-gptp elaborates VERIFICATION-ONLY "
+              "hardware with zero gPTP owners; not a supported product image")
 
     # ---- L1 BINDING REFUSAL: the board must ROUTE the front-end it is asked
     #      for. BEFORE the platform is built, so an unbackable request is a

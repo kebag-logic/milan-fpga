@@ -61,7 +61,7 @@ entity:
 board:
   target: arty
   features:
-    fabric_gptp: false              # explicit Linux software-owner comparison
+    fabric_gptp: true               # the one product owner (#259: bare-metal only, no Linux comparison)
     sound_card: true
   constraints:
     sys_clk_hz: 83333000
@@ -192,3 +192,22 @@ streams:
     - { name: "Stream Out 1", channels: 4 }
     - { name: "Stream Out 2", channels: 4 }
     - { name: "Stream Out 3", channels: 4 }
+
+gptp:
+  # ONE source (USER 2026-08-05): these values generate the AVB_INTERFACE
+  # descriptor's clock fields and the fabric uCPU image. priority1 248 =
+  # the deferring Milan end-station default (see the AX7101 configs). The
+  # fabric plane is the one product gPTP owner (#259); no daemon
+  # configuration is generated from this section any more. clock_accuracy,
+  # offset_scaled_log_variance and log_sync_interval restate the HISTORICAL
+  # Arty descriptor constants byte-exactly, so the retired bring-up board's
+  # advertised model does not move when the owner section is stated.
+  priority1: 248
+  priority2: 248
+  clock_class: 248
+  clock_accuracy: 0x21
+  offset_scaled_log_variance: 0x436A
+  domain: 0
+  log_sync_interval: 0
+  log_announce_interval: 0
+  log_pdelay_interval: 0

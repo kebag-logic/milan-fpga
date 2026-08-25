@@ -16,7 +16,16 @@
 
 Turn the Milan FPGA design (Zynq-7020, custom 1 G RGMII MAC) into a **real,
 software-configurable TSN network interface** that complies with the relevant
-IEEE 802 standards and is driven by a Linux network driver:
+IEEE 802 standards:
+
+> **Bare-metal-only supersession (#259, USER directive 2026-08-25).** The
+> supported product target is **bare-metal RV32I only**. The Linux driver,
+> device-tree, rootfs and `ptp4l`/`phc2sys` deliverables this section
+> originally framed are **retired as product paths**; their requirement text
+> below is preserved as historical record until #259's repository-wide
+> rewrite lands. The fabric gPTP plane is the product's one PHC and
+> publication owner; an option-off elaboration is verification-only hardware
+> with no software owner and no supported image.
 
 > **Platform migration note (as-built, supersedes the Zynq-era framing below).**
 > The design shipped as a **fully-FPGA VexiiRiscv softcore on Artix-7 (Alinx
@@ -30,22 +39,23 @@ IEEE 802 standards and is driven by a Linux network driver:
 * **IEEE 802.1Q** traffic classification and queuing (PCP → traffic class).
 * **IEEE 802.1Qav** credit-based shaper (CBS) for the SR classes.
 * **IEEE 802.1AS / IEEE 1588** gPTP hardware timestamping (**timestamp + a
-  disciplinable clock**). Transport/BMCA are split by the gPTP option: with
-  `GPTP_PLANE_EN_P` off they stay in software (`ptp4l` on the softcore over the
-  802.1AS-2020 hardware-assist scope); with it on, the shipping AX7101 shape,
-  the fabric gPTP plane (`gptp-processor`) runs them to the Milan v1.2 profile
-  of IEEE 802.1AS-2011, as section 2 says.
+  disciplinable clock**). The fabric gPTP plane (`gptp-processor`) is the
+  product default and the one owner: it runs transport and BMCA to the Milan
+  v1.2 profile of IEEE 802.1AS-2011, as section 2 says. With
+  `GPTP_PLANE_EN_P` explicitly off the elaboration is verification-only
+  hardware carrying the option-off CSR ABI and NO gPTP owner (#259 retired
+  the software owner).
 * **IEEE 802.3** MAC configuration and management so the block also behaves like
   a traditional MAC (station address, filters, speed/duplex, statistics),
   configurable over a **memory-mapped** register interface (and/or MDIO).
 
 Software deliverables (sibling repos under `../`):
 
-* A **Linux driver** (`../kl-linux-drivers`) implementing PTP/PHC + hardware
-  timestamping, the traffic classifier config, the CBS config, and **N** hardware
-  queues (as many as the HDL exposes).
-* A **device-tree generator** integrated into `../fpga-ps-tools`, reusing the
-  Xilinx `device-tree-xlnx` (dtg) and overlaying the TSN driver node.
+* *(RETIRED, #259)* A **Linux driver** (`../kl-linux-drivers`) implementing
+  PTP/PHC + hardware timestamping, the traffic classifier config, the CBS
+  config, and **N** hardware queues. Not a product deliverable any more.
+* *(RETIRED, #259)* A **device-tree generator** integrated into
+  `../fpga-ps-tools`. Not a product deliverable any more.
 
 > This document is the normative requirements spec. Current compliance blockers
 > live in the [Milan v1.2 audit](docs/testing/MILAN_V12_AUDIT_2026-08-16.md),
@@ -322,7 +332,11 @@ and verification artifacts.
   driver (PS GEM1 EMIO MDIO referenced by `phy-handle`, or a fabric MDIO master),
   bound to phylib. *(802.3 Clause 22)*
 
-### 4.F Linux driver (`../kl-linux-drivers`)
+### 4.F Linux driver (`../kl-linux-drivers`) - RETIRED (#259)
+
+> The REQ-DRV group is retired with the Linux product target; text preserved
+> as historical record until #259's repository-wide rewrite.
+
 
 * **REQ-DRV-01 (MUST)** Replace the non-compiling `kl-eth.c` stub with a coherent
   **platform driver** that compiles and registers a `net_device` with consistent
@@ -349,7 +363,11 @@ and verification artifacts.
   tx_types, rx_filters), `-S` stats/strings from CSR counters, coalescing; fix
   the broken ops table.
 
-### 4.G Device tree and generator tooling (`../fpga-ps-tools`)
+### 4.G Device tree and generator tooling (`../fpga-ps-tools`) - RETIRED (#259)
+
+> The REQ-DT group is retired with the Linux product target; text preserved
+> as historical record until #259's repository-wide rewrite.
+
 
 * **REQ-DT-01 (MUST)** Provide a **DT binding** (yaml) and a board `.dtsi` node:
   `compatible = "kl,dma-ether-0.9"`, `reg` = CSR + DMA regions, `interrupts` =
@@ -376,8 +394,8 @@ and verification artifacts.
   default priority, back-to-back frames).
 * **REQ-VER-04 (SHOULD)** A **CSR/register-map** testbench (reset values, W1C,
   RO/RW masks, CDC apply-strobe) checked against [`docs/reference/REGISTER_MAP.md`](docs/reference/REGISTER_MAP.md).
-* **REQ-VER-05 (SHOULD)** Driver bring-up validation: `ethtool -T`, `phc2sys`/
-  `ptp4l` lock, `tc qdisc … cbs offload`, `ethtool -S`.
+* **REQ-VER-05 (SHOULD - RETIRED, #259)** Driver bring-up validation was a
+  Linux-target requirement and is retired with it.
 
 ## 5. Priority / phasing
 
@@ -403,14 +421,13 @@ as historical evidence only.
 
 ## 8. Acceptance (end-to-end)
 
-The interface is "done" when: (a) the driver binds via the generated DT and
-brings the link up through phylib; (b) `ethtool -T` advertises the PHC and the
-selected gPTP owner disciplines it and publishes coherent live state — the
-fabric plane in the shipping profile, or `ptp4l` plus sink-only `phc2sys` in
-the explicit option-off software comparison; (c) `tc qdisc … cbs offload 1`
-programs the HW shaper and SR streams meet their reservation while BE uses the
-remainder; (d) `ethtool -S` returns HW counters; (e) the CBS and CSR harnesses
-pass in CI.
+The interface is "done" when the bare-metal product criteria hold: the
+fabric gPTP plane is the one PHC and publication owner and publishes coherent
+live state on every public face, the HW shaper meets SR reservations while BE
+uses the remainder, HW counters serve over the CSR ABI, and the CBS and CSR
+harnesses pass in CI. The former Linux-driver criteria (phylib bind,
+`ethtool -T`, `tc qdisc` offload, `ptp4l`/`phc2sys` comparison) are retired
+with the Linux target (#259).
 
 ## 9. Original brief (preserved)
 
