@@ -28,7 +28,37 @@ set REPO [file normalize [file dirname [info script]]/../..]
 set TAG  [expr {[info exists ::env(TAG)] ? $::env(TAG) : "base"}]
 puts "milan_datapath OOC: tag=$TAG"
 
-# BOTH control-plane $readmemh images, generated into the run directory FIRST,
+# The source list is printed by syn/yosys/run.sh itself (`--emit`) and relayed
+# by dp_srcs.py -- the ONE list the portability gate proves elaborates. A copy
+# here would drift, and since the processor's files are part of that list now, a
+# copy would drift a whole control plane. Nothing is read outside it, and
+# nothing re-reads run.sh: dp_srcs.py checks the record run.sh hands it, and
+# resolves $TOP in it through `sv2v --top`, so sv2v is required to run this
+# script as well as the Yosys gate (README.md's tool table). It runs FIRST
+# because it is also the authority everything below derives from: the ROM
+# geometry packages are found IN this record, never spelled here by hand
+# ([R0] round three on PR #264 -- a spelled path is a hand list in waiting,
+# and the pp_srcs.py literal gate cannot see Tcl semantics).
+set SRC_LINES [split [string trim [exec python3 $REPO/syn/ooc/dp_srcs.py]] "\n"]
+
+# Exactly one file in the derived record may carry the named basename; zero
+# means the record no longer contains the geometry source (refuse, do not
+# guess a path), and two means the name stopped being an identity.
+proc one_source {src_lines tail} {
+  set hits {}
+  foreach f $src_lines {
+    if {[string match "*/$tail" $f]} { lappend hits $f }
+  }
+  if {[llength $hits] != 1} {
+    error "milan_datapath OOC: expected exactly one $tail in the derived\
+ read set, found [llength $hits]. The geometry source comes from the record\
+ dp_srcs.py hands this recipe; a record without it is a refusal, not a\
+ license to spell a path by hand."
+  }
+  return [lindex $hits 0]
+}
+
+# BOTH control-plane $readmemh images, generated into the run directory
 # before anything slow. protocol_processor_top reads its ACMP listener
 # transition ROM by the RELATIVE name "ltn_rom.hex" and KL_aecp_ucpu its
 # microcode by "ucode.hex" (UCODE_HEX_P); Vivado resolves both against ITS OWN
@@ -39,25 +69,36 @@ puts "milan_datapath OOC: tag=$TAG"
 # completed rc=0 with a full, plausible utilization report 7,923 LUT under
 # the shipping design.
 #
-# The contract, per image ([R-parallel] on PR #264 closed the survivors):
+# The contract, per image ([R-parallel] and [R0] on PR #264 closed the
+# survivors):
 #   - the target is DELETED first, generation goes to a fresh temp file, and
 #     the image is published by rename only after it validates, so a stale
 #     file in the run directory plus a no-op generator can never be measured;
 #   - `exec` takes the generator's exit status (a failed generator aborts);
 #   - the image must hold EXACTLY its ROM's geometry, derived from the
-#     pinned packages (never copied here, where it would drift): after
-#     //-comment stripping, depth words of width/4 hex digits, x/z refused.
-#     $readmemh part-fills a short image with X and Vivado prices the X-ROM;
-#     a one-word "non-empty" image is the same lie as an absent one.
-set PP $REPO/protocol-processor/hdl
+#     pinned packages named by the record above (never copied here, where it
+#     would drift): after comment stripping, depth words of width/4 hex
+#     digits, x/z refused. $readmemh part-fills a short image with X and
+#     Vivado prices the X-ROM; a one-word "non-empty" image is the same lie
+#     as an absent one.
 
+# The ONE live declaration of the named localparam, comments stripped FIRST:
+# a `// stale example: UCODE_W_C = 48` above a live `= 52` must never win,
+# and the name is boundary-anchored so MY_UCODE_W_C is not UCODE_W_C ([R0]
+# round three). Zero live declarations, more than one, and any spelling this
+# does not recognize are refusals, never a guess.
 proc pkg_num {path name} {
   set fh [open $path r]; set text [read $fh]; close $fh
-  if {![regexp "$name\\s*=\\s*(\\d+)" $text -> v]} {
-    error "milan_datapath OOC: cannot derive $name from $path (geometry\
-source moved?)"
+  regsub -all {/\*.*?\*/} $text "" text
+  regsub -all -line {//.*$} $text "" text
+  set pat [format {(?n)^\s*(?:localparam|parameter)\y[^=;]*?\y%s\y\s*=\s*(\d+)\s*;} $name]
+  set hits [regexp -all -inline -- $pat $text]
+  if {[llength $hits] != 2} {
+    error "milan_datapath OOC: expected exactly one live declaration of\
+ $name in $path, found [expr {[llength $hits] / 2}] (comments stripped; a\
+ spelling this parser does not recognize is a refusal, not a guess)"
   }
-  return $v
+  return [lindex $hits 1]
 }
 
 proc rom_check {path digits words} {
@@ -77,10 +118,12 @@ proc rom_check {path digits words} {
   return ""
 }
 
-set UCODE_W [pkg_num $PP/aecp/ucpu_pkg.sv UCODE_W_C]
-set UPC_W   [pkg_num $PP/aecp/ucpu_pkg.sv UPC_W_C]
-set TROM_W  [pkg_num $PP/acmp/pp_acmp_pkg.sv TROM_W_C]
-set TROM_D  [pkg_num $PP/acmp/pp_acmp_pkg.sv TROM_DEPTH_C]
+set UCPU_PKG [one_source $SRC_LINES ucpu_pkg.sv]
+set ACMP_PKG [one_source $SRC_LINES pp_acmp_pkg.sv]
+set UCODE_W [pkg_num $UCPU_PKG UCODE_W_C]
+set UPC_W   [pkg_num $UCPU_PKG UPC_W_C]
+set TROM_W  [pkg_num $ACMP_PKG TROM_W_C]
+set TROM_D  [pkg_num $ACMP_PKG TROM_DEPTH_C]
 
 foreach {img gen digits words} [list \
     ltn_rom.hex $REPO/protocol-processor/hdl/acmp/rom/gen_ltn_rom.py \
@@ -115,17 +158,12 @@ set UCODE_GENERIC "PP_UCODE_HEX_P=\"[file normalize ucode.hex]\""
 # wrong number -- the one failure of this instrument that still returns a
 # figure. Promote it to an ERROR so any image this preflight does not cover
 # (a future option-ON gptp_ucode.hex, a renamed image) fails the run outright
-# instead of shaping the report.
+# instead of shaping the report. What must hold at synth_design is the
+# EFFECTIVE severity: a later downgrade of the same id is the same defect as
+# never promoting, and the self-test asserts the final state, not this line's
+# spelling ([R0] round three).
 set_msg_config -id {Synth 8-4445} -new_severity ERROR
 
-# The source list is printed by syn/yosys/run.sh itself (`--emit`) and relayed
-# by dp_srcs.py -- the ONE list the portability gate proves elaborates. A copy
-# here would drift, and since the processor's files are part of that list now, a
-# copy would drift a whole control plane. Nothing is read outside it, and
-# nothing re-reads run.sh: dp_srcs.py checks the record run.sh hands it, and
-# resolves $TOP in it through `sv2v --top`, so sv2v is required to run this
-# script as well as the Yosys gate (README.md's tool table).
-set SRC_LINES [split [string trim [exec python3 $REPO/syn/ooc/dp_srcs.py]] "\n"]
 set SV {}
 set V  {}
 foreach f $SRC_LINES {

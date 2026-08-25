@@ -8,37 +8,48 @@ empty, and it takes the source generator's exit status. Both refusals had
 manual evidence and no test ([R0] on PR #240): deleting either one left every
 hosted check green, which is the definition of a defense that rots.
 
-milan_datapath_ooc.tcl (#246) GENERATES both images into fresh temp targets,
-validates their exact geometry against the pinned packages (word count and
-width, //-comments stripped, x/z refused), and publishes each by rename only
-after it validates, so a stale file plus a no-op generator, a one-token
-image, a truncated image and a malformed word are all refusals before
-anything is read ([R-parallel] on PR #264 closed those survivors). Its arms
-below plant exactly those failures through a dispatching `python3` stub that
-hands every other invocation (dp_srcs.py, the other generator) to the real
-interpreter.
+milan_datapath_ooc.tcl (#246) derives its read set from dp_srcs.py, finds its
+geometry packages IN that record, reads each geometry number from the ONE
+live declaration (comments stripped, name boundary-anchored), GENERATES both
+images into fresh temp targets, validates their exact geometry, and publishes
+by rename only after validation. Stale+no-op, one-token, truncated and
+malformed images, commented-out or duplicated declarations, and a record
+without the packages are all refusals before anything is read ([R-parallel]
+and [R0] on PR #264 closed those survivors, round by round).
 
 WHAT IT RUNS IS THE REAL .TCL, not a copy of its logic. `tclsh` sources the
 tracked file with the Vivado-only commands stubbed. `read_verilog` RETURNS
-(it does not exit), so the run reaches `synth_design`, whose stub is where
-the sentinel prints -- after it has validated every `-generic *_HEX_P=...`
-it receives: the value must be quoted, absolute, and name an existing
-non-empty file, or the stub errors. `set_msg_config` is recorded and echoed
-at synth_design as an `OOC-MSGCFG:` line, so the arms can assert the exact
-`Synth 8-4445` promotion is (or, on a mutant, is not) in force. Mutation
-copies of the datapath recipe itself (promotion deleted, the ucode generic
-deleted, the ucode generic redirected at a missing image) prove each of
-those assertions can fail.
+(it does not exit) and RECORDS every file it is handed; the sentinel prints
+at `synth_design`, whose stub is the observation point for the synthesis
+safeguards:
+
+  - every `-generic *_HEX_P=...` it receives must be quoted, absolute, an
+    existing non-empty file, carry the CANONICAL basename for its parameter
+    (PP_UCODE_HEX_P -> ucode.hex, PP_TROM_HEX_P -> ltn_rom.hex), and hold
+    that ROM's geometry, or the stub errors -- an existing-but-wrong file
+    opens cleanly, so Synth 8-4445 never protects that case;
+  - `set_msg_config` is MODELLED, not transcribed: the stub keeps the final
+    severity per message id, and the positive arm requires the EFFECTIVE
+    severity of Synth 8-4445 at synth_design to be ERROR -- a downgrade
+    applied after the promotion is the same defect as never promoting;
+  - the recorded read set is written out and the positive arm requires it to
+    EQUAL what dp_srcs.py derives, so a hand-written list cannot stand in
+    for the record while the suite stays green.
+
+Mutation copies of the recipe prove every one of those detectors can fail.
 
 `tclsh` is the interpreter Vivado embeds, so the guard is exercised by the
-language it is written in rather than reimplemented in Python.
+language it is written in rather than reimplemented in Python. What tclsh
+cannot prove is Vivado's own semantics; the real-Vivado negative control for
+the promotion (a missing image at synthesis with the preflight removed must
+abort, not warn) is recorded on the PR that lands a change.
 
     python3 syn/ooc/ooc_tcl_selftest.py
 
 Runs in .github/workflows/rtl-fast.yml beside syn/ooc/dp_srcs.py --selftest.
-Needs the protocol-processor and verilog-axis submodules, because both .tcl
-files derive their read set (and the datapath one generates and validates
-its ROMs) on the way to their refusals.
+Needs the protocol-processor and verilog-axis submodules and sv2v, because
+the datapath recipe derives its read set before anything else, so every arm
+pays one dp_srcs.py run (~5 minutes total).
 """
 import os
 import re
@@ -52,45 +63,84 @@ REPO = os.path.abspath(os.path.join(HERE, "..", ".."))
 TCL = os.path.join(HERE, "pp_shadow_ooc.tcl")
 DP_TCL = os.path.join(HERE, "milan_datapath_ooc.tcl")
 SENTINEL = "OOC-GUARD-PASSED"
-PROMOTION = "-id {Synth 8-4445} -new_severity ERROR"
+EFFECTIVE_OK = "OOC-EFFECTIVE-SEV: {Synth 8-4445} = ERROR"
+READ_LIST = "ooc-read-list.txt"
 REAL_PYTHON = shutil.which("python3") or sys.executable
 GEN_UCODE = os.path.join(REPO, "protocol-processor", "hdl", "aecp", "ucode",
                          "gen_ucode.py")
 GEN_LTN = os.path.join(REPO, "protocol-processor", "hdl", "acmp", "rom",
                        "gen_ltn_rom.py")
 
-#: The Vivado commands the .tcl recipes call. `read_verilog` returns, so the
-#: script reaches `synth_design`; the sentinel prints THERE, after the stub
-#: has validated every `-generic *_HEX_P` it received (quoted, absolute,
-#: existing, non-empty) and echoed the recorded `set_msg_config` calls. An
-#: arm that expects a refusal fails if the sentinel appears, and the
-#: positive arms assert the generic and promotion lines it prints.
+#: The Vivado commands the .tcl recipes call, stubbed as the docstring
+#: describes. The canonical-image map in synth_design is TEST knowledge: the
+#: recipe under test must arrive at the same binding on its own.
 STUBS = """
-set ::ooc_msgcfg {}
-proc read_verilog args {}
-proc synth_design args {
+set ::ooc_read {}
+set ::ooc_sev [dict create]
+proc read_verilog args {
+  foreach a $args {
+    if {$a eq "-sv"} continue
+    foreach f $a { lappend ::ooc_read $f }
+  }
+}
+proc set_msg_config args {
+  set id ""; set sev ""
   for {set i 0} {$i < [llength $args]} {incr i} {
-    if {[lindex $args $i] eq "-generic"} {
-      set g [lindex $args [expr {$i + 1}]]
-      if {[regexp {^(PP_[A-Z_]+_HEX_P)="(.*)"$} $g -> name val]} {
-        if {[file pathtype $val] ne "absolute"} {
-          error "SYNTH-GENERIC-NOT-ABSOLUTE: $g"
-        }
-        if {![file exists $val] || [file size $val] == 0} {
-          error "SYNTH-GENERIC-IMAGE-MISSING: $g"
-        }
-        puts "OOC-GENERIC-OK: $name"
-      }
+    switch -- [lindex $args $i] {
+      -id           { set id  [lindex $args [incr i]] }
+      -new_severity { set sev [lindex $args [incr i]] }
     }
   }
-  puts "OOC-MSGCFG: $::ooc_msgcfg"
+  if {$id ne "" && $sev ne ""} { dict set ::ooc_sev $id $sev }
+}
+proc synth_design args {
+  set expect [dict create PP_TROM_HEX_P {ltn_rom.hex 8 128} \\
+                          PP_UCODE_HEX_P {ucode.hex 12 2048}]
+  for {set i 0} {$i < [llength $args]} {incr i} {
+    if {[lindex $args $i] ne "-generic"} continue
+    set g [lindex $args [expr {$i + 1}]]
+    if {![regexp {^(PP_[A-Z_]+_HEX_P)="(.*)"$} $g -> name val]} continue
+    if {[file pathtype $val] ne "absolute"} {
+      error "SYNTH-GENERIC-NOT-ABSOLUTE: $g"
+    }
+    if {![file exists $val] || [file size $val] == 0} {
+      error "SYNTH-GENERIC-IMAGE-MISSING: $g"
+    }
+    if {[dict exists $expect $name]} {
+      lassign [dict get $expect $name] tail digits words
+      if {[file tail $val] ne $tail} {
+        error "SYNTH-GENERIC-WRONG-IMAGE: $name -> [file tail $val] (canonical $tail)"
+      }
+      set fh [open $val r]; set text [read $fh]; close $fh
+      set n 0
+      foreach line [split $text "\\n"] {
+        regsub {//.*$} $line "" line
+        foreach tok [split $line] {
+          if {$tok eq ""} continue
+          incr n
+          if {![regexp {^[0-9a-fA-F]+$} $tok] || [string length $tok] != $digits} {
+            error "SYNTH-GENERIC-BAD-GEOMETRY: $name word $n at [file tail $val]"
+          }
+        }
+      }
+      if {$n != $words} {
+        error "SYNTH-GENERIC-BAD-GEOMETRY: $name $n words at [file tail $val], want $words"
+      }
+    }
+    puts "OOC-GENERIC-OK: $name"
+  }
+  foreach id [dict keys $::ooc_sev] {
+    puts "OOC-EFFECTIVE-SEV: [list $id] = [dict get $::ooc_sev $id]"
+  }
+  set fh [open %s w]
+  foreach f $::ooc_read { puts $fh $f }
+  close $fh
   puts "%s"
 }
 proc create_clock args {}
 proc get_ports args { return {} }
 proc report_utilization args {}
 proc report_timing_summary args {}
-proc set_msg_config args { lappend ::ooc_msgcfg $args }
 source {%s}
 """
 
@@ -114,7 +164,20 @@ exec %(real)s "$@"
 """
 
 #: How many arms run. A deleted arm is a self-test that still prints a pass.
-ARMS = 18
+ARMS = 27
+
+_DERIVED = None
+
+
+def derived_sources():
+    """dp_srcs.py's own answer, cached: the record the recipe must consume."""
+    global _DERIVED
+    if _DERIVED is None:
+        out = subprocess.run(
+            [REAL_PYTHON, os.path.join(HERE, "dp_srcs.py")],
+            capture_output=True, text=True, check=True)
+        _DERIVED = sorted(l for l in out.stdout.splitlines() if l.strip())
+    return _DERIVED
 
 
 def _run(workdir, env=None, tcl=TCL):
@@ -126,7 +189,7 @@ def _run(workdir, env=None, tcl=TCL):
     fd, driver = tempfile.mkstemp(suffix=".tcl", prefix="ooc-driver-")
     try:
         with os.fdopen(fd, "w") as fh:
-            fh.write(STUBS % (SENTINEL, tcl))
+            fh.write(STUBS % (READ_LIST, SENTINEL, tcl))
         out = subprocess.run(["tclsh", driver], cwd=workdir, env=e,
                              capture_output=True, text=True)
     finally:
@@ -242,7 +305,7 @@ def selftest():
         env={"PATH": stub + os.pathsep + os.environ.get("PATH", "")})
     shutil.rmtree(stub, ignore_errors=True)
 
-    # ---- milan_datapath_ooc.tcl: generates, validates, publishes ---------
+    # ---- milan_datapath_ooc.tcl: derives, generates, validates -----------
 
     def dp_env(target, action):
         stub = _py_sabotage(target, action)
@@ -313,10 +376,12 @@ def selftest():
            "gen_ltn_rom.py",
            "echo 'planted ltn generator failure' >&2\n  exit 3")
 
-    # Arm 15. ANTI-VACUITY. From an EMPTY directory the real generators run,
-    # both images land in the run directory validated and non-empty, the run
-    # reaches synth_design with BOTH absolute ROM generics validated by the
-    # stub, and the exact Synth 8-4445 promotion is in force.
+    # Arm 15. ANTI-VACUITY, and the observation point for every synthesis
+    # safeguard: from an EMPTY directory the real generators run, both
+    # validated images land in the run directory, synth_design receives BOTH
+    # canonical absolute ROM generics (the stub has rechecked basename and
+    # geometry), the EFFECTIVE severity of Synth 8-4445 there is ERROR, and
+    # the read set the stubs recorded EQUALS what dp_srcs.py derives.
     def dp_positive(d, log):
         for img in ("ltn_rom.hex", "ucode.hex"):
             p = os.path.join(d, img)
@@ -325,41 +390,63 @@ def selftest():
         for name in ("PP_TROM_HEX_P", "PP_UCODE_HEX_P"):
             if ("OOC-GENERIC-OK: %s" % name) not in log:
                 return "synth_design did not receive a valid %s generic" % name
-        if PROMOTION not in log:
-            return "the Synth 8-4445 promotion is not in force at synth_design"
+        if EFFECTIVE_OK not in log:
+            return ("the EFFECTIVE severity of Synth 8-4445 at synth_design "
+                    "is not ERROR")
+        rl = os.path.join(d, READ_LIST)
+        if not os.path.isfile(rl):
+            return "the stubs recorded no read set"
+        got = sorted(l.strip() for l in open(rl) if l.strip())
+        if got != derived_sources():
+            return ("the read set (%d files) is not the dp_srcs.py record "
+                    "(%d files): the derived-source connection is broken"
+                    % (len(got), len(derived_sources())))
         return None
     arm("dp-empty-dir-generates-and-passes", None, True, tcl=DP_TCL,
         check=dp_positive)
 
-    # Arm 16. MUTATION: the promotion deleted from a copy of the recipe. The
-    # detector must distinguish, or arm 15's promotion assertion is vacuous.
+    # Arm 16. MUTATION: the promotion deleted. The detector must distinguish,
+    # or arm 15's effective-severity assertion is vacuous.
     mut = _mutant(r"set_msg_config -id \{Synth 8-4445\} -new_severity ERROR\n",
                   "", "promotion-deleted")
     try:
-        def promo_gone(d, log):
-            if PROMOTION in log:
-                return "the mutant still shows the promotion: the detector " \
-                       "cannot distinguish"
-            return None
-        arm("dp-mut-promotion-deleted", None, True, tcl=mut, check=promo_gone)
+        arm("dp-mut-promotion-deleted", None, True, tcl=mut,
+            check=lambda d, log: None if EFFECTIVE_OK not in log
+            else "the mutant still shows an ERROR effective severity")
     finally:
         os.unlink(mut)
 
-    # Arm 17. MUTATION: the ucode generic deleted from synth_design's call.
+    # Arm 17. MUTATION: the promotion followed by a DOWNGRADE of the same id
+    # ([R0]'s exact plant). Historical text still contains the ERROR
+    # spelling; only the effective-severity model can tell them apart.
+    mut = _mutant(r"(set_msg_config -id \{Synth 8-4445\} -new_severity ERROR\n)",
+                  "\\1set_msg_config -id {Synth 8-4445} -new_severity "
+                  "{CRITICAL WARNING}\n", "promotion-downgraded-after")
+    try:
+        def downgraded(d, log):
+            if EFFECTIVE_OK in log:
+                return "the downgrade-after-promotion mutant still reads as " \
+                       "an ERROR effective severity"
+            if "OOC-EFFECTIVE-SEV: {Synth 8-4445} = CRITICAL WARNING" not in log:
+                return "the effective-severity model did not record the " \
+                       "downgrade"
+            return None
+        arm("dp-mut-promotion-downgraded-after", None, True, tcl=mut,
+            check=downgraded)
+    finally:
+        os.unlink(mut)
+
+    # Arm 18. MUTATION: the ucode generic deleted from synth_design's call.
     mut = _mutant(r" -generic \$UCODE_GENERIC", "", "ucode-generic-deleted")
     try:
-        def generic_gone(d, log):
-            if "OOC-GENERIC-OK: PP_UCODE_HEX_P" in log:
-                return "the mutant still shows the ucode generic: the " \
-                       "detector cannot distinguish"
-            return None
         arm("dp-mut-ucode-generic-deleted", None, True, tcl=mut,
-            check=generic_gone)
+            check=lambda d, log: None
+            if "OOC-GENERIC-OK: PP_UCODE_HEX_P" not in log
+            else "the mutant still shows the ucode generic")
     finally:
         os.unlink(mut)
 
-    # Arm 18. MUTATION: the ucode generic redirected at a missing image
-    # ([R-parallel]'s exact plant). The synth_design stub itself refuses.
+    # Arm 19. MUTATION: the ucode generic redirected at a MISSING image.
     mut = _mutant(r'set UCODE_GENERIC "PP_UCODE_HEX_P=\\"\[file normalize '
                   r'ucode\.hex\]\\""',
                   'set UCODE_GENERIC "PP_UCODE_HEX_P=\\"[file normalize '
@@ -367,6 +454,137 @@ def selftest():
     try:
         arm("dp-mut-ucode-generic-redirected", "SYNTH-GENERIC-IMAGE-MISSING",
             False, tcl=mut)
+    finally:
+        os.unlink(mut)
+
+    # Arm 20. MUTATION: the ucode generic CROSS-WIRED at the OTHER image
+    # ([R0]'s exact plant). The file exists and opens, so Synth 8-4445 never
+    # fires; only the canonical-basename binding refuses it.
+    mut = _mutant(r'set UCODE_GENERIC "PP_UCODE_HEX_P=\\"\[file normalize '
+                  r'ucode\.hex\]\\""',
+                  'set UCODE_GENERIC "PP_UCODE_HEX_P=\\"[file normalize '
+                  'ltn_rom.hex]\\""', "ucode-cross-wired")
+    try:
+        arm("dp-mut-ucode-cross-wired", "SYNTH-GENERIC-WRONG-IMAGE", False,
+            tcl=mut)
+    finally:
+        os.unlink(mut)
+
+    # Arm 21. MUTATION: the transition-ROM generic cross-wired the other way.
+    mut = _mutant(r'set TROM_GENERIC  "PP_TROM_HEX_P=\\"\[file normalize '
+                  r'ltn_rom\.hex\]\\""',
+                  'set TROM_GENERIC  "PP_TROM_HEX_P=\\"[file normalize '
+                  'ucode.hex]\\""', "trom-cross-wired")
+    try:
+        arm("dp-mut-trom-cross-wired", "SYNTH-GENERIC-WRONG-IMAGE", False,
+            tcl=mut)
+    finally:
+        os.unlink(mut)
+
+    # ---- the geometry parser ([R0] round three, finding 2) ---------------
+
+    def pkg_mutant(pkg_text, label):
+        """The recipe with UCPU_PKG pointed at a synthetic package file."""
+        fd, pkg = tempfile.mkstemp(suffix=".sv", prefix=".ooc-pkg-")
+        with os.fdopen(fd, "w") as fh:
+            fh.write(pkg_text)
+        mut = _mutant(r"set UCPU_PKG \[one_source \$SRC_LINES ucpu_pkg\.sv\]",
+                      "set UCPU_PKG {%s}" % pkg, label)
+        return pkg, mut
+
+    # Arm 22. [R0]'s exact plant: a stale value in a line comment above a
+    # live declaration of 52. The LIVE value must win; with 52 the real
+    # 48-bit generator output no longer fits, and THAT refusal is the proof
+    # the comment did not win (had it won, the run would have passed).
+    pkg, mut = pkg_mutant(
+        "// stale example: UCODE_W_C = 48\n"
+        "localparam int unsigned UCODE_W_C = 52;\n"
+        "localparam int unsigned UPC_W_C = 11;\n", "pkg-comment-shadow")
+    try:
+        arm("dp-pkg-comment-shadow-live-wins", "not exactly 13 hex digits",
+            False, tcl=mut)
+    finally:
+        os.unlink(mut)
+        os.unlink(pkg)
+
+    # Arm 23. Block comments are stripped and prefixed identifiers do not
+    # match: a /* UCODE_W_C = 40; */ and an XUCODE_W_C = 99 beside the live
+    # 48/11 must leave the run WELL-FORMED (the real image fits 48).
+    pkg, mut = pkg_mutant(
+        "/* stale block:\n   localparam int unsigned UCODE_W_C = 40;\n*/\n"
+        "localparam int unsigned XUCODE_W_C = 99;\n"
+        "localparam int unsigned UCODE_W_C  = 48;\n"
+        "localparam int unsigned UPC_W_C    = 11;\n", "pkg-block-and-prefix")
+    try:
+        arm("dp-pkg-block-comment-and-prefix", None, True, tcl=mut)
+    finally:
+        os.unlink(mut)
+        os.unlink(pkg)
+
+    # Arm 24. TWO live declarations: a refusal, never a pick.
+    pkg, mut = pkg_mutant(
+        "localparam int unsigned UCODE_W_C = 48;\n"
+        "localparam int unsigned UCODE_W_C = 52;\n"
+        "localparam int unsigned UPC_W_C = 11;\n", "pkg-duplicate")
+    try:
+        arm("dp-pkg-duplicate", "expected exactly one live declaration",
+            False, tcl=mut)
+    finally:
+        os.unlink(mut)
+        os.unlink(pkg)
+
+    # Arm 25. ZERO live declarations (only a commented one): same refusal.
+    pkg, mut = pkg_mutant(
+        "// localparam int unsigned UCODE_W_C = 48;\n"
+        "localparam int unsigned UPC_W_C = 11;\n", "pkg-missing")
+    try:
+        arm("dp-pkg-missing", "expected exactly one live declaration", False,
+            tcl=mut)
+    finally:
+        os.unlink(mut)
+        os.unlink(pkg)
+
+    # ---- the derived-source connection ([R0] round three, finding 5) -----
+
+    # Arm 26. MUTATION: dp_srcs.py's record replaced by [R0]'s exact plant, a
+    # hand list of the two packages. Geometry still resolves and the run
+    # still reaches synthesis, which is exactly why the read-set-equality
+    # detector exists: it must distinguish, or arm 15 is vacuous. The plant's
+    # paths are COMPOSED here, not spelled: the contiguous submodule-source
+    # path exists only in the untracked mutant, which is the planted defect
+    # under test -- a tracked spelling would rightly trip
+    # scripts/pp_srcs.py --check, and that trip is itself part of what this
+    # plant is shown to hit on the real tree (PR #264 evidence).
+    pp_root = "$REPO/protocol-processor" + "/hdl"
+    mut = _mutant(
+        r"set SRC_LINES \[split \[string trim \[exec python3 "
+        r"\$REPO/syn/ooc/dp_srcs\.py\]\] \"\\n\"\]",
+        "set SRC_LINES [list %s/aecp/ucpu_pkg.sv %s/acmp/pp_acmp_pkg.sv]"
+        % (pp_root, pp_root),
+        "srcs-hand-list")
+    try:
+        def hand_list_detected(d, log):
+            rl = os.path.join(d, READ_LIST)
+            if not os.path.isfile(rl):
+                return "the stubs recorded no read set"
+            got = sorted(l.strip() for l in open(rl) if l.strip())
+            if got == derived_sources():
+                return "the hand-list mutant read set equals the record: " \
+                       "the detector cannot distinguish"
+            return None
+        arm("dp-mut-srcs-hand-list", None, True, tcl=mut,
+            check=hand_list_detected)
+    finally:
+        os.unlink(mut)
+
+    # Arm 27. MUTATION: the dp_srcs.py invocation DELETED. Nothing downstream
+    # may quietly supply a list: the recipe must die on its first consumer.
+    mut = _mutant(
+        r"set SRC_LINES \[split \[string trim \[exec python3 "
+        r"\$REPO/syn/ooc/dp_srcs\.py\]\] \"\\n\"\]\n",
+        "", "srcs-deleted")
+    try:
+        arm("dp-mut-srcs-deleted", "SRC_LINES", False, tcl=mut)
     finally:
         os.unlink(mut)
 
