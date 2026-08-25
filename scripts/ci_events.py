@@ -51,6 +51,33 @@ those runs are about the tree, not the setting, and a contributor's PR must
 not go red for a setting it cannot change. `--check` requires the step, its
 token and its fail-closed shape (no `continue-on-error`, no `|| true`).
 
+WHETHER IT RUNS AT ALL (#209). The four items above hold what the gate job
+DOES. None of them held the conditions under which it does it, and GitHub has
+a separate lever for each of those: a `needs` on the gate makes it a dependent,
+and a dependent of a skipped job is skipped; an `if`, a `shell` or a
+`continue-on-error` on any step BESIDE the pinned one neuters that step while
+every pinned character stays put; a step inserted, removed or reordered
+changes what the steps after it read (an entry appended to GITHUB_PATH puts
+another `gh` first) or runs the assertion before the checkout has brought the
+script it calls; and an `env` on the job or on the workflow reaches the
+step's `gh` without appearing anywhere in the step. So `--check` also holds
+the gate job's `needs`, its exact step sequence, every step's key set, and
+the absence of any `GH_*` above the step. Separately, the worker shard
+denominator is derived from the matrix that produces the shards
+(`${{ strategy.job-total }}`) rather than restated beside it.
+
+THE FAST VERDICT ([R2] on PR #239). rtl-fast.yml's aggregate accepts skipped
+consumers on purpose, so its one verdict step is the entire conversion of
+four job results into the required `rtl-fast` context, and it was outside
+the perimeter: an `if` on the step, a result binding rebound to `success`,
+or a `case` widened to accept `failure` each made a FAILED fast job a green
+required context. So the aggregate must need every other job of that
+workflow; every job an aggregate needs is the selector, a consumer, or
+itself held; the verdict step's keys, env bindings and script are derived
+from that `needs` list; each public check name is carried by exactly one
+job; and the reference audit covers every static `needs` chain, `.result`
+included, not only `.outputs.`.
+
     scripts/ci_events.py --check        # the live tree against the contract
     scripts/ci_events.py --selftest     # mutation arms over in-memory copies
     scripts/ci_events.py --require-target-sha --sha gate=<sha> \\
@@ -90,9 +117,15 @@ PR_TYPES = ("opened", "reopened", "synchronize", "ready_for_review",
 PUSH_BRANCH = "dev"
 #: The record every worker writes beside its evidence.
 RECORD = "TARGET_SHA"
-#: The gate job of the exhaustive workflow and the output it exports.
+#: The gate job of the exhaustive workflow and the outputs it exports. A job
+#: `outputs` map is a NAME -> EXPRESSION mapping exactly like a step's `env`,
+#: and these names are what the rest of this file derives its expressions and
+#: its consumer `if` conditions from, never a second literal.
 GATE_JOB = "full-ci-gate"
 GATE_OUTPUT = "target_sha"
+#: The published decision, and the scope answer behind it.
+RUN_FULL_OUTPUT = "run_full"
+RTL_OUTPUT = "rtl"
 #: How an aggregate invokes the verifier (the first token after the script).
 VERIFY_FLAG = "--require-target-sha"
 #: How the gate invokes the live default-branch assertion, and the events
@@ -143,16 +176,119 @@ EXPECT_RE = re.compile(r"--expect\s+(\S+)")
 #: canonical and the assertion dead. So the key set is pinned, the env key
 #: set is pinned, and the verifier step's one permitted `if` is pinned.
 ASSERT_STEP_KEYS = ("name", "env", "run")
-ASSERT_STEP_ENV = ("GH_TOKEN",)
 VERIFY_STEP_KEYS = ("name", "if", "env", "run")
 VERIFY_STEP_IF = "${{ always() }}"
-VERIFY_STEP_ENV = ("GATE_SHA",)
-#: Job keys that stop a job, or its steps, from running as written. The
-#: gate job carries none of them; an aggregate job carries its documented
-#: fail-closed `if` and nothing else from this list; the workflow carries no top-level
+#: Every pinned step's `env`, as the BINDING each name must carry, never the
+#: name alone ([R0] on PR #239). Holding the names while leaving the
+#: expressions free held nothing where it mattered: `PR_DRAFT: "true"` is
+#: valid workflow YAML, keeps all three pinned names and all four pinned
+#: keys, and makes a ready RTL pull request publish `run_full=false`. Both
+#: worker matrices then skip, both aggregates skip under their documented
+#: no-op exception, and a skipped required context satisfies the ruleset, so
+#: the run is a false green rather than a refusal. `PR_BASE_SHA:
+#: ${{ github.sha }}` (a diff of a commit against itself, so `rtl=false`) and
+#: `EVENT_NAME: pull_request` (a push, schedule or dispatch run taking the
+#: pull-request branch) reach the same place by the same route. So the
+#: mapping is the contract and pinned_step_keys compares the value: there is
+#: no longer any way to pin an env name in this file without saying what it
+#: must be bound to. GATE_SHA is derived from the job and the output it
+#: reads, never restated.
+ASSERT_STEP_ENV = {"GH_TOKEN": "${{ github.token }}"}
+VERIFY_STEP_ENV = {
+    "GATE_SHA": f"${{{{ needs.{GATE_JOB}.outputs.{GATE_OUTPUT} }}}}",
+}
+#: Job keys that decide whether a job runs at all, or runs as written, each
+#: with the reason a refusal names. Before #209 this gate held what the gate
+#: job DOES and nothing about the conditions under which it does it, so
+#: `needs` is here now: a gate that needs another job is a dependent, and a
+#: dependent of a skipped job is skipped, taking every assertion inside it.
+#: The gate job carries none of these keys. An aggregate job legitimately
+#: needs the gate to read its output and carries its documented fail-closed
+#: `if`, and nothing else from this list. The workflow carries no top-level
 #: `defaults` (a `defaults.run.shell: bash -n {0}` parses every script and
 #: executes none).
-JOB_NEUTER_KEYS = ("if", "continue-on-error", "defaults")
+JOB_NEUTER_KEYS = {
+    "needs": ("it makes the job a dependent, and a dependent of a skipped "
+              "job is skipped, taking every assertion in it"),
+    "if": "it decides whether the job runs at all",
+    "continue-on-error": "it turns the job's failure into a pass",
+    "defaults": "it decides by which interpreter every script in the job runs",
+}
+#: The gate job's steps carry these keys and no others. Pinning the assert
+#: step's keys while its siblings were unpinned held the wrong perimeter
+#: (#209): `if: false` on the pin step or on the decision step leaves the
+#: assert step's script canonical and its output empty.
+CHECKOUT_ACTION = "actions/checkout"
+CHECKOUT_STEP_KEYS = ("uses", "with")
+CHECKOUT_STEP_OPTIONAL = ("name",)
+CHECKOUT_FETCH_DEPTH = 0
+PIN_STEP_ID = "target"
+PIN_STEP_KEYS = ("name", "id", "run")
+DECIDE_STEP_ID = "gate"
+DECIDE_STEP_KEYS = ("name", "id", "env", "run")
+DECIDE_STEP_ENV = {
+    "EVENT_NAME": "${{ github.event_name }}",
+    "PR_DRAFT": "${{ github.event.pull_request.draft }}",
+    "PR_BASE_SHA": "${{ github.event.pull_request.base.sha }}",
+}
+#: The decision step's script, pinned verbatim after whitespace
+#: normalization, exactly as the default-branch step's is. The bindings above
+#: hold what this step READS; this holds what it DOES with what it read.
+#: `run_full=true` rewritten to `run_full=false`, or the selector's
+#: `--selftest` replaced by `true`, changes no pinned name and no pinned key,
+#: and each publishes the no-op decision (or drops the selector's own proof)
+#: with every other contract item green -- both measured on a copy of the
+#: tree while answering [R0] on PR #239. The lines are the NORMALIZED form
+#: (continuations joined, runs of blanks collapsed), so a re-indentation or a
+#: differently wrapped continuation is the same script and still passes.
+CANONICAL_DECIDE_SCRIPT = (
+    "set -euo pipefail",
+    "python3 scripts/ci_scope.py --selftest",
+    'if [ "$EVENT_NAME" != pull_request ]; then',
+    'echo "rtl=true" >> "$GITHUB_OUTPUT"',
+    'echo "run_full=true" >> "$GITHUB_OUTPUT"',
+    'echo "Non-PR event: exhaustive validation required."',
+    "exit 0",
+    "fi",
+    'if [ -n "$PR_BASE_SHA" ] && git cat-file -e "$PR_BASE_SHA^{commit}" '
+    "2>/dev/null; then",
+    'git diff --name-only "$PR_BASE_SHA" "$GITHUB_SHA" > '
+    '"$RUNNER_TEMP/changed-files"',
+    "else",
+    'git ls-files > "$RUNNER_TEMP/changed-files"',
+    "fi",
+    'echo "Changed files:"',
+    "sed 's/^/ /' \"$RUNNER_TEMP/changed-files\"",
+    'rtl="$(python3 scripts/ci_scope.py < "$RUNNER_TEMP/changed-files")"',
+    "run_full=false",
+    'if [ "$PR_DRAFT" = false ] && [ "$rtl" = true ]; then',
+    "run_full=true",
+    "fi",
+    'echo "rtl=$rtl" >> "$GITHUB_OUTPUT"',
+    'echo "run_full=$run_full" >> "$GITHUB_OUTPUT"',
+    'echo "draft=$PR_DRAFT rtl=$rtl run_full=$run_full"',
+)
+#: The selector's own proof, and the line that consumes the selector's
+#: answer: the proof runs once, and before the answer is read.
+SELECTOR_SELFTEST = "python3 scripts/ci_scope.py --selftest"
+SELECTOR_READ = "python3 scripts/ci_scope.py <"
+#: `gh` reads its host, its token and its config directory from the process
+#: environment. The assert step's own env is pinned to exactly GH_TOKEN, but
+#: an `env` on the JOB or on the WORKFLOW reaches that `gh` without appearing
+#: anywhere in the step (#209, O11/O12), so neither level names a `GH_*`.
+GH_ENV_PREFIX = "GH_"
+#: The shard denominator a worker passes, and states in its display name. It
+#: is DERIVED from the matrix that defines it, or equal to that matrix's size:
+#: a third statement of the same number does not move when the matrix does,
+#: and the shards past it are never produced while every static count still
+#: agrees (#209, O9). `--expect` is already derived checker-side; this is the
+#: same rule on the worker side of the same number.
+DERIVED_SHARD_TOTAL = "${{ strategy.job-total }}"
+_EXPR = r"\$\{\{[^{}]*\}\}"   # one `${{ ... }}`, kept whole while scanning
+SHARD_ARG_RE = re.compile(r'--shard\s+"?((?:' + _EXPR + r'|[^\s"])+)"?')
+NAME_SHARD_RE = re.compile(r"\$\{\{\s*matrix\.shard\s*\}\}/((?:"
+                           + _EXPR + r'|[^\s"])+)')
+SHELL_VAR_RE = re.compile(r"^\$\{?([A-Za-z_][A-Za-z0-9_]*)\}?$")
 #: A skipped required context satisfies a GitHub ruleset. Therefore an
 #: aggregate may skip only the gate's explicit successful no-op decision. A
 #: failed/cancelled gate or an absent/malformed output makes the aggregate run;
@@ -160,7 +296,7 @@ JOB_NEUTER_KEYS = ("if", "continue-on-error", "defaults")
 AGGREGATE_JOB_IF = (
     "${{ always() && "
     f"(needs.{GATE_JOB}.result != 'success' || "
-    f"needs.{GATE_JOB}.outputs.run_full != 'false') }}}}"
+    f"needs.{GATE_JOB}.outputs.{RUN_FULL_OUTPUT} != 'false') }}}}"
 )
 RUNNER_TEMP_PREFIX = "${{ runner.temp }}/"
 #: Public check names the merge bar reads (AGENTS.md section 7), per file.
@@ -169,6 +305,155 @@ PUBLIC_NAMES = {
     RTL_FAST: ("rtl-fast",),
     ELABORATE: ("elaborate",),
 }
+#: The fast workflow's selector job and the step that computes its answer.
+FAST_SELECTOR_JOB = "changes"
+FAST_SCOPE_STEP_ID = "scope"
+#: The fast selector is a second run/no-run decision, not merely a producer
+#: of metadata.  Its exact inputs and body are held for the same reason as
+#: the exhaustive selector: an empty or forced-false answer skips both RTL
+#: consumers, and the aggregate deliberately accepts those skips.
+FAST_CHECKOUT_USES = f"{CHECKOUT_ACTION}@v4"
+FAST_CHECKOUT_WITH = {"fetch-depth": "0"}
+FAST_SCOPE_STEP_KEYS = ("name", "id", "env", "run")
+FAST_SCOPE_STEP_ENV = {
+    "EVENT_NAME": "${{ github.event_name }}",
+    "PR_BASE_SHA": "${{ github.event.pull_request.base.sha }}",
+    "PUSH_BEFORE_SHA": "${{ github.event.before }}",
+}
+CANONICAL_FAST_SCOPE_SCRIPT = (
+    "set -euo pipefail",
+    "python3 scripts/ci_scope.py --selftest",
+    'base=""',
+    'if [ "$EVENT_NAME" = pull_request ]; then',
+    'base="$PR_BASE_SHA"',
+    "else",
+    'base="$PUSH_BEFORE_SHA"',
+    "fi",
+    'if [ -n "$base" ] && [ "$base" != '
+    '0000000000000000000000000000000000000000 ] && '
+    'git cat-file -e "$base^{commit}" 2>/dev/null; then',
+    'git diff --name-only "$base" "$GITHUB_SHA" > '
+    '"$RUNNER_TEMP/changed-files"',
+    "else",
+    "# An unknown base must never turn a real change into docs-only.",
+    'git ls-files > "$RUNNER_TEMP/changed-files"',
+    "fi",
+    'echo "Changed files:"',
+    'sed \'s/^/ /\' "$RUNNER_TEMP/changed-files"',
+    'rtl="$(python3 scripts/ci_scope.py < "$RUNNER_TEMP/changed-files")"',
+    'echo "rtl=$rtl" >> "$GITHUB_OUTPUT"',
+    'echo "RTL/tooling relevant: $rtl"',
+)
+#: The fast workflow's aggregate `if`. It counts a skipped consumer as a pass
+#: deliberately (a docs-only change legitimately runs no RTL lint), which is
+#: exactly why that workflow's published answer has to be pinned by content
+#: too: rebind it and every consumer skips into that pass.
+FAST_AGGREGATE_JOB_IF = "${{ always() && !cancelled() }}"
+#: The fast aggregate's one verdict step. That step is the entire conversion
+#: of four job results into the required `rtl-fast` context ([R2] on PR
+#: #239): the job itself runs under `always() && !cancelled()`, so an `if` on
+#: the step, a rebound result binding, or a `case` widened to accept
+#: `failure` each leaves every job key canonical while a FAILED consumer
+#: still yields a green required context. So the step's keys are pinned, its
+#: env is derived from the aggregate's `needs` (one `<JOB>_RESULT` name per
+#: needed job, bound to `${{ needs.<job>.result }}`), and its script is the
+#: canonical form derived from the same list.
+FAST_VERDICT_STEP_KEYS = ("name", "env", "run")
+
+
+def step_output_ref(step_id, name):
+    """`${{ steps.<id>.outputs.<name> }}`, built rather than restated."""
+    return "${{ steps." + step_id + ".outputs." + name + " }}"
+
+
+def needs_output_ref(job_id, name):
+    """`needs.<job>.outputs.<name>`, built rather than restated."""
+    return "needs." + job_id + ".outputs." + name
+
+
+def needs_result_ref(job_id):
+    """`${{ needs.<job>.result }}`, built rather than restated."""
+    return "${{ needs." + job_id + ".result }}"
+
+
+def fast_result_env_name(job_id):
+    """The env name the fast verdict step reads one needed job's result
+    through, derived from the job id, never a second list:
+    `verilator-lint` -> `VERILATOR_LINT_RESULT`."""
+    return job_id.upper().replace("-", "_") + "_RESULT"
+
+
+def canonical_fast_verdict_script(needed):
+    """The fast verdict step's script, derived from the aggregate's `needs`:
+    one `job:$JOB_RESULT` pair per needed job, in `needs` order, and a `case`
+    that accepts exactly `success` and `skipped`."""
+    pairs = " ".join('"%s:$%s"' % (j, fast_result_env_name(j))
+                     for j in needed)
+    return (
+        "set -euo pipefail",
+        "bad=0",
+        f"for pair in {pairs}; do",
+        'name="${pair%%:*}"',
+        'result="${pair#*:}"',
+        "printf '%-24s %s\\n' \"$name\" \"$result\"",
+        'case "$result" in',
+        "success|skipped) ;;",
+        "*) bad=1 ;;",
+        "esac",
+        "done",
+        '[ "$bad" -eq 0 ]',
+    )
+
+
+def consumer_job_if(job_id, name):
+    """The exact `if` a job gated on a selector's published decision carries."""
+    return "${{ " + needs_output_ref(job_id, name) + " == 'true' }}"
+
+
+#: THE PUBLICATION PATH, per workflow: the job that publishes the decision,
+#: its `outputs` map as NAME -> BINDING, and the output its consumers gate on.
+#:
+#: Three rounds of [R0] on PR #239 each found one more member of a perimeter
+#: nobody had enumerated: the gate's sibling steps, then those steps' env
+#: BINDINGS, then this map. Each round pinned the instance and left the
+#: perimeter an allow-list written from the last review, so the next unlisted
+#: thing was outside it again. A job's `outputs` is the same
+#: NAME -> EXPRESSION mapping a step's `env` is, and checking only that
+#: `target_sha` existed let `run_full: ${{ 'false' }}` -- valid job-output
+#: YAML, every pinned step key, env binding and script character intact --
+#: publish the no-op decision: both worker matrices skip, both aggregates
+#: skip under their documented no-op exception, and a skipped required
+#: context satisfies a GitHub ruleset. The same hole is open a second time in
+#: rtl-fast.yml, whose `changes` job gates the two RTL fast checks the same
+#: way. So the maps are pinned by content here and check_publication_path
+#: closes the path around them: every consumer of a selector carries a pinned
+#: `if`, and no `needs.<job>.outputs.<name>` expression anywhere may name an
+#: output no job publishes or a job it does not need.
+SELECTOR_JOB = {RTL_FULL: GATE_JOB, RTL_FAST: FAST_SELECTOR_JOB}
+SELECTOR_OUTPUTS = {
+    RTL_FULL: {
+        RUN_FULL_OUTPUT: step_output_ref(DECIDE_STEP_ID, RUN_FULL_OUTPUT),
+        RTL_OUTPUT: step_output_ref(DECIDE_STEP_ID, RTL_OUTPUT),
+        GATE_OUTPUT: step_output_ref(PIN_STEP_ID, GATE_OUTPUT),
+    },
+    RTL_FAST: {
+        RTL_OUTPUT: step_output_ref(FAST_SCOPE_STEP_ID, RTL_OUTPUT),
+    },
+}
+#: The output whose value decides whether the consumers run at all.
+SELECTOR_DECISION = {RTL_FULL: RUN_FULL_OUTPUT, RTL_FAST: RTL_OUTPUT}
+#: The `if` each workflow's own aggregate carries. WHICH job that is is
+#: derived, not listed again: the aggregate is the job whose display name is
+#: the public required check the merge bar reads (PUBLIC_NAMES above).
+AGGREGATE_IF = {RTL_FULL: AGGREGATE_JOB_IF, RTL_FAST: FAST_AGGREGATE_JOB_IF}
+#: A `needs` context reference can use property syntax, index syntax, or mix
+#: them: `needs.changes.outputs.rtl`, `needs['changes'].outputs.rtl`, and
+#: `needs['changes']['outputs']['rtl']` are the same reference to GitHub.  A
+#: regex for only the first spelling made the second invisible to the gate.
+#: The small access-chain parser below resolves every static spelling and
+#: refuses dynamic brackets, whose producer/output cannot be audited here.
+NEEDS_WORD_RE = re.compile(r"\bneeds\b")
+CONTEXT_NAME_RE = re.compile(r"[A-Za-z0-9_-]+")
 
 SHA_RE = re.compile(r"^[0-9a-f]{40}$")
 CRON_RE = re.compile(r"^\s*(\d{1,2})\s+(\d{1,2})\s+\*\s+\*\s+\*\s*$")
@@ -265,6 +550,57 @@ def uses(step, action):
     return isinstance(u, str) and (u == action or u.startswith(action + "@"))
 
 
+def step_label(step):
+    """What a finding calls a step: its name, its `uses`, or its `id`."""
+    if not isinstance(step, dict):
+        return "no step at this position"
+    for key in ("name", "uses", "id"):
+        value = step.get(key)
+        if isinstance(value, str) and value.strip():
+            return f"`{value.strip()}`"
+    return "an unnamed step"
+
+
+def _is_checkout_step(step):
+    return uses(step, CHECKOUT_ACTION)
+
+
+def _is_pin_step(step):
+    return step.get("id") == PIN_STEP_ID
+
+
+def _is_assert_step(step):
+    return DEFAULT_BRANCH_FLAG in step_text(step)
+
+
+def _is_decide_step(step):
+    return step.get("id") == DECIDE_STEP_ID
+
+
+#: (label, recognizer, what it must be, keys, env keys, optional keys) for
+#: every step of the gate job, in the order they must appear. The SEQUENCE is
+#: the point: the assertion runs the `ci_events.py` the checkout brought and
+#: the decision diffs the tree that checkout produced, so a step moved before
+#: the checkout runs without the file it needs, a step inserted anywhere runs
+#: before everything after it and can change what they read, and a step
+#: removed takes its assertion with it. None of those three touches a single
+#: character of the pinned script text.
+GATE_STEPS = (
+    ("the gate checkout step", _is_checkout_step,
+     f"`uses: {CHECKOUT_ACTION}` with `fetch-depth: {CHECKOUT_FETCH_DEPTH}`",
+     CHECKOUT_STEP_KEYS, {}, CHECKOUT_STEP_OPTIONAL),
+    ("the pin step", _is_pin_step,
+     f"the step with `id: {PIN_STEP_ID}` that prints the event and exports "
+     f"`{GATE_OUTPUT}`", PIN_STEP_KEYS, {}, ()),
+    ("the default-branch step", _is_assert_step,
+     f"the step that runs `ci_events.py {DEFAULT_BRANCH_FLAG}`",
+     ASSERT_STEP_KEYS, ASSERT_STEP_ENV, ()),
+    ("the decision step", _is_decide_step,
+     f"the step with `id: {DECIDE_STEP_ID}` that publishes `run_full`",
+     DECIDE_STEP_KEYS, DECIDE_STEP_ENV, ()),
+)
+
+
 def cron_time(cron):
     """`M H * * *` -> `HH:MM UTC`, or None for any other shape."""
     m = CRON_RE.match(cron) if isinstance(cron, str) else None
@@ -322,11 +658,21 @@ def check_cancel_in_progress(c, path, wf):
 
 
 def check_public_names(c, path, wf):
-    names = {display_name(jid, j) for jid, j in jobs(wf).items()}
+    """Each public check-run name the merge bar reads is carried by exactly
+    one job. Existence alone held nothing ([R2] on PR #239): a second job
+    renamed to the aggregate's display name publishes a second check run
+    under the required name, and which of the two the ruleset binds is
+    ambiguous."""
+    all_jobs = jobs(wf)
     for want in PUBLIC_NAMES.get(path, ()):
-        c.item(want in names, path,
-               f"public check name `{want}` must exist as a job (found "
-               f"{sorted(names)})")
+        carriers = [jid for jid, j in all_jobs.items()
+                    if display_name(jid, j) == want]
+        c.item(len(carriers) == 1, path,
+               f"public check name `{want}` must be carried by exactly one "
+               f"job (carried by {carriers or 'none'}, jobs are "
+               f"{sorted(all_jobs)}): the merge bar reads this name, and two "
+               "jobs publishing it make which run the ruleset binds "
+               "ambiguous")
 
 
 def check_rtl_full(c, wf, policy):
@@ -377,15 +723,16 @@ def check_rtl_full(c, wf, policy):
     gate = jobs(wf).get(GATE_JOB)
     c.item(isinstance(gate, dict), path, f"job `{GATE_JOB}` must exist")
     if isinstance(gate, dict):
-        outputs = gate.get("outputs")
-        c.item(isinstance(outputs, dict) and GATE_OUTPUT in outputs, path,
-               f"job `{GATE_JOB}` must export the `{GATE_OUTPUT}` output")
         prints = any("GITHUB_EVENT_NAME" in step_text(s)
                      and "GITHUB_SHA" in step_text(s) for s in steps(gate))
         c.item(prints, path, f"job `{GATE_JOB}` must print the event name and "
                "GITHUB_SHA in one step")
         check_default_branch_step(c, path, gate)
+        check_decide_step(c, path, gate)
+        check_gate_steps(c, path, gate)
         check_job_keys(c, path, GATE_JOB, gate)
+        check_no_gh_env(c, path, f"job `{GATE_JOB}`", gate.get("env"))
+    check_no_gh_env(c, path, "the workflow's top-level", wf.get("env"))
     c.item("defaults" not in wf, path, "the workflow must carry no top-level "
            f"`defaults` (found {wf.get('defaults')!r}): a `defaults.run.shell`"
            " changes how every script runs")
@@ -416,14 +763,243 @@ def check_rtl_full(c, wf, policy):
             if vsteps:
                 check_sha_sources(c, path, jid, vsteps[0])
                 check_verify_step(c, path, wf, jid, job, vsteps[0])
-            check_job_keys(c, path, jid, job, allowed_if=AGGREGATE_JOB_IF)
+
+    # A sharded worker states its shard count once, in the matrix.
+    for jid, job in jobs(wf).items():
+        check_shard_denominator(c, path, jid, job)
+
+    # The decision's publication path: the outputs map that carries it and
+    # every job that runs on it. check_job_keys for the aggregates lives
+    # there now, beside the same call for the workers.
+    check_publication_path(c, path, wf)
 
 
-def check_job_keys(c, path, jid, job, allowed_if=None):
-    """A job that must run as written carries no `if` (or exactly the one
-    documented), no `continue-on-error`, no `defaults`; each refusal names
-    the key."""
-    for key in JOB_NEUTER_KEYS:
+def all_scalars(node):
+    """Every scalar in a parsed YAML subtree, as text. An expression can sit
+    in an `if`, a display `name`, a `run`, an `env` value or a `with` value,
+    so the walk is over the subtree rather than over a list of the places
+    somebody remembered to look in."""
+    if isinstance(node, dict):
+        for k, v in node.items():
+            yield from all_scalars(k)
+            yield from all_scalars(v)
+    elif isinstance(node, list):
+        for v in node:
+            yield from all_scalars(v)
+    elif node is not None:
+        yield str(node)
+
+
+def needs_list(job):
+    """A job's `needs`, as a list whether it was written as one or not."""
+    n = job.get("needs") if isinstance(job, dict) else None
+    if isinstance(n, list):
+        return [str(x) for x in n]
+    return [] if n is None else [str(n)]
+
+
+def context_bracket_end(text, start):
+    """Index of the `]` matching `text[start]`, or None.
+
+    GitHub expression strings use single quotes and escape one quote as two.
+    Accounting for them here keeps a `]` inside a dynamic expression's string
+    from ending the access early; nested brackets are handled as well.
+    """
+    depth = 0
+    quoted = False
+    i = start
+    while i < len(text):
+        ch = text[i]
+        if quoted:
+            if ch == "'":
+                if i + 1 < len(text) and text[i + 1] == "'":
+                    i += 2
+                    continue
+                quoted = False
+        elif ch == "'":
+            quoted = True
+        elif ch == "[":
+            depth += 1
+        elif ch == "]":
+            depth -= 1
+            if depth == 0:
+                return i
+        i += 1
+    return None
+
+
+def context_access_chain(text, start):
+    """Parse static `.name` / `['name']` accesses after a context word.
+
+    Returns `(parts, dynamic, end)`. A None part is a dynamic bracket. The
+    caller refuses it because no static workflow audit can prove which job or
+    output it names.
+    """
+    parts = []
+    dynamic = False
+    pos = start
+    while True:
+        while pos < len(text) and text[pos].isspace():
+            pos += 1
+        if pos < len(text) and text[pos] == ".":
+            pos += 1
+            while pos < len(text) and text[pos].isspace():
+                pos += 1
+            match = CONTEXT_NAME_RE.match(text, pos)
+            if match is None:
+                dynamic = True
+                break
+            parts.append(match.group(0))
+            pos = match.end()
+            continue
+        if pos < len(text) and text[pos] == "[":
+            end = context_bracket_end(text, pos)
+            if end is None:
+                dynamic = True
+                pos = len(text)
+                break
+            inside = text[pos + 1:end].strip()
+            match = re.fullmatch(r"'([A-Za-z0-9_-]+)'", inside)
+            parts.append(match.group(1) if match else None)
+            dynamic = dynamic or match is None
+            pos = end + 1
+            continue
+        break
+    return parts, dynamic, pos
+
+
+def needs_context_references(text):
+    """Static `needs` context chains in one scalar: `(producer, output)`
+    refs, every producer any static chain names, and unresolved chains.
+
+    The producer set covers every second component, `.result` included, not
+    only `.outputs.` ([R2] on PR #239): a `needs.<job>.result` read from a
+    job outside `needs` is the same empty string the `.outputs.` audit
+    exists for, so stopping at `.outputs.` left `.result` a silent skip. A
+    bare `needs` with no chain (as in `toJSON(needs)`) names no producer and
+    is not audited here."""
+    refs = set()
+    producers = set()
+    unresolved = set()
+    for match in NEEDS_WORD_RE.finditer(text or ""):
+        parts, dynamic, end = context_access_chain(text, match.end())
+        if dynamic:
+            shown = text[match.start():end].strip() or "needs[...]"
+            unresolved.add(shown)
+            continue
+        if not parts:
+            continue
+        producers.add(parts[0])
+        if len(parts) >= 2 and parts[1] == "outputs":
+            if len(parts) < 3:
+                unresolved.add(text[match.start():end].strip())
+            else:
+                refs.add((parts[0], parts[2]))
+    return refs, producers, unresolved
+
+
+def check_publication_path(c, path, wf):
+    """The whole path a selector's decision travels: the step that computes
+    it, the job `outputs` map that publishes it, and the jobs that run on it.
+
+    The perimeter here is CLOSED rather than listed. The selector's `outputs`
+    map is pinned by content, exactly as a pinned step's `env` is; every job
+    that needs the selector is then classified with no residue -- the
+    workflow's aggregate is the job carrying the public required check name,
+    every other such job is a consumer gated on the decision -- and each
+    class carries a pinned `if`. A job added tomorrow that depends on the
+    selector lands in the consumer class and reddens until it carries that
+    `if`, instead of arriving outside every contract the way both worker
+    matrices and both fast-lane consumers did (#209, [R0] rounds 1-3).
+    Closure runs in both directions ([R2] on PR #239): every job an
+    aggregate needs is also classified, so a contributor wired straight into
+    the aggregate without needing the selector is held to run as written
+    rather than landing in no class."""
+    sel = SELECTOR_JOB[path]
+    want = SELECTOR_OUTPUTS[path]
+    decision = SELECTOR_DECISION[path]
+    all_jobs = jobs(wf)
+    selector = all_jobs.get(sel)
+    c.item(isinstance(selector, dict), path, f"job `{sel}` must exist: it "
+           "publishes the decision the rest of this workflow runs on")
+    outputs = selector.get("outputs") if isinstance(selector, dict) else None
+    pinned_bindings(c, path, f"job `{sel}` outputs",
+                    outputs if isinstance(outputs, dict) else {}, want,
+                    "a job output is what `needs.<job>.outputs.<name>` reads, "
+                    "so the decision step may write the right value and the "
+                    "job still export another one; every consumer then skips, "
+                    "and a skipped required context satisfies the ruleset")
+
+    public = set(PUBLIC_NAMES.get(path, ()))
+    for jid, job in all_jobs.items():
+        if jid == sel or sel not in needs_list(job):
+            continue
+        aggregate = display_name(jid, job) in public
+        check_job_keys(c, path, jid, job, allow_needs=True,
+                       allowed_if=(AGGREGATE_IF[path] if aggregate
+                                   else consumer_job_if(sel, decision)))
+
+    # [R2] on PR #239: a job wired straight into an aggregate's `needs`
+    # without itself needing the selector, as `bdd-conformance` is, landed in
+    # no class above, so an `if: false` on it disabled the specification
+    # suite with every hosted context green and the aggregate accepting the
+    # skip. So every job an aggregate needs is classified: the selector, a
+    # consumer (classified above), or itself held to run as written.
+    for jid, job in all_jobs.items():
+        if display_name(jid, job) not in public:
+            continue
+        for member in sorted(set(needs_list(job))):
+            mjob = all_jobs.get(member)
+            if not isinstance(mjob, dict):
+                c.item(False, path, f"job `{jid}` needs `{member}`, which "
+                       "must exist as a job in this workflow")
+                continue
+            if member == sel or sel in needs_list(mjob):
+                continue
+            check_job_keys(c, path, member, mjob)
+
+    for jid, job in all_jobs.items():
+        refs = set()
+        producers = set()
+        unresolved = set()
+        for scalar in all_scalars(job):
+            found, named, unknown = needs_context_references(scalar)
+            refs.update(found)
+            producers.update(named)
+            unresolved.update(unknown)
+        for expression in sorted(unresolved):
+            c.item(False, path, f"job `{jid}` uses `{expression}`, a dynamic "
+                   "or incomplete `needs` context the gate cannot resolve "
+                   "statically: use a dotted or single-quoted static job and "
+                   "output name so publication and dependency can be proved")
+        for producer, name in sorted(refs):
+            pj = all_jobs.get(producer)
+            declared = pj.get("outputs") if isinstance(pj, dict) else None
+            declared = declared if isinstance(declared, dict) else {}
+            c.item(name in declared, path,
+                   f"job `{jid}` reads `{needs_output_ref(producer, name)}`, "
+                   f"which job `{producer}` must publish (publishes "
+                   f"{sorted(declared)}): an expression naming an output no "
+                   "job declares is the empty string, so every comparison "
+                   "against it is false and every job gated on it skips")
+        for producer in sorted(producers):
+            c.item(producer in needs_list(job), path,
+                   f"job `{jid}` reads the `needs.{producer}` context and "
+                   f"must list `{producer}` in its `needs` (found "
+                   f"{needs_list(job)}): outside `needs` the expression is "
+                   "the empty string, so a `.result` or `.outputs` guard "
+                   "built on it is quietly false and the step or job it "
+                   "guards skips")
+
+
+def check_job_keys(c, path, jid, job, allowed_if=None, allow_needs=False):
+    """A job that must run as written carries none of the keys that decide
+    whether it runs at all: no `needs`, no `if` (or exactly the one
+    documented), no `continue-on-error`, no `defaults`. Each refusal names
+    the key and what that key does."""
+    for key, reason in JOB_NEUTER_KEYS.items():
+        if key == "needs" and allow_needs:
+            continue
         if key not in job:
             continue
         if key == "if" and allowed_if is not None:
@@ -432,18 +1008,21 @@ def check_job_keys(c, path, jid, job, allowed_if=None):
                    f"`{allowed_if}` (found `{got}`)")
             continue
         c.item(False, path, f"job `{jid}` must carry no `{key}` "
-               f"(found {job.get(key)!r}): it decides whether the job runs "
-               "as written")
+               f"(found {job.get(key)!r}): {reason}")
     if allowed_if is not None:
         c.item("if" in job, path, f"job `{jid}` must carry its documented "
                f"`if` `{allowed_if}`")
 
 
-def pinned_step_keys(c, path, what, step, keys, env_keys):
-    """A pinned step carries exactly `keys`, its env exactly `env_keys`;
-    every surplus or missing key is named."""
+def pinned_step_keys(c, path, what, step, keys, env_keys, optional=()):
+    """A pinned step carries exactly `keys` (plus anything in `optional`),
+    and its env is exactly `env_keys`, a NAME -> EXPRESSION mapping: the
+    names it carries and, for each, the source it is bound to. Every surplus
+    key, missing key and rebound value is named. Holding the names alone let
+    `PR_DRAFT: "true"` pass every item in this file ([R0] on PR #239), so the
+    binding is checked here, once, for every pinned step there is."""
     have = [k for k in step.keys() if isinstance(k, str)]
-    extra = sorted(set(have) - set(keys))
+    extra = sorted(set(have) - set(keys) - set(optional))
     missing = [k for k in keys if k not in have]
     for key in ("if", "shell", "continue-on-error"):
         if key in extra:
@@ -455,14 +1034,182 @@ def pinned_step_keys(c, path, what, step, keys, env_keys):
                                    else "")
            + (f"; missing: {', '.join(missing)}" if missing else ""))
     env = step.get("env") if isinstance(step.get("env"), dict) else {}
-    env_have = sorted(str(k) for k in env.keys())
-    env_extra = sorted(set(env_have) - set(env_keys))
-    env_missing = [k for k in env_keys if k not in env_have]
-    c.item(not env_extra and not env_missing, path, f"{what} env must be "
-           f"exactly {', '.join(env_keys)}"
-           + (f"; surplus: {', '.join(env_extra)} (a GH_HOST or GH_CONFIG_DIR"
-              " redirects gh away from this repository)" if env_extra else "")
-           + (f"; missing: {', '.join(env_missing)}" if env_missing else ""))
+    pinned_bindings(c, path, f"{what} env", env, env_keys,
+                    "the name is not the contract, the source expression "
+                    "behind it is, and a rebound value leaves every pinned "
+                    "name and key in place while changing what the script "
+                    "reads",
+                    surplus_note=" (a GH_HOST or GH_CONFIG_DIR redirects gh "
+                                 "away from this repository)")
+
+
+def pinned_bindings(c, path, what, mapping, want, reason, surplus_note=""):
+    """A NAME -> EXPRESSION mapping held by CONTENT: exactly these names, and
+    for each the exact source expression it is bound to. A step's `env` and a
+    job's `outputs` are the same object, and holding either by its key set
+    alone holds nothing: both escapes that reached [R0] on PR #239 kept every
+    pinned name in place and changed only what the name was bound to. So
+    there is one comparison, used by both."""
+    have = sorted(str(k) for k in mapping.keys())
+    extra = sorted(set(have) - set(want))
+    missing = [k for k in want if k not in have]
+    c.item(not extra and not missing, path, f"{what} must be exactly "
+           f"{', '.join(want) or 'empty'}"
+           + (f"; surplus: {', '.join(extra)}{surplus_note}" if extra else "")
+           + (f"; missing: {', '.join(missing)}" if missing else ""))
+    for name, expr in want.items():
+        if name not in mapping:
+            continue
+        got = str(mapping.get(name)).strip()
+        c.item(got == expr, path, f"{what} must bind `{name}` to `{expr}` "
+               f"(found `{got}`): {reason}")
+
+
+def check_gate_steps(c, path, gate):
+    """The gate job's steps: which ones exist, in which order, and the keys
+    each may carry. check_default_branch_step holds the assert step's script
+    TEXT; this holds everything around it, which is what decides whether that
+    script runs at all (#209)."""
+    ss = steps(gate)
+    c.item(len(ss) == len(GATE_STEPS), path,
+           f"job `{GATE_JOB}` must carry exactly {len(GATE_STEPS)} steps, "
+           + ", ".join(spec[0] for spec in GATE_STEPS)
+           + f", in that order (found {len(ss)}): a step inserted here runs "
+           "before every step after it and can change what they read (an "
+           "entry appended to GITHUB_PATH puts another `gh` first), and a "
+           "step removed takes its assertion with it")
+    for n, (label, recognizer, want, keys, env_keys, optional) in enumerate(
+            GATE_STEPS, 1):
+        found = [s for s in ss if recognizer(s)]
+        step = found[0] if found else None
+        at = ss[n - 1] if len(ss) >= n else None
+        c.item(step is not None and at is step, path,
+               f"job `{GATE_JOB}` step {n} must be {label}, {want} (found "
+               f"{step_label(at)}): the assertion runs the ci_events.py the "
+               "checkout brought and the decision diffs the tree that "
+               "checkout produced, so this order is the contract, not a "
+               "preference")
+        if step is not None:
+            pinned_step_keys(c, path, label, step, keys, env_keys, optional)
+    checkout = next((s for s in ss if _is_checkout_step(s)), None)
+    with_ = checkout.get("with") if isinstance(checkout, dict) else None
+    depth = with_.get("fetch-depth") if isinstance(with_, dict) else None
+    c.item(depth == CHECKOUT_FETCH_DEPTH, path,
+           f"{GATE_STEPS[0][0]} must set `fetch-depth: "
+           f"{CHECKOUT_FETCH_DEPTH}` (found {depth!r}): the decision step "
+           "diffs this head against the pull request's base commit, which a "
+           "shallow clone does not carry, so a shallow gate silently falls "
+           "back to the whole file list")
+
+
+def script_difference(got, want):
+    """The first line where a script differs from its canonical form, named
+    rather than dumped: a whole-script listing of a twenty-line script buries
+    the one line that moved."""
+    for i in range(max(len(got), len(want))):
+        g = got[i] if i < len(got) else None
+        w = want[i] if i < len(want) else None
+        if g != w:
+            return (f"line {i + 1} must be {w!r} (found {g!r}); "
+                    f"{len(want)} line(s) expected, {len(got)} found")
+    return f"{len(want)} line(s) expected, {len(got)} found"
+
+
+def check_decide_step(c, path, gate):
+    """The decision step publishes `run_full`, the one value that decides
+    whether the exhaustive gates run at all. Its keys and its env bindings
+    are held in check_gate_steps; this holds its script, verbatim after
+    whitespace normalization, the way the default-branch step's is. Binding
+    the inputs without holding the body would leave `run_full=true` ->
+    `run_full=false` a legal edit ([R0] on PR #239)."""
+    found = [s for s in steps(gate) if _is_decide_step(s)]
+    c.item(len(found) == 1, path, f"job `{GATE_JOB}` must carry exactly one "
+           f"step with `id: {DECIDE_STEP_ID}` (found {len(found)})")
+    if len(found) != 1:
+        return
+    run = found[0].get("run") if isinstance(found[0].get("run"), str) else ""
+    lines = normalize_script(run)
+    proofs = [i for i, l in enumerate(lines) if l == SELECTOR_SELFTEST]
+    reads = [i for i, l in enumerate(lines) if SELECTOR_READ in l]
+    c.item(len(proofs) == 1 and bool(reads) and proofs[0] < min(reads), path,
+           f"the decision step must run `{SELECTOR_SELFTEST}` exactly once "
+           "and before it reads the selector's answer (self-test at "
+           f"{proofs}, reads at {reads}): a selector trusted without its own "
+           "proof decides whether this run validates anything")
+    c.item(tuple(lines) == CANONICAL_DECIDE_SCRIPT, path,
+           "the decision step script is not the canonical form: "
+           + script_difference(lines, CANONICAL_DECIDE_SCRIPT)
+           + "; this script publishes `run_full`, so a line changed here "
+           "selects the no-op path with every pinned name and key still in "
+           "place")
+
+
+def check_no_gh_env(c, path, where, env):
+    """No `GH_*` above the assert step. Its own env is pinned to exactly
+    GH_TOKEN, but a job- or workflow-level `env: GH_HOST` reaches its `gh`
+    without appearing in the step at all (#209, O11/O12)."""
+    env = env if isinstance(env, dict) else {}
+    named = sorted(str(k) for k in env if str(k).startswith(GH_ENV_PREFIX))
+    c.item(not named, path, f"{where} `env` must name no `{GH_ENV_PREFIX}*` "
+           f"variable (found {', '.join(named)}): it reaches the "
+           "default-branch step's `gh` without appearing in that step, whose "
+           f"own env is pinned to exactly {', '.join(ASSERT_STEP_ENV)}")
+
+
+def shard_denominators(text):
+    """Every denominator of a `--shard <i>/<n>` argument in one script."""
+    out = []
+    for arg in SHARD_ARG_RE.findall(text or ""):
+        if "/" in arg:
+            out.append(arg.rsplit("/", 1)[1].strip())
+    return out
+
+
+def resolve_denominator(token, env):
+    """A denominator as written -> what it stands for. A `$NAME` is followed
+    once through the step's own env, which is where a derived value enters a
+    script; anything else stands for itself."""
+    m = SHELL_VAR_RE.match(token or "")
+    if m and isinstance(env, dict) and m.group(1) in env:
+        return str(env[m.group(1)]).strip()
+    return (token or "").strip()
+
+
+def check_shard_denominator(c, path, jid, job):
+    """A sharded worker states its shard count ONCE, in the matrix that
+    produces the shards. Every `--shard <i>/<n>` it passes, and the `<n>` in
+    its own display name, derives that count or equals it. A restated
+    denominator does not move when the matrix does: with a matrix of three
+    and a literal `/4`, shard 3/4's suites and tops are never produced and
+    every static count still agrees (#209, O9)."""
+    strat = job.get("strategy") if isinstance(job, dict) else None
+    matrix = strat.get("matrix") if isinstance(strat, dict) else None
+    shard = matrix.get("shard") if isinstance(matrix, dict) else None
+    if not isinstance(shard, list) or not shard:
+        return
+    size = str(len(shard))
+    seen = []
+    name = job.get("name")
+    if isinstance(name, str):
+        seen += [(f"job `{jid}` name", d, None)
+                 for d in NAME_SHARD_RE.findall(name)]
+    for n, step in enumerate(steps(job), 1):
+        env = step.get("env") if isinstance(step.get("env"), dict) else {}
+        run = step.get("run") if isinstance(step.get("run"), str) else ""
+        seen += [(f"job `{jid}` step {n}", d, env)
+                 for d in shard_denominators(run)]
+    c.item(bool(seen), path, f"job `{jid}` carries a `strategy.matrix.shard` "
+           "list and must pass `--shard <i>/<n>` to the tool it shards: a "
+           "matrix nothing reads splits nothing")
+    for where, token, env in seen:
+        got = resolve_denominator(token, env)
+        c.item(got in (DERIVED_SHARD_TOTAL, size), path,
+               f"{where}: the shard denominator `{token}` must be "
+               f"`{DERIVED_SHARD_TOTAL}` or the size of this job's "
+               f"`strategy.matrix.shard` list, {size} (it resolves to "
+               f"`{got}`): a restated denominator does not move when the "
+               "matrix does, and the shards past it are never produced while "
+               "every static count still agrees")
 
 
 def matrix_size(wf, job):
@@ -552,10 +1299,8 @@ def check_sha_sources(c, path, jid, step):
     for label, want in REQUIRED_SHA_ARGS.items():
         c.item(want in script, path, f"job `{jid}` must pass {want} "
                f"(the {label} source in its binding form)")
-    env = step.get("env") if isinstance(step.get("env"), dict) else {}
-    gate_ref = f"${{{{ needs.{GATE_JOB}.outputs.{GATE_OUTPUT} }}}}"
-    c.item(str(env.get("GATE_SHA", "")).strip() == gate_ref, path,
-           f"job `{jid}` must bind GATE_SHA to {gate_ref} in the step env")
+    # GATE_SHA's own binding is held by VERIFY_STEP_ENV through
+    # pinned_step_keys, with every other pinned step's env.
 
 
 def normalize_script(run):
@@ -582,12 +1327,10 @@ def check_default_branch_step(c, path, gate):
         return
     step = found[0]
     text = step_text(step)
-    pinned_step_keys(c, path, "the default-branch step", step,
-                     ASSERT_STEP_KEYS, ASSERT_STEP_ENV)
-    env = step.get("env") if isinstance(step.get("env"), dict) else {}
-    token = str(env.get("GH_TOKEN", "")).strip()
-    c.item(token == "${{ github.token }}", path, "the default-branch step "
-           f"must carry GH_TOKEN: ${{{{ github.token }}}} (found {token!r})")
+    # Its keys, its env names and the expression each name is bound to are
+    # pinned in check_gate_steps beside its siblings': the same key on any
+    # step of this job has the same effect, and ASSERT_STEP_ENV is the one
+    # place that says GH_TOKEN must be `${{ github.token }}`.
     run = step.get("run") if isinstance(step.get("run"), str) else ""
     lines = normalize_script(run)
     code = [(i, l) for i, l in enumerate(lines) if not l.startswith("#")]
@@ -622,10 +1365,155 @@ def check_default_branch_step(c, path, gate):
            "no continue-on-error, no `|| true`")
 
 
+def check_fast_selector(c, wf):
+    """Hold the fast workflow's complete checkout -> scope decision.
+
+    `rtl-fast` accepts skipped RTL consumers for docs-only changes. Therefore
+    an `if: false` on this job or its scope step, a shallow/moved checkout, or
+    a scope body that publishes `rtl=false` is a false green unless the whole
+    producer is part of the contract.
+    """
+    selector = jobs(wf).get(FAST_SELECTOR_JOB)
+    c.item(isinstance(selector, dict), RTL_FAST,
+           f"job `{FAST_SELECTOR_JOB}` must exist as the fast RTL selector")
+    if not isinstance(selector, dict):
+        return
+
+    check_job_keys(c, RTL_FAST, FAST_SELECTOR_JOB, selector)
+    c.item("env" not in selector, RTL_FAST,
+           f"job `{FAST_SELECTOR_JOB}` must carry no `env` (found "
+           f"{sorted(map(str, selector.get('env') or {}))}): a job-level "
+           "value reaches the scope script without appearing in the pinned "
+           "step, whose own env is the selector's whole input contract")
+    c.item("defaults" not in wf, RTL_FAST,
+           "the fast workflow must carry no top-level `defaults` "
+           f"(found {wf.get('defaults')!r}): a `defaults.run.shell` changes "
+           "how the selector script runs")
+
+    raw_steps = selector.get("steps")
+    ss = raw_steps if isinstance(raw_steps, list) else []
+    mappings = [s for s in ss if isinstance(s, dict)]
+    c.item(len(ss) == 2 and len(mappings) == 2, RTL_FAST,
+           f"job `{FAST_SELECTOR_JOB}` must carry exactly two mapping steps, "
+           "checkout then scope, in that order (found "
+           f"{len(ss)} step(s), {len(mappings)} mapping(s)): an inserted or "
+           "removed step changes whether and how the selector runs")
+
+    checkouts = [s for s in mappings if _is_checkout_step(s)]
+    scopes = [s for s in mappings if s.get("id") == FAST_SCOPE_STEP_ID]
+    checkout = checkouts[0] if len(checkouts) == 1 else None
+    scope = scopes[0] if len(scopes) == 1 else None
+    c.item(len(checkouts) == 1 and len(scopes) == 1
+           and len(ss) == 2 and ss[0] is checkout and ss[1] is scope,
+           RTL_FAST, f"job `{FAST_SELECTOR_JOB}` steps must be exactly "
+           f"`{FAST_CHECKOUT_USES}` then the step with "
+           f"`id: {FAST_SCOPE_STEP_ID}` (found "
+           f"{[step_label(s) for s in mappings]}): scope must inspect the "
+           "tree the checkout brought")
+
+    if checkout is not None:
+        pinned_step_keys(c, RTL_FAST, "the fast selector checkout step",
+                         checkout, CHECKOUT_STEP_KEYS, {},
+                         CHECKOUT_STEP_OPTIONAL)
+        got_uses = str(checkout.get("uses", "")).strip()
+        c.item(got_uses == FAST_CHECKOUT_USES, RTL_FAST,
+               "the fast selector checkout step must use exactly "
+               f"`{FAST_CHECKOUT_USES}` (found `{got_uses}`)")
+        with_ = checkout.get("with")
+        with_ = with_ if isinstance(with_, dict) else {}
+        pinned_bindings(c, RTL_FAST, "the fast selector checkout `with`",
+                        with_, FAST_CHECKOUT_WITH,
+                        "the scope step diffs against an earlier commit, so "
+                        "the checkout must carry full history")
+
+    if scope is not None:
+        pinned_step_keys(c, RTL_FAST, "the fast selector scope step", scope,
+                         FAST_SCOPE_STEP_KEYS, FAST_SCOPE_STEP_ENV)
+        run = scope.get("run") if isinstance(scope.get("run"), str) else ""
+        lines = normalize_script(run)
+        proofs = [i for i, line in enumerate(lines)
+                  if line == SELECTOR_SELFTEST]
+        reads = [i for i, line in enumerate(lines) if SELECTOR_READ in line]
+        c.item(len(proofs) == 1 and bool(reads)
+               and proofs[0] < min(reads), RTL_FAST,
+               f"the fast selector scope step must run `{SELECTOR_SELFTEST}` "
+               "exactly once and before it reads the selector's answer "
+               f"(self-test at {proofs}, reads at {reads})")
+        c.item(tuple(lines) == CANONICAL_FAST_SCOPE_SCRIPT, RTL_FAST,
+               "the fast selector scope script is not the canonical form: "
+               + script_difference(lines, CANONICAL_FAST_SCOPE_SCRIPT)
+               + "; this script publishes `rtl`, so an empty or false value "
+               "skips both RTL consumers into the aggregate's accepted "
+               "docs-only path")
+
+
+def check_fast_aggregate(c, wf):
+    """Hold the verdict half of the fast lane ([R2] on PR #239).
+
+    The fast aggregate runs under `always() && !cancelled()`, so once its job
+    keys are canonical the ONLY thing standing between a failed consumer and
+    a green required context is its verdict step. An `if` on that step skips
+    it and the job succeeds with `verilator-lint` FAILED; a result binding
+    rebound to the literal `success` converts one named failure into a pass;
+    a `case` widened to `success|skipped|failure` accepts them all. None of
+    those touches a job key or the selector's publication path. So the
+    verdict step is held the way the exhaustive workflow's verifier steps
+    are: pinned keys, env derived from the aggregate's `needs`, script
+    derived from the same list. The `needs` list itself must name every
+    other job of the workflow, so no fast job can fail outside the required
+    context's view and none can be quietly dropped from it."""
+    all_jobs = jobs(wf)
+    public = set(PUBLIC_NAMES.get(RTL_FAST, ()))
+    for jid, job in all_jobs.items():
+        if display_name(jid, job) not in public:
+            continue
+        needed = needs_list(job)
+        others = [j for j in all_jobs if j != jid]
+        missing = [j for j in others if j not in needed]
+        surplus = [j for j in needed if j not in others]
+        c.item(not missing and not surplus, RTL_FAST,
+               f"job `{jid}` must need every other job of this workflow, "
+               f"{', '.join(others)}"
+               + (f"; missing: {', '.join(missing)}" if missing else "")
+               + (f"; surplus: {', '.join(surplus)}" if surplus else "")
+               + ": a fast job outside the aggregate's `needs` can fail "
+               "with the required context still green, and a dropped entry "
+               "silently removes that job's result from the verdict")
+        ss = steps(job)
+        c.item(len(ss) == 1, RTL_FAST,
+               f"job `{jid}` must carry exactly one step, its verdict step "
+               f"(found {len(ss)}): a step inserted beside the verdict can "
+               "change what it reads, and a removed one takes the verdict "
+               "with it")
+        if len(ss) != 1:
+            continue
+        what = f"job `{jid}` verdict step"
+        env_want = {fast_result_env_name(j): needs_result_ref(j)
+                    for j in needed}
+        pinned_step_keys(c, RTL_FAST, what, ss[0], FAST_VERDICT_STEP_KEYS,
+                         env_want)
+        run = ss[0].get("run") if isinstance(ss[0].get("run"), str) else ""
+        lines = normalize_script(run)
+        canon = canonical_fast_verdict_script(needed)
+        c.item(tuple(lines) == canon, RTL_FAST,
+               f"{what} script is not the canonical form derived from the "
+               "aggregate's `needs`: "
+               + script_difference(lines, canon)
+               + "; this script is the whole required fast verdict, so a "
+               "widened `case` or a dropped pair turns a named failure into "
+               "a pass")
+
+
 def check_rtl_fast(c, wf):
     check_push_and_pr(c, RTL_FAST, wf, exact_types=True)
     check_cancel_in_progress(c, RTL_FAST, wf)
     check_public_names(c, RTL_FAST, wf)
+    check_fast_selector(c, wf)
+    check_fast_aggregate(c, wf)
+    # The same selector -> outputs -> consumer path as the exhaustive
+    # workflow, and the same false green if it is left unheld: this
+    # aggregate counts a skipped consumer as a pass.
+    check_publication_path(c, RTL_FAST, wf)
 
 
 def check_docs(c, wf):
@@ -946,6 +1834,251 @@ def _mutations():
     def m_db_no_set(w):
         set_db_script(w, CANONICAL_OBSERVED, CANONICAL_CALL)
 
+    # #209: the conditions under which the gate job runs at all, rather than
+    # what it does once it runs.
+    def gate_step_list(w):
+        return jobs(w[RTL_FULL])[GATE_JOB]["steps"]
+
+    def pin_step(w):
+        return next(s for s in gate_step_list(w)
+                    if s.get("id") == PIN_STEP_ID)
+
+    def decide_step(w):
+        return next(s for s in gate_step_list(w)
+                    if s.get("id") == DECIDE_STEP_ID)
+
+    def m_gate_needs_a_skippable_job(w):
+        # O1: a `noop` job that skips on schedule, and a gate that needs it.
+        jobs(w[RTL_FULL])["noop"] = {
+            "if": "${{ github.event_name != 'schedule' }}",
+            "runs-on": "ubuntu-latest",
+            "steps": [{"run": "true"}],
+        }
+        jobs(w[RTL_FULL])[GATE_JOB]["needs"] = ["noop"]
+
+    def m_assert_before_checkout(w):
+        # O14: the assertion runs before the checkout brings the script.
+        ss = gate_step_list(w)
+        i = next(i for i, s in enumerate(ss)
+                 if DEFAULT_BRANCH_FLAG in step_text(s))
+        ss.insert(0, ss.pop(i))
+
+    def m_pin_and_assert_swapped(w):
+        ss = gate_step_list(w)
+        i = next(i for i, s in enumerate(ss) if s.get("id") == PIN_STEP_ID)
+        ss[i], ss[i + 1] = ss[i + 1], ss[i]
+
+    def m_gate_extra_path_step(w):
+        # O6: a step before the assertion that puts another `gh` first.
+        ss = gate_step_list(w)
+        i = next(i for i, s in enumerate(ss)
+                 if DEFAULT_BRANCH_FLAG in step_text(s))
+        ss.insert(i, {"name": "Prepare tools",
+                      "run": 'echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"\n'})
+
+    def m_pin_step_removed(w):
+        ss = gate_step_list(w)
+        del ss[next(i for i, s in enumerate(ss)
+                    if s.get("id") == PIN_STEP_ID)]
+
+    def m_checkout_shallow(w):
+        del gate_step_list(w)[0]["with"]["fetch-depth"]
+
+    def m_gate_env_gh_host(w):
+        jobs(w[RTL_FULL])[GATE_JOB]["env"] = {"GH_HOST": "example.invalid"}
+
+    def m_workflow_env_gh_host(w):
+        w[RTL_FULL]["env"]["GH_HOST"] = "example.invalid"
+
+    def m_decide_env_missing(w):
+        del decide_step(w)["env"]["PR_BASE_SHA"]
+
+    def m_decide_script_no_op(w):
+        # O16: the guarded `run_full=true` becomes `run_full=false`. Every
+        # pinned key, every pinned name and every binding survives.
+        s = decide_step(w)
+        assert re.search(r"^\s*run_full=true$", s["run"], re.M), (
+            "fixture drift: no bare `run_full=true` in the decision step")
+        s["run"] = re.sub(r"^(\s*)run_full=true$", r"\1run_full=false",
+                          s["run"], count=1, flags=re.M)
+
+    def m_decide_script_unproven_selector(w):
+        # O16b: the selector decides the run without its own self-test.
+        s = decide_step(w)
+        assert SELECTOR_SELFTEST in s["run"], (
+            "fixture drift: the decision step does not self-test the selector")
+        s["run"] = s["run"].replace(SELECTOR_SELFTEST, "true", 1)
+
+    # #209 O17-O20: the publication path. A selector's `outputs` map is a
+    # NAME -> EXPRESSION mapping like a step's `env`, and every arm below
+    # leaves every pinned step key, env binding and script character intact.
+    def sel_outputs(w, path=RTL_FULL):
+        return jobs(w[path])[SELECTOR_JOB[path]]["outputs"]
+
+    def m_output_rebound(path, name, expr):
+        def f(w):
+            outs = sel_outputs(w, path)
+            assert name in outs, f"fixture drift: no `{name}` output"
+            outs[name] = expr
+        return f
+
+    def m_output_dropped(path, name):
+        def f(w):
+            outs = sel_outputs(w, path)
+            assert name in outs, f"fixture drift: no `{name}` output"
+            del outs[name]
+        return f
+
+    def m_output_surplus(w):
+        sel_outputs(w)["shadow"] = step_output_ref(DECIDE_STEP_ID,
+                                                   RUN_FULL_OUTPUT)
+
+    def m_outputs_map_dropped(w):
+        del jobs(w[RTL_FULL])[SELECTOR_JOB[RTL_FULL]]["outputs"]
+
+    def set_job_if(path, jid, value):
+        def f(w):
+            jobs(w[path])[jid]["if"] = value
+        return f
+
+    def set_job_key_at(path, jid, key, value):
+        def f(w):
+            jobs(w[path])[jid][key] = value
+        return f
+
+    def fast_scope_step(w):
+        found = [s for s in job_steps(w, RTL_FAST, FAST_SELECTOR_JOB)
+                 if isinstance(s, dict)
+                 and s.get("id") == FAST_SCOPE_STEP_ID]
+        assert len(found) == 1, "fixture drift: no unique fast scope step"
+        return found[0]
+
+    def fast_checkout_step(w):
+        found = [s for s in job_steps(w, RTL_FAST, FAST_SELECTOR_JOB)
+                 if isinstance(s, dict) and _is_checkout_step(s)]
+        assert len(found) == 1, "fixture drift: no unique fast checkout step"
+        return found[0]
+
+    def fast_bdd_run_step(w):
+        found = [s for s in job_steps(w, RTL_FAST, "bdd-conformance")
+                 if "behave --no-capture" in step_text(s)]
+        assert len(found) == 1, "fixture drift: no unique BDD run step"
+        return found[0]
+
+    def fast_aggregate_job(w):
+        return jobs(w[RTL_FAST])["rtl-fast"]
+
+    def fast_verdict_step(w):
+        ss = [s for s in fast_aggregate_job(w).get("steps", [])
+              if isinstance(s, dict)]
+        assert len(ss) == 1, "fixture drift: fast aggregate is not one step"
+        return ss[0]
+
+    def m_fast_verdict_case_widened(w):
+        s = fast_verdict_step(w)
+        assert "success|skipped)" in s["run"], (
+            "fixture drift: no accept case in the fast verdict")
+        s["run"] = s["run"].replace("success|skipped)",
+                                    "success|skipped|failure)", 1)
+
+    def m_fast_aggregate_forgets_bdd(w):
+        # The whole trace of `bdd-conformance` removed from the aggregate
+        # consistently: the `needs` entry, the env binding and the loop pair,
+        # so the derived env and script agree with the shrunk `needs` and the
+        # only refusal left is the `needs` universe itself.
+        agg = fast_aggregate_job(w)
+        assert "bdd-conformance" in agg["needs"], (
+            "fixture drift: the aggregate does not need bdd-conformance")
+        agg["needs"] = [n for n in agg["needs"] if n != "bdd-conformance"]
+        step = fast_verdict_step(w)
+        del step["env"]["BDD_CONFORMANCE_RESULT"]
+        pair = '"bdd-conformance:$BDD_CONFORMANCE_RESULT"'
+        step["run"], n = re.subn(r"\s*" + re.escape(pair) + r" \\", "",
+                                 step["run"])
+        assert n == 1, "fixture drift: no bdd pair line in the verdict loop"
+
+    def m_fast_new_unaggregated_job(w):
+        jobs(w[RTL_FAST])["extra-check"] = {
+            "runs-on": "ubuntu-latest",
+            "steps": [{"run": "true"}],
+        }
+
+    def m_fast_lint_masquerades_as_aggregate(w):
+        job = jobs(w[RTL_FAST])["verilator-lint"]
+        job["name"] = "rtl-fast"
+        job["if"] = FAST_AGGREGATE_JOB_IF
+
+    def m_fast_scope_publishes_false(w):
+        # The selector still self-tests and reads the real answer, but exports
+        # a literal false. Both RTL consumers skip and the aggregate passes.
+        scope = fast_scope_step(w)
+        old = 'echo "rtl=$rtl" >> "$GITHUB_OUTPUT"'
+        assert old in scope["run"], "fixture drift: no fast rtl publication"
+        scope["run"] = scope["run"].replace(
+            old, 'echo "rtl=false" >> "$GITHUB_OUTPUT"', 1)
+
+    def m_fast_scope_unproven(w):
+        scope = fast_scope_step(w)
+        assert SELECTOR_SELFTEST in scope["run"], (
+            "fixture drift: fast scope does not self-test the selector")
+        scope["run"] = scope["run"].replace(SELECTOR_SELFTEST, "true", 1)
+
+    def m_fast_steps_swapped(w):
+        ss = job_steps(w, RTL_FAST, FAST_SELECTOR_JOB)
+        assert len(ss) == 2, "fixture drift: fast selector is not two steps"
+        ss[0], ss[1] = ss[1], ss[0]
+
+    def m_fast_checkout_shallow(w):
+        del fast_checkout_step(w)["with"]["fetch-depth"]
+
+    def m_fast_top_defaults(w):
+        w[RTL_FAST]["defaults"] = {"run": {"shell": "bash -n {0}"}}
+
+    def m_fast_bdd_needs_expression(expression):
+        def f(w):
+            fast_bdd_run_step(w)["if"] = expression
+        return f
+
+    def m_worker_needs_dropped(w):
+        del jobs(w[RTL_FULL])["verilator-shards"]["needs"]
+
+    def m_new_consumer_job(w):
+        # The perimeter closed under addition: a job that depends on the
+        # selector and carries no gate on its decision runs on every event.
+        jobs(w[RTL_FULL])["extra-worker"] = {
+            "needs": GATE_JOB,
+            "runs-on": "ubuntu-latest",
+            "steps": [{"run": "true"}],
+        }
+
+    def restate_shards(w, jid, value):
+        """Turn a derived denominator back into a literal, everywhere the job
+        states it: the display name, every script, every step env."""
+        job = jobs(w[RTL_FULL])[jid]
+        assert DERIVED_SHARD_TOTAL in job["name"], f"fixture drift: {jid} name"
+        job["name"] = job["name"].replace(DERIVED_SHARD_TOTAL, value)
+        for st in steps(job):
+            if isinstance(st.get("run"), str):
+                st["run"] = st["run"].replace(DERIVED_SHARD_TOTAL, value)
+            env = st.get("env")
+            if isinstance(env, dict):
+                for k, v in list(env.items()):
+                    if str(v).strip() == DERIVED_SHARD_TOTAL:
+                        env[k] = value
+
+    def m_shard_denominator_stale(w):
+        # O9: the matrix grows, the restated denominator does not.
+        restate_shards(w, "verilator-shards", "4")
+        jobs(w[RTL_FULL])["verilator-shards"]["strategy"]["matrix"][
+            "shard"].append(4)
+
+    def m_shard_denominator_wrong(w):
+        restate_shards(w, "yosys-shards", "3")
+
+    def m_shard_name_stale(w):
+        job = jobs(w[RTL_FULL])["verilator-shards"]
+        job["name"] = job["name"].replace(DERIVED_SHARD_TOTAL, "3")
+
     def verify_step(w, jid):
         for s in steps(jobs(w[RTL_FULL])[jid]):
             if VERIFY_FLAG in step_text(s):
@@ -1057,7 +2190,7 @@ def _mutations():
         ("rtl checkout ref via expression", m_checkout_ref_deep,
          "must not override `ref`"),
         ("rtl gate drops target_sha output", m_drop_gate_output,
-         f"`{GATE_OUTPUT}` output"),
+         f"missing: {GATE_OUTPUT}"),
         ("rtl gate prints nothing", m_gate_silent, "print the event name"),
         ("rtl Verilator worker records nothing", m_worker_no_record,
          f"write GITHUB_SHA into {RECORD}"),
@@ -1181,6 +2314,241 @@ def _mutations():
          set_job_key("yosys-portability", "defaults",
                      {"run": {"shell": "bash -n {0}"}}),
          "must carry no `defaults`"),
+        # #209: the conditions under which the gate job and its steps run.
+        ("O1 full-ci-gate needs a job that skips on schedule",
+         m_gate_needs_a_skippable_job, "must carry no `needs`"),
+        ("O10 decision step if: false",
+         set_step_key(decide_step, "if", False), "must carry no `if`"),
+        ("O10b decision step if: pull_request only",
+         set_step_key(decide_step, "if",
+                      "${{ github.event_name == 'pull_request' }}"),
+         "must carry no `if`"),
+        ("O13 pin step if: false", set_step_key(pin_step, "if", False),
+         "must carry no `if`"),
+        ("O13b pin step continue-on-error",
+         set_step_key(pin_step, "continue-on-error", True),
+         "must carry no `continue-on-error`"),
+        ("O14 assert step moved before the checkout", m_assert_before_checkout,
+         "step 1 must be the gate checkout step"),
+        ("O6 a GITHUB_PATH step inserted before the assertion",
+         m_gate_extra_path_step, "must carry exactly 4 steps"),
+        ("gate pin step removed", m_pin_step_removed,
+         "must carry exactly 4 steps"),
+        ("gate pin and assert steps swapped", m_pin_and_assert_swapped,
+         "step 2 must be the pin step"),
+        ("gate checkout without fetch-depth: 0", m_checkout_shallow,
+         "fetch-depth: 0"),
+        ("decision step shell: bash -n",
+         set_step_key(decide_step, "shell", "bash -n {0}"),
+         "must carry no `shell`"),
+        ("decision step working-directory",
+         set_step_key(decide_step, "working-directory", "/tmp"),
+         "surplus: working-directory"),
+        ("decision step loses PR_BASE_SHA", m_decide_env_missing,
+         "missing: PR_BASE_SHA"),
+        # #209 O15/O16: the decision step's env bound to another source, and
+        # its script rewritten, each leaving every pinned name and key alone.
+        ("O15 decision step PR_DRAFT forced true",
+         set_env_key(decide_step, "PR_DRAFT", "true"),
+         "must bind `PR_DRAFT`"),
+        ("O15b decision step PR_BASE_SHA rebound to this run's own SHA",
+         set_env_key(decide_step, "PR_BASE_SHA", "${{ github.sha }}"),
+         "must bind `PR_BASE_SHA`"),
+        ("O15c decision step EVENT_NAME hard-coded to pull_request",
+         set_env_key(decide_step, "EVENT_NAME", "pull_request"),
+         "must bind `EVENT_NAME`"),
+        ("O15d assert step GH_TOKEN rebound to another token",
+         set_env_key(db_step, "GH_TOKEN", "${{ secrets.OTHER_TOKEN }}"),
+         "must bind `GH_TOKEN`"),
+        ("O15e verifier step GATE_SHA rebound to its own run",
+         set_env_key(va, "GATE_SHA", "${{ github.sha }}"),
+         "must bind `GATE_SHA`"),
+        ("O16 decision script publishes the no-op decision always",
+         m_decide_script_no_op, "decision step script is not the canonical"),
+        ("O16b decision script drops the selector's self-test",
+         m_decide_script_unproven_selector,
+         "before it reads the selector's answer"),
+        ("O11 full-ci-gate job env GH_HOST", m_gate_env_gh_host,
+         "must name no `GH_*`"),
+        ("O12 workflow-level env GH_HOST", m_workflow_env_gh_host,
+         "must name no `GH_*`"),
+        # #209 O17: the gate's published outputs map, held by content. Each
+        # arm keeps every pinned step key, env binding and script character.
+        ("O17 gate exports run_full as the literal 'false'",
+         m_output_rebound(RTL_FULL, RUN_FULL_OUTPUT, "${{ 'false' }}"),
+         f"must bind `{RUN_FULL_OUTPUT}`"),
+        ("O17b gate stops exporting run_full at all",
+         m_output_dropped(RTL_FULL, RUN_FULL_OUTPUT),
+         f"missing: {RUN_FULL_OUTPUT}"),
+        ("O17c gate exports run_full from the scope answer instead",
+         m_output_rebound(RTL_FULL, RUN_FULL_OUTPUT,
+                          step_output_ref(DECIDE_STEP_ID, RTL_OUTPUT)),
+         f"must bind `{RUN_FULL_OUTPUT}`"),
+        ("O17d gate exports rtl as the literal 'false'",
+         m_output_rebound(RTL_FULL, RTL_OUTPUT, "${{ 'false' }}"),
+         f"must bind `{RTL_OUTPUT}`"),
+        ("O17e gate stops exporting rtl", m_output_dropped(RTL_FULL,
+                                                           RTL_OUTPUT),
+         f"missing: {RTL_OUTPUT}"),
+        ("O17f gate exports target_sha from the run instead of the pin step",
+         m_output_rebound(RTL_FULL, GATE_OUTPUT, "${{ github.sha }}"),
+         f"must bind `{GATE_OUTPUT}`"),
+        ("O17g gate exports no outputs map at all", m_outputs_map_dropped,
+         f"missing: {RUN_FULL_OUTPUT}, {RTL_OUTPUT}, {GATE_OUTPUT}"),
+        ("O17h gate exports a surplus output", m_output_surplus,
+         "surplus: shadow"),
+        # #209 O18: the consumers of that decision.
+        ("O18 a worker gates on an output nobody publishes",
+         set_job_if(RTL_FULL, "verilator-shards",
+                    "${{ needs.full-ci-gate.outputs.run_ful == 'true' }}"),
+         "must publish"),
+        ("O18b a worker gates on if: false",
+         set_job_if(RTL_FULL, "yosys-shards", False), "`if` must be exactly"),
+        ("O18c a worker compares the decision with a value it never takes",
+         set_job_if(RTL_FULL, "verilator-shards",
+                    "${{ needs.full-ci-gate.outputs.run_full == 'nope' }}"),
+         "`if` must be exactly"),
+        ("O18d a worker turns its own failure into a pass",
+         set_job_key("verilator-shards", "continue-on-error", True),
+         "must carry no `continue-on-error`"),
+        ("O18e a worker reads the decision without needing the gate",
+         m_worker_needs_dropped, f"must list `{GATE_JOB}` in its `needs`"),
+        ("O18f a worker parses every script instead of running it",
+         set_job_key("yosys-shards", "defaults",
+                     {"run": {"shell": "bash -n {0}"}}),
+         "must carry no `defaults`"),
+        ("O20 a new job depends on the gate and gates on nothing",
+         m_new_consumer_job, "documented `if`"),
+        # #209 O19: the same publication path in the fast workflow, whose
+        # aggregate counts a skipped consumer as a pass.
+        ("O19 fast selector exports rtl as the literal 'false'",
+         m_output_rebound(RTL_FAST, RTL_OUTPUT, "${{ 'false' }}"),
+         f"must bind `{RTL_OUTPUT}`"),
+        ("O19b fast selector stops exporting rtl",
+         m_output_dropped(RTL_FAST, RTL_OUTPUT), f"missing: {RTL_OUTPUT}"),
+        ("O19c a fast consumer gates on an output nobody publishes",
+         set_job_if(RTL_FAST, "verilator-lint",
+                    "${{ needs.changes.outputs.rt == 'true' }}"),
+         "must publish"),
+        ("O19d a fast consumer gates on if: false",
+         set_job_if(RTL_FAST, "yosys-elaboration", False),
+         "`if` must be exactly"),
+        # #209 O21: the producer of the fast answer must run and publish the
+        # value it computed. Each arm leaves the selector output map and both
+        # consumer conditions canonical while making their jobs skip.
+        ("O21 fast selector job if: false",
+         set_job_if(RTL_FAST, FAST_SELECTOR_JOB, False),
+         f"job `{FAST_SELECTOR_JOB}` must carry no `if`"),
+        ("O21b fast scope step if: false",
+         set_step_key(fast_scope_step, "if", False),
+         "fast selector scope step must carry no `if`"),
+        ("O21c fast scope publishes literal rtl=false",
+         m_fast_scope_publishes_false,
+         "fast selector scope script is not the canonical form"),
+        ("O21d fast scope drops the selector self-test",
+         m_fast_scope_unproven,
+         "before it reads the selector's answer"),
+        ("O21e fast scope EVENT_NAME rebound to pull_request",
+         set_env_key(fast_scope_step, "EVENT_NAME", "pull_request"),
+         "fast selector scope step env must bind `EVENT_NAME`"),
+        ("O21f fast selector continue-on-error",
+         set_job_key_at(RTL_FAST, FAST_SELECTOR_JOB,
+                        "continue-on-error", True),
+         f"job `{FAST_SELECTOR_JOB}` must carry no `continue-on-error`"),
+        ("O21g fast selector scope runs before checkout",
+         m_fast_steps_swapped,
+         "steps must be exactly `actions/checkout@v4`"),
+        ("O21h fast selector checkout is shallow",
+         m_fast_checkout_shallow,
+         "fast selector checkout `with` must be exactly fetch-depth"),
+        ("O21i fast workflow parses selector scripts instead of running",
+         m_fast_top_defaults,
+         "fast workflow must carry no top-level `defaults`"),
+        # #209 O22: GitHub permits index and mixed property syntax for the
+        # same needs context. These expressions sit on the otherwise
+        # independent BDD job so only the closed reference audit can catch
+        # them; the ordinary consumer-if comparison is not involved.
+        ("O22 bracket needs reference names an unpublished output",
+         m_fast_bdd_needs_expression(
+             "${{ needs['changes'].outputs.bogus == 'true' }}"),
+         "must publish"),
+        ("O22b all-bracket needs reference omits its dependency",
+         m_fast_bdd_needs_expression(
+             "${{ needs['changes']['outputs']['rtl'] == 'true' }}"),
+         "must list `changes` in its `needs`"),
+        ("O22c mixed needs reference names an unpublished output",
+         m_fast_bdd_needs_expression(
+             "${{ needs.changes['outputs'].bogus == 'true' }}"),
+         "must publish"),
+        ("O22d dynamic needs reference cannot evade static audit",
+         m_fast_bdd_needs_expression(
+             "${{ needs[format('{0}', 'changes')].outputs.rtl == 'true' }}"),
+         "cannot resolve statically"),
+        # [R2] O23: the fast aggregate's verdict step, the one conversion of
+        # four job results into the required context. Each arm leaves every
+        # job key and the selector's whole publication path canonical.
+        ("O23 fast verdict step if: false",
+         set_step_key(fast_verdict_step, "if", False),
+         "verdict step must carry no `if`"),
+        ("O23b fast verdict lint result rebound to the literal success",
+         set_env_key(fast_verdict_step, "VERILATOR_LINT_RESULT", "success"),
+         "must bind `VERILATOR_LINT_RESULT`"),
+        ("O23c fast verdict case widened to accept failure",
+         m_fast_verdict_case_widened,
+         "verdict step script is not the canonical form"),
+        ("O23d fast verdict step continue-on-error",
+         set_step_key(fast_verdict_step, "continue-on-error", True),
+         "verdict step must carry no `continue-on-error`"),
+        ("O23e fast verdict step shell: bash -n",
+         set_step_key(fast_verdict_step, "shell", "bash -n {0}"),
+         "verdict step must carry no `shell`"),
+        # [R2] O24: the aggregate's `needs` universe. Membership in that list
+        # is what puts a fast job's result inside the verdict at all.
+        ("O24 fast aggregate drops bdd-conformance from its verdict",
+         m_fast_aggregate_forgets_bdd, "missing: bdd-conformance"),
+        ("O24b a new fast job lands outside the aggregate's needs",
+         m_fast_new_unaggregated_job, "missing: extra-check"),
+        # [R2] O25: a gate contributor that does not need the selector,
+        # exactly bdd-conformance's shape, held to run as written.
+        ("O25 bdd-conformance job if: false",
+         set_job_if(RTL_FAST, "bdd-conformance", False),
+         "job `bdd-conformance` must carry no `if`"),
+        ("O25b bdd-conformance continue-on-error",
+         set_job_key_at(RTL_FAST, "bdd-conformance",
+                        "continue-on-error", True),
+         "job `bdd-conformance` must carry no `continue-on-error`"),
+        ("O25c bdd-conformance defaults.run.shell bash -n",
+         set_job_key_at(RTL_FAST, "bdd-conformance", "defaults",
+                        {"run": {"shell": "bash -n {0}"}}),
+         "job `bdd-conformance` must carry no `defaults`"),
+        # [R2] O26: a `.result` chain read from a job outside `needs` is the
+        # same empty string O22 refuses for `.outputs.`, in the spelling the
+        # fast verdict itself uses four lines from its accept case.
+        ("O26 a .result read from a job outside needs",
+         m_fast_bdd_needs_expression(
+             "${{ needs.changes.result == 'success' }}"),
+         "must list `changes` in its `needs`"),
+        ("O26b the bracket spelling of the same .result read",
+         m_fast_bdd_needs_expression(
+             "${{ needs['changes']['result'] == 'success' }}"),
+         "must list `changes` in its `needs`"),
+        # [R2] O27: the public required name carried by a second job.
+        ("O27 verilator-lint renamed to the public name rtl-fast",
+         m_fast_lint_masquerades_as_aggregate,
+         "carried by exactly one job"),
+        # [R2] O28: a job-level env on the fast selector reaches the scope
+        # script without appearing in the pinned step.
+        ("O28 fast selector job-level env EVENT_NAME literal",
+         set_job_key_at(RTL_FAST, FAST_SELECTOR_JOB, "env",
+                        {"EVENT_NAME": "pull_request"}),
+         "must carry no `env`"),
+        # #209 O9: the shard denominator restated instead of derived.
+        ("O9 verilator matrix grows, the denominator is a literal",
+         m_shard_denominator_stale, "shard denominator"),
+        ("O9b yosys denominator below its matrix size",
+         m_shard_denominator_wrong, "shard denominator"),
+        ("O9c a worker name restates a stale denominator", m_shard_name_stale,
+         "name: the shard denominator"),
         ("rtl public name verilator-suites renamed",
          m_rename_job(RTL_FULL, "verilator-suites"), "`verilator-suites`"),
         ("rtl public name yosys-portability renamed",
@@ -1370,6 +2738,18 @@ def selftest(root):
                         "    --require-default-branch \\\n"
                         '    --event "$GITHUB_EVENT_NAME" \\\n'
                         '    --observed "$observed"\n')
+    for s in steps(jobs(world[RTL_FULL])[GATE_JOB]):
+        if s.get("id") == DECIDE_STEP_ID:
+            s["run"] = "\n".join("   " + l if l.strip() else ""
+                                  for l in s["run"].splitlines()) + "\n"
+    for s in steps(jobs(world[RTL_FAST])[FAST_SELECTOR_JOB]):
+        if s.get("id") == FAST_SCOPE_STEP_ID:
+            s["run"] = "\n".join("   " + l if l.strip() else ""
+                                  for l in s["run"].splitlines()) + "\n"
+    for s in steps(jobs(world[RTL_FAST])["rtl-fast"]):
+        if isinstance(s.get("run"), str):
+            s["run"] = "\n".join("   " + l if l.strip() else ""
+                                  for l in s["run"].splitlines()) + "\n"
     for s in steps(jobs(world[RTL_FULL])["yosys-portability"]):
         if VERIFY_FLAG in step_text(s):
             s["run"] = ("shopt   -s nullglob\n"
@@ -1385,8 +2765,9 @@ def selftest(root):
         problems.append("whitespace-only reformatting of the canonical scripts "
                         f"was refused: {check(world).findings}")
     else:
-        print("  ok   canonical pins are whitespace-invariant (assert step "
-              "and verifier step)")
+        print("  ok   canonical pins are whitespace-invariant (assert step, "
+              "decision step, fast scope step, fast verdict step and "
+              "verifier step)")
 
     # --require-default-branch arms: the decision for every event class. An
     # inverted or weakened comparison fails one of these, which is what makes

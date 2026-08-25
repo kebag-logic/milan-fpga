@@ -149,7 +149,10 @@ those runs are about the tree, not the setting, and a contributor's PR must
 not go red for a repository setting it cannot change. A drift is therefore
 visible on every run and fatal on the first run it would misdirect, instead
 of surfacing as a nightly that silently stopped. `ci_events.py --check` holds
-the assertion in its fail-closed shape, which is exactly these four things:
+the assertion in its fail-closed shape. That shape is not only what the step
+says: a check that reads a step's contents and nothing about the conditions
+under which it runs holds the wrong perimeter, which is what #209 found. So it
+is exactly these ten things:
 
 1. **The script text.** The step's `run:` is pinned verbatim (whitespace
    aside) to three lines: `set -euo pipefail`, one unconditional
@@ -166,10 +169,68 @@ the assertion in its fail-closed shape, which is exactly these four things:
    `shell: bash -n {0}` (parsed, never executed), `continue-on-error`, a
    `working-directory`, or a `GH_HOST` / `GH_CONFIG_DIR` that points `gh`
    away from this repository. Each refusal names the key.
-3. **The job keys.** `full-ci-gate` carries no `if`, no `continue-on-error`
-   and no `defaults`, and the workflow carries no top-level `defaults` (a
-   `defaults.run.shell: bash -n {0}` parses every script and executes none).
-4. **The verifier steps.** Each aggregate's `--require-target-sha` step
+3. **The job's run conditions.** `full-ci-gate` carries no `needs`, no `if`,
+   no `continue-on-error` and no `defaults`, and the workflow carries no
+   top-level `defaults` (a `defaults.run.shell: bash -n {0}` parses every
+   script and executes none). `needs` is one of them because a job that needs
+   another job is a dependent, and a dependent of a skipped job is skipped,
+   taking every assertion inside it: a `noop` job carrying
+   `if: ${{ github.event_name != 'schedule' }}` plus a `needs: [noop]` on the
+   gate leaves every pinned character in place and stops the assertion running
+   on the one event it exists for.
+4. **The step sequence.** The gate job carries exactly four steps, in this
+   order: the checkout with `fetch-depth: 0`, the pin step (`id: target`), the
+   default-branch step, and the decision step (`id: gate`). The order is part
+   of the contract, because the assertion runs the `ci_events.py` the checkout
+   brought and the decision diffs the tree that checkout produced; the count is
+   part of it too, because a step inserted anywhere runs before everything
+   after it and can change what those steps read, and an entry appended to
+   `GITHUB_PATH` puts another `gh` ahead of the runner's. A refusal names the
+   position, what belongs there, and what it found.
+5. **The sibling steps' keys.** The pin step, the decision step and the
+   checkout are pinned to their own key sets exactly as the default-branch
+   step is, so `if: false`, an `if:` naming only some events, a `shell:`, a
+   `continue-on-error` or a `working-directory` on any of them is refused by
+   name; the decision step's `env` is exactly `EVENT_NAME`, `PR_DRAFT` and
+   `PR_BASE_SHA`, each bound to the source expression item 6 requires, and
+   the checkout keeps `fetch-depth: 0` (the decision step
+   diffs against the pull request's base commit, which a shallow clone does
+   not carry). `if: false` on the pin step or on the decision step leaves the
+   assert step's script canonical and publishes no `run_full` at all.
+   Additionally, neither the workflow's top-level `env` nor `full-ci-gate`'s
+   own names any `GH_*` variable: the step's `env` is pinned to exactly
+   `GH_TOKEN`, but a `GH_HOST` or `GH_CONFIG_DIR` set at either level above it
+   reaches the same `gh` without appearing anywhere in the step.
+6. **The env bindings.** A pinned step's `env` is held as a name *and* the
+   source expression that name is bound to, because the name is not the
+   contract. The decision step carries
+   `EVENT_NAME: ${{ github.event_name }}`,
+   `PR_DRAFT: ${{ github.event.pull_request.draft }}` and
+   `PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}`; the
+   default-branch step carries `GH_TOKEN: ${{ github.token }}`; each verifier
+   step binds `GATE_SHA` to `full-ci-gate`'s `target_sha` output, derived from
+   that job and output rather than restated. Names alone held nothing where it
+   mattered: `PR_DRAFT: "true"` is valid workflow YAML that keeps all three
+   names and all four keys and makes a ready RTL pull request publish
+   `run_full=false`, on which both worker matrices skip, both aggregates skip
+   under the no-op exception in item 8, and the skipped required contexts
+   satisfy the ruleset -- a false green, not a refusal.
+   `PR_BASE_SHA: ${{ github.sha }}` (a commit diffed against itself, so
+   `rtl=false`) and `EVENT_NAME: pull_request` (a push, schedule or dispatch
+   run taking the pull-request branch) arrive at the same place. A refusal
+   names the step, the variable, the expression required and the one found.
+7. **The decision step's script.** Pinned verbatim after whitespace
+   normalization, the way the default-branch step's is, and refused by naming
+   the first line that differs rather than dumping the script. The bindings in
+   item 6 hold what the step reads; this holds what it does with what it read,
+   because `run_full=true` rewritten to `run_full=false` changes no pinned
+   name and no pinned key and publishes the explicit no-op on every ready RTL
+   pull request. The structural reason is checked first: the selector's
+   `--selftest` runs exactly once and before the script reads the selector's
+   answer, so a selector is never trusted to decide a run without its own
+   proof. Re-indenting the script or wrapping a continuation differently is
+   the same script and still passes.
+8. **The verifier steps.** Each aggregate's `--require-target-sha` step
    carries exactly `name`, `if`, `env` and `run`; its `if` is exactly
    `${{ always() }}` (any other condition can skip the verification, and a
    skipped step passes the job); its `env` exactly `GATE_SHA`; and its
@@ -180,17 +241,128 @@ the assertion in its fail-closed shape, which is exactly these four things:
    `defaults`: they skip only when `full-ci-gate` succeeded and explicitly
    published `run_full=false`; any other selector result runs the aggregate
    into the SHA/shard refusal path.
+9. **The published outputs.** `full-ci-gate`'s `outputs` map is a
+   NAME to EXPRESSION mapping exactly as a step's `env` is, and it is held by
+   the same comparison: exactly `run_full`, `rtl` and `target_sha`, bound to
+   `${{ steps.gate.outputs.run_full }}`, `${{ steps.gate.outputs.rtl }}` and
+   `${{ steps.target.outputs.target_sha }}`, each derived from the step that
+   computes it rather than restated. This is the publication path, and it is
+   not the same object as item 7: no downstream job reads the decision step's
+   output, they read `needs.full-ci-gate.outputs.run_full`, which is this
+   map. Checking only that `target_sha` existed therefore held nothing where
+   it mattered, because `run_full: ${{ 'false' }}` is valid job-output YAML
+   that leaves every pinned step key, every env binding and every character
+   of the decision script in place while the job exports the literal `false`:
+   both worker matrices skip, both aggregates skip under the item 8 no-op
+   exception, and the skipped required contexts satisfy the ruleset. A
+   refusal names the job, the output, the expression required and the one
+   found.
+10. **The consumers of that decision.** Every job that needs `full-ci-gate`
+    carries a pinned `if`, with no residue. The workflow's aggregate is the
+    job whose display name is the public required check the merge bar reads,
+    and it carries the fail-closed `if` of item 8; every other job that needs
+    the gate is a consumer, and carries exactly
+    `${{ needs.full-ci-gate.outputs.run_full == 'true' }}` and no
+    `continue-on-error` or `defaults`. A job added later that depends on the
+    gate lands in the consumer class and is refused until it carries that
+    `if`, so this perimeter is closed under addition rather than being a
+    list of the escapes earlier rounds happened to find. The closure runs in
+    both directions ([R2] on PR #239): every job an aggregate lists in its
+    own `needs` is classified too, as the selector, as a consumer, or as a
+    held contributor that carries no `needs`, `if`, `continue-on-error` or
+    `defaults` of its own. A job wired straight into an aggregate without
+    needing the selector, as `bdd-conformance` is, previously landed in no
+    class, so an `if: false` on it retired the specification suite with
+    every hosted context green and the aggregate accepting the skip.
+    Separately, no expression anywhere in either RTL workflow may read an
+    output a job does not publish, and no static `needs` chain of any kind,
+    `.result` as well as `.outputs.<name>`, may name a job the reader does
+    not list in `needs`: each mistake evaluates to the empty string, so
+    every comparison against it is false and every step or job gated on it
+    skips. The audit resolves GitHub's dotted, bracket and mixed static
+    spellings --
+    `needs.<job>.outputs.<name>`, `needs['job'].outputs.name` and
+    `needs['job']['outputs']['name']` -- as the same reference. A dynamic
+    `needs[...]` access is refused because the producer and output cannot be
+    proved statically.
+
+    `rtl-fast.yml` publishes the same shape, from its `changes` job to
+    `verilator-lint` and `yosys-elaboration`, and is held by the same check.
+    Its aggregate counts a skipped consumer as a pass on purpose, since a
+    docs-only change legitimately runs no RTL lint. Therefore the producer is
+    held too: `changes` carries no `needs`, `if`, `continue-on-error`,
+    `defaults` or job-level `env`; the workflow carries no top-level
+    `defaults`; and its exact
+    two-step sequence is `actions/checkout@v4` with full history followed by
+    the `scope` step. That step's keys and three env bindings are pinned, and
+    its normalized canonical script must self-test `ci_scope.py`, derive the
+    conservative changed-file set, read the selector answer and publish that
+    answer. An empty or forced-false publication can no longer skip both RTL
+    consumers into the accepted docs-only path.
+
+    The verdict half of the fast lane is held the same way ([R2] on PR
+    #239). Because the aggregate runs under `always() && !cancelled()`, its
+    one verdict step is the entire conversion of four job results into the
+    required `rtl-fast` context, and an `if` on that step, a result binding
+    rebound to the literal `success`, or a `case` widened to
+    `success|skipped|failure` each turned a FAILED fast job into a green
+    required context while every job key stayed canonical. So the aggregate
+    must list every other job of the workflow in its `needs`, which also
+    refuses an entry quietly dropped from the verdict; its single step
+    carries exactly `name`, `env` and `run`; its env is derived from that
+    `needs` list, one `<JOB>_RESULT` name per needed job bound to
+    `${{ needs.<job>.result }}`; and its normalized script equals the
+    canonical form derived from the same list, whose `case` accepts exactly
+    `success` and `skipped`. Each public check name (`verilator-suites`,
+    `yosys-portability`, `rtl-fast`, `elaborate`) must be carried by exactly
+    one job, so a second job renamed to a required name cannot make the
+    ruleset's binding ambiguous.
 
 `--selftest` covers, one at a time: the step removed, the token missing, the
 live read replaced by an echo, the event not passed, `|| true`, the decoy
 itself, a literal after the real read and after the call, `gh api` in a
 comment only, `observed` from another command, two assignments, the call
 before the read, an extra line, a missing `set` line; each key escape above
-on the step, on the job, on the workflow and on the verifier steps; a
+on the step, on the job, on the workflow and on the verifier steps; the gate
+given a `needs` on a job that skips on `schedule`; `if: false`, an event-only
+`if`, a `shell:`, a `continue-on-error`, a `working-directory` and a dropped
+env key on the pin and decision steps; `PR_DRAFT` forced to `true`,
+`PR_BASE_SHA` rebound to `${{ github.sha }}`, `EVENT_NAME` hard-coded to
+`pull_request`, `GH_TOKEN` rebound to another token and a verifier's
+`GATE_SHA` rebound to its own run; the decision script rewritten to publish
+`run_full=false` always and stripped of the selector's self-test; the assert
+step moved before the
+checkout; a `GITHUB_PATH` step inserted before it; the pin step removed; the
+pin and assert steps swapped; a checkout without `fetch-depth: 0`; a `GH_HOST`
+on the job and on the workflow; a shard denominator restated below its matrix
+size, restated while the matrix grows, and stale in a worker's display name; a
 verifier that reassigns `GATE_SHA`, passes the wrong `--expect`, passes none,
 or keeps `--expect` while the matrix grows; an aggregate `if` loosened or
-dropped; a whitespace-only reformatting of both scripts that must still pass;
-and the decision itself for every event class.
+dropped; the gate's `run_full` and `rtl` outputs each rebound to a literal
+`false`, `run_full` rebound to the scope answer, `target_sha` rebound to the
+run's own SHA, each of the three dropped, the whole map dropped and a surplus
+output added; a worker gated on an output nobody publishes, on `if: false`, on
+a value the decision never takes, made `continue-on-error`, given a
+`defaults.run.shell`, or reading the gate's output without needing the gate; a
+new job that depends on the gate and gates on nothing; in `rtl-fast.yml`, the
+`changes` selector's `rtl` output rebound to a literal and dropped, and its two
+consumers gated on a misspelt output and on `if: false`; the `changes` job and
+scope step each given `if: false`, the job made `continue-on-error`, the scope
+env rebound, the scope script made to export `rtl=false` and stripped of its
+self-test, checkout/scope swapped, checkout made shallow, and a workflow
+`defaults.run.shell` inserted; dotted/bracket, all-bracket and mixed
+`needs...outputs` references to missing dependencies or outputs, plus a
+dynamic bracket reference; the fast verdict step given `if: false`, a
+`shell` and a `continue-on-error`, its lint result binding rebound to the
+literal `success`, and its `case` widened to accept `failure`;
+`bdd-conformance` dropped from the aggregate's `needs` and a new fast job
+left outside them; `bdd-conformance` itself given `if: false`, a
+`continue-on-error` and a `defaults.run.shell`; a `.result` read from a job
+outside `needs`, in the dotted and in the bracket spelling; `verilator-lint`
+renamed to the public name `rtl-fast`; a job-level `env` on the fast
+selector; a whitespace-only reformatting of all five
+canonical scripts that must still pass; and the decision itself for every
+event class.
 
 ## One authoritative SHA
 
@@ -218,6 +390,15 @@ validates one tree. The workflow makes that explicit and machine-checked
   unknown label included, and any shard-directory count but `--expect`, so
   an aggregate cannot quietly stop proving that the gate, the run and its
   checkout agree, or tally three shards as four.
+
+The shard count is stated once, by each worker's `strategy.matrix.shard` list.
+The worker passes `--shard ${{ matrix.shard }}/${{ strategy.job-total }}` and
+names itself the same way, so growing that list moves the split with it, and
+`--check` derives the aggregate's `--expect` from the same list rather than
+reading a number written beside it. A restated denominator is refused, whether
+it appears in a script or in a job name: with a matrix of five and a literal
+`/4`, shard 4/5's suites and tops are never produced while `--expect`, the
+uploaded artifact count and the downloaded shard count all still agree.
 
 The aggregates refuse, and the check fails rather than skips:
 
