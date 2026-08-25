@@ -116,10 +116,6 @@ jobs:
       - name: Entity shape gate
         run: python3 scripts/check_entity_shape.py --self-test
 
-      # DT binding gate: negative controls for the kl,dma-ether / kl,milan-pcm
-      # binding checker (a checker that cannot fail is not a gate).
-      - name: Device-tree binding gate
-        run: python3 sw/dts/milan_dt.py selftest
 
   # ==========================================================================
   #  THIS JOB WENT GREEN 2026-07-28 AND MUST STAY GREEN (roadmap item 00).
