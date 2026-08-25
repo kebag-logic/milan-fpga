@@ -312,9 +312,9 @@ the conformant floor then fits every shipped shape, and the gate fails with
 how that was found: by enumerating what a slot may legally hold.** A name slot
 is a fixed 64-byte NUL-padded AEM string. `SET_NAME` accepts and writes all
 eight 64-bit lanes with no non-zero requirement
-([`gen_ucode.py`](../../protocol-processor/hdl/aecp/ucode/gen_ucode.py) lines
-1897-1924), so the value space is every 64-byte string, and the empty string is
-the one that is 64 zero bytes. For an ordinal the shape has:
+(`protocol-processor/hdl/aecp/ucode/gen_ucode.py` lines 1897-1924), so the
+value space is every 64-byte string, and the empty string is the one that is 64
+zero bytes. For an ordinal the shape has:
 
 | what the entity holds | round 3 wrote | round 3 decoded it back as |
 |---|---|---|
