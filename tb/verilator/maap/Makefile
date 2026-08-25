@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 # KL_maap verification: IEEE 1722 Annex B probe/defend/announce vs the
-# pipewire maap.c reference contract (golden frames + SM walk + conflicts).
+# module-avb maap.c reference contract (golden frames + SM walk + conflicts).
 # 10 kHz scaled clock: 1 ms tick = 10 cycles (probe 500 ms ~ 5k cycles).
 VERILATOR ?= verilator
 RTL_DIR    = ../../../hdl

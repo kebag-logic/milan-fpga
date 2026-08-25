@@ -99,7 +99,7 @@ module KL_tdm_render #(
   output logic        tdm_dout_o,        //! serial data out, MSB first (driven
                                          //! on the falling bclk edge)
 
-  // ---- status (Linux-observable via CSR; plain clk_i counters) ---------
+  // ---- status (host-observable via CSR; plain clk_i counters) ----------
   output wire  [15:0] frames_o,          //! frames serialized onto the bus
   output wire  [15:0] underruns_o,       //! frame starts with no fresh frame
                                          //! (last frame repeated)

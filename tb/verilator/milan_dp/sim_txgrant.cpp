@@ -7,7 +7,7 @@
  *
  * WHY THIS EXECUTABLE EXISTS: an A/B on the AX7101 proved the 0x0024+
  * fabric starves the CPU DMA-TX lane minutes after an ATDECC controller
- * REGISTERs for unsolicited notifications - ssh/ARP die while the kernel,
+ * REGISTERs for unsolicited notifications - ssh/ARP die while the host CPU,
  * RX, AAF streaming and the control lane all stay healthy (bd-stage b2
  * ~146us/frame, TX n~147 frames in 8 min). The graded property is the TX
  * TRUNK's: control-lane traffic must not starve the best-effort CPU lane

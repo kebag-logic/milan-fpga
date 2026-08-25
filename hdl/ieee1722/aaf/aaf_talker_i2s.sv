@@ -72,7 +72,7 @@ module aaf_talker_i2s #(
     output logic        m_axis_tlast,
     input  wire         m_axis_tready,
 
-    // ---- status (Linux-observable via CSR) --------------------------------
+    // ---- status (host-observable via CSR) ---------------------------------
     output reg  [31:0]  frames_sent_o,     //! AAF frames completed on the AXIS master
     output reg  [31:0]  pairs_captured_o   //! I2S L+R sample pairs captured (liveness)
 );

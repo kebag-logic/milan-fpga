@@ -194,7 +194,7 @@ assign s_axis_tready = m_axis_tready;
 //! crossed the pins some nanoseconds BEFORE this beat, on TX it leaves some
 //! nanoseconds AFTER. PTP_INGRESS_LAT/PTP_EGRESS_LAT carry those constants and
 //! the sign is applied here so software never has to think about it. Both reset
-//! to 0. The explicit option-OFF bench may apply measured constants in ptp4l
+//! to 0. The explicit option-OFF bench may apply measured constants host-side
 //! instead; move one or the other, never both, or the correction double-counts.
 //! NOTE: this is the register half of REQ-PTP-06. True SFD capture needs a tap
 //! at the GMII/PHY boundary; nothing at this AXIS boundary can synthesise it,

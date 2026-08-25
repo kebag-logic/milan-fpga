@@ -11,13 +11,13 @@
   Date        : 2026-07-17
   Description : AAF RX payload extractor for the bound listener sink — the
                 media half of the Milan listener (task-12 lineage,
-                ARCHITECTURE_HW_SW_SPLIT "DMA PCM ring from Linux first").
+                ARCHITECTURE_HW_SW_SPLIT "DMA PCM ring first" plan).
 
                 Taps the RX AXI-Stream (never backpressures the datapath),
                 buffers every frame through a drop-capable frame FIFO, and
                 emits ONLY the AAF sample payload (bytes O+24 .. O+24+
                 data_len-1, wire byte order = S32BE interleaved PCM as
-                PipeWire consumes it) as one AXIS frame per PDU toward the
+                the host consumer reads it) as one AXIS frame per PDU toward the
                 DRAM PCM ring writer.
 
                 The accept/kill verdict is NOT re-derived here: the paired

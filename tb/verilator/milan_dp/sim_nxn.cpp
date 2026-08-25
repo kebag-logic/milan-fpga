@@ -5231,8 +5231,8 @@ int main(int argc, char** argv) {
     //  (AAF_PLAYBACK_P=1, the cfg_ax8x8 ship flip). The full playback
     //  path IN the datapath: a host-written PCM ring is fetched over the
     //  pb_mem word port, paced by KL_pcm_tx, latched by the capture
-    //  crossbar's RING bucket, and framed by the packetizer - the ALSA
-    //  aplay direction, ending at the MAC TX AXIS.
+    //  crossbar's RING bucket, and framed by the packetizer - the host
+    //  playback direction, ending at the MAC TX AXIS.
     //
     //  Placement decoupling is the point of the map: ring PAIR 0 (host
     //  channels 0/1) is mapped onto BOTH talker 0's and talker 1's wire

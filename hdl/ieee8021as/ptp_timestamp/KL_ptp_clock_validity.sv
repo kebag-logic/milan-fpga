@@ -39,7 +39,7 @@
                 THE THREE TERMS, and where each owner's evidence lives:
 
                   * SYNC HEALTH (sw_* / fabric_sync_ok_i). In compatibility
-                    mode the PHC is disciplined by ptp4l, so its health is a
+                    mode the PHC is disciplined off-chip, so its health is a
                     daemon servo fact that the datapath cannot infer. In
                     fabric mode the on-chip gPTP engine owns that servo and
                     publishes its selected-and-synchronised verdict directly;
@@ -104,7 +104,7 @@
                 interoperate with each other via the IEEE 802.1AS
                 protocol" - and the clause adds that the determination is
                 MEDIUM-DEPENDENT. In compatibility mode it is the exchange
-                verdict ptp4l computes; in fabric mode the on-chip engine
+                verdict the daemon computes; in fabric mode the on-chip engine
                 publishes its own verdict through fabric_as_cap_i. The old
                 compatibility consumer proxied it as |pdelay CSR|, which is
                 stale-true forever once the daemon dies and flag-flaps

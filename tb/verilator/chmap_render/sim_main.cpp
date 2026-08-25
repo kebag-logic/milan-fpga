@@ -239,7 +239,7 @@ int main(int argc, char** argv) {
   // Phase 7: item-7 host-playback source (map entry src = 1). The
   //   KL_pcm_tx pair bus lands in a SECOND latest-sample latch indexed
   //   by pbch = 2*pair_slot + (0 L / 1 R); it is the only route from the
-  //   ALSA playback ring to a physical output.
+  //   host playback ring to a physical output.
   // ================================================================
   // slot s carries a distinguishable L/R pair (0xPB.. tag, not an AVB value)
   for (int s = 0; s < 8; s++) pb_pair(s, 0xB00000u | (s << 4) | 0x0,

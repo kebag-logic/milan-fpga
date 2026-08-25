@@ -45,7 +45,7 @@
                 pbch = 2*pair_slot + (0 L / 1 R). It is the exact mirror of
                 the AVB latch: free-running, latest-sample, no queueing -
                 the render tick decides when it is observed. Without it the
-                only route from the ALSA playback ring to the line-out was
+                only route from the host PCM playback ring to the line-out was
                 "packetize onto the wire and receive your own stream back".
 
                 Render: a map RAM (one write port, entry format

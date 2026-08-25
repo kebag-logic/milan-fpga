@@ -34,7 +34,7 @@
                           and bounded authority (|u| <= U_MAX_P).
 
                   step guard (2026-07-23 silicon): a local ptp_now
-                          step/slew (GM reboot -> ptp4l stepping the
+                          step/slew (GM reboot -> the daemon stepping the
                           PHC) makes ONE window's local span enormous
                           while crf_rate_i stays healthy; that single
                           window used to wind the integrator straight

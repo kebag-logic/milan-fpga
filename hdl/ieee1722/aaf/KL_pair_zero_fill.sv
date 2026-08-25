@@ -59,7 +59,7 @@
 
                 PLACEMENT. Downstream of the capture/playback pair mux and
                 upstream of the packetizer bypass mux, so it covers the
-                physical front-ends AND the ALSA-ring playback source. The
+                physical front-ends AND the PCM-ring playback source. The
                 output stage is REGISTERED: every strobe (live pass-through
                 or fill) leaves one clk_i cycle after its decision cycle -
                 a timing cut, not a semantic one; the packetizer is

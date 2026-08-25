@@ -69,7 +69,7 @@ VFLAGS = --cc --exe --build -j 0 \
          -GDIAG_TICK_CYC_P=256 \
          -CFLAGS "-std=c++17 -O2"
 
-# Most historical integration legs exercise the retained Linux host-PCM and
+# Most historical integration legs exercise the retained host-PCM and
 # software-gPTP shape. Both options are explicit; obj_gptp deliberately omits
 # the gPTP override and therefore proves the product default rather than a
 # forced -G1.
@@ -217,7 +217,7 @@ run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) soundcard-off
 	$(VERILATOR) $(SHAPE_DV) $(DP_VFLAGS) --Mdir obj_nxndv -GN_STREAMS=4 -CFLAGS "-DNSTREAMS_TB=4 -DDIVERGENT_TB=1 -I$(CURDIR)/gen_divergent" $(SRCS) sim_nxn.cpp -o Vmilan_dp_nxndv
 # obj_nxn8 also elaborates AAF_PLAYBACK_P=1 (the task #31 cfg_ax8x8 ship
 # flip) and runs the host-ring -> RING-bucket -> talker-wire section
-# (-DAAF_PB_TB): the ALSA playback direction proven INSIDE the datapath.
+# (-DAAF_PB_TB): the host playback direction proven INSIDE the datapath.
 # obj_nxn8 is also the ONLY leg that elaborates the task #65 loopback lane
 # (-GLOOPBACK_P=1, paired with -DLOOPBACK_TB so the C++ side knows which
 # gateware it is driving). The other two sim_nxn legs run with the lane OFF

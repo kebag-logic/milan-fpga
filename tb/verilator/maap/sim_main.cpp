@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Kebag Logic
 // SPDX-License-Identifier: CERN-OHL-W-2.0
 //
-// Self-checking harness for KL_maap — IEEE 1722 Annex B vs the pipewire
+// Self-checking harness for KL_maap - IEEE 1722 Annex B vs the module-avb
 // maap.c reference contract: 3 probes @500ms+jitter -> announce @3-5s
 // (address valid only announced); RX PROBE conflict: probing->re-address,
 // announced->DEFEND with the overlap; RX DEFEND/ANNOUNCE with conflicting

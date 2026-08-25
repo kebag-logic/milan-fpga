@@ -11,7 +11,7 @@
   Date        : 2026-07-01
   Description : AXI4-Lite control/status-register (CSR) block for the Milan TSN
                 network interface. This is the memory-mapped control plane
-                (REQUIREMENTS.md REQ-CSR-*) that the Linux driver binds to; it
+                (REQUIREMENTS.md REQ-CSR-*) that host software binds to; it
                 turns the previously compile-time-only TSN knobs (MAC config,
                 802.1Q classifier map, 802.1Qav CBS slopes, PTP clock control)
                 into runtime-writable registers, and exposes MAC statistics,
@@ -687,7 +687,7 @@ module milan_csr #(
   //! ---- 0x778 clock validity: the AVTP "tu" verdict -----------------------
   //  The product-default fabric plane owns this verdict directly. In an
   //  explicit GPTP_PLANE_EN_P=0 compatibility image, discipline is a servo
-  //  fact that lives in ptp4l, so software leases it here alongside the
+  //  fact owned by off-chip software (#259), so software leases it here with the
   //  legacy GM/pdelay/AS_PATH publication ABI. It is a LEASE and not a flag
   //  on purpose: on 2026-07-27 the
   //  Arty's PHC was 60 h out of the domain and we streamed 31 M frames
@@ -756,8 +756,8 @@ module milan_csr #(
   //! GUARDED: while [0]=1 the CPU's eth-disruption levers are refused -
   //! A_PHY_RST writes are DROPPED, A_LINK_CTRL[1] (mac_reinit) is MASKED,
   //! and o_eth_guard gates the LiteX phy_crg_reset chain in milan_soc.py -
-  //! so no software state (statd reinit, ethtool bounce, a corrupt rootfs
-  //! poking CSRs) can take the streams' MAC down. The fabric link guard's
+  //! so no software state (a daemon reinit, a driver bounce, a corrupt host
+  //! image poking CSRs) can take the streams' MAC down. The fabric link guard's
   //! own auto-recovery is NOT gated: it is the trusted fabric plane.
   //! UNGUARD by writing the magic 32'h554E_4C4B ("UNLK"); ANY other write
   //! re-arms the guard. Software unguards once healthy and may re-arm

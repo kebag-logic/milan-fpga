@@ -152,12 +152,12 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   parameter int AUDIO_IF_I2S_PAIR_P = 0,
 parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
                                    //! TBs shrink it to keep injections short)
-  //! item-7 ALSA playback: 1 = instantiate KL_pcm_tx (host PCM ring -> AAF
+  //! item-7 PCM playback: 1 = instantiate KL_pcm_tx (host PCM ring -> AAF
   //! pair source) and let it drive the packetizer in place of the ADC capture
   //! front-end while pb_enable_i is set. 0 (default) prunes the whole block so
   //! the datapath is byte-identical to the pre-item-7 shape.
   parameter int AAF_PLAYBACK_P = 0,
-  //! Linux ALSA host surface. Zero structurally removes the listener PCM-ring
+  //! Host sound-card surface. Zero structurally removes the listener PCM-ring
   //! route; AAF receive, render, TDM/I2S and the channel crossbars remain.
   parameter int SOUND_CARD_P = 0,
   //! task #31 START-SMALL lever: how many host playback RINGS KL_pcm_tx
@@ -561,7 +561,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   output wire        o_mmcm_ps_incdec,
   input  wire        i_mmcm_ps_done,
 
-  // ---- item-7 ALSA playback: host PCM ring -> KL_pcm_tx pair source --------
+  // ---- item-7 PCM playback: host PCM ring -> KL_pcm_tx pair source ---------
   //! Only live when AAF_PLAYBACK_P != 0; the SoC inert-ties these otherwise
   //! (and the KL_pcm_tx generate prunes, so the ports read/drive constants).
   //! The word-fetch port (pb_mem_*) is bridged to a DRAM ring read master at
@@ -996,7 +996,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   end endgenerate
 
   // ==========================================================================
-  //  item-7 ALSA playback source (KL_pcm_tx) — the TX/talker mirror of the RX
+  //  item-7 PCM playback source (KL_pcm_tx) - the TX/talker mirror of the RX
   //  depacketizer PCM ring. A host-written DRAM PCM ring, read through the
   //  SoC's word-fetch bridge (pb_mem_*), is de-interleaved and media-clock-
   //  paced into the SAME {pair_valid, pair_slot, L, R} contract the packetizer
@@ -1116,7 +1116,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //  per media tick. The map RAM resets all-zero, so the enable bit is the
   //  single bypass truth (program CMAP through the 0x900 port, then arm).
   //  Phase-1 sources: physical capture (I2S/TDM front-end pair) + tone; the
-  //  ALSA ring (KL_pcm_tx) and per-lane TDM sources are documented follow-ups.
+  //  PCM ring (KL_pcm_tx) and per-lane TDM sources are documented follow-ups.
   // ==========================================================================
   wire        cmap_pv_w;
   wire [4:0]  cmap_slot_w;
@@ -1255,7 +1255,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     //! a "physical" cluster silently read host audio whenever playback armed.
     .tdm_pair_valid_i (aafcap_pv_w), .tdm_pair_slot_i (aafcap_slot_w),
     .tdm_l_i (aafcap_l_w), .tdm_r_i (aafcap_r_w),
-    //! follow-up 2: the ALSA-playback ring (KL_pcm_tx) as a selectable source
+    //! follow-up 2: the host-playback ring (KL_pcm_tx) as a selectable source
     .ring_pair_valid_i (ring_src_pv_w), .ring_pair_slot_i (ring_src_slot_w),
     .ring_l_i (ring_src_l_w), .ring_r_i (ring_src_r_w),
     //! the media-grid pilot (task #59): stepped by the same media_tick_p as
@@ -5290,8 +5290,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .cfg_stream_id_i (strtbl_sid_w),
     .cfg_stream_en_i (strtbl_en_w),
     //! PRE-FILTER tap (2026-07-19): the media path must not depend on the
-    //! kernel's dest-MAC filter config - the TCAM now shields the CPU from
-    //! the AVTP multicast flood (16 kfps ate the 1-hart kernel: 55k RX
+    //! host stack's dest-MAC filter config - the TCAM now shields the CPU from
+    //! the AVTP multicast flood (16 kfps ate the 1-hart host: 55k RX
     //! drops, pdelay responses down to 35% = asCapable flaps at the switch)
     //! while the fabric keeps consuming the stream here.
     .s_tdata_i  (rx_axis_ptp_to_filt.tdata),
