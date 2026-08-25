@@ -3291,6 +3291,84 @@ def derive_model_id(shape):
     return (MODEL_ID_OUI << MODEL_ID_HASH_BITS) | (top8 & mask)
 
 
+# ---------------------------------------------- gPTP engine pinned dataset --
+GPTP_UCODE_GENERATOR = os.path.join(
+    ROOT, "gptp-processor", "hdl", "ucode", "gen_gptp_ucode.py")
+
+#! The gptp: field the engine generator CONSUMES (--p1); everything else in
+#! the section it hardcodes ([R-parallel] on #228). MAC and the clock
+#! frequency are consumed too, from platform/constraints, not gptp:.
+#! gptp.domain is pinned to 0 by its own Milan rule and the engine emits 0.
+GPTP_ENGINE_CONSUMED = ("priority1",)
+
+_gptp_engine_pins_cache = None
+
+
+def _engine_const(lines, pattern, what):
+    """Exactly one live match in the comment-stripped generator source.
+    Zero means the authority moved and this derivation is blind; two means
+    it is ambiguous. Refuse both (derive, never mirror a constant)."""
+    hits = [m.group(1) for ln in lines for m in [re.match(pattern, ln)] if m]
+    if len(hits) != 1:
+        raise ConfigError(
+            f"gen_gptp_ucode.py: {len(hits)} live matches for {what}, "
+            f"need exactly 1; the engine's Announce dataset cannot be "
+            f"derived, refusing rather than defaulting ([R-parallel] on "
+            f"#228)")
+    return int(hits[0], 0)
+
+
+def gptp_engine_pins(source=None):
+    """The Announce dataset the fabric engine transmits, PARSED from the
+    pinned generator (never restated here: a mirrored 248 or 0xF8FE436A
+    would diverge in silence on a submodule bump). The generator consumes
+    only --mac, --p1 and --clk-hz; priority2, clockQuality and the per
+    message logMessageInterval octets are constants in its source, so the
+    AVB_INTERFACE descriptor must be derived FROM them ([R-parallel] on
+    #228). `source` is for the test suite's synthetic fixtures only."""
+    global _gptp_engine_pins_cache
+    from_file = source is None
+    if from_file:
+        if _gptp_engine_pins_cache is not None:
+            return dict(_gptp_engine_pins_cache)
+        with open(GPTP_UCODE_GENERATOR, encoding="utf-8") as f:
+            source = f.read()
+    num = r"(0[xX][0-9A-Fa-f]+|\d+)"          # captured value
+    anum = r"(?:0[xX][0-9A-Fa-f]+|\d+)"       # matched, not captured
+    lines = [ln.split("#", 1)[0].rstrip() for ln in source.splitlines()]
+    p2 = _engine_const(
+        lines, rf"P1_C\s*,\s*P2_C\s*=\s*\d+\s*,\s*{num}$", "P2_C")
+    cq = _engine_const(lines, rf"CQ_C\s*=\s*{num}$", "CQ_C")
+    if not 0 <= cq <= 0xFFFFFFFF:
+        raise ConfigError(f"gen_gptp_ucode.py: CQ_C 0x{cq:X} is not a "
+                          f"32-bit clockQuality word")
+
+    def logint(mtype, name):
+        """e_hdr's logint argument for one TX message type: the wire
+        logMessageInterval octet, sign-extended."""
+        v = _engine_const(
+            lines,
+            rf"\s*e_hdr\(p,\s*{mtype},\s*{anum},\s*\w+,\s*{num},\s*{anum}\)$",
+            f"e_hdr {name} TX")
+        if not 0 <= v <= 0xFF:
+            raise ConfigError(f"gen_gptp_ucode.py: {name} logMessageInterval "
+                              f"0x{v:X} is not an octet")
+        return v - 256 if v >= 128 else v
+
+    pins = dict(
+        priority2=p2,
+        clock_class=(cq >> 24) & 0xFF,
+        clock_accuracy=(cq >> 16) & 0xFF,
+        offset_scaled_log_variance=cq & 0xFFFF,
+        log_sync_interval=logint("0x0", "Sync"),
+        log_announce_interval=logint("0xB", "Announce"),
+        log_pdelay_interval=logint("0x2", "Pdelay_Req"),
+    )
+    if from_file:
+        _gptp_engine_pins_cache = dict(pins)
+    return pins
+
+
 def load_config(path):
     """Load + validate + normalize a YAML end-station config. Returns the
     normalized config dict; raises ConfigError on any violation."""
@@ -3501,25 +3579,36 @@ def load_config(path):
                     f"domain, that is the CLOCK_DOMAIN descriptor, not this.")
             return v
 
-        def _gp_s8(k, dflt):
-            v = int(gp_raw.get(k, dflt))
-            if not -128 <= v <= 127:
-                raise ConfigError(f"gptp.{k} {v} outside -128..127")
-            return v
-        oslv = int(gp_raw.get("offset_scaled_log_variance", 0xFFFF))
-        if not 0 <= oslv <= 0xFFFF:
-            raise ConfigError(
-                f"gptp.offset_scaled_log_variance {oslv} outside 0..65535")
+        #! Engine-pinned fields ([R-parallel] on #228): the fabric engine
+        #! consumes only MAC, priority1 and the clock frequency; priority2,
+        #! clockQuality and the log intervals are constants in
+        #! gptp-processor/hdl/ucode/gen_gptp_ucode.py and go out in every
+        #! Announce. The descriptor takes the ENGINE's values, and a config
+        #! stating anything else is refused, so the AEM dataset cannot
+        #! disagree with the wire.
+        pins = gptp_engine_pins()
+
+        def _gp_pinned(k):
+            if k in gp_raw and int(gp_raw[k]) != pins[k]:
+                raise ConfigError(
+                    f"gptp.{k} {int(gp_raw[k])} diverges from the fabric "
+                    f"engine's {pins[k]}: the engine generator consumes only "
+                    f"{', '.join(GPTP_ENGINE_CONSUMED)} (plus MAC and clock "
+                    f"frequency) and announces this field from a constant in "
+                    f"gptp-processor/hdl/ucode/gen_gptp_ucode.py. State "
+                    f"{pins[k]} or omit the key ([R-parallel] on #228)")
+            return pins[k]
         gptp = dict(
             priority1=_gp_u8("priority1", 248),
-            priority2=_gp_u8("priority2", 248),
-            clock_class=_gp_u8("clock_class", 248),
-            clock_accuracy=_gp_u8("clock_accuracy", 0xFE),
-            offset_scaled_log_variance=oslv,
+            priority2=_gp_pinned("priority2"),
+            clock_class=_gp_pinned("clock_class"),
+            clock_accuracy=_gp_pinned("clock_accuracy"),
+            offset_scaled_log_variance=_gp_pinned(
+                "offset_scaled_log_variance"),
             domain=_gp_domain(),
-            log_sync_interval=_gp_s8("log_sync_interval", -3),
-            log_announce_interval=_gp_s8("log_announce_interval", 0),
-            log_pdelay_interval=_gp_s8("log_pdelay_interval", 0),
+            log_sync_interval=_gp_pinned("log_sync_interval"),
+            log_announce_interval=_gp_pinned("log_announce_interval"),
+            log_pdelay_interval=_gp_pinned("log_pdelay_interval"),
         )
 
     # audio interface
@@ -4825,8 +4914,7 @@ def build(config_path, outdir=None, write_rtl=False, write_fragment=None):
         # reads one stable image rather than three jobs racing on a shared
         # relative gptp_ucode.hex in their run directories.
         p_gptp_ucode = os.path.join(d, "gptp_ucode.hex")
-        generator = os.path.join(
-            ROOT, "gptp-processor", "hdl", "ucode", "gen_gptp_ucode.py")
+        generator = GPTP_UCODE_GENERATOR
         mac = _mac48(cfg["platform"]["mac_address"],
                      "platform.mac_address")
         subprocess.run(

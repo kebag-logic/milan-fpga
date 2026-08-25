@@ -220,16 +220,17 @@ gptp:
   # descriptor's clock fields and the fabric uCPU image. priority1 248 =
   # the deferring Milan end-station default (see the AX7101 configs). The
   # fabric plane is the one product gPTP owner (#259); no daemon
-  # configuration is generated from this section any more. clock_accuracy,
-  # offset_scaled_log_variance and log_sync_interval restate the HISTORICAL
-  # Arty descriptor constants byte-exactly, so the retired bring-up board's
-  # advertised model does not move when the owner section is stated.
+  # configuration is generated from this section any more. The engine
+  # consumes only priority1 (plus MAC and clock frequency); every other
+  # clock field is a constant in gptp-processor/hdl/ucode/gen_gptp_ucode.py
+  # that the builder derives or refuses ([R-parallel] on #228). The
+  # historical Arty clock_accuracy 0x21 / log_sync_interval 0 restatement
+  # is deleted: the engine announces 0xFE and -3, and a descriptor stating
+  # anything else disagrees with the wire.
   priority1: 248
   priority2: 248
   clock_class: 248
-  clock_accuracy: 0x21
   offset_scaled_log_variance: 0x436A
   domain: 0
-  log_sync_interval: 0
   log_announce_interval: 0
   log_pdelay_interval: 0

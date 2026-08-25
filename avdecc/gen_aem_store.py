@@ -304,10 +304,13 @@ def d_stream(dtype, index, name, flags, formats, buffer_len=0):
     return b
 
 def d_avb_interface(gp=None):
-    """gp = the config's `gptp:` section (overlay key "gptp"), the SAME
-    source that generates the board's ptp4l config - so the descriptor can
-    no longer claim one clock while the daemon runs another. Absent (legacy
-    overlays / builtin spec) keeps the historical constants BYTE-EXACTLY:
+    """gp = the builder-RESOLVED `gptp:` dataset (overlay key "gptp").
+    Since [R-parallel] on #228 the builder derives every field the fabric
+    engine does not consume (priority2, clockQuality, the log intervals)
+    from the constants in gptp-processor/hdl/ucode/gen_gptp_ucode.py and
+    refuses a config that states anything else, so these bytes are the
+    wire Announce dataset, not a free claim. Absent (legacy overlays /
+    builtin spec) keeps the historical constants BYTE-EXACTLY:
     those shapes' entity_model_id predates the section, and controllers
     cache descriptor content by model id, so their bytes must not move."""
     gp = gp or {}
@@ -869,6 +872,17 @@ def builtin_spec():
                          + [f"Virtual Out {n}" for n in range(2, 8)],
         cluster_names_out=[f"I2S In {n}" for n in range(2)]
                           + [f"Virtual In {n}" for n in range(2, 8)],
+        # The gPTP dataset of the DEPLOYED arty shape, written out for the
+        # same reason as the cluster names: the overlay path must reproduce
+        # it byte-for-byte (test_builder gate 10). The values are the fabric
+        # engine's pinned Announce dataset ([R-parallel] on #228): the
+        # builder derives them from gptp-processor/hdl/ucode/
+        # gen_gptp_ucode.py and refuses a diverging config, so a drift here
+        # breaks gate 10 loudly instead of shipping two clocks.
+        gptp=dict(priority1=0xF8, priority2=0xF8, clock_class=0xF8,
+                  clock_accuracy=0xFE, offset_scaled_log_variance=0x436A,
+                  domain=0, log_sync_interval=-3, log_announce_interval=0,
+                  log_pdelay_interval=0),
     )
 
 def _out_identity_offset(p):

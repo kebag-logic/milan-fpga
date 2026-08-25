@@ -93,12 +93,15 @@ gptp:
   # posture" deliberately BEAT the switch's 246 claim so the board would win
   # the BMCA - useful for a bring-up bench, wrong for a shipping end station
   # and wrong for a compliance run. Change HERE, nowhere else. The rest are
-  # the local-clock dataset the fabric gPTP engine announces.
+  # the local-clock dataset the fabric gPTP engine announces from constants
+  # in gptp-processor/hdl/ucode/gen_gptp_ucode.py; the builder refuses any
+  # stated value the engine does not announce ([R-parallel] on #228). The
+  # old offset_scaled_log_variance 0xFFFF never went out on the wire (the
+  # engine announces 0x436A), so the key is deleted and derived.
   priority1: 248
   priority2: 248
   clock_class: 248
   clock_accuracy: 0xFE
-  offset_scaled_log_variance: 0xFFFF
   domain: 0
   log_sync_interval: -3
   log_announce_interval: 0

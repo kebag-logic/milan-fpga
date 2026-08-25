@@ -8267,6 +8267,35 @@ def test_baremetal_profile_contract():
     print("  [gate 1b] gPTP ROM changes with each YAML-owned input: station "
           "MAC, priority1 and fabric clock")
 
+    #! [R-parallel] on #228: the engine consumes NOTHING else from gptp:,
+    #! so every other field must REFUSE a divergent config value instead of
+    #! shipping an AEM dataset the wire Announce contradicts (gate 26b owns
+    #! the byte-exact descriptor half).
+    pins = eb.gptp_engine_pins()
+    pinned = ("priority2", "clock_class", "clock_accuracy",
+              "offset_scaled_log_variance", "log_sync_interval",
+              "log_announce_interval", "log_pdelay_interval")
+    for field in pinned:
+        bad = _variant(CONFIGS["ax7101_1x1_tdm8"],
+                       lambda c, f=field: c["gptp"].__setitem__(
+                           f, pins[f] + 1))
+        try:
+            eb.build(bad, OUT)
+            raise AssertionError(
+                f"gptp.{field} {pins[field] + 1} was ACCEPTED - the engine "
+                f"announces {pins[field]} and consumes no config value for "
+                f"this field, so the AEM dataset would diverge from the "
+                f"wire Announce")
+        except eb.ConfigError as e:
+            for part in (f"gptp.{field}", str(pins[field] + 1),
+                         str(pins[field]), "gen_gptp_ucode.py"):
+                assert part in str(e), f"refused, but without {part!r}: {e}"
+        finally:
+            os.unlink(bad)
+    print(f"  [gate 1b] the {len(pinned)} engine-pinned gptp fields REFUSE "
+          "a divergent config value, naming field, both values and "
+          "gen_gptp_ucode.py as the authority")
+
     def set_soc(key, value):
         return lambda c: c.setdefault("soc", {}).__setitem__(key, value)
 
@@ -14963,6 +14992,136 @@ def test_gptp_domain_is_one_source():
           f"the advertising plane's gptp_domain_i")
 
 
+def test_gptp_dataset_matches_engine_announce():
+    """Gate 26b: the AVB_INTERFACE clock dataset IS the engine's Announce.
+
+    THE DEFECT THIS GATE CLOSES ([R-parallel] on #228).  The builder
+    accepted nine gptp fields and published all of them in AVB_INTERFACE,
+    but ROM generation forwarded only MAC, priority1 and the clock
+    frequency; the pinned engine hardcodes priority2, clockQuality and
+    every logMessageInterval octet and transmits THOSE.  So the ax7101
+    configs advertised offset_scaled_log_variance 0xFFFF while the engine
+    announced 0x436A, and the arty configs advertised clock_accuracy 0x21
+    while it announced 0xFE - a controller comparing the descriptor with
+    the wire saw two different clocks.  The fix is DERIVATION: the builder
+    parses the generator's live constants, fills every non-consumed field
+    from them, and refuses a config that states anything else (gate 1b
+    owns the refusal arms; this gate owns the bytes and the parser).
+
+    Read here as well as in the builder: the expected values below come
+    from this test's OWN parse of gptp-processor/hdl/ucode/
+    gen_gptp_ucode.py, so a removed or cross-wired mapping in
+    endstation_builder fails byte-for-byte instead of comparing the
+    builder's derivation with itself."""
+    gen = open(os.path.join(
+        ROOT, "gptp-processor/hdl/ucode/gen_gptp_ucode.py")).read()
+    live = [ln.split("#", 1)[0] for ln in gen.splitlines()]
+
+    def one(pat, what):
+        hits = [m.group(1) for ln in live for m in [re.match(pat, ln)] if m]
+        assert len(hits) == 1, \
+            f"{what}: {len(hits)} live matches in gen_gptp_ucode.py, need 1"
+        return int(hits[0], 0)
+
+    p2 = one(r"P1_C\s*,\s*P2_C\s*=\s*\d+\s*,\s*(\d+)\s*$", "P2_C")
+    cq = one(r"CQ_C\s*=\s*(0[xX][0-9A-Fa-f]+)\s*$", "CQ_C")
+    n = r"(?:0[xX][0-9A-Fa-f]+|\d+)"
+    logints = {}
+    for mtype, name in (("0x0", "Sync"), ("0xB", "Announce"),
+                        ("0x2", "Pdelay_Req")):
+        v = one(rf"\s*e_hdr\(p,\s*{mtype},\s*{n},\s*\w+,\s*({n}),\s*\d+\)\s*$",
+                f"{name} e_hdr")
+        logints[name] = v - 256 if v >= 128 else v
+    wire = dict(priority2=p2,
+                clock_class=(cq >> 24) & 0xFF,
+                clock_accuracy=(cq >> 16) & 0xFF,
+                offset_scaled_log_variance=cq & 0xFFFF,
+                log_sync_interval=logints["Sync"],
+                log_announce_interval=logints["Announce"],
+                log_pdelay_interval=logints["Pdelay_Req"])
+
+    # 1. the builder's derivation agrees with this parse, field for field
+    assert eb.gptp_engine_pins() == wire, (
+        f"endstation_builder.gptp_engine_pins() {eb.gptp_engine_pins()} != "
+        f"this gate's own parse {wire} - one of the two readers of "
+        f"gen_gptp_ucode.py has rotted")
+    #! The consumed set is priority1 alone (--p1; MAC and clock frequency
+    #! ride --mac/--clk-hz from platform/constraints).  If the engine grows
+    #! an argument for a pinned field, the field must MOVE to the consumed
+    #! path, not stay refused.
+    assert eb.GPTP_ENGINE_CONSUMED == ("priority1",)
+    assert re.search(r'add_argument\("--p1"', gen), \
+        "the engine generator no longer consumes --p1"
+
+    # 2. every config's AVB_INTERFACE bytes 86..96 are BYTE-EXACT the wire
+    #    dataset (priority1, clockQuality, priority2, domain, intervals)
+    for name in sorted(CONFIGS):
+        cfg = eb.load_config(CONFIGS[name])
+        overlay = eb.emit_aem_overlay(cfg)
+        blob = eb._entity_model_image(cfg, overlay)["aem_desc.bin"]
+        avbi = image_descriptor(blob, 0x0009)
+        want = (bytes([cfg["gptp"]["priority1"], wire["clock_class"]])
+                + wire["offset_scaled_log_variance"].to_bytes(2, "big")
+                + bytes([wire["clock_accuracy"], wire["priority2"], 0,
+                         wire["log_sync_interval"] & 0xFF,
+                         wire["log_announce_interval"] & 0xFF,
+                         wire["log_pdelay_interval"] & 0xFF]))
+        assert avbi[86:96] == want, (
+            f"{name}: AVB_INTERFACE clock dataset {avbi[86:96].hex()} != "
+            f"the engine's Announce dataset {want.hex()} (1722.1-2021 "
+            f"7.2.8 bytes 86..96) - the descriptor claims a clock the "
+            f"wire does not carry ([R-parallel] on #228)")
+
+    # 3. a config OMITTING every pinned key is filled from the engine
+    thin = _variant(CONFIGS["ax7101_1x1_tdm8"],
+                    lambda c: [c["gptp"].pop(k, None) for k in wire])
+    cfg = eb.load_config(thin)
+    os.unlink(thin)
+    for k, v in wire.items():
+        assert cfg["gptp"][k] == v, \
+            f"omitted gptp.{k} resolved to {cfg['gptp'][k]}, engine says {v}"
+
+    # 4. the parser derives (it does not mirror): a fixture with OTHER
+    #    values comes back with those values, a commented-out duplicate
+    #    does not count, and a missing or twice-declared constant REFUSES
+    fixture = ("P1_C, P2_C = 248, 247\n"
+               "CQ_C = 0xF7FD436B\n"
+               "# CQ_C = 0x11111111 commented copies are stripped\n"
+               "    e_hdr(p, 0x0, 0x0208, RA, 0xFC, 44)\n"
+               "    e_hdr(p, 0x2, 0x0000, RA, 0x00, 54)\n"
+               "    e_hdr(p, 0xB, 0x0008, RA, 0x01, 76)\n")
+    got = eb.gptp_engine_pins(fixture)
+    assert got == dict(priority2=247, clock_class=0xF7, clock_accuracy=0xFD,
+                       offset_scaled_log_variance=0x436B,
+                       log_sync_interval=-4, log_announce_interval=1,
+                       log_pdelay_interval=0), got
+    for label, broken in (
+            ("missing CQ_C", fixture.replace("CQ_C = 0xF7FD436B\n", "")),
+            ("duplicate CQ_C", fixture + "CQ_C = 0x12345678\n"),
+            ("missing Announce TX",
+             fixture.replace("    e_hdr(p, 0xB, 0x0008, RA, 0x01, 76)\n",
+                             "")),
+            ("duplicate Announce TX",
+             fixture + "    e_hdr(p, 0xB, 0x0008, RA, 0x02, 76)\n")):
+        try:
+            eb.gptp_engine_pins(broken)
+            raise AssertionError(f"{label}: the derivation invented a value "
+                                 f"instead of refusing")
+        except eb.ConfigError as e:
+            assert "gen_gptp_ucode.py" in str(e), \
+                f"{label}: refused without naming the authority: {e}"
+    #! and the fixture path never poisons the real cache
+    assert eb.gptp_engine_pins() == wire
+
+    print(f"  [gate 26b] AVB_INTERFACE == wire Announce for all "
+          f"{len(CONFIGS)} configs: priority2 {wire['priority2']}, "
+          f"clockQuality 0x{cq:08X}, log intervals "
+          f"{wire['log_sync_interval']}/{wire['log_announce_interval']}/"
+          f"{wire['log_pdelay_interval']}; omitted keys fill from the "
+          f"engine; the parser refuses a missing or twice-declared "
+          f"constant ([R-parallel] on #228)")
+
+
 def _reserved_regions(dtsi):
     """The emitted device tree's `reserved-memory` node, parsed:
     ((#address-cells, #size-cells), [{name, base, size, no_map}, ...]).
@@ -15730,6 +15889,7 @@ if __name__ == "__main__":
                test_d10_cluster_names, test_d10_names_reach_the_rom,
                test_entity_identity_is_derived_not_mirrored,
                test_gptp_domain_is_one_source,
+               test_gptp_dataset_matches_engine_announce,
                test_pp_window_is_reserved,
                test_image_identity_is_baked,
                test_image_name_table_matches_descriptors,
