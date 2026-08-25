@@ -301,9 +301,11 @@ unsigned int runtime_page = milan_read(MILAN_ID) ^ (MILAN_ID_MAGIC ^ 0x9000u);
 ((milan_dyn_adp_blk)((runtime_page << 16) | MILAN_ADP_CTRL))->ctrl = 1u;
 ```
 
-The census now CLASSIFIES every store the compiler emits. Four classes are
+The census now CLASSIFIES every store the compiler emits. Five classes are
 placed: an address that resolves to a number (answered by number, in or out of
-the window), a stack address, the address of an object this translation unit
+the window), an address that resolves to a BOUNDED RANGE (judged by address
+the same way, and a range that so much as touches the window is refused), a
+stack address, the address of an object this translation unit
 DEFINES (a symbol it merely references is placed by the linker, not by this
 unit, so `extern volatile uint32_t r; r = 1u;` is refused), and the address
 helper's own return, which is the single sanctioned way into the window and
@@ -311,26 +313,64 @@ which exactly one function may store through. The
 arguments of a function this unit neither exports nor takes the address of are
 resolved from its call sites, which is what places the output-pointer writes in
 `parse_u64()` and `seconds_to_ns()` on the stack. Anything else is a REFUSAL,
-not an omission. Four mutation-table entries carry it: the runtime-derived base
-above, a second unplaceable store planted inside a function the residual already
-names (so the residual is pinned by count rather than exempting a function), a
-store through an `extern` symbol the linker places, and a second consumer of the
+not an omission. Mutation-table entries carry it: the runtime-derived base
+above, an unplaceable store planted inside the AEM verifier beside the placed
+copy store, a store through an `extern` symbol the linker places, and a second
+consumer of the
 address helper's return. The classifier's fail-closed default -- a store operand
 the resolver cannot even read -- is measured on a hand-written `sw rd, sym, rt`,
 because GCC never emits that pseudo-instruction here and an unexercised
 fail-closed branch is a claim rather than a measurement.
 
-Two stores in the shipping firmware are still not placed. They are DECLARED in
+**The residual that was a hole, and why it is gone.** An earlier revision
+DECLARED the copy loop's store rather than placing it, as the residual entry
+`("load_aem_image", "unplaced", None): 1`, asserted by exact count. That key
+binds neither the store's base nor its value, so the budget it declares can be
+SPENT by a dangerous store: redirecting only the shipping copy destination,
+
+```c
+volatile uint8_t *dst = (volatile uint8_t *)((((milan_read(MILAN_ID) ^
+    (MILAN_ID_MAGIC ^ 0x9000u)) << 16) | MILAN_ADP_CTRL));
+```
+
+compiles warning-clean, keeps the store statement `dst[i] = src[i]` textually
+identical, prints no window immediate, keeps the residual key set and count
+byte-for-byte the same, and after the boot identity check evaluates to the
+live `ADP_CTRL` (0x90000600), so the first copied byte (`'A'`, bit 0 set)
+asserts the ADP enable before the CRC comparison. The complete gate accepted
+it and reported the shipping tallies (found independently by both reviewers
+of PR #241 round 4; measured again here on the pre-fix revision before the
+fix was written).
+
+The class fix places the store instead of declaring it: on the edge the
+emitted `bltu` takes into the loop body, the branch's own comparison bounds
+the loop index, so the store address is the bounded range
+`[MILAN_AEM_DESC_BASE .. MILAN_AEM_DESC_BASE + MILAN_AEM_IMAGE_BYTES - 1]`,
+entirely outside the control window, and rule 1d additionally pins that range
+INSIDE the buffer the CRC verdict is taken over, in both directions: a
+verifier with no bounded store and a bounded store outside the buffer are
+both refusals. The refinement's own degenerate cases are measured on every
+run: a synthetic `bltu`-bounded loop store must come back as exactly base
+plus [0..63], and the same loop on a base whose sum can wrap 32 bits must
+come back unplaced. Three mutation-table entries carry the retired residual,
+each measured GREEN on the complete pre-fix gate first: the redirected
+destination above, a destination made unresolvable while preserving the old
+key and count (`MILAN_AEM_DESC_BASE + (milan_read(MILAN_VERSION) & 0x1000u)`),
+and a destination bounded but outside the CRC'd buffer (`SPIFLASH_BASE`).
+
+One store in the shipping firmware is still not placed. It is DECLARED in
 `RESOLVER_STORE_RESIDUAL` and asserted exactly, so one more unplaceable store
-anywhere -- in these two functions or in any other -- is RED, and a residual
-that goes away must be retired here and in the gate in the same change:
+anywhere -- in that function or in any other -- is RED, and a residual
+that goes away must be retired here and in the gate in the same change. Its
+identity is itself bound: the callee is part of the key, so a store through
+any other unresolved base is a different, refused class rather than a budget
+this entry hands out:
 
 | Store | Why it is not placed |
 |---|---|
-| `load_aem_image()`: `dst[i] = src[i]` | the base `MILAN_AEM_DESC_BASE` resolves and is outside the window, but the loop index is not bounded by this lattice, so the sum is not placed |
 | `parse_u64()`: `errno = 0` | the base is what `__errno_location()` returns, and that function is not compiled in this translation unit |
 
-So the property this gate proves is: no store outside those two lands in the
+So the property this gate proves is: no store outside that one lands in the
 control window, and any new store it cannot place reddens the gate. It is not
 "every store is resolved", and the closing verdict says so on every run. One
 more thing is assumed rather than proved here and is named for the same reason:
@@ -466,6 +506,7 @@ The rest are refusals, and each one costs a legitimate edit:
 | `entity_advertise` may not be exported, its address may not be formed anywhere in the firmware, and no other line of the emitted assembly may name it -- an `__attribute__((alias))` included | the arguments of a function another translation unit can name, or a table can hold, are not the arguments this unit's call sites show, so nothing here can say what verdict the choke point is entered with. The symbol-use rule is a whitelist of the four forms a private direct-called function produces, so a spelling nobody anticipated is refused rather than missed. **Remedy:** keep it `static` and call it directly |
 | No indirect call and no tail transfer through a register, anywhere in the firmware | an instrument that cannot place a call edge must refuse it: a target it cannot resolve is exactly the one that could be the choke point. **Remedy:** call through a name, or model indirect targets and argument provenance completely, which is a data-flow change of its own |
 | The one call edge into `entity_advertise()` must come from `milan_init()` and hand it the value `load_aem_image()` returned | the value is tracked from its PRODUCER through the emitted code, so an alias, a macro body or an assignment between the verifier and the call does not change the answer, and an argument the resolver cannot resolve is refused rather than read as verified |
+| The AEM copy loop keeps a shape this range refinement can bound: a constant destination base indexed by the counter the emitted `bltu` compares | the copy store is PLACED as a bounded range inside the CRC'd buffer instead of declared as a count-keyed residual, and a loop the lattice cannot bound (`*dst++ = *src++`, a `memcpy`, a bound held in a variable) leaves a store the gate cannot place, which is a refusal. **Remedy:** keep the `dst[i] = src[i]` form, or extend the refinement to the new shape with its own degenerate-case controls |
 | The RTL reset for `adp_ctrl`/`pp_ctrl_r` must be a literal with bit 0 clear | a named constant is not a value the gate can evaluate |
 | `o_adp_enable`/`o_pp_enable` must be `assign <port> = <reg>[0];` | the gate censuses that exact bit |
 | Renaming `load_aem_image`, `milan_init` or `configure_fabric` | the gate finds them by literal identifier; the refusal names the property and the anchor to update |

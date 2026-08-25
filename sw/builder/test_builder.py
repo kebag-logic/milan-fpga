@@ -746,6 +746,53 @@ class Rv32Bits(object):
         return f"bits(set=0x{self.ones:x},clear=0x{self.zeros:x})"
 
 
+class Rv32Range(object):
+    """A value known only to lie in [lo, hi], unsigned and inclusive.
+
+    Produced by BRANCH REFINEMENT: on the edge an unsigned conditional
+    branch takes, the branch's own comparison holds, so a value the meet
+    could only call unknown is bounded by the emitted bound.  This is what
+    PLACES the AEM copy loop's store: the loop index is unknown at the
+    join, but on the `bltu` edge into the body it is inside the bound the
+    compiler emitted, so base plus index is a bounded range rather than an
+    address this census must refuse.  A residual entry keyed by function,
+    class and count bound neither the store's base nor its value, so the
+    shipping copy store could be REDIRECTED onto a control register while
+    the key set and count stayed byte-identical ([R0] 2026-08-25T05:46Z
+    and [R2] BLOCKER on PR #241); a range is the fact itself."""
+    __slots__ = ("lo", "hi")
+
+    def __init__(self, lo, hi):
+        assert 0 <= lo <= hi <= RV32_MASK, \
+            f"a range that wraps or inverts is not a value: [{lo}, {hi}]"
+        self.lo, self.hi = lo, hi
+
+    def __eq__(self, other):
+        return (isinstance(other, Rv32Range) and other.lo == self.lo and
+                other.hi == self.hi)
+
+    def __hash__(self):
+        return hash(("range", self.lo, self.hi))
+
+    def __repr__(self):
+        return f"[0x{self.lo:x}..0x{self.hi:x}]"
+
+
+def _rv32_range_bounded(lo, hi):
+    """A range value, collapsed to the int when it is one point, and to
+    None when it leaves 32 bits: a sum that can wrap is not a bounded
+    address, and reporting the unwrapped half would be an invented fact."""
+    if not 0 <= lo <= hi <= RV32_MASK:
+        return None
+    return lo if lo == hi else Rv32Range(lo, hi)
+
+
+def _rv32_range_add(value, delta):
+    """`value + delta` for a range and a signed displacement, fail-closed
+    on wrap."""
+    return _rv32_range_bounded(value.lo + delta, value.hi + delta)
+
+
 def rv32_ones(value):
     if isinstance(value, int):
         return value & RV32_MASK
@@ -972,6 +1019,110 @@ def rv32_meet(states):
     return out if out is not None else Rv32State()
 
 
+#: The relation that holds between the two compared registers on the TAKEN
+#: edge of each unsigned conditional branch.  Signed branches are left
+#: unrefined: their constraint does not translate into one unsigned
+#: interval, and no refinement is always sound.
+RV32_UNSIGNED_BRANCHES = {"bltu": "<", "bgeu": ">=", "bleu": "<=",
+                          "bgtu": ">"}
+#: ... its negation, which holds on the FALL edge ...
+_RV32_REL_NEGATED = {"<": ">=", ">=": "<", "<=": ">", ">": "<="}
+#: ... and the same relation read from the second operand's side.
+_RV32_REL_FLIPPED = {"<": ">", ">": "<", "<=": ">=", ">=": "<="}
+
+
+def _rv32_constrained(value, relation, bound):
+    """`value` refined by `value RELATION bound` (unsigned), or `value`
+    unchanged when the constraint adds nothing this lattice can hold.  A
+    constraint nothing satisfies leaves the value alone rather than
+    inventing emptiness: the edge is then unreachable, and any state
+    over-approximates no executions."""
+    lo, hi = {"<": (0, bound - 1), "<=": (0, bound),
+              ">=": (bound, RV32_MASK), ">": (bound + 1, RV32_MASK)}[relation]
+    refined = _rv32_range_bounded(lo, hi)
+    if refined is None:
+        return value
+    if value is None:
+        return refined
+    if isinstance(value, Rv32Range) and isinstance(refined, Rv32Range):
+        met = _rv32_range_bounded(max(value.lo, refined.lo),
+                                  min(value.hi, refined.hi))
+        return met if met is not None else value
+    return value
+
+
+def _rv32_slot_mirror(insns, reg):
+    """The frame slot `reg` still MIRRORS at the end of `insns`, or None.
+
+    Walking back from the terminator: if the last write to `reg` is a full
+    `lw` from a frame slot and nothing after it could have moved the slot
+    out from under the register -- no store of any class, no call, no write
+    to `reg` or to a frame register -- then refining the register refines
+    the slot too.  Anything this walk cannot rule out returns None, which
+    refines nothing: refinement may only ever ADD a fact, never invent
+    one."""
+    for mnem, ops in reversed(insns[:-1]):
+        args = [part.strip() for part in ops.split(",")] if ops else []
+        if mnem == "lw" and len(args) == 2 and args[0] == reg:
+            place = RV32_MEM_RE.match(args[1])
+            if place and place.group(2) in RV32_FRAME_REGS:
+                raw_off = place.group(1)
+                if not raw_off or raw_off.startswith("%lo("):
+                    return (place.group(2), 0)
+                offset = _rv32_imm(raw_off)
+                return (place.group(2), _rv32_s32(offset)) \
+                    if offset is not None else None
+            return None
+        if mnem in RV32_STORES or \
+                mnem in ("call", "jal", "jalr", "tail", "jr", "ret"):
+            return None
+        if args and (args[0] == reg or args[0] in RV32_FRAME_REGS):
+            return None
+    return None
+
+
+def rv32_edge_refined(exit_state, insns, kind):
+    """`exit_state` as it holds ON one outgoing edge.
+
+    For an unsigned conditional branch whose other operand is resolved,
+    the branch's own comparison (on the taken edge) or its negation (on
+    the fall edge) is a fact about the compared register, and about the
+    frame slot it still mirrors.  This is what bounds a loop index: the
+    index is unknown at the join, but the edge into the body is taken only
+    under the bound the compiler emitted.  Every other terminator hands
+    the exit state on unchanged."""
+    if kind not in ("taken", "fall") or not insns:
+        return exit_state
+    mnem, ops = insns[-1]
+    if mnem not in RV32_UNSIGNED_BRANCHES:
+        return exit_state
+    args = [part.strip() for part in ops.split(",")] if ops else []
+    if len(args) != 3:
+        return exit_state
+    relation = RV32_UNSIGNED_BRANCHES[mnem]
+    if kind == "fall":
+        relation = _RV32_REL_NEGATED[relation]
+    refined_state = exit_state
+    for this, rel in ((args[0], relation),
+                      (args[1], _RV32_REL_FLIPPED[relation])):
+        other = args[1] if this == args[0] else args[0]
+        bound = exit_state.get(other)
+        if not isinstance(bound, int) or this in ("zero", "x0") or \
+                this in RV32_FRAME_REGS:
+            continue
+        held = exit_state.get(this)
+        refined = _rv32_constrained(held, rel, bound)
+        if refined is held:
+            continue
+        if refined_state is exit_state:
+            refined_state = exit_state.copy()
+        refined_state.set(this, refined)
+        slot = _rv32_slot_mirror(insns, this)
+        if slot is not None:
+            refined_state.mem[slot] = refined
+    return refined_state
+
+
 def rv32_step(state, mnem, ops, data, tags):
     """Interpret one instruction.  Returns an observation for the caller
     (`store`, `call`, `ret`, `branch`, `symstore`) or None."""
@@ -1020,6 +1171,8 @@ def rv32_step(state, mnem, ops, data, tags):
         elif isinstance(source, int):
             state.set(args[0], RV32_IMMOPS[mnem](source, _rv32_s32(imm))
                       & RV32_MASK)
+        elif mnem == "addi" and isinstance(source, Rv32Range):
+            state.set(args[0], _rv32_range_add(source, _rv32_s32(imm)))
         elif mnem == "ori":
             state.set(args[0], _rv32_partial(rv32_ones(source) | imm,
                                              rv32_zeros(source) & ~imm))
@@ -1033,6 +1186,12 @@ def rv32_step(state, mnem, ops, data, tags):
         left, right = state.get(args[1]), state.get(args[2])
         if isinstance(left, int) and isinstance(right, int):
             state.set(args[0], RV32_BINOPS[mnem](left, right) & RV32_MASK)
+        elif mnem == "add" and isinstance(left, Rv32Range) and \
+                isinstance(right, int):
+            state.set(args[0], _rv32_range_add(left, right))
+        elif mnem == "add" and isinstance(left, int) and \
+                isinstance(right, Rv32Range):
+            state.set(args[0], _rv32_range_add(right, left))
         elif mnem == "or":
             state.set(args[0], _rv32_partial(
                 rv32_ones(left) | rv32_ones(right),
@@ -1091,6 +1250,17 @@ def rv32_step(state, mnem, ops, data, tags):
             else _rv32_s32(_rv32_imm(raw_off) or 0)
         if isinstance(held, int):
             return ("store", ((held + offset) & RV32_MASK, value))
+        if isinstance(held, Rv32Range):
+            #: A store to a BOUNDED range is reported as the range itself,
+            #: so the census can judge it by address the way it judges a
+            #: resolved number.  Conservative on both sides: a displacement
+            #: that could wrap makes it unplaced, and the symbol slots drop
+            #: because a ranged store may cover one of this unit's statics.
+            _rv32_forget_symbols(state)
+            placed = _rv32_range_add(held, offset)
+            if placed is not None:
+                return ("store", (placed, value))
+            return ("store", (Rv32Where("unplaced", repr(held)), value))
         if isinstance(held, Rv32Sym):
             state.mem[("sym", held.name, held.offset + offset)] = \
                 value if mnem == "sw" else None
@@ -1158,16 +1328,20 @@ def rv32_run(body, data, tags=None, entry_regs=None, cut=None):
     entry = order[0]
     preds = {block: [] for block in order}
     for block in order:
-        for succ, _kind in edges[block]:
-            preds[succ].append(block)
+        for succ, kind in edges[block]:
+            preds[succ].append((block, kind))
     seed, exits = Rv32State(entry_regs or {}), {}
 
     def joined(block):
         """The meet over every predecessor that is REACHABLE, plus the
         function's own entry state for the entry block.  An unreachable
         predecessor contributes nothing, which is exactly what `cut` needs:
-        removing an edge must remove what flowed along it."""
-        parts = [exits[at] for at in preds[block] if at in exits]
+        removing an edge must remove what flowed along it.  Each
+        predecessor's exit state arrives REFINED by the edge it flows
+        along, so a conditional branch's own comparison is a fact on the
+        side that took it."""
+        parts = [rv32_edge_refined(exits[at], blocks[at], kind)
+                 for at, kind in preds[block] if at in exits]
         if block == entry:
             parts.append(seed)
         return rv32_meet(parts)
@@ -2836,36 +3010,45 @@ def test_baremetal_profile_contract():
         "verdict")
     RESOLVER_VERDICT_PIN = (
         "entered with a verdict this gate cannot trace to the AEM verifier")
+    #: ... and the eighth: the AEM copy loop's destination is PLACED, as a
+    #: bounded range inside the buffer the CRC verdict is taken over.
+    RESOLVER_COPY_PIN = "the AEM copy loop's destination"
     #: THE DECLARED RESIDUAL, and the reason it exists ([R0] BLOCKER on PR
     #: #241).
     #:
-    #: The census classifies EVERY store the compiler emits. Four classes
+    #: The census classifies EVERY store the compiler emits. Five classes
     #: are PROVED to land outside the control window and need no entry
-    #: here: a resolved address (rule 1 answers it by number), a stack
-    #: address, the address of one of this unit's own statics, and the
-    #: address helper's own return -- the single sanctioned CSR store,
+    #: here: a resolved address (rule 1 answers it by number), a store
+    #: whose address resolves to a BOUNDED RANGE (rule 1 answers it the
+    #: same way, and it exists because of the entry this table LOST), a
+    #: stack address, the address of one of this unit's own statics, and
+    #: the address helper's own return -- the single sanctioned CSR store,
     #: which rule 1c pins to exactly one function.
     #:
     #: What is left is what this analysis genuinely CANNOT say, and it is
-    #: two stores in the shipping firmware. Naming them here is what turns
+    #: ONE store in the shipping firmware. Naming it here is what turns
     #: "cannot say" into a refusal with a declared exception rather than
     #: into silence: the census asserts this table EXACTLY, so one more
-    #: unplaceable store anywhere -- in these functions or in any other --
+    #: unplaceable store anywhere -- in this function or in any other --
     #: is RED, and one fewer is RED too, so a residual can only be retired
     #: deliberately. docs/integration/BAREMETAL_FIRMWARE.md carries the
-    #: same two rows, which is where the published claim is narrowed to
-    #: what the code actually proves.
+    #: same row, which is where the published claim is narrowed to what
+    #: the code actually proves.
     #:
-    #: Keyed on (function, class, callee) because those are facts about the
-    #: emitted code; the printed detail of an unplaced base is a rendering
-    #: of the lattice and is reported, not pinned.
+    #: The copy-loop entry this table used to carry was keyed (function,
+    #: class, detail-None) and asserted by COUNT, which bound neither the
+    #: store's base nor its value: redirecting the shipping copy
+    #: destination onto ADP_CTRL through a runtime CSR read kept the key
+    #: set and the count byte-identical and the complete gate green ([R0]
+    #: 2026-08-25T05:46Z and [R2] BLOCKER on PR #241, both at fe38d10e).
+    #: A residual whose identity is not itself bound is a budget a
+    #: dangerous store can spend, so that entry is RETIRED and the store
+    #: is PLACED instead: branch refinement bounds the loop index by the
+    #: bltu the compiler emitted, and rule 1d pins the resulting range
+    #: inside the AEM buffer. The entry below survives because its
+    #: identity IS bound -- the callee is part of the key, so a store
+    #: through any other unresolved base is a different, refused class.
     RESOLVER_STORE_RESIDUAL = {
-        ("load_aem_image", "unplaced", None): (
-            1,
-            "the AEM copy loop stores through MILAN_AEM_DESC_BASE plus a "
-            "loop index; the base is resolved and outside the window, the "
-            "index is not bounded by this lattice, so the sum is not "
-            "placed"),
         ("parse_u64", "call", "__errno_location"): (
             1,
             "`errno = 0` stores through the pointer __errno_location() "
@@ -3062,7 +3245,7 @@ def test_baremetal_profile_contract():
            resolved one is nobody's;
         1b. and for every store whose address did NOT resolve: which class
            of base did it go through, is that class proved to land outside
-           the window, and -- if not -- is it one of the two residuals this
+           the window, and -- if not -- is it the one residual this
            gate DECLARES and publishes?  Anything else is a refusal.  The
            earlier revision filtered these stores out before asking, so a
            store the resolver could not place simply did not appear in the
@@ -3071,6 +3254,11 @@ def test_baremetal_profile_contract():
         1c. the address helper's own return is the ONE sanctioned way into
            the window, so exactly one function may store through it, and it
            must be the one question 2 censuses;
+        1d. the AEM copy loop's store is PLACED -- branch refinement bounds
+           the loop index by the emitted bltu, so its address is a bounded
+           range -- and that range lies inside the buffer the CRC verdict
+           is taken over.  This retires the count-keyed residual that
+           bound neither base nor value ([R0]+[R2] BLOCKER on PR #241);
         2. which `milan_write()` calls assert bit 0 of PP_CTRL or ADP_CTRL,
            taking the register from the resolved first operand and the bit
            from the resolved second one?
@@ -3182,14 +3370,26 @@ def test_baremetal_profile_contract():
             "never a default of verified"
 
         # ---- 1. resolved stores into the control window ------------------
+        #
+        # A store whose address resolved to a bounded RANGE is judged here
+        # exactly as a number is: a range that so much as touches the
+        # window is a control-register store, however much of it lies
+        # outside.
+        def resolved_in_window(address):
+            if isinstance(address, int):
+                return csr_base <= address < csr_base + csr_size
+            return (isinstance(address, Rv32Range) and
+                    address.hi >= csr_base and
+                    address.lo < csr_base + csr_size)
+
         for name, run in sorted(runs.items()):
-            hits = sorted({address for _at, (address, _v) in run["stores"]
-                           if isinstance(address, int) and
-                           csr_base <= address < csr_base + csr_size})
+            hits = sorted({f"0x{address:08x}" if isinstance(address, int)
+                           else repr(address)
+                           for _at, (address, _v) in run["stores"]
+                           if resolved_in_window(address)})
             assert not hits, \
                 f"the compiled {label} STORES into the Milan CSR window " \
-                f"({window}) from {name}(), at " + \
-                ", ".join(f"0x{hit:08x}" for hit in hits) + \
+                f"({window}) from {name}(), at " + ", ".join(hits) + \
                 ". Every control-register store must go through the " \
                 "address helper so the bit-0 census can place it; this is " \
                 "the RESOLVED store address, so no cast, typedef, member " \
@@ -3212,7 +3412,12 @@ def test_baremetal_profile_contract():
         residual, sanctioned = {}, []
         for name, run in sorted(runs.items()):
             for _at, (address, _value) in run["stores"]:
-                if isinstance(address, int) or address.kind == "stack" or \
+                if isinstance(address, (int, Rv32Range)):
+                    # Judged by ADDRESS: rule 1 above has already refused
+                    # every number and every bounded range that touches the
+                    # window, so what reaches here is proved outside it.
+                    continue
+                if address.kind == "stack" or \
                         (address.kind == "sym" and address.detail in defined):
                     continue
                 if address.kind == "call" and address.detail == reg_name:
@@ -3257,6 +3462,43 @@ def test_baremetal_profile_contract():
             "milan_write() whose operands the bit-0 census below reads. " \
             "A second consumer of the helper's return is a control-register " \
             "write outside the census, however it is spelled"
+
+        # ---- 1d. the AEM copy loop's destination, PLACED -----------------
+        #
+        # The store this census used to DECLARE as an unplaced residual,
+        # now proved instead: branch refinement bounds the loop index by
+        # the bltu the compiler emitted, so the store address is a bounded
+        # range, and that range must lie inside the buffer the CRC verdict
+        # is taken over.  Both directions are pinned: a verifier that
+        # makes no bounded store (the copy loop vanished, or reshaped past
+        # what this lattice bounds) and a bounded store OUTSIDE the buffer
+        # are refusals -- which is what retires the count-keyed residual
+        # without losing the guard its `missing` half used to provide.
+        buffer_lo = census_defines["MILAN_AEM_DESC_BASE"]
+        buffer_hi = buffer_lo + census_defines["MILAN_AEM_IMAGE_BYTES"] - 1
+        copied = sorted(
+            (repr(address) for _at, (address, _v)
+             in runs["load_aem_image"]["stores"]
+             if isinstance(address, Rv32Range)))
+        assert len(copied) == 1, \
+            f"the compiled {label} resolves {len(copied)} bounded store(s) " \
+            f"in load_aem_image() ({copied or 'none'}) where " \
+            f"{RESOLVER_COPY_PIN} must be exactly one: the copy loop's " \
+            "store is the one store this unit makes whose address is a " \
+            "range, and a verifier whose copy this lattice can no longer " \
+            "bound is a verifier whose destination this gate cannot place, " \
+            "which is a REFUSAL, not a residual"
+        copy_range = next(
+            address for _at, (address, _v)
+            in runs["load_aem_image"]["stores"]
+            if isinstance(address, Rv32Range))
+        assert buffer_lo <= copy_range.lo and copy_range.hi <= buffer_hi, \
+            f"the compiled {label} bounds {RESOLVER_COPY_PIN} to " \
+            f"{copy_range!r}, which is not inside the AEM buffer " \
+            f"[0x{buffer_lo:08x}..0x{buffer_hi:08x}] the CRC verdict is " \
+            "taken over: a copy that provably lands elsewhere leaves the " \
+            "CRC checking bytes this loop never wrote, so the verdict " \
+            "would be about a buffer the boot path did not fill"
 
         # ---- 2. which resolved writes assert an enable bit ---------------
         enabling = []
@@ -3386,6 +3628,7 @@ def test_baremetal_profile_contract():
             "seeded": sorted(unit["seeds"]),
             "entrances": [f"{name}()" for name, _at in entrances],
             "calls": sum(len(run["calls"]) for run in runs.values()),
+            "copied": repr(copy_range),
         }
 
     #: ---- the CFG join's own self-test ([R0] MAJOR on PR #241) ---------
@@ -3514,6 +3757,45 @@ def test_baremetal_profile_contract():
         "the store classifier's fail-closed default was measured on a store "
         "operand the resolver cannot read (`sw a5,pr241_target,a4`), which "
         f"it reported as {unreadable_stores[0]!r} rather than dropping")
+
+    #: ---- and the DEGENERATE cases for the branch-refined range class,
+    #: in both directions: the refinement must actually produce the bound
+    #: the emitted bltu states (or the shipping firmware's own copy store
+    #: would silently fall back to unplaced and rule 1b would redden a
+    #: clean tree, which is loud -- but WHY it holds should not rest on
+    #: one firmware), and a bounded index on a base whose sum can WRAP
+    #: must come back unplaced, because no firmware here exercises the
+    #: wrap arm and an unexercised fail-closed branch is a claim.
+    def rv32_range_probe(base):
+        return rv32_run(rv32_functions(
+            "ranged:\n"
+            "\taddi sp,sp,-32\n\tsw s0,24(sp)\n\taddi s0,sp,32\n"
+            f"\tli a4,{_rv32_s32(base)}\n\tsw a4,-24(s0)\n"
+            "\tsw zero,-20(s0)\n\tj .L2\n"
+            ".L3:\n\tlw a4,-24(s0)\n\tlw a5,-20(s0)\n\tadd a5,a4,a5\n"
+            "\tsb zero,0(a5)\n"
+            "\tlw a5,-20(s0)\n\taddi a5,a5,1\n\tsw a5,-20(s0)\n"
+            ".L2:\n\tlw a4,-20(s0)\n\tli a5,64\n\tbltu a4,a5,.L3\n"
+            "\tlw s0,24(sp)\n\taddi sp,sp,32\n\tret\n")["ranged"], {})
+    ranged_placed = [address for _at, (address, _v)
+                     in rv32_range_probe(0x4000_0000)["stores"]
+                     if isinstance(address, Rv32Range)]
+    assert ranged_placed == [Rv32Range(0x4000_0000, 0x4000_003f)], \
+        "the branch-refined range class did not bound a bltu-bounded loop " \
+        f"store to base plus [0..63] ({ranged_placed}): the AEM copy " \
+        "loop's placement rests on exactly this refinement"
+    wrapped = [address for _at, (address, _v)
+               in rv32_range_probe(0xFFFF_FFF0)["stores"]
+               if isinstance(address, Rv32Where) and
+               address.kind == "unplaced"]
+    assert len(wrapped) == 1, \
+        "a bounded index on a base whose sum can WRAP 32 bits must come " \
+        f"back unplaced, not as an invented range ({wrapped}): the range " \
+        "class is only sound while it fails closed on wrap"
+    range_control_note = (
+        "the range class's own degenerate cases held: a bltu-bounded loop "
+        f"store was placed at {ranged_placed[0]!r} and the same loop on a "
+        "wrapping base came back unplaced")
 
     # Force the non-target branch without depending on which compilers the
     # machine happens to have. If stand-down ever invokes the compiler, the
@@ -6465,21 +6747,59 @@ def test_baremetal_profile_contract():
                      "(SPIFLASH_BASE + MILAN_AEM_FLASH_OFFSET)",
                      "CRC operand repointed at the QSPI source"),
         "CRC taken over the QSPI source rather than the descriptor buffer")
-    #: ... and the control for the DECLARED RESIDUAL itself, without which
-    #: naming two unplaceable stores would be a hole rather than a
-    #: disclosure. A second unplaceable store is planted in one of the two
-    #: functions the residual already names, so no NEW key appears in the
-    #: census and only the COUNT moves. The residual is asserted exactly,
-    #: so it is RED; if it were a per-function exemption it would be green.
+    #: ... and the unplaceable-store refusal exercised INSIDE the verifier,
+    #: whose copy store rule 1d now PLACES: an unplaceable store planted
+    #: beside a placed one shows the placement buys no budget -- when the
+    #: verifier carried a declared unplaced residual this same mutant
+    #: proved the residual was pinned by count rather than exempting the
+    #: function, and with that residual retired it is refused outright.
     residual_count_store = replace_once(
         replace_once(
             firmware_source, crc_assign_text,
             f"((milan_dyn_adp_blk)((((unsigned int)src[4]) << 16) | "
             f"{adp_name}))->ctrl = 1u;\n\t" + crc_assign_text,
-            "second unplaceable store inside the AEM verifier"),
+            "unplaceable store inside the AEM verifier"),
         "static int aem_loaded;",
         "typedef struct { volatile uint32_t ctrl; } *milan_dyn_adp_blk;\n\n"
         "static int aem_loaded;", "residual-count struct overlay typedef")
+    #: ---- and the RESIDUAL-KEY hole itself, closed by RETIRING the
+    #: residual ([R0] 2026-08-25T05:46Z and [R2] BLOCKER on PR #241, both
+    #: at fe38d10e). The copy store's residual entry was keyed (function,
+    #: class, None) and asserted by COUNT, binding neither base nor value:
+    #: REDIRECTING the existing copy destination kept the key set and the
+    #: count byte-identical, the store statement `dst[i] = src[i]`
+    #: textually untouched and no window immediate ever printed, so every
+    #: instrument reported the shipping answer while the first copied byte
+    #: (`'A'`, bit 0 set) asserted the ADP enable before the CRC
+    #: comparison. All three below were measured GREEN on the complete
+    #: gate at the pre-fix revision; the residual is retired and the store
+    #: PLACED by branch refinement, so the first two now land unplaced
+    #: with no residual to spend and the third is a bounded range outside
+    #: the buffer the CRC checks.
+    source_dst_found = re.search(
+        r"volatile\s+uint8_t\s*\*\s*dst\s*=\s*\(\s*volatile\s+uint8_t\s*"
+        r"\*\s*\)\s*MILAN_AEM_DESC_BASE\s*;", source_load_code)
+    assert source_dst_found, \
+        "the copy-destination mutations lost the shipping dst statement"
+    aem_dst_text = source_load_function[
+        source_dst_found.start():source_dst_found.end()]
+    aem_copy_redirected = replace_once(
+        firmware_source, aem_dst_text,
+        "volatile uint8_t *dst = (volatile uint8_t *)"
+        "((((milan_read(MILAN_ID) ^\n"
+        f"\t    (MILAN_ID_MAGIC ^ 0x{csr_base >> 16:04x}u)) << 16) | "
+        f"{adp_name}));",
+        "the reviewers' copy destination redirected onto the ADP enable")
+    aem_copy_unresolved = replace_once(
+        firmware_source, aem_dst_text,
+        "volatile uint8_t *dst = (volatile uint8_t *)"
+        "(MILAN_AEM_DESC_BASE +\n"
+        "\t    (milan_read(MILAN_VERSION) & 0x1000u));",
+        "the copy destination unresolvable with class and count preserved")
+    aem_copy_elsewhere = replace_once(
+        firmware_source, aem_dst_text,
+        "volatile uint8_t *dst = (volatile uint8_t *)SPIFLASH_BASE;",
+        "the copy destination bounded but outside the CRC'd buffer")
 
     #: The asm spelling any RISC-V programmer writes. objdump annotates the
     #: store `# 90000600`, but no window immediate is ever printed, so the
@@ -7369,13 +7689,26 @@ def test_baremetal_profile_contract():
         #: ---- the two the store census answers only because an
         #: unplaceable store is now a REFUSAL rather than an omission
         #: ([R0] BLOCKER on PR #241). The first is the reviewer's own
-        #: control; the second moves the count of a DECLARED residual.
+        #: control; the second plants one beside the store rule 1d places.
         ("entity enabled by a struct-overlay store through a base derived "
          "from a runtime CSR read", runtime_paged_store, docs_source,
          csr_source, RESOLVER_UNPLACED_PIN),
-        ("a second store the resolver cannot place, added inside a function "
-         "whose residual is declared", residual_count_store, docs_source,
+        ("a store the resolver cannot place, added inside the AEM verifier "
+         "whose copy store is placed", residual_count_store, docs_source,
          csr_source, RESOLVER_UNPLACED_PIN),
+        #: ---- the residual-key hole, round 4 ([R0] 05:46Z + [R2]): the
+        #: SHIPPING copy store redirected, unresolved and rebounded, each
+        #: measured GREEN on the complete pre-fix gate first.
+        ("the AEM copy destination redirected onto ADP_CTRL by a runtime "
+         "CSR read, keeping the retired residual's key and count",
+         aem_copy_redirected, docs_source, csr_source,
+         RESOLVER_UNPLACED_PIN),
+        ("the AEM copy destination made unresolvable while keeping one "
+         "unplaced store in the verifier", aem_copy_unresolved, docs_source,
+         csr_source, RESOLVER_UNPLACED_PIN),
+        ("the AEM copy destination bounded but outside the buffer the CRC "
+         "verdict is taken over", aem_copy_elsewhere, docs_source,
+         csr_source, RESOLVER_COPY_PIN),
         ("entity enabled through an extern symbol the linker places",
          extern_symbol_store, docs_source, csr_source,
          RESOLVER_UNPLACED_PIN),
@@ -7569,7 +7902,13 @@ def test_baremetal_profile_contract():
             f"{len(_resolved['entrances'])} enter(s) the choke point, from "
             f"{', '.join(_resolved['entrances']) or 'nowhere'}, carrying "
             "the value load_aem_image() returned"
-            "; " + store_classes_note + "; and " + join_control_note)
+            "; it PLACED the AEM copy loop's store at "
+            f"{_resolved['copied']}, inside the buffer the CRC verdict is "
+            "taken over, by bounding the loop index with the emitted bltu "
+            "-- the residual entry that used to stand for that store bound "
+            "neither base nor value and is RETIRED"
+            "; " + store_classes_note + "; " + range_control_note +
+            "; and " + join_control_note)
     else:
         helper_blind_note = (
             "; the exempted-helper blindness control did NOT run here, "
