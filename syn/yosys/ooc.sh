@@ -14,7 +14,10 @@
 #   ./ooc.sh KL_chan_map_render    # just these tops
 #
 # Exit status is the gate (#245): non-zero if any requested top fails sv2v or
-# yosys, if a ROM generator fails or emits an empty image, or if a requested
+# yosys, if a ROM generator fails or emits an empty or WRONG-SHAPED image
+# (word count and width are validated against the pinned packages), if the
+# report phase fails (no stat block for the top, a block mapping to zero xc7
+# cells, a dead awk, or a missing/empty JSON artifact), or if a requested
 # top is not in the list. A failed top used to print its error and leave the
 # script exiting 0, which read as "the whole list passed" to any caller.
 #
@@ -52,24 +55,66 @@ PP_SRCS="$PP_DERIVED $R/hdl/milan/KL_pp_shadow.sv $R/hdl/milan/KL_pp_maap_shim.s
 # (#191): only syn/yosys/*.hex is gitignored, so a stray image in the
 # caller's directory is one broad `git add` from being committed (#192).
 #
-# Generation is FATAL on failure, and an empty image is a failure (#245). The
-# old `|| true` here was how a KL_pp_shadow run printed
-# "yosys FAIL: ERROR: Can not open file `ucode.hex`" and still exited 0, and
-# how supplying ucode.hex by hand in the run directory became the untracked
-# recipe behind an area figure. An absent ROM stops the run; it never shapes
-# a number.
+# Generation is FATAL on failure, and a wrong-SHAPED image is a failure like
+# an absent one (#245, and its [R-parallel] round: a one-word ucode.hex is
+# "non-empty", loads, leaves 2,047 words X, and produced a plausible row
+# 4,045 LUT_TOT under the true figure). $readmemh does not police geometry,
+# so this script does, BEFORE a number can exist:
+#   - the expected geometry is DERIVED from the pinned packages
+#     (ucpu_pkg.sv: UCODE_W_C x 2^UPC_W_C; pp_acmp_pkg.sv: TROM_W_C x
+#     TROM_DEPTH_C), never copied here where it would drift;
+#   - after //-comment stripping the image must hold EXACTLY depth words of
+#     EXACTLY width/4 hex digits (x/z refused: a word that loads X is priced
+#     as X);
+#   - each image is generated into a fresh temp target and published by
+#     rename only after it validates, so a stale or half-written file can
+#     never be the one yosys reads (OOC_TMP is reusable across runs).
+pkg_num() { # <file> <localparam name> -> its decimal value, or die
+  local v
+  v=$(sed -n "s/.*$2 *= *\([0-9][0-9]*\).*/\1/p" "$1" | head -1)
+  if [ -z "$v" ]; then
+    echo "ooc.sh: FATAL: cannot derive $2 from $1 (geometry source moved?)" >&2
+    exit 2
+  fi
+  printf '%s' "$v"
+}
+UCODE_W=$(pkg_num "$PP/aecp/ucpu_pkg.sv" UCODE_W_C)      || exit 2
+UPC_W=$(pkg_num "$PP/aecp/ucpu_pkg.sv" UPC_W_C)          || exit 2
+TROM_W=$(pkg_num "$PP/acmp/pp_acmp_pkg.sv" TROM_W_C)     || exit 2
+TROM_D=$(pkg_num "$PP/acmp/pp_acmp_pkg.sv" TROM_DEPTH_C) || exit 2
+
+rom_check() { # <file> <hex digits per word> <word count> ; diagnostics on stdout
+  awk -v digits="$2" -v words="$3" '
+    { sub(/\/\/.*$/, "")
+      for (i = 1; i <= NF; i++) {
+        n++
+        if ($i !~ /^[0-9a-fA-F]+$/ || length($i) != digits) {
+          printf "word %d (%s) is not exactly %d hex digits\n", n, $i, digits
+          exit 1
+        }
+      }
+    }
+    END { if (n != words) { printf "%d words, expected exactly %d\n", n, words; exit 1 } }
+  ' "$1"
+}
+
 for rom_spec in \
-    "ltn_rom.hex|$R/protocol-processor/hdl/acmp/rom/gen_ltn_rom.py" \
-    "ucode.hex|$R/protocol-processor/hdl/aecp/ucode/gen_ucode.py"; do
-  img="${rom_spec%%|*}"; gen="${rom_spec#*|}"
-  if ! python3 "$gen" -o "$TMP/$img" >/dev/null; then
+    "ltn_rom.hex|$R/protocol-processor/hdl/acmp/rom/gen_ltn_rom.py|$TROM_W|$TROM_D" \
+    "ucode.hex|$R/protocol-processor/hdl/aecp/ucode/gen_ucode.py|$UCODE_W|$((1 << UPC_W))"; do
+  IFS='|' read -r img gen width depth <<< "$rom_spec"
+  digits=$((width / 4))
+  rm -f "$TMP/$img"
+  if ! python3 "$gen" -o "$TMP/$img.gen.$$" >/dev/null; then
+    rm -f "$TMP/$img.gen.$$"
     echo "ooc.sh: FATAL: ROM generator failed: $gen ($img is a \$readmemh input of the control plane)" >&2
     exit 2
   fi
-  if [ ! -s "$TMP/$img" ]; then
-    echo "ooc.sh: FATAL: $img is empty after generation by $gen - refusing to measure an all-zero ROM" >&2
+  if ! diag=$(rom_check "$TMP/$img.gen.$$" "$digits" "$depth"); then
+    rm -f "$TMP/$img.gen.$$"
+    echo "ooc.sh: FATAL: $img is malformed after generation by $gen: ${diag:-empty image} (expected ${depth}x${width}-bit) - refusing to measure a ROM \$readmemh would part-fill with X" >&2
     exit 2
   fi
+  mv "$TMP/$img.gen.$$" "$TMP/$img"
 done
 
 DP_SRCS="$PP_SRCS $C/ethernet_packet_pkg.sv $C/axi_stream_if.sv $A/axis_fifo.v $A/axis_demux.v $A/axis_arb_mux.v $A/arbiter.v $A/priority_encoder.v $Q/traffic_class_map.sv $Q/traffic_classifier.sv $Q/credit_based_shaper.sv $Q/traffic_shaping_core.sv $Q/traffic_queues.sv $Q/traffic_controller_802_1q.sv $P/timestamp_counter.sv $P/ptp_csr_sync.sv $C/cdc_pulse.sv $C/cdc_handshake.sv $C/axis_mux_rr_2in_1out.sv $P/ptp_ts_core.sv $P/ptp_ts_top.sv $F/tcam.sv $F/rx_mac_filter.sv $C/tx_ifg_gasket.sv $R/hdl/ieee1722/aaf/KL_pcm_lpf.sv $C/KL_link_guard.sv $D/adp_tx_arbiter.sv $E/ethernet_events.sv $E/event_counter.sv $R/hdl/common/csr/milan_csr.sv $R/hdl/ieee1722/aaf/aaf_talker_i2s.sv $R/hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv $R/hdl/ieee1722/avtp/avtp_subtype_pkg.sv $R/hdl/ieee1722/avtp/avtp_stream_parser.sv $R/hdl/ieee1722/avtp/KL_stream_table.sv $R/hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv $R/hdl/ieee1722/crf/KL_crf_rx.sv $R/hdl/ieee1722/crf/KL_crf_tx.sv $R/hdl/ieee1722/maap/KL_maap.sv $R/hdl/ieee1722/aaf/KL_i2s_playback.sv $R/hdl/ieee1722/aaf/KL_i2s_feed_mux.sv $R/hdl/ieee1722/aaf/KL_tone_gen.sv $R/hdl/ieee1722/aaf/KL_media_adv.sv $C/cdc_pair_fifo.sv $R/hdl/ieee1722/aaf/KL_pcm_route.sv $R/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv $R/hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv $R/hdl/ieee1722/aaf/KL_tdm_capture.sv $R/hdl/ieee1722/aaf/KL_aaf_packetizer.sv $R/hdl/ieee1722/crf/KL_mmcm_drp_servo.sv $R/hdl/ieee1722/crf/KL_media_nco.sv $R/hdl/ieee1722/aaf/KL_aaf_latency_taps.sv $R/hdl/ieee1722/aaf/KL_chan_map_capture.sv $R/hdl/ieee1722/aaf/KL_chan_map_render.sv $R/hdl/ieee1722/aaf/KL_pcm_tx.sv $R/hdl/ieee1722/aaf/KL_tdm_render.sv $R/hdl/milan/milan_datapath.sv $R/hdl/ieee1722/aaf/KL_tdm_capture_master.sv $R/hdl/ieee1722/aaf/KL_pair_blend.sv $R/hdl/ieee1722/aaf/KL_pair_zero_fill.sv $R/hdl/ieee1722/avtp/KL_talker_diag_ctx.sv $R/hdl/ieee1722/avtp/KL_media_clock_restart.sv $R/hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv"
@@ -158,10 +203,19 @@ for spec in "${tops[@]}"; do
   # strides is priced honestly only if BOTH are published: the DSP column
   # hides LUTs, and the LUT-only column is the worst case.
   nodsp=""; [ -n "${OOC_NODSP:-}" ] && nodsp=" -nodsp"
+  rm -f "$TMP/$top.ooc.json"
   (cd "$TMP" && yosys -p "read_verilog $TMP/$top.ooc.v;$chp synth_xilinx -family xc7$nodsp -top $top -flatten; stat; write_json $TMP/$top.ooc.json") \
     > "$TMP/$top.ooc.log" 2>&1
   if [ $? -ne 0 ]; then
     printf "%-28s yosys FAIL: %s\n" "$top" "$(grep -oE 'ERROR:.*' "$TMP/$top.ooc.log" | head -1)"; status=1; continue
+  fi
+  # yosys said 0; the REPORT phase must fail closed too ([R-parallel] on
+  # #245): the JSON artifact the command names must exist non-empty (its
+  # absence means the netlist was never written, whatever the log says), and
+  # the row must come from a real parsed stat block, never be manufactured by
+  # an END clause over an empty parse.
+  if ! [ -s "$TMP/$top.ooc.json" ]; then
+    printf "%-28s report FAIL: yosys left no JSON netlist artifact (%s)\n" "$top" "$TMP/$top.ooc.json"; status=1; continue
   fi
   # count from the final (post-flatten) `stat` block only. yosys prints
   # "<count>   <CELLTYPE>", so the count is $1 and the type is $2.
@@ -178,7 +232,15 @@ for spec in "${tops[@]}"; do
   # UG474 (7 Series CLB): RAM32M and RAM64M and RAM128X1D and RAM256X1S each
   # occupy 4 LUT6 of a SLICEM; RAM32X1D, RAM64X1D and RAM128X1S occupy 2;
   # RAM32X1S and RAM64X1S occupy 1.
-  awk -v top="$top" '
+  #
+  # A pristine log carries TWO top-named blocks (synth_xilinx prints its own
+  # final statistics, then the explicit `stat` prints again); both are
+  # post-mapping, and the LAST one wins deterministically. The parse REFUSES
+  # (nonzero awk exit, diagnostic on stdout) when no block was seen, and when
+  # the winning block maps to zero xc7 cells - an all-zero row is what an
+  # unmapped or absent design prints, never a measurement. The awk's own exit
+  # status is taken: a parse that dies is a failed top, not a missing row.
+  if row=$(awk -v top="$top" '
     function lram_luts(t) {
       if (t == "RAM32M" || t == "RAM64M" || t == "RAM128X1D" ||
           t == "RAM32M16" || t == "RAM64M8" || t == "RAM256X1S") return 4;
@@ -187,7 +249,7 @@ for spec in "${tops[@]}"; do
       return 0;
     }
     /^=== .* ===$/ { inblk = 0 }
-    $0 == "=== " top " ===" { inblk=1; lut=0; lrm=0; ff=0; r36=0; r18=0; dsp=0; c4=0 }
+    $0 == "=== " top " ===" { blocks++; inblk=1; lut=0; lrm=0; ff=0; r36=0; r18=0; dsp=0; c4=0 }
     inblk && $2 ~ /^LUT[1-6]$/     { lut += $1 }
     inblk && $2 ~ /^RAM[0-9]/      { lrm += $1 * lram_luts($2) }
     inblk && $2 ~ /^FD[CPRS]E?$/   { ff  += $1 }
@@ -195,9 +257,19 @@ for spec in "${tops[@]}"; do
     inblk && $2 ~ /^RAMB18E1$/     { r18 += $1 }
     inblk && $2 ~ /^DSP48E1$/      { dsp += $1 }
     inblk && $2 ~ /^CARRY4$/       { c4  += $1 }
-    END { printf "%-28s %8d %8d %8d %8d %8d %8d %8d %8d\n", \
-                 top, lut, lrm, lut + lrm, ff, r36, r18, dsp, c4 }
-  ' "$TMP/$top.ooc.log"
+    END {
+      if (blocks == 0) { printf "no stat block for %s in the log", top; exit 3 }
+      if (lut + lrm + ff + r36 + r18 + dsp + c4 == 0) {
+        printf "final stat block for %s maps to zero xc7 cells (unmapped or empty design)", top; exit 4
+      }
+      printf "%-28s %8d %8d %8d %8d %8d %8d %8d %8d", \
+             top, lut, lrm, lut + lrm, ff, r36, r18, dsp, c4
+    }
+  ' "$TMP/$top.ooc.log"); then
+    printf '%s\n' "$row"
+  else
+    printf "%-28s report FAIL: %s\n" "$top" "${row:-stat parse died}"; status=1; continue
+  fi
 done
 [ -n "${OOC_TMP:-}" ] || rm -rf "$TMP"
 # The cleanup above must not launder a failed top back into success: exit with

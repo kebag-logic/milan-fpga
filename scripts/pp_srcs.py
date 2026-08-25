@@ -99,6 +99,12 @@ PROSE_OK = {
          "protocol-processor/hdl/aecp/KL_aecp_engine.sv",
          "protocol-processor/hdl/aecp/KL_aecp_ucpu.sv"},
         "BDD steps citing the RTL they mirror"),
+    "syn/yosys/ooc.sh": (
+        {"$PP/aecp/ucpu_pkg.sv", "$PP/acmp/pp_acmp_pkg.sv"},
+        "ROM geometry DERIVED by reading the pinned packages at run time "
+        "(#245): the opposite of a copied list, and these two names are the "
+        "read targets, not compile entries -- its compile list stays derived "
+        "through this script"),
 }
 
 #: This file's own entry is DERIVED from the table above, because the table is

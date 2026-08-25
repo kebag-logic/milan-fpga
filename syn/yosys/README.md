@@ -97,12 +97,35 @@ OOC_TMP=/some/dir ./ooc.sh …  # keep the .v / .log / .json artefacts
 It runs `sv2v` → `synth_xilinx -family xc7 -flatten` → `stat` and reports
 `LUT1..6`, `FD[CPRS]E?`, `RAMB36E1`, `RAMB18E1`, `DSP48E1`.
 
-**The exit status is the gate** (#245): any top failing `sv2v` or yosys, a
-ROM generator failing or emitting an empty image, and a requested top the
-list does not carry each exit non-zero. Both control-plane `$readmemh`
-images (`ltn_rom.hex`, `ucode.hex`) are generated into the run's own tmp
-dir, never the caller's; `ooc_selftest.py` drives every refusal on planted
-failures and runs in `rtl-fast.yml`.
+**The exit status is the gate** (#245). What is enforced, exactly:
+
+- Both control-plane `$readmemh` images (`ltn_rom.hex`, `ucode.hex`) are
+  generated into the run's own tmp dir, never the caller's, into a fresh
+  temp target published by rename only after validation, so a stale image
+  in a reused `OOC_TMP` can never be measured. A generator failure is
+  exit 2.
+- Each image must hold exactly its ROM's geometry, derived from the pinned
+  packages (`ucpu_pkg.sv`: 2^`UPC_W_C` words of `UCODE_W_C` bits;
+  `pp_acmp_pkg.sv`: `TROM_DEPTH_C` words of `TROM_W_C` bits) after
+  `//`-comment stripping; wrong count, wrong width, `x`/`z` digits and an
+  empty image are all exit 2. `$readmemh` part-fills a short image with X
+  and yosys prices the X-ROM without a word; that number is refused here.
+- A top failing `sv2v` or yosys sets a sticky non-zero exit; so does a
+  report phase that cannot produce a real row: no top-named stat block, a
+  final block mapping to zero xc7 cells, a dead `awk`, or a missing/empty
+  `write_json` artifact. The row is parsed from the LAST top-named block
+  (a pristine log carries two: `synth_xilinx`'s internal final statistics,
+  then the explicit `stat`), deterministically.
+- A requested top the list does not carry is exit 2, not an empty header.
+
+Not enforced: the numbers themselves stay yosys estimates (band rule
+below), and dropping only the explicit `stat` is not refused, because
+`synth_xilinx`'s own final statistics block is the same post-mapping
+measurement. `ooc_selftest.py` drives every refusal above on planted
+failures (18 arms, including mutation copies of the script's own yosys
+command); it runs in `rtl-fast.yml`, where `scripts/ci_events.py` pins the
+invocation verbatim, in the job that fetches the submodule, after that
+fetch.
 
 Two traps this exists to avoid:
 
