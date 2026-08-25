@@ -14598,9 +14598,13 @@ def test_d10_cluster_names():
     # obligation being discharged, not a D8-era regression - which is why the
     # D8 conditional keys above stayed conditional and this key did not),
     # then -> 0x001BC5FC6D9248FB when Milan v1.2 5.3.3.9 made the final
-    # shipped input dynamic and removed its forbidden AUDIO_MAP.
+    # shipped input dynamic and removed its forbidden AUDIO_MAP,
+    # then -> 0x001BC5B17E3D155F when #259 stated the fabric owner's gptp:
+    # section on the retired Arty configs (the section joins model_shape by
+    # design; its values restate the historical descriptor constants
+    # byte-exactly, and the served id itself stays pinned).
     assert eb.load_config(CONFIGS["arty_current"])["model_id"]["hash"] == \
-        "0x001BC5FC6D9248FB"
+        "0x001BC5B17E3D155F"
     # arty_4x4's hash has now moved THREE times, correctly every time:
     # 0x001BC565E07E0DD6 -> 0x001BC5C42E0CEE8B when the per-board routing
     # gate forced tdm8 -> i2s_philips (no header existed), ->

@@ -101,6 +101,21 @@ jobs:
         if: ${{ steps.scope.outputs.rtl == 'true' }}
         run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
 
+      # dp_srcs.py refuses to answer without a front end (no model may stand
+      # in for sv2v), and the builder runs its self-test unconditionally, so
+      # this job needs the same pinned release the portability gate uses.
+      - name: Install the pinned sv2v release
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
+        run: |
+          set -euo pipefail
+          ver=v0.0.12
+          url="https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip"
+          curl -fsSL "$url" -o /tmp/sv2v.zip
+          unzip -q -o /tmp/sv2v.zip -d /tmp/sv2v
+          sudo install -m755 "$(find /tmp/sv2v -name sv2v -type f | head -1)" \
+            /usr/local/bin/sv2v
+          sv2v --version
+
       - uses: actions/setup-python@v5
         if: ${{ steps.scope.outputs.rtl == 'true' }}
         with:

@@ -335,6 +335,21 @@ BUILDER_CHECKOUTS = {
         "with": {"fetch-depth": 0},
     },
 }
+#: dp_srcs.py answers top resolution with the sv2v front end and REFUSES when
+#: no front end exists (no model may stand in for the toolchain), and the
+#: builder runs that self-test unconditionally. So every builder job installs
+#: the same pinned release the portability gate uses, held here as one exact
+#: script: an unpinned version is a silent toolchain drift, and a missing
+#: install is a red job dressed as a candidate finding.
+SV2V_INSTALL = (
+    "set -euo pipefail",
+    "ver=v0.0.12",
+    'url="https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip"',
+    'curl -fsSL "$url" -o /tmp/sv2v.zip',
+    "unzip -q -o /tmp/sv2v.zip -d /tmp/sv2v",
+    'sudo install -m755 "$(find /tmp/sv2v -name sv2v -type f | head -1)" /usr/local/bin/sv2v',
+    "sv2v --version",
+)
 #: The fast workflow's selector job and the step that computes its answer.
 FAST_SELECTOR_JOB = "changes"
 FAST_SCOPE_STEP_ID = "scope"
@@ -1602,6 +1617,30 @@ def check_builder_dependencies(c, path, wf, jid):
             else ("name", "run"))
     pinned_step_keys(c, path, f"job `{jid}` builder checkout", fetch,
                      keys, {})
+    installers = [(i, s) for i, s in enumerate(ss)
+                  if "sv2v" in (s.get("run")
+                                if isinstance(s.get("run"), str) else "")]
+    c.item(len(installers) == 1, path,
+           f"job `{jid}` must install the pinned sv2v front end exactly once "
+           f"(found {len(installers)}): dp_srcs.py refuses without a front "
+           "end, so the builder gate is red on a bare runner, and a second "
+           "install could shadow the pin")
+    if len(installers) == 1:
+        sv2v_i, sv2v_step = installers[0]
+        sv2v_run = (sv2v_step.get("run")
+                    if isinstance(sv2v_step.get("run"), str) else "")
+        c.item(tuple(normalize_script(sv2v_run)) == SV2V_INSTALL, path,
+               f"job `{jid}` sv2v install must be exactly the pinned v0.0.12 "
+               f"release script (found {normalize_script(sv2v_run)}): an "
+               "unpinned front end is a silent toolchain drift under the "
+               "portability evidence")
+        pinned_step_keys(c, path, f"job `{jid}` sv2v install", sv2v_step,
+                         keys, {})
+        if path == ELABORATE:
+            sv2v_if = str(sv2v_step.get("if", "")).strip()
+            c.item(sv2v_if == BUILDER_IF, path,
+                   f"job `{jid}` sv2v install `if` must be exactly "
+                   f"`{BUILDER_IF}` (found {sv2v_if!r})")
     if len(callers) == 1:
         call_i, call = callers[0]
         call_run = call.get("run") if isinstance(call.get("run"), str) else ""
@@ -1628,6 +1667,11 @@ def check_builder_dependencies(c, path, wf, jid):
         c.item(fetch_i < call_i, path,
                f"job `{jid}` must initialize builder submodules before "
                f"calling `{BUILDER_CALL}`")
+        if len(installers) == 1:
+            c.item(installers[0][0] < call_i, path,
+                   f"job `{jid}` must install sv2v before calling "
+                   f"`{BUILDER_CALL}`: installed after the call it decorates "
+                   "a verdict already taken without a front end")
 
 
 def check_docs(c, wf):
@@ -2380,6 +2424,39 @@ def _mutations():
         builder_fetch_step(w, ELABORATE, "elaborate")["if"] = False
         builder_call_step(w, ELABORATE, "elaborate")["if"] = False
 
+    def sv2v_step(w, path, jid):
+        found = [s for s in job_steps(w, path, jid)
+                 if "sv2v" in (s.get("run")
+                               if isinstance(s.get("run"), str) else "")]
+        assert len(found) == 1, (f"fixture drift: expected one sv2v install "
+                                 f"in {path}:{jid}, found {len(found)}")
+        return found[0]
+
+    def m_sv2v_dropped(path, jid):
+        def f(w):
+            ss = job_steps(w, path, jid)
+            ss.remove(sv2v_step(w, path, jid))
+        return f
+
+    def m_sv2v_unpinned(path, jid):
+        def f(w):
+            s = sv2v_step(w, path, jid)
+            assert "ver=v0.0.12" in s["run"], "fixture drift: pin absent"
+            s["run"] = s["run"].replace("ver=v0.0.12", "ver=v0.0.13")
+        return f
+
+    def m_sv2v_after_call(path, jid):
+        def f(w):
+            ss = job_steps(w, path, jid)
+            step = sv2v_step(w, path, jid)
+            call = builder_call_step(w, path, jid)
+            ss.remove(step)
+            ss.insert(ss.index(call) + 1, step)
+        return f
+
+    def m_sv2v_if_disabled(w):
+        sv2v_step(w, ELABORATE, "elaborate")["if"] = False
+
     return [
         # rtl.yml triggers
         ("rtl push on main, not dev", m_push_main(RTL_FULL), "push must subscribe"),
@@ -2815,6 +2892,15 @@ def _mutations():
         ("docs builder workflow defaults.run.shell bash -n",
          m_builder_top_defaults(DOCS),
          "must carry no top-level `defaults`"),
+        ("docs sv2v install dropped",
+         m_sv2v_dropped(DOCS, "docs-check"),
+         "must install the pinned sv2v front end exactly once"),
+        ("docs sv2v version drifts off the pin",
+         m_sv2v_unpinned(DOCS, "docs-check"),
+         "exactly the pinned v0.0.12 release script"),
+        ("docs sv2v installed after the builder call",
+         m_sv2v_after_call(DOCS, "docs-check"),
+         "must install sv2v before calling"),
         # elaborate.yml
         ("elaborate push on main, not dev", m_push_main(ELABORATE),
          "push must subscribe"),
@@ -2858,6 +2944,14 @@ def _mutations():
          "must carry no top-level `defaults`"),
         ("elaborate builder checkout and call both disabled",
          m_builder_both_if_false, "builder checkout `if` must be exactly"),
+        ("elaborate sv2v install dropped",
+         m_sv2v_dropped(ELABORATE, "elaborate"),
+         "must install the pinned sv2v front end exactly once"),
+        ("elaborate sv2v version drifts off the pin",
+         m_sv2v_unpinned(ELABORATE, "elaborate"),
+         "exactly the pinned v0.0.12 release script"),
+        ("elaborate sv2v install disabled by if",
+         m_sv2v_if_disabled, "sv2v install `if` must be exactly"),
     ]
 
 

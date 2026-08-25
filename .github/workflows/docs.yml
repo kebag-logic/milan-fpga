@@ -25,6 +25,27 @@ jobs:
         # present rather than STALE. The builder's dp_srcs.py self-test also
         # resolves the five verilog-axis leaves in the shipping OOC manifest.
         run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
+      # dp_srcs.py refuses to answer without a front end (no model may stand
+      # in for sv2v), and the builder runs its self-test unconditionally, so
+      # this job needs the same pinned release the portability gate uses.
+      # The absent-tool refusal itself stays: a host without sv2v still gets
+      # a named refusal, never a silent pass.
+      - name: Install the pinned sv2v release
+        run: |
+          set -euo pipefail
+          ver=v0.0.12
+          url="https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip"
+          curl -fsSL "$url" -o /tmp/sv2v.zip
+          unzip -q -o /tmp/sv2v.zip -d /tmp/sv2v
+          sudo install -m755 "$(find /tmp/sv2v -name sv2v -type f | head -1)" \
+            /usr/local/bin/sv2v
+          sv2v --version
+      # The focused bare-metal-only scope gate (#259 / PR #228): the lane's
+      # owned surface must not reacquire a retired Linux product claim.
+      - name: Bare-metal scope gate
+        run: |
+          python3 scripts/check_baremetal_scope.py --check
+          python3 scripts/check_baremetal_scope.py --selftest
       - name: End-station builder gates
         run: |
           python3 -m pip install --quiet pyyaml
