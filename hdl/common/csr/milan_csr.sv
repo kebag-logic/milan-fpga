@@ -444,12 +444,17 @@ module milan_csr #(
   output wire [3:0]              o_acmp_tbl_idx,
   input  wire                    i_acmp_tbl_gnt,
   input  wire [316:0]            i_acmp_tbl_ctx,
-  //! ACMP bind-restore master (E1, SAVED_STATE_FASTCONNECT.md §5): a 0x7B4
-  //! commit holds o_acmp_rest_req until the engine's 1-cycle
-  //! i_acmp_rest_ack; i_acmp_rest_status is valid WITH the ack (0 =
-  //! injected, 1 = target occupied, 2 = bad index). Tie {ack=0, status=0}
-  //! with no engine attached: the commit then reads back busy forever —
-  //! the honest no-engine behaviour (software must probe VERSION first).
+  //! ACMP bind-restore master (E1). DEAD PORT at VERSION major 2: the ACMP
+  //! listener context table this master injected into went with the legacy
+  //! plane, so nothing is attached, i_acmp_rest_ack never asserts and a
+  //! commit reads back busy forever. Status and the preserved register
+  //! layout: docs/reference/REGISTER_MAP.md, group
+  //! "0x7A0 - ACMP bind-restore". The interface is kept verbatim because
+  //! the map is an ABI: a 0x7B4 commit holds o_acmp_rest_req until the
+  //! engine's 1-cycle i_acmp_rest_ack; i_acmp_rest_status is valid WITH the
+  //! ack (0 = injected, 1 = target occupied, 2 = bad index). Tie
+  //! {ack=0, status=0} with no engine attached (software must probe
+  //! VERSION first).
   output wire                    o_acmp_rest_req,
   output wire [3:0]              o_acmp_rest_idx,
   output wire [63:0]             o_acmp_rest_talker,
@@ -686,37 +691,44 @@ module milan_csr #(
   //! NOT reset to 0 - a 0 lease means "expire immediately", which is a valid
   //! software choice but a hostile default for a daemon that never writes.
   localparam [31:0] CLKV_CTRL_RST_C = 32'h0000_0080;
-  // ---- 0x7A0 ACMP bind-restore (E1, SAVED_STATE_FASTCONNECT.md §5):
-  //  acmp-persist reloads a saved bind at boot — the commit injects a Milan
-  //  5.5.3.5.2 entry record {PRB_W_AVAIL, probing PASSIVE, status 0,
-  //  sid/dmac/vlan CLEARED per 5.5.2.6 step 1} into the listener ctx table;
-  //  the fabric ADP watch + probe ladder take over. Plain-RW staging words
-  //  (0x7A0 doubles as the software write/readback feature probe).
+  // ---- 0x7A0 ACMP bind-restore (E1). DEAD PORT at VERSION major 2: writes
+  //  are accepted, the ack never asserts and nothing is ever restored. The
+  //  listener ctx table it injected into was deleted with the legacy plane,
+  //  and the userspace writer that drove it is no longer in the tree.
+  //  Status, the preserved layout, and the reason 0x7A0's write/readback
+  //  feature probe must NOT be read as a licence to commit:
+  //  docs/reference/REGISTER_MAP.md, group "0x7A0 - ACMP bind-restore".
+  //  Plain-RW staging words, kept because the map is an ABI.
   localparam [ADDR_WIDTH-1:0] A_REST_TKLO = 'h7A0;   //! saved talker_entity_id [31:0]
   localparam [ADDR_WIDTH-1:0] A_REST_TKHI = 'h7A4;   //! saved talker_entity_id [63:32]
   localparam [ADDR_WIDTH-1:0] A_REST_META = 'h7A8;   //! {vlan[27:16] informational (ignored on load), tuid[15:0]}
   localparam [ADDR_WIDTH-1:0] A_REST_CTLO = 'h7AC;   //! saved controller_entity_id [31:0]
   localparam [ADDR_WIDTH-1:0] A_REST_CTHI = 'h7B0;   //! saved controller_entity_id [63:32]
   localparam [ADDR_WIDTH-1:0] A_REST_CMD  = 'h7B4;   //! W: [31] W1S commit, [23:8] binding flags, [3:0] sink idx; R live: {[31] busy, [30] done, [9:8] status, [3:0] idx}
-  // ---- 0x7B8 persistence-journal ingest (E3, SAVED_STATE_FASTCONNECT.md
-  //  §8; executable spec tb/verilator/persist/persist_wrap.sv): software
-  //  lifts one flash slot image VERBATIM through DATA between START and
-  //  END; the engine verifies magic/format/shape/owning-entity/CRC-32 (the
-  //  CRC is the LAST word - a torn, foreign or stale image yields ZERO
-  //  restores) and only then replays E1 entry records. Milan v1.2 5.3.8.2:
-  //  the bound state SHALL be saved and restored after a power cycle.
+  // ---- 0x7B8 persistence-journal ingest (E3). UNWIRED at VERSION major 2:
+  //  writes are accepted and DISCARDED, and 0x7C0 / 0x7C4 read structural
+  //  zeros. The journal engine and the testbench that was its executable
+  //  spec were both deleted with the legacy plane, and the E1 port it drove
+  //  is dead, so no image is verified and no binding is restored. Status,
+  //  and the verification preserved as the specification a future
+  //  implementation must satisfy: docs/reference/REGISTER_MAP.md, group
+  //  "0x7B8 - Persistence-journal ingest". Milan v1.2 5.3.8.2 (the bound
+  //  state SHALL be saved and restored after a power cycle) is NOT met by
+  //  this build.
   localparam [ADDR_WIDTH-1:0] A_JNL_CTRL = 'h7B8;   //! W1S: [0] start, [1] end, [2] abort; R: {stat[31:30], 0}
   localparam [ADDR_WIDTH-1:0] A_JNL_DATA = 'h7BC;   //! W: next 32-bit image word (write-only)
   localparam [ADDR_WIDTH-1:0] A_JNL_STAT = 'h7C0;   //! RO live: engine status/verdict word
   localparam [ADDR_WIDTH-1:0] A_JNL_SEQ  = 'h7C4;   //! RO live: last ACCEPTED image's SEQ watermark
-  // ---- 0x7C8 AEM dynamic-state patch port (E4, SAVED_STATE_FASTCONNECT.md
-  //  §10c; executable spec tb/verilator/aempatch/aempatch_wrap.sv): the
-  //  write master the AEM store never had. Software names a DESCRIPTOR and a
-  //  FIELD, never a byte address — the fabric resolves the range from the
-  //  same generated WB_* tables SET_STREAM_FORMAT uses, revalidates the
-  //  payload through the same acceptance, and refuses the whole group while
-  //  ADP_CTRL[0] is set. Milan v1.2 5.3.5.1 / 5.3.7.1 / 5.3.8.1 / 5.3.11.1:
-  //  these fields SHALL be saved and restored after a power cycle.
+  // ---- 0x7C8 AEM dynamic-state patch port (E4). UNWIRED at VERSION major
+  //  2: writes are accepted and DISCARDED and 0x7D4 reads a structural zero.
+  //  The patch engine, the AEM store it wrote and the testbench that was its
+  //  executable spec were all deleted; the current AECP uCPU owns volatile
+  //  dynamic state and this port is not connected to it, so a write can
+  //  neither replay a saved value nor change what a controller reads.
+  //  Status and the preserved verdict codes: docs/reference/REGISTER_MAP.md,
+  //  group "0x7C8 - AEM dynamic-state patch port". Milan v1.2 5.3.5.1 /
+  //  5.3.7.1 / 5.3.8.1 / 5.3.11.1 (these fields SHALL be saved and restored
+  //  after a power cycle) are NOT met by this build.
   localparam [ADDR_WIDTH-1:0] A_AEMP_SEL   = 'h7C8;  //! W: {desc_type[31:16], index[15:0]}
   localparam [ADDR_WIDTH-1:0] A_AEMP_FIELD = 'h7CC;  //! W: [2:0] 0 format, 1 sampling rate, 2 clock source
   localparam [ADDR_WIDTH-1:0] A_AEMP_DATA  = 'h7D0;  //! W: payload word, MSW first (write-only)
@@ -849,8 +861,12 @@ module milan_csr #(
   localparam [ADDR_WIDTH-1:0] A_STRMW_CNT_END= 'h858; //! one past CNT9 (0x854)
   localparam [ADDR_WIDTH-1:0] A_STRMW_PDUS   = 'h858; //! RO (snap-latched): {drops,pdus} (listener) / frames_sent (talker)
   localparam [ADDR_WIDTH-1:0] A_STRMW_SRP    = 'h85C; //! RO live: per-stream lwSRP status (idx0 = 0x694 alias)
-  //  E2 (SAVED_STATE_FASTCONNECT.md §5): the remaining 5.5.2.4/5.5.3.5.3
-  //  persisted binding fields, from the same ACMP ctx snapshot as SID/DMAC
+  //  E2: the remaining 5.5.2.4/5.5.3.5.3 binding fields, from the same ACMP
+  //  ctx snapshot as SID/DMAC. DEAD at VERSION major 2 for the same reason
+  //  that snapshot is: there is no ACMP context table in this fabric any
+  //  more, the window's grant never asserts and 0x860/0x864/0x868 read
+  //  structural zeros. See docs/reference/REGISTER_MAP.md, group
+  //  "0x800 - Indexed per-stream window".
   localparam [ADDR_WIDTH-1:0] A_STRMW_CTLR_LO= 'h860; //! RO: binding controller_entity_id [31:0] (listener dir only)
   localparam [ADDR_WIDTH-1:0] A_STRMW_CTLR_HI= 'h864; //! RO: controller_entity_id [63:32]
   localparam [ADDR_WIDTH-1:0] A_STRMW_BIND   = 'h868; //! RO: {flags[31:16] (bit 3 = STREAMING_WAIT), tuid[15:0]}
