@@ -89,12 +89,29 @@ module ptp_ts_core #(
   //! TX capture + lat_corr (REQ-PTP-06). 0 = disabled = today's behaviour.
   input wire [31:0] lat_corr_i,
 
-  //! s_axis Input AXI-Stream interface for Ethernet frames
-  axi_stream_if.slave s_axis,
-  //! m_axis Output AXI-Stream interface (passthrough of input)
-  axi_stream_if.master m_axis,
-  //! ts_m_axis Output AXI-Stream interface for timestamp metadata
-  axi_stream_if.master ts_m_axis
+  //! Frame input. Keep this face FLAT: when ptp_ts_core is nested inside
+  //! ptp_ts_top, sv2v 0.0.12/0.0.13 drops interface-port associations and
+  //! emits undriven hierarchical wires. Flat pins preserve the same AXIS
+  //! contract while making the shipping hierarchy portable to Yosys.
+  input  wire [TDATA_WIDTH-1:0] s_axis_tdata,
+  input  wire                   s_axis_tvalid,
+  output wire                   s_axis_tready,
+  input  wire                   s_axis_tlast,
+  input  wire [(TDATA_WIDTH/8)-1:0] s_axis_tkeep,
+
+  //! Frame output (combinational passthrough of the accepted input)
+  output wire [TDATA_WIDTH-1:0] m_axis_tdata,
+  output wire                   m_axis_tvalid,
+  input  wire                   m_axis_tready,
+  output wire                   m_axis_tlast,
+  output wire [(TDATA_WIDTH/8)-1:0] m_axis_tkeep,
+
+  //! Timestamp metadata output
+  output wire [METADATA_TDATA_WIDTH-1:0] ts_m_axis_tdata,
+  output wire                            ts_m_axis_tvalid,
+  input  wire                            ts_m_axis_tready,
+  output wire                            ts_m_axis_tlast,
+  output wire [(METADATA_TDATA_WIDTH/8)-1:0] ts_m_axis_tkeep
 );
 
 localparam int BEAT_BYTES = TDATA_WIDTH / BYTE_TO_BIT;
@@ -150,7 +167,7 @@ logic        ptp_seq_id_valid = 1'b0;
 //! beat 1 so the shifted extract beats below can select on it (REQ-PTP-09).
 logic        vlan_tagged = 1'b0;
 
-wire beat_acc = s_axis.tvalid && s_axis.tready;
+wire beat_acc = s_axis_tvalid && s_axis_tready;
 //! EVENT-message qualification (REQ-PTP-05, IEEE 1588-2019 Table 36 / §7.3.4).
 //! The ONLY event messages are Sync (0x0), Delay_Req (0x1), Pdelay_Req (0x2)
 //! and Pdelay_Resp (0x3) - they alone carry a wire timestamp semantic. General
@@ -165,11 +182,11 @@ wire is_ptp_event = eth_type_valid && eth_match &&
 // -----------------------------------------------------------------------------
 //! AXI-Stream Passthrough
 // -----------------------------------------------------------------------------
-assign m_axis.tdata  = s_axis.tdata;
-assign m_axis.tvalid = s_axis.tvalid;
-assign m_axis.tkeep  = s_axis.tkeep;
-assign m_axis.tlast  = s_axis.tlast;
-assign s_axis.tready = m_axis.tready;
+assign m_axis_tdata  = s_axis_tdata;
+assign m_axis_tvalid = s_axis_tvalid;
+assign m_axis_tkeep  = s_axis_tkeep;
+assign m_axis_tlast  = s_axis_tlast;
+assign s_axis_tready = m_axis_tready;
 
 // -----------------------------------------------------------------------------
 //! Per-port latency correction (REQ-PTP-06, 802.1AS-2020 §8.4.3). The capture
@@ -196,7 +213,7 @@ always_ff @(posedge ts_dst_clk) begin : sop_and_counter
     byte_counter <= '0;
   end
   else if (beat_acc) begin
-    if (s_axis.tlast) begin
+    if (s_axis_tlast) begin
       start_packet <= 1'b1;
       byte_counter <= '0;
     end
@@ -216,17 +233,17 @@ end
 // -----------------------------------------------------------------------------
 //! Field extraction at fixed beats, explicit lane slices
 // -----------------------------------------------------------------------------
-wire [7:0] et_hi = s_axis.tdata[LANE12 +: 8];
-wire [7:0] et_lo = s_axis.tdata[LANE13 +: 8];
-wire [7:0] mt_b  = s_axis.tdata[LANE14 +: 8];
-wire [7:0] sq_hi = s_axis.tdata[LANE44 +: 8];
-wire [7:0] sq_lo = s_axis.tdata[LANE45 +: 8];
+wire [7:0] et_hi = s_axis_tdata[LANE12 +: 8];
+wire [7:0] et_lo = s_axis_tdata[LANE13 +: 8];
+wire [7:0] mt_b  = s_axis_tdata[LANE14 +: 8];
+wire [7:0] sq_hi = s_axis_tdata[LANE44 +: 8];
+wire [7:0] sq_lo = s_axis_tdata[LANE45 +: 8];
 //! C-TAG-shifted views of the same fields (REQ-PTP-09)
-wire [7:0] tet_hi = s_axis.tdata[LANE_B0 +: 8];   // frame byte 16
-wire [7:0] tet_lo = s_axis.tdata[LANE_B1 +: 8];   // frame byte 17
-wire [7:0] tmt_b  = s_axis.tdata[LANE_B2 +: 8];   // frame byte 18
-wire [7:0] tsq_hi = s_axis.tdata[LANE_B0 +: 8];   // frame byte 48
-wire [7:0] tsq_lo = s_axis.tdata[LANE_B1 +: 8];   // frame byte 49
+wire [7:0] tet_hi = s_axis_tdata[LANE_B0 +: 8];   // frame byte 16
+wire [7:0] tet_lo = s_axis_tdata[LANE_B1 +: 8];   // frame byte 17
+wire [7:0] tmt_b  = s_axis_tdata[LANE_B2 +: 8];   // frame byte 18
+wire [7:0] tsq_hi = s_axis_tdata[LANE_B0 +: 8];   // frame byte 48
+wire [7:0] tsq_lo = s_axis_tdata[LANE_B1 +: 8];   // frame byte 49
 
 always_ff @(posedge ts_dst_clk) begin : field_extraction
   if (!ts_dst_resetn) begin
@@ -264,7 +281,7 @@ always_ff @(posedge ts_dst_clk) begin : field_extraction
       ptp_seq_id <= {tsq_hi, tsq_lo};
       ptp_seq_id_valid <= 1'b1;
     end
-    if (s_axis.tlast) begin
+    if (s_axis_tlast) begin
       eth_type_valid   <= 1'b0;
       eth_match        <= 1'b0;
       ptp_seq_id_valid <= 1'b0;
@@ -293,7 +310,7 @@ logic [3:0]          q0_mt, q1_mt;
 logic [1:0]          rec_lvl;                  // 0..2 entries (q0 = head)
 wire rec_empty = rec_lvl == 2'd0;
 wire rec_full  = rec_lvl == 2'd2;
-wire rec_push  = beat_acc && s_axis.tlast && is_ptp_event && !rec_full;
+wire rec_push  = beat_acc && s_axis_tlast && is_ptp_event && !rec_full;
 wire rec_pop;                                  // from the emitter FSM
 
 always_ff @(posedge ts_dst_clk) begin : record_queue
@@ -338,13 +355,13 @@ logic [3:0]          cur_mt;
 logic pop_r;
 assign rec_pop = pop_r;
 
-assign ts_m_axis.tvalid = (ts_state != IDLE_S);
-assign ts_m_axis.tlast  = (ts_state == SEND_LOW_S);
-assign ts_m_axis.tkeep  = (ts_state == SEND_LOW_S) ? 8'h07 : 8'hFF;
+assign ts_m_axis_tvalid = (ts_state != IDLE_S);
+assign ts_m_axis_tlast  = (ts_state == SEND_LOW_S);
+assign ts_m_axis_tkeep  = (ts_state == SEND_LOW_S) ? 8'h07 : 8'hFF;
 // word1 bit[1] is an ALWAYS-1 marker: the DMA lands word0 then word1 a few
 // bus-cycles later, so the DRIVER's slot sentinel is word1 (marker set =>
 // word0 is complete). A ns-based sentinel would race that window.
-assign ts_m_axis.tdata  = (ts_state == SEND_LOW_S)
+assign ts_m_axis_tdata  = (ts_state == SEND_LOW_S)
                           ? {40'd0, cur_seq, cur_mt, 2'd0, 1'b1, IS_TX[0]}
                           : cur_ts;
 
@@ -367,12 +384,12 @@ always_ff @(posedge ts_dst_clk) begin : to_ps_fifo_logic
       end
 
       SEND_HIGH_S: begin
-        if (ts_m_axis.tready)
+        if (ts_m_axis_tready)
           ts_state <= SEND_LOW_S;
       end
 
       SEND_LOW_S: begin
-        if (ts_m_axis.tready) begin
+        if (ts_m_axis_tready) begin
           if (!rec_empty) begin           // stream the next record seamlessly
             cur_ts   <= q0_ts;
             cur_seq  <= q0_seq;

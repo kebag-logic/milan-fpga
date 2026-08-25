@@ -103,9 +103,21 @@ module tb_ptp_ts_core;
     .ts_dst_clk(clk),
     .ts_dst_resetn(rstn),
     .ts_in(ts),
-    .s_axis(s_axis_be),
-    .m_axis(m_axis_be),
-    .ts_m_axis(ts_m_axis_be)
+    .s_axis_tdata  (s_axis_be.tdata),
+    .s_axis_tvalid (s_axis_be.tvalid),
+    .s_axis_tready (s_axis_be.tready),
+    .s_axis_tlast  (s_axis_be.tlast),
+    .s_axis_tkeep  (s_axis_be.tkeep),
+    .m_axis_tdata  (m_axis_be.tdata),
+    .m_axis_tvalid (m_axis_be.tvalid),
+    .m_axis_tready (m_axis_be.tready),
+    .m_axis_tlast  (m_axis_be.tlast),
+    .m_axis_tkeep  (m_axis_be.tkeep),
+    .ts_m_axis_tdata  (ts_m_axis_be.tdata),
+    .ts_m_axis_tvalid (ts_m_axis_be.tvalid),
+    .ts_m_axis_tready (ts_m_axis_be.tready),
+    .ts_m_axis_tlast  (ts_m_axis_be.tlast),
+    .ts_m_axis_tkeep  (ts_m_axis_be.tkeep)
   );
 
   //! Little Endian DUT Instance
@@ -122,9 +134,21 @@ module tb_ptp_ts_core;
     .ts_dst_clk(clk),
     .ts_dst_resetn(rstn),
     .ts_in(ts),
-    .s_axis(s_axis_le),
-    .m_axis(m_axis_le),
-    .ts_m_axis(ts_m_axis_le)
+    .s_axis_tdata  (s_axis_le.tdata),
+    .s_axis_tvalid (s_axis_le.tvalid),
+    .s_axis_tready (s_axis_le.tready),
+    .s_axis_tlast  (s_axis_le.tlast),
+    .s_axis_tkeep  (s_axis_le.tkeep),
+    .m_axis_tdata  (m_axis_le.tdata),
+    .m_axis_tvalid (m_axis_le.tvalid),
+    .m_axis_tready (m_axis_le.tready),
+    .m_axis_tlast  (m_axis_le.tlast),
+    .m_axis_tkeep  (m_axis_le.tkeep),
+    .ts_m_axis_tdata  (ts_m_axis_le.tdata),
+    .ts_m_axis_tvalid (ts_m_axis_le.tvalid),
+    .ts_m_axis_tready (ts_m_axis_le.tready),
+    .ts_m_axis_tlast  (ts_m_axis_le.tlast),
+    .ts_m_axis_tkeep  (ts_m_axis_le.tkeep)
   );
 
   //! Routing active interface signals based on test configuration

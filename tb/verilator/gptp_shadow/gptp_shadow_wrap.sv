@@ -57,6 +57,11 @@ module gptp_shadow_wrap #(
     output wire [31:0] pub_pdelay_ns_o,
     output wire [31:0] pub_offset_o,
     output wire [63:0] pub_annq_o,
+    output wire  [3:0] pub_path_count_o,
+    output wire [63:0] pub_path_tail0_o,
+    output wire [63:0] pub_path_tail1_o,
+    output wire [63:0] pub_path_tail6_o,
+    output wire  [3:0] pub_path_gen_o,
     output wire        pub_commit_o,
     output wire        pub_disc_o,
 
@@ -128,6 +133,7 @@ module gptp_shadow_wrap #(
   logic               gate_conflict_w;
   logic [15:0]        gate_conflict_r;
   logic               pub_disc_w;
+  logic [7*64-1:0]    pub_path_w;
 
   timestamp_counter #(
       .COUNTER_WIDTH (64),
@@ -181,6 +187,9 @@ module gptp_shadow_wrap #(
       .pub_pdelay_ns_o (pub_pdelay_ns_o),
       .pub_offset_o    (pub_offset_o),
       .pub_annq_o      (pub_annq_o),
+      .pub_path_count_o(pub_path_count_o),
+      .pub_path_o      (pub_path_w),
+      .pub_path_gen_o  (pub_path_gen_o),
       .pub_commit_o    (pub_commit_o),
       .pub_disc_o      (pub_disc_w),
       .dbg_tap_drop_o  (dbg_tap_drop_o),
@@ -195,6 +204,9 @@ module gptp_shadow_wrap #(
   );
 
   assign pub_disc_o = pub_disc_w;
+  assign pub_path_tail0_o = pub_path_w[0*64 +: 64];
+  assign pub_path_tail1_o = pub_path_w[1*64 +: 64];
+  assign pub_path_tail6_o = pub_path_w[6*64 +: 64];
 
   KL_ptp_clock_validity #(
       .QTICK_CYC_P   (64),

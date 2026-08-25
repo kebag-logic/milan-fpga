@@ -10,7 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # The documentation-only gates run before any submodule checkout. The
-      # builder identity gate below consumes the pinned processor image tools.
+      # builder gates below consume the pinned processor image tools and expand
+      # the Vivado datapath manifest through verilog-axis's source inventory.
       - uses: actions/checkout@v4
       - name: Link health, wording, dead-reference and local-info gate
         run: python3 scripts/docs_check.py
@@ -18,11 +19,12 @@ jobs:
         run: python3 scripts/check_feature_status.py --self-test
       - name: Traceability matrix no-drift gate
         run: python3 docs/traceability/gen_module_matrix.py --check
-      - name: Fetch the processor image tools
+      - name: Fetch the builder source dependencies
         # gptp-processor rides along for the SoC source-list gate: since it
         # polices submodule-rooted entries, the files must exist to be judged
-        # present rather than STALE.
-        run: git submodule update --init protocol-processor gptp-processor
+        # present rather than STALE. The builder's dp_srcs.py self-test also
+        # resolves the five verilog-axis leaves in the shipping OOC manifest.
+        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
       - name: End-station builder gates
         run: |
           python3 -m pip install --quiet pyyaml

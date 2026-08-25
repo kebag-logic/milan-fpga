@@ -37,7 +37,14 @@ static const uint64_t PEER_CID = 0x0080E1FFFE112233ull;
 static const uint32_t OUR_CQ = 0xF8FE436A;
 static const uint64_t GMID = 0x00AACCFFFE010203ull;
 static const uint64_t GMID2 = 0x00AACCFFFE010204ull;
+static const uint64_t GMID_EMPTY = 0x00AACCFFFE010205ull;
 static const uint64_t PEER2_CID = 0x0080E1FFFE112244ull;
+static const uint64_t PATH_HOP = 0x00DDBBFFFE000001ull;
+static const uint64_t PATH_HOP2 = 0x00DDBBFFFE000002ull;
+static const uint64_t PATH_HOP3 = 0x00DDBBFFFE000003ull;
+static const uint64_t PATH_HOP4 = 0x00DDBBFFFE000004ull;
+static const uint64_t PATH_HOP5 = 0x00DDBBFFFE000005ull;
+static const uint64_t PATH_HOP6 = 0x00DDBBFFFE000006ull;
 
 static const uint32_t FL_PRESENT = 1, FL_AMGM = 2, FL_ASCAP = 4,
                       FL_SYNCOK = 8;
@@ -134,7 +141,10 @@ static bool tx_first = true;
 //! The complete outward bank may change only with its commit pulse.
 static bool pub_watch = false;
 static uint64_t last_pub_gm, last_pub_parent, last_pub_annq;
+static uint64_t last_pub_path_tail0, last_pub_path_tail1,
+                last_pub_path_tail6;
 static uint32_t last_pub_flags, last_pub_pdelay, last_pub_offset;
+static uint8_t last_pub_path_count, last_pub_path_gen;
 static unsigned pub_commits, pub_changes, pub_unguarded_changes;
 
 //! issue #122: capture the ingress-ts ring push/pop stamps during a burst
@@ -189,7 +199,12 @@ static void tick() {
                         || dut->pub_flags_o != last_pub_flags
                         || dut->pub_pdelay_ns_o != last_pub_pdelay
                         || dut->pub_offset_o != last_pub_offset
-                        || dut->pub_annq_o != last_pub_annq;
+                        || dut->pub_annq_o != last_pub_annq
+                        || dut->pub_path_count_o != last_pub_path_count
+                        || dut->pub_path_tail0_o != last_pub_path_tail0
+                        || dut->pub_path_tail1_o != last_pub_path_tail1
+                        || dut->pub_path_tail6_o != last_pub_path_tail6
+                        || dut->pub_path_gen_o != last_pub_path_gen;
       if (changed) {
         pub_changes++;
         if (!dut->pub_commit_o) pub_unguarded_changes++;
@@ -202,6 +217,11 @@ static void tick() {
     last_pub_pdelay = dut->pub_pdelay_ns_o;
     last_pub_offset = dut->pub_offset_o;
     last_pub_annq = dut->pub_annq_o;
+    last_pub_path_count = dut->pub_path_count_o;
+    last_pub_path_tail0 = dut->pub_path_tail0_o;
+    last_pub_path_tail1 = dut->pub_path_tail1_o;
+    last_pub_path_tail6 = dut->pub_path_tail6_o;
+    last_pub_path_gen = dut->pub_path_gen_o;
   }
   if (g_ts_capture) {
     if (dut->dbg_tspush_v_o) g_pushed.push_back(dut->dbg_tspush_o);
@@ -333,12 +353,59 @@ static uint64_t timestamp_field_ns(const std::vector<uint8_t> &f, size_t o) {
 }
 static void announce(uint16_t seq, uint8_t p1, uint64_t gmid,
                      uint64_t src = PEER_CID) {
+  //! Present-PathTrace control: use three identities so this wide-face
+  //! integration bench proves more than a reconstructed `{GM,parent}` path.
+  Frame a = ptp(0xB, seq, 0, 0x0008, 58, src);
+  for (int i = 0; i < 10; i++) a.u8(0);
+  a.u16(0xFFC4); a.u8(0);
+  a.u8(p1); a.u32(OUR_CQ); a.u8(248);
+  a.u64(gmid);
+  a.u16(2); a.u8(0xA0);
+  a.u16(0x0008); a.u16(24);
+  a.u64(gmid); a.u64(PATH_HOP); a.u64(src);
+  send_wide(a.b);
+  run_svc(4000);
+}
+static void announce_eight_path(uint16_t seq, uint8_t p1, uint64_t gmid,
+                                uint64_t src = PEER_CID) {
+  //! Exercise the parent's complete fixed-width ABI, including slot seven.
+  //! A loop bound accidentally shortened to the smaller smoke-test path must
+  //! fail even though the donor itself still publishes all eight entries.
+  Frame a = ptp(0xB, seq, 0, 0x0008, 98, src);
+  for (int i = 0; i < 10; i++) a.u8(0);
+  a.u16(0xFFC4); a.u8(0);
+  a.u8(p1); a.u32(OUR_CQ); a.u8(248);
+  a.u64(gmid);
+  a.u16(7); a.u8(0xA0);
+  a.u16(0x0008); a.u16(64);
+  a.u64(gmid); a.u64(PATH_HOP); a.u64(PATH_HOP2); a.u64(PATH_HOP3);
+  a.u64(PATH_HOP4); a.u64(PATH_HOP5); a.u64(PATH_HOP6); a.u64(src);
+  send_wide(a.b);
+  run_svc(4000);
+}
+static void announce_without_path(uint16_t seq, uint8_t p1, uint64_t gmid,
+                                  uint64_t src = PEER_CID) {
+  //! An exact fixed Announce has no suffix. The donor publishes its selected
+  //! GM/parent scalars but truthfully reports the absent PathTrace as count 0.
   Frame a = ptp(0xB, seq, 0, 0x0008, 30, src);
   for (int i = 0; i < 10; i++) a.u8(0);
   a.u16(0xFFC4); a.u8(0);
   a.u8(p1); a.u32(OUR_CQ); a.u8(248);
   a.u64(gmid);
   a.u16(0); a.u8(0xA0);
+  send_wide(a.b);
+  run_svc(4000);
+}
+static void announce_one_path(uint16_t seq, uint8_t p1, uint64_t gmid) {
+  //! Explicit one-entry PathTrace from a directly connected GM. This is not
+  //! the absent-TLV spelling: its served sequence is exactly `[GM]`.
+  Frame a = ptp(0xB, seq, 0, 0x0008, 42, gmid);
+  for (int i = 0; i < 10; i++) a.u8(0);
+  a.u16(0xFFC4); a.u8(0);
+  a.u8(p1); a.u32(OUR_CQ); a.u8(248);
+  a.u64(gmid);
+  a.u16(0); a.u8(0xA0);
+  a.u16(0x0008); a.u16(8); a.u64(gmid);
   send_wide(a.b);
   run_svc(4000);
 }
@@ -524,6 +591,72 @@ int main(int argc, char **argv) {
   expect("adopted", dut->pub_flags_o & 3, FL_PRESENT);
   expect("pub gm id", dut->pub_gm_id_o, GMID);
   expect("pub parent id", dut->pub_parent_id_o, PEER_CID);
+  expect("published full path count", dut->pub_path_count_o, 3);
+  expect("published path middle hop", dut->pub_path_tail0_o, PATH_HOP);
+  expect("published path source tail", dut->pub_path_tail1_o, PEER_CID);
+  {
+    //! Mutation bars for the parent contract. Reinstating either `raw<=1 ? 1`
+    //! or an unconditional GM term in the path-generation comparator fails
+    //! this arm. Scalar GM selection remains independent of the served path.
+    const uint8_t gen_present = dut->pub_path_gen_o;
+    announce_without_path(11, 100, GMID);
+    expect("TLV-less selected GM remains published", dut->pub_gm_id_o, GMID);
+    expect("TLV-less selected parent remains published",
+           dut->pub_parent_id_o, PEER_CID);
+    expect("TLV-less selected PathTrace stays raw empty",
+           dut->pub_path_count_o, 0);
+    expect("TLV-less selected path clears active tail 1",
+           dut->pub_path_tail0_o, 0);
+    expect("TLV-less selected path clears active tail 2",
+           dut->pub_path_tail1_o, 0);
+    expect("TLV-less selected path clears final ABI tail",
+           dut->pub_path_tail6_o, 0);
+    const uint8_t gen_empty = (uint8_t)((gen_present + 1u) & 0xFu);
+    expect("present to absent spends exactly one path generation",
+           dut->pub_path_gen_o, gen_empty);
+
+    announce_without_path(12, 100, GMID);
+    expect("identical absent refresh spends no path generation",
+           dut->pub_path_gen_o, gen_empty);
+
+    announce_without_path(13, 90, GMID_EMPTY, GMID_EMPTY);
+    expect("better TLV-less Announce changes scalar GM",
+           dut->pub_gm_id_o, GMID_EMPTY);
+    expect("better TLV-less Announce still serves empty",
+           dut->pub_path_count_o, 0);
+    expect("absent GM A-to-B is path-generation silent",
+           dut->pub_path_gen_o, gen_empty);
+
+    announce_one_path(14, 90, GMID_EMPTY);
+    const uint8_t gen_one = (uint8_t)((gen_empty + 1u) & 0xFu);
+    expect("explicit one-entry PathTrace publishes count one",
+           dut->pub_path_count_o, 1);
+    expect("absent to explicit GM spends one path generation",
+           dut->pub_path_gen_o, gen_one);
+
+    announce_without_path(15, 90, GMID_EMPTY, GMID_EMPTY);
+    const uint8_t gen_empty_again = (uint8_t)((gen_one + 1u) & 0xFu);
+    expect("explicit GM withdrawal restores empty count",
+           dut->pub_path_count_o, 0);
+    expect("explicit GM to absent spends one path generation",
+           dut->pub_path_gen_o, gen_empty_again);
+
+    announce(16, 80, GMID);
+    expect("present path restored for servo controls",
+           dut->pub_path_count_o, 3);
+    expect("restored path returns original scalar GM", dut->pub_gm_id_o, GMID);
+    expect("absent to restored path spends one generation",
+           dut->pub_path_gen_o, (gen_empty_again + 1u) & 0xFu);
+
+    const uint8_t gen_restored = dut->pub_path_gen_o;
+    announce_eight_path(17, 75, GMID);
+    expect("maximum bounded PathTrace publishes count eight",
+           dut->pub_path_count_o, 8);
+    expect("maximum bounded PathTrace reaches final tail slot",
+           dut->pub_path_tail6_o, PEER_CID);
+    expect("three to eight entries spends one generation",
+           dut->pub_path_gen_o, (gen_restored + 1u) & 0xFu);
+  }
   {
     // offset = tap_stamp - (origin + pd): origin is written so the true
     // offset is ~+1000 ns; the tap stamps within a couple of beats
@@ -561,8 +694,13 @@ int main(int argc, char **argv) {
   run_svc(512);
   expect("healthy bank clears tu before GM switch", dut->ts_uncertain_o, 0);
   const uint16_t disc_before = dut->disc_launch_count_o;
-  announce(0x2F0, 90, GMID2, PEER2_CID);
+  announce(0x2F0, 70, GMID2, PEER2_CID);
   expect("better Announce selects the new GM", dut->pub_gm_id_o, GMID2);
+  expect("better Announce preserves full path count", dut->pub_path_count_o, 3);
+  expect("better Announce preserves middle hop", dut->pub_path_tail0_o,
+         PATH_HOP);
+  expect("better Announce publishes new source tail", dut->pub_path_tail1_o,
+         PEER2_CID);
   expect("registered bank emitted a pre-commit discontinuity",
          dut->disc_launch_count_o > disc_before, 1);
   expect("AAF same-edge launch samples tu=1", dut->aaf_launch_tu_o, 1);

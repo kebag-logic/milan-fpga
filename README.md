@@ -149,18 +149,23 @@ command pushes its unsolicited response to the other registered controllers,
 the Table 5.22 observed triggers (counters, AVB info, AS_PATH) are wired from
 the fabric, and silent controllers are probed and deregistered (Milan 5.4.5.2
 and 5.4.5.3, issue #69). Persistence stays with issue #70.
-`GET_AS_PATH` serves the grandmaster followed by the latest PathTrace snapshot
-published through the 0x7DC group. LO/HI writes and slot COMMITs change only
-the staging bank. A changed PUBLISH atomically replaces the complete published
-tail and count. The Table 5.22 edge compares the sequence `GET_AS_PATH`
-actually serves: legacy count 0 and explicit count 1 are the same GM-only
-path, and every tail aliases to an empty response while no grandmaster exists,
-so neither case emits a false push. Reads before PUBLISH keep the old path. A
-wire test snapshots the old count, completes a count-and-multi-slot PUBLISH
-before the first entry gather request, and proves that the in-flight response
-remains wholly old while the next response is wholly new. Re-publishing
-identical staged content is silent. A tail that is never published leaves a leaf
-directly under its grandmaster with a one-entry path.
+`GET_AS_PATH` follows the same owner selection. The product-default fabric
+owner publishes the bounded PathTrace from the selected Announce: no entries
+without a GM or when that Announce has no PathTrace TLV; otherwise the GM is
+followed by up to seven traversed identities in wire order. The engine and
+wrapper commit the complete count/tail atomically; software writes cannot forge
+it. In the explicit option-off comparison, the GM is followed by the latest
+PathTrace snapshot published through the 0x7DC group.
+LO/HI writes and slot COMMITs change only the staging bank, while PUBLISH
+atomically replaces the complete tail and count. In both modes the Table 5.22
+edge compares the canonical sequence actually served. Fabric count 0 and 1 are
+distinct empty and `[GM]` sequences, so either transition notifies; a GM change
+while both fabric counts are zero is silent for AS_PATH but remains live for
+AVB/GM duties. Only option-off retains #227's count 0/1 GM-only alias. GM=0
+publications, hidden option-off staging in fabric mode, inactive tail bytes,
+and identical republishes are silent. The response snapshots its selected path
+before gathering entries, so an in-flight response is wholly old and the next
+wholly new.
 
 The dated evidence and exact gate results are recorded in
 [the 2026-08-16 audit](docs/testing/MILAN_V12_AUDIT_2026-08-16.md). The register

@@ -18,6 +18,9 @@ enum {
   A_GPTP_PDELAY = 0x6E4,
   A_AS2_LO = 0x730,
   A_AS2_HI = 0x734,
+  A_ASP_LO = 0x7DC,
+  A_ASP_HI = 0x7E0,
+  A_ASP_CMD = 0x7E4,
 };
 
 static Vmilan_csr* dut;
@@ -35,6 +38,16 @@ static void check(const char* label, uint64_t got, uint64_t expected) {
     std::printf("  [FAIL] %-52s got=0x%016llx exp=0x%016llx\n", label,
                 (unsigned long long)got, (unsigned long long)expected);
   }
+}
+
+static void set_fabric_path(unsigned slot, uint64_t value) {
+  dut->i_gptp_asp_path[2 * slot] = (uint32_t)value;
+  dut->i_gptp_asp_path[2 * slot + 1] = (uint32_t)(value >> 32);
+}
+
+static uint64_t live_path(unsigned slot) {
+  return ((uint64_t)dut->o_asp_path[2 * slot + 1] << 32)
+       | dut->o_asp_path[2 * slot];
 }
 
 static void axi_write(uint32_t address, uint32_t data) {
@@ -87,6 +100,9 @@ int main(int argc, char** argv) {
   dut->s_axi_arvalid = 0; dut->s_axi_rready = 0;
   dut->i_lctx_rd_valid = 1; dut->i_tctx_rd_valid = 1;
   dut->i_lctx_wr_rdy = 1; dut->i_tctx_wr_rdy = 1;
+  dut->i_gptp_asp_count = 0;
+  dut->i_gptp_asp_gen = 0;
+  for (unsigned i = 0; i < 14; i++) dut->i_gptp_asp_path[i] = 0;
   for (unsigned i = 0; i < 8; i++) tick();
   dut->aresetn = 1; tick();
 
@@ -135,6 +151,74 @@ int main(int argc, char** argv) {
   const uint32_t parent_lo_second = axi_read(A_AS2_LO);
   check("parent HI-first pair remains one publication",
         ((uint64_t)parent_hi_first << 32) | parent_lo_second, parent_b);
+
+  // Issue #116: in the product elaboration the public AS_PATH face and
+  // 0x7E4 are live fabric outputs. The old staging pair remains a readable
+  // ABI scratchpad, but neither COMMIT nor PUBLISH may forge the served path
+  // or advance the engine-owned generation.
+  //! Mutation bar for the fabric raw-empty contract: unlike option-off #227,
+  //! the selected donor's count zero is not an alternate spelling of `[GM]`.
+  //! CSR has no GM input and must pass the fabric owner tuple through exactly.
+  dut->i_gptp_asp_count = 0;
+  dut->i_gptp_asp_gen = 7;
+  dut->eval();
+  check("fabric raw-empty count owns public output", dut->o_asp_count, 0);
+  check("fabric raw-empty generation owns public output", dut->o_asp_gen, 7);
+  check("0x7E4 preserves fabric raw-empty {generation,count}",
+        axi_read(A_ASP_CMD), 0x00000070);
+
+  const uint64_t path1 = 0x1111222233334444ULL;
+  const uint64_t path2 = 0x5555666677778888ULL;
+  const uint64_t path3 = 0x9999AAAABBBBCCCCULL;
+  set_fabric_path(0, path1);
+  set_fabric_path(1, path2);
+  set_fabric_path(2, path3);
+  dut->i_gptp_asp_count = 4;
+  dut->i_gptp_asp_gen = 9;
+  dut->eval();
+  check("fabric AS_PATH count owns public output", dut->o_asp_count, 4);
+  check("fabric AS_PATH generation owns public output", dut->o_asp_gen, 9);
+  check("fabric AS_PATH slot 1 owns public output", live_path(0), path1);
+  check("fabric AS_PATH slot 2 owns public output", live_path(1), path2);
+  check("fabric AS_PATH slot 3 owns public output", live_path(2), path3);
+  check("0x7E4 reads live fabric {generation,count}",
+        axi_read(A_ASP_CMD), 0x00000094);
+
+  const uint64_t forged = 0xDEADBEEF01234567ULL;
+  axi_write(A_ASP_LO, (uint32_t)forged);
+  axi_write(A_ASP_HI, (uint32_t)(forged >> 32));
+  check("compatibility staging LO remains readable",
+        axi_read(A_ASP_LO), (uint32_t)forged);
+  check("compatibility staging HI remains readable",
+        axi_read(A_ASP_HI), (uint32_t)(forged >> 32));
+  axi_write(A_ASP_CMD, 0xC0000107u); // COMMIT slot 1 + PUBLISH count 7
+  check("software COMMIT/PUBLISH cannot forge live slot", live_path(0), path1);
+  check("software COMMIT/PUBLISH cannot forge live count", dut->o_asp_count, 4);
+  check("software COMMIT/PUBLISH cannot spend fabric generation",
+        dut->o_asp_gen, 9);
+  check("0x7E4 still reads fabric state after software command",
+        axi_read(A_ASP_CMD), 0x00000094);
+
+  const uint64_t path1b = 0x0102030405060708ULL;
+  set_fabric_path(0, path1b);
+  dut->i_gptp_asp_count = 2;
+  dut->i_gptp_asp_gen = 10;
+  dut->eval();
+  check("later fabric publication moves live slot", live_path(0), path1b);
+  check("later fabric publication moves live count", dut->o_asp_count, 2);
+  check("later fabric publication moves live generation", dut->o_asp_gen, 10);
+  check("0x7E4 follows later fabric publication",
+        axi_read(A_ASP_CMD), 0x000000A2);
+
+  const uint64_t path7 = 0xD1D2D3D4D5D6D7D8ULL;
+  set_fabric_path(6, path7);
+  dut->i_gptp_asp_count = 8;
+  dut->i_gptp_asp_gen = 11;
+  dut->eval();
+  check("maximum fabric AS_PATH count owns public output", dut->o_asp_count, 8);
+  check("maximum fabric AS_PATH reaches public slot 7", live_path(6), path7);
+  check("0x7E4 follows maximum fabric publication",
+        axi_read(A_ASP_CMD), 0x000000B8);
 
   std::printf("checks: %u   failures: %u\n", checks, failures);
   delete dut;

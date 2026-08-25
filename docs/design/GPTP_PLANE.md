@@ -149,6 +149,17 @@ two-half CSR read order. A GM/sync discontinuity asserts `tu` on that same
 edge, then the committed bank becomes visible; no consumer can see a new
 identity with an old-valid timestamp verdict. Software writes to the legacy
 publication and CLKV registers cannot manufacture live fabric health.
+`GET_AS_PATH` therefore serves no entries without a GM or when the selected
+Announce carried no PathTrace TLV. A present TLV is the complete bounded
+sequence: GM followed by up to seven tail identities. The donor stages a
+candidate's full path, publishes it only when that candidate is actually taken,
+clears inactive slots on shorter paths, and commits count/tail with the scalar
+bank. The parent preserves raw count zero, clamps the public count, and clears
+inactive tails. Its generation and Table 5.22 edge compare exactly
+`(count ? GM : 0, count, active tails)`: fabric 0 <-> 1 is a real change, while
+GM A->B with both counts zero leaves the served empty sequence unchanged. The
+software 0x7DC staging bank remains readable compatibility state but cannot
+alter this fabric-owned path or its live 0x7E4 generation.
 The donor's peer-delay arithmetic stays signed: a small negative symmetric
 measurement remains acceptable and does not tear down asCapable. At the parent
 publication commit, that value is clamped to zero before entering the unsigned
@@ -157,6 +168,8 @@ CSR/GET_AVB_INFO contract, so a legal -1 ns sample can never appear as
 
 With the option off, the legacy software contract remains intact: LO stages
 and HI commits each identity, `CLKV_CTRL` renews the compatibility lease, and
+the 0x7DC COMMIT/PUBLISH bank supplies the full PathTrace tail behind the GM,
+with #227's canonical alias and in-flight snapshot semantics. In this mode
 the positive v1 software rootfs profile plus its permission marker starts
 linuxptp and the full publisher. This is a
 comparison/bring-up shape, not the product default. VERSION `0x0002_0055`
@@ -169,7 +182,7 @@ records the ownership change without allocating new CSR addresses.
 | gptp-processor `tb/verilator/*` | byte, model counter | the 802.1AS state machines, servo math, and the donor's planted-mutation ladder; its count lives in the donor's engine bench README under `gptp-processor/tb/verilator/engine/` at the pinned SHA and is not mirrored here, where it would drift at every repin |
 | `tb/verilator/gptp_plane` | byte, REAL counter | the engine steers the parent's `timestamp_counter` closed-loop, and its transmitted Follow_Up carries a live timestamp while the two-step Sync body stays zero (Table 11-8). It does NOT observe the engine's own `phc_ns_i`: at the current submodule pin that input has no reader, so a tie-off there passes this bench ([#211](https://github.com/kebag-logic/milan-fpga/issues/211)). The slice's `timestamp_counter` wire is a different signal and IS covered, by `tb/verilator/gptp_shadow` |
 | `tb/verilator/gptp_shadow` | WIDE, real counter + boundary stamper | the fabric slice with no harness-provided timestamps; classify/transport/gearbox/stamper, positional pairing for all six transmitted types, and the two equal-sequence cross-type collisions proved by delaying/replaying complete real boundary tuples (Req vs Resp and Sync vs Resp). The same gate holds a response return while two same-type peer requests cross the production tap and a start/mid-frame-stalled wide lane; two valid Signaling chasers then reuse both donor message banks, proving the queued request's event snapshot preserves its requester identity, port and exact ingress `requestReceiptTimestamp` through bank churn. Independent request/Sync warm-reset phases prove the cadence and receipt-timer bootstrap. The 171-check run also drives an accepted -40 ns exchange, requires public zero with asCapable retained, then restores a positive delay. It goes red when the public sign clamp, engine type input, donor type match, same-type ownership/snapshot, timer repairs, or return-order proof is removed |
-| `tb/verilator/milan_dp` obj_gptp | the whole datapath | option-ON elaborates at the shipping 1x1 ENTITY shape (the leg's own -G set, 2 MHz clock -- not the obj_ax1x1 argv); the boot Pdelay_Req reaches the real MAC boundary; NO Announce without asCapable; live positive and negative peer-delay exchanges reach CSR/clock validity, and GET_AVB_INFO carries the negative sample as byte-exact unsigned zero while preserving asCapable |
+| `tb/verilator/milan_dp` obj_gptp | the whole datapath | option-ON elaborates at the shipping 1x1 ENTITY shape (the leg's own -G set, 2 MHz clock -- not the obj_ax1x1 argv); the boot Pdelay_Req reaches the real MAC boundary; NO Announce without asCapable; live positive and negative peer-delay exchanges reach CSR/clock validity; GET_AVB_INFO carries the negative sample as byte-exact unsigned zero; and a four-identity Announce survives as an exact 74-byte GET_AS_PATH response. Fabric 0x7E4 ownership, software-staging isolation, one tail-only Table 5.22 push and identical-refresh silence are graded in the same leg |
 | `tb/verilator/milan_dp` default legs | the whole datapath | the [GPTP-OPT] tripwire: with the option OFF, CSR adjfine and adjtime still reach `timestamp_counter` through the eff muxes (a polarity swap goes red) |
 | `tb/verilator/tsn_fuzz` (`fuzz_ptp.py`) | byte, the tsn-gen 802.1AS models at the CI pin | the plane's own Announce / Sync / Follow_Up / Pdelay field-by-field against the Milan v1.2 profile of 802.1AS-2011 (the Table 11-7 control byte among them), parser drop/ignore gates, BTCA under fuzz, the two-sided asCapable canary; the tally and the tracked gaps live in the generated [`hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md`](../../hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md) |
 

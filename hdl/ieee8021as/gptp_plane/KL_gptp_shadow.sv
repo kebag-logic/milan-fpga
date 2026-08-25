@@ -15,7 +15,8 @@
 //                timestamp_counter's knobs (the adjfine pulse latches to a
 //                level here; adjtime passes through), and the publish bank
 //                (GM identity, parent identity, asCapable/sync flags, peer
-//                delay, offset) is latched here as one six-word bank on the
+//                delay, offset, selected PathTrace) is latched here as one
+//                transaction on the
 //                engine commit pulse before leaving the wrapper.
 //
 //                INGRESS TIMESTAMP TRANSPORT (the part a register latch
@@ -109,6 +110,9 @@ module KL_gptp_shadow #(
     output logic [31:0] pub_pdelay_ns_o,
     output logic [31:0] pub_offset_o,
     output logic [63:0] pub_annq_o,
+    output logic  [3:0] pub_path_count_o, //! complete length incl GM
+    output logic [7*64-1:0] pub_path_o,   //! canonical slots 1..7
+    output logic  [3:0] pub_path_gen_o,  //! complete served tuple generation
     output logic        pub_commit_o,
     //! Combinational pre-commit discontinuity. The outward bank is
     //! registered on the engine commit, so a consumer sampling on that edge
@@ -448,7 +452,45 @@ module KL_gptp_shadow #(
   logic [31:0] adj_val_w;
   logic [63:0] pub_gm_raw_w, pub_parent_raw_w, pub_annq_raw_w;
   logic [31:0] pub_flags_raw_w, pub_pdelay_raw_w, pub_offset_raw_w;
+  logic  [3:0] pub_path_count_raw_w;
+  logic [7*64-1:0] pub_path_raw_w;
   logic        pub_commit_raw_w;
+
+  //! Canonical public sequence. A tail has no identity without a GM. With a
+  //! GM, preserve the donor's raw distinction: count zero means the selected
+  //! Announce carried no PathTrace TLV, while count one is the explicit
+  //! one-entry `[GM]` sequence. Generation covers the COMPLETE sequence this
+  //! parent serves, so 0 <-> 1 is a real edge while GM A->B with both counts
+  //! zero is silent (the served sequence remains empty).
+  logic [3:0] pub_path_count_next_w;
+  logic [7*64-1:0] pub_path_next_w;
+  always_comb begin : canonical_public_path
+    pub_path_count_next_w = 4'd0;
+    pub_path_next_w       = '0;
+    if (|pub_gm_raw_w) begin
+      //! Clamp a hostile or future wider donor at the public seven-tail ABI
+      //! boundary, then copy only identities selected by that count. Letting
+      //! inactive bytes escape would spend a generation and manufacture a
+      //! Table 5.22 event even though GET_AS_PATH serves the same sequence.
+      pub_path_count_next_w = (pub_path_count_raw_w > 4'd8) ? 4'd8
+          : pub_path_count_raw_w;
+      for (int unsigned pk = 0; pk < 7; pk++) begin
+        if (4'(pk + 2) <= pub_path_count_next_w)
+          pub_path_next_w[64*pk +: 64] = pub_path_raw_w[64*pk +: 64];
+      end
+    end
+  end : canonical_public_path
+  //! The grandmaster participates in PathTrace identity only when entry zero
+  //! exists. Keep the scalar GM publication independent: GET_AVB_INFO, ADP and
+  //! the GM-change counter still observe every identity edge while an absent
+  //! PathTrace remains the same empty served sequence.
+  wire [63:0] pub_path_head_next_w = (|pub_path_count_next_w)
+      ? pub_gm_raw_w : 64'd0;
+  wire [63:0] pub_path_head_o_w = (|pub_path_count_o)
+      ? pub_gm_id_o : 64'd0;
+  wire pub_path_changed_w = (pub_path_head_next_w != pub_path_head_o_w)
+      || (pub_path_count_next_w != pub_path_count_o)
+      || (pub_path_next_w != pub_path_o);
 
   //! Same-edge warning for AVTP talkers. A GM change or a healthy-to-unhealthy
   //! sync transition must assert tu before the registered outward bank moves;
@@ -491,11 +533,8 @@ module KL_gptp_shadow #(
       .pub_pdelay_ns_o    (pub_pdelay_raw_w),
       .pub_offset_o       (pub_offset_raw_w),
       .pub_annq_o         (pub_annq_raw_w),
-      //! the raw selected PathTrace publication (donor #45) has no consumer
-      //! in this slice yet: no CSR window is sized for 7 more qwords, so it
-      //! is explicitly unconsumed here like the eff_* strobes below
-      .pub_path_count_o   (),
-      .pub_path_o         (),
+      .pub_path_count_o   (pub_path_count_raw_w),
+      .pub_path_o         (pub_path_raw_w),
       .pub_commit_o       (pub_commit_raw_w),
       .eff_nvm_stb_o      (),
       .eff_nvm_mark_o     (),
@@ -510,7 +549,7 @@ module KL_gptp_shadow #(
   //! The donor updates individual publication words while handling an event
   //! and ends the transaction with pub_commit_raw_w. Consumers must never see
   //! a new GM paired with old flags, parent, or timing data, so the wrapper
-  //! publishes the complete six-word bank only at that boundary.
+  //! publishes the complete scalar + PathTrace bank only at that boundary.
   always_ff @(posedge clk_i) begin : publication_commit
     if (!rst_n) begin
       pub_gm_id_o     <= '0;
@@ -519,6 +558,9 @@ module KL_gptp_shadow #(
       pub_pdelay_ns_o <= '0;
       pub_offset_o    <= '0;
       pub_annq_o      <= '0;
+      pub_path_count_o <= '0;
+      pub_path_o       <= '0;
+      pub_path_gen_o   <= '0;
       pub_commit_o    <= 1'b0;
     end else begin
       pub_commit_o <= pub_commit_raw_w;
@@ -537,6 +579,10 @@ module KL_gptp_shadow #(
                                                 : pub_pdelay_raw_w;
         pub_offset_o    <= pub_offset_raw_w;
         pub_annq_o      <= pub_annq_raw_w;
+        pub_path_count_o <= pub_path_count_next_w;
+        pub_path_o       <= pub_path_next_w;
+        if (pub_path_changed_w)
+          pub_path_gen_o <= pub_path_gen_o + 4'd1;
       end
     end
   end : publication_commit

@@ -1,7 +1,7 @@
 <!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
 # milan_dp — the `milan_datapath` integration suite
 
-`make` builds **ten elaborations** of `hdl/milan/milan_datapath.sv` (the PS-less
+`make` builds **twelve elaborations** of `hdl/milan/milan_datapath.sv` (the PS-less
 Section A.9 wrapper the LiteX SoC instantiates) and runs a self-checking harness
 against each. `make` exits non-zero if any leg fails; **gate on the exit code**,
 never on grepping the log — a compile error prints no `FAIL` line at all.
@@ -25,6 +25,7 @@ log in the failure so the artifact can be inspected.
 | `obj_ax1x1` | `sim_main.cpp` | `endstation_ax7101_1x1_tdm8` | the shape the AX7101 actually flashes |
 | `obj_aclk` | `sim_aclk.cpp` | same, TRUE 391/1591 clk_audio ratio | the media-grid drift RATE |
 | `obj_notify` | `sim_nxn.cpp` (`NOTIFY_TIMED_TB`) | `endstation_ax7101_1x1_tdm8`, `PP_TIM_DIV_US_P=1` + `PP_TIM_DIV_MS_P=100` | Milan 5.4.5 TIMED: the GET_COUNTERS one-second limit and the 30-60 s departing-controller monitor, with the processor's timebase compressed so one of its milliseconds is 100 fabric cycles. Exits right after the image is served; every other `sim_nxn` leg runs the same `[NOTIFY]` section untimed |
+| `obj_gptp` | `sim_gptp.cpp` | `endstation_ax7101_1x1_tdm8`, fabric gPTP at a compressed 2 MHz | Product-owner publication from selected Announce through the atomic parent bank, live CSR and `GET_AS_PATH`; covers absent versus explicit `[GM]`, tail-only refreshes, coherent in-flight cutover, Table 5.22 pushes, software-store isolation, and the maximum eight-entry wire response |
 
 ## Contents
 
@@ -165,7 +166,8 @@ octet for octet, the locate miss, the bad configuration index, the
 `NOT_IMPLEMENTED` echo, the two silent-refusal cases, and the no-memory degrade
 with recovery.
 
-**`[NOTIFY]` is Milan 5.4.5 on the wire (issue #69).** Two controllers
+**`[NOTIFY]` is Milan 5.4.5 on the wire (issue #69).** These historical
+software-staged notification legs elaborate with `GPTP_PLANE_EN_P=0`. Two controllers
 register (a second `{source MAC, controller_entity_id}` identity, `CTL_B`,
 beside the one every other call uses), and the section grades what reaches
 the TX trunk with the unsolicited bit: a `SET_NAME` from A produces exactly
@@ -182,8 +184,9 @@ re-COMMITs slot 1, and proves both zero push and a solicited read of the prior
 publication before PUBLISH. A changed `PUBLISH` through `0x7DC`/`0x7E4`
 atomically exposes the complete staged tail and count and pushes the new
 `GET_AS_PATH` bytes with no `GET_AVB_INFO`; an identical re-PUBLISH advances
-neither generation nor wire. Legacy count 0 and explicit count 1 are exercised
-in both directions and spend neither generation nor a push. The harness then
+neither generation nor wire. Under this option-off contract, legacy count 0
+and explicit count 1 are exercised in both directions and spend neither
+generation nor a push. The harness then
 holds TX, stops on the live first-count snapshot edge, changes the count and
 multiple slots, and proves PUBLISH completes before the first entry request;
 the in-flight wire body stays all-old and the next one is all-new. A separate

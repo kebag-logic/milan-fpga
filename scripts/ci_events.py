@@ -305,6 +305,36 @@ PUBLIC_NAMES = {
     RTL_FAST: ("rtl-fast",),
     ELABORATE: ("elaborate",),
 }
+#: ``test_builder.py`` invokes both processor-image/source gates and the
+#: Vivado datapath-manifest consumer (syn/ooc/dp_srcs.py), which resolves the
+#: shipping AXIS primitives by path, so both hosted jobs which call the
+#: builder need this complete set before the call. Keep one canonical
+#: command: a split or decoy checkout is too easy to place after the builder
+#: or behind another condition.
+BUILDER_SUBMODULES = (
+    "third_party/verilog-axis",
+    "protocol-processor",
+    "gptp-processor",
+)
+BUILDER_COMMAND = "git submodule update --init " + " ".join(BUILDER_SUBMODULES)
+BUILDER_CALL = "sw/builder/test_builder.py"
+BUILDER_IF = "${{ steps.scope.outputs.rtl == 'true' }}"
+BUILDER_RUNS = {
+    DOCS: (
+        "python3 -m pip install --quiet pyyaml",
+        "python3 sw/builder/test_builder.py",
+    ),
+    ELABORATE: (
+        "python3 sw/builder/test_builder.py --require-elaboration",
+    ),
+}
+BUILDER_CHECKOUTS = {
+    DOCS: {"uses": "actions/checkout@v4"},
+    ELABORATE: {
+        "uses": "actions/checkout@v4",
+        "with": {"fetch-depth": 0},
+    },
+}
 #: The fast workflow's selector job and the step that computes its answer.
 FAST_SELECTOR_JOB = "changes"
 FAST_SCOPE_STEP_ID = "scope"
@@ -1516,8 +1546,93 @@ def check_rtl_fast(c, wf):
     check_publication_path(c, RTL_FAST, wf)
 
 
+def check_builder_dependencies(c, path, wf, jid):
+    """The hosted builder call is preceded by one complete, live checkout.
+
+    ``actions/checkout`` leaves submodules absent.  The builder reads both
+    processor trees and asks ``dp_srcs.py`` to resolve the verilog-axis
+    leaves, so a partial checkout is a setup failure rather than evidence
+    about the candidate.  Pin the setup as one command, before the call and
+    under the same step condition, so a decoy or late checkout cannot satisfy
+    the text recogniser.
+    """
+    c.item("defaults" not in wf, path,
+           "the builder workflow must carry no top-level `defaults` "
+           f"(found {wf.get('defaults')!r}): a `defaults.run.shell` changes "
+           "how every builder command runs")
+    job = jobs(wf).get(jid)
+    c.item(isinstance(job, dict), path,
+           f"builder job `{jid}` must exist")
+    if not isinstance(job, dict):
+        return
+    check_job_keys(c, path, jid, job)
+    ss = steps(job)
+    checkouts = [(i, s) for i, s in enumerate(ss)
+                 if uses(s, "actions/checkout")]
+    c.item(len(checkouts) == 1, path,
+           f"job `{jid}` must carry exactly one actions/checkout step "
+           f"(found {len(checkouts)})")
+    if len(checkouts) == 1:
+        _, checkout = checkouts[0]
+        c.item(checkout == BUILDER_CHECKOUTS[path], path,
+               f"job `{jid}` checkout step must be exactly "
+               f"{BUILDER_CHECKOUTS[path]!r} (found {checkout!r})")
+    callers = [(i, s) for i, s in enumerate(ss)
+               if BUILDER_CALL in (s.get("run")
+                                   if isinstance(s.get("run"), str) else "")]
+    c.item(len(callers) == 1, path,
+           f"job `{jid}` must call `{BUILDER_CALL}` exactly once "
+           f"(found {len(callers)})")
+    fetchers = [(i, s) for i, s in enumerate(ss)
+                if "git submodule update --init" in step_text(s)]
+    c.item(len(fetchers) == 1, path,
+           f"job `{jid}` must carry exactly one builder submodule checkout "
+           f"(found {len(fetchers)})")
+    if len(fetchers) != 1:
+        return
+    fetch_i, fetch = fetchers[0]
+    run = fetch.get("run") if isinstance(fetch.get("run"), str) else ""
+    for submodule in BUILDER_SUBMODULES:
+        c.item(submodule in run, path,
+               f"job `{jid}` builder checkout must initialize `{submodule}`")
+    c.item(tuple(normalize_script(run)) == (BUILDER_COMMAND,), path,
+           f"job `{jid}` builder checkout must be exactly `{BUILDER_COMMAND}` "
+           f"(found {normalize_script(run)})")
+    keys = (("name", "if", "run") if path == ELABORATE
+            else ("name", "run"))
+    pinned_step_keys(c, path, f"job `{jid}` builder checkout", fetch,
+                     keys, {})
+    if len(callers) == 1:
+        call_i, call = callers[0]
+        call_run = call.get("run") if isinstance(call.get("run"), str) else ""
+        c.item(tuple(normalize_script(call_run)) == BUILDER_RUNS[path], path,
+               f"job `{jid}` builder call must be exactly "
+               f"{list(BUILDER_RUNS[path])} "
+               f"(found {normalize_script(call_run)})")
+        pinned_step_keys(c, path, f"job `{jid}` builder call", call,
+                         keys, {})
+        if path == ELABORATE:
+            fetch_if = str(fetch.get("if", "")).strip()
+            call_if = str(call.get("if", "")).strip()
+            c.item(fetch_if == BUILDER_IF, path,
+                   f"job `{jid}` builder checkout `if` must be exactly "
+                   f"`{BUILDER_IF}` (found {fetch_if!r})")
+            c.item(call_if == BUILDER_IF, path,
+                   f"job `{jid}` builder call `if` must be exactly "
+                   f"`{BUILDER_IF}` (found {call_if!r})")
+        if len(checkouts) == 1:
+            checkout_i, _ = checkouts[0]
+            c.item(checkout_i < fetch_i, path,
+                   f"job `{jid}` must check out the repository before "
+                   "initializing builder submodules")
+        c.item(fetch_i < call_i, path,
+               f"job `{jid}` must initialize builder submodules before "
+               f"calling `{BUILDER_CALL}`")
+
+
 def check_docs(c, wf):
     check_push_and_pr(c, DOCS, wf, exact_types=False)
+    check_builder_dependencies(c, DOCS, wf, "docs-check")
     texts = [step_text(s) for j in jobs(wf).values() for s in steps(j)]
     for flag in ("--check", "--selftest"):
         wired = any(f"scripts/ci_events.py {flag}" in t for t in texts)
@@ -1528,6 +1643,7 @@ def check_docs(c, wf):
 def check_elaborate(c, wf):
     check_push_and_pr(c, ELABORATE, wf, exact_types=False)
     check_public_names(c, ELABORATE, wf)
+    check_builder_dependencies(c, ELABORATE, wf, "elaborate")
 
 
 def check(parsed):
@@ -2167,6 +2283,103 @@ def _mutations():
                     return
         raise AssertionError("fixture drift: docs.yml does not run --selftest")
 
+    def builder_fetch_step(w, path, jid):
+        found = [s for s in job_steps(w, path, jid)
+                 if "git submodule update --init" in
+                 (s.get("run") if isinstance(s.get("run"), str) else "")]
+        assert len(found) == 1, (f"fixture drift: expected one builder "
+                                 f"checkout in {path}:{jid}, found {len(found)}")
+        return found[0]
+
+    def builder_call_step(w, path, jid):
+        found = [s for s in job_steps(w, path, jid)
+                 if BUILDER_CALL in
+                 (s.get("run") if isinstance(s.get("run"), str) else "")]
+        assert len(found) == 1, (f"fixture drift: expected one builder call "
+                                 f"in {path}:{jid}, found {len(found)}")
+        return found[0]
+
+    def m_builder_drop_submodule(path, jid, submodule):
+        def f(w):
+            s = builder_fetch_step(w, path, jid)
+            assert submodule in s["run"], (
+                f"fixture drift: {submodule} absent from {path}:{jid}")
+            s["run"] = s["run"].replace(" " + submodule, "")
+        return f
+
+    def m_builder_checkout_after_call(path, jid):
+        def f(w):
+            ss = job_steps(w, path, jid)
+            fetch = next(i for i, s in enumerate(ss)
+                         if "git submodule update --init" in
+                         (s.get("run") if isinstance(s.get("run"), str) else ""))
+            call = next(i for i, s in enumerate(ss)
+                        if BUILDER_CALL in
+                        (s.get("run") if isinstance(s.get("run"), str) else ""))
+            step = ss.pop(fetch)
+            if fetch < call:
+                call -= 1
+            ss.insert(call + 1, step)
+        return f
+
+    def m_builder_checkout_before_repo(path, jid):
+        def f(w):
+            ss = job_steps(w, path, jid)
+            fetch = next(i for i, s in enumerate(ss)
+                         if s is builder_fetch_step(w, path, jid))
+            checkout = next(i for i, s in enumerate(ss)
+                            if uses(s, "actions/checkout"))
+            step = ss.pop(fetch)
+            if fetch < checkout:
+                checkout -= 1
+            ss.insert(checkout, step)
+        return f
+
+    def m_builder_checkout_key(path, jid, key, value):
+        def f(w):
+            checkout = next(s for s in job_steps(w, path, jid)
+                            if uses(s, "actions/checkout"))
+            checkout[key] = value
+        return f
+
+    def m_builder_checkout_version(path, jid):
+        def f(w):
+            checkout = next(s for s in job_steps(w, path, jid)
+                            if uses(s, "actions/checkout"))
+            checkout["uses"] = "actions/checkout@v1"
+        return f
+
+    def m_builder_decoy_env(path, jid):
+        def f(w):
+            s = builder_call_step(w, path, jid)
+            line = next(line for line in BUILDER_RUNS[path]
+                        if BUILDER_CALL in line)
+            assert line in s["run"], f"fixture drift: {line!r} absent"
+            s["run"] = s["run"].replace(line, "true")
+            s["env"] = {"DECOY": BUILDER_CALL}
+        return f
+
+    def m_builder_continue_on_error(path, jid):
+        def f(w):
+            builder_call_step(w, path, jid)["continue-on-error"] = True
+        return f
+
+    def m_builder_job_defaults(path, jid):
+        def f(w):
+            jobs(w[path])[jid]["defaults"] = {
+                "run": {"shell": "bash -n {0}"},
+            }
+        return f
+
+    def m_builder_top_defaults(path):
+        def f(w):
+            w[path]["defaults"] = {"run": {"shell": "bash -n {0}"}}
+        return f
+
+    def m_builder_both_if_false(w):
+        builder_fetch_step(w, ELABORATE, "elaborate")["if"] = False
+        builder_call_step(w, ELABORATE, "elaborate")["if"] = False
+
     return [
         # rtl.yml triggers
         ("rtl push on main, not dev", m_push_main(RTL_FULL), "push must subscribe"),
@@ -2565,11 +2778,86 @@ def _mutations():
         ("docs no pull_request", m_drop_pr(DOCS), "must subscribe pull_request"),
         ("docs does not run --check", m_docs_no_check, "--check"),
         ("docs does not run --selftest", m_docs_no_selftest, "--selftest"),
+        ("docs builder omits verilog-axis",
+         m_builder_drop_submodule(DOCS, "docs-check",
+                                  "third_party/verilog-axis"),
+         "must initialize `third_party/verilog-axis`"),
+        ("docs builder omits protocol-processor",
+         m_builder_drop_submodule(DOCS, "docs-check", "protocol-processor"),
+         "must initialize `protocol-processor`"),
+        ("docs builder omits gptp-processor",
+         m_builder_drop_submodule(DOCS, "docs-check", "gptp-processor"),
+         "must initialize `gptp-processor`"),
+        ("docs builder initializes submodules after the call",
+         m_builder_checkout_after_call(DOCS, "docs-check"),
+         "must initialize builder submodules before"),
+        ("docs builder initializes submodules before repository checkout",
+         m_builder_checkout_before_repo(DOCS, "docs-check"),
+         "must check out the repository before"),
+        ("docs builder checkout overrides the event SHA",
+         m_builder_checkout_key(DOCS, "docs-check", "with", {"ref": "dev"}),
+         "checkout step must be exactly"),
+        ("docs builder checkout is disabled",
+         m_builder_checkout_key(DOCS, "docs-check", "if", False),
+         "checkout step must be exactly"),
+        ("docs builder checkout action version drifts",
+         m_builder_checkout_version(DOCS, "docs-check"),
+         "checkout step must be exactly"),
+        ("docs builder replaced by env decoy",
+         m_builder_decoy_env(DOCS, "docs-check"),
+         f"must call `{BUILDER_CALL}` exactly once"),
+        ("docs builder call continue-on-error",
+         m_builder_continue_on_error(DOCS, "docs-check"),
+         "must carry no `continue-on-error`"),
+        ("docs builder job defaults.run.shell bash -n",
+         m_builder_job_defaults(DOCS, "docs-check"),
+         "must carry no `defaults`"),
+        ("docs builder workflow defaults.run.shell bash -n",
+         m_builder_top_defaults(DOCS),
+         "must carry no top-level `defaults`"),
         # elaborate.yml
         ("elaborate push on main, not dev", m_push_main(ELABORATE),
          "push must subscribe"),
         ("elaborate public name renamed", m_rename_job(ELABORATE, "elaborate"),
          "`elaborate`"),
+        ("elaborate builder omits verilog-axis",
+         m_builder_drop_submodule(ELABORATE, "elaborate",
+                                  "third_party/verilog-axis"),
+         "must initialize `third_party/verilog-axis`"),
+        ("elaborate builder omits protocol-processor",
+         m_builder_drop_submodule(ELABORATE, "elaborate", "protocol-processor"),
+         "must initialize `protocol-processor`"),
+        ("elaborate builder omits gptp-processor",
+         m_builder_drop_submodule(ELABORATE, "elaborate", "gptp-processor"),
+         "must initialize `gptp-processor`"),
+        ("elaborate builder initializes submodules before repository checkout",
+         m_builder_checkout_before_repo(ELABORATE, "elaborate"),
+         "must check out the repository before"),
+        ("elaborate builder checkout overrides the event SHA",
+         m_builder_checkout_key(ELABORATE, "elaborate", "with",
+                                {"fetch-depth": 0, "ref": "dev"}),
+         "checkout step must be exactly"),
+        ("elaborate builder checkout is disabled",
+         m_builder_checkout_key(ELABORATE, "elaborate", "if", False),
+         "checkout step must be exactly"),
+        ("elaborate builder checkout moves the tree",
+         m_builder_checkout_key(ELABORATE, "elaborate", "with",
+                                {"fetch-depth": 0, "path": "elsewhere"}),
+         "checkout step must be exactly"),
+        ("elaborate builder replaced by env decoy",
+         m_builder_decoy_env(ELABORATE, "elaborate"),
+         f"must call `{BUILDER_CALL}` exactly once"),
+        ("elaborate builder call continue-on-error",
+         m_builder_continue_on_error(ELABORATE, "elaborate"),
+         "must carry no `continue-on-error`"),
+        ("elaborate builder job defaults.run.shell bash -n",
+         m_builder_job_defaults(ELABORATE, "elaborate"),
+         "must carry no `defaults`"),
+        ("elaborate builder workflow defaults.run.shell bash -n",
+         m_builder_top_defaults(ELABORATE),
+         "must carry no top-level `defaults`"),
+        ("elaborate builder checkout and call both disabled",
+         m_builder_both_if_false, "builder checkout `if` must be exactly"),
     ]
 
 

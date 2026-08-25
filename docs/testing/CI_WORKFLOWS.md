@@ -446,6 +446,20 @@ their mutation arms. Upstream LiteX elaborates no configuration in this tree
 (#185), so the series is a required install step and gate 23h proves the
 installed trees are upstream plus exactly that series.
 
+`actions/checkout` does not populate submodules. Both this job and the hosted
+`docs-check` job run the full builder, whose source gates consume
+`protocol-processor`, `gptp-processor`, and the five shipping primitives under
+`third_party/verilog-axis`. Each job therefore initializes exactly those three
+trees in one step before its builder call; the elaboration setup step carries
+the same live RTL-scope `if` as the call. `scripts/ci_events.py --check` pins
+checkout-before-setup-before-call order, the event-pinned checkout shape and
+action version, the exact setup and builder commands, their execution controls,
+and the complete dependency set. Its mutation suite independently removes every
+tree, redirects or disables checkout, moves setup on either side of that order,
+and disables or replaces the setup and builder calls. A local run with an
+already initialized worktree is not evidence that a fresh hosted checkout has
+the sources.
+
 Two caches, deliberately split. The Scala toolchain is content-addressed and
 keeps a broad fallback. The generated CPU metadata does not: its key hashes the
 configs, `milan_soc.py`, `build.sh`, `sweep.sh`, the pins and the patch series,

@@ -94,10 +94,12 @@ jobs:
 
       # The elaboration reads the protocol-processor and gptp-processor source
       # lists through scripts/pp_srcs.py, which REFUSES to emit an empty list.
-      # Without the submodules it fails before the datapath is reached.
-      - name: Fetch the processor sources the elaboration reads
+      # test_builder.py also runs the Vivado datapath-manifest recogniser, whose
+      # shipping inventory resolves five leaves from verilog-axis. Without all
+      # three submodules this job fails before the live SoC elaboration.
+      - name: Fetch the source dependencies the elaboration reads
         if: ${{ steps.scope.outputs.rtl == 'true' }}
-        run: git submodule update --init protocol-processor gptp-processor
+        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
 
       - uses: actions/setup-python@v5
         if: ${{ steps.scope.outputs.rtl == 'true' }}

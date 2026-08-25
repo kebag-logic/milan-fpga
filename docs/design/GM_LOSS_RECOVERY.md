@@ -20,7 +20,7 @@ Companion to [TIME_SYNC.md](TIME_SYNC.md) for steady state and
 |---|---|---|
 | `crf.media-clock-consumption` | `missing` | - |
 | `gptp.fabric-product-owner` | `implemented` | - |
-| `notifications.change-events` | `partial` | - |
+| `notifications.change-events` | `implemented` | - |
 <!-- milan-feature-status:end -->
 
 ## Contents
@@ -30,7 +30,7 @@ Companion to [TIME_SYNC.md](TIME_SYNC.md) for steady state and
 - **[3. Publication and tu ordering](#3-publication-and-tu-ordering)** — The commit boundary that prevents torn GM/parent/pdelay reads and asserts `tu` on the discontinuity edge before any frame can leak the old-health verdict
 - **[4. Public recovery surface](#4-public-recovery-surface)** — The selected-owner mapping into legacy CSRs, GET_AVB_INFO, GET_AS_PATH and AAF/CRF `tu`, with coherent multiword snapshots and ineffective software writes in fabric mode
 - **[5. End-to-end timeline](#5-end-to-end-timeline)** — The ordered loss-to-recovery sequence from receipt timeout through atomic publication, Annex B holdover and restored servo lock
-- **[6. Media and notification behavior](#6-media-and-notification-behavior)** — What continues during a time transition, what remains pinned to the internal media clock, and why solicited gPTP state does not imply complete Table 5.22 notifications
+- **[6. Media and notification behavior](#6-media-and-notification-behavior)** — What continues during a time transition, what remains pinned to the internal media clock, and how selected-owner changes feed the complete Table 5.22 scheduler
 - **[7. Explicit option-off comparison](#7-explicit-option-off-comparison)** — The marked software-owner profile, its staged publication and CLKV lease ABI, and the historical daemon-restart evidence that does not describe product-default recovery
 
 ## 1. The active owner
@@ -41,8 +41,8 @@ The product-default datapath elaborates `KL_gptp_shadow` and the pinned
 - receives and transmits Announce, Sync, Follow_Up and Pdelay messages;
 - runs BTCA, receipt timers, peer-delay qualification and the PHC servo;
 - applies adjfine and adjtime to the fabric timestamp counter; and
-- commits GM, parent, flags, peer delay, offset and announce quality as one
-  outward publication bank.
+- commits GM, parent, flags, peer delay, offset, announce quality and the
+  bounded selected PathTrace as one outward publication bank.
 
 No default-rootfs process steers the PHC or mirrors GM/path/CLKV state. The
 host still performs link recovery through `milan-statd --no-gptp --no-path`;
@@ -62,8 +62,8 @@ state machines:
    GM identity is still known.
 3. Pdelay qualification drives the published asCapable level and peer delay;
    stale daemon values cannot survive because there is no daemon mirror.
-4. A different selected vector changes the published GM and parent at one
-   engine commit boundary.
+4. A different selected vector changes the published GM, parent and complete
+   PathTrace at one engine commit boundary.
 
 The engine can transition through "GM known but not synchronized". That is a
 first-class public state: identity/path may be useful for topology while AVTP
@@ -73,9 +73,9 @@ timestamps remain uncertain.
 
 The donor engine updates individual raw words while handling an event and
 pulses `pub_commit` only when the transaction is complete.
-`KL_gptp_shadow` copies all six words into its outward bank on that pulse, so a
-consumer cannot observe a new GM paired with an old parent, pdelay or flag
-word.
+`KL_gptp_shadow` copies the scalar fields plus canonical PathTrace count/tail
+into its outward bank on that pulse, so a consumer cannot observe a new GM
+paired with an old parent, pdelay, flag word or path epoch.
 
 One edge needs stronger ordering. A GM change or a synchronized-to-unsynchronized
 transition is detected combinationally from the raw commit and emitted as
@@ -112,7 +112,7 @@ Every public consumer selects the same compile-time owner:
 | `CLKV_STAT` `0x77C` | live `tu`, sync, holdover and asCapable; lease fields are structural zero |
 | AAF and CRF talkers | the same live `tu` verdict |
 | GET_AVB_INFO | snapshotted GM, pdelay and asCapable with the other response fields |
-| GET_AS_PATH | zero entries without a GM, `{GM}` without a distinct parent, otherwise `{GM,parent}` |
+| GET_AS_PATH | zero entries without a GM or when the selected Announce has no PathTrace TLV; otherwise that TLV's sequence, bounded to the GM plus seven tail identities |
 
 GM and parent each occupy two 32-bit CSR addresses. On the first half read,
 the CSR block snapshots the full live 64-bit value and holds it through the
@@ -153,10 +153,16 @@ a committed GM change may recenter the elasticity FIFO, while genuine stream
 silence or bind loss remains the unlock cause. CRF media-clock consumption is
 still missing, as the feature row above states.
 
-The protocol processor consumes the new gPTP values for solicited
-GET_AVB_INFO/GET_AS_PATH responses. The general Milan Table 5.22 unsolicited
-change producer is still partial and must not be inferred from the presence of
-the live publication bank.
+The protocol processor consumes the same selected-owner values for solicited
+GET_AVB_INFO/GET_AS_PATH responses and Table 5.22 pushes. The root compares the
+complete served snapshots: GM/pdelay/domain/asCapable changes drive AVB_INFO,
+while AS_PATH compares `(count ? GM : 0, count, active tails)`. Fabric count
+zero is the selected no-TLV empty sequence, not a synthetic GM-only path:
+0 <-> 1 drives AS_PATH, but GM A->B while both counts are zero does not. The
+scalar identity edge still drives AVB_INFO and GPTP_GM_CHANGED. The shared
+scheduler sends the resulting unsolicited response to every other registered
+controller; the timed integration leg also grades controller probing and
+removal.
 
 ## 7. Explicit option-off comparison
 

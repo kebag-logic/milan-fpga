@@ -22,7 +22,7 @@ the [Milan feature status ledger](../reference/MILAN_FEATURE_STATUS.md):
 | `aem.served-command-set` | `implemented` | - |
 | `crf.media-clock-consumption` | `missing` | - |
 | `gptp.fabric-product-owner` | `implemented` | - |
-| `notifications.change-events` | `partial` | - |
+| `notifications.change-events` | `implemented` | - |
 <!-- milan-feature-status:end -->
 
 ![The time-sync clock chain](../diagrams/timesync_chain.png)
@@ -524,7 +524,7 @@ section 8 remains the bench-side reading of the option-off daemon-written arm.
 | `0x6E4` | `A_GPTP_PDELAY` | selected owner's measured neighbor propagation delay, ns |
 | `0x6EC` | `A_AVTPRX_TSD` | signed ts_delta at the last accepted AVTP PDU |
 | `0x730/0x734` | `A_AS2_LO/HI` | legacy parent-bridge scratch; not served by `GET_AS_PATH` |
-| `0x7DC-0x7E4` | `ASP_LO/HI/CMD` | stage PathTrace tail slots, then atomically PUBLISH the complete changed tail/count to `GET_AS_PATH` |
+| `0x7DC-0x7E4` | `ASP_LO/HI/CMD` | option-off only: stage PathTrace tail slots, then atomically PUBLISH the complete changed tail/count to `GET_AS_PATH`; fabric mode ignores this store as a live source |
 | `0x738` | `A_CRF_CTRL` | `[0]` CRF sink enable; RO `[31]` locked |
 | `0x73C/0x740` | `A_CRF_SIDLO/HI` | CRF sink stream_id |
 | `0x744` | `A_CRF_DELTA` | RO signed `crf_ts - ptp_now` (phase) |

@@ -208,6 +208,9 @@ module milan_csr #(
   input  wire [63:0]             i_gptp_gm_id,        //! fabric publication bank GM (live read when enabled)
   input  wire [63:0]             i_gptp_parent_id,    //! fabric publication bank parent clockIdentity
   input  wire [31:0]             i_gptp_pdelay_ns,    //! fabric publication bank neighbor delay
+  input  wire [7*64-1:0]         i_gptp_asp_path,     //! fabric selected slots 1..7
+  input  wire [3:0]              i_gptp_asp_count,    //! fabric complete length incl GM
+  input  wire [3:0]              i_gptp_asp_gen,      //! fabric served-tuple generation
   input  wire [31:0]             i_acmpl_dbg,         //! listener walker forensics (RO 0x6E8)
   input  wire [31:0]             i_avtprx_tsd,        //! last accepted ts_delta (RO 0x6EC)
   input  wire [31:0]             i_i2spb_dbg,         //! DAC serial forensics (RO 0x6F0)
@@ -492,12 +495,18 @@ module milan_csr #(
   output wire                    o_aemp_abort_p,
   input  wire [31:0]             i_aemp_stat,
   input  wire [1:0]              i_acmp_rest_status,
-  //! AS_PATH staging store (gh #64 J4, 0x7DC-0x7E4): the published
+  //! AS_PATH public face (gh #64 J4, 0x7DC-0x7E4). With the fabric option
+  //! off these are the software PUBLISH snapshot below. With it on they are
+  //! the engine's atomic selected PathTrace; software staging remains readable
+  //! for ABI compatibility but cannot alter these live outputs or 0x7E4.
+  //! The software store's published
   //! 802.1AS PathTrace TAIL - slots 1..7 are the traversed bridges, slot 0
   //! is ALWAYS the grandmaster and is never stored here (it lives at
   //! ADP_GM 0x624/0x628; duplicating it is the derive-never-mirror class).
-  //! o_asp_path bit [64*(k-1) +: 64] = slot k. Counts 0 (legacy) and 1
-  //! (explicit) both describe the same GM-only served sequence.
+  //! o_asp_path bit [64*(k-1) +: 64] = slot k. For the option-off software
+  //! store, counts 0 (legacy) and 1 (explicit) describe the same GM-only
+  //! served sequence. Fabric mode passes the donor's raw count: zero means
+  //! the selected Announce had no PathTrace TLV and therefore serves empty.
   output wire [7*64-1:0]         o_asp_path,          //! published slots 1..7
   output wire [3:0]              o_asp_count,         //! published path length (entries incl the GM)
   output wire [3:0]              o_asp_gen,           //! generation (bumps when published path changes)
@@ -2361,10 +2370,11 @@ module milan_csr #(
       //! E1 commit readback: {busy, done, 20'0, status, 4'0, idx}
       A_REST_CMD:   live_mux = {rest_pend_r, rest_done_r, 20'd0,
                                 rest_stat_r, 4'd0, rest_idx_r};
-      //! J4 publish readback: the LIVE generation and path length, i.e. what
+      //! J4 publish readback: the LIVE selected-owner generation and path
+      //! length, i.e. what
       //! GET_AS_PATH will actually serve - not the command word software
       //! wrote. A read of 0 means "no path published" = the legacy arm.
-      A_ASP_CMD:    live_mux = {24'd0, asp_gen_r, asp_count_r};
+      A_ASP_CMD:    live_mux = {24'd0, o_asp_gen, o_asp_count};
       default: begin
         if (rd_addr_q >= A_STATS_BASE && rd_addr_q < A_STATS_END)
           live_mux = stat_snap[soff[2 +: 4]];
@@ -2723,18 +2733,22 @@ module milan_csr #(
   assign o_crft_sid         = {crft_sidhi, crft_sidlo};
   assign o_crft_dest_mac    = {crft_dmhi[15:0], crft_dmlo};
   assign o_as_parent_ckid   = {as2_hi, as2_lo};
-  //! J4: the published PathTrace tail, flattened slot 1 first. COMMIT edits
-  //! only the private image; PUBLISH replaces these active slots together.
+  //! J4: the selected-owner PathTrace tail, flattened slot 1 first. With the
+  //! software option COMMIT edits only the private image and PUBLISH replaces
+  //! these active slots together. Fabric mode instead exposes its committed
+  //! engine transaction; writes still update the compatibility store but can
+  //! neither forge the live outputs nor spend the fabric generation.
   //! The builder
   //! reads bit [64*(k-1) +: 64] as entry k of the served path sequence;
   //! entry 0 is the grandmaster and comes from ADP_GM, never from here.
   generate
     for (genvar gk = 0; gk < ASP_SLOTS_C; gk++) begin : g_asp_flat
-      assign o_asp_path[64*gk +: 64] = asp_slot_r[gk];
+      assign o_asp_path[64*gk +: 64] = GPTP_PLANE_EN_P
+          ? i_gptp_asp_path[64*gk +: 64] : asp_slot_r[gk];
     end
   endgenerate
-  assign o_asp_count        = asp_count_r;
-  assign o_asp_gen          = asp_gen_r;
+  assign o_asp_count = GPTP_PLANE_EN_P ? i_gptp_asp_count : asp_count_r;
+  assign o_asp_gen   = GPTP_PLANE_EN_P ? i_gptp_asp_gen   : asp_gen_r;
   assign o_sw_link          = link_ctrl[0];
   assign o_mac_reinit       = link_ctrl[1];
   assign o_linkg_dis        = link_ctrl[2];

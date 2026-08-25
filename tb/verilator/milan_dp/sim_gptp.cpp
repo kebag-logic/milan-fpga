@@ -30,6 +30,14 @@
 
 static const uint64_t PEER_CID = 0x0080E1FFFE112233ull;
 static const uint64_t GMID = 0x00AACCFFFE010203ull;
+static const uint64_t GMID_EMPTY = 0x00AACCFFFE010204ull;
+static const uint64_t PATH_B1 = 0x001122FFFE000011ull;
+static const uint64_t PATH_B2 = 0x001122FFFE000022ull;
+static const uint64_t PATH_B2_NEW = 0x445566FFFE000033ull;
+static const uint64_t PATH_B3 = 0x001122FFFE000044ull;
+static const uint64_t PATH_B4 = 0x001122FFFE000055ull;
+static const uint64_t PATH_B5 = 0x001122FFFE000066ull;
+static const uint64_t PATH_B6 = 0x001122FFFE000077ull;
 static const uint32_t PEER_CQ = 0xF8FE436A;
 
 static int checks = 0, fails = 0;
@@ -365,13 +373,25 @@ static void run_peer(Vmilan_datapath *dut, uint64_t n) {
   service_pdelay(dut);
 }
 
-static void announce(Vmilan_datapath *dut, uint16_t seq) {
-  Frame a = ptp(0xB, seq, 0, 0x0008, 30);
+static void announce(Vmilan_datapath *dut, uint16_t seq,
+                     const std::vector<uint64_t> &path,
+                     uint64_t gmid = GMID, uint64_t src = PEER_CID,
+                     uint8_t priority1 = 100) {
+  //! A fixed Announce may carry no PathTrace suffix; that selected shape must
+  //! reach the parent as raw count zero. A present TLV remains complete and
+  //! identity-aligned, with its count bound to stepsRemoved+1.
+  const uint16_t tlv = path.empty() ? 0
+                                    : (uint16_t)(4 + 8 * path.size());
+  Frame a = ptp(0xB, seq, 0, 0x0008, (uint16_t)(30 + tlv), src);
   for (int i = 0; i < 10; i++) a.u8(0);
   a.u16(0xFFC4); a.u8(0);
-  a.u8(100); a.u32(PEER_CQ); a.u8(248);
-  a.u64(GMID);
-  a.u16(0); a.u8(0xA0);
+  a.u8(priority1); a.u32(PEER_CQ); a.u8(248);
+  a.u64(gmid);
+  a.u16(path.empty() ? 0 : (uint16_t)(path.size() - 1)); a.u8(0xA0);
+  if (!path.empty()) {
+    a.u16(0x0008); a.u16((uint16_t)(8 * path.size()));
+    for (uint64_t hop : path) a.u64(hop);
+  }
   send_wide(dut, a.b);
 }
 
@@ -434,6 +454,33 @@ static uint32_t be32(const std::vector<uint8_t> &f, size_t off) {
 
 static int aecp_status(const std::vector<uint8_t> &f) {
   return f.size() > 16 ? (f[16] >> 3) & 0x1F : -1;
+}
+
+static bool unsolicited_cmd(const std::vector<uint8_t> &f, uint16_t cmd) {
+  return f.size() > 37 && f[12] == 0x22 && f[13] == 0xF0
+      && f[14] == 0xFB && (f[15] & 0xF) == 1 && (f[36] & 0x80)
+      && ((((unsigned)f[36] & 0x7F) << 8) | f[37]) == cmd;
+}
+
+static unsigned unsolicited_count(size_t first, uint16_t cmd) {
+  unsigned n = 0;
+  for (size_t i = first; i < tx_frames.size(); i++)
+    if (unsolicited_cmd(tx_frames[i], cmd)) n++;
+  return n;
+}
+
+static const std::vector<uint8_t> *last_unsolicited(size_t first,
+                                                    uint16_t cmd) {
+  const std::vector<uint8_t> *last = nullptr;
+  for (size_t i = first; i < tx_frames.size(); i++)
+    if (unsolicited_cmd(tx_frames[i], cmd)) last = &tx_frames[i];
+  return last;
+}
+
+static bool same_from(const std::vector<uint8_t> *a,
+                      const std::vector<uint8_t> &b, size_t off) {
+  return a && a->size() == b.size() && a->size() > off
+      && std::equal(a->begin() + off, a->end(), b.begin() + off);
 }
 
 int main(int argc, char **argv) {
@@ -604,7 +651,8 @@ int main(int argc, char **argv) {
   expect("negative Pdelay retains asCapable",
          (axi_read(dut, 0x77C) >> 16) & 1, 1);
 
-  announce(dut, 0x7001);
+  const std::vector<uint64_t> path_a = {GMID, PATH_B1, PATH_B2, PEER_CID};
+  announce(dut, 0x7001, path_a);
   uint64_t gm = 0;
   for (int n = 0; n < 32 && gm != GMID; n++) {
     run(dut, 1000);
@@ -614,6 +662,23 @@ int main(int argc, char **argv) {
                         | axi_read(dut, 0x730);
   expect("peer-driven GM reached live CSR", gm, GMID);
   expect("peer-driven parent reached live CSR", parent, PEER_CID);
+  const uint32_t asp_live_a = axi_read(dut, 0x7E4);
+  expect("fabric live AS_PATH count is four", asp_live_a & 0xF, 4);
+  expect("fabric live AS_PATH generation advanced",
+         ((asp_live_a >> 4) & 0xF) != 0, 1);
+
+  // 0x7DC/0x7E0 remain readable compatibility staging in product mode, but
+  // neither a combined COMMIT+PUBLISH nor its requested count may alter the
+  // engine-owned public state or generation at 0x7E4.
+  axi_write(dut, 0x7DC, 0x01234567u);
+  axi_write(dut, 0x7E0, 0xDEADBEEFu);
+  expect("fabric mode retains compatibility stage LO",
+         axi_read(dut, 0x7DC), 0x01234567u);
+  expect("fabric mode retains compatibility stage HI",
+         axi_read(dut, 0x7E0), 0xDEADBEEFu);
+  axi_write(dut, 0x7E4, 0xC0000107u);
+  expect("software publish cannot move live fabric 0x7E4",
+         axi_read(dut, 0x7E4), asp_live_a);
 
   // The same nonzero committed bank must traverse the processor's gather
   // face and the real AECP response buffer onto the shared MAC wire.
@@ -637,18 +702,256 @@ int main(int argc, char **argv) {
 
   std::vector<uint8_t> path = aecp_xact(
       dut, 0x0028, 0x7102, {0x00, 0x00, 0x00, 0x00});
-  expect("GET_AS_PATH padded wire length", path.size(), 60);
+  expect("GET_AS_PATH full-tail wire length", path.size(), 74);
   expect("GET_AS_PATH SUCCESS", aecp_status(path), 0);
   expect("GET_AS_PATH cdl", path.size() >= 18
-         ? ((((unsigned)path[16] & 7) << 8) | path[17]) : 0, 32);
-  expect("GET_AS_PATH count two", path.size() >= 42
-         ? be32(path, 38) : 0, 2);
+         ? ((((unsigned)path[16] & 7) << 8) | path[17]) : 0, 48);
+  expect("GET_AS_PATH count four", path.size() >= 42
+         ? be32(path, 38) : 0, 4);
   expect("GET_AS_PATH ordered GM", path.size() >= 50
          ? be64(path, 42) : 0, GMID);
-  expect("GET_AS_PATH ordered parent", path.size() >= 58
-         ? be64(path, 50) : 0, PEER_CID);
-  expect("GET_AS_PATH zero Ethernet pad", path.size() >= 60
-         ? ((unsigned)path[58] << 8) | path[59] : 1, 0);
+  expect("GET_AS_PATH ordered bridge one", path.size() >= 58
+         ? be64(path, 50) : 0, PATH_B1);
+  expect("GET_AS_PATH ordered bridge two", path.size() >= 66
+         ? be64(path, 58) : 0, PATH_B2);
+  expect("GET_AS_PATH ordered parent", path.size() >= 74
+         ? be64(path, 66) : 0, PEER_CID);
+
+  // Register this controller, then refresh the selected parent twice. A
+  // tail-only change with stable GM/parent must advance the complete served
+  // generation and emit exactly one Table 5.22 GET_AS_PATH push; replaying
+  // the identical selected tuple must do neither. The changed push body must
+  // equal the solicited response that follows it.
+  std::vector<uint8_t> reg = aecp_xact(
+      dut, 0x0024, 0x7103, {0x00, 0x00, 0x00, 0x00});
+  expect("REGISTER_UNSOLICITED_NOTIFICATION SUCCESS", aecp_status(reg), 0);
+  run(dut, 200000);
+  const size_t changed_first = tx_frames.size();
+  const unsigned gen_a = (axi_read(dut, 0x7E4) >> 4) & 0xF;
+  const std::vector<uint64_t> path_b =
+      {GMID, PATH_B1, PATH_B2_NEW, PEER_CID};
+  announce(dut, 0x7002, path_b);
+  unsigned gen_b = gen_a;
+  for (int n = 0; n < 64 && gen_b == gen_a; n++) {
+    run(dut, 1000);
+    gen_b = (axi_read(dut, 0x7E4) >> 4) & 0xF;
+  }
+  expect("tail-only parent refresh advances generation", gen_b,
+         (gen_a + 1) & 0xF);
+  expect("tail-only refresh leaves GM stable",
+         ((uint64_t)axi_read(dut, 0x628) << 32) | axi_read(dut, 0x624), GMID);
+  expect("tail-only refresh leaves parent stable",
+         ((uint64_t)axi_read(dut, 0x734) << 32) | axi_read(dut, 0x730),
+         PEER_CID);
+  run(dut, 200000);
+  expect("tail-only refresh emits one GET_AS_PATH push",
+         unsolicited_count(changed_first, 0x0028), 1);
+  const std::vector<uint8_t> *changed_push =
+      last_unsolicited(changed_first, 0x0028);
+  std::vector<uint8_t> path_new = aecp_xact(
+      dut, 0x0028, 0x7104, {0x00, 0x00, 0x00, 0x00});
+  expect("tail-only refresh reaches solicited path",
+         path_new.size() >= 74 ? be64(path_new, 58) : 0, PATH_B2_NEW);
+  expect("changed push body equals current solicited path",
+         same_from(changed_push, path_new, 38), 1);
+
+  const size_t identical_first = tx_frames.size();
+  announce(dut, 0x7003, path_b);
+  run(dut, 200000);
+  expect("identical parent refresh keeps generation",
+         (axi_read(dut, 0x7E4) >> 4) & 0xF, gen_b);
+  expect("identical parent refresh emits no false AS_PATH push",
+         unsolicited_count(identical_first, 0x0028), 0);
+
+  // A selected fixed Announce without PathTrace is not #227's software
+  // count-zero alias. Product fabric mode serves the actual empty sequence,
+  // advances once on present<->absent, and sends exactly that zero-count body.
+  const size_t absent_first = tx_frames.size();
+  announce(dut, 0x7004, {});
+  uint32_t asp_empty = axi_read(dut, 0x7E4);
+  for (int n = 0; n < 64 && (asp_empty & 0xF) != 0; n++) {
+    run(dut, 1000);
+    asp_empty = axi_read(dut, 0x7E4);
+  }
+  expect("TLV-less fabric publication preserves raw count zero",
+         asp_empty & 0xF, 0);
+  expect("present to absent advances fabric path generation once",
+         (asp_empty >> 4) & 0xF, (gen_b + 1) & 0xF);
+  expect("TLV-less selection retains scalar GM",
+         ((uint64_t)axi_read(dut, 0x628) << 32) | axi_read(dut, 0x624), GMID);
+  run(dut, 200000);
+  expect("present to absent emits one GET_AS_PATH push",
+         unsolicited_count(absent_first, 0x0028), 1);
+  const std::vector<uint8_t> *absent_push =
+      last_unsolicited(absent_first, 0x0028);
+  std::vector<uint8_t> path_empty = aecp_xact(
+      dut, 0x0028, 0x7105, {0x00, 0x00, 0x00, 0x00});
+  expect("TLV-less GET_AS_PATH minimum-Ethernet wire length",
+         path_empty.size(), 60);
+  expect("TLV-less GET_AS_PATH SUCCESS", aecp_status(path_empty), 0);
+  expect("TLV-less GET_AS_PATH cdl", path_empty.size() >= 18
+         ? ((((unsigned)path_empty[16] & 7) << 8) | path_empty[17]) : 0, 16);
+  expect("TLV-less GET_AS_PATH serves count zero", path_empty.size() >= 42
+         ? be32(path_empty, 38) : ~0u, 0);
+  expect("absent push body equals solicited empty response",
+         same_from(absent_push, path_empty, 38), 1);
+
+  const size_t absent_same_first = tx_frames.size();
+  const unsigned gen_empty = (asp_empty >> 4) & 0xF;
+  announce(dut, 0x7005, {});
+  run(dut, 200000);
+  expect("identical absent refresh keeps fabric path generation",
+         (axi_read(dut, 0x7E4) >> 4) & 0xF, gen_empty);
+  expect("identical absent refresh emits no AS_PATH push",
+         unsolicited_count(absent_same_first, 0x0028), 0);
+
+  // The scalar GM remains live independently of PathTrace. Switching between
+  // two selected TLV-less masters drives AVB_INFO and GPTP_GM_CHANGED, but the
+  // served AS_PATH is empty on both sides and therefore stays silent.
+  const size_t empty_gm_first = tx_frames.size();
+  const unsigned long gmchg_before =
+      dut->rootp->milan_datapath__DOT__ctr_gmchg_r;
+  announce(dut, 0x7006, {}, GMID_EMPTY, GMID_EMPTY, 90);
+  uint64_t empty_gm = 0;
+  for (int n = 0; n < 64 && empty_gm != GMID_EMPTY; n++) {
+    run(dut, 1000);
+    empty_gm = ((uint64_t)axi_read(dut, 0x628) << 32)
+             | axi_read(dut, 0x624);
+  }
+  expect("TLV-less better Announce changes scalar GM", empty_gm, GMID_EMPTY);
+  expect("absent GM switch retains raw-empty count", axi_read(dut, 0x7E4) & 0xF,
+         0);
+  expect("absent GM switch spends no path generation",
+         (axi_read(dut, 0x7E4) >> 4) & 0xF, gen_empty);
+  run(dut, 200000);
+  expect("absent GM switch emits no false GET_AS_PATH push",
+         unsolicited_count(empty_gm_first, 0x0028), 0);
+  expect("absent GM switch still emits one GET_AVB_INFO push",
+         unsolicited_count(empty_gm_first, 0x0027), 1);
+  expect("absent GM switch still increments GPTP_GM_CHANGED",
+         dut->rootp->milan_datapath__DOT__ctr_gmchg_r - gmchg_before, 1);
+
+  // Explicit `[GM]` is distinct from absent. Snapshot a one-entry response,
+  // withdraw it after the first-count capture, and require the in-flight wire
+  // answer to remain wholly old while live state and the following read are
+  // wholly new. These checks kill fabric min-one and torn-response mutations.
+  const std::vector<uint64_t> one_path = {GMID_EMPTY};
+  const size_t one_first = tx_frames.size();
+  announce(dut, 0x7007, one_path, GMID_EMPTY, GMID_EMPTY, 90);
+  uint32_t asp_one = axi_read(dut, 0x7E4);
+  for (int n = 0; n < 64 && (asp_one & 0xF) != 1; n++) {
+    run(dut, 1000);
+    asp_one = axi_read(dut, 0x7E4);
+  }
+  expect("explicit one-entry fabric PathTrace serves count one",
+         asp_one & 0xF, 1);
+  expect("absent to explicit GM advances generation once",
+         (asp_one >> 4) & 0xF, (gen_empty + 1) & 0xF);
+  run(dut, 200000);
+  expect("absent to explicit GM emits one AS_PATH push",
+         unsolicited_count(one_first, 0x0028), 1);
+  std::vector<uint8_t> path_one = aecp_xact(
+      dut, 0x0028, 0x7106, {0x00, 0x00, 0x00, 0x00});
+  expect("explicit one-entry GET_AS_PATH minimum-Ethernet wire length",
+         path_one.size(), 60);
+  expect("explicit one-entry GET_AS_PATH cdl", path_one.size() >= 18
+         ? ((((unsigned)path_one[16] & 7) << 8) | path_one[17]) : 0, 24);
+  expect("explicit one-entry GET_AS_PATH count", path_one.size() >= 42
+         ? be32(path_one, 38) : 0, 1);
+  expect("explicit one-entry GET_AS_PATH head", path_one.size() >= 50
+         ? be64(path_one, 42) : 0, GMID_EMPTY);
+
+  const uint16_t cut_seq = 0x7107;
+  const std::vector<uint8_t> cut_req = aecp_request(
+      0x0028, cut_seq, {0x00, 0x00, 0x00, 0x00});
+  send_wide(dut, cut_req);
+  bool cut_capture = false;
+  for (int n = 0; n < 200000 && !cut_capture; n++) {
+    tick(dut);
+    cut_capture = dut->rootp->milan_datapath__DOT__asp_resp_capture_w;
+  }
+  expect("in-flight fabric response reached first-count snapshot",
+         cut_capture, 1);
+  const size_t withdraw_first = tx_frames.size();
+  const unsigned gen_one = (asp_one >> 4) & 0xF;
+  //! Hold the already-captured response behind the real MAC boundary while
+  //! the independent gPTP plane commits the withdrawal. Releasing it afterward
+  //! makes old-response/new-live coherence observable rather than a timing
+  //! inference from a response that happened to leave first.
+  dut->m_axis_mac_tx_tready = 0;
+  announce(dut, 0x7008, {}, GMID_EMPTY, GMID_EMPTY, 90);
+  bool withdrew_before_old_wire = false;
+  for (int n = 0; n < 200000 && !withdrew_before_old_wire; n++) {
+    tick(dut);
+    withdrew_before_old_wire =
+        dut->rootp->milan_datapath__DOT__gptp_pub_path_count_w == 0;
+  }
+  expect("withdrawal commits before captured old response leaves wire",
+         withdrew_before_old_wire, 1);
+  dut->m_axis_mac_tx_tready = 1;
+  std::vector<uint8_t> cut_old = await_aecp(dut, cut_seq, 0x0028);
+  expect("in-flight response remains wholly old count one",
+         cut_old.size() >= 50 ? be32(cut_old, 38) : 0, 1);
+  expect("in-flight response remains wholly old GM",
+         cut_old.size() >= 50 ? be64(cut_old, 42) : 0, GMID_EMPTY);
+  uint32_t asp_withdrawn = axi_read(dut, 0x7E4);
+  for (int n = 0; n < 64 && (asp_withdrawn & 0xF) != 0; n++) {
+    run(dut, 1000);
+    asp_withdrawn = axi_read(dut, 0x7E4);
+  }
+  expect("explicit GM withdrawal restores raw-empty count",
+         asp_withdrawn & 0xF, 0);
+  expect("explicit GM withdrawal advances generation once",
+         (asp_withdrawn >> 4) & 0xF, (gen_one + 1) & 0xF);
+  run(dut, 200000);
+  expect("explicit GM withdrawal emits one AS_PATH push",
+         unsolicited_count(withdraw_first, 0x0028), 1);
+  const std::vector<uint8_t> *withdraw_push =
+      last_unsolicited(withdraw_first, 0x0028);
+  std::vector<uint8_t> cut_new = aecp_xact(
+      dut, 0x0028, 0x7108, {0x00, 0x00, 0x00, 0x00});
+  expect("post-cut response is wholly new count zero",
+         cut_new.size() >= 42 ? be32(cut_new, 38) : ~0u, 0);
+  expect("withdrawal push body equals post-cut solicited response",
+         same_from(withdraw_push, cut_new, 38), 1);
+
+  // Drive the complete fixed parent ABI through the response gather and wire
+  // formatter. Shortening any wrapper, CSR, snapshot or ordinal loop to the
+  // smaller smoke-test path must lose the final identity and fail here.
+  const size_t max_first = tx_frames.size();
+  const unsigned gen_withdrawn = (asp_withdrawn >> 4) & 0xF;
+  const std::vector<uint64_t> path_max = {
+      GMID_EMPTY, PATH_B1, PATH_B2, PATH_B3,
+      PATH_B4, PATH_B5, PATH_B6, PEER_CID};
+  announce(dut, 0x7009, path_max, GMID_EMPTY, PEER_CID, 80);
+  uint32_t asp_max = axi_read(dut, 0x7E4);
+  for (int n = 0; n < 64 && (asp_max & 0xF) != 8; n++) {
+    run(dut, 1000);
+    asp_max = axi_read(dut, 0x7E4);
+  }
+  expect("maximum bounded fabric PathTrace serves count eight", asp_max & 0xF,
+         8);
+  expect("empty to maximum path advances generation once",
+         (asp_max >> 4) & 0xF, (gen_withdrawn + 1) & 0xF);
+  run(dut, 200000);
+  expect("maximum path emits one GET_AS_PATH push",
+         unsolicited_count(max_first, 0x0028), 1);
+  expect("maximum path emits no false GET_AVB_INFO push",
+         unsolicited_count(max_first, 0x0027), 0);
+  const std::vector<uint8_t> *max_push =
+      last_unsolicited(max_first, 0x0028);
+  std::vector<uint8_t> path_max_wire = aecp_xact(
+      dut, 0x0028, 0x7109, {0x00, 0x00, 0x00, 0x00});
+  expect("maximum GET_AS_PATH wire length", path_max_wire.size(), 106);
+  expect("maximum GET_AS_PATH cdl", path_max_wire.size() >= 18
+         ? ((((unsigned)path_max_wire[16] & 7) << 8) | path_max_wire[17]) : 0,
+         80);
+  expect("maximum GET_AS_PATH count", path_max_wire.size() >= 42
+         ? be32(path_max_wire, 38) : 0, 8);
+  expect("maximum GET_AS_PATH final identity", path_max_wire.size() >= 106
+         ? be64(path_max_wire, 98) : 0, PEER_CID);
+  expect("maximum push body equals solicited path",
+         same_from(max_push, path_max_wire, 38), 1);
 
   printf("%d checks: %d PASS, %d FAIL\n", checks, checks - fails, fails);
   delete dut;

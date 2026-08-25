@@ -191,7 +191,7 @@ MAC/*` in [`REQUIREMENTS.md`](../../REQUIREMENTS.md).
   - [0x7A0  -  ACMP bind-restore  (saved-state fast-connect E1, Milan 5.5.3.5.2)](#0x7a0-----acmp-bind-restore--saved-state-fast-connect-e1-milan-55352) -- **Dead port.** Writes are accepted, the ack never asserts, and nothing is restored -- the ACMP context table it injected into is deleted. The `0xA5C35A3C` feature probe still passes, which is precisely why software must gate on `VERSION` major and not on the probe.
   - [0x7B8  -  Persistence-journal ingest  (saved-state fast-connect E3)](#0x7b8-----persistence-journal-ingest--saved-state-fast-connect-e3) -- **Unwired again at VERSION major 2: writes are accepted and DISCARDED, `JNL_STAT` and `JNL_SEQ` read structural zeros.** Milan v1.2 5.3.8.2 makes the saved bound state a *shall*; this build does not meet it, and nothing in this device restores a binding across a power cycle. The record format and verdict table are kept as the specification a replacement must satisfy.
   - [0x7C8  -  AEM dynamic-state patch port  (saved-state fast-connect E4)](#0x7c8-----aem-dynamic-state-patch-port--saved-state-fast-connect-e4) -- **Unwired: writes accepted and discarded.** The patch engine and the AEM store it wrote are both deleted, so there is no descriptor RAM to patch and no setter whose acceptance it could re-run. Kept as ABI and as specification.
-  - [0x7DC  -  AS_PATH staging: the published PathTrace  (gh #64 J4)](#0x7dc-----as_path-staging-the-published-pathtrace--gh-64-j4) -- COMMIT builds a private staging tail; PUBLISH atomically replaces it, and Table 5.22 fires only when the controller-visible served sequence changes.
+  - [0x7DC  -  option-off AS_PATH PathTrace staging  (gh #64 J4)](#0x7dc-----option-off-as_path-pathtrace-staging--gh-64-j4) -- COMMIT builds a private software tail and PUBLISH atomically replaces it. Product fabric mode ignores this bank; Table 5.22 always compares the selected-owner sequence.
   - [0x800  -  Indexed per-stream window](#0x800-----indexed-per-stream-window) -- SELECT-then-read access to listener and talker contexts without duplicating decode logic. Index 0 aliases the legacy flat registers, `0xDEADDEAD` marks an unbacked word, and a staged stream id applies only to the selected index.
   - [0x870  -  AAF per-stage latency taps  (roadmap item-11, KL_aaf_latency_taps)](#0x870-----aaf-per-stage-latency-taps--roadmap-item-11-kl_aaf_latency_taps) -- Six inter-stage deltas as `{max,last}` plus a separate min word, in `axis_clk` cycles. They characterise an envelope, not one threaded frame -- the token is followed by order, so a shared MAC boundary can catch a nearer non-AAF edge. Like every group at `>= 0x800` it needs the read carve-out or the whole block reads 0.
   - [0x8B4  -  RX stream-parser probe  (APRB, avtp_stream_parser + milan_datapath)](#0x8b4-----rx-stream-parser-probe--aprb-avtp_stream_parser--milan_datapath) -- The only listener-side view **upstream** of the stream-table match, which is why a bound listener that accepts nothing used to be undiagnosable -- every other counter reads 0 in unison and none can say why. Ends with a three-row table that turns `PARSED`/`MATCHED` into a verdict.
@@ -228,7 +228,7 @@ MAC/*` in [`REQUIREMENTS.md`](../../REQUIREMENTS.md).
 | `0x7A0` | ACMP bind-restore (E1) — **dead port: writes accepted, ack never asserts** |
 | `0x7B8` | Persistence-journal ingest (E3) — **writes accepted and discarded; nothing is restored** |
 | `0x7C8` | AEM dynamic-state patch port (E4) — **writes accepted and discarded** |
-| `0x7DC` | AS_PATH staging plus atomic publication of the coherent PathTrace tail `GET_AS_PATH` serves behind the grandmaster (0x0055) |
+| `0x7DC` | option-off AS_PATH staging and atomic publication; product fabric mode serves the engine's full bounded PathTrace and ignores this bank as a live source (0x0055) |
 | `0x800` | Indexed per-stream window (NxN streams, SEL/SNAP + 0x810-0x868) |
 | `0x870` | AAF per-stage latency taps (item-11, `KL_aaf_latency_taps`) |
 | `0x8B4` | RX stream-parser probe (the pre-match listener view) |
@@ -290,13 +290,17 @@ into that trigger -- the grandmaster identity, the effective propagation delay
 grandmaster presence, so a domain or delay update in the startup or GM-loss
 window is announced like any other; the SR class-A priority and VLAN ID are
 detected by the processor off the same wires it publishes. GET_AS_PATH has its
-own two triggers and neither is the ADP strobe: the grandmaster identity
-snapshot moving (entry 0 of the served path) and a changed 0x7DC PathTrace
-PUBLISH (entries 1..). COMMIT edits a private staging bank; PUBLISH atomically
-replaces the complete published tail and count, and a response already being
-gathered stays on one coherent generation. The cutover occurs only when the
-count or active bytes differ from the prior publication; an identical publish
-is silent. The
+own selected-owner sequence comparator and never uses the wider ADP strobe.
+In product fabric mode that sequence is empty without a GM or when the selected
+Announce has no PathTrace TLV, and otherwise is the committed engine PathTrace
+(GM plus up to seven tail identities); changes to the software 0x7DC store are
+invisible. In
+option-off mode COMMIT edits a private PathTrace staging bank and PUBLISH
+atomically replaces the complete served tail/count. The response snapshots the
+canonical selected path before gathering entries, so it stays on one coherent
+generation. Fabric count 0/1 is the meaningful empty/`[GM]` boundary; only the
+option-off software ABI aliases those raw counts. GM=0 publications,
+hidden-mode writes, and an identical publish are silent. The
 `GPTP_GM_CHANGED` counter, and therefore the AVB_INTERFACE GET_COUNTERS push,
 move on the grandmaster identity edge alone. A write to 0x62C with a stable
 grandmaster is a GET_AVB_INFO trigger and an ADP re-advertise, and is neither
@@ -1318,7 +1322,7 @@ audio-map writers now commit through the root transaction store. The processor a
   no media-plane consumer reads it. These are current command or integration gaps, not evidence that the
 processor has no dynamic state.
 
-### 0x7DC  -  AS_PATH staging: the published PathTrace  `(gh #64 J4)`
+### 0x7DC  -  option-off AS_PATH PathTrace staging  `(gh #64 J4)`
 
 `GET_AS_PATH` (IEEE 1722.1-2021 7.4.41.2) must return the `path_sequence` of
 the **latest Announce's PathTrace TLV** — the clock identities that Announce
@@ -1328,13 +1332,22 @@ caps it at two entries: with two or more bridges between us and the
 grandmaster both the **count** and the **membership** were wrong, and a
 controller drawing a topology from it drew the wrong one.
 
-**Served since 0x0055.** `milan_datapath.sv` consumes `o_asp_path`,
-`o_asp_count` and `o_asp_gen`: the root gather face answers `GET_AS_PATH`
-with entry 0 = the grandmaster the `ADP_GM` pair commits (slot 0 is refused
-here for exactly that reason: derive, never mirror) followed by the published
-slots 1..count-1. No grandmaster is an empty path whatever the staging holds;
-a grandmaster with no published tail is the one-entry path a leaf directly
-under its grandmaster sees.
+IEEE 802.1AS-2020 10.3.11.2.1(d) makes that received sequence empty when the
+selected Announce has no PathTrace TLV. Product fabric mode therefore preserves
+donor count zero even with a separately known grandmaster; it must not invent
+`[GM]`. The legacy alias described below belongs only to the option-off software
+publication ABI.
+
+**This software store is served only by the explicit option-off owner since
+0x0055.** In that mode
+`milan_datapath.sv` consumes `o_asp_path` and `o_asp_count`: entry 0 is the
+grandmaster the `ADP_GM` pair commits (slot 0 is refused here for exactly that
+reason: derive, never mirror), followed by published slots 1..count-1. No GM
+is an empty path whatever staging holds, and an unpublished tail leaves the
+one-entry leaf path. Product-default fabric mode instead serves the engine's
+atomic bounded PathTrace publication: count zero is the selected no-TLV empty
+sequence, while a present sequence contains GM plus up to seven tail identities.
+It ignores this software store as a live source.
 
 There are two stores with deliberately different visibility. LO/HI plus
 COMMIT update a **staging bank** only; neither a solicited read nor the
@@ -1342,17 +1355,20 @@ notification detector can observe a partially rebuilt tail. PUBLISH compares
 the staged tail/count with the canonical published snapshot and, only when they
 differ, atomically transfers the complete tail/count and advances generation;
 raw counts 0 and 1 remain distinct in readback but are the same GM-only path and
-do not spend a generation. The root qualifies that publication edge against
-the complete sequence `GET_AS_PATH` actually serves before driving
-`gsi_asp_chg_i`. Consequently every publish while GM=0 is silent because the
-served path remains empty, and GM arrival later emits one event carrying the
-latest tail. An identical republish is silent. The response gather snapshots
-GM, count and every tail slot at the first count request. The wire test completes
+do not spend a generation. The root compares the complete canonical sequence
+`GET_AS_PATH` actually serves before driving `gsi_asp_chg_i`. Consequently
+every option-off publish while GM=0 is silent, and every write or publish in
+product fabric mode is also silent because it cannot change the selected-owner
+path. GM arrival later emits one event carrying the selected tail; an identical
+republish is silent. This paragraph's 0/1 alias does not apply to the fabric
+owner: there 0 <-> 1 changes the served sequence, while GM A->B at count zero
+does not. The response gather snapshots the conditional served GM, count and
+every active entry at the first count request. The option-off wire test completes
 a count-and-multi-slot PUBLISH after that capture and before the first entry
 request, yielding the complete old response while the next request gets the
 complete new path, never a mixture.
 
-The daemon's duty: stage each `clockIdentity` of the latest Announce's
+The option-off daemon's duty: stage each `clockIdentity` of the latest Announce's
 PathTrace TLV into slots 1..7 in order, then publish the length counting the
 grandmaster. A COMMIT alone changes nothing externally; PUBLISH is the single
 visibility and notification cutover.
@@ -1361,7 +1377,7 @@ visibility and notification cutover.
 |--------|------|-----|-------|-------------|
 | `0x7DC` | `ASP_LO` | RW | `0` | Staged `clockIdentity[31:0]` |
 | `0x7E0` | `ASP_HI` | RW | `0` | Staged `clockIdentity[63:32]` |
-| `0x7E4` | `ASP_CMD` | W / RO live | `0` | `[31]` COMMIT the LO/HI identity into private staging slot `[10:8]` (1..7; slot 0 refused); `[30]` PUBLISH the complete private path with clamped length `[3:0]` (entries including the grandmaster), atomically replacing the published snapshot and bumping generation only when its canonical count or active bytes change (raw 0 and 1 both mean GM-only and do not bump). Setting `[31]` and `[30]` together publishes the current LO/HI into the selected slot. Reads published `{gen[3:0], count[3:0]}` |
+| `0x7E4` | `ASP_CMD` | W / RO live | `0` | `[31]` COMMIT the LO/HI identity into private software staging slot `[10:8]` (1..7; slot 0 refused); `[30]` PUBLISH the complete private path with clamped length `[3:0]` (entries including the grandmaster), atomically replacing the option-off snapshot and bumping its generation only when canonical count or active bytes change (raw 0 and 1 both mean GM-only and do not bump). Setting `[31]` and `[30]` together publishes the current LO/HI into the selected slot. Reads always report the selected live owner `{gen[3:0], count[3:0]}`; in fabric mode commands still update compatibility staging but cannot alter that readback or the served path |
 
 ### 0x800  -  Indexed per-stream window
 

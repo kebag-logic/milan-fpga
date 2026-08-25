@@ -286,9 +286,6 @@ run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) soundcard-off
 	  -GLOOPBACK_P=1 -GI2SPB_P=$(AX_I2SPB) -GLPF_P=0 \
 	  $(SRCS) sim_aclk.cpp -o Vmilan_dp_aclk
 	@echo "======================================================================"
-	$(VERILATOR) $(SHAPE_AX1x1) $(VFLAGS) --Mdir obj_gptp \
-	  -GMILAN_CLK_FREQ_HZ=2000000 \
-	  $(SRCS) sim_gptp.cpp -o Vmilan_dp_gptp
 # Milan 5.4.5 TIMED (issue #69): the processor's timebase compressed
 # 1000x through its own override parameters (PP_TIM_DIV_US_P = 1 clock per
 # microsecond tick, PP_TIM_DIV_MS_P = 100 ticks per millisecond), so one
@@ -299,12 +296,11 @@ run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) soundcard-off
 # sim_nxn's [NOTIFY] section on the shipping 1x1 shape, exiting right after
 # the descriptor image is served (NOTIFY_TIMED_TB); the real-time legs run
 # the same section untimed.
-	$(VERILATOR) $(SHAPE_AX1x1) $(VFLAGS) --Mdir obj_notify \
+	$(VERILATOR) $(SHAPE_AX1x1) $(GPTP_OFF_VFLAGS) --Mdir obj_notify \
 	  -GPP_TIM_DIV_US_P=1 -GPP_TIM_DIV_MS_P=100 \
 	  -CFLAGS "-DNSTREAMS_TB=1 -DNOTIFY_TIMED_TB=1 -DMS_CYC_TB=100" \
 	  $(SRCS) sim_nxn.cpp -o Vmilan_dp_notify
 	./obj_dir/Vmilan_dp_sim
-	./obj_gptp/Vmilan_dp_gptp
 	@echo "---- Milan 5.4.5 notifications, TIMED on the compressed processor timebase ----"
 	./obj_notify/Vmilan_dp_notify
 	./obj_nxn/Vmilan_dp_nxn

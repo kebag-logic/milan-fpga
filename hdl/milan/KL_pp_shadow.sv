@@ -363,8 +363,10 @@ module KL_pp_shadow #(
     input  wire         gsi_avb_chg_i,      //! integrator-side AVB-info word changed
     //! integrator-side SERVED AS_PATH sequence changed. This is the processor's
     //! sole trigger: it MUST cover entry-0 grandmaster identity changes and
-    //! active published tail/count changes, while suppressing raw aliases such
-    //! as count 0/1 under a stable GM and every hidden tail while GM=0.
+    //! active published tail/count changes, while suppressing only aliases of
+    //! the selected owner. Option-off counts 0/1 alias under a stable GM;
+    //! fabric counts 0/1 are distinct empty/[GM] sequences. Every hidden tail
+    //! while GM=0 aliases to empty in either mode.
     //! milan_datapath drives it from one complete served-sequence comparator.
     input  wire         gsi_asp_chg_i,
 

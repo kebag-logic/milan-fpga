@@ -1463,6 +1463,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [31:0] cfg_gptp_pdelay_csr;
   wire [63:0] gptp_pub_gm_w, gptp_pub_parent_w, gptp_pub_annq_w;
   wire [31:0] gptp_pub_flags_w, gptp_pub_pdelay_w, gptp_pub_offset_w;
+  wire [7*64-1:0] gptp_pub_path_w;
+  wire [3:0] gptp_pub_path_count_w, gptp_pub_path_gen_w;
   wire        gptp_pub_disc_w;
   wire signed [31:0] gptp_adj_w;
   wire               gptp_step_we_w;
@@ -2014,27 +2016,29 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! gh #64 J4 local PathTrace staging (CSR 0x7DC group): the published
   //! tail GET_AS_PATH serves behind the grandmaster. The notification edge is
   //! derived below from the complete LIVE served sequence, not a raw CSR
-  //! generation: counts 0/1 alias to GM-only, and every tail aliases to empty
-  //! while no grandmaster exists.
+  //! generation. Product fabric mode preserves the donor's raw distinction:
+  //! count zero is an absent PathTrace and count one is `[GM]`. Only the
+  //! option-off software ABI aliases raw counts 0/1 to GM-only. Every owner
+  //! aliases to empty while no grandmaster exists.
   //! Slot count DERIVED from the port width (one source, as the CSR does).
-  wire [7*64-1:0] asp_path_w;
-  wire [3:0]      asp_count_w, asp_gen_w;
+  wire [7*64-1:0] asp_path_w /* verilator public_flat_rd */;
+  wire [3:0]      asp_count_w /* verilator public_flat_rd */;
+  wire [3:0]      asp_gen_w   /* verilator public_flat_rd */;
   localparam int unsigned ASP_SLOTS_C = $bits(asp_path_w) / 64;
-  //! The selected owner also owns the served AS path. Fabric mode cannot be
-  //! forged through the software PathTrace bank, so it publishes the engine's
-  //! distinct parent as the only tail entry. Option off retains #227's full,
-  //! atomically published software tail. Both arms are canonicalized before
-  //! the response snapshot and Table 5.22 comparator see them.
-  wire fabric_parent_valid_w = (|cfg_adp_gptp_gm) && (|cfg_as_parent)
-                            && (cfg_as_parent != cfg_adp_gptp_gm);
+  //! milan_csr owner-selects o_asp_*: the engine's complete committed
+  //! PathTrace in product mode, #227's atomically published software tail in
+  //! option-off mode. Apply #227's legacy min-one alias only to the software
+  //! owner; fabric count zero means empty even with a separately known GM.
+  //! The conditional head below is the exact entry-zero value GET_AS_PATH
+  //! serves and the Table 5.22 comparator observes.
+  wire [3:0] asp_owner_count_w = GPTP_PLANE_EN_P ? asp_count_w
+      : ((asp_count_w > 4'd1) ? asp_count_w : 4'd1);
   wire [3:0] asp_live_count_w = !(|cfg_adp_gptp_gm) ? 4'd0
-                                  : (GPTP_PLANE_EN_P != 1'b0)
-                                  ? (fabric_parent_valid_w ? 4'd2 : 4'd1)
-                                  : ((asp_count_w > 4'd1) ? asp_count_w : 4'd1);
+      : asp_owner_count_w;
   wire [7*64-1:0] asp_live_path_w = !(|cfg_adp_gptp_gm) ? '0
-      : (GPTP_PLANE_EN_P != 1'b0)
-      ? (fabric_parent_valid_w ? {{6{64'd0}}, cfg_as_parent} : '0)
       : asp_path_w;
+  wire [63:0] asp_live_gm_w = (|asp_live_count_w) ? cfg_adp_gptp_gm
+      : 64'd0;
   wire [63:0] pcm_lpf_tdata;
   wire        pcm_lpf_tvalid;
   wire        pcm_lpf_active;
@@ -2413,6 +2417,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .i_gptp_gm_id         (gptp_pub_gm_w),
     .i_gptp_parent_id     (gptp_pub_parent_w),
     .i_gptp_pdelay_ns     (gptp_pub_pdelay_w),
+    .i_gptp_asp_path      (gptp_pub_path_w),
+    .i_gptp_asp_count     (gptp_pub_path_count_w),
+    .i_gptp_asp_gen       (gptp_pub_path_gen_w),
     .o_adp_gptp_domain    (cfg_adp_gptp_domain),
     .o_adp_current_config (cfg_adp_current_config),
     .o_adp_identify_index (cfg_adp_identify_index),
@@ -4339,8 +4346,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //!  - propagation_delay is the selected effective gPTP measurement: the
   //!    fabric plane when present, otherwise the GPTP_PDELAY CSR.
   //!  - GET_AS_PATH answers one coherent selected-owner snapshot. Fabric mode
-  //!    serves {GM,parent} when the parent is distinct; option off serves GM
-  //!    followed by the atomically published 0x7DC PathTrace tail.
+  //!    serves the engine-selected full bounded PathTrace; option off serves
+  //!    GM followed by the atomically published 0x7DC PathTrace tail.
 
   //! CLAMPED index widths - a 1-sink shape's 2-bit vectors must never be
   //! part-selected with a wider index (the lint ratchet's own catch)
@@ -4417,7 +4424,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       gsi_srv2_r   <= pp_gsi_req_w && gsi_sel_match_w && gsi_srv1_r;
       gsi_data_r   <= gsi_ans_raw_w;
       if (asp_resp_capture_w) begin
-        asp_resp_gm_r    <= cfg_adp_gptp_gm;
+        asp_resp_gm_r    <= asp_live_gm_w;
         asp_resp_count_r <= asp_live_count_w;
         asp_resp_path_r  <= asp_live_path_w;
       end
@@ -4638,14 +4645,12 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   end
 
   //! ---- the served 802.1AS path (Milan 5.4.2.17 GET_AS_PATH) ----------
-  //! Entry 0 is ALWAYS the grandmaster the 0x624/0x628 CSR pair commits
-  //! (derive, never mirror: the J4 staging store refuses slot 0 for the
-  //! same reason). Entries 1.. are the PathTrace TAIL the daemon staged
-  //! and PUBLISHED through the 0x7DC group (slot k = path entry k), so a
-  //! bridged path reaches the wire instead of stopping at the local GM.
-  //! No grandmaster = an empty path, whatever the staging holds: a tail
-  //! without a head is not a path. A grandmaster with no published tail
-  //! is the one-entry path a leaf directly under its GM sees.
+  //! Entry 0, when count is nonzero, is the grandmaster the 0x624/0x628 CSR
+  //! pair commits (derive, never mirror: the J4 staging store refuses slot 0
+  //! for the same reason). Entries 1.. are the selected PathTrace tail. No
+  //! grandmaster is always empty. With a GM, product fabric count zero is also
+  //! empty because the selected Announce had no PathTrace TLV; option-off raw
+  //! counts 0/1 retain #227's one-entry `{GM}` compatibility meaning.
   wire [3:0] asp_served_count_w = asp_resp_count_r;
   logic [63:0] asp_served_entry_w;
   always_comb begin : asp_entry_pick
@@ -4788,23 +4793,15 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! config-derived ADP_GPTP_DOMAIN_C, so without it a nonzero configured
   //! domain would fake a change at t=0 into an empty registry.
   //!
-  //! GET_AS_PATH keeps its own two terms, and NEITHER is the ADP strobe.
+  //! GET_AS_PATH keeps its own served-tuple comparator and never uses the ADP
+  //! strobe or the unconditional grandmaster-identity edge.
   //! Milan Table 5.22 triggers GET_AS_PATH on "the path sequence changes",
-  //! and this fabric serves that sequence from one selected owner: entry 0 is
-  //! its committed grandmaster, followed by the fabric parent's one-entry tail
-  //! in product mode or the published PathTrace tail in option-off mode.
-  //! So the two terms that move it are:
-  //!
-  //!   * gsi_gm_chg_w  - the grandmaster IDENTITY snapshot moving, which is
-  //!     entry 0 changing (and, at the zero boundary, the count going
-  //!     0 <-> 1). This is the SAME snapshot compare the AVB detector uses,
-  //!     so the served answer and both detectors have one source. It
-  //!     subsumes the old first-commit term: 0 -> nonzero IS a change of
-  //!     cfg_adp_gptp_gm.
-  //!   * the canonical served tail/count moving with a stable grandmaster.
-  //!     Compare what GET_AS_PATH actually serves, not a raw CSR generation:
-  //!     software counts 0 and 1 are both GM-only, all tails alias to empty
-  //!     while GM=0, and hidden software staging cannot perturb fabric mode.
+  //! and this fabric serves that sequence from one selected owner. Compare
+  //! exactly `(count ? GM : 0, count, active tails)`, not a raw publication
+  //! generation. Thus fabric count 0 <-> 1 is a real sequence edge; GM A->B
+  //! while both fabric counts are zero is silent; software counts 0/1 remain
+  //! the same GM-only sequence; every tail aliases to empty while GM=0; and
+  //! hidden software staging cannot perturb fabric mode.
   //!
   //! What is NOT a term is the gPTP domain number. It is a GET_AVB_INFO
   //! field (below) and an ADPDU field, but it is not a path entry, so a
@@ -4816,6 +4813,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! All of these are one-cycle strobes; the processor coalesces them into
   //! one push per class.
   logic gsi_ascap_q_r;
+  logic [63:0] gsi_asp_gm_q_r;
   logic [3:0] gsi_asp_count_q_r;
   logic [7*64-1:0] gsi_asp_path_q_r;
   logic gsi_snap_v_r;
@@ -4825,6 +4823,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   always_ff @(posedge axis_clk) begin : gsi_change_edges
     if (!axis_resetn) begin
       gsi_ascap_q_r <= 1'b0;
+      gsi_asp_gm_q_r <= 64'd0;
       gsi_asp_count_q_r <= 4'd0;
       gsi_asp_path_q_r  <= '0;
       gsi_snap_v_r  <= 1'b0;
@@ -4833,6 +4832,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       gsi_dom_q_r   <= 8'd0;
     end else begin
       gsi_ascap_q_r <= clkv_as_cap_w;
+      gsi_asp_gm_q_r <= asp_live_gm_w;
       gsi_asp_count_q_r <= asp_live_count_w;
       gsi_asp_path_q_r  <= asp_live_path_w;
       gsi_snap_v_r  <= 1'b1;
@@ -4850,14 +4850,12 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
                             || (eff_gptp_pdelay_w   != gsi_pdly_q_r)
                             || (cfg_adp_gptp_domain != gsi_dom_q_r)));
   //! One source for the event and the answer: compare the complete served
-  //! sequence. This suppresses both deterministic aliases that a raw publish
-  //! generation cannot see: 0 <-> 1 with a stable GM, and every publish while
-  //! GM=0. A later GM arrival still fires once through gsi_gm_chg_w and serves
-  //! the latest published tail.
-  wire gsi_asp_chg_w = gsi_gm_chg_w
-                    || (gsi_snap_v_r
-                        && ((asp_live_count_w != gsi_asp_count_q_r)
-                            || (asp_live_path_w != gsi_asp_path_q_r)));
+  //! sequence. gsi_gm_chg_w remains the AVB_INFO/counter identity edge, but
+  //! AS_PATH sees the GM only when its count makes entry zero present.
+  wire gsi_asp_chg_w = gsi_snap_v_r
+                    && ((asp_live_gm_w != gsi_asp_gm_q_r)
+                        || (asp_live_count_w != gsi_asp_count_q_r)
+                        || (asp_live_path_w != gsi_asp_path_q_r));
 
   //! IDENTIFY: the processor serves the CONTROL descriptor and stores its
   //! dynamic value. KL_pp_shadow exports aecp_identify_o into
@@ -6425,6 +6423,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
         .pub_pdelay_ns_o (gptp_pub_pdelay_w),
         .pub_offset_o    (gptp_pub_offset_w),
         .pub_annq_o      (gptp_pub_annq_w),
+        .pub_path_count_o(gptp_pub_path_count_w),
+        .pub_path_o      (gptp_pub_path_w),
+        .pub_path_gen_o  (gptp_pub_path_gen_w),
         .pub_commit_o    (),
         .pub_disc_o      (gptp_pub_disc_w),
         .dbg_tap_drop_o  (gptp_tap_drop_w),
@@ -6487,6 +6488,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     assign gptp_pub_flags_w = '0;
     assign gptp_pub_pdelay_w = '0;
     assign gptp_pub_offset_w = '0;
+    assign gptp_pub_path_w = '0;
+    assign gptp_pub_path_count_w = '0;
+    assign gptp_pub_path_gen_w = '0;
     assign gptp_pub_disc_w = 1'b0;
     assign gptp_tap_drop_w = '0;
     assign gptp_rx_drop_w = '0;
