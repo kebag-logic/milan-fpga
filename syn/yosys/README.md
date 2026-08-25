@@ -119,6 +119,13 @@ It runs `sv2v` → `synth_xilinx -family xc7 -flatten` → `stat` and reports
   every shape gate green, so shape alone is not protection. A pin bump
   re-records with `./ooc.sh --record-rom-digests`, and that diff is
   reviewed with the bump. An unrecorded pin is a refusal, not a guess.
+- Publication is not the end of custody: each top's yosys run consumes an
+  EXCLUSIVE read-only copy of both images in a fresh unpredictable
+  `mktemp -d` run directory, and the copy is re-hashed against the
+  validated digest before the run AND after yosys returns. A published
+  image swapped or deleted after validation (or between two requested
+  tops, or under a running synthesis) is exit 2, and no row is emitted
+  for bytes no ledger row vouches for.
 - A top failing `sv2v` or yosys sets a STICKY non-zero exit that no later
   passing top can launder; so does a report phase that cannot produce a
   real row: no top-named stat block, a final block mapping to zero xc7
@@ -132,10 +139,13 @@ Not enforced: the numbers themselves stay yosys estimates (band rule
 below), and dropping only the explicit `stat` is not refused, because
 `synth_xilinx`'s own final statistics block is the same post-mapping
 measurement. `ooc_selftest.py` drives every refusal above on planted
-failures (36 arms: shape, content, staging, report, sticky-exit and
-launch-directory mutations, plus a positive `KL_pp_shadow` arm whose
-models assert the authoritative source population, the run directory and
-both canonical images); it runs in `rtl-fast.yml`, where
+failures (50 arms: shape, content, staging, report, sticky-exit,
+launch-directory and consumption-custody mutations (the published image
+swapped or deleted after publication, between two tops and mid-run), plus
+a positive `KL_pp_shadow` arm whose models assert the authoritative
+source population, the exclusive per-top run directory, and both
+canonical images as read-only copies hashing to the pin's ledger rows);
+it runs in `rtl-fast.yml`, where
 `scripts/ci_events.py` pins the invocation verbatim AND its step keys, in
 the job that fetches the submodule, after that fetch.
 

@@ -27,10 +27,13 @@ THE STUBS ARE MODELS WITH TEETH, not silence:
     `KL_pp_shadow` arm requires the source set to EQUAL the authoritative
     population (pp_srcs.py's own answer plus the parent's named files) - so
     a recipe whose processor list stops being derived cannot stay green;
-  - the yosys model refuses to run anywhere but `$OOC_TMP` and refuses a
-    missing canonical `ucode.hex`/`ltn_rom.hex` regular file in its cwd - so
-    restoring the launch-directory dependency #245 exists to kill is a red
-    arm, not a silent pass;
+  - the yosys model refuses to run anywhere but an exclusive per-top
+    `*.run.*` directory under `$OOC_TMP` (the shared `$OOC_TMP` itself is a
+    refusal too, [R0] round four), refuses a missing or WRITABLE canonical
+    `ucode.hex`/`ltn_rom.hex` regular file in its cwd, and asserts each
+    image's sha256 against the pin's ledger row - the exact-byte oracle the
+    round-four review required, so consuming unvouched bytes is a red arm
+    even if every ooc.sh-side re-hash were deleted;
   - its mapped stat block carries EVERY cell class the parser reports
     (LUT, LUTRAM via RAM32M, FF, RAMB36, RAMB18, DSP, CARRY4), and the
     clean arm compares EVERY column of the printed row, so a zeroed
@@ -68,8 +71,36 @@ GEN_UCODE = os.path.join(REPO, "protocol-processor", "hdl", "aecp", "ucode",
 GEN_LTN = os.path.join(REPO, "protocol-processor", "hdl", "acmp", "rom",
                        "gen_ltn_rom.py")
 
+
+def _ledger_digests():
+    """The tracked ledger's rows for the CURRENT protocol-processor pin:
+    the yosys model's exact-byte oracle ([R0] round four). A pin without
+    both rows is a broken tree, not a skippable oracle."""
+    pin = subprocess.run(
+        ["git", "-C", os.path.join(REPO, "protocol-processor"),
+         "rev-parse", "HEAD"],
+        capture_output=True, text=True, check=True).stdout.strip()
+    want = {}
+    with open(os.path.join(HERE, "rom_digests.tsv")) as fh:
+        for line in fh:
+            if not line.strip() or line.startswith("#"):
+                continue
+            row_pin, img, sha = line.split()
+            if row_pin == pin:
+                want[img] = sha
+    for img in ("ucode.hex", "ltn_rom.hex"):
+        if img not in want:
+            raise AssertionError(
+                "rom_digests.tsv has no %s row for protocol-processor pin "
+                "%s - record it with ./ooc.sh --record-rom-digests" %
+                (img, pin))
+    return want
+
+
+LEDGER = _ledger_digests()
+
 #: How many arms run. A deleted arm is a self-test that still prints a pass.
-ARMS = 38
+ARMS = 50
 
 #: The clean row the full-cell yosys model must produce for any top:
 #: 8 LUT4, 2 RAM32M (= 8 LUTRAM-LUT), 4 FDRE, 3 RAMB36E1, 2 RAMB18E1,
@@ -82,6 +113,24 @@ printf '%s\\n' "$@" >> "$HOME/sv2v-args.txt"
 exit 0
 """
 SV2V_FAIL = "#!/bin/sh\necho 'planted sv2v failure' >&2\nexit 1\n"
+
+#: SV2V_OK plus a timing plant: when invoked for @TOP@, run @ACTION@
+#: against the published images in $OOC_TMP first. sv2v runs BETWEEN
+#: publication and that top's consumption, which is exactly the seam
+#: [R0] round four's eight timing plants rode.
+SV2V_PLANT_TMPL = """#!/bin/sh
+printf '%s\\n' "$@" >> "$HOME/sv2v-args.txt"
+for a in "$@"; do
+  case "$a" in
+    --top=@TOP@) @ACTION@ ;;
+  esac
+done
+exit 0
+"""
+
+
+def sv2v_plant(top, action):
+    return SV2V_PLANT_TMPL.replace("@TOP@", top).replace("@ACTION@", action)
 YOSYS_FAIL = ("#!/bin/sh\necho 'ERROR: planted yosys elaboration failure'\n"
               "exit 1\n")
 
@@ -91,13 +140,31 @@ YOSYS_FAIL = ("#!/bin/sh\necho 'ERROR: planted yosys elaboration failure'\n"
 YOSYS_TMPL = r"""#!/bin/sh
 p="$2"
 @PLANT@
-if [ -z "${OOC_TMP:-}" ] || [ "$(pwd -P)" != "$(cd "$OOC_TMP" && pwd -P)" ]; then
-  echo "ERROR: YOSYS-WRONG-CWD: running in $(pwd -P), not the run tmp dir"
+if [ -z "${OOC_TMP:-}" ]; then
+  echo "ERROR: YOSYS-WRONG-CWD: no OOC_TMP in the environment"
   exit 9
 fi
+otmp="$(cd "$OOC_TMP" && pwd -P)"
+case "$(pwd -P)" in
+  "$otmp"/*.run.*) : ;;
+  *) echo "ERROR: YOSYS-WRONG-CWD: running in $(pwd -P), not an exclusive per-top run dir under $OOC_TMP"
+     exit 9 ;;
+esac
 for img in ucode.hex ltn_rom.hex; do
   if [ ! -f "$img" ] || [ -L "$img" ]; then
     echo "ERROR: YOSYS-IMAGE-NOT-HERE: $img is not a regular file in $(pwd -P)"
+    exit 9
+  fi
+done
+for spec in "ucode.hex ${OOC_ST_UCODE_SHA:-}" "ltn_rom.hex ${OOC_ST_LTN_SHA:-}"; do
+  img=${spec%% *}; want=${spec#* }
+  if [ -w "$img" ]; then
+    echo "ERROR: YOSYS-IMAGE-WRITABLE: $img in $(pwd -P) is not the read-only consuming copy"
+    exit 9
+  fi
+  got=$(sha256sum < "$img" | sed 's/ .*//')
+  if [ "$got" != "$want" ]; then
+    echo "ERROR: YOSYS-IMAGE-BYTES: $img in $(pwd -P) hashes ${got:-nothing}, the validated ledger digest is ${want:-unset}"
     exit 9
   fi
 done
@@ -147,6 +214,14 @@ echo "     4   FDRE"
 [ -n "$json" ] && printf '{"modules":{}}' > "$json"
 exit 0
 """
+
+#: The consuming copy corrupted DURING the run: the model does its work,
+#: then rewrites ucode.hex in its cwd as it exits. Only ooc.sh's post-run
+#: re-hash can catch this one.
+YOSYS_CORRUPT_MIDRUN = YOSYS_TMPL.replace(
+    "@PLANT@",
+    "trap 'chmod u+w ucode.hex 2>/dev/null; "
+    "printf MUTATED-MID-RUN > ucode.hex' EXIT")
 
 AWK_FAIL_REPORT = """#!/bin/sh
 for a in "$@"; do
@@ -204,6 +279,8 @@ def _run(script, tops, home, rundir, ooc_tmp):
     env["HOME"] = home
     env["PATH"] = bindir + os.pathsep + env.get("PATH", "")
     env["OOC_TMP"] = ooc_tmp
+    env["OOC_ST_UCODE_SHA"] = LEDGER["ucode.hex"]
+    env["OOC_ST_LTN_SHA"] = LEDGER["ltn_rom.hex"]
     out = subprocess.run([script] + tops, cwd=rundir, env=env,
                          capture_output=True, text=True)
     return out.returncode, out.stdout + out.stderr
@@ -304,6 +381,9 @@ def selftest():
             p = os.path.join(ooc_tmp, img)
             if not os.path.isfile(p) or os.path.getsize(p) == 0:
                 return "%s was not generated into the run's tmp dir" % img
+        for name in os.listdir(ooc_tmp):
+            if ".run." in name:
+                return "the exclusive run dir %s survived its top" % name
         return None
     arm("clean-full-columns", "tcam", None, True, check=clean_checks)
 
@@ -568,10 +648,11 @@ def selftest():
     finally:
         os.unlink(mut)
 
-    # Arm 32. [R0] round two's plant: cd "$TMP" -> cd "$R", restoring the
+    # Arm 32. [R0] round two's plant: cd "$rundir" -> cd "$R", restoring the
     # launch-directory dependency #245 exists to kill. The yosys model
-    # refuses to run anywhere but $OOC_TMP.
-    mut = _mutant(r'\(cd "\$TMP" && yosys', '(cd "$R" && yosys', "cwd-escape")
+    # refuses to run anywhere but an exclusive per-top dir under $OOC_TMP.
+    mut = _mutant(r'\(cd "\$rundir" && yosys', '(cd "$R" && yosys',
+                  "cwd-escape")
     try:
         arm("mut-cwd-escape", "tcam", "YOSYS-WRONG-CWD", False, script=mut)
     finally:
@@ -663,6 +744,87 @@ def selftest():
     finally:
         os.unlink(mut)
         os.unlink(pkg)
+
+    # ---- consumption custody ([R0] round four) ---------------------------
+
+    PLANTS = [
+        ("ucode.hex", "swap",
+         'printf \'SWAPPED\\n\' > "$OOC_TMP/ucode.hex"',
+         "ucode.hex changed after publication"),
+        ("ucode.hex", "delete", 'rm -f "$OOC_TMP/ucode.hex"',
+         "ucode.hex is gone from"),
+        ("ltn_rom.hex", "swap",
+         'printf \'SWAPPED\\n\' > "$OOC_TMP/ltn_rom.hex"',
+         "ltn_rom.hex changed after publication"),
+        ("ltn_rom.hex", "delete", 'rm -f "$OOC_TMP/ltn_rom.hex"',
+         "ltn_rom.hex is gone from"),
+    ]
+
+    # Arms 39-42. The published image swapped or deleted immediately AFTER
+    # publication (sv2v runs between publication and the first consumption:
+    # the reviewer's exact seam). The consuming copy's re-hash must refuse,
+    # and no row may print.
+    for img, mode, act, want in PLANTS:
+        arm("%s-%s-after-publication" % (img.split(".")[0], mode), "tcam",
+            want, False, sv2v=sv2v_plant("tcam", act),
+            check=lambda log, t, h: None if row_of(log) is None
+            else "a row was priced from unvouched bytes")
+
+    # Arms 43-46. The same four plants BETWEEN two requested tops: the
+    # first, unaffected top prices and keeps its row; the second must
+    # refuse rather than consume the changed/missing image.
+    def between_check(log, ooc_tmp, home):
+        if row_of(log, "tcam") is None:
+            return "the first (unaffected) top printed no row"
+        if row_of(log, "KL_pcm_lpf") is not None:
+            return "the second top was priced from unvouched bytes"
+        return None
+    for img, mode, act, want in PLANTS:
+        arm("%s-%s-between-tops" % (img.split(".")[0], mode),
+            ["tcam", "KL_pcm_lpf"], want, False,
+            sv2v=sv2v_plant("KL_pcm_lpf", act), check=between_check)
+
+    # Arm 47. The consuming copy corrupted DURING the run (the model's own
+    # exit trap): the post-run re-hash must discard whatever was measured.
+    arm("ucode-corrupt-mid-run", "tcam", "changed under", False,
+        yosys=YOSYS_CORRUPT_MIDRUN,
+        check=lambda log, t, h: None if row_of(log) is None
+        else "a row survived a mid-run byte change")
+
+    # Arm 48. Consumption moved back to the SHARED published directory
+    # (cd "$rundir" -> cd "$TMP"): the yosys model refuses $OOC_TMP itself,
+    # so the exclusive-run-dir contract cannot silently regress.
+    mut = _mutant(r'\(cd "\$rundir" && yosys', '(cd "$TMP" && yosys',
+                  "consume-shared-dir")
+    try:
+        arm("mut-consume-shared-dir", "tcam", "YOSYS-WRONG-CWD", False,
+            script=mut)
+    finally:
+        os.unlink(mut)
+
+    # Arm 49. BOTH script-side re-hashes blinded (copy_matches always
+    # true) plus the swap plant: the model's exact-byte ledger oracle is
+    # the last line of defense and must go red on its own.
+    mut = _mutant(r'\[ "\$got" = "\$\{ROM_SHA\[\$2\]\}" \]', "true",
+                  "blind-copy-hash")
+    try:
+        arm("mut-blind-copy-hash", "tcam", "YOSYS-IMAGE-BYTES", False,
+            script=mut,
+            sv2v=sv2v_plant("tcam",
+                            'printf \'SWAPPED\\n\' > "$OOC_TMP/ucode.hex"'),
+            check=lambda log, t, h: None if row_of(log) is None
+            else "a row was priced from unvouched bytes")
+    finally:
+        os.unlink(mut)
+
+    # Arm 50. chmod a-w dropped: the model refuses a writable consuming
+    # copy, so immutability is held by an oracle, not a habit.
+    mut = _mutant(r'chmod a-w "\$rundir/\$img"', ":", "writable-copy")
+    try:
+        arm("mut-writable-copy", "tcam", "YOSYS-IMAGE-WRITABLE", False,
+            script=mut)
+    finally:
+        os.unlink(mut)
 
     if ran != ARMS:
         problems.append("SELF-TEST FAILED [arm-count]: ran %d arm(s), this "

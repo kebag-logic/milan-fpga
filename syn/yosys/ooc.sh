@@ -19,11 +19,15 @@
 # yosys, if a ROM generator fails or emits an empty or WRONG-SHAPED image
 # (word count and width are validated against the pinned packages) or a
 # wrong-CONTENT image (sha256 against rom_digests.tsv, keyed by the
-# protocol-processor pin), if staging or publication fails, if the report
-# phase fails (no stat block for the top, a block mapping to zero xc7
-# cells, a dead awk, or a missing/empty JSON artifact), or if a requested
-# top is not in the list. A failed top used to print its error and leave the
-# script exiting 0, which read as "the whole list passed" to any caller.
+# protocol-processor pin), if staging or publication fails, if a published
+# image is gone or hashes differently at ANY consumption (each top's yosys
+# run consumes an exclusive read-only copy, re-hashed before and after the
+# run - a swap or delete after publication, or between two tops, must never
+# price), if the report phase fails (no stat block for the top, a block
+# mapping to zero xc7 cells, a dead awk, or a missing/empty JSON artifact),
+# or if a requested top is not in the list. A failed top used to print its
+# error and leave the script exiting 0, which read as "the whole list
+# passed" to any caller.
 #
 # Requires: yosys, sv2v (see README.md).
 # Self-test: syn/yosys/ooc_selftest.py drives the refusals on planted failures.
@@ -83,7 +87,12 @@ PP_SRCS="$PP_DERIVED $R/hdl/milan/KL_pp_shadow.sv $R/hdl/milan/KL_pp_maap_shim.s
 #   - each image is generated into an EXCLUSIVELY created staging file
 #     (mktemp, never a predictable name a stale file could squat) and
 #     published by a checked rename only after it validates; the published
-#     target must be a regular file. OOC_TMP is reusable across runs.
+#     target must be a regular file. OOC_TMP is reusable across runs;
+#   - publication is not the end of custody ([R0] round four: a swap or
+#     delete of the published image after validation, or between two tops,
+#     still measured): each top's yosys run consumes an exclusive read-only
+#     copy in a fresh unpredictable run directory, re-hashed against the
+#     validated digest before AND after the run.
 one_pp_source() { # <basename> -> the ONE population entry carrying it, or die
   local hits n
   hits=$(printf '%s\n' $PP_DERIVED | grep "/$1\$")
@@ -171,6 +180,18 @@ PP_PIN=$(git -C "$R/protocol-processor" rev-parse HEAD) || {
 RECORD=0
 if [ "${1:-}" = "--record-rom-digests" ]; then RECORD=1; shift; fi
 
+# The digest each image VALIDATED at, kept for consumption ([R0] round
+# four): validation bound the ledger to the staged bytes, but yosys then
+# consumed the shared published pathname unchecked, so a swap or delete
+# after publication (or between two tops) still measured. Every consumption
+# below re-hashes the exact copy yosys will read against this record.
+declare -A ROM_SHA
+copy_matches() { # <file> <image name> -> 0 iff sha256 equals the validated digest
+  local got
+  got=$(sha256sum < "$1" 2>/dev/null | awk '{print $1}')
+  [ "$got" = "${ROM_SHA[$2]}" ]
+}
+
 new_rows=""
 for rom_spec in \
     "ltn_rom.hex|$R/protocol-processor/hdl/acmp/rom/gen_ltn_rom.py|$TROM_W|$TROM_D" \
@@ -196,6 +217,7 @@ for rom_spec in \
     exit 2
   fi
   got=$(sha256sum < "$stage" | awk '{print $1}')
+  ROM_SHA[$img]="$got"
   if [ "$RECORD" -eq 1 ]; then
     new_rows="${new_rows}${PP_PIN}	${img}	${got}
 "
@@ -324,9 +346,39 @@ for spec in "${tops[@]}"; do
   # hides LUTs, and the LUT-only column is the worst case.
   nodsp=""; [ -n "${OOC_NODSP:-}" ] && nodsp=" -nodsp"
   rm -f "$TMP/$top.ooc.json"
-  (cd "$TMP" && yosys -p "read_verilog $TMP/$top.ooc.v;$chp synth_xilinx -family xc7$nodsp -top $top -flatten; stat; write_json $TMP/$top.ooc.json") \
+  # [R0] round four: synthesis consumes an EXCLUSIVE per-top copy of each
+  # validated image, never the shared published pathname. The run directory
+  # is a fresh mktemp -d (mode 0700, unpredictable name), each copy is
+  # re-hashed against the validated digest (the hash binds the exact file
+  # yosys reads), made read-only, and re-hashed AGAIN after yosys returns:
+  # no row survives bytes that disappeared or changed at any point around
+  # the run, however plausible the stat block looks.
+  if ! rundir=$(mktemp -d "$TMP/$top.run.XXXXXXXX"); then
+    echo "ooc.sh: FATAL: cannot create an exclusive run directory for $top in $TMP" >&2
+    exit 2
+  fi
+  for img in ucode.hex ltn_rom.hex; do
+    if ! cp "$TMP/$img" "$rundir/$img" 2>/dev/null; then
+      echo "ooc.sh: FATAL: $img is gone from $TMP after validation (a writer reached the published image) - refusing to synthesize $top against bytes no ledger row vouches for" >&2
+      exit 2
+    fi
+    if ! copy_matches "$rundir/$img" "$img"; then
+      echo "ooc.sh: FATAL: $img changed after publication - the consuming copy for $top no longer hashes to the validated digest; refusing to measure bytes no ledger row vouches for" >&2
+      exit 2
+    fi
+    chmod a-w "$rundir/$img"
+  done
+  (cd "$rundir" && yosys -p "read_verilog $TMP/$top.ooc.v;$chp synth_xilinx -family xc7$nodsp -top $top -flatten; stat; write_json $TMP/$top.ooc.json") \
     > "$TMP/$top.ooc.log" 2>&1
-  if [ $? -ne 0 ]; then
+  yosys_rc=$?
+  for img in ucode.hex ltn_rom.hex; do
+    if ! copy_matches "$rundir/$img" "$img"; then
+      echo "ooc.sh: FATAL: $img changed under $top's synthesis run - the read-only consuming copy no longer hashes to the validated digest; discarding whatever was measured" >&2
+      exit 2
+    fi
+  done
+  rm -rf "$rundir"
+  if [ "$yosys_rc" -ne 0 ]; then
     printf "%-28s yosys FAIL: %s\n" "$top" "$(grep -oE 'ERROR:.*' "$TMP/$top.ooc.log" | head -1)"; status=1; continue
   fi
   # yosys said 0; the REPORT phase must fail closed too ([R-parallel] on
