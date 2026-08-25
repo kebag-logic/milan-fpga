@@ -1535,6 +1535,16 @@ def check_fast_ooc_sh_selftest(c, wf):
            "wrapped spelling is a different script")
     if len(hits) != 1:
         return
+    # The step's KEYS are pinned too, exactly as the fast-verdict step's
+    # are: `if:`, `continue-on-error:` and `shell:` each leave the pinned
+    # run text byte-identical while disabling or reinterpreting its
+    # execution ([R0] round two on PR #262) - a skipped or reinterpreted
+    # self-test is the same false green as a deleted one.
+    extra = sorted(set(slist[hits[0]].keys()) - {"name", "run"})
+    c.item(not extra, path,
+           f"the `{OOC_SH_SELFTEST}` step carries key(s) {extra} beyond "
+           "name/run: any other key can disable or reinterpret the pinned "
+           "invocation while its text stays pinned")
     fetch = [i for i, s in enumerate(slist)
              if OOC_SH_SUBMODULE_FETCH in step_text(s)]
     c.item(bool(fetch) and fetch[0] < hits[0], path,
@@ -2238,6 +2248,12 @@ def _mutations():
         slist = job["steps"]
         slist.insert(0, slist.pop(_fast_ooc_index(job)))
 
+    def m_ooc_selftest_key(key, value):
+        def f(w):
+            job = _fast_ooc_job(w)
+            steps(job)[_fast_ooc_index(job)][key] = value
+        return f
+
     return [
         # rtl.yml triggers
         ("rtl push on main, not dev", m_push_main(RTL_FULL), "push must subscribe"),
@@ -2638,6 +2654,12 @@ def _mutations():
          "exactly one step must run"),
         ("#245 ooc.sh self-test before the submodule fetch",
          m_ooc_selftest_before_fetch, "after the submodule fetch"),
+        ("#245 ooc.sh self-test disabled by if: false",
+         m_ooc_selftest_key("if", False), "beyond name/run"),
+        ("#245 ooc.sh self-test failure swallowed by continue-on-error",
+         m_ooc_selftest_key("continue-on-error", True), "beyond name/run"),
+        ("#245 ooc.sh self-test reinterpreted by shell: bash -n",
+         m_ooc_selftest_key("shell", "bash -n {0}"), "beyond name/run"),
         # docs.yml
         ("docs push on main, not dev", m_push_main(DOCS), "push must subscribe"),
         ("docs no pull_request", m_drop_pr(DOCS), "must subscribe pull_request"),

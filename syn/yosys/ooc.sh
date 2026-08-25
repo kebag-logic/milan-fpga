@@ -12,11 +12,15 @@
 #
 #   ./ooc.sh                       # every top in the AREA list below
 #   ./ooc.sh KL_chan_map_render    # just these tops
+#   ./ooc.sh --record-rom-digests  # re-record rom_digests.tsv at the pin
+#                                  # (a pin-bump step; the diff is reviewed)
 #
 # Exit status is the gate (#245): non-zero if any requested top fails sv2v or
 # yosys, if a ROM generator fails or emits an empty or WRONG-SHAPED image
-# (word count and width are validated against the pinned packages), if the
-# report phase fails (no stat block for the top, a block mapping to zero xc7
+# (word count and width are validated against the pinned packages) or a
+# wrong-CONTENT image (sha256 against rom_digests.tsv, keyed by the
+# protocol-processor pin), if staging or publication fails, if the report
+# phase fails (no stat block for the top, a block mapping to zero xc7
 # cells, a dead awk, or a missing/empty JSON artifact), or if a requested
 # top is not in the list. A failed top used to print its error and leave the
 # script exiting 0, which read as "the whole list passed" to any caller.
@@ -60,28 +64,61 @@ PP_SRCS="$PP_DERIVED $R/hdl/milan/KL_pp_shadow.sv $R/hdl/milan/KL_pp_maap_shim.s
 # "non-empty", loads, leaves 2,047 words X, and produced a plausible row
 # 4,045 LUT_TOT under the true figure). $readmemh does not police geometry,
 # so this script does, BEFORE a number can exist:
-#   - the expected geometry is DERIVED from the pinned packages
-#     (ucpu_pkg.sv: UCODE_W_C x 2^UPC_W_C; pp_acmp_pkg.sv: TROM_W_C x
-#     TROM_DEPTH_C), never copied here where it would drift;
+#   - the geometry PACKAGES are found IN the derived population above, never
+#     spelled as paths here ([R0] round two: a spelled path is a hand list
+#     in waiting, and the literal gate cannot see shell semantics);
+#   - the expected geometry comes from the ONE live declaration in each
+#     package, comments stripped first and the name boundary-anchored: a
+#     stale value in a comment must never win, and zero, duplicate or
+#     unsupported (expression) spellings refuse rather than guess;
 #   - after //-comment stripping the image must hold EXACTLY depth words of
 #     EXACTLY width/4 hex digits (x/z refused: a word that loads X is priced
 #     as X);
-#   - each image is generated into a fresh temp target and published by
-#     rename only after it validates, so a stale or half-written file can
-#     never be the one yosys reads (OOC_TMP is reusable across runs).
-pkg_num() { # <file> <localparam name> -> its decimal value, or die
-  local v
-  v=$(sed -n "s/.*$2 *= *\([0-9][0-9]*\).*/\1/p" "$1" | head -1)
-  if [ -z "$v" ]; then
-    echo "ooc.sh: FATAL: cannot derive $2 from $1 (geometry source moved?)" >&2
+#   - the image CONTENT must match the sha256 recorded for this
+#     protocol-processor pin in rom_digests.tsv: a correctly SHAPED wrong
+#     image (a regressed generator emitting all-zero words) passed every
+#     shape gate and priced KL_pp_shadow 4,045 LUT_TOT low ([R0] round two).
+#     A pin bump re-records with --record-rom-digests, and that diff is
+#     reviewed with the bump;
+#   - each image is generated into an EXCLUSIVELY created staging file
+#     (mktemp, never a predictable name a stale file could squat) and
+#     published by a checked rename only after it validates; the published
+#     target must be a regular file. OOC_TMP is reusable across runs.
+one_pp_source() { # <basename> -> the ONE population entry carrying it, or die
+  local hits n
+  hits=$(printf '%s\n' $PP_DERIVED | grep "/$1\$")
+  n=$(printf '%s\n' "$hits" | grep -c .)
+  if [ "$n" -ne 1 ]; then
+    echo "ooc.sh: FATAL: expected exactly one $1 in the derived processor population, found $n - geometry comes from the record pp_srcs.py hands this script, and it did not" >&2
     exit 2
   fi
-  printf '%s' "$v"
+  printf '%s' "$hits"
 }
-UCODE_W=$(pkg_num "$PP/aecp/ucpu_pkg.sv" UCODE_W_C)      || exit 2
-UPC_W=$(pkg_num "$PP/aecp/ucpu_pkg.sv" UPC_W_C)          || exit 2
-TROM_W=$(pkg_num "$PP/acmp/pp_acmp_pkg.sv" TROM_W_C)     || exit 2
-TROM_D=$(pkg_num "$PP/acmp/pp_acmp_pkg.sv" TROM_DEPTH_C) || exit 2
+pkg_num() { # <file> <name> -> the ONE live declaration's decimal value, or die
+  python3 - "$1" "$2" <<'PKG_EOF'
+import re, sys
+path, name = sys.argv[1], sys.argv[2]
+text = open(path).read()
+text = re.sub(r"/\*.*?\*/", "", text, flags=re.S)
+text = re.sub(r"//.*", "", text)
+pat = re.compile(r"^\s*(?:localparam|parameter)\b[^=;]*?\b%s\b\s*=\s*(\d+)\s*;"
+                 % re.escape(name), re.M)
+hits = pat.findall(text)
+if len(hits) != 1:
+    sys.stderr.write("ooc.sh: FATAL: expected exactly one live declaration "
+                     "of %s in %s, found %d (comments stripped; an "
+                     "unsupported spelling is a refusal, not a guess)\n"
+                     % (name, path, len(hits)))
+    sys.exit(1)
+print(hits[0])
+PKG_EOF
+}
+UCPU_PKG=$(one_pp_source ucpu_pkg.sv)     || exit 2
+ACMP_PKG=$(one_pp_source pp_acmp_pkg.sv)  || exit 2
+UCODE_W=$(pkg_num "$UCPU_PKG" UCODE_W_C)  || exit 2
+UPC_W=$(pkg_num "$UCPU_PKG" UPC_W_C)      || exit 2
+TROM_W=$(pkg_num "$ACMP_PKG" TROM_W_C)    || exit 2
+TROM_D=$(pkg_num "$ACMP_PKG" TROM_DEPTH_C) || exit 2
 
 rom_check() { # <file> <hex digits per word> <word count> ; diagnostics on stdout
   awk -v digits="$2" -v words="$3" '
@@ -98,24 +135,80 @@ rom_check() { # <file> <hex digits per word> <word count> ; diagnostics on stdou
   ' "$1"
 }
 
+# The content ledger: sha256 per (protocol-processor pin, image), tracked.
+DIGESTS="$R/syn/yosys/rom_digests.tsv"
+PP_PIN=$(git -C "$R/protocol-processor" rev-parse HEAD) || {
+  echo "ooc.sh: FATAL: cannot read the protocol-processor checkout revision" >&2
+  exit 2
+}
+RECORD=0
+if [ "${1:-}" = "--record-rom-digests" ]; then RECORD=1; shift; fi
+
+new_rows=""
 for rom_spec in \
     "ltn_rom.hex|$R/protocol-processor/hdl/acmp/rom/gen_ltn_rom.py|$TROM_W|$TROM_D" \
     "ucode.hex|$R/protocol-processor/hdl/aecp/ucode/gen_ucode.py|$UCODE_W|$((1 << UPC_W))"; do
   IFS='|' read -r img gen width depth <<< "$rom_spec"
   digits=$((width / 4))
-  rm -f "$TMP/$img"
-  if ! python3 "$gen" -o "$TMP/$img.gen.$$" >/dev/null; then
-    rm -f "$TMP/$img.gen.$$"
+  if ! rm -f "$TMP/$img"; then
+    echo "ooc.sh: FATAL: cannot remove the previous $img in $TMP (a directory or unwritable entry is squatting the target)" >&2
+    exit 2
+  fi
+  if ! stage=$(mktemp "$TMP/$img.stage.XXXXXXXX"); then
+    echo "ooc.sh: FATAL: cannot create an exclusive staging file for $img in $TMP" >&2
+    exit 2
+  fi
+  if ! python3 "$gen" -o "$stage" >/dev/null; then
+    rm -f "$stage"
     echo "ooc.sh: FATAL: ROM generator failed: $gen ($img is a \$readmemh input of the control plane)" >&2
     exit 2
   fi
-  if ! diag=$(rom_check "$TMP/$img.gen.$$" "$digits" "$depth"); then
-    rm -f "$TMP/$img.gen.$$"
+  if ! diag=$(rom_check "$stage" "$digits" "$depth"); then
+    rm -f "$stage"
     echo "ooc.sh: FATAL: $img is malformed after generation by $gen: ${diag:-empty image} (expected ${depth}x${width}-bit) - refusing to measure a ROM \$readmemh would part-fill with X" >&2
     exit 2
   fi
-  mv "$TMP/$img.gen.$$" "$TMP/$img"
+  got=$(sha256sum < "$stage" | awk '{print $1}')
+  if [ "$RECORD" -eq 1 ]; then
+    new_rows="${new_rows}${PP_PIN}	${img}	${got}
+"
+  else
+    want=$(awk -v p="$PP_PIN" -v i="$img" '$1 == p && $2 == i { print $3 }' "$DIGESTS" 2>/dev/null | head -1)
+    if [ -z "$want" ]; then
+      rm -f "$stage"
+      echo "ooc.sh: FATAL: no recorded content digest for $img at protocol-processor pin $PP_PIN in syn/yosys/rom_digests.tsv - a pin bump re-records with ./ooc.sh --record-rom-digests, and that diff is reviewed with the bump" >&2
+      exit 2
+    fi
+    if [ "$got" != "$want" ]; then
+      rm -f "$stage"
+      echo "ooc.sh: FATAL: content digest mismatch for $img at pin $PP_PIN: generated $got, recorded $want - the generator regressed (a correctly shaped wrong image still prices wrong) or the ledger is stale" >&2
+      exit 2
+    fi
+  fi
+  if ! mv "$stage" "$TMP/$img"; then
+    rm -f "$stage"
+    echo "ooc.sh: FATAL: cannot publish $img into $TMP" >&2
+    exit 2
+  fi
+  if [ ! -f "$TMP/$img" ] || [ -L "$TMP/$img" ]; then
+    echo "ooc.sh: FATAL: published $img in $TMP is not a regular file" >&2
+    exit 2
+  fi
 done
+
+if [ "$RECORD" -eq 1 ]; then
+  # Rewrite this pin's rows, keep every other pin's, keep the header.
+  if ! { grep -h '^#' "$DIGESTS" 2>/dev/null
+         { grep -hv '^#' "$DIGESTS" 2>/dev/null | awk -v p="$PP_PIN" '$1 != p'
+           printf '%s' "$new_rows"; } | sort; } > "$DIGESTS.new.$$"; then
+    rm -f "$DIGESTS.new.$$"
+    echo "ooc.sh: FATAL: cannot rewrite syn/yosys/rom_digests.tsv" >&2
+    exit 2
+  fi
+  mv "$DIGESTS.new.$$" "$DIGESTS" || exit 2
+  echo "ooc.sh: recorded ROM content digests for protocol-processor pin $PP_PIN in syn/yosys/rom_digests.tsv"
+  exit 0
+fi
 
 DP_SRCS="$PP_SRCS $C/ethernet_packet_pkg.sv $C/axi_stream_if.sv $A/axis_fifo.v $A/axis_demux.v $A/axis_arb_mux.v $A/arbiter.v $A/priority_encoder.v $Q/traffic_class_map.sv $Q/traffic_classifier.sv $Q/credit_based_shaper.sv $Q/traffic_shaping_core.sv $Q/traffic_queues.sv $Q/traffic_controller_802_1q.sv $P/timestamp_counter.sv $P/ptp_csr_sync.sv $C/cdc_pulse.sv $C/cdc_handshake.sv $C/axis_mux_rr_2in_1out.sv $P/ptp_ts_core.sv $P/ptp_ts_top.sv $F/tcam.sv $F/rx_mac_filter.sv $C/tx_ifg_gasket.sv $R/hdl/ieee1722/aaf/KL_pcm_lpf.sv $C/KL_link_guard.sv $D/adp_tx_arbiter.sv $E/ethernet_events.sv $E/event_counter.sv $R/hdl/common/csr/milan_csr.sv $R/hdl/ieee1722/aaf/aaf_talker_i2s.sv $R/hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv $R/hdl/ieee1722/avtp/avtp_subtype_pkg.sv $R/hdl/ieee1722/avtp/avtp_stream_parser.sv $R/hdl/ieee1722/avtp/KL_stream_table.sv $R/hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv $R/hdl/ieee1722/crf/KL_crf_rx.sv $R/hdl/ieee1722/crf/KL_crf_tx.sv $R/hdl/ieee1722/maap/KL_maap.sv $R/hdl/ieee1722/aaf/KL_i2s_playback.sv $R/hdl/ieee1722/aaf/KL_i2s_feed_mux.sv $R/hdl/ieee1722/aaf/KL_tone_gen.sv $R/hdl/ieee1722/aaf/KL_media_adv.sv $C/cdc_pair_fifo.sv $R/hdl/ieee1722/aaf/KL_pcm_route.sv $R/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv $R/hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv $R/hdl/ieee1722/aaf/KL_tdm_capture.sv $R/hdl/ieee1722/aaf/KL_aaf_packetizer.sv $R/hdl/ieee1722/crf/KL_mmcm_drp_servo.sv $R/hdl/ieee1722/crf/KL_media_nco.sv $R/hdl/ieee1722/aaf/KL_aaf_latency_taps.sv $R/hdl/ieee1722/aaf/KL_chan_map_capture.sv $R/hdl/ieee1722/aaf/KL_chan_map_render.sv $R/hdl/ieee1722/aaf/KL_pcm_tx.sv $R/hdl/ieee1722/aaf/KL_tdm_render.sv $R/hdl/milan/milan_datapath.sv $R/hdl/ieee1722/aaf/KL_tdm_capture_master.sv $R/hdl/ieee1722/aaf/KL_pair_blend.sv $R/hdl/ieee1722/aaf/KL_pair_zero_fill.sv $R/hdl/ieee1722/avtp/KL_talker_diag_ctx.sv $R/hdl/ieee1722/avtp/KL_media_clock_restart.sv $R/hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv"
 
@@ -215,7 +308,7 @@ for spec in "${tops[@]}"; do
   # the row must come from a real parsed stat block, never be manufactured by
   # an END clause over an empty parse.
   if ! [ -s "$TMP/$top.ooc.json" ]; then
-    printf "%-28s report FAIL: yosys left no JSON netlist artifact (%s)\n" "$top" "$TMP/$top.ooc.json"; status=1; continue
+    printf "%-28s report FAIL: yosys left no (or an empty) JSON netlist artifact (%s)\n" "$top" "$TMP/$top.ooc.json"; status=1; continue
   fi
   # count from the final (post-flatten) `stat` block only. yosys prints
   # "<count>   <CELLTYPE>", so the count is $1 and the type is $2.

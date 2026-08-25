@@ -1,0 +1,8 @@
+# sha256 per (protocol-processor pin, image) for the control-plane ROMs
+# ooc.sh generates and measures (#245). The generator is deterministic per
+# pin; a mismatch means the generator regressed or the ledger is stale, and
+# ooc.sh refuses to price the design either way. A pin bump re-records with
+#   ./ooc.sh --record-rom-digests
+# and that diff is reviewed with the bump. Columns: pin<TAB>image<TAB>sha256.
+3770ae02c56ca712d4a3505f429298b62edd5da8	ltn_rom.hex	23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956
+3770ae02c56ca712d4a3505f429298b62edd5da8	ucode.hex	e77ca1f64dfcbcffb2290b9acd812fa3790a78220558cf44f306d904f758e4dc

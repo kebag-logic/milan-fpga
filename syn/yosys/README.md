@@ -100,32 +100,44 @@ It runs `sv2v` → `synth_xilinx -family xc7 -flatten` → `stat` and reports
 **The exit status is the gate** (#245). What is enforced, exactly:
 
 - Both control-plane `$readmemh` images (`ltn_rom.hex`, `ucode.hex`) are
-  generated into the run's own tmp dir, never the caller's, into a fresh
-  temp target published by rename only after validation, so a stale image
-  in a reused `OOC_TMP` can never be measured. A generator failure is
-  exit 2.
-- Each image must hold exactly its ROM's geometry, derived from the pinned
-  packages (`ucpu_pkg.sv`: 2^`UPC_W_C` words of `UCODE_W_C` bits;
-  `pp_acmp_pkg.sv`: `TROM_DEPTH_C` words of `TROM_W_C` bits) after
-  `//`-comment stripping; wrong count, wrong width, `x`/`z` digits and an
-  empty image are all exit 2. `$readmemh` part-fills a short image with X
-  and yosys prices the X-ROM without a word; that number is refused here.
-- A top failing `sv2v` or yosys sets a sticky non-zero exit; so does a
-  report phase that cannot produce a real row: no top-named stat block, a
-  final block mapping to zero xc7 cells, a dead `awk`, or a missing/empty
-  `write_json` artifact. The row is parsed from the LAST top-named block
-  (a pristine log carries two: `synth_xilinx`'s internal final statistics,
-  then the explicit `stat`), deterministically.
+  generated into the run's own tmp dir, never the caller's, each into an
+  EXCLUSIVELY created staging file (`mktemp`, never a predictable name a
+  stale file could squat) and published by a checked rename only after
+  validation; the published target must be a regular file, and a target a
+  directory squats is a refusal. A generator failure is exit 2.
+- The geometry packages are found IN the derived processor population
+  (`scripts/pp_srcs.py`'s answer), never spelled as paths, and each
+  geometry number comes from the ONE live declaration in its package,
+  comments stripped and the name boundary-anchored; zero, duplicate or
+  expression spellings refuse. Each image must hold exactly its ROM's
+  geometry after `//`-comment stripping; wrong count, wrong width,
+  `x`/`z` digits and an empty image are all exit 2. `$readmemh` part-fills
+  a short image with X and yosys prices the X-ROM without a word.
+- The image CONTENT must match the sha256 recorded for the current
+  `protocol-processor` pin in [`rom_digests.tsv`](rom_digests.tsv): a
+  correctly shaped wrong image (a regressed generator) prices wrong with
+  every shape gate green, so shape alone is not protection. A pin bump
+  re-records with `./ooc.sh --record-rom-digests`, and that diff is
+  reviewed with the bump. An unrecorded pin is a refusal, not a guess.
+- A top failing `sv2v` or yosys sets a STICKY non-zero exit that no later
+  passing top can launder; so does a report phase that cannot produce a
+  real row: no top-named stat block, a final block mapping to zero xc7
+  cells, a dead `awk`, or a missing/empty `write_json` artifact. The row
+  is parsed from the LAST top-named block (a pristine log carries two:
+  `synth_xilinx`'s internal final statistics, then the explicit `stat`),
+  deterministically.
 - A requested top the list does not carry is exit 2, not an empty header.
 
 Not enforced: the numbers themselves stay yosys estimates (band rule
 below), and dropping only the explicit `stat` is not refused, because
 `synth_xilinx`'s own final statistics block is the same post-mapping
 measurement. `ooc_selftest.py` drives every refusal above on planted
-failures (18 arms, including mutation copies of the script's own yosys
-command); it runs in `rtl-fast.yml`, where `scripts/ci_events.py` pins the
-invocation verbatim, in the job that fetches the submodule, after that
-fetch.
+failures (36 arms: shape, content, staging, report, sticky-exit and
+launch-directory mutations, plus a positive `KL_pp_shadow` arm whose
+models assert the authoritative source population, the run directory and
+both canonical images); it runs in `rtl-fast.yml`, where
+`scripts/ci_events.py` pins the invocation verbatim AND its step keys, in
+the job that fetches the submodule, after that fetch.
 
 Two traps this exists to avoid:
 
