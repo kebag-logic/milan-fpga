@@ -98,6 +98,14 @@ cannot make the proof succeed - it can only fail to reproduce a blob id. The
 state names below exist to give a reader the right message and the right fix.
 They never decide acceptance; the hash equality does.
 
+Git object replacements are excluded from that proof explicitly. A mutable
+`refs/replace/<pin>` makes ordinary `git ls-tree <pin>` read ANOTHER commit while
+`git rev-parse HEAD` still prints the literal pinned id, so replacement-aware
+answers can make altered bytes look pinned. Every Git call that contributes to
+a trust decision is therefore run with `GIT_NO_REPLACE_OBJECTS=1`, set by this
+process rather than inherited. The real-Git self-test installs that exact
+replacement ref and requires a `modified` setup refusal before census or budget.
+
 THE PARENT'S OWN hdl/ IS NOT PROVED THAT WAY, deliberately: it IS the tree
 under test. A local edit under hdl/ is exactly what the author is gating, so
 the bytes on disk are the population by definition and there is no revision
@@ -375,12 +383,24 @@ _GIT_ENV_OVERRIDES = ("GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE",
                       "GIT_ALTERNATE_OBJECT_DIRECTORIES", "GIT_NAMESPACE")
 
 
-def _git(args, cwd):
-    """One git invocation, captured. `cwd` must already be known to be a repo."""
+def _git_env():
+    """A non-redirectable Git environment for every content trust decision.
+
+    `GIT_NO_REPLACE_OBJECTS` is SET, not merely removed. Without it a local
+    `refs/replace/<pin>` silently substitutes another commit for `ls-tree
+    <pin>` while `rev-parse HEAD` continues to report the literal pin, making
+    altered worktree bytes appear byte-identical to the pinned population.
+    """
     env = {k: v for k, v in os.environ.items()
            if k not in _GIT_ENV_OVERRIDES}
+    env["GIT_NO_REPLACE_OBJECTS"] = "1"
+    return env
+
+
+def _git(args, cwd):
+    """One git invocation, captured. `cwd` must already be known to be a repo."""
     return subprocess.run(["git"] + args, cwd=str(cwd),
-                          capture_output=True, text=True, env=env)
+                          capture_output=True, text=True, env=_git_env())
 
 
 class TreeState:
@@ -1186,8 +1206,9 @@ def cmd_selftest(xvlog):
             print(f"  SELFTEST FAILED: {p}")
         if problems:
             return 1
-        print("xvlog gate selftest: parser/dedup/ratchet arms PASS; live "
-              "detection arm SKIPPED (no xvlog on this box)")
+        print("xvlog gate selftest: parser/dedup/ratchet and Git population "
+              "integrity arms PASS; live detection arm SKIPPED (no xvlog on "
+              "this box)")
         return 0
     _pkgs, rest = hdl_sources()
     donor = "hdl/ieee8021q/ts/credit_based_shaper.sv"
@@ -1231,7 +1252,8 @@ def cmd_selftest(xvlog):
     if problems:
         return 1
     print("xvlog gate selftest: PASS (a planted use-before-declaration reddens "
-          "the gate and names the identifier; the clean donor does not)")
+          "the gate and names the identifier; the clean donor does not; a "
+          "replacement-ref population is refused)")
     return 0
 
 
@@ -1339,9 +1361,12 @@ def _selftest_tree_state():
         def index_info(text):
             """Write raw index records - the only way to build a fixture that
             is unmerged, or mixed-mode, without a real merge conflict."""
-            subprocess.run(["git", "update-index", "--index-info"],
-                           cwd=str(super_), input=text,
-                           capture_output=True, text=True)
+            out = subprocess.run(["git", "update-index", "--index-info"],
+                                 cwd=str(super_), input=text,
+                                 capture_output=True, text=True, env=_git_env())
+            if out.returncode:
+                problems.append("tree_state [fixture index]: git update-index "
+                                f"failed: {out.stderr.strip()}")
 
         def pin(*entries):
             """Rewrite the index record(s) AT the path, clearing them first.
@@ -1431,6 +1456,98 @@ def _selftest_tree_state():
         (checkout / "hdl" / "a.sv").write_text("module a; wire x; endmodule\n")
         want("modified", "modified", rev_two, "hdl/a.sv")
         _git(["checkout", "-q", "--", "hdl/a.sv"], checkout)
+
+        # [R0] round 4: refs/replace is a mutable object-name indirection, not
+        # an index hint. With ordinary Git semantics, `ls-tree <rev_two>` reads
+        # rev_replace's tree even though `rev-parse HEAD` still prints rev_two.
+        # Plant exactly the replacement bytes on disk: a replacement-aware
+        # population proof then calls this `ok`. Every trust-decision Git call
+        # must force GIT_NO_REPLACE_OBJECTS=1 so the real pin wins and this is
+        # `modified` instead. The end-to-end arm proves both public modes stop
+        # before census and leave the budget byte-for-byte untouched.
+        pinned_data = (checkout / "hdl" / "a.sv").read_bytes()
+        replacement_data = b"module a; wire replacement_ref; endmodule\n"
+        (donor / "hdl" / "a.sv").write_bytes(replacement_data)
+        rev_replace = commit("replacement-ref fixture")
+        _git(["branch", "replacement-fixture", rev_replace], donor)
+        _git(["reset", "-q", "--hard", rev_two], donor)
+        fetched = _git(["fetch", "-q", "origin", "replacement-fixture"],
+                       checkout)
+        if fetched.returncode:
+            problems.append("tree_state [replacement-ref]: could not fetch the "
+                            f"replacement object: {fetched.stderr.strip()}")
+        installed = _git(["replace", rev_two, rev_replace], checkout)
+        if installed.returncode:
+            problems.append("tree_state [replacement-ref]: could not install "
+                            f"refs/replace/{rev_two}: "
+                            f"{installed.stderr.strip()}")
+        (checkout / "hdl" / "a.sv").write_bytes(replacement_data)
+        literal_head = _git(["rev-parse", "HEAD"], checkout).stdout.strip()
+        replacement_ref = _git(
+            ["rev-parse", f"refs/replace/{rev_two}"], checkout).stdout.strip()
+        if literal_head != rev_two:
+            problems.append("tree_state [replacement-ref]: HEAD moved to "
+                            f"{literal_head!r}, so the fixture does not hold the "
+                            "pinned literal revision")
+        if replacement_ref != rev_replace:
+            problems.append("tree_state [replacement-ref]: replacement ref "
+                            f"resolved to {replacement_ref!r}, not {rev_replace}")
+        on_disk = (checkout / "hdl" / "a.sv").read_bytes()
+        if on_disk != replacement_data or on_disk == pinned_data:
+            problems.append("tree_state [replacement-ref]: altered replacement "
+                            "bytes are not on disk, so the arm proves nothing")
+        st = want("replacement-ref", "modified", rev_two, "hdl/a.sv")
+
+        if st.state == "modified":
+            budget_path = super_ / "scripts" / "xvlog.budget"
+            budget_path.parent.mkdir()
+            budget_sentinel = b"replacement-ref budget sentinel\n"
+            budget_path.write_bytes(budget_sentinel)
+            saved = {name: globals()[name]
+                     for name in ("ROOT", "HDL", "BUDGET", "SUBMODULE_TREES")}
+            saved_xvlog = os.environ.get("XVLOG")
+            globals()["ROOT"] = super_
+            globals()["HDL"] = super_ / "hdl"
+            globals()["BUDGET"] = budget_path
+            globals()["SUBMODULE_TREES"] = [
+                (label, tree, "the replacement-ref selftest fixture")]
+            os.environ["XVLOG"] = sys.executable
+            try:
+                for extra in ([], ["--check"]):
+                    mode = extra[0] if extra else "default"
+                    out, err = io.StringIO(), io.StringIO()
+                    with contextlib.redirect_stdout(out), \
+                            contextlib.redirect_stderr(err):
+                        rc = main(["xvlog_gate.py"] + extra)
+                    if rc != 2:
+                        problems.append(f"tree_state [replacement-ref {mode}]: "
+                                        f"main exited {rc}, not setup refusal 2")
+                    if "REFUSED" not in err.getvalue() or \
+                            _STATE_WHAT["modified"] not in err.getvalue():
+                        problems.append(f"tree_state [replacement-ref {mode}]: "
+                                        "main did not print the modified setup "
+                                        "refusal")
+                    if out.getvalue():
+                        problems.append(f"tree_state [replacement-ref {mode}]: "
+                                        "stdout was written, so the census was "
+                                        "reached")
+                    if budget_path.read_bytes() != budget_sentinel:
+                        problems.append(f"tree_state [replacement-ref {mode}]: "
+                                        "the budget was written under refusal")
+            finally:
+                for name, value in saved.items():
+                    globals()[name] = value
+                if saved_xvlog is None:
+                    os.environ.pop("XVLOG", None)
+                else:
+                    os.environ["XVLOG"] = saved_xvlog
+
+        removed = _git(["replace", "-d", rev_two], checkout)
+        if removed.returncode:
+            problems.append("tree_state [replacement-ref]: could not remove the "
+                            f"fixture replacement: {removed.stderr.strip()}")
+        _git(["checkout", "-q", "--", "hdl/a.sv"], checkout)
+        want("replacement-ref-restored", "ok", rev_two, rev_two)
 
         # [R0] round 3: the index can be told to LIE about the worktree, and
         # the old check asked it. `assume-unchanged` and `skip-worktree` are
@@ -1916,7 +2033,8 @@ def _selftest_logic():
                 continue
             got = subprocess.run(["git", "hash-object", "-t", "blob",
                                   "--stdin"], cwd=str(repo), input=payload,
-                                 capture_output=True).stdout.decode().strip()
+                                 capture_output=True,
+                                 env=_git_env()).stdout.decode().strip()
             if got != _blob_id(payload, algo):
                 problems.append(f"blob id [{algo}]: computed "
                                 f"{_blob_id(payload, algo)}, git says {got} - "

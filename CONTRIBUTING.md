@@ -334,7 +334,13 @@ Two board rules that go with it:
   - **Once the revision matches, the SOURCES themselves are proved, not asked
     about.** The population is read from the pinned commit's own tree
     (`git ls-tree -r <pin>`), and every file in it must hash to the blob id the
-    pin records, over the exact bytes `xvlog` opens. `git status`,
+    pin records, over the exact bytes `xvlog` opens. Every Git call contributing
+    to that decision explicitly sets `GIT_NO_REPLACE_OBJECTS=1`: a mutable
+    `refs/replace/<pin>` must not make `git ls-tree <pin>` read a different
+    commit while `HEAD` still prints the pinned id. The real-Git self-test
+    installs that substitution with its altered bytes on disk and requires a
+    `modified` setup refusal in both modes, before census or budget write.
+    `git status`,
     `git diff` and `git ls-files` are not consulted at all, because those
     answers are computed through the index and the index can be told to stay
     quiet: `git update-index --assume-unchanged` and `--skip-worktree` both
