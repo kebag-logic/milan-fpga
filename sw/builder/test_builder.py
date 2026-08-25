@@ -8449,7 +8449,14 @@ def test_gptp_product_default_and_legacy_option():
                            ("gptp_ucode.hex", "GPTP_UCODE_HEX_P")):
         assert image in vivado_ooc
         assert generic in vivado_ooc
-    assert "file size $image" in vivado_ooc
+    # The rebased #246/#264 recipe replaced the old `file size $image`
+    # emptiness probe with the stronger contract: geometry validated by
+    # rom_check against the pinned packages (the gPTP package found IN the
+    # derived record), and a checked rename publishing only a validated
+    # staged image. Pin that contract, not the retired spelling.
+    assert "[rom_check $tmp $digits $words]" in vivado_ooc
+    assert "file rename -force $tmp $img" in vivado_ooc
+    assert "one_source $SRC_LINES gptp_ucpu_pkg.sv" in vivado_ooc
     for source in (yosys_run, yosys_ooc):
         assert "|| true" not in "\n".join(
             line for line in source.splitlines()
