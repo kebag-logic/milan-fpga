@@ -1286,23 +1286,60 @@ class Campaign:
         # at or above 255 -- the field is 16 bits, so its LOW BYTE is not
         # the test -- and (c) our identity anywhere in the path trace, which
         # is the loop an end station meets without forgery: our own Announce
-        # returned by a bridge, arriving with us as the FIRST hop
+        # returned by a bridge. Since the donor's strict PathTrace
+        # validation (FPGA-gPTP #45; 802.1AS-2011 10.5.3.3.4) a present TLV
+        # must open with the announced grandmasterIdentity and carry
+        # exactly stepsRemoved+1 identities, so every fixture below is
+        # wire-legal under those rules and lands its refusal in the
+        # MICROCODE, where the drop counter holding is what places it
         reject_probe("better vector, own sourcePortIdentity (10.3.10.2.1a)",
                      None, drop=None, source_clock_identity=OUR_CID,
                      src=wire.GPTP_PEER2_MAC)
-        reject_probe("better vector, stepsRemoved 255 (10.3.10.2.1b)",
-                     None, drop=None, steps_removed=255)
-        reject_probe("better vector, stepsRemoved 0x0100 (10.3.10.2.1b)",
-                     None, drop=None, steps_removed=0x0100)
+        # (b) can no longer ride a PathTrace TLV: stepsRemoved 255 demands
+        # 256 identities, 2052 TLV octets, past the 1500-octet Ethernet
+        # payload the parser admits (its MAX_MSG_LEN_C). The TLV-absent
+        # 64-octet Announce (count and loop verdict honestly zero) is the
+        # one wire-legal carrier left, and it reaches STEPS_MAX_C in
+        # qualifyAnnounce with the parser satisfied
+        reject_probe("better vector, stepsRemoved 255, no path trace "
+                     "(10.3.10.2.1b)", None, drop=None, steps_removed=255,
+                     path_trace=[])
+        reject_probe("better vector, stepsRemoved 0x0100, no path trace "
+                     "(10.3.10.2.1b)", None, drop=None,
+                     steps_removed=0x0100, path_trace=[])
+        # (c) is one coherent verdict now: the parser compares EVERY
+        # declared hop with thisClock (not merely the eight it retains) and
+        # the microcode refuses on bank word 12 bit 8. The first fixture
+        # puts our identity behind the announced GM at the head; the
+        # reflected-Announce pair names US as grandmaster (the only
+        # wire-legal head for a path that starts with us), so their
+        # plane-stays-GM check cannot bite alone and the teeth are the
+        # parent and flags canaries of stable(): adopting the better
+        # vector would move parent to the peer and clear AMGM
         reject_probe("better vector, our id in the path trace "
                      "(10.3.10.2.1c)", None, drop=None, gm_identity=0x3333,
-                     path_trace=[0x3333, OUR_CID])
-        reject_probe("better vector, our id as the FIRST path-trace hop "
-                     "(10.3.10.2.1c)", None, drop=None, gm_identity=0x3333,
+                     steps_removed=1, path_trace=[0x3333, OUR_CID])
+        reject_probe("better vector, our own Announce a bridge extended: "
+                     "us the first path-trace hop (10.3.10.2.1c)", None,
+                     drop=None, gm_identity=OUR_CID, steps_removed=1,
                      path_trace=[OUR_CID, PEER2_CID])
-        reject_probe("better vector, our id the only path-trace hop "
-                     "(10.3.10.2.1c)", None, drop=None, gm_identity=0x3333,
-                     path_trace=[OUR_CID])
+        reject_probe("better vector, our own Announce reflected: us the "
+                     "only path-trace hop (10.3.10.2.1c)", None, drop=None,
+                     gm_identity=OUR_CID, path_trace=[OUR_CID])
+        # the strict wire rules themselves (FPGA-gPTP #45; 10.5.3.3.4):
+        # a head that is not the announced grandmaster, a count that is not
+        # stepsRemoved+1, and the old wire-illegal (b) shape. Each is
+        # refused AT THE PARSER, a counted header drop, before
+        # qualifyAnnounce sees a bank
+        reject_probe("better vector, path-trace head is not the announced "
+                     "grandmaster (10.5.3.3.4)", None, drop=1,
+                     gm_identity=0x3333, path_trace=[0x5555])
+        reject_probe("better vector, one path-trace hop against "
+                     "stepsRemoved 1 (10.5.3.3.4)", None, drop=1,
+                     gm_identity=0x3333, steps_removed=1,
+                     path_trace=[0x3333])
+        reject_probe("better vector, stepsRemoved 255 on a one-hop path "
+                     "trace (10.5.3.3.4)", None, drop=1, steps_removed=255)
 
         # truncated-at-75 better announce (parser min is 78): parser-dropped
         self.become_gm()
@@ -1317,13 +1354,15 @@ class Campaign:
         self.rep.eq("truncated better announce: drop counted",
                     after[S_RXDROP], before[S_RXDROP] + 1)
 
-        # a legal deep path trace is capped at 8 published hops but adopts
+        # a legal deep path trace is capped at 8 published hops but adopts;
+        # wire-legal means the announced grandmaster heads the path and the
+        # count is stepsRemoved+1 (10.5.3.3.4)
         self.become_gm()
         after = self.send(wire.ptp_announce(
             sequence_id=self.nseq("announce"), gm_identity=0x4444,
             gm_priority1=50, source_clock_identity=PEER2_CID,
             src=wire.GPTP_PEER2_MAC, steps_removed=11,
-            path_trace=[0x5000 + i for i in range(12)]))
+            path_trace=[0x4444] + [0x5000 + i for i in range(11)]))
         self.rep.eq("12-hop legal better vector still adopts (cap publishes 8)",
                     self.gm_of(after), 0x4444)
         # leave a clean GM baseline: let the adopted vectors expire so the

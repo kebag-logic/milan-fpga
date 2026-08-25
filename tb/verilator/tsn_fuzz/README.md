@@ -68,10 +68,26 @@ quoted pass count whenever the campaign total moves.
 
 The FPGA-gPTP #7 allowances are gone: the three qualifyAnnounce vectors
 of 10.3.10.2.1 are ordinary assertions since #136, joined by the
-parent's own first-hop, only-hop and stepsRemoved 0x0100 probes, each
-of which exercises one microcode arm and is pinned by a planted
-mutation the older three miss (a walk that skips hop 0 and a bound
-compared on its low byte each escape them). The FPGA-gPTP #8
+parent's own first-hop, only-hop and stepsRemoved 0x0100 probes. Since
+the donor's strict PathTrace validation (FPGA-gPTP #45; 802.1AS-2011
+10.5.3.3.4) a present TLV must open with the announced
+grandmasterIdentity and carry exactly stepsRemoved+1 identities, and
+the parser compares EVERY declared hop with thisClock, publishing one
+loop verdict the (c) microcode arm consumes -- the hop walk that a
+skip-hop-0 plant once pinned no longer exists to plant against. The
+qualification fixtures are wire-legal under those rules, which forces
+two shapes: the (b) probes ride the TLV-absent 64-octet Announce,
+because stepsRemoved 255 would demand 256 identities and 2052 TLV
+octets, past the 1500-octet payload the parser admits -- no consistent
+TLV-bearing frame can reach the microcode's STEPS_MAX_C bound, and the
+TLV-absent form is the one carrier left; and the first-hop/only-hop
+loop probes name US as grandmaster, the only legal head for a path
+that starts with us, so their teeth are the parent and AMGM canaries
+rather than the GM word. The strict wire rules themselves are pinned
+as counted parser drops: a head that is not the announced grandmaster,
+a count that is not stepsRemoved+1, and the old wire-illegal
+stepsRemoved-255-with-TLV shape, each refused before qualifyAnnounce
+sees a bank. The FPGA-gPTP #8
 allowance is gone too: since #141 the 11.2.15.3 pairing is
 hard-asserted on BOTH halves of Figure 11-8. With nothing armed a
 stale sequence and a sequence-0 Follow_Up are refused; with the
@@ -120,8 +136,8 @@ and that is the SERVO leg's only home.
 the Pdelay_Resp and on the Pdelay_Resp_Follow_Up, so a probe carrying a
 stranger's portNumber on BOTH frames of a pair is refused by EITHER of
 them and cannot fail for the reason it names -- measured: with the
-Pdelay_Resp arm bypassed and that probe as first written, the campaign
-stayed at 602 pass, 0 fail. The Pdelay_Resp probe therefore puts the
+Pdelay_Resp arm bypassed and that probe as first written, the then
+602-check campaign stayed at 602 pass, 0 fail. The Pdelay_Resp probe therefore puts the
 stranger's portNumber on the RESPONSE only and a perfect Follow_Up
 behind it, and the Follow_Up probe drives the armed pairing. Bypassing
 any one of the four arms reddens that arm's probe and no other. Two
@@ -145,7 +161,7 @@ are ordinary assertions now. A gap fires only on the mismatch, so each
 turns green on its own when the donor closes the issue; the machinery
 stays for the next tracked donor defect.
 
-Current tally -- **164 AAF checks + 602 gPTP checks + 2 traceability
+Current tally -- **164 AAF checks + 617 gPTP checks + 2 traceability
 contracts**, 0 failures, 0 known gaps, with `tsn-gen`
 installed. This is what
 `make` prints; each campaign rewrites the same line into its `TEST_RESULTS.md`
@@ -156,7 +172,7 @@ they ever disagree:
 | campaign | checks | what it drives |
 |---|---:|---|
 | `fuzz_aaf.py`  | 164 | parser → rx-monitor → depacketizer — the **accept verdict** (wire `stream_id` vs bound, graded on the parser's own pre-match counters = the `0x8B4` APRB sources), per-field verdicts, lock survival |
-| `fuzz_ptp.py`  | 602 | the gPTP fabric slice: TX conformance of the plane's own Pdelay_Req/Announce/Sync/Follow_Up against the 802.1AS models (the per-message control byte of FPGA-gPTP #9 among the graded fields: Sync 0x0, Follow_Up 0x2, Announce and the Pdelay types 0x5), parser drop/ignore gates (the domainNumber arm of FPGA-gPTP #6 among them, probed on Announce, Sync/Follow_Up and Pdelay_Req separately), BTCA rejection under fuzz (the three 10.3.10.2.1 qualifications of FPGA-gPTP #7 hard-asserted, each refusal leaving the parser drop counter unmoved), servo pairing (with the TLV-less, truncated, wrong-tlvType and short-declared Follow_Up refusals of FPGA-gPTP #11), the responder role (with the header-only and truncated Pdelay_Req refusals of FPGA-gPTP #12, neither drawing a response pair), the Milan 4.2.6.2.5 cease rule, and the two-sided asCapable canary; **no tracked gap** at the current pin, the last two having closed with the donor's portNumber compare (FPGA-gPTP #36), and each of the nine unlisted messageTypes is graded on three properties, its counted drop, drawing no transmission, and the engine's uCPU running no program at all (the closed FPGA-gPTP #22 could have been half-fixed in either of two ways, and the third property catches a parser that counts a frame AND dispatches it) |
+| `fuzz_ptp.py`  | 617 | the gPTP fabric slice: TX conformance of the plane's own Pdelay_Req/Announce/Sync/Follow_Up against the 802.1AS models (the per-message control byte of FPGA-gPTP #9 among the graded fields: Sync 0x0, Follow_Up 0x2, Announce and the Pdelay types 0x5), parser drop/ignore gates (the domainNumber arm of FPGA-gPTP #6 among them, probed on Announce, Sync/Follow_Up and Pdelay_Req separately), BTCA rejection under fuzz (the three 10.3.10.2.1 qualifications of FPGA-gPTP #7 hard-asserted on wire-legal fixtures, each refusal leaving the parser drop counter unmoved, and the strict PathTrace wire rules of FPGA-gPTP #45 -- head not the announced grandmaster, count not stepsRemoved+1 -- pinned as counted parser drops), servo pairing (with the TLV-less, truncated, wrong-tlvType and short-declared Follow_Up refusals of FPGA-gPTP #11), the responder role (with the header-only and truncated Pdelay_Req refusals of FPGA-gPTP #12, neither drawing a response pair), the Milan 4.2.6.2.5 cease rule, and the two-sided asCapable canary; **no tracked gap** at the current pin, the last two having closed with the donor's portNumber compare (FPGA-gPTP #36), and each of the nine unlisted messageTypes is graded on three properties, its counted drop, drawing no transmission, and the engine's uCPU running no program at all (the closed FPGA-gPTP #22 could have been half-fixed in either of two ways, and the third property catches a parser that counts a frame AND dispatches it) |
 
 ## Contents
 
