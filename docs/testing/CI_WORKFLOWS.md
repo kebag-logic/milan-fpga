@@ -152,7 +152,7 @@ of surfacing as a nightly that silently stopped. `ci_events.py --check` holds
 the assertion in its fail-closed shape. That shape is not only what the step
 says: a check that reads a step's contents and nothing about the conditions
 under which it runs holds the wrong perimeter, which is what #209 found. So it
-is exactly these eight things:
+is exactly these ten things:
 
 1. **The script text.** The step's `run:` is pinned verbatim (whitespace
    aside) to three lines: `set -euo pipefail`, one unconditional
@@ -241,6 +241,41 @@ is exactly these eight things:
    `defaults`: they skip only when `full-ci-gate` succeeded and explicitly
    published `run_full=false`; any other selector result runs the aggregate
    into the SHA/shard refusal path.
+9. **The published outputs.** `full-ci-gate`'s `outputs` map is a
+   NAME to EXPRESSION mapping exactly as a step's `env` is, and it is held by
+   the same comparison: exactly `run_full`, `rtl` and `target_sha`, bound to
+   `${{ steps.gate.outputs.run_full }}`, `${{ steps.gate.outputs.rtl }}` and
+   `${{ steps.target.outputs.target_sha }}`, each derived from the step that
+   computes it rather than restated. This is the publication path, and it is
+   not the same object as item 7: no downstream job reads the decision step's
+   output, they read `needs.full-ci-gate.outputs.run_full`, which is this
+   map. Checking only that `target_sha` existed therefore held nothing where
+   it mattered, because `run_full: ${{ 'false' }}` is valid job-output YAML
+   that leaves every pinned step key, every env binding and every character
+   of the decision script in place while the job exports the literal `false`:
+   both worker matrices skip, both aggregates skip under the item 8 no-op
+   exception, and the skipped required contexts satisfy the ruleset. A
+   refusal names the job, the output, the expression required and the one
+   found.
+10. **The consumers of that decision.** Every job that needs `full-ci-gate`
+    carries a pinned `if`, with no residue. The workflow's aggregate is the
+    job whose display name is the public required check the merge bar reads,
+    and it carries the fail-closed `if` of item 8; every other job that needs
+    the gate is a consumer, and carries exactly
+    `${{ needs.full-ci-gate.outputs.run_full == 'true' }}` and no
+    `continue-on-error` or `defaults`. A job added later that depends on the
+    gate lands in the consumer class and is refused until it carries that
+    `if`, so this perimeter is closed under addition rather than being a
+    list of the escapes earlier rounds happened to find. Separately, no
+    expression anywhere in either RTL workflow may read
+    `needs.<job>.outputs.<name>` for an output that job does not publish, or
+    from a job it does not list in `needs`: both spellings evaluate to the
+    empty string, so every comparison against them is false and every job
+    gated on them skips. `rtl-fast.yml` publishes the same shape, from its
+    `changes` job to `verilator-lint` and `yosys-elaboration`, and is held by
+    the same check. Its aggregate counts a skipped consumer as a pass on
+    purpose, since a docs-only change legitimately runs no RTL lint, which is
+    exactly why that selector's published answer has to be pinned too.
 
 `--selftest` covers, one at a time: the step removed, the token missing, the
 live read replaced by an echo, the event not passed, `|| true`, the decoy
@@ -262,8 +297,17 @@ on the job and on the workflow; a shard denominator restated below its matrix
 size, restated while the matrix grows, and stale in a worker's display name; a
 verifier that reassigns `GATE_SHA`, passes the wrong `--expect`, passes none,
 or keeps `--expect` while the matrix grows; an aggregate `if` loosened or
-dropped; a whitespace-only reformatting of all three canonical scripts that
-must still pass; and the decision itself for every event class.
+dropped; the gate's `run_full` and `rtl` outputs each rebound to a literal
+`false`, `run_full` rebound to the scope answer, `target_sha` rebound to the
+run's own SHA, each of the three dropped, the whole map dropped and a surplus
+output added; a worker gated on an output nobody publishes, on `if: false`, on
+a value the decision never takes, made `continue-on-error`, given a
+`defaults.run.shell`, or reading the gate's output without needing the gate; a
+new job that depends on the gate and gates on nothing; in `rtl-fast.yml`, the
+`changes` selector's `rtl` output rebound to a literal and dropped, and its two
+consumers gated on a misspelt output and on `if: false`; a whitespace-only
+reformatting of all three canonical scripts that must still pass; and the
+decision itself for every event class.
 
 ## One authoritative SHA
 

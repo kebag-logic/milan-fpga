@@ -105,9 +105,15 @@ PR_TYPES = ("opened", "reopened", "synchronize", "ready_for_review",
 PUSH_BRANCH = "dev"
 #: The record every worker writes beside its evidence.
 RECORD = "TARGET_SHA"
-#: The gate job of the exhaustive workflow and the output it exports.
+#: The gate job of the exhaustive workflow and the outputs it exports. A job
+#: `outputs` map is a NAME -> EXPRESSION mapping exactly like a step's `env`,
+#: and these names are what the rest of this file derives its expressions and
+#: its consumer `if` conditions from, never a second literal.
 GATE_JOB = "full-ci-gate"
 GATE_OUTPUT = "target_sha"
+#: The published decision, and the scope answer behind it.
+RUN_FULL_OUTPUT = "run_full"
+RTL_OUTPUT = "rtl"
 #: How an aggregate invokes the verifier (the first token after the script).
 VERIFY_FLAG = "--require-target-sha"
 #: How the gate invokes the live default-branch assertion, and the events
@@ -278,7 +284,7 @@ SHELL_VAR_RE = re.compile(r"^\$\{?([A-Za-z_][A-Za-z0-9_]*)\}?$")
 AGGREGATE_JOB_IF = (
     "${{ always() && "
     f"(needs.{GATE_JOB}.result != 'success' || "
-    f"needs.{GATE_JOB}.outputs.run_full != 'false') }}}}"
+    f"needs.{GATE_JOB}.outputs.{RUN_FULL_OUTPUT} != 'false') }}}}"
 )
 RUNNER_TEMP_PREFIX = "${{ runner.temp }}/"
 #: Public check names the merge bar reads (AGENTS.md section 7), per file.
@@ -287,6 +293,70 @@ PUBLIC_NAMES = {
     RTL_FAST: ("rtl-fast",),
     ELABORATE: ("elaborate",),
 }
+#: The fast workflow's selector job and the step that computes its answer.
+FAST_SELECTOR_JOB = "changes"
+FAST_SCOPE_STEP_ID = "scope"
+#: The fast workflow's aggregate `if`. It counts a skipped consumer as a pass
+#: deliberately (a docs-only change legitimately runs no RTL lint), which is
+#: exactly why that workflow's published answer has to be pinned by content
+#: too: rebind it and every consumer skips into that pass.
+FAST_AGGREGATE_JOB_IF = "${{ always() && !cancelled() }}"
+
+
+def step_output_ref(step_id, name):
+    """`${{ steps.<id>.outputs.<name> }}`, built rather than restated."""
+    return "${{ steps." + step_id + ".outputs." + name + " }}"
+
+
+def needs_output_ref(job_id, name):
+    """`needs.<job>.outputs.<name>`, built rather than restated."""
+    return "needs." + job_id + ".outputs." + name
+
+
+def consumer_job_if(job_id, name):
+    """The exact `if` a job gated on a selector's published decision carries."""
+    return "${{ " + needs_output_ref(job_id, name) + " == 'true' }}"
+
+
+#: THE PUBLICATION PATH, per workflow: the job that publishes the decision,
+#: its `outputs` map as NAME -> BINDING, and the output its consumers gate on.
+#:
+#: Three rounds of [R0] on PR #239 each found one more member of a perimeter
+#: nobody had enumerated: the gate's sibling steps, then those steps' env
+#: BINDINGS, then this map. Each round pinned the instance and left the
+#: perimeter an allow-list written from the last review, so the next unlisted
+#: thing was outside it again. A job's `outputs` is the same
+#: NAME -> EXPRESSION mapping a step's `env` is, and checking only that
+#: `target_sha` existed let `run_full: ${{ 'false' }}` -- valid job-output
+#: YAML, every pinned step key, env binding and script character intact --
+#: publish the no-op decision: both worker matrices skip, both aggregates
+#: skip under their documented no-op exception, and a skipped required
+#: context satisfies a GitHub ruleset. The same hole is open a second time in
+#: rtl-fast.yml, whose `changes` job gates the two RTL fast checks the same
+#: way. So the maps are pinned by content here and check_publication_path
+#: closes the path around them: every consumer of a selector carries a pinned
+#: `if`, and no `needs.<job>.outputs.<name>` expression anywhere may name an
+#: output no job publishes or a job it does not need.
+SELECTOR_JOB = {RTL_FULL: GATE_JOB, RTL_FAST: FAST_SELECTOR_JOB}
+SELECTOR_OUTPUTS = {
+    RTL_FULL: {
+        RUN_FULL_OUTPUT: step_output_ref(DECIDE_STEP_ID, RUN_FULL_OUTPUT),
+        RTL_OUTPUT: step_output_ref(DECIDE_STEP_ID, RTL_OUTPUT),
+        GATE_OUTPUT: step_output_ref(PIN_STEP_ID, GATE_OUTPUT),
+    },
+    RTL_FAST: {
+        RTL_OUTPUT: step_output_ref(FAST_SCOPE_STEP_ID, RTL_OUTPUT),
+    },
+}
+#: The output whose value decides whether the consumers run at all.
+SELECTOR_DECISION = {RTL_FULL: RUN_FULL_OUTPUT, RTL_FAST: RTL_OUTPUT}
+#: The `if` each workflow's own aggregate carries. WHICH job that is is
+#: derived, not listed again: the aggregate is the job whose display name is
+#: the public required check the merge bar reads (PUBLIC_NAMES above).
+AGGREGATE_IF = {RTL_FULL: AGGREGATE_JOB_IF, RTL_FAST: FAST_AGGREGATE_JOB_IF}
+#: One `needs.<job>.outputs.<name>` reference, wherever it sits.
+NEEDS_OUTPUT_RE = re.compile(
+    r"needs\.([A-Za-z0-9_-]+)\.outputs\.([A-Za-z0-9_-]+)")
 
 SHA_RE = re.compile(r"^[0-9a-f]{40}$")
 CRON_RE = re.compile(r"^\s*(\d{1,2})\s+(\d{1,2})\s+\*\s+\*\s+\*\s*$")
@@ -546,9 +616,6 @@ def check_rtl_full(c, wf, policy):
     gate = jobs(wf).get(GATE_JOB)
     c.item(isinstance(gate, dict), path, f"job `{GATE_JOB}` must exist")
     if isinstance(gate, dict):
-        outputs = gate.get("outputs")
-        c.item(isinstance(outputs, dict) and GATE_OUTPUT in outputs, path,
-               f"job `{GATE_JOB}` must export the `{GATE_OUTPUT}` output")
         prints = any("GITHUB_EVENT_NAME" in step_text(s)
                      and "GITHUB_SHA" in step_text(s) for s in steps(gate))
         c.item(prints, path, f"job `{GATE_JOB}` must print the event name and "
@@ -589,12 +656,96 @@ def check_rtl_full(c, wf, policy):
             if vsteps:
                 check_sha_sources(c, path, jid, vsteps[0])
                 check_verify_step(c, path, wf, jid, job, vsteps[0])
-            check_job_keys(c, path, jid, job, allowed_if=AGGREGATE_JOB_IF,
-                           allow_needs=True)
 
     # A sharded worker states its shard count once, in the matrix.
     for jid, job in jobs(wf).items():
         check_shard_denominator(c, path, jid, job)
+
+    # The decision's publication path: the outputs map that carries it and
+    # every job that runs on it. check_job_keys for the aggregates lives
+    # there now, beside the same call for the workers.
+    check_publication_path(c, path, wf)
+
+
+def all_scalars(node):
+    """Every scalar in a parsed YAML subtree, as text. An expression can sit
+    in an `if`, a display `name`, a `run`, an `env` value or a `with` value,
+    so the walk is over the subtree rather than over a list of the places
+    somebody remembered to look in."""
+    if isinstance(node, dict):
+        for k, v in node.items():
+            yield from all_scalars(k)
+            yield from all_scalars(v)
+    elif isinstance(node, list):
+        for v in node:
+            yield from all_scalars(v)
+    elif node is not None:
+        yield str(node)
+
+
+def needs_list(job):
+    """A job's `needs`, as a list whether it was written as one or not."""
+    n = job.get("needs") if isinstance(job, dict) else None
+    if isinstance(n, list):
+        return [str(x) for x in n]
+    return [] if n is None else [str(n)]
+
+
+def check_publication_path(c, path, wf):
+    """The whole path a selector's decision travels: the step that computes
+    it, the job `outputs` map that publishes it, and the jobs that run on it.
+
+    The perimeter here is CLOSED rather than listed. The selector's `outputs`
+    map is pinned by content, exactly as a pinned step's `env` is; every job
+    that needs the selector is then classified with no residue -- the
+    workflow's aggregate is the job carrying the public required check name,
+    every other such job is a consumer gated on the decision -- and each
+    class carries a pinned `if`. A job added tomorrow that depends on the
+    selector lands in the consumer class and reddens until it carries that
+    `if`, instead of arriving outside every contract the way both worker
+    matrices and both fast-lane consumers did (#209, [R0] rounds 1-3)."""
+    sel = SELECTOR_JOB[path]
+    want = SELECTOR_OUTPUTS[path]
+    decision = SELECTOR_DECISION[path]
+    all_jobs = jobs(wf)
+    selector = all_jobs.get(sel)
+    c.item(isinstance(selector, dict), path, f"job `{sel}` must exist: it "
+           "publishes the decision the rest of this workflow runs on")
+    outputs = selector.get("outputs") if isinstance(selector, dict) else None
+    pinned_bindings(c, path, f"job `{sel}` outputs",
+                    outputs if isinstance(outputs, dict) else {}, want,
+                    "a job output is what `needs.<job>.outputs.<name>` reads, "
+                    "so the decision step may write the right value and the "
+                    "job still export another one; every consumer then skips, "
+                    "and a skipped required context satisfies the ruleset")
+
+    public = set(PUBLIC_NAMES.get(path, ()))
+    for jid, job in all_jobs.items():
+        if jid == sel or sel not in needs_list(job):
+            continue
+        aggregate = display_name(jid, job) in public
+        check_job_keys(c, path, jid, job, allow_needs=True,
+                       allowed_if=(AGGREGATE_IF[path] if aggregate
+                                   else consumer_job_if(sel, decision)))
+
+    for jid, job in all_jobs.items():
+        refs = sorted({m.groups() for s in all_scalars(job)
+                       for m in NEEDS_OUTPUT_RE.finditer(s)})
+        for producer, name in refs:
+            pj = all_jobs.get(producer)
+            declared = pj.get("outputs") if isinstance(pj, dict) else None
+            declared = declared if isinstance(declared, dict) else {}
+            c.item(name in declared, path,
+                   f"job `{jid}` reads `{needs_output_ref(producer, name)}`, "
+                   f"which job `{producer}` must publish (publishes "
+                   f"{sorted(declared)}): an expression naming an output no "
+                   "job declares is the empty string, so every comparison "
+                   "against it is false and every job gated on it skips")
+            c.item(producer in needs_list(job), path,
+                   f"job `{jid}` reads `{needs_output_ref(producer, name)}` "
+                   f"and must list `{producer}` in its `needs` (found "
+                   f"{needs_list(job)}): outside `needs` the expression is "
+                   "the empty string")
 
 
 def check_job_keys(c, path, jid, job, allowed_if=None, allow_needs=False):
@@ -639,23 +790,35 @@ def pinned_step_keys(c, path, what, step, keys, env_keys, optional=()):
                                    else "")
            + (f"; missing: {', '.join(missing)}" if missing else ""))
     env = step.get("env") if isinstance(step.get("env"), dict) else {}
-    env_have = sorted(str(k) for k in env.keys())
-    env_extra = sorted(set(env_have) - set(env_keys))
-    env_missing = [k for k in env_keys if k not in env_have]
-    c.item(not env_extra and not env_missing, path, f"{what} env must be "
-           f"exactly {', '.join(env_keys) or 'empty'}"
-           + (f"; surplus: {', '.join(env_extra)} (a GH_HOST or GH_CONFIG_DIR"
-              " redirects gh away from this repository)" if env_extra else "")
-           + (f"; missing: {', '.join(env_missing)}" if env_missing else ""))
-    for name, want in env_keys.items():
-        if name not in env:
+    pinned_bindings(c, path, f"{what} env", env, env_keys,
+                    "the name is not the contract, the source expression "
+                    "behind it is, and a rebound value leaves every pinned "
+                    "name and key in place while changing what the script "
+                    "reads",
+                    surplus_note=" (a GH_HOST or GH_CONFIG_DIR redirects gh "
+                                 "away from this repository)")
+
+
+def pinned_bindings(c, path, what, mapping, want, reason, surplus_note=""):
+    """A NAME -> EXPRESSION mapping held by CONTENT: exactly these names, and
+    for each the exact source expression it is bound to. A step's `env` and a
+    job's `outputs` are the same object, and holding either by its key set
+    alone holds nothing: both escapes that reached [R0] on PR #239 kept every
+    pinned name in place and changed only what the name was bound to. So
+    there is one comparison, used by both."""
+    have = sorted(str(k) for k in mapping.keys())
+    extra = sorted(set(have) - set(want))
+    missing = [k for k in want if k not in have]
+    c.item(not extra and not missing, path, f"{what} must be exactly "
+           f"{', '.join(want) or 'empty'}"
+           + (f"; surplus: {', '.join(extra)}{surplus_note}" if extra else "")
+           + (f"; missing: {', '.join(missing)}" if missing else ""))
+    for name, expr in want.items():
+        if name not in mapping:
             continue
-        got = str(env.get(name)).strip()
-        c.item(got == want, path, f"{what} must bind `{name}` to `{want}` "
-               f"(found `{got}`): the name is not the contract, the source "
-               "expression behind it is, and a rebound value leaves every "
-               "pinned name and key in place while changing what the script "
-               "reads")
+        got = str(mapping.get(name)).strip()
+        c.item(got == expr, path, f"{what} must bind `{name}` to `{expr}` "
+               f"(found `{got}`): {reason}")
 
 
 def check_gate_steps(c, path, gate):
@@ -962,6 +1125,10 @@ def check_rtl_fast(c, wf):
     check_push_and_pr(c, RTL_FAST, wf, exact_types=True)
     check_cancel_in_progress(c, RTL_FAST, wf)
     check_public_names(c, RTL_FAST, wf)
+    # The same selector -> outputs -> consumer path as the exhaustive
+    # workflow, and the same false green if it is left unheld: this
+    # aggregate counts a skipped consumer as a pass.
+    check_publication_path(c, RTL_FAST, wf)
 
 
 def check_docs(c, wf):
@@ -1357,6 +1524,50 @@ def _mutations():
             "fixture drift: the decision step does not self-test the selector")
         s["run"] = s["run"].replace(SELECTOR_SELFTEST, "true", 1)
 
+    # #209 O17-O20: the publication path. A selector's `outputs` map is a
+    # NAME -> EXPRESSION mapping like a step's `env`, and every arm below
+    # leaves every pinned step key, env binding and script character intact.
+    def sel_outputs(w, path=RTL_FULL):
+        return jobs(w[path])[SELECTOR_JOB[path]]["outputs"]
+
+    def m_output_rebound(path, name, expr):
+        def f(w):
+            outs = sel_outputs(w, path)
+            assert name in outs, f"fixture drift: no `{name}` output"
+            outs[name] = expr
+        return f
+
+    def m_output_dropped(path, name):
+        def f(w):
+            outs = sel_outputs(w, path)
+            assert name in outs, f"fixture drift: no `{name}` output"
+            del outs[name]
+        return f
+
+    def m_output_surplus(w):
+        sel_outputs(w)["shadow"] = step_output_ref(DECIDE_STEP_ID,
+                                                   RUN_FULL_OUTPUT)
+
+    def m_outputs_map_dropped(w):
+        del jobs(w[RTL_FULL])[SELECTOR_JOB[RTL_FULL]]["outputs"]
+
+    def set_job_if(path, jid, value):
+        def f(w):
+            jobs(w[path])[jid]["if"] = value
+        return f
+
+    def m_worker_needs_dropped(w):
+        del jobs(w[RTL_FULL])["verilator-shards"]["needs"]
+
+    def m_new_consumer_job(w):
+        # The perimeter closed under addition: a job that depends on the
+        # selector and carries no gate on its decision runs on every event.
+        jobs(w[RTL_FULL])["extra-worker"] = {
+            "needs": GATE_JOB,
+            "runs-on": "ubuntu-latest",
+            "steps": [{"run": "true"}],
+        }
+
     def restate_shards(w, jid, value):
         """Turn a derived denominator back into a literal, everywhere the job
         states it: the display name, every script, every step env."""
@@ -1496,7 +1707,7 @@ def _mutations():
         ("rtl checkout ref via expression", m_checkout_ref_deep,
          "must not override `ref`"),
         ("rtl gate drops target_sha output", m_drop_gate_output,
-         f"`{GATE_OUTPUT}` output"),
+         f"missing: {GATE_OUTPUT}"),
         ("rtl gate prints nothing", m_gate_silent, "print the event name"),
         ("rtl Verilator worker records nothing", m_worker_no_record,
          f"write GITHUB_SHA into {RECORD}"),
@@ -1678,6 +1889,67 @@ def _mutations():
          "must name no `GH_*`"),
         ("O12 workflow-level env GH_HOST", m_workflow_env_gh_host,
          "must name no `GH_*`"),
+        # #209 O17: the gate's published outputs map, held by content. Each
+        # arm keeps every pinned step key, env binding and script character.
+        ("O17 gate exports run_full as the literal 'false'",
+         m_output_rebound(RTL_FULL, RUN_FULL_OUTPUT, "${{ 'false' }}"),
+         f"must bind `{RUN_FULL_OUTPUT}`"),
+        ("O17b gate stops exporting run_full at all",
+         m_output_dropped(RTL_FULL, RUN_FULL_OUTPUT),
+         f"missing: {RUN_FULL_OUTPUT}"),
+        ("O17c gate exports run_full from the scope answer instead",
+         m_output_rebound(RTL_FULL, RUN_FULL_OUTPUT,
+                          step_output_ref(DECIDE_STEP_ID, RTL_OUTPUT)),
+         f"must bind `{RUN_FULL_OUTPUT}`"),
+        ("O17d gate exports rtl as the literal 'false'",
+         m_output_rebound(RTL_FULL, RTL_OUTPUT, "${{ 'false' }}"),
+         f"must bind `{RTL_OUTPUT}`"),
+        ("O17e gate stops exporting rtl", m_output_dropped(RTL_FULL,
+                                                           RTL_OUTPUT),
+         f"missing: {RTL_OUTPUT}"),
+        ("O17f gate exports target_sha from the run instead of the pin step",
+         m_output_rebound(RTL_FULL, GATE_OUTPUT, "${{ github.sha }}"),
+         f"must bind `{GATE_OUTPUT}`"),
+        ("O17g gate exports no outputs map at all", m_outputs_map_dropped,
+         f"missing: {RUN_FULL_OUTPUT}, {RTL_OUTPUT}, {GATE_OUTPUT}"),
+        ("O17h gate exports a surplus output", m_output_surplus,
+         "surplus: shadow"),
+        # #209 O18: the consumers of that decision.
+        ("O18 a worker gates on an output nobody publishes",
+         set_job_if(RTL_FULL, "verilator-shards",
+                    "${{ needs.full-ci-gate.outputs.run_ful == 'true' }}"),
+         "must publish"),
+        ("O18b a worker gates on if: false",
+         set_job_if(RTL_FULL, "yosys-shards", False), "`if` must be exactly"),
+        ("O18c a worker compares the decision with a value it never takes",
+         set_job_if(RTL_FULL, "verilator-shards",
+                    "${{ needs.full-ci-gate.outputs.run_full == 'nope' }}"),
+         "`if` must be exactly"),
+        ("O18d a worker turns its own failure into a pass",
+         set_job_key("verilator-shards", "continue-on-error", True),
+         "must carry no `continue-on-error`"),
+        ("O18e a worker reads the decision without needing the gate",
+         m_worker_needs_dropped, f"must list `{GATE_JOB}` in its `needs`"),
+        ("O18f a worker parses every script instead of running it",
+         set_job_key("yosys-shards", "defaults",
+                     {"run": {"shell": "bash -n {0}"}}),
+         "must carry no `defaults`"),
+        ("O20 a new job depends on the gate and gates on nothing",
+         m_new_consumer_job, "documented `if`"),
+        # #209 O19: the same publication path in the fast workflow, whose
+        # aggregate counts a skipped consumer as a pass.
+        ("O19 fast selector exports rtl as the literal 'false'",
+         m_output_rebound(RTL_FAST, RTL_OUTPUT, "${{ 'false' }}"),
+         f"must bind `{RTL_OUTPUT}`"),
+        ("O19b fast selector stops exporting rtl",
+         m_output_dropped(RTL_FAST, RTL_OUTPUT), f"missing: {RTL_OUTPUT}"),
+        ("O19c a fast consumer gates on an output nobody publishes",
+         set_job_if(RTL_FAST, "verilator-lint",
+                    "${{ needs.changes.outputs.rt == 'true' }}"),
+         "must publish"),
+        ("O19d a fast consumer gates on if: false",
+         set_job_if(RTL_FAST, "yosys-elaboration", False),
+         "`if` must be exactly"),
         # #209 O9: the shard denominator restated instead of derived.
         ("O9 verilator matrix grows, the denominator is a literal",
          m_shard_denominator_stale, "shard denominator"),
