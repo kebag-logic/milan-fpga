@@ -2271,6 +2271,17 @@ module milan_csr #(
         if (GPTP_PLANE_EN_P) live_mux = gptp_gm_rd_snap_r[63:32];
         else                 live_hit = 1'b0;
       end
+      //! The engine-owned gPTP domain. The pinned fabric engine transmits and
+      //! accepts only domain 0 (802.1AS 8.1: a single domain), so in fabric
+      //! mode the served domain is that engine constant on EVERY public face:
+      //! this readback, o_adp_gptp_domain (ADP, GET_AVB_INFO, notifications).
+      //! The legacy shadow stays writable for the option-off comparison, and
+      //! a compatibility write cannot make the CSR/protocol faces advertise a
+      //! domain the wire never speaks.
+      A_ADP_DOMAIN: begin
+        if (GPTP_PLANE_EN_P) live_mux = 32'd0;
+        else                 live_hit = 1'b0;
+      end
       A_GPTP_PDELAY: begin
         if (GPTP_PLANE_EN_P) live_mux = i_gptp_pdelay_ns;
         else                 live_hit = 1'b0;
@@ -2785,7 +2796,11 @@ module milan_csr #(
   assign o_adp_controller_caps = adp_ccaps;
   assign o_adp_gptp_gm         = {adp_gmhi, adp_gmlo};
   assign o_gptp_pdelay_ns      = gptp_pdelay;
-  assign o_adp_gptp_domain     = adp_domain[7:0];
+  //! Fabric mode serves the engine-owned domain (constant 0, 802.1AS 8.1) to
+  //! every consumer of this port: the ADP advertiser, the GET_AVB_INFO
+  //! gather, and the notification comparators. The option-off comparison
+  //! keeps the writable shadow.
+  assign o_adp_gptp_domain     = GPTP_PLANE_EN_P ? 8'd0 : adp_domain[7:0];
   assign o_adp_current_config  = adp_idx0[15:0];
   assign o_adp_identify_index  = adp_idx0[31:16];
   assign o_adp_interface_index = adp_idx1[15:0];

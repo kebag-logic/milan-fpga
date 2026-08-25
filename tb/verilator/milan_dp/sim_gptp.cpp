@@ -522,11 +522,17 @@ int main(int argc, char **argv) {
   axi_write(dut, 0x6E4, 1234);
   axi_write(dut, 0x730, 0xDDEEFF00); axi_write(dut, 0x734, 0x99AABBCC);
   axi_write(dut, 0x778, 0x00000085); // sync + asCapable + live SW lease
+  // The nonzero compatibility domain write: the engine speaks only domain 0
+  // (802.1AS 8.1), so this 5 must never surface on the CSR readback, the
+  // GET_AVB_INFO gather below, or the MAC-bound Pdelay_Req scanned below.
+  axi_write(dut, 0x62C, 5);
   expect("fabric GM low overrides SW", axi_read(dut, 0x624), 0);
   expect("fabric GM high overrides SW", axi_read(dut, 0x628), 0);
   expect("fabric pdelay overrides SW", axi_read(dut, 0x6E4), 0);
   expect("fabric parent low overrides SW", axi_read(dut, 0x730), 0);
   expect("fabric parent high overrides SW", axi_read(dut, 0x734), 0);
+  expect("fabric domain overrides SW (engine owns domain 0)",
+         axi_read(dut, 0x62C), 0);
   uint32_t clkv = axi_read(dut, 0x77C);
   expect("software lease cannot clear tu", clkv & 1, 1);
   expect("software sync claim hidden", (clkv >> 1) & 1, 0);
@@ -599,18 +605,26 @@ int main(int argc, char **argv) {
   // frame whose transportSpecific|msgType byte is 0x12
   bool seen_pdreq = false;
   bool seen_ann = false;
+  int pdreq_domain = -1;
   size_t boot_scan = tx_frames.size();
   for (uint64_t n = 0; n < 12000000ull; n++) {
     tick(dut);
     while (boot_scan < tx_frames.size()) {
       const std::vector<uint8_t> &frame = tx_frames[boot_scan++];
       if (frame.size() > 14 && frame[12] == 0x88 && frame[13] == 0xF7) {
-        if (frame[14] == 0x12) seen_pdreq = true;
+        if (frame[14] == 0x12) {
+          seen_pdreq = true;
+          if (frame.size() > 18 && pdreq_domain < 0)
+            pdreq_domain = frame[18];   // PTP header domainNumber
+        }
         if (frame[14] == 0x1B) seen_ann = true;
       }
     }
   }
   expect("the plane's Pdelay_Req reaches the MAC", seen_pdreq, 1);
+  // The compatibility write of 5 to 0x62C above must not reach the wire: the
+  // engine-owned domain is the one the MAC-bound frame speaks.
+  expect("MAC-bound Pdelay_Req speaks the engine domain", pdreq_domain, 0);
   // no peer ever answers, so asCapable never rises: the announce
   // receipt timeout expires inside the scan window but the becgate
   // must HOLD -- an Announce here would mean an ungated become-master

@@ -128,6 +128,17 @@ int main(int argc, char** argv) {
   check("fabric parent wins over software shadow",
         ((uint64_t)axi_read(A_AS2_HI) << 32) | axi_read(A_AS2_LO), parent_a);
 
+  // The engine speaks only domain 0 (802.1AS 8.1). A compatibility write to
+  // the legacy domain shadow must not move the served domain: the readback
+  // AND the o_adp_gptp_domain port every protocol face consumes stay at the
+  // engine constant. The option-off elaboration (sim_main.cpp) proves the
+  // shadow itself still works, so this arm can fail in exactly one direction.
+  axi_write(0x62C, 0x00000005);
+  dut->eval();
+  check("fabric domain readback is the engine constant", axi_read(0x62C), 0);
+  check("fabric domain port is the engine constant",
+        dut->o_adp_gptp_domain, 0);
+
   dut->i_gptp_gm_id = gm_a;
   const uint32_t gm_lo = axi_read(A_ADP_GMLO);
   dut->i_gptp_gm_id = gm_b;
