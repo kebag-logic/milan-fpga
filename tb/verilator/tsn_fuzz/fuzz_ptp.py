@@ -961,6 +961,43 @@ class Campaign:
                     requesting_clock_identity=OUR_CID,
                     source_clock_identity=PEER_CID))
 
+            # 11.2.15.3 (Figure 11-8, WAITING_FOR_PDELAY_RESP), the THIRD
+            # arm of that state: besides the sequenceId and the domain, a
+            # Pdelay_Resp is taken only when its requestingPortIdentity is
+            # OURS. The figure qualifies the WHOLE identity, clockIdentity
+            # AND portNumber, and since the pin this PR advances to the
+            # engine compares both (prog_rx_pdresp: bank word 6 against
+            # S_CID, bank word 7 against OUR_PORTNUM_C, one branch each).
+            # This probe drives
+            # the clockIdentity half; the portNumber half is driven at the
+            # end of this section, on its own exchange, as an ordinary
+            # assertion (FPGA-gPTP #36, landed).
+            # Every other probe in this section carries OUR_CID -
+            # correctly, since they drive the sequence and responder
+            # compares - so nothing drove this one, and the arm could be
+            # deleted in silence (issue #223 measured exactly that: with it
+            # gone the whole campaign stayed green).
+            #
+            # This Pdelay_Resp is right in every other respect: the plane's
+            # own outstanding sequenceId, domain 0, from the usual
+            # responder. Only the requestingPortIdentity is a stranger's,
+            # so nothing but this arm can refuse it -- which is what makes
+            # the Follow_Up behind it load-bearing. That Follow_Up carries
+            # OUR_CID and is otherwise perfect, so it would complete the
+            # exchange the instant the Resp armed anything: the delay it
+            # would publish is a delay measured against a conversation
+            # between two other stations.
+            self.send(wire.ptp_pdelay_resp(
+                sequence_id=oseq, t2_ns=armed_t2,
+                requesting_clock_identity=PEER2_CID,
+                source_clock_identity=PEER_CID))
+            unpaired_probe(
+                "Pdelay_Resp for another requester arms nothing (11.2.15.3)",
+                wire.ptp_pdelay_resp_fu(
+                    sequence_id=oseq, t3_ns=armed_t2 + 200,
+                    requesting_clock_identity=OUR_CID,
+                    source_clock_identity=PEER_CID))
+
             # arm it for real: domain 0, our requestingPortIdentity, the
             # plane's outstanding sequenceId, from the usual responder
             self.send(wire.ptp_pdelay_resp(
@@ -987,6 +1024,57 @@ class Campaign:
                     sequence_id=oseq, t3_ns=armed_t2 + 200,
                     requesting_clock_identity=OUR_CID,
                     source_clock_identity=PEER2_CID))
+            # THE ENGINE'S OWN QUALIFICATION, NOT AN ARM OF THE FIGURE.
+            # The first cut of this probe called it the same Figure 11-8
+            # arm as the Pdelay_Resp one above, and the #238 review was
+            # right to refuse that. Figure 11-8's
+            # WAITING_FOR_PDELAY_RESP_FOLLOW_UP transition qualifies the
+            # Follow_Up on its sequenceId and on its sourcePortIdentity
+            # equalling the stored Pdelay_Resp's -- the two compares
+            # prog_leg_pdpost implements, and the two probes above are the
+            # ones that drive them. It does not inspect the Follow_Up's
+            # requestingPortIdentity; the engine's own header states the
+            # figure's Follow_Up rule in exactly those terms. What checks
+            # the requesting identity here is prog_rx_pdrfu and, for the
+            # portNumber half, the head of the PDPOST leg, ahead of the
+            # pairing, because the engine chose to. Worth having and worth
+            # pinning -- an unimplemented arm no test drives is
+            # indistinguishable from a deleted one -- but it is hardening,
+            # so it is labelled hardening and is NOT conformance evidence
+            # for Figure 11-8.
+            #
+            # The pairing is armed, and this Follow_Up carries the armed
+            # sequenceId from the armed responder, so both of the figure's
+            # own compares are satisfied: the requesting identity is the
+            # only thing wrong with it. This probe plus the one before
+            # "arm it for real" are what make the two guards separable
+            # here -- deleting one must redden one probe and leave the
+            # other green.
+            unpaired_probe(
+                "ARMED: Follow_Up for another requester ignored "
+                "(engine hardening, not Figure 11-8)",
+                wire.ptp_pdelay_resp_fu(
+                    sequence_id=oseq, t3_ns=armed_t2 + 200,
+                    requesting_clock_identity=PEER2_CID,
+                    source_clock_identity=PEER_CID))
+            # the portNumber half of the SAME qualification, and the same
+            # authority: hardening, not Figure 11-8. It is here because the
+            # donor arm this PR pins (FPGA-gPTP #36) landed on both Pdelay
+            # receive messages, and an arm no probe drives is
+            # indistinguishable from a deleted one -- the whole reason #223
+            # exists. Everything else about this Follow_Up is right: the
+            # armed sequenceId, the armed responder, OUR clockIdentity. The
+            # portNumber is DERIVED from the plane's own, never written
+            # down, so it cannot quietly become a probe at our own port.
+            unpaired_probe(
+                "ARMED: Follow_Up at a foreign requesting portNumber "
+                "ignored (engine hardening, not Figure 11-8)",
+                wire.ptp_pdelay_resp_fu(
+                    sequence_id=oseq, t3_ns=armed_t2 + 200,
+                    requesting_clock_identity=OUR_CID,
+                    requesting_port_number=(
+                        wire.PtpMsg(oreq).source_port_number ^ 0xFFFF),
+                    source_clock_identity=PEER_CID))
         self.responder(True)
 
         # Figure 11-8 as corrected by Cor2-2015: a COMPLETED exchange
@@ -1031,6 +1119,139 @@ class Campaign:
             self.rep.eq("t3-skewed replay of a completed pair: "
                         "asCapable unmoved", after[S_FLAGS] & FL_ASCAP,
                         done[S_FLAGS] & FL_ASCAP)
+
+        # ---- the portNumber half of the Figure 11-8 arm ----------------
+        #
+        # Figure 11-8's WAITING_FOR_PDELAY_RESP transition qualifies the
+        # response on the WHOLE requestingPortIdentity - clockIdentity
+        # == thisClock AND portNumber == thisPort. Until FPGA-gPTP #36
+        # the engine implemented the first and not the second, and this
+        # campaign reported the consequence as two tracked gaps: the pair
+        # completed, neighborPropDelay was published at 4,054,625 ns
+        # where the real exchange had left 599, and asCapable fell, from
+        # a frame not addressed to this port. Both halves are compared at
+        # the pin this PR advances to (bank word 6 against S_CID, bank
+        # word 7 against OUR_PORTNUM_C in prog_rx_pdresp, and the
+        # Follow_Up path's own portNumber term at the head of the PDPOST
+        # leg rather than in prog_rx_pdrfu, because prog_rx_pdrfu's fixed
+        # slot has exactly 48 free words behind it and that is the SERVO
+        # leg's only home), so these are ORDINARY
+        # ASSERTIONS now, not eq_or_gap, and the campaign carries no
+        # tracked gap for #36.
+        #
+        # It keeps its own exchange rather than joining the ARMED block
+        # above, because it is the probe that used to be allowed to
+        # complete: it must stay measurable end to end, and the two
+        # recovery checks behind it must keep asserting that the plane
+        # re-measures and re-climbs on real exchanges. Those two are what
+        # stopped a poisoned delay and a false asCapable from leaking
+        # into the BTCA, servo and canary sections while the gap stood,
+        # and they are what will catch a regression of this arm before
+        # those sections grade a poisoned machine.
+        self.responder(False)
+        self.drain_tx()
+        preq = self.wait_tx(wire.PTP_PDELAY_REQ, 4 * SECOND)
+        if self.rep.ck("an unanswered request for the portNumber arm",
+                       preq is not None):
+            pseq = wire.PtpMsg(preq).sequence_id
+            # DERIVED from the plane's own portNumber, never written
+            # down: the complement of a 16-bit value can never equal it,
+            # so this probe cannot quietly become a probe at OUR port the
+            # day the plane's portNumber changes. A literal would.
+            our_pn = wire.PtpMsg(preq).source_port_number
+            foreign_pn = our_pn ^ 0xFFFF
+            self.tick(4)
+            pt2 = self.phc_of(self.state()) - 3000
+            before = self.state()
+            # right in every other respect: our clockIdentity, the
+            # plane's own outstanding sequenceId, domain 0, the usual
+            # responder. Only requestingPortIdentity.portNumber is a
+            # stranger's, so THIS ARM is the only thing that can refuse
+            # the pair.
+            #
+            # THE FOLLOW_UP CARRIES OUR OWN portNumber, and that is the
+            # whole design of this probe. While the arm was missing on
+            # both messages, a Follow_Up at the foreign portNumber was
+            # equivalent; the moment the arm landed on both it stopped
+            # being so, and a probe with the stranger's portNumber on
+            # BOTH frames is refused by EITHER arm -- measured here:
+            # bypassing the Pdelay_Resp arm alone left the campaign at
+            # 602 pass, 0 fail, because the Follow_Up arm caught what the
+            # Resp arm let through. That is a probe that cannot fail for
+            # the reason it names. With a perfect Follow_Up behind it,
+            # the Pdelay_Resp arm is the only thing standing between this
+            # pair and a completed exchange.
+            self.send(wire.ptp_pdelay_resp(
+                sequence_id=pseq, t2_ns=pt2,
+                requesting_clock_identity=OUR_CID,
+                requesting_port_number=foreign_pn,
+                source_clock_identity=PEER_CID))
+            after = self.send(wire.ptp_pdelay_resp_fu(
+                sequence_id=pseq, t3_ns=pt2 + 200,
+                requesting_clock_identity=OUR_CID,
+                requesting_port_number=our_pn,
+                source_clock_identity=PEER_CID))
+            gl = ("Pdelay_Resp at a foreign requesting portNumber arms "
+                  "nothing (11.2.15.3)")
+            self.rep.eq("%s: peer delay unmoved" % gl,
+                        after[S_PDELAY], before[S_PDELAY])
+            self.rep.eq("%s: asCapable unmoved" % gl,
+                        after[S_FLAGS] & FL_ASCAP,
+                        before[S_FLAGS] & FL_ASCAP)
+        # WIDTH-PINNING PROBE ([R2] of PR #238): a portNumber differing
+        # from ours ONLY in the high byte. The complement probe above
+        # differs in both bytes, so a compare silently narrowed below 16
+        # bits would still refuse it -- the same silent-narrowing class
+        # the clockIdentity half was bitten by (FPGA-gPTP #30). This pair
+        # is refused only by the full 16-bit compare: same design, the
+        # stranger's portNumber on the RESPONSE only, a perfect Follow_Up
+        # behind it. The N9 plant (donor FMT_W narrowed to FMT_B) reddens
+        # exactly this probe and no other.
+        self.drain_tx()
+        preq = self.wait_tx(wire.PTP_PDELAY_REQ, 4 * SECOND)
+        if self.rep.ck("an unanswered request for the portNumber width "
+                       "probe", preq is not None):
+            pseq = wire.PtpMsg(preq).sequence_id
+            our_pn = wire.PtpMsg(preq).source_port_number
+            hi_pn = our_pn ^ 0xFF00
+            self.tick(4)
+            pt2 = self.phc_of(self.state()) - 3000
+            before = self.state()
+            self.send(wire.ptp_pdelay_resp(
+                sequence_id=pseq, t2_ns=pt2,
+                requesting_clock_identity=OUR_CID,
+                requesting_port_number=hi_pn,
+                source_clock_identity=PEER_CID))
+            after = self.send(wire.ptp_pdelay_resp_fu(
+                sequence_id=pseq, t3_ns=pt2 + 200,
+                requesting_clock_identity=OUR_CID,
+                requesting_port_number=our_pn,
+                source_clock_identity=PEER_CID))
+            gl = ("Pdelay_Resp at a high-byte-only foreign requesting "
+                  "portNumber arms nothing (11.2.15.3, 16-bit compare)")
+            self.rep.eq("%s: peer delay unmoved" % gl,
+                        after[S_PDELAY], before[S_PDELAY])
+            self.rep.eq("%s: asCapable unmoved" % gl,
+                        after[S_FLAGS] & FL_ASCAP,
+                        before[S_FLAGS] & FL_ASCAP)
+        self.responder(True)
+        # whatever this probe disturbs, the plane must repair from real
+        # exchanges before the next section starts. Hard assertions, and
+        # they were load-bearing while the arm was missing: if the plane
+        # could NOT re-measure and re-climb, every section after this one
+        # would be grading a poisoned machine. They stay, because that is
+        # exactly the state a regression of the arm would leave behind.
+        st = self.state()
+        spent = 0
+        while not (st[S_FLAGS] & FL_ASCAP) and spent < 16 * SECOND:
+            st = self.tick(200)
+            spent += 200 * 10000
+        self.rep.eq("after the foreign portNumber probe: asCapable is whole",
+                    st[S_FLAGS] & FL_ASCAP, FL_ASCAP)
+        self.rep.ck("after the foreign portNumber probe: the delay is "
+                    "re-measured from real exchanges",
+                    abs((st[S_PDELAY] & 0xFFFFFFFF) - st[S_PDEXP]) <= 32,
+                    "pdelay=%d expect=%d" % (st[S_PDELAY], st[S_PDEXP]))
 
     # ----------------------------------------------------------- 8 BTCA
     def btca(self):
@@ -1101,23 +1322,60 @@ class Campaign:
         # at or above 255 -- the field is 16 bits, so its LOW BYTE is not
         # the test -- and (c) our identity anywhere in the path trace, which
         # is the loop an end station meets without forgery: our own Announce
-        # returned by a bridge, arriving with us as the FIRST hop
+        # returned by a bridge. Since the donor's strict PathTrace
+        # validation (FPGA-gPTP #45; 802.1AS-2011 10.5.3.3.4) a present TLV
+        # must open with the announced grandmasterIdentity and carry
+        # exactly stepsRemoved+1 identities, so every fixture below is
+        # wire-legal under those rules and lands its refusal in the
+        # MICROCODE, where the drop counter holding is what places it
         reject_probe("better vector, own sourcePortIdentity (10.3.10.2.1a)",
                      None, drop=None, source_clock_identity=OUR_CID,
                      src=wire.GPTP_PEER2_MAC)
-        reject_probe("better vector, stepsRemoved 255 (10.3.10.2.1b)",
-                     None, drop=None, steps_removed=255)
-        reject_probe("better vector, stepsRemoved 0x0100 (10.3.10.2.1b)",
-                     None, drop=None, steps_removed=0x0100)
+        # (b) can no longer ride a PathTrace TLV: stepsRemoved 255 demands
+        # 256 identities, 2052 TLV octets, past the 1500-octet Ethernet
+        # payload the parser admits (its MAX_MSG_LEN_C). The TLV-absent
+        # 64-octet Announce (count and loop verdict honestly zero) is the
+        # one wire-legal carrier left, and it reaches STEPS_MAX_C in
+        # qualifyAnnounce with the parser satisfied
+        reject_probe("better vector, stepsRemoved 255, no path trace "
+                     "(10.3.10.2.1b)", None, drop=None, steps_removed=255,
+                     path_trace=[])
+        reject_probe("better vector, stepsRemoved 0x0100, no path trace "
+                     "(10.3.10.2.1b)", None, drop=None,
+                     steps_removed=0x0100, path_trace=[])
+        # (c) is one coherent verdict now: the parser compares EVERY
+        # declared hop with thisClock (not merely the eight it retains) and
+        # the microcode refuses on bank word 12 bit 8. The first fixture
+        # puts our identity behind the announced GM at the head; the
+        # reflected-Announce pair names US as grandmaster (the only
+        # wire-legal head for a path that starts with us), so their
+        # plane-stays-GM check cannot bite alone and the teeth are the
+        # parent and flags canaries of stable(): adopting the better
+        # vector would move parent to the peer and clear AMGM
         reject_probe("better vector, our id in the path trace "
                      "(10.3.10.2.1c)", None, drop=None, gm_identity=0x3333,
-                     path_trace=[0x3333, OUR_CID])
-        reject_probe("better vector, our id as the FIRST path-trace hop "
-                     "(10.3.10.2.1c)", None, drop=None, gm_identity=0x3333,
+                     steps_removed=1, path_trace=[0x3333, OUR_CID])
+        reject_probe("better vector, our own Announce a bridge extended: "
+                     "us the first path-trace hop (10.3.10.2.1c)", None,
+                     drop=None, gm_identity=OUR_CID, steps_removed=1,
                      path_trace=[OUR_CID, PEER2_CID])
-        reject_probe("better vector, our id the only path-trace hop "
-                     "(10.3.10.2.1c)", None, drop=None, gm_identity=0x3333,
-                     path_trace=[OUR_CID])
+        reject_probe("better vector, our own Announce reflected: us the "
+                     "only path-trace hop (10.3.10.2.1c)", None, drop=None,
+                     gm_identity=OUR_CID, path_trace=[OUR_CID])
+        # the strict wire rules themselves (FPGA-gPTP #45; 10.5.3.3.4):
+        # a head that is not the announced grandmaster, a count that is not
+        # stepsRemoved+1, and the old wire-illegal (b) shape. Each is
+        # refused AT THE PARSER, a counted header drop, before
+        # qualifyAnnounce sees a bank
+        reject_probe("better vector, path-trace head is not the announced "
+                     "grandmaster (10.5.3.3.4)", None, drop=1,
+                     gm_identity=0x3333, path_trace=[0x5555])
+        reject_probe("better vector, one path-trace hop against "
+                     "stepsRemoved 1 (10.5.3.3.4)", None, drop=1,
+                     gm_identity=0x3333, steps_removed=1,
+                     path_trace=[0x3333])
+        reject_probe("better vector, stepsRemoved 255 on a one-hop path "
+                     "trace (10.5.3.3.4)", None, drop=1, steps_removed=255)
 
         # truncated-at-75 better announce (parser min is 78): parser-dropped
         self.become_gm()
@@ -1132,13 +1390,15 @@ class Campaign:
         self.rep.eq("truncated better announce: drop counted",
                     after[S_RXDROP], before[S_RXDROP] + 1)
 
-        # a legal deep path trace is capped at 8 published hops but adopts
+        # a legal deep path trace is capped at 8 published hops but adopts;
+        # wire-legal means the announced grandmaster heads the path and the
+        # count is stepsRemoved+1 (10.5.3.3.4)
         self.become_gm()
         after = self.send(wire.ptp_announce(
             sequence_id=self.nseq("announce"), gm_identity=0x4444,
             gm_priority1=50, source_clock_identity=PEER2_CID,
             src=wire.GPTP_PEER2_MAC, steps_removed=11,
-            path_trace=[0x5000 + i for i in range(12)]))
+            path_trace=[0x4444] + [0x5000 + i for i in range(11)]))
         self.rep.eq("12-hop legal better vector still adopts (cap publishes 8)",
                     self.gm_of(after), 0x4444)
         # leave a clean GM baseline: let the adopted vectors expire so the

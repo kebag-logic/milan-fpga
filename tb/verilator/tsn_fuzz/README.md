@@ -36,8 +36,11 @@ it every run), so they serve as both the field oracle and an independent
 decoder. It grades the plane's OWN transmissions field-by-field, drives
 per-field illegal probes at the parser, and asserts a two-sided asCapable
 canary: it must survive every malformed storm and fall in a response drought.
-It carries **no tracked gaps** at the current pin. The one it carried
-during #140's review round, FPGA-gPTP #22, is fixed and closed: between
+It carries **no tracked gap** at the current pin. The two it carried
+during #223's first review round, the portNumber half of the Figure 11-8
+requestingPortIdentity arm (FPGA-gPTP #36), are ordinary assertions
+since the pin advanced past that fix. The gap it carried during #140's
+review round, FPGA-gPTP #22, is fixed and closed: between
 the donor's #11 rework and that fix a frame whose messageType no handler
 claims was not refused at the parser but dispatched, uncounted, into the
 timer program, which TRANSMITS (measured on this slice: one such frame
@@ -65,18 +68,92 @@ quoted pass count whenever the campaign total moves.
 
 The FPGA-gPTP #7 allowances are gone: the three qualifyAnnounce vectors
 of 10.3.10.2.1 are ordinary assertions since #136, joined by the
-parent's own first-hop, only-hop and stepsRemoved 0x0100 probes, each
-of which exercises one microcode arm and is pinned by a planted
-mutation the older three miss (a walk that skips hop 0 and a bound
-compared on its low byte each escape them). The FPGA-gPTP #8
+parent's own first-hop, only-hop and stepsRemoved 0x0100 probes. Since
+the donor's strict PathTrace validation (FPGA-gPTP #45; 802.1AS-2011
+10.5.3.3.4) a present TLV must open with the announced
+grandmasterIdentity and carry exactly stepsRemoved+1 identities, and
+the parser compares EVERY declared hop with thisClock, publishing one
+loop verdict the (c) microcode arm consumes -- the hop walk that a
+skip-hop-0 plant once pinned no longer exists to plant against. The
+qualification fixtures are wire-legal under those rules, which forces
+two shapes: the (b) probes ride the TLV-absent 64-octet Announce,
+because stepsRemoved 255 would demand 256 identities and 2052 TLV
+octets, past the 1500-octet payload the parser admits -- no consistent
+TLV-bearing frame can reach the microcode's STEPS_MAX_C bound, and the
+TLV-absent form is the one carrier left; and the first-hop/only-hop
+loop probes name US as grandmaster, the only legal head for a path
+that starts with us, so their teeth are the parent and AMGM canaries
+rather than the GM word. The strict wire rules themselves are pinned
+as counted parser drops: a head that is not the announced grandmaster,
+a count that is not stepsRemoved+1, and the old wire-illegal
+stepsRemoved-255-with-TLV shape, each refused before qualifyAnnounce
+sees a bank. The FPGA-gPTP #8
 allowance is gone too: since #141 the 11.2.15.3 pairing is
 hard-asserted on BOTH halves of Figure 11-8. With nothing armed a
 stale sequence and a sequence-0 Follow_Up are refused; with the
 pairing armed against the sequenceId THE PLANE sent, a Follow_Up whose
 high byte is flipped and one from a different responder are each
 refused by their own compare, and a Pdelay_Resp at the flipped
-sequence arms nothing. A foreign-domain pair and the replay of a
-COMPLETED exchange, identical and t3-skewed, are refused too. Each of
+sequence arms nothing. Since #223 the requestingPortIdentity is driven
+negatively on both halves as well, and the two halves are NOT the same
+authority -- the first cut of #223 said they were, and the [R0] review
+of PR #238 was right to refuse it. On the Pdelay_Resp half it is the
+figure's own arm: a Pdelay_Resp right in every other respect but
+addressed to another station's requestingPortIdentity arms nothing. On
+the Follow_Up half it is the ENGINE'S OWN qualification and not an arm
+of Figure 11-8 at all. That figure's WAITING_FOR_PDELAY_RESP_FOLLOW_UP
+transition qualifies the Follow_Up on its sequenceId and on its
+sourcePortIdentity equalling the stored Pdelay_Resp's -- the two
+compares `prog_leg_pdpost` implements, which the two probes before it
+drive, and which the engine's own microcode header states in exactly
+those terms. It does not inspect the Follow_Up's requestingPortIdentity;
+`prog_rx_pdrfu` checks it ahead of the pairing because the engine chose
+to. So that probe is labelled `engine hardening, not Figure 11-8` and is
+NOT conformance evidence for the figure. Each reddens only its own half
+when that half's guard is deleted, so the two are separable.
+
+**The portNumber half of the Figure 11-8 arm is implemented and
+asserted on both messages.** The figure qualifies the WHOLE
+requestingPortIdentity, clockIdentity AND portNumber; the engine's guard
+was one 64-bit compare against the parser's bank word 6, so the
+portNumber the same parser lands in bank word 7 was never read (its own
+header, then: "the clockIdentity alone, never the portNumber").
+Measured, not argued: a Pdelay_Resp at our clockIdentity but a foreign
+portNumber was taken, the pair completed, neighborPropDelay was
+published as 4,054,625 ns where the real exchange had left 599, and
+asCapable fell. That is live synchronization state corrupted by a frame
+not addressed to this port, so an earlier draft of this file calling it
+harmless was wrong and the claim is gone. The campaign carried it as 2
+tracked gaps against FPGA-gPTP #36 for one review round; the pin now
+names a donor commit that compares bank word 7 against `OUR_PORTNUM_C`
+on both Pdelay receive paths, and both observables are ordinary
+assertions. On the Pdelay_Resp the term sits beside the clockIdentity
+compare; on the Follow_Up path it sits at the head of the PDPOST leg,
+because `prog_rx_pdrfu`'s fixed slot has exactly 48 free words behind it
+and that is the SERVO leg's only home.
+
+**Four arms, four probes, each separable.** The portNumber arm exists on
+the Pdelay_Resp and on the Pdelay_Resp_Follow_Up, so a probe carrying a
+stranger's portNumber on BOTH frames of a pair is refused by EITHER of
+them and cannot fail for the reason it names -- measured: with the
+Pdelay_Resp arm bypassed and that probe as first written, the then
+602-check campaign stayed at 602 pass, 0 fail. The Pdelay_Resp probe therefore puts the
+stranger's portNumber on the RESPONSE only and a perfect Follow_Up
+behind it, and the Follow_Up probe drives the armed pairing. Bypassing
+any one of the four arms reddens that arm's probe and no other. A
+second Pdelay_Resp pair differs from our portNumber ONLY in the high
+byte: the complement differs in both bytes, so a compare silently
+narrowed below 16 bits (the class that bit the clockIdentity half,
+FPGA-gPTP #30) would still refuse every complement probe, and the
+high-byte pair is what a narrowing plant (donor `FMT_W` to `FMT_B` on
+the portNumber compare) reddens, by that probe's own name and no
+other. Two
+ordinary assertions follow the Pdelay_Resp probe, that asCapable is
+whole and the delay is re-measured from real exchanges: they were what
+stopped the tracked gap from poisoning every section after it, and they
+are what will catch a regression of the arm before those sections grade
+a poisoned machine. A foreign-domain pair and the replay of
+a COMPLETED exchange, identical and t3-skewed, are refused too. Each of
 the three compares is pinned by a planted narrowing that the campaign
 catches by name, which is why the probes arm against the plane's own
 sequenceId rather than the bench's injected-request counter: on the
@@ -91,8 +168,9 @@ are ordinary assertions now. A gap fires only on the mismatch, so each
 turns green on its own when the donor closes the issue; the machinery
 stays for the next tracked donor defect.
 
-Current tally -- **164 AAF checks + 582 gPTP checks + 2 traceability
-contracts**, 0 failures, 0 known gaps, with `tsn-gen` installed. This is what
+Current tally -- **164 AAF checks + 620 gPTP checks + 2 traceability
+contracts**, 0 failures, 0 known gaps, with `tsn-gen`
+installed. This is what
 `make` prints; each campaign rewrites the same line into its `TEST_RESULTS.md`
 on
 every run, so the generated files are the fresher authority if this table and
@@ -101,7 +179,7 @@ they ever disagree:
 | campaign | checks | what it drives |
 |---|---:|---|
 | `fuzz_aaf.py`  | 164 | parser → rx-monitor → depacketizer — the **accept verdict** (wire `stream_id` vs bound, graded on the parser's own pre-match counters = the `0x8B4` APRB sources), per-field verdicts, lock survival |
-| `fuzz_ptp.py`  | 582 | the gPTP fabric slice: TX conformance of the plane's own Pdelay_Req/Announce/Sync/Follow_Up against the 802.1AS models (the per-message control byte of FPGA-gPTP #9 among the graded fields: Sync 0x0, Follow_Up 0x2, Announce and the Pdelay types 0x5), parser drop/ignore gates (the domainNumber arm of FPGA-gPTP #6 among them, probed on Announce, Sync/Follow_Up and Pdelay_Req separately), BTCA rejection under fuzz (the three 10.3.10.2.1 qualifications of FPGA-gPTP #7 hard-asserted, each refusal leaving the parser drop counter unmoved), servo pairing (with the TLV-less, truncated, wrong-tlvType and short-declared Follow_Up refusals of FPGA-gPTP #11), the responder role (with the header-only and truncated Pdelay_Req refusals of FPGA-gPTP #12, neither drawing a response pair), the Milan 4.2.6.2.5 cease rule, and the two-sided asCapable canary; **no tracked gaps** at the current pin, and each of the nine unlisted messageTypes is graded on three properties, its counted drop, drawing no transmission, and the engine's uCPU running no program at all (the closed FPGA-gPTP #22 could have been half-fixed in either of two ways, and the third property catches a parser that counts a frame AND dispatches it) |
+| `fuzz_ptp.py`  | 620 | the gPTP fabric slice: TX conformance of the plane's own Pdelay_Req/Announce/Sync/Follow_Up against the 802.1AS models (the per-message control byte of FPGA-gPTP #9 among the graded fields: Sync 0x0, Follow_Up 0x2, Announce and the Pdelay types 0x5), parser drop/ignore gates (the domainNumber arm of FPGA-gPTP #6 among them, probed on Announce, Sync/Follow_Up and Pdelay_Req separately), BTCA rejection under fuzz (the three 10.3.10.2.1 qualifications of FPGA-gPTP #7 hard-asserted on wire-legal fixtures, each refusal leaving the parser drop counter unmoved, and the strict PathTrace wire rules of FPGA-gPTP #45 -- head not the announced grandmaster, count not stepsRemoved+1 -- pinned as counted parser drops), servo pairing (with the TLV-less, truncated, wrong-tlvType and short-declared Follow_Up refusals of FPGA-gPTP #11), the responder role (with the header-only and truncated Pdelay_Req refusals of FPGA-gPTP #12, neither drawing a response pair), the Milan 4.2.6.2.5 cease rule, and the two-sided asCapable canary; **no tracked gap** at the current pin, the last two having closed with the donor's portNumber compare (FPGA-gPTP #36), and each of the nine unlisted messageTypes is graded on three properties, its counted drop, drawing no transmission, and the engine's uCPU running no program at all (the closed FPGA-gPTP #22 could have been half-fixed in either of two ways, and the third property catches a parser that counts a frame AND dispatches it) |
 
 ## Contents
 

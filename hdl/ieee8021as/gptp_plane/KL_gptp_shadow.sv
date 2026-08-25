@@ -475,6 +475,11 @@ module KL_gptp_shadow #(
       .pub_pdelay_ns_o    (pub_pdelay_ns_o),
       .pub_offset_o       (pub_offset_o),
       .pub_annq_o         (pub_annq_o),
+      //! the raw selected PathTrace publication (donor #45) has no consumer
+      //! in this slice yet: no CSR window is sized for 7 more qwords, so it
+      //! is explicitly unconsumed here like the eff_* strobes below
+      .pub_path_count_o   (),
+      .pub_path_o         (),
       .pub_commit_o       (pub_commit_o),
       .eff_nvm_stb_o      (),
       .eff_nvm_mark_o     (),
