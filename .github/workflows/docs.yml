@@ -44,8 +44,8 @@ jobs:
       # owned surface must not reacquire a retired Linux product claim.
       - name: Bare-metal scope gate
         run: |
-          python3 scripts/check_baremetal_scope.py --check
-          python3 scripts/check_baremetal_scope.py --selftest
+          python3 scripts/check_baremetal_only.py --check
+          python3 scripts/check_baremetal_only.py --selftest
       - name: End-station builder gates
         run: |
           python3 -m pip install --quiet pyyaml
