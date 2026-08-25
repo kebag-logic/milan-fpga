@@ -532,7 +532,14 @@ def check_port_layout(ovl, n_listeners, n_talkers):
     for p in P_in + P_out:
         assert p["base_cluster"] == base, \
             f"port cluster blocks not contiguous: {p} (expect base {base})"
-        assert p["clusters"] >= 1
+        # #259: a port whose backing pool was retired owns ZERO clusters
+        # (the 8x8 inputs after the ALSA host surface left). Such a port
+        # must be fully empty-handed: dynamic map mode, no pool, so no
+        # cluster, map or template can dangle off it.
+        if p["clusters"] == 0:
+            assert p["pool"] == [] and p.get("map_mode") == "dynamic", p
+        else:
+            assert p["clusters"] >= 1
         base += p["clusters"]
     assert dc["AUDIO_CLUSTER"] == base
     dyn = [p for p in P_in + P_out if p.get("map_mode") == "dynamic"]
