@@ -296,6 +296,42 @@ PUBLIC_NAMES = {
 #: The fast workflow's selector job and the step that computes its answer.
 FAST_SELECTOR_JOB = "changes"
 FAST_SCOPE_STEP_ID = "scope"
+#: The fast selector is a second run/no-run decision, not merely a producer
+#: of metadata.  Its exact inputs and body are held for the same reason as
+#: the exhaustive selector: an empty or forced-false answer skips both RTL
+#: consumers, and the aggregate deliberately accepts those skips.
+FAST_CHECKOUT_USES = f"{CHECKOUT_ACTION}@v4"
+FAST_CHECKOUT_WITH = {"fetch-depth": "0"}
+FAST_SCOPE_STEP_KEYS = ("name", "id", "env", "run")
+FAST_SCOPE_STEP_ENV = {
+    "EVENT_NAME": "${{ github.event_name }}",
+    "PR_BASE_SHA": "${{ github.event.pull_request.base.sha }}",
+    "PUSH_BEFORE_SHA": "${{ github.event.before }}",
+}
+CANONICAL_FAST_SCOPE_SCRIPT = (
+    "set -euo pipefail",
+    "python3 scripts/ci_scope.py --selftest",
+    'base=""',
+    'if [ "$EVENT_NAME" = pull_request ]; then',
+    'base="$PR_BASE_SHA"',
+    "else",
+    'base="$PUSH_BEFORE_SHA"',
+    "fi",
+    'if [ -n "$base" ] && [ "$base" != '
+    '0000000000000000000000000000000000000000 ] && '
+    'git cat-file -e "$base^{commit}" 2>/dev/null; then',
+    'git diff --name-only "$base" "$GITHUB_SHA" > '
+    '"$RUNNER_TEMP/changed-files"',
+    "else",
+    "# An unknown base must never turn a real change into docs-only.",
+    'git ls-files > "$RUNNER_TEMP/changed-files"',
+    "fi",
+    'echo "Changed files:"',
+    'sed \'s/^/ /\' "$RUNNER_TEMP/changed-files"',
+    'rtl="$(python3 scripts/ci_scope.py < "$RUNNER_TEMP/changed-files")"',
+    'echo "rtl=$rtl" >> "$GITHUB_OUTPUT"',
+    'echo "RTL/tooling relevant: $rtl"',
+)
 #: The fast workflow's aggregate `if`. It counts a skipped consumer as a pass
 #: deliberately (a docs-only change legitimately runs no RTL lint), which is
 #: exactly why that workflow's published answer has to be pinned by content
@@ -354,9 +390,14 @@ SELECTOR_DECISION = {RTL_FULL: RUN_FULL_OUTPUT, RTL_FAST: RTL_OUTPUT}
 #: derived, not listed again: the aggregate is the job whose display name is
 #: the public required check the merge bar reads (PUBLIC_NAMES above).
 AGGREGATE_IF = {RTL_FULL: AGGREGATE_JOB_IF, RTL_FAST: FAST_AGGREGATE_JOB_IF}
-#: One `needs.<job>.outputs.<name>` reference, wherever it sits.
-NEEDS_OUTPUT_RE = re.compile(
-    r"needs\.([A-Za-z0-9_-]+)\.outputs\.([A-Za-z0-9_-]+)")
+#: A `needs` context reference can use property syntax, index syntax, or mix
+#: them: `needs.changes.outputs.rtl`, `needs['changes'].outputs.rtl`, and
+#: `needs['changes']['outputs']['rtl']` are the same reference to GitHub.  A
+#: regex for only the first spelling made the second invisible to the gate.
+#: The small access-chain parser below resolves every static spelling and
+#: refuses dynamic brackets, whose producer/output cannot be audited here.
+NEEDS_WORD_RE = re.compile(r"\bneeds\b")
+CONTEXT_NAME_RE = re.compile(r"[A-Za-z0-9_-]+")
 
 SHA_RE = re.compile(r"^[0-9a-f]{40}$")
 CRON_RE = re.compile(r"^\s*(\d{1,2})\s+(\d{1,2})\s+\*\s+\*\s+\*\s*$")
@@ -691,6 +732,94 @@ def needs_list(job):
     return [] if n is None else [str(n)]
 
 
+def context_bracket_end(text, start):
+    """Index of the `]` matching `text[start]`, or None.
+
+    GitHub expression strings use single quotes and escape one quote as two.
+    Accounting for them here keeps a `]` inside a dynamic expression's string
+    from ending the access early; nested brackets are handled as well.
+    """
+    depth = 0
+    quoted = False
+    i = start
+    while i < len(text):
+        ch = text[i]
+        if quoted:
+            if ch == "'":
+                if i + 1 < len(text) and text[i + 1] == "'":
+                    i += 2
+                    continue
+                quoted = False
+        elif ch == "'":
+            quoted = True
+        elif ch == "[":
+            depth += 1
+        elif ch == "]":
+            depth -= 1
+            if depth == 0:
+                return i
+        i += 1
+    return None
+
+
+def context_access_chain(text, start):
+    """Parse static `.name` / `['name']` accesses after a context word.
+
+    Returns `(parts, dynamic, end)`. A None part is a dynamic bracket. The
+    caller refuses it because no static workflow audit can prove which job or
+    output it names.
+    """
+    parts = []
+    dynamic = False
+    pos = start
+    while True:
+        while pos < len(text) and text[pos].isspace():
+            pos += 1
+        if pos < len(text) and text[pos] == ".":
+            pos += 1
+            while pos < len(text) and text[pos].isspace():
+                pos += 1
+            match = CONTEXT_NAME_RE.match(text, pos)
+            if match is None:
+                dynamic = True
+                break
+            parts.append(match.group(0))
+            pos = match.end()
+            continue
+        if pos < len(text) and text[pos] == "[":
+            end = context_bracket_end(text, pos)
+            if end is None:
+                dynamic = True
+                pos = len(text)
+                break
+            inside = text[pos + 1:end].strip()
+            match = re.fullmatch(r"'([A-Za-z0-9_-]+)'", inside)
+            parts.append(match.group(1) if match else None)
+            dynamic = dynamic or match is None
+            pos = end + 1
+            continue
+        break
+    return parts, dynamic, pos
+
+
+def needs_output_references(text):
+    """Static `(producer, output)` refs and unresolved `needs[...]` chains."""
+    refs = set()
+    unresolved = set()
+    for match in NEEDS_WORD_RE.finditer(text or ""):
+        parts, dynamic, end = context_access_chain(text, match.end())
+        if dynamic:
+            shown = text[match.start():end].strip() or "needs[...]"
+            unresolved.add(shown)
+            continue
+        if len(parts) >= 2 and parts[1] == "outputs":
+            if len(parts) < 3:
+                unresolved.add(text[match.start():end].strip())
+            else:
+                refs.add((parts[0], parts[2]))
+    return refs, unresolved
+
+
 def check_publication_path(c, path, wf):
     """The whole path a selector's decision travels: the step that computes
     it, the job `outputs` map that publishes it, and the jobs that run on it.
@@ -729,9 +858,18 @@ def check_publication_path(c, path, wf):
                                    else consumer_job_if(sel, decision)))
 
     for jid, job in all_jobs.items():
-        refs = sorted({m.groups() for s in all_scalars(job)
-                       for m in NEEDS_OUTPUT_RE.finditer(s)})
-        for producer, name in refs:
+        refs = set()
+        unresolved = set()
+        for scalar in all_scalars(job):
+            found, unknown = needs_output_references(scalar)
+            refs.update(found)
+            unresolved.update(unknown)
+        for expression in sorted(unresolved):
+            c.item(False, path, f"job `{jid}` uses `{expression}`, a dynamic "
+                   "or incomplete `needs` context the gate cannot resolve "
+                   "statically: use a dotted or single-quoted static job and "
+                   "output name so publication and dependency can be proved")
+        for producer, name in sorted(refs):
             pj = all_jobs.get(producer)
             declared = pj.get("outputs") if isinstance(pj, dict) else None
             declared = declared if isinstance(declared, dict) else {}
@@ -1121,10 +1259,88 @@ def check_default_branch_step(c, path, gate):
            "no continue-on-error, no `|| true`")
 
 
+def check_fast_selector(c, wf):
+    """Hold the fast workflow's complete checkout -> scope decision.
+
+    `rtl-fast` accepts skipped RTL consumers for docs-only changes. Therefore
+    an `if: false` on this job or its scope step, a shallow/moved checkout, or
+    a scope body that publishes `rtl=false` is a false green unless the whole
+    producer is part of the contract.
+    """
+    selector = jobs(wf).get(FAST_SELECTOR_JOB)
+    c.item(isinstance(selector, dict), RTL_FAST,
+           f"job `{FAST_SELECTOR_JOB}` must exist as the fast RTL selector")
+    if not isinstance(selector, dict):
+        return
+
+    check_job_keys(c, RTL_FAST, FAST_SELECTOR_JOB, selector)
+    c.item("defaults" not in wf, RTL_FAST,
+           "the fast workflow must carry no top-level `defaults` "
+           f"(found {wf.get('defaults')!r}): a `defaults.run.shell` changes "
+           "how the selector script runs")
+
+    raw_steps = selector.get("steps")
+    ss = raw_steps if isinstance(raw_steps, list) else []
+    mappings = [s for s in ss if isinstance(s, dict)]
+    c.item(len(ss) == 2 and len(mappings) == 2, RTL_FAST,
+           f"job `{FAST_SELECTOR_JOB}` must carry exactly two mapping steps, "
+           "checkout then scope, in that order (found "
+           f"{len(ss)} step(s), {len(mappings)} mapping(s)): an inserted or "
+           "removed step changes whether and how the selector runs")
+
+    checkouts = [s for s in mappings if _is_checkout_step(s)]
+    scopes = [s for s in mappings if s.get("id") == FAST_SCOPE_STEP_ID]
+    checkout = checkouts[0] if len(checkouts) == 1 else None
+    scope = scopes[0] if len(scopes) == 1 else None
+    c.item(len(checkouts) == 1 and len(scopes) == 1
+           and len(ss) == 2 and ss[0] is checkout and ss[1] is scope,
+           RTL_FAST, f"job `{FAST_SELECTOR_JOB}` steps must be exactly "
+           f"`{FAST_CHECKOUT_USES}` then the step with "
+           f"`id: {FAST_SCOPE_STEP_ID}` (found "
+           f"{[step_label(s) for s in mappings]}): scope must inspect the "
+           "tree the checkout brought")
+
+    if checkout is not None:
+        pinned_step_keys(c, RTL_FAST, "the fast selector checkout step",
+                         checkout, CHECKOUT_STEP_KEYS, {},
+                         CHECKOUT_STEP_OPTIONAL)
+        got_uses = str(checkout.get("uses", "")).strip()
+        c.item(got_uses == FAST_CHECKOUT_USES, RTL_FAST,
+               "the fast selector checkout step must use exactly "
+               f"`{FAST_CHECKOUT_USES}` (found `{got_uses}`)")
+        with_ = checkout.get("with")
+        with_ = with_ if isinstance(with_, dict) else {}
+        pinned_bindings(c, RTL_FAST, "the fast selector checkout `with`",
+                        with_, FAST_CHECKOUT_WITH,
+                        "the scope step diffs against an earlier commit, so "
+                        "the checkout must carry full history")
+
+    if scope is not None:
+        pinned_step_keys(c, RTL_FAST, "the fast selector scope step", scope,
+                         FAST_SCOPE_STEP_KEYS, FAST_SCOPE_STEP_ENV)
+        run = scope.get("run") if isinstance(scope.get("run"), str) else ""
+        lines = normalize_script(run)
+        proofs = [i for i, line in enumerate(lines)
+                  if line == SELECTOR_SELFTEST]
+        reads = [i for i, line in enumerate(lines) if SELECTOR_READ in line]
+        c.item(len(proofs) == 1 and bool(reads)
+               and proofs[0] < min(reads), RTL_FAST,
+               f"the fast selector scope step must run `{SELECTOR_SELFTEST}` "
+               "exactly once and before it reads the selector's answer "
+               f"(self-test at {proofs}, reads at {reads})")
+        c.item(tuple(lines) == CANONICAL_FAST_SCOPE_SCRIPT, RTL_FAST,
+               "the fast selector scope script is not the canonical form: "
+               + script_difference(lines, CANONICAL_FAST_SCOPE_SCRIPT)
+               + "; this script publishes `rtl`, so an empty or false value "
+               "skips both RTL consumers into the aggregate's accepted "
+               "docs-only path")
+
+
 def check_rtl_fast(c, wf):
     check_push_and_pr(c, RTL_FAST, wf, exact_types=True)
     check_cancel_in_progress(c, RTL_FAST, wf)
     check_public_names(c, RTL_FAST, wf)
+    check_fast_selector(c, wf)
     # The same selector -> outputs -> consumer path as the exhaustive
     # workflow, and the same false green if it is left unheld: this
     # aggregate counts a skipped consumer as a pass.
@@ -1556,6 +1772,61 @@ def _mutations():
             jobs(w[path])[jid]["if"] = value
         return f
 
+    def set_job_key_at(path, jid, key, value):
+        def f(w):
+            jobs(w[path])[jid][key] = value
+        return f
+
+    def fast_scope_step(w):
+        found = [s for s in job_steps(w, RTL_FAST, FAST_SELECTOR_JOB)
+                 if isinstance(s, dict)
+                 and s.get("id") == FAST_SCOPE_STEP_ID]
+        assert len(found) == 1, "fixture drift: no unique fast scope step"
+        return found[0]
+
+    def fast_checkout_step(w):
+        found = [s for s in job_steps(w, RTL_FAST, FAST_SELECTOR_JOB)
+                 if isinstance(s, dict) and _is_checkout_step(s)]
+        assert len(found) == 1, "fixture drift: no unique fast checkout step"
+        return found[0]
+
+    def fast_bdd_run_step(w):
+        found = [s for s in job_steps(w, RTL_FAST, "bdd-conformance")
+                 if "behave --no-capture" in step_text(s)]
+        assert len(found) == 1, "fixture drift: no unique BDD run step"
+        return found[0]
+
+    def m_fast_scope_publishes_false(w):
+        # The selector still self-tests and reads the real answer, but exports
+        # a literal false. Both RTL consumers skip and the aggregate passes.
+        scope = fast_scope_step(w)
+        old = 'echo "rtl=$rtl" >> "$GITHUB_OUTPUT"'
+        assert old in scope["run"], "fixture drift: no fast rtl publication"
+        scope["run"] = scope["run"].replace(
+            old, 'echo "rtl=false" >> "$GITHUB_OUTPUT"', 1)
+
+    def m_fast_scope_unproven(w):
+        scope = fast_scope_step(w)
+        assert SELECTOR_SELFTEST in scope["run"], (
+            "fixture drift: fast scope does not self-test the selector")
+        scope["run"] = scope["run"].replace(SELECTOR_SELFTEST, "true", 1)
+
+    def m_fast_steps_swapped(w):
+        ss = job_steps(w, RTL_FAST, FAST_SELECTOR_JOB)
+        assert len(ss) == 2, "fixture drift: fast selector is not two steps"
+        ss[0], ss[1] = ss[1], ss[0]
+
+    def m_fast_checkout_shallow(w):
+        del fast_checkout_step(w)["with"]["fetch-depth"]
+
+    def m_fast_top_defaults(w):
+        w[RTL_FAST]["defaults"] = {"run": {"shell": "bash -n {0}"}}
+
+    def m_fast_bdd_needs_expression(expression):
+        def f(w):
+            fast_bdd_run_step(w)["if"] = expression
+        return f
+
     def m_worker_needs_dropped(w):
         del jobs(w[RTL_FULL])["verilator-shards"]["needs"]
 
@@ -1950,6 +2221,57 @@ def _mutations():
         ("O19d a fast consumer gates on if: false",
          set_job_if(RTL_FAST, "yosys-elaboration", False),
          "`if` must be exactly"),
+        # #209 O21: the producer of the fast answer must run and publish the
+        # value it computed. Each arm leaves the selector output map and both
+        # consumer conditions canonical while making their jobs skip.
+        ("O21 fast selector job if: false",
+         set_job_if(RTL_FAST, FAST_SELECTOR_JOB, False),
+         f"job `{FAST_SELECTOR_JOB}` must carry no `if`"),
+        ("O21b fast scope step if: false",
+         set_step_key(fast_scope_step, "if", False),
+         "fast selector scope step must carry no `if`"),
+        ("O21c fast scope publishes literal rtl=false",
+         m_fast_scope_publishes_false,
+         "fast selector scope script is not the canonical form"),
+        ("O21d fast scope drops the selector self-test",
+         m_fast_scope_unproven,
+         "before it reads the selector's answer"),
+        ("O21e fast scope EVENT_NAME rebound to pull_request",
+         set_env_key(fast_scope_step, "EVENT_NAME", "pull_request"),
+         "fast selector scope step env must bind `EVENT_NAME`"),
+        ("O21f fast selector continue-on-error",
+         set_job_key_at(RTL_FAST, FAST_SELECTOR_JOB,
+                        "continue-on-error", True),
+         f"job `{FAST_SELECTOR_JOB}` must carry no `continue-on-error`"),
+        ("O21g fast selector scope runs before checkout",
+         m_fast_steps_swapped,
+         "steps must be exactly `actions/checkout@v4`"),
+        ("O21h fast selector checkout is shallow",
+         m_fast_checkout_shallow,
+         "fast selector checkout `with` must be exactly fetch-depth"),
+        ("O21i fast workflow parses selector scripts instead of running",
+         m_fast_top_defaults,
+         "fast workflow must carry no top-level `defaults`"),
+        # #209 O22: GitHub permits index and mixed property syntax for the
+        # same needs context. These expressions sit on the otherwise
+        # independent BDD job so only the closed reference audit can catch
+        # them; the ordinary consumer-if comparison is not involved.
+        ("O22 bracket needs reference names an unpublished output",
+         m_fast_bdd_needs_expression(
+             "${{ needs['changes'].outputs.bogus == 'true' }}"),
+         "must publish"),
+        ("O22b all-bracket needs reference omits its dependency",
+         m_fast_bdd_needs_expression(
+             "${{ needs['changes']['outputs']['rtl'] == 'true' }}"),
+         "must list `changes` in its `needs`"),
+        ("O22c mixed needs reference names an unpublished output",
+         m_fast_bdd_needs_expression(
+             "${{ needs.changes['outputs'].bogus == 'true' }}"),
+         "must publish"),
+        ("O22d dynamic needs reference cannot evade static audit",
+         m_fast_bdd_needs_expression(
+             "${{ needs[format('{0}', 'changes')].outputs.rtl == 'true' }}"),
+         "cannot resolve statically"),
         # #209 O9: the shard denominator restated instead of derived.
         ("O9 verilator matrix grows, the denominator is a literal",
          m_shard_denominator_stale, "shard denominator"),
@@ -2150,6 +2472,10 @@ def selftest(root):
         if s.get("id") == DECIDE_STEP_ID:
             s["run"] = "\n".join("   " + l if l.strip() else ""
                                   for l in s["run"].splitlines()) + "\n"
+    for s in steps(jobs(world[RTL_FAST])[FAST_SELECTOR_JOB]):
+        if s.get("id") == FAST_SCOPE_STEP_ID:
+            s["run"] = "\n".join("   " + l if l.strip() else ""
+                                  for l in s["run"].splitlines()) + "\n"
     for s in steps(jobs(world[RTL_FULL])["yosys-portability"]):
         if VERIFY_FLAG in step_text(s):
             s["run"] = ("shopt   -s nullglob\n"
@@ -2166,7 +2492,7 @@ def selftest(root):
                         f"was refused: {check(world).findings}")
     else:
         print("  ok   canonical pins are whitespace-invariant (assert step, "
-              "decision step and verifier step)")
+              "decision step, fast scope step and verifier step)")
 
     # --require-default-branch arms: the decision for every event class. An
     # inverted or weakened comparison fails one of these, which is what makes

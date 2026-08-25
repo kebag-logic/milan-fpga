@@ -267,15 +267,28 @@ is exactly these ten things:
     gate lands in the consumer class and is refused until it carries that
     `if`, so this perimeter is closed under addition rather than being a
     list of the escapes earlier rounds happened to find. Separately, no
-    expression anywhere in either RTL workflow may read
-    `needs.<job>.outputs.<name>` for an output that job does not publish, or
-    from a job it does not list in `needs`: both spellings evaluate to the
-    empty string, so every comparison against them is false and every job
-    gated on them skips. `rtl-fast.yml` publishes the same shape, from its
-    `changes` job to `verilator-lint` and `yosys-elaboration`, and is held by
-    the same check. Its aggregate counts a skipped consumer as a pass on
-    purpose, since a docs-only change legitimately runs no RTL lint, which is
-    exactly why that selector's published answer has to be pinned too.
+    expression anywhere in either RTL workflow may read an output a job does
+    not publish, or read it from a job it does not list in `needs`: both
+    mistakes evaluate to the empty string, so every comparison against them
+    is false and every job gated on them skips. The audit resolves GitHub's
+    dotted, bracket and mixed static spellings --
+    `needs.<job>.outputs.<name>`, `needs['job'].outputs.name` and
+    `needs['job']['outputs']['name']` -- as the same reference. A dynamic
+    `needs[...]` access is refused because the producer and output cannot be
+    proved statically.
+
+    `rtl-fast.yml` publishes the same shape, from its `changes` job to
+    `verilator-lint` and `yosys-elaboration`, and is held by the same check.
+    Its aggregate counts a skipped consumer as a pass on purpose, since a
+    docs-only change legitimately runs no RTL lint. Therefore the producer is
+    held too: `changes` carries no `needs`, `if`, `continue-on-error` or
+    `defaults`; the workflow carries no top-level `defaults`; and its exact
+    two-step sequence is `actions/checkout@v4` with full history followed by
+    the `scope` step. That step's keys and three env bindings are pinned, and
+    its normalized canonical script must self-test `ci_scope.py`, derive the
+    conservative changed-file set, read the selector answer and publish that
+    answer. An empty or forced-false publication can no longer skip both RTL
+    consumers into the accepted docs-only path.
 
 `--selftest` covers, one at a time: the step removed, the token missing, the
 live read replaced by an echo, the event not passed, `|| true`, the decoy
@@ -305,9 +318,15 @@ a value the decision never takes, made `continue-on-error`, given a
 `defaults.run.shell`, or reading the gate's output without needing the gate; a
 new job that depends on the gate and gates on nothing; in `rtl-fast.yml`, the
 `changes` selector's `rtl` output rebound to a literal and dropped, and its two
-consumers gated on a misspelt output and on `if: false`; a whitespace-only
-reformatting of all three canonical scripts that must still pass; and the
-decision itself for every event class.
+consumers gated on a misspelt output and on `if: false`; the `changes` job and
+scope step each given `if: false`, the job made `continue-on-error`, the scope
+env rebound, the scope script made to export `rtl=false` and stripped of its
+self-test, checkout/scope swapped, checkout made shallow, and a workflow
+`defaults.run.shell` inserted; dotted/bracket, all-bracket and mixed
+`needs...outputs` references to missing dependencies or outputs, plus a
+dynamic bracket reference; a whitespace-only reformatting of all four
+canonical scripts that must still pass; and the decision itself for every
+event class.
 
 ## One authoritative SHA
 
