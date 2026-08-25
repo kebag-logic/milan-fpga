@@ -821,6 +821,55 @@ def _rv32_partial(ones, zeros):
     return Rv32Bits(ones, zeros) if (ones or zeros) else None
 
 
+def asm_int(text):
+    """The integer grammar of COMPILER-EMITTED assembly, not Python's:
+    `0x`/`0X` is hex, anything else all-digits is decimal, zero-padded
+    spellings included. `int(x, 0)` refuses `03118564` as a malformed
+    octal literal, so a VALID emitted immediate could fail the census by
+    spelling alone and the mandatory gate went red nondeterministically
+    ([R-retest] on PR #228). Signs pass through; anything else raises
+    ValueError for the caller to classify as unresolved."""
+    tok = text.strip()
+    sign = 1
+    if tok and tok[0] in "+-":
+        sign = -1 if tok[0] == "-" else 1
+        tok = tok[1:]
+    if tok[:2].lower() == "0x":
+        return sign * int(tok, 16)
+    if tok.isdigit():
+        return sign * int(tok, 10)
+    raise ValueError("not an emitted-assembly integer: %r" % (text,))
+
+
+#: Immediates as the assembler prints them, in any base and either sign,
+#: and never a label suffix (`.L4`) or a register number. Module scope so
+#: the deterministic fixtures below replay the EXACT regex+parser pair the
+#: compiled census uses.
+ASM_IMMEDIATE_RE = re.compile(
+    r"(?<![\w.])(-?(?:0[xX][0-9A-Fa-f]+|\d+))(?![\w.])")
+
+#: Deterministic parser fixtures ([R-retest] on PR #228): zero-padded
+#: decimal, plain and signed decimal, and hexadecimal spellings must parse
+#: to the same value on every process, and the census replay forces the
+#: exact token shape the nondeterministic red run tripped on through the
+#: production regex+parser pair.
+for _tok, _want in (("03118564", 3118564), ("007", 7), ("42", 42),
+                    ("-42", -42), ("0x7F700000", 0x7F700000),
+                    ("-0X10", -16)):
+    assert asm_int(_tok) == _want, (_tok, asm_int(_tok))
+for _bad in ("", "0o17", "1_2", ".L4", "a5"):
+    try:
+        asm_int(_bad)
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("asm_int accepted %r" % (_bad,))
+_census_replay = "entity_store:\n\tli\ta5,03118564\n\tsw\ta4,0(a5)\n"
+assert [asm_int(_t) & 0xFFFF_FFFF
+        for _t in ASM_IMMEDIATE_RE.findall(_census_replay)] == [3118564, 0], \
+    "the census replay no longer parses the zero-padded immediate shape"
+
+
 def rv32_data(text):
     """Every symbol in `text` whose ENTIRE definition is one `.word N`.
 
@@ -851,7 +900,7 @@ def rv32_data(text):
             continue
         if RV32_DATA_EMIT_RE.search(stripped):
             word = RV32_WORD_RE.match(line)
-            emitted.append(int(word.group(1), 0) & RV32_MASK if word else None)
+            emitted.append(asm_int(word.group(1)) & RV32_MASK if word else None)
     if current is not None and len(emitted) == 1:
         data[current] = emitted[0]
     return {name: value for name, value in data.items() if value is not None}
@@ -945,7 +994,7 @@ RV32_IMMOPS = {
 
 def _rv32_imm(text):
     try:
-        return int(text.strip(), 0) & RV32_MASK
+        return asm_int(text) & RV32_MASK
     except (ValueError, AttributeError):
         return None
 
@@ -2798,10 +2847,9 @@ def test_baremetal_profile_contract():
         "sw/litex/milan_soc.py no longer states the Milan CSR window"
     csr_base = int(csr_window.group(1).replace("_", ""), 16)
     csr_size = int(csr_window_size.group(1).replace("_", ""), 16)
-    #: Immediates as the assembler prints them, in any base and either sign,
-    #: and never a label suffix (`.L4`) or a register number.
-    asm_immediate_re = re.compile(
-        r"(?<![\w.])(-?(?:0[xX][0-9A-Fa-f]+|\d+))(?![\w.])")
+    #: The module-level pair, so the parser fixtures above replay exactly
+    #: what runs here.
+    asm_immediate_re = ASM_IMMEDIATE_RE
     asm_noise_re = re.compile(r"^\s*\.(?:cfi|file|loc|size|ident|align|globl)")
     #: The values the census compile substitutes for the generated headers.
     #: Every one is asserted OUTSIDE the window below, so a stub cannot
@@ -3186,7 +3234,7 @@ def test_baremetal_profile_contract():
             if asm_noise_re.match(line):
                 continue
             for token in asm_immediate_re.findall(line):
-                value = int(token, 0) & 0xFFFF_FFFF
+                value = asm_int(token) & 0xFFFF_FFFF
                 if csr_base <= value < csr_base + csr_size and \
                         where != reg_name:
                     hits.append((where, f"0x{value:08x}",
