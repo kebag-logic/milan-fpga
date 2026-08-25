@@ -293,7 +293,7 @@ box("kleth", 15, 35, 1490, 280,
     "• PHC /dev/ptpN + SO_TIMESTAMPING expose the fabric clock; the product-default gPTP owner remains in fabric",
     fill=SYS[0], stroke=SYS[1], align="left", parent="c_drv")
 box("ptpd", 15, 335, 1490, 110,
-    "gPTP exact-one owner: product-default KL_gptp_shadow/gptp-processor owns BMCA, servo and pdelay and publishes GM/parent/PHC state;\nonly the explicit software-owner option-off comparison starts linuxptp + phc2sys/gptp2csr — never concurrently",
+    "gPTP exact-one owner: the fabric KL_gptp_shadow/gptp-processor owns BMCA, servo and pdelay and publishes GM/parent/PHC state;\nthe linuxptp/phc2sys software owner is retired (#259, historical) - no image starts it",
     fill=SYS[0], stroke=SYS[1], align="left", parent="c_drv")
 box("pw", 15, 465, 1490, 110,
     "media rev 3 (2026-08-13): softcore only fills a DMA PCM ring (ms cadence); fabric does SRP (MSRP/MVRP + admission),\nAAF framer (PTP presentation time) and the ACMP bind record - all three from the protocol processor. NO AECP anywhere.",

@@ -239,6 +239,9 @@ conformant fallback, and the current audit lists the remaining mandatory gaps.
 
 ### 2.10 Host Linux driver  *(Phase 7 / `REQ-DRV-*`; needs a kernel tree  -  not buildable in this repo)*
 
+Retired (#259): the Linux driver is a historical record; no supported image
+loads it, and these rows stand as the contract it satisfied.
+
 The `kl,dma-ether` platform net driver (`../kl-linux-drivers`). Extends the existing
 `REQ-DRV-01..08` with the explicitly-requested NAPI/XDP/PTP/ethtool surface.
 

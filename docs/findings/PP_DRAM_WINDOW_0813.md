@@ -86,7 +86,8 @@ bitstream.
 
 The bitstream built earlier on 2026-08-13 (`TAG=drammem`, which placed and routed
 at 84.80% LUT / 125 BRAM, post-route WNS +0.095 ns) was compiled against the OLD
-base and must not be used with the new device tree.
+base and must not be used with the new device tree (a historical Linux-era
+constraint; #259 retired the DTB consumer).
 
 ## The rebuild that ships
 

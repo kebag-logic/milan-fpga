@@ -40,9 +40,11 @@ Checks, over every ``*.md`` file in the tree:
    and in-place-obsolete pages (first line ``[OBSOLETE + date]``, the regex
    lifted from ``check_archive.py``) are records of their time and exempt.
 7. **gPTP ownership semantics** — a present-tense claim that assigns linuxptp
-   normal-operation, policy-plane, BMCA or servo ownership must say that it is
-   the explicit software-owner/option-off comparison. The product default has
-   exactly one fabric owner. Diagram sources and generated text artifacts are
+   normal-operation, policy-plane, BMCA or servo ownership is rejected unless
+   the surrounding text marks it as retired history (#259). The product is
+   bare-metal only with exactly one fabric owner; no software-owner,
+   option-off or comparison image exists any more, so that wording no longer
+   qualifies a claim. Diagram sources and generated text artifacts are
    checked as well as Markdown.
 
 Exit 0 = clean; exit 1 = findings, one per line as ``path:line: message``.
@@ -144,18 +146,19 @@ LOCAL_RE = re.compile(
     r"amx-|/home/alex|enx[0-9a-f]{8,}|serial/by-id/usb-[A-Za-z0-9]|192\.168\.127"
 )
 
-# linuxptp remains valuable comparison/bench evidence, but it is not the
-# product-default gPTP owner.  Look at a three-line claim window so normal
-# Markdown wrapping cannot hide an unqualified ownership statement.  The
-# qualifier is intentionally architectural (owner/profile), not a vague
-# "optional": exactly-one ownership is the invariant this rule protects.
+# linuxptp was the software gPTP owner and is retired (#259); it may appear
+# in committed text only as retired history.  Look at a three-line claim
+# window so normal Markdown wrapping cannot hide an unqualified ownership
+# statement.  Only retirement markers qualify: the former software-owner /
+# option-off / comparison wording named an image that no longer exists, so
+# it cannot excuse an ownership claim (#259 removed that allowance).
 GPTP_LINUX_RE = re.compile(r"\blinuxptp\b", re.IGNORECASE)
 GPTP_OWNER_CLAIM_RE = re.compile(
     r"normal operation|policy[- ]shaped|policy plane|gPTP stack|BMCA|servo",
     re.IGNORECASE,
 )
 GPTP_OWNER_QUALIFIER_RE = re.compile(
-    r"software[- ]owner|option[- ]off|comparison|historical|older",
+    r"retired|#259|historical|older|verification[- ]only",
     re.IGNORECASE,
 )
 
@@ -496,7 +499,7 @@ def check_md(path, relpath, resolve, tracked_set):
 
 
 def check_gptp_owner_claims(text, relpath, *, exempt_obsolete=True):
-    """Reject unqualified claims that make linuxptp the active gPTP owner."""
+    """Reject claims that make the retired (#259) linuxptp an active gPTP owner."""
     lines = text.splitlines()
     if relpath.startswith("historical_now_obsolete/"):
         return []
@@ -512,9 +515,9 @@ def check_gptp_owner_claims(text, relpath, *, exempt_obsolete=True):
         if (GPTP_OWNER_CLAIM_RE.search(window)
                 and not GPTP_OWNER_QUALIFIER_RE.search(window)):
             findings.append(
-                f"{relpath}:{index + 1}: unqualified linuxptp gPTP-owner "
-                "claim — name the explicit software-owner option-off "
-                "comparison and retain the product-default fabric owner")
+                f"{relpath}:{index + 1}: linuxptp gPTP-owner claim without "
+                "a retirement marker, the software owner is retired (#259) "
+                "and the fabric plane is the only gPTP owner")
     return findings
 
 

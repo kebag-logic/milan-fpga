@@ -36,10 +36,10 @@ REPO_ROOT="$(cd "$SOC_DIR/../.." && pwd)"
 # the environment or in sw/litex/boards.local.sh (gitignored; template =
 # boards.local.sh.example). policy = what this board's QSPI holds:
 #   both boards "boot" (USER 2026-07-20: "to flash use qspi"): bitstream at
-#   offset 0 in a dedicated 4 MiB slot, followed by the profile-selected
-#   images from flashboot_layout.json. The shipping AX shape stores its raw
-#   AEM image at 4 MiB; Linux bring-up shapes retain the kernel/OpenSBI/DTB/
-#   rootfs layout.
+#   offset 0 in a dedicated 4 MiB slot, followed by the raw AEM image at
+#   4 MiB per flashboot_layout.json. Every named config is bare-metal (#259);
+#   the retired Linux kernel/OpenSBI/DTB/rootfs manifests are historical and
+#   no recipe here emits them.
 #   The historical "AX bitstream = kernel-clobber trap" note described the OLD
 #   kernel-at-offset-0 layout and died with the manifest-"full" port.
 [ -f "$SOC_DIR/boards.local.sh" ] && . "$SOC_DIR/boards.local.sh"
@@ -53,9 +53,10 @@ board_facts() {  # -> "serial cable fpga_part flash_policy bit_name"
     esac
 }
 gptp_owner_for_config() {
+    # #259: the fabric plane is the ONE gPTP owner; the software owner is
+    # retired, so no named config may expect it.
     case "$1" in
-        ax7101|ax8x8) echo fabric;;
-        arty)         echo software;;
+        ax7101|ax8x8|arty) echo fabric;;
         *)          return 1;;
     esac
 }
@@ -139,9 +140,10 @@ if [ "${1:-}" = "flash" ]; then
 fi
 
 # ---- named configurations -----------------------------------------------------
-cfg_ax7101() {   # shipping bare-metal shape: one cacheless RV32I hart. The
-                 # product Linux/fabric shape is cfg_ax8x8; cfg_arty retains
-                 # the explicit software-owner comparison.
+cfg_ax7101() {   # shipping bare-metal shape: one cacheless RV32I hart.
+                 # cfg_ax8x8 is the 8-stream bare-metal shape and cfg_arty the
+                 # Arty bare-metal shape; the Linux profiles and the software
+                 # gPTP owner are retired (#259).
     # BODY = the tdm8 internal-COMPLIANCE/ship set (byte-matched to the t529 sweep Command;
     # the nic-perf RV64 revision below had leaked back in as the bare body,
     # so an extras-less `--sweep ax7101` built prefetch-rpt/l2-16K/no-tdm8 -
@@ -188,28 +190,21 @@ cfg_ax8x8() {    # 8-stream (64ch) shape. History: the 07-24 close used
     # cause (8b5d0255). The 07-24 close above was measured on that RV64 core
     # and its RV64-era refill/prefetch cache profile, so it is an upper bound
     # for this recipe, not its figure.
-    echo "--board ax7101 --cpu vexiiriscv --cpu-count 1 --xlen 32 --software-profile linux \
-          --all-blocks --coherent-dma --sound-card --fabric-gptp \
-          --milan-clk-freq 100e6 --with-spiflash --flashboot full --gtx-tx-invert \
-          --timing-opt --floorplan --eth-port e1 --l2-bytes 16384 \
-          --scala-args=--lsu-l1-refill-count=2 --scala-args=--l2-down-pending=4 \
-          --scala-args=--l2-general-slots=8 \
+    # 2026-08-25 (#259): this recipe is BARE-METAL. The retired Linux
+    # profile took the L2/scala cache words, the ALSA sound-card and
+    # playback rings, and the "full" flash manifest with it; the fabric
+    # AAF/TDM datapath and the fabric gPTP owner stay.
+    echo "--board ax7101 --cpu vexiiriscv --cpu-count 1 --xlen 32 \
+          --software-profile baremetal --all-blocks --coherent-dma --fabric-gptp \
+          --milan-clk-freq 100e6 --with-spiflash --flashboot baremetal --gtx-tx-invert \
+          --timing-opt --floorplan --eth-port e1 --l2-bytes 0 \
           --uart-baudrate 115200 --rx-queues 2 --strip-probes --hs-page-bytes 16384 \
           --num-streams 8 --audio-interface tdm32 --audio-interface-master \
           --talker-wire-chans 8 --no-latency-taps --no-i2s-playback \
-          --aaf-playback --aaf-playback-streams 1 \
           --entity-gen-dir $SOC_DIR/../../configs/generated/endstation_ax7101_8x8 \
           --no-render-lpf --no-datapath-probes --cbs-queues-mask 0x10 \
           --synth-directive AreaOptimized_high \
           --opt-directive ExploreArea --place-directive AltSpreadLogic_high"
-                 # --aaf-playback (task #31, 2026-08-02) = KL_pcm_tx host
-                 # playback ring -> the chmap capture RING bucket: the ALSA
-                 # playback direction (snd-kl-milan pb-dma window; DT
-                 # kl,playback-streams). ONE ring served (stated explicitly;
-                 # full-N OOC'd 2216 LUT,
-                 # one-ring ~1/8th) - its 4 pairs reach any talker's wire
-                 # slots through the 64ch chmap. The render sample bank
-                 # behind it is unloaded on this padless board and sweeps.
                  # --no-render-lpf = the SPENT LPF_P area lever (2026-07-27,
                  # docs/design/AREA_BUDGET.md). 428 LUT / 756 FF / 0 DSP
                  # from the shipping 8x8 place report - the only Vivado-PROVEN
@@ -228,9 +223,9 @@ cfg_arty() {     # Arty A7-100 small endstation: MII 100M, QSPI flashboot (probe
     # -1 die: 100 MHz datapath does NOT close (measured -1.0 WNS); 50 MHz is
     # 3.2 Gb/s of 64-bit datapath for a 100 Mbit wire. sys 83.333 = the clean
     # PLL divisor set (VCO 1000; 90e6 has NO solution with the 25 MHz eth ref).
-    # Flash = bitstream@0 + the full-manifest Linux images (QSPI self-boot on
-    # both boards; the old kernel-at-0 / JTAG-SRAM-only layout died with the
-    # manifest-full port - see board_facts above + docs/integration/QSPI_FLASHBOOT.md).
+    # Flash = bitstream@0 + the raw AEM image (QSPI self-boot on both boards;
+    # the old kernel-at-0 / JTAG-SRAM-only layout and the whole Linux image
+    # manifest are retired history - #259 and docs/integration/QSPI_FLASHBOOT.md).
     # 2026-08-22 (#157): --cpu-count 1 --xlen 32 are STATED, matching
     # configs/endstation_arty_current.yaml, the sweep.sh arty leg and
     # configs/generated/sweep_opts_arty.sh. The 2-hart count dated from the
@@ -239,12 +234,13 @@ cfg_arty() {     # Arty A7-100 small endstation: MII 100M, QSPI flashboot (probe
     # through milan_soc.py's default. The Arty is a retired DUT
     # (docs/findings/BENCH_TOPOLOGY.md), so this recipe is proven to reach
     # the Instance (test_builder gate 23g), not built.
-    echo "--board arty --cpu vexiiriscv --cpu-count 1 --xlen 32 --software-profile linux \
-          --all-blocks --coherent-dma --sound-card --fabric-gptp \
-          --sys-clk-freq 83.333e6 --milan-clk-freq 50e6 --with-spiflash --flashboot full \
-          --uart-baudrate 115200 --timing-opt --strip-probes --l2-bytes 65536 \
-          --scala-args=--lsu-l1-refill-count=2 --scala-args=--l2-down-pending=4 \
-          --scala-args=--l2-general-slots=8 --cbs-queues-mask 0x10 \
+    # 2026-08-25 (#259): bare-metal, like every named config; the retired
+    # Linux profile took the L2/scala cache words and the sound-card with it.
+    echo "--board arty --cpu vexiiriscv --cpu-count 1 --xlen 32 \
+          --software-profile baremetal --all-blocks --coherent-dma --fabric-gptp \
+          --sys-clk-freq 83.333e6 --milan-clk-freq 50e6 --with-spiflash --flashboot baremetal \
+          --uart-baudrate 115200 --timing-opt --strip-probes --l2-bytes 0 \
+          --cbs-queues-mask 0x10 \
           --entity-gen-dir $SOC_DIR/../../configs/generated/endstation_arty_current \
           --rx-queues 2 --hs-page-bytes 16384"
 }

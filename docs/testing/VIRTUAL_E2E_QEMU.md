@@ -24,7 +24,7 @@ is a partial proof and must be labelled as such.
 | plane | requirement | falsifier (disqualifies the claim) |
 |---|---|---|
 | **Silicon** | The actual `hdl/` SystemVerilog (`milan_datapath` + wrappers) simulated by Verilator | a behavioral stub or Python model standing in for the datapath |
-| **Software** | The real firmware/OS stack — BIOS (done), then the real buildroot RV32 Linux image + `S50milan` provisioning, unmodified | a test binary that bypasses the shipped init path |
+| **Software** | The real firmware stack: BIOS (done), then the bare-metal Milan firmware, unmodified (the buildroot RV32 Linux image + `S50milan` target of the original plan is retired, #259, historical) | a test binary that bypasses the shipped init path |
 | **Protocol** | Real frames on a wire: ADP/AECP/ACMP/AVTP-AAF/CRF/gPTP/MRP entering and leaving the RTL MAC, parsed by an independent implementation | loopback-only checks that never serialize an Ethernet frame |
 | **Oracle** | An independent implementation validates behaviour (foreign AVDECC stack, decode, or cross-side counter corroboration) — never the DUT grading itself | "PASS" read only from the DUT's own CSRs with no cross-check |
 

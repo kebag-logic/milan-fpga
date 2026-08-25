@@ -2101,8 +2101,9 @@ wrap the ring end  -  software splits its memcpy, hardware splits its bursts (al
 
 ### PCM ring (LiteX CSR bank, `0xf0003120`)
 
-This bank exists only when the SoC is built with the optional `sound_card`
-feature (`milan_soc.py --sound-card`). The shipping bare-metal profile omits
+This bank exists only when the SoC is built with the retired (#259)
+`sound_card` feature (historically `milan_soc.py --sound-card`, now refused
+at the CLI). The shipping bare-metal profile omits
 the bank, its DRAM/BRAM ring master, and the device-tree/ALSA host surface;
 AAF capture, TDM/I2S, render, and loopback fabric remain available. Software
 must discover the host-audio feature from the build description rather than

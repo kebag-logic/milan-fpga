@@ -866,7 +866,8 @@ Stated explicitly so the gaps are not mistaken for clean results.
   and wraps.
 * **The `+160 ppm media-clock defect` was deliberately not touched.** It is
   fixed in RTL and awaiting a bitstream, and it is a separate phenomenon
-  from ALSA xruns; no attempt was made to attribute anything here to it.
+  from ALSA xruns (a historical Linux-era observation, #259); no attempt was
+  made to attribute anything here to it.
   **Update 2026-08-10:** that fix has shipped and is confirmed on silicon.
   `media_tick_p` is now a Bresenham fractional-N divider with zero
   residual error. A separate and much smaller media-clock effect remains,

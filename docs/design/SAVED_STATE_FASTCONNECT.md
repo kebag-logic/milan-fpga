@@ -1132,7 +1132,8 @@ where the kernel-side story lives.
 3. **The write path is the LiteSPI CSR master either way**, on Linux and on
    baremetal. Nothing in this design needs mtd.
 4. **On the shipping `--flashboot baremetal` profile** there is no kernel at
-   all. The equivalent obligation is that the firmware resolves the slot offsets
+   all (the Linux boot chain is retired, #259). The equivalent obligation is
+   that the firmware resolves the slot offsets
    from the generated map rather than from literals, which is what keeps
    `milan_soc.py` the single source of truth for the firmware as well.
 5. **A reflash must not erase either reserved slot.** A gateware update that

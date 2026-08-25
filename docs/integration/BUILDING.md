@@ -117,22 +117,23 @@ flash manifest, `--gtx-tx-invert`, `--timing-opt --floorplan`, and a
 three-directive placement sweep. See
 [BAREMETAL_FIRMWARE.md](BAREMETAL_FIRMWARE.md).
 
-### `ax8x8`  -  AX7101 Linux + product fabric gPTP, 8-stream (64-channel) shape
+### `ax8x8`  -  AX7101 8-stream (64-channel) bare-metal shape
 
-Same board, but retains the Linux bring-up flow while keeping the
-product-default `--fabric-gptp` owner. Its positive v1 fabric-profile rootfs ships no linuxptp
-graph; the Arty recipe remains the explicit option-OFF software comparison.
-The AX shape has a cached Vexii CPU, ALSA sound-card rings and full Linux flash
-manifest. It uses
-`--num-streams 8`, `--rx-queues 2`, `--l2-bytes 16384`, and place directive
-AltSpreadLogic_high. The second RX queue is required because a one-queue build
-has no flow-steer block; under bulk traffic, ptp4l then shares the bulk ring and
-the GM can be deposed. The 2026-07-24 close (WNS +0.080, LUT 85.15 pct, TNS 0)
-used one RX queue plus the old RV64 CPU and RV64-era refill/prefetch cache
-profile, so those figures are only a historical upper bound, not a result for
-the current recipe. The CPU is the RV32 single-hart VexiiRiscv every other
-artifact of this shape describes: since 2026-08-22 (#157) the recipe states
-`--xlen 32 --cpu-count 1`.
+Same board, wider dataplane, same bare-metal profile (#259: the Linux
+bring-up flow this recipe once carried is retired, along with its cached CPU,
+ALSA sound-card rings and full Linux flash manifest). It keeps the
+`--fabric-gptp` owner and uses `--num-streams 8`, `--rx-queues 2`,
+`--l2-bytes 0` (cacheless), `--flashboot baremetal`, and place directive
+AltSpreadLogic_high. The two-queue shape is the measured configuration from
+the historical Linux-era D7 record: a one-queue build has no flow-steer
+block, and under bulk traffic the then-softcore ptp4l shared the bulk ring
+and the GM could be deposed; the fabric plane is timer-driven and
+host-load-independent, and the steering front-end stays. The 2026-07-24
+close (WNS +0.080, LUT 85.15 pct, TNS 0) used one RX queue plus the old RV64
+CPU and RV64-era refill/prefetch cache profile, so those figures are only a
+historical upper bound, not a result for the current recipe. The CPU is the
+RV32 single-hart VexiiRiscv every other artifact of this shape describes:
+since 2026-08-22 (#157) the recipe states `--xlen 32 --cpu-count 1`.
 
 #### Choosing the Ethernet port (`--eth-port`)
 
@@ -182,7 +183,7 @@ side that decides.
 xc7a100t**csg324-1** (SAME die, SLOWER speedgrade  -  expect tighter WNS at
 100 MHz), 10/100 Ethernet (DP83848, **MII**; the SoC drives its 25 MHz
 `eth_ref_clk`), 256 MB DDR3 (MT41K128M16), QSPI flashboot (`--with-spiflash
---flashboot full`; the S25FL128S flashboot increment has landed) and
+--flashboot baremetal`; the retired #259 Linux `full` manifest is history) and
 `--strip-probes`. Role: AVDECC/Milan interop peer and the 100 Mbit CBS
 test point (`is_1g=0` slope branch); not a throughput peer.
 Its CPU is one RV32 VexiiRiscv hart (`--cpu-count 1 --xlen 32`, stated
@@ -271,9 +272,9 @@ cables by serial and consoles by `/dev/serial/by-id/` path:
 | Arty A7-100 | `openFPGALoader --ftdi-serial <arty-ftdi-serial> -c digilent <bit>` | same FT2232, channel B: `/dev/serial/by-id/<board-usb-serial>` (`-if01-port0`), 115200; tmux session `arty_console` |
 
 Every profile keeps the bitstream at QSPI offset 0 in a dedicated 4 MiB slot.
-The Linux `full` manifest then carries kernel/OpenSBI/DTB/rootfs. The shipping
-AX bare-metal manifest instead carries only raw `aem_desc.bin` at 4 MiB in a
-64 KiB slot; firmware itself is linked into ROM. Always read the build's
+The bare-metal manifest carries only raw `aem_desc.bin` at 4 MiB in a 64 KiB
+slot; firmware itself is linked into ROM. (Historical, retired #259: the
+Linux `full` manifest carried kernel/OpenSBI/DTB/rootfs.) Always read the build's
 `flashboot_layout.json`; details are in
 [QSPI_FLASHBOOT.md](QSPI_FLASHBOOT.md). Flash with
 `INSTALLED_BUILD=<exact-current-build> ./build.sh flash

@@ -8,17 +8,12 @@ GREEN=("#C8E6C9","#2E7D32"); BLUE=("#BBDEFB","#1565C0"); PURPLE=("#E1BEE7","#6A1
 DARK=("#CFD8DC","#37474F"); YELLOW=("#FFF9C4","#F9A825")
 
 LAYERS = [
- ("Userspace", "on target · C / config", TEAL, [
-    "PipeWire + module-avb (AVB talker/listener)",
-    "alsa-lib · buildroot rootfs (busybox init, cpio→tmpfs)"]),
- ("Linux kernel", "on target · C (in-tree + out-of-tree)", RED, [
-    "kl-eth: out-of-tree Milan NIC driver (TX/RX DMA, telemetry sysfs, PTP)",
-    "in-tree: liteuart, litex-soc-controller, sifive-plic, clint-timer",
-    "net: PTP-1588 core · sch_cbs + mqprio qdisc · AF_PACKET · 8021Q",
-    "device tree: milan_ax7101_linux.dts  ·  kernel .config: linux.fragment"]),
- ("Boot firmware", "on target · C", ORANGE, [
-    "LiteX BIOS (ROM) + linux_flashboot (QSPI→DRAM image copy)",
-    "OpenSBI: custom litex_nax platform (M-mode fw_jump, embedded DTB)"]),
+ ("Bare-metal firmware", "on target · C (the one software surface, #259)", TEAL, [
+    "Milan UART/CSR firmware: milan_status · milan_gettime · milan_settime · milan_utc",
+    "LiteX BIOS (ROM): console + CRC'd copy of the raw AEM image from its QSPI slot"]),
+ ("Retired software stack (#259, historical)", "no longer shipped · kept in git history", RED, [
+    "Linux kernel + kl-eth driver · OpenSBI · device tree · buildroot rootfs",
+    "PipeWire/alsa userspace · the linuxptp software gPTP owner"]),
  ("SoC integration: LiteX / Migen", "dev host · Python → Verilog  (sw/litex/milan_soc.py)", GREEN, [
     "MilanSoC (top: VexiiRiscv RV32 + DDR3 + NIC + flash)   ·   _CRG (PLL/clocks/CDC)",
     "MilanNIC / add_milan_datapath   ·   MilanMAC (LiteEth glue)",
@@ -44,12 +39,12 @@ LAYERS = [
     "QSPI 16 MB (Micron N25Q128)  ·  RTL8211E GbE PHY  ·  200 MHz clk"]),
 ]
 SIDE = ("Host tooling", "Python / bash", YELLOW, [
-    "milan_soc.py: SoC/gateware generator",
-    "milan_dt.py: device-tree generator (csr.json→dts)",
+    "milan_soc.py: SoC/gateware generator (bare-metal profile only, #259)",
+    "endstation_builder.py: AEM image + fabric gPTP ROM from ONE config",
     "deploy.sh: build / load / flash-pair (live QSPI owner proof)",
-    "boot.sh: exact-pair serialboot (complete tuple)",
-    "patches/apply.sh: BIOS linux_flashboot",
-    "crcfbigen: FBI image wrapper"])
+    "build.sh: named bare-metal configs + flash transaction",
+    "crcfbigen: FBI image wrapper",
+    "retired (#259): milan_dt.py, boot.sh, patches/apply.sh (Linux era)"])
 
 # ---- layout geometry ----
 X0, Y0 = 30, 90

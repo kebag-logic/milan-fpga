@@ -295,8 +295,8 @@
 <text x="3703.0" y="858.0" font-size="10" fill="#222" text-anchor="start">• identity provisioning once/boot: devmem 0x9000_0600 group (aecp_csr_setup.sh, caps 0x8588)</text>
 <text x="3703.0" y="871.0" font-size="10" fill="#222" text-anchor="start">• PHC /dev/ptpN + SO_TIMESTAMPING expose the fabric clock; the product-default gPTP owner remains in fabric</text>
 <rect x="3695.0" y="995.0" width="1490.0" height="110.0" rx="0" fill="#e1d5e7" stroke="#9673a6" stroke-width="1.3"/>
-<text x="3703.0" y="1047.0" font-size="10" fill="#222" text-anchor="start">gPTP exact-one owner: product-default KL_gptp_shadow/gptp-processor owns BMCA, servo and pdelay and publishes GM/parent/PHC state;</text>
-<text x="3703.0" y="1060.0" font-size="10" fill="#222" text-anchor="start">only the explicit software-owner option-off comparison starts linuxptp + phc2sys/gptp2csr — never concurrently</text>
+<text x="3703.0" y="1047.0" font-size="10" fill="#222" text-anchor="start">gPTP exact-one owner: the fabric KL_gptp_shadow/gptp-processor owns BMCA, servo and pdelay and publishes GM/parent/PHC state;</text>
+<text x="3703.0" y="1060.0" font-size="10" fill="#222" text-anchor="start">the linuxptp/phc2sys software owner is retired (#259, historical) - no image starts it</text>
 <rect x="3695.0" y="1125.0" width="1490.0" height="110.0" rx="0" fill="#e1d5e7" stroke="#9673a6" stroke-width="1.3"/>
 <text x="3703.0" y="1177.0" font-size="10" fill="#222" text-anchor="start">media rev 2 (2026-07-12, user directive: EVERYTHING FPGA + lwSRP): softcore only fills a DMA PCM ring (ms cadence);</text>
 <text x="3703.0" y="1190.0" font-size="10" fill="#222" text-anchor="start">fabric does lwSRP (MSRP/MVRP + bandwidth gate) · AAF framer (PTP presentation time) · ACMP connection table</text>

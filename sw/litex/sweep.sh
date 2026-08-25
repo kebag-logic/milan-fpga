@@ -37,7 +37,7 @@ R="$(cd "$(dirname "$(realpath "$0")")/../.." && pwd)"
 # OPTS/L2/RXQ/NS == the end-station config named in CFG below.
 # ========================================================================
 case "$BOARD" in
-  arty)   OPTS="--board arty --sys-clk-freq 83.333e6 --milan-clk-freq 50e6 --num-streams 4 --audio-interface tdm8 --audio-interface-master --talker-wire-chans 4 --cbs-queues-mask 0x10 --fabric-gptp --sound-card --cpu vexiiriscv --software-profile linux --xlen 32 --all-blocks --coherent-dma --with-spiflash --flashboot full --timing-opt --l2-bytes 16384 --scala-args=--lsu-l1-refill-count=2 --scala-args=--l2-down-pending=4 --scala-args=--l2-general-slots=8 --uart-baudrate 115200 --rx-queues 2 --strip-probes --hs-page-bytes 16384 --cpu-count 1"; L2=16384; RXQ=2;;  # Arty bring-up shape: the fabric plane is the one product gPTP owner (#259); the Linux boot profile itself is retired by #259 and this row moves to bare-metal with it.
+  arty)   OPTS="--board arty --sys-clk-freq 83.333e6 --milan-clk-freq 50e6 --num-streams 4 --audio-interface tdm8 --audio-interface-master --talker-wire-chans 4 --cbs-queues-mask 0x10 --fabric-gptp --cpu vexiiriscv --software-profile baremetal --xlen 32 --all-blocks --coherent-dma --with-spiflash --flashboot baremetal --timing-opt --l2-bytes 0 --uart-baudrate 115200 --rx-queues 2 --strip-probes --hs-page-bytes 16384 --cpu-count 1"; L2=0; RXQ=2;;  # Arty bare-metal shape (#259): the fabric plane is the one gPTP owner; the retired Linux profile took the sound-card, cache words and full manifest with it.
   ax7101) OPTS="--board ax7101 --milan-clk-freq 50e6 --gtx-tx-invert --floorplan --eth-port e1 --no-i2s-playback --no-render-lpf --audio-interface tdm8 --audio-interface-master --talker-wire-chans 8 --cbs-queues-mask 0x10 --loopback-lane --fabric-gptp --cpu vexiiriscv --software-profile baremetal --xlen 32 --all-blocks --coherent-dma --with-spiflash --flashboot baremetal --timing-opt --l2-bytes 0 --uart-baudrate 115200 --rx-queues 2 --strip-probes --hs-page-bytes 16384 --cpu-count 1"; L2=0; RXQ=2;;  # Shipping AX shape: fabric gPTP option on, cacheless RV32 bare-metal, no Linux sound-card rings; fabric AAF/TDM/crossbar and the backed loopback lane stay present.
   *) echo "unknown board $BOARD" >&2; exit 2;;
 esac
@@ -70,11 +70,11 @@ case "$OPTS" in
     ;;
 esac
 # RXQ is PER BOARD because each board's flashed boot chain fixes its own DMA
-# window map (the 2026-07-24 CSR-rot rule): ax7101 ships 1 queue (its csr.csv
-# has no rx1_*/steer registers), arty ships 2 (its deployed gateware carries
-# rx1_* + steer_q0/q1). Building either with the other's count shifts every
-# DMA window under an unchanged DTB - unify them only with a full boot-chain
-# rebuild on that board.
+# window map (the 2026-07-24 CSR-rot rule): ax7101 carried 1 queue (its
+# csr.csv had no rx1_*/steer registers), arty carried 2 (rx1_* +
+# steer_q0/q1). Building either with the other's count shifts every DMA
+# window under an unchanged consumer map (historical: the retired Linux DTB,
+# #259) - unify them only with a full rebuild on that board.
 #
 # HARD GATE (not advisory): the effective shape must equal the end-station
 # config this sweep claims to build. set -e turns any disagreement into a
@@ -115,9 +115,9 @@ grep -q "$(basename "$CFG")" "$CFG_GEN/gen/adp_shape_defaults.svh" || {
 # the old margin (pre multicycle-reset, pre CBS-mask). The 3-seed WNS pick
 # stays the timing guard.
 # OPTS is the builder-emitted COMPLETE SoC shape, including the CPU software
-# profile. Keeping the CPU/flash/cache words there is what lets the shipping
-# AX profile be cacheless bare-metal while the Arty Linux bring-up profile
-# remains selectable without a second hand-maintained BASE.
+# profile. Both boards are cacheless bare-metal (#259: the Linux profile is
+# retired); keeping the CPU/flash words in OPTS is what lets one BASE serve
+# every board without a second hand-maintained recipe.
 BASE="python3 $R/sw/litex/milan_soc.py $OPTS --entity-gen-dir $CFG_GEN \
  --synth-directive AreaOptimized_high --opt-directive ExploreArea \
  --vivado-max-threads 32 --build"

@@ -276,7 +276,8 @@ flap-suppression cleared). Systematic experiments, one variable at a time:
   Hot-swapped the trim .ko (VM -> peer host -> AX via `ssh cat`; the built artifact
   at br-milan-output/build/kl-eth-1.0/kl-eth.ko has the trim) -> badmsg=0,
   peer delay 450 us, full GM output on the wire. **RAM-only fix: the AX QSPI
-  rootfs still ships the old driver — reflash for persistence.**
+  rootfs still ships the old driver - reflash for persistence.** (Historical
+  Linux-era record, #259.)
 - ptp4l 4.4 sends PTPv2.1 headers (minorVersion 1) on gPTP; the switch
   handles them fine for pdelay AND (from the Arty, same 4.4) announce accept
   — version is NOT a factor (theory tested and dropped).
@@ -288,11 +289,12 @@ flap-suppression cleared). Systematic experiments, one variable at a time:
   8bbe361 session with power-controller switch power control) — ptp4l restarts/kills
   from the other session look like silent crashes; check `ps` + attribute
   before debugging.
-- LIVE-STATE DEPENDENCY: the current lock chain requires **allmulti pinned on
-  both boards** (`ip link set eth0 allmulticast on`, MAC_CTRL 0x1B) until the
-  kl_set_rx_mode fix (program allmulti/mc-hash when netdev_mc_count>0) ships
-  with the Phase B kl-eth work. A reboot silently reverts to 0x13 = standalone
-  ptp4l goes deaf.
+- LIVE-STATE DEPENDENCY (historical Linux-era record, #259): the lock chain
+  of that bench required **allmulti pinned on both boards** (`ip link set
+  eth0 allmulticast on`, MAC_CTRL 0x1B) until the kl_set_rx_mode fix
+  (program allmulti/mc-hash when netdev_mc_count>0) shipped with the Phase B
+  kl-eth work. A reboot silently reverted to 0x13 = standalone
+  ptp4l went deaf (same historical record).
 
 
 *Which way does time flow through the switch, and where does it stop?* Both

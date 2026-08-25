@@ -359,10 +359,15 @@ is landing the DMA payload warm (DDIO) so the copy stops reading DRAM cold.
 
 ## 8. Reproduce / re-tune
 
+Historical (retired #259): this campaign tuned the Linux-era cached profile.
+The bare-metal CLI refuses that profile's cache/scala knobs and its flash
+manifest, so the argv below is the measured record, not a runnable recipe
+(the retired flash-manifest arg is elided).
+
 ```bash
 # regenerate the netlist + bitstream with a deeper (or shallower) D$:
 python3 milan_soc.py --cpu vexiiriscv --cpu-count 2 --all-blocks --coherent-dma \
-  --milan-clk-freq 100e6 --with-spiflash --flashboot full --gtx-tx-invert \
+  --milan-clk-freq 100e6 --with-spiflash --gtx-tx-invert \
   --timing-opt --floorplan --l2-bytes 32768 \
   --scala-args=--lsu-l1-refill-count=8 \        # the knob; add: --scala-args=--lsu-hardware-prefetch=rpt
   --uart-baudrate 115200 --rx-queues 2 --vivado-max-threads 32 --build --output-dir work/build_mlp1

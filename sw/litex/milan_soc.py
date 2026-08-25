@@ -1363,7 +1363,7 @@ class MilanMAC(LiteXModule):
         # blanket `set_clock_groups -asynchronous` FALSE-PATHS every eth
         # crossing, so the gray-pointer/synchronizer skew into sys+milan was
         # bounded by nothing but placement luck - the eppo seed shipped a
-        # bitstream whose kernel-bound RX/ARP died as the die warmed while
+        # bitstream whose kernel-bound RX/ARP (historical Linux-era image) died as the die warmed while
         # the fabric plane stayed healthy. GMII boards now get BOUNDED
         # crossings instead: hold analysis is meaningless across async
         # domains (false_path -hold), and setup becomes a real 8 ns
@@ -5848,8 +5848,9 @@ class MilanSoC(SoCCore):
         # ---- QSPI config flash (memory-mapped) + selected boot manifest ----
         # Maps the on-board N25Q128 (16 MB) into the CPU address space so the BIOS can
         # copy artifacts straight from flash. `flashboot` selects which images live in
-        # flash (see FLASHBOOT_MANIFESTS). Linux profiles drive the patched BIOS boot
-        # method; bare-metal firmware reads the raw AEM image from its reserved slot.
+        # flash (see FLASHBOOT_MANIFESTS). Bare-metal firmware reads the raw AEM image
+        # from its reserved slot; the Linux manifests are retired (#259) and refused
+        # at the CLI, kept only so historical layouts stay decodable.
         if with_spiflash:
             from litespi.modules import N25Q128A13, S25FL128S
             from litespi.opcodes import SpiNorFlashOpCodes as SpiCodes
@@ -6683,14 +6684,16 @@ def main():
     ap = argparse.ArgumentParser(description="Milan RISC-V fabric-control SoC")
     ap.add_argument("--xlen", default=64, type=int, choices=[32, 64],
                     help="CPU register width, honoured by BOTH --cpu choices "
-                         "(Linux default: RV64/sv39; baremetal requires RV32 without an MMU)")
+                         "(the bare-metal product profile requires RV32 without an MMU)")
     ap.add_argument("--cpu-count",    default=1, type=int, help="number of cores (this config: 1)")
     ap.add_argument("--cpu",          default="naxriscv", choices=["naxriscv","vexiiriscv"], help="soft CPU (vexiiriscv = higher fmax, smaller  -  AVB-switch direction)")
-    ap.add_argument("--software-profile", default="linux",
+    ap.add_argument("--software-profile", default="baremetal",
                     choices=("baremetal", "linux"),
-                    help="shipping firmware shape: baremetal uses the cacheless RV32I "
-                         "M-mode Vexii core and the Milan UART/CSR firmware; linux keeps "
-                         "the legacy MMU/OpenSBI/buildroot bring-up flow")
+                    help="firmware shape. 'baremetal' (the ONLY product profile, #259) "
+                         "uses the cacheless RV32I M-mode Vexii core and the Milan "
+                         "UART/CSR firmware. 'linux' is the retired historical "
+                         "bring-up flow and is REFUSED at parse time; the token "
+                         "remains only so the refusal can name it.")
     ap.add_argument("--with-fpu",     action="store_true", help="hardware FP unit (rv64imafd / lp64d)")
     ap.add_argument("--scala-args",   action="append", default=[], help="extra NaxRiscv scala args, e.g. alu-count=1,decode-count=1 (append)")
     ap.add_argument("--sys-clk-freq", default=100e6, type=float)
@@ -6752,9 +6755,10 @@ def main():
                          "root). CPU mmaps MILAN_PCM_BRAM_BASE (0x9010_0000); the pcm CSR ABI "
                          "is unchanged. ~8 RAMB36.")
     ap.add_argument("--sound-card", action="store_true",
-                    help="elaborate the Linux ALSA host surface: listener PCM capture "
-                         "ring/CSR bank and, with --aaf-playback, host playback rings. "
-                         "Default absent; AAF/TDM/I2S/render/loopback fabric remains.")
+                    help="RETIRED (#259) and refused at parse time: the Linux ALSA "
+                         "host surface (listener PCM capture ring/CSR bank, playback "
+                         "rings) has no owner on the bare-metal product. The "
+                         "AAF/TDM/I2S/render/loopback fabric is always present.")
     gptp_group = ap.add_mutually_exclusive_group()
     gptp_group.add_argument("--fabric-gptp", dest="fabric_gptp",
                             action="store_true",
@@ -6928,14 +6932,14 @@ def main():
                     help="memory-map the on-board N25Q128 QSPI flash (16 MB) so the BIOS can "
                          "load the bare-metal AEM image or flash-boot Linux bring-up images. "
                          "Included by --all-blocks.")
-    ap.add_argument("--flashboot", default="kernel",
+    ap.add_argument("--flashboot", default="none",
                     choices=["none", "baremetal", "kernel", "full"],
                     help="which artifacts live in flash (needs --with-spiflash or --all-blocks): "
-                         "'baremetal' stores the raw AEM image beside the bitstream; 'kernel' "
-                         "(default) pre-loads the 14 MB kernel from flash and serial-uploads "
-                         "the rest (~60%% faster); 'full' flash-boots everything with zero "
-                         "upload (only fits with a slimmed <6.5 MB kernel  -  see "
-                         "docs/integration/QSPI_FLASHBOOT.md); 'none' maps the flash but adds no boot method.")
+                         "'baremetal' stores the raw AEM image beside the bitstream; 'none' "
+                         "(default) maps the flash but adds no boot method. 'kernel' and "
+                         "'full' were the retired (#259) Linux image manifests and are "
+                         "REFUSED at parse time; the tokens remain only so the refusal "
+                         "can name them (history: docs/integration/QSPI_FLASHBOOT.md).")
     ap.add_argument("--all-blocks", "--full", dest="all_blocks", action="store_true",
                     help="enable ALL fabric blocks: NIC + DMA + MAC + DDR3 (= --with-dma "
                          "--with-mac --with-dram). This means 'every block instantiated', NOT "
@@ -6993,6 +6997,22 @@ def main():
     builder_args(ap)
     args = ap.parse_args()
 
+    # ---- #259 REFUSALS: the product is bare-metal only. The retired Linux
+    #      profile, its flash manifests and its ALSA host surface stay
+    #      parseable so the refusal can name them, and nothing else.
+    if args.software_profile == "linux":
+        ap.error("--software-profile linux is retired (#259): the product is "
+                 "bare-metal only. Build --software-profile baremetal; the "
+                 "option-off VERIFICATION elaboration is --no-fabric-gptp "
+                 "(verification-only hardware, never flashable), not a "
+                 "software profile.")
+    if args.flashboot in ("kernel", "full"):
+        ap.error(f"--flashboot {args.flashboot} is retired (#259): the Linux "
+                 "image manifests no longer exist. Use --flashboot baremetal "
+                 "(or none).")
+    if args.sound_card:
+        ap.error("--sound-card is retired (#259): the Linux ALSA host "
+                 "surface has no owner on the bare-metal product.")
     if args.software_profile == "baremetal":
         if args.cpu != "vexiiriscv" or args.xlen != 32 or args.cpu_count != 1:
             ap.error("--software-profile baremetal requires --cpu vexiiriscv "

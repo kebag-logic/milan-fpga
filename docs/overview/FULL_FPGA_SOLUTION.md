@@ -355,25 +355,26 @@ cd syn/yosys && ./run.sh                       # every device-portability top (l
 ./sw/litex/milan_sim.py --xlen 32              # build + boot; mem_read 0x90000000 => MILN
 
 # --- the full FPGA SoC (elaborate + export gateware; no vendor tools) ---
-./sw/litex/milan_soc.py --full                 # NIC + DMA + MAC + PHY, RV64
-./sw/litex/milan_soc.py --full --xlen 32       # RV32 fallback (tighter fabric/timing)
+./sw/litex/milan_soc.py --full --cpu vexiiriscv --xlen 32   # NIC + DMA + MAC + PHY, bare-metal RV32
 
 # --- the Artix-7 bitstream (needs Vivado with Artix-7 device support  -  see Section 9) ---
-./sw/litex/milan_soc.py --full --build         # place & route -> .bit
-./sw/litex/milan_soc.py --full --build --load  # + program the board
+./sw/litex/build.sh ax7101                     # the named bare-metal recipe: place & route -> .bit
+./sw/litex/deploy.sh load                      # program the board (JTAG -> SRAM, volatile)
 
-# --- Linux (needs the board / a bitstream) ---
-litex_json2dts_linux build/csr.json > milan.dts
-sw/dts/milan_dt.py extract --platform litex build/csr.json --board sw/dts/boards/ax7101.json \
-  > sw/dts/ir/milan-dt.litex.json
-sw/dts/milan_dt.py gen sw/dts/ir/milan-dt.litex.json >> milan.dts   # kl,dma-ether (generated, real addrs)
-# build Image + OpenSBI + Buildroot; boot; then bring the NIC up (ethtool/tc cbs)
-# run ptp4l only in the explicit --no-fabric-gptp software-owner comparison
+# --- provisioning (needs the board / a bitstream) ---
 # the builder emits aem_desc.bin, aem_desc.json, and aem_desc.map for the
 # selected configuration. Package the paired image and manifest, then run the
 # tracked board-side aemi-load utility before enabling the entity. A custom
 # integration that skips this step gets a fail-closed BAD_ARGUMENTS response.
 ```
+
+Retired (#259, historical): the Linux leg that used to follow here
+(litex_json2dts_linux, the `milan_dt.py` extract/gen device-tree overlay,
+Image + OpenSBI + Buildroot, ethtool/tc bring-up, and running ptp4l in the
+option-off software-owner comparison) is no longer a supported flow. The
+product boots the bare-metal firmware and the fabric plane is the only gPTP
+owner; the option-off `--no-fabric-gptp` elaboration remains verification-only
+hardware with zero gPTP owners and is never flashable.
 
 ## 7. How to extend (medium level, cookbook)
 

@@ -19,6 +19,8 @@ tree node and drives the Milan NIC over its CSR/DMA ABI
 - `kl,txq-cnt`/`kl,rxq-cnt`, `kl,shaped-queues` (`<0 1>`), `phy-handle`, `phy-mode`,
   `local-mac-address`, `kl,ptp*`.
 
+This driver is a retired (#259) historical record; no supported image loads it.
+
 ## Feature surface → CSR (see [Section 2.10 of `docs/reference/FR_NFR.md`](../../docs/reference/FR_NFR.md#210-host-linux-driver--phase-7--req-drv--needs-a-kernel-tree-----not-buildable-in-this-repo) `FR-DRV-*`)
 | Linux feature | Hook | HW / CSR |
 |---------------|------|----------|

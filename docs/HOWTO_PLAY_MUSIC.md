@@ -5,7 +5,8 @@ listener. Proven on silicon 2026-08-03 (FLAC out of a DS20D's AES 3/4 while
 the pilot tone ran on its 1/2). The full software-path audit is
 [findings/APLAY_SOFTWARE_PATH_AUDIT_0803.md](findings/APLAY_SOFTWARE_PATH_AUDIT_0803.md).
 
-The player already ships on the board as **`/usr/bin/play-milan`** (source of
+The player shipped on the retired (#259, historical) Linux image as
+**`/usr/bin/play-milan`** (source of
 truth: `milan-tests-avb/fpga/buildroot/br2-external/board/milan_naxriscv/rootfs_overlay/usr/bin/play-milan`).
 Read its header before changing anything — every parameter in it is measured.
 

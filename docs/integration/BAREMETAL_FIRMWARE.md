@@ -25,7 +25,7 @@ The capability rows on this page are checked against the
 - **[Boot and AEM image](#boot-and-aem-image)** — The raw QSPI descriptor-image slot and the identity, copy and CRC checks that must pass before either compatibility enable bit may activate the shared AVDECC control plane.
 - **[Fabric gPTP option](#fabric-gptp-option)** — The default fabric owner, generated microcode, and the verification-only option-off elaboration (#259 retired the software comparison).
 - **[UART commands](#uart-commands)** — The status, TAI set/get and explicit UTC conversion commands, followed by the non-disruptive host smoke invocation.
-- **[Optional Linux sound-card surface](#optional-linux-sound-card-surface)** — What the shipping build removes with `sound_card: false`, what audio fabric remains, and how retained Linux bring-up builds opt back in.
+- **[Retired Linux sound-card surface (#259)](#retired-linux-sound-card-surface-259)** — What `sound_card: false` omits, what audio fabric remains, and why no build can opt back in: the CLI refuses the retired flag.
 - **[Verification gates](#verification-gates)** — The mandatory local bar, complete three-directive Vivado cell, timing-clean winner and measured resource buy-back that fund the fabric gPTP plane.
 
 ## Build contract
@@ -587,19 +587,17 @@ MILAN_PROFILE=baremetal MILAN_UART=/dev/serial/by-id/<adapter> \
 It checks the CSR magic, paired AEM image, enable bits and PHC progression.
 It does not set the clock, so a smoke run cannot disturb an established time.
 
-## Optional Linux sound-card surface
+## Retired Linux sound-card surface (#259)
 
-`board.features.sound_card` defaults to `false`. When false, generation omits
-the PCM DMA master, its LiteX CSR window, the device-tree PCM node, the
-reserved capture ring, playback rings and host-role AEM clusters. The receive
-AVTP parser/depacketizer, physical audio capture, AAF packetizer, channel maps,
-loopback sources and render path remain fabric functions.
-
-Linux bring-up configurations that need ALSA set `sound_card: true` and emit
-`--sound-card`. `--aaf-playback` is valid only with that option. For a Linux
-build that intentionally omits ALSA, run the existing smoke with
-`SOUND_CARD=0`; the ALSA check is explicitly skipped while NIC, timestamp and
-protocol-processor checks still run.
+`board.features.sound_card` is `false` everywhere, and the surface it gated
+is retired (#259): generation omits the PCM DMA master, its LiteX CSR window,
+the device-tree PCM node, the reserved capture ring, playback rings and
+host-role AEM clusters, and `milan_soc.py` refuses the historical
+`--sound-card` flag (and with it `--aaf-playback`) at the command line. The
+receive AVTP parser/depacketizer, physical audio capture, AAF packetizer,
+channel maps, loopback sources and render path remain fabric functions. The
+smoke script's `SOUND_CARD=0` knob remains for the recorded historical runs;
+the ALSA check it skipped can no longer apply to any buildable image.
 
 ## Verification gates
 

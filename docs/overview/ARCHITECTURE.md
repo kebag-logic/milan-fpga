@@ -198,22 +198,25 @@ milan-fpga/
 The shipping AX7101 SoC is one RV32I VexiiRiscv hart in machine mode with no
 supervisor mode, MMU, Linux, L1/L2 cache or LiteX SDRAM cache
 (`sw/litex/build.sh cfg_ax7101`). Its instruction/data masters and the Milan
-DMA clients share the cacheless address-decoded fabric. Cached Linux profiles
-remain buildable for the Arty and AX7101 8x8 bring-up configurations.
+DMA clients share the cacheless address-decoded fabric. The cached Linux
+bring-up profiles once kept for the Arty and AX7101 8x8 configurations are
+retired (#259, historical): the product and repository are bare-metal only.
 
 The #114 fabric gPTP plane is now the product default, and every shipping YAML
 states that owner explicitly. Its
 per-config microcode image is generated from the same station MAC, priority1
 and Milan clock as the rest of the end-station definition, and reaches the RTL
-through an absolute path. `GPTP_PLANE_EN_P` defaults on; an explicit
-`fabric_gptp: false` Linux comparison retains the software-owner CSR ABI and
-is the only image whose rootfs starts linuxptp/publication services.
+through an absolute path. `GPTP_PLANE_EN_P` defaults on; the option-off
+elaboration is verification-only hardware with zero gPTP owners, reached
+through `milan_soc.py --no-fabric-gptp`, never through a configuration, and
+never flashable. The retired Linux comparison image and the software
+publication services its rootfs once started are historical (#259).
 
-The Linux sound-card surface is independently optional and defaults off. With
-it off, the PCM DMA master/CSR window, reserved ring, device-tree PCM node,
-playback rings and host-role AEM clusters are absent. That does not remove the
-AVTP parser/depacketizer, physical audio capture, AAF talker, channel maps,
-loopback sources or render datapath. See
+The Linux sound-card surface is retired (#259, historical): the PCM DMA
+master/CSR window, reserved ring, device-tree PCM node, playback rings and
+host-role AEM clusters are no longer built. That retirement does not touch
+the AVTP parser/depacketizer, physical audio capture, AAF talker, channel
+maps, loopback sources or render datapath. See
 [../integration/BAREMETAL_FIRMWARE.md](../integration/BAREMETAL_FIRMWARE.md).
 
 The same `milan_datapath` is what the Zynq variant, the Verilator harnesses

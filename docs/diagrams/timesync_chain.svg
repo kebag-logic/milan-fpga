@@ -4,7 +4,7 @@
 <text x="40" y="44" font-size="26" font-weight="bold" fill="#263238">milan-fpga time sync - the three clocks and how they chain</text>
 <text x="40" y="70" font-size="12.5" fill="#546E7A">fabric gPTP  -&gt;  network PHC + atomic public state   -   PHC + CRF  -&gt;  media clock (MMCM-DRP servo)   -   CSR offsets per docs/reference/REGISTER_MAP.md   -   arrows = time/timestamp flow, not audio samples</text>
 <text x="40" y="104" font-size="13" font-weight="700" fill="#1565C0">NETWORK TIME - gPTP (802.1AS, domain 0)</text>
-<text x="40" y="278" font-size="13" font-weight="700" fill="#B26A00">THE HUB - PTP hardware clock (PHC), comparison clock mirror, and public consumers</text>
+<text x="40" y="278" font-size="13" font-weight="700" fill="#B26A00">THE HUB - PTP hardware clock (PHC) and its public consumers (one owner, #259)</text>
 <text x="40" y="433" font-size="13" font-weight="700" fill="#EF6C00">AVTP TIMESTAMP CONSUMERS (presentation time against the PHC)</text>
 <text x="40" y="566" font-size="13" font-weight="700" fill="#2E7D32">MEDIA CLOCK - CRF + MMCM-DRP servo (Milan v1.2 clause 7.3)</text>
 <text x="40" y="584" font-size="11" font-weight="400" fill="#555555">coherent chain: capture, CRF grid and (via the servo) the listener playback clock follow one audio-MMCM lineage - loop -83.9 dB (2026-07-23, converter floor)</text>
@@ -34,20 +34,12 @@
 <text x="1225.0" y="173" font-size="11" fill="#37474F" text-anchor="middle">pdelay + offset + annq</text>
 <rect x="1350" y="116" width="370" height="84" rx="9" fill="#ECEFF1" stroke="#455A64" stroke-width="2" stroke-dasharray="7 5"/>
 <text x="1535.0" y="140" font-size="14" font-weight="bold" fill="#212121" text-anchor="middle">product ownership (0x0002_0055)</text>
-<text x="1535.0" y="158" font-size="11" fill="#37474F" text-anchor="middle">fabric is the default PHC/protocol/publication owner</text>
-<text x="1535.0" y="173" font-size="11" fill="#37474F" text-anchor="middle">linuxptp exists only in the explicit option-OFF image</text>
+<text x="1535.0" y="158" font-size="11" fill="#37474F" text-anchor="middle">fabric is the ONE PHC/protocol/publication owner (#259)</text>
+<text x="1535.0" y="173" font-size="11" fill="#37474F" text-anchor="middle">the linuxptp software owner is retired (historical)</text>
 <rect x="40" y="290" width="330" height="96" rx="9" fill="#FFF8E1" stroke="#F9A825" stroke-width="2"/>
 <text x="205.0" y="314" font-size="14" font-weight="bold" fill="#212121" text-anchor="middle">PHC - timestamp_counter</text>
 <text x="205.0" y="332" font-size="11" fill="#37474F" text-anchor="middle">Q8.24 ns accumulator, datapath clock</text>
 <text x="205.0" y="347" font-size="11" fill="#37474F" text-anchor="middle">CSR 0x500 CTRL - 0x504 INCR - 0x508 ADJ - 0x520 CMD</text>
-<rect x="410" y="290" width="170" height="96" rx="9" fill="#F3E5F5" stroke="#6A1B9A" stroke-width="2" stroke-dasharray="7 5"/>
-<text x="495.0" y="314" font-size="14" font-weight="bold" fill="#212121" text-anchor="middle">option-OFF only</text>
-<text x="495.0" y="332" font-size="11" fill="#37474F" text-anchor="middle">ptp4l + phc2sys</text>
-<text x="495.0" y="347" font-size="11" fill="#37474F" text-anchor="middle">marked comparison image</text>
-<rect x="615" y="290" width="185" height="96" rx="9" fill="#F3E5F5" stroke="#6A1B9A" stroke-width="2"/>
-<text x="707.5" y="314" font-size="14" font-weight="bold" fill="#212121" text-anchor="middle">system clock</text>
-<text x="707.5" y="332" font-size="11" fill="#37474F" text-anchor="middle">Linux CLOCK_REALTIME</text>
-<text x="707.5" y="347" font-size="11" fill="#37474F" text-anchor="middle">not a media-path dependency</text>
 <rect x="1190" y="290" width="330" height="96" rx="9" fill="#E3F2FD" stroke="#1565C0" stroke-width="2"/>
 <text x="1355.0" y="314" font-size="14" font-weight="bold" fill="#212121" text-anchor="middle">public gPTP consumers</text>
 <text x="1355.0" y="332" font-size="11" fill="#37474F" text-anchor="middle">CSR GM/parent/pdelay - GET_AVB_INFO/PATH</text>
@@ -106,9 +98,6 @@
 <text x="715.0" y="240.0" font-size="10.5" fill="#5D4037" text-anchor="middle">adjfine / adjtime (fabric owner); settime stays on CSR face</text>
 <path d="M100,290 L100,224 L515,224 L515,200" fill="none" stroke="#8D6E63" stroke-width="1.8" marker-end="url(#arrc)" stroke-dasharray="6 4"/>
 <text x="307.5" y="218.0" font-size="10.5" fill="#5D4037" text-anchor="middle">ptp_now (64-bit ns)</text>
-<path d="M370,338 L410,338" fill="none" stroke="#8D6E63" stroke-width="1.8" marker-end="url(#arrc)" stroke-dasharray="6 4"/>
-<text x="390.0" y="332.0" font-size="10.5" fill="#5D4037" text-anchor="middle">explicit comparison only</text>
-<path d="M580,338 L615,338" fill="none" stroke="#8D6E63" stroke-width="1.8" marker-end="url(#arrc)" stroke-dasharray="6 4"/>
 <path d="M1280,200 L1280,290" fill="none" stroke="#8D6E63" stroke-width="1.8" marker-end="url(#arrc)" stroke-dasharray="6 4"/>
 <text x="1286.0" y="241.0" font-size="10.5" fill="#5D4037" text-anchor="start">one coherent generation</text>
 <path d="M190,386 L190,445" fill="none" stroke="#8D6E63" stroke-width="1.8" marker-end="url(#arrc)" stroke-dasharray="6 4"/>
