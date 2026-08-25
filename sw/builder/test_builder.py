@@ -14621,14 +14621,17 @@ def test_d10_cluster_names():
     # counts as {1, 2, 4, 6, 8}, so the ut entry has to reach 8 (gate 29).
     # The advertised formats list is descriptor content, so 6.2.2.8 obliges
     # the new id. And a SIXTH time -> 0x001BC59AB5D4ADE1 when AEM_LAYOUT_REV
-    # went 2 -> 3 and AUDIO_CLUSTER grew from the 2013 87 octets to 2021's 90.
-    # `interface.kind`, the descriptor set and
+    # went 2 -> 3 and AUDIO_CLUSTER grew from the 2013 87 octets to 2021's 90,
+    # and a SEVENTH -> 0x001BC565D9B48CD0 when #259 stated the fabric owner's
+    # gptp: section on the retired Arty configs (the section joins
+    # model_shape by design; its values restate the historical descriptor
+    # constants byte-exactly). `interface.kind`, the descriptor set and
     # the byte layout are all model-shaping, so a shape change SHOULD move a
     # hash-derived id - that is the mechanism working. What must NOT move is
     # arty_current's PINNED id above, and it has not: it was re-pinned by hand
     # with the reflash, which is the only way a pin is allowed to move.
     assert eb.load_config(CONFIGS["arty_4x4"])["model_id"]["hash"] == \
-        "0x001BC59AB5D4ADE1"
+        "0x001BC565D9B48CD0"
     print("  [gate 24c] every cluster named for its ROLE; renaming leaves "
           "entity_model_id frozen (1722.1 6.2.2.8 exclusion list) while a "
           "pool width moves it; pre-D8 hashes stay explicitly pinned to "
@@ -14793,7 +14796,7 @@ def test_gptp_domain_is_one_source():
     `gptp.domain` line, and no hand-written copy survives.
 
     THE DEFECT THIS GATE CLOSES.  `gptp.domain` used to reach ptp4l only
-    (emit_gptp_cfg's `domainNumber`).  The other consumer - ADPDU byte 48
+    (the retired emit_gptp_cfg's `domainNumber`).  The other consumer - ADPDU byte 48
     (1722.1-2021 6.2.1.16), served from CSR 0x62C - got its value from a
     hardcoded `w 0x62C 0x00000000` in avdecc/aecp_csr_setup.sh.  The two
     agreed only because every shipping config happens to say 0, so a config
@@ -14814,7 +14817,6 @@ def test_gptp_domain_is_one_source():
         gptp.domain -> ADP_GPTP_DOMAIN_C in the generated adp shape header
                     -> milan_csr's adp_domain reset
                     -> milan_csr's csr_default readback ROM (they must mirror)
-                    -> emit_gptp_cfg's domainNumber
                     -> o_adp_gptp_domain -> cfg_adp_gptp_domain
                     -> adp_advertiser -> ADPDU byte 48
 
@@ -14845,9 +14847,11 @@ def test_gptp_domain_is_one_source():
     assert int(m.group(1)) == DOM, \
         f"ADP_GPTP_DOMAIN_C = {m.group(1)}, config says {DOM}"
 
-    # 2. and the ptp4l half carries the SAME number, from the same line
-    assert f"domainNumber            {DOM}\n" in eb.emit_gptp_cfg(r["cfg"]), \
-        "the generated gptp.cfg domainNumber does not match gptp.domain"
+    # 2. the retired ptp4l half (#259) is GONE, not drifting: no generator
+    #    renders a daemon domainNumber any more, so the fabric chain below is
+    #    the whole consumer set.
+    assert not hasattr(eb, "emit_gptp_cfg"), \
+        "emit_gptp_cfg returned: the retired ptp4l fragment generator (#259) reappeared"
 
     # 3. the RTL consumes the symbol in BOTH places, and by NAME - a literal
     #    in either would let the two drift again (the rule milan_csr states
@@ -14884,8 +14888,15 @@ def test_gptp_domain_is_one_source():
     #     gate 24d owns it, and earlier gates in this process rebuild those
     #     files, so a copy of the check here could never fail - a check that
     #     cannot fail reads as coverage without being any.)
-    assert re.search(r"assign\s+o_adp_gptp_domain\s*=\s*adp_domain\[7:0\]\s*;",
-                     csr), "milan_csr does not export adp_domain[7:0]"
+    #    In fabric mode the exported domain is the ENGINE constant (802.1AS
+    #    8.1 domain 0): the shadow feeds the port only in the option-off
+    #    elaboration, so a compatibility write can never move the ADP,
+    #    GET_AVB_INFO or notification faces off the wire's domain.
+    assert re.search(
+        r"assign\s+o_adp_gptp_domain\s*=\s*GPTP_PLANE_EN_P\s*\?\s*8'd0\s*:"
+        r"\s*adp_domain\[7:0\]\s*;", csr), \
+        "milan_csr does not serve the engine-owned domain in fabric mode " \
+        "(and the option-off shadow otherwise)"
     dp = open(os.path.join(ROOT, "hdl/milan/milan_datapath.sv")).read()
     assert re.search(r"\.o_adp_gptp_domain\s*\(\s*cfg_adp_gptp_domain\s*\)",
                      dp), "milan_datapath does not take the CSR's domain"
