@@ -536,9 +536,12 @@ def main():
         build_mutations = [
             ("cfg_ax8x8 loses its explicit Ethernet port",
              "ax8x8", "--eth-port e1", "", "design flag --eth-port:"),
-            ("cfg_ax8x8 falls back to the playback-ring default",
-             "ax8x8", "--aaf-playback-streams 1", "",
-             "design flag --aaf-playback-streams:"),
+            # #259 retired the playback rings and the cache scala words,
+            # so the dropped-flag and added-word plants below ride tokens
+            # the bare-metal recipes still carry.
+            ("cfg_ax8x8 loses its wire-channel count",
+             "ax8x8", "--talker-wire-chans 8", "",
+             "design flag --talker-wire-chans:"),
             ("cfg_ax8x8 stops spending the datapath-probe prune",
              "ax8x8", "--no-datapath-probes", "",
              "design flag --no-datapath-probes:"),
@@ -546,16 +549,15 @@ def main():
              "ax8x8", "--cbs-queues-mask 0x10",
              "--cbs-queues-mask 0x18", "design flag --cbs-queues-mask:"),
             ("cfg_ax8x8 adds an RV64-era prefetch Scala word",
-             "ax8x8", "--scala-args=--l2-general-slots=8",
-             "--scala-args=--l2-general-slots=8 "
-             "--scala-args=--lsu-hardware-prefetch=rpt",
+             "ax8x8", "--l2-bytes 0",
+             "--l2-bytes 0 --scala-args=--lsu-hardware-prefetch=rpt",
              "design flag --scala-args:"),
             ("cfg_arty loses its class-A CBS mask",
              "arty", "--cbs-queues-mask 0x10", "",
              "design flag --cbs-queues-mask:"),
             ("cfg_arty restores an RV64-era Scala slot count",
-             "arty", "--scala-args=--l2-general-slots=8",
-             "--scala-args=--l2-general-slots=16",
+             "arty", "--l2-bytes 0",
+             "--l2-bytes 0 --scala-args=--l2-general-slots=16",
              "design flag --scala-args:"),
             ("cfg_arty loses its generated entity directory",
              "arty", "--entity-gen-dir "
