@@ -69,7 +69,7 @@ GEN_LTN = os.path.join(REPO, "protocol-processor", "hdl", "acmp", "rom",
                        "gen_ltn_rom.py")
 
 #: How many arms run. A deleted arm is a self-test that still prints a pass.
-ARMS = 36
+ARMS = 38
 
 #: The clean row the full-cell yosys model must produce for any top:
 #: 8 LUT4, 2 RAM32M (= 8 LUTRAM-LUT), 4 FDRE, 3 RAMB36E1, 2 RAMB18E1,
@@ -632,6 +632,34 @@ def selftest():
     try:
         arm("pkg-expression", "tcam", "exactly one live declaration", False,
             script=mut)
+    finally:
+        os.unlink(mut)
+        os.unlink(pkg)
+
+    # Arm 37. A NON-NIBBLE width refuses outright ([R-parallel] round three
+    # on PR #264; this script shared the truncating digit arithmetic): a
+    # declared 50 would truncate to 12 digits and accept the stale 48-bit
+    # image. Same guard, both scripts.
+    pkg, mut = pkg_mutant(
+        "localparam int unsigned UCODE_W_C = 50;\n", "pkg-width-50")
+    try:
+        arm("pkg-width-50-not-nibble", "tcam", "not a positive nibble-aligned",
+            False, script=mut)
+    finally:
+        os.unlink(mut)
+        os.unlink(pkg)
+
+    # Arm 38. The transition ROM's width gets the identical guard (34 would
+    # truncate to 8 digits and accept the stale 32-bit image).
+    fd, pkg = tempfile.mkstemp(suffix=".sv", prefix=".ooc-pkg-")
+    with os.fdopen(fd, "w") as fh:
+        fh.write("localparam int unsigned TROM_W_C = 34;\n"
+                 "localparam int unsigned TROM_DEPTH_C = 128;\n")
+    mut = _mutant(r'ACMP_PKG=\$\(one_pp_source pp_acmp_pkg\.sv\)  \|\| exit 2',
+                  'ACMP_PKG="%s"' % pkg, "acmp-pkg-width-34")
+    try:
+        arm("ltn-width-34-not-nibble", "tcam", "not a positive nibble-aligned",
+            False, script=mut)
     finally:
         os.unlink(mut)
         os.unlink(pkg)

@@ -113,12 +113,39 @@ if len(hits) != 1:
 print(hits[0])
 PKG_EOF
 }
+# A declared ROM width must be a positive multiple of 4, and a depth must
+# be positive. The image contract is EXACT hex digits per word; truncating
+# a 50-bit declaration to 50/4 = 12 digits would let a stale 48-bit image
+# satisfy it with the new high bits silently zero-filled ([R-parallel]
+# round three on PR #264 probed exactly that in the sibling Vivado recipe,
+# and this script shared the arithmetic). No pinned ROM is
+# non-nibble-aligned; if one ever becomes so, THIS refusal is where ceiling
+# division plus a high-bits-zero check must be added - never a guess.
+nibble_width() { # <name> <value> -> value, or die
+  case "$2" in
+    ''|*[!0-9]*) : ;;
+    *) if [ "$2" -gt 0 ] && [ $(( $2 % 4 )) -eq 0 ]; then printf '%s' "$2"; return 0; fi ;;
+  esac
+  echo "ooc.sh: FATAL: $1 = $2 is not a positive nibble-aligned ROM width - a truncated digit count would accept a stale undersized image; add ceiling division AND a high-bits-zero check before accepting such a width" >&2
+  exit 2
+}
+positive_depth() { # <name> <value> -> value, or die
+  case "$2" in
+    ''|*[!0-9]*) : ;;
+    *) if [ "$2" -gt 0 ]; then printf '%s' "$2"; return 0; fi ;;
+  esac
+  echo "ooc.sh: FATAL: $1 = $2 is not a positive ROM depth (an expected word count of zero would let an empty image validate)" >&2
+  exit 2
+}
 UCPU_PKG=$(one_pp_source ucpu_pkg.sv)     || exit 2
 ACMP_PKG=$(one_pp_source pp_acmp_pkg.sv)  || exit 2
 UCODE_W=$(pkg_num "$UCPU_PKG" UCODE_W_C)  || exit 2
+UCODE_W=$(nibble_width UCODE_W_C "$UCODE_W") || exit 2
 UPC_W=$(pkg_num "$UCPU_PKG" UPC_W_C)      || exit 2
 TROM_W=$(pkg_num "$ACMP_PKG" TROM_W_C)    || exit 2
+TROM_W=$(nibble_width TROM_W_C "$TROM_W") || exit 2
 TROM_D=$(pkg_num "$ACMP_PKG" TROM_DEPTH_C) || exit 2
+TROM_D=$(positive_depth TROM_DEPTH_C "$TROM_D") || exit 2
 
 rom_check() { # <file> <hex digits per word> <word count> ; diagnostics on stdout
   awk -v digits="$2" -v words="$3" '
