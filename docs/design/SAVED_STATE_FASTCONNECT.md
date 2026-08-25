@@ -1,6 +1,6 @@
 # Saved state and fast connect — the backing store decision
 
-> **Corrected twice, and both corrections changed the design.**
+> **Corrected three times, and every correction changed the design.**
 > Round 1 sized the saved record set in BYTES, found it fitted one erase block,
 > and stopped. It never checked the OTHER capacity in the same design: the
 > processor addresses a record by `record_id[7:0]`, so the namespace holds 256
@@ -21,8 +21,28 @@
 > | the backend's memory and the transfer mechanism | left open | decided | unchanged, section 8 |
 > | `nvm_backed_o` | asserts once a writer has answered | live, with a revocation list | **plus recovery semantics, an exhaustive state table and two derived deadline values**, section 9 |
 > | the area claim | borrowed issue #69's unrelated LUT delta | withdrawn as unmeasurable | **measured**: a synthesizable before/after pair, section 8.3 |
-> | the record-space gate | did not exist | five negative controls, no omission oracle | **eleven controls including four omissions**, section 4.4 |
+> | the record-space gate | did not exist | five negative controls, no omission oracle | **seventeen controls**, and the gate now encodes and decodes the image instead of counting it, section 4.4 |
 > | the five `milan_csr.sv` citations | dangling | named as deliberately stale | **repaired**, section 5.1 |
+>
+> **Round 3 changed four more things, and one of them is about this page's own
+> method.** Three rounds running, a finding landed in the same class: a check
+> that reasoned about the persisted set as COUNTS or TABLES and therefore could
+> not see WHICH items it counted. Round 1 counted bytes and not ids. Round 2
+> counted records and not presence. Round 3's oracle counted groups and not
+> indices, and an off-by-one that deleted STREAM_INPUT 0 and invented a
+> nonexistent index 9 passed it in silence. That is a statement about the shape
+> of the instrument, not its spelling, so the shape changed: the gate now BUILDS
+> the KLJ2 image and READS IT BACK, and the sizing candidate is DRIVEN against
+> that image rather than only synthesised.
+>
+> | | round 3 | now |
+> |---|---|---|
+> | the name bank's empty-name case | an all-zero slot meant "no name stored", so a legal empty name could not be encoded at all | presence follows from the SHAPE; a slot is the value, and 64 zero bytes is the empty name, section 4.3 |
+> | the completeness oracle | `Counter(group)`, cardinalities only | the exact `(group, index)` key set, with the missing and the extra keys named, section 4.4 |
+> | an incomplete but CRC-clean image | accepted; the absent item reverted to its vendor default | refused with `VD_INCOMPLETE` and zero records applied, section 6.2 |
+> | the two channel-map groups in the sizing candidate | one `{prefix,length}` table for both directions, and a nominal stride after each group | direction-distinct state and group bases derived from the actual preceding lengths, section 8.3 |
+> | the recovery machine | a latch cleared only by reset, with the published bit masked | the latch itself is cleared by the recovery condition, section 9.2 |
+> | the area measurement | 539 LUT, with 128 LUT6 of distributed RAM in no column at all | **773 LUT-equivalents** at 8x8 worst case, with a LUTRAM column added to `ooc.sh`, section 8.3 |
 >
 > A decision record whose arithmetic was corrected is a better artifact than one
 > that quietly does not add up. The corrections are recorded here rather than
@@ -57,19 +77,19 @@ it.
 - **[1. Status](#1-status)** -- A row per piece with the evidence that proves it. The honest bottom line: the media is reserved and one record class is framed, but there is no device behind the port, no manager for the other eleven item groups, and the shipping firmware profile cannot write flash at all.
 - **[2. What the two ends actually look like](#2-what-the-two-ends-actually-look-like)** -- The port offers a per-record region with `ERASE_REGION` and an eight-bit record id; the media offers 64 KiB erase blocks, two of them. Three ways they fail to compose, including the one round 1 missed: the record id is a capacity, not just an address width.
 - **[3. The decision](#3-the-decision)** -- One image, promoted A/B, media owned by firmware through the LiteSPI master that already exists. Three measured reasons rather than a preference, with reason 1 re-measured after the namespace correction.
-- **[4. The record allocation contract](#4-the-record-allocation-contract)** -- The first BLOCKER and the second. 292 records at 8x8 against 256 ids; the banked allocation that brings it to 87, carried as a PROPOSAL because the pinned donor's F07.8 says one record per item and a consumer gate cannot overrule it; the proof that no conformant allocation exists; the amendment written to be adopted verbatim; and the eight-check gate with its eleven negative controls.
+- **[4. The record allocation contract](#4-the-record-allocation-contract)** -- The first BLOCKER and the second. 292 records at 8x8 against 256 ids; the banked allocation that brings it to 87, carried as a PROPOSAL because the pinned donor's F07.8 says one record per item and a consumer gate cannot overrule it; the proof that no conformant allocation exists; the amendment written to be adopted verbatim, repaired so that a legitimate empty name can be encoded; and the twelve-check gate with its seventeen negative controls.
 - **[5. Where it lives in the 16 MB QSPI](#5-where-it-lives-in-the-16-mb-qspi)** -- The two reserved slots and why `journal` is raw rather than a filesystem, plus the rule a reflash must obey. Cited by `milan_soc.py` as the map's single source of truth, and 5.1 re-derives every citation of this page at this head: zero unresolved, because the five RTL comments round 2 left stale are repaired against the register map.
-- **[6. The record image format: KLJ2](#6-the-record-image-format-klj2)** -- A new versioned container, not KLJ1 carried forward: byte-level field widths, the endianness seam between the little-endian container and the big-endian records, the exact CRC coverage, the identity and shape binding, and an eleven-row acceptance order with a verdict code per failure.
+- **[6. The record image format: KLJ2](#6-the-record-image-format-klj2)** -- A new versioned container, not KLJ1 carried forward: byte-level field widths, the endianness seam between the little-endian container and the big-endian records, the exact CRC coverage, the identity and shape binding, and a twelve-row acceptance order with a verdict code per failure, including the rule that refuses a CRC-clean image which omits a mandatory record.
 - **[7. Durability: the A/B contract](#7-durability-the-ab-contract)** -- The write and read rules in full, and the property they buy: at every instant of a commit at least one slot holds a complete image whose CRC closes.
-- **[8. Where the image lives in fabric, and what it costs](#8-where-the-image-lives-in-fabric-and-what-it-costs)** -- The memory is settled (the reserved DRAM window, not BRAM) and so is the transfer (ordinary loads and stores, no DMA and no CSR data window), with the measured slack behind both. Then the area, MEASURED: a synthesizable before/after pair OOC-mapped at both shapes, bounded at 539 LUT and 216 FF, and calibrated against three blocks already in the tree.
-- **[9. What the fabric may claim: the durability and liveness contract](#9-what-the-fabric-may-claim-the-durability-and-liveness-contract)** -- Why an answered-once bit cannot report a writer that wedges later, and the replacement: a live `nvm_backed` with a revocation list, `nvm_dirty` and `nvm_stale`, the rule that says when the loss is forgiven, all eight bit combinations with the one that cannot occur named, and the two deadlines derived from the flash datasheet rather than chosen.
+- **[8. Where the image lives in fabric, and what it costs](#8-where-the-image-lives-in-fabric-and-what-it-costs)** -- The memory is settled (the reserved DRAM window, not BRAM) and so is the transfer (ordinary loads and stores, no DMA and no CSR data window), with the measured slack behind both. Then the area, MEASURED: a before/after pair OOC-mapped at both shapes and DRIVEN against a byte-exact image, bounded at 773 LUT-equivalents and 280 FF, and calibrated against three blocks already in the tree.
+- **[9. What the fabric may claim: the durability and liveness contract](#9-what-the-fabric-may-claim-the-durability-and-liveness-contract)** -- Why an answered-once bit cannot report a writer that wedges later, and the replacement: a live `nvm_backed` with a revocation list, `nvm_dirty` and `nvm_stale`, the rule that says when the loss is forgiven, all eight bit combinations with the one that cannot occur named (unreachable in the STATE now, not merely masked at the face), and the two deadlines derived from the flash datasheet rather than chosen.
 - **[10. Kernel and boot-side work](#10-kernel-and-boot-side-work)** -- Five items, and the reason `/proc/mtd` staying empty is permanent rather than a misconfiguration. Cited by `gen_mtd_partitions.py`, whose section 10 reference had nothing to resolve to until now.
 - **[11. Bench recipe](#11-bench-recipe)** -- G0, G0b and G1, which run today, and what G1 means on a baremetal profile where no MTD device ever probes. Cited by `gen_mtd_partitions.py` and `milan_soc.py`.
 - **[12. The commit marks that already exist](#12-the-commit-marks-that-already-exist)** -- Eight marks across seven programs, derived from the pinned donor rather than from a comment, plus the exemplar that is not one and the deliberate absence at IDENTIFY that is a requirement. Round 1 said three.
 - **[13. Risks, stated rather than discovered later](#13-risks-stated-rather-than-discovered-later)** -- The proven writer no longer exists in the tree, persistence depends on firmware liveness, the debounce window is a data-loss window a PR must quantify, four donor defects are open against the port, and the names allocation is blocked on a donor amendment nobody has filed yet.
 - **[14. What this page does NOT decide](#14-what-this-page-does-not-decide)** -- Three things: the names allocation, which is not this page's to decide at all; the debounce window's value; and where the proposed CSR bits actually land.
 - **[15. Sequencing](#15-sequencing)** -- Why this page is deliberately ahead of the submodule pin it will be implemented on, and why nothing in it moves when that pin lands.
-- **[16. Acceptance for the implementation](#16-acceptance-for-the-implementation)** -- Twenty-four checks in six groups, including the vacuity trap a naive save/restore test falls into, one refused case per container verdict code, the six liveness and recovery cases the state table makes determinate, and the requirement that deleting any of the eight `NVM_MARK` sites must redden something.
+- **[16. Acceptance for the implementation](#16-acceptance-for-the-implementation)** -- Twenty-seven checks in six groups, including the vacuity trap a naive save/restore test falls into, one refused case per container verdict code, the six liveness and recovery cases the state table makes determinate, and the requirement that deleting any of the eight `NVM_MARK` sites must redden something.
 
 ## 1. Status
 
@@ -83,7 +103,8 @@ it.
 | A write path on the shipping profile | **ABSENT** | the baremetal firmware reads flash through the XIP window and has no erase or program path |
 | The record set fits the namespace | **PROPOSED HERE**, gated; blocked on a donor F07.8 amendment | sections 4.2 and 4.3, `scripts/check_nvm_record_space.py` |
 | The backing store | **DECIDED HERE**, not built | sections 3 and 8 |
-| The backend's area | **MEASURED HERE**, upper bound | section 8.3: 539 LUT / 216 FF OOC at 8x8, against 35 LUT / 21 FF for the responder it replaces |
+| The backend's area | **MEASURED HERE**, upper bound | section 8.3: 773 LUT-equivalents / 280 FF OOC worst case, against 35 LUT / 21 FF for the responder it replaces, by the recipe in 8.3 |
+| The backend candidate does what it is priced for | **DRIVEN**, not only synthesised | `tb/verilator/nvm_backend`: 198 checks at 8x8 and 54 at 1x1 against a byte-exact KLJ2 image, plus three negative controls that must each go RED |
 | The liveness and commit deadlines | **DECIDED HERE**, gated | section 9.4, and check 7 of `scripts/check_nvm_record_space.py` |
 
 **Which donor commit.** `dev` pins the processor at `a25b5cc9`, which carries
@@ -221,7 +242,12 @@ round that only ever looked at the shipping default. The review's floor of 262
 
 Records are allocated in fixed blocks by group, and the names group is
 **banked**: one record carries eight name slots of 64 bytes, indexed by the same
-ordinal the AEMI name table uses, with the tail of the last bank zero-filled.
+ordinal the AEMI name table uses. Every ordinal the descriptor shape has is
+present in its slot and a slot carries the AEM string verbatim, so 64 zero bytes
+is the empty name rather than an absence; the unused slots past the last ordinal
+are reserved tail, written as zero and ignored on decode. Which slots those are
+follows from the shape, never from what the bytes happen to be -- section 4.3
+shows the case the round-3 rule could not encode.
 
 | ids | group | block | index | 1x1 | 8x8 |
 |---|---|---|---|---|---|
@@ -282,6 +308,46 @@ it ever stops being necessary: `--mutate=idspace` widens the namespace to 512,
 the conformant floor then fits every shipped shape, and the gate fails with
 "banking is NOT necessary".
 
+**The round-3 amendment text could not encode a legitimate name, and this is
+how that was found: by enumerating what a slot may legally hold.** A name slot
+is a fixed 64-byte NUL-padded AEM string. `SET_NAME` accepts and writes all
+eight 64-bit lanes with no non-zero requirement
+([`gen_ucode.py`](../../protocol-processor/hdl/aecp/ucode/gen_ucode.py) lines
+1897-1924), so the value space is every 64-byte string, and the empty string is
+the one that is 64 zero bytes. For an ordinal the shape has:
+
+| what the entity holds | round 3 wrote | round 3 decoded it back as |
+|---|---|---|
+| the vendor default, never changed | the default verbatim | the default |
+| a non-empty name a controller set | that name verbatim | that name |
+| **the empty string, set by a controller** | **64 zero bytes** | **"no name stored"** |
+
+The third row is the hole, and it is a hole by construction rather than by
+oversight: the encoding was not injective on the value space, so one legal value
+had no representation. Milan 5.3.13 grants no exemption for it, so a name a
+controller cleared came back as the vendor default and the amendment could not
+have satisfied the clause it was written for.
+
+**The repair is to take content out of the decision entirely.** Presence follows
+from the SHAPE: every ordinal the shape has is unconditionally present, a slot
+is the value and nothing else, and the slots past the last ordinal are reserved
+tail that no descriptor maps to, so a decoder never has to interpret them.
+No byte of a name slot is a discriminant any more.
+
+A per-slot presence bit is the other repair on offer and it is declined, for a
+reason worth stating: it would MOVE the discriminant rather than remove it. It
+costs 30 more bytes at 8x8, it needs its own rule for a bit that says "absent"
+on an ordinal the shape has, and the one thing it buys -- telling "never set"
+apart from "set to the vendor default" -- is not a distinction 5.3.13 asks for,
+because a name that was never set IS its default and writing the default
+verbatim restores it correctly. One behaviour does change and is stated rather
+than discovered later: a firmware upgrade that changes a vendor default name
+does not take effect on an entity that already has an image, because the old
+default was persisted as a value. That is the correct reading of 5.3.13 -- the
+saved name outranks the build's default -- and it is bounded by the container's
+`entity_model_id` shape binding (section 6.1), which refuses an image from a
+different descriptor shape outright.
+
 **The amendment, written to be adopted verbatim.** The donor's
 `07_memory_maps.md` section 5.2, figure F07.8, currently says
 "one record per item group and index". The proposed replacement:
@@ -292,15 +358,32 @@ the conformant floor then fits every shipped shape, and the gate fails with
 > The record's index is `bank = ordinal / 8` and the slot inside it is
 > `ordinal % 8`, where `ordinal` is the writable-name ordinal of the AEMI name
 > table (ENTITY contributes two, `entity_name` then `group_name`). Slots are
-> stored in ascending ordinal; the payload is always 512 bytes and the tail of
-> the last bank is ZERO-FILLED, so a bank is fixed-length and a partially used
-> bank is not distinguishable by length. An all-zero slot means "no name
-> stored"; it is not an empty string.
+> stored in ascending ordinal.
+>
+> Let `N` be the number of writable names the descriptor shape has. A complete
+> image carries banks `0 .. ceil(N/8)-1`, and every ordinal `0 .. N-1` is
+> UNCONDITIONALLY PRESENT in its slot: the slot carries the 64-byte AEM string
+> verbatim, so a slot of 64 zero bytes is the EMPTY NAME, which is a legal
+> value a controller may set, and never means "absent". Slots
+> `N .. ceil(N/8)*8-1` are unused tail: they are RESERVED, a writer shall write
+> them as zero and a reader shall ignore them.
+>
+> `N` is a property of the descriptor shape. It is never derived from slot
+> content, no slot value is ever a discriminant, and the payload is always 512
+> bytes so a partially used bank is not distinguishable by length either.
 
 That is the whole change: one exception, one banking factor, one index rule,
-one padding rule. Everything else in F07.8 -- the framing, the crc16, the
-one-region-per-record device mapping -- is untouched, and `MAX_PAYLOAD_P` = 1024
-already accepts a 512-byte payload without a parameter change.
+one presence rule, one padding rule. Everything else in F07.8 -- the framing,
+the crc16, the one-region-per-record device mapping -- is untouched, and
+`MAX_PAYLOAD_P` = 1024 already accepts a 512-byte payload without a parameter
+change.
+
+**The numbers do not move, and they were re-derived rather than assumed.** The
+bank count is still `ceil(N / 8)`, so the tail was already zero-filled and
+stays zero-filled; only its MEANING changed, from a discriminant to reserved
+padding. `scripts/check_nvm_record_space.py` re-measures 30 banks and 18,144
+image bytes at 8x8 and 4 banks and 2,544 at 1x1, unchanged, and now proves the
+empty-name case by encoding it and reading it back.
 
 **What has to happen elsewhere, and what this repository may not do.** The
 amendment is a donor documentation change, and pinning it is issue #69's pin
@@ -312,7 +395,7 @@ proposal:
 
 | owed by | what | tracked as |
 |---|---|---|
-| donor repository | the F07.8 amendment above, in the donor's `07_memory_maps.md` section 5.2, figure F07.8 | **no donor ticket yet**; the text to file is quoted above verbatim and the obligation is recorded on issue #70 |
+| donor repository | the F07.8 amendment above, in the donor's `07_memory_maps.md` section 5.2, figure F07.8 | filed as donor issue **#24**, which carries a correcting comment for the round-4 presence rule; the text to adopt is quoted above verbatim |
 | this repository | the pin that carries it, and only then the promotion of section 4.2 from PROPOSED to DECIDED | issue #70, after #69's pin |
 | the implementation | a max-shape names bank encoded by one implementation and decoded by the other, plus a mutation that makes record and index disagree | section 16 |
 
@@ -355,17 +438,22 @@ The cost is granularity, and it is already paid:
 
 [`scripts/check_nvm_record_space.py`](../../scripts/check_nvm_record_space.py)
 builds every `configs/endstation_*.yaml`, generates the full persisted inventory
-for each, and asserts eight things:
+for each, **encodes it as a KLJ2 image and decodes it back**, and asserts twelve
+things:
 
-0. **every mandatory group is present, at the shape's cardinality.** This is
-   graded against a ledger the inventory does not read -- one entry per
-   persisted group with its clause and a rule over `descriptor_counts` -- plus
-   a second, independent derivation of the writable-name count from the
-   descriptor types that carry a settable name slot, cross-checked against the
-   AEMI image header. Round 2's gate had no such oracle: deleting a mandatory
-   Milan item made the image smaller and the gate greener, so the workflow
-   could pass precisely the missing-persistence regression it exists to
-   prevent.
+0. **the inventory's exact `(group, index)` key set is the set the shape
+   requires, with no key claimed twice.** This is graded against a ledger the
+   inventory does not read -- one entry per persisted group with its clause and
+   a rule over `descriptor_counts` -- plus a second, independent derivation of
+   the writable-name count from the descriptor types that carry a settable name
+   slot, cross-checked against the AEMI image header. Round 2's gate had no
+   oracle at all here; round 3's had one, but it reduced the inventory to
+   `Counter(group)` and compared CARDINALITIES, so shifting every `FMT_IN` tuple
+   from index k to k+1 -- deleting real STREAM_INPUT 0 and allocating a record
+   for a nonexistent index 9 -- left every count identical and the gate silent.
+   A set names both the key that went missing and the key that should not
+   exist, and a separate duplicate check catches two records claiming one key
+   with distinct ids.
 1. every record id is unique;
 2. every id is inside `record_id[7:0]`;
 3. every group stays inside its block;
@@ -375,13 +463,31 @@ for each, and asserts eight things:
    overflows the namespace at some shipped shape, so the divergence from F07.8
    is forced rather than chosen;
 7. **the worst-case commit fits `T-NVM-COMMIT-TIMEOUT`** with the 2x margin
-   section 9.4 requires, at every shape.
+   section 9.4 requires, at every shape;
+8. **every record round trips** through an encoded and decoded KLJ2 image, byte
+   for byte;
+9. **an empty user name survives.** The image is re-encoded with name ordinal 0
+   set to 64 zero bytes and read back, and the restored value has to be exactly
+   64 zero bytes rather than the vendor default -- the case section 4.3's
+   round-3 text could not represent;
+10. **the unused tail of the last name bank follows from the shape.** Rubbish
+    written into every unused slot must change nothing about what restores;
+11. **a CRC-clean image that omits ANY mandatory record is refused** with zero
+    records applied. Each mandatory key in turn is deleted, the CRC-32 is
+    RECOMPUTED so the image is clean, and the decoder has to answer
+    `VD_INCOMPLETE` (section 6.2).
 
 `--flat` restores the pre-review allocation and is a negative control that must
 exit 1 at 8x8; `--mutate` perturbs one fixed point at a time so each assertion
-is shown to fire, including four omission arms -- a mandatory singleton, a whole
-per-descriptor group, one index of a per-descriptor group, and the entire name
-class. `--self-test` runs all eleven controls and fails if any of them passes.
+is shown to fire, including four omission arms, two index-set arms (a shift that
+keeps the cardinality, and a duplicate key with distinct ids) and three arms
+that restore a round-3 DECODER rule -- the content-based name presence rule, a
+tail derived from content, and "an absent allocated id is not a failure".
+`--self-test` runs all seventeen controls and fails if any of them passes.
+
+`--emit-record-table` writes the byte offsets of that same image for
+`tb/verilator/nvm_backend`, and the gate rebuilds and compares the committed
+fixture on every run, so the RTL cannot be graded against stale bytes.
 
 ## 5. Where it lives in the 16 MB QSPI
 
@@ -538,20 +644,39 @@ the accepted `SEQ`:
 | 9 | no `record_id` appears twice | `VD_REC` |
 | 10 | the record area ends exactly at the trailer | `VD_LEN` |
 | 11 | `SEQ` advances past the already-accepted one | `VD_STALE`, ignored |
+| 12 | **every record this shape requires is present**: the exact `(group, index)` set derived from `descriptor_counts` and the writable-name count, section 4 | `VD_INCOMPLETE` |
 
 A blank slot, all `0xFF`, fails test 1 and is reported as `VD_BLANK` rather than
 an error: Milan permits an entity that has never been bound.
 
-An allocated id that is simply **absent** from the image is not a failure. That
-item was never saved and keeps its vendor default. This is what lets the image
-shrink and grow with the shape without a migration.
+**Rule 12 is new, and it withdraws a sentence.** Round 3 of this page said that
+an allocated id which is simply absent from the image is not a failure, because
+that item was never saved and keeps its vendor default. The review was right
+that this makes the whole acceptance order decorative: a CRC-clean image could
+omit ANY mandatory saved item, publish an accepted `SEQ` and a durable-looking
+status, and silently restore a controller-set value to the vendor default. It
+also left a reader with no rule at all for telling an intentionally-defaulted
+item from a writer that dropped a changed one, because absence carried both
+meanings at once.
+
+An image is now either COMPLETE for the shape it names or it is refused whole.
+That costs nothing this page wanted: the shape is already pinned by
+`entity_model_id` in rule 7, so "the image grows and shrinks with the shape"
+was never a within-model property -- a shape change moves the model id and the
+image is refused by identity anyway. What it buys is that absence stops being
+an encoding. The set is derived, per shape, by
+`scripts/check_nvm_record_space.py`, which deletes each mandatory record in
+turn from a CRC-RECOMPUTED image and requires the refusal, with zero records
+applied.
 
 **Migration.** There is none from KLJ1: major 1 is refused with `VD_VER` and
 never reinterpreted, and a board carrying one boots unbound, which is the same
 degradation as a blank slot. Within major 2 a reader accepts any minor: a minor
 may only add records with new ids, which rule 8 already refuses if the reader
 does not know them, and rule 10's exact-fit test keeps an unknown trailing
-record from being read as payload.
+record from being read as payload. Rule 12 constrains the OTHER direction --
+a minor may not remove a record the shape requires -- and both are decided by
+the shape, which rule 7 has already bound.
 
 ### 6.3 Encoder and decoder goldens
 
@@ -626,7 +751,33 @@ committing. Round 1 substituted issue #69's unrelated `+4,396 LUT` datapath
 delta; round 2 removed it and declared the backend unmeasurable from a
 documentation lane. The review refused that narrowing, and it was right to:
 a bound does not need the shipping module, only a synthesizable candidate.
-So there is one now, and the number below is measured rather than argued.
+
+Round 3 supplied a candidate and the review found that it could not do the job
+it was priced for, which is a different objection and a fair one: **a
+synthesizable but functionally impossible sketch does not discharge an area
+acceptance.** Two defects, both in the part that was supposed to be the
+expensive part:
+
+- the two channel-map groups shared ONE `{prefix,length}` table indexed by
+  `dev_region_i[3:0]`, so `0x60+k` and `0x70+k` read the same entry. The
+  generated 8x8 overlay is asymmetric -- an input port has 8 clusters (64-byte
+  payload, 72-byte framed record), an output port has 17 (136 and 144) -- so at
+  least one direction addressed the wrong span. The 1x1 shape is worse, not
+  better: its single input port has ZERO clusters, an 8-byte framed record with
+  no payload at all, against the same 136-byte output payload;
+- the group base after each channel-map group advanced by a NOMINAL stride,
+  although KLJ2 section 6.1 concatenates records with no inter-record padding.
+
+Both are repaired, the nominal-size parameter is gone rather than corrected, and
+the candidate is now DRIVEN rather than only synthesised.
+[`tb/verilator/nvm_backend`](../../tb/verilator/nvm_backend/README.md) reads
+every `0x60..0x67` and `0x70..0x77` mapping -- and every other allocated record
+-- out of a byte-exact KLJ2 image at both shapes, and carries three negative
+controls compiled from the same source with one defect each restored, every one
+of which must go RED. The image's offsets come from
+`scripts/check_nvm_record_space.py --emit-record-table` and its bytes are
+rebuilt independently in the harness, which checks its own CRC-32 against the
+encoder's before a clock is driven.
 
 **Settled, and structural rather than estimated:**
 
@@ -648,27 +799,45 @@ registered as tops in [`syn/yosys/ooc.sh`](../../syn/yosys/ooc.sh) and measured
 with the recipe that file already carries, `synth_xilinx -family xc7 -flatten`,
 which is the only mapping this repository judges an area lever on.
 
-| top | shape | LUT | FF | RAMB36 | DSP | CARRY4 |
-|---|---|---|---|---|---|---|
-| `KL_nvm_blankflash_sizer` (before) | -- | **35** | 21 | 0 | 0 | 5 |
-| `KL_nvm_backend_sizer` (after) | 1x1 | **427** | 216 | 0 | 6 | 92 |
-| `KL_nvm_backend_sizer` (after) | 8x8 | **460** | 216 | 0 | 6 | 90 |
-| `KL_nvm_backend_sizer`, `-nodsp` | 1x1 | **523** | 216 | 0 | 0 | 118 |
-| `KL_nvm_backend_sizer`, `-nodsp` | 8x8 | **539** | 216 | 0 | 0 | 116 |
+| top | shape | LUT | LUTRAM | **LUT_TOT** | FF | RAMB36 | DSP | CARRY4 |
+|---|---|---|---|---|---|---|---|---|
+| `KL_nvm_blankflash_sizer` (before) | -- | 35 | 0 | **35** | 21 | 0 | 0 | 5 |
+| `KL_nvm_backend_sizer` (after) | 1x1 | 551 | 0 | **551** | 280 | 0 | 6 | 99 |
+| `KL_nvm_backend_sizer` (after) | 8x8 | 558 | 128 | **686** | 216 | 0 | 6 | 98 |
+| `KL_nvm_backend_sizer`, `-nodsp` | 1x1 | 619 | 0 | **619** | 280 | 0 | 0 | 125 |
+| `KL_nvm_backend_sizer`, `-nodsp` | 8x8 | 645 | 128 | **773** | 216 | 0 | 0 | 124 |
+
+**The `LUTRAM` column is new, and its absence was an under-count of 128 LUT.**
+At the 8x8 shape yosys maps the two eight-entry channel-map tables to 32
+`RAM32M` cells, and `syn/yosys/ooc.sh` counted only `LUT1..LUT6`, so 128 LUT6 of
+SLICEM sat in no column at all and the block read 128 LUT cheaper than it is. A
+distributed-RAM mapping is legal and is usually the cheap one; what is not legal
+is pricing a block as though those LUTs were free. `ooc.sh` now converts every
+distributed-RAM primitive to its LUT6 count (UG474: `RAM32M` and `RAM64M` and
+`RAM128X1D` occupy 4, `RAM32X1D` and `RAM64X1D` occupy 2) and prints `LUT_TOT`.
+The three calibration blocks below carry no distributed RAM, so their figures
+are unchanged by it -- the column is additive, not a re-scaling.
 
 The six `DSP48E1` are the constant-stride multiplies in the region decoder,
 which the default `synth_xilinx` mapping happily hands to a DSP. Both mappings
 are published because either is a legal implementation, and the `-nodsp` column
-is the LUT-only worst case: **the backend costs at most 539 LUT and 216 FF**,
-which is **0.85 percent of the XC7A100T's 63,400 LUT** and 0.17 percent of its
-126,800 FF. The delta over what ships today is **+504 LUT and +195 FF** at 8x8
-in the LUT-only mapping, or +425 LUT, +195 FF and +6 DSP48E1 with DSP inference
-left on.
+is the LUT-only worst case: **the backend costs at most 773 LUT-equivalents and
+280 FF**, which is **1.22 percent of the XC7A100T's 63,400 LUT** and 0.22
+percent of its 126,800 FF. The delta over what ships today is **+738 LUT and
++259 FF** in the LUT-only mapping, taking the worst column of each: 8x8 for LUT,
+1x1 for FF, because the shapes trade one against the other (at 8x8 the tables
+become distributed RAM and stop costing flops).
 
 Calibration, measured in the same run so the figure is anchored rather than
 free-floating: `KL_maap` is 637 LUT / 268 FF, `tcam` is 678 LUT / 1,680 FF and
-`KL_chan_map_render` is 4,581 LUT / 2,485 FF. The backend is smaller than the
-MAAP engine already in the shipping datapath.
+`KL_chan_map_render` is 4,581 LUT / 2,485 FF. **Round 3's claim that the backend
+is smaller than the MAAP engine is withdrawn**: at 773 LUT-equivalents it is
+larger than either `KL_maap` or `tcam`, and about a sixth of
+`KL_chan_map_render`. What the calibration still supports is the conclusion the
+decision needs -- a block of this size cannot invalidate the selected
+architecture on a device whose area campaign is fought in single-digit
+percentages -- and it no longer supports the softer claim that was made
+alongside it.
 
 **What the number is, and is not.** `ooc.sh`'s own header states the rule this
 repository uses: a standalone OOC figure is the UPPER bound for a block,
@@ -676,9 +845,9 @@ because in context it shares decode and constants with its neighbours, so the
 in-context delta is always the smaller and truer number. It is also
 pre-placement, and `scripts/area_baseline.py` records that post-synth numbers
 move by thousands of LUT and that out-of-context numbers do not preserve rank
-order. So this bounds the decision -- 539 LUT cannot invalidate the selected
-architecture on a device where the area campaign is fought in single-digit
-percentages -- and it does not replace the post-place delta.
+order. So this bounds the decision -- 773 LUT-equivalents cannot invalidate the
+selected architecture on a device where the area campaign is fought in
+single-digit percentages -- and it does not replace the post-place delta.
 
 **What the implementation PR still owes**, with a recipe that runs today:
 
@@ -702,14 +871,24 @@ syn/yosys/ooc.sh KL_nvm_blankflash_sizer KL_maap tcam KL_chan_map_render
 
 # the after, at the 1x1 shape; prefix OOC_NODSP=1 for the LUT-only column
 OOC_CHPARAM="N_STREAM_IN_P=2 N_STREAM_OUT_P=2 N_SPORT_IN_P=1 N_SPORT_OUT_P=1 \
-             N_AUDIO_UNIT_P=1 N_CLK_DOM_P=1 N_NAME_BANK_P=4 MAP_BYTES_P=136" \
+             N_AUDIO_UNIT_P=1 N_CLK_DOM_P=1 N_NAME_BANK_P=4" \
   syn/yosys/ooc.sh KL_nvm_backend_sizer
 
 # the after, at the 8x8 shape
 OOC_CHPARAM="N_STREAM_IN_P=9 N_STREAM_OUT_P=9 N_SPORT_IN_P=8 N_SPORT_OUT_P=8 \
-             N_AUDIO_UNIT_P=1 N_CLK_DOM_P=1 N_NAME_BANK_P=30 MAP_BYTES_P=256" \
+             N_AUDIO_UNIT_P=1 N_CLK_DOM_P=1 N_NAME_BANK_P=30" \
   syn/yosys/ooc.sh KL_nvm_backend_sizer
+
+# and what the candidate actually DOES, at both shapes, with the three
+# negative controls that must each fail
+make -C tb/verilator/nvm_backend
 ```
+
+There is no `MAP_BYTES_P` any more. Round 3's recipe passed a nominal
+channel-map size, and no single value is right: at 8x8 the two directions are 72
+and 144 framed bytes, and at 1x1 they are 8 and 144. The lengths are
+firmware-loaded per port and per direction now, and the group bases after them
+are derived from those lengths.
 
 `OOC_NODSP=1` is added to `ooc.sh` by this PR for the same reason both columns
 are published: a block whose only DSPs come from constant strides is priced
@@ -726,14 +905,25 @@ silently ignored.
 instantiates it, `milan_soc.py` does not register it, and `scripts/lint_rtl.py`
 sweeps `hdl/` and would treat it as a module the SoC forgot to wire. Keeping it
 in `syn/ooc/sizing/` states its status structurally. It is not therefore
-unchecked: both tops pass `verilator --lint-only -Wall` and the run is recorded
-on the PR. The three simplifications it makes are named in its own header. The
-one that could under-count most, the variable-length channel-map records, is
-covered: the sketch carries the per-port prefix table a real backend needs. The
-one that remains is the datapath, which moves one byte per handshake rather
-than coalescing into words, so the figure bounds the decode and control cost
-rather than every possible datapath. A coalescing variant would add a word
-buffer and a lane mux, which is tens of LUT on a 539-LUT block.
+unchecked, and the check is now executable rather than recorded. Round 3's PR
+published `verilator --lint-only -Wall --top-module ... KL_nvm_backend_sizer.sv`
+for both tops and **neither command reproduced**: one file declaring two
+top-level modules trips `DECLFILENAME` under this repository's Verilator 5.050,
+so both exited 1. The tops live in one file each now
+([`KL_nvm_blankflash_sizer.sv`](../../syn/ooc/sizing/KL_nvm_blankflash_sizer.sv)
+and
+[`KL_nvm_backend_sizer.sv`](../../syn/ooc/sizing/KL_nvm_backend_sizer.sv)), both
+commands pass, and `make -C tb/verilator/nvm_backend` runs them as its `lint`
+prerequisite with no `-Wno-*` at all -- so the claim is a suite step that the
+`verilator-suites` aggregate already carries, not a sentence.
+
+Two simplifications remain, both named in the file's own header. The channel-map
+one is gone: it was the largest under-count risk, it turned out to be an outright
+defect rather than a risk, and it is now direction-distinct state that the suite
+grades against a byte-exact image. What is left is the datapath, which moves one
+byte per handshake rather than coalescing into words, so the figure bounds the
+decode and control cost rather than every possible datapath; a coalescing variant
+would add a word buffer and a lane mux, which is tens of LUT on a 773-LUT block.
 
 ## 9. What the fabric may claim: the durability and liveness contract
 
@@ -755,7 +945,7 @@ is free:
 |---|---|---|
 | `[6]` | `nvm_backed` | **live**: a writer answered within `T-NVM-WRITER-ALIVE` and no unrevoked failure is outstanding |
 | `[8]` | `nvm_dirty` | the fabric image holds committed changes that no slot yet holds |
-| `[9]` | `nvm_stale` | `nvm_backed` was true since reset and is now false, and the loss has not been made good; cleared only by the recovery rule of section 9.2, never by a writer merely answering again |
+| `[9]` | `nvm_stale` | `nvm_backed` was true since reset and is now false, and the loss has not been made good; cleared by the recovery rule of section 9.2, never by a writer merely answering again |
 | `[15:12]` | `nvm_verdict` | the section 6.2 verdict code of the last image offered |
 
 `nvm_backed` remains **fabric-derived evidence and never a knob**: no CSR write
@@ -789,23 +979,55 @@ still un-durable. Two cases fall out of that one rule:
 - Something was outstanding. The bit stays set through the recovery until the
   commit that makes `nvm_dirty` 0 completes.
 
-The published bit is **masked** by that same condition, so
-`(backed=1, dirty=0, stale=1)` cannot appear on the CSR face at all, not even
-for the cycle between a heartbeat and the internal latch clearing. That is what
-makes the row unreachable in section 9.3 rather than merely brief, and it costs
-one gate:
+**The rule clears the STATE, not just the view.** Round 3 wrote this section
+both ways at once: it said the bit clears after a clean recovery, and then said
+the latch is cleared only by reset with the published bit masked by
+`NOT (backed AND NOT dirty)`. The candidate implemented the second, and the
+review was right that the two are not the same contract. A mask makes a healed
+outage LOOK repaired while the latch still remembers it, so the next ordinary
+controller change -- which sets `nvm_dirty` and therefore lifts the mask --
+republishes `nvm_stale` = 1 with no new loss anywhere. One historical outage
+would contaminate every commit for the rest of the power cycle, and the
+`(backed=1, dirty=1, stale=0)` in-flight row of section 9.3 would be
+unreachable in practice.
+
+So the recovery condition clears the latch itself, and there is no mask. Stated
+as a next-state function with its priorities written out rather than left to
+statement order:
 
 ```
-nvm_stale_published = nvm_stale_latch AND NOT (nvm_backed AND NOT nvm_dirty)
+loss     = (T-NVM-WRITER-ALIVE expired OR T-NVM-COMMIT-TIMEOUT expired)
+           AND a writer had been live at some point since reset
+backed'  = loss ? 0 : heartbeat ? 1 : backed
+dirty'   = change_accepted ? 1 : commit_acknowledged ? 0 : dirty
+stale'   = loss ? 1 : (backed' AND NOT dirty') ? 0 : stale
 ```
 
-Nothing else clears the latch but reset.
+Two priorities are deliberate. A loss in the same cycle as a heartbeat WINS,
+because a heartbeat proves the writer answered at some point, not that the
+deadline had not already lapsed. A change accepted in the same cycle as a commit
+acknowledgement WINS, so a controller SET landing on the commit boundary is
+never lost.
+
+The recovery arm is evaluated on the NEXT values of the other two bits, which is
+what makes the clear atomic with the event that earns it rather than one cycle
+late. It also makes `(backed=1, dirty=0, stale=1)` unreachable in the STATE
+rather than masked at the face: `stale` can only still be 1 if the previous
+cycle took the loss arm, which drove `backed'` to 0, or held the latch, which
+requires `backed'` = 0 or `dirty'` = 1. No read can observe the pair because no
+cycle holds it.
 
 The rule is deliberately NOT "clears when a writer answers again". A writer
 that comes back has proved liveness, not durability; the changes accepted while
 it was gone are still only in the volatile image. Clearing on the answer would
 re-create exactly the false-success condition issue #70 exists to remove, one
-level up.
+level up. That is why the `AND NOT dirty` half of the condition is load-bearing,
+and `tb/verilator/nvm_backend` drives all four sequences -- a never-backed
+build, a loss with nothing outstanding followed by a recovery and a later
+ordinary change, a loss with data outstanding that stays stale through the
+recovery until the commit completes, and a second loss that sets it again --
+with the round-3 keep-the-latch machine compiled in as a negative control that
+must fail.
 
 ### 9.3 Reading the three bits together
 
@@ -817,7 +1039,7 @@ than left off the table. Round 2's version of this table had five rows and used
 |---|---|---|---|---|
 | `1` | `0` | `0` | yes | **Durable.** Everything committed is in a slot |
 | `1` | `1` | `0` | yes | **In flight.** A commit is inside the debounce window or in progress; a power cut here loses the marked changes and nothing else |
-| `1` | `0` | `1` | **no** | Unreachable by construction: the published `nvm_stale` is masked by exactly this condition (section 9.2), so no read can observe the pair |
+| `1` | `0` | `1` | **no** | Unreachable by construction: the recovery arm of section 9.2 clears the latch on exactly this condition, and a loss forces `backed` to 0 in the same cycle, so no cycle holds the pair and no read can observe it |
 | `1` | `1` | `1` | yes | **Recovering.** The writer is answering again, but changes accepted during the outage are still not durable. Reads as backed, because a commit will now complete, and as stale, because one has not yet |
 | `0` | `0` | `0` | yes | **Never backed, nothing outstanding.** Reset state, and the state of a build with no writer |
 | `0` | `1` | `0` | yes | **Never backed, changes accepted.** A controller SET landed before any writer answered. Nothing is backed and nothing claims to be |
@@ -1001,21 +1223,29 @@ manager's job.
   issues a dozen SETs in a row, so a commit per command would burn erase cycles
   for nothing. Whatever window is chosen, the PR that lands it must say what a
   power cut inside it loses, and `nvm_dirty` is the bit that makes it visible.
+- **A name persisted before the amendment lands cannot be read afterwards, and
+  the reverse.** The presence rule of section 4.3 is part of the wire contract,
+  not an implementation detail: a writer that stored an empty name under the
+  round-3 rule wrote a slot that a round-4 reader restores as an empty name and
+  a round-3 reader restores as the vendor default. Nothing in the tree encodes a
+  names bank today, which is what makes this a negotiation rather than a
+  migration -- and it is why nothing may start encoding one until the pin lands.
 - **Four donor defects are open against the port** and matter to any consumer:
   an unowned `done_seen_r`, no timeout so a silent device wedges the port,
   restore failures collapsing three situations into one signal, and `record_id`
   never checked against its region. The last one is now load-bearing: section
   4's blocks are enforced by the manager and by
   `scripts/check_nvm_record_space.py`, not by the port.
-- **The names allocation is blocked on a donor amendment nobody has filed
-  yet.** Section 4.3 quotes the amendment verbatim and section 4.2 carries the
-  allocation as PROPOSED, but no donor ticket exists and no pin carries it. The
-  parent's gate is NOT the tie-breaker -- round 2 said it was, and a
-  consumer-side capacity check cannot overrule the pinned interface authority.
-  Until the amendment lands, two independent implementations can read F07.8 and
-  build incompatible name records, and a CRC-valid image can be unrestorable
-  while every gate in this repository is green. This is the largest open risk on
-  the page.
+- **The names allocation is blocked on a donor amendment that is filed but not
+  landed.** Section 4.3 quotes the amendment verbatim and section 4.2 carries
+  the allocation as PROPOSED. Donor issue **#24** now carries it, together with
+  a correcting comment for the round-4 presence rule, but no donor commit has
+  adopted it and no pin carries it. The parent's gate is NOT the tie-breaker --
+  round 2 said it was, and a consumer-side capacity check cannot overrule the
+  pinned interface authority. Until the amendment lands, two independent
+  implementations can read F07.8 and build incompatible name records, and a
+  CRC-valid image can be unrestorable while every gate in this repository is
+  green. This is the largest open risk on the page.
 - **Both liveness deadlines are derived from a datasheet maximum, not from the
   bench.** `tSE` = 3 s is the N25Q128's specified worst case; the parts on the
   board will be far faster. If a future device is slower, section 9.4's
@@ -1058,14 +1288,19 @@ so nothing here moves when the pin does.
 **The record namespace**
 
 - [ ] `scripts/check_nvm_record_space.py` passes for every shipped config, and
-      its `--self-test` still reddens on all eleven negative controls,
-      including the four omission arms.
+      its `--self-test` still reddens on all seventeen negative controls,
+      including the four omission arms, the two index-set arms and the three
+      that restore a round-3 decoder rule.
 - [ ] The donor's F07.8 amendment of section 4.3 has LANDED and a pin carrying
       it is on `dev`. Until then nothing encodes or decodes a names bank.
 - [ ] A max-shape names bank is encoded by one implementation and decoded by
       the other, byte for byte, at the pinned donor contract.
 - [ ] A mutation that makes the record index and the slot ordinal disagree is
       caught rather than silently mis-restored.
+- [ ] A user name SET to the EMPTY string survives a power cycle as the empty
+      string, proven against a vendor default that is not empty, and the unused
+      tail of the last bank is proved to follow from the shape by writing
+      rubbish into it and requiring no change.
 - [ ] The manager emits records at the section 4.2 ids, and a record whose id is
       outside its group's block is refused rather than written.
 
@@ -1080,6 +1315,8 @@ so nothing here moves when the pin does.
 - [ ] Records are emitted in ascending `record_id` (section 6.1), and a decoder
       that computes offsets from the shape agrees with one that walks the
       records.
+- [ ] Deleting each mandatory record in turn from a CRC-RECOMPUTED image is
+      refused with `VD_INCOMPLETE` and **zero** records applied (rule 12).
 
 **The status bits**
 
@@ -1096,6 +1333,10 @@ so nothing here moves when the pin does.
 - [ ] **Recovery**: after a writer is lost with data outstanding and then comes
       back, `nvm_stale` stays 1 until a commit completes with `nvm_dirty` 0, and
       clears then. A writer that merely answers again does NOT clear it.
+- [ ] **A healed outage does not contaminate later commits**: after a loss with
+      nothing outstanding and a clean recovery, an ordinary controller change
+      reads `(backed=1, dirty=1, stale=0)`, and a keep-the-latch implementation
+      fails that check.
 - [ ] **A late-but-valid completion** -- a commit that finishes after
       `T-NVM-COMMIT-TIMEOUT` has already revoked `nvm_backed` -- is accepted as
       data and does not resurrect the claim by itself.
@@ -1134,6 +1375,8 @@ so nothing here moves when the pin does.
 - [ ] `scripts/area_baseline.py --compare` post-place at both
       `endstation_ax7101_1x1_tdm8` and `endstation_ax7101_8x8`, against the
       section 8.3 OOC bound. The OOC figure is an upper bound and the in-context
-      delta should come in under it; a post-place delta ABOVE 539 LUT means the
+      delta should come in under it; a post-place delta ABOVE 773 LUT means the
       shipping module diverged from the candidate that was priced, and the
-      divergence has to be explained rather than absorbed.
+      divergence has to be explained rather than absorbed. Distributed RAM
+      counts: `ooc.sh`'s `LUT_TOT` column exists because 128 LUT6 of SLICEM were
+      being priced at zero.

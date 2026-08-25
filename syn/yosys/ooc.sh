@@ -90,7 +90,8 @@ tops=(
 
 want=("$@")
 printf "== OOC area (synth_xilinx -family xc7 -flatten) ==\n"
-printf "%-28s %8s %8s %8s %8s %8s %8s\n" top LUT FF RAMB36 RAMB18 DSP CARRY4
+printf "%-28s %8s %8s %8s %8s %8s %8s %8s %8s\n" \
+       top LUT LUTRAM LUT_TOT FF RAMB36 RAMB18 DSP CARRY4
 for spec in "${tops[@]}"; do
   top="${spec%%|*}"; srcs="${spec#*|}"
   if [ ${#want[@]} -gt 0 ]; then
@@ -128,16 +129,38 @@ for spec in "${tops[@]}"; do
   fi
   # count from the final (post-flatten) `stat` block only. yosys prints
   # "<count>   <CELLTYPE>", so the count is $1 and the type is $2.
+  #
+  # THE LUTRAM COLUMN IS NOT DECORATION. It was added because its absence made
+  # this script UNDER-COUNT, and by enough to matter: the saved-state backend
+  # candidate mapped its two 8-entry channel-map tables to 32 RAM32M cells at
+  # the 8x8 shape, and the old awk counted only LUT[1-6], so 128 LUT6 of
+  # SLICEM sat in no column at all and the block read 128 LUT cheaper than it
+  # is. A distributed-RAM mapping is legal and is usually the cheap one; what
+  # is not legal is pricing a block as though those LUTs were free.
+  #
+  # LUT_TOT is LUT plus the LUT6 equivalents of the distributed RAM, from
+  # UG474 (7 Series CLB): RAM32M and RAM64M and RAM128X1D and RAM256X1S each
+  # occupy 4 LUT6 of a SLICEM; RAM32X1D, RAM64X1D and RAM128X1S occupy 2;
+  # RAM32X1S and RAM64X1S occupy 1.
   awk -v top="$top" '
+    function lram_luts(t) {
+      if (t == "RAM32M" || t == "RAM64M" || t == "RAM128X1D" ||
+          t == "RAM32M16" || t == "RAM64M8" || t == "RAM256X1S") return 4;
+      if (t == "RAM32X1D" || t == "RAM64X1D" || t == "RAM128X1S") return 2;
+      if (t == "RAM32X1S" || t == "RAM64X1S") return 1;
+      return 0;
+    }
     /^=== .* ===$/ { inblk = 0 }
-    $0 == "=== " top " ===" { inblk = 1; lut=0; ff=0; r36=0; r18=0; dsp=0; c4=0 }
+    $0 == "=== " top " ===" { inblk=1; lut=0; lrm=0; ff=0; r36=0; r18=0; dsp=0; c4=0 }
     inblk && $2 ~ /^LUT[1-6]$/     { lut += $1 }
+    inblk && $2 ~ /^RAM[0-9]/      { lrm += $1 * lram_luts($2) }
     inblk && $2 ~ /^FD[CPRS]E?$/   { ff  += $1 }
     inblk && $2 ~ /^RAMB36E1$/     { r36 += $1 }
     inblk && $2 ~ /^RAMB18E1$/     { r18 += $1 }
     inblk && $2 ~ /^DSP48E1$/      { dsp += $1 }
     inblk && $2 ~ /^CARRY4$/       { c4  += $1 }
-    END { printf "%-28s %8d %8d %8d %8d %8d %8d\n", top, lut, ff, r36, r18, dsp, c4 }
+    END { printf "%-28s %8d %8d %8d %8d %8d %8d %8d %8d\n", \
+                 top, lut, lrm, lut + lrm, ff, r36, r18, dsp, c4 }
   ' "$TMP/$top.ooc.log"
 done
 [ -n "${OOC_TMP:-}" ] || rm -rf "$TMP"
