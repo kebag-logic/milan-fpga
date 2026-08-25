@@ -106,6 +106,13 @@ a trust decision is therefore run with `GIT_NO_REPLACE_OBJECTS=1`, set by this
 process rather than inherited. The real-Git self-test installs that exact
 replacement ref and requires a `modified` setup refusal before census or budget.
 
+THE ONE ASSUMPTION THE PROOF RESTS ON is object-store integrity: the pinned
+blob ids are read through git from the checkout's own object store, so a forged
+loose object written under the pin's id serves altered bytes as pinned ones and
+only `git fsck` sees the hash mismatch. Whoever can write `.git/objects` can as
+easily edit this gate or its ratchet, so that boundary is stated here, like the
+not-a-lock caveat on _unpinned_bytes, rather than left to be discovered.
+
 THE PARENT'S OWN hdl/ IS NOT PROVED THAT WAY, deliberately: it IS the tree
 under test. A local edit under hdl/ is exactly what the author is gating, so
 the bytes on disk are the population by definition and there is no revision
