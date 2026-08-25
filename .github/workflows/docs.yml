@@ -145,6 +145,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Fetch the engine authority the builder derives from
+        run: git submodule update --init gptp-processor
       - name: Advertised-vs-emitted gate (green since 2026-07-28, item 00)
         run: |
           python3 -m pip install --quiet pyyaml

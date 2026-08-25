@@ -109,7 +109,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Fetch the processor model inputs
-        run: git submodule update --init protocol-processor
+        run: git submodule update --init protocol-processor gptp-processor
       - name: Install behave
         run: python3 -m pip install --quiet behave
       - name: Run the specification-facing suite

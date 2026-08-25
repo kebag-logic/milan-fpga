@@ -3333,6 +3333,12 @@ def gptp_engine_pins(source=None):
     if from_file:
         if _gptp_engine_pins_cache is not None:
             return dict(_gptp_engine_pins_cache)
+        if not os.path.isfile(GPTP_UCODE_GENERATOR):
+            raise ConfigError(
+                "the gptp-processor submodule is not checked out, and its "
+                "generator is the authority the gPTP descriptor dataset "
+                "derives from ([R-parallel] on #228): run `git submodule "
+                "update --init gptp-processor` before loading a config")
         with open(GPTP_UCODE_GENERATOR, encoding="utf-8") as f:
             source = f.read()
     num = r"(0[xX][0-9A-Fa-f]+|\d+)"          # captured value
