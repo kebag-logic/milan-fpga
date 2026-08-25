@@ -9493,7 +9493,7 @@ def test_both_policies_valid():
         cm = c["audio_interface"]["cluster_mapping"]
         cm["policy"] = pol
         if pol == "role-pools":
-            cm.setdefault("pools", {"host": 4, "pilot": True, "loopback": 4})
+            cm.setdefault("pools", {"pilot": True, "loopback": 4})
         else:
             cm.pop("pools", None)
             cm.pop("fabric", None)
@@ -9518,9 +9518,11 @@ def test_both_policies_valid():
         # validate_features rightly refuses next to a declared DAC.
         # #259: the replaced feature map keeps the fabric owner - option-off
         # is refused for every configuration, this policy variant included.
+        # The prunes rationale stands; sound_card itself is retired (#259),
+        # so the replacement map states the only accepted value, false.
         c["board"]["features"] = {
             "fabric_gptp": True,
-            "sound_card": True,
+            "sound_card": False,
         }
         set_policy(c, "cap-at-interface")
     p = _variant(CONFIGS["ax7101_8x8"], to_i2s)
@@ -10047,19 +10049,26 @@ def test_dynamic_map_topology_reaches_shape_header():
             out.append(int(q.group(2), {"h": 16, "d": 10, "b": 2}[q.group(1)]))
         return out
 
+    # #259: the 8x8's listeners are empty-handed (no host pool, 0 physical),
+    # so the input face carries eight zero-cluster ports and the 1-key
+    # placeholder engine - the same retired posture the 1x1 leg below pins.
+    # The output face is the 9-cluster geometry: pilot (13'h1400) then the
+    # eight fabric-disabled loopback templates, idxh = the talker's own rx
+    # stream so the eight ports stay distinct.
     ax8 = eb.load_config(CONFIGS["ax7101_8x8"])
     h8 = eb.emit_adp_shape_svh(ax8, eb.emit_aem_overlay(ax8))
-    assert scalar(h8, "ADP_DMAP_IN_KEYS_C") == 64
-    assert array(h8, "ADP_DMAP_IN_PBASE_C") == list(range(0, 64, 8))
-    assert array(h8, "ADP_DMAP_IN_PCLS_C") == [8] * 8
-    assert array(h8, "ADP_DMAP_IN_RPHYS_C") == [0] * 64
-    assert array(h8, "ADP_DMAP_OUT_PCLS_C") == [17] * 8
-    assert array(h8, "ADP_DMAP_OUT_PCBASE_C") == list(range(0, 136, 17))
+    assert scalar(h8, "ADP_DMAP_IN_KEYS_C") == 1
+    assert array(h8, "ADP_DMAP_IN_PBASE_C") == [0] * 8
+    assert array(h8, "ADP_DMAP_IN_PCLS_C") == [0] * 8
+    assert array(h8, "ADP_DMAP_IN_PNMAPS_C") == [0] * 8
+    assert array(h8, "ADP_DMAP_IN_RPHYS_C") == [0]
+    assert array(h8, "ADP_DMAP_OUT_PCLS_C") == [9] * 8
+    assert array(h8, "ADP_DMAP_OUT_PCBASE_C") == list(range(0, 72, 9))
     c8 = array(h8, "ADP_DMAP_OUT_CSRC_C")
-    assert c8[:9] == [0x1300, 0x1B00, 0x1301, 0x1B01,
-                      0x1302, 0x1B02, 0x1303, 0x1B03, 0x1400]
-    assert c8[9:17] == [0x0500, 0x0D00, 0x0501, 0x0D01,
-                        0x0502, 0x0D02, 0x0503, 0x0D03]
+    assert c8[:9] == [0x1400, 0x0500, 0x0D00, 0x0501,
+                      0x0D01, 0x0502, 0x0D02, 0x0503, 0x0D03]
+    assert c8[9:18] == [0x1400, 0x0510, 0x0D10, 0x0511,
+                        0x0D11, 0x0512, 0x0D12, 0x0513, 0x0D13]
 
     ax1 = eb.load_config(CONFIGS["ax7101_1x1_tdm8"])
     h1 = eb.emit_adp_shape_svh(ax1, eb.emit_aem_overlay(ax1))
@@ -10367,34 +10376,42 @@ def test_dynamic_audio_map_overlay():
         # fall-through used to land on LOOPBACK and every talker woke mapped
         # to a cluster whose fabric bucket milan_datapath never wired: a
         # GET_AUDIO_MAP that reads perfectly over a stream of digital
-        # silence. The ship config declares loopback_lane false, so:
-        #   - the identity must be the HOST pool, whose templates are the
-        #     elaborated KL_pcm_tx ring: {valid, half, src=3 RING} = 13'h13xx
+        # silence. The ship config declares loopback_lane false, and the
+        # host pool left with the Linux sound-card surface (#259), so:
+        #   - the identity must be the PILOT tone, the one pool this build
+        #     can feed: {valid, src=4 TONE} = 13'h1400
+        #   - no host ring template may survive at all (retired posture,
+        #     pinned): src=3 RING would be 13'h13xx
         #   - the loopback templates must still be EMITTED (the clusters
         #     exist and a controller may map to them) but fabric-disabled,
         #     bit 12 clear, so 13'h05xx, never 13'h15xx
-        # INIT carries {valid[5], cluster offset[4:0]}; host is offset 0
-        # (physical is 0 wide), so every key must read 6'h20 + channel.
-        assert "13'h1300" in svh, "power-on identity is not the host ring"
+        # INIT carries {valid[5], cluster offset[4:0]}; pilot is offset 0
+        # and ONE cluster wide, so key 0 of each port reads 6'h20 and the
+        # other seven keys wake NOT MAPPED (6'h00) - Milan v1.2 5.3.9.1
+        # allows a Stream Output channel to be unmapped, and an unbacked
+        # source would be the exact defect this gate exists to refuse.
+        assert "13'h1400" in svh, "power-on identity is not the pilot tone"
+        assert "13'h13" not in svh, \
+            "a host ring template survived the #259 retirement"
         assert "13'h15" not in svh, \
             "a VALID loopback template survived with the lane switched off"
         assert "13'h05" in svh, \
             "loopback templates vanished; the clusters must still be offered"
-        assert "AEM_ODMAP_INIT_C [0:63] = '{6'h20, 6'h21, 6'h22, 6'h23, " \
-               "6'h24, 6'h25, 6'h26, 6'h27" in svh, \
-            "power-on map does not wake on the host pool"
+        assert "AEM_ODMAP_INIT_C [0:63] = '{6'h20, 6'h00, 6'h00, 6'h00, " \
+               "6'h00, 6'h00, 6'h00, 6'h00, 6'h20" in svh, \
+            "power-on map does not wake on the pilot pool alone"
         print("  [gate 17d] ax7101_8x8 ALL streams dynamic: 8 output ports "
               "n_maps=0, zero AUDIO_MAPs, `AEM_ODYNMAP keys=64 slotb 0..28")
-        print("  [gate 17e] lane OFF: power-on identity = HOST/RING "
-              "(13'h1300), loopback templates emitted fabric-disabled "
-              "(13'h05xx) and protocol-mappable; live CMAP enable stays clear")
+        print("  [gate 17e] lane OFF: power-on identity = PILOT (13'h1400), "
+              "host ring gone (#259), loopback templates emitted "
+              "fabric-disabled (13'h05xx) and protocol-mappable")
 
         # and the OTHER direction: declaring the lane must hand the pool
         # back. ONE fact drives the argv and the map, so they cannot drift.
         def dyn_everything_lane(c):
             dyn_everything(c)
             c["audio_interface"]["cluster_mapping"]["fabric"] = {
-                "loopback_lane": True, "playback_rings": 1}
+                "loopback_lane": True}
         p2 = _variant(CONFIGS["ax7101_8x8"], dyn_everything_lane)
         try:
             r2 = eb.build(p2, OUT)
@@ -10408,22 +10425,24 @@ def test_dynamic_audio_map_overlay():
                 svh2 = open(os.path.join(td, "aecp_aem_rom.svh")).read()
             assert "13'h1500" in svh2, \
                 "lane declared but no VALID loopback template emitted"
-            #! USER 2026-08-06: host outranks loopback - a BACKED lane is
-            #! fully mappable but the entity WAKES claiming the SHARED
-            #! MEMORY (INIT 6'h20 = host co=0), never the loop. The 08-05
-            #! silicon caught the old order: the talker woke transmitting
-            #! its own received stream and every host ADD hit the
-            #! pair-slot-unity refusal.
-            assert "AEM_ODMAP_INIT_C [0:63] = '{6'h20" in svh2, \
-                "the power-on map must claim the HOST pool"
+            # #259: the host pool left with the Linux sound-card surface,
+            # so the 08-06 host-outranks-loopback order has no subject
+            # left on this shape - the preference walk lands on the
+            # BACKED loopback pool (offset 1: pilot holds offset 0), which
+            # is the D8 point this arm exists for: declaring the lane
+            # hands the pool back. INIT co runs 1..8 on every port.
+            assert "AEM_ODMAP_INIT_C [0:63] = '{6'h21, 6'h22, 6'h23, " \
+                   "6'h24, 6'h25, 6'h26, 6'h27, 6'h28, 6'h21" in svh2, \
+                "the power-on map must claim the backed loopback pool"
             assert "--loopback-lane" in eb.emit_design_opts(
                 eb.load_config(p2)), \
                 "lane declared but milan_soc was never told to build it"
-            assert all(q["primary_role"] == "host"
+            assert all(q["primary_role"] == "loopback"
                        for q in r2["overlay"]["stream_ports"]["output"])
-            print("  [gate 17e] lane ON: loopback valid (13'h1500) and "
-                  "mappable, but primary_role/INIT stay HOST (6'h20) - "
-                  "the entity wakes on shared memory")
+            print("  [gate 17e] lane ON: loopback valid (13'h1500), "
+                  "primary_role/INIT move onto it (6'h21..6'h28) - "
+                  "declaring the lane hands the pool back (#259: no host "
+                  "pool outranks it any more)")
         finally:
             os.unlink(p2)
     finally:
@@ -11005,8 +11024,11 @@ def test_platform_dt_and_driver_shape():
         pairs = [("dma-tx", "milan_dma_tx_base"),
                  ("dma-rx", "milan_dma_rx_base"),
                  ("dma-ts", "milan_dma_ts_base"),
-                 ("hs-pgsz-cap", "milan_dma_hs_pgsz_cap"),
-                 ("pcm-dma", "milan_dma_pcm_base")]
+                 ("hs-pgsz-cap", "milan_dma_hs_pgsz_cap")]
+        # #259: sound_card retired -> no pcm-dma window is emitted; the
+        # deployed csr.csv may still carry the Linux-era row until reflash
+        if "pcm-dma" in sh["windows"]:
+            pairs.append(("pcm-dma", "milan_dma_pcm_base"))
         if "dma-rx1" in sh["windows"]:
             pairs.append(("dma-rx1", "milan_dma_rx1_base"))
         for win, reg in pairs:
@@ -11037,10 +11059,14 @@ def test_platform_dt_and_driver_shape():
         assert cells == want, (
             f"{cfg_name}: emitted NIC reg bases {[hex(x) for x in want]} != "
             f"deployed {dts} {[hex(x) for x in cells]}")
-        pcm = re.search(r"audio@([0-9a-f]+)", txt)
-        assert pcm and int(pcm.group(1), 16) == \
-            int(sh["pcm"]["base"], 16), \
-            f"{cfg_name}: PCM node base != deployed {dts}"
+        # #259: sound_card retired -> the builder states no PCM surface to
+        # compare; the deployed .dts is the last-flashed Linux-era artifact
+        # and keeps its audio node until the next flash replaces it.
+        if sh["pcm"] is not None:
+            pcm = re.search(r"audio@([0-9a-f]+)", txt)
+            assert pcm and int(pcm.group(1), 16) == \
+                int(sh["pcm"]["base"], 16), \
+                f"{cfg_name}: PCM node base != deployed {dts}"
         assert f"kl,rsc-clk-mhz = <{sh['rsc_clk_mhz']}>" in txt
         # ...and the STATION MAC, which the deployed DTB restates as
         # local-mac-address. It was an unchecked mirror until 2026-08-02, and
@@ -11057,9 +11083,9 @@ def test_platform_dt_and_driver_shape():
             f"{got_mac} - the entity_id derives from the config's, the wire "
             f"carries the DTB's")
         checked += 1
-        print(f"  [gate 19b] {cfg_name}: all 5 NIC reg bases + the PCM node "
-              f"base + kl,rsc-clk-mhz + the station MAC MATCH the deployed "
-              f"{os.path.basename(dts)}")
+        print(f"  [gate 19b] {cfg_name}: all 5 NIC reg bases + "
+              f"kl,rsc-clk-mhz + the station MAC MATCH the deployed "
+              f"{os.path.basename(dts)} (PCM node compare retired, #259)")
     if not checked:
         skip("gate 19b", "deployed-.dts cross-check: sibling repo "
                          "milan-tests-avb not on disk")
@@ -12878,20 +12904,17 @@ def _instance_params(python, runs, mutations=()):
     return out
 
 
-#: The inverted optional-block row: the sound card is a Linux-only surface the
-#: shipping bare-metal profile drops.  Fabric gPTP used to be another row here,
-#: but #116 made it the RTL/product default and made ownership profile-aware;
-#: gate 1e below therefore grades it across both profiles instead of pretending
-#: it can be toggled inside this one bare-metal recipe.  (flag, {parameter: the
-#: value a PRESENT build must pass}).
-#:
-#: `None` means "must appear, value unconstrained" - the ONE case is the gPTP
-#: microcode image, whose path is a build-tree location and not a constant.
-#: It is graded rather than ignored because the ROM is half of what the flag
-#: buys: a plane parameter of 1 with no image is #135's symptom with an extra
-#: step, an enabled plane that never leaves reset.  A row lists EVERY
-#: parameter its flag moves, so "changed nothing else" stays an exact test
-#: instead of a set difference nobody reads.
+#: The RETIRED optional-block row (#259): the sound card was the Linux-only
+#: surface, and milan_soc.py now REFUSES its `--sound-card` spelling at
+#: argparse, so the PRESENT side is unreachable from any command line.  The
+#: internal plumbing (`if sound_card: dp_params["p_SOUND_CARD_P"] = 1`) is
+#: still in the source, which is exactly why the row stays graded: what must
+#: hold now is that the shipping elaboration passes NO p_SOUND_CARD_P (the
+#: RTL default 0 is the only shape) and that the flag's refusal names #259.
+#: Fabric gPTP used to be another row here, but #116 made it the RTL/product
+#: default and made ownership profile-aware; gate 1e below therefore grades
+#: it across both profiles.  (flag, {parameter: must be ABSENT from every
+#: reachable elaboration}).
 PRESENT_ONLY_BLOCKS = {
     "sound_card": ("--sound-card", {"p_SOUND_CARD_P": 1}),
 }
@@ -12916,7 +12939,8 @@ def _prune_contract(got, rows, inverted=()):
     mutation is proved to turn THE GATE red rather than some weaker
     restatement of it.  `rows` are the OPTIONAL_BLOCKS names to grade against
     the "present" baseline; `inverted` names PRESENT_ONLY_BLOCKS rows, each
-    graded against its OWN `<name>_present`/`<name>` pair.
+    graded on its absent side only (#259: the present spelling is refused at
+    argparse, so no reachable elaboration may carry the row's parameters).
     """
     bad = []
 
@@ -12952,26 +12976,14 @@ def _prune_contract(got, rows, inverted=()):
                        f"{sorted(set(rest) ^ set(base)) or 'a value'}")
     for name in inverted:
         flag, wants = PRESENT_ONLY_BLOCKS[name]
-        on, off = params(f"{name}_present"), params(name)
-        for key, want in wants.items():
-            if on is not None and (on.get(key, KeyError) == KeyError
-                                   or (want is not None
-                                       and on.get(key) != want)):
-                bad.append(
-                    f"{name}: a build WITH `{flag}` got {key}="
-                    f"{on.get(key, '<absent>')!r}, want "
-                    f"{'any value' if want is None else repr(want)} - the "
-                    "RTL default is 0, so this is a row whose parameters are "
-                    "passed when the block is PRESENT")
+        off = params(name)
+        for key in wants:
             if off is not None and key in off:
-                bad.append(f"{name}: a build WITHOUT `{flag}` still passes "
-                           f"{key}={off[key]!r}")
-        if on is not None and off is not None:
-            rest = {k: v for k, v in on.items() if k not in wants}
-            if rest != off:
-                bad.append(f"{name}: dropping `{flag}` changed parameters "
-                           f"other than {sorted(wants)}: "
-                           f"{sorted(set(rest) ^ set(off)) or 'a value'}")
+                bad.append(
+                    f"{name}: `{flag}` is a refused spelling (#259), so NO "
+                    f"reachable elaboration may pass {key}, but the shipping "
+                    f"argv got {key}={off[key]!r} - the retired block would "
+                    "ship in every build")
     return bad
 
 
@@ -13007,8 +13019,9 @@ def _behavioural_runs():
     runs = [("present", present)]
     runs += [(name, present + [flag])
              for name, (flag, _p, _w) in eb.OPTIONAL_BLOCKS.items()]
-    runs += [("sound_card_present", present + ["--sound-card"]),
-             ("sound_card", present)]
+    # #259: `--sound-card` is a refused spelling, so the retired row has no
+    # reachable present side; its absent side IS the shipping argv.
+    runs += [("sound_card", present)]
     return cfg, runs
 
 
@@ -13212,12 +13225,14 @@ def test_gptp_plane_instance_gate_bites():
 def test_optional_blocks_reach_the_instance():
     """gate 23f - THE BEHAVIOURAL PRUNE PROOF (issues #130, #154).
 
-    Every OPTIONAL_BLOCKS row plus the sound-card PRESENT_ONLY_BLOCKS row, both
-    directions, graded on the parameters that actually reach
-    Instance("milan_datapath", ...) in a real elaboration of the shipping
-    configs.  A prune must land as `p_<PARAM>=0` AND MUST CHANGE NOTHING ELSE
-    - a flag that prunes the wrong block is the same silent lie as a flag
-    that prunes nothing."""
+    Every OPTIONAL_BLOCKS row plus the retired sound-card row, graded on the
+    parameters that actually reach Instance("milan_datapath", ...) in a real
+    elaboration of the shipping configs.  A prune must land as `p_<PARAM>=0`
+    AND MUST CHANGE NOTHING ELSE - a flag that prunes the wrong block is the
+    same silent lie as a flag that prunes nothing.  The retired row (#259)
+    is graded both ways it still can be: the shipping elaboration passes no
+    p_SOUND_CARD_P, and the `--sound-card` spelling dies in argparse naming
+    the retirement, before any Instance is constructed."""
     python = _litex_or_skip("gate 23f")
     if python is None:
         return
@@ -13227,6 +13242,17 @@ def test_optional_blocks_reach_the_instance():
     bad = _prune_contract(got, list(eb.OPTIONAL_BLOCKS),
                           list(PRESENT_ONLY_BLOCKS))
     assert not bad, "gate 23f:\n  " + "\n  ".join(bad)
+    flag = PRESENT_ONLY_BLOCKS["sound_card"][0]
+    with tempfile.TemporaryDirectory() as td:
+        args = [td if a == BUILD_OUT_TOKEN else a
+                for a in dict(runs)["present"] if a != "--build"]
+        proc = subprocess.run(
+            [python, os.path.join(SOC_DIR, "milan_soc.py")] + args + [flag],
+            text=True, cwd=SOC_DIR, capture_output=True)
+    assert proc.returncode != 0 and "retired" in proc.stderr \
+        and "#259" in proc.stderr, (
+        f"milan_soc.py did not refuse the retired `{flag}` spelling "
+        f"(rc={proc.returncode}):\n{proc.stderr[-1500:]}")
     base = got["present"]["params"]
     print(f"  [gate 23f] {len({tuple(a) for _l, a in runs})} real "
           f"milan_soc.py elaborations of {cfg['name']}, the shipping AX "
@@ -13234,9 +13260,9 @@ def test_optional_blocks_reach_the_instance():
           f"{len(eb.OPTIONAL_BLOCKS)} --no-* flags lands as p_<PARAM>=0 in "
           f'the Instance("milan_datapath") parameters and moves NOTHING '
           f"else, a build that prunes nothing passes none of them "
-          f"({len(base)} parameters, byte-identical top .v), and the "
-          f"inverted row lands the other way up: p_SOUND_CARD_P=1 with "
-          f"--sound-card and absent without it. Fabric gPTP's product "
+          f"({len(base)} parameters, byte-identical top .v), the retired "
+          f"row stays retired: no p_SOUND_CARD_P reaches any elaboration "
+          f"and --sound-card is refused naming #259. Fabric gPTP's product "
           f"default is graded separately by gate 1e. This grades what "
           f"elaboration HANDS the module, not "
           f"what the module DOES with it (gate 23d) and not that the "
@@ -13288,6 +13314,9 @@ def test_optional_block_instance_gate_bites():
         ("the prune predicate is INVERTED",
          [("        if not blocks[k]:", "        if blocks[k]:", 1)],
          ["datapath_probes"], []),
+        # #259: the retired row's predicate is dead code behind the argparse
+        # refusal, but inverting it puts p_SOUND_CARD_P=1 into EVERY
+        # shipping build - exactly the leak the absent-side grading catches.
         ("the sound-card row's own predicate is inverted",
          [('    if sound_card:\n        dp_params["p_SOUND_CARD_P"] = 1',
            '    if not sound_card:\n        dp_params["p_SOUND_CARD_P"] = 1',
@@ -13296,7 +13325,7 @@ def test_optional_block_instance_gate_bites():
     t0 = time.time()
     for why, mutations, rows, inverted in controls:
         labels = ["present"] + rows if rows else []
-        labels += [f"{n}_present" for n in inverted] + list(inverted)
+        labels += list(inverted)
         got = _instance_params(python, [(lbl, cases[lbl]) for lbl in labels],
                                mutations)
         bad = _prune_contract(got, rows, inverted)
@@ -14547,7 +14576,12 @@ def test_d8_role_pools():
     static AUDIO_MAP falls through to the pool that can actually source the
     stream. The AX case (a board that routes NO audio pins) is the one the
     round exists for."""
-    # (a) the AX shape as shipped: 0 physical, host 8, pilot, loopback 8
+    # (a) the AX shape as shipped since #259: 0 physical, NO host pool (it
+    #     left with the Linux sound-card surface), pilot, loopback 8. The
+    #     listeners are therefore empty-handed: the STREAM_PORT_INPUTs
+    #     exist and stay dynamically mapped (Milan 5.3.3.9) but truthfully
+    #     own ZERO local AUDIO_CLUSTER descriptors - the retired posture,
+    #     pinned.
     r = eb.build(CONFIGS["ax7101_8x8"], OUT)
     ovl = r["overlay"]
     check_port_layout(ovl, 8, 8)
@@ -14555,25 +14589,28 @@ def test_d8_role_pools():
     assert ovl["physical_binding"]["physical_channels"] == \
         {"capture": 0, "render": 0}, "the AX routes no audio pins"
     P_in, P_out = ovl["stream_ports"]["input"], ovl["stream_ports"]["output"]
-    assert all(p["clusters"] == 8 for p in P_in), P_in         # host only
-    assert all(p["clusters"] == 17 for p in P_out), P_out      # 8 + 1 + 8
-    assert ovl["descriptor_counts"]["AUDIO_CLUSTER"] == 8*8 + 8*17 == 200
+    assert all(p["clusters"] == 0 for p in P_in), P_in         # no pool at all
+    assert all(p["pool"] == [] for p in P_in), P_in
+    assert all(p.get("map_mode") == "dynamic" for p in P_in), P_in
+    assert all(p["clusters"] == 9 for p in P_out), P_out       # 1 + 8
+    assert ovl["descriptor_counts"]["AUDIO_CLUSTER"] == 8*0 + 8*9 == 72
     assert all(g["role"] != "physical" for p in P_in + P_out for g in p["pool"]), \
         "a board with 0 routed channels must emit NO physical clusters"
-    # (b) the primary segment: listeners fall through to host, and so do the
-    #     talkers - because the primary segment is now the first pool this
-    #     BUILD can actually feed (task #65). LOOPBACK is still the pool the
-    #     USER asked for (2026-07-28) and it comes back the moment
+    # (b) the primary segment: an empty-handed listener has none (#259),
+    #     and the talkers fall through to the first pool this BUILD can
+    #     actually feed (task #65). LOOPBACK is still the pool the USER
+    #     asked for (2026-07-28) and it comes back the moment
     #     cluster_mapping.fabric.loopback_lane is declared, which gate 17e
     #     proves in both directions; with the lane off, pointing the power-on
-    #     image at it would advertise a source milan_datapath does not carry.
-    #     Since the 08-01 flip the ship talkers are map_mode dynamic (no
-    #     AUDIO_MAP descriptors), so the identity lives in the DYNAMIC
-    #     engine's power-on image (AEM_ODMAP_INIT_C).
-    assert all(p["primary_role"] == "host" for p in P_in)
+    #     image at it would advertise a source milan_datapath does not carry,
+    #     so the identity is the PILOT tone. Since the 08-01 flip the ship
+    #     talkers are map_mode dynamic (no AUDIO_MAP descriptors), so the
+    #     identity lives in the DYNAMIC engine's power-on image
+    #     (AEM_ODMAP_INIT_C).
+    assert all(p["primary_role"] is None for p in P_in)
     lane = (eb.load_config(CONFIGS["ax7101_8x8"])["interface"]
             ["cluster_fabric"]["loopback_lane"])
-    want = "loopback" if lane else "host"
+    want = "loopback" if lane else "pilot"
     assert all(p["primary_role"] == want for p in P_out), \
         f"lane={lane} but talker primary_role is not {want}"
     for p in P_out:
@@ -14596,10 +14633,18 @@ def test_d8_role_pools():
                 for v in mi.group(2).split(",")]
         seg = next(g for g in P_out[0]["pool"] if g["role"] == want)
         assert len(vals) == 8 * len(P_out)
+        # #259: the want pool is no longer 8 wide on every shape (pilot is
+        # ONE cluster), so only its width's worth of keys may arm; the rest
+        # of each port's eight keys wake NOT MAPPED, which Milan v1.2
+        # 5.3.9.1 makes explicit and legal - never on an unbacked source.
+        armed_w = min(seg["width"], 8)
         for k, v in enumerate(vals):
-            assert v >> 5 == 1, f"identity key {k} not armed"
-            assert seg["offset"] <= (v & 0x1F) < seg["offset"] + seg["width"], \
-                f"identity key {k} cluster {v & 0x1F} outside {want} pool"
+            if k % 8 < armed_w:
+                assert v >> 5 == 1, f"identity key {k} not armed"
+                assert (v & 0x1F) == seg["offset"] + k % 8, \
+                    f"identity key {k} cluster {v & 0x1F} outside {want} pool"
+            else:
+                assert v == 0, f"identity key {k} armed past the {want} pool"
         # and EVERY armed key must name a template the fabric can source -
         # the property whose absence was the whole defect. A key is armed
         # only where gen_aem_store found srcs[co]["valid"], so an unbacked
@@ -14623,35 +14668,31 @@ def test_d8_role_pools():
     assert byport[0][0] == "Loopback S0 ch 0" and byport[7][0] == "Loopback S7 ch 0"
     assert len({tuple(v) for v in byport.values()}) == 8, \
         "every talker port must offer a DIFFERENT loopback source set"
-    print(f"  [gate 24a] ax7101_8x8 role-pools: 200 AUDIO_CLUSTERs "
-          f"(8x host8 in; 8x host8+pilot1+loopback8 out), 0 physical because "
-          f"the board routes none, talker map -> {want} (fabric lane "
+    print(f"  [gate 24a] ax7101_8x8 role-pools: 72 AUDIO_CLUSTERs "
+          f"(8x empty-handed in, #259; 8x pilot1+loopback8 out), 0 physical "
+          f"because the board routes none, talker map -> {want} (fabric lane "
           f"{'on' if lane else 'off'}), 8 distinct loopback sources offered")
 
     # (d) physical pool APPEARS when the platform declares routed channels
     p = _pools_variant("ax7101_8x8", {"capture": 16, "render": 16},
-                       {"host": 2, "pilot": True, "loopback": 2})
+                       {"pilot": True, "loopback": 2})
     try:
         r = eb.build(p, os.path.join(OUT, "_pools"))
         P = r["overlay"]["stream_ports"]["output"][0]
         assert [g["role"] for g in P["pool"]] == \
-            ["physical", "host", "pilot", "loopback"], P
-        assert P["clusters"] == 16 + 2 + 1 + 2
+            ["physical", "pilot", "loopback"], P
+        assert P["clusters"] == 16 + 1 + 2
         # With physical present the static map still does NOT go to loopback -
-        # that was and remains the point of this assertion. Since 0x0043 it
-        # goes to HOST rather than to physical: declaring the AX7101's TDM8
-        # channels made physical-first silently move the talker's power-on
-        # identity off the shared-memory lane and onto the J11 pins, so a
-        # board with no codec would wake up streaming whatever `din` floats
-        # to and the PipeWire path would need a controller mapping every boot.
-        # USER 2026-08-10 chose the host lane again, with physical on the
-        # table this time (the 08-06 rule was decided against loopback, before
-        # a real physical front end existed). Ordering is PRIMARY_ROLE_ORDER;
-        # cluster NUMBERING is unchanged and still physical-first.
-        assert P["primary_role"] == "host", P["primary_role"]
+        # that was and remains the point of this assertion. The 0x0043
+        # host-outranks-physical order lost its subject when the host pool
+        # left with the Linux sound-card surface (#259): PRIMARY_ROLE_ORDER
+        # keeps the retired role in the walk with nothing to bind it, so
+        # the identity lands on PHYSICAL (this variant is not the shipped
+        # AX, whose declared truth stays 0 routed channels), and the
+        # UNBACKED loopback pool is never a candidate (task #65).
+        assert P["primary_role"] == "physical", P["primary_role"]
         assert [g["role"] for g in P["pool"]][0] == "physical", \
-            "cluster numbering must stay physical-first - only the identity " \
-            "preference moved"
+            "cluster numbering must stay physical-first"
         names = [c["name"] for c in r["overlay"]["audio_clusters"]
                  if c["port_index"] == 0 and c["direction"] == "output"]
         # Derived from the variant's own interface kind, not hardcoded: the
@@ -14667,15 +14708,19 @@ def test_d8_role_pools():
     print("  [gate 24a] declaring routed channels re-introduces the physical "
           "pool AND moves the static map onto it (primary-role fallthrough)")
 
-    # (e) BOUNDARY: a 64-wide loopback pool is the shape D8 sketches and D6
-    #     predicted could not be stored - it must VALIDATE and be marked, not
-    #     crash and not silently wrap the 16-bit ROM address space.
+    # (e) BOUNDARY: an over-wide loopback pool is the shape D8 sketches and
+    #     D6 predicted could not be stored - it must VALIDATE and be marked,
+    #     not crash and not silently wrap the 16-bit ROM address space.
+    #     #259 took the host pool (and the 8 host clusters per port) away;
+    #     loopback widens 64 -> 72 so the per-output-port total stays 89
+    #     and the deliberate overflow is preserved (840 clusters at 90 B
+    #     put the ROM at 80873 B, still past the 65536 B store).
     p = _pools_variant("ax7101_8x8", {"capture": 16, "render": 16},
-                       {"host": 8, "pilot": True, "loopback": 64})
+                       {"pilot": True, "loopback": 72})
     try:
         r = eb.build(p, os.path.join(OUT, "_pools"))
         assert r["overlay"]["descriptor_counts"]["AUDIO_CLUSTER"] == \
-            8*(16+8) + 8*(16+8+1+64), r["overlay"]["descriptor_counts"]
+            8*16 + 8*(16+1+72), r["overlay"]["descriptor_counts"]
         assert r["aem_rom_svh"] is None, "a 64 KiB+ ROM must NOT be emitted"
         assert "16-bit" in r["aem_rom_unsupported"], r["aem_rom_unsupported"]
         # builder contract: it VALIDATES and lands in the plan, never errors
@@ -14691,9 +14736,9 @@ def test_d8_role_pools():
             assert "entity definition is incomplete" in str(e), e
     finally:
         os.unlink(p)
-    print("  [gate 24a] the full 64-wide D8 pool VALIDATES, exceeds the "
-          "16-bit AEM store address space, is marked rather than emitted, "
-          "and --write-rtl REFUSES it (D6 is the owner)")
+    print("  [gate 24a] the over-wide (72) D8 loopback pool VALIDATES, "
+          "exceeds the 16-bit AEM store address space, is marked rather "
+          "than emitted, and --write-rtl REFUSES it (D6 is the owner)")
 
 
 def test_d8_role_pools_reject():
@@ -14725,11 +14770,13 @@ def test_d8_role_pools_reject():
              "physical_channels", {"capture": 0, "playback": 0})),
         ("unknown pool key", "ax7101_8x8",
          lambda c: c["audio_interface"]["cluster_mapping"].__setitem__(
-             "pools", {"host": 8, "tdm": 8})),
-        # every pool zero => a STREAM_PORT with no cluster block at all
+             "pools", {"pilot": True, "tdm": 8})),
+        # every pool zero: empty-handed STREAM_PORT_INPUTs are legal since
+        # #259, but a STREAM_PORT_OUTPUT with no cluster block still is not
+        # - a talker needs a source, so the refusal stands
         ("all pools zero", "ax7101_8x8",
          lambda c: c["audio_interface"]["cluster_mapping"].__setitem__(
-             "pools", {"host": 0, "pilot": False, "loopback": 0})),
+             "pools", {"pilot": False, "loopback": 0})),
         ("unknown policy", "ax7101_8x8",
          lambda c: c["audio_interface"]["cluster_mapping"].__setitem__(
              "policy", "role-pool")),
@@ -14809,8 +14856,9 @@ def test_d10_cluster_names():
     finally:
         os.unlink(p)
     # ... but a pool WIDTH must, because it changes the descriptor set
+    # (loopback 4 against the base's 8 - one width apart is enough)
     p = _pools_variant("ax7101_8x8", {"capture": 0, "render": 0},
-                       {"host": 8, "pilot": True, "loopback": 4})
+                       {"pilot": True, "loopback": 4})
     try:
         assert eb.load_config(p)["model_id"]["hash"] != \
             base["model_id"]["hash"], "a pool WIDTH left the model id frozen"
@@ -14830,9 +14878,14 @@ def test_d10_cluster_names():
     # then -> 0x001BC5B17E3D155F when #259 stated the fabric owner's gptp:
     # section on the retired Arty configs (the section joins model_shape by
     # design; its values restate the historical descriptor constants
-    # byte-exactly, and the served id itself stays pinned).
+    # byte-exactly, and the served id itself stays pinned),
+    # then -> 0x001BC5D471D5A5E1 when the gptp: section stopped restating
+    # the historical clock_accuracy 0x21 / log_sync_interval 0 and derives
+    # the engine's announced 0xFE / -3 instead ([R-parallel] on #228):
+    # AVB_INTERFACE clock fields are descriptor content, so 6.2.2.8 obliges
+    # the move, while the served id itself stays pinned.
     assert eb.load_config(CONFIGS["arty_current"])["model_id"]["hash"] == \
-        "0x001BC5B17E3D155F"
+        "0x001BC5D471D5A5E1"
     # arty_4x4's hash has now moved THREE times, correctly every time:
     # 0x001BC565E07E0DD6 -> 0x001BC5C42E0CEE8B when the per-board routing
     # gate forced tdm8 -> i2s_philips (no header existed), ->
@@ -14853,13 +14906,17 @@ def test_d10_cluster_names():
     # and a SEVENTH -> 0x001BC565D9B48CD0 when #259 stated the fabric owner's
     # gptp: section on the retired Arty configs (the section joins
     # model_shape by design; its values restate the historical descriptor
-    # constants byte-exactly). `interface.kind`, the descriptor set and
+    # constants byte-exactly), and an EIGHTH -> 0x001BC5E53D97FC91 when that
+    # restatement was itself retired: clock_accuracy 0x21 / log_sync_interval
+    # 0 are deleted and the builder derives the engine's announced 0xFE / -3
+    # ([R-parallel] on #228), which is descriptor content per 7.2.8.
+    # `interface.kind`, the descriptor set and
     # the byte layout are all model-shaping, so a shape change SHOULD move a
     # hash-derived id - that is the mechanism working. What must NOT move is
     # arty_current's PINNED id above, and it has not: it was re-pinned by hand
     # with the reflash, which is the only way a pin is allowed to move.
     assert eb.load_config(CONFIGS["arty_4x4"])["model_id"]["hash"] == \
-        "0x001BC565D9B48CD0"
+        "0x001BC5E53D97FC91"
     print("  [gate 24c] every cluster named for its ROLE; renaming leaves "
           "entity_model_id frozen (1722.1 6.2.2.8 exclusion list) while a "
           "pool width moves it; pre-D8 hashes stay explicitly pinned to "
