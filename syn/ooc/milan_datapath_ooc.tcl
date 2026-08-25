@@ -28,6 +28,45 @@ set REPO [file normalize [file dirname [info script]]/../..]
 set TAG  [expr {[info exists ::env(TAG)] ? $::env(TAG) : "base"}]
 puts "milan_datapath OOC: tag=$TAG"
 
+# BOTH control-plane $readmemh images, generated into the run directory FIRST,
+# before anything slow. protocol_processor_top reads its ACMP listener
+# transition ROM by the RELATIVE name "ltn_rom.hex" and KL_aecp_ucpu its
+# microcode by "ucode.hex" (UCODE_HEX_P); Vivado resolves both against ITS OWN
+# run directory. This recipe is documented to run from an EMPTY directory, so
+# it must generate what it requires: until #246 it generated only
+# ltn_rom.hex, and Vivado read the absent ucode.hex as an all-zero ROM behind
+# one CRITICAL WARNING (Synth 8-4445), constant-folded the AECP uCPU, and
+# completed rc=0 with a full, plausible utilization report 7,923 LUT under
+# the shipping design. `exec` takes each generator's exit status (a failed
+# generator aborts the script); the check after it refuses an image a
+# generator left missing or empty, exactly pp_shadow_ooc.tcl's contract.
+foreach {img gen} [list \
+    ltn_rom.hex $REPO/protocol-processor/hdl/acmp/rom/gen_ltn_rom.py \
+    ucode.hex   $REPO/protocol-processor/hdl/aecp/ucode/gen_ucode.py] {
+  exec python3 $gen -o $img
+  if {![file exists $img] || [file size $img] == 0} {
+    error "milan_datapath OOC: $img is missing or empty in [pwd] after its\
+generator ($gen) exited 0. Refusing to synthesize: an area report built on a\
+ROM Vivado could not open is not a measurement (#246)."
+  }
+}
+
+# The absolute paths reach synth_design as generics, so the figure cannot
+# depend on where vivado was launched from and cannot quietly measure an
+# all-zero ROM. UG901: a STRING generic's value must reach -generic wrapped
+# in literal double quotes, or Vivado takes it for an integer/bit-vector and
+# drops it.
+set TROM_GENERIC  "PP_TROM_HEX_P=\"[file normalize ltn_rom.hex]\""
+set UCODE_GENERIC "PP_UCODE_HEX_P=\"[file normalize ucode.hex]\""
+
+# And the refusal the tool itself already offers: a $readmem image Vivado
+# cannot open is CRITICAL WARNING Synth 8-4445 and a completed run with a
+# wrong number -- the one failure of this instrument that still returns a
+# figure. Promote it to an ERROR so any image this preflight does not cover
+# (a future option-ON gptp_ucode.hex, a renamed image) fails the run outright
+# instead of shaping the report.
+set_msg_config -id {Synth 8-4445} -new_severity ERROR
+
 # The source list is printed by syn/yosys/run.sh itself (`--emit`) and relayed
 # by dp_srcs.py -- the ONE list the portability gate proves elaborates. A copy
 # here would drift, and since the processor's files are part of that list now, a
@@ -45,17 +84,6 @@ puts "milan_datapath OOC: [llength $SV] SystemVerilog + [llength $V] Verilog sou
 read_verilog -sv $SV
 read_verilog $V
 
-# protocol_processor_top $readmemh's its ACMP listener transition ROM by the
-# RELATIVE name "ltn_rom.hex", which Vivado resolves against ITS OWN run
-# directory. Generate it into that directory and hand synth_design the absolute
-# path, so the utilization report cannot depend on where vivado was launched
-# from — and cannot quietly measure an all-zero ROM.
-set TROM [file normalize ltn_rom.hex]
-exec python3 $REPO/protocol-processor/hdl/acmp/rom/gen_ltn_rom.py -o $TROM
-# UG901: a STRING generic's value must reach -generic wrapped in literal
-# double quotes, or Vivado takes it for an integer/bit-vector and drops it.
-set TROM_GENERIC "PP_TROM_HEX_P=\"$TROM\""
-
 set INCS [list $REPO/hdl/common $REPO/hdl/common/csr \
                $REPO/hdl/common/eth_event_counter $REPO/hdl/ieee17221/adp \
                $REPO/hdl/ieee8021q/ts $REPO/hdl/ieee8021as/ptp_timestamp \
@@ -63,7 +91,7 @@ set INCS [list $REPO/hdl/common $REPO/hdl/common/csr \
                $REPO/configs/generated/endstation_arty_current]
 
 synth_design -mode out_of_context -top milan_datapath -part xc7a100tfgg484-2 \
-  -include_dirs $INCS -generic $TROM_GENERIC
+  -include_dirs $INCS -generic $TROM_GENERIC -generic $UCODE_GENERIC
 
 create_clock -period 10.000 -name clk [get_ports -quiet axis_clk]
 report_utilization -hierarchical -file util_hier_$TAG.rpt
