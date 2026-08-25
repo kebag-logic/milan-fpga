@@ -168,7 +168,44 @@ are ordinary assertions now. A gap fires only on the mismatch, so each
 turns green on its own when the donor closes the issue; the machinery
 stays for the next tracked donor defect.
 
-Current tally -- **164 AAF checks + 620 gPTP checks + 2 traceability
+**The length oracle is two-sided (issue #217).** The truncation probes
+refuse one octet below each per-type minimum; the accept side is one
+over-minimum probe per parsed type, the same legal 12-octet
+ORGANIZATION_EXTENSION suffix TLV (11.4.2.2 counts every octet through
+the last TLV; 11.4.1 makes a receiver ignore a TLV it does not
+recognize) riding a Sync, Follow_Up, Pdelay_Req, Pdelay_Resp,
+Pdelay_Resp_Follow_Up and Announce, each required to be accepted AND
+acted on: the sync pair steers to a delta no earlier section leaves in
+the servo, the request is answered with its own sequence, each response
+half completes a real exchange and re-measures the published delay
+(with the recovery ladder re-climbing behind it), and the Announce is
+adopted, in the probe NAMED for length acceptance so the coverage no
+longer rides qualification fixtures whose length is incidental to
+their purpose. Before this section a parser narrowed to exact declared
+length passed the whole campaign for three types and was caught on
+Announce only by accident. Each acceptance is pinned by its own
+planted narrowing, N10 to N15: restrict the parser's declared-length
+arm (the `OFF_MSGLEN_END_C` compare in
+`gptp-processor/hdl/wire/KL_gptp_rx_parser.sv`) to one type's exact
+minimum with `(mtype_r == MT_x_C) && (acc_nxt_w[15:0] != min_len_w)`,
+rebuild, run, restore, and the campaign reds that type's own probe by
+name:
+
+| plant | narrowed type | campaign | reddened, by name |
+|---|---|---|---|
+| N10 | Sync exact 44 | 636 pass, 2 fail | only the suffixed Sync's pair: drop counted, offset never lands |
+| N11 | Follow_Up exact 76 | 636 pass, 2 fail | only the suffixed Follow_Up's pair |
+| N12 | Pdelay_Req exact 54 | 636 pass, 2 fail | only the suffixed Pdelay_Req: drop counted, never answered |
+| N13 | Pdelay_Resp exact 54 | 636 pass, 2 fail | only the suffixed Pdelay_Resp: drop counted, the delay stands |
+| N14 | Pdelay_Resp_Follow_Up exact 54 | 636 pass, 2 fail | only the suffixed Resp_Follow_Up: drop counted, the delay stands |
+| N15 | Announce exact 64 | 621 pass, 17 fail | the suffixed Announce by name, plus every path-trace-bearing fixture in the campaign (adoption, the 10.3.10.2.1 drop-unmoved probes, steering and storm liveness), since a one-hop trace declares 76 |
+
+N10 to N14 red exactly their own probe's checks and nothing else; N15's
+blast radius is the honest shape of an Announce arm that refuses the
+10.5.3.3-required TLV. The fail side is quoted per the counting rule
+above; re-measure any pass figure whenever the campaign total moves.
+
+Current tally -- **164 AAF checks + 638 gPTP checks + 2 traceability
 contracts**, 0 failures, 0 known gaps, with `tsn-gen`
 installed. This is what
 `make` prints; each campaign rewrites the same line into its `TEST_RESULTS.md`
@@ -179,7 +216,7 @@ they ever disagree:
 | campaign | checks | what it drives |
 |---|---:|---|
 | `fuzz_aaf.py`  | 164 | parser → rx-monitor → depacketizer — the **accept verdict** (wire `stream_id` vs bound, graded on the parser's own pre-match counters = the `0x8B4` APRB sources), per-field verdicts, lock survival |
-| `fuzz_ptp.py`  | 620 | the gPTP fabric slice: TX conformance of the plane's own Pdelay_Req/Announce/Sync/Follow_Up against the 802.1AS models (the per-message control byte of FPGA-gPTP #9 among the graded fields: Sync 0x0, Follow_Up 0x2, Announce and the Pdelay types 0x5), parser drop/ignore gates (the domainNumber arm of FPGA-gPTP #6 among them, probed on Announce, Sync/Follow_Up and Pdelay_Req separately), BTCA rejection under fuzz (the three 10.3.10.2.1 qualifications of FPGA-gPTP #7 hard-asserted on wire-legal fixtures, each refusal leaving the parser drop counter unmoved, and the strict PathTrace wire rules of FPGA-gPTP #45 -- head not the announced grandmaster, count not stepsRemoved+1 -- pinned as counted parser drops), servo pairing (with the TLV-less, truncated, wrong-tlvType and short-declared Follow_Up refusals of FPGA-gPTP #11), the responder role (with the header-only and truncated Pdelay_Req refusals of FPGA-gPTP #12, neither drawing a response pair), the Milan 4.2.6.2.5 cease rule, and the two-sided asCapable canary; **no tracked gap** at the current pin, the last two having closed with the donor's portNumber compare (FPGA-gPTP #36), and each of the nine unlisted messageTypes is graded on three properties, its counted drop, drawing no transmission, and the engine's uCPU running no program at all (the closed FPGA-gPTP #22 could have been half-fixed in either of two ways, and the third property catches a parser that counts a frame AND dispatches it) |
+| `fuzz_ptp.py`  | 638 | the gPTP fabric slice: TX conformance of the plane's own Pdelay_Req/Announce/Sync/Follow_Up against the 802.1AS models (the per-message control byte of FPGA-gPTP #9 among the graded fields: Sync 0x0, Follow_Up 0x2, Announce and the Pdelay types 0x5), parser drop/ignore gates (the domainNumber arm of FPGA-gPTP #6 among them, probed on Announce, Sync/Follow_Up and Pdelay_Req separately), the two-sided length oracle of #217 (each truncation boundary refused and counted one octet below the per-type minimum, and one over-minimum suffix-TLV frame per parsed type accepted and ACTED ON -- answered, exchange-completing, steering, adopted -- each acceptance pinned by its own planted narrowing, N10 to N15 below), BTCA rejection under fuzz (the three 10.3.10.2.1 qualifications of FPGA-gPTP #7 hard-asserted on wire-legal fixtures, each refusal leaving the parser drop counter unmoved, and the strict PathTrace wire rules of FPGA-gPTP #45 -- head not the announced grandmaster, count not stepsRemoved+1 -- pinned as counted parser drops), servo pairing (with the TLV-less, truncated, wrong-tlvType and short-declared Follow_Up refusals of FPGA-gPTP #11), the responder role (with the header-only and truncated Pdelay_Req refusals of FPGA-gPTP #12, neither drawing a response pair), the Milan 4.2.6.2.5 cease rule, and the two-sided asCapable canary; **no tracked gap** at the current pin, the last two having closed with the donor's portNumber compare (FPGA-gPTP #36), and each of the nine unlisted messageTypes is graded on three properties, its counted drop, drawing no transmission, and the engine's uCPU running no program at all (the closed FPGA-gPTP #22 could have been half-fixed in either of two ways, and the third property catches a parser that counts a frame AND dispatches it) |
 
 ## Contents
 
