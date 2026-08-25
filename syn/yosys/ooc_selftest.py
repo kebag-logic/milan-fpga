@@ -29,11 +29,21 @@ THE STUBS ARE MODELS WITH TEETH, not silence:
     a recipe whose processor list stops being derived cannot stay green;
   - the yosys model refuses to run anywhere but an exclusive per-top
     `*.run.*` directory under `$OOC_TMP` (the shared `$OOC_TMP` itself is a
-    refusal too, [R0] round four), refuses a missing or WRITABLE canonical
+    refusal too, [R0] round four), refuses a run directory that is still
+    WRITABLE (rename authority is directory write permission, [R0] round
+    five), refuses a missing or WRITABLE canonical
     `ucode.hex`/`ltn_rom.hex` regular file in its cwd, and asserts each
     image's sha256 against the pin's ledger row - the exact-byte oracle the
     round-four review required, so consuming unvouched bytes is a red arm
     even if every ooc.sh-side re-hash were deleted;
+  - a transient-swap model performs [R0] round five's exact exploit (move
+    the reviewed image aside, feed different bytes, restore before the
+    post-run hash) and reports whether the rename was POSSIBLE - blocked
+    on the shipping script, demonstrated to price wrong bytes on the
+    mutant that forgets the directory lock;
+  - the ledger pin is the SUPERPROJECT gitlink, and a planted stale
+    submodule HEAD (a dispatching git stub) must refuse in normal AND
+    record modes ([R0] round five);
   - its mapped stat block carries EVERY cell class the parser reports
     (LUT, LUTRAM via RAM32M, FF, RAMB36, RAMB18, DSP, CARRY4), and the
     clean arm compares EVERY column of the printed row, so a zeroed
@@ -66,6 +76,7 @@ REPO = os.path.abspath(os.path.join(HERE, "..", ".."))
 OOC = os.path.join(HERE, "ooc.sh")
 REAL_PYTHON = shutil.which("python3") or sys.executable
 REAL_AWK = shutil.which("awk") or "awk"
+REAL_GIT = shutil.which("git") or "git"
 GEN_UCODE = os.path.join(REPO, "protocol-processor", "hdl", "aecp", "ucode",
                          "gen_ucode.py")
 GEN_LTN = os.path.join(REPO, "protocol-processor", "hdl", "acmp", "rom",
@@ -73,13 +84,23 @@ GEN_LTN = os.path.join(REPO, "protocol-processor", "hdl", "acmp", "rom",
 
 
 def _ledger_digests():
-    """The tracked ledger's rows for the CURRENT protocol-processor pin:
-    the yosys model's exact-byte oracle ([R0] round four). A pin without
-    both rows is a broken tree, not a skippable oracle."""
+    """The tracked ledger's rows for the SUPERPROJECT's protocol-processor
+    pin: the yosys model's exact-byte oracle ([R0] round four). The pin is
+    the gitlink, never the checkout's own HEAD ([R0] round five), and a
+    checkout that disagrees with the gitlink refuses to certify anything:
+    this suite runs the real generators FROM that checkout."""
     pin = subprocess.run(
+        ["git", "-C", REPO, "rev-parse", ":protocol-processor"],
+        capture_output=True, text=True, check=True).stdout.strip()
+    head = subprocess.run(
         ["git", "-C", os.path.join(REPO, "protocol-processor"),
          "rev-parse", "HEAD"],
         capture_output=True, text=True, check=True).stdout.strip()
+    if head != pin:
+        raise AssertionError(
+            "the protocol-processor checkout (%s) disagrees with the "
+            "superproject pin (%s) - run git submodule update before "
+            "certifying anything from it" % (head, pin))
     want = {}
     with open(os.path.join(HERE, "rom_digests.tsv")) as fh:
         for line in fh:
@@ -100,7 +121,7 @@ def _ledger_digests():
 LEDGER = _ledger_digests()
 
 #: How many arms run. A deleted arm is a self-test that still prints a pass.
-ARMS = 50
+ARMS = 57
 
 #: The clean row the full-cell yosys model must produce for any top:
 #: 8 LUT4, 2 RAM32M (= 8 LUTRAM-LUT), 4 FDRE, 3 RAMB36E1, 2 RAMB18E1,
@@ -150,6 +171,10 @@ case "$(pwd -P)" in
   *) echo "ERROR: YOSYS-WRONG-CWD: running in $(pwd -P), not an exclusive per-top run dir under $OOC_TMP"
      exit 9 ;;
 esac
+if [ -w . ]; then
+  echo "ERROR: YOSYS-RUNDIR-WRITABLE: $(pwd -P) accepts renames, so the consuming copies are not immutable for the read interval"
+  exit 9
+fi
 for img in ucode.hex ltn_rom.hex; do
   if [ ! -f "$img" ] || [ -L "$img" ]; then
     echo "ERROR: YOSYS-IMAGE-NOT-HERE: $img is not a regular file in $(pwd -P)"
@@ -213,6 +238,59 @@ echo "    16   LUT4"
 echo "     4   FDRE"
 [ -n "$json" ] && printf '{"modules":{}}' > "$json"
 exit 0
+"""
+
+#: A dispatching git: the submodule checkout's HEAD answers a PLANTED
+#: stale revision while everything else (the gitlink read included) goes
+#: to the real git - [R0] round five's scratch-checkout scenario, made a
+#: deterministic seam.
+GIT_STALE_HEAD = """#!/bin/sh
+prev=""
+dir=""
+for a in "$@"; do
+  [ "$prev" = "-C" ] && dir="$a"
+  prev="$a"
+done
+case "$dir" in
+  */protocol-processor)
+    case "$*" in
+      *"rev-parse HEAD") echo b2effce9b2effce9b2effce9b2effce9b2effce9; exit 0 ;;
+    esac ;;
+esac
+exec %(real)s "$@"
+"""
+
+#: chmod that always fails: every permission the script claims to set must
+#: have its status TAKEN, or the hardening is a comment.
+CHMOD_FAIL = "#!/bin/sh\nexit 1\n"
+
+#: [R0] round five's transient swap, as a model: move the reviewed image
+#: aside, install correctly shaped wrong bytes, emit a plausible stat
+#: block, and RESTORE the reviewed image before exiting 0 - both script
+#: hashes would pass. If the run directory refuses the rename, say so and
+#: die; the marker file records that a swap actually happened.
+YOSYS_TRANSIENT_SWAP = r"""#!/bin/sh
+p="$2"
+top=$(printf '%s' "$p" | sed -n 's/.*-top \([A-Za-z0-9_]*\).*/\1/p')
+json=$(printf '%s' "$p" | sed -n 's/.*write_json \([^;"]*\).*/\1/p')
+if mv ucode.hex ucode.hex.aside 2>/dev/null; then
+  printf 'SWAPPED\n' > ucode.hex
+  : > "$OOC_TMP/transient-swap-succeeded"
+  echo "=== $top ==="
+  echo ""
+  echo "     8   LUT4"
+  echo "     2   RAM32M"
+  echo "     4   FDRE"
+  echo "     3   RAMB36E1"
+  echo "     2   RAMB18E1"
+  echo "     1   DSP48E1"
+  echo "     5   CARRY4"
+  [ -n "$json" ] && printf '{"modules":{}}' > "$json"
+  mv -f ucode.hex.aside ucode.hex
+  exit 0
+fi
+echo "ERROR: YOSYS-TRANSIENT-SWAP-BLOCKED: the run directory refused the rename, so the reviewed bytes cannot be moved aside for the read interval"
+exit 9
 """
 
 #: The consuming copy corrupted DURING the run: the model does its work,
@@ -286,6 +364,23 @@ def _run(script, tops, home, rundir, ooc_tmp):
     return out.returncode, out.stdout + out.stderr
 
 
+def _mutant2(p1, r1, p2, r2, label):
+    """Two coupled substitutions in one mutant copy: each pattern must hit
+    exactly once, like _mutant."""
+    with open(OOC) as fh:
+        text = fh.read()
+    for pat, rep in ((p1, r1), (p2, r2)):
+        text, n = re.subn(pat, rep, text)
+        if n != 1:
+            raise AssertionError("mutation %r: pattern %r hit %d times, "
+                                 "expected 1" % (label, pat, n))
+    fd, path = tempfile.mkstemp(suffix=".sh", prefix=".ooc-mut-", dir=HERE)
+    with os.fdopen(fd, "w") as fh:
+        fh.write(text)
+    os.chmod(path, 0o755)
+    return path
+
+
 def _mutant(pattern, replacement, label):
     """A copy of the real ooc.sh, in this directory (it derives the repo
     root from its own location), with one substitution applied. The pattern
@@ -307,7 +402,8 @@ def selftest():
     problems, ran = [], 0
 
     def arm(name, tops, want, expect_rc0, sv2v=SV2V_OK, yosys=YOSYS_OK,
-            py=None, awk=None, script=OOC, setup=None, check=None):
+            py=None, awk=None, git=None, chmod=None, script=OOC, setup=None,
+            check=None):
         nonlocal ran
         ran += 1
         if isinstance(tops, str):
@@ -330,6 +426,10 @@ def selftest():
                                      "real": REAL_PYTHON})
             if awk:
                 _stub(bindir, "awk", awk % {"real": REAL_AWK})
+            if git:
+                _stub(bindir, "git", git % {"real": REAL_GIT})
+            if chmod:
+                _stub(bindir, "chmod", chmod)
             rc, log = _run(script, tops, home, rundir, ooc_tmp)
             litter = os.listdir(rundir)
             if expect_rc0:
@@ -823,6 +923,106 @@ def selftest():
     try:
         arm("mut-writable-copy", "tcam", "YOSYS-IMAGE-WRITABLE", False,
             script=mut)
+    finally:
+        os.unlink(mut)
+
+    # ---- the read-interval and the pin authority ([R0] round five) -------
+
+    # Arm 51. The transient swap on the SHIPPING script: the locked run
+    # directory must refuse the rename outright, and nothing may price.
+    def swap_blocked(log, ooc_tmp, home):
+        if row_of(log) is not None:
+            return "a row was priced around a transient-swap attempt"
+        if os.path.exists(os.path.join(ooc_tmp, "transient-swap-succeeded")):
+            return "the reviewed image was moved aside despite the lock"
+        return None
+    arm("transient-swap-blocked", "tcam", "YOSYS-TRANSIENT-SWAP-BLOCKED",
+        False, yosys=YOSYS_TRANSIENT_SWAP, check=swap_blocked)
+
+    # Arm 52. The same swap on a mutant that FORGETS the directory lock:
+    # the exploit must fully succeed - reviewed bytes moved aside, wrong
+    # bytes priced, reviewed bytes restored, both script hashes green, rc
+    # 0. This is the reviewer's reproduction as a permanent fixture: it
+    # proves arm 51's refusal is the lock's doing, not the stub's.
+    mut = _mutant(r'chmod u-w "\$rundir"', "true", "no-dir-lock-swap")
+    try:
+        def swap_succeeded(log, ooc_tmp, home):
+            if row_of(log) is None:
+                return "the unlocked mutant did not price the swapped bytes"
+            if not os.path.exists(os.path.join(ooc_tmp,
+                                               "transient-swap-succeeded")):
+                return "the swap never happened, so this arm proves nothing"
+            return None
+        arm("mut-no-dir-lock-transient-swap", "tcam", None, True,
+            yosys=YOSYS_TRANSIENT_SWAP, script=mut, check=swap_succeeded)
+    finally:
+        os.unlink(mut)
+
+    # Arm 53. The same mutant under the honest model: every green arm's
+    # oracle includes the writability refusal, so forgetting the lock is
+    # red even when nobody attempts a swap.
+    mut = _mutant(r'chmod u-w "\$rundir"', "true", "no-dir-lock-model")
+    try:
+        arm("mut-no-dir-lock", "tcam", "YOSYS-RUNDIR-WRITABLE", False,
+            script=mut)
+    finally:
+        os.unlink(mut)
+
+    # Arm 54. Every chmod status is TAKEN: a chmod that fails must be a
+    # named FATAL, never an ignored hardening.
+    arm("chmod-status-taken", "tcam", "read-only", False, chmod=CHMOD_FAIL,
+        check=lambda log, t2, h: None if row_of(log) is None
+        else "a top was priced with an unenforced permission")
+
+    # Arms 55-56. A stale submodule checkout (the dispatching git answers a
+    # planted HEAD) refuses against the superproject gitlink, in normal AND
+    # record mode; record mode must leave the ledger untouched.
+    arm("stale-checkout-refused", "tcam",
+        "disagrees with the superproject pin", False, git=GIT_STALE_HEAD,
+        check=lambda log, t2, h: None if row_of(log) is None
+        else "a top was priced from a stale checkout")
+    mut = _mutant(r'DIGESTS="\$R/syn/yosys/rom_digests\.tsv"',
+                  'DIGESTS="${OOC_TMP}/scratch-ledger.tsv"',
+                  "stale-record-ledger")
+    try:
+        def ledger_untouched(log, ooc_tmp, home):
+            with open(os.path.join(ooc_tmp, "scratch-ledger.tsv")) as fh:
+                if fh.read() != "# scratch\n":
+                    return "record mode wrote rows for a stale checkout"
+            return None
+        arm("stale-checkout-record-refused", ["--record-rom-digests"],
+            "disagrees with the superproject pin", False, script=mut,
+            git=GIT_STALE_HEAD,
+            setup=lambda t2: _write(t2, "scratch-ledger.tsv", "# scratch\n"),
+            check=ledger_untouched)
+    finally:
+        os.unlink(mut)
+
+    # Arm 57. The round-five false green as a fixture: pin taken from the
+    # CHECKOUT (the pre-round-five spelling) plus a ledger carrying rows
+    # for the stale revision - the run prices a wrong processor tree with
+    # every digest green. Proves the gitlink comparison is what stands
+    # between a stale checkout and a valid-looking figure.
+    stale_pin = "b2effce9" * 5
+    mut = _mutant2(
+        r'PP_PIN=\$\(pp_pin_of_record\) \|\| exit 2',
+        'PP_PIN=$(git -C "$R/protocol-processor" rev-parse HEAD) || exit 2',
+        r'DIGESTS="\$R/syn/yosys/rom_digests\.tsv"',
+        'DIGESTS="${OOC_TMP}/scratch-ledger.tsv"',
+        "pin-from-checkout")
+    try:
+        def stale_priced(log, ooc_tmp, home):
+            if row_of(log) is None:
+                return "the checkout-keyed mutant did not price, so this " \
+                       "arm proves nothing about the gitlink comparison"
+            return None
+        arm("mut-pin-from-checkout-false-green", "tcam", None, True,
+            script=mut, git=GIT_STALE_HEAD,
+            setup=lambda t2: _write(
+                t2, "scratch-ledger.tsv",
+                "".join("%s\t%s\t%s\n" % (stale_pin, img, sha)
+                        for img, sha in sorted(LEDGER.items()))),
+            check=stale_priced)
     finally:
         os.unlink(mut)
 

@@ -122,10 +122,19 @@ It runs `sv2v` → `synth_xilinx -family xc7 -flatten` → `stat` and reports
 - Publication is not the end of custody: each top's yosys run consumes an
   EXCLUSIVE read-only copy of both images in a fresh unpredictable
   `mktemp -d` run directory, and the copy is re-hashed against the
-  validated digest before the run AND after yosys returns. A published
-  image swapped or deleted after validation (or between two requested
-  tops, or under a running synthesis) is exit 2, and no row is emitted
-  for bytes no ledger row vouches for.
+  validated digest before the run AND after yosys returns. The run
+  directory itself is locked (write permission removed) from before the
+  first hash until after the post-run hash, because rename authority is
+  DIRECTORY write permission: a transient move-aside-and-restore during
+  the read interval would beat both hashes otherwise. Every chmod status
+  is taken. A published image swapped or deleted after validation (or
+  between two requested tops, or under a running synthesis) is exit 2,
+  and no row is emitted for bytes no ledger row vouches for.
+- The ledger pin is the SUPERPROJECT's `protocol-processor` gitlink,
+  never the checkout's own HEAD: an uninitialized, conflicted or
+  mismatched checkout refuses in normal and record modes alike, so a
+  stale checkout can neither record itself nor select a retained old
+  row after a pin bump.
 - A top failing `sv2v` or yosys sets a STICKY non-zero exit that no later
   passing top can launder; so does a report phase that cannot produce a
   real row: no top-named stat block, a final block mapping to zero xc7
@@ -139,11 +148,15 @@ Not enforced: the numbers themselves stay yosys estimates (band rule
 below), and dropping only the explicit `stat` is not refused, because
 `synth_xilinx`'s own final statistics block is the same post-mapping
 measurement. `ooc_selftest.py` drives every refusal above on planted
-failures (50 arms: shape, content, staging, report, sticky-exit,
-launch-directory and consumption-custody mutations (the published image
-swapped or deleted after publication, between two tops and mid-run), plus
-a positive `KL_pp_shadow` arm whose models assert the authoritative
-source population, the exclusive per-top run directory, and both
+failures (57 arms: shape, content, staging, report, sticky-exit,
+launch-directory, consumption-custody and read-interval mutations (the
+published image swapped or deleted after publication, between two tops
+and mid-run; the transient move-aside-and-restore blocked on the shipping
+script and demonstrated on the mutant that forgets the directory lock; a
+stale submodule checkout refused in normal and record modes and shown to
+false-green under the retired checkout-keyed pin), plus a positive
+`KL_pp_shadow` arm whose models assert the authoritative source
+population, the exclusive locked per-top run directory, and both
 canonical images as read-only copies hashing to the pin's ledger rows);
 it runs in `rtl-fast.yml`, where
 `scripts/ci_events.py` pins the invocation verbatim AND its step keys, in

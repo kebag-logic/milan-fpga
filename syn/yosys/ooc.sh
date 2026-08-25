@@ -172,11 +172,30 @@ rom_check() { # <file> <hex digits per word> <word count> ; diagnostics on stdou
 }
 
 # The content ledger: sha256 per (protocol-processor pin, image), tracked.
+# The pin is the SUPERPROJECT's gitlink, never the checkout's own HEAD
+# ([R0] round five: a scratch checkout at another revision recorded and
+# validated itself, and after an ordinary pin bump the retained old row
+# would let a stale checkout price the wrong processor's HDL with a fully
+# valid digest). The ONE reader below refuses an uninitialized, conflicted
+# or mismatched checkout, in normal and record modes alike.
 DIGESTS="$R/syn/yosys/rom_digests.tsv"
-PP_PIN=$(git -C "$R/protocol-processor" rev-parse HEAD) || {
-  echo "ooc.sh: FATAL: cannot read the protocol-processor checkout revision" >&2
-  exit 2
+pp_pin_of_record() {
+  local gitlink head
+  if ! gitlink=$(git -C "$R" rev-parse :protocol-processor 2>/dev/null); then
+    echo "ooc.sh: FATAL: cannot read the protocol-processor gitlink from the superproject index (a missing or conflicted gitlink has no one revision to key the ledger by)" >&2
+    return 2
+  fi
+  if ! head=$(git -C "$R/protocol-processor" rev-parse HEAD 2>/dev/null); then
+    echo "ooc.sh: FATAL: the protocol-processor submodule is not checked out - git submodule update --init protocol-processor" >&2
+    return 2
+  fi
+  if [ "$head" != "$gitlink" ]; then
+    echo "ooc.sh: FATAL: the protocol-processor checkout ($head) disagrees with the superproject pin ($gitlink) - a stale checkout generates another processor's ROMs however valid its own digests look; run git submodule update" >&2
+    return 2
+  fi
+  printf '%s' "$gitlink"
 }
+PP_PIN=$(pp_pin_of_record) || exit 2
 RECORD=0
 if [ "${1:-}" = "--record-rom-digests" ]; then RECORD=1; shift; fi
 
@@ -362,21 +381,43 @@ for spec in "${tops[@]}"; do
       echo "ooc.sh: FATAL: $img is gone from $TMP after validation (a writer reached the published image) - refusing to synthesize $top against bytes no ledger row vouches for" >&2
       exit 2
     fi
+    if ! chmod a-w "$rundir/$img"; then
+      echo "ooc.sh: FATAL: cannot make the consuming copy of $img read-only for $top - an ignored chmod is an open write seam, not a hardening" >&2
+      exit 2
+    fi
+  done
+  # [R0] round five: file permission alone is NOT immutability - rename
+  # authority is DIRECTORY write permission, so a writer could move the
+  # reviewed file aside, feed yosys different bytes, and restore the
+  # reviewed file before the post-run hash with both hashes green. The run
+  # directory is therefore locked (u-w) BEFORE the copies are hashed and
+  # stays locked through the post-run re-hash: the hashes bind names that
+  # can no longer be rebound, for the whole read interval.
+  if ! chmod u-w "$rundir"; then
+    echo "ooc.sh: FATAL: cannot make $top's run directory read-only - rename authority is directory write permission, and an open interval is exactly the transient-swap seam" >&2
+    exit 2
+  fi
+  for img in ucode.hex ltn_rom.hex; do
     if ! copy_matches "$rundir/$img" "$img"; then
+      chmod u+w "$rundir" 2>/dev/null
       echo "ooc.sh: FATAL: $img changed after publication - the consuming copy for $top no longer hashes to the validated digest; refusing to measure bytes no ledger row vouches for" >&2
       exit 2
     fi
-    chmod a-w "$rundir/$img"
   done
   (cd "$rundir" && yosys -p "read_verilog $TMP/$top.ooc.v;$chp synth_xilinx -family xc7$nodsp -top $top -flatten; stat; write_json $TMP/$top.ooc.json") \
     > "$TMP/$top.ooc.log" 2>&1
   yosys_rc=$?
   for img in ucode.hex ltn_rom.hex; do
     if ! copy_matches "$rundir/$img" "$img"; then
+      chmod u+w "$rundir" 2>/dev/null
       echo "ooc.sh: FATAL: $img changed under $top's synthesis run - the read-only consuming copy no longer hashes to the validated digest; discarding whatever was measured" >&2
       exit 2
     fi
   done
+  if ! chmod u+w "$rundir"; then
+    echo "ooc.sh: FATAL: cannot unlock $top's run directory for cleanup" >&2
+    exit 2
+  fi
   rm -rf "$rundir"
   if [ "$yosys_rc" -ne 0 ]; then
     printf "%-28s yosys FAIL: %s\n" "$top" "$(grep -oE 'ERROR:.*' "$TMP/$top.ooc.log" | head -1)"; status=1; continue
