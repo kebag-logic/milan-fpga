@@ -263,8 +263,10 @@ Two board rules that go with it:
   [`scripts/lint_rtl.py`](scripts/lint_rtl.py) read, and are exactly what CI
   initialises. Two of them, the processor pair, are also what
   [`scripts/xvlog_gate.py`](scripts/xvlog_gate.py) analyses, and it refuses the
-  same way -- but against the **gitlink**, so a standalone clone dropped at the
-  path or a checkout moved off the pin is refused too, not counted. Lint now REFUSES (exit 2, not the
+  same way -- but against the **gitlink** and then against the pinned **bytes**,
+  so a standalone clone dropped at the path, a checkout moved off the pin, and a
+  local edit the index has been told to keep quiet about are all refused, not
+  counted. Lint now REFUSES (exit 2, not the
   ratchet-tighten exit 1) rather
   than under-count when one is absent (#186): a count over an incomplete
   resolution set drops findings and would invite a tighten to a number the real
@@ -311,8 +313,9 @@ Two board rules that go with it:
   when no Vivado is present, so it is inert in CI and never a false green. Its
   `--selftest` runs in [`scripts/run_all_suites.sh`](scripts/run_all_suites.sh)
   next to the others. Two things to know before you run it (#224, #236):
-  - **The processor population is the superproject's gitlink, or the gate
-    REFUSES** (exit 2, before it enumerates anything, naming the state, the
+  - **The processor population is the superproject's gitlink, proved byte by
+    byte, or the gate REFUSES** (exit 2, before it enumerates anything, before
+    the census and before the budget is read or written, naming the state, the
     expected and actual revisions and the remediation). The pin it accepts is
     exactly one index record at the path, mode `160000`, stage `0`. An
     unmerged gitlink is not one, whatever single SHA survives: any record at
@@ -321,15 +324,30 @@ Two board rules that go with it:
     an ordinary file or symlink, nor contents committed as ordinary files
     under it. Nor, on the checkout side, is absent, empty, a file or a symlink
     where the checkout must be, uninitialised, a standalone clone sitting at
-    the path, a registered submodule at another revision, or one with local
-    modifications to tracked files. Each of those is a population the pin does
-    not stand behind, and a default run would rewrite the ratchet from it.
+    the path, or a registered submodule at another revision.
     Same shape and same #186 reason as the lint refusal above. Check with
     `git submodule status` -- a `-`, `+` or `U` prefix is a refusal. The
     budget carries the two populations in **separate sections**, so donor debt
     is never traded against `hdl/` debt; a processor key is spelled
     `<submodule>:<path>` so this generated file is not read as a hand-written
     copy of the submodule source list.
+  - **Once the revision matches, the SOURCES themselves are proved, not asked
+    about.** The population is read from the pinned commit's own tree
+    (`git ls-tree -r <pin>`), and every file in it must hash to the blob id the
+    pin records, over the exact bytes `xvlog` opens. `git status`,
+    `git diff` and `git ls-files` are not consulted at all, because those
+    answers are computed through the index and the index can be told to stay
+    quiet: `git update-index --assume-unchanged` and `--skip-worktree` both
+    hide a changed or deleted file from every one of them (`git -C <sub>
+    ls-files -v` prints `h` and `S` for the two). So a hidden edit, a sparse or
+    skip-worktree checkout, a dropped index record, and a symlink standing in
+    for a pinned file are all refused -- not because each is enumerated, but
+    because acceptance is a per-file hash equality none of them can produce.
+    A checkout that is not the pinned bytes is a population the pin does not
+    stand behind, and a default run would rewrite the ratchet from it (#236).
+    The repository's own `hdl/` is deliberately NOT proved this way: it is the
+    tree you are gating, so its bytes on disk are the population by
+    definition.
   - It **analyses; it does not elaborate**, and one real class lives only in
     elaboration. Splitting a declaration-with-initialiser (`reg [7:0] r =
     8'd0;`) into a bare declaration plus a continuous `assign` is not

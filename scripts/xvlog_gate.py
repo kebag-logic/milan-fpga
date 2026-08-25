@@ -75,6 +75,36 @@ any other stage, any other mode, any extra record, an unparsable record or a
 record only UNDER the path refuses before enumeration, census, budget read or
 budget write. _index_pin below is that enumeration.
 
+AND THE BYTES ARE PROVED, NOT INFERRED FROM AN INDEX ANSWER. [R0] round 3 found
+the same class a THIRD time, one level down again: the checkout side asked git
+`diff --name-only HEAD --`, and git answers that question with the index's
+worktree hints applied. `git update-index --assume-unchanged` and
+`--skip-worktree` each make a changed or a deleted file invisible to it, to
+`git status` and to `git ls-files`'s idea of what is there; a real
+use-before-declaration planted under `assume-unchanged` was analysed, printed
+as the pinned census, reported as an ordinary ratchet regression and exited 1,
+not the setup 2. Enumerating those two hints - and then the next one - would be
+the fourth instance of one class, so the shape changes instead: the question is
+no longer asked at all.
+
+The pinned population is now DERIVED FROM THE PIN OBJECT (`git ls-tree -r <pin>`
+inside the checkout, never `git ls-files`), and every file in it must hash to
+the blob id the pin records, over the exact bytes on disk that xvlog will open,
+before anything is analysed. That is a POSITIVE per-file proof rather than the
+absence of known-bad signals: no index record, no stage, no refresh hint, no
+sparse or skip-worktree state, no fsmonitor, no `.git` file indirection and no
+clean/smudge filter participates in it, so a state nobody has enumerated yet
+cannot make the proof succeed - it can only fail to reproduce a blob id. The
+state names below exist to give a reader the right message and the right fix.
+They never decide acceptance; the hash equality does.
+
+THE PARENT'S OWN hdl/ IS NOT PROVED THAT WAY, deliberately: it IS the tree
+under test. A local edit under hdl/ is exactly what the author is gating, so
+the bytes on disk are the population by definition and there is no revision
+they should equal. The processors are the opposite case - the superproject
+DECLARES which revision they are, so a local edit there makes the census claim
+bytes nobody committed and lets a default run bank a ratchet from them.
+
 ONE FINDING PER MODULE, NOT ONE PER OCCURRENCE. xvlog stops at the first error in
 a compilation unit and prints only the 10-8530 cascade after it, so a module with
 many use-before-declaration occurrences yields ONE finding, naming the first
@@ -322,9 +352,8 @@ def hdl_sources():
     "every". `.svh` is not matched: an include header is analysed through the
     file that includes it, and compiling one alone is not a compilation unit.
     """
-    out = subprocess.run(["git", "ls-files",
-                          "hdl/**/*.sv", "hdl/*.sv", "hdl/**/*.v", "hdl/*.v"],
-                         cwd=ROOT, capture_output=True, text=True)
+    out = _git(["ls-files",
+                "hdl/**/*.sv", "hdl/*.sv", "hdl/**/*.v", "hdl/*.v"], ROOT)
     if out.returncode:
         raise SystemExit(f"git ls-files failed: {out.stderr.strip()}")
     files = sorted(set(out.stdout.split()))
@@ -333,10 +362,25 @@ def hdl_sources():
     return _split_packages(files)
 
 
+#: Environment variables that REDIRECT what a `git -C <dir>` call reads - the
+#: git directory, the index, the object store, the ref namespace. They are
+#: cleared for every call below so that `cwd` means what it says. The byte
+#: proof itself does not need this (a pin SHA comes from the superproject's own
+#: index record, the object it names is content-addressed, and the file bytes
+#: come from the filesystem), but the states decided AROUND it - which
+#: repository the path is, what its HEAD is - would otherwise be answerable
+#: from a different repository entirely.
+_GIT_ENV_OVERRIDES = ("GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE",
+                      "GIT_COMMON_DIR", "GIT_OBJECT_DIRECTORY",
+                      "GIT_ALTERNATE_OBJECT_DIRECTORIES", "GIT_NAMESPACE")
+
+
 def _git(args, cwd):
     """One git invocation, captured. `cwd` must already be known to be a repo."""
+    env = {k: v for k, v in os.environ.items()
+           if k not in _GIT_ENV_OVERRIDES}
     return subprocess.run(["git"] + args, cwd=str(cwd),
-                          capture_output=True, text=True)
+                          capture_output=True, text=True, env=env)
 
 
 class TreeState:
@@ -360,6 +404,16 @@ class TreeState:
     That is the pin-bump false green #236 exists to close, so the check is now
     the superproject's declaration compared against the checkout, and it
     refuses BEFORE anything is enumerated.
+
+    Reading the CHECKOUT loosely is that class once more, and [R0] round 3
+    reproduced it on the tracked source KL_pp_prng.sv: with
+    `git update-index --assume-unchanged` (or `--skip-worktree`) set, an edited
+    file is invisible to `git status` and to `git diff --name-only HEAD --`,
+    which is the question the old check asked. No question is asked now. The
+    population comes from the pin's own tree object and every file in it is
+    HASHED and compared to the blob id the pin records, so acceptance is a
+    positive proof over the bytes xvlog opens rather than the absence of a
+    known-bad signal.
 
     Reading that declaration LOOSELY is the same class one level down, and
     [R0] round 2 reproduced it twice: an index holding `160000` stage 2 beside
@@ -394,13 +448,28 @@ class TreeState:
                       UP from it to the SUPERPROJECT - the gate would answer
                       with hdl/ twice and call the processors covered
       wrong-revision  HEAD is not the pinned revision (git's `+` prefix)
-      modified        HEAD is the pinned revision, tracked files under it are
-                      not. Same class: the analysed population is not the
-                      pinned one. Untracked files are IGNORED - `git ls-files`
-                      never analyses them, and local gates litter a tree with
-                      generated `.hex`
-      empty           pinned and clean, but nothing tracked to analyse
-      ok              the pinned population - only then are its files used
+      unreadable      HEAD is the pinned revision, but the pin's own tree
+                      cannot be read (an object format whose blob ids this
+                      gate cannot reproduce, an unreadable or unparsable tree
+                      record): there is no population to prove
+      unpinnable      the PIN ITSELF names a `.sv`/`.v` entry that is not a
+                      regular-file blob - a committed symlink or a nested
+                      gitlink. Its bytes are not the entry's bytes, so it
+                      cannot be proved byte-identical and is not analysed
+      empty           the pin carries no `.sv`/`.v` source at all
+      incomplete      a pinned source is not present in the working tree as a
+                      regular file: deleted, never checked out (sparse or
+                      skip-worktree), replaced by a symlink or a directory, or
+                      unreadable. A symlink is refused even when its target
+                      holds the pinned bytes - the pin names a file
+      modified        every pinned source is present, but one of them does not
+                      HASH to the blob id the pin records. Same class as
+                      wrong-revision: the analysed population is not the
+                      pinned one. Files that are not in the pin are ignored,
+                      whatever their state - they are never analysed, and
+                      local gates litter a tree with generated `.hex`
+      ok              every pinned source is present and byte-identical to the
+                      pin - only then are its files used
 
     `expected` and `actual` carry the two revisions so the refusal can name
     them; `files` is filled only for `ok`.
@@ -442,10 +511,24 @@ _STATE_WHAT = {
                      "(an aborted `git submodule update` leaves one)",
     "wrong-revision": "checked out at the WRONG revision "
                       "(`git submodule status` prints `+`)",
-    "modified": "at the pinned revision with LOCAL MODIFICATIONS to tracked "
-                "files, so the sources are not the pinned sources",
-    "empty": "checked out at the pinned revision but carries no tracked "
-             ".sv/.v source",
+    "unreadable": "at the pinned revision, but the PIN's OWN TREE cannot be "
+                  "read (an object format whose blob ids this gate cannot "
+                  "reproduce, or a tree record it cannot parse), so there is "
+                  "no population to prove",
+    "unpinnable": "at the pinned revision, but the PIN ITSELF names a source "
+                  "that is not a regular file - a committed symlink or a "
+                  "nested gitlink - whose bytes cannot be proved to be the "
+                  "entry's bytes",
+    "incomplete": "at the pinned revision, but the working tree does not hold "
+                  "every pinned source AS A REGULAR FILE: deleted, never "
+                  "checked out (sparse or skip-worktree), replaced by a "
+                  "symlink or a directory, or unreadable",
+    "modified": "at the pinned revision, but a pinned source's BYTES do not "
+                "hash to the blob id the pin records, so the sources are not "
+                "the pinned sources. An index hint cannot hide this: the "
+                "bytes are hashed, never asked about",
+    "empty": "checked out at the pinned revision, whose tree carries no "
+             ".sv/.v source at all",
 }
 
 _STATE_FIX = {
@@ -460,8 +543,21 @@ _STATE_FIX = {
                      "(move any standalone checkout at the path aside first)",
     "no-repository": "git submodule update --init {label}",
     "wrong-revision": "git submodule update --init --checkout {label}",
+    "unreadable": "git submodule update --init --force {label}; if it "
+                  "persists, that checkout's object store cannot serve the "
+                  "pin and must be re-cloned",
+    "unpinnable": "nothing local to fix: the PIN names a source this gate "
+                  "cannot prove. Bump {label} to a revision whose sources are "
+                  "regular files.",
+    "incomplete": "restore every pinned source, then `git submodule update "
+                  "--init --force {label}`. A sparse or skip-worktree "
+                  "checkout of {label} is not the pinned population: clear it "
+                  "with `git -C {label} sparse-checkout disable` and "
+                  "`git -C {label} update-index --no-skip-worktree <path>`",
     "modified": "commit or drop the local changes, then "
-                "`git submodule update --init --force {label}`",
+                "`git submodule update --init --force {label}`. Clear any "
+                "index hint first - `git -C {label} ls-files -v` prints `h` "
+                "for assume-unchanged and `S` for skip-worktree",
     "empty": "git submodule update --init --force {label}",
 }
 
@@ -529,6 +625,12 @@ def _index_pin(label, root=None):
     committed as ordinary files must read as "no gitlink", never as "many
     conflict stages".
 
+    Read with `git ls-files --stage`, which PRINTS the record. `git status`
+    and `git diff` would instead compute a comparison, and a comparison is
+    what an index worktree hint can silence (see _unpinned_bytes), so an
+    `assume-unchanged` or `skip-worktree` bit on the gitlink path itself
+    cannot change what is read here either.
+
     The INDEX, not HEAD, on purpose: that is what `git submodule status`
     compares a checkout against, and it is the revision the next commit will
     carry. A deliberate pin bump that is staged therefore agrees with a
@@ -584,6 +686,121 @@ def _foreign_head(path):
             if head else "an unregistered repository with no HEAD")
 
 
+#: How a blob id is spelled, per object format, and the hash that reproduces
+#: one from bytes. `git hash-object` is deliberately NOT used to reproduce it:
+#: that command applies the checkout's clean filters and .gitattributes, which
+#: are themselves worktree state, and a proof ABOUT worktree state must not be
+#: computed through worktree state. A format not listed here is refused, never
+#: guessed at.
+_OBJECT_HASH = {"sha1": hashlib.sha1, "sha256": hashlib.sha256}
+
+#: One `git ls-tree -r -z <commit>` record: mode, type, object, path. Anchored
+#: and total for the same reason _INDEX_RECORD_RE is - a record this cannot
+#: read is a population this gate cannot prove, so it refuses.
+_TREE_RECORD_RE = re.compile(r"^([0-7]{6}) (\w+) ([0-9a-f]{40,64})\t(.*)$",
+                             re.S)
+
+#: What counts as a source, matched against the PIN's own tree. `.svh` is
+#: excluded here for the same reason hdl_sources() excludes it: an include
+#: header is analysed through the file that includes it.
+_SOURCE_SUFFIXES = (".sv", ".v")
+
+
+def _blob_id(data, algo):
+    """The object id git records for exactly these bytes.
+
+    Computed here rather than shelled out to, so that no repository
+    configuration - filters, .gitattributes, core.autocrlf - can stand between
+    the bytes on disk and the id they are compared against.
+    """
+    h = _OBJECT_HASH[algo]()
+    h.update(b"blob %d\0" % len(data))
+    h.update(data)
+    return h.hexdigest()
+
+
+def _pinned_entries(path, pin, rel):
+    """The population the PIN declares: `(entries, kind, detail)`.
+
+    `entries` is `[(blob id, path relative to the checkout)]` sorted by path,
+    or None with a refusable `kind` when the pin's own tree cannot be turned
+    into a population that can be proved.
+
+    Read from the PIN OBJECT, never from `git ls-files`: the index is worktree
+    state (a `git rm --cached`, a sparse or skip-worktree entry, a conflicted
+    stage) and the population must not be a function of it. What the next
+    commit carries is what the pin's tree holds.
+    """
+    listed = _git(["ls-tree", "-r", "-z", pin, "--", rel], path)
+    if listed.returncode:
+        first = (listed.stderr.strip().splitlines() or ["git ls-tree failed"])[0]
+        return (None, "unreadable",
+                f"the pinned commit's tree could not be read: {first}")
+    entries, unprovable = [], []
+    for record in listed.stdout.split("\0"):
+        if not record:
+            continue
+        m = _TREE_RECORD_RE.match(record)
+        if m is None:
+            return (None, "unreadable",
+                    f"a tree record this gate cannot parse: {record!r}")
+        mode, kind, obj, name = (m.group(1), m.group(2),
+                                 m.group(3), m.group(4))
+        if not name.endswith(_SOURCE_SUFFIXES):
+            continue
+        if kind != "blob" or mode not in ("100644", "100755"):
+            unprovable.append(f"{name} (mode {mode} {kind})")
+        else:
+            entries.append((obj, name))
+    if unprovable:
+        shown = ", ".join(sorted(unprovable)[:3]) + \
+            (", ..." if len(unprovable) > 3 else "")
+        return (None, "unpinnable",
+                f"{len(unprovable)} pinned source(s) are not regular-file "
+                f"blobs: {shown}")
+    return (sorted(entries, key=lambda e: e[1]), "", "")
+
+
+def _unpinned_bytes(path, entries, algo):
+    """`(missing, differing)` - the pinned sources this worktree does not hold.
+
+    Every file is OPENED and HASHED. That is the whole answer to [R0] round 3:
+    `git status` and `git diff --name-only HEAD --` are answers git computes
+    THROUGH the index, and `git update-index --assume-unchanged` /
+    `--skip-worktree` tell it not to look. Nothing here consults the index, so
+    no hint - present, future, or not yet thought of - can change the verdict.
+
+    A symlink is `missing`, not read through: the pin names a regular file,
+    and a link whose target happens to hold the pinned bytes is still not that
+    file. The same for a directory and for an unreadable path.
+
+    What this is NOT: a lock. The bytes are proved once, before enumeration; a
+    file rewritten between the proof and the xvlog run that opens it is a race
+    with a local writer, not a state the tree can be found in, and no gate that
+    hands paths to a compiler can close it.
+    """
+    missing, differing = [], []
+    for obj, name in entries:
+        fp = path / name
+        if fp.is_symlink():
+            missing.append(f"{name} (a symlink, not the pinned regular file)")
+            continue
+        try:
+            if not fp.exists():
+                missing.append(f"{name} (not present)")
+                continue
+            if not fp.is_file():
+                missing.append(f"{name} (not a regular file)")
+                continue
+            data = fp.read_bytes()
+        except OSError as exc:
+            missing.append(f"{name} (unreadable: {exc.strerror})")
+            continue
+        if _blob_id(data, algo) != obj:
+            differing.append(name)
+    return missing, differing
+
+
 def tree_state(label, tree, why, root=None):
     """Resolve one processor tree against the superproject's own gitlink.
 
@@ -631,24 +848,35 @@ def tree_state(label, tree, why, root=None):
     actual = head.stdout.strip() if head.returncode == 0 else ""
     if actual != expected:
         return state("wrong-revision", expected, actual or "(no HEAD)")
-    dirty = _git(["diff", "--name-only", "HEAD", "--"], path)
-    if dirty.returncode or dirty.stdout.strip():
-        names = dirty.stdout.split()
-        shown = ", ".join(names[:3]) + (", ..." if len(names) > 3 else "")
-        return state("modified", expected,
-                     f"{actual} + {len(names)} modified tracked file(s)"
-                     f"{': ' + shown if shown else ''}")
-    # Only a tree that IS the pinned population is enumerated. A pin whose
-    # revision carries no `tree` directory at all reads as empty, not as a
-    # crash: subprocess raises on a cwd that does not exist.
-    files = []
-    if (root / tree).is_dir():
-        listed = _git(["ls-files", "*.sv", "*.v"], root / tree)
-        if listed.returncode == 0:
-            files = sorted(set(listed.stdout.split()))
-    if not files:
+    # From here the population is the PIN's own tree and every file in it is
+    # proved byte-identical. Nothing below asks git what changed: that answer
+    # is computed through the index, and an index hint can silence it ([R0]
+    # round 3). Only a tree that IS the pinned population is enumerated.
+    fmt = _git(["rev-parse", "--show-object-format"], path).stdout.strip()
+    if fmt not in _OBJECT_HASH:
+        return state("unreadable", expected,
+                     "an object format whose blob ids this gate cannot "
+                     f"reproduce: {fmt or '(none reported)'}")
+    rel = tree[len(label) + 1:] if tree.startswith(label + "/") else tree
+    entries, kind, detail = _pinned_entries(path, expected, rel)
+    if entries is None:
+        return state(kind, expected, f"{actual} - {detail}")
+    if not entries:
         return state("empty", expected, actual)
-    return state("ok", expected, actual, [f"{tree}/{f}" for f in files])
+    missing, differing = _unpinned_bytes(path, entries, fmt)
+    if missing:
+        shown = ", ".join(missing[:3]) + (", ..." if len(missing) > 3 else "")
+        return state("incomplete", expected,
+                     f"{actual} + {len(missing)} of {len(entries)} pinned "
+                     f"source(s) not held as the pinned file: {shown}")
+    if differing:
+        shown = ", ".join(differing[:3]) + (", ..." if len(differing) > 3 else "")
+        return state("modified", expected,
+                     f"{actual} + {len(differing)} of {len(entries)} pinned "
+                     f"source(s) whose bytes do not hash to the pinned blob: "
+                     f"{shown}")
+    return state("ok", expected, actual,
+                 [f"{label}/{name}" for _obj, name in entries])
 
 
 def submodule_sources(label, tree):
@@ -1142,8 +1370,30 @@ def _selftest_tree_state():
         def state():
             return tree_state(label, tree, "the selftest fixture", root=super_)
 
+        #: Every state a real fixture below actually drove the classifier to.
+        #: Asserted against _STATE_WHAT at the end, so a state cannot be added
+        #: to the enumeration with only an injected arm behind it.
+        covered = set()
+
+        def hidden(case):
+            """git's OWN answer to the question the old check asked.
+
+            An arm that plants an index hint proves nothing unless git really
+            does report the tree as clean underneath it, so both answers the
+            old shape relied on are asserted empty here.
+            """
+            seen = _git(["diff", "--name-only", "HEAD", "--"],
+                        checkout).stdout.strip()
+            short = _git(["status", "--short"], checkout).stdout.strip()
+            if seen or short:
+                problems.append(f"tree_state [{case}]: git reported the "
+                                f"change after all (diff {seen!r}, status "
+                                f"{short!r}), so this fixture does not "
+                                "reproduce the escape it is named for")
+
         def want(case, expect_state, expect_expected=None, expect_actual=None):
             st = state()
+            covered.add(st.state)
             if st.state != expect_state:
                 problems.append(f"tree_state [{case}]: classified "
                                 f"{st.state!r}, not {expect_state!r} - the "
@@ -1181,6 +1431,78 @@ def _selftest_tree_state():
         (checkout / "hdl" / "a.sv").write_text("module a; wire x; endmodule\n")
         want("modified", "modified", rev_two, "hdl/a.sv")
         _git(["checkout", "-q", "--", "hdl/a.sv"], checkout)
+
+        # [R0] round 3: the index can be told to LIE about the worktree, and
+        # the old check asked it. `assume-unchanged` and `skip-worktree` are
+        # set BEFORE the file is touched, exactly as the review's fixtures
+        # did, and hidden() asserts that git itself then reports nothing -
+        # over a CHANGED file (the review's planted VRFC 10-3380) and over a
+        # MISSING one (the sparse/skip-worktree boundary the review named).
+        for flag, mark in (("assume-unchanged", "h"), ("skip-worktree", "S")):
+            _git(["update-index", "--" + flag, "--", "hdl/a.sv"], checkout)
+            marks = _git(["ls-files", "-v", "--", "hdl/a.sv"],
+                         checkout).stdout.split()
+            if not marks or marks[0] != mark:
+                problems.append(f"tree_state [{flag}]: the fixture did not "
+                                f"take - `git ls-files -v` printed {marks!r}, "
+                                f"not the {mark!r} mark, so the arm proves "
+                                "nothing")
+            (checkout / "hdl" / "a.sv").write_text(
+                "module a; wire hidden_w; endmodule\n")
+            hidden(flag + "-modified")
+            want(flag + "-modified", "modified", rev_two, "hdl/a.sv")
+            (checkout / "hdl" / "a.sv").unlink()
+            hidden(flag + "-missing")
+            want(flag + "-missing", "incomplete", rev_two, "hdl/a.sv")
+            _git(["update-index", "--no-" + flag, "--", "hdl/a.sv"], checkout)
+            _git(["checkout", "-q", "--", "hdl/a.sv"], checkout)
+            want(flag + "-restored", "ok", rev_two, rev_two)
+
+        # A pinned source DELETED with no hint at all: the same class, and the
+        # boundary a diff-shaped check happens to catch. Kept so the byte
+        # proof is shown to cover it too.
+        (checkout / "hdl" / "b.sv").unlink()
+        want("pinned-source-deleted", "incomplete", rev_two, "hdl/b.sv")
+        _git(["checkout", "-q", "--", "hdl/b.sv"], checkout)
+
+        # ...and the population must not be a function of the checkout's
+        # INDEX either. Dropping a record leaves the pinned bytes on disk, so
+        # this is still the pinned population - an ls-files-shaped enumeration
+        # would have analysed one file and called it the pinned processors.
+        _git(["rm", "-q", "--cached", "--", "hdl/b.sv"], checkout)
+        st = want("index-record-dropped", "ok", rev_two, rev_two)
+        if st.state == "ok" and st.files != [f"{tree}/a.sv", f"{tree}/b.sv"]:
+            problems.append(f"tree_state [index-record-dropped]: enumerated "
+                            f"{st.files} - the population followed the index "
+                            "rather than the pin")
+        _git(["reset", "-q", "HEAD", "--", "hdl/b.sv"], checkout)
+
+        # A symlink whose TARGET holds the pinned bytes is still not the
+        # pinned file: reading through it makes the population a function of
+        # whatever the link resolves to, which is the thing being proved.
+        twin = checkout / "hdl" / "twin.sv"
+        twin.write_bytes((checkout / "hdl" / "a.sv").read_bytes())
+        (checkout / "hdl" / "a.sv").unlink()
+        (checkout / "hdl" / "a.sv").symlink_to(twin)
+        want("symlink-holding-the-pinned-bytes", "incomplete", rev_two,
+             "a symlink")
+        (checkout / "hdl" / "a.sv").unlink()
+        twin.unlink()
+        _git(["checkout", "-q", "--", "hdl/a.sv"], checkout)
+
+        # A PIN that itself names a source which is not a regular-file blob.
+        # Its recorded bytes are the link target's name, so byte-identity
+        # cannot be proved for it and the gate refuses rather than analysing
+        # whatever the link resolves to on this box.
+        (donor / "hdl" / "c.sv").symlink_to("a.sv")
+        rev_link = commit("a source committed as a symlink")
+        _git(["fetch", "-q", "origin"], checkout)
+        _git(["checkout", "-q", "--detach", rev_link], checkout)
+        pin((rev_link, "0"))
+        want("pin-names-a-symlink", "unpinnable", rev_link, "hdl/c.sv")
+        _git(["checkout", "-q", "--detach", rev_two], checkout)
+        pin((rev_two, "0"))
+        want("pin-restored", "ok", rev_two, rev_two)
 
         # (1) the review's first escape: a real repository holding the pinned
         # content, at the gitlink path, that is NOT the registered checkout.
@@ -1283,6 +1605,20 @@ def _selftest_tree_state():
 
         pin()
         want("unregistered", "unregistered")
+
+        # A state in the enumeration that no REAL fixture reaches is a state
+        # whose classifier arm is a promise. `unreadable` is the single
+        # exclusion and it is named: git will not construct a repository
+        # whose object format it cannot itself read, so that state is driven
+        # only as an injected one in _selftest_logic.
+        unfixtured = set(_STATE_WHAT) - covered - {"unreadable"}
+        if unfixtured:
+            problems.append(f"tree_state: {sorted(unfixtured)} are in the "
+                            "refusal enumeration but no real git fixture "
+                            "drives the classifier to them")
+        if "ok" not in covered:
+            problems.append("tree_state: no fixture reached `ok`, so these "
+                            "arms prove only that the gate refuses")
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
     return problems
@@ -1456,10 +1792,30 @@ def _selftest_logic():
                                        "repository at the path"),
         "no-repository": _fixed("no-repository"),
         "wrong-revision": _fixed("wrong-revision", actual=_OFF),
-        "modified": _fixed("modified", actual=f"{_PIN} + 1 modified "
-                                              "tracked file(s): hdl/x.sv"),
+        "unreadable": _fixed("unreadable",
+                             actual="an object format whose blob ids this "
+                                    "gate cannot reproduce: (none reported)"),
+        "unpinnable": _fixed("unpinnable",
+                             actual=f"{_PIN} - 1 pinned source(s) are not "
+                                    "regular-file blobs: hdl/x.sv "
+                                    "(mode 120000 blob)"),
+        "incomplete": _fixed("incomplete",
+                             actual=f"{_PIN} + 1 of 40 pinned source(s) not "
+                                    "held as the pinned file: hdl/x.sv "
+                                    "(not present)"),
+        "modified": _fixed("modified",
+                           actual=f"{_PIN} + 1 of 40 pinned source(s) whose "
+                                  "bytes do not hash to the pinned blob: "
+                                  "hdl/x.sv"),
         "empty": _fixed("empty", actual=_PIN),
     }
+    # Exhaustive by construction: a state added to the enumeration without a
+    # refusal arm fails here rather than shipping with an unproved message.
+    if set(refusing) != set(_STATE_WHAT):
+        problems.append(f"setup refusal: "
+                        f"{sorted(set(refusing) ^ set(_STATE_WHAT))} is in one "
+                        "of _STATE_WHAT / the refusal arms and not the other, "
+                        "so a refusable state has no proved message")
     every_label = {label for label, _tree, _why in SUBMODULE_TREES}
     for name, resolver in refusing.items():
         bad = unusable_submodule_trees(states=resolver)
@@ -1499,14 +1855,82 @@ def _selftest_logic():
         problems.append("setup refusal: nothing was printed to stderr, so the "
                         "run would exit 2 with no reason given")
 
+    # ...and main() itself must reach that refusal BEFORE the census, before
+    # the budget is read and before it is written, in --check AND in default
+    # mode. [R0] round 3 measured the escape end to end: a hidden edit was
+    # analysed, printed as the pinned census, reported as an ordinary ratchet
+    # regression and exited 1 - the code that reads as "the tree got worse"
+    # and invites re-banking. $XVLOG is pointed at an executable that exists
+    # so the tool-absence SKIP (decided first, on purpose) does not stand in
+    # for the refusal; it is never run, because the refusal comes first.
+    budget_before = BUDGET.read_bytes() if BUDGET.exists() else None
+    saved_resolver = globals()["tree_state"]
+    saved_xvlog = os.environ.get("XVLOG")
+    globals()["tree_state"] = _fixed(
+        "modified", actual=f"{_PIN} + 1 of 40 pinned source(s) whose bytes do "
+                           "not hash to the pinned blob: hdl/x.sv")
+    os.environ["XVLOG"] = sys.executable
+    try:
+        for extra in ([], ["--check"]):
+            mode = extra[0] if extra else "default"
+            out, err = io.StringIO(), io.StringIO()
+            with contextlib.redirect_stdout(out), \
+                    contextlib.redirect_stderr(err):
+                rc = main(["xvlog_gate.py"] + extra)
+            if rc != 2:
+                problems.append(f"main [{mode}]: exited {rc} over a tree that "
+                                "is not the pinned population, not the setup "
+                                "code 2 - exit 1 is the ratchet path")
+            if "REFUSED" not in err.getvalue():
+                problems.append(f"main [{mode}]: printed no refusal on stderr")
+            if out.getvalue().strip():
+                problems.append(f"main [{mode}]: printed "
+                                f"{out.getvalue().strip()[:120]!r} on stdout - "
+                                "the census must not be reached over a "
+                                "population the pin does not stand behind")
+            after = BUDGET.read_bytes() if BUDGET.exists() else None
+            if after != budget_before:
+                problems.append(f"main [{mode}]: scripts/xvlog.budget changed "
+                                "under a setup refusal")
+    finally:
+        globals()["tree_state"] = saved_resolver
+        if saved_xvlog is None:
+            os.environ.pop("XVLOG", None)
+        else:
+            os.environ["XVLOG"] = saved_xvlog
+
+    # The byte proof's own arithmetic, checked against git rather than against
+    # itself: a blob id this reproduces differently from `git hash-object` is
+    # a proof that would refuse every clean tree, on both object formats git
+    # offers. sha256 needs a repository of that format to ask in.
+    payload = b"module a;\n  logic x;\nendmodule\n"
+    hash_tmp = pathlib.Path(tempfile.mkdtemp(prefix="xvlog-blobid-"))
+    try:
+        for algo in sorted(_OBJECT_HASH):
+            repo = hash_tmp / algo
+            repo.mkdir()
+            init = _git(["init", "-q", f"--object-format={algo}", "."], repo)
+            if init.returncode:
+                problems.append(f"blob id [{algo}]: this git cannot create a "
+                                f"{algo} repository, so the arm could not run")
+                continue
+            got = subprocess.run(["git", "hash-object", "-t", "blob",
+                                  "--stdin"], cwd=str(repo), input=payload,
+                                 capture_output=True).stdout.decode().strip()
+            if got != _blob_id(payload, algo):
+                problems.append(f"blob id [{algo}]: computed "
+                                f"{_blob_id(payload, algo)}, git says {got} - "
+                                "the byte proof would refuse a clean tree")
+    finally:
+        shutil.rmtree(hash_tmp, ignore_errors=True)
+
     # ...and the CLASSIFIER those states come from, against real git fixtures.
     problems += _selftest_tree_state()
 
     # #224: the one tracked `.v` under hdl/ is in the analysed set. Asserted
     # against git, not against a hardcoded name, so the arm still bites when
     # another `.v` is added.
-    out = subprocess.run(["git", "ls-files", "hdl/**/*.v", "hdl/*.v"],
-                         cwd=ROOT, capture_output=True, text=True)
+    out = _git(["ls-files", "hdl/**/*.v", "hdl/*.v"], ROOT)
     tracked_v = set(out.stdout.split()) if out.returncode == 0 else set()
     pkgs, mods = hdl_sources()
     analysed = set(pkgs) | set(mods)
