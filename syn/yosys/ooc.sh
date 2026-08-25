@@ -13,7 +13,13 @@
 #   ./ooc.sh                       # every top in the AREA list below
 #   ./ooc.sh KL_chan_map_render    # just these tops
 #
+# Exit status is the gate (#245): non-zero if any requested top fails sv2v or
+# yosys, if a ROM generator fails or emits an empty image, or if a requested
+# top is not in the list. A failed top used to print its error and leave the
+# script exiting 0, which read as "the whole list passed" to any caller.
+#
 # Requires: yosys, sv2v (see README.md).
+# Self-test: syn/yosys/ooc_selftest.py drives the refusals on planted failures.
 
 set -u
 export PATH="$HOME/.local/bin:$PATH"
@@ -37,16 +43,34 @@ PP="$R/protocol-processor/hdl"
 PP_DERIVED="$(python3 "$R/scripts/pp_srcs.py" --prefix "$PP")" || exit 2
 PP_SRCS="$PP_DERIVED $R/hdl/milan/KL_pp_shadow.sv $R/hdl/milan/KL_pp_maap_shim.sv"
 
-# ...and with the processor comes its ROM. protocol_processor_top $readmemh's
-# the ACMP listener transition image by the RELATIVE name "ltn_rom.hex", which
-# yosys resolves against ITS OWN working directory, not against the source
-# file. Generate it into $TMP and run yosys FROM $TMP (below), so a run from the
+# ...and with the processor come its ROMs. protocol_processor_top $readmemh's
+# the ACMP listener transition image by the RELATIVE name "ltn_rom.hex", and
+# KL_aecp_ucpu its microcode by "ucode.hex" (UCODE_HEX_P) -- yosys resolves
+# both against ITS OWN working directory, not against the source file.
+# Generate BOTH into $TMP and run yosys FROM $TMP (below), so a run from the
 # repository root leaves nothing behind - the same fix syn/yosys/run.sh carries
-# (#191): only syn/yosys/*.hex is gitignored, so a stray ltn_rom.hex in the
+# (#191): only syn/yosys/*.hex is gitignored, so a stray image in the
 # caller's directory is one broad `git add` from being committed (#192).
-if [ -f "$R/protocol-processor/hdl/acmp/rom/gen_ltn_rom.py" ]; then
-  python3 "$R/protocol-processor/hdl/acmp/rom/gen_ltn_rom.py" -o "$TMP/ltn_rom.hex" >/dev/null 2>&1 || true
-fi
+#
+# Generation is FATAL on failure, and an empty image is a failure (#245). The
+# old `|| true` here was how a KL_pp_shadow run printed
+# "yosys FAIL: ERROR: Can not open file `ucode.hex`" and still exited 0, and
+# how supplying ucode.hex by hand in the run directory became the untracked
+# recipe behind an area figure. An absent ROM stops the run; it never shapes
+# a number.
+for rom_spec in \
+    "ltn_rom.hex|$R/protocol-processor/hdl/acmp/rom/gen_ltn_rom.py" \
+    "ucode.hex|$R/protocol-processor/hdl/aecp/ucode/gen_ucode.py"; do
+  img="${rom_spec%%|*}"; gen="${rom_spec#*|}"
+  if ! python3 "$gen" -o "$TMP/$img" >/dev/null; then
+    echo "ooc.sh: FATAL: ROM generator failed: $gen ($img is a \$readmemh input of the control plane)" >&2
+    exit 2
+  fi
+  if [ ! -s "$TMP/$img" ]; then
+    echo "ooc.sh: FATAL: $img is empty after generation by $gen - refusing to measure an all-zero ROM" >&2
+    exit 2
+  fi
+done
 
 DP_SRCS="$PP_SRCS $C/ethernet_packet_pkg.sv $C/axi_stream_if.sv $A/axis_fifo.v $A/axis_demux.v $A/axis_arb_mux.v $A/arbiter.v $A/priority_encoder.v $Q/traffic_class_map.sv $Q/traffic_classifier.sv $Q/credit_based_shaper.sv $Q/traffic_shaping_core.sv $Q/traffic_queues.sv $Q/traffic_controller_802_1q.sv $P/timestamp_counter.sv $P/ptp_csr_sync.sv $C/cdc_pulse.sv $C/cdc_handshake.sv $C/axis_mux_rr_2in_1out.sv $P/ptp_ts_core.sv $P/ptp_ts_top.sv $F/tcam.sv $F/rx_mac_filter.sv $C/tx_ifg_gasket.sv $R/hdl/ieee1722/aaf/KL_pcm_lpf.sv $C/KL_link_guard.sv $D/adp_tx_arbiter.sv $E/ethernet_events.sv $E/event_counter.sv $R/hdl/common/csr/milan_csr.sv $R/hdl/ieee1722/aaf/aaf_talker_i2s.sv $R/hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv $R/hdl/ieee1722/avtp/avtp_subtype_pkg.sv $R/hdl/ieee1722/avtp/avtp_stream_parser.sv $R/hdl/ieee1722/avtp/KL_stream_table.sv $R/hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv $R/hdl/ieee1722/crf/KL_crf_rx.sv $R/hdl/ieee1722/crf/KL_crf_tx.sv $R/hdl/ieee1722/maap/KL_maap.sv $R/hdl/ieee1722/aaf/KL_i2s_playback.sv $R/hdl/ieee1722/aaf/KL_i2s_feed_mux.sv $R/hdl/ieee1722/aaf/KL_tone_gen.sv $R/hdl/ieee1722/aaf/KL_media_adv.sv $C/cdc_pair_fifo.sv $R/hdl/ieee1722/aaf/KL_pcm_route.sv $R/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv $R/hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv $R/hdl/ieee1722/aaf/KL_tdm_capture.sv $R/hdl/ieee1722/aaf/KL_aaf_packetizer.sv $R/hdl/ieee1722/crf/KL_mmcm_drp_servo.sv $R/hdl/ieee1722/crf/KL_media_nco.sv $R/hdl/ieee1722/aaf/KL_aaf_latency_taps.sv $R/hdl/ieee1722/aaf/KL_chan_map_capture.sv $R/hdl/ieee1722/aaf/KL_chan_map_render.sv $R/hdl/ieee1722/aaf/KL_pcm_tx.sv $R/hdl/ieee1722/aaf/KL_tdm_render.sv $R/hdl/milan/milan_datapath.sv $R/hdl/ieee1722/aaf/KL_tdm_capture_master.sv $R/hdl/ieee1722/aaf/KL_pair_blend.sv $R/hdl/ieee1722/aaf/KL_pair_zero_fill.sv $R/hdl/ieee1722/avtp/KL_talker_diag_ctx.sv $R/hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv"
 
@@ -89,6 +113,18 @@ tops=(
 )
 
 want=("$@")
+# A requested name that matches no list entry must refuse, not print a bare
+# header and exit 0 (#245): the silent no-op is the same false green as a
+# swallowed synth failure, and a typo is exactly how it happens.
+for w in "${want[@]}"; do
+  known=0
+  for spec in "${tops[@]}"; do [ "${spec%%|*}" = "$w" ] && known=1; done
+  if [ "$known" -eq 0 ]; then
+    echo "ooc.sh: FATAL: unknown top '$w' - not in this script's tops list" >&2
+    exit 2
+  fi
+done
+status=0
 printf "== OOC area (synth_xilinx -family xc7 -flatten) ==\n"
 printf "%-28s %8s %8s %8s %8s %8s %8s %8s %8s\n" \
        top LUT LUTRAM LUT_TOT FF RAMB36 RAMB18 DSP CARRY4
@@ -99,7 +135,7 @@ for spec in "${tops[@]}"; do
     [ $hit -eq 1 ] || continue
   fi
   if ! sv2v --top="$top" $INC $srcs > "$TMP/$top.ooc.v" 2> "$TMP/$top.ooc.sv2v.err"; then
-    printf "%-28s sv2v FAIL: %s\n" "$top" "$(head -1 "$TMP/$top.ooc.sv2v.err")"; continue
+    printf "%-28s sv2v FAIL: %s\n" "$top" "$(head -1 "$TMP/$top.ooc.sv2v.err")"; status=1; continue
   fi
   # OOC_CHPARAM="N_STREAMS=8 AUDIO_IF_SLOTS_P=16 ..." elaborates the SHIP
   # shape instead of the SV defaults (milan_datapath defaults N_STREAMS=1,
@@ -125,7 +161,7 @@ for spec in "${tops[@]}"; do
   (cd "$TMP" && yosys -p "read_verilog $TMP/$top.ooc.v;$chp synth_xilinx -family xc7$nodsp -top $top -flatten; stat; write_json $TMP/$top.ooc.json") \
     > "$TMP/$top.ooc.log" 2>&1
   if [ $? -ne 0 ]; then
-    printf "%-28s yosys FAIL: %s\n" "$top" "$(grep -oE 'ERROR:.*' "$TMP/$top.ooc.log" | head -1)"; continue
+    printf "%-28s yosys FAIL: %s\n" "$top" "$(grep -oE 'ERROR:.*' "$TMP/$top.ooc.log" | head -1)"; status=1; continue
   fi
   # count from the final (post-flatten) `stat` block only. yosys prints
   # "<count>   <CELLTYPE>", so the count is $1 and the type is $2.
@@ -164,3 +200,6 @@ for spec in "${tops[@]}"; do
   ' "$TMP/$top.ooc.log"
 done
 [ -n "${OOC_TMP:-}" ] || rm -rf "$TMP"
+# The cleanup above must not launder a failed top back into success: exit with
+# the accumulated verdict, not with the last statement's (#245).
+exit "$status"

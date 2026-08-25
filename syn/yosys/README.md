@@ -97,6 +97,13 @@ OOC_TMP=/some/dir ./ooc.sh …  # keep the .v / .log / .json artefacts
 It runs `sv2v` → `synth_xilinx -family xc7 -flatten` → `stat` and reports
 `LUT1..6`, `FD[CPRS]E?`, `RAMB36E1`, `RAMB18E1`, `DSP48E1`.
 
+**The exit status is the gate** (#245): any top failing `sv2v` or yosys, a
+ROM generator failing or emitting an empty image, and a requested top the
+list does not carry each exit non-zero. Both control-plane `$readmemh`
+images (`ltn_rom.hex`, `ucode.hex`) are generated into the run's own tmp
+dir, never the caller's; `ooc_selftest.py` drives every refusal on planted
+failures and runs in `rtl-fast.yml`.
+
 Two traps this exists to avoid:
 
 - **`-flatten` is not optional.** A hierarchical synth's `stat` counts
