@@ -261,7 +261,13 @@ Two board rules that go with it:
   `git submodule update --init third_party/verilog-axis protocol-processor gptp-processor`.
   These three are what the Verilator suites, the Yosys gate and
   [`scripts/lint_rtl.py`](scripts/lint_rtl.py) read, and are exactly what CI
-  initialises. Lint now REFUSES (exit 2, not the ratchet-tighten exit 1) rather
+  initialises. Two of them, the processor pair, are also what
+  [`scripts/xvlog_gate.py`](scripts/xvlog_gate.py) analyses, and it refuses the
+  same way -- but against the **gitlink** and then against the pinned **bytes**,
+  so a standalone clone dropped at the path, a checkout moved off the pin, and a
+  local edit the index has been told to keep quiet about are all refused, not
+  counted. Lint now REFUSES (exit 2, not the
+  ratchet-tighten exit 1) rather
   than under-count when one is absent (#186): a count over an incomplete
   resolution set drops findings and would invite a tighten to a number the real
   tree cannot meet. The `external` submodule is SSH-only and no sim, lint or
@@ -300,12 +306,62 @@ Two board rules that go with it:
   sweep and the Yosys gate all lower SystemVerilog through Verilator/sv2v, so a
   construct Vivado is stricter about (use-before-declaration is the first one
   found) is invisible to the whole bar (#132). The gate runs `xvlog -sv` over
-  every `hdl/` module, ratchets today's findings in
-  [`scripts/xvlog.budget`](scripts/xvlog.budget) keyed on identity so a
-  compensating swap cannot hide, and SKIPS cleanly with a visible marker when no
-  Vivado is present, so it is inert in CI and never a false green. Its
+  every tracked `.sv` **and** `.v` under `hdl/` and over the pinned control
+  plane (`protocol-processor/hdl`, `gptp-processor/hdl`), ratchets today's
+  findings in [`scripts/xvlog.budget`](scripts/xvlog.budget) keyed on identity
+  so a compensating swap cannot hide, and SKIPS cleanly with a visible marker
+  when no Vivado is present, so it is inert in CI and never a false green. Its
   `--selftest` runs in [`scripts/run_all_suites.sh`](scripts/run_all_suites.sh)
-  next to the others.
+  next to the others. Two things to know before you run it (#224, #236):
+  - **The processor population is the superproject's gitlink, proved byte by
+    byte, or the gate REFUSES** (exit 2, before it enumerates anything, before
+    the census and before the budget is read or written, naming the state, the
+    expected and actual revisions and the remediation). The pin it accepts is
+    exactly one index record at the path, mode `160000`, stage `0`. An
+    unmerged gitlink is not one, whatever single SHA survives: any record at
+    stage 1, 2 or 3, a `160000` stage beside a file or symlink stage, or a
+    one-sided stage with nothing to merge it against. Nor is a path tracked as
+    an ordinary file or symlink, nor contents committed as ordinary files
+    under it. Nor, on the checkout side, is absent, empty, a file or a symlink
+    where the checkout must be, uninitialised, a standalone clone sitting at
+    the path, or a registered submodule at another revision.
+    Same shape and same #186 reason as the lint refusal above. Check with
+    `git submodule status` -- a `-`, `+` or `U` prefix is a refusal. The
+    budget carries the two populations in **separate sections**, so donor debt
+    is never traded against `hdl/` debt; a processor key is spelled
+    `<submodule>:<path>` so this generated file is not read as a hand-written
+    copy of the submodule source list.
+  - **Once the revision matches, the SOURCES themselves are proved, not asked
+    about.** The population is read from the pinned commit's own tree
+    (`git ls-tree -r <pin>`), and every file in it must hash to the blob id the
+    pin records, over the exact bytes `xvlog` opens. Every Git call contributing
+    to that decision explicitly sets `GIT_NO_REPLACE_OBJECTS=1`: a mutable
+    `refs/replace/<pin>` must not make `git ls-tree <pin>` read a different
+    commit while `HEAD` still prints the pinned id. The real-Git self-test
+    installs that substitution with its altered bytes on disk and requires a
+    `modified` setup refusal in both modes, before census or budget write.
+    `git status`,
+    `git diff` and `git ls-files` are not consulted at all, because those
+    answers are computed through the index and the index can be told to stay
+    quiet: `git update-index --assume-unchanged` and `--skip-worktree` both
+    hide a changed or deleted file from every one of them (`git -C <sub>
+    ls-files -v` prints `h` and `S` for the two). So a hidden edit, a sparse or
+    skip-worktree checkout, a dropped index record, and a symlink standing in
+    for a pinned file are all refused -- not because each is enumerated, but
+    because acceptance is a per-file hash equality none of them can produce.
+    A checkout that is not the pinned bytes is a population the pin does not
+    stand behind, and a default run would rewrite the ratchet from it (#236).
+    The repository's own `hdl/` is deliberately NOT proved this way: it is the
+    tree you are gating, so its bytes on disk are the population by
+    definition.
+  - It **analyses; it does not elaborate**, and one real class lives only in
+    elaboration. Splitting a declaration-with-initialiser (`reg [7:0] r =
+    8'd0;`) into a bare declaration plus a continuous `assign` is not
+    equivalent, and `xvlog`, Verilator 5.050 under `-Wall`, `sv2v` and Yosys
+    all accept the broken form silently. Only `xelab` rejects it
+    (`VRFC 10-9171`), and no gate in this repository runs `xelab`. If your
+    change moves declarations around, that construct has **no gate** -- check
+    it by hand and say so in the PR.
 - **A build input never lists the protocol-processor sources, it derives
   them**: [`scripts/pp_srcs.py`](scripts/pp_srcs.py) reads the submodule tree
   and emits the list, packages first (detected by reading each file for a
