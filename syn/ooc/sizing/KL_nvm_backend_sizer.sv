@@ -7,17 +7,12 @@
 //  Project     : Milan FPGA -- saved state and fast connect
 //                (docs/design/SAVED_STATE_FASTCONNECT.md section 8.3)
 //
-//  Description : AREA SIZING SKETCH. Two tops that answer one question:
-//                what does replacing KL_pp_shadow's blank-flash responder
-//                with the section 8 backend cost in LUT and FF?
-//
-//                  KL_nvm_blankflash_sizer -- the BEFORE. The responder that
-//                    ships today, lifted verbatim from hdl/milan/KL_pp_shadow.sv
-//                    so the two numbers are measured on the same face.
-//                  KL_nvm_backend_sizer    -- the AFTER. The three pieces
-//                    section 8.3 names: the region-to-offset decoder, the
-//                    main-memory access path, and the control CSRs, plus the
-//                    liveness and commit deadline counters of section 9.4.
+//  Description : AREA SIZING SKETCH, the AFTER half of a before/after pair.
+//                The three pieces section 8.3 names -- the region-to-offset
+//                decoder, the main-memory access path and the control CSRs --
+//                plus the liveness and commit deadline counters of section
+//                9.4. The BEFORE half is KL_nvm_blankflash_sizer.sv beside
+//                this file (one top per file: DECLFILENAME).
 //
 //  THIS IS NOT SHIPPING RTL, and it is deliberately NOT under `hdl/`.
 //  Nothing instantiates it, `milan_soc.py` does not register it, and
@@ -26,128 +21,47 @@
 //  estimate. The implementation ticket owns the shipping module, its tests
 //  and the post-place delta; this file owns the number.
 //
+//  IT IS NOT UNCHECKED. tb/verilator/nvm_backend drives this exact source
+//  against a byte-exact KLJ2 image emitted by
+//  `scripts/check_nvm_record_space.py --emit-record-table`, with `-Wall` and
+//  no `-Wno-fatal`, and carries three compiled-in negative controls
+//  (NVM_MUT_MAP_ALIAS, NVM_MUT_NOMINAL_STRIDE, NVM_MUT_STALE_MASKONLY), each
+//  of which MUST fail.
+//
 //  Measure with (see syn/yosys/README.md for the toolchain):
-//    OOC_CHPARAM="N_STREAM_IN_P=1 N_STREAM_OUT_P=1 N_SPORT_IN_P=1 \
-//                 N_SPORT_OUT_P=1 N_NAME_BANK_P=4  MAP_BYTES_P=136" \
-//      syn/yosys/ooc.sh KL_nvm_backend_sizer KL_nvm_blankflash_sizer
+//    OOC_CHPARAM="N_STREAM_IN_P=2 N_STREAM_OUT_P=2 N_SPORT_IN_P=1 \
+//                 N_SPORT_OUT_P=1 N_AUDIO_UNIT_P=1 N_CLK_DOM_P=1 \
+//                 N_NAME_BANK_P=4" syn/yosys/ooc.sh KL_nvm_backend_sizer
 //    OOC_CHPARAM="N_STREAM_IN_P=9 N_STREAM_OUT_P=9 N_SPORT_IN_P=8 \
-//                 N_SPORT_OUT_P=8 N_NAME_BANK_P=30 MAP_BYTES_P=256" \
-//      syn/yosys/ooc.sh KL_nvm_backend_sizer KL_nvm_blankflash_sizer
+//                 N_SPORT_OUT_P=8 N_AUDIO_UNIT_P=1 N_CLK_DOM_P=1 \
+//                 N_NAME_BANK_P=30" syn/yosys/ooc.sh KL_nvm_backend_sizer
+//
+//  THERE IS NO NOMINAL CHANNEL-MAP SIZE PARAMETER any more, and its removal
+//  is the round-4 repair. A `MAP_BYTES_P` stride priced both channel-map
+//  groups at one nominal length and placed the groups after it at multiples
+//  of that length. KLJ2 section 6.1 concatenates records with NO padding, and
+//  the generated 8x8 overlay is asymmetric -- an input port has 8 clusters
+//  (64-byte payload, 72-byte framed record) and an output port has 17
+//  (136-byte payload, 144-byte framed record) -- so no single nominal stride
+//  can be right for both. Lengths and prefixes are now direction-distinct
+//  firmware-loaded state, and every group base after them is the SUM of the
+//  actual preceding lengths.
 //
 //  Stated simplifications, each one an UNDER-count risk named rather than
 //  hidden:
-//    (a) the two channel-map groups carry a per-port byte count, so their
-//        record bases are not a constant stride. The sketch carries the
-//        16-entry prefix table a real backend needs, loaded through the CSR
-//        face, so that cost IS in the number.
-//    (b) memory accesses are one byte per handshake -- a write strobe per
+//    (a) memory accesses are one byte per handshake -- a write strobe per
 //        byte, and a word fetch per read byte -- rather than coalesced into
 //        words. That is not a throughput loss: the port itself streams one
 //        byte per handshake (KL_pp_nvm_port F02.8), so the memory side is
 //        already matched to the source. A coalescing implementation would
 //        add a word buffer and a lane mux, so this figure bounds the DECODE
 //        and CONTROL cost rather than every possible datapath.
-//    (c) the container CRC-32 of section 6 is NOT here. It is the reader's,
+//    (b) the container CRC-32 of section 6 is NOT here. It is the reader's,
 //        not the backend's -- the backend moves record bytes between the port
 //        and the image; the acceptance order of section 6.2 runs above it.
 //---------------------------------------------------------------------------//
 `default_nettype none
 
-//===========================================================================//
-//  BEFORE: the blank-flash responder that ships today                       //
-//  Lifted verbatim from hdl/milan/KL_pp_shadow.sv so the delta is honest.   //
-//===========================================================================//
-module KL_nvm_blankflash_sizer (
-    input  wire        clk_i,          //! core clock
-    input  wire        rst_n,          //! synchronous active-low reset
-
-    //! ---- device face: target of KL_pp_nvm_port's initiator ----
-    input  wire        dev_req_i,      //! command request
-    output logic       dev_gnt_o,      //! command accepted (one cycle)
-    input  wire [1:0]  dev_op_i,       //! READ / WRITE / ERASE_REGION
-    input  wire [15:0] dev_len_i,      //! byte count
-    input  wire        dev_wvalid_i,   //! write byte present
-    output logic       dev_wready_o,   //! responder accepts the write byte
-    output logic       dev_rvalid_o,   //! read byte present
-    output logic [7:0] dev_rdata_o,    //! read byte -- blank flash is 0xFF
-    input  wire        dev_rready_i,   //! initiator accepts the read byte
-    output logic       dev_busy_o,     //! command in flight
-    output logic       dev_done_o,     //! one-cycle pulse: complete
-    output logic       dev_err_o,      //! one-cycle pulse: failed (never)
-    output logic       nvm_backed_o    //! CONSTANT 0: no media behind the face
-);
-
-  localparam logic [1:0] NVMP_OP_READ_C  = 2'd0;
-  localparam logic [1:0] NVMP_OP_WRITE_C = 2'd1;
-  //! Deliberately a localparam, not a parameter: the fact is a property of
-  //! the logic in this file, and a parameter would let an integrator assert
-  //! persistence the fabric does not have.
-  localparam logic       NVM_BACKED_C    = 1'b0;
-
-  logic        nvm_gnt_r, nvm_done_r, nvm_rvalid_r, nvm_wready_r;
-  logic [15:0] nvm_cnt_r;
-  logic        nvm_busy_r;
-
-  always_ff @(posedge clk_i) begin
-    if (!rst_n) begin
-      nvm_busy_r   <= 1'b0;
-      nvm_gnt_r    <= 1'b0;
-      nvm_done_r   <= 1'b0;
-      nvm_rvalid_r <= 1'b0;
-      nvm_wready_r <= 1'b0;
-      nvm_cnt_r    <= 16'd0;
-    end else begin
-      nvm_gnt_r  <= 1'b0;
-      nvm_done_r <= 1'b0;
-      if (!nvm_busy_r) begin
-        nvm_rvalid_r <= 1'b0;
-        nvm_wready_r <= 1'b0;
-        if (dev_req_i) begin
-          nvm_gnt_r  <= 1'b1;
-          nvm_cnt_r  <= dev_len_i;
-          nvm_busy_r <= 1'b1;
-          // ERASE (and any zero-length command) completes with no data phase
-          if ((dev_op_i != NVMP_OP_READ_C && dev_op_i != NVMP_OP_WRITE_C)
-              || (dev_len_i == 16'd0)) begin
-            nvm_busy_r <= 1'b0;
-            nvm_done_r <= 1'b1;
-          end else begin
-            nvm_rvalid_r <= (dev_op_i == NVMP_OP_READ_C);
-            nvm_wready_r <= (dev_op_i == NVMP_OP_WRITE_C);
-          end
-        end
-      end else begin
-        // one byte per accepted handshake, blank flash reads as 0xFF
-        if ((nvm_rvalid_r & dev_rready_i) | (nvm_wready_r & dev_wvalid_i)) begin
-          if (nvm_cnt_r <= 16'd1) begin
-            nvm_busy_r   <= 1'b0;
-            nvm_rvalid_r <= 1'b0;
-            nvm_wready_r <= 1'b0;
-            nvm_done_r   <= 1'b1;
-          end else begin
-            nvm_cnt_r <= nvm_cnt_r - 16'd1;
-          end
-        end
-      end
-    end
-  end
-
-  assign dev_gnt_o    = nvm_gnt_r;
-  assign dev_wready_o = nvm_wready_r;
-  assign dev_rvalid_o = nvm_rvalid_r;
-  assign dev_rdata_o  = 8'hFF;
-  assign dev_busy_o   = nvm_busy_r;
-  assign dev_done_o   = nvm_done_r;
-  assign dev_err_o    = 1'b0;
-  assign nvm_backed_o = NVM_BACKED_C;
-
-endmodule
-
-`default_nettype none
-
-//===========================================================================//
-//  AFTER: the section 8 backend candidate                                   //
-//===========================================================================//
 module KL_nvm_backend_sizer #(
     //! core clock, for the millisecond tick the deadlines count in
     parameter int unsigned CLK_HZ_P       = 125_000_000,
@@ -159,8 +73,6 @@ module KL_nvm_backend_sizer #(
     parameter int unsigned N_AUDIO_UNIT_P = 1,
     parameter int unsigned N_CLK_DOM_P    = 1,
     parameter int unsigned N_NAME_BANK_P  = 30,
-    //! nominal channel-map payload; the per-port prefix table corrects it
-    parameter int unsigned MAP_BYTES_P    = 256,
     //! design page section 9.4 deadlines, in milliseconds
     parameter int unsigned T_ALIVE_MS_P   = 2000,
     parameter int unsigned T_COMMIT_MS_P  = 8000
@@ -195,16 +107,19 @@ module KL_nvm_backend_sizer #(
     input  wire  [31:0] mem_rdata_i,    //! read data, valid with mem_ack_i
 
     //! ---- control CSRs (section 8.2: a control tuple, never a data window) -
+    //! [5] selects the channel-map tables, [4] the DIRECTION inside them
+    //! (0 = input group 0x60, 1 = output group 0x70) and [3:0] the port.
+    //! With [5] clear, [4:0] is the register index.
     input  wire         csr_sel_i,      //! CSR access
     input  wire         csr_we_i,       //! 1 = write
-    input  wire  [5:0]  csr_addr_i,     //! [4:0] register, [5] map prefix table
+    input  wire  [5:0]  csr_addr_i,     //! see above
     input  wire  [31:0] csr_wdata_i,    //! write data
     output logic [31:0] csr_rdata_o,    //! read data
 
     //! ---- published status (section 9.1) ----
     output logic        nvm_backed_o,   //! live: a writer answered in time
     output logic        nvm_dirty_o,    //! committed changes no slot holds
-    output logic        nvm_stale_o,    //! backed was true since reset, is not now
+    output logic        nvm_stale_o,    //! a loss that has not been made good
     output logic [3:0]  nvm_verdict_o   //! section 6.2 verdict of the last image
 );
 
@@ -231,6 +146,8 @@ module KL_nvm_backend_sizer #(
   localparam int unsigned ID_NAME_C  = 'h80;
 
   // ---- per-group record size, header included ----------------------------
+  //! The two channel-map groups are absent from this list ON PURPOSE: their
+  //! record length is per port, not per group, and lives in the tables below.
   localparam int unsigned SZ_CFG_C  = REC_HDR_C + 2;
   localparam int unsigned SZ_SUID_C = REC_HDR_C + 8;
   localparam int unsigned SZ_RATE_C = REC_HDR_C + 4;
@@ -239,10 +156,12 @@ module KL_nvm_backend_sizer #(
   localparam int unsigned SZ_BIND_C = REC_HDR_C + 20;
   localparam int unsigned SZ_FMT_C  = REC_HDR_C + 8;
   localparam int unsigned SZ_PTOF_C = REC_HDR_C + 4;
-  localparam int unsigned SZ_MAP_C  = REC_HDR_C + MAP_BYTES_P;
   localparam int unsigned SZ_NAME_C = REC_HDR_C + NAME_BANK_C;
 
   // ---- image byte bases: records are concatenated in ascending record_id --
+  //! Constant up to the first channel-map group, because every group before it
+  //! is fixed-length. Everything after it is derived at run time from the
+  //! measured lengths (b_mapo_w, b_name_w below).
   localparam int unsigned B_CFG_C  = 0;
   localparam int unsigned B_SUID_C = B_CFG_C  + SZ_CFG_C;
   localparam int unsigned B_RATE_C = B_SUID_C + SZ_SUID_C;
@@ -253,24 +172,58 @@ module KL_nvm_backend_sizer #(
   localparam int unsigned B_FMTO_C = B_FMTI_C + N_STREAM_IN_P  * SZ_FMT_C;
   localparam int unsigned B_PTOF_C = B_FMTO_C + N_STREAM_OUT_P * SZ_FMT_C;
   localparam int unsigned B_MAPI_C = B_PTOF_C + N_STREAM_OUT_P * SZ_PTOF_C;
-  localparam int unsigned B_MAPO_C = B_MAPI_C + N_SPORT_IN_P   * SZ_MAP_C;
-  localparam int unsigned B_NAME_C = B_MAPO_C + N_SPORT_OUT_P  * SZ_MAP_C;
 
   // =======================================================================
   //  Region decode: record_id -> {image byte base, record byte length}
   // =======================================================================
-  //! per-port channel-map prefix, loaded by firmware: the two map groups are
-  //! the only ones whose record length varies with the port, so their base is
-  //! a table lookup rather than a constant stride.
-  logic [15:0] map_pref_r [0:15];
-  logic [15:0] map_len_r  [0:15];
+  //! Per-port channel-map prefix and length, loaded by firmware, DIRECTION
+  //! DISTINCT. An input port and an output port with the same ordinal have
+  //! different cluster counts on the shipped 8x8 overlay (8 against 17), so
+  //! one table indexed by dev_region_i[3:0] gave both the same length and the
+  //! same prefix and read the wrong span for at least one of them. The
+  //! prefix is the running sum of the preceding lengths INSIDE the group.
+  logic [15:0] mapi_pref_r [0:N_SPORT_IN_P-1];
+  logic [15:0] mapi_len_r  [0:N_SPORT_IN_P-1];
+  logic [15:0] mapo_pref_r [0:N_SPORT_OUT_P-1];
+  logic [15:0] mapo_len_r  [0:N_SPORT_OUT_P-1];
+
+  localparam int unsigned MAPI_IW_C = (N_SPORT_IN_P  > 1)
+                                    ? $clog2(N_SPORT_IN_P)  : 1;
+  localparam int unsigned MAPO_IW_C = (N_SPORT_OUT_P > 1)
+                                    ? $clog2(N_SPORT_OUT_P) : 1;
 
   logic [17:0] rec_base_w;
   logic [11:0] rec_len_w;
   logic        rec_hit_w;
-  logic [3:0]  map_idx_w;
+  logic [MAPI_IW_C-1:0] mapi_idx_w;
+  logic [MAPO_IW_C-1:0] mapo_idx_w;
+  logic [17:0] b_mapo_w, b_name_w;
 
-  assign map_idx_w = dev_region_i[3:0];
+  //! Only ever consumed inside the guarded branch that proves the id is in
+  //! the group, so a truncated value outside it cannot reach an output.
+  assign mapi_idx_w = MAPI_IW_C'(dev_region_i - 8'(ID_MAPI_C));
+  assign mapo_idx_w = MAPO_IW_C'(dev_region_i - 8'(ID_MAPO_C));
+
+`ifdef NVM_MUT_NOMINAL_STRIDE
+  //! NEGATIVE CONTROL, never synthesised: the round-3 base arithmetic, which
+  //! advanced past each channel-map group by a NOMINAL stride instead of the
+  //! sum of the group's actual record lengths. KLJ2 6.1 forbids the padding
+  //! that would make it right.
+  localparam int unsigned MUT_MAP_NOM_C = REC_HDR_C + 256;
+  assign b_mapo_w = 18'(B_MAPI_C) + 18'(N_SPORT_IN_P  * MUT_MAP_NOM_C);
+  assign b_name_w = b_mapo_w      + 18'(N_SPORT_OUT_P * MUT_MAP_NOM_C);
+`else
+  //! A group base is the SUM of the preceding group's actual record lengths.
+  //! The running prefix already carries that sum, so the span of a group is
+  //! its last port's prefix plus that port's length: one adder, and it cannot
+  //! disagree with the table the decode reads.
+  assign b_mapo_w = 18'(B_MAPI_C)
+                  + 18'(mapi_pref_r[MAPI_IW_C'(N_SPORT_IN_P  - 1)])
+                  + 18'(mapi_len_r [MAPI_IW_C'(N_SPORT_IN_P  - 1)]);
+  assign b_name_w = b_mapo_w
+                  + 18'(mapo_pref_r[MAPO_IW_C'(N_SPORT_OUT_P - 1)])
+                  + 18'(mapo_len_r [MAPO_IW_C'(N_SPORT_OUT_P - 1)]);
+`endif
 
   always_comb begin
     rec_base_w = 18'd0;
@@ -328,17 +281,26 @@ module KL_nvm_backend_sizer #(
       rec_hit_w  = 1'b1;
     end else if (dev_region_i >= 8'(ID_MAPI_C)
               && dev_region_i <  8'(ID_MAPI_C + N_SPORT_IN_P)) begin
-      rec_base_w = 18'(B_MAPI_C) + 18'(map_pref_r[map_idx_w]);
-      rec_len_w  = 12'(map_len_r[map_idx_w]);
+      rec_base_w = 18'(B_MAPI_C) + 18'(mapi_pref_r[mapi_idx_w]);
+      rec_len_w  = 12'(mapi_len_r[mapi_idx_w]);
       rec_hit_w  = 1'b1;
     end else if (dev_region_i >= 8'(ID_MAPO_C)
               && dev_region_i <  8'(ID_MAPO_C + N_SPORT_OUT_P)) begin
-      rec_base_w = 18'(B_MAPO_C) + 18'(map_pref_r[map_idx_w]);
-      rec_len_w  = 12'(map_len_r[map_idx_w]);
+`ifdef NVM_MUT_MAP_ALIAS
+      //! NEGATIVE CONTROL, never synthesised: the round-3 decode indexed ONE
+      //! {prefix,length} table with dev_region_i[3:0], so 0x60+k and 0x70+k
+      //! read the same entry even though an input port is 72 framed bytes on
+      //! the shipped 8x8 overlay and an output port is 144.
+      rec_base_w = b_mapo_w + 18'(mapi_pref_r[MAPI_IW_C'(mapo_idx_w)]);
+      rec_len_w  = 12'(mapi_len_r[MAPI_IW_C'(mapo_idx_w)]);
+`else
+      rec_base_w = b_mapo_w + 18'(mapo_pref_r[mapo_idx_w]);
+      rec_len_w  = 12'(mapo_len_r[mapo_idx_w]);
+`endif
       rec_hit_w  = 1'b1;
     end else if (dev_region_i >= 8'(ID_NAME_C)
               && dev_region_i <  8'(ID_NAME_C + N_NAME_BANK_P)) begin
-      rec_base_w = 18'(B_NAME_C)
+      rec_base_w = b_name_w
                  + 18'(SZ_NAME_C) * 18'(dev_region_i - 8'(ID_NAME_C));
       rec_len_w  = 12'(SZ_NAME_C);
       rec_hit_w  = 1'b1;
@@ -387,23 +349,39 @@ module KL_nvm_backend_sizer #(
     end
   end
 
-  //! the channel-map prefix table: {length, prefix} per port, firmware-loaded
+  //! The two channel-map tables: {length, prefix} per port and per direction,
+  //! firmware-loaded. csr_addr_i[4] picks the direction.
   always_ff @(posedge clk_i) begin
     if (csr_sel_i && csr_we_i && csr_addr_i[5]) begin
-      map_pref_r[csr_addr_i[3:0]] <= csr_wdata_i[15:0];
-      map_len_r [csr_addr_i[3:0]] <= csr_wdata_i[31:16];
+      if (!csr_addr_i[4]) begin
+        if (32'(csr_addr_i[3:0]) < 32'(N_SPORT_IN_P)) begin
+          mapi_pref_r[MAPI_IW_C'(csr_addr_i[3:0])] <= csr_wdata_i[15:0];
+          mapi_len_r [MAPI_IW_C'(csr_addr_i[3:0])] <= csr_wdata_i[31:16];
+        end
+      end else begin
+        if (32'(csr_addr_i[3:0]) < 32'(N_SPORT_OUT_P)) begin
+          mapo_pref_r[MAPO_IW_C'(csr_addr_i[3:0])] <= csr_wdata_i[15:0];
+          mapo_len_r [MAPO_IW_C'(csr_addr_i[3:0])] <= csr_wdata_i[31:16];
+        end
+      end
     end
   end
 
   always_comb begin
     if (csr_addr_i[5]) begin
-      csr_rdata_o = {map_len_r[csr_addr_i[3:0]], map_pref_r[csr_addr_i[3:0]]};
+      if (!csr_addr_i[4]) begin
+        csr_rdata_o = {mapi_len_r [MAPI_IW_C'(csr_addr_i[3:0])],
+                       mapi_pref_r[MAPI_IW_C'(csr_addr_i[3:0])]};
+      end else begin
+        csr_rdata_o = {mapo_len_r [MAPO_IW_C'(csr_addr_i[3:0])],
+                       mapo_pref_r[MAPO_IW_C'(csr_addr_i[3:0])]};
+      end
     end else begin
       case (csr_addr_i[4:0])
         R_IMG_BASE_C: csr_rdata_o = img_base_r;
         R_IMG_LEN_C:  csr_rdata_o = img_len_r;
         R_SEQ_C:      csr_rdata_o = seq_r;
-        R_STAT_C:     csr_rdata_o = {24'd0, verdict_r, 1'b0, stale_r,
+        R_STAT_C:     csr_rdata_o = {24'd0, verdict_r, 1'b0, nvm_stale_o,
                                      dirty_r, backed_r};
         default:      csr_rdata_o = 32'd0;
       endcase
@@ -429,6 +407,66 @@ module KL_nvm_backend_sizer #(
                                       : ms_div_r - 1'b1;
   end
 
+  // -----------------------------------------------------------------------
+  //  Section 9.2, as ONE next-state function with the priorities written out.
+  //
+  //  Round 3 set `stale_r` on a loss and cleared it only by reset, masking
+  //  the published bit with (backed & !dirty). The mask made a clean recovery
+  //  LOOK repaired while the latch still remembered the outage, so the very
+  //  next ordinary controller change -- setting dirty -- lifted the mask and
+  //  republished stale=1 with no new loss. A historical outage contaminated
+  //  every later commit. The latch itself is now cleared by the recovery
+  //  condition, which is what section 9.2 always said.
+  // -----------------------------------------------------------------------
+  logic alive_exp_w, commit_exp_w, loss_w;
+  logic backed_n_w, dirty_n_w, stale_n_w;
+
+  //! A deadline expires on the tick that would take it from 1 to 0. A
+  //! heartbeat re-arms the liveness deadline instead of letting it expire;
+  //! a start or an acknowledgement preempts the commit deadline.
+  assign alive_exp_w  = ms_tick_w & (alive_r == 16'd1) & ~hb_kick_w;
+  assign commit_exp_w = commit_busy_r & ms_tick_w & (commit_r == 16'd1)
+                        & ~commit_start_w & ~commit_ack_w;
+
+  //! A LOSS is either deadline expiring after a writer had once been live.
+  //! A build that never had a writer is the honest (0,*,0) "never backed"
+  //! state and is not stale.
+  assign loss_w = (alive_exp_w | commit_exp_w) & ever_backed_r;
+
+  //! PRIORITY, stated rather than left to statement order: a loss in the same
+  //! cycle as a heartbeat wins: the heartbeat proves the writer answered at
+  //! some point, not that the deadline had not already lapsed.
+  assign backed_n_w = (alive_exp_w | commit_exp_w) ? 1'b0
+                    : hb_kick_w                    ? 1'b1
+                                                   : backed_r;
+
+  //! PRIORITY: a change accepted in the same cycle as the acknowledgement
+  //! wins, so a controller SET landing on the commit boundary is never lost.
+  assign dirty_n_w  = dirty_set_w  ? 1'b1
+                    : commit_ack_w ? 1'b0
+                                   : dirty_r;
+
+`ifdef NVM_MUT_STALE_MASKONLY
+  //! NEGATIVE CONTROL, never synthesised: round 3's keep-the-latch machine.
+  assign stale_n_w   = loss_w ? 1'b1 : stale_r;
+  assign nvm_stale_o = stale_r & ~(backed_r & ~dirty_r);
+`else
+  //! RECOVERY, evaluated on the NEXT values so the clear is atomic with the
+  //! event that earns it: the writer is live again AND nothing is
+  //! outstanding. A new loss in the same cycle wins, and because a loss also
+  //! forces backed_n_w to 0 the two arms can never both be taken.
+  //!
+  //! This makes (backed=1, dirty=0, stale=1) unreachable in the STATE rather
+  //! than merely masked at the face: stale_r can only be 1 if the previous
+  //! cycle took the loss arm (which drove backed_n_w to 0) or held the latch
+  //! (which requires backed_n_w=0 or dirty_n_w=1). No mask is needed, and
+  //! none is applied.
+  assign stale_n_w   = loss_w                    ? 1'b1
+                     : (backed_n_w & ~dirty_n_w) ? 1'b0
+                                                 : stale_r;
+  assign nvm_stale_o = stale_r;
+`endif
+
   always_ff @(posedge clk_i) begin
     if (!rst_n) begin
       alive_r       <= 16'd0;
@@ -442,14 +480,9 @@ module KL_nvm_backend_sizer #(
       // liveness: the heartbeat re-arms the alive deadline
       if (hb_kick_w) begin
         alive_r       <= 16'(T_ALIVE_MS_P);
-        backed_r      <= 1'b1;
         ever_backed_r <= 1'b1;
       end else if (ms_tick_w && (alive_r != 16'd0)) begin
         alive_r <= alive_r - 16'd1;
-        if (alive_r == 16'd1) begin
-          backed_r <= 1'b0;
-          if (ever_backed_r) stale_r <= 1'b1;
-        end
       end
 
       // the commit deadline: armed at start, disarmed by the acknowledgement
@@ -458,28 +491,19 @@ module KL_nvm_backend_sizer #(
         commit_busy_r <= 1'b1;
       end else if (commit_ack_w) begin
         commit_busy_r <= 1'b0;
-        dirty_r       <= 1'b0;
       end else if (commit_busy_r && ms_tick_w && (commit_r != 16'd0)) begin
         commit_r <= commit_r - 16'd1;
-        if (commit_r == 16'd1) begin
-          commit_busy_r <= 1'b0;
-          backed_r      <= 1'b0;
-          if (ever_backed_r) stale_r <= 1'b1;
-        end
+        if (commit_r == 16'd1) commit_busy_r <= 1'b0;
       end
 
-      if (dirty_set_w) dirty_r <= 1'b1;
+      backed_r <= backed_n_w;
+      dirty_r  <= dirty_n_w;
+      stale_r  <= stale_n_w;
     end
   end
 
   assign nvm_backed_o  = backed_r;
   assign nvm_dirty_o   = dirty_r;
-  //! Section 9.2's recovery rule, and what makes the (backed=1, dirty=0,
-  //! stale=1) row of section 9.3 unreachable AT THE READ BOUNDARY rather than
-  //! merely brief: once the writer is live again and nothing is outstanding,
-  //! the loss has been made good by definition, so the published bit is
-  //! masked. The latch keeps the memory; the face never shows the pair.
-  assign nvm_stale_o   = stale_r & ~(backed_r & ~dirty_r);
   assign nvm_verdict_o = verdict_r;
 
   // =======================================================================

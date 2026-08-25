@@ -84,7 +84,7 @@ tops=(
   # decision record can quote a measured bound for the backend that
   # replaces KL_pp_shadow's blank-flash responder, at both shapes,
   # through OOC_CHPARAM.
-  "KL_nvm_blankflash_sizer|$R/syn/ooc/sizing/KL_nvm_backend_sizer.sv"
+  "KL_nvm_blankflash_sizer|$R/syn/ooc/sizing/KL_nvm_blankflash_sizer.sv"
   "KL_nvm_backend_sizer|$R/syn/ooc/sizing/KL_nvm_backend_sizer.sv"
 )
 
