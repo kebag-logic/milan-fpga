@@ -118,12 +118,38 @@ proc rom_check {path digits words} {
   return ""
 }
 
+# A declared ROM width must be a positive multiple of 4, and a depth must be
+# positive. The image contract is EXACT hex digits per word; truncating a
+# 50-bit declaration to 50/4 = 12 digits would let a stale 48-bit image
+# satisfy it with the new high bits silently zero-filled, which is #246's
+# wrong-area class again ([R-parallel] round three probed exactly that:
+# declared_width=50 accepted the 2,048x48 image). No pinned ROM is
+# non-nibble-aligned; if one ever becomes so, THIS refusal is where ceiling
+# division plus a high-bits-zero check must be added - it is not a width to
+# guess past.
+proc nibble_width {name w} {
+  if {![string is integer -strict $w] || $w <= 0 || $w % 4 != 0} {
+    error "milan_datapath OOC: $name = $w is not a positive nibble-aligned\
+ ROM width. A truncated digit count would accept a stale undersized image;\
+ add ceiling division AND a high-bits-zero check here before accepting such\
+ a width."
+  }
+  return $w
+}
+proc positive_depth {name d} {
+  if {![string is integer -strict $d] || $d <= 0} {
+    error "milan_datapath OOC: $name = $d is not a positive ROM depth (an\
+ expected word count of zero would let an empty image validate)."
+  }
+  return $d
+}
+
 set UCPU_PKG [one_source $SRC_LINES ucpu_pkg.sv]
 set ACMP_PKG [one_source $SRC_LINES pp_acmp_pkg.sv]
-set UCODE_W [pkg_num $UCPU_PKG UCODE_W_C]
+set UCODE_W [nibble_width UCODE_W_C [pkg_num $UCPU_PKG UCODE_W_C]]
 set UPC_W   [pkg_num $UCPU_PKG UPC_W_C]
-set TROM_W  [pkg_num $ACMP_PKG TROM_W_C]
-set TROM_D  [pkg_num $ACMP_PKG TROM_DEPTH_C]
+set TROM_W  [nibble_width TROM_W_C [pkg_num $ACMP_PKG TROM_W_C]]
+set TROM_D  [positive_depth TROM_DEPTH_C [pkg_num $ACMP_PKG TROM_DEPTH_C]]
 
 foreach {img gen digits words} [list \
     ltn_rom.hex $REPO/protocol-processor/hdl/acmp/rom/gen_ltn_rom.py \

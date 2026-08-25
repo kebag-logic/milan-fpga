@@ -164,7 +164,7 @@ exec %(real)s "$@"
 """
 
 #: How many arms run. A deleted arm is a self-test that still prints a pass.
-ARMS = 27
+ARMS = 33
 
 _DERIVED = None
 
@@ -483,13 +483,19 @@ def selftest():
 
     # ---- the geometry parser ([R0] round three, finding 2) ---------------
 
-    def pkg_mutant(pkg_text, label):
-        """The recipe with UCPU_PKG pointed at a synthetic package file."""
+    def pkg_mutant(pkg_text, label, which="ucpu"):
+        """The recipe with one geometry package pointed at a synthetic file."""
         fd, pkg = tempfile.mkstemp(suffix=".sv", prefix=".ooc-pkg-")
         with os.fdopen(fd, "w") as fh:
             fh.write(pkg_text)
-        mut = _mutant(r"set UCPU_PKG \[one_source \$SRC_LINES ucpu_pkg\.sv\]",
-                      "set UCPU_PKG {%s}" % pkg, label)
+        if which == "ucpu":
+            mut = _mutant(
+                r"set UCPU_PKG \[one_source \$SRC_LINES ucpu_pkg\.sv\]",
+                "set UCPU_PKG {%s}" % pkg, label)
+        else:
+            mut = _mutant(
+                r"set ACMP_PKG \[one_source \$SRC_LINES pp_acmp_pkg\.sv\]",
+                "set ACMP_PKG {%s}" % pkg, label)
         return pkg, mut
 
     # Arm 22. [R0]'s exact plant: a stale value in a line comment above a
@@ -543,6 +549,35 @@ def selftest():
     finally:
         os.unlink(mut)
         os.unlink(pkg)
+
+    # Arms 25a-25f. NON-NIBBLE widths refuse outright ([R-parallel] round
+    # three): 50/4 truncates to 12 digits and the exact probe showed the
+    # stale 2,048x48 image satisfying a declared width of 50. Widths 49-51
+    # (microcode) and 33-35 (transition ROM) must each refuse BEFORE any
+    # image can validate; the supported widths keep their behavior (48/32
+    # pristine in arm 15, and 52 correctly demanding 13 digits in arm 22).
+    for w in (49, 50, 51):
+        pkg, mut = pkg_mutant(
+            "localparam int unsigned UCODE_W_C = %d;\n"
+            "localparam int unsigned UPC_W_C = 11;\n" % w,
+            "pkg-width-%d" % w)
+        try:
+            arm("dp-pkg-width-%d-not-nibble" % w,
+                "not a positive nibble-aligned", False, tcl=mut)
+        finally:
+            os.unlink(mut)
+            os.unlink(pkg)
+    for w in (33, 34, 35):
+        pkg, mut = pkg_mutant(
+            "localparam int unsigned TROM_W_C = %d;\n"
+            "localparam int unsigned TROM_DEPTH_C = 128;\n" % w,
+            "pkg-trom-width-%d" % w, which="acmp")
+        try:
+            arm("dp-pkg-trom-width-%d-not-nibble" % w,
+                "not a positive nibble-aligned", False, tcl=mut)
+        finally:
+            os.unlink(mut)
+            os.unlink(pkg)
 
     # ---- the derived-source connection ([R0] round three, finding 5) -----
 
