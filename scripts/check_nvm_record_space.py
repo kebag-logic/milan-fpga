@@ -54,8 +54,12 @@ id, media clock reference):
   4. every record payload fits `MAX_PAYLOAD_P`    -- the port refuses a stream
      it cannot delimit BEFORE any device traffic
   5. the whole image fits one 64 KiB erase block  -- the A/B slot geometry
-  6. banking is NECESSARY at some shipped shape   -- the divergence from the
-     donor's F07.8 contract has to be forced, never a preference
+  6. banking is NECESSARY at some shipped shape, OR the divergence is the
+     RECORDED persisted-format decision the design page anchors (#259: the
+     8x8 shape that forced it shrank, but the banked layout is already in
+     flashed boards' KLJ2 images and in the landed donor decoder) -- never
+     a silent preference. Banking unforced with no recorded decision is a
+     finding, and removing the decision text reddens this gate
   7. the worst-case commit fits `T-NVM-COMMIT-TIMEOUT` with margin -- the
      deadline of design page section 9.4 is a measured bound, not a guess
   8. the KLJ2 image ROUND TRIPS: encode the inventory, decode it back, and
@@ -93,7 +97,8 @@ USAGE
   scripts/check_nvm_record_space.py --emit-record-table configs/e.yaml -o t.txt
 
 `--flat` and every `--mutate` arm are negative controls and are EXPECTED to
-exit 1. `--self-test` runs all of them and fails if ANY of them passes, so no
+exit 1 (`--flat` fits the namespace since #259 shrank the 8x8, but it
+contradicts the recorded persisted-format decision). `--self-test` runs all of them and fails if ANY of them passes, so no
 assertion here can quietly become vacuous: each arm perturbs exactly one fixed
 point and must be caught by the check that owns it.
 """
@@ -122,6 +127,20 @@ ERASE_BLOCK = 64 * 1024  # N25Q128 smallest erase unit = one A/B slot
 REC_HDR = 8             # F07.8: magic, layout_version, record_id, plen, crc16
 NAME_BYTES = 64         # AEM name field
 NAMES_PER_BANK = 8      # the banking factor the design page fixes
+#: Where the persisted-format decision lives; check 6 reads it, never
+#: restates it, so deleting the recorded decision reddens the gate.
+DESIGN_PAGE = ROOT / "docs" / "design" / "SAVED_STATE_FASTCONNECT.md"
+DECISION_RE = r"PERSISTED-FORMAT DECISION \(#259"
+
+
+def persisted_format_decision():
+    """The anchored decision line from the design page, or None."""
+    try:
+        text = DESIGN_PAGE.read_text(encoding="utf-8")
+    except OSError:
+        return None
+    m = re.search(DECISION_RE + r"[^\n]*", text)
+    return m.group(0) if m else None
 
 # ---- KLJ2 container and F07.8 record framing, section 6.1 ------------------
 KLJ2_MAGIC   = 0x324A4C4B    # 'KLJ2' when hexdumped
@@ -282,12 +301,24 @@ def _mut_image():
     ERASE_BLOCK = 8 * 1024
 
 
+def _mut_decision():
+    """The recorded persisted-format decision is deleted -- with banking
+    unforced since #259, check 6 must redden rather than bless the
+    divergence silently."""
+    global DESIGN_PAGE
+    DESIGN_PAGE = ROOT / "scripts" / "no-such-design-page.md"
+
+
 def _mut_idspace():
-    """The namespace grows past the donor-conformant floor -- the necessity
-    assertion must fire, because banking would then be a divergence from
-    F07.8 that nothing forces."""
-    global ID_SPACE
+    """The namespace grows past the donor-conformant floor AND the recorded
+    persisted-format decision is deleted -- the unforced-divergence finding
+    must fire even at a geometry where banking could never have been
+    forced. (Since #259 the decision alone carries the divergence, so this
+    arm composes with the decision removal; `--mutate=decision` proves the
+    same detector at the shipped geometry.)"""
+    global ID_SPACE, DESIGN_PAGE
     ID_SPACE = 512
+    DESIGN_PAGE = ROOT / "scripts" / "no-such-design-page.md"
 
 
 def _mut_deadline():
@@ -411,6 +442,7 @@ MUTATIONS = {
     "payload": _mut_payload,
     "image": _mut_image,
     "idspace": _mut_idspace,
+    "decision": _mut_decision,
     "deadline": _mut_deadline,
     "omit_singleton": _mut_omit_singleton,
     "omit_indexed": _mut_omit_indexed,
@@ -1161,19 +1193,33 @@ def main() -> int:
             findings += f
             floors.append((cfg.stem, floor))
 
-    # Check 6. Banking is a DIVERGENCE from the donor's F07.8 contract, so it
-    # has to be forced by a shipped shape. If the conformant allocation fits
-    # everywhere, the divergence is unjustified and this gate says so rather
-    # than blessing it.
+    # Check 6. Banking is a DIVERGENCE from the donor's F07.8 contract, so
+    # it has to be forced by a shipped shape or carried as the RECORDED
+    # persisted-format decision (#259 shrank the 8x8 that used to force it;
+    # the banked layout is already persisted in flashed KLJ2 images and
+    # decoded by landed donor gateware, so a flat re-allocation is a
+    # migration with its own issue, never a silent side effect). A recorded
+    # decision that is deleted, or an unforced divergence nobody recorded,
+    # is a finding either way.
+    decision = persisted_format_decision()
     if not args.flat and floors:
         worst_cfg, worst_floor = max(floors, key=lambda t: t[1])
-        if worst_floor <= ID_SPACE:
+        if worst_floor <= ID_SPACE and decision is None:
             findings.append(
-                f"banking is NOT necessary: the donor-conformant F07.8 "
-                f"allocation needs at most {worst_floor} records "
-                f"({worst_cfg}) and the namespace holds {ID_SPACE} -- one "
-                f"record per item group and index fits every shipped shape, "
-                f"so the divergence from F07.8 has nothing forcing it")
+                f"banking is NOT necessary and NO persisted-format decision "
+                f"is recorded: the donor-conformant F07.8 allocation needs "
+                f"at most {worst_floor} records ({worst_cfg}) and the "
+                f"namespace holds {ID_SPACE}, so the divergence from F07.8 "
+                f"has nothing forcing it and nothing on record carrying it "
+                f"(the decision lives in {DESIGN_PAGE.name})")
+    if args.flat:
+        findings.append(
+            "the flat allocation contradicts the recorded persisted-format "
+            "decision: the banked NAMES layout is retained for "
+            "already-persisted images (#259; see "
+            f"{DESIGN_PAGE.name})" if decision else
+            "the flat allocation cannot be judged: no recorded "
+            "persisted-format decision exists to diverge from")
 
     if findings:
         print()

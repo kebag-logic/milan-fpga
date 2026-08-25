@@ -299,14 +299,25 @@ python3 scripts/check_nvm_record_space.py     # the "F07.8 floor" column
   endstation_ax7101_8x8        ... F07.8 floor=292/256
 ```
 
-235 of those 292 are Milan 5.3.13 names, and 5.3.13 has no escape clause: every
-descriptor with a user-settable name has its name persisted. The shape cannot
-shrink and the namespace cannot grow, so either the record contract changes or
-the 8x8 shape cannot be made compliant. That is why the amendment is
-**necessary** rather than convenient, and the gate refuses to bless banking if
-it ever stops being necessary: `--mutate=idspace` widens the namespace to 512,
-the conformant floor then fits every shipped shape, and the gate fails with
-"banking is NOT necessary".
+235 of those 292 were Milan 5.3.13 names, and 5.3.13 has no escape clause:
+every descriptor with a user-settable name has its name persisted. At that
+shape the record contract had to change or the 8x8 could not be made
+compliant; that arithmetic is what originally forced the amendment. The
+floor table above is the HISTORICAL forcing record: #259 retired the 8x8's
+Linux host clusters, its floor fell to 164/256, and no shipped shape forces
+banking any more.
+
+PERSISTED-FORMAT DECISION (#259, 2026-08-25): the banked NAMES layout is
+RETAINED although nothing forces it any more. It is already persisted in
+flashed boards' KLJ2 images and decoded by landed donor gateware, and rule
+11 (a CRC-clean image missing a mandatory record is refused, never a silent
+vendor-default restore) makes a flat re-allocation a real migration: a
+decoder change, a protocol-processor pin bump, and an image-migration story
+so cleared or set names survive the upgrade. That migration is follow-up
+work with its own issue, never a silent side effect of a shape shrink.
+`scripts/check_nvm_record_space.py` enforces exactly this state: banking
+unforced with this decision deleted is a finding (`--mutate=decision`), and
+the `--flat` control must contradict this decision rather than pass.
 
 **The round-3 amendment text could not encode a legitimate name, and this is
 how that was found: by enumerating what a slot may legally hold.** A name slot
