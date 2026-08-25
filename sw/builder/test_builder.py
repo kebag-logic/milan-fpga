@@ -8501,7 +8501,7 @@ def test_gptp_rootfs_handoff_preserves_software_config():
         [sys.executable, pair_tool, "--self-test"], cwd=ROOT,
         text=True, capture_output=True)
     assert pair_self.returncode == 0, pair_self.stdout + pair_self.stderr
-    assert "61/61 checks pass" in pair_self.stdout
+    assert "68/68 checks pass" in pair_self.stdout
 
     transition_tool = os.path.join(SOC_DIR, "qspi_owner_transition.py")
     transition_self = subprocess.run(
@@ -8658,7 +8658,7 @@ def test_gptp_rootfs_handoff_preserves_software_config():
         assert not os.path.exists(programmer_log), \
             "build.sh trusted a target pair without installed-state proof"
 
-    print("  [gate 1d] 61 archive/profile/relocation/launcher/FBI/artifact-binding arms, 20 transition parser/planner "
+    print("  [gate 1d] 68 archive/profile/relocation/launcher/lifecycle/FBI/artifact-binding arms, 20 transition parser/planner "
           "arms, soc.h owner/XLEN reconstruction, payload-digest binding, "
           "and all persistent partial/unknown-state entry points refuse "
           "before programmer I/O")
@@ -8763,6 +8763,77 @@ os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
 ''')
         os.chmod(fake_python, 0o755)
 
+        # A hermetic dtc: check_dtb_csr.py shells out to `dtc`, and this gate
+        # must not depend on a host device-tree-compiler. The fake carries a
+        # dts payload through a magic-framed pseudo-FDT both ways, so the
+        # production decompile() path (carve at the FDT magic, decompile the
+        # carved blob) runs unmodified over these fixtures.
+        fake_dtc = os.path.join(fake_bin, "dtc")
+        with open(fake_dtc, "w", encoding="utf-8") as stream:
+            stream.write(f'''#!{sys.executable}
+import sys
+args = sys.argv[1:]
+def value(flag):
+    return args[args.index(flag) + 1]
+src = args[-1]
+if value("-I") == "dts":
+    data = open(src, "rb").read()
+    blob = (b"\\xd0\\x0d\\xfe\\xed"
+            + (len(data) + 8).to_bytes(4, "big") + data)
+    open(value("-o"), "wb").write(blob)
+else:
+    blob = open(src, "rb").read()
+    size = int.from_bytes(blob[4:8], "big")
+    sys.stdout.write(blob[8:size].decode())
+''')
+        os.chmod(fake_dtc, 0o755)
+
+        # The boot-chain fixtures the fail-closed preflight validates: an
+        # RV32/sv32 tree whose kl,dma-ether windows match the fixture csr.csv,
+        # and its RV64/sv39 twin for the mismatch arms.
+        rv32_dts = """/dts-v1/;
+/ {
+  cpus {
+    cpu@0 {
+      device_type = "cpu";
+      riscv,isa = "rv32ima";
+      mmu-type = "riscv,sv32";
+    };
+  };
+  ethernet@f0000000 {
+    compatible = "kl,dma-ether";
+    reg = <0x90000000 0x10000 0xf0000000 0x100
+           0xf0001000 0x100 0xf0002000 0x100>;
+  };
+};
+"""
+        rv64_dts = rv32_dts.replace("rv32ima", "rv64ima").replace(
+            "riscv,sv32", "riscv,sv39")
+        csr_csv_rows = (
+            "csr_register,milan_dma_tx_base,0xf0000000,1,rw\n"
+            "csr_register,milan_dma_tx_bd_base,0xf0000008,1,rw\n"
+            "csr_register,milan_dma_rx_base,0xf0001000,1,rw\n"
+            "csr_register,milan_dma_rx_bd_base,0xf0001008,1,rw\n"
+            "csr_register,milan_dma_ts_base,0xf0002000,1,rw\n")
+
+        def fdt_blob(dts_text):
+            data = dts_text.encode()
+            return (b"\xd0\x0d\xfe\xed"
+                    + (len(data) + 8).to_bytes(4, "big") + data)
+
+        kernel = os.path.join(td, "Image.xz")
+        opensbi = os.path.join(td, "opensbi.bin")
+        dtb = os.path.join(td, "milan.dtb")
+        dtb_rv64 = os.path.join(td, "milan-rv64.dtb")
+        opensbi_rv64 = os.path.join(td, "opensbi-rv64.bin")
+        for path, data in ((kernel, b"\xfd7zXZ\x00kernel"),
+                           (opensbi, b"OPENSBI" + fdt_blob(rv32_dts)),
+                           (dtb, fdt_blob(rv32_dts)),
+                           (dtb_rv64, fdt_blob(rv64_dts)),
+                           (opensbi_rv64, b"OPENSBI" + fdt_blob(rv64_dts))):
+            with open(path, "wb") as out:
+                out.write(data)
+
         def make_build(name, owner, serial_payload, linux=False):
             build = os.path.join(td, name)
             os.makedirs(os.path.join(build, "gateware"))
@@ -8797,7 +8868,13 @@ os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
                      "budget": 0x100000},
                 ]
                 body = {"manifest": "full", "gptp_owner": owner,
-                        "complete": True, "images": images}
+                        "cpu_xlen": 32, "complete": True, "images": images}
+                # The sibling csr.csv is a REQUIRED validation input for a
+                # full-Linux manifest since the fail-closed preflight ([R0]
+                # on PR #228); its windows match the rv32 dts fixture.
+                with open(os.path.join(build, "csr.csv"), "w",
+                          encoding="utf-8") as out:
+                    out.write(csr_csv_rows)
             body.update(qspi_transition.bitstream_binding(bit))
             with open(layout, "w", encoding="utf-8") as out:
                 json.dump(body, out)
@@ -8836,13 +8913,6 @@ os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
             gptp_pair._profile_entries("fabric"))
         with open(fabric_rootfs, "wb") as out:
             out.write(gzip.compress(fabric_archive))
-        kernel = os.path.join(td, "Image.xz")
-        opensbi = os.path.join(td, "opensbi.bin")
-        dtb = os.path.join(td, "milan.dtb")
-        for path, data in ((kernel, b"\xfd7zXZ\x00kernel"),
-                           (opensbi, b"opensbi"), (dtb, b"dtb")):
-            with open(path, "wb") as out:
-                out.write(data)
 
         base_env = dict(os.environ)
         base_env.update({
@@ -9032,6 +9102,65 @@ os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
         assert not os.path.exists(log), \
             "image/reservation offset collision caused programmer I/O"
 
+        # FAIL CLOSED ([R0] on PR #228): absence of a boot-chain validation
+        # input must refuse the deploy, never skip the check. Each arm removes
+        # or corrupts exactly one input of the full-Linux preflight and
+        # requires a refusal with zero programmer I/O.
+        def refuse_boot_chain(label, needle, env_mutate):
+            reset_flash(fabric)
+            env = env_for(fabric, software)
+            env_mutate(env)
+            refused = subprocess.run([deploy, "flash-pair"], cwd=SOC_DIR,
+                                     env=env, text=True, capture_output=True)
+            output = refused.stdout + refused.stderr
+            assert refused.returncode != 0, f"{label}: accepted\n{output}"
+            assert needle in output, f"{label}: refusal names no cause\n{output}"
+            assert not writes(), f"{label} caused a programmer write"
+            assert not os.path.exists(log), \
+                f"{label} caused read-only programmer I/O"
+
+        # 1. The sibling csr.csv is deleted: the old guard silently skipped
+        # every DTB/OpenSBI and CPU-width check on exactly this input.
+        software_csr = os.path.join(software["dir"], "csr.csv")
+        saved_csr = open(software_csr, encoding="utf-8").read()
+        os.unlink(software_csr)
+        refuse_boot_chain("missing csr.csv", "csr.csv", lambda env: None)
+        with open(software_csr, "w", encoding="utf-8") as out:
+            out.write(saved_csr)
+
+        # 2 + 3. The layout does not bind the compiled CPU width, or binds an
+        # impossible one.
+        for label, mutate_xlen in (("missing cpu_xlen",
+                                    lambda body: body.pop("cpu_xlen")),
+                                   ("invalid cpu_xlen",
+                                    lambda body: body.update(cpu_xlen=16))):
+            with open(software["layout"], encoding="utf-8") as source:
+                unbound_body = json.load(source)
+            mutate_xlen(unbound_body)
+            # Same build directory as the bit: the transition planner refuses
+            # a cross-directory pair before the preflight would run.
+            unbound_layout = os.path.join(software["dir"],
+                                          "unbound-layout.json")
+            with open(unbound_layout, "w", encoding="utf-8") as out:
+                json.dump(unbound_body, out)
+            refuse_boot_chain(
+                label, "compiled CPU width",
+                lambda env: env.update(LAYOUT=unbound_layout))
+            os.unlink(unbound_layout)
+
+        # 4. The DTB input is absent entirely for a full-Linux manifest.
+        refuse_boot_chain("absent DTB", "DTB=<path>",
+                          lambda env: env.pop("DTB"))
+
+        # 5 + 6. A wrong-architecture DTB, and an OpenSBI whose EMBEDDED FDT
+        # is wrong (the only tree the kernel ever sees on this boot path).
+        refuse_boot_chain("RV64 DTB against the RV32 layout",
+                          "does not match this build's csr.csv",
+                          lambda env: env.update(DTB=dtb_rv64))
+        refuse_boot_chain("RV64 FDT embedded in OpenSBI",
+                          "does not match this build's csr.csv",
+                          lambda env: env.update(OPENSBI=opensbi_rv64))
+
         # Persistent targets are identity evidence, never an mtime-selected
         # convenience default.  Omission must fail before live QSPI access.
         for omitted in ("BIT", "LAYOUT"):
@@ -9125,8 +9254,10 @@ os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
           "prefixes across fabric-baremetal<->software and "
           "fabric-baremetal<->fabric-Linux retain one live owner; every "
           "prefix resumes, all writes verify, a live target is proven as a "
-          "complete set, and direct full-Linux owner changes plus malformed/"
-          "missing/unidentified/software-refresh negatives write nothing")
+          "complete set, direct full-Linux owner changes plus malformed/"
+          "missing/unidentified/software-refresh negatives write nothing, "
+          "and six boot-chain fail-closed arms (csr.csv, cpu_xlen x2, "
+          "absent DTB, RV64 DTB, RV64 OpenSBI FDT) refuse before I/O")
 
 
 def test_current_shape_matches_sweep_flags():

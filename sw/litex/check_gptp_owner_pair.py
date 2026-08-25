@@ -269,6 +269,64 @@ def _one_regular(entries, name, label, executable=False):
     return payload
 
 
+def _lifecycle_active_text(payload):
+    """The lifecycle's ACTIVE shell text: continuations joined, full-line and
+    trailing whitespace-# comments dropped. A daemon named only in a comment
+    is prose, not a lifecycle."""
+    text = payload.decode("utf-8", "backslashreplace")
+    text = re.sub(r"\\\n", " ", text)
+    lines = []
+    for raw in text.splitlines():
+        line = re.sub(r"\s#.*$", "", raw)
+        if line.strip().startswith("#"):
+            continue
+        lines.append(line)
+    return "\n".join(lines)
+
+
+def _case_arm_is_substantive(active, verb):
+    """True when the canonical SysV `<verb>)` case arm exists and its body
+    runs at least one real command (`:`/`true` no-ops do not count)."""
+    match = re.search(r"(?ms)^\s*%s\s*\)\s*(.*?)^\s*;;" % re.escape(verb),
+                      active)
+    if not match:
+        return False
+    tokens = [t for t in match.group(1).split() if t not in (":", "true")]
+    return bool(tokens)
+
+
+def _validate_software_lifecycle(payload):
+    """The software owner's lifecycle must POSITIVELY start and stop the
+    software owner, not merely exist as one executable file ([R0] on PR #228:
+    a `#!/bin/sh` no-op passed, booting an image with ZERO gPTP owners).
+
+    The checked contract is exact and satisfiable by the companion
+    reconciler: a shebang, substantive canonical `start)` and `stop)` case
+    arms, and the owner daemons (the ptp4l family and phc2sys) each named on
+    ACTIVE lines - so a lifecycle that only talks about linuxptp in comments,
+    or that handles no verb, or that starts one daemon but not the other, is
+    refused before it can ship."""
+    if not payload.startswith(b"#!"):
+        raise ContractError(
+            "software gPTP owner lifecycle has no interpreter line; an "
+            "empty or non-script S65milan-gptp-owner starts nothing")
+    active = _lifecycle_active_text(payload)
+    for verb in ("start", "stop"):
+        if not _case_arm_is_substantive(active, verb):
+            raise ContractError(
+                f"software gPTP owner lifecycle has no substantive `{verb})` "
+                "case arm; the lifecycle must actually "
+                f"{verb} the software owner")
+    for label, pattern in (
+            ("ptp4l", r"(?<![A-Za-z0-9_])ptp4l(?:-rt)?(?![A-Za-z0-9_])"),
+            ("phc2sys", r"(?<![A-Za-z0-9_])phc2sys(?![A-Za-z0-9_])")):
+        if not re.search(pattern, active, re.I):
+            raise ContractError(
+                f"software gPTP owner lifecycle never names {label} on an "
+                "active line; a lifecycle that does not manage the owner "
+                "daemons leaves the image with zero gPTP owners")
+
+
 def _validate_rootfs_profile(entries, owner):
     if owner == "none":
         raise ContractError("gptp_owner 'none' cannot be paired with a Linux rootfs")
@@ -279,7 +337,10 @@ def _validate_rootfs_profile(entries, owner):
         raise ContractError(
             f"rootfs gPTP owner profile is not exact versioned {owner!r} profile")
 
-    _one_regular(entries, OWNER_INIT, "gPTP owner lifecycle", executable=True)
+    lifecycle = _one_regular(entries, OWNER_INIT, "gPTP owner lifecycle",
+                             executable=True)
+    if owner == "software":
+        _validate_software_lifecycle(lifecycle)
 
     # Canonical paths are necessary for the software profile, but a denylist
     # of those four paths is not sufficient for fabric ownership: Buildroot or
@@ -324,7 +385,8 @@ def _validate_rootfs_profile(entries, owner):
             _one_regular(entries, path, path.decode("ascii"), executable=True)
         for path in SOFTWARE_FILES:
             _one_regular(entries, path, path.decode("ascii"))
-        return "versioned software profile with runnable linuxptp payload"
+        return ("versioned software profile with a start/stop owner "
+                "lifecycle and runnable linuxptp payload")
 
     forbidden = (SOFTWARE_MARKER,) + SOFTWARE_EXECUTABLES + SOFTWARE_FILES
     for path in forbidden:
@@ -420,14 +482,37 @@ def _newc(entries):
     return bytes(out)
 
 
+#: The minimal lifecycle that satisfies the software-owner semantic contract:
+#: a shebang, substantive start/stop case arms, and both owner daemons named
+#: on active lines. The old fixture was `#!/bin/sh` alone - the exact no-op
+#: the contract exists to refuse ([R0] on PR #228).
+SOFTWARE_LIFECYCLE = (
+    b"#!/bin/sh\n"
+    b"case \"${1:-}\" in\n"
+    b"  start)\n"
+    b"    /usr/sbin/ptp4l-rt -i eth0 -f /etc/gptp.cfg &\n"
+    b"    /usr/sbin/phc2sys -a -r -S 1.0 --transportSpecific=1 &\n"
+    b"    ;;\n"
+    b"  stop)\n"
+    b"    killall ptp4l-rt phc2sys 2>/dev/null\n"
+    b"    ;;\n"
+    b"  *)\n"
+    b"    exit 2\n"
+    b"    ;;\n"
+    b"esac\n"
+)
+
+
 def _profile_entries(owner):
     """Return a minimal semantically complete rootfs profile for tests."""
     if owner not in PROFILE_PAYLOADS:
         raise ValueError(f"no Linux rootfs profile for owner {owner!r}")
+    lifecycle = (SOFTWARE_LIFECYCLE if owner == "software"
+                 else b"#!/bin/sh\n")
     rows = [
         (b"etc/hostname", b"milan\n", stat.S_IFREG),
         (PROFILE, PROFILE_PAYLOADS[owner], stat.S_IFREG),
-        (OWNER_INIT, b"#!/bin/sh\n", stat.S_IFREG | 0o111),
+        (OWNER_INIT, lifecycle, stat.S_IFREG | 0o111),
     ]
     if owner == "software":
         rows.append((SOFTWARE_MARKER, b"explicit option-OFF\n",
@@ -586,6 +671,78 @@ def self_test():
         ]
         expect(False, layout("software"),
                write_archive("software-with-launcher", software_launcher_rows))
+
+        # [R0] on PR #228: the software lifecycle must POSITIVELY start and
+        # stop the owner. Each arm keeps every other software asset valid and
+        # degrades only S65milan-gptp-owner's semantics; each must be refused.
+        def software_with_lifecycle(payload):
+            return [(path, payload if path == OWNER_INIT else data, mode)
+                    for path, data, mode in _profile_entries("software")]
+
+        # The old positive fixture verbatim: an executable `#!/bin/sh` no-op.
+        expect(False, layout("software"), write_archive(
+            "software-noop-lifecycle",
+            software_with_lifecycle(b"#!/bin/sh\n")))
+        # Executable but empty - not even an interpreter line.
+        expect(False, layout("software"), write_archive(
+            "software-empty-lifecycle", software_with_lifecycle(b"")))
+        # Mentions linuxptp, starts nothing: the daemons appear only in
+        # comments while both verbs run real-but-unrelated commands.
+        expect(False, layout("software"), write_archive(
+            "software-comment-only-lifecycle",
+            software_with_lifecycle(
+                b"#!/bin/sh\n"
+                b"# ptp4l and phc2sys are assumed to run elsewhere\n"
+                b"case \"${1:-}\" in\n"
+                b"  start)\n    echo starting\n    ;;\n"
+                b"  stop)\n    echo stopping\n    ;;\n"
+                b"esac\n")))
+        # Starts the wire daemon but never the clock actuator.
+        expect(False, layout("software"), write_archive(
+            "software-lifecycle-without-phc2sys",
+            software_with_lifecycle(
+                b"#!/bin/sh\ncase \"${1:-}\" in\n"
+                b"  start)\n    /usr/sbin/ptp4l-rt -i eth0 &\n    ;;\n"
+                b"  stop)\n    killall ptp4l-rt\n    ;;\n"
+                b"esac\n")))
+        # No stop verb: an owner that cannot be retired is not a lifecycle.
+        expect(False, layout("software"), write_archive(
+            "software-lifecycle-without-stop",
+            software_with_lifecycle(
+                b"#!/bin/sh\ncase \"${1:-}\" in\n"
+                b"  start)\n    /usr/sbin/ptp4l-rt -i eth0 &\n"
+                b"    /usr/sbin/phc2sys -a -r &\n    ;;\n"
+                b"esac\n")))
+        # A no-op start arm beside active helper text naming the daemons.
+        expect(False, layout("software"), write_archive(
+            "software-lifecycle-noop-start",
+            software_with_lifecycle(
+                b"#!/bin/sh\nPTP4L=/usr/sbin/ptp4l-rt\n"
+                b"PHC2SYS=/usr/sbin/phc2sys\n"
+                b"case \"${1:-}\" in\n"
+                b"  start)\n    :\n    ;;\n"
+                b"  stop)\n    :\n    ;;\n"
+                b"esac\n")))
+        # The companion reconciler's spelling - daemons bound to variables,
+        # verbs dispatching to functions - must stay accepted: the contract
+        # names active-line semantics, not one launcher shape.
+        expect(True, layout("software"), write_archive(
+            "software-reconciler-lifecycle",
+            software_with_lifecycle(
+                b"#!/bin/sh\n"
+                b"PTP4L=${MILAN_PTP4L:-/usr/sbin/ptp4l-rt}\n"
+                b"PHC2SYS=${MILAN_PHC2SYS:-/usr/sbin/phc2sys}\n"
+                b"start_owner() {\n"
+                b"    \"$PTP4L\" -i eth0 -f /etc/gptp.cfg &\n"
+                b"    \"$PHC2SYS\" -a -r -S 1.0 &\n"
+                b"}\n"
+                b"stop_owner() {\n"
+                b"    killall ptp4l phc2sys 2>/dev/null\n"
+                b"}\n"
+                b"case \"${1:-}\" in\n"
+                b"  start)\n    start_owner\n    ;;\n"
+                b"  stop)\n    stop_owner\n    ;;\n"
+                b"esac\n")))
 
         # The original R0 bypass: valid fabric profile, the exact retired
         # daemons relocated from usr/sbin to usr/bin, and a neutral-named init

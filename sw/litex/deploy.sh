@@ -127,12 +127,31 @@ do_check_images() {
     # one: the BIOS jumps a1=0, so the fdt EMBEDDED in opensbi (FW_FDT_PATH) is
     # the only tree the kernel sees.  The layout's compiled CPU width is part
     # of the same contract: an RV64/sv39 tree must never pass for an RV32 SoC.
-    local csrcsv img expected_xlen; csrcsv="$(dirname "$LAYOUT")/csr.csv"
-    if [ -f "$csrcsv" ] && { [ -n "${DTB:-}" ] || [ -n "${OPENSBI:-}" ]; }; then
-        command -v dtc >/dev/null || {
-            echo "[deploy] image check REFUSED: dtc is required to verify DTB/OpenSBI." >&2
-            exit 2
-        }
+    #
+    # FAIL CLOSED ([R0] on PR #228): a manifest that names an opensbi or dtb
+    # image IS the full-Linux boot chain, and every validation input for that
+    # chain is then required, never optional. The old guard keyed the whole
+    # block on the sibling csr.csv existing, so DELETING csr.csv skipped the
+    # CPU-width, dtc and CSR-window checks and still printed preflight OK.
+    # Absence of a validation input now refuses the deploy before any
+    # programmer I/O.
+    local csrcsv img img_path expected_xlen boot_rows
+    csrcsv="$(dirname "$LAYOUT")/csr.csv"
+    boot_rows=$("$PYTHON" - "$LAYOUT" <<'PY'
+import json, sys
+layout = json.load(open(sys.argv[1], encoding="utf-8"))
+names = {row.get("name") for row in layout.get("images", [])
+         if isinstance(row, dict)}
+print(len({"opensbi", "dtb"} & names))
+PY
+    ) || {
+        echo "[deploy] image check REFUSED: cannot read the layout image manifest." >&2
+        exit 2
+    }
+    if [ "$boot_rows" -gt 0 ] || \
+            { [ -f "$csrcsv" ] && { [ -n "${DTB:-}" ] || [ -n "${OPENSBI:-}" ]; }; }; then
+        # The compiled CPU width binds first, independent of every other
+        # input: a layout that does not state it cannot be validated at all.
         expected_xlen=$("$PYTHON" - "$LAYOUT" <<'PY'
 import json, sys
 value = json.load(open(sys.argv[1], encoding="utf-8")).get("cpu_xlen")
@@ -144,11 +163,28 @@ PY
             echo "[deploy] image check REFUSED: layout does not bind the compiled CPU width." >&2
             exit 2
         }
+        command -v dtc >/dev/null || {
+            echo "[deploy] image check REFUSED: dtc is required to verify DTB/OpenSBI." >&2
+            exit 2
+        }
+        [ -f "$csrcsv" ] || {
+            echo "[deploy] image check REFUSED: no sibling csr.csv beside $LAYOUT; the CSR map is the validation input for the DTB/OpenSBI boot chain, and a full-Linux target without it cannot be proven." >&2
+            exit 2
+        }
+        if [ "$boot_rows" -gt 0 ]; then
+            for img in DTB OPENSBI; do
+                img_path="${!img:-}"
+                [ -n "$img_path" ] && [ -f "$img_path" ] || {
+                    echo "[deploy] image check REFUSED: full-Linux manifest needs $img=<path> so its boot chain can be validated (got '${img_path:-unset}')." >&2
+                    exit 2
+                }
+            done
+        fi
         for img in "${DTB:-}" "${OPENSBI:-}"; do
             [ -n "$img" ] || continue
             "$PYTHON" "$HERE/check_dtb_csr.py" --expected-xlen "$expected_xlen" \
                 "$img" "$csrcsv" || {
-                echo "[deploy] flash-images REFUSED: $img does not match this build's csr.csv."
+                echo "[deploy] image check REFUSED: $img does not match this build's csr.csv."
                 echo "[deploy] Rebuild it from the dts source (opensbi embeds the fdt — rebuild it too)."; exit 2; }
         done
     fi
