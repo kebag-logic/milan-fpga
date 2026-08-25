@@ -421,12 +421,16 @@ which drive this .tcl under `tclsh` with the Vivado commands stubbed), plus both
 expansions for real.
 
 Figures at a later head, for scale rather than as a replacement: the same
-instrument at `dev` `04b55dad` with that read set corrected, protocol-processor
-pinned at `a25b5cc9`, reports 16,547 LUT / 19,473 FF / 17 BRAM / 4 DSP /
-WNS -0.486 ns at `N_STREAM_IN/OUT = 1`, and 22,817 LUT / 25,922 FF /
-24.5 BRAM / 4 DSP / WNS -7.573 ns at 8. The table under Result is the
-2026-08-12 measurement and stays that; the plane roughly doubled in between,
-most of it the AECP engine, its descriptor store and its microcoded core.
+instrument at `235-ooc-reads-its-top` `6ebbd17f` (on `dev` `cb444a09`), with
+that read set corrected and protocol-processor pinned at `3770ae02`, reads
+45 sources (44 SystemVerilog + 1 Verilog) and reports 20,945 LUT / 23,191 FF /
+17 BRAM / 4 DSP / WNS -5.466 ns with 1,651 failing endpoints at
+`N_STREAM_IN/OUT = 1`, and 27,743 LUT / 30,195 FF / 24.5 BRAM / 4 DSP /
+WNS -9.073 ns with 2,932 failing endpoints at 8. Both are post-synthesis
+out-of-context, so the WNS carries no placed-and-routed verdict. The table under
+Result is the 2026-08-12 measurement and stays that; the plane has roughly
+tripled at 1x1 since, most of it the AECP engine, its descriptor store and its
+microcoded core.
 
 ## THE SUBSTITUTION ON THE REAL BUILD — 2026-08-13
 
