@@ -2256,7 +2256,8 @@ def _multi_set_steps(name: str, dut: Device, peer: Device, pairs: list,
                        "best-effort load SHALL NOT disturb them; Milan "
                        "Table 5.4/5.6 interval terms for the measurement",
                 note=what + ".  iperf3 on the board is PROBED, never assumed "
-                            "(busybox rootfs); the RX fallback is a blind "
+                            "(the board image need not carry it); the RX "
+                            "fallback is a blind "
                             "UDP blast from the controller host, named as "
                             "such in every record; TX with no board tooling "
                             "cannot be generated from the host and SKIPs "

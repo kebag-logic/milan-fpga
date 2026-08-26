@@ -70,7 +70,7 @@ The dynamic-map and media-clock claims are checked against the
 ```mermaid
 flowchart LR
     ADC["line-in / I2S / TDM"] --> CAP["KL_aaf_capture_i2s<br/>or KL_tdm_capture"]
-    RING["ALSA playback ring<br/>KL_pcm_tx"] --> XBAR
+    RING["playback ring<br/>KL_pcm_tx"] --> XBAR
     CAP --> XBAR["KL_chan_map_capture<br/>(capture crossbar)"]
     XBAR --> PKT["KL_aaf_packetizer<br/>(per-talker TCTX)"]
     PKT --> AMUX["aaf_final_mux<br/>adp_tx_arbiter"]
@@ -87,7 +87,7 @@ flowchart LR
 | 3 | **packetize** | `aaf_packetizer` (`KL_aaf_packetizer`) | accumulates a PDU's worth of pairs, then emits one AAF frame: VLAN tag from `AAF_CTRL[27:16]`, destination from `AAF_DMLO`/`AAF_DMHI`, source = the station MAC, `avtp_timestamp` = the PHC now plus the presentation offset AECP holds. Per-talker state lives in the TCTX rows the `0x800` window writes | `AAF_FRAMES` `0x660`, `AAF_PAIRS` `0x664`; `LTAP_TX_D0/D1` `0x87C`/`0x884` bracket the accumulate + serialize |
 | 4 | **admission** | `aaf_stream_en_w` inside the packetizer | a stream emits when the common AAF enable and MAAP term are true and its processor-owned ACMP talker and SRP bandwidth state grant admission. `AAF_CTRL[1]` is the documented debug bypass | `PP_STAT` `0x924`, `AAF_CTRL` `0x678`, and the processor class-D diagnostics |
 | 5 | **merge with the shaped lane** | `aaf_final_mux` (`adp_tx_arbiter`) | the packetizer output is the *low-rate* port of a two-input merger whose other port is the shaped CPU datapath. **This is the bypass**: no queue, no credit | — |
-| 6 | **merge with control** | `adp_tx_mux` (`adp_tx_arbiter`) | the protocol processor's packed ADP/ACMP/AECP/SRP stream merges with MAAP in `ctl_tx_mux`, passes through `ctl_ifg`, and joins the data lane here. CRF joins AAF on the data lane through `crf_dp_mux` | -- |
+| 6 | **merge with control** | `adp_tx_mux` / `gptp_ctl_mux` (`adp_tx_arbiter`) | the protocol processor's packed ADP/ACMP/AECP/SRP stream merges with MAAP in `ctl_tx_mux`, passes through `ctl_ifg`, and joins the data lane here. CRF joins AAF through `crf_dp_mux`. With the product-default option on, the fabric gPTP stream then joins at the final `gptp_ctl_mux`; it is downstream of the host queues and shaper | -- |
 | 7 | **control-lane IFG** | `ctl_ifg` (`tx_ifg_gasket`, `GAP_CYCLES = 512`) | spaces control frames so the MAC cannot eat one that arrives back-to-back behind another. **Control lane only** — audio and CPU data do not pass through it, so it costs no stream throughput | — |
 | 8 | **MAC** | `tx_axis_to_mac` → `m_axis_mac_tx_*` | out of `milan_datapath`, into the SoC's MilanMAC (LiteEth GMII), onto the wire | `STAT_TX_FIFO_GOOD_FRAME` `0x21C`; `LTAP_TX_D2` `0x88C` closes the chain |
 
@@ -105,8 +105,9 @@ accuracy ([EGRESS_QUEUE_MAP.md](../reference/EGRESS_QUEUE_MAP.md#why-gptp-sits-b
 ## 2. Egress: a frame the CPU sent (where the queue map applies)
 
 This is the lane the five queues, the classifier and the CBS actually govern:
-gPTP from `linuxptp`, a host AVDECC controller, a host MRP stack, and all bulk
-traffic.
+gPTP from a software daemon only in the explicit option-off comparison, a host
+AVDECC controller, a host MRP stack, and all bulk traffic. Product-default fabric gPTP
+uses the downstream merge described at hop 6 and never enters these queues.
 
 ```mermaid
 flowchart LR
@@ -168,8 +169,8 @@ flowchart TB
 | 4 | **accept or not** | `avtp_rx_monitor` (`KL_avtp_rx_monitor_ctx`) | the verdict. Per-stream state: sequence continuity, format support, media lock, timestamp sanity against the presentation offset. Emits `pdu_accept_p` + the stream index — this pulse **is** the commit | `AVTPRX_FRX` `0x6BC` (accepted frames), `AVTPRX_STAT` `0x6B8`, `AVTPRX_ERR` `0x6C0`, per-stream `A_STRMW_CNT` `0x830 + 4k`; `LTAP_RX_D0` `0x89C` = MAC_RX→ACCEPT |
 | 5 | **depacketize** | `aaf_rx_depkt` (`KL_aaf_rx_depacketizer`) | replays the same tapped stream, gated by the monitor's accept pulse, and emits the payload as full 8-byte beats in wire order (S32BE interleaved), tagged with the stream index in `tuser` | `PCMRX_CNT` `0x6C4`; `LTAP_RX_D1` `0x8A4` |
 | 6 | **route** | `pcm_route` (`KL_pcm_route`) | per-stream 2-bit policy: bit 0 **DMA** (ride the ring, tagged `tuser = s`), bit 1 **RENDER** (feed the DAC tap; lowest-indexed RENDER stream wins). Independently combinable — `0b11` is capture-while-rendering, `0b00` discards | written by the `0x800` window `CTRL[2:1]` commit |
-| 7a | **to the host** | `_PCMRingNxN` (in [`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py)) | the DRAM PCM ring the ALSA card reads. On builds where it is elaborated as `_PCMRingBRAM` the sink and CSR block are identical | `LTAP_RX_D2` `0x8AC` closes the chain |
-| 7b | **to the DAC** | `pcm_lpf` → `i2s_feed_mux` → `KL_i2s_playback` | the render tap is band-limited, then `KL_i2s_feed_mux` picks the DAC source *and its pace* — the listener tap, or the render crossbar paced by the 48 kHz media tick (which is how an ALSA playback ring reaches the line-out with no inbound stream at all) | `I2SPB_STAT` `0x6D8`, `PBK_STAT` `0x8C8`, `PBK_FEEDS` `0x8CC`, `PBK_RAILS` `0x8D0` |
+| 7a | **to the host** | `_PCMRingNxN` (in [`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py)) | the DRAM PCM ring the host consumer reads. On builds where it is elaborated as `_PCMRingBRAM` the sink and CSR block are identical | `LTAP_RX_D2` `0x8AC` closes the chain |
+| 7b | **to the DAC** | `pcm_lpf` → `i2s_feed_mux` → `KL_i2s_playback` | the render tap is band-limited, then `KL_i2s_feed_mux` picks the DAC source *and its pace* — the listener tap, or the render crossbar paced by the 48 kHz media tick (which is how a playback ring reaches the line-out with no inbound stream at all) | `I2SPB_STAT` `0x6D8`, `PBK_STAT` `0x8C8`, `PBK_FEEDS` `0x8CC`, `PBK_RAILS` `0x8D0` |
 
 ### Reading the ingress path when nothing arrives
 

@@ -43,12 +43,12 @@ life of the bitstream. The READ half of dma_bus is then dead for EVERY master
 on it. The receipt from the board, same session as the counters:
 
     milan_dma_tx_enable  1          the ring engine is armed
-    milan_dma_tx_wr_ptr  0x760      Linux has queued descriptors
+  milan_dma_tx_wr_ptr  0x760      firmware has queued descriptors
     milan_dma_tx_rd_ptr  0          the engine has fetched NOTHING
     milan_dma_tx_sent    0
     STAT_TX_GOOD (0x9000021c) 0     the MAC transmitted 0 frames in 1,800 s
 
-Linux could not put one packet on the wire all session (both pings 100% loss),
+The datapath could not put one packet on the wire all session,
 while RX - whose ring writers are WRITE masters, on the write grant - carried
 3,795 frames. AVDECC still answered because those responses are built in the
 fabric and injected post-shaper, never through this bus.
@@ -148,7 +148,7 @@ MILAN_SOC = os.path.join(HERE, "milan_soc.py")
 #: add_master calls in milan_soc.py and confirmed by the flashed build's log
 #: ("milan_desc_mem added as Bus Master" is the seventh of eight).
 MASTERS = [
-    ("milan_dma_tx",   "axi"),   # 0  TX ring reader - Linux transmits through it
+    ("milan_dma_tx",   "axi"),   # 0  TX ring reader - firmware queues frames here
     ("milan_dma_rx",   "axi"),   # 1  RX ring writer
     ("milan_dma_rx1",  "axi"),   # 2  RX ring writer, queue 1
     ("milan_dma_ts",   "wb"),    # 3  timestamp writer
@@ -530,7 +530,7 @@ def run(gate, healthy, cycles=CYCLES, boot_probe=True, load=True):
     memory answers from cycle 0 when `healthy`, from `HAND_AT` otherwise; the
     ring engines and the playback fetch start at the handover, since nothing on
     the board reads main memory before the driver is up; a locate re-arms the
-    header probe at `LOCATE_AT`; and one more read stands in for Linux's first
+    header probe at `LOCATE_AT`; and one more read stands in for firmware's first
     transmit. The load STOPS 300 cycles before the snapshot so the bus can
     drain: a read legitimately in flight would otherwise read as a freeze.
     """
@@ -629,7 +629,7 @@ def run(gate, healthy, cycles=CYCLES, boot_probe=True, load=True):
                     watch["cyc_dead"] += 1
             yield
 
-    # Linux's first transmit, as a plain read on a master that had nothing to
+        # firmware's first transmit, as a plain read on a master that had nothing to
     # do with the protocol processor, issued long after the handover
     tx_gen, tx = wb_one_read(p["milan_dma_ts"], 0x40001000, 600,
                              start=cycles - 700)

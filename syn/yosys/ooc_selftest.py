@@ -32,7 +32,8 @@ THE STUBS ARE MODELS WITH TEETH, not silence:
     refusal too, [R0] round four), refuses a run directory that is still
     WRITABLE (rename authority is directory write permission, [R0] round
     five), refuses a missing or WRITABLE canonical
-    `ucode.hex`/`ltn_rom.hex` regular file in its cwd, and asserts each
+    `ucode.hex`/`ltn_rom.hex`/`gptp_ucode.hex` regular file in its cwd, and
+    asserts each
     image's sha256 against the pin's ledger row - the exact-byte oracle the
     round-four review required, so consuming unvouched bytes is a red arm
     even if every ooc.sh-side re-hash were deleted;
@@ -62,7 +63,7 @@ recorded on the PR that lands a change.
 
 Runs in .github/workflows/rtl-fast.yml beside syn/ooc/ooc_tcl_selftest.py;
 the invocation AND its step keys are pinned by scripts/ci_events.py. Needs
-the protocol-processor submodule; it does not need yosys or sv2v.
+both processor submodules; it does not need yosys or sv2v.
 """
 import atexit
 import os
@@ -117,33 +118,45 @@ GEN_UCODE = os.path.join(REPO, "protocol-processor", "hdl", "aecp", "ucode",
                          "gen_ucode.py")
 GEN_LTN = os.path.join(REPO, "protocol-processor", "hdl", "acmp", "rom",
                        "gen_ltn_rom.py")
+GEN_GPTP = os.path.join(REPO, "gptp-processor", "hdl", "ucode",
+                        "gen_gptp_ucode.py")
 
 
-def _ledger_digests():
-    """The tracked ledger's rows for the SUPERPROJECT's protocol-processor
-    pin: the yosys model's exact-byte oracle ([R0] round four). The pin is
-    the gitlink, never the checkout's own HEAD ([R0] round five), and a
-    checkout that disagrees with the gitlink refuses to certify anything:
-    this suite runs the real generators FROM that checkout."""
+def _processor_pins():
+    """Return each processor's checked-out superproject gitlink."""
     def _rev(args, what):
         out = subprocess.run([REAL_GIT] + args, capture_output=True, text=True)
         if out.returncode != 0:
             raise AssertionError(
                 "cannot read %s (git exited %d: %s) - this suite certifies "
-                "the ROMs generated from the pinned protocol-processor; run "
-                "git submodule update --init protocol-processor"
+                "the ROMs generated from the pinned processors; run "
+                "git submodule update --init protocol-processor gptp-processor"
                 % (what, out.returncode, out.stderr.strip() or "no message"))
         return out.stdout.strip()
 
-    pin = _rev(["-C", REPO, "rev-parse", ":protocol-processor"],
-               "the protocol-processor gitlink from the superproject index")
-    head = _rev(["-C", os.path.join(REPO, "protocol-processor"),
-                 "rev-parse", "HEAD"], "the protocol-processor checkout's HEAD")
-    if head != pin:
-        raise AssertionError(
-            "the protocol-processor checkout (%s) disagrees with the "
-            "superproject pin (%s) - run git submodule update before "
-            "certifying anything from it" % (head, pin))
+    pins = {}
+    for name in ("protocol-processor", "gptp-processor"):
+        pin = _rev(["-C", REPO, "rev-parse", ":" + name],
+                   "the %s gitlink from the superproject index" % name)
+        head = _rev(["-C", os.path.join(REPO, name), "rev-parse", "HEAD"],
+                    "the %s checkout's HEAD" % name)
+        if head != pin:
+            raise AssertionError(
+                "the %s checkout (%s) disagrees with the superproject pin "
+                "(%s) - run git submodule update before certifying anything "
+                "from it" % (name, head, pin))
+        pins[name] = pin
+    return pins
+
+
+def _ledger_digests():
+    """Return the exact digest for each image at its owning processor pin."""
+    pins = _processor_pins()
+    expected_pin = {
+        "ucode.hex": pins["protocol-processor"],
+        "ltn_rom.hex": pins["protocol-processor"],
+        "gptp_ucode.hex": pins["gptp-processor"],
+    }
     want = {}
     with open(os.path.join(HERE, "rom_digests.tsv")) as fh:
         for line in fh:
@@ -155,12 +168,12 @@ def _ledger_digests():
                     "rom_digests.tsv row %r is not pin<TAB>image<TAB>sha256"
                     % line.strip())
             row_pin, img, sha = cols
-            if row_pin == pin:
+            if expected_pin.get(img) == row_pin:
                 want[img] = sha
-    for img in ("ucode.hex", "ltn_rom.hex"):
+    for img, pin in expected_pin.items():
         if img not in want:
             raise AssertionError(
-                "rom_digests.tsv has no %s row for protocol-processor pin "
+                "rom_digests.tsv has no %s row for its owning processor pin "
                 "%s - record it with ./ooc.sh --record-rom-digests" %
                 (img, pin))
     return want
@@ -180,7 +193,7 @@ def ledger():
     return _LEDGER
 
 #: How many arms run. A deleted arm is a self-test that still prints a pass.
-ARMS = 58
+ARMS = 72
 
 #: The clean row the full-cell yosys model must produce for any top:
 #: 8 LUT4, 2 RAM32M (= 8 LUTRAM-LUT), 4 FDRE, 3 RAMB36E1, 2 RAMB18E1,
@@ -234,13 +247,15 @@ if [ -w . ]; then
   echo "ERROR: YOSYS-RUNDIR-WRITABLE: $(pwd -P) accepts renames, so the consuming copies are not immutable for the read interval"
   exit 9
 fi
-for img in ucode.hex ltn_rom.hex; do
+for img in ucode.hex ltn_rom.hex gptp_ucode.hex; do
   if [ ! -f "$img" ] || [ -L "$img" ]; then
     echo "ERROR: YOSYS-IMAGE-NOT-HERE: $img is not a regular file in $(pwd -P)"
     exit 9
   fi
 done
-for spec in "ucode.hex ${OOC_ST_UCODE_SHA:-}" "ltn_rom.hex ${OOC_ST_LTN_SHA:-}"; do
+for spec in "ucode.hex ${OOC_ST_UCODE_SHA:-}" \
+            "ltn_rom.hex ${OOC_ST_LTN_SHA:-}" \
+            "gptp_ucode.hex ${OOC_ST_GPTP_SHA:-}"; do
   img=${spec%% *}; want=${spec#* }
   if [ -w "$img" ]; then
     echo "ERROR: YOSYS-IMAGE-WRITABLE: $img in $(pwd -P) is not the read-only consuming copy"
@@ -318,6 +333,10 @@ case "$dir" in
 esac
 exec %(real)s "$@"
 """
+GIT_STALE_GPTP_HEAD = GIT_STALE_HEAD.replace(
+    "*/protocol-processor)", "*/gptp-processor)").replace(
+        "b2effce9b2effce9b2effce9b2effce9b2effce9",
+        "c3f00dc3c3f00dc3c3f00dc3c3f00dc3c3f00dc3")
 
 #: chmod that always fails: every permission the script claims to set must
 #: have its status TAKEN, or the hardening is a comment. One stub per guard,
@@ -426,6 +445,7 @@ def _run(script, tops, home, rundir, ooc_tmp):
     env["OOC_TMP"] = ooc_tmp
     env["OOC_ST_UCODE_SHA"] = ledger()["ucode.hex"]
     env["OOC_ST_LTN_SHA"] = ledger()["ltn_rom.hex"]
+    env["OOC_ST_GPTP_SHA"] = ledger()["gptp_ucode.hex"]
     out = subprocess.run([script] + tops, cwd=rundir, env=env,
                          capture_output=True, text=True)
     return out.returncode, out.stdout + out.stderr
@@ -535,7 +555,7 @@ def selftest():
 
     # Arm 1. ANTI-VACUITY, full-width: every column of the printed row must
     # equal the model's stat block (no zeroed accumulator, no manufactured
-    # row), both ROMs generated and digest-verified into the run's own tmp
+    # row), all three ROMs generated and digest-verified into the run's own tmp
     # dir, nothing in the caller's directory.
     def clean_checks(log, ooc_tmp, home):
         row = row_of(log)
@@ -544,7 +564,7 @@ def selftest():
         if row[1:] != FULL_ROW:
             return "row is not the model's stat block: got %s, want %s" \
                    % (row[1:], FULL_ROW)
-        for img in ("ltn_rom.hex", "ucode.hex"):
+        for img in ("ltn_rom.hex", "ucode.hex", "gptp_ucode.hex"):
             p = os.path.join(ooc_tmp, img)
             if not os.path.isfile(p) or os.path.getsize(p) == 0:
                 return "%s was not generated into the run's tmp dir" % img
@@ -640,6 +660,41 @@ def selftest():
             "%s -c \"print('\\\\n'.join(['0'*8]*128))\" > \"$out\"\n"
             "  exit 0" % REAL_PYTHON))
 
+    # The gPTP microcode is independently generated, shaped and keyed to the
+    # gptp-processor pin. Give it the same fail-closed generator boundary.
+    arm("gptp-generator-fail", "tcam", "ROM generator failed", False,
+        py=("gen_gptp_ucode.py",
+            "echo 'planted gptp generator failure' >&2\n  exit 3"))
+    arm("gptp-one-word", "tcam", "1 words, expected exactly 1024", False,
+        py=("gen_gptp_ucode.py",
+            "printf '000000000000\\n' > \"$out\"\n  exit 0"))
+    arm("gptp-malformed", "tcam", "not exactly 12 hex digits", False,
+        py=("gen_gptp_ucode.py",
+            "%s %s -o \"$out\" > /dev/null && "
+            "sed -i '2s/.*/00000000000Z/' \"$out\"\n  exit 0"
+            % (REAL_PYTHON, GEN_GPTP)))
+    arm("gptp-truncated", "tcam", "500 words, expected exactly 1024", False,
+        py=("gen_gptp_ucode.py",
+            "%s %s -o \"$out.full\" > /dev/null && "
+            "head -500 \"$out.full\" > \"$out\" && rm -f \"$out.full\"\n"
+            "  exit 0" % (REAL_PYTHON, GEN_GPTP)))
+    arm("gptp-empty", "tcam", "gptp_ucode.hex is malformed", False,
+        py=("gen_gptp_ucode.py", ": > \"$out\"\n  exit 0"))
+
+    def gptp_stale_gone(log, ooc_tmp, home):
+        if os.path.exists(os.path.join(ooc_tmp, "gptp_ucode.hex")):
+            return "the stale gptp_ucode.hex survived the refusal"
+        return None
+
+    arm("gptp-stale-noop", "tcam", "gptp_ucode.hex is malformed", False,
+        py=("gen_gptp_ucode.py", "exit 0"),
+        setup=lambda t: _write(t, "gptp_ucode.hex", "STALE\n"),
+        check=gptp_stale_gone)
+    arm("gptp-content-corrupt", "tcam", "content digest mismatch", False,
+        py=("gen_gptp_ucode.py",
+            "%s -c \"print('\\\\n'.join(['0'*12]*1024))\" > \"$out\"\n"
+            "  exit 0" % REAL_PYTHON))
+
     # Arm 18. A requested top the list does not carry refuses.
     arm("unknown-top", "laneA_no_such_top", "unknown top", False)
 
@@ -699,7 +754,7 @@ def selftest():
                     open(os.path.join(ooc_tmp, "scratch-ledger.tsv"))
                     if l.strip() and not l.startswith("#")]
             rc2, log2 = _run(mut, ["tcam"], home, rundir, ooc_tmp)
-            if rc1 != 0 or len(rows) != 2 or rc2 != 0 \
+            if rc1 != 0 or len(rows) != 3 or rc2 != 0 \
                     or row_of(log2) is None:
                 problems.append("SELF-TEST FAILED [record-mode-roundtrip]: "
                                 "record rc=%d rows=%d, rerun rc=%d\n%s\n%s"
@@ -931,6 +986,24 @@ def selftest():
         os.unlink(mut)
         os.unlink(pkg)
 
+    # The gPTP ROM geometry is independently sourced from its owning package.
+    # A changed live width must invalidate the current 48-bit image.
+    fd, pkg = tempfile.mkstemp(suffix=".sv", prefix=".ooc-gptp-pkg-")
+    _track(pkg)
+    with os.fdopen(fd, "w") as fh:
+        fh.write("localparam int unsigned UCODE_W_C = 52;\n"
+                 "localparam int unsigned UPC_W_C = 10;\n")
+    mut = _mutant(
+        r'GPTP_UCODE_W=\$\(pkg_num "\$GPTP_UCPU_PKG" UCODE_W_C\) \|\| exit 2',
+        'GPTP_UCODE_W=$(pkg_num "%s" UCODE_W_C) || exit 2' % pkg,
+        "gptp-pkg-width-52")
+    try:
+        arm("gptp-width-live-package", "tcam", "not exactly 13 hex digits",
+            False, script=mut)
+    finally:
+        os.unlink(mut)
+        os.unlink(pkg)
+
     # ---- consumption custody ([R0] round four) ---------------------------
 
     PLANTS = [
@@ -944,6 +1017,11 @@ def selftest():
          "ltn_rom.hex changed after publication"),
         ("ltn_rom.hex", "delete", 'rm -f "$OOC_TMP/ltn_rom.hex"',
          "ltn_rom.hex is gone from"),
+        ("gptp_ucode.hex", "swap",
+         'printf \'SWAPPED\\n\' > "$OOC_TMP/gptp_ucode.hex"',
+         "gptp_ucode.hex changed after publication"),
+        ("gptp_ucode.hex", "delete", 'rm -f "$OOC_TMP/gptp_ucode.hex"',
+         "gptp_ucode.hex is gone from"),
     ]
 
     # Arms 39-42. The published image swapped or deleted immediately AFTER
@@ -1092,12 +1170,36 @@ def selftest():
     finally:
         os.unlink(mut)
 
+    # The independently pinned gPTP processor has the identical authority:
+    # neither normal nor record mode may certify a stale checkout.
+    arm("stale-gptp-checkout-refused", "tcam",
+        "gptp-processor checkout", False, git=GIT_STALE_GPTP_HEAD,
+        check=lambda log, t2, h: None if row_of(log) is None
+        else "a top was priced from a stale gPTP checkout")
+    mut = _mutant(r'DIGESTS="\$R/syn/yosys/rom_digests\.tsv"',
+                  'DIGESTS="${OOC_TMP}/scratch-ledger.tsv"',
+                  "stale-gptp-record-ledger")
+    try:
+        def gptp_ledger_untouched(log, ooc_tmp, home):
+            with open(os.path.join(ooc_tmp, "scratch-ledger.tsv")) as fh:
+                if fh.read() != "# scratch\n":
+                    return "record mode wrote rows for a stale gPTP checkout"
+            return None
+        arm("stale-gptp-checkout-record-refused",
+            ["--record-rom-digests"], "gptp-processor checkout", False,
+            script=mut, git=GIT_STALE_GPTP_HEAD,
+            setup=lambda t2: _write(t2, "scratch-ledger.tsv", "# scratch\n"),
+            check=gptp_ledger_untouched)
+    finally:
+        os.unlink(mut)
+
     # Arm 57. The round-five false green as a fixture: pin taken from the
     # CHECKOUT (the pre-round-five spelling) plus a ledger carrying rows
     # for the stale revision - the run prices a wrong processor tree with
     # every digest green. Proves the gitlink comparison is what stands
     # between a stale checkout and a valid-looking figure.
     stale_pin = "b2effce9" * 5
+    gptp_pin = _processor_pins()["gptp-processor"]
     mut = _mutant2(
         r'PP_PIN=\$\(pp_pin_of_record\) \|\| exit 2',
         'PP_PIN=$(git -C "$R/protocol-processor" rev-parse HEAD) || exit 2',
@@ -1114,7 +1216,9 @@ def selftest():
             script=mut, git=GIT_STALE_HEAD,
             setup=lambda t2: _write(
                 t2, "scratch-ledger.tsv",
-                "".join("%s\t%s\t%s\n" % (stale_pin, img, sha)
+                "".join("%s\t%s\t%s\n" %
+                        (gptp_pin if img == "gptp_ucode.hex" else stale_pin,
+                         img, sha)
                         for img, sha in sorted(ledger().items()))),
             check=stale_priced)
     finally:

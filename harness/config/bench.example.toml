@@ -90,7 +90,7 @@ overlay = ""
 #
 # Field names and the POST shape follow docs/testing/TESTING.md section 6b.
 # Any endpoint that accepts a POST works. The jump host has curl / notify-send
-# / systemd-run but NO mail, so a webhook is the only off-site channel.
+# but NO mail, so a webhook is the only off-site channel.
 # Unset = a clean no-op, not an error. A webhook that fails to deliver is a
 # logging problem and MUST NOT fail the campaign: it is timeout-bounded, its
 # exit status is recorded, and the run continues either way.
@@ -152,7 +152,7 @@ dma_ts_offset_csr = 0xf0003118
 alsa_capture_device = "hw:0,0"
 alsa_capture_channels = 2
 # Optional board-side durable log mount. NOT PRESENT TODAY (no mtd node is in
-# any deployed device tree - see harness/README.md "Board-side flash logging").
+# any deployed image - see harness/README.md "Board-side flash logging").
 # Absent = the hook degrades silently to host-only logging.
 user_mtd_mount = "/user"
 # Power-strip outlet believed to feed this board. -1 = unknown. The harness

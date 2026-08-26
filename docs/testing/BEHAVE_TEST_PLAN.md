@@ -113,7 +113,7 @@ together, and the two conformance-suite copies are drifting.
 |-------|------|-----------|-------|----------------------|
 | **A bench-conf** | `the-private-test-repo/tests/cert-recreate/features/` | 26 / 63 | real-wire (AVDECC + tap) | the T2 AVDECC/AEM backbone; retag + keep |
 | **B private snapshot** | `the-private-test-repo/private/recreate/<snapshot_20260721>/` | 25 / ~58 | real-wire (snapshot, bundles `aem/`) | **converge into A** (drift source) |
-| **C PipeWire E2E** | `the-private-test-repo/tests/features/` | 7 / ~24 | real-wire HIL (audio/THD+N/clock) | the T2 media/stream backbone; retag + extend |
+| **C host-media E2E** | `the-private-test-repo/tests/features/` | 7 / ~24 | real-wire HIL (audio/THD+N/clock) | the T2 media/stream backbone; retag + extend |
 | **D milan-fpga conformance** | `milan-fpga/tests/` | 8 / 55 at recon; **21 / 113** on 2026-07-26 | host-sim (+ tsn_gen frame codec) | the T0 RTL-contract tier; already has `@tsn_gen @T2 @wip`, and is now a CI gate |
 
 **Coverage holes visible immediately** (domains with weak/no behave today): **MAAP**,
@@ -139,7 +139,7 @@ es-4.15 and es-4.17). Suite D has no live-DUT wiring (Verilator socket "pending"
 ## 3. Tag taxonomy (author into a shared `behave.ini` + `environment.py`)
 
 ```
-@subsystem:{gptp,srp,maap,avdecc,aaf_talker,aaf_listener,crf,alsa,link,qos,dma,saved_state,rmon,robustness}
+@subsystem:{gptp,srp,maap,avdecc,aaf_talker,aaf_listener,crf,audio,link,qos,dma,saved_state,rmon,robustness}
 @clause:{1722.1-7.4.15, 802.1as-8.4.3, milan-5.5.1.4, ...}   # normative anchor
 @matrix:{R-id or family row, e.g. M-ACMP-9, AVTP-3}          # SPEC_TRACEABILITY row
 @roadmap:{1..12}                                             # USER 12-item roadmap
@@ -168,7 +168,7 @@ the "Then" assertion mechanism (see BENCH_TOPOLOGY / REGISTER_MAP for each).
 | 5 | **AAF talker** | Suite C talker_steps (VID2/prio3/subtype/dmac, rate) | SRP-2/SRP-9 NxN | `aaf_talker.feature`, extend for NxN | tap AAF capture → inter-frame Δt histogram, byte fields (`pcap2s32.py`) |
 | 6 | **AAF listener** | Suite C bind + counters | media-map coverage remains separate; the supported GET_COUNTERS targets are live | `aaf_listener.feature`, `pcm_ring.feature`, `counters_contract_milan.feature` | AVTPRX CSR window plus GET_COUNTERS and integrated `milan_dp` evidence |
 | 7 | **CRF/media clock** | Suite C clock_recovery | **CRF-8 ❌**. **M-CLK-3 was resolved 2026-07-27 and is now UNREACHABLE**: `SET_CLOCK_SOURCE` was the only writer of the live `clock_source_index`, so it is pinned at 0 (INTERNAL) for the life of a build, the MMCM-DRP and media-NCO servos are **structurally off**, and `A_MCSRV_STAT` reads its idle. `KL_crf_rx` still parses, counts and reports — it just cannot steer anything | `media_clock_servo.feature` cannot be driven on this build: its `Given clock_source == 2` has no writer | MCSRV_STAT `0x8F8` reads the idle state, which is a structural zero and not a measurement |
-| 8 | **ALSA/audio** | Suite C audio THD+N | roadmap-7 playback (KL_pcm_tx); arecord byte-exact | `alsa_record.feature`, `alsa_playback.feature`(@wip) | `tone_thdn.py` (digital ≤−120, analog ≤−80); `pcm_ring_dump.c` |
+| 8 | **Audio rings** | Suite C audio THD+N | roadmap-7 playback (KL_pcm_tx); capture byte-exact | the suite-C capture and playback features | `tone_thdn.py` (digital ≤−120, analog ≤−80); `pcm_ring_dump.c` |
 | 9 | **Link/L1-L2** | es link-flap → counters | **AX42 TX-wedge recovery** (gaps item 0); <50 ms timing | `link_guard.feature` | real flap (`devmem 0xf0003800`); tap TX-liveness; LINK_CTRL `0x71C`, RST_EPOCH `0x720`; LINKG_STAT `0x774` (`{bounce16,flags,state,eth_rst,alive}`) |
 | 10 | **QoS/datapath** | `cbs-iperf3-interference.sh` (no behave) | CBS/classifier/TCAM/VLAN behave absent | `cbs_shaper.feature`, `classifier.feature` | iperf3 dual-flow reserved-vs-BE; CBS slopes `0x400+q*0x20` |
 | 11 | **DMA/perf** | perf harness (no behave) | throughput/RSC/fanout behave absent | `perf_throughput.feature`(@bench) | iperf3 Mbit; queue-drop + RMON `0x21C/0x230` |

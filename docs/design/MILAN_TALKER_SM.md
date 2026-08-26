@@ -3,7 +3,7 @@
 # Minimal Milan v1.2 talker — ACMP state machine + AECP streaming (design)
 
 Reference truth (measure-don't-assume): every behavior below was extracted
-from the pipewire module-avb Milan v1.2 implementation (the project's
+from an independent Milan v1.2 implementation (the project's
 normative reference) — `acmp-cmds-resps/acmp-milan-v12.c`,
 `aecp-aem-cmds-resps/cmd-get-set-stream-info.c`, `cmd-start-stop-streaming.c`,
 `cmd-register-unsolicited-notifications.c`, `reply-unsol-helpers.c`,

@@ -408,7 +408,9 @@ def ptp_announce(sequence_id=0, gm_identity=0, gm_priority1=248, gm_priority2=24
 
     802.1AS-2011 10.5.3.3 REQUIRES the path trace TLV; `path_trace=None`
     defaults to the one-hop [gm_identity]. Pass `path_trace=[]` for the
-    TLV-less shape the fabric bench uses (the parser accepts it).
+    TLV-less shape the fabric bench uses (the parser accepts it). Unless a
+    caller is deliberately building a parser-refusal probe, a present trace
+    must start with `gm_identity` and contain `steps_removed + 1` identities.
     """
     kw.setdefault("flags", 0x0008)                 # ptpTimescale
     kw.setdefault("control", 0x05)

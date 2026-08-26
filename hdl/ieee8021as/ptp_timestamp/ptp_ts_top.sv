@@ -242,9 +242,21 @@ module ptp_ts_top#(
     .ts_in(timestamp),
     .lat_corr_i(i_ptp_egress_lat),
 
-    .s_axis(s_axis_tx),
-    .m_axis(m_axis_tx),
-    .ts_m_axis(ts_m_axis_tx)
+    .s_axis_tdata  (s_axis_tx.tdata),
+    .s_axis_tvalid (s_axis_tx.tvalid),
+    .s_axis_tready (s_axis_tx.tready),
+    .s_axis_tlast  (s_axis_tx.tlast),
+    .s_axis_tkeep  (s_axis_tx.tkeep),
+    .m_axis_tdata  (m_axis_tx.tdata),
+    .m_axis_tvalid (m_axis_tx.tvalid),
+    .m_axis_tready (m_axis_tx.tready),
+    .m_axis_tlast  (m_axis_tx.tlast),
+    .m_axis_tkeep  (m_axis_tx.tkeep),
+    .ts_m_axis_tdata  (ts_m_axis_tx.tdata),
+    .ts_m_axis_tvalid (ts_m_axis_tx.tvalid),
+    .ts_m_axis_tready (ts_m_axis_tx.tready),
+    .ts_m_axis_tlast  (ts_m_axis_tx.tlast),
+    .ts_m_axis_tkeep  (ts_m_axis_tx.tkeep)
   );
 
   // ---------------------------------------------------------------------------
@@ -267,9 +279,21 @@ module ptp_ts_top#(
     .ts_in(timestamp),
     .lat_corr_i(i_ptp_ingress_lat),
 
-    .s_axis(s_axis_rx),
-    .m_axis(m_axis_rx),
-    .ts_m_axis(ts_m_axis_rx)
+    .s_axis_tdata  (s_axis_rx.tdata),
+    .s_axis_tvalid (s_axis_rx.tvalid),
+    .s_axis_tready (s_axis_rx.tready),
+    .s_axis_tlast  (s_axis_rx.tlast),
+    .s_axis_tkeep  (s_axis_rx.tkeep),
+    .m_axis_tdata  (m_axis_rx.tdata),
+    .m_axis_tvalid (m_axis_rx.tvalid),
+    .m_axis_tready (m_axis_rx.tready),
+    .m_axis_tlast  (m_axis_rx.tlast),
+    .m_axis_tkeep  (m_axis_rx.tkeep),
+    .ts_m_axis_tdata  (ts_m_axis_rx.tdata),
+    .ts_m_axis_tvalid (ts_m_axis_rx.tvalid),
+    .ts_m_axis_tready (ts_m_axis_rx.tready),
+    .ts_m_axis_tlast  (ts_m_axis_rx.tlast),
+    .ts_m_axis_tkeep  (ts_m_axis_rx.tkeep)
   );
 
   //! TX egress-timestamp ready pulse (REQ-PTP-04): assert for one axis_clk cycle

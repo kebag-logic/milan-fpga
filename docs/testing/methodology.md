@@ -38,7 +38,7 @@ reporting a corrupted total.
 | 3 | the TDM capture bus is tied to `0`; the front-end yields nothing | same |
 | 4 | a board routes no audio pins, so its capture front-end reads constant zero | nothing models the platform |
 | 5 | a wrapper parameter name did not match the RTL parameter — a silent no-op that pruned nothing for weeks | elaboration succeeded, so nothing complained |
-| 6 | a flashed device-tree window rotted against a moved register map | a perfect dead-hardware mimic, invisible to simulation |
+| 6 | a flashed window map rotted against a moved register map | a perfect dead-hardware mimic, invisible to simulation |
 | 7 | fifteen protocol defects an independent controller stack saw | **both** of our own controllers agreed with each other and missed them |
 | 8 | a compliance check asserted a rule that was invented, not specified | it passed against us — that *was* the failure |
 | 9 | a correct, specified refusal was nearly filed as a defect | a **false positive**: no clause was consulted first |
@@ -111,7 +111,7 @@ ambiguity is escapes 2 and 3. Publish a capability mask instead.
 
 **R6 — Hardware claims require a hardware run.** RTL green is not silicon fixed:
 the change does not exist on a board until a rebuild and a reflash. Flashed
-artifacts rot independently of the design, so diff a flashed device tree's
+artifacts rot independently of the design, so diff a flashed window map's
 windows against the build's register listing before trusting a board (escape 6).
 
 **R7 — Same version on both boards before any comparative test**, and read the

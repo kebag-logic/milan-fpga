@@ -18,8 +18,8 @@
 # Exit status is the gate (#245): non-zero if any requested top fails sv2v or
 # yosys, if a ROM generator fails or emits an empty or WRONG-SHAPED image
 # (word count and width are validated against the pinned packages) or a
-# wrong-CONTENT image (sha256 against rom_digests.tsv, keyed by the
-# protocol-processor pin), if staging or publication fails, if a published
+# wrong-CONTENT image (sha256 against rom_digests.tsv, keyed by the owning
+# processor's superproject pin), if staging or publication fails, if a published
 # image is gone or hashes differently at ANY consumption (each top's yosys
 # run consumes an exclusive read-only copy, re-hashed before and after the
 # run - a swap or delete after publication, or between two tops, must never
@@ -73,6 +73,8 @@ PP="$R/protocol-processor/hdl"
 # worth nothing on this side of the process boundary if nobody reads it.
 PP_DERIVED="$(python3 "$R/scripts/pp_srcs.py" --prefix "$PP")" || exit 2
 PP_SRCS="$PP_DERIVED $R/hdl/milan/KL_pp_shadow.sv $R/hdl/milan/KL_pp_maap_shim.sv"
+GPTP_ENGINE_SRCS="$R/gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv $R/gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv $R/gptp-processor/hdl/wire/KL_gptp_rx_parser.sv $R/gptp-processor/hdl/wire/KL_gptp_tx_slot.sv $R/gptp-processor/hdl/common/KL_gptp_timer.sv $R/gptp-processor/hdl/top/KL_gptp_engine.sv"
+GPTP_DP_SRCS="$GPTP_ENGINE_SRCS $R/hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv $R/hdl/ieee8021as/gptp_plane/KL_gptp_txstamp.sv"
 
 # THE ARGUMENTS ARE VALIDATED FIRST. Everything below this block - the pin
 # read, the geometry parse, both ROM generations, the digest ledger - is
@@ -81,7 +83,7 @@ PP_SRCS="$PP_DERIVED $R/hdl/milan/KL_pp_shadow.sv $R/hdl/milan/KL_pp_maap_shim.s
 # generated and published both ROMs and then, on a freshly bumped pin,
 # refused with "no recorded content digest" for a top that does not exist.
 # The tops list needs nothing but the path variables and $PP_SRCS.
-DP_SRCS="$PP_SRCS $C/ethernet_packet_pkg.sv $C/axi_stream_if.sv $A/axis_fifo.v $A/axis_demux.v $A/axis_arb_mux.v $A/arbiter.v $A/priority_encoder.v $Q/traffic_class_map.sv $Q/traffic_classifier.sv $Q/credit_based_shaper.sv $Q/traffic_shaping_core.sv $Q/traffic_queues.sv $Q/traffic_controller_802_1q.sv $P/timestamp_counter.sv $P/ptp_csr_sync.sv $C/cdc_pulse.sv $C/cdc_handshake.sv $C/axis_mux_rr_2in_1out.sv $P/ptp_ts_core.sv $P/ptp_ts_top.sv $F/tcam.sv $F/rx_mac_filter.sv $C/tx_ifg_gasket.sv $R/hdl/ieee1722/aaf/KL_pcm_lpf.sv $C/KL_link_guard.sv $D/adp_tx_arbiter.sv $E/ethernet_events.sv $E/event_counter.sv $R/hdl/common/csr/milan_csr.sv $R/hdl/ieee1722/aaf/aaf_talker_i2s.sv $R/hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv $R/hdl/ieee1722/avtp/avtp_subtype_pkg.sv $R/hdl/ieee1722/avtp/avtp_stream_parser.sv $R/hdl/ieee1722/avtp/KL_stream_table.sv $R/hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv $R/hdl/ieee1722/crf/KL_crf_rx.sv $R/hdl/ieee1722/crf/KL_crf_tx.sv $R/hdl/ieee1722/maap/KL_maap.sv $R/hdl/ieee1722/aaf/KL_i2s_playback.sv $R/hdl/ieee1722/aaf/KL_i2s_feed_mux.sv $R/hdl/ieee1722/aaf/KL_tone_gen.sv $R/hdl/ieee1722/aaf/KL_media_adv.sv $C/cdc_pair_fifo.sv $R/hdl/ieee1722/aaf/KL_pcm_route.sv $R/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv $R/hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv $R/hdl/ieee1722/aaf/KL_tdm_capture.sv $R/hdl/ieee1722/aaf/KL_aaf_packetizer.sv $R/hdl/ieee1722/crf/KL_mmcm_drp_servo.sv $R/hdl/ieee1722/crf/KL_media_nco.sv $R/hdl/ieee1722/aaf/KL_aaf_latency_taps.sv $R/hdl/ieee1722/aaf/KL_chan_map_capture.sv $R/hdl/ieee1722/aaf/KL_chan_map_render.sv $R/hdl/ieee1722/aaf/KL_pcm_tx.sv $R/hdl/ieee1722/aaf/KL_tdm_render.sv $R/hdl/milan/milan_datapath.sv $R/hdl/ieee1722/aaf/KL_tdm_capture_master.sv $R/hdl/ieee1722/aaf/KL_pair_blend.sv $R/hdl/ieee1722/aaf/KL_pair_zero_fill.sv $R/hdl/ieee1722/avtp/KL_talker_diag_ctx.sv $R/hdl/ieee1722/avtp/KL_media_clock_restart.sv $R/hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv"
+DP_SRCS="$PP_SRCS $GPTP_DP_SRCS $C/ethernet_packet_pkg.sv $C/axi_stream_if.sv $A/axis_fifo.v $A/axis_demux.v $A/axis_arb_mux.v $A/arbiter.v $A/priority_encoder.v $Q/traffic_class_map.sv $Q/traffic_classifier.sv $Q/credit_based_shaper.sv $Q/traffic_shaping_core.sv $Q/traffic_queues.sv $Q/traffic_controller_802_1q.sv $P/timestamp_counter.sv $P/ptp_csr_sync.sv $C/cdc_pulse.sv $C/cdc_handshake.sv $C/axis_mux_rr_2in_1out.sv $P/ptp_ts_core.sv $P/ptp_ts_top.sv $F/tcam.sv $F/rx_mac_filter.sv $C/tx_ifg_gasket.sv $R/hdl/ieee1722/aaf/KL_pcm_lpf.sv $C/KL_link_guard.sv $D/adp_tx_arbiter.sv $E/ethernet_events.sv $E/event_counter.sv $R/hdl/common/csr/milan_csr.sv $R/hdl/ieee1722/aaf/aaf_talker_i2s.sv $R/hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv $R/hdl/ieee1722/avtp/avtp_subtype_pkg.sv $R/hdl/ieee1722/avtp/avtp_stream_parser.sv $R/hdl/ieee1722/avtp/KL_stream_table.sv $R/hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv $R/hdl/ieee1722/crf/KL_crf_rx.sv $R/hdl/ieee1722/crf/KL_crf_tx.sv $R/hdl/ieee1722/maap/KL_maap.sv $R/hdl/ieee1722/aaf/KL_i2s_playback.sv $R/hdl/ieee1722/aaf/KL_i2s_feed_mux.sv $R/hdl/ieee1722/aaf/KL_tone_gen.sv $R/hdl/ieee1722/aaf/KL_media_adv.sv $C/cdc_pair_fifo.sv $R/hdl/ieee1722/aaf/KL_pcm_route.sv $R/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv $R/hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv $R/hdl/ieee1722/aaf/KL_tdm_capture.sv $R/hdl/ieee1722/aaf/KL_aaf_packetizer.sv $R/hdl/ieee1722/crf/KL_mmcm_drp_servo.sv $R/hdl/ieee1722/crf/KL_media_nco.sv $R/hdl/ieee1722/aaf/KL_aaf_latency_taps.sv $R/hdl/ieee1722/aaf/KL_chan_map_capture.sv $R/hdl/ieee1722/aaf/KL_chan_map_render.sv $R/hdl/ieee1722/aaf/KL_pcm_tx.sv $R/hdl/ieee1722/aaf/KL_tdm_render.sv $R/hdl/milan/milan_datapath.sv $R/hdl/ieee1722/aaf/KL_tdm_capture_master.sv $R/hdl/ieee1722/aaf/KL_pair_blend.sv $R/hdl/ieee1722/aaf/KL_pair_zero_fill.sv $R/hdl/ieee1722/avtp/KL_talker_diag_ctx.sv $R/hdl/ieee1722/avtp/KL_media_clock_restart.sv $R/hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv"
 
 # The area-relevant tops: the zero-BRAM LUT hogs of the placer-overflow report,
 # their parents, and the crf_rx precedent for calibration.
@@ -136,11 +138,12 @@ for w in "${want[@]}"; do
   fi
 done
 
-# ...and with the processor come its ROMs. protocol_processor_top $readmemh's
+# ...and with the processors come their ROMs. protocol_processor_top $readmemh's
 # the ACMP listener transition image by the RELATIVE name "ltn_rom.hex", and
 # KL_aecp_ucpu its microcode by "ucode.hex" (UCODE_HEX_P) -- yosys resolves
-# both against ITS OWN working directory, not against the source file.
-# Generate BOTH into $TMP and run yosys FROM $TMP (below), so a run from the
+# both against ITS OWN working directory, and KL_gptp_ucpu reads
+# "gptp_ucode.hex" the same way. Generate all three into $TMP and run yosys
+# from an exclusive per-top directory below, so a run from the
 # repository root leaves nothing behind - the same fix syn/yosys/run.sh carries
 # (#191): only syn/yosys/*.hex is gitignored, so a stray image in the
 # caller's directory is one broad `git add` from being committed (#192).
@@ -160,8 +163,8 @@ done
 #   - after //-comment stripping the image must hold EXACTLY depth words of
 #     EXACTLY width/4 hex digits (x/z refused: a word that loads X is priced
 #     as X);
-#   - the image CONTENT must match the sha256 recorded for this
-#     protocol-processor pin in rom_digests.tsv: a correctly SHAPED wrong
+#   - each image's CONTENT must match the sha256 recorded for its owning
+#     processor pin in rom_digests.tsv: a correctly SHAPED wrong
 #     image (a regressed generator emitting all-zero words) passed every
 #     shape gate and priced KL_pp_shadow 4,045 LUT_TOT low ([R0] round two).
 #     A pin bump re-records with --record-rom-digests, and that diff is
@@ -247,6 +250,15 @@ addr_width() { # <name> <value> -> value in 1..24, or die
 }
 UCPU_PKG=$(one_pp_source ucpu_pkg.sv)     || exit 2
 ACMP_PKG=$(one_pp_source pp_acmp_pkg.sv)  || exit 2
+GPTP_UCPU_PKG="$R/gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv"
+case " $GPTP_ENGINE_SRCS " in
+  *" $GPTP_UCPU_PKG "*) : ;;
+  *) echo "ooc.sh: FATAL: gPTP ROM geometry package is absent from the gPTP source population" >&2; exit 2 ;;
+esac
+[ -f "$GPTP_UCPU_PKG" ] || {
+  echo "ooc.sh: FATAL: gPTP ROM geometry package is missing: $GPTP_UCPU_PKG" >&2
+  exit 2
+}
 UCODE_W=$(pkg_num "$UCPU_PKG" UCODE_W_C)  || exit 2
 UCODE_W=$(nibble_width UCODE_W_C "$UCODE_W") || exit 2
 UPC_W=$(pkg_num "$UCPU_PKG" UPC_W_C)      || exit 2
@@ -255,6 +267,10 @@ TROM_W=$(pkg_num "$ACMP_PKG" TROM_W_C)    || exit 2
 TROM_W=$(nibble_width TROM_W_C "$TROM_W") || exit 2
 TROM_D=$(pkg_num "$ACMP_PKG" TROM_DEPTH_C) || exit 2
 TROM_D=$(positive_depth TROM_DEPTH_C "$TROM_D") || exit 2
+GPTP_UCODE_W=$(pkg_num "$GPTP_UCPU_PKG" UCODE_W_C) || exit 2
+GPTP_UCODE_W=$(nibble_width GPTP_UCODE_W_C "$GPTP_UCODE_W") || exit 2
+GPTP_UPC_W=$(pkg_num "$GPTP_UCPU_PKG" UPC_W_C) || exit 2
+GPTP_UPC_W=$(addr_width GPTP_UPC_W_C "$GPTP_UPC_W") || exit 2
 
 rom_check() { # <file> <hex digits per word> <word count> ; diagnostics on stdout
   awk -v digits="$2" -v words="$3" '
@@ -271,7 +287,7 @@ rom_check() { # <file> <hex digits per word> <word count> ; diagnostics on stdou
   ' "$1"
 }
 
-# The content ledger: sha256 per (protocol-processor pin, image), tracked.
+# The content ledger: sha256 per (owning processor pin, image), tracked.
 # The pin is the SUPERPROJECT's gitlink, never the checkout's own HEAD
 # ([R0] round five: a scratch checkout at another revision recorded and
 # validated itself, and after an ordinary pin bump the retained old row
@@ -279,23 +295,26 @@ rom_check() { # <file> <hex digits per word> <word count> ; diagnostics on stdou
 # valid digest). The ONE reader below refuses an uninitialized, conflicted
 # or mismatched checkout, in normal and record modes alike.
 DIGESTS="$R/syn/yosys/rom_digests.tsv"
-pp_pin_of_record() {
-  local gitlink head
-  if ! gitlink=$(git -C "$R" rev-parse :protocol-processor 2>/dev/null); then
-    echo "ooc.sh: FATAL: cannot read the protocol-processor gitlink from the superproject index (a missing or conflicted gitlink has no one revision to key the ledger by)" >&2
+submodule_pin_of_record() { # <submodule>
+  local name="$1" gitlink head
+  if ! gitlink=$(git -C "$R" rev-parse ":$name" 2>/dev/null); then
+    echo "ooc.sh: FATAL: cannot read the $name gitlink from the superproject index (a missing or conflicted gitlink has no one revision to key the ledger by)" >&2
     return 2
   fi
-  if ! head=$(git -C "$R/protocol-processor" rev-parse HEAD 2>/dev/null); then
-    echo "ooc.sh: FATAL: the protocol-processor submodule is not checked out - git submodule update --init protocol-processor" >&2
+  if ! head=$(git -C "$R/$name" rev-parse HEAD 2>/dev/null); then
+    echo "ooc.sh: FATAL: the $name submodule is not checked out - git submodule update --init $name" >&2
     return 2
   fi
   if [ "$head" != "$gitlink" ]; then
-    echo "ooc.sh: FATAL: the protocol-processor checkout ($head) disagrees with the superproject pin ($gitlink) - a stale checkout generates another processor's ROMs however valid its own digests look; run git submodule update" >&2
+    echo "ooc.sh: FATAL: the $name checkout ($head) disagrees with the superproject pin ($gitlink) - a stale checkout generates another processor's ROMs however valid its own digests look; run git submodule update" >&2
     return 2
   fi
   printf '%s' "$gitlink"
 }
+pp_pin_of_record() { submodule_pin_of_record protocol-processor; }
+gptp_pin_of_record() { submodule_pin_of_record gptp-processor; }
 PP_PIN=$(pp_pin_of_record) || exit 2
+GPTP_PIN=$(gptp_pin_of_record) || exit 2
 
 # The digest each image VALIDATED at, kept for consumption ([R0] round
 # four): validation bound the ledger to the staged bytes, but yosys then
@@ -317,9 +336,10 @@ copy_matches() { # <file> <image name> -> 0 iff sha256 equals the validated dige
 
 new_rows=""
 for rom_spec in \
-    "ltn_rom.hex|$R/protocol-processor/hdl/acmp/rom/gen_ltn_rom.py|$TROM_W|$TROM_D" \
-    "ucode.hex|$R/protocol-processor/hdl/aecp/ucode/gen_ucode.py|$UCODE_W|$((1 << UPC_W))"; do
-  IFS='|' read -r img gen width depth <<< "$rom_spec"
+    "ltn_rom.hex|$R/protocol-processor/hdl/acmp/rom/gen_ltn_rom.py|$TROM_W|$TROM_D|$PP_PIN|protocol-processor" \
+    "ucode.hex|$R/protocol-processor/hdl/aecp/ucode/gen_ucode.py|$UCODE_W|$((1 << UPC_W))|$PP_PIN|protocol-processor" \
+    "gptp_ucode.hex|$R/gptp-processor/hdl/ucode/gen_gptp_ucode.py|$GPTP_UCODE_W|$((1 << GPTP_UPC_W))|$GPTP_PIN|gptp-processor"; do
+  IFS='|' read -r img gen width depth pin pin_name <<< "$rom_spec"
   digits=$((width / 4))
   if ! rm -f "$TMP/$img"; then
     echo "ooc.sh: FATAL: cannot remove the previous $img in $TMP (a directory or unwritable entry is squatting the target)" >&2
@@ -356,19 +376,19 @@ for rom_spec in \
   fi
   ROM_SHA[$img]="$got"
   if [ "$RECORD" -eq 1 ]; then
-    new_rows="${new_rows}${PP_PIN}	${img}	${got}
+    new_rows="${new_rows}${pin}	${img}	${got}
 "
   else
     # `recorded`, not `want`: `want` is the requested-tops ARRAY above.
-    recorded=$(awk -v p="$PP_PIN" -v i="$img" '$1 == p && $2 == i { print $3; exit }' "$DIGESTS" 2>/dev/null)
+    recorded=$(awk -v p="$pin" -v i="$img" '$1 == p && $2 == i { print $3; exit }' "$DIGESTS" 2>/dev/null)
     if [ -z "$recorded" ]; then
       rm -f "$stage"
-      echo "ooc.sh: FATAL: no recorded content digest for $img at protocol-processor pin $PP_PIN in syn/yosys/rom_digests.tsv - a pin bump re-records with ./ooc.sh --record-rom-digests, and that diff is reviewed with the bump" >&2
+      echo "ooc.sh: FATAL: no recorded content digest for $img at $pin_name pin $pin in syn/yosys/rom_digests.tsv - a pin bump re-records with ./ooc.sh --record-rom-digests, and that diff is reviewed with the bump" >&2
       exit 2
     fi
     if [ "$got" != "$recorded" ]; then
       rm -f "$stage"
-      echo "ooc.sh: FATAL: content digest mismatch for $img at pin $PP_PIN: generated $got, recorded $recorded - the generator regressed (a correctly shaped wrong image still prices wrong) or the ledger is stale" >&2
+      echo "ooc.sh: FATAL: content digest mismatch for $img at $pin_name pin $pin: generated $got, recorded $recorded - the generator regressed (a correctly shaped wrong image still prices wrong) or the ledger is stale" >&2
       exit 2
     fi
   fi
@@ -384,12 +404,12 @@ for rom_spec in \
 done
 
 if [ "$RECORD" -eq 1 ]; then
-  # Rewrite this pin's rows, keep every other pin's, keep the header.
+  # Rewrite both owning pins' rows, keep every other pin's, keep the header.
   #
   # NEVER PIPE A GATE, least of all a DESTRUCTIVE one. The old spelling tested
   # `sort`'s status only: a dying awk (or a momentarily unreadable ledger, both
   # greps being 2>/dev/null) produced an EMPTY retained body while sort exited
-  # 0, the rename installed a ledger holding nothing but this pin's two rows,
+  # 0, the rename installed a ledger holding nothing but the current rows,
   # and the run printed "recorded ROM content digests" and exited 0. Every
   # other pin's digests were silently deleted from a tracked file, and the
   # bump's reviewer saw deletions that read as a deliberate prune.
@@ -403,7 +423,8 @@ if [ "$RECORD" -eq 1 ]; then
       echo "ooc.sh: FATAL: cannot read syn/yosys/rom_digests.tsv - refusing to rewrite a ledger whose existing rows were never read" >&2
       exit 2; }
     if [ -n "$body" ]; then
-      kept=$(printf '%s\n' "$body" | awk -v p="$PP_PIN" '$1 != p') || {
+      kept=$(printf '%s\n' "$body" | awk -v p="$PP_PIN" -v g="$GPTP_PIN" \
+          '$1 != p && $1 != g') || {
         echo "ooc.sh: FATAL: cannot select the rows to retain from syn/yosys/rom_digests.tsv - refusing to rewrite a ledger whose other pins were never read" >&2
         exit 2; }
     fi
@@ -433,7 +454,7 @@ if [ "$RECORD" -eq 1 ]; then
     exit 2
   fi
   LEDGER_STAGE=""
-  echo "ooc.sh: recorded ROM content digests for protocol-processor pin $PP_PIN in syn/yosys/rom_digests.tsv"
+  echo "ooc.sh: recorded ROM content digests for protocol-processor pin $PP_PIN and gptp-processor pin $GPTP_PIN in syn/yosys/rom_digests.tsv"
   exit 0
 fi
 status=0
@@ -490,7 +511,7 @@ for spec in "${tops[@]}"; do
     exit 2
   fi
   RUNDIR="$rundir"   # the EXIT trap unlocks and removes it on every path
-  for img in ucode.hex ltn_rom.hex; do
+  for img in ucode.hex ltn_rom.hex gptp_ucode.hex; do
     if ! cp "$TMP/$img" "$rundir/$img"; then
       echo "ooc.sh: FATAL: $img is gone from $TMP after validation, or could not be copied (cp's own error is above: a writer reached the published image, or the filesystem is full) - refusing to synthesize $top against bytes no ledger row vouches for" >&2
       exit 2
@@ -511,7 +532,7 @@ for spec in "${tops[@]}"; do
     echo "ooc.sh: FATAL: cannot make $top's run directory read-only - rename authority is directory write permission, and an open interval is exactly the transient-swap seam" >&2
     exit 2
   fi
-  for img in ucode.hex ltn_rom.hex; do
+  for img in ucode.hex ltn_rom.hex gptp_ucode.hex; do
     if ! copy_matches "$rundir/$img" "$img"; then
       echo "ooc.sh: FATAL: $img changed after publication - the consuming copy for $top no longer hashes to the validated digest; refusing to measure bytes no ledger row vouches for" >&2
       exit 2
@@ -520,7 +541,7 @@ for spec in "${tops[@]}"; do
   (cd "$rundir" && yosys -p "read_verilog $TMP/$top.ooc.v;$chp synth_xilinx -family xc7$nodsp -top $top -flatten; stat; write_json $TMP/$top.ooc.json") \
     > "$TMP/$top.ooc.log" 2>&1
   yosys_rc=$?
-  for img in ucode.hex ltn_rom.hex; do
+  for img in ucode.hex ltn_rom.hex gptp_ucode.hex; do
     if ! copy_matches "$rundir/$img" "$img"; then
       echo "ooc.sh: FATAL: $img changed under $top's synthesis run - the read-only consuming copy no longer hashes to the validated digest; discarding whatever was measured" >&2
       exit 2

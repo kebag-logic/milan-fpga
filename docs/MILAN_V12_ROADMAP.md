@@ -417,8 +417,9 @@ successful state-changing command pushes to every registered controller
 asynchronous triggers of Table 5.22: GET_STREAM_INFO field changes,
 GET_AVB_INFO changes (the root snapshot-compares every field it serves and the
 processor detects the SR class-A pair), controller-visible GET_AS_PATH changes
-(a grandmaster identity change, or a 0x7DC PUBLISH that changes the active
-PathTrace tail/count; count-0/1 and GM-zero aliases are silent), GET_COUNTERS
+(a selected-owner served-sequence change: fabric empty/[GM] count 0/1 is a
+real edge, while option-off 0x7DC counts 0/1 alias to GM-only; GM-zero tails
+are silent in either mode), GET_COUNTERS
 (the fabric's per-descriptor dirty pulses reach the processor through a lossless
 round-robin; the processor limits each descriptor to **one push per
 second**), the LOCK auto-unlock, and auto-DEREGISTER. The parent proof is

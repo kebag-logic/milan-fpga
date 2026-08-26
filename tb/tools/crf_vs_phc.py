@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Compare the AVTP timestamps our board puts on the wire (CRF, 64-bit gPTP ns)
-against the domain gPTP time as held by this host's PHC (ptp4l-disciplined).
+against the domain gPTP time as held by this bench host's disciplined PHC.
 
 Read-only: sniffs, reads /dev/ptpN.  Nothing is transmitted."""
 import socket, struct, sys, time, os, argparse

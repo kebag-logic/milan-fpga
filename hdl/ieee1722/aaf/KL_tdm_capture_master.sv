@@ -104,7 +104,7 @@ module KL_tdm_capture_master #(
   output logic [23:0] pair_l_o,
   output logic [23:0] pair_r_o,
 
-  // ---- status (Linux-observable via CSR) ------------------------------
+  // ---- status (host-observable via CSR) -------------------------------
   output reg  [31:0]  pairs_captured_o   //! pairs captured (liveness)
 );
 

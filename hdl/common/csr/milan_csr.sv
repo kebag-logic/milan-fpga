@@ -11,7 +11,7 @@
   Date        : 2026-07-01
   Description : AXI4-Lite control/status-register (CSR) block for the Milan TSN
                 network interface. This is the memory-mapped control plane
-                (REQUIREMENTS.md REQ-CSR-*) that the Linux driver binds to; it
+                (REQUIREMENTS.md REQ-CSR-*) that host software binds to; it
                 turns the previously compile-time-only TSN knobs (MAC config,
                 802.1Q classifier map, 802.1Qav CBS slopes, PTP clock control)
                 into runtime-writable registers, and exposes MAC statistics,
@@ -107,7 +107,12 @@ module milan_csr #(
   //! (125 MHz -> 0x08000000); milan_datapath overrides with its own
   //! MILAN_CLK_FREQ_HZ so the two can never disagree.
   parameter int unsigned MILAN_CLK_FREQ_HZ_P = 125_000_000,
-  parameter logic [31:0] VERSION = 32'h0002_0055 //! Value returned by the read-only VERSION register ([31:16] major, [15:0] minor; the ENTITY firmware_version renders major.minor.rev). VERSIONING POLICY (USER 2026-08-11): MAJOR = entire redesign of blocks; MINOR = compliance fixes - FLAT and continuous across majors, because the register-map changelog and every >= feature gate key on it; REV (patch, entity.firmware_rev in the config) = bug-fix respins that change no CSR ABI. 0x0002 MAJOR = THE SCENARIO-B ERA OPENS: the protocol-processor architecture of record (v2.0, the protocol-processor submodule) replaces this 1722.1/SRP plane by direct substitution at parity; the minor carries on unbroken. 0x0055 = TABLE 5.22 NOTIFICATIONS AND THE CONTROLLER MONITOR ARE LIVE (issue 69). Every successful state-changing command pushes an unsolicited response to each registered controller except the requester, and a SET that stores the value already held is silent (Milan 5.4.5.2). The observed triggers feed the same scheduler: the fabric's per-descriptor counter changes reach the processor's GET_COUNTERS face through a lossless round-robin (the rx monitor, the talker diag, the AVB_INTERFACE link and GM edges, the CLOCK_DOMAIN lock edge; one push per descriptor per second), one snapshot comparator over the WHOLE GET_AVB_INFO answer arms that class - the grandmaster identity, the effective propagation delay (A_GPTP_PDELAY 0x6E4, CONSUMED for the first time instead of discarded, or the fabric gPTP plane's published value under GPTP_PLANE_EN_P), the gPTP domain number (A_ADP_DOMAIN 0x62C) and the asCapable flag, none of the four conditioned on grandmaster presence so that a domain or delay update during startup or GM loss is announced rather than swallowed by the ADP rule that suppresses a boot-time GM_CHANGE; the SR class-A priority and default VLAN ID are detected inside the processor off the same wires it publishes, which completes the six triggers Table 5.22 names for this response. The root arms GET_AS_PATH only when the complete served {GM,count,tail} sequence changes: COMMIT remains private, PUBLISH atomically replaces the tail, raw counts 0/1 and all GM=0 publications are silent aliases, and an identical re-publish is silent. Registered controllers are probed with CONTROLLER_AVAILABLE 30 to 60 s after their last command, retried exactly once, and removed with a DEREGISTER notification to that controller alone when silent (5.4.5.3). Persistence remains issue 70. NO new CSRs. Prior: 0x0054 = GENERATED NAMES ARE LIVE AND COHERENT. SET_NAME and GET_NAME serve every semantic name in the generated AEM model. ENTITY supports indices 0 and 1, while every other named descriptor supports index 0. Responses use the full fixed cdl 84 body on success and refusal, a locked SET returns the current name, and SET, GET, and READ_DESCRIPTOR observe one writable overlay. Generated shape data sizes the table and the store loads large tables in bounded bursts. Persistence remains issue 70; unsolicited delivery remains issue 69, with change triggers exported. NO new CSRs. Prior: 0x0053 = THE STREAM SETTERS LAND, AND THE FABRIC CONSUMES THEM. Issue 67's remainder: SET_STREAM_FORMAT (both stream directions) and SET_STREAM_INFO (Milan 5.4.2.9's one sub-command: a Stream Output with exactly MSRP_ACC_LAT_VALID) are served by the processor with every clause refusal - per-descriptor STREAM_IS_RUNNING at dispatch (a bound input or a streaming output, 5.4.2.7/5.4.2.9), whole-command NOT_SUPPORTED on any other sub-flag, BAD_ARGUMENTS on a bit-31 offset, and one integrator gather that judges the PROPOSED format against the ADDRESSED ROW's declared base (the 48 kHz family for inputs, the row's own declared shape for outputs, the advertised CRF format for the CRF rows) AND every mapping-referenced channel surviving (Milan 5.4.2.7's SHALL), with refusals carrying the CURRENT format. The fabric CONSUMES the settings: a set presentation offset folds into the per-STREAM_OUTPUT transit entries the AAF and CRF framers stamp (entry k is row k, the CRF output included), GET_STREAM_INFO's latency word reads the same folded entry, the served current format is the setting when one exists, and STREAM_INPUT 0's RX acceptance follows the set format. The verdict's mapping reduction sweeps the render map one key per cycle and reads the stream-channel-keyed capture map combinationally; the CRF rows admit exactly the advertised CRF format and report it as current. SAME MINOR, WIRE-FACING: responses that answered NOT_IMPLEMENTED now execute, so both sim pins and the compliance inventory move together.
+  //! When set, the gPTP publication bank owns the legacy GM/parent/pdelay
+  //! read addresses. Each 64-bit identity is snapshotted across a two-half
+  //! read in either order. Default 0 keeps standalone CSR users on the
+  //! software register ABI; milan_datapath passes its product option.
+  parameter bit GPTP_PLANE_EN_P = 1'b0,
+  parameter logic [31:0] VERSION = 32'h0002_0055 //! Value returned by the read-only VERSION register ([31:16] major, [15:0] minor; the ENTITY firmware_version renders major.minor.rev). VERSIONING POLICY (USER 2026-08-11): MAJOR = entire redesign of blocks; MINOR = compliance fixes - FLAT and continuous across majors, because the register-map changelog and every >= feature gate key on it; REV (patch, entity.firmware_rev in the config) = bug-fix respins that change no CSR ABI. 0x0002 MAJOR = THE SCENARIO-B ERA OPENS: the protocol-processor architecture of record (v2.0, the protocol-processor submodule) replaces this 1722.1/SRP plane by direct substitution at parity; the minor carries on unbroken. 0x0055 = FABRIC GPTP IS THE PRODUCT OWNER. The default datapath elaborates the fabric gPTP plane, consumes one atomic engine publication bank for GM, parent, pdelay, asCapable and clock validity, drives GET_AVB_INFO / GET_AS_PATH and AVTP tu from that bank, and ignores software attempts to forge live health. Explicit GPTP_PLANE_EN_P=0 preserves the software-owner comparison ABI, including atomic 64-bit writes. NO new CSR addresses. Prior: 0x0054 = GENERATED NAMES ARE LIVE AND COHERENT. SET_NAME and GET_NAME serve every semantic name in the generated AEM model. ENTITY supports indices 0 and 1, while every other named descriptor supports index 0. Responses use the full fixed cdl 84 body on success and refusal, a locked SET returns the current name, and SET, GET, and READ_DESCRIPTOR observe one writable overlay. Generated shape data sizes the table and the store loads large tables in bounded bursts. Persistence remains issue 70; unsolicited delivery remains issue 69, with change triggers exported. NO new CSRs. Prior: 0x0053 = THE STREAM SETTERS LAND, AND THE FABRIC CONSUMES THEM. Issue 67's remainder: SET_STREAM_FORMAT (both stream directions) and SET_STREAM_INFO (Milan 5.4.2.9's one sub-command: a Stream Output with exactly MSRP_ACC_LAT_VALID) are served by the processor with every clause refusal - per-descriptor STREAM_IS_RUNNING at dispatch (a bound input or a streaming output, 5.4.2.7/5.4.2.9), whole-command NOT_SUPPORTED on any other sub-flag, BAD_ARGUMENTS on a bit-31 offset, and one integrator gather that judges the PROPOSED format against the ADDRESSED ROW's declared base (the 48 kHz family for inputs, the row's own declared shape for outputs, the advertised CRF format for the CRF rows) AND every mapping-referenced channel surviving (Milan 5.4.2.7's SHALL), with refusals carrying the CURRENT format. The fabric CONSUMES the settings: a set presentation offset folds into the per-STREAM_OUTPUT transit entries the AAF and CRF framers stamp (entry k is row k, the CRF output included), GET_STREAM_INFO's latency word reads the same folded entry, the served current format is the setting when one exists, and STREAM_INPUT 0's RX acceptance follows the set format. The verdict's mapping reduction sweeps the render map one key per cycle and reads the stream-channel-keyed capture map combinationally; the CRF rows admit exactly the advertised CRF format and report it as current. SAME MINOR, WIRE-FACING: responses that answered NOT_IMPLEMENTED now execute, so both sim pins and the compliance inventory move together.
 
 )(
   input  wire                    aclk,           //! AXI-Lite clock (aclk / axis_clk domain)
@@ -200,6 +205,12 @@ module milan_csr #(
   output wire [31:0]             o_adp_controller_caps, //! controller_capabilities (ADP_CCAPS)
   output wire [63:0]             o_adp_gptp_gm,       //! gptp_grandmaster_id {ADP_GM_HI, ADP_GM_LO}
   output wire [31:0]             o_gptp_pdelay_ns,    //! measured propagation delay ns (GPTP_PDELAY)
+  input  wire [63:0]             i_gptp_gm_id,        //! fabric publication bank GM (live read when enabled)
+  input  wire [63:0]             i_gptp_parent_id,    //! fabric publication bank parent clockIdentity
+  input  wire [31:0]             i_gptp_pdelay_ns,    //! fabric publication bank neighbor delay
+  input  wire [7*64-1:0]         i_gptp_asp_path,     //! fabric selected slots 1..7
+  input  wire [3:0]              i_gptp_asp_count,    //! fabric complete length incl GM
+  input  wire [3:0]              i_gptp_asp_gen,      //! fabric served-tuple generation
   input  wire [31:0]             i_acmpl_dbg,         //! listener walker forensics (RO 0x6E8)
   input  wire [31:0]             i_avtprx_tsd,        //! last accepted ts_delta (RO 0x6EC)
   input  wire [31:0]             i_i2spb_dbg,         //! DAC serial forensics (RO 0x6F0)
@@ -484,12 +495,18 @@ module milan_csr #(
   output wire                    o_aemp_abort_p,
   input  wire [31:0]             i_aemp_stat,
   input  wire [1:0]              i_acmp_rest_status,
-  //! AS_PATH staging store (gh #64 J4, 0x7DC-0x7E4): the published
+  //! AS_PATH public face (gh #64 J4, 0x7DC-0x7E4). With the fabric option
+  //! off these are the software PUBLISH snapshot below. With it on they are
+  //! the engine's atomic selected PathTrace; software staging remains readable
+  //! for ABI compatibility but cannot alter these live outputs or 0x7E4.
+  //! The software store's published
   //! 802.1AS PathTrace TAIL - slots 1..7 are the traversed bridges, slot 0
   //! is ALWAYS the grandmaster and is never stored here (it lives at
   //! ADP_GM 0x624/0x628; duplicating it is the derive-never-mirror class).
-  //! o_asp_path bit [64*(k-1) +: 64] = slot k. Counts 0 (legacy) and 1
-  //! (explicit) both describe the same GM-only served sequence.
+  //! o_asp_path bit [64*(k-1) +: 64] = slot k. For the option-off software
+  //! store, counts 0 (legacy) and 1 (explicit) describe the same GM-only
+  //! served sequence. Fabric mode passes the donor's raw count: zero means
+  //! the selected Announce had no PathTrace TLV and therefore serves empty.
   output wire [7*64-1:0]         o_asp_path,          //! published slots 1..7
   output wire [3:0]              o_asp_count,         //! published path length (entries incl the GM)
   output wire [3:0]              o_asp_gen,           //! generation (bumps when published path changes)
@@ -620,7 +637,7 @@ module milan_csr #(
     A_PCMRX_CNT   = 'h6C4, A_PCMRX_TS   = 'h6C8,
     A_MAAP_CTRL   = 'h6CC, A_MAAP_STAT0 = 'h6D0, A_MAAP_STAT1 = 'h6D4,
     A_I2SPB_STAT  = 'h6D8, A_TONE_CTRL = 'h6DC, A_I2SPB_TRIM = 'h6E0,
-    A_GPTP_PDELAY = 'h6E4,   //! RW: measured gPTP neighbor propagation delay (ns), written by the softcore gptp daemon
+    A_GPTP_PDELAY = 'h6E4,   //! selected-owner neighbor propagation delay (fabric live by default; software shadow option-off)
     A_ACMPL_DBG   = 'h6E8,   //! RO live: listener walker forensics {classify_cnt, fc_cnt, fc_flags, base_hits}
     A_AVTPRX_TSD  = 'h6EC,   //! RO live: signed ts_delta at last accepted PDU (stream-sync error signal)
     A_I2SPB_DBG   = 'h6F0,   //! RO live: exact 32 serial bits of the last LEFT half-frame at the DAC pin
@@ -668,10 +685,11 @@ module milan_csr #(
   localparam [ADDR_WIDTH-1:0] A_BDBG2 = 'h770;  //! RO live: {ptr, end}
   localparam [ADDR_WIDTH-1:0] A_LINKG_STAT = 'h774;  //! RO live: link guard {bounce16, flags, alive}
   //! ---- 0x778 clock validity: the AVTP "tu" verdict -----------------------
-  //  Whether the PHC is disciplined to the gPTP domain is a SERVO fact and
-  //  lives in ptp4l, not in fabric - so software leases it here, the
-  //  established gptp2csr.sh pattern (GM 0x624/8, pdelay 0x6E4, AS_PATH
-  //  0x730/4). It is a LEASE and not a flag on purpose: on 2026-07-27 the
+  //  The product-default fabric plane owns this verdict directly. In an
+  //  explicit GPTP_PLANE_EN_P=0 compatibility image, discipline is a servo
+  //  fact owned by off-chip software (#259), so software leases it here with the
+  //  legacy GM/pdelay/AS_PATH publication ABI. It is a LEASE and not a flag
+  //  on purpose: on 2026-07-27 the
   //  Arty's PHC was 60 h out of the domain and we streamed 31 M frames
   //  claiming tu=0 the whole time (docs/findings/REF_LISTENER_TIMESTAMP_SWEEP_0727.md).
   //  Reset state is sync_ok=0 with an expired lease: unknown == not valid.
@@ -738,8 +756,8 @@ module milan_csr #(
   //! GUARDED: while [0]=1 the CPU's eth-disruption levers are refused -
   //! A_PHY_RST writes are DROPPED, A_LINK_CTRL[1] (mac_reinit) is MASKED,
   //! and o_eth_guard gates the LiteX phy_crg_reset chain in milan_soc.py -
-  //! so no software state (statd reinit, ethtool bounce, a corrupt rootfs
-  //! poking CSRs) can take the streams' MAC down. The fabric link guard's
+  //! so no software state (a daemon reinit, a driver bounce, a corrupt host
+  //! image poking CSRs) can take the streams' MAC down. The fabric link guard's
   //! own auto-recovery is NOT gated: it is the trusted fabric plane.
   //! UNGUARD by writing the magic 32'h554E_4C4B ("UNLK"); ANY other write
   //! re-arms the guard. Software unguards once healthy and may re-arm
@@ -1076,7 +1094,8 @@ module milan_csr #(
   logic [31:0] lpf_ctrl;                 //! LPF_CTRL
   logic [31:0] crf_ctrl, crf_sidlo, crf_sidhi;   //! CRF sink CSRs
   logic [31:0] crft_ctrl, crft_sidlo, crft_sidhi, crft_dmlo, crft_dmhi;  //! CRF talker CSRs
-  logic [31:0] as2_lo, as2_hi;           //! parent bridge clockIdentity                //! MAAP_CTRL: [0]=en, [1]=seed_valid, [15:8]=count, [31:16]=seed_offset
+  logic [31:0] as2_lo, as2_hi;           //! committed parent bridge clockIdentity
+  logic [31:0] as2_lo_stg;               //! LO stages; HI atomically commits the pair
   //! TONE_CTRL: [0]=en (pilot tone), [3:1]=att in -6 dB steps (0 = 0 dBFS
   //! full scale, 7 = -42 dB). The table is FULL SCALE; a capture at
   //! amplitude 0.25 means att=2, not a quarter-scale generator.
@@ -1148,6 +1167,13 @@ module milan_csr #(
          cmrd_data_r}                                           // [15:0] raw
       : CHMAP_LOOP_POISON_C;
   logic [31:0] gptp_pdelay;              //! GPTP_PDELAY: neighbor pdelay (ns)
+  //! Fabric publication identities are live 64-bit values behind two 32-bit
+  //! CSR addresses. Snapshot the whole pair on the first half read and hold
+  //! it through the complementary half, in either order, so a publication
+  //! commit between AXI transactions cannot fabricate a mixed identity.
+  logic [63:0] gptp_gm_rd_snap_r, gptp_parent_rd_snap_r;
+  logic        gptp_gm_rd_pending_r, gptp_parent_rd_pending_r;
+  logic        gptp_gm_rd_first_hi_r, gptp_parent_rd_first_hi_r;
   logic [31:0] lwsrp_vid;                //! LWSRP_VID: [11:0] SR VID
   logic [31:0] lwsrp_dmlo, lwsrp_dmhi;   //! lwSRP stream DMAC {dmhi[15:0], dmlo}
   logic [31:0] lwsrp_tspec;              //! LWSRP_TSPEC: {interval[31:16], max_frame[15:0]}
@@ -1161,8 +1187,8 @@ module milan_csr #(
   //! the 8x8 board advertise 1 source / 2 sinks for weeks.
   logic [31:0] adp_ccaps;                //! ADP_CCAPS: controller_capabilities
   logic [31:0] adp_gmlo, adp_gmhi;       //! ADP_GM: gptp_grandmaster_id (COMMITTED pair)
-  //! GM pair atomic latch: the daemon publishes the 64-bit grandmaster id as
-  //! two 32-bit devmem writes (gptp2csr.sh, 0x624 LO then 0x628 HI).
+  //! Compatibility-plane GM pair atomic latch: software publishes the 64-bit
+  //! grandmaster id as two 32-bit writes (0x624 LO then 0x628 HI).
   //! Latching each half straight into the committed pair let every consumer
   //! (ADPDU gptp_grandmaster_id, GET_AVB_INFO, the CLKV holdover arm and the
   //! GPTP_GM_CHANGED edge detectors) sample a half-old/half-new identity
@@ -1390,6 +1416,38 @@ module milan_csr #(
   end : mac_reinit_edge
   wire mac_reinit_rel_w = mac_reinit_q && !i_mac_reinit;
 
+  always_ff @(posedge aclk) begin : gptp_live_read_snapshot
+    if (!aresetn) begin
+      gptp_gm_rd_snap_r         <= '0;
+      gptp_parent_rd_snap_r     <= '0;
+      gptp_gm_rd_pending_r      <= 1'b0;
+      gptp_parent_rd_pending_r  <= 1'b0;
+      gptp_gm_rd_first_hi_r     <= 1'b0;
+      gptp_parent_rd_first_hi_r <= 1'b0;
+    end else if (GPTP_PLANE_EN_P && rd_fire) begin
+      if ((rd_addr == A_ADP_GMLO) || (rd_addr == A_ADP_GMHI)) begin
+        if (!gptp_gm_rd_pending_r ||
+            (gptp_gm_rd_first_hi_r == (rd_addr == A_ADP_GMHI))) begin
+          gptp_gm_rd_snap_r     <= i_gptp_gm_id;
+          gptp_gm_rd_first_hi_r <= (rd_addr == A_ADP_GMHI);
+          gptp_gm_rd_pending_r  <= 1'b1;
+        end else begin
+          gptp_gm_rd_pending_r  <= 1'b0;
+        end
+      end
+      if ((rd_addr == A_AS2_LO) || (rd_addr == A_AS2_HI)) begin
+        if (!gptp_parent_rd_pending_r ||
+            (gptp_parent_rd_first_hi_r == (rd_addr == A_AS2_HI))) begin
+          gptp_parent_rd_snap_r     <= i_gptp_parent_id;
+          gptp_parent_rd_first_hi_r <= (rd_addr == A_AS2_HI);
+          gptp_parent_rd_pending_r  <= 1'b1;
+        end else begin
+          gptp_parent_rd_pending_r  <= 1'b0;
+        end
+      end
+    end
+  end : gptp_live_read_snapshot
+
   //! The staging set belongs to the CURRENT {dir, idx} selection (the
   //! ownership rule is documented with the lwSRP ctx master below, which
   //! commits it). Declared here ahead of the write path, its first reader
@@ -1463,7 +1521,7 @@ module milan_csr #(
       crft_sidhi  <= 32'h0;
       crft_dmlo   <= 32'h0;
       crft_dmhi   <= 32'h0;
-      as2_lo <= 32'h0; as2_hi <= 32'h0;
+      as2_lo <= 32'h0; as2_hi <= 32'h0; as2_lo_stg <= 32'h0;
       tone_ctrl  <= 32'h0;
       mcsrv_ctrl <= 32'h0;
       ltap_en_r  <= 1'b1;   //! latency taps measure by default
@@ -1482,9 +1540,10 @@ module milan_csr #(
       adp_ecaps <= 32'h0; adp_ccaps <= 32'h0;
       adp_gmlo <= 32'h0; adp_gmhi <= 32'h0; adp_gmlo_stg <= 32'h0;
       //! NOT 32'h0: the gPTP domain is CONFIG-DEFINED (gptp.domain), and the
-      //! builder writes the same number into /etc/gptp.<board>.cfg. Boot
-      //! holding it so ptp4l's domain and the ADPDU's byte 48 cannot disagree
-      //! before any script runs. Still writable - see the csr_default mirror.
+      //! builder gives the same number to the selected gPTP owner. Boot
+      //! holding it so the owner's domain and the ADPDU's byte 48 cannot
+      //! disagree before publication starts. Still writable for the explicit
+      //! software comparison - see the csr_default mirror.
       adp_domain <= 32'(ADP_GPTP_DOMAIN_C);
       adp_idx0 <= 32'h0; adp_idx1 <= 32'h0; adp_aslo <= 32'h0; adp_ashi <= 32'h0;
       tcam_ctrl <= 32'h1;   // default_pass = 1 (accept-all until software programs entries)
@@ -1617,8 +1676,14 @@ module milan_csr #(
           A_CRFT_SIDHI: crft_sidhi <= s_axi_wdata;
           A_CRFT_DMLO:  crft_dmlo  <= s_axi_wdata;
           A_CRFT_DMHI:  crft_dmhi  <= s_axi_wdata;
-          A_AS2_LO:     as2_lo   <= s_axi_wdata;
-          A_AS2_HI:     as2_hi   <= s_axi_wdata;
+          //! The software comparison publishes parent LO then HI, like GM.
+          //! Stage LO and commit both halves on HI so GET_AS_PATH cannot
+          //! observe a half-old/half-new parent between devmem writes.
+          A_AS2_LO:     as2_lo_stg <= s_axi_wdata;
+          A_AS2_HI: begin
+            as2_lo <= as2_lo_stg;
+            as2_hi <= s_axi_wdata;
+          end
           A_TONE_CTRL:  tone_ctrl  <= s_axi_wdata;
           A_MCSRV_CTRL: mcsrv_ctrl <= s_axi_wdata;
           A_LTAP_CTRL: begin              //! [1] enable RW; [0] W1S stats clear
@@ -2194,6 +2259,41 @@ module milan_csr #(
       A_PTP_TRLO:   live_mux = ptp_tod_rd[31:0];
       A_PTP_TRHI:   live_mux = ptp_tod_rd[63:32];
       A_ADP_STATUS: live_mux = i_adp_available_index;       // RO available_index
+      //! #116: these addresses retain their writable legacy shadows for the
+      //! explicit software option, but the product shape reads the engine's
+      //! committed publication bank. A write therefore cannot forge the GM,
+      //! parent, or pdelay that the fabric and protocol answers consume.
+      A_ADP_GMLO: begin
+        if (GPTP_PLANE_EN_P) live_mux = gptp_gm_rd_snap_r[31:0];
+        else                 live_hit = 1'b0;
+      end
+      A_ADP_GMHI: begin
+        if (GPTP_PLANE_EN_P) live_mux = gptp_gm_rd_snap_r[63:32];
+        else                 live_hit = 1'b0;
+      end
+      //! The engine-owned gPTP domain. The pinned fabric engine transmits and
+      //! accepts only domain 0 (802.1AS 8.1: a single domain), so in fabric
+      //! mode the served domain is that engine constant on EVERY public face:
+      //! this readback, o_adp_gptp_domain (ADP, GET_AVB_INFO, notifications).
+      //! The legacy shadow stays writable for the option-off comparison, and
+      //! a compatibility write cannot make the CSR/protocol faces advertise a
+      //! domain the wire never speaks.
+      A_ADP_DOMAIN: begin
+        if (GPTP_PLANE_EN_P) live_mux = 32'd0;
+        else                 live_hit = 1'b0;
+      end
+      A_GPTP_PDELAY: begin
+        if (GPTP_PLANE_EN_P) live_mux = i_gptp_pdelay_ns;
+        else                 live_hit = 1'b0;
+      end
+      A_AS2_LO: begin
+        if (GPTP_PLANE_EN_P) live_mux = gptp_parent_rd_snap_r[31:0];
+        else                 live_hit = 1'b0;
+      end
+      A_AS2_HI: begin
+        if (GPTP_PLANE_EN_P) live_mux = gptp_parent_rd_snap_r[63:32];
+        else                 live_hit = 1'b0;
+      end
       A_ADP_DIAG:   live_mux = {14'd0, i_adp_depart_src, i_adp_rearm_cnt, i_adp_depart_cnt};
       //! ADP liveness in ONE read (VERSION 0x001D): sent_cnt moving = the
       //! advertiser is emitting, state[0] = the available_r that 0x668 could
@@ -2281,10 +2381,11 @@ module milan_csr #(
       //! E1 commit readback: {busy, done, 20'0, status, 4'0, idx}
       A_REST_CMD:   live_mux = {rest_pend_r, rest_done_r, 20'd0,
                                 rest_stat_r, 4'd0, rest_idx_r};
-      //! J4 publish readback: the LIVE generation and path length, i.e. what
+      //! J4 publish readback: the LIVE selected-owner generation and path
+      //! length, i.e. what
       //! GET_AS_PATH will actually serve - not the command word software
       //! wrote. A read of 0 means "no path published" = the legacy arm.
-      A_ASP_CMD:    live_mux = {24'd0, asp_gen_r, asp_count_r};
+      A_ASP_CMD:    live_mux = {24'd0, o_asp_gen, o_asp_count};
       default: begin
         if (rd_addr_q >= A_STATS_BASE && rd_addr_q < A_STATS_END)
           live_mux = stat_snap[soff[2 +: 4]];
@@ -2643,18 +2744,22 @@ module milan_csr #(
   assign o_crft_sid         = {crft_sidhi, crft_sidlo};
   assign o_crft_dest_mac    = {crft_dmhi[15:0], crft_dmlo};
   assign o_as_parent_ckid   = {as2_hi, as2_lo};
-  //! J4: the published PathTrace tail, flattened slot 1 first. COMMIT edits
-  //! only the private image; PUBLISH replaces these active slots together.
+  //! J4: the selected-owner PathTrace tail, flattened slot 1 first. With the
+  //! software option COMMIT edits only the private image and PUBLISH replaces
+  //! these active slots together. Fabric mode instead exposes its committed
+  //! engine transaction; writes still update the compatibility store but can
+  //! neither forge the live outputs nor spend the fabric generation.
   //! The builder
   //! reads bit [64*(k-1) +: 64] as entry k of the served path sequence;
   //! entry 0 is the grandmaster and comes from ADP_GM, never from here.
   generate
     for (genvar gk = 0; gk < ASP_SLOTS_C; gk++) begin : g_asp_flat
-      assign o_asp_path[64*gk +: 64] = asp_slot_r[gk];
+      assign o_asp_path[64*gk +: 64] = GPTP_PLANE_EN_P
+          ? i_gptp_asp_path[64*gk +: 64] : asp_slot_r[gk];
     end
   endgenerate
-  assign o_asp_count        = asp_count_r;
-  assign o_asp_gen          = asp_gen_r;
+  assign o_asp_count = GPTP_PLANE_EN_P ? i_gptp_asp_count : asp_count_r;
+  assign o_asp_gen   = GPTP_PLANE_EN_P ? i_gptp_asp_gen   : asp_gen_r;
   assign o_sw_link          = link_ctrl[0];
   assign o_mac_reinit       = link_ctrl[1];
   assign o_linkg_dis        = link_ctrl[2];
@@ -2691,7 +2796,11 @@ module milan_csr #(
   assign o_adp_controller_caps = adp_ccaps;
   assign o_adp_gptp_gm         = {adp_gmhi, adp_gmlo};
   assign o_gptp_pdelay_ns      = gptp_pdelay;
-  assign o_adp_gptp_domain     = adp_domain[7:0];
+  //! Fabric mode serves the engine-owned domain (constant 0, 802.1AS 8.1) to
+  //! every consumer of this port: the ADP advertiser, the GET_AVB_INFO
+  //! gather, and the notification comparators. The option-off comparison
+  //! keeps the writable shadow.
+  assign o_adp_gptp_domain     = GPTP_PLANE_EN_P ? 8'd0 : adp_domain[7:0];
   assign o_adp_current_config  = adp_idx0[15:0];
   assign o_adp_identify_index  = adp_idx0[31:16];
   assign o_adp_interface_index = adp_idx1[15:0];

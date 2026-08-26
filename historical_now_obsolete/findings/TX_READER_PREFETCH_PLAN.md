@@ -52,7 +52,7 @@ At the 100 MHz datapath (`build_dp100`), the TX datapath-input probe reads
 Raising the datapath 50→100 MHz halved the shaper *stall* (60→27%) and **moved the wall to
 the reader**: 70% of cycles the datapath is waiting because the `RingDMAReader` has produced
 no beat. Pinning the ACK-NAPI did nothing and −P2 didn't beat single-flow → **not CPU-bound;
-the reader gates it.** (See [`RX_FANOUT_AND_TX_CEILING.md`](RX_FANOUT_AND_TX_CEILING.md)
+the reader gates it.** (See `RX_FANOUT_AND_TX_CEILING.md` (removed from the tree by #259; in git history)
 "Effort 04", memory `tx-datapath-limit-measured`.)
 
 ## 2. Root cause, from the RTL

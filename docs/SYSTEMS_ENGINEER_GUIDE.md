@@ -8,7 +8,7 @@ Subsystem specs → Register map / ABI → Build & deploy → Test & verify → 
 Historical findings.
 
 Status: current as of **2026-08-13**. Where a linked doc is mid-refresh, the current fact is
-stated here so this guide is accurate *today*; the doc audit ([`DOC_AUDIT.md` (archived)](../historical_now_obsolete/DOC_AUDIT.md)) tracks the fixes.
+stated here so this guide is accurate *today*.
 
 > **The single change that reshapes half this map (2026-08-13).** This device's
 > entire IEEE 1722.1 / SRP control plane is now
@@ -53,8 +53,8 @@ stated here so this guide is accurate *today*; the doc audit ([`DOC_AUDIT.md` (a
 
 Two Artix-7 boards are Milan/AVB end-stations: gPTP-synced fabric PHC, SRP
 reservations, ADP discovery and ACMP connection (all three now the protocol
-processor's), MAAP, 8×8 AAF streams, and an ALSA capture card fed straight from
-the fabric DMA ring -- with an AECP/AEM responder that serves the processor's
+processor's), MAAP, 8×8 AAF streams, and a capture ring fed straight from
+the fabric DMA -- with an AECP/AEM responder that serves the processor's
 declared command inventory, including `READ_DESCRIPTOR` and `GET_COUNTERS`.
 The measurements below were taken on silicon before the substitution; they are
 dated for that reason, and the media-plane ones are unaffected by it.
@@ -63,12 +63,12 @@ dated for that reason, and the media-plane ones are unaffected by it.
 flowchart LR
     subgraph AX["AX7101 (8x8, GM, flash-boots)"]
         TONE[tone / I2S / KL_pcm_tx ring] --> TXMUX[playback + chmap muxes] --> PKT[AAF packetizer + CBS + PTP stamp]
-        RXD[depacketizer] --> RING[PCM DMA ring] --> ALSA["arecord (snd-kl-milan)"]
+        RXD[depacketizer] --> RING[PCM DMA ring] --> CONS["host-side ring consumer"]
     end
     subgraph SW["AVB switch (802.1AS-aware)"]
     end
-    subgraph ARTY["Arty A7 (4x4, PipeWire loop)"]
-        ARX[listener] --> PW[PipeWire] --> ATX[talker]
+    subgraph ARTY["Arty A7 (4x4, host loop)"]
+        ARX[listener] --> PW[host media loop] --> ATX[talker]
     end
     PKT -->|"AAF, VID 2"| SW --> ARX
     ATX --> SW2[" "]:::hidden --> RXD
@@ -79,12 +79,12 @@ flowchart LR
 **Measured truth (2026-07-24/25):** E2E capture→render = the presentation
 offset exactly — pto 500 µs ⇒ `ts_delta` +384 µs, **0 LATE** (datapath
 pipeline ≈ 116 µs); talker wire output **bit-exact** vs the tone table
-(900/900); full board→board→PipeWire→board loop −72.7 dB THD+N; gPTP slave
+(900/900); full board→board→host→board loop −72.7 dB THD+N; gPTP slave
 rms 44 ns through the switch.
 
 ```mermaid
 flowchart LR
-    PWR((power-on)) --> CFG["FPGA self-config from QSPI\n(SPIx4/50, ~0.2 s)"] --> BIOS[LiteX BIOS] -->|"flashboot: kernel/opensbi/dtb/rootfs\nfrom their QSPI slots"| SBI["OpenSBI (carries the kernel's DTB!)"] --> LNX[Linux] --> NET["network up (~7 min total)"]
+    PWR((power-on)) --> CFG["FPGA self-config from QSPI\n(SPIx4/50, ~0.2 s)"] --> BIOS[LiteX BIOS] -->|"the raw AEM image\nfrom its QSPI slot"| FW["bare-metal firmware:\nCSR policy, identity, entity enable"] --> NET["network up"]
 ```
 
 **The descriptor-image provisioning step.** The entity model
@@ -106,13 +106,15 @@ Fastest useful commands: [`docs/integration/QSPI_FLASHBOOT.md`](integration/QSPI
 ## 1. What this system is
 
 **milan-fpga is a fully-FPGA AVB/TSN Milan end-station.** It is a RISC-V/LiteX softcore SoC with
-a custom TSN network datapath in fabric, running Linux, that behaves as a **Milan v1.2**
+a custom TSN network datapath in fabric that behaves as a **Milan v1.2**
 audio end-station (talker + listener) on the wire.
 
 - **The end-station**: a 1 Gb Ethernet NIC whose *data plane* (MAC, classifier, CBS shaper,
   PTP timestamp unit, AVTP/AAF/CRF streaming, MAAP) and whose *ADP/ACMP/SRP control plane*
   (the protocol processor, via `KL_pp_shadow`) are both implemented in fabric, and whose
-  *policy plane* (linuxptp, provisioning, the kl-eth driver) runs on the softcore under Linux.
+  *policy plane* (provisioning and diagnostics) runs in bare-metal firmware on
+  the softcore. BMCA, servo and pdelay run in the fabric `gptp-processor`, and
+  no software owner exists any more (#259).
   AECP/AEM is in fabric too, but partial: the processor serves its declared
   command inventory and returns the conformant fallback for unsupported commands.
 - **The dividing principle** (normative, [`docs/ARCHITECTURE_HW_SW_SPLIT.md`](ARCHITECTURE_HW_SW_SPLIT.md) rev 3):
@@ -133,11 +135,11 @@ audio end-station (talker + listener) on the wire.
 
 | Board | SoC | Role |
 |---|---|---|
-| **ALINX AX7101** (xc7a100t) | VexiiRiscv **1-hart RV32I**, bare-metal machine mode, `--l2-bytes 0`; CPU + Milan plane at 50 MHz, 100 MHz system/audio fabric; DDR3-800 512 MB, GMII MAC | Shipping full end-station. QSPI self-boot; Linux remains a separate bring-up shape. |
+| **ALINX AX7101** (xc7a100t) | VexiiRiscv **1-hart RV32I**, bare-metal machine mode, `--l2-bytes 0`; CPU + Milan plane at 50 MHz, 100 MHz system/audio fabric; DDR3-800 512 MB, GMII MAC | Shipping full end-station. QSPI self-boot into the bare-metal firmware. |
 | **ARTY** (`asl_milanfinal53e`, VERSION 0x000A) | small VexiiRiscv end-station, MII | Small end-station; flash-boot full images. |
 
 > **The single most important framing fact**: the ship CPU is a **1-hart,
-> cacheless bare-metal RV32I**, not the Linux performance profile. Much of the
+> cacheless bare-metal RV32I**, not the cached performance profile. Much of the
 > 2026-07 perf campaign (RX ~223-381 Mbit, TX 582-646 Mbit) was measured on a **2-hart +
 > L2-64K** config that is now a **superseded perf-lineage variant**. Any doc presenting
 > "dual-hart / 2-core / L2-64K" as the ship or published shape is stale — read those numbers as
@@ -160,8 +162,8 @@ audio end-station (talker + listener) on the wire.
   can therefore never be switched to the CRF source. `A_MCSRV_STAT` (`0x8F8`) reads its idle;
   `KL_crf_rx` still parses, counts and reports. (A "-73.4 dB" loop figure anywhere is the stale
   pre-servo NCO-era number.)
-- **ALSA**: record works on silicon (arecord byte-exact); playback (`KL_pcm_tx` ring → render
-  mux) is integrated in gateware — the end-to-end aplay proof is pending.
+- **Audio rings**: capture works on silicon (byte-exact); playback (`KL_pcm_tx` ring → render
+  mux) is integrated in gateware — the end-to-end playback proof is pending.
 - **PCM ring** can now target on-chip BRAM (`--pcm-ring bram`); DRAM ring remains default.
 - **AX42** (e2 MAC-TX link-bounce wedge): the guard `eth_rst` fix now covers the PHY-side
   `eth_tx`/gtx path, and the follow-up link-guard liveness-toggle deadlock fix is merged and
@@ -256,13 +258,10 @@ Each entry: the doc and **when to read it**. `→` marks the doc to start each s
 - → **[`docs/design/TIME_SYNC.md`](design/TIME_SYNC.md)** — the time-sync design record: the three clocks (network
   PHC / system / media), the HW timestamp path, the CRF + MMCM-DRP servo loop, every time CSR
   in one table, honest status. **Read this first for time.**
-- **[`docs/findings/GPTP_RXPAD_ROOTCAUSE.md`](findings/GPTP_RXPAD_ROOTCAUSE.md)** — the RX-pad root cause + the operative
-  switch-behaviour matrix (the bench switch does per-port pdelay but never masters Sync/Announce
-  into board ports → why es-1.1/1.2 BMCA variants are switch-gated). Read for why gPTP behaves
-  as it does on this bench.
-- **[`docs/findings/PTP_TS_METADATA_FIX.md`](findings/PTP_TS_METADATA_FIX.md)** — the HW-timestamp DMA "Record contract v2.1"
-  (beat0 ns / beat1 {seq,msgType,marker,dir}); this is the driver-matched ABI. Read when
-  touching timestamping.
+- The RX-pad root cause, the operative switch-behaviour matrix (the bench switch does per-port
+  pdelay but never masters Sync/Announce into board ports → why es-1.1/1.2 BMCA variants are
+  switch-gated) and the timestamp "Record contract v2.1" were recorded against the retired host
+  path; #259 removed those three findings from the checkout and git history keeps them.
 
 **SRP (reservation)**
 - → **[`hdl/milan/KL_pp_shadow.sv`](../hdl/milan/KL_pp_shadow.sv)** — SRP is the protocol
@@ -318,7 +317,7 @@ Each entry: the doc and **when to read it**. `→` marks the doc to start each s
 
 **MAAP (address allocation)**
 - → **[`docs/design/MAAP_FABRIC.md`](design/MAAP_FABRIC.md)** — the fabric MAAP engine design + byte-exact PDU contract
-  (from pipewire maap.c) + the 0x4B GET_DYNAMIC_INFO appendix. *(Reframe plan→as-built; the CSR
+  (cross-checked against an independent AVB implementation) + the 0x4B GET_DYNAMIC_INFO appendix. *(Reframe plan→as-built; the CSR
   sketch has drifted from REGISTER_MAP — trust REGISTER_MAP: 0x6D0 STAT0 / 0x6D4 STAT1.)*
 
 **QoS / CBS shaper**
@@ -341,7 +340,7 @@ Each entry: the doc and **when to read it**. `→` marks the doc to start each s
 
 ### Stage 4 — Register map / ABI
 - → **[`docs/reference/REGISTER_MAP.md`](reference/REGISTER_MAP.md)** — **the CSR/ABI authority** shared by HDL (`milan_csr.sv`),
-  the kl-eth driver, and the device tree: group-by-group offsets/access/reset/fields for the
+  and the firmware: group-by-group offsets/access/reset/fields for the
   whole window (now through the `0x920`-`0x930` protocol-processor group) + the LiteX
   DMA/PCM-ring CSR space. **No register was removed by the substitution — the map is an ABI**;
   what changed is meaning, and the doc classifies each affected word as a structural zero, as
@@ -366,7 +365,8 @@ Each entry: the doc and **when to read it**. `→` marks the doc to start each s
   VexiiRiscv/NaxRiscv, DDR3, ring-DMA, LiteEth GMII MAC, QSPI flashboot, the mandatory flags).
   Read for the LiteX host internals. *(Refresh CPU/clock to 1-hart+L2-32K@100e6.)*
 - **[`docs/integration/QSPI_FLASHBOOT.md`](integration/QSPI_FLASHBOOT.md)** — how QSPI flash-boot works (bitstream@0 +
-  Image.xz via the xz_embedded BIOS decoder, the 16 MB constraint, deploy.sh flash-images).
+  Image.xz via the xz_embedded BIOS decoder, the 16 MB constraint, and the
+  live-installed-proof `deploy.sh flash-pair` transaction).
   Canonical flashboot reference.
 - **[`docs/integration/BOARD_PORTING_AX7101.md`](integration/BOARD_PORTING_AX7101.md)** — the worked "how a new board gets ported"
   story (pin provenance, the RGMII→**GMII** strap correction, 512 MB DDR3). Read before a new board.
@@ -423,9 +423,10 @@ Each entry: the doc and **when to read it**. `→` marks the doc to start each s
 - **[`docs/findings/README.md`](findings/README.md)** — the findings-directory index (symptom→measurement→root-cause→
   fix→verification framing).
 - **Fixed-bug post-mortems** (all silicon-validated, evergreen teaching docs):
-  [`kl-eth-tx-debug.md`](findings/kl-eth-tx-debug.md) (the definitive TX bring-up saga + "never trust dst-MAC-keyed counters as
-  TX proof"), [`CBS_DATAPATH_BUG.md`](findings/CBS_DATAPATH_BUG.md), [`CBS_DEFAULT_SHAPING_BUG.md`](findings/CBS_DEFAULT_SHAPING_BUG.md), [`ADP_DORMANCY.md`](findings/ADP_DORMANCY.md),
-  [`GPTP_RXPAD_ROOTCAUSE.md`](findings/GPTP_RXPAD_ROOTCAUSE.md), [`PTP_TS_METADATA_FIX.md`](findings/PTP_TS_METADATA_FIX.md).
+  [`CBS_DATAPATH_BUG.md`](findings/CBS_DATAPATH_BUG.md), [`CBS_DEFAULT_SHAPING_BUG.md`](findings/CBS_DEFAULT_SHAPING_BUG.md), [`ADP_DORMANCY.md`](findings/ADP_DORMANCY.md).
+  The MAC TX bring-up saga ("never trust dst-MAC-keyed counters as TX proof"), the RX-pad
+  root cause and the timestamp record contract were written against the retired host path;
+  #259 removed them from the checkout and git history keeps them.
 - **[`CHANGELOG.md`](../CHANGELOG.md)** (root) — the per-lever measured ledger (lever → build → before→after Mbit/s)
   + the refuted-levers list. The single canonical lever→effect table for the perf campaign.
 - **[`TODO.md`](../TODO.md)** (root) — the original Phase 0-9 NIC bring-up plan; largely done/superseded by the
@@ -522,5 +523,5 @@ corpus, because the RTL they name is deleted:
   (they read back what software wrote and reach nothing on the wire).
   [`docs/reference/REGISTER_MAP.md`](reference/REGISTER_MAP.md) is the authority, word by word.
 
-The full list of which doc says what and the planned fixes lives in
-[`historical_now_obsolete/DOC_AUDIT.md`](../historical_now_obsolete/DOC_AUDIT.md).
+The full list of which doc says what and the planned fixes lived in the
+doc-audit record #259 retired into git history.

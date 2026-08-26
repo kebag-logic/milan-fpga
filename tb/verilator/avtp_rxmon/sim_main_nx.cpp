@@ -395,7 +395,7 @@ int main(int argc,char**argv){
     ck("NULL route: s1 LCTX FRX advanced", lctx_rd(1, W_FRX), 3);
 
     printf("\n[R2] P3: s1 -> DMA passes tagged, render tap stays s0\n");
-    //! route field = FLAGS since the ALSA-design rework: bit0 DMA, bit1
+    //! route field = FLAGS since the host-driver design rework: bit0 DMA, bit1
     //! RENDER (s0 reset = 0b11 RENDER|DMA = the P3 RENDER behavior)
     routewr(1, 1 /*DMA flag*/);
     pcm.clear(); pcm_users.clear(); rend_users.clear();

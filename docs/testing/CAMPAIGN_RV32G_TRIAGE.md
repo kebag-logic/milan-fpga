@@ -53,7 +53,7 @@ which.
 | `stream.stop-takes-effect` | 1 | peer | **real, peer**: the peer's return talker still framing at 5,323/s after UNBIND + STOP_STREAMING (`ret.peert0-axl0.disconnect`). The fixed stop-grader catching exactly what it was built for. |
 | `counters.stream_input.no-late-or-early-growth` | 1 | peer | **real, load-dependent, the run's one fabric-implicating row**: under the 110 s aggregate-load stress window, the peer's input on pair axt3→peerl6 counted LATE_TIMESTAMP +3,848 of 879,231 frames (**0.44%**) — our talker's frames arriving past their presentation time under load. The other three peer-bound stress pairs did not flow (SKIP), so this is one flowing stream's evidence. Next: reproduce on a `--latency-taps` build for the per-stage breakdown; this build ships without taps. |
 | `counters.stream_input.update-law-per-counter` | 1 | peer | **bind-edge measurement**: TIMESTAMP_VALID at 500.7/s on a `connect` step — a stream that started mid-window (~0.6 s of traffic in a 9 s window). Grader refinement candidate (per-frame law vs partial window), not a device finding. |
-| `state.restored-after-power-cycle` | 1 | ax | **expected before-picture**: the flashed rootfs predates the E4-aware persist script, so no format replay ran after the DUT power cycle. The corrected script is in the staged rootfs; re-test after its flash. |
+| `state.restored-after-power-cycle` | 1 | ax | **expected before-picture**: the flashed image predates the E4-aware persist script, so no format replay ran after the DUT power cycle. The corrected script is in the staged image; re-test after its flash. |
 
 ## What this run newly established
 
@@ -94,7 +94,7 @@ which.
 - **0.44% late frames under aggregate load** (one stream's evidence). Needs
   the latency-taps build for attribution (talker presentation offset vs
   shaper/queueing under load vs peer strictness).
-- **Persistence after power cycle** — staged rootfs carries the E4 CSR
+- **Persistence after power cycle** — the staged image carries the E4 CSR
   replay; flash, cold-cycle, re-run the physical area.
 - The **cable-pull quartet stays NEEDS-HUMAN**: the tap control API cannot
   enumerate through the current kernel driver (probed 08-04, user and root),

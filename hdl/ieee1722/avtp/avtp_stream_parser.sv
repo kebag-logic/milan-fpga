@@ -20,7 +20,7 @@
                 stream_id, the 32-bit AVTP presentation timestamp and the
                 subtype. Downstream (a later increment) uses `match_index` to
                 route the sample payload into that stream's sample ring so
-                PipeWire wakes per audio period, not per packet.
+                the host consumer wakes per audio period, not per packet.
 
                 Frame byte layout parsed (big-endian on the wire; this module
                 converts LE beats when BIG_ENDIAN=0, like traffic_classifier):

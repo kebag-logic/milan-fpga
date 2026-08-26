@@ -82,11 +82,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! axis_clk frequency (AX7101 100 MHz, Arty 50 MHz) — AECP lock-timer divider.
   parameter int MILAN_CLK_FREQ_HZ = 100_000_000,
   //! the fabric gPTP plane (issue #110/#114): elaboration-time option.
-  //! The RTL default remains OFF until #116; #120's shipping SoC opts in
-  //! explicitly after buying the area back with bare metal. ON splices
+  //! Fabric owns gPTP in the product shape; the 0 side remains an explicit
+  //! software-owner comparison build. ON splices
   //! KL_gptp_shadow onto the control TX (gasket-free, like CRF) and hands it
   //! the PHC's adjfine/adjtime; settime stays with the CSR face.
-  parameter bit GPTP_PLANE_EN_P = 1'b0,
+  parameter bit GPTP_PLANE_EN_P = 1'b1,
   //! Absolute in SoC builds, relative in self-contained Verilator benches.
   //! The image bakes in the config's station MAC, priority1 and fabric clock.
   parameter string GPTP_UCODE_HEX_P = "gptp_ucode.hex",
@@ -152,12 +152,12 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   parameter int AUDIO_IF_I2S_PAIR_P = 0,
 parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
                                    //! TBs shrink it to keep injections short)
-  //! item-7 ALSA playback: 1 = instantiate KL_pcm_tx (host PCM ring -> AAF
+  //! item-7 PCM playback: 1 = instantiate KL_pcm_tx (host PCM ring -> AAF
   //! pair source) and let it drive the packetizer in place of the ADC capture
   //! front-end while pb_enable_i is set. 0 (default) prunes the whole block so
   //! the datapath is byte-identical to the pre-item-7 shape.
   parameter int AAF_PLAYBACK_P = 0,
-  //! Linux ALSA host surface. Zero structurally removes the listener PCM-ring
+  //! Host sound-card surface. Zero structurally removes the listener PCM-ring
   //! route; AAF receive, render, TDM/I2S and the channel crossbars remain.
   parameter int SOUND_CARD_P = 0,
   //! task #31 START-SMALL lever: how many host playback RINGS KL_pcm_tx
@@ -561,7 +561,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   output wire        o_mmcm_ps_incdec,
   input  wire        i_mmcm_ps_done,
 
-  // ---- item-7 ALSA playback: host PCM ring -> KL_pcm_tx pair source --------
+  // ---- item-7 PCM playback: host PCM ring -> KL_pcm_tx pair source ---------
   //! Only live when AAF_PLAYBACK_P != 0; the SoC inert-ties these otherwise
   //! (and the KL_pcm_tx generate prunes, so the ports read/drive constants).
   //! The word-fetch port (pb_mem_*) is bridged to a DRAM ring read master at
@@ -996,7 +996,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   end endgenerate
 
   // ==========================================================================
-  //  item-7 ALSA playback source (KL_pcm_tx) — the TX/talker mirror of the RX
+  //  item-7 PCM playback source (KL_pcm_tx) - the TX/talker mirror of the RX
   //  depacketizer PCM ring. A host-written DRAM PCM ring, read through the
   //  SoC's word-fetch bridge (pb_mem_*), is de-interleaved and media-clock-
   //  paced into the SAME {pair_valid, pair_slot, L, R} contract the packetizer
@@ -1116,7 +1116,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //  per media tick. The map RAM resets all-zero, so the enable bit is the
   //  single bypass truth (program CMAP through the 0x900 port, then arm).
   //  Phase-1 sources: physical capture (I2S/TDM front-end pair) + tone; the
-  //  ALSA ring (KL_pcm_tx) and per-lane TDM sources are documented follow-ups.
+  //  PCM ring (KL_pcm_tx) and per-lane TDM sources are documented follow-ups.
   // ==========================================================================
   wire        cmap_pv_w;
   wire [4:0]  cmap_slot_w;
@@ -1255,7 +1255,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     //! a "physical" cluster silently read host audio whenever playback armed.
     .tdm_pair_valid_i (aafcap_pv_w), .tdm_pair_slot_i (aafcap_slot_w),
     .tdm_l_i (aafcap_l_w), .tdm_r_i (aafcap_r_w),
-    //! follow-up 2: the ALSA-playback ring (KL_pcm_tx) as a selectable source
+    //! follow-up 2: the host-playback ring (KL_pcm_tx) as a selectable source
     .ring_pair_valid_i (ring_src_pv_w), .ring_pair_slot_i (ring_src_slot_w),
     .ring_l_i (ring_src_l_w), .ring_r_i (ring_src_r_w),
     //! the media-grid pilot (task #59): stepped by the same media_tick_p as
@@ -1455,26 +1455,31 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
 
   wire        cfg_adp_enable;
   wire [63:0] cfg_adp_entity_id, cfg_adp_entity_model_id;
-  //! the grandmaster identity every fabric consumer reads (the PP's
-  //! ADPDU/GET_AVB_INFO/AS_PATH face, the Milan-info answers, the
-  //! recentre latch): CSR-published by the software chain today, the
-  //! gPTP plane's OWN verdict when the option is on. The CSR readback
-  //! words and the tu bit follow with #116's flip (a VERSION story).
+  //! The gPTP engine's publication bank. These declarations live beside the
+  //! consumers rather than the late generate block so clock validity, CSR,
+  //! and protocol answers all select the same compile-time owner.
   wire [63:0] cfg_adp_gptp_gm_csr;
-  wire [63:0] gptp_pub_gm_w;
+  wire [63:0] cfg_as_parent_csr;
+  wire [31:0] cfg_gptp_pdelay_csr;
+  wire [63:0] gptp_pub_gm_w, gptp_pub_parent_w, gptp_pub_annq_w;
+  wire [31:0] gptp_pub_flags_w, gptp_pub_pdelay_w, gptp_pub_offset_w;
+  wire [7*64-1:0] gptp_pub_path_w;
+  wire [3:0] gptp_pub_path_count_w, gptp_pub_path_gen_w;
+  wire        gptp_pub_disc_w;
+  wire signed [31:0] gptp_adj_w;
+  wire               gptp_step_we_w;
+  wire        [63:0] gptp_step_w;
+  //! One owner for every consumer and the CSR live-read face. The 0 side is
+  //! the retained software comparison; it is not the product default.
   wire [63:0] cfg_adp_gptp_gm = (GPTP_PLANE_EN_P != 1'b0)
                               ? gptp_pub_gm_w : cfg_adp_gptp_gm_csr;
-  //! ...and the neighbour propagation delay the same face reports, selected
-  //! by the SAME option so the served word and its change detector can never
-  //! read different sources (Milan 5.4.2.23 propagation_delay, Table 5.22).
-  //! Plane OFF: A_GPTP_PDELAY (0x6E4), the ns measurement the gptp daemon
-  //! publishes. Plane ON: KL_gptp_shadow's own pub_pdelay_ns_o. Before this
-  //! selection existed the CSR output was DISCARDED and GET_AVB_INFO served a
-  //! structural zero (audit B8).
-  wire [31:0] cfg_gptp_pdelay_csr_w;
-  wire [31:0] gptp_pub_pdelay_w;
-  wire [31:0] eff_gptp_pdelay_w = (GPTP_PLANE_EN_P != 1'b0)
-                                ? gptp_pub_pdelay_w : cfg_gptp_pdelay_csr_w;
+  wire [63:0] cfg_as_parent = (GPTP_PLANE_EN_P != 1'b0)
+                            ? gptp_pub_parent_w : cfg_as_parent_csr;
+  wire [31:0] cfg_gptp_pdelay = (GPTP_PLANE_EN_P != 1'b0)
+                              ? gptp_pub_pdelay_w : cfg_gptp_pdelay_csr;
+  //! Keep the notification and gather faces on the exact selected-owner
+  //! value. This alias retains the post-#227 name used by both consumers.
+  wire [31:0] eff_gptp_pdelay_w = cfg_gptp_pdelay;
   wire [15:0] cfg_adp_talker_sources, cfg_adp_talker_caps;
   wire [15:0] cfg_adp_listener_sinks, cfg_adp_listener_caps;
   wire [7:0]  cfg_adp_gptp_domain;
@@ -1887,20 +1892,20 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //  Milan v1.2 5.3.7.3 forbids stopping a Stream Output, so this is NOT a
   //  stream gate: the standard's lever for "my clock may be wrong" is the tu
   //  bit (Milan 4.3.5.2 -> IEEE 1722-2016 4.4.4.7, Annex B.1.1). Reset state
-  //  is tu = 1 (no software lease): unknown clock == not valid.
+  //  is tu = 1 (no valid active-owner claim): unknown clock == not valid.
   //  docs/findings/REF_LISTENER_TIMESTAMP_SWEEP_0727.md
   // ==========================================================================
   //! public: the milan_dp bench reads the verdict directly (Verilator
   //! folds the wire into its readers once the counter-edge terms use it)
   wire        clkv_tu_w /* verilator public_flat_rd */;
-  //! the leased IEEE 802.1AS-2020 10.2.5.1 asCapable claim (gh #64 J3),
-  //! sourced beside the tu verdict because it obeys the SAME lease: when the
-  //! daemon stops renewing, both fall together and the entity answers
-  //! GET_AVB_INFO honestly instead of repeating a dead claim.
+  //! IEEE 802.1AS-2020 10.2.5.1 asCapable is sourced beside tu from the
+  //! selected owner. The option-off software owner is lease-backed; the
+  //! default fabric owner supplies both claims from its committed bank.
   wire        clkv_as_cap_w;
   wire [31:0] clkv_stat_w, clkv_tucnt_w;
   KL_ptp_clock_validity #(
-    .QTICK_CYC_P (CLKV_QTICK_CYC_P)
+    .QTICK_CYC_P   (CLKV_QTICK_CYC_P),
+    .FABRIC_GPTP_P (GPTP_PLANE_EN_P)
   ) ptp_clock_validity (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .sw_wr_p_i    (cfg_clkv_wr_p),
@@ -1908,13 +1913,15 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .sw_disc_p_i  (cfg_clkv_disc_p),
     .sw_as_cap_i  (cfg_clkv_as_cap),
     .sw_wdog_q_i  (cfg_clkv_wdog_q),
-    //! a settime / adjtime IS a gPTP time discontinuity (4.4.4.7), and it is
-    //! the ONE piece of clock truth this fabric can see without being told
+    //! A settime / adjtime IS a gPTP time discontinuity (4.4.4.7). In the
+    //! default shape adjtime comes from the engine, not CLKV software.
     .phc_load_p_i (cfg_ptp_cmd_load),
-    .phc_adj_p_i  (cfg_ptp_cmd_adjust),
-    //! the daemon already publishes gptp_grandmaster_id for the advertiser;
-    //! a change in it is a change of grandmaster (Milan Annex B.1.1)
+    .phc_adj_p_i  ((GPTP_PLANE_EN_P != 1'b0)
+                   ? gptp_step_we_w : cfg_ptp_cmd_adjust),
     .gm_id_i      (cfg_adp_gptp_gm),
+    .fabric_sync_ok_i (gptp_pub_flags_w[3]),
+    .fabric_as_cap_i  (gptp_pub_flags_w[2]),
+    .fabric_disc_p_i  (gptp_pub_disc_w),
     .ts_uncertain_o (clkv_tu_w),
     .as_capable_o   (clkv_as_cap_w),
     .stat_o         (clkv_stat_w),
@@ -2009,12 +2016,29 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! gh #64 J4 local PathTrace staging (CSR 0x7DC group): the published
   //! tail GET_AS_PATH serves behind the grandmaster. The notification edge is
   //! derived below from the complete LIVE served sequence, not a raw CSR
-  //! generation: counts 0/1 alias to GM-only, and every tail aliases to empty
-  //! while no grandmaster exists.
+  //! generation. Product fabric mode preserves the donor's raw distinction:
+  //! count zero is an absent PathTrace and count one is `[GM]`. Only the
+  //! option-off software ABI aliases raw counts 0/1 to GM-only. Every owner
+  //! aliases to empty while no grandmaster exists.
   //! Slot count DERIVED from the port width (one source, as the CSR does).
-  wire [7*64-1:0] asp_path_w;
-  wire [3:0]      asp_count_w, asp_gen_w;
+  wire [7*64-1:0] asp_path_w /* verilator public_flat_rd */;
+  wire [3:0]      asp_count_w /* verilator public_flat_rd */;
+  wire [3:0]      asp_gen_w   /* verilator public_flat_rd */;
   localparam int unsigned ASP_SLOTS_C = $bits(asp_path_w) / 64;
+  //! milan_csr owner-selects o_asp_*: the engine's complete committed
+  //! PathTrace in product mode, #227's atomically published software tail in
+  //! option-off mode. Apply #227's legacy min-one alias only to the software
+  //! owner; fabric count zero means empty even with a separately known GM.
+  //! The conditional head below is the exact entry-zero value GET_AS_PATH
+  //! serves and the Table 5.22 comparator observes.
+  wire [3:0] asp_owner_count_w = GPTP_PLANE_EN_P ? asp_count_w
+      : ((asp_count_w > 4'd1) ? asp_count_w : 4'd1);
+  wire [3:0] asp_live_count_w = !(|cfg_adp_gptp_gm) ? 4'd0
+      : asp_owner_count_w;
+  wire [7*64-1:0] asp_live_path_w = !(|cfg_adp_gptp_gm) ? '0
+      : asp_path_w;
+  wire [63:0] asp_live_gm_w = (|asp_live_count_w) ? cfg_adp_gptp_gm
+      : 64'd0;
   wire [63:0] pcm_lpf_tdata;
   wire        pcm_lpf_tvalid;
   wire        pcm_lpf_active;
@@ -2293,6 +2317,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .N_LISTENERS_P(N_STREAMS),
     .N_TALKERS_P(N_STREAMS),
     .SRP_LSN0_ROW_P(SRP_LSN0_ROW_C),
+    .GPTP_PLANE_EN_P(GPTP_PLANE_EN_P),
     //! PHC scale truth (t532 wire-scale audit): the PTP_INCR reset value is
     //! derived from THIS clock declaration, so a free-run PHC ticks true ns
     //! on every shape without waiting for software
@@ -2388,7 +2413,13 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .o_adp_listener_caps  (cfg_adp_listener_caps),
     .o_adp_controller_caps(),
     .o_adp_gptp_gm        (cfg_adp_gptp_gm_csr),
-    .o_gptp_pdelay_ns     (cfg_gptp_pdelay_csr_w),
+    .o_gptp_pdelay_ns     (cfg_gptp_pdelay_csr),
+    .i_gptp_gm_id         (gptp_pub_gm_w),
+    .i_gptp_parent_id     (gptp_pub_parent_w),
+    .i_gptp_pdelay_ns     (gptp_pub_pdelay_w),
+    .i_gptp_asp_path      (gptp_pub_path_w),
+    .i_gptp_asp_count     (gptp_pub_path_count_w),
+    .i_gptp_asp_gen       (gptp_pub_path_gen_w),
     .o_adp_gptp_domain    (cfg_adp_gptp_domain),
     .o_adp_current_config (cfg_adp_current_config),
     .o_adp_identify_index (cfg_adp_identify_index),
@@ -2629,7 +2660,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .i_mac_reinit       (linkg_reinit_w),
     .o_linkg_dis        (cfg_linkg_dis),
     .o_linkg_freeze     (cfg_linkg_freeze),
-    .o_as_parent_ckid   (),
+    .o_as_parent_ckid   (cfg_as_parent_csr),
     .o_asp_path         (asp_path_w),
     .o_asp_count        (asp_count_w),
     .o_asp_gen          (asp_gen_w),
@@ -2742,9 +2773,6 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! PHC knob ownership: the plane owns adjfine/adjtime when enabled
   //! (constant-folds to the CSR face when the option is off); settime
   //! (tod_wr/cmd_load) always stays with software -- boot sets the epoch.
-  wire signed [31:0] gptp_adj_w;
-  wire               gptp_step_we_w;
-  wire        [63:0] gptp_step_w;
   wire [31:0] eff_ptp_adj_w    = (GPTP_PLANE_EN_P != 1'b0)
                                ? unsigned'(gptp_adj_w)   : cfg_ptp_adj;
   wire [63:0] eff_ptp_offset_w = (GPTP_PLANE_EN_P != 1'b0)
@@ -3359,8 +3387,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //!     (pp_gm_id_edge_w) so they can never disagree about the identity.
   //!   * media clock: ~clkv_tu_w. Milan leaves "locked" explicitly open
   //!     ("the definition of locked is left open to each manufacturer",
-  //!     5.3.11.2); this build's definition is the CLKV lease verdict - the
-  //!     SAME truth the tu bit stamps into every AVTPDU (VERSION 0x0016).
+  //!     5.3.11.2); this build's definition is the active-owner CLKV verdict -
+  //!     the SAME truth the tu bit stamps into every AVTPDU (VERSION 0x0055).
   //!     One clock-validity authority, two views; a LOCKED count that
   //!     disagreed with the tu bit on the wire would be two answers to one
   //!     question. tu resets 1 (unknown is NOT valid), so locked resets LOW.
@@ -4317,9 +4345,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //!    already applies (blk_addr + source), valid while a claim is held.
   //!  - propagation_delay is the selected effective gPTP measurement: the
   //!    fabric plane when present, otherwise the GPTP_PDELAY CSR.
-  //!  - GET_AS_PATH answers one coherent published snapshot: count 1 =
-  //!    {grandmaster} (0 with no GM), followed by the PathTrace tail the
-  //!    daemon atomically publishes through the 0x7DC group.
+  //!  - GET_AS_PATH answers one coherent selected-owner snapshot. Fabric mode
+  //!    serves the engine-selected full bounded PathTrace; option off serves
+  //!    GM followed by the atomically published 0x7DC PathTrace tail.
 
   //! CLAMPED index widths - a 1-sink shape's 2-bit vectors must never be
   //! part-selected with a wider index (the lint ratchet's own catch)
@@ -4345,11 +4373,19 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   logic [63:0] asp_resp_gm_r;
   logic [3:0]  asp_resp_count_r;
   logic [7*64-1:0] asp_resp_path_r;
+  logic [63:0] gsi_gm_snap_r;
+  logic [31:0] gsi_pdelay_snap_r;
+  logic  [7:0] gsi_domain_snap_r;
+  logic        gsi_link_snap_r, gsi_ascap_snap_r;
+  logic  [2:0] gsi_prio_snap_r;
+  logic [11:0] gsi_vid_snap_r;
   //! Public to the integration harness so it can place a PUBLISH on the exact
   //! edge between the count capture and the remaining in-flight gathers.
   wire asp_resp_capture_w /* verilator public_flat_rd */ =
        pp_gsi_req_w && !gsi_req_q_r && (pp_gsi_kind_w == 2'd2)
        && (pp_gsi_sel_w == 4'd0);
+  wire gsi_avb_capture_w = pp_gsi_req_w && !gsi_req_q_r
+       && (pp_gsi_kind_w == 2'd1) && (pp_gsi_sel_w == 4'd0);
   //! The harness watches this independently of TX backpressure. Its in-flight
   //! cut must complete PUBLISH after the count snapshot but before the first
   //! path-entry request, otherwise an all-old response would be a false-green
@@ -4370,6 +4406,13 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       asp_resp_gm_r <= 64'd0;
       asp_resp_count_r <= 4'd0;
       asp_resp_path_r <= '0;
+      gsi_gm_snap_r     <= 64'd0;
+      gsi_pdelay_snap_r <= 32'd0;
+      gsi_domain_snap_r <= 8'd0;
+      gsi_link_snap_r   <= 1'b0;
+      gsi_ascap_snap_r  <= 1'b0;
+      gsi_prio_snap_r   <= 3'd0;
+      gsi_vid_snap_r    <= 12'd0;
     end else begin
       gsi_req_q_r  <= pp_gsi_req_w;
       gsiq_kind_r  <= pp_gsi_kind_w;
@@ -4381,11 +4424,18 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       gsi_srv2_r   <= pp_gsi_req_w && gsi_sel_match_w && gsi_srv1_r;
       gsi_data_r   <= gsi_ans_raw_w;
       if (asp_resp_capture_w) begin
-        asp_resp_gm_r    <= cfg_adp_gptp_gm;
-        asp_resp_count_r <= (|cfg_adp_gptp_gm)
-                          ? ((asp_count_w > 4'd1) ? asp_count_w : 4'd1)
-                          : 4'd0;
-        asp_resp_path_r  <= asp_path_w;
+        asp_resp_gm_r    <= asp_live_gm_w;
+        asp_resp_count_r <= asp_live_count_w;
+        asp_resp_path_r  <= asp_live_path_w;
+      end
+      if (gsi_avb_capture_w) begin
+        gsi_gm_snap_r     <= cfg_adp_gptp_gm;
+        gsi_pdelay_snap_r <= eff_gptp_pdelay_w;
+        gsi_domain_snap_r <= cfg_adp_gptp_domain;
+        gsi_link_snap_r   <= eff_link_w;
+        gsi_ascap_snap_r  <= clkv_as_cap_w;
+        gsi_prio_snap_r   <= pp_cd_srp_class_a_prio_w;
+        gsi_vid_snap_r    <= pp_cd_srp_class_a_vid_w;
       end
     end
   end
@@ -4595,14 +4645,12 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   end
 
   //! ---- the served 802.1AS path (Milan 5.4.2.17 GET_AS_PATH) ----------
-  //! Entry 0 is ALWAYS the grandmaster the 0x624/0x628 CSR pair commits
-  //! (derive, never mirror: the J4 staging store refuses slot 0 for the
-  //! same reason). Entries 1.. are the PathTrace TAIL the daemon staged
-  //! and PUBLISHED through the 0x7DC group (slot k = path entry k), so a
-  //! bridged path reaches the wire instead of stopping at the local GM.
-  //! No grandmaster = an empty path, whatever the staging holds: a tail
-  //! without a head is not a path. A grandmaster with no published tail
-  //! is the one-entry path a leaf directly under its GM sees.
+  //! Entry 0, when count is nonzero, is the grandmaster the 0x624/0x628 CSR
+  //! pair commits (derive, never mirror: the J4 staging store refuses slot 0
+  //! for the same reason). Entries 1.. are the selected PathTrace tail. No
+  //! grandmaster is always empty. With a GM, product fabric count zero is also
+  //! empty because the selected Announce had no PathTrace TLV; option-off raw
+  //! counts 0/1 retain #227's one-entry `{GM}` compatibility meaning.
   wire [3:0] asp_served_count_w = asp_resp_count_r;
   logic [63:0] asp_served_entry_w;
   always_comb begin : asp_entry_pick
@@ -4685,16 +4733,16 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       end
       2'd1: begin                            // ---- GET_AVB_INFO ----
         unique case (gsiq_sel_r)
-          4'd0: gsi_ans_raw_w = cfg_adp_gptp_gm;
-          4'd1: gsi_ans_raw_w = {eff_gptp_pdelay_w,   // propagation_delay (ns)
-                                 cfg_adp_gptp_domain,
-                                 {3'd0, 1'b1, !eff_link_w, 1'b1, 1'b1,
-                                  clkv_as_cap_w},
+          4'd0: gsi_ans_raw_w = gsi_gm_snap_r;
+          4'd1: gsi_ans_raw_w = {gsi_pdelay_snap_r,
+                                 gsi_domain_snap_r,
+                                 {3'd0, 1'b1, !gsi_link_snap_r, 1'b1, 1'b1,
+                                  gsi_ascap_snap_r},
                                  16'd1};     // one msrp mapping: class A
           4'd8: gsi_ans_raw_w = (gsiq_ord_r == 8'd0)
                               ? {32'd0, 8'd6,       // SRclassID A
-                                 {5'd0, pp_cd_srp_class_a_prio_w},
-                                 {4'd0, pp_cd_srp_class_a_vid_w}}
+                                 {5'd0, gsi_prio_snap_r},
+                                 {4'd0, gsi_vid_snap_r}}
                               : 64'd0;
           default: gsi_ans_raw_w = 64'd0;
         endcase
@@ -4745,23 +4793,15 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! config-derived ADP_GPTP_DOMAIN_C, so without it a nonzero configured
   //! domain would fake a change at t=0 into an empty registry.
   //!
-  //! GET_AS_PATH keeps its own two terms, and NEITHER is the ADP strobe.
+  //! GET_AS_PATH keeps its own served-tuple comparator and never uses the ADP
+  //! strobe or the unconditional grandmaster-identity edge.
   //! Milan Table 5.22 triggers GET_AS_PATH on "the path sequence changes",
-  //! and this fabric serves that sequence as entry 0 = the committed
-  //! grandmaster (0x624/0x628) followed by the published PathTrace tail.
-  //! So the two terms that move it are:
-  //!
-  //!   * gsi_gm_chg_w  - the grandmaster IDENTITY snapshot moving, which is
-  //!     entry 0 changing (and, at the zero boundary, the count going
-  //!     0 <-> 1). This is the SAME snapshot compare the AVB detector uses,
-  //!     so the served answer and both detectors have one source. It
-  //!     subsumes the old first-commit term: 0 -> nonzero IS a change of
-  //!     cfg_adp_gptp_gm.
-  //!   * the served PathTrace snapshot moving - the same grandmaster with a
-  //!     new active tail/count, which the processor cannot derive. Compare
-  //!     what GET_AS_PATH actually serves, not asp_gen: raw counts 0 and 1
-  //!     are both GM-only, and all tail publications alias to empty while
-  //!     the grandmaster is zero.
+  //! and this fabric serves that sequence from one selected owner. Compare
+  //! exactly `(count ? GM : 0, count, active tails)`, not a raw publication
+  //! generation. Thus fabric count 0 <-> 1 is a real sequence edge; GM A->B
+  //! while both fabric counts are zero is silent; software counts 0/1 remain
+  //! the same GM-only sequence; every tail aliases to empty while GM=0; and
+  //! hidden software staging cannot perturb fabric mode.
   //!
   //! What is NOT a term is the gPTP domain number. It is a GET_AVB_INFO
   //! field (below) and an ADPDU field, but it is not a path entry, so a
@@ -4773,9 +4813,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! All of these are one-cycle strobes; the processor coalesces them into
   //! one push per class.
   logic gsi_ascap_q_r;
+  logic [63:0] gsi_asp_gm_q_r;
   logic [3:0] gsi_asp_count_q_r;
   logic [7*64-1:0] gsi_asp_path_q_r;
-  logic [3:0] asp_gen_q_r;
   logic gsi_snap_v_r;
   logic [63:0] gsi_gm_q_r;
   logic [31:0] gsi_pdly_q_r;
@@ -4783,20 +4823,18 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   always_ff @(posedge axis_clk) begin : gsi_change_edges
     if (!axis_resetn) begin
       gsi_ascap_q_r <= 1'b0;
+      gsi_asp_gm_q_r <= 64'd0;
       gsi_asp_count_q_r <= 4'd0;
       gsi_asp_path_q_r  <= '0;
-      asp_gen_q_r   <= 4'd0;
       gsi_snap_v_r  <= 1'b0;
       gsi_gm_q_r    <= 64'd0;
       gsi_pdly_q_r  <= 32'd0;
       gsi_dom_q_r   <= 8'd0;
     end else begin
       gsi_ascap_q_r <= clkv_as_cap_w;
-      gsi_asp_count_q_r <= (|cfg_adp_gptp_gm)
-                           ? ((asp_count_w > 4'd1) ? asp_count_w : 4'd1)
-                           : 4'd0;
-      gsi_asp_path_q_r  <= (|cfg_adp_gptp_gm) ? asp_path_w : '0;
-      asp_gen_q_r   <= asp_gen_w;
+      gsi_asp_gm_q_r <= asp_live_gm_w;
+      gsi_asp_count_q_r <= asp_live_count_w;
+      gsi_asp_path_q_r  <= asp_live_path_w;
       gsi_snap_v_r  <= 1'b1;
       gsi_gm_q_r    <= cfg_adp_gptp_gm;
       gsi_pdly_q_r  <= eff_gptp_pdelay_w;
@@ -4812,18 +4850,12 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
                             || (eff_gptp_pdelay_w   != gsi_pdly_q_r)
                             || (cfg_adp_gptp_domain != gsi_dom_q_r)));
   //! One source for the event and the answer: compare the complete served
-  //! sequence. This suppresses both deterministic aliases that a raw publish
-  //! generation cannot see: 0 <-> 1 with a stable GM, and every publish while
-  //! GM=0. A later GM arrival still fires once through gsi_gm_chg_w and serves
-  //! the latest published tail.
-  wire [3:0] gsi_asp_count_w = (|cfg_adp_gptp_gm)
-                               ? ((asp_count_w > 4'd1) ? asp_count_w : 4'd1)
-                               : 4'd0;
-  wire [7*64-1:0] gsi_asp_path_w = (|cfg_adp_gptp_gm) ? asp_path_w : '0;
-  wire gsi_asp_chg_w = gsi_gm_chg_w
-                    || (gsi_snap_v_r && (asp_gen_w != asp_gen_q_r)
-                        && ((gsi_asp_count_w != gsi_asp_count_q_r)
-                            || (gsi_asp_path_w != gsi_asp_path_q_r)));
+  //! sequence. gsi_gm_chg_w remains the AVB_INFO/counter identity edge, but
+  //! AS_PATH sees the GM only when its count makes entry zero present.
+  wire gsi_asp_chg_w = gsi_snap_v_r
+                    && ((asp_live_gm_w != gsi_asp_gm_q_r)
+                        || (asp_live_count_w != gsi_asp_count_q_r)
+                        || (asp_live_path_w != gsi_asp_path_q_r));
 
   //! IDENTIFY: the processor serves the CONTROL descriptor and stores its
   //! dynamic value. KL_pp_shadow exports aecp_identify_o into
@@ -5258,8 +5290,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .cfg_stream_id_i (strtbl_sid_w),
     .cfg_stream_en_i (strtbl_en_w),
     //! PRE-FILTER tap (2026-07-19): the media path must not depend on the
-    //! kernel's dest-MAC filter config - the TCAM now shields the CPU from
-    //! the AVTP multicast flood (16 kfps ate the 1-hart kernel: 55k RX
+    //! host stack's dest-MAC filter config - the TCAM now shields the CPU from
+    //! the AVTP multicast flood (16 kfps ate the 1-hart host: 55k RX
     //! drops, pdelay responses down to 35% = asCapable flaps at the switch)
     //! while the fabric keeps consuming the stream here.
     .s_tdata_i  (rx_axis_ptp_to_filt.tdata),
@@ -6334,22 +6366,19 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   );
 
   // ==========================================================================
-  //  the fabric gPTP plane (issue #114, elaboration option, default OFF)
+  //  the fabric gPTP plane (issue #114, product default ON since #116)
   // ==========================================================================
   //! Joins the control lane AFTER the min-IFG gasket (the CRF rationale:
   //! a time-critical frame must not queue 512 cycles per control burst)
   //! through its own staggered merge (ctl 2^15 -> this 2^16 -> boundary
   //! 2^17). The egress stamper observes the TRUE MAC boundary; ingress
   //! rides the same rx_axis_to_dma tap every plane uses (input only,
-  //! tvalid && tready qualified). Of the publish bank, the GM identity
-  //! feeds the fabric consumers when the option is on (see the
-  //! cfg_adp_gptp_gm mux); the remaining words and the CSR readback
-  //! follow with #116's flip.
+  //! tvalid && tready qualified). The publication bank directly owns the GM,
+  //! parent, pdelay, tu/asCapable, CSR, and protocol-answer faces. The option
+  //! off arm selects the retained software publication path.
   wire [TDATA_WIDTH-1:0]   ctlg3_tdata;
   wire [TDATA_WIDTH/8-1:0] ctlg3_tkeep;
   wire                     ctlg3_tvalid, ctlg3_tlast, ctlg3_tready;
-  wire [63:0] gptp_pub_parent_w, gptp_pub_annq_w;
-  wire [31:0] gptp_pub_flags_w, gptp_pub_offset_w;
   wire [15:0] gptp_tap_drop_w, gptp_rx_drop_w, gptp_ev_drop_w;
 
   generate if (GPTP_PLANE_EN_P) begin : g_gptp_plane
@@ -6394,7 +6423,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
         .pub_pdelay_ns_o (gptp_pub_pdelay_w),
         .pub_offset_o    (gptp_pub_offset_w),
         .pub_annq_o      (gptp_pub_annq_w),
+        .pub_path_count_o(gptp_pub_path_count_w),
+        .pub_path_o      (gptp_pub_path_w),
+        .pub_path_gen_o  (gptp_pub_path_gen_w),
         .pub_commit_o    (),
+        .pub_disc_o      (gptp_pub_disc_w),
         .dbg_tap_drop_o  (gptp_tap_drop_w),
         .dbg_rx_drop_o   (gptp_rx_drop_w),
         .dbg_ev_drop_o   (gptp_ev_drop_w),
@@ -6455,6 +6488,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     assign gptp_pub_flags_w = '0;
     assign gptp_pub_pdelay_w = '0;
     assign gptp_pub_offset_w = '0;
+    assign gptp_pub_path_w = '0;
+    assign gptp_pub_path_count_w = '0;
+    assign gptp_pub_path_gen_w = '0;
+    assign gptp_pub_disc_w = 1'b0;
     assign gptp_tap_drop_w = '0;
     assign gptp_rx_drop_w = '0;
     assign gptp_ev_drop_w = '0;

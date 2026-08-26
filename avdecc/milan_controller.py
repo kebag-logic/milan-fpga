@@ -4,8 +4,8 @@
 """
 milan_controller.py - minimal AVDECC controller to validate the Milan v1.2 HW
 entity on silicon. Protocol-equivalent to what Hive / la_avdecc drive, but
-self-contained (raw AF_PACKET, no external AVDECC stack) so it runs on any
-Linux peer on the AVB segment.
+self-contained (raw AF_PACKET, no external AVDECC stack) for a measurement
+peer on the AVB segment.
 
 Run on the measurement peer (the peer test host), which shares the AVB switch
 with the AX7101 entity:
@@ -181,8 +181,8 @@ def rstatus(f): return (f[16] >> 3) & 0x1F if f else -1
 def rcdl(f):    return ((f[16] & 0x07) << 8) | f[17] if f and len(f) > 17 else -1
 def cdl_ok(f):
     # IEEE 1722-2016 §5.4: control_data_length counts octets AFTER the stream_id
-    # (target_entity_id) field, i.e. from wire offset 26. The pipewire AVB
-    # reference (Hive-validated) matches: CDL = frame - 26. The on-wire frame is
+    # (target_entity_id) field, i.e. from wire offset 26. The validated AVB
+    # reference matches: CDL = frame - 26. The on-wire frame is
     # the AECPDU padded up to the 60-byte Ethernet minimum, so
     # len == max(60, 26 + cdl). (Frames > 60 B pin cdl exactly; <= 60 B ones
     # can't be length-verified as padding hides the true cdl.)

@@ -13,7 +13,7 @@
                 (docs/fpga/FPGA_DESIGN.md section 2): ONE monitor
                 datapath, N listener contexts in a BRAM-backed context RAM
                 (LCTX). Per-PDU verdict contract = KL_avtp_rx_monitor
-                (the pipewire-extracted engine): lock on first valid PDU /
+                (the module-avb-extracted engine): lock on first valid PDU /
                 8-PDU settle / mismatch detect + interrupt(lost>=2) /
                 100 ms silence unlock / per-PDU format compare (a rejected
                 PDU affects nothing else) / counter reset ONLY on that

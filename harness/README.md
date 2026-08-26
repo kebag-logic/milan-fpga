@@ -26,7 +26,7 @@ Detach it however you like — it holds no terminal:
 
 ```sh
 setsid nohup harness/run.sh > /dev/null 2>&1 &
-systemd-run --user --unit=milan-campaign harness/run.sh
+setsid --fork sh -c 'exec harness/run.sh >>harness-run.log 2>&1'
 ```
 
 ## Contents
@@ -277,10 +277,10 @@ depends on board-side storage. Two reasons, both structural:
 Board-side flash logging therefore exists only for the case the host *cannot*
 observe: a fault where the board dies before it can report.
 
-**That path is not available today.** `sw/dts/mtd-partitions.dtsi` is generated
-but nothing appends it to the base tree, and its own banner records that no
-deployed tree carries an mtd node and no mtd driver is known to bind to this
-controller in this kernel configuration. `board/flashlog.sh` therefore degrades
+**That path is not available today.** The partition include the retired
+flash-partition emitter produced never reached a deployed tree, no deployed
+tree carries an mtd node, and no mtd driver is known to bind to this
+controller. `board/flashlog.sh` therefore degrades
 silently to host-only and records the falsifier's answer
 (`cat /proc/mtd`) in the run. When a partition appears and is mounted, it starts
 working with no code change and the harness picks it up automatically.
@@ -450,7 +450,7 @@ known-good verdict read by a human before anything destructive is enabled.
 
 Nothing in [Inferred](#inferred--designed-reviewed-against-the-tree-never-exercised)
 has been exercised: two boards, a jump host, a power strip, a capture tap, an
-ALSA capture device and a controller host are all required and none was
+capture device and a controller host are all required and none was
 available. A new bitstream was building while this was written, and the brief
 was explicitly to deliver scripts plus their self-tests, not a bench run.
 

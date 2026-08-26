@@ -39,7 +39,6 @@ Checks, over every ``*.md`` file in the tree:
    sign in prose, and no un-anchored ``X.md Section N`` pointers. The archive
    and in-place-obsolete pages (first line ``[OBSOLETE + date]``, the regex
    lifted from ``check_archive.py``) are records of their time and exempt.
-
 Exit 0 = clean; exit 1 = findings, one per line as ``path:line: message``.
 """
 
@@ -132,6 +131,41 @@ RETIRED = {
     "SESSION_HANDOFF.md",
     "HANDOVER.md",
     "HANDOVER_SMALL.md",
+    # #259 removed the retired host software stack from the tracked tree.
+    # DOC_GENERATION.md section 5: retiring a document means registering its
+    # basename here, or the next bare mention of it is invisible to rule 4.
+    "APLAY_SOFTWARE_PATH_AUDIT_0803.md",
+    "CPPI_DMA_REDESIGN.md",
+    "DOC_AUDIT.md",
+    "FULLY_FPGA_RISCV_MIGRATION.md",
+    "GPTP_GM_LOSS_UNDER_RX_LOAD.md",
+    "GPTP_RXPAD_ROOTCAUSE.md",
+    "HANDOVER_0728.md",
+    "HANDOVER_0731.md",
+    "HANDOVER_0801.md",
+    "HANDOVER_0802.md",
+    "HANDOVER_0805.md",
+    "HISTORY_PRE_SHORTEN_0731.md",
+    "HOWTO_PLAY_MUSIC.md",
+    "M-A2-2026-08-01.md",
+    "PIPEWIRE_AVB_PEER.md",
+    "PTP_TS_METADATA_FIX.md",
+    "REF_LISTENER_TIMESTAMP_SWEEP_0727.md",
+    "RX_FANOUT_AND_TX_CEILING.md",
+    "RX_MEMORY_HIERARCHY_PLAN.md",
+    "TCP_THROUGHPUT_COLLAPSE_0803.md",
+    "TRUE_E2E_REQUIREMENTS.md",
+    "VIRTUAL_E2E_HOWTO.md",
+    "VIRTUAL_E2E_PLAN.md",
+    "VIRTUAL_E2E_QEMU.md",
+    "VIRTUAL_E2E_TEST_PROCEDURE.md",
+    "VIRTUAL_SWITCH_RESEARCH.md",
+    "kl-eth-tx-debug.md",
+    "virtual-e2e-all-2026-08-01.md",
+    "virtual-e2e-env-check-2026-08-01.md",
+    "virtual-e2e-env.md",
+    "virtual-e2e-t1-2026-08-01.md",
+    "virtual-e2e-t2-prep-2026-08-01.md",
 }
 
 # Bench/host-identifying patterns (generic shapes only — never the literals).
@@ -481,14 +515,15 @@ def main():
     resolve = make_resolver(md)
     tracked_set = set(md)
     for rel in md:
-        findings.extend(check_md(REPO / rel, rel, resolve, tracked_set))
+        path = REPO / rel
+        findings.extend(check_md(path, rel, resolve, tracked_set))
     # local-info sweep over diagram sources (text formats only)
     for pattern in ("docs/*.gen.py", "docs/*/*.gen.py", "docs/*.drawio",
                     "docs/*/*.drawio", "docs/*.svg", "docs/*/*.svg"):
         for rel in tracked(pattern):
-            for lineno, line in enumerate(
-                    (REPO / rel).read_text(encoding="utf-8",
-                                           errors="replace").splitlines(), 1):
+            diagram_text = (REPO / rel).read_text(
+                encoding="utf-8", errors="replace")
+            for lineno, line in enumerate(diagram_text.splitlines(), 1):
                 lm = LOCAL_RE.search(line)
                 if lm:
                     findings.append(f"{rel}:{lineno}: local info '{lm.group(0)}'")

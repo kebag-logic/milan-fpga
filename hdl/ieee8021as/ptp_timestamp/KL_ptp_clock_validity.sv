@@ -36,12 +36,15 @@
                 Milan v1.2 Annex B.1.1 (on a grandmaster change tu shall
                 be 1 for at least 0.25 s).
 
-                THE THREE TERMS, and where each one's evidence lives:
+                THE THREE TERMS, and where each owner's evidence lives:
 
-                  * SOFTWARE LEASE (sw_*). Whether the PHC is actually
-                    disciplined to the domain is a servo fact: it lives
-                    in ptp4l's offset/frequency state and NOTHING in
-                    fabric can observe it. That is not merely a wiring
+                  * SYNC HEALTH (sw_* / fabric_sync_ok_i). In compatibility
+                    mode the PHC is disciplined off-chip, so its health is a
+                    daemon servo fact that the datapath cannot infer. In
+                    fabric mode the on-chip gPTP engine owns that servo and
+                    publishes its selected-and-synchronised verdict directly;
+                    the software lease is inert. The compatibility boundary
+                    is not merely a wiring
                     gap, it is information-theoretic - see
                     docs/design/PRESENTATION_TIME_WRAP.md: avtp_timestamp
                     is the LOW 32 BITS of an unsigned nanosecond count,
@@ -54,8 +57,8 @@
                     which is precisely the square wave measured on
                     2026-07-27. No listener-side heuristic, and no
                     fabric-side observation of our own wire, can recover
-                    the truth; only the talker's own servo knows. So
-                    software publishes it -
+                    the truth; only the active servo knows. Compatibility
+                    software therefore publishes its verdict -
                     the established gptp2csr.sh pattern (GM id 0x624/8,
                     pdelay 0x6E4, AS_PATH 0x730/4) - and it publishes it
                     as a LEASE, not a flag: every CLKV_CTRL write
@@ -64,9 +67,9 @@
                     exactly the defect above (the Arty was synchronised
                     once, then drifted 60 h away while still asserting
                     health). Reset state is sync_ok=0 / lease=0, i.e.
-                    UNKNOWN == NOT VALID: a build nobody teaches to
-                    publish sync state emits tu=1 forever, which is the
-                    honest answer, not the convenient one.
+                    UNKNOWN == NOT VALID: a compatibility build nobody
+                    teaches to publish sync state emits tu=1 forever, which
+                    is the honest answer, not the convenient one.
 
                   * FABRIC-OBSERVED PHC STEPS (phc_load_p_i /
                     phc_adj_p_i). A settime or adjtime IS a discontinuity
@@ -75,11 +78,10 @@
                     here, as the PTP_CMD strobes. No software help
                     needed, no software trust required.
 
-                  * GRANDMASTER CHANGE (gm_id_i). The daemon already
-                    publishes gptp_grandmaster_id into ADP_GM_LO/HI for
-                    the advertiser; a change in that value is a change
-                    of grandmaster. Detecting it here gets Milan Annex
-                    B.1.1 for free, with no new software contract.
+                  * GRANDMASTER CHANGE (gm_id_i). The active owner publishes
+                    gptp_grandmaster_id for the advertiser; a change in that
+                    value is a change of grandmaster. Detecting it here gets
+                    Milan Annex B.1.1 for free.
 
                 The last two arm a holdover of HOLD_QTICK_P quarter-
                 seconds (default 2 -> 0.25..0.5 s against a free-running
@@ -95,19 +97,19 @@
                 the second half of the decorative-ABI fix
                 (docs/limitations/RECURRING_DEFECT_PATTERNS.md 1).
 
-                asCAPABLE RIDES THE SAME LEASE (gh #64 J3). 802.1AS-2020
+                asCAPABLE FOLLOWS THE ACTIVE OWNER (gh #64 J3). 802.1AS-2020
                 10.2.5.1: "A Boolean that is TRUE if and only if it is
                 determined that this PTP Instance and the PTP Instance at
                 the other end of the link attached to this PTP Port can
                 interoperate with each other via the IEEE 802.1AS
                 protocol" - and the clause adds that the determination is
-                MEDIUM-DEPENDENT, i.e. it is the pdelay-exchange verdict
-                ptp4l computes and NOTHING in fabric can observe
-                (the same information boundary as the sync claim above).
-                The old consumer proxied it as |pdelay CSR|, which is
+                MEDIUM-DEPENDENT. In compatibility mode it is the exchange
+                verdict the daemon computes; in fabric mode the on-chip engine
+                publishes its own verdict through fabric_as_cap_i. The old
+                compatibility consumer proxied it as |pdelay CSR|, which is
                 stale-true forever once the daemon dies and flag-flaps
                 when a starved pmc read maps "no answer" to pdelay 0.
-                So the daemon publishes its asCapable verdict as
+                So the compatibility daemon publishes its verdict as
                 CLKV_CTRL[2] on the SAME write that renews the lease, and
                 as_cap_r obeys the lease law sync_ok_r obeys: latched
                 only with a live lease, CLEARED when the lease lapses -
@@ -137,7 +139,12 @@ module KL_ptp_clock_validity #(
   //! discontinuity holdover in quarter-ticks. 2 => 0.25..0.5 s against the
   //! free-running prescaler, so Milan v1.2 Annex B.1.1's 0.25 s minimum
   //! holds whatever the phase of the event.
-  parameter int unsigned HOLD_QTICK_P = 2
+  parameter int unsigned HOLD_QTICK_P = 2,
+  //! Default 0 preserves the standalone/legacy CLKV lease contract. The
+  //! product datapath passes its gPTP elaboration option here; at 1, the
+  //! engine's published sync/asCapable levels own the verdict and software
+  //! writes cannot manufacture clock health.
+  parameter bit FABRIC_GPTP_P = 1'b0
 ) (
   input  wire        clk_i,           //! datapath clock
   input  wire        rst_n,           //! active-low synchronous reset
@@ -150,6 +157,11 @@ module KL_ptp_clock_validity #(
                                       //! 10.2.5.1 asCapable verdict (leased, like [0])
   input  wire [11:0] sw_wdog_q_i,     //! CLKV_CTRL[15:4] lease, quarter-ticks (0 = never trust)
 
+  //! --- fabric gPTP publication bank ------------------------------------
+  input  wire        fabric_sync_ok_i,//! engine has selected and synchronised to a GM
+  input  wire        fabric_as_cap_i, //! engine's 802.1AS asCapable verdict
+  input  wire        fabric_disc_p_i, //! pre-commit GM/sync discontinuity pulse
+
   //! --- discontinuities this fabric can see for itself -------------------
   input  wire        phc_load_p_i,    //! PTP_CMD[0] settime applied (a step)
   input  wire        phc_adj_p_i,     //! PTP_CMD[1] adjtime applied (a step)
@@ -157,7 +169,7 @@ module KL_ptp_clock_validity #(
 
   //! --- verdict -----------------------------------------------------------
   output wire        ts_uncertain_o,  //! AVTP tu bit for EVERY talker (1 = uncertain)
-  output wire        as_capable_o,    //! lease-backed asCapable (GET_AVB_INFO flags[0])
+  output wire        as_capable_o,    //! active-owner asCapable (GET_AVB_INFO flags[0])
   output wire [31:0] stat_o,          //! CLKV_STAT 0x77C
   output wire [31:0] tu_ivals_o       //! CLKV_TUCNT 0x780 (Milan Table 5.4 counter)
 );
@@ -188,6 +200,9 @@ module KL_ptp_clock_validity #(
   logic        as_cap_r;
   logic [11:0] lease_r;
   logic        no_lease_r;
+
+  wire sync_ok_w = FABRIC_GPTP_P ? fabric_sync_ok_i : sync_ok_r;
+  wire as_cap_w  = FABRIC_GPTP_P ? fabric_as_cap_i  : as_cap_r;
 
   always_ff @(posedge clk_i) begin : p_lease
     if (!rst_n) begin
@@ -226,10 +241,12 @@ module KL_ptp_clock_validity #(
   logic                 disc_p_w;
   logic                 hold_w;
 
-  //! gm_r resets to 0 and gm_id_i resets to 0, so the first daemon publish
-  //! of a real grandmaster id IS a change and does arm the holdover. That is
-  //! correct: before it we did not know who the grandmaster was.
-  assign disc_p_w = phc_load_p_i | phc_adj_p_i | sw_disc_p_i | (gm_id_i != gm_r);
+  //! gm_r resets to 0 and gm_id_i resets to 0, so the active owner's first
+  //! publication of a real grandmaster id IS a change and arms the holdover.
+  //! That is correct: before it we did not know who the grandmaster was.
+  assign disc_p_w = phc_load_p_i | phc_adj_p_i |
+                    ((!FABRIC_GPTP_P) & sw_disc_p_i) |
+                    (FABRIC_GPTP_P & fabric_disc_p_i) | (gm_id_i != gm_r);
   assign hold_w   = (hold_r != '0);
 
   always_ff @(posedge clk_i) begin : p_hold
@@ -247,7 +264,10 @@ module KL_ptp_clock_validity #(
   //  The verdict. NOT a stream gate: Milan v1.2 5.3.7.3 forbids stopping
   //  a Stream Output, so the only honest lever is this bit.
   // --------------------------------------------------------------------
-  assign ts_uncertain_o = (~sync_ok_r) | hold_w;
+  //! Include the live discontinuity pulse, not only the registered hold. The
+  //! PHC step/publication commit and an AVTP launch can share an edge; omitting
+  //! this term lets that edge capture tu=0 before hold_r becomes visible.
+  assign ts_uncertain_o = (~sync_ok_w) | hold_w | disc_p_w;
 
   // --------------------------------------------------------------------
   //  Milan Table 5.4 TIMESTAMP_UNCERTAIN: one increment per one-second
@@ -277,15 +297,19 @@ module KL_ptp_clock_validity #(
 
   assign tu_ivals_o = tu_ivals_r;
 
-  //! the lease-backed asCapable verdict, for the GET_AVB_INFO flags byte
-  //! (1722.1-2021 7.4.40.2 flags[0]) and its Table 5.22 push signature
-  assign as_capable_o = as_cap_r;
+  //! Active-owner asCapable for GET_AVB_INFO and its Table 5.22 push
+  //! signature. The compatibility owner is leased; the fabric owner publishes
+  //! directly.
+  assign as_capable_o = as_cap_w;
 
-  //! CLKV_STAT: [0] tu now, [1] lease-backed sync claim, [2] no live lease,
-  //! [3] inside a discontinuity holdover, [15:4] lease remaining (quarter-
-  //! seconds), [16] lease-backed asCapable claim (J3). Read this before
-  //! believing a TUCNT of 0.
-  assign stat_o = {15'd0, as_cap_r, lease_r, hold_w, no_lease_r, sync_ok_r,
+  //! CLKV_STAT: [0] tu now, [1] effective sync claim, [2] no live SOFTWARE
+  //! lease (legacy arm only), [3] discontinuity holdover, [15:4] legacy lease
+  //! remaining, [16] effective asCapable. In fabric mode the lease fields are
+  //! structural zero: the engine bank is the source, not a daemon deadman.
+  assign stat_o = FABRIC_GPTP_P
+                ? {15'd0, as_cap_w, 12'd0, hold_w, 1'b0, sync_ok_w,
+                   ts_uncertain_o}
+                : {15'd0, as_cap_w, lease_r, hold_w, no_lease_r, sync_ok_w,
                    ts_uncertain_o};
 
 endmodule

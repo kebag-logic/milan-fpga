@@ -14,8 +14,8 @@ The historical JSON snapshot declares eight AUDIO_UNIT external ports but no
 EXTERNAL_PORT descriptors. The compatibility model keeps both counts at zero
 so the tree remains closed during controller enumeration.
 
-Byte layouts mirror IEEE 1722.1-2021 clause 7.2 exactly as encoded by the
-reference implementation (pipewire module-avb aecp-aem-descriptors.h).
+Byte layouts mirror IEEE 1722.1-2021 clause 7.2 and are checked against the
+controller-visible descriptor contract.
 
 The ENTITY descriptor's firmware_version (7.2.1 Table 7-2, offset 116, 64
 octets) is DERIVED from the gateware's own VERSION parameter, not declared -
@@ -189,7 +189,7 @@ OUT_FORMATS = [0x0205022000806000]
 #! 48k only (the CRF engine validates base 48000/pull 0 - advertising
 #! unlockable rates is the same honesty violation)
 CRF_FORMATS = [0x041060010000BB80]
-# IDENTIFY control (pipewire aecp-aem-controls.h, byte-exact)
+# IDENTIFY control (byte-exact)
 CTRL_TYPE_IDENTIFY = 0x90E0F00000000001
 CTRL_LINEAR_UINT8 = 0x0001
 
@@ -304,10 +304,13 @@ def d_stream(dtype, index, name, flags, formats, buffer_len=0):
     return b
 
 def d_avb_interface(gp=None):
-    """gp = the config's `gptp:` section (overlay key "gptp"), the SAME
-    source that generates the board's ptp4l config - so the descriptor can
-    no longer claim one clock while the daemon runs another. Absent (legacy
-    overlays / builtin spec) keeps the historical constants BYTE-EXACTLY:
+    """gp = the builder-RESOLVED `gptp:` dataset (overlay key "gptp").
+    Since [R-parallel] on #228 the builder derives every field the fabric
+    engine does not consume (priority2, clockQuality, the log intervals)
+    from the constants in gptp-processor/hdl/ucode/gen_gptp_ucode.py and
+    refuses a config that states anything else, so these bytes are the
+    wire Announce dataset, not a free claim. Absent (legacy overlays /
+    builtin spec) keeps the historical constants BYTE-EXACTLY:
     those shapes' entity_model_id predates the section, and controllers
     cache descriptor content by model id, so their bytes must not move."""
     gp = gp or {}
@@ -869,6 +872,17 @@ def builtin_spec():
                          + [f"Virtual Out {n}" for n in range(2, 8)],
         cluster_names_out=[f"I2S In {n}" for n in range(2)]
                           + [f"Virtual In {n}" for n in range(2, 8)],
+        # The gPTP dataset of the DEPLOYED arty shape, written out for the
+        # same reason as the cluster names: the overlay path must reproduce
+        # it byte-for-byte (test_builder gate 10). The values are the fabric
+        # engine's pinned Announce dataset ([R-parallel] on #228): the
+        # builder derives them from gptp-processor/hdl/ucode/
+        # gen_gptp_ucode.py and refuses a diverging config, so a drift here
+        # breaks gate 10 loudly instead of shipping two clocks.
+        gptp=dict(priority1=0xF8, priority2=0xF8, clock_class=0xF8,
+                  clock_accuracy=0xFE, offset_scaled_log_variance=0x436A,
+                  domain=0, log_sync_interval=-3, log_announce_interval=0,
+                  log_pdelay_interval=0),
     )
 
 def _out_identity_offset(p):
@@ -1489,7 +1503,7 @@ def build_model(spec):
             srcs = p.get("cluster_sources")
             if srcs is None:
                 # default policy (no role pools declared): the port's
-                # clusters are its talker's own ALSA-ring pairs in order -
+                # clusters are its talker's own pair sources in order -
                 # cluster c = ring pair (slot base + c//2), half c%2
                 srcs = [dict(src=3, idxh=0, idx=slotb_str[stream] + c // 2,
                              half=c % 2, valid=slotb_str[stream] + c // 2 < 16)

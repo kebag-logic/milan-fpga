@@ -66,8 +66,8 @@ INT32 (24-bit left-justified). One AVTPDU per 6/48k = 125 us nominal.
   are dropped (no elastic buffer). At 90 B / 125 us on a 100 M wire this
   never triggers, but it is not a jitter-proof design.
 - **avtp_timestamp**: low 32 bits of the PHC + 2 ms transit. The talker
-  stamps from the SAME counter ptp4l disciplines to the grandmaster (kl-eth
-  adjfine/adjtime), so timestamps ARE in gPTP time ONCE gPTP IS LOCKED. Two
+  stamps from the SAME counter the gPTP owner disciplines to the grandmaster,
+  so timestamps ARE in gPTP time ONCE gPTP IS LOCKED. Two
   levels of "working":
     - frames-on-the-wire (validates the RTL: subtype 0x02, format, seq,
       PCP3): needs NO gPTP — emission never blocks;
@@ -88,7 +88,7 @@ INT32 (24-bit left-justified). One AVTPDU per 6/48k = 125 us nominal.
 | 0x654 | AAF_CTRL: [0] enable, [27:16] VID (reset VID2, disabled) |
 | 0x658/0x65C | AAF_DMAC lo/hi (reset MAAP-range 91:E0:F0:00:FE:01) |
 
-Brought up by `/etc/init.d/S50milan` (rootfs overlay): identity :02, ADP
+Brought up by the boot-time provisioning stage: identity :02, ADP
 enable, AAF_CTRL enable. Fully autonomous after boot for the media path. Note
 that the ADP enable bit is now one of two — `ADP_CTRL[0]` (`0x600` bit 0) is
 ORed with `PP_CTRL[0]` (`0x920`), either enables the entity — and that enabling
@@ -109,6 +109,7 @@ discoverable but unreadable (banner above).
 
 ## Flash (v3 QSPI-boot, one verb)
 
-`build.sh flash arty:build_arty_<seed>_arty_v9` -> bitstream@0 + Image.xz +
-opensbi + dtb + rootfs. Set Arty JP1 -> QSPI at the bench; power-cycle boots
-gateware + Linux + S50milan -> streaming.
+`INSTALLED_BUILD=<exact-current-build> build.sh flash
+arty:build_arty_<seed>_arty_v9` live-proves the current bit, then commits the
+full image set in its verified safe order. Set Arty JP1 -> QSPI at the bench;
+power-cycle boots gateware, firmware and provisioning -> streaming.

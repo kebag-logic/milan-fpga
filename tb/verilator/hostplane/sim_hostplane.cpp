@@ -455,10 +455,10 @@ int main(int argc, char** argv) {
          frx >= 1 && frx <= 9, 1); }
     ck("stream1 depkt PDUS total 9 (per-frame, isolated)",
        axi_read(A_SW_PDUS) & 0xFFFF, 9);
-    // C3: WHITELIST mode (default_pass=0 + accept entries) - the kernel's
+    // C3: WHITELIST mode (default_pass=0 + accept entries) - the host stack's
     // non-promisc posture. Station MAC + broadcast + gPTP peer multicast
     // accepted; an unknown unicast dropped; the bound stream keeps flowing
-    // pre-filter (media path must not depend on the kernel filter config).
+    // pre-filter (media path must not depend on the host filter config).
     axi_write(A_TCAM_KEY_LO, 0x00000001); axi_write(A_TCAM_KEY_HI, 0x0200);
     axi_write(A_TCAM_MASK_LO, 0xFFFFFFFF); axi_write(A_TCAM_MASK_HI, 0xFFFF);
     axi_write(A_TCAM_ACTION, 0x0); axi_write(A_TCAM_CMD, 0x10101);

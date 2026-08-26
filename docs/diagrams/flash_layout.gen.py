@@ -7,65 +7,46 @@
 **NOTHING HERE IS TRANSCRIBED.**  The slot list, offsets, sizes, DRAM load
 addresses, manifests, device size and erase-block size all come from the ONE
 source of truth, ``FLASHBOOT_LAYOUT`` + ``FLASHBOOT_RESERVED`` in
-``sw/litex/milan_soc.py`` — read here through ``sw/dts/gen_mtd_partitions.py``'s
-``load_map()``, the same reader the kernel's ``fixed-partitions`` node is
-generated from.  A flash map change therefore moves the picture, the device
-tree and the BIOS together, or it does not move at all.
+``sw/litex/milan_soc.py``, parsed (never transcribed) by
+``sw/litex/flash_map.py``.  A flash map change therefore moves the picture and
+the BIOS together, or it does not move at all.  That reader lived in the
+retired partition emitter until #259 removed it; it now lives beside the file
+it parses, and this generator is one of its three consumers.
 
-The bands are drawn **to scale** on purpose: "the rootfs shrank to make room
-for the writable slots" is a statement about proportions, and a table of hex
-offsets does not carry it.
+The bands are drawn **to scale** on purpose: "this slot shrank to make room for
+the writable ones" is a statement about proportions, and a table of hex offsets
+does not carry it.
 
 Usage:
     python3 docs/diagrams/flash_layout.gen.py docs/diagrams/flash_layout
     rsvg-convert -w 1800 docs/diagrams/flash_layout.svg \
         -o docs/diagrams/flash_layout.png
 """
-import ast
 import html
-import importlib.util
 import sys
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
-SOC = REPO / "sw" / "litex" / "milan_soc.py"
-GEN_MTD = REPO / "sw" / "dts" / "gen_mtd_partitions.py"
+sys.path.insert(0, str(REPO / "sw" / "litex"))
+# ONE parser, one truth: the two extra facts this picture needs (DRAM target
+# and manifest membership) come out of the same reader, not a second copy of
+# its ast walk.
+from flash_map import READ_ONLY, check_map, literal, load_map   # noqa: E402
 
 
 def esc(s):
     return html.escape(str(s), quote=True)
 
 
-# --- reuse the device-tree generator's reader: one parser, one truth ---------
-spec = importlib.util.spec_from_file_location("gen_mtd_partitions", GEN_MTD)
-mtd = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(mtd)
-
-ROWS, FLASH_SIZE, ERASE = mtd.load_map()
-PROBLEMS = mtd.check_map(ROWS, FLASH_SIZE, ERASE)
-
-# --- the two facts load_map() drops: DRAM target and manifest membership ----
-_tree = ast.parse(SOC.read_text(encoding="utf-8"))
-
-
-def _literal(name):
-    for node in _tree.body:
-        if isinstance(node, ast.Assign):
-            for t in node.targets:
-                if isinstance(t, ast.Name) and t.id == name:
-                    return ast.literal_eval(node.value)
-    raise SystemExit(f"flash_layout.gen.py: {name} not found in {SOC} — "
-                     f"fix this generator, do not hand-draw the map.")
-
-
-LAYOUT = _literal("FLASHBOOT_LAYOUT")
-MANIFESTS = _literal("FLASHBOOT_MANIFESTS")
-READ_ONLY = mtd.READ_ONLY
+LAYOUT = literal("FLASHBOOT_LAYOUT")
+MANIFESTS = literal("FLASHBOOT_MANIFESTS")
+ROWS, FLASH_SIZE, ERASE = load_map()
+PROBLEMS = check_map(ROWS, FLASH_SIZE, ERASE)
 
 # palette (fill, stroke)
 BLUE = ("#E3F2FD", "#1565C0")     # gateware
-GREEN = ("#E8F5E9", "#2E7D32")    # kernel / rootfs payloads
-ORANGE = ("#FFF3E0", "#EF6C00")   # firmware / dtb
+GREEN = ("#E8F5E9", "#2E7D32")    # payload slots a manifest carries
+ORANGE = ("#FFF3E0", "#EF6C00")   # slots no shipping manifest carries
 PURPLE = ("#F3E5F5", "#6A1B9A")   # writable slots
 GREY = ("#ECEFF1", "#90A4AE")     # free space
 RED = ("#FFEBEE", "#C62828")
@@ -76,7 +57,7 @@ def colour(name, kind):
         return PURPLE
     if name == "bitstream":
         return BLUE
-    if name in ("opensbi", "dtb"):
+    if not any(name in v for v in MANIFESTS.values()):
         return ORANGE
     return GREEN
 
@@ -118,8 +99,8 @@ def svg():
              f'QSPI flash map - {human(FLASH_SIZE)} device, drawn to scale</text>')
     o.append('<text x="40" y="82" font-size="15" fill="#546E7A">GENERATED from '
              'FLASHBOOT_LAYOUT + FLASHBOOT_RESERVED in sw/litex/milan_soc.py, read '
-             'through sw/dts/gen_mtd_partitions.py - the same reader the kernel\'s '
-             'fixed-partitions node comes from.</text>')
+             'through sw/litex/flash_map.py - the same reader the trace-segment '
+             'budget and the roundtrip gates use.</text>')
     o.append(f'<text x="40" y="106" font-size="15" fill="#546E7A">'
              f'Erase block {human(ERASE)}: every slot starts and ends on one, so '
              f'"write the journal" can never erase a neighbour.</text>')
@@ -131,7 +112,7 @@ def svg():
     o.append(f'<text x="{BAR_X}" y="{BAR_Y-22}" font-size="17" font-weight="bold" '
              f'fill="#78909C">offset 0 at the top</text>')
 
-    # label anchors: push apart so thin bands (dtb, journal) do not collide
+    # label anchors: push apart so the thin bands do not collide
     LBL_H = 52
     anchors = []
     for name, off, size, kind in BANDS:
@@ -177,7 +158,7 @@ def svg():
         if kind == "reserved":
             notes.append("WRITABLE - a reflash must NEVER erase this")
         if name in READ_ONLY:
-            notes.append("read-only to Linux")
+            notes.append("read-only at runtime")
         if notes:
             o.append(f'<text x="{TXT_X+430}" y="{ly-3:.1f}" font-size="12" fill="#37474F">'
                      f'{esc(notes[0])}</text>')

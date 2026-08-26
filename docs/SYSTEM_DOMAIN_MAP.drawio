@@ -1,26 +1,20 @@
-<mxfile host="app.diagrams.net"><diagram name="domain-map"><mxGraphModel dx="1200" dy="900" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1558" math="0" shadow="0"><root><mxCell id="0"/>
+<mxfile host="app.diagrams.net"><diagram name="domain-map"><mxGraphModel dx="1200" dy="900" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1358" math="0" shadow="0"><root><mxCell id="0"/>
 <mxCell id="1" parent="0"/>
 <mxCell id="n2" value="Milan TSN NIC: system domain map" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=none;fontSize=20;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="30" y="20" width="700" height="30" as="geometry"/></mxCell>
-<mxCell id="n3" value="Userspace   |   on target · C / config
+<mxCell id="n3" value="Bare-metal firmware   |   on target · C (the one software surface, #259)
 
-• PipeWire + module-avb (AVB talker/listener)
-• alsa-lib · buildroot rootfs (busybox init, cpio→tmpfs)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#B2DFDB;strokeColor=#00796B;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="30" y="90" width="900" height="120" as="geometry"/></mxCell>
-<mxCell id="n4" value="Linux kernel   |   on target · C (in-tree + out-of-tree)
+• Milan UART/CSR firmware: milan_status · milan_gettime · milan_settime · milan_utc
+• LiteX BIOS (ROM): console + CRC&#x27;d copy of the raw AEM image from its QSPI slot" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#B2DFDB;strokeColor=#00796B;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="30" y="90" width="900" height="120" as="geometry"/></mxCell>
+<mxCell id="n4" value="Retired software stack (#259, historical)   |   no longer shipped · kept in git history
 
-• kl-eth: out-of-tree Milan NIC driver (TX/RX DMA, telemetry sysfs, PTP)
-• in-tree: liteuart, litex-soc-controller, sifive-plic, clint-timer
-• net: PTP-1588 core · sch_cbs + mqprio qdisc · AF_PACKET · 8021Q
-• device tree: milan_ax7101_linux.dts  ·  kernel .config: linux.fragment" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8BBD0;strokeColor=#AD1457;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="30" y="226" width="900" height="184" as="geometry"/></mxCell>
-<mxCell id="n5" value="Boot firmware   |   on target · C
+• host kernel + NIC driver · supervisor firmware · published node · image build
+• host media userspace · the software gPTP owner" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8BBD0;strokeColor=#AD1457;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="30" y="226" width="900" height="120" as="geometry"/></mxCell>
+<mxCell id="n5" value="SoC integration: LiteX / Migen   |   dev host · Python → Verilog  (sw/litex/milan_soc.py)
 
-• LiteX BIOS (ROM) + linux_flashboot (QSPI→DRAM image copy)
-• OpenSBI: custom litex_nax platform (M-mode fw_jump, embedded DTB)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE0B2;strokeColor=#EF6C00;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="30" y="426" width="900" height="120" as="geometry"/></mxCell>
-<mxCell id="n6" value="SoC integration: LiteX / Migen   |   dev host · Python → Verilog  (sw/litex/milan_soc.py)
-
-• MilanSoC (top: NaxRiscv + DDR3 + NIC + flash)   ·   _CRG (PLL/clocks/CDC)
+• MilanSoC (top: VexiiRiscv RV32 + DDR3 + NIC + flash)   ·   _CRG (PLL/clocks/CDC)
 • MilanNIC / add_milan_datapath   ·   MilanMAC (LiteEth glue)
-• MilanDMA (WishboneDMA engines)   ·   MilanDebug (pipeline telemetry)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#2E7D32;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="30" y="562" width="900" height="152" as="geometry"/></mxCell>
-<mxCell id="n7" value="Milan datapath: RTL   |   FPGA fabric · SystemVerilog / Verilog  (hdl/)
+• MilanDMA (WishboneDMA engines)   ·   MilanDebug (pipeline telemetry)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#2E7D32;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="30" y="362" width="900" height="152" as="geometry"/></mxCell>
+<mxCell id="n6" value="Milan datapath: RTL   |   FPGA fabric · SystemVerilog / Verilog  (hdl/)
 
 • common: milan_top · milan_datapath · rx_mac_filter · tcam · milan_dma_wrapper · cdc_*
 • csr: milan_csr  (the AXI-Lite register ABI shared with the driver + DT)
@@ -33,20 +27,20 @@
 •                AECP uCPU: READ_DESCRIPTOR plus mandatory control/state subset
 •                GET_COUNTERS / GET_AUDIO_MAP / GET_AS_PATH / GET_AVB_INFO / Milan info
 •                unsupported commands return NOT_IMPLEMENTED
-• events: ethernet_events · event_counter" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#BBDEFB;strokeColor=#1565C0;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="30" y="730" width="900" height="440" as="geometry"/></mxCell>
-<mxCell id="n8" value="Vendored IP   |   FPGA fabric · 3rd-party cores
+• events: ethernet_events · event_counter" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#BBDEFB;strokeColor=#1565C0;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="30" y="530" width="900" height="440" as="geometry"/></mxCell>
+<mxCell id="n7" value="Vendored IP   |   FPGA fabric · 3rd-party cores
 
-• NaxRiscv (RV64GC/sv39 CPU, SpinalHDL)   ·   LiteEth (MAC + GMII/RGMII PHY)
-• LiteDRAM (DDR3, A7DDRPHY)   ·   LiteSPI (QSPI flash)   ·   verilog-axis (Forencich)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1BEE7;strokeColor=#6A1B9A;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="30" y="1186" width="900" height="120" as="geometry"/></mxCell>
-<mxCell id="n9" value="Board / silicon   |   physical
+• VexiiRiscv (product RV32/sv32 CPU, SpinalHDL; NaxRiscv historical)   ·   LiteEth (MAC + GMII/RGMII PHY)
+• LiteDRAM (DDR3, A7DDRPHY)   ·   LiteSPI (QSPI flash)   ·   verilog-axis (Forencich)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1BEE7;strokeColor=#6A1B9A;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="30" y="986" width="900" height="120" as="geometry"/></mxCell>
+<mxCell id="n8" value="Board / silicon   |   physical
 
 • XC7A100T-2FGG484 (Artix-7)  ·  DDR3 512 MB (MT41J256M16)
-• QSPI 16 MB (Micron N25Q128)  ·  RTL8211E GbE PHY  ·  200 MHz clk" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#CFD8DC;strokeColor=#37474F;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="30" y="1322" width="900" height="120" as="geometry"/></mxCell>
-<mxCell id="n10" value="Host tooling   |   Python / bash
+• QSPI 16 MB (Micron N25Q128)  ·  RTL8211E GbE PHY  ·  200 MHz clk" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#CFD8DC;strokeColor=#37474F;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="30" y="1122" width="900" height="120" as="geometry"/></mxCell>
+<mxCell id="n9" value="Host tooling   |   Python / bash
 
-• milan_soc.py: SoC/gateware generator
-• milan_dt.py: device-tree generator (csr.json→dts)
-• deploy.sh: build / load / flash / flash-images
-• boot.sh: serialboot (+ FLASH_KERNEL mode)
-• patches/apply.sh: BIOS linux_flashboot
-• crcfbigen: FBI image wrapper" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF9C4;strokeColor=#F9A825;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="970" y="90" width="340" height="248" as="geometry"/></mxCell></root></mxGraphModel></diagram></mxfile>
+• milan_soc.py: SoC/gateware generator (bare-metal profile only, #259)
+• endstation_builder.py: AEM image + fabric gPTP ROM from ONE config
+• deploy.sh: build / load / flash-pair (live QSPI owner proof)
+• build.sh: named bare-metal configs + flash transaction
+• crcfbigen: FBI image wrapper
+• retired (#259): the host-era generators, boot script and patch step" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF9C4;strokeColor=#F9A825;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="970" y="90" width="340" height="248" as="geometry"/></mxCell></root></mxGraphModel></diagram></mxfile>

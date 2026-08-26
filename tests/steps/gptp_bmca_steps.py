@@ -139,7 +139,7 @@ def step_announce_normally(context, period, span):
 @when('the grandmaster stops announcing for {span:g} s')
 def step_announce_gap(context, span):
     """Only the grandmaster goes silent. This is what a saturating RX flood
-    does to the board: `ptp4l` never gets the CPU, so nothing is transmitted."""
+    does to the board: the control loop never runs, so nothing is transmitted."""
     period = context.gptp.announce_interval
     elapsed = 0.0
     while elapsed < span:
@@ -224,7 +224,7 @@ def step_budget_sync(context, verdict):
 
 @then('the pdelay cadence budget {verdict}')
 def step_budget_pdelay(context, verdict):
-    # asCapable depends on pdelay exchange continuing; linuxptp drops
+        # asCapable depends on the pdelay exchange continuing; the peer drops
     # asCapable after `neighborPropDelayThresh`/missed-response handling, and
     # a port that is not asCapable leaves the domain (Clause 11.2 / AS-8).
     _check(context, 'pdelay', _interval(DEFAULT_LOG_PDELAY_REQ_INTERVAL),

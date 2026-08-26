@@ -1,6 +1,6 @@
 # Entity: KL_maap
 - **File:** `hdl/ieee1722/maap/KL_maap.sv`
-- **Spec:** IEEE 1722-2016 Annex B (MAAP); contract byte-extracted from pipewire module-avb `maap.c` (see [`docs/design/MAAP_FABRIC.md`](../../../../../docs/design/MAAP_FABRIC.md))
+- **Spec:** IEEE 1722-2016 Annex B (MAAP); contract byte-extracted from the module-avb reference code `maap.c` (see [`docs/design/MAAP_FABRIC.md`](../../../../../docs/design/MAAP_FABRIC.md))
 
 Dynamic multicast-DMAC allocation for the Milan talker: probe/defend/announce state machine over the `91:E0:F0:00:00:00`/0xFE00 pool. Three PROBEs at 500 ms + jitter, then ANNOUNCE at 3-5 s forever; the claim (`addr_o`) is valid only in ANNOUNCE. A conflicting received PROBE re-randomizes while probing and is DEFENDed (with the exact overlap sub-range) while announced; a conflicting received DEFEND/ANNOUNCE (their CONFLICT fields - reference behavior) re-randomizes unconditionally. Randomness = a station-MAC-seeded 16-bit LFSR (offset choice + interval jitter). `seed_offset_i`/`seed_valid_i` let provisioning re-claim the previously won block (the reference's persisted state).
 

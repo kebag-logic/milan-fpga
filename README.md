@@ -1,7 +1,7 @@
 # milan-fpga: IEEE 1722 / 1722.1 and Milan on FPGA
 
-> A fully-FPGA **Milan-oriented AVB/TSN audio end-station**: a RISC-V/LiteX softcore SoC
-> running Linux, with the entire TSN datapath in **vendor-neutral SystemVerilog fabric**, on
+> A fully-FPGA **Milan-oriented AVB/TSN audio end-station**: a bare-metal RISC-V/LiteX
+> softcore SoC with the entire TSN datapath in **vendor-neutral SystemVerilog fabric**, on
 > an Alinx AX7101 (Artix-7). Evolving toward a 4-port AVB switch.
 
 ```sh
@@ -24,7 +24,7 @@ Four doors, three links each. Every other doc hangs off one of these.
 |---|---|---|---|---|
 | 🔌 | **Integrator** — putting this datapath in *your* SoC or on *your* board | [integration/INTEGRATION_GUIDE.md](docs/integration/INTEGRATION_GUIDE.md) — the `milan_datapath` boundary as a port-by-port contract | [reference/REGISTER_MAP.md](docs/reference/REGISTER_MAP.md) — the AXI4-Lite ABI your driver programs | [integration/PORTING_GUIDE.md](docs/integration/PORTING_GUIDE.md) — off-Xilinx, off-Vivado, per-vendor translation |
 | 🛠 | **RTL developer** -- changing or adding fabric | [Section 8 of overview/ARCHITECTURE.md](docs/overview/ARCHITECTURE.md#8-where-to-change-things-maintainability) "where to change things" | [fpga/FPGA_DESIGN.md](docs/fpga/FPGA_DESIGN.md) -- every module in `hdl/` and the harness that verifies it | [CONTRIBUTING.md](CONTRIBUTING.md) -- house style; a DUT change ships its testbench in the same commit |
-| 🔧 | **Bench operator** — building, flashing, bringing a board up | [integration/BUILDING.md](docs/integration/BUILDING.md) — `build.sh` configs and the gates a build must pass | [integration/QSPI_FLASHBOOT.md](docs/integration/QSPI_FLASHBOOT.md) — flash a **matched** image set, boot Linux | [limitations/TROUBLESHOOTING.md](docs/limitations/TROUBLESHOOTING.md) — symptom → cause → fix, from the field |
+| 🔧 | **Bench operator** — building, flashing, bringing a board up | [integration/BUILDING.md](docs/integration/BUILDING.md) — `build.sh` configs and the gates a build must pass | [integration/QSPI_FLASHBOOT.md](docs/integration/QSPI_FLASHBOOT.md) — flash a **matched** image set, boot the board | [limitations/TROUBLESHOOTING.md](docs/limitations/TROUBLESHOOTING.md) — symptom → cause → fix, from the field |
 | 📖 | **Curious reader / evaluator**, deciding if this is worth your time | [overview/ARCHITECTURE.md](docs/overview/ARCHITECTURE.md) | [the current Milan v1.2 audit](docs/testing/MILAN_V12_AUDIT_2026-08-16.md) | [reference/FR_NFR.md](docs/reference/FR_NFR.md) |
 
 More lanes (system engineer, tester, hobbyist) and the full index:
@@ -43,8 +43,8 @@ Terms → [glossary](docs/GLOSSARY.md).
 | Control plane in fabric | ADP · ACMP · SRP and a partial AECP/AEM surface, served by the pinned `protocol-processor` submodule. See the current boundary below |
 | Media-clock servo | MMCM-DRP, analog loop **−83.9 dB** (converter floor) |
 | Networking / boot | ring-DMA line-rate ingest · QSPI flash-boot (zero-upload) |
-| Audio | ALSA record over Milan · live talker↔listener E2E |
-| CPU / board | 1-hart VexiiRiscv RV64 Linux SoC · xc7a100t · DDR3 512 MB |
+| Audio | capture ring over Milan · live talker↔listener E2E |
+| CPU / board | 1-hart VexiiRiscv RV32I bare-metal SoC · xc7a100t · DDR3 512 MB |
 | Portability | no Xilinx primitives — machine-checked by the [Yosys/ECP5 flow](syn/yosys/README.md) |
 
 > Those rows are **measurements on specific boards on specific dates**, not promises about
@@ -117,7 +117,7 @@ silently discarded as required.
 The descriptor image supply chain is also present. During an explicit
 `--write-fragment` or `--write-rtl` ownership transfer, the end-station builder
 generates `aem_desc.bin`, `aem_desc.json`, and `aem_desc.map` from the selected
-configuration in the sibling rootfs overlay. The board-side `aemi-load`
+configuration beside the bitstream. The board-side `aemi-load`
 utility loads and verifies the paired image before the entity is enabled. The
 store validates its `AEMI` header, version, checksum, and configuration before
 serving it, and a late valid image heals without a reset.
@@ -135,10 +135,9 @@ clock-source selection now reaches the media plane's wrapper but nothing there
 reads it yet, and the sampling rate is stored and readable over AECP without
 being republished to the fabric at all.
 Identify control is stored but the root indication remains tied low.
-`GET_AVB_INFO` returns the effective propagation delay: the value software
-publishes at `GPTP_PDELAY` with the fabric gPTP plane off, or the plane's
-published value with it on. The writable AAF admission bypass remains a
-deployment hazard.
+`GET_AVB_INFO` now consumes the selected owner's coherent GM, propagation-delay,
+asCapable snapshot. The writable AAF admission bypass remains a deployment
+hazard.
 The integration also reports no nonvolatile backend, so required state does not
 survive a power cycle. This is a compliance blocker, not a documentation-only
 limitation.
@@ -150,18 +149,24 @@ command pushes its unsolicited response to the other registered controllers,
 the Table 5.22 observed triggers (counters, AVB info, AS_PATH) are wired from
 the fabric, and silent controllers are probed and deregistered (Milan 5.4.5.2
 and 5.4.5.3, issue #69). Persistence stays with issue #70.
-`GET_AS_PATH` serves the grandmaster followed by the latest PathTrace snapshot
-published through the 0x7DC group. LO/HI writes and slot COMMITs change only
-the staging bank. A changed PUBLISH atomically replaces the complete published
-tail and count. The Table 5.22 edge compares the sequence `GET_AS_PATH`
-actually serves: legacy count 0 and explicit count 1 are the same GM-only
-path, and every tail aliases to an empty response while no grandmaster exists,
-so neither case emits a false push. Reads before PUBLISH keep the old path. A
-wire test snapshots the old count, completes a count-and-multi-slot PUBLISH
-before the first entry gather request, and proves that the in-flight response
-remains wholly old while the next response is wholly new. Re-publishing
-identical staged content is silent. A tail that is never published leaves a leaf
-directly under its grandmaster with a one-entry path.
+`GET_AS_PATH` follows the same owner selection. The product-default fabric
+owner publishes the bounded PathTrace from the selected Announce: no entries
+without a GM or when that Announce has no PathTrace TLV; otherwise the GM is
+followed by up to seven traversed identities in wire order. The engine and
+wrapper commit the complete count/tail atomically; software writes cannot forge
+it. In the verification-only option-off elaboration (#259 retired the
+software comparison owner), the GM is followed by the latest PathTrace
+snapshot published through the 0x7DC group.
+LO/HI writes and slot COMMITs change only the staging bank, while PUBLISH
+atomically replaces the complete tail and count. In both modes the Table 5.22
+edge compares the canonical sequence actually served. Fabric count 0 and 1 are
+distinct empty and `[GM]` sequences, so either transition notifies; a GM change
+while both fabric counts are zero is silent for AS_PATH but remains live for
+AVB/GM duties. Only option-off retains #227's count 0/1 GM-only alias. GM=0
+publications, hidden option-off staging in fabric mode, inactive tail bytes,
+and identical republishes are silent. The response snapshots its selected path
+before gathering entries, so an in-flight response is wholly old and the next
+wholly new.
 
 The dated evidence and exact gate results are recorded in
 [the 2026-08-16 audit](docs/testing/MILAN_V12_AUDIT_2026-08-16.md). The register
@@ -176,17 +181,18 @@ equivalents exist on any distro. Each tier *adds* to the one above it.
 
 ```sh
 sudo pacman -S --needed gcc make python python-yaml verilator git
-git submodule update --init third_party/verilog-axis protocol-processor
+git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
 ```
 
 Verilator must be **≥ 5.050** — that is the CI pin, and CI builds it from source
 at that tag rather than trusting a distro package, because 5.020 (Ubuntu 24.04)
 cannot build four of the suites and 5.032 (Debian trixie) reads back zeros on six
 `aecp` checks. The measured table is in
-[Section 7 of docs/testing/TESTING.md](docs/testing/TESTING.md#7-known-gaps-kept-honest). The protocol processor is
-required by every datapath-level harness and is fetched over anonymous HTTPS.
-The remaining submodules are not needed for this tier and may stay
-uninitialised: `external`, `gptp-processor`, and `third_party/buildroot`.
+[Section 7 of docs/testing/TESTING.md](docs/testing/TESTING.md#7-known-gaps-kept-honest).
+The protocol and gPTP processors are required by the datapath-level harnesses
+and are fetched over anonymous HTTPS.
+The remaining `external` submodule is not needed for this tier and may stay
+uninitialised.
 The processor architecture, compliance review, and SystemVerilog
 implementation live at
 <https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan>;
@@ -199,7 +205,7 @@ submodule content, so the datapath testbenches will not build from a zip.
 | Tool | Install | Note |
 |---|---|---|
 | `yosys` | `pacman -S yosys` | in the Arch official repos |
-| `sv2v` | **not in the Arch repos (AUR only)** — take the upstream prebuilt static Linux binary from [github.com/zachjs/sv2v/releases](https://github.com/zachjs/sv2v/releases) and drop it in `~/.local/bin` | yosys cannot read SystemVerilog interfaces without it |
+| `sv2v` | **not in the Arch repos (AUR only)** — take the upstream prebuilt static binary from [github.com/zachjs/sv2v/releases](https://github.com/zachjs/sv2v/releases) and drop it in `~/.local/bin` | yosys cannot read SystemVerilog interfaces without it |
 
 **Tier 3 · build a bitstream / run on hardware** — add:
 
@@ -207,7 +213,7 @@ submodule content, so the datapath testbenches will not build from a zip.
 |---|---|---|---|
 | `riscv64-elf-gcc` + binutils + newlib | `pacman -S riscv64-elf-gcc riscv64-elf-binutils riscv64-elf-newlib` | BIOS + firmware | ✅ to build gateware |
 | `jdk17` + `sbt` | `pacman -S jdk17-openjdk sbt` | generate the VexiiRiscv/NaxRiscv core (SpinalHDL, in Scala) | ✅ to build gateware |
-| `meson ninja cmake dtc` | `pacman -S meson ninja cmake dtc` | build tooling + device tree | ✅ to build gateware |
+| `meson ninja cmake` | `pacman -S meson ninja cmake` | build tooling | ✅ to build gateware |
 | Python 3 + the **LiteX venv** | `litex_setup.py` -- see [Section 6 of QUICKSTART.md](QUICKSTART.md#6-track-3--build-a-bitstream-vivado) | SoC elaboration (LiteX/Migen, installed from git) | ✅ to build gateware |
 | **Vivado 2026.1** with Artix-7 | Xilinx installer | place & route → `.bit` | ⬦ **proprietary**; only to build a bitstream |
 | `openFPGALoader` | `pacman -S openfpgaloader` | flash the board over JTAG | ⬦ only to flash hardware |
@@ -264,8 +270,12 @@ The long form, with what is verified vs what needs a bench: [QUICKSTART.md](QUIC
 
 ## Build & flash a board
 
-`./build.sh ax7101` (or `arty`) → `./deploy.sh flash` + `flash-images`. The full flow, with the
-load-bearing rules (compressed bitstream, matched image set, recovery) in one picture:
+`sw/litex/build.sh ax7101` (or `arty`) →
+`INSTALLED_BUILD=<exact-current-build> sw/litex/build.sh flash
+ax7101:<target-builddir>`. The launcher live-reads QSPI to prove the installed
+bitstream owner, preflights the complete target set, and selects the
+direction-safe verified write order. The full flow, with the load-bearing rules
+(matched bitstream/layout/AEM, recovery) in one picture:
 
 ![Build → Flash → Boot → Verify pipeline](docs/BUILD_FLASH_BOOT.png)
 
@@ -296,14 +306,14 @@ ride the big arrow; dates assume the current cadence.
     ROADMAP                                                                                  |
     - deterministic - AEM persistence - redundancy net  - compliance test-house  - PCB bring-up ==>
       listener        journal (mtd)     cabled +          run (Milan v1.2)   (TCXO, audio
-      latency       - rootfs: boot-     failover proof  - 802.1AS            I/O, power)
-      (setpoint law,  resilient statd/ - temp-range       conformance      - EMC / safety
-      0x002E)         ptp4l, prio 248    timing signoff - PCB layout +     - factory
+      latency       - image: validate   failover proof  - 802.1AS            I/O, power)
+      (setpoint law,  fabric ownership - temp-range       conformance      - EMC / safety
+      0x002E)         no old daemons     timing signoff - PCB layout +     - factory
     - software DLL  - dual-slot QSPI  - week-long soak    fab               provisioning
       (GM step        + golden image    + power-cycle                       (MAC/EUI-64,
       re-base)      - field update      torture as                          serials, test
     - CRF sink        path              release gates                       fixture)
-      followership                    - service-budget                    - ALSA/PipeWire
+      followership                    - service-budget                    - host audio
       on silicon                        decision                            as supported
     - stream-clock                      (2nd hart?)                         feature
       honesty                                                             - config surface

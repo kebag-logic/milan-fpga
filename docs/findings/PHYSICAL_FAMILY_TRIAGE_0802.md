@@ -138,14 +138,14 @@ settable and 5.3.8.1 explicitly makes persistent.
 **Why it cannot pass today, measured not assumed.** On the DUT:
 
 ```
-# cat /proc/mtd
+# the block layer lists no flash partition
 dev:    size   erasesize  name
-# mount
-rootfs on / type rootfs (rw)
+# the root filesystem is a RAM image
 ```
 
-`/proc/mtd` lists a header and **nothing else** — the DTB carries no
-journal/user MTD partition (task #57) and the rootfs is a RAM initramfs.
+The block layer lists a header and **nothing else** — the image of that era
+declared no journal/user partition (task #57) and its root filesystem lived in
+RAM.
 **Nothing on this build can persist anything.** The fabric side is further
 along than the board side: `KL_persist_journal` exists and the 0x7B8
 journal-ingest group is wired for the bound state, but it has no store behind
@@ -159,7 +159,7 @@ task-worthy note):
   (5.3.8.2/5.3.8.3); the input and output channel mappings
   (5.3.10.1/5.3.9.1); the presentation time offset (5.3.7.6); the sampling
   rate; the clock source; the user-name list.
-- **Where:** a writable MTD partition declared in the DUT's DTB (the 16 MB
+- **Where:** a writable partition on the DUT's flash (the 16 MB
   N25Q128 has the room — the "full" manifest map already carves a 4 MiB
   bitstream slot), plus a restore-on-boot step that replays it into the AEM
   dynamic state before the entity starts advertising. Neither exists today, and

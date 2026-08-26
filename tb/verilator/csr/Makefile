@@ -99,12 +99,17 @@ obj_win/Vcsr_win: $(SRCS) $(GEN_CSR) $(SHAPE_4x4_F) sim_win.cpp
 	  -GN_LISTENERS_P=4 -GN_TALKERS_P=4 -GCHMAP_RDBK_P=3 \
 	  $(SRCS) sim_win.cpp -o Vcsr_win
 
+obj_gptp/Vcsr_gptp: $(SRCS) $(GEN_CSR) $(SHAPE_8x8_F) sim_gptp.cpp
+	$(VERILATOR) $(SHAPE_8x8) $(VFLAGS) --Mdir obj_gptp --top-module $(TOP) \
+	  -GGPTP_PLANE_EN_P=1 $(SRCS) sim_gptp.cpp -o Vcsr_gptp
 
-run: obj_dir/Vcsr_sim obj_100m/Vcsr_sim100 obj_win/Vcsr_win
+
+run: obj_dir/Vcsr_sim obj_100m/Vcsr_sim100 obj_win/Vcsr_win obj_gptp/Vcsr_gptp
 	@echo "======================================================================"
 	./obj_dir/Vcsr_sim
 	./obj_100m/Vcsr_sim100
 	./obj_win/Vcsr_win
+	./obj_gptp/Vcsr_gptp
 
 clean:
-	rm -rf obj_dir obj_100m obj_win
+	rm -rf obj_dir obj_100m obj_win obj_gptp

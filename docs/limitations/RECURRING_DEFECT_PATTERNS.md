@@ -90,7 +90,7 @@ nastier half: the counter was not decorative, the **producer** was. So a
 Milan-validated reference device received 31 M frames from a talker whose PHC
 was 216,446 s off the domain, counted 99.4 % of them LATE or EARLY, and its
 `TIMESTAMP_UNCERTAIN` stayed at 0 the whole time
-([`../findings/REF_LISTENER_TIMESTAMP_SWEEP_0727.md`](../findings/REF_LISTENER_TIMESTAMP_SWEEP_0727.md)).
+(the retired reference-listener sweep of 2026-07-27 (#259, in git history)).
 Closed at VERSION `0x0015` by `KL_ptp_clock_validity` — and note the *other*
 half of the fix, the one this section keeps insisting on: `CLKV_STAT` `0x77C`
 bit 2 says **"no live lease"**, so software can tell "the clock is fine" from

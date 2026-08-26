@@ -33,10 +33,14 @@ run:
 	  $(SRCS) $(CPP) -o Vclkv_fast
 	$(VERILATOR) $(VFLAGS) --Mdir obj_real -GQTICK_CYC_P=25000000 \
 	  $(SRCS) $(CPP) -o Vclkv_real
+	$(VERILATOR) $(VFLAGS) --Mdir obj_fabric -GQTICK_CYC_P=8 \
+	  -GFABRIC_GPTP_P=1 $(SRCS) $(CPP) -o Vclkv_fabric
 	@echo "======================================================================"
 	./obj_fast/Vclkv_fast 8
 	@echo "----------------------------------------------------------------------"
 	./obj_real/Vclkv_real 25000000
+	@echo "----------------------------------------------------------------------"
+	./obj_fabric/Vclkv_fabric 8 fabric
 
 clean:
-	rm -rf obj_fast obj_real
+	rm -rf obj_fast obj_real obj_fabric

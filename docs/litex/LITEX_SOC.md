@@ -1,7 +1,7 @@
 # The LiteX SoC - `sw/litex/` in depth
 
 [`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py) (~3600 lines) is "the LiteX line of code": the fully-
-FPGA host that replaced the Zynq PS. It builds a RISC-V Linux SoC on the
+FPGA host that replaced the Zynq PS. It builds the RISC-V SoC on the
 Alinx AX7101 (Artix-7 `xc7a100t`) with the Milan TSN datapath attached as a
 real RTL instance, the ring-DMA engines, the LiteEth GMII MAC, DDR3, QSPI
 flash-boot and the telemetry block.
@@ -29,7 +29,7 @@ build/boot recipe stays in [`sw/README.md`](../../sw/README.md) and
 |---|---|---|
 | `milan_soc.py` | **The SoC.** CRG, CPU (VexiiRiscv/NaxRiscv), DDR3, LiteEth MAC, Milan datapath attach, ring-DMA engines, IRQs, QSPI flash-boot layout, CLI | everyone |
 | `platforms/alinx_ax7101.py` | The board: pins (clk200, UART, GMII "e1" + RGMII "e2" RTL8211E PHYs, DDR3 2×MT41J256M16 = 512 MB, N25Q128 QSPI, LEDs), `xc7a100t-fgg484-2`, openFPGALoader programming | board porters |
-| `deploy.sh` | Turnkey `build / load / flash / flash-images / console` for the AX7101; **encodes the known-good flag set** (Section 4) | everyone |
+| `deploy.sh` | Turnkey `build / load / flash-pair / console` for the AX7101; live-proves the installed QSPI owner and keeps direct partial writes behind an explicit recovery escape | everyone |
 | `milan_sim.py` | Verilator **SoC-level sim**: boots the LiteX BIOS on a softcore with the real `milan_datapath` at `0x9000_0000`, proves the CPU⇄CSR path (reads ID `"MILN"`, milestone M-A2) | everyone |
 | `patches/` | LiteX-ecosystem patches + `apply.sh` (Section 6) | everyone |
 | `test_ring_dma.py` (+ `test_ring_bd.py`, `test_ring_tx.py`, `test_ring_writeback.py`, `test_rx_steer.py`, `test_tx_bd.py`) | **Migen behavioral sims** of the DMA engines (self-checking, print `ALL PASS`); `test_ring_dma.py` is the base harness the others import | DMA developers |
@@ -52,7 +52,7 @@ which is why NaxRiscv and VexiiRiscv builds need no address changes.
 
 | window | base | size | what it is |
 |---|---|---|---|
-| DRAM (LiteDRAM `main_ram`) | `0x4000_0000` | 512 MB (2 × MT41J256M16) | kernel `0x4000_0000`, dtb `0x40EF_0000`, OpenSBI entry `0x40F0_0000` (`FLASHBOOT_ENTRY`), rootfs/initrd `0x4100_0000` |
+| DRAM (LiteDRAM `main_ram`) | `0x4000_0000` | 512 MB (2 × MT41J256M16) | firmware working set, the PCM rings, and the descriptor image in the reserved top 1 MiB; the retired boot chain's load addresses (#259) are in git history. The rest is free RAM. Wherever a load address is needed, read it from the build's own `csr.csv`/`soc.json`, never from prose. Historical detail: the retired multi-image manifest loaded four separate payloads into this window before entry.<!-- trimmed #259 -->rd `0x4100_0000` |
 | `milan_csr` | `0x9000_0000` | `0x1_0000` (64 KB) | the datapath's AXI4-Lite register ABI, added with `cached=False` |
 | `milan_pcm_bram` | `0x9010_0000` | `0x8000` (32 KB) | dual-port PCM window, present only when the PCM ring is elaborated as BRAM (`--pcm-ring bram`) |
 | LiteX CSR bank | `0xf000_0000` | — | the Migen-generated CSRs (DMA rings, telemetry, LiteEth, LiteDRAM) |
@@ -130,7 +130,7 @@ porting-relevant detail explained in
 
 Interrupts: an `EventManager` with four level sources (`tx`/`rx`/`ts`/`csr`)
 folded into one PLIC line - matching the driver's four `interrupt-names`
-(the DT encodes the aggregation; see [`sw/dts/README.md`](../../sw/dts/README.md)).
+(the DT encodes the aggregation; see the retired binding toolkit).
 
 ### 2.3 The DMA (`MilanDMA`)
 
@@ -154,7 +154,7 @@ Endianness is `"big"` on purpose: memory order == wire order, so the CPU
 never byte-swaps.
 
 The BD-format/zero-copy/checksum evolution of these engines is chronicled
-in [../fpga/CPPI_DMA_REDESIGN.md (archived)](../../historical_now_obsolete/fpga/CPPI_DMA_REDESIGN.md)
+in the archived CPPI DMA redesign log (#259, in git history)
 and the [findings log](../findings/README.md).
 
 ### 2.4 The MAC (`MilanMAC`)
@@ -175,10 +175,11 @@ only.
 `--cpu {naxriscv,vexiiriscv}`; **the CLI default is `naxriscv`**, and
 `deploy.sh` does not override it.
 
-* **VexiiRiscv** (`--cpu vexiiriscv`, forced `linux` variant, RV64IMASU,
-  sv39) is the ship core: the ship shape is **1-hart + `--l2-bytes
-  32768`** (L2-32K) at 100e6. The **dual-hart SMP** (`--cpu-count 2`,
-  L2-64K) configuration behind the older project-scoreboard Linux results is
+* **VexiiRiscv** (`--cpu vexiiriscv`) is the ship core: the shipping shape is
+  the cacheless **1-hart RV32I** bare-metal profile, and the historical
+  bring-up shape was 1-hart + `--l2-bytes 32768` (L2-32K) at 100e6. The
+  **dual-hart SMP** (`--cpu-count 2`, L2-64K) configuration behind the older
+  project-scoreboard results is
   a SUPERSEDED perf-lineage variant; the perf-campaign docs
   ([findings](../findings/README.md)) measure that earlier configuration.
 * **NaxRiscv** (default, RV64GC) is the earlier bring-up core, retained as a
@@ -187,7 +188,7 @@ only.
   the scala flags - handled for you).
 
 So: the ship build is `--cpu vexiiriscv` **1-hart + `--l2-bytes 32768`**
-at 100e6; to reproduce the older published Linux/perf results build the
+at 100e6; to reproduce the older published perf results build the
 SUPERSEDED perf-lineage `--cpu vexiiriscv --cpu-count 2` (L2-64K) instead; a
 bare `deploy.sh build` gives you a NaxRiscv SoC. Use the named build
 configurations below for the supported flow.
@@ -198,7 +199,8 @@ The full named build configurations (`build.sh`) live in
 `FLASHBOOT_LAYOUT` / `FLASHBOOT_RESERVED` / `FLASHBOOT_MANIFESTS` in
 `milan_soc.py` are the **single source of truth** for the 16 MiB N25Q128
 layout; the build writes `flashboot_layout.json` so gateware and
-`deploy.sh flash-images` never drift. Guide:
+`deploy.sh flash-pair` never drifts from the compiled target and can prove the
+installed offset-zero payload before choosing an order. Guide:
 [../integration/QSPI_FLASHBOOT.md](../integration/QSPI_FLASHBOOT.md).
 
 *What is at which offset, and what must a reflash never erase?* — the map,
@@ -208,7 +210,7 @@ stale copy of them:
 ![QSPI flash map](../diagrams/flash_layout.svg)
 
 Master: [`flash_layout.gen.py`](../diagrams/flash_layout.gen.py) — it reads the
-dicts through [`sw/dts/gen_mtd_partitions.py`](../../sw/dts/gen_mtd_partitions.py)'s `load_map()`, the same reader
+dicts through the retired flash-partition emitter's `load_map()`, the same reader
 the kernel's `fixed-partitions` node comes from, and prints
 `check_flash_map()`'s verdict on the drawing.
 
@@ -216,14 +218,13 @@ That check is not cosmetic: every slot is erase-block (`0x1_0000`) aligned
 because a partition starting or ending mid-block cannot be erased without
 destroying its neighbour. Note the open item recorded in the source:
 `deploy.sh` derives each image's ceiling from the *next image* offset and does
-not read the `reserved` key, so an oversized rootfs is still caught by
+not read the `reserved` key, so an oversized image is still caught by
 hand-check only.
 
 > **The layout has moved twice.** v3 (2026-07-12) put the bitstream at offset 0;
-> v4 (2026-07-26) shrank `rootfs` to make room for the writable `journal` and
-> `user` slots. Any offsets quoted from memory — including the comment above
-> the dict in `milan_soc.py`, which still says "the kernel always lives at
-> offset 0" — predate one of those moves. Read the picture, or the build's own
+> v4 (2026-07-26) shrank a payload slot to make room for the writable
+> `journal` and `user` slots. Any offsets quoted from memory — including the
+> comment above the dict in `milan_soc.py` — predate one of those moves. Read the picture, or the build's own
 > `flashboot_layout.json`.
 
 ---
@@ -276,28 +277,16 @@ NaxRiscv and the same `add_milan_datapath()` as the board build.
 Applied **in place** to the active Python env's LiteX/LiteEth/VexiiRiscv
 trees by `patches/apply.sh` (idempotent; **re-run after every LiteX update**).
 
-**This is a required step, not a tuning one.** Upstream LiteX cannot build any
-shape of this design: it has no `baremetal` VexiiRiscv variant, and the
-VexiiRiscv revision it pins rejects the `--l2-*` arguments four of the five
-configs pass. Measured over all five configs on 2026-08-21, a stock install
-elaborates none of them.
+**This is a required step, not a tuning one.** The pinned upstream LiteX tree
+does not contain the cacheless `baremetal` VexiiRiscv variant used here.
 
-`apply.sh` normalises before it applies, so it converges from a partially
-applied tree instead of refusing. It has to: `0003` is diffed on top of
-`0001` and both rewrite the same `boot.c` hunks, and the older per-patch
-check called that state broken. Nothing ran the script end to end, so the
-series had stopped applying for an unknown length of time and two patches had
-drifted from the tree the boards are built from. `test_builder.py` gate 23h
-now reverses the series off the installed trees, re-applies it and requires
-the result to be byte-identical, with a control that removes one patch at a
-time and requires the gate to fail.
+`apply.sh` normalises before it applies, then applies the complete product
+series. `test_builder.py` gate 23h reverses and reapplies the series against
+the installed trees and requires the result to be byte-identical.
 
 | Patch | What it does |
 |---|---|
-| `0001-milan-linux-flashboot.patch` | Adds the `linux_flashboot` BIOS boot method (runs before serialboot; inert without the `MILAN_FLASHBOOT_*` constants that `--with-spiflash` emits) |
 | `0002-liteeth-gmii-tx-clk-invert.patch` | Adds `tx_clk_invert` to `LiteEthPHYGMII` → the `--gtx-tx-invert` flag |
-| `0002-vexiiriscv-l2-depth-args.patch` | Exposes the VexiiRiscv `--l2-down-pending` / `--l2-general-slots` args. **Applied by `apply.sh` since 2026-08-21**: four of the five end-station configs pass them, so without it those four cannot elaborate at all (#185) |
-| `0003-milan-flashboot-xz-kernel.patch` | xz-compressed kernel support in `linux_flashboot`. Diffed **on top of 0001**, which is why apply order is not alphabetical |
 | `0004-vexiiriscv-baremetal-variant.patch` | The LiteX `baremetal` VexiiRiscv variant. Upstream has no such variant, and it is the shipping AX profile |
 | `0005-vexiiriscv-cacheless-litex.patch` | The cacheless iBus/dBus fabric and direct DMA path the bare-metal shape needs at netlist time |
 

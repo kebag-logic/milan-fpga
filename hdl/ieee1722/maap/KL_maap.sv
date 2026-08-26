@@ -11,7 +11,7 @@
   Date        : 2026-07-17
   Description : MAAP (IEEE 1722 Annex B) dynamic multicast-DMAC allocation —
                 Milan-mandatory for talkers. Contract byte-extracted from the
-                pipewire module-avb reference (maap.c/maap.h), normative plan
+                module-avb reference code (maap.c/maap.h), normative plan
                 in docs/design/MAAP_FABRIC.md:
 
                   pool 91:E0:F0:00:00:00 + 16-bit offset, size 0xFE00;
@@ -52,7 +52,7 @@
 //! block of multicast destination MACs from the 91:E0:F0 pool. `addr_o` /
 //! `addr_valid_o` (valid only in ANNOUNCE) feed the AAF framer's DMAC mux;
 //! conflicts with received PROBE/DEFEND/ANNOUNCE PDUs re-randomize the block
-//! per the pipewire module-avb reference contract.
+//! per the module-avb reference contract.
 
 `default_nettype none
 

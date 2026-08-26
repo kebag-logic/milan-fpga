@@ -36,7 +36,7 @@ The entity model is served from main memory. An ordinary run of
 `sw/builder/endstation_builder.py` generates review artifacts under
 `sw/builder/out/`. An explicit `--write-fragment` or `--write-rtl` deployment
 ownership transfer also generates the paired `aem_desc.bin`, `aem_desc.json`,
-and `aem_desc.map` files in the sibling rootfs overlay when it is present.
+and `aem_desc.map` files beside the bitstream.
 `aemi-load` verifies and loads that image before entity enable. See the
 [end-station builder](ENDSTATION_BUILDER.md) and
 [architecture](overview/ARCHITECTURE.md).
@@ -50,7 +50,7 @@ and `aem_desc.map` files in the sibling rootfs overlay when it is present.
 | [Building](integration/BUILDING.md) | Board builds and build gates |
 | [QSPI flash boot](integration/QSPI_FLASHBOOT.md) | Matched image deployment and recovery |
 | [LiteX SoC](litex/LITEX_SOC.md) | Softcore host integration |
-| [Software index](../sw/README.md) | Driver, device tree, builder, and utility entry points |
+| [Software index](../sw/README.md) | SoC builder, end-station builder, and utility entry points |
 | [Register map](reference/REGISTER_MAP.md) | AXI4-Lite ABI shared by RTL and software |
 
 ## RTL and design

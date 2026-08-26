@@ -9,7 +9,7 @@
 #
 # It reproduces DETERMINISTICALLY: a saturating unicast RX flood aimed at the
 # grandmaster board (935 Mb/s UDP, 60 s, `iperf3 -c 192.168.127.1 -u -b 950M
-# -l 1400`). During the flood the ALINX grandmaster's `ptp4l` emits ZERO
+# -l 1400`). During the flood the ALINX grandmaster emits ZERO
 # Announce and ZERO Sync - not late, ABSENT - because the single-ring RX path
 # (`rx_queues: 1`, no steer block) consumes the whole softcore in NAPI and
 # userspace never runs. Every peer then loses the master and re-elects.

@@ -6,8 +6,7 @@ test_trace_roundtrip.py - host-runnable gate for the CTF fault log.
 
 Gates (Phase 10, docs/design/TRACE_LOGGING.md):
    1. flash map: FLASHBOOT_LAYOUT + FLASHBOOT_RESERVED are erase-block aligned,
-      non-overlapping and inside the device, and sw/dts/mtd-partitions.dtsi is
-      byte-identical to what they generate (+ dtc structural check);
+      non-overlapping and inside the device;
    2. the checked-in generated/ producer is what milan_trace.yaml produces -
       re-generated and diffed WHEN barectf is importable, LOUDLY SKIPPED when it
       is not, so an outsider without barectf still runs every other gate;
@@ -46,7 +45,7 @@ Gates (Phase 10, docs/design/TRACE_LOGGING.md):
       pure-python reader must agree with the canonical one on the event count.
 
 Everything here runs on a plain host: python3 stdlib, a C compiler, and
-optionally barectf / dtc / babeltrace2, each of which is a LOUD SKIP when
+optionally barectf / babeltrace2, each of which is a LOUD SKIP when
 absent rather than a silent pass.  Nothing here touches a board.
 
     python3 sw/trace/test_trace_roundtrip.py
@@ -64,10 +63,10 @@ ROOT = os.path.dirname(os.path.dirname(HERE))
 GEN = os.path.join(HERE, "generated")
 
 sys.path.insert(0, HERE)
-sys.path.insert(0, os.path.join(ROOT, "sw", "dts"))
+sys.path.insert(0, os.path.join(ROOT, "sw", "litex"))
 import ctf_read          # noqa: E402
 import trace_segment     # noqa: E402
-import gen_mtd_partitions as gmp   # noqa: E402
+import flash_map as gmp           # noqa: E402
 
 SKIPS = []
 
@@ -93,7 +92,7 @@ EVENT_IDS = {
 MUST_EXERCISE = set(EVENT_IDS.values())
 
 
-def test_flash_map_and_mtd_node():
+def test_flash_map_and_persist_inventory():
     rows, flash_size, erase = gmp.load_map()
     problems = gmp.check_map(rows, flash_size, erase)
     assert not problems, "flash map: " + "; ".join(problems)
@@ -117,32 +116,8 @@ def test_flash_map_and_mtd_node():
         f"user slot is {user[2] // erase} erase blocks; jffs2 wants >= 5 free "
         "for garbage collection")
 
-    rc = gmp.main(["--check"])
-    assert rc == 0, "mtd-partitions.dtsi is stale vs the SoC flash map"
-
-    # The OTHER consumer of the same two dicts: the board-side persistence
-    # inventory (sw/persist/milan_persist_state.py -> milan-persist-state.sh),
-    # which carries the journal/user offsets the board tools write through.
-    # Gated here so a flash-map edit that forgets to regenerate it fails on
-    # this host rather than by silently journalling into the wrong partition.
-    sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(HERE)),
-                                    "sw", "persist"))
-    import milan_persist_state as mps  # noqa: E402
-    reserved_sh = mps.emit_sh()
-    have = open(os.path.join(os.path.dirname(mps.__file__),
-                             "milan-persist-state.sh"), encoding="utf-8").read()
-    assert have == reserved_sh, (
-        "sw/persist/milan-persist-state.sh is stale vs the SoC flash map / "
-        "PERSIST_ITEMS - re-run milan_persist_state.py --emit-sh")
-
-    errs = gmp.dtc_check(gmp.emit(rows, flash_size, erase))
-    if errs == ["dtc not installed"]:
-        _skip("gate 1 dtc", "dtc not installed")
-    else:
-        assert not errs, "dtc: " + "; ".join(errs)
     print(f"  [gate 1] {len(rows)} slots, erase-block aligned, no overlap, "
-          f"0x{sum(r[2] for r in rows):X} of 0x{flash_size:X} allocated; "
-          "mtd-partitions.dtsi in step")
+          f"0x{sum(r[2] for r in rows):X} of 0x{flash_size:X} allocated")
 
 
 def test_generated_is_fresh():
@@ -572,7 +547,7 @@ def test_event_catalogue_fresh():
 
 
 if __name__ == "__main__":
-    for fn in (test_flash_map_and_mtd_node, test_generated_is_fresh,
+    for fn in (test_flash_map_and_persist_inventory, test_generated_is_fresh,
                test_event_ids_pinned, test_producer_builds_and_runs,
                test_segments_decode, test_compression_ratio,
                test_torn_raw_segment, test_torn_xz_segment,

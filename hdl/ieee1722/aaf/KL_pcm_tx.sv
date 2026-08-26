@@ -8,8 +8,8 @@
 /*
 ------------------------------------------------------------------------------
   File        : KL_pcm_tx.sv
-  Description : Host PCM ring -> AAF pair-stream source: the PLAYBACK (ALSA
-                aplay -> AAF talker) counterpart of KL_aaf_rx_depacketizer.
+  Description : Host PCM ring -> AAF pair-stream source: the PLAYBACK (host
+                write -> AAF talker) counterpart of KL_aaf_rx_depacketizer.
                 It is the exact TX inverse of the RX media path, and a drop-in
                 replacement for the physical capture front-end
                 (KL_aaf_capture_i2s / KL_tdm_capture): it emits the SAME
@@ -66,7 +66,7 @@
                 CLEAN RESTART (the capture ring's enable 0->1 precedent, made
                 per-stream): a RISING edge of stream_en_i[s] clears that
                 stream's rd_ptr/rd_off/underrun/overrun and its hold pairs, so
-                every ALSA session starts at sub-ring offset 0 with fill = 0
+                every playback session starts at sub-ring offset 0 with fill = 0
                 regardless of what a previous session (possibly with another
                 ring_len) left behind. Without this, rd_off_r - maintained
                 incrementally as rd_ptr mod ring_len - silently disagrees with

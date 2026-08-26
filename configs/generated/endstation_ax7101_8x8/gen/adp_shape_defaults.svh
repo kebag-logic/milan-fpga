@@ -28,7 +28,7 @@
   //! Writable SET_NAME/GET_NAME entries in this exact AEM model.
   //! This sizes the processor overlay from the generated descriptor
   //! shape, so a larger model cannot compile with a smaller cache.
-  localparam int AEM_NAME_ENTRIES_C = 235;
+  localparam int AEM_NAME_ENTRIES_C = 107;
   //! talker_capabilities (1722.1-2021 Table 6.4): IMPLEMENTED |
   //! AUDIO_SOURCE, + MEDIA_CLOCK_SOURCE only when a CRF STREAM_OUTPUT
   //! exists to back it
@@ -45,25 +45,25 @@
   //! partition plus its global cluster-key projection. RPHYS entries
   //! are {valid, render_crossbar_key[5:0]}; non-physical clusters
   //! remain protocol-visible mappings without aliasing a physical pin.
-  localparam int ADP_DMAP_IN_KEYS_C    = 64;
-  localparam int ADP_DMAP_IN_PAGE_C    = 8;
+  localparam int ADP_DMAP_IN_KEYS_C    = 1;
+  localparam int ADP_DMAP_IN_PAGE_C    = 1;
   localparam int ADP_DMAP_IN_NPORTS_C  = 8;
   localparam int ADP_DMAP_IN_NSTRIN_C  = 9;
-  localparam logic [6:0] ADP_DMAP_IN_PBASE_C [0:7] = '{7'd0, 7'd8, 7'd16, 7'd24, 7'd32, 7'd40, 7'd48, 7'd56};
-  localparam logic [6:0] ADP_DMAP_IN_PCLS_C [0:7] = '{7'd8, 7'd8, 7'd8, 7'd8, 7'd8, 7'd8, 7'd8, 7'd8};
-  localparam logic [6:0] ADP_DMAP_IN_PNMAPS_C [0:7] = '{7'd1, 7'd1, 7'd1, 7'd1, 7'd1, 7'd1, 7'd1, 7'd1};
-  localparam logic [6:0] ADP_DMAP_IN_RPHYS_C [0:63] = '{7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00};
+  localparam logic [6:0] ADP_DMAP_IN_PBASE_C [0:7] = '{7'd0, 7'd0, 7'd0, 7'd0, 7'd0, 7'd0, 7'd0, 7'd0};
+  localparam logic [6:0] ADP_DMAP_IN_PCLS_C [0:7] = '{7'd0, 7'd0, 7'd0, 7'd0, 7'd0, 7'd0, 7'd0, 7'd0};
+  localparam logic [6:0] ADP_DMAP_IN_PNMAPS_C [0:7] = '{7'd0, 7'd0, 7'd0, 7'd0, 7'd0, 7'd0, 7'd0, 7'd0};
+  localparam logic [6:0] ADP_DMAP_IN_RPHYS_C [0:0] = '{7'h00};
   localparam logic  ADP_DMAP_IN_SAAF_C [0:8] = '{1'b1, 1'b1, 1'b1, 1'b1, 1'b1, 1'b1, 1'b1, 1'b1, 1'b0};
   localparam logic [9:0] ADP_DMAP_IN_SCH_C [0:8] = '{10'd8, 10'd8, 10'd8, 10'd8, 10'd8, 10'd8, 10'd8, 10'd8, 10'd0};
   //! Dynamic output geometry and capture-source words are copied
   //! from the AEM generator's ODMAP table. CSRC uses the fabric word
   //! {valid, half, src[2:0], idxh[3:0], idx[3:0]}.
   localparam int ADP_DMAP_OUT_NPORTS_C = 8;
-  localparam int ADP_DMAP_OUT_NSRC_C    = 136;
-  localparam logic [6:0] ADP_DMAP_OUT_PCLS_C [0:7] = '{7'd17, 7'd17, 7'd17, 7'd17, 7'd17, 7'd17, 7'd17, 7'd17};
-  localparam logic [7:0] ADP_DMAP_OUT_PCBASE_C [0:7] = '{8'd0, 8'd17, 8'd34, 8'd51, 8'd68, 8'd85, 8'd102, 8'd119};
+  localparam int ADP_DMAP_OUT_NSRC_C    = 72;
+  localparam logic [6:0] ADP_DMAP_OUT_PCLS_C [0:7] = '{7'd9, 7'd9, 7'd9, 7'd9, 7'd9, 7'd9, 7'd9, 7'd9};
+  localparam logic [7:0] ADP_DMAP_OUT_PCBASE_C [0:7] = '{8'd0, 8'd9, 8'd18, 8'd27, 8'd36, 8'd45, 8'd54, 8'd63};
   localparam logic [9:0] ADP_DMAP_OUT_SCH_C [0:7] = '{10'd8, 10'd8, 10'd8, 10'd8, 10'd8, 10'd8, 10'd8, 10'd8};
-  localparam logic [12:0] ADP_DMAP_OUT_CSRC_C [0:135] = '{13'h1300, 13'h1B00, 13'h1301, 13'h1B01, 13'h1302, 13'h1B02, 13'h1303, 13'h1B03, 13'h1400, 13'h0500, 13'h0D00, 13'h0501, 13'h0D01, 13'h0502, 13'h0D02, 13'h0503, 13'h0D03, 13'h1300, 13'h1B00, 13'h1301, 13'h1B01, 13'h1302, 13'h1B02, 13'h1303, 13'h1B03, 13'h1400, 13'h0510, 13'h0D10, 13'h0511, 13'h0D11, 13'h0512, 13'h0D12, 13'h0513, 13'h0D13, 13'h1300, 13'h1B00, 13'h1301, 13'h1B01, 13'h1302, 13'h1B02, 13'h1303, 13'h1B03, 13'h1400, 13'h0520, 13'h0D20, 13'h0521, 13'h0D21, 13'h0522, 13'h0D22, 13'h0523, 13'h0D23, 13'h1300, 13'h1B00, 13'h1301, 13'h1B01, 13'h1302, 13'h1B02, 13'h1303, 13'h1B03, 13'h1400, 13'h0530, 13'h0D30, 13'h0531, 13'h0D31, 13'h0532, 13'h0D32, 13'h0533, 13'h0D33, 13'h1300, 13'h1B00, 13'h1301, 13'h1B01, 13'h1302, 13'h1B02, 13'h1303, 13'h1B03, 13'h1400, 13'h0540, 13'h0D40, 13'h0541, 13'h0D41, 13'h0542, 13'h0D42, 13'h0543, 13'h0D43, 13'h1300, 13'h1B00, 13'h1301, 13'h1B01, 13'h1302, 13'h1B02, 13'h1303, 13'h1B03, 13'h1400, 13'h0550, 13'h0D50, 13'h0551, 13'h0D51, 13'h0552, 13'h0D52, 13'h0553, 13'h0D53, 13'h1300, 13'h1B00, 13'h1301, 13'h1B01, 13'h1302, 13'h1B02, 13'h1303, 13'h1B03, 13'h1400, 13'h0560, 13'h0D60, 13'h0561, 13'h0D61, 13'h0562, 13'h0D62, 13'h0563, 13'h0D63, 13'h1300, 13'h1B00, 13'h1301, 13'h1B01, 13'h1302, 13'h1B02, 13'h1303, 13'h1B03, 13'h1400, 13'h0570, 13'h0D70, 13'h0571, 13'h0D71, 13'h0572, 13'h0D72, 13'h0573, 13'h0D73};
+  localparam logic [12:0] ADP_DMAP_OUT_CSRC_C [0:71] = '{13'h1400, 13'h0500, 13'h0D00, 13'h0501, 13'h0D01, 13'h0502, 13'h0D02, 13'h0503, 13'h0D03, 13'h1400, 13'h0510, 13'h0D10, 13'h0511, 13'h0D11, 13'h0512, 13'h0D12, 13'h0513, 13'h0D13, 13'h1400, 13'h0520, 13'h0D20, 13'h0521, 13'h0D21, 13'h0522, 13'h0D22, 13'h0523, 13'h0D23, 13'h1400, 13'h0530, 13'h0D30, 13'h0531, 13'h0D31, 13'h0532, 13'h0D32, 13'h0533, 13'h0D33, 13'h1400, 13'h0540, 13'h0D40, 13'h0541, 13'h0D41, 13'h0542, 13'h0D42, 13'h0543, 13'h0D43, 13'h1400, 13'h0550, 13'h0D50, 13'h0551, 13'h0D51, 13'h0552, 13'h0D52, 13'h0553, 13'h0D53, 13'h1400, 13'h0560, 13'h0D60, 13'h0561, 13'h0D61, 13'h0562, 13'h0D62, 13'h0563, 13'h0D63, 13'h1400, 13'h0570, 13'h0D70, 13'h0571, 13'h0D71, 13'h0572, 13'h0D72, 13'h0573, 13'h0D73};
   //! THE WIRE CHANNEL CONSTANT (roadmap item 00): channels_per_frame
   //! the FRAMER emits, derived from the capture front-end this config
   //! elaborates - NOT from any declared format and NOT from `clusters`
@@ -92,7 +92,8 @@
   //! from gptp.domain, the register from a hardcoded
   //! `w 0x62C 0x00000000` in avdecc/aecp_csr_setup.sh - and agreed only
   //! because the shipping config happens to say 0. A config that said 1
-  //! would have run ptp4l on domain 1 while ADP advertised domain 0,
+  //! would have run the selected gPTP owner on domain 1 while ADP
+  //! advertised domain 0,
   //! silently. One YAML section, one number (USER 2026-08-05).
   localparam int ADP_GPTP_DOMAIN_C   = 0;
 

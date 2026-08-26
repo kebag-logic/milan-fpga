@@ -78,8 +78,9 @@ VCOMMON = --cc --exe --build -j 0 \
 # waits stay affordable.
 GPTP_DIR  = ../../../gptp-processor
 PTP_SRCS = ../gptp_shadow/gptp_shadow_wrap.sv \
-           $(RTL)/ieee8021as/ptp_timestamp/timestamp_counter.sv \
-           $(RTL)/ieee8021as/gptp_plane/KL_gptp_shadow.sv \
+            $(RTL)/ieee8021as/ptp_timestamp/timestamp_counter.sv \
+            $(RTL)/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv \
+            $(RTL)/ieee8021as/gptp_plane/KL_gptp_shadow.sv \
            $(RTL)/ieee8021as/gptp_plane/KL_gptp_txstamp.sv \
            $(TP)/verilog-axis/rtl/axis_fifo.v \
            $(GPTP_DIR)/hdl/ucpu/gptp_ucpu_pkg.sv \

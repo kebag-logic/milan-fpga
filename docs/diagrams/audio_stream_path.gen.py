@@ -37,7 +37,7 @@ node("i2s",  60, 170, 268, 78, "KL_aaf_capture_i2s",
      ["Pmod I2S2 ADC (CS5343), I2S master", "24.576 MHz MMCM /512 = 48 kHz, slot 0"], BLUE)
 node("tdm",  60, 262, 268, 78, "KL_tdm_capture",
      ["TDM slave, 8/16/32 slots", "pair k = TDM slots {2k, 2k+1}"], BLUE)
-node("ring", 60, 354, 268, 78, "KL_pcm_tx  (ALSA playback)",
+node("ring", 60, 354, 268, 78, "KL_pcm_tx  (ring playback)",
      ["host-written PCM ring, S32BE", "pb_* CSRs; underrun repeat/silence"], BLUE)
 node("tone", 60, 446, 268, 78, "KL_tone_gen",
      ["1 kHz 0 dBFS, 48-entry table", "TONE_CTRL 0x6DC"], BLUE)
@@ -52,7 +52,7 @@ node("pkt", 812, 288, 292, 116, "KL_aaf_packetizer",
 
 # host TX side chain (joins at the arbiter)
 node("hosttx", 812, 130, 220, 64, "host TX DMA",
-     ["kl-eth frames from Linux"], GREY)
+     ["control-lane frames from software"], GREY)
 node("cbs", 1076, 130, 250, 64, "classify + CBS shaper",
      ["traffic_controller_802_1q"], ORANGE)
 node("ptptx", 1370, 130, 220, 64, "ptp_ts_top (TX)",
@@ -88,8 +88,8 @@ node("route", 1344, 760, 240, 92, "KL_pcm_route",
 node("pcmring", 1240, 950, 320, 104, "PCM DMA ring",
      ["DRAM _PCMRingNxN (LiteX 0xf0003120)", "or on-chip BRAM --pcm-ring bram",
       "(0x9010_0000, sink.ready == 1)"], RED)
-node("alsa", 1240, 1104, 320, 78, "ALSA capture / PipeWire",
-     ["snd-kl-milan + pw-milan-ring-source", "(private test repo)"], GREY)
+node("ringcons", 1240, 1104, 320, 78, "ring consumer (host side)",
+     ["drains the capture ring", "(bench tooling, private test repo)"], GREY)
 
 # RENDER branch (right)
 node("lpf", 1660, 700, 220, 78, "KL_pcm_lpf",
@@ -131,7 +131,7 @@ EDGES = [
     ("wire", "macrx", "wrap"),
     ("macrx", "parser", "h"), ("parser", "rxmon", "h"),
     ("rxmon", "depkt", "h"), ("depkt", "route", "h"),
-    ("route", "pcmring", "v"), ("pcmring", "alsa", "v"),
+    ("route", "pcmring", "v"), ("pcmring", "ringcons", "v"),
     ("route", "lpf", "h"), ("lpf", "i2spb", "h"),
     ("route", "cxbar", "h2"), ("cxbar", "tdmout", "h"),
 ]
@@ -156,7 +156,7 @@ def svg():
     o.append(f'<rect x="30" y="660" width="{W-60}" height="540" rx="12" fill="none" '
              f'stroke="#B0BEC5" stroke-width="1.6" stroke-dasharray="7,5"/>')
     o.append(f'<text x="48" y="688" font-size="17" font-weight="bold" fill="#78909C">'
-             f'LISTENER - wire to render / ALSA</text>')
+             f'LISTENER - wire to render / ring</text>')
 
     def edge_pts(a, b, kind):
         ax, ay, aw, ah = N[a][:4]
@@ -226,7 +226,7 @@ def svg():
         (GREEN,  "AAF engines: packetizer - parser - monitor - depacketizer"),
         (ORANGE, "egress/ingress boundary: CBS shaper, PTP timestamps, MAC"),
         (RED,    "PCM ring storage (DRAM default, BRAM option)"),
-        (GREY,   "software side (Linux driver / PipeWire)"),
+        (GREY,   "software side (control lane and ring consumers)"),
     ]
     for i, ((f_, s_), txt) in enumerate(items):
         col = i % 2

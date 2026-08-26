@@ -61,18 +61,15 @@ entity:
 board:
   target: arty
   features:
-    sound_card: true
+    fabric_gptp: true               # the one product owner (#259)
   constraints:
     sys_clk_hz: 83333000
     milan_clk_hz: 50000000
-    l2_bytes: 16384                  # USER 2026-07-29: 16K next build (halved
-                                     # from the 07-28 32K reference; uniform
-                                     # with the AX 8x8 shape that closed, and
-                                     # the space lever for the 0x001B fabric)
+    l2_bytes: 0                      # #259 bare-metal cacheless product
     phy: mii-100
     gtx_tx_invert: false
     floorplan: false
-    flashboot: full
+    flashboot: baremetal             # #259: the {bitstream, aem} manifest
     uart_baudrate: 115200
     rx_queues: 2
     hs_page_bytes: 16384
@@ -96,13 +93,7 @@ platform:
   csr_base: 0x90000000
   mac_address: "02:00:00:00:00:02"
   interrupt: 3
-  pcm_ring_phys: 0x4fc00000          # 4 capture streams x 1 MiB stride: the
-  pcm_ring_bytes: 0x400000           # no-map region grows with N (the 1 MiB
-  pcm_ring_stride: 0x100000          # 1x1 region would be DMA-overrun)
-  boot_chain_pin:                    # 2-queue arty map (same as the deployed
-                                     # shape - this config keeps rx_queues 2)
-    dma-ts: 0xf0003100
-    pcm-dma: 0xf0003120
+  pp_mem_phys: 0x4fb00000            # 1 MiB protocol-processor window
 
 clocking:
   sampling_rate_hz: 48000
@@ -191,3 +182,23 @@ streams:
     - { name: "Stream Out 1", channels: 4 }
     - { name: "Stream Out 2", channels: 4 }
     - { name: "Stream Out 3", channels: 4 }
+
+gptp:
+  # ONE source (USER 2026-08-05): these values generate the AVB_INTERFACE
+  # descriptor's clock fields and the fabric uCPU image. priority1 248 =
+  # the deferring Milan end-station default (see the AX7101 configs). The
+  # fabric plane is the one product gPTP owner (#259); no daemon
+  # configuration is generated from this section any more. The engine
+  # consumes only priority1 (plus MAC and clock frequency); every other
+  # clock field is a constant in gptp-processor/hdl/ucode/gen_gptp_ucode.py
+  # that the builder derives or refuses ([R-parallel] on #228). The
+  # historical Arty clock_accuracy 0x21 / log_sync_interval 0 restatement
+  # is deleted: the engine announces 0xFE and -3, and a descriptor stating
+  # anything else disagrees with the wire.
+  priority1: 248
+  priority2: 248
+  clock_class: 248
+  offset_scaled_log_variance: 0x436A
+  domain: 0
+  log_announce_interval: 0
+  log_pdelay_interval: 0

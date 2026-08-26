@@ -110,12 +110,12 @@ is verified*, and which requirements are **not** Milan-driven.
 | `avdecc_l2` | ADP watch / GET_COUNTERS / ACMP connect script | `srcs/the-private-test-repo/controller/avdecc_l2.py` |
 | `tap_acmp` / `tap_sniff` | ACMP + frame taps | `srcs/the-private-test-repo/controller/` |
 | `thdn` | audio THD+N quality check | `.../controller/pipewire_avb_thdn.py` |
-| `soak` | peer-host-pair stream + clock-recovery soak (between the two bench PipeWire hosts) | `srcs/the-private-test-repo/scripts/pw1-pw0-clockrec-soak.sh` |
+| `soak` | peer-host-pair stream + clock-recovery soak (between the two bench hosts) | `srcs/the-private-test-repo/scripts/pw1-pw0-clockrec-soak.sh` |
 | `latency.md` / `gptp-phc-clock.md` | measurement methodology | `srcs/the-private-test-repo/docs/` |
 | `tsn-gen` | byte-exact AECP PDU specs + BDD features. **There is an AECP responder again**: `aecp_read_descriptor` is a real byte-exact test once a descriptor image is in DRAM (against a stock build it measures `BAD_ARGUMENTS`, i.e. the image gap), and every other AECP yaml measures the `NOT_IMPLEMENTED` echo's header discipline — the conformance floor, never command coverage. The repo-side AECP/ACMP/ADP/legacy fuzz campaigns are deleted; only the **AAF** campaign survives | `software-defined-tsn-stack/.../1722_1/aecp/*.yaml`, `.../tests/aecp_behave/features/*.feature`, `protocols/milan/aecp_read_descriptor.yaml` |
 | `vtb:<n>` | Verilator self-checking harness. `ls tb/verilator/` is authoritative; `pp_shadow` is the protocol processor's lane, and the `aecp` / `acmp` / `acmp_lstn` / `adp` / `lwsrp*` / `persist` / `aempatch` suites are deleted with their RTL | `tb/verilator/<n>` (`cbs`, `shaper_core`, `cls`, `ptp`, `ptp_sync`, `csr`, `pp_shadow`, `milan_dp`) |
 | `Hive` | AVDECC controller (enumerate/lock/connect/identify) | external |
-| `ptp4l`/`phc2sys`, `ethtool`, `tc cbs` | linuxptp + Linux net tooling | on-target |
+| host time and QoS tooling | the explicit software-owner option-off comparison only, retired as a product path (#259) | on-target |
 | `mrpd` / `maap` | OpenAvnu daemons — SUPERSEDED 2026-07-12: SRP/MAAP left software. **Re-pointed 2026-08-13**: SRP is now the **protocol processor's** (the lwSRP engine is deleted), MAAP is still this fabric's `KL_maap`; see [ARCHITECTURE_HW_SW_SPLIT.md](../ARCHITECTURE_HW_SW_SPLIT.md) | peer-side only |
 | `CONF` | the **Milan conformance plan** as recreated by the private bench suite | private test repo |
 
@@ -223,7 +223,7 @@ device*, and this build cannot complete the Milan identity handshake.
 
 | Milan requirement | Dep | FR/NFR | Today | Why necessary | Verify |
 |-------------------|-----|--------|-------|---------------|--------|
-| 802.1AS time-aware endpoint (Class A), GM tracking | MANDATES | FR-CLK-01, NFR-TIME-01 | **live** | Presentation times live on the gPTP timebase (≤1 µs). | T  -  `ptp4l`/`phc2sys` lock; `ethtool -T`; `gptp-phc-clock.md` (offset ≤1 µs) |
+| 802.1AS time-aware endpoint (Class A), GM tracking | MANDATES | FR-CLK-01, NFR-TIME-01 | **live** | Presentation times live on the gPTP timebase (≤1 µs). | T  -  measured PHC lock; `gptp-phc-clock.md` (offset ≤1 µs) |
 | Media clock from CRF / input stream; CRF talker+recovery | MANDATES | FR-CLK-04, NFR-TIME-02 | **❌ NOT IMPL — this is the sharpest single loss on the page.** The CRF *talker* still emits and `KL_crf_rx` still parses, counts and reports, but **the CRF media clock can never be SELECTED**: `SET_CLOCK_SOURCE` is unimplemented (answered `NOT_IMPLEMENTED`, and a refusal writes nothing) and it was the only writer of `clock_source_index`, pinned at 0 (INTERNAL) for the life of the build. `KL_mmcm_drp_servo` and the `KL_media_nco` packet-grid servo are structurally off; `A_MCSRV_STAT` (`0x8F8`) reads its idle. Recovery is measured and not actuated | Drift ⇒ periodic MEDIA_RESET / artifacts. | T  -  `soak` (clock-recovery); `tap_sniff` CRF |
 | HW timestamps at the SFD | MANDATES | FR-CLK-05 | **live** | gPTP/AVTP accuracy needs HW capture. | T  -  `ethtool -T` + timestamp capture; `vtb:ptp` |
 | PHC on a fixed (speed-independent) clock | MANDATES(impl) | FR-CLK-02, NFR-TIME-03 | **live** | Speed-switched PHC ⇒ wrong ns rate at 10/100/1000. | A,T  -  `vtb:ptp` (rate at each speed); analysis (REQ-PTP-07) |
@@ -300,7 +300,7 @@ Milan only **CONSTRAINS** these; it does not require them.
   FR-CLK-02/05 (`vtb:ptp`), CSR/IRQ (`vtb:csr`), FR-DISC/FR-CONN/FR-SRP through
   the protocol processor (`vtb:pp_shadow`, `vtb:milan_dp`).
 - **Interop/system:** ADP/ACMP via `avdecc_l2`/`tap_acmp`/`Hive`; gPTP via
-  `ptp4l`; streaming via `soak`/`thdn`; reservation observed on the bridge.
+  the gPTP plane's published state; streaming via `soak`/`thdn`; reservation observed on the bridge.
   AECP/MVU: a controller reaches the entity and gets well-formed refusals; it
   enumerates nothing until a descriptor image is loaded, and it can set nothing
   at all.

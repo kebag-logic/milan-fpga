@@ -28,7 +28,7 @@ any other name; its material is private (see Section 7).
 - **[1. Machines](#1-machines)** -- Role and reach for every host, now with the concrete names inline (<peer-host> / <capture-host> / <power-controller>), plus the facts that change what you can do: the dev box never gets an address on the AVB subnet, the switch has no IP or UI management at all, pw0's port is pruned, and capture records carry a 28-byte header so every `ether[]` offset shifts by +28.
 - **[2. Boards (DUTs)](#2-boards-duts)** -- The sole DUT (AX7101: serial/JTAG/ssh access, RV32, 8×8×8ch) and the reference-peer wiring with the PRIMARIES-ONLY binding rule; the two-board table and the Arty analog loop are kept below it as banner-marked history.
 - **[3. Consoles from the dev box](#3-consoles-from-the-dev-box)** -- The serial↔FIFO daemon you must **recreate whenever it is gone** (it is not a service, and its scratch-space FIFOs do not persist), and its three traps: output racing the read window, `dmesg -n 1` to unbury the console, and a foreground pipe wedging the shell.
-- **[4. Repositories & artifacts](#4-repositories--artifacts)** -- Which of the five trees holds what -- gateware, bench/private, LiteX venv and build dirs, buildroot output, standards PDFs. Standing warning: both repos diverge from their GitHub origins, so any push needs `--force`.
+- **[4. Repositories & artifacts](#4-repositories--artifacts)** -- Which of the trees holds what -- gateware, bench/private, LiteX venv and build dirs, standards PDFs. Standing warning: both repos diverge from their GitHub origins, so any push needs `--force`.
 - **[5. Build → flash → verify pipeline](#5-build--flash--verify-pipeline)** -- The commands, copy-ready: 3-seed sweep, the per-board flash invocation with its environment, and the WNS ≥ 0 gate. Also the chronic non-error to ignore (`write_cfgmem SPI_BUSWIDTH` on ARTY) and the regression set required before any commit.
 - **[6. Peer-host wire tooling (all sudo, iface enp6s0)](#6-peer-host-wire-tooling-all-sudo-iface-enp6s0)** -- The probe scripts and what each one proves, the capture filters with the three multicast groups, and the full THD+N chain from tap capture or ring dump to a number.
 - **[7. The bench conformance suite (PRIVATE — never in git, never pushed)](#7-the-bench-conformance-suite-private--never-in-git-never-pushed)** -- The privacy rules, in force: `/private/` is never `git add`ed and only one name for the suite ever appears in committed text (a script enforces the deny-list). The score to beat is 63/63 scenarios per board.
@@ -179,9 +179,8 @@ foreground pipe wedges the shell (write ctrl-C to the FIFO).
 | Path | What |
 |---|---|
 | `~/prjs-avb-on-fpga/milan-fpga` | THE gateware repo. `hdl/` RTL uses a standards-clause layout: the old local acmp and aecp trees are deleted, while ieee1722/{avtp,aaf,crf,maap}, ieee8021q/{ts,filtering}, ieee8021as/ptp_timestamp, the milan tops including `KL_pp_shadow`, and common/{csr,eth_event_counter,cdc} remain. `tb/verilator/*` contains milan_dp, pp_shadow, pcmlpf and the other live suites. AECP now lives in the pinned processor uCPU and serves the inventory in the [current audit](../testing/MILAN_V12_AUDIT_2026-08-16.md). [`syn/yosys/run.sh`](../../syn/yosys/run.sh) is the device-portability gate. [`sw/litex/`](../../sw/litex) holds milan_soc.py, **sweep.sh**, **build.sh** including the `flash` verb, and deploy.sh. `avdecc/` holds the declarative AEM model and controller support; the builder packs the processor's main-memory descriptor image. Author `hackerman-kl`, one-line commits, no trailers. |
-| `~/the-private-test-repo` | Bench/test repo. `fpga/` (kl-eth driver, buildroot br2-external incl. the **rootfs overlay** = S50milan, linkmon.sh, gptp2csr.sh, stream_phc_sync.sh, gptp.cfg, S65/S66), `fpga/tests/` (tone_thdn.py, pcm_ring_dump.c, silicon_battery.py), `fpga/dts+boot/` (dtb + opensbi per board), `private/` (**untracked, git-ignored**: the bench conformance suite + its reference run -- see Section 7). Commits: author `hackerman-kl` (both repos), one line, no trailers. |
+| `~/the-private-test-repo` | Bench/test repo. `fpga/` (the retired host bring-up material, #259), `fpga/tests/` (tone_thdn.py, pcm_ring_dump.c, silicon_battery.py), `private/` (**untracked, git-ignored**: the bench conformance suite + its reference run -- see Section 7). Commits: author `hackerman-kl` (both repos), one line, no trailers. |
 | `~/litex-milan` | LiteX + venv (`~/litex-milan/venv` — PATH needed for build/flash python). **`work/`** = all Vivado build dirs (`build_<board>_<seed>_<tag>/`). |
-| `~/br-milan-output` | Buildroot out-tree. Rebuild rootfs: `cd ~/br-milan-output && make O=$PWD && xz -9 --check=crc32 -c images/rootfs.cpio > /tmp/scratch/rootfs.cpio.xz`. Kernel `images/Image` (xz it for flashing). |
 | the private pre-rewrite backups (off-repo) | Pre-history-rewrite bundles + the private-material tar. KEEP PRIVATE. |
 | the local standards PDFs (`$STANDARDS_DIR`) | All specs: 1722.1-2021.pdf, 1722-2016, Milan v1.2 consolidated, 802.1AS/Q, the official validation test plan, etc. Extracted text: `/tmp/scratch/1722.txt`, `milan12.txt`, `certplan.txt` (re-extract with pdftotext after reboot). |
 | `~/refs/AX7101` | Board reference repo (schematic, flash + PHY datasheets). Read-only. |
@@ -199,11 +198,8 @@ closest is `synth_design -directive AlternateRoutability` +
 `place_design -directive ExtraNetDelay_high`; the full fit ledger is preserved
 in the archived 2026-08-02 dated bench note (reachable from
 [the archive index](../../historical_now_obsolete/README.md)).
-Flash with the full image set
-(`KERNEL`/`DTB`/`OPENSBI`/`ROOTFS`) — **OpenSBI embeds the FDT**, so a DTB
-change means an OpenSBI rebuild, and a queue-count change shifts the DMA
-windows under an unchanged DTB (`deploy.sh` gates this via
-`check_dtb_csr.py`).
+Flash the shipping pair (bitstream + AEM image); `deploy.sh flash-pair`
+refuses any layout that names a retired boot image (#259).
 
 ```sh
 # 3-seed Vivado sweep (3 parallel instances × 32 threads = the box rule)
@@ -211,22 +207,14 @@ cd ~/prjs-avb-on-fpga/milan-fpga && ./sw/litex/sweep.sh ax7101 <tag>
 # WNS: grep -B2 -A6 "Design Timing Summary" ~/litex-milan/work/build_*_<tag>/gateware/*_timing.rpt
 # Gate: WNS >= 0. Pick best seed.
 
-# AX7101 (current): AX_FTDI=210512180081 ./sw/litex/build.sh flash ax7101:<builddir>
+# AX7101 (current): AX_FTDI=210512180081 INSTALLED_BUILD=<exact-current-build> \
+#   ./sw/litex/build.sh flash ax7101:<target-builddir>
 # then cold-cycle: ssh <power-controller> 'powerstrip off 0; sleep 6; powerstrip on 0'
 # verify: devmem 0x90000004 reads the expected VERSION, and
 #         cat /sys/class/net/eth0/flags == 0x1203 (RX-shield posture, Section 8)
 
-# HISTORICAL — ARTY (retired 07-31; QSPI boot: bitstream + images):
-PATH="$HOME/litex-milan/venv/bin:$PATH" PYTHON="$HOME/litex-milan/venv/bin/python3" \
-KERNEL=/tmp/scratch/Image.xz ROOTFS=/tmp/scratch/rootfs.cpio.xz \
-OPENSBI=~/the-private-test-repo/fpga/boot/opensbi_arty.bin \
-DTB=~/the-private-test-repo/fpga/boot/milan_arty_vexii.dtb \
-./sw/litex/build.sh flash arty:build_arty_<seed>_<tag>
-openFPGALoader --ftdi-serial <arty-ftdi-serial> -c digilent --reset   # then ~100 s boot
-
-# AX (QSPI boot since 2026-07-21: bitstream@0 + images, one verb):
-KERNEL=... ROOTFS=... OPENSBI=~/the-private-test-repo/fpga/boot/opensbi.bin \
-DTB=~/the-private-test-repo/fpga/dts/milan_ax7101_linux.dtb \
+# AX (QSPI boot: bitstream@0 + the raw AEM image, one verb):
+INSTALLED_BUILD=<exact-current-build> \
 ./sw/litex/build.sh flash ax7101:build_ax7101_<seed>_<tag>
 # JTAG-load the same bit for the immediate session (belt until the
 # mode-pin self-config question is settled by an openFPGALoader --reset):
@@ -317,8 +305,8 @@ segfaults) → scp via the peer host → `tone_thdn.py --chans 2 --f0 1000`.
 > processor's AECP microprocessor answers `READ_DESCRIPTOR` from a descriptor
 > image in DRAM at a compile-time base derived by the LiteX SoC. There is no
 > base register. An explicit builder `--write-fragment` or `--write-rtl`
-> transfer generates `aem_desc.bin` with its paired manifest and map in the
-> sibling rootfs overlay when that overlay is present. The tracked `aemi-load`
+> transfer generates `aem_desc.bin` with its paired manifest and map beside
+> the bitstream. The tracked `aemi-load`
 > step verifies the pair and writes the image before entity enable through
 > `PP_CTRL[0]` at `0x920` or `ADP_CTRL[0]` at `0x600`. An omitted or invalid
 > image fails closed with `BAD_ARGUMENTS`; a valid-image locate miss returns
@@ -326,9 +314,8 @@ segfaults) → scp via the peer host → `tone_thdn.py --chans 2 --f0 1000`.
 > and a late valid load heals without reset because each invalid locate
 > re-arms the header probe.
 
-Boot: QSPI/SRAM gateware → BIOS flash-boot (xz kernel) → buildroot →
-`S50milan` provisions CSRs (names, model id, vt=10, MAAP adopt, kernel
-shield /32, **AAF_CTRL 0x654 = 0x00020001 — bit-preserve VID 2 [27:16]
+Boot: QSPI/SRAM gateware → BIOS → bare-metal firmware, which provisions the
+CSRs (names, model id, vt=10, MAAP adopt, **AAF_CTRL 0x654 = 0x00020001 — bit-preserve VID 2 [27:16]
 or the switch floods the stream as best-effort. NOT `0x00020003`: bit 1 is
 `cfg_aaf_bypass`, which ORs past BOTH qualifying terms of the admission gate,
 so the talker streams whether or not any Listener Ready is registered. Milan
@@ -338,46 +325,32 @@ repo's own paraphrase of that clause read as an unconditional "a Stream Output
 SHALL NOT be stopped" and is what licensed the bypass. Measured 2026-07-28:
 with bit 1 set and nothing bound, 15,503 tagged AAF frames in 6 s; cleared, 0 —
 while MSRP TalkerAdvertise/Domain continue either way, so 5.3.7.2 is intact**,
-ingressLatency sed
-3511(ARTY)/1490(AX) ns, priority1 238 on
-AX, tone on AX) → daemons: `ptp4l` (tx_timestamp_timeout **500**),
-`phc2sys`, `linkmon.sh` (kernel rx_packets liveness, one edge-pair per
-outage, up-after-settle, LINK_CTRL 0x71C reinit, RST_EPOCH 0x720
-canary), `gptp2csr.sh` (GM 0x624/8 — publishes LOCAL ckid when we are
-GM; pdelay 0x6E4; AS_PATH parent bridge 0x730/4 from PARENT_DATA_SET),
-`stream_phc_sync.sh` (dormant while ptp4l is SLAVE **or MASTER**; only
-steers after 5 consecutive dead polls — earlier versions caused the
-~100 s media-unlock cycle).
+ingressLatency 3511(ARTY)/1490(AX) ns, priority1 238 on AX, tone on AX).
+Time is the fabric gPTP plane's from the first cycle: it publishes GM identity
+(0x624/8), pdelay (0x6E4) and the AS_PATH parent bridge (0x730/4) itself, with
+no software daemon in the loop and nothing to keep at real-time priority.
 
 **RX-shield posture (2026-08-02, after
-[Section 1 of DEFECT_CLASSES_0802.md](DEFECT_CLASSES_0802.md#1-promisc-voids-the-shield)):** S50milan no longer
-sets promisc when the driver carries the shield (it reads
-`/sys/module/kl_eth/version` for a `rxsh` prefix — busybox has **no
-`modinfo`**). The shielded driver programs MC_HASH from the kernel multicast
-list and a TCAM drop of the stream DMAC range, so the kernel sees only
-control traffic while the fabric taps (pre-filter) keep every counter and the
-PCM ring working. **Check the posture after every boot:**
-`cat /sys/class/net/eth0/flags` — `0x1203` is correct, `0x1303` means promisc
-leaked and the shield is void (promisc outranks the TCAM drop by design).
-Shell/servo loops on this single-hart image are `nice`d, never `SCHED_FIFO`
-(a FIFO busy loop freezes softirq/NAPI and gaps Sync past the switch's
-receipt timeout); only ptp4l keeps RT.
+[Section 1 of DEFECT_CLASSES_0802.md](DEFECT_CLASSES_0802.md#1-promisc-voids-the-shield)):** the shield is
+MC_HASH plus a TCAM drop of the stream DMAC range, so the control lane sees
+only control traffic while the fabric taps (pre-filter) keep every counter and
+the PCM ring working. Promiscuous mode outranks the TCAM drop by design and
+voids the shield, so a promiscuous control lane is a defect, not a debug
+convenience.
 
 *What runs, in what order, between power-on and a provisioned streaming board?*
 
 ```mermaid
 flowchart TB
-    Q["QSPI / SRAM gateware"] --> B["BIOS flash-boot, xz kernel"]
-    B --> BR["buildroot userspace"]
-    BR --> S["S50milan provisions the CSRs"]
-    S --> S1["names, model id, vt=10, MAAP adopt, kernel shield /32"]
+    Q["QSPI / SRAM gateware"] --> B["BIOS"]
+    B --> BR["bare-metal firmware"]
+    BR --> S["the firmware provisions the CSRs"]
+    S --> S1["names, model id, vt=10, MAAP adopt, RX shield"]
     S --> S2["AAF_CTRL 0x654 = 0x00020001 - bit-preserve VID 2 in bits 27:16<br/>NOT 0x...3: bit 1 is cfg_aaf_bypass and streams with no Listener Ready<br/>(Milan 5.3.7.3); measured 15,503 frames/6s bypassed vs 0 gated"]
     S --> S3["ingressLatency per board, priority1 238 on the AX, tone on the AX<br/>(the stream counts are NOT provisioned: 0x618/0x61C are read-only)"]
-    S --> DMN["then the daemons"]
-    DMN --> D1["ptp4l with tx_timestamp_timeout 500, plus phc2sys"]
-    DMN --> D2["linkmon.sh - kernel rx_packets liveness, one edge-pair per outage,<br/>LINK_CTRL 0x71C reinit, RST_EPOCH 0x720 canary"]
-    DMN --> D3["gptp2csr.sh - GM 0x624/8, pdelay 0x6E4, AS_PATH parent 0x730/4"]
-    DMN --> D4["stream_phc_sync.sh - dormant while ptp4l is SLAVE or MASTER,<br/>steers only after 5 consecutive dead polls"]
+    S --> DMN["the fabric gPTP plane owns time from the first cycle"]
+    DMN --> D3["it publishes GM 0x624/8, pdelay 0x6E4, AS_PATH parent 0x730/4"]
+    DMN --> D2["link liveness: LINK_CTRL 0x71C reinit, RST_EPOCH 0x720 canary"]
 ```
 
 CSR quick map (base 0x90000000, addresses = offsets): 0x600 ADP ctrl ·
@@ -393,11 +366,11 @@ reads lie (shadow).
 
 ## 9. Dated bench snapshot (2026-07-21 morning - campaign closed)
 
-- **ARTY QSPI = `eppo_milanfinal41` (+0.078) + rootfs #8**: 0x4B
+- **ARTY QSPI = `eppo_milanfinal41` (+0.078) + image set #8**: 0x4B
   byte-exact PASS, bench suite 63/63, sink-1 chain proven, CRF rx proven.
   `mf42` (format-family parity, e3391d9) is the one pending ARTY spin -
   flash it when built, re-check dyninfo + READ_DESCRIPTOR formats.
-- **ALINX QSPI-BOOT = `eppo_milanfinal30` (+0.026) + rootfs #8** (first
+- **ALINX QSPI-BOOT = `eppo_milanfinal30` (+0.026) + image set #8** (first
   closing AX after 7 rounds; L2 32K, sweep always 1-hart): 0x4B PASS,
   bench suite 63/63, CRF talker LIVE (500.3 PDU/s, DMAC = MAAP claim+1),
   **CRF e2e locked at the ARTY, RATE +6.7 ppm**. JTAG-loaded + QSPI

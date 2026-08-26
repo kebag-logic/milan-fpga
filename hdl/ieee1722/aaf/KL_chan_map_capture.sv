@@ -40,7 +40,7 @@
                           1 I2S_IN  : the stereo I2S capture pair (idx unused)
                           2 TDM_IN  : TDM pair idx (0..N_TDM_P/2-1; slot pair
                                       idx carries TDM slots {2*idx, 2*idx+1})
-                          3 RING    : ALSA playback ring pair idx (the
+                          3 RING    : host PCM ring pair idx (the
                                       KL_pcm_tx pair-channel index)
                           4 TONE    : the pilot tone on BOTH channels
                           5 LOOP    : a RECEIVED AAF stream's channel pair -
@@ -251,7 +251,7 @@
 //! ({half, idxh, en, src, idx}) routes each packetizer pair slot to a source
 //! bucket, with a per-half enable so one stream channel of a slot can be
 //! mapped while its sibling stays silent
-//! (I2S capture / TDM / ALSA ring / tone / RX-stream loopback / silence);
+//! (I2S capture / TDM / host PCM ring / tone / RX-stream loopback / silence);
 //! free-running source holds, per-tick low-to-high slot walk emitting the
 //! packetizer inject cadence (one pulse + GAP_CYC_P settle) on EVERY slot,
 //! unmapped ones carrying PCM silence so an unmapped channel never costs its
@@ -267,7 +267,7 @@
 module KL_chan_map_capture #(
   parameter int unsigned N_SLOTS_P = 32,   //! TX pair slots (prefix-sum space)
   parameter int unsigned N_TDM_P   = 8,    //! TDM slots (pairs = N_TDM_P/2)
-  parameter int unsigned N_RING_P  = 16,   //! ALSA ring pair sources (idx 0..15)
+  parameter int unsigned N_RING_P  = 16,   //! PCM ring pair sources (idx 0..15)
   parameter int unsigned GAP_CYC_P = 24,   //! settle cycles between slot injects
   //! LOOP bucket sizing: the RX stream-channel space kept as pair queues
   //! (N_LB_STREAMS_P * N_LB_CH_P/2 pair queues x LB_QDEPTH_C x 48 b).
@@ -332,7 +332,7 @@ module KL_chan_map_capture #(
   input  wire [23:0]  tdm_l_i,
   input  wire [23:0]  tdm_r_i,
 
-  //! --- ALSA ring pair sources (KL_pcm_tx output, indexed by pair slot) ---
+  //! --- host PCM ring pair sources (KL_pcm_tx output, by pair slot) ---
   //! The slot bus is the widened 5-bit KL_pcm_tx space; pairs >= N_RING_P
   //! are REFUSED by the bounds check below (dropped, never aliased), so a
   //! 16-deep bucket covers ring pairs 0..15 = playback streams 0..3 of the

@@ -9,8 +9,8 @@ board-gated. The result is [`sw/litex/platforms/alinx_ax7101.py`](../../sw/litex
 
 - **[1. Board facts (from the official Alinx repo)](#1-board-facts-from-the-official-alinx-repo)** — The pin-and-part table with a source citation per row: XC7A100T-2FGG484I, 200 MHz differential on R4/T4, reset T6, four RTL8211E PHYs, 512 MB DDR3. Also which two PHYs the NIC uses (`e1`/`e2`) and that `e3`/`e4` are spare.
 - **[2. Porting method (reproducible)](#2-porting-method-reproducible)** — The four-step derivation from the vendor's own XDC/UCF files (with the 68 DDR3 pins parsed programmatically rather than transcribed), so the pinout can be re-derived on a board revision. Contains the hardware-bring-up CORRECTION worth the visit: this PHY is strapped GMII 8-bit SDR, not RGMII — porting it as RGMII gave 100 % MAC preamble errors on silicon.
-- **[3. What changed](#3-what-changed)** — The two files edited and what landed in each: the real pinout replacing AX7203 placeholders, and the 512 MB LiteDRAM addition (A7DDRPHY, `sys4x`/idelay clocks, `--with-dram`) that moves main RAM to `0x4000_0000` and is what makes the SoC Linux-capable.
-- **[4. Verification (open toolchain, no Vivado)](#4-verification-open-toolchain-no-vivado)** — What `--full --xlen 64` proves without a synthesis run: DDR3 PHY and LiteDRAM instantiated, 284 `ddram` constraint lines in the generated XDC, NIC plus MAC/PHY present, device tree regenerating from `csr.json`.
+- **[3. What changed](#3-what-changed)** — The two files edited and what landed in each: the real pinout replacing AX7203 placeholders, and the 512 MB LiteDRAM addition (A7DDRPHY, `sys4x`/idelay clocks, `--with-dram`) that moves main RAM to `0x4000_0000`.
+- **[4. Verification (open toolchain, no Vivado)](#4-verification-open-toolchain-no-vivado)** — What `--full --xlen 64` proves without a synthesis run: DDR3 PHY and LiteDRAM instantiated, 284 `ddram` constraint lines in the generated XDC, NIC plus MAC/PHY present, the platform shape regenerating from `csr.json`.
 - **[5. Board-gated (needs the schematic / Vivado / the board)](#5-board-gated-needs-the-schematic--vivado--the-board)** — The three items that could not be closed from source alone, all three since cleared: the MDIO pins came out of the schematic PDF in July, and the bitstream and bring-up gates cleared on silicon. What the MDIO pins did *not* buy is the useful part — the block behind them is a software bit-bang, so `MAC_STATUS` stays software-published and the data path still runs on the PHY power-on straps.
 
 ## 1. Board facts (from the official Alinx repo)
@@ -78,7 +78,7 @@ this board).
   the DDR3 PHY clocks (`sys4x`, `sys4x_dqs`, `idelay` + IDELAYCTRL); `MilanSoC` adds
   `s7ddrphy.A7DDRPHY` + `add_sdram(module=MT41J256M16, l2_cache_size=8192)` behind a new
   `--with-dram` flag (included in `--full`). With DRAM, main RAM is the DDR3 at
-  `0x4000_0000` (not integrated SRAM)  -  this is what makes the SoC **Linux-capable**
+  `0x4000_0000` (not integrated SRAM)  -  this is what gives the SoC room for real buffers
   (migration Section A.3). This closes the last big platform gap.
 
 ## 4. Verification (open toolchain, no Vivado)
@@ -89,7 +89,7 @@ gateware** (exit 0):
   the LiteDRAM software (`sdram.c`, DDR3 training) compiled into the BIOS.
 - **284 `ddram` constraint lines** in the generated `.xdc` (the real DDR3 pinout).
 - `milan_datapath` (the NIC) + the LiteEth MAC/PHY present (e1 is **GMII** -- `LiteEthPHYGMII`, per the Section 3 correction).
-- The device tree regenerates from this build's `csr.json` (see [`sw/dts`](../../sw/dts),
+- The platform shape regenerates from this build's `csr.json` (see the retired binding toolkit,
   `fpga-ps-tools`).
 
 ## 5. Board-gated (needs the schematic / Vivado / the board)

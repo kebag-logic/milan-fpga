@@ -109,7 +109,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Fetch the processor model inputs
-        run: git submodule update --init protocol-processor
+        run: git submodule update --init protocol-processor gptp-processor
       - name: Install behave
         run: python3 -m pip install --quiet behave
       - name: Run the specification-facing suite
@@ -171,7 +171,7 @@ jobs:
       # Same class, Yosys recipe (#245): ooc.sh printed "yosys FAIL" and
       # exited 0, and never generated ucode.hex. Its refusals are driven on
       # planted failures against the real script; it needs only the
-      # protocol-processor submodule this job already fetches.
+      # protocol-processor and gptp-processor submodules this job already fetches.
       - name: Prove ooc.sh generates the ROMs and fails on a failed top
         run: python3 syn/yosys/ooc_selftest.py
 

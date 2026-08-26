@@ -305,11 +305,56 @@ PUBLIC_NAMES = {
     RTL_FAST: ("rtl-fast",),
     ELABORATE: ("elaborate",),
 }
+#: ``test_builder.py`` invokes both processor-image/source gates and the
+#: Vivado datapath-manifest consumer (syn/ooc/dp_srcs.py), which resolves the
+#: shipping AXIS primitives by path, so both hosted jobs which call the
+#: builder need this complete set before the call. Keep one canonical
+#: command: a split or decoy checkout is too easy to place after the builder
+#: or behind another condition.
+BUILDER_SUBMODULES = (
+    "third_party/verilog-axis",
+    "protocol-processor",
+    "gptp-processor",
+)
+BUILDER_COMMAND = "git submodule update --init " + " ".join(BUILDER_SUBMODULES)
+BUILDER_CALL = "sw/builder/test_builder.py"
+BUILDER_IF = "${{ steps.scope.outputs.rtl == 'true' }}"
+BUILDER_RUNS = {
+    DOCS: (
+        "python3 -m pip install --quiet pyyaml",
+        "python3 sw/builder/test_builder.py",
+    ),
+    ELABORATE: (
+        "python3 sw/builder/test_builder.py --require-elaboration",
+    ),
+}
+BUILDER_CHECKOUTS = {
+    DOCS: {"uses": "actions/checkout@v4"},
+    ELABORATE: {
+        "uses": "actions/checkout@v4",
+        "with": {"fetch-depth": 0},
+    },
+}
+#: dp_srcs.py answers top resolution with the sv2v front end and REFUSES when
+#: no front end exists (no model may stand in for the toolchain), and the
+#: builder runs that self-test unconditionally. So every builder job installs
+#: the same pinned release the portability gate uses, held here as one exact
+#: script: an unpinned version is a silent toolchain drift, and a missing
+#: install is a red job dressed as a candidate finding.
+SV2V_INSTALL = (
+    "set -euo pipefail",
+    "ver=v0.0.12",
+    'url="https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip"',
+    'curl -fsSL "$url" -o /tmp/sv2v.zip',
+    "unzip -q -o /tmp/sv2v.zip -d /tmp/sv2v",
+    'sudo install -m755 "$(find /tmp/sv2v -name sv2v -type f | head -1)" /usr/local/bin/sv2v',
+    "sv2v --version",
+)
 #: The fast workflow's selector job and the step that computes its answer.
 FAST_SELECTOR_JOB = "changes"
 FAST_SCOPE_STEP_ID = "scope"
 #: #245: syn/yosys/ooc.sh's refusal self-test, pinned VERBATIM in the job
-#: that initialises the protocol-processor submodule it reads, and after
+#: that initialises both processor submodules it reads, and after
 #: that initialisation. It is the only thing that exercises ooc.sh's
 #: refusals anywhere hosted; deleting the whole step (or neutralising the
 #: line, or running it before the fetch) left every other contract item
@@ -323,7 +368,7 @@ OOC_SH_SUBMODULE_FETCH = "git submodule update --init"
 #: fetch be trimmed to `third_party/verilog-axis` with the ordering item and
 #: every mutation arm still green, while each self-test arm then died on
 #: setup - the checker would not have held what its own docstring claims.
-OOC_SH_SUBMODULE = "protocol-processor"
+OOC_SH_SUBMODULES = ("protocol-processor", "gptp-processor")
 #: The fast selector is a second run/no-run decision, not merely a producer
 #: of metadata.  Its exact inputs and body are held for the same reason as
 #: the exhaustive selector: an empty or forced-false answer skips both RTL
@@ -1552,10 +1597,10 @@ def check_fast_ooc_sh_selftest(c, wf):
            "invocation while its text stays pinned")
     fetch = [i for i, s in enumerate(slist)
              if OOC_SH_SUBMODULE_FETCH in step_text(s)
-             and OOC_SH_SUBMODULE in step_text(s)]
+             and all(name in step_text(s) for name in OOC_SH_SUBMODULES)]
     c.item(bool(fetch) and fetch[0] < hits[0], path,
            f"`{OOC_SH_SELFTEST}` must run after a `{OOC_SH_SUBMODULE_FETCH}` "
-           f"step that names `{OOC_SH_SUBMODULE}` (it reads the tree that "
+           f"step that names {OOC_SH_SUBMODULES!r} (it reads the trees that "
            "step initialises; before it - or without it - every arm dies on "
            "setup, proving nothing)")
 
@@ -1573,8 +1618,122 @@ def check_rtl_fast(c, wf):
     check_publication_path(c, RTL_FAST, wf)
 
 
+def check_builder_dependencies(c, path, wf, jid):
+    """The hosted builder call is preceded by one complete, live checkout.
+
+    ``actions/checkout`` leaves submodules absent.  The builder reads both
+    processor trees and asks ``dp_srcs.py`` to resolve the verilog-axis
+    leaves, so a partial checkout is a setup failure rather than evidence
+    about the candidate.  Pin the setup as one command, before the call and
+    under the same step condition, so a decoy or late checkout cannot satisfy
+    the text recogniser.
+    """
+    c.item("defaults" not in wf, path,
+           "the builder workflow must carry no top-level `defaults` "
+           f"(found {wf.get('defaults')!r}): a `defaults.run.shell` changes "
+           "how every builder command runs")
+    job = jobs(wf).get(jid)
+    c.item(isinstance(job, dict), path,
+           f"builder job `{jid}` must exist")
+    if not isinstance(job, dict):
+        return
+    check_job_keys(c, path, jid, job)
+    ss = steps(job)
+    checkouts = [(i, s) for i, s in enumerate(ss)
+                 if uses(s, "actions/checkout")]
+    c.item(len(checkouts) == 1, path,
+           f"job `{jid}` must carry exactly one actions/checkout step "
+           f"(found {len(checkouts)})")
+    if len(checkouts) == 1:
+        _, checkout = checkouts[0]
+        c.item(checkout == BUILDER_CHECKOUTS[path], path,
+               f"job `{jid}` checkout step must be exactly "
+               f"{BUILDER_CHECKOUTS[path]!r} (found {checkout!r})")
+    callers = [(i, s) for i, s in enumerate(ss)
+               if BUILDER_CALL in (s.get("run")
+                                   if isinstance(s.get("run"), str) else "")]
+    c.item(len(callers) == 1, path,
+           f"job `{jid}` must call `{BUILDER_CALL}` exactly once "
+           f"(found {len(callers)})")
+    fetchers = [(i, s) for i, s in enumerate(ss)
+                if "git submodule update --init" in step_text(s)]
+    c.item(len(fetchers) == 1, path,
+           f"job `{jid}` must carry exactly one builder submodule checkout "
+           f"(found {len(fetchers)})")
+    if len(fetchers) != 1:
+        return
+    fetch_i, fetch = fetchers[0]
+    run = fetch.get("run") if isinstance(fetch.get("run"), str) else ""
+    for submodule in BUILDER_SUBMODULES:
+        c.item(submodule in run, path,
+               f"job `{jid}` builder checkout must initialize `{submodule}`")
+    c.item(tuple(normalize_script(run)) == (BUILDER_COMMAND,), path,
+           f"job `{jid}` builder checkout must be exactly `{BUILDER_COMMAND}` "
+           f"(found {normalize_script(run)})")
+    keys = (("name", "if", "run") if path == ELABORATE
+            else ("name", "run"))
+    pinned_step_keys(c, path, f"job `{jid}` builder checkout", fetch,
+                     keys, {})
+    installers = [(i, s) for i, s in enumerate(ss)
+                  if "sv2v" in (s.get("run")
+                                if isinstance(s.get("run"), str) else "")]
+    c.item(len(installers) == 1, path,
+           f"job `{jid}` must install the pinned sv2v front end exactly once "
+           f"(found {len(installers)}): dp_srcs.py refuses without a front "
+           "end, so the builder gate is red on a bare runner, and a second "
+           "install could shadow the pin")
+    if len(installers) == 1:
+        sv2v_i, sv2v_step = installers[0]
+        sv2v_run = (sv2v_step.get("run")
+                    if isinstance(sv2v_step.get("run"), str) else "")
+        c.item(tuple(normalize_script(sv2v_run)) == SV2V_INSTALL, path,
+               f"job `{jid}` sv2v install must be exactly the pinned v0.0.12 "
+               f"release script (found {normalize_script(sv2v_run)}): an "
+               "unpinned front end is a silent toolchain drift under the "
+               "portability evidence")
+        pinned_step_keys(c, path, f"job `{jid}` sv2v install", sv2v_step,
+                         keys, {})
+        if path == ELABORATE:
+            sv2v_if = str(sv2v_step.get("if", "")).strip()
+            c.item(sv2v_if == BUILDER_IF, path,
+                   f"job `{jid}` sv2v install `if` must be exactly "
+                   f"`{BUILDER_IF}` (found {sv2v_if!r})")
+    if len(callers) == 1:
+        call_i, call = callers[0]
+        call_run = call.get("run") if isinstance(call.get("run"), str) else ""
+        c.item(tuple(normalize_script(call_run)) == BUILDER_RUNS[path], path,
+               f"job `{jid}` builder call must be exactly "
+               f"{list(BUILDER_RUNS[path])} "
+               f"(found {normalize_script(call_run)})")
+        pinned_step_keys(c, path, f"job `{jid}` builder call", call,
+                         keys, {})
+        if path == ELABORATE:
+            fetch_if = str(fetch.get("if", "")).strip()
+            call_if = str(call.get("if", "")).strip()
+            c.item(fetch_if == BUILDER_IF, path,
+                   f"job `{jid}` builder checkout `if` must be exactly "
+                   f"`{BUILDER_IF}` (found {fetch_if!r})")
+            c.item(call_if == BUILDER_IF, path,
+                   f"job `{jid}` builder call `if` must be exactly "
+                   f"`{BUILDER_IF}` (found {call_if!r})")
+        if len(checkouts) == 1:
+            checkout_i, _ = checkouts[0]
+            c.item(checkout_i < fetch_i, path,
+                   f"job `{jid}` must check out the repository before "
+                   "initializing builder submodules")
+        c.item(fetch_i < call_i, path,
+               f"job `{jid}` must initialize builder submodules before "
+               f"calling `{BUILDER_CALL}`")
+        if len(installers) == 1:
+            c.item(installers[0][0] < call_i, path,
+                   f"job `{jid}` must install sv2v before calling "
+                   f"`{BUILDER_CALL}`: installed after the call it decorates "
+                   "a verdict already taken without a front end")
+
+
 def check_docs(c, wf):
     check_push_and_pr(c, DOCS, wf, exact_types=False)
+    check_builder_dependencies(c, DOCS, wf, "docs-check")
     texts = [step_text(s) for j in jobs(wf).values() for s in steps(j)]
     for flag in ("--check", "--selftest"):
         wired = any(f"scripts/ci_events.py {flag}" in t for t in texts)
@@ -1585,6 +1744,7 @@ def check_docs(c, wf):
 def check_elaborate(c, wf):
     check_push_and_pr(c, ELABORATE, wf, exact_types=False)
     check_public_names(c, ELABORATE, wf)
+    check_builder_dependencies(c, ELABORATE, wf, "elaborate")
 
 
 def check(parsed):
@@ -2224,6 +2384,136 @@ def _mutations():
                     return
         raise AssertionError("fixture drift: docs.yml does not run --selftest")
 
+    def builder_fetch_step(w, path, jid):
+        found = [s for s in job_steps(w, path, jid)
+                 if "git submodule update --init" in
+                 (s.get("run") if isinstance(s.get("run"), str) else "")]
+        assert len(found) == 1, (f"fixture drift: expected one builder "
+                                 f"checkout in {path}:{jid}, found {len(found)}")
+        return found[0]
+
+    def builder_call_step(w, path, jid):
+        found = [s for s in job_steps(w, path, jid)
+                 if BUILDER_CALL in
+                 (s.get("run") if isinstance(s.get("run"), str) else "")]
+        assert len(found) == 1, (f"fixture drift: expected one builder call "
+                                 f"in {path}:{jid}, found {len(found)}")
+        return found[0]
+
+    def m_builder_drop_submodule(path, jid, submodule):
+        def f(w):
+            s = builder_fetch_step(w, path, jid)
+            assert submodule in s["run"], (
+                f"fixture drift: {submodule} absent from {path}:{jid}")
+            s["run"] = s["run"].replace(" " + submodule, "")
+        return f
+
+    def m_builder_checkout_after_call(path, jid):
+        def f(w):
+            ss = job_steps(w, path, jid)
+            fetch = next(i for i, s in enumerate(ss)
+                         if "git submodule update --init" in
+                         (s.get("run") if isinstance(s.get("run"), str) else ""))
+            call = next(i for i, s in enumerate(ss)
+                        if BUILDER_CALL in
+                        (s.get("run") if isinstance(s.get("run"), str) else ""))
+            step = ss.pop(fetch)
+            if fetch < call:
+                call -= 1
+            ss.insert(call + 1, step)
+        return f
+
+    def m_builder_checkout_before_repo(path, jid):
+        def f(w):
+            ss = job_steps(w, path, jid)
+            fetch = next(i for i, s in enumerate(ss)
+                         if s is builder_fetch_step(w, path, jid))
+            checkout = next(i for i, s in enumerate(ss)
+                            if uses(s, "actions/checkout"))
+            step = ss.pop(fetch)
+            if fetch < checkout:
+                checkout -= 1
+            ss.insert(checkout, step)
+        return f
+
+    def m_builder_checkout_key(path, jid, key, value):
+        def f(w):
+            checkout = next(s for s in job_steps(w, path, jid)
+                            if uses(s, "actions/checkout"))
+            checkout[key] = value
+        return f
+
+    def m_builder_checkout_version(path, jid):
+        def f(w):
+            checkout = next(s for s in job_steps(w, path, jid)
+                            if uses(s, "actions/checkout"))
+            checkout["uses"] = "actions/checkout@v1"
+        return f
+
+    def m_builder_decoy_env(path, jid):
+        def f(w):
+            s = builder_call_step(w, path, jid)
+            line = next(line for line in BUILDER_RUNS[path]
+                        if BUILDER_CALL in line)
+            assert line in s["run"], f"fixture drift: {line!r} absent"
+            s["run"] = s["run"].replace(line, "true")
+            s["env"] = {"DECOY": BUILDER_CALL}
+        return f
+
+    def m_builder_continue_on_error(path, jid):
+        def f(w):
+            builder_call_step(w, path, jid)["continue-on-error"] = True
+        return f
+
+    def m_builder_job_defaults(path, jid):
+        def f(w):
+            jobs(w[path])[jid]["defaults"] = {
+                "run": {"shell": "bash -n {0}"},
+            }
+        return f
+
+    def m_builder_top_defaults(path):
+        def f(w):
+            w[path]["defaults"] = {"run": {"shell": "bash -n {0}"}}
+        return f
+
+    def m_builder_both_if_false(w):
+        builder_fetch_step(w, ELABORATE, "elaborate")["if"] = False
+        builder_call_step(w, ELABORATE, "elaborate")["if"] = False
+
+    def sv2v_step(w, path, jid):
+        found = [s for s in job_steps(w, path, jid)
+                 if "sv2v" in (s.get("run")
+                               if isinstance(s.get("run"), str) else "")]
+        assert len(found) == 1, (f"fixture drift: expected one sv2v install "
+                                 f"in {path}:{jid}, found {len(found)}")
+        return found[0]
+
+    def m_sv2v_dropped(path, jid):
+        def f(w):
+            ss = job_steps(w, path, jid)
+            ss.remove(sv2v_step(w, path, jid))
+        return f
+
+    def m_sv2v_unpinned(path, jid):
+        def f(w):
+            s = sv2v_step(w, path, jid)
+            assert "ver=v0.0.12" in s["run"], "fixture drift: pin absent"
+            s["run"] = s["run"].replace("ver=v0.0.12", "ver=v0.0.13")
+        return f
+
+    def m_sv2v_after_call(path, jid):
+        def f(w):
+            ss = job_steps(w, path, jid)
+            step = sv2v_step(w, path, jid)
+            call = builder_call_step(w, path, jid)
+            ss.remove(step)
+            ss.insert(ss.index(call) + 1, step)
+        return f
+
+    def m_sv2v_if_disabled(w):
+        sv2v_step(w, ELABORATE, "elaborate")["if"] = False
+
     # #245: the ooc.sh refusal self-test's step, by the three ways it was
     # shown to disappear undetected ([R-parallel] on PR #262).
     def _fast_ooc_job(w):
@@ -2250,15 +2540,17 @@ def _mutations():
         steps(job)[_fast_ooc_index(job)]["run"] = (
             "true # " + OOC_SH_SELFTEST)
 
-    def m_ooc_selftest_fetch_drops_submodule(w):
-        job = _fast_ooc_job(w)
-        for s in steps(job):
-            if OOC_SH_SUBMODULE_FETCH in step_text(s) \
-                    and OOC_SH_SUBMODULE in step_text(s):
-                s["run"] = str(s["run"]).replace(" " + OOC_SH_SUBMODULE, "")
-                return
-        raise AssertionError("fixture drift: rtl-fast.yml's ooc.sh job does "
-                             f"not fetch `{OOC_SH_SUBMODULE}`")
+    def m_ooc_selftest_fetch_drops_submodule(submodule):
+        def mutate(w):
+            job = _fast_ooc_job(w)
+            for s in steps(job):
+                if OOC_SH_SUBMODULE_FETCH in step_text(s) \
+                        and submodule in step_text(s):
+                    s["run"] = str(s["run"]).replace(" " + submodule, "")
+                    return
+            raise AssertionError("fixture drift: rtl-fast.yml's ooc.sh job "
+                                 f"does not fetch `{submodule}`")
+        return mutate
 
     def m_ooc_selftest_before_fetch(w):
         job = _fast_ooc_job(w)
@@ -2672,7 +2964,11 @@ def _mutations():
         ("#245 ooc.sh self-test before the submodule fetch",
          m_ooc_selftest_before_fetch, "must run after a"),
         ("#245 ooc.sh self-test fetch stops naming protocol-processor",
-         m_ooc_selftest_fetch_drops_submodule, "must run after a"),
+         m_ooc_selftest_fetch_drops_submodule("protocol-processor"),
+         "must run after a"),
+        ("#245 ooc.sh self-test fetch stops naming gptp-processor",
+         m_ooc_selftest_fetch_drops_submodule("gptp-processor"),
+         "must run after a"),
         ("#245 ooc.sh self-test disabled by if: false",
          m_ooc_selftest_key("if", False), "beyond name/run"),
         ("#245 ooc.sh self-test failure swallowed by continue-on-error",
@@ -2684,11 +2980,103 @@ def _mutations():
         ("docs no pull_request", m_drop_pr(DOCS), "must subscribe pull_request"),
         ("docs does not run --check", m_docs_no_check, "--check"),
         ("docs does not run --selftest", m_docs_no_selftest, "--selftest"),
+        ("docs builder omits verilog-axis",
+         m_builder_drop_submodule(DOCS, "docs-check",
+                                  "third_party/verilog-axis"),
+         "must initialize `third_party/verilog-axis`"),
+        ("docs builder omits protocol-processor",
+         m_builder_drop_submodule(DOCS, "docs-check", "protocol-processor"),
+         "must initialize `protocol-processor`"),
+        ("docs builder omits gptp-processor",
+         m_builder_drop_submodule(DOCS, "docs-check", "gptp-processor"),
+         "must initialize `gptp-processor`"),
+        ("docs builder initializes submodules after the call",
+         m_builder_checkout_after_call(DOCS, "docs-check"),
+         "must initialize builder submodules before"),
+        ("docs builder initializes submodules before repository checkout",
+         m_builder_checkout_before_repo(DOCS, "docs-check"),
+         "must check out the repository before"),
+        ("docs builder checkout overrides the event SHA",
+         m_builder_checkout_key(DOCS, "docs-check", "with", {"ref": "dev"}),
+         "checkout step must be exactly"),
+        ("docs builder checkout is disabled",
+         m_builder_checkout_key(DOCS, "docs-check", "if", False),
+         "checkout step must be exactly"),
+        ("docs builder checkout action version drifts",
+         m_builder_checkout_version(DOCS, "docs-check"),
+         "checkout step must be exactly"),
+        ("docs builder replaced by env decoy",
+         m_builder_decoy_env(DOCS, "docs-check"),
+         f"must call `{BUILDER_CALL}` exactly once"),
+        ("docs builder call continue-on-error",
+         m_builder_continue_on_error(DOCS, "docs-check"),
+         "must carry no `continue-on-error`"),
+        ("docs builder job defaults.run.shell bash -n",
+         m_builder_job_defaults(DOCS, "docs-check"),
+         "must carry no `defaults`"),
+        ("docs builder workflow defaults.run.shell bash -n",
+         m_builder_top_defaults(DOCS),
+         "must carry no top-level `defaults`"),
+        ("docs sv2v install dropped",
+         m_sv2v_dropped(DOCS, "docs-check"),
+         "must install the pinned sv2v front end exactly once"),
+        ("docs sv2v version drifts off the pin",
+         m_sv2v_unpinned(DOCS, "docs-check"),
+         "exactly the pinned v0.0.12 release script"),
+        ("docs sv2v installed after the builder call",
+         m_sv2v_after_call(DOCS, "docs-check"),
+         "must install sv2v before calling"),
         # elaborate.yml
         ("elaborate push on main, not dev", m_push_main(ELABORATE),
          "push must subscribe"),
         ("elaborate public name renamed", m_rename_job(ELABORATE, "elaborate"),
          "`elaborate`"),
+        ("elaborate builder omits verilog-axis",
+         m_builder_drop_submodule(ELABORATE, "elaborate",
+                                  "third_party/verilog-axis"),
+         "must initialize `third_party/verilog-axis`"),
+        ("elaborate builder omits protocol-processor",
+         m_builder_drop_submodule(ELABORATE, "elaborate", "protocol-processor"),
+         "must initialize `protocol-processor`"),
+        ("elaborate builder omits gptp-processor",
+         m_builder_drop_submodule(ELABORATE, "elaborate", "gptp-processor"),
+         "must initialize `gptp-processor`"),
+        ("elaborate builder initializes submodules before repository checkout",
+         m_builder_checkout_before_repo(ELABORATE, "elaborate"),
+         "must check out the repository before"),
+        ("elaborate builder checkout overrides the event SHA",
+         m_builder_checkout_key(ELABORATE, "elaborate", "with",
+                                {"fetch-depth": 0, "ref": "dev"}),
+         "checkout step must be exactly"),
+        ("elaborate builder checkout is disabled",
+         m_builder_checkout_key(ELABORATE, "elaborate", "if", False),
+         "checkout step must be exactly"),
+        ("elaborate builder checkout moves the tree",
+         m_builder_checkout_key(ELABORATE, "elaborate", "with",
+                                {"fetch-depth": 0, "path": "elsewhere"}),
+         "checkout step must be exactly"),
+        ("elaborate builder replaced by env decoy",
+         m_builder_decoy_env(ELABORATE, "elaborate"),
+         f"must call `{BUILDER_CALL}` exactly once"),
+        ("elaborate builder call continue-on-error",
+         m_builder_continue_on_error(ELABORATE, "elaborate"),
+         "must carry no `continue-on-error`"),
+        ("elaborate builder job defaults.run.shell bash -n",
+         m_builder_job_defaults(ELABORATE, "elaborate"),
+         "must carry no `defaults`"),
+        ("elaborate builder workflow defaults.run.shell bash -n",
+         m_builder_top_defaults(ELABORATE),
+         "must carry no top-level `defaults`"),
+        ("elaborate builder checkout and call both disabled",
+         m_builder_both_if_false, "builder checkout `if` must be exactly"),
+        ("elaborate sv2v install dropped",
+         m_sv2v_dropped(ELABORATE, "elaborate"),
+         "must install the pinned sv2v front end exactly once"),
+        ("elaborate sv2v version drifts off the pin",
+         m_sv2v_unpinned(ELABORATE, "elaborate"),
+         "exactly the pinned v0.0.12 release script"),
+        ("elaborate sv2v install disabled by if",
+         m_sv2v_if_disabled, "sv2v install `if` must be exactly"),
     ]
 
 

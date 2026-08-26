@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: (GPL-2.0 OR MIT)
 #
-# Verilator simulation of the Milan SoC. NOTE: this sim still uses the historical
-# NaxRiscv core, whereas the published board Linux results use VexiiRiscv (RV64IMA;
-# note deploy.sh still builds the naxriscv CLI default) — the CSR/mem-map
-# and `milan_datapath` wiring are identical across the two, so M-A2 proven here holds.
+# Verilator simulation of the Milan SoC. This integration model uses NaxRiscv;
+# the product board uses cacheless RV32I VexiiRiscv. The CSR/memory map and
+# `milan_datapath` wiring are identical, so M-A2 proven here still holds.
 # `milan_datapath` is attached as an AXI4-Lite CSR slave at 0x9000_0000, running
 # the real LiteX BIOS. This is the board-independent proof of migration milestone
 # **M-A2** — "CPU reaches milan_csr and reads ID='MILN'" — on the actual softcore
@@ -110,7 +109,9 @@ class MilanSimSoC(SimSoC):
                                                    entity_gen_dir)
         irq_csr = Signal()
         add_milan_datapath(self, self.platform, axil, irq_csr,
-                           desc_base=desc_base, resp_base=resp_base)
+                           desc_base=desc_base, resp_base=resp_base,
+                           gptp_plane=True,
+                           entity_gen_dir=entity_gen_dir)
 
         # Fast, deterministic boot to the prompt (this sim exists to read one register).
         self.add_config("BIOS_NO_DELAYS")     # no countdowns

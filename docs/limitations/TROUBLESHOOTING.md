@@ -17,10 +17,6 @@ Grouped as:
 - on-hardware NIC bring-up ([Section 17](#section-17-on-hardware-nic-bring-up-----dma-works-but-no-packet-on-the-wire-its-gmii-not-rgmii):
   the AX7101 PHY is GMII, not RGMII; [Section 18](#section-18-tx-frames-egress-truncated--not-at-all-----axis-tkeep-vs-liteeth-last_be):
   AXIS `tkeep` is not LiteEth's `last_be`),
-- boot / flash ([Section 19](#section-19-kernel-hangs-after-opensbi-no-linux-version-----a-stale-litex_term-served-the-wrong-boot-manifest):
-  the kernel that was never uploaded),
-- host plane vs device tree ([Section 20](#section-20-host-plane-dead-csr-readbacks-perfect-----a-stale-device-tree-maps-every-dma-window-onto-the-wrong-registers):
-  `reg` windows are mapped by index, so a stale dtb writes DMA into the wrong CSRs),
 - and streaming, listener and talker ([Section 21](#section-21-acmp-says-success-the-listener-declares-itself-bound---and-not-one-frame-is-accepted-root-caused-and-fixed-version-0x000f-mechanism-confirmed-on-silicon-2026-07-26):
   a bound listener that accepts nothing; [Section 22](#section-22-arming-a-second-talker-takes-the-peer-board-off-the-network-and-the-arm-that-never-happened):
   the bandwidth gate *is* the pacer, and the arm that never happened),
@@ -80,7 +76,7 @@ Companion: [`SIMULATION.md`](../testing/SIMULATION.md) (how the sim works) and
 - **[Section 3: Identifier string must not contain commas](#section-3-identifier-string-must-not-contain-commas)** -- `SoCCore(ident=…)` becomes a hardware string ROM, which forbids commas. Thirty-second fix.
 - **[Section 4: SoCError at _finalize_cpu_reset_address (no ROM)](#section-4-socerror-at-_finalize_cpu_reset_address-no-rom)** -- A bare `SoCError` with no message: the CPU reset vector points at an integrated ROM nobody added. Tell is that the bus slave list has no `rom`.
 - **[Section 5: NaxRiscv has no attribute no_netlist_cache](#section-5-naxriscv-has-no-attribute-no_netlist_cache)** -- Hand-setting a couple of CPU class attributes leaves the rest unset. The fix is the general pattern for LiteX CPUs: drive the core's own `args_fill`/`args_read` pipeline instead of assigning attributes.
-- **[Section 6: Region not in IO region, it must be cached](#section-6-region-not-in-io-region-it-must-be-cached)** -- Why the CSR window is at `0x9000_0000` and not the Zynq's `0x43C0_0000`: uncached MMIO must sit above `0x8000_0000` on this address map. Register offsets are unchanged -- only the base is host-specific, and the device tree must agree.
+- **[Section 6: Region not in IO region, it must be cached](#section-6-region-not-in-io-region-it-must-be-cached)** -- Why the CSR window is at `0x9000_0000` and not the Zynq's `0x43C0_0000`: uncached MMIO must sit above `0x8000_0000` on this address map. Register offsets are unchanged -- only the base is host-specific.
 - **[Section 7: Verilator cannot find include file](#section-7-verilator-cannot-find-include-file)** -- A bare `` `include`` that Vivado resolves and Verilator does not, because Vivado searches the directories of added sources and Verilator only searches `+incdir`. The board build kept working, which is what hid it.
 - **[Section 8: The interactive and non-interactive sim both block](#section-8-the-interactive-and-non-interactive-sim-both-block)** -- Three tangled causes behind a "flaky" sim driver: LiteX couples build and run, `--non-interactive` still runs, and the `OSError` was just the SIGKILL. Fix is to build once and pipe commands into the cached `Vsim` binary, with `BIOS_NO_DELAYS` so the prompt appears before the command does.
 - **[Section 9: pkill -f self-matches the running shell](#section-9-pkill--f-self-matches-the-running-shell)** -- Cleanup exits 143/144 and takes your shell with it, because `pkill -f` matches its own parent's argv. Use `pkill -x <binary>`.
@@ -93,8 +89,6 @@ Companion: [`SIMULATION.md`](../testing/SIMULATION.md) (how the sim works) and
 - **[Section 16: clean 100 MHz  -  run the dense datapath in its own clock domain](#section-16-clean-100-mhz-----run-the-dense-datapath-in-its-own-clock-domain)** -- The residual `WNS ≈ -1 to -2 ns` is routing congestion, not logic depth -- a CSR read-mux pipeline made it *worse*. The structural answer: `--milan-clk-freq 50e6` puts the datapath in its own domain behind an AXI-Lite CDC, leaving `sys` for CPU and DDR3. Also records the DDR3 ceiling and why the PLL rejects intermediate frequencies.
 - **[Section 17: on-hardware NIC bring-up  -  DMA works, but no packet on the wire (it's GMII, not RGMII)](#section-17-on-hardware-nic-bring-up-----dma-works-but-no-packet-on-the-wire-its-gmii-not-rgmii)** -- 20,000 frames in, `preamble_errors` +20,000, `crc` +0, zero captured. **Exactly one error per frame is the tell**: a 100 %-deterministic data error is structural, so stop tuning timing. Four IDELAY/clock-inversion rebuilds were burned before the real answer -- the board's PHY is strapped for 8-bit SDR GMII, which the vendor's own working example says plainly.
 - **[Section 18: TX frames egress truncated / not at all  -  AXIS tkeep vs LiteEth last_be](#section-18-tx-frames-egress-truncated--not-at-all-----axis-tkeep-vs-liteeth-last_be)** -- `tkeep` is a contiguous mask, LiteEth's `last_be` is a one-hot pointer to the last valid byte, and wiring one onto the other truncates an 8-byte word to one byte. Both conversion expressions are here. Note the coverage gap it exposes: the datapath harness checks `m_tdata` but not `m_tkeep`, so this class of bug in the LiteX glue is caught by no RTL harness.
-- **[Section 19: kernel hangs after OpenSBI (no Linux version)  -  a STALE litex_term served the wrong boot manifest](#section-19-kernel-hangs-after-opensbi-no-linux-version-----a-stale-litex_term-served-the-wrong-boot-manifest)** -- Hours spent on the FPU, the kernel config, and timing -- and the kernel had simply never been uploaded. The diagnostic is to read the *upload* lines rather than the hang point and notice `Image` missing. `tmux send-keys C-c` does not free a serial port; kill the PID.
-- **[Section 20: host plane dead, CSR readbacks perfect  -  a stale device tree maps every DMA window onto the wrong registers](#section-20-host-plane-dead-csr-readbacks-perfect-----a-stale-device-tree-maps-every-dma-window-onto-the-wrong-registers)** -- The driver maps `reg` windows **by index**, so an obsolete dtb sent every DMA write to a wrong-but-writable CSR that stored it happily. Four false leads costed, then the experiment that cracked it in one shot: ping out while capturing at the tap. The twist is that flashing a corrected dtb fixes nothing -- this boot path only reads the FDT embedded in the OpenSBI image, which is why `check_dtb_csr.py` now validates both.
 - **[Section 21: ACMP says SUCCESS, the listener declares itself bound - and not one frame is accepted (ROOT-CAUSED and FIXED, VERSION 0x000F; mechanism confirmed on silicon 2026-07-26)](#section-21-acmp-says-success-the-listener-declares-itself-bound---and-not-one-frame-is-accepted-root-caused-and-fixed-version-0x000f-mechanism-confirmed-on-silicon-2026-07-26)** -- The fabric-listener blocker, start to finish. A shared sid staging register plus a `ovr_armed_r` latch that cleared only on reset meant one stray `CTRL` write pinned entry 0 disabled forever -- so every later `CONNECT_RX` bound cleanly and changed nothing. Read the top block for the fix and the **four-`devmem` workaround** for pre-`0x000F` gateware, plus the measured RX latency chain (~105–126 µs, ring-fill dominated). The refuted-suspect list below it is kept as method, not guidance, and the `0x800`-window trap at the end -- a snapshot read returns literal `0` until the re-poll lands -- briefly looked like the root cause itself.
 - **[Section 22: arming a second talker takes the peer board off the network (and the arm that never happened)](#section-22-arming-a-second-talker-takes-the-peer-board-off-the-network-and-the-arm-that-never-happened)** -- With the lwSRP engine off, an armed `t > 0` context sends ~56,000 frames/s and drowns the peer, because **the bandwidth gate is the pacer** -- there is no free-running timer behind it. The companion trap is worse: with the engine off, `TCTX` word-0 writes are dropped while the bus write completes, so "disable → arm → enable" produces an unarmed context whose readback agrees with you. Take arm truth from the `0x804` snapshot instead.
 - **[Section 23: ADD_AUDIO_MAPPINGS answers BAD_ARGUMENTS - which of the four rules did the record break?](#section-23-add_audio_mappings-answers-bad_arguments---which-of-the-four-rules-did-the-record-break)** -- The live writer's validity rules, their physical reasons, the practical 8x8 cluster-offset map, and the two probe-tool caveats that cost an hour. Accepted commands commit atomically; persistence remains open under issue #70.
@@ -119,14 +113,12 @@ flowchart TB
     W -->|"a cleanup command killed<br/>my own shell"| SH["Section 9<br/>pkill -f self-match"]
     W -->|"Yosys / sv2v rejects a top<br/>that Verilator accepted"| Y["Section 10<br/>list every source explicitly"]
     W -->|"it built, but missed timing"| T["Sections 15-16<br/>CBS divide cone, own clock domain"]
-    W -->|"it flashed, but never<br/>reaches Linux"| BO["Section 19<br/>confirm the kernel was LOADED"]
-    W -->|"Linux is up, the link is up,<br/>and the wire is dead"| WI{"dead for whom?"}
+    W -->|"it flashed, the link is up,<br/>and the wire is dead"| WI{"dead for whom?"}
     W -->|"a stream binds and no<br/>audio ever arrives"| ST["Section 21<br/>entry-0 provisioning detached<br/>the ACMP alias"]
     W -->|"a stream floods the link, or an<br/>arm silently did not happen"| FL["Section 22<br/>the pacer IS the reservation"]
 
     WI -->|"both directions, every frame:<br/>one preamble error per frame"| P["Section 17<br/>the PHY is GMII, not RGMII"]
     WI -->|"TX only: one byte egresses,<br/>or nothing does"| K["Section 18<br/>tkeep mask vs last_be one-hot"]
-    WI -->|"the HOST lane only: rx_packets 0,<br/>ptp4l timing out, readbacks perfect"| H["Section 20<br/>device tree vs csr.csv drift"]
 ```
 
 Several of these branches are the same lesson in different clothes: **Sections
@@ -159,8 +151,6 @@ to argue with than a bug.
 | [16](#section-16-clean-100-mhz-----run-the-dense-datapath-in-its-own-clock-domain) | still `WNS ≈ -1` to `-2 ns` after the CBS is fixed | routing **congestion**, not logic depth, in a datapath too dense to route at 100 MHz — give it its own slower clock across an AXI-Lite CDC |
 | [17](#section-17-on-hardware-nic-bring-up-----dma-works-but-no-packet-on-the-wire-its-gmii-not-rgmii) | link is 1000/Full, the internal path is proven on silicon, and **no frame crosses either way** | the board's PHY is strapped for **GMII** (8-bit SDR), not RGMII — exactly one preamble error per frame is the tell |
 | [18](#section-18-tx-frames-egress-truncated--not-at-all-----axis-tkeep-vs-liteeth-last_be) | TX egresses one byte of an 8-byte word, or a full frame never egresses | AXIS `tkeep` (a contiguous mask) was wired straight onto LiteEth `last_be` (a one-hot last-byte pointer) |
-| [19](#section-19-kernel-hangs-after-opensbi-no-linux-version-----a-stale-litex_term-served-the-wrong-boot-manifest) | OpenSBI's full banner, then silence — no `Linux version`, no panic | a stale `litex_term` still held the port and served the kernel-from-QSPI manifest, so `Image` was never uploaded (and the QSPI had been erased) |
-| [20](#section-20-host-plane-dead-csr-readbacks-perfect-----a-stale-device-tree-maps-every-dma-window-onto-the-wrong-registers) | `rx_packets=0`, `ptp4l` times out, every driver readback is perfect, fabric streaming is fine | a stale device tree with an obsolete `reg` list; the driver maps windows **by index**, so every DMA register write landed on a wrong-but-writable CSR |
 | [21](#section-21-acmp-says-success-the-listener-declares-itself-bound---and-not-one-frame-is-accepted-root-caused-and-fixed-version-0x000f-mechanism-confirmed-on-silicon-2026-07-26) | ACMP returns SUCCESS, the listener reports bound, and `AVTPRX_FRX` stays `0` | a shared staging register plus a set-on-any-write `ovr_armed_r` detached entry 0 from the ACMP bound record, with no runtime path back (fixed, `VERSION 0x000F`) |
 | [22](#section-22-arming-a-second-talker-takes-the-peer-board-off-the-network-and-the-arm-that-never-happened) | arming a `t > 0` talker takes the peer board off the network; and an arm that a readback confirms but that never happened | class-A pacing comes from the SRP **reservation gate**, not a timer; and with the engine off, `TCTX` word-0 writes are dropped while the bus write completes |
 | [24](#section-24-the-counter-reads-0-and-nothing-is-wrong---structural-zeros-after-the-control-plane-substitution) | a diagnostic counter reads `0` forever; a control register accepts a write, reads it back, and changes nothing on the wire | its source RTL was **deleted** on 2026-08-13 — the word is a **structural zero** or a **write-only scratch**, not a measurement and not a control |
@@ -267,7 +257,7 @@ at `0x43C0_0000`, which is below the IO region, so it is rejected as uncached.
 
 **Fix.** Map the CSR window inside the IO region  -  the design uses **`0x9000_0000`**.
 The register *offsets* are unchanged; only the base is host-specific (documented in
-[`REGISTER_MAP.md`](../reference/REGISTER_MAP.md)). The device-tree `reg` base must match the host.
+[`REGISTER_MAP.md`](../reference/REGISTER_MAP.md)).
 
 ## Section 7: Verilator cannot find include file
 
@@ -457,7 +447,7 @@ cycles), so the divide never needs a single-cycle result.
    `r_data` register, ~15 levels), marginally failing 100 MHz (`WNS ≈ -1.06 ns` even
    with aggressive `--timing-opt` directives). Running `sys` at **80 MHz** closes it
    with margin while keeping DDR3 valid: `sys4x = 320 MHz` is still above the DDR3 DLL
-   lock floor (~303 MHz). 80 MHz is a valid Linux-capable bring-up clock, but the clean
+   lock floor (~303 MHz). 80 MHz is a valid bring-up clock, but the clean
    fix is Section 16 (run the datapath in its own clock). `--timing-opt` (aggressive
    place/route/phys-opt directives) is the no-RTL lever for the last ns of setup slack.
 
@@ -604,118 +594,6 @@ datapath expects a mask).
 pointer) are different encodings  -  never wire one onto the other. And the Verilator datapath
 harness checks egress `m_tdata` but **not `m_tkeep`**; a keep/last_be bug in the LiteX glue
 (`milan_soc.py`) is covered by no RTL harness. See `evidence/hw_ma3_dma_datapath_100mhz.md`.
-
-## Section 19: kernel hangs after OpenSBI (no `Linux version`)  -  a STALE `litex_term` served the wrong boot manifest
-
-**Symptom (2026-07-05, FPU bring-up).** After loading a bitstream, the console showed the
-LiteX BIOS, then OpenSBI's full banner ending at `Boot HART MEDELEG …`, and then **nothing**  - 
-no `Linux version`, no panic, a silent hang at the OpenSBI→kernel handoff. It reproduced
-across *every* combination tried: FPU kernel and no-FPU kernel, FPU gateware and the known-good
-`ring10` gateware, corrected `riscv,isa` strings, both `--with-fpu` netlists. Hours were spent
-suspecting the FPU (timing at +0.004 ns), then the kernel `CONFIG_FPU`, then a rebuild config
-regression  -  **all red herrings.**
-
-**Root cause  -  the kernel was never loaded to `0x40000000`.** The boot console showed
-serialboot uploading only `milan.dtb`, `rootfs.cpio.gz`, `opensbi.bin`  -  **the `Image` was
-never uploaded.** That file set is exactly `boot_flashkernel.json` (kernel-from-QSPI), *not*
-`boot.json` (kernel-over-serial).
-
-A **stale `litex_term` process from earlier QSPI-boot work
-was still holding the serial port and serving `boot_flashkernel.json`**; `tmux send-keys C-c`
-plus a fresh `litex_term …–images boot.json` command did **not** replace it (the C-c reached
-the tmux pane but the old process kept the port, and the new command couldn't open the busy
-device). Every board reset  -  triggered by each `openFPGALoader` reload  -  was answered by the
-old process.
-
-And because the QSPI had been `--bulk-erase`d for the FPU work, linux_flashboot
-printed `Error: invalid image length 0xffffffff` and fell through, so **no kernel came from
-QSPI either.** OpenSBI dutifully jumped to `0x40000000`, which held only memtest patterns →
-silent hang.
-
-**Diagnosis method that finally worked.** Read the *upload lines* in the boot log, not just
-the hang point: `Uploading …/milan.dtb`, `…/rootfs.cpio.gz`, `…/opensbi.bin`  -  and the
-conspicuous **absence of `Uploading …/Image to 0x40000000`**. Then `pgrep -af litex_term`
-revealed the live process still pointed at `boot_flashkernel.json`.
-
-**Fix.** Kill the stale term by its exact PID (`pgrep -af litex_term` → `kill <pid>`; confirm
-`sudo fuser <by-id-dev>` shows the port free), start a fresh `litex_term … --images boot.json`,
-then reload the bitstream. The log now shows `Uploading …/Image to 0x40000000 (11900984
-bytes)…` and the kernel boots.
-
-**Lessons.**
-- When a Linux boot hangs right after OpenSBI, **first confirm the kernel was actually loaded**
-  (look for the `Image` upload line, or `Copying …to 0x40000000` for the QSPI path) *before*
-  suspecting the CPU/kernel. OpenSBI running proves the CPU executes; a jump into an unloaded
-  address hangs identically to a broken CPU.
-- `tmux send-keys C-c` is **not** a reliable way to replace a serial-holding process  -  verify
-  with `pgrep -af litex_term` that the *intended* manifest is being served. Prefer killing the
-  old PID and starting fresh.
-- Don't `--bulk-erase` the QSPI and then boot expecting the resident kernel  -  pair an erase with
-  either a re-flash *or* a full-serial `boot.json` (kernel included), and make sure the term
-  actually serves that manifest. (See also the QSPI pre-erase rule in the milan-fpga-nic skill.)
-- This masqueraded perfectly as an FPU/timing bug. The FPU hardware was fine the whole time
-  (misa `rv64imafd`, fits at 58 % BRAM / 77 % LUT, timing met)  -  see the FPU notes in
-  `board-session-state`.
-
-## Section 20: host plane dead, CSR readbacks perfect  -  a stale device tree maps every DMA window onto the wrong registers
-
-**Symptom (2026-07-25, chmap bring-up).** After a boot-image reflash, the kernel counts
-`rx_packets=0` absolute, yet the driver's `bd probe` line shows the RX ring base written *and
-read back correctly*. `ptp4l` times out polling for TX timestamps. The driver counts outgoing
-ARP requests as sent, but **zero of them appear at the inline capture tap** - while the fabric
-plane (AAF talker, CRF, MSRP) streams flawlessly out of the same connector.
-
-It reproduced identically across three bitstreams (two fresh seeds *and* the previous
-known-good build) and survived a full board power-cycle.
-
-**Root cause.** The flashed `.dtb` was a three-week-old prebuilt artifact with an obsolete
-5-window `reg` list (no ts window, no pcm node). The `kl-eth` driver maps its `kl,dma-ether`
-`reg` windows **by index**, so every host-DMA register access landed on a
-*wrong-but-writable* CSR. A `CSRStorage` stores whatever it is given, so every readback
-matched perfectly - while the real ring engine sat unprogrammed and the host lane stayed dead
-in both directions at the wire.
-
-**False leads burned** (hours each):
-
-- *Placement lottery* - a second seed was identically dead: the fault was deterministic.
-- *PHY RX wedge* - a power-cycle changed nothing, and the PHY honestly reported
-  1000 Mb/s full-duplex over MDIO the whole time.
-- *Inline-tap egress wedge* - a USB bus reset never touches the tap's line side (the board
-  logged no link bounce), so that test was void, not negative.
-- *"Fabric RX is dead too"* - the STREAM_INPUT counters only count a **bound** stream's
-  frames; reading 0 while unbound means nothing.
-
-**Diagnosis that cracked it.**
-
-1. **Ping out from the board while capturing at the tap.** The driver counted 54 TX frames;
-   zero reached the wire. One experiment, and the "TX works" claim collapsed - every earlier
-   TX proof had been *fabric* TX, which shares nothing with the host lane above the MAC mux.
-2. **`devmem` the real ring-base CSR** (address from the build's `csr.csv`) - it read 0 while
-   the driver believed the ring was armed. The writes were landing somewhere else.
-3. **Diff the dtb `reg` windows against `csr.csv`** - mis-split from window 1 onward, ts
-   window absent. Case closed.
-
-**Fix - and the twist that made round one of the fix a no-op.** Compiling the device tree
-fresh from the committed dts source and flashing it is **not enough**: on this boot path the
-LiteX BIOS jumps to OpenSBI with `a1 = 0`, so the kernel only ever sees the fdt **embedded in
-the opensbi image** (`FW_FDT_PATH`). Flashing a corrected `.dtb` into its slot changed nothing;
-the fix is to **rebuild opensbi around the corrected tree** (`build_opensbi.sh` in the private
-test repo) and flash *that*.
-
-[`deploy.sh`](../../sw/litex/deploy.sh) `flash-images` now refuses the mismatch outright:
-[`check_dtb_csr.py`](../../sw/litex/check_dtb_csr.py) validates the `kl,dma-ether` windows
-against the build's `csr.csv` for **both** `$DTB` and `$OPENSBI` - it carves the embedded FDT
-out of any binary, so the image that actually boots is the image that gets checked.
-
-**Lessons.**
-
-- A matching readback proves only that *something* stored the write. Verify the **engine**
-  (live counters ticking, pointers advancing), never the register echo - the same class as
-  the CSR-shadow-lies trap in [recurring defect patterns](RECURRING_DEFECT_PATTERNS.md).
-- "TX works" must name the lane. Fabric TX flowing proves nothing about host TX.
-- A capture tap proves frames reached the *tap*; it never proves they exited toward the DUT.
-- Boot artifacts are part of the ABI. dtb ↔ `csr.csv` drift is the same failure class as
-  driver ↔ gateware pairing - gate it mechanically, don't trust discipline.
 
 ## Section 21: ACMP says SUCCESS, the listener declares itself bound - and not one frame is accepted (ROOT-CAUSED and FIXED, `VERSION 0x000F`; mechanism confirmed on silicon 2026-07-26)
 
@@ -911,8 +789,7 @@ daemon for the duration.
 
 **Re-test recipe (do this on the next flash, before anything else).**
 
-1. Bind the board listener to the peer talker (one controller `CONNECT_RX`, Section 6 of the
-   [PipeWire peer guide](../integration/PIPEWIRE_AVB_PEER.md)).
+1. Bind the board listener to the peer talker (one controller `CONNECT_RX`).
 2. Read `AVTPRX_FRX` twice, a second apart. Non-zero and climbing = blocker gone.
 3. If still 0, read the `0x8B4` probe group above - that is what it is for, and its three
    readings map 1:1 onto the suspect list. Record the numbers here either way: a *negative*
@@ -1205,7 +1082,7 @@ are why you get a clean status instead of a hang:
    entity is enabled.
 3. **Derive the base, never quote one.** It is this SoC's own memory map: the
    **top 1 MiB of `main_ram`**, i.e. `main_ram` origin + size − `0x0010_0000`,
-   which the Linux device tree reserves. Read origin and size out of the build
+   which the firmware reserves. Read origin and size out of the build
    (`csr.csv` / `soc.json`) for the bitstream that is actually flashed — a
    literal copied from another build is exactly the drift this project keeps
    paying for.

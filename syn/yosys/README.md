@@ -37,7 +37,7 @@ make ecp5       # map to a real non-Xilinx device: Lattice ECP5 (TRELLIS_FF/LUT4
 
 ## Tooling
 - `yosys` (Arch: `pacman -S yosys`).
-- `sv2v` on `PATH` — prebuilt static Linux binary from
+- `sv2v` on `PATH` — pinned prebuilt release from
   [github.com/zachjs/sv2v/releases](https://github.com/zachjs/sv2v/releases)
   (drop into `~/.local/bin`). No Xilinx tools required.
 
@@ -99,7 +99,8 @@ It runs `sv2v` → `synth_xilinx -family xc7 -flatten` → `stat` and reports
 
 **The exit status is the gate** (#245). What is enforced, exactly:
 
-- Both control-plane `$readmemh` images (`ltn_rom.hex`, `ucode.hex`) are
+- All three control-plane `$readmemh` images (`ltn_rom.hex`, `ucode.hex`,
+  `gptp_ucode.hex`) are
   generated into the run's own tmp dir, never the caller's, each into an
   EXCLUSIVELY created staging file (`mktemp`, never a predictable name a
   stale file could squat) and published by a checked rename only after
@@ -113,8 +114,8 @@ It runs `sv2v` → `synth_xilinx -family xc7 -flatten` → `stat` and reports
   geometry after `//`-comment stripping; wrong count, wrong width,
   `x`/`z` digits and an empty image are all exit 2. `$readmemh` part-fills
   a short image with X and yosys prices the X-ROM without a word.
-- The image CONTENT must match the sha256 recorded for the current
-  `protocol-processor` pin in [`rom_digests.tsv`](rom_digests.tsv): a
+- Each image's CONTENT must match the sha256 recorded for its current owning
+  processor pin in [`rom_digests.tsv`](rom_digests.tsv): a
   correctly shaped wrong image (a regressed generator) prices wrong with
   every shape gate green, so shape alone is not protection. A pin bump
   re-records with `./ooc.sh --record-rom-digests`, and that diff is
@@ -130,8 +131,8 @@ It runs `sv2v` → `synth_xilinx -family xc7 -flatten` → `stat` and reports
   is taken. A published image swapped or deleted after validation (or
   between two requested tops, or under a running synthesis) is exit 2,
   and no row is emitted for bytes no ledger row vouches for.
-- The ledger pin is the SUPERPROJECT's `protocol-processor` gitlink,
-  never the checkout's own HEAD: an uninitialized, conflicted or
+- The ledger pins are the SUPERPROJECT's `protocol-processor` and
+  `gptp-processor` gitlinks, never either checkout's own HEAD: an uninitialized, conflicted or
   mismatched checkout refuses in normal and record modes alike, so a
   stale checkout can neither record itself nor select a retained old
   row after a pin bump.
@@ -172,7 +173,7 @@ population, the exclusive locked per-top run directory, and both
 canonical images as read-only copies hashing to the pin's ledger rows);
 it runs in `rtl-fast.yml`, where
 `scripts/ci_events.py` pins the invocation verbatim AND its step keys, in
-the job that fetches the protocol-processor submodule, after that fetch.
+  the job that fetches both processor submodules, after that fetch.
 The suite refuses to run as root: its custody oracles are mode bits, which
 uid 0 bypasses, so the arms would invert rather than fail.
 

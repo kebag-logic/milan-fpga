@@ -14,7 +14,7 @@
 //!     -> i2s_sdin_o       the DAC pin
 //!
 //! - the mirror of the PROVEN record path (AVTP RX -> depacketizer ->
-//! KL_pcm_ring_bram -> DMA -> ALSA capture), in the direction that was
+//! KL_pcm_ring_bram -> DMA -> host capture), in the direction that was
 //! never continuous in fabric. The sim_main writes host ring words and
 //! decodes the serial DAC output with a standard-derived I2S receiver, so
 //! the claim it makes is byte-in = bit-out.

@@ -28,7 +28,7 @@
                 settle/mismatch/format verdict logic here remains the ctx
                 engine's per-stream contract.
 
-                Contract byte-extracted from the pipewire module-avb reference
+                Contract byte-extracted from the module-avb reference code
                 (stream.c handle_aaf_packet + cmd-get-counters.c):
                   - UNSUPPORTED_FORMAT: per-PDU, when the AAF header fields
                     (subtype, format, nsr, bit_depth, channels_per_frame, sp)
@@ -167,14 +167,14 @@ module KL_avtp_rx_monitor #(
   localparam logic [31:0] EARLY_MARGIN_NS_C = 32'd10_000_000;
 
   // ---- expected AAF fields from the format u64 (H.1 quadlet layout;
-  //      pipewire avb_aem_stream_format_decode) ------------------------------
+  //      module-avb avb_aem_stream_format_decode) ----------------------------
   wire [7:0] f_subtype = fmt_i[63:56];
   wire [3:0] f_nsr     = fmt_i[51:48];
   wire [7:0] f_format  = fmt_i[47:40];
   wire [7:0] f_depth   = fmt_i[39:32];
 
   // ---- received AAF fields from the format-specific header (wire layout;
-  //      pipewire struct avb_packet_aaf) --------------------------------------
+  //      module-avb struct avb_packet_aaf) ------------------------------------
   wire [7:0] p_format  = fsh_i[63:56];   // O+16
   wire [3:0] p_nsr     = fsh_i[55:52];   // O+17 [7:4]
   wire [7:0] p_chans   = fsh_i[47:40];   // O+18

@@ -69,11 +69,12 @@ VFLAGS = --cc --exe --build -j 0 \
          -GDIAG_TICK_CYC_P=256 \
          -CFLAGS "-std=c++17 -O2"
 
-# Most historical integration legs exercise the Linux host PCM ring. The RTL
-# default is now the shipping bare-metal shape (sound card absent), so those
-# legs opt in explicitly and a separate mutation-sensitive route harness below
-# proves the new zero side.
-DP_VFLAGS = $(VFLAGS) -GSOUND_CARD_P=1
+# Most historical integration legs exercise the retained host-PCM and
+# software-gPTP shape. Both options are explicit; obj_gptp deliberately omits
+# the gPTP override and therefore proves the product default rather than a
+# forced -G1.
+GPTP_OFF_VFLAGS = $(VFLAGS) -GGPTP_PLANE_EN_P=0
+DP_VFLAGS = $(GPTP_OFF_VFLAGS) -GSOUND_CARD_P=1
 
 C  = $(RTL_DIR)/common
 Q  = $(RTL_DIR)/ieee8021q/ts
@@ -155,7 +156,7 @@ SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv
        $(RTL_DIR)/milan/milan_datapath.sv
 CPP  = sim_main.cpp
 
-.PHONY: all run soundcard-off clean
+.PHONY: all run gptp soundcard-off clean
 all: run
 
 # tier-1 optional blocks, ALL pruned at once (docs/design/AREA_BUDGET.md).
@@ -201,7 +202,13 @@ soundcard-off:
 	  -CFLAGS "-std=c++17 -O2" -o Vpcm_route_soundcard_off
 	./obj_soundcard_off/Vpcm_route_soundcard_off
 
-run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) soundcard-off
+gptp: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
+	$(VERILATOR) $(SHAPE_AX1x1) $(VFLAGS) --Mdir obj_gptp \
+	  -GMILAN_CLK_FREQ_HZ=2000000 \
+	  $(SRCS) sim_gptp.cpp -o Vmilan_dp_gptp
+	./obj_gptp/Vmilan_dp_gptp
+
+run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) soundcard-off gptp
 	$(VERILATOR) $(SHAPE_1x1) $(DP_VFLAGS) $(SRCS) $(CPP) -o Vmilan_dp_sim
 	$(VERILATOR) $(SHAPE_4x4) $(DP_VFLAGS) --Mdir obj_nxn -GN_STREAMS=4 $(SRCS) sim_nxn.cpp -o Vmilan_dp_nxn
 # the divergent-shape leg: arty_4x4's entity with input row 1 declaring the
@@ -210,7 +217,7 @@ run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) soundcard-off
 	$(VERILATOR) $(SHAPE_DV) $(DP_VFLAGS) --Mdir obj_nxndv -GN_STREAMS=4 -CFLAGS "-DNSTREAMS_TB=4 -DDIVERGENT_TB=1 -I$(CURDIR)/gen_divergent" $(SRCS) sim_nxn.cpp -o Vmilan_dp_nxndv
 # obj_nxn8 also elaborates AAF_PLAYBACK_P=1 (the task #31 cfg_ax8x8 ship
 # flip) and runs the host-ring -> RING-bucket -> talker-wire section
-# (-DAAF_PB_TB): the ALSA playback direction proven INSIDE the datapath.
+# (-DAAF_PB_TB): the host playback direction proven INSIDE the datapath.
 # obj_nxn8 is also the ONLY leg that elaborates the task #65 loopback lane
 # (-GLOOPBACK_P=1, paired with -DLOOPBACK_TB so the C++ side knows which
 # gateware it is driving). The other two sim_nxn legs run with the lane OFF
@@ -258,7 +265,7 @@ run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) soundcard-off
 # both PRUNED. Every one of those had desk coverage on its
 # own; the combination - which is the only combination that ever reaches a
 # board - had none, and three defects were living in it.
-	$(VERILATOR) $(SHAPE_AX1x1) $(VFLAGS) --Mdir obj_ax1x1 \
+	$(VERILATOR) $(SHAPE_AX1x1) $(GPTP_OFF_VFLAGS) --Mdir obj_ax1x1 \
 	  -GTALKER_WIRE_CHANS_P=$(AX_CHANS) -GAUDIO_IF_SLOTS_P=$(AX_SLOTS) \
 	  -GAUDIO_IF_MASTER_P=1 \
 	  -GLOOPBACK_P=1 -GI2SPB_P=$(AX_I2SPB) -GLPF_P=0 \
@@ -273,15 +280,12 @@ run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) soundcard-off
 # rather than an #ifdef through sim_nxn's 380-odd checks: none of those care
 # about the audio clock's rate, and re-clocking them to find out would be a
 # large blast radius for no gain.
-	$(VERILATOR) $(SHAPE_AX1x1) $(VFLAGS) --Mdir obj_aclk \
+	$(VERILATOR) $(SHAPE_AX1x1) $(GPTP_OFF_VFLAGS) --Mdir obj_aclk \
 	  -GTALKER_WIRE_CHANS_P=$(AX_CHANS) -GAUDIO_IF_SLOTS_P=$(AX_SLOTS) \
 	  -GAUDIO_IF_MASTER_P=1 \
 	  -GLOOPBACK_P=1 -GI2SPB_P=$(AX_I2SPB) -GLPF_P=0 \
 	  $(SRCS) sim_aclk.cpp -o Vmilan_dp_aclk
 	@echo "======================================================================"
-	$(VERILATOR) $(SHAPE_AX1x1) $(VFLAGS) --Mdir obj_gptp \
-	  -GGPTP_PLANE_EN_P=1 -GMILAN_CLK_FREQ_HZ=2000000 \
-	  $(SRCS) sim_gptp.cpp -o Vmilan_dp_gptp
 # Milan 5.4.5 TIMED (issue #69): the processor's timebase compressed
 # 1000x through its own override parameters (PP_TIM_DIV_US_P = 1 clock per
 # microsecond tick, PP_TIM_DIV_MS_P = 100 ticks per millisecond), so one
@@ -292,12 +296,11 @@ run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) soundcard-off
 # sim_nxn's [NOTIFY] section on the shipping 1x1 shape, exiting right after
 # the descriptor image is served (NOTIFY_TIMED_TB); the real-time legs run
 # the same section untimed.
-	$(VERILATOR) $(SHAPE_AX1x1) $(VFLAGS) --Mdir obj_notify \
+	$(VERILATOR) $(SHAPE_AX1x1) $(GPTP_OFF_VFLAGS) --Mdir obj_notify \
 	  -GPP_TIM_DIV_US_P=1 -GPP_TIM_DIV_MS_P=100 \
 	  -CFLAGS "-DNSTREAMS_TB=1 -DNOTIFY_TIMED_TB=1 -DMS_CYC_TB=100" \
 	  $(SRCS) sim_nxn.cpp -o Vmilan_dp_notify
 	./obj_dir/Vmilan_dp_sim
-	./obj_gptp/Vmilan_dp_gptp
 	@echo "---- Milan 5.4.5 notifications, TIMED on the compressed processor timebase ----"
 	./obj_notify/Vmilan_dp_notify
 	./obj_nxn/Vmilan_dp_nxn

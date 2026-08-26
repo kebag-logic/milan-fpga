@@ -52,7 +52,7 @@ software, not a controller, not a clause — is entitled to use.
 | `MAAP` claim engine | IEEE 1722-2016 Annex B — dynamic allocation and defence IS the function | MUST-DYNAMIC | — |
 | TCAM / rx_filter runtime entries | stream DMACs follow MAAP; the kernel shield installs at runtime | MUST-DYNAMIC | — |
 | AEM dynamic surfaces (SET_STREAM_FORMAT, SET_NAME, SET_STREAM_INFO(MSRP_ACC_LAT), START/STOP, counters, GET_STREAM_INFO fields) | Milan v1.2 5.4.2.x "shall implement" table; 5.4.2.25 "shall implement and return" | MUST-DYNAMIC (this is the compliance surface itself). **2026-08-13: NOT IMPLEMENTED — the engine is deleted and the processor's AECP µCPU did not reimplement any of these commands. The device is reachable on AECP (it answers `READ_DESCRIPTOR` when a descriptor image is loaded, and echoes a conformant `NOT_IMPLEMENTED` at everything else), but an echo executes nothing: no format, no name, no transit time, no start/stop, no counters. The verdict was right; the surface is absent, which is a stated capability boundary and not a static conversion** | — |
-| Channel-map crossbars (0x900 window) | no clause — but USER chmap64 directive (ALSA/PipeWire runtime mapping) | MUST-DYNAMIC (directive). **2026-08-13: the window is now the ONLY programmer of the map RAMs, so this verdict became structural** | — |
+| Channel-map crossbars (0x900 window) | no clause — but USER chmap64 directive (runtime host mapping) | MUST-DYNAMIC (directive). **2026-08-13: the window is now the ONLY programmer of the map RAMs, so this verdict became structural** | — |
 | lwSRP window CFG overrides | fabric self-provisions since 0x0015/0x0019; overrides are bring-up/test paths exercised by sim_nxn and bench recipes | KEEP (test surface). **2026-08-13: the applicant that read the provisioning words is deleted — DMAC / MaxFrameSize / MaxIntervalFrames / declare-bypass are now WRITE-ONLY SCRATCH that reach nothing. The policy words that still bite are the domain, slope and admission ones on the processor's face** | — |
 | CLKV lease, `AAF_CTRL`, `CRFT_CTRL`, journal group | Milan 4.3.5.2 (tu shall), 5.3.7.3, 5.3.8.2 — the runtime-ness is the point | MUST-DYNAMIC | — |
 
@@ -125,7 +125,7 @@ as its only view of live truth. The fabric keeps every per-frame effect
 (gates, tables, counters, stamps); software keeps every conversation.
 
 > **What actually happened instead (2026-08-13).** The conversations did not
-> move to a Linux daemon on the softcore — they moved to a **second processor
+> move to a software daemon on the softcore — they moved to a **second processor
 > in fabric**: the pinned `protocol-processor` submodule, which owns ADP,
 > ACMP and SRP in RTL and publishes its state to this fabric as class-D
 > wires, consumed every clock rather than through a software-paced read. The
@@ -138,7 +138,7 @@ as its only view of live truth. The fabric keeps every per-frame effect
 > implements none by design), and **AECP is not in software either — it is a
 > µCPU in that same fabric processor**. That µCPU has since landed: the device
 > answers `READ_DESCRIPTOR` and returns a conformant `NOT_IMPLEMENTED` echo to
-> every other AECP command. So the 6.2k row did not become a Linux daemon and
+> every other AECP command. So the 6.2k row did not become a software daemon and
 > did not stay empty; it became a micro-coded engine, and its cost is **not**
 > inside the 6,956 LUT the findings page measures — that figure was taken with
 > the AECP pop face tied off, and nothing has re-synthesised the plane since.

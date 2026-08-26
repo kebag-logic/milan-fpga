@@ -76,6 +76,20 @@
       ]
     },
     {
+      "id": "gptp.fabric-product-owner",
+      "status": "implemented",
+      "summary": "The product default uses one fabric owner for 802.1AS, PHC steering, atomic public state and AVTP time validity; option off is a verification-only elaboration with zero owners (#259 retired the software comparison).",
+      "documents": [
+        "docs/ARCHITECTURE_HW_SW_SPLIT.md",
+        "docs/design/GM_LOSS_RECOVERY.md",
+        "docs/design/GPTP_PLANE.md",
+        "docs/design/TIME_SYNC.md",
+        "docs/integration/BAREMETAL_FIRMWARE.md",
+        "docs/reference/MILAN_FEATURE_STATUS.md",
+        "docs/reference/REGISTER_MAP.md"
+      ]
+    },
+    {
       "id": "aem.served-command-set",
       "status": "implemented",
       "summary": "The ledger facts list is the canonical served AEM command inventory.",
@@ -84,7 +98,6 @@
         "README.md",
         "docs/AAF_LATENCY_TAPS.md",
         "docs/GLOSSARY.md",
-        "docs/HOWTO_PLAY_MUSIC.md",
         "docs/MILAN_V12_ROADMAP.md",
         "docs/design/AREA_BUDGET.md",
         "docs/design/TIME_SYNC.md",
@@ -131,7 +144,6 @@
         "README.md",
         "docs/AAF_LATENCY_TAPS.md",
         "docs/ENDSTATION_BUILDER.md",
-        "docs/HOWTO_PLAY_MUSIC.md",
         "docs/MILAN_V12_ROADMAP.md",
         "docs/fpga/FPGA_DESIGN.md",
         "docs/integration/INTEGRATION_GUIDE.md",
@@ -238,7 +250,6 @@
       "documents": [
         "README.md",
         "docs/CHANNEL_MAP_64.md",
-        "docs/HOWTO_PLAY_MUSIC.md",
         "docs/MILAN_V12_ROADMAP.md",
         "docs/fpga/FPGA_DESIGN.md",
         "docs/integration/INTEGRATION_GUIDE.md",
@@ -294,7 +305,7 @@
     {
       "id": "soc.baremetal-profile",
       "status": "implemented",
-      "summary": "The shipping AX7101 profile is one cacheless RV32I VexiiRiscv hart in machine mode with ROM firmware and no MMU or Linux.",
+      "summary": "The shipping AX7101 profile is one cacheless RV32I VexiiRiscv hart in machine mode with ROM firmware, no MMU and no operating system.",
       "documents": [
         "docs/integration/BAREMETAL_FIRMWARE.md",
         "docs/integration/BUILDING.md",
@@ -306,8 +317,8 @@
     },
     {
       "id": "host.sound-card-option",
-      "status": "implemented",
-      "summary": "Linux PCM DMA, device-tree, reserved-ring, playback and host-cluster surfaces are optional and default off without removing fabric audio.",
+      "status": "not-supported",
+      "summary": "The host PCM DMA, published node, reserved-ring, playback and host-cluster product surfaces are retired; fabric audio remains.",
       "documents": [
         "docs/integration/BAREMETAL_FIRMWARE.md",
         "docs/integration/BUILDING.md",

@@ -287,7 +287,7 @@ int main(int argc, char **argv) {
   // ====================================================================
   //  Phase 6 - per-stream CLEAN RESTART (header contract): a stream_en
   //  rising edge zeroes THAT stream's rd_ptr/rd_off/counters/holds and
-  //  leaves every other stream untouched - the ALSA session boundary.
+  //  leaves every other stream untouched - the playback session boundary.
   // ====================================================================
   {
     // stream 1 is disabled since phase 5 and its rd/under/over carry

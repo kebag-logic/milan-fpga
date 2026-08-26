@@ -20,7 +20,7 @@ g.box(dram_x, y, dram_w, bh, "DRAM\nRX buffer", "payload lands here\n(cold — n
 g.arrow(xs[-1]+bw+4, y+bh/2, dram_x-4, y+bh/2)
 # ---- SW/CPU lane (bottom) ----
 yb=340
-g.label(60, yb-16, "SOFTWARE  (Linux kernel, 2 harts)", fs=12, col="#7a4fa3", weight="700")
+g.label(60, yb-16, "SOFTWARE  (host kernel, 2 harts)", fs=12, col="#7a4fa3", weight="700")
 sw = [("NAPI poll\n+ GRO", "reads BD +\nheaders (cold)", "#f3eef8", "#7a4fa3"),
       ("tcp_recvmsg", "receive queue", "#f3eef8", "#7a4fa3"),
       ("copy_to_user", "reads payload\nCOLD from DRAM", "#fdecea", "#c0392b"),

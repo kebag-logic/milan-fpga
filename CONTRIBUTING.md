@@ -9,7 +9,7 @@ lane-per-worktree, every change grows the test suite, and nothing merges on
 - **[1. HDL house style (Cemal Dogan / Oguz Kahraman school)](#1-hdl-house-style-cemal-dogan--oguz-kahraman-school)** -- The naming, reset and banner conventions a new `.sv` file must follow, ending in the CDC rule that cost us the 07-24 link-guard deadlock: clock-liveness observers must be `reset_less`.
 - **[2. Workflow](#2-workflow)** -- The issue-to-merge lane: an issue moves to *In progress*, a branch is cut **from the issue**, the work lands on it, a PR opens, review runs as **multiple agents with cleared context**, and only then does it merge back to `dev`. Plus one lane = one worktree, one-line commits, and two traps with history: `cp -r` (never symlink) `third_party/` into a worktree, and rebuild `LAYOUTS` merges semantically rather than by marker-union.
 - **[3. Verification bar](#3-verification-bar)** -- What a change owes before it merges: a self-checking Verilator harness under `tb/verilator/<name>/`, a ratcheted `scripts/lint_rtl.py --check` that fails on any new lint violation, a justification for every `lint_off`, a matrix row that only turns ✅ with a runnable test, and timing claims quoted with the full cell recipe rather than a bare WNS.
-- **[4. Bench discipline (the expensive lessons)](#4-bench-discipline-the-expensive-lessons)** -- Four rules paid for on hardware: ≥ 8 min AX boot probes, never resume a frozen PCM ring, dump a QSPI slot before overwriting it, and regenerate the DTB from `csr.csv` on any gateware block-set change.
+- **[4. Bench discipline (the expensive lessons)](#4-bench-discipline-the-expensive-lessons)** -- Four rules paid for on hardware: ≥ 8 min AX boot probes, never resume a frozen PCM ring, dump a QSPI slot before overwriting it, and regenerate every window map from `csr.csv` on any gateware block-set change.
 
 ## 1. HDL house style (Cemal Dogan / Oguz Kahraman school)
 
@@ -406,7 +406,6 @@ Two board rules that go with it:
 - Never freeze the PCM ring mid-stream and plain re-enable (resume desync);
   full reset-reprogram.
 - QSPI: never overwrite a slot without the current content dumped to disk
-  first; DTB changes go through the **OpenSBI FW_FDT_PATH embed** (the dtb
-  flash slot is not what the kernel boots on); regenerate the DTB from the
-  build's `csr.csv` on ANY gateware block-set change (CSR-rot rule,
+  first; regenerate every consumer's window map from the build's `csr.csv` on
+  ANY gateware block-set change (CSR-rot rule,
   [`docs/integration/QSPI_FLASHBOOT.md`](docs/integration/QSPI_FLASHBOOT.md)).

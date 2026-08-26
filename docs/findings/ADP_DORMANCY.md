@@ -42,7 +42,7 @@ stopped.
    link_down is structurally impossible. `shutdown_i` = `ADP_CMD[1]` — and
    NOTHING in the software stack writes 0x640 (boot script writes 0x600-0x620
    once; kl-eth touches MAC/PHC/ring groups only). The dominant CSR write
-   stream (ptp4l gettime -> `A_PTP_CMD` 0x520 wdata=0x4) carries bit2, which
+   stream (a gettime strobe -> `A_PTP_CMD` 0x520 wdata=0x4) carries bit2, which
    cannot assert the bit1 depart strobe even if misrouted.
 6. A reset is excluded (index was 0xBC, not 0); a real link blip is excluded
    (gPTP never faulted, and with i_link_up tied 1 no edge can be generated).

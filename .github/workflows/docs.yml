@@ -10,19 +10,47 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # The documentation-only gates run before any submodule checkout. The
-      # builder identity gate below consumes the pinned processor image tools.
+      # builder gates below consume the pinned processor image tools and expand
+      # the Vivado datapath manifest through verilog-axis's source inventory.
       - uses: actions/checkout@v4
+      # pyyaml is load-bearing for the bare-metal-only gate below (it REFUSES
+      # to run without it) and for three later gates, so it is installed here
+      # rather than in the middle of the job.
+      - name: Install the python gate dependencies
+        run: python3 -m pip install --quiet pyyaml
       - name: Link health, wording, dead-reference and local-info gate
         run: python3 scripts/docs_check.py
       - name: Milan feature-status consistency gate
         run: python3 scripts/check_feature_status.py --self-test
       - name: Traceability matrix no-drift gate
         run: python3 docs/traceability/gen_module_matrix.py --check
-      - name: Fetch the processor image tools
+      - name: Fetch the builder source dependencies
         # gptp-processor rides along for the SoC source-list gate: since it
         # polices submodule-rooted entries, the files must exist to be judged
-        # present rather than STALE.
-        run: git submodule update --init protocol-processor gptp-processor
+        # present rather than STALE. The builder's dp_srcs.py self-test also
+        # resolves the five verilog-axis leaves in the shipping OOC manifest.
+        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
+      # dp_srcs.py refuses to answer without a front end (no model may stand
+      # in for sv2v), and the builder runs its self-test unconditionally, so
+      # this job needs the same pinned release the portability gate uses.
+      # The absent-tool refusal itself stays: a host without sv2v still gets
+      # a named refusal, never a silent pass.
+      - name: Install the pinned sv2v release
+        run: |
+          set -euo pipefail
+          ver=v0.0.12
+          url="https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip"
+          curl -fsSL "$url" -o /tmp/sv2v.zip
+          unzip -q -o /tmp/sv2v.zip -d /tmp/sv2v
+          sudo install -m755 "$(find /tmp/sv2v -name sv2v -type f | head -1)" \
+            /usr/local/bin/sv2v
+          sv2v --version
+      # The focused bare-metal-only scope gate (#259 / PR #228): the lane's
+      # owned surface must not reacquire a retired host-stack product claim.
+      - name: Bare-metal scope gate
+        run: |
+          python3 scripts/check_baremetal_only.py --check
+          python3 scripts/check_baremetal_only.py --selftest
       - name: End-station builder gates
         run: |
           python3 -m pip install --quiet pyyaml
@@ -93,10 +121,6 @@ jobs:
       - name: Entity shape gate
         run: python3 scripts/check_entity_shape.py --self-test
 
-      # DT binding gate: negative controls for the kl,dma-ether / kl,milan-pcm
-      # binding checker (a checker that cannot fail is not a gate).
-      - name: Device-tree binding gate
-        run: python3 sw/dts/milan_dt.py selftest
 
   # ==========================================================================
   #  THIS JOB WENT GREEN 2026-07-28 AND MUST STAY GREEN (roadmap item 00).
@@ -122,6 +146,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Fetch the engine authority the builder derives from
+        run: git submodule update --init gptp-processor
       - name: Advertised-vs-emitted gate (green since 2026-07-28, item 00)
         run: |
           python3 -m pip install --quiet pyyaml

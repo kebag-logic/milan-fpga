@@ -1,7 +1,7 @@
 # The processor's DRAM window was never reserved — 2026-08-13
 
 **Status: FIXED before any board ran it.** Found while building the descriptor-image
-supply chain, by reading the generated device tree rather than the comment that
+supply chain, by reading the generated reservation rather than the comment that
 described it.
 
 ## Contents
@@ -9,7 +9,7 @@ described it.
 - **[What was wrong](#what-was-wrong)** — Two shapes, two different failures: at 1x1 the window was plain kernel RAM, at 8x8 it sat inside the PCM ring. Neither raises anything.
 - **[Root cause](#root-cause)** — The builder and the SoC each decided where the reserved band was, from different inputs, and the comment recorded only the first one's intent.
 - **[The fix](#the-fix)** — `platform.pcm_ring_phys` becomes the single authority: the builder derives the window and emits the reservation, the SoC reads it and only checks it.
-- **[What this costs operationally](#what-this-costs-operationally)** — The DTB must be rebuilt, not just the gateware — and the earlier `drammem` bitstream was compiled against the old base.
+- **[What this costs operationally](#what-this-costs-operationally)** — The published memory map must be rebuilt, not just the gateware — and the earlier `drammem` bitstream was compiled against the old base.
 - **[The rebuild that ships](#the-rebuild-that-ships)** — Three place directives swept, one closed at +0.008 ns; which build to ship and what it measured.
 
 ## What was wrong
@@ -26,7 +26,7 @@ _desc_base = _ram.origin + _ram.size - _PP_WINDOW   # 0x7FF00000 on a 1 GiB AX71
 _resp_base = _ram.origin + _ram.size - 0x1000       # 0x7FFFF000
 ```
 
-with a comment stating that the Linux device tree reserved that megabyte. It did
+with a comment stating that the published memory map reserved that megabyte. It did
 not. The only `reserved-memory` node `endstation_builder.py` emitted was
 `pcmring`, and every AX7101 config places it at `0x7F800000`:
 
@@ -73,20 +73,21 @@ Both shapes now place the window at `0x7F700000`, immediately below the ring:
 ```
 
 `no-map` does double duty: it keeps the kernel out, and it is what allows
-`scripts/load_entity_model.sh` to reach the window through `/dev/mem` on a
+the then-current entity loader to reach the window through `/dev/mem` on a
 `CONFIG_STRICT_DEVMEM` kernel — a region the kernel still owns is refused.
 
 ## What this costs operationally
 
-**The DTB must be rebuilt, not just the gateware.** A board booting a DTB
-generated before this change has no `ppmem` node, so the kernel will allocate
-that megabyte regardless of what the bitstream was built to use. Rebuild the
-device tree from the regenerated `milan-nic.dtsi` and reflash it with the
-bitstream.
+**The published memory map must be rebuilt, not just the gateware.** A board
+booting a map generated before this change carries no `ppmem` reservation, so
+whatever allocates main memory is free to take that megabyte regardless of what
+the bitstream was built to use. Regenerate the map with the bitstream and
+reflash them together.
 
 The bitstream built earlier on 2026-08-13 (`TAG=drammem`, which placed and routed
 at 84.80% LUT / 125 BRAM, post-route WNS +0.095 ns) was compiled against the OLD
-base and must not be used with the new device tree.
+base and must not be used with the new map (a historical constraint; #259
+retired the consumer that read it).
 
 ## The rebuild that ships
 
@@ -103,8 +104,8 @@ timing is not evidence of a regression).
 
 **Ship `build_ax7101_asl_ppmemsw`**: 50,040 Slice LUTs post-place (78.9%),
 125/135 Block RAM, `alinx_ax7101.bit` 3,825,992 B, and `aem_desc.bin` (5,520 B,
-base `0x7f700000`) beside it — byte-identical to the copy the builder wrote into
-the rootfs overlay, which is the copy the board actually loads.
+base `0x7f700000`) beside it — byte-identical to the copy the board actually
+loads.
 
 The margin is +8 ps. That is met, not comfortable: re-sweep rather than assume
 closure survives an unrelated edit.

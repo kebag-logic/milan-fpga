@@ -1252,7 +1252,7 @@ def test_rsc_silicon_geometry(seed=11, nops=60):
 
     def big_seg(flow, plen=1448, flags=0x10):
         t = tag[0]; tag[0] += 1
-        # doff=8 with the Linux timestamp option layout (real wire shape)
+    # doff=8 with the TCP timestamp option layout (real wire shape)
         eth = bytes([0x02,0,0,0,0,1, 0x02,0,0,0,0,2, 0x08,0x00])
         tot = 20 + 32 + plen
         ip = bytes([0x45,0, tot>>8, tot&0xFF, 0,0, 0x40,0, 64,6, 0,0,
@@ -1989,7 +1989,7 @@ def test_bd_folded_unarmed_quiesce():
 def test_bd_true_length():
     """gPTP RX-pad fix: a single-frame BD's w0 length must be the TRUE byte length
     ((beats-1)*8 + tail) while the DMA still moves whole 8-byte beats. (9,4) is the
-    exact 68-byte pdelay shape that ptp4l rejected as 72. tail=8 keeps beats*8."""
+    exact 68-byte pdelay shape once rejected as 72. tail=8 keeps beats*8."""
     for nbeats, tail in ((9, 4), (3, 8), (7, 1)):
         true_len = (nbeats - 1) * 8 + tail
         F = frame(0xD0 + tail, nbeats)

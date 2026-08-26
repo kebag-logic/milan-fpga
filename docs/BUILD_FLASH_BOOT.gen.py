@@ -15,42 +15,43 @@ def esc(s): return html.escape(s, quote=True)
 STAGES = [
  ("1 · BUILD", "dev host · Vivado", GREEN, [
    ("sw/litex/build.sh ax7101", 1),
-   ("mandatory: --coherent-dma", 0),
-   ("--gtx-tx-invert --all-blocks", 0),
-   ("--with-spiflash --flashboot full", 1),
-   ("  → pins BITSTREAM COMPRESS", 0),
+   ("--software-profile baremetal", 0),
+   ("--fabric-gptp --all-blocks", 0),
+   ("--with-spiflash --flashboot baremetal", 1),
+   ("generated AEM + gPTP ROM from one YAML", 0),
    ("3×32-thread seed sweep", 0),
    ("GATE: WNS ≥ 0", 0),
- ], "compressed .bit ~1.74 MiB (60% off 3.65)\n+ kernel · dtb · rootfs · opensbi"),
+ ], "gateware .bit + raw aem_desc.bin\n(no second-stage boot images)"),
  ("2 · FLASH", "JTAG → QSPI (16 MB)", ORANGE, [
-   ("deploy.sh flash  (bitstream @0)", 1),
-   ("deploy.sh flash-images", 1),
-   ("  matched set, FBI-wrapped", 0),
-   ("  per-slot budget + --verify", 0),
-   ("openFPGALoader -c ft232", 0),
-   ("RULE: flash the WHOLE set —", 0),
-   ("a gateware-only load won't boot", 0),
- ], "persistent QSPI image:\nbitstream@0 · kernel · dtb · rootfs"),
+   ("INSTALLED_BUILD=<old> build.sh flash ax7101:<new>", 1),
+   ("live-read QSPI@0; match exact old/new .bit", 0),
+   ("prepare target; CRC-check the live image set", 0),
+   ("software/full→fabric/bare: bit, then AEM", 0),
+   ("every write uses --verify", 0),
+   ("retry recognizes source or target commit bit", 0),
+   ("direct partial writes: recovery escape only", 0),
+   ("boundary: torn offset-zero write needs A/B", 0),
+ ], "persistent QSPI image:\nbitstream@0 · paired raw AEM image"),
  ("3 · BOOT", "on target · self-configures", BLUE, [
    ("power on / power-cycle", 1),
    ("FPGA config-boots from QSPI", 0),
-   ("LiteX BIOS → DDR3 init", 0),
-   ("linux_flashboot QSPI→DRAM", 0),
-   ("OpenSBI (M-mode) → Linux", 0),
-   ("S50milan provisions CSRs", 0),
-   ("ptp4l · phc2sys · linkmon up", 0),
- ], "buildroot Linux on VexiiRiscv,\nMilan NIC live"),
+   ("LiteX BIOS → RV32 firmware in ROM", 0),
+   ("AEM length + CRC verified into DRAM", 0),
+   ("entity enables only after valid AEM", 0),
+   ("fabric gPTP owns PHC + publication", 0),
+   ("no host image · no time daemon · no mirrors", 0),
+ ], "cacheless RV32 bare-metal control,\nMilan fabric live"),
  ("4 · VERIFY", "on the bench", PURPLE, [
-   ("devmem 0x90000000 == 'MILN'", 1),
-   ("  (M-A2 first-silicon smoke)", 0),
-   ("link up · GM / talker / listener", 0),
-   ("COMPLIANCE 63/63", 1),
-   ("behave · TB · audio E2E", 0),
+   ("MILAN_PROFILE=baremetal hostplane_smoke.sh", 1),
+   ("UART reports VERSION 0x00020055", 0),
+   ("focused RTL + processor suites", 1),
+   ("traceability + builder gates", 0),
+   ("#117: physical / two-board pending", 0),
    ("REGISTER_MAP.md = the ABI", 0),
    ("BENCH_TOPOLOGY.md = the rig", 0),
- ], "a validated Milan end-station"),
+ ], "digitally validated candidate;\nphysical acceptance stays on #117"),
 ]
-RECOVERY = "Recovery — board wedged or won't boot:  power-host powerstrip off N && powerstrip on N  (reverts to the known-good QSPI gateware; outlet N is bench-specific) · JTAG-load a bitstream to SRAM to test without flashing · never openFPGALoader -f a bitstream onto a kernel-at-0 layout"
+RECOVERY = "Recovery — retry flash-pair with the same exact installed reference; it accepts the source or target commit bit · power-host powerstrip off N && powerstrip on N (outlet N is bench-specific) · JTAG-load to SRAM for nonpersistent tests · a torn offset-zero erase/program requires recovery or A/B MultiBoot"
 
 X0,Y0=40,150; CW,CG=440,54; HDR=56; RH,RGAP=30,7; PAD=12; OUT_H=64
 def stage_h(lines): return HDR+PAD+len(lines)*(RH+RGAP)-RGAP+PAD
@@ -68,7 +69,7 @@ def svg():
     o.append('<rect width="%d" height="%d" fill="#FAFAFA"/>'%(W,H))
     o.append('<text x="%d" y="56" font-size="30" font-weight="bold" fill="#263238">Build → Flash → Boot → Verify — the AX7101 pipeline</text>'%X0)
     o.append('<text x="%d" y="88" font-size="15" fill="#546E7A">One flow, four stages. Each stage lists the real commands (bold) and the load-bearing rules. Details: docs/integration/BUILDING · LITEX_SOC · QSPI_FLASHBOOT · findings/BENCH_TOPOLOGY.</text>'%X0)
-    o.append('<text x="%d" y="112" font-size="15" fill="#546E7A">The one rule that costs a session if missed: build with --with-spiflash --flashboot full and flash the MATCHED image set together.</text>'%X0)
+    o.append('<text x="%d" y="112" font-size="15" fill="#546E7A">Persistent writes require two exact build identities: live-proven installed BIT/LAYOUT and one fully prepared target set.</text>'%X0)
     for i,(name,tool,(fill,stroke),lines,out) in enumerate(STAGES):
         x=col_x(i)
         o.append('<rect x="%d" y="%d" width="%d" height="%d" rx="10" fill="%s" stroke="%s" stroke-width="2"/>'%(x,Y0,CW,box_h,fill,stroke))
@@ -96,8 +97,8 @@ def svg():
     # recovery banner
     o.append('<rect x="%d" y="%d" width="%d" height="72" rx="10" fill="%s" stroke="%s" stroke-width="2"/>'%(X0,rec_y,W-2*X0,RED[0],RED[1]))
     o.append('<text x="%d" y="%d" font-size="15" font-weight="bold" fill="%s">↩ Recovery — the board is not a brick</text>'%(X0+20,rec_y+26,RED[1]))
-    o.append('<text x="%d" y="%d" font-size="12.8" fill="#37474F">power-host powerstrip off N &amp;&amp; powerstrip on N (outlet N is bench-specific)  reverts to the known-good QSPI gateware  ·  JTAG-load to SRAM tests a bitstream without flashing</text>'%(X0+20,rec_y+48))
-    o.append('<text x="%d" y="%d" font-size="12.8" fill="#37474F">never  openFPGALoader -f  a bitstream onto a kernel-at-0 flash layout  ·  full field log: docs/limitations/TROUBLESHOOTING.md</text>'%(X0+20,rec_y+66))
+    o.append('<text x="%d" y="%d" font-size="12.8" fill="#37474F">retry flash-pair with the same installed reference (source/target commit bits are recognized) · JTAG-load to SRAM tests without persistent writes</text>'%(X0+20,rec_y+48))
+    o.append('<text x="%d" y="%d" font-size="12.8" fill="#37474F">a torn offset-zero erase/program needs physical recovery or A/B MultiBoot  ·  full field log: docs/limitations/TROUBLESHOOTING.md</text>'%(X0+20,rec_y+66))
     o.append('</svg>')
     return "\n".join(o)
 
@@ -119,7 +120,7 @@ def drawio():
         nid=add(x,Y0,CW,box_h,"%s   —   %s\n\n%s"%(name,tool,body),fill,stroke,13,1); ids.append(nid)
         add(x,out_y,CW,OUT_H,"OUTPUT\n"+out,"#ffffff",stroke,12,0)
     for a,b in zip(ids,ids[1:]): edge(a,b)
-    add(X0,rec_y,W-2*X0,72,"↩ Recovery — the board is not a brick\npower-host powerstrip off N && powerstrip on N (known-good QSPI; outlet N is bench-specific) · JTAG-load to SRAM tests without flashing · never openFPGALoader -f onto a kernel-at-0 layout",RED[0],RED[1],13,1)
+    add(X0,rec_y,W-2*X0,72,"↩ Recovery — retry flash-pair with the same installed reference; source/target commit bits are recognized · JTAG-load to SRAM for nonpersistent tests · a torn offset-zero write needs physical recovery or A/B MultiBoot",RED[0],RED[1],13,1)
     body="\n".join(cells)
     return ('<mxfile host="app.diagrams.net"><diagram name="build-flash-boot">'
             '<mxGraphModel dx="1400" dy="900" grid="0" guides="1" tooltips="1" connect="1" arrows="1" fold="1" '

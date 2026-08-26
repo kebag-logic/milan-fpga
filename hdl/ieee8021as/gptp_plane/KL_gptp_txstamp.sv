@@ -35,7 +35,7 @@
 //                interleaved (single tag)"). What it does NOT guarantee is
 //                exclusivity: a foreign 0x88F7 frame from another stack on
 //                the same port would be counted as ours, which is why
-//                running ptp4l beside the plane is invalid -- the A/B
+//                running a second stack beside the plane is invalid -- the A/B
 //                bring-up comparison keeps exactly one of them talking.
 //                The order premise is not load-bearing any more either:
 //                the engine matches the returning stamp by its {sequenceId,

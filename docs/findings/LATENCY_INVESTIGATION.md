@@ -17,7 +17,7 @@ in cycle-accurate sim; nothing is estimated unless labelled "model".
 > every byte**  -  driver ring→skb memcpy, TCP receive-queue coalesce memmove, and the
 > kernel→user usercopy  -  while the TCP protocol logic itself costs ~1 % per function.
 > See the **2026-07-07 campaign** addendum in
-> [CPPI_DMA_REDESIGN.md (archived)](../../historical_now_obsolete/fpga/CPPI_DMA_REDESIGN.md) for the profile and the copybreak/page-frag
+> the archived CPPI DMA redesign log (#259, in git history) for the profile and the copybreak/page-frag
 > fix (RX 25 → 45.6 Mbit/s), and [HW_GRO_RSC.md (archived)](../../historical_now_obsolete/fpga/HW_GRO_RSC.md) for the ÷K plan toward
 > ≥200. This document's history below is unchanged.
 
@@ -139,7 +139,7 @@ and compare frames-at-MAC (fabric `rx_wire` telemetry) vs frames-delivered (`rx_
 
 ```
 rx_wire  (MAC)     = 171,942 frames/s   ← arriving on the wire
-rx_packets (Linux) =  14,355 frames/s   ← delivered to the stack   (~7-10 % through)
+rx_packets (host)  =  14,355 frames/s   ← delivered to the stack   (~7-10 % through)
 rx_missed (ringfull)= 260,076 frames/s  ← HW-dropped, ring full
 ```
 

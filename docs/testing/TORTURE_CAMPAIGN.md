@@ -501,7 +501,7 @@ goes **off** and `verify-after-load` re-runs the full verify machinery — the
 before/during/after sandwich is what attributes a failure to the load.
 
 * **The load engine is probed, never assumed.** The board is a busybox
-  rootfs: `--board-cmd` lets the runner probe `iperf3 --version` there and
+  image: `--board-cmd` lets the runner probe `iperf3 --version` there and
   drive the board-side pieces (`--board-addr` is the target, `--host-addr`
   the board's client target for the TX direction). With iperf3 on both ends
   the load is `iperf3-tcp` and the throughput comes from the `-J` summary.
@@ -1278,7 +1278,7 @@ become `NEEDS-HUMAN`, by design and not as a gap.
 * **The stress load needs `--board-addr`** (and `--board-cmd` + `--host-addr`
   for the full iperf3 paths). Without the address there is no load of any kind
   and the load steps SKIP naming it; without a board command path iperf3 is
-  unprobeable — never assumed on the busybox rootfs — so RX uses the
+  unprobeable — never assumed on the board image — so RX uses the
   UDP-blast fallback (named in every record; its number is a send rate, not
   goodput) and the TX direction SKIPs, because only the board can source
   board→host traffic.

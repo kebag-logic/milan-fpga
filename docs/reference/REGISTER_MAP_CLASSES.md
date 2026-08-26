@@ -3,7 +3,8 @@
 The classification overlay for [REGISTER_MAP.md](REGISTER_MAP.md): every
 CSR group judged for a PRODUCTION image, with the rationale on the row.
 Written 2026-08-06 against VERSION `0x0023` on the 1×1×8 TDM8 shape;
-**reclassified 2026-08-13** against the protocol-processor substitution.
+**reclassified 2026-08-13** against the protocol-processor substitution and
+refreshed at VERSION `0x0002_0055` for the selected gPTP owner.
 
 > **A FOURTH VERDICT NOW EXISTS: STRUCTURAL ZERO.** This repository's ADP,
 > ACMP, AECP/AEM and lwSRP RTL was deleted in favour of the pinned
@@ -52,7 +53,7 @@ engineer with a ProfiShark beside the board → debug.
 "diagnoses a failure over ssh **or AECP**". The processor now serves a broader
 AECP inventory, including `READ_DESCRIPTOR`, `GET_COUNTERS`, stream-state
 getters, clock-source operations, Identify controls, and Milan information.
-The tracked builder generates `aem_desc.bin`, and the board rootfs runs
+The tracked builder generates `aem_desc.bin`, and the board runs
 `aemi-load` before enabling the entity. Custom integrations that omit that load
 still fail closed with `BAD_ARGUMENTS`.
 
@@ -71,14 +72,14 @@ assumption that AECP answers only one command.
 | `gateware.current-version` | `implemented` | `0x0002_0055` |
 <!-- milan-feature-status:end -->
 
-| Region | Group | Class | 2026-08-13 truth | Rationale |
+| Region | Group | Class | VERSION 0x0055 truth | Rationale |
 |---|---|---|---|---|
 | `0x000–0x00C` | ID / VERSION / CAP | **needed** | live | ABI root; VERSION gates every compatibility check made by drivers, scripts and gates. Major is **2** (`0x0002_0055`) |
 | `0x204+` | STATS_CAP + RMON counters | **needed** | live | STATS_CAP's declared-unsupported honesty is contract; RMON feeds NIC-level field triage |
 | `0x4xx` | CBS queue window, classifier map | **needed** | live | Production traffic-class configuration; boot software programs it |
 | `0x600–0x65x` | Identity + enables (ADP_CTRL, AAF_CTRL, …) | **needed** | **split** | `S50milan` writes these every boot. `ADP_CTRL.en` is still an entity enable — it is **ORed with `PP_CTRL[0]`**, deliberately, because it is the bit every existing board script writes and there is only one control plane now. But the ADPDU *content* words (entity_capabilities, valid_time, association_id, controller_capabilities, interface_index) and the advertise/depart strobes are **WRITE-ONLY SCRATCH**: the processor's ADP engine holds those as internal constants and exposes no port, so a write reads back and **changes nothing observable** |
 | `0x618/0x61C` | ADP shape words (RO) | **needed** | live | Read-only by design since `0x0015` — and now doubly so: the same generated header sizes the processor's ACMP arrays |
-| `0x624/0x628` | GM identity | **needed** | live | `milan-statd` writes them and they remain the fabric's GM truth with the gPTP plane off. The selected identity feeds ADP, GET_AVB_INFO, GET_AS_PATH entry 0, their separate event detectors, and the GM-change counter |
+| `0x624/0x628` | GM identity | **needed** | live, selected owner | The default fabric engine supplies a coherent live 64-bit snapshot and feeds CSR readback plus GET_AVB_INFO. Explicit option off retains staged software publication; LO stages and HI commits |
 | `0x668` | ADP_DIAG | **debug** | **STRUCTURAL ZERO** | Was already superseded by DIAG2. Its source (the deleted advertiser's depart/rearm/sent/discover census) no longer exists. **`A_ADP` available_index is the exception and is STILL LIVE** — published by the processor |
 | `0x674` | ADP_DIAG2 | **optional** | **STRUCTURAL ZERO** | Created from a real field ambiguity (2026-07-30) about advertiser liveness; the advertiser it watched is deleted and the processor publishes no equivalent state word |
 | `0x648–0x650` | AECP/ACMP status (locked, current config, cmd/resp counts, probe_armed) | **optional** | **STRUCTURAL ZERO** | The processor serves LOCK_ENTITY and configuration operations, but its dynamic-state outputs are not wired into this legacy CSR group. Command/response diagnostics instead live in the processor side-port snapshot window at `0x928`/`0x92C`. `probe_armed` has no fabric ACMP state machine to count. **`acmp talker_active` is the exception and remains live** through the processor's `acmp_declaring_o` |
@@ -87,14 +88,14 @@ assumption that AECP answers only one command.
 | `0x6B8` | RX-monitor CSR mirror | **optional local face** | live | AAF STREAM_INPUT counters remain readable locally and through GET_COUNTERS. The declared CRF input is excluded from that gather face. STREAM_OUTPUT counters use their own `KL_talker_diag_ctx` banks and are served through the same AECP command |
 | `0x6CC–0x6D4` | MAAP | **needed** | live | Address acquisition is production function, `KL_maap` survives, and the processor's talker cannot declare without an ALLOC_DA success through it — this group is now load-bearing for connectivity, not just for addressing |
 | `0x6E8` | ACMPL_DBG (walker forensics) | **debug** | **STRUCTURAL ZERO** | Classify-stage byte forensics of a walker that is deleted |
-| `0x730/0x734` | legacy AS_PATH parent pair | **optional compatibility scratch** | write/read scratch | The processor ignores this pair. Current GET_AS_PATH data comes from the GM identity plus the published 0x7DC tail |
+| `0x730/0x734` | selected-owner parent identity | **needed** | live / option-off compatibility scratch | The default fabric engine supplies a coherent live 64-bit parent for topology/diagnostics. GET_AS_PATH is sourced from the same commit's complete bounded PathTrace, not reconstructed from this one identity. Explicit option off retains LO-stage/HI-commit readback, while its served tail comes from the 0x7DC atomic PathTrace bank |
 | `0x738–0x750` | CRF group (sink + talker enable) | **needed** | live, with root integration losses | Media-clock configuration; Milan 7.3.3 class-A output. `KL_crf_rx` still parses and maintains counters. The processor accepts and stores `SET_CLOCK_SOURCE`, and the wrapper exports that dynamic selection to the root, but the media plane does not consume it and remains pinned at 0 (INTERNAL). The CRF input counter outputs are also not connected to the solicited gather face |
-| `0x778–0x780` | CLKV (tu sync lease) | **needed** | live | The tu policy is a conformance mechanism (IEEE 1722 AAF-10), not instrumentation; statd renews the lease |
-| `0x784` | TXARB_DIAG | **debug** | **RENUMBERED** | The cascade collapsed from eight muxes to four. New lanes, LSB first: 0 `ctl_tx` (processor + MAAP), 1 `aaf_final`, 2 `crf_dp`, 3 `adp_tx` (MAC boundary). Bits `[7:4]` are a structural zero. **Anything decoding this word by the old numbering reads the wrong mux** |
+| `0x778–0x780` | CLKV (`tu` validity) | **needed** | live, selected owner | The `tu` policy is a conformance mechanism (IEEE 1722 AAF-10), not instrumentation. The fabric-default engine owns sync/asCapable/`tu`; the software lease is consulted only in the verification-only option-off elaboration (#259 retired the software owner) |
+| `0x784` | TXARB_DIAG | **debug** | **RENUMBERED + gPTP lane** | Lanes, LSB first: 0 `ctl_tx` (processor + MAAP), 1 `aaf_final`, 2 `crf_dp`, 3 `adp_tx` (MAC boundary), 4 `gptp_ctl_mux` (gPTP + gasketed control branch). Lane 4 is live in the product-default fabric-gPTP build and structural zero option off; bits `[7:5]` are structural zero. **Anything decoding this word by the old numbering reads the wrong mux** |
 | `0x7A0` | Bind-restore (fast-connect) | **needed → inert** | **STRUCTURAL ZERO** | Persistence: saved-state binds replayed through it. Writes are accepted, **ack never asserts, nothing is restored** |
 | `0x7B8–0x7C4` | Journal ingest | **needed → inert** | **STRUCTURAL ZERO** | Milan 5.3.8.2/.3 boot replay, CRC-gated. Writes accepted and **discarded**; JNL_STAT and JNL_SEQ read structural zeros. **Nothing in this device persists a binding across a power cycle** |
 | `0x7C8–0x7D4` | AEM saved-state write master | **needed → inert** | **STRUCTURAL ZERO** | It was the only path that put persisted descriptor state back. Writes accepted and discarded |
-| `0x7DC–0x7E4` | AS_PATH PathTrace stage/publish | **needed** | live | LO/HI plus COMMIT update only the staging bank. PUBLISH atomically replaces the published tail/count; Table 5.22 compares the served `{GM,count,tail}` so count 0/1 and GM=0 aliases are silent. Solicited responses snapshot GM/count/tail on the first count request. Identical republish is silent |
+| `0x7DC–0x7E4` | AS_PATH PathTrace stage/publish | **needed option-off** | live compatibility store / hidden in fabric mode | LO/HI plus COMMIT update only staging and PUBLISH atomically replaces the software tail/count. Option off serves that tail behind GM and retains #227's raw count-0/1 GM-only alias. Product-default fabric mode ignores this store and serves the engine's full bounded PathTrace, preserving count zero for a selected no-TLV Announce. 0x7E4 readback follows the selected live owner. Table 5.22 compares `(count ? GM : 0, count, active tails)`: fabric 0/1 is a real edge, fabric GM changes at count zero are silent, and GM=0, inactive bytes, hidden writes and identical republishes remain silent. Solicited responses snapshot the complete selected path at the first count request |
 | `0x800–0x868` | Stream window (SEL/SID/FMT/CTRL/DMAC + per-stream RO views incl `A_STRMW_SRP`/`_CNT`) | **needed** | **mostly live** | The write half provisions the stream table and the RO views are the per-stream field picture — both unaffected. Two sub-ports inside the window are structural zeros: the **ACMP context-table read** (grant never asserts, record reads zero) and the **SRP attribute-row port** (no grant, no "stolen", readback zero) |
 | `0x8B4–0x8C4` | APRB (RX stream-parser probe) | **debug** | live | The pre-match listener view — a scope instrument. Feature-gated (`datapath_probes`) |
 | `0x8C8–0x8D0` | PBK (playback-chain probe) | **debug** | live | Same class, same gate |
@@ -128,7 +129,7 @@ assumption that AECP answers only one command.
    Where a group is a structural zero,
    [REGISTER_MAP.md](REGISTER_MAP.md) says so per word.
 4. **Prune once, then freeze.** Removing any group shifts every window
-   behind it — the DTB / driver / OpenSBI re-verification chain
+   behind it — the window-map re-verification chain
    (`check_dtb_csr`, gate 19c). The production profile must be ONE
    deliberate build (`datapath_probes: false`, `latency_taps: false`,
    `0x668` retired) whose ABI is then frozen — never an incremental trim per

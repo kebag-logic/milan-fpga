@@ -72,15 +72,15 @@ entity:
 board:
   target: arty                       # arty | ax7101
   features:
-    sound_card: true                 # Linux bring-up board retains ALSA rings
+    fabric_gptp: true               # the one product owner (#259)
   constraints:                       # physical facts -> milan_soc.py argv
     sys_clk_hz: 83333000             # 83.333e6: the DDR3-666 window
     milan_clk_hz: 50000000           # dense datapath in its own 50 MHz domain
-    l2_bytes: 65536
+    l2_bytes: 0                      # #259 bare-metal cacheless product
     phy: mii-100                     # DP83848 MII (arty) | gmii-1g (ax7101)
     gtx_tx_invert: false             # GMII-only knob (ax7101)
     floorplan: false
-    flashboot: full                  # none | kernel | full (N25Q128 QSPI)
+    flashboot: baremetal             # #259: the {bitstream, aem} manifest (N25Q128 QSPI)
     uart_baudrate: 115200
     rx_queues: 2                     # ingress fan-out. Since 2026-07-26 the
                                      # split is gPTP (q1) vs everything else
@@ -142,18 +142,12 @@ srp:                                 # lwSRP (802.1Q MSRP/MVRP) reservation
                                      # hdl/ieee8021q/srp/gen/lwsrp_table.svh
                                      # (the deployed gateware's table)
 
-platform:                            # device tree + driver-visible layout
+platform:                            # firmware-visible layout
   csr_base: 0x90000000               # AXI-Lite Milan CSR window
   mac_address: "02:00:00:00:00:02"   # board 2 - MUST differ from the AX7101's
                                      # ..:01 on the shared AVB switch
   interrupt: 3                       # constant,milan_interrupt from csr.csv
-  boot_chain_pin:                    # the FLASHED boot chain's window map.
-                                     # rx_queues moves every window from
-                                     # dma-ts on by 0x74; a config that
-                                     # contradicts these addresses is
-                                     # REFUSED (the 5ce9a13 CSR-rot rule).
-    dma-ts: 0xf0003100
-    pcm-dma: 0xf0003120
+  pp_mem_phys: 0x4fe00000            # 1 MiB protocol-processor window
 
 clocking:
   sampling_rate_hz: 48000            # current media clock (AAF base rate)
@@ -171,7 +165,7 @@ audio_interface:
     policy: cluster-per-stream-channel
     # cluster-count policy (USER decision, config-selectable):
     #   cluster-per-stream-channel - the stream's `clusters` field verbatim
-    #     (legacy/pipewire-reference layout; what the deployed ROM ships)
+    #     (the deployed ROM layout)
     #   cap-at-interface - min(clusters, physical interface channels):
     #     clusters model real endpoints only (wire truth)
     # Either way each cluster is mono MBLA; each stream owns ONE
@@ -203,9 +197,28 @@ streams:
       # Talker only for one Stream Output advertising a Base format, then
       # "A PAAD-AE Base Talker may advertise any Base Format that is
       # reasonable for its functionality" - 6.4's SHALL is Stream Inputs.
-      clusters: 8                    # legacy-8: today's DEPLOYED ROM keeps 8
-                                     # output clusters (pipewire reference
-                                     # layout); `clusters` is the single
+      clusters: 8                    # deployed ROM keeps 8 output clusters;
+                                     # `clusters` is the single
                                      # authority - new shapes ship the
                                      # wire-truth value instead (see the
                                      # 4x4/8x8 examples)
+
+gptp:
+  # ONE source (USER 2026-08-05): these values generate the AVB_INTERFACE
+  # descriptor's clock fields and the fabric uCPU image. priority1 248 =
+  # the deferring Milan end-station default (see the AX7101 configs). The
+  # fabric plane is the one product gPTP owner (#259); no daemon
+  # configuration is generated from this section any more. The engine
+  # consumes only priority1 (plus MAC and clock frequency); every other
+  # clock field is a constant in gptp-processor/hdl/ucode/gen_gptp_ucode.py
+  # that the builder derives or refuses ([R-parallel] on #228). The
+  # historical Arty clock_accuracy 0x21 / log_sync_interval 0 restatement
+  # is deleted: the engine announces 0xFE and -3, and a descriptor stating
+  # anything else disagrees with the wire.
+  priority1: 248
+  priority2: 248
+  clock_class: 248
+  offset_scaled_log_variance: 0x436A
+  domain: 0
+  log_announce_interval: 0
+  log_pdelay_interval: 0

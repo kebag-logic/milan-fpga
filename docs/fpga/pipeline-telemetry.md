@@ -3,13 +3,13 @@
 A memory-mapped block of free-running counters at every stage of the packet pipeline  - 
 the numbers a HW developer wants to answer "where did the frame go?" and "where does it
 queue up?". Implemented in [`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py) as `MilanDebug` (the LiteX binding) and
-read from Linux via the `kl-eth` driver's `telemetry` sysfs group.
+read from the host via the retired driver's `telemetry` sysfs group (#259).
 
 ## Contents
 
 - **[What it measures](#what-it-measures)** — The frames/beats/stalls triplet at each of the five TX and five RX stages, ending at `tx_wire`/`rx_wire` — frames actually on the GMII pins, which is what answers "did it reach the wire?". Also the two Little's-law accumulators that turn Σ(in−out) into average occupancy and average latency across the datapath.
 - **[Coherent capture](#coherent-capture)** — Why there is a `capture` register: it latches every counter into shadows on one clock edge, so software reads a single consistent snapshot instead of values that moved between reads.
-- **[Reading it from Linux](#reading-it-from-linux)** — The three sysfs files and the TX-debug flow they exist for: reset, send N, `cat snapshot`, then read down the column — equal frame counts up to `tx_core` with `tx_wire` at 0 localises the loss to the MAC core or PHY. Includes the raw `devmem` offsets for when there is no driver.
+- **[Reading it from the host](#reading-it-from-the-host)** — The three sysfs files and the TX-debug flow they exist for: reset, send N, `cat snapshot`, then read down the column — equal frame counts up to `tx_core` with `tx_wire` at 0 localises the loss to the MAC core or PHY. Includes the raw `devmem` offsets for when there is no driver.
 - **[Extending it](#extending-it)** — Five one-line probe primitives on `MilanDebug` — plain stage, other-clock-domain, EtherType-filtered, arbitrary per-frame condition, and segment occupancy. All are auto-latched and CSR-mapped; the only manual step is the driver's print.
 - **[Cross-platform (LiteX vs Zynq)](#cross-platform-litex-vs-zynq)** — The rule for where a new probe belongs: datapath-internal observables go in SystemVerilog behind `milan_csr` and both platforms get them free; DMA↔memory and MAC↔wire edges are platform-specific and belong in the wrapper.
 - **[Addressing note](#addressing-note)** — One naming decision with a real consequence: `milan_tlm` sorts after `milan_dma`/`milan_mac`, so building telemetry is purely additive and no other CSR window moves.
@@ -53,7 +53,7 @@ the same clock edge; the CSRs then read the shadow. So software takes **one cons
 snapshot** instead of reading values that keep moving between reads. **`reset`** zeroes the
 live counters.
 
-## Reading it from Linux
+## Reading it from the host
 
 The `kl-eth` driver maps the `tlm` reg window and exposes a sysfs group:
 

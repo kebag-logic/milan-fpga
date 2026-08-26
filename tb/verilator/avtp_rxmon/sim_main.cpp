@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: CERN-OHL-W-2.0
 //
 // Self-checking harness for KL_avtp_rx_monitor behind avtp_stream_parser —
-// the Milan v1.2 STREAM_INPUT counter contract (pipewire stream.c
+// the Milan v1.2 STREAM_INPUT counter contract (module-avb stream.c
 // handle_aaf_packet + cmd-get-counters.c, byte-extracted):
 //   lock on first valid PDU / 8-PDU settle window / SEQ_NUM_MISMATCH with
 //   STREAM_INTERRUPTED at lost>=2 / 100 ms silence unlock / per-PDU format

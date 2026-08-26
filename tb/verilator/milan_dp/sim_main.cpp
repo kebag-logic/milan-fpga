@@ -63,7 +63,7 @@
 #define AIF_I2S_PAIR_TB 0       // milan_datapath AUDIO_IF_I2S_PAIR_P default
 #endif
 #ifndef SOUND_CARD_TB
-#define SOUND_CARD_TB 1          // historical legs exercise the Linux PCM ring
+#define SOUND_CARD_TB 1          // historical legs exercise the host PCM ring
 #endif
 
 //! Is the TONE_CTRL pilot override wired into the CAPTURE FRONT END on this
@@ -1537,7 +1537,7 @@ int main(int argc, char** argv) {
         }
 
         // PRE-FILTER TAP (2026-07-19): program a TCAM drop entry for the
-        // AVTP multicast range (91:E0:F0::/24) - the KERNEL path must go
+        // AVTP multicast range (91:E0:F0::/24) - the HOST-DMA path must go
         // quiet while the fabric depacketizer keeps consuming the stream.
         {
             enum { A_TCAM_KLO = 0x704, A_TCAM_KHI = 0x708, A_TCAM_MLO = 0x70C,
@@ -1649,16 +1649,16 @@ int main(int argc, char** argv) {
                                             // ACCEPTS the bisect probes above
             inject_cnt(mkaaf(8, 0x05), 124);
             inject_cnt(mkaaf(9, 0x05), 124);
-            //! BOTH HALVES ARE GRADED AGAIN. The kernel half (below) is the
+            //! BOTH HALVES ARE GRADED AGAIN. The host half (below) is the
             //! one that protects the board; the FABRIC half is the one that
-            //! proves the TCAM drop is a KERNEL-path drop and not a global
+            //! proves the TCAM drop is a HOST-path drop and not a global
             //! one, and it was unprovable on stream 0 while aecp_in0_fmt was
             //! tied to zero. With the declared format restored the ring must
             //! advance by exactly the two PDUs injected into this window
             //! while the DMA port stays silent.
             ck("prefilter: the fabric ring KEPT consuming (+2 PDUs)",
                axi_read(A_PCMRX_CNT), pcm0 + 2);
-            ck("prefilter: kernel DMA saw NOTHING", kern, 0);
+            ck("prefilter: host DMA saw NOTHING", kern, 0);
             axi_write(A_TCAM_CMD, 0x00010000);          // commit|remove entry 0
         }
 

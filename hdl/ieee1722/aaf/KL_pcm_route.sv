@@ -10,8 +10,8 @@
 
   Date        : 2026-07-22
   Description : NxN PCM routing policy (docs/fpga/FPGA_DESIGN.md section 2,
-                phase P3; flag rework per the ALSA driver design feedback,
-                the-private-test-repo fpga/docs/ALSA_DRIVER_DESIGN.md open
+                phase P3; flag rework per the host audio driver design
+                feedback, the-private-test-repo driver design doc open
                 question 4). Sits between the shared AAF RX depacketizer
                 (payload AXIS + tuser stream index) and the sinks.
 

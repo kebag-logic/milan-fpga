@@ -31,7 +31,7 @@ entity:
 board:
   target: ax7101
   features:
-    sound_card: true     # Linux bring-up shape retains ALSA capture/playback
+    fabric_gptp: true   # the one product owner (#116, #259)
     # AREA_BUDGET tier-1 prunes, applied 2026-07-28 when the 0x0019 fabric
     # (per-index counters, the all-context mirror, the silence fill, the
     # journal) took the 8x8 to 66,290 LUTs against the xc7a100t's 63,400
@@ -56,26 +56,19 @@ board:
   constraints:
     sys_clk_hz: 100000000            # milan_soc.py default (sweep passes none)
     milan_clk_hz: 100000000          # single fast domain (AX timing CLOSED)
-    l2_bytes: 16384                  # USER 2026-07-29: BACK to the AX's
-                                     # measured-close 16K (the 07-24 close was
-                                     # at 16K, WNS +0.080). The 07-28 32K
-                                     # uniformity reference stands on the ARTY
-                                     # only: at 32K the AX packs but times
-                                     # -1.0..-1.8 across six configurations -
-                                     # a congestion wall at ~89%/100 MHz that
-                                     # the smaller L2 directly relieves.
+    l2_bytes: 0                      # #259 bare-metal cacheless product
     phy: gmii-1g                     # RTL8211E GMII
     gtx_tx_invert: true              # PHY samples mid-bit (GMII-TX fix)
     floorplan: true
-    flashboot: full
+    flashboot: baremetal             # #259: the {bitstream, aem} manifest
     uart_baudrate: 115200
     rx_queues: 2                     # RAISED 1 -> 2 on 2026-07-28 with the
                                      # reflash that carries it (D7 root cause,
                                      # docs/findings/GPTP_GM_LOSS_UNDER_RX_LOAD
                                      # .md): with 1 queue there is no steer
                                      # block at all, gPTP shares the bulk ring,
-                                     # and under a 950M iperf flood ptp4l
-                                     # starves - our GM stops transmitting and
+                                     # and under a 950M iperf flood the former
+                                     # time-sync process starved; our GM stopped and
                                      # a CONFORMANT peer BMCA deposes it
                                      # (802.1AS 10.3; reproduced 2/2). Two
                                      # queues = flow-steered gPTP ingress, the
@@ -138,18 +131,7 @@ platform:
   csr_base: 0x90000000
   mac_address: "02:00:00:00:00:01"   # board 1
   interrupt: 3
-  pcm_ring_phys: 0x7f800000          # 8 capture streams x 1 MiB stride at the
-  pcm_ring_bytes: 0x800000           # top of the AX7101's 1 GiB main_ram
-  pcm_ring_stride: 0x100000
-  boot_chain_pin:                    # the 2-queue map (rx_queues 2, 2026-07-28):
-                                     # rx1_*/steer exist, so dma-ts/pcm sit
-                                     # 0x74 HIGHER than the old 1-queue flash.
-                                     # Diff against the new build's csr.csv at
-                                     # flash time (8.2 checklist) - a pin that
-                                     # is not re-verified is the rotted-DTB
-                                     # dead-hardware mimic all over again.
-    dma-ts: 0xf0003100
-    pcm-dma: 0xf0003120
+  pp_mem_phys: 0x7f700000            # 1 MiB protocol-processor window
 
 gptp:
   # ONE source (USER 2026-08-05): these values generate BOTH the
@@ -160,12 +142,15 @@ gptp:
   # posture" deliberately BEAT the switch's 246 claim so the board would win
   # the BMCA - useful for a bring-up bench, wrong for a shipping end station
   # and wrong for a compliance run. Change HERE, nowhere else. The rest are
-  # the software-clock truth ptp4l announces (linuxptp defaults).
+  # the local-clock dataset the fabric gPTP engine announces from constants
+  # in gptp-processor/hdl/ucode/gen_gptp_ucode.py; the builder refuses any
+  # stated value the engine does not announce ([R-parallel] on #228). The
+  # old offset_scaled_log_variance 0xFFFF never went out on the wire (the
+  # engine announces 0x436A), so the key is deleted and derived.
   priority1: 248
   priority2: 248
   clock_class: 248
   clock_accuracy: 0xFE
-  offset_scaled_log_variance: 0xFFFF
   domain: 0
   log_sync_interval: -3
   log_announce_interval: 0
@@ -250,9 +235,6 @@ audio_interface:
                                      # from the platform declaration above
                                      # plus the pools below - never hardcoded.
     pools:
-      host: 8                        # the ALSA/PipeWire lane for this port's
-                                     # stream (8ch per subdevice, the chmap64
-                                     # directive's 8 x 8 x 8ch geometry)
       pilot: true                    # one KL_tone_gen Pilot cluster per
                                      # talker port (D8; fan-out onto many
                                      # stream channels is legal SELECTION and
@@ -300,16 +282,6 @@ audio_interface:
                                      # campaign lands and the power-on map
                                      # returns to the loopback pool by
                                      # itself - one fact, both consumers.
-      playback_rings: 1              # milan_soc --aaf-playback-streams (the
-                                     # KL_pcm_tx rings behind the `host`
-                                     # pool). sw/litex/build.sh passes
-                                     # --aaf-playback with this default, so
-                                     # ONE 8-channel host ring exists and the
-                                     # 64ch chmap places its 4 pairs onto any
-                                     # talker's wire slots. Declaring it here
-                                     # is what stops the host templates from
-                                     # striding into rings 1..7 that are not
-                                     # elaborated.
 
 streams:
   listeners:

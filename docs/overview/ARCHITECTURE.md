@@ -1,7 +1,7 @@
 # Milan TSN FPGA - architecture & developer guide
 
 The map a new developer should read first: the datapath, the control plane,
-the clock domains, how the HDL maps to the Linux driver and device tree, and
+the clock domains, how the HDL maps to the firmware's CSR contract, and
 **where to change things**. For the deep-dive companions:
 [FULL_FPGA_SOLUTION.md](FULL_FPGA_SOLUTION.md) (build/run/roadmap),
 [../fpga/FPGA_DESIGN.md](../fpga/FPGA_DESIGN.md) (every RTL module),
@@ -77,7 +77,7 @@ Machine-checked status rows are defined by the
 | `stream-format.set` | `implemented` | - |
 | `stream-info.set-acc-lat` | `implemented` | - |
 | `soc.baremetal-profile` | `implemented` | - |
-| `host.sound-card-option` | `implemented` | - |
+| `host.sound-card-option` | `not-supported` | - |
 | `crf.media-clock-consumption` | `missing` | - |
 | `state.nonvolatile-persistence` | `missing` | - |
 | `notifications.change-events` | `implemented` | - |
@@ -105,14 +105,14 @@ the symptom.
 ## Contents
 
 - **[1. Repository layout](#1-repository-layout)** -- Annotated directory tree, one line per directory saying what it holds. Fastest way to learn that `hdl/` mirrors the standards clauses (`ieee1722/`, `ieee17221/`, `ieee8021as/`, `ieee8021q/`) rather than the block hierarchy.
-- **[2. System block diagram (fully-FPGA softcore)](#2-system-block-diagram-fully-fpga-softcore)** -- The whole SoC in one ASCII drawing: CPU and DMA engines above, `milan_datapath` below, TX/RX/TS lanes across. Says which cacheless RV32I shape ships versus the retained Linux bring-up profiles, and names the consumers of that one boundary.
+- **[2. System block diagram (fully-FPGA softcore)](#2-system-block-diagram-fully-fpga-softcore)** -- The whole SoC in one ASCII drawing: CPU and DMA engines above, `milan_datapath` below, TX/RX/TS lanes across. Says which cacheless RV32I shape ships, and names the consumers of that one boundary.
 - **[3. Datapath](#3-datapath)** -- Frame flow in both directions, and the two structural facts everything else follows from: the fabric engines inject *downstream* of the shaper (never touching classifier or queue), and the media copy is tapped *upstream* of the TCAM filter so the fabric keeps consuming AVTP while the CPU stays shielded from the multicast flood. Section 3.1 is the TX arbiter cascade after it collapsed 8 muxes → 4, and Section 3.2 the three functional losses the AECP boundary costs.
 - **[4. Control plane (milan_csr)](#4-control-plane-milan_csr)** -- One AXI4-Lite window, sorted by direction: `o_*` configuration out, `i_*` status back, single-cycle command strobes, one IRQ line. Carries the boot ordering that bites: the descriptor image must be in DRAM at its compile-time base before the entity is enabled, and the enable is now *either* `PP_CTRL[0]` or the historic `ADP_CTRL.en`. Also the boundary that trips people up: the ring-DMA engines live in a separate LiteX CSR space at `0xf000_xxxx`.
 - **[5. Clock domains & CDC](#5-clock-domains--cdc)** -- The domain table plus the generated crossing census, and the two things to read off it: every `sys ⇄ cd_milan` crossing comes from `add_milan_datapath()` (a hand-rolled extra is a bug), and the census is a *lower* bound. A bare assignment between clocked processes is invisible to it and to simulation alike.
-- **[6. HDL ↔ software mapping](#6-hdl--software-mapping)** -- One row per concern joining a CSR group to the driver entry point and the device-tree property that binds them, so you can trace a feature end to end without opening three repos.
+- **[6. HDL ↔ software mapping](#6-hdl--software-mapping)** -- One row per concern joining a CSR group to the software that touches it, so you can trace a feature end to end without opening three repos.
 - **[7. Verification](#7-verification)** -- What the six layers each prove, including the split worth internalising: the Verilator suites prove the RTL does what it does, the BDD conformance suite proves it does what the standard says. Also the Yosys gate on tied-off datapath inputs, the defect class that let RMON read zero for months.
 - **[8. Where to change things (maintainability)](#8-where-to-change-things-maintainability)** -- The maintenance table: for each kind of change, every file that must move together and the harnesses to re-run. Note the paired edits that are easy to half-do: queue count lives in two places, CBS defaults in two more.
-- **[9. The Zynq-7020 variant (legacy)](#9-the-zynq-7020-variant-legacy)** -- The legacy host, kept working but off the main line. Read it for the decoder ring on older docs: wherever [`REQUIREMENTS.md`](../../REQUIREMENTS.md) or [historical `TODO.md`](../../TODO.md) mention `0x43C0_0000`, `IRQ_F2P` or `device-tree-xlnx`, they mean this variant only.
+- **[9. The Zynq-7020 variant (legacy)](#9-the-zynq-7020-variant-legacy)** -- The legacy host, kept working but off the main line. Read it for the decoder ring on older docs: wherever [`REQUIREMENTS.md`](../../REQUIREMENTS.md) or [historical `TODO.md`](../../TODO.md) mention `0x43C0_0000`, `IRQ_F2P` or the Xilinx block-design tooling, they mean this variant only.
 
 ## 1. Repository layout
 
@@ -155,8 +155,6 @@ milan-fpga/
 ├─ sw/
 │  ├─ litex/                 the LiteX SoC (milan_soc.py), sims, patches, tools
 │  ├─ builder/               endstation_builder.py - declarative end-station definition
-│  ├─ driver/                kl-eth driver contract (source in sibling repo)
-│  └─ dts/                   device-tree generator (per-host overlays)
 ├─ third_party/verilog-axis  vendored AXIS cores (submodule - init required!)
 ├─ bd/ constraints/          Zynq-variant block design + XDC
 ├─ syn/yosys/                open-toolchain portability check
@@ -196,23 +194,27 @@ milan-fpga/
 ```
 
 The shipping AX7101 SoC is one RV32I VexiiRiscv hart in machine mode with no
-supervisor mode, MMU, Linux, L1/L2 cache or LiteX SDRAM cache
+supervisor mode, MMU, operating system, L1/L2 cache or LiteX SDRAM cache
 (`sw/litex/build.sh cfg_ax7101`). Its instruction/data masters and the Milan
-DMA clients share the cacheless address-decoded fabric. Cached Linux profiles
-remain buildable for the Arty and AX7101 8x8 bring-up configurations.
+DMA clients share the cacheless address-decoded fabric. The cached bring-up
+profiles once kept for the Arty and AX7101 8x8 configurations are retired
+(#259): the product and repository are bare-metal only.
 
-That shipping YAML explicitly enables the #114 fabric gPTP plane. Its
+The #114 fabric gPTP plane is now the product default, and every shipping YAML
+states that owner explicitly. Its
 per-config microcode image is generated from the same station MAC, priority1
 and Milan clock as the rest of the end-station definition, and reaches the RTL
-through an absolute path. `GPTP_PLANE_EN_P` remains default-off for every
-configuration that does not make that product choice; #116 owns the eventual
-default flip and CSR compatibility cleanup.
+through an absolute path. `GPTP_PLANE_EN_P` defaults on; the option-off
+elaboration is verification-only hardware with zero gPTP owners, reached
+through a direct `milan_soc.py` run, never through a configuration, and never
+flashable. The retired comparison image and the software publication services
+that once ran beside it are historical (#259).
 
-The Linux sound-card surface is independently optional and defaults off. With
-it off, the PCM DMA master/CSR window, reserved ring, device-tree PCM node,
-playback rings and host-role AEM clusters are absent. That does not remove the
-AVTP parser/depacketizer, physical audio capture, AAF talker, channel maps,
-loopback sources or render datapath. See
+The host sound-card surface is retired (#259): the PCM DMA master/CSR window,
+its reserved ring, the playback rings and the host-role AEM clusters are no
+longer built. That retirement does not touch
+the AVTP parser/depacketizer, physical audio capture, AAF talker, channel
+maps, loopback sources or render datapath. See
 [../integration/BAREMETAL_FIRMWARE.md](../integration/BAREMETAL_FIRMWARE.md).
 
 The same `milan_datapath` is what the Zynq variant, the Verilator harnesses
@@ -288,12 +290,12 @@ These are not CSR cosmetics. They are behavior a bench will notice:
   consuming the AVTP stream while the TCAM shields the CPU from the multicast
   flood: `avtp_stream_parser` (told what to match by `KL_stream_table`) →
   `KL_avtp_rx_monitor_ctx` (the accept verdict) → `KL_aaf_rx_depacketizer` →
-`KL_pcm_route` → the optional Linux DRAM PCM ring and/or the fabric render
+`KL_pcm_route` → the optional DRAM PCM ring and/or the fabric render
 path. A sound-card-off build ties the omitted DMA route ready and preserves
 the render route.
 
 **Timestamp metadata:** `ptp_ts_top` emits `{direction, seq_id, timestamp}`
-records on a separate AXIS stream → TS DMA → DRAM, for the driver to
+records on a separate AXIS stream → TS DMA → DRAM, for software to
 correlate with skbs.
 
 **Follow one frame, hop by hop, with the CSR to read at each stage:**
@@ -349,8 +351,8 @@ reset, because every locate against an invalid image re-arms the header probe.
 [`sw/builder/endstation_builder.py`](../../sw/builder/endstation_builder.py)
 turns the selected `endstation_*.yaml` into deployment image artifacts only
 during an explicit `--write-fragment` or `--write-rtl` ownership transfer. It
-writes `aem_desc.bin`, `aem_desc.json`, and `aem_desc.map` into the sibling
-rootfs overlay when that overlay is present. `aemi-load` verifies their pairing
+writes `aem_desc.bin`, `aem_desc.json`, and `aem_desc.map` beside the
+bitstream. `aemi-load` verifies their pairing
 and writes the image to the derived base before entity enable. An ordinary
 builder run only writes review artifacts under `sw/builder/out/`. A custom
 integration that omits the load receives the fail-closed `BAD_ARGUMENTS`
@@ -386,7 +388,7 @@ reached through `KL_pp_shadow`'s side-port host bridge (`PP_SPADDR`/`PP_SPDATA`)
 |--------|------|--------|
 | `sys` | 100 MHz | DDR3, DMA engines, MAC core and the LiteX side of Vexii's CDC |
 | `cpu_clk` | 50 MHz in the shipping bare-metal AX build; `sys` otherwise | Vexii core; `--with-cpu-clk` supplies the supported asynchronous boundary in the shipping profile |
-| `cd_milan` (= `axis_clk`) | 50 MHz in the shipping AX and Arty builds; 100 MHz in the AX Linux bring-up build | the whole `milan_datapath`, incl. the CSR block |
+| `cd_milan` (= `axis_clk`) | 50 MHz in the shipping AX and Arty builds; 100 MHz in the AX bring-up build | the whole `milan_datapath`, incl. the CSR block |
 | `gtx_clk` | same as `cd_milan` on the softcore build; separate 125 MHz on Zynq | PTP timestamp counter + MAC-side capture |
 | PHY RX clock | 125 MHz | inside the MAC only |
 
@@ -428,25 +430,23 @@ porting: [Section 4.5 of ../integration/PORTING_GUIDE.md](../integration/PORTING
 
 ## 6. HDL ↔ software mapping
 
-| Concern | HDL / gateware | Driver (`../kl-linux-drivers` kl-eth) | Device tree |
-|---------|----------------|----------------------------------------|-------------|
-| Bind / probe | `milan_csr` ID/CAP | `of_match` `kl,dma-ether-0.9`, read CAP | `compatible`, `reg` = csr + dma-tx/rx/ts |
-| Datapath | ring-DMA engines (`milan_soc.py`) | ring + NAPI | `reg` DMA windows, `interrupt-names` tx-dma/rx-dma/ts-dma/csr |
-| PHC | PTP regs (0x500) | `ptp_clock_info` adjfine/adjtime/gettime | - |
-| HW timestamp | ts-metadata AXIS + IRQ | `SIOCSHWTSTAMP`, `skb_hwtstamps` | ts interrupt |
-| CBS | CBS regs (0x400) | `ndo_setup_tc(CBS/mqprio)` | tc mapping |
-| Classifier | classifier regs (0x300) | mqprio TC map | - |
-| MAC/PHY | MAC regs (0x100) | phylib `adjust_link`, `ndo_set_rx_mode` | `phy-handle` |
-| Stats | RMON regs (0x200) | `ethtool -S` | - |
-| Entity identity | `0x600` group (entity_id, model_id, talker/listener counts) | boot-time identity programming (`ADP_CTRL.en` also enables the entity) | - |
-| Entity model (AEM) | the descriptor-memory master `o_desc_mem_*` at `PP_DESC_BASE_P`, which serves `READ_DESCRIPTOR` | an explicit builder deployment transfer writes the paired image into the sibling rootfs overlay; `aemi-load` verifies and loads it before enable | the reserved main-memory region it sits in |
-| Control plane | `KL_pp_shadow` + `PP_*` regs (0x920) | enable / side-port diagnostics only — no per-frame CPU work | - |
-| RX filter | TCAM regs (0x700) | dest-MAC filtering | - |
+| Concern | HDL / gateware | Firmware / bench software |
+|---------|----------------|---------------------------|
+| Bind / probe | `milan_csr` ID/CAP | reads `ID`=`MILN` and the CAP word before touching anything else |
+| Datapath | ring-DMA engines (`milan_soc.py`) | programs base/length/enable per lane, polls `done` |
+| PHC | PTP regs (0x500) | reads TOD; the fabric plane disciplines it |
+| HW timestamp | ts-metadata AXIS + IRQ | drains the TS ring |
+| CBS | CBS regs (0x400) | sets static slopes at boot |
+| Classifier | classifier regs (0x300) | programs the PCP→TC map |
+| MAC/PHY | MAC regs (0x100) | link state, address filter |
+| Stats | RMON regs (0x200) | reads counters over the CSR window |
+| Entity identity | `0x600` group (entity_id, model_id, talker/listener counts) | boot-time identity programming (`ADP_CTRL.en` also enables the entity) |
+| Entity model (AEM) | the descriptor-memory master `o_desc_mem_*` at `PP_DESC_BASE_P`, which serves `READ_DESCRIPTOR` | an explicit builder deployment transfer writes the paired image beside the bitstream; `aemi-load` verifies and loads it before enable |
+| Control plane | `KL_pp_shadow` + `PP_*` regs (0x920) | enable / side-port diagnostics only — no per-frame CPU work |
+| RX filter | TCAM regs (0x700) | dest-MAC filtering |
 
-The device tree is **generated** per host by [`sw/dts/milan_dt.py`](../../sw/dts/milan_dt.py) from the
-build's `csr.json` (LiteX) or the IR JSON (Zynq) - see
-[`sw/dts/README.md`](../../sw/dts/README.md). Driver-side contract and
-caveats: [`sw/driver/README.md`](../../sw/driver/README.md).
+Every address above comes from the build's own `csr.csv`; nothing outside the
+gateware may restate one.
 
 ## 7. Verification
 
@@ -499,6 +499,6 @@ PS7 via `milan_dma_wrapper.v` + the `bd/milan-dma.tcl` block design (PS7,
 2× AXI-DMA, `clk_wiz`, `smartconnect`; CSR at `0x43C0_0000`, four GIC IRQ
 lines). Constraints in `constraints/*.xdc`. [`REQUIREMENTS.md`](../../REQUIREMENTS.md) and parts of
 [historical `TODO.md`](../../TODO.md) were written in this era - where they talk about `0x43C0_0000`,
-`IRQ_F2P` or `device-tree-xlnx`, they describe this variant only. The
+`IRQ_F2P` or the Xilinx block-design tooling, they describe this variant only. The
 migration story from PS to softcore is
-[../integration/FULLY_FPGA_RISCV_MIGRATION.md (archived)](../../historical_now_obsolete/integration/FULLY_FPGA_RISCV_MIGRATION.md).
+the completed PS-to-fabric migration plan (#259, in git history).

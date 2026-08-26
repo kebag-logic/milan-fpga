@@ -36,27 +36,33 @@ REPO_ROOT="$(cd "$SOC_DIR/../.." && pwd)"
 # the environment or in sw/litex/boards.local.sh (gitignored; template =
 # boards.local.sh.example). policy = what this board's QSPI holds:
 #   both boards "boot" (USER 2026-07-20: "to flash use qspi"): bitstream at
-#   offset 0 in a dedicated 4 MiB slot, followed by the profile-selected
-#   images from flashboot_layout.json. The shipping AX shape stores its raw
-#   AEM image at 4 MiB; Linux bring-up shapes retain the kernel/OpenSBI/DTB/
-#   rootfs layout.
-#   The historical "AX bitstream = kernel-clobber trap" note described the OLD
-#   kernel-at-offset-0 layout and died with the manifest-"full" port.
+#   offset 0 in a dedicated 4 MiB slot, followed by the raw AEM image at
+#   4 MiB per flashboot_layout.json. Every named config is bare-metal (#259).
 [ -f "$SOC_DIR/boards.local.sh" ] && . "$SOC_DIR/boards.local.sh"
 AX_FTDI="${AX_FTDI:-SET_AX_FTDI}"       # sentinel fails loudly in openFPGALoader
 ARTY_FTDI="${ARTY_FTDI:-SET_ARTY_FTDI}"
 board_facts() {  # -> "serial cable fpga_part flash_policy bit_name"
     case "$1" in
-        ax7101) echo "$AX_FTDI ft232    xc7a100tfgg484 boot      alinx_ax7101.bit";;
-        arty)   echo "$ARTY_FTDI digilent xc7a100tcsg324 boot      digilent_arty.bit";;
+        ax7101|ax8x8) echo "$AX_FTDI ft232    xc7a100tfgg484 boot      alinx_ax7101.bit";;
+        arty)          echo "$ARTY_FTDI digilent xc7a100tcsg324 boot      digilent_arty.bit";;
         *)      return 1;;
+    esac
+}
+gptp_owner_for_config() {
+    # #259: the fabric plane is the ONE gPTP owner; the software owner is
+    # retired, so no named config may expect it.
+    case "$1" in
+        ax7101|ax8x8|arty) echo fabric;;
+        *)          return 1;;
     esac
 }
 
 # ---- flash subcommand: ./build.sh flash <config>[:<builddir>] ... ---------------
-# ax7101 -> deploy.sh flash-images (FBI wrap + per-image budget checks + --verify);
-#           needs KERNEL/OPENSBI/DTB/ROOTFS=<path> in the environment per the
-#           layout's manifest. arty -> bitstream to QSPI offset 0 with --verify.
+# Every persistent named-config write delegates to deploy.sh flash-pair. Supply
+# INSTALLED_LAYOUT + INSTALLED_BIT for the exact build currently in the board's
+# QSPI (or INSTALLED_BUILD=<dir> to derive both). The transaction proves that
+# bitstream by live readback, prepares the whole target set, then selects the
+# direction-safe verified write order.
 if [ "${1:-}" = "flash" ]; then
     shift
     [ $# -gt 0 ] || { echo "usage: $0 flash <config>[:<builddir>] ..." >&2; exit 2; }
@@ -64,6 +70,8 @@ if [ "${1:-}" = "flash" ]; then
         c=${spec%%:*}; dir=${spec#*:}; [ "$dir" = "$spec" ] && dir=""
         facts=$(board_facts "$c") || { echo "unknown board config '$c'" >&2; exit 2; }
         read -r serial cable part policy bitname <<<"$facts"
+        expected_owner=$(gptp_owner_for_config "$c") || {
+            echo "[$c] no gPTP owner contract for this named config" >&2; exit 2; }
         if [ -z "$dir" ]; then
             # newest build dir containing the artifact this policy flashes
             # (|| true: an empty glob must reach the friendly error, not set -e)
@@ -77,40 +85,50 @@ if [ "${1:-}" = "flash" ]; then
         fi
         dir=${dir%/}
         # sweep builds skip main()'s json export; reconstruct from the compiled
-        # BIOS constants (soc.h is the single source of truth either way)
+        # BIOS constants and bind them to the exact parsed bit payload.
         if [ ! -f "$dir/flashboot_layout.json" ] && [ -f "$dir/software/include/generated/soc.h" ]; then
-            "${PYTHON:-python3}" "$SOC_DIR/layout_from_soch.py" "$dir"
+            "${PYTHON:-python3}" "$SOC_DIR/layout_from_soch.py" "$dir" \
+                --bit "$dir/gateware/$bitname"
         fi
         case "$policy" in
             boot)
-                # v3 QSPI-boot: gateware @0 THEN the image set (shifted offsets).
                 bit="$dir/gateware/$bitname"
                 [ -f "$bit" ] || { echo "[$c] missing $bit" >&2; exit 2; }
-                echo "== flash [$c] BITSTREAM @0 =="
-                out=$(openFPGALoader --ftdi-serial "$serial" -c "$cable" --fpga-part "$part" -f --verify "$bit" 2>&1) \
-                    || { echo "$out"; exit 1; }
-                echo "$out" | grep -qiE "error|can.t program" && { echo "[$c] BIT FLASH FAILED"; exit 1; }
-                echo "== flash [$c] IMAGES (v3 layout offsets) =="
+                installed_layout="${INSTALLED_LAYOUT:-}"
+                installed_bit="${INSTALLED_BIT:-}"
+                if [ -z "$installed_layout" ] || [ -z "$installed_bit" ]; then
+                    installed_build="${INSTALLED_BUILD:-}"
+                    [ -n "$installed_build" ] || {
+                        echo "[$c] flash REFUSED: set both INSTALLED_LAYOUT + INSTALLED_BIT, or INSTALLED_BUILD=<exact current build>." >&2
+                        exit 2; }
+                    case "$installed_build" in
+                        /*) ;;
+                        *) installed_build="$WORK/$installed_build" ;;
+                    esac
+                    installed_build=${installed_build%/}
+                    installed_layout="$installed_build/flashboot_layout.json"
+                    installed_bit="$installed_build/gateware/$bitname"
+                fi
+                [ -f "$installed_layout" ] || {
+                    echo "[$c] missing installed layout $installed_layout" >&2; exit 2; }
+                [ -f "$installed_bit" ] || {
+                    echo "[$c] missing installed bitstream $installed_bit" >&2; exit 2; }
+                echo "== flash-pair [$c] LIVE OWNER-STATE PROOF + ORDERED VERIFIED SET =="
                 SERIAL="$serial" CABLE="$cable" FPGA_PART="$part" \
-                    LAYOUT="$dir/flashboot_layout.json" "$SOC_DIR/deploy.sh" flash-images
-                echo "   done. Power-cycle to boot gateware + its paired firmware images from QSPI."
+                    LAYOUT="$dir/flashboot_layout.json" \
+                    BIT="$bit" \
+                    INSTALLED_LAYOUT="$installed_layout" \
+                    INSTALLED_BIT="$installed_bit" \
+                    EXPECTED_GPTP_OWNER="$expected_owner" \
+                    "$SOC_DIR/deploy.sh" flash-pair
                 ;;
             images)
-                echo "== flash [$c] IMAGES -> QSPI (layout offsets; bitstream stays JTAG-SRAM) =="
-                SERIAL="$serial" CABLE="$cable" FPGA_PART="$part" \
-                    LAYOUT="$dir/flashboot_layout.json" "$SOC_DIR/deploy.sh" flash-images
+                echo "[$c] flash REFUSED: named persistent profiles must carry a complete bitstream+image set for flash-pair." >&2
+                exit 2
                 ;;
             bitstream)
-                bit="$dir/gateware/$bitname"
-                [ -f "$bit" ] || { echo "[$c] missing $bit" >&2; exit 2; }
-                echo "== flash [$c] BITSTREAM -> QSPI offset 0 (self-configures on power-up) =="
-                echo "   $bit"
-                # --fpga-part: the SPI proxy needs the device-package (openFPGALoader
-                # cannot infer it for every cable profile, and exits 0 on the miss)
-                out=$(openFPGALoader --ftdi-serial "$serial" -c "$cable" --fpga-part "$part" -f --verify "$bit" 2>&1) || { echo "$out"; exit 1; }
-                echo "$out" | tail -3
-                echo "$out" | grep -qiE "error|can't program" && { echo "[$c] FLASH FAILED"; exit 1; }
-                echo "   done. Power-cycle (or --reset) to boot the flashed gateware."
+                echo "[$c] flash REFUSED: named bitstream-only persistent writes cannot preserve an installed owner set." >&2
+                exit 2
                 ;;
         esac
     done
@@ -118,9 +136,9 @@ if [ "${1:-}" = "flash" ]; then
 fi
 
 # ---- named configurations -----------------------------------------------------
-cfg_ax7101() {   # shipping bare-metal shape: one cacheless RV32I hart. Linux
-                 # and the prior cached VexiiRiscv configurations remain in
-                 # cfg_ax8x8/cfg_arty as explicit bring-up profiles.
+cfg_ax7101() {   # shipping bare-metal shape: one cacheless RV32I hart.
+                 # cfg_ax8x8 is the 8-stream bare-metal shape and cfg_arty the
+                 # Arty bare-metal shape.
     # BODY = the tdm8 internal-COMPLIANCE/ship set (byte-matched to the t529 sweep Command;
     # the nic-perf RV64 revision below had leaked back in as the bare body,
     # so an extras-less `--sweep ax7101` built prefetch-rpt/l2-16K/no-tdm8 -
@@ -146,8 +164,8 @@ cfg_ax8x8() {    # 8-stream (64ch) shape. History: the 07-24 close used
                  # --rx-queues 1 (dropping the RX1 DMA RSC engine removed the
                  # sys_clk critical path and freed ~3% LUT) - but D7 ended
                  # that option on 2026-07-28: with one queue there is no
-                 # flow-steer block, ptp4l shares the bulk ring, and under a
-                 # 950M flood our GM starves and a conformant BMCA deposes it
+                 # flow-steer block; under a 950M flood the time-sync ingress
+                 # starves and a conformant BMCA deposes the local GM
                  # (docs/findings/GPTP_GM_LOSS_UNDER_RX_LOAD.md, 2/2). So
                  # rx-queues is 2 NOW, non-negotiable, and the area it costs
                  # is why the 0x0019 round spends the tier-1 prunes below.
@@ -167,28 +185,18 @@ cfg_ax8x8() {    # 8-stream (64ch) shape. History: the 07-24 close used
     # cause (8b5d0255). The 07-24 close above was measured on that RV64 core
     # and its RV64-era refill/prefetch cache profile, so it is an upper bound
     # for this recipe, not its figure.
-    echo "--board ax7101 --cpu vexiiriscv --cpu-count 1 --xlen 32 --software-profile linux \
-          --all-blocks --coherent-dma --sound-card \
-          --milan-clk-freq 100e6 --with-spiflash --flashboot full --gtx-tx-invert \
-          --timing-opt --floorplan --eth-port e1 --l2-bytes 16384 \
-          --scala-args=--lsu-l1-refill-count=2 --scala-args=--l2-down-pending=4 \
-          --scala-args=--l2-general-slots=8 \
+    # 2026-08-25 (#259): this recipe is the cacheless bare-metal product.
+    echo "--board ax7101 --cpu vexiiriscv --cpu-count 1 --xlen 32 \
+          --software-profile baremetal --all-blocks --coherent-dma --fabric-gptp \
+          --milan-clk-freq 100e6 --with-spiflash --flashboot baremetal --gtx-tx-invert \
+          --timing-opt --floorplan --eth-port e1 --l2-bytes 0 \
           --uart-baudrate 115200 --rx-queues 2 --strip-probes --hs-page-bytes 16384 \
           --num-streams 8 --audio-interface tdm32 --audio-interface-master \
           --talker-wire-chans 8 --no-latency-taps --no-i2s-playback \
-          --aaf-playback --aaf-playback-streams 1 \
           --entity-gen-dir $SOC_DIR/../../configs/generated/endstation_ax7101_8x8 \
           --no-render-lpf --no-datapath-probes --cbs-queues-mask 0x10 \
           --synth-directive AreaOptimized_high \
           --opt-directive ExploreArea --place-directive AltSpreadLogic_high"
-                 # --aaf-playback (task #31, 2026-08-02) = KL_pcm_tx host
-                 # playback ring -> the chmap capture RING bucket: the ALSA
-                 # playback direction (snd-kl-milan pb-dma window; DT
-                 # kl,playback-streams). ONE ring served (stated explicitly;
-                 # full-N OOC'd 2216 LUT,
-                 # one-ring ~1/8th) - its 4 pairs reach any talker's wire
-                 # slots through the 64ch chmap. The render sample bank
-                 # behind it is unloaded on this padless board and sweeps.
                  # --no-render-lpf = the SPENT LPF_P area lever (2026-07-27,
                  # docs/design/AREA_BUDGET.md). 428 LUT / 756 FF / 0 DSP
                  # from the shipping 8x8 place report - the only Vivado-PROVEN
@@ -207,9 +215,7 @@ cfg_arty() {     # Arty A7-100 small endstation: MII 100M, QSPI flashboot (probe
     # -1 die: 100 MHz datapath does NOT close (measured -1.0 WNS); 50 MHz is
     # 3.2 Gb/s of 64-bit datapath for a 100 Mbit wire. sys 83.333 = the clean
     # PLL divisor set (VCO 1000; 90e6 has NO solution with the 25 MHz eth ref).
-    # Flash = bitstream@0 + the full-manifest Linux images (QSPI self-boot on
-    # both boards; the old kernel-at-0 / JTAG-SRAM-only layout died with the
-    # manifest-full port - see board_facts above + docs/integration/QSPI_FLASHBOOT.md).
+    # Flash = bitstream@0 + the raw AEM image (QSPI self-boot on both boards).
     # 2026-08-22 (#157): --cpu-count 1 --xlen 32 are STATED, matching
     # configs/endstation_arty_current.yaml, the sweep.sh arty leg and
     # configs/generated/sweep_opts_arty.sh. The 2-hart count dated from the
@@ -218,12 +224,12 @@ cfg_arty() {     # Arty A7-100 small endstation: MII 100M, QSPI flashboot (probe
     # through milan_soc.py's default. The Arty is a retired DUT
     # (docs/findings/BENCH_TOPOLOGY.md), so this recipe is proven to reach
     # the Instance (test_builder gate 23g), not built.
-    echo "--board arty --cpu vexiiriscv --cpu-count 1 --xlen 32 --software-profile linux \
-          --all-blocks --coherent-dma --sound-card \
-          --sys-clk-freq 83.333e6 --milan-clk-freq 50e6 --with-spiflash --flashboot full \
-          --uart-baudrate 115200 --timing-opt --strip-probes --l2-bytes 65536 \
-          --scala-args=--lsu-l1-refill-count=2 --scala-args=--l2-down-pending=4 \
-          --scala-args=--l2-general-slots=8 --cbs-queues-mask 0x10 \
+    # 2026-08-25 (#259): bare-metal, like every named config.
+    echo "--board arty --cpu vexiiriscv --cpu-count 1 --xlen 32 \
+          --software-profile baremetal --all-blocks --coherent-dma --fabric-gptp \
+          --sys-clk-freq 83.333e6 --milan-clk-freq 50e6 --with-spiflash --flashboot baremetal \
+          --uart-baudrate 115200 --timing-opt --strip-probes --l2-bytes 0 \
+          --cbs-queues-mask 0x10 \
           --entity-gen-dir $SOC_DIR/../../configs/generated/endstation_arty_current \
           --rx-queues 2 --hs-page-bytes 16384"
 }

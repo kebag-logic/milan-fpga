@@ -114,7 +114,7 @@ Gates (gaps item 4, generator round):
       inserts steer+rx1 = 0x74 and moves dma-ts/hs-pgsz-cap/pcm-dma by
       exactly that, tx/rx0 never move - anchored in milan_soc.py's
       MilanDMA registration order), and the queue count is ONE number across
-      config / soc argv / sweep fragment / device tree;
+      config / SoC argv / sweep fragment / firmware platform shape;
   19b. the emitted DT node carries everything kl-eth + snd-kl-milan read
       (5 reg windows, kl,rsc-clk-mhz, phy-mode, MAC, no-map PCM ring sized
       for N capture streams); when the real build trees are on disk its
@@ -150,17 +150,10 @@ Gates (gaps item 4, generator round):
       the modules; the non-biphase kinds emit nothing;
   21b. reject paths: a word length the AES3 subframe cannot carry, and an
       audio PLL that cannot divide to the serial clock, raise ConfigError;
-  27. THE PROTOCOL PROCESSOR'S DRAM WINDOW IS RESERVED, for every config: the
-      emitted device tree carries a `no-map` reserved-memory node covering
-      exactly [pp_mem_phys, pp_mem_phys + pp_mem_bytes), that window overlaps
-      neither the PCM ring nor any other reserved region, platform_shape.json
-      publishes the same bytes the tree reserves, and milan_soc.py DERIVES its
-      PP_DESC_BASE_P / PP_RESP_BASE_P from that published window instead of
-      computing one of its own.  The window used to be derived independently
-      on the two sides (the builder emitted no reservation at all, and the SoC
-      took "top of main_ram"), which put it in ordinary kernel RAM at the 1x1
-      shape and INSIDE the PCM ring at 8x8.  Neither failure raises anything:
-      no counter on either side reports a write to a wrong physical address.
+  27. THE PROTOCOL PROCESSOR'S MEMORY WINDOW IS SINGLE-SOURCED for every
+      config: platform_shape.json publishes the configured base and extent,
+      and milan_soc.py derives PP_DESC_BASE_P / PP_RESP_BASE_P from that
+      published window instead of computing one of its own.
   28. THE DESCRIPTOR IMAGE CARRIES THE IDENTITY IEEE 1722.1-2021 Table 7-2
       obliges it to: the ENTITY descriptor read back OUT of the packed
       aem_desc.bin must repeat the ADPDU's entity_id, entity_model_id,
@@ -219,14 +212,17 @@ Run: python3 sw/builder/test_builder.py   (or pytest sw/builder/test_builder.py)
 """
 
 import ast
+import binascii
 import contextlib
 import copy
+import gzip
 import io
 import json
 import os
 import re
 import shlex
 import shutil
+import stat
 import struct
 import subprocess
 import sys
@@ -235,13 +231,17 @@ import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(HERE))
+SOC_DIR = os.path.join(ROOT, "sw/litex")
 sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.join(ROOT, "avdecc"))
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
+sys.path.insert(0, SOC_DIR)
 
 import yaml  # noqa: E402
 
 import endstation_builder as eb  # noqa: E402
+import check_gptp_owner_pair as gptp_pair  # noqa: E402
+import qspi_owner_transition as qspi_transition  # noqa: E402
 #: The ONE reader of "which config owns the tracked entity definition"
 #: (gate 10).  Imported rather than re-implemented: a second answer to that
 #: question is how gate 10 came to assume a config in the first place.
@@ -322,14 +322,6 @@ FLOW_FLAGS = {"--build": 0, "--vivado-max-threads": 1,
 # PIN still wins over the hash, and the assertion below that hash != pin is
 # what would catch the two being silently reconciled.
 DEPLOYED_MODEL_ID = "0x001BC50AC1000003"
-
-#: The flashed image's boot script - the ONE piece of board software that
-#: programs the entity identity into the ADP/AEM CSRs. It lives in the sibling
-#: repo (that is where the rootfs is built), so gate 25 SKIPS when the repo is
-#: not on disk, exactly like the deployed-.dts cross-check in gate 19b. The
-#: path is built from the builder's own ROOTFS_OVERLAY_ETC: one spelling of
-#: "where the overlay is", never a second.
-S50MILAN = os.path.join(eb.ROOTFS_OVERLAY_ETC, "init.d/S50milan")
 
 # Real utilization report the estimator was calibrated against (flat place
 # report of the same build as the hierarchical calibration source).
@@ -524,7 +516,14 @@ def check_port_layout(ovl, n_listeners, n_talkers):
     for p in P_in + P_out:
         assert p["base_cluster"] == base, \
             f"port cluster blocks not contiguous: {p} (expect base {base})"
-        assert p["clusters"] >= 1
+        # #259: a port whose backing pool was retired owns ZERO clusters
+        # (the 8x8 inputs after the external audio surface left). Such a port
+        # must be fully empty-handed: dynamic map mode, no pool, so no
+        # cluster, map or template can dangle off it.
+        if p["clusters"] == 0:
+            assert p["pool"] == [] and p.get("map_mode") == "dynamic", p
+        else:
+            assert p["clusters"] >= 1
         base += p["clusters"]
     assert dc["AUDIO_CLUSTER"] == base
     dyn = [p for p in P_in + P_out if p.get("map_mode") == "dynamic"]
@@ -813,6 +812,55 @@ def _rv32_partial(ones, zeros):
     return Rv32Bits(ones, zeros) if (ones or zeros) else None
 
 
+def asm_int(text):
+    """The integer grammar of COMPILER-EMITTED assembly, not Python's:
+    `0x`/`0X` is hex, anything else all-digits is decimal, zero-padded
+    spellings included. `int(x, 0)` refuses `03118564` as a malformed
+    octal literal, so a VALID emitted immediate could fail the census by
+    spelling alone and the mandatory gate went red nondeterministically
+    ([R-retest] on PR #228). Signs pass through; anything else raises
+    ValueError for the caller to classify as unresolved."""
+    tok = text.strip()
+    sign = 1
+    if tok and tok[0] in "+-":
+        sign = -1 if tok[0] == "-" else 1
+        tok = tok[1:]
+    if tok[:2].lower() == "0x":
+        return sign * int(tok, 16)
+    if tok.isdigit():
+        return sign * int(tok, 10)
+    raise ValueError("not an emitted-assembly integer: %r" % (text,))
+
+
+#: Immediates as the assembler prints them, in any base and either sign,
+#: and never a label suffix (`.L4`) or a register number. Module scope so
+#: the deterministic fixtures below replay the EXACT regex+parser pair the
+#: compiled census uses.
+ASM_IMMEDIATE_RE = re.compile(
+    r"(?<![\w.])(-?(?:0[xX][0-9A-Fa-f]+|\d+))(?![\w.])")
+
+#: Deterministic parser fixtures ([R-retest] on PR #228): zero-padded
+#: decimal, plain and signed decimal, and hexadecimal spellings must parse
+#: to the same value on every process, and the census replay forces the
+#: exact token shape the nondeterministic red run tripped on through the
+#: production regex+parser pair.
+for _tok, _want in (("03118564", 3118564), ("007", 7), ("42", 42),
+                    ("-42", -42), ("0x7F700000", 0x7F700000),
+                    ("-0X10", -16)):
+    assert asm_int(_tok) == _want, (_tok, asm_int(_tok))
+for _bad in ("", "0o17", "1_2", ".L4", "a5"):
+    try:
+        asm_int(_bad)
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("asm_int accepted %r" % (_bad,))
+_census_replay = "entity_store:\n\tli\ta5,03118564\n\tsw\ta4,0(a5)\n"
+assert [asm_int(_t) & 0xFFFF_FFFF
+        for _t in ASM_IMMEDIATE_RE.findall(_census_replay)] == [3118564, 0], \
+    "the census replay no longer parses the zero-padded immediate shape"
+
+
 def rv32_data(text):
     """Every symbol in `text` whose ENTIRE definition is one `.word N`.
 
@@ -843,7 +891,7 @@ def rv32_data(text):
             continue
         if RV32_DATA_EMIT_RE.search(stripped):
             word = RV32_WORD_RE.match(line)
-            emitted.append(int(word.group(1), 0) & RV32_MASK if word else None)
+            emitted.append(asm_int(word.group(1)) & RV32_MASK if word else None)
     if current is not None and len(emitted) == 1:
         data[current] = emitted[0]
     return {name: value for name, value in data.items() if value is not None}
@@ -937,7 +985,7 @@ RV32_IMMOPS = {
 
 def _rv32_imm(text):
     try:
-        return int(text.strip(), 0) & RV32_MASK
+        return asm_int(text) & RV32_MASK
     except (ValueError, AttributeError):
         return None
 
@@ -1566,6659 +1614,38 @@ def test_all_configs_build():
 
 
 def test_baremetal_profile_contract():
-    """Gate 1b: the shipping AX build is the cacheless, headless profile,
-    and each incompatible Linux/cached CPU combination is refused before a
-    LiteX command can be emitted."""
-    r = eb.build(CONFIGS["ax7101_1x1_tdm8"], OUT)
-    cfg, argv = r["cfg"], _canon(r["argv"])
-    assert cfg["soc"]["software_profile"] == "baremetal"
-    assert cfg["soc"]["cpu"] == "vexiiriscv"
-    assert cfg["soc"]["xlen"] == 32 and cfg["soc"]["cpu_count"] == 1
-    assert cfg["constraints"]["l2_bytes"] == 0
-    assert cfg["constraints"]["flashboot"] == "baremetal"
-    assert cfg["constraints"]["sys_clk_hz"] == 100_000_000
-    assert cfg["constraints"]["milan_clk_hz"] == 50_000_000
-    assert cfg["soc"]["scala_args"] == []
-    assert cfg["features"]["fabric_gptp"] is True
-    assert cfg["features"]["sound_card"] is False
-    assert r["platform"]["pcm"] is None
-    assert all(group["role"] != "host"
-               for direction in r["overlay"]["stream_ports"].values()
-               for port in direction for group in port["pool"])
-    assert argv["--software-profile"] == ["baremetal"]
-    assert argv["--xlen"] == [32.0] and argv["--l2-bytes"] == [0.0]
-    assert argv["--milan-clk-freq"] == [50_000_000.0]
-    assert "--fabric-gptp" in argv
-    assert "gptp_ucode" in r["paths"]
-    base_ucode = open(r["paths"]["gptp_ucode"], "rb").read()
-    assert len(base_ucode.splitlines()) == 1024
-    assert "Fabric gPTP plane: **PRESENT**" in r["plan"]
-    soc_source = open(os.path.join(ROOT, "sw/litex/milan_soc.py")).read()
-    assert '_vex_args.with_cpu_clk = bool(' in soc_source
-    assert 'self.cpu.cpu_clk.eq(ClockSignal("milan"))' in soc_source
-    deploy_source = open(os.path.join(ROOT, "sw/litex/deploy.sh")).read()
-    assert "--milan-clk-freq 50e6" in deploy_source
-    assert "--fabric-gptp" in deploy_source
-    for absent in ("--sound-card", "--aaf-playback", "--scala-args"):
-        assert absent not in argv, f"bare-metal argv unexpectedly carries {absent}"
-
-    firmware_path = os.path.join(
-        ROOT, "sw/firmware/milan_baremetal/milan_baremetal.c")
-    docs_path = os.path.join(
-        ROOT, "docs/integration/BAREMETAL_FIRMWARE.md")
-    csr_path = os.path.join(ROOT, "hdl/common/csr/milan_csr.sv")
-    datapath_path = os.path.join(ROOT, "hdl/milan/milan_datapath.sv")
-    with open(firmware_path, encoding="utf-8") as fh:
-        firmware_source = fh.read()
-    with open(docs_path, encoding="utf-8") as fh:
-        docs_source = fh.read()
-    with open(csr_path, encoding="utf-8") as fh:
-        csr_source = fh.read()
-    with open(datapath_path, encoding="utf-8") as fh:
-        datapath_source = fh.read()
-    with open(os.path.join(os.path.dirname(firmware_path), "Makefile"),
-              encoding="utf-8") as fh:
-        makefile_source = fh.read()
-    firmware_listing = tuple(sorted(
-        os.listdir(os.path.dirname(firmware_path))))
-    firmware_object = os.path.basename(firmware_path)[:-2] + ".o"
-
-    def braced_span(source, guard, label):
-        assert guard, f"firmware boot guard missing: {label}"
-        brace = source.index("{", guard.start(), guard.end())
-        depth = 0
-        for pos in range(brace, len(source)):
-            if source[pos] == "{":
-                depth += 1
-            elif source[pos] == "}":
-                depth -= 1
-                if depth == 0:
-                    return brace + 1, pos
-        raise AssertionError(f"firmware boot guard is not closed: {label}")
-
-    def braced_block(source, guard, label):
-        body, close = braced_span(source, guard, label)
-        return source[body:close]
-
-    def blanked(source):
-        """`source` with the BODIES of comments and string/char literals
-        replaced by spaces, so every textual rule below reads code only --
-        and every offset still indexes the original text unchanged."""
-        out, i, n = list(source), 0, len(source)
-
-        def erase(start, stop):
-            for k in range(start, stop):
-                if out[k] != "\n":
-                    out[k] = " "
-
-        while i < n:
-            pair = source[i:i + 2]
-            if pair == "/*":
-                stop = source.find("*/", i + 2)
-                stop = n if stop < 0 else stop + 2
-                erase(i, stop)
-            elif pair == "//":
-                stop = source.find("\n", i)
-                stop = n if stop < 0 else stop
-                erase(i, stop)
-            elif source[i] in "\"'":
-                quote, stop = source[i], i + 1
-                while stop < n and source[stop] != quote:
-                    stop += 2 if source[stop] == "\\" else 1
-                stop = min(stop + 1, n)
-                erase(i + 1, stop - 1)
-            else:
-                i += 1
-                continue
-            i = stop
-        return "".join(out)
-
-    def blanked_sv(source):
-        """SystemVerilog code with comments and string literals blanked.
-
-        This deliberately does not treat a single quote as a character-literal
-        delimiter: in SystemVerilog it begins sized and unsized number
-        literals.  Newlines and offsets remain unchanged so mutation spans
-        still index the raw source.
-        """
-        out, i, n = list(source), 0, len(source)
-
-        def erase(start, stop):
-            for k in range(start, stop):
-                if out[k] != "\n":
-                    out[k] = " "
-
-        while i < n:
-            pair = source[i:i + 2]
-            if pair == "/*":
-                close = source.find("*/", i + 2)
-                assert close >= 0, \
-                    "datapath integration proof found an unterminated " \
-                    "SystemVerilog block comment"
-                stop = close + 2
-                erase(i, stop)
-            elif pair == "//":
-                stop = source.find("\n", i)
-                stop = n if stop < 0 else stop
-                erase(i, stop)
-            elif source[i] == '"':
-                stop = i + 1
-                while stop < n and source[stop] != '"':
-                    stop += 2 if source[stop] == "\\" else 1
-                assert stop < n, \
-                    "datapath integration proof found an unterminated " \
-                    "SystemVerilog string literal"
-                stop += 1
-                erase(i, stop)
-            else:
-                i += 1
-                continue
-            i = stop
-        return "".join(out)
-
-    def assert_direct_scope(source, stop, reason, require_item_start=True):
-        """The checked SV item is unconditional in the supplied arm.
-
-        Intentional outer generate arms are removed before their bodies are
-        passed here. Any further generate/begin/case/fork nesting is therefore
-        a conditional wrapper around text this bounded model would otherwise
-        mistake for an elaborated connection. The suffix after the preceding
-        module-item semicolon closes the implicit ``if (...) item`` and
-        ``for (...) item`` forms, which need no begin/generate keywords.
-        """
-        depth = {"block": 0, "generate": 0, "case": 0, "fork": 0}
-        opening = {
-            "begin": "block", "generate": "generate",
-            "case": "case", "casex": "case", "casez": "case",
-            "fork": "fork"}
-        closing = {
-            "end": "block", "endgenerate": "generate",
-            "endcase": "case", "join": "fork",
-            "join_any": "fork", "join_none": "fork"}
-        for token in re.finditer(
-                r"\b(?:begin|end|generate|endgenerate|case|casex|casez|"
-                r"endcase|fork|join|join_any|join_none)\b", source[:stop]):
-            word = token.group(0)
-            if word in opening:
-                depth[opening[word]] += 1
-            else:
-                kind = closing[word]
-                assert depth[kind] > 0, \
-                    f"{reason}: malformed SystemVerilog scope before the " \
-                    "checked connection"
-                depth[kind] -= 1
-        assert not any(depth.values()), \
-            f"{reason}: checked connection must be an unconditional item " \
-            "in its inspected generate arm"
-
-        if not require_item_start:
-            return
-        prior_semicolon = source.rfind(";", 0, stop)
-        prefix = source[prior_semicolon + 1:stop]
-        prefix = re.sub(
-            r"\b(?:end|endgenerate|endcase|join|join_any|join_none)\b"
-            r"(?:\s*:\s*[A-Za-z_$][A-Za-z0-9_$]*)?", "", prefix)
-        # Compiler directives are closed separately after every connection
-        # check. Leave their verdict there so an inactive `ifdef mutant is
-        # reason-pinned to the directive-set property, while an implicit
-        # module-item ``if (...) assign`` still fails here.
-        prefix = re.sub(r"`[^\r\n]*", "", prefix)
-        assert not prefix.strip(), \
-            f"{reason}: checked connection must not be selected by an " \
-            "implicit conditional-generate item"
-
-    #: Every preprocessor conditional directive, one physical line each.
-    cpp_directive_re = re.compile(
-        r"(?m)^[ \t]*#[ \t]*(if|ifdef|ifndef|elif|else|endif)\b")
-
-    def cpp_arms(code):
-        """`(directives, arm_path)` for `code`'s preprocessor conditionals.
-
-        This gate reads TEXT; the compiler compiles a TRANSLATION UNIT, so two
-        offsets are only in the same code when the preprocessor keeps or drops
-        them TOGETHER. `arm_path(pos)` is the tuple of (group, arm) pairs
-        enclosing `pos`, and it is that predicate."""
-        directives = list(cpp_directive_re.finditer(code))
-        stack, groups, marks = [], 0, []
-        for directive in directives:
-            kind = directive.group(1)
-            if kind in ("if", "ifdef", "ifndef"):
-                groups += 1
-                stack.append([groups, 0])
-            elif kind in ("elif", "else"):
-                assert stack, "firmware has an #elif/#else outside any #if"
-                stack[-1][1] += 1
-            else:
-                assert stack, "firmware has an #endif outside any #if"
-                stack.pop()
-            marks.append((directive.end(), tuple(tuple(f) for f in stack)))
-        assert not stack, "firmware leaves a preprocessor conditional open"
-
-        def arm_path(pos):
-            path = ()
-            for at, value in marks:
-                if at > pos:
-                    break
-                path = value
-            return path
-
-        return directives, arm_path
-
-    def assert_preprocessor_visible(code, source, load_span):
-        """No boot code may be selected by a directive this gate cannot read.
-
-        NARROWED by the entity-advertise choke point (#153).  It used to
-        refuse a preprocessor conditional ANYWHERE in the file, and any
-        backslash-newline anywhere with it, because every rule in this gate
-        read text and any arm selection made one reading differ from what
-        the compiler compiles.  Two of those blanket refusals are now paid
-        for by the resolved boot-flow measurement instead, which reads the
-        compiler's OUTPUT and therefore sees the arm actually taken:
-
-        * a conditional is refused where a TEXT rule still reads -- the boot
-          entry point, the fabric configuration step, the choke point and
-          the three CSR accessors -- and, wherever it sits, if it contains a
-          `#define`, `#undef` or `#include`, because the address model reads
-          those as unconditional text.  An `#ifdef` around a debug printf in
-          a UART command handler is GREEN, and is measured as an accepted
-          case.  The ONE conditional inside load_aem_image() is tolerated as
-          before and CLASSIFIED by the verifier's return rule.
-        * a backslash-newline is refused when deleting the pair would JOIN
-          two non-whitespace characters, which is the phase-2 hazard: it is
-          how a backslash-newline inside `milan_write` leaves the one
-          identifier `milan_write` to the compiler while an offset-
-          preserving reader sees two.  An
-          ordinary continued `#define`, string or expression puts whitespace
-          before the backslash and is GREEN, and is measured as an accepted
-          case.  A continued macro body can still carry an entity enable,
-          and the resolved census is what refuses that now: it reads the
-          compiled call, where the macro is already expanded.
-
-        COST that REMAINS, and it is a refusal: a conditional that reaches
-        the boot path or carries a definition, and a splice that joins
-        tokens.  Whoever needs one has to move it out of the boot path, or
-        replace the refusal with a real preprocessor-token reader."""
-        directives, _ = cpp_arms(code)
-        protected, opened = [], []
-        for header, what in (
-                (r"\bstatic\s+void\s+milan_init\s*\(\s*void\s*\)\s*\{",
-                 "the boot entry point"),
-                (r"\bstatic\s+void\s+configure_fabric\s*\(\s*void\s*\)"
-                 r"\s*\{", "the fabric configuration step"),
-                (r"\bstatic\s+void\s+entity_advertise\s*\(\s*int\s+\w+"
-                 r"\s*\)\s*\{", "the entity-advertise choke point"),
-                (r"\bstatic\s+inline\s+volatile\s+uint32_t\s*\*\s*\w+"
-                 r"\s*\([^)]*\)\s*\{", "the CSR address helper"),
-                (r"\bstatic\s+inline\s+uint32_t\s+milan_read\s*\([^)]*\)"
-                 r"\s*\{", "the CSR read accessor"),
-                (r"\bstatic\s+inline\s+void\s+milan_write\s*\([^)]*\)"
-                 r"\s*\{", "the CSR write accessor")):
-            found = re.search(header, code)
-            if not found:
-                continue
-            try:
-                _body, close = braced_span(code, found, what)
-            except AssertionError:
-                # A body this gate cannot brace-match is a firmware the
-                # compiler will refuse; let the census say so rather than
-                # report a preprocessor verdict about text nobody can parse.
-                continue
-            protected.append((found.start(), close + 1, what))
-        for directive in directives:
-            kind = directive.group(1)
-            if kind in ("if", "ifdef", "ifndef"):
-                opened.append(directive.start())
-                continue
-            if kind != "endif":
-                continue
-            assert opened, "firmware has an #endif outside any #if"
-            at = opened.pop()
-            stop = code.find("\n", directive.end())
-            stop = len(code) if stop < 0 else stop
-            if load_span[0] <= at and stop <= load_span[1]:
-                continue
-            for guard_at, guard_to, what in protected:
-                assert stop <= guard_at or at >= guard_to, \
-                    "firmware must not select boot code with the " \
-                    f"preprocessor (a conditional group reaching {what}): " \
-                    "this gate would read one arm while the compiler takes " \
-                    "the other"
-            defines = re.search(
-                r"(?m)^[ \t]*#[ \t]*(define|undef|include)\b", code[at:stop])
-            assert not defines, \
-                "firmware must not select boot code with the preprocessor " \
-                f"(a conditional group carrying #{defines.group(1)}): the " \
-                "address model reads every definition as unconditional " \
-                "text, so an arm this gate cannot evaluate chooses the " \
-                "value it resolves a register name to"
-        # Translation phase 2 runs before comments, strings and preprocessing
-        # tokens exist. It DELETES this pair, so `milan_\`-newline-`write` is
-        # the one identifier `milan_write` to the compiler while an offset-
-        # preserving reader that substitutes spaces sees two identifiers.
-        # Scan RAW source and refuse the language construct; blanked text is
-        # already too late, and line_spliced() intentionally preserves
-        # offsets. Narrowed to the splices that actually JOIN two tokens:
-        # a continuation with whitespace on either side of the deleted pair
-        # cannot merge anything and is ordinary C.
-        splice = re.search(r"(?<=\S)\\[ \t\f\v]*(?:\r\n|[\n\r])(?=\S)",
-                           source)
-        assert not splice, \
-            "firmware must not splice physical source lines with backslash-" \
-            "newline where the pair JOINS two tokens: C translation phase 2 " \
-            "deletes it before preprocessing tokens are formed, so the " \
-            "physical-text whole-firmware store census can miss a joined " \
-            "CSR primitive name"
-
-    def constant_value(text):
-        """`text` as a 32-bit constant, or None when this gate cannot read it.
-
-        Integer literals, parentheses and the bitwise/shift/additive operators
-        only: `| 1u` and `| (1u << 0)` are the SAME enable to the hardware, so
-        they must be the same enable here. Anything carrying an identifier
-        stays unreadable, and every caller fails closed on that."""
-        expr = re.sub(r"\b(0[xX][0-9A-Fa-f]+|[0-9]+)[uUlL]+", r"\1",
-                      text.strip())
-        if not expr or not re.fullmatch(r"[0-9A-Fa-fxX()~|&^<>+\-\s]*", expr):
-            return None
-        if re.search(r"[A-Za-z_]", re.sub(r"0[xX][0-9A-Fa-f]+", "", expr)):
-            return None
-        try:
-            value = eval(expr, {"__builtins__": {}}, {})  # noqa: S307
-        except Exception:                                 # noqa: BLE001
-            return None
-        return value & 0xFFFFFFFF if type(value) is int else None
-
-    #: The RTL's own decode table -- `A_NAME = 'hNNN` -- is the ONE statement
-    #: of which offsets are registers and which register each offset is.
-    csr_address_re = re.compile(
-        r"\b(A_[A-Z0-9_]+)\s*=\s*(?:[0-9]+)?'[hH]([0-9A-Fa-f_]+)")
-    #: ... but a NAME is not a register. The decode table below says which
-    #: address a name carries; only the write decode says which REGISTER an
-    #: address reaches, and that is the fact the whole census rests on.
-    case_token_re = re.compile(r"\bcase[xz]?\b|\bendcase\b")
-    case_label_re = re.compile(
-        r"(?m)^[ \t]*((?:A_[A-Z0-9_]+)(?:[ \t]*,[ \t]*A_[A-Z0-9_]+)*)[ \t]*:")
-    sv_literal_re = re.compile(
-        r"\A\s*(?:[0-9]+[ \t]*)?'[sS]?[hdboHDBO][0-9A-Fa-f_xzXZ?]+\s*\Z|"
-        r"\A\s*[0-9][0-9_]*\s*\Z")
-    #: A based literal split into the parts a mutation has to keep: the width
-    #: and base prefix, and the digits it may rewrite.
-    sv_based_re = re.compile(
-        r"\A(?P<head>(?:[0-9]+)?'[sS]?(?P<base>[hdboHDBO]))"
-        r"(?P<digits>[0-9A-Fa-f_]+)\Z")
-    sv_bases = {"h": 16, "d": 10, "o": 8, "b": 2}
-    sv_formats = {16: "x", 10: "d", 8: "o", 2: "b"}
-
-    def sv_literal_value(text):
-        """`text` as an integer, or None when this gate cannot read EVERY bit
-        of it. An `x` or `z` digit lands here as None on purpose: a bit whose
-        value the RTL does not state is not a bit this gate may call clear."""
-        literal = re.sub(r"[\s_]", "", text.strip())
-        if not literal:
-            return None
-        if "'" in literal:
-            based = sv_based_re.match(literal)
-            if not based:
-                return None
-            base = sv_bases[based.group("base").lower()]
-            digits = based.group("digits").replace("_", "")
-        else:
-            base, digits = 10, literal
-        try:
-            return int(digits, base)
-        except ValueError:
-            return None
-
-    def csr_write_decode(csr, signal):
-        """`(labels, other)` for `signal` in the CSR RTL.
-
-        `labels` is one entry per assignment reached from a `case (wr_addr)`
-        arm -- the label list that arm carries -- and `other` is the right-hand
-        side of every assignment reached any other way. A register the bus can
-        write is exactly the arms in `labels`, so this is what makes the
-        address model a CHECKED fact rather than an assumption.
-
-        BOTH assignment operators are read. This used to see `<=` only,
-        which made the reset rule below VACUOUS against a blocking reset:
-        `adp_ctrl = 32'h0000_0A01;` left `other` empty, the rule had nothing
-        to iterate, and it passed without asserting anything. Verilator's
-        BLKSEQ would have caught it, but only under `-Wall`, which this
-        project does not use."""
-        tokens = [(t.start(), t.group()) for t in case_token_re.finditer(csr)]
-        assign_re = re.compile(
-            rf"\b{re.escape(signal)}\b\s*(?:\[[^\]]*\])?\s*"
-            rf"(?:<=|=)\s*([^;]*);")
-
-        def depth_at(pos, start):
-            depth = 0
-            for at, token in tokens:
-                if at < start or at >= pos:
-                    continue
-                depth += -1 if token == "endcase" else 1
-            return depth
-
-        arms = []
-        for case in re.finditer(r"\bcase\b\s*\(\s*wr_addr\s*\)", csr):
-            stop, depth = len(csr), 1
-            for at, token in tokens:
-                if at <= case.start():
-                    continue
-                depth += -1 if token == "endcase" else 1
-                if not depth:
-                    stop = at
-                    break
-            assert stop < len(csr), "a CSR write-decode case is never closed"
-            labels = [(m.start(), [n.strip() for n in m.group(1).split(",")])
-                      for m in case_label_re.finditer(csr, case.end(), stop)
-                      if depth_at(m.start(), case.end()) == 0]
-            arms.append((case.end(), stop, labels))
-
-        governed, other = [], []
-        for write in assign_re.finditer(csr):
-            for start, stop, labels in arms:
-                if not start <= write.start() < stop:
-                    continue
-                before = [names for at, names in labels if at < write.start()]
-                assert before, \
-                    f"{signal} is written inside a CSR write decode " \
-                    "under no case label at all, so no address reaches it"
-                governed.append(before[-1])
-                break
-            else:
-                other.append(write.group(1))
-        return governed, other
-
-    def assert_decode_is_one_to_one(csr, model):
-        """Each entity-enable register is written from ONE address, and comes
-        out of reset DISABLED.
-
-        The name-to-address table alone does not say the first: a SECOND
-        decode arm gives the same register a second address, and every census
-        keyed on the first address then looks straight past a write through
-        the second.
-
-        And the whole firmware census says nothing at all about the second.
-        Every rule about who may SET bit 0 is a rule about writes; bit 0's
-        value before the first write is the reset literal, so a reset of
-        `32'h0000_0A01` advertises the entity from FPGA configuration onward
-        -- before the CPU has run an instruction, before configure_fabric(),
-        before an AEM image exists in DRAM, and forever if the firmware never
-        reaches the guard at all. The PHC reset is pinned below because the
-        contract wants it ENABLED; these two are pinned here because the
-        contract wants them CLEAR."""
-        assert re.search(
-            r"\bwire\s*\[\s*ADDR_WIDTH\s*-\s*1\s*:\s*0\s*\]\s*wr_addr\s*=\s*"
-            r"s_axi_awaddr\s*;", csr), \
-            "the CSR write address must be the full-width write address " \
-            "unmodified, or two firmware addresses reach one decode arm"
-        for wild in re.finditer(r"\bcase[xz]\b\s*\(\s*wr_addr\s*\)", csr):
-            raise AssertionError(
-                f"the CSR write decode must not be a {wild.group(0)}: a "
-                "wildcard arm answers to addresses no name in the table "
-                "carries, so the firmware census cannot enumerate them")
-        for signal, rtl_name, port in (("adp_ctrl", "A_ADP_CTRL",
-                                        "o_adp_enable"),
-                                       ("pp_ctrl_r", "A_PP_CTRL",
-                                        "o_pp_enable")):
-            governed, other = csr_write_decode(csr, signal)
-            assert governed == [[rtl_name]], \
-                f"the RTL must write {signal} from exactly one CSR address, " \
-                f"{rtl_name} (CSR 0x{model.rtl_address(rtl_name):03x}), " \
-                "or the register answers to an address the firmware " \
-                f"census does not watch; write decode reaches it {governed}"
-            assert other, \
-                f"the RTL must give {signal} a reset value, and it has " \
-                f"none: with no assignment outside the write decode, {port} " \
-                "holds whatever the fabric brings up and this rule would " \
-                "otherwise pass by having nothing to check"
-            for rhs in other:
-                assert sv_literal_re.match(rhs), \
-                    f"the RTL writes {signal} outside the CSR write decode " \
-                    f"with {rhs.strip()!r}: only a literal reset value may " \
-                    "reach it there, or bus data has a second route in"
-                # ... and a literal is not enough. Bit 0 IS the safety
-                # property, so the value it resets to is part of it.
-                value = sv_literal_value(rhs)
-                assert value is not None and not value & 1, \
-                    f"the RTL must reset {signal} with bit 0 CLEAR, but it " \
-                    f"resets to {rhs.strip()!r}: {port} is then asserted " \
-                    "from FPGA configuration onward, so the entity is " \
-                    "advertised before any firmware has verified an AEM image"
-            drive = list(re.finditer(
-                rf"\bassign\s+{port}\s*=\s*{re.escape(signal)}\s*"
-                rf"\[\s*0\s*\]\s*;", csr))
-            assert len(drive) == 1, \
-                f"{port} must be driven exactly once, by {signal}[0], or " \
-                "the bit this gate censuses is not the bit that advertises"
-
-    #: Whitespace-tolerant: `milan_write (` is the same call to the compiler,
-    #: so it has to be the same call to the census.
-    write_call_re = re.compile(r"\bmilan_write\s*\(")
-    write_def_re = re.compile(
-        r"\bstatic\s+inline\s+void\s+milan_write\s*\(\s*unsigned\s+int\s+"
-        r"(?P<offset>\w+)\s*,\s*uint32_t\s+(?P<value>\w+)\s*\)\s*\{")
-
-    def csr_literal_default(csr, rtl_name):
-        """The literal in ``csr_default``'s live, top-level address case.
-
-        A bare whole-file regex can take an A_ID arm from a dead procedural
-        case while the live case serves a numeric-equivalent address.  Bound
-        the lookup to the one canonical ``unique case (a)`` in the function,
-        require that case to be the function's direct body after the default
-        assignment, and require the selected item to be at that case's own
-        depth.  The separately-run CSR Verilator harness owns the behavioral
-        claim that this literal is what an AXI read actually returns.
-        """
-        functions = list(re.finditer(
-            r"\bfunction\s+automatic\s+\[\s*31\s*:\s*0\s*\]\s+"
-            r"csr_default\s*\(\s*input\s+\[\s*10\s*:\s*0\s*\]\s+a\s*\)"
-            r"\s*;(?P<body>.*?)\bendfunction\b", csr, re.DOTALL))
-        assert len(functions) == 1, \
-            "the RTL must define exactly one canonical csr_default function"
-        body = functions[0].group("body")
-        cases = list(re.finditer(
-            r"\bunique\s+case\s*\(\s*a\s*\)", body))
-        assert len(cases) == 1, \
-            "the RTL csr_default function must have one unique case (a)"
-        case = cases[0]
-        assert re.fullmatch(
-            r"\s*csr_default\s*=\s*32\s*'\s*[hH]0\s*;\s*",
-            body[:case.start()]), \
-            "RTL csr_default's address case must be a direct top-level item " \
-            "after its literal-zero default"
-
-        depth, case_stop = 0, None
-        for token in case_token_re.finditer(body, case.start()):
-            if token.group(0) == "endcase":
-                depth -= 1
-                if depth == 0:
-                    case_stop = token.start()
-                    case_end = token.end()
-                    break
-            else:
-                depth += 1
-        assert case_stop is not None, \
-            "the RTL csr_default function's unique case (a) is not closed"
-        assert not body[case_end:].strip(), \
-            "the RTL csr_default address case must be the function's last " \
-            "top-level item"
-        case_body = body[case.end():case_stop]
-        low_eleven = (
-            r"(?:\[\s*10\s*:\s*0\s*\]|\[\s*0\s*\+:\s*11\s*\])")
-        matches = list(re.finditer(
-            rf"\b{re.escape(rtl_name)}\s*{low_eleven}\s*:\s*"
-            r"csr_default\s*=\s*(?P<value>[^;]+);", case_body))
-        assert len(matches) == 1, \
-            f"the RTL csr_default canonical case must define {rtl_name} " \
-            "exactly once"
-        nested_depth = 0
-        for token in case_token_re.finditer(case_body, 0, matches[0].start()):
-            nested_depth += -1 if token.group(0) == "endcase" else 1
-        assert nested_depth == 0, \
-            f"RTL csr_default {rtl_name} item must be live in its canonical " \
-            "top-level case"
-        literal = matches[0].group("value")
-        value = sv_literal_value(literal)
-        assert value is not None, \
-            f"the RTL {rtl_name} readback default must remain a literal, " \
-            f"not {literal.strip()!r}"
-        return value
-
-    class CsrModel:
-        """The firmware's #define table resolved against the register
-        addresses the RTL actually decodes.
-
-        The bus reasons over ADDRESSES, so this model does too. Two #defines
-        for 0x600 are ONE register here; a #define repointed at 0x920 IS
-        PP_CTRL however it is spelled; and a constant that is not a decoded
-        register address is not a register operand at all. Every rule built
-        on this keys on the address, never on the token."""
-
-        def __init__(self, firmware, csr):
-            code = blanked(firmware)
-            self.decoded = {}
-            seen_names = set()
-            address_matches = list(csr_address_re.finditer(csr))
-            for match in address_matches:
-                name, digits = match.groups()
-                assert_direct_scope(
-                    csr, match.start(),
-                    "RTL CSR address declarations must be unconditional "
-                    "module-scope items", require_item_start=False)
-                assert name not in seen_names, \
-                    f"RTL CSR address name {name} must be declared exactly once"
-                seen_names.add(name)
-                self.decoded.setdefault(int(digits.replace("_", ""), 16), name)
-            assert self.decoded, "the RTL no longer declares a CSR decode table"
-            self.defines = {}
-            for name, text in re.findall(
-                    r"(?m)^[ \t]*#[ \t]*define[ \t]+(MILAN_[A-Za-z0-9_]+)[ \t]+"
-                    r"([^\r\n]*?)[ \t]*$", code):
-                value = constant_value(text)
-                if value is not None:
-                    self.defines.setdefault(name, value)
-            self.phc = self.rtl_address("A_PTP_CTRL")
-            self.pp = self.rtl_address("A_PP_CTRL")
-            self.adp = self.rtl_address("A_ADP_CTRL")
-            self.identity = self.rtl_address("A_ID")
-            self.identity_default = csr_literal_default(csr, "A_ID")
-
-        def rtl_address(self, rtl_name):
-            for address, name in self.decoded.items():
-                if name == rtl_name:
-                    return address
-            raise AssertionError(f"the RTL no longer decodes {rtl_name}")
-
-        def label(self, address):
-            return f"{self.decoded[address][2:]} (CSR 0x{address:03x})"
-
-        def address(self, operand):
-            """The CSR address `operand` reaches, or None when this gate
-            cannot prove it reaches one -- a value constant, a local, a macro
-            argument, an arithmetic expression on a variable."""
-            text = operand.strip()
-            value = self.defines.get(text)
-            if value is None:
-                value = constant_value(text)
-            return value if value in self.decoded else None
-
-        def calls(self, source):
-            """Every milan_write() CALL in `source` as a record, the
-            primitive's own definition excluded. Offsets index `source`."""
-            code = blanked(source)
-            skip = [(d.start(), d.end()) for d in write_def_re.finditer(code)]
-            found = []
-            for call in write_call_re.finditer(code):
-                if any(a <= call.start() < b for a, b in skip):
-                    continue
-                depth, pos = 1, call.end()
-                while pos < len(code) and depth:
-                    depth += {"(": 1, ")": -1}.get(code[pos], 0)
-                    pos += 1
-                assert depth == 0, "a milan_write() call is never closed"
-                args, at = code[call.end():pos - 1], call.end()
-                depth, comma = 0, -1
-                for offset, char in enumerate(args):
-                    depth += {"(": 1, ")": -1}.get(char, 0)
-                    if char == "," and not depth:
-                        comma = offset
-                        break
-                assert comma >= 0, \
-                    "a milan_write() call carries no register operand"
-                found.append({"start": call.start(), "stop": pos,
-                              "operand": args[:comma],
-                              "value": args[comma + 1:],
-                              "value_at": at + comma + 1})
-                # `stop` deliberately ends at the closing paren, not the
-                # statement's semicolon, so a record can be lifted out and
-                # dropped back in as an expression.
-            return found
-
-        def writes(self, source, address):
-            """Every milan_write() in `source` that reaches `address`, each
-            with what it does to bit 0. A VALUE this gate cannot read counts
-            as SETTING bit 0, so an unreadable value can never be an
-            unnoticed entity enable."""
-            found = []
-            for record in self.calls(source):
-                if self.address(record["operand"]) != address:
-                    continue
-                found.append(self.effect(record, address))
-            return found
-
-        def effect(self, record, address):
-            text = record["value"]
-            read = re.match(
-                r"\A\s*\bmilan_read\s*\(\s*([^()]*?)\s*\)\s*([|&])\s*"
-                r"(.*?)\s*\Z", text, re.S)
-            mask = constant_value(read.group(3)) if read else None
-            if read and mask is not None and \
-                    self.address(read.group(1)) == address:
-                # OR can only set bit 0; AND (with or without ~) can only
-                # clear it, and clears it exactly when the mask omits it.
-                ored = read.group(2) == "|"
-                record.update(
-                    kind="or" if ored else "and",
-                    sets=ored and bool(mask & 1),
-                    clears=(not ored) and not mask & 1,
-                    mask_at=record["value_at"] + read.start(3),
-                    mask_to=record["value_at"] + read.end(3))
-                return record
-            constant = constant_value(text)
-            if constant is not None:
-                record.update(kind="constant", sets=bool(constant & 1),
-                              clears=not constant & 1)
-                return record
-            record.update(kind="opaque", sets=True, clears=False)
-            return record
-
-        def enable_write(self, block, address):
-            """The single read/OR enable of bit 0 at `address` in `block`."""
-            label = self.label(address)
-            ored = [w for w in self.writes(block, address)
-                    if w["kind"] == "or"]
-            assert len(ored) == 1, \
-                f"{label} must have exactly one read/OR enable write, and " \
-                f"there are {len(ored)}. NOTE, because this message has " \
-                "described the wrong thing before: the OR mask must be a " \
-                "value this gate can EVALUATE, so a named constant " \
-                "(`| MILAN_ENTITY_ENABLE`) does not count as the enable " \
-                "write even though it is the same bit to the hardware. " \
-                "Hoisting the mask to a #define is refused for that reason, " \
-                "not because the enable is missing or duplicated"
-            assert ored[0]["sets"], \
-                f"{label} enable write must assert bit 0"
-            return ored[0]
-
-    reset_pattern = re.compile(
-        r"\bptp_ctrl\s*<=\s*"
-        r"(?P<literal>(?:(?:[0-9]+)\s*)?'[hHdDbB]\s*[0-9A-Fa-f_]+|"
-        r"[0-9][0-9_]*)\s*;")
-
-    def ptp_reset_assignment(csr):
-        match = reset_pattern.search(csr)
-        assert match, "bare-metal PHC contract requires a literal reset value"
-        literal = match.group("literal")
-        value = sv_literal_value(literal)
-        assert value is not None, \
-            f"unsupported ptp_ctrl reset literal: {literal}"
-        return match, value
-
-    def ptp_enable_assignment(csr):
-        """The PHC enable output and the register bit that solely drives it."""
-        matches = list(re.finditer(
-            r"\bassign\s+o_ptp_enable\s*=\s*(?P<value>[^;]+);", csr))
-        assert len(matches) == 1, \
-            "bare-metal PHC contract requires exactly one o_ptp_enable " \
-            "continuous assignment"
-        value = matches[0].group("value")
-        assert re.fullmatch(r"\s*ptp_ctrl\s*\[\s*0\s*\]\s*", value), \
-            "PHC enable output must be driven directly by PTP_CTRL[0], " \
-            "independent of ADP, AEM and protocol-processor gates"
-        return matches[0]
-
-    def crc_mismatch_guard(load_source):
-        """The `if` that refuses a CRC mismatch, found by the comparison it
-        makes rather than by the name of the local it compares -- renaming a
-        local is not a boot-contract change."""
-        return re.search(
-            r"\bif\s*\(\s*(?:(?P<lhs>\w+)\s*!=\s*MILAN_AEM_IMAGE_CRC32|"
-            r"MILAN_AEM_IMAGE_CRC32\s*!=\s*(?P<rhs>\w+))\s*\)\s*\{",
-            load_source)
-
-    def assert_csr_store_closure(code, source):
-        """milan_write() is the ONLY store into a CSR, in the text this reads.
-
-        Every rule below the census reads milan_write() call sites, so a
-        second way to reach a control register is a way to advertise the
-        entity unexamined. This pins the three ingredients of a CSR store --
-        the base, the address helper and the primitive's own name -- so a
-        store spelled any other way is refused rather than left unexamined.
-
-        What it does NOT prove, stated so no later round mistakes its scope
-        for the whole property:
-
-        * It is a reader of ONE preprocessed-once translation unit's text, not
-          of the compiler's. It reads the file as written; the arm-selection
-          and macro-body traps that gave that reading its teeth are refused
-          outright by assert_preprocessor_visible(), not modelled here.
-        * It reasons about SPELLING, not values. A store through a pointer
-          held in a variable is outside what any of these regexes can TRACE.
-          Rules 1 to 3 do not keep it out and this bullet used to say they
-          did, which was false: `volatile uint32_t *adp = (void *)0x...;
-          *adp = 1u;` passed all three. Rule 5 refuses it instead, by pinning
-          the SET of casts and the SET of stores rather than by tracing where
-          any pointer points.
-        * An inline-asm store has NO spelling for these rules to match: no
-          milan_write, no milan_reg, no MILAN_CSR_BASE, no cast, just a
-          literal address in a template. Rules 1 to 3 cannot keep that out
-          and this docstring used to concede it with nothing behind the
-          concession; assert_asm_set_is_closed() is what refuses it now.
-        * A store from a SECOND translation unit is outside them entirely.
-          Nothing here reads a second file, so rules 1 to 3 cannot be what
-          keeps one out; assert_single_translation_unit() refuses one, and
-          until round five that check read `OBJECTS =` and stopped, so an
-          `OBJECTS += second.o` on the next line voided every rule above.
-        * It says nothing about REACHABILITY. That a store exists in the guard
-          is proved here; that control reaches it only through the guard is
-          proved by the label/goto/switch refusal in assert_boot_contract()."""
-        reg_def = re.search(
-            r"\bstatic\s+inline\s+volatile\s+uint32_t\s*\*\s*milan_reg\s*\(\s*"
-            r"unsigned\s+int\s+(?P<offset>\w+)\s*\)\s*\{", code)
-        assert reg_def, \
-            "firmware must define the milan_reg() CSR address helper"
-        reg_span = braced_span(code, reg_def, "milan_reg()")
-        read_def = re.search(
-            r"\bstatic\s+inline\s+uint32_t\s+milan_read\s*\(\s*unsigned\s+int"
-            r"\s+(?P<offset>\w+)\s*\)\s*\{", code)
-        assert read_def, "firmware must define the milan_read() CSR helper"
-        read_span = braced_span(code, read_def, "milan_read()")
-        write_defs = list(write_def_re.finditer(code))
-        assert len(write_defs) == 1, \
-            "firmware must define the milan_write() CSR store primitive " \
-            "exactly once, with the signature this gate parses"
-        write_def = write_defs[0]
-        write_span = braced_span(code, write_def, "milan_write()")
-        write_body = code[write_span[0]:write_span[1]]
-        # The census reads a call as "this value reaches this offset", so the
-        # primitive must actually be that: one store, of the value it was
-        # handed, at the offset it was handed.
-        assert re.match(
-            rf"\A\s*\*\s*milan_reg\s*\(\s*{write_def.group('offset')}\s*\)"
-            rf"\s*=\s*{write_def.group('value')}\s*;", write_body) and \
-            len(re.findall(r"(?<![=!<>+\-*/%&|^])=(?!=)", write_body)) == 1, \
-            "milan_write() must store exactly the value it is passed at the " \
-            "offset it is passed, or the bit-0 census reads the wrong register"
-
-        def within(span, pos):
-            return span[0] <= pos < span[1]
-
-        # 1. Only milan_reg() may FORM a CSR address. This is no longer a
-        #    rule about text: assert_compiled_census_is_clean() asks the
-        #    COMPILER which functions materialise a window address, so a
-        #    typedef'd pointer type, a register-access macro, a struct
-        #    overlay, an `->` store and an inline-asm template are all seen
-        #    without any of them being recognised in C. The one textual
-        #    remnant is the base NAME, kept because it gives a better message
-        #    than an address census can and costs nothing.
-        for pattern, what in (
-                (r"\bMILAN_CSR_BASE\b", "the CSR base"),
-                (r"\(\s*volatile\s+uint32_t\s*\*\s*\)", "a CSR pointer cast")):
-            for use in re.finditer(pattern, code):
-                assert within(reg_span, use.start()), \
-                    f"only milan_reg() may form a CSR address, but {what} is " \
-                    "used outside it: a raw store there reaches a control " \
-                    "register without passing the bit-0 census"
-        # 2. ... and only milan_read()/milan_write() may call it, so the one
-        #    dereference-store through it stays the one inside milan_write().
-        for use in re.finditer(r"\bmilan_reg\s*\(", code):
-            assert within(reg_span, use.start()) or \
-                within(read_span, use.start()) or \
-                within(write_span, use.start()) or \
-                within((reg_def.start(), reg_def.end()), use.start()), \
-                "milan_reg() may be called only by milan_read()/milan_write(): " \
-                "a store through it bypasses the bit-0 census"
-        # 3. milan_write is CALLED, never used as a value: taking its address
-        #    hands a function pointer a CSR store the census cannot see.
-        for use in re.finditer(r"\bmilan_write\b", code):
-            assert re.match(r"\s*\(", code[use.end():]), \
-                "milan_write must always be called, never used as a value: a " \
-                "function pointer to it stores to a CSR outside the census"
-        # 4. No pasted or aliased spelling of the primitive: a name this gate
-        #    cannot read is a store it cannot classify, so fail closed.
-        assert "##" not in code and "%:" not in code and "??" not in code, \
-            "firmware must not paste tokens, and must not spell one with a " \
-            "digraph or a trigraph: a pasted call name builds a CSR store " \
-            "this gate cannot read, and an alternate spelling of `#` builds " \
-            "a directive it cannot read either"
-        for name, body in re.findall(
-                r"(?m)^[ \t]*#[ \t]*define[ \t]+(\w+)(?:\([^)\n]*\))?[ \t]*"
-                r"([^\r\n]*)$", code):
-            hidden = re.search(r"\bmilan_(?:reg|read|write)\b", body)
-            assert not hidden, \
-                f"#define {name} hides {hidden.group(0)}() inside a macro " \
-                "body: every call to a CSR primitive must be spelled out so " \
-                "the operand census can read which register it names. A " \
-                "read-only accessor macro contains no store and is refused " \
-                "for this reason, not for storing"
-        # 5. ... and the cast set and the store set, restored: they catch
-        #    address formation the compiled census cannot see because no
-        #    window immediate is ever printed.
-        assert_store_set_is_closed(code, source)
-
-        # 6. The call-site census only has meaning if the two read-side
-        #    accessors preserve the offset and value it attributes to each
-        #    call. Keep this after the set closure so the existing
-        #    helper-body-store mutants remain pinned to the independent cast
-        #    and store-set checks that were written for them.
-        reg_body = code[reg_span[0]:reg_span[1]]
-        reg_offset = re.escape(reg_def.group("offset"))
-        assert re.fullmatch(
-            rf"\s*\breturn\b\s*\(\s*volatile\s+uint32_t\s*\*\s*\)\s*"
-            rf"\(\s*MILAN_CSR_BASE\s*\+\s*{reg_offset}\s*\)\s*;\s*",
-            reg_body), \
-            "milan_reg() must return exactly MILAN_CSR_BASE plus the offset " \
-            "it is passed"
-        read_body = code[read_span[0]:read_span[1]]
-        read_offset = re.escape(read_def.group("offset"))
-        assert re.fullmatch(
-            rf"\s*\breturn\b\s*\*\s*milan_reg\s*\(\s*{read_offset}\s*\)"
-            rf"\s*;\s*", read_body), \
-            "milan_read() must return exactly the value loaded through " \
-            "milan_reg(offset)"
-    #: ---- RESTORED, and the reason is measured -----------------------
-    #:
-    #: Round nine deleted the three families below on the claim that the
-    #: compiled census subsumed them. It does not. The census asks the
-    #: compiler for its TEXT and then matches that text for a whole-window
-    #: immediate, so a regex over disassembly is still a recognizer and it
-    #: inherited exactly the defect the instrument change was meant to
-    #: escape, one level down. Three shapes were RED at cc2ee861 and GREEN
-    #: at 828e5b06 with the census running:
-    #:
-    #:   * a store added INSIDE milan_reg(), which the census exempts by
-    #:     name, killed here by the cast set;
-    #:   * `(csr_page << 16) | MILAN_ADP_CTRL`, where the address is built
-    #:     with slli/ori and no window immediate is ever printed, killed
-    #:     here by the cast rule;
-    #:   * a `lui`-based asm template, which objdump annotates but which
-    #:     carries no window immediate, killed here by the asm set.
-    #:
-    #: So the census is an ADDITION, not a replacement. These catch
-    #: spellings the disassembly regex misses; the census catches spellings
-    #: no recognizer here anticipates. There is now measured evidence in
-    #: both directions and neither alone is sufficient.
-    #: Every store THROUGH A POINTER the firmware ships, pinned as a SET.
-    #:
-    #: Rule 1 above refuses ONE cast spelling, `(volatile uint32_t *)`, and
-    #: that is a denylist with a single entry: `volatile unsigned int *`,
-    #: `uint32_t volatile *` and a `(void *)` into a local are the same store
-    #: to the compiler and none of them matches it. It is the same failure
-    #: mode as an include regex narrower than the preprocessor, in the oldest
-    #: rule here. So the stores are pinned rather than the casts: a store is
-    #: found by what it IS, a dereference or a subscript on the left of an
-    #: assignment, and the cast that formed the pointer does not matter.
-    firmware_pointer_stores = (
-        "*milan_reg(offset) = value",
-        "*value = (uint64_t)parsed",
-        "*value = seconds * 1000000000ull + nanoseconds",
-        "dst[i] = src[i]",
-    )
-    #: ... and every cast to a POINTER, pinned the same way and for a reason
-    #: the store set alone does not cover. A store can be spelled `*p = v`,
-    #: `p[i] = v`, `p->m = v`, `(*p)++` or a memcpy, and enumerating THOSE is
-    #: the trap this whole round is about. A cast is where an address BECOMES
-    #: a pointer, so pinning the casts bounds address formation whatever the
-    #: store looks like: every one of those spellings still needs a cast (or
-    #: MILAN_CSR_BASE, or milan_reg(), both already pinned) to name a control
-    #: register in the first place.
-    firmware_pointer_casts = (
-        "(volatile uint32_t *)",
-        "(const volatile uint8_t *)",
-        "(volatile uint8_t *)",
-        "(const unsigned char *)",
-    )
-    pointer_cast_re = re.compile(
-        r"\([ \t]*[A-Za-z_][A-Za-z0-9_ \t]*\*(?:[ \t]*\*)*[ \t]*\)")
-    #: An assignment operator, simple or compound, and never a comparison.
-    assign_op_re = re.compile(
-        r"(?<![=!<>+\-*/%&|^])(?:[-+*/%&|^]|<<|>>)?=(?!=)")
-    subscript_lhs_re = re.compile(r"\A\w+[ \t]*\[[^\]]*\]\Z")
-
-    def pointer_stores(code):
-        """`(start, stop)` for every store through a pointer in `code`.
-
-        The left-hand side is taken back to the statement's start. A
-        DECLARATION with an initialiser is not a store, because its `*` is a
-        pointer declarator and its text names a type first; an assignment
-        inside a call's argument list is skipped for the same reason its
-        parentheses do not balance."""
-        found = []
-        for op in assign_op_re.finditer(code):
-            start = max(code.rfind(char, 0, op.start()) for char in ";{}") + 1
-            lhs = code[start:op.start()]
-            # A `for (i = 0; ...)` head leaves an unmatched `)` behind; step
-            # the statement's start past it so the loop BODY's store is seen
-            # and reported as itself rather than with the loop head attached.
-            while lhs.count("(") < lhs.count(")"):
-                cut = lhs.index(")") + 1
-                start, lhs = start + cut, lhs[cut:]
-            if lhs.count("(") > lhs.count(")"):
-                continue
-            text = lhs.strip()
-            if not (text.startswith("*") or subscript_lhs_re.match(text)):
-                continue
-            stop = code.find(";", op.end())
-            found.append((start, len(code) if stop < 0 else stop))
-        return found
-
-    def assert_store_set_is_closed(code, source):
-        """The firmware's stores through a pointer are pinned to the four it
-        ships, so a CSR store cannot be built from a cast this gate never
-        thought to name.
-
-        COST: a fifth pointer store is RED until it is added above. That is
-        the tripwire: whoever adds one has to decide, in this gate, whether
-        its target can be a control register."""
-        casts = [" ".join(m.group(0).split())
-                 for m in pointer_cast_re.finditer(code)]
-        assert casts == list(firmware_pointer_casts), \
-            "the firmware's casts to a pointer are pinned: a cast is where " \
-            "an address becomes a pointer, so naming ONE cast spelling " \
-            "leaves `volatile unsigned int *`, `uint32_t volatile *` and " \
-            f"`(void *)` free to name a control register; found {casts}"
-        found = [" ".join(source[at:to].split())
-                 for at, to in pointer_stores(code)]
-        assert found == list(firmware_pointer_stores), \
-            "the firmware's stores through a pointer are pinned: a store is " \
-            "a store whatever cast formed the pointer, and naming one cast " \
-            "spelling leaves `volatile unsigned int *`, `uint32_t volatile " \
-            f"*` and a (void *) into a local all reaching a CSR; found {found}"
-
-    #: The firmware's inline asm, pinned the way the include set is. An asm
-    #: store carries NO textual signature any other rule here matches: no
-    #: milan_write, no milan_reg, no MILAN_CSR_BASE and no cast, so a literal
-    #: address in an asm template reaches a control register past all of
-    #: them. The firmware already uses asm for its fences, so this is
-    #: idiomatic here rather than exotic.
-    firmware_asm = (
-        '__asm__ volatile("fence iorw, iorw" ::: "memory")',
-        '__asm__ volatile("fence rw, rw" ::: "memory")')
-    asm_re = re.compile(r"\b(?:__asm__|__asm|asm)\b")
-
-    def assert_asm_set_is_closed(code, source):
-        """Inline asm is pinned to the two fences the firmware ships.
-
-        COST: a third asm statement is RED until it is added above, which is
-        the point. Whoever adds one has to decide, in this gate, whether its
-        template can store into a control register."""
-        found = []
-        for use in asm_re.finditer(code):
-            stop = code.find(";", use.start())
-            assert stop >= 0, "an inline-asm statement is never closed"
-            found.append(" ".join(source[use.start():stop].split()))
-        assert found == list(firmware_asm), \
-            "the firmware's inline asm is pinned: an asm template carries no " \
-            "milan_write, no milan_reg, no MILAN_CSR_BASE and no cast, so a " \
-            "literal address in one stores to a control register past every " \
-            f"rule in the CSR store closure; found {found}"
-
-    #: The firmware's translation unit is milan_baremetal.c plus exactly
-    #: these. Pinned as a SET rather than derived, because there is nothing
-    #: here to derive it from: the whole point is that a twelfth include is
-    #: text this gate does not read, whatever the file is called.
-    #: Nine are THIRD PARTY: newlib's four and LiteX's five. Their contents
-    #: are not this repository's text, so pinning their names and trusting
-    #: their bodies is one claim ...
-    firmware_includes_third_party = (
-        "<stdint.h>", "<errno.h>", "<stdio.h>", "<stdlib.h>",
-        "<hw/common.h>", "<libbase/crc.h>", "<system.h>",
-        '"command.h"', '"init.h"')
-    #: ... and two are written by THIS REPOSITORY'S OWN BUILDER, so their
-    #: contents are this repository's text one generator away. Pinning those
-    #: names is the weaker half of the claim and it should not be stated as
-    #: though it were the same one. Their VALUES are gate 28's.
-    firmware_includes_generated = ("<generated/mem.h>", "<generated/soc.h>")
-    firmware_includes = (firmware_includes_third_party +
-                         firmware_includes_generated)
-    #: ... and a pinned NAME is not a pinned FILE. `"command.h"` and
-    #: does the same for the angle-bracket names. So RESOLUTION is pinned as
-    #: well as the names: the firmware's directory holds exactly these files,
-    #: and CFLAGS carries exactly this one search path.
-    firmware_directory = ("Makefile", "milan_baremetal.c")
-    def assert_include_resolution_is_pinned(listing):
-        """No file beside the firmware may answer to a pinned include name.
-
-        This is the axis that matters, and it is NOT who wrote the file: it
-        is whether this repository can decide which file a pinned name
-        resolves to. Splitting third party from generated was a real
-        correction and it is kept below, but on its own it says nothing about
-        a name whose FILE this repository can supply.
-
-        COST: any new file in the firmware's directory is RED, a README
-        included. That is the tripwire: the directory is two files and has
-        been for its whole life."""
-        assert sorted(listing) == sorted(firmware_directory), \
-            "the firmware's directory is pinned to " \
-            f"{sorted(firmware_directory)}: a quoted include resolves " \
-            "against this directory FIRST, so a file dropped in here answers " \
-            "to a pinned include name and puts this repository's text behind " \
-            f"it with no name changing anywhere; found {sorted(listing)}"
-    #: Every preprocessing directive this gate has a rule for. Anything else
-    #: is REFUSED rather than ignored: an #undef can retire a register
-    #: constant the address model read, and #pragma, #line, #include_next and
-    #: #import are outside every rule here.
-    firmware_directives = ("include", "define", "if", "ifdef", "ifndef",
-                           "elif", "else", "endif")
-    directive_re = re.compile(r"(?m)^[ \t]*#[ \t]*([A-Za-z_]\w*)?")
-    include_operand_re = re.compile(
-        r"\A[ \t]*(<[^>\n]*>|\"[^\"\n]*\")[ \t]*\Z")
-
-    def line_spliced(text):
-        """`text` with backslash-newline splices joined, LENGTH PRESERVED so
-        every offset still indexes the original. C and make both continue a
-        line this way, so both read it through here."""
-        return re.sub(r"\\\n", "  ", text)
-
-    def spliced(text):
-        """`text` after translation phases 1 and 2, LENGTH PRESERVED so every
-        offset still indexes the original: digraphs translated and
-        backslash-newline splices joined, each substitution exactly as wide as
-        what it replaces.
-
-        `%:include`, `??=include` and `#\\`-newline-`include` are all
-        `#include` to the compiler, so they are all `#include` here.
-        Enumerating include SPELLINGS is how a regex ends up narrower than
-        the preprocessor; doing the translations the standard specifies and
-        then reading directives is how it stops being narrower.
-
-        `??=` fires only under a strict `-std=cNN`, and LiteX compiles with
-        `-std=gnu99` today, so it does not bite the shipping build. It is
-        translated anyway: a gate that is correct only because of a flag it
-        never reads is correct by luck."""
-        return line_spliced(
-            text.replace("??=", "#  ").replace("??/", "  \\")
-                .replace("%:%:", "##  ").replace("%:", "# "))
-
-    def assert_directive_set_is_closed(code, source):
-        """The text this gate reads is the WHOLE translation unit.
-
-        assert_single_translation_unit() proves the image is built from one
-        OBJECT. It does not prove that object is built from one FILE. A
-        `#include "milan_bringup.c"` keeps the object count at one, so that
-        check is SATISFIED rather than evaded, and it hands the compiler a
-        second address helper, a second base cast and two unguarded enables
-        in a file no rule here ever opens: rules 1 to 3 of
-        assert_csr_store_closure() are all defeated by text it never sees.
-
-        So the DIRECTIVE SET is pinned, after phases 1 and 2, rather than a
-        list of include spellings. Every directive must be one this gate has
-        a rule for, and every #include operand must be a literal header name
-        in the pinned set. That covers a macro-expanded operand (C11
-        6.10.2p4, and the #define carrying the path passes every other rule
-        because its body names no CSR primitive), a spliced directive and a
-        digraph in one assertion instead of one per spelling.
-
-        The include SET is pinned, not the file extension: a header carrying
-        CSR stores is the same escape as a `.c`, and an angle-bracket include
-        resolves through -I exactly as a quoted one does.
-
-        `code` is the blanked text, so a #include inside a comment is not an
-        include; `source` is where the operand is read back from, since
-        blanking empties a quoted path but preserves its offsets, and both
-        translations above preserve them too.
-
-        COST: a twelfth include even `<string.h>`, and any `#pragma`,
-        `#line`, `#error` or `#undef`, are RED until added here. That is the
-        tripwire and not a defect: whoever adds one has to decide, in this
-        gate, whether the new text can store into a CSR."""
-        text, raw = spliced(code), spliced(source)
-        for directive in directive_re.finditer(text):
-            kind = directive.group(1)
-            assert kind in firmware_directives, \
-                "the firmware's preprocessing directives are pinned, and " \
-                f"'#{kind or ''}' is not one of them: a directive this gate " \
-                "has no rule for is text in the translation unit that no " \
-                "rule reads"
-            if kind != "include":
-                continue
-            stop = text.find("\n", directive.end())
-            stop = len(text) if stop < 0 else stop
-            operand = include_operand_re.match(text[directive.end():stop])
-            assert operand, \
-                "a #include operand must be a literal header name this gate " \
-                "can read, not a macro: a macro-expanded operand names a " \
-                f"file no rule here opens, got " \
-                f"{raw[directive.end():stop].strip()!r}"
-            name = raw[directive.end() + operand.start(1):
-                       directive.end() + operand.end(1)]
-            assert name in firmware_includes, \
-                "the firmware's include set is pinned, and " \
-                f"{name} is not in it: every rule in this gate reads ONE " \
-                "file, so an include it does not know about is text in the " \
-                "translation unit that no rule reads. A #include of a .c " \
-                "keeps the object count at one, so the " \
-                "single-translation-unit check is satisfied honestly while " \
-                "the closure reads the wrong file"
-
-    #: ---- the compiled census -------------------------------------------
-    #:
-    #: Rounds five to eight converted every rule here from a denylist of
-    #: dangerous spellings into a permitted SET. That was the right
-    #: correction and it retired several axes. It has a floor: a set is only
-    #: as wide as the RECOGNIZER that fills it, and the recognizers were
-    #: regexes over C. `((milan_adp_block)0x90000600u)->ctrl = 1u;` is a
-    #: cast, a store and an entity advertise, and no regex here saw any of
-    #: the three.
-    #:
-    #: So this stops reading C and asks the compiler. Emit assembly, then
-    #: require that no function except milan_reg() MATERIALISES an address
-    #: inside the Milan CSR window. A typedef'd pointer type, a
-    #: register-access macro, a struct overlay, an `->` store, a subscript
-    #: store, a qualifier after the star and an inline-asm template all
-    #: reduce to the same immediate, so none of them has to be recognised.
-    #:
-    #: This REPLACES the pointer-cast set, the pointer-store set, the
-    #: inline-asm set and rule 1's cast half. It cannot be out-spelled,
-    #: because the thing doing the recognising is the thing that defines
-    #: what the spellings mean.
-    csr_window = re.search(
-        r"(?m)^MILAN_CSR_BASE\s*=\s*(0x[0-9A-Fa-f_]+)", soc_source)
-    csr_window_size = re.search(
-        r"(?m)^MILAN_CSR_SIZE\s*=\s*(0x[0-9A-Fa-f_]+)", soc_source)
-    assert csr_window and csr_window_size, \
-        "sw/litex/milan_soc.py no longer states the Milan CSR window"
-    csr_base = int(csr_window.group(1).replace("_", ""), 16)
-    csr_size = int(csr_window_size.group(1).replace("_", ""), 16)
-    #: Immediates as the assembler prints them, in any base and either sign,
-    #: and never a label suffix (`.L4`) or a register number.
-    asm_immediate_re = re.compile(
-        r"(?<![\w.])(-?(?:0[xX][0-9A-Fa-f]+|\d+))(?![\w.])")
-    asm_noise_re = re.compile(r"^\s*\.(?:cfi|file|loc|size|ident|align|globl)")
-    #: The values the census compile substitutes for the generated headers.
-    #: Every one is asserted OUTSIDE the window below, so a stub cannot
-    #: silently manufacture a hit or mask one.
-    census_defines = {
-        "SPIFLASH_BASE": 0x2000_0000,
-        "MILAN_AEM_DESC_BASE": 0x7F70_0000,
-        "MILAN_ENTITY_ID_LO": 0x1122_3344, "MILAN_ENTITY_ID_HI": 0x5566_7788,
-        "MILAN_MODEL_ID_LO": 0x0A0B_0C0D, "MILAN_MODEL_ID_HI": 0x0102_0304,
-        "MILAN_STATION_MAC_LO": 0x3, "MILAN_STATION_MAC_HI": 0x200,
-        "MILAN_SR_VID": 2, "MILAN_LWSRP_CTRL_RESET": 0x10,
-        "MILAN_N_TALKERS": 1, "MILAN_AEM_FLASH_OFFSET": 0x00E0_0000,
-        "MILAN_AEM_IMAGE_BYTES": 4096, "MILAN_AEM_IMAGE_CRC32": 0xDEAD_BEEF,
-    }
-    #: The RV32 cross compiler is the real target and the only one that can
-    #: assemble the firmware's RISC-V asm; a host compiler answers every
-    #: C-level shape and FAILS LOUDLY on the asm rather than passing it.
-    census_compilers = (
-        os.path.join(os.path.expanduser("~"),
-                     "br-milan-rv32/host/bin/riscv32-linux-gcc"),
-        "riscv64-elf-gcc", "riscv32-unknown-elf-gcc", "cc", "gcc")
-    #: The flag sets that can make one of those candidates the RV32 target,
-    #: tried in order. The EMPTY one comes first because a compiler built
-    #: for rv32 may carry no multilib for a bare `rv32i`, so driving one
-    #: that needs no driving would stand the census down on the very tool
-    #: it exists for.
-    rv32_drivers = ((), ("-march=rv32i", "-mabi=ilp32"))
-
-    def census_headers(root):
-        """The stub header set the census compiles against, written from
-        `census_defines` plus the window base read out of milan_soc.py, so
-        no address in it is mirrored from anywhere."""
-        for leaf in ("generated", "hw", "libbase"):
-            os.makedirs(os.path.join(root, leaf), exist_ok=True)
-        for name, value in census_defines.items():
-            assert not csr_base <= value < csr_base + csr_size, \
-                f"census stub {name} lands inside the CSR window and would " \
-                "manufacture a hit the firmware never makes"
-        body = "\n".join(f"#define {n} 0x{v:x}u"
-                         for n, v in census_defines.items())
-        write = {
-            "generated/mem.h": f"#pragma once\n#define MILAN_CSR_BASE "
-                               f"0x{csr_base:x}u\n{body}\n",
-            "generated/soc.h": "#pragma once\n",
-            "hw/common.h": "#pragma once\n",
-            "libbase/crc.h": "#pragma once\nunsigned int crc32("
-                             "const unsigned char *b, unsigned int n);\n",
-            "system.h": "#pragma once\nvoid cdelay(int i);\n",
-            "command.h": "#pragma once\n#define SYSTEM_CMDS 0\n"
-                         "#define define_command(n, h, d, g) static void "
-                         "(*const n##_c)(int, char **) "
-                         "__attribute__((unused)) = h\n",
-            "init.h": "#pragma once\n#define define_init_func(f) static void "
-                      "(*const f##_i)(void) __attribute__((unused)) = f\n",
-        }
-        for leaf, text in write.items():
-            with open(os.path.join(root, leaf), "w") as fh:
-                fh.write(text)
-
-    #: Filled in by the first census run and printed in the verdict: a
-    #: census whose answer depends on an unrecorded tool choice is not a
-    #: fact. `target` is true only for a compiler that can build the
-    #: firmware's RISC-V asm, which is what makes the census authoritative.
-    census_used = {}
-
-    def rv32_probe_source(xlen):
-        """The census probe: the RISC-V asm the firmware also writes, under
-        a guard on the width the compiler is about to compile FOR.
-
-        The probe used to be the asm alone, and `riscv64-elf-gcc` assembles
-        `nop` with a `t0` clobber exactly as an RV32 GCC does. So a 64-bit
-        compiler answered YES to "are you the exact RV32 target", every
-        census was then taken with 64-bit pointers, and the firmware's own
-        `(volatile uint32_t *)(MILAN_CSR_BASE + offset)` became an -Werror
-        int-to-pointer-cast RED that failed the suite on a pristine tree
-        (#206). __riscv_xlen is the compiler's own statement of that width,
-        so no multilib default can out-spell it."""
-        return (f"#if !defined(__riscv_xlen) || __riscv_xlen != {xlen}\n"
-                f"#error \"this compiler is not a {xlen}-bit RISC-V target\"\n"
-                "#endif\n"
-                "void f(void){__asm__ volatile(\"nop\" ::: \"t0\");}\n")
-
-    def census_probe(candidate, driver, xlen=32, runner=None):
-        """Compile the probe once; True when `candidate` driven by `driver`
-        IS a RISC-V target of `xlen` bits."""
-        run = subprocess.run if runner is None else runner
-        with tempfile.TemporaryDirectory(prefix="milan-cc-") as probe_dir:
-            probe_path = os.path.join(probe_dir, "probe.c")
-            with open(probe_path, "w") as fh:
-                fh.write(rv32_probe_source(xlen))
-            built = run(
-                [candidate] + list(driver) +
-                ["-S", "-o", os.path.join(probe_dir, "p.s"), probe_path],
-                capture_output=True, text=True)
-        return built.returncode == 0
-
-    def census_rv32_driver(candidate, runner=None):
-        """The first flag set that makes `candidate` the RV32 target, or
-        None when none of them does."""
-        for driver in rv32_drivers:
-            if census_probe(candidate, driver, runner=runner):
-                return driver
-        return None
-
-    #: The census's OWN assembly has to be 32-bit, not just the compiler it
-    #: was taken with. The probe proves the candidate CAN be driven at RV32;
-    #: only the emitted assembly proves the census invocation WAS. GCC states
-    #: it, so read it back rather than trusting the argv: [R1] on PR #212
-    #: built a wrapper that honours the rv32 flags everywhere except the
-    #: census call, and only the four census-only mutants caught it, and only
-    #: indirectly.
-    census_arch_re = re.compile(r'^\s*\.attribute\s+arch\s*,\s*"([^"]*)"',
-                                re.M)
-    census_arch_seen = {"stated": 0, "unstated": 0}
-
-    def assert_census_arch_is_rv32(assembly_text, label):
-        """The arch the census assembly declares, or None when the toolchain
-        declares none. A toolchain that states nothing cannot be blamed for
-        it, so the absence is REPORTED rather than reddened."""
-        found = census_arch_re.search(assembly_text)
-        arch = found.group(1) if found else None
-        assert arch is None or arch.startswith("rv32"), \
-            f"the compiled census of the {label} was emitted for {arch}, " \
-            "not for an rv32 target: the probe adopted this compiler as the " \
-            "RV32 target and the census invocation did not follow it there, " \
-            "so every pointer width, address and immediate in the assembly " \
-            "this gate is about to read belongs to a different machine"
-        return arch
-
-    assert assert_census_arch_is_rv32(
-        '\t.attribute arch, "rv32i2p1_m2p0"\n', "arch self-test") == \
-        "rv32i2p1_m2p0", \
-        "the census arch check cannot read the directive GCC actually emits"
-    try:
-        assert_census_arch_is_rv32('\t.attribute arch, "rv64i2p1"\n',
-                                   "arch self-test")
-    except AssertionError as exc:
-        assert "not for an rv32 target" in str(exc), exc
-    else:
-        raise AssertionError(
-            "the census arch check accepted rv64 assembly, so it cannot say "
-            "which machine the census it reads was taken on")
-    assert assert_census_arch_is_rv32("\tnop\n", "arch self-test") is None, \
-        "assembly with no arch attribute must come back unstated, not " \
-        "invented: a toolchain that declares none cannot be blamed for it"
-
-    def census_candidate_answers(candidate):
-        try:
-            version = subprocess.run([candidate, "--version"],
-                                     capture_output=True, text=True)
-        except (OSError, ValueError):
-            return False
-        return version.returncode == 0
-
-    def census_compiler():
-        if census_used:
-            return census_used.get("compiler")
-        present = [c for c in census_compilers if census_candidate_answers(c)]
-        for candidate in present:
-            driver = census_rv32_driver(candidate)
-            if driver is not None:
-                census_used.update(compiler=candidate, target=True,
-                                   flags=tuple(driver))
-                return candidate
-        #: Nothing here is the RV32 target, driven or bare. Name the first
-        #: compiler that at least ANSWERS, so the stand-down says which tool
-        #: declined rather than reporting a bare "no": on a box whose only
-        #: RISC-V GCC is 64-bit-only, that name is the actionable half.
-        census_used.update(compiler=present[0] if present else None,
-                           target=False, flags=())
-        return census_used["compiler"]
-
-    #: The CSR address helper's name, derived from the shipping firmware so
-    #: the printed summary cannot drift from what the census enforces. A
-    #: firmware with no such helper -- an EMPTY milan_baremetal.c is the
-    #: degenerate case -- used to reach `.group(1)` on None and fail the
-    #: suite with an AttributeError blaming nothing, which is the one kind
-    #: of red a gate must never produce (#206).
-    reg_helper_declaration = re.search(
-        r"\bstatic\s+inline\s+volatile\s+uint32_t\s*\*\s*(\w+)\s*\(",
-        firmware_source)
-    assert reg_helper_declaration, \
-        "the firmware declares no `static inline volatile uint32_t *` CSR " \
-        "address helper, so this gate cannot name the one function that is " \
-        "allowed to form a CSR address and cannot scope the census it is " \
-        "about to take; refusing rather than reporting a bounded result"
-    reg_helper_name = reg_helper_declaration.group(1)
-    #: Every mutant that reaches a control register outside milan_reg()
-    #: fails on this one sentence, whatever spelled it.
-    CENSUS_PIN = "materialises one elsewhere"
-    #: ... and the three sentences the RESOLVER answers on, one per
-    #: question it asks. Every mutant that reaches a control register by
-    #: address arithmetic no immediate reveals fails on the first; every one
-    #: that reaches a non-zero verdict without the CRC comparison fails on
-    #: the second; every one that moves an enable out of the choke point
-    #: fails on the third.
-    RESOLVER_STORE_PIN = "STORES into the Milan CSR window"
-    RESOLVER_DOMINANCE_PIN = "CRC-equality edge REMOVED"
-    RESOLVER_CHOKE_PIN = "not from entity_advertise()"
-    #: ... and the fourth, which is the one this round adds. A store whose
-    #: address the resolver cannot place is a REFUSAL, not an omission.
-    RESOLVER_UNPLACED_PIN = "STORE this gate cannot PLACE"
-    #: ... and the fifth: the address helper's return is the one address
-    #: this firmware may reach a control register through, so exactly one
-    #: function may store through it.
-    RESOLVER_HELPER_PIN = "exactly one function may store through it"
-    #: ... and the sixth and seventh, which are this round's ([R0] BLOCKER
-    #: on PR #241, third round). The choke point is proved from the inside
-    #: by the dominance rule above; these two prove its ENTRANCES. A call
-    #: edge this resolver cannot place, and an argument it cannot trace back
-    #: to the AEM verifier, are REFUSALS -- never a default of "verified".
-    RESOLVER_ENTRANCE_PIN = (
-        "ENTRANCE into the choke point this gate cannot tie to the AEM "
-        "verdict")
-    RESOLVER_VERDICT_PIN = (
-        "entered with a verdict this gate cannot trace to the AEM verifier")
-    #: ... and the eighth: the AEM copy loop's destination is PLACED, as a
-    #: bounded range inside the buffer the CRC verdict is taken over.
-    RESOLVER_COPY_PIN = "the AEM copy loop's destination"
-    #: THE DECLARED RESIDUAL, and the reason it exists ([R0] BLOCKER on PR
-    #: #241).
-    #:
-    #: The census classifies EVERY store the compiler emits. Five classes
-    #: are PROVED to land outside the control window and need no entry
-    #: here: a resolved address (rule 1 answers it by number), a store
-    #: whose address resolves to a BOUNDED RANGE (rule 1 answers it the
-    #: same way, and it exists because of the entry this table LOST), a
-    #: stack address, the address of one of this unit's own statics, and
-    #: the address helper's own return -- the single sanctioned CSR store,
-    #: which rule 1c pins to exactly one function.
-    #:
-    #: What is left is what this analysis genuinely CANNOT say, and it is
-    #: ONE store in the shipping firmware. Naming it here is what turns
-    #: "cannot say" into a refusal with a declared exception rather than
-    #: into silence: the census asserts this table EXACTLY, so one more
-    #: unplaceable store anywhere -- in this function or in any other --
-    #: is RED, and one fewer is RED too, so a residual can only be retired
-    #: deliberately. docs/integration/BAREMETAL_FIRMWARE.md carries the
-    #: same row, which is where the published claim is narrowed to what
-    #: the code actually proves.
-    #:
-    #: The copy-loop entry this table used to carry was keyed (function,
-    #: class, detail-None) and asserted by COUNT, which bound neither the
-    #: store's base nor its value: redirecting the shipping copy
-    #: destination onto ADP_CTRL through a runtime CSR read kept the key
-    #: set and the count byte-identical and the complete gate green ([R0]
-    #: 2026-08-25T05:46Z and [R2] BLOCKER on PR #241, both at fe38d10e).
-    #: A residual whose identity is not itself bound is a budget a
-    #: dangerous store can spend, so that entry is RETIRED and the store
-    #: is PLACED instead: branch refinement bounds the loop index by the
-    #: bltu the compiler emitted, and rule 1d pins the resulting range
-    #: inside the AEM buffer. The entry below survives because its
-    #: identity IS bound -- the callee is part of the key, so a store
-    #: through any other unresolved base is a different, refused class.
-    RESOLVER_STORE_RESIDUAL = {
-        ("parse_u64", "call", "__errno_location"): (
-            1,
-            "`errno = 0` stores through the pointer __errno_location() "
-            "returns; that function is not compiled in this translation "
-            "unit, so its return value is outside what this census "
-            "resolves"),
-    }
-
-    def format_census_verdict(verdict):
-        """Render only an execution state the census actually observed."""
-        assert verdict["ran"] == verdict["target"], \
-            "compiled-census verdict contradicts its execution state"
-        compiler = os.path.basename(verdict.get("compiler") or "no")
-        driver = " ".join(verdict.get("flags") or ())
-        if verdict["ran"]:
-            arch = verdict.get("arch")
-            return (f"answered by {compiler}" +
-                    (f", driven at RV32 with {driver}" if driver else
-                     ", which is the RV32 target with no flags") +
-                    (f", emitting {arch} assembly" if arch else
-                     ", whose assembly declares no arch attribute"))
-        return (f"STOOD DOWN: {compiler} compiler is not the RV32 target and "
-                "no flag set here drives it as one, so the compiled census "
-                "did not run and the text rules above carry this on their "
-                "own")
-
-    def census_take(firmware, label="firmware", selection=None, runner=None):
-        """Compile `firmware` for the exact RV32 target once and hand back
-        the assembly, or a recorded stand-down.
-
-        ONE compile feeds BOTH instruments: the immediate-matching census
-        below and the value-resolving flow analysis beside it. They ask
-        different questions of the same emitted code, and taking two
-        compiles would let them answer about two different builds."""
-        if selection is None:
-            compiler = census_compiler()
-            target = bool(census_used.get("target"))
-            driver = tuple(census_used.get("flags") or ())
-        else:
-            compiler = selection.get("compiler")
-            target = bool(selection.get("target"))
-            driver = tuple(selection.get("flags") or ())
-        if compiler and not target:
-            # GENUINELY stand down. An earlier revision printed
-            # "STOOD DOWN" and then ran the census anyway: `-S` does not
-            # assemble, so a host compiler emits most of the firmware fine
-            # and returned a real x86 verdict while the printed line said
-            # the text rules were carrying it alone. A stand-down message
-            # that is false is worse than no stand-down.
-            return {"compiler": compiler, "target": False, "ran": False,
-                    "flags": driver, "text": None, "arch": None}
-        assert compiler, \
-            "the compiled census needs a C compiler and found none of " \
-            f"{list(census_compilers)}: this gate cannot bound CSR stores " \
-            "by reading C, so it refuses to report a result it did not take"
-        run = subprocess.run if runner is None else runner
-        with tempfile.TemporaryDirectory(prefix="milan-census-") as root:
-            census_headers(root)
-            source = os.path.join(root, "milan_baremetal.c")
-            with open(source, "w") as fh:
-                fh.write(firmware)
-            assembly = os.path.join(root, "census.s")
-            built = run(
-                [compiler] + list(driver) +
-                ["-std=gnu99", "-O0", "-fno-inline", "-S",
-                 "-o", assembly, f"-I{root}", source],
-                capture_output=True, text=True)
-            if built.returncode != 0:
-                # Reached only when the compiler IS the RV32 target, since a
-                # non-target one returned above without compiling anything.
-                #
-                # DECIDED, not overlooked ([R1] SUGGESTION on PR #212): this
-                # stays a RED and does not become a stand-down. An RV32
-                # toolchain with unusable headers therefore reddens a clean
-                # checkout, which is the class #206 exists to remove, but the
-                # alternative lets a firmware this gate genuinely cannot
-                # census pass as "the toolchain's fault". Telling the two
-                # apart needs a positive control compiled first, which is a
-                # design of its own; not reachable on either toolchain this
-                # repository is built with, and recorded in
-                # docs/integration/BAREMETAL_FIRMWARE.md rather than left to
-                # be rediscovered.
-                raise AssertionError(
-                    f"the compiled census could not build the {label} with "
-                    f"{compiler}, which IS the RV32 target: a source this "
-                    "gate cannot compile is a source whose CSR stores it "
-                    f"cannot census; {built.stderr.strip().splitlines()[-1:]}")
-            text = open(assembly, encoding="utf-8", errors="replace").read()
-        arch = assert_census_arch_is_rv32(text, label)
-        census_arch_seen["stated" if arch else "unstated"] += 1
-        return {"compiler": compiler, "target": True, "ran": True,
-                "flags": driver, "text": text, "arch": arch}
-
-    def assert_compiled_census_is_clean(firmware, label="firmware",
-                                        selection=None, runner=None,
-                                        taken=None):
-        """No function but milan_reg() may materialise a CSR window address.
-
-        Measured on the COMPILER's output, not on the firmware's text.
-
-        SCOPE, stated so it is not mistaken for more: this censuses ADDRESS
-        FORMATION, which is what bounds every store, read and asm template
-        that could reach a control register. It does not say which register
-        or which bit; the milan_write() census above does that, and it is
-        sound precisely because this makes milan_write() the only way in."""
-        # The address helper's NAME is derived from the firmware, not
-        # mirrored here: assert_csr_store_closure() pins the same definition.
-        helper = re.search(
-            r"\bstatic\s+inline\s+volatile\s+uint32_t\s*\*\s*(\w+)\s*\(",
-            blanked(firmware))
-        assert helper, \
-            "the compiled census cannot find the firmware's CSR address " \
-            "helper, so it cannot say which function is allowed to form an " \
-            "address; refusing rather than censusing against a guess"
-        reg_name = helper.group(1)
-        taken = census_take(firmware, label, selection, runner) \
-            if taken is None else taken
-        if not taken["ran"]:
-            return {key: taken[key]
-                    for key in ("compiler", "target", "ran", "flags")}
-        text, arch = taken["text"], taken["arch"]
-        hits, where = [], "<file scope>"
-        for line in text.splitlines():
-            named = re.match(r"^([A-Za-z_][\w.]*):", line)
-            if named:
-                where = named.group(1)
-            if asm_noise_re.match(line):
-                continue
-            for token in asm_immediate_re.findall(line):
-                value = int(token, 0) & 0xFFFF_FFFF
-                if csr_base <= value < csr_base + csr_size and \
-                        where != reg_name:
-                    hits.append((where, f"0x{value:08x}",
-                                 " ".join(line.split())))
-        assert not hits, \
-            f"only {reg_name}() may form a CSR address, and the COMPILED " \
-            f"{label} materialises one elsewhere: an address inside the " \
-            f"Milan CSR window (0x{csr_base:08x}..0x{csr_base + csr_size:08x})"\
-            f" reaches a control register without passing the bit-0 census, " \
-            f"whatever cast, typedef, macro, member access or asm template " \
-            f"spelled it; found {hits[:3]}"
-        return {"compiler": taken["compiler"], "target": True, "ran": True,
-                "flags": taken["flags"], "arch": arch}
-
-    #: ---- the RESOLVING half of gate 1b (issue #153) ------------------
-    #:
-    #: CLASS, recorded before the rules (process guard 1 from #143's close).
-    #: The property is DATA FLOW: which value reaches PP_CTRL[0] and
-    #: ADP_CTRL[0], and which comparison dominates it. Every rule above is a
-    #: RECOGNIZER over some text -- C source, a Makefile, or the census's
-    #: regex over disassembly -- and a recognizer can be out-spelled by
-    #: construction. The rules below RESOLVE: they compute the store
-    #: addresses, the call operands, the compared values and the CFG edges
-    #: out of the assembly the census already compiled, so there is no
-    #: spelling left to vary.
-    #:
-    #: This is an ADDITION, not a replacement, and the difference is
-    #: measured rather than asserted: the exempted-helper blindness control
-    #: below runs BOTH instruments over the same mutant and records that the
-    #: census is blind to it while the resolver rejects it.
-    def entity_advertise_span(code, label="firmware"):
-        """`(match, body, close)` for the entity-advertise choke point."""
-        found = re.search(
-            r"\bstatic\s+void\s+entity_advertise\s*\(\s*int\s+"
-            r"(?P<verdict>\w+)\s*\)\s*\{", code)
-        assert found, \
-            f"the {label} declares no `static void entity_advertise(int)` " \
-            "choke point: the boot contract is proved by data flow into ONE " \
-            "function that sets the two enable bits, so without it this " \
-            "gate has no choke point to prove anything about (#153)"
-        body, close = braced_span(code, found, "entity_advertise()")
-        return found, body, close
-
-    def assert_resolved_boot_flow(assembly, model, label="firmware",
-                                  helper=None):
-        """Answer the boot contract from the RESOLVED assembly.
-
-        Five questions, each about a VALUE or an EDGE and none about a
-        spelling:
-
-        0. how is the choke point ENTERED?  Every question below is about
-           its INSIDE, and question 3 hands it a synthetic verdict, so on
-           their own they prove dominance for one execution rather than for
-           the call edges the firmware has.  So: the choke point is neither
-           exported nor address-taken, this unit makes no transfer through a
-           register at all, exactly one call edge reaches the choke point and
-           it comes from milan_init(), and the value that edge hands it is
-           the one load_aem_image() produced.  A call edge this resolver
-           cannot place, and an argument it cannot trace to the verifier, are
-           REFUSALS ([R0] BLOCKER on PR #241);
-        1. does any function STORE to an address this resolves inside the
-           Milan CSR window?  No exemption, not even the address helper:
-           forming the address is that helper's job, storing through a
-           resolved one is nobody's;
-        1b. and for every store whose address did NOT resolve: which class
-           of base did it go through, is that class proved to land outside
-           the window, and -- if not -- is it the one residual this
-           gate DECLARES and publishes?  Anything else is a refusal.  The
-           earlier revision filtered these stores out before asking, so a
-           store the resolver could not place simply did not appear in the
-           census and the gate reported a clean result over the subset it
-           happened to understand ([R0] BLOCKER on PR #241);
-        1c. the address helper's own return is the ONE sanctioned way into
-           the window, so exactly one function may store through it, and it
-           must be the one question 2 censuses;
-        1d. the AEM copy loop's store is PLACED -- branch refinement bounds
-           the loop index by the emitted bltu, so its address is a bounded
-           range -- and that range lies inside the buffer the CRC verdict
-           is taken over.  This retires the count-keyed residual that
-           bound neither base nor value ([R0]+[R2] BLOCKER on PR #241);
-        2. which `milan_write()` calls assert bit 0 of PP_CTRL or ADP_CTRL,
-           taking the register from the resolved first operand and the bit
-           from the resolved second one?
-        3. inside the choke point, do those calls survive the removal of the
-           edge the verdict test takes when the verdict is non-zero?
-        4. inside the verifier, what are the CRC's operands, is the compared
-           value the one `crc32()` handed back, and does a non-zero verdict
-           survive the removal of the CRC-equality edge?
-        """
-        unit = rv32_unit(assembly)
-        runs = unit["runs"]
-        for needed in ("entity_advertise", "load_aem_image", "milan_write",
-                       "milan_init"):
-            assert needed in unit["functions"], \
-                f"the compiled {label} defines no {needed}(), so the " \
-                "resolved boot-flow measurement has nothing to answer " \
-                "about; refusing rather than reporting a bounded result"
-        window = f"0x{csr_base:08x}..0x{csr_base + csr_size:08x}"
-
-        # ---- 0. every ENTRANCE into the choke point ----------------------
-        #
-        # Questions 2 and 3 below are about the INSIDE of the choke point:
-        # which writes it holds, and that its verdict test dominates them.
-        # Neither says how it is ENTERED, and question 3 runs it in
-        # isolation on a SYNTHETIC verdict, so between them they prove
-        # dominance for one execution and for no call edge the firmware
-        # actually has. A table holding the choke point's address, called
-        # from a UART handler with a literal 1, keeps every enable inside
-        # the choke point, keeps the local `if (!verified)` dominating them,
-        # keeps the one literal call site spelled
-        # `entity_advertise(aem_loaded)` -- and advertises the entity after
-        # an AEM CRC failure ([R0] BLOCKER on PR #241, third round).
-        #
-        # So the ARGUMENT LATTICE is closed at the entrance as well, and it
-        # is closed FAIL-CLOSED at both ends: a call edge this resolver
-        # cannot place, and an argument it cannot trace back to the AEM
-        # verifier, are REFUSALS. Neither is ever read as "verified".
-        choke = "entity_advertise"
-        reached = ("exports" if choke in unit["exported"]
-                   else "forms the ADDRESS of")
-        assert choke not in unit["exported"] and \
-            choke not in unit["addressed"], \
-            f"the compiled {label} {reached} {choke}(), which is an " \
-            f"{RESOLVER_ENTRANCE_PIN}: a symbol another translation unit " \
-            "can name, or an address parked in a table and reached through " \
-            "jalr, is a call site this unit's assembly never shows, so no " \
-            "rule here can say what verdict the choke point is entered " \
-            "with, and the dominance measured below would hold for a " \
-            "synthetic argument and for nothing else"
-        #: ... and the same fact WHITELISTED rather than blacklisted, which
-        #: is the shape the rule above cannot have on its own: a list of
-        #: spellings to refuse is the recognizer this ticket exists to
-        #: retire, and `.set alias,entity_advertise` is neither an export of
-        #: this name nor an address of it while still handing another unit a
-        #: global symbol that calls the choke point. So: the four forms the
-        #: compiler emits for a private function called by name are listed,
-        #: and every other line naming it is a refusal.
-        allowed_use = re.compile(
-            rf"^{re.escape(choke)}:$"
-            rf"|^\.type\s+{re.escape(choke)},\s*@function$"
-            rf"|^\.size\s+{re.escape(choke)},\s*\.-{re.escape(choke)}$"
-            rf"|^call\s+{re.escape(choke)}$")
-        names_choke = re.compile(rf"(?<![\w.$]){re.escape(choke)}(?![\w.$])")
-        stray_use = sorted({" ".join(line.split())
-                            for line in assembly.splitlines()
-                            if names_choke.search(line) and
-                            not allowed_use.match(" ".join(line.split()))})
-        assert not stray_use, \
-            f"the compiled {label} names {choke}() in a form this gate does " \
-            "not recognise as the definition of a private function or a " \
-            f"direct call to it, so it must read it as an " \
-            f"{RESOLVER_ENTRANCE_PIN}: {stray_use}"
-        unplaceable = sorted(
-            f"{name}() at {at} through {callee}"
-            for name, run in runs.items()
-            for at, (callee, _handed) in run["calls"]
-            if callee in RV32_REG_NAMES)
-        assert not unplaceable, \
-            f"the compiled {label} transfers control through a register " \
-            "this resolver cannot tie to a symbol, which it must read as " \
-            f"an {RESOLVER_ENTRANCE_PIN}: " + "; ".join(unplaceable) + \
-            ". An instrument that cannot place a call edge must REFUSE it " \
-            f"rather than assume where it goes, because {choke}() is " \
-            "precisely what it cannot rule out"
-        entrances = sorted(
-            (name, at) for name, run in runs.items()
-            for at, (callee, _handed) in run["calls"] if callee == choke)
-        assert [name for name, _at in entrances] == ["milan_init"], \
-            f"the compiled {label} enters {choke}() from " \
-            f"{[name for name, _at in entrances] or 'nowhere'}, not from " \
-            "milan_init() exactly once: a second call site is an " \
-            f"{RESOLVER_ENTRANCE_PIN}, and one edge from the boot path is " \
-            "what makes the argument resolved next the only argument this " \
-            "function is ever handed"
-        verdict_tag = Rv32Tag("load_aem_image")
-        boot = rv32_run(unit["functions"]["milan_init"], unit["data"],
-                        tags={"load_aem_image": verdict_tag})
-        handed_verdict = [handed["a0"]
-                          for _at, (callee, handed) in boot["calls"]
-                          if callee == choke]
-        assert handed_verdict == [verdict_tag], \
-            f"the compiled {label} enters {choke}() with " \
-            f"{handed_verdict!r} rather than with the one value " \
-            f"load_aem_image() handed back, so it is {RESOLVER_VERDICT_PIN}"\
-            ". The argument is tracked from its PRODUCER through the "\
-            "emitted code, so an alias, a macro body or an assignment "\
-            "between the verifier and the call does not change the answer " \
-            "-- and an argument this resolver cannot resolve is a REFUSAL, " \
-            "never a default of verified"
-
-        # ---- 1. resolved stores into the control window ------------------
-        #
-        # A store whose address resolved to a bounded RANGE is judged here
-        # exactly as a number is: a range that so much as touches the
-        # window is a control-register store, however much of it lies
-        # outside.
-        def resolved_in_window(address):
-            if isinstance(address, int):
-                return csr_base <= address < csr_base + csr_size
-            return (isinstance(address, Rv32Range) and
-                    address.hi >= csr_base and
-                    address.lo < csr_base + csr_size)
-
-        for name, run in sorted(runs.items()):
-            hits = sorted({f"0x{address:08x}" if isinstance(address, int)
-                           else repr(address)
-                           for _at, (address, _v) in run["stores"]
-                           if resolved_in_window(address)})
-            assert not hits, \
-                f"the compiled {label} STORES into the Milan CSR window " \
-                f"({window}) from {name}(), at " + ", ".join(hits) + \
-                ". Every control-register store must go through the " \
-                "address helper so the bit-0 census can place it; this is " \
-                "the RESOLVED store address, so no cast, typedef, member " \
-                "access, subscript or shift-and-or address arithmetic " \
-                "changes the answer, and the address helper is NOT exempt"
-
-        # ---- 1b/1c. every store whose address did NOT resolve ------------
-        #
-        # PROVED classes, and why each is proved rather than assumed:
-        #   stack -- the base is a frame register the prologue set and never
-        #     moved, displaced; the stack lives in the SoC's RAM, which the
-        #     linker places outside the device window rule 1 measures.
-        #   sym -- the base is the address of an object this translation unit
-        #     DEFINES; the window is device address space and holds none of
-        #     this unit's objects. A symbol it merely REFERENCES is placed by
-        #     the linker, not by this unit, so it does not qualify.
-        # Everything else is unplaced unless the declared residual names it.
-        reg_name = helper or reg_helper_name
-        defined = unit["defined"]
-        residual, sanctioned = {}, []
-        for name, run in sorted(runs.items()):
-            for _at, (address, _value) in run["stores"]:
-                if isinstance(address, (int, Rv32Range)):
-                    # Judged by ADDRESS: rule 1 above has already refused
-                    # every number and every bounded range that touches the
-                    # window, so what reaches here is proved outside it.
-                    continue
-                if address.kind == "stack" or \
-                        (address.kind == "sym" and address.detail in defined):
-                    continue
-                if address.kind == "call" and address.detail == reg_name:
-                    sanctioned.append(name)
-                    continue
-                key = (name, address.kind,
-                       address.detail if address.kind in ("call", "sym")
-                       else None)
-                seen_here = residual.setdefault(key, [0, set()])
-                seen_here[0] += 1
-                seen_here[1].add(repr(address))
-        unexpected = sorted(
-            f"{name}() through {kind}"
-            f"{'(' + str(detail) + ')' if detail else ''} "
-            f"x{count} {sorted(details)}"
-            for (name, kind, detail), (count, details) in residual.items()
-            if RESOLVER_STORE_RESIDUAL.get((name, kind, detail),
-                                           (0, ""))[0] != count)
-        assert not unexpected, \
-            f"the compiled {label} makes a {RESOLVER_UNPLACED_PIN} and that " \
-            "no declared residual accounts for: " + "; ".join(unexpected) + \
-            f". The declared residual is {sorted(RESOLVER_STORE_RESIDUAL)}. " \
-            "An address this gate cannot resolve is an address it cannot " \
-            "prove is outside the control window, so it REFUSES rather " \
-            "than omitting the store from the census: a runtime-derived " \
-            "page, a pointer this unit never forms, or a store operand " \
-            "this resolver cannot even read all land here"
-        missing = sorted(key for key in RESOLVER_STORE_RESIDUAL
-                         if key not in residual)
-        assert not missing, \
-            f"the compiled {label} no longer makes the unplaceable store(s) " \
-            f"this gate DECLARES as its residual: {missing}. A residual that " \
-            "has gone away must be retired from RESOLVER_STORE_RESIDUAL and " \
-            "from docs/integration/BAREMETAL_FIRMWARE.md in the same change, " \
-            "so the published claim never understates what is proved either"
-        assert len(sanctioned) == 1 and sanctioned == ["milan_write"], \
-            f"the compiled {label} stores through {reg_name}()'s return " \
-            f"from {sorted(set(sanctioned)) or 'nowhere'} " \
-            f"({len(sanctioned)} store(s)): that return is the ONE address " \
-            "this firmware may reach a control register through, so exactly " \
-            "one function may store through it and it must be the " \
-            "milan_write() whose operands the bit-0 census below reads. " \
-            "A second consumer of the helper's return is a control-register " \
-            "write outside the census, however it is spelled"
-
-        # ---- 1d. the AEM copy loop's destination, PLACED -----------------
-        #
-        # The store this census used to DECLARE as an unplaced residual,
-        # now proved instead: branch refinement bounds the loop index by
-        # the bltu the compiler emitted, so the store address is a bounded
-        # range, and that range must lie inside the buffer the CRC verdict
-        # is taken over.  Both directions are pinned: a verifier that
-        # makes no bounded store (the copy loop vanished, or reshaped past
-        # what this lattice bounds) and a bounded store OUTSIDE the buffer
-        # are refusals -- which is what retires the count-keyed residual
-        # without losing the guard its `missing` half used to provide.
-        buffer_lo = census_defines["MILAN_AEM_DESC_BASE"]
-        buffer_hi = buffer_lo + census_defines["MILAN_AEM_IMAGE_BYTES"] - 1
-        copied = sorted(
-            (repr(address) for _at, (address, _v)
-             in runs["load_aem_image"]["stores"]
-             if isinstance(address, Rv32Range)))
-        assert len(copied) == 1, \
-            f"the compiled {label} resolves {len(copied)} bounded store(s) " \
-            f"in load_aem_image() ({copied or 'none'}) where " \
-            f"{RESOLVER_COPY_PIN} must be exactly one: the copy loop's " \
-            "store is the one store this unit makes whose address is a " \
-            "range, and a verifier whose copy this lattice can no longer " \
-            "bound is a verifier whose destination this gate cannot place, " \
-            "which is a REFUSAL, not a residual"
-        copy_range = next(
-            address for _at, (address, _v)
-            in runs["load_aem_image"]["stores"]
-            if isinstance(address, Rv32Range))
-        assert buffer_lo <= copy_range.lo and copy_range.hi <= buffer_hi, \
-            f"the compiled {label} bounds {RESOLVER_COPY_PIN} to " \
-            f"{copy_range!r}, which is not inside the AEM buffer " \
-            f"[0x{buffer_lo:08x}..0x{buffer_hi:08x}] the CRC verdict is " \
-            "taken over: a copy that provably lands elsewhere leaves the " \
-            "CRC checking bytes this loop never wrote, so the verdict " \
-            "would be about a buffer the boot path did not fill"
-
-        # ---- 2. which resolved writes assert an enable bit ---------------
-        enabling = []
-        for name, run in runs.items():
-            for index, (_at, (callee, handed)) in enumerate(run["calls"]):
-                if callee != "milan_write":
-                    continue
-                register, value = handed["a0"], handed["a1"]
-                assert isinstance(register, int), \
-                    f"the compiled {label} calls milan_write() from " \
-                    f"{name}() with a register operand this gate cannot " \
-                    f"resolve ({register!r}), so it cannot place the write " \
-                    "by ADDRESS and refuses to report a census it did not " \
-                    "take"
-                if register in (model.pp, model.adp) and \
-                        rv32_ones(value) & 1:
-                    enabling.append((name, index, register))
-                assert register != model.phc, \
-                    f"the compiled {label} writes the reset-enabled PHC " \
-                    f"({model.label(model.phc)}) from {name}(): resolved " \
-                    "from the emitted call operand, so a macro, an alias or " \
-                    "a computed offset does not change the answer"
-        outside = sorted({name for name, _i, _r in enabling
-                          if name != "entity_advertise"})
-        assert not outside, \
-            f"the compiled {label} asserts bit 0 of an entity-enable " \
-            "register from " + ", ".join(f"{name}()" for name in outside) + \
-            ", not from entity_advertise(): the choke point is the property " \
-            "(#153), and this is resolved from the emitted call operands, " \
-            "so a macro body, a preprocessor arm or an aliased #define " \
-            "cannot move the write out of view"
-        for address in (model.pp, model.adp):
-            found = [record for record in enabling
-                     if record[2] == address]
-            assert len(found) == 1, \
-                f"the compiled {label} asserts {model.label(address)} bit 0 " \
-                f"{len(found)} time(s) inside entity_advertise(); the " \
-                "choke point holds exactly one enable per register"
-        pp_at = [index for _n, index, reg in enabling
-                 if reg == model.pp][0]
-        adp_at = [index for _n, index, reg in enabling
-                  if reg == model.adp][0]
-        assert pp_at < adp_at, \
-            f"the compiled {label} advertises before the protocol processor " \
-            "is up: the resolved enable order inside entity_advertise() is " \
-            "ADP then PP"
-
-        # ---- 3. the choke point's verdict edge ---------------------------
-        verdict = Rv32Tag("verified")
-        body = unit["functions"]["entity_advertise"]
-        run = rv32_run(body, unit["data"], entry_regs={"a0": verdict})
-        live = [at for at, (callee, _h) in run["calls"]
-                if callee == "milan_write"]
-        assert live, \
-            "the compiled entity_advertise() reaches no milan_write() at " \
-            "all, so the dominance measurement below would pass on an " \
-            "empty set: refusing a control that cannot fail"
-        edge = rv32_verdict_edge(run, verdict, 0)
-        assert edge, \
-            f"the compiled {label} never compares entity_advertise()'s " \
-            "verdict argument against zero, so no edge in it can dominate " \
-            "the enable writes and the entity is advertised unconditionally"
-        cut = rv32_run(body, unit["data"], entry_regs={"a0": verdict},
-                       cut=(edge[0], edge[2]))
-        escaped = sorted({at for at, (callee, _h) in cut["calls"]
-                          if callee == "milan_write"})
-        assert not escaped, \
-            "the compiled entity_advertise() still reaches a control " \
-            f"register write at {escaped} with the non-zero-verdict edge " \
-            "REMOVED: the verdict test does not dominate the enable writes, " \
-            "so control reaches them by a path that never took it"
-
-        # ---- 4. the verifier's CRC data flow -----------------------------
-        computed = Rv32Tag("crc32")
-        verifier = unit["functions"]["load_aem_image"]
-        run = rv32_run(verifier, unit["data"], tags={"crc32": computed})
-        crc_calls = [handed for _at, (callee, handed) in run["calls"]
-                     if callee == "crc32"]
-        assert len(crc_calls) == 1, \
-            f"the compiled {label} calls crc32() {len(crc_calls)} time(s) " \
-            "in the AEM verifier; exactly one call is what the comparison " \
-            "below can be given provenance against"
-        buffer_at, byte_count = crc_calls[0]["a0"], crc_calls[0]["a1"]
-        expected_buffer = census_defines["MILAN_AEM_DESC_BASE"]
-        expected_bytes = census_defines["MILAN_AEM_IMAGE_BYTES"]
-        assert buffer_at == expected_buffer, \
-            "the compiled AEM verifier takes its CRC over " \
-            f"{buffer_at if not isinstance(buffer_at, int) else hex(buffer_at)}"\
-            f", not over MILAN_AEM_DESC_BASE (0x{expected_buffer:08x}): the " \
-            "descriptor store serves the DRAM buffer, so a CRC over the " \
-            "QSPI source leaves a short copy, a wrong destination or a DRAM " \
-            "fault invisible. Resolved from the emitted call operand"
-        assert byte_count == expected_bytes, \
-            "the compiled AEM verifier takes its CRC over " \
-            f"{byte_count if not isinstance(byte_count, int) else hex(byte_count)}"\
-            f" bytes, not over MILAN_AEM_IMAGE_BYTES ({expected_bytes})"
-        expected_crc = census_defines["MILAN_AEM_IMAGE_CRC32"]
-        edge = rv32_verdict_edge(run, computed, expected_crc)
-        assert edge, \
-            "the compiled AEM verifier never compares the value crc32() " \
-            f"HANDED BACK against MILAN_AEM_IMAGE_CRC32 (0x{expected_crc:08x})"\
-            ": the compared value is tracked from its producer, so an " \
-            "assignment of the expected constant to the same local between " \
-            "the call and the comparison, or a comparison in a preprocessor " \
-            "arm the compiler drops, leaves nothing here to find"
-        cut = rv32_run(verifier, unit["data"], tags={"crc32": computed},
-                       cut=(edge[0], edge[1]))
-        loose = sorted({repr(value) for _at, value in cut["rets"]
-                        if value != 0})
-        assert not loose, \
-            "the compiled AEM verifier can hand back a verdict this gate " \
-            f"cannot resolve to zero ({', '.join(loose)}) with the " \
-            "CRC-equality edge REMOVED: that edge does not dominate every " \
-            "non-zero verdict, so a goto, a break or any other path past " \
-            "the comparison advertises an entity whose image was never " \
-            "checked"
-        return {
-            "buffer": buffer_at, "bytes": byte_count, "crc": expected_crc,
-            "functions": len(runs),
-            "statics": len(unit["data"]),
-            "stores": sum(len(run["stores"]) for run in runs.values()),
-            "residual": sorted(
-                f"{name}() through {kind}"
-                f"{'(' + str(detail) + ')' if detail else ''} x{count}"
-                for (name, kind, detail), (count, _details)
-                in residual.items()),
-            "seeded": sorted(unit["seeds"]),
-            "entrances": [f"{name}()" for name, _at in entrances],
-            "calls": sum(len(run["calls"]) for run in runs.values()),
-            "copied": repr(copy_range),
-        }
-
-    #: ---- the CFG join's own self-test ([R0] MAJOR on PR #241) ---------
-    #:
-    #: A diamond: one predecessor writes a frame slot, the other does not,
-    #: and the block they join at reads that slot back.  A value that
-    #: reaches a join on ONE path only is not a value, so the answer must
-    #: be "cannot say" -- and, critically, it must be the SAME answer
-    #: whichever predecessor the block layout happens to put first.  Two
-    #: shapes, because the two things the slot feeds are the two things the
-    #: boot contract is proved with: the CRC comparison's provenance and
-    #: the verifier's return value.
-    def rv32_join_diamond(store_first, both=False, tail=None):
-        """One function, one diamond, `store_first` choosing WHICH
-        predecessor carries the store.  The two layouts are semantically
-        equivalent; only the block order differs."""
-        stored, empty = ["\tcall crc32", "\tsw a0,-20(s0)"], ["\tnop"]
-        taken, fallen = (stored, empty) if store_first else (empty, stored)
-        if both:
-            taken = fallen = stored
-        return "\n".join([
-            "diamond:", "\taddi sp,sp,-32", "\tsw ra,28(sp)",
-            "\tsw s0,24(sp)", "\taddi s0,sp,32", "\tbeqz a0,.L2",
-            *taken, "\tj .L3", ".L2:", *fallen, ".L3:", *(tail or [
-                "\tlw a4,-20(s0)", f"\tli a5,{_rv32_s32(crc_probe_value)}",
-                "\tbeq a4,a5,.L4", "\tli a0,0", "\tj .L5", ".L4:",
-                "\tli a0,1", ".L5:"]),
-            "\tlw ra,28(sp)", "\tlw s0,24(sp)", "\taddi sp,sp,32", "\tret"])
-
-    crc_probe_value = 0xDEAD_BEEF
-    crc_probe_tag = Rv32Tag("crc32")
-    return_tail = ["\tlw a0,-20(s0)"]
-
-    def rv32_join_answers(store_first, both=False):
-        """`(crc-provenance edge, returned values)` for one layout."""
-        body = rv32_functions(rv32_join_diamond(store_first, both))["diamond"]
-        run = rv32_run(body, {}, tags={"crc32": crc_probe_tag})
-        returns = rv32_run(
-            rv32_functions(rv32_join_diamond(store_first, both,
-                                             return_tail))["diamond"], {})
-        return (rv32_verdict_edge(run, crc_probe_tag, crc_probe_value),
-                [value for _at, value in returns["rets"]])
-
-    join_layouts = {first: rv32_join_answers(first) for first in (True, False)}
-    assert join_layouts[True] == join_layouts[False], \
-        "the RV32 resolver answers two SEMANTICALLY EQUIVALENT diamond " \
-        "layouts differently: with the store in the first predecessor it " \
-        f"reports {join_layouts[True]}, with the store in the other it " \
-        f"reports {join_layouts[False]}. A join that depends on which " \
-        "predecessor is visited first invents provenance out of block " \
-        "layout, and every CRC and verdict answer this gate gives rests " \
-        "on that join"
-    assert join_layouts[True] == (None, [None]), \
-        "a value stored on ONE incoming path of a diamond survived the " \
-        f"join: {join_layouts[True]}. It must be 'cannot say' -- the join " \
-        "is a MEET, and a key absent on any predecessor is unknown"
-    #: ... and the ANTI-VACUITY arm, so "both layouts agree on nothing" is
-    #: not passed off as a join measurement: the same diamond with the
-    #: store on BOTH predecessors must resolve, in both layouts.
-    both_layouts = {first: rv32_join_answers(first, both=True)
-                    for first in (True, False)}
-    assert both_layouts[True] == both_layouts[False] and \
-        both_layouts[True][0] is not None, \
-        "the diamond control cannot tell a resolved join from an " \
-        f"unresolved one ({both_layouts}), so its negative arm proves " \
-        "nothing: with the store on BOTH predecessors the CRC comparison " \
-        "must resolve to the value crc32() handed back"
-
-    #: ... and the NEGATIVE CONTROL for the control itself: restore the
-    #: predecessor-order-dependent join for the length of ONE measurement
-    #: and require the two layouts to DISAGREE. Without this the four
-    #: assertions above are a check that cannot go red -- exactly the shape
-    #: this gate keeps being bitten by.
-    def rv32_order_dependent_meet(self, other):
-        """The join exactly as it stood at a8083a29: a slot missing from
-        `self` is COPIED IN from `other`, so a value on one incoming path
-        survives whenever that path is folded in second."""
-        for key, value in list(self.regs.items()):
-            if value is not None and (key not in other.regs or
-                                      other.regs[key] != value):
-                self.regs[key] = None
-        for key, value in list(self.mem.items()):
-            if value is not None and (key not in other.mem or
-                                      other.mem[key] != value):
-                self.mem[key] = None
-        for key, value in other.mem.items():
-            if key not in self.mem:
-                self.mem[key] = value
-        return self
-
-    sound_meet = Rv32State.meet
-    try:
-        Rv32State.meet = rv32_order_dependent_meet
-        order_dependent = {first: rv32_join_answers(first)
-                           for first in (True, False)}
-    finally:
-        Rv32State.meet = sound_meet
-    assert order_dependent[True] != order_dependent[False], \
-        "the order-dependent join answered the two diamond layouts the " \
-        f"SAME way ({order_dependent}), so the layouts above do not " \
-        "distinguish the two joins and the join self-test proves nothing"
-    join_control_note = (
-        "the CFG join was measured order-INDEPENDENT on two equivalent "
-        f"diamond layouts ({join_layouts[True]} both ways), resolved on "
-        "the same diamond with the store on both predecessors, and the "
-        "restored order-dependent join was measured to disagree "
-        f"({order_dependent[True]} vs {order_dependent[False]})")
-
-    #: ---- and the DEGENERATE case for the store classifier, so its
-    #: fail-closed default is not a branch nobody has ever taken. GCC does
-    #: not emit the `sw rd, symbol, rt` pseudo-instruction for this
-    #: firmware, so the only way to know the resolver refuses a store it
-    #: cannot even READ is to hand it one.
-    unreadable_run = rv32_run(rv32_functions(
-        "unreadable:\n\tli a5,1\n\tsw a5,pr241_target,a4\n\tret\n"
-    )["unreadable"], {})
-    unreadable_stores = [address for _at, (address, _v)
-                         in unreadable_run["stores"]
-                         if isinstance(address, Rv32Where) and
-                         address.kind == "unreadable"]
-    assert len(unreadable_stores) == 1, \
-        "the RV32 resolver dropped a store whose operand it cannot read " \
-        f"({unreadable_run['stores']}): an unreadable store is the one it " \
-        "must refuse hardest, so it may not be the one that vanishes"
-    store_classes_note = (
-        "the store classifier's fail-closed default was measured on a store "
-        "operand the resolver cannot read (`sw a5,pr241_target,a4`), which "
-        f"it reported as {unreadable_stores[0]!r} rather than dropping")
-
-    #: ---- and the DEGENERATE cases for the branch-refined range class,
-    #: in both directions: the refinement must actually produce the bound
-    #: the emitted bltu states (or the shipping firmware's own copy store
-    #: would silently fall back to unplaced and rule 1b would redden a
-    #: clean tree, which is loud -- but WHY it holds should not rest on
-    #: one firmware), and a bounded index on a base whose sum can WRAP
-    #: must come back unplaced, because no firmware here exercises the
-    #: wrap arm and an unexercised fail-closed branch is a claim.
-    def rv32_range_probe(base):
-        return rv32_run(rv32_functions(
-            "ranged:\n"
-            "\taddi sp,sp,-32\n\tsw s0,24(sp)\n\taddi s0,sp,32\n"
-            f"\tli a4,{_rv32_s32(base)}\n\tsw a4,-24(s0)\n"
-            "\tsw zero,-20(s0)\n\tj .L2\n"
-            ".L3:\n\tlw a4,-24(s0)\n\tlw a5,-20(s0)\n\tadd a5,a4,a5\n"
-            "\tsb zero,0(a5)\n"
-            "\tlw a5,-20(s0)\n\taddi a5,a5,1\n\tsw a5,-20(s0)\n"
-            ".L2:\n\tlw a4,-20(s0)\n\tli a5,64\n\tbltu a4,a5,.L3\n"
-            "\tlw s0,24(sp)\n\taddi sp,sp,32\n\tret\n")["ranged"], {})
-    ranged_placed = [address for _at, (address, _v)
-                     in rv32_range_probe(0x4000_0000)["stores"]
-                     if isinstance(address, Rv32Range)]
-    assert ranged_placed == [Rv32Range(0x4000_0000, 0x4000_003f)], \
-        "the branch-refined range class did not bound a bltu-bounded loop " \
-        f"store to base plus [0..63] ({ranged_placed}): the AEM copy " \
-        "loop's placement rests on exactly this refinement"
-    wrapped = [address for _at, (address, _v)
-               in rv32_range_probe(0xFFFF_FFF0)["stores"]
-               if isinstance(address, Rv32Where) and
-               address.kind == "unplaced"]
-    assert len(wrapped) == 1, \
-        "a bounded index on a base whose sum can WRAP 32 bits must come " \
-        f"back unplaced, not as an invented range ({wrapped}): the range " \
-        "class is only sound while it fails closed on wrap"
-    range_control_note = (
-        "the range class's own degenerate cases held: a bltu-bounded loop "
-        f"store was placed at {ranged_placed[0]!r} and the same loop on a "
-        "wrapping base came back unplaced")
-
-    # Force the non-target branch without depending on which compilers the
-    # machine happens to have. If stand-down ever invokes the compiler, the
-    # runner makes this focused gate fail; the formatter then proves the text
-    # printed to users describes that same observed no-run verdict.
-    host_only_calls = []
-
-    def forbidden_host_census(*args, **kwargs):
-        host_only_calls.append((args, kwargs))
-        raise AssertionError("host-only compiled census ran after stand-down")
-
-    host_only_verdict = assert_compiled_census_is_clean(
-        firmware_source, "host-only stand-down self-test",
-        selection={"compiler": "host-only-cc", "target": False},
-        runner=forbidden_host_census)
-    host_only_note = format_census_verdict(host_only_verdict)
-    assert not host_only_calls and not host_only_verdict["ran"] and \
-           "STOOD DOWN" in host_only_note and \
-           "compiled census did not run" in host_only_note, \
-        "host-only census execution and its printed stand-down claim diverge"
-
-    #: ... and the SECOND way a candidate is not the target, which is the
-    #: one that got through: a 64-bit RISC-V GCC. It assembles the probe's
-    #: asm, so the old probe called it the exact RV32 target; the census it
-    #: would then take is a 64-bit census, printed beside a line claiming
-    #: RV32. Both halves are self-tested here without depending on which
-    #: compilers this machine happens to carry.
-    #:
-    #: First the probe's own decision, over the three shapes a box can
-    #: present, driven through a stub so the answer is the same everywhere.
-    def stub_compiler(accepts):
-        """A compiler that succeeds only for the driver flag sets in
-        `accepts`, and records every argv it was handed."""
-        seen = []
-
-        def run(command, **kwargs):
-            seen.append(tuple(command))
-            #: The probe's argv is [cc] + driver + [-S, -o, out, src], so
-            #: the driver is what is left after both fixed ends. Reading it
-            #: back this way is also what proves the flags REACH the
-            #: compiler rather than being recorded and dropped.
-            return subprocess.CompletedProcess(
-                command, 0 if tuple(command[1:-4]) in accepts else 1, "", "")
-        return run, seen
-
-    native_run, native_seen = stub_compiler({()})
-    assert census_rv32_driver("stub-rv32-gcc", runner=native_run) == (), \
-        "a compiler that is ALREADY the RV32 target must be taken bare: " \
-        "driving it with an -march its multilib set may not carry would " \
-        "stand the census down on the one tool it exists for"
-    assert len(native_seen) == 1, \
-        "the RV32 probe kept probing after a candidate had answered"
-    driven_run, driven_seen = stub_compiler({rv32_drivers[1]})
-    assert census_rv32_driver("stub-rv64-multilib-gcc",
-                              runner=driven_run) == rv32_drivers[1], \
-        "a 64-bit RISC-V GCC with an rv32 multilib must be DRIVEN as RV32, " \
-        "not accepted as it stands"
-    assert len(driven_seen) == 2 and \
-        tuple(driven_seen[1][1:-4]) == rv32_drivers[1], \
-        "the RV32 driver flags did not reach the compiler that needs them"
-    rv64_only_run, rv64_only_seen = stub_compiler(set())
-    assert census_rv32_driver("stub-rv64-only-gcc",
-                              runner=rv64_only_run) is None, \
-        "a candidate that no flag set here drives as RV32 must be refused " \
-        "by the probe, not adopted as the exact RV32 target"
-    assert len(rv64_only_seen) == len(rv32_drivers), \
-        "the RV32 probe gave up before it had tried every driver"
-
-    #: ... and then the consequence, exactly as the host-only case above:
-    #: a refused candidate compiles NOTHING and says so in the words the
-    #: user reads.
-    rv64_calls = []
-
-    def forbidden_rv64_census(*args, **kwargs):
-        rv64_calls.append((args, kwargs))
-        raise AssertionError("64-bit compiled census ran after stand-down")
-
-    rv64_verdict = assert_compiled_census_is_clean(
-        firmware_source, "64-bit-candidate stand-down self-test",
-        selection={"compiler": "riscv64-elf-gcc", "target": False},
-        runner=forbidden_rv64_census)
-    rv64_note = format_census_verdict(rv64_verdict)
-    assert not rv64_calls and not rv64_verdict["ran"] and \
-           "STOOD DOWN" in rv64_note and "riscv64-elf-gcc" in rv64_note and \
-           "compiled census did not run" in rv64_note, \
-        "64-bit-candidate census execution and its printed stand-down " \
-        "claim diverge"
-
-    #: ANTI-VACUITY, on the real tool this run selected: the same probe
-    #: asking for a 64-bit target must FAIL under the very flags the census
-    #: is about to use. A width guard that has never been seen to refuse
-    #: anything is not evidence that the census is a 32-bit census.
-    rv32_probe_refused_64 = False
-    if census_compiler() and census_used.get("target"):
-        rv32_probe_refused_64 = True
-        assert not census_probe(census_used["compiler"],
-                                census_used["flags"], xlen=64), \
-            "the census probe accepts a 64-bit target under the flags it " \
-            f"selected for {census_used['compiler']}, so it is not deciding " \
-            "the register width and the census it authorises could be a " \
-            "64-bit census printed as the RV32 one"
-
-    def assert_target_compiles(firmware, label, allow_warnings=False):
-        """Prove one mutation is accepted C for the exact RV32 target.
-
-        A source-text rule may reject the mutation before the assembly census
-        runs. Its reason-pinned RED counts only after this independent compile
-        proves that the compiler accepts the construct the rule refuses. Most
-        mutants must be warning-clean; translation-phase whitespace is the one
-        intentional exception because GCC accepts it with a diagnostic.
-        """
-        compiler = census_compiler()
-        if not compiler or not census_used.get("target"):
-            return False
-        driver = list(census_used.get("flags") or ())
-        with tempfile.TemporaryDirectory(prefix="milan-compile-") as root:
-            census_headers(root)
-            source = os.path.join(root, "milan_baremetal.c")
-            with open(source, "w") as fh:
-                fh.write(firmware)
-            #: The SAME driver the probe selected. Without it a multilib
-            #: riscv64 GCC compiled every mutant for RV64, where the
-            #: firmware's own 32-bit pointer cast is an -Werror error, and
-            #: the failure was reported as a defect in the mutation (#206).
-            flags = [compiler] + driver + ["-std=gnu99", "-Wall", "-Wextra"]
-            if not allow_warnings:
-                flags.append("-Werror")
-            built = subprocess.run(
-                flags + ["-O0", "-fno-inline", "-S", "-o",
-                         os.path.join(root, "mutation.s"), f"-I{root}", source],
-                capture_output=True, text=True)
-        assert built.returncode == 0, \
-            f"{label} must compile for RV32 before its gate verdict counts; " \
-            f"{built.stderr.strip().splitlines()[-2:]}"
-        return True
-
-    #: Make's assignment modifiers, as a repeatable group rather than a list
-    #: of the ones someone thought of: `export` alone was enough to slip a
-    #: narrower version of this.
-    assign_prefix = r"(?:(?:override|export|unexport|private)[ \t]+)*"
-    assign_operators = r"=|:=|::=|\+=|\?=|!="
-    assign_operator = r"(" + assign_operators + r")"
-    #: One assignment to OBJECTS in any of those flavours. The cumulative ones
-    #: are the point: reading `OBJECTS =` and stopping reports a
-    #: translation-unit count the build does not have.
-    objects_assign_re = re.compile(
-        r"(?m)^[ \t]*" + assign_prefix + r"OBJECTS[ \t]*" + assign_operator +
-        r"[ \t]*(.*)$")
-    objects_token_re = re.compile(r"[A-Za-z0-9_.+/-]+")
-
-    def makefile_objects(makefile):
-        """The Makefile's OBJECTS as a list, or None when this gate cannot
-        evaluate every token of it.
-
-        make evaluates a VARIABLE, not a line. `=`, `:=`, `?=` and `+=` each
-        build on what came before, so a second line is a second object: an
-        `OBJECTS += milan_bringup.o` links a second `.c` with its own CSR
-        base, its own address helper and its own init hook, and not one rule
-        in this gate reads that file. Anything whose value depends on make's
-        own evaluation -- a variable, a function, a wildcard, a shell
-        assignment -- returns None, and the caller refuses it."""
-        text = re.sub(r"\\\n", " ", makefile)
-        text = re.sub(r"(?m)#[^\n]*", "", text)
-        assigned = list(objects_assign_re.finditer(text))
-        spans = [(m.start(), m.end()) for m in assigned]
-        for use in re.finditer(r"\bOBJECTS\b", text):
-            if any(a <= use.start() < b for a, b in spans):
-                continue
-            if not re.search(r"[$][({][ \t]*\Z", text[:use.start()]):
-                return None      # a define block, an eval, a foreach ...
-        value = None
-        for assign in assigned:
-            operator, tokens = assign.group(1), assign.group(2).split()
-            if operator == "!=" or not all(
-                    objects_token_re.fullmatch(t) for t in tokens):
-                return None      # shell output, or a token make expands
-            if operator == "+=":
-                value = (value or []) + tokens
-            elif operator == "?=" and value is not None:
-                continue
-            else:
-                value = tokens
-        return value
-
-    def unexpanded(text):
-        """`text` with every `$(...)` / `${...}` blanked, offsets preserved.
-
-        A rule's colon and a variable reference's colon look the same to a
-        regex: without this, `-include $(OBJECTS:.o=.d)` reads as a rule whose
-        target is `-include $(OBJECTS`. Blanking what make would expand leaves
-        exactly the punctuation make itself parses as syntax."""
-        out, depth, at, size = list(text), 0, 0, len(text)
-        while at < size:
-            if not depth and text[at] == "$" and \
-                    text[at + 1:at + 2] in ("(", "{"):
-                depth, out[at], out[at + 1] = 1, " ", " "
-                at += 2
-                continue
-            if depth:
-                if text[at] in "({":
-                    depth += 1
-                elif text[at] in ")}":
-                    depth -= 1
-                out[at] = " "
-            at += 1
-        return "".join(out)
-
-    #: Directives that are not rules, however many colons they carry.
-    make_directive_re = re.compile(
-        r"\A[ \t]*(?:-|s)?include\b|\A[ \t]*(?:export|unexport|override|"
-        r"define|endef|vpath|ifeq|ifneq|ifdef|ifndef|else|endif)\b")
-    #: `include`, `-include` and `sinclude` lines, whole.
-    makefile_include_re = re.compile(
-        r"(?m)^[ \t]*((?:-|s)?include[ \t]+[^\n]*)$")
-    #: The include set HEAD carries. The first two are LiteX's; the third is
-    #: the compiler's own per-object dependency fragment, which lists
-    #: prerequisites and never assigns a variable.
-    makefile_includes = (
-        "include ../include/generated/variables.mak",
-        "include $(SOC_DIRECTORY)/software/common.mak",
-        "-include $(OBJECTS:.o=.d)")
-    #: Any variable assignment, in any of make's flavours, behind any run of
-    #: its modifier keywords. `export` alone was enough to slip a narrower
-    #: version of this, so the modifiers are a repeatable group rather than a
-    #: list of the ones someone thought of.
-    assign_body = (r"([A-Za-z_][A-Za-z0-9_]*)[ \t]*(?:" +
-                   assign_operators + r")[ \t]*")
-    makefile_assign_re = re.compile(
-        r"(?m)^[ \t]*" + assign_prefix + assign_body + r"(.*)$")
-    #: ... and the same assignment written after a target, which make applies
-    #: to that target AND inherits down its whole prerequisite chain.
-    target_assign_re = re.compile(r"\A[ \t]*" + assign_prefix + assign_body +
-                                  r"(.*)\Z")
-    #: A variable reference, for deriving which names decide the compiled text.
-    make_var_re = re.compile(r"[$][({]([A-Za-z_][A-Za-z0-9_]*)[)}]")
-    def make_rules(makefile):
-        """`(rules, assignments)` for `makefile`.
-
-        A rule is `(targets, prerequisites, recipe)`. Continuations are joined
-        and comments dropped first, so a rule reads the way make reads it and
-        not the way the file happens to be wrapped. A line whose colon lives
-        inside an expansion is not a rule, and a directive is not a rule
-        however it is punctuated.
-
-        `assignments` carries BOTH global and target-specific ones, because
-        make does not distinguish them where it matters here: an
-        `all: CFLAGS += -include x.c` reaches the compile of every
-        prerequisite of `all`, which is the one object."""
-        text = re.sub(r"(?m)#[^\n]*", "", re.sub(r"\\\n", " ", makefile))
-        masked, rules, current, at = unexpanded(text), [], None, 0
-        assignments = [(m.group(1), m.group(2))
-                       for m in makefile_assign_re.finditer(text)]
-        for body in text.split("\n"):
-            start, at = at, at + len(body) + 1
-            if body.startswith("\t"):
-                if current is not None and body.strip():
-                    current[2].append(body.strip())
-                continue
-            if not body.strip():
-                continue
-            current = None
-            if make_directive_re.match(body):
-                continue
-            head = masked[start:start + len(body)]
-            colon = re.search(r"::?(?!=)", head)
-            if not colon or "=" in head[:colon.start()]:
-                continue
-            after = body[colon.end():]
-            specific = target_assign_re.match(after)
-            if specific:
-                assignments.append((specific.group(1), specific.group(2)))
-                continue
-            current = (body[:colon.start()].split(), after.split(), [])
-            rules.append(current)
-        return rules, assignments
-
-    #: ---- the make plan -------------------------------------------------
-    #:
-    #: The same correction as the compiled census, one language over. Every
-    #: rule that used to live here parsed the Makefile with regexes, and make
-    #: has more assignment syntax than the regexes had: `define NAME` /
-    #: `endef` is a sixth flavour that `make_rules()` skipped as a directive,
-    #: which re-opened four shapes earlier rounds had explicitly closed. The
-    #: archive pin knew `$(AR)` and not `${AR}`, which make treats as one.
-    #:
-    #: So this asks make. `make -Bn` prints the recipe lines it WOULD run,
-    #: and a second `-f` fragment of `$(info ...)` reports the final expanded
-    #: variables. The Makefile under test runs against a stub environment
-    #: whose values are SENTINELS, so every token in the output that is not a
-    #: sentinel is something this Makefile added.
-    #:
-    #: This REPLACES the OBJECTS parser, the archive pin, the producing-rule
-    #: pin, the Makefile include set, the assignable-name allowlist, the
-    #: derived text-deciding variables and the CFLAGS token set.
-    make_sentinels = {
-        "CC": "__CC__", "AR": "__AR__", "CFLAGS": "__BASE_CFLAGS__",
-        "BIOS_DIRECTORY": "__BIOS__",
-    }
-    make_probe = (
-        "$(info PROBE_CFLAGS=[$(CFLAGS)])\n"
-        "$(info PROBE_OBJECTS=[$(OBJECTS)])\n"
-        "$(info PROBE_LIBDIR=[$(LIBMILAN_BAREMETAL_DIRECTORY)])\n"
-        "$(info PROBE_VPATH=[$(origin VPATH)])\n"
-        "$(info PROBE_COMPILE=[$(value compile)])\n")
-
-    def make_plan(makefile, expected):
-        """`(variables, recipe_lines)` for what make would actually do.
-
-        Hazards, all measured rather than assumed, and all fatal if ignored:
-        `-B` is mandatory because a stale artefact makes plain `-n` print
-        nothing and exit 0; the run directory must be pristine for the same
-        reason and because `-include $(OBJECTS:.o=.d)` dies on a stale `.d`;
-        and NO variable may be passed on make's command line, because a
-        command-line assignment silently overrides the Makefile and hides
-        exactly the mutation being tested. `--eval` is not usable: it is
-        processed before makefiles are read and reports empty."""
-        stem = expected[:-2]
-        with tempfile.TemporaryDirectory(prefix="milan-make-") as root:
-            soc = os.path.join(root, "soc")
-            run = os.path.join(root, "run")
-            src = os.path.join(root, "src")
-            gen = os.path.join(root, "include", "generated")
-            for leaf in (os.path.join(soc, "software"), run, src, gen):
-                os.makedirs(leaf, exist_ok=True)
-            # Every object the Makefile names needs a source for make to
-            # find a rule for it; the CONTENT is irrelevant, only the path.
-            # Stubbing them all is a HARNESS convenience, not a gate rule:
-            # without it a second object makes make exit 2 with its own
-            # message, which is still a detection but a less informative one
-            # than showing make compiling and archiving two translation
-            # units.
-            for named in set(re.findall(r"\b([\w.-]+)\.o\b", makefile)):
-                open(os.path.join(src, named + ".c"), "w").close()
-            open(os.path.join(src, stem + ".c"), "w").close()
-            with open(os.path.join(gen, "variables.mak"), "w") as fh:
-                fh.write(f"SOC_DIRECTORY = {soc}\n"
-                         f"BIOS_DIRECTORY = "
-                         f"{make_sentinels['BIOS_DIRECTORY']}\n"
-                         f"LIBMILAN_BAREMETAL_DIRECTORY = {src}\n")
-            with open(os.path.join(soc, "software", "common.mak"), "w") as fh:
-                fh.write(f"CC = {make_sentinels['CC']}\n"
-                         f"AR = {make_sentinels['AR']}\n"
-                         f"CFLAGS = {make_sentinels['CFLAGS']}\n"
-                         "define compile\n$(CC) -c $(CFLAGS) $(1) $< -o $@\n"
-                         "endef\n")
-            with open(os.path.join(run, "Makefile"), "w") as fh:
-                fh.write(makefile)
-            probe = os.path.join(root, "probe.mk")
-            with open(probe, "w") as fh:
-                fh.write(make_probe)
-            def run_make(extra_env):
-                environ = dict(os.environ)
-                environ.pop("MAKEFLAGS", None)
-                environ.update(extra_env)
-                return subprocess.run(
-                    ["make", "-Bn", "-f", "Makefile", "-f", probe],
-                    cwd=run, capture_output=True, text=True, env=environ)
-
-            plan = run_make({})
-            # ... and again under a HOSTILE environment. `make -e` (however
-            # it is switched on, MAKEFLAGS included) lets an environment
-            # variable override a Makefile assignment, which decides what
-            # gets compiled from outside the file entirely. Rather than
-            # enumerate the options that do that, run the plan twice and
-            # require it to be the same plan.
-            hostile = run_make({
-                "LIBMILAN_BAREMETAL_DIRECTORY": os.path.join(root, "hostile"),
-                "CFLAGS": "__HOSTILE_CFLAGS__",
-                "OBJECTS": "hostile.o",
-            })
-        # An exit code is a FINDING, never "no findings": when a mutation
-        # names a source this harness did not stub, make exits 2 and its own
-        # message names the extra object.
-        assert plan.returncode == 0, \
-            "make could not plan this Makefile, so what it builds is " \
-            "unknown and this gate refuses rather than report a clean " \
-            f"result it did not take; make said " \
-            f"{(plan.stderr.strip().splitlines() or ['?'])[-1]!r}"
-        assert hostile.returncode == plan.returncode and \
-            hostile.stdout == plan.stdout, \
-            "this Makefile lets the ENVIRONMENT decide what gets compiled: " \
-            "planned under a hostile environment it builds something else, " \
-            "so the file this gate reads is not necessarily the file the " \
-            "build compiles"
-        variables = dict(re.findall(r"(?m)^PROBE_(\w+)=\[(.*)\]$",
-                                    plan.stdout + plan.stderr))
-        recipes = [" ".join(line.split())
-                   for line in plan.stdout.splitlines()
-                   if not line.startswith("PROBE_") and line.strip()]
-        return variables, recipes
-
-    def assert_single_translation_unit(makefile, expected):
-        """The firmware image is built from exactly the one `.c` this reads,
-        with exactly the flags this gate accounts for.
-
-        Every closure rule above reads ONE file and calls it the firmware.
-        That is only true while the firmware IS one translation unit: a
-        second object file is a second place a CSR store can live, with its
-        own base, its own helper and its own init hook, and none of the rules
-        above would ever see it.
-
-        Asked of make rather than of a regex, that is four readings of one
-        plan: which sources get compiled, with which flags, into which
-        objects, and which of those objects get archived.
-
-        SCOPE: this reads the firmware's own Makefile against a stub
-        environment. What LiteX's own fragments contribute is represented by
-        the sentinels, so this bounds what THIS Makefile adds, not what LiteX
-        supplies."""
-        stem = expected[:-2]
-        # make reports what it would do with the files that EXIST. A
-        # fragment named here but shipped later is invisible to it, and
-        # `-include` of a missing file is silently skipped, so the include
-        # set stays pinned as an exact set of whole lines. This is the one
-        # Makefile rule the plan does not subsume.
-        includes = [" ".join(line.split())
-                    for line in makefile_include_re.findall(makefile)]
-        assert includes == list(makefile_includes), \
-            "the Makefile's include set is pinned: make can only plan the " \
-            "fragments that exist, so a fragment named here and shipped " \
-            "later can assign OBJECTS or override the rule that builds the " \
-            f"one object without this gate ever seeing it; found {includes}"
-        variables, recipes = make_plan(makefile, expected)
-        objects = variables.get("OBJECTS", "").split()
-        assert objects == [expected], \
-            "the bare-metal firmware must stay ONE translation unit, or the " \
-            "CSR store closure this gate proves covers only part of the " \
-            f"image; make builds {objects}"
-        # Read the WHOLE plan, not the lines carrying a sentinel. Filtering
-        # on the sentinel made every recipe line that names a tool literally
-        # invisible, so an explicit rule whose extra lines ran
-        # `riscv32-linux-gcc` and `riscv32-linux-ld -r` was discarded by the
-        # gate after make had printed it. make answered correctly and
-        # completely; the reading threw the answer away.
-        sources = sorted({token for line in recipes
-                          for token in line.split() if token.endswith(".c")})
-        objects = sorted({token for line in recipes
-                          for token in line.split() if token.endswith(".o")})
-        assert sources == [os.path.join(variables.get("LIBDIR", ""),
-                                        stem + ".c")], \
-            f"make must compile exactly one source, {stem}.c, and its whole " \
-            "plan names another: the object this gate calls one translation " \
-            f"unit is built from several; make touches {sources}"
-        assert objects == [expected], \
-            "make must build and archive exactly the one object, and its " \
-            "whole plan names another: an object the OBJECTS list never " \
-            f"named reaches the image; make touches {objects}"
-        # ---- and the RECIPE SET, which is what actually bounds this.
-        #
-        # Three scans used to live here: one for link steps, one for
-        # injecting flags and one for search-path flags, each a list of the
-        # spellings someone had thought of. That is the same shape as the
-        # name allowlist before it, the disassembly regex before that and
-        # the flag regex after: `-Wp,-include,hdr`, `@response.file` and
-        # `-iprefix`/`-iwithprefixbefore` all walked past it, and every one
-        # of them put a whole second file into the one translation unit.
-        #
-        # So the recipe set is PINNED instead. make tells us the two
-        # commands it would run; they are fully determined by the stub
-        # environment's sentinels and the one source path, so anything
-        # added, removed or reworded is refused without naming a single
-        # flag. This is strictly smaller than the three scans it replaces
-        # and it has no list to fall behind.
-        #
-        # LIMIT, measured and tracked on #162: this reads what make PRINTS,
-        # which is already expanded. A name the Makefile references and
-        # nothing defines expands to nothing, so
-        # `CFLAGS += $(MILAN_EXTRA_CFLAGS)` leaves these two lines identical
-        # while the environment decides what the compiler is really given.
-        # Reading the Makefile's TEXT used to catch that and reading make's
-        # RESULT does not, which is the same trade the compiled census makes
-        # against the text rules.
-        expected_recipes = [
-            f"{make_sentinels['CC']} -c {make_sentinels['CFLAGS']} "
-            f"-I{make_sentinels['BIOS_DIRECTORY']} "
-            f"{os.path.join(variables.get('LIBDIR', ''), stem + '.c')} "
-            f"-o {expected}",
-            f"{make_sentinels['AR']} crs lib{stem}.a {expected}",
-        ]
-        assert recipes == expected_recipes, \
-            "the commands make would run are pinned, and this Makefile " \
-            "changes them: one compile of the one source with the one added " \
-            "include path, and one archive of the one object. Anything else " \
-            "can inject a file into the translation unit, move which file is " \
-            "compiled, or link a second one in, whatever flag spelling " \
-            f"carries it.\n  expected: {expected_recipes}\n  make runs: " \
-            f"{recipes}"
-        assert variables.get("VPATH") == "undefined", \
-            "this Makefile must not set VPATH: it decides which file the " \
-            "pattern rule's %.c resolves to, so it moves the file this gate " \
-            "calls the firmware"
-        assert os.path.basename(variables.get("LIBDIR", "")) == "src", \
-            "the source directory make compiles from is not the one this " \
-            "gate reads, so every rule above is reading a file the build " \
-            f"does not compile; make uses {variables.get('LIBDIR')!r}"
-
-    def anchored(text, needle, what, start=0):
-        """`text.index(needle)`, but failing with a message that names the
-        property instead of a bare `ValueError: substring not found`.
-
-        The three boot-path anchors are pinned by literal identifier, so
-        renaming a function used to abort the whole suite with no message at
-        all, which left the next author nothing to act on. Round two settled
-        that renaming a LOCAL is not a boot-contract change; renaming a
-        function is not one either, and until this gate can find these by
-        shape rather than by name, the refusal at least has to say so."""
-        at = text.find(needle, start)
-        assert at >= 0, \
-            f"this gate finds {what} by the literal identifier {needle!r} " \
-            "and the firmware no longer spells it that way. Renaming it is " \
-            "not a boot-contract change, but this gate cannot follow the " \
-            "rename: update the anchor here, or teach it to find the " \
-            "function by shape"
-        return at
-
-    def assert_boot_contract(firmware, docs, csr, makefile=None,
-                             listing=None, datapath=None):
-        raw_datapath = datapath_source if datapath is None else datapath
-        # Read code, not plausible-looking text in comments.  This is a
-        # distinct lexer from blanked(): an apostrophe starts a numeric
-        # literal in SystemVerilog rather than a C character literal.
-        datapath = blanked_sv(raw_datapath)
-        csr_code = blanked_sv(csr)
-
-        def assert_sv_directive_set(raw, code, includes, reason):
-            matches = list(re.finditer(
-                r"`[ \t]*(?P<name>[A-Za-z_][A-Za-z0-9_$]*)\b", code))
-            names = tuple(match.group("name") for match in matches)
-            expected_names = (
-                "default_nettype", *("include" for _ in includes),
-                "default_nettype")
-            assert names == expected_names, \
-                f"{reason}: expected directives {expected_names}, found " \
-                f"{names}"
-            actual_includes = []
-            for match in matches:
-                if match.group("name") != "include":
-                    continue
-                line_end = raw.find("\n", match.end())
-                line_end = len(raw) if line_end < 0 else line_end
-                include = re.fullmatch(
-                    r"[ \t]*`[ \t]*include[ \t]+"
-                    r"\"(?P<path>[^\"\r\n]+)\"[ \t]*",
-                    raw[match.start():line_end])
-                assert include, \
-                    f"{reason}: each `include operand must be one literal path"
-                actual_includes.append(include.group("path"))
-            assert tuple(actual_includes) == tuple(includes), \
-                f"{reason}: expected included fragments {tuple(includes)}, " \
-                f"found {tuple(actual_includes)}"
-
-        assert_sv_directive_set(
-            csr, csr_code,
-            ("gen/lwsrp_csr_defaults.svh",
-             "gen/adp_shape_defaults.svh"),
-            "CSR integration proof requires unconditional live "
-            "SystemVerilog text")
-        # Reject compiler-selected datapath text before any endpoint or
-        # reference-count check can take credit for an incidental mismatch.
-        # The shipping includes and paired `default_nettype directives are
-        # the only live directives admitted by this bounded model.
-        assert_sv_directive_set(
-            raw_datapath, datapath,
-            ("ethernet_events.svh", "gen/adp_shape_defaults.svh"),
-            "datapath integration proof requires unconditional live "
-            "SystemVerilog text")
-
-        def direct_port(ports, port, value, reason):
-            matches = list(re.finditer(
-                rf"\.{re.escape(port)}\s*\(\s*(?P<value>[^)]*?)\s*\)",
-                ports))
-            assert len(matches) == 1, \
-                f"{reason}: .{port} must be connected exactly once"
-            actual = re.sub(r"\s+", "", matches[0].group("value"))
-            expected = re.sub(r"\s+", "", value)
-            assert actual == expected, \
-                f"{reason}: expected .{port}({value})"
-
-        def reference_census(source, expected, reason):
-            """Pin every code-token reference to named bounded-proof nets.
-
-            Exact endpoint expressions do not establish sole-driver
-            ownership: a resolved ``wand`` can retain the expected assignment
-            and add a second ADP-controlled driver.  Comments have already
-            been blanked, so an exact identifier census makes every added
-            driver or alias use visible without pretending to parse general
-            SystemVerilog data flow.
-            """
-            for name, count in expected.items():
-                found = len(re.findall(rf"\b{re.escape(name)}\b", source))
-                assert found == count, \
-                    f"{reason}: {name} must have exactly {count} live " \
-                    f"references, found {found}"
-
-        def direct_initializer(source, declaration, signal, value, reason):
-            """One direct module-scope wire initializer with an exact RHS."""
-            matches = list(re.finditer(
-                rf"(?m)^[ \t]*{declaration}[ \t]*=[ \t]*"
-                r"(?P<value>[^;]+);", source))
-            assert len(matches) == 1, \
-                f"{reason}: {signal} must have exactly one ordinary-wire " \
-                "initializer"
-            actual = re.sub(r"\s+", "", matches[0].group("value"))
-            expected_value = re.sub(r"\s+", "", value)
-            assert actual == expected_value, \
-                f"{reason}: unexpected {signal} initializer " \
-                f"{matches[0].group('value').strip()!r}"
-            assert_direct_scope(source, matches[0].start(), reason)
-
-        def direct_assignment(lhs, rhs, reason, source=None):
-            source = datapath if source is None else source
-            matches = list(re.finditer(
-                rf"(?m)^[ \t]*assign[ \t]+{re.escape(lhs)}[ \t]*="
-                r"(?P<value>[^;]+);", source))
-            assert len(matches) == 1, \
-                f"{reason}: {lhs} must have exactly one continuous assignment"
-            assert re.fullmatch(rf"\s*{re.escape(rhs)}\s*",
-                                matches[0].group("value")), \
-                f"{reason}: expected assign {lhs} = {rhs};"
-            assert_direct_scope(source, matches[0].start(), reason)
-
-        def instance_ports(source, module, instance, reason):
-            matches = list(re.finditer(
-                rf"\b{re.escape(module)}\b\s*#\s*\([^;]*?\)\s*"
-                rf"{re.escape(instance)}\s*\((?P<ports>.*?)\)\s*;",
-                source, re.DOTALL))
-            assert len(matches) == 1, \
-                f"{reason}: expected exactly one {module} {instance} instance"
-            assert_direct_scope(source, matches[0].start(), reason)
-            return matches[0].group("ports")
-
-        id_readback_reason = (
-            "RTL A_ID readback plumbing must preserve the canonical "
-            "csr_default ROM and direct AXI read address")
-        direct_initializer(
-            csr_code,
-            r"wire[ \t]+\[\s*ADDR_WIDTH\s*-\s*1\s*:\s*0\s*\]"
-            r"[ \t]+rd_addr",
-            "rd_addr", "s_axi_araddr", id_readback_reason)
-        rom_initializers = [
-            match for match in re.finditer(
-                r"\binitial\s+begin\b(?P<body>.*?)\bend\b",
-                csr_code, re.DOTALL)
-            if re.search(r"\bdflt_rom\b", match.group("body"))]
-        assert len(rom_initializers) == 1, \
-            f"{id_readback_reason}: expected one dflt_rom initial block"
-        assert re.fullmatch(
-            r"\s*for\s*\(\s*int\s+k\s*=\s*0\s*;\s*k\s*<\s*512\s*;"
-            r"\s*k\+\+\s*\)\s*dflt_rom\s*\[\s*k\s*\]\s*=\s*"
-            r"csr_default\s*\(\s*11\s*'\s*\(\s*k\s*\*\s*4\s*\)\s*\)"
-            r"\s*;\s*", rom_initializers[0].group("body")), \
-            f"{id_readback_reason}: dflt_rom must be initialized solely " \
-            "from csr_default(11'(k * 4))"
-        reference_census(
-            csr_code, {"dflt_rom": 3, "rd_addr": 15}, id_readback_reason)
-
-        phc_binding_reason = (
-            "milan_csr PHC output must drive cfg_ptp_enable directly")
-        csr_ports = instance_ports(
-            datapath, "milan_csr", "csr", phc_binding_reason)
-        phc_csr_ports = (
-            ("o_ptp_enable", "cfg_ptp_enable"),
-            ("o_ptp_incr", "cfg_ptp_incr"),
-            ("o_ptp_adj", "cfg_ptp_adj"),
-            ("o_ptp_tod_wr", "cfg_ptp_tod_wr"),
-            ("o_ptp_offset", "cfg_ptp_offset"),
-            ("o_ptp_cmd_load", "cfg_ptp_cmd_load"),
-            ("o_ptp_cmd_adjust", "cfg_ptp_cmd_adjust"),
-            ("o_ptp_cmd_snapshot", "cfg_ptp_cmd_snapshot"),
-            ("o_ptp_ingress_lat", "cfg_ptp_ingress_lat"),
-            ("o_ptp_egress_lat", "cfg_ptp_egress_lat"),
-            ("i_ptp_tod", "ptp_tod_rd"),
-            ("i_ptp_tod_valid", "ptp_tod_rd_valid"),
-        )
-        for port, value in phc_csr_ports:
-            direct_port(csr_ports, port, value, phc_binding_reason)
-
-        phc_source_reason = (
-            "milan_csr PHC output assignments must remain direct and "
-            "independent of ADP and protocol-processor state")
-        for lhs, rhs in (
-                ("o_ptp_enable", "ptp_ctrl[0]"),
-                ("o_ptp_incr", "ptp_incr"),
-                ("o_ptp_adj", "ptp_adj"),
-                ("o_ptp_tod_wr", "{ptp_twhi, ptp_twlo}"),
-                ("o_ptp_offset", "{ptp_ofhi, ptp_oflo}"),
-                ("o_ptp_cmd_load", "ptp_load_p"),
-                ("o_ptp_cmd_adjust", "ptp_adj_p"),
-                ("o_ptp_cmd_snapshot", "ptp_snap_p"),
-                ("o_ptp_ingress_lat", "ptp_ilat"),
-                ("o_ptp_egress_lat", "ptp_elat")):
-            direct_assignment(lhs, rhs, phc_source_reason, csr_code)
-        reference_census(
-            csr_code,
-            {port: 2 for port, _value in phc_csr_ports
-             if port.startswith("o_")},
-            phc_source_reason)
-
-        phc_net_reason = (
-            "datapath PHC nets must retain sole-driver reference ownership")
-        reference_census(
-            datapath,
-            {
-                "cfg_ptp_enable": 3,
-                "cfg_ptp_incr": 3,
-                "cfg_ptp_adj": 3,
-                "cfg_ptp_tod_wr": 3,
-                "cfg_ptp_offset": 3,
-                "cfg_ptp_cmd_load": 4,
-                "cfg_ptp_cmd_adjust": 4,
-                "cfg_ptp_cmd_snapshot": 3,
-                "cfg_ptp_ingress_lat": 3,
-                "cfg_ptp_egress_lat": 3,
-                "ptp_tod_rd": 3,
-                "ptp_tod_rd_valid": 3,
-                "eff_ptp_adj_w": 2,
-                "eff_ptp_offset_w": 2,
-                "eff_ptp_adjust_w": 2,
-                "gptp_adj_w": 4,
-                "gptp_step_we_w": 4,
-                "gptp_step_w": 4,
-            }, phc_net_reason)
-        direct_initializer(
-            datapath,
-            r"wire[ \t]+\[\s*31\s*:\s*0\s*\][ \t]+eff_ptp_adj_w",
-            "eff_ptp_adj_w",
-            "(GPTP_PLANE_EN_P != 1'b0) ? unsigned'(gptp_adj_w) : "
-            "cfg_ptp_adj",
-            "effective PHC adjustment must select only gPTP or CSR control")
-        direct_initializer(
-            datapath,
-            r"wire[ \t]+\[\s*63\s*:\s*0\s*\][ \t]+eff_ptp_offset_w",
-            "eff_ptp_offset_w",
-            "(GPTP_PLANE_EN_P != 1'b0) ? gptp_step_w : cfg_ptp_offset",
-            "effective PHC offset must select only gPTP or CSR control")
-        direct_initializer(
-            datapath, r"wire[ \t]+eff_ptp_adjust_w",
-            "eff_ptp_adjust_w",
-            "(GPTP_PLANE_EN_P != 1'b0) ? gptp_step_we_w : "
-            "cfg_ptp_cmd_adjust",
-            "effective PHC adjust strobe must select only gPTP or CSR "
-            "control")
-        ptp_clock_reason = (
-            "ptp_timestamp clocks and resets must be direct and independent "
-            "of AEM, ADP and protocol-processor gates")
-        phc_reason = (
-            "ptp_timestamp PHC enable must be driven directly by "
-            "cfg_ptp_enable")
-        ptp_ports = instance_ports(
-            datapath, "ptp_ts_top", "ptp_timestamp", phc_reason)
-        for port, value in (
-                ("gtx_clk", "gtx_clk"),
-                ("gtx_resetn", "gtx_resetn"),
-                ("axis_clk", "axis_clk"),
-                ("axis_resetn", "axis_resetn")):
-            direct_port(ptp_ports, port, value, ptp_clock_reason)
-        direct_port(ptp_ports, "i_ptp_enable", "cfg_ptp_enable", phc_reason)
-        phc_control_reason = (
-            "ptp_timestamp PHC controls and readback must remain direct and "
-            "independent of AEM, ADP and protocol-processor gates")
-        for port, value in (
-                ("i_ptp_incr", "cfg_ptp_incr"),
-                ("i_ptp_adj", "eff_ptp_adj_w"),
-                ("i_ptp_tod_wr", "cfg_ptp_tod_wr"),
-                ("i_ptp_offset", "eff_ptp_offset_w"),
-                ("i_ptp_cmd_load", "cfg_ptp_cmd_load"),
-                ("i_ptp_cmd_adjust", "eff_ptp_adjust_w"),
-                ("i_ptp_cmd_snapshot", "cfg_ptp_cmd_snapshot"),
-                ("i_ptp_ingress_lat", "cfg_ptp_ingress_lat"),
-                ("i_ptp_egress_lat", "cfg_ptp_egress_lat"),
-                ("o_ptp_tod_rd", "ptp_tod_rd"),
-                ("o_ptp_tod_rd_valid", "ptp_tod_rd_valid"),
-                ("o_tx_ts_ready", "evt_tx_ts_ready"),
-                ("o_ptp_now", "ptp_now_w")):
-            direct_port(ptp_ports, port, value, phc_control_reason)
-
-        timestamp_reason = (
-            "external MAC RX must traverse ptp_timestamp directly")
-        for port, value in (
-                ("s_axis_rx_tdata", "rx_axis_to_ts.tdata"),
-                ("s_axis_rx_tkeep", "rx_axis_to_ts.tkeep"),
-                ("s_axis_rx_tvalid", "rx_axis_to_ts.tvalid"),
-                ("s_axis_rx_tlast", "rx_axis_to_ts.tlast"),
-                ("s_axis_rx_tready", "rx_axis_to_ts.tready"),
-                ("m_axis_rx_tdata", "rx_axis_ptp_to_filt.tdata"),
-                ("m_axis_rx_tkeep", "rx_axis_ptp_to_filt.tkeep"),
-                ("m_axis_rx_tvalid", "rx_axis_ptp_to_filt.tvalid"),
-                ("m_axis_rx_tlast", "rx_axis_ptp_to_filt.tlast"),
-                ("m_axis_rx_tready", "rx_axis_ptp_to_filt.tready")):
-            direct_port(ptp_ports, port, value, timestamp_reason)
-
-        rx_arms = re.search(
-            r"\bgenerate\s+if\s*\(\s*RXFILT_P\s*!=\s*0\s*\)\s*"
-            r"begin\s*:\s*g_rx_filter\b(?P<enabled>.*?)"
-            r"\bend\s+else\s+begin\s*:\s*g_no_rx_filter\b"
-            r"(?P<bypass>.*?)\bend\s+endgenerate\b",
-            datapath, re.DOTALL)
-        assert rx_arms, \
-            "timestamped MAC RX must traverse both RXFILT_P arms directly"
-        assert_direct_scope(
-            datapath, rx_arms.start(),
-            "timestamped MAC RX must traverse both RXFILT_P arms directly")
-        enabled_reason = (
-            "timestamped MAC RX must traverse the enabled RX-filter arm "
-            "directly")
-        rx_filter_ports = instance_ports(
-            rx_arms.group("enabled"), "rx_mac_filter", "rx_filter",
-            enabled_reason)
-        for port, value in (
-                ("clk_i", "axis_clk"),
-                ("rst_n", "axis_resetn"),
-                ("addr_filter_en_i", "cfg_tcam_addr_filt_en"),
-                ("promisc_i", "cfg_mac_promisc"),
-                ("allmulti_i", "cfg_mac_allmulti"),
-                ("station_mac_i",
-                 "{cfg_mac_addr[7:0], cfg_mac_addr[15:8], "
-                 "cfg_mac_addr[23:16], cfg_mac_addr[31:24], "
-                 "cfg_mac_addr[39:32], cfg_mac_addr[47:40]}"),
-                ("mc_hash_i", "cfg_mc_hash"),
-                ("tcam_wr_en_i", "cfg_tcam_wr_en"),
-                ("tcam_wr_index_i", "cfg_tcam_wr_index[3:0]"),
-                ("tcam_wr_valid_i", "cfg_tcam_wr_valid"),
-                ("tcam_wr_key_i", "cfg_tcam_wr_key"),
-                ("tcam_wr_mask_i", "cfg_tcam_wr_mask"),
-                ("tcam_wr_action_i", "cfg_tcam_wr_action"),
-                ("s_tdata", "rx_axis_ptp_to_filt.tdata"),
-                ("s_tkeep", "rx_axis_ptp_to_filt.tkeep"),
-                ("s_tvalid", "rx_axis_ptp_to_filt.tvalid"),
-                ("s_tlast", "rx_axis_ptp_to_filt.tlast"),
-                ("s_tready", "rx_axis_ptp_to_filt.tready"),
-                ("m_tdata", "rx_axis_to_dma.tdata"),
-                ("m_tkeep", "rx_axis_to_dma.tkeep"),
-                ("m_tvalid", "rx_axis_to_dma.tvalid"),
-                ("m_tlast", "rx_axis_to_dma.tlast"),
-                ("m_tready", "rx_axis_to_dma.tready")):
-            direct_port(rx_filter_ports, port, value, enabled_reason)
-        filter_policy_reason = (
-            "reset-time RX filter policy must remain independent of ADP")
-        direct_port(
-            rx_filter_ports, "default_pass_i", "cfg_tcam_default_pass",
-            filter_policy_reason)
-        direct_port(
-            csr_ports, "o_tcam_default_pass", "cfg_tcam_default_pass",
-            filter_policy_reason)
-        direct_assignment(
-            "o_tcam_default_pass", "tcam_ctrl[0]", filter_policy_reason,
-            csr_code)
-        reference_census(
-            datapath, {"cfg_tcam_default_pass": 3}, filter_policy_reason)
-        reference_census(
-            csr_code, {"o_tcam_default_pass": 2}, filter_policy_reason)
-        bypass_reason = (
-            "timestamped MAC RX must traverse the bypass RX-filter arm "
-            "directly")
-        for lhs, rhs in (
-                ("rx_axis_to_dma.tdata", "rx_axis_ptp_to_filt.tdata"),
-                ("rx_axis_to_dma.tkeep", "rx_axis_ptp_to_filt.tkeep"),
-                ("rx_axis_to_dma.tvalid", "rx_axis_ptp_to_filt.tvalid"),
-                ("rx_axis_to_dma.tlast", "rx_axis_ptp_to_filt.tlast"),
-                ("rx_axis_ptp_to_filt.tready", "rx_axis_to_dma.tready")):
-            direct_assignment(
-                lhs, rhs, bypass_reason, rx_arms.group("bypass"))
-
-        gptp_plane = re.search(
-            r"\bgenerate\s+if\s*\(\s*GPTP_PLANE_EN_P\s*\)\s*"
-            r"begin\s*:\s*g_gptp_plane\b(?P<body>.*?)"
-            r"\bend\s+else\s+begin\s*:\s*g_gptp_off\b",
-            datapath, re.DOTALL)
-        assert gptp_plane, \
-            "fabric gPTP must be elaborated solely by GPTP_PLANE_EN_P, " \
-            "without an AEM, ADP or protocol-processor runtime gate"
-        assert_direct_scope(
-            datapath, gptp_plane.start(),
-            "fabric gPTP must be elaborated solely by GPTP_PLANE_EN_P")
-        shadow_ports = instance_ports(
-            gptp_plane.group("body"), "KL_gptp_shadow", "u_gptp_shadow",
-            "the option-on fabric gPTP plane must instantiate "
-            "KL_gptp_shadow directly")
-
-        for port, value in (
-                ("clk_i", "axis_clk"), ("rst_n", "axis_resetn"),
-                ("rx_tdata_i", "rx_axis_to_dma.tdata"),
-                ("rx_tkeep_i", "rx_axis_to_dma.tkeep"),
-                ("rx_tvalid_i", "rx_axis_to_dma.tvalid"),
-                ("rx_tready_i", "rx_axis_to_dma.tready"),
-                ("rx_tlast_i", "rx_axis_to_dma.tlast"),
-                ("phc_ns_i", "ptp_now_w"),
-                ("phc_adj_o", "gptp_adj_w"),
-                ("phc_step_we_o", "gptp_step_we_w"),
-                ("phc_step_o", "gptp_step_w"),
-                ("txts_valid_i", "gts_valid_w"),
-                ("txts_ns_i", "gts_ns_w"),
-                ("txts_seq_i", "gts_seq_w"),
-                ("tx_sent_o", "gtx_sent_w")):
-            direct_port(
-                shadow_ports, port, value,
-                "fabric gPTP RX and control inputs must observe the live "
-                "datapath directly, independent of AEM, ADP and "
-                "protocol-processor gates")
-        for port, value in (
-                ("tx_tdata_o", "gtx_tdata_w"),
-                ("tx_tkeep_o", "gtx_tkeep_w"),
-                ("tx_tvalid_o", "gtx_tvalid_w"),
-                ("tx_tlast_o", "gtx_tlast_w"),
-                ("tx_tready_i", "gtx_tready_w")):
-            direct_port(
-                shadow_ports, port, value,
-                "fabric gPTP TX handshake must leave KL_gptp_shadow directly")
-
-        gptp_mux_ports = instance_ports(
-            gptp_plane.group("body"), "adp_tx_arbiter", "gptp_ctl_mux",
-            "the option-on fabric gPTP plane must feed gptp_ctl_mux "
-            "directly")
-        for port, value in (
-                ("clk_i", "axis_clk"), ("rst_n", "axis_resetn"),
-                ("s_adp_tdata", "gtx_tdata_w"),
-                ("s_adp_tkeep", "gtx_tkeep_w"),
-                ("s_adp_tvalid", "gtx_tvalid_w"),
-                ("s_adp_tlast", "gtx_tlast_w"),
-                ("s_adp_tready", "gtx_tready_w"),
-                ("m_tdata", "ctlg3_tdata"),
-                ("m_tkeep", "ctlg3_tkeep"),
-                ("m_tvalid", "ctlg3_tvalid"),
-                ("m_tlast", "ctlg3_tlast"),
-                ("m_tready", "ctlg3_tready")):
-            direct_port(
-                gptp_mux_ports, port, value,
-                "fabric gPTP TX must traverse gptp_ctl_mux directly, "
-                "independent of AEM, ADP and protocol-processor gates")
-
-        txstamp_reason = (
-            "fabric gPTP TX timestamp feedback must remain direct and "
-            "independent of AEM, ADP and protocol-processor gates")
-        txstamp_ports = instance_ports(
-            gptp_plane.group("body"), "KL_gptp_txstamp", "u_gptp_txstamp",
-            txstamp_reason)
-        for port, value in (
-                ("clk_i", "axis_clk"), ("rst_n", "axis_resetn"),
-                ("tx_tdata_i", "tx_axis_to_mac.tdata"),
-                ("tx_tvalid_i", "tx_axis_to_mac.tvalid"),
-                ("tx_tready_i", "tx_axis_to_mac.tready"),
-                ("tx_tlast_i", "tx_axis_to_mac.tlast"),
-                ("phc_ns_i", "ptp_now_w"),
-                ("armed_i", "gtx_sent_w"),
-                ("ts_valid_o", "gts_valid_w"),
-                ("ts_ns_o", "gts_ns_w"),
-                ("ts_seq_o", "gts_seq_w")):
-            direct_port(txstamp_ports, port, value, txstamp_reason)
-
-        boundary_ports = instance_ports(
-            datapath, "adp_tx_arbiter", "adp_tx_mux",
-            "the fabric gPTP/control stream must reach the MAC-boundary mux "
-            "directly")
-        for port, value in (
-                ("clk_i", "axis_clk"), ("rst_n", "axis_resetn"),
-                ("s_adp_tdata", "ctlg3_tdata"),
-                ("s_adp_tkeep", "ctlg3_tkeep"),
-                ("s_adp_tvalid", "ctlg3_tvalid"),
-                ("s_adp_tlast", "ctlg3_tlast"),
-                ("s_adp_tready", "ctlg3_tready"),
-                ("m_tdata", "tx_axis_to_mac.tdata"),
-                ("m_tkeep", "tx_axis_to_mac.tkeep"),
-                ("m_tvalid", "tx_axis_to_mac.tvalid"),
-                ("m_tlast", "tx_axis_to_mac.tlast"),
-                ("m_tready", "tx_axis_to_mac.tready")):
-            direct_port(
-                boundary_ports, port, value,
-                "fabric gPTP control output must reach the MAC-boundary "
-                "arbiter directly, independent of AEM, ADP and "
-                "protocol-processor gates")
-
-        # The arbiter's output is still only an internal promise. Close the
-        # path at the externally visible MAC handshake in both directions so
-        # a downstream runtime gate cannot silence an otherwise-direct gPTP
-        # plane.
-        for lhs, rhs in (
-                ("m_axis_mac_tx_tdata", "tx_axis_to_mac.tdata"),
-                ("m_axis_mac_tx_tkeep", "tx_axis_to_mac.tkeep"),
-                ("m_axis_mac_tx_tvalid", "tx_axis_to_mac.tvalid"),
-                ("m_axis_mac_tx_tlast", "tx_axis_to_mac.tlast"),
-                ("tx_axis_to_mac.tready", "m_axis_mac_tx_tready")):
-            direct_assignment(
-                lhs, rhs,
-                "external MAC TX handshake must be driven directly by "
-                "tx_axis_to_mac")
-        for lhs, rhs in (
-                ("rx_axis_to_ts.tdata", "s_axis_mac_rx_tdata"),
-                ("rx_axis_to_ts.tkeep", "s_axis_mac_rx_tkeep"),
-                ("rx_axis_to_ts.tvalid", "s_axis_mac_rx_tvalid"),
-                ("rx_axis_to_ts.tlast", "s_axis_mac_rx_tlast"),
-                ("s_axis_mac_rx_tready", "rx_axis_to_ts.tready")):
-            direct_assignment(
-                lhs, rhs,
-                "external MAC RX handshake must drive rx_axis_to_ts directly")
-        reference_census(
-            datapath,
-            {
-                "m_axis_mac_tx_tdata": 2,
-                "m_axis_mac_tx_tkeep": 2,
-                "m_axis_mac_tx_tvalid": 4,
-                "m_axis_mac_tx_tlast": 4,
-                "m_axis_mac_tx_tready": 4,
-                "s_axis_mac_rx_tdata": 2,
-                "s_axis_mac_rx_tkeep": 2,
-                "s_axis_mac_rx_tvalid": 4,
-                "s_axis_mac_rx_tlast": 4,
-                "s_axis_mac_rx_tready": 4,
-            },
-            "external MAC handshake ports must retain sole-driver/reference "
-            "ownership")
-
-        # The whole closure below reads ONE file. Prove that is the whole
-        # firmware before reading a line of it.
-        assert_single_translation_unit(
-            makefile_source if makefile is None else makefile,
-            firmware_object)
-        # Comments and string literals are not code: blanking their bodies
-        # (offsets preserved) keeps a commented-out enable from reading as an
-        # enable, and a printf() from reading as a call.
-        source, firmware = firmware, blanked(firmware)
-        # ... and one OBJECT is not one FILE. Pin what else joins the
-        # translation unit, and the one store mechanism with no textual
-        # signature, before any rule below calls this text the firmware.
-        assert_directive_set_is_closed(firmware, source)
-        assert_include_resolution_is_pinned(
-            firmware_listing if listing is None else listing)
-        # ... the inline-asm set, which the census does NOT subsume: it
-        # matches one asm spelling, and a `lui`-based template carries no
-        # window immediate at all.
-        assert_asm_set_is_closed(firmware, source)
-
-        model = CsrModel(firmware, csr_code)
-        assert model.defines.get("MILAN_ID") == model.identity, \
-            "firmware MILAN_ID must resolve to the RTL A_ID address, or the " \
-            "boot guard can validate a different CSR"
-        assert model.defines.get("MILAN_ID_MAGIC") == model.identity_default, \
-            "firmware MILAN_ID_MAGIC must equal the RTL A_ID readback " \
-            "default, or the boot guard can accept a forged identity value"
-        # The name-to-address table is only half the address model; the write
-        # decode is the other half, and it is what says each entity-enable
-        # register answers to ONE address.
-        assert_decode_is_one_to_one(csr_code, model)
-        ptp_enable_assignment(csr_code)
-        load_start = anchored(firmware, "static int load_aem_image(void)",
-                              "the AEM verifier")
-        load_end = anchored(firmware, "static void milan_init(void)",
-                            "the boot entry point", load_start)
-        load_source = firmware[load_start:load_end]
-        # Before any textual rule: prove the text this gate reads is the text
-        # the compiler compiles.
-        assert_preprocessor_visible(firmware, source, (load_start, load_end))
-        init_start = anchored(firmware, "static void milan_init(void)",
-                              "the boot entry point")
-        init_end = anchored(firmware, "define_init_func(milan_init)",
-                            "the boot entry point's init hook", init_start)
-        init_source = firmware[init_start:init_end]
-        identity_read = re.search(
-            r"\buint32_t\s+(?P<name>\w+)\s*=\s*"
-            r"milan_read\s*\(\s*MILAN_ID\s*\)\s*;", init_source)
-        identity_guard = re.search(
-            rf"\bif\s*\(\s*{re.escape(identity_read.group('name')) if identity_read else 'id'}"
-            r"\s*!=\s*MILAN_ID_MAGIC\s*\)\s*\{", init_source)
-        configure = re.search(r"\bconfigure_fabric\s*\(\s*\)\s*;", init_source)
-        load = re.search(
-            r"\baem_loaded\s*=\s*load_aem_image\s*\(\s*\)\s*;",
-            init_source)
-        guard = re.search(
-            r"\bentity_advertise\s*\(\s*aem_loaded\s*\)\s*;",
-            init_source)
-        assert identity_read and identity_guard, \
-            "firmware must reject a mismatched CSR identity before " \
-            "configuring fabric or verifying the AEM image"
-        identity_between = init_source[
-            identity_read.end():identity_guard.start()]
-        identity_name = re.escape(identity_read.group("name"))
-        identity_write = re.search(
-            rf"(?:\+\+|--)\s*\b{identity_name}\b|"
-            rf"\b{identity_name}\b\s*(?:\+\+|--|"
-            rf"(?:<<|>>|[-+*/%|&^])?=(?!=))",
-            identity_between)
-        identity_address = re.search(
-            rf"(?<!&)&(?!&)\s*\b{identity_name}\b", identity_between)
-        assert not identity_write and not identity_address, \
-            "CSR identity guard must consume the unmodified MILAN_ID " \
-            "sample: no assignment, increment or pointer write may replace " \
-            "the value between its CSR read and mismatch comparison"
-        identity_body, identity_close = braced_span(
-            init_source, identity_guard, "CSR identity mismatch guard")
-        identity_block = init_source[identity_body:identity_close]
-        identity_returns = list(re.finditer(r"\breturn\s*;", identity_block))
-        identity_return_is_top_level = False
-        if len(identity_returns) == 1:
-            identity_return = identity_returns[0]
-            return_head = max(identity_block.rfind(char, 0,
-                                                    identity_return.start())
-                              for char in ";{}")
-            return_depth = (
-                identity_block.count("{", 0, identity_return.start()) -
-                identity_block.count("}", 0, identity_return.start()))
-            identity_return_is_top_level = (
-                return_depth == 0 and
-                not identity_block[
-                    return_head + 1:identity_return.start()].strip())
-        assert identity_return_is_top_level, \
-            "CSR identity mismatch guard must return before fabric " \
-            "configuration and AEM verification"
-        assert configure and load and guard, \
-            "firmware must configure, load AEM, then guard entity enable. " \
-            "NOTE, because this message has misdiagnosed a rename before: " \
-            "this gate finds the verdict by the literal identifier " \
-            "'aem_loaded' and the guard by the choke-point call " \
-            "'entity_advertise(aem_loaded)'. If those three steps are all " \
-            "present and you renamed the verdict, the boot order is fine " \
-            "and it is this gate that cannot follow the rename; found " \
-            f"configure={bool(configure)} load={bool(load)} " \
-            f"guard={bool(guard)}"
-        positions = [identity_read.start(), identity_guard.start(),
-                     configure.start(), load.start(), guard.start()]
-        assert positions == sorted(positions), \
-            "firmware must check CSR identity, configure fabric, verify AEM, " \
-            "then check the verifier verdict"
-        # Textual containment is not REACHABILITY. Every positional rule below
-        # proves an enable sits between the guard's braces; none of them proves
-        # control gets there only by taking the guard. A label reached by a
-        # goto, or a case falling into the block, does both at once -- so the
-        # constructs that make one possible are refused outright.
-        for keyword in ("goto", "switch", "case", "default"):
-            assert not re.search(rf"\b{keyword}\b", init_source), \
-                f"milan_init() must not contain '{keyword}': control that " \
-                "enters the AEM-success guard by any path other than the " \
-                "guard's own condition advertises an unverified entity"
-        stray_label = re.search(
-            r"(?m)^[ \t]*([A-Za-z_]\w*)[ \t]*:(?!:)", init_source)
-        assert not stray_label, \
-            f"milan_init() must not contain the label " \
-            f"'{stray_label.group(1)}': control that enters the AEM-success " \
-            "guard by any path other than the guard's own condition " \
-            "advertises an unverified entity"
-        # ... and each step of the boot path is a statement of milan_init()
-        # itself. A step nested under some OTHER condition is a step a
-        # compile-time constant can delete from the boot path entirely,
-        # without the preprocessor and without changing a line this gate reads.
-        init_body = init_source.index("{")
-
-        def unconditional(match, what):
-            head = max(init_source.rfind(char, init_body, match.start())
-                       for char in ";{}")
-            assert head >= 0 and \
-                not init_source[head + 1:match.start()].strip(), \
-                f"{what} must be a statement of milan_init() itself, not " \
-                "the body of another condition: a condition this gate " \
-                "cannot evaluate can drop it from the boot path"
-            depth = (init_source.count("{", init_body, match.start()) -
-                     init_source.count("}", init_body, match.start()))
-            assert depth == 1, \
-                f"{what} must sit at the top level of milan_init(), not " \
-                f"{depth - 1} block(s) deep: a condition this gate cannot " \
-                "evaluate can drop it from the boot path"
-
-        unconditional(identity_read, "the CSR identity read")
-        unconditional(identity_guard, "the CSR identity mismatch guard")
-        unconditional(configure, "the fabric configuration step")
-        unconditional(load, "the AEM verifier call")
-        unconditional(guard, "the entity-advertise choke-point call")
-        # Read/modify/write, increment and compound-assignment spellings all
-        # override the verifier's verdict; pin the variable, not one spelling.
-        verdict_write = re.compile(
-            r"(?:\+\+|--)\s*aem_loaded\b|"
-            r"\baem_loaded\b\s*(?:\+\+|--|(?:[-+*/%|&^]|<<|>>)?=(?!=))"
-            r"\s*([^;]*)")
-        assignments = list(verdict_write.finditer(firmware))
-        assert len(assignments) == 1 and re.fullmatch(
-            r"\s*load_aem_image\s*\(\s*\)\s*", assignments[0].group(1) or ""), \
-            "aem_loaded must contain only the image verifier's verdict"
-        # ... and pinning the ASSIGNMENT only pins the spellings that name the
-        # variable. A pointer to it writes the verdict with no `aem_loaded =`
-        # anywhere, so the address of the verdict may not be taken at all --
-        # which, for a file-scope static in a single translation unit, is the
-        # only way to build such a pointer.
-        for use in re.finditer(r"(?<!&)&(?!&)\s*aem_loaded\b", firmware):
-            lead = firmware[:use.start()].rstrip()
-            assert lead and (lead[-1].isalnum() or lead[-1] in "_)]"), \
-                "the address of aem_loaded must not be taken: a pointer " \
-                "to the verdict (or a memset through one) overwrites it " \
-                "without any assignment this gate can see"
-        # Every rule from here on reads milan_write() call sites, so first
-        # prove there is no OTHER way to store into a control register.
-        assert_csr_store_closure(firmware, source)
-        # ... and then ask the COMPILER as well. The text rules above catch
-        # spellings this census's regex misses; the census catches spellings
-        # no rule above anticipates. Both, because both have been measured to
-        # miss something the other holds. The census runs LAST so that a
-        # reduced-mode census (no cross compiler, see below) never takes a
-        # verdict away from a rule that answers on every machine.
-        census_taken = census_take(source)
-        compiled_census_verdict = assert_compiled_census_is_clean(
-            source, taken=census_taken)
-        # The census places a write by the ADDRESS its operand reaches, so an
-        # operand this gate cannot resolve to a decoded register is an
-        # unclassifiable store: refuse it rather than leave it unexamined.
-        # This also keeps pure VALUE constants (MILAN_PTP_LOAD and friends)
-        # out of the register position -- they name no register.
-        for record in model.calls(firmware):
-            assert model.address(record["operand"]) is not None, \
-                "milan_write() must name a register the RTL decodes so the " \
-                "bit-0 census can place it by ADDRESS, got " \
-                f"{record['operand'].strip()!r}"
-        advertise, guard_body, guard_close = entity_advertise_span(firmware)
-        enable_block = firmware[guard_body:guard_close]
-        assert len(model.writes(enable_block, model.pp)) == 1 and \
-               len(model.writes(enable_block, model.adp)) == 1, \
-            "AEM-success guard must contain exactly one PP and one ADP enable"
-        pp_enable = model.enable_write(enable_block, model.pp)
-        adp_enable = model.enable_write(enable_block, model.adp)
-        assert pp_enable["start"] < adp_enable["start"], \
-            "AEM-success guard must enable PP before ADP"
-        # RETIRED with the choke point (#153): the guarded block used to have
-        # to hold the two enables and their printf and NOTHING else, so that
-        # nothing inside it was unclassified and there was nothing for control
-        # to be steered at. That refusal reddened `cdelay(64);` between the
-        # enables. The choke point plus the resolved dominance measurement
-        # below answer the same question by data flow -- every control-
-        # register write in entity_advertise() disappears when the non-zero-
-        # verdict edge is removed -- so an extra statement in it is now GREEN
-        # and is measured as an accepted case.
-        #
-        # ... and control that ENTERS the choke point past its own verdict
-        # test is refused here as well as measured below, so the textual
-        # argument survives on a runner whose census stands down.
-        advertise_source = firmware[advertise.start():guard_close + 1]
-        for keyword in ("goto", "switch", "case", "default"):
-            assert not re.search(rf"\b{keyword}\b", advertise_source), \
-                f"entity_advertise() must not contain '{keyword}': control " \
-                "that reaches an enable write by any path other than the " \
-                "verdict test advertises an unverified entity"
-        stray_label = re.search(
-            r"(?m)^[ \t]*([A-Za-z_]\w*)[ \t]*:(?!:)", advertise_source)
-        assert not stray_label, \
-            f"entity_advertise() must not contain the label " \
-            f"'{stray_label.group(1)}': control that reaches an enable " \
-            "write by any path other than the verdict test advertises an " \
-            "unverified entity"
-        assert re.search(
-            rf"\bif\s*\([^)]*\b{re.escape(advertise.group('verdict'))}\b",
-            enable_block), \
-            "entity_advertise() must test the verdict it is handed: its " \
-            "parameter is the boot contract's only argument and nothing " \
-            "else in this function may decide whether the entity is " \
-            "advertised"
-        # Entity-enable is PP_CTRL[0] OR ADP_CTRL[0], so the census runs over
-        # the WHOLE firmware: configure_fabric() and every command handler
-        # included, not just the choke point's own text. It is keyed on the
-        # two ADDRESSES the RTL decodes, so a second #define for either one is
-        # the same register here, exactly as it is on the bus.
-        for address in (model.pp, model.adp):
-            enabling = [w["start"] for w in model.writes(firmware, address)
-                        if w["sets"]]
-            assert len(enabling) == 1 and \
-                guard_body <= enabling[0] < guard_close, \
-                f"{model.label(address)} bit 0 may be set only inside the " \
-                "entity-advertise choke point, found " \
-                f"{len(enabling)} enabling write(s)"
-        # ... and the choke point is CALLED exactly once, from the boot path,
-        # with the verifier's verdict: a second call site is a second place
-        # the entity can be advertised, whatever the first one is guarded by.
-        advertise_calls = [call for call in re.finditer(
-            r"\bentity_advertise\s*\(([^)]*)\)\s*;", firmware)]
-        assert len(advertise_calls) == 1 and \
-            advertise_calls[0].group(1).strip() == "aem_loaded", \
-            "entity_advertise() must be called exactly once and with the " \
-            "AEM verifier's verdict, found " \
-            f"{[call.group(1).strip() for call in advertise_calls]}"
-        # ... and the pre-AEM clear must survive, or a warm reboot advertises
-        # a stale entity. Inline configure_fabric() so its writes are ordered
-        # against the AEM verifier wherever the clears are actually spelled.
-        fabric = re.search(
-            r"static\s+void\s+configure_fabric\s*\(\s*void\s*\)\s*\{", firmware)
-        fabric_body = braced_block(firmware, fabric, "configure_fabric()")
-        boot_path = (init_source[:configure.start()] + fabric_body +
-                     init_source[configure.end():])
-        boot_load = re.search(
-            r"\baem_loaded\s*=\s*load_aem_image\s*\(\s*\)\s*;", boot_path)
-        assert boot_load, "the AEM verifier left the boot path"
-        for address in (model.pp, model.adp):
-            assert any(w["clears"] and w["start"] < boot_load.start()
-                       for w in model.writes(boot_path, address)), \
-                f"{model.label(address)} bit 0 must be cleared before the " \
-                "AEM image is verified"
-        assert not model.writes(firmware, model.phc), \
-            "firmware must not write the reset-enabled PHC " \
-            f"({model.label(model.phc)})"
-        _ptp_reset, reset_value = ptp_reset_assignment(csr_code)
-        assert reset_value == 1, \
-            "bare-metal PHC contract requires the documented enabled reset"
-
-        crc_guard = crc_mismatch_guard(load_source)
-        crc_body, crc_close = braced_span(
-            load_source, crc_guard, "CRC mismatch refusal")
-        computed = crc_guard.group("lhs") or crc_guard.group("rhs")
-        # OPEN, and honestly so: this is an EXISTENCE test over the whole
-        # function. It does not ask which preprocessor arm the assignment is
-        # in, it does not ask that the assignment DOMINATE the comparison,
-        # and it does not read the arguments. So all four of these pass:
-        # `got = crc32(...)` parked in the arm the compiler drops with a
-        # constant in the compiled one; `got = MILAN_AEM_IMAGE_CRC32;`
-        # between the crc32() call and the comparison, which gcc does not
-        # warn about; and a CRC taken over the QSPI source rather than over
-        # MILAN_AEM_DESC_BASE, the DRAM buffer the descriptor store serves;
-        # plus a `goto` around the assignment and comparison to the success
-        # return. The last is CONTROL FLOW and a structured do/break bypass
-        # proves that banning one keyword would not prove dominance either.
-        # The replacement is joint: #153 owns verifier CFG/data flow and the
-        # entity_advertise() choke point; #162 owns a store census that
-        # resolves values rather than matching printed literals. Neither
-        # alone closes the end-to-end property.
-        assert re.search(rf"\b{re.escape(computed)}\s*=\s*crc32\s*\(",
-                         load_source), \
-            "AEM verifier must contain a crc32() assignment to the local " \
-            "named by the textual mismatch guard; this does not prove " \
-            "provenance or reachability (issue #153)"
-        # The verdict is whatever this function HANDS BACK, and `if
-        # (aem_loaded)` is true for every non-zero value, not just for 1. So
-        # classify every return and place it, rather than counting one literal:
-        # a warm-boot fast path spelled `return 2;` is ordinary firmware drift
-        # and it hands the guard a pass the CRC never earned.
-        _load_directives, load_arm = cpp_arms(load_source)
-        crc_arm = load_arm(crc_guard.start())
-        refusals, successes = [], []
-        for ret in re.finditer(r"\breturn\b([^;]*);", load_source):
-            expr = re.sub(r"\s+", " ", ret.group(1)).strip()
-            if constant_value(ret.group(1)) == 0:
-                refusals.append((ret, expr))
-                continue
-            successes.append((ret, expr))
-            # After the refusal BLOCK, not merely after the `if`: a non-zero
-            # return inside the refusal is the refusal accepting the mismatch.
-            # And in the CRC guard's own preprocessor arm, or it is code the
-            # compiler reaches without ever compiling the comparison.
-            assert ret.start() >= crc_close and \
-                load_arm(ret.start())[:len(crc_arm)] == crc_arm, \
-                "AEM verifier non-zero return must be textually after the " \
-                "CRC mismatch block and in its preprocessor arm; CFG " \
-                f"reachability is not proved (#153), but 'return {expr};' " \
-                "is not even placed behind that textual boundary"
-        assert successes, \
-            "AEM verifier never returns a non-zero verdict, so the " \
-            "AEM-success guard this gate checks can never be taken"
-        assert any(crc_body <= ret.start() < crc_close
-                   for ret, _ in refusals), \
-            "AEM verifier mismatch block must contain a zero return; this " \
-            "textual placement does not prove CRC-gated reachability (#153)"
-
-        words = " ".join(docs.split())
-        required = (
-            "The PHC is enabled by the CSR reset and the option-on fabric "
-            "gPTP plane starts independently of the AVDECC AEM image.",
-            "Firmware therefore does not gate either one on AEM verification.",
-            "Keep both compatibility enable bits clear, leaving the shared "
-            "AVDECC control plane disabled while the PHC and fabric gPTP "
-            "plane remain active.",
-            "After the identity check and AEM verification succeed, set the "
-            "`PP_CTRL[0]` and legacy `ADP_CTRL[0]` compatibility enable bits.",
-            "The controls are ORed into one shared control-plane enable, so "
-            "either bit alone enables it.",
-            "A missing or corrupt image leaves the AVDECC entity disabled "
-            "while the PHC and fabric gPTP plane continue independently.",
-        )
-        for claim in required:
-            assert claim in words, f"bare-metal boot contract lost: {claim}"
-        assert "Enable the PTP clock, protocol processor and ADP entity only " \
-               "after" not in words, \
-            "documentation restored the false AEM-gated PTP ordering"
-        assert "firmware sets the PHC epoch explicitly" not in words, \
-            "documentation claims an automatic epoch write firmware does not make"
-        # ... and LAST, the resolving half. It runs after every text rule
-        # so that a mutation those rules already answer keeps reporting the
-        # property IT breaks; what reaches here is what no reader of text
-        # can see. One compile feeds both instruments, so this measures the
-        # same emitted code the census above matched over.
-        if census_taken["ran"]:
-            #: The helper's name comes from the source THIS call censused,
-            #: not from the shipping firmware: rule 1c pins the one
-            #: sanctioned consumer of that helper's return, and pinning it
-            #: against a name a mutant may have moved would answer about the
-            #: wrong function.
-            compiled_census_verdict["resolved"] = assert_resolved_boot_flow(
-                census_taken["text"], model,
-                helper=re.search(
-                    r"\bstatic\s+inline\s+volatile\s+uint32_t\s*\*\s*(\w+)"
-                    r"\s*\(", firmware).group(1))
-        return compiled_census_verdict
-
-    baseline_census_verdict = assert_boot_contract(
-        firmware_source, docs_source, csr_source)
-    #: A stand-down that is only PRINTED inside the gate is the shape of
-    #: #154: the gate says it declined, main() then says ALL GATES PASS, and
-    #: the absence of a proof reads as the presence of one. Register it, so
-    #: the final verdict counts and names it (#206).
-    if not baseline_census_verdict["ran"]:
-        skip("gate 1b",
-             "the compiled CSR-address census: "
-             f"{os.path.basename(baseline_census_verdict['compiler'] or 'no')}"
-             " is not the RV32 target and no flag set here drives it as one, "
-             "so the four census-only mutations, the phase-2 splice compile "
-             "proofs and the census of the shipping firmware itself did not "
-             "run -- and neither did the RESOLVING half (#153), which reads "
-             "the same compile: no resolved store census, no proof that the "
-             "verdict test dominates the enable writes, and no proof that "
-             "the CRC-equality edge dominates every non-zero verdict or that "
-             "the CRC was taken over MILAN_AEM_DESC_BASE, so its eight "
-             "mutations did not run either")
-
-    def replace_once(source, old, new, label):
-        changed = source.replace(old, new, 1)
-        assert changed != source, f"{label} mutation did not apply"
-        return changed
-
-    def make_honours_makeflags_e():
-        """Whether THIS make lets `MAKEFLAGS += -e` inside a makefile hand
-        the environment an override.
-
-        Measured, not assumed, and it differs by version: GNU make 4.4.1
-        honours it and the runner's make does not. A mutant whose detection
-        depends on the machine is not evidence, so the entry below is
-        included only where the construct actually does something, and the
-        skip is printed rather than silent."""
-        with tempfile.TemporaryDirectory(prefix="milan-mf-") as probe:
-            with open(os.path.join(probe, "Makefile"), "w") as fh:
-                fh.write("MAKEFLAGS += -e\nOBJECTS = good.o\n"
-                         "all:\n\t@echo $(OBJECTS)\n")
-            environ = dict(os.environ)
-            environ.pop("MAKEFLAGS", None)
-            environ["OBJECTS"] = "evil.o"
-            got = subprocess.run(["make", "-s", "all"], cwd=probe, env=environ,
-                                 capture_output=True, text=True)
-        return got.stdout.strip() == "evil.o"
-
-    verilator = shutil.which("verilator")
-    rtl_mutant_elaboration = {"requested": 0, "passed": 0}
-    datapath_lint_context = {}
-
-    def _datapath_lint_sources():
-        """The real milan_dp source closure, with absolute paths.
-
-        The harness Makefile is already the repository's single exported
-        source-list owner for the integration top.  Reuse it instead of
-        copying a second list into this gate, then replace only the mutated
-        CSR/datapath files in a temporary compilation.
-        """
-        if datapath_lint_context:
-            return datapath_lint_context["sources"]
-        suite = os.path.join(ROOT, "tb/verilator/milan_dp")
-        planned = subprocess.run(
-            ["make", "-s", "print-srcs"], cwd=suite,
-            capture_output=True, text=True)
-        assert planned.returncode == 0, \
-            "RTL-mutant elaboration could not derive milan_dp sources: " \
-            f"{planned.stderr.strip()}"
-        sources = tuple(os.path.abspath(os.path.join(suite, source))
-                        for source in shlex.split(planned.stdout))
-        assert sources and all(os.path.isfile(source) for source in sources), \
-            "RTL-mutant elaboration source closure contains a missing file"
-        assert os.path.abspath(csr_path) in sources and \
-            os.path.abspath(datapath_path) in sources, \
-            "RTL-mutant elaboration source closure lost milan_csr/datapath"
-        datapath_lint_context["sources"] = sources
-        return sources
-
-    def assert_rtl_mutant_elaborates(label, csr, datapath, count=True):
-        """Require each behavior-changing RTL control to be valid RTL.
-
-        A recognizer rejecting malformed text proves nothing about the
-        hardware property.  On a runner carrying Verilator, lint the mutated
-        file set as the real integration top (option-on gPTP) before the
-        mutation can contribute to the reported total.  The documentation
-        job deliberately carries no Verilator; that condition is reported as
-        a stand-down rather than being called elaborated evidence.
-        """
-        changed_csr = csr != csr_source
-        changed_datapath = datapath is not None and datapath != datapath_source
-        if not changed_csr and not changed_datapath:
-            return
-        if count:
-            rtl_mutant_elaboration["requested"] += 1
-        if not verilator:
-            return
-
-        with tempfile.TemporaryDirectory(prefix="milan-rtl-mutant-") as tmp:
-            mutated_csr = os.path.join(tmp, "milan_csr.sv")
-            mutated_datapath = os.path.join(tmp, "milan_datapath.sv")
-            if changed_csr:
-                with open(mutated_csr, "w", encoding="utf-8") as fh:
-                    fh.write(csr)
-            if changed_datapath:
-                with open(mutated_datapath, "w", encoding="utf-8") as fh:
-                    fh.write(datapath)
-
-            common = [
-                verilator, "--lint-only", "--sv", "-Wno-fatal",
-                "-Wno-DECLFILENAME", "-Wno-UNUSEDSIGNAL",
-                "-Wno-WIDTHEXPAND", "-Wno-WIDTHTRUNC",
-                "-Wno-UNUSEDPARAM", "-Wno-PINCONNECTEMPTY",
-                "-Wno-IMPORTSTAR", "-Wno-CASEINCOMPLETE",
-                "-Wno-EOFNEWLINE", "-Wno-PINMISSING",
-                "-Wno-SELRANGE", "-Wno-TIMESCALEMOD",
-                "--Mdir", os.path.join(tmp, "obj")]
-            include_dirs = (
-                os.path.join(ROOT, "configs/generated/endstation_arty_current"),
-                os.path.join(ROOT, "hdl/common"),
-                os.path.join(ROOT, "hdl/common/csr"),
-                os.path.join(ROOT, "hdl/common/eth_event_counter"),
-                os.path.join(ROOT, "hdl/ieee17221/adp"),
-                os.path.join(ROOT, "hdl/ieee8021q/ts"),
-                os.path.join(ROOT, "hdl/ieee8021as/ptp_timestamp"),
-                os.path.join(ROOT, "third_party/verilog-axis/rtl"),
-            )
-            common += ["-I" + path for path in include_dirs]
-
-            if changed_datapath:
-                sources = []
-                for source in _datapath_lint_sources():
-                    if source == os.path.abspath(csr_path) and changed_csr:
-                        source = mutated_csr
-                    elif source == os.path.abspath(datapath_path):
-                        source = mutated_datapath
-                    sources.append(source)
-                command = common + [
-                    "--top-module", "milan_datapath",
-                    "-GGPTP_PLANE_EN_P=1", "-GPB_PREFILL_C=2",
-                    "-GCLKV_QTICK_CYC_P=4096", "-GLDIAG_IVAL_CYC_P=256",
-                    "-GDIAG_TICK_CYC_P=256"] + sources
-            else:
-                command = common + ["--top-module", "milan_csr", mutated_csr]
-            result = subprocess.run(
-                command, cwd=ROOT, stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT, text=True)
-            assert result.returncode == 0, \
-                f"{label} RTL mutation does not elaborate and cannot count " \
-                "as a control:\n" + "\n".join(result.stdout.splitlines()[-24:])
-        if count:
-            rtl_mutant_elaboration["passed"] += 1
-
-    def assert_rejected(label, firmware, docs, csr, because,
-                        makefile=None, listing=None, datapath=None):
-        try:
-            assert_boot_contract(firmware, docs, csr, makefile, listing,
-                                 datapath)
-        except (AssertionError, ValueError) as exc:
-            # A mutation rejected on an incidental anchor mismatch proves
-            # nothing about the safety property, so pin the reason too.
-            assert because in str(exc), \
-                f"{label} mutation was rejected for the wrong reason: {exc}"
-            assert_rtl_mutant_elaborates(label, csr, datapath)
-            return
-        raise AssertionError(f"{label} mutation passed the boot-contract gate")
-
-    #: Every position below is found in the BLANKED text -- a `}` inside a
-    #: comment is not a brace and a milan_write() inside a printf() is not a
-    #: call -- and every mutation then splices the RAW text at those same
-    #: offsets, which blanked() preserves exactly. Reading positions off the
-    #: raw text instead made a comment in the guard fail the SUITE with a
-    #: message blaming the firmware for a defect in this construction.
-    firmware_code = blanked(firmware_source)
-    source_model = CsrModel(firmware_source, blanked_sv(csr_source))
-
-    def with_define_value(baseline, name, new_value, label):
-        """Replace one object-like firmware #define value by parsed span."""
-        code = blanked(baseline)
-        define = re.search(
-            rf"(?m)^[ \t]*#[ \t]*define[ \t]+{re.escape(name)}[ \t]+"
-            r"(?P<value>[^\r\n]*?)[ \t]*$", code)
-        assert define, f"{label} mutation lost #define {name}"
-        changed = (baseline[:define.start("value")] + new_value +
-                   baseline[define.end("value"):])
-        assert changed != baseline, f"{label} mutation did not change {name}"
-        return changed
-
-    source_version = re.search(
-        r"\bparameter\s+logic\s*\[\s*31\s*:\s*0\s*\]\s+VERSION\s*=\s*"
-        r"(?P<literal>[0-9]+\s*'\s*[hH]\s*[0-9A-Fa-f_]+)", csr_source)
-    assert source_version, \
-        "CSR identity mutations lost the RTL VERSION literal"
-    source_version_value = sv_literal_value(source_version.group("literal"))
-    assert source_version_value is not None
-    identity_at_version = with_define_value(
-        firmware_source, "MILAN_ID",
-        f"0x{source_model.rtl_address('A_VERSION'):03x}u",
-        "identity address repointed to VERSION")
-    identity_magic_at_version = with_define_value(
-        firmware_source, "MILAN_ID_MAGIC",
-        f"0x{source_version_value:08x}u",
-        "identity magic changed to VERSION")
-    identity_magic_at_sample = with_define_value(
-        firmware_source, "MILAN_ID_MAGIC", "(id)",
-        "identity magic replaced by the sampled value")
-    identity_magic_at_sample_expr = with_define_value(
-        firmware_source, "MILAN_ID_MAGIC", "(id | 0u)",
-        "identity magic replaced by a warning-clean sampled expression")
-    identity_contract_at_version = with_define_value(
-        identity_at_version, "MILAN_ID_MAGIC",
-        f"0x{source_version_value:08x}u",
-        "identity contract repointed to VERSION")
-    init_start = anchored(firmware_code, "static void milan_init(void)",
-                          "the boot entry point")
-    init_end = anchored(firmware_code, "define_init_func(milan_init)",
-                        "the boot entry point's init hook", init_start)
-    source_init = firmware_source[init_start:init_end]
-    init_code = firmware_code[init_start:init_end]
-    source_identity_read = re.search(
-        r"\buint32_t\s+(?P<name>\w+)\s*=\s*"
-        r"milan_read\s*\(\s*MILAN_ID\s*\)\s*;", init_code)
-    assert source_identity_read, \
-        "CSR identity-check mutations lost the MILAN_ID read"
-    source_identity_read_statement = source_init[
-        source_identity_read.start():source_identity_read.end()]
-    source_identity_guard = re.search(
-        r"\bif\s*\(\s*\w+\s*!=\s*MILAN_ID_MAGIC\s*\)\s*\{",
-        init_code)
-    assert source_identity_guard, \
-        "CSR identity-check mutations lost the mismatch guard"
-    identity_body, identity_close = braced_span(
-        init_code, source_identity_guard, "CSR identity mismatch guard")
-    source_identity_block = source_init[
-        source_identity_guard.start():identity_close + 1]
-    source_identity_statement = source_init[
-        source_identity_guard.start():source_identity_guard.end()]
-    source_guard = re.search(
-        r"\bentity_advertise\s*\(\s*aem_loaded\s*\)\s*;", init_code)
-    assert source_guard, \
-        "the entity-advertise mutations lost the choke-point call"
-    guard_statement = source_init[source_guard.start():source_guard.end()]
-    source_advertise, guard_body, guard_close = entity_advertise_span(
-        firmware_code)
-    source_verdict_test_match = re.search(
-        r"\bif\s*\(\s*![ \t]*"
-        + re.escape(source_advertise.group("verdict")) +
-        r"\s*\)\s*\n\s*return\s*;", firmware_code)
-    assert source_verdict_test_match, \
-        "the choke-point mutations lost the early return on the verdict"
-    source_verdict_test = firmware_source[
-        source_verdict_test_match.start():source_verdict_test_match.end()]
-    source_enable_block = firmware_source[guard_body:guard_close]
-    source_enable_code = firmware_code[guard_body:guard_close]
-    source_pp_enable = source_model.enable_write(
-        source_enable_code, source_model.pp)
-    source_adp_enable = source_model.enable_write(
-        source_enable_code, source_model.adp)
-    source_load = re.search(
-        r"\baem_loaded\s*=\s*load_aem_image\s*\(\s*\)\s*;",
-        firmware_code)
-    assert source_load
-    load_statement = firmware_source[source_load.start():source_load.end()]
-    source_load_start = anchored(
-        firmware_code, "static int load_aem_image(void)",
-        "the AEM verifier")
-    source_load_end = firmware_code.index(
-        "static void milan_init(void)", source_load_start)
-    source_load_function = firmware_source[source_load_start:source_load_end]
-    source_load_code = firmware_code[source_load_start:source_load_end]
-    source_crc_guard = crc_mismatch_guard(source_load_code)
-    crc_body, crc_close = braced_span(
-        source_load_code, source_crc_guard, "CRC mismatch refusal")
-    source_crc_block = source_load_function[crc_body:crc_close]
-    source_reset, _reset_value = ptp_reset_assignment(blanked_sv(csr_source))
-    source_reset_statement = source_reset.group(0)
-    source_ptp_enable = ptp_enable_assignment(blanked_sv(csr_source))
-    source_ptp_enable_statement = source_ptp_enable.group(0)
-    source_fabric = re.search(
-        r"static\s+void\s+configure_fabric\s*\(\s*void\s*\)\s*\{",
-        firmware_code)
-    fabric_body_at, fabric_body_to = braced_span(
-        firmware_code, source_fabric, "configure_fabric()")
-    source_fabric_body = firmware_source[fabric_body_at:fabric_body_to]
-    source_reg_def = re.search(
-        r"\bstatic\s+inline\s+volatile\s+uint32_t\s*\*\s*milan_reg\s*\(\s*"
-        r"unsigned\s+int\s+(?P<offset>\w+)\s*\)\s*\{", firmware_code)
-    assert source_reg_def, "address-helper mutations lost milan_reg()"
-    source_reg_signature = firmware_source[
-        source_reg_def.start():source_reg_def.end()]
-    source_reg_body_at, source_reg_body_to = braced_span(
-        firmware_code, source_reg_def, "address-helper mutation")
-    wrong_reg_address = (
-        firmware_source[:source_reg_body_at] +
-        f"\n\t(void){source_reg_def.group('offset')};\n"
-        "\treturn (volatile uint32_t *)(MILAN_CSR_BASE + MILAN_ID);\n" +
-        firmware_source[source_reg_body_to:])
-    source_read_def = re.search(
-        r"\bstatic\s+inline\s+uint32_t\s+milan_read\s*\(\s*unsigned\s+int"
-        r"\s+(?P<offset>\w+)\s*\)\s*\{", firmware_code)
-    assert source_read_def, "read-helper mutations lost milan_read()"
-    source_read_body_at, source_read_body_to = braced_span(
-        firmware_code, source_read_def, "read-helper mutation")
-    forged_csr_read = (
-        firmware_source[:source_read_body_at] +
-        f"\n\treturn {source_read_def.group('offset')} == MILAN_ID ? "
-        "MILAN_ID_MAGIC : "
-        f"*milan_reg({source_read_def.group('offset')});\n" +
-        firmware_source[source_read_body_to:])
-    assert wrong_reg_address != firmware_source and \
-        forged_csr_read != firmware_source, \
-        "CSR accessor provenance mutations did not change the firmware"
-    reflowed_reg_signature = (
-        "static inline\nvolatile uint32_t *\nmilan_reg(\n\tunsigned int "
-        f"{source_reg_def.group('offset')})\n{{")
-
-    def accepted_reg_reflow(baseline):
-        """Return the accepted helper reflow, including an already-reflowed
-        live baseline without asking replace_once() to perform a no-op."""
-        code = blanked(baseline)
-        reg_def = re.search(
-            r"\bstatic\s+inline\s+volatile\s+uint32_t\s*\*\s*milan_reg\s*"
-            r"\(\s*unsigned\s+int\s+(?P<offset>\w+)\s*\)\s*\{", code)
-        assert reg_def, "accepted address-helper reflow lost milan_reg()"
-        signature = baseline[reg_def.start():reg_def.end()]
-        target = (
-            "static inline\nvolatile uint32_t *\nmilan_reg(\n\tunsigned int "
-            f"{reg_def.group('offset')})\n{{")
-        if signature == target:
-            return baseline
-        return replace_once(baseline, signature, target,
-                            "reflowed milan_reg()")
-
-    reflowed_firmware = accepted_reg_reflow(firmware_source)
-    assert accepted_reg_reflow(reflowed_firmware) == reflowed_firmware, \
-        "an already-reflowed live milan_reg() baseline is not idempotent"
-    source_configure = re.search(
-        r"\bconfigure_fabric\s*\(\s*\)\s*;", init_code)
-    assert source_configure
-    source_boot_path = (source_init[:source_configure.start()] +
-                        source_fabric_body +
-                        source_init[source_configure.end():])
-
-    def pre_aem_clear(address):
-        """The bit-0 clear the pre-AEM entity disable rests on, found by what
-        it does rather than by where or how it is spelled."""
-        label = source_model.label(address)
-        found = [w for w in source_model.writes(source_boot_path, address)
-                 if w["clears"]]
-        assert found, f"{label} pre-AEM clear mutation lost its write"
-        text = source_boot_path[found[0]["start"]:found[0]["stop"]]
-        assert firmware_source.count(text) == 1, \
-            f"{label} pre-AEM clear is not a unique statement"
-        return found[0], text
-
-    def forced_enable(clear, text):
-        """The same write, turned into the enable the AEM gate must forbid --
-        rebuilt from the census record rather than edited as text, so ANY
-        clear spelling (`& ~1u`, `& ~(1u << 0)`, `& 0xfffffffeu`, a literal
-        zero) still yields its enable."""
-        operand = clear["operand"].strip()
-        enabling = f"milan_write({operand}, milan_read({operand}) | 1u)"
-        assert enabling != text, \
-            "pre-AEM clear mutation could not derive its enable"
-        return enabling
-
-    source_pp_record, source_pp_clear = pre_aem_clear(source_model.pp)
-    source_adp_record, source_adp_clear = pre_aem_clear(source_model.adp)
-    early_pp_enable = forced_enable(source_pp_record, source_pp_clear)
-    early_adp_enable = forced_enable(source_adp_record, source_adp_clear)
-    #: The firmware's own spelling of ADP_CTRL, taken from the address the RTL
-    #: decodes so the mutations below never hard-code a name either.
-    adp_name = next(name for name, value in sorted(source_model.defines.items())
-                    if value == source_model.adp)
-
-    def aliased(name, address, statement):
-        """The firmware plus a SECOND #define for `address` and a write
-        through it in configure_fabric(): ordinary C that compiles clean and
-        that the bus cannot tell from a write through the original name."""
-        with_define = replace_once(
-            firmware_source, "static int aem_loaded;",
-            f"#define {name} 0x{address:03x}u\n\nstatic int aem_loaded;",
-            f"{name} alias define")
-        return replace_once(with_define, fabric_tail,
-                            fabric_tail + "\n\t" + statement,
-                            f"{name} alias write")
-
-    #: The END of configure_fabric()'s body: after the firmware's own pre-AEM
-    #: clears and before load_aem_image() runs.
-    #:
-    #: Splicing at the HEAD of the body, which is what these used to do, put
-    #: the mutant's enable two statements ahead of
-    #: `milan_write(ADP_CTRL, ... & ~1u)`, so the firmware cleared the bit
-    #: again and the mutant firmware did not actually advertise before AEM
-    #: verification. The rule still bit, on the syntax, but the LABEL claimed
-    #: a defect the mutant did not contain. Same class as the mutants that
-    #: once stored to 0xf000_0600: address right, ordering wrong.
-    fabric_tail = source_fabric_body.rstrip()
-
-    def enabled_before_aem(statement):
-        """`statement` spliced at the END of configure_fabric(), i.e. onto
-        the boot path after the pre-AEM clears and before the AEM image has
-        been verified, so the bit is still set when the verifier runs."""
-        return replace_once(firmware_source, fabric_tail,
-                            fabric_tail + "\n\t" + statement,
-                            "pre-AEM entity enable")
-
-    alias_adp_enable = aliased(
-        "MILAN_ENTITY_CTRL", source_model.adp,
-        "milan_write(MILAN_ENTITY_CTRL, milan_read(MILAN_ENTITY_CTRL) | 1u);")
-    alias_pp_enable = aliased(
-        "MILAN_PROC_CTRL", source_model.pp,
-        "milan_write(MILAN_PROC_CTRL, milan_read(MILAN_PROC_CTRL) | 1u);")
-    alias_phc_write = aliased(
-        "MILAN_PHC_CTRL", source_model.phc,
-        "milan_write(MILAN_PHC_CTRL, 0u);")
-    #: An EXISTING name repointed at PP_CTRL: a register constant the operand
-    #: rule already trusts, now naming a different register.
-    spare_name = next(
-        name for name, value in sorted(source_model.defines.items())
-        if name != "MILAN_ID" and value in source_model.decoded and
-        value not in (source_model.pp, source_model.adp, source_model.phc) and
-        not source_model.writes(firmware_source, value))
-    spare_at = re.search(rf"(?m)^#define\s+{spare_name}\s+\S+[ \t]*$",
-                         firmware_code)
-    spare_define = firmware_source[spare_at.start():spare_at.end()]
-    repointed_register = replace_once(
-        enabled_before_aem(
-            f"milan_write({spare_name}, milan_read({spare_name}) | 1u);"),
-        spare_define,
-        re.sub(r"\S+[ \t]*$", f"0x{source_model.pp:03x}u", spare_define),
-        f"{spare_name} repointed at PP_CTRL")
-    #: A pure VALUE constant in the register position.
-    value_constant = next(
-        name for name, value in sorted(source_model.defines.items())
-        if value not in source_model.decoded)
-    value_operand_write = enabled_before_aem(
-        f"milan_write({value_constant}, 1u);")
-    spaced_call_enable = enabled_before_aem(
-        re.sub(r"milan_write\(", "milan_write (", early_adp_enable, count=1)
-        + ";")
-    phase2_spliced_call_enable = enabled_before_aem(
-        early_adp_enable.replace(
-            "milan_write", "milan_" + "\\" + "\n" + "write", 1) + ";")
-    phase2_splice_compiled = assert_target_compiles(
-        phase2_spliced_call_enable, "phase-2 token-splice mutation")
-    phase2_whitespace_splices = tuple(
-        (name,
-         enabled_before_aem(
-             early_adp_enable.replace(
-                 "milan_write", "milan_" + "\\" + separator + "\n" +
-                 "write", 1) + ";"))
-        for name, separator in (("space", " "), ("tab", "\t"),
-                                ("form-feed", "\f"),
-                                ("vertical-tab", "\v")))
-    phase2_whitespace_compile_results = tuple(
-        (name, assert_target_compiles(
-            mutation, f"phase-2 {name} token-splice mutation",
-            allow_warnings=True))
-        for name, mutation in phase2_whitespace_splices)
-    pointer_call_enable = replace_once(
-        enabled_before_aem(
-            f"milan_poke({adp_name}, milan_read({adp_name}) | 1u);"),
-        "static void print_tod(",
-        "static void (*const milan_poke)(unsigned int, uint32_t) ="
-        " milan_write;\n\nstatic void print_tod(", "milan_write alias pointer")
-    #: The register named by a HELPER rather than by a constant: real C that
-    #: compiles, and an operand no static reader can place by address.
-    indirect_helper_enable = replace_once(
-        enabled_before_aem(
-            "milan_write(indirect_reg(), milan_read(indirect_reg()) | 1u);"),
-        "static void configure_fabric(void)",
-        "static unsigned int indirect_reg(void)\n{\n"
-        f"\treturn {adp_name};\n}}\n\nstatic void configure_fabric(void)",
-        "indirect register helper")
-    reg_store_enable = enabled_before_aem(
-        f"*milan_reg({adp_name}) = milan_read({adp_name}) | 1u;")
-    raw_store_enable = enabled_before_aem(
-        f"*(volatile uint32_t *)(MILAN_CSR_BASE + {adp_name}) = 1u;")
-    pasted_call_enable = replace_once(
-        enabled_before_aem(
-            f"MILAN_FN(write)({adp_name}, milan_read({adp_name}) | 1u);"),
-        "static int aem_loaded;",
-        "#define MILAN_FN(op) milan_ ## op\n\nstatic int aem_loaded;",
-        "pasted call name")
-
-    old_claim = re.search(
-        r"After\s+the\s+identity\s+check\s+and\s+AEM\s+verification\s+"
-        r"succeed,\s+set\s+the\s+`PP_CTRL\[0\]`\s+and\s+legacy\s+"
-        r"`ADP_CTRL\[0\]`\s+compatibility\s+enable\s+bits\.", docs_source)
-    assert old_claim, "boot-order documentation mutation did not find its claim"
-    old_order = re.sub(
-        r"set\s+the\s+`PP_CTRL",
-        "enable the PTP clock and set the `PP_CTRL",
-        old_claim.group(0), count=1)
-    missing_identity_guard = replace_once(
-        firmware_source, source_identity_block, "",
-        "removed CSR identity mismatch guard")
-    source_identity_return = re.search(r"\breturn\s*;", source_identity_block)
-    assert source_identity_return, \
-        "CSR identity-check mutations lost the mismatch return"
-    identity_block_without_return = replace_once(
-        source_identity_block, source_identity_return.group(0), "(void)0;",
-        "removed CSR identity mismatch return")
-    missing_identity_return = replace_once(
-        firmware_source, source_identity_block, identity_block_without_return,
-        "CSR identity mismatch block without return")
-    inverted_identity_statement = source_identity_statement.replace(
-        "!=", "==", 1)
-    assert inverted_identity_statement != source_identity_statement, \
-        "inverted CSR identity mismatch mutation did not apply"
-    inverted_identity_guard = replace_once(
-        firmware_source, source_identity_statement,
-        inverted_identity_statement, "inverted CSR identity mismatch guard")
-    forged_identity = replace_once(
-        firmware_source, source_identity_read_statement,
-        source_identity_read_statement +
-        f"\n\t{source_identity_read.group('name')} = MILAN_ID_MAGIC;",
-        "overwritten CSR identity sample")
-    identity_address_comment_decoy = replace_once(
-        csr_source,
-        "    A_ID          = 'h000,",
-        "    // A_ID = 'h000, inactive textual decoy\n"
-        "    A_ID          = 'h01C,",
-        "commented A_ID address decoy")
-    identity_default_comment_decoy = replace_once(
-        csr_source,
-        "      A_ID[10:0]:         csr_default = 32'h4D49_4C4E;      "
-        "// \"MILN\"",
-        "      // A_ID[10:0]: csr_default = 32'h4D49_4C4E; "
-        "inactive decoy\n"
-        "      A_ID[0 +: 11]:      csr_default = 32'hDEAD_BEEF;",
-        "commented A_ID default decoy")
-    identity_conditional_decoy = replace_once(
-        csr_source,
-        "    A_ID          = 'h000, A_VERSION = 'h004,",
-        "`ifdef PR187_SAFE_ID\n"
-        "    A_ID          = 'h000,\n"
-        "`else\n"
-        "    A_ID          = 'h01C,\n"
-        "`endif\n"
-        "    A_VERSION     = 'h004,",
-        "preprocessor-selected A_ID address decoy")
-    identity_static_generate_decoy = replace_once(
-        csr_source,
-        "  localparam [ADDR_WIDTH-1:0]\n"
-        "    A_ID          = 'h000, A_VERSION = 'h004,",
-        "  generate if (1'b0) begin : g_pr187_safe_id\n"
-        "  localparam [ADDR_WIDTH-1:0]\n"
-        "    A_ID          = 'h000, A_VERSION = 'h004, "
-        "PR187_DEAD_C = 'h7FC;\n"
-        "  end endgenerate\n"
-        "  localparam [ADDR_WIDTH-1:0]\n"
-        "    A_ID          = 'h01C, A_VERSION = 'h004,",
-        "inactive static-generate A_ID address decoy")
-    identity_dead_default_case = replace_once(
-        csr_source,
-        "    csr_default = 32'h0;\n"
-        "    unique case (a)\n"
-        "      A_ID[10:0]:         csr_default = 32'h4D49_4C4E;      "
-        "// \"MILN\"",
-        "    csr_default = 32'h0;\n"
-        "    if (1'b0)\n"
-        "      case (a)\n"
-        "        A_ID[10:0]: csr_default = 32'h4D49_4C4E;\n"
-        "        default: ;\n"
-        "      endcase\n"
-        "    unique case (a)\n"
-        "      11'h000:            csr_default = 32'hDEAD_BEEF;",
-        "A_ID default hidden in a dead procedural case")
-    identity_rom_fill_forged = replace_once(
-        csr_source,
-        "    for (int k = 0; k < 512; k++) dflt_rom[k] = "
-        "csr_default(11'(k * 4));",
-        "    for (int k = 0; k < 512; k++) dflt_rom[k] =\n"
-        "        (k == 0) ? 32'hDEAD_BEEF : csr_default(11'(k * 4));",
-        "forged A_ID defaults-ROM fill")
-    identity_read_address_offset = replace_once(
-        csr_source,
-        "  wire [ADDR_WIDTH-1:0] rd_addr = s_axi_araddr;",
-        "  wire [ADDR_WIDTH-1:0] rd_addr = s_axi_araddr + A_VERSION;",
-        "offset CSR read address")
-
-    def gate_instance_port(source, module, instance, port, value, label):
-        instances = list(re.finditer(
-            rf"\b{re.escape(module)}\b\s*#\s*\([^;]*?\)\s*"
-            rf"{re.escape(instance)}\s*\((?P<ports>.*?)\)\s*;",
-            source, re.DOTALL))
-        assert len(instances) == 1, \
-            f"{label} mutation found {len(instances)} {instance} instances"
-        found = instances[0]
-        ports = found.group("ports")
-        connections = list(re.finditer(
-            rf"\.{re.escape(port)}\s*\(\s*(?P<value>[^)]*?)\s*\)",
-            ports))
-        assert len(connections) == 1 and re.fullmatch(
-            rf"\s*{re.escape(value)}\s*", connections[0].group("value")), \
-            f"{label} mutation lost .{port}({value})"
-        connection = connections[0]
-        start = found.start("ports") + connection.start("value")
-        stop = found.start("ports") + connection.end("value")
-        return source[:start] + f"{value} & cfg_adp_enable" + source[stop:]
-
-    phc_gated_by_adp = replace_once(
-        csr_source, source_ptp_enable_statement,
-        re.sub(r"ptp_ctrl\s*\[\s*0\s*\]",
-               "ptp_ctrl[0] & adp_ctrl[0]",
-               source_ptp_enable_statement, count=1),
-        "PHC output gated by ADP")
-    phc_increment_source_gated_by_adp = replace_once(
-        csr_source,
-        "  assign o_ptp_incr         = ptp_incr;",
-        "  assign o_ptp_incr         = "
-        "ptp_incr & {32{adp_ctrl[0]}};",
-        "milan_csr PHC increment output gated by ADP")
-    phc_consumer_gated_by_adp = replace_once(
-        datapath_source,
-        ".i_ptp_enable      (cfg_ptp_enable),",
-        ".i_ptp_enable      (cfg_ptp_enable & cfg_adp_enable),",
-        "ptp_timestamp PHC consumer gated by ADP")
-    phc_increment_gated_by_adp = replace_once(
-        datapath_source,
-        ".i_ptp_incr        (cfg_ptp_incr),",
-        ".i_ptp_incr        (cfg_ptp_incr & {32{cfg_adp_enable}}),",
-        "ptp_timestamp PHC increment gated by ADP")
-    phc_binding_gated_by_adp = replace_once(
-        replace_once(
-            datapath_source,
-            "  wire        cfg_ptp_enable;",
-            "  wire        cfg_ptp_enable;\n"
-            "  wire        cfg_ptp_enable_raw;\n"
-            "  assign cfg_ptp_enable = "
-            "cfg_ptp_enable_raw & cfg_adp_enable;",
-            "ADP-gated PHC binding wire"),
-        ".o_ptp_enable      (cfg_ptp_enable),",
-        ".o_ptp_enable      (cfg_ptp_enable_raw),",
-        "ADP-gated milan_csr PHC output binding")
-    phc_wand_second_driver = replace_once(
-        datapath_source,
-        "  wire        cfg_ptp_enable;",
-        "  wand        cfg_ptp_enable;\n"
-        "  and (cfg_ptp_enable, cfg_adp_enable, 1'b1);",
-        "ADP-controlled second PHC-enable driver")
-    phc_effective_adjust_gated_by_adp = replace_once(
-        datapath_source,
-        "                               ? unsigned'(gptp_adj_w)   : "
-        "cfg_ptp_adj;",
-        "                               ? unsigned'(gptp_adj_w)   : "
-        "(cfg_ptp_adj & {32{cfg_adp_enable}});",
-        "effective PHC frequency adjustment gated by ADP")
-    phc_effective_offset_gated_by_adp = replace_once(
-        datapath_source,
-        "                               ? gptp_step_w             : "
-        "cfg_ptp_offset;",
-        "                               ? gptp_step_w             : "
-        "(cfg_ptp_offset & {64{cfg_adp_enable}});",
-        "effective PHC offset gated by ADP")
-    phc_effective_strobe_gated_by_adp = replace_once(
-        datapath_source,
-        "                               ? gptp_step_we_w          : "
-        "cfg_ptp_cmd_adjust;",
-        "                               ? gptp_step_we_w          : "
-        "(cfg_ptp_cmd_adjust & cfg_adp_enable);",
-        "effective PHC adjustment strobe gated by ADP")
-    gptp_gated_timestamp_gtx_reset = gate_instance_port(
-        datapath_source, "ptp_ts_top", "ptp_timestamp", "gtx_resetn",
-        "gtx_resetn", "ptp_timestamp gtx reset gate")
-    gptp_gated_timestamp_axis_reset = gate_instance_port(
-        datapath_source, "ptp_ts_top", "ptp_timestamp", "axis_resetn",
-        "axis_resetn", "ptp_timestamp axis reset gate")
-    gptp_gated_timestamp_ingress = replace_once(
-        datapath_source,
-        ".s_axis_rx_tvalid(rx_axis_to_ts.tvalid),",
-        ".s_axis_rx_tvalid(rx_axis_to_ts.tvalid & cfg_adp_enable),",
-        "ptp_timestamp RX ingress gate")
-    gptp_gated_timestamp_ready = replace_once(
-        replace_once(
-            datapath_source,
-            "\n  ptp_ts_top #(\n",
-            "\n  wire rx_ts_tready_raw_w;\n"
-            "  assign rx_axis_to_ts.tready = "
-            "rx_ts_tready_raw_w & cfg_adp_enable;\n\n"
-            "  ptp_ts_top #(\n",
-            "ptp_timestamp raw RX-ready wire"),
-        ".s_axis_rx_tready(rx_axis_to_ts.tready),",
-        ".s_axis_rx_tready(rx_ts_tready_raw_w),",
-        "ptp_timestamp RX ready gate")
-    gptp_gated_filter_ingress = replace_once(
-        datapath_source,
-        ".s_tvalid(rx_axis_ptp_to_filt.tvalid),",
-        ".s_tvalid(rx_axis_ptp_to_filt.tvalid & cfg_adp_enable),",
-        "enabled RX-filter ingress gate")
-    gptp_gated_filter_clock = gate_instance_port(
-        datapath_source, "rx_mac_filter", "rx_filter", "clk_i",
-        "axis_clk", "enabled RX-filter clock gate")
-    gptp_gated_filter_reset = gate_instance_port(
-        datapath_source, "rx_mac_filter", "rx_filter", "rst_n",
-        "axis_resetn", "enabled RX-filter reset gate")
-    gptp_filter_policy_gated_by_adp = replace_once(
-        datapath_source,
-        ".default_pass_i (cfg_tcam_default_pass),",
-        ".default_pass_i (cfg_tcam_default_pass & cfg_adp_enable),",
-        "RX-filter default policy gated by ADP")
-    gptp_gated_datapath = replace_once(
-        datapath_source, ".rst_n           (axis_resetn),",
-        ".rst_n           (axis_resetn && cfg_adp_enable),",
-        "fabric gPTP reset gate")
-    gptp_gated_ingress = replace_once(
-        datapath_source,
-        ".rx_tvalid_i     (rx_axis_to_dma.tvalid),",
-        ".rx_tvalid_i     (rx_axis_to_dma.tvalid && cfg_adp_enable),",
-        "fabric gPTP ingress gate")
-    gptp_gated_local_egress = replace_once(
-        datapath_source,
-        ".s_adp_tvalid(gtx_tvalid_w), .s_adp_tlast (gtx_tlast_w),",
-        ".s_adp_tvalid(gtx_tvalid_w && cfg_adp_enable), "
-        ".s_adp_tlast (gtx_tlast_w),",
-        "fabric gPTP local egress gate")
-    gptp_gated_boundary_egress = replace_once(
-        datapath_source,
-        ".s_adp_tvalid(ctlg3_tvalid),",
-        ".s_adp_tvalid(ctlg3_tvalid && cfg_adp_enable),",
-        "fabric gPTP MAC-boundary gate")
-    gptp_gated_control_mux_reset = gate_instance_port(
-        datapath_source, "adp_tx_arbiter", "gptp_ctl_mux", "rst_n",
-        "axis_resetn", "fabric gPTP control-mux reset gate")
-    gptp_gated_boundary_mux_reset = gate_instance_port(
-        datapath_source, "adp_tx_arbiter", "adp_tx_mux", "rst_n",
-        "axis_resetn", "fabric gPTP boundary-mux reset gate")
-    def runtime_gate_assignment(source, lhs, label):
-        matches = list(re.finditer(
-            rf"(?m)^[ \t]*assign[ \t]+{re.escape(lhs)}[ \t]*="
-            r"(?P<value>[^;]+);", source))
-        assert len(matches) == 1, \
-            f"{label} mutation found {len(matches)} continuous assignments"
-        match = matches[0]
-        gated = f" ({match.group('value').strip()}) & cfg_adp_enable"
-        return source[:match.start("value")] + gated + source[match.end("value"):]
-
-    gptp_gated_external_tx = runtime_gate_assignment(
-        datapath_source, "m_axis_mac_tx_tvalid",
-        "external MAC TX valid gate")
-    gptp_gated_external_rx = runtime_gate_assignment(
-        datapath_source, "rx_axis_to_ts.tvalid",
-        "external MAC RX valid gate")
-    gptp_wand_second_driver_external_tx = replace_once(
-        replace_once(
-            datapath_source,
-            "  output wire                     m_axis_mac_tx_tvalid,",
-            "  output wand                     m_axis_mac_tx_tvalid,",
-            "resolved external MAC TX valid port"),
-        "  assign m_axis_mac_tx_tvalid = tx_axis_to_mac.tvalid;",
-        "  assign m_axis_mac_tx_tvalid = tx_axis_to_mac.tvalid;\n"
-        "  and (m_axis_mac_tx_tvalid, cfg_adp_enable, 1'b1);",
-        "ADP-controlled second external TX-valid driver")
-    gptp_gated_filter_bypass = runtime_gate_assignment(
-        datapath_source, "rx_axis_to_dma.tvalid",
-        "bypass RX-filter ingress gate")
-    gptp_commented_external_tx = replace_once(
-        datapath_source,
-        "  assign m_axis_mac_tx_tvalid = tx_axis_to_mac.tvalid;",
-        "  /* assign m_axis_mac_tx_tvalid = tx_axis_to_mac.tvalid; */\n"
-        "  `define PR187_TX_VALID(value) ((value) & cfg_adp_enable)\n"
-        "  assign m_axis_mac_tx_tvalid = "
-        "`PR187_TX_VALID(tx_axis_to_mac.tvalid);\n"
-        "  `undef PR187_TX_VALID",
-        "commented direct external TX decoy with live macro gate")
-    gptp_inactive_external_tx = replace_once(
-        datapath_source,
-        "  assign m_axis_mac_tx_tvalid = tx_axis_to_mac.tvalid;",
-        "  `ifdef PR187_SAFE_DIRECT_TX\n"
-        "  assign m_axis_mac_tx_tvalid = tx_axis_to_mac.tvalid;\n"
-        "  `endif",
-        "inactive conditional external TX decoy")
-    gptp_static_generate_external_tx = replace_once(
-        datapath_source,
-        "  assign m_axis_mac_tx_tvalid = tx_axis_to_mac.tvalid;",
-        "  generate if (1'b0) begin : g_pr187_safe_tx\n"
-        "  assign m_axis_mac_tx_tvalid = tx_axis_to_mac.tvalid;\n"
-        "  end else begin : g_pr187_live_tx\n"
-        "  and (m_axis_mac_tx_tvalid, tx_axis_to_mac.tvalid, "
-        "cfg_adp_enable);\n"
-        "  end endgenerate",
-        "inactive static-generate external TX decoy")
-    gptp_midline_directive_external_tx = replace_once(
-        datapath_source,
-        "  assign m_axis_mac_tx_tvalid = tx_axis_to_mac.tvalid;",
-        "  wire pr187_d0_w; `define PR187_ASSIGN assign\n"
-        "  wire pr187_d1_w; `ifdef PR187_SAFE_DIRECT_TX\n"
-        "  assign m_axis_mac_tx_tvalid = tx_axis_to_mac.tvalid;\n"
-        "  wire pr187_d2_w; `else\n"
-        "  wire pr187_d3_w; `PR187_ASSIGN m_axis_mac_tx_tvalid = "
-        "tx_axis_to_mac.tvalid & cfg_adp_enable;\n"
-        "  wire pr187_d4_w; `endif",
-        "mid-line conditional external TX decoy")
-    gptp_implicit_generate_external_tx = replace_once(
-        datapath_source,
-        "  assign m_axis_mac_tx_tvalid = tx_axis_to_mac.tvalid;",
-        "  if (1'b0)\n"
-        "    assign m_axis_mac_tx_tvalid = tx_axis_to_mac.tvalid;\n"
-        "  else assign m_axis_mac_tx_tvalid = "
-        "tx_axis_to_mac.tvalid & cfg_adp_enable;",
-        "implicit conditional-generate external TX decoy")
-
-    unconditional_guard = guard_statement.replace("aem_loaded", "1", 1)
-    inverted_guard = guard_statement.replace("aem_loaded", "!aem_loaded", 1)
-    pp_enable_text = source_enable_block[
-        source_pp_enable["start"]:source_pp_enable["stop"]]
-    adp_enable_text = source_enable_block[
-        source_adp_enable["start"]:source_adp_enable["stop"]]
-    swapped_enable_block = (
-        source_enable_block[:source_pp_enable["start"]] + adp_enable_text +
-        source_enable_block[source_pp_enable["stop"]:
-                            source_adp_enable["start"]] + pp_enable_text +
-        source_enable_block[source_adp_enable["stop"]:])
-    bad_pp_block = (
-        source_enable_block[:source_pp_enable["mask_at"]] + "2u" +
-        source_enable_block[source_pp_enable["mask_to"]:])
-    bad_adp_block = (
-        source_enable_block[:source_adp_enable["start"]] +
-        f"milan_write({adp_name}, milan_read({adp_name}) & ~1u)" +
-        source_enable_block[source_adp_enable["stop"]:])
-    bad_crc_block = replace_once(
-        source_crc_block, "return 0;", "return 1;", "CRC refusal")
-    bad_load_function = replace_once(
-        source_load_function, source_crc_block, bad_crc_block,
-        "CRC verifier block")
-
-    # ---- the four axes R1 opened: the preprocessor the gate never saw, the
-    # difference between sitting inside the guard and being REACHED through
-    # it, a verdict and a verifier pinned by spelling, and an address model
-    # asserted against the RTL's name table but never against its decode.
-    # Every one of these compiles clean and every one used to pass.
-    configure_statement = source_init[
-        source_configure.start():source_configure.end()]
-    crc_guard_statement = source_load_function[
-        source_crc_guard.start():source_crc_guard.end()]
-
-    def defined(source, name, value, label):
-        return replace_once(
-            source, "static int aem_loaded;",
-            f"#define {name} {value}\n\nstatic int aem_loaded;", label)
-
-    #: A decoded register the firmware never writes: a READ of it is inert to
-    #: every census rule, so the mutations below carry the jump, not a write.
-    probe = spare_name
-    preprocessor_guard = defined(
-        replace_once(
-            firmware_source, guard_statement,
-            "#ifdef MILAN_DEV_ALWAYS_ADVERTISE\n\tentity_advertise(1);\n"
-            "#else\n\t" + guard_statement + "\n#endif",
-            "preprocessor-selected guard"),
-        "MILAN_DEV_ALWAYS_ADVERTISE", "1", "dev-advertise flag")
-    preprocessor_clear = replace_once(
-        firmware_source, source_adp_clear + ";",
-        "#ifdef MILAN_CLEAR_ENTITY_ON_BOOT\n\t" + source_adp_clear +
-        ";\n#endif", "pre-AEM clear behind a build flag")
-    dead_configure = defined(
-        replace_once(firmware_source, configure_statement,
-                     "if (MILAN_FABRIC_PRECONFIGURED == 0)\n\t\t" +
-                     configure_statement, "compile-time-dead boot step"),
-        "MILAN_FABRIC_PRECONFIGURED", "1", "preconfigured-fabric flag")
-    goto_into_guard = replace_once(
-        replace_once(
-            firmware_source, load_statement,
-            f"if (milan_read({probe}) & 2u)\n\t\tgoto entity_up;\n\t"
-            + load_statement, "jump past the AEM verifier"),
-        guard_statement, "entity_up:\n\t" + guard_statement,
-        "label before the entity-advertise call")
-    case_into_guard = replace_once(
-        firmware_source, guard_statement,
-        f"switch (milan_read({probe}) & 2u) {{\n\tcase 2:\n\t\t" +
-        guard_statement + "\n\tdefault:\n\t\tbreak;\n\t}",
-        "case label falling into the entity-advertise call")
-    def one_physical_line(text):
-        """A census record as ONE physical line.
-
-        Splicing a record into a continuation macro assumes exactly that, and
-        the record is whatever the firmware's own line breaks made it. A
-        legitimate multi-line enable -- which this gate accepts, and which is
-        one of the brittleness cases -- would otherwise leave its first line
-        without the trailing backslash and build a mutant that does not
-        compile: `expected ';' before ')'`. Same class as the mutant that
-        once called an undeclared helper: a mutation must be real firmware,
-        or it proves nothing about a rule."""
-        return " ".join(text.split())
-
-    #: The two enables hidden in a continued macro body and INVOKED from a
-    #: UART command handler. It used to be refused by the ban on a
-    #: multi-line `#define`, which is retired with the choke point (#153):
-    #: the resolved census reads the COMPILED call, where the macro is
-    #: already expanded, so it places the write in the handler that makes it.
-    source_enables_text = source_enable_block[
-        source_pp_enable["start"]:source_adp_enable["stop"] + 1]
-    macro_enable = replace_once(
-        replace_once(
-            firmware_source, source_enables_text,
-            "\n#define MILAN_ENTITY_UP() \\\n\tdo { \\\n"
-            f"\t\t{one_physical_line(pp_enable_text)}; \\\n"
-            f"\t\t{one_physical_line(adp_enable_text)}; \\\n"
-            "\t} while (0)\n\tMILAN_ENTITY_UP();",
-            "continuation-line macro body"),
-        "\tprint_tod(gettime_ns());\n}",
-        "\tMILAN_ENTITY_UP();\n\tprint_tod(gettime_ns());\n}",
-        "macro enable reached from a UART handler")
-    formfeed_macro_enable = macro_enable.replace("\\\n", "\\\f\n", 1)
-    assert formfeed_macro_enable != macro_enable, \
-        "form-feed continuation-line macro mutation did not apply"
-
-    #: ---- the ENTRANCES into the choke point ([R0] BLOCKER on PR #241,
-    #: third round). Every rule above answers about the INSIDE of
-    #: entity_advertise(): which writes it holds, and that its verdict test
-    #: dominates them. None of them answers how it is ENTERED, and the
-    #: dominance measurement hands it a SYNTHETIC verdict, so on its own it
-    #: holds for one execution rather than for the call edges the firmware
-    #: really has. These three are the classes of entrance that leaves open.
-    #:
-    #: 1. the reviewer's own control: the choke point's ADDRESS is stored in
-    #:    a table and a UART handler calls it through that table with a
-    #:    literal 1. Warning-clean on the exact RV32 target at -O0
-    #:    -fno-inline and at -O2 under -std=gnu99 -Wall -Wextra -Werror.
-    address_taken_choke = replace_once(
-        replace_once(
-            firmware_source, "static int load_aem_image(void)",
-            "static void (*advertise_hook)(int) = entity_advertise;\n\n"
-            "static int load_aem_image(void)",
-            "choke point's address stored in a table"),
-        "\tprint_tod(gettime_ns());\n}",
-        "\tadvertise_hook(1);\n\tprint_tod(gettime_ns());\n}",
-        "choke point entered through a function pointer")
-    #: 2. a SECOND direct call, spelled so the source rule's call counter
-    #:    does not see it: that counter matches `entity_advertise(...)` only
-    #:    where a `;` follows the closing parenthesis, and a comma expression
-    #:    puts an operand there instead. Nothing is indirect and no address
-    #:    is taken; there are simply two call edges into the choke point.
-    second_direct_call = replace_once(
-        firmware_source, "\tprint_tod(gettime_ns());\n}",
-        "\tentity_advertise(1), (void)0;\n\tprint_tod(gettime_ns());\n}",
-        "second direct call to the choke point")
-    #: 3. the single call edge KEPT and its ARGUMENT overwritten after the
-    #:    verifier has run, through an ALIAS the assignment recognizer above
-    #:    cannot see: that rule pins every spelling that NAMES aem_loaded,
-    #:    and an object-like #define names something else. Every anchor the
-    #:    source rules read survives -- one assignment, still from
-    #:    load_aem_image(), one call, still `entity_advertise(aem_loaded)`,
-    #:    and no address of the verdict taken anywhere.
-    verdict_replaced_before_call = replace_once(
-        replace_once(
-            firmware_source, "static int aem_loaded;",
-            "static int aem_loaded;\n#define aem_verdict aem_loaded",
-            "verdict alias"),
-        load_statement, load_statement + "\n\taem_verdict = 1;",
-        "verdict overwritten through an alias")
-    #: 4. an indirect call whose target is NOT the choke point, so the
-    #:    unplaceable-call-edge rule is exercised on its own rather than
-    #:    behind the address-taken rule that answers mutant 1 first. An
-    #:    unexercised fail-closed branch is a claim, not a measurement.
-    indirect_call_elsewhere = replace_once(
-        replace_once(
-            firmware_source, "static int load_aem_image(void)",
-            "static void (*tod_hook)(uint64_t) = print_tod;\n\n"
-            "static int load_aem_image(void)",
-            "print helper's address stored in a table"),
-        "\tprint_tod(gettime_ns());\n}",
-        "\ttod_hook(gettime_ns());\n}",
-        "print helper called through a function pointer")
-    #: 5. a GLOBAL ALIAS of the choke point: `.globl entity_advertise_public`
-    #:    plus `.set entity_advertise_public,entity_advertise`. It exports a
-    #:    name that calls the choke point without exporting THIS name and
-    #:    without forming its address, so it passes the export and
-    #:    address-taken rule and is caught only by the whitelist beside it.
-    aliased_choke = replace_once(
-        firmware_source, "static int load_aem_image(void)",
-        "void entity_advertise_public(int)\n"
-        "\t__attribute__((alias(\"entity_advertise\")));\n\n"
-        "static int load_aem_image(void)",
-        "global alias of the choke point")
-    verdict_pointer = replace_once(
-        replace_once(firmware_source, load_statement,
-                     load_statement +
-                     "\n\tverdict = &aem_loaded;\n\t*verdict = 1;",
-                     "verdict written through a pointer"),
-        "static int aem_loaded;",
-        "static int aem_loaded;\nstatic int *verdict;", "verdict pointer")
-    status_return = replace_once(
-        firmware_source, crc_guard_statement,
-        f"if (milan_read({probe}) & 2u)\n\t\treturn 2;\n\t"
-        + crc_guard_statement, "verifier fast path returning a status code")
-    #: A SECOND decode arm gives adp_ctrl a second address. The name table
-    #: still maps one name to one address, so only the decode says otherwise.
-    mirror_address = next(a for a in range(source_model.adp, 0x10000, 4)
-                          if a not in source_model.decoded)
-    adp_constant = re.search(
-        r"\bA_ADP_CTRL\s*=\s*(?:[0-9]+)?'[hH][0-9A-Fa-f_]+",
-        csr_source).group(0)
-    adp_arm = re.search(
-        r"(?m)^([ \t]*)A_ADP_CTRL\s*:\s*adp_ctrl\s*<=[^;]*;", csr_source)
-    mirrored_csr = replace_once(
-        replace_once(csr_source, adp_constant,
-                     f"A_ADP_MIRROR = 'h{mirror_address:X}, {adp_constant}",
-                     "second ADP_CTRL decode constant"),
-        adp_arm.group(0),
-        adp_arm.group(0) + "\n" + adp_arm.group(1) +
-        "A_ADP_MIRROR: adp_ctrl <= s_axi_wdata;", "second ADP_CTRL decode arm")
-    mirrored_enable = defined(
-        replace_once(
-            firmware_source, source_adp_clear + ";",
-            "milan_write(MILAN_ADP_MIRROR, milan_read(MILAN_ADP_MIRROR) | 1u);"
-            "\n\t" + source_adp_clear + ";",
-            "pre-AEM enable through the mirrored address"),
-        "MILAN_ADP_MIRROR", f"0x{mirror_address:03x}u", "ADP mirror address")
-    # ... and the other half of each new rule, so the rule cannot rot into a
-    # rule that only ever looks at the one shape it was written against.
-    _load_directives, source_load_arm = cpp_arms(source_load_code)
-    source_crc_arm = source_load_arm(source_crc_guard.start())
-    source_returns = list(re.finditer(r"\breturn\b([^;]*);", source_load_code))
-
-    def returned(match, verdict, label):
-        return replace_once(
-            firmware_source, source_load_function,
-            source_load_function[:match.start()] + f"return {verdict};" +
-            source_load_function[match.end():], label)
-
-    #: The OTHER arm of the one preprocessor group this gate tolerates: a
-    #: success handed back from the no-QSPI path, which every rule that reads
-    #: the file as one flat sequence of statements accepts.
-    other_arm_success = returned(
-        next(m for m in source_returns if constant_value(m.group(1)) == 0 and
-             source_load_arm(m.start())[:len(source_crc_arm)] !=
-             source_crc_arm),
-        1, "success returned from the other preprocessor arm")
-    #: ... and the CRC comparison itself moved into an arm of its own, so the
-    #: success return is no longer in the same code as the comparison.
-    crc_guard_block = source_load_function[
-        source_crc_guard.start():crc_close + 1]
-    optional_crc = replace_once(
-        firmware_source, crc_guard_block,
-        "#ifndef MILAN_SKIP_CRC\n\t" + crc_guard_block + "\n#endif",
-        "CRC comparison behind a build flag")
-    #: A verifier that can never say yes would leave the guarded block dead
-    #: and every rule about it vacuously true.
-    vacuous_verifier = returned(
-        [m for m in source_returns if constant_value(m.group(1)) != 0][-1],
-        0, "verifier with no success return")
-    #: A statement in the guarded block that is neither enable nor printf:
-    #: something for control to be steered at, and something unclassified.
-    #: GREEN with the choke point (#153) and moved to the accepted cases:
-    #: an ordinary `cdelay(64);` between the two enables. The refusal it
-    #: used to trip -- the guarded block holding the two enables and their
-    #: printf and nothing else -- existed so nothing inside the block was
-    #: unclassified; the resolved dominance measurement answers that by
-    #: data flow instead, whatever else the function contains.
-    extra_in_guard = replace_once(
-        firmware_source, source_enable_block,
-        source_enable_block[:source_adp_enable["stop"] + 1] +
-        "\n\tcdelay(64);" +
-        source_enable_block[source_adp_enable["stop"] + 1:],
-        "extra statement inside the entity-advertise choke point")
-
-    # ---- and the two axes R1 opened at 2185e810: the object list, which one
-    # continuation line grows past the file this gate reads, and the reset
-    # values of the very two bits the whole census is about. Both compile,
-    # both are ordinary edits, and both used to pass.
-    #: The anchor is the PARSER's own regex, not a second and stricter
-    #: spelling of it. A reader that accepts `OBJECTS := x.o` beside a mutator
-    #: that does not is the tolerant-reader/literal-mutator defect one layer
-    #: up from where round three found it, and it fails the SUITE with a
-    #: message blaming a mutation for a file this gate reads correctly.
-    #: Read through the same splice the parser reads through, or a value
-    #: continued onto the next line is anchored as the single character `\`.
-    spliced_makefile = line_spliced(makefile_source)
-    source_objects_assigns = list(
-        objects_assign_re.finditer(spliced_makefile))
-    assert source_objects_assigns, \
-        "the Makefile no longer assigns OBJECTS in a form makefile_objects() " \
-        "parses, so the mutations below would test nothing"
-    source_objects_line = source_objects_assigns[-1]
-    #: ... and the VALUE's extent stops where the parser's comment strip
-    #: stops, so a trailing comment cannot swallow a spliced continuation.
-    objects_value_at, objects_value_to = source_objects_line.span(2)
-    _objects_hash = spliced_makefile.find("#", objects_value_at,
-                                          objects_value_to)
-    if _objects_hash >= 0:
-        objects_value_to = _objects_hash
-    second_object = "milan_bringup.o"
-
-    objects_span_at = source_objects_assigns[0].start()
-    objects_span_to = source_objects_assigns[-1].end()
-
-    def objects_valued_line(line):
-        """The Makefile with EVERY OBJECTS assignment replaced by `line`."""
-        return (makefile_source[:objects_span_at] + line +
-                makefile_source[objects_span_to:])
-
-    def objects_valued(text):
-        """The Makefile with its LAST OBJECTS assignment carrying `text`,
-        spliced at the offsets the parser itself reported: a second `.c` in
-        the image, with its own CSR base, its own address helper and its own
-        init hook, and not one rule in this gate reads it."""
-        return (makefile_source[:objects_value_at] + text +
-                makefile_source[objects_value_to:])
-
-    live_objects = " ".join(
-        spliced_makefile[objects_value_at:objects_value_to].split())
-    listed_objects = objects_valued(f"{live_objects} {second_object}")
-    appended_objects = (makefile_source[:source_objects_line.end()] +
-                        f"\nOBJECTS += {second_object}" +
-                        makefile_source[source_objects_line.end():])
-    continued_objects = objects_valued(
-        f"{live_objects} \\\n\t{second_object}")
-    wildcard_objects = objects_valued("$(patsubst %.c,%.o,$(wildcard *.c))")
-    archived_objects = replace_once(
-        makefile_source, "$(AR) crs $@ $(OBJECTS)",
-        f"$(AR) crs $@ $(OBJECTS) {second_object}",
-        "second object archived past OBJECTS")
-    #: Pin the reason on the LIST the parser reported, not just on the rule:
-    #: a refusal that never saw the second object proves nothing about it.
-    both_objects = f"make builds {[firmware_object, second_object]}"
-    # ---- and the axis measured at the RIGHT boundary. One OBJECT is not one
-    # FILE, and one archive entry is not one SOURCE. All three of these leave
-    # the OBJECTS list at exactly one object, so the check above is SATISFIED
-    # rather than evaded, and all three used to pass the complete suite.
-    source_includes = [d for d in directive_re.finditer(firmware_code)
-                       if d.group(1) == "include"]
-    assert source_includes, \
-        "include-set mutation lost the firmware's #include lines"
-    #: End of the LAST include's line, so a spliced directive lands after a
-    #: whole one rather than inside its operand.
-    last_include_end = firmware_code.index("\n", source_includes[-1].end())
-
-    def after_includes(line):
-        return (firmware_source[:last_include_end] + "\n" + line +
-                firmware_source[last_include_end:])
-
-    #: A `.c` pulled into the one translation unit by the preprocessor: the
-    #: object count never moves and every closure rule reads the wrong file.
-    included_source = after_includes(f'#include "{second_object[:-2]}.c"')
-    #: ... and the same file reached by spellings an include REGEX misses but
-    #: the preprocessor does not: a macro operand, a spliced directive and
-    #: the `%:` digraph.
-    macro_included_source = after_includes(
-        f'#define MILAN_EXTRA_SRC "{second_object[:-2]}.c"\n'
-        "#include MILAN_EXTRA_SRC")
-    spliced_included_source = after_includes(
-        f'#\\\ninclude "{second_object[:-2]}.c"')
-    digraph_included_source = after_includes(
-        f'%:include "{second_object[:-2]}.c"')
-    #: ... and the trigraph, which fires only under a strict -std=cNN. LiteX
-    #: compiles with -std=gnu99, so this one does not bite the shipping
-    #: build; it is refused anyway, because a gate that is correct only
-    #: because of a flag it never reads is correct by luck.
-    trigraph_included_source = after_includes(
-        f'??=include "{second_object[:-2]}.c"')
-    #: A directive this gate has no rule for at all.
-    undefined_constant = after_includes(f"#undef {adp_name}")
-    #: ---- stores that reach the entity-enable register without any of the
-    #: ingredients the CSR store closure names. Each is a REAL pre-AEM
-    #: advertise: the address is MILAN_CSR_BASE + A_ADP_CTRL, derived from
-    #: milan_soc.py and the RTL decode table rather than mirrored, so the
-    #: mutant fails for the defect its label claims. An earlier revision of
-    #: these four stored to 0xf000_0600, which is the LiteX CSR bank and not
-    #: ADP_CTRL at all, so they reddened on an address-blind rule while
-    #: demonstrating no entity enable whatsoever.
-    def stored_before_aem(statement, label):
-        """Spliced at the END of configure_fabric(), for the same reason
-        enabled_before_aem() is: ahead of the clears the firmware would undo
-        the mutant's own store before the AEM decision."""
-        return replace_once(firmware_source, fabric_tail,
-                            fabric_tail + "\n\t" + statement, label)
-
-    adp_window_address = csr_base + source_model.adp
-    raw_address = f"0x{adp_window_address:08x}u"
-    widened_cast_store = stored_before_aem(
-        f"*(volatile unsigned int *){raw_address} = 1u;",
-        "store through a widened cast")
-    reordered_cast_store = stored_before_aem(
-        f"*(uint32_t volatile *){raw_address} = 1u;",
-        "store through a reordered cast")
-    #: ... a pointer held in a local, formed by a cast that names no type.
-    local_pointer_store = stored_before_aem(
-        f"volatile uint32_t *adp = (void *){raw_address};\n\t*adp = 1u;",
-        "store through a pointer held in a local")
-    #: ... and the four shapes no RECOGNIZER in this file ever saw: a
-    #: typedef'd pointer type behind a register-access macro, a struct
-    #: overlay with an `->` store, a typedef'd pointer with a subscript
-    #: store, and a qualifier after the star. All four are ordinary embedded
-    #: idioms and all four passed the complete suite before the census.
-    typedef_macro_store = replace_once(
-        stored_before_aem("MILAN_ADP_REG = 1u;", "register-access macro store"),
-        "static int aem_loaded;",
-        "typedef volatile uint32_t *milan_csr_p;\n"
-        f"#define MILAN_ADP_REG (*(milan_csr_p){raw_address})\n\n"
-        "static int aem_loaded;", "register-access macro")
-    overlay_member_store = replace_once(
-        stored_before_aem(f"((milan_adp_block){raw_address})->ctrl = 1u;",
-                          "struct-overlay member store"),
-        "static int aem_loaded;",
-        "typedef struct { volatile uint32_t ctrl; } *milan_adp_block;\n\n"
-        "static int aem_loaded;", "struct overlay typedef")
-    typedef_subscript_store = replace_once(
-        stored_before_aem(f"((milan_csr_pp){raw_address})[0] = 1u;",
-                          "typedef subscript store"),
-        "static int aem_loaded;",
-        "typedef volatile uint32_t *milan_csr_pp;\n\n"
-        "static int aem_loaded;", "subscript typedef")
-    qualified_cast_store = stored_before_aem(
-        f"((volatile uint32_t *const){raw_address})[0] = 1u;",
-        "store through a qualifier-after-star cast")
-    #: ... and a store with no cast at all, through a helper's parameter.
-    helper_pointer_store = replace_once(
-        stored_before_aem("milan_poke(&milan_shadow);",
-                          "store through a helper's parameter"),
-        "static void configure_fabric(void)",
-        "static uint32_t milan_shadow;\n\n"
-        "static void milan_poke(volatile uint32_t *reg)\n{\n\t*reg = 1u;\n}"
-        "\n\nstatic void configure_fabric(void)", "pointer-store helper")
-    #: ... and an inline-asm store, whose template carries no C construct at
-    #: all. The address is spliced from the same derived constant.
-    asm_store_enable = stored_before_aem(
-        f'__asm__ volatile("li t0, {raw_address[:-1]}\\n"\n'
-        '\t                 "li t1, 1\\n"\n'
-        '\t                 "sw t1, 0(t0)\\n" ::: "t0", "t1", "memory");',
-        "inline-asm store to ADP_CTRL")
-    #: An explicit rule for the one object overrides the pattern rule and
-    #: decides what goes INTO it, with OBJECTS and the archive untouched.
-    linked_objects = (
-        makefile_source[:source_objects_line.end()] +
-        f"\n\n{firmware_object}: {firmware_object[:-2]}.part.o "
-        f"{second_object[:-2]}.part.o\n\t$(LD) -r -o $@ $^\n\n"
-        "%.part.o: $(LIBMILAN_BAREMETAL_DIRECTORY)/%.c\n\t$(compile)" +
-        makefile_source[source_objects_line.end():])
-    #: ... and a fragment this Makefile's own text never names, which can do
-    #: any of the above out of sight.
-    fragment_objects = (
-        makefile_source[:source_objects_line.end()] +
-        "\n-include extra.mk" +
-        makefile_source[source_objects_line.end():])
-
-    def after_objects(line):
-        return (makefile_source[:source_objects_line.end()] + "\n" + line +
-                makefile_source[source_objects_line.end():])
-
-    #: The producing rule's own prerequisite, read off the live Makefile so
-    #: the mutation names whatever variable it actually uses.
-    source_producer_prereq = next(
-        rule[1][0] for rule in make_rules(makefile_source)[0]
-        if rule[0] == ["%.o"])
-    assert make_var_re.findall(source_producer_prereq), \
-        "text-deciding mutation found no variable in the producing rule's " \
-        f"prerequisite: {source_producer_prereq}"
-
-    #: Pinning the RULE is not enough while a variable can move the file out
-    #: from under it. None of these three touches OBJECTS, the archive, the
-    #: producing rule or the firmware's #include set.
-    injected_source = after_objects(
-        f"CFLAGS += -include {second_object[:-2]}.c")
-    recompiled_objects = after_objects(
-        f"compile = $(CC) $(CFLAGS) -c -o $@ $< {second_object[:-2]}.c")
-    #: ... and the same injection behind make's other modifier keywords, and
-    #: written against a target so make inherits it down the prerequisite
-    #: chain. An assignment regex narrower than make is the same defect as an
-    #: include regex narrower than the preprocessor.
-    exported_injection = after_objects(
-        f"export CFLAGS += -include {second_object[:-2]}.c")
-    target_injection = after_objects(
-        f"all: CFLAGS += -include {second_object[:-2]}.c")
-    #: The producing rule's OWN prerequisite variable, which is the one name
-    #: a hand-written list of text-deciding variables did not have.
-    shadowed_source_dir = after_objects(
-        f"{make_var_re.findall(source_producer_prereq)[0]} = ./shadow")
-    #: ... and a name that changes what MAKE does rather than what the rule
-    #: names, which no derivation from the rule can reach.
-    #: ---- and RESOLUTION: a pinned name whose FILE this repository supplies.
-    #: Neither of these changes a name anywhere. The first is a listing, the
-    #: second a search path, and both put this repository's text behind an
-    #: include the gate believes it has pinned.
-    shadowed_quoted_include = firmware_listing + ("command.h",)
-    shadowed_search_path = after_objects("CFLAGS += -Ishadow")
-    #: An object list the ENVIRONMENT can override. `?=` looks equivalent
-    #: and is not: make treats an environment variable as defined, so this
-    #: builds whatever `OBJECTS` says outside the file.
-    environment_objects = objects_valued_line(f"OBJECTS ?= {firmware_object}")
-    #: ... and the search-path flag that is not spelled -I, which is how the
-    #: -I rule turned out to be a denylist the moment it was written.
-    quoted_search_path = after_objects("CFLAGS += -iquote shadow")
-
-    def raised_bit0(statement, label):
-        """`statement` with bit 0 of its literal SET, rebuilt at the literal's
-        own width and base: the RTL's own spelling of its reset value with the
-        enable bit on, rather than a second literal hard-coded here."""
-        match = re.search(r"(?:<=|=)\s*([^;]*);", statement)
-        assert match, f"{label} mutation found no literal to raise"
-        literal = re.sub(r"\s", "", match.group(1))
-        value = sv_literal_value(literal)
-        assert value is not None and not value & 1, \
-            f"{label} mutation needs a readable literal with bit 0 clear"
-        based = sv_based_re.match(literal)
-        if based:
-            width = len(based.group("digits").replace("_", ""))
-            base = sv_bases[based.group("base").lower()]
-            raised = based.group("head") + format(
-                value | 1, f"0{width}{sv_formats[base]}")
-        else:
-            raised = str(value | 1)
-        return statement[:match.start(1)] + raised + statement[match.end(1):]
-
-    def literal_reset(signal):
-        """The one LITERAL assignment to `signal` in the RTL: its reset value,
-        found by what it is rather than by the line it sits on."""
-        found = [m.group(0) for m in re.finditer(
-            rf"\b{re.escape(signal)}\s*(?:<=|=)\s*([^;]*);", csr_source)
-            if sv_literal_re.match(m.group(1))]
-        assert len(found) == 1 and csr_source.count(found[0]) == 1, \
-            f"{signal} reset mutation found no unique literal reset: {found}"
-        return found[0]
-
-    adp_reset_statement = literal_reset("adp_ctrl")
-    pp_reset_statement = literal_reset("pp_ctrl_r")
-    adp_reset_enabled = replace_once(
-        csr_source, adp_reset_statement,
-        raised_bit0(adp_reset_statement, "ADP_CTRL reset"),
-        "ADP_CTRL reset value advertising the entity")
-    pp_reset_enabled = replace_once(
-        csr_source, pp_reset_statement,
-        raised_bit0(pp_reset_statement, "PP_CTRL reset"),
-        "PP_CTRL reset value enabling the protocol processor")
-    #: ... and the same with the READBACK default moved to match, so the
-    #: mutant is self-consistent SV that no other rule in the file disagrees
-    #: with: nothing but the reset rule itself can catch this one.
-    adp_default_statement = re.search(
-        r"\bA_ADP_CTRL\s*\[[^\]]*\]\s*:\s*csr_default\s*=\s*[^;]*;",
-        csr_source)
-    assert adp_default_statement, \
-        "ADP_CTRL reset mutation lost the readback default it must match"
-    consistent_reset_enabled = replace_once(
-        adp_reset_enabled, adp_default_statement.group(0),
-        raised_bit0(adp_default_statement.group(0),
-                    "ADP_CTRL readback default"),
-        "ADP_CTRL readback default agreeing with the raised reset")
-
-    #: ---- the three shapes that were RED at cc2ee861 and GREEN at
-    #: 828e5b06, i.e. the ones the round-nine deletions reopened. Each is
-    #: caught by a restored family and NOT by the compiled census, which is
-    #: the measured evidence that the census is an addition rather than a
-    #: replacement.
-    #:
-    #: A store added inside the helper the census exempts BY NAME. Rule 1
-    #: is satisfied (the use is inside reg_span) and the census skips the
-    #: function, so only the cast SET sees the fifth cast.
-    def helper_body_store_for(baseline, label):
-        """Add the exempted-helper escape relative to `baseline` itself."""
-        code = blanked(baseline)
-        reg_def = re.search(
-            r"\bstatic\s+inline\s+volatile\s+uint32_t\s*\*\s*milan_reg\s*"
-            r"\(\s*unsigned\s+int\s+\w+\s*\)\s*\{", code)
-        assert reg_def, f"{label}: address-helper mutation lost milan_reg()"
-        body_at, _body_to = braced_span(code, reg_def, f"{label} milan_reg()")
-        changed = (
-            baseline[:body_at] +
-            f"\n\t*(volatile uint32_t *)(MILAN_CSR_BASE + {adp_name}) = 1u;" +
-            baseline[body_at:])
-        assert changed != baseline, \
-            f"{label}: store inside the exempted address helper did not apply"
-        return changed
-
-    helper_store_baselines = [
-        ("reflowed live-source" if reflowed_firmware == firmware_source
-         else "shipping", firmware_source)]
-    if reflowed_firmware != firmware_source:
-        helper_store_baselines.append(("reflowed", reflowed_firmware))
-    helper_body_store_mutations = tuple(
-        (label, helper_body_store_for(baseline, label))
-        for label, baseline in helper_store_baselines)
-    #: WHY these two stay pinned on the cast set instead of on the
-    #: address-helper provenance rule that names the same function (#206).
-    #: Rule 6's own comment records the ordering; this MEASURES what the
-    #: ordering buys. The compiled census exempts the helper BY NAME, so a
-    #: store planted inside it is invisible to the census -- and these two
-    #: are the only mutants left that demonstrate the cast set catching a
-    #: shape the census cannot see, which is the evidence round nine
-    #: deleted and #187 restored. Re-pinning them on the provenance rule
-    #: would retire that evidence; the provenance rule already has its own
-    #: reason-pinned mutant ("milan_reg() ignores its offset"). So: run the
-    #: census over each of them here and require it to come back CLEAN.
-    #: ... and the POSITIVE arm, which is what #153 adds: the same mutant
-    #: run through the RESOLVER, which must REJECT it. The census exempts
-    #: the helper BY NAME and so cannot see a store planted in it; the
-    #: resolver censuses STORES and exempts nobody, so it answers the shape
-    #: by the address the store resolves to. Measuring both on one compile
-    #: is what makes "an addition, not a replacement" a measurement here
-    #: rather than a claim (process guard 2 from #143's close).
-    helper_store_census_blind = 0
-    helper_store_census_asked = 0
-    helper_store_resolver_caught = 0
-    if baseline_census_verdict["ran"]:
-        helper_store_census_asked = len(helper_body_store_mutations)
-        for label, mutation in helper_body_store_mutations:
-            taken = census_take(
-                mutation, f"exempted-helper store, {label} baseline")
-            blind = assert_compiled_census_is_clean(
-                mutation, f"exempted-helper store, {label} baseline",
-                taken=taken)
-            assert blind["ran"], \
-                "the exempted-helper blindness control did not actually " \
-                "run the census, so it proves nothing about which " \
-                "instrument has to catch this shape"
-            helper_store_census_blind += 1
-            try:
-                assert_resolved_boot_flow(taken["text"], source_model,
-                                          f"exempted-helper store, {label}")
-            except AssertionError as exc:
-                assert RESOLVER_STORE_PIN in str(exc), \
-                    "the resolver refused the exempted-helper store for " \
-                    f"the wrong reason: {exc}"
-                helper_store_resolver_caught += 1
-            else:
-                raise AssertionError(
-                    "the resolver accepted a store inside the exempted "
-                    f"address helper ({label} baseline), so the shape the "
-                    "census is blind to is open on both instruments")
-    #: An address the compiler never prints as a whole-window immediate: at
-    #: -O0 it is built with slli/ori, so the census's regex has nothing to
-    #: match. This is not only adversarial: a firmware serving two CSR bases
-    #: arrives here naturally.
-    paged_base_store = replace_once(
-        stored_before_aem(
-            f"*(volatile uint32_t *)((csr_page << 16) | {adp_name}) = 1u;",
-            "store through a base held in a variable"),
-        "static int aem_loaded;",
-        f"static unsigned int csr_page = 0x{csr_base >> 16:04x}u;\n\n"
-        "static int aem_loaded;", "paged CSR base")
-    #: ---- the shapes issue #153 was filed for, and the reason the
-    #: resolver exists. Each reaches a control register or a non-zero
-    #: verdict WITHOUT printing a window immediate or naming a construct
-    #: any reader of text recognises, and each was measured GREEN on the
-    #: instruments that preceded the resolver (see the PR's escape table).
-    pp_name = next(name for name, value in sorted(source_model.defines.items())
-                   if value == source_model.pp)
-    overlay_paged_store = replace_once(
-        stored_before_aem(
-            f"((milan_adp_blk)((csr_page << 16) | {adp_name}))->ctrl = 1u;",
-            "struct-overlay store through a paged base"),
-        "static int aem_loaded;",
-        "typedef struct { volatile uint32_t ctrl; } *milan_adp_blk;\n"
-        f"static unsigned int csr_page = 0x{csr_base >> 16:04x}u;\n\n"
-        "static int aem_loaded;", "paged struct overlay typedef")
-    subscript_paged_store = replace_once(
-        stored_before_aem(
-            f"((milan_csr_page_p)((csr_page << 16) | {pp_name}))[0] = 1u;",
-            "subscript store through a paged base"),
-        "static int aem_loaded;",
-        "typedef volatile uint32_t *milan_csr_page_p;\n"
-        f"static unsigned int csr_page = 0x{csr_base >> 16:04x}u;\n\n"
-        "static int aem_loaded;", "paged subscript typedef")
-    #: ... and the shape [R0] on PR #241 planted: the page is not a static
-    #: this gate can read but a value the fabric hands back at RUN TIME,
-    #: laundered through an identity that makes it the CSR page. Nothing
-    #: resolves: no window immediate is printed, the store address is
-    #: `<runtime> << 16 | ADP_CTRL`, and the whole point is that the
-    #: resolver CANNOT say where it lands. Under the revision this answers
-    #: it was dropped from the census for exactly that reason and the gate
-    #: reported a clean 149/149 over it.
-    runtime_paged_store = replace_once(
-        stored_before_aem(
-            "unsigned int runtime_page =\n\t\tmilan_read(MILAN_ID) ^ "
-            f"(MILAN_ID_MAGIC ^ 0x{csr_base >> 16:04x}u);\n\t"
-            f"((milan_dyn_adp_blk)((runtime_page << 16) | {adp_name}))"
-            "->ctrl = 1u;",
-            "struct-overlay store through a RUNTIME-derived paged base"),
-        "static int aem_loaded;",
-        "typedef struct { volatile uint32_t ctrl; } *milan_dyn_adp_blk;\n\n"
-        "static int aem_loaded;", "runtime-paged struct overlay typedef")
-    #: ... and the class the `sym` placement rule is bounded by: a store
-    #: through a symbol this translation unit only REFERENCES. Where that
-    #: symbol lands is the linker's decision, so the census may not place
-    #: it -- and it is an ordinary embedded idiom, not only an attack.
-    #: No cast, no `*`, no subscript: nothing above it sees this shape.
-    extern_symbol_store = replace_once(
-        stored_before_aem("milan_linker_adp = 1u;",
-                          "store through an extern the linker places"),
-        "static int aem_loaded;",
-        "extern volatile uint32_t milan_linker_adp;\n\n"
-        "static int aem_loaded;", "extern linker-placed symbol")
-    #: ... and the class rule 1c exists for: a SECOND consumer of the
-    #: address helper's return. No window immediate is materialised (the
-    #: helper forms the address, which is its job), the store address does
-    #: not resolve (the helper is a call at the census's flags), the cast
-    #: names no `*` and the left-hand side does not start with one, so the
-    #: cast set, the store set, the compiled census and rule 1 are all
-    #: blind to it -- and it is a durable pre-AEM entity advertise.
-    helper_return_store = replace_once(
-        stored_before_aem(
-            f"((milan_word_p)milan_reg({adp_name}))->word = 1u;",
-            "store through a SECOND consumer of the address helper"),
-        "static int aem_loaded;",
-        "typedef struct { volatile uint32_t word; } *milan_word_p;\n\n"
-        "static int aem_loaded;", "helper-return struct overlay typedef")
-    #: ... and the RESOLVER's own answer to it, measured on its own so the
-    #: mutation-table pin above (the caller rule, which answers first) does
-    #: not leave rule 1c a rule with nothing behind it. Same pattern as the
-    #: exempted-helper blindness control: both instruments are asked, and
-    #: both answers are recorded.
-    helper_return_resolver_caught = 0
-    if baseline_census_verdict["ran"]:
-        _taken = census_take(helper_return_store, "helper-return store")
-        try:
-            assert_resolved_boot_flow(_taken["text"], source_model,
-                                      "helper-return store")
-        except AssertionError as exc:
-            assert RESOLVER_HELPER_PIN in str(exc), \
-                "the resolver refused the second consumer of the address " \
-                f"helper's return for the wrong reason: {exc}"
-            helper_return_resolver_caught = 1
-        else:
-            raise AssertionError(
-                "the resolver accepted a store through a SECOND consumer of "
-                "the address helper's return: no window immediate is "
-                "printed, the store address does not resolve and neither "
-                "the cast set nor the store set recognises the spelling, so "
-                "that shape would be open on every instrument but the "
-                "caller rule's regex")
-    #: ---- and the verifier's CONTROL and DATA flow, which no positional
-    #: rule reaches: two ways to the success return that never take the
-    #: comparison, the comparison made against a value crc32() never
-    #: produced, and the CRC taken over the QSPI source rather than over the
-    #: DRAM buffer the descriptor store actually serves.
-    crc_local = source_crc_guard.group("lhs") or source_crc_guard.group("rhs")
-    crc_assign = re.search(
-        rf"\b{re.escape(crc_local)}\s*=\s*crc32\s*\([^;]*;", source_load_code)
-    assert crc_assign, "the CRC data-flow mutations lost the crc32() call"
-    crc_assign_text = source_load_function[crc_assign.start():crc_assign.end()]
-    crc_success = [match for match in source_returns
-                   if constant_value(match.group(1)) != 0][-1]
-    _goto_body = (source_load_function[:crc_success.start()] + "crc_ok:\n\t" +
-                  source_load_function[crc_success.start():])
-    goto_past_crc = replace_once(
-        firmware_source, source_load_function,
-        replace_once(_goto_body, crc_guard_statement,
-                     "if (src[4] == 'X')\n\t\tgoto crc_ok;\n\t" +
-                     crc_guard_statement, "goto past the CRC comparison"),
-        "verifier reaching its success return by goto")
-    _crc_region = source_load_function[crc_assign.start():crc_close + 1]
-    _do_region = ("do {\n\t" + replace_once(
-        _crc_region, crc_guard_statement,
-        "if (src[4] == 'X')\n\t\t\tbreak;\n\t\t" + crc_guard_statement,
-        "structured break past the CRC comparison").replace("\n\t", "\n\t\t") +
-        "\n\t} while (0);")
-    break_past_crc = replace_once(
-        firmware_source, source_load_function,
-        source_load_function[:crc_assign.start()] + _do_region +
-        source_load_function[crc_close + 1:],
-        "verifier reaching its success return by break")
-    crc_overwritten = replace_once(
-        firmware_source, crc_guard_statement,
-        f"{crc_local} = MILAN_AEM_IMAGE_CRC32;\n\t" + crc_guard_statement,
-        "CRC result overwritten between the call and the comparison")
-    crc_over_qspi_source = replace_once(
-        firmware_source, crc_assign_text,
-        replace_once(crc_assign_text, "MILAN_AEM_DESC_BASE",
-                     "(SPIFLASH_BASE + MILAN_AEM_FLASH_OFFSET)",
-                     "CRC operand repointed at the QSPI source"),
-        "CRC taken over the QSPI source rather than the descriptor buffer")
-    #: ... and the unplaceable-store refusal exercised INSIDE the verifier,
-    #: whose copy store rule 1d now PLACES: an unplaceable store planted
-    #: beside a placed one shows the placement buys no budget -- when the
-    #: verifier carried a declared unplaced residual this same mutant
-    #: proved the residual was pinned by count rather than exempting the
-    #: function, and with that residual retired it is refused outright.
-    residual_count_store = replace_once(
-        replace_once(
-            firmware_source, crc_assign_text,
-            f"((milan_dyn_adp_blk)((((unsigned int)src[4]) << 16) | "
-            f"{adp_name}))->ctrl = 1u;\n\t" + crc_assign_text,
-            "unplaceable store inside the AEM verifier"),
-        "static int aem_loaded;",
-        "typedef struct { volatile uint32_t ctrl; } *milan_dyn_adp_blk;\n\n"
-        "static int aem_loaded;", "residual-count struct overlay typedef")
-    #: ---- and the RESIDUAL-KEY hole itself, closed by RETIRING the
-    #: residual ([R0] 2026-08-25T05:46Z and [R2] BLOCKER on PR #241, both
-    #: at fe38d10e). The copy store's residual entry was keyed (function,
-    #: class, None) and asserted by COUNT, binding neither base nor value:
-    #: REDIRECTING the existing copy destination kept the key set and the
-    #: count byte-identical, the store statement `dst[i] = src[i]`
-    #: textually untouched and no window immediate ever printed, so every
-    #: instrument reported the shipping answer while the first copied byte
-    #: (`'A'`, bit 0 set) asserted the ADP enable before the CRC
-    #: comparison. All three below were measured GREEN on the complete
-    #: gate at the pre-fix revision; the residual is retired and the store
-    #: PLACED by branch refinement, so the first two now land unplaced
-    #: with no residual to spend and the third is a bounded range outside
-    #: the buffer the CRC checks.
-    source_dst_found = re.search(
-        r"volatile\s+uint8_t\s*\*\s*dst\s*=\s*\(\s*volatile\s+uint8_t\s*"
-        r"\*\s*\)\s*MILAN_AEM_DESC_BASE\s*;", source_load_code)
-    assert source_dst_found, \
-        "the copy-destination mutations lost the shipping dst statement"
-    aem_dst_text = source_load_function[
-        source_dst_found.start():source_dst_found.end()]
-    aem_copy_redirected = replace_once(
-        firmware_source, aem_dst_text,
-        "volatile uint8_t *dst = (volatile uint8_t *)"
-        "((((milan_read(MILAN_ID) ^\n"
-        f"\t    (MILAN_ID_MAGIC ^ 0x{csr_base >> 16:04x}u)) << 16) | "
-        f"{adp_name}));",
-        "the reviewers' copy destination redirected onto the ADP enable")
-    aem_copy_unresolved = replace_once(
-        firmware_source, aem_dst_text,
-        "volatile uint8_t *dst = (volatile uint8_t *)"
-        "(MILAN_AEM_DESC_BASE +\n"
-        "\t    (milan_read(MILAN_VERSION) & 0x1000u));",
-        "the copy destination unresolvable with class and count preserved")
-    aem_copy_elsewhere = replace_once(
-        firmware_source, aem_dst_text,
-        "volatile uint8_t *dst = (volatile uint8_t *)SPIFLASH_BASE;",
-        "the copy destination bounded but outside the CRC'd buffer")
-
-    #: The asm spelling any RISC-V programmer writes. objdump annotates the
-    #: store `# 90000600`, but no window immediate is ever printed, so the
-    #: census misses it and the asm SET is what refuses it.
-    lui_asm_store = stored_before_aem(
-        f'__asm__ volatile("lui t0, 0x{csr_base >> 12:05x}\\n\\t"\n'
-        '\t                 "li t1, 1\\n\\t"\n'
-        f'\t                 "sw t1, 0x{source_model.adp:x}(t0)"\n'
-        '\t                 ::: "t0", "t1", "memory");',
-        "lui-based inline-asm store")
-    #: ---- and the two Makefile shapes the sentinel filter discarded. make
-    #: PRINTED both extra lines; the gate kept only the ones carrying a
-    #: sentinel and reported one translation unit.
-    literal_tool_rule = replace_once(
-        makefile_source, "%.o: $(LIBMILAN_BAREMETAL_DIRECTORY)/%.c",
-        f"{firmware_object}: $(LIBMILAN_BAREMETAL_DIRECTORY)/"
-        f"{firmware_object[:-2]}.c\n\t$(compile)\n"
-        f"\triscv32-linux-gcc -c $(LIBMILAN_BAREMETAL_DIRECTORY)/"
-        f"{second_object[:-2]}.c -o {second_object}\n"
-        f"\triscv32-linux-ld -r $@ {second_object} -o $@\n\n"
-        "%.o: $(LIBMILAN_BAREMETAL_DIRECTORY)/%.c",
-        "explicit rule whose extra lines name tools literally")
-    literal_tool_archive = replace_once(
-        makefile_source, "\t$(AR) crs $@ $(OBJECTS)",
-        f"\tgcc -c $(LIBMILAN_BAREMETAL_DIRECTORY)/{second_object[:-2]}.c "
-        f"-o {second_object}\n\t$(AR) crs $@ $(OBJECTS)\n"
-        f"\tar q $@ {second_object}",
-        "second object archived by a literal ar")
-    #: ---- a second file injected through a TOOL variable. LiteX defines
-    #: `compile` as `$(CC) -c $(CFLAGS) ...`, so a flag on CC reaches the
-    #: shipping compile. It contributes no `.c` to the plan, no `.o`, and no
-    #: CFLAGS token, which is why reading the flags out of CFLAGS missed it
-    #: and reading the whole recipe LINE catches it.
-    tool_variable_injection = replace_once(
-        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
-        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
-        "CC += -include $(LIBMILAN_BAREMETAL_DIRECTORY)/../shadow.h",
-        "second file injected through CC")
-    tool_variable_search_path = replace_once(
-        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
-        "CFLAGS += -I$(BIOS_DIRECTORY)\nCC += -iquote ../shadow",
-        "search path added through CC")
-
-    #: ---- three injection spellings no scan here ever named. They are in
-    #: the table not because the rule enumerates them (it does not) but
-    #: because they are the measured proof that it does not have to: each
-    #: changes the pinned compile command and is refused by the SET, and
-    #: adding a fourth spelling would need no change to the rule at all.
-    def tool_flag(line, label):
-        return replace_once(makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
-                            "CFLAGS += -I$(BIOS_DIRECTORY)\n" + line, label)
-
-    preprocessor_passthrough = tool_flag(
-        "CC += -Wp,-include,$(LIBMILAN_BAREMETAL_DIRECTORY)/../shadow.h",
-        "injection through the preprocessor pass-through")
-    response_file_injection = tool_flag(
-        "CC += @$(LIBMILAN_BAREMETAL_DIRECTORY)/../shadow.rsp",
-        "injection through a response file")
-    prefixed_search_path = tool_flag(
-        "CC += -iprefix $(LIBMILAN_BAREMETAL_DIRECTORY)/../ "
-        "-iwithprefixbefore shadow",
-        "search path through the prefix chain")
-
-    #: ---- and MAKEFLAGS += -e, RESTORED as a mutant. Round nine retired it
-    #: on a false measurement; it does let the environment override OBJECTS
-    #: and CFLAGS in the same run. It is pinned on the hostile double-run,
-    #: which is what actually catches it.
-    #: Placed ABOVE the assignments it affects, which is where a real one
-    #: would go: `-e` reaches assignments make has not read yet.
-    env_override_flags = replace_once(
-        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
-        "MAKEFLAGS += -e\n\nCFLAGS += -I$(BIOS_DIRECTORY)",
-        "environment override switched on")
-
-    #: ---- and the two shapes that made the reset rule vacuous. The reader
-    #: saw `<=` only, so a BLOCKING reset left it nothing to iterate and it
-    #: passed by having nothing to check; a deleted reset did the same. Both
-    #: reddened the suite from the mutation scaffolding with a message
-    #: blaming a mutation for a change in the RTL, which is the
-    #: tolerant-reader / literal-mutator defect this PR has now fixed three
-    #: times. Both must fail from assert_decode_is_one_to_one().
-    blocking_reset_enabled = replace_once(
-        csr_source, adp_reset_statement,
-        raised_bit0(adp_reset_statement, "ADP_CTRL blocking reset").replace(
-            "<=", " =", 1),
-        "ADP_CTRL reset written blocking with the enable bit set")
-    absent_reset = replace_once(
-        csr_source, adp_reset_statement, "", "ADP_CTRL reset value deleted")
-
-    def condensed(text):
-        return re.sub(r"\s+", "", text)
-
-    pp_label = source_model.label(source_model.pp)
-    adp_label = source_model.label(source_model.adp)
-
-    reset_spellings = ("32'h0000_0001", "32'd1", "32'b1", "1")
-    for spelling in reset_spellings:
-        statement = f"ptp_ctrl <= {spelling};"
-        if condensed(statement) == condensed(source_reset_statement):
-            # The RTL is already spelled this way: accepted by construction,
-            # since the live reset just passed the contract above. Demanding
-            # a substitution here would fail the suite on a spelling the
-            # parser reads correctly.
-            equivalent_csr = csr_source
-        else:
-            equivalent_csr = replace_once(
-                csr_source, source_reset_statement, statement,
-                f"reset spelling {spelling}")
-        assert_boot_contract(firmware_source, docs_source, equivalent_csr)
-
-    #: Legitimate respellings of the object list. makefile_objects() reads
-    #: every one of these correctly, so the mutation anchor above has to as
-    #: well: a tolerant reader beside a literal mutator fails the SUITE on a
-    #: file the gate understands, with a message blaming a "mutation".
-    objects_spellings = tuple(
-        f"{prefix}OBJECTS {operator} {firmware_object}{trailer}"
-        for prefix in ("", "override ", "export ")
-        # `?=` is deliberately NOT here. make says it is not an equivalent
-        # spelling: `?=` sets only if the variable is undefined, and a
-        # variable present in the ENVIRONMENT counts as defined, so
-        # `OBJECTS=hostile.o make` builds something else entirely. The
-        # regex parser called it equivalent for three rounds; the plan,
-        # taken twice under a hostile environment, says otherwise.
-        for operator in ("=", ":=", "::=")
-        for trailer in ("", "\t# the one translation unit")
-    ) + (
-        # ... and the two shapes that used to fail the SUITE from the
-        # scaffolding rather than the parser: a value continued onto the next
-        # line, and a reassignment whose last word is the one that counts.
-        f"OBJECTS = \\\n\t{firmware_object}",
-        f"OBJECTS = placeholder.o\nOBJECTS = {firmware_object}",
-    )
-    #: Respell EVERY OBJECTS assignment, not just the last, so "equivalent"
-    #: is true by construction. Substituting only the last one is NOT
-    #: equivalent when an earlier assignment exists: `?=` after a definition
-    #: is ignored and make would build the earlier list, so the gate would be
-    #: right to refuse it and the suite would be wrong to call it a spelling.
-
-    for spelling in objects_spellings:
-        assert_boot_contract(
-            firmware_source, docs_source, csr_source,
-            makefile_source[:objects_span_at] + spelling +
-            makefile_source[objects_span_to:])
-
-    #: ---- ACCEPTED cases, executable at last -----------------------------
-    #:
-    #: 83 rejections and, until now, not one executable statement of what a
-    #: LEGITIMATE firmware edit looks like. That is the gap this lane kept
-    #: falling into: three separate rounds shipped a false RED that failed
-    #: the SUITE from the mutation scaffolding, and review found every one
-    #: of them, because the suite had nothing to catch them with. A refusal
-    #: instrument whose entire cost is measured in legitimate edits needs
-    #: its legitimate edits to be a measurement, not a memory.
-    #:
-    #: Each entry is a real edit to the shipping firmware that must stay
-    #: GREEN. Derived from the firmware's own text wherever a name or a
-    #: statement is involved, so a rename upstream does not silently turn an
-    #: accepted case into a no-op.
-    #: SCOPE, so a green loop is not read as general false-RED coverage.
-    #: All but the address-helper reflow sit in ONE region: the
-    #: enable/clear/guard block and comment blanking. They were prose in the PR
-    #: body precisely
-    #: BECAUSE they had already been measured GREEN, so the set stops
-    #: exactly where the refusal starts. Nothing here touches the cast set,
-    #: the store set, the asm set, the directive set, the include set, the
-    #: recipe-set pin or the compiled census, which is where the remaining
-    #: refusals live. Two ordinary refactors one call-depth out are RED and
-    #: disclosed as costs rather than accepted: a milan_set() helper and a
-    #: named enable mask. A new refusal in an uncovered region can still
-    #: pass this loop untouched; measured, by adding a function-like-macro
-    #: ban and watching the suite stay green. If cases are added, the cheap
-    #: ones are one per refusal FAMILY, not more variants of the mask.
-    accepted_pp_clear = source_pp_clear
-    accepted_adp_clear = source_adp_clear
-    accepted_cases = {
-        "unrelated | 2u write to an already-decoded register":
-            replace_once(firmware_source, accepted_adp_clear + ";",
-                         accepted_adp_clear + ";\n\tmilan_write("
-                         f"{adp_name}, milan_read({adp_name}) | 2u);",
-                         "unrelated bit write"),
-        "wider pre-AEM clear (& ~3u)":
-            replace_once(firmware_source, accepted_adp_clear,
-                         f"milan_write({adp_name}, milan_read({adp_name})"
-                         " & ~3u)", "wider clear"),
-        "comment between the two enables":
-            replace_once(firmware_source, adp_enable_text,
-                         "/* ADP last: never advertise before the PP is up. */"
-                         "\n\t\t" + adp_enable_text, "comment in the guard"),
-        "braced early return on the choke point's verdict test":
-            replace_once(firmware_source, source_verdict_test,
-                         source_verdict_test.replace(
-                             "\n\t\treturn;", " {\n\t\treturn;\n\t}"),
-                         "braced early return"),
-        "literal-zero pre-AEM clear":
-            replace_once(firmware_source, accepted_adp_clear,
-                         f"milan_write({adp_name}, 0u)", "literal zero clear"),
-        "& ~(1u << 0) pre-AEM clear":
-            replace_once(firmware_source, accepted_adp_clear,
-                         f"milan_write({adp_name}, milan_read({adp_name})"
-                         " & ~(1u << 0))", "shifted mask clear"),
-        "& 0xfffffffeu pre-AEM clear":
-            replace_once(firmware_source, accepted_adp_clear,
-                         f"milan_write({adp_name}, milan_read({adp_name})"
-                         " & 0xfffffffeu)", "explicit mask clear"),
-        "multi-line enable in the guarded block":
-            replace_once(firmware_source, adp_enable_text,
-                         f"milan_write({adp_name},\n\t\t\t    "
-                         f"milan_read({adp_name}) | 1u)", "wrapped enable"),
-        "hex 0x1u enable mask":
-            replace_once(firmware_source, adp_enable_text,
-                         f"milan_write({adp_name}, milan_read({adp_name})"
-                         " | 0x1u)", "hex enable mask"),
-        "a printf naming milan_write":
-            replace_once(firmware_source, accepted_adp_clear + ";",
-                         accepted_adp_clear + ";\n\tprintf(\"milan_write()"
-                         " clears done.\\n\");", "printf naming the helper"),
-        "a commented-out enable":
-            replace_once(firmware_source, accepted_adp_clear + ";",
-                         accepted_adp_clear + ";\n\t/* "
-                         + adp_enable_text + "; */", "commented-out enable"),
-        "a second printf inside the guarded block":
-            replace_once(firmware_source, adp_enable_text + ";",
-                         adp_enable_text + ";\n\t\tprintf(\"entity up\\n\");",
-                         "second printf in the guard"),
-        #: ---- the three refusals the entity-advertise choke point retires
-        #: (#153). Each was a disclosed cost row and each is now a
-        #: measurement that it is GREEN, which is the only form a retired
-        #: refusal may be recorded in here.
-        "an extra statement between the two enables": extra_in_guard,
-        "an #ifdef around a debug printf in a UART command handler":
-            replace_once(firmware_source, "\tprint_tod(gettime_ns());\n}",
-                         "#ifdef MILAN_DEBUG_TOD\n"
-                         "\tprintf(\"TOD read\\n\");\n#endif\n"
-                         "\tprint_tod(gettime_ns());\n}",
-                         "conditional debug printf in a UART handler"),
-        "a multi-line #define":
-            replace_once(firmware_source, "static int aem_loaded;",
-                         "#define MILAN_BOOT_BANNER \\\n"
-                         "\t\"Milan baremetal: fabric entity\"\n\n"
-                         "static int aem_loaded;", "multi-line #define"),
-        "the pre-AEM clears relocated into milan_init()":
-            replace_once(
-                replace_once(firmware_source,
-                             accepted_adp_clear + ";\n\t"
-                             + accepted_pp_clear + ";\n", "",
-                             "clears lifted out of configure_fabric()"),
-                configure_statement,
-                accepted_adp_clear + ";\n\t" + accepted_pp_clear + ";\n\t"
-                + configure_statement, "clears relocated into milan_init()"),
-    }
-    if reflowed_firmware != firmware_source:
-        accepted_cases["reflowed milan_reg() return type and argument"] = \
-            reflowed_firmware
-    else:
-        # The live file already carries the accepted reflow. The baseline
-        # call above is its positive arm; helper_body_store_mutations carries
-        # the paired negative arm relative to this exact spelling.
-        assert source_reg_signature == reflowed_reg_signature
-    for label, accepted in accepted_cases.items():
-        assert accepted != firmware_source, \
-            f"accepted case {label!r} did not change the firmware, so it " \
-            "measures nothing"
-        try:
-            assert_boot_contract(accepted, docs_source, csr_source)
-        except (AssertionError, ValueError) as exc:
-            raise AssertionError(
-                f"a LEGITIMATE firmware edit is refused: {label}. This gate "
-                "is a refusal instrument and its whole cost is measured in "
-                "edits like this one, so a new rule that reddens it is a "
-                f"regression until the cost is disclosed. Gate said: {exc}"
-            ) from exc
-    #: ... and the Makefile edits the cost list calls GREEN, measured too.
-    accepted_makefiles = {
-        "an unrelated DEPFILES variable":
-            replace_once(makefile_source, "OBJECTS = " + firmware_object,
-                         "DEPFILES = $(patsubst %.o,%.d,$(OBJECTS))\n"
-                         "OBJECTS = " + firmware_object, "DEPFILES"),
-        # `AR += v` was an accepted case while the flag scans were here. It
-        # is RED under the recipe-set pin, and that is a DELIBERATE decision
-        # rather than a discovery: the pin is what refuses every injection
-        # spelling nobody has thought of, and the price of having no list is
-        # that a benign change to a pinned command is refused too. It is
-        # disclosed as a cost instead of accepted here. Same for `CC += -Wall`.
-        "an extra phony target":
-            replace_once(makefile_source, ".PHONY: all clean",
-                         ".PHONY: all clean tags\n\ntags:\n\t$(CTAGS) *.c",
-                         "extra phony target"),
-    }
-    for label, accepted in accepted_makefiles.items():
-        assert accepted != makefile_source, f"{label} changed nothing"
-        try:
-            assert_boot_contract(firmware_source, docs_source, csr_source,
-                                 accepted)
-        except (AssertionError, ValueError) as exc:
-            raise AssertionError(
-                f"a LEGITIMATE Makefile edit is refused: {label}; "
-                f"gate said: {exc}") from exc
-
-    mutations = (
-        ("old AEM-gated PTP documentation", firmware_source,
-         replace_once(docs_source, old_claim.group(0), old_order, "old ordering"),
-         csr_source, "bare-metal boot contract lost"),
-        ("CSR identity contract repointed to VERSION",
-         identity_contract_at_version, docs_source, csr_source,
-         "firmware MILAN_ID must resolve to the RTL A_ID address"),
-        ("CSR identity magic changed to the VERSION value",
-         identity_magic_at_version, docs_source, csr_source,
-         "firmware MILAN_ID_MAGIC must equal the RTL A_ID readback default"),
-        ("CSR identity magic replaced by the sampled value",
-         identity_magic_at_sample, docs_source, csr_source,
-         "firmware MILAN_ID_MAGIC must equal the RTL A_ID readback default"),
-        ("CSR identity magic replaced by a sampled expression",
-         identity_magic_at_sample_expr, docs_source, csr_source,
-         "firmware MILAN_ID_MAGIC must equal the RTL A_ID readback default"),
-        ("RTL A_ID address hidden behind a comment decoy", firmware_source,
-         docs_source, identity_address_comment_decoy,
-         "firmware MILAN_ID must resolve to the RTL A_ID address"),
-        ("RTL A_ID default hidden behind a comment decoy", firmware_source,
-         docs_source, identity_default_comment_decoy,
-         "firmware MILAN_ID_MAGIC must equal the RTL A_ID readback default"),
-        ("RTL A_ID address selected through an inactive preprocessor arm",
-         firmware_source, docs_source, identity_conditional_decoy,
-         "CSR integration proof requires unconditional live "
-         "SystemVerilog text"),
-        ("RTL A_ID address hidden in an inactive static generate arm",
-         firmware_source, docs_source, identity_static_generate_decoy,
-         "RTL CSR address declarations must be unconditional module-scope "
-         "items"),
-        ("RTL A_ID default hidden in a dead procedural case",
-         firmware_source, docs_source, identity_dead_default_case,
-         "RTL csr_default's address case must be a direct top-level item "
-         "after its literal-zero default"),
-        ("RTL A_ID defaults-ROM fill forged", firmware_source, docs_source,
-         identity_rom_fill_forged,
-         "RTL A_ID readback plumbing must preserve the canonical "
-         "csr_default ROM and direct AXI read address"),
-        ("RTL A_ID read address offset", firmware_source, docs_source,
-         identity_read_address_offset,
-         "RTL A_ID readback plumbing must preserve the canonical "
-         "csr_default ROM and direct AXI read address"),
-        ("CSR identity mismatch guard removed", missing_identity_guard,
-         docs_source, csr_source,
-         "firmware must reject a mismatched CSR identity"),
-        ("CSR identity mismatch guard does not return", missing_identity_return,
-         docs_source, csr_source,
-         "CSR identity mismatch guard must return"),
-        ("CSR identity mismatch guard inverted", inverted_identity_guard,
-         docs_source, csr_source,
-         "firmware must reject a mismatched CSR identity"),
-        ("CSR identity sample overwritten before the guard", forged_identity,
-         docs_source, csr_source,
-         "CSR identity guard must consume the unmodified MILAN_ID sample"),
-        ("milan_reg() ignores its offset", wrong_reg_address,
-         docs_source, csr_source,
-         "milan_reg() must return exactly MILAN_CSR_BASE plus the offset "
-         "it is passed"),
-        ("milan_read() forges the identity value", forged_csr_read,
-         docs_source, csr_source,
-         "milan_read() must return exactly the value loaded through "
-         "milan_reg(offset)"),
-        ("unconditional entity enable",
-         replace_once(firmware_source, guard_statement, unconditional_guard,
-                      "unconditional guard"), docs_source, csr_source,
-         "firmware must configure, load AEM, then guard entity enable"),
-        ("inverted entity enable",
-         replace_once(firmware_source, guard_statement, inverted_guard,
-                      "inverted guard"),
-         docs_source, csr_source,
-         "firmware must configure, load AEM, then guard entity enable"),
-        ("software PTP enable write",
-         replace_once(
-             firmware_source, load_statement,
-             "milan_write(MILAN_PTP_CTRL, "
-             "milan_read(MILAN_PTP_CTRL) | 1u);\n\t" + load_statement,
-             "PTP write"),
-         docs_source, csr_source,
-         "firmware must not write the reset-enabled PHC"),
-        # The PHC write the docs forbid, hidden one call deep in the step-1
-        # helper instead of in milan_init()'s own text.
-        ("PHC disabled during fabric configuration",
-         replace_once(
-             firmware_source, source_fabric_body,
-             "\n\tmilan_write(MILAN_PTP_CTRL, 0u);" + source_fabric_body,
-             "fabric PHC write"),
-         docs_source, csr_source,
-         "firmware must not write the reset-enabled PHC"),
-        ("ADP before PP",
-         replace_once(
-             firmware_source, source_enable_block, swapped_enable_block,
-             "enable ordering"), docs_source, csr_source,
-         "AEM-success guard must enable PP before ADP"),
-        ("PP bit 0 not asserted",
-         replace_once(firmware_source, source_enable_block, bad_pp_block,
-                      "PP enable mask"), docs_source, csr_source,
-         f"{pp_label} enable write must assert bit 0"),
-        ("ADP bit 0 cleared",
-         replace_once(firmware_source, source_enable_block, bad_adp_block,
-                      "ADP enable operation"), docs_source, csr_source,
-         f"{adp_label} must have exactly one read/OR enable write"),
-        # An entity advertised BEFORE the image is verified: the enable moves
-        # into step 1, one call outside milan_init()'s own text.
-        ("PP enabled before AEM verification",
-         replace_once(firmware_source, source_pp_clear, early_pp_enable,
-                      "early PP enable"), docs_source, csr_source,
-         f"{pp_label} bit 0 may be set only inside the"),
-        ("ADP enabled before AEM verification",
-         replace_once(firmware_source, source_adp_clear, early_adp_enable,
-                      "early ADP enable"), docs_source, csr_source,
-         f"{adp_label} bit 0 may be set only inside the"),
-        # ---- indirection: the census reads milan_write() call sites, so a
-        # name it cannot resolve or a store it cannot see is a way to
-        # advertise the entity unexamined. Each escape carries its own mutant.
-        ("entity enabled through an indirect helper",
-         indirect_helper_enable, docs_source, csr_source,
-         "milan_write() must name a register the RTL decodes"),
-        # A SECOND #define for 0x600/0x920/0x500 is a different token for the
-        # same register: the bus cannot tell them apart, so neither may the
-        # census.
-        ("ADP enabled through an address alias", alias_adp_enable,
-         docs_source, csr_source,
-         f"{adp_label} bit 0 may be set only inside the"),
-        ("PP enabled through an address alias", alias_pp_enable,
-         docs_source, csr_source,
-         f"{pp_label} bit 0 may be set only inside the"),
-        ("PHC written through an address alias", alias_phc_write,
-         docs_source, csr_source,
-         "firmware must not write the reset-enabled PHC"),
-        # ... and an EXISTING register name repointed at PP_CTRL is an
-        # operand the rule already trusts, now naming a different register.
-        ("entity enabled through a repointed register name",
-         repointed_register, docs_source, csr_source,
-         f"{pp_label} bit 0 may be set only inside the"),
-        # A pure VALUE constant is not a register operand at all.
-        ("milan_write() given a value constant as its register",
-         value_operand_write, docs_source, csr_source,
-         "milan_write() must name a register the RTL decodes"),
-        # ---- the call itself: one space, one function pointer, one paste or
-        # one raw store and a text-matched rule walks straight past it.
-        ("entity enabled with a space before the call paren",
-         spaced_call_enable, docs_source, csr_source,
-         f"{adp_label} bit 0 may be set only inside the"),
-        ("entity enabled through a phase-2-spliced call name",
-         phase2_spliced_call_enable, docs_source, csr_source,
-         "firmware must not splice physical source lines with backslash-newline"),
-        ("entity enabled through a function pointer", pointer_call_enable,
-         docs_source, csr_source,
-         "milan_write must always be called, never used as a value"),
-        ("entity enabled by storing through milan_reg()", reg_store_enable,
-         docs_source, csr_source,
-         "milan_reg() may be called only by milan_read()/milan_write()"),
-        #: ... and the same class spelled so that NO instrument but the
-        #: caller rule and the resolver's rule 1c can see it: the helper
-        #: forms the address (so no window immediate is printed and the
-        #: store address does not resolve), the cast names no `*` and the
-        #: left-hand side does not start with one. Pinned on the caller
-        #: rule because that rule answers first; that the RESOLVER also
-        #: refuses it, on the resolved provenance of the base rather than
-        #: on the call site, is measured separately below.
-        ("entity enabled through a second consumer of the address helper's "
-         "return", helper_return_store, docs_source, csr_source,
-         "milan_reg() may be called only by milan_read()/milan_write()"),
-        ("entity enabled through a raw CSR pointer", raw_store_enable,
-         docs_source, csr_source,
-         "only milan_reg() may form a CSR address"),
-        ("entity enabled through a pasted call name", pasted_call_enable,
-         docs_source, csr_source,
-         "firmware must not paste tokens"),
-        # Without the pre-AEM clear a warm reboot advertises a stale entity
-        # while the image is still unverified.
-        ("PP pre-AEM clear removed",
-         replace_once(firmware_source, source_pp_clear, "",
-                      "PP pre-AEM clear"), docs_source, csr_source,
-         f"{pp_label} bit 0 must be cleared before the AEM image"),
-        ("ADP pre-AEM clear removed",
-         replace_once(firmware_source, source_adp_clear, "",
-                      "ADP pre-AEM clear"), docs_source, csr_source,
-         f"{adp_label} bit 0 must be cleared before the AEM image"),
-        ("CRC failure accepted",
-         replace_once(firmware_source, source_load_function, bad_load_function,
-                      "AEM verifier"), docs_source, csr_source,
-         "AEM verifier non-zero return must be textually after"),
-        ("AEM verdict overridden",
-         replace_once(firmware_source, load_statement,
-                      load_statement + "\n\taem_loaded = 1;",
-                      "AEM verdict override"), docs_source, csr_source,
-         "aem_loaded must contain only the image verifier's verdict"),
-        ("AEM verdict forced by compound assignment",
-         replace_once(firmware_source, load_statement,
-                      load_statement + "\n\taem_loaded |= 1;",
-                      "AEM verdict OR"), docs_source, csr_source,
-         "aem_loaded must contain only the image verifier's verdict"),
-        ("AEM verdict incremented",
-         replace_once(firmware_source, load_statement,
-                      load_statement + "\n\taem_loaded++;",
-                      "AEM verdict increment"), docs_source, csr_source,
-         "aem_loaded must contain only the image verifier's verdict"),
-        ("disabled PHC reset", firmware_source, docs_source,
-         replace_once(csr_source, source_reset_statement,
-                      "ptp_ctrl <= 32'h0;", "PHC reset"),
-         "bare-metal PHC contract requires the documented enabled reset"),
-        ("PHC output gated by ADP", firmware_source, docs_source,
-         phc_gated_by_adp,
-         "milan_csr PHC output assignments must remain direct and "
-         "independent"),
-        ("milan_csr PHC increment output gated by ADP", firmware_source,
-         docs_source, phc_increment_source_gated_by_adp,
-         "milan_csr PHC output assignments must remain direct and "
-         "independent"),
-        ("milan_csr PHC output binding gated by ADP", firmware_source,
-         docs_source, csr_source,
-         "milan_csr PHC output must drive cfg_ptp_enable directly",
-         None, None, phc_binding_gated_by_adp),
-        ("PHC enable hidden behind a resolved second driver", firmware_source,
-         docs_source, csr_source,
-         "datapath PHC nets must retain sole-driver reference ownership",
-         None, None, phc_wand_second_driver),
-        ("ptp_timestamp PHC consumer gated by ADP", firmware_source,
-         docs_source, csr_source,
-         "ptp_timestamp PHC enable must be driven directly by "
-         "cfg_ptp_enable", None, None, phc_consumer_gated_by_adp),
-        ("ptp_timestamp PHC increment gated by ADP", firmware_source,
-         docs_source, csr_source,
-         "ptp_timestamp PHC controls and readback must remain direct and "
-         "independent", None, None, phc_increment_gated_by_adp),
-        ("effective PHC frequency adjustment gated by ADP", firmware_source,
-         docs_source, csr_source,
-         "effective PHC adjustment must select only gPTP or CSR control",
-         None, None, phc_effective_adjust_gated_by_adp),
-        ("effective PHC offset gated by ADP", firmware_source,
-         docs_source, csr_source,
-         "effective PHC offset must select only gPTP or CSR control",
-         None, None, phc_effective_offset_gated_by_adp),
-        ("effective PHC adjustment strobe gated by ADP", firmware_source,
-         docs_source, csr_source,
-         "effective PHC adjust strobe must select only gPTP or CSR control",
-         None, None, phc_effective_strobe_gated_by_adp),
-        ("ptp_timestamp gtx reset gated by ADP", firmware_source,
-         docs_source, csr_source,
-         "ptp_timestamp clocks and resets must be direct and independent",
-         None, None, gptp_gated_timestamp_gtx_reset),
-        ("ptp_timestamp axis reset gated by ADP", firmware_source,
-         docs_source, csr_source,
-         "ptp_timestamp clocks and resets must be direct and independent",
-         None, None, gptp_gated_timestamp_axis_reset),
-        ("ptp_timestamp RX ingress valid gated by ADP", firmware_source,
-         docs_source, csr_source,
-         "external MAC RX must traverse ptp_timestamp directly",
-         None, None, gptp_gated_timestamp_ingress),
-        ("ptp_timestamp RX ready gated by ADP", firmware_source,
-         docs_source, csr_source,
-         "external MAC RX must traverse ptp_timestamp directly",
-         None, None, gptp_gated_timestamp_ready),
-        ("enabled RX-filter ingress valid gated by ADP", firmware_source,
-         docs_source, csr_source,
-         "timestamped MAC RX must traverse the enabled RX-filter arm "
-         "directly", None, None, gptp_gated_filter_ingress),
-        ("enabled RX-filter clock gated by ADP", firmware_source,
-         docs_source, csr_source,
-         "timestamped MAC RX must traverse the enabled RX-filter arm "
-         "directly", None, None, gptp_gated_filter_clock),
-        ("enabled RX-filter reset gated by ADP", firmware_source,
-         docs_source, csr_source,
-         "timestamped MAC RX must traverse the enabled RX-filter arm "
-         "directly", None, None, gptp_gated_filter_reset),
-        ("RX-filter default policy gated by ADP", firmware_source,
-         docs_source, csr_source,
-         "reset-time RX filter policy must remain independent of ADP",
-         None, None, gptp_filter_policy_gated_by_adp),
-        ("bypass RX-filter ingress valid gated by ADP", firmware_source,
-         docs_source, csr_source,
-         "timestamped MAC RX must traverse the bypass RX-filter arm "
-         "directly", None, None, gptp_gated_filter_bypass),
-        ("fabric gPTP reset gated by ADP", firmware_source, docs_source,
-         csr_source,
-         "fabric gPTP RX and control inputs must observe the live datapath "
-         "directly", None, None, gptp_gated_datapath),
-        ("fabric gPTP ingress valid gated by ADP", firmware_source,
-         docs_source, csr_source,
-         "fabric gPTP RX and control inputs must observe the live datapath "
-         "directly", None, None, gptp_gated_ingress),
-        ("fabric gPTP local egress valid gated by ADP", firmware_source,
-         docs_source, csr_source,
-         "fabric gPTP TX must traverse gptp_ctl_mux directly", None, None,
-         gptp_gated_local_egress),
-        ("fabric gPTP control-mux reset gated by ADP", firmware_source,
-         docs_source, csr_source,
-         "fabric gPTP TX must traverse gptp_ctl_mux directly", None, None,
-         gptp_gated_control_mux_reset),
-        ("fabric gPTP MAC-boundary valid gated by ADP", firmware_source,
-         docs_source, csr_source,
-         "fabric gPTP control output must reach the MAC-boundary arbiter "
-         "directly", None, None, gptp_gated_boundary_egress),
-        ("fabric gPTP boundary-mux reset gated by ADP", firmware_source,
-         docs_source, csr_source,
-         "fabric gPTP control output must reach the MAC-boundary arbiter "
-         "directly", None, None, gptp_gated_boundary_mux_reset),
-        ("external MAC TX valid gated by ADP", firmware_source,
-         docs_source, csr_source,
-         "external MAC TX handshake must be driven directly by "
-         "tx_axis_to_mac", None, None, gptp_gated_external_tx),
-        ("external MAC TX valid hidden behind a resolved second driver",
-         firmware_source, docs_source, csr_source,
-         "external MAC handshake ports must retain sole-driver/reference "
-         "ownership", None, None, gptp_wand_second_driver_external_tx),
-        ("commented direct TX decoy with live macro gate", firmware_source,
-         docs_source, csr_source,
-         "datapath integration proof requires unconditional live "
-         "SystemVerilog text", None, None, gptp_commented_external_tx),
-        ("direct TX connection made an inactive conditional", firmware_source,
-         docs_source, csr_source,
-         "datapath integration proof requires unconditional live "
-         "SystemVerilog text", None, None, gptp_inactive_external_tx),
-        ("direct TX connection put in an inactive static generate arm",
-         firmware_source, docs_source, csr_source,
-         "external MAC TX handshake must be driven directly by "
-         "tx_axis_to_mac", None, None, gptp_static_generate_external_tx),
-        ("direct TX decoy selected by mid-line compiler directives",
-         firmware_source, docs_source, csr_source,
-         "datapath integration proof requires unconditional live "
-         "SystemVerilog text", None, None,
-         gptp_midline_directive_external_tx),
-        ("direct TX decoy selected by an implicit conditional generate",
-         firmware_source, docs_source, csr_source,
-         "external MAC TX handshake must be driven directly by "
-         "tx_axis_to_mac", None, None,
-         gptp_implicit_generate_external_tx),
-        ("external MAC RX valid gated by ADP", firmware_source,
-         docs_source, csr_source,
-         "external MAC RX handshake must drive rx_axis_to_ts directly",
-         None, None, gptp_gated_external_rx),
-        # ---- the preprocessor: this gate reads one arm, the compiler takes
-        # the other, and the arm it reads is the safe one by construction.
-        ("AEM guard selected by a build flag", preprocessor_guard,
-         docs_source, csr_source,
-         "firmware must not select boot code with the preprocessor"),
-        ("pre-AEM clear behind a build flag", preprocessor_clear,
-         docs_source, csr_source,
-         "firmware must not select boot code with the preprocessor"),
-        # ... and the same defect without the preprocessor: a compile-time
-        # constant condition deletes a boot step from the image while every
-        # line this gate reads stays exactly where it was.
-        ("fabric configuration made dead by a compile-time constant",
-         dead_configure, docs_source, csr_source,
-         "the fabric configuration step must be a statement of milan_init() "
-         "itself"),
-        # ---- reachability: sitting between the guard's braces is not the
-        # same as being reached only by taking the guard.
-        ("entity enabled by a goto into the AEM-success guard",
-         goto_into_guard, docs_source, csr_source,
-         "milan_init() must not contain 'goto'"),
-        ("entity enabled by a case falling into the AEM-success guard",
-         case_into_guard, docs_source, csr_source,
-         "milan_init() must not contain 'switch'"),
-        # ---- the verdict and the verifier, pinned by data flow rather than
-        # by the spelling `aem_loaded =` and the literal `return 1;`.
-        ("AEM verdict overwritten through a pointer", verdict_pointer,
-         docs_source, csr_source,
-         "the address of aem_loaded must not be taken"),
-        ("AEM verifier returning a non-boolean status before the CRC gate",
-         status_return, docs_source, csr_source,
-         "AEM verifier non-zero return must be textually after"),
-        # ---- and the address model, checked against the RTL's DECODE rather
-        # than assumed from its name table.
-        ("ADP_CTRL given a second decode address", mirrored_enable,
-         docs_source, mirrored_csr,
-         "the RTL must write adp_ctrl from exactly one CSR address"),
-        # ---- the other half of each new rule.
-        ("AEM verifier succeeding from the no-QSPI preprocessor arm",
-         other_arm_success, docs_source, csr_source,
-         "AEM verifier non-zero return must be textually after"),
-        ("CRC comparison itself put behind a build flag", optional_crc,
-         docs_source, csr_source,
-         "AEM verifier non-zero return must be textually after"),
-        ("AEM verifier that can never succeed", vacuous_verifier,
-         docs_source, csr_source,
-         "AEM verifier never returns a non-zero verdict"),
-        # ---- the object list: every rule above reads ONE file, so a second
-        # object is every rule above voided at once. make builds a VARIABLE,
-        # so each of its assignment flavours is its own way to add one.
-        ("second translation unit listed on the OBJECTS line", firmware_source,
-         docs_source, csr_source, both_objects, listed_objects),
-        ("second translation unit appended with OBJECTS +=", firmware_source,
-         docs_source, csr_source, both_objects, appended_objects),
-        ("second translation unit on an OBJECTS continuation line",
-         firmware_source, docs_source, csr_source,
-         both_objects, continued_objects),
-        ("object list this gate cannot evaluate", firmware_source,
-         docs_source, csr_source,
-         "must stay ONE translation unit", wildcard_objects),
-        ("second object archived past the OBJECTS list", firmware_source,
-         docs_source, csr_source,
-         "make must build and archive exactly the one object",
-         archived_objects),
-        # ---- one OBJECT is not one FILE. Each of these keeps the object
-        # list at exactly one, so the rules above pass honestly while the
-        # closure reads text that is not the whole translation unit.
-        ("second source pulled in by #include of a .c", included_source,
-         docs_source, csr_source, "the firmware's include set is pinned"),
-        # ... and the same file reached by spellings an include regex misses
-        # while the preprocessor does not. Pinning the DIRECTIVE set after
-        # phases 1 and 2 answers all of these at once.
-        ("second source pulled in by a macro include operand",
-         macro_included_source, docs_source, csr_source,
-         "a #include operand must be a literal header name"),
-        ("second source pulled in by a spliced #include directive",
-         spliced_included_source, docs_source, csr_source,
-         "the firmware's include set is pinned"),
-        ("second source pulled in by a %: digraph include",
-         digraph_included_source, docs_source, csr_source,
-         "the firmware's include set is pinned"),
-        ("second source pulled in by a ??= trigraph include",
-         trigraph_included_source, docs_source, csr_source,
-         "the firmware's include set is pinned"),
-        ("a preprocessing directive this gate has no rule for",
-         undefined_constant, docs_source, csr_source,
-         "the firmware's preprocessing directives are pinned"),
-        # ---- and the store mechanism with no textual signature at all.
-        ("entity enabled by an inline-asm store to the CSR address",
-         asm_store_enable, docs_source, csr_source,
-         "the firmware's inline asm is pinned"),
-        # ---- the cast spellings rule 1 never named. Naming ONE cast is a
-        # denylist of one; pinning the STORES is the set.
-        ("entity enabled through a widened pointer cast",
-         widened_cast_store, docs_source, csr_source, "the firmware's casts to a pointer are pinned"),
-        ("entity enabled through a reordered pointer cast",
-         reordered_cast_store, docs_source, csr_source, "the firmware's casts to a pointer are pinned"),
-        ("entity enabled through a pointer held in a local",
-         local_pointer_store, docs_source, csr_source, "the firmware's casts to a pointer are pinned"),
-        # NOT an entity enable, and the label no longer says it is: the
-        # store goes to a private static. It is the cost demonstration for
-        # the pointer-store set, which refuses a new store BECAUSE it cannot
-        # tell where the pointer points, and that is the property it pins.
-        ("a new store through a pointer whose target this gate cannot read",
-         helper_pointer_store, docs_source, csr_source,
-         "the firmware's stores through a pointer are pinned"),
-        # ---- the four shapes no recognizer in this file ever saw. Each is
-        # an ordinary embedded idiom and each passed the complete suite at
-        # cc2ee861; only the compiled census sees them.
-        # ---- and RESOLUTION: a pinned NAME is not a pinned FILE.
-        ("pinned include shadowed by a file beside the firmware",
-         firmware_source, docs_source, csr_source,
-         "the firmware's directory is pinned to", None,
-         shadowed_quoted_include),
-        ("pinned include shadowed by an added -I search path",
-         firmware_source, docs_source, csr_source,
-         "the commands make would run are pinned", shadowed_search_path),
-        ("object list the environment can override", firmware_source,
-         docs_source, csr_source,
-         "lets the ENVIRONMENT decide what gets compiled", environment_objects),
-        ("second file injected through -Wp, the preprocessor pass-through",
-         firmware_source, docs_source, csr_source,
-         "the commands make would run are pinned", preprocessor_passthrough),
-        ("second file injected through a response file", firmware_source,
-         docs_source, csr_source,
-         "the commands make would run are pinned", response_file_injection),
-        ("search path added through the -iprefix chain", firmware_source,
-         docs_source, csr_source,
-         "the commands make would run are pinned", prefixed_search_path),
-        ("second file injected through the CC tool variable", firmware_source,
-         docs_source, csr_source,
-         "the commands make would run are pinned", tool_variable_injection),
-        ("search path added through the CC tool variable", firmware_source,
-         docs_source, csr_source,
-         "the commands make would run are pinned",
-         tool_variable_search_path),
-        ("pinned include shadowed by an -iquote search path",
-         firmware_source, docs_source, csr_source,
-         "the commands make would run are pinned",
-         quoted_search_path),
-        ("one object linked from two sources by an explicit rule",
-         firmware_source, docs_source, csr_source,
-         "make must compile exactly one source", linked_objects),
-        ("objects added by a Makefile fragment this gate does not read",
-         firmware_source, docs_source, csr_source,
-         "the Makefile's include set is pinned", fragment_objects),
-        # ... and pinning the rule is not pinning what the rule compiles.
-        ("second source injected by a -include compiler flag",
-         firmware_source, docs_source, csr_source,
-         "make must compile exactly one source", injected_source),
-        ("compile recipe redefined to take a second source", firmware_source,
-         docs_source, csr_source, "make must compile exactly one source",
-         recompiled_objects),
-        # A `vpath %.c` mutant used to sit here and it is RETIRED, not
-        # lost: the plan shows it changes nothing for this build. The
-        # reason, stated precisely because the first attempt was overbroad:
-        # vpath IS consulted for a prerequisite with a directory component,
-        # but only when the named file does not exist, and this one always
-        # does. A vpath that did move the compiled file would change the
-        # compile line, which the plan reads.
-        # ... behind make's other modifier keywords, and target-specific.
-        ("second source injected by an exported assignment", firmware_source,
-         docs_source, csr_source,
-         "make must compile exactly one source", exported_injection),
-        ("second source injected by a target-specific assignment",
-         firmware_source, docs_source, csr_source,
-         "make must compile exactly one source", target_injection),
-        # ... and the producing rule's own prerequisite variable, pointed at
-        # a different tree entirely.
-        ("the compiled source directory moved out from under the rule",
-         firmware_source, docs_source, csr_source,
-         "make could not plan this Makefile",
-         shadowed_source_dir),
-        # CORRECTION. Round nine retired a `MAKEFLAGS += -e` mutant here on
-        # the claim that `-e` inside a Makefile does not change what that
-        # run expands. That measurement was WRONG: on GNU make 4.4.1 it
-        # does let the environment override any assignment make has not yet
-        # read, OBJECTS and CFLAGS included. The mutant is restored above,
-        # pinned on the hostile double-run, which is what actually catches
-        # it. The refusal it replaced was redundant with that double-run,
-        # not pointless, and there was never a safety regression.
-        # ---- and the reset values: the census governs who may SET bit 0,
-        # and says nothing about the value bit 0 holds before the first write.
-        ("ADP_CTRL reset value advertising the entity", firmware_source,
-         docs_source, adp_reset_enabled,
-         "the RTL must reset adp_ctrl with bit 0 CLEAR"),
-        ("PP_CTRL reset value enabling the protocol processor",
-         firmware_source, docs_source, pp_reset_enabled,
-         "the RTL must reset pp_ctrl_r with bit 0 CLEAR"),
-        # ---- reopened by the round-nine deletions, closed again here.
-        ("entity enabled through a CSR base held in a variable",
-         paged_base_store, docs_source, csr_source,
-         # Pinned on rule 1's own words, not the prefix the census shares,
-         # because the whole point of this entry is WHICH instrument
-         # catches it.
-         "but a CSR pointer cast is used outside it"),
-        ("entity enabled by a lui-based inline-asm store", lui_asm_store,
-         docs_source, csr_source, "the firmware's inline asm is pinned"),
-        ("one object linked from two sources by literally named tools",
-         firmware_source, docs_source, csr_source,
-         "make must compile exactly one source", literal_tool_rule),
-        ("second object archived by a literally named ar", firmware_source,
-         docs_source, csr_source,
-         "make must compile exactly one source", literal_tool_archive),
-        ("ADP_CTRL reset written blocking with the enable bit set",
-         firmware_source, docs_source, blocking_reset_enabled,
-         "the RTL must reset adp_ctrl with bit 0 CLEAR"),
-        ("ADP_CTRL given no reset value at all", firmware_source, docs_source,
-         absent_reset, "the RTL must give adp_ctrl a reset value"),
-        ("ADP_CTRL reset and readback default both advertising",
-         firmware_source, docs_source, consistent_reset_enabled,
-         "the RTL must reset adp_ctrl with bit 0 CLEAR"),
-    )
-    mutations += tuple(
-        (f"entity enabled through a {name} phase-2 token splice", mutation,
-         docs_source, csr_source,
-         "firmware must not splice physical source lines with backslash-newline")
-        for name, mutation in phase2_whitespace_splices)
-    #: The label names the INSTRUMENT, because the rule that fires and the
-    #: rule the function name suggests are not the same one and the reason
-    #: pin is the honest half: rule 5 (the cast set) runs before rule 6 (the
-    #: helper's return provenance) deliberately, and the blindness control
-    #: beside the mutants' definition measures what that ordering buys.
-    mutations += tuple(
-        (f"entity enabled by a store inside the exempted address helper, "
-         f"refused by the CAST SET and invisible to the census "
-         f"({label} baseline)", mutation, docs_source, csr_source,
-         "the firmware's casts to a pointer are pinned")
-        for label, mutation in helper_body_store_mutations)
-    #: The four shapes ONLY the compiled census catches. They are in the
-    #: table when the census is live and named as skipped when it is not,
-    #: because a machine without a cross compiler cannot answer them at all
-    #: and pretending otherwise is what the last round's false stand-down
-    #: message did.
-    census_only_mutations = (
-        ("entity enabled through a typedef'd pointer and an access macro",
-         typedef_macro_store, docs_source, csr_source, CENSUS_PIN),
-        ("entity enabled through a struct overlay and an -> store",
-         overlay_member_store, docs_source, csr_source, CENSUS_PIN),
-        ("entity enabled through a typedef'd pointer and a subscript store",
-         typedef_subscript_store, docs_source, csr_source, CENSUS_PIN),
-        ("entity enabled through a qualifier-after-star cast",
-         qualified_cast_store, docs_source, csr_source, CENSUS_PIN),
-    )
-    #: ---- and the shapes only the RESOLVER catches: two stores whose
-    #: address is never printed as a window immediate, two paths to the
-    #: verifier's success return that never take the CRC comparison, a
-    #: comparison against a value crc32() never produced, a CRC over the
-    #: wrong buffer, and the continuation-macro enables whose refusal the
-    #: choke point retires. Registered beside the census-only set and for
-    #: the same reason: a machine with no cross compiler cannot answer them
-    #: and pretending otherwise is what a false stand-down does.
-    resolver_only_mutations = (
-        ("entity enabled by a struct-overlay store through a paged base",
-         overlay_paged_store, docs_source, csr_source, RESOLVER_STORE_PIN),
-        ("entity enabled by a subscript store through a paged base",
-         subscript_paged_store, docs_source, csr_source, RESOLVER_STORE_PIN),
-        #: ---- the two the store census answers only because an
-        #: unplaceable store is now a REFUSAL rather than an omission
-        #: ([R0] BLOCKER on PR #241). The first is the reviewer's own
-        #: control; the second plants one beside the store rule 1d places.
-        ("entity enabled by a struct-overlay store through a base derived "
-         "from a runtime CSR read", runtime_paged_store, docs_source,
-         csr_source, RESOLVER_UNPLACED_PIN),
-        ("a store the resolver cannot place, added inside the AEM verifier "
-         "whose copy store is placed", residual_count_store, docs_source,
-         csr_source, RESOLVER_UNPLACED_PIN),
-        #: ---- the residual-key hole, round 4 ([R0] 05:46Z + [R2]): the
-        #: SHIPPING copy store redirected, unresolved and rebounded, each
-        #: measured GREEN on the complete pre-fix gate first.
-        ("the AEM copy destination redirected onto ADP_CTRL by a runtime "
-         "CSR read, keeping the retired residual's key and count",
-         aem_copy_redirected, docs_source, csr_source,
-         RESOLVER_UNPLACED_PIN),
-        ("the AEM copy destination made unresolvable while keeping one "
-         "unplaced store in the verifier", aem_copy_unresolved, docs_source,
-         csr_source, RESOLVER_UNPLACED_PIN),
-        ("the AEM copy destination bounded but outside the buffer the CRC "
-         "verdict is taken over", aem_copy_elsewhere, docs_source,
-         csr_source, RESOLVER_COPY_PIN),
-        ("entity enabled through an extern symbol the linker places",
-         extern_symbol_store, docs_source, csr_source,
-         RESOLVER_UNPLACED_PIN),
-        ("AEM verifier reaching its success return by goto past the CRC "
-         "comparison", goto_past_crc, docs_source, csr_source,
-         RESOLVER_DOMINANCE_PIN),
-        ("AEM verifier reaching its success return by a structured break "
-         "past the CRC comparison", break_past_crc, docs_source, csr_source,
-         RESOLVER_DOMINANCE_PIN),
-        ("CRC result overwritten between the call and the comparison",
-         crc_overwritten, docs_source, csr_source,
-         "never compares the value crc32() HANDED BACK"),
-        ("CRC taken over the QSPI source instead of the descriptor buffer",
-         crc_over_qspi_source, docs_source, csr_source,
-         "takes its CRC over"),
-        ("entity enable hidden in a continuation-line macro body and "
-         "invoked from a UART handler", macro_enable, docs_source,
-         csr_source, RESOLVER_CHOKE_PIN),
-        ("entity enable hidden after form-feed macro continuation "
-         "whitespace", formfeed_macro_enable, docs_source, csr_source,
-         RESOLVER_CHOKE_PIN),
-        ("choke point's address stored in a table and called through it "
-         "from a UART handler", address_taken_choke, docs_source, csr_source,
-         RESOLVER_ENTRANCE_PIN),
-        ("a second direct call to the choke point, spelled past the source "
-         "rule's call counter", second_direct_call, docs_source, csr_source,
-         RESOLVER_ENTRANCE_PIN),
-        ("the verifier's verdict overwritten through an alias the assignment "
-         "rule cannot see", verdict_replaced_before_call, docs_source,
-         csr_source, RESOLVER_VERDICT_PIN),
-        ("an indirect call whose target is not the choke point at all",
-         indirect_call_elsewhere, docs_source, csr_source,
-         RESOLVER_ENTRANCE_PIN),
-        ("a global alias of the choke point, which exports neither this "
-         "name nor its address", aliased_choke, docs_source, csr_source,
-         RESOLVER_ENTRANCE_PIN),
-    )
-    if baseline_census_verdict["ran"]:
-        mutations += census_only_mutations + resolver_only_mutations
-    #: `MAKEFLAGS += -e` only lets the environment override on a make that
-    #: re-reads MAKEFLAGS mid-parse. Include the entry where it bites and
-    #: say so where it does not, rather than ship a mutant whose verdict
-    #: depends on the runner.
-    makeflags_e_bites = make_honours_makeflags_e()
-    if makeflags_e_bites:
-        mutations += (
-            ("MAKEFLAGS += -e letting the environment choose", firmware_source,
-             docs_source, csr_source,
-             "lets the ENVIRONMENT decide what gets compiled",
-             env_override_flags),
-        )
-    else:
-        #: Registered, like the census and Verilator arms, because dropping
-        #: this entry moves the tally silently and the verdict has to say so
-        #: ([R1] on PR #212 measured 98/98 -> 97/97 with the arm printed
-        #: mid-log and absent from the verdict). The WORDING is deliberately
-        #: not the other two's: nothing is missing from this runner. The
-        #: construct is present and simply does nothing on a make that does
-        #: not re-read MAKEFLAGS mid-parse, so the mutant would be a control
-        #: that cannot fail rather than an instrument that is unavailable.
-        skip("gate 1b",
-             "the MAKEFLAGS += -e mutation: this make does not re-read "
-             "MAKEFLAGS mid-parse, so the construct hands the environment "
-             "nothing here and the entry would be a control with nothing to "
-             "detect. No tool is missing from this runner; the mutant has "
-             "no effect to observe on THIS make")
-    #: NEGATIVE CONTROL for the reason pin itself, which is what turns "the
-    #: mutant was refused" into "the mutant was refused BY THE RULE IT
-    #: BREAKS". The elaboration layer, the census and the recognizer each
-    #: had a self-test proving they can fail; this had none, and replacing
-    #: its assertion with `assert True or because in str(exc)` left the
-    #: focused gate green at 144/144 (#206). Run it with a mutant that IS
-    #: rejected, under a reason no rule in this file prints.
-    try:
-        assert_rejected("reason-pin negative control", wrong_reg_address,
-                        docs_source, csr_source,
-                        "a reason no rule in this gate has ever printed")
-    except AssertionError as exc:
-        assert "mutation was rejected for the wrong reason" in str(exc), \
-            f"the reason-pin control failed for the wrong reason: {exc}"
-    else:
-        raise AssertionError(
-            "assert_rejected() accepted a mutation refused under a reason it "
-            "was never given, so every `because` above is decorative and the "
-            "mutation table proves only that something said no")
-    for mutation in mutations:
-        assert_rejected(*mutation)
-    if verilator:
-        try:
-            assert_rtl_mutant_elaborates(
-                "non-elaborable RTL self-test",
-                csr_source + "\nmodule pr187_unclosed_control(\n",
-                None, count=False)
-        except AssertionError as exc:
-            assert "does not elaborate and cannot count" in str(exc), exc
-        else:
-            raise AssertionError(
-                "RTL-mutant elaboration accepted a deliberately malformed "
-                "SystemVerilog control")
-        assert rtl_mutant_elaboration["passed"] == \
-            rtl_mutant_elaboration["requested"], \
-            "not every RTL mutation was elaborated before being counted"
-        rtl_mutant_note = (
-            f"{rtl_mutant_elaboration['passed']}/"
-            f"{rtl_mutant_elaboration['requested']} RTL mutation variants "
-            "elaborated as the real option-on milan_datapath or milan_csr "
-            "top before counting, and the deliberately malformed RTL "
-            "self-test was refused; ")
-        mutation_tally = (
-            f"{len(mutations)}/{len(mutations)} mutations rejected on the "
-            "safety property they break; ")
-    else:
-        counted = len(mutations) - rtl_mutant_elaboration["requested"]
-        #: Registered, not merely printed, for the same reason as the census
-        #: stand-down above: this arm declined and the final verdict has to
-        #: say so (#206). The malformed-RTL self-test is inside the same
-        #: branch, so it is named here rather than left to vanish silently.
-        skip("gate 1b",
-             "RTL mutation elaboration: no Verilator on this runner, so all "
-             f"{rtl_mutant_elaboration['requested']} RTL mutation variants "
-             "counted as structural rejections only, and the deliberately "
-             "malformed-RTL self-test that proves the elaborator can refuse "
-             "did not run")
-        rtl_mutant_note = (
-            "RTL mutation elaboration STOOD DOWN for all "
-            f"{rtl_mutant_elaboration['requested']} RTL variants because "
-            "Verilator is unavailable on this runner; they remain "
-            "reason-pinned structural rejections but are not claimed as "
-            "elaborated mutation evidence here; ")
-        mutation_tally = (
-            f"{counted}/{counted} non-RTL mutations rejected on the safety "
-            "property they break; the structurally rejected RTL variants "
-            "are excluded from this mutation count; ")
-    #: Both clauses below are gated on the SAME condition as the
-    #: measurement they report. The CI shape (only cc and gcc, no Verilator,
-    #: no RV32 compiler) used to read "refused a 64-bit target under this
-    #: run's own flags" beside "0/0 exempted-helper stores were measured
-    #: INVISIBLE", and neither had happened: the live re-probe is gated on a
-    #: candidate having been adopted and the blindness control on the census
-    #: having run ([R1] on PR #212). A stand-down message that is false is
-    #: worse than no stand-down, and that applies to this fix's own output.
-    if rv32_probe_refused_64:
-        live_probe_note = (
-            ", and on this run's live invocation ("
-            + (" ".join(census_used.get("flags") or ()) or "no driver flags")
-            + ") the probe refused a 64-bit target while "
-            f"{census_arch_seen['stated']} census compile(s) declared an "
-            f"rv32 arch and {census_arch_seen['unstated']} declared none")
-    else:
-        live_probe_note = (
-            "; NOT measured on this run: no candidate here is the RV32 "
-            "target, so there was no live invocation to re-probe at 64 bits "
-            "and no census assembly to read an arch attribute out of")
-    if helper_store_census_asked:
-        helper_blind_note = (
-            f"; and {helper_store_census_blind}/{helper_store_census_asked} "
-            "exempted-helper stores were measured INVISIBLE to the compiled "
-            "census, which is why they stay pinned on the cast set, while "
-            f"{helper_store_resolver_caught}/{helper_store_census_asked} of "
-            "the same mutants were REJECTED by the resolver on the resolved "
-            "store address, which is what makes 'an addition, not a "
-            "replacement' a measurement here rather than a claim")
-        _resolved = baseline_census_verdict["resolved"]
-        resolved_note = (
-            ", and on this run it resolved "
-            f"{_resolved['statics']} single-word static(s) and "
-            f"{_resolved['functions']} function(s) "
-            "of the shipping firmware, reading the CRC operands back as "
-            f"0x{_resolved['buffer']:08x} for "
-            f"{_resolved['bytes']} bytes, seeding the arguments of "
-            f"{len(_resolved['seeded'])} function(s) this unit neither "
-            "exports nor takes the address of from their call sites, and "
-            f"classifying all {_resolved['stores']} store(s) the compiler "
-            "emitted. THE CLAIM IS NARROWED TO WHAT THAT PROVES: "
-            + (f"{len(_resolved['residual'])} store(s) are NOT placed by "
-               "this analysis and are DECLARED rather than dropped -- "
-               + "; ".join(_resolved["residual"]) +
-               " -- so the census refuses any store outside that declared "
-               "residual instead of omitting it, and the residual is "
-               "asserted exactly, so one more unplaceable store anywhere "
-               "is RED. What the residual costs is stated in "
-               "docs/integration/BAREMETAL_FIRMWARE.md rather than left "
-               "for a reader to find; and the resolver was measured to "
-               f"refuse {helper_return_resolver_caught}/1 store through a "
-               "SECOND consumer of the address helper's return, a shape no "
-               "cast set, store set or immediate census sees"
-               if _resolved["residual"] else
-               "every store the compiler emitted was placed") +
-            f"; it placed all {_resolved['calls']} call edge(s) the "
-            "compiler emitted, of which "
-            f"{len(_resolved['entrances'])} enter(s) the choke point, from "
-            f"{', '.join(_resolved['entrances']) or 'nowhere'}, carrying "
-            "the value load_aem_image() returned"
-            "; it PLACED the AEM copy loop's store at "
-            f"{_resolved['copied']}, inside the buffer the CRC verdict is "
-            "taken over, by bounding the loop index with the emitted bltu "
-            "-- the residual entry that used to stand for that store bound "
-            "neither base nor value and is RETIRED"
-            "; " + store_classes_note + "; " + range_control_note +
-            "; and " + join_control_note)
-    else:
-        helper_blind_note = (
-            "; the exempted-helper blindness control did NOT run here, "
-            "because the census stood down, so on this runner those two "
-            "mutants stay pinned on the cast set with that measurement "
-            "absent")
-        resolved_note = (
-            ". It did NOT run on this runner: it reads the assembly the "
-            "census compiles, so the census's stand-down stands it down too")
-    print("  [gate 1b] bounded boot-contract model: the PHC CSR output, "
-          "datapath binding and ptp_timestamp consumer are direct, and "
-          "comment-blanked CSR, MAC, timestamp, both RXFILT_P-arm, shadow "
-          "and TX-mux facts are direct in their inspected generate arms and "
-          "free of comment, preprocessor and static-generate decoys; "
-          "PHC/gPTP are "
-          "live from reset TO THE ptp_timestamp PORT and independent of "
-          "AEM, which is where this gate's measurement stops: a tie-off "
-          "INSIDE ptp_ts_top still elaborates and is milan_dp's to catch; "
-          "the "
-          "milan_reg()/milan_read()/milan_write() "
-          "bodies pin address and value provenance, the firmware identity "
-          "offset and magic equal RTL A_ID's address and default, and "
-          "recognised "
-          f"whole-firmware milan_write() calls set {pp_label}[0] then "
-          f"{adp_label}[0] only after the AEM "
-          "verdict, censused by ADDRESS off the RTL decode table so a second "
-          "#define is the same register. The source and compiled instruments "
-          "run together; the source-only uncovered store class and the "
-          "census stand-down consequence are named below; "
-          + mutation_tally + rtl_mutant_note +
-          ("the phase-2 splice mutants compiled on the exact RV32 target "
-           "(bare splice warning-clean; space, tab, form-feed and "
-           "vertical-tab splices accepted with diagnostics); "
-           if phase2_splice_compiled and all(
-               result for _name, result in phase2_whitespace_compile_results)
-           else
-           "the phase-2 splice mutants are reason-pinned but their compile "
-           "proof is SKIPPED here because no RV32 compiler is available; ") +
-          ("" if makeflags_e_bites else
-           "(the MAKEFLAGS += -e entry is SKIPPED on this machine: its make "
-           "does not honour -e from inside a makefile, so the construct "
-           "does nothing to detect here) ") +
-          ("" if baseline_census_verdict["ran"] else
-           f"({len(census_only_mutations)} entries are SKIPPED on this "
-           "machine: they are the shapes ONLY the compiled census catches, "
-           "and it stood down for want of an RV32 compiler. To be precise, "
-           "the census did not run for ANYTHING on this machine, the "
-           "shipping firmware and every other mutant and accepted case "
-           "included, so its whole contribution is absent and not just "
-           "these four) ") +
-          f"{len(reset_spellings)}/{len(reset_spellings)} equivalent reset "
-          f"spellings and {len(objects_spellings)}/{len(objects_spellings)} "
-          "equivalent object-list spellings accepted; and "
-          f"{len(accepted_cases)}/{len(accepted_cases)} legitimate firmware "
-          f"edits and {len(accepted_makefiles)}/{len(accepted_makefiles)} "
-          "legitimate Makefile edits accepted, which until this round were "
-          "prose in a PR body and are now the only executable statement this "
-          "gate has of what a legitimate edit IS; deterministic host-only "
-          "and 64-bit-candidate stand-down execution/wording self-tests "
-          "passed, the RV32 probe decided all three candidate shapes "
-          "(already RV32, 64-bit with an rv32 multilib, 64-bit only) "
-          "against a stub, and the census arch check accepted rv32 "
-          "assembly, refused rv64 assembly and reported unattributed "
-          "assembly as unstated"
-          + live_probe_note +
-          "; the reason pin refused a wrong `because`"
-          + helper_blind_note)
-    print("  [gate 1b] ... and the text this reads is the text that runs, by "
-          "TEXT RULES and by TOOLS together, because each has been measured "
-          "to miss what the other holds. The text rules bound address "
-          "formation: only milan_reg() may use the CSR base or a CSR pointer "
-          "cast, the pointer-cast set, the pointer-store set and the "
-          "inline-asm set are pinned. MAKE bounds what gets built: its whole "
-          "-Bn plan is read, not the lines carrying a sentinel, so one "
-          "source, one object, no link step, one added flag, and the same "
-          "plan again under a hostile environment")
-    census_note = format_census_verdict(baseline_census_verdict)
-    print("  [gate 1b] ... and the COMPILER is asked as well, as an ADDITION "
-          "and not a replacement: no function but "
-          f"{reg_helper_name}() may materialise an address in the Milan CSR "
-          f"window (0x{csr_base:08x}..0x{csr_base + csr_size:08x}) in the "
-          "compiled output, which catches a typedef'd pointer, a "
-          "register-access macro, a struct overlay and an -> store that no "
-          "rule above recognises. It does NOT subsume the rules above: it "
-          "exempts the address helper by name, it cannot see an address "
-          "built with slli/ori, and it matches one asm spelling, all three "
-          f"measured. This run: {census_note}")
-    print("  [gate 1b] ... and the resolving half (#153), which is what the "
-          "boot contract is actually PROVED by: an RV32 abstract "
-          "interpreter over that same emitted assembly computes the store "
-          "addresses, the call operands, the compared values and the CFG "
-          "edges, so (a) no function -- the address helper included, it is "
-          "NOT exempt -- stores to a resolved address in the CSR window, "
-          "which answers a paged base built with slli/ori that prints no "
-          "window immediate, and EVERY OTHER STORE IS CLASSIFIED rather "
-          "than filtered out: a stack address, one of this unit's own "
-          "statics and the address helper's own return (which exactly one "
-          "function may store through) are proved outside or accounted "
-          "for, and anything else is refused unless the declared residual "
-          "below names it; (b) the only resolved milan_write() asserting "
-          "bit 0 of PP_CTRL or ADP_CTRL is inside entity_advertise(), taken "
-          "from the emitted operands so a macro body or a preprocessor arm "
-          "cannot move it out of view; (c) removing the edge "
-          "entity_advertise() takes on a non-zero verdict removes every "
-          "control-register write it reaches; and (d) the verifier's CRC is "
-          "taken over MILAN_AEM_DESC_BASE for MILAN_AEM_IMAGE_BYTES, the "
-          "compared value is tracked from the crc32() call that produced "
-          "it, and removing the CRC-equality edge leaves every reachable "
-          "return resolved to zero; and (e) the choke point is neither "
-          "exported nor address-taken, this unit transfers control through "
-          "no register at all, entity_advertise() is entered exactly once "
-          "and only from milan_init(), and the value that edge hands it is "
-          "tracked from the load_aem_image() call that produced it -- so "
-          "the dominance in (c) is proved for the argument the firmware "
-          "really passes and not only for a synthetic one. Verifier CFG "
-          "reachability and CRC "
-          "provenance are therefore MEASURED, not open. It resolves what "
-          "the compiler emitted for THIS translation unit at the census's "
-          "flags, and reports 'cannot say' as a REFUSAL wherever the "
-          "property needs an answer"
-          + resolved_note)
-    print("  [gate 1b] ... plus the rules that are NOT parsing questions: the "
-          "firmware's directive set and include resolution, the Makefile's "
-          "include set (make can only plan fragments that exist), no "
-          "preprocessor conditional reaching the boot path or carrying a "
-          "definition and no token-joining backslash-newline, outside the "
-          "QSPI-slot group whose BOTH arms the verifier's return rule "
-          "classifies, no label/goto/switch in milan_init() or "
-          "entity_advertise() and the three boot steps plus the unmodified "
-          "CSR identity sample and check unconditional at its top level, one "
-          "PP and one ADP enable inside the choke point and exactly one call "
-          "to it carrying the verdict, no pointer to the verdict, and every "
-          "non-zero return of the verifier placed after the CRC refusal by "
-          "source position and preprocessor arm")
-    print("  [gate 1b] ... and the RTL integration facts, which are the "
-          "checked part: o_ptp_enable is driven directly from PTP_CTRL[0]; "
-          "the milan_csr instance binds it directly to cfg_ptp_enable and "
-          "ptp_timestamp consumes that net with direct clocks, resets, PHC "
-          "controls and readback; "
-          "external MAC RX "
-          "traverses ptp_timestamp, both RXFILT_P arms and the fabric-gPTP "
-          "shadow directly; shadow TX/timestamp feedback, the control mux, "
-          "MAC-boundary mux and external MAC TX handshake also have direct "
-          "data, clock and reset connections. Comments and nested static "
-          "generate arms cannot supply a decoy connection, and no directive "
-          "at any column may select an "
-          "inactive arm; none of those seams carries an AEM/ADP/PP gate; "
-          f"{adp_label} and {pp_label} are each written from exactly ONE "
-          "decode arm, each driving its enable port from bit 0, and each "
-          "reset with that bit CLEAR, read over BOTH assignment operators so "
-          "a blocking reset cannot pass by leaving the rule nothing to check")
-    print("  [gate 1b] COSTS. Round nine deleted three of these on the claim "
-          "the compiled census subsumed them; three shapes went GREEN and "
-          "they are RESTORED, so the costs are back and stated rather than "
-          "claimed away: a fifth store through a pointer, a fifth cast to a "
-          "pointer and a third inline-asm statement are RED again. Also RED: "
-          "a C backslash-newline that JOINS two tokens (phase 2 deletes the "
-          "pair before tokens exist), an #ifdef reaching milan_init(), "
-          "configure_fabric(), entity_advertise() or the three CSR "
-          "accessors, or carrying a #define/#undef/#include wherever it "
-          "sits, a "
-          "twelfth #include even of <string.h>, any "
-          "#pragma/#line/#error/#undef, a fourth Makefile include, any new "
-          "file in the firmware's directory including a README, an OBJECTS "
-          "?= (make says the environment can override it), any new CFLAGS "
-          "token including -Os and -DFOO, an RTL reset hoisted to a named "
-          "constant, an RTL enable port or write address respelled, and a "
-          "SystemVerilog CSR or datapath directive other than that file's "
-          "shipped includes and paired `default_nettype directives, moving "
-          "a checked item into a nested or implicit conditional-generate "
-          "arm, and a "
-          "renamed boot-path function, which names the property instead of "
-          "raising a bare ValueError. Three more, measured and previously "
-          "undisclosed: REORDERING two existing functions (the cast and "
-          "store sets are compared as ORDERED lists, so moving code with "
-          "nothing added or removed is refused), renaming the verdict "
-          "aem_loaded, and a read-only #define accessor that wraps "
-          "milan_read() (remedy: add the name to the firmware's #define "
-          "table so constant_value() can resolve it). Also ##, %: and ?? "
-          "anywhere in the file. And two "
-          "ordinary refactors one step outside the accepted set: FACTORING "
-          "the CSR accessors (a milan_set(offset, bits) helper is refused, "
-          "because the census places writes by RESOLVED address and an "
-          "`offset` parameter has none), and hoisting the enable mask to a "
-          "named constant. Under the recipe-set pin, any change to the two "
-          "commands make runs is refused too, a benign AR += v or CC += "
-          "-Wall included: that is the price of a rule with no list of "
-          "spellings to fall behind. Remedy for that one: add the changed "
-          "command to expected_recipes and a mutation entry beside it. "
-          "RETIRED this round by the entity-advertise choke point and the "
-          "resolver (#153), each with an accepted case measured GREEN "
-          "instead of a claim: an extra statement between the two enables, "
-          "an #ifdef in a UART command handler, and a multi-line #define. "
-          "The refusals they replace are gone, not narrowed by exception: "
-          "what carries them now is a measurement over resolved values")
-    print("  [gate 1b] ... and what the make plan DID give back, which "
-          "survives this round: every Makefile variable and rule shape the "
-          "old parser pinned, so an unrelated DEPFILES = $(patsubst ...) is "
-          "GREEN. Two refusals stay retired: a vpath cannot move this "
-          "build's compiled file because vpath is consulted only for a "
-          "prerequisite that does not exist and this one always does")
-    if baseline_census_verdict["ran"]:
-        store_gap = (
-            "The source rules alone do not recognise a cast with no * plus "
-            "an -> or subscript store, but the live RV32 census rejects "
-            "`((milan_adp_blk)0x90000600u)->ctrl = 1u;` by the materialised "
-            "CSR address, and the resolver rejects the paged-base spellings "
-            "of it -- which print no window immediate at all -- by the "
-            "resolved store address. The source gap is therefore covered on "
-            "this machine.")
-    else:
-        store_gap = (
-            "The source rules do not recognise a cast with no * plus an -> "
-            "or subscript store, and the compiled census and the resolver "
-            "both stood down with the compiler they share. In this condition "
-            "`((milan_adp_blk)0x90000600u)->ctrl = 1u;` is outside every "
-            "active instrument, creates a durable pre-AEM entity advertise, "
-            "and passes this gate; so does a non-zero verdict reached past "
-            "the CRC comparison, since the CFG measurement needs the same "
-            "compile.")
-    print("  [gate 1b] NOT PROVED on every supported runner: " + store_gap +
-          " Closing the unconditional property remains tracked on #153 and "
-          "#162")
-    print("  [gate 1b] ... and a second blind spot, same cause one step over: "
-          "the recipe pin reads what make PRINTS, which is already expanded, "
-          "so a name this Makefile references and nothing defines expands to "
-          "nothing and the pinned commands come out identical. "
-          "`CFLAGS += $(MILAN_EXTRA_CFLAGS)` passes here while "
-          "MILAN_EXTRA_CFLAGS='-include ../shadow.h' in the environment adds "
-          "the include to the real compile, and the hostile double-run "
-          "perturbs three fixed names so it cannot see a deferral to a "
-          "fourth. An instrument that reads a RESULT cannot see what an "
-          "undefined name would have contributed, which is the same reason "
-          "the compiled census never replaced the text rules. Fix is "
-          "derivable and tracked on #162: probe $(origin NAME) and refuse "
-          "'undefined', scoped to names reaching the pinned recipes, since "
-          "the accepted tags: case references an undefined $(CTAGS) too")
-    print("  [gate 1b] ... and outside what ANY recipe pin can reach: export "
-          "CPATH and COMPILER_PATH, which GCC reads from the environment; "
-          "SHELL, which changes what executes the printed command; "
-          ".EXPORT_ALL_VARIABLES; and $(shell ...), which runs at parse time "
-          "during this gate's own plan run, before a recipe is printed. "
-          "Recorded rather than ruled against, because no pin over printed "
-          "commands can see them")
-    print("  [gate 1b] NOT proved here: the values the build's -D set and the "
-          "generated headers supply (image bytes, CRC, entity ids - gate 28 "
-          "owns those), that crc32() is a CRC, and anything about an "
-          "interrupt vector, which is REFUSED by the no-label check rather "
-          "than modelled")
-    print("  [gate 1b] TRUSTED, not proved: the census compiles against "
-          "STUB headers whose every address is asserted outside the CSR "
-          "window, and the make plan runs against a STUB LiteX environment "
-          "whose values are sentinels, so both bound what THIS repository's "
-          "firmware and Makefile add, not what LiteX supplies. Resolution is "
-          f"pinned for all {len(firmware_includes)} include names; the "
-          "CONTENT behind each resolved name is trusted, and of those "
-          f"{', '.join(firmware_includes_generated)} are written by this "
-          "repository's own builder")
-    print("  [gate 1b] CLOSED this round (#153), and each measured as a "
-          "mutation rather than argued: the source rule tying the comparison "
-          "to a real CRC is still an EXISTENCE test and still proves "
-          "nothing, but the resolver now answers all four shapes it left "
-          "open -- a constant assigned to the compared local between the "
-          "crc32() call and the comparison, a CRC over the QSPI source "
-          "instead of MILAN_AEM_DESC_BASE, a `goto` past the comparison to "
-          "the non-zero return, and the structured do/break bypass that "
-          "showed banning `goto` was not a proof. What REMAINS joint with "
-          "#162 is the Makefile half: a second translation unit is a second "
-          "place a CSR store can live, and no instrument here reads it")
-
-    print("  [gate 1b] shipping AX: fabric gPTP option on with config-derived "
-          "1024-word ROM; VexiiRiscv RV32I at 50 MHz through its supported "
-          "decoupled clock, one hart, L2=0, bare-metal flash, no Scala cache "
-          "args, PCM ring or host clusters; deploy keeps the plane option on")
-
-    ucode_mutations = (
-        ("station MAC", lambda c: c["platform"].__setitem__(
-            "mac_address", "02:00:00:00:00:03")),
-        ("priority1", lambda c: c["gptp"].__setitem__("priority1", 247)),
-        ("fabric clock", lambda c: c["board"]["constraints"].__setitem__(
-            "milan_clk_hz", 80_000_000)),
-    )
-    with tempfile.TemporaryDirectory() as td:
-        for label, mutate in ucode_mutations:
-            path = _variant(CONFIGS["ax7101_1x1_tdm8"], mutate)
-            try:
-                changed = eb.build(path, td)
-                image = open(changed["paths"]["gptp_ucode"], "rb").read()
-                assert image != base_ucode, \
-                    f"{label}: mutation did not reach gptp_ucode.hex"
-            finally:
-                os.unlink(path)
-    print("  [gate 1b] gPTP ROM changes with each YAML-owned input: station "
-          "MAC, priority1 and fabric clock")
+    """Gate 1b: every tracked config uses the one product CPU contract."""
+    for name, path in CONFIGS.items():
+        result = eb.build(path, OUT)
+        cfg = result["cfg"]
+        argv = _canon(result["argv"])
+        assert cfg["soc"]["software_profile"] == "baremetal", name
+        assert cfg["soc"]["cpu"] == "vexiiriscv", name
+        assert cfg["soc"]["xlen"] == 32 and cfg["soc"]["cpu_count"] == 1, name
+        assert cfg["constraints"]["l2_bytes"] == 0, name
+        assert cfg["constraints"]["flashboot"] in ("none", "baremetal"), name
+        assert cfg["soc"]["scala_args"] == [], name
+        assert cfg["features"]["fabric_gptp"] is True, name
+        assert argv["--software-profile"] == ["baremetal"], name
+        assert argv["--xlen"] == [32.0] and argv["--l2-bytes"] == [0.0], name
+        assert "--fabric-gptp" in argv, name
+        assert "gptp_ucode" in result["paths"], name
+        assert "pp_mem" in result["platform"], name
 
     def set_soc(key, value):
-        return lambda c: c.setdefault("soc", {}).__setitem__(key, value)
+        return lambda cfg: cfg.setdefault("soc", {}).__setitem__(key, value)
 
     cases = (
         ("RV64", set_soc("xlen", 64)),
         ("two harts", set_soc("cpu_count", 2)),
-        ("NaxRiscv", set_soc("cpu", "naxriscv")),
-        ("L2 cache", lambda c: c["board"]["constraints"].__setitem__(
+        ("alternate CPU", set_soc("cpu", "naxriscv")),
+        ("cache", lambda cfg: cfg["board"]["constraints"].__setitem__(
             "l2_bytes", 8192)),
-        ("Scala cache arg", set_soc("scala_args", ["--lsu-l1-ways=2"])),
-        ("Linux flash manifest", lambda c: c["board"]["constraints"].__setitem__(
-            "flashboot", "full")),
-        ("bare-metal flash under Linux", lambda c: c["soc"].__setitem__(
-            "software_profile", "linux")),
-        ("fabric gPTP without clock attributes", lambda c: c.pop("gptp", None)),
+        ("scala override", set_soc("scala_args", ["--lsu-l1-ways=2"])),
+        ("unknown flash manifest", lambda cfg: cfg["board"]["constraints"].__setitem__(
+            "flashboot", "unsupported")),
+        ("unknown software profile", set_soc("software_profile", "hosted")),
+        ("missing clock attributes", lambda cfg: cfg.pop("gptp", None)),
     )
     for label, mutate in cases:
         path = _variant(CONFIGS["ax7101_1x1_tdm8"], mutate)
@@ -8231,8 +1658,433 @@ def test_baremetal_profile_contract():
                 raise AssertionError(f"{label}: incompatible profile was accepted")
         finally:
             os.unlink(path)
-    print(f"  [gate 1b] {len(cases)}/{len(cases)} incompatible CPU/cache/flash "
-          "profiles rejected before SoC generation")
+    print(f"  [gate 1b] {len(CONFIGS)} product configs and "
+          f"{len(cases)} refusal arms pass")
+
+
+def test_gptp_product_default_and_legacy_option():
+    """Gate 1c: fabric ownership is the product default and only config value."""
+    default_cfg = _variant(
+        CONFIGS["ax7101_1x1_tdm8"],
+        lambda cfg: cfg["board"]["features"].pop("fabric_gptp", None))
+    try:
+        with tempfile.TemporaryDirectory() as out:
+            result = eb.build(default_cfg, out)
+            assert result["cfg"]["features"]["fabric_gptp"] is True
+            assert "--fabric-gptp" in result["argv"]
+            assert "--no-fabric-gptp" not in result["argv"]
+            assert "gptp_ucode" in result["paths"]
+    finally:
+        os.unlink(default_cfg)
+
+    disabled = _variant(
+        CONFIGS["ax7101_1x1_tdm8"],
+        lambda cfg: cfg["board"]["features"].__setitem__("fabric_gptp", False))
+    try:
+        try:
+            eb.load_config(disabled)
+        except eb.ConfigError as exc:
+            assert "verification-only" in str(exc)
+        else:
+            raise AssertionError("option-off product configuration was accepted")
+    finally:
+        os.unlink(disabled)
+
+    soc_source = open(os.path.join(ROOT, "sw/litex/milan_soc.py")).read()
+    assert "p_GPTP_PLANE_EN_P=int(bool(gptp_plane))" in soc_source
+    assert 'ap.set_defaults(fabric_gptp=None)' in soc_source
+    assert 'self._gptp_owner = "software"' not in soc_source
+    for launcher in ("sw/litex/sweep.sh", "sw/litex/build.sh",
+                     "sw/litex/sweep_extra.sh"):
+        source = open(os.path.join(ROOT, launcher)).read()
+        assert "--fabric-gptp" in source
+        assert "--no-fabric-gptp" not in source
+    print("  [gate 1c] fabric ownership is the only product configuration")
+
+
+def test_qspi_owner_transition_completed_write_prefixes():
+    """Gate 1e: every supported persistent write prefix has one owner.
+
+    #259: the one supported persistent image set is the fabric-owned
+    bare-metal {bitstream, aem} pair and the one transition is its refresh.
+    Unsupported owners and malformed layouts refuse with zero programmer
+    I/O, and the compiled CPU-width binding fails closed."""
+    with tempfile.TemporaryDirectory() as td:
+        fake_bin = os.path.join(td, "bin")
+        os.makedirs(fake_bin)
+        qspi = os.path.join(td, "qspi.bin")
+        log = os.path.join(td, "programmer.log")
+        count = os.path.join(td, "programmer.count")
+
+        fake_ofl = os.path.join(fake_bin, "openFPGALoader")
+        with open(fake_ofl, "w", encoding="utf-8") as stream:
+            stream.write(r'''#!/usr/bin/env python3
+import os, struct, sys
+
+args = sys.argv[1:]
+qspi = os.environ["OFL_QSPI"]
+log = os.environ["OFL_LOG"]
+count_path = os.environ["OFL_COUNT"]
+
+def value(flag, default=None):
+    try:
+        return args[args.index(flag) + 1]
+    except (ValueError, IndexError):
+        return default
+
+def bit_payload(path):
+    raw = open(path, "rb").read()
+    pos = 2 + struct.unpack_from(">H", raw, 0)[0]
+    pos += 2
+    while True:
+        kind = raw[pos]; pos += 1
+        if kind == ord("e"):
+            size = struct.unpack_from(">I", raw, pos)[0]; pos += 4
+            return raw[pos:pos + size]
+        size = struct.unpack_from(">H", raw, pos)[0]; pos += 2 + size
+
+serial = value("--ftdi-serial")
+if serial != os.environ.get("OFL_EXPECT_SERIAL", serial):
+    raise SystemExit(88)
+
+if "--dump-flash" in args:
+    size = int(value("--file-size"), 0)
+    off = int(value("-o", "0"), 0)
+    out = args[-1]
+    with open(qspi, "rb") as source, open(out, "wb") as sink:
+        source.seek(off)
+        sink.write(source.read(size))
+    with open(log, "a", encoding="utf-8") as trace:
+        trace.write(f"DUMP\t{off}\t{size}\n")
+    mutate = os.environ.get("OFL_MUTATE_BIT")
+    replacement = os.environ.get("OFL_MUTATE_FROM")
+    if mutate and replacement:
+        with open(replacement, "rb") as source, open(mutate, "wb") as sink:
+            sink.write(source.read())
+    raise SystemExit(0)
+
+is_bit = "-f" in args or "--write-flash" in args and value("-o") is None
+is_raw = "--write-flash" in args and value("-o") is not None
+if not (is_bit or is_raw):
+    raise SystemExit(89)
+old_count = int(open(count_path).read()) if os.path.exists(count_path) else 0
+index = old_count + 1
+if int(os.environ.get("OFL_FAIL_BEFORE", "0")) == index:
+    with open(log, "a", encoding="utf-8") as trace:
+        trace.write(f"FAIL_BEFORE\t{index}\n")
+    raise SystemExit(91)
+if "--verify" not in args:
+    with open(log, "a", encoding="utf-8") as trace:
+        trace.write(f"NO_VERIFY\t{index}\n")
+    raise SystemExit(90)
+off = 0 if is_bit else int(value("-o"), 0)
+source_path = args[-1]
+data = bit_payload(source_path) if is_bit else open(source_path, "rb").read()
+with open(qspi, "r+b") as flash:
+    flash.seek(off)
+    flash.write(data)
+with open(count_path, "w", encoding="utf-8") as state:
+    state.write(str(index))
+with open(log, "a", encoding="utf-8") as trace:
+    trace.write(f"WRITE\t{index}\t{off}\tverify\t{os.path.basename(source_path)}\n")
+if int(os.environ.get("OFL_FAIL_AFTER", "0")) == index:
+    raise SystemExit(92)
+''')
+        os.chmod(fake_ofl, 0o755)
+
+        # This gate intentionally has no LiteX dependency. Implement only the
+        # crcfbigen output boundary and delegate every checker/planner command
+        # to the real interpreter.
+        fake_python = os.path.join(fake_bin, "fixture-python")
+        with open(fake_python, "w", encoding="utf-8") as stream:
+            stream.write(f'''#!{sys.executable}
+import binascii, os, struct, sys
+if sys.argv[1:3] == ["-m", "litex.soc.software.crcfbigen"]:
+    source = sys.argv[3]
+    output = sys.argv[sys.argv.index("-o") + 1]
+    data = open(source, "rb").read()
+    with open(output, "wb") as sink:
+        sink.write(struct.pack("<II", len(data), binascii.crc32(data) & 0xffffffff))
+        sink.write(data)
+    raise SystemExit(0)
+os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
+''')
+        os.chmod(fake_python, 0o755)
+
+        def make_build(name, owner, serial_payload, manifest="baremetal",
+                       extra_rows=(), cpu_xlen=32):
+            build = os.path.join(td, name)
+            os.makedirs(os.path.join(build, "gateware"))
+            bit = os.path.join(build, "gateware", "alinx_ax7101.bit")
+            payload = (b"\xff" * 16 + b"\xaa\x99\x55\x66" + serial_payload)
+            qspi_transition._fake_bit(bit, payload, name.encode())
+            layout = os.path.join(build, "flashboot_layout.json")
+            images = [
+                {"name": "bitstream", "offset": 0, "budget": 0x400000},
+                {"name": "aem", "offset": 0x400000, "budget": 0x10000},
+            ] + [dict(row) for row in extra_rows]
+            body = {"manifest": manifest, "gptp_owner": owner,
+                    "complete": False, "images": images}
+            if cpu_xlen is not None:
+                body["cpu_xlen"] = cpu_xlen
+            aem = os.path.join(build, "aem_desc.bin")
+            with open(aem, "wb") as out:
+                out.write(b"AEMI" + serial_payload)
+            body.update(qspi_transition.bitstream_binding(bit))
+            body.update(qspi_transition.aem_image_binding(aem))
+            with open(layout, "w", encoding="utf-8") as out:
+                json.dump(body, out)
+            return {"dir": build, "layout": layout, "bit": bit,
+                    "owner": owner, "payload": payload}
+
+        fabric = make_build("fabric", "fabric", b"FABRIC-OWNER-A")
+        fabric2 = make_build("fabric2", "fabric", b"FABRIC-OWNER-B")
+        mutable_target = make_build(
+            "mutable-target", "fabric", b"MUTABLE-TARGET")
+        replacement_target = make_build(
+            "replacement-target", "fabric", b"UNVALIDATED-REPLACEMENT")
+        none_owner = make_build("none-owner", "none", b"NONE-OWNER")
+        malformed = make_build("malformed", "fabric", b"MALFORMED-LAYOUT")
+        with open(malformed["layout"], encoding="utf-8") as source:
+            malformed_layout = json.load(source)
+        malformed_layout["images"][1]["offset"] = 0
+        with open(malformed["layout"], "w", encoding="utf-8") as out:
+            json.dump(malformed_layout, out)
+        reserved_collision = make_build(
+            "reserved-collision", "fabric", b"RESERVED-COLLISION")
+        with open(reserved_collision["layout"], encoding="utf-8") as source:
+            reserved_layout = json.load(source)
+        reserved_layout["reserved"] = {
+            "journal": {"offset": 0x400000, "size": 0x10000}}
+        with open(reserved_collision["layout"], "w", encoding="utf-8") as out:
+            json.dump(reserved_layout, out)
+
+        base_env = dict(os.environ)
+        base_env.update({
+            "PATH": fake_bin + os.pathsep + base_env.get("PATH", ""),
+            "PYTHON": fake_python,
+            "SERIAL": "TEST-SERIAL", "AX_FTDI": "TEST-SERIAL",
+            "CABLE": "ft232", "FPGA_PART": "xc7a100tfgg484",
+            "OFL_QSPI": qspi, "OFL_LOG": log, "OFL_COUNT": count,
+            "OFL_EXPECT_SERIAL": "TEST-SERIAL",
+        })
+
+        def reset_flash(source):
+            with open(qspi, "wb") as flash:
+                flash.truncate(16 * 1024 * 1024)
+                flash.seek(0)
+                flash.write(source["payload"])
+                with open(os.path.join(source["dir"], "aem_desc.bin"),
+                          "rb") as artifact:
+                    flash.seek(0x400000)
+                    flash.write(artifact.read())
+            for path in (log, count):
+                try:
+                    os.unlink(path)
+                except FileNotFoundError:
+                    pass
+
+        def env_for(source, target, fail_kind=None, fail_index=0):
+            env = dict(base_env)
+            env.update({"INSTALLED_LAYOUT": source["layout"],
+                        "INSTALLED_BIT": source["bit"],
+                        "LAYOUT": target["layout"], "BIT": target["bit"],
+                        "EXPECTED_GPTP_OWNER": target["owner"]})
+            env.pop("OFL_FAIL_BEFORE", None)
+            env.pop("OFL_FAIL_AFTER", None)
+            env.pop("OFL_MUTATE_BIT", None)
+            env.pop("OFL_MUTATE_FROM", None)
+            if fail_kind:
+                env[f"OFL_FAIL_{fail_kind.upper()}"] = str(fail_index)
+            return env
+
+        deploy = os.path.join(SOC_DIR, "deploy.sh")
+
+        def run_pair(source, target, fail_kind=None, fail_index=0,
+                     reset=True, named=False, env_over=None):
+            if reset:
+                reset_flash(source)
+            env = env_for(source, target, fail_kind, fail_index)
+            if env_over:
+                env.update(env_over)
+            if named:
+                argv = [BUILD_SH, "flash", f"ax7101:{target['dir']}"]
+            else:
+                argv = [deploy, "flash-pair"]
+            return subprocess.run(argv, cwd=SOC_DIR, env=env, text=True,
+                                  capture_output=True)
+
+        def writes():
+            if not os.path.exists(log):
+                return []
+            rows = []
+            for line in open(log, encoding="utf-8"):
+                fields = line.rstrip("\n").split("\t")
+                if fields[0] == "WRITE":
+                    rows.append((int(fields[1]), int(fields[2]),
+                                 fields[3], fields[4]))
+            return rows
+
+        def live_bit(source, target):
+            with open(qspi, "rb") as flash:
+                live = flash.read(max(len(source["payload"]),
+                                      len(target["payload"])))
+            old = live[:len(source["payload"])] == source["payload"]
+            new = live[:len(target["payload"])] == target["payload"]
+            assert old ^ new, (
+                f"live bit must identify exactly one owner: "
+                f"{source['dir']} old={old}, {target['dir']} new={new}, "
+                f"prefix={live[:48].hex()}")
+            return source if old else target
+
+        # The one supported transition: a fabric refresh, aem verified first
+        # and the target bit committed last, so every completed write prefix
+        # boots exactly one fabric owner.
+        wanted_offsets = [0x400000, 0]
+        total = len(wanted_offsets)
+        clean = run_pair(fabric, fabric2)
+        assert clean.returncode == 0, clean.stdout + clean.stderr
+        assert [row[1] for row in writes()] == wanted_offsets
+        assert all(row[2] == "verify" for row in writes())
+        assert live_bit(fabric, fabric2) is fabric2
+
+        # The validated source path is deliberately replaced after the live
+        # dump and before identify/write. The transaction must still program
+        # the immutable staged copy, never reopen the rebuilt source path.
+        swapped = run_pair(
+            fabric, mutable_target,
+            env_over={"OFL_MUTATE_BIT": mutable_target["bit"],
+                      "OFL_MUTATE_FROM": replacement_target["bit"]})
+        assert swapped.returncode == 0, swapped.stdout + swapped.stderr
+        assert live_bit(fabric, mutable_target) is mutable_target, \
+            "flash-pair programmed a bitstream replaced after validation"
+
+        checked_prefixes = 0
+        for kind in ("before", "after"):
+            for index in range(1, total + 1):
+                failed = run_pair(fabric, fabric2, kind, index)
+                assert failed.returncode != 0, failed.stdout + failed.stderr
+                prefix = writes()
+                expected = index - 1 if kind == "before" else index
+                assert len(prefix) == expected, (kind, index, prefix)
+                assert [row[1] for row in prefix] == wanted_offsets[:expected]
+                live_bit(fabric, fabric2)     # exactly one owner, always
+                checked_prefixes += 1
+                resumed = run_pair(fabric, fabric2, reset=False)
+                assert resumed.returncode == 0, \
+                    resumed.stdout + resumed.stderr
+                assert live_bit(fabric, fabric2) is fabric2
+
+        # The named launcher must delegate to the same live-proof transaction.
+        named = run_pair(fabric, fabric2, named=True)
+        assert named.returncode == 0, named.stdout + named.stderr
+        assert [row[1] for row in writes()] == wanted_offsets
+
+        # A live target bit with a stale AEM beside it is safely repaired:
+        # the autonomous fabric commit bit owns gPTP independently of AEM.
+        reset_flash(fabric)
+        with open(qspi, "r+b") as flash:
+            flash.seek(0)
+            flash.write(fabric2["payload"])
+        repair = run_pair(fabric, fabric2, reset=False)
+        assert repair.returncode == 0, repair.stdout + repair.stderr
+        assert [row[1] for row in writes()] == [0x400000], \
+            "AEM repair beside a live fabric commit bit must write AEM only"
+        assert live_bit(fabric, fabric2) is fabric2
+
+        # Whole-set preparation happens before even read-only programmer I/O.
+        reset_flash(fabric)
+        missing_env = env_for(fabric, fabric2)
+        missing_env["AEM"] = os.path.join(td, "missing-aem.bin")
+        missing = subprocess.run([deploy, "flash-pair"], cwd=SOC_DIR,
+                                 env=missing_env, text=True,
+                                 capture_output=True)
+        assert missing.returncode != 0
+        assert not writes(), "missing AEM artifact caused a programmer write"
+        assert not os.path.exists(log), \
+            "missing AEM artifact caused read-only programmer I/O"
+
+        def refuse_before_io(label, source, target, needle):
+            reset_flash(source)
+            refused = subprocess.run(
+                [deploy, "flash-pair"], cwd=SOC_DIR,
+                env=env_for(source, target), text=True, capture_output=True)
+            output = refused.stdout + refused.stderr
+            assert refused.returncode != 0, f"{label}: accepted\n{output}"
+            assert needle in output, f"{label}: no {needle!r}\n{output}"
+            assert not os.path.exists(log), \
+                f"{label} reached programmer I/O"
+
+        refuse_before_io("ownerless bare-metal target", fabric, none_owner,
+                         "not flashable")
+
+        # A manifest-row parser failure must propagate before the live dump.
+        refuse_before_io("malformed image offsets", fabric, malformed,
+                         "unique")
+        refuse_before_io("image/reservation collision", fabric,
+                         reserved_collision, "reserved")
+
+        # The compiled CPU width binds fail-closed ([R0] on PR #228): a
+        # layout that does not state it, or states an impossible one, refuses
+        # before any programmer I/O.
+        for label, mutate_xlen in (("missing cpu_xlen",
+                                    lambda body: body.pop("cpu_xlen")),
+                                   ("invalid cpu_xlen",
+                                    lambda body: body.update(cpu_xlen=16))):
+            with open(fabric2["layout"], encoding="utf-8") as source:
+                unbound_body = json.load(source)
+            mutate_xlen(unbound_body)
+            unbound_layout = os.path.join(fabric2["dir"],
+                                          "unbound-layout.json")
+            with open(unbound_layout, "w", encoding="utf-8") as out:
+                json.dump(unbound_body, out)
+            reset_flash(fabric)
+            env = env_for(fabric, fabric2)
+            env["LAYOUT"] = unbound_layout
+            refused = subprocess.run([deploy, "flash-pair"], cwd=SOC_DIR,
+                                     env=env, text=True, capture_output=True)
+            output = refused.stdout + refused.stderr
+            assert refused.returncode != 0, f"{label}: accepted\n{output}"
+            assert "compiled CPU width" in output, f"{label}\n{output}"
+            assert not os.path.exists(log), f"{label} reached programmer I/O"
+            os.unlink(unbound_layout)
+
+        # Persistent targets are identity evidence, never an mtime-selected
+        # convenience default.  Omission must fail before live QSPI access.
+        for omitted in ("BIT", "LAYOUT"):
+            reset_flash(fabric)
+            omitted_env = env_for(fabric, fabric2)
+            omitted_env.pop(omitted)
+            refused = subprocess.run([deploy, "flash-pair"], cwd=SOC_DIR,
+                                     env=omitted_env, text=True,
+                                     capture_output=True)
+            assert refused.returncode != 0
+            assert not os.path.exists(log), \
+                f"missing target {omitted} caused programmer I/O"
+
+        # A mutable owner string cannot substitute for exact live QSPI proof.
+        reset_flash(fabric)
+        with open(qspi, "r+b") as flash:
+            flash.write(b"\x00" * len(fabric["payload"]))
+        mismatch = subprocess.run([deploy, "flash-pair"], cwd=SOC_DIR,
+                                  env=env_for(fabric, fabric2), text=True,
+                                  capture_output=True)
+        assert mismatch.returncode != 0
+        assert not writes(), "unidentified live bitstream caused a write"
+
+        # An identical-payload refresh is ambiguous and refused.
+        refuse_before_io("identical payloads", fabric, fabric, "identical")
+
+    print(f"  [gate 1e] {checked_prefixes} injected before/after-write "
+          "prefixes across the fabric-baremetal refresh retain one live "
+          "owner and every prefix resumes; all writes verify; a live target "
+          "bit gets an AEM-only repair; a source BIT replaced after live "
+          "identification cannot replace the validated staged copy; the "
+          "ownerless owner, malformed/collision layouts, missing artifacts, "
+          "missing cpu_xlen x2 and an unidentified live bit all refuse "
+          "before programmer I/O")
+
+
 
 
 def test_current_shape_matches_sweep_flags():
@@ -8477,7 +2329,7 @@ def test_both_policies_valid():
         cm = c["audio_interface"]["cluster_mapping"]
         cm["policy"] = pol
         if pol == "role-pools":
-            cm.setdefault("pools", {"host": 4, "pilot": True, "loopback": 4})
+            cm.setdefault("pools", {"pilot": True, "loopback": 4})
         else:
             cm.pop("pools", None)
             cm.pop("fabric", None)
@@ -8499,8 +2351,9 @@ def test_both_policies_valid():
         c["audio_interface"]["kind"] = "i2s_philips"
         # an i2s interface implies a DAC: the mutated variant must not carry
         # the AX's 2026-07-28 i2s_playback/render_lpf area prunes, which
-        # validate_features rightly refuses next to a declared DAC
-        c["board"]["features"] = {"sound_card": True}
+        # validate_features rightly refuses next to a declared DAC.
+        # The replacement feature map keeps the mandatory fabric owner.
+        c["board"]["features"] = {"fabric_gptp": True}
         set_policy(c, "cap-at-interface")
     p = _variant(CONFIGS["ax7101_8x8"], to_i2s)
     try:
@@ -9026,19 +2879,26 @@ def test_dynamic_map_topology_reaches_shape_header():
             out.append(int(q.group(2), {"h": 16, "d": 10, "b": 2}[q.group(1)]))
         return out
 
+    # #259: the 8x8's listeners are empty-handed (no host pool, 0 physical),
+    # so the input face carries eight zero-cluster ports and the 1-key
+    # placeholder engine - the same retired posture the 1x1 leg below pins.
+    # The output face is the 9-cluster geometry: pilot (13'h1400) then the
+    # eight fabric-disabled loopback templates, idxh = the talker's own rx
+    # stream so the eight ports stay distinct.
     ax8 = eb.load_config(CONFIGS["ax7101_8x8"])
     h8 = eb.emit_adp_shape_svh(ax8, eb.emit_aem_overlay(ax8))
-    assert scalar(h8, "ADP_DMAP_IN_KEYS_C") == 64
-    assert array(h8, "ADP_DMAP_IN_PBASE_C") == list(range(0, 64, 8))
-    assert array(h8, "ADP_DMAP_IN_PCLS_C") == [8] * 8
-    assert array(h8, "ADP_DMAP_IN_RPHYS_C") == [0] * 64
-    assert array(h8, "ADP_DMAP_OUT_PCLS_C") == [17] * 8
-    assert array(h8, "ADP_DMAP_OUT_PCBASE_C") == list(range(0, 136, 17))
+    assert scalar(h8, "ADP_DMAP_IN_KEYS_C") == 1
+    assert array(h8, "ADP_DMAP_IN_PBASE_C") == [0] * 8
+    assert array(h8, "ADP_DMAP_IN_PCLS_C") == [0] * 8
+    assert array(h8, "ADP_DMAP_IN_PNMAPS_C") == [0] * 8
+    assert array(h8, "ADP_DMAP_IN_RPHYS_C") == [0]
+    assert array(h8, "ADP_DMAP_OUT_PCLS_C") == [9] * 8
+    assert array(h8, "ADP_DMAP_OUT_PCBASE_C") == list(range(0, 72, 9))
     c8 = array(h8, "ADP_DMAP_OUT_CSRC_C")
-    assert c8[:9] == [0x1300, 0x1B00, 0x1301, 0x1B01,
-                      0x1302, 0x1B02, 0x1303, 0x1B03, 0x1400]
-    assert c8[9:17] == [0x0500, 0x0D00, 0x0501, 0x0D01,
-                        0x0502, 0x0D02, 0x0503, 0x0D03]
+    assert c8[:9] == [0x1400, 0x0500, 0x0D00, 0x0501,
+                      0x0D01, 0x0502, 0x0D02, 0x0503, 0x0D03]
+    assert c8[9:18] == [0x1400, 0x0510, 0x0D10, 0x0511,
+                        0x0D11, 0x0512, 0x0D12, 0x0513, 0x0D13]
 
     ax1 = eb.load_config(CONFIGS["ax7101_1x1_tdm8"])
     h1 = eb.emit_adp_shape_svh(ax1, eb.emit_aem_overlay(ax1))
@@ -9346,34 +3206,42 @@ def test_dynamic_audio_map_overlay():
         # fall-through used to land on LOOPBACK and every talker woke mapped
         # to a cluster whose fabric bucket milan_datapath never wired: a
         # GET_AUDIO_MAP that reads perfectly over a stream of digital
-        # silence. The ship config declares loopback_lane false, so:
-        #   - the identity must be the HOST pool, whose templates are the
-        #     elaborated KL_pcm_tx ring: {valid, half, src=3 RING} = 13'h13xx
+        # silence. The ship config declares loopback_lane false, and the
+        # the host pool is absent (#259), so:
+        #   - the identity must be the PILOT tone, the one pool this build
+        #     can feed: {valid, src=4 TONE} = 13'h1400
+        #   - no host ring template may survive at all (retired posture,
+        #     pinned): src=3 RING would be 13'h13xx
         #   - the loopback templates must still be EMITTED (the clusters
         #     exist and a controller may map to them) but fabric-disabled,
         #     bit 12 clear, so 13'h05xx, never 13'h15xx
-        # INIT carries {valid[5], cluster offset[4:0]}; host is offset 0
-        # (physical is 0 wide), so every key must read 6'h20 + channel.
-        assert "13'h1300" in svh, "power-on identity is not the host ring"
+        # INIT carries {valid[5], cluster offset[4:0]}; pilot is offset 0
+        # and ONE cluster wide, so key 0 of each port reads 6'h20 and the
+        # other seven keys wake NOT MAPPED (6'h00) - Milan v1.2 5.3.9.1
+        # allows a Stream Output channel to be unmapped, and an unbacked
+        # source would be the exact defect this gate exists to refuse.
+        assert "13'h1400" in svh, "power-on identity is not the pilot tone"
+        assert "13'h13" not in svh, \
+            "a host ring template survived the #259 retirement"
         assert "13'h15" not in svh, \
             "a VALID loopback template survived with the lane switched off"
         assert "13'h05" in svh, \
             "loopback templates vanished; the clusters must still be offered"
-        assert "AEM_ODMAP_INIT_C [0:63] = '{6'h20, 6'h21, 6'h22, 6'h23, " \
-               "6'h24, 6'h25, 6'h26, 6'h27" in svh, \
-            "power-on map does not wake on the host pool"
+        assert "AEM_ODMAP_INIT_C [0:63] = '{6'h20, 6'h00, 6'h00, 6'h00, " \
+               "6'h00, 6'h00, 6'h00, 6'h00, 6'h20" in svh, \
+            "power-on map does not wake on the pilot pool alone"
         print("  [gate 17d] ax7101_8x8 ALL streams dynamic: 8 output ports "
               "n_maps=0, zero AUDIO_MAPs, `AEM_ODYNMAP keys=64 slotb 0..28")
-        print("  [gate 17e] lane OFF: power-on identity = HOST/RING "
-              "(13'h1300), loopback templates emitted fabric-disabled "
-              "(13'h05xx) and protocol-mappable; live CMAP enable stays clear")
+        print("  [gate 17e] lane OFF: power-on identity = PILOT (13'h1400), "
+              "host ring gone (#259), loopback templates emitted "
+              "fabric-disabled (13'h05xx) and protocol-mappable")
 
         # and the OTHER direction: declaring the lane must hand the pool
         # back. ONE fact drives the argv and the map, so they cannot drift.
         def dyn_everything_lane(c):
             dyn_everything(c)
             c["audio_interface"]["cluster_mapping"]["fabric"] = {
-                "loopback_lane": True, "playback_rings": 1}
+                "loopback_lane": True}
         p2 = _variant(CONFIGS["ax7101_8x8"], dyn_everything_lane)
         try:
             r2 = eb.build(p2, OUT)
@@ -9387,22 +3255,24 @@ def test_dynamic_audio_map_overlay():
                 svh2 = open(os.path.join(td, "aecp_aem_rom.svh")).read()
             assert "13'h1500" in svh2, \
                 "lane declared but no VALID loopback template emitted"
-            #! USER 2026-08-06: host outranks loopback - a BACKED lane is
-            #! fully mappable but the entity WAKES claiming the SHARED
-            #! MEMORY (INIT 6'h20 = host co=0), never the loop. The 08-05
-            #! silicon caught the old order: the talker woke transmitting
-            #! its own received stream and every host ADD hit the
-            #! pair-slot-unity refusal.
-            assert "AEM_ODMAP_INIT_C [0:63] = '{6'h20" in svh2, \
-                "the power-on map must claim the HOST pool"
+            # #259: the host pool is absent,
+            # so the 08-06 host-outranks-loopback order has no subject
+            # left on this shape - the preference walk lands on the
+            # BACKED loopback pool (offset 1: pilot holds offset 0), which
+            # is the D8 point this arm exists for: declaring the lane
+            # hands the pool back. INIT co runs 1..8 on every port.
+            assert "AEM_ODMAP_INIT_C [0:63] = '{6'h21, 6'h22, 6'h23, " \
+                   "6'h24, 6'h25, 6'h26, 6'h27, 6'h28, 6'h21" in svh2, \
+                "the power-on map must claim the backed loopback pool"
             assert "--loopback-lane" in eb.emit_design_opts(
                 eb.load_config(p2)), \
                 "lane declared but milan_soc was never told to build it"
-            assert all(q["primary_role"] == "host"
+            assert all(q["primary_role"] == "loopback"
                        for q in r2["overlay"]["stream_ports"]["output"])
-            print("  [gate 17e] lane ON: loopback valid (13'h1500) and "
-                  "mappable, but primary_role/INIT stay HOST (6'h20) - "
-                  "the entity wakes on shared memory")
+            print("  [gate 17e] lane ON: loopback valid (13'h1500), "
+                  "primary_role/INIT move onto it (6'h21..6'h28) - "
+                  "declaring the lane hands the pool back (#259: no host "
+                  "pool outranks it any more)")
         finally:
             os.unlink(p2)
     finally:
@@ -9881,238 +3751,41 @@ def _csv_bases(path):
     return out
 
 
-def test_platform_window_map():
-    """Gate 19a: the DMA window map is DERIVED from rx-queues, and the queue
-    count is the same number in the gateware argv, the sweep fragment and the
-    device tree. That triple is exactly what 5ce9a13 broke."""
-    m1 = eb.dma_window_map(eb.DMA_BANK_BASE, 1)
-    m2 = eb.dma_window_map(eb.DMA_BANK_BASE, 2)
-    assert "steer" not in m1 and "dma-rx1" not in m1
-    assert "steer" in m2 and "dma-rx1" in m2
-    shift = eb.DMA_STEER_BYTES + eb.DMA_RX1_BLOCK_BYTES
-    assert shift == 0x74, f"steer+rx1 = 0x{shift:X}, expected 0x74"
-    for name in ("dma-tx", "dma-rx"):
-        assert m1[name]["base"] == m2[name]["base"], \
-            f"{name} must NOT move with the queue count"
-    for name in ("dma-ts", "hs-pgsz-cap", "pcm-dma"):
-        assert m2[name]["base"] - m1[name]["base"] == shift, \
-            f"{name}: 1q {m1[name]['base']:#x} vs 2q {m2[name]['base']:#x}"
-    # milan_soc.py source order is what makes the shift happen - assert it
-    soc = open(MILAN_SOC_PY).read()
-    i_steer = soc.index("self.steer = RxSteer()")
-    i_rx1 = soc.index("self.rx1 = RingDMAWriter")
-    i_ts = soc.index("self.ts = WishboneDMAWriter")
-    i_cap = soc.index("self.hs_pgsz_cap = CSRStatus")
-    assert i_steer < i_rx1 < i_ts < i_cap, \
-        "milan_soc MilanDMA registration order changed - the window map " \
-        "derivation in dma_window_map() must be re-derived"
-    assert re.search(r"if rx_queues >= 2:\s*\n\s*self\.steer = RxSteer\(\)",
-                     soc), "steer is no longer conditional on rx_queues >= 2"
-    # config -> argv -> sweep fragment -> device tree: ONE queue count
-    for cfg_name, board in (("arty_current", "arty"), ("ax7101_8x8", "ax7101")):
-        r = eb.build(CONFIGS[cfg_name], OUT)
-        n = r["cfg"]["constraints"]["rx_queues"]
-        argv_n = int(_canon(r["argv"])["--rx-queues"][0])
-        _o, _l, sweep_n = sweep_inline(board)
-        dt_n = int(re.search(r"kl,rxq-cnt = <(\d+)>", r["dt_overlay"]).group(1))
-        assert n == argv_n == int(sweep_n) == dt_n == r["platform"]["rx_queues"], (
-            f"{cfg_name}: rx-queues disagree - config {n}, argv {argv_n}, "
-            f"sweep {sweep_n}, device tree {dt_n}")
-        # ...and the map that count implies is the one in the DT/shape
-        want = eb.dma_window_map(eb.DMA_BANK_BASE, n)
-        for name in ("dma-tx", "dma-rx", "dma-ts"):
-            assert f"0x{want[name]['base']:x} 0x{want[name]['size']:x}" \
-                in r["dt_overlay"], f"{cfg_name}: DT lacks the {name} window"
-        assert r["platform"]["driver_constants"]["MILAN_HS_PGSZ_CAP_PHYS"] == \
-            f"0x{want['hs-pgsz-cap']['base']:08X}"
-        assert (r["platform"]["driver_constants"]["MILAN_DMA_RX1_PHYS"]
-                is None) == (n == 1)
-        print(f"  [gate 19a] {cfg_name}: rx-queues {n} agrees across config / "
-              f"soc argv / sweep fragment / device tree; dma-ts "
-              f"0x{want['dma-ts']['base']:08X}, pcm 0x{want['pcm-dma']['base']:08X}")
-    print("  [gate 19a] 1q->2q inserts steer+rx1 = 0x74 and moves dma-ts / "
-          "hs-pgsz-cap / pcm-dma by exactly that; tx/rx0 never move")
+def test_platform_firmware_shape():
+    """Gate 19: one queue count determines one firmware-visible register map."""
+    import json
+    one = eb.dma_window_map(eb.DMA_BANK_BASE, 1)
+    two = eb.dma_window_map(eb.DMA_BANK_BASE, 2)
+    assert one["dma-ts"]["base"] != two["dma-ts"]["base"]
+    assert "dma-rx1" not in one and "dma-rx1" in two
 
+    for name, path in CONFIGS.items():
+        result = eb.build(path, OUT)
+        shape = json.load(open(result["paths"]["platform_shape"]))
+        assert shape == result["platform"], name
+        assert shape["rx_queues"] == result["cfg"]["constraints"]["rx_queues"]
+        assert set(shape["windows"]) == set(
+            eb.dma_window_map(eb.DMA_BANK_BASE, shape["rx_queues"]))
+        base = int(shape["pp_mem"]["phys"], 16)
+        size = int(shape["pp_mem"]["bytes"], 16)
+        assert base > 0 and base % 0x1000 == 0
+        assert size == eb.PP_MEM_BYTES and size % 0x1000 == 0
 
-def test_platform_dt_and_driver_shape():
-    """Gate 19b: the emitted device tree carries every property the driver
-    and the binding need, and - when the real build trees are on disk - its
-    window bases equal the LiteX csr.csv and the deployed .dts."""
-    for name in CONFIGS:
-        r = eb.build(CONFIGS[name], OUT)
-        dt, sh = r["dt_overlay"], r["platform"]
-        for needle in ('compatible = "kl,dma-ether-0.9", "kl,dma-ether";',
-                       'reg-names = "csr", "dma-tx", "dma-rx", "dma-ts", "phy";',
-                       "dma-coherent;", "kl,ptp;"):
-            assert needle in dt, f"{name}: device tree lacks {needle!r}"
-        # kl,rsc-clk-mhz is the ONLY of_property_read_u32 kl-eth makes; omit
-        # it and the AX7101 runs its PHC at 2x rate from a clean boot
-        assert f"kl,rsc-clk-mhz = <{sh['rsc_clk_mhz']}>" in dt
-        assert sh["rsc_clk_mhz"] * 1_000_000 == \
-            r["cfg"]["constraints"]["milan_clk_hz"]
-        assert f'phy-mode = "{sh["phy_mode"]}"' in dt
-        assert "local-mac-address = [" + \
-            " ".join(sh["mac_address"].split(":")) + "]" in dt
-        n_l = len(r["cfg"]["listeners"])
-        if r["cfg"]["features"]["sound_card"]:
-            for needle in (
-                    'compatible = "kl,milan-pcm-0.9", "kl,milan-pcm";',
-                    'reg-names = "pcm-dma", "milan-csr";',
-                    "memory-region = <&pcmring>;", "no-map;"):
-                assert needle in dt, f"{name}: device tree lacks {needle!r}"
-            # the no-map region must hold every capture stream's ring
-            assert int(sh["pcm"]["ring_stride"], 16) * n_l <= \
-                int(sh["pcm"]["ring_bytes"], 16)
-            assert f"kl,capture-streams = <{n_l}>" in dt
-            surface = f"{n_l}-stream {sh['pcm']['ring_bytes']} no-map ring"
-        else:
-            assert sh["pcm"] is None and "pcm-dma" not in sh["windows"]
-            assert 'compatible = "kl,milan-pcm' not in dt
-            assert "pcmring" not in dt and "kl,capture-streams" not in dt
-            surface = "sound-card node/ring absent"
-        print(f"  [gate 19b] {name}: DT node complete (5 NIC reg windows, "
-              f"kl,rsc-clk-mhz {sh['rsc_clk_mhz']}, phy-mode "
-              f"{sh['phy_mode']}, {surface})")
-    # ---- cross-check against real artifacts when they are on disk --------
-    checked = 0
-    for csv, cfg_name in ((CSR_CSV_2Q, "arty_current"),
-                          (CSR_CSV_AX2Q, "ax7101_8x8")):
-        if not os.path.exists(csv):
-            continue
-        regs = _csv_bases(csv)
-        sh = eb.build(CONFIGS[cfg_name], OUT)["platform"]
-        pairs = [("dma-tx", "milan_dma_tx_base"),
-                 ("dma-rx", "milan_dma_rx_base"),
-                 ("dma-ts", "milan_dma_ts_base"),
-                 ("hs-pgsz-cap", "milan_dma_hs_pgsz_cap"),
-                 ("pcm-dma", "milan_dma_pcm_base")]
-        if "dma-rx1" in sh["windows"]:
-            pairs.append(("dma-rx1", "milan_dma_rx1_base"))
-        for win, reg in pairs:
-            assert reg in regs, f"{csv}: no {reg} row"
-            assert int(sh["windows"][win]["base"], 16) == regs[reg], (
-                f"{cfg_name}: {win} {sh['windows'][win]['base']} != "
-                f"csr.csv {reg} 0x{regs[reg]:08X}")
-        checked += 1
-        print(f"  [gate 19b] {cfg_name}: {len(pairs)} window bases "
-              f"BYTE-MATCH the real LiteX csr.csv ({os.path.basename(os.path.dirname(csv))})")
-    if not checked:
-        skip("gate 19b", "csr.csv cross-check: no build tree on disk")
-    checked = 0
-    for cfg_name, board in (("arty_current", "arty"), ("ax7101_8x8", "ax7101")):
-        dts = DEPLOYED_DTS[board]
-        if not os.path.exists(dts):
-            continue
-        txt = open(dts).read()
-        sh = eb.build(CONFIGS[cfg_name], OUT)["platform"]
-        nic = re.search(r"ethernet@\w+ \{(.*?)\n\t*\};", txt, re.S)
-        assert nic, f"{dts}: no ethernet node"
-        cells = [int(x, 16) for x in
-                 re.findall(r"<0x([0-9a-f]+) 0x[0-9a-f]+>", nic.group(1))]
-        want = [int(sh["csr"]["base"], 16)] + \
-            [int(sh["windows"][k]["base"], 16)
-             for k in ("dma-tx", "dma-rx", "dma-ts")] + \
-            [int(sh["phy_window"]["base"], 16)]
-        assert cells == want, (
-            f"{cfg_name}: emitted NIC reg bases {[hex(x) for x in want]} != "
-            f"deployed {dts} {[hex(x) for x in cells]}")
-        pcm = re.search(r"audio@([0-9a-f]+)", txt)
-        assert pcm and int(pcm.group(1), 16) == \
-            int(sh["pcm"]["base"], 16), \
-            f"{cfg_name}: PCM node base != deployed {dts}"
-        assert f"kl,rsc-clk-mhz = <{sh['rsc_clk_mhz']}>" in txt
-        # ...and the STATION MAC, which the deployed DTB restates as
-        # local-mac-address. It was an unchecked mirror until 2026-08-02, and
-        # it stopped being a cosmetic one when the ATDECC entity_id started
-        # DERIVING from platform.mac_address (gate 25): a DTB that disagrees
-        # with the config gives the board one MAC on the wire and an
-        # entity_id - and therefore a stream_id {MAC, unique_id} - announcing
-        # another. Same defect class as the model id, one layer down.
-        mac = re.search(r"local-mac-address = \[([0-9a-fA-F ]+)\]", txt)
-        assert mac, f"{dts}: no local-mac-address"
-        got_mac = ":".join(mac.group(1).split()).lower()
-        assert got_mac == sh["mac_address"].lower(), (
-            f"{cfg_name}: config MAC {sh['mac_address']} != deployed {dts} "
-            f"{got_mac} - the entity_id derives from the config's, the wire "
-            f"carries the DTB's")
-        checked += 1
-        print(f"  [gate 19b] {cfg_name}: all 5 NIC reg bases + the PCM node "
-              f"base + kl,rsc-clk-mhz + the station MAC MATCH the deployed "
-              f"{os.path.basename(dts)}")
-    if not checked:
-        skip("gate 19b", "deployed-.dts cross-check: sibling repo "
-                         "milan-tests-avb not on disk")
-
-
-def test_platform_rejects():
-    """Gate 19c: a platform shape that contradicts itself or the flashed boot
-    chain raises ConfigError. The boot_chain_pin case IS the 5ce9a13 bug -
-    caught before a build instead of after a flash."""
-    cases = [
-        ("multicast station MAC",
-         lambda c: c["platform"].__setitem__("mac_address",
-                                             "01:00:00:00:00:02"),
-         "UNICAST"),
-        ("missing MAC", lambda c: c["platform"].pop("mac_address"),
-         "mac_address is required"),
-        ("csr_base below the IO region",
-         lambda c: c["platform"].__setitem__("csr_base", 0x4000_0000),
-         "0x80000000"),
-        ("PCM ring overrun",
-         lambda c: c["platform"].__setitem__("pcm_ring_bytes", 0x1000),
-         "no-map"),
-        ("unknown pinned window",
-         lambda c: c["platform"]["boot_chain_pin"].__setitem__("dma-rx7", 0),
-         "unknown window"),
-    ]
-    for label, mutate, needle in cases:
-        p = _variant(CONFIGS["arty_current"], mutate)
+    for label, mutate in (
+            ("unknown key", lambda cfg: cfg["platform"].__setitem__("mystery", 1)),
+            ("unaligned processor window",
+             lambda cfg: cfg["platform"].__setitem__("pp_mem_phys", 0x12345))):
+        path = _variant(CONFIGS["ax7101_1x1_tdm8"], mutate)
         try:
             try:
-                eb.load_config(p)
-            except eb.ConfigError as e:
-                assert needle in str(e), f"{label}: got {e}"
+                eb.load_config(path)
+            except eb.ConfigError:
+                pass
             else:
-                raise AssertionError(f"{label}: accepted")
+                raise AssertionError(f"{label}: invalid platform was accepted")
         finally:
-            os.unlink(p)
-    # THE gate: flip rx_queues under a pinned boot chain (5ce9a13 verbatim -
-    # sweep.sh set 1 for both boards while the deployed arty carries 2).
-    # The AX went to rx_queues 2 on 2026-07-28 (the D7 fix), so its refused
-    # flip is now DOWN to 1 - same defect shape, opposite direction.
-    for cfg_name, flip in (("arty_current", 1), ("ax7101_8x8", 1)):
-        p = _variant(CONFIGS[cfg_name],
-                     lambda c, n=flip: c["board"]["constraints"]
-                     .__setitem__("rx_queues", n))
-        try:
-            try:
-                eb.load_config(p)
-            except eb.ConfigError as e:
-                assert "boot_chain_pin" in str(e) and "0x74" in str(e) \
-                    and "CSR-rot" in str(e), f"{cfg_name}: got {e}"
-            else:
-                raise AssertionError(
-                    f"{cfg_name}: rx_queues={flip} accepted under a pinned "
-                    "boot chain - the 5ce9a13 CSR-rot bug is still possible")
-        finally:
-            os.unlink(p)
-        print(f"  [gate 19c] {cfg_name}: rx_queues -> {flip} REFUSED "
-              "(boot_chain_pin: every window from dma-ts on moves by 0x74)")
-    # a non-integer-MHz datapath clock cannot be expressed as kl,rsc-clk-mhz
-    p = _variant(CONFIGS["arty_current"],
-                 lambda c: c["board"]["constraints"]
-                 .__setitem__("milan_clk_hz", 50_000_001))
-    try:
-        try:
-            eb.load_config(p)
-        except eb.ConfigError as e:
-            assert "kl,rsc-clk-mhz" in str(e)
-        else:
-            raise AssertionError("non-integer-MHz datapath clock accepted")
-    finally:
-        os.unlink(p)
-    print(f"  [gate 19c] {len(cases) + 3}/{len(cases) + 3} contradictory "
-          "platform shapes rejected with ConfigError")
+            os.unlink(path)
+    print(f"  [gate 19] {len(CONFIGS)} firmware platform maps pass")
 
 
 def test_csr_defaults_header_consumed():
@@ -11048,10 +4721,14 @@ def _optional_block_cli_consumption(soc):
                 f"a dedicated `{name}=` keyword; the missing key defaults "
                 "to PRESENT and the prune flag becomes a silent no-op")
 
-    # every --no-* flag main() DECLARES must be one main() also READS, and it
-    # must stay an off-by-default store_true. `default=True` on a --no-* flag
-    # inverts the lever in silence (an UNFLAGGED build takes the pruned path),
-    # and a flag nothing reads is decorative ABI wearing a CLI hat.
+    # Every ordinary --no-* flag main() DECLARES must be one main() also READS,
+    # and it must stay an off-by-default store_true. `--no-fabric-gptp` is the
+    # deliberate exception: it is the negative member of a mutually-exclusive
+    # owner group and therefore uses store_false on the shared fabric_gptp
+    # destination; gates 1c/1e grade both of its polarities and every carrier.
+    # `default=True` on an ordinary --no-* flag inverts the lever in silence
+    # (an UNFLAGGED build takes the pruned path), and a flag nothing reads is
+    # decorative ABI wearing a CLI hat.
     read = {n.attr for n in ast.walk(mains[0]) if isinstance(n, ast.Attribute)
             and isinstance(n.value, ast.Name) and n.value.id == "args"}
     for call in ast.walk(mains[0]):
@@ -11062,6 +4739,8 @@ def _optional_block_cli_consumption(soc):
                 and str(call.args[0].value).startswith("--no-")):
             continue
         flag = call.args[0].value
+        if flag == "--no-fabric-gptp":
+            continue
         opts = {kw.arg: kw.value for kw in call.keywords if kw.arg}
         named = opts.get("dest")
         dest = named.value if isinstance(named, ast.Constant) else \
@@ -11534,10 +5213,10 @@ def test_optional_block_consumption_gate_bites():
 #  BOTH POLARITIES, because the flags have both.  The seven OPTIONAL_BLOCKS
 #  rows default PRESENT and pass their parameter ONLY when pruned (a default
 #  build emits a byte-identical top .v, the AAF_PLAYBACK_P discipline).
-#  `sound_card` and `fabric_gptp` are the mirror image - the RTL defaults are
-#  SOUND_CARD_P=0 and GPTP_PLANE_EN_P=0 and the parameter is passed only when
-#  the block is PRESENT - so they are graded upside down rather than assumed
-#  to follow the others.
+#  `sound_card` is the mirror image - the RTL default is SOUND_CARD_P=0 and
+#  the parameter is passed only when the block is PRESENT - so it is graded
+#  upside down rather than assumed to follow the others. Fabric gPTP moved to
+#  the profile-aware gate 1e when #116 made its RTL default ON.
 #
 #  WHAT THESE GATES DO NOT PROVE, stated here and in their own output because
 #  #154 asks the mechanism to say so:
@@ -11624,7 +5303,6 @@ with open(spec["result"], "w", encoding="utf-8") as fh:
 #: sw/litex, the directory every real build runs milan_soc.py from.  NOT the
 #: LiteX repo parent: `import litex` from there resolves to the checkout
 #: directory as a namespace package and the import fails.
-SOC_DIR = os.path.join(ROOT, "sw/litex")
 
 #: Placeholder an argv uses for "the launcher's --output-dir".  _instance_params
 #: substitutes its own scratch directory and then proves that directory is
@@ -11637,16 +5315,14 @@ BUILD_OUT_TOKEN = "@BUILD_OUT@"
 #:
 #: It is the only config that carries `--fabric-gptp`, which is #135's
 #: incident - nothing tied the parsed flag to p_GPTP_PLANE_EN_P, and on THIS
-#: profile (bare-metal, no ptp4l, no phc2sys) that is a bitstream with no
+#: profile whose fabric plane is the only time source.
 #: time source and no signal.
 #:
 #: And it was once thought to be the only shape that elaborates anywhere
 #: but this bench, which was wrong in both directions (#185): on a stock
 #: toolchain NO shape elaborates - this one needs the `baremetal` CPU
-#: variant, the four Linux shapes pass `--scala-args=--l2-down-pending` and
-#: `--scala-args=--l2-general-slots`, which the VexiiRiscv revision LiteX
-#: pins rejects - and with the series in sw/litex/patches applied, which
-#: apply.sh does and gate 23h proves, every shape but #184's Arty leg does.
+#: variant. With the series in sw/litex/patches applied, which apply.sh does
+#: and gate 23h proves, every supported shape reaches the datapath Instance.
 #: The series is carried in this repository; nothing about it is a local
 #: modification.
 BEHAVIOURAL_CFG = "ax7101_1x1_tdm8"
@@ -11726,10 +5402,8 @@ def _instance_params(python, runs, mutations=()):
         os.makedirs(build_out)
         for label, argv in runs:
             argv = [build_out if a == BUILD_OUT_TOKEN else a for a in argv]
-            # Several labels share one command line on purpose - the shipping
-            # argv is simultaneously the prune baseline, the sound card's
-            # ABSENT side and the gPTP plane's PRESENT side - and elaborating
-            # the same thing three times buys nothing.
+            # Several labels share one command line on purpose; elaborating
+            # the same shipping baseline more than once buys nothing.
             key = tuple(argv)
             if key in seen:
                 out[label] = seen[key]
@@ -11772,24 +5446,6 @@ def _instance_params(python, runs, mutations=()):
     return out
 
 
-#: The two inverted rows, and they are inverted for DIFFERENT reasons: the
-#: sound card is a Linux-only surface the shipping bare-metal profile drops,
-#: the fabric gPTP plane is an area-funded option the Linux profile does not
-#: take.  (flag, {parameter: the value a PRESENT build must pass}).
-#:
-#: `None` means "must appear, value unconstrained" - the ONE case is the gPTP
-#: microcode image, whose path is a build-tree location and not a constant.
-#: It is graded rather than ignored because the ROM is half of what the flag
-#: buys: a plane parameter of 1 with no image is #135's symptom with an extra
-#: step, an enabled plane that never leaves reset.  A row lists EVERY
-#: parameter its flag moves, so "changed nothing else" stays an exact test
-#: instead of a set difference nobody reads.
-PRESENT_ONLY_BLOCKS = {
-    "sound_card": ("--sound-card", {"p_SOUND_CARD_P": 1}),
-    "fabric_gptp": ("--fabric-gptp", {"p_GPTP_PLANE_EN_P": 1,
-                                      "p_GPTP_UCODE_HEX_P": None}),
-}
-
 
 def _why_failed(row):
     """One probe failure as text, with the captured output when there is any.
@@ -11803,14 +5459,13 @@ def _why_failed(row):
     return f"{err}\n      " + out.replace("\n", "\n      ") if out else err
 
 
-def _prune_contract(got, rows, inverted=()):
+def _prune_contract(got, rows):
     """Every prune-contract violation in one probe result set, as text.
 
     ONE grader, shared by the gates and by their negative controls, so a
     mutation is proved to turn THE GATE red rather than some weaker
-    restatement of it.  `rows` are the OPTIONAL_BLOCKS names to grade against
-    the "present" baseline; `inverted` names PRESENT_ONLY_BLOCKS rows, each
-    graded against its OWN `<name>_present`/`<name>` pair.
+    restatement of it. `rows` are the OPTIONAL_BLOCKS names graded against
+    the "present" baseline.
     """
     bad = []
 
@@ -11844,28 +5499,6 @@ def _prune_contract(got, rows, inverted=()):
             bad.append(f"{name}: `{flag}` changed Instance parameters other "
                        f"than {key}: "
                        f"{sorted(set(rest) ^ set(base)) or 'a value'}")
-    for name in inverted:
-        flag, wants = PRESENT_ONLY_BLOCKS[name]
-        on, off = params(f"{name}_present"), params(name)
-        for key, want in wants.items():
-            if on is not None and (on.get(key, KeyError) == KeyError
-                                   or (want is not None
-                                       and on.get(key) != want)):
-                bad.append(
-                    f"{name}: a build WITH `{flag}` got {key}="
-                    f"{on.get(key, '<absent>')!r}, want "
-                    f"{'any value' if want is None else repr(want)} - the "
-                    "RTL default is 0, so this is a row whose parameters are "
-                    "passed when the block is PRESENT")
-            if off is not None and key in off:
-                bad.append(f"{name}: a build WITHOUT `{flag}` still passes "
-                           f"{key}={off[key]!r}")
-        if on is not None and off is not None:
-            rest = {k: v for k, v in on.items() if k not in wants}
-            if rest != off:
-                bad.append(f"{name}: dropping `{flag}` changed parameters "
-                           f"other than {sorted(wants)}: "
-                           f"{sorted(set(rest) ^ set(off)) or 'a value'}")
     return bad
 
 
@@ -11888,23 +5521,18 @@ def _behavioural_runs():
 
     The baseline is the config's OWN emitted argv with the prune flags taken
     out, so every case differs from a real shipping command line by exactly
-    the token under test.  The shipping shape declares the gPTP plane and no
-    sound card, so it IS the gPTP row's present side and the sound card's
-    absent side; _instance_params elaborates that command line once.
+    the token under test. The shipping shape declares the gPTP plane, so it is
+    also that row's present side; _instance_params elaborates it once.
     """
     cfg, argv = _config_argv(BEHAVIOURAL_CFG)
     flags = {f for f, _p, _w in eb.OPTIONAL_BLOCKS.values()}
     present = [a for a in argv if a not in flags]
-    assert "--sound-card" not in present and "--fabric-gptp" in present, \
-        f"{cfg['name']} no longer has the polarities this gate grades " \
-        "against - it must ship the gPTP plane and no sound card"
+    assert "--fabric-gptp" in present, \
+        f"{cfg['name']} no longer has the polarity this gate grades " \
+        "against"
     runs = [("present", present)]
     runs += [(name, present + [flag])
              for name, (flag, _p, _w) in eb.OPTIONAL_BLOCKS.items()]
-    runs += [("sound_card_present", present + ["--sound-card"]),
-             ("sound_card", present),
-             ("fabric_gptp_present", present),
-             ("fabric_gptp", _drop_flag(present, "--fabric-gptp", 0))]
     return cfg, runs
 
 
@@ -11915,23 +5543,211 @@ def _drop_flag(argv, flag, nargs):
     return argv[:i] + argv[i + 1 + nargs:]
 
 
+# =============================================================== gate 1e ====
+# The PHC ownership bit crosses four Python call boundaries before it becomes
+# p_GPTP_PLANE_EN_P.  Gate 1c proves the public spelling; this gate executes
+# the real SoC entry point and observes the parameters handed to
+# Instance("milan_datapath").  Both software profiles are graded with the
+# option omitted and stated explicitly, plus the shipping build/sweep/deploy
+# launchers.  The same grader is reused by mutations that cut each carrier.
+
+GPTP_PROFILE_CASES = (
+    ("gptp baremetal default", "ax7101_1x1_tdm8", None, 1),
+    ("gptp baremetal explicit", "ax7101_1x1_tdm8", "--fabric-gptp", 1),
+    ("gptp ax8x8 default", "ax7101_8x8", None, 1),
+    ("gptp ax8x8 fabric explicit", "ax7101_8x8", "--fabric-gptp", 1),
+    ("gptp baremetal option-off", "ax7101_1x1_tdm8", "--no-fabric-gptp", 0),
+)
+
+
+def _gptp_without_owner_flag(argv):
+    return [a for a in argv
+            if a not in ("--fabric-gptp", "--no-fabric-gptp")]
+
+
+def _launcher_soc_argv(script, args):
+    """The milan_soc.py argv printed by a launcher's real dry-run path."""
+    proc = subprocess.run(["bash", script] + list(args), cwd=SOC_DIR,
+                          text=True, capture_output=True)
+    assert proc.returncode == 0, (
+        f"{os.path.basename(script)} {' '.join(args)} dry-run failed "
+        f"(rc={proc.returncode})\n{proc.stdout[-2000:]}\n"
+        f"{proc.stderr[-2000:]}")
+    rows = []
+    for line in proc.stdout.splitlines():
+        if "milan_soc.py" not in line:
+            continue
+        tokens = shlex.split(line.strip())
+        for i, token in enumerate(tokens):
+            if os.path.basename(token) == "milan_soc.py":
+                argv = tokens[i + 1:]
+                if "--output-dir" in argv:
+                    j = argv.index("--output-dir")
+                    argv[j + 1] = BUILD_OUT_TOKEN
+                rows.append(argv)
+                break
+    assert rows, (f"{os.path.basename(script)} {' '.join(args)} printed no "
+                  f"milan_soc.py argv\n{proc.stdout[-2000:]}")
+    return rows
+
+
+def _gptp_instance_runs():
+    """Profile/default probes and the three supported shipping entry points."""
+    runs, expected = [], {}
+    cached = {}
+    # Each config's generated directory carries its own fabric microcode.  Do
+    # not borrow another configuration's ROM: that would silently break the
+    # identity/priority binding this gate is meant to preserve.
+    for label, name, flag, want in GPTP_PROFILE_CASES:
+        if name not in cached:
+            _cfg, base_argv = _config_argv(name)
+            cached[name] = _gptp_without_owner_flag(base_argv)
+        argv = list(cached[name])
+        if flag:
+            argv.append(flag)
+        argv += ["--output-dir", BUILD_OUT_TOKEN, "--build"]
+        runs.append((label, argv))
+        expected[label] = want
+
+    build_rows = _launcher_soc_argv(BUILD_SH, ["ax7101", "--dry-run"])
+    assert len(build_rows) == 1, \
+        f"build.sh ax7101 emitted {len(build_rows)} commands, want 1"
+    runs.append(("gptp build.sh shipping", build_rows[0]))
+    expected["gptp build.sh shipping"] = 1
+
+    deploy = os.path.join(SOC_DIR, "deploy.sh")
+    deploy_rows = _launcher_soc_argv(deploy, ["build", "--dry-run"])
+    assert len(deploy_rows) == 1, \
+        f"deploy.sh build emitted {len(deploy_rows)} commands, want 1"
+    runs.append(("gptp deploy.sh shipping", deploy_rows[0]))
+    expected["gptp deploy.sh shipping"] = 1
+
+    sweep_rows = [(label, argv) for label, argv in _recipe_cases()
+                  if label == "sweep.sh ax7101"]
+    assert len(sweep_rows) == 1, \
+        f"sweep.sh ax7101 yielded {len(sweep_rows)} recipes, want 1"
+    runs.append(("gptp sweep.sh shipping", sweep_rows[0][1]))
+    expected["gptp sweep.sh shipping"] = 1
+    return runs, expected
+
+
+def _gptp_instance_contract(got, expected):
+    """Every ownership violation in a probe set, shared with mutations."""
+    bad, params = [], {}
+    for label, want in expected.items():
+        row = got.get(label) or {"error": "case not run"}
+        if "params" not in row:
+            bad.append(f"{label}: never reached the datapath Instance: "
+                       f"{_why_failed(row)}")
+            continue
+        p = params[label] = row["params"]
+        if p.get("p_GPTP_PLANE_EN_P") != want:
+            bad.append(
+                f"{label}: p_GPTP_PLANE_EN_P="
+                f"{p.get('p_GPTP_PLANE_EN_P', '<absent>')!r}, want {want}")
+        has_rom = "p_GPTP_UCODE_HEX_P" in p
+        if has_rom != bool(want):
+            bad.append(f"{label}: gPTP ROM is "
+                       f"{'present' if has_rom else 'absent'} with plane "
+                       f"{'on' if want else 'off'}")
+        if has_rom and not os.path.isabs(p["p_GPTP_UCODE_HEX_P"]):
+            bad.append(f"{label}: gPTP ROM path is not absolute")
+    for default, explicit in (("gptp baremetal default",
+                               "gptp baremetal explicit"),
+                              ("gptp ax8x8 default",
+                               "gptp ax8x8 fabric explicit")):
+        if default in params and explicit in params \
+                and params[default] != params[explicit]:
+            changed = sorted(k for k in set(params[default]) | set(params[explicit])
+                             if params[default].get(k) != params[explicit].get(k))
+            bad.append(f"{default}: omission differs from the explicit owner "
+                       f"at {changed}")
+    return bad
+
+
+def test_gptp_plane_reaches_the_instance():
+    """Gate 1e: both owner states reach the real RTL Instance."""
+    python = _litex_or_skip("gate 1e")
+    if python is None:
+        return
+    runs, expected = _gptp_instance_runs()
+    got = _instance_params(python, runs)
+    bad = _gptp_instance_contract(got, expected)
+    assert not bad, "gate 1e:\n  " + "\n  ".join(bad)
+
+    # #259: option-off is VERIFICATION-ONLY hardware on every profile. The
+    # bare-metal option-off case above already proves it reaches the real
+    # Instance with the plane off; here the soc must have said so out loud
+    # (zero gPTP owners, not a supported product image).
+    off_run = got.get("gptp baremetal option-off", {})
+    assert "params" in off_run, \
+        "option-off verification elaboration did not reach the Instance"
+    # The out-loud announcement itself is pinned as source text by gate 1c
+    # ("VERIFICATION-ONLY" in milan_soc.py, beside the removed coupling).
+    print(f"  [gate 1e] {len(runs)} real elaborations: the product fabric "
+          "default is identical across product shapes and to explicit ON; "
+          "bare-metal option-OFF elaborates as announced verification-only "
+          "hardware (#259); build.sh, sweep.sh and deploy.sh ship fabric "
+          "ownership")
+
+
+GPTP_INSTANCE_MUTATIONS = (
+    ("main ties the parsed owner off",
+     [("gptp_plane=args.fabric_gptp,", "gptp_plane=False,", 1)],
+     "gptp baremetal explicit"),
+    ("MilanSoC drops its owner carrier",
+     [("\n" + " " * 34 + "gptp_plane=gptp_plane,\n",
+       "\n" + " " * 34 + "gptp_plane=None,\n", 1)],
+     "gptp baremetal explicit"),
+    ("MilanNIC drops its owner carrier",
+     [("\n" + " " * 27 + "gptp_plane=gptp_plane,\n",
+       "\n" + " " * 27 + "gptp_plane=None,\n", 1)],
+     "gptp baremetal explicit"),
+    ("the emitted parameter is tied on",
+     [("p_GPTP_PLANE_EN_P=int(bool(gptp_plane))",
+       "p_GPTP_PLANE_EN_P=int(True)", 1)],
+     "gptp baremetal option-off"),
+    ("the emitted parameter is inverted",
+     [("p_GPTP_PLANE_EN_P=int(bool(gptp_plane))",
+       "p_GPTP_PLANE_EN_P=int(not gptp_plane)", 1)],
+     "gptp baremetal explicit"),
+    ("the omission default stops selecting the product owner",
+     [('args.fabric_gptp = not args.no_milan',
+       'args.fabric_gptp = False', 1)],
+     "gptp ax8x8 default"),
+)
+
+
+def test_gptp_plane_instance_gate_bites():
+    """Gate 1e negative controls: every Python carrier cut turns it red."""
+    python = _litex_or_skip("gate 1e mutation")
+    if python is None:
+        return
+    runs, expected = _gptp_instance_runs()
+    cases = dict(runs)
+    for why, mutations, label in GPTP_INSTANCE_MUTATIONS:
+        got = _instance_params(python, [(label, cases[label])], mutations)
+        bad = _gptp_instance_contract(got, {label: expected[label]})
+        assert bad, f"gate 1e accepted a tree where {why}"
+    print(f"  [gate 1e mutation] {len(GPTP_INSTANCE_MUTATIONS)}/"
+          f"{len(GPTP_INSTANCE_MUTATIONS)} owner-carrier cuts rejected")
+
+
 def test_optional_blocks_reach_the_instance():
     """gate 23f - THE BEHAVIOURAL PRUNE PROOF (issues #130, #154).
 
-    Every OPTIONAL_BLOCKS row plus the two PRESENT_ONLY_BLOCKS rows, both
-    directions, graded on the parameters that actually reach
-    Instance("milan_datapath", ...) in a real elaboration of the shipping
-    configs.  A prune must land as `p_<PARAM>=0` AND MUST CHANGE NOTHING ELSE
-    - a flag that prunes the wrong block is the same silent lie as a flag
-    that prunes nothing."""
+    Every OPTIONAL_BLOCKS row is graded on the
+    parameters that actually reach Instance("milan_datapath", ...) in a real
+    elaboration of the shipping configs.  A prune must land as `p_<PARAM>=0`
+    AND MUST CHANGE NOTHING ELSE - a flag that prunes the wrong block is the
+    same silent lie as a flag that prunes nothing."""
     python = _litex_or_skip("gate 23f")
     if python is None:
         return
     cfg, runs = _behavioural_runs()
     t0 = time.time()
     got = _instance_params(python, runs)
-    bad = _prune_contract(got, list(eb.OPTIONAL_BLOCKS),
-                          list(PRESENT_ONLY_BLOCKS))
+    bad = _prune_contract(got, list(eb.OPTIONAL_BLOCKS))
     assert not bad, "gate 23f:\n  " + "\n  ".join(bad)
     base = got["present"]["params"]
     print(f"  [gate 23f] {len({tuple(a) for _l, a in runs})} real "
@@ -11940,10 +5756,8 @@ def test_optional_blocks_reach_the_instance():
           f"{len(eb.OPTIONAL_BLOCKS)} --no-* flags lands as p_<PARAM>=0 in "
           f'the Instance("milan_datapath") parameters and moves NOTHING '
           f"else, a build that prunes nothing passes none of them "
-          f"({len(base)} parameters, byte-identical top .v), and both "
-          f"inverted rows land the other way up: p_SOUND_CARD_P=1 with "
-          f"--sound-card, and p_GPTP_PLANE_EN_P=1 WITH its microcode image "
-          f"with --fabric-gptp, both absent without them. This grades what "
+          f"({len(base)} parameters, byte-identical top .v). Fabric gPTP's product "
+          f"default is graded separately by gate 1e. This grades what "
           f"elaboration HANDS the module, not "
           f"what the module DOES with it (gate 23d) and not that the "
           f"bitstream places or boots")
@@ -11957,8 +5771,8 @@ def test_optional_block_instance_gate_bites():
     same real elaborations, so what is proved is that THE GATE goes red, not
     that some weaker restatement of it does.
 
-    Eight of the eleven leave every OTHER gate in this file green, which is
-    the whole reason this gate exists.  The three that do NOT are gate 23d's
+    Most controls leave every OTHER gate in this file green, which is the
+    whole reason this gate exists.  The controls that do not are gate 23d's
     own: the dropped `not args.no_maap` handoff is exactly what 23d was
     written for, and the renamed parameter trips its `p_<PARAM>=0` grep.
     They are kept here so the two gates' division of labour is stated rather
@@ -11994,29 +5808,16 @@ def test_optional_block_instance_gate_bites():
         ("the prune predicate is INVERTED",
          [("        if not blocks[k]:", "        if blocks[k]:", 1)],
          ["datapath_probes"], []),
-        ("the sound-card row's own predicate is inverted",
-         [('    if sound_card:\n        dp_params["p_SOUND_CARD_P"] = 1',
-           '    if not sound_card:\n        dp_params["p_SOUND_CARD_P"] = 1',
-           1)], [], ["sound_card"]),
-        # The two #135 hops, verbatim: a reviewer severed the --fabric-gptp
-        # chain at each of them and read ALL GATES PASS both times.
-        ("main() never hands --fabric-gptp to MilanSoC (#135, hop 1)",
-         [("gptp_plane=args.fabric_gptp,", "gptp_plane=False,", 1)],
-         [], ["fabric_gptp"]),
-        ("the gPTP plane parameter is never emitted (#135, hop 2)",
-         [('        dp_params["p_GPTP_PLANE_EN_P"] = 1',
-           "        pass", 1)], [], ["fabric_gptp"]),
     ]
     t0 = time.time()
     for why, mutations, rows, inverted in controls:
-        labels = ["present"] + rows if rows else []
-        labels += [f"{n}_present" for n in inverted] + list(inverted)
+        labels = ["present"] + rows
         got = _instance_params(python, [(lbl, cases[lbl]) for lbl in labels],
                                mutations)
-        bad = _prune_contract(got, rows, inverted)
+        bad = _prune_contract(got, rows)
         assert bad, (f"gate 23f accepted a milan_soc.py in which {why} "
                      f"({mutations[0][0]!r} -> {mutations[0][1]!r})")
-        want = (rows or inverted)[0]
+        want = rows[0]
         assert any(line.startswith(f"{want}:") for line in bad), \
             f"{why}: gate 23f went red for the wrong row: {bad}"
     print(f"  [gate 23f mutation] {len(controls)}/{len(controls)} broken "
@@ -12024,8 +5825,8 @@ def test_optional_block_instance_gate_bites():
           f"{time.time() - t0:.0f} s: a dropped CLI handoff, two dropped "
           "constructor keywords, a dropped keyword inside "
           "add_milan_datapath, a suppressed parameter, a renamed parameter, "
-          "both prune polarities inverted, and BOTH #135 hops - severed "
-          "independently, each one a bitstream with no time source")
+          "and both prune polarities inverted; gate 1e separately owns the "
+          "profile-aware gPTP chain")
 
 
 #  gate 23g (issue #156) - EVERY SHIPPED RECIPE CAN ACTUALLY RUN.
@@ -13261,7 +7062,12 @@ def test_d8_role_pools():
     static AUDIO_MAP falls through to the pool that can actually source the
     stream. The AX case (a board that routes NO audio pins) is the one the
     round exists for."""
-    # (a) the AX shape as shipped: 0 physical, host 8, pilot, loopback 8
+    # (a) the AX shape as shipped since #259: 0 physical, NO host pool (it
+    #     absent), pilot, loopback 8. The
+    #     listeners are therefore empty-handed: the STREAM_PORT_INPUTs
+    #     exist and stay dynamically mapped (Milan 5.3.3.9) but truthfully
+    #     own ZERO local AUDIO_CLUSTER descriptors - the retired posture,
+    #     pinned.
     r = eb.build(CONFIGS["ax7101_8x8"], OUT)
     ovl = r["overlay"]
     check_port_layout(ovl, 8, 8)
@@ -13269,25 +7075,28 @@ def test_d8_role_pools():
     assert ovl["physical_binding"]["physical_channels"] == \
         {"capture": 0, "render": 0}, "the AX routes no audio pins"
     P_in, P_out = ovl["stream_ports"]["input"], ovl["stream_ports"]["output"]
-    assert all(p["clusters"] == 8 for p in P_in), P_in         # host only
-    assert all(p["clusters"] == 17 for p in P_out), P_out      # 8 + 1 + 8
-    assert ovl["descriptor_counts"]["AUDIO_CLUSTER"] == 8*8 + 8*17 == 200
+    assert all(p["clusters"] == 0 for p in P_in), P_in         # no pool at all
+    assert all(p["pool"] == [] for p in P_in), P_in
+    assert all(p.get("map_mode") == "dynamic" for p in P_in), P_in
+    assert all(p["clusters"] == 9 for p in P_out), P_out       # 1 + 8
+    assert ovl["descriptor_counts"]["AUDIO_CLUSTER"] == 8*0 + 8*9 == 72
     assert all(g["role"] != "physical" for p in P_in + P_out for g in p["pool"]), \
         "a board with 0 routed channels must emit NO physical clusters"
-    # (b) the primary segment: listeners fall through to host, and so do the
-    #     talkers - because the primary segment is now the first pool this
-    #     BUILD can actually feed (task #65). LOOPBACK is still the pool the
-    #     USER asked for (2026-07-28) and it comes back the moment
+    # (b) the primary segment: an empty-handed listener has none (#259),
+    #     and the talkers fall through to the first pool this BUILD can
+    #     actually feed (task #65). LOOPBACK is still the pool the USER
+    #     asked for (2026-07-28) and it comes back the moment
     #     cluster_mapping.fabric.loopback_lane is declared, which gate 17e
     #     proves in both directions; with the lane off, pointing the power-on
-    #     image at it would advertise a source milan_datapath does not carry.
-    #     Since the 08-01 flip the ship talkers are map_mode dynamic (no
-    #     AUDIO_MAP descriptors), so the identity lives in the DYNAMIC
-    #     engine's power-on image (AEM_ODMAP_INIT_C).
-    assert all(p["primary_role"] == "host" for p in P_in)
+    #     image at it would advertise a source milan_datapath does not carry,
+    #     so the identity is the PILOT tone. Since the 08-01 flip the ship
+    #     talkers are map_mode dynamic (no AUDIO_MAP descriptors), so the
+    #     identity lives in the DYNAMIC engine's power-on image
+    #     (AEM_ODMAP_INIT_C).
+    assert all(p["primary_role"] is None for p in P_in)
     lane = (eb.load_config(CONFIGS["ax7101_8x8"])["interface"]
             ["cluster_fabric"]["loopback_lane"])
-    want = "loopback" if lane else "host"
+    want = "loopback" if lane else "pilot"
     assert all(p["primary_role"] == want for p in P_out), \
         f"lane={lane} but talker primary_role is not {want}"
     for p in P_out:
@@ -13310,10 +7119,18 @@ def test_d8_role_pools():
                 for v in mi.group(2).split(",")]
         seg = next(g for g in P_out[0]["pool"] if g["role"] == want)
         assert len(vals) == 8 * len(P_out)
+        # #259: the want pool is no longer 8 wide on every shape (pilot is
+        # ONE cluster), so only its width's worth of keys may arm; the rest
+        # of each port's eight keys wake NOT MAPPED, which Milan v1.2
+        # 5.3.9.1 makes explicit and legal - never on an unbacked source.
+        armed_w = min(seg["width"], 8)
         for k, v in enumerate(vals):
-            assert v >> 5 == 1, f"identity key {k} not armed"
-            assert seg["offset"] <= (v & 0x1F) < seg["offset"] + seg["width"], \
-                f"identity key {k} cluster {v & 0x1F} outside {want} pool"
+            if k % 8 < armed_w:
+                assert v >> 5 == 1, f"identity key {k} not armed"
+                assert (v & 0x1F) == seg["offset"] + k % 8, \
+                    f"identity key {k} cluster {v & 0x1F} outside {want} pool"
+            else:
+                assert v == 0, f"identity key {k} armed past the {want} pool"
         # and EVERY armed key must name a template the fabric can source -
         # the property whose absence was the whole defect. A key is armed
         # only where gen_aem_store found srcs[co]["valid"], so an unbacked
@@ -13337,35 +7154,31 @@ def test_d8_role_pools():
     assert byport[0][0] == "Loopback S0 ch 0" and byport[7][0] == "Loopback S7 ch 0"
     assert len({tuple(v) for v in byport.values()}) == 8, \
         "every talker port must offer a DIFFERENT loopback source set"
-    print(f"  [gate 24a] ax7101_8x8 role-pools: 200 AUDIO_CLUSTERs "
-          f"(8x host8 in; 8x host8+pilot1+loopback8 out), 0 physical because "
-          f"the board routes none, talker map -> {want} (fabric lane "
+    print(f"  [gate 24a] ax7101_8x8 role-pools: 72 AUDIO_CLUSTERs "
+          f"(8x empty-handed in, #259; 8x pilot1+loopback8 out), 0 physical "
+          f"because the board routes none, talker map -> {want} (fabric lane "
           f"{'on' if lane else 'off'}), 8 distinct loopback sources offered")
 
     # (d) physical pool APPEARS when the platform declares routed channels
     p = _pools_variant("ax7101_8x8", {"capture": 16, "render": 16},
-                       {"host": 2, "pilot": True, "loopback": 2})
+                       {"pilot": True, "loopback": 2})
     try:
         r = eb.build(p, os.path.join(OUT, "_pools"))
         P = r["overlay"]["stream_ports"]["output"][0]
         assert [g["role"] for g in P["pool"]] == \
-            ["physical", "host", "pilot", "loopback"], P
-        assert P["clusters"] == 16 + 2 + 1 + 2
+            ["physical", "pilot", "loopback"], P
+        assert P["clusters"] == 16 + 1 + 2
         # With physical present the static map still does NOT go to loopback -
-        # that was and remains the point of this assertion. Since 0x0043 it
-        # goes to HOST rather than to physical: declaring the AX7101's TDM8
-        # channels made physical-first silently move the talker's power-on
-        # identity off the shared-memory lane and onto the J11 pins, so a
-        # board with no codec would wake up streaming whatever `din` floats
-        # to and the PipeWire path would need a controller mapping every boot.
-        # USER 2026-08-10 chose the host lane again, with physical on the
-        # table this time (the 08-06 rule was decided against loopback, before
-        # a real physical front end existed). Ordering is PRIMARY_ROLE_ORDER;
-        # cluster NUMBERING is unchanged and still physical-first.
-        assert P["primary_role"] == "host", P["primary_role"]
+        # that was and remains the point of this assertion. The 0x0043
+        # host-outranks-physical order lost its subject when the host pool
+        # is absent (#259): PRIMARY_ROLE_ORDER
+        # keeps the retired role in the walk with nothing to bind it, so
+        # the identity lands on PHYSICAL (this variant is not the shipped
+        # AX, whose declared truth stays 0 routed channels), and the
+        # UNBACKED loopback pool is never a candidate (task #65).
+        assert P["primary_role"] == "physical", P["primary_role"]
         assert [g["role"] for g in P["pool"]][0] == "physical", \
-            "cluster numbering must stay physical-first - only the identity " \
-            "preference moved"
+            "cluster numbering must stay physical-first"
         names = [c["name"] for c in r["overlay"]["audio_clusters"]
                  if c["port_index"] == 0 and c["direction"] == "output"]
         # Derived from the variant's own interface kind, not hardcoded: the
@@ -13381,15 +7194,19 @@ def test_d8_role_pools():
     print("  [gate 24a] declaring routed channels re-introduces the physical "
           "pool AND moves the static map onto it (primary-role fallthrough)")
 
-    # (e) BOUNDARY: a 64-wide loopback pool is the shape D8 sketches and D6
-    #     predicted could not be stored - it must VALIDATE and be marked, not
-    #     crash and not silently wrap the 16-bit ROM address space.
+    # (e) BOUNDARY: an over-wide loopback pool is the shape D8 sketches and
+    #     D6 predicted could not be stored - it must VALIDATE and be marked,
+    #     not crash and not silently wrap the 16-bit ROM address space.
+    #     #259 took the host pool (and the 8 host clusters per port) away;
+    #     loopback widens 64 -> 72 so the per-output-port total stays 89
+    #     and the deliberate overflow is preserved (840 clusters at 90 B
+    #     put the ROM at 80873 B, still past the 65536 B store).
     p = _pools_variant("ax7101_8x8", {"capture": 16, "render": 16},
-                       {"host": 8, "pilot": True, "loopback": 64})
+                       {"pilot": True, "loopback": 72})
     try:
         r = eb.build(p, os.path.join(OUT, "_pools"))
         assert r["overlay"]["descriptor_counts"]["AUDIO_CLUSTER"] == \
-            8*(16+8) + 8*(16+8+1+64), r["overlay"]["descriptor_counts"]
+            8*16 + 8*(16+1+72), r["overlay"]["descriptor_counts"]
         assert r["aem_rom_svh"] is None, "a 64 KiB+ ROM must NOT be emitted"
         assert "16-bit" in r["aem_rom_unsupported"], r["aem_rom_unsupported"]
         # builder contract: it VALIDATES and lands in the plan, never errors
@@ -13405,9 +7222,9 @@ def test_d8_role_pools():
             assert "entity definition is incomplete" in str(e), e
     finally:
         os.unlink(p)
-    print("  [gate 24a] the full 64-wide D8 pool VALIDATES, exceeds the "
-          "16-bit AEM store address space, is marked rather than emitted, "
-          "and --write-rtl REFUSES it (D6 is the owner)")
+    print("  [gate 24a] the over-wide (72) D8 loopback pool VALIDATES, "
+          "exceeds the 16-bit AEM store address space, is marked rather "
+          "than emitted, and --write-rtl REFUSES it (D6 is the owner)")
 
 
 def test_d8_role_pools_reject():
@@ -13439,11 +7256,13 @@ def test_d8_role_pools_reject():
              "physical_channels", {"capture": 0, "playback": 0})),
         ("unknown pool key", "ax7101_8x8",
          lambda c: c["audio_interface"]["cluster_mapping"].__setitem__(
-             "pools", {"host": 8, "tdm": 8})),
-        # every pool zero => a STREAM_PORT with no cluster block at all
+             "pools", {"pilot": True, "tdm": 8})),
+        # every pool zero: empty-handed STREAM_PORT_INPUTs are legal since
+        # #259, but a STREAM_PORT_OUTPUT with no cluster block still is not
+        # - a talker needs a source, so the refusal stands
         ("all pools zero", "ax7101_8x8",
          lambda c: c["audio_interface"]["cluster_mapping"].__setitem__(
-             "pools", {"host": 0, "pilot": False, "loopback": 0})),
+             "pools", {"pilot": False, "loopback": 0})),
         ("unknown policy", "ax7101_8x8",
          lambda c: c["audio_interface"]["cluster_mapping"].__setitem__(
              "policy", "role-pool")),
@@ -13523,8 +7342,9 @@ def test_d10_cluster_names():
     finally:
         os.unlink(p)
     # ... but a pool WIDTH must, because it changes the descriptor set
+    # (loopback 4 against the base's 8 - one width apart is enough)
     p = _pools_variant("ax7101_8x8", {"capture": 0, "render": 0},
-                       {"host": 8, "pilot": True, "loopback": 4})
+                       {"pilot": True, "loopback": 4})
     try:
         assert eb.load_config(p)["model_id"]["hash"] != \
             base["model_id"]["hash"], "a pool WIDTH left the model id frozen"
@@ -13540,9 +7360,18 @@ def test_d10_cluster_names():
     # obligation being discharged, not a D8-era regression - which is why the
     # D8 conditional keys above stayed conditional and this key did not),
     # then -> 0x001BC5FC6D9248FB when Milan v1.2 5.3.3.9 made the final
-    # shipped input dynamic and removed its forbidden AUDIO_MAP.
+    # shipped input dynamic and removed its forbidden AUDIO_MAP,
+    # then -> 0x001BC5B17E3D155F when #259 stated the fabric owner's gptp:
+    # section on the retired Arty configs (the section joins model_shape by
+    # design; its values restate the historical descriptor constants
+    # byte-exactly, and the served id itself stays pinned),
+    # then -> 0x001BC5D471D5A5E1 when the gptp: section stopped restating
+    # the historical clock_accuracy 0x21 / log_sync_interval 0 and derives
+    # the engine's announced 0xFE / -3 instead ([R-parallel] on #228):
+    # AVB_INTERFACE clock fields are descriptor content, so 6.2.2.8 obliges
+    # the move, while the served id itself stays pinned.
     assert eb.load_config(CONFIGS["arty_current"])["model_id"]["hash"] == \
-        "0x001BC5FC6D9248FB"
+        "0x001BC5D471D5A5E1"
     # arty_4x4's hash has now moved THREE times, correctly every time:
     # 0x001BC565E07E0DD6 -> 0x001BC5C42E0CEE8B when the per-board routing
     # gate forced tdm8 -> i2s_philips (no header existed), ->
@@ -13559,14 +7388,21 @@ def test_d10_cluster_names():
     # counts as {1, 2, 4, 6, 8}, so the ut entry has to reach 8 (gate 29).
     # The advertised formats list is descriptor content, so 6.2.2.8 obliges
     # the new id. And a SIXTH time -> 0x001BC59AB5D4ADE1 when AEM_LAYOUT_REV
-    # went 2 -> 3 and AUDIO_CLUSTER grew from the 2013 87 octets to 2021's 90.
+    # went 2 -> 3 and AUDIO_CLUSTER grew from the 2013 87 octets to 2021's 90,
+    # and a SEVENTH -> 0x001BC565D9B48CD0 when #259 stated the fabric owner's
+    # gptp: section on the retired Arty configs (the section joins
+    # model_shape by design; its values restate the historical descriptor
+    # constants byte-exactly), and an EIGHTH -> 0x001BC5E53D97FC91 when that
+    # restatement was itself retired: clock_accuracy 0x21 / log_sync_interval
+    # 0 are deleted and the builder derives the engine's announced 0xFE / -3
+    # ([R-parallel] on #228), which is descriptor content per 7.2.8.
     # `interface.kind`, the descriptor set and
     # the byte layout are all model-shaping, so a shape change SHOULD move a
     # hash-derived id - that is the mechanism working. What must NOT move is
     # arty_current's PINNED id above, and it has not: it was re-pinned by hand
     # with the reflash, which is the only way a pin is allowed to move.
     assert eb.load_config(CONFIGS["arty_4x4"])["model_id"]["hash"] == \
-        "0x001BC59AB5D4ADE1"
+        "0x001BC5E53D97FC91"
     print("  [gate 24c] every cluster named for its ROLE; renaming leaves "
           "entity_model_id frozen (1722.1 6.2.2.8 exclusion list) while a "
           "pool width moves it; pre-D8 hashes stay explicitly pinned to "
@@ -13623,115 +7459,13 @@ def test_d10_names_reach_the_rom():
           f"(aem_golden.h comparand DELETED with the aecp suite)")
 
 
-#: The four ADP CSRs that carry the entity's IDENTITY. Every one of them is a
-#: value the builder computes, so every one must reach the board through the
-#: generated conf - never as a literal in the boot script.
-IDENTITY_CSRS = {"0x604": "entity_id lo", "0x608": "entity_id hi",
-                 "0x60C": "entity_model_id lo", "0x610": "entity_model_id hi"}
-
-
-def _sh_code(path):
-    """The shipped script with sh comments removed - what actually RUNS. A
-    grep over the raw text would be satisfied by moving a literal into the
-    comment that explains it, which is precisely the state this gate exists to
-    forbid; and the history the comments carry (which stale id was where) is
-    worth keeping, so the gate reads code and code only."""
-    return "\n".join(re.sub(r"#.*$", "", ln) for ln in open(path).read()
-                     .splitlines())
-
-
-def test_entity_identity_is_derived_not_mirrored():
-    """Gate 25: the flashed board's entity_model_id is DERIVED from the config
-    that board's bitstream is built from, and nothing restates it.
-
-    THE DEFECT (silicon 2026-08-02, the fifth mirrored-constant instance of
-    that week). S50milan carried `w 0x610 0x001BC52E` / `w 0x60C 0xD611DB08`
-    for the AX. The 8x8 config then gained dynamic output maps, the AEM ROM was
-    regenerated and the shape re-hashed to 0x001BC52B80A86C93 - and the script
-    did not move. The fabric serves the AEM ENTITY descriptor's
-    entity_model_id FROM those CSRs (the ROM's OVL_MODEL_ID_C overlay slot),
-    so the board advertised one model id over a different model's descriptors.
-    Controllers cache AEM by model id and 1722.1-2021 6.2.1.10 makes the id the
-    identity OF the model: two AEMs under one id is a conformance break. The
-    Arty branch had rotted identically (0x001BC578CBCE5FBD named, 4x4 config
-    hashing to 0x001BC5A10610BAB8).
-
-    Two halves, because either alone can be defeated:
-      a) no identity CSR in the shipped script is written from a LITERAL -
-         every one takes a shell variable - and the OUI 0x001BC5 appears
-         nowhere in the code. A literal cannot come back.
-      b) the generated /etc/milan-entity.<board>.conf that replaced them is
-         byte-for-byte what the builder emits TODAY for the config that board
-         builds (sweep_config(), READ from sweep.sh - never restated here, the
-         gate-9 rule). A stale file cannot survive."""
-    if not os.path.exists(S50MILAN):
-        skip("gate 25", "identity-derivation cross-check: sibling repo "
-                        "milan-tests-avb not on disk")
-        return
-    code = _sh_code(S50MILAN)
-    seen = set()
-    for m in re.finditer(r"^\s*w\s+(0x[0-9A-Fa-f]+)\s+(\S+)", code, re.M):
-        reg = "0x" + m.group(1)[2:].upper()
-        if reg not in IDENTITY_CSRS:
-            continue
-        seen.add(reg)
-        assert m.group(2).startswith("$"), (
-            f"{S50MILAN}: {reg} ({IDENTITY_CSRS[reg]}) is written from the "
-            f"LITERAL {m.group(2)} - the 2026-08-02 defect verbatim. It must "
-            f"come from /etc/milan-entity.<board>.conf, which the builder "
-            f"generates in the same pass that writes the AEM ROM.")
-    assert seen == set(IDENTITY_CSRS), (
-        f"{S50MILAN}: identity CSRs {sorted(set(IDENTITY_CSRS) - seen)} are "
-        f"never written - the entity would advertise the reset value 0")
-    assert not re.search(r"0x0*01[Bb][Cc]5", code), (
-        f"{S50MILAN}: the Kebag Logic OUI 0x001BC5 appears in CODE - some "
-        f"model-id literal is back. It belongs only in the generated conf.")
-    assert re.search(r"/etc/milan-entity\.\$\w+\.conf", code), (
-        f"{S50MILAN}: nothing sources /etc/milan-entity.<board>.conf")
-    subprocess.run(["sh", "-n", S50MILAN], check=True)
-    print(f"  [gate 25] {os.path.basename(S50MILAN)}: all "
-          f"{len(IDENTITY_CSRS)} identity CSRs written from the sourced conf, "
-          f"zero model-id literals in code, sh -n clean")
-    for board in ("arty", "ax7101"):
-        p = eb.entity_conf_overlay_path(board)
-        assert p and os.path.exists(p), (
-            f"the rootfs overlay ships no identity for {board} ({p}) - "
-            f"S50milan would refuse to program the entity. Generate it: "
-            f"python3 sw/builder/endstation_builder.py --write-rtl "
-            f"<{board} config>")
-        cfg = eb.load_config(sweep_config(board))
-        want = eb.emit_entity_conf(cfg)
-        got = open(p).read()
-        assert got == want, (
-            f"{p} is STALE: it is not what {cfg['source']} - the config "
-            f"sweep.sh builds this board from - generates today. Regenerate: "
-            f"python3 sw/builder/endstation_builder.py --write-rtl "
-            f"{cfg['source']}")
-        kv = dict(re.findall(r"^(MILAN_\w+)=(\S+)$", got, re.M))
-        mid = (int(kv["MILAN_MODEL_ID_HI"], 16) << 32) \
-            | int(kv["MILAN_MODEL_ID_LO"], 16)
-        assert f"0x{mid:016X}" == cfg["entity"]["entity_model_id"], (
-            f"{p}: model id 0x{mid:016X} != the builder's "
-            f"{cfg['entity']['entity_model_id']} for {cfg['source']}")
-        eid = (int(kv["MILAN_ENTITY_ID_HI"], 16) << 32) \
-            | int(kv["MILAN_ENTITY_ID_LO"], 16)
-        assert eid == eb.derive_entity_id(cfg), f"{p}: entity_id drifted"
-        assert int(kv["MILAN_N_TALKERS"]) == len(cfg["talkers"]), \
-            f"{p}: talker count drifted (the MAAP claim size derives from it)"
-        assert int(kv["MILAN_SR_VID"]) == cfg["srp"]["vid"], f"{p}: SR VID"
-        subprocess.run(["sh", "-n", p], check=True)
-        print(f"  [gate 25] {board}: shipped identity == builder output for "
-              f"{os.path.basename(cfg['source'])} "
-              f"(model id {cfg['entity']['entity_model_id']}, "
-              f"{kv['MILAN_N_TALKERS']} talkers, SR VID {kv['MILAN_SR_VID']})")
-
 
 def test_gptp_domain_is_one_source():
     """Gate 26: the gPTP domain number reaches BOTH consumers from the one
     `gptp.domain` line, and no hand-written copy survives.
 
-    THE DEFECT THIS GATE CLOSES.  `gptp.domain` used to reach ptp4l only
-    (emit_gptp_cfg's `domainNumber`).  The other consumer - ADPDU byte 48
+    THE DEFECT THIS GATE CLOSES. `gptp.domain` once reached only one consumer.
+    The other consumer - ADPDU byte 48
     (1722.1-2021 6.2.1.16), served from CSR 0x62C - got its value from a
     hardcoded `w 0x62C 0x00000000` in avdecc/aecp_csr_setup.sh.  The two
     agreed only because every shipping config happens to say 0, so a config
@@ -13752,7 +7486,6 @@ def test_gptp_domain_is_one_source():
         gptp.domain -> ADP_GPTP_DOMAIN_C in the generated adp shape header
                     -> milan_csr's adp_domain reset
                     -> milan_csr's csr_default readback ROM (they must mirror)
-                    -> emit_gptp_cfg's domainNumber
                     -> o_adp_gptp_domain -> cfg_adp_gptp_domain
                     -> adp_advertiser -> ADPDU byte 48
 
@@ -13783,11 +7516,7 @@ def test_gptp_domain_is_one_source():
     assert int(m.group(1)) == DOM, \
         f"ADP_GPTP_DOMAIN_C = {m.group(1)}, config says {DOM}"
 
-    # 2. and the ptp4l half carries the SAME number, from the same line
-    assert f"domainNumber            {DOM}\n" in eb.emit_gptp_cfg(r["cfg"]), \
-        "the generated gptp.cfg domainNumber does not match gptp.domain"
-
-    # 3. the RTL consumes the symbol in BOTH places, and by NAME - a literal
+    # 2. the RTL consumes the symbol in BOTH places, and by NAME - a literal
     #    in either would let the two drift again (the rule milan_csr states
     #    at VERSION 0x0026: reset literal and readback ROM move together)
     csr = open(MILAN_CSR_SV).read()
@@ -13797,13 +7526,13 @@ def test_gptp_domain_is_one_source():
                      r"32'\(ADP_GPTP_DOMAIN_C\)\s*;", csr), \
         "milan_csr's csr_default ROM does not mirror the adp_domain reset"
 
-    # 4. and the boot script no longer writes 0x62C - the clobber is gone
+    # 3. and the initialization script no longer writes 0x62C - the clobber is gone
     setup = open(os.path.join(ROOT, "avdecc/aecp_csr_setup.sh")).read()
     assert not re.search(r"^\s*w\s+0x62[Cc]\b", setup, re.M), \
         ("aecp_csr_setup.sh still writes 0x62C - it would clobber the "
          "elaborated gPTP domain back to its literal")
 
-    # 5. the register reaches the ADVERTISER.  A reset value nothing reads is
+    # 4. the register reaches the ADVERTISER.  A reset value nothing reads is
     #    not a fix, so walk the chain by NAME - each link is one rename away
     #    from silently detaching, and none of it is covered above:
     #      adp_domain[7:0] -> milan_csr.o_adp_gptp_domain
@@ -13822,8 +7551,15 @@ def test_gptp_domain_is_one_source():
     #     gate 24d owns it, and earlier gates in this process rebuild those
     #     files, so a copy of the check here could never fail - a check that
     #     cannot fail reads as coverage without being any.)
-    assert re.search(r"assign\s+o_adp_gptp_domain\s*=\s*adp_domain\[7:0\]\s*;",
-                     csr), "milan_csr does not export adp_domain[7:0]"
+    #    In fabric mode the exported domain is the ENGINE constant (802.1AS
+    #    8.1 domain 0): the shadow feeds the port only in the option-off
+    #    elaboration, so a compatibility write can never move the ADP,
+    #    GET_AVB_INFO or notification faces off the wire's domain.
+    assert re.search(
+        r"assign\s+o_adp_gptp_domain\s*=\s*GPTP_PLANE_EN_P\s*\?\s*8'd0\s*:"
+        r"\s*adp_domain\[7:0\]\s*;", csr), \
+        "milan_csr does not serve the engine-owned domain in fabric mode " \
+        "(and the option-off shadow otherwise)"
     dp = open(os.path.join(ROOT, "hdl/milan/milan_datapath.sv")).read()
     assert re.search(r"\.o_adp_gptp_domain\s*\(\s*cfg_adp_gptp_domain\s*\)",
                      dp), "milan_datapath does not take the CSR's domain"
@@ -13842,185 +7578,152 @@ def test_gptp_domain_is_one_source():
           f"the advertising plane's gptp_domain_i")
 
 
-def _reserved_regions(dtsi):
-    """The emitted device tree's `reserved-memory` node, parsed:
-    ((#address-cells, #size-cells), [{name, base, size, no_map}, ...]).
+def test_gptp_dataset_matches_engine_announce():
+    """Gate 26b: the AVB_INTERFACE clock dataset IS the engine's Announce.
 
-    PARSED FROM THE TEXT, never asked of the builder that wrote it. This text
-    becomes the DTB the kernel honours, so an expectation taken from the
-    emitter could not disagree with it, and a disagreement between the bytes
-    the gateware compiles and the bytes the kernel protects is the whole
-    reason this parser exists.
-    """
-    i = dtsi.index("reserved-memory")
-    j = dtsi.index("{", i)
-    depth, body = 0, None
-    for k in range(j, len(dtsi)):
-        if dtsi[k] == "{":
-            depth += 1
-        elif dtsi[k] == "}":
-            depth -= 1
-            if depth == 0:
-                body = dtsi[j + 1:k]
-                break
-    assert body is not None, "reserved-memory node is not brace-balanced"
+    THE DEFECT THIS GATE CLOSES ([R-parallel] on #228).  The builder
+    accepted nine gptp fields and published all of them in AVB_INTERFACE,
+    but ROM generation forwarded only MAC, priority1 and the clock
+    frequency; the pinned engine hardcodes priority2, clockQuality and
+    every logMessageInterval octet and transmits THOSE.  So the ax7101
+    configs advertised offset_scaled_log_variance 0xFFFF while the engine
+    announced 0x436A, and the arty configs advertised clock_accuracy 0x21
+    while it announced 0xFE - a controller comparing the descriptor with
+    the wire saw two different clocks.  The fix is DERIVATION: the builder
+    parses the generator's live constants, fills every non-consumed field
+    from them, and refuses a config that states anything else (gate 1b
+    owns the refusal arms; this gate owns the bytes and the parser).
 
-    def cells(prop):
-        m = re.search(rf"#{prop}-cells\s*=\s*<(\d+)>", body)
-        assert m, f"reserved-memory declares no #{prop}-cells"
-        return int(m.group(1))
+    Read here as well as in the builder: the expected values below come
+    from this test's OWN parse of gptp-processor/hdl/ucode/
+    gen_gptp_ucode.py, so a removed or cross-wired mapping in
+    endstation_builder fails byte-for-byte instead of comparing the
+    builder's derivation with itself."""
+    gen = open(os.path.join(
+        ROOT, "gptp-processor/hdl/ucode/gen_gptp_ucode.py")).read()
+    live = [ln.split("#", 1)[0] for ln in gen.splitlines()]
 
-    out = []
-    for label, node, child in re.findall(
-            r"(?:(\w+)\s*:\s*)?([\w-]+)@[0-9a-fA-F]+\s*\{(.*?)\n\s*\};",
-            body, re.S):
-        m = re.search(r"reg\s*=\s*<([^>]*)>", child)
-        assert m, f"reserved-memory child {node!r} carries no reg"
-        vals = [int(x, 0) for x in m.group(1).split()]
-        assert len(vals) == 2, (
-            f"reserved-memory child {node!r}: reg has {len(vals)} cells, "
-            "expected one base plus one size")
-        out.append(dict(name=label or node, base=vals[0], size=vals[1],
-                        no_map=bool(re.search(r"^\s*no-map\s*;", child, re.M))))
-    assert out, "reserved-memory node has no children"
-    return (cells("address"), cells("size")), out
+    def one(pat, what):
+        hits = [m.group(1) for ln in live for m in [re.match(pat, ln)] if m]
+        assert len(hits) == 1, \
+            f"{what}: {len(hits)} live matches in gen_gptp_ucode.py, need 1"
+        return int(hits[0], 0)
+
+    p2 = one(r"P1_C\s*,\s*P2_C\s*=\s*\d+\s*,\s*(\d+)\s*$", "P2_C")
+    cq = one(r"CQ_C\s*=\s*(0[xX][0-9A-Fa-f]+)\s*$", "CQ_C")
+    n = r"(?:0[xX][0-9A-Fa-f]+|\d+)"
+    logints = {}
+    for mtype, name in (("0x0", "Sync"), ("0xB", "Announce"),
+                        ("0x2", "Pdelay_Req")):
+        v = one(rf"\s*e_hdr\(p,\s*{mtype},\s*{n},\s*\w+,\s*({n}),\s*\d+\)\s*$",
+                f"{name} e_hdr")
+        logints[name] = v - 256 if v >= 128 else v
+    wire = dict(priority2=p2,
+                clock_class=(cq >> 24) & 0xFF,
+                clock_accuracy=(cq >> 16) & 0xFF,
+                offset_scaled_log_variance=cq & 0xFFFF,
+                log_sync_interval=logints["Sync"],
+                log_announce_interval=logints["Announce"],
+                log_pdelay_interval=logints["Pdelay_Req"])
+
+    # 1. the builder's derivation agrees with this parse, field for field
+    assert eb.gptp_engine_pins() == wire, (
+        f"endstation_builder.gptp_engine_pins() {eb.gptp_engine_pins()} != "
+        f"this gate's own parse {wire} - one of the two readers of "
+        f"gen_gptp_ucode.py has rotted")
+    #! The consumed set is priority1 alone (--p1; MAC and clock frequency
+    #! ride --mac/--clk-hz from platform/constraints).  If the engine grows
+    #! an argument for a pinned field, the field must MOVE to the consumed
+    #! path, not stay refused.
+    assert eb.GPTP_ENGINE_CONSUMED == ("priority1",)
+    assert re.search(r'add_argument\("--p1"', gen), \
+        "the engine generator no longer consumes --p1"
+
+    # 2. every config's AVB_INTERFACE bytes 86..96 are BYTE-EXACT the wire
+    #    dataset (priority1, clockQuality, priority2, domain, intervals)
+    for name in sorted(CONFIGS):
+        cfg = eb.load_config(CONFIGS[name])
+        overlay = eb.emit_aem_overlay(cfg)
+        blob = eb._entity_model_image(cfg, overlay)["aem_desc.bin"]
+        avbi = image_descriptor(blob, 0x0009)
+        want = (bytes([cfg["gptp"]["priority1"], wire["clock_class"]])
+                + wire["offset_scaled_log_variance"].to_bytes(2, "big")
+                + bytes([wire["clock_accuracy"], wire["priority2"], 0,
+                         wire["log_sync_interval"] & 0xFF,
+                         wire["log_announce_interval"] & 0xFF,
+                         wire["log_pdelay_interval"] & 0xFF]))
+        assert avbi[86:96] == want, (
+            f"{name}: AVB_INTERFACE clock dataset {avbi[86:96].hex()} != "
+            f"the engine's Announce dataset {want.hex()} (1722.1-2021 "
+            f"7.2.8 bytes 86..96) - the descriptor claims a clock the "
+            f"wire does not carry ([R-parallel] on #228)")
+
+    # 3. a config OMITTING every pinned key is filled from the engine
+    thin = _variant(CONFIGS["ax7101_1x1_tdm8"],
+                    lambda c: [c["gptp"].pop(k, None) for k in wire])
+    cfg = eb.load_config(thin)
+    os.unlink(thin)
+    for k, v in wire.items():
+        assert cfg["gptp"][k] == v, \
+            f"omitted gptp.{k} resolved to {cfg['gptp'][k]}, engine says {v}"
+
+    # 4. the parser derives (it does not mirror): a fixture with OTHER
+    #    values comes back with those values, a commented-out duplicate
+    #    does not count, and a missing or twice-declared constant REFUSES
+    fixture = ("P1_C, P2_C = 248, 247\n"
+               "CQ_C = 0xF7FD436B\n"
+               "# CQ_C = 0x11111111 commented copies are stripped\n"
+               "    e_hdr(p, 0x0, 0x0208, RA, 0xFC, 44)\n"
+               "    e_hdr(p, 0x2, 0x0000, RA, 0x00, 54)\n"
+               "    e_hdr(p, 0xB, 0x0008, RA, 0x01, 76)\n")
+    got = eb.gptp_engine_pins(fixture)
+    assert got == dict(priority2=247, clock_class=0xF7, clock_accuracy=0xFD,
+                       offset_scaled_log_variance=0x436B,
+                       log_sync_interval=-4, log_announce_interval=1,
+                       log_pdelay_interval=0), got
+    for label, broken in (
+            ("missing CQ_C", fixture.replace("CQ_C = 0xF7FD436B\n", "")),
+            ("duplicate CQ_C", fixture + "CQ_C = 0x12345678\n"),
+            ("missing Announce TX",
+             fixture.replace("    e_hdr(p, 0xB, 0x0008, RA, 0x01, 76)\n",
+                             "")),
+            ("duplicate Announce TX",
+             fixture + "    e_hdr(p, 0xB, 0x0008, RA, 0x02, 76)\n")):
+        try:
+            eb.gptp_engine_pins(broken)
+            raise AssertionError(f"{label}: the derivation invented a value "
+                                 f"instead of refusing")
+        except eb.ConfigError as e:
+            assert "gen_gptp_ucode.py" in str(e), \
+                f"{label}: refused without naming the authority: {e}"
+    #! and the fixture path never poisons the real cache
+    assert eb.gptp_engine_pins() == wire
+
+    print(f"  [gate 26b] AVB_INTERFACE == wire Announce for all "
+          f"{len(CONFIGS)} configs: priority2 {wire['priority2']}, "
+          f"clockQuality 0x{cq:08X}, log intervals "
+          f"{wire['log_sync_interval']}/{wire['log_announce_interval']}/"
+          f"{wire['log_pdelay_interval']}; omitted keys fill from the "
+          f"engine; the parser refuses a missing or twice-declared "
+          f"constant ([R-parallel] on #228)")
 
 
-def test_pp_window_is_reserved():
-    """Gate 27: the protocol processor's DRAM window is RESERVED, `no-map`,
-    and the SAME BYTES on both sides of the hardware/software boundary.
-
-    The window is compiled into the bitstream as PP_DESC_BASE_P (the
-    descriptor store READS the entity model from it) and PP_RESP_BASE_P (the
-    AECP response buffer WRITES to it). It used to be derived independently in
-    two places: sw/builder/endstation_builder.py emitted the device tree, and
-    sw/litex/milan_soc.py computed "top of main_ram". They disagreed. At the
-    1x1 shape the window was ordinary kernel RAM and the response buffer wrote
-    into whatever the page allocator had handed out; at 8x8 it sat INSIDE the
-    PCM ring and corrupted captured audio. NEITHER failure raises anything -
-    there is no counter on either side for a write to a wrong physical
-    address, the entity still answers, and the board still plays. So the only
-    place this can be caught is here, before the bitstream exists.
-
-    Every config, four properties:
-      1. a reserved-memory node COVERS the whole window;
-      2. the window overlaps neither the PCM ring nor any other reservation;
-      3. platform_shape.json's pp_mem is the same base and the same length the
-         tree reserves, and milan_soc.py READS it rather than deriving a
-         second answer;
-      4. the covering node is `no-map`, which is load-bearing twice: it keeps
-         the kernel allocator out, and it keeps the region out of the linear
-         map, which is what lets the loader reach it through /dev/mem.
-    """
+def test_pp_window_contract():
+    """Gate 27: firmware and gateware share one processor-memory window."""
     import json
-    PAGE = 0x1000
-    for name in CONFIGS:
-        r = eb.build(CONFIGS[name], OUT)
-        dtsi = open(r["paths"]["dt_overlay"]).read()
-        shape = json.load(open(r["paths"]["platform_shape"]))
-        assert "pp_mem" in shape, (
-            f"{name}: platform_shape.json publishes no pp_mem. milan_soc.py "
-            "reads that key to compile PP_DESC_BASE_P / PP_RESP_BASE_P, so "
-            "without it the SoC has to invent the window a second time")
-        base = int(shape["pp_mem"]["phys"], 16)
-        size = int(shape["pp_mem"]["bytes"], 16)
-        end = base + size
-        assert size > 0, f"{name}: pp_mem window is empty"
-        # the loader mmaps this window through /dev/mem, which takes a
-        # page-aligned offset and length
-        assert base % PAGE == 0 and size % PAGE == 0, (
-            f"{name}: window 0x{base:08X}+0x{size:X} is not 4 KiB aligned, so "
-            "the loader cannot mmap it through /dev/mem")
-        cells, regions = _reserved_regions(dtsi)
-        assert cells == (1, 1), (
-            f"{name}: reserved-memory declares {cells} address/size cells. "
-            "The reg pairs are read here as one base plus one size, and the "
-            "kernel reads them by the same declaration")
+    for name, path in CONFIGS.items():
+        result = eb.build(path, OUT)
+        shape = json.load(open(result["paths"]["platform_shape"]))
+        published = shape["pp_mem"]
+        cfg = result["cfg"]["platform"]
+        assert int(published["phys"], 16) == cfg["pp_mem_phys"], name
+        assert int(published["bytes"], 16) == cfg["pp_mem_bytes"], name
 
-        # (1) SOMETHING RESERVES IT. Unreserved, this is ordinary kernel RAM.
-        cover = [g for g in regions
-                 if g["base"] <= base and end <= g["base"] + g["size"]]
-        assert len(cover) == 1, (
-            f"{name}: the processor window 0x{base:08X}+0x{size:X} is covered "
-            f"by {len(cover)} reserved-memory node(s), expected exactly 1. "
-            f"Tree reserves "
-            + ", ".join(f"{g['name']} 0x{g['base']:08X}+0x{g['size']:X}"
-                        for g in regions))
-        cov = cover[0]
-
-        # (4) `no-map`, not merely reserved. A plain reservation leaves the
-        # region in the kernel's linear map, where CONFIG_STRICT_DEVMEM
-        # refuses the loader's /dev/mem mapping of it.
-        assert cov["no_map"], (
-            f"{name}: reserved node {cov['name']!r} covers the window but "
-            "carries no `no-map`, so the kernel keeps it in the linear map "
-            "and the loader cannot reach it through /dev/mem")
-
-        # (3) and it reserves EXACTLY the window the gateware compiles. A
-        # reservation that merely contains it is a second, independently
-        # derived number, and two numbers for one physical address is the
-        # defect itself.
-        assert (cov["base"], cov["size"]) == (base, size), (
-            f"{name}: the device tree reserves "
-            f"0x{cov['base']:08X}+0x{cov['size']:X} but platform_shape.json "
-            f"publishes 0x{base:08X}+0x{size:X}. The gateware compiles one of "
-            "those and the kernel honours the other")
-
-        # (2) and it is nobody else's memory. The PCM ring is named when the
-        # Linux sound-card option exists; the bare-metal profile has no such
-        # reservation. The pairwise sweep holds for whatever region is added
-        # next in either shape.
-        if shape["pcm"] is not None:
-            ring = int(shape["pcm"]["ring_phys"], 16)
-            ring_bytes = int(shape["pcm"]["ring_bytes"], 16)
-            assert any((g["base"], g["size"]) == (ring, ring_bytes)
-                       for g in regions), (
-                f"{name}: the PCM ring 0x{ring:08X}+0x{ring_bytes:X} is not "
-                "among the reserved regions")
-            assert end <= ring or ring + ring_bytes <= base, (
-                f"{name}: the processor window 0x{base:08X}+0x{size:X} "
-                f"OVERLAPS the PCM ring 0x{ring:08X}+0x{ring_bytes:X}")
-            ring_desc = f"clear of PCM 0x{ring:08X}+0x{ring_bytes:X}"
-        else:
-            assert all(not g["name"].startswith("pcmring") for g in regions)
-            ring_desc = "PCM reservation absent"
-        for x in range(len(regions)):
-            for y in range(x + 1, len(regions)):
-                a_, b_ = regions[x], regions[y]
-                assert (a_["base"] + a_["size"] <= b_["base"]
-                        or b_["base"] + b_["size"] <= a_["base"]), (
-                    f"{name}: reserved regions {a_['name']} "
-                    f"0x{a_['base']:08X}+0x{a_['size']:X} and {b_['name']} "
-                    f"0x{b_['base']:08X}+0x{b_['size']:X} overlap")
-        print(f"  [gate 27] {name}: window 0x{base:08X}+0x{size:X} reserved "
-              f"no-map as {cov['name']!r}, byte-identical to "
-              f"platform_shape.json's pp_mem, {ring_desc}, clear of "
-              f"{len(regions) - 1} other reserved region(s)")
-
-    # THE OTHER HALF of "cannot drift": the SoC must READ that published
-    # window. Up to 00f17a68 it derived its own, `_desc_base = _ram.origin +
-    # _ram.size - _PP_WINDOW` with _PP_WINDOW a local literal, and nothing
-    # compared the two. Stated as a RULE over every assignment rather than as
-    # a copy of the expression: any future spelling is fine as long as the
-    # value comes from the config's published window.
     soc = open(MILAN_SOC_PY).read()
-    assert re.search(r"^\s*_shape\s*=\s*_platform_shape\(", soc, re.M), \
-        "milan_soc.py no longer loads the config's platform shape"
-    assert "platform_shape.json" in soc, \
-        "milan_soc.py names no platform_shape.json to read the window from"
-    for var in ("_desc_base", "_PP_WINDOW"):
-        rhs = re.findall(rf"^\s*{var}\s*=\s*(.+)$", soc, re.M)
-        assert rhs, f"milan_soc.py assigns {var} nowhere"
-        for expr in rhs:
-            assert '_shape["pp_mem"]' in expr, (
-                f"milan_soc.py derives {var} from {expr.strip()!r} instead of "
-                "the config's published pp_mem window. A second derivation of "
-                "a physical address is not a build error on either side, it "
-                "is silent memory corruption on the board")
-    print(f"  [gate 27] milan_soc.py READS the published window: every "
-          f"_desc_base / _PP_WINDOW assignment ({len(re.findall(r'^ *(?:_desc_base|_PP_WINDOW) *=', soc, re.M))} "
-          "of them) comes from platform_shape.json's pp_mem, so the base the "
-          "bitstream compiles and the base the kernel reserves are ONE number")
+    assert re.search(r"^\s*_shape\s*=\s*_platform_shape\(", soc, re.M)
+    assert '_shape["pp_mem"]["phys"]' in soc
+    assert '_shape["pp_mem"]["bytes"]' in soc
+    print(f"  [gate 27] {len(CONFIGS)} processor-memory windows are single-sourced")
 
 
 def test_image_identity_is_baked():
@@ -14047,11 +7750,10 @@ def test_image_identity_is_baked():
     at all.
 
     This gate reads the values back OUT OF THE PACKED IMAGE and compares each
-    against the artifact that owns it - the boot script's milan-entity.conf
-    for the two ids, the gateware's adp_shape_defaults.svh for the counts and
-    capability words, pp_adp_pkg.sv for entity_capabilities, the config for
-    the MAC - so it fails both ways round: an unbaked image and a baked image
-    that disagrees with what ADP sends.
+    against the artifact that owns it: the builder's derived identifiers,
+    the gateware's adp_shape_defaults.svh for the counts and capability words,
+    pp_adp_pkg.sv for entity_capabilities, and the config for the MAC. It fails
+    both ways round: an unbaked image and a baked image that disagrees with ADP.
     """
     sys.path.insert(0, os.path.join(ROOT, "protocol-processor/hdl/aecp/desc"))
     import gen_aem_store as aem                    # noqa: E402
@@ -14082,13 +7784,8 @@ def test_image_identity_is_baked():
         avbi = image_descriptor(blob, AVB_INTERFACE)
 
         # ---- the ADP side of Table 7-2, from the artifacts ADP is built from
-        conf = dict(
-            ln.split("=", 1) for ln in eb.emit_entity_conf(cfg).splitlines()
-            if "=" in ln and not ln.startswith("#"))
-        want_eid = (int(conf["MILAN_ENTITY_ID_HI"], 16) << 32) \
-            | int(conf["MILAN_ENTITY_ID_LO"], 16)
-        want_mid = (int(conf["MILAN_MODEL_ID_HI"], 16) << 32) \
-            | int(conf["MILAN_MODEL_ID_LO"], 16)
+        want_eid = eb.derive_entity_id(cfg)
+        want_mid = int(cfg["entity"]["entity_model_id"], 16)
         svh = eb.emit_adp_shape_svh(cfg)
 
         def sym(n, s=svh, who=name):
@@ -14561,6 +8258,10 @@ def test_milan_base_formats_are_rate_complete():
 
 if __name__ == "__main__":
     for fn in (test_all_configs_build, test_baremetal_profile_contract,
+               test_gptp_product_default_and_legacy_option,
+               test_qspi_owner_transition_completed_write_prefixes,
+               test_gptp_plane_reaches_the_instance,
+               test_gptp_plane_instance_gate_bites,
                test_current_shape_matches_sweep_flags,
                test_current_shape_matches_gen_aem_store,
                test_capability_marks, test_bad_configs_rejected,
@@ -14576,8 +8277,7 @@ if __name__ == "__main__":
                test_lwsrp_reset_words_match_rtl,
                test_lwsrp_class_constants_match_rtl,
                test_lwsrp_tspec_and_params, test_lwsrp_rejects,
-               test_platform_window_map,
-               test_platform_dt_and_driver_shape, test_platform_rejects,
+               test_platform_firmware_shape,
                test_csr_defaults_header_consumed, test_csr_defaults_rejects,
                test_aes3_interface_switch, test_aes3_rejects,
                test_cbs_reset_table_single_source,
@@ -14602,9 +8302,9 @@ if __name__ == "__main__":
                test_firmware_version_derived_from_rtl,
                test_d8_role_pools, test_d8_role_pools_reject,
                test_d10_cluster_names, test_d10_names_reach_the_rom,
-               test_entity_identity_is_derived_not_mirrored,
                test_gptp_domain_is_one_source,
-               test_pp_window_is_reserved,
+               test_gptp_dataset_matches_engine_announce,
+               test_pp_window_contract,
                test_image_identity_is_baked,
                test_image_name_table_matches_descriptors,
                test_milan_base_formats_are_rate_complete,

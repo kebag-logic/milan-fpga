@@ -27,7 +27,7 @@ this.
 - **[Operational note](#operational-note)** — 800 `devmem` calls took over ten minutes, and the cost is busybox process spawn on the softcore, not the CSR plane. Batch a storm test into one process instead of a shell loop.
 - **[H — the MAC-TX wedge drill (AX42): the guard FSM is proven, the wedge is NOT](#h--the-mac-tx-wedge-drill-ax42-the-guard-fsm-is-proven-the-wedge-is-not)** — Corrected 2026-07-27, and the correction is the point: a guard-**disabled** control run showed TX ticking anyway, so `linkg_freeze` only forces the liveness indicators low and never induced a wedge. Proven is detection → `eth_rst` → RUN in ~2 s, 9 of 9. Unproven is the fix's actual claim; item 0 should read "wedge recovery UNPROVEN".
 - **[Outstanding](#outstanding)** — Two items: a physical cable-pull drill, and the same drills on the Arty.
-- **[I — cluster tests: loopback, pilot tone, shared memory (2026-07-27)](#i--cluster-tests-loopback-pilot-tone-shared-memory-2026-07-27)** — Peer tone through the whole chain to ALSA: **0 periodicity mismatches in 239,952 comparisons** and −147.99 dBFS THD+N, within 0.11 dB of the generator. Also a corrected doc bug (`milan_mac_loopback` is `0xf0003818`, not the read-only `0xf0003810`) and the coherent-sampling trap — windowing an exact-period tone manufactures the distortion it claims to measure.
+- **[I — cluster tests: loopback, pilot tone, shared memory (2026-07-27)](#i--cluster-tests-loopback-pilot-tone-shared-memory-2026-07-27)** — Peer tone through the whole chain to the capture ring: **0 periodicity mismatches in 239,952 comparisons** and −147.99 dBFS THD+N, within 0.11 dB of the generator. Also a corrected doc bug (`milan_mac_loopback` is `0xf0003818`, not the read-only `0xf0003810`) and the coherent-sampling trap — windowing an exact-period tone manufactures the distortion it claims to measure.
 
 ## Result
 
@@ -197,7 +197,7 @@ assign impl_xilinxasyncresetsynchronizerimpl9 = (eth_rx_rst | eth_rst);
 ```
 
 **A netdev down/up is NOT this test.** `ip link set eth0 down` detaches the
-Linux host plane while the AAF talker keeps transmitting from fabric —
+host control plane while the AAF talker keeps transmitting from fabric —
 `LINKG_STAT` never moved and the peer's RX never dipped. The guard saw nothing
 because nothing happened to the link. Use the purpose-built hook instead:
 **`LINK_CTRL[3]` `linkg_freeze`** — *fake eth clock death, drills the full FSM
@@ -300,9 +300,9 @@ Arty.
 ### Pilot tone end-to-end — **bit-exact**
 
 `TONE_CTRL 0x6DC[0]` on the *peer* talker (1 kHz, 0 dBFS, exact-period 48x24-bit
-sine replacing the I2S ADC), captured on this board's ALSA device, so the test
+sine replacing the I2S ADC), captured from this board's ring, so the test
 covers the whole chain: peer tone generator -> AAF packetizer -> wire -> parser
--> stream table -> monitor -> depacketizer -> **PCM ring** -> ALSA.
+-> stream table -> monitor -> depacketizer -> **PCM ring** -> the capture consumer.
 
 | check | result |
 |---|---|
@@ -352,7 +352,7 @@ session driving the test. Run it detached with an unconditional auto-revert
 
 ### THD+N verified over ALL frames (2026-07-27)
 
-5 s captured from the listener's ALSA device with the pilot tone on the peer
+5 s captured from the listener's ring with the pilot tone on the peer
 talker: **240,000 frames**, and the analysis covers every one of them.
 
 **Method — and the trap.** The tone is *exact-period*: 48 samples = exactly

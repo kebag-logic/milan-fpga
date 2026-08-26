@@ -240,12 +240,17 @@ behavior through the root, with its timed leg measuring the probe, the retry
 and the removal on the processor's compressed timebase (one of its
 milliseconds is 100 fabric cycles).
 
-### B6. Multi-bridge AS_PATH reporting (closed at 0x0002_0055)
+### B6. Multi-bridge AS_PATH reporting (historical option-off contract at 0x0002_0055)
 
-The root gather face serves `GET_AS_PATH` as a zero-entry response when no
-grandmaster is known, and otherwise as the grandmaster identity followed by
-the last complete PathTrace tail the daemon published through the `0x7DC`
-CSR group. Slot LO/HI writes and `COMMIT` update a private staging bank only;
+This section records the software-owned option-off contract landed by #227.
+The product-default fabric owner now preserves the donor's distinct no-TLV
+count zero; its current contract and evidence live in
+[`GPTP_PLANE.md`](../design/GPTP_PLANE.md) and the
+fabric `sim_gptp` leg. In the historical option-off shape, the root gather face
+serves `GET_AS_PATH` as a zero-entry response when no grandmaster is known, and
+otherwise as the grandmaster identity followed by the last complete PathTrace
+tail the daemon published through the `0x7DC` CSR group. Slot LO/HI writes and
+`COMMIT` update a private staging bank only;
 they cannot change a solicited response or arm a notification. A changed
 `PUBLISH` atomically transfers the complete staged tail and count to the
 published bank and advances the publication generation only when its canonical

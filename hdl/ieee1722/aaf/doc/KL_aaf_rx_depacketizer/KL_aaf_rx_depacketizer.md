@@ -2,7 +2,7 @@
 - **File:** `hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv`
 - **Spec:** IEEE 1722-2016 AAF (Section 7 / Table 18 layouts); Milan v1.2 base audio formats
 
-AAF RX payload extractor — the media half of the Milan listener (`ARCHITECTURE_HW_SW_SPLIT` "DMA PCM ring from Linux first"). Taps the RX AXI-Stream without ever backpressuring the datapath, buffers every frame through a drop-capable frame FIFO, and emits ONLY the AAF sample payload (bytes O+24 .. O+24+data_len−1, wire byte order = S32BE interleaved PCM as PipeWire consumes it) as one AXIS frame per PDU toward the DRAM PCM ring writer.
+AAF RX payload extractor — the media half of the Milan listener (`ARCHITECTURE_HW_SW_SPLIT` "DMA PCM ring first" plan). Taps the RX AXI-Stream without ever backpressuring the datapath, buffers every frame through a drop-capable frame FIFO, and emits ONLY the AAF sample payload (bytes O+24 .. O+24+data_len−1, wire byte order = S32BE interleaved PCM as the host consumer reads it) as one AXIS frame per PDU toward the DRAM PCM ring writer.
 
 The accept/kill verdict is not re-derived: `KL_avtp_rx_monitor.pdu_accept_p` (bound + stream_id + current-format match) arrives at parse-complete (frame byte 48) — always before `tlast` of any real AAF PDU (≥ 230 B) — and clears the frame's bad-by-default marker before FIFO commit. The ring therefore receives exactly the PDUs FRAMES_RX counts.
 

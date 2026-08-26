@@ -22,8 +22,7 @@
 # did not say so. Installing exactly these revisions still cannot elaborate
 # any config in this tree, measured 2026-08-21 over all five: the shipping AX
 # shape asks for a `baremetal` VexiiRiscv variant upstream LiteX does not
-# have, and the four Linux shapes pass --scala-args the pinned VexiiRiscv
-# does not accept. Both are supplied by sw/litex/patches/, so a working
+# have. It is supplied by sw/litex/patches/, so a working
 # install is three steps and not one:
 #
 #   python3 -m pip install -r sw/litex/litex_pins.txt

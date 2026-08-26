@@ -24,7 +24,7 @@
                 Runtime configuration (REQ-CBS-01): idleSlope, hiCredit and
                 loCredit arrive on input ports driven by the milan_csr CBS
                 register block instead of being compile-time parameters, so the
-                Linux `tc ... cbs` offload can reprogram the shaper live. The
+                host CBS offload path can reprogram the shaper live. The
                 per-cycle/per-byte Q16 slope terms are derived in hardware by a
                 SEQUENTIAL slope engine (one shared serial restoring divider on
                 a fixed 100-cycle cadence, see slope_engine below): steady-state

@@ -18,7 +18,7 @@ conclusion was checked.*
 ## 1. What profiling this board can and cannot do
 
 - **perf itself is cross-built** from the kernel tree
-  (`br-milan-output/build/linux-7.0.11/tools/perf`), served from the peer
+  (cross-built from the host-era build tree), served from the peer
   (`wget peer:8000/perf`), static, ~4 MB.
 - **Sampling is timer-based only.** The SBI PMU exposes counters but the `sscof`
   extension is absent, so hardware-event *sampling* (cache-miss sampling, precise IP)

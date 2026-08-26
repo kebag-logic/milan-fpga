@@ -11,6 +11,11 @@ DMA work this builds on).*
 > [`CHANGELOG.md`](../../CHANGELOG.md) (the per-lever perf ledger). What has
 > landed since is noted at the scoreboard paragraph under "Execution order"
 > (S1 AVTP/AAF engine, the MMCM-DRP media-clock servo, I1 L2).
+>
+> **Premise superseded (#259, 2026-08-25).** The sizing below assumes a
+> supervisor-mode host core with an MMU. The product is bare-metal RV32I now,
+> which is a far smaller core, so the ceiling arithmetic here is a record of
+> the 2026-07-05 decision, not a budget for a switch built today.
 
 ![endpoint -> switch direction](../AVB_SWITCH_DIRECTION.svg)
 
@@ -20,8 +25,8 @@ DMA work this builds on).*
 - **[The three endpoint hooks (panel ①/②)](#the-three-endpoint-hooks-panel-①②)** — Three ways to take the CPU out of the per-packet path: the AVTP stream engine (wake per audio period, ~375/s, instead of per packet), hardware TSO, and RSC. Notes which is which in risk terms — the stream engine is *simpler* RTL than the two TCP offloads and it is the Milan roadmap.
 - **[The switch data plane (panel ③)](#the-switch-data-plane-panel-③)** — The proposed forwarding shape end to end, and the useful part: the list of blocks already in the repo and verified, so the fabric is assembly rather than green-field.
 - **[Memory: "would a wider bus help?" (panel ④)](#memory-would-a-wider-bus-help-panel-④)** — Answers "no" for the endpoint and shows the question inverting for the switch: 4×1G in and out is ~1 GB/s, near the DDR3 ceiling and hostage to refresh jitter. The answer is not a wider DRAM bus but keeping forwarding on-chip — CBS bounds queue depth by construction, so BRAM suffices.
-- **[VexiiRiscv migration  -  VERIFIED on silicon (2026-07-05)](#vexiiriscv-migration-----verified-on-silicon-2026-07-05)** — The CPU swap that made the switch fit: 43–49 k LUTs down to 31 k and WNS from a +0.004 ns knife-edge to +0.143 ns, with the ring DMA, datapath and driver porting over unchanged (one DTB line). Socket throughput halved and the section argues that is the right trade, because the CPU is the control plane.
-- **[CPU budget vs the 4-port switch (measured 2026-07-05, xc7a100t = 63,400 LUTs)](#cpu-budget-vs-the-4-port-switch-measured-2026-07-05-xc7a100t--63400-luts)** — Core count is decided by the fabric, not chosen: two cores + FPU measured **122 % of the part**, and the switch adds another 25–35 k LUTs on top. Hence one Linux core; SMP is coded and ready, and was deliberately verified to *fit-fail* so a part upgrade is a decision rather than a place-time surprise.
+- **[VexiiRiscv migration  -  VERIFIED on silicon (2026-07-05)](#vexiiriscv-migration-----verified-on-silicon-2026-07-05)** — The CPU swap that made the switch fit: 43–49 k LUTs down to 31 k and WNS from a +0.004 ns knife-edge to +0.143 ns, with the ring DMA, datapath and software porting over unchanged (one published-node line). Socket throughput halved and the section argues that is the right trade, because the CPU is the control plane.
+- **[CPU budget vs the 4-port switch (measured 2026-07-05, xc7a100t = 63,400 LUTs)](#cpu-budget-vs-the-4-port-switch-measured-2026-07-05-xc7a100t--63400-luts)** — Core count is decided by the fabric, not chosen: two cores + FPU measured **122 % of the part**, and the switch adds another 25–35 k LUTs on top. Hence one host core; SMP is coded and ready, and was deliberately verified to *fit-fail* so a part upgrade is a decision rather than a place-time surprise.
 - **[Hardware reality](#hardware-reality)** — The board has one PHY, so three more copper ports mean ~12 pins each off the 40-pin expansion headers into a daughter card. Every GMII lesson (IOB TX flops, per-PHY gtx invert) reuses directly; SerDes is only needed beyond four ports.
 - **[Decision matrix (2026-07-05, scope: 4× GMII/RGMII copper ports, MTU fixed 1500)](#decision-matrix-2026-07-05-scope-4-gmiirgmii-copper-ports-mtu-fixed-1500)** — Three tracks of work items with risk and status, plus the rejected ones and why. Historical status column — S1 and the media-clock servo have since landed, and the scoreboard paragraph explicitly supersedes its own numbers. The reframe it turns on: sockets need to be good enough, not line-rate.
 
@@ -38,7 +43,7 @@ DMA work this builds on).*
 
 * **A  -  AVTP stream engine** (the mission-critical one): taps the classifier; matched
   stream IDs bypass ring/driver/stack entirely. RX: strip AVTP, write raw samples +
-  presentation timestamps into per-stream sample rings that PipeWire mmaps  -  the CPU
+  presentation timestamps into per-stream sample rings a consumer mmaps  -  the CPU
   wakes **per audio period (~375/s)** instead of per packet (8,000/s/stream). TX mirror:
   sample ring → hardware AVTP framing + gPTP timestamps → CBS. Media cost on the CPU ≈ 0,
   independent of stream count up to line rate.
@@ -78,11 +83,12 @@ ring DMA engines.
 ## VexiiRiscv migration  -  VERIFIED on silicon (2026-07-05)
 
 The CPU-budget wall (below) is solved by swapping NaxRiscv → **VexiiRiscv** (same author,
-same LiteX/SpinalHDL flow). `milan_soc.py --cpu vexiiriscv` (RV64IMA "linux" variant + MMU
-sv39). The feared integration risk was a non-issue: VexiiRiscv exposes the **same coherent
-AXI `dma_bus`** and the **same mem-map** (csr/clint/plic at identical addresses), so the ring
-DMA, the whole `--all-blocks` datapath, and the driver **port over with zero changes** (one
-DTB fix only: the grafted NIC node needs an explicit `interrupt-parent = <&intc0>`).
+same LiteX/SpinalHDL flow). `milan_soc.py --cpu vexiiriscv`, at that date the RV64IMA
+variant with an MMU. The feared integration risk was a non-issue: VexiiRiscv exposes the
+**same coherent AXI `dma_bus`** and the **same mem-map** (csr/clint/plic at identical
+addresses), so the ring DMA, the whole `--all-blocks` datapath and the software **port
+over with zero changes** (one published-node fix only: the grafted NIC node needs an
+explicit `interrupt-parent = <&intc0>`).
 
 Measured on the AX7101 (both at 100 MHz sys / -2 Artix):
 
@@ -90,7 +96,7 @@ Measured on the AX7101 (both at 100 MHz sys / -2 Artix):
 |---|---|---|
 | Slice LUTs | 43k–49k (68–77 %) | **31k (49 %)** |
 | WNS @ 100 MHz | +0.004 (w/ FPU) … +0.08 | **+0.143 ns** |
-| Linux boot | ✓ | ✓ (rv64ima, sv39) |
+| Host-core boot (era of the measurement) | ✓ | ✓ (rv64ima, sv39) |
 | NIC probe / link / ping | ✓ | ✓ (ID=MILN, 1000 Mbps, 0 % loss) |
 | RX / TX TCP | 66.7 / 62.3 | 30.4 / 27.0 Mbit/s |
 
@@ -100,9 +106,9 @@ NaxRiscv config could not fit it). The +0.143 ns margin (vs NaxRiscv's +0.004 kn
 real headroom to clock higher (the core reaches ~186 MHz), which recovers the throughput. And
 socket throughput dropping to ~30 Mbit/s (single-issue in-order IPC vs NaxRiscv OoO) **does not
 matter here**: the CPU is the control plane (gPTP servo, MSRP/MVRP, AVDECC, management); the
-switch forwards 4×1G in fabric, never touching the CPU. Linux is fully preserved (MMU +
-supervisor). FPU is available via the VexiiRiscv "debian" variant (adds F/D/C) if a workload
-needs it. **Net: VexiiRiscv is the CPU for the 4-port AVB switch on the 100T.**
+switch forwards 4×1G in fabric, never touching the CPU. The supervisor-mode profile of
+that era was fully preserved (MMU + supervisor). FPU is available via the larger
+VexiiRiscv variant (adds F/D/C) if a workload needs it. **Net: VexiiRiscv is the CPU for the 4-port AVB switch on the 100T.**
 
 ## CPU budget vs the 4-port switch (measured 2026-07-05, xc7a100t = 63,400 LUTs)
 
@@ -116,19 +122,19 @@ Slice-LUT usage with today's 1-port datapath:
 | **2 cores + FPU (2-issue)** | **77,366** | **122 %  -  does NOT fit** |
 
 Going 1→4 GMII adds 3 MACs + the shared-BRAM fabric + TCAM + 4× CBS ≈ **+25–35k LUTs**. So:
-one Linux core + the 4-port switch lands **right at the ceiling**; the FPU alongside it is
-marginal; **two cores + the 4-port switch cannot fit this part.** Constraints are firm  - 
-**Linux is mandatory** (kept: MMU sv39 + supervisor on every candidate, incl. single-issue) and
-**4× GMII is mandatory**  -  so the 100T production config is **one Linux core + the 4-port
-switch** (FPU only if it fits after the fabric lands). Two cores is a deliberate part upgrade
+one host core + the 4-port switch lands **right at the ceiling**; the FPU alongside it is
+marginal; **two such cores + the 4-port switch cannot fit this part.** The constraints of
+that date were firm  -  **a supervisor-mode core is mandatory** (MMU sv39 + supervisor on
+every candidate, incl. single-issue) and **4× GMII is mandatory**  -  so the 100T
+production config was **one host core + the 4-port switch** (FPU only if it fits after the
+fabric lands). Two cores is a deliberate part upgrade
 (Artix-200T / Kintex) or a VexiiRiscv swap (smaller cores + higher fmax), **not** a place-time
 surprise.
 
 **SMP is coded and ready** for that upgrade: `milan_soc.py --cpu-count 2` (+ the `--scala-args`
-passthrough for issue width), a 2-hart DTB (`fpga/dts/milan_ax7101_smp.dts`, regenerated from
-the build's `csr.json` with correct PLIC/CLINT contexts), OpenSBI `NAX_HART_COUNT` (set 2 for
-SMP), and the kernel's `CONFIG_SMP=y`. Flipping `--cpu-count 2` on a bigger part is all it
-takes. The 2-core build was verified to *fit-fail* on the 100T (122 %), which is the point.
+passthrough for issue width) and a 2-hart platform description regenerated from the
+build's `csr.json` with correct PLIC/CLINT contexts. Flipping `--cpu-count 2` on a bigger
+part is all it takes. The 2-core build was verified to *fit-fail* on the 100T (122 %), which is the point.
 
 ## Hardware reality
 

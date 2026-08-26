@@ -3,7 +3,7 @@
 Status: **PASS (targeted rebase regression)**. Scope is exactly what is named
 below: the lwSRP RTL family affected by the new base `3c82068d` (listener
 counters / lwSRP walker) plus the BDD conformance layer. **This is NOT the full
-55-suite Verilator sweep** and does not prove Linux boot, virtual-wire behavior,
+55-suite Verilator sweep** and does not prove board boot, virtual-wire behavior,
 or hardware timing.
 
 ## Contents
@@ -47,7 +47,8 @@ harnesses are `--exe` C++ over UNIX sockets, no DPI imports).
 The rebase delta (`3c82068d` listener counters / lwSRP walker) passes its
 targeted RTL regression family and the full BDD conformance layer at HEAD
 `55a68a45`. The virtual-E2E gates (T0/T1, BLOCKED T2/T3) were separately
-re-verified against the same commit -- see [Section 3 of `VIRTUAL_E2E_TEST_PROCEDURE.md`](../VIRTUAL_E2E_TEST_PROCEDURE.md#3-recorded-result-against-commit-55a68a45).
+re-verified against the same commit -- recorded in Section 3 of the virtual
+end-to-end procedure that #259 retired into git history.
 
 ## What this does not cover
 

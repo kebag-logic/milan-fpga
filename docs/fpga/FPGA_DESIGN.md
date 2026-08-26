@@ -133,7 +133,7 @@ flowchart LR
     RING[KL_pcm_tx DRAM ring] --> PB
     PB --> CM{{chmap capture mux\nCHMAP_CTRL 0x900, def 0}}
     CM --> PKT[KL_aaf_packetizer] --> MERGE[traffic merge + CBS] --> MAC[MilanMAC + PTP stamp] --> WIRE((wire))
-    WIRE --> RX[classifier + depacketizer] --> RB[PCM DMA ring _PCMRingNxN] --> ALSA[snd-kl-milan arecord]
+    WIRE --> RX[classifier + depacketizer] --> RB[PCM DMA ring _PCMRingNxN] --> CONS[host ring consumer]
     RX --> XBAR[chmap render xbar] --> TDM[KL_tdm_render / I2S out]
 ```
 
@@ -260,7 +260,7 @@ this table whenever `hdl/` changes shape.
 | `KL_pcm_lpf` | 2nd-order IIR low-pass (Butterworth fc 20 kHz @ fs 48 kHz) |
 | `KL_pcm_ring_bram` | on-chip dual-port BRAM PCM ring for the listener media path |
 | `KL_pcm_route` | NxN PCM routing policy (RENDER-lowest-wins, per-stream DMA rings) |
-| `KL_pcm_tx` | host PCM ring → AAF pair-stream source (the ALSA playback arm) |
+| `KL_pcm_tx` | host PCM ring → AAF pair-stream source (the playback arm) |
 | `KL_tdm_capture` / `KL_tdm_capture_master` | TDM slave and TDM master audio-capture front-ends (item-4 family) |
 | `KL_tdm_render` | TDM slave audio-render front-end |
 | `KL_tone_gen` | 1 kHz / 0 dBFS pilot tone: 48-sample exact-period 24-bit sine table |
@@ -372,7 +372,7 @@ toolchain: [Section 4.5 of ../integration/PORTING_GUIDE.md](../integration/PORTI
 
 * **The ring-DMA engines** (`RingDMAReader`/`RingDMAWriter`, BD formats,
   header-split, RSC/GRO) are **Migen**, inside [`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py) -
-  design docs: [CPPI_DMA_REDESIGN.md (archived)](../../historical_now_obsolete/fpga/CPPI_DMA_REDESIGN.md),
+  design docs: the archived CPPI DMA redesign log (#259, in git history),
   [HW_GRO_RSC.md (archived)](../../historical_now_obsolete/fpga/HW_GRO_RSC.md),
   [HEADER_SPLIT_DESIGN.md](HEADER_SPLIT_DESIGN.md) (includes the hsq12 cut-through chapter); running system view:
   [PIPELINE_STAGES.md](PIPELINE_STAGES.md).

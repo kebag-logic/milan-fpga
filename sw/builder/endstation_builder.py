@@ -2,97 +2,32 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """
-endstation_builder.py - software-defined Milan End-Station builder.
+endstation_builder.py - declarative Milan End-Station builder.
 
-One declarative definition drives gateware elaboration, the AEM model, lwSRP
-tables and the DT/driver shape consistently. The current compliance boundary
-is recorded in docs/testing/MILAN_V12_AUDIT_2026-08-16.md. The emitted AEM
-overlay is consumed by avdecc/gen_aem_store.py (--overlay), and
-the emitted sweep_opts fragment is SOURCED by sw/litex/sweep.sh (single
-source for the per-board design OPTS/L2).
+One YAML definition drives gateware arguments, the AEM model, lwSRP tables,
+the firmware-visible address map, and human-readable build plan. Generated
+artifacts stay per configuration so concurrent board builds never exchange
+shape or identity data.
 
-WHAT THIS BUILDER STILL PUTS INTO THE RTL TREE (2026-08-12).  The IEEE
-1722.1 / SRP control-plane RTL is DELETED (hdl/ieee17221/{aecp,acmp} and
-hdl/ieee8021q/srp are gone; the protocol-processor submodule is the control
-plane now).  Exactly TWO generated includes are still compiled:
+Outputs under OUTDIR/<config-stem>/:
 
-  hdl/common/csr/gen/adp_shape_defaults.svh  - `include-d by BOTH
-        hdl/milan/milan_datapath.sv and hdl/common/csr/milan_csr.sv.  It
-        carries ADP_TALKER_SRC_C / ADP_LISTENER_SINK_C (which now also size
-        the protocol processor's source/sink arrays), the two capability
-        words, TALKER_WIRE_CHANS_C and ADP_GPTP_DOMAIN_C.  LOAD-BEARING.
-  hdl/common/csr/gen/lwsrp_csr_defaults.svh  - still `include-d by
-        milan_csr.sv for the 0x680 group's reset words and
-        LWSRP_PRIO_RANK_C.  Those registers remain as an ABI (software can
-        still write them) but drive NOTHING: the applicant is deleted.
+  soc_params.json        arguments for sw/litex/milan_soc.py
+  aem_overlay.json       descriptor-model input
+  aecp_aem_rom.svh       review-only descriptor representation
+  lwsrp_table.json/.svh  reservation math and CSR reset values
+  platform_shape.json    firmware/gateware address contract
+  build_plan.md          derived capabilities and resource estimate
+  gptp_ucode.hex         fabric time-sync program when enabled
+  gen/adp_shape_defaults.svh
+                         per-config RTL shape include
 
-The legacy AEM descriptor ROM is still generated as a readable model artifact,
-but it is no longer compiled into RTL. The protocol processor serves
-READ_DESCRIPTOR from a flat DRAM image instead. An explicit --write-fragment
-or --write-rtl deployment ownership transfer generates that image, manifest,
-map, and loader in the sibling rootfs overlay when the overlay is present.
-An ordinary builder run does not touch that deployment overlay.
+With --write-fragment, the matching per-board sweep fragment is refreshed.
+With --write-rtl, the selected configuration also takes ownership of the
+tracked ADP shape include. Product identity is carried by the AEM image that
+the SoC build pairs with its bitstream.
 
-Input:  a YAML end-station config (schema kebag-logic/milan-endstation-config,
-        see configs/endstation_*.yaml for annotated examples).
-
-Outputs (into OUTDIR/<config-stem>/):
-  soc_params.json   - the sw/litex/milan_soc.py argv this config implies
-                      (design flags only; flow flags like --build /
-                      --vivado-max-threads / --place-directive belong to
-                      sweep.sh, not to the end-station definition).
-  aem_overlay.json  - AEM model overlay (descriptor counts, stream formats,
-                      per-stream STREAM_PORT/cluster/map layout) consumed by
-                      avdecc/gen_aem_store.py --overlay.
-  lwsrp_table.json  - lwSRP (802.1Q MSRP/MVRP) reservation table: SR class,
-  lwsrp_table.svh     MRP timers, class-A bandwidth math, the 0x680 CSR reset
-                      words, the engine's elaboration parameters and one
-                      provisioning record per stream. REFERENCE ONLY since the
-                      applicant was deleted: only the CSR-facing subset below
-                      still reaches RTL. Kept because the 0x680 reset words
-                      and the bandwidth arithmetic are derived here.
-  aecp_aem_rom.svh  - legacy AEM descriptor ROM. Generated for model review,
-                      not compiled and not served by the processor.
-  platform_shape.json - driver-visible layout: Milan CSR base, the DMA window
-  milan-nic.dtsi      map DERIVED from board.constraints.rx_queues, the
-                      physical addresses kl-eth hardcodes, and the
-                      kl,dma-ether / kl,milan-pcm device-tree nodes.
-  build_plan.md     - human-readable build plan. Shapes beyond current RTL
-                      capability (NxN streams, TDM/AES3/SPDIF interfaces,
-                      non-48k rates) VALIDATE but are marked "planned".
-  milan-entity.conf - the BOARD-SOFTWARE half of the identity: entity_id,
-                      entity_model_id, stream counts and SR VID as shell
-                      variables, sourced by the rootfs /etc/init.d/S50milan
-                      before it programs 0x604/0x608/0x60C/0x610. Also
-                      written into the buildroot rootfs overlay (see
-                      ROOTFS_OVERLAY_ETC) by --write-rtl/--write-fragment.
-  gptp_ucode.hex   - when board.features.fabric_gptp is true, the fabric
-                      engine ROM with station MAC, priority1 and fabric clock
-                      derived from this same config.
-Plus (repo-level, single-sourced so nothing can drift):
-  configs/generated/sweep_opts_<board>.sh - shell fragment (OPTS/L2/RXQ)
-                      sourced by sw/litex/sweep.sh; the inline tables there
-                      are the loud FALLBACK only.
-  <rootfs overlay>/etc/milan-entity.<board>.conf - the identity the flashed
-                      board programs into the ADP/AEM CSRs. Same rule, same
-                      moment: the config that owns the board's bitstream owns
-                      its advertised identity.
-  <rootfs overlay>/etc/milan-aem/aem_desc.{bin,json,map}
-                    - the processor descriptor image, paired manifest, and
-                      readable map. Written only by --write-fragment or
-                      --write-rtl when the sibling overlay is present.
-  hdl/common/csr/gen/lwsrp_csr_defaults.svh - the CSR-facing SUBSET of the
-                      lwSRP table (0x680 reset words + the PriorityAndRank
-                      byte), `include-d BY hdl/common/csr/milan_csr.sv: the
-                      config IS those literals now, they are not copied into
-                      RTL. Written by the one config carrying srp.rtl_table.
-                      (Its sibling hdl/ieee8021q/srp/gen/lwsrp_table.svh is
-                      NO LONGER WRITTEN - that whole directory is deleted.)
-  hdl/common/csr/gen/adp_shape_defaults.svh - the ADVERTISED SHAPE, written
-  configs/generated/<cfg>/gen/adp_shape_defaults.svh   only by --write-rtl
-                      (tracked tree) and by every build of a configs/ config
-                      (its own per-shape include dir, which Verilator suites
-                      and Vivado builds point +incdir at).
+Input schema: kebag-logic/milan-endstation-config, version 1.1.x. See the
+annotated configs/endstation_*.yaml examples and README-parameters.md.
 
 Usage:
   python3 sw/builder/endstation_builder.py configs/endstation_arty_current.yaml
@@ -100,67 +35,9 @@ Usage:
   python3 sw/builder/endstation_builder.py <cfg.yaml> --write-fragment
   python3 sw/builder/endstation_builder.py <cfg.yaml> --write-rtl
 
-Schema summary (see the example configs for the annotated normative form):
-  schema / schema_version      - "kebag-logic/milan-endstation-config" / 1.1.x
-  entity:                      - identity: name, entity_model_id
-                                 ("hash-derived" | EUI-64 hex), model_id_pin
-                                 (optional EUI-64 hex override - pins the id
-                                 of already-flashed silicon), entity_id
-                                 ("mac-derived" | EUI-64 hex), vendor_name,
-                                 serial_number, group_name, firmware_rev
-                                 (optional int, default 0 - the third
-                                 component of the DERIVED firmware_version;
-                                 see rtl_firmware_version(). There is no
-                                 entity.firmware_version key and declaring
-                                 one is refused)
-  board: target + constraints  - arty | ax7101; physical facts the SoC argv
-                                 derives from (sys/milan clk, l2, phy, flash,
-                                 uart, rx queues, hs page, probes, GMII knobs,
-                                 eth_port for multi-port boards)
-  clocking:                    - sampling_rate_hz, audio_unit_rates_hz,
-                                 media_clock_sources (internal | input_stream
-                                 | crf), default_source, crf_sink (+format),
-                                 crf_output (enabled + format; Milan 7.2.3
-                                 RULE: >=2 AAF listener streams REQUIRE it),
-                                 audio_pll_hz (clean MMCM audio clock)
-  audio_interface:             - kind: tdm8|tdm16|tdm32|i2s_philips|aes3|spdif
-                                 word_length_bits, cluster_mapping.policy
-                                 (cap-at-interface |
-                                  cluster-per-stream-channel)
-  streams:                     - listeners[] / talkers[]: name, channels,
-                                 formats (AAF 64-bit hex), buffer_length_ns,
-                                 clusters (SINGLE AUTHORITY for the stream's
-                                 cluster count; default = channels)
-  srp:                         - lwSRP reservation table (all optional; the
-                                 defaults ARE today's 0x680 reset words):
-                                 sr_class, vid, stream_dmac_base,
-                                 accumulated_latency_ns, class_queue,
-                                 enable_at_reset, talker_declare_at_reset,
-                                 bandwidth_limit_pct, timers_ms{join,leave,
-                                 leaveall}, tspec{policy: pinned|derived,
-                                 max_frame_bytes, interval_frames},
-                                 rtl_table (owns the tracked .svh)
-  platform:                    - DT + driver shape: csr_base, mac_address
-                                 (REQUIRED, unicast), interrupt,
-                                 pcm_ring_phys/_bytes/_stride, dma_coherent,
-                                 boot_chain_pin{window: address} - the
-                                 FLASHED DTB's window map; a config whose
-                                 rx_queues would move a pinned window is
-                                 REFUSED (the 5ce9a13 CSR-rot rule)
-
-entity_model_id derivation ("hash-derived", the default path; exact recipe,
-also in sw/builder/README-parameters.md):
-  1. shape = the model-shaping fields only (stream counts/formats/clusters/
-     buffers, cluster policy, derived per-stream port layout, audio
-     interface kind/channels/word length, sampling rates, CRF sink+format) -
-     NO board flags, names or serials, so two boards with the same audio
-     shape share a model id (AEM semantics).
-  2. canon = json.dumps(shape, sort_keys=True, separators=(",", ":"))
-  3. id = (MODEL_ID_OUI << 40) | (int.from_bytes(sha256(canon)[:8]) & (2^40-1))
-     i.e. top-8-bytes of the sha256, folded under the base EUI-64 prefix
-     MODEL_ID_OUI = 0x001BC5 (Kebag Logic OUI, kept HERE in the schema).
-  Same shape -> same id; any shape change -> new id. entity.model_id_pin
-  overrides the hash (already-flashed silicon keeps its identity).
+The product software contract is cacheless RV32 bare metal with the fabric
+plane as the sole gPTP owner. Configurations outside that contract are refused
+before any output is written.
 """
 
 import argparse
@@ -222,13 +99,12 @@ CLUSTER_POLICIES = ("cap-at-interface", "cluster-per-stream-channel",
 #:   virtual  - a cluster past the physical width under the legacy policies
 #:              (wire-truth rule: extra stream channels are virtual, missing
 #:              physical channels render 0).
-#:   host     - a host (ALSA/PipeWire) lane channel for this port's stream.
 #:   pilot    - the KL_tone_gen pilot, one cluster per talker port (D8).
 #:   loopback - a RECEIVED stream channel offered back as a talker source
 #:              (D8's stream-loopback lane; same media-clock domain, so
 #:              coherent). On a board with no audio input this is the only
 #:              source that can give a talker per-channel-distinct audio.
-CLUSTER_ROLES = ("physical", "virtual", "host", "pilot", "loopback")
+CLUSTER_ROLES = ("physical", "virtual", "pilot", "loopback")
 
 #: role -> AUDIO_CLUSTER object_name template (D10). {n} is the index WITHIN
 #: the role segment; the physical/virtual names carry the interface label so
@@ -301,20 +177,13 @@ AES3_BLOCK_FRAMES = 192           #: AES3-2009 4.3 channel-status block
 SOC_DEFAULTS = dict(
     cpu="vexiiriscv",
     cpu_count=1,
-    software_profile="linux",
+    software_profile="baremetal",
     xlen=32,
     all_blocks=True,
     coherent_dma=True,
     timing_opt=True,
-    # the PROVEN rv32 CPU words (launch_x32f1 -> sweep.sh BASE, 08-05/06):
-    # the rv64-era set (refill 8, rpt prefetch, 8/16 queues) lived on here
-    # as a THIRD drifted copy after the sweep fix - one source now, and it
-    # is the silicon-proven one
-    scala_args=[
-        "--lsu-l1-refill-count=2",
-        "--l2-down-pending=4",
-        "--l2-general-slots=8",
-    ],
+    # The product profile is cacheless.
+    scala_args=[],
 )
 
 # What the RTL supports TODAY (milan_datapath.sv). Anything beyond validates
@@ -483,12 +352,9 @@ OPTIONAL_BLOCKS = {
 #: change of what the port accepts.
 RX_ADDRESS_FILTERS = ("hardware", "software", "promiscuous")
 
-# ------------------------------------------------------ platform / DT shape --
-# Item-4 emitter: the device-tree node shape + the driver-visible layout.
-# THE bug class this closes shipped in 5ce9a13: rx-queues is per board, the
-# DMA window map is a FUNCTION of it, and a DTB built against the other
-# board's count maps every window onto the wrong registers (CSR rot,
-# TROUBLESHOOTING 20) - silent until the host plane is dead.
+# ----------------------------------------------- firmware platform shape --
+# The DMA window map is a function of rx_queues and is emitted once for every
+# firmware/gateware pair.
 #
 # LiteX allocates CSR addresses in submodule-registration order
 # (sw/litex/milan_soc.py MilanDMA.__init__), so the map is deterministic:
@@ -510,7 +376,6 @@ DMA_STEER_BYTES = 0x0C           #: q0_frames/q1_frames/hash_sel (2 queues)
 DMA_RX1_BLOCK_BYTES = 0x68       #: the q1 RingDMAWriter block (2 queues)
 DMA_TS_BYTES = 0x1C              #: base/length/enable/done/loop/offset
 DMA_HS_CAP_BYTES = 0x04          #: hs_pgsz_cap readback (hsq14 pairing check)
-DMA_PCM_BYTES = 0x1C             #: PCM ring block (flat and NxN are both 0x1C)
 MAC_BANK_BASE = 0xF0003800       #: milan_mac bank: crg_reset + MDIO bitbang
 MAC_PHY_MAP_BYTES = 0x0C
 MILAN_CSR_BASE = 0x9000_0000     #: AXI-Lite Milan CSR window (milan_soc.py)
@@ -561,11 +426,7 @@ PLATFORM_DEFAULTS = dict(
     interrupt=3,                             # constant,milan_interrupt,3
     interrupt_parent="intc0",
     mac_address=None,                        # required: must differ per board
-    pcm_ring_phys=0x4FF0_0000,
-    pcm_ring_bytes=0x10_0000,
-    pcm_ring_stride=0x10_0000,
-    dma_coherent=True,
-    boot_chain_pin=None,                     # flashed DTB's window map
+    pp_mem_phys=0x4FE0_0000,
     rx_address_filter="hardware",            # hardware | software | promiscuous
 )
 
@@ -1385,12 +1246,12 @@ def cluster_layout(listeners, talkers, policy, iface_channels,
 
     Cluster-count policy (USER decision, config-selectable):
       cluster-per-stream-channel - the stream's `clusters` field verbatim
-        (default = channels; the legacy/pipewire-reference layout).
+        (default = channels).
       cap-at-interface - min(clusters, physical interface channels/direction):
         clusters model real endpoints, never more than the wire has.
       role-pools (D8) - the port's cluster count is NOT the stream's
         `clusters` at all: it is the sum of the declared ROLE POOLS
-        (physical / host / pilot / loopback), each width derived from the
+        (physical / pilot / loopback), each width derived from the
         platform declaration. `clusters` is then unused for that port and the
         config says so.
 
@@ -1430,11 +1291,10 @@ def cluster_layout(listeners, talkers, policy, iface_channels,
 
     def role_pool(direction, port_index):
         """D8 pools. Order is fixed so base_cluster arithmetic is readable:
-        physical, host, then (talker ports only) pilot and loopback."""
+        physical, then (talker ports only) pilot and loopback."""
         segs, off = [], 0
         for role, width in (
                 ("physical", ph_render if direction == "input" else ph_capture),
-                ("host", int(pools.get("host", 0))),
                 ("pilot", (1 if pools.get("pilot") else 0)
                           if direction == "output" else 0),
                 ("loopback", int(pools.get("loopback", 0))
@@ -1443,20 +1303,19 @@ def cluster_layout(listeners, talkers, policy, iface_channels,
                 segs.append(dict(role=role, offset=off, width=width,
                                  first=0 if role != "loopback" else port_index))
                 off += width
-        # A listener with neither a physical render endpoint nor a Linux
-        # host ring is deliberately headless.  Its STREAM_PORT_INPUT still
+        # A listener with no physical render endpoint is deliberately
+        # headless. Its STREAM_PORT_INPUT still
         # exists (and remains dynamically mapped per Milan 5.3.3.9), but it
         # truthfully owns zero local AUDIO_CLUSTER descriptors.  The receive
         # stream can still feed fabric-only consumers such as the loopback
         # lane.  Output ports may never be empty: a talker needs a source.
-        if not segs and direction == "input" and ph_render == 0 \
-                and int(pools.get("host", 0)) == 0:
+        if not segs and direction == "input" and ph_render == 0:
             return []
         if not segs:
             raise ConfigError(
                 f"cluster_mapping.policy role-pools: STREAM_PORT_"
                 f"{direction.upper()} {port_index} would carry ZERO clusters - "
-                "every declared pool (physical/host/pilot/loopback) is 0 wide. "
+                "every declared pool (physical/pilot/loopback) is 0 wide. "
                 "A STREAM_PORT with no cluster block cannot carry audio; "
                 "declare at least one pool (audio_interface.cluster_mapping."
                 "pools) or use another policy")
@@ -1539,7 +1398,7 @@ def cluster_layout(listeners, talkers, policy, iface_channels,
 #: stream channels are wired to at power-on. Physical first where it exists;
 #: on a board with no audio pins a talker falls through to LOOPBACK, which is
 #: the point of D8's loopback lane (USER 2026-07-28: "For the AX Loopback,
-#: use the loopback cluster created"), and then to HOST.
+#: use the loopback cluster created").
 #:
 #: task #65: LOOPBACK is only a candidate when the build ELABORATES the lane
 #: (cluster_mapping.fabric.loopback_lane -> milan_soc --loopback-lane ->
@@ -1555,28 +1414,8 @@ def cluster_layout(listeners, talkers, policy, iface_channels,
 #: mappings for a subset that has none - so declaring less is conformant,
 #: while declaring a source that cannot exist is merely undetectable.
 PRIMARY_ROLE_ORDER = {
-    "input":  ("physical", "host", "virtual"),
-    #! USER 2026-08-06: the talker's power-on identity is the SHARED-MEMORY
-    #! (host) lane, NOT the loopback - "the ATDECC mapping must correspond
-    #! to the physical mux, and the stream_output was set to the Loopback".
-    #! host now outranks loopback; a backed loopback stays fully mappable
-    #! by a controller, it just is not what the entity wakes up claiming.
-    #! (The 8x8 never saw this order matter: its lane was unbacked, so the
-    #! preference walk skipped loopback and host won by default.)
-    #!
-    #! USER 2026-08-10, 0x0043: host now outranks PHYSICAL too. The moment the
-    #! AX7101 declared its TDM8 channels (physical_channels.capture 0 -> 8),
-    #! physical-first silently moved the boot identity off the shared-memory
-    #! lane and onto the J11 pins - so a board with no codec attached would
-    #! wake up streaming whatever `din` floats to, and the PipeWire E2E path
-    #! would need a controller mapping on every boot. The 08-06 rule was
-    #! chosen against LOOPBACK, before a real physical front end existed;
-    #! asked again with physical on the table, the answer was the same lane.
-    #! This is a PREFERENCE WALK for the identity seed only - it does not
-    #! move cluster numbering, which role_pool() fixes as physical, host,
-    #! pilot, loopback. The TDM8 stays fully controller-selectable, which was
-    #! the entire point of putting it in the port.
-    "output": ("host", "physical", "loopback", "pilot", "virtual"),
+    "input": ("physical", "virtual"),
+    "output": ("physical", "loopback", "pilot", "virtual"),
 }
 
 
@@ -1623,10 +1462,6 @@ def cluster_names(cfg, port, direction):
             elif role == "virtual":
                 out.append(f"Virtual {'Out' if direction == 'input' else 'In'}"
                            f" {first + n}")
-            elif role == "host":
-                out.append(chname(n, None) or
-                           f"Host {'Play' if direction == 'input' else 'Cap'}"
-                           f" {n}")
             elif role == "pilot":
                 out.append("Pilot Tone")
             else:  # loopback: walk the rx channel space from THIS talker's
@@ -1980,37 +1815,6 @@ AEM_ROM_OUT_NAME = "aecp_aem_rom.svh"
 #: anything (tb/verilator/milan_dp elaborates the 4x4 and 8x8 shapes this way).
 GEN_CONFIG_DIR = "configs/generated"
 
-#: THE IDENTITY THE BOARD SOFTWARE PROGRAMS. The fabric serves the ADPDU AND
-#: the AEM ENTITY descriptor's entity_model_id from CSR 0x60C/0x610 (the ROM's
-#: OVL_MODEL_ID_C overlay slot), so whatever the boot script writes there IS
-#: the entity's model id - a literal in that script is a SECOND answer to a
-#: question the builder already answers, and on 2026-08-02 silicon it was the
-#: STALE one: the flashed ROM carried the dynamic-output-map descriptors while
-#: ADP advertised 001BC52ED611DB08, the id of a model that no longer exists.
-#: 1722.1-2021 6.2.1.10: entity_model_id identifies the AEM; two different AEMs
-#: must not share one. So the builder EMITS the identity and S50milan SOURCES
-#: it. Per BOARD (one shared rootfs serves both boards, S50milan branches on
-#: /proc/device-tree/model), written by the same --write-fragment moment that
-#: hands a board's bitstream flags over - one owner for "what this board is".
-ENTITY_CONF_NAME = "milan-entity.conf"
-#: `/etc` of the flashed rootfs overlay. In the SIBLING repo (milan-tests-avb)
-#: because that is where the image is built; overridable for a checkout that
-#: lives elsewhere, and simply SKIPPED when it is not on disk.
-ROOTFS_OVERLAY_ETC = os.environ.get(
-    "MILAN_ROOTFS_OVERLAY_ETC",
-    os.path.expanduser("~/milan-tests-avb/fpga/buildroot/br2-external/"
-                       "board/milan_naxriscv/rootfs_overlay/etc"))
-
-
-def entity_conf_overlay_path(board_target):
-    """Where <board>'s generated identity ships, or None when the rootfs
-    overlay is not on this disk (bare container / fpga repo alone)."""
-    if not os.path.isdir(ROOTFS_OVERLAY_ETC):
-        return None
-    return os.path.join(ROOTFS_OVERLAY_ETC,
-                        f"milan-entity.{board_target}.conf")
-
-
 def _entity_model_image(cfg, overlay):
     """{filename: content} for the AEM image the descriptor store fetches.
 
@@ -2047,10 +1851,10 @@ def _entity_model_image(cfg, overlay):
         # the AXI-Lite Milan CSR window, for the loader's PAIRING CHECK: the
         # image bakes firmware_version from milan_csr's VERSION at generation
         # time, the fabric serves that register live, and comparing the two at
-        # load time is what catches a bitstream flash that left the rootfs -
-        # and therefore this image - a build behind (the 2.68-image-on-2.69-
-        # gateware finding, 2026-08-14). Same rule as desc_base: the loader
-        # reads it from here and never restates it.
+        # pairing catches a bitstream flash that left its AEM image a build
+        # behind (the historical 2.68-image-on-2.69-gateware finding,
+        # 2026-08-14). Same rule as desc_base: consumers read the authority
+        # from this manifest and never restate it.
         "csr_base": int(cfg["platform"]["csr_base"]),
         "image": "aem_desc.bin",
         "image_bytes": len(blob),
@@ -2058,17 +1862,9 @@ def _entity_model_image(cfg, overlay):
         # whether the image on the board is the one they think it is
         "config": os.path.basename(str(cfg.get("source", ""))),
     }
-    # The loader ships WITH the image, from milan-fpga's one copy. A second
-    # copy maintained in the rootfs would be a script that drifts from the
-    # manifest format it parses, and the failure would be a board that reports
-    # a successful load of nothing.
-    with open(os.path.join(repo, "scripts", "load_entity_model.sh"),
-              encoding="utf-8") as fh:
-        loader = fh.read()
     return {"aem_desc.bin": blob,
             "aem_desc.json": json.dumps(manifest, indent=1) + "\n",
-            "aem_desc.map": report,
-            "load_entity_model.sh": loader}
+            "aem_desc.map": report}
 
 
 def emit_lwsrp_table(cfg):
@@ -2639,7 +2435,8 @@ def emit_adp_shape_svh(cfg, overlay=None):
     a("  //! from gptp.domain, the register from a hardcoded")
     a("  //! `w 0x62C 0x00000000` in avdecc/aecp_csr_setup.sh - and agreed only")
     a("  //! because the shipping config happens to say 0. A config that said 1")
-    a("  //! would have run ptp4l on domain 1 while ADP advertised domain 0,")
+    a("  //! would have run the selected gPTP owner on domain 1 while ADP")
+    a("  //! advertised domain 0,")
     a("  //! silently. One YAML section, one number (USER 2026-08-05).")
     a(f"  localparam int ADP_GPTP_DOMAIN_C   = "
       f"{(cfg.get('gptp') or {}).get('domain', 0)};")
@@ -2796,31 +2593,28 @@ def emit_interface_params(cfg):
 
 
 # ------------------------------------------------------- platform / DT ------
-def dma_window_map(dma_base, rx_queues, sound_card=True):
+def dma_window_map(dma_base, rx_queues):
     """The driver-visible DMA window map for `rx_queues`, in LiteX
     submodule-registration order (sw/litex/milan_soc.py MilanDMA.__init__).
-    Returns an ORDERED dict name -> (base, size, in_dt). The 2-queue build
+    Returns an ordered dict of register-window bases and sizes. The 2-queue build
     inserts steer + rx1 (0x74 bytes) before `ts`, which is why every window
     from `ts` on moves - the 5ce9a13 CSR-rot bug in one function."""
     if rx_queues not in (1, 2):
         raise ConfigError(f"rx_queues {rx_queues} outside 1..2")
     m, off = {}, 0
-    def add(name, size, in_dt):
+    def add(name, size):
         nonlocal off
-        m[name] = dict(base=dma_base + off, size=size, in_dt=in_dt)
+        m[name] = dict(base=dma_base + off, size=size)
         off += size
-    add("dma-tx", DMA_TX_BYTES, True)
-    # the DT window is the extent kl-eth maps, the CSR block is wider
-    m["dma-rx"] = dict(base=dma_base + off, size=DMA_RX_MAP_BYTES, in_dt=True,
+    add("dma-tx", DMA_TX_BYTES)
+    m["dma-rx"] = dict(base=dma_base + off, size=DMA_RX_MAP_BYTES,
                        block_size=DMA_RX_BLOCK_BYTES)
     off += DMA_RX_BLOCK_BYTES
     if rx_queues >= 2:
-        add("steer", DMA_STEER_BYTES, False)
-        add("dma-rx1", DMA_RX1_BLOCK_BYTES, False)
-    add("dma-ts", DMA_TS_BYTES, True)
-    add("hs-pgsz-cap", DMA_HS_CAP_BYTES, False)
-    if sound_card:
-        add("pcm-dma", DMA_PCM_BYTES, False)  # its own DT node, not the NIC's
+        add("steer", DMA_STEER_BYTES)
+        add("dma-rx1", DMA_RX1_BLOCK_BYTES)
+    add("dma-ts", DMA_TS_BYTES)
+    add("hs-pgsz-cap", DMA_HS_CAP_BYTES)
     return m
 
 
@@ -2843,20 +2637,19 @@ def _mac48(v, ctx):
 def load_features(raw):
     """Normalize `board.features`.
 
-    Datapath tier-1 blocks retain their historical PRESENT default. The Linux
-    host sound-card surface and fabric gPTP plane are product options and
-    default ABSENT; #120 opts the shipping config into the latter explicitly.
+    Datapath tier-1 blocks retain their PRESENT default. The fabric gPTP plane
+    is mandatory; option-off is a verification-only elaboration.
     """
     raw = raw or {}
     if not isinstance(raw, dict):
         raise ConfigError("board.features: must be a mapping of "
-                          f"{sorted((*OPTIONAL_BLOCKS, 'sound_card', 'fabric_gptp'))} "
+                          f"{sorted((*OPTIONAL_BLOCKS, 'fabric_gptp'))} "
                           "-> bool")
-    product_options = {"sound_card", "fabric_gptp"}
-    unknown = sorted(set(raw) - set(OPTIONAL_BLOCKS) - product_options)
+    policy_keys = {"fabric_gptp"}
+    unknown = sorted(set(raw) - set(OPTIONAL_BLOCKS) - policy_keys)
     if unknown:
         raise ConfigError(f"board.features: unknown block(s) {unknown} "
-                          f"(known: {sorted((*OPTIONAL_BLOCKS, *product_options))})")
+                          f"(known: {sorted((*OPTIONAL_BLOCKS, *policy_keys))})")
     out = {}
     for k in OPTIONAL_BLOCKS:
         v = raw.get(k, True)
@@ -2864,15 +2657,11 @@ def load_features(raw):
             raise ConfigError(f"board.features.{k} must be a boolean (got "
                               f"{v!r}); true = PRESENT (the default)")
         out[k] = v
-    v = raw.get("sound_card", False)
-    if not isinstance(v, bool):
-        raise ConfigError("board.features.sound_card must be a boolean; "
-                          "false = host capture/playback rings absent")
-    out["sound_card"] = v
-    v = raw.get("fabric_gptp", False)
+    v = raw.get("fabric_gptp", True)
     if not isinstance(v, bool):
         raise ConfigError("board.features.fabric_gptp must be a boolean; "
-                          "false = option-gated fabric time-sync plane absent")
+                          "true = fabric time-sync plane (the default and "
+                          "the only product value, #259)")
     out["fabric_gptp"] = v
     return out
 
@@ -2947,129 +2736,67 @@ def validate_features(feat, cons, clocking, interface, srp, platform):
             "KL_pcm_lpf's only consumer is KL_i2s_playback, so this build "
             "would synthesise a render filter with nothing behind it. Set "
             "render_lpf: false as well, or keep i2s_playback.")
-    host_width = int(interface.get("cluster_pools", {}).get("host", 0))
-    playback = interface.get("cluster_fabric", {}).get("playback_rings")
-    if not feat["sound_card"] and (host_width or playback):
-        raise ConfigError(
-            "board.features.sound_card is false, but the entity declares "
-            f"host clusters ({host_width}) and/or playback_rings ({playback}). "
-            "Remove those Linux host surfaces or set sound_card: true.")
     return feat
 
 
-def load_platform(raw, cons, target, listeners, sound_card=True):
-    """Validate + normalize the `platform:` section and DERIVE the DMA window
-    map from board.constraints.rx_queues. Raises ConfigError when the derived
-    map contradicts `boot_chain_pin` - the flashed boot chain's map, which is
-    exactly the 5ce9a13 failure caught before a build instead of after a
-    flash."""
+def load_platform(raw, cons, target):
+    """Validate and normalize the firmware-visible platform map."""
     raw = raw or {}
     if not isinstance(raw, dict):
         raise ConfigError("platform: must be a mapping")
+    unknown = sorted(set(raw) - set(PLATFORM_DEFAULTS))
+    if unknown:
+        raise ConfigError(f"platform: unknown key(s) {unknown}")
     p = dict(PLATFORM_DEFAULTS)
-    for k in PLATFORM_DEFAULTS:
-        if k in raw:
-            p[k] = raw[k]
-    for k in ("csr_base", "dma_bank_base", "mac_bank_base", "ev_bank_base",
-              "pcm_ring_phys", "pcm_ring_bytes", "pcm_ring_stride"):
-        p[k] = int(p[k])
+    p.update(raw)
+    for key in ("csr_base", "dma_bank_base", "mac_bank_base",
+                "ev_bank_base", "pp_mem_phys"):
+        p[key] = int(p[key])
     if p["csr_base"] < 0x8000_0000:
-        raise ConfigError(f"platform.csr_base 0x{p['csr_base']:08X} is below "
-                          "0x80000000 - an MMIO peripheral must live in the "
-                          "CPU IO region (REGISTER_MAP.md 'Bus')")
+        raise ConfigError(
+            f"platform.csr_base 0x{p['csr_base']:08X} is below the CPU IO region")
     if p["mac_address"] is None:
-        raise ConfigError("platform.mac_address is required - two boards on "
-                          "one AVB switch MUST NOT share a station MAC")
+        raise ConfigError("platform.mac_address is required")
     mac = _mac48(p["mac_address"], "platform.mac_address")
-    p["mac_address"] = ":".join(f"{(mac >> s) & 0xFF:02x}"
-                                for s in range(40, -8, -8))
-    if not (isinstance(p["interrupt"], int) and 0 <= p["interrupt"] < 32):
-        raise ConfigError(f"platform.interrupt {p['interrupt']} outside the "
-                          "PLIC's riscv,ndev = 32")
-    _pow2(p["pcm_ring_bytes"], "platform.pcm_ring_bytes")
-    _pow2(p["pcm_ring_stride"], "platform.pcm_ring_stride")
-    if p["pcm_ring_stride"] * len(listeners) > p["pcm_ring_bytes"]:
+    p["mac_address"] = ":".join(
+        f"{(mac >> shift) & 0xFF:02x}" for shift in range(40, -8, -8))
+    if not isinstance(p["interrupt"], int) or not 0 <= p["interrupt"] < 32:
         raise ConfigError(
-            f"platform: {len(listeners)} capture stream(s) x stride "
-            f"0x{p['pcm_ring_stride']:X} overruns the reserved PCM ring "
-            f"(0x{p['pcm_ring_bytes']:X}) - snd-kl-milan would DMA past the "
-            "no-map region")
-    # THE PROTOCOL PROCESSOR'S DRAM WINDOW, immediately below the PCM ring.
-    # Both regions are reserved `no-map` and both are DERIVED from the one
-    # address the config states, so a board cannot end up with a gateware that
-    # reads one place and a kernel that protects another. That is not a
-    # hypothetical: the base used to be computed independently in
-    # sw/litex/milan_soc.py as "top of main_ram", which at the 1x1 shape landed
-    # in kernel RAM and at the 8x8 shape landed INSIDE this ring.
+            f"platform.interrupt {p['interrupt']} outside 0..31")
     p["pp_mem_bytes"] = PP_MEM_BYTES
-    p["pp_mem_phys"] = p["pcm_ring_phys"] - PP_MEM_BYTES
-    if p["pp_mem_phys"] <= 0:
+    if p["pp_mem_phys"] <= 0 or p["pp_mem_phys"] % 0x1000:
         raise ConfigError(
-            f"platform.pcm_ring_phys 0x{p['pcm_ring_phys']:X} leaves no room "
-            f"below it for the protocol processor's 0x{PP_MEM_BYTES:X}-byte "
-            "window")
+            "platform.pp_mem_phys must be a positive 4 KiB-aligned address")
     phy = DT_PHY_MODE.get(cons["phy"])
     if phy is None:
-        raise ConfigError(f"platform: no DT phy-mode for board phy "
-                          f"'{cons['phy']}' (known {sorted(DT_PHY_MODE)})")
+        raise ConfigError(f"platform: unsupported board phy {cons['phy']!r}")
     if p["rx_address_filter"] not in RX_ADDRESS_FILTERS:
-        raise ConfigError(f"platform.rx_address_filter "
-                          f"'{p['rx_address_filter']}' not in "
-                          f"{list(RX_ADDRESS_FILTERS)}")
+        raise ConfigError(
+            f"platform.rx_address_filter {p['rx_address_filter']!r} not in "
+            f"{list(RX_ADDRESS_FILTERS)}")
     p["phy_mode"] = phy
     p["rsc_clk_mhz"] = cons["milan_clk_hz"] // 1_000_000
     if p["rsc_clk_mhz"] * 1_000_000 != cons["milan_clk_hz"]:
         raise ConfigError(
-            f"platform: milan_clk_hz {cons['milan_clk_hz']} is not a whole "
-            "MHz - kl,rsc-clk-mhz is an integer and the driver clamps it to "
-            "10..250 (a wrong value runs the PHC at the wrong rate)")
+            f"platform: milan_clk_hz {cons['milan_clk_hz']} is not a whole MHz")
     if not 10 <= p["rsc_clk_mhz"] <= 250:
-        raise ConfigError(f"platform: kl,rsc-clk-mhz {p['rsc_clk_mhz']} "
-                          "outside the driver's 10..250 accept window")
-    p["windows"] = dma_window_map(p["dma_bank_base"], cons["rx_queues"],
-                                  sound_card=sound_card)
+        raise ConfigError(
+            f"platform: rsc clock {p['rsc_clk_mhz']} MHz outside 10..250")
+    p["windows"] = dma_window_map(p["dma_bank_base"], cons["rx_queues"])
     p["rx_queues"] = cons["rx_queues"]
-
-    # CSR-rot guard: the flashed boot chain fixes its own window map. A pin
-    # that the derived map contradicts means the DTB/opensbi on that board
-    # would address the wrong registers - refuse to emit.
-    pin = p["boot_chain_pin"]
-    if pin is not None:
-        if not isinstance(pin, dict):
-            raise ConfigError("platform.boot_chain_pin must be a mapping of "
-                              "window name -> address")
-        for name, want in pin.items():
-            if name not in p["windows"]:
-                raise ConfigError(f"platform.boot_chain_pin: unknown window "
-                                  f"'{name}' (known {sorted(p['windows'])})")
-            got = p["windows"][name]["base"]
-            if int(want) != got:
-                raise ConfigError(
-                    f"platform.boot_chain_pin['{name}'] = "
-                    f"0x{int(want):08X} but rx_queues={cons['rx_queues']} "
-                    f"puts it at 0x{got:08X}. The flashed boot chain "
-                    f"(DTB + opensbi + kl-eth) maps this window BY ADDRESS: "
-                    "changing rx_queues shifts every window from dma-ts on "
-                    "by 0x74 and the host plane dies silently (the 5ce9a13 "
-                    "CSR-rot rule). Rebuild the whole boot chain and move "
-                    "the pin, or restore rx_queues.")
     return p
 
 
 def emit_platform_shape(cfg):
-    """The driver-visible layout this config implies: CSR base, the DMA
-    window map, the queue count, and the physical addresses kl-eth hardcodes
-    (they MOVE with rx_queues - the biggest un-modelled coupling)."""
+    """Return the firmware-visible address and queue contract."""
     p, c = cfg["platform"], cfg["constraints"]
-    w = p["windows"]
-    sound_card = cfg["features"]["sound_card"]
     return {
         "_schema": PLATFORM_SCHEMA_ID,
         "_schema_version": PLATFORM_SCHEMA_VERSION,
         "_generated_by": "sw/builder/endstation_builder.py",
         "_source_config": cfg["source"],
         "board": cfg["board_target"],
-        "csr": dict(base=f"0x{p['csr_base']:08X}", size=MILAN_CSR_BYTES),
+        "csr": {"base": f"0x{p['csr_base']:08X}", "size": MILAN_CSR_BYTES},
         "rx_queues": p["rx_queues"],
         "tx_queues": c["num_queues"],
         "shaped_queues": [0, 1],
@@ -3078,133 +2805,20 @@ def emit_platform_shape(cfg):
         "hs_page_bytes": c["hs_page_bytes"],
         "mac_address": p["mac_address"],
         "interrupt": p["interrupt"],
-        "windows": {k: dict(base=f"0x{v['base']:08X}",
-                            size=f"0x{v['size']:X}",
-                            in_device_tree=v["in_dt"])
-                    for k, v in w.items()},
-        "phy_window": dict(base=f"0x{p['mac_bank_base']:08X}",
-                           size=f"0x{MAC_PHY_MAP_BYTES:X}"),
-        # kl-eth.c hardcodes these; they are NOT in the DT and they shift
-        # with rx_queues. Emitting them is the point of this table.
-        "driver_constants": {
-            "MILAN_EV_PHYS": f"0x{p['ev_bank_base']:08X}",
-            "MILAN_PHY_CSR_PHYS": f"0x{p['mac_bank_base']:08X}",
-            "MILAN_DMA_RX1_PHYS": (f"0x{w['dma-rx1']['base']:08X}"
-                                   if "dma-rx1" in w else None),
-            "MILAN_HS_PGSZ_CAP_PHYS": f"0x{w['hs-pgsz-cap']['base']:08X}",
+        "windows": {
+            name: {"base": f"0x{row['base']:08X}",
+                   "size": f"0x{row['size']:X}"}
+            for name, row in p["windows"].items()
         },
-        "pcm": (dict(base=f"0x{w['pcm-dma']['base']:08X}",
-                     size=f"0x{w['pcm-dma']['size']:X}",
-                     capture_streams=len(cfg["listeners"]),
-                     playback_streams=(cfg["interface"].get(
-                         "cluster_fabric", {}).get("playback_rings") or 0),
-                     ring_phys=f"0x{p['pcm_ring_phys']:08X}",
-                     ring_bytes=f"0x{p['pcm_ring_bytes']:X}",
-                     ring_stride=f"0x{p['pcm_ring_stride']:X}")
-                if sound_card else None),
-        # The window sw/litex/milan_soc.py compiles into the gateware as
-        # PP_DESC_BASE_P / PP_RESP_BASE_P. Published here so the SoC READS it
-        # rather than deriving it a second way - the device tree above reserves
-        # exactly these bytes, and the two must be the same bytes.
-        "pp_mem": dict(phys=f"0x{p['pp_mem_phys']:08X}",
-                       bytes=f"0x{p['pp_mem_bytes']:X}"),
-        "boot_chain_pin": ({k: f"0x{int(v):08X}"
-                            for k, v in p["boot_chain_pin"].items()}
-                           if p["boot_chain_pin"] else None),
+        "phy_window": {
+            "base": f"0x{p['mac_bank_base']:08X}",
+            "size": f"0x{MAC_PHY_MAP_BYTES:X}",
+        },
+        "pp_mem": {
+            "phys": f"0x{p['pp_mem_phys']:08X}",
+            "bytes": f"0x{p['pp_mem_bytes']:X}",
+        },
     }
-
-
-def emit_dt_overlay(cfg):
-    """The device-tree nodes: ethernet@<csr_base> (kl,dma-ether), the PCM
-    node (kl,milan-pcm) and its no-map reserved-memory region. Overlaid onto
-    the LiteX base tree (litex_json2dts_linux) - the NIC/PCM nodes sit at the
-    ROOT beside `soc`, which is why they carry an explicit interrupt-parent."""
-    p, c = cfg["platform"], cfg["constraints"]
-    w = p["windows"]
-    ln = []
-    a = ln.append
-    a("// SPDX-License-Identifier: (GPL-2.0 OR MIT)")
-    a("/*")
-    a(" * Milan TSN NIC + PCM nodes - GENERATED by")
-    a(" * sw/builder/endstation_builder.py. DO NOT EDIT BY HAND;")
-    a(f" * edit {cfg['source']} and regenerate.")
-    a(" *")
-    a(f" * Board {cfg['board_target']}, rx_queues {p['rx_queues']}: the DMA")
-    a(" * window map is a FUNCTION of the queue count (a 2-queue build")
-    a(" * inserts steer + rx1 = 0x74 bytes before dma-ts). A DTB built")
-    a(" * against the other count maps every window onto the wrong")
-    a(" * registers - rebuild DTB + opensbi with the gateware.")
-    a(" */")
-    a("")
-    a("/ {")
-    a("\treserved-memory {")
-    a("\t\t#address-cells = <1>;")
-    a("\t\t#size-cells    = <1>;")
-    a("\t\tranges;")
-    a("")
-    if cfg["features"]["sound_card"]:
-        a(f"\t\tpcmring: pcmring@{p['pcm_ring_phys']:x} {{")
-        a(f"\t\t\treg = <0x{p['pcm_ring_phys']:x} 0x{p['pcm_ring_bytes']:x}>;")
-        a("\t\t\tno-map;")
-        a("\t\t};")
-        a("")
-    # The protocol processor's descriptor store READS the entity model from
-    # here and its AECP response buffer WRITES here, both at bases compiled
-    # into the bitstream. Unreserved, this is ordinary kernel RAM and those
-    # writes land on whatever the allocator handed out - silently, because no
-    # counter on either side reports it. `no-map` additionally keeps the region
-    # out of the kernel's linear map, which is what lets the loader reach it
-    # through /dev/mem on a CONFIG_STRICT_DEVMEM kernel.
-    a(f"\t\tppmem: ppmem@{p['pp_mem_phys']:x} {{")
-    a(f"\t\t\treg = <0x{p['pp_mem_phys']:x} 0x{p['pp_mem_bytes']:x}>;")
-    a("\t\t\tno-map;")
-    a("\t\t};")
-    a("\t};")
-    a("")
-    a(f"\tmilan_nic: ethernet@{p['csr_base']:x} {{")
-    a('\t\tcompatible = "kl,dma-ether-0.9", "kl,dma-ether";')
-    a(f"\t\treg = <0x{p['csr_base']:x} 0x{MILAN_CSR_BYTES:x}>,"
-      "        /* csr    control plane */")
-    for name in ("dma-tx", "dma-rx", "dma-ts"):
-        a(f"\t\t      <0x{w[name]['base']:x} 0x{w[name]['size']:x}>,"
-          f"          /* {name} */")
-    a(f"\t\t      <0x{p['mac_bank_base']:x} 0x{MAC_PHY_MAP_BYTES:x}>;"
-      "           /* phy  crg_reset + MDIO */")
-    a('\t\treg-names = "csr", "dma-tx", "dma-rx", "dma-ts", "phy";')
-    a(f"\t\tinterrupt-parent = <&{p['interrupt_parent']}>;")
-    a(f"\t\tinterrupts = <{p['interrupt']}>;")
-    a('\t\tinterrupt-names = "csr";')
-    if p["dma_coherent"]:
-        a("\t\tdma-coherent;")
-    a(f"\t\tkl,rsc-clk-mhz = <{p['rsc_clk_mhz']}>;"
-      "\t/* datapath clock (PHC rate + RSC timing) */")
-    a(f'\t\tphy-mode = "{p["phy_mode"]}";')
-    a("\t\tlocal-mac-address = [" +
-      " ".join(p["mac_address"].split(":")) + "];")
-    a(f"\t\tkl,txq-cnt = <{c['num_queues']}>;")
-    a(f"\t\tkl,rxq-cnt = <{p['rx_queues']}>;")
-    a("\t\tkl,shaped-queues = <0 1>;")
-    a("\t\tkl,ptp;")
-    a('\t\tstatus = "okay";')
-    a("\t};")
-    a("")
-    if cfg["features"]["sound_card"]:
-        a(f"\tmilan_pcm: audio@{w['pcm-dma']['base']:x} {{")
-        a('\t\tcompatible = "kl,milan-pcm-0.9", "kl,milan-pcm";')
-        a(f"\t\treg = <0x{w['pcm-dma']['base']:x} "
-          f"0x{w['pcm-dma']['size']:x}>,")
-        a(f"\t\t      <0x{p['csr_base']:x} 0x1000>;")
-        a('\t\treg-names = "pcm-dma", "milan-csr";')
-        a("\t\tmemory-region = <&pcmring>;")
-        a(f"\t\tkl,capture-streams = <{len(cfg['listeners'])}>;")
-        pbr = cfg["interface"].get("cluster_fabric", {}).get("playback_rings") or 0
-        a(f"\t\tkl,playback-streams = <{pbr}>;")
-        a(f"\t\tkl,ring-stride = <0x{p['pcm_ring_stride']:x}>;")
-        a('\t\tstatus = "okay";')
-        a("\t};")
-    a("};")
-    a("")
-    return "\n".join(ln)
 
 
 # ------------------------------------------------------- model-id hashing ---
@@ -3272,7 +2886,6 @@ def model_shape(cfg):
         shape["cluster_pools"] = {
             "physical": [i["physical_channels"]["capture"],
                          i["physical_channels"]["render"]],
-            "host": int(i["cluster_pools"].get("host", 0)),
             "pilot": bool(i["cluster_pools"].get("pilot", False)),
             "loopback": int(i["cluster_pools"].get("loopback", 0)),
         }
@@ -3286,6 +2899,90 @@ def derive_model_id(shape):
     top8 = int.from_bytes(hashlib.sha256(canon).digest()[:8], "big")
     mask = (1 << MODEL_ID_HASH_BITS) - 1
     return (MODEL_ID_OUI << MODEL_ID_HASH_BITS) | (top8 & mask)
+
+
+# ---------------------------------------------- gPTP engine pinned dataset --
+GPTP_UCODE_GENERATOR = os.path.join(
+    ROOT, "gptp-processor", "hdl", "ucode", "gen_gptp_ucode.py")
+
+#! The gptp: field the engine generator CONSUMES (--p1); everything else in
+#! the section it hardcodes ([R-parallel] on #228). MAC and the clock
+#! frequency are consumed too, from platform/constraints, not gptp:.
+#! gptp.domain is pinned to 0 by its own Milan rule and the engine emits 0.
+GPTP_ENGINE_CONSUMED = ("priority1",)
+
+_gptp_engine_pins_cache = None
+
+
+def _engine_const(lines, pattern, what):
+    """Exactly one live match in the comment-stripped generator source.
+    Zero means the authority moved and this derivation is blind; two means
+    it is ambiguous. Refuse both (derive, never mirror a constant)."""
+    hits = [m.group(1) for ln in lines for m in [re.match(pattern, ln)] if m]
+    if len(hits) != 1:
+        raise ConfigError(
+            f"gen_gptp_ucode.py: {len(hits)} live matches for {what}, "
+            f"need exactly 1; the engine's Announce dataset cannot be "
+            f"derived, refusing rather than defaulting ([R-parallel] on "
+            f"#228)")
+    return int(hits[0], 0)
+
+
+def gptp_engine_pins(source=None):
+    """The Announce dataset the fabric engine transmits, PARSED from the
+    pinned generator (never restated here: a mirrored 248 or 0xF8FE436A
+    would diverge in silence on a submodule bump). The generator consumes
+    only --mac, --p1 and --clk-hz; priority2, clockQuality and the per
+    message logMessageInterval octets are constants in its source, so the
+    AVB_INTERFACE descriptor must be derived FROM them ([R-parallel] on
+    #228). `source` is for the test suite's synthetic fixtures only."""
+    global _gptp_engine_pins_cache
+    from_file = source is None
+    if from_file:
+        if _gptp_engine_pins_cache is not None:
+            return dict(_gptp_engine_pins_cache)
+        if not os.path.isfile(GPTP_UCODE_GENERATOR):
+            raise ConfigError(
+                "the gptp-processor submodule is not checked out, and its "
+                "generator is the authority the gPTP descriptor dataset "
+                "derives from ([R-parallel] on #228): run `git submodule "
+                "update --init gptp-processor` before loading a config")
+        with open(GPTP_UCODE_GENERATOR, encoding="utf-8") as f:
+            source = f.read()
+    num = r"(0[xX][0-9A-Fa-f]+|\d+)"          # captured value
+    anum = r"(?:0[xX][0-9A-Fa-f]+|\d+)"       # matched, not captured
+    lines = [ln.split("#", 1)[0].rstrip() for ln in source.splitlines()]
+    p2 = _engine_const(
+        lines, rf"P1_C\s*,\s*P2_C\s*=\s*\d+\s*,\s*{num}$", "P2_C")
+    cq = _engine_const(lines, rf"CQ_C\s*=\s*{num}$", "CQ_C")
+    if not 0 <= cq <= 0xFFFFFFFF:
+        raise ConfigError(f"gen_gptp_ucode.py: CQ_C 0x{cq:X} is not a "
+                          f"32-bit clockQuality word")
+
+    def logint(mtype, name):
+        """e_hdr's logint argument for one TX message type: the wire
+        logMessageInterval octet, sign-extended."""
+        v = _engine_const(
+            lines,
+            rf"\s*e_hdr\(p,\s*{mtype},\s*{anum},\s*\w+,\s*{num},\s*{anum}\)$",
+            f"e_hdr {name} TX")
+        if not 0 <= v <= 0xFF:
+            raise ConfigError(f"gen_gptp_ucode.py: {name} logMessageInterval "
+                              f"0x{v:X} is not an octet")
+        return v - 256 if v >= 128 else v
+
+    pins = dict(
+        priority2=p2,
+        clock_class=(cq >> 24) & 0xFF,
+        clock_accuracy=(cq >> 16) & 0xFF,
+        offset_scaled_log_variance=cq & 0xFFFF,
+        log_sync_interval=logint("0x0", "Sync"),
+        log_announce_interval=logint("0xB", "Announce"),
+        log_pdelay_interval=logint("0x2", "Pdelay_Req"),
+    )
+    if from_file:
+        _gptp_engine_pins_cache = dict(pins)
+    return pins
 
 
 def load_config(path):
@@ -3355,7 +3052,7 @@ def load_config(path):
         phy=_req(c, "phy", "board.constraints"),
         gtx_tx_invert=bool(c.get("gtx_tx_invert", False)),
         floorplan=bool(c.get("floorplan", False)),
-        flashboot=c.get("flashboot", "full"),
+        flashboot=c.get("flashboot", "baremetal"),
         uart_baudrate=int(c.get("uart_baudrate", 115200)),
         rx_queues=int(c.get("rx_queues", 2)),
         num_queues=int(c.get("num_queues", 5)),   # = NUMBER_OF_QUEUES; gate 18c
@@ -3377,9 +3074,9 @@ def load_config(path):
                           f"{target} ({binfo['phy']})")
     if cons["gtx_tx_invert"] and not binfo["gmii_knobs"]:
         raise ConfigError(f"gtx_tx_invert is a GMII knob; {target} is {binfo['phy']}")
-    if cons["flashboot"] not in ("none", "baremetal", "kernel", "full"):
+    if cons["flashboot"] not in ("none", "baremetal"):
         raise ConfigError(
-            f"flashboot '{cons['flashboot']}' not none|baremetal|kernel|full")
+            f"flashboot '{cons['flashboot']}' not none|baremetal")
     if not 1 <= cons["rx_queues"] <= 2:
         raise ConfigError(f"rx_queues {cons['rx_queues']} outside 1..2")
     # shaper queue count = ethernet_packet_pkg::NUMBER_OF_QUEUES; the CBS
@@ -3436,13 +3133,10 @@ def load_config(path):
     if clocking["crf_sink"] and "crf" not in srcs:
         raise ConfigError("crf_sink needs 'crf' in media_clock_sources")
 
-    # gPTP clock attributes (OPTIONAL, opt-in): ONE source for the
-    # AVB_INTERFACE descriptor's static clock fields AND the generated
-    # ptp4l config, so the entity can never advertise a clock posture the
-    # daemon does not run (USER 2026-08-05: "why is the gPTP configuration
-    # (priority1 etc) not correctly reflected into the avb_interface").
-    # Absent => the descriptor keeps its historical constants byte-exactly
-    # and NO gptp.cfg fragment is generated. Present => the section joins
+    # gPTP clock attributes: ONE source for the AVB_INTERFACE descriptor's
+    # static clock fields and the fabric uCPU image. Fabric ownership (every
+    # product configuration, #259) requires this section. Present => the
+    # section joins
     # model_shape, so a changed clock posture rotates a hash-derived
     # entity_model_id (controllers cache descriptor content by model id -
     # measured 2026-08-05: a stale cached model offered ports the flashed
@@ -3501,25 +3195,36 @@ def load_config(path):
                     f"domain, that is the CLOCK_DOMAIN descriptor, not this.")
             return v
 
-        def _gp_s8(k, dflt):
-            v = int(gp_raw.get(k, dflt))
-            if not -128 <= v <= 127:
-                raise ConfigError(f"gptp.{k} {v} outside -128..127")
-            return v
-        oslv = int(gp_raw.get("offset_scaled_log_variance", 0xFFFF))
-        if not 0 <= oslv <= 0xFFFF:
-            raise ConfigError(
-                f"gptp.offset_scaled_log_variance {oslv} outside 0..65535")
+        #! Engine-pinned fields ([R-parallel] on #228): the fabric engine
+        #! consumes only MAC, priority1 and the clock frequency; priority2,
+        #! clockQuality and the log intervals are constants in
+        #! gptp-processor/hdl/ucode/gen_gptp_ucode.py and go out in every
+        #! Announce. The descriptor takes the ENGINE's values, and a config
+        #! stating anything else is refused, so the AEM dataset cannot
+        #! disagree with the wire.
+        pins = gptp_engine_pins()
+
+        def _gp_pinned(k):
+            if k in gp_raw and int(gp_raw[k]) != pins[k]:
+                raise ConfigError(
+                    f"gptp.{k} {int(gp_raw[k])} diverges from the fabric "
+                    f"engine's {pins[k]}: the engine generator consumes only "
+                    f"{', '.join(GPTP_ENGINE_CONSUMED)} (plus MAC and clock "
+                    f"frequency) and announces this field from a constant in "
+                    f"gptp-processor/hdl/ucode/gen_gptp_ucode.py. State "
+                    f"{pins[k]} or omit the key ([R-parallel] on #228)")
+            return pins[k]
         gptp = dict(
             priority1=_gp_u8("priority1", 248),
-            priority2=_gp_u8("priority2", 248),
-            clock_class=_gp_u8("clock_class", 248),
-            clock_accuracy=_gp_u8("clock_accuracy", 0xFE),
-            offset_scaled_log_variance=oslv,
+            priority2=_gp_pinned("priority2"),
+            clock_class=_gp_pinned("clock_class"),
+            clock_accuracy=_gp_pinned("clock_accuracy"),
+            offset_scaled_log_variance=_gp_pinned(
+                "offset_scaled_log_variance"),
             domain=_gp_domain(),
-            log_sync_interval=_gp_s8("log_sync_interval", -3),
-            log_announce_interval=_gp_s8("log_announce_interval", 0),
-            log_pdelay_interval=_gp_s8("log_pdelay_interval", 0),
+            log_sync_interval=_gp_pinned("log_sync_interval"),
+            log_announce_interval=_gp_pinned("log_announce_interval"),
+            log_pdelay_interval=_gp_pinned("log_pdelay_interval"),
         )
 
     # audio interface
@@ -3565,10 +3270,9 @@ def load_config(path):
     # D8 role pools. Only role-pools consumes them; declaring pools under
     # another policy is a config that means two different things at once.
     pools = cm.get("pools") or {}
-    if not isinstance(pools, dict) or set(pools) - {"host", "pilot",
-                                                    "loopback"}:
+    if not isinstance(pools, dict) or set(pools) - {"pilot", "loopback"}:
         raise ConfigError("audio_interface.cluster_mapping.pools must be a "
-                          "mapping with keys host/pilot/loopback (the "
+                          "mapping with keys pilot/loopback (the "
                           "physical pool width comes from "
                           "audio_interface.physical_channels)")
     if pools and policy != "role-pools":
@@ -3586,14 +3290,11 @@ def load_config(path):
     # drives BOTH the milan_soc argv and the power-on map, so they cannot
     # drift apart again. Omitted entirely => today's answers exactly.
     fab = cm.get("fabric") or {}
-    if not isinstance(fab, dict) or set(fab) - {"loopback_lane",
-                                                "playback_rings"}:
+    if not isinstance(fab, dict) or set(fab) - {"loopback_lane"}:
         raise ConfigError(
             "audio_interface.cluster_mapping.fabric must be a mapping with "
             "keys loopback_lane (bool: milan_soc --loopback-lane, the rx -> "
-            "talker LOOP bucket) and/or playback_rings (int: milan_soc "
-            "--aaf-playback-streams, the KL_pcm_tx rings behind the host "
-            "pool)")
+            "talker LOOP bucket)")
     if fab and policy != "role-pools":
         raise ConfigError(
             "audio_interface.cluster_mapping.fabric is only read by the "
@@ -3604,18 +3305,10 @@ def load_config(path):
             "cluster_mapping.fabric.loopback_lane is set but pools.loopback "
             "is 0: the build would carry the rx -> talker LOOP bucket "
             "(+2303 LUT / +1542 FF at 8x8) with no cluster naming it")
-    pb_rings = fab.get("playback_rings")
-    if pb_rings is not None:
-        pb_rings = int(pb_rings)
-        if pb_rings < 1:
-            raise ConfigError(
-                f"cluster_mapping.fabric.playback_rings {pb_rings} must be "
-                ">= 1 (omit the key to leave the host pool's ring bound at "
-                "the fabric maximum)")
     # USER 2026-08-05: the port channel space can be NAMED from the config
     # ("prepare it to be software defined"): channel_names[k] names channel k
-    # of every stream port - host clusters verbatim, loopback/physical ones
-    # role-prefixed. 1722.1-2021 6.2.2.8 excludes object_name from the model
+    # of every stream port; loopback/physical names are role-prefixed.
+    # 1722.1-2021 6.2.2.8 excludes object_name from the model
     # shape, so names never move a hash-derived entity_model_id.
     names = aif.get("channel_names")
     if names is not None:
@@ -3625,7 +3318,7 @@ def load_config(path):
             raise ConfigError(
                 "audio_interface.channel_names must be a non-empty list of "
                 "strings (each 1..48 chars), one per port channel")
-        need = max(int(pools.get("host", 0)), phys["capture"], phys["render"])
+        need = max(phys["capture"], phys["render"])
         if len(names) < need:
             raise ConfigError(
                 f"audio_interface.channel_names has {len(names)} names but "
@@ -3635,7 +3328,7 @@ def load_config(path):
         cluster_policy=policy, rtl=iinfo["rtl"],
         physical_channels=phys, cluster_pools=pools,
         channel_names=names,
-        cluster_fabric=dict(loopback_lane=lb_lane, playback_rings=pb_rings),
+        cluster_fabric=dict(loopback_lane=lb_lane),
     )
     # AES3/S-PDIF: the serial clock is a HARD consequence of the media clock
     # (sampling_rate_hz x 128 UI/frame x OVERSAMPLE_P). A config whose audio
@@ -3691,8 +3384,10 @@ def load_config(path):
     soc = dict(SOC_DEFAULTS, **(cfg.get("soc") or {}))
     if soc["cpu"] not in ("vexiiriscv", "naxriscv"):
         raise ConfigError(f"soc.cpu '{soc['cpu']}' unknown")
-    if soc["software_profile"] not in ("baremetal", "linux"):
-        raise ConfigError("soc.software_profile must be baremetal or linux")
+    if soc["software_profile"] != "baremetal":
+        raise ConfigError(
+            f"soc.software_profile '{soc['software_profile']}' is retired "
+            "(#259): the product and repository are bare-metal only")
     if int(soc["xlen"]) not in (32, 64):
         raise ConfigError("soc.xlen must be 32 or 64")
     soc["xlen"] = int(soc["xlen"])
@@ -3703,8 +3398,6 @@ def load_config(path):
             raise ConfigError("baremetal SoC requires l2_bytes: 0 and no cache/prefetch scala_args")
         if cons["flashboot"] not in ("baremetal", "none"):
             raise ConfigError("baremetal SoC requires flashboot: baremetal (or none)")
-    elif cons["flashboot"] == "baremetal":
-        raise ConfigError("flashboot: baremetal requires soc.software_profile: baremetal")
 
     # the framer's emitted width, for the TSpec derivation (802.1Q
     # 35.2.2.8.4 a): the frame the talker WILL PRODUCE). Computed on a shim
@@ -3713,15 +3406,23 @@ def load_config(path):
                                         board_target=target))
     srp = load_srp(cfg.get("srp"), listeners, talkers, clocking, cons,
                    BOARDS[target], wire_channels=wire_ch)
-    sound_card = bool((brd.get("features") or {}).get("sound_card", False))
-    platform = load_platform(cfg.get("platform"), cons, target, listeners,
-                             sound_card=sound_card)
+    platform = load_platform(cfg.get("platform"), cons, target)
 
     # optional-block prunes (docs/design/AREA_BUDGET.md tier 1). Loaded last
     # because the gate cross-checks against clocking / interface / srp /
     # platform - a prune is only wrong RELATIVE to what the rest asked for.
     features = validate_features(load_features(brd.get("features")),
                                  cons, clocking, interface, srp, platform)
+    # The product's one gPTP owner is the fabric plane. A product
+    # configuration cannot opt out; option-off exists only for verification,
+    # driven directly through milan_soc.py by the test gates, never through
+    # a tracked end-station configuration.
+    if not features["fabric_gptp"]:
+        raise ConfigError(
+            "board.features.fabric_gptp: false is retired (#259): the "
+            "product has NO PHC owner without the fabric plane, and option-off is a "
+            "verification-only elaboration, not a product configuration. "
+            "Select fabric_gptp: true.")
     if features["fabric_gptp"] and gptp is None:
         raise ConfigError(
             "board.features.fabric_gptp requires a gptp: section so the "
@@ -3844,8 +3545,7 @@ def rtl_capability_marks(cfg):
         marks.append((f"D8 role-named cluster pools ({n_cl} AUDIO_CLUSTERs)",
                       "supported",
                       f"physical {ph['capture']} cap / {ph['render']} rend "
-                      f"(audio_interface.physical_channels), host "
-                      f"{pools.get('host', 0)}/port, pilot "
+                      f"(audio_interface.physical_channels), pilot "
                       f"{'1' if pools.get('pilot') else '0'}/talker port, "
                       f"loopback {pools.get('loopback', 0)}/talker port; "
                       "port-relative AUDIO_MAP offsets per 1722.1 7.2.19"))
@@ -3884,8 +3584,7 @@ def rtl_capability_marks(cfg):
                            "+2303 LUT / +1542 FF OOC at 8x8 (32 pair holds "
                            "x 48 b that cannot be LUTRAM). The power-on map "
                            "therefore does NOT point here: primary_segment "
-                           "drops the pool and the talkers wake on the host "
-                           "pool instead. The clusters remain published and "
+                           "drops the pool. The clusters remain published and "
                            "protocol-mappable, while their CMAP fabric-enable "
                            "marker stays clear") +
                           ". A mapped-but-never-fed slot is DISTINGUISHABLE "
@@ -4048,19 +3747,9 @@ def emit_design_opts(cfg):
     # one fact, so an AEM can never advertise a lane the bitstream lacks.
     if cfg["interface"].get("cluster_fabric", {}).get("loopback_lane"):
         argv += ["--loopback-lane"]
-    if cfg["features"]["fabric_gptp"]:
-        argv += ["--fabric-gptp"]
-    if cfg["features"]["sound_card"]:
-        argv += ["--sound-card"]
-    # the KL_pcm_tx host rings behind the `host` pool. Emitted from the SAME
-    # fabric declaration the AEM host clusters come from - caught 2026-08-05
-    # by check_dtb_csr at FLASH time: the fragment carried no playback flag,
-    # three seeds built a datapath with no pb engine under a DTB (and an AEM
-    # host pool) that declared one. Only build.sh's cfg_ax7101 recipe ever
-    # passed --aaf-playback; the sweep path reads THIS argv.
-    pbr = cfg["interface"].get("cluster_fabric", {}).get("playback_rings")
-    if pbr:
-        argv += ["--aaf-playback", "--aaf-playback-streams", str(int(pbr))]
+    # fabric_gptp false never survives load_config (#259), so the emitted
+    # owner flag is unconditionally the fabric plane.
+    argv += ["--fabric-gptp"]
     return argv
 
 
@@ -4144,95 +3833,7 @@ def derive_entity_id(cfg):
     return int.from_bytes(bytes(b[:3] + [0xFF, 0xFE] + b[3:]), "big")
 
 
-def emit_entity_conf(cfg):
-    """The BOARD-SOFTWARE identity fragment - /etc/milan-entity.<board>.conf,
-    sourced by the rootfs /etc/init.d/S50milan before it programs the ADP CSRs.
-
-    Every value here is one the builder ALREADY computes and the boot script
-    used to restate as a hex literal. The 2026-08-02 silicon finding is the
-    reason the file exists: the flashed AEM ROM had moved (dynamic output maps)
-    and the config therefore hashed to a new entity_model_id, but S50milan's
-    `w 0x610 0x001BC52E` had not - and since the fabric serves the AEM ENTITY
-    descriptor's entity_model_id FROM that CSR (the ROM's OVL_MODEL_ID_C
-    overlay slot), the board advertised one model id over a different model.
-    A controller caches AEM by model id; 1722.1-2021 6.2.1.10 makes that id the
-    identity OF the model, so two AEMs under one id is a conformance break.
-
-    The stream count and the SR VID are here for exactly the same reason and
-    not one reason more: the MAAP claim COUNT is talkers+1 (the CRF Media Clock
-    Output sits one past the AAF talkers - REGISTER_MAP 0x75C), and a claim
-    sized for the old shape leaves the CRF's own destination address OUTSIDE
-    the defended block. entity_capabilities is deliberately NOT here: the
-    builder does not compute it, so this file would be its first home, not its
-    single source."""
-    eid = derive_entity_id(cfg)
-    mid = int(cfg["entity"]["entity_model_id"], 16)
-    return (
-        "# GENERATED by sw/builder/endstation_builder.py - DO NOT EDIT.\n"
-        f"# Milan end-station IDENTITY for {cfg['board_target']}, from\n"
-        f"# {cfg['source']} (the last-built config of this board OWNS this\n"
-        "# file, exactly like configs/generated/sweep_opts_<board>.sh owns\n"
-        "# its bitstream flags - one owner for 'what this board is').\n"
-        "#\n"
-        "# Sourced by /etc/init.d/S50milan, which programs entity_id into\n"
-        "# 0x604/0x608 and entity_model_id into 0x60C/0x610. DO NOT restate\n"
-        "# any of these values in a script: the fabric serves BOTH the ADPDU\n"
-        "# and the AEM ENTITY descriptor's entity_model_id from those CSRs,\n"
-        "# so a stale literal there advertises a model id that no longer\n"
-        "# matches the descriptors the same build put in the ROM.\n"
-        f"# Shape: {len(cfg['listeners'])} listener(s) + "
-        f"{len(cfg['talkers'])} talker(s); model id from the "
-        f"{cfg['model_id']['source']}.\n"
-        "# Regenerate WITH the ROM it names:\n"
-        "#   python3 sw/builder/endstation_builder.py --write-rtl <cfg.yaml>\n"
-        f"MILAN_ENTITY_CONF_BOARD={cfg['board_target']}\n"
-        f"MILAN_ENTITY_CONF_SOURCE={cfg['source']}\n"
-        f"MILAN_ENTITY_ID_HI=0x{(eid >> 32) & 0xFFFFFFFF:08X}\n"
-        f"MILAN_ENTITY_ID_LO=0x{eid & 0xFFFFFFFF:08X}\n"
-        f"MILAN_MODEL_ID_HI=0x{(mid >> 32) & 0xFFFFFFFF:08X}\n"
-        f"MILAN_MODEL_ID_LO=0x{mid & 0xFFFFFFFF:08X}\n"
-        f"MILAN_N_TALKERS={len(cfg['talkers'])}\n"
-        f"MILAN_N_LISTENERS={len(cfg['listeners'])}\n"
-        f"MILAN_SR_VID={cfg['srp']['vid']}\n")
-
-
 # ----------------------------------------------------------- aem_overlay ----
-def emit_gptp_cfg(cfg):
-    """The ptp4l half of the gptp: section - same values, one source.
-    Only generated when the config STATES the section; the emitted file is
-    the board's /etc/gptp.cfg replacement (S50milan prefers the per-board
-    name when present). clock_accuracy / offset_scaled_log_variance have no
-    ptp4l keys - they describe the local clock the daemon announces anyway
-    (0xFE / 0xFFFF for a software-disciplined clock) and live only in the
-    AVB_INTERFACE descriptor."""
-    gp = cfg["gptp"]
-    return (
-        "# GENERATED by sw/builder/endstation_builder.py from "
-        f"{cfg['source']} - DO NOT EDIT.\n"
-        "# The gptp: section of that config is the ONE source for these\n"
-        "# values AND the AVB_INTERFACE descriptor's clock fields, so the\n"
-        "# entity cannot advertise a posture the daemon does not run.\n"
-        "# Transport block per the proven bench profile (HW stamps, P2P,\n"
-        "# L2, the 500 ms tx_timestamp_timeout DRAM-drain remedy).\n"
-        "[global]\n"
-        "gmCapable               1\n"
-        "clientOnly              1\n"
-        f"priority1               {gp['priority1']}\n"
-        f"priority2               {gp['priority2']}\n"
-        f"clockClass              {gp['clock_class']}\n"
-        f"domainNumber            {gp['domain']}\n"
-        "network_transport       L2\n"
-        "delay_mechanism         P2P\n"
-        "transportSpecific       0x1\n"
-        "ptp_dst_mac             01:80:C2:00:00:0E\n"
-        "follow_up_info          1\n"
-        "neighborPropDelayThresh 2000\n"
-        f"logAnnounceInterval     {gp['log_announce_interval']}\n"
-        f"logSyncInterval         {gp['log_sync_interval']}\n"
-        f"logMinPdelayReqInterval {gp['log_pdelay_interval']}\n"
-        "tx_timestamp_timeout    500\n"
-        "# per-board wire-reference correction (S50milan seds the value)\n"
-        "ingressLatency          0\n")
 
 
 def emit_aem_overlay(cfg):
@@ -4302,7 +3903,7 @@ def emit_aem_overlay(cfg):
     #
     # Under the legacy policies the port's cluster block IS the stream's
     # channel space, so the map is the identity over the whole block. Under
-    # D8 role-pools it is not: the pool is a SELECTION SET (physical + host +
+    # D8 role-pools it is not: the pool is a SELECTION SET (physical +
     # pilot + loopback) and only ONE segment can be the power-on source, so
     # the map carries min(stream channels, primary segment width) rows at the
     # primary segment's port-relative offset. Both forms satisfy the 7.2.19
@@ -4533,39 +4134,27 @@ def emit_lwsrp_section(cfg, lwsrp):
 
 
 def emit_platform_section(shape):
-    """The '## Platform shape (device tree + driver)' block."""
+    """The firmware-visible platform block of the build plan."""
     ln = []
     a = ln.append
-    a("## Platform shape (device tree + driver-visible layout)")
+    a("## Platform shape (firmware-visible layout)")
     a("")
     a(f"- Milan CSR window {shape['csr']['base']} "
       f"(0x{shape['csr']['size']:X} B), IRQ {shape['interrupt']}, "
       f"MAC {shape['mac_address']}, phy-mode `{shape['phy_mode']}`, "
-      f"kl,rsc-clk-mhz {shape['rsc_clk_mhz']}")
+      f"rsc clock {shape['rsc_clk_mhz']} MHz")
     a(f"- RX DMA queues {shape['rx_queues']}, shaper queues "
       f"{shape['tx_queues']}, hs_page_bytes {shape['hs_page_bytes']}")
     a("")
-    a("| Window | Base | Size | In device tree |")
-    a("|--------|------|------|----------------|")
-    for k, v in shape["windows"].items():
-        a(f"| `{k}` | `{v['base']}` | `{v['size']}` | "
-          f"{'yes' if v['in_device_tree'] else 'no'} |")
+    a("| Window | Base | Size |")
+    a("|--------|------|------|")
+    for name, row in shape["windows"].items():
+        a(f"| `{name}` | `{row['base']}` | `{row['size']}` |")
     a(f"| `phy` | `{shape['phy_window']['base']}` | "
-      f"`{shape['phy_window']['size']}` | yes |")
+      f"`{shape['phy_window']['size']}` |")
+    a(f"| `pp-mem` | `{shape['pp_mem']['phys']}` | "
+      f"`{shape['pp_mem']['bytes']}` |")
     a("")
-    a("Driver constants kl-eth.c hardcodes (NOT in the device tree - they "
-      "move with rx-queues):")
-    a("")
-    for k, v in shape["driver_constants"].items():
-        a(f"- `{k}` = {v or '(absent at 1 queue)'}")
-    a("")
-    if shape["boot_chain_pin"]:
-        a("Flashed boot chain pinned to "
-          + ", ".join(f"`{k}`={v}"
-                      for k, v in shape["boot_chain_pin"].items())
-          + " - the builder REFUSES a config whose rx-queues would move "
-            "them (the 5ce9a13 CSR-rot rule).")
-        a("")
     return ln
 
 
@@ -4610,14 +4199,9 @@ def emit_features_line(cfg):
           ("- Fabric gPTP plane: **PRESENT** (`--fabric-gptp`; "
            "`GPTP_PLANE_EN_P=1`)."
            if cfg["features"]["fabric_gptp"] else
-           "- Fabric gPTP plane: **ABSENT (RTL default)**. The software gPTP "
-           "bring-up path remains selectable until #116."),
-          ("- Linux sound-card surface: **PRESENT** (`--sound-card`; PCM "
-           "capture/playback rings and their LiteX CSR banks)."
-           if cfg["features"]["sound_card"] else
-           "- Linux sound-card surface: **ABSENT (default)**. PCM host rings, "
-           "their CSR banks and AVTP-RX-to-ring route are not elaborated; "
-           "AAF/TDM/I2S/render/crossbar fabric remains."), ""]
+           "- Fabric gPTP plane: **ABSENT**: verification-only hardware "
+           "with zero gPTP owners, never flashable (#259)."),
+          ""]
     pruned = [k for k in OPTIONAL_BLOCKS if not cfg["features"][k]]
     if not pruned:
         ln.append("- ALL PRESENT (the default). This gateware contains every "
@@ -4732,7 +4316,7 @@ def emit_build_plan(cfg, argv, overlay, marks, est, lwsrp, shape):
       f"{ph['render']} render (`audio_interface.physical_channels`; default = "
       f"the {i['channels']}-channel `{i['kind']}` interface width). Clusters "
       "past that are non-physical by construction and are named for what they "
-      "ARE - `Virtual`, `Host`, `Pilot Tone`, `Loopback S<s> ch <c>` - so a "
+      "ARE - `Virtual`, `Pilot Tone`, `Loopback S<s> ch <c>` - so a "
       "controller operator can tell a live source from a dead slot.")
     a("")
     a("## AEM descriptor counts")
@@ -4820,12 +4404,10 @@ def build(config_path, outdir=None, write_rtl=False, write_fragment=None):
         aem_rom, aem_rom_why = None, str(e)
     iparams = emit_interface_params(cfg)
     shape = emit_platform_shape(cfg)
-    dtsi = emit_dt_overlay(cfg)
     marks = rtl_capability_marks(cfg)
     est = estimate_resources(cfg, overlay)
     plan = emit_build_plan(cfg, argv, overlay, marks, est, lwsrp, shape)
     sweep = emit_sweep_opts(cfg)
-    entity_conf = emit_entity_conf(cfg)
 
     outdir = outdir or os.path.join(HERE, "out")
     d = os.path.join(outdir, cfg["name"])
@@ -4847,8 +4429,7 @@ def build(config_path, outdir=None, write_rtl=False, write_fragment=None):
         # reads one stable image rather than three jobs racing on a shared
         # relative gptp_ucode.hex in their run directories.
         p_gptp_ucode = os.path.join(d, "gptp_ucode.hex")
-        generator = os.path.join(
-            ROOT, "gptp-processor", "hdl", "ucode", "gen_gptp_ucode.py")
+        generator = GPTP_UCODE_GENERATOR
         mac = _mac48(cfg["platform"]["mac_address"],
                      "platform.mac_address")
         subprocess.run(
@@ -4882,9 +4463,6 @@ def build(config_path, outdir=None, write_rtl=False, write_fragment=None):
     with open(p_shape, "w") as f:
         json.dump(shape, f, indent=1)
         f.write("\n")
-    p_dtsi = os.path.join(d, "milan-nic.dtsi")
-    with open(p_dtsi, "w") as f:
-        f.write(dtsi)
     # Sweep fragment: written ONLY under --write-rtl, the same "this config
     # owns the tree now" declaration that writes the tracked svh. It used to
     # be written by EVERY build() - defensible while the content was
@@ -4894,7 +4472,7 @@ def build(config_path, outdir=None, write_rtl=False, write_fragment=None):
     # the 4x4's tdm8-master flags to the 1x1's, and the next `sweep.sh arty`
     # would have built the wrong shape with a fragment that looked generated
     # and current. One flag, one owner, one moment of transfer.
-    gen_dir = os.path.join(ROOT, "configs/generated")
+    gen_dir = os.path.join(ROOT, GEN_CONFIG_DIR)
     p_sweep = os.path.join(gen_dir, f"sweep_opts_{cfg['board_target']}.sh")
     # write_fragment defaults to write_rtl but is separable on purpose: the
     # fragment is PER-BOARD (sweep_opts_arty.sh vs sweep_opts_ax7101.sh, no
@@ -4906,57 +4484,7 @@ def build(config_path, outdir=None, write_rtl=False, write_fragment=None):
         os.makedirs(gen_dir, exist_ok=True)
         with open(p_sweep, "w") as f:
             f.write(sweep)
-    # ...and the board-software half of the SAME transfer: the identity the
-    # flashed image programs into the ADP/AEM CSRs. It ships in the buildroot
-    # rootfs overlay (sibling repo), so it moves with `--write-fragment` /
-    # `--write-rtl` and never on a throwaway variant build. Same moment as the
-    # bitstream flags on purpose - a shape change that regenerates the AEM ROM
-    # regenerates the model id that names it, or neither.
-    p_ent = os.path.join(d, ENTITY_CONF_NAME)
-    with open(p_ent, "w") as f:
-        f.write(entity_conf)
-    if cfg.get("gptp") is not None:
-        gptp_cfg = emit_gptp_cfg(cfg)
-        with open(os.path.join(d, "gptp.cfg"), "w") as f:
-            f.write(gptp_cfg)
-    p_ent_overlay = entity_conf_overlay_path(cfg["board_target"])
-    if write_fragment:
-        if p_ent_overlay:
-            with open(p_ent_overlay, "w") as f:
-                f.write(entity_conf)
-            if cfg.get("gptp") is not None:
-                p_gp = os.path.join(os.path.dirname(p_ent_overlay),
-                                    f"gptp.{cfg['board_target']}.cfg")
-                with open(p_gp, "w") as f:
-                    f.write(gptp_cfg)
-                print(f"  wrote {p_gp}")
-            # THE DESCRIPTOR IMAGE, into the same rootfs the identity ships in.
-            # /etc/init.d/S50milan loads it into the reserved `ppmem` window
-            # before enabling ADP, because the processor serves READ_DESCRIPTOR
-            # from DRAM and has nothing on-die. The manifest beside it carries
-            # the base, so the loader never restates an address.
-            #
-            # Written HERE, not by the SoC build, because this is where the
-            # window is decided (`pp_mem_phys`) and where the identity the
-            # descriptors belong to is written - the id and the descriptors it
-            # names must not be able to move apart, which is the same reason
-            # milan-entity.<board>.conf is generated rather than hand-kept.
-            for path, blob in _entity_model_image(cfg, overlay).items():
-                p_img = os.path.join(os.path.dirname(p_ent_overlay),
-                                     "milan-aem", path)
-                os.makedirs(os.path.dirname(p_img), exist_ok=True)
-                mode = "wb" if isinstance(blob, bytes) else "w"
-                with open(p_img, mode) as f:
-                    f.write(blob)
-                if p_img.endswith(".sh"):
-                    os.chmod(p_img, 0o755)
-                print(f"  wrote {p_img}")
-        else:
-            print(f"[endstation_builder] WARNING: rootfs overlay etc/ not on "
-                  f"disk ({ROOTFS_OVERLAY_ETC}) - the flashed image's "
-                  f"identity was NOT refreshed; re-run where milan-tests-avb "
-                  f"is checked out, or set MILAN_ROOTFS_OVERLAY_ETC",
-                  file=sys.stderr)
+    # Product identity is carried only in the generated AEM image.
     # per-CONFIG (not per-board) shape include: an include dir whose `gen/`
     # holds this config's entity definition, so a harness or a build selects
     # a shape by pointing +incdir at it. The 1x1 copy is byte-identical to
@@ -4985,15 +4513,9 @@ def build(config_path, outdir=None, write_rtl=False, write_fragment=None):
                  lwsrp_table=p_srp, lwsrp_svh=p_srp_svh,
                  csr_defaults_svh=p_csr_svh, adp_shape_svh=p_adp_svh,
                  cfg_adp_shape_svh=p_cfg_adp,
-                 platform_shape=p_shape, dt_overlay=p_dtsi,
-                 sweep_opts=p_sweep, entity_conf=p_ent)
+                 platform_shape=p_shape, sweep_opts=p_sweep)
     if p_gptp_ucode is not None:
         paths["gptp_ucode"] = p_gptp_ucode
-    # only when it was actually written: the reader of this dict prints
-    # "wrote <path>", and the flashed image's identity is not a place to be
-    # imprecise about whether a file moved
-    if write_fragment and p_ent_overlay:
-        paths["rootfs_entity_conf"] = p_ent_overlay
     # The TRACKED RTL header: exactly one config (the DEPLOYED shape, marked
     # srp.rtl_table) owns hdl/common/csr/gen/lwsrp_csr_defaults.svh, the
     # subset milan_csr.sv COMPILES, so a config edit re-elaborates the CSR
@@ -5027,9 +4549,8 @@ def build(config_path, outdir=None, write_rtl=False, write_fragment=None):
                 resource_estimate=est, sweep_opts=sweep, lwsrp=lwsrp,
                 lwsrp_svh=lwsrp_svh, csr_defaults_svh=csr_svh,
                 adp_shape_svh=adp_svh, aem_rom_svh=aem_rom,
-                aem_rom_unsupported=aem_rom_why, entity_conf=entity_conf,
-                interface_params=iparams,
-                platform=shape, dt_overlay=dtsi, paths=paths)
+                aem_rom_unsupported=aem_rom_why,
+                interface_params=iparams, platform=shape, paths=paths)
 
 
 def main():
@@ -5074,8 +4595,6 @@ def main():
           + (", UPPER BOUND" if r["resource_estimate"]["upper_bound"] else "")
           + ")")
     for p in r["paths"].values():
-        # the rootfs identity conf lives in the sibling repo: show it whole
-        # rather than as a ../../.. relpath nobody can paste
         rel = os.path.relpath(p, ROOT)
         print(f"  wrote {p if rel.startswith(os.pardir) else rel}")
 

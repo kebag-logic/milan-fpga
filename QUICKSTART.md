@@ -6,27 +6,29 @@ honest path from `git clone` to something green on your own machine.
 
 ```sh
 git clone https://github.com/kebag-logic/milan-fpga && cd milan-fpga
-git submodule update --init third_party/verilog-axis protocol-processor
+git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
 ```
 
-> **Section 0 -- the one thing people get wrong.** [`third_party/verilog-axis`](third_party/verilog-axis)
-> and [`protocol-processor`](protocol-processor) are git submodules. Both use
+> **Section 0 -- the one thing people get wrong.** [`third_party/verilog-axis`](third_party/verilog-axis),
+> [`protocol-processor`](protocol-processor), and
+> [`gptp-processor`](gptp-processor) are git submodules. All three use
 > anonymous HTTPS, with no account needed. Several testbenches and most of the
-> datapath need both dependencies, and the builder gate imports descriptor and
+> datapath need these dependencies, and the builder gate imports descriptor and
 > ADP definitions from `protocol-processor`. A GitHub *"Download ZIP"* does not
-> contain either submodule.
+> contain any submodule.
 >
 > Already took a zip or a tarball? You do not have to start over — just drop the
-> dependency in by hand. The same two repositories are what the pinned
+> dependencies in by hand. The same three repositories are what the pinned
 > submodules provide:
 >
 > ```sh
 > git clone https://github.com/alexforencich/verilog-axis third_party/verilog-axis
 > git clone https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git protocol-processor
+> git clone https://github.com/Mister-M-alt/FPGA-gPTP.git gptp-processor
 > ```
 >
 > The exact revisions this repo pins are recorded in its git tree. Use
-> `git ls-tree HEAD third_party/verilog-axis protocol-processor` to inspect
+> `git ls-tree HEAD third_party/verilog-axis protocol-processor gptp-processor` to inspect
 > them, then check out the corresponding revision inside each dependency if
 > you want to match the repository exactly.
 >
@@ -53,7 +55,7 @@ git submodule update --init third_party/verilog-axis protocol-processor
 | **1 · Simulate** | every self-checking Verilator testbench, the three repo gates, the end-station builder | `gcc make python python-yaml verilator git` | ❌ none |
 | **2 · Portability** | machine-proof that the RTL maps to a non-Xilinx device (generic + Lattice ECP5) | + `yosys` + an `sv2v` binary | ❌ none |
 | **3 · Bitstream** | a `.bit` for an Artix-7 board | + LiteX/migen, a JVM, a RISC-V toolchain, **Vivado** | ✅ Vivado |
-| **4 · Hardware** | a booting Linux SoC that talks Milan on the wire | + a board, a flasher, an AVB-capable switch | ✅ Vivado + hardware |
+| **4 · Hardware** | the bare-metal RV32I SoC with fabric gPTP on the wire | + a board, a flasher, an AVB-capable switch | ✅ Vivado + hardware |
 
 Tracks 1 and 2 are the whole of this page's *verified* content. Tracks 3 and 4 are
 summarised and then handed off to the deep docs — they were **not** re-run while
@@ -205,7 +207,7 @@ deliberately broken fixture first).
 **You need `sv2v` on `PATH`** — yosys's Verilog frontend cannot read SystemVerilog
 interfaces and packages. On Arch `sv2v` is **AUR-only, not in the official
 repositories**, so the least painful route on any distribution is the upstream
-prebuilt static Linux binary:
+prebuilt static binary:
 
 ```sh
 mkdir -p ~/.local/bin
@@ -231,7 +233,7 @@ needs a vendor licence:
 |---|---|---|
 | Run every self-checking RTL testbench | [Section 2.3](#23-the-verilator-testbenches) | verilator, gcc |
 | Prove the RTL is vendor-neutral, and map it to an ECP5 | [Section 3](#3-track-2--device-portability-still-no-vendor-tools) | yosys, sv2v |
-| Generate and validate a whole end-station model, SV headers, and build plan from a YAML declaration | `python3 sw/builder/endstation_builder.py configs/endstation_arty_4x4.yaml`; [`docs/ENDSTATION_BUILDER.md`](docs/ENDSTATION_BUILDER.md). This ordinary command writes review artifacts under `sw/builder/out/`. A deployment ownership transfer with `--write-fragment` or `--write-rtl` also generates `aem_desc.bin`, `aem_desc.json`, and `aem_desc.map` in the sibling rootfs overlay, when that overlay is present; `aemi-load` verifies and loads the paired image before entity enable | python, pyyaml |
+| Generate and validate a whole end-station model, SV headers, and build plan from a YAML declaration | `python3 sw/builder/endstation_builder.py configs/endstation_arty_4x4.yaml`; [`docs/ENDSTATION_BUILDER.md`](docs/ENDSTATION_BUILDER.md). This writes review artifacts under `sw/builder/out/`; the named SoC build emits the paired `aem_desc.*` set beside the bitstream for the bare-metal flash manifest | python, pyyaml |
 | Read the register ABI and write driver code against it | [`docs/reference/REGISTER_MAP.md`](docs/reference/REGISTER_MAP.md), asserted by the `csr` suite | nothing |
 | Check the current compliance audit and module-to-test coverage | [`docs/testing/MILAN_V12_AUDIT_2026-08-16.md`](docs/testing/MILAN_V12_AUDIT_2026-08-16.md), [`docs/traceability/MODULE_MATRIX.md`](docs/traceability/MODULE_MATRIX.md) | nothing |
 | Simulate the softcore booting with the NIC attached (sim DUT) | [`sw/litex/milan_sim.py`](sw/litex/milan_sim.py) -- **needs the LiteX stack + a JVM**, see [Section 6](#6-track-3--build-a-bitstream-vivado) | migen/litex, JDK |
@@ -327,11 +329,13 @@ as the worked example.
 > which date — read them as an engineering record, not as a recipe that will
 > reproduce identically on your desk.
 
-The order is: build (Section 6) → flash a **matched image set** (a gateware-only load
-will not boot) → boot Linux → bring the network up → connect a stream.
+The order is: build (Section 6) → flash the matched bare-metal
+`{bitstream, aem}` set (a partial persistent write is refused) → verify the
+firmware boot/CSR contract → connect the board to the timed network.
 
 1. [`docs/integration/QSPI_FLASHBOOT.md`](docs/integration/QSPI_FLASHBOOT.md) —
-   flash layout, `deploy.sh flash-images`, why the set must match.
+   flash layout, the live-proof `deploy.sh flash-pair` transaction, and why the
+   installed and target sets must both be exact.
 2. [`docs/limitations/TROUBLESHOOTING.md`](docs/limitations/TROUBLESHOOTING.md) —
    the field log: symptom → cause → fix, for boot, flash, link and stream faults.
 3. [`docs/testing/MILAN_V12_AUDIT_2026-08-16.md`](docs/testing/MILAN_V12_AUDIT_2026-08-16.md)
@@ -341,9 +345,6 @@ will not boot) → boot Linux → bring the network up → connect a stream.
    reference lab is wired, which board runs which image. Host names, outlet
    numbers and addresses in there are specific to that lab; the *topology* is the
    part you can copy.
-5. [`docs/integration/PIPEWIRE_AVB_PEER.md`](docs/integration/PIPEWIRE_AVB_PEER.md)
-   — the cheapest second endpoint: a Linux box running PipeWire as the AVB peer,
-   instead of a second FPGA.
 
 You will also need an **802.1AS-capable switch** for anything involving two
 endpoints. gPTP is not optional in Milan — without a working time domain there is

@@ -124,7 +124,7 @@ over every `*.md` in the tree (plus diagram sources for the last one):
    a deletion used to survive the gate silently; it no longer does. Sibling-repo
    paths are left alone (the rule only fires when the reference's parent
    directory is a real directory of this repo). One document opts out — the
-   archive ledger [`DOC_AUDIT.md` (archived)](../historical_now_obsolete/DOC_AUDIT.md), whose job *is* to name retired
+   archive ledger, whose job *is* to name retired
    files — via an HTML-comment line carrying the token
    `docs-check: allow-dead-refs`;
 5. no bench/host-identifying information (hostnames, home paths, serials, bench IPs).
@@ -150,5 +150,5 @@ honest — run them locally first, exit-checked, never piped through `tail`.
 | A `.gen.py` or `.drawio` diagram master | the `.gen.py` (or draw.io export) + `rsvg-convert`; update the catalog |
 | A `wd_*.json` chronogram | [`scripts/gen_wavedrom.py`](../scripts/gen_wavedrom.py) on it; inspect the png |
 | Deleted or archived a doc | add its basename to `RETIRED` in [`scripts/docs_check.py`](../scripts/docs_check.py), then run the gate — it lists every reference now pointing at nothing |
-| A config schema / builder emission | [`sw/builder/test_builder.py`](../sw/builder/test_builder.py); an explicit `--write-fragment` or `--write-rtl` transfer generates paired `aem_desc.bin`, `aem_desc.json`, and `aem_desc.map` artifacts when the sibling rootfs overlay is present. The board-side `aemi-load` verifies and writes the image before entity enable |
+| A config schema / builder emission | [`sw/builder/test_builder.py`](../sw/builder/test_builder.py); an explicit `--write-fragment` or `--write-rtl` transfer generates paired `aem_desc.bin`, `aem_desc.json`, and `aem_desc.map` artifacts beside the bitstream. The board-side `aemi-load` verifies and writes the image before entity enable |
 | Any `*.md` at all | [`scripts/docs_check.py`](../scripts/docs_check.py) before pushing |

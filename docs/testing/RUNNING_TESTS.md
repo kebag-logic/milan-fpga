@@ -179,7 +179,7 @@ cd tb/verilator/adp_tx && make     # builds + runs; self-checking, prints PASS/c
 > stream-state getters, clock-source operations, Identify controls, and Milan
 > information. Unsupported commands receive the conformant fallback. The
 > builder generates `aem_desc.bin`, `aem_desc.json`, and `aem_desc.map`; the
-> tracked board rootfs runs `aemi-load` before enabling the entity. A custom
+> tracked board flow runs `aemi-load` before enabling the entity. A custom
 > integration that omits the load still fails closed with `BAD_ARGUMENTS`, while
 > a locate miss in a valid image returns `NO_SUCH_DESCRIPTOR`.
 >

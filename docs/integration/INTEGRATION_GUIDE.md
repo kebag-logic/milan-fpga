@@ -79,7 +79,7 @@ taps that never drive the stream back.
 - **[2. Minimum viable integration (the M-A2 pattern)](#2-minimum-viable-integration-the-m-a2-pattern)** -- The stub-everything first step: clocks, reset, CSR port, every AXIS input tied off, then read `"MILN"` at offset `0x0`. This is how both the SoC sim and first silicon were validated, and it names the separately testable attach order: MAC, DMA, then the descriptor-image master.
 - **[3. Source files and includes](#3-source-files-and-includes)** -- Where the canonical file list lives (`_MILAN_DATAPATH_SOURCES`), and the reason it cannot silently drift: the Verilator harness and the Yosys flow consume the same list. Also the six `svh` include dirs, both submodule prerequisites, the two generated control-plane ROM images, and the two files a non-Zynq build must exclude.
 - **[4. Running the datapath on its own clock](#4-running-the-datapath-on-its-own-clock)** -- The escape hatch when 100 MHz timing is tight: the three crossing mechanisms `--milan-clk-freq` uses, and why a 64-bit datapath at 50 MHz still exceeds 1 GbE line rate.
-- **[5. Software contract](#5-software-contract)** -- The register ABI, the `kl,dma-ether-0.9` DT compatible string, and the generated device tree. Add an IR JSON for a new host rather than hand-writing a dtsi.
+- **[5. Software contract](#5-software-contract)** -- The register ABI and the platform shape a host integration binds to.
 - **[6. Verifying your integration](#6-verifying-your-integration)** -- A four-rung ladder from RTL boundary to first silicon and on to controller enumeration, each rung naming its harness and the doc that walks it.
 
 ## 1. Ports, group by group
@@ -114,7 +114,7 @@ decoded - put the window at **any** base address your interconnect likes and
 present the offset. Bases used so far: `0x9000_0000` (LiteX - must be in the
 CPU's uncached MMIO region) and `0x43C0_0000` (Zynq GP0).
 
-Register offsets are the ABI shared with the Linux driver and device tree:
+Register offsets are the ABI every consumer shares:
 [../reference/REGISTER_MAP.md](../reference/REGISTER_MAP.md). Two facts worth
 hard-coding into your bring-up:
 
@@ -176,11 +176,11 @@ the LiteX build tied `i_mac_speed=2'b10, i_link_up=1` until the MAC landed).
 
 `o_irq_csr` is the datapath's only IRQ: a level line aggregating the CSR
 events (TX timestamp ready, link change, RMON rollover). DMA-completion
-interrupts are **your DMA engine's** to generate. The Linux driver expects
+interrupts are **your DMA engine's** to generate. The reference software expects
 four lines named `tx-dma`, `rx-dma`, `ts-dma`, `csr`
-([`sw/driver/README.md`](../../sw/driver/README.md)); on the LiteX host they are EventManager sources
+(the retired driver record); on the LiteX host they are EventManager sources
 folded into one PLIC line, on Zynq four separate GIC lines - the device
-tree, not the RTL, encodes that difference ([`sw/dts/`](../../sw/dts)).
+tree, not the RTL, encodes that difference (the retired binding toolkit).
 
 ### 1.6 Descriptor-image read master (the entity model lives in YOUR memory)
 
@@ -201,7 +201,7 @@ Four things to get right:
 * **The base is compile-time.** `PP_DESC_BASE_P` (8-byte aligned) is an
   elaboration parameter and the processor holds **no base register**, so nothing
   can be pointed anywhere at runtime. **Derive it from your own memory map** —
-  the LiteX build takes the top 1 MiB of `main_ram`, which the device tree
+  the LiteX build takes the top 1 MiB of `main_ram`, which the published map
   reserves, rather than mirroring a literal.
 * **The error arm is not optional.** LiteX's `wishbone2axi` asserts `err`
   *together with* `ack`, so an `If(ack, …)` alone accepts a failed read and
@@ -304,11 +304,11 @@ for the working pattern, plus the CBS multicycle constraint described in
 * **Register ABI:** [../reference/REGISTER_MAP.md](../reference/REGISTER_MAP.md)
   (offsets defined once in `milan_csr.sv`; the [`tb/verilator/csr`](../../tb/verilator/csr) harness
   asserts RTL and doc agree).
-* **Linux driver:** `kl-eth` (sibling repo `kl-linux-drivers`), DT binding
+* **Host driver (retired product path, #259):** the `kl-eth` record and its binding
   `compatible = "kl,dma-ether-0.9"` - resource layout and caveats in
-  [`sw/driver/README.md`](../../sw/driver/README.md).
-* **Device tree:** generated, per-host, by [`sw/dts/milan_dt.py`](../../sw/dts/milan_dt.py) from the
-  build's `csr.json` - see [`sw/dts/README.md`](../../sw/dts/README.md). If
+  the retired driver record.
+* **Platform shape:** generated, per-host, by the retired per-platform generator from the
+  build's `csr.json` - see the retired binding toolkit. If
   you integrate on a new host, add an IR JSON there rather than hand-writing
   a dtsi.
 

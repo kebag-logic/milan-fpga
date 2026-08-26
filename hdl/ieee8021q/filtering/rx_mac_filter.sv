@@ -144,7 +144,7 @@ module rx_mac_filter #(
   wire sof       = s_tvalid && !in_frame;                          //! first beat of a frame
   //! runt guard: a frame whose FIRST beat carries tlast is at most 8 bytes -
   //! no legal Ethernet frame. Upstream pipeline warts can mint such ghosts
-  //! at drop-frame tails (dp TB 2026-07-19); swallow them here so the kernel
+  //! at drop-frame tails (dp TB 2026-07-19); swallow them here so the host
   //! DMA never sees them, whatever their origin.
   wire runt_sof  = sof && s_tlast;
   //! SOF decision. promisc outranks an explicit TCAM drop on purpose: MAC_CTRL
