@@ -83,8 +83,8 @@ it.
 - **[7. Durability: the A/B contract](#7-durability-the-ab-contract)** -- The write and read rules in full, and the property they buy: at every instant of a commit at least one slot holds a complete image whose CRC closes.
 - **[8. Where the image lives in fabric, and what it costs](#8-where-the-image-lives-in-fabric-and-what-it-costs)** -- The memory is settled (the reserved DRAM window, not BRAM) and so is the transfer (ordinary loads and stores, no DMA and no CSR data window), with the measured slack behind both. Then the area, MEASURED: a before/after pair OOC-mapped at both shapes and DRIVEN against a byte-exact image, bounded at 773 LUT-equivalents and 280 FF, and calibrated against three blocks already in the tree.
 - **[9. What the fabric may claim: the durability and liveness contract](#9-what-the-fabric-may-claim-the-durability-and-liveness-contract)** -- Why an answered-once bit cannot report a writer that wedges later, and the replacement: a live `nvm_backed` with a revocation list, `nvm_dirty` and `nvm_stale`, the rule that says when the loss is forgiven, all eight bit combinations with the one that cannot occur named (unreachable in the STATE now, not merely masked at the face), and the two deadlines derived from the flash datasheet rather than chosen.
-- **[10. Kernel and boot-side work](#10-kernel-and-boot-side-work)** -- Five items, and the reason `/proc/mtd` staying empty is permanent rather than a misconfiguration. Cited by `gen_mtd_partitions.py`, whose section 10 reference had nothing to resolve to until now.
-- **[11. Bench recipe](#11-bench-recipe)** -- G0, G0b and G1, which run today, and what G1 means on a baremetal profile where no MTD device ever probes. Cited by `gen_mtd_partitions.py` and `milan_soc.py`.
+- **[10. Boot-side work](#10-boot-side-work)** -- Five items, and why the block-layer route the host era assumed was never available on this controller.
+- **[11. Bench recipe](#11-bench-recipe)** -- G0 and G0b, which run today, and why G1 belonged to the retired host profile. Cited by `milan_soc.py`.
 - **[12. The commit marks that already exist](#12-the-commit-marks-that-already-exist)** -- Eight marks across seven programs, derived from the pinned donor rather than from a comment, plus the exemplar that is not one and the deliberate absence at IDENTIFY that is a requirement. Round 1 said three.
 - **[13. Risks, stated rather than discovered later](#13-risks-stated-rather-than-discovered-later)** -- The proven writer no longer exists in the tree, persistence depends on firmware liveness, the debounce window is a data-loss window a PR must quantify, four donor defects are open against the port, and the names allocation is blocked on a donor amendment nobody has filed yet.
 - **[14. What this page does NOT decide](#14-what-this-page-does-not-decide)** -- Three things: the names allocation, which is not this page's to decide at all; the debounce window's value; and where the proposed CSR bits actually land.
@@ -304,7 +304,7 @@ every descriptor with a user-settable name has its name persisted. At that
 shape the record contract had to change or the 8x8 could not be made
 compliant; that arithmetic is what originally forced the amendment. The
 floor table above is the HISTORICAL forcing record: #259 retired the 8x8's
-Linux host clusters, its floor fell to 164/256, and no shipped shape forces
+host clusters, its floor fell to 164/256, and no shipped shape forces
 banking any more.
 
 PERSISTED-FORMAT DECISION (#259, 2026-08-25): the banked NAMES layout is
@@ -511,7 +511,7 @@ the retired flash-partition emitter derived the same
 | Offset | Size | Slot | Written by |
 |---|---|---|---|
 | `0xEE_0000` | 128 KiB | **`journal`** -- 2 x 64 KiB erase blocks, slot A and slot B, raw | the persistence writer only |
-| `0xF0_0000` | 1 MiB | `user` -- jffs2, mounted at `/user` | Linux profiles only |
+| `0xF0_0000` | 1 MiB | `user` -- writable region, unclaimed today | the retired host profile only |
 
 `journal` is raw and filesystem-free on purpose. Each slot is exactly one erase
 block, so "a torn write cannot damage the other slot" is a property of the flash
@@ -567,9 +567,9 @@ file that is not in the tree is the same defect one level down.
 **Two corrections to round 1**, kept because they are still the record. It said
 three Python files cite the page; there are **two**
 (`sw/builder/test_builder.py` does not cite it at all, and the round-1 evidence
-comment claiming it does was wrong). And it repaired sections 5 and 11 while
-`gen_mtd_partitions.py` also asks for **section 10**, which is why section 10
-below is the kernel and boot-side work rather than something else.
+comment claiming it does was wrong). And it repaired sections 5 and 11 while a
+third citation asked for **section 10**, which is why section 10 below is the
+boot-side work rather than something else.
 
 **The gate gap that let this happen is still open.**
 `scripts/check_doc_paths.py` reads `git ls-files '*.md'`, so a citation inside a
@@ -734,8 +734,8 @@ reserved main-memory window, not in block RAM.
   `sw/litex/milan_soc.py` reads it and only checks it. It holds the descriptor
   image, measured at 40,000 bytes at 8x8, plus the 4,096-byte response buffer.
   Adding the measured 18,144-byte record image brings the window to 62,240 of
-  1,048,576 bytes, under 6 percent. **No new reservation and no device-tree
-  change.**
+  1,048,576 bytes, under 6 percent. **No new reservation and no change to the
+  published memory map.**
 - The BRAM alternative is what is being declined, and its cost is the number
   that decides it: 18,144 bytes byte-wide is 5 BRAM36 at the 8x8 shape, on a
   device whose area campaign is fought in single-digit percentages.
@@ -795,7 +795,7 @@ encoder's before a clock is driven.
   adds no second master and no second consumer of the device.
 - **Zero new BRAM.** The image is DRAM-resident by section 8.1, and the DRAM it
   needs is inside an existing reservation with the slack measured above.
-- **Zero new DRAM reservation and no DTB change**, from the same measurement.
+- **Zero new DRAM reservation and no published-map change**, from the same measurement.
 
 **Measured, before and after, on the same face.**
 [`syn/ooc/sizing/KL_nvm_backend_sizer.sv`](../../syn/ooc/sizing/KL_nvm_backend_sizer.sv)
@@ -1124,25 +1124,22 @@ T-NVM-COMMIT-TIMEOUT >= 2 x T_commit_worst(every shape) = 8000 ms
 `T-NVM-DEBOUNCE` is a different quantity and is still open; section 14 says so
 and section 13 says what the PR that picks it owes.
 
-## 10. Kernel and boot-side work
+## 10. Boot-side work
 
 Cited by the retired flash-partition emitter as
 where the kernel-side story lives.
 
-1. **The partition node is generated, not hand-written.**
-   `gen_mtd_partitions.py` derives `journal@ee0000` and `user@f00000` from the
-   same `FLASHBOOT_RESERVED` reader `milan_soc.py` uses, so there is no second
-   copy to drift.
-2. **No mtd driver binds.** No upstream Linux driver claims `litex,spiflash`, so
-   the partitions are declared and never parsed, `/proc/mtd` stays empty, and
-   this is a permanent property of the kernel rather than a configuration
-   mistake. It is recorded in that script and repeated here because it is the
-   reason G1 in section 11 is a falsifier rather than a pass criterion.
-3. **The write path is the LiteSPI CSR master either way**, on Linux and on
-   baremetal. Nothing in this design needs mtd.
-4. **On the shipping `--flashboot baremetal` profile** there is no kernel at
-   all (the Linux boot chain is retired, #259). The equivalent obligation is
-   that the firmware resolves the slot offsets
+1. **The slot offsets are generated, not hand-written.** `journal@ee0000` and
+   `user@f00000` come from the same `FLASHBOOT_RESERVED` reader `milan_soc.py`
+   uses, so there is no second copy to drift.
+2. **The host-era block layer never bound this controller.** In the retired
+   profile the slots were declared and never parsed, which is the reason G1 in
+   section 11 is a falsifier rather than a pass criterion.
+3. **The write path is the LiteSPI CSR master either way.** Nothing in this
+   design needs a block layer.
+4. **On the shipping `--flashboot baremetal` profile** the second-stage boot
+   chain is gone entirely (#259). The equivalent obligation is that the
+   firmware resolves the slot offsets
    from the generated map rather than from literals, which is what keeps
    `milan_soc.py` the single source of truth for the firmware as well.
 5. **A reflash must not erase either reserved slot.** A gateware update that
@@ -1151,7 +1148,7 @@ where the kernel-side story lives.
 ## 11. Bench recipe
 
 **G0 -- build with the layout (host only, no board).** `sw/builder/test_builder.py`
-checks the map's internal consistency, including that the rootfs still fits under
+checks the map's internal consistency, including that every image still fits under
 the reserved slots. It passes today.
 
 **G0b -- the record set is complete and fits the namespace (host only, no
@@ -1161,13 +1158,11 @@ conformance floor of section 4.3 and the worst-case commit time of section 9.4
 per shape, so those two figures are re-derived on every run rather than quoted
 from this page.
 
-**G1 -- the partition appears.** On a Linux profile, `journal@ee0000` and
-`user@f00000` are in the DTS and the built DTB.
-the retired flash-partition emitter derives them
-from the same map. Note the standing limitation in section 10 item 2: no
-upstream Linux driver claims `litex,spiflash`, so no device ever probes and the
-partitions are declared but never parsed. **On the shipping baremetal profile G1
-does not apply**; section 10 item 4 is the equivalent.
+**G1 -- the partition appears.** This gate belonged to the retired host
+profile, where the two reserved slots were published to a block layer that
+never bound this controller, so they were declared and never parsed. **On the
+shipping baremetal profile G1 does not apply**; section 10 item 4 is the
+equivalent.
 
 **G2 to G5** -- restore from a host-written image, fast connect with no
 controller, the write path, and the reboot drill -- are the implementation
@@ -1219,8 +1214,8 @@ manager's job.
 
 ## 13. Risks, stated rather than discovered later
 
-- **The proven writer is gone.** `acmp-persist` was a Linux userspace program in
-  a rootfs overlay retired by #259; the shipping profile is `--flashboot baremetal` and the
+- **The proven writer is gone.** `acmp-persist` was a host userspace program;
+  the shipping profile is `--flashboot baremetal` and the
   baremetal firmware is one C file that only reads. The write path must be
   written again, in `sw/firmware/milan_baremetal/`, against the same CSRs. The
   historical program is recoverable from git if its exact command sequence is

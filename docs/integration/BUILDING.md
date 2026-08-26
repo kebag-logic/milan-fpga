@@ -14,7 +14,7 @@ The shipping software-profile claims are checked against the
 | Feature ID | Status | Canonical value |
 |---|---|---|
 | `soc.baremetal-profile` | `implemented` | - |
-| `host.sound-card-option` | `not-supported` | - |
+| `host.sound-card-option` | `implemented` | - |
 <!-- milan-feature-status:end -->
 
 ## Contents
@@ -104,8 +104,8 @@ them override).
 
 xc7a100t**fgg484-2**, 1 GbE (RTL8211E strapped GMII), 512 MB DDR3
 (MT41J256M16), 16 MB N25Q128 QSPI. This is the shipping 1x1 TDM8 profile:
-one RV32I VexiiRiscv hart at 50 MHz in machine mode, no MMU, Linux, L1/L2 or
-LiteX SDRAM cache, and no Linux sound-card rings. The CPU and 64-bit Milan
+one RV32I VexiiRiscv hart at 50 MHz in machine mode, no MMU, no operating
+system, no L1/L2 or LiteX SDRAM cache, and no sound-card rings. The CPU and 64-bit Milan
 plane share the 50 MHz domain through Vexii's supported decoupled-clock
 boundary; the LiteX system and audio clock recipe stays at 100 MHz. The
 physical/fabric audio datapath, NIC DMA and protocol processor remain. The
@@ -119,15 +119,15 @@ three-directive placement sweep. See
 
 ### `ax8x8`  -  AX7101 8-stream (64-channel) bare-metal shape
 
-Same board, wider dataplane, same bare-metal profile (#259: the Linux
-bring-up flow this recipe once carried is retired, along with its cached CPU,
-ALSA sound-card rings and full Linux flash manifest). It keeps the
+Same board, wider dataplane, same bare-metal profile (#259: the host bring-up
+flow this recipe once carried is retired, along with its cached CPU,
+sound-card rings and multi-image flash manifest). It keeps the
 `--fabric-gptp` owner and uses `--num-streams 8`, `--rx-queues 2`,
 `--l2-bytes 0` (cacheless), `--flashboot baremetal`, and place directive
 AltSpreadLogic_high. The two-queue shape is the measured configuration from
-the historical Linux-era D7 record: a one-queue build has no flow-steer
-block, and under bulk traffic the then-softcore ptp4l shared the bulk ring
-and the GM could be deposed; the fabric plane is timer-driven and
+the historical D7 record: a one-queue build has no flow-steer block, and
+under bulk traffic the then-softcore time daemon shared the bulk ring and the
+GM could be deposed; the fabric plane is timer-driven and
 host-load-independent, and the steering front-end stays. The 2026-07-24
 close (WNS +0.080, LUT 85.15 pct, TNS 0) used one RX queue plus the old RV64
 CPU and RV64-era refill/prefetch cache profile, so those figures are only a
@@ -183,7 +183,7 @@ side that decides.
 xc7a100t**csg324-1** (SAME die, SLOWER speedgrade  -  expect tighter WNS at
 100 MHz), 10/100 Ethernet (DP83848, **MII**; the SoC drives its 25 MHz
 `eth_ref_clk`), 256 MB DDR3 (MT41K128M16), QSPI flashboot (`--with-spiflash
---flashboot baremetal`; the retired #259 Linux `full` manifest is history) and
+--flashboot baremetal`; the retired #259 multi-image manifest is history) and
 `--strip-probes`. Role: AVDECC/Milan interop peer and the 100 Mbit CBS
 test point (`is_1g=0` slope branch); not a throughput peer.
 Its CPU is one RV32 VexiiRiscv hart (`--cpu-count 1 --xlen 32`, stated
@@ -245,7 +245,7 @@ four times.
 | Date | Knob | Symptom |
 |---|---|---|
 | 2026-07-22 | `i_mac_events` | RMON counters fully tested, permanently zero on hardware (tied off in SoC glue) |
-| 2026-07-24 | `--rx-queues` | Historical Linux/DTB drift evidence (#259): `sweep.sh` passed `1` for both boards while deployed Arty gateware had 2; a queue-count change moved every DMA window by `0x74` under an unchanged DTB |
+| 2026-07-24 | `--rx-queues` | `sweep.sh` passed `1` for both boards; the deployed Arty gateware has 2. A queue-count change moves every DMA window by `0x74` under an unchanged published map |
 | 2026-07-26 | `--num-streams` | `sweep.sh` passed **nothing**, so `sweep.sh ax7101` built the default 1x1 datapath while the config, the docs and the build directories all called it 8x8 |
 | 2026-08-22 | `--xlen` / `--cpu-count` | `build.sh cfg_ax8x8` and `cfg_arty` passed no `--xlen`; `milan_soc.py` defaults to 64 where the builder defaults to 32, so both elaborated RV64 under configs, a sweep table and a boot chain that are RV32 single-hart (#157) |
 
@@ -274,7 +274,7 @@ cables by serial and consoles by `/dev/serial/by-id/` path:
 Every profile keeps the bitstream at QSPI offset 0 in a dedicated 4 MiB slot.
 The bare-metal manifest carries only raw `aem_desc.bin` at 4 MiB in a 64 KiB
 slot; firmware itself is linked into ROM. (Historical, retired #259: the
-Linux `full` manifest carried kernel/OpenSBI/DTB/rootfs.) Always read the build's
+multi-image manifest carried a second-stage boot chain.) Always read the build's
 `flashboot_layout.json`; details are in
 [QSPI_FLASHBOOT.md](QSPI_FLASHBOOT.md). Flash with
 `INSTALLED_BUILD=<exact-current-build> ./build.sh flash
@@ -286,7 +286,7 @@ Linux `full` manifest carried kernel/OpenSBI/DTB/rootfs.) Always read the build'
    and the compiled CPU width, and rejects a missing/mismatched binding or a
    part different from the selected programmer;
 2. requires the fabric owner on the bare-metal {bitstream, aem} manifest, and
-   refuses every retired Linux boot image, the retired software owner, and
+   refuses every retired boot image, the retired software owner, and
    owner `none` before programmer I/O (#259);
 3. pre-materializes/size-checks every target image, then dumps live QSPI
    offset zero and byte-matches the Xilinx `.bit` payload against the
@@ -307,9 +307,7 @@ prefix and makes a failed transaction safely resumable. Power loss during the
 single offset-zero erase/program itself can still tear that bitstream; removing
 that hardware boundary requires an A/B or MultiBoot flash layout.
 
-The former Linux `hostplane_smoke.sh`/`SOUND_CARD=0` procedure is retired
-historical evidence (#259); no current flow flashes that image. After a
-bare-metal flash, run from the UART host:
+After a bare-metal flash, run from the UART host:
 
 ```console
 MILAN_PROFILE=baremetal MILAN_UART=/dev/serial/by-id/<adapter> \

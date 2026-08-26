@@ -94,9 +94,9 @@ def _user_slot(default=(2 * 1024 * 1024, 64 * 1024)):
     module still works in a bare checkout.
     """
     try:
-        sys.path.insert(0, os.path.join(os.path.dirname(HERE), "dts"))
-        import gen_mtd_partitions as _gmp
-        rows, _fs, erase = _gmp.load_map()
+        sys.path.insert(0, os.path.join(os.path.dirname(HERE), "litex"))
+        import flash_map as _fm
+        rows, _fs, erase = _fm.load_map()
         return [r for r in rows if r[0] == "user"][0][2], erase
     except Exception:
         return default

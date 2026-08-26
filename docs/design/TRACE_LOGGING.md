@@ -39,7 +39,7 @@ when something has gone wrong**, as rotating independent `xz` segments.
 - **[10. Reading a trace](#10-reading-a-trace)** -- The commands, and a worked output line where `bound=1` with `ctrl=0` *is* the accept blocker in one line -- no board, no controller, no three days of narrowing. Also why the stdlib reader is driven by the shipped metadata rather than its own copy of the layout.
 - **[11. Scope boundary](#11-scope-boundary)** -- The file-by-file split between what lives in this repo (contract, producer, host tooling) and what lives in the private test repo (anything needing a filesystem, init system or board). Check here before looking for a poller or a writer that is not in this tree.
 - **[12. Bench recipe for the half that needs a board](#12-bench-recipe-for-the-half-that-needs-a-board)** -- Gates T0-T6, each falsifiable on its own so a failure localises. T1 is the step nothing in this tree has ever executed; T4 provokes the accept-blocker signature deliberately with two `devmem` writes in the wrong order; T5 is ten wall-power cuts proving Section 8 on real flash.
-- **[13. Open items](#13-open-items)** -- What is knowingly unfinished, including one with teeth: `deploy.sh` still computes the rootfs ceiling from the next image offset and does not read the reserved slots, so an oversized rootfs would be accepted and would overwrite the `journal`/`user` partitions.
+- **[13. Open items](#13-open-items)** -- What is knowingly unfinished, including one with teeth: `deploy.sh` still computes each image ceiling from the next image offset and does not read the reserved slots, so an oversized image would be accepted and would overwrite the `journal`/`user` regions.
 
 ## 1. Status ledger — proven vs designed-only
 
@@ -56,8 +56,6 @@ Read this first.
 | Flash-wear token bucket | **exercised, closed-form checked** | gate 11 |
 | Rotation / eviction policy | **exercised** | gate 12 |
 | `journal` + `user` flash slots in the SoC map | **in `FLASHBOOT_LAYOUT`, gated** | gate 1 |
-| `fixed-partitions` DT node | **generated + `dtc`-checked** | gate 1 |
-| Linux **binding** an mtd driver to LiteSPI | **NOT ESTABLISHED** | no board has been booted with an mtd node; Section 12 gate T1 |
 | `/user` mounted, jffs2 | **designed only** | its design page was deleted 2026-08-13; the slot itself is in `FLASHBOOT_RESERVED` and gate 1 |
 | The board daemon (poller + compressor + writer) | **private test repo** | Section 11 |
 | Compressor cost on the softcore | **ESTIMATED, not measured** | Section 7.3 -- the `trace_flush.ms` field exists to replace the estimate |
@@ -600,8 +598,8 @@ init system or a board:
 * the **rotation cron / on-write hook** applying Section 6;
 * the **init script** ordering: mount `/user` → delete stale `*.partial` →
   start the tracer → *then* `S50milan`/`S51`;
-* rootfs budget for `liblzma` (~180 KiB stripped, against the ~0.775 MiB of
-  slack left in the shrunk rootfs slot — **unverified, needs a build**).
+* image budget for `liblzma` (~180 KiB stripped, against the slack left in
+  the payload slot — **unverified, needs a build**).
 
 ---
 
@@ -616,13 +614,12 @@ document's alone** and nothing else is waiting on it.
 ### T0 — build with the new layout (host only, no board)
 
 ```sh
-python3 sw/dts/gen_mtd_partitions.py --map      # the slot table
-python3 sw/dts/gen_mtd_partitions.py --check --dtc
+python3 sw/litex/flash_map.py                   # the slot table + map check
 python3 sw/trace/test_trace_roundtrip.py        # ALL GATES PASS
 ```
 
 Then rebuild the gateware and inspect `deploy.sh flash-pair`'s whole-set
-preparation line for `rootfs`. The transaction applies both the declared budget
+preparation line for each image. The transaction applies both the declared budget
 and reserved-slot ceiling before live readback or a write.
 
 ### T1 — the partitions appear
@@ -695,7 +692,7 @@ limiter doing its job rather than the daemon silently going quiet.
 * **CLOSED — deployment knows every reserved boundary.** `prepare_images()`
   folds both the image budgets and the separate `reserved` offsets into each
   ceiling, then completes all size checks before `flash-pair` performs live
-  readback or a write. An oversized rootfs cannot reach `journal`/`user`.
+  readback or a write. An oversized image cannot reach `journal`/`user`.
 * **`build.sh flash` / `deploy.sh flash-pair` must never erase the writable
   slots.** This was a shared requirement with the saved-state design (deleted
   2026-08-13), and it is now this page's alone — for the same reason: a
@@ -705,7 +702,7 @@ limiter doing its job rather than the daemon silently going quiet.
 * **No mtd driver is known to bind** to the LiteSPI controller in this kernel
   config. Reads are memory-mapped and work today; writes are the open half. T1
   is the falsifier.
-* **The Arty gets neither slot** until its rootfs is slimmed (~15 KiB headroom).
+* **The Arty gets neither slot** until its image set is slimmed (~15 KiB headroom).
   Degradation is graceful and is part of the design: no `/user` → no fault log →
   the board behaves exactly as it does today.
 * **`babeltrace2` is not installed on the development host**, so gate 14 skips

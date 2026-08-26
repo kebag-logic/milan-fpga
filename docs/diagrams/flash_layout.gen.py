@@ -28,44 +28,13 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
 SOC = REPO / "sw" / "litex" / "milan_soc.py"
-
-#: Slots no running image may write.  A stray write onto the configuration
-#: slot bricks the board's self-config; `journal` and `user` are deliberately
-#: writable - they are the whole point of reserving them.
-READ_ONLY = {"bitstream", "kernel", "opensbi", "dtb", "rootfs"}
+sys.path.insert(0, str(REPO / "sw" / "litex"))
+from flash_map import READ_ONLY, check_map, load_map   # noqa: E402
 
 
 def esc(s):
     return html.escape(str(s), quote=True)
 
-
-def load_map():
-    """[(name, offset, size, kind)] ordered by offset, plus (flash_size, eb)."""
-    layout, reserved = _literal("FLASHBOOT_LAYOUT"), _literal("FLASHBOOT_RESERVED")
-    rows = [(n, e["offset"], e["size"], "image") for n, e in layout.items()]
-    rows += [(n, e["offset"], e["size"], "reserved") for n, e in reserved.items()]
-    return (sorted(rows, key=lambda r: r[1]),
-            _literal("FLASH_SIZE"), _literal("FLASH_ERASE_BLOCK"))
-
-
-def check_map(rows, flash_size, erase):
-    """Overlap / alignment / past-the-device, printed onto the drawing."""
-    problems, prev_end, prev_name = [], 0, None
-    for name, off, size, _k in rows:
-        if size <= 0:
-            problems.append(f"{name}: non-positive size {size}")
-        if off % erase:
-            problems.append(f"{name}: offset 0x{off:X} not erase-block aligned")
-        if size % erase:
-            problems.append(f"{name}: size 0x{size:X} not an erase-block multiple")
-        if off < prev_end:
-            problems.append(f"{name} @0x{off:X} overlaps {prev_name} "
-                            f"(ends 0x{prev_end:X})")
-        if off + size > flash_size:
-            problems.append(f"{name}: ends 0x{off + size:X} past the device "
-                            f"(0x{flash_size:X})")
-        prev_end, prev_name = off + size, name
-    return problems
 
 _tree = ast.parse(SOC.read_text(encoding="utf-8"))
 

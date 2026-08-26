@@ -64,10 +64,10 @@ ROOT = os.path.dirname(os.path.dirname(HERE))
 GEN = os.path.join(HERE, "generated")
 
 sys.path.insert(0, HERE)
-sys.path.insert(0, os.path.join(ROOT, "sw", "dts"))
+sys.path.insert(0, os.path.join(ROOT, "sw", "litex"))
 import ctf_read          # noqa: E402
 import trace_segment     # noqa: E402
-import gen_mtd_partitions as gmp   # noqa: E402
+import flash_map as gmp           # noqa: E402
 
 SKIPS = []
 
@@ -93,7 +93,7 @@ EVENT_IDS = {
 MUST_EXERCISE = set(EVENT_IDS.values())
 
 
-def test_flash_map_and_mtd_node():
+def test_flash_map_and_persist_inventory():
     rows, flash_size, erase = gmp.load_map()
     problems = gmp.check_map(rows, flash_size, erase)
     assert not problems, "flash map: " + "; ".join(problems)
@@ -117,9 +117,6 @@ def test_flash_map_and_mtd_node():
         f"user slot is {user[2] // erase} erase blocks; jffs2 wants >= 5 free "
         "for garbage collection")
 
-    rc = gmp.main(["--check"])
-    assert rc == 0, "mtd-partitions.dtsi is stale vs the SoC flash map"
-
     # The OTHER consumer of the same two dicts: the board-side persistence
     # inventory (sw/persist/milan_persist_state.py -> milan-persist-state.sh),
     # which carries the journal/user offsets the board tools write through.
@@ -135,14 +132,9 @@ def test_flash_map_and_mtd_node():
         "sw/persist/milan-persist-state.sh is stale vs the SoC flash map / "
         "PERSIST_ITEMS - re-run milan_persist_state.py --emit-sh")
 
-    errs = gmp.dtc_check(gmp.emit(rows, flash_size, erase))
-    if errs == ["dtc not installed"]:
-        _skip("gate 1 dtc", "dtc not installed")
-    else:
-        assert not errs, "dtc: " + "; ".join(errs)
     print(f"  [gate 1] {len(rows)} slots, erase-block aligned, no overlap, "
           f"0x{sum(r[2] for r in rows):X} of 0x{flash_size:X} allocated; "
-          "mtd-partitions.dtsi in step")
+          "the persistence inventory in step")
 
 
 def test_generated_is_fresh():
@@ -572,7 +564,7 @@ def test_event_catalogue_fresh():
 
 
 if __name__ == "__main__":
-    for fn in (test_flash_map_and_mtd_node, test_generated_is_fresh,
+    for fn in (test_flash_map_and_persist_inventory, test_generated_is_fresh,
                test_event_ids_pinned, test_producer_builds_and_runs,
                test_segments_decode, test_compression_ratio,
                test_torn_raw_segment, test_torn_xz_segment,

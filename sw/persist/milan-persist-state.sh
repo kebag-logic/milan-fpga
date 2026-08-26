@@ -88,12 +88,12 @@ MILAN_PERSIST_GAP_clock_src="the descriptor bytes were restorable via the E4 por
 MILAN_PERSIST_CLAUSE_omap="5.3.9.1"
 MILAN_PERSIST_RESTORE_omap="none"
 MILAN_PERSIST_TITLE_omap="STREAM_PORT_OUTPUT channel mappings"
-MILAN_PERSIST_GAP_omap="the live output dynamic-map store and atomic ADD/REMOVE_AUDIO_MAPPINGS writer are implemented in the root datapath, but no nonvolatile backend serializes or restores their ownership, cluster, and CMAP state. Issue #70 owns the backend and replay"
+MILAN_PERSIST_GAP_omap="the live output dynamic-map store and atomic ADD/REMOVE writer are implemented, but no nonvolatile backend serializes or restores ownership, cluster, and CMAP state; issue #70 owns the backend and replay"
 
 MILAN_PERSIST_CLAUSE_imap="5.3.10.1"
 MILAN_PERSIST_RESTORE_imap="none"
 MILAN_PERSIST_TITLE_imap="STREAM_PORT_INPUT channel mappings"
-MILAN_PERSIST_GAP_imap="the live input dynamic-map store and atomic ADD/REMOVE_AUDIO_MAPPINGS writer are implemented in the root datapath, but no nonvolatile backend serializes or restores the authoritative mapping rows. Issue #70 owns the backend and replay"
+MILAN_PERSIST_GAP_imap="the live input dynamic-map store and atomic ADD/REMOVE writer are implemented, but no nonvolatile backend serializes or restores the authoritative rows; issue #70 owns the backend and replay"
 
 MILAN_PERSIST_CLAUSE_names="5.3.13"
 MILAN_PERSIST_RESTORE_names="none"

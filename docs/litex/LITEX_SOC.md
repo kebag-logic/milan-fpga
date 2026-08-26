@@ -1,11 +1,10 @@
 # The LiteX SoC - `sw/litex/` in depth
 
-[`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py) is "the LiteX line of
-code": the fully-FPGA host that replaced the Zynq PS. It builds the cacheless
-RV32I bare-metal product SoC on the Alinx AX7101 (Artix-7 `xc7a100t`) with the
-Milan TSN datapath attached as a real RTL instance, ring-DMA engines, LiteEth
-GMII MAC, DDR3, QSPI flash-boot and telemetry. Linux/MMU variants are retired
-and refused under #259.
+[`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py) (~3600 lines) is "the LiteX line of code": the fully-
+FPGA host that replaced the Zynq PS. It builds the RISC-V SoC on the
+Alinx AX7101 (Artix-7 `xc7a100t`) with the Milan TSN datapath attached as a
+real RTL instance, the ring-DMA engines, the LiteEth GMII MAC, DDR3, QSPI
+flash-boot and the telemetry block.
 
 This page maps the whole directory and the SoC's anatomy; the step-by-step
 build/boot recipe stays in [`sw/README.md`](../../sw/README.md) and
@@ -53,7 +52,7 @@ which is why NaxRiscv and VexiiRiscv builds need no address changes.
 
 | window | base | size | what it is |
 |---|---|---|---|
-| DRAM (LiteDRAM `main_ram`) | `0x4000_0000` | 512 MB (2 × MT41J256M16) | cacheless CPU/DMA memory; the protocol processor's descriptor/response windows are reserved at the derived top-of-RAM addresses. Former kernel/DTB/OpenSBI/rootfs placements are retired (#259) |
+| DRAM (LiteDRAM `main_ram`) | `0x4000_0000` | 512 MB (2 × MT41J256M16) | firmware working set, the PCM rings, and the descriptor image in the reserved top 1 MiB; the retired boot chain's load addresses (#259) are in git history. The rest is free RAM. Wherever a load address is needed, read it from the build's own `csr.csv`/`soc.json`, never from prose. Historical detail: the retired multi-image manifest loaded four separate payloads into this window before entry.<!-- trimmed #259 -->rd `0x4100_0000` |
 | `milan_csr` | `0x9000_0000` | `0x1_0000` (64 KB) | the datapath's AXI4-Lite register ABI, added with `cached=False` |
 | `milan_pcm_bram` | `0x9010_0000` | `0x8000` (32 KB) | dual-port PCM window, present only when the PCM ring is elaborated as BRAM (`--pcm-ring bram`) |
 | LiteX CSR bank | `0xf000_0000` | — | the Migen-generated CSRs (DMA rings, telemetry, LiteEth, LiteDRAM) |
@@ -172,18 +171,27 @@ the PHY (25-40 % corrupt frames without it).
 The Milan datapath keeps all packet intelligence; the MAC does L1/framing
 only.
 
-### 2.5 CPU: VexiiRiscv bare-metal product
+### 2.5 CPU: VexiiRiscv and NaxRiscv - read this before building
+`--cpu {naxriscv,vexiiriscv}`; **the CLI default is `naxriscv`**, and
+`deploy.sh` does not override it.
 
-The product shape is **VexiiRiscv RV32I, one hart, machine mode, no MMU and
-no L1/L2 cache**. The builder emits `--cpu vexiiriscv --software-profile
-baremetal --xlen 32 --cpu-count 1 --l2-bytes 0`; supported named
-configurations use that exact contract.
+* **VexiiRiscv** (`--cpu vexiiriscv`) is the ship core: the shipping shape is
+  the cacheless **1-hart RV32I** bare-metal profile, and the historical
+  bring-up shape was 1-hart + `--l2-bytes 32768` (L2-32K) at 100e6. The
+  **dual-hart SMP** (`--cpu-count 2`, L2-64K) configuration behind the older
+  project-scoreboard results is
+  a SUPERSEDED perf-lineage variant; the perf-campaign docs
+  ([findings](../findings/README.md)) measure that earlier configuration.
+* **NaxRiscv** (default, RV64GC) is the earlier bring-up core, retained as a
+  pure-NIC option and used by `milan_sim.py`. `--with-fpu`/`--xlen` behave
+  as documented in the source (the FPU needs both the toolchain arch *and*
+  the scala flags - handled for you).
 
-The former VexiiRiscv Linux/MMU/cache and NaxRiscv bring-up variants are
-retired historical performance evidence (#259), not supported build recipes.
-`milan_sim.py` may retain internal simulation plumbing, but it does not define
-a product profile. Use the named build configurations below for the supported
-flow.
+So: the ship build is `--cpu vexiiriscv` **1-hart + `--l2-bytes 32768`**
+at 100e6; to reproduce the older published perf results build the
+SUPERSEDED perf-lineage `--cpu vexiiriscv --cpu-count 2` (L2-64K) instead; a
+bare `deploy.sh build` gives you a NaxRiscv SoC. Use the named build
+configurations below for the supported flow.
 The full named build configurations (`build.sh`) live in
 [../integration/BUILDING.md](../integration/BUILDING.md).
 
@@ -191,10 +199,8 @@ The full named build configurations (`build.sh`) live in
 `FLASHBOOT_LAYOUT` / `FLASHBOOT_RESERVED` / `FLASHBOOT_MANIFESTS` in
 `milan_soc.py` are the **single source of truth** for the 16 MiB N25Q128
 layout; the build writes `flashboot_layout.json` so gateware and
-`deploy.sh flash-pair` never drift from the compiled target. The only product
-manifest is bare-metal `{bitstream, aem}`: the raw AEM image sits at 4 MiB,
-firmware copies and CRC-checks it, and every Linux/FBI manifest is refused
-under #259. Guide:
+`deploy.sh flash-pair` never drifts from the compiled target and can prove the
+installed offset-zero payload before choosing an order. Guide:
 [../integration/QSPI_FLASHBOOT.md](../integration/QSPI_FLASHBOOT.md).
 
 *What is at which offset, and what must a reflash never erase?* — the map,
@@ -204,18 +210,22 @@ stale copy of them:
 ![QSPI flash map](../diagrams/flash_layout.svg)
 
 Master: [`flash_layout.gen.py`](../diagrams/flash_layout.gen.py) — it reads the
-layout dictionaries and prints `check_flash_map()`'s overlap/alignment verdict
-on the drawing. The former device-tree reader is retired to git history (#259).
+dicts through the retired flash-partition emitter's `load_map()`, the same reader
+the kernel's `fixed-partitions` node comes from, and prints
+`check_flash_map()`'s verdict on the drawing.
 
 That check is not cosmetic: every slot is erase-block (`0x1_0000`) aligned
 because a partition starting or ending mid-block cannot be erased without
-destroying its neighbour. `flash-pair` materializes and size-checks the full
-target set before programmer I/O, then writes AEM first and commits the target
-bitstream last.
+destroying its neighbour. Note the open item recorded in the source:
+`deploy.sh` derives each image's ceiling from the *next image* offset and does
+not read the `reserved` key, so an oversized image is still caught by
+hand-check only.
 
-> **Current authority:** read the build's `flashboot_layout.json`. The v3/v4
-> Linux maps are retired history (#259); only their journal/user reservations
-> survive beside the bare-metal bitstream and AEM slots.
+> **The layout has moved twice.** v3 (2026-07-12) put the bitstream at offset 0;
+> v4 (2026-07-26) shrank a payload slot to make room for the writable
+> `journal` and `user` slots. Any offsets quoted from memory — including the
+> comment above the dict in `milan_soc.py` — predate one of those moves. Read the picture, or the build's own
+> `flashboot_layout.json`.
 
 ---
 
@@ -285,10 +295,10 @@ time and requires the gate to fail.
 
 | Patch | What it does |
 |---|---|
-| `0001-milan-linux-flashboot.patch` | Retired Linux compatibility patch (#259); inert in the bare-metal product and retained pending repository-wide cleanup |
+| `0001-milan-linux-flashboot.patch` | Adds the `linux_flashboot` BIOS boot method (runs before serialboot; inert without the `MILAN_FLASHBOOT_*` constants that `--with-spiflash` emits) |
 | `0002-liteeth-gmii-tx-clk-invert.patch` | Adds `tx_clk_invert` to `LiteEthPHYGMII` → the `--gtx-tx-invert` flag |
-| `0002-vexiiriscv-l2-depth-args.patch` | Historical Linux performance-configuration support (#259); retained in the reproducibility series pending cleanup |
-| `0003-milan-flashboot-xz-kernel.patch` | Retired Linux compatibility patch (#259), diffed on top of 0001 and inert in the bare-metal product |
+| `0002-vexiiriscv-l2-depth-args.patch` | Exposes the VexiiRiscv `--l2-down-pending` / `--l2-general-slots` args. **Applied by `apply.sh` since 2026-08-21**: four of the five end-station configs pass them, so without it those four cannot elaborate at all (#185) |
+| `0003-milan-flashboot-xz-kernel.patch` | xz-compressed kernel support in `linux_flashboot`. Diffed **on top of 0001**, which is why apply order is not alphabetical |
 | `0004-vexiiriscv-baremetal-variant.patch` | The LiteX `baremetal` VexiiRiscv variant. Upstream has no such variant, and it is the shipping AX profile |
 | `0005-vexiiriscv-cacheless-litex.patch` | The cacheless iBus/dBus fabric and direct DMA path the bare-metal shape needs at netlist time |
 
