@@ -168,6 +168,13 @@ jobs:
           python3 syn/ooc/dp_srcs.py --top milan_datapath > /dev/null
           python3 syn/ooc/dp_srcs.py --top KL_pp_shadow > /dev/null
 
+      # Same class, Yosys recipe (#245): ooc.sh printed "yosys FAIL" and
+      # exited 0, and never generated ucode.hex. Its refusals are driven on
+      # planted failures against the real script; it needs only the
+      # protocol-processor submodule this job already fetches.
+      - name: Prove ooc.sh generates the ROMs and fails on a failed top
+        run: python3 syn/yosys/ooc_selftest.py
+
   # This stable aggregate is the required fast verdict. Skipped RTL jobs are a
   # deliberate docs-only result; failures and cancellations remain failures.
   rtl-fast:

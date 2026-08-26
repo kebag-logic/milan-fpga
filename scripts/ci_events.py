@@ -308,6 +308,22 @@ PUBLIC_NAMES = {
 #: The fast workflow's selector job and the step that computes its answer.
 FAST_SELECTOR_JOB = "changes"
 FAST_SCOPE_STEP_ID = "scope"
+#: #245: syn/yosys/ooc.sh's refusal self-test, pinned VERBATIM in the job
+#: that initialises the protocol-processor submodule it reads, and after
+#: that initialisation. It is the only thing that exercises ooc.sh's
+#: refusals anywhere hosted; deleting the whole step (or neutralising the
+#: line, or running it before the fetch) left every other contract item
+#: green -- measured by [R-parallel] on PR #262. Verbatim equality of the
+#: step's normalized script is the neutralisation guard: `true # ...`,
+#: `|| true`, an echo, or a second command are all a different script.
+OOC_SH_SELFTEST = "python3 syn/yosys/ooc_selftest.py"
+OOC_SH_SELFTEST_JOB = "yosys-elaboration"
+OOC_SH_SUBMODULE_FETCH = "git submodule update --init"
+#: ...and it must NAME the submodule. Holding the bare verb alone let the
+#: fetch be trimmed to `third_party/verilog-axis` with the ordering item and
+#: every mutation arm still green, while each self-test arm then died on
+#: setup - the checker would not have held what its own docstring claims.
+OOC_SH_SUBMODULE = "protocol-processor"
 #: The fast selector is a second run/no-run decision, not merely a producer
 #: of metadata.  Its exact inputs and body are held for the same reason as
 #: the exhaustive selector: an empty or forced-false answer skips both RTL
@@ -1504,12 +1520,53 @@ def check_fast_aggregate(c, wf):
                "a pass")
 
 
+def check_fast_ooc_sh_selftest(c, wf):
+    """#245: the ooc.sh refusal self-test stays wired, verbatim, in order."""
+    path = RTL_FAST
+    job = jobs(wf).get(OOC_SH_SELFTEST_JOB)
+    c.item(job is not None, path,
+           f"job `{OOC_SH_SELFTEST_JOB}` must exist (it fetches the "
+           "submodule the ooc.sh refusal self-test reads)")
+    if job is None:
+        return
+    slist = steps(job)
+    hits = [i for i, s in enumerate(slist)
+            if isinstance(s.get("run"), str)
+            and tuple(normalize_script(s["run"])) == (OOC_SH_SELFTEST,)]
+    c.item(len(hits) == 1, path,
+           f"exactly one step must run `{OOC_SH_SELFTEST}` verbatim in "
+           f"`{OOC_SH_SELFTEST_JOB}` (found {len(hits)}): it is the only "
+           "hosted exercise of ooc.sh's refusals, and a neutralised or "
+           "wrapped spelling is a different script")
+    if len(hits) != 1:
+        return
+    # The step's KEYS are pinned too, exactly as the fast-verdict step's
+    # are: `if:`, `continue-on-error:` and `shell:` each leave the pinned
+    # run text byte-identical while disabling or reinterpreting its
+    # execution ([R0] round two on PR #262) - a skipped or reinterpreted
+    # self-test is the same false green as a deleted one.
+    extra = sorted(set(slist[hits[0]].keys()) - {"name", "run"})
+    c.item(not extra, path,
+           f"the `{OOC_SH_SELFTEST}` step carries key(s) {extra} beyond "
+           "name/run: any other key can disable or reinterpret the pinned "
+           "invocation while its text stays pinned")
+    fetch = [i for i, s in enumerate(slist)
+             if OOC_SH_SUBMODULE_FETCH in step_text(s)
+             and OOC_SH_SUBMODULE in step_text(s)]
+    c.item(bool(fetch) and fetch[0] < hits[0], path,
+           f"`{OOC_SH_SELFTEST}` must run after a `{OOC_SH_SUBMODULE_FETCH}` "
+           f"step that names `{OOC_SH_SUBMODULE}` (it reads the tree that "
+           "step initialises; before it - or without it - every arm dies on "
+           "setup, proving nothing)")
+
+
 def check_rtl_fast(c, wf):
     check_push_and_pr(c, RTL_FAST, wf, exact_types=True)
     check_cancel_in_progress(c, RTL_FAST, wf)
     check_public_names(c, RTL_FAST, wf)
     check_fast_selector(c, wf)
     check_fast_aggregate(c, wf)
+    check_fast_ooc_sh_selftest(c, wf)
     # The same selector -> outputs -> consumer path as the exhaustive
     # workflow, and the same false green if it is left unheld: this
     # aggregate counts a skipped consumer as a pass.
@@ -2167,6 +2224,53 @@ def _mutations():
                     return
         raise AssertionError("fixture drift: docs.yml does not run --selftest")
 
+    # #245: the ooc.sh refusal self-test's step, by the three ways it was
+    # shown to disappear undetected ([R-parallel] on PR #262).
+    def _fast_ooc_job(w):
+        job = jobs(w[RTL_FAST]).get(OOC_SH_SELFTEST_JOB)
+        if job is None:
+            raise AssertionError("fixture drift: rtl-fast.yml has no "
+                                 f"`{OOC_SH_SELFTEST_JOB}` job")
+        return job
+
+    def _fast_ooc_index(job):
+        for i, s in enumerate(steps(job)):
+            if OOC_SH_SELFTEST in step_text(s):
+                return i
+        raise AssertionError("fixture drift: rtl-fast.yml does not run "
+                             "the ooc.sh self-test")
+
+    def m_ooc_selftest_removed(w):
+        job = _fast_ooc_job(w)
+        job["steps"] = [s for s in steps(job)
+                        if OOC_SH_SELFTEST not in step_text(s)]
+
+    def m_ooc_selftest_neutralised(w):
+        job = _fast_ooc_job(w)
+        steps(job)[_fast_ooc_index(job)]["run"] = (
+            "true # " + OOC_SH_SELFTEST)
+
+    def m_ooc_selftest_fetch_drops_submodule(w):
+        job = _fast_ooc_job(w)
+        for s in steps(job):
+            if OOC_SH_SUBMODULE_FETCH in step_text(s) \
+                    and OOC_SH_SUBMODULE in step_text(s):
+                s["run"] = str(s["run"]).replace(" " + OOC_SH_SUBMODULE, "")
+                return
+        raise AssertionError("fixture drift: rtl-fast.yml's ooc.sh job does "
+                             f"not fetch `{OOC_SH_SUBMODULE}`")
+
+    def m_ooc_selftest_before_fetch(w):
+        job = _fast_ooc_job(w)
+        slist = job["steps"]
+        slist.insert(0, slist.pop(_fast_ooc_index(job)))
+
+    def m_ooc_selftest_key(key, value):
+        def f(w):
+            job = _fast_ooc_job(w)
+            steps(job)[_fast_ooc_index(job)][key] = value
+        return f
+
     return [
         # rtl.yml triggers
         ("rtl push on main, not dev", m_push_main(RTL_FULL), "push must subscribe"),
@@ -2560,6 +2664,21 @@ def _mutations():
          "cancel-in-progress"),
         ("fast public name rtl-fast renamed", m_rename_job(RTL_FAST, "rtl-fast"),
          "`rtl-fast`"),
+        # #245: the ooc.sh refusal self-test's pinned invocation.
+        ("#245 ooc.sh self-test step removed", m_ooc_selftest_removed,
+         "exactly one step must run"),
+        ("#245 ooc.sh self-test neutralised", m_ooc_selftest_neutralised,
+         "exactly one step must run"),
+        ("#245 ooc.sh self-test before the submodule fetch",
+         m_ooc_selftest_before_fetch, "must run after a"),
+        ("#245 ooc.sh self-test fetch stops naming protocol-processor",
+         m_ooc_selftest_fetch_drops_submodule, "must run after a"),
+        ("#245 ooc.sh self-test disabled by if: false",
+         m_ooc_selftest_key("if", False), "beyond name/run"),
+        ("#245 ooc.sh self-test failure swallowed by continue-on-error",
+         m_ooc_selftest_key("continue-on-error", True), "beyond name/run"),
+        ("#245 ooc.sh self-test reinterpreted by shell: bash -n",
+         m_ooc_selftest_key("shell", "bash -n {0}"), "beyond name/run"),
         # docs.yml
         ("docs push on main, not dev", m_push_main(DOCS), "push must subscribe"),
         ("docs no pull_request", m_drop_pr(DOCS), "must subscribe pull_request"),
