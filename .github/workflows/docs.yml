@@ -83,6 +83,13 @@ jobs:
           python3 scripts/ci_events.py --check
           python3 scripts/ci_events.py --selftest
 
+      # The local Actions runner is the required first response to a pending
+      # hosted run (#268). Its offline self-test holds exact-head refusals,
+      # event construction, workflow selection and secret-free commands
+      # without requiring Docker inside this job.
+      - name: Local act runner contract gate
+        run: python3 scripts/act_ci.py --selftest
+
       # Cited-path gate: a backticked `hdl/...` in prose is the first thing a
       # reader follows and nothing else links it to the tree. Two tree-wide
       # moves left 33 citations pointing at directories that do not exist.

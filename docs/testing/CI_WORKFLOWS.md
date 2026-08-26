@@ -12,6 +12,7 @@ reduce the local verification bar in [CONTRIBUTING.md](../../CONTRIBUTING.md).
 - **[One authoritative SHA](#one-authoritative-sha)** -- How every job of a run is pinned to one tree, what the workers record, what the aggregates refuse, and the gate that holds the files to this page.
 - **[Elaboration](#elaboration)** -- The one job that installs LiteX and observes what elaboration hands the datapath Instance, and what makes it red.
 - **[Pull-request state](#pull-request-state)** -- How draft and ready states control hosted long jobs without changing local responsibilities.
+- **[Act-first local replication](#act-first-local-replication)** -- The required exact-head local response while hosted Actions runs in parallel.
 - **[Protected merge bar](#protected-merge-bar)** -- The active `dev` ruleset, its seven exact required contexts, and why its update policy is loose.
 - **[Issue closing on merge](#issue-closing-on-merge)** -- What `Closes #N` does now that `dev` is the default branch, and what still waits for containment.
 - **[Local commands](#local-commands)** -- The serial commands that remain the authoritative developer-side gates.
@@ -334,8 +335,9 @@ env key on the pin and decision steps; `PR_DRAFT` forced to `true`,
 step moved before the
 checkout; a `GITHUB_PATH` step inserted before it; the pin step removed; the
 pin and assert steps swapped; a checkout without `fetch-depth: 0`; a `GH_HOST`
-on the job and on the workflow; a shard denominator restated below its matrix
-size, restated while the matrix grows, and stale in a worker's display name; a
+on the job and on the workflow; a shard denominator missing or stale in its
+matrix carrier, restated while the shard list grows, and stale in a worker's
+display name; a
 verifier that reassigns `GATE_SHA`, passes the wrong `--expect`, passes none,
 or keeps `--expect` while the matrix grows; an aggregate `if` loosened or
 dropped; the gate's `run_full` and `rtl` outputs each rebound to a literal
@@ -391,14 +393,14 @@ validates one tree. The workflow makes that explicit and machine-checked
   an aggregate cannot quietly stop proving that the gate, the run and its
   checkout agree, or tally three shards as four.
 
-The shard count is stated once, by each worker's `strategy.matrix.shard` list.
-The worker passes `--shard ${{ matrix.shard }}/${{ strategy.job-total }}` and
-names itself the same way, so growing that list moves the split with it, and
-`--check` derives the aggregate's `--expect` from the same list rather than
-reading a number written beside it. A restated denominator is refused, whether
-it appears in a script or in a job name: with a matrix of five and a literal
-`/4`, shard 4/5's suites and tops are never produced while `--expect`, the
-uploaded artifact count and the downloaded shard count all still agree.
+The shard count is defined by each worker's `strategy.matrix.shard` list and
+carried into the jobs by the singleton `matrix.total` dimension. The worker
+passes `--shard ${{ matrix.shard }}/${{ matrix.total }}` and names itself the
+same way. `--check` requires that singleton to equal the shard-list length and
+derives the aggregate's `--expect` from the list. It refuses a missing or stale
+total and any literal or `strategy.job-total` denominator in a script or job
+name. With a matrix of five and a stale total of four, the check fails before
+shard 4/5's suites or tops can be omitted while the artifact counts agree.
 
 The aggregates refuse, and the check fails rather than skips:
 
@@ -504,6 +506,46 @@ A docs-only ready PR remains cheap: the long workflow starts, classifies the
 diff, and skips its RTL workers with explicit skipped results. The two stable
 aggregate contexts are still emitted, so the ruleset never waits for a check
 name that the pull request cannot produce.
+
+## Act-first local replication
+
+After a PR head is pushed, an agent must use `act` instead of waiting for
+GitHub Actions to finish. Start the repository-owned runner immediately; the
+hosted workflows continue in parallel:
+
+```sh
+python3 scripts/act_ci.py --pr <number>
+```
+
+The default runs `docs`, `elaborate`, `rtl-fast`, and `rtl-full` in that order.
+Use repeatable `--workflow <name>` options for a focused reproduction, and use
+`--dry-run` to inspect the generated command before consuming containers. The
+runner requires `gh`, Docker, and `act` 0.2.89 or newer. On a host where the
+current user cannot open the Docker socket, add `--sudo`; this is
+non-interactive and preserves only the masked token needed by `act`.
+
+The command reads the open PR from GitHub and refuses before validation when
+the base is not `dev`, the worktree is dirty, or local `HEAD` differs from the
+remote PR head. It writes a synthetic pull-request event that names the exact
+base and head. A draft uses `synchronize`, retaining `draft=true`; a ready PR
+uses `ready_for_review`, so the real exhaustive selector launches all workers.
+The token returned by `gh auth token` is passed as the environment-backed
+`GITHUB_TOKEN` secret, never as a command argument. Each workflow gets an
+isolated artifact store, the host worktree is copied rather than bind-mounted,
+and temporary event and artifact data is removed on exit.
+
+The four exhaustive workers carry their checked denominator through the
+singleton `matrix.total` dimension. `scripts/ci_events.py` proves that value
+equals the `matrix.shard` list length and that every job name and shard command
+uses it. This retains GitHub's four-worker behavior and avoids the negative
+`strategy.job-total` values produced by `act` 0.2.89 without a local workflow
+edit.
+
+Local success is early exact-head evidence, not a locally manufactured GitHub
+status. The runner does not publish commit statuses, and the seven hosted
+contexts in the protected merge bar below remain mandatory. Continue useful
+local validation or review while they run; do not spend the interval polling
+an unfinished hosted run.
 
 ## Protected merge bar
 

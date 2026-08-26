@@ -92,6 +92,18 @@ flowchart LR
    branch* — a PR is not the place to discover the sweep is red.
 4. **Open the PR** against `dev`, with the template below and the
    self-test results as a **comment** (a comment is evidence, not approval).
+   After every pushed PR head, start the supported local workflow replica:
+
+   ```bash
+   python3 scripts/act_ci.py --pr <number>
+   ```
+
+   `act` must be used instead of waiting for GitHub Actions to finish. For a
+   changing draft, select only the applicable workflows with repeated
+   `--workflow` options; for a ready head, the default runs all four. Hosted
+   required contexts continue in parallel and remain part of the merge bar;
+   the local runner does not publish statuses. See
+   [Act-first local replication](docs/testing/CI_WORKFLOWS.md#act-first-local-replication).
 5. **Review with multiple agents, each with CLEARED context.** Not forks of
    the author's session: agents that have never seen the reasoning that
    produced the diff. An agent that helped write a change will re-derive the

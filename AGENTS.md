@@ -160,6 +160,15 @@ convert the PR back to draft before resuming exploratory work. The detailed
 scheduling and cancellation contract is in the
 [CI workflow policy](docs/testing/CI_WORKFLOWS.md).
 
+After each pushed PR head, start the repository-owned local replica before
+inspecting or polling the hosted run. An agent must use `act` instead of waiting
+for GitHub Actions to finish: run `python3 scripts/act_ci.py --pr <number>` for
+a ready head, or select the applicable fast workflows on a draft. The command
+refuses a dirty or mismatched checkout and records the exact remote head. Its
+result is local evidence only; the protected hosted contexts continue in
+parallel and remain mandatory. The exact command, prerequisites, and failure
+semantics are in [Act-first local replication](docs/testing/CI_WORKFLOWS.md#act-first-local-replication).
+
 Self-test results belong in a PR comment as evidence, not as a review verdict.
 
 ## 6. Reviewer procedure

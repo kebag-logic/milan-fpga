@@ -117,14 +117,13 @@ jobs:
   # setup is installed only on the stable shard that owns the relevant suite;
   # scripts/suite_shards.py self-tests those ownership assumptions.
   #
-  # The shard COUNT is stated once, by the matrix below. Every denominator is
-  # `${{ strategy.job-total }}`, the size of that matrix, so growing the list
-  # moves the split with it; a restated `/4` beside a matrix of three leaves
-  # shard 3/4's suites unproduced while every static count still agrees
-  # (#209). scripts/ci_events.py refuses a denominator that is neither the
-  # derived form nor this matrix's size.
+  # The shard COUNT is carried into each worker as matrix.total. GitHub and
+  # act both resolve matrix values; act v0.2.89 does not resolve
+  # strategy.job-total correctly. scripts/ci_events.py requires total to be a
+  # singleton equal to the shard-list size and requires every denominator to
+  # derive from it, so growing one without the other fails closed (#209, #268).
   verilator-shards:
-    name: Verilator shard ${{ matrix.shard }}/${{ strategy.job-total }}
+    name: Verilator shard ${{ matrix.shard }}/${{ matrix.total }}
     needs: full-ci-gate
     if: ${{ needs.full-ci-gate.outputs.run_full == 'true' }}
     runs-on: ubuntu-latest
@@ -133,6 +132,7 @@ jobs:
       fail-fast: false
       matrix:
         shard: [0, 1, 2, 3]
+        total: [4]
     steps:
       - uses: actions/checkout@v4
       - name: Fetch RTL dependencies
@@ -186,7 +186,7 @@ jobs:
       - name: Prove specialized suite ownership
         env:
           SHARD: ${{ matrix.shard }}
-          SHARDS: ${{ strategy.job-total }}
+          SHARDS: ${{ matrix.total }}
         run: |
           set -euo pipefail
           python3 scripts/suite_shards.py --selftest
@@ -237,7 +237,7 @@ jobs:
       - name: Run this exhaustive suite shard
         run: |
           scripts/run_all_suites.sh "$RUNNER_TEMP/suite-logs" \
-            --shard "${{ matrix.shard }}/${{ strategy.job-total }}"
+            --shard "${{ matrix.shard }}/${{ matrix.total }}"
 
       - name: Upload this shard's suite logs
         if: ${{ always() }}
@@ -311,7 +311,7 @@ jobs:
   # Weighted longest-processing-time assignment isolates the two dominant
   # tops and balances the remaining 44 without changing the local serial gate.
   yosys-shards:
-    name: Yosys shard ${{ matrix.shard }}/${{ strategy.job-total }}
+    name: Yosys shard ${{ matrix.shard }}/${{ matrix.total }}
     needs: full-ci-gate
     if: ${{ needs.full-ci-gate.outputs.run_full == 'true' }}
     runs-on: ubuntu-latest
@@ -320,6 +320,7 @@ jobs:
       fail-fast: false
       matrix:
         shard: [0, 1, 2, 3]
+        total: [4]
     steps:
       - uses: actions/checkout@v4
       - name: Fetch RTL dependencies
@@ -358,7 +359,7 @@ jobs:
           sv2v --version
       - name: Run this weighted portability shard
         run: |
-          syn/yosys/run.sh --shard "${{ matrix.shard }}/${{ strategy.job-total }}" \
+          syn/yosys/run.sh --shard "${{ matrix.shard }}/${{ matrix.total }}" \
             --results "$RUNNER_TEMP/yosys-results"
       - name: Upload per-top and structural evidence
         if: ${{ always() }}

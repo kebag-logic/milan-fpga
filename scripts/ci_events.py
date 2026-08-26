@@ -63,8 +63,10 @@ script it calls; and an `env` on the job or on the workflow reaches the
 step's `gh` without appearing anywhere in the step. So `--check` also holds
 the gate job's `needs`, its exact step sequence, every step's key set, and
 the absence of any `GH_*` above the step. Separately, the worker shard
-denominator is derived from the matrix that produces the shards
-(`${{ strategy.job-total }}`) rather than restated beside it.
+denominator is carried as `${{ matrix.total }}`. The checker requires that
+matrix value to be a singleton equal to the shard list's size and requires
+every consumer to derive from it. This preserves one checked count while
+avoiding act v0.2.89's broken `strategy.job-total` value.
 
 THE FAST VERDICT ([R2] on PR #239). rtl-fast.yml's aggregate accepts skipped
 consumers on purpose, so its one verdict step is the entire conversion of
@@ -277,13 +279,11 @@ SELECTOR_READ = "python3 scripts/ci_scope.py <"
 #: an `env` on the JOB or on the WORKFLOW reaches that `gh` without appearing
 #: anywhere in the step (#209, O11/O12), so neither level names a `GH_*`.
 GH_ENV_PREFIX = "GH_"
-#: The shard denominator a worker passes, and states in its display name. It
-#: is DERIVED from the matrix that defines it, or equal to that matrix's size:
-#: a third statement of the same number does not move when the matrix does,
-#: and the shards past it are never produced while every static count still
-#: agrees (#209, O9). `--expect` is already derived checker-side; this is the
-#: same rule on the worker side of the same number.
-DERIVED_SHARD_TOTAL = "${{ strategy.job-total }}"
+#: The shard denominator a worker passes and states in its display name.
+#: `matrix.total` is the act-compatible carrier. check_shard_denominator proves
+#: it is a singleton equal to the `matrix.shard` list's size and that every
+#: consumer uses this expression rather than a literal (#209 O9, #268).
+DERIVED_SHARD_TOTAL = "${{ matrix.total }}"
 _EXPR = r"\$\{\{[^{}]*\}\}"   # one `${{ ... }}`, kept whole while scanning
 SHARD_ARG_RE = re.compile(r'--shard\s+"?((?:' + _EXPR + r'|[^\s"])+)"?')
 NAME_SHARD_RE = re.compile(r"\$\{\{\s*matrix\.shard\s*\}\}/((?:"
@@ -1237,18 +1237,27 @@ def resolve_denominator(token, env):
 
 
 def check_shard_denominator(c, path, jid, job):
-    """A sharded worker states its shard count ONCE, in the matrix that
-    produces the shards. Every `--shard <i>/<n>` it passes, and the `<n>` in
-    its own display name, derives that count or equals it. A restated
-    denominator does not move when the matrix does: with a matrix of three
-    and a literal `/4`, shard 3/4's suites and tops are never produced and
-    every static count still agrees (#209, O9)."""
+    """A sharded worker carries one checked count through ``matrix.total``.
+
+    GitHub's ``strategy.job-total`` is naturally derived, but act v0.2.89
+    renders it as a negative value. A singleton matrix dimension is portable
+    to both engines. It remains derived in substance because this check proves
+    it equals the shard list's size and proves every consumer names it.
+    """
     strat = job.get("strategy") if isinstance(job, dict) else None
     matrix = strat.get("matrix") if isinstance(strat, dict) else None
     shard = matrix.get("shard") if isinstance(matrix, dict) else None
     if not isinstance(shard, list) or not shard:
         return
     size = str(len(shard))
+    total = matrix.get("total")
+    total_ok = (isinstance(total, list) and len(total) == 1
+                and str(total[0]) == size)
+    c.item(total_ok, path,
+           f"job `{jid}` shard denominator matrix `total` must be a singleton "
+           f"equal to the `strategy.matrix.shard` list size, {size} "
+           f"(found {total!r}): GitHub and act workers must receive the same "
+           "checked count")
     seen = []
     name = job.get("name")
     if isinstance(name, str):
@@ -1264,13 +1273,12 @@ def check_shard_denominator(c, path, jid, job):
            "matrix nothing reads splits nothing")
     for where, token, env in seen:
         got = resolve_denominator(token, env)
-        c.item(got in (DERIVED_SHARD_TOTAL, size), path,
+        c.item(got == DERIVED_SHARD_TOTAL, path,
                f"{where}: the shard denominator `{token}` must be "
-               f"`{DERIVED_SHARD_TOTAL}` or the size of this job's "
-               f"`strategy.matrix.shard` list, {size} (it resolves to "
-               f"`{got}`): a restated denominator does not move when the "
-               "matrix does, and the shards past it are never produced while "
-               "every static count still agrees")
+               f"`{DERIVED_SHARD_TOTAL}` (it resolves to `{got}`): a literal "
+               "does not move when the matrix changes, while "
+               "`strategy.job-total` is not portable to the supported act "
+               "runner")
 
 
 def matrix_size(wf, job):
@@ -2289,6 +2297,13 @@ def _mutations():
         jobs(w[RTL_FULL])["verilator-shards"]["strategy"]["matrix"][
             "shard"].append(4)
 
+    def m_shard_total_missing(w):
+        del jobs(w[RTL_FULL])["verilator-shards"]["strategy"]["matrix"][
+            "total"]
+
+    def m_shard_total_wrong(w):
+        jobs(w[RTL_FULL])["yosys-shards"]["strategy"]["matrix"]["total"] = [3]
+
     def m_shard_denominator_wrong(w):
         restate_shards(w, "yosys-shards", "3")
 
@@ -2938,7 +2953,12 @@ def _mutations():
          set_job_key_at(RTL_FAST, FAST_SELECTOR_JOB, "env",
                         {"EVENT_NAME": "pull_request"}),
          "must carry no `env`"),
-        # #209 O9: the shard denominator restated instead of derived.
+        # #209 O9 / #268: the portable matrix carrier is mandatory, equals
+        # the shard-list size, and every consumer derives from it.
+        ("O9 matrix total carrier is missing", m_shard_total_missing,
+         "shard denominator matrix `total`"),
+        ("O9a matrix total disagrees with the shard list", m_shard_total_wrong,
+         "shard denominator matrix `total`"),
         ("O9 verilator matrix grows, the denominator is a literal",
          m_shard_denominator_stale, "shard denominator"),
         ("O9b yosys denominator below its matrix size",
