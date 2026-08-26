@@ -7,10 +7,11 @@
 **NOTHING HERE IS TRANSCRIBED.**  The slot list, offsets, sizes, DRAM load
 addresses, manifests, device size and erase-block size all come from the ONE
 source of truth, ``FLASHBOOT_LAYOUT`` + ``FLASHBOOT_RESERVED`` in
-``sw/litex/milan_soc.py``, parsed here (never transcribed) by ``load_map()``
-below.  A flash map change therefore moves the picture and the BIOS together,
-or it does not move at all.  The reader lived in the retired partition emitter
-until #259 removed it; it is 25 lines and now lives where its one consumer is.
+``sw/litex/milan_soc.py``, parsed (never transcribed) by
+``sw/litex/flash_map.py``.  A flash map change therefore moves the picture and
+the BIOS together, or it does not move at all.  That reader lived in the
+retired partition emitter until #259 removed it; it now lives beside the file
+it parses, and this generator is one of its three consumers.
 
 The bands are drawn **to scale** on purpose: "this slot shrank to make room for
 the writable ones" is a statement about proportions, and a table of hex offsets
@@ -21,36 +22,24 @@ Usage:
     rsvg-convert -w 1800 docs/diagrams/flash_layout.svg \
         -o docs/diagrams/flash_layout.png
 """
-import ast
 import html
 import sys
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
-SOC = REPO / "sw" / "litex" / "milan_soc.py"
 sys.path.insert(0, str(REPO / "sw" / "litex"))
-from flash_map import READ_ONLY, check_map, load_map   # noqa: E402
+# ONE parser, one truth: the two extra facts this picture needs (DRAM target
+# and manifest membership) come out of the same reader, not a second copy of
+# its ast walk.
+from flash_map import READ_ONLY, check_map, literal, load_map   # noqa: E402
 
 
 def esc(s):
     return html.escape(str(s), quote=True)
 
 
-_tree = ast.parse(SOC.read_text(encoding="utf-8"))
-
-
-def _literal(name):
-    for node in _tree.body:
-        if isinstance(node, ast.Assign):
-            for t in node.targets:
-                if isinstance(t, ast.Name) and t.id == name:
-                    return ast.literal_eval(node.value)
-    raise SystemExit(f"flash_layout.gen.py: {name} not found in {SOC} — "
-                     f"fix this generator, do not hand-draw the map.")
-
-
-LAYOUT = _literal("FLASHBOOT_LAYOUT")
-MANIFESTS = _literal("FLASHBOOT_MANIFESTS")
+LAYOUT = literal("FLASHBOOT_LAYOUT")
+MANIFESTS = literal("FLASHBOOT_MANIFESTS")
 ROWS, FLASH_SIZE, ERASE = load_map()
 PROBLEMS = check_map(ROWS, FLASH_SIZE, ERASE)
 
@@ -110,8 +99,8 @@ def svg():
              f'QSPI flash map - {human(FLASH_SIZE)} device, drawn to scale</text>')
     o.append('<text x="40" y="82" font-size="15" fill="#546E7A">GENERATED from '
              'FLASHBOOT_LAYOUT + FLASHBOOT_RESERVED in sw/litex/milan_soc.py, read '
-             'through sw/dts/gen_mtd_partitions.py - the same reader the kernel\'s '
-             'fixed-partitions node comes from.</text>')
+             'through sw/litex/flash_map.py - the same reader the trace-segment '
+             'budget and the roundtrip gates use.</text>')
     o.append(f'<text x="40" y="106" font-size="15" fill="#546E7A">'
              f'Erase block {human(ERASE)}: every slot starts and ends on one, so '
              f'"write the journal" can never erase a neighbour.</text>')

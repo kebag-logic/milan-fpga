@@ -13,6 +13,11 @@ jobs:
       # builder gates below consume the pinned processor image tools and expand
       # the Vivado datapath manifest through verilog-axis's source inventory.
       - uses: actions/checkout@v4
+      # pyyaml is load-bearing for the bare-metal-only gate below (it REFUSES
+      # to run without it) and for three later gates, so it is installed here
+      # rather than in the middle of the job.
+      - name: Install the python gate dependencies
+        run: python3 -m pip install --quiet pyyaml
       - name: Link health, wording, dead-reference and local-info gate
         run: python3 scripts/docs_check.py
       - name: Milan feature-status consistency gate

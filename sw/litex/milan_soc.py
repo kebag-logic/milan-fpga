@@ -164,8 +164,8 @@ FLASHBOOT_AEM = {"offset": 0x40_0000, "addr": 0x0, "size": 0x01_0000}
 # fault logs is worse than not having them, because the entity then comes back
 # unbound *sometimes*.  They are declared here so that the flash map has ONE
 # source of truth (docs/design/SAVED_STATE_FASTCONNECT.md section 5) and so that
-# sw/dts/gen_mtd_partitions.py can derive the kernel's `fixed-partitions` node
-# from it instead of a second hand-maintained copy.
+# sw/litex/flash_map.py can serve every other consumer of the map from it
+# instead of a second hand-maintained copy.
 #
 #   journal  2 x 64 KiB erase blocks = slot A / slot B, RAW (no filesystem):
 #            "a torn write cannot damage the other slot" is then a property of

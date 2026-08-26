@@ -636,8 +636,9 @@ together  -  e.g. `tc mqprio` + `tc cbs offload`.
 | `0x540` | `PTP_INGRESS_LAT` | RW | `0` | ingress latency correction, ns  -  **SUBTRACTED** from every RX capture (the wire SFD preceded the AXIS SOP the tap stamps). Unsigned; the sign is fixed in HW, software never negates. |
 | `0x544` | `PTP_EGRESS_LAT` | RW | `0` | egress latency correction, ns  -  **ADDED** to every TX capture (the SFD follows the AXIS SOP) |
 
-Both reset to 0 = uncorrected. The bench applies its measured `ingressLatency`
-pair; move the correction to one side or the other, **never both**, or it
+Both reset to 0 = uncorrected. The bench applies its one tap-measured
+constant (gh #64: the ingress/egress SPLIT is unmeasured, only their sum);
+move the correction to one side or the other, **never both**, or it
 double-counts. These registers are the
 register half of REQ-PTP-06  -  true SFD capture needs a tap at the GMII/PHY
 boundary, which nothing at the AXIS boundary can synthesise, so the constants
@@ -745,7 +746,7 @@ unsynchronised".
 
 It claims in exactly two cases and fails **closed** in every other:
 
-| gPTP port state | claim? | why |
+| off-chip daemon port state (option-off arm) | claim? | why |
 |---|---|---|
 | `portState SLAVE`, `gmPresent`, `\|master_offset\| <= 1 us` | **yes** | disciplined to the domain. The offset test is load-bearing — `portState SLAVE` alone is also what a clock 216,446 s adrift reports (2026-07-27). 1 µs is Milan v1.2 4.4.2.1's own stated gPTP-accuracy budget |
 | `portState MASTER`, `gmPresent` false, `gmIdentity` == our own | **yes** | we ARE the grandmaster: our PHC *defines* gPTP time rather than approximating it, so 4.4.4.7's "may not correspond to gPTP time" cannot apply |

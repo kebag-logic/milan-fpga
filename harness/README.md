@@ -26,7 +26,7 @@ Detach it however you like — it holds no terminal:
 
 ```sh
 setsid nohup harness/run.sh > /dev/null 2>&1 &
-setsid --fork harness/run.sh
+setsid --fork sh -c 'exec harness/run.sh >>harness-run.log 2>&1'
 ```
 
 ## Contents

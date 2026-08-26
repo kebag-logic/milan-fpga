@@ -6,8 +6,8 @@ test_trace_roundtrip.py - host-runnable gate for the CTF fault log.
 
 Gates (Phase 10, docs/design/TRACE_LOGGING.md):
    1. flash map: FLASHBOOT_LAYOUT + FLASHBOOT_RESERVED are erase-block aligned,
-      non-overlapping and inside the device, and sw/dts/mtd-partitions.dtsi is
-      byte-identical to what they generate (+ dtc structural check);
+      non-overlapping and inside the device, and the board-side persistence
+      inventory carries the same journal/user offsets;
    2. the checked-in generated/ producer is what milan_trace.yaml produces -
       re-generated and diffed WHEN barectf is importable, LOUDLY SKIPPED when it
       is not, so an outsider without barectf still runs every other gate;
@@ -46,7 +46,7 @@ Gates (Phase 10, docs/design/TRACE_LOGGING.md):
       pure-python reader must agree with the canonical one on the event count.
 
 Everything here runs on a plain host: python3 stdlib, a C compiler, and
-optionally barectf / dtc / babeltrace2, each of which is a LOUD SKIP when
+optionally barectf / babeltrace2, each of which is a LOUD SKIP when
 absent rather than a silent pass.  Nothing here touches a board.
 
     python3 sw/trace/test_trace_roundtrip.py

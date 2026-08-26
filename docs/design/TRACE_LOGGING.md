@@ -582,8 +582,8 @@ without a board, without a controller, and without three days of narrowing.
 | [`sw/trace/trace_selftest.c`](../../sw/trace/trace_selftest.c) | the scripted fault run, linking the *shipping* producer |
 | [`sw/trace/trace_segment.py`](../../sw/trace/trace_segment.py) | segment container: pack / unpack / verify / rotate / ratio |
 | [`sw/trace/ctf_read.py`](../../sw/trace/ctf_read.py) | stdlib CTF reader |
-| [`sw/trace/test_trace_roundtrip.py`](../../sw/trace/test_trace_roundtrip.py) | the 15-gate round trip (gate 1 flash map/mtd → gate 15 event-catalogue freshness; gates 2 and 14 SKIP without `barectf` / `babeltrace2`) |
-| the retired flash-partition emitter, its generated partition include | the `fixed-partitions` node, generated from the SoC flash map |
+| [`sw/trace/test_trace_roundtrip.py`](../../sw/trace/test_trace_roundtrip.py) | the 15-gate round trip (gate 1 flash map / persistence inventory → gate 15 event-catalogue freshness; gates 2 and 14 SKIP without `barectf` / `babeltrace2`) |
+| [`sw/litex/flash_map.py`](../../sw/litex/flash_map.py) | the one reader of the SoC flash map: slot table, overlap/alignment check |
 | [`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py) | `FLASHBOOT_LAYOUT` + `FLASHBOOT_RESERVED` + `check_flash_map()` |
 
 **In the private test repo (`fpga/`)** — everything that needs a filesystem, an

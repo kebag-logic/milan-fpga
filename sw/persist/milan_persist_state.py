@@ -109,7 +109,7 @@ ROOTFS_OVERLAY_ETC = os.environ.get(
 def _flash_reserved():
     """``FLASHBOOT_RESERVED`` read out of milan_soc.py with ``ast``.
 
-    The SAME reader discipline as ``sw/dts/gen_mtd_partitions.py``: milan_soc.py
+    The SAME reader discipline as ``sw/litex/flash_map.py``: milan_soc.py
     imports LiteX at module scope so it cannot be imported here, and a second
     hand-kept copy of the offsets is the defect this whole file exists to avoid.
     The board helper gets these through the generated include and therefore

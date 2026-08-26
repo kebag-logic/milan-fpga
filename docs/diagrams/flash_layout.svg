@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1620" height="1340" viewBox="0 0 1620 1340" font-family="Helvetica,Arial,sans-serif">
 <rect width="1620" height="1340" fill="#FAFAFA"/>
 <text x="40" y="52" font-size="30" font-weight="bold" fill="#263238">QSPI flash map - 16 MiB device, drawn to scale</text>
-<text x="40" y="82" font-size="15" fill="#546E7A">GENERATED from FLASHBOOT_LAYOUT + FLASHBOOT_RESERVED in sw/litex/milan_soc.py, read through sw/dts/gen_mtd_partitions.py - the same reader the kernel's fixed-partitions node comes from.</text>
+<text x="40" y="82" font-size="15" fill="#546E7A">GENERATED from FLASHBOOT_LAYOUT + FLASHBOOT_RESERVED in sw/litex/milan_soc.py, read through sw/litex/flash_map.py - the same reader the trace-segment budget and the roundtrip gates use.</text>
 <text x="40" y="106" font-size="15" fill="#546E7A">Erase block 64 KiB: every slot starts and ends on one, so "write the journal" can never erase a neighbour.</text>
 <text x="40" y="130" font-size="15" font-weight="bold" fill="#2E7D32">map consistent: no overlap, no misalignment, nothing past the device</text>
 <text x="120" y="188" font-size="17" font-weight="bold" fill="#78909C">offset 0 at the top</text>

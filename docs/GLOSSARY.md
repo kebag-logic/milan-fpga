@@ -182,7 +182,7 @@ The current AECP entry is checked against the
 | **M-A1 … M-A6** | The hardware bring-up milestones: A1 boot, A2 CPU reads MILN, A3 DMA/datapath on silicon, A4 …, A5 driver bring-up, A6 descriptor rings/IRQ (largely superseded by the ring DMA engines). |
 | **Section A.x** | Section numbers of the completed PS-to-fabric migration plan (#259, in git history) (e.g. Section A.6 DMA, Section A.7 MAC/PHY, Section A.9 datapath wrapper). Commit messages and older pages write the A.x with a leading section sign. |
 | **Section V** | The post-flash [silicon validation checklist](testing/RUNNING_TESTS.md#6-silicon-validation-checklist); archived campaign pages abbreviate it as a V behind a section sign. |
-| **FR-… / NFR-…** | Functional / non-functional requirement IDs ([`FR_NFR.md`](reference/FR_NFR.md), [`../REQUIREMENTS.md`](../REQUIREMENTS.md))  -  e.g. FR-DRV-* driver features, NFR-LAT-01 latency. |
+| **FR-… / NFR-…** | Functional / non-functional requirement IDs ([`FR_NFR.md`](reference/FR_NFR.md), [`../REQUIREMENTS.md`](../REQUIREMENTS.md))  -  e.g. FR-STR-* streaming features, NFR-LAT-01 latency. |
 | **Option 6b** | The descriptor/scatter-gather multi-queue DMA upgrade path (deferred; rings cover today's needs). |
 | **Track 1 (de-Xilinx)** | The vendor-independence workstream (vendored `verilog-axis`, XPM removal, Yosys/ECP5 checks). |
 | **C1/C2, S1-S5, I1-I6** | The decision-matrix work items in [`AVB_SWITCH_DIRECTION.md`](overview/AVB_SWITCH_DIRECTION.md) (CPU-port, Switch, IPC tracks). |
