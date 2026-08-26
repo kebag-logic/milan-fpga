@@ -142,13 +142,25 @@ It runs `sv2v` → `synth_xilinx -family xc7 -flatten` → `stat` and reports
   is parsed from the LAST top-named block (a pristine log carries two:
   `synth_xilinx`'s internal final statistics, then the explicit `stat`),
   deterministically.
-- A requested top the list does not carry is exit 2, not an empty header.
+- A requested top the list does not carry is exit 2, not an empty header,
+  and the names are checked BEFORE the pin read, the geometry parse and
+  either generator: a typo must not cost two ROM generations, nor be
+  answered with a ledger diagnostic for a top that does not exist.
+- Cleanup is one `EXIT` trap, so a refusal never leaves the run's tmp tree
+  behind - and never leaves a LOCKED run directory a later `rm -rf` cannot
+  remove. `--record-rom-digests` rewrites the ledger without a pipe and
+  refuses to install a file whose row count is not the rows retained plus
+  the rows recorded: a dying `awk` used to silently delete every other
+  pin's digests and still print success.
+- The report's cell taxonomy refuses a distributed-RAM primitive it cannot
+  price, rather than counting it as zero LUT6.
 
 Not enforced: the numbers themselves stay yosys estimates (band rule
 below), and dropping only the explicit `stat` is not refused, because
 `synth_xilinx`'s own final statistics block is the same post-mapping
 measurement. `ooc_selftest.py` drives every refusal above on planted
-failures (57 arms: shape, content, staging, report, sticky-exit,
+failures (`ARMS` in that file is the count; it asserts its own) covering
+shape, content, staging, report, sticky-exit,
 launch-directory, consumption-custody and read-interval mutations (the
 published image swapped or deleted after publication, between two tops
 and mid-run; the transient move-aside-and-restore blocked on the shipping
@@ -160,7 +172,9 @@ population, the exclusive locked per-top run directory, and both
 canonical images as read-only copies hashing to the pin's ledger rows);
 it runs in `rtl-fast.yml`, where
 `scripts/ci_events.py` pins the invocation verbatim AND its step keys, in
-the job that fetches the submodule, after that fetch.
+the job that fetches the protocol-processor submodule, after that fetch.
+The suite refuses to run as root: its custody oracles are mode bits, which
+uid 0 bypasses, so the arms would invert rather than fail.
 
 Two traps this exists to avoid:
 

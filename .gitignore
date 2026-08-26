@@ -122,6 +122,16 @@ handover_*.md
 configs/generated/*.hex
 syn/yosys/*.hex
 
+# syn/yosys/ooc_selftest.py builds mutated copies of ooc.sh beside it (the
+# script derives the repository root from its own location, so they cannot
+# live elsewhere), and ooc.sh --record-rom-digests stages the ledger rewrite
+# in place. Both are swept on exit and on SIGINT/SIGTERM; these lines cover
+# the SIGKILL and CI-timeout cases, so a stray copy of the gate script is
+# never one broad `git add` from a commit (#191/#192).
+syn/yosys/.ooc-mut-*
+syn/yosys/.ooc-pkg-*
+syn/yosys/rom_digests.tsv.new.*
+
 # local agent scratch, never shipped
 .claude/
 

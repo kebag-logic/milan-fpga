@@ -64,9 +64,11 @@ Runs in .github/workflows/rtl-fast.yml beside syn/ooc/ooc_tcl_selftest.py;
 the invocation AND its step keys are pinned by scripts/ci_events.py. Needs
 the protocol-processor submodule; it does not need yosys or sv2v.
 """
+import atexit
 import os
 import re
 import shutil
+import signal
 import subprocess
 import sys
 import tempfile
@@ -77,6 +79,40 @@ OOC = os.path.join(HERE, "ooc.sh")
 REAL_PYTHON = shutil.which("python3") or sys.executable
 REAL_AWK = shutil.which("awk") or "awk"
 REAL_GIT = shutil.which("git") or "git"
+REAL_CHMOD = shutil.which("chmod") or "chmod"
+
+#: Every scratch file this suite creates, swept on any ordinary exit AND on
+#: SIGINT/SIGTERM. The mutants must live under syn/yosys/ (ooc.sh derives the
+#: repository root from its own location), so an interrupted run used to
+#: strand mode-0755 sabotaged copies of the gate script in a TRACKED
+#: directory, one broad `git add` from a commit - the #191/#192 rule this
+#: file asserts on the caller's cwd and used to exempt itself from.
+#: .gitignore carries the belt to this braces, for the SIGKILL case.
+_TEMPS = []
+
+
+def _track(path):
+    _TEMPS.append(path)
+    return path
+
+
+@atexit.register
+def _sweep_temps():
+    while _TEMPS:
+        try:
+            os.unlink(_TEMPS.pop())
+        except OSError:
+            pass
+
+
+def _sweep_on_signal(signum, _frame):
+    _sweep_temps()
+    signal.signal(signum, signal.SIG_DFL)
+    os.kill(os.getpid(), signum)
+
+
+for _sig in (signal.SIGINT, signal.SIGTERM):
+    signal.signal(_sig, _sweep_on_signal)
 GEN_UCODE = os.path.join(REPO, "protocol-processor", "hdl", "aecp", "ucode",
                          "gen_ucode.py")
 GEN_LTN = os.path.join(REPO, "protocol-processor", "hdl", "acmp", "rom",
@@ -89,13 +125,20 @@ def _ledger_digests():
     the gitlink, never the checkout's own HEAD ([R0] round five), and a
     checkout that disagrees with the gitlink refuses to certify anything:
     this suite runs the real generators FROM that checkout."""
-    pin = subprocess.run(
-        ["git", "-C", REPO, "rev-parse", ":protocol-processor"],
-        capture_output=True, text=True, check=True).stdout.strip()
-    head = subprocess.run(
-        ["git", "-C", os.path.join(REPO, "protocol-processor"),
-         "rev-parse", "HEAD"],
-        capture_output=True, text=True, check=True).stdout.strip()
+    def _rev(args, what):
+        out = subprocess.run([REAL_GIT] + args, capture_output=True, text=True)
+        if out.returncode != 0:
+            raise AssertionError(
+                "cannot read %s (git exited %d: %s) - this suite certifies "
+                "the ROMs generated from the pinned protocol-processor; run "
+                "git submodule update --init protocol-processor"
+                % (what, out.returncode, out.stderr.strip() or "no message"))
+        return out.stdout.strip()
+
+    pin = _rev(["-C", REPO, "rev-parse", ":protocol-processor"],
+               "the protocol-processor gitlink from the superproject index")
+    head = _rev(["-C", os.path.join(REPO, "protocol-processor"),
+                 "rev-parse", "HEAD"], "the protocol-processor checkout's HEAD")
     if head != pin:
         raise AssertionError(
             "the protocol-processor checkout (%s) disagrees with the "
@@ -106,7 +149,12 @@ def _ledger_digests():
         for line in fh:
             if not line.strip() or line.startswith("#"):
                 continue
-            row_pin, img, sha = line.split()
+            cols = line.split()
+            if len(cols) != 3:
+                raise AssertionError(
+                    "rom_digests.tsv row %r is not pin<TAB>image<TAB>sha256"
+                    % line.strip())
+            row_pin, img, sha = cols
             if row_pin == pin:
                 want[img] = sha
     for img in ("ucode.hex", "ltn_rom.hex"):
@@ -118,10 +166,21 @@ def _ledger_digests():
     return want
 
 
-LEDGER = _ledger_digests()
+#: Read LAZILY. At module scope this ran before main() could catch anything,
+#: so an uninitialised submodule or an unrecorded pin reached the operator as
+#: a CalledProcessError traceback rather than as the sentence ooc.sh itself
+#: prints for the same condition.
+_LEDGER = None
+
+
+def ledger():
+    global _LEDGER
+    if _LEDGER is None:
+        _LEDGER = _ledger_digests()
+    return _LEDGER
 
 #: How many arms run. A deleted arm is a self-test that still prints a pass.
-ARMS = 57
+ARMS = 58
 
 #: The clean row the full-cell yosys model must produce for any top:
 #: 8 LUT4, 2 RAM32M (= 8 LUTRAM-LUT), 4 FDRE, 3 RAMB36E1, 2 RAMB18E1,
@@ -261,8 +320,16 @@ exec %(real)s "$@"
 """
 
 #: chmod that always fails: every permission the script claims to set must
-#: have its status TAKEN, or the hardening is a comment.
+#: have its status TAKEN, or the hardening is a comment. One stub per guard,
+#: because a stub that breaks EVERY chmod plus a want of "read-only" matched
+#: three different messages - the arm passed with the a-w guard's status
+#: deliberately discarded, proving only that SOME chmod refusal fired.
 CHMOD_FAIL = "#!/bin/sh\nexit 1\n"
+#: Fails ONLY the run-directory lock, so the u-w guard is exercised alone.
+CHMOD_FAIL_DIRLOCK = """#!/bin/sh
+case "$1" in u-w) echo 'planted chmod u-w failure' >&2; exit 1 ;; esac
+exec %(real)s "$@"
+"""
 
 #: [R0] round five's transient swap, as a model: move the reviewed image
 #: aside, install correctly shaped wrong bytes, emit a plausible stat
@@ -357,8 +424,8 @@ def _run(script, tops, home, rundir, ooc_tmp):
     env["HOME"] = home
     env["PATH"] = bindir + os.pathsep + env.get("PATH", "")
     env["OOC_TMP"] = ooc_tmp
-    env["OOC_ST_UCODE_SHA"] = LEDGER["ucode.hex"]
-    env["OOC_ST_LTN_SHA"] = LEDGER["ltn_rom.hex"]
+    env["OOC_ST_UCODE_SHA"] = ledger()["ucode.hex"]
+    env["OOC_ST_LTN_SHA"] = ledger()["ltn_rom.hex"]
     out = subprocess.run([script] + tops, cwd=rundir, env=env,
                          capture_output=True, text=True)
     return out.returncode, out.stdout + out.stderr
@@ -378,7 +445,7 @@ def _mutant2(p1, r1, p2, r2, label):
     with os.fdopen(fd, "w") as fh:
         fh.write(text)
     os.chmod(path, 0o755)
-    return path
+    return _track(path)
 
 
 def _mutant(pattern, replacement, label):
@@ -395,7 +462,7 @@ def _mutant(pattern, replacement, label):
     with os.fdopen(fd, "w") as fh:
         fh.write(mutated)
     os.chmod(path, 0o755)
-    return path
+    return _track(path)
 
 
 def selftest():
@@ -429,7 +496,7 @@ def selftest():
             if git:
                 _stub(bindir, "git", git % {"real": REAL_GIT})
             if chmod:
-                _stub(bindir, "chmod", chmod)
+                _stub(bindir, "chmod", chmod % {"real": REAL_CHMOD})
             rc, log = _run(script, tops, home, rundir, ooc_tmp)
             litter = os.listdir(rundir)
             if expect_rc0:
@@ -499,7 +566,7 @@ def selftest():
         else "the failure branch did not name the phase")
 
     # Arm 4. The microcode generator's exit status is taken, not `|| true`d.
-    arm("ucode-generator-fail", "tcam", "gen_ucode.py", False,
+    arm("ucode-generator-fail", "tcam", "ROM generator failed", False,
         py=("gen_ucode.py",
             "echo 'planted ucode generator failure' >&2\n  exit 3"),
         check=lambda log, t, h: None if row_of(log) is None
@@ -542,7 +609,7 @@ def selftest():
         else "a top was priced from a corrupt-content ROM")
 
     # Arms 11-17. The transition ROM gets the SAME set, symmetrically.
-    arm("ltn-generator-fail", "tcam", "gen_ltn_rom.py", False,
+    arm("ltn-generator-fail", "tcam", "ROM generator failed", False,
         py=("gen_ltn_rom.py",
             "echo 'planted ltn generator failure' >&2\n  exit 3"))
     arm("ltn-one-word", "tcam", "1 words, expected exactly 128", False,
@@ -551,7 +618,9 @@ def selftest():
         py=("gen_ltn_rom.py",
             "%s %s -o \"$out\" > /dev/null && sed -i '2s/.*/123/' \"$out\"\n"
             "  exit 0" % (REAL_PYTHON, GEN_LTN)))
-    arm("ltn-truncated", "tcam", "words, expected exactly 128", False,
+    # 63, not 64: the generator's first line is a `//` header that rom_check
+    # strips, which is exactly the kind of detail an unpinned count hides.
+    arm("ltn-truncated", "tcam", "63 words, expected exactly 128", False,
         py=("gen_ltn_rom.py",
             "%s %s -o \"$out.full\" > /dev/null && "
             "head -64 \"$out.full\" > \"$out\" && rm -f \"$out.full\"\n"
@@ -737,11 +806,26 @@ def selftest():
     try:
         def hand_pop_detected(log, ooc_tmp, home):
             rec = os.path.join(home, "sv2v-args.txt")
+            if not os.path.isfile(rec):
+                return "the sv2v model recorded no arguments"
             got = sorted(a for a in open(rec).read().split()
                          if a.endswith(".sv") or a.endswith(".v"))
             if got == pp_population():
                 return "the hand-population mutant equals the record: the " \
                        "detector cannot distinguish"
+            planted = sorted([
+                os.path.join(REPO, "third_party", "verilog-axis", "rtl",
+                             "axis_fifo.v"),
+                os.path.join(REPO, "protocol-processor", "hdl", "aecp",
+                             "ucpu_pkg.sv"),
+                os.path.join(REPO, "protocol-processor", "hdl", "acmp",
+                             "pp_acmp_pkg.sv"),
+                os.path.join(REPO, "hdl", "milan", "KL_pp_shadow.sv"),
+                os.path.join(REPO, "hdl", "milan", "KL_pp_maap_shim.sv")])
+            if got != planted:
+                return ("the mutant's source set is neither the record nor "
+                        "the planted hand list (%d files) - the arm proves "
+                        "nothing about the population detector" % len(got))
             return None
         arm("mut-hand-population", "KL_pp_shadow", None, True, script=mut,
             check=hand_pop_detected)
@@ -762,6 +846,7 @@ def selftest():
 
     def pkg_mutant(pkg_text, label):
         fd, pkg = tempfile.mkstemp(suffix=".sv", prefix=".ooc-pkg-")
+        _track(pkg)
         with os.fdopen(fd, "w") as fh:
             fh.write(pkg_text)
         mut = _mutant(
@@ -833,6 +918,7 @@ def selftest():
     # Arm 38. The transition ROM's width gets the identical guard (34 would
     # truncate to 8 digits and accept the stale 32-bit image).
     fd, pkg = tempfile.mkstemp(suffix=".sv", prefix=".ooc-pkg-")
+    _track(pkg)
     with os.fdopen(fd, "w") as fh:
         fh.write("localparam int unsigned TROM_W_C = 34;\n"
                  "localparam int unsigned TROM_DEPTH_C = 128;\n")
@@ -968,11 +1054,19 @@ def selftest():
     finally:
         os.unlink(mut)
 
-    # Arm 54. Every chmod status is TAKEN: a chmod that fails must be a
-    # named FATAL, never an ignored hardening.
-    arm("chmod-status-taken", "tcam", "read-only", False, chmod=CHMOD_FAIL,
+    # Arms 54-55. Every chmod status is TAKEN, guard by guard: a chmod that
+    # fails must be a named FATAL, never an ignored hardening. `read-only`
+    # alone matched three different messages (both ooc.sh guards and the
+    # yosys model's own writability refusal), so dropping the a-w status
+    # still left the arm green on the u-w guard's message.
+    arm("chmod-a-w-status-taken", "tcam",
+        "consuming copy of ucode.hex read-only", False, chmod=CHMOD_FAIL,
         check=lambda log, t2, h: None if row_of(log) is None
         else "a top was priced with an unenforced permission")
+    arm("chmod-u-w-status-taken", "tcam", "run directory read-only", False,
+        chmod=CHMOD_FAIL_DIRLOCK,
+        check=lambda log, t2, h: None if row_of(log) is None
+        else "a top was priced with an unlocked run directory")
 
     # Arms 55-56. A stale submodule checkout (the dispatching git answers a
     # planted HEAD) refuses against the superproject gitlink, in normal AND
@@ -1021,7 +1115,7 @@ def selftest():
             setup=lambda t2: _write(
                 t2, "scratch-ledger.tsv",
                 "".join("%s\t%s\t%s\n" % (stale_pin, img, sha)
-                        for img, sha in sorted(LEDGER.items()))),
+                        for img, sha in sorted(ledger().items()))),
             check=stale_priced)
     finally:
         os.unlink(mut)
@@ -1033,7 +1127,20 @@ def selftest():
 
 
 def main() -> int:
-    bad, ran = selftest()
+    if hasattr(os, "geteuid") and os.geteuid() == 0:
+        print("ooc.sh refusal self-test: REFUSED - this suite's custody "
+              "oracles are mode bits (`test -w`, rename in a u-w directory), "
+              "and root bypasses every one of them: the locked run directory "
+              "reads as writable and the transient swap succeeds, so the "
+              "arms would invert rather than fail. Run it unprivileged.",
+              file=sys.stderr)
+        return 2
+    try:
+        bad, ran = selftest()
+    except AssertionError as e:
+        print("ooc.sh refusal self-test: SETUP REFUSED - %s" % e,
+              file=sys.stderr)
+        return 2
     for b in bad:
         print("  -", b, file=sys.stderr)
     if bad:

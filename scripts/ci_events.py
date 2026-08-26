@@ -319,6 +319,11 @@ FAST_SCOPE_STEP_ID = "scope"
 OOC_SH_SELFTEST = "python3 syn/yosys/ooc_selftest.py"
 OOC_SH_SELFTEST_JOB = "yosys-elaboration"
 OOC_SH_SUBMODULE_FETCH = "git submodule update --init"
+#: ...and it must NAME the submodule. Holding the bare verb alone let the
+#: fetch be trimmed to `third_party/verilog-axis` with the ordering item and
+#: every mutation arm still green, while each self-test arm then died on
+#: setup - the checker would not have held what its own docstring claims.
+OOC_SH_SUBMODULE = "protocol-processor"
 #: The fast selector is a second run/no-run decision, not merely a producer
 #: of metadata.  Its exact inputs and body are held for the same reason as
 #: the exhaustive selector: an empty or forced-false answer skips both RTL
@@ -1546,11 +1551,13 @@ def check_fast_ooc_sh_selftest(c, wf):
            "name/run: any other key can disable or reinterpret the pinned "
            "invocation while its text stays pinned")
     fetch = [i for i, s in enumerate(slist)
-             if OOC_SH_SUBMODULE_FETCH in step_text(s)]
+             if OOC_SH_SUBMODULE_FETCH in step_text(s)
+             and OOC_SH_SUBMODULE in step_text(s)]
     c.item(bool(fetch) and fetch[0] < hits[0], path,
-           f"`{OOC_SH_SELFTEST}` must run after the submodule fetch step "
-           "(it reads the protocol-processor tree that step initialises; "
-           "before it, every arm dies on setup, proving nothing)")
+           f"`{OOC_SH_SELFTEST}` must run after a `{OOC_SH_SUBMODULE_FETCH}` "
+           f"step that names `{OOC_SH_SUBMODULE}` (it reads the tree that "
+           "step initialises; before it - or without it - every arm dies on "
+           "setup, proving nothing)")
 
 
 def check_rtl_fast(c, wf):
@@ -2243,6 +2250,16 @@ def _mutations():
         steps(job)[_fast_ooc_index(job)]["run"] = (
             "true # " + OOC_SH_SELFTEST)
 
+    def m_ooc_selftest_fetch_drops_submodule(w):
+        job = _fast_ooc_job(w)
+        for s in steps(job):
+            if OOC_SH_SUBMODULE_FETCH in step_text(s) \
+                    and OOC_SH_SUBMODULE in step_text(s):
+                s["run"] = str(s["run"]).replace(" " + OOC_SH_SUBMODULE, "")
+                return
+        raise AssertionError("fixture drift: rtl-fast.yml's ooc.sh job does "
+                             f"not fetch `{OOC_SH_SUBMODULE}`")
+
     def m_ooc_selftest_before_fetch(w):
         job = _fast_ooc_job(w)
         slist = job["steps"]
@@ -2653,7 +2670,9 @@ def _mutations():
         ("#245 ooc.sh self-test neutralised", m_ooc_selftest_neutralised,
          "exactly one step must run"),
         ("#245 ooc.sh self-test before the submodule fetch",
-         m_ooc_selftest_before_fetch, "after the submodule fetch"),
+         m_ooc_selftest_before_fetch, "must run after a"),
+        ("#245 ooc.sh self-test fetch stops naming protocol-processor",
+         m_ooc_selftest_fetch_drops_submodule, "must run after a"),
         ("#245 ooc.sh self-test disabled by if: false",
          m_ooc_selftest_key("if", False), "beyond name/run"),
         ("#245 ooc.sh self-test failure swallowed by continue-on-error",
