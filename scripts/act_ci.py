@@ -275,6 +275,7 @@ def build_act_command(prefix: Sequence[str], workflow: str,
         "pull_request",
         "--strict",
         "--no-recurse",
+        "--no-skip-checkout",
         "--rm",
         "--directory", str(ROOT),
         "--workflows", str(ROOT / WORKFLOWS[workflow]),
@@ -481,8 +482,10 @@ def selftest() -> int:
     check("act command is strict and selects the real exhaustive workflow",
           "--strict" in command
           and str(ROOT / WORKFLOWS["rtl-full"]) in command)
-    check("act command enables artifact aggregation without binding the tree",
-          "--artifact-server-path" in command and "--bind" not in command)
+    check("act command uses remote checkout and never binds the host tree",
+          "--artifact-server-path" in command
+          and "--no-skip-checkout" in command
+          and "--bind" not in command)
     check("token is environment-backed and never embedded in the command",
           command[-2:] == ["--secret", "GITHUB_TOKEN"]
           and not any("ghp_" in value for value in command))

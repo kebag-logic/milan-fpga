@@ -531,8 +531,9 @@ base and head. A draft uses `synchronize`, retaining `draft=true`; a ready PR
 uses `ready_for_review`, so the real exhaustive selector launches all workers.
 The token returned by `gh auth token` is passed as the environment-backed
 `GITHUB_TOKEN` secret, never as a command argument. Each workflow gets an
-isolated artifact store, the host worktree is copied rather than bind-mounted,
-and temporary event and artifact data is removed on exit.
+isolated artifact store, `actions/checkout` fetches the event's exact remote
+SHA, the host worktree is never bind-mounted, and temporary event and artifact
+data is removed on exit.
 
 The four exhaustive workers carry their checked denominator through the
 singleton `matrix.total` dimension. `scripts/ci_events.py` proves that value
