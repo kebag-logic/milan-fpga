@@ -70,7 +70,7 @@ The dynamic-map and media-clock claims are checked against the
 ```mermaid
 flowchart LR
     ADC["line-in / I2S / TDM"] --> CAP["KL_aaf_capture_i2s<br/>or KL_tdm_capture"]
-    RING["ALSA playback ring<br/>KL_pcm_tx"] --> XBAR
+    RING["playback ring<br/>KL_pcm_tx"] --> XBAR
     CAP --> XBAR["KL_chan_map_capture<br/>(capture crossbar)"]
     XBAR --> PKT["KL_aaf_packetizer<br/>(per-talker TCTX)"]
     PKT --> AMUX["aaf_final_mux<br/>adp_tx_arbiter"]
@@ -105,9 +105,9 @@ accuracy ([EGRESS_QUEUE_MAP.md](../reference/EGRESS_QUEUE_MAP.md#why-gptp-sits-b
 ## 2. Egress: a frame the CPU sent (where the queue map applies)
 
 This is the lane the five queues, the classifier and the CBS actually govern:
-host development traffic and all bulk traffic. Product fabric gPTP uses the
-downstream merge described at hop 6 and never enters these queues. The former
-option-off `linuxptp` owner is retired historical evidence only (#259).
+gPTP from a software daemon only in the explicit option-off comparison, a host
+AVDECC controller, a host MRP stack, and all bulk traffic. Product-default fabric gPTP
+uses the downstream merge described at hop 6 and never enters these queues.
 
 ```mermaid
 flowchart LR
@@ -169,8 +169,8 @@ flowchart TB
 | 4 | **accept or not** | `avtp_rx_monitor` (`KL_avtp_rx_monitor_ctx`) | the verdict. Per-stream state: sequence continuity, format support, media lock, timestamp sanity against the presentation offset. Emits `pdu_accept_p` + the stream index — this pulse **is** the commit | `AVTPRX_FRX` `0x6BC` (accepted frames), `AVTPRX_STAT` `0x6B8`, `AVTPRX_ERR` `0x6C0`, per-stream `A_STRMW_CNT` `0x830 + 4k`; `LTAP_RX_D0` `0x89C` = MAC_RX→ACCEPT |
 | 5 | **depacketize** | `aaf_rx_depkt` (`KL_aaf_rx_depacketizer`) | replays the same tapped stream, gated by the monitor's accept pulse, and emits the payload as full 8-byte beats in wire order (S32BE interleaved), tagged with the stream index in `tuser` | `PCMRX_CNT` `0x6C4`; `LTAP_RX_D1` `0x8A4` |
 | 6 | **route** | `pcm_route` (`KL_pcm_route`) | per-stream 2-bit policy: bit 0 **DMA** (ride the ring, tagged `tuser = s`), bit 1 **RENDER** (feed the DAC tap; lowest-indexed RENDER stream wins). Independently combinable — `0b11` is capture-while-rendering, `0b00` discards | written by the `0x800` window `CTRL[2:1]` commit |
-| 7a | **to the host** | `_PCMRingNxN` (in [`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py)) | the DRAM PCM ring the ALSA card reads. On builds where it is elaborated as `_PCMRingBRAM` the sink and CSR block are identical | `LTAP_RX_D2` `0x8AC` closes the chain |
-| 7b | **to the DAC** | `pcm_lpf` → `i2s_feed_mux` → `KL_i2s_playback` | the render tap is band-limited, then `KL_i2s_feed_mux` picks the DAC source *and its pace* — the listener tap, or the render crossbar paced by the 48 kHz media tick (which is how an ALSA playback ring reaches the line-out with no inbound stream at all) | `I2SPB_STAT` `0x6D8`, `PBK_STAT` `0x8C8`, `PBK_FEEDS` `0x8CC`, `PBK_RAILS` `0x8D0` |
+| 7a | **to the host** | `_PCMRingNxN` (in [`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py)) | the DRAM PCM ring the host consumer reads. On builds where it is elaborated as `_PCMRingBRAM` the sink and CSR block are identical | `LTAP_RX_D2` `0x8AC` closes the chain |
+| 7b | **to the DAC** | `pcm_lpf` → `i2s_feed_mux` → `KL_i2s_playback` | the render tap is band-limited, then `KL_i2s_feed_mux` picks the DAC source *and its pace* — the listener tap, or the render crossbar paced by the 48 kHz media tick (which is how a playback ring reaches the line-out with no inbound stream at all) | `I2SPB_STAT` `0x6D8`, `PBK_STAT` `0x8C8`, `PBK_FEEDS` `0x8CC`, `PBK_RAILS` `0x8D0` |
 
 ### Reading the ingress path when nothing arrives
 

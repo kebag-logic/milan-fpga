@@ -56,8 +56,8 @@ PROBLEMS = check_map(ROWS, FLASH_SIZE, ERASE)
 
 # palette (fill, stroke)
 BLUE = ("#E3F2FD", "#1565C0")     # gateware
-GREEN = ("#E8F5E9", "#2E7D32")    # kernel / rootfs payloads
-ORANGE = ("#FFF3E0", "#EF6C00")   # firmware / dtb
+GREEN = ("#E8F5E9", "#2E7D32")    # payload slots a manifest carries
+ORANGE = ("#FFF3E0", "#EF6C00")   # slots no shipping manifest carries
 PURPLE = ("#F3E5F5", "#6A1B9A")   # writable slots
 GREY = ("#ECEFF1", "#90A4AE")     # free space
 RED = ("#FFEBEE", "#C62828")
@@ -68,7 +68,7 @@ def colour(name, kind):
         return PURPLE
     if name == "bitstream":
         return BLUE
-    if name in ("opensbi", "dtb"):
+    if not any(name in v for v in MANIFESTS.values()):
         return ORANGE
     return GREEN
 
@@ -123,7 +123,7 @@ def svg():
     o.append(f'<text x="{BAR_X}" y="{BAR_Y-22}" font-size="17" font-weight="bold" '
              f'fill="#78909C">offset 0 at the top</text>')
 
-    # label anchors: push apart so thin bands (dtb, journal) do not collide
+    # label anchors: push apart so the thin bands do not collide
     LBL_H = 52
     anchors = []
     for name, off, size, kind in BANDS:

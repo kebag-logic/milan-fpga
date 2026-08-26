@@ -37,7 +37,7 @@ RUN pacman -Syu --noconfirm --needed \
 
 # sv2v is NOT in the Arch official repositories (AUR only) — yosys cannot read
 # SystemVerilog interfaces without it, so syn/yosys/run.sh needs this binary.
-# Upstream ships a prebuilt static Linux build; pin the version.
+# Upstream ships a prebuilt static build for this host; pin the version.
 ARG SV2V_VERSION=v0.0.13
 RUN curl -fsSL -o /tmp/sv2v.zip \
       "https://github.com/zachjs/sv2v/releases/download/${SV2V_VERSION}/sv2v-Linux.zip" \

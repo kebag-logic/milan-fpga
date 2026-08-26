@@ -43,7 +43,7 @@ text(24,55,"MTU stays 1500 everywhere; the CPU leaves the per-packet path — th
 # ---- panel 1: current endpoint + change hooks ----
 text(24,86,"① TODAY'S ENDPOINT DATAPATH + the three hooks (A = AVTP engine, T = TSO, R = RSC)",14,"#1565C0",1)
 y=100
-box( 24,y,120,74,GREY[0],GREY[1],"CPU / Linux","sockets|PipeWire".split("|"))
+box( 24,y,120,74,GREY[0],GREY[1],"CPU / host","sockets|media apps".split("|"))
 box(184,y,150,74,GREEN[0],GREEN[1],"TX ring DMA","AXI read bursts|(done tonight)".split("|"))
 box(374,y,190,74,AMBER[0],AMBER[1],"datapath (50 MHz SV)","classifier -> CBS queues|-> PTP ts -> arbiter".split("|"))
 box(604,y,130,74,GREY[0],GREY[1],"MAC + PHY","GMII 1G".split("|"))
@@ -63,7 +63,7 @@ box(880,y+66,300,118,GREEN[0],GREEN[1],"AVTP stream engine (NEW block)",
  ["taps the classifier: matched stream IDs never",
   "reach the ring/stack. RX: strip AVTP, write raw",
   "samples + presentation ts into per-stream sample",
-  "rings (PipeWire mmaps; wakes per PERIOD ~375/s,",
+  "rings (the consumer mmaps; wakes per PERIOD ~375/s,",
   "not per packet 8000/s). TX: samples -> AVTP",
   "frames + gPTP ts, CBS-shaped. CPU media cost ~0."])
 arrow(564,y+64,880,y+110,None,"#2E7D32",None,"g")

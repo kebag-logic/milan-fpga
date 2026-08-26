@@ -1,8 +1,9 @@
 # System domain map
 
-Which module lives in which domain and language: the bare-metal Milan TSN NIC
-from its target firmware down to Artix-7 silicon, plus the host tooling that
-generates and deploys it. Software is at the top, hardware at the bottom.
+Which module lives in which domain / language  -  the whole Milan TSN NIC stack, from the
+firmware down to the Artix-7 silicon, plus the host tooling that generates and deploys it.
+Software at the top, hardware at the bottom. The host-software domains this page once
+listed above the firmware are retired (#259) and live in git history.
 
 ![Milan system domain map](../SYSTEM_DOMAIN_MAP.svg)
 
@@ -16,16 +17,15 @@ layout model with [`SYSTEM_DOMAIN_MAP.gen.py`](../SYSTEM_DOMAIN_MAP.gen.py)
 
 | Domain | Language / form | Where | Contains |
 |--------|-----------------|-------|----------|
-| **Bare-metal firmware** | C | target (machine mode) | Milan UART/CSR diagnostics and boot policy plus the LiteX BIOS, which CRC-checks and copies the raw AEM image from QSPI. This is the one target software surface. |
-| **Retired software stack (#259)** | historical only | Git history | Linux kernel, `kl-eth`, OpenSBI, device tree, Buildroot rootfs, PipeWire/ALSA and the linuxptp software owner are not product domains or supported configurations. |
+| **Boot firmware** | C | target (M-mode / ROM) | The LiteX BIOS in ROM and the bare-metal Milan firmware it hands control to: UART commands, CSR policy, identity, the AEM image copy. In **milan-fpga** `sw/firmware/`. |
 | **SoC integration** | Python (Migen/LiteX) → Verilog | dev host | `MilanSoC`, `_CRG`, `MilanNIC`/`add_milan_datapath`, `MilanMAC`, `MilanDMA`, `MilanDebug`  -  the glue that wires our RTL to the CPU (VexiiRiscv or NaxRiscv)/LiteEth/LiteDRAM/LiteSPI. All in **milan-fpga** [`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py). |
 | **Milan datapath  -  RTL** | SystemVerilog / Verilog | FPGA fabric | The actual TSN logic in **milan-fpga** `hdl/`: `milan_datapath`/`milan_top`, `milan_csr` (the register ABI), the 802.1Q CBS shaper, PTP timestamp unit, 1722 AVTP + AVDECC ADP parsers, event counters, `rx_mac_filter`/`tcam`, CDC. |
-| **Vendored IP** | 3rd-party cores | FPGA fabric | VexiiRiscv supplies the cacheless product RV32I core. Former Linux/MMU VexiiRiscv and NaxRiscv profiles are retired historical configurations (#259). LiteEth, LiteDRAM, LiteSPI and verilog-axis remain pinned upstream IP. |
+| **Vendored IP** | 3rd-party cores | FPGA fabric | VexiiRiscv (the product profile is cacheless RV32I in machine mode; wider shapes remain buildable) and historical NaxRiscv, LiteEth (MAC + GMII/RGMII PHY), LiteDRAM (DDR3), LiteSPI (QSPI), verilog-axis (Forencich). Not ours  -  pinned upstream. |
 | **Board / silicon** | physical |  -  | XC7A100T-2FGG484, DDR3 512 MB, 16 MB QSPI (N25Q128), RTL8211E GbE PHY, 200 MHz clock. |
-| **Host tooling** | Python / bash | dev host | `milan_soc.py`, the end-station builder, `deploy.sh`, `boot.sh`, `patches/apply.sh` and `crcfbigen` generate, validate, flash and boot the bare-metal artifact set. Host tools are not a target runtime. |
+| **Host tooling** | Python / bash | dev host | `milan_soc.py` (SoC gen), `deploy.sh` (`flash-pair` live-proves and transactionally updates QSPI), `patches/apply.sh`, `crcfbigen` — they **generate, flash and boot** the whole stack. |
 
-The register map (`milan_csr`) is the contract between RTL, bare-metal
-firmware, generated build artifacts and host diagnostics; see
-[REGISTER_MAP.md](../reference/REGISTER_MAP.md). For runtime data/control flow
-see [ARCHITECTURE.md](ARCHITECTURE.md), and for deployment see
+The register map (`milan_csr`) is the contract that stitches three domains together: the RTL
+defines it and every consumer reads it from the build's own `csr.csv`  -  see
+[REGISTER_MAP.md](../reference/REGISTER_MAP.md). For the runtime data/control flow (rather than this
+by-domain view) see [ARCHITECTURE.md](ARCHITECTURE.md); for the boot path,
 [QSPI_FLASHBOOT.md](../integration/QSPI_FLASHBOOT.md).

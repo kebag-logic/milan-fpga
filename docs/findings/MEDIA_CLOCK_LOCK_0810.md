@@ -198,7 +198,7 @@ Two consequences worth keeping:
   the grid was healthy. It was.
 
 **2. "Our timestamps and our samples cannot drift apart" is false.** They
-share a net, not a rate. The PHC adds `PTP_INCR + PTP_ADJ` per tick and ptp4l
+share a net, not a rate. The PHC adds `PTP_INCR + PTP_ADJ` per tick and the servo
 writes `PTP_ADJ` (0x508) continuously to discipline us to the grandmaster,
 while `media_tick_p` counted raw `axis_clk` and ignored it. Our grid-vs-GM
 error is `PTP_ADJ / 0x0A000000 x 1e6` ppm — one register read, and about 1787

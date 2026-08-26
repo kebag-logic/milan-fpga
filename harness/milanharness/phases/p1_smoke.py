@@ -74,7 +74,7 @@ def _smoke(ctx, name: str) -> str:
                     f"0x{board.version_expect:08X} - wrong gateware flashed")
 
     # Host plane: kernel RX and the TS ring must both advance. The TS ring is
-    # the half that the CSR plane cannot see, and the one a stale device tree
+    # the half that the CSR plane cannot see, and the one a stale window map
     # silently breaks.
     r0 = _rx_packets(ctx, board)
     ts0 = csr.t.run(board.ssh, f"devmem {board.dma_ts_offset_csr} 32",

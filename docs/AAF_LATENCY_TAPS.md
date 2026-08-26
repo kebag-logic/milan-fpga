@@ -69,7 +69,7 @@ flowchart LR
   monitor's parse-to-accept verdict.
 * **ACCEPT → DEPKT** (`D1`) is the depacketizer draining the accepted PDU.
 * **DEPKT → PCM_RING** (`D2`) is the write into the `_PCMRingNxN` DRAM ring
-  the ALSA card / PipeWire source consume.
+  the host-side ring consumer drains.
 * The final **I2S DAC playout** stage is FIFO-fill dominated (the CDC pair
   FIFO decouples PDUs from DAC frames), so it is characterised by the
   `I2SPB_STAT` fill/converged rails rather than a delta here.

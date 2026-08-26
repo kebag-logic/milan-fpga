@@ -118,7 +118,7 @@ rules=[
  "Verify every constraint in the routed .dcp and every sim monitor's clock domain — both lied once today.",
  "--coherent-dma is mandatory for the NIC; it is NOT implied by --all-blocks.",
  "With IOB-packed TX FFs (skew≈0) use --gtx-tx-invert: edge-aligned = hold-marginal (25-40% corrupt frames); mid-bit = 20/20 pings, 0 CRC errors.",
- "Linux skbs are IP-aligned (data%8==2) — an 8-byte-word DMA needs an aligned bounce buffer or frames shift 2 bytes on the wire.",
+ "Host stacks hand over IP-aligned buffers (data%8==2) — an 8-byte-word DMA needs an aligned bounce buffer or frames shift 2 bytes on the wire.",
 ]
 yy=ky+22
 for r in rules:

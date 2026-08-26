@@ -11,7 +11,7 @@ source we actually build  -  `pythondata-cpu-vexiiriscv/.../ext/VexiiRiscv/src/m
 
 ## Contents
 
-- **[0. Why this exists](#0-why-this-exists)** -- The one-paragraph framing: the RX wall is serial cold-miss latency at ~1424 ns each, and the question is whether those can overlap. Names the historical culprit -- the retired LiteX "linux" variant (#259) used `lsuL1RefillCount = 1`, which made a cache its own author calls non-blocking behave as a blocking one.
+- **[0. Why this exists](#0-why-this-exists)** -- The one-paragraph framing: the RX wall is serial cold-miss latency at ~1424 ns each, and the question is whether those can overlap. Names the culprit -- the cached VexiiRiscv variant ships `lsuL1RefillCount = 1`, which makes a cache its own author calls non-blocking behave as a blocking one.
 - **[1. The LSU and its L1 D-cache at a glance](#1-the-lsu-and-its-l1-d-cache-at-a-glance)** -- The geometry table with a source citation per row (4 ways × 64 sets × 64 B = 16 KB). The fact that makes the whole lever attractive: refill slots are flip-flop state machines, not RAM, so 1 → 8 costs **0 BRAM**.
 - **[2. The load pipeline and what "miss" means](#2-the-load-pipeline-and-what-miss-means)** -- What a miss actually does here, which is not stall: it allocates a slot and raises a REDO so the load replays from its own PC until the line lands. The flowchart isolates the single genuinely blocking condition -- every slot busy -- which at `refillCount=1` is reached by the *second* miss.
 - **[3. The refill engine  -  the "8 refills"](#3-the-refill-engine-----the-8-refills)** -- Slot fields and the five-stage lifecycle, line-cited. Then the one Scala line that decides blocking vs non-blocking, and the four hazards the engine has to cover -- including the `ackTimer` that stops two harts live-locking on the same line.
@@ -27,14 +27,14 @@ The RX −P2 wall is **serial cold-miss latency**: HW DMAs each frame to DRAM, t
 touch always misses, and each miss pays ~1424 ns (≈50 % TLB + 50 % DRAM,
 [`LATENCY_INVESTIGATION.md`](../findings/LATENCY_INVESTIGATION.md)). The question was whether we can *overlap* those misses instead of
 paying them one-at-a-time. The answer lives in the load/store unit's **refill engine**, whose
-depth is the config knob `lsuL1RefillCount`  -  **1 by default in LiteX's "linux" variant, which
+depth is the config knob `lsuL1RefillCount`  -  **1 by default in the cached variant, which
 makes the D-cache blocking.** This doc explains the machinery that knob controls.
 
 ---
 
 ## 1. The LSU and its L1 D-cache at a glance
 
-The core is **VexiiRiscv "linux"  -  a single-issue, in-order RV64GC-minus core**
+The core is **the cached VexiiRiscv variant  -  a single-issue, in-order RV64GC-minus core**
 (`core.py:257`, no C/F/D). Its data L1 is described by its own author as
 (`LsuL1Plugin.scala:64`):
 
@@ -359,7 +359,7 @@ is landing the DMA payload warm (DDIO) so the copy stops reading DRAM cold.
 
 ## 8. Reproduce / re-tune
 
-Historical (retired #259): this campaign tuned the Linux-era cached profile.
+Historical (retired #259): this campaign tuned the host-era cached profile.
 The bare-metal CLI refuses that profile's cache/scala knobs and its flash
 manifest, so the argv below is the measured record, not a runnable recipe
 (the retired flash-manifest arg is elided).

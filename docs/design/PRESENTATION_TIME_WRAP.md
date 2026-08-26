@@ -237,7 +237,7 @@ alternation; the record does not explain its rate.
 flowchart TD
   A["grandmaster power-cycled, for a flash"] --> B["the PHC counts from boot, not from an epoch"]
   B --> C["domain time steps BACKWARDS by the grandmaster's whole previous uptime"]
-  C --> D["the talker's ptp4l is clientOnly with no step_threshold: it can slew, never step"]
+  C --> D["the talker's time owner is client-only with no step threshold: it can slew, never step"]
   D --> E["frequency adjustment pinned at the rail, measured -10,004 ppm"]
   E --> F["the offset GROWS: 82,040 s to 216,446 s over about 30 h"]
   F --> G["216,446 s = 50,395 whole laps of the 4.294967296 s ring"]

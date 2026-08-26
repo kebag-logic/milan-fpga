@@ -40,7 +40,7 @@
 > entity answered.
 >
 > **Descriptor enumeration is reachable once the descriptor image is in
-> DRAM.** The tracked builder/rootfs handoff supplies it on an explicit
+> DRAM.** The tracked builder handoff supplies it on an explicit
 > deployment transfer; inspection-only/custom flows that skip that handoff
 > remain empty. In that state every
 > `READ_DESCRIPTOR` answers `BAD_ARGUMENTS` — the microprogram range-checks

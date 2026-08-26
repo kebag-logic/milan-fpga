@@ -3,7 +3,7 @@
 Status: **PASS (targeted rebase regression)**. Scope is exactly what is named
 below: the lwSRP RTL family affected by the new base `3c82068d` (listener
 counters / lwSRP walker) plus the BDD conformance layer. **This is NOT the full
-55-suite Verilator sweep** and does not prove Linux boot, virtual-wire behavior,
+55-suite Verilator sweep** and does not prove board boot, virtual-wire behavior,
 or hardware timing.
 
 ## Contents

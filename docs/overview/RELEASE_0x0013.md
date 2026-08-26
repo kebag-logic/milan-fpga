@@ -39,7 +39,7 @@ both are maintained with the RTL and win over this page.
 - **[3. Control traffic is classified by destination MAC — and it ships ON](#3-control-traffic-is-classified-by-destination-mac--and-it-ships-on)** -- Why a documented queue row was dead on the wire for months: MAAP/MSRP/MVRP and the 1722.1 trio are untagged and carry no PCP, so a PCP-keyed table could never route them. Now keyed on reserved DMAC. `CLS_CTRL` reads `0x5` at reset, and clearing bit 2 restores the old wire behaviour bit-for-bit -- a clean bisect lever.
 - **[4. lwSRP NxN — every t>0 talker row had been refused](#4-lwsrp-nxn--every-t0-talker-row-had-been-refused)** -- An off-by-a-table-size: rows sized `max(L,T)` while the window maps talker *t* to row `(L−1)+t`, so every talker above t=0 sat past the end and had its admission gate pinned shut. The observable improvement is that an out-of-range row now reads `0xDEAD` instead of silently aliasing row 0's reservation.
 - **[5. RMON counts again — and now tells you when it does not](#5-rmon-counts-again--and-now-tells-you-when-it-does-not)** -- `i_mac_events` was tied to 0 at both SoC wiring sites, so the whole STAT window read zero for months while every testbench passed. The durable half is `STATS_CAP` (`0x204`): a per-lane mask saying whose zero is a measurement. Also the counter views now saturate rather than truncate -- a real 51,523 mismatch was 79 % of the way to a roll that would have counted *down*.
-- **[6. The playback chain reaches the line-out](#6-the-playback-chain-reaches-the-line-out)** -- The ALSA playback ring previously had no route to the DAC at all. The crossbar gained a host-ring source and the feed mux now picks the DAC's source *and its pace*, so a playback ring reaches the line-out with no inbound stream. Additive: `CHMAP_CTRL[0] = 0` is bit- and cycle-identical to before.
+- **[6. The playback chain reaches the line-out](#6-the-playback-chain-reaches-the-line-out)** -- The playback ring previously had no route to the DAC at all. The crossbar gained a host-ring source and the feed mux now picks the DAC's source *and its pace*, so a playback ring reaches the line-out with no inbound stream. Additive: `CHMAP_CTRL[0] = 0` is bit- and cycle-identical to before.
 - **[7. New instrumentation you did not have](#7-new-instrumentation-you-did-not-have)** -- Three read-only probe groups in one table. The important one is `APRB` at `0x8B4`: every other RX counter lives *downstream* of the stream-table match, so a listener accepting nothing read zero everywhere with no way to separate parse failure from match failure -- which is why Section 1 took so long.
 - **[8. Landed but not reachable from software yet](#8-landed-but-not-reachable-from-software-yet)** -- Three things in the tree that you cannot use yet, stated so nobody hunts for a missing register: the persistence journal (CSR group specified, not wired), the CTF fault trace (its target partition has never been booted), and AES3 (no shipping board config selects it).
 - **[9. Build, CI and the builder](#9-build-ci-and-the-builder)** -- Four gate changes. Verilator is pinned and built from source for a measured reason -- 5.020 cannot build four suites and 5.032 reads back zeros on six `aecp` checks. The builder now writes the `0x680` reset words into a header `` `include ``-d by `milan_csr.sv`, so config and register resets cannot drift, and the tie-off check went from informational to failing.
@@ -55,7 +55,7 @@ both are maintained with the RTL and win over this page.
 | have software that reads `CAP.num_queues` or writes `CLS_TC_QUEUE_MAP` | **it will break.** The queue count and the field packing both changed. See Section 2. |
 | have software that trusts a zero in the `0x210`–`0x230` STAT window | read the new `STATS_CAP` (`0x204`) first. See Section 5. |
 | run more than one talker with lwSRP enabled | every `t>0` talker row was being refused. See Section 4. |
-| want audio out of the line-out from an ALSA playback ring | that path did not exist before `0x000E`. See Section 6. |
+| want audio out of the line-out from a playback ring | that path did not exist before `0x000E`. See Section 6. |
 | just want your CI green | the sweep, the yosys check and the conformance suite are all gates now. See Section 9. |
 
 **Everything in Sections 1–7 is gateware.** None of it reaches a board without a
@@ -252,7 +252,7 @@ have counted **down**.
 
 ## 6. The playback chain reaches the line-out
 
-`VERSION 0x000E`. `KL_pcm_tx` — the ALSA playback ring — had **no route to the
+`VERSION 0x000E`. `KL_pcm_tx` — the playback ring — had **no route to the
 DAC at all**. The render crossbar gained a host-ring source (a `src` bit in the
 map entry), and `KL_i2s_feed_mux` now picks the DAC source **and its pace**: the
 listener tap, or the render crossbar driven by the 48 kHz media tick. So a

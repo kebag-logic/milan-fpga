@@ -5,9 +5,9 @@
 <text x="24" y="55" font-size="12" fill="#546E7A">MTU stays 1500 everywhere; the CPU leaves the per-packet path — that is the whole architecture</text>
 <text x="24" y="86" font-size="14" fill="#1565C0" font-weight="bold">① TODAY&#x27;S ENDPOINT DATAPATH + the three hooks (A = AVTP engine, T = TSO, R = RSC)</text>
 <rect x="24" y="100" width="120" height="74" rx="7" fill="#ECEFF1" stroke="#546E7A" stroke-width="2"/>
-<text x="84.0" y="117" font-size="12.5" font-weight="bold" fill="#212121" text-anchor="middle">CPU / Linux</text>
+<text x="84.0" y="117" font-size="12.5" font-weight="bold" fill="#212121" text-anchor="middle">CPU / host</text>
 <text x="84.0" y="132" font-size="11" fill="#37474F" text-anchor="middle">sockets</text>
-<text x="84.0" y="146" font-size="11" fill="#37474F" text-anchor="middle">PipeWire</text>
+<text x="84.0" y="146" font-size="11" fill="#37474F" text-anchor="middle">media apps</text>
 <rect x="184" y="100" width="150" height="74" rx="7" fill="#C8E6C9" stroke="#2E7D32" stroke-width="2"/>
 <text x="259.0" y="117" font-size="12.5" font-weight="bold" fill="#212121" text-anchor="middle">TX ring DMA</text>
 <text x="259.0" y="132" font-size="11" fill="#37474F" text-anchor="middle">AXI read bursts</text>
@@ -53,7 +53,7 @@
 <text x="1030.0" y="198" font-size="11" fill="#37474F" text-anchor="middle">taps the classifier: matched stream IDs never</text>
 <text x="1030.0" y="212" font-size="11" fill="#37474F" text-anchor="middle">reach the ring/stack. RX: strip AVTP, write raw</text>
 <text x="1030.0" y="226" font-size="11" fill="#37474F" text-anchor="middle">samples + presentation ts into per-stream sample</text>
-<text x="1030.0" y="240" font-size="11" fill="#37474F" text-anchor="middle">rings (PipeWire mmaps; wakes per PERIOD ~375/s,</text>
+<text x="1030.0" y="240" font-size="11" fill="#37474F" text-anchor="middle">rings (the consumer mmaps; wakes per PERIOD ~375/s,</text>
 <text x="1030.0" y="254" font-size="11" fill="#37474F" text-anchor="middle">not per packet 8000/s). TX: samples -&gt; AVTP</text>
 <text x="1030.0" y="268" font-size="11" fill="#37474F" text-anchor="middle">frames + gPTP ts, CBS-shaped. CPU media cost ~0.</text>
 <path d="M564 164 L880 210" stroke="#2E7D32" stroke-width="2.2" fill="none" marker-end="url(#g)"/>

@@ -13,7 +13,7 @@
 # Never prompts, never reads stdin. Detach it however you like:
 #
 #   setsid nohup harness/run.sh > /dev/null 2>&1 &
-#   systemd-run --user --unit=milan-campaign harness/run.sh
+#   setsid --fork harness/run.sh
 #
 # INTERPRETER. Analysis needs numpy, which is not installed system-wide on the
 # dev box. Resolution order:

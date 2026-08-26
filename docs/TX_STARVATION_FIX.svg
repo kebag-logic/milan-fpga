@@ -136,5 +136,5 @@
 <circle cx="36" cy="815" r="3" fill="#1565C0"/>
 <text x="48" y="819" font-size="12.5" fill="#263238" text-anchor="start">With IOB-packed TX FFs (skew≈0) use --gtx-tx-invert: edge-aligned = hold-marginal (25-40% corrupt frames); mid-bit = 20/20 pings, 0 CRC errors.</text>
 <circle cx="36" cy="836" r="3" fill="#1565C0"/>
-<text x="48" y="840" font-size="12.5" fill="#263238" text-anchor="start">Linux skbs are IP-aligned (data%8==2) — an 8-byte-word DMA needs an aligned bounce buffer or frames shift 2 bytes on the wire.</text>
+<text x="48" y="840" font-size="12.5" fill="#263238" text-anchor="start">Host stacks hand over IP-aligned buffers (data%8==2) — an 8-byte-word DMA needs an aligned bounce buffer or frames shift 2 bytes on the wire.</text>
 </svg>

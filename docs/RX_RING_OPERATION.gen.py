@@ -118,7 +118,7 @@ box(1060,dyy,300,96,PURPLE[0],"#6A1B9A","release space","rd = (rd + 8 + len) & m
 arrow(340,dyy+48,376,dyy+48); arrow(680,dyy+48,716,dyy+48); arrow(1020,dyy+48,1056,dyy+48)
 box(40,dyy+116,1320,58,GREY[0],GREY[1],"CSR block (kl-eth regs.h names, byte offsets in the dma-rx window @ 0xf000301c)",
  ["+0x00 RING_BASE_HI  +0x04 RING_BASE_LO  +0x08 RING_MASK  +0x0c RING_WR (RO)  +0x10 RING_RD (RW)  +0x14 RING_EN  +0x18 RING_DROPPED (RO)",
-  "identical footprint to the old simple-mode block -> device tree and driver probe unchanged"])
+  "identical footprint to the old simple-mode block -> the published map and probe are unchanged"])
 o.append('</svg>')
 
 def drawio():

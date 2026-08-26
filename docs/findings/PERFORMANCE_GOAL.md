@@ -355,8 +355,8 @@ structural: `--milan-clk-freq` keeps the **datapath at 100 MHz** (only sys/CPU m
 This is
 the measure-don't-assume payoff: the clean CPU-bound story at 452 (reader 66 % idle) does
 **not** translate to linear clock scaling; the operating-point ceiling is a CPU/datapath/TCP
-*mix*, not pure CPU. Caveat: the board ran a 100 MHz-timebase dtb (its own clock miscalibrated
-12.5 %); peer-side rates are unaffected, but a fully-clean run wants the dtb rebuilt for 112.5.
+*mix*, not pure CPU. Caveat: the board ran a 100 MHz-timebase window map (its own clock miscalibrated
+12.5 %); peer-side rates are unaffected, but a fully-clean run wants that map rebuilt for 112.5.
 
 **Consequence for the goal:** neither direction reaches 500 by clock alone. TX needs the
 datapath at a higher clock too (the dense-datapath timing problem that drove the split-clock

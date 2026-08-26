@@ -36,7 +36,7 @@ says the ordering is deliberate: promiscuous means "hand me the wire", so it
 outranks an explicit TCAM *drop* entry, which is filtering policy.
 
 **Root cause, software half (the actual defect).** `S50milan` set
-`ip link set eth0 promisc on` at boot (the 07-24 workaround for ptp4l seeing
+promiscuous mode at boot (the 07-24 workaround for the time daemon seeing
 zero PDUs) — and *the same script*, a few lines later, installed a TCAM
 stream-DMAC drop. The first line voided the second **on every build that ever
 shipped**. Nobody noticed because the failure mode is not an error; it is just

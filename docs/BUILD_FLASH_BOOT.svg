@@ -21,7 +21,7 @@
 <rect x="40" y="541" width="440" height="64" rx="8" fill="#ffffff" stroke="#2E7D32" stroke-width="1.6" stroke-dasharray="5 3"/>
 <text x="54" y="561" font-size="11.5" font-weight="bold" fill="#2E7D32">OUTPUT</text>
 <text x="54" y="579" font-size="12.5" fill="#212121">gateware .bit + raw aem_desc.bin</text>
-<text x="54" y="596" font-size="12.5" fill="#212121">(no Linux boot images)</text>
+<text x="54" y="596" font-size="12.5" fill="#212121">(no second-stage boot images)</text>
 <line x1="486" y1="334" x2="526" y2="334" stroke="#455A64" stroke-width="3.5" marker-end="url(#fa)"/>
 <rect x="534" y="150" width="440" height="369" rx="10" fill="#FFF3E0" stroke="#EF6C00" stroke-width="2"/>
 <rect x="534" y="150" width="440" height="56" rx="10" fill="#EF6C00" stroke="#EF6C00"/>
@@ -31,8 +31,8 @@
 <rect x="546" y="218" width="416" height="30" rx="5" fill="#263238"/>
 <text x="555" y="238" font-size="12.5" font-family="Menlo,Consolas,monospace" fill="#B9F6CA">INSTALLED_BUILD=&lt;old&gt; build.sh flash ax7101:&lt;new&gt;</text>
 <text x="552" y="275" font-size="13" fill="#37474F">live-read QSPI@0; match exact old/new .bit</text>
-<text x="552" y="312" font-size="13" fill="#37474F">materialize target AEM; enforce binding + slot size</text>
-<text x="552" y="349" font-size="13" fill="#37474F">write paired AEM, then target bitstream last</text>
+<text x="552" y="312" font-size="13" fill="#37474F">prepare target; CRC-check the live image set</text>
+<text x="552" y="349" font-size="13" fill="#37474F">software/full→fabric/bare: bit, then AEM</text>
 <text x="552" y="386" font-size="13" fill="#37474F">every write uses --verify</text>
 <text x="552" y="423" font-size="13" fill="#37474F">retry recognizes source or target commit bit</text>
 <text x="552" y="460" font-size="13" fill="#37474F">direct partial writes: recovery escape only</text>
@@ -54,7 +54,7 @@
 <text x="1046" y="349" font-size="13" fill="#37474F">AEM length + CRC verified into DRAM</text>
 <text x="1046" y="386" font-size="13" fill="#37474F">entity enables only after valid AEM</text>
 <text x="1046" y="423" font-size="13" fill="#37474F">fabric gPTP owns PHC + publication</text>
-<text x="1046" y="460" font-size="13" fill="#37474F">no rootfs · ptp4l · phc2sys · statd</text>
+<text x="1046" y="460" font-size="13" fill="#37474F">no host image · no time daemon · no mirrors</text>
 <rect x="1028" y="541" width="440" height="64" rx="8" fill="#ffffff" stroke="#1565C0" stroke-width="1.6" stroke-dasharray="5 3"/>
 <text x="1042" y="561" font-size="11.5" font-weight="bold" fill="#1565C0">OUTPUT</text>
 <text x="1042" y="579" font-size="12.5" fill="#212121">cacheless RV32 bare-metal control,</text>
@@ -66,7 +66,7 @@
 <text x="1540" y="177" font-size="19" font-weight="bold" fill="#ffffff">4 · VERIFY</text>
 <text x="1540" y="195" font-size="12.5" fill="#ffffff" fill-opacity="0.92">on the bench</text>
 <rect x="1534" y="218" width="416" height="30" rx="5" fill="#263238"/>
-<text x="1543" y="238" font-size="12.5" font-family="Menlo,Consolas,monospace" fill="#B9F6CA">MILAN_UART=/dev/&lt;uart&gt; hostplane_smoke.sh</text>
+<text x="1543" y="238" font-size="12.5" font-family="Menlo,Consolas,monospace" fill="#B9F6CA">MILAN_PROFILE=baremetal hostplane_smoke.sh</text>
 <text x="1540" y="275" font-size="13" fill="#37474F">UART reports VERSION 0x00020055</text>
 <rect x="1534" y="292" width="416" height="30" rx="5" fill="#263238"/>
 <text x="1543" y="312" font-size="12.5" font-family="Menlo,Consolas,monospace" fill="#B9F6CA">focused RTL + processor suites</text>

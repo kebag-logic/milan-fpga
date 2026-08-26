@@ -9,7 +9,7 @@
 # Everything else belongs in the host log, which is the primary record and is
 # complete on its own.
 #
-# IT DOES NOTHING TODAY, ON PURPOSE. No deployed device tree carries an mtd
+# IT DOES NOTHING TODAY, ON PURPOSE. No deployed image carries an mtd
 # node and no mtd driver is known to bind to this flash controller in this
 # kernel configuration, so the writable area this would use does not exist.
 # The falsifier is `cat /proc/mtd` after a flash and boot; when a partition

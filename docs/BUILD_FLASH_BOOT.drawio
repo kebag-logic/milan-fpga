@@ -12,13 +12,13 @@ $ --with-spiflash --flashboot baremetal
   GATE: WNS ≥ 0" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#2E7D32;fontSize=13;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#212121;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="40" y="150" width="440" height="369" as="geometry"/></mxCell>
 <mxCell id="n4" value="OUTPUT
 gateware .bit + raw aem_desc.bin
-(no Linux boot images)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#2E7D32;fontSize=12;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#212121;" vertex="1" parent="1"><mxGeometry x="40" y="541" width="440" height="64" as="geometry"/></mxCell>
+(no second-stage boot images)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#2E7D32;fontSize=12;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#212121;" vertex="1" parent="1"><mxGeometry x="40" y="541" width="440" height="64" as="geometry"/></mxCell>
 <mxCell id="n5" value="2 · FLASH   —   JTAG → QSPI (16 MB)
 
 $ INSTALLED_BUILD=&lt;old&gt; build.sh flash ax7101:&lt;new&gt;
   live-read QSPI@0; match exact old/new .bit
-  materialize target AEM; enforce binding + slot size
-  write paired AEM, then target bitstream last
+  prepare target; CRC-check the live image set
+  software/full→fabric/bare: bit, then AEM
   every write uses --verify
   retry recognizes source or target commit bit
   direct partial writes: recovery escape only
@@ -34,13 +34,13 @@ $ power on / power-cycle
   AEM length + CRC verified into DRAM
   entity enables only after valid AEM
   fabric gPTP owns PHC + publication
-  no rootfs · ptp4l · phc2sys · statd" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1565C0;fontSize=13;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#212121;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="1028" y="150" width="440" height="369" as="geometry"/></mxCell>
+  no host image · no time daemon · no mirrors" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1565C0;fontSize=13;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#212121;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="1028" y="150" width="440" height="369" as="geometry"/></mxCell>
 <mxCell id="n8" value="OUTPUT
 cacheless RV32 bare-metal control,
 Milan fabric live" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#1565C0;fontSize=12;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#212121;" vertex="1" parent="1"><mxGeometry x="1028" y="541" width="440" height="64" as="geometry"/></mxCell>
 <mxCell id="n9" value="4 · VERIFY   —   on the bench
 
-$ MILAN_UART=/dev/&lt;uart&gt; hostplane_smoke.sh
+$ MILAN_PROFILE=baremetal hostplane_smoke.sh
   UART reports VERSION 0x00020055
 $ focused RTL + processor suites
   traceability + builder gates

@@ -55,7 +55,7 @@ The current command-surface claim is checked against the
 > base, so no descriptor ROM or store is charged to LUT or BRAM anywhere in the
 > replacement), and the mass Vivado constant-propagated away while that face
 > was tied off is back and un-repriced. The tracked builder generates the DRAM
-> image and the board rootfs loads it with `aemi-load` before entity enable.
+> image and the board loads it with `aemi-load` before entity enable.
 > Custom integrations that omit that step fail closed with `BAD_ARGUMENTS`.
 >
 > What is NOT changed by any of that: the governing fact in the next section

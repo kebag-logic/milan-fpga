@@ -98,7 +98,6 @@
         "README.md",
         "docs/AAF_LATENCY_TAPS.md",
         "docs/GLOSSARY.md",
-        "docs/HOWTO_PLAY_MUSIC.md",
         "docs/MILAN_V12_ROADMAP.md",
         "docs/design/AREA_BUDGET.md",
         "docs/design/TIME_SYNC.md",
@@ -145,7 +144,6 @@
         "README.md",
         "docs/AAF_LATENCY_TAPS.md",
         "docs/ENDSTATION_BUILDER.md",
-        "docs/HOWTO_PLAY_MUSIC.md",
         "docs/MILAN_V12_ROADMAP.md",
         "docs/fpga/FPGA_DESIGN.md",
         "docs/integration/INTEGRATION_GUIDE.md",
@@ -252,7 +250,6 @@
       "documents": [
         "README.md",
         "docs/CHANNEL_MAP_64.md",
-        "docs/HOWTO_PLAY_MUSIC.md",
         "docs/MILAN_V12_ROADMAP.md",
         "docs/fpga/FPGA_DESIGN.md",
         "docs/integration/INTEGRATION_GUIDE.md",
@@ -308,7 +305,7 @@
     {
       "id": "soc.baremetal-profile",
       "status": "implemented",
-      "summary": "The shipping AX7101 profile is one cacheless RV32I VexiiRiscv hart in machine mode with ROM firmware and no MMU or Linux.",
+      "summary": "The shipping AX7101 profile is one cacheless RV32I VexiiRiscv hart in machine mode with ROM firmware, no MMU and no operating system.",
       "documents": [
         "docs/integration/BAREMETAL_FIRMWARE.md",
         "docs/integration/BUILDING.md",
@@ -320,8 +317,8 @@
     },
     {
       "id": "host.sound-card-option",
-      "status": "not-supported",
-      "summary": "The Linux PCM DMA, device-tree, reserved-ring, playback and host-cluster option is retired and refused under #259; fabric audio remains.",
+      "status": "implemented",
+      "summary": "The host PCM DMA, published node, reserved-ring, playback and host-cluster surfaces are optional and default off without removing fabric audio.",
       "documents": [
         "docs/integration/BAREMETAL_FIRMWARE.md",
         "docs/integration/BUILDING.md",

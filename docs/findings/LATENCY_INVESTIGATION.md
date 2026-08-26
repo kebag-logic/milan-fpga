@@ -139,7 +139,7 @@ and compare frames-at-MAC (fabric `rx_wire` telemetry) vs frames-delivered (`rx_
 
 ```
 rx_wire  (MAC)     = 171,942 frames/s   ← arriving on the wire
-rx_packets (Linux) =  14,355 frames/s   ← delivered to the stack   (~7-10 % through)
+rx_packets (host)  =  14,355 frames/s   ← delivered to the stack   (~7-10 % through)
 rx_missed (ringfull)= 260,076 frames/s  ← HW-dropped, ring full
 ```
 

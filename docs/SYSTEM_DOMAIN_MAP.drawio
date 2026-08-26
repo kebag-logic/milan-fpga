@@ -7,8 +7,8 @@
 • LiteX BIOS (ROM): console + CRC&#x27;d copy of the raw AEM image from its QSPI slot" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#B2DFDB;strokeColor=#00796B;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="30" y="90" width="900" height="120" as="geometry"/></mxCell>
 <mxCell id="n4" value="Retired software stack (#259, historical)   |   no longer shipped · kept in git history
 
-• Linux kernel + kl-eth driver · OpenSBI · device tree · buildroot rootfs
-• PipeWire/alsa userspace · retired linuxptp owner (#259, historical)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8BBD0;strokeColor=#AD1457;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="30" y="226" width="900" height="120" as="geometry"/></mxCell>
+• host kernel + NIC driver · supervisor firmware · published node · image build
+• host media userspace · the software gPTP owner" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8BBD0;strokeColor=#AD1457;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="30" y="226" width="900" height="120" as="geometry"/></mxCell>
 <mxCell id="n5" value="SoC integration: LiteX / Migen   |   dev host · Python → Verilog  (sw/litex/milan_soc.py)
 
 • MilanSoC (top: VexiiRiscv RV32 + DDR3 + NIC + flash)   ·   _CRG (PLL/clocks/CDC)
@@ -17,7 +17,7 @@
 <mxCell id="n6" value="Milan datapath: RTL   |   FPGA fabric · SystemVerilog / Verilog  (hdl/)
 
 • common: milan_top · milan_datapath · rx_mac_filter · tcam · milan_dma_wrapper · cdc_*
-• csr: milan_csr  (AXI-Lite ABI; former driver + DT consumers retired #259)
+• csr: milan_csr  (the AXI-Lite register ABI shared with the driver + DT)
 • 802.1Q CBS: credit_based_shaper · traffic_classifier · traffic_class_map ·
 •             traffic_controller_802_1q · traffic_queues · traffic_shaping_core
 • PTP: ptp_ts_top · ptp_ts_core · timestamp_counter · ptp_csr_sync
@@ -30,7 +30,7 @@
 • events: ethernet_events · event_counter" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#BBDEFB;strokeColor=#1565C0;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="30" y="530" width="900" height="440" as="geometry"/></mxCell>
 <mxCell id="n7" value="Vendored IP   |   FPGA fabric · 3rd-party cores
 
-• VexiiRiscv (cacheless product RV32I; Linux/MMU + NaxRiscv historical #259)   ·   LiteEth (MAC + GMII/RGMII PHY)
+• VexiiRiscv (product RV32/sv32 CPU, SpinalHDL; NaxRiscv historical)   ·   LiteEth (MAC + GMII/RGMII PHY)
 • LiteDRAM (DDR3, A7DDRPHY)   ·   LiteSPI (QSPI flash)   ·   verilog-axis (Forencich)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1BEE7;strokeColor=#6A1B9A;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="30" y="986" width="900" height="120" as="geometry"/></mxCell>
 <mxCell id="n8" value="Board / silicon   |   physical
 
@@ -42,5 +42,5 @@
 • endstation_builder.py: AEM image + fabric gPTP ROM from ONE config
 • deploy.sh: build / load / flash-pair (live QSPI owner proof)
 • build.sh: named bare-metal configs + flash transaction
-• crcfbigen: retired Linux FBI wrapper (#259, historical)
-• retired (#259): milan_dt.py, boot.sh, patches/apply.sh (Linux era)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF9C4;strokeColor=#F9A825;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="970" y="90" width="500" height="248" as="geometry"/></mxCell></root></mxGraphModel></diagram></mxfile>
+• crcfbigen: FBI image wrapper
+• retired (#259): the host-era generators, boot script and patch step" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF9C4;strokeColor=#F9A825;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="970" y="90" width="340" height="248" as="geometry"/></mxCell></root></mxGraphModel></diagram></mxfile>

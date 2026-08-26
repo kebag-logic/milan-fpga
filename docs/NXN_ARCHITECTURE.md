@@ -203,12 +203,12 @@ frame; the read side emits `{s, pcm beats}`.
 ### 1.3 PCM routing policy
 
 Each listener context carries a 2-bit `route` field of INDEPENDENT flags
-(reworked from the P3 exclusive enum per the ALSA driver design feedback,
+(reworked from the P3 exclusive enum per the sound-card design feedback,
 the-private-test-repo `fpga/docs/ALSA_DRIVER_DESIGN.md` open question 4):
 
 | bit | Flag | Meaning |
 |-----|------|---------|
-| 0 | `DMA` | Depacketized PCM written to the per-stream PCM DMA ring in DRAM (ring base + `s`·ring_stride, the existing LiteX PCM-ring DMA generalized with an index) — the capture-PCM feed for roadmap item 7 (ALSA). |
+| 0 | `DMA` | Depacketized PCM written to the per-stream PCM DMA ring in DRAM (ring base + `s`·ring_stride, the existing LiteX PCM-ring DMA generalized with an index) — the capture-PCM feed for roadmap item 7 (the host consumer). |
 | 1 | `RENDER` | Feeds the physical render path: LPF (x1, engages per today's `chans==2` rule) → `KL_i2s_playback`/TDM serializer. **Exactly one stream renders; if several carry the flag, the lowest-indexed one wins (deterministic rule, RTL-enforced).** |
 
 `0b00` = NULL (discarded — monitor still counts, [M-5.3.8.10] counters run
@@ -992,7 +992,7 @@ shape** (§4 T6). Levers, in order, if a shape refuses to close:
    placer-overflow victim of the first 8×8+chmap build.
 3. Compile-time `N_RENDER=1` pruning already assumed (LPF + playback walker
    x1); further: compile out DMA-ring writers for shapes that don't enable
-   ALSA capture yet. **Measured (2026-07-26) — see §6.2 before spending
+   host capture yet. **Measured (2026-07-26) — see §6.2 before spending
    this one: the LPF is a 428-LUT prize, 20× smaller than levers 1–2.**
 4. Area-70 playbook trims (sequentialize any remaining parallel cones —
    T5's pattern; `tx_sf` 512 lever from the AX seed-miss round).
@@ -1094,7 +1094,7 @@ CBS slope engine), and lever 2 moved **8 159 FFs + 3 177 LUTs** out of
 
 Scope matters as much as size. `KL_pcm_lpf` sits on the **render path
 only** (`milan_datapath` → I2S DAC). Every digital acceptance surface —
-the PCM DMA ring, ALSA capture, the channel-map walk evidence, the wire
+the PCM DMA ring, host capture, the channel-map walk evidence, the wire
 tone comparison — is taken *upstream* of it, so removing it changes no
 measurement in this repo's evidence trail. It is also **already
 runtime-bypassable** (`LPF_CTRL 0x72C[0]` → `cfg_lpf_enable`, default on),

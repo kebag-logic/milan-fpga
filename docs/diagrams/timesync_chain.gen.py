@@ -36,7 +36,7 @@ N = {
  "tsring":  (675,116,200,84,"timestamp transport","RX side FIFO + TX seq/type\nno software pairing race",BLUE,0),
  "kleth":   (910,116,190,84,"KL_gptp_engine","BTCA + Pdelay + Sync\nPHC servo in fabric",BLUE,0),
  "pub":     (1135,116,180,84,"atomic publish bank","GM + parent + flags\npdelay + offset + annq",BLUE,0),
- "hwnote":  (1350,116,370,84,"product ownership (0x0002_0055)","fabric is the ONE PHC/protocol/publication owner (#259)\nthe linuxptp software owner is retired (historical)",GREY,1),
+ "hwnote":  (1350,116,370,84,"product ownership (0x0002_0055)","fabric is the ONE PHC/protocol/publication owner (#259)\nthe software time owner is retired (historical)",GREY,1),
  # row 2 - the PHC hub + its public consumers (the retired software-owner
  # comparison boxes left with #259: no image runs a second owner)
  "phc":     (40,290,330,96,"PHC - timestamp_counter","Q8.24 ns accumulator, datapath clock\nCSR 0x500 CTRL - 0x504 INCR - 0x508 ADJ - 0x520 CMD",GOLD,0),

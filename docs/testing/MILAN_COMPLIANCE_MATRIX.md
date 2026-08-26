@@ -41,7 +41,7 @@
 >
 > **What the landing DID make reachable, and it is not on this page:**
 > descriptor-read enumeration — and only once a descriptor image is loaded into
-> DRAM. The tracked builder/rootfs deployment handoff now supplies it when
+> DRAM. The tracked builder deployment handoff now supplies it when
 > explicitly requested; an inspection-only/custom flow that skips the handoff
 > still answers `BAD_ARGUMENTS` (the microprogram checks
 > `configuration_index` against `configurations_count` before it locates, and an
