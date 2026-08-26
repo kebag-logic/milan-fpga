@@ -277,28 +277,16 @@ NaxRiscv and the same `add_milan_datapath()` as the board build.
 Applied **in place** to the active Python env's LiteX/LiteEth/VexiiRiscv
 trees by `patches/apply.sh` (idempotent; **re-run after every LiteX update**).
 
-**This is a required step, not a tuning one.** Upstream LiteX cannot build any
-shape of this design: it has no `baremetal` VexiiRiscv variant, and the
-VexiiRiscv revision it pins rejects the `--l2-*` arguments four of the five
-configs pass. Measured over all five configs on 2026-08-21, a stock install
-elaborates none of them.
+**This is a required step, not a tuning one.** The pinned upstream LiteX tree
+does not contain the cacheless `baremetal` VexiiRiscv variant used here.
 
-`apply.sh` normalises before it applies, so it converges from a partially
-applied tree instead of refusing. It has to: `0003` is diffed on top of
-`0001` and both rewrite the same `boot.c` hunks, and the older per-patch
-check called that state broken. Nothing ran the script end to end, so the
-series had stopped applying for an unknown length of time and two patches had
-drifted from the tree the boards are built from. `test_builder.py` gate 23h
-now reverses the series off the installed trees, re-applies it and requires
-the result to be byte-identical, with a control that removes one patch at a
-time and requires the gate to fail.
+`apply.sh` normalises before it applies, then applies the complete product
+series. `test_builder.py` gate 23h reverses and reapplies the series against
+the installed trees and requires the result to be byte-identical.
 
 | Patch | What it does |
 |---|---|
-| `0001-milan-linux-flashboot.patch` | Adds the `linux_flashboot` BIOS boot method (runs before serialboot; inert without the `MILAN_FLASHBOOT_*` constants that `--with-spiflash` emits) |
 | `0002-liteeth-gmii-tx-clk-invert.patch` | Adds `tx_clk_invert` to `LiteEthPHYGMII` → the `--gtx-tx-invert` flag |
-| `0002-vexiiriscv-l2-depth-args.patch` | Exposes the VexiiRiscv `--l2-down-pending` / `--l2-general-slots` args. **Applied by `apply.sh` since 2026-08-21**: four of the five end-station configs pass them, so without it those four cannot elaborate at all (#185) |
-| `0003-milan-flashboot-xz-kernel.patch` | xz-compressed kernel support in `linux_flashboot`. Diffed **on top of 0001**, which is why apply order is not alphabetical |
 | `0004-vexiiriscv-baremetal-variant.patch` | The LiteX `baremetal` VexiiRiscv variant. Upstream has no such variant, and it is the shipping AX profile |
 | `0005-vexiiriscv-cacheless-litex.patch` | The cacheless iBus/dBus fabric and direct DMA path the bare-metal shape needs at netlist time |
 

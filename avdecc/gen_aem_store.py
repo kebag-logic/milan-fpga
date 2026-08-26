@@ -14,8 +14,8 @@ The historical JSON snapshot declares eight AUDIO_UNIT external ports but no
 EXTERNAL_PORT descriptors. The compatibility model keeps both counts at zero
 so the tree remains closed during controller enumeration.
 
-Byte layouts mirror IEEE 1722.1-2021 clause 7.2 exactly as encoded by the
-reference implementation (pipewire module-avb aecp-aem-descriptors.h).
+Byte layouts mirror IEEE 1722.1-2021 clause 7.2 and are checked against the
+controller-visible descriptor contract.
 
 The ENTITY descriptor's firmware_version (7.2.1 Table 7-2, offset 116, 64
 octets) is DERIVED from the gateware's own VERSION parameter, not declared -
@@ -189,7 +189,7 @@ OUT_FORMATS = [0x0205022000806000]
 #! 48k only (the CRF engine validates base 48000/pull 0 - advertising
 #! unlockable rates is the same honesty violation)
 CRF_FORMATS = [0x041060010000BB80]
-# IDENTIFY control (pipewire aecp-aem-controls.h, byte-exact)
+# IDENTIFY control (byte-exact)
 CTRL_TYPE_IDENTIFY = 0x90E0F00000000001
 CTRL_LINEAR_UINT8 = 0x0001
 
@@ -1503,7 +1503,7 @@ def build_model(spec):
             srcs = p.get("cluster_sources")
             if srcs is None:
                 # default policy (no role pools declared): the port's
-                # clusters are its talker's own ALSA-ring pairs in order -
+                # clusters are its talker's own pair sources in order -
                 # cluster c = ring pair (slot base + c//2), half c%2
                 srcs = [dict(src=3, idxh=0, idx=slotb_str[stream] + c // 2,
                              half=c % 2, valid=slotb_str[stream] + c // 2 < 16)

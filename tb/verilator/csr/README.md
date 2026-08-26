@@ -2,7 +2,7 @@
 
 Self-checking [Verilator](https://verilator.org) harness for
 [`hdl/common/csr/milan_csr.sv`](../../../hdl/common/csr/milan_csr.sv), the memory-mapped
-control/status-register block that gives the Linux driver a way to configure the
+control/status-register block that gives firmware a way to configure the
 TSN datapath (the "memory-mapped configuration" called out in
 [`REQUIREMENTS.md`](../../../REQUIREMENTS.md), `REQ-CSR-*`).
 

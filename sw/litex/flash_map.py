@@ -8,8 +8,6 @@
 lives at which offset.  The flash-map diagram, the trace-segment budget and
 the roundtrip gates read them THROUGH this module, by parsing the SoC source
 rather than importing it, so nothing needs LiteX installed to know the map.
-(`sw/persist/milan_persist_state.py` still carries its own reader; folding it
-in belongs with the persistence lane, not here.)
 
 This reader lived in the retired partition emitter (`sw/dts/`) until #259
 removed that toolkit with the rest of the host stack.  The map it reads is

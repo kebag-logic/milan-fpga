@@ -26,7 +26,7 @@ Tests:
      the exact uninterrupted sequence (data integrity, per-beat);
   3. depth=128, 4 streams interleaved -> tuser routing lands every beat at
      base + s*stride + offset[s] with per-stream sequence integrity and
-     correct offset CSR readback (the layout the ALSA driver consumes).
+     correct offset CSR readback (the hardware ring layout).
 
 Run: cd sw/litex && python3 test_pcm_ring.py
 """
@@ -185,7 +185,7 @@ def test_depth128_clean():
 
 
 def test_nxn_routing():
-    """4-stream tuser routing: the layout truth the ALSA driver consumes"""
+    """4-stream tuser routing: the hardware ring-layout truth."""
     print("[3] depth=128, 4 streams -> per-stream sub-rings + offset CSRs")
     h = Harness(depth=128, n_streams=4)
     res = {}

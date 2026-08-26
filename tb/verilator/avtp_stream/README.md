@@ -9,7 +9,7 @@ frame's Ethernet + AVTP common-stream header and, for AVTP *stream* subtypes
 (AAF/CVF/… with `sv=1`) whose `stream_id` matches a programmable table, emits one
 metadata pulse per frame carrying the matched index, the 64-bit `stream_id`, the
 32-bit presentation timestamp and the subtype. A later increment routes the sample
-payload into that stream's sample ring so PipeWire wakes per audio period, not per
+payload into that stream's sample ring so the consumer wakes per audio period, not per
 packet.
 
 `make` builds and runs. Checks (21): stream-id / presentation-time / subtype / `tv`

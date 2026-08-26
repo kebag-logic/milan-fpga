@@ -6,8 +6,8 @@ The installed owner is not an operator assertion.  It is the owner recorded by
 the layout whose SHA-256 and FPGA-part binding matches an exact parsed Xilinx
 ``.bit`` configuration payload, after that payload has also been matched
 against a live offset-zero QSPI dump. The only supported profile is the
-fabric-owned bare-metal pair; retired Linux/rootfs profiles refuse. This
-module keeps the bit parsing, profile restrictions, ordering decision and
+fabric-owned bare-metal pair. This module keeps the bit parsing, profile
+restrictions, ordering decision and
 readback classification testable without a programmer.
 
 The guarantee is deliberately bounded at completed, verified programmer-write
@@ -202,22 +202,10 @@ def _load_layout(path):
 
 
 def _profile(layout, label):
-    """The one product profile: fabric-owned bare-metal {bitstream, aem}.
-
-    #259 (USER directive 2026-08-25) retires the Linux boot chain and the
-    option-OFF software owner entirely. A layout naming any retired Linux
-    image row, a retired manifest, or any owner other than 'fabric' is not a
-    flashable product artifact and is refused before planning."""
+    """Validate the one product profile."""
     owner = layout["gptp_owner"]
     names = {row["name"] for row in layout["images"]}
     manifest = layout.get("manifest")
-    retired_rows = sorted(names & {"kernel", "opensbi", "dtb", "rootfs"})
-    if retired_rows or manifest in ("full", "kernel"):
-        what = retired_rows or [repr(manifest)]
-        raise TransitionError(
-            f"{label} layout names a retired Linux boot chain "
-            f"({', '.join(str(w) for w in what)}): the product is bare-metal "
-            "only (#259)")
     if owner != "fabric":
         raise TransitionError(
             f"{label} owner {owner!r} is not flashable: the bare-metal "
@@ -404,29 +392,14 @@ def self_test():
 
         fab = build("fab", "fabric", "baremetal", False, b"fabric",
                     ["bitstream", "aem"])
-        sw = build("sw", "software", "full", True, b"software",
-                   ["bitstream", "kernel", "opensbi", "dtb", "rootfs"])
-        fab_linux = build(
-            "fab-linux", "fabric", "full", True, b"fabric-linux",
-            ["bitstream", "kernel", "opensbi", "dtb", "rootfs"])
         fab2 = build("fab2", "fabric", "baremetal", False, b"fabric2",
                      ["bitstream", "aem"])
-        partial = build("partial", "software", "kernel", False, b"partial",
-                        ["bitstream", "kernel"])
         none_bm = build("none-bm", "none", "baremetal", False, b"none-bm",
                         ["bitstream", "aem"])
 
         # The one supported transition: a fabric-baremetal refresh, target bit
         # last so the old autonomous owner stays live until every image holds.
         assert plan(*fab, *fab2)["order"] == "images-first"; checks += 1
-        # Every retired Linux artifact refuses, as INSTALLED and as TARGET:
-        # the software owner, the fabric/full-Linux payload, and the partial
-        # kernel set are all pre-#259 shapes with no flash path left.
-        expect_error(lambda: plan(*fab, *sw), "retired Linux boot chain")
-        expect_error(lambda: plan(*sw, *fab), "retired Linux boot chain")
-        expect_error(lambda: plan(*fab, *fab_linux), "retired Linux boot chain")
-        expect_error(lambda: plan(*fab_linux, *fab), "retired Linux boot chain")
-        expect_error(lambda: plan(*fab, *partial), "retired Linux boot chain")
         # An ownerless bare-metal set is not a product image either.
         expect_error(lambda: plan(*fab, *none_bm), "not flashable")
         expect_error(lambda: plan(*fab, *fab), "identical")

@@ -3,32 +3,19 @@
 #
 # Apply the Milan patches to the LiteX-ecosystem source trees in use.
 #
-#   0001-milan-linux-flashboot.patch      -> litex   (BIOS `linux_flashboot` for QSPI boot)
 #   0002-liteeth-gmii-tx-clk-invert.patch -> liteeth (GMII gtx_clk 180° option; fixes the
 #                                            marginal RTL8211E TX setup/hold — used by
 #                                            milan_soc.py --gtx-tx-invert)
 #   0004-vexiiriscv-baremetal-variant.patch -> litex (RV32I, M-mode-only CPU variant)
 #   0005-vexiiriscv-cacheless-litex.patch -> pythondata-cpu-vexiiriscv (connect the
 #                                            cacheless iBus/dBus and direct DMA path)
-#   0002-vexiiriscv-l2-depth-args.patch   -> the VexiiRiscv Scala checkout inside
-#                                            pythondata-cpu-vexiiriscv (--l2-down-pending
-#                                            and --l2-general-slots)
-#
-# THE LAST ONE USED TO BE "APPLY IT BY HAND FOR NON-DEFAULT L2" and is applied here as of
-# 2026-08-21. It was required by four former Linux performance configurations; those
-# configurations and their shipping claim are retired under #259. The patch stays in this
-# reproducibility series until #259 removes the compatibility code. It reaches the Scala
-# source rather than a Python package, so it does not go through apply_one (#185).
 #
 # Each tree is discovered from the active Python environment (no hardcoded paths), so this
 # works against a venv, a system install, or a git checkout. Idempotent: re-running is a
 # no-op once applied. Run it after every `pip install -U litex/liteeth` / update.
 #
-# ORDER MATTERS AND IS NOT ALPHABETICAL. 0003 is diffed on top of 0001 - both rewrite the
-# same boot.c hunks - so applying them the other way round fails. Until 2026-08-21 nothing
-# ran this script end to end and 0003 was diffed against pristine upstream, so the series
-# had not applied cleanly for an unknown length of time. sw/builder/test_builder.py gate
-# 23h now runs it against a fresh install and compares the result file by file.
+# sw/builder/test_builder.py gate 23h runs this series against a fresh install
+# and compares the result file by file.
 #
 #   ./apply.sh            # apply all (default)
 #   ./apply.sh --reverse  # undo all
@@ -39,25 +26,16 @@ PY="${PYTHON:-python3}"
 REV=""
 [ "${1:-}" = "--reverse" ] && REV="--reverse"
 
-# THE SERIES, in apply order. Order is load-bearing: 0003 is diffed on top of
-# 0001 and both rewrite the same boot.c hunks.
+# THE SERIES, in apply order.
 #   <tree-key> <patch file>
 SERIES=(
-    "litex   0001-milan-linux-flashboot.patch"
     "liteeth 0002-liteeth-gmii-tx-clk-invert.patch"
-    "litex   0003-milan-flashboot-xz-kernel.patch"
     "litex   0004-vexiiriscv-baremetal-variant.patch"
     "pythondata_cpu_vexiiriscv 0005-vexiiriscv-cacheless-litex.patch"
-    "vexiiriscv 0002-vexiiriscv-l2-depth-args.patch"
 )
 
 tree_root() {  # $1 = tree key -> the directory the patch paths are relative to
-    case "$1" in
-        vexiiriscv)
-            "$PY" -c "import pythondata_cpu_vexiiriscv as p, os; print(os.path.join(p.data_location, 'ext', 'VexiiRiscv'))" ;;
-        *)
-            "$PY" -c "import $1, os; print(os.path.dirname(os.path.dirname($1.__file__)))" ;;
-    esac
+    "$PY" -c "import $1, os; print(os.path.dirname(os.path.dirname($1.__file__)))"
 }
 
 # Idempotence is done by NORMALISING, not by testing each patch on its own.
@@ -101,10 +79,6 @@ apply_all() {
     done
 }
 
-# The vendored xz_embedded decoder (0BSD, from linux lib/xz). 0003 only touches
-# boot.c and the Makefile, so the sources it compiles have to be there first.
-xz_dir() { echo "$(tree_root litex)/litex/soc/software/bios/xz"; }
-
 # --reverse MUST PROVE THE TREE IS PRISTINE, not merely that it tried.
 # revert_all() is best-effort ON PURPOSE - as the normalisation step of a
 # forward apply, a patch it cannot reverse is fine, because apply_all() then
@@ -141,15 +115,10 @@ verify_pristine() {
         root="$(tree_root "$key")"
         git -C "$root" apply --reverse "$HERE/$file" 2>/dev/null || true
     done
-    if [ -e "$(xz_dir)" ]; then
-        echo "[patches] ERROR: $(xz_dir) still exists." >&2
-        ok=0
-    fi
     [ "$ok" -eq 1 ]
 }
 
 revert_all
-rm -rf "$(xz_dir)"
 if [ -n "$REV" ]; then
     if ! verify_pristine; then
         echo "[patches] --reverse did NOT fully reverse the series, so this" >&2
@@ -158,11 +127,8 @@ if [ -n "$REV" ]; then
         echo "[patches]   patched hunk is the usual cause - and re-run." >&2
         exit 1
     fi
-    echo "[patches] bios/xz removed; series reversed (verified absent)."
+    echo "[patches] series reversed (verified absent)."
     exit 0
 fi
-mkdir -p "$(xz_dir)"
-cp -f "$HERE"/files/xz/* "$(xz_dir)/"
-echo "[patches] files/xz -> bios/xz (vendored xz_embedded)"
 apply_all
 echo "[patches] series applied (${#SERIES[@]} patches)."

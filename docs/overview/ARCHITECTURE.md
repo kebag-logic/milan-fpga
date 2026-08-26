@@ -77,7 +77,7 @@ Machine-checked status rows are defined by the
 | `stream-format.set` | `implemented` | - |
 | `stream-info.set-acc-lat` | `implemented` | - |
 | `soc.baremetal-profile` | `implemented` | - |
-| `host.sound-card-option` | `implemented` | - |
+| `host.sound-card-option` | `not-supported` | - |
 | `crf.media-clock-consumption` | `missing` | - |
 | `state.nonvolatile-persistence` | `missing` | - |
 | `notifications.change-events` | `implemented` | - |

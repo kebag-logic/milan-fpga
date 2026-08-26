@@ -5,20 +5,10 @@
 THE PRODUCT IS BARE-METAL ONLY (#259, USER directive 2026-08-25). The one
 supported persistent image set is {bitstream, aem} with the fabric gPTP plane
 as its sole PHC and publication owner. This tool is the deploy-time gate for
-that fact: it validates the layout's compiled owner enum, refuses every
-retired Linux boot-chain artifact, and (when artifacts are supplied) binds
-the layout to the exact parsed configuration payload, FPGA part, and raw AEM
-length/CRC32/SHA-256 identity.
-
-RETIRED ROLE, EXPLICITLY. Until #259 this tool also graded a Linux rootfs
-archive against the gateware owner: newc parsing, versioned owner profiles,
-linuxptp payload rules and init-lifecycle semantics. That was the product
-contract for the option-OFF software owner, and #259 retires that owner
-entirely: there is no rootfs, no ptp4l/phc2sys, and no software lifecycle to
-grade. An option-OFF elaboration remains only as verification-only hardware
-and is NOT flashable, so a layout recording any owner other than 'fabric' is
-refused here rather than paired. The old `--rootfs` argument is gone; passing
-it is an argparse error, never a silently ignored input.
+that fact: it validates the layout's compiled owner enum and, when artifacts
+are supplied, binds the layout to the exact parsed configuration payload,
+FPGA part, and raw AEM length/CRC32/SHA-256 identity. An option-off
+elaboration records owner `none` and is never flashable.
 
 Exit 0 = the layout records a flashable fabric-owner bare-metal set (and, if
 supplied, both artifact bindings hold). Exit 2 = refusal.
@@ -36,11 +26,6 @@ from qspi_owner_transition import (
 )
 
 OWNERS = GPTP_OWNERS
-#: Image rows only a retired Linux boot chain carries. Their presence in a
-#: layout means the artifact predates #259 or was hand-built against the
-#: retired contract; either way it is not a product image.
-RETIRED_LINUX_IMAGES = ("kernel", "opensbi", "dtb", "rootfs")
-RETIRED_MANIFESTS = ("full", "kernel")
 
 
 class ContractError(RuntimeError):
@@ -59,7 +44,7 @@ def _load_layout(path):
     if owner not in OWNERS:
         raise ContractError(
             "layout has no valid gptp_owner enum "
-            "(expected 'none', 'fabric', or 'software')")
+            "(expected 'none' or 'fabric')")
     images = layout.get("images")
     if not isinstance(images, list) or any(not isinstance(row, dict)
                                            for row in images):
@@ -76,17 +61,7 @@ def check_pair(layout_path, expected_owner=None,
                bit_path=None, expected_fpga_part=None, aem_path=None):
     layout, owner, names = _load_layout(layout_path)
 
-    retired_rows = sorted(names & set(RETIRED_LINUX_IMAGES))
-    if retired_rows:
-        raise ContractError(
-            f"layout names retired Linux boot images {retired_rows}: the "
-            "product is bare-metal only (#259) and no Linux image set can "
-            "be flashed")
     manifest = layout.get("manifest")
-    if manifest in RETIRED_MANIFESTS:
-        raise ContractError(
-            f"layout manifest {manifest!r} is a retired Linux boot chain "
-            "(#259): the product manifest is 'baremetal'")
     # [R-parallel] on #228: a manifest merely NOT-retired passed, so
     # {manifest: 'not-baremetal', images: []} was approved as a flashable
     # set. The one product manifest is 'baremetal', exactly, and the one
@@ -105,11 +80,8 @@ def check_pair(layout_path, expected_owner=None,
             f"set: missing {missing}, surplus {surplus}")
 
     if owner != "fabric":
-        detail = ("has no gPTP owner" if owner == "none"
-                  else "records the retired software owner (#259: no "
-                       "retired ptp4l/phc2sys product path exists)")
         raise ContractError(
-            f"layout owner {owner!r} {detail}; the bare-metal product's one "
+            f"layout owner {owner!r} is not flashable; the product's one "
             "PHC and publication owner is the fabric plane")
     if expected_owner is not None and owner != expected_owner:
         raise ContractError(
@@ -186,25 +158,13 @@ def self_test():
 
         # The one product shape.
         expect(True, layout("fabric"))
-        # Owner enum refusals: none, the retired software owner, a missing
-        # key, and an unknown spelling.
+        # Owner enum refusals: none, a missing key, and an unknown spelling.
         expect(False, layout("none"))
-        expect(False, layout("software"))
         expect(False, layout("fabric", key=False))
         expect(False, layout("unknown"))
         # The recipe binding still bites in both directions.
         expect(True, layout("fabric"), expected="fabric")
         expect(False, layout("fabric"), expected="software")
-        # Every retired Linux image row is an independent refusal, and so are
-        # the retired manifests, even with the fabric owner recorded.
-        for row_name in RETIRED_LINUX_IMAGES:
-            expect(False, layout(
-                "fabric", extra_rows=({"name": row_name, "offset": 0x500000,
-                                       "budget": 0x1000},),
-                name=f"retired-{row_name}.json"))
-        for manifest in RETIRED_MANIFESTS:
-            expect(False, layout("fabric", manifest=manifest,
-                                 name=f"retired-{manifest}.json"))
         # [R-parallel] on #228: the exact reproduction this tool approved,
         # {manifest: 'not-baremetal', fabric owner, cpu_xlen, no rows}, and
         # each exact-set refusal beside it: the manifest must be exactly
@@ -280,15 +240,6 @@ def self_test():
             json.dump(legacy_body, stream)
         expect(False, legacy_layout)
 
-        # The retired rootfs argument is an argparse REFUSAL, not an ignored
-        # input: a caller still holding the pre-#259 pairing contract must
-        # learn it here rather than flash unpaired.
-        checks += 1
-        rc = main(["--layout", paired_layout, "--rootfs", "any.cpio"])
-        if rc == 0:
-            raise AssertionError("--rootfs was accepted; the retired Linux "
-                                 "pairing role must be refused")
-
     print(f"[gptp-owner] self-test: {checks}/{checks} checks pass")
 
 
@@ -303,8 +254,8 @@ def main(argv=None):
     try:
         args = parser.parse_args(argv)
     except SystemExit as exc:
-        # argparse exits 2 on unknown arguments (--rootfs included); keep
-        # that as a plain refusal code for scripted callers.
+        # Keep argparse's unknown-argument result as a plain refusal code for
+        # scripted callers.
         return exc.code if isinstance(exc.code, int) else 2
     if args.self_test:
         self_test()

@@ -14,7 +14,7 @@ The shipping software-profile claims are checked against the
 | Feature ID | Status | Canonical value |
 |---|---|---|
 | `soc.baremetal-profile` | `implemented` | - |
-| `host.sound-card-option` | `implemented` | - |
+| `host.sound-card-option` | `not-supported` | - |
 <!-- milan-feature-status:end -->
 
 ## Contents

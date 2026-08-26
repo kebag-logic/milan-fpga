@@ -81,7 +81,7 @@ SEG_RE = re.compile(r"^seg-(\d{6})\.ctf(?:\.xz)?$")
 #
 # DERIVED, NOT RESTATED.  This was `1536 * 1024` under the comment "/user is
 # 2 MiB", and that comment stopped being true on 2026-07-28 when flash-map v5
-# took `user` down to 1 MiB to grow the rootfs.  The constant did not move, so
+# took `user` down to 1 MiB. The constant did not move, so
 # the fault log's budget became LARGER than the partition holding it and the
 # gate that should have caught it (test_trace_roundtrip gate 1) was asserting
 # the old 2 MiB too - two copies of one number, both stale, agreeing with each

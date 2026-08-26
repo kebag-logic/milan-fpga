@@ -13,8 +13,7 @@ case "$BOARD" in
   ax7101) OPTS="--board ax7101 --milan-clk-freq 100e6 --gtx-tx-invert --floorplan";;
   *) echo "unknown board $BOARD" >&2; exit 2;;
 esac
-# #259: bare-metal only; the retired Linux profile took the L2/scala cache
-# words and the "full" flash manifest with it.
+# #259: bare-metal only, with no cache or alternate flash manifest.
 BASE="python3 $(dirname "$(realpath "$0")")/milan_soc.py $OPTS --cpu vexiiriscv \
  --software-profile baremetal --fabric-gptp --xlen 32 \
  --all-blocks --coherent-dma --with-spiflash --flashboot baremetal --timing-opt \

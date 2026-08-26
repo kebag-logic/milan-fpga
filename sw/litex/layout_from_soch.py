@@ -34,20 +34,14 @@ def main(build_dir, bit_path=None):
     if owner_code not in GPTP_OWNER_BY_CODE:
         raise SystemExit(
             "layout: soc.h has no valid MILAN_GPTP_OWNER "
-              "(0=none, 1=fabric, 2=software); refusing an unowned layout")
-    if GPTP_OWNER_BY_CODE[owner_code] == "software":
-        raise SystemExit(
-            "layout: soc.h records the retired software gPTP owner (#259): "
-            "the bare-metal product's one owner is the fabric plane, and a "
-            "verification-only option-off elaboration has no flashable layout")
+              "(0=none, 1=fabric); refusing an unowned layout")
     cpu_xlen = const("MILAN_CPU_XLEN")
-    if cpu_xlen not in (32, 64):
+    if cpu_xlen != 32:
         raise SystemExit(
-            "layout: soc.h has no valid MILAN_CPU_XLEN (32 or 64); "
-            "refusing an architecture-unbound layout")
+            "layout: soc.h must record the product CPU width (32)")
 
     payloads = []
-    for name in ("aem", "opensbi", "dtb", "kernel", "rootfs"):
+    for name in ("aem",):
         prefix = f"MILAN_FLASHBOOT_{name.upper()}"
         off = const(f"{prefix}_OFFSET")
         if off is None:
@@ -60,12 +54,6 @@ def main(build_dir, bit_path=None):
         payloads.append(row)
 
     names = {row["name"] for row in payloads}
-    retired = sorted(names & {"kernel", "opensbi", "dtb", "rootfs"})
-    if retired:
-        raise SystemExit(
-            f"layout: soc.h names retired Linux boot images {retired}: the "
-            "product is bare-metal only (#259); this build predates that "
-            "policy and cannot produce a flashable layout")
     if names == {"aem"}:
         manifest = "baremetal"
     elif not names:
@@ -88,8 +76,8 @@ def main(build_dir, bit_path=None):
     layout = {"manifest": manifest,
               "gptp_owner": GPTP_OWNER_BY_CODE[owner_code],
               "cpu_xlen": cpu_xlen,
-              "entry": const("MILAN_FLASHBOOT_ENTRY"),
-              "complete": "MILAN_FLASHBOOT_COMPLETE" in text,
+              "entry": None,
+              "complete": False,
               "images": images}
     if "aem" in names:
         expected_bytes = const("MILAN_AEM_IMAGE_BYTES")

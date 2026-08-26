@@ -17,9 +17,8 @@
 #     LAYOUT=<path> target flashboot_layout.json (required for flash-pair; other
 #                   steps default to the newest build's)
 #     AEM=<path>    target AEM descriptor image (defaults to the layout's
-#                   sibling aem_desc.bin). The product image set is bare-metal
-#                   {bitstream, aem} ONLY: the Linux kernel/OpenSBI/DTB/rootfs
-#                   slots are retired (#259) and any layout naming them refuses.
+#                   sibling aem_desc.bin). The product image set is exactly
+#                   the bare-metal {bitstream, aem} pair.
 #     EXPECTED_GPTP_OWNER=fabric additionally binds a named build recipe to
 #                   the owner compiled into LAYOUT (used by build.sh); every
 #                   non-fabric owner is refused as retired.
@@ -79,7 +78,7 @@ FLASH_SIZE=$((16*1024*1024))  # N25Q128 = 16 MB
 FPGA_PART="${FPGA_PART:-xc7a100tfgg484}"
 
 # Current AX7101 shipping profile: one cacheless RV32I VexiiRiscv hart in
-# machine mode, no MMU or Linux, and no Linux sound-card rings. The fabric,
+# machine mode. The fabric,
 # NIC DMA, protocol processor, physical TDM capture and render-free talker
 # datapath remain present.
 # --gtx-tx-invert is REQUIRED on this board: the GMII TX FFs are IOB-packed (deterministic
@@ -117,8 +116,7 @@ do_check_images() {
     [ -n "$aem" ] || aem="$(dirname "$layout")/aem_desc.bin"
     # #116/#259 owner contract: the layout must record the fabric plane as the
     # image's one gPTP owner and must be a bare-metal {bitstream, aem} set.
-    # Retired Linux boot-chain rows, the retired software owner, and missing
-    # or legacy metadata are hard errors. flash-pair runs this while
+    # Unsupported owners and missing metadata are hard errors. flash-pair runs this while
     # materializing the whole set, before its first write.
     # [R-parallel] on #228: this advertised standalone verdict once ran on
     # --layout alone, so a layout naming nonexistent artifacts (or none)
@@ -140,17 +138,14 @@ do_check_images() {
         exit 2
     }
     # The compiled CPU width is part of the artifact's identity binding: the
-    # bare-metal firmware and its BIOS are XLEN-exact, and an old layout that
-    # does not state the width cannot be validated at all. The retired Linux
-    # DTB/OpenSBI CSR-window chain (#259) was removed together with its boot
-    # path; the pair check above already refused any layout naming those
-    # slots, so the width is the one boot-chain binding left to hold here.
+    # bare-metal firmware and its BIOS are XLEN-exact, and a layout that does
+    # not state the width cannot be validated at all.
     local expected_xlen
     expected_xlen=$("$PYTHON" - "$layout" <<'PY'
 import json, sys
 value = json.load(open(sys.argv[1], encoding="utf-8")).get("cpu_xlen")
-if type(value) is not int or value not in (32, 64):
-    raise SystemExit("layout has no valid cpu_xlen (32 or 64)")
+if type(value) is not int or value != 32:
+    raise SystemExit("layout does not name the product cpu_xlen (32)")
 print(value)
 PY
     ) || {
@@ -264,9 +259,6 @@ PY
                 # transition planner validates its offset/budget separately.
                 echo "[deploy]   bitstream slot @ 0x$(printf %06x "$off")"
                 continue ;;
-            # kernel/opensbi/dtb/rootfs: RETIRED (#259). The owner-pair check
-            # already refused any layout naming them, so reaching one here is
-            # an internal inconsistency and takes the unknown-image refusal.
             aem)
                 src="$aem"
                 wrap=0 ;;

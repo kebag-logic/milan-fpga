@@ -306,7 +306,7 @@ def check_rtl_consumption(dp_text=None):
         ok("milan_datapath passes it to KL_pcm_tx")
     else:
         bad("KL_pcm_tx is not given TALKER_WIRE_CHANS_P", "roadmap item 00",
-            "the ALSA-playback pair source would de-interleave a different "
+                    "the pair source would de-interleave a different "
             "width from the one the framer stamps")
 
     if re.search(r"chans_r\[t\]\s*<=\s*WIRE_CHANS_C\s*;", pk):

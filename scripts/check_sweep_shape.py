@@ -9,15 +9,13 @@ that actually produces the flashed bitstream.  Every knob it gets wrong is
 invisible until silicon:
 
   * 2026-07-24 (5ce9a13): sweep.sh passed `--rx-queues 1` for BOTH boards while
-    the deployed arty gateware carried two RX queues.  A 2-queue build shifts
-    every DMA window by 0x74 under an unchanged DTB.
+    the deployed arty gateware carried two RX queues. A 2-queue build shifts
+    every DMA window by 0x74 under an unchanged firmware map.
   * 2026-07-26 (this gate): sweep.sh passed NO `--num-streams` AT ALL, so
     `sweep.sh ax7101` built the DEFAULT 1x1 datapath while the config, the docs
     and the build directories all called it 8x8.
-  * 2026-08-22 (#157): build.sh's Linux recipes passed NO `--xlen` AT ALL,
-    and milan_soc.py defaults it to 64 where the builder defaults it to 32,
-    so `build.sh cfg_ax8x8` and `cfg_arty` elaborated an RV64 core under
-    configs, a sweep table and a boot chain that are all RV32 single-hart.
+  * 2026-08-22 (#157): two named recipes passed no `--xlen`, so the script
+    and declarative configuration could select different CPU widths.
 
 Same shape both times: a build knob that lives in the declarative end-station
 config, is NOT carried by the script that builds, and silently defaults.  This
@@ -197,7 +195,7 @@ def compare(board, cfg_path, ns, rxq, l2, where, opts=""):
                    f"{ns}x{ns}, the config says {c_ns}x{c_ns}")
     if c_rxq != rxq:
         bad.append(f"--rx-queues {rxq} != config rx_queues {c_rxq} "
-                   "(CSR-rot rule: shifts every DMA window under the DTB)")
+                   "(CSR-rot rule: shifts every DMA window under the firmware map)")
     if c_l2 != l2:
         bad.append(f"--l2-bytes {l2} != config l2_bytes {c_l2}")
     lpf = "--no-render-lpf" not in opts

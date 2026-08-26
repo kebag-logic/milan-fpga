@@ -1,131 +1,64 @@
-# `sw/` - build the bare-metal Milan SoC
+# `sw/` — build the bare-metal Milan SoC
 
-The product SoC (#259, 2026-08-25): one cacheless RV32I VexiiRiscv hart in
-machine mode running the Milan UART/CSR firmware, with the Milan TSN NIC
-memory-mapped and the fabric gPTP plane as the one PHC/publication owner.
-There is no supported Linux image, rootfs, or software gPTP owner; the
-historical Linux bring-up that this directory once hosted is retired and
-summarized at the end of this page. This is the buildable slice of
-the completed PS-to-fabric migration plan (#259, in git history).
+The product is one cacheless RV32I VexiiRiscv hart in machine mode, with the
+Milan TSN datapath memory-mapped at `0x9000_0000`. Fabric owns gPTP and the
+bare-metal firmware owns startup, identity activation, diagnostics, and the
+remaining software-visible policy.
+
+The persistent image pair is:
 
 ```
-   milan_soc.py  ──build──▶  bitstream + LiteX BIOS   (RV32 hart + DDR + UART + Milan NIC)
-        │                          │
-        ▼                          ▼
-   builder AEM image        bare-metal firmware (UART commands, PHC epoch)
-   (beside the bitstream)   reads the raw AEM image from its QSPI slot
+end-station YAML ──▶ bitstream
+        │
+        └──────────▶ aem_desc.bin
 ```
 
-> **The current architecture and compliance boundary live in
-> [`../docs/overview/ARCHITECTURE.md`](../docs/overview/ARCHITECTURE.md) and
-> [`../docs/testing/MILAN_V12_AUDIT_2026-08-16.md`](../docs/testing/MILAN_V12_AUDIT_2026-08-16.md).**
-> This file is the quick build reference.
-
-| File | What |
-|------|------|
-| [`litex/milan_soc.py`](litex/milan_soc.py) | THE board SoC target: `--cpu {naxriscv,vexiiriscv}` (the product profile is `--software-profile baremetal` on VexiiRiscv RV32; see [Section 2.5 of docs/litex/LITEX_SOC.md](../docs/litex/LITEX_SOC.md#25-cpu-vexiiriscv-bare-metal-product)) + CRG + UART + RAM + Milan datapath (CSR @ `0x9000_0000`, IRQs → PLIC); **`--full`** adds the Section A.6 DMA + Section A.7 MAC (GMII). |
-| [`litex/milan_sim.py`](litex/milan_sim.py) | Verilator sim SoC: the same NaxRiscv + the NIC CSR, running the BIOS. Proves **M-A2** — the CPU reads `ID="MILN"`. |
-| [`litex/platforms/alinx_ax7101.py`](litex/platforms/alinx_ax7101.py) | Local LiteX platform for the Alinx AX7101 (xc7a100t) — not in upstream litex_boards. |
-| [`litex/evidence/naxriscv_sim_boot.log`](litex/evidence/naxriscv_sim_boot.log) | Captured `litex_sim` boot: the NaxRiscv core running the LiteX BIOS to the `litex>` prompt. |
-| [`litex/evidence/naxriscv_reads_MILN.log`](litex/evidence/naxriscv_reads_MILN.log) | Captured `mem_read 0x90000000` = `MILN` + VERSION — **M-A2** on the softcore. |
-| [`../docs/integration/AXIS_CORES_ON_NAXRISCV.md`](../docs/integration/AXIS_CORES_ON_NAXRISCV.md) | **How to attach AXI-Stream cores to NaxRiscv** (control/data/event planes), using `MilanNIC` as the worked example. |
+`sw/litex/deploy.sh flash-pair` validates and writes the AEM image first and
+commits the paired bitstream last.
 
 ## Contents
 
-- **[Toolchain install (once)](#toolchain-install-once)** — One `pacman` line, a venv and `litex_setup.py`; everything is open source except the final bitstream. Carries the one trap that will otherwise cost you an hour: run builds from any directory except the litex-repos parent.
-- **[Boot the core in simulation (no Vivado, self-contained) ✅ verified](#boot-the-core-in-simulation-no-vivado-self-contained--verified)** — Two commands that get a softcore to a `litex>` prompt with no vendor tools, then read `MILN` out of the NIC's ID register — milestone M-A2, with the captured logs linked.
-- **[Build the board SoC](#build-the-board-soc)** — The named bare-metal configs through `build.sh`, the flash transaction they delegate to, and the verification-only option-off elaboration described in prose because it must never become a recipe.
-- **[Configurability](#configurability)** — The build axes that survive on the bare-metal product: single hart, RV32, NIC presence, and the `MAC_TARGET` switch between the Xilinx and generic MAC.
-- **[Retired: the Linux bring-up (#259)](#retired-the-linux-bring-up-259)** — What used to live here (RV64 + MMU, OpenSBI, device tree, Buildroot, ALSA), why nothing builds it any more, and where its history is kept.
-- **[Status (what actually runs on this box)](#status-what-actually-runs-on-this-box)** — Step-by-step state table, honest about the one remaining gap (`milan_datapath` still a black box for this flow) and about a Vivado install without Artix-7 support being unable to P&R. Points at `ls tb/verilator/` and the yosys `tops` array as the authoritative suite lists rather than repeating counts.
+- **[Main entry points](#main-entry-points)** — The builder, SoC, build, sweep, and simulation commands that own the product flow.
+- **[Build](#build)** — How to apply the pinned toolchain patches and invoke each supported board recipe.
+- **[Validate](#validate)** — The builder, policy, simulation, and portability gates required before integration.
 
-## Toolchain install (once)
+## Main entry points
 
-Everything is open except the final Xilinx bitstream. On Arch:
+| Path | Purpose |
+|---|---|
+| [`builder/endstation_builder.py`](builder/endstation_builder.py) | Validate an end-station YAML file and generate the SoC arguments, descriptor image, firmware-visible platform shape, and build plan. |
+| [`litex/milan_soc.py`](litex/milan_soc.py) | Elaborate the board SoC and export the gateware and firmware artifacts. |
+| [`litex/build.sh`](litex/build.sh) | Build a named product configuration or invoke the paired flash transaction. |
+| [`litex/sweep.sh`](litex/sweep.sh) | Run the supported board/configuration synthesis sweep. |
+| [`litex/milan_sim.py`](litex/milan_sim.py) | Exercise the SoC integration in simulation. |
 
-```sh
-sudo pacman -S --needed riscv64-elf-gcc riscv64-elf-binutils riscv64-elf-newlib \
-                        jdk17-openjdk sbt meson ninja cmake dtc verilator
-python3 -m venv ~/litex-milan/venv && . ~/litex-milan/venv/bin/activate
-curl -sSL https://raw.githubusercontent.com/enjoy-digital/litex/master/litex_setup.py \
-     | python - --init --install --config=full
-export JAVA_HOME=/usr/lib/jvm/java-17-openjdk    # NaxRiscv is generated by sbt/SpinalHDL
-```
-> Run builds from **any dir except** the litex-repos parent, or `import litex`
-> resolves to the repo root (a namespace pkg) and `get_data_mod` fails.
+## Build
 
-## Boot the core in simulation (no Vivado, self-contained) ✅ verified
+Install the pinned toolchain described in
+[`docs/litex/LITEX_SOC.md`](../docs/litex/LITEX_SOC.md), apply the local LiteX
+patch series, then inspect or run a named build:
 
 ```sh
-litex_sim --cpu-type=naxriscv --non-interactive   # bare core boots to litex>
-./milan_sim.py --xlen 32                           # + the Milan NIC CSR at 0x9000_0000
-#   then at the prompt:  mem_read 0x90000000 16  -> 4e 4c 49 4d ('MILN') + VERSION
+sw/litex/patches/apply.sh
+sw/litex/build.sh ax7101 --dry-run
+sw/litex/build.sh ax7101
+sw/litex/build.sh ax8x8
+sw/litex/build.sh arty
 ```
-sbt generates the NaxRiscv netlist → LiteX elaborates the SoC → Verilator builds
-the model → `riscv64-elf-gcc` builds the BIOS → it boots to `litex>`. With
-`milan_sim.py` the CPU then reads the NIC's ID register = **"MILN"** — migration
-milestone **M-A2**. Captured output:
-[`litex/evidence/naxriscv_sim_boot.log`](litex/evidence/naxriscv_sim_boot.log),
-[`litex/evidence/naxriscv_reads_MILN.log`](litex/evidence/naxriscv_reads_MILN.log).
 
-## Build the board SoC
+All named recipes emit the RV32I bare-metal profile. The fabric-off form is a
+direct, verification-only elaboration and is never a build or flash recipe.
 
-Every named config is the bare-metal fabric-owner shape (#259). The launcher
-composes the full argv, runs the entity-shape gate and writes the AEM image
-beside the bitstream:
+## Validate
 
 ```sh
-./litex/build.sh ax7101 --dry-run    # inspect the exact product argv
-./litex/build.sh ax7101              # shipping 1x1 TDM8 shape
-./litex/build.sh ax8x8               # 8-stream (64-channel) bare-metal shape
-./litex/build.sh arty                # Arty bare-metal shape (retired DUT; elaboration-proven)
+python3 sw/builder/test_builder.py --require-elaboration
+python3 scripts/check_baremetal_only.py --check
+scripts/run_all_suites.sh "$(mktemp -d)"
+syn/yosys/run.sh
 ```
 
-Flashing goes through `build.sh flash <config>` only, which delegates to the
-`deploy.sh flash-pair` transaction; it accepts nothing but the fabric
-{bitstream, AEM image} set.
-
-The option-off elaboration (`GPTP_PLANE_EN_P=0`) is VERIFICATION-ONLY
-hardware (#259): it is reached by passing the launcher's `--no-fabric-gptp`
-flag to a direct `milan_soc.py --software-profile baremetal --cpu vexiiriscv
---xlen 32` invocation, elaborates an image with zero gPTP owners, is never a
-configuration, and its artifacts are refused by the flash tools. It exists so
-the option-on/option-off cost and behavior can be measured, not to be
-deployed, which is why no runnable recipe for it is kept here.
-
-## Configurability
-- **Cores:** `--cpu-count 1` is the product shape (the bare-metal firmware is
-  single-hart).
-- **ISA width:** the product profile is `--xlen 32` (RV32I, M-mode, no MMU).
-  `--xlen 64` remains an elaboration axis for verification builds only.
-- **NIC present:** `--no-milan` builds a bare SoC for bring-up first.
-- **MAC target:** RTL `MAC_TARGET` param (T2.1) — `XILINX` on the Artix build,
-  `GENERIC` for open flows / sim.
-
-## Retired: the Linux bring-up (#259)
-
-This directory used to carry the Linux bring-up flow: an RV64 core with MMU,
-OpenSBI, a device-tree overlay for the `kl-eth` driver, a Buildroot rootfs
-and the ALSA/PipeWire host surface. #259 retired all of it: there is no
-supported Linux image and no software gPTP owner, `milan_soc.py` refuses the
-retired profile and manifests at the command line, and the flash tools refuse
-non-fabric artifact sets. The procedures live on in git history and in the
-historical sections of
-[`../docs/integration/QSPI_FLASHBOOT.md`](../docs/integration/QSPI_FLASHBOOT.md);
-the bindings and the driver sources left this directory with it, and the
-record of that driver-visible contract stays in git history.
-
-## Status (what actually runs on this box)
-| Step | Tool | State |
-|------|------|-------|
-| NaxRiscv netlist gen | sbt + SpinalHDL (JDK17) | ✅ generates |
-| SoC elaboration + gateware export | LiteX | ✅ `milan_soc.py` exports `alinx_ax7101.{v,xdc,tcl}` + BIOS |
-| BIOS build | `riscv64-elf-gcc` | ✅ builds |
-| **Sim boot of the core** | Verilator | ✅ boots to `litex>` (evidence saved) |
-| Milan RTL blocks | Verilator (`tb/verilator/`) | ✅ green — `ls tb/verilator/` is the authoritative suite list (55 dirs with a `Makefile` on 2026-07-26) |
-| Device portability | Yosys/sv2v (`syn/yosys/`) | ✅ the `tops=()` array in `syn/yosys/run.sh` is authoritative (47 tops on 2026-07-26; incl. ECP5) |
-| **Artix-7 bitstream** (`--build`) | Vivado | ✅ built + run on the board (see `litex/evidence/hw_*`); note: needs Vivado with Artix-7 device support — a Spartan-7-only install cannot P&R it. Gateware export needs no vendor tools. |
-| `milan_datapath` wrapper | -- | ⏳ still a black box (`[BB:milan_datapath]`); milan_top minus the Zynq PS (migration Section A.9). Needed for P&R, not for export. |
-
-To attach the Milan (or any) AXI-Stream core to the CPU, see
-[`../docs/integration/AXIS_CORES_ON_NAXRISCV.md`](../docs/integration/AXIS_CORES_ON_NAXRISCV.md).
+See [`docs/integration/BAREMETAL_FIRMWARE.md`](../docs/integration/BAREMETAL_FIRMWARE.md)
+for the UART and startup contract and
+[`docs/testing/TESTING.md`](../docs/testing/TESTING.md) for the complete test
+matrix.

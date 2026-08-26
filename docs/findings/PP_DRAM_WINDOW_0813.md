@@ -73,7 +73,7 @@ Both shapes now place the window at `0x7F700000`, immediately below the ring:
 ```
 
 `no-map` does double duty: it keeps the kernel out, and it is what allows
-`scripts/load_entity_model.sh` to reach the window through `/dev/mem` on a
+the then-current entity loader to reach the window through `/dev/mem` on a
 `CONFIG_STRICT_DEVMEM` kernel — a region the kernel still owns is refused.
 
 ## What this costs operationally

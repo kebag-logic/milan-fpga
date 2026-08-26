@@ -49,7 +49,7 @@ VFLAGS_COMMON = --cc --exe --build -j 0 \
 #   --num-streams 8        -> N_STREAMS=8
 #   --milan-clk-freq 100e6 -> MILAN_CLK_FREQ_HZ=100000000
 #   (no --audio-interface) -> AUDIO_IF_SLOTS_P=0   (i2s_philips default)
-#   --sound-card           -> SOUND_CARD_P=1       (this bring-up shape
+#   capture ring enabled   -> SOUND_CARD_P=1       (this verification shape
 #                             retains the host PCM surface)
 #   --aaf-playback         -> AAF_PLAYBACK_P=1     (task #31 ship flip: the
 #                             KL_pcm_tx generate is LIVE in silicon; the pb

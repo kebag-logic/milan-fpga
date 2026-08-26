@@ -5,8 +5,7 @@
 # Shape: AX7101 1x1x8 TDM8 - ONE 8-channel AAF listener stream + ONE
 # 8-channel AAF talker stream, the 7.1 channel order [FL FR FC LFE RL RR
 # SL SR] named through `channel_names` (a PARAMETER, not a hardcode), physical
-# TDM8 capture, and the 8-channel TDM8 loopback lane. Linux host clusters,
-# PCM rings and playback are absent in the shipping bare-metal profile.
+# TDM8 capture and the 8-channel TDM8 loopback lane.
 #
 # Simplifications this shape buys (all measured pains of the 8x8):
 #   - one stream per direction => a mapping can never name a foreign
@@ -33,7 +32,6 @@ board:
   target: ax7101
   features:
     fabric_gptp: true   # #114 plane, product default since #116 (kept explicit)
-    sound_card: false    # retired surface (#259): no Linux ALSA host rings
     i2s_playback: false   # the AX routes NO audio pads (_connectors = [])
     latency_taps: true    # item-11 telemetry: at 1x1 the taps fit with room
                           # to spare, and the 0.44% stress-late residue wants
@@ -73,11 +71,7 @@ platform:
   csr_base: 0x90000000
   mac_address: "02:00:00:00:00:01"   # board 1
   interrupt: 3
-  pcm_ring_phys: 0x7f800000          # sound_card=false emits no PCM region;
-  pcm_ring_bytes: 0x100000           # this boundary anchors the 1 MiB PP
-  pcm_ring_stride: 0x100000          # window immediately below 0x7f800000
-  boot_chain_pin:                    # re-verify against the BUILD's csr.csv
-    dma-ts: 0xf0003100               # at flash time (8.2 checklist) - the
+  pp_mem_phys: 0x7f700000            # 1 MiB protocol-processor window
 
 soc:
   software_profile: baremetal
@@ -184,7 +178,7 @@ audio_interface:
 streams:
   listeners:
     # map_mode dynamic (Milan v1.2 5.3.3.9 shall). There is no physical
-    # render or Linux host lane, so the Stream Port Input truthfully has zero
+    # render lane, so the Stream Port Input truthfully has zero
     # clusters and no AUDIO_MAP descriptor; the runtime map page remains one.
     # No `formats` list: the builder states the current format as the Milan
     # 6.2 Base format for `channels` at clocking.sampling_rate_hz

@@ -6,8 +6,7 @@ test_trace_roundtrip.py - host-runnable gate for the CTF fault log.
 
 Gates (Phase 10, docs/design/TRACE_LOGGING.md):
    1. flash map: FLASHBOOT_LAYOUT + FLASHBOOT_RESERVED are erase-block aligned,
-      non-overlapping and inside the device, and the board-side persistence
-      inventory carries the same journal/user offsets;
+      non-overlapping and inside the device;
    2. the checked-in generated/ producer is what milan_trace.yaml produces -
       re-generated and diffed WHEN barectf is importable, LOUDLY SKIPPED when it
       is not, so an outsider without barectf still runs every other gate;
@@ -117,24 +116,8 @@ def test_flash_map_and_persist_inventory():
         f"user slot is {user[2] // erase} erase blocks; jffs2 wants >= 5 free "
         "for garbage collection")
 
-    # The OTHER consumer of the same two dicts: the board-side persistence
-    # inventory (sw/persist/milan_persist_state.py -> milan-persist-state.sh),
-    # which carries the journal/user offsets the board tools write through.
-    # Gated here so a flash-map edit that forgets to regenerate it fails on
-    # this host rather than by silently journalling into the wrong partition.
-    sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(HERE)),
-                                    "sw", "persist"))
-    import milan_persist_state as mps  # noqa: E402
-    reserved_sh = mps.emit_sh()
-    have = open(os.path.join(os.path.dirname(mps.__file__),
-                             "milan-persist-state.sh"), encoding="utf-8").read()
-    assert have == reserved_sh, (
-        "sw/persist/milan-persist-state.sh is stale vs the SoC flash map / "
-        "PERSIST_ITEMS - re-run milan_persist_state.py --emit-sh")
-
     print(f"  [gate 1] {len(rows)} slots, erase-block aligned, no overlap, "
-          f"0x{sum(r[2] for r in rows):X} of 0x{flash_size:X} allocated; "
-          "the persistence inventory in step")
+          f"0x{sum(r[2] for r in rows):X} of 0x{flash_size:X} allocated")
 
 
 def test_generated_is_fresh():

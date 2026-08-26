@@ -161,8 +161,8 @@ def identity_from_overlay(ovl):
     #! station EUI-48 widened to EUI-64 by inserting FF-FE at the OUI
     #! boundary. Same recipe the deleted mux applied in RTL ({mac[47:24],
     #! 16'hFFFE, mac[23:0]}) and the same one derive_entity_id() applies to
-    #! the entity_id, so the descriptor's clock_identity is the one ptp4l
-    #! announces.
+    #! the entity_id, so the descriptor's clock_identity is the one the
+    #! fabric time-sync engine announces.
     clock_id = mac[:3] + b"\xFF\xFE" + mac[3:]
 
     def u(value, nbytes):

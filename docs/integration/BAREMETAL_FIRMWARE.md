@@ -15,7 +15,7 @@ The capability rows on this page are checked against the
 | Feature ID | Status | Canonical value |
 |---|---|---|
 | `soc.baremetal-profile` | `implemented` | - |
-| `host.sound-card-option` | `implemented` | - |
+| `host.sound-card-option` | `not-supported` | - |
 | `gptp.fabric-product-owner` | `implemented` | - |
 <!-- milan-feature-status:end -->
 

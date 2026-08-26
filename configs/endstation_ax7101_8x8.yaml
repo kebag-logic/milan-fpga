@@ -31,8 +31,7 @@ entity:
 board:
   target: ax7101
   features:
-    fabric_gptp: true   # the one product owner (#116, #259: the Linux/linuxptp owner is retired)
-    sound_card: false    # retired surface (#259): no Linux ALSA host rings
+    fabric_gptp: true   # the one product owner (#116, #259)
     # AREA_BUDGET tier-1 prunes, applied 2026-07-28 when the 0x0019 fabric
     # (per-index counters, the all-context mirror, the silence fill, the
     # journal) took the 8x8 to 66,290 LUTs against the xc7a100t's 63,400
@@ -57,10 +56,7 @@ board:
   constraints:
     sys_clk_hz: 100000000            # milan_soc.py default (sweep passes none)
     milan_clk_hz: 100000000          # single fast domain (AX timing CLOSED)
-    l2_bytes: 0                      # #259 bare-metal cacheless product; the
-                                     # Linux-era 16K close (07-24, WNS +0.080)
-                                     # and the 32K congestion wall are
-                                     # historical records in git history.
+    l2_bytes: 0                      # #259 bare-metal cacheless product
     phy: gmii-1g                     # RTL8211E GMII
     gtx_tx_invert: true              # PHY samples mid-bit (GMII-TX fix)
     floorplan: true
@@ -71,8 +67,8 @@ board:
                                      # docs/findings/GPTP_GM_LOSS_UNDER_RX_LOAD
                                      # .md): with 1 queue there is no steer
                                      # block at all, gPTP shares the bulk ring,
-                                     # and under a 950M iperf flood ptp4l
-                                     # starves - our GM stops transmitting and
+                                     # and under a 950M iperf flood the former
+                                     # time-sync process starved; our GM stopped and
                                      # a CONFORMANT peer BMCA deposes it
                                      # (802.1AS 10.3; reproduced 2/2). Two
                                      # queues = flow-steered gPTP ingress, the
@@ -135,17 +131,7 @@ platform:
   csr_base: 0x90000000
   mac_address: "02:00:00:00:00:01"   # board 1
   interrupt: 3
-  pcm_ring_phys: 0x7f800000          # 8 capture streams x 1 MiB stride at the
-  pcm_ring_bytes: 0x800000           # top of the AX7101's 1 GiB main_ram
-  pcm_ring_stride: 0x100000
-  boot_chain_pin:                    # the 2-queue map (rx_queues 2, 2026-07-28):
-                                     # rx1_*/steer exist, so dma-ts/pcm sit
-                                     # 0x74 HIGHER than the old 1-queue flash.
-                                     # Diff against the new build's csr.csv at
-                                     # flash time (8.2 checklist) - a pin that
-                                     # is not re-verified is the rotted-DTB
-                                     # dead-hardware mimic all over again.
-    dma-ts: 0xf0003100
+  pp_mem_phys: 0x7f700000            # 1 MiB protocol-processor window
 
 gptp:
   # ONE source (USER 2026-08-05): these values generate BOTH the
@@ -159,8 +145,7 @@ gptp:
   # the local-clock dataset the fabric gPTP engine announces from constants
   # in gptp-processor/hdl/ucode/gen_gptp_ucode.py; the builder refuses any
   # stated value the engine does not announce ([R-parallel] on #228). The
-  # old offset_scaled_log_variance 0xFFFF (a historical linuxptp default of
-  # the retired software owner, #259) never went out on the wire (the
+  # old offset_scaled_log_variance 0xFFFF never went out on the wire (the
   # engine announces 0x436A), so the key is deleted and derived.
   priority1: 248
   priority2: 248
@@ -250,10 +235,6 @@ audio_interface:
                                      # from the platform declaration above
                                      # plus the pools below - never hardcoded.
     pools:
-                                     # host: retired (#259, historical): the
-                                     # ALSA/PipeWire lane (8ch per subdevice,
-                                     # the chmap64 8 x 8 x 8ch geometry) left
-                                     # with the Linux sound-card surface.
       pilot: true                    # one KL_tone_gen Pilot cluster per
                                      # talker port (D8; fan-out onto many
                                      # stream channels is legal SELECTION and
@@ -301,10 +282,6 @@ audio_interface:
                                      # campaign lands and the power-on map
                                      # returns to the loopback pool by
                                      # itself - one fact, both consumers.
-                                     # playback_rings: retired (#259,
-                                     # historical): the KL_pcm_tx host rings
-                                     # behind the retired `host` pool left
-                                     # with the Linux sound-card surface.
 
 streams:
   listeners:

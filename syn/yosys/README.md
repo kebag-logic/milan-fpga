@@ -37,7 +37,7 @@ make ecp5       # map to a real non-Xilinx device: Lattice ECP5 (TRELLIS_FF/LUT4
 
 ## Tooling
 - `yosys` (Arch: `pacman -S yosys`).
-- `sv2v` on `PATH` — prebuilt static Linux binary from
+- `sv2v` on `PATH` — pinned prebuilt release from
   [github.com/zachjs/sv2v/releases](https://github.com/zachjs/sv2v/releases)
   (drop into `~/.local/bin`). No Xilinx tools required.
 

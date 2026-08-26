@@ -150,8 +150,8 @@ packets are crossing the Milan NIC on hardware = **M-A3 RX**.
 Open detail (plumbing, not the NIC): reading the *exact* captured bytes back over the BIOS
 console is confounded by (a) the `milan_dma_*_base` encoding and (b) L2 cache coherency —
 the DMA writes DDR3 while the CPU `mem_read` hits stale L2 (the 2 MB boot memtest region is
-cached, and untouched regions read uninit). The Linux `kl-eth` driver handles this correctly
-(dma_map + descriptor addresses); the raw console is a crude tool for it. Does not affect the
+cached, and untouched regions read uninit). A firmware DMA reader must invalidate or avoid
+such cache aliases; the raw console is a crude tool for it. This does not affect the
 proven result that frames are received and DMA'd.
 
 ## TX end-to-end bring-up — DMA proven good, bug isolated to the CDC/MAC handoff (2026-07-03)

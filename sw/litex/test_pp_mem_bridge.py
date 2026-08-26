@@ -929,7 +929,7 @@ def test_counter_wiring():
     # The bank's ADDRESS is part of the ABI the register map publishes, and
     # LiteX allocates the lowest free page: unpinned, this bank lands on
     # sdram's page and pushes the LiteSPI bank - a write path to the boot
-    # flash - out from under every device tree that names it.
+    # flash - out from under every consumer that names it.
     pinned = [n for n in ast.walk(tree)
               if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute)
               and n.func.attr == "add" and n.args
