@@ -1,10 +1,10 @@
 # Bare-metal AX7101 firmware profile
 
 The shipping AX7101 profile uses one RV32I VexiiRiscv hart in machine mode,
-with no supervisor mode, MMU, or Linux (#259), and no FPU, L1 cache, L2 cache or LiteX SDRAM
+with no supervisor mode, MMU, operating system, FPU, L1 cache, L2 cache or LiteX SDRAM
 cache. It uses the fabric gPTP plane bought by #114, now the product and RTL
 default. The product is bare-metal only (#259, USER directive 2026-08-25):
-no Linux boot profile, rootfs, or software gPTP owner is supported.
+no host boot profile and no software gPTP owner is supported.
 `fabric_gptp: false` is refused for product configurations; an option-off
 elaboration exists only as verification-only hardware with zero gPTP owners.
 
@@ -15,7 +15,7 @@ The capability rows on this page are checked against the
 | Feature ID | Status | Canonical value |
 |---|---|---|
 | `soc.baremetal-profile` | `implemented` | - |
-| `host.sound-card-option` | `not-supported` | - |
+| `host.sound-card-option` | `implemented` | - |
 | `gptp.fabric-product-owner` | `implemented` | - |
 <!-- milan-feature-status:end -->
 
@@ -25,7 +25,7 @@ The capability rows on this page are checked against the
 - **[Boot and AEM image](#boot-and-aem-image)** — The raw QSPI descriptor-image slot and the identity, copy and CRC checks that must pass before either compatibility enable bit may activate the shared AVDECC control plane.
 - **[Fabric gPTP option](#fabric-gptp-option)** — The default fabric owner, generated microcode, and the verification-only option-off elaboration (#259 retired the software comparison).
 - **[UART commands](#uart-commands)** — The status, TAI set/get and explicit UTC conversion commands, followed by the non-disruptive host smoke invocation.
-- **[Retired Linux sound-card surface (#259)](#retired-linux-sound-card-surface-259)** — What `sound_card: false` omits, what audio fabric remains, and why no build can opt back in: the CLI refuses the retired flag.
+- **[Retired sound-card surface (#259)](#retired-sound-card-surface-259)** — What `sound_card: false` omits, what audio fabric remains, and why no build can opt back in: the CLI refuses the retired flag.
 - **[Verification gates](#verification-gates)** — The mandatory local bar, complete three-directive Vivado cell, timing-clean winner and measured resource buy-back that fund the fabric gPTP plane.
 
 ## Build contract
@@ -39,7 +39,7 @@ these statements hold:
 - `l2_bytes` is zero, no FPU is selected, and no cache or prefetch Scala
   arguments are present.
 - `flashboot` is `baremetal` or `none`; these are the only flashable
-  manifests (#259 retired the Linux `full`/`kernel` boot chains).
+  manifests (#259 retired the host boot chains).
 - The Vexii netlist ISA is RV32I plus `zicsr` and `zifencei`. Machine mode is
   the only privilege level and the CPU has no MMU.
 - The cacheless CPU side and the 64-bit Milan plane run at 50 MHz. Vexii's
@@ -74,8 +74,8 @@ builder-generated protocol-processor entity image:
 proved transition; it must not receive a LiteX FBI header. The one supported
 transition is a fabric-baremetal refresh: the target AEM image verifies
 first and the target bit commits last, so the old autonomous fabric owner
-stays live at every incomplete prefix. Layouts naming the retired Linux boot
-images (kernel/OpenSBI/DTB/rootfs, #259) or a non-fabric owner are refused
+stays live at every incomplete prefix. Layouts naming a retired boot image
+(#259) or a non-fabric owner are refused
 before any programmer I/O. At build time the firmware receives the image
 length, CRC32 and DRAM destination as generated constants. The PHC is enabled by the CSR reset and the
 option-on fabric gPTP plane starts independently of the AVDECC AEM image.
@@ -551,12 +551,12 @@ states the owner explicitly. An option-on build elaborates `KL_gptp_shadow` with
 microcode image. A missing `gptp:` section is rejected instead of silently
 using the generator's example identity or clock defaults.
 
-`fabric_gptp: false` is refused for product configurations (#259: the
-software/Linux owner is retired, so an option-off image would run zero gPTP
-owners). The option-off elaboration remains reachable only through
-`milan_soc.py --no-fabric-gptp` as verification-only hardware; its artifacts
-are not flashable and a builder handoff deletes any stale retired
-software-owner marker or ptp4l fragment (#259) it finds. The bare-metal
+`fabric_gptp: false` is refused for product configurations (#259: the software
+owner is retired, so an option-off image would run zero gPTP owners). The
+option-off elaboration remains reachable only through a direct `milan_soc.py`
+run as verification-only hardware; its artifacts are not flashable, and a
+builder handoff deletes any stale software-owner marker or time-daemon
+fragment (#259) it finds. The bare-metal
 firmware exposes explicit UART commands for setting the
 PHC epoch; the fabric plane owns adjfine and adjtime. When an external
 grandmaster is selected, that plane steps and disciplines the PHC; a
@@ -587,17 +587,17 @@ MILAN_PROFILE=baremetal MILAN_UART=/dev/serial/by-id/<adapter> \
 It checks the CSR magic, paired AEM image, enable bits and PHC progression.
 It does not set the clock, so a smoke run cannot disturb an established time.
 
-## Retired Linux sound-card surface (#259)
+## Retired sound-card surface (#259)
 
 `board.features.sound_card` is `false` everywhere, and the surface it gated
 is retired (#259): generation omits the PCM DMA master, its LiteX CSR window,
-the device-tree PCM node, the reserved capture ring, playback rings and
-host-role AEM clusters, and `milan_soc.py` refuses the historical
-`--sound-card` flag (and with it `--aaf-playback`) at the command line. The
+its published node, the reserved capture ring, playback rings and host-role
+AEM clusters, and `milan_soc.py` refuses the historical sound-card flag (and
+with it `--aaf-playback`) at the command line. The
 receive AVTP parser/depacketizer, physical audio capture, AAF packetizer,
 channel maps, loopback sources and render path remain fabric functions. The
 smoke script's `SOUND_CARD=0` knob remains for the recorded historical runs;
-the ALSA check it skipped can no longer apply to any buildable image.
+the sound-card check it skipped can no longer apply to any buildable image.
 
 ## Verification gates
 
@@ -644,7 +644,7 @@ That result is why the cacheless CPU and 64-bit Milan plane run at 50 MHz;
 recipe remain at 100 MHz.
 
 Post-synthesis resource accounting also proves the intended buy-back. The
-#114 Linux, plane-off baseline used 59,497 LUT, 63,092 registers, 126 BRAM
+#114 plane-off baseline used 59,497 LUT, 63,092 registers, 126 BRAM
 tiles and 15 DSP. The fabric gPTP plane in this build accounts for 3,364 LUT,
 2,939 registers, 4.5 BRAM tiles and 4 DSP. Adding that plane to the old
 baseline would require 62,861 LUT, 66,031 registers, 130.5 BRAM tiles and 19

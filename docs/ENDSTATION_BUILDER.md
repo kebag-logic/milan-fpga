@@ -2,8 +2,7 @@
 
 **Purpose.** One declarative config (`configs/endstation_*.yaml`, schema
 `kebag-logic/milan-endstation-config`) drives gateware elaboration, the AEM
-entity model, lwSRP tables and the platform/flash shape consistently. The
-former DT/driver projection is retained as historical contract material (#259). The current
+entity model, lwSRP tables and the DT/driver shape consistently. The current
 compliance boundary is recorded in
 [`testing/MILAN_V12_AUDIT_2026-08-16.md`](testing/MILAN_V12_AUDIT_2026-08-16.md).
 
@@ -26,12 +25,11 @@ config-schema → AEM-descriptor mapping.
 > * the processor serves descriptors out of a **flat image in DRAM** at a
 >   compile-time base with no base register;
 > * this builder generates `aem_desc.bin`, `aem_desc.json`, and `aem_desc.map`
->   from the selected configuration. The SoC build emits the same set beside
->   the bitstream and records the raw AEM slot in `flashboot_layout.json`;
-> * `deploy.sh flash-pair` validates and writes the complete bare-metal
->   `{bitstream, aem}` set. At boot, firmware copies the image to
->   `PP_DESC_BASE_P`, verifies its generated length and CRC32, and only then
->   enables the processor/entity. A missing or corrupt image fails closed;
+>   from the selected configuration. When the deployed board shape is written,
+>   it packages the paired image and manifest beside the bitstream;
+> * board-side `aemi-load` verifies the pair and loads the image at
+>   `PP_DESC_BASE_P` before the entity is enabled. A custom integration that
+>   omits this step fails closed with `BAD_ARGUMENTS`;
 > * the `aecp_aem_rom.svh` the builder **still writes** under
 >   `sw/builder/out/<cfg>/` is the ROM of the **deleted** in-fabric
 >   `KL_aecp_aem_store`. It has no RTL path (it is written nowhere an
@@ -90,11 +88,10 @@ configs/endstation_<shape>.yaml          (single source of truth)
         │                       (hdl/ieee8021q/srp/gen/lwsrp_table.svh) went
         │                       with the deleted applicant; the CSR half
         │                       below is what still lands in the tree
-        ├── platform_shape.json → stable layout contract: the Milan CSR base, the
+        ├── platform_shape.json → driver-visible layout: the Milan CSR base, the
         │   milan-nic.dtsi       DMA window map DERIVED from
-        │                        board.constraints.rx_queues, the addresses
-        │                        fabric clients use, plus the retired #259
-        │                        kl-eth/device-tree historical projection
+        │                        board.constraints.rx_queues and the
+        │                        addresses software must not restate
         └── build_plan.md     → human review; shapes beyond current RTL
                                 VALIDATE and are marked "planned"
 
@@ -131,11 +128,10 @@ processor's `ACMP_SINKS_C` / `ACMP_SRC_C` are sized from that same header.
 The third member of that sentence has moved out of the gateware entirely:
 **the descriptor set a controller enumerates is no longer compiled in at all.**
 The processor's AECP uCPU answers `READ_DESCRIPTOR` from an image in DRAM.
-Every builder run emits the review image set under `sw/builder/out/`; the named
-SoC build emits the matched set beside its bitstream. `flash-pair` persists the
-complete bare-metal pair, and firmware verifies/copies the AEM image before
-entity enable. `--write-fragment` / `--write-rtl` transfer generated source
-ownership and remove stale rootfs artifacts; they do not create a Linux image.
+During an explicit deployment ownership transfer, `--write-fragment` or
+`--write-rtl` generates the paired image beside the bitstream, and `aemi-load`
+verifies and loads it before entity enable. An ordinary builder run does not
+touch the deployment set.
 `--write-rtl` is explicit rather than automatic because `build()` runs on
 throwaway config variants during testing and a shape nobody chose must never
 end up in the tree; `sw/litex/build.sh` and `sweep.sh` REFUSE to launch unless
@@ -187,10 +183,9 @@ flowchart LR
     SWP -->|"sourced, OPTS / L2 / RXQ"| SWEEP["sw/litex/sweep.sh"]
     OVL -->|"--overlay"| GEN["avdecc/gen_aem_store.py"]
     GEN --> ROM["AEM descriptor ROM svh<br/>ORPHAN since 2026-08-13 -<br/>its store is deleted; NOT the<br/>DRAM image READ_DESCRIPTOR reads"]
-    IMG --> FLASH["SoC build + flash-pair<br/>raw AEM beside bitstream"]
+    IMG --> LOAD["deployment pair + aemi-load<br/>verify and load before enable"]
     LTJ --> SRPRTL["lwSRP engine table<br/>DELETED 2026-08-13 with<br/>the applicant RTL"]
     LCD --> CSRINC["hdl/common/csr/gen/<br/>lwsrp_csr_defaults.svh - TRACKED,<br/>INCLUDE-d by milan_csr.sv"]
-    DTS --> DRV["retired #259 device-tree<br/>contract artifact"]
     MSOC --> BIT["bitstream"]
     SWEEP --> BIT
     CSRINC --> BIT
@@ -209,15 +204,15 @@ consumes them. Everything else is regenerated into
 | Artefact | What it carries | Read by | Gate in [`sw/builder/test_builder.py`](../sw/builder/test_builder.py) |
 |---|---|---|---|
 | `soc_params.json` | the `milan_soc.py` **design** argv this config implies (no flow flags) | [`sw/litex/milan_soc.py`](../sw/litex/milan_soc.py) | 2 — argv equals `sweep.sh`'s design flags for arty *and* ax7101 |
-| `aem_overlay.json` | descriptor counts, stream formats, per-stream STREAM_PORT / cluster / map layout, entity identity | `avdecc/gen_aem_store.py --overlay`; `_entity_model_image()` consumes it for the review image and the SoC build consumes the same model for deployment | 3 (counts equal the hardcoded model), 6 (port-layout invariants), 10 (the former tracked-ROM identity gate), 15–17 (CRF output, dynamic maps), plus image identity and directory-shape gates |
-| `aem_desc.bin` + `aem_desc.json` + `aem_desc.map` | flat processor image, paired manifest with derived base and identity, and readable directory report | review set under `sw/builder/out/`; the SoC build emits the deployable set beside the bitstream, `flash-pair` writes its raw AEM slot, and firmware verifies/copies it before entity enable | image identity, image/manifest pairing, flash-layout binding, firmware CRC/enable-order gates, and root wire `READ_DESCRIPTOR` coverage |
+| `aem_overlay.json` | descriptor counts, stream formats, per-stream STREAM_PORT / cluster / map layout, entity identity | `avdecc/gen_aem_store.py --overlay`; `_entity_model_image()` consumes it only during an explicit deployment ownership transfer | 3 (counts equal the hardcoded model), 6 (port-layout invariants), 10 (the former tracked-ROM identity gate), 15–17 (CRF output, dynamic maps), plus image identity and directory-shape gates |
+| `aem_desc.bin` + `aem_desc.json` + `aem_desc.map` | flat processor image, paired manifest with derived base and identity, and readable directory report | generated beside the bitstream only by `--write-fragment` or `--write-rtl`; `aemi-load` verifies and writes the image before entity enable | image identity, image/manifest pairing, directory shape, and builder artifact gates; root wire `READ_DESCRIPTOR` coverage grades the served result |
 | `lwsrp_table.json` + `lwsrp_table.svh` | SR class, MRP timers, class-A bandwidth math, TSpec, one record per stream, the engine's elaboration parameters | **the lwSRP RTL tree is DELETED (2026-08-13)** — the engine `.svh` no longer lands anywhere; the JSON is still emitted and still describes the reservation policy the CSR half provisions | 18a–18d covered emitted word ⇄ RTL symbol ⇄ reset block ⇄ readback table ⇄ register-map Reset column. The RTL-symbol leg has no target any more; the CSR legs still bite through `lwsrp_csr_defaults.svh` |
 | `lwsrp_csr_defaults.svh` | the CSR-facing **subset**: the `0x680` reset words + the PriorityAndRank byte | `` `include ``-d by [`hdl/common/csr/milan_csr.sv`](../hdl/common/csr/milan_csr.sv) | 20a — the loop is closed: no `0x680` literal survives in the RTL, and every flow compiling `milan_csr.sv` carries the include dir |
 | `adp_shape_defaults.svh` | the **advertised shape**: `talker_stream_sources` / `listener_stream_sinks` (1722.1-2021 6.2.1.9/6.2.1.11), both capability words, and `TALKER_WIRE_CHANS_C` — the **emitted** channel width (roadmap item 00) | `` `include ``-d by **both** [`hdl/common/csr/milan_csr.sv`](../hdl/common/csr/milan_csr.sv) (the RO `0x618`/`0x61C` words) and [`hdl/milan/milan_datapath.sv`](../hdl/milan/milan_datapath.sv) (the ACMP source/sink context array sizing) | [`scripts/check_entity_shape.py`](../scripts/check_entity_shape.py) — config → svh → AEM descriptor counts, for every config, plus 7 mutation cases and a pre-build `--built-config` mode wired into `build.sh`/`sweep.sh`; [`scripts/check_wire_accountability.py`](../scripts/check_wire_accountability.py) — the advertised width against the **fabric that has to produce it** (expected red until roadmap item 5) |
 | `adp_shape_defaults.svh` | the **advertised shape**: `talker_stream_sources` / `listener_stream_sinks` (1722.1-2021 6.2.1.9/6.2.1.11) and both capability words | `` `include ``-d by **both** [`hdl/common/csr/milan_csr.sv`](../hdl/common/csr/milan_csr.sv) (the RO `0x618`/`0x61C` words) and [`hdl/milan/milan_datapath.sv`](../hdl/milan/milan_datapath.sv) (the ACMP source/sink context array sizing) | [`scripts/check_entity_shape.py`](../scripts/check_entity_shape.py) — config → svh → AEM descriptor counts, for every config, plus 10 mutation cases and a pre-build `--built-config` mode wired into `build.sh`/`sweep.sh` |
-| AEM descriptor ROM (`aecp_aem_rom.svh`) | the legacy AEM descriptor set generated from this config's `aem_overlay.json` | **ORPHANED 2026-08-13**: still written to `sw/builder/out/<cfg>/`, deliberately never into `hdl/` or any `gen/` include path because its consumer, `KL_aecp_aem_store`, is deleted. The processor instead serves the flat DRAM image generated from the same overlay and carried in the bare-metal AEM slot | gate 10 (byte identity against the tracked ROM) has no tracked artefact to compare against. `check_entity_shape.py` still holds the config-to-shape leg that the processor's ACMP arrays depend on |
+| AEM descriptor ROM (`aecp_aem_rom.svh`) | the legacy AEM descriptor set generated from this config's `aem_overlay.json` | **ORPHANED 2026-08-13**: still written to `sw/builder/out/<cfg>/`, deliberately never into `hdl/` or any `gen/` include path because its consumer, `KL_aecp_aem_store`, is deleted. The processor instead serves the flat DRAM image generated from the same overlay during deployment ownership transfer | gate 10 (byte identity against the tracked ROM) has no tracked artefact to compare against. `check_entity_shape.py` still holds the config-to-shape leg that the processor's ACMP arrays depend on |
 | AEM golden header (`aem_golden.h`) | the same ROM image as C, the oracle the deleted `aecp` suite compared against | **DELETED 2026-08-13** with the fabric `aecp` suite. The builder-generated flat image, manifest, map, image-shape gates, and root `READ_DESCRIPTOR` wire coverage replace the old supply-chain evidence | gate 24d compared the old golden and ROM. Current gates instead pair the processor image with its manifest and verify the served descriptor path |
-| `platform_shape.json` + `milan-nic.dtsi` | Milan CSR base and DMA window map; the `.dtsi` is the retired Linux/driver projection (#259) | fabric layout consumers; `.dtsi` retained as historical ABI evidence | 19a–19c preserve the former config/DT/CSR consistency evidence without making it a product artifact |
+| `platform_shape.json` + `milan-nic.dtsi` | Milan CSR base, the DMA window map **derived from** `board.constraints.rx_queues`, and the window bases software must read rather than restate | platform shape | 19a (queue count is one number across config, argv and sweep fragment), 19b (window bases byte-match the generated CSR listing and the deployed tree), 19c (flipping `rx_queues` under a pinned boot chain is refused) |
 | `build_plan.md` | human review, capability marks, the LUT/FF/BRAM36/DSP estimate and its OK / TIGHT / OVER verdict | a human | 4 (planned marks), 11 (estimate within ±15 % of the real place report), 12 (deterministic), 13 (verdict thresholds and UPPER BOUND labelling) |
 | `configs/generated/sweep_opts_<board>.sh` | `OPTS` / `L2` / `RXQ` for the board | sourced by [`sw/litex/sweep.sh`](../sw/litex/sweep.sh), whose inline tables are the loud fallback | 9 — byte-for-byte against `sweep.sh`, per board, and `sh -n` on all three files |
 
@@ -264,7 +259,7 @@ index first; it states which behavior can be relied on today.
 | **D3** | talker `clusters` is its own config field, never derived from `channels` | 1722.1 7.2.6, 7.4.10.2; Milan 5.3.7.1, 5.3.9.1, 6.3 | **implemented** — the shapes table above shows 8 vs 2 |
 | **D4** | `entity_model_id` = deterministic hash of the model-shaping fields only, or a pin for flashed silicon | 1722.1 6.2.2.8 (incl. its exclusion list) | **implemented** — determinism, shape-sensitivity and the pin are gated (gate 8) |
 | **D5** | the config is the single source of truth; flow flags stay in `sweep.sh`; `audio_interface.kind` selects the ser/des family | engineering + 1722.1 7.2.7/7.2.14/7.2.3 | **implemented** for `i2s_philips` and `tdmN`; `aes3`/`spdif` ser/des exists, its SoC plumbing is *planned*; the JACK / EXTERNAL_PORT model is *planned* |
-| **D6** | AEM store uses a DRAM descriptor tree loaded from a builder-emitted, verified image pair | engineering (area: ~80 RAMB36 vs ~36 free) | **implemented in the tracked bare-metal flow**: the processor fetches the model from a compile-time DRAM base; the build emits the image/manifest/map, `flash-pair` persists the matched AEM slot, and firmware verifies/copies it before entity enable. See D6 below |
+| **D6** | AEM store uses a DRAM descriptor tree loaded from a builder-emitted, verified image pair | engineering (area: ~80 RAMB36 vs ~36 free) | **implemented in the tracked flow**: the processor fetches the whole model from DRAM at a compile-time base; the builder emits the image, manifest, and map; `aemi-load` verifies and loads the pair before entity enable. See D6 below |
 | **D7** | dynamic-map store keyed by the **target** stream channel, not the source cluster | Milan 5.4.2.27/28 (one source per stream channel) | **implemented**: generated input geometry and output ownership sideband feed atomic ADD/REMOVE transactions and live projections |
 | **D8** | role-named 8×8 port model: per-platform cluster pools, a Pilot cluster, a stream-loopback lane | 1722.1 7.2.19 (port-relative offsets) | **model implemented** (2026-07-28) — `role-pools` policy emits per-platform pools, gates 24a/24b + `sim_pools`; the loopback **fabric lane** is still pending and marked *planned* |
 | **D10** | every AUDIO_CLUSTER is named for its ROLE, not `"Input"`/`"Output"` | 1722.1 7.2.16; 6.2.2.8 (object_name excluded from model structure) | **implemented** (2026-07-28) — gates 24c/24d; `entity_model_id` provably unmoved |
@@ -356,15 +351,13 @@ families and the *physical* truth lives in the binding rule instead
 bind in order to the first clusters per direction; extra stream channels
 are virtual; missing physical channels render 0.
 
-Mono clusters also match the historical PipeWire reference layout from which
-the ROM was byte-derived; that host runtime is retired (#259).
+Mono clusters also match the reference layout the ROM was byte-derived from.
 
 ### D3 — talker cluster count as config
 
 **Decision.** `streams.talkers[].clusters` is an explicit config field,
 independent of `streams.talkers[].channels` (today's shape: 8 output
-clusters, 2-channel talker framer — derived from the historical PipeWire
-reference layout, whose target runtime is retired under #259).
+clusters, 2-channel talker framer — the shipped ROM's reference layout).
 
 **Clause basis.**
 - 1722.1 7.2.6 + 7.4.10.2: GET_STREAM_FORMAT returns "the current stream
@@ -450,8 +443,7 @@ model rather than to invent a new id.
 
 **Decision.** The YAML config is the only place a design fact lives; the
 `milan_soc.py` design argv (`soc_params.json`), the AEM overlay, and the
-platform shape are all emitted from it. The retired DT/driver projection
-(#259) remains an evidence artifact only. Flow flags (`--build`,
+DT/driver shape are all emitted from it. Flow flags (`--build`,
 `--vivado-max-threads`, `--place-directive`, output dirs) are explicitly
 *not* end-station definition and stay in [`sw/litex/sweep.sh`](../sw/litex/sweep.sh).
 
@@ -551,23 +543,27 @@ file** — a model change no longer needs a bitstream rebuild.
 3. **Integrity** — a hash mismatch means no advertise plus a diagnostic CSR
    code, never a silently wrong model.
 
-**Current status: the whole model lands in DRAM, and the tracked bare-metal
-build/flash/boot supply chain is implemented.** The processor's descriptor store is the
+**Status 2026-08-16: the whole model landed in DRAM, and the tracked build and
+boot supply chain is implemented.** The processor's descriptor store is the
 read-only fetch master: the whole entity model lives in main memory at a
 **compile-time** base. `milan_datapath` surfaces it as `o_desc_mem_*` /
 `i_desc_mem_*`, and the LiteX SoC bridges it to the reserved top 1 MiB of
 `main_ram`. `_entity_model_image()` feeds the builder overlay through
 `avdecc/gen_aemi_image.py` and the processor's own `gen_desc_image.py`, then
-emits `aem_desc.bin`, `aem_desc.json`, and `aem_desc.map`. The SoC build emits
-that set beside its bitstream and binds the raw AEM slot in
-`flashboot_layout.json`; `deploy.sh flash-pair` validates the complete target
-before programmer I/O and writes the AEM before committing the bitstream.
-The boot firmware copies exactly the generated byte count, checks the CRC32,
-and asserts `PP_CTRL[0]` followed by `ADP_CTRL[0]` only after success. The
-compiled RV32 store/call/control-flow census and its mutation suite pin that
-ordering. Missing or corrupt AEM therefore leaves the entity disabled. The
-former rootfs/`S50milan`/`aemi-load` path is retired historical evidence
-(#259), not a second supply chain.
+emits `aem_desc.bin`, `aem_desc.json`, and `aem_desc.map`. An explicit
+deployment ownership transfer installs that set beside the bitstream. The
+board loads it with `aemi-load` before it programs identity and enables
+advertisement.
+
+The original stronger rules did not all survive. `aemi-load` checks the
+manifest pairing, window bounds, read-back bytes, AEMI magic, and the ENTITY
+`firmware_version` against the live VERSION CSR. It does not verify the D4
+`entity_model_id` hash. A missing loader or image is warned about but does not
+block advertisement, and a firmware-version mismatch loads the coherent stale
+image while returning a distinct pairing verdict. An unloaded or damaged image
+therefore still fails closed at the descriptor store with `BAD_ARGUMENTS`, and
+a late valid load heals without a reset. The remaining gap is strict
+advertisement gating and D4 hash enforcement, not the image supply chain.
 
 ### D7: direction-specific dynamic-map keys
 
@@ -599,8 +595,7 @@ remains open in issue #70. The fabric contract is
 
 **Decision** (USER sketch 2026-07-25, reconciled to D1/D2). The NxN model
 keeps one STREAM_PORT per stream (D1) and mono clusters (D2), but ports are
-**role-named** (for example, "TDM 1..8" and the retired #259 historical
-"PipeWire 1..8" labels). Because a mapping's
+**role-named** ("TDM 1..8", "Host 1..8"). Because a mapping's
 `cluster_offset` is **port-relative** (1722.1 7.2.19), there are no shared
 cluster pools: each port carries its own pool, and pool contents are
 **derived from the platform config, never hardcoded** —
@@ -608,8 +603,7 @@ cluster pools: each port carries its own pool, and pool contents are
 - the physical audio-interface channels (the AX today: TDM8 + I2S = 10 per
   direction — a "64 TDM" pool is only honest on a platform that
   instantiates it);
-- the retired PipeWire host-lane compatibility pool (#259), which is zero in
-  product configs and rejected if populated;
+- the host lane channels for that stream (8 per subdevice);
 - on talker ports, **one Pilot cluster** (the tone source; fan-out is legal
   selection under D7);
 - on talker ports, **stream_loopback clusters** (the received pair streams
@@ -632,7 +626,7 @@ every pool width is read out of the platform declaration:
 | Pool | Width from | Where |
 |---|---|---|
 | `physical` | `audio_interface.physical_channels.{capture,render}` | both directions |
-| `host` | retired ALSA/PipeWire compatibility pool (#259); product configs require zero | both directions |
+| `host` | `cluster_mapping.pools.host` (the host ring lane per stream) | both directions |
 | `pilot` | `cluster_mapping.pools.pilot` (one `KL_tone_gen` cluster) | **talker ports only** |
 | `loopback` | `cluster_mapping.pools.loopback` | **talker ports only** |
 
@@ -770,8 +764,8 @@ Status: **the model half is implemented and still emitted; the tracked ROM, the
 golden and the `aecp` suite are DELETED (2026-08-13)**, so gate 24d has nothing
 left to compare. A controller can read cluster names again in principle —
 `READ_DESCRIPTOR` is answered from the builder-generated processor image after
-bare-metal firmware verifies and copies it from the paired AEM slot. A custom
-flow that skips the load receives `BAD_ARGUMENTS`. Note that the
+`aemi-load` verifies and loads it. A custom flow that skips the load receives
+`BAD_ARGUMENTS`. Note that the
 two-writer trap below is *not* retired by the deletion: it comes back the moment
 the image generator becomes a second writer of the same model. `sim_pools`
 sections [2]/[6] went with the suite. What survives is the naming rule itself
@@ -839,7 +833,7 @@ N = 2, R = 0) against `KL_aecp_desc_store`'s 576-octet line buffer.
 
 Consumers: **AEM** = [`avdecc/gen_aem_store.py`](../avdecc/gen_aem_store.py) (via `aem_overlay.json` —
 the migration contract), **SoC** = [`sw/litex/milan_soc.py`](../sw/litex/milan_soc.py) (via
-`soc_params.json` argv), **DT** = retired device-tree / `kl-eth` evidence (#259),
+`soc_params.json` argv), **DT** = the published platform shape,
 **prov** = boot-time provisioning (CSR writes: ADP identity/counts block).
 "—" in the clause column = engineering fact, no normative clause governs
 the field itself.
@@ -852,7 +846,7 @@ the field itself.
 | 4 | `entity.vendor_name` / `serial_number` / `group_name` | ENTITY strings + LOCALE/STRINGS refs (all 6.2.2.8-excluded) | 1722.1 7.2.1, 7.2.11–12 | AEM |
 | 4b | `entity.firmware_rev` (optional, default 0) — **there is no `entity.firmware_version` key and declaring one is refused** | ENTITY `firmware_version` = `VERSION[31:16]`.`VERSION[15:0]`.`firmware_rev`, DERIVED from [`hdl/common/csr/milan_csr.sv`](../hdl/common/csr/milan_csr.sv) (6.2.2.8-excluded, so it moves no model id) | 1722.1 7.2.1 Table 7-2 (offset 116, 64 octets), 7.2 (zero padding), 6.2.2.8 | AEM |
 | 5 | `board.target` + `board.constraints.*` (clk, l2, phy, flashboot, uart, probes, GMII knobs) | `milan_soc.py` design argv | — | SoC |
-| 6 | `board.constraints.rx_queues` / `hs_page_bytes` | retired DT/driver shape (historical strict `hsplit` pairing, #259) | — | DT |
+| 6 | `board.constraints.rx_queues` / `hs_page_bytes` | DT/driver shape (STRICT `hsplit` pairing) | — | DT |
 | 7 | `clocking.sampling_rate_hz` | AUDIO_UNIT `current_sampling_rate` (6.2.2.8-excluded) | 1722.1 7.2.3 | AEM |
 | 8 | `clocking.audio_unit_rates_hz` | AUDIO_UNIT `sample_rates` list | 1722.1 7.2.3 | AEM |
 | 9 | `clocking.media_clock_sources` | CLOCK_SOURCE set: INTERNAL + one INPUT_STREAM per AAF listener (+ CRF, row 11) | 1722.1 7.2.9, 7.2.9.2 | AEM |
@@ -879,7 +873,7 @@ the field itself.
 | 27 | `clocking.crf_output` (enabled + format) | CRF STREAM_OUTPUT appended after the AAF talkers (mirrors the CRF sink: no STREAM_PORT/cluster/map — it carries no audio); `stream_flags` = CLOCK_SYNC_SOURCE\|CLASS_A (0x0003); domain wiring = the STREAM descriptor's own `clock_domain_index` 0 — 7.2.9.2 defines no OUTPUT_STREAM CLOCK_SOURCE type, so the CLOCK_SOURCE/CLOCK_DOMAIN sets are unchanged; ADPDU `talker_stream_sources` +1. **RULE ENFORCED**: >=2 AAF listener streams reject without it, citing Milan 7.2.3 | Milan 7.2.3, 7.3.2 (format 0x041060010000BB80), 7.3.3 (Class A); 1722.1 7.2.6, 7.2.6.1, 7.2.9.2, 7.2.32 | AEM; SoC (provisioning planned, item 5) |
 
 | 28 | `board.features.*` (six tier-1 prune blocks) | ELABORATION-TIME prune of `KL_mmcm_drp_servo` / `KL_aaf_latency_taps` / `KL_maap` / `KL_i2s_playback` / `rx_mac_filter`+`tcam` / `KL_pcm_lpf` via the `milan_datapath` parameters `MCSERVO_P` `LTAP_P` `MAAP_P` `I2SPB_P` `RXFILT_P` `LPF_P` and the matching `milan_soc.py --no-*` flags. **Every tier-1 prune key defaults to `true` = PRESENT**, so a config that omits those keys keeps those blocks. `validate_features()` REFUSES a config that prunes a block another element still needs (servo vs non-internal `media_clock_sources`, taps vs `strip_probes: false`, MAAP vs `stream_dmac_base: maap`, playback vs `i2s_philips`, filter vs `platform.rx_address_filter: hardware`, LPF kept with its only consumer pruned). Worth ~4.5 k LUT as a **yosys estimate** — recipe, per-block terms and re-measurement obligations in [docs/design/AREA_BUDGET.md](design/AREA_BUDGET.md) | - (engineering budget; area-70 directive) | SoC, build_plan.md |
-| 29 | `board.features.sound_card` / `fabric_gptp` | Policy keys, separate from row 28's six prunes. `sound_card` defaults `false`; `true` is refused because the Linux PCM/DT/AEM host surface is retired (#259). `fabric_gptp` defaults `true`: it requires `gptp:`, emits `--fabric-gptp` and `gptp_ucode.hex`, and makes the integrated engine the sole product gPTP/publication owner. `false` is refused outright; the verification-only `milan_soc.py --no-fabric-gptp` door (#259) reaches hardware with zero owners, never a configuration or deployment artifact | Milan v1.2 / 802.1AS ownership; #114/#116 | AEM, SoC, build_plan.md |
+| 29 | `board.features.sound_card` / `fabric_gptp` | Product options, separate from row 28's six prunes. `sound_card` defaults `false` and controls the host PCM DMA/AEM host surface. `fabric_gptp` defaults `true`: it requires `gptp:`, emits `--fabric-gptp` and `gptp_ucode.hex`, and makes the integrated engine the sole product gPTP/publication owner. `false` is refused outright (#259: the product is bare-metal only, the software comparison owner is retired, and an option-off elaboration is verification-only hardware reached through a direct `milan_soc.py` run, never through a configuration); deployment rejects every non-fabric owner and every retired boot-chain artifact | Milan v1.2 / 802.1AS ownership; #114/#116 | AEM, SoC, build_plan.md |
 | 30 | `platform.rx_address_filter` | Declares WHERE the RX destination-address decision is taken (`hardware` default \| `software` \| `promiscuous`). Gates row 28's `rx_mac_filter` prune: a pruned filter makes the port promiscuous, which is a change in what the station accepts and must be stated, not inferred | 802.3 station address filtering; REQ-MAC-02 | SoC (gate), build_plan.md |
 
 30 rows. Rows 14 (AEM half), 25, and the SoC half of 27 generate *planned*

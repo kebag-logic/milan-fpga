@@ -10,7 +10,7 @@ SPDX-License-Identifier: CERN-OHL-W-2.0
 How an audio sample travels through this end-station: capture (or a host
 PCM ring) → the shared AAF packetizer → the wire as IEEE 1722 AAF-PCM PDUs
 carrying presentation time → the listener's monitor/depacketizer → the PCM
-DMA ring (ALSA) and the physical render outputs. This is the subsystem
+DMA ring and the physical render outputs. This is the subsystem
 deep-dive for the media plane; the scaling model behind it is
 [`NXN_ARCHITECTURE.md`](../NXN_ARCHITECTURE.md), the CSR authority is
 [`reference/REGISTER_MAP.md`](../reference/REGISTER_MAP.md).
@@ -28,7 +28,7 @@ deep-dive for the media plane; the scaling model behind it is
 > AECP command with a conformant `NOT_IMPLEMENTED` echo** — right
 > `message_type`, right length, right `controller_data_length`. Controller
 > enumeration is therefore **reachable** once the descriptor image is in DRAM.
-> The tracked builder/rootfs handoff supplies it only on an explicit deployment
+> The tracked builder handoff supplies it only on an explicit deployment
 > transfer; inspection-only/custom flows that skip that handoff remain empty
 > (§6).
 >
@@ -148,7 +148,7 @@ capture family)"; grounding rows G2/G4 in
 |---|---|---|
 | I2S in | `KL_aaf_capture_i2s.sv` | I2S master for the Pmod I2S2 ADC (CS5343): clean registered dividers off the 24.576 MHz audio MMCM (MCLK /2, SCLK /8 = 64 fs, LRCK /512 = 48.000 kHz), 24-bit Philips capture, emits pair slot 0 |
 | TDM in | `KL_tdm_capture.sv` | TDM bus slave, 8/16/32 slots × 16/24/32 bit clocks, MSB first; pair k carries TDM slots {2k, 2k+1}; accepts both pulse and 50 %-duty frame syncs, data delay 0/1 |
-| ALSA playback | `KL_pcm_tx.sv` | Reads a host-written PCM ring (per-stream sub-rings, S32BE wire byte order) and emits the same pair stream — the playback counterpart of the RX ring, see §2.2 |
+| Ring playback | `KL_pcm_tx.sv` | Reads a host-written PCM ring (per-stream sub-rings, S32BE wire byte order) and emits the same pair stream — the playback counterpart of the RX ring, see §2.2 |
 | Pilot tone | `KL_tone_gen.sv` | 1 kHz exact-period 48-entry 24-bit sine, table at FULL SCALE (digital THD+N −148.1 dB per the module header); enabled by `TONE_CTRL 0x6DC[0]`, it replaces the ADC samples on both channels. `TONE_CTRL[3:1]` attenuates in −6 dB steps (reset 0 = 0 dBFS), so a capture at amplitude 0.25 means `att = 2` and not a quarter-scale generator. Raising it to 0 dBFS is safe only when the whole path is 48 kHz; through a rate conversion a full-scale sampled sine overshoots between samples (measured +0.91 dB) and clips. See [`../findings/MEDIA_CLOCK_LOCK_0810.md`](../findings/MEDIA_CLOCK_LOCK_0810.md) |
 
 The two serial-bus frontends have exact frame timing worth a picture.
@@ -173,8 +173,8 @@ offset, and the even-holds/odd-pushes pair cadence:
 > `~/litex-milan/venv/bin/python3 scripts/gen_wavedrom.py docs/diagrams/wd_tdm8_frame.json`
 > — it emits the `.svg` and the `.png`).
 
-`KL_pcm_tx` deserves its own paragraph because it is the ALSA *playback*
-path (roadmap item 7). Its header states the design intent verbatim: "a
+`KL_pcm_tx` deserves its own paragraph because it is the *playback* path
+(roadmap item 7, retired as a product path by #259; the fabric side stands). Its header states the design intent verbatim: "a
 drop-in replacement for the physical capture front-end … it emits the
 SAME {pair_valid, pair_slot, pair_l, pair_r} contract that
 KL_aaf_packetizer consumes, but the samples come from a host-written
@@ -227,8 +227,8 @@ which a local or protocol start could previously occur between validation and
 the phase-5 RAM writes.
 
 The host-playback wholesale override (`pb_enable`) outranks the lane mux
-either way — an active ALSA session claims the pair source exactly as the
-driver contract documents.
+either way — an active playback session claims the pair source exactly as the
+ring contract documents.
 
 ### 2.3 The shared packetizer and the channel math
 
@@ -267,7 +267,7 @@ true 48 kHz (module header; row
 
 ### 2.4 Egress: CBS, the post-shaper inject, PTP stamping
 
-The host TX path (Linux frames via kl-eth DMA) runs through
+The control-lane TX path (software frames via the TX DMA) runs through
 `traffic_controller_802_1q` — 802.1Q classification plus the 802.1Qav
 credit-based shaper — and then `ptp_ts_top`, which hardware-timestamps
 egress frames (`milan_datapath.sv` "shaper→PTP→ADP arbiter" TX
@@ -323,7 +323,7 @@ tracks PROBING/SETTLED); entries 1..N−1 are written through the CSR 0x800 wind
 `KL_avtp_rx_monitor_ctx.sv` (the shared NxN engine the datapath
 instantiates) implement the Milan STREAM_INPUT diagnostic counters
 (IEEE 1722.1-2021 Table 7-156 / Milan §5.4.5.3), with the contract
-byte-extracted from the PipeWire module-avb reference (module header):
+byte-extracted from an independent AVB implementation's reference (module header):
 
 - **UNSUPPORTED_FORMAT**: per-PDU compare of the AAF header fields
   against the current STREAM_INPUT format; such a PDU counts *nothing
@@ -384,7 +384,7 @@ both, or neither; exactly one stream renders (lowest index wins); reset
 default is stream 0 = RENDER|DMA, bit-identical to the pre-NxN shape
 (module header; the flags are LCTX `w4`, CSR `A_STRMW_CTRL 0x810`).
 
-The DMA ring is where ALSA capture reads from:
+The DMA ring is where a capture consumer reads from:
 
 - **DRAM (default)**: `_PCMRingNxN` in [`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py) — a
   `WishboneDMAWriter` loop ring; per-stream sub-rings at
@@ -395,19 +395,18 @@ The DMA ring is where ALSA capture reads from:
 - **BRAM (option)**: `--pcm-ring bram` swaps in
   [`hdl/ieee1722/aaf/KL_pcm_ring_bram.sv`](../../hdl/ieee1722/aaf/KL_pcm_ring_bram.sv), a dual-port on-chip ring at
   the MMIO window `0x9010_0000` (32 KB) with the **same** CSR ABI, so
-  the driver is unchanged. Because a BRAM write completes in one cycle,
+  the consumer is unchanged. Because a BRAM write completes in one cycle,
   `sink.ready` is constant 1 — no beat can ever be shed and the DRAM
   read artifact cannot exist (`milan_soc.py` `--pcm-ring` help +
   `MILAN_PCM_BRAM_BASE` comment; module header). See §6 for why this
   option exists.
 
-### 3.5 ALSA capture (`snd-kl-milan`)
+### 3.5 The host-side ring consumer
 
-The ALSA card driver `snd-kl-milan` and the PipeWire
-`pw-milan-ring-source` consumer live in the **private test repo**, not
-here — see that repo's
-`fpga/docs/ALSA_DRIVER_DESIGN.md` (referenced from
-[`CHANNEL_MAP_64.md`](../CHANNEL_MAP_64.md) companions).
+The sound-card driver and the media-server source that drained this ring were
+host-side software; #259 retires them as product paths and they live in the
+**private test repo** and in git history, not here. The ring ABI below is what
+any consumer binds to.
 
 The contract it consumes is entirely on this side: the ring ABI of §3.4
 (`offset` CSR = the hardware pointer) and the S32BE interleaved word
@@ -433,7 +432,7 @@ values, rendering any of them onto 10 physical output channels (I2S L/R
 output frame (module headers). Since item-7 it keeps a **second**
 latest-sample latch over `KL_pcm_tx`'s pair bus, so a map entry with
 `SRC = PCM_TX` renders the **host playback ring** onto a physical
-output - the only route from an ALSA playback ring to the line-out that
+output - the only route from a playback ring to the line-out that
 does not go out on the wire and back.
 
 Which of the two sources reaches the DAC, and at what rate, is
@@ -537,8 +536,8 @@ Both directions expose 64 stream-channels (8 streams × up to 8
 channels). The fabric **selects, never composes**: the TX side is the
 32-pair-slot capture mux of §2.2 (each slot picks a source pair), the RX
 side is the render crossbar of §3.6 (any stream-channel to any of 10
-physical outputs) plus the per-stream DMA rings that PipeWire composes
-in software.
+physical outputs) plus the per-stream DMA rings a host composer stitches
+together in software.
 
 The IEEE 1722.1 dynamic audio-map commands `GET_AUDIO_MAP`,
 `ADD_AUDIO_MAPPINGS`, and `REMOVE_AUDIO_MAPPINGS` (command types 43, 44, and
@@ -593,10 +592,10 @@ Honest state of this subsystem, with evidence:
   load heals without a reset** because every locate against an invalid image
   re-arms the header probe.
 
-- **Record path (listener → ALSA): proven on silicon.** E2E
+- **Record path (listener → capture ring): proven on silicon.** E2E
   capture→render = the presentation offset (pto 500 µs, 0 LATE), talker
   wire output bit-exact against the tone table (900/900), full
-  board→board→PipeWire→board loop at −72.7 dB THD+N
+  board→board→host→board loop at −72.7 dB THD+N
   ([`SYSTEMS_ENGINEER_GUIDE.md`](../SYSTEMS_ENGINEER_GUIDE.md) §0,
   measured 2026-07-24/25).
 - **Playback path (`KL_pcm_tx`): the fabric chain is now continuous and
@@ -615,7 +614,7 @@ Honest state of this subsystem, with evidence:
   the listener side completely silent, plus the ring under-run /
   over-run / disarmed-map / mid-stream-channel-count negatives. What is
   NOT proven is anything past the RTL: no board has been flashed with
-  this gateware and no ALSA sink drives it yet.
+  this gateware and no software sink drives it yet.
 - **The DRAM-ring artifact and the BRAM option.**
   [`MILAN_COMPLIANCE_GAPS.md`](../MILAN_COMPLIANCE_GAPS.md) §2 records
   two silicon failure classes on the DRAM ring path: the real-time
