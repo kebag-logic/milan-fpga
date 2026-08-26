@@ -77,11 +77,9 @@ a late load heals without a reset, because each locate against an invalid image
 re-arms the header probe.
 
 The tracked build supplies this image. The end-station builder emits
-`aem_desc.bin`, `aem_desc.json`, and `aem_desc.map`; the SoC build places the
-deployable set beside the bitstream, `flash-pair` persists its raw AEM slot,
-and bare-metal firmware verifies/copies it before entity enable. A custom
-integration must preserve that load-before-enable ordering. The former
-rootfs/`aemi-load` handoff is retired (#259).
+`aem_desc.bin`, `aem_desc.json`, and `aem_desc.map`; the deployment packages
+the paired image and manifest and runs `aemi-load` before entity enable. A
+custom integration must preserve that load-before-enable ordering.
 
 **The AECP counters are not on this page.** The engine's command, response, drop
 and locate-miss tallies, plus its last status, last length, image-valid and
@@ -142,10 +140,8 @@ they are not discovered by surprise:
    before the media-consumption boundary.
 
 Memory-mapped control/status registers for the Milan TSN NIC. This is the
-**stable ABI** shared by the HDL
-([`hdl/common/csr/milan_csr.sv`](../../hdl/common/csr/milan_csr.sv)), the
-bare-metal firmware, and the fabric clients. The former Linux driver and
-device-tree projection are retired historical consumers (#259).
+**stable ABI** shared by the HDL ([`hdl/common/csr/milan_csr.sv`](../../hdl/common/csr/milan_csr.sv)), the bare-metal
+firmware, and every bench tool that pokes this window.
 Satisfies `REQ-CSR-05`; implements the control surface for `REQ-CSR/PTP/CBS/CLS/
 MAC/*` in [`REQUIREMENTS.md`](../../REQUIREMENTS.md).
 
@@ -153,9 +149,8 @@ MAC/*` in [`REQUIREMENTS.md`](../../REQUIREMENTS.md).
   register *offsets* below are fixed, only the window base differs per SoC:
   `0x43C0_0000` on the Zynq PS build, **`0x9000_0000`** on the fully-FPGA VexiiRiscv
   (formerly NaxRiscv) SoC (an MMIO peripheral must live in the CPU IO region ≥
-  `0x8000_0000`; the mem-map is identical across the two cores, so the ABI is unchanged). The
-  bare-metal firmware's compiled base must match the target. Window 64 KB. The
-  former device-tree `reg` check is retained only as retired ABI evidence (#259).
+  `0x8000_0000`; the mem-map is identical across the two cores, so the ABI is unchanged).
+  Window 64 KB.
 * **Access:** `RO` read-only, `RW` read-write, `W1C` write-1-to-clear,
   `W1S` write-1-to-set (self-clearing command strobe), `ROc` read latches/clears.
 * Unused bits read 0; writes to `RO` fields are ignored; unmapped offsets read 0
@@ -181,7 +176,7 @@ MAC/*` in [`REQUIREMENTS.md`](../../REQUIREMENTS.md).
   - [0x200  -  Statistics (RMON)  (REQ-MAC-04)](#0x200-----statistics-rmon--req-mac-04) -- Nine counters behind a coherent snapshot latch, plus `STATS_CAP` -- the register that tells "counted, nothing wrong" from "no event source in this build". Read it before believing a zero: with `i_mac_events` tied off, every lane read zero on both boards for months while every testbench passed.
   - [0x300  -  802.1Q classifier  (REQ-CLS-01..04)](#0x300-----8021q-classifier--req-cls-0104) -- The three mapping tables and their reset values, then the caveat that reframes them: **these tables only route tagged traffic**. Control protocols are untagged and are classified on their reserved destination MAC instead, deliberately with no EtherType precondition -- and gPTP short-circuits to a queue *below* both shaped classes, which is a correctness requirement rather than a preference.
   - [0x400  -  802.1Qav CBS (per queue)  (REQ-CBS-01..03)](#0x400-----8021qav-cbs-per-queue--req-cbs-0103) -- Four registers per queue, the reset slope table (Σ 725 Mb/s = 72.5 %, under the 75 % ceiling), and write semantics down to how long a slope change takes to bite. Every queue powers up **unshaped** on purpose -- shaping q0 at reset once paced all best-effort TX to ~250 Mbit/s on silicon.
-  - [0x500  -  PTP hardware clock  (REQ-PTP-01..04, 06)](#0x500-----ptp-hardware-clock--req-ptp-0104-06) -- The Q8.24 rate controls and the settime/adjtime/gettime strobes that give linuxptp its full clock-ops set. The latency-correction pair has a fixed sign in hardware -- ingress subtracted, egress added -- and must be applied on one side only, never both.
+  - [0x500  -  PTP hardware clock  (REQ-PTP-01..04, 06)](#0x500-----ptp-hardware-clock--req-ptp-0104-06) -- The Q8.24 rate controls and the settime/adjtime/gettime strobes that give a servo its full clock-ops set. The latency-correction pair has a fixed sign in hardware -- ingress subtracted, egress added -- and must be applied on one side only, never both.
   - [0x700  -  RX destination-MAC TCAM filter  (REQ-MAC-02)](#0x700-----rx-destination-mac-tcam-filter--req-mac-02) -- The exact alternative to the approximate hash filter: per-bit-masked destination-MAC match, one indexed entry per commit. Gives the whitelist and blacklist recipes and a worked ternary entry for a whole reserved multicast block.
   - [Link guard / MAC recovery (VERSION minor ≥ 0x0006)](#link-guard--mac-recovery-version-minor--0x0006) -- The link-bounce supervisor, added here after `0x774` was misread as a TCAM register. The chronogram is the payload: the two resets do **not** release together -- `eth_rst` drops half-way through SETTLE so both CDC pointer sets restart matched, which means reading the guard bit alone mid-episode gives you the wrong answer.
   - [0x778  -  Clock validity: the AVTP tu verdict  (VERSION minor >= 0x0016)](#0x778-----clock-validity-the-avtp-tu-verdict--version-minor--0x0016) -- The register that stops this device claiming timestamps it cannot prove. The default owner supplies sync/asCapable directly from the engine and makes lease fields structural zero; option off retains the fail-safe software lease. The section explains why the fix is a header bit and not a stream gate.
@@ -604,7 +599,7 @@ Write semantics:
   current credit, so shrinking a burst allowance takes effect at once.
 * An `CBS_IDLE_SLOPE` write takes effect within two slope-engine passes, at
   most 200 datapath cycles = 4 us in the shipping 50 MHz profile (2 us in the
-  retired 100 MHz AX Linux bring-up profile; #259, historical)
+  100 MHz AX bring-up profile)
   (`credit_based_shaper.sv slope_engine`, sequential divider since 2026-07-11);
   hiCredit/loCredit/shaped-enable act on the next cycle.
 * The driver must keep Σ idleSlope of the *shaped* queues ≤ 75 % of the port
@@ -629,7 +624,7 @@ together  -  e.g. `tc mqprio` + `tc cbs offload`.
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
 | `0x500` | `PTP_CTRL` | RW | `0x1` | `[0]` counter enable |
-| `0x504` | `PTP_INCR` | RW | derived | nominal increment per tick, **Q8.24** ns: `[31:24]` integer ns, `[23:0]` fractional ns. Reset value = the true PHC clock period, derived from `MILAN_CLK_FREQ_HZ_P` (`0x14000000` = 20.0 ns in the shipping 50 MHz Milan domain; `0x0A000000` = 10.0 ns in the retired 100 MHz AX Linux bring-up shape (#259, historical); the standalone-default 125 MHz gives the historic `0x08000000`) |
+| `0x504` | `PTP_INCR` | RW | derived | nominal increment per tick, **Q8.24** ns: `[31:24]` integer ns, `[23:0]` fractional ns. Reset value = the true PHC clock period, derived from `MILAN_CLK_FREQ_HZ_P` (`0x14000000` = 20.0 ns in the shipping 50 MHz Milan domain; `0x0A000000` = 10.0 ns in the 100 MHz AX bring-up shape; the standalone-default 125 MHz gives the historic `0x08000000`) |
 | `0x508` | `PTP_ADJ` | RW | `0` | signed Q8.24-ns adjfine addend added to `PTP_INCR` each tick (rate discipline) |
 | `0x510` | `PTP_TOD_WR_LO` | RW | `0` | settime target `[31:0]` (ns) |
 | `0x514` | `PTP_TOD_WR_HI` | RW | `0` | settime target `[63:32]` |
@@ -641,9 +636,9 @@ together  -  e.g. `tc mqprio` + `tc cbs offload`.
 | `0x540` | `PTP_INGRESS_LAT` | RW | `0` | ingress latency correction, ns  -  **SUBTRACTED** from every RX capture (the wire SFD preceded the AXIS SOP the tap stamps). Unsigned; the sign is fixed in HW, software never negates. |
 | `0x544` | `PTP_EGRESS_LAT` | RW | `0` | egress latency correction, ns  -  **ADDED** to every TX capture (the SFD follows the AXIS SOP) |
 
-Both reset to 0 = uncorrected. The retired option-off bench historically applied
-its measured constants in `ptp4l` (`ingressLatency`, #259); move the correction to one side or the
-other, **never both**, or it double-counts. These registers are the
+Both reset to 0 = uncorrected. The bench applies its measured `ingressLatency`
+pair; move the correction to one side or the other, **never both**, or it
+double-counts. These registers are the
 register half of REQ-PTP-06  -  true SFD capture needs a tap at the GMII/PHY
 boundary, which nothing at the AXIS boundary can synthesise, so the constants
 stay characterisation-derived.
@@ -711,23 +706,22 @@ adjtime remain fabric-visible discontinuities. `tu` is the OR of not-synced,
 the live discontinuity edge and the Annex B.1.1 holdover. The CLKV lease is
 not consulted, and its status fields read structural zero.
 
-**Retired compatibility evidence (historical option OFF only; #259).** Three
-terms were used by the former software owner, and the boundary between them
-is the useful regression oracle:
+**Compatibility evidence (explicit option OFF only).** Three terms, and the
+boundary between them is the honest part:
 
 | Term | Who knows it | How it reaches `tu` |
 |---|---|---|
-| PHC is disciplined to the domain | **historical software-only fact** inside the retired `ptp4l` owner (#259). This is information-theoretic, not a wiring gap: `avtp_timestamp` is the low 32 bits of an unsigned ns count and laps every 4.294967296 s, so past one lap the modular difference carries no information about the direction *or* magnitude of the error ([`../design/PRESENTATION_TIME_WRAP.md`](../design/PRESENTATION_TIME_WRAP.md)) | the retired owner leased `CLKV_CTRL[0]`; every write reloaded `[15:4]` quarter-seconds and the claim lapsed when they ran out |
+| PHC is disciplined to the domain | a servo fact, known where the servo runs. This is information-theoretic, not a wiring gap: `avtp_timestamp` is the low 32 bits of an unsigned ns count and laps every 4.294967296 s, so past one lap the modular difference carries no information about the direction *or* magnitude of the error ([`../design/PRESENTATION_TIME_WRAP.md`](../design/PRESENTATION_TIME_WRAP.md)). Only the talker's own servo knows | `CLKV_CTRL[0]` **leased**, not flagged: every write reloads `[15:4]` quarter-seconds of validity and the claim lapses when they run out |
 | PHC **step** (settime / adjtime) | fabric, for itself — the `PTP_CMD` strobes | 0.25 s holdover, no software cooperation needed |
-| grandmaster change | the retired daemon published it into `ADP_GM_LO/HI` for the advertiser (#259, historical) | a change in that value armed the same holdover (Milan Annex B.1.1) |
+| grandmaster change | the gPTP plane already publishes it into `ADP_GM_LO/HI` for the advertiser | a change in that value arms the same holdover (Milan Annex B.1.1) |
 
-**The verification-only option-off arm fails safe by construction.** It has
-zero runtime owners and no target image (#259). Reset is `SYNC_OK = 0` with an
-expired lease, so `tu = 1` on every AAF and CRF frame unless the bench drives
-the compatibility store. That is the correct hardware-oracle answer: absent a
-clock owner, it must not claim valid time.
+**The option-off arm fails safe by construction.** Reset is `SYNC_OK = 0` with an expired lease, so
+`tu = 1`. A gateware whose software never writes `CLKV_CTRL` emits `tu = 1` on
+every AAF and CRF frame — that is the correct answer, not a bug: we cannot
+prove the clock, so we must not claim it. A lease of `0` means "expire
+immediately" and is a legal way for software to say *never trust me*.
 
-The address layout below is shared by both elaborations. In fabric mode,
+The address layout below is shared by both owners. In fabric mode,
 `CLKV_CTRL` remains readable/writable compatibility storage but its writes do
 not affect live sync, asCapable or `tu`; `CLKV_STAT[1]`/`[16]` come from the
 engine and lease fields `[15:4]`/`[2]` read zero. The detailed lease behavior
@@ -741,27 +735,29 @@ in the table applies to option off.
 | `0x784` | `TXARB_DIAG` | RO live | `0xA7000000` | (minor ≥ `0x001B`) TX-trunk arbiter lock supervision. `[7:0]` locked-now, `[15:8]` abort-sticky (a granted source abandoned its frame mid-packet; the arbiter closed the frame with one injected `tlast` beat and released the lock), `[23:16]` stall-sticky (a presented beat was refused downstream for the mux's watchdog window), `[31:24]` constant tag `0xA7` (a zero read means the gateware predates the register). 🔴 **THE LANE NUMBERS CHANGED at VERSION major 2 — anything decoding this word by the old numbers reads the WRONG MUX.** Major 2 first collapsed the old eight-mux cascade to four; VERSION `0x0002_0055` adds the fabric-gPTP control merge as lane 4. **Current lane order, LSB-first: `0` `ctl_tx` (protocol processor + MAAP), `1` `aaf_final`, `2` `crf_dp`, `3` `adp_tx` (the MAC-boundary mux), `4` `gptp_ctl_mux` (gPTP + the gasketed control branch).** Lane 4 is live with fabric gPTP and structural zero option off; bits `7:5` of each field are structural zero. It **was**, before major 2: 0 `aecp_acmp`, 1 `ctl_tx`, 2 `srp_ctl`, 3 `lstn_ctl`, 4 `maap_ctl`, 5 `aaf_final`, 6 `crf_dp`, 7 `adp_tx`. Watchdog windows stay staggered shortest-upstream: lane 0 is 2^15, lanes 1/2/4 are 2^16, and MAC-boundary lane 3 is 2^17, so only the true origin of a cascade starvation fires. Stickies clear only on reset — this register is forensics for the 07-29 wedge class (all TX dead, RX perfect), which by definition outlives every soft recovery path. Lane **3** retains the MAC-boundary verdict: its abort names an upstream trunk abort and its **stall** names the `mac_tx_cdc`/MAC side (H1), which `LINK_CTRL[1]`'s widened reinit scope (minor `0x001B`) resets |
 | `0x788` | `LWSRP_DOM` | RO live | `0x00030002` | the **operational SRP Domain pair** (Milan v1.2 4.2.7.2.1): `[11:0]` operational class-A VID, `[23:16]` operational class-A priority, `[24]` **adopt_valid** — the pair is a *received* Domain FirstValue the fabric ADOPTED after a class-A declaration that mismatched the pair then in force; 0 = the `{priority 3, LWSRP_VID}` defaults. 🟢 **LIVE, REPOINTED** — this word now follows the protocol processor's class-D SRP face (`srp_class_a_prio_o` / `srp_class_a_vid_o` / `srp_domain_adopted_o`), not a deleted applicant. Every consumer still moves together on adoption: the processor's own Domain FirstValue and MVRP VID, every TalkerAdvertise DataFrameParameters VID, and the AAF/CRF C-TAG `{PCP, VID}` mux in this fabric — the reservation and the frames are one pair by construction, and the domain boundary flag (`LWSRP_STATUS[5]`) compares received declarations against **this** pair, so the adopted network's own re-declarations heal it instead of re-latching it. Reverts to the defaults on lwSRP enable-fall and on link-down ONLY (the clause's own reset list: startup / Link Up). Software **follows** this register (e.g. to steer `AAF_CTRL[27:16]`-adjacent tooling); it never mirrors it into config — `LWSRP_VID` 0x684 and `AAF_CTRL[27:16]` stay the software-owned *defaults* |
 
-**Retired option-off software contract (historical 2026-07-28 evidence,
-#259).** The former gPTP daemon published GM id (`0x624`/`0x628`) and pdelay
-(`0x6E4`) and leased `CLKV_CTRL` as `{lease, 0, disc, sync_ok}`. It renewed the
-countdown while its servo reported locked and wrote `sync_ok = 0` otherwise.
-This is a regression oracle for the verification-only hardware; no product
-image starts that daemon.
+**The option-off software contract, implemented 2026-07-28.** The gPTP
+daemon that already publishes GM id (`0x624`/`0x628`) and pdelay (`0x6E4`) is
+the right place to lease this, and now does:
+it writes `CLKV_CTRL` = `{lease, 0, disc, sync_ok}` every loop, renewing the
+countdown while its servo reports locked and writing `sync_ok = 0` when it
+does not. Read `CLKV_STAT[2]` to tell "no daemon" from "daemon says
+unsynchronised".
 
-It claimed in exactly two cases and failed **closed** in every other:
+It claims in exactly two cases and fails **closed** in every other:
 
-| Historical `ptp4l` state | claim? | why |
+| gPTP port state | claim? | why |
 |---|---|---|
 | `portState SLAVE`, `gmPresent`, `\|master_offset\| <= 1 us` | **yes** | disciplined to the domain. The offset test is load-bearing — `portState SLAVE` alone is also what a clock 216,446 s adrift reports (2026-07-27). 1 µs is Milan v1.2 4.4.2.1's own stated gPTP-accuracy budget |
 | `portState MASTER`, `gmPresent` false, `gmIdentity` == our own | **yes** | we ARE the grandmaster: our PHC *defines* gPTP time rather than approximating it, so 4.4.4.7's "may not correspond to gPTP time" cannot apply |
 | `LISTENING` / `PRE_MASTER` / `UNCALIBRATED` / `PASSIVE` / `FAULTY` | no | BMCA has not settled — not yet a grandmaster |
-| `pmc` silent (ptp4l dead), unparsable reply | no | unknown is not valid |
+| no state readable at all | no | unknown is not valid |
 
-Historically, claiming health was deliberately harder than losing it:
-`LOCK_N` (default 3) consecutive good samples asserted the claim and one bad
-sample dropped it. The retired loop derived its lease from measured iteration
-time because a softcore iteration cost 6–11 s; this timing record does not
-define the current fabric owner.
+Claiming health is deliberately harder than losing it: `LOCK_N` (default 3)
+consecutive good samples to assert, **one** bad sample to drop. The lease
+length is derived from the iteration time the loop measures, not from a
+constant — on the softcore one iteration really costs 6–11 s (it is fork- and
+`pmc`-bound), and a lease that lapses *between renewals on a healthy clock*
+makes `CLKV_TUCNT` climb, which reports a clock fault that is not there.
 
 > **Why this paragraph used to end "until that is deployed, boards emit
 > `tu = 1` continuously".** They did, for a while, and it was not benign.
@@ -1115,8 +1111,7 @@ read the submodule's timer map rather than this page for their values.
 ### 0x6A4  -  ACMP listener SM  `(Milan v1.2 Section 5.5 listener, FR-CONN-01)`
 
 The ACMP listener for the STREAM_INPUT[0] sink (BIND_RX/UNBIND_RX/GET_RX_STATE +
-the talker-probe ladder; the PipeWire `acmp-milan-v12.c` contract is retired
-historical bench evidence under #259). `KL_acmp_listener`
+the talker-probe ladder, per the Milan v1.2 ACMP contract). `KL_acmp_listener`
 and `KL_acmp_lstn_ctx` are **deleted**; the ladder runs inside the protocol
 processor now, and it publishes a **bind RECORD, not a state machine**.
 
@@ -1257,7 +1252,7 @@ Verdicts in `0x7C0[7:4]`: `0` none · `1` ACCEPT · `2` MAGIC (not a journal slo
 or an erased one) · `3` VERSION (format major this build cannot read) · `4`
 SHAPE (`rec_words` != 6, or `n_rec` 0 / above capacity) · `5` LENGTH (truncated
 or overlong transfer) · `6` CRC (**torn write / bit rot**) · `7` ENTITY (journal
-belongs to another `entity_id` — a cloned or mispaired image) · `8` STALE (`SEQ` does not
+belongs to another `entity_id` - a cloned image) · `8` STALE (`SEQ` does not
 beat the accepted watermark).
 
 Structural verdicts are ordered before the CRC so an operator gets a naming
@@ -1498,7 +1493,7 @@ INDEPENDENT flags, not an exclusive enum:
 `0b11` = RENDER|DMA = capture-while-rendering; `0b00` = NULL (neither — the
 monitor still counts).
 
-Mapping from the retired P3 enum (ALSA-design feedback, open question 4):
+Mapping from the retired P3 enum (sound-card design feedback, open question 4):
 
 * P3 `0 NULL` -> `0b00`;
 * P3 `1 RENDER` -> `0b11` (P3's RENDER also forwarded the ring copy — the
@@ -1641,8 +1636,8 @@ strobes, no provisioning), SNAP latches zeros and completes. `A_STRM_SEL` /
 > trigger and CSR). Per-sample DDR3 history: [`../LATENCY_HISTORY_RING.md`](../LATENCY_HISTORY_RING.md).
 
 Per-stage TX/RX AAF pipeline latency, measured in **axis_clk cycles** (divide
-by the datapath clock - 50 MHz Arty and shipping AX7101 / retired 100 MHz
-AX7101 Linux bring-up (#259, historical) - for seconds). Two
+by the datapath clock - 50 MHz Arty and shipping AX7101 / 100 MHz AX7101
+bring-up - for seconds). Two
 independent chains each latch a free-running cycle count at the documented
 pipeline points and expose the inter-stage deltas (last / min / max,
 saturating 16-bit) plus the gPTP epoch of the measured reference frame:
@@ -1733,25 +1728,23 @@ get a rate.
 
 ### 0x8C8  -  Playback chain probe  `(PBK, roadmap item-7: KL_pcm_tx -> KL_chan_map_render -> KL_i2s_feed_mux -> KL_i2s_playback)`
 
-**Why this group exists (historical Linux bring-up, 2026-07-26; #259).** The
-former playback engine's control and status (`pb_enable`, ring
-base/len/stride, per-stream `wr_ptr`/`rd_ptr`, underrun/overrun) were **migen**
-CSRs generated inside the LiteX SoC
-([`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py)), so they existed only on that build and never appeared
+**Why this group exists (2026-07-26).** The playback engine's own control and
+status (`pb_enable`, ring base/len/stride, per-stream `wr_ptr`/`rd_ptr`,
+underrun/overrun) are **migen** CSRs generated inside the LiteX SoC
+([`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py)), so they exist only on that build and never appear
 in this map. Since the task #31 ship flip (`--aaf-playback` in `cfg_ax8x8`)
-that migen block formed a driver surface: it landed in the `milandma` CSR
+that migen block is a REAL driver surface: it lands in the `milandma` CSR
 bank immediately after the capture PCM engine (DT window `pb-dma`,
 `0xf0003140/+0x84` on the 8x8 shape) and self-identifies through a leading
 `pb_cap` geometry word (`[31:24]`=0x4D, `[23:16]`=wire chans, `[15:8]`=T
-rings) exactly like the capture cap at `pcm-dma +0x1c`; the retired
-`snd-kl-milan`/ALSA/DTB path and `check_dtb_csr.py` gate are historical
-evidence only (#259). Nothing on the AXI-Lite control plane could answer the first
+rings) exactly like the capture cap at `pcm-dma +0x1c`; it is the playback
+direction of the ring pair, and its window is gated against the build's
+`csr.csv` (`milan_dma_pb_cap`) at deploy time. Nothing on the AXI-Lite control plane could answer the first
 question you ask of a silent line-out: *did any audio frame reach the DAC at
 all, and if not, where did it stop?* These three words answer it end to end —
 `PBK_FEEDS` moving proves the chain is delivering, `PBK_STAT[15:0]` separates
 "armed and genuinely silent" from "you never programmed the map", and
-`PBK_RAILS` recorded whether that retired host ring was fed. The bare-metal
-product has no host ring; its fabric render-path probe remains useful.
+`PBK_RAILS` says whether the host is keeping the ring fed.
 
 All words are live RO (no arm, no snapshot) and free-running from reset; read
 them twice to get a rate. Same `>= 0x800` `rd_in_window` carve-out class as
@@ -1762,7 +1755,7 @@ fabric counts fine — the `0x8F8` dead-read trap).
 |--------|------|-----|-------|-------------|
 | `0x8C8` | `PBK_STAT` | RO | `0` | `[15:0]` disarmed-render frames: media frames delivered to the DAC while the crossbar was selected and **no** map entry backed phys{0,1} (saturates at `0xFFFF`); `[16]` feed source (1 = render crossbar, 0 = legacy listener tap, currently `CHMAP_CTRL[0]`); `[17]` `KL_pcm_tx` is walking a sample tick; `[18]` playback master enable; `[19]` phys{0,1} armed in the render map; `[21:20]` reserved 0; `[31:22]` per-phys playback-source mask, phys 0..9 |
 | `0x8CC` | `PBK_FEEDS` | RO | `0` | media frames handed to the `KL_i2s_playback` producer on the **live** source (32-bit, wraps). Render mode counts 48 kHz media ticks; legacy mode counts accepted listener-tap beats. A **static** count with the chain armed is the "nothing is being delivered" verdict |
-| `0x8D0` | `PBK_RAILS` | RO | `0` | Retired `KL_pcm_tx` host-ring rails (#259), summed across streams and saturating at `0xFFFF` per half. Product shapes without that ring read structural zero |
+| `0x8D0` | `PBK_RAILS` | RO | `0` | `KL_pcm_tx` host-ring rails, summed across streams and saturating at `0xFFFF` per half: `[31:16]` underruns (ring empty at a media tick — the host is not refilling; the pair is still emitted so the cadence never skews), `[15:0]` overruns (host lapped the reader by more than one sub-ring; `rd_ptr` fast-forwards one lap) |
 | `0x8D4` | - | - | `0` | unmapped (reads 0, never shadow-aliased) |
 
 **Reading a silent line-out** (playback armed, nothing audible):
@@ -1771,7 +1764,7 @@ fabric counts fine — the `0x8F8` dead-read trap).
 |---|---|---|---|
 | static | - | - | nothing is reaching the DAC feed. If `PBK_STAT[16]` = 0 the crossbar is not selected (static shape with `CHMAP_CTRL[0]` = 0); if it is 1 the media grid is dead |
 | climbing | climbing | - | the crossbar is running but the render map is empty — program phys 0/1 (`CHMAP_SEL`/`CHMAP_WORD` with `SRC` = playback) and re-check `PBK_STAT[31:22]` |
-| climbing | static 0 | climbing | historical host-ring diagnosis only (#259): the retired ALSA writer was starving the ring, not the fabric |
+| climbing | static 0 | climbing | the map is armed and the DAC is being fed, but the **ring producer** is starving it — the samples are repeat-last (or silence) substitutes, not audio. Look at the ring writer, not the fabric |
 | climbing | static 0 | static | the chain is delivering real ring words; a silent output is downstream (DAC mute/level, `I2SPB_STAT` rails at `0x6D8`) |
 
 ### 0x8F8  -  MMCM-DRP media-clock servo  `(Milan v1.2 7.3.4, KL_mmcm_drp_servo)`
@@ -2091,13 +2084,10 @@ wrap the ring end  -  software splits its memcpy, hardware splits its bursts (al
 > → silent corruption. Write it as two 32-bit words (hi @ `+0x0`, lo @ `+0x4`) or use the
 > LiteX `csr.h` accessors.
 >
-> **Retired device-tree endian evidence (#259):** the DTB encoded all
-> `reg`/`interrupts` cells big-endian by spec, but that was the blob format;
-> `of_*`/`be32_to_cpu` converted it transparently and did not change register
-> access. These CSRs are **native-endian**, so the historical node could not
-> carry a `big-endian` property or use `ioread32be`/a BE regmap without
-> corrupting every read. The only "big" here is the multi-word *word* order
-> above. This caveat was LiteX-specific; on Zynq the DMA was a plain-MMIO `axi_dma`
+> **On "endian":** these CSRs are **native-endian**. Do **NOT** wrap them in a
+> big-endian accessor or byte-swap on access  -  that would
+> byte-swap and corrupt every read. The only "big" here is the multi-word *word* order
+> above. This whole caveat is LiteX-specific  -  on Zynq the DMA was a plain-MMIO `axi_dma`
 > block.
 
 ## Notes
@@ -2105,18 +2095,18 @@ wrap the ring end  -  software splits its memcpy, hardware splits its bursts (al
 * All command strobes (`STATS_CTRL[0]`, `PTP_CMD[*]`) read back 0 (self-clearing).
 * Multi-word 64-bit reads (TOD, MAC addr) are **not** atomic on the bus; for TOD
   use the snapshot latch, for others read hi/lo with the field stable.
-* The map is versioned by `VERSION`; additive changes bump minor and breaking
-  changes bump major. The former Linux driver's `of` compatible string is
-  retired historical coupling (#259).
+* The map is versioned by `VERSION`; additive changes bump minor, breaking
+  changes bump major and the driver's `of` compatible string.
 
 ### PCM ring (LiteX CSR bank, `0xf0003120`)
 
 This bank exists only when the SoC is built with the retired (#259)
-`sound_card` feature (historically `milan_soc.py --sound-card` under #259, now refused
-at the CLI). The shipping bare-metal profile omits
-the bank, its DRAM/BRAM ring master, and the retired device-tree/ALSA host surface;
-AAF capture, TDM/I2S, render, and loopback fabric remain available. No current
-firmware may assume this address is present.
+sound-card feature, whose launcher option is now refused at the CLI. The
+shipping bare-metal profile omits the bank, its DRAM/BRAM ring master, and the
+host-audio surface that consumed it;
+AAF capture, TDM/I2S, render, and loopback fabric remain available. Software
+must discover the host-audio feature from the build description rather than
+assuming this address is present.
 
 The AAF RX payload lands in a wrapping DRAM ring driven by a
 `WishboneDMAWriter` in loop mode (same recipe as the TS record ring):
@@ -2223,8 +2213,7 @@ words answer "has this ever happened", never "is it happening now".
 > auto-allocated. LiteX hands out the lowest free page at the moment a module is
 > added, and an auto-allocated bank here lands on `sdram`'s page and pushes
 > `sdram` **and** `spiflash` up `0x800` — moving the LiteSPI bank whose master
-> port at bank+`0x10` is a write path to the boot flash. The hand-written device
-> trees that exposed the original defect are retired evidence (#259); the
-> current reason to pin the bank is the stable firmware/deployment ABI.
+> port at bank+`0x10` is a write path to the boot flash, under anything that
+> hard-codes it. Verified by csr.csv diff: no existing bank moved.
 > The absolute base is still the build's own `csr.csv`, exactly like every other
 > address in this section.
