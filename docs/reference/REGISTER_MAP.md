@@ -693,7 +693,7 @@ the gPTP domain, at full rate, with the AVTP `tu` bit hard-wired to 0 the whole
 time. The receiving Milan device counted **99.4 %** of them LATE or EARLY and
 had no way to defend itself, because the one field that exists to warn it said
 the timestamps were good
-([`../findings/REF_LISTENER_TIMESTAMP_SWEEP_0727.md`](../findings/REF_LISTENER_TIMESTAMP_SWEEP_0727.md)).
+(the retired reference-listener sweep of 2026-07-27 (#259, in git history)).
 
 **What the standard requires, and what it forbids.** Not stopping: Milan v1.2
 5.3.7.3 says a talker with a Listener Ready "**shall be streaming** AVTP
@@ -2058,7 +2058,8 @@ wrap the ring end  -  software splits its memcpy, hardware splits its bursts (al
 > **⚠ `base`/`length` are BYTE quantities, not words** (simple-mode: hardware-confirmed
 > `length=8` transmits ONE 8-byte word; `offset` counts words). The ring pointers/masks
 > are byte quantities too, always 8-aligned. (Descriptor rings / multi-queue remain the
-> later Option 6b upgrade  -  see [Section A.6 of `FULLY_FPGA_RISCV_MIGRATION.md` (archived)](../../historical_now_obsolete/integration/FULLY_FPGA_RISCV_MIGRATION.md#a6-----dma-axis--memory-replaces-ps-s4--assembled-elaborates).)
+> later Option 6b upgrade  -  Section A.6 of the completed PS-to-fabric migration plan
+> specified it (#259, in git history).)
 
 > **Cache-coherent DMA (no manual flushes).** Built with `milan_soc.py --coherent-dma`,
 > the DMA masters attach to VexiiRiscv's (formerly NaxRiscv's) cache-snooping `dma_bus`, so
@@ -2097,7 +2098,7 @@ wrap the ring end  -  software splits its memcpy, hardware splits its bursts (al
 > carry a `big-endian` property or use `ioread32be`/a BE regmap without
 > corrupting every read. The only "big" here is the multi-word *word* order
 > above. This caveat was LiteX-specific; on Zynq the DMA was a plain-MMIO `axi_dma`
-> block. See also [`sw/dts/README.md`](../../sw/dts/README.md) and [`sw/driver/README.md`](../../sw/driver/README.md).
+> block.
 
 ## Notes
 

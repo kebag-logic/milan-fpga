@@ -372,7 +372,7 @@ toolchain: [Section 4.5 of ../integration/PORTING_GUIDE.md](../integration/PORTI
 
 * **The ring-DMA engines** (`RingDMAReader`/`RingDMAWriter`, BD formats,
   header-split, RSC/GRO) are **Migen**, inside [`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py) -
-  design docs: [CPPI_DMA_REDESIGN.md (archived)](../../historical_now_obsolete/fpga/CPPI_DMA_REDESIGN.md),
+  design docs: the archived CPPI DMA redesign log (#259, in git history),
   [HW_GRO_RSC.md (archived)](../../historical_now_obsolete/fpga/HW_GRO_RSC.md),
   [HEADER_SPLIT_DESIGN.md](HEADER_SPLIT_DESIGN.md) (includes the hsq12 cut-through chapter); running system view:
   [PIPELINE_STAGES.md](PIPELINE_STAGES.md).

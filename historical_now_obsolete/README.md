@@ -8,7 +8,6 @@ Every inbound link across the doc set was repaired at move time; `scripts/docs_c
 gates link integrity from here on.
 
 Orientation for current docs: [`docs/README.md`](../docs/README.md).
-Full audit rationale: [`DOC_AUDIT.md`](DOC_AUDIT.md) (archived here 2026-07-27).
 
 ## Consolidations (merge groups)
 
@@ -26,25 +25,21 @@ dates with conflicting scoreboards. They consolidate to a small living set:
 | Doc (in this folder) | Why superseded | Read instead |
 |---|---|---|
 | [`findings/CAMPAIGN_500_PLAN.md`](findings/CAMPAIGN_500_PLAN.md) | completed gated plan (self-declared SUPERSEDED) | [`docs/findings/PERFORMANCE_GOAL.md`](../docs/findings/PERFORMANCE_GOAL.md), [`CHANGELOG.md`](../CHANGELOG.md) |
-| [`findings/RX_FANOUT_AND_TX_CEILING.md`](findings/RX_FANOUT_AND_TX_CEILING.md) | 07-07 snapshot (TX 186 / RX 223) | [`docs/findings/PERFORMANCE_GOAL.md`](../docs/findings/PERFORMANCE_GOAL.md) |
-| [`findings/RX_MEMORY_HIERARCHY_PLAN.md`](findings/RX_MEMORY_HIERARCHY_PLAN.md) | completed L2 disambiguation plan | [`docs/fpga/PIPELINE_STAGES.md`](../docs/fpga/PIPELINE_STAGES.md), [`docs/findings/LATENCY_INVESTIGATION.md`](../docs/findings/LATENCY_INVESTIGATION.md) |
 | [`findings/RX_OVERLOAD_WEDGE.md`](findings/RX_OVERLOAD_WEDGE.md) | [FIXED] RX-storm post-mortem | [`docs/fpga/PIPELINE_STAGES.md`](../docs/fpga/PIPELINE_STAGES.md) |
 | [`findings/RX_RING_DMA.md`](findings/RX_RING_DMA.md) | byte-ring era (folded out; `--legacy-ring` restores) | [`docs/fpga/PIPELINE_STAGES.md`](../docs/fpga/PIPELINE_STAGES.md) |
 | [`findings/RX_TX_PERFORMANCE.md`](findings/RX_TX_PERFORMANCE.md) | merged 2026-07-25: plain-language RX story + diagrams + levers table folded in | [`docs/findings/PERFORMANCE_GOAL.md`](../docs/findings/PERFORMANCE_GOAL.md) |
 | [`findings/GIGABIT_HEADROOM_ANALYSIS.md`](findings/GIGABIT_HEADROOM_ANALYSIS.md) | merged 2026-07-25: cycles/byte budget model + "data-plane is already gigabit" verdict folded in | [`docs/findings/PERFORMANCE_GOAL.md`](../docs/findings/PERFORMANCE_GOAL.md) |
 | [`findings/SINGLE_PORT_PERF.md`](findings/SINGLE_PORT_PERF.md) | merged 2026-07-25: "second core won't help — latency-bound, measured three ways" folded in as §2.1 | [`docs/findings/LATENCY_INVESTIGATION.md`](../docs/findings/LATENCY_INVESTIGATION.md) |
 | [`findings/TX_READER_PREFETCH_PLAN.md`](findings/TX_READER_PREFETCH_PLAN.md) | completed-and-rejected plan (measure-first exemplar) | [`docs/fpga/PIPELINE_STAGES.md`](../docs/fpga/PIPELINE_STAGES.md), [`CHANGELOG.md`](../CHANGELOG.md) |
-| [`fpga/CPPI_DMA_REDESIGN.md`](fpga/CPPI_DMA_REDESIGN.md) | design-era byte-ring→BD-ring log | [`docs/fpga/PIPELINE_STAGES.md`](../docs/fpga/PIPELINE_STAGES.md) |
 | [`fpga/HW_GRO_RSC.md`](fpga/HW_GRO_RSC.md) | single-slot RSC + 07-07 campaign log | [`docs/fpga/PIPELINE_STAGES.md`](../docs/fpga/PIPELINE_STAGES.md) (R3), [`docs/fpga/HEADER_SPLIT_DESIGN.md`](../docs/fpga/HEADER_SPLIT_DESIGN.md) |
 | [`fpga/HSPLIT14_DESIGN.md`](fpga/HSPLIT14_DESIGN.md) | merged 2026-07-25: hsq12 cut-through chapter folded in (v3 `fill_len`/`hdr_idx` ABI lives there) | [`docs/fpga/HEADER_SPLIT_DESIGN.md`](../docs/fpga/HEADER_SPLIT_DESIGN.md) |
-| [`integration/FULLY_FPGA_RISCV_MIGRATION.md`](integration/FULLY_FPGA_RISCV_MIGRATION.md) | completed PS→fabric migration plan | [`docs/litex/LITEX_SOC.md`](../docs/litex/LITEX_SOC.md), [`docs/integration/BOARD_PORTING_AX7101.md`](../docs/integration/BOARD_PORTING_AX7101.md), [`docs/integration/INTEGRATION_GUIDE.md`](../docs/integration/INTEGRATION_GUIDE.md) |
 | [`integration/OPEN_SOURCE_MIGRATION.md`](integration/OPEN_SOURCE_MIGRATION.md) | completed de-Xilinx plan | [`docs/integration/PORTING_GUIDE.md`](../docs/integration/PORTING_GUIDE.md) §2 |
-| [`handovers/HANDOVER_0728.md`](handovers/HANDOVER_0728.md) | point-in-time handover from 2026-07-28 | [`docs/testing/MILAN_V12_AUDIT_2026-08-16.md`](../docs/testing/MILAN_V12_AUDIT_2026-08-16.md) |
-| [`handovers/HANDOVER_0731.md`](handovers/HANDOVER_0731.md) | point-in-time handover from 2026-07-31 | [`docs/testing/MILAN_V12_AUDIT_2026-08-16.md`](../docs/testing/MILAN_V12_AUDIT_2026-08-16.md) |
-| [`handovers/HANDOVER_0801.md`](handovers/HANDOVER_0801.md) | point-in-time handover from 2026-08-01 | [`docs/testing/MILAN_V12_AUDIT_2026-08-16.md`](../docs/testing/MILAN_V12_AUDIT_2026-08-16.md) |
-| [`handovers/HANDOVER_0802.md`](handovers/HANDOVER_0802.md) | point-in-time handover from 2026-08-02 | [`docs/testing/MILAN_V12_AUDIT_2026-08-16.md`](../docs/testing/MILAN_V12_AUDIT_2026-08-16.md) |
-| [`handovers/HANDOVER_0805.md`](handovers/HANDOVER_0805.md) | point-in-time handover from 2026-08-05 | [`docs/testing/MILAN_V12_AUDIT_2026-08-16.md`](../docs/testing/MILAN_V12_AUDIT_2026-08-16.md) |
-| [`DOC_AUDIT.md`](DOC_AUDIT.md) | completed planning and drafting record whose archive move was executed 2026-07-25; the living ledger of what is archived is **this page** | [`docs/README.md`](../docs/README.md) |
+
+Ten pages left this folder on 2026-08-25 (#259): the RX fan-out / TX-ceiling and RX
+memory-hierarchy findings, the CPPI DMA redesign log, the PS-to-fabric migration plan,
+the five 2026-07-28 to 2026-08-05 point-in-time snapshots, and the archive-move audit
+record. Each described the retired host software stack, which #259 removes from the
+checkout; `git log --diff-filter=D -- historical_now_obsolete/` still finds them.
 
 Preserved evergreen nuggets (recorded so nothing is lost): the datapath-input TX-vs-CPU
 probe method (RX_FANOUT), the Forencich open-core catalog (OPEN_SOURCE_MIGRATION), the

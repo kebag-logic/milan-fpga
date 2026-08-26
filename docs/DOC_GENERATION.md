@@ -124,7 +124,7 @@ over every `*.md` in the tree (plus diagram sources for the last one):
    a deletion used to survive the gate silently; it no longer does. Sibling-repo
    paths are left alone (the rule only fires when the reference's parent
    directory is a real directory of this repo). One document opts out — the
-   archive ledger [`DOC_AUDIT.md` (archived)](../historical_now_obsolete/DOC_AUDIT.md), whose job *is* to name retired
+   archive ledger, whose job *is* to name retired
    files — via an HTML-comment line carrying the token
    `docs-check: allow-dead-refs`;
 5. no bench/host-identifying information (hostnames, home paths, serials, bench IPs).

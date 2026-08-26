@@ -131,7 +131,7 @@ number that cannot be stale; new rows on this page do not add one.
 | T-2 | CSR↔PHC clock-domain crossing |  -  | HW | `ptp_csr_sync`, `cdc_pulse/handshake` | ✅ | `RTL` ptp_sync, cdc (16); `SYN` |
 | T-3 | TX/RX hardware timestamping + metadata stream | 802.1AS | HW | `ptp_ts_top`, `ptp_ts_core` | ✅ | `RTL` ptp, milan_dp (TS AXIS path) |
 | T-4 | PHC on a fixed 125 MHz reference (REQ-PTP-07) | Milan | HW | `_CRG` gtx clock (§A.4) | 🟩 | `ELAB`; `BOARD` `ethtool -T eth0` PHC present |
-| T-5 | gPTP daemon lock (explicit software-owner option-off comparison: BMCA, sync/pdelay) | 802.1AS | SW | `ptp4l`/linuxptp on the softcore, over the fabric PHC; never active in the product-default fabric-owner image | ✅ on silicon · 🟡 AS-4/AS-6 | `BOARD` `asCapable` + full sync through the reference AVB switch, pdelay both ways, offset rms 2-4 ns, HW timestamps with zero config overrides  -  [`GPTP_RXPAD_ROOTCAUSE.md`](../findings/GPTP_RXPAD_ROOTCAUSE.md), [`TIME_SYNC.md` §5](../design/TIME_SYNC.md#5-status-updated-2026-08-23). Open: **AS-4** per-unit ingress/egress latency calibration, **AS-6** DUT-wins-BMCA (switch outranks every Milan-legal value) |
+| T-5 | gPTP daemon lock (explicit software-owner option-off comparison: BMCA, sync/pdelay) | 802.1AS | SW | `ptp4l`/linuxptp on the softcore, over the fabric PHC; never active in the product-default fabric-owner image | ✅ on silicon · 🟡 AS-4/AS-6 | `BOARD` `asCapable` + full sync through the reference AVB switch, pdelay both ways, offset rms 2-4 ns, HW timestamps with zero config overrides  -  the retired RX-pad root-cause finding (#259, in git history), [`TIME_SYNC.md` §5](../design/TIME_SYNC.md#5-status-updated-2026-08-23). Open: **AS-4** per-unit ingress/egress latency calibration, **AS-6** DUT-wins-BMCA (switch outranks every Milan-legal value) |
 
 ## 4. Discovery / control  -  AVDECC (IEEE 1722.1-2021 + Milan v1.2)
 
@@ -228,8 +228,8 @@ number that cannot be stale; new rows on this page do not add one.
 | H-5 | IRQ → PLIC (tx/rx/ts-dma + csr) | HW | `EventManager` → PLIC | 🟩 | `ELAB`; `BOARD` `/proc/interrupts` increments |
 | H-6 | Full SoC assembly (NIC+DMA+MAC) | HW | `milan_soc.py --full` | 🟩 | `ELAB` gateware export (all instances present) |
 | H-7 | Device portability (non-Xilinx) | HW | all `hdl/` | ✅ | `SYN` all tops incl. Lattice ECP5 (the [`syn/yosys/run.sh`](../../syn/yosys/run.sh) `tops` array is authoritative) |
-| H-8 | Linux driver: NAPI/XDP/PTP/ethtool | SW | `kl-eth` ([`sw/driver/`](../../sw/driver)) | 🟡 ABI | `BOARD` bring-up (M-A5) |
-| H-9 | Device tree `kl,dma-ether` | SW | [`sw/dts/milan.dtsi`](../../sw/dts/milan.dtsi) + binding | ✅ struct | `dtc` parse; `BOARD` driver binds |
+| H-8 | Linux driver: NAPI/XDP/PTP/ethtool | SW | `kl-eth` (the retired driver record) | 🟡 ABI | `BOARD` bring-up (M-A5) |
+| H-9 | Device tree `kl,dma-ether` | SW | the retired node include + binding | ✅ struct | `dtc` parse; `BOARD` driver binds |
 | H-10 | Artix-7 bitstream (place & route) | HW | `--full --build` | ✅ | `BOARD`  -  Vivado 2026.1 has Artix-7 (+Zynq) installed; both boards build and run on silicon. Latest: `0x0014`, three seeds placed and **all three met timing** (WNS +0.147/+0.115/+0.074 ns), flashed seed reads back `VERSION 0x0001_0014`  -  [`FLASH_0x0014_0727.md`](../findings/FLASH_0x0014_0727.md) |
 | H-11 | Soft-TSO via BD chains (driver-segmented GSO: header arena + zero-copy frag BDs) | SW | `kl-eth` (the-private-test-repo `e7b9c77`) + `RingDMAReader` continuity | ✅ | `BOARD` iperf3 @ MTU 1500: TX 58→88 single-flow (103 w/ `-l 1M`) |
 | H-12 | TX cs-across-BDs (chain-wide csum pre-pass + BD-ring rewind + published-rd) | HW+SW | `RingDMAReader` v2b (`milan_soc.py`, `e633032`, bitstream rsc6) | ✅ | `SIM` `test_tx_bd.py::test_bd_csum_chain` (suite 8/8); `BOARD` rsc6 iperf3 |

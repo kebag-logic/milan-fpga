@@ -10,7 +10,7 @@ replication is not a supported product shape today.
 - **Current Milan v1.2 implementation verdict:** [`../testing/MILAN_V12_AUDIT_2026-08-16.md`](../testing/MILAN_V12_AUDIT_2026-08-16.md)
 - **Current entity definitions:** [`configs/endstation_*.yaml`](../../configs/) through the [end-station builder](../ENDSTATION_BUILDER.md)
 - **Historical model snapshots:** [`avdecc/milan-v12-entity-small-48k.json`](../../avdecc/milan-v12-entity-small-48k.json) and [`avdecc/milan-v12-entity.json`](../../avdecc/milan-v12-entity.json), both marked obsolete in place
-- **Platform & phasing:** [`FULLY_FPGA_RISCV_MIGRATION.md` (archived)](../../historical_now_obsolete/integration/FULLY_FPGA_RISCV_MIGRATION.md)
+- **Platform & phasing:** the completed PS-to-fabric migration plan (#259, in git history)
 - **HW AEM/AECP design:** the fabric AECP/AEM engine and its design page are
   **deleted** (2026-08-13); AECP now lives in the pinned `protocol-processor`
   submodule's AECP uCPU. The current served-command inventory and root
@@ -261,19 +261,19 @@ The `kl,dma-ether` platform net driver (`../kl-linux-drivers`). Extends the exis
 ### 2.11 Device tree  *(Phase 8 / `REQ-DT-*`; the DT contract the driver binds to)*
 
 The `kl,dma-ether` node describes the HW to the driver. Binding schema:
-[`sw/dts/bindings/kl,dma-ether.yaml`](../../sw/dts/bindings/kl,dma-ether.yaml); node:
-[`sw/dts/milan.dtsi`](../../sw/dts/milan.dtsi).
+the retired `kl,dma-ether` binding; node:
+the retired node include.
 
 | ID | Requirement | Pri | Ver |
 |----|-------------|-----|-----|
-| FR-DT-01 | The node MUST set `compatible = "kl,dma-ether-0.9"` (matches the driver `of_match` + the CSR `VERSION`); the DT `reg` MUST cover the **CSR window** (64 KB) and the **DMA register blocks**, each with `reg-names`. The CSR *base* is host-specific and the requirement is on the window, not on a literal: **`0x9000_0000` on the shipping softcore build** (`MILAN_CSR_BASE` in [`sw/builder/endstation_builder.py`](../../sw/builder/endstation_builder.py); the AXI-Lite slave must sit in the CPU IO region at or above `0x8000_0000`), `0x43C0_0000` on the retired Zynq PS build. Both are recorded in the binding, [`sw/dts/bindings/kl,dma-ether.yaml`](../../sw/dts/bindings/kl,dma-ether.yaml). | M | I,T |
+| FR-DT-01 | The node MUST set `compatible = "kl,dma-ether-0.9"` (matches the driver `of_match` + the CSR `VERSION`); the DT `reg` MUST cover the **CSR window** (64 KB) and the **DMA register blocks**, each with `reg-names`. The CSR *base* is host-specific and the requirement is on the window, not on a literal: **`0x9000_0000` on the shipping softcore build** (`MILAN_CSR_BASE` in [`sw/builder/endstation_builder.py`](../../sw/builder/endstation_builder.py); the AXI-Lite slave must sit in the CPU IO region at or above `0x8000_0000`), `0x43C0_0000` on the retired Zynq PS build. Both are recorded in the binding, the retired `kl,dma-ether` binding. | M | I,T |
 | FR-DT-02 | `interrupts` (or `interrupts-extended`) MUST list the four sources (tx-dma, rx-dma, ts-dma, csr) against the SoC interrupt controller (`&plic` on the RISC-V SoC, `&intc`/`IRQ_F2P` on Zynq), with `interrupt-names`. | M | I,T |
 | FR-DT-03 | Queue counts MUST be declared: `kl,txq-cnt`/`kl,rxq-cnt` (= `CAP.num_queues`), and **`kl,shaped-queues`** MUST list which queues are CBS-shaped (a bitmap/phandle-list)  -  reset **`<>`** (empty: `CBS_EN_RST = 0b00000`, every queue powers up unshaped), consistent with `REGISTER_MAP` Section 0x400 and the five-queue map in [EGRESS_QUEUE_MAP.md](EGRESS_QUEUE_MAP.md). | M | I,T |
-| FR-DT-04 | PHY MUST be described: a child `mdio` bus with the PHY node, `phy-handle`, a `phy-mode` matching how the board actually wires the PHY, and `phy-reset-gpios` (`REQ-MAC-06`). The shipping builder derives the string from `board.constraints.phy` -- **`"gmii"`** on the AX7101 (8-bit SDR, the Section 2 correction in [BOARD_PORTING_AX7101.md](../integration/BOARD_PORTING_AX7101.md)) and `"mii"` on the Arty; `"rgmii-id"` appears only in the retired [`sw/dts`](../../sw/dts) artifacts and is wrong for both boards. | M | I,T |
+| FR-DT-04 | PHY MUST be described: a child `mdio` bus with the PHY node, `phy-handle`, a `phy-mode` matching how the board actually wires the PHY, and `phy-reset-gpios` (`REQ-MAC-06`). The shipping builder derives the string from `board.constraints.phy` -- **`"gmii"`** on the AX7101 (8-bit SDR, the Section 2 correction in [BOARD_PORTING_AX7101.md](../integration/BOARD_PORTING_AX7101.md)) and `"mii"` on the Arty; `"rgmii-id"` appears only in the retired the retired binding toolkit artifacts and is wrong for both boards. | M | I,T |
 | FR-DT-05 | `local-mac-address`/`mac-address` MUST be honoured (else derive from a stable source); the driver seeds the AVDECC `entity_id` (EUI-64) from it (`FR-DISC-05`). | M | T |
 | FR-DT-06 | PTP MUST be discoverable: a `ptp` sub-node or `kl,ptp` props so the driver registers the PHC on the `0x500` CSRs (fixed-125 MHz clock ref, `FR-CLK-02`). | S | I |
 | FR-DT-07 | Optional `clocks`/`clock-names` for `axis`/`gtx`/`ptp`; the node MUST bind with them absent (driver falls back to the fixed rates). | S | T |
-| FR-DT-08 | On the fully-FPGA build the DT MUST be generated by **LiteX** (`litex_json2dts_linux` from `--csr-json`) with the `kl,dma-ether` node overlaid. The overlay itself MUST be produced by the platform-convergent generator ([`sw/dts/milan_dt.py`](../../sw/dts/milan_dt.py)) from a per-platform intermediate JSON (IR, schema [`sw/dts/milan-dt.schema.json`](../../sw/dts/milan-dt.schema.json))  -  the LiteX extractor reads the addresses/IRQ from `csr.json`; other SoCs supply their own IR. The Xilinx `device-tree-xlnx` dtg path is retired (`REQ-DT-02`). | S | I |
+| FR-DT-08 | On the fully-FPGA build the DT MUST be generated by **LiteX** (`litex_json2dts_linux` from `--csr-json`) with the `kl,dma-ether` node overlaid. The overlay itself MUST be produced by the platform-convergent generator (the retired per-platform generator) from a per-platform intermediate JSON (IR, schema the retired intermediate schema)  -  the LiteX extractor reads the addresses/IRQ from `csr.json`; other SoCs supply their own IR. The Xilinx `device-tree-xlnx` dtg path is retired (`REQ-DT-02`). | S | I |
 
 ---
 
@@ -384,7 +384,7 @@ benchmarks during bring-up; publish alongside the resource report.
 
 The ordered path from the baseline endpoint to a Milan-conformant device. Each step
 cites the FRs it satisfies and the milestone in
-[`FULLY_FPGA_RISCV_MIGRATION.md` (archived)](../../historical_now_obsolete/integration/FULLY_FPGA_RISCV_MIGRATION.md).
+the completed PS-to-fabric migration plan (#259, in git history).
 
 1. **Platform up**  -  bare-metal RV32I on the AX7101 with the HW datapath
    (MAC/CBS/classifier/PHC) and fabric-owned diagnostics. *(M-A5)*

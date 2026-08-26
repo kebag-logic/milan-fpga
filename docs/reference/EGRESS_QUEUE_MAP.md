@@ -528,7 +528,7 @@ reverts to the one-hart number.
 What is bought instead is latency where it matters: PTP event messages no
 longer sit behind bulk traffic in a shared ring. RX-side PTP latency is
 precisely what once held `asCapable` false — late RX stamps, not a switch fault
-([GPTP_RXPAD_ROOTCAUSE.md](../findings/GPTP_RXPAD_ROOTCAUSE.md)). A sync/pdelay
+(the retired RX-pad root-cause finding (#259, in git history)). A sync/pdelay
 exchange is ~64–90 B at 8–16 frames/s, so the dedicated queue is essentially
 never backlogged and its NAPI never competes with a 1500 B burst.
 

@@ -3,7 +3,7 @@
 Plays a file from the board's RAM out of the AAF talker, over AVB, to a peer
 listener. Proven on silicon 2026-08-03 (FLAC out of a DS20D's AES 3/4 while
 the pilot tone ran on its 1/2). The full software-path audit is
-[findings/APLAY_SOFTWARE_PATH_AUDIT_0803.md](findings/APLAY_SOFTWARE_PATH_AUDIT_0803.md).
+the retired 2026-08-03 playback-path audit (#259, in git history).
 
 The player shipped on the retired (#259, historical) Linux image as
 **`/usr/bin/play-milan`** (source of

@@ -63,7 +63,7 @@ The current AECP entry is checked against the
 | **MAC** | Media Access Controller  -  the framing layer (ours: LiteEth `LiteEthMACCore` wrapped by `MilanMAC`). |
 | **PHY** | The physical-layer transceiver chip (this board: Realtek **RTL8211E**, copper gigabit). |
 | **GMII / RGMII / MII** | (Reduced/) Gigabit Media-Independent Interface  -  parallel MAC⇄PHY pin protocols; RGMII is DDR-clocked GMII at half the pins. |
-| **gtx_clk / gtx-invert** | The MAC-driven 125 MHz GMII TX clock; `--gtx-tx-invert` forwards it 180° shifted so the PHY samples mid-bit  -  **required** on this board with IOB-packed TX FFs (see [`kl-eth-tx-debug.md`](findings/kl-eth-tx-debug.md)). |
+| **gtx_clk / gtx-invert** | The MAC-driven 125 MHz GMII TX clock; `--gtx-tx-invert` forwards it 180° shifted so the PHY samples mid-bit  -  **required** on this board with IOB-packed TX FFs (see the retired MAC TX bring-up finding (#259, in git history)). |
 | **MDIO** | Two-wire MAC⇄PHY management bus (link status, PHY registers). |
 | **FCS / CRC** | Frame Check Sequence  -  the CRC32 trailer; `rx_crc_errors` at a peer is the wire-integrity truth. |
 | **MTU / MSS** | Maximum Transmission Unit (L3 payload per frame; product-pinned to **1500** here) / Maximum Segment Size (TCP payload per segment). |
@@ -114,7 +114,7 @@ The current AECP entry is checked against the
 | **serialboot / flashboot** | Current product persistence is the matched QSPI `{bitstream, aem}` set. The former UART/Linux image-delivery distinction is retired (#259); see [`QSPI_FLASHBOOT.md`](integration/QSPI_FLASHBOOT.md). |
 | **FBI / crcfbigen** | Historical LiteX Linux-image wrapper `[length][crc32][data]`; the product AEM slot is deliberately raw (#259). |
 | **QSPI / N25Q128** | Quad-SPI flash interface / the board's 16 MB Micron flash chip (needs the `A13` LiteSPI module name for quad mode). |
-| **Device tree (DTS/DTB)** | Retired Linux hardware-description path (#259); `sw/dts/` remains historical ABI evidence. |
+| **Device tree (DTS/DTB)** | Retired Linux hardware-description path (#259); its ABI evidence remains in git history. |
 | **Buildroot** | Retired embedded-Linux kernel/rootfs build path (#259), retained only in historical records. |
 | **litex_term** | The UART console + serialboot uploader (needs a real pty  -  run in tmux; open the CP2102N via `/dev/serial/by-id`, ttyUSBn shuffles). |
 
@@ -184,7 +184,7 @@ The current AECP entry is checked against the
 |------|---------|
 | **m1 / l2x2 / mlp1 / mlp2 / mlp3** | The >500-campaign bitstream lineage: m1 (32 KB L2, blocking D\$) → l2x2 (+64 KB L2) → mlp1 (+refill=8) → mlp2 (+RPT, 32 KB) → **mlp3** (+RPT +64 KB = best RX). See [`findings/PERFORMANCE_GOAL.md`](findings/PERFORMANCE_GOAL.md). |
 | **M-A1 … M-A6** | Historical hardware bring-up milestones; A5 was the retired Linux driver path (#259). Current bare-metal physical acceptance is tracked by #117. |
-| **Section A.x** | Section numbers of the migration plan in [`FULLY_FPGA_RISCV_MIGRATION.md` (archived)](../historical_now_obsolete/integration/FULLY_FPGA_RISCV_MIGRATION.md) (e.g. Section A.6 DMA, Section A.7 MAC/PHY, Section A.9 datapath wrapper). Commit messages and older pages write the A.x with a leading section sign. |
+| **Section A.x** | Section numbers of the completed PS-to-fabric migration plan (#259, in git history) (e.g. Section A.6 DMA, Section A.7 MAC/PHY, Section A.9 datapath wrapper). Commit messages and older pages write the A.x with a leading section sign. |
 | **Section V** | The post-flash [silicon validation checklist](testing/RUNNING_TESTS.md#6-silicon-validation-checklist); archived campaign pages abbreviate it as a V behind a section sign. |
 | **FR-… / NFR-…** | Functional / non-functional requirement IDs ([`FR_NFR.md`](reference/FR_NFR.md), [`../REQUIREMENTS.md`](../REQUIREMENTS.md))  -  e.g. FR-DRV-* driver features, NFR-LAT-01 latency. |
 | **Option 6b** | The descriptor/scatter-gather multi-queue DMA upgrade path (deferred; rings cover today's needs). |

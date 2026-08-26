@@ -277,10 +277,10 @@ depends on board-side storage. Two reasons, both structural:
 Board-side flash logging therefore exists only for the case the host *cannot*
 observe: a fault where the board dies before it can report.
 
-**That path is not available today.** `sw/dts/mtd-partitions.dtsi` is generated
-but nothing appends it to the base tree, and its own banner records that no
-deployed tree carries an mtd node and no mtd driver is known to bind to this
-controller in this kernel configuration. `board/flashlog.sh` therefore degrades
+**That path is not available today.** The partition include the retired
+flash-partition emitter produced never reached a deployed tree, no deployed
+tree carries an mtd node, and no mtd driver is known to bind to this
+controller. `board/flashlog.sh` therefore degrades
 silently to host-only and records the falsifier's answer
 (`cat /proc/mtd`) in the run. When a partition appears and is mounted, it starts
 working with no code change and the harness picks it up automatically.

@@ -505,8 +505,8 @@ fixture on every run, so the RTL cannot be graded against stale bytes.
 The map is generated from `FLASHBOOT_LAYOUT` and `FLASHBOOT_RESERVED` in
 [`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py) -- **the single source of
 truth; slots are added there, never by hand** -- and
-[`sw/dts/gen_mtd_partitions.py`](../../sw/dts/gen_mtd_partitions.py) derives the
-kernel's `fixed-partitions` node from the same reader.
+the retired flash-partition emitter derived the same
+`fixed-partitions` node from that reader.
 
 | Offset | Size | Slot | Written by |
 |---|---|---|---|
@@ -535,8 +535,6 @@ Re-derived at this head with
 |---|---|---|---|
 | `sw/litex/milan_soc.py` | 137 | section 11 gate G0 | yes, section 11 |
 | `sw/litex/milan_soc.py` | 159 | section 5, the flash map's one source of truth | yes, this section |
-| `sw/dts/gen_mtd_partitions.py` | 24 | section 10 kernel-side work, section 11 gate G1 | yes, sections 10 and 11 |
-| `sw/dts/gen_mtd_partitions.py` | 122 | section 11 gate G1 | yes, section 11 |
 | `scripts/check_nvm_record_space.py` | 8 | the page, as the design the gate defends | yes, sections 4 and 9.4 |
 | `syn/yosys/ooc.sh` | 81 | section 8.3 | yes, section 8.3 |
 | `syn/ooc/sizing/KL_nvm_backend_sizer.sv` | 8 | section 8.3 | yes, section 8.3 |
@@ -1128,7 +1126,7 @@ and section 13 says what the PR that picks it owes.
 
 ## 10. Kernel and boot-side work
 
-Cited by [`sw/dts/gen_mtd_partitions.py`](../../sw/dts/gen_mtd_partitions.py) as
+Cited by the retired flash-partition emitter as
 where the kernel-side story lives.
 
 1. **The partition node is generated, not hand-written.**
@@ -1165,7 +1163,7 @@ from this page.
 
 **G1 -- the partition appears.** On a Linux profile, `journal@ee0000` and
 `user@f00000` are in the DTS and the built DTB.
-[`sw/dts/gen_mtd_partitions.py`](../../sw/dts/gen_mtd_partitions.py) derives them
+the retired flash-partition emitter derives them
 from the same map. Note the standing limitation in section 10 item 2: no
 upstream Linux driver claims `litex,spiflash`, so no device ever probes and the
 partitions are declared but never parsed. **On the shipping baremetal profile G1

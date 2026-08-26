@@ -1,7 +1,7 @@
 # VexiiRiscv LSU & the non-blocking D-cache: how the 8 refill slots work
 
 *Written 2026-07-08 as the mechanism reference behind the `build_mlp1` lever
-(`--lsu-l1-refill-count=8`). Sub-doc of [`RX_MEMORY_HIERARCHY_PLAN.md` (archived)](../../historical_now_obsolete/findings/RX_MEMORY_HIERARCHY_PLAN.md)
+(`--lsu-l1-refill-count=8`). Sub-doc of the archived RX memory-hierarchy plan (#259, in git history)
 and [`CAMPAIGN_500_PLAN.md` (archived)](../../historical_now_obsolete/findings/CAMPAIGN_500_PLAN.md). Everything here is read from the VexiiRiscv
 source we actually build  -  `pythondata-cpu-vexiiriscv/.../ext/VexiiRiscv/src/main/scala/vexiiriscv/`
  -  and cross-checked against the generated netlist, not from a textbook. Source citations are

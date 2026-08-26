@@ -139,7 +139,7 @@ one-frame-late pairing after, records lost on fast back-to-back frames.
 The full root cause, the synchronous redesign, and the netlist-forensics
 fallout (LUTRAM-inferred record queues mis-wired by the cross-hierarchy
 optimizer, rebuilt as explicit flops) are recorded in
-[`../findings/PTP_TS_METADATA_FIX.md`](../findings/PTP_TS_METADATA_FIX.md).
+the retired timestamp-metadata finding (#259, in git history).
 
 Both exchanges, as this design stamps them:
 
@@ -161,7 +161,7 @@ Both exchanges, as this design stamps them:
 
 Each qualified frame emits a two-beat, 16-byte metadata record
 (`ptp_ts_core.sv` output FSM; contract v2.1 in
-[`../findings/PTP_TS_METADATA_FIX.md`](../findings/PTP_TS_METADATA_FIX.md)):
+the retired timestamp-metadata finding (#259, in git history)):
 
 | beat | content |
 |------|---------|
@@ -201,7 +201,7 @@ One RX-path prerequisite is easy to forget: gPTP frames must arrive
 *unpadded*. Historical root cause: the RX DMA originally reported
 8-byte-rounded lengths and `ptp4l` rejected every pdelay_req as a bad
 message (trailing zeros parse as a bogus TLV). Root cause and the true-length gateware fix:
-[`../findings/GPTP_RXPAD_ROOTCAUSE.md`](../findings/GPTP_RXPAD_ROOTCAUSE.md).
+the retired RX-pad root-cause finding (#259, in git history).
 
 ### 2.4 The ingress/egress latency constants
 
@@ -586,12 +586,12 @@ Proven, with the evidence next to each claim:
   silicon green 2026-07-13 (hwts5): 0 tx-timestamp timeouts steady-state,
   offset rms 2-5 ns *through* RX/TX/bidirectional floods, **peer delay
   600 us (SW stamps) -> 1.3 us (HW)** —
-  [`../findings/PTP_TS_METADATA_FIX.md`](../findings/PTP_TS_METADATA_FIX.md)
+  the retired timestamp-metadata finding (#259, in git history)
   "Validation status".
 * **asCapable + full sync through the reference AVB switch**: pdelay
   handshake both ways, board-as-GM relayed to a hardware-timestamped slave
   at rms 2-4 ns (2026-07-13) —
-  [`../findings/GPTP_RXPAD_ROOTCAUSE.md`](../findings/GPTP_RXPAD_ROOTCAUSE.md).
+  the retired RX-pad root-cause finding (#259, in git history).
   Both boards have since run hardware timestamps with zero config overrides
   (row AS-7).
 * **CRF end to end**: sink lock on a bound stream proven on silicon (mf40);

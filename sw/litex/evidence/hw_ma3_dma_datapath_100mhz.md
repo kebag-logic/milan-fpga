@@ -337,7 +337,7 @@ wire order.
 > bytes reached the wire; they cannot confirm the rest of the frame did.
 >
 > That distinction is not hypothetical for this build.
-> [`docs/findings/kl-eth-tx-debug.md`](../../../docs/findings/kl-eth-tx-debug.md)
+> The retired MAC TX bring-up finding (#259, in git history)
 > lists **this exact bitstream** in its build matrix as
 > *`build_gmii_final` (Jul 3) — pre-gating `last_be` (truncates to 8 B!) —
 > 10/10 ⚠ truncated frames*. So the frames these counters counted were, on the

@@ -178,9 +178,9 @@ the LiteX build tied `i_mac_speed=2'b10, i_link_up=1` until the MAC landed).
 events (TX timestamp ready, link change, RMON rollover). DMA-completion
 interrupts are **your DMA engine's** to generate. The Linux driver expects
 four lines named `tx-dma`, `rx-dma`, `ts-dma`, `csr`
-([`sw/driver/README.md`](../../sw/driver/README.md)); on the LiteX host they are EventManager sources
+(the retired driver record); on the LiteX host they are EventManager sources
 folded into one PLIC line, on Zynq four separate GIC lines - the device
-tree, not the RTL, encodes that difference ([`sw/dts/`](../../sw/dts)).
+tree, not the RTL, encodes that difference (the retired binding toolkit).
 
 ### 1.6 Descriptor-image read master (the entity model lives in YOUR memory)
 
@@ -306,9 +306,9 @@ for the working pattern, plus the CBS multicycle constraint described in
   asserts RTL and doc agree).
 * **Linux driver:** `kl-eth` (sibling repo `kl-linux-drivers`), DT binding
   `compatible = "kl,dma-ether-0.9"` - resource layout and caveats in
-  [`sw/driver/README.md`](../../sw/driver/README.md).
-* **Device tree:** generated, per-host, by [`sw/dts/milan_dt.py`](../../sw/dts/milan_dt.py) from the
-  build's `csr.json` - see [`sw/dts/README.md`](../../sw/dts/README.md). If
+  the retired driver record.
+* **Device tree:** generated, per-host, by the retired per-platform generator from the
+  build's `csr.json` - see the retired binding toolkit. If
   you integrate on a new host, add an IR JSON there rather than hand-writing
   a dtsi.
 

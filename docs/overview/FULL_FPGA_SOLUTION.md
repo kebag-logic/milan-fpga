@@ -96,7 +96,7 @@ the header probe.
 Companion documents:
 - [Current Milan v1.2 audit](../testing/MILAN_V12_AUDIT_2026-08-16.md), the
   verified behavior, current blockers, and validation evidence.
-- [`FULLY_FPGA_RISCV_MIGRATION.md` (archived)](../../historical_now_obsolete/integration/FULLY_FPGA_RISCV_MIGRATION.md)  -  the deep, step-
+- the completed PS-to-fabric migration plan (#259, in git history)  -  the deep, step-
   numbered migration plan (Section A.x parts are referenced throughout here).
 - [`ARCHITECTURE.md`](ARCHITECTURE.md)  -  the datapath/control-plane internals.
 - [`AXIS_CORES_ON_NAXRISCV.md`](../integration/AXIS_CORES_ON_NAXRISCV.md)  -  how AXI-Stream cores
@@ -225,7 +225,7 @@ wedging the responder.
 | **CPU reads NIC ID="MILN" (M-A2)** | ✅ **on silicon** (25 MHz + 100 MHz) | `sw/litex/evidence/hw_*_MILN*.log` |
 | **DDR3-800 memtest (M-A1)** | ✅ **on silicon** (100 MHz via datapath CDC) | `evidence/hw_ddr3_800_cdc_100mhz.log` |
 | Section A.6 DMA (AXIS↔memory, simple-mode CSRs) | ✅ DMA-TX + AXIS-CDC verified on silicon (M-A3 half) | `evidence/hw_ma3_dma_datapath_100mhz.md` |
-| Section A.7 MAC + PHY (LiteEth **GMII**  -  AX7101 is GMII, not RGMII) | ✅ **on silicon**  -  correct frames both directions (M-A3) | `milan_soc.py --all-blocks`; TROUBLESHOOTING Section 17; [`kl-eth-tx-debug.md`](../findings/kl-eth-tx-debug.md) |
+| Section A.7 MAC + PHY (LiteEth **GMII**  -  AX7101 is GMII, not RGMII) | ✅ **on silicon**  -  correct frames both directions (M-A3) | `milan_soc.py --all-blocks`; TROUBLESHOOTING Section 17; the retired MAC TX bring-up finding (#259, in git history) |
 | **Full SoC (`--all-blocks`: NIC+DMA+MAC+DDR3)** | ✅ bare-metal configuration builds; integrated physical acceptance remains #117 | `build.sh` / `deploy.sh`; builder gate 1b |
 | Control plane (ADP + ACMP + SRP) in fabric | ✅ in fabric, unconditional | [`hdl/milan/KL_pp_shadow.sv`](../../hdl/milan/KL_pp_shadow.sv) over the pinned `protocol-processor` submodule; harness [`tb/verilator/pp_shadow`](../../tb/verilator/pp_shadow) |
 | MAAP | ✅ in fabric, silicon-validated | [`hdl/ieee1722/maap/`](../../hdl/ieee1722/maap) + [`hdl/milan/KL_pp_maap_shim.sv`](../../hdl/milan/KL_pp_maap_shim.sv); the ALLOC_DA success **is** the talker DA gate |
@@ -336,7 +336,7 @@ good.
   DMA-done sources are collected by a LiteX `EventManager` into **one** VexiiRiscv
   **PLIC** line (`milan_interrupt`); firmware reads `milan_csr` `IRQ_STATUS` plus
   the EventManager `pending` register. The retired Linux device-tree projection
-  recorded one LiteX interrupt; see [`../sw/dts/README.md`](../../sw/dts/README.md).
+  recorded one LiteX interrupt; that binding record remains in git history.
 
 ## 6. Build & run (medium level)
 

@@ -131,7 +131,7 @@ porting-relevant detail explained in
 
 Interrupts: an `EventManager` with four level sources (`tx`/`rx`/`ts`/`csr`)
 folded into one PLIC line - matching the driver's four `interrupt-names`
-(the DT encodes the aggregation; see [`sw/dts/README.md`](../../sw/dts/README.md)).
+(the DT encodes the aggregation; see the retired binding toolkit).
 
 ### 2.3 The DMA (`MilanDMA`)
 
@@ -155,7 +155,7 @@ Endianness is `"big"` on purpose: memory order == wire order, so the CPU
 never byte-swaps.
 
 The BD-format/zero-copy/checksum evolution of these engines is chronicled
-in [../fpga/CPPI_DMA_REDESIGN.md (archived)](../../historical_now_obsolete/fpga/CPPI_DMA_REDESIGN.md)
+in the archived CPPI DMA redesign log (#259, in git history)
 and the [findings log](../findings/README.md).
 
 ### 2.4 The MAC (`MilanMAC`)
@@ -205,8 +205,7 @@ stale copy of them:
 
 Master: [`flash_layout.gen.py`](../diagrams/flash_layout.gen.py) — it reads the
 layout dictionaries and prints `check_flash_map()`'s overlap/alignment verdict
-on the drawing. The former device-tree reader is retained only for historical
-layout evidence (#259).
+on the drawing. The former device-tree reader is retired to git history (#259).
 
 That check is not cosmetic: every slot is erase-block (`0x1_0000`) aligned
 because a partition starting or ending mid-block cannot be erased without

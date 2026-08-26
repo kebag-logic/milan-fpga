@@ -451,10 +451,8 @@ runtime recipe.
 | RX filter | TCAM regs (0x700) | dest-MAC filtering | - |
 
 The former device tree was generated per host by
-[`sw/dts/milan_dt.py`](../../sw/dts/milan_dt.py); it and the driver-side notes
-are retired historical ABI records under #259. See
-[`sw/dts/README.md`](../../sw/dts/README.md) and
-[`sw/driver/README.md`](../../sw/driver/README.md).
+the build's `csr.json` (LiteX) or the IR JSON (Zynq). The generator, binding
+toolkit, and driver-side contract are retired to git history under #259.
 
 ## 7. Verification
 
@@ -509,4 +507,4 @@ lines). Constraints in `constraints/*.xdc`. [`REQUIREMENTS.md`](../../REQUIREMEN
 [historical `TODO.md`](../../TODO.md) were written in this era - where they talk about `0x43C0_0000`,
 `IRQ_F2P` or `device-tree-xlnx`, they describe this variant only. The
 migration story from PS to softcore is
-[../integration/FULLY_FPGA_RISCV_MIGRATION.md (archived)](../../historical_now_obsolete/integration/FULLY_FPGA_RISCV_MIGRATION.md).
+the completed PS-to-fabric migration plan (#259, in git history).

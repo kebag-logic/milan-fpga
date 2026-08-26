@@ -193,8 +193,8 @@ cannot build four of the suites and 5.032 (Debian trixie) reads back zeros on si
 [Section 7 of docs/testing/TESTING.md](docs/testing/TESTING.md#7-known-gaps-kept-honest).
 The protocol and gPTP processors are required by the datapath-level harnesses
 and are fetched over anonymous HTTPS.
-The remaining submodules are not needed for this tier and may stay
-uninitialised: `external` and `third_party/buildroot`.
+The remaining `external` submodule is not needed for this tier and may stay
+uninitialised.
 The processor architecture, compliance review, and SystemVerilog
 implementation live at
 <https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan>;

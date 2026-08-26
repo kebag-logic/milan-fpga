@@ -1899,7 +1899,7 @@ this repo.
     model-id write, the claim-base+1 CRF DMAC collision, the 8-for-9 MAAP
     claim, the hand-migrated DTB windows, the `CRFT_CTRL 0x1` flood posture.
 
-    [`docs/testing/VIRTUAL_E2E_PLAN.md`](testing/VIRTUAL_E2E_PLAN.md) holds the
+    The virtual end-to-end plan that #259 retired into git history held the
     plan, the tooling assessment (extend
     [`sw/litex/milan_sim.py`](../sw/litex/milan_sim.py) first, Renode for
     the multi-machine bench, raw QEMU last), phases V0-V3 with

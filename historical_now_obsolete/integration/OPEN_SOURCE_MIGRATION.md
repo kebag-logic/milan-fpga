@@ -22,7 +22,7 @@ an established pattern.
    plain synthesizable Verilog with Verilator-friendly sim models  -  replacing the XPM
    makes the **end-to-end classify→CBS→PTP→MAC path cycle-checkable**, not just the
    leaves.
-3. Aligns with the fully-FPGA RISC-V plan ([`FULLY_FPGA_RISCV_MIGRATION.md`](FULLY_FPGA_RISCV_MIGRATION.md));
+3. Aligns with the fully-FPGA RISC-V plan (`FULLY_FPGA_RISCV_MIGRATION.md`);
    the PS-replacement there reuses the same core families.
 
 ---
@@ -102,7 +102,7 @@ All **MIT-licensed**. Vendor as git submodules under `third_party/`.
 | X5 `xpm_cdc_handshake` (timestamp) | `verilog-ethernet/ptp_clock_cdc` **or** `verilog-axis/axis_async_fifo` | ptp_clock_cdc is purpose-built for PTP timestamps |
 | X6 `IOBUF` (MDIO) | inferred tristate + `verilog-ethernet/mdio_master` | `assign mdio = t ? 1'bz : o; assign i = mdio;`  -  Vivado infers IOBUF; Verilator models it |
 | X7 RGMII IO style | MAC `TARGET("GENERIC")` for sim / keep `"XILINX"` for the Artix build | SelectIO is *free* on Xilinx; `GENERIC`/`SIM` makes it Verilatable |
-| X8 PS (CPU/DDR/DMA/xbar/clk/rst) | **LiteX+NaxRiscv** (primary) *or* Vivado-native: `verilog-axi/axi_dma` + `axi_crossbar`/`axil_crossbar` + MIG (DDR) + NaxRiscv + `sync_reset` | see [`FULLY_FPGA_RISCV_MIGRATION.md`](FULLY_FPGA_RISCV_MIGRATION.md) §A |
+| X8 PS (CPU/DDR/DMA/xbar/clk/rst) | **LiteX+NaxRiscv** (primary) *or* Vivado-native: `verilog-axi/axi_dma` + `axi_crossbar`/`axil_crossbar` + MIG (DDR) + NaxRiscv + `sync_reset` | see `FULLY_FPGA_RISCV_MIGRATION.md` §A |
 
 ---
 
@@ -151,7 +151,7 @@ Highest value: unblocks end-to-end Verilator simulation of the TSN datapath.
 6. **T2.1  -  MDIO (X6,X7).** Replace `IOBUF` with inferred tristate; instantiate
    `verilog-ethernet/mdio_master` as the fabric MDIO master (also closes REQ-MAC-08).
    Set MAC `TARGET("GENERIC")` for sim builds, `"XILINX"` for the Artix bitstream.
-7. **T2.2  -  host (X8).** Per [`FULLY_FPGA_RISCV_MIGRATION.md`](FULLY_FPGA_RISCV_MIGRATION.md):
+7. **T2.2  -  host (X8).** Per `FULLY_FPGA_RISCV_MIGRATION.md`:
    LiteX+NaxRiscv (primary), or Vivado-native with `verilog-axi` `axi_dma` +
    `axi_crossbar`/`axil_crossbar` + MIG + NaxRiscv + `sync_reset`. The AXI-Lite CSR
    bus reaches `milan_csr` through `axil_crossbar`/`axil_register`.

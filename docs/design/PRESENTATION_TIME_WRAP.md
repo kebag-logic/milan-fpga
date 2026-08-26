@@ -12,7 +12,7 @@ about 90 seconds — while sequence numbers, media lock and frame delivery stay
 perfect.
 
 That was measured on 2026-07-27 and written up in
-[`../findings/REF_LISTENER_TIMESTAMP_SWEEP_0727.md`](../findings/REF_LISTENER_TIMESTAMP_SWEEP_0727.md).
+the retired reference-listener sweep of 2026-07-27 (#259, in git history).
 **That page is the measurement record; this page is the mechanism.** Numbers
 are quoted here only where the arithmetic needs them, and the arithmetic is
 written out so you can check it.
@@ -334,7 +334,7 @@ ratio        : 2.369 x     implied rate 23696 ppm
 The measurement side — how the counters were read without `la_avdecc`, how the
 PHC rate error was measured with no network round-trip in the loop, and the
 traps that cost time on the way — is in
-[`../findings/REF_LISTENER_TIMESTAMP_SWEEP_0727.md`](../findings/REF_LISTENER_TIMESTAMP_SWEEP_0727.md).
+the retired reference-listener sweep of 2026-07-27 (#259, in git history).
 The clock chain the presentation timestamp comes from is in
 [`TIME_SYNC.md`](TIME_SYNC.md), and the talker/listener chains that carry it in
 [dataplane walkthrough](../fpga/DATAPLANE_WALKTHROUGH.md).

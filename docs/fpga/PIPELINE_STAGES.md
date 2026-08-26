@@ -74,7 +74,7 @@ Each queue is its own ring writer, interrupt and NAPI.
 > **That parallel ACK split is gone**: bulk RX is single-NAPI again and the RX
 > throughput ceiling reverts to the one-hart number. What is bought instead is
 > RX-side PTP latency, which is what once held `asCapable` false
-> ([../findings/GPTP_RXPAD_ROOTCAUSE.md](../findings/GPTP_RXPAD_ROOTCAUSE.md)).
+> (the retired RX-pad root-cause finding (#259, in git history)).
 > Advice about engineering a split by picking client ports no longer applies.
 
 Knobs and traps:

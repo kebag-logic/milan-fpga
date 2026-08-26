@@ -223,7 +223,7 @@ runs clean (192/145/112/142/196 Mbit, canary 0, drops 4792). Full record:
 [`historical_now_obsolete/findings/RX_OVERLOAD_WEDGE.md`](../../historical_now_obsolete/findings/RX_OVERLOAD_WEDGE.md).
 
 
-⁵ **RX memory levers, MEASURED 2026-07-08** ([`historical_now_obsolete/findings/RX_MEMORY_HIERARCHY_PLAN.md`](../../historical_now_obsolete/findings/RX_MEMORY_HIERARCHY_PLAN.md) + [`docs/fpga/LSU_NONBLOCKING_DCACHE.md`](../fpga/LSU_NONBLOCKING_DCACHE.md)). Chain: −P2 was 238 (2-hart fan-out). (a) **64 KB L2** (`build_l2x2`) → −P2 278–280 (+17 %, L2 *capacity* lever, single flat). (b) **Non-blocking D$ alone** (`build_mlp1`, `lsuL1RefillCount=8`, 0 BRAM) → **no gain** (229≈238): on the in-order core the demand miss REDO-replays, so 8 refill slots sit empty without a filler. (c) **RPT hardware prefetcher** (`build_mlp2`, `--lsu-hardware-prefetch=rpt`, +2 BRAM tiles) *fills* the slots by stride-prefetching the payload copy → **single-flow RX 207→277 (+34 %)**, −P2 +7 %. (d) **Combination** (`build_mlp3`, refill+rpt+64 KB L2) → **−P2 298 (best, Section V canary=0, split-verified)** + best TX−P4 431  -  the two levers compound (capacity + latency-hiding). RPT=single/latency, L2=aggregate/capacity. The 2-hart aggregate remains a *shared-resource* wall (~1.2× single); >500 needs more queues/harts or fewer memory touches, not more cache.
+⁵ **RX memory levers, MEASURED 2026-07-08** (the archived RX memory-hierarchy plan (#259, in git history) + [`docs/fpga/LSU_NONBLOCKING_DCACHE.md`](../fpga/LSU_NONBLOCKING_DCACHE.md)). Chain: −P2 was 238 (2-hart fan-out). (a) **64 KB L2** (`build_l2x2`) → −P2 278–280 (+17 %, L2 *capacity* lever, single flat). (b) **Non-blocking D$ alone** (`build_mlp1`, `lsuL1RefillCount=8`, 0 BRAM) → **no gain** (229≈238): on the in-order core the demand miss REDO-replays, so 8 refill slots sit empty without a filler. (c) **RPT hardware prefetcher** (`build_mlp2`, `--lsu-hardware-prefetch=rpt`, +2 BRAM tiles) *fills* the slots by stride-prefetching the payload copy → **single-flow RX 207→277 (+34 %)**, −P2 +7 %. (d) **Combination** (`build_mlp3`, refill+rpt+64 KB L2) → **−P2 298 (best, Section V canary=0, split-verified)** + best TX−P4 431  -  the two levers compound (capacity + latency-hiding). RPT=single/latency, L2=aggregate/capacity. The 2-hart aggregate remains a *shared-resource* wall (~1.2× single); >500 needs more queues/harts or fewer memory touches, not more cache.
 
 **Status vs goal (>500):** **TX ✅ done (−P2 525–536). RX = 316  -  and RX > 500 is a HARD GOAL:
 the campaign does not close without it** (goal reasserted 2026-07-09 evening).
@@ -411,7 +411,7 @@ records, **latency is not the 500-blocker**  -  T2 driver surgery is parked.
 *Written 2026-07-09 after the R2 multi-slot-RSC campaign; kept as the pedagogical
 walk-through of the RX levers. Deep mechanism:
 [`LSU_NONBLOCKING_DCACHE.md`](../fpga/LSU_NONBLOCKING_DCACHE.md) and
-[`RX_MEMORY_HIERARCHY_PLAN.md` (archived)](../../historical_now_obsolete/findings/RX_MEMORY_HIERARCHY_PLAN.md).*
+the archived RX memory-hierarchy plan (#259, in git history).*
 
 The whole campaign on one chart:
 
@@ -677,7 +677,7 @@ in the order they surfaced as load rose:
   probe: 60% stall). Raising the datapath to 100 MHz halved that (→27% stall) and moved the
   wall to the **RingDMAReader**, which is serial/latency-exposed  -  one outstanding coherent
   DMA read at a time (70% starve). See
-  [`historical_now_obsolete/findings/RX_FANOUT_AND_TX_CEILING.md`](../../historical_now_obsolete/findings/RX_FANOUT_AND_TX_CEILING.md), `tx-datapath-limit`.
+  the archived RX fan-out and TX-ceiling finding (#259, in git history), `tx-datapath-limit`.
 - **RX per-frame CPU cost:** each RX frame pays DMA cache ops + skb alloc + stack traversal;
   a single flow saturates one hart in `sys` at ~40 Mbit/s. **RSC** (HW receive coalescing)
   amortizes this and lifts single-flow RX to 209; the 2-queue fan-out reaches 223. Beyond
@@ -725,7 +725,7 @@ same ones that carry on to 1 Gbit.
 | **RX overload wedge**: completion-order inversion, sim repro + fix (2026-07-08) | [`historical_now_obsolete/findings/RX_OVERLOAD_WEDGE.md`](../../historical_now_obsolete/findings/RX_OVERLOAD_WEDGE.md) |
 | **CBS default-shaping bug**: reset config paced BE TX at 300 Mb/s (2026-07-08) | [`docs/findings/CBS_DEFAULT_SHAPING_BUG.md`](CBS_DEFAULT_SHAPING_BUG.md) |
 | Reader-prefetch refutation (Phase-0 probes, MEASURED VERDICT) | [`historical_now_obsolete/findings/TX_READER_PREFETCH_PLAN.md`](../../historical_now_obsolete/findings/TX_READER_PREFETCH_PLAN.md) |
-| HW-TSO, single-flow ceiling, RX fan-out, datapath-input probe, 100 MHz datapath | [`historical_now_obsolete/findings/RX_FANOUT_AND_TX_CEILING.md`](../../historical_now_obsolete/findings/RX_FANOUT_AND_TX_CEILING.md) |
+| HW-TSO, single-flow ceiling, RX fan-out, datapath-input probe, 100 MHz datapath | the archived RX fan-out and TX-ceiling finding (#259, in git history) |
 | Memory-latency root cause (1424 ns/miss), floorplan/clock experiments, the second-core refutation | [`docs/findings/LATENCY_INVESTIGATION.md`](LATENCY_INVESTIGATION.md) |
 | Header-split silicon history (hsq4-hsq12) + live BD v2/v3 ABI | [`docs/fpga/HEADER_SPLIT_DESIGN.md`](../fpga/HEADER_SPLIT_DESIGN.md) |
 | RX RSC coalescing + `ethtool -C rx-usecs` (default 250 µs) | `../the-private-test-repo/fpga/kl-eth/README.md` |

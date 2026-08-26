@@ -71,7 +71,7 @@ Drift notes observed while deriving the mapping (2026-07-25):
 * **[B] ts-record production** — one 2-beat record per PTP EVENT frame on RX
   (pdelay_req) and on TX through the host DMA port (pdelay_resp), field-exact
   per record contract v2.1
-  ([PTP_TS_METADATA_FIX.md](../../../docs/findings/PTP_TS_METADATA_FIX.md));
+  (the retired timestamp-metadata finding (#259, in git history));
   general messages (follow_up RX, announce TX) produce none.
 * **[C] filter correctness both ways** — bound AVTP never leaks to the host
   lane (shield in force, fabric still consumes); host frames and unknown-sid

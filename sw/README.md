@@ -6,7 +6,7 @@ memory-mapped and the fabric gPTP plane as the one PHC/publication owner.
 There is no supported Linux image, rootfs, or software gPTP owner; the
 historical Linux bring-up that this directory once hosted is retired and
 summarized at the end of this page. This is the buildable slice of
-[`docs/integration/FULLY_FPGA_RISCV_MIGRATION.md` (archived)](../historical_now_obsolete/integration/FULLY_FPGA_RISCV_MIGRATION.md).
+the completed PS-to-fabric migration plan (#259, in git history).
 
 ```
    milan_soc.py  ──build──▶  bitstream + LiteX BIOS   (RV32 hart + DDR + UART + Milan NIC)
@@ -29,8 +29,6 @@ summarized at the end of this page. This is the buildable slice of
 | [`litex/evidence/naxriscv_sim_boot.log`](litex/evidence/naxriscv_sim_boot.log) | Captured `litex_sim` boot: the NaxRiscv core running the LiteX BIOS to the `litex>` prompt. |
 | [`litex/evidence/naxriscv_reads_MILN.log`](litex/evidence/naxriscv_reads_MILN.log) | Captured `mem_read 0x90000000` = `MILN` + VERSION — **M-A2** on the softcore. |
 | [`../docs/integration/AXIS_CORES_ON_NAXRISCV.md`](../docs/integration/AXIS_CORES_ON_NAXRISCV.md) | **How to attach AXI-Stream cores to NaxRiscv** (control/data/event planes), using `MilanNIC` as the worked example. |
-| [`dts/`](dts) | Historical (#259): the `kl,dma-ether` + `kl,milan-pcm` device-tree bindings and the `milan_dt.py validate` binding checker served the retired Linux driver ([`dts/README.md`](dts/README.md)). Kept as the record of that driver-visible contract. |
-| [`driver/README.md`](driver/README.md) | Historical (#259): the retired `kl-eth` Linux platform driver record (NAPI/XDP/PTP/ethtool, `FR-DRV-*`). |
 
 ## Contents
 
@@ -114,8 +112,8 @@ retired profile and manifests at the command line, and the flash tools refuse
 non-fabric artifact sets. The procedures live on in git history and in the
 historical sections of
 [`../docs/integration/QSPI_FLASHBOOT.md`](../docs/integration/QSPI_FLASHBOOT.md);
-the [`dts/`](dts) bindings and [`driver/`](driver) sources remain as the
-record of the driver-visible contract of that era.
+the bindings and the driver sources left this directory with it, and the
+record of that driver-visible contract stays in git history.
 
 ## Status (what actually runs on this box)
 | Step | Tool | State |

@@ -33,7 +33,7 @@ Legend: `[ ]` todo · `[~]` in progress · `[x]` done · `(REQ-xxx)` requirement
 - **[Phase 5 — 802.3 MAC configuration & management (REQ-MAC-\*)](#phase-5--8023-mac-configuration--management-req-mac-)** — Two rows worth reading before touching the MAC: the RX address filter whose CSR fields were exported but consumed by nothing, and `is_1g`, which told a 100 Mb/s Arty port it was gigabit and so mis-sized the lwSRP admission gate 10×. Link-up and speed are *still* tied constant in SoC glue, not negotiated.
 - **[Phase 6 — Multi-channel DMA (enables N queues)](#phase-6--multi-channel-dma-enables-n-queues)** — One superseded row, kept so the requirement is not silently dropped: multi-queue RX is `RxSteer` + a second `RingDMAWriter` in the LiteX SoC, not `axi_mcdma`.
 - **[Phase 7 — Linux driver (REQ-DRV-\*) (../kl-linux-drivers)](#phase-7--linux-driver-req-drv--kl-linux-drivers)** — Bookkeeping banner first: every box here is unticked only because the shipped `kl-eth` driver lives in the private test repo, not because the work is open. The one genuinely unwired item is CBS offload via `ndo_setup_tc`.
-- **[Phase 8 — Device tree & generator (REQ-DT-\*) (../fpga-ps-tools)](#phase-8--device-tree--generator-req-dt--fpga-ps-tools)** — Partly delivered, partly superseded: the builder's DT emitter byte-matches both deployed `.dts` files, [`sw/dts/milan_dt.py`](sw/dts/milan_dt.py)'s `extract`/`gen` are retired (they emitted a `dma-rx` span of `0x68` against an ABI of `0x40`), and the Xilinx dtg row is dead with the PS.
+- **[Phase 8 — Device tree & generator (REQ-DT-\*) (../fpga-ps-tools)](#phase-8--device-tree--generator-req-dt--fpga-ps-tools)** — Partly delivered, partly superseded: the builder's DT emitter byte-matches both deployed `.dts` files, the per-platform generator's `extract`/`gen` are retired (they emitted a `dma-rx` span of `0x68` against an ABI of `0x40`), and the Xilinx dtg row is dead with the PS.
 - **[Phase 9 — End-to-end bring-up (REQ-VER-05)](#phase-9--end-to-end-bring-up-req-ver-05)** — A single unticked line holding the five end-to-end acceptance checks from [`REQUIREMENTS.md`](REQUIREMENTS.md) §8.
 - **[Phase 10 — Persistent user storage (added 2026-07-25)](#phase-10--persistent-user-storage-added-2026-07-25)** — The newest and largest phase: the `KLJ1` journal that verifies a whole image before a single bind-restore, the QSPI carve that shrank `rootfs` to 6.375 MiB to free `journal` and `user`, and the CTF fault log with its numbers — 0.2104 compression at LZMA2 preset 0, and a 512 KiB/h token bucket that turns 59 days of flash life into 11.4 years. Kernel-side mtd is still nothing.
 - **[Phase 11 — rx → talker LOOPBACK lane (task #65, added 2026-08-03)](#phase-11--rx--talker-loopback-lane-task-65-added-2026-08-03)** — The loopback fabric is written, wired and gated green behind an OFF elaboration lever; what remains is the purchase decision — measured at +2,303 LUT / +1,542 FF for the full 8×8 pool on a board already dying in packing — and the rule that the pool width and lane width are one decision.
@@ -76,7 +76,7 @@ full-FPGA solution is **assembled and elaborating** end-to-end. See
 * **`milan_soc.py --full`** — the whole FPGA SoC (NIC + §A.6 DMA + §A.7 MAC/RGMII
   PHY) elaborates and exports gateware; only the Artix-7 Vivado bitstream is blocked
   (device-support install).
-* Device tree ([`sw/dts/`](sw/dts)), driver ABI ([`sw/driver/`](sw/driver)), and the DMA CSR ABI documented.
+* Device tree (the retired binding toolkit), driver ABI (the retired driver record), and the DMA CSR ABI documented.
 
 Remaining for on-hardware bring-up (roadmap in [FULL_FPGA_SOLUTION.md](docs/overview/FULL_FPGA_SOLUTION.md) §9): Artix-7
 Vivado device install → LiteDRAM → board M-A2/M-A3 → Linux (M-A4) → driver (M-A5) →
@@ -366,7 +366,7 @@ AVDECC SW protocols (AECP/ACMP/MAAP/MVU, then SRP/MSRP/MVRP, then AVTP media).
 > emitter (2026-07-26) emits the same node from the declarative config and
 > **byte-matches both deployed `.dts` files** in `test_builder.py` gate 19b, so
 > `REQ-DT-01`/`REQ-DT-03` are effectively met. The stale-generator half is now
-> **CLOSED**: [`sw/dts/milan_dt.py`](sw/dts/milan_dt.py)'s `extract`/`gen` are **retired** (they exit 2
+> **CLOSED**: the per-platform generator's `extract`/`gen` are **retired** (they exit 2
 > with a pointer — fed the current `csr.json` they still emitted 4 reg windows
 > and a `dma-rx` span of `0x68` where the driver ABI is `0x40`, which no
 > `csr.json`-derived rule can produce), and
@@ -500,8 +500,8 @@ AVDECC SW protocols (AECP/ACMP/MAAP/MVU, then SRP/MSRP/MVRP, then AVTP media).
     or oversized map **at build time**. The ARTY rootfs slot still has **~15 KB
     headroom** — ARTY gets neither slot until its rootfs is slimmed, and
     degrades gracefully (no partition → no replay → boots unbound).
-  - **DT node — DONE 2026-07-26.** [`sw/dts/gen_mtd_partitions.py`](sw/dts/gen_mtd_partitions.py) emits
-    [`sw/dts/mtd-partitions.dtsi`](sw/dts/mtd-partitions.dtsi) from that map (`&flash` = the label LiteX's
+  - **DT node — DONE 2026-07-26.** The retired flash-partition emitter emitted
+    its partition include from that map (`&flash` = the label LiteX's
     `json2dts` already gives the LiteSPI `jedec,spi-nor` node, read out of the
     LiteX source rather than assumed); `--check` byte-compares and `--dtc` runs
     `dtc`, both wired into [`sw/trace/test_trace_roundtrip.py`](sw/trace/test_trace_roundtrip.py) gate 1.

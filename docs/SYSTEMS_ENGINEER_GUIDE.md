@@ -8,7 +8,7 @@ Subsystem specs → Register map / ABI → Build & deploy → Test & verify → 
 Historical findings.
 
 Status: current as of **2026-08-13**. Where a linked doc is mid-refresh, the current fact is
-stated here so this guide is accurate *today*; the doc audit ([`DOC_AUDIT.md` (archived)](../historical_now_obsolete/DOC_AUDIT.md)) tracks the fixes.
+stated here so this guide is accurate *today*.
 
 > **The single change that reshapes half this map (2026-08-13).** This device's
 > entire IEEE 1722.1 / SRP control plane is now
@@ -259,13 +259,10 @@ Each entry: the doc and **when to read it**. `→` marks the doc to start each s
 - → **[`docs/design/TIME_SYNC.md`](design/TIME_SYNC.md)** — the time-sync design record: the three clocks (network
   PHC / system / media), the HW timestamp path, the CRF + MMCM-DRP servo loop, every time CSR
   in one table, honest status. **Read this first for time.**
-- **[`docs/findings/GPTP_RXPAD_ROOTCAUSE.md`](findings/GPTP_RXPAD_ROOTCAUSE.md)** — the RX-pad root cause + the operative
-  switch-behaviour matrix (the bench switch does per-port pdelay but never masters Sync/Announce
-  into board ports → why es-1.1/1.2 BMCA variants are switch-gated). Read for why gPTP behaves
-  as it does on this bench.
-- **[`docs/findings/PTP_TS_METADATA_FIX.md`](findings/PTP_TS_METADATA_FIX.md)** — the HW-timestamp DMA "Record contract v2.1"
-  (beat0 ns / beat1 {seq,msgType,marker,dir}); this is the driver-matched ABI. Read when
-  touching timestamping.
+- The RX-pad root cause, the operative switch-behaviour matrix (the bench switch does per-port
+  pdelay but never masters Sync/Announce into board ports → why es-1.1/1.2 BMCA variants are
+  switch-gated) and the timestamp "Record contract v2.1" were recorded against the retired host
+  path; #259 removed those three findings from the checkout and git history keeps them.
 
 **SRP (reservation)**
 - → **[`hdl/milan/KL_pp_shadow.sv`](../hdl/milan/KL_pp_shadow.sv)** — SRP is the protocol
@@ -427,9 +424,10 @@ Each entry: the doc and **when to read it**. `→` marks the doc to start each s
 - **[`docs/findings/README.md`](findings/README.md)** — the findings-directory index (symptom→measurement→root-cause→
   fix→verification framing).
 - **Fixed-bug post-mortems** (all silicon-validated, evergreen teaching docs):
-  [`kl-eth-tx-debug.md`](findings/kl-eth-tx-debug.md) (the definitive TX bring-up saga + "never trust dst-MAC-keyed counters as
-  TX proof"), [`CBS_DATAPATH_BUG.md`](findings/CBS_DATAPATH_BUG.md), [`CBS_DEFAULT_SHAPING_BUG.md`](findings/CBS_DEFAULT_SHAPING_BUG.md), [`ADP_DORMANCY.md`](findings/ADP_DORMANCY.md),
-  [`GPTP_RXPAD_ROOTCAUSE.md`](findings/GPTP_RXPAD_ROOTCAUSE.md), [`PTP_TS_METADATA_FIX.md`](findings/PTP_TS_METADATA_FIX.md).
+  [`CBS_DATAPATH_BUG.md`](findings/CBS_DATAPATH_BUG.md), [`CBS_DEFAULT_SHAPING_BUG.md`](findings/CBS_DEFAULT_SHAPING_BUG.md), [`ADP_DORMANCY.md`](findings/ADP_DORMANCY.md).
+  The MAC TX bring-up saga ("never trust dst-MAC-keyed counters as TX proof"), the RX-pad
+  root cause and the timestamp record contract were written against the retired host path;
+  #259 removed them from the checkout and git history keeps them.
 - **[`CHANGELOG.md`](../CHANGELOG.md)** (root) — the per-lever measured ledger (lever → build → before→after Mbit/s)
   + the refuted-levers list. The single canonical lever→effect table for the perf campaign.
 - **[`TODO.md`](../TODO.md)** (root) — the original Phase 0-9 NIC bring-up plan; largely done/superseded by the
@@ -526,5 +524,5 @@ corpus, because the RTL they name is deleted:
   (they read back what software wrote and reach nothing on the wire).
   [`docs/reference/REGISTER_MAP.md`](reference/REGISTER_MAP.md) is the authority, word by word.
 
-The full list of which doc says what and the planned fixes lives in
-[`historical_now_obsolete/DOC_AUDIT.md`](../historical_now_obsolete/DOC_AUDIT.md).
+The full list of which doc says what and the planned fixes lived in the
+doc-audit record #259 retired into git history.

@@ -7,7 +7,7 @@
 campaign). Plain-language story of the >500 Mbit/s campaign, with the measurements and
 diagrams. For the per-commit log see [`../CHANGELOG.md`](../../CHANGELOG.md);
 for the deep mechanism see [`LSU_NONBLOCKING_DCACHE.md`](../../docs/fpga/LSU_NONBLOCKING_DCACHE.md) and
-[`RX_MEMORY_HIERARCHY_PLAN.md`](RX_MEMORY_HIERARCHY_PLAN.md). Older phase docs are point-in-time
+`RX_MEMORY_HIERARCHY_PLAN.md` (removed from the tree by #259; in git history). Older phase docs are point-in-time
 snapshots  -  trust the numbers here.*
 
 ## The goal, in one line

@@ -89,7 +89,7 @@ gateware** (exit 0):
   the LiteDRAM software (`sdram.c`, DDR3 training) compiled into the BIOS.
 - **284 `ddram` constraint lines** in the generated `.xdc` (the real DDR3 pinout).
 - `milan_datapath` (the NIC) + the LiteEth MAC/PHY present (e1 is **GMII** -- `LiteEthPHYGMII`, per the Section 3 correction).
-- The device tree regenerates from this build's `csr.json` (see [`sw/dts`](../../sw/dts),
+- The device tree regenerates from this build's `csr.json` (see the retired binding toolkit,
   `fpga-ps-tools`).
 
 ## 5. Board-gated (needs the schematic / Vivado / the board)
