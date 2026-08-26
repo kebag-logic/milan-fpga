@@ -364,7 +364,7 @@ refuse_nonatomic() {
     exit 2
 }
 
-do_flash() {
+do_flash() (
     refuse_nonatomic flash
     echo "[deploy] WARNING: non-atomic recovery bitstream write requested" >&2
     [ -n "$BIT" ] && [ -f "$BIT" ] || {
@@ -372,9 +372,10 @@ do_flash() {
     [ -n "$LAYOUT" ] && [ -f "$LAYOUT" ] || {
         echo "[deploy] flash REFUSED: no flashboot_layout.json owner contract." >&2
         exit 2; }
-    local tmp target layout bit aem
+    local tmp target layout bit aem deploy_transaction_tmp
     tmp="$(mktemp -d)"; target="$tmp/target"
-    trap 'rm -rf -- "$tmp"' RETURN
+    deploy_transaction_tmp="$tmp"
+    trap 'rm -rf -- "$deploy_transaction_tmp"' EXIT
     aem="${AEM:-$(dirname "$LAYOUT")/aem_desc.bin}"
     stage_artifact_pair "$target" "$LAYOUT" "$BIT" "$aem" || exit 2
     layout="$target/flashboot_layout.json"
@@ -387,14 +388,15 @@ do_flash() {
             exit 2
         }
     write_target_bit "$bit"
-}
+)
 
-do_flash_images() {
+do_flash_images() (
     refuse_nonatomic flash-images
     echo "[deploy] WARNING: non-atomic recovery image writes requested" >&2
-    local tmp rows target layout bit aem
+    local tmp rows target layout bit aem deploy_transaction_tmp
     tmp="$(mktemp -d)"; rows="$tmp/images.tsv"; target="$tmp/target"
-    trap 'rm -rf -- "$tmp"' RETURN
+    deploy_transaction_tmp="$tmp"
+    trap 'rm -rf -- "$deploy_transaction_tmp"' EXIT
     aem="${AEM:-$(dirname "$LAYOUT")/aem_desc.bin}"
     stage_artifact_pair "$target" "$LAYOUT" "$BIT" "$aem" || exit 2
     layout="$target/flashboot_layout.json"
@@ -402,9 +404,9 @@ do_flash_images() {
     aem="$target/aem_desc.bin"
     prepare_images "$tmp" "$rows" "$layout" "$bit" "$aem"
     write_prepared_images "$rows"
-}
+)
 
-do_flash_pair() {
+do_flash_pair() (
     [ -n "$BIT_EXPLICIT" ] && [ -n "$BIT" ] && [ -f "$BIT" ] || {
         echo "[deploy] flash-pair REFUSED: set BIT=<target .bit>" >&2; exit 2; }
     [ -n "$LAYOUT_EXPLICIT" ] && [ -n "$LAYOUT" ] && [ -f "$LAYOUT" ] || {
@@ -416,10 +418,11 @@ do_flash_pair() {
 
     local tmp rows live state target_stage installed_stage
     local target_layout target_bit target_aem installed_layout installed_bit
-    local aem_src
+    local aem_src deploy_transaction_tmp
     tmp="$(mktemp -d)"; rows="$tmp/images.tsv"; live="$tmp/qspi-offset-zero.bin"
     target_stage="$tmp/target"; installed_stage="$tmp/installed"
-    trap 'rm -rf -- "$tmp"' RETURN
+    deploy_transaction_tmp="$tmp"
+    trap 'rm -rf -- "$deploy_transaction_tmp"' EXIT
     aem_src="${AEM:-$(dirname "$LAYOUT")/aem_desc.bin}"
     stage_artifact_pair "$installed_stage" "$INSTALLED_LAYOUT" \
         "$INSTALLED_BIT" || exit 2
@@ -468,7 +471,7 @@ do_flash_pair() {
         write_target_bit "$target_bit"
     fi
     echo "[deploy] flash-pair done. Power-cycle to boot the verified owner set."
-}
+)
 do_console(){ echo "[deploy] console $CONSOLE @ $BAUD  (picocom; exit: Ctrl-a Ctrl-x)"; exec picocom -b "$BAUD" "$CONSOLE"; }
 
 case "$STEP" in

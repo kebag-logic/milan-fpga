@@ -1715,6 +1715,8 @@ def test_qspi_owner_transition_completed_write_prefixes():
         qspi = os.path.join(td, "qspi.bin")
         log = os.path.join(td, "programmer.log")
         count = os.path.join(td, "programmer.count")
+        deploy_tmp = os.path.join(td, "deploy-tmp")
+        os.makedirs(deploy_tmp)
 
         fake_ofl = os.path.join(fake_bin, "openFPGALoader")
         with open(fake_ofl, "w", encoding="utf-8") as stream:
@@ -1867,6 +1869,7 @@ os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
             "CABLE": "ft232", "FPGA_PART": "xc7a100tfgg484",
             "OFL_QSPI": qspi, "OFL_LOG": log, "OFL_COUNT": count,
             "OFL_EXPECT_SERIAL": "TEST-SERIAL",
+            "TMPDIR": deploy_tmp,
         })
 
         def reset_flash(source):
@@ -1900,6 +1903,15 @@ os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
 
         deploy = os.path.join(SOC_DIR, "deploy.sh")
 
+        def invoke_deploy(argv, env):
+            result = subprocess.run(argv, cwd=SOC_DIR, env=env, text=True,
+                                    capture_output=True)
+            leaked = os.listdir(deploy_tmp)
+            assert not leaked, (
+                f"deploy transaction leaked staged artifacts after rc "
+                f"{result.returncode}: {leaked}\n{result.stdout}{result.stderr}")
+            return result
+
         def run_pair(source, target, fail_kind=None, fail_index=0,
                      reset=True, named=False, env_over=None):
             if reset:
@@ -1911,8 +1923,7 @@ os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
                 argv = [BUILD_SH, "flash", f"ax7101:{target['dir']}"]
             else:
                 argv = [deploy, "flash-pair"]
-            return subprocess.run(argv, cwd=SOC_DIR, env=env, text=True,
-                                  capture_output=True)
+            return invoke_deploy(argv, env)
 
         def writes():
             if not os.path.exists(log):
@@ -1996,9 +2007,7 @@ os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
         reset_flash(fabric)
         missing_env = env_for(fabric, fabric2)
         missing_env["AEM"] = os.path.join(td, "missing-aem.bin")
-        missing = subprocess.run([deploy, "flash-pair"], cwd=SOC_DIR,
-                                 env=missing_env, text=True,
-                                 capture_output=True)
+        missing = invoke_deploy([deploy, "flash-pair"], missing_env)
         assert missing.returncode != 0
         assert not writes(), "missing AEM artifact caused a programmer write"
         assert not os.path.exists(log), \
@@ -2006,9 +2015,8 @@ os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
 
         def refuse_before_io(label, source, target, needle):
             reset_flash(source)
-            refused = subprocess.run(
-                [deploy, "flash-pair"], cwd=SOC_DIR,
-                env=env_for(source, target), text=True, capture_output=True)
+            refused = invoke_deploy(
+                [deploy, "flash-pair"], env_for(source, target))
             output = refused.stdout + refused.stderr
             assert refused.returncode != 0, f"{label}: accepted\n{output}"
             assert needle in output, f"{label}: no {needle!r}\n{output}"
@@ -2023,6 +2031,21 @@ os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
                          "unique")
         refuse_before_io("image/reservation collision", fabric,
                          reserved_collision, "reserved")
+
+        # The two opt-in recovery primitives use the same staged custody and
+        # must clean it on a nested preflight exit too. This is the dynamic
+        # shell-scope case that a RETURN-only trap missed: do_check_images()
+        # has its own local `tmp` while refusing the malformed row set.
+        for recovery_step in ("flash", "flash-images"):
+            reset_flash(fabric)
+            recovery_env = env_for(fabric, malformed)
+            recovery_env["ALLOW_NONATOMIC_FLASH"] = "1"
+            refused = invoke_deploy([deploy, recovery_step], recovery_env)
+            assert refused.returncode != 0, (
+                f"{recovery_step}: malformed layout accepted\n"
+                f"{refused.stdout}{refused.stderr}")
+            assert not os.path.exists(log), \
+                f"{recovery_step}: malformed layout reached programmer I/O"
 
         # The compiled CPU width binds fail-closed ([R0] on PR #228): a
         # layout that does not state it, or states an impossible one, refuses
@@ -2041,8 +2064,7 @@ os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
             reset_flash(fabric)
             env = env_for(fabric, fabric2)
             env["LAYOUT"] = unbound_layout
-            refused = subprocess.run([deploy, "flash-pair"], cwd=SOC_DIR,
-                                     env=env, text=True, capture_output=True)
+            refused = invoke_deploy([deploy, "flash-pair"], env)
             output = refused.stdout + refused.stderr
             assert refused.returncode != 0, f"{label}: accepted\n{output}"
             assert "compiled CPU width" in output, f"{label}\n{output}"
@@ -2055,9 +2077,7 @@ os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
             reset_flash(fabric)
             omitted_env = env_for(fabric, fabric2)
             omitted_env.pop(omitted)
-            refused = subprocess.run([deploy, "flash-pair"], cwd=SOC_DIR,
-                                     env=omitted_env, text=True,
-                                     capture_output=True)
+            refused = invoke_deploy([deploy, "flash-pair"], omitted_env)
             assert refused.returncode != 0
             assert not os.path.exists(log), \
                 f"missing target {omitted} caused programmer I/O"
@@ -2066,9 +2086,8 @@ os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
         reset_flash(fabric)
         with open(qspi, "r+b") as flash:
             flash.write(b"\x00" * len(fabric["payload"]))
-        mismatch = subprocess.run([deploy, "flash-pair"], cwd=SOC_DIR,
-                                  env=env_for(fabric, fabric2), text=True,
-                                  capture_output=True)
+        mismatch = invoke_deploy(
+            [deploy, "flash-pair"], env_for(fabric, fabric2))
         assert mismatch.returncode != 0
         assert not writes(), "unidentified live bitstream caused a write"
 
@@ -2079,7 +2098,9 @@ os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
           "prefixes across the fabric-baremetal refresh retain one live "
           "owner and every prefix resumes; all writes verify; a live target "
           "bit gets an AEM-only repair; a source BIT replaced after live "
-          "identification cannot replace the validated staged copy; the "
+          "identification cannot replace the validated staged copy; every "
+          "success/refusal (including both recovery primitives) cleans its "
+          "staged transaction set; the "
           "ownerless owner, malformed/collision layouts, missing artifacts, "
           "missing cpu_xlen x2 and an unidentified live bit all refuse "
           "before programmer I/O")
