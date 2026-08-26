@@ -97,6 +97,86 @@ OOC_TMP=/some/dir ./ooc.sh …  # keep the .v / .log / .json artefacts
 It runs `sv2v` → `synth_xilinx -family xc7 -flatten` → `stat` and reports
 `LUT1..6`, `FD[CPRS]E?`, `RAMB36E1`, `RAMB18E1`, `DSP48E1`.
 
+**The exit status is the gate** (#245). What is enforced, exactly:
+
+- All three control-plane `$readmemh` images (`ltn_rom.hex`, `ucode.hex`,
+  `gptp_ucode.hex`) are
+  generated into the run's own tmp dir, never the caller's, each into an
+  EXCLUSIVELY created staging file (`mktemp`, never a predictable name a
+  stale file could squat) and published by a checked rename only after
+  validation; the published target must be a regular file, and a target a
+  directory squats is a refusal. A generator failure is exit 2.
+- The geometry packages are found IN the derived processor population
+  (`scripts/pp_srcs.py`'s answer), never spelled as paths, and each
+  geometry number comes from the ONE live declaration in its package,
+  comments stripped and the name boundary-anchored; zero, duplicate or
+  expression spellings refuse. Each image must hold exactly its ROM's
+  geometry after `//`-comment stripping; wrong count, wrong width,
+  `x`/`z` digits and an empty image are all exit 2. `$readmemh` part-fills
+  a short image with X and yosys prices the X-ROM without a word.
+- Each image's CONTENT must match the sha256 recorded for its current owning
+  processor pin in [`rom_digests.tsv`](rom_digests.tsv): a
+  correctly shaped wrong image (a regressed generator) prices wrong with
+  every shape gate green, so shape alone is not protection. A pin bump
+  re-records with `./ooc.sh --record-rom-digests`, and that diff is
+  reviewed with the bump. An unrecorded pin is a refusal, not a guess.
+- Publication is not the end of custody: each top's yosys run consumes an
+  EXCLUSIVE read-only copy of both images in a fresh unpredictable
+  `mktemp -d` run directory, and the copy is re-hashed against the
+  validated digest before the run AND after yosys returns. The run
+  directory itself is locked (write permission removed) from before the
+  first hash until after the post-run hash, because rename authority is
+  DIRECTORY write permission: a transient move-aside-and-restore during
+  the read interval would beat both hashes otherwise. Every chmod status
+  is taken. A published image swapped or deleted after validation (or
+  between two requested tops, or under a running synthesis) is exit 2,
+  and no row is emitted for bytes no ledger row vouches for.
+- The ledger pins are the SUPERPROJECT's `protocol-processor` and
+  `gptp-processor` gitlinks, never either checkout's own HEAD: an uninitialized, conflicted or
+  mismatched checkout refuses in normal and record modes alike, so a
+  stale checkout can neither record itself nor select a retained old
+  row after a pin bump.
+- A top failing `sv2v` or yosys sets a STICKY non-zero exit that no later
+  passing top can launder; so does a report phase that cannot produce a
+  real row: no top-named stat block, a final block mapping to zero xc7
+  cells, a dead `awk`, or a missing/empty `write_json` artifact. The row
+  is parsed from the LAST top-named block (a pristine log carries two:
+  `synth_xilinx`'s internal final statistics, then the explicit `stat`),
+  deterministically.
+- A requested top the list does not carry is exit 2, not an empty header,
+  and the names are checked BEFORE the pin read, the geometry parse and
+  either generator: a typo must not cost two ROM generations, nor be
+  answered with a ledger diagnostic for a top that does not exist.
+- Cleanup is one `EXIT` trap, so a refusal never leaves the run's tmp tree
+  behind - and never leaves a LOCKED run directory a later `rm -rf` cannot
+  remove. `--record-rom-digests` rewrites the ledger without a pipe and
+  refuses to install a file whose row count is not the rows retained plus
+  the rows recorded: a dying `awk` used to silently delete every other
+  pin's digests and still print success.
+- The report's cell taxonomy refuses a distributed-RAM primitive it cannot
+  price, rather than counting it as zero LUT6.
+
+Not enforced: the numbers themselves stay yosys estimates (band rule
+below), and dropping only the explicit `stat` is not refused, because
+`synth_xilinx`'s own final statistics block is the same post-mapping
+measurement. `ooc_selftest.py` drives every refusal above on planted
+failures (`ARMS` in that file is the count; it asserts its own) covering
+shape, content, staging, report, sticky-exit,
+launch-directory, consumption-custody and read-interval mutations (the
+published image swapped or deleted after publication, between two tops
+and mid-run; the transient move-aside-and-restore blocked on the shipping
+script and demonstrated on the mutant that forgets the directory lock; a
+stale submodule checkout refused in normal and record modes and shown to
+false-green under the retired checkout-keyed pin), plus a positive
+`KL_pp_shadow` arm whose models assert the authoritative source
+population, the exclusive locked per-top run directory, and both
+canonical images as read-only copies hashing to the pin's ledger rows);
+it runs in `rtl-fast.yml`, where
+`scripts/ci_events.py` pins the invocation verbatim AND its step keys, in
+  the job that fetches both processor submodules, after that fetch.
+The suite refuses to run as root: its custody oracles are mode bits, which
+uid 0 bypasses, so the arms would invert rather than fail.
+
 Two traps this exists to avoid:
 
 - **`-flatten` is not optional.** A hierarchical synth's `stat` counts

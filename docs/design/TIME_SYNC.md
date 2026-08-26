@@ -530,7 +530,7 @@ daemon-written arm.
 | `0x6C8` | `PCMRX_TS` | avtp_timestamp of the last ring-accepted PDU |
 | `0x6E4` | `A_GPTP_PDELAY` | selected owner's measured neighbor propagation delay, ns |
 | `0x6EC` | `A_AVTPRX_TSD` | signed ts_delta at the last accepted AVTP PDU |
-| `0x730/0x734` | `A_AS2_LO/HI` | legacy parent-bridge scratch; not served by `GET_AS_PATH` |
+| `0x730/0x734` | `A_AS2_LO/HI` | selected owner's coherent parent identity: live fabric bank by default, staged software pair option-off; not served by `GET_AS_PATH` |
 | `0x7DC-0x7E4` | `ASP_LO/HI/CMD` | option-off only: stage PathTrace tail slots, then atomically PUBLISH the complete changed tail/count to `GET_AS_PATH`; fabric mode ignores this store as a live source |
 | `0x738` | `A_CRF_CTRL` | `[0]` CRF sink enable; RO `[31]` locked |
 | `0x73C/0x740` | `A_CRF_SIDLO/HI` | CRF sink stream_id |

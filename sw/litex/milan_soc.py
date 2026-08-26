@@ -31,7 +31,7 @@ import argparse
 import binascii
 
 from gptp_owner_contract import GPTP_OWNER_CODES
-from qspi_owner_transition import bitstream_binding
+from qspi_owner_transition import aem_image_binding, bitstream_binding
 
 from migen import ClockDomain, ClockDomainsRenamer, ClockSignal, ResetSignal, Instance, Signal, Mux, If, Cat, C, Array, FSM, NextValue, NextState, Memory
 from migen.genlib.cdc import MultiReg
@@ -7254,10 +7254,12 @@ def main():
     # base it was compiled for. Bitstream and image are one deliverable: a
     # board flashed with one and loaded with the other's model enumerates the
     # wrong device, which no counter reports.
+    _aem_binding = None
     if _desc_blob is not None:
         _img_path = os.path.join(builder.output_dir, "aem_desc.bin")
         with open(_img_path, "wb") as f:
             f.write(_desc_blob)
+        _aem_binding = aem_image_binding(_img_path)
         _man = {
             "desc_base": soc._pp_windows["desc_base"],
             "resp_base": soc._pp_windows["resp_base"],
@@ -7278,6 +7280,13 @@ def main():
     # configuration payload and FPGA part.  Elaboration-only layouts deliberately
     # omit this binding and therefore cannot pass a persistent deploy check.
     if getattr(soc, "_flashboot_layout", None):
+        if any(row.get("name") == "aem"
+               for row in soc._flashboot_layout.get("images", [])):
+            if _aem_binding is None:
+                raise RuntimeError(
+                    "flash layout names AEM but no generated image exists "
+                    "to bind its length, CRC32, and SHA-256")
+            soc._flashboot_layout.update(_aem_binding)
         if args.build:
             bit_path = builder.get_bitstream_filename(mode="sram")
             if not os.path.isfile(bit_path):

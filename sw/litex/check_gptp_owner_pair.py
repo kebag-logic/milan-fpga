@@ -6,8 +6,9 @@ THE PRODUCT IS BARE-METAL ONLY (#259, USER directive 2026-08-25). The one
 supported persistent image set is {bitstream, aem} with the fabric gPTP plane
 as its sole PHC and publication owner. This tool is the deploy-time gate for
 that fact: it validates the layout's compiled owner enum, refuses every
-retired Linux boot-chain artifact, and (when the bitstream is supplied) binds
-the layout to the exact parsed configuration payload and FPGA part.
+retired Linux boot-chain artifact, and (when artifacts are supplied) binds
+the layout to the exact parsed configuration payload, FPGA part, and raw AEM
+length/CRC32/SHA-256 identity.
 
 RETIRED ROLE, EXPLICITLY. Until #259 this tool also graded a Linux rootfs
 archive against the gateware owner: newc parsing, versioned owner profiles,
@@ -20,14 +21,19 @@ refused here rather than paired. The old `--rootfs` argument is gone; passing
 it is an argparse error, never a silently ignored input.
 
 Exit 0 = the layout records a flashable fabric-owner bare-metal set (and, if
-supplied, the bitstream binding holds). Exit 2 = refusal.
+supplied, both artifact bindings hold). Exit 2 = refusal.
 """
 import argparse
 import json
 import sys
 
 from gptp_owner_contract import GPTP_OWNERS
-from qspi_owner_transition import (TransitionError, validate_artifact_pair)
+from qspi_owner_transition import (
+    TransitionError,
+    validate_aem_artifact,
+    validate_aem_layout_binding,
+    validate_artifact_pair,
+)
 
 OWNERS = GPTP_OWNERS
 #: Image rows only a retired Linux boot chain carries. Their presence in a
@@ -67,7 +73,7 @@ def _load_layout(path):
 
 
 def check_pair(layout_path, expected_owner=None,
-               bit_path=None, expected_fpga_part=None):
+               bit_path=None, expected_fpga_part=None, aem_path=None):
     layout, owner, names = _load_layout(layout_path)
 
     retired_rows = sorted(names & set(RETIRED_LINUX_IMAGES))
@@ -109,6 +115,12 @@ def check_pair(layout_path, expected_owner=None,
         raise ContractError(
             f"layout owner is {owner!r}, selected build expects "
             f"{expected_owner!r}")
+    try:
+        validate_aem_layout_binding(layout)
+        if aem_path is not None:
+            validate_aem_artifact(layout_path, aem_path)
+    except TransitionError as exc:
+        raise ContractError(f"layout/AEM binding failed: {exc}") from exc
     if expected_fpga_part is not None and bit_path is None:
         raise ContractError("--expected-fpga-part requires --bit")
     if bit_path is not None:
@@ -120,20 +132,27 @@ def check_pair(layout_path, expected_owner=None,
                 f"layout/bitstream binding failed: {exc}") from exc
         if bound["owner"] != owner:
             raise ContractError("layout owner changed during bitstream binding")
+        if aem_path is None:
+            raise ContractError(
+                "--bit requires --aem so the complete target set is bound")
     return owner, "fabric-owned bare-metal image set"
 
 
 def self_test():
     import os
     import tempfile
-    from qspi_owner_transition import _fake_bit, bitstream_binding
+    from qspi_owner_transition import (
+        _fake_bit,
+        aem_image_binding,
+        bitstream_binding,
+    )
     checks = 0
 
-    def expect(ok, layout, expected=None, bit=None, part=None):
+    def expect(ok, layout, expected=None, bit=None, part=None, aem=None):
         nonlocal checks
         checks += 1
         try:
-            check_pair(layout, expected, bit, part)
+            check_pair(layout, expected, bit, part, aem)
         except ContractError:
             if ok:
                 raise
@@ -151,7 +170,12 @@ def self_test():
             rows = {"both": [bit_row, aem_row], "empty": [],
                     "no-aem": [bit_row], "no-bitstream": [aem_row]}[rows]
             rows += [dict(row) for row in extra_rows]
-            body = {"images": rows}
+            body = {
+                "images": rows,
+                "aem_image_bytes": 64,
+                "aem_image_crc32": 0,
+                "aem_image_sha256": "0" * 64,
+            }
             if manifest is not None:
                 body["manifest"] = manifest
             if key:
@@ -218,6 +242,9 @@ def self_test():
         os.makedirs(os.path.join(paired, "gateware"))
         paired_bit = os.path.join(paired, "gateware", "board.bit")
         _fake_bit(paired_bit, b"\xff" * 16 + b"\xaa\x99\x55\x66paired")
+        paired_aem = os.path.join(paired, "aem_desc.bin")
+        with open(paired_aem, "wb") as stream:
+            stream.write(b"AEMI" + b"paired-aem")
         paired_layout = os.path.join(paired, "flashboot_layout.json")
         body = {"gptp_owner": "fabric", "manifest": "baremetal",
                 "images": [
@@ -225,9 +252,11 @@ def self_test():
                     {"name": "aem", "offset": 0x400000, "budget": 0x10000},
                 ]}
         body.update(bitstream_binding(paired_bit))
+        body.update(aem_image_binding(paired_aem))
         with open(paired_layout, "w", encoding="utf-8") as stream:
             json.dump(body, stream)
-        expect(True, paired_layout, bit=paired_bit, part="xc7a100tfgg484")
+        expect(True, paired_layout, bit=paired_bit, part="xc7a100tfgg484",
+               aem=paired_aem)
         expect(False, paired_layout, bit=paired_bit, part="xc7a200tfbg484")
         expect(False, paired_layout, part="xc7a100tfgg484")
         expect(False, layout("fabric"), bit=paired_bit,
@@ -239,6 +268,17 @@ def self_test():
         adjacent_bit = os.path.join(paired, "gateware", "other-owner.bit")
         _fake_bit(adjacent_bit, b"\xff" * 16 + b"\xaa\x99\x55\x66other")
         expect(False, paired_layout, bit=adjacent_bit, part="xc7a100tfgg484")
+        wrong_aem = os.path.join(paired, "wrong-aem.bin")
+        with open(wrong_aem, "wb") as stream:
+            stream.write(b"AEMI" + b"wrong-aem!")
+        expect(False, paired_layout, bit=paired_bit,
+               part="xc7a100tfgg484", aem=wrong_aem)
+        legacy_body = dict(body)
+        del legacy_body["aem_image_bytes"]
+        legacy_layout = os.path.join(paired, "legacy-layout.json")
+        with open(legacy_layout, "w", encoding="utf-8") as stream:
+            json.dump(legacy_body, stream)
+        expect(False, legacy_layout)
 
         # The retired rootfs argument is an argparse REFUSAL, not an ignored
         # input: a caller still holding the pre-#259 pairing contract must
@@ -257,6 +297,7 @@ def main(argv=None):
     parser.add_argument("--layout")
     parser.add_argument("--expected-owner", choices=OWNERS)
     parser.add_argument("--bit")
+    parser.add_argument("--aem")
     parser.add_argument("--expected-fpga-part")
     parser.add_argument("--self-test", action="store_true")
     try:
@@ -273,7 +314,7 @@ def main(argv=None):
     try:
         owner, detail = check_pair(
             args.layout, args.expected_owner,
-            args.bit, args.expected_fpga_part)
+            args.bit, args.expected_fpga_part, args.aem)
     except ContractError as exc:
         print(f"[gptp-owner] REFUSED: {exc}", file=sys.stderr)
         return 2

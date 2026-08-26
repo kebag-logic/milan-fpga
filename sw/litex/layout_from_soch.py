@@ -15,7 +15,11 @@ import os
 import re
 
 from gptp_owner_contract import GPTP_OWNER_BY_CODE
-from qspi_owner_transition import TransitionError, bitstream_binding
+from qspi_owner_transition import (
+    TransitionError,
+    aem_image_binding,
+    bitstream_binding,
+)
 
 
 def main(build_dir, bit_path=None):
@@ -87,6 +91,31 @@ def main(build_dir, bit_path=None):
               "entry": const("MILAN_FLASHBOOT_ENTRY"),
               "complete": "MILAN_FLASHBOOT_COMPLETE" in text,
               "images": images}
+    if "aem" in names:
+        expected_bytes = const("MILAN_AEM_IMAGE_BYTES")
+        expected_crc = const("MILAN_AEM_IMAGE_CRC32")
+        if expected_bytes is None or expected_bytes <= 0 or expected_crc is None:
+            raise SystemExit(
+                "layout: soc.h does not bind the compiled AEM length and "
+                "CRC32; refusing a legacy artifact set")
+        aem_path = os.path.join(build_dir, "aem_desc.bin")
+        try:
+            aem_binding = aem_image_binding(aem_path)
+        except TransitionError as exc:
+            raise SystemExit(
+                f"layout: cannot bind generated AEM image {aem_path}: {exc}") \
+                from exc
+        if aem_binding["aem_image_bytes"] != expected_bytes:
+            raise SystemExit(
+                "layout: generated AEM length "
+                f"{aem_binding['aem_image_bytes']} differs from compiled "
+                f"MILAN_AEM_IMAGE_BYTES {expected_bytes}")
+        if aem_binding["aem_image_crc32"] != expected_crc:
+            raise SystemExit(
+                "layout: generated AEM CRC32 "
+                f"0x{aem_binding['aem_image_crc32']:08x} differs from compiled "
+                f"MILAN_AEM_IMAGE_CRC32 0x{expected_crc:08x}")
+        layout.update(aem_binding)
     if images:
         if bit_path is None:
             candidates = sorted(glob.glob(

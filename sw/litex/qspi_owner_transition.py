@@ -5,11 +5,10 @@
 The installed owner is not an operator assertion.  It is the owner recorded by
 the layout whose SHA-256 and FPGA-part binding matches an exact parsed Xilinx
 ``.bit`` configuration payload, after that payload has also been matched
-against a live offset-zero QSPI dump.  For a full-Linux source,
-``deploy.sh flash-pair`` additionally verifies
-the FBI CRC and positive owner profile in the live installed rootfs. This module keeps
-the bit parsing, profile restrictions, ordering decision and readback
-classification testable without a programmer.
+against a live offset-zero QSPI dump. The only supported profile is the
+fabric-owned bare-metal pair; retired Linux/rootfs profiles refuse. This
+module keeps the bit parsing, profile restrictions, ordering decision and
+readback classification testable without a programmer.
 
 The guarantee is deliberately bounded at completed, verified programmer-write
 boundaries.  A torn erase/program of the single offset-zero bitstream itself
@@ -17,6 +16,7 @@ needs an A/B or MultiBoot layout and cannot be repaired by shell ordering.
 """
 
 import argparse
+import binascii
 import hashlib
 import json
 import os
@@ -30,6 +30,75 @@ from gptp_owner_contract import GPTP_OWNERS
 
 class TransitionError(RuntimeError):
     """The requested transition cannot preserve the owner invariant."""
+
+
+AEM_MAGIC = b"AEMI"
+AEM_BINDING_KEYS = (
+    "aem_image_bytes",
+    "aem_image_crc32",
+    "aem_image_sha256",
+)
+
+
+def _aem_binding_from_bytes(raw):
+    """Return immutable identity fields for one generated AEM image."""
+    if not raw:
+        raise TransitionError("AEM image is empty")
+    if not raw.startswith(AEM_MAGIC):
+        raise TransitionError("AEM image does not start with the AEMI magic")
+    return {
+        "aem_image_bytes": len(raw),
+        "aem_image_crc32": binascii.crc32(raw) & 0xFFFF_FFFF,
+        "aem_image_sha256": hashlib.sha256(raw).hexdigest(),
+    }
+
+
+def aem_image_binding(path):
+    """Return the layout fields binding the exact generated AEM bytes."""
+    try:
+        with open(path, "rb") as stream:
+            raw = stream.read()
+    except OSError as exc:
+        raise TransitionError(f"cannot read AEM image {path}: {exc}") from exc
+    return _aem_binding_from_bytes(raw)
+
+
+def validate_aem_layout_binding(layout, label="layout"):
+    """Return a validated AEM identity record from a layout object."""
+    size = layout.get("aem_image_bytes")
+    if type(size) is not int or size <= 0:
+        raise TransitionError(
+            f"{label} has no valid positive aem_image_bytes binding")
+    crc = layout.get("aem_image_crc32")
+    if type(crc) is not int or not 0 <= crc <= 0xFFFF_FFFF:
+        raise TransitionError(
+            f"{label} has no valid 32-bit aem_image_crc32 binding")
+    digest = layout.get("aem_image_sha256")
+    if (not isinstance(digest, str)
+            or re.fullmatch(r"[0-9a-f]{64}", digest) is None):
+        raise TransitionError(
+            f"{label} has no valid aem_image_sha256 binding")
+    return {
+        "aem_image_bytes": size,
+        "aem_image_crc32": crc,
+        "aem_image_sha256": digest,
+    }
+
+
+def validate_aem_artifact(layout_path, aem_path, label="artifact"):
+    """Bind one AEM file to the exact length, CRC and digest in its layout."""
+    layout = _load_layout(layout_path)
+    expected = validate_aem_layout_binding(layout, f"{label} layout")
+    actual = aem_image_binding(aem_path)
+    for key, human in (
+            ("aem_image_bytes", "length"),
+            ("aem_image_crc32", "CRC32"),
+            ("aem_image_sha256", "SHA-256")):
+        if actual[key] != expected[key]:
+            raise TransitionError(
+                f"{label} AEM {human} {actual[key]!r} differs from layout "
+                f"binding {expected[key]!r}")
+    return actual
 
 
 def _take(raw, pos, count, label):
@@ -154,6 +223,7 @@ def _profile(layout, label):
             f"{label} owner {owner!r} is not flashable: the bare-metal "
             "product's one gPTP owner is the fabric plane (#259)")
     if manifest == "baremetal" and names == {"bitstream", "aem"}:
+        validate_aem_layout_binding(layout, f"{label} layout")
         return owner, "baremetal"
     raise TransitionError(
         f"{label} fabric owner is not the autonomous baremetal image set")
@@ -316,14 +386,18 @@ def self_test():
             root = os.path.join(temp, name)
             os.makedirs(os.path.join(root, "gateware"))
             bit = os.path.join(root, "gateware", "board.bit")
+            aem = os.path.join(root, "aem_desc.bin")
             layout = os.path.join(root, "flashboot_layout.json")
             _fake_bit(bit, b"\xff" * 16 + b"\xaa\x99\x55\x66" + payload)
+            with open(aem, "wb") as stream:
+                stream.write(b"AEMI" + payload)
             rows = [{"name": n, "offset": 0 if n == "bitstream" else
                      0x400000 + i * 0x10000, "budget": 0x400000}
                     for i, n in enumerate(names)]
             body = {"gptp_owner": owner, "manifest": manifest,
                     "complete": complete, "images": rows}
             body.update(bitstream_binding(bit))
+            body.update(aem_image_binding(aem))
             with open(layout, "w", encoding="utf-8") as stream:
                 json.dump(body, stream)
             return layout, bit
@@ -387,6 +461,42 @@ def self_test():
         expect_error(lambda: validate_artifact_pair(*unbound),
                      "no valid bitstream payload SHA-256")
 
+        # The AEM is a first-class member of the build identity. A valid
+        # image from another build, a byte mutation, an empty file and a
+        # legacy layout without the binding must all refuse.
+        assert validate_aem_artifact(
+            fab2[0], os.path.join(os.path.dirname(fab2[0]), "aem_desc.bin"))[
+                "aem_image_bytes"] > 0
+        checks += 1
+        expect_error(lambda: validate_aem_artifact(
+            fab2[0], os.path.join(os.path.dirname(fab[0]), "aem_desc.bin")),
+            "AEM")
+        mutated_aem = os.path.join(temp, "mutated-aem.bin")
+        with open(os.path.join(os.path.dirname(fab2[0]), "aem_desc.bin"),
+                  "rb") as source:
+            mutated = bytearray(source.read())
+        mutated[-1] ^= 1
+        with open(mutated_aem, "wb") as stream:
+            stream.write(mutated)
+        expect_error(lambda: validate_aem_artifact(fab2[0], mutated_aem),
+                     "CRC32")
+        empty_aem = os.path.join(temp, "empty-aem.bin")
+        with open(empty_aem, "wb"):
+            pass
+        expect_error(lambda: validate_aem_artifact(fab2[0], empty_aem),
+                     "empty")
+        with open(fab2[0], encoding="utf-8") as stream:
+            legacy_layout = json.load(stream)
+        for key in AEM_BINDING_KEYS:
+            del legacy_layout[key]
+        legacy_path = os.path.join(os.path.dirname(fab2[0]), "legacy.json")
+        with open(legacy_path, "w", encoding="utf-8") as stream:
+            json.dump(legacy_layout, stream)
+        expect_error(lambda: validate_aem_artifact(
+            legacy_path, os.path.join(os.path.dirname(fab2[0]),
+                                      "aem_desc.bin")),
+            "aem_image_bytes")
+
         wrong_part = build("wrong-part", "fabric", "baremetal", False,
                            b"wrong-part", ["bitstream", "aem"])
         with open(wrong_part[0], encoding="utf-8") as stream:
@@ -437,6 +547,9 @@ def main(argv=None):
     p_validate.add_argument("--layout", required=True)
     p_validate.add_argument("--bit", required=True)
     p_validate.add_argument("--expected-fpga-part")
+    p_validate_aem = sub.add_parser("validate-aem")
+    p_validate_aem.add_argument("--layout", required=True)
+    p_validate_aem.add_argument("--aem", required=True)
     p_ident = sub.add_parser("identify")
     p_ident.add_argument("--dump", required=True)
     p_ident.add_argument("--installed-bit", required=True)
@@ -461,11 +574,16 @@ def main(argv=None):
             print("\t".join(str(result[key]) for key in (
                 "owner", "part", "payload_bytes")))
             return 0
+        if args.command == "validate-aem":
+            result = validate_aem_artifact(args.layout, args.aem)
+            print("\t".join(str(result[key]) for key in AEM_BINDING_KEYS))
+            return 0
         if args.command == "identify":
             print(identify(args.dump, args.installed_bit, args.target_bit,
                            args.expected_size))
             return 0
-        parser.error("choose plan, validate, identify, or --self-test")
+        parser.error(
+            "choose plan, validate, validate-aem, identify, or --self-test")
     except TransitionError as exc:
         print(f"qspi owner transition REFUSED: {exc}", file=sys.stderr)
         return 2

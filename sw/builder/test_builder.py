@@ -8425,8 +8425,13 @@ def test_gptp_product_default_and_legacy_option():
         "Yosys datapath manifests drift: "
         f"run-only={sorted(run_files - ooc_files)}, "
         f"ooc-only={sorted(ooc_files - run_files)}")
-    assert 'gen_ucode.py" -o "$TMP/ucode.hex"' in yosys_ooc
-    assert 'gen_gptp_ucode.py" -o "$TMP/gptp_ucode.hex"' in yosys_ooc
+    for generator in ("gen_ltn_rom.py", "gen_ucode.py",
+                      "gen_gptp_ucode.py"):
+        assert generator in yosys_ooc
+    assert "GPTP_PIN=$(gptp_pin_of_record) || exit 2" in yosys_ooc
+    assert "gptp_ucode.hex|$R/gptp-processor/hdl/ucode/" in yosys_ooc
+    assert "|$GPTP_PIN|gptp-processor" in yosys_ooc
+    assert "for img in ucode.hex ltn_rom.hex gptp_ucode.hex" in yosys_ooc
 
     # Vivado's consumer must expand the group rather than merely see its
     # name. dp_srcs.py executes run.sh --emit, so bash itself resolves
@@ -8580,7 +8585,7 @@ def test_gptp_rootfs_handoff_preserves_software_config():
         [sys.executable, pair_tool, "--self-test"], cwd=ROOT,
         text=True, capture_output=True)
     assert pair_self.returncode == 0, pair_self.stdout + pair_self.stderr
-    assert "29/29 checks pass" in pair_self.stdout
+    assert "31/31 checks pass" in pair_self.stdout
 
     transition_tool = os.path.join(SOC_DIR, "qspi_owner_transition.py")
     transition_self = subprocess.run(
@@ -8588,7 +8593,7 @@ def test_gptp_rootfs_handoff_preserves_software_config():
         text=True, capture_output=True)
     assert transition_self.returncode == 0, \
         transition_self.stdout + transition_self.stderr
-    assert "19/19 checks pass" in transition_self.stdout
+    assert "24/24 checks pass" in transition_self.stdout
 
     # A sweep's fallback layout is reconstructed only from constants compiled
     # into its soc.h.  Prove the two living enum values round-trip, that the
@@ -8642,13 +8647,21 @@ def test_gptp_rootfs_handoff_preserves_software_config():
         sweep_bit = os.path.join(gateware, "alinx_ax7101.bit")
         qspi_transition._fake_bit(
             sweep_bit, b"\xff" * 16 + b"\xaa\x99\x55\x66sweep-binding")
+        sweep_aem = os.path.join(td, "aem_desc.bin")
+        with open(sweep_aem, "wb") as stream:
+            stream.write(b"AEMI" + b"sweep-binding")
+        sweep_aem_binding = qspi_transition.aem_image_binding(sweep_aem)
         with open(soc_h, "w", encoding="utf-8") as stream:
             stream.write(
                 "#define MILAN_GPTP_OWNER 1\n"
                 "#define MILAN_CPU_XLEN 32\n"
                 "#define MILAN_FLASHBOOT_AEM_OFFSET 0x400000\n"
                 "#define MILAN_FLASHBOOT_AEM_ADDR 0x40000000\n"
-                "#define MILAN_FLASHBOOT_AEM_SIZE 0x10000\n")
+                "#define MILAN_FLASHBOOT_AEM_SIZE 0x10000\n"
+                f"#define MILAN_AEM_IMAGE_BYTES "
+                f"{sweep_aem_binding['aem_image_bytes']}\n"
+                f"#define MILAN_AEM_IMAGE_CRC32 "
+                f"0x{sweep_aem_binding['aem_image_crc32']:08x}\n")
         bound = subprocess.run(
             [sys.executable, layout_tool, td, "--bit", sweep_bit], text=True,
             capture_output=True)
@@ -8658,6 +8671,36 @@ def test_gptp_rootfs_handoff_preserves_software_config():
             rebuilt = json.load(stream)
         for key, value in qspi_transition.bitstream_binding(sweep_bit).items():
             assert rebuilt[key] == value
+        for key, value in sweep_aem_binding.items():
+            assert rebuilt[key] == value
+
+        with open(sweep_aem, "rb") as stream:
+            pristine_aem = bytearray(stream.read())
+        changed_aem = bytearray(pristine_aem)
+        changed_aem[-1] ^= 1
+        with open(sweep_aem, "wb") as stream:
+            stream.write(changed_aem)
+        stale_aem = subprocess.run(
+            [sys.executable, layout_tool, td, "--bit", sweep_bit], text=True,
+            capture_output=True)
+        assert stale_aem.returncode != 0
+        assert "CRC32" in stale_aem.stdout + stale_aem.stderr
+        with open(sweep_aem, "wb") as stream:
+            stream.write(pristine_aem)
+
+        with open(soc_h, "w", encoding="utf-8") as stream:
+            stream.write(
+                "#define MILAN_GPTP_OWNER 1\n"
+                "#define MILAN_CPU_XLEN 32\n"
+                "#define MILAN_FLASHBOOT_AEM_OFFSET 0x400000\n"
+                "#define MILAN_FLASHBOOT_AEM_ADDR 0x40000000\n"
+                "#define MILAN_FLASHBOOT_AEM_SIZE 0x10000\n")
+        legacy_aem = subprocess.run(
+            [sys.executable, layout_tool, td, "--bit", sweep_bit], text=True,
+            capture_output=True)
+        assert legacy_aem.returncode != 0
+        assert "does not bind the compiled AEM" in (
+            legacy_aem.stdout + legacy_aem.stderr)
 
         with open(soc_h, "w", encoding="utf-8") as stream:
             stream.write("#define MILAN_GPTP_OWNER 1\n")
@@ -8776,11 +8819,12 @@ def test_gptp_rootfs_handoff_preserves_software_config():
                 json.dump(body, stream)
             return path
 
-        def bound_body(**kw):
+        def bound_body(aem_path=None, **kw):
             body = {"gptp_owner": "fabric", "manifest": "baremetal",
                     "cpu_xlen": 32,
                     "images": [dict(row) for row in rows]}
             body.update(qspi_transition.bitstream_binding(bit))
+            body.update(qspi_transition.aem_image_binding(aem_path or aem))
             body.update(kw)
             return body
 
@@ -8827,9 +8871,16 @@ def test_gptp_rootfs_handoff_preserves_software_config():
                      False, "set BIT=", "nonexistent artifacts",
                      BIT=os.path.join(build_dir, "missing.bit"),
                      AEM=os.path.join(build_dir, "missing.bin"))
-        check_images(write_layout("unbound.json", unbound),
+        unbound_bit = dict(unbound)
+        unbound_bit.update(qspi_transition.aem_image_binding(aem))
+        check_images(write_layout("unbound.json", unbound_bit),
                      False, "bitstream payload SHA-256 binding",
                      "binding metadata absent")
+        unbound_aem = bound_body()
+        for key in qspi_transition.AEM_BINDING_KEYS:
+            del unbound_aem[key]
+        check_images(write_layout("unbound-aem.json", unbound_aem),
+                     False, "aem_image_bytes", "AEM binding metadata absent")
         body = bound_body()
         body["images"] = [dict(rows[0])]
         check_images(write_layout("no-aem-row.json", body),
@@ -8847,6 +8898,7 @@ def test_gptp_rootfs_handoff_preserves_software_config():
                       "cpu_xlen": 32,
                       "images": [dict(row) for row in rows]}
         mismatched.update(qspi_transition.bitstream_binding(other_bit))
+        mismatched.update(qspi_transition.aem_image_binding(aem))
         check_images(write_layout("mismatched.json", mismatched),
                      False, "binding failed", "bit payload mismatch")
         body = bound_body()
@@ -8854,20 +8906,55 @@ def test_gptp_rootfs_handoff_preserves_software_config():
         check_images(write_layout("no-xlen.json", body),
                      False, "compiled CPU width", "cpu_xlen removed")
         check_images(write_layout("no-aem-file.json", bound_body()),
-                     False, "set AEM=", "aem artifact missing",
+                     False, "cannot read AEM image", "aem artifact missing",
                      AEM=os.path.join(build_dir, "missing.bin"))
         big_aem = os.path.join(build_dir, "aem_big.bin")
         with open(big_aem, "wb") as stream:
-            stream.write(b"A" * 0x10001)
-        check_images(write_layout("oversize.json", bound_body()),
+            stream.write(b"AEMI" + b"A" * (0x10001 - 4))
+        check_images(write_layout("oversize.json",
+                                  bound_body(aem_path=big_aem)),
                      False, "exceeds its", "aem oversize",
                      AEM=big_aem)
 
-    print("  [gate 1d] 22 bare-metal owner/binding arms, 19 transition "
+        empty_aem = os.path.join(build_dir, "aem_empty.bin")
+        with open(empty_aem, "wb"):
+            pass
+        check_images(write_layout("empty-aem.json", bound_body()),
+                     False, "AEM image is empty", "zero-byte AEM",
+                     AEM=empty_aem)
+        mutated_aem = os.path.join(build_dir, "aem_mutated.bin")
+        with open(aem, "rb") as stream:
+            mutated = bytearray(stream.read())
+        mutated[-1] ^= 1
+        with open(mutated_aem, "wb") as stream:
+            stream.write(mutated)
+        check_images(write_layout("mutated-aem.json", bound_body()),
+                     False, "AEM CRC32", "one-byte AEM mutation",
+                     AEM=mutated_aem)
+        other_aem = os.path.join(build_dir, "aem_other_build.bin")
+        with open(other_aem, "wb") as stream:
+            stream.write(b"AEMI" + b"\x01" * 60)
+        check_images(write_layout("other-build-aem.json", bound_body()),
+                     False, "AEM CRC32", "valid AEM from another build",
+                     AEM=other_aem)
+        wrong_length = bound_body()
+        wrong_length["aem_image_bytes"] += 1
+        check_images(write_layout("wrong-aem-length.json", wrong_length),
+                     False, "AEM length", "AEM length binding mismatch")
+        wrong_crc = bound_body()
+        wrong_crc["aem_image_crc32"] ^= 1
+        check_images(write_layout("wrong-aem-crc.json", wrong_crc),
+                     False, "AEM CRC32", "AEM CRC binding mismatch")
+        wrong_sha = bound_body()
+        wrong_sha["aem_image_sha256"] = "0" * 64
+        check_images(write_layout("wrong-aem-sha.json", wrong_sha),
+                     False, "AEM SHA-256", "AEM SHA binding mismatch")
+
+    print("  [gate 1d] 24 bare-metal owner/binding arms, 24 transition "
           "parser/planner arms, soc.h owner/XLEN reconstruction with the "
           "retired software owner and Linux boot chain refused (#259), "
           "payload-digest binding, all persistent partial/unknown-state "
-          "entry points refusing before programmer I/O, and 11 check-images "
+          "entry points refusing before programmer I/O, and 18 check-images "
           "arms proving the standalone verdict binds and materializes the "
           "exact bare-metal target set with zero programmer access")
 
@@ -8927,6 +9014,11 @@ if "--dump-flash" in args:
         sink.write(source.read(size))
     with open(log, "a", encoding="utf-8") as trace:
         trace.write(f"DUMP\t{off}\t{size}\n")
+    mutate = os.environ.get("OFL_MUTATE_BIT")
+    replacement = os.environ.get("OFL_MUTATE_FROM")
+    if mutate and replacement:
+        with open(replacement, "rb") as source, open(mutate, "wb") as sink:
+            sink.write(source.read())
     raise SystemExit(0)
 
 is_bit = "-f" in args or "--write-flash" in args and value("-o") is None
@@ -8993,16 +9085,22 @@ os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
                     "complete": False, "images": images}
             if cpu_xlen is not None:
                 body["cpu_xlen"] = cpu_xlen
+            aem = os.path.join(build, "aem_desc.bin")
+            with open(aem, "wb") as out:
+                out.write(b"AEMI" + serial_payload)
             body.update(qspi_transition.bitstream_binding(bit))
+            body.update(qspi_transition.aem_image_binding(aem))
             with open(layout, "w", encoding="utf-8") as out:
                 json.dump(body, out)
-            with open(os.path.join(build, "aem_desc.bin"), "wb") as out:
-                out.write(b"AEMI" + serial_payload)
             return {"dir": build, "layout": layout, "bit": bit,
                     "owner": owner, "payload": payload}
 
         fabric = make_build("fabric", "fabric", b"FABRIC-OWNER-A")
         fabric2 = make_build("fabric2", "fabric", b"FABRIC-OWNER-B")
+        mutable_target = make_build(
+            "mutable-target", "fabric", b"MUTABLE-TARGET")
+        replacement_target = make_build(
+            "replacement-target", "fabric", b"UNVALIDATED-REPLACEMENT")
         # Retired pre-#259 artifacts, used only by the refusal arms below.
         linux_rows = (
             {"name": "kernel", "offset": 0x500000, "budget": 0x100000},
@@ -9065,6 +9163,8 @@ os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
                         "EXPECTED_GPTP_OWNER": target["owner"]})
             env.pop("OFL_FAIL_BEFORE", None)
             env.pop("OFL_FAIL_AFTER", None)
+            env.pop("OFL_MUTATE_BIT", None)
+            env.pop("OFL_MUTATE_FROM", None)
             if fail_kind:
                 env[f"OFL_FAIL_{fail_kind.upper()}"] = str(fail_index)
             return env
@@ -9072,10 +9172,12 @@ os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
         deploy = os.path.join(SOC_DIR, "deploy.sh")
 
         def run_pair(source, target, fail_kind=None, fail_index=0,
-                     reset=True, named=False):
+                     reset=True, named=False, env_over=None):
             if reset:
                 reset_flash(source)
             env = env_for(source, target, fail_kind, fail_index)
+            if env_over:
+                env.update(env_over)
             if named:
                 argv = [BUILD_SH, "flash", f"ax7101:{target['dir']}"]
             else:
@@ -9116,6 +9218,17 @@ os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
         assert [row[1] for row in writes()] == wanted_offsets
         assert all(row[2] == "verify" for row in writes())
         assert live_bit(fabric, fabric2) is fabric2
+
+        # The validated source path is deliberately replaced after the live
+        # dump and before identify/write. The transaction must still program
+        # the immutable staged copy, never reopen the rebuilt source path.
+        swapped = run_pair(
+            fabric, mutable_target,
+            env_over={"OFL_MUTATE_BIT": mutable_target["bit"],
+                      "OFL_MUTATE_FROM": replacement_target["bit"]})
+        assert swapped.returncode == 0, swapped.stdout + swapped.stderr
+        assert live_bit(fabric, mutable_target) is mutable_target, \
+            "flash-pair programmed a bitstream replaced after validation"
 
         checked_prefixes = 0
         for kind in ("before", "after"):
@@ -9243,7 +9356,9 @@ os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
     print(f"  [gate 1e] {checked_prefixes} injected before/after-write "
           "prefixes across the fabric-baremetal refresh retain one live "
           "owner and every prefix resumes; all writes verify; a live target "
-          "bit gets an AEM-only repair; retired Linux artifacts (#259), the "
+          "bit gets an AEM-only repair; a source BIT replaced after live "
+          "identification cannot replace the validated staged copy; retired "
+          "Linux artifacts (#259), the "
           "ownerless owner, malformed/collision layouts, missing artifacts, "
           "missing cpu_xlen x2 and an unidentified live bit all refuse "
           "before programmer I/O")

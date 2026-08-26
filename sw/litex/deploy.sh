@@ -111,8 +111,10 @@ do_load() {
     run_milan_soc "deploy load" --load --uart-baudrate "$BAUD"
 }
 do_check_images() {
-    [ -n "$LAYOUT" ] && [ -f "$LAYOUT" ] || {
+    local layout="${1:-$LAYOUT}" bit="${2:-$BIT}" aem="${3:-${AEM:-}}"
+    [ -n "$layout" ] && [ -f "$layout" ] || {
         echo "[deploy] image check: no flashboot_layout.json (build --with-spiflash, or set LAYOUT=<path>)"; exit 2; }
+    [ -n "$aem" ] || aem="$(dirname "$layout")/aem_desc.bin"
     # #116/#259 owner contract: the layout must record the fabric plane as the
     # image's one gPTP owner and must be a bare-metal {bitstream, aem} set.
     # Retired Linux boot-chain rows, the retired software owner, and missing
@@ -125,11 +127,11 @@ do_check_images() {
     # bind (payload sha256 + FPGA part) through the owner-pair check, and
     # the complete non-bit target set is materialized and size-checked
     # below with zero programmer I/O, exactly as flash-pair consumes it.
-    [ -n "$BIT" ] && [ -f "$BIT" ] && [ -s "$BIT" ] || {
+    [ -n "$bit" ] && [ -f "$bit" ] && [ -s "$bit" ] || {
         echo "[deploy] image check REFUSED: set BIT=<target .bit> (a target set without its bitstream is not flashable)" >&2
         exit 2
     }
-    local pair_args=(--layout "$LAYOUT" --bit "$BIT"
+    local pair_args=(--layout "$layout" --bit "$bit" --aem "$aem"
         --expected-fpga-part "$FPGA_PART")
     [ -z "${EXPECTED_GPTP_OWNER:-}" ] || \
         pair_args+=(--expected-owner "$EXPECTED_GPTP_OWNER")
@@ -144,7 +146,7 @@ do_check_images() {
     # path; the pair check above already refused any layout naming those
     # slots, so the width is the one boot-chain binding left to hold here.
     local expected_xlen
-    expected_xlen=$("$PYTHON" - "$LAYOUT" <<'PY'
+    expected_xlen=$("$PYTHON" - "$layout" <<'PY'
 import json, sys
 value = json.load(open(sys.argv[1], encoding="utf-8")).get("cpu_xlen")
 if type(value) is not int or value not in (32, 64):
@@ -157,13 +159,13 @@ PY
     }
     local tmp rows
     tmp="$(mktemp -d)"; rows="$tmp/images.tsv"
-    if ! materialize_images "$tmp" "$rows"; then
+    if ! materialize_images "$tmp" "$rows" "$layout" "$aem"; then
         rm -rf -- "$tmp"
         echo "[deploy] image check REFUSED: the target image set does not materialize inside its layout budgets." >&2
         exit 2
     fi
     rm -rf -- "$tmp"
-    echo "[deploy] image preflight OK: $LAYOUT (bound to $BIT, xlen $expected_xlen)"
+    echo "[deploy] image preflight OK: $layout (bound to $bit and $aem, xlen $expected_xlen)"
 }
 
 run_ofl() {
@@ -180,10 +182,13 @@ run_ofl() {
 }
 
 prepare_images() {
+    local tmp="$1" rows="$2" layout="${3:-$LAYOUT}"
+    local bit="${4:-$BIT}" aem="${5:-${AEM:-}}"
+    [ -n "$aem" ] || aem="$(dirname "$layout")/aem_desc.bin"
     # The full preflight (which itself materializes once, into its own tmp),
     # then the materialization whose rows the write loop consumes.
-    do_check_images
-    materialize_images "$1" "$2" || exit 2
+    do_check_images "$layout" "$bit" "$aem"
+    materialize_images "$tmp" "$rows" "$layout" "$aem" || exit 2
 }
 
 materialize_images() {
@@ -191,7 +196,9 @@ materialize_images() {
     # write. A missing/oversized last image must not strand a partially updated
     # set merely because the old implementation discovered it inside its write
     # loop. No programmer I/O happens here; check-images runs this too.
-    local tmp="$1" rows="$2" manifest_rows
+    local tmp="$1" rows="$2" layout="${3:-$LAYOUT}"
+    local aem="${4:-${AEM:-}}" manifest_rows
+    [ -n "$aem" ] || aem="$(dirname "$layout")/aem_desc.bin"
     manifest_rows="$tmp/layout-rows.tsv"
     : > "$rows"
     # name<TAB>offset<TAB>ceiling for each manifest image. The ceiling is the
@@ -204,7 +211,7 @@ materialize_images() {
     # for the whole call tree, so a failing manifest derivation would
     # otherwise leave an EMPTY rows file that reads as a successfully
     # prepared (and empty) image set.
-    "$PYTHON" - "$LAYOUT" "$FLASH_SIZE" > "$manifest_rows" <<'PY' || return 2
+    "$PYTHON" - "$layout" "$FLASH_SIZE" > "$manifest_rows" <<'PY' || return 2
 import json, sys
 d = json.load(open(sys.argv[1])); fs = int(sys.argv[2])
 imgs = d["images"]
@@ -261,7 +268,7 @@ PY
             # already refused any layout naming them, so reaching one here is
             # an internal inconsistency and takes the unknown-image refusal.
             aem)
-                src="${AEM:-$(dirname "$LAYOUT")/aem_desc.bin}"
+                src="$aem"
                 wrap=0 ;;
             *) echo "[deploy]   unknown image '$name' in layout"; return 2 ;;
         esac
@@ -281,6 +288,13 @@ PY
             # time and copies the descriptor image verbatim into its paired DRAM
             # window. An FBI header here would shift the required "AEMI" magic.
             cp "$src" "$fbi"
+        fi
+        if [ "$name" = aem ]; then
+            "$PYTHON" "$HERE/qspi_owner_transition.py" validate-aem \
+                --layout "$layout" --aem "$fbi" >/dev/null || {
+                echo "[deploy]   image 'aem': materialized bytes do not match the layout binding" >&2
+                return 2
+            }
         fi
         local sz budget; sz=$(stat -c%s "$fbi"); budget=$((ceil - off))
         printf "[deploy]   %-8s %9d B  -> flash @ 0x%06x  (budget %d B, from %s)\n" "$name" "$sz" "$off" "$budget" "$src"
@@ -314,10 +328,41 @@ prepared_images_match() {
     done < "$rows"
 }
 
+stage_artifact_pair() {
+    # Snapshot every pathname that carries identity before planning or live
+    # programmer I/O. A concurrent build may replace board.bit, the layout,
+    # or aem_desc.bin in place; validating one inode and later reopening that
+    # mutable path would flash bytes that never passed the binding checks.
+    # The exclusive transaction directory gives every later phase one stable
+    # set of regular files instead.
+    local dest="$1" layout_src="$2" bit_src="$3" aem_src="${4:-}"
+    [ -f "$layout_src" ] && [ -s "$layout_src" ] || {
+        echo "[deploy] staging REFUSED: layout is missing or empty: $layout_src" >&2
+        return 2
+    }
+    [ -f "$bit_src" ] && [ -s "$bit_src" ] || {
+        echo "[deploy] staging REFUSED: bitstream is missing or empty: $bit_src" >&2
+        return 2
+    }
+    mkdir -p "$dest/gateware" || return 2
+    cp -- "$layout_src" "$dest/flashboot_layout.json" || return 2
+    cp -- "$bit_src" "$dest/gateware/target.bit" || return 2
+    if [ -n "$aem_src" ]; then
+        [ -f "$aem_src" ] || {
+            echo "[deploy] staging REFUSED: AEM image is missing: $aem_src" >&2
+            return 2
+        }
+        cp -- "$aem_src" "$dest/aem_desc.bin" || return 2
+    fi
+    chmod a-w "$dest/flashboot_layout.json" "$dest/gateware/target.bit" || return 2
+    [ -z "$aem_src" ] || chmod a-w "$dest/aem_desc.bin" || return 2
+}
+
 
 write_target_bit() {
-    echo "[deploy] write+verify bitstream @ 0x000000: $BIT"
-    run_ofl -c "$CABLE" --fpga-part "$FPGA_PART" -f --verify "$BIT"
+    local bit="${1:-$BIT}"
+    echo "[deploy] write+verify bitstream @ 0x000000: $bit"
+    run_ofl -c "$CABLE" --fpga-part "$FPGA_PART" -f --verify "$bit"
 }
 
 refuse_nonatomic() {
@@ -335,22 +380,35 @@ do_flash() {
     [ -n "$LAYOUT" ] && [ -f "$LAYOUT" ] || {
         echo "[deploy] flash REFUSED: no flashboot_layout.json owner contract." >&2
         exit 2; }
-    do_check_images
+    local tmp target layout bit aem
+    tmp="$(mktemp -d)"; target="$tmp/target"
+    trap 'rm -rf -- "$tmp"' RETURN
+    aem="${AEM:-$(dirname "$LAYOUT")/aem_desc.bin}"
+    stage_artifact_pair "$target" "$LAYOUT" "$BIT" "$aem" || exit 2
+    layout="$target/flashboot_layout.json"
+    bit="$target/gateware/target.bit"
+    aem="$target/aem_desc.bin"
+    do_check_images "$layout" "$bit" "$aem"
     "$PYTHON" "$HERE/qspi_owner_transition.py" validate \
-        --layout "$LAYOUT" --bit "$BIT" --expected-fpga-part "$FPGA_PART" || {
+        --layout "$layout" --bit "$bit" --expected-fpga-part "$FPGA_PART" || {
             echo "[deploy] flash REFUSED: BIT payload hash/part is not bound to LAYOUT." >&2
             exit 2
         }
-    write_target_bit
+    write_target_bit "$bit"
 }
 
 do_flash_images() {
     refuse_nonatomic flash-images
     echo "[deploy] WARNING: non-atomic recovery image writes requested" >&2
-    local tmp rows
-    tmp="$(mktemp -d)"; rows="$tmp/images.tsv"
+    local tmp rows target layout bit aem
+    tmp="$(mktemp -d)"; rows="$tmp/images.tsv"; target="$tmp/target"
     trap 'rm -rf -- "$tmp"' RETURN
-    prepare_images "$tmp" "$rows"
+    aem="${AEM:-$(dirname "$LAYOUT")/aem_desc.bin}"
+    stage_artifact_pair "$target" "$LAYOUT" "$BIT" "$aem" || exit 2
+    layout="$target/flashboot_layout.json"
+    bit="$target/gateware/target.bit"
+    aem="$target/aem_desc.bin"
+    prepare_images "$tmp" "$rows" "$layout" "$bit" "$aem"
     write_prepared_images "$rows"
 }
 
@@ -364,9 +422,25 @@ do_flash_pair() {
     [ -n "$INSTALLED_LAYOUT" ] && [ -f "$INSTALLED_LAYOUT" ] || {
         echo "[deploy] flash-pair REFUSED: set INSTALLED_LAYOUT=<exact current layout>" >&2; exit 2; }
 
-    local plan_args=(plan --installed-layout "$INSTALLED_LAYOUT"
-        --installed-bit "$INSTALLED_BIT" --target-layout "$LAYOUT"
-        --target-bit "$BIT" --expected-fpga-part "$FPGA_PART")
+    local tmp rows live state target_stage installed_stage
+    local target_layout target_bit target_aem installed_layout installed_bit
+    local aem_src
+    tmp="$(mktemp -d)"; rows="$tmp/images.tsv"; live="$tmp/qspi-offset-zero.bin"
+    target_stage="$tmp/target"; installed_stage="$tmp/installed"
+    trap 'rm -rf -- "$tmp"' RETURN
+    aem_src="${AEM:-$(dirname "$LAYOUT")/aem_desc.bin}"
+    stage_artifact_pair "$installed_stage" "$INSTALLED_LAYOUT" \
+        "$INSTALLED_BIT" || exit 2
+    stage_artifact_pair "$target_stage" "$LAYOUT" "$BIT" "$aem_src" || exit 2
+    installed_layout="$installed_stage/flashboot_layout.json"
+    installed_bit="$installed_stage/gateware/target.bit"
+    target_layout="$target_stage/flashboot_layout.json"
+    target_bit="$target_stage/gateware/target.bit"
+    target_aem="$target_stage/aem_desc.bin"
+
+    local plan_args=(plan --installed-layout "$installed_layout"
+        --installed-bit "$installed_bit" --target-layout "$target_layout"
+        --target-bit "$target_bit" --expected-fpga-part "$FPGA_PART")
     [ -z "${EXPECTED_GPTP_OWNER:-}" ] || \
         plan_args+=(--expected-target-owner "$EXPECTED_GPTP_OWNER")
     local plan_line installed_owner installed_profile target_owner order
@@ -375,16 +449,13 @@ do_flash_pair() {
     IFS=$'\t' read -r installed_owner installed_profile target_owner order \
         dump_bytes target_profile <<< "$plan_line"
 
-    local tmp rows live state
-    tmp="$(mktemp -d)"; rows="$tmp/images.tsv"; live="$tmp/qspi-offset-zero.bin"
-    trap 'rm -rf -- "$tmp"' RETURN
-    prepare_images "$tmp" "$rows"
+    prepare_images "$tmp" "$rows" "$target_layout" "$target_bit" "$target_aem"
 
     echo "[deploy] prove live QSPI bitstream on serial $SERIAL ($dump_bytes B)"
     run_ofl -c "$CABLE" --fpga-part "$FPGA_PART" -o 0 --dump-flash \
         --file-size "$dump_bytes" "$live"
     state=$("$PYTHON" "$HERE/qspi_owner_transition.py" identify \
-        --dump "$live" --installed-bit "$INSTALLED_BIT" --target-bit "$BIT" \
+        --dump "$live" --installed-bit "$installed_bit" --target-bit "$target_bit" \
         --expected-size "$dump_bytes") || exit 2
     echo "[deploy] live bit identity: $state artifact; $installed_owner -> $target_owner; $order"
 
@@ -402,7 +473,7 @@ do_flash_pair() {
         # live until every target non-bit image has verified, then the target
         # bit commits.
         write_prepared_images "$rows"
-        write_target_bit
+        write_target_bit "$target_bit"
     fi
     echo "[deploy] flash-pair done. Power-cycle to boot the verified owner set."
 }

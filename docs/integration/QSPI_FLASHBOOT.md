@@ -70,8 +70,11 @@ INSTALLED_BUILD=<exact-current-build> \
 ```
 
 `deploy.sh flash-pair` proves the live installed offset-zero payload, selects
-`<target-builddir>/aem_desc.bin` by default, prepares/checks the whole target,
-and uses verified writes. The one supported transition is the fabric-baremetal
+`<target-builddir>/aem_desc.bin` by default, snapshots the installed and target
+identity inputs into one exclusive transaction directory, validates and
+prepares that staged target, and uses only staged bytes for identification and
+verified writes. A concurrent rebuild therefore cannot replace a checked
+pathname between live identification and programming. The one supported transition is the fabric-baremetal
 refresh: AEM verifies first, the target bit commits last, and a retry
 recognizes either source or target bit. Layouts naming the retired Linux boot
 images or a non-fabric owner refuse before any programmer I/O (#259). See
@@ -128,9 +131,12 @@ compiled into `soc.h`. The only flashable owner is `fabric` on the bare-metal
 layout naming a retired Linux boot image refuse before programmer I/O. A
 completed Vivado build also records `bitstream_payload_sha256` over the
 parsed configuration payload (the exact bytes openFPGALoader writes) and the
-`.bit` header's `bitstream_fpga_part`; before any write, `deploy.sh
-flash-pair` requires both bindings to match the supplied BIT - directory
-adjacency is not artifact identity.
+`.bit` header's `bitstream_fpga_part`. It also records
+`aem_image_bytes`, `aem_image_crc32`, and `aem_image_sha256` over the exact
+raw `AEMI` image whose length and CRC are compiled into firmware. Before any
+programmer access, `deploy.sh flash-pair` requires every binding to match the
+staged BIT and AEM; directory adjacency is not artifact identity, and legacy
+layouts without the AEM binding refuse.
 
 The transaction also requires `INSTALLED_LAYOUT` + `INSTALLED_BIT` (or the
 named launcher's `INSTALLED_BUILD`). It verifies the layout SHA-256/part against
@@ -388,9 +394,9 @@ ALLOW_NONATOMIC_FLASH=1 LAYOUT=<build>/flashboot_layout.json \
     sw/litex/deploy.sh flash-images
 ```
 
-The escape still runs the owner checks (and a direct bit recovery verifies
-the layout's payload SHA-256/part), prepares the entire requested subset and
-uses verified writes. It does **not** prove live installed state or claim
+The escape still stages its inputs, runs the owner checks, verifies the
+layout's bitstream and AEM bindings, prepares the entire requested subset and
+uses verified writes from the staged copies. It does **not** prove live installed state or claim
 safe persistent ordering, and a layout naming a retired (#259) Linux image
 slot refuses. Named `build.sh flash` never sets the escape.
 
