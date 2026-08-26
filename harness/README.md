@@ -450,8 +450,9 @@ known-good verdict read by a human before anything destructive is enabled.
 
 Nothing in [Inferred](#inferred--designed-reviewed-against-the-tree-never-exercised)
 has been exercised: two boards, a jump host, a power strip, a capture tap, an
-ALSA capture device and a controller host are all required and none was
-available. A new bitstream was building while this was written, and the brief
+ALSA capture device and a controller host are all required external bench
+equipment only, not target runtime, and none was available. A new bitstream
+was building while this was written, and the brief
 was explicitly to deliver scripts plus their self-tests, not a bench run.
 
 ### What needs a human

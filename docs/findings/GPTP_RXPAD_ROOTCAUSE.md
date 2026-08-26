@@ -275,9 +275,9 @@ flap-suppression cleared). Systematic experiments, one variable at a time:
   up 14 h) -> "bad message" spam, asCapable never, its announces invisible.
   Hot-swapped the trim .ko (VM -> peer host -> AX via `ssh cat`; the built artifact
   at br-milan-output/build/kl-eth-1.0/kl-eth.ko has the trim) -> badmsg=0,
-  peer delay 450 us, full GM output on the wire. **RAM-only fix: the AX QSPI
-  rootfs still ships the old driver - reflash for persistence.** (Historical
-  Linux-era record, #259.)
+  peer delay 450 us, full GM output on the wire. **At that historical
+  measurement, the now-retired AX QSPI rootfs (#259) still carried the old
+  driver, so persistence required a reflash.**
 - ptp4l 4.4 sends PTPv2.1 headers (minorVersion 1) on gPTP; the switch
   handles them fine for pdelay AND (from the Arty, same 4.4) announce accept
   — version is NOT a factor (theory tested and dropped).

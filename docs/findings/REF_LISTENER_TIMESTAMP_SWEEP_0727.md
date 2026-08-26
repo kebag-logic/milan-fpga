@@ -319,7 +319,7 @@ A client configured to slew and never step cannot follow that jump — it can
 only close the gap at 1 % of real time.
 
 The offset is measured **growing**, which is what makes this a trap rather
-than a transient. The Arty's `ptp4l` log recorded an offset of **82,040 s** at
+than a transient. The retired owner's historical `ptp4l` log (#259) recorded an offset of **82,040 s** at
 board uptime 246,802 s; the direct PHC comparison now reads **216,446 s**. Over
 the ~30 h between those two observations the offset increased by ~134,000 s.
 It is diverging, not converging — each grandmaster restart adds to it faster

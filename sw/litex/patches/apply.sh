@@ -15,11 +15,10 @@
 #                                            and --l2-general-slots)
 #
 # THE LAST ONE USED TO BE "APPLY IT BY HAND FOR NON-DEFAULT L2" and is applied here as of
-# 2026-08-21, because that description stopped being true: FOUR of the five end-station
-# configs pass --scala-args=--l2-down-pending, so without it `sweep.sh arty`, `build.sh
-# cfg_arty`, `cfg_ax8x8` and the 8x8 config cannot elaborate at all. A patch that every
-# shipping Linux recipe needs is not an optional one. It reaches the Scala source rather
-# than a Python package, so it does not go through apply_one (#185).
+# 2026-08-21. It was required by four former Linux performance configurations; those
+# configurations and their shipping claim are retired under #259. The patch stays in this
+# reproducibility series until #259 removes the compatibility code. It reaches the Scala
+# source rather than a Python package, so it does not go through apply_one (#185).
 #
 # Each tree is discovered from the active Python environment (no hardcoded paths), so this
 # works against a venv, a system install, or a git checkout. Idempotent: re-running is a

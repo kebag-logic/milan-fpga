@@ -35,7 +35,7 @@ the [Milan feature status ledger](../reference/MILAN_FEATURE_STATUS.md):
 
 ## Contents
 
-- **[1. Concept -- the three clocks](#1-concept----the-three-clocks)** -- Distinguishes the gPTP-disciplined PHC, Linux `CLOCK_REALTIME`, and the physical audio clock, then records that the shipping audio source remains INTERNAL.
+- **[1. Concept -- the three clocks](#1-concept----the-three-clocks)** -- Distinguishes the gPTP-disciplined PHC, the retired Linux `CLOCK_REALTIME` comparison (#259), and the physical audio clock, then records that the shipping audio source remains INTERNAL.
 - **[2. Mechanism -- the hardware timestamp path](#2-mechanism----the-hardware-timestamp-path)** -- Follows the fractional-nanosecond counter, RX and TX timestamp points, CDC transport, DMA records, and latency corrections from the MAC boundary to software.
 - **[3. The media clock](#3-the-media-clock)** -- How a shared nanosecond timeline is intended to become a 48 kHz sample edge, the inactive PI servo design, and the missing root selection that keeps the shipping clock INTERNAL. The section also records the master-role error budget and measured historical loop behavior.
 - **[4. Time-related CSRs -- quick table](#4-time-related-csrs----quick-table)** -- Lists every time and media-clock register from the PHC controls through CRF measurements, latency taps, and the inactive servo status.
@@ -100,7 +100,8 @@ across (REQ-CSR-03).
 On the fully-FPGA LiteX SoCs the PHC clock (`gtx_clk`) is tied to the
 datapath clock ([`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py), the
 `i_gtx_clk = ClockSignal(milan_cd)` instantiation) — 50 MHz on the Arty and
-shipping bare-metal AX7101, 100 MHz on the AX7101 Linux bring-up shape — and
+shipping bare-metal AX7101, 100 MHz on the retired AX7101 Linux bring-up shape
+(#259, historical) — and
 `PTP_INCR` carries the matching ns-per-tick. Since the t532
 wire-scale audit its RESET value is DERIVED from the instantiator's
 `MILAN_CLK_FREQ_HZ` (Q8.24 of the true clock period: 10.0 ns at 100 MHz,
@@ -238,8 +239,9 @@ The split follows the current architecture
 public state bank all live in the fabric plane ([GPTP_PLANE.md](GPTP_PLANE.md)).
 The option-off elaboration is verification-only hardware (#259):
 `fabric_gptp: false` is refused for product configurations, the retired
-software rootfs profile and linuxptp payload no longer exist, and only
-`milan_soc.py --no-fabric-gptp` reaches the option-off ABI for benches.
+software rootfs profile and linuxptp payload no longer exist, and only the
+verification-only `milan_soc.py --no-fabric-gptp` door (#259) reaches the
+option-off ABI for benches.
 
 | Agent | Where | Job |
 |-------|-------|-----|

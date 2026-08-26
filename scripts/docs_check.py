@@ -515,7 +515,7 @@ def check_gptp_owner_claims(text, relpath, *, exempt_obsolete=True):
         if (GPTP_OWNER_CLAIM_RE.search(window)
                 and not GPTP_OWNER_QUALIFIER_RE.search(window)):
             findings.append(
-                f"{relpath}:{index + 1}: linuxptp gPTP-owner claim without "
+                    f"{relpath}:{index + 1}: linuxptp gPTP-owner claim forbidden by #259 without "
                 "a retirement marker, the software owner is retired (#259) "
                 "and the fabric plane is the only gPTP owner")
     return findings

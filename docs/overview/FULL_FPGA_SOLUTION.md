@@ -1,9 +1,8 @@
 # The Full-FPGA Milan Solution  -  architecture, build, and how to continue
 
 This is the master guide to the **vendor-neutral, fully-FPGA** Milan TSN network
-interface: a single **VexiiRiscv RV64IMA** softcore running Linux (the historical
-**NaxRiscv RV64GC** core is retained as a pure-NIC/FPU bitstream option,
-`~/litex-milan/work/fpu32.bit`), with the entire Milan/AVB/TSN datapath in fabric, on
+interface: a single cacheless **VexiiRiscv RV32I** softcore running bare-metal
+firmware, with the entire Milan/AVB/TSN datapath in fabric, on
 an **Alinx AX7101 (Xilinx Artix-7 xc7a100t)**  -  built with an **open toolchain**
 (LiteX + Verilator + Yosys; Vivado only for the final Artix bitstream).
 
@@ -84,8 +83,9 @@ descriptor store fetches the model over a read-only master
 whose base is a **compile-time** parameter (`PP_DESC_BASE_P`, derived by the SoC
 as the top 1 MiB of `main_ram`, not mirrored as a literal); there is no base
 register. The end-station builder generates the flat image and its JSON and map
-companions from the selected configuration. The board-side `aemi-load` utility
-verifies and loads the paired image at that base before enabling the entity. A
+companions from the selected configuration. The SoC build places the deployable
+set beside its bitstream, and bare-metal firmware verifies/copies the paired
+flash image at that base before enabling the entity. A
 missing or corrupt image still fails closed with `BAD_ARGUMENTS`, and a valid
 image without the requested descriptor returns `NO_SUCH_DESCRIPTOR`. The store
 never hangs on a failed read: its watchdog (4096 cycles,
@@ -112,7 +112,7 @@ Companion documents:
 - **[3. Status at a glance](#3-status-at-a-glance)** -- A layer-by-layer state table where every complete claim names the log or harness that backs it, including the milestone evidence files (`hw_*_MILN*.log`, the DDR3-800 memtest, and the M-A3 write-up). The AECP rows separate the implemented enumeration supply chain from partial mandatory control coverage.
 - **[4. Repository map (medium level)](#4-repository-map-medium-level)** -- The annotated tree: which spec clause each `hdl/` directory mirrors, and where the SoC, the builder, the harnesses and the portability check live.
 - **[5. The three datapath boundaries (medium level)](#5-the-three-datapath-boundaries-medium-level)** -- CSR, DMA and MAC taken one at a time, plus the event path. Worth reading for two facts: only the CSR *base* is host-specific (the offsets are the ABI), and the M-A2 log's `VERSION` word is stale by design -- only the `"MILN"` ID is the stable part of that check.
-- **[6. Build & run (medium level)](#6-build--run-medium-level)** -- Copy-pasteable commands per tier: harnesses and Yosys with no LiteX, the softcore sim, elaboration with no vendor tools, then the bitstream and the Linux device-tree generation.
+- **[6. Build & run (medium level)](#6-build--run-medium-level)** -- Copy-pasteable commands per tier: harnesses and Yosys with no LiteX, the softcore sim, elaboration with no vendor tools, then the bare-metal bitstream/AEM build.
 - **[7. How to extend (medium level, cookbook)](#7-how-to-extend-medium-level-cookbook)** -- A "to add X, touch these files" table. Each row names the harness you also owe -- the CSR row notes the harness asserts the RTL and [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) agree, so documentation is not optional there.
 - **[8. The CSR / DMA / IRQ ABI (medium level)](#8-the-csr--dma--irq-abi-medium-level)** -- The three ABIs in one screen: the CSR group summary (`0x000`–`0x900`, including the indexed per-stream and channel-map windows that landed after the Zynq-era `0x000`–`0x700` block, with [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) as the authority), the DMA simple-mode register names as they appear in `csr.csv`, and the four PLIC source names.
 - **[9. What remains, and how to finish it (the roadmap)](#9-what-remains-and-how-to-finish-it-the-roadmap)** -- Historical: all seven steps are done, and it is kept for the order and the results. The one still worth reading is step 4 -- the AX7101 is GMII, and the RGMII mis-strap gave 100 % preamble errors.
@@ -122,7 +122,7 @@ Companion documents:
 ```
         ┌──────────────────────────── FPGA (xc7a100t) ────────────────────────────┐
         │                                                                          │
-        │   VexiiRiscv RV64IMA (sv39 MMU) ── Linux ── kl-eth driver                │
+        │   VexiiRiscv RV32I ── bare-metal firmware                               │
         │        │  pbus (AXI-Lite)        │ DMA bus         │ PLIC                 │
         │        ▼                         ▼                 ▲                      │
         │   ┌─────────┐   ┌──────────────────────────┐   ┌──────┐                  │
@@ -140,12 +140,11 @@ Companion documents:
         └──────────────────────────────────────────────────────────────────────────┘
 ```
 
-- **VexiiRiscv RV64IMA + sv39, MMU, Linux** — generated by SpinalHDL, integrated by
-  LiteX; the **shipped configuration is single-hart** (`--cpu vexiiriscv` +
-  `--l2-bytes 32768`). Boots the LiteX BIOS → OpenSBI → Linux. (The dual-hart SMP
-  `--cpu-count 2` config is a superseded perf-lineage variant. The historical NaxRiscv
-  RV64GC core is retained as a pure-NIC/FPU option and remains the CLI default —
-  see [Section 2.5 of docs/litex/LITEX_SOC.md](../litex/LITEX_SOC.md#25-cpu-vexiiriscv-and-naxriscv---read-this-before-building).)
+- **VexiiRiscv RV32I, one hart, no MMU or cache** — generated by SpinalHDL and
+  integrated by LiteX. The builder emits the bare-metal profile and the LiteX
+  BIOS loads its firmware image. Linux/MMU/cache and NaxRiscv product variants
+  are retired historical evidence (#259); see
+  [Section 2.5 of docs/litex/LITEX_SOC.md](../litex/LITEX_SOC.md#25-cpu-vexiiriscv-bare-metal-product).
 - **The whole TSN datapath is in fabric**  -  `milan_datapath` (the Section A.9 PS-less
   wrapper) owns classification, the credit-based shaper, PTP timestamping, the
   dest-MAC TCAM filter, MAAP, the AAF/CRF stream engines, and `KL_pp_shadow` —
@@ -157,8 +156,8 @@ Companion documents:
 - **Open toolchain end-to-end** except the final Artix bitstream: LiteX generates
   the SoC, Verilator runs the RTL + boots the softcore, Yosys proves device
   portability. Only `--build` (Vivado place-&-route for xc7a100t) needs the vendor
-  tool  -  and that step now runs (Vivado has Artix-7 device support installed; the
-  board boots Linux and passes traffic on silicon  -  see Section 9).
+  tool. Historical Linux silicon bring-up passed; the current bare-metal
+  physical/two-board acceptance remains owned by #117 (see Section 9).
 
 ## 2. The protocol stack (high level)
 
@@ -169,7 +168,7 @@ Companion documents:
 | **Enumeration + control** | AECP / AEM, MVU | **in fabric, PARTIAL**. The processor's AECP uCPU serves the mandatory inventory listed in the current audit, including packed dynamic information, live audio-map mutation, coherent SET_NAME/GET_NAME access, notifications, and controller monitoring. The builder and tracked board flow generate, verify, and load the descriptor image and its writable name table. Saved-state persistence, root consumption of selected media-clock state, and commands outside the inventory remain open. See Section 2.1 |
 | **Address allocation** | MAAP (1722 Annex B) | **in fabric** (`KL_maap`, bridged to the processor's per-source ALLOC/RELEASE face by `hdl/milan/KL_pp_maap_shim.sv`) |
 | **Reservation** | SRP / MSRP / MVRP (802.1Q) | **in fabric**, in the protocol processor (the class-D SRP face drives the CBS slope and the talker gate) + HW TCAM filter |
-| **Timing** | gPTP / 802.1AS, PTP hardware clock | **In fabric by default**: `gptp-processor` owns the protocol, PHC steering and atomic public state ([`GPTP_PLANE.md`](../design/GPTP_PLANE.md)) to the Milan v1.2 profile of 802.1AS-2011. Explicit `GPTP_PLANE_EN_P=0` is the marked SW-linuxptp comparison |
+| **Timing** | gPTP / 802.1AS, PTP hardware clock | **In fabric**: `gptp-processor` owns the protocol, PHC steering and atomic public state ([`GPTP_PLANE.md`](../design/GPTP_PLANE.md)) to the Milan v1.2 profile of 802.1AS-2011. Explicit `GPTP_PLANE_EN_P=0` is verification-only hardware with no runtime owner; the software comparison is retired (#259) |
 | **Shaping / QoS** | 802.1Qav CBS, 802.1Q PCP classification | HW (per-queue, only shaped queues) |
 | **L2 / L1** | 802.3 1G MAC, GMII PHY, dest-MAC filtering, RMON | HW MAC + fabric datapath |
 
@@ -210,7 +209,7 @@ enable is now **either** `PP_CTRL[0]` (`0x920`) **or** the historic
 `PP_PLANE_P` parameter is gone so the `0x920` window is always decoded. And the
 bring-up order is now load-then-enable: the descriptor image must already be in
 DRAM at `PP_DESC_BASE_P` when that bit goes high. The tracked board flow performs
-this with `aemi-load`. If a custom integration skips the load, the zeroed region
+this in bare-metal firmware after the AEM length/CRC32 checks. If a custom integration skips the load, the zeroed region
 reads as "image not loaded" and descriptor reads answer `BAD_ARGUMENTS`.
 `NO_SUCH_DESCRIPTOR` instead means the image is valid and the requested
 descriptor is absent. The store's watchdog prevents a stalled memory path from
@@ -222,17 +221,17 @@ wedging the responder.
 |-------|-------|----------|
 | TSN datapath RTL (classify/CBS/PTP/filter) | ✅ complete + verified | all Verilator harnesses green + the Yosys tops (`ls tb/verilator/` and the `tops` list in [`syn/yosys/run.sh`](../../syn/yosys/run.sh) are the authoritative counts) |
 | `milan_datapath` Section A.9 PS-less wrapper | ✅ complete + verified | [`tb/verilator/milan_dp`](../../tb/verilator/milan_dp) (11 checks); Yosys |
-| VexiiRiscv SoC (CPU + CSR + IRQ) | ✅ boots Linux **on silicon** (RV64IMA/sv39; NaxRiscv also boots in sim) | `deploy.sh`; [`sw/litex/evidence/naxriscv_sim_boot.log`](../../sw/litex/evidence/naxriscv_sim_boot.log) |
+| VexiiRiscv SoC (CPU + CSR + IRQ) | ✅ cacheless RV32I bare-metal build/boot contract; historical RV64 Linux silicon evidence is retired (#259), current physical acceptance is #117 | builder gate 1b; `deploy.sh`; historical [`sw/litex/evidence/naxriscv_sim_boot.log`](../../sw/litex/evidence/naxriscv_sim_boot.log) |
 | **CPU reads NIC ID="MILN" (M-A2)** | ✅ **on silicon** (25 MHz + 100 MHz) | `sw/litex/evidence/hw_*_MILN*.log` |
 | **DDR3-800 memtest (M-A1)** | ✅ **on silicon** (100 MHz via datapath CDC) | `evidence/hw_ddr3_800_cdc_100mhz.log` |
 | Section A.6 DMA (AXIS↔memory, simple-mode CSRs) | ✅ DMA-TX + AXIS-CDC verified on silicon (M-A3 half) | `evidence/hw_ma3_dma_datapath_100mhz.md` |
 | Section A.7 MAC + PHY (LiteEth **GMII**  -  AX7101 is GMII, not RGMII) | ✅ **on silicon**  -  correct frames both directions (M-A3) | `milan_soc.py --all-blocks`; TROUBLESHOOTING Section 17; [`kl-eth-tx-debug.md`](../findings/kl-eth-tx-debug.md) |
-| **Full SoC (`--all-blocks`: NIC+DMA+MAC+DDR3 @100 MHz)** | ✅ boots Linux on silicon | `deploy.sh` |
+| **Full SoC (`--all-blocks`: NIC+DMA+MAC+DDR3)** | ✅ bare-metal configuration builds; integrated physical acceptance remains #117 | `build.sh` / `deploy.sh`; builder gate 1b |
 | Control plane (ADP + ACMP + SRP) in fabric | ✅ in fabric, unconditional | [`hdl/milan/KL_pp_shadow.sv`](../../hdl/milan/KL_pp_shadow.sv) over the pinned `protocol-processor` submodule; harness [`tb/verilator/pp_shadow`](../../tb/verilator/pp_shadow) |
 | MAAP | ✅ in fabric, silicon-validated | [`hdl/ieee1722/maap/`](../../hdl/ieee1722/maap) + [`hdl/milan/KL_pp_maap_shim.sv`](../../hdl/milan/KL_pp_maap_shim.sv); the ALLOC_DA success **is** the talker DA gate |
-| **AECP / AEM enumeration** | ✅ **responder and image supply chain implemented**. `READ_DESCRIPTOR` serves the builder-generated DRAM image with command-specific success and error statuses | processor AECP uCPU, end-station builder image artifacts, and board-side `aemi-load`; see the preamble |
+| **AECP / AEM enumeration** | ✅ **responder and image supply chain implemented**. `READ_DESCRIPTOR` serves the builder-generated DRAM image with command-specific success and error statuses | processor AECP uCPU, builder/SoC image artifacts, `flash-pair`, and the bare-metal firmware verifier; see the preamble |
 | **AECP / AEM control** | ⚠️ **PARTIAL**. The processor serves the mandatory inventory listed in the current audit; unsupported operations receive the conformant fallback, which is not coverage | Solicited GET_COUNTERS is implemented for supported targets, including every declared Stream Output. Command-change notifications, the Table 5.22 scheduler, and the departing-controller monitor are implemented. Media-plane exposure of selected dynamic state and persistence remain open |
-| Linux driver (kl-eth) | ✅ **on silicon**  -  ping/iperf/CBS + ring DMA (M-A5) | [`RX_RING_DMA.md` (archived)](../../historical_now_obsolete/findings/RX_RING_DMA.md), [`AVB_SWITCH_DIRECTION.md`](AVB_SWITCH_DIRECTION.md) |
+| Linux driver (`kl-eth`) | **RETIRED (#259)**; prior ping/iperf/CBS/ring-DMA results are historical silicon evidence only | [`RX_RING_DMA.md` (archived)](../../historical_now_obsolete/findings/RX_RING_DMA.md), [`AVB_SWITCH_DIRECTION.md`](AVB_SWITCH_DIRECTION.md) |
 | Artix-7 bitstream + board bring-up | ✅ built + running on the AX7101 | `deploy.sh`, [`QSPI_FLASHBOOT.md`](../integration/QSPI_FLASHBOOT.md) |
 | SRP (MSRP/MVRP) + AAF/CRF media datapath | ✅ **in fabric** | SRP is the protocol processor's (its class-D face drives the CBS slope and the talker gate); media datapath [`hdl/ieee1722/aaf/`](../../hdl/ieee1722/aaf)+`crf/`, silicon-validated; per-clause glyphs live in the validation matrix |
 
@@ -270,8 +269,8 @@ sw/
     platforms/alinx_ax7101.py  the AX7101 (xc7a100t) LiteX platform
     evidence/                captured sim boot + MILN-read logs
   builder/                   endstation_builder.py - declarative end-station definition
-  dts/                       device tree (kl,dma-ether) + binding
-  driver/                    kl-eth driver ABI contract
+  dts/                       retired device-tree ABI evidence (#259)
+  driver/                    retired kl-eth ABI contract (#259)
 tb/verilator/                self-checking RTL harnesses (see its README; `ls` is authoritative)
 syn/yosys/                   sv2v + Yosys device-portability check (the `tops` list in
                              run.sh is authoritative; generic synth + ECP5)
@@ -318,8 +317,8 @@ good.
   - **TS** `WishboneDMAWriter`: `m_axis_ts` → memory (PTP timestamp metadata)
 - Each has `with_csr=True` → a **simple-mode register block** (`base`, `length`,
   `enable`, `done`, `loop`, `offset`) auto-mapped in the LiteX CSR space. This is the
-  ABI the Linux driver programs; it mirrors the Zynq `axi_dma` simple mode so the
-  driver's DMA model is unchanged. (Scatter-gather / multi-queue = Option 6b, later.)
+  stable DMA ABI. The retired Linux driver programmed the same model (#259).
+  (Scatter-gather / multi-queue = Option 6b, later.)
 - On the board these target LiteDRAM; in sim/elaboration they target integrated RAM.
 
 ### 5.3 MAC  -  `MilanMAC` (Section A.7, `--with-mac`)
@@ -335,10 +334,9 @@ good.
 ### 5.4 Events  -  IRQ → PLIC
 - `o_irq_csr` (link-change / PTP-TX-ready / RMON-rollover aggregate) plus the three
   DMA-done sources are collected by a LiteX `EventManager` into **one** VexiiRiscv
-  **PLIC** line (`milan_interrupt`); the driver demuxes via `milan_csr` `IRQ_STATUS` +
-  the EventManager `pending` register. The device tree therefore lists a single
-  interrupt on the LiteX build (four discrete GIC lines on Zynq)  -  generated per
-  platform, see [`../sw/dts/README.md`](../../sw/dts/README.md).
+  **PLIC** line (`milan_interrupt`); firmware reads `milan_csr` `IRQ_STATUS` plus
+  the EventManager `pending` register. The retired Linux device-tree projection
+  recorded one LiteX interrupt; see [`../sw/dts/README.md`](../../sw/dts/README.md).
 
 ## 6. Build & run (medium level)
 
@@ -361,17 +359,16 @@ cd syn/yosys && ./run.sh                       # every device-portability top (l
 ./sw/litex/build.sh ax7101                     # the named bare-metal recipe: place & route -> .bit
 ./sw/litex/deploy.sh load                      # program the board (JTAG -> SRAM, volatile)
 
-# --- provisioning (needs the board / a bitstream) ---
-# the builder emits aem_desc.bin, aem_desc.json, and aem_desc.map for the
-# selected configuration. Package the paired image and manifest, then run the
-# tracked board-side aemi-load utility before enabling the entity. A custom
-# integration that skips this step gets a fail-closed BAD_ARGUMENTS response.
+# --- persistent provisioning (needs the board and exact installed build) ---
+# the SoC build emits aem_desc.* beside the bitstream. Use build.sh flash or
+# deploy.sh flash-pair with the exact installed/target layout+bit pairs; the
+# firmware verifies/copies AEM before enabling the entity.
 ```
 
-Retired (#259, historical): the Linux leg that used to follow here
-(litex_json2dts_linux, the `milan_dt.py` extract/gen device-tree overlay,
-Image + OpenSBI + Buildroot, ethtool/tc bring-up, and running ptp4l in the
-option-off software-owner comparison) is no longer a supported flow. The
+The retired Linux leg (#259, historical) bundled its Image with OpenSBI and a
+Buildroot rootfs, generated the now-retired device-tree overlay (#259), and
+ran the retired ptp4l option-off software owner (#259). That leg is no longer
+a supported flow. The
 product boots the bare-metal firmware and the fabric plane is the only gPTP
 owner; the option-off `--no-fabric-gptp` elaboration remains verification-only
 hardware with zero gPTP owners and is never flashable.
@@ -388,7 +385,7 @@ hardware with zero gPTP owners and is never flashable.
 | scatter-gather DMA | replace `MilanDMA`'s simple-mode engines with a descriptor-ring DMA (Option 6b) + rework the driver rings |
 | ADP / ACMP / AECP / SRP behaviour | change the pinned `protocol-processor` submodule and bump its pin — **not** `hdl/`; then re-run [`tb/verilator/pp_shadow`](../../tb/verilator/pp_shadow) and the `milan_dp` integration harness. The fabric side of the seam is [`hdl/milan/KL_pp_shadow.sv`](../../hdl/milan/KL_pp_shadow.sv) (a port list by design: it adds no logic and no interpretation on the class-D path) |
 | MAAP behaviour | [`hdl/ieee1722/maap/`](../../hdl/ieee1722/maap) + [`hdl/milan/KL_pp_maap_shim.sv`](../../hdl/milan/KL_pp_maap_shim.sv) + [`tb/verilator/maap`](../../tb/verilator/maap). Remember the coupling: `acmp_declaring_o` asserts only after an `ALLOC_DA` success, so MAAP **is** the talker gate |
-| an AECP/AEM command | not here: the responder is the processor's AECP uCPU, so a new opcode is a microprogram in the submodule, behind its own pin bump. Keep the root integration honest about any dynamic output the command changes, and extend the processor and root wire harnesses. The descriptor supply chain already runs from the selected `endstation_*.yaml` through the builder to the board-side `aemi-load` step |
+| an AECP/AEM command | not here: the responder is the processor's AECP uCPU, so a new opcode is a microprogram in the submodule, behind its own pin bump. Keep the root integration honest about any dynamic output the command changes, and extend the processor and root wire harnesses. The descriptor supply chain runs from the selected `endstation_*.yaml` through the builder/SoC build, paired AEM flash slot, and firmware verifier |
 
 ## 8. The CSR / DMA / IRQ ABI (medium level)
 
@@ -430,9 +427,10 @@ hardware with zero gPTP owners and is never flashable.
 
 ## 9. What remains, and how to finish it (the roadmap)
 
-**Silicon bring-up is done.** Steps 1–6 below are all **complete on the AX7101**  -  the
-board boots Linux on VexiiRiscv, passes traffic both directions (`iperf3`), and offloads
-802.1Qav CBS. Step 7 (the AVDECC/SRP control stack + media datapath) landed in fabric,
+**Historical silicon bring-up record.** Steps 1–6 below were completed on the
+retired Linux AX7101 image (#259); they are evidence, not current product
+acceptance. The bare-metal integrated/two-board result remains #117. Step 7
+(the AVDECC/SRP control stack + media datapath) landed in fabric,
 and was then **substituted**: the plane it describes was deleted on 2026-08-13 and the
 protocol processor took ADP/ACMP/SRP, and AECP with them (see the preamble and
 Section 2.1). Kept here as the historical order, each item marked with its result.
@@ -448,9 +446,9 @@ Section 2.1). Kept here as the historical order, each item marked with its resul
    RGMII**  -  the original RGMII interface gave 100 % preamble errors (TROUBLESHOOTING Section 17).
    On `LiteEthPHYGMII` (+ `last_be`/coherent-DMA/endianness fixes) the FPGA exchanges
    correct frames both directions with the i210 through the ProfiTap taps.
-5. **Linux boot (M-A4)**  -  ✅ **DONE.** OpenSBI + kernel + Buildroot boot with the
+5. **Retired Linux boot (M-A4, historical #259)**  -  ✅ **MEASURED.** OpenSBI + kernel + Buildroot booted with the
    `kl,dma-ether` DT node (serial upload and QSPI flash-boot  -  [`QSPI_FLASHBOOT.md`](../integration/QSPI_FLASHBOOT.md)).
-6. **Driver bring-up (M-A5)**  -  ✅ **DONE.** `kl-eth` is up: `ping`, `ethtool -T` (PHC),
+6. **Retired driver bring-up (M-A5, historical #259)**  -  ✅ **MEASURED.** `kl-eth` ran `ping`, `ethtool -T` (PHC),
    `tc … cbs offload`, and ring-DMA networking at the measured scoreboard;
    the cited `ptp4l` run is historical option-off/Linux bring-up evidence
    ([`RX_RING_DMA.md` (archived)](../../historical_now_obsolete/findings/RX_RING_DMA.md), [`AVB_SWITCH_DIRECTION.md`](AVB_SWITCH_DIRECTION.md)). **M-A5 = "Milan on FPGA" closed.**
@@ -467,9 +465,9 @@ Section 2.1). Kept here as the historical order, each item marked with its resul
    behavior and remaining blockers. A conformant fallback remains a refusal,
    not command coverage.
 
-The full SoC builds, boots Linux, passes traffic, and runs discovery, connection,
-reservation and the media plane in fabric on silicon today. Its AECP responder
-serves the current inventory and the tracked flow supplies its descriptor image.
+The current full SoC builds the cacheless RV32I bare-metal profile with the
+fabric protocol/media planes and paired AEM image. Focused RTL and builder
+evidence are green; integrated physical/two-board acceptance remains #117.
 The current audit lists the remaining dynamic-state integration and
 persistence gaps. What is still open lives in the
 [current audit](../testing/MILAN_V12_AUDIT_2026-08-16.md) and the GitHub issue

@@ -49,8 +49,8 @@ current protocol-level verdict is the
 >
 > **Descriptor enumeration is reachable once the descriptor image is in DRAM.**
 > The end-station builder emits `aem_desc.bin`, `aem_desc.json`, and
-> `aem_desc.map`; the tracked board flow packages the paired artifacts and runs
-> `aemi-load` before enabling the entity. If a custom integration skips that
+> `aem_desc.map`; the SoC build pairs the deployable set with its bitstream and
+> bare-metal firmware verifies/copies it before enabling the entity. If a custom integration skips that
 > step, every `READ_DESCRIPTOR` answers `BAD_ARGUMENTS` because the configuration
 > range check runs before the locate and an invalid image reports
 > `configurations_count` = 0.
@@ -94,7 +94,7 @@ response-boundary and stopped CRF observation gaps that keep START/STOP partial.
 - **[4. Device-portability check - syn/yosys/](#4-device-portability-check---synyosys)** -- sv2v + Yosys over every top, proving synthesizability off-Xilinx (not behaviour, not timing). Also the two structural reports `run.sh` prints: the tied-off-input inventory and the observer-purity check that taps must never drive the streams they observe.
 - **[4b. RTL lint - scripts/lint_rtl.py (the ratcheted gate)](#4b-rtl-lint---scriptslint_rtlpy-the-ratcheted-gate)** -- Verilator `--lint-only` over all 82 modules in `hdl/` for the price of a cache restore, why Verible was not worth a second toolchain (155 of the opening 188 findings were width warnings it cannot compute), and the split that keeps it honest: a per-directory ratchet grandfathers today's backlog and prints it in full, while a malformed `lint_off` or a module that will not elaborate fails outright.
 - **[5. Legacy / auxiliary testbenches](#5-legacy--auxiliary-testbenches)** -- What still lives under [`tb/utests`](../../tb/utests), [`tb/itests`](../../tb/itests) and the Questa packet-generator library, why none of it gates anything, and the rule when they disagree with a Verilator suite: trust the Verilator suite.
-- **[6. On-silicon validation](#6-on-silicon-validation)** -- The mandatory post-flash step and the reason it exists: a build whose fabric paths run perfectly can still ship with a dead host plane, and every audio drill stays green while the softcore sees nothing. Then the bring-up order and where silicon measurements get logged.
+- **[6. On-silicon validation](#6-on-silicon-validation)** -- Runs the bare-metal UART smoke from an external bench host, states the exact digital verdict, and leaves booted/two-board physical acceptance on #117; the Linux host-plane arm is retired evidence only (#259).
 - **[6c. Controller-side validation -- la_avdecc and Hive](#6c-controller-side-validation----la_avdecc-and-hive)** -- The standing rule that every round validates with BOTH la_avdecc and Hive, and why our own tools cannot substitute: how to run the counters probe and read its CLEAN/DIRTY verdict, where the example controllers live, the feature-define ABI trap that SIGSEGVs at run time, and the Hive compile option that makes malformed responses look like a pass.
 - **[6b. Unattended campaigns -- status file and alert webhook](#6b-unattended-campaigns----status-file-and-alert-webhook)** -- The design contract for multi-day runs where silence means healthy: one STATUS word answering "alive and healthy" without parsing a log, the deliberate `FAILED` vs `BLOCKED` split (blocked never alerts -- that is the false alarm that teaches people to ignore the next one), a fire-once webhook, and why the primary record lives on the host.
 - **[7. Known gaps (kept honest)](#7-known-gaps-kept-honest)** -- The current CI boundary, including public IDENTIFY, persistence, commands outside the served inventory and the supported Verilator version.
@@ -511,20 +511,24 @@ is on the resolution path and is **never linted** — it is upstream code.
 
 ## 6. On-silicon validation
 
-**Mandatory first step after EVERY flash: [`scripts/hostplane_smoke.sh`](../../scripts/hostplane_smoke.sh) on
-the board shell (~60 s).** It verifies the host plane specifically —
-`rx_packets` increments, the dma-ts ring offset advances
-(`milan_dma_ts_offset`, `0xf0003118` on the flashed AX build — read it from
-that build's own `csr.csv`), ID=`MILN` + VERSION readable, the `AAF_CTRL` VID
-field intact (`0x0002xxxx`), the ALSA card module loaded, and the protocol
-processor's two memory bridges acked every bus access they issued with no
-error and no timeout (the `ppmem` counters, plus the `0x5B` presence tag and
-the DFI hand-off in `stat[4]`, so an absent bank cannot pass as a quiet bus) --
-one PASS/FAIL line per check, nonzero exit on any FAIL.
-Rationale: a build whose fabric paths (AAF/CRF/SRP/ADP) run perfectly can
-still ship with a dead host plane (2026-07-25 regression class), and every
-audio-first drill stays green while the softcore sees nothing. Do not start
-any other board procedure until this passes.
+The current post-flash entry point runs from the external bench host against
+the bare-metal UART console:
+
+```sh
+MILAN_PROFILE=baremetal MILAN_UART=/dev/<board-uart> \
+  scripts/hostplane_smoke.sh
+```
+
+That delegates to `baremetal_uart_smoke.py` and fails unless the firmware
+reports the `MILN` identity, VERSION `0x0002_0055`, the fabric gPTP owner, a
+valid descriptor image, and a plausible PHC epoch. It is the digital smoke
+test for the current target; booted-board and two-board physical acceptance
+still belongs to issue #117.
+
+The same script retains an explicit `MILAN_PROFILE=linux` arm only as retired
+Linux host-plane regression evidence (#259, historical). Its `rx_packets`,
+DMA timestamp-ring, ALSA, `/dev/mem`, and rootfs checks are not part of target runtime
+instructions and do not validate the bare-metal product.
 
 Bring-up order and board procedures:
 [../integration/BOARD_PORTING_AX7101.md](../integration/BOARD_PORTING_AX7101.md)
@@ -711,8 +715,8 @@ host-only.
   `milan_dp` integration suite and the BDD conformance suite grade the served
   paths and the response contract.
   Descriptor enumeration is reachable once the builder-generated image is
-  loaded into DRAM. The tracked board flow packages the paired artifacts and
-  runs `aemi-load` before enabling the entity. A custom integration that omits
+  loaded into DRAM. The tracked SoC build pairs the image with its bitstream,
+  and bare-metal firmware verifies/copies it before enabling the entity. A custom integration that omits
   that step gets `BAD_ARGUMENTS`: the microprogram checks
   `configuration_index` against `configurations_count` before it locates, and an
   invalid image reports a count of zero, so no index passes and the locate is

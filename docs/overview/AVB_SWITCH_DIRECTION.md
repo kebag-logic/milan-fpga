@@ -11,6 +11,8 @@ DMA work this builds on).*
 > [`CHANGELOG.md`](../../CHANGELOG.md) (the per-lever perf ledger). What has
 > landed since is noted at the scoreboard paragraph under "Execution order"
 > (S1 AVTP/AAF engine, the MMCM-DRP media-clock servo, I1 L2).
+> In particular, every Linux/MMU/SMP product conclusion below is retired by
+> #259. The current product is one cacheless RV32I bare-metal hart.
 
 ![endpoint -> switch direction](../AVB_SWITCH_DIRECTION.svg)
 
@@ -21,7 +23,7 @@ DMA work this builds on).*
 - **[The switch data plane (panel ③)](#the-switch-data-plane-panel-③)** — The proposed forwarding shape end to end, and the useful part: the list of blocks already in the repo and verified, so the fabric is assembly rather than green-field.
 - **[Memory: "would a wider bus help?" (panel ④)](#memory-would-a-wider-bus-help-panel-④)** — Answers "no" for the endpoint and shows the question inverting for the switch: 4×1G in and out is ~1 GB/s, near the DDR3 ceiling and hostage to refresh jitter. The answer is not a wider DRAM bus but keeping forwarding on-chip — CBS bounds queue depth by construction, so BRAM suffices.
 - **[VexiiRiscv migration  -  VERIFIED on silicon (2026-07-05)](#vexiiriscv-migration-----verified-on-silicon-2026-07-05)** — The CPU swap that made the switch fit: 43–49 k LUTs down to 31 k and WNS from a +0.004 ns knife-edge to +0.143 ns, with the ring DMA, datapath and driver porting over unchanged (one DTB line). Socket throughput halved and the section argues that is the right trade, because the CPU is the control plane.
-- **[CPU budget vs the 4-port switch (measured 2026-07-05, xc7a100t = 63,400 LUTs)](#cpu-budget-vs-the-4-port-switch-measured-2026-07-05-xc7a100t--63400-luts)** — Core count is decided by the fabric, not chosen: two cores + FPU measured **122 % of the part**, and the switch adds another 25–35 k LUTs on top. Hence one Linux core; SMP is coded and ready, and was deliberately verified to *fit-fail* so a part upgrade is a decision rather than a place-time surprise.
+- **[CPU budget vs the 4-port switch (measured 2026-07-05, xc7a100t = 63,400 LUTs)](#cpu-budget-vs-the-4-port-switch-measured-2026-07-05-xc7a100t--63400-luts)** — Historical sizing record: two cores + FPU measured **122 % of the part**, and the switch adds another 25–35 k LUTs on top. Its Linux/SMP product conclusion is retired by #259; the fit measurements remain evidence.
 - **[Hardware reality](#hardware-reality)** — The board has one PHY, so three more copper ports mean ~12 pins each off the 40-pin expansion headers into a daughter card. Every GMII lesson (IOB TX flops, per-PHY gtx invert) reuses directly; SerDes is only needed beyond four ports.
 - **[Decision matrix (2026-07-05, scope: 4× GMII/RGMII copper ports, MTU fixed 1500)](#decision-matrix-2026-07-05-scope-4-gmiirgmii-copper-ports-mtu-fixed-1500)** — Three tracks of work items with risk and status, plus the rejected ones and why. Historical status column — S1 and the media-clock servo have since landed, and the scoreboard paragraph explicitly supersedes its own numbers. The reframe it turns on: sockets need to be good enough, not line-rate.
 
@@ -100,9 +102,11 @@ NaxRiscv config could not fit it). The +0.143 ns margin (vs NaxRiscv's +0.004 kn
 real headroom to clock higher (the core reaches ~186 MHz), which recovers the throughput. And
 socket throughput dropping to ~30 Mbit/s (single-issue in-order IPC vs NaxRiscv OoO) **does not
 matter here**: the CPU is the control plane (gPTP servo, MSRP/MVRP, AVDECC, management); the
-switch forwards 4×1G in fabric, never touching the CPU. Linux is fully preserved (MMU +
-supervisor). FPU is available via the VexiiRiscv "debian" variant (adds F/D/C) if a workload
-needs it. **Net: VexiiRiscv is the CPU for the 4-port AVB switch on the 100T.**
+switch forwards 4×1G in fabric, never touching the CPU. At the time, Linux was
+preserved with MMU/supervisor support and an optional FPU. That product posture
+is retired under #259; only the measured VexiiRiscv area/timing comparison is
+current evidence. **Net: VexiiRiscv remains the CPU for the 4-port AVB switch
+on the 100T, now in the cacheless RV32I bare-metal shape.**
 
 ## CPU budget vs the 4-port switch (measured 2026-07-05, xc7a100t = 63,400 LUTs)
 
@@ -115,20 +119,16 @@ Slice-LUT usage with today's 1-port datapath:
 | 1 core, no FPU | ~43,000 | ~68 % |
 | **2 cores + FPU (2-issue)** | **77,366** | **122 %  -  does NOT fit** |
 
-Going 1→4 GMII adds 3 MACs + the shared-BRAM fabric + TCAM + 4× CBS ≈ **+25–35k LUTs**. So:
-one Linux core + the 4-port switch lands **right at the ceiling**; the FPU alongside it is
-marginal; **two cores + the 4-port switch cannot fit this part.** Constraints are firm  - 
-**Linux is mandatory** (kept: MMU sv39 + supervisor on every candidate, incl. single-issue) and
-**4× GMII is mandatory**  -  so the 100T production config is **one Linux core + the 4-port
-switch** (FPU only if it fits after the fabric lands). Two cores is a deliberate part upgrade
-(Artix-200T / Kintex) or a VexiiRiscv swap (smaller cores + higher fmax), **not** a place-time
-surprise.
+Going 1→4 GMII adds 3 MACs + the shared-BRAM fabric + TCAM + 4× CBS ≈ **+25–35k LUTs**.
+The 2026-07-05 conclusion was that one Linux core plus the 4-port switch landed
+at the ceiling and two cores could not fit. Its Linux/MMU/FPU product premise
+is retired under #259. The current production constraint is one cacheless
+RV32I bare-metal hart plus 4× GMII; a second hart still requires a larger part.
 
-**SMP is coded and ready** for that upgrade: `milan_soc.py --cpu-count 2` (+ the `--scala-args`
-passthrough for issue width), a 2-hart DTB (`fpga/dts/milan_ax7101_smp.dts`, regenerated from
-the build's `csr.json` with correct PLIC/CLINT contexts), OpenSBI `NAX_HART_COUNT` (set 2 for
-SMP), and the kernel's `CONFIG_SMP=y`. Flipping `--cpu-count 2` on a bigger part is all it
-takes. The 2-core build was verified to *fit-fail* on the 100T (122 %), which is the point.
+The former Linux SMP recipe (`--cpu-count 2`, DTB, OpenSBI and kernel SMP)
+is retired under #259, not a ready product option. Its 2-core build remains
+historical fit-failure evidence on the 100T (122 %), which still informs a
+future bare-metal multi-hart decision.
 
 ## Hardware reality
 

@@ -14,7 +14,7 @@ The shipping software-profile claims are checked against the
 | Feature ID | Status | Canonical value |
 |---|---|---|
 | `soc.baremetal-profile` | `implemented` | - |
-| `host.sound-card-option` | `implemented` | - |
+| `host.sound-card-option` | `not-supported` | - |
 <!-- milan-feature-status:end -->
 
 ## Contents
@@ -245,7 +245,7 @@ four times.
 | Date | Knob | Symptom |
 |---|---|---|
 | 2026-07-22 | `i_mac_events` | RMON counters fully tested, permanently zero on hardware (tied off in SoC glue) |
-| 2026-07-24 | `--rx-queues` | `sweep.sh` passed `1` for both boards; the deployed Arty gateware has 2. A queue-count change moves every DMA window by `0x74` under an unchanged DTB |
+| 2026-07-24 | `--rx-queues` | Historical Linux/DTB drift evidence (#259): `sweep.sh` passed `1` for both boards while deployed Arty gateware had 2; a queue-count change moved every DMA window by `0x74` under an unchanged DTB |
 | 2026-07-26 | `--num-streams` | `sweep.sh` passed **nothing**, so `sweep.sh ax7101` built the default 1x1 datapath while the config, the docs and the build directories all called it 8x8 |
 | 2026-08-22 | `--xlen` / `--cpu-count` | `build.sh cfg_ax8x8` and `cfg_arty` passed no `--xlen`; `milan_soc.py` defaults to 64 where the builder defaults to 32, so both elaborated RV64 under configs, a sweep table and a boot chain that are RV32 single-hart (#157) |
 
@@ -307,9 +307,9 @@ prefix and makes a failed transaction safely resumable. Power loss during the
 single offset-zero erase/program itself can still tear that bitstream; removing
 that hardware boundary requires an A/B or MultiBoot flash layout.
 
-After a Linux flash, run [`scripts/hostplane_smoke.sh`](../../scripts/hostplane_smoke.sh)
-on the board shell. A Linux build with sound-card surfaces intentionally off
-uses `SOUND_CARD=0`. After a bare-metal flash, run from the UART host:
+The former Linux `hostplane_smoke.sh`/`SOUND_CARD=0` procedure is retired
+historical evidence (#259); no current flow flashes that image. After a
+bare-metal flash, run from the UART host:
 
 ```console
 MILAN_PROFILE=baremetal MILAN_UART=/dev/serial/by-id/<adapter> \

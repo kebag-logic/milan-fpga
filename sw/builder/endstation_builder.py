@@ -28,10 +28,10 @@ plane now).  Exactly TWO generated includes are still compiled:
 
 The legacy AEM descriptor ROM is still generated as a readable model artifact,
 but it is no longer compiled into RTL. The protocol processor serves
-READ_DESCRIPTOR from a flat DRAM image instead. An explicit --write-fragment
-or --write-rtl deployment ownership transfer generates that image, manifest,
-map, and loader in the sibling rootfs overlay when the overlay is present.
-An ordinary builder run does not touch that deployment overlay.
+READ_DESCRIPTOR from a flat DRAM image instead. Every build emits the review
+image/manifest/map; the SoC build emits the deployable set beside its bitstream
+for the bare-metal AEM flash slot. --write-fragment / --write-rtl transfer
+generated source ownership and delete stale pre-#259 rootfs artifacts.
 
 Input:  a YAML end-station config (schema kebag-logic/milan-endstation-config,
         see configs/endstation_*.yaml for annotated examples).
@@ -53,10 +53,10 @@ Outputs (into OUTDIR/<config-stem>/):
                       and the bandwidth arithmetic are derived here.
   aecp_aem_rom.svh  - legacy AEM descriptor ROM. Generated for model review,
                       not compiled and not served by the processor.
-  platform_shape.json - driver-visible layout: Milan CSR base, the DMA window
-  milan-nic.dtsi      map DERIVED from board.constraints.rx_queues, the
-                      physical addresses kl-eth hardcodes, and the
-                      kl,dma-ether / kl,milan-pcm device-tree nodes.
+  platform_shape.json - current Milan/processor MMIO plus retired #259
+  milan-nic.dtsi      Linux driver/device-tree regression geometry: the DMA
+                      map derived from board.constraints.rx_queues and the
+                      former kl-eth / kl,milan-pcm nodes.
   build_plan.md     - human-readable build plan. Shapes beyond current RTL
                       capability (NxN streams, TDM/AES3/SPDIF interfaces,
                       non-48k rates) VALIDATE but are marked "planned".
@@ -74,7 +74,7 @@ Plus (repo-level, single-sourced so nothing can drift):
                       sourced by sw/litex/sweep.sh; the inline tables there
                       are the loud FALLBACK only.
   <rootfs overlay>/etc/... - RETIRED destination (#259, historical): the
-                      identity conf, owner marker, ptp4l fragment and
+                      retired (#259) identity conf, owner marker, ptp4l fragment and
                       milan-aem descriptor set are deleted there when found,
                       never written; the product identity ships in the AEM
                       image beside the bitstream.
@@ -137,11 +137,12 @@ Schema summary (see the example configs for the annotated normative form):
                                  leaveall}, tspec{policy: pinned|derived,
                                  max_frame_bytes, interval_frames},
                                  rtl_table (owns the tracked .svh)
-  platform:                    - DT + driver shape: csr_base, mac_address
+  platform:                    - current MMIO shape plus retired #259
+                                 DT/driver evidence: csr_base, mac_address
                                  (REQUIRED, unicast), interrupt,
                                  pcm_ring_phys/_bytes/_stride, dma_coherent,
                                  boot_chain_pin{window: address} - the
-                                 FLASHED DTB's window map; a config whose
+                                 retired Linux DTB's historical window map; a config whose
                                  rx_queues would move a pinned window is
                                  REFUSED (the 5ce9a13 CSR-rot rule)
 
@@ -219,7 +220,8 @@ CLUSTER_POLICIES = ("cap-at-interface", "cluster-per-stream-channel",
 #:   virtual  - a cluster past the physical width under the legacy policies
 #:              (wire-truth rule: extra stream channels are virtual, missing
 #:              physical channels render 0).
-#:   host     - a host (ALSA/PipeWire) lane channel for this port's stream.
+#:   host     - retired ALSA/PipeWire compatibility lane (#259); product
+#:              configs require this pool to be zero.
 #:   pilot    - the KL_tone_gen pilot, one cluster per talker port (D8).
 #:   loopback - a RECEIVED stream channel offered back as a talker source
 #:              (D8's stream-loopback lane; same media-clock domain, so
@@ -561,7 +563,7 @@ PLATFORM_DEFAULTS = dict(
     pcm_ring_bytes=0x10_0000,
     pcm_ring_stride=0x10_0000,
     dma_coherent=True,
-    boot_chain_pin=None,                     # flashed DTB's window map
+    boot_chain_pin=None,                     # retired #259 DTB map evidence
     rx_address_filter="hardware",            # hardware | software | promiscuous
 )
 
@@ -1381,7 +1383,7 @@ def cluster_layout(listeners, talkers, policy, iface_channels,
 
     Cluster-count policy (USER decision, config-selectable):
       cluster-per-stream-channel - the stream's `clusters` field verbatim
-        (default = channels; the legacy/pipewire-reference layout).
+        (default = channels; derived from the retired #259 PipeWire layout).
       cap-at-interface - min(clusters, physical interface channels/direction):
         clusters model real endpoints, never more than the wire has.
       role-pools (D8) - the port's cluster count is NOT the stream's
@@ -1439,8 +1441,8 @@ def cluster_layout(listeners, talkers, policy, iface_channels,
                 segs.append(dict(role=role, offset=off, width=width,
                                  first=0 if role != "loopback" else port_index))
                 off += width
-        # A listener with neither a physical render endpoint nor a Linux
-        # host ring is deliberately headless.  Its STREAM_PORT_INPUT still
+        # A listener with neither a physical render endpoint nor the retired
+        # #259 Linux host ring is deliberately headless. Its STREAM_PORT_INPUT still
         # exists (and remains dynamically mapped per Milan 5.3.3.9), but it
         # truthfully owns zero local AUDIO_CLUSTER descriptors.  The receive
         # stream can still feed fabric-only consumers such as the loopback
@@ -1552,8 +1554,9 @@ def cluster_layout(listeners, talkers, policy, iface_channels,
 #: while declaring a source that cannot exist is merely undetectable.
 PRIMARY_ROLE_ORDER = {
     "input":  ("physical", "host", "virtual"),
-    #! USER 2026-08-06: the talker's power-on identity is the SHARED-MEMORY
-    #! (host) lane, NOT the loopback - "the ATDECC mapping must correspond
+    #! RETIRED HOST-LANE DECISION RECORD (#259, historical). USER 2026-08-06:
+    #! the talker's power-on identity was the SHARED-MEMORY (host) lane, NOT
+    #! the loopback - "the ATDECC mapping must correspond
     #! to the physical mux, and the stream_output was set to the Loopback".
     #! host now outranks loopback; a backed loopback stays fully mappable
     #! by a controller, it just is not what the entity wakes up claiming.
@@ -1564,8 +1567,8 @@ PRIMARY_ROLE_ORDER = {
     #! AX7101 declared its TDM8 channels (physical_channels.capture 0 -> 8),
     #! physical-first silently moved the boot identity off the shared-memory
     #! lane and onto the J11 pins - so a board with no codec attached would
-    #! wake up streaming whatever `din` floats to, and the PipeWire E2E path
-    #! would need a controller mapping on every boot. The 08-06 rule was
+    #! wake up streaming whatever `din` floats to, and the retired PipeWire
+    #! E2E path would need a controller mapping on every boot. The 08-06 rule was
     #! chosen against LOOPBACK, before a real physical front end existed;
     #! asked again with physical on the table, the answer was the same lane.
     #! This is a PREFERENCE WALK for the identity seed only - it does not
@@ -1976,22 +1979,16 @@ AEM_ROM_OUT_NAME = "aecp_aem_rom.svh"
 #: anything (tb/verilator/milan_dp elaborates the 4x4 and 8x8 shapes this way).
 GEN_CONFIG_DIR = "configs/generated"
 
-#: THE IDENTITY THE BOARD SOFTWARE PROGRAMS. The fabric serves the ADPDU AND
-#: the AEM ENTITY descriptor's entity_model_id from CSR 0x60C/0x610 (the ROM's
-#: OVL_MODEL_ID_C overlay slot), so whatever the boot script writes there IS
-#: the entity's model id - a literal in that script is a SECOND answer to a
-#: question the builder already answers, and on 2026-08-02 silicon it was the
-#: STALE one: the flashed ROM carried the dynamic-output-map descriptors while
-#: ADP advertised 001BC52ED611DB08, the id of a model that no longer exists.
-#: 1722.1-2021 6.2.1.10: entity_model_id identifies the AEM; two different AEMs
-#: must not share one. So the builder EMITS the identity and S50milan SOURCES
-#: it. Per BOARD (one shared rootfs serves both boards, S50milan branches on
-#: /proc/device-tree/model), written by the same --write-fragment moment that
-#: hands a board's bitstream flags over - one owner for "what this board is".
+#: RETIRED ROOTFS IDENTITY ARTIFACT (#259). Before the bare-metal rescope,
+#: S50milan sourced this per-board file and programmed CSR 0x60C/0x610. A stale
+#: literal once advertised a model id different from the flashed descriptor
+#: image, so the builder still emits the artifact as regression evidence and
+#: deletes stale overlay copies. Product identity now rides in the paired AEM
+#: image; firmware performs no rootfs identity handoff.
 ENTITY_CONF_NAME = "milan-entity.conf"
-#: `/etc` of the flashed rootfs overlay. In the SIBLING repo (milan-tests-avb)
-#: because that is where the image is built; overridable for a checkout that
-#: lives elsewhere, and simply SKIPPED when it is not on disk.
+#: Retired `/etc` overlay destination, retained only so a handoff can delete
+#: stale pre-#259 files. Overridable for regression fixtures and skipped when
+#: absent.
 ROOTFS_OVERLAY_ETC = os.environ.get(
     "MILAN_ROOTFS_OVERLAY_ETC",
     os.path.expanduser("~/milan-tests-avb/fpga/buildroot/br2-external/"
@@ -2044,10 +2041,10 @@ def _entity_model_image(cfg, overlay):
         # the AXI-Lite Milan CSR window, for the loader's PAIRING CHECK: the
         # image bakes firmware_version from milan_csr's VERSION at generation
         # time, the fabric serves that register live, and comparing the two at
-        # load time is what catches a bitstream flash that left the rootfs -
-        # and therefore this image - a build behind (the 2.68-image-on-2.69-
-        # gateware finding, 2026-08-14). Same rule as desc_base: the loader
-        # reads it from here and never restates it.
+        # pairing catches a bitstream flash that left its AEM image a build
+        # behind (the historical 2.68-image-on-2.69-gateware finding,
+        # 2026-08-14). Same rule as desc_base: consumers read the authority
+        # from this manifest and never restate it.
         "csr_base": int(cfg["platform"]["csr_base"]),
         "image": "aem_desc.bin",
         "image_bytes": len(blob),
@@ -2055,10 +2052,9 @@ def _entity_model_image(cfg, overlay):
         # whether the image on the board is the one they think it is
         "config": os.path.basename(str(cfg.get("source", ""))),
     }
-    # The loader ships WITH the image, from milan-fpga's one copy (the
-    # retired rootfs destination is historical, #259). A second copy would
-    # be a script that drifts from the manifest format it parses, and the
-    # failure would be a board that reports a successful load of nothing.
+    # The former Linux loader is retained beside the review image as retired
+    # regression evidence (#259); it is not part of the bare-metal flash set.
+    # Keeping one source prevents the historical manifest parser from drifting.
     with open(os.path.join(repo, "scripts", "load_entity_model.sh"),
               encoding="utf-8") as fh:
         loader = fh.read()
@@ -2851,11 +2847,11 @@ def load_features(raw):
         raise ConfigError("board.features: must be a mapping of "
                           f"{sorted((*OPTIONAL_BLOCKS, 'sound_card', 'fabric_gptp'))} "
                           "-> bool")
-    product_options = {"sound_card", "fabric_gptp"}
-    unknown = sorted(set(raw) - set(OPTIONAL_BLOCKS) - product_options)
+    policy_keys = {"sound_card", "fabric_gptp"}
+    unknown = sorted(set(raw) - set(OPTIONAL_BLOCKS) - policy_keys)
     if unknown:
         raise ConfigError(f"board.features: unknown block(s) {unknown} "
-                          f"(known: {sorted((*OPTIONAL_BLOCKS, *product_options))})")
+                          f"(known: {sorted((*OPTIONAL_BLOCKS, *policy_keys))})")
     out = {}
     for k in OPTIONAL_BLOCKS:
         v = raw.get(k, True)
@@ -2958,7 +2954,8 @@ def validate_features(feat, cons, clocking, interface, srp, platform):
         raise ConfigError(
             "board.features.sound_card is false, but the entity declares "
             f"host clusters ({host_width}) and/or playback_rings ({playback}). "
-            "Remove those Linux host surfaces or set sound_card: true.")
+            "Remove those retired Linux host surfaces (#259); sound_card: "
+            "true is not a product option.")
     return feat
 
 

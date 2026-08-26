@@ -101,7 +101,7 @@ def check_pair(layout_path, expected_owner=None,
     if owner != "fabric":
         detail = ("has no gPTP owner" if owner == "none"
                   else "records the retired software owner (#259: no "
-                       "ptp4l/phc2sys product path exists)")
+                       "retired ptp4l/phc2sys product path exists)")
         raise ContractError(
             f"layout owner {owner!r} {detail}; the bare-metal product's one "
             "PHC and publication owner is the fabric plane")

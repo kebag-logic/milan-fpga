@@ -25,8 +25,8 @@ STAGES = [
  ("2 · FLASH", "JTAG → QSPI (16 MB)", ORANGE, [
    ("INSTALLED_BUILD=<old> build.sh flash ax7101:<new>", 1),
    ("live-read QSPI@0; match exact old/new .bit", 0),
-   ("prepare target; CRC-check live Linux rootfs", 0),
-   ("software/full→fabric/bare: bit, then AEM", 0),
+   ("materialize target AEM; enforce binding + slot size", 0),
+   ("write paired AEM, then target bitstream last", 0),
    ("every write uses --verify", 0),
    ("retry recognizes source or target commit bit", 0),
    ("direct partial writes: recovery escape only", 0),
@@ -42,7 +42,7 @@ STAGES = [
    ("no rootfs · ptp4l · phc2sys · statd", 0),
  ], "cacheless RV32 bare-metal control,\nMilan fabric live"),
  ("4 · VERIFY", "on the bench", PURPLE, [
-   ("MILAN_PROFILE=baremetal hostplane_smoke.sh", 1),
+   ("MILAN_UART=/dev/<uart> hostplane_smoke.sh", 1),
    ("UART reports VERSION 0x00020055", 0),
    ("focused RTL + processor suites", 1),
    ("traceability + builder gates", 0),

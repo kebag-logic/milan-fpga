@@ -6,7 +6,7 @@
 - **[Layout "baremetal" - shipping AX7101](#layout-baremetal---shipping-ax7101)** — The two-slot bitstream plus raw AEM manifest, why it has no kernel or FBI wrapper, and the paired-image verification required before firmware enables ADP.
 - **[Layout "full" — RETIRED LINUX BRING-UP HISTORY (#259; silicon-verified 2026-07-24)](#layout-full--retired-linux-bring-up-history-259-silicon-verified-2026-07-24)** — The measured five-slot Linux bring-up record, retired by #259: no tool flashes this manifest any more, and the section survives only as the silicon-verified history behind the bare-metal contract.
 - **[Layout v3 — SUPERSEDED HISTORY (2026-07-12; offsets no longer deployed)](#layout-v3--superseded-history-2026-07-12-offsets-no-longer-deployed)** — Historical: these offsets are not what ships. Kept for the reasoning that is still true — why the kernel is flashed as `Image.xz` (there is no non-EFI self-extracting kernel on RISC-V), the xz stream rule the vendored decoder imposes, and the four cooperating pieces the whole feature is built from.
-- **[The hard constraint: 16 MB flash vs 23 MB of images](#the-hard-constraint-16-mb-flash-vs-23-mb-of-images)** — Why there are two manifests at all: 16 MB of device against ~23 MB of un-slimmed images. Bannered — the arithmetic is permanent but the kernel-at-offset-0 arrangement it argued for is pre-v3 and has not shipped since 2026-07-12. The slot map inside is now read off `FLASHBOOT_LAYOUT` and starts with the bitstream, matching the deployed table above.
+- **[The hard constraint: 16 MB flash vs 23 MB of images](#the-hard-constraint-16-mb-flash-vs-23-mb-of-images)** — Retired Linux-layout history (#259): 16 MB of device against ~23 MB of un-slimmed images. The retired kernel-at-offset-0 arrangement (#259) is pre-v3 and has not shipped since 2026-07-12; the current bare-metal slot map starts with the bitstream.
 - **[How the boot works](#how-the-boot-works)** — The boot-method priority chain and what full vs partial each do. The reassuring part: every copy is CRC-checked from the FBI header, so an empty or half-written flash falls through to serialboot rather than bricking the boot.
 - **[Usage](#usage)** — Build and flash the bare-metal pair, the recovery escape, and the JTAG iteration loop; the retired (#259) Linux steps are marked where they stood.
 - **[Getting to zero-upload](#getting-to-zero-upload)** — Retired Linux-era history (#259): the three slimming steps that once made the `full` manifest fit, kept as the measured record.
@@ -85,9 +85,9 @@ validation.
 > the software gPTP owner are no longer flashable, and every tool below
 > refuses them. This section is preserved as the measured bring-up record.
 
-The layout of record is the `--flashboot full` manifest baked into the
-gateware BIOS (`flashboot_layout.json` in every build dir — ALWAYS read the
-build's own copy; offsets below are the current AX/Arty builds'):
+The historical layout of record was the `--flashboot full` manifest baked into
+the gateware BIOS. The offsets below are the retired AX/Arty measurements, not
+a manifest any current build accepts:
 
 | slot      | offset      | budget    | measured (AX 07-24) | notes |
 |-----------|-------------|-----------|---------------------|-------|
@@ -101,19 +101,14 @@ build's own copy; offsets below are the current AX/Arty builds'):
 > map (2026-07-26) shrank `rootfs` from 8.5 MiB to `0x66_0000` = 6.375 MiB to
 > make room for the `journal` and `user` slots, and the measured image in the
 > "measured" column predates that change — an 8.49 MiB rootfs would no longer
-> fit. [`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py) records 5.6 MiB for the current image, leaving
-> ~0.775 MiB of slack. Read the live budget off the generated map above (or off
-> the build's own `flashboot_layout.json`), and read the pre-flash size line
-> `deploy.sh flash-pair` prints while preparing the complete set, before it
-> performs live readback or a write.
+> fit. The then-live source recorded 5.6 MiB, leaving ~0.775 MiB of slack.
+> Current `flash-pair` refuses this entire Linux manifest before programmer I/O.
 
-All Linux images are FBI-wrapped (`python -m litex.soc.software.crcfbigen
-<img> -f -l`) then written raw at their offsets
-(`openFPGALoader -o <offset> --write-flash --file-type raw --verify`);
-`deploy.sh flash-pair` automates the set. `openFPGALoader --reset` pulses
-PROGRAM_B = reboot from flash without a power cycle.
+Historically, the Linux images were FBI-wrapped with `crcfbigen` and written at
+these offsets. Current `deploy.sh flash-pair` does not automate or permit that
+set; it accepts only the raw bare-metal `{bitstream, aem}` manifest (#259).
 
-**Matched-image rule (the CSR-rot trap, bitten twice — 07-22 and 07-24):**
+**Historical matched-image rule (the CSR-rot trap, bitten twice — 07-22 and 07-24):**
 the kl-eth LiteX CSR block addresses (dma-ts, dma-pcm, …) are AUTO-ALLOCATED
 and SHIFT whenever the gateware's block set changes (e.g. `--rx-queues 1`
 dropped the RX1 queue CSRs and moved dma-ts 0x3100→0x308c, dma-pcm
@@ -380,8 +375,8 @@ image or a non-fabric owner refuses before any programmer I/O.
 
 There is no flashable option-off or software-owner image (#259): the
 builder refuses `fabric_gptp: false`, and the option-off elaboration exists
-only as verification-only hardware through a direct `milan_soc.py`
-`--no-fabric-gptp` run whose artifacts the flash tools refuse.
+only through the verification-only `milan_soc.py --no-fabric-gptp` door
+(#259), whose artifacts the flash tools refuse.
 
 ### Recovery-only partial mode
 

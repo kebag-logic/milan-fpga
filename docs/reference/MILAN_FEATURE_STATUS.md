@@ -42,7 +42,7 @@ evidence by itself.
 | `notifications.change-events` | `implemented` | - |
 | `notifications.controller-liveness` | `implemented` | - |
 | `soc.baremetal-profile` | `implemented` | - |
-| `host.sound-card-option` | `implemented` | - |
+| `host.sound-card-option` | `not-supported` | - |
 | `verification.long-gate-policy` | `implemented` | `local-required, remote-required` |
 <!-- milan-feature-status:end -->
 

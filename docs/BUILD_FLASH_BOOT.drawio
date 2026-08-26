@@ -17,8 +17,8 @@ gateware .bit + raw aem_desc.bin
 
 $ INSTALLED_BUILD=&lt;old&gt; build.sh flash ax7101:&lt;new&gt;
   live-read QSPI@0; match exact old/new .bit
-  prepare target; CRC-check live Linux rootfs
-  software/full→fabric/bare: bit, then AEM
+  materialize target AEM; enforce binding + slot size
+  write paired AEM, then target bitstream last
   every write uses --verify
   retry recognizes source or target commit bit
   direct partial writes: recovery escape only
@@ -40,7 +40,7 @@ cacheless RV32 bare-metal control,
 Milan fabric live" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#1565C0;fontSize=12;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#212121;" vertex="1" parent="1"><mxGeometry x="1028" y="541" width="440" height="64" as="geometry"/></mxCell>
 <mxCell id="n9" value="4 · VERIFY   —   on the bench
 
-$ MILAN_PROFILE=baremetal hostplane_smoke.sh
+$ MILAN_UART=/dev/&lt;uart&gt; hostplane_smoke.sh
   UART reports VERSION 0x00020055
 $ focused RTL + processor suites
   traceability + builder gates

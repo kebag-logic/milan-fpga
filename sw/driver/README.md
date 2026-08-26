@@ -1,14 +1,14 @@
-# `kl-eth` — Milan TSN NIC Linux driver
+# Retired `kl-eth` Linux-driver contract (#259, historical)
 
-The platform net driver that binds to the [`kl,dma-ether`](../dts/milan.dtsi) device
-tree node and drives the Milan NIC over its CSR/DMA ABI
-([`docs/reference/REGISTER_MAP.md`](../../docs/reference/REGISTER_MAP.md)). It lives in the sibling repo
-**`../../kl-linux-drivers`** (`kl-eth.c`); this note is the contract it implements.
+This page records the former platform driver that bound to the
+[`kl,dma-ether`](../dts/milan.dtsi) device-tree node and drove the Milan NIC
+over its CSR/DMA ABI. No supported product image loads it; #259 owns removal
+of the remaining historical files.
 
 ## Contents
 
 - **[DT match & resources](#dt-match--resources)** -- What the driver requires from the device tree: the compatible string, the four named `reg` windows and four interrupts, and the queue/PTP properties. The `csr` base differs per platform while everything else does not.
-- **[Feature surface → CSR (see Section 2.10 of docs/reference/FR_NFR.md FR-DRV-\*)](#feature-surface--csr-see-section-210-of-docsreferencefr_nfrmd-fr-drv-)** -- The mapping table: each Linux feature, the `ndo_`/subsystem hook that implements it, and the hardware register behind it. Use it to answer "what does this ethtool call actually touch?".
+- **[Retired Linux feature surface → CSR (#259)](#retired-linux-feature-surface--csr-259)** -- Historical mapping from the former driver hooks to the stable CSR ABI; it is evidence, not a supported software surface.
 - **[CBS offload policy](#cbs-offload-policy)** -- The two rules `ndo_setup_tc` enforces: offload only for queues listed in `kl,shaped-queues`, and Σ idleSlope of those queues ≤ 75 % of the port rate -- everything else is strict priority in hardware.
 - **[Caveat — the dma-\* reg window has a different layout (LiteX build)](#caveat--the-dma--reg-window-has-a-different-layout-litex-build)** -- Three ways to program the DMA window wrong. The registers are native-endian (never `ioread32be`), but the 64-bit `base` is **MS word at the lower address**, so a native `iowrite64` writes the halves backwards; and the sub-page ranges need `devm_ioremap`, not the exclusive variant.
 
@@ -21,7 +21,9 @@ tree node and drives the Milan NIC over its CSR/DMA ABI
 
 This driver is a retired (#259) historical record; no supported image loads it.
 
-## Feature surface → CSR (see [Section 2.10 of `docs/reference/FR_NFR.md`](../../docs/reference/FR_NFR.md#210-host-linux-driver--phase-7--req-drv--needs-a-kernel-tree-----not-buildable-in-this-repo) `FR-DRV-*`)
+## Retired Linux feature surface → CSR (#259)
+
+See [Section 2.10 of `docs/reference/FR_NFR.md`](../../docs/reference/FR_NFR.md#210-host-linux-driver--retired-historical-contract-259) for the historical `FR-DRV-*` contract.
 | Linux feature | Hook | HW / CSR |
 |---------------|------|----------|
 | NAPI RX/TX, N queues | `netif_napi_add`, `netif_set_real_num_*_queues` | DMA rings + `IRQ_STATUS` |

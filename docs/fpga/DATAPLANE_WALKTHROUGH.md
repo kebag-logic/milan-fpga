@@ -105,9 +105,9 @@ accuracy ([EGRESS_QUEUE_MAP.md](../reference/EGRESS_QUEUE_MAP.md#why-gptp-sits-b
 ## 2. Egress: a frame the CPU sent (where the queue map applies)
 
 This is the lane the five queues, the classifier and the CBS actually govern:
-gPTP from `linuxptp` only in the explicit option-off comparison, a host AVDECC
-controller, a host MRP stack, and all bulk traffic. Product-default fabric gPTP
-uses the downstream merge described at hop 6 and never enters these queues.
+host development traffic and all bulk traffic. Product fabric gPTP uses the
+downstream merge described at hop 6 and never enters these queues. The former
+option-off `linuxptp` owner is retired historical evidence only (#259).
 
 ```mermaid
 flowchart LR

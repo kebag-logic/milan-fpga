@@ -40,7 +40,7 @@ bindings, and a checker that holds any overlay to them.
 | File | Role |
 |------|------|
 | [`bindings/kl,dma-ether.yaml`](bindings/kl,dma-ether.yaml) | **normative binding** for the NIC node — rewritten 2026-07-26 against both deployed trees (5 reg windows incl. `phy`, `dma-coherent`, `kl,rsc-clk-mhz`, the two-string `compatible`). |
-| [`bindings/kl,milan-pcm.yaml`](bindings/kl,milan-pcm.yaml) | **normative binding** for the PCM/ALSA node (`snd-kl-milan`) — added 2026-07-26; this node shipped on both boards with no binding at all. |
+| [`bindings/kl,milan-pcm.yaml`](bindings/kl,milan-pcm.yaml) | Retired PCM/ALSA binding history (#259); no supported product exposes the `snd-kl-milan` node. |
 | [`milan_dt.py`](milan_dt.py) | `validate <dts\|dtsi>` (dtc + binding check, works on an overlay OR a complete tree) and `selftest`. `extract`/`gen` retired. |
 | [`milan-dt.schema.json`](milan-dt.schema.json) | IR schema — historical, only the retired generator consumed it. |
 | [`boards/ax7101.json`](boards/ax7101.json) | historical board values (carries the wrong `rgmii-id` for a GMII board). |

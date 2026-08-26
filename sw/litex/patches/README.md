@@ -51,14 +51,13 @@ Exposes VexiiRiscv L2 depth/geometry arguments used by the performance
 campaign's L2 experiments (see [`CHANGELOG.md`](../../../CHANGELOG.md) / `docs/findings/`).
 **Applied by `apply.sh` since 2026-08-21.** It used to say "not applied,
 apply it by hand for a non-default L2", and that description outlived the
-fact: four of the five end-station configs now pass
-`--scala-args=--l2-down-pending`, so without this patch `sweep.sh arty`,
-`build.sh cfg_arty`, `build.sh cfg_ax8x8` and the 8x8 config cannot elaborate
-at all. A patch every shipping Linux recipe needs is not an optional one
-(#185). It targets the Scala checkout inside the pythondata package rather
-than a Python package, which is why `apply.sh` resolves it separately. (Yes,
-the file shares the `0002-` prefix with the LiteEth patch — they target
-different trees.)
+historical Linux performance campaign: four former configurations passed
+`--scala-args=--l2-down-pending`. Those configurations and their shipping
+claim are retired under #259; the patch remains in the reproducibility series
+until #259 removes that compatibility code. It targets the Scala checkout
+inside the pythondata package rather than a Python package, which is why
+`apply.sh` resolves it separately. (Yes, the file shares the `0002-` prefix
+with the LiteEth patch — they target different trees.)
 
 ## `0004-vexiiriscv-baremetal-variant.patch`
 

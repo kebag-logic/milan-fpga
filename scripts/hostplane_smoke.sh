@@ -2,8 +2,10 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 #
-# hostplane_smoke.sh - MANDATORY first step after every flash, run ON THE
-# BOARD shell (~60 s). Catches the host-plane regression class in one pass:
+# hostplane_smoke.sh - current bare-metal UART smoke, run from the external
+# bench host after every flash. The explicit MILAN_PROFILE=linux branch is
+# retired host-plane regression evidence only (#259, historical); it is not
+# target runtime. That legacy branch catches the old host-plane regression:
 # a build whose fabric paths (AAF/CRF/SRP/ADP) run perfectly while the host
 # plane is dead (no RX frames to the kernel, no TX timestamp records) looks
 # healthy on every audio drill - THIS is the drill that looks at the host.
@@ -21,8 +23,9 @@
 #   8. response bridge completed        (same rails, AECP response path)
 #
 # busybox-safe: plain sh, no pgrep -c, values surfaced as NAME=value echoes.
-# Overrides: MILAN_PROFILE=linux|baremetal. Bare-metal runs from a host and
-# requires MILAN_UART; Linux runs on the board and accepts IFACE,
+# Overrides: MILAN_PROFILE=baremetal|linux (default baremetal). Bare-metal runs
+# from an external bench host and requires MILAN_UART. The retired #259 Linux
+# evidence arm runs on its historical board shell and accepts IFACE,
 # MILAN_CSR_BASE, DMA_TS_OFF_REG, PPMEM_BASE, RX_WAIT, TS_WAIT and
 # SOUND_CARD=0|1. PPMEM_BASE=none declares a build with no protocol processor
 # and prints a SKIPPED line instead of checks 6-8.
@@ -34,7 +37,7 @@
 # was 0xf00030a4, which csr.csv names milan_dma_rx1_wr_ptr, so check 2 graded
 # the RX ring and passed on boards whose ts records never left the fabric.
 
-PROFILE="${MILAN_PROFILE:-linux}"
+PROFILE="${MILAN_PROFILE:-baremetal}"
 if [ "$PROFILE" = baremetal ]; then
     if [ -z "${MILAN_UART:-}" ]; then
         echo "HOSTPLANE SMOKE: FAIL (MILAN_UART is required for MILAN_PROFILE=baremetal)" >&2

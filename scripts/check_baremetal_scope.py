@@ -27,8 +27,9 @@ A. retired daemon COMMAND: ptp4l/phc2sys invoked on an executable line (a
    shell/recipe code line, a fenced doc line, ExecStart/systemd/init/package
    lines, BR2_PACKAGE_LINUXPTP). An executable line is a finding REGARDLESS
    of retirement words nearby: "# retired\\nexec ptp4l" still starts ptp4l.
-B. retired launcher option: ``--software-profile linux``, ``--flashboot
-   full``, ``--sound-card``, ``--no-fabric-gptp``. On a code/recipe/fenced
+B. retired launcher option or default: ``--software-profile linux``,
+   ``--flashboot full``, ``--sound-card``, ``--no-fabric-gptp``, or a shell
+   ``MILAN_PROFILE`` default of ``linux``. On a code/recipe/fenced
    line this is always a finding. In prose or a comment it is accepted only
    under a retirement anchor. The single code home for these tokens is
    ``sw/litex/milan_soc.py``, the launcher authority that defines and
@@ -42,13 +43,19 @@ D. Linux-boot-chain product claim: prose that pairs a boot-chain term
    in a small window with no retirement anchor in reach.
 
 RETIREMENT ANCHOR: ``retired``, ``#259``, ``historical`` or
-``verification-only`` within three lines, or in the governing Markdown
-heading. Anchors excuse prose only; they never excuse an executable line.
+``verification-only`` (or an explicit denial such as ``unsupported`` or
+``refused``) in the SAME SENTENCE as the policy term, or in the governing
+Markdown heading. A nearby sentence about some other retired path is not
+authority for the claim being graded. Anchors excuse prose only; they never
+excuse an executable line. An explicit ``external peer only`` / ``external
+bench only`` scope also keeps host-side test dependencies out of the target
+product rule.
 
-``--selftest`` plants the review's two escape mutations, spaced/case-varied
-YAML, an omitted-authority path, a clean retired-history paragraph and a
-missing-inventory arm, and requires every biting arm to add findings to a
-clean pristine scan.
+``--selftest`` plants the review's escape mutations, including an unrelated
+adjacent retirement sentence and an option-off ``ptp4l`` ownership claim,
+spaced/case-varied YAML, an omitted-authority path, a clean retired-history
+paragraph and a missing-inventory arm, and requires every biting arm to add
+findings to a clean pristine scan.
 """
 import argparse
 import pathlib
@@ -80,6 +87,10 @@ SKIP_EXTS = {
 TEST_FILE_RE = re.compile(r"(?:^|/)test_[^/]*\.py$|_test\.py$")
 
 ANCHOR_RE = re.compile(r"retired|#259|historical|verification[- ]only", re.I)
+NON_TARGET_RE = re.compile(
+    r"\b(?:external (?:peer|bench)(?: host| equipment)? only|"
+    r"peer[- ]side only|host[- ]side only|not (?:part of )?target runtime)\b",
+    re.I)
 FENCE_RE = re.compile(r"^\s*(```|~~~)")
 HEADING_RE = re.compile(r"^#{1,6}\s")
 
@@ -106,15 +117,36 @@ OPTION_RES = (
     (re.compile(r"--flashboot[ =]+full\b"), "--flashboot full"),
     (re.compile(r"--sound-card\b"), "--sound-card"),
     (re.compile(r"--no-fabric-gptp\b"), "--no-fabric-gptp"),
+    (re.compile(r"MILAN_PROFILE:-linux\b"), "MILAN_PROFILE default linux"),
 )
 
 # -- class D: boot-chain product claims ------------------------------------
 BOOT_RE = re.compile(
-    r"\b(rootfs|opensbi|buildroot|dtb|device[- ]tree|alsa|kernel|"
+    r"\b(rootfs|opensbi|buildroot|dtb|device[- ]tree|alsa|kernel|linux|"
     r"linuxptp|ptp4l|phc2sys)\b", re.I)
 CLAIM_RE = re.compile(
-    r"\b(product|shipping|ship(?:s|ped)?|buildable|flashable|on[- ]target)\b",
+    r"\b(product|production|shipping|ship(?:s|ped)?|buildable|flashable|"
+    r"on[- ]target|supported|active|mandatory|available|remains)\b",
     re.I)
+OWNER_CLAIM_RE = re.compile(
+    r"(?:\b(?:ptp4l|phc2sys|linuxptp)\b.{0,110}\b(?:owner|comparison|"
+    r"option[- ]off)\b|\b(?:owner|comparison|option[- ]off)\b.{0,110}"
+    r"\b(?:ptp4l|phc2sys|linuxptp)\b)", re.I)
+_POLICY_OBJECT = (r"(?:linux(?:ptp)?|ptp4l|phc2sys|rootfs|opensbi|buildroot|"
+                  r"dtb|device[- ]tree|alsa|kernel|owner|image|path|"
+                  r"--(?:software-profile|flashboot|sound-card|"
+                  r"no-fabric-gptp))")
+DENIAL_RE = re.compile(
+    rf"(?:\b(?:no|without)(?:\s+[\w/-]+){{0,4}}\s+{_POLICY_OBJECT}\b|"
+    rf"\b{_POLICY_OBJECT}\b(?:\s+[\w/-]+){{0,4}}\s+"
+    rf"(?:(?:is|are|was|were|remain(?:s|ed)?|stay(?:s|ed)?)\s+)?"
+    rf"(?:(?:not|never|no\s+longer)\s+(?:a\s+|an\s+|the\s+)?"
+    rf"(?:supported|shipping|shipped|a?live|active|available|buildable|"
+    rf"flashable|loaded|started|run|used|included|retained|product|owner)|"
+    rf"unsupported|absent|forbidden|gone|refused|removed|omitted)\b|"
+    rf"\b(?:refus(?:e|ed|es|ing)|"
+    rf"remov(?:e|ed|es|ing)|omit(?:s|ted|ting)|forbid(?:s|den|ding)?)\b"
+    rf".{{0,80}}\b{_POLICY_OBJECT}\b)", re.I)
 
 _COMMENT_PREFIXES = ("#", "//", "/*", "*", "<!--", ";", "!")
 
@@ -162,8 +194,9 @@ def read_tree(paths):
         full = ROOT / rel
         try:
             data = full.read_bytes()
-        except OSError:
-            continue  # deleted-in-worktree; the tracked set moved under us
+        except OSError as exc:
+            raise InventoryError(
+                f"tracked policy file cannot be read: {rel}: {exc.strerror}")
         if b"\x00" in data[:4096]:
             continue  # binary content without a binary extension
         text = data.decode("utf-8", errors="replace")
@@ -199,6 +232,63 @@ def _class_d_scope(rel):
     return rel.endswith((".md", ".py", ".sh", ".yaml", ".yml", ".json"))
 
 
+def _paragraph(lines, index, is_md):
+    """Return prose containing *index* and that line's offset within it.
+
+    Markdown wraps one sentence across physical lines, so grading only the
+    current line would reject an honest ``... is\nretired (#259).`` spelling.
+    Code and comments keep line scope: joining adjacent source lines would let
+    one comment authorize another.
+    """
+    if not is_md or lines[index].lstrip().startswith("|"):
+        return lines[index], 0
+    start = index
+    while start > 0:
+        prior = lines[start - 1]
+        if (not prior.strip() or HEADING_RE.match(prior)
+                or FENCE_RE.match(prior)):
+            break
+        start -= 1
+    end = index + 1
+    while end < len(lines):
+        following = lines[end]
+        if (not following.strip() or HEADING_RE.match(following)
+                or FENCE_RE.match(following)):
+            break
+        end += 1
+    parts = [line.strip() for line in lines[start:end]]
+    offset = sum(len(part) + 1 for part in parts[:index - start])
+    return " ".join(parts), offset
+
+
+def _sentence_at(text, position):
+    """Return sentence containing *position* and its sentence-local offset."""
+    boundaries = [0]
+    boundaries.extend(match.end()
+                      for match in re.finditer(r"[.!?](?:\s+|$)", text))
+    if boundaries[-1] != len(text):
+        boundaries.append(len(text))
+    for left, right in zip(boundaries, boundaries[1:]):
+        if left <= position < right or (position == len(text) == right):
+            return text[left:right], position - left
+    return text, position
+
+
+def _clause_at(text, position):
+    """Return the table/punctuation clause containing *position*."""
+    left = 0
+    for match in re.finditer(r"[|,;.!?]", text[:position]):
+        left = match.end()
+    match = re.search(r"[|,;.!?]", text[position:])
+    right = position + match.start() if match else len(text)
+    return text[left:right], position - left
+
+
+def _policy_sentence(lines, index, column, is_md):
+    paragraph, offset = _paragraph(lines, index, is_md)
+    return _sentence_at(paragraph, offset + column)
+
+
 def _walk_yaml(node, hits, string_scalars=False):
     if isinstance(node, dict):
         for key, value in node.items():
@@ -227,9 +317,6 @@ def scan(tree):
         in_fence = False
         heading = ""
 
-        def near(index, span=3):
-            return "\n".join(lines[max(0, index - span):index + span + 1])
-
         for i, line in enumerate(lines):
             if is_md and FENCE_RE.match(line):
                 in_fence = not in_fence
@@ -240,8 +327,7 @@ def scan(tree):
             # executable-regardless rule bites the command line itself.
             code_ctx = ((in_fence if is_md else True)
                         and not _is_comment(line))
-            anchored = bool(ANCHOR_RE.search(near(i))
-                            or ANCHOR_RE.search(heading))
+            heading_anchored = bool(ANCHOR_RE.search(heading))
 
             # -- class A: a daemon command is active regardless of anchors --
             if code_ctx and _daemon_command(line):
@@ -251,23 +337,41 @@ def scan(tree):
             # -- class B: retired launcher options --------------------------
             if rel != LAUNCH_AUTHORITY:
                 for rx, name in OPTION_RES:
-                    if not rx.search(line):
+                    match = rx.search(line)
+                    if not match:
                         continue
                     if code_ctx:
                         emit(rel, i + 1, "B", f"retired option {name} on an "
                              f"executable line: {line.strip()[:90]!r}")
-                    elif not anchored:
+                    else:
+                        sentence, column = _policy_sentence(
+                            lines, i, match.start(), is_md)
+                        clause, _ = _clause_at(sentence, column)
+                        anchored = (heading_anchored
+                                    or bool(ANCHOR_RE.search(clause))
+                                    or bool(DENIAL_RE.search(clause)))
+                        if anchored:
+                            continue
                         emit(rel, i + 1, "B", f"retired option {name} in "
                              "prose without a retirement anchor")
 
             # -- class D: boot-chain product claims -------------------------
             # the claim must sit NEAR the boot-chain term (one sentence-ish
             # span), or a wide TOC/table line pairs unrelated cells.
-            if _class_d_scope(rel) and BOOT_RE.search(line) and not anchored:
-                window = near(i, 2)
-                for m in BOOT_RE.finditer(window):
-                    span = window[max(0, m.start() - 110):m.end() + 110]
-                    if CLAIM_RE.search(span):
+            if _class_d_scope(rel):
+                for match in BOOT_RE.finditer(line):
+                    sentence, column = _policy_sentence(
+                        lines, i, match.start(), is_md)
+                    clause, column = _clause_at(sentence, column)
+                    span = clause[max(0, column - 110):
+                                  column + len(match.group(0)) + 110]
+                    anchored = (heading_anchored
+                                or bool(ANCHOR_RE.search(clause))
+                                or bool(DENIAL_RE.search(clause))
+                                or bool(NON_TARGET_RE.search(clause)))
+                    claim = (bool(CLAIM_RE.search(span))
+                             or bool(OWNER_CLAIM_RE.search(clause)))
+                    if claim and not anchored:
                         emit(rel, i + 1, "D", "Linux-boot-chain product "
                              "claim without a retirement anchor: "
                              f"{line.strip()[:90]!r}")
@@ -342,6 +446,47 @@ def selftest():
             t["sw/litex/deploy.sh"] + "\n# retired by #259\n"
             "exec ptp4l --software-profile linux --flashboot full\n"),
         "retired daemon command")
+    arm("unrelated retirement sentence cannot anchor a Linux shipping claim",
+        lambda t: t.__setitem__(
+            "docs/design/TIME_SYNC.md",
+            t["docs/design/TIME_SYNC.md"]
+            + "\n\nThe RGMII path is retired. The Linux driver now ships "
+            "in a private test repository.\n"),
+        "product claim")
+    arm("unrelated denial cannot anchor a Linux shipping claim",
+        lambda t: t.__setitem__(
+            "docs/design/TIME_SYNC.md",
+            t["docs/design/TIME_SYNC.md"]
+            + "\n\nThere is no timing concern, but the Linux driver ships "
+            "as a supported product.\n"),
+        "product claim")
+    arm("unrelated same-clause negation cannot anchor a Linux product claim",
+        lambda t: t.__setitem__(
+            "sw/litex/patches/apply.sh",
+            t["sw/litex/patches/apply.sh"]
+            + "\n# A patch the shipping Linux recipe needs is not optional.\n"),
+        "product claim")
+    arm("production and mandatory are active Linux product claims",
+        lambda t: t.__setitem__(
+            "docs/design/selftest_production.md",
+            "Linux is mandatory in the production configuration.\n"),
+        "product claim")
+    arm("explicit external-peer scope is not target product authority",
+        lambda t: t.__setitem__(
+            "docs/design/selftest_external_peer.md",
+            "External peer only, not target runtime: Linux is supported "
+            "for the peer test host.\n"),
+        None)
+    arm("unrelated table cell cannot anchor a Linux shipping claim",
+        lambda t: t.__setitem__(
+            "docs/design/selftest_table.md",
+            "| Linux ships as a supported product | NaxRiscv is historical |\n"),
+        "product claim")
+    arm("option-off ptp4l comparison is an active ownership claim",
+        lambda t: t.__setitem__(
+            "docs/design/selftest_owner.md",
+            "| selftest | `ptp4l` only in the option-off comparison |\n"),
+        "product claim")
     arm("spaced YAML scalar is parsed, not substring-matched",
         lambda t: t.__setitem__(
             "configs/selftest_spacing.yaml",
@@ -374,6 +519,12 @@ def selftest():
             t["sw/litex/sweep.sh"].replace(
                 "--fabric-gptp", "--no-fabric-gptp", 1)),
         "retired option --no-fabric-gptp"),
+    arm("a launcher reacquires a Linux default profile",
+        lambda t: t.__setitem__(
+            "scripts/hostplane_smoke.sh",
+            t["scripts/hostplane_smoke.sh"].replace(
+                "MILAN_PROFILE:-baremetal", "MILAN_PROFILE:-linux", 1)),
+        "retired option MILAN_PROFILE default linux"),
     arm("a config reacquires fabric_gptp: false",
         lambda t: t.__setitem__(
             "configs/endstation_arty_4x4.yaml",
@@ -418,7 +569,19 @@ def selftest():
             print("  ok   caught: a non-git tree is a hard failure, "
                   "never a zero count")
 
-    total = len(arms) + 1
+    # A path returned by the tracked inventory must not disappear between
+    # discovery and reading: treating that race/deletion as an empty omission
+    # would recreate the hand-maintained inventory escape this gate replaced.
+    try:
+        read_tree(["docs/selftest_missing_policy_surface.md"])
+        problems.append("missing-tracked-file arm: unreadable inventory member "
+                        "did not raise InventoryError")
+    except InventoryError:
+        passed += 1
+        print("  ok   caught: an unreadable tracked policy file is a hard "
+              "inventory failure")
+
+    total = len(arms) + 2
     if problems:
         for problem in problems:
             print("  -", problem)

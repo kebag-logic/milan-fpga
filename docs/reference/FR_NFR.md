@@ -2,9 +2,10 @@
 
 **System:** a small **Milan v1.2** audio endpoint (PAAD  -  Professional Audio AVB
 Device)  -  a **stereo (2-channel) talker + listener at 48 kHz**  -  implemented on
-the fully-FPGA RISC-V platform (VexiiRiscv + LiteX on Alinx AX7101; NaxRiscv historical), designed to
-**scale up** (more channels / streams / sample rates) and **scale out** (more than
-one softcore).
+the fully-FPGA RISC-V platform (VexiiRiscv + LiteX on Alinx AX7101; NaxRiscv
+historical), designed to **scale up** through larger generated fabric shapes.
+Multi-core Linux scale-out is a retired study (#259); future multi-port fabric
+replication is not a supported product shape today.
 
 - **Current Milan v1.2 implementation verdict:** [`../testing/MILAN_V12_AUDIT_2026-08-16.md`](../testing/MILAN_V12_AUDIT_2026-08-16.md)
 - **Current entity definitions:** [`configs/endstation_*.yaml`](../../configs/) through the [end-station builder](../ENDSTATION_BUILDER.md)
@@ -25,12 +26,12 @@ Requirement keywords per RFC 2119 (**MUST / SHOULD / MAY**). Each requirement ha
 ## Contents
 
 - **[1. Scope, actors, and the baseline system](#1-scope-actors-and-the-baseline-system)** -- What "the baseline endpoint" concretely means, plus the `P_CH`/`P_SI`/`P_SO`/`P_SR`/`P_CORES`/`P_PORTS` parameter table every later requirement is written against. States the asymmetry that drives Section 2.7: the talker is fixed stereo, the listener is format-adaptive.
-- **[2. Functional Requirements (FR)](#2-functional-requirements-fr)** -- Opens with **[Section 2.0, the implementation-status ledger](#20-implementation-status-after-the-protocol-processor-substitution-2026-08-13)**: which groups the protocol processor owns, which AECP commands it serves, which dynamic outputs the root integration does not yet consume, and which mandatory requirements remain open. Read it before any row, and read a refusal as a refusal. Then eleven subsections of MUST/SHOULD rows with priority and verification method, covering ADP through AECP/MVU, ACMP, MAAP/SRP, clocking, streaming, QoS, and then the two software contracts most requirement docs omit, the Linux driver's NAPI/XDP/PTP/ethtool surface (FR-DRV-\*) and the device-tree binding (FR-DT-\*).
-- **[3. Non-Functional Requirements (NFR)](#3-non-functional-requirements-nfr)** -- The budgets and bounds: line rate, 8000 pkt/s per stream, ≤ 1 µs gPTP sync, ≤ 60 % LUT at baseline. Scale-out (Section 3.4) is flagged in the page as *the* key architectural NFR -- both SMP and AMP must be buildable, and adding cores must not change the ABI.
-- **[4. Scalability architecture](#4-scalability-architecture)** -- How the three growth axes are actually meant to work: the JSON entity model as the scale-up knob, the control/media/time plane split as the basis for scale-out, an SMP-vs-AMP comparison with a worked 3-core diagram, and the sizing formula Section 4.5 admits is not yet populated.
+- **[2. Functional Requirements (FR)](#2-functional-requirements-fr)** -- Opens with **[Section 2.0, the implementation-status ledger](#20-implementation-status-after-the-protocol-processor-substitution-2026-08-13)**: which groups the protocol processor owns, which AECP commands it serves, which dynamic outputs the root integration does not yet consume, and which mandatory requirements remain open. Read it before any row, and read a refusal as a refusal. Then eleven subsections of MUST/SHOULD rows with priority and verification method, covering ADP through AECP/MVU, ACMP, MAAP/SRP, clocking, streaming and QoS; the former Linux-driver and device-tree rows are explicitly retired evidence (#259).
+- **[3. Non-Functional Requirements (NFR)](#3-non-functional-requirements-nfr)** -- The budgets and bounds: line rate, 8000 pkt/s per stream, ≤ 1 µs gPTP sync, ≤ 60 % LUT at baseline. Scale-up applies to supported generated fabric shapes; the multi-core Linux requirement is retired (#259), while multi-port replication remains future architecture.
+- **[4. Scalability architecture](#4-scalability-architecture)** -- How the generated entity model scales the fabric workload, how the current control/media/time planes partition, and the explicitly retired SMP/AMP study retained for historical design context.
 - **[5. Steps to comply with Milan v1.2 (procedure)](#5-steps-to-comply-with-milan-v12-procedure)** -- The ordered twelve-step path from bare platform to conformance run, each step citing the FRs it discharges. Ends with the explicit out-of-scope list -- redundancy, rates beyond 192 kHz, AEM authentication.
 - **[6. Traceability (summary)](#6-traceability-summary)** -- One compact table joining each functional area to its Milan clause, its entity-model artifact, and its plan milestone -- the index to use when you need "which requirement covers this".
-- **[7. Verification approach](#7-verification-approach)** -- Which evidence class answers which kind of requirement: Verilator harnesses for leaf blocks, controller/fabric-gPTP/CSR/`tc` tooling for interop (with `ptp4l` confined to the option-off comparison), YAML models for PDU byte-exactness, and repetition at full profile for the scale claims.
+- **[7. Verification approach](#7-verification-approach)** -- Which evidence class answers which kind of requirement: Verilator harnesses for leaf blocks, controller/fabric-gPTP/CSR tooling for interop, retired historical `ptp4l` evidence (#259), YAML models for PDU byte-exactness, and repetition at full profile for the scale claims.
 
 ## 1. Scope, actors, and the baseline system
 
@@ -38,17 +39,14 @@ Requirement keywords per RFC 2119 (**MUST / SHOULD / MAY**). Each requirement ha
 One entity, one network port, on **one softcore**:
 
 ```
-   Controller (Hive / avdecc_l2.py)                Media (PipeWire / UAC2)
-            │  1722.1 AVDECC (L2)                          │ audio
+   Controller (Hive / avdecc_l2.py)                 Physical audio I/O
+            │  1722.1 AVDECC (L2)                          │ TDM / I2S
             ▼                                              ▼
    ┌───────────────────────── AX7101 (xc7a100t) ────────────────────────┐
-   │  VexiiRiscv core0 + Linux                                          │
-   │   • PipeWire module-avb: ADP/AECP/ACMP/MAAP + AVDECC entity        │
-   │   • OpenAvnu mrpd: MSRP/MVRP   • linuxptp: option-off only         │
-   │   • kl-eth driver: PHC, HW timestamps, CBS offload                 │
+   │  One cacheless RV32I hart: bare-metal configuration/diagnostics    │
    ├───────────────────────────────────────────────────────────────────┤
-   │  FPGA datapath (HW): integrated gPTP default owner + PHC steering  │
-   │    GMII MAC ─ 802.1Q classifier ─ CBS ─ AVTP talker/listener       │
+   │  FPGA fabric: protocol processor + gPTP owner + PHC steering       │
+   │    ADP/AECP/ACMP/SRP ─ CBS ─ AAF/CRF talker/listener ─ audio I/O   │
    └───────────────────────────────────────────────────────────────────┘
                                    │ GMII 1 GbE
                                    ▼  AVB/TSN network (bridge)
@@ -64,10 +62,10 @@ media-clock stream:
 | Param | Meaning | Baseline | Scale-up target | Scale-out lever |
 |-------|---------|----------|-----------------|-----------------|
 | `P_CH` | channels per stream | 2 | 8 → 64 |  -  |
-| `P_SI` / `P_SO` | stream sinks / sources | 1 / 1 | 8 / 8 | per-core streams |
+| `P_SI` / `P_SO` | stream sinks / sources | 1 / 1 | 8 / 8 | generated fabric contexts |
 | `P_SR` | sample-rate set | {48k} | {48,96,192k} |  -  |
-| `P_CORES` | RISC-V softcores | 1 | 1 (faster) | **2 … N** |
-| `P_PORTS` | AVB interfaces / entities | 1 | 1 | **2 … N** (scale-out) |
+| `P_CORES` | RISC-V softcores | 1 | 1 | none; Linux SMP/AMP is retired (#259) |
+| `P_PORTS` | AVB interfaces / entities | 1 | 1 | future **2 … N** replication, not supported today |
 
 ### 1.3 Actors
 AVDECC **Controller**; peer **Talker**/**Listener** entities; **802.1AS**
@@ -110,10 +108,12 @@ fallback response, but that fallback does not implement their required behavior.
 below that reads NOT IMPLEMENTED is not describing silence. It describes a
 device that answers "no" correctly and does not perform the operation. The
 end-station builder generates `aem_desc.bin`, `aem_desc.json`, and
-`aem_desc.map` from the selected configuration. The tracked board flow packages
-the paired image and manifest and runs `aemi-load` to verify and load them at
+`aem_desc.map` from the selected configuration. The SoC build places that set
+beside the bitstream, `flash-pair` persists the complete `{bitstream, aem}`
+target, and bare-metal firmware verifies/copies the AEM image to
 `PP_DESC_BASE_P` before entity enable. A custom integration that omits that step
-still fails closed with `BAD_ARGUMENTS`. The Table 5.22 counter-change producer,
+still fails closed with `BAD_ARGUMENTS`. The former rootfs/`aemi-load` handoff
+is retired (#259). The Table 5.22 counter-change producer,
 the other root-observed notification triggers, and the departing-controller
 monitor are implemented at 0x0055. Saved-state persistence remains open.
 
@@ -135,8 +135,8 @@ These repeated claims are checked against the
 | Requirement group | Verdict | Where it lives now |
 |---|---|---|
 | **FR-DISC-01..05** (ADP) | **OWNED BY THE PROTOCOL PROCESSOR** | `KL_adp_engine`. Advertisement content is the entity model via `adp_shape_defaults.svh`; `available_index` is published to the CSR plane. The historic `ADP_CTRL.en` still enables the entity (ORed with `PP_CTRL[0]`), but the ADPDU *content* CSR words are write-only scratch that reach nothing |
-| **FR-ENUM-01** (`READ_DESCRIPTOR`) | **IMPLEMENTED AND SUPPLIED** | The uCPU's descriptor store fetches over a read-only master at compile-time `PP_DESC_BASE_P`. The builder generates the image, JSON manifest, and map; `aemi-load` verifies and writes the paired image before entity enable. An omitted or invalid image fails closed with `BAD_ARGUMENTS`, a locate miss returns `NO_SUCH_DESCRIPTOR`, a late load heals without reset, and the 4096-cycle watchdog prevents a stalled memory path from hanging the responder |
-| **FR-ENUM-02** (the Milan-mandatory descriptor tree) | **IMPLEMENTED IN THE TRACKED BUILD FLOW** | The selected entity configuration generates the mandatory descriptor tree and flat image artifacts. The tracked board flow packages and loads them. Custom integrations must preserve the same load-before-enable ordering |
+| **FR-ENUM-01** (`READ_DESCRIPTOR`) | **IMPLEMENTED AND SUPPLIED** | The uCPU's descriptor store fetches over a read-only master at compile-time `PP_DESC_BASE_P`. The build emits the image, JSON manifest, and map beside the bitstream; `flash-pair` persists the raw AEM slot and bare-metal firmware verifies/copies it before entity enable. An omitted or invalid image fails closed with `BAD_ARGUMENTS`, a locate miss returns `NO_SUCH_DESCRIPTOR`, a late valid load heals without reset, and the 4096-cycle watchdog prevents a stalled memory path from hanging the responder |
+| **FR-ENUM-02** (the Milan-mandatory descriptor tree) | **IMPLEMENTED IN THE TRACKED BUILD FLOW** | The selected entity configuration generates the mandatory descriptor tree and flat image artifacts. The SoC build binds them to the bitstream and bare-metal firmware verifies/copies them before enable. Custom integrations must preserve the same ordering |
 | **FR-CTRL-01..05** (acquire/lock, get/set, unsolicited, counters, fast enumeration) | **PARTLY MET** | The processor serves the mandatory command inventory. `ACQUIRE_ENTITY` returns Milan Delta 7 `NOT_SUPPORTED` with no owner. FR-CTRL-03's registration, successful-command notifications, Table 5.22 scheduler, and departing-controller monitor are implemented. FR-CTRL-04 serves every supported counter bank and rate-limits each descriptor's push to at most once per second. Persistence remains open, and the declared CRF Stream Input still has no served counter bank |
 | **FR-CTRL-06** (validate cdl / message_type / target, correct status) | **PARTLY MET** | Met: the duty to answer, correct response shape and identity fields, silent refusal of a foreign target or response-as-input, command-specific `BAD_ARGUMENTS`, `NOT_SUPPORTED`, and descriptor-locate statuses, and lock conflict behavior within the served inventory. The mandatory commands listed in the current audit still need their own payload validation and behavior before this group can be closed |
 | **FR-MVU-01..03** (Milan Vendor Unique, GET_MILAN_INFO) | **PARTLY MET** | The engine recognizes the Milan protocol ID and serves `GET_MILAN_INFO`, including a zero redundancy feature flag. The system/media-clock reference operations in FR-MVU-02 remain outside the served inventory and receive the conformant fallback |
@@ -237,7 +237,7 @@ conformant fallback, and the current audit lists the remaining mandatory gaps.
 | FR-MGT-01 | The IDENTIFY CONTROL MUST put the device into identification mode while its value ≠ 0. | M | T |
 | FR-MGT-02 | Names (entity/group/config) MUST be settable and persisted; factory reset MUST restore defaults. | S | T |
 
-### 2.10 Host Linux driver  *(Phase 7 / `REQ-DRV-*`; needs a kernel tree  -  not buildable in this repo)*
+### 2.10 Host Linux driver — retired historical contract (#259)
 
 Retired (#259): the Linux driver is a historical record; no supported image
 loads it, and these rows stand as the contract it satisfied.
@@ -298,15 +298,15 @@ The `kl,dma-ether` node describes the HW to the driver. Binding schema:
 ### 3.3 Scale-**up** (same node, bigger workload)
 | ID | Requirement | Pri | Ver |
 |----|-------------|-----|-----|
-| NFR-SCUP-01 | The entity model, driver, and datapath MUST be parameterized by `P_CH`, `P_SI`, `P_SO`, `P_SR` so a larger endpoint (e.g. 8-ch, 48/96/192 kHz  -  the full entity model) is a configuration change, not a redesign. | M | A,I |
+| NFR-SCUP-01 | The entity model, firmware/fabric contract, and datapath MUST be parameterized by `P_CH`, `P_SI`, `P_SO`, `P_SR` so a larger endpoint (e.g. 8-ch, 48/96/192 kHz  -  the full entity model) is a configuration change, not a redesign. | M | A,I |
 | NFR-SCUP-02 | Increasing `P_CH`/`P_SR` MUST only linearly increase bandwidth, buffer, and DSP; the control plane (ADP/AECP/ACMP) MUST be unaffected. | M | A |
 | NFR-SCUP-03 | FPGA resource use MUST stay within the `xc7a100t` budget at the largest supported single-node profile (document the profile that first exceeds it). | S | A |
-| NFR-SCUP-04 | The AEM memory (HW 4-level) MUST size from the JSON model at build time so more descriptors need no RTL edit. **Re-pointed 2026-08-13: there is no AEM memory in this gateware** -- the processor's uCPU serves descriptors out of a flat image in main memory at a compile-time base, so "sizing" becomes "generating and loading the image", and **that build step does not exist here** (Section 2.0). The requirement stands, against the new subject. | S | I |
+| NFR-SCUP-04 | The AEM model MUST size from the selected configuration at build time so more descriptors need no RTL edit. The processor's uCPU serves a generated flat image from main memory at a compile-time base; the SoC build emits it beside the bitstream and the bare-metal boot contract verifies/copies it before entity enable. | S | I |
 
 ### 3.4 Scale-**out** (more than one softcore)  *(the key architectural NFR)*
 | ID | Requirement | Pri | Ver |
 |----|-------------|-----|-----|
-| NFR-SCOUT-01 | The architecture MUST support `P_CORES ≥ 2` RISC-V softcores. Two models MUST both be buildable: **(a) SMP** (NaxRiscv coherent multi-core, one Linux image) and **(b) AMP** (independent cores by plane, see Section 4.3). | M | A,D |
+| NFR-SCOUT-01 | **RETIRED (#259):** the former requirement to keep Linux SMP and AMP product models buildable is historical. The supported product is the single-hart bare-metal RV32I shape. | M | A,D |
 | NFR-SCOUT-02 | Work MUST partition across cores along the **control / media / time** planes with well-defined interfaces, so adding a core adds capacity without reworking protocol logic. | M | A |
 | NFR-SCOUT-03 | Inter-core communication MUST use a defined shared-memory + mailbox/IPI mechanism with bounded latency; the real-time media plane MUST NOT block on the control plane. | M | A,T |
 | NFR-SCOUT-04 | Shared HW resources (PHC, MAC, CSR, DMA queues) MUST be safely arbitrated across cores (single owner or lock-free per-core queues); the PHC MUST present a single coherent time to all cores. | M | A,T |
@@ -320,9 +320,9 @@ The `kl,dma-ether` node describes the HW to the driver. Binding schema:
 | NFR-RES-01 | Baseline (1 core, stereo 48 k) MUST fit `xc7a100t` with headroom (target ≤ 60 % LUT) to leave room for scale-out. | M | A |
 | NFR-REL-01 | A stream fault (link flap, GM change, talker loss) MUST auto-recover without a reboot; counters MUST record the event. | M | T |
 | NFR-REL-02 | Watchdog/keepalive MUST detect a hung media core (AMP) and restart it without dropping the control plane. | S | T |
-| NFR-OBS-01 | The system MUST expose observability: `ethtool -S`, `ethtool -T`, fabric-gPTP status/publication counters and CSRs, AVDECC counters, and per-core load. (The retired option-off software arm, #259, once additionally exposed `ptp4l` metrics.) | S | D |
+| NFR-OBS-01 | The system MUST expose fabric-gPTP status/publication counters and CSRs, AVDECC counters, and firmware diagnostics. Retired Linux evidence (#259) additionally used `ethtool` and `ptp4l`; those are not current product interfaces. | S | D |
 | NFR-MAINT-01 | The entity model MUST be single-source (JSON) and shared HW/SW/test; divergence MUST be caught in CI. | M | I |
-| NFR-PORT-01 | The control/media software (PipeWire module-avb and mrpd) MUST build for RV64 Linux; RV32 fallback MUST remain possible. `linuxptp` carries the same portability requirement only for the explicit software-owner option-off profile. | S | A |
+| NFR-PORT-01 | **RETIRED (#259):** the former RV64 Linux control/media and option-off `linuxptp` portability requirement is historical and imposes no current product obligation. | S | A |
 | NFR-SEC-01 | Milan v1.2 does not mandate AEM authentication; the entity MUST advertise `AEM_AUTHENTICATION` = not-required and behave safely when unauthenticated. | M | I |
 
 ---
@@ -332,20 +332,21 @@ The `kl,dma-ether` node describes the HW to the driver. Binding schema:
 ### 4.1 One design, three axes
 - **Scale up (workload):** grow `P_CH`, `P_SI/P_SO`, `P_SR`. The JSON entity model
   is the knob  -  the small (stereo/48k) and full (8-ch/48-96-192k) models are the
-  same schema; the driver and datapath read counts/rates from it. HW cost grows
+  same schema; firmware and fabric consumers read counts/rates from it. HW cost grows
   ~linearly with channels × sample-rate; control plane is unchanged.
-- **Scale out (compute):** grow `P_CORES`  -  multiple NaxRiscv softcores (SMP or AMP).
+- **Retired compute study (#259):** the former `P_CORES` Linux SMP/AMP path is
+  historical and is not a supported scale lever.
 - **Scale out (ports/entities):** grow `P_PORTS`  -  replicate the endpoint (MAC +
   interface + softcore + entity) N times on one FPGA.
 
 ### 4.2 Plane partitioning (the basis for scale-out)
 | Plane | Functions | Real-time? | Baseline core | Scales to |
 |-------|-----------|-----------|---------------|-----------|
-| **Control** | ADP, AECP/AEM+MVU, ACMP, MAAP, MSRP/MVRP, driver mgmt | soft (ms) | core0 (Linux) | 1 core (rarely the bottleneck) |
-| **Media** | AVTP talker/listener, sample transport, presentation-time, media-clock | hard (µs) | core0 (Linux RT thread) | **1 core per K streams** (AMP cores) |
-| **Time** | gPTP state machines/servo, PHC discipline, CRF gen/recover | hard (µs) | integrated fabric gPTP owner + HW PHC | hardware-owned by default; no Linux core |
+| **Control** | ADP, AECP/AEM+MVU, ACMP, MAAP, MSRP/MVRP plus firmware configuration | soft (ms) | protocol-processor fabric + one RV32I firmware hart | generated fabric contexts; no Linux core |
+| **Media** | AVTP talker/listener, sample transport, presentation-time, media-clock | hard (µs) | AAF/CRF fabric | generated stream/channel contexts; no host-media core |
+| **Time** | gPTP state machines/servo, PHC discipline, CRF gen/recover | hard (µs) | integrated fabric gPTP owner + HW PHC | hardware-owned; no software owner |
 
-### 4.3 SMP vs AMP (both required by NFR-SCOUT-01)
+### 4.3 SMP vs AMP — retired Linux scaling study (#259)
 - **SMP**  -  NaxRiscv coherent multi-core, one Linux image, LiteX SMP config. Media
   threads pinned to cores, `isolcpus`/`SCHED_FIFO` for determinism. *Easiest scale-up
   of stream/channel count; good for `P_CORES` 2–4.*
@@ -385,16 +386,17 @@ The ordered path from the baseline endpoint to a Milan-conformant device. Each s
 cites the FRs it satisfies and the milestone in
 [`FULLY_FPGA_RISCV_MIGRATION.md` (archived)](../../historical_now_obsolete/integration/FULLY_FPGA_RISCV_MIGRATION.md).
 
-1. **Platform up**  -  RISC-V Linux on the AX7101 with the HW datapath (MAC/CBS/
-   classifier/PHC) and the driver (PHC, HW timestamps, CBS offload). *(M-A5)*
+1. **Platform up**  -  bare-metal RV32I on the AX7101 with the HW datapath
+   (MAC/CBS/classifier/PHC) and fabric-owned diagnostics. *(M-A5)*
 2. **gPTP (802.1AS)**  -  enable the integrated fabric owner and verify its
    wire/CSR/publication behavior plus ≤ 1 µs sync. Booted and two-board
-   acceptance remains #117. Only the explicit option-off comparison runs
-   `linuxptp` against the PHC. *(FR-CLK-01/02, NFR-TIME-01)*
+   acceptance remains #117. Option off is verification-only hardware with no
+   runtime owner; the `linuxptp` comparison is retired (#259). *(FR-CLK-01/02, NFR-TIME-01)*
 3. **Entity model**  -  select an `endstation_*.yaml` configuration. The
    builder generates `aem_desc.bin`, `aem_desc.json`, and `aem_desc.map`; the
-   tracked board flow packages the pair and runs `aemi-load` at
-   `PP_DESC_BASE_P` before enabling the entity. Verify a byte-exact
+   SoC build binds that set beside the bitstream, `flash-pair` persists the
+   complete target, and firmware verifies/copies the image to `PP_DESC_BASE_P`
+   before enabling the entity. Verify a byte-exact
    `READ_DESCRIPTOR` walk. *(FR-ENUM-01/02)*
 4. **ADP**  -  advertise/discover/depart with correct `available_index`. *(FR-DISC-\*)*
 5. **AECP/AEM + MVU**  -  enumerate (READ_DESCRIPTOR byte-match), acquire/lock,
@@ -410,10 +412,13 @@ cites the FRs it satisfies and the milestone in
     IDENTIFY. *(FR-STR-04, NFR-REL-01, FR-MGT-01)*
 11. **Conformance**  -  run the internal Milan conformance plan (bench suite) + `srcs/the-private-test-repo`
     (`avdecc_l2.py`, fabric-gPTP capture/CSR oracles, `tc cbs`) and the
-    `tsn-gen` AECP PDU checks. Run `ptp4l` only for the option-off comparison.
+    `tsn-gen` AECP PDU checks. The former option-off `ptp4l` run is retired
+    historical evidence only (#259).
     *(all Ver=T)*
-12. **Scale**  -  re-run with the full entity model (8-ch, 48/96/192k) and with
-    `P_CORES ≥ 2` (SMP then AMP) to prove Sections 3.3/3.4. *(NFR-SCUP/SCOUT)*
+12. **Scale**  -  re-run across every supported generated stream/channel/rate
+    shape and record the first resource or protocol limit. Multi-core Linux
+    SMP/AMP is retired (#259); future multi-port work must establish its own
+    acceptance before becoming a product shape. *(NFR-SCUP/SCOUT)*
 
 > Milan features intentionally **out of scope for now** (documented, not required
 > here): seamless network **redundancy** (single interface), sample rates beyond
@@ -426,7 +431,7 @@ cites the FRs it satisfies and the milestone in
 | Area | FR/NFR | Milan v1.2 | Entity model | Plan milestone |
 |------|--------|-----------|--------------|----------------|
 | Discovery | FR-DISC-\* | Section 5.2 | `adp`, ENTITY | M-B2 -- processor (Section 2.0) |
-| Enum/Control | FR-ENUM/CTRL | Section 5.3–5.4 | full descriptor tree | M-B3, processor AECP uCPU plus builder-generated image and `aemi-load`; the served inventory and mandatory gaps are listed in Section 2.0 |
+| Enum/Control | FR-ENUM/CTRL | Section 5.3–5.4 | full descriptor tree | M-B3, processor AECP uCPU plus builder-generated AEM flash image and bare-metal verifier; the served inventory and mandatory gaps are listed in Section 2.0 |
 | MVU | FR-MVU-\* | Section 5.4.3 | `milan_mvu` | M-B3 -- **NOT IMPLEMENTED**, no `protocol_id` recognised (Section 2.0) |
 | Connection | FR-CONN-\* | Section 5.5 | STREAM_\*, CBS CSR | M-B4 -- processor; fast-connect/persistence **NOT MET** |
 | MAAP/SRP | FR-MAAP/SRP | Section 5.6 | STREAM_\*, classifier/CBS | M-B5 -- MAAP in fabric, SRP on the processor |
@@ -434,7 +439,7 @@ cites the FRs it satisfies and the milestone in
 | Streaming | FR-STR-\* | Section 6 | STREAM_INPUT/OUTPUT | (D5) |
 | QoS | FR-QOS-\* | 802.1Q/Qav |  -  (HW) | M-A5 |
 | Scale-up | NFR-SCUP-\* |  -  | small ↔ full JSON | Section A/Section B params |
-| Scale-out | NFR-SCOUT-\* |  -  | replicated entity | Section 4 (SMP/AMP) |
+| Scale-out | NFR-SCOUT-\* |  -  | replicated entity | future multi-port architecture; retired Linux SMP/AMP study (#259) |
 
 ## 7. Verification approach
 - **HW leaf blocks:** Verilator self-checking harnesses (CBS, classifier, PTP,
@@ -444,9 +449,11 @@ cites the FRs it satisfies and the milestone in
   datapath-level coverage is `tb/verilator/milan_dp`.
 - **Integration/interop:** Hive + `srcs/the-private-test-repo/controller/avdecc_l2.py`
   (ADP and ACMP; on AECP, GET_COUNTERS serves the declared counter banks and
-  the tracked flow loads the descriptor image before entity enable), fabric
-  gPTP wire/CSR/publication checks, and `tc qdisc … cbs offload`.
-  `ptp4l`/`phc2sys` evidence applies only to the option-off comparison.
+  the bare-metal boot contract loads the descriptor image before entity
+  enable), plus fabric gPTP wire/CSR/publication checks. The former Linux
+  `tc qdisc … cbs offload` evidence is retired (#259).
+  Retired `ptp4l`/`phc2sys` evidence is historical only (#259), not an
+  option-off owner or current acceptance path.
 - **PDU byte-exactness:** the AECP PDU model campaigns have a responder again.
   `aecp_read_descriptor` is a real byte-exact test **once an image is in DRAM**;
   the rest measure the echo's header discipline, which is the conformance floor
@@ -455,4 +462,6 @@ cites the FRs it satisfies and the milestone in
   the AECP/AEM clause rows to fail, and record them as failing -- Section 2.0 is the
   reason, not an excuse to re-grade them. **A conformant refusal is not a pass**:
   a row asking what a command DOES is not answered by the fact that it replies.
-- **Scale:** repeat the suite at the full profile and at `P_CORES=2..N` (SMP, AMP).
+- **Scale:** repeat the suite across every supported generated
+  stream/channel/rate shape. Linux SMP/AMP is retired (#259); future multi-port
+  shapes require a new acceptance lane.

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # gptp_direct_cable.sh - RETIRED (#259, 2026-08-25).
 #
-# This bench flow validated the SOFTWARE gPTP owner (ptp4l on two Linux
+# This retired historical bench flow (#259) validated the SOFTWARE gPTP owner (ptp4l on two Linux
 # images over a direct cable). That owner and its images are retired: the
 # product is bare-metal only and the fabric plane is the one gPTP owner, so
 # there is no software-owner image left for this script to drive. The

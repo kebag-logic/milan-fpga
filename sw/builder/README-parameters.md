@@ -27,17 +27,17 @@ The dynamic-map command and persistence claims are checked against the
 |---|---|---|
 | `aem.served-command-set` | `implemented` | - |
 | `soc.baremetal-profile` | `implemented` | - |
-| `host.sound-card-option` | `implemented` | - |
+| `host.sound-card-option` | `not-supported` | - |
 | `state.nonvolatile-persistence` | `missing` | - |
 <!-- milan-feature-status:end -->
 
 ## Contents
 
 - **[Pipeline](#pipeline)** -- One diagram: one YAML config in, and every artifact it fans out to -- SoC argv, AEM overlay, lwSRP table, platform shape, the DT fragment and the sweep-opts shell fragment. Start here to see which generated file you actually care about.
-- **[SoC software profile (soc:)](#soc-software-profile-soc)** -- Selects Linux bring-up or the shipping cacheless RV32I bare-metal contract; invalid CPU, cache and flash combinations are refused before SoC generation.
+- **[SoC software profile (soc:)](#soc-software-profile-soc)** -- Defines the shipping cacheless RV32I bare-metal contract; retired Linux, CPU, cache and flash combinations are refused before SoC generation (#259).
 - **[lwSRP reservation table (srp:, CSR 0x680)](#lwsrp-reservation-table-srp-csr-0x680)** -- Every `srp:` knob with its default chosen so a config *without* the section emits the deployed gateware bit-for-bit. Two things worth the read: the TSpec derivation showing `MaxFrameSize + 42` is exactly the wire slot (so the deployed pinned 224 over-reserves ~2.3× for a stereo talker), and the attribute-context shortfall this emitter surfaced -- an 8×8 shape needs 15 lwSRP rows and gets 8.
-- **[Platform shape (platform:) -- device tree + driver-visible layout](#platform-shape-platform----device-tree--driver-visible-layout)** -- Explains how RX queues determine the DMA window map, how the generated device tree and driver ABI stay paired, and how the boot-chain pin rejects address drift.
-- **[Optional blocks (board.features:) -- product options and tier-1 prunes](#optional-blocks-boardfeatures----product-options-and-tier-1-prunes)** -- The sound-card and fabric-gPTP product switches, six elaboration-time area levers, their emitted flags and the measurements each prune invalidates.
+- **[Platform shape (platform:) -- current MMIO plus retired driver evidence (#259)](#platform-shape-platform----current-mmio-plus-retired-driver-evidence-259)** -- Defines the current CSR, MAC, processor-memory and filter inputs while retaining the former DMA/device-tree geometry only as regression evidence.
+- **[Optional blocks (board.features:) -- datapath prunes and policy keys](#optional-blocks-boardfeatures----datapath-prunes-and-policy-keys)** -- Records the mandatory fabric-gPTP value, refuses the retired sound-card key, and dependency-checks the six supported datapath prunes.
 - **[Schema 1.1 deltas (vs the 1.0 scaffold)](#schema-11-deltas-vs-the-10-scaffold)** -- The nine fields 1.1 added or changed, including `model_id_pin` (which wins over everything and is what protects already-flashed silicon), the two cluster-mapping policies, and the enforced Milan 7.2.3 rule: ≥2 AAF listener streams without a CRF output is a hard rejection.
 - **[entity_model_id: hash-derived recipe (normative)](#entity_model_id-hash-derived-recipe-normative)** -- The exact recipe -- which fields enter the shape, the canonical JSON encoding, and the sha256 fold under the OUI. The design point is at the end: two boards with the same audio shape share one model id, because names and serials are deliberately excluded.
 - **[Per-stream STREAM_PORT layout (overlay 2.x)](#per-stream-stream_port-layout-overlay-2x)** -- The rule that determines every descriptor count in an NxN overlay: one stream port per stream, one contiguous cluster block, exactly one audio map with port-relative rows -- unless the port is `map_mode: dynamic`, which carries none.
@@ -54,49 +54,41 @@ configs/endstation_<x>.yaml
         ├─ out/<x>/aem_overlay.json     kebag-logic/aem-overlay 2.x
         │     └─ gen_aemi_image.py + processor descriptor-image packer
         │            └─ aem_desc.bin / aem_desc.json / aem_desc.map
+        │                 └─ named SoC build dir → raw AEM flash slot
         ├─ out/<x>/lwsrp_table.{json,svh}   kebag-logic/lwsrp-table 1.x
         │     └─ gate-compared against lwsrp_pkg.sv + milan_csr.sv
         ├─ out/<x>/platform_shape.json      kebag-logic/platform-shape 1.x
         ├─ out/<x>/milan-nic.dtsi           kl,dma-ether + kl,milan-pcm nodes
         ├─ out/<x>/gptp_ucode.hex       option-on MAC/P1/clock-specific ROM
         ├─ out/<x>/build_plan.md        human-readable, "planned" marks
-        ├─ out/<x>/milan-entity.conf        board-software IDENTITY fragment
+        ├─ out/<x>/milan-entity.conf        retired rootfs identity artifact (#259)
         ├─ configs/generated/sweep_opts_<board>.sh   (board-level)
         │     └─ sourced by sw/litex/sweep.sh (inline tables = fallback)
-        ├─ <rootfs overlay>/etc/milan-entity.<board>.conf   (board-level)
-        │     └─ sourced by the flashed /etc/init.d/S50milan, which programs
-        │        entity_id 0x604/0x608 + entity_model_id 0x60C/0x610 from it
         └─ hdl/ieee8021q/srp/gen/lwsrp_table.svh  (the srp.rtl_table config)
 ```
 
-The identity fragment and the sweep fragment move at the same moment
-(`--write-rtl`, or `--write-fragment` for the board that does not own the
-tracked RTL tree) because they answer the same question: **what is this
-board**. The fabric serves the AEM ENTITY descriptor's `entity_model_id` from
-CSR `0x60C/0x610`, not from a ROM constant, so a literal in the boot script is
-the entity's model id - and on 2026-08-02 silicon it was a *stale* one, an
-8x8 AEM with dynamic output maps advertised under `0x001BC52ED611DB08`, the
-id of a model that no longer existed. Gate 25 asserts that no identity CSR in
-the shipped `S50milan` is written from a literal and that the shipped fragment
-is byte-for-byte what the builder emits for the config `sweep.sh` builds that
-board from.
+`--write-rtl` / `--write-fragment` transfer the generated sweep/shape sources
+and delete any stale pre-#259 rootfs copies. Product identity now rides in the
+builder-derived AEM image beside the bitstream; the bare-metal firmware enables
+the entity only after that image passes its length and CRC32 checks. The former
+`milan-entity.conf`/`S50milan` identity path remains historical gate evidence,
+not a second runtime owner.
 
 ## SoC software profile (`soc:`)
 
 | Field | Values | Default | Bare-metal contract |
 |---|---|---|---|
-| `soc.software_profile` | `linux` \| `baremetal` | `linux` | Selects the firmware/CPU contract. |
+| `soc.software_profile` | `baremetal` | `baremetal` | The only supported firmware/CPU contract; `linux` is retired and refused (#259). |
 | `soc.cpu` | `vexiiriscv` \| `naxriscv` | `vexiiriscv` | Must be `vexiiriscv`. |
 | `soc.xlen` | `32` \| `64` | `32` | Must be `32`. |
 | `soc.cpu_count` | positive int | `1` | Must be `1`. |
-| `soc.scala_args` | Vexii argument list | proven Linux cache arguments | Must be empty. |
+| `soc.scala_args` | empty list | empty | Cache/MMU arguments are retired and refused (#259). |
 | `board.constraints.l2_bytes` | zero or power of two | board/config value | Must be zero. |
-| `board.constraints.flashboot` | `none` \| `baremetal` \| `kernel` \| `full` | board/config value | Must be `baremetal` or `none`. |
+| `board.constraints.flashboot` | `none` \| `baremetal` | board/config value | Kernel/full layouts are retired and refused (#259). |
 
 The bare-metal selection emits `--software-profile baremetal --xlen 32
 --l2-bytes 0`. LiteX then selects the RV32I machine-mode Vexii variant and
-removes its bus-side SDRAM cache. Linux configurations retain the existing
-cached/MMU-capable bring-up flow. The full firmware and UART contract is in
+removes its bus-side SDRAM cache. The full firmware and UART contract is in
 [`docs/integration/BAREMETAL_FIRMWARE.md`](../../docs/integration/BAREMETAL_FIRMWARE.md).
 
 ## lwSRP reservation table (`srp:`, CSR 0x680)
@@ -162,11 +154,17 @@ silently. Per-stream TSpec is a second mark: the ctx provisioning port
 carries `max_frame`/`interval` per row, but the window sources both from the
 shared `LWSRP_TSPEC` until per-stream TSpec words exist.
 
-## Platform shape (`platform:`) -- device tree + driver-visible layout
+## Platform shape (`platform:`) -- current MMIO plus retired driver evidence (#259)
+
+The bare-metal product consumes the CSR base, MAC address, protocol-processor
+memory window, and RX address-filter policy. The DMA-window/device-tree rows
+below preserve the former Linux `kl-eth` geometry as retired regression
+evidence (#259); no product image carries a DTB or driver.
 
 `sw/litex/milan_soc.py`'s `MilanDMA` registers its submodules in a fixed
-order and LiteX allocates CSR addresses in that order, so the driver-visible
-DMA window map is a pure **function of `board.constraints.rx_queues`**:
+order and LiteX allocates CSR addresses in that order, so the historical
+driver-visible DMA window map is a pure **function of
+`board.constraints.rx_queues`**:
 
 ```
 +0x000  dma-tx        RingDMAReader                     0x24
@@ -178,22 +176,23 @@ DMA window map is a pure **function of `board.constraints.rx_queues`**:
    …    pcm-dma       PCM ring (sound_card=true only)   0x1C
 ```
 
-1 queue gives `dma-ts 0xf000308c`, `hs-pgsz-cap 0xf00030a8`, and, when the
-sound card is enabled, `pcm-dma 0xf00030ac`. Two queues give
+In the retired Linux shape, one queue gives `dma-ts 0xf000308c`,
+`hs-pgsz-cap 0xf00030a8`, and the former sound-card arm gave
+`pcm-dma 0xf00030ac`. Two queues give
 `0xf0003100 / 0xf000311c / 0xf0003120` respectively. With the sound card off,
-the PCM block consumes no CSR address and no PCM window appears in the DT.
-Both are byte-verified against the real LiteX `csr.csv` of the shipping
-builds and against the deployed `.dts` files by gate 19b (which SKIPs when
-those trees are absent).
+the PCM block consumes no CSR address and no PCM window appears in the
+historical DT. Gate 19b retains byte-identity checks against archived
+`csr.csv`/`.dts` evidence when those external trees are available; a skip
+does not create a product dependency.
 
 | Field | Type | Default | Notes |
 |-------|------|---------|-------|
 | `platform.csr_base` | address | `0x90000000` | The AXI-Lite Milan CSR window. Rejected below `0x80000000` (an MMIO peripheral must live in the CPU IO region). |
 | `platform.mac_address` | MAC-48 | **required** | Must be unicast and non-zero. Two boards on one AVB switch must not share it. |
 | `platform.interrupt` | int 0..31 | `3` | The PLIC line (`constant,milan_interrupt` in `csr.csv`). |
-| `platform.pcm_ring_phys` / `_bytes` / `_stride` | address / pow2 / pow2 | `0x4ff00000` / `0x100000` / `0x100000` | With `sound_card: true`, the `no-map` region `snd-kl-milan` DMAs into. With it false, no PCM reservation is emitted; `pcm_ring_phys` still anchors the adjacent protocol-processor window below it. `stride × capture streams > bytes` is a ConfigError. |
-| `platform.dma_coherent` | bool | `true` | Emits `dma-coherent;`. |
-| `platform.boot_chain_pin` | map `window → address` | absent | **The CSR-rot guard.** The flashed DTB/opensbi/`kl-eth` address these windows *by address*; if `rx_queues` would move a pinned one, the build is REFUSED. |
+| `platform.pcm_ring_phys` / `_bytes` / `_stride` | address / pow2 / pow2 | `0x4ff00000` / `0x100000` / `0x100000` | Retired sound-card geometry (#259). `sound_card: true` is refused; the base still anchors the adjacent current protocol-processor window. |
+| `platform.dma_coherent` | bool | `true` | Retired Linux DT projection; retained for compatibility evidence (#259). |
+| `platform.boot_chain_pin` | map `window → address` | absent | Historical CSR-rot guard for the retired DTB/OpenSBI/`kl-eth` chain (#259). It is regression evidence, not a flash input. |
 
 `board.constraints.num_queues` (default `5`) joins the schema here: it is
 `ethernet_packet_pkg::NUMBER_OF_QUEUES`, sizes the CBS tables and bounds
@@ -202,30 +201,30 @@ required to be a power of two - the shipping egress map is five queues
 (q4 SR class A down to q0 best effort, see
 [EGRESS_QUEUE_MAP.md](../../docs/reference/EGRESS_QUEUE_MAP.md)).
 
-Derived DT properties: `phy-mode` from `board.constraints.phy`
+Retired derived-DT properties (#259): `phy-mode` from `board.constraints.phy`
 (`mii-100 → mii`, `gmii-1g → gmii`), and `kl,rsc-clk-mhz` from
 `milan_clk_hz` — **the only `of_property_read_u32` `kl-eth` makes.** Omit it
 and the AX7101 runs its PHC at 2× rate from a clean boot, so a
 non-integer-MHz datapath clock is a ConfigError rather than a silent
 truncation.
 
-The shape also emits the physical addresses `kl-eth.c` **hardcodes** and the
-DT does not carry — `MILAN_EV_PHYS`, `MILAN_PHY_CSR_PHYS`,
+The compatibility shape also records the physical addresses the retired
+`kl-eth.c` **hardcoded** and its DT did not carry — `MILAN_EV_PHYS`, `MILAN_PHY_CSR_PHYS`,
 `MILAN_DMA_RX1_PHYS`, `MILAN_HS_PGSZ_CAP_PHYS`. Two of those move with
 `rx_queues`; that is the largest remaining un-modelled coupling and the
 reason the table exists.
 
-## Optional blocks (`board.features:`) -- product options and tier-1 prunes
+## Optional blocks (`board.features:`) -- datapath prunes and policy keys
 
-`sound_card` controls the Linux host audio surface and `fabric_gptp` controls
-the #114/#116 time-sync owner. `sound_card` defaults to `false`;
-`fabric_gptp` defaults to `true`. The
-remaining keys are the
+`sound_card` is a refusal-only compatibility key for the retired Linux host
+audio surface (#259): it defaults to `false`, and `true` is an error.
+`fabric_gptp` records the #114/#116 time-sync owner and has exactly one product
+value, `true`. The remaining keys are the
 [`docs/design/AREA_BUDGET.md`](../../docs/design/AREA_BUDGET.md) tier-1
 datapath blocks; they default to `true`.
 
-When `sound_card` is false, the builder rejects host role-pools and playback
-rings, and emits no `--sound-card`, PCM DMA window, PCM device-tree node or
+The builder rejects host role-pools and playback rings and emits no retired
+`--sound-card` surface (#259), PCM DMA window, PCM device-tree node or
 reserved ring. Physical capture/render, AAF, CRF and loopback fabric remain.
 
 When `fabric_gptp` is true (the only accepted value, #259), the builder
@@ -234,8 +233,8 @@ requires a `gptp:` section, emits `--fabric-gptp`, and writes
 priority1 and clock come from the same YAML as the AEM and SoC arguments.
 `fabric_gptp: false` is refused: the software-owner comparison, its rootfs
 marker and ptp4l fragment are retired (#259), a handoff deletes stale copies
-of both, and the option-off elaboration survives only as verification-only
-hardware behind `milan_soc.py --no-fabric-gptp`. Gateware records its
+of both, and the option-off elaboration survives only behind the
+verification-only `milan_soc.py --no-fabric-gptp` door (#259). Gateware records its
 resolved `fabric|none` owner in `flashboot_layout.json` and `soc.h`; the
 flash preflight accepts only the fabric owner on the bare-metal
 {bitstream, aem} manifest and refuses retired Linux artifacts before its
@@ -380,9 +379,9 @@ The builder still uses `gen_aem_store.py` to construct descriptor bytes from
 the overlay, then `gen_aemi_image.py` and the pinned processor's descriptor
 packer turn that model into `aem_desc.bin`. The paired `aem_desc.json` manifest
 records the memory window and gateware pairing, while `aem_desc.map` is the
-human-readable layout. An explicit `--write-fragment` or `--write-rtl`
-ownership transfer writes the three files into the board rootfs overlay, and
-`aemi-load` verifies and loads them into DRAM before entity enable.
+human-readable layout. The named SoC build emits the same set beside the
+bitstream and records its raw flash slot; `flash-pair` persists the complete
+target and bare-metal firmware verifies/copies the image before entity enable.
 
 The processor consumes the generated NxN descriptor image through the root
 descriptor-memory master. Dynamic audio-map writes update the live root stores.

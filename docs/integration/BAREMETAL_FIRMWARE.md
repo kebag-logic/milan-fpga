@@ -1,7 +1,7 @@
 # Bare-metal AX7101 firmware profile
 
 The shipping AX7101 profile uses one RV32I VexiiRiscv hart in machine mode,
-with no supervisor mode, MMU, Linux, FPU, L1 cache, L2 cache or LiteX SDRAM
+with no supervisor mode, MMU, or Linux (#259), and no FPU, L1 cache, L2 cache or LiteX SDRAM
 cache. It uses the fabric gPTP plane bought by #114, now the product and RTL
 default. The product is bare-metal only (#259, USER directive 2026-08-25):
 no Linux boot profile, rootfs, or software gPTP owner is supported.
@@ -15,7 +15,7 @@ The capability rows on this page are checked against the
 | Feature ID | Status | Canonical value |
 |---|---|---|
 | `soc.baremetal-profile` | `implemented` | - |
-| `host.sound-card-option` | `implemented` | - |
+| `host.sound-card-option` | `not-supported` | - |
 | `gptp.fabric-product-owner` | `implemented` | - |
 <!-- milan-feature-status:end -->
 

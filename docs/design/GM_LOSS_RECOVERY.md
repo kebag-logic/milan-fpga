@@ -6,8 +6,8 @@ SPDX-License-Identifier: CERN-OHL-W-2.0
 # Grandmaster loss and recovery — one fabric-owned mechanism
 
 Status: product architecture at VERSION `0x0002_0055` (2026-08-23).
-This page describes the default fabric-gPTP build. The older linuxptp
-measurements remain useful only for the explicit option-off comparison and
+This page describes the fabric-gPTP product build. The retired linuxptp
+measurements remain historical evidence only (#259), never an option-off owner, and
 are separated in the final section. Booted-board and two-board acceptance
 remain owned by #117; this document does not turn simulation into that
 physical evidence.

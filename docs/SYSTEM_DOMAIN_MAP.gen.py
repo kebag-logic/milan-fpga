@@ -13,14 +13,14 @@ LAYERS = [
     "LiteX BIOS (ROM): console + CRC'd copy of the raw AEM image from its QSPI slot"]),
  ("Retired software stack (#259, historical)", "no longer shipped · kept in git history", RED, [
     "Linux kernel + kl-eth driver · OpenSBI · device tree · buildroot rootfs",
-    "PipeWire/alsa userspace · the linuxptp software gPTP owner"]),
+    "PipeWire/alsa userspace · retired linuxptp owner (#259, historical)"]),
  ("SoC integration: LiteX / Migen", "dev host · Python → Verilog  (sw/litex/milan_soc.py)", GREEN, [
     "MilanSoC (top: VexiiRiscv RV32 + DDR3 + NIC + flash)   ·   _CRG (PLL/clocks/CDC)",
     "MilanNIC / add_milan_datapath   ·   MilanMAC (LiteEth glue)",
     "MilanDMA (WishboneDMA engines)   ·   MilanDebug (pipeline telemetry)"]),
  ("Milan datapath: RTL", "FPGA fabric · SystemVerilog / Verilog  (hdl/)", BLUE, [
     "common: milan_top · milan_datapath · rx_mac_filter · tcam · milan_dma_wrapper · cdc_*",
-    "csr: milan_csr  (the AXI-Lite register ABI shared with the driver + DT)",
+    "csr: milan_csr  (AXI-Lite ABI; former driver + DT consumers retired #259)",
     "802.1Q CBS: credit_based_shaper · traffic_classifier · traffic_class_map ·",
     "            traffic_controller_802_1q · traffic_queues · traffic_shaping_core",
     "PTP: ptp_ts_top · ptp_ts_core · timestamp_counter · ptp_csr_sync",
@@ -32,7 +32,7 @@ LAYERS = [
     "               unsupported commands return NOT_IMPLEMENTED",
     "events: ethernet_events · event_counter"]),
  ("Vendored IP", "FPGA fabric · 3rd-party cores", PURPLE, [
-    "VexiiRiscv (product RV32/sv32 CPU, SpinalHDL; NaxRiscv historical)   ·   LiteEth (MAC + GMII/RGMII PHY)",
+    "VexiiRiscv (cacheless product RV32I; Linux/MMU + NaxRiscv historical #259)   ·   LiteEth (MAC + GMII/RGMII PHY)",
     "LiteDRAM (DDR3, A7DDRPHY)   ·   LiteSPI (QSPI flash)   ·   verilog-axis (Forencich)"]),
  ("Board / silicon", "physical", DARK, [
     "XC7A100T-2FGG484 (Artix-7)  ·  DDR3 512 MB (MT41J256M16)",
@@ -43,7 +43,7 @@ SIDE = ("Host tooling", "Python / bash", YELLOW, [
     "endstation_builder.py: AEM image + fabric gPTP ROM from ONE config",
     "deploy.sh: build / load / flash-pair (live QSPI owner proof)",
     "build.sh: named bare-metal configs + flash transaction",
-    "crcfbigen: FBI image wrapper",
+    "crcfbigen: retired Linux FBI wrapper (#259, historical)",
     "retired (#259): milan_dt.py, boot.sh, patches/apply.sh (Linux era)"])
 
 # ---- layout geometry ----
@@ -53,7 +53,7 @@ HDR = 42                 # layer header height
 RH, RGAP = 26, 6         # module row height / gap
 LPAD, LGAP = 10, 16      # inner padding / gap between layers
 SIDE_X = X0 + LW + 40
-SIDE_W = 340
+SIDE_W = 500
 
 def layer_height(mods): return HDR + LPAD + len(mods)*(RH+RGAP) - RGAP + LPAD
 def esc(s): return html.escape(s, quote=True)

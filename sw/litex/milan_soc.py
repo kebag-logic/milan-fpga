@@ -3,8 +3,9 @@
 #
 # Configurable RISC-V SoC with the Milan TSN NIC. The shipping profile is a
 # cacheless RV32 VexiiRiscv running the Milan bare-metal control firmware; the
-# Linux/MMU path remains available as the bring-up profile described in
-# docs/integration/FULLY_FPGA_RISCV_MIGRATION.md.
+# former Linux/MMU bring-up path is retired under #259 and refused by the CLI.
+# Its implementation remains only as historical compatibility code pending the
+# repository-wide cleanup owned by #259.
 #
 #   ./milan_soc.py                         # NIC (CSR only); elaborate + export gateware
 #   ./milan_soc.py --full                  # FULL FPGA solution: NIC + DMA + MAC + PHY
@@ -88,15 +89,17 @@ AUDIO_IF_FS_HZ     = 48000
 # ---- QSPI flash boot ------------------------------------------------------------------------------
 # The AX7101 flash is a Micron N25Q128 = 16 MB (confirmed from the Alinx repo datasheet).
 # The shipping bare-metal layout stores the bitstream plus the raw AEM descriptor
-# image. The Linux bring-up layouts below retain the historical compressed image
-# manifests and skip the ~4-minute serial image upload.
+# image. The Linux bring-up layouts below are retired compatibility constants
+# (#259, historical); argument validation refuses `kernel` and `full` before
+# elaboration, and `deploy.sh flash-pair` cannot program them.
 # The Linux boot images total ~23 MB (14 MB kernel Image + 8.7 MB rootfs.cpio.gz + 0.26 MB
-# OpenSBI + 3 KB dtb), so they do NOT all fit in 16 MB at once. Two supported layouts:
+# OpenSBI + 3 KB dtb), so they did not all fit in 16 MB at once. The two
+# retired layout records were:
 #
-#   "kernel" (DEFAULT)  -  flash only the big, static 14 MB kernel; the BIOS pre-loads it
+#   "kernel"  -  flashed only the big, static 14 MB kernel; the BIOS pre-loaded it
 #       from flash into DRAM, then serialboot uploads only OpenSBI+dtb+rootfs (~9 MB).
 #       Cuts the per-boot upload ~60 %. The bitstream is JTAG-loaded (not in flash).
-#   "full"  -  flash every image and boot with ZERO serial upload. Only fits once the
+#   "full"  -  flashed every image and booted with zero serial upload. It fit only after the
 #       kernel is slimmed below ~6.5 MB (see docs/integration/QSPI_FLASHBOOT.md).
 #
 # Offsets are relative to the SPIFLASH region base (resolved at run time from SPIFLASH_BASE);
@@ -114,7 +117,8 @@ FLASHBOOT_ENTRY = 0x40F0_0000  # OpenSBI fw_jump entry
 FLASHBOOT_LAYOUT = {
     #  name       flash_offset      dram_addr        budget (v2 QSPI-boot layout)
     # v3 (2026-07-12): QSPI-booted BITSTREAM at 0x0 (compressed, config-read;
-    # committed by `deploy.sh flash-pair`, never fbi-wrapped) + XZ KERNEL: the slot
+    # historical pre-#259 layout (now refused by `deploy.sh flash-pair`):
+    # QSPI-booted BITSTREAM at 0x0, never fbi-wrapped, plus XZ KERNEL. The slot
     # holds the kernel build's own Image.xz (MEASURED 2.52 MB, xz -9
     # --check=crc32) and the BIOS decompresses it with the vendored
     # xz_embedded (patch 0003; staged at kernel_addr+24 MB, 64 KB arena at
@@ -135,9 +139,9 @@ FLASHBOOT_LAYOUT = {
     # (fpga/buildroot commit trail) to land back under this budget WITH slack.
     # ONLY the rootfs ceiling and the two reserved slots move: the four boot
     # image offsets are untouched, so a bitstream built against v4 boots the
-    # same flash. `deploy.sh flash-pair` prints each image's size next
-    # to its budget before writing anything - READ THAT LINE, it is the
-    # pre-flash check that the rootfs still fits (SAVED_STATE_FASTCONNECT.md
+    # same flash. The retired Linux deploy path printed each image's size next
+    # to its budget before writing anything; that historical preflight checked
+    # that the rootfs fit (SAVED_STATE_FASTCONNECT.md
     # section 11 gate G0). See the OPEN ITEM note under FLASHBOOT_RESERVED.
     "rootfs":  {"offset": 0x78_0000, "addr": 0x4100_0000, "size": 0x76_0000},
 }

@@ -1,12 +1,13 @@
 # milan-fpga: IEEE 1722 / 1722.1 and Milan on FPGA
 
-> A fully-FPGA **Milan-oriented AVB/TSN audio end-station**: a RISC-V/LiteX softcore SoC
-> running Linux, with the entire TSN datapath in **vendor-neutral SystemVerilog fabric**, on
-> an Alinx AX7101 (Artix-7). Evolving toward a 4-port AVB switch.
+> A fully-FPGA **Milan-oriented AVB/TSN audio end-station**: a cacheless RV32I
+> RISC-V/LiteX softcore running bare-metal control firmware, with the entire
+> TSN datapath in **vendor-neutral SystemVerilog fabric**, on an Alinx AX7101
+> (Artix-7). Evolving toward a 4-port AVB switch.
 
 ```sh
 git clone https://github.com/kebag-logic/milan-fpga && cd milan-fpga
-git submodule update --init third_party/verilog-axis protocol-processor  # required
+git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
 cd tb/verilator/tcam && make                           # ~5 s → RESULT: PASS
 ```
 
@@ -24,7 +25,7 @@ Four doors, three links each. Every other doc hangs off one of these.
 |---|---|---|---|---|
 | 🔌 | **Integrator** — putting this datapath in *your* SoC or on *your* board | [integration/INTEGRATION_GUIDE.md](docs/integration/INTEGRATION_GUIDE.md) — the `milan_datapath` boundary as a port-by-port contract | [reference/REGISTER_MAP.md](docs/reference/REGISTER_MAP.md) — the AXI4-Lite ABI your driver programs | [integration/PORTING_GUIDE.md](docs/integration/PORTING_GUIDE.md) — off-Xilinx, off-Vivado, per-vendor translation |
 | 🛠 | **RTL developer** -- changing or adding fabric | [Section 8 of overview/ARCHITECTURE.md](docs/overview/ARCHITECTURE.md#8-where-to-change-things-maintainability) "where to change things" | [fpga/FPGA_DESIGN.md](docs/fpga/FPGA_DESIGN.md) -- every module in `hdl/` and the harness that verifies it | [CONTRIBUTING.md](CONTRIBUTING.md) -- house style; a DUT change ships its testbench in the same commit |
-| 🔧 | **Bench operator** — building, flashing, bringing a board up | [integration/BUILDING.md](docs/integration/BUILDING.md) — `build.sh` configs and the gates a build must pass | [integration/QSPI_FLASHBOOT.md](docs/integration/QSPI_FLASHBOOT.md) — flash a **matched** image set, boot Linux | [limitations/TROUBLESHOOTING.md](docs/limitations/TROUBLESHOOTING.md) — symptom → cause → fix, from the field |
+| 🔧 | **Bench operator** — building, flashing, bringing a board up | [integration/BUILDING.md](docs/integration/BUILDING.md) — `build.sh` configs and the gates a build must pass | [integration/QSPI_FLASHBOOT.md](docs/integration/QSPI_FLASHBOOT.md) — flash the matched bare-metal `{bitstream, aem}` set | [limitations/TROUBLESHOOTING.md](docs/limitations/TROUBLESHOOTING.md) — symptom → cause → fix, from the field |
 | 📖 | **Curious reader / evaluator**, deciding if this is worth your time | [overview/ARCHITECTURE.md](docs/overview/ARCHITECTURE.md) | [the current Milan v1.2 audit](docs/testing/MILAN_V12_AUDIT_2026-08-16.md) | [reference/FR_NFR.md](docs/reference/FR_NFR.md) |
 
 More lanes (system engineer, tester, hobbyist) and the full index:
@@ -42,9 +43,9 @@ Terms → [glossary](docs/GLOSSARY.md).
 | TSN datapath in fabric | MAC · 802.1Qav CBS · gPTP · AVTP/AAF/CRF · MAAP |
 | Control plane in fabric | ADP · ACMP · SRP and a partial AECP/AEM surface, served by the pinned `protocol-processor` submodule. See the current boundary below |
 | Media-clock servo | MMCM-DRP, analog loop **−83.9 dB** (converter floor) |
-| Networking / boot | ring-DMA line-rate ingest · QSPI flash-boot (zero-upload) |
-| Audio | ALSA record over Milan · live talker↔listener E2E |
-| CPU / board | 1-hart VexiiRiscv RV64 Linux SoC · xc7a100t · DDR3 512 MB |
+| Networking / boot | ring-DMA line-rate ingest measured on the retired Linux image · current QSPI product is the bare-metal `{bitstream, aem}` pair (#259) |
+| Audio | historical ALSA record and live talker↔listener evidence; the Linux host surface is retired (#259), while fabric AAF/TDM remains |
+| CPU / board | current product: one cacheless RV32I VexiiRiscv hart · xc7a100t · DDR3 512 MB; former RV64 Linux silicon evidence is historical (#259) |
 | Portability | no Xilinx primitives — machine-checked by the [Yosys/ECP5 flow](syn/yosys/README.md) |
 
 > Those rows are **measurements on specific boards on specific dates**, not promises about
@@ -114,13 +115,14 @@ Unknown and unimplemented operations still receive the correctly sized IEEE
 1722.1 echo. Commands for another entity and incoming AECP responses are
 silently discarded as required.
 
-The descriptor image supply chain is also present. During an explicit
-`--write-fragment` or `--write-rtl` ownership transfer, the end-station builder
+The descriptor image supply chain is also present. The end-station builder
 generates `aem_desc.bin`, `aem_desc.json`, and `aem_desc.map` from the selected
-configuration in the sibling rootfs overlay. The board-side `aemi-load`
-utility loads and verifies the paired image before the entity is enabled. The
-store validates its `AEMI` header, version, checksum, and configuration before
-serving it, and a late valid image heals without a reset.
+configuration; the SoC build places the same set beside its bitstream and
+records the raw AEM flash slot in `flashboot_layout.json`. `flash-pair` binds
+and writes the complete `{bitstream, aem}` set. At boot, the bare-metal
+firmware copies the AEM image to `PP_DESC_BASE_P`, verifies its length and
+CRC32, and enables the entity only on success. The former rootfs/`aemi-load`
+handoff is retired history (#259).
 
 This is still not a full Milan v1.2 implementation. These mandatory operations
 are missing:
@@ -213,7 +215,8 @@ submodule content, so the datapath testbenches will not build from a zip.
 |---|---|---|---|
 | `riscv64-elf-gcc` + binutils + newlib | `pacman -S riscv64-elf-gcc riscv64-elf-binutils riscv64-elf-newlib` | BIOS + firmware | ✅ to build gateware |
 | `jdk17` + `sbt` | `pacman -S jdk17-openjdk sbt` | generate the VexiiRiscv/NaxRiscv core (SpinalHDL, in Scala) | ✅ to build gateware |
-| `meson ninja cmake dtc` | `pacman -S meson ninja cmake dtc` | build tooling + device tree | ✅ to build gateware |
+| `meson ninja cmake` | `pacman -S meson ninja cmake` | build tooling | ✅ to build gateware |
+| `dtc` | `pacman -S dtc` | retired #259 device-tree regression evidence | ⬦ only to replay the historical ABI gates |
 | Python 3 + the **LiteX venv** | `litex_setup.py` -- see [Section 6 of QUICKSTART.md](QUICKSTART.md#6-track-3--build-a-bitstream-vivado) | SoC elaboration (LiteX/Migen, installed from git) | ✅ to build gateware |
 | **Vivado 2026.1** with Artix-7 | Xilinx installer | place & route → `.bit` | ⬦ **proprietary**; only to build a bitstream |
 | `openFPGALoader` | `pacman -S openfpgaloader` | flash the board over JTAG | ⬦ only to flash hardware |
@@ -306,16 +309,16 @@ ride the big arrow; dates assume the current cadence.
     ROADMAP                                                                                  |
     - deterministic - AEM persistence - redundancy net  - compliance test-house  - PCB bring-up ==>
       listener        journal (mtd)     cabled +          run (Milan v1.2)   (TCXO, audio
-      latency       - rootfs: validate  failover proof  - 802.1AS            I/O, power)
-      (setpoint law,  fabric ownership - temp-range       conformance      - EMC / safety
-      0x002E)         no old daemons     timing signoff - PCB layout +     - factory
+      latency       - bare-metal image failover proof  - 802.1AS            I/O, power)
+      (setpoint law,  state survival   - temp-range       conformance      - EMC / safety
+      0x002E)         across updates     timing signoff - PCB layout +     - factory
     - software DLL  - dual-slot QSPI  - week-long soak    fab               provisioning
       (GM step        + golden image    + power-cycle                       (MAC/EUI-64,
       re-base)      - field update      torture as                          serials, test
     - CRF sink        path              release gates                       fixture)
-      followership                    - service-budget                    - ALSA/PipeWire
+      followership                    - service-budget                    - audio I/O
       on silicon                        decision                            as supported
-    - stream-clock                      (2nd hart?)                         feature
+    - stream-clock                      (2nd hart?)                         fabric feature
       honesty                                                             - config surface
     - ring one-grid                                                         + hardening
       (retire pb                                                          - user manual +

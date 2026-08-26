@@ -1222,7 +1222,7 @@ manager's job.
 ## 13. Risks, stated rather than discovered later
 
 - **The proven writer is gone.** `acmp-persist` was a Linux userspace program in
-  a rootfs overlay; the shipping profile is `--flashboot baremetal` and the
+  a rootfs overlay retired by #259; the shipping profile is `--flashboot baremetal` and the
   baremetal firmware is one C file that only reads. The write path must be
   written again, in `sw/firmware/milan_baremetal/`, against the same CSRs. The
   historical program is recoverable from git if its exact command sequence is

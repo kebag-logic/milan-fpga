@@ -11,7 +11,7 @@ the bench 2026-07-25; the fault list at the end is real history, not theory.
 
 ## Contents
 
-- **[1. The endpoint stack, in order](#1-the-endpoint-stack-in-order)** — Three pieces in a mandatory order — ptp4l, then a PipeWire core, then `pipewire-avb` — each checkable before the next, plus the two config keys that bite when a conf is copied between machines.
+- **[1. The endpoint stack, in order](#1-the-endpoint-stack-in-order)** — External peer only, not target runtime: three pieces in a mandatory order — ptp4l, then a PipeWire core, then `pipewire-avb` — each checkable before the next, plus the two config keys that bite when a conf is copied between machines.
 - **[2. What "working" looks like (log signals)](#2-what-working-looks-like-log-signals)** — The five `-v` log lines to look for and what each proves, including how to read `offset_from_master`: it is scaled-ns, so −393216 is −6 ns.
 - **[3. Binding the pilot tone to a stream](#3-binding-the-pilot-tone-to-a-stream)** — Talker-side CSR recipe (with the VID-clobber warning: a bare `AAF_CTRL` enable zeroes VID[27:16] and floods the stream as best-effort), the three ways to connect a listener, and where the pilot's acceptance limit is written down.
 - **[4. The fault dictionary (all hit on 2026-07-25, in this order)](#4-the-fault-dictionary-all-hit-on-2026-07-25-in-this-order)** — Six real symptom→cause→fix rows from one bench day, including two misleading errors: "Host is down" means no core in the runtime dir, and hanging registry tools mean the AVB core has no session manager and a broken metadata marshal.

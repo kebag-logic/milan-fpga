@@ -17,9 +17,9 @@ Grouped as:
 - on-hardware NIC bring-up ([Section 17](#section-17-on-hardware-nic-bring-up-----dma-works-but-no-packet-on-the-wire-its-gmii-not-rgmii):
   the AX7101 PHY is GMII, not RGMII; [Section 18](#section-18-tx-frames-egress-truncated--not-at-all-----axis-tkeep-vs-liteeth-last_be):
   AXIS `tkeep` is not LiteEth's `last_be`),
-- boot / flash ([Section 19](#section-19-kernel-hangs-after-opensbi-no-linux-version-----a-stale-litex_term-served-the-wrong-boot-manifest):
+- retired Linux boot / flash evidence (#259; [Section 19](#section-19-kernel-hangs-after-opensbi-no-linux-version-----a-stale-litex_term-served-the-wrong-boot-manifest):
   the kernel that was never uploaded),
-- host plane vs device tree ([Section 20](#section-20-host-plane-dead-csr-readbacks-perfect-----a-stale-device-tree-maps-every-dma-window-onto-the-wrong-registers):
+- retired Linux host-plane/device-tree evidence (#259; [Section 20](#section-20-host-plane-dead-csr-readbacks-perfect-----a-stale-device-tree-maps-every-dma-window-onto-the-wrong-registers):
   `reg` windows are mapped by index, so a stale dtb writes DMA into the wrong CSRs),
 - and streaming, listener and talker ([Section 21](#section-21-acmp-says-success-the-listener-declares-itself-bound---and-not-one-frame-is-accepted-root-caused-and-fixed-version-0x000f-mechanism-confirmed-on-silicon-2026-07-26):
   a bound listener that accepts nothing; [Section 22](#section-22-arming-a-second-talker-takes-the-peer-board-off-the-network-and-the-arm-that-never-happened):
@@ -43,9 +43,10 @@ Companion: [`SIMULATION.md`](../testing/SIMULATION.md) (how the sim works) and
 >
 > * **Enumeration requires the descriptor image in DRAM.** The entity model
 >   lives in main memory at a **compile-time** base with no base register, and
->   software must write it there. The builder generates the flat image,
->   manifest, and map, and the tracked board flow runs `aemi-load` before entity
->   enable. If a custom integration skips that step, every `READ_DESCRIPTOR`
+>   the boot contract must populate it. The builder generates the flat image,
+>   manifest, and map; the SoC build binds the deployable set beside the
+>   bitstream, `flash-pair` persists the raw AEM slot, and bare-metal firmware
+>   verifies/copies it before entity enable. If a custom integration skips that step, every `READ_DESCRIPTOR`
 >   answers `BAD_ARGUMENTS`; the
 >   argument check (`configuration_index` against `configurations_count`) runs
 >   *before* the locate, and an invalid image reports a count of zero, so no
@@ -100,7 +101,7 @@ Companion: [`SIMULATION.md`](../testing/SIMULATION.md) (how the sim works) and
 - **[Section 23: ADD_AUDIO_MAPPINGS answers BAD_ARGUMENTS - which of the four rules did the record break?](#section-23-add_audio_mappings-answers-bad_arguments---which-of-the-four-rules-did-the-record-break)** -- The live writer's validity rules, their physical reasons, the practical 8x8 cluster-offset map, and the two probe-tool caveats that cost an hour. Accepted commands commit atomically; persistence remains open under issue #70.
 - **[Section 24: "the counter reads 0" and nothing is wrong - structural zeros after the control-plane substitution](#section-24-the-counter-reads-0-and-nothing-is-wrong---structural-zeros-after-the-control-plane-substitution)** -- The first thing to check before debugging a dead-looking register: a whole class of CSR words now reads a structural zero because the RTL behind it was deleted, and another class reads back what software wrote while reaching nothing. How to tell those two from a real fault, and where the per-word verdicts live.
 - **[Section 25: A_TXARB_DIAG 0x784 decodes to the wrong mux - the lanes were renumbered](#section-25-a_txarb_diag-0x784-decodes-to-the-wrong-mux---the-lanes-were-renumbered)** -- The TX arbiter cascade collapsed from eight muxes to four, so every old decode of `0x784` now reads a different mux than it names. Old and new orders side by side.
-- **[Section 26: the controller finds the entity and enumerates nothing - the descriptor image was never loaded into DRAM](#section-26-the-controller-finds-the-entity-and-enumerates-nothing---the-descriptor-image-was-never-loaded-into-dram)** -- A provisioning failure: discovery and ACMP work, but every `READ_DESCRIPTOR` answers `BAD_ARGUMENTS` immediately because the generated image was not loaded or failed verification. The section explains the status split, derived base, `aemi-load` checks, watchdog, and late-load recovery.
+- **[Section 26: the controller finds the entity and enumerates nothing - the descriptor image was never loaded into DRAM](#section-26-the-controller-finds-the-entity-and-enumerates-nothing---the-descriptor-image-was-never-loaded-into-dram)** -- A provisioning failure: supported firmware refuses entity enable and reports the failed AEM verification; a custom integration that enables anyway returns `BAD_ARGUMENTS`. The section covers the paired layout, UART/CRC verdict, derived base, watchdog, and recovery.
 
 ## Start here: which section is your problem in?
 
@@ -609,7 +610,8 @@ harness checks egress `m_tdata` but **not `m_tkeep`**; a keep/last_be bug in the
 
 > Historical incident: `boot_flashkernel.json` and the `FLASH_KERNEL` shortcut
 > are now retired. The supported companion `boot.sh` uploads the complete,
-> preflighted tuple specifically to make this zero-kernel state unreachable.
+> preflighted tuple; this is a retired #259 Linux-boot incident, not a current
+> product recovery path.
 
 **Symptom (2026-07-05, FPU bring-up).** After loading a bitstream, the console showed the
 LiteX BIOS, then OpenSBI's full banner ending at `Boot HART MEDELEG …`, and then **nothing**  - 
@@ -1175,13 +1177,14 @@ image in main memory**, which on this board is DDR3, fetched by the processor's
 descriptor store over a read-only master (`o_desc_mem_*` / `i_desc_mem_*` at the
 `milan_datapath` boundary, bridged to the DMA bus by `add_milan_datapath()`).
 The base is the elaboration parameter `PP_DESC_BASE_P`: **compile-time by
-design, with no base register**, so software cannot point the store somewhere
-wrong at runtime — and cannot point it anywhere right at runtime either.
-Software has to write the image there. The end-station builder generates
+design, with no base register**, so runtime code cannot redirect the store.
+Bare-metal firmware copies the paired raw QSPI slot there. The end-station builder generates
 `aem_desc.bin`, `aem_desc.json`, and `aem_desc.map` from the selected
-configuration and packages the paired image and manifest for the deployed
-board shape. The board-side `aemi-load` utility verifies their pairing, base,
-identity, header, and readback before entity enable. The older
+configuration; the SoC build emits them beside the bitstream and compiles the
+image length, CRC32 and destination into firmware. `flash-pair` validates the
+complete target and writes the AEM before committing the bitstream. The former
+rootfs/`aemi-load` utility is retired historical evidence (#259), not a second
+product loader. The older
 `aecp_aem_rom.svh` artifact belongs to the deleted fabric store and is not a
 processor image.
 
@@ -1199,7 +1202,9 @@ are why you get a clean status instead of a hang:
 
 **Diagnosis, in this order.**
 
-1. **Confirm the shape of the refusal.** `BAD_ARGUMENTS` on *every* read (a
+1. **Confirm the shape of the refusal.** The supported firmware leaves the
+   entity disabled and reports the AEM verification failure on UART. If a
+   custom or retired boot enabled it anyway, `BAD_ARGUMENTS` on *every* read (a
    status, from a well-formed response) means the plane is alive and answering
    and the image is missing or corrupt — this section. `NO_SUCH_DESCRIPTOR`
    instead means the image loaded and that descriptor simply is not in the
@@ -1216,30 +1221,32 @@ are why you get a clean status instead of a hang:
    entity is enabled.
 3. **Derive the base, never quote one.** It is this SoC's own memory map: the
    **top 1 MiB of `main_ram`**, i.e. `main_ram` origin + size − `0x0010_0000`,
-   which the Linux device tree reserves. Read origin and size out of the build
-   (`csr.csv` / `soc.json`) for the bitstream that is actually flashed — a
+   paired by the SoC build. Read the generated layout/constants for the
+   bitstream that is actually flashed — a
    literal copied from another build is exactly the drift this project keeps
    paying for.
-4. **Run `aemi-load` and read the image header at the derived base.** The loader
-   verifies the paired image and manifest before writing. The header starts with the magic `"AEMI"`
+4. **Check the paired layout, UART verdict and image header.** Run the read-only
+   `deploy.sh check-images` preflight over the exact bitstream, layout and AEM;
+   after boot, confirm firmware reported a successful copy/CRC before enable.
+   The DRAM header starts with the magic `"AEMI"`
    (`0x41454D49`), then a layout version of 1 and a checksum, so an unloaded
    region is *distinguishable* rather than ambiguous: an all-zero region fails
    the magic compare first and reads as **"image not loaded"**, never as a valid
-   empty model. The loader result plus that read separates a missing load from
+   empty model. The firmware verdict plus that read separates a missing load from
    a valid image whose requested descriptor is absent.
 
-**What to do about it.** Rebuild the selected end-station configuration,
-install its paired `aem_desc.bin` and `aem_desc.json`, and run `aemi-load`
-before enabling the entity. Two properties make recovery safe:
+**What to do about it.** Rebuild the selected end-station configuration and
+SoC, then use `deploy.sh flash-pair` with the exact installed and target
+layout/bitstream pairs. Power-cycle and require the firmware AEM verification
+verdict before any entity enable. Two properties make recovery safe:
 
 * **a late load heals without a reset** — every locate against an invalid image
   re-arms the header probe, so an image written after the entity is already
   enabled starts being served; "load, then enable" is the discipline, not a
   one-shot window you can miss;
-* **DRAM is volatile, so this is a per-boot obligation, not a per-flash one.**
-  Reflashing the bitstream or the QSPI boot chain stashes nothing, and neither
-  does a warm bitstream reload. Whatever stage already programs the identity
-  CSRs at boot is the natural home for it.
+* **DRAM is volatile, so the copy is a per-boot obligation.** The paired raw
+  image persists in QSPI, but firmware must copy and verify it after each boot
+  before asserting either compatibility enable bit.
 
 **Lesson.** The entity model moved from fabric to memory, and provisioning is
 now an explicit build-and-boot contract. A device
