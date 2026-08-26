@@ -28,7 +28,8 @@ T. retired-stack TERM, anywhere, any context: the appearance itself is the
    count; there is no anchor allowance. The one suppression is the
    cross-toolchain TRIPLET allowlist below (issue #259 non-goal: host-side
    development tooling is not the product target, and the RV32 cross
-   compiler's triplet names its libc, not a product path).
+   compiler's triplet names its libc and the pinned sv2v release asset's
+   file name names the host OS its binary runs on, not a product path).
 O. retired launcher option token: ``--sound-card``, ``--flashboot full``,
    ``--flashboot kernel``; and ``--no-fabric-gptp`` anywhere but its one
    code home, ``sw/litex/milan_soc.py`` (the verification-only door), and
@@ -40,8 +41,9 @@ Y. ``fabric_gptp: false`` in any tracked YAML, found by PARSING the file
 ``--selftest`` builds pristine scratch git trees and proves: every term in
 the table is caught on its own; a term planted in a generated .svg is
 caught (generated outputs are scanned); each option token and the parsed
-YAML arm bite, spacing and case included; the triplet allowlist suppresses
-ONLY the exact triplet; a missing/unreadable inventory fails rather than
+YAML arm bite, spacing and case included; the host-tooling allowlist
+suppresses ONLY its exact spellings and cannot launder a second term on the
+same line; a missing/unreadable inventory fails rather than
 counting zero; and the clean control stays clean.
 """
 import argparse
@@ -83,11 +85,18 @@ TERM_RE = re.compile(r"\b(" + "|".join(TERMS) + r")\b", re.IGNORECASE)
 #: multi-word spellings the word-bound row above cannot carry
 PHRASE_RE = re.compile(r"device.?tree", re.IGNORECASE)
 
-#: Issue #259 non-goal: the cross toolchain a developer builds firmware
-#: with is host-side tooling; its triplet names the toolchain's libc, not a
-#: product path. ONLY these exact spellings are suppressed, nothing wider.
-ALLOWED_TRIPLETS = ("riscv32-linux-gcc", "riscv64-linux-gnu-gcc")
-TRIPLET_RE = re.compile("|".join(re.escape(t) for t in ALLOWED_TRIPLETS))
+#: Issue #259 non-goal: the host-side tooling a developer builds WITH is not
+#: a product path. Two families qualify, and ONLY these exact spellings are
+#: suppressed, nothing wider:
+#:   * the cross toolchain, whose triplet names the toolchain's libc;
+#:   * the pinned sv2v release asset, whose file name carries the host OS the
+#:     binary runs on (the CI jobs and the install recipes must be able to
+#:     name the artifact they download).
+#: Suppression is a MASK, not a line skip: a second, unmasked occurrence on
+#: the same line still fires, which the selftest proves for both families.
+ALLOWED_HOST_TOOLING = ("riscv32-linux-gcc", "riscv64-linux-gnu-gcc",
+                        "sv2v-Linux.zip", "sv2v-Linux")
+TRIPLET_RE = re.compile("|".join(re.escape(t) for t in ALLOWED_HOST_TOOLING))
 
 #: Class O: retired option tokens.
 OPT_RE = re.compile(r"--sound-card\b|--flashboot[ =](?:full|kernel)\b")
@@ -238,13 +247,19 @@ def selftest():
         lambda r: (r / "diagram.svg").write_text(
             "<svg><text>rootfs hand-off</text></svg>\n"), True, "[T]")
 
-    # the triplet allowlist suppresses ONLY the exact triplet
+    # the host-tooling allowlist suppresses ONLY the exact spellings
     arm("triplet-allowed",
         lambda r: (r / "notes.md").write_text(
             "the census drives riscv32-linux-gcc when present\n"), False)
     arm("triplet-does-not-launder",
         lambda r: (r / "notes.md").write_text(
             "riscv32-linux-gcc builds the linux image\n"), True, "[T]")
+    arm("sv2v-asset-allowed",
+        lambda r: (r / "install.sh").write_text(
+            "curl -fsSL .../sv2v-Linux.zip -o /tmp/sv2v.zip\n"), False)
+    arm("sv2v-asset-does-not-launder",
+        lambda r: (r / "install.sh").write_text(
+            "unzip sv2v-Linux.zip then boot the linux image\n"), True, "[T]")
 
     # O: option tokens, both spellings of the flashboot value
     arm("opt-sound-card",

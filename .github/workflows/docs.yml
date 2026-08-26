@@ -41,7 +41,7 @@ jobs:
             /usr/local/bin/sv2v
           sv2v --version
       # The focused bare-metal-only scope gate (#259 / PR #228): the lane's
-      # owned surface must not reacquire a retired Linux product claim.
+      # owned surface must not reacquire a retired host-stack product claim.
       - name: Bare-metal scope gate
         run: |
           python3 scripts/check_baremetal_only.py --check

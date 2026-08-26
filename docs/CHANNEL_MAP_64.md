@@ -1,7 +1,7 @@
 # 64-in / 64-out Channel Mapping -- Render Crossbar + Capture Mux
 
 Current implementation guide for the channel-mapping layer on top of the
-multi-stream fabric and ALSA lane. Status: **AS BUILT**.
+multi-stream fabric and its ring lane. Status: **AS BUILT**.
 
 > **CURRENT BOUNDARY (2026-08-17).** `KL_chan_map_render` and
 > `KL_chan_map_capture` are integrated, and the pair-slot path is five bits
@@ -28,8 +28,8 @@ the-private-test-repo `fpga/docs/ALSA_DRIVER_DESIGN.md` (driver side).
 ## Contents
 
 - **[0. Grounding facts (read from the tree, quoted not assumed)](#0-grounding-facts-read-from-the-tree-quoted-not-assumed)** -- Eleven facts G1-G11, each quoted from the RTL or entity JSON. G3 records the landed five-bit slot path, and G7 records the explicit high-address read decode.
-- **[1. The 64×64 model](#1-the-6464-model)** -- PipeWire composes while the fabric selects. The section fixes the counts and parameters for the 8x8 shape.
-- **[2. ALSA topology + per-stream ring ABI (decided; unchanged ABI)](#2-alsa-topology--per-stream-ring-abi-decided-unchanged-abi)** -- Eight 8-channel subdevices per direction, one per stream, over the *existing* PDU-payload ring ABI (S32BE interleaved, base + `s`·stride). Nothing new to implement on the ring side.
+- **[1. The 64×64 model](#1-the-6464-model)** -- a host composer composes while the fabric selects. The section fixes the counts and parameters for the 8x8 shape.
+- **[2. Ring topology + per-stream ring ABI (decided; unchanged ABI)](#2-ring-topology--per-stream-ring-abi-decided-unchanged-abi)** -- Eight 8-channel subdevices per direction, one per stream, over the *existing* PDU-payload ring ABI (S32BE interleaved, base + `s`·stride). Nothing new to implement on the ring side.
 - **[3. RENDER crossbar contract (KL_chmap_render, phase-1 name)](#3-render-crossbar-contract-kl_chmap_render-phase-1-name)** -- Free-running latest-sample latches feed one atomic physical-output update on each media tick.
 - **[4. CAPTURE mux contract (KL_chmap_capture, phase-1 name)](#4-capture-mux-contract-kl_chmap_capture-phase-1-name)** -- The two ways to be silent that are not the same: `SRC=ZERO` still pulses the slot, `EN=0` skips it. Carries the talker-to-slot arithmetic table and the landed five-bit pair-slot path.
 - **[5. MAP RAM: the two word formats](#5-map-ram-the-two-word-formats)** -- Defines the render and capture stores, their entry fields, and their distinct readback packing.
@@ -63,8 +63,8 @@ Both directions expose **64 stream-channels**: 8 AAF streams × up to 8
 channels/stream (Milan base formats, `ut=1` covers 1..8 ch — G10's
 format strings). Channel mapping is split into exactly two layers:
 
-1. **PipeWire composition (software)** — cross-stream / cross-channel
-   composition for ALSA clients. This was to be driven by the AEM audio-map
+1. **Host composition (software)** — cross-stream / cross-channel
+   composition for ring clients. This was to be driven by the AEM audio-map
    configuration (the daemon reading `GET_AUDIO_MAP`). The getter exposes the
    current map and the transactional AECP writers update it.
    No fabric frame composer exists in phase 1.
@@ -74,13 +74,13 @@ format strings). Channel mapping is split into exactly two layers:
      ch0..7 = 10 physical render channels).
    - **CAPTURE mux**: each talker **pair-slot** (the packetizer's G2
      slot space, 32 slots at 8×8) selects its source: I2S-in pair,
-     TDM8-in pair, `KL_pcm_tx` ALSA-playback ring pair, tone, or zero.
+     TDM8-in pair, `KL_pcm_tx` playback ring pair, tone, or zero.
 
 The fabric never composes frames; it only *selects*. The 64×64 "matrix"
 is therefore: RX side = 64 stream-channels fanning into 10 physical
-outputs (any-to-any) + 64 ALSA capture channels (per-stream rings,
-composed by PipeWire); TX side = 64 stream-channels each fed from a
-selected source pair + 64 ALSA playback channels (per-stream rings via
+outputs (any-to-any) + 64 capture channels (per-stream rings, composed by
+the host); TX side = 64 stream-channels each fed from a
+selected source pair + 64 playback channels (per-stream rings via
 `KL_pcm_tx`).
 
 Every count in that sentence is an elaboration parameter, not a
@@ -94,10 +94,10 @@ convention — this is where each one is fixed, at the 8×8 shape
 | Host-playback render channels | **16** linear `pbch` | `N_PB_SLOTS_P = N_STREAMS`, `PB_CH_C = 2 × N_PB_SLOTS_P` |
 | TX pair slots | **32** (8 talkers × 4 pairs) | `KL_chan_map_capture` `N_SLOTS_P = N_STREAMS*4` |
 | TDM capture pair sources | **4** | `N_TDM_P = 8` → `N_TDM_PAIRS_C = N_TDM_P/2` |
-| ALSA ring pair sources | **16** | `N_RING_P = 16` |
+| Ring pair sources | **16** | `N_RING_P = 16` |
 | Map entry width in the RAMs | **8 bits** each side | `map_wr_data_i [7:0]` on both map modules (Section 5) |
 
-## 2. ALSA topology + per-stream ring ABI (decided; unchanged ABI)
+## 2. Ring topology + per-stream ring ABI (decided; unchanged ABI)
 
 - **8× 8-channel subdevices per direction, one per stream.** Capture
   subdevice `s` fronts listener stream `s`'s DRAM PCM ring; playback
@@ -109,8 +109,8 @@ convention — this is where each one is fixed, at the 8×8 shape
   (the N×N per-stream ring offsets). The depacketizer writes it; the
   driver mmaps it; `KL_pcm_tx` de-interleaves it byte-identically to
   the packetizer payload (G4).
-- Cross-stream/channel composition for ALSA (e.g. "one 16-ch app
-  device spanning streams 2+3") is **PipeWire's job**, configured from
+- Cross-stream/channel composition (e.g. "one 16-ch app device spanning
+  streams 2+3") is **the host composer's job**, configured from
   the AEM audio map — never a fabric responsibility in phase 1.
 
 ## 3. RENDER crossbar contract (`KL_chmap_render`, phase-1 name)
@@ -257,7 +257,7 @@ and the mux emits the global `{pair_valid, pair_slot, pair_l, pair_r}`
 per its map.
 
 **Sources** (per pair): `I2S_IN` (one pair, `KL_aaf_capture_i2s`),
-`TDM8_IN` (4 pairs, `KL_tdm_capture` — G4), `PCM_TX` (ALSA playback
+`TDM8_IN` (4 pairs, `KL_tdm_capture` — G4), `PCM_TX` (playback
 rings, up to 4 pairs per talker stream, `KL_pcm_tx` — G4), `TONE`
 (`KL_tone_gen` 24-bit sample on both L and R), `ZERO`.
 
@@ -833,9 +833,9 @@ and the `CHMAP_PHYS_C` blend layout — all three enumerated in the
 
 ## 10. Phase-2 appendix: fabric 64-ch composed device
 
-Phase 2 (explicitly out of scope now) lifts the PipeWire-only
+Phase 2 (explicitly out of scope now) lifts the host-only
 composition into fabric as a **composed 64-channel device**: a frame
-composer that presents one contiguous 64-ch ALSA view (single ring)
+composer that presents one contiguous 64-channel view (single ring)
 built from all 8 streams. It reuses THIS map infrastructure unchanged
 in kind:
 
@@ -921,7 +921,7 @@ negatives are exact, not thresholded.
 mux on the reachable window - 1 of 32 slots directly lit, 3 adjacent
 negatives, with the remaining slots driven by the same TB-proven mux logic.
 The full 64-channel walk needs a listener that exposes more than one pair
-(the NxN ring engine, or an 8-channel ALSA capture on refreshed listener
+(the NxN ring engine, or an 8-channel capture on refreshed listener
 images) plus per-stream talker arming through the lwSRP admission gate -
 that is the next bench lane.
 
@@ -955,7 +955,7 @@ per-stream arming the walk was missing.
    writes are dropped, and the arm truth is a snapped
    `A_STRMW_STATE 0x82C[3]` ([TROUBLESHOOTING Section 22](limitations/TROUBLESHOOTING.md)).
 2. Bind the listener to talker uid *j* with one controller `CONNECT_RX`
-   ([Section 6 of the PipeWire peer guide](integration/PIPEWIRE_AVB_PEER.md#6-the-peer-as-an-atdecc-controller-2026-07-26)). The probe
+   (from the controller, against the peer). The probe
    response carries `dmac = base + j`; capture that line - it is the
    per-stream evidence.
 3. Walk slots `4j..4j+3` through the `0x900` window: all-on, pair-bit0,
@@ -967,7 +967,7 @@ per-stream arming the walk was missing.
 ring shows pair 0 of the bound stream only, so pairs 1-3 of each stream stay
 covered by the crossbar + packetizer frame-placement TB proof rather than by
 direct observation (the honest scope statement of Section 12 still stands). Closing
-it needs the NxN ring engine or an 8-channel ALSA capture on a refreshed
+it needs the NxN ring engine or an 8-channel capture on a refreshed
 listener image.
 
 **Hardware evidence remains open.** No current listener-side hardware walk is

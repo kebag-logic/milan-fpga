@@ -207,7 +207,7 @@ deliberately broken fixture first).
 **You need `sv2v` on `PATH`** — yosys's Verilog frontend cannot read SystemVerilog
 interfaces and packages. On Arch `sv2v` is **AUR-only, not in the official
 repositories**, so the least painful route on any distribution is the upstream
-prebuilt static Linux binary:
+prebuilt static binary:
 
 ```sh
 mkdir -p ~/.local/bin
@@ -345,9 +345,6 @@ firmware boot/CSR contract → connect the board to the timed network.
    reference lab is wired, which board runs which image. Host names, outlet
    numbers and addresses in there are specific to that lab; the *topology* is the
    part you can copy.
-5. [`docs/integration/PIPEWIRE_AVB_PEER.md`](docs/integration/PIPEWIRE_AVB_PEER.md)
-   — an external-peer-only Linux/PipeWire endpoint for bench traffic, never
-   target runtime, instead of a second FPGA.
 
 You will also need an **802.1AS-capable switch** for anything involving two
 endpoints. gPTP is not optional in Milan — without a working time domain there is
