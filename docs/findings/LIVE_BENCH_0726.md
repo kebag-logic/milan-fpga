@@ -12,16 +12,16 @@ Roles (see [`BENCH_TOPOLOGY.md`](BENCH_TOPOLOGY.md) for the map):
 |---|---|---|---|
 | listener + talker | AX7101 (8×8 shape) | `0x0001_000B` | 21.6 h |
 | listener + talker | Arty (4×4 shape) | `0x0001_000A` | 79.7 h |
-| controller host | x86 host, PipeWire | — | 13.3 h |
+| controller host | x86 host, media stack | — | 13.3 h |
 
 ## Contents
 
 - **[Verdict](#verdict)** — The whole sweep as one table: every quantity read, on which board, and what it means. Headline is both boards healthy and streaming both ways, with zero format errors and zero timestamp-uncertain.
-- **[What was confirmed](#what-was-confirmed)** — Five results with their numbers: the AX is grandmaster, each board is bound to the other's stream, the entry-0 listener workaround was **still armed 21 h later**, ~2 G frames carry 0 format errors, and a 3 s ALSA capture returned exactly 1,152,000 bytes. Also the trap that will waste your afternoon: the card takes `S32_BE` only, and `S32_BE` cannot go in a WAV container, so captures must be `-t raw`.
+- **[What was confirmed](#what-was-confirmed)** — Five results with their numbers: the AX is grandmaster, each board is bound to the other's stream, the entry-0 listener workaround was **still armed 21 h later**, ~2 G frames carry 0 format errors, and a 3 s capture returned exactly 1,152,000 bytes. Also the trap that will waste your afternoon: the card takes `S32_BE` only, and `S32_BE` cannot go in a WAV container, so captures must be `-t raw`.
 - **[The frame-rate arithmetic does not close — and the RTL says why not](#the-frame-rate-arithmetic-does-not-close--and-the-rtl-says-why-not)** — The most useful section on the page: four rate readings that are all 1.24–1.40× the only rate this packetizer can physically emit (7,999.91 f/s), and the elimination that follows — neither counter can inflate, the clock plan is integer-only, so the *denominator* is wrong. Ends with the measurement that would settle it: read the PHC in the same batch as the counters and divide by Δ(PHC ns).
 - **[Confirmed-still-broken (already known, now observed live)](#confirmed-still-broken-already-known-now-observed-live)** — Two known defects caught in the act: the `0x200` RMON group reading a clean zero, and a netdev reporting `speed = -1` while its own `MAC_STATUS` has the right answer. Both are fixed in RTL and both are waiting on a flash.
 - **[Observed and explained, not a fault](#observed-and-explained-not-a-fault)** — A 100× `rx_dropped` asymmetry that is *not* a bug: control-plane multicast arriving with no socket to receive it. Dropped is not errored, and the stream never traverses that path — the prefilter is why the board accepted 152.7 M AVTP frames while its netdev saw 1.86 M packets.
-- **[Controller host](#controller-host)** — A state observation, not a finding: PipeWire and `ptp4l` are up, but no Milan node is in the graph because the ring source is not loaded.
+- **[Controller host](#controller-host)** — A state observation, not a finding: the host media stack and its time daemon are up, but no Milan node is in the graph because the ring source is not loaded.
 - **[What this campaign could NOT test](#what-this-campaign-could-not-test)** — The version-by-version ledger of everything sitting behind one Vivado build and a flash, `0x000F` through `0x0013`, and which of this campaign's observations each one would have changed.
 
 ## Verdict
@@ -46,7 +46,7 @@ A dash means the sweep did not read that quantity on that board.
 | RMON group `0x200` | dead, reads zero | dead, reads zero | known root cause, fixed in RTL, awaiting a flash |
 | netdev link speed | — | reports `-1` while `MAC_STATUS` reads 100 Mb/s | the `REQ-MAC-03` gap, SoC-glue half unfixed |
 | `rx_dropped` | 18.4/s | 0.18/s | control-plane multicast with no socket — dropped, not errored |
-| live ALSA capture | 1,152,000 B for a 3 s capture, exact to the byte | — | no under-runs, no short reads |
+| live capture | 1,152,000 B for a 3 s capture, exact to the byte | — | no under-runs, no short reads |
 
 ## What was confirmed
 
@@ -228,10 +228,10 @@ as intended. The asymmetry between boards is unexplained and low-priority.
 
 ## Controller host
 
-PipeWire (3 processes) and WirePlumber are up, `ptp4l` is running with
+The host media stack (3 processes) and its session manager are up, the host time daemon is running with
 `/dev/ptp0` present, and both boards are reachable. **No Milan node is present
-in the PipeWire graph** — `pw-milan-ring-source` is not loaded at the moment.
-That is a state observation, not a fault; the ALSA path on the board is what was
+in the host media graph** — the ring source is not loaded at the moment.
+That is a state observation, not a fault; the capture path on the board is what was
 exercised above.
 
 ## What this campaign could NOT test

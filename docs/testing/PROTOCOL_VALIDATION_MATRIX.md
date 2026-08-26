@@ -49,7 +49,7 @@ FPGA-only solution to done.
 > [`MILAN_COMPLIANCE_GAPS.md`](../MILAN_COMPLIANCE_GAPS.md).
 >
 > **Descriptor enumeration is reachable once the descriptor image is in DRAM.**
-> The tracked builder/rootfs handoff supplies it only on an explicit deployment
+> The tracked builder handoff supplies it only on an explicit deployment
 > transfer; inspection-only/custom flows that skip that handoff still answer
 > `BAD_ARGUMENTS`. See A-5. **Known
 > gap, kept visible:** Milan Δ7 `ACQUIRE_ENTITY` (`NOT_SUPPORTED` with
@@ -66,7 +66,7 @@ Read with:
 - **[Legend](#legend)** — Read this first or the rows are unreadable: the six status glyphs — including the ❌ that now means "a conformant refusal and no function", not silence — and the six test kinds (`RTL`/`SYN`/`SIM`/`ELAB`/`BOARD`/`SW`) that say what level of evidence a row actually has. Ends with the standing caveat on the parenthetical check counts — they are historical snapshots, and the harness's own printout is the only figure that cannot rot.
 - **[1. L1 / L2  -  Ethernet, filtering, stats](#1-l1--l2-----ethernet-filtering-stats)** — Six rows from the MAC to RMON, each naming its module and CSR group, followed by the note on why L2-1 says GMII: the RGMII PHY it used to name cost four rebuilds and one preamble error per frame before it was retired.
 - **[2. Shaping / QoS  -  802.1Qav CBS](#2-shaping--qos-----8021qav-cbs)** — Five CBS rows with the harness check-counts behind them (87 k on the shaper against fixed-point *and* ideal models). Includes a deliberately empty row: 802.1Qbv time-aware shaping, kept only to record that it is out of scope.
-- **[3. Timing  -  gPTP / 802.1AS + PHC](#3-timing-----gptp--8021as--phc)** — The PHC, its clock-domain crossing, hardware timestamping and the 125 MHz reference — all hardware. The one software row, T-5, records the explicit software-owner option-off `ptp4l` comparison: locked on silicon through the reference switch, carrying the page's only two bench-blocked riders (AS-4 latency calibration, AS-6 DUT-wins-BMCA). The product-default owner is the fabric `gptp-processor`.
+- **[3. Timing  -  gPTP / 802.1AS + PHC](#3-timing-----gptp--8021as--phc)** — The PHC, its clock-domain crossing, hardware timestamping and the 125 MHz reference — all hardware. The one software row, T-5, records the explicit software-owner option-off comparison: locked on silicon through the reference switch, carrying the page's only two bench-blocked riders (AS-4 latency calibration, AS-6 DUT-wins-BMCA). The product-default owner is the fabric `gptp-processor`.
 - **[4. Discovery / control  -  AVDECC (IEEE 1722.1-2021 + Milan v1.2)](#4-discovery--control-----avdecc-ieee-17221-2021--milan-v12)** — Ten rows, A-1 to A-10, and the shortest summary of the page after 2026-08-13: **ADP, ACMP, SRP and AECP all moved to the protocol processor, whose AECP uCPU answers `READ_DESCRIPTOR` and refuses everything else conformantly.** A-5 is a split verdict; A-6, A-8 and A-9 carry a ❌ because their functions are absent. The `SW` entries name the controller-side test, not an implementation.
 - **[5. Reservation + address allocation](#5-reservation--address-allocation)** — Three rows: MAAP (still this fabric's `KL_maap`), MSRP/MVRP and the 75 % admission bound (both now the protocol processor's SRP face), with the note that the admission grant is not just a number: it gates TX and paces the talker. Ends on the one open clause, SR class B provisioned but never declared, and on the honest slope-ordering change the substitution brought.
 - **[6. Media transport  -  AVTP (IEEE 1722)](#6-media-transport-----avtp-ieee-1722)** — Four rows for AAF, CRF and the NxN talker/listener pair, plus the one explicit exclusion on the page: media redundancy, out of scope by decision, not by omission. The row worth reading is M-2, the only split verdict in the table — the CRF engine and its servo are silicon-proven, while the CRF *stream* is still not carried under a reservation.
@@ -131,7 +131,7 @@ number that cannot be stale; new rows on this page do not add one.
 | T-2 | CSR↔PHC clock-domain crossing |  -  | HW | `ptp_csr_sync`, `cdc_pulse/handshake` | ✅ | `RTL` ptp_sync, cdc (16); `SYN` |
 | T-3 | TX/RX hardware timestamping + metadata stream | 802.1AS | HW | `ptp_ts_top`, `ptp_ts_core` | ✅ | `RTL` ptp, milan_dp (TS AXIS path) |
 | T-4 | PHC on a fixed 125 MHz reference (REQ-PTP-07) | Milan | HW | `_CRG` gtx clock (§A.4) | 🟩 | `ELAB`; `BOARD` `ethtool -T eth0` PHC present |
-| T-5 | gPTP daemon lock (explicit software-owner option-off comparison: BMCA, sync/pdelay) | 802.1AS | SW | `ptp4l`/linuxptp on the softcore, over the fabric PHC; never active in the product-default fabric-owner image | ✅ on silicon · 🟡 AS-4/AS-6 | `BOARD` `asCapable` + full sync through the reference AVB switch, pdelay both ways, offset rms 2-4 ns, HW timestamps with zero config overrides  -  the retired RX-pad root-cause finding (#259, in git history), [`TIME_SYNC.md` §5](../design/TIME_SYNC.md#5-status-updated-2026-08-23). Open: **AS-4** per-unit ingress/egress latency calibration, **AS-6** DUT-wins-BMCA (switch outranks every Milan-legal value) |
+| T-5 | gPTP daemon lock (explicit software-owner option-off comparison: BMCA, sync/pdelay) | 802.1AS | SW | the software daemon of that era on the softcore, over the fabric PHC; never active in the product-default fabric-owner image | ✅ on silicon · 🟡 AS-4/AS-6 | `BOARD` `asCapable` + full sync through the reference AVB switch, pdelay both ways, offset rms 2-4 ns, HW timestamps with zero config overrides  -  the retired RX-pad root-cause finding (#259, in git history), [`TIME_SYNC.md` §5](../design/TIME_SYNC.md#5-status-updated-2026-08-23). Open: **AS-4** per-unit ingress/egress latency calibration, **AS-6** DUT-wins-BMCA (switch outranks every Milan-legal value) |
 
 ## 4. Discovery / control  -  AVDECC (IEEE 1722.1-2021 + Milan v1.2)
 
@@ -221,15 +221,13 @@ number that cannot be stale; new rows on this page do not add one.
 
 | # | Feature | HW/SW | Module(s) | Status | Validating test(s) |
 |---|---------|-------|-----------|--------|--------------------|
-| H-1 | VexiiRiscv RV32IMA + sv32 MMU boot contract (RV64/sv39 and NaxRiscv historical) | HW | `milan_soc.py` (LiteX + VexiiRiscv), bound layout + DTB/OpenSBI preflight | ✅ | `BOARD` VexiiRiscv Linux lineage; `SW` exact RV32/sv32 DTB and embedded-OpenSBI FDT checks reject RV64/sv39; `SIM` litex_sim boot to `litex>` (evidence) |
+| H-1 | VexiiRiscv RV32IMA + sv32 MMU boot contract (RV64/sv39 and NaxRiscv historical) | HW | `milan_soc.py` (LiteX + VexiiRiscv), bound layout preflight | ✅ | `BOARD` VexiiRiscv lineage; `SW` exact RV32 width checks reject the wider historical shapes; `SIM` litex_sim boot to `litex>` (evidence) |
 | H-2 | CPU reaches milan_csr, reads ID="MILN" (M-A2) | HW | `milan_datapath` + LiteX bus | ✅ | `SIM` `milan_sim.py` mem_read (evidence log) |
 | H-3 | `milan_datapath` §A.9 wrapper integrity | HW | `milan_datapath.sv` | ✅ | `RTL` milan_dp (11: ID + TX/RX byte-exact); `SYN` |
 | H-4 | AXIS↔memory DMA, simple-mode CSRs (§A.6) | HW | `MilanDMA` (WishboneDMA ×3) | 🟩 | `ELAB` `--with-dma` (CSRs in csr.csv); `BOARD` loopback (M-A3) |
 | H-5 | IRQ → PLIC (tx/rx/ts-dma + csr) | HW | `EventManager` → PLIC | 🟩 | `ELAB`; `BOARD` `/proc/interrupts` increments |
 | H-6 | Full SoC assembly (NIC+DMA+MAC) | HW | `milan_soc.py --full` | 🟩 | `ELAB` gateware export (all instances present) |
 | H-7 | Device portability (non-Xilinx) | HW | all `hdl/` | ✅ | `SYN` all tops incl. Lattice ECP5 (the [`syn/yosys/run.sh`](../../syn/yosys/run.sh) `tops` array is authoritative) |
-| H-8 | Linux driver: NAPI/XDP/PTP/ethtool | SW | `kl-eth` (the retired driver record) | 🟡 ABI | `BOARD` bring-up (M-A5) |
-| H-9 | Device tree `kl,dma-ether` | SW | the retired node include + binding | ✅ struct | `dtc` parse; `BOARD` driver binds |
 | H-10 | Artix-7 bitstream (place & route) | HW | `--full --build` | ✅ | `BOARD`  -  Vivado 2026.1 has Artix-7 (+Zynq) installed; both boards build and run on silicon. Latest: `0x0014`, three seeds placed and **all three met timing** (WNS +0.147/+0.115/+0.074 ns), flashed seed reads back `VERSION 0x0001_0014`  -  [`FLASH_0x0014_0727.md`](../findings/FLASH_0x0014_0727.md) |
 | H-11 | Soft-TSO via BD chains (driver-segmented GSO: header arena + zero-copy frag BDs) | SW | `kl-eth` (the-private-test-repo `e7b9c77`) + `RingDMAReader` continuity | ✅ | `BOARD` iperf3 @ MTU 1500: TX 58→88 single-flow (103 w/ `-l 1M`) |
 | H-12 | TX cs-across-BDs (chain-wide csum pre-pass + BD-ring rewind + published-rd) | HW+SW | `RingDMAReader` v2b (`milan_soc.py`, `e633032`, bitstream rsc6) | ✅ | `SIM` `test_tx_bd.py::test_bd_csum_chain` (suite 8/8); `BOARD` rsc6 iperf3 |
@@ -274,7 +272,7 @@ catalogued in
   the conformant `NOT_IMPLEMENTED` echo, which is a *protocol-conformance*
   behaviour (IEEE 1722.1 §9.3.5's duty to respond) and not coverage of any
   command; the two silent-refusal rules. Descriptor enumeration is reachable
-  **once the descriptor image is in DRAM.** The explicit builder/rootfs
+  **once the descriptor image is in DRAM.** The explicit builder
   deployment handoff now supplies it; a flow that skips that transfer still
   answers `BAD_ARGUMENTS`,
   because the configuration range check runs before the locate and an invalid
@@ -308,7 +306,7 @@ There is no longer a "software protocols, planned" bucket. Per
 [`ARCHITECTURE_HW_SW_SPLIT.md`](../ARCHITECTURE_HW_SW_SPLIT.md) rev 4,
 product-default normal operation uses the fabric `gptp-processor` owner plus
 the `kl-eth` driver, the PCM producer and a once-per-boot identity write.
-`linuxptp` is confined to the explicit software-owner option-off comparison.
+The software time daemon is confined to the explicit option-off comparison, which is retired (#259).
 The full open-gap
 ledger for the AECP boundary — every Milan v1.2 clause that lost its
 implementation — is [`MILAN_COMPLIANCE_GAPS.md`](../MILAN_COMPLIANCE_GAPS.md).

@@ -3,8 +3,8 @@
 
 The time-sync plane of epic #110: the `gptp-processor` submodule's
 micro-coded 802.1AS engine spliced into the datapath as the product's
-time owner. The product is bare-metal only (#259): no image starts `ptp4l`,
-`phc2sys`, or the `milan-statd` GM/path/CLKV mirror chain, because those
+time owner. The product is bare-metal only (#259): no image starts a time
+daemon or a GM/path/CLKV mirror chain, because those
 retired software agents no longer exist as product paths. This page is the integration
 architecture of record for #114 and #116; the donor
 repo's own pages under `gptp-processor/docs/` (the resource-validation
@@ -41,7 +41,7 @@ decision is recorded on #139.
 `KL_gptp_shadow` with four seams. The builder emits the same value into every
 real build/sweep/deploy instance. `fabric_gptp: false` is refused for product
 configurations (#259 retired the software owner); the option-off ABI remains
-reachable only through `milan_soc.py --no-fabric-gptp` as verification-only
+reachable only through a direct `milan_soc.py` run as verification-only
 hardware with zero gPTP owners, and its artifacts are not flashable.
 
 The option also carries `GPTP_UCODE_HEX_P`. In a shipping SoC build this is an
@@ -172,7 +172,7 @@ verification-only hardware: LO stages and HI commits each identity,
 `CLKV_CTRL` renews the compatibility lease, and the 0x7DC COMMIT/PUBLISH
 bank supplies the full PathTrace tail behind the GM, with #227's canonical
 alias and in-flight snapshot semantics. Nothing runs against that ABI in any
-product image (#259 retired linuxptp and the software publisher); the benches
+product image (#259 retired the software time owner and its publisher); the benches
 in the verification map below are its only writers. VERSION `0x0002_0055`
 records the ownership change without allocating new CSR addresses.
 
@@ -187,7 +187,7 @@ records the ownership change without allocating new CSR addresses.
 | `tb/verilator/milan_dp` default legs | the whole datapath | the [GPTP-OPT] tripwire: with the option OFF, CSR adjfine and adjtime still reach `timestamp_counter` through the eff muxes (a polarity swap goes red) |
 | `tb/verilator/tsn_fuzz` (`fuzz_ptp.py`) | byte, the tsn-gen 802.1AS models at the CI pin | the plane's own Announce / Sync / Follow_Up / Pdelay field-by-field against the Milan v1.2 profile of 802.1AS-2011 (the Table 11-7 control byte among them), parser drop/ignore gates, BTCA under fuzz, the two-sided asCapable canary; the tally and the tracked gaps live in the generated [`hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md`](../../hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md) |
 
-The option-ON verdict from #114's old Linux/sound-card shape was RED: the
+The option-ON verdict from #114's old cached/sound-card shape was RED: the
 baseline alone synthesized at 93.84% LUT and failed default placement. #120
 re-runs the required three-directive AX7101 sweep with one cacheless RV32I
 bare-metal hart and the sound-card surface absent. The final placed resource

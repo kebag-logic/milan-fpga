@@ -6,8 +6,8 @@ SPDX-License-Identifier: CERN-OHL-W-2.0
 # Grandmaster loss and recovery — one fabric-owned mechanism
 
 Status: product architecture at VERSION `0x0002_0055` (2026-08-23).
-This page describes the fabric-gPTP product build. The retired linuxptp
-measurements remain historical evidence only (#259), never an option-off owner, and
+This page describes the default fabric-gPTP build. The older software-owner
+measurements remain useful only for the explicit option-off comparison and
 are separated in the final section. Booted-board and two-board acceptance
 remain owned by #117; this document does not turn simulation into that
 physical evidence.
@@ -31,7 +31,7 @@ Companion to [TIME_SYNC.md](TIME_SYNC.md) for steady state and
 - **[4. Public recovery surface](#4-public-recovery-surface)** — The selected-owner mapping into legacy CSRs, GET_AVB_INFO, GET_AS_PATH and AAF/CRF `tu`, with coherent multiword snapshots and ineffective software writes in fabric mode
 - **[5. End-to-end timeline](#5-end-to-end-timeline)** — The ordered loss-to-recovery sequence from receipt timeout through atomic publication, Annex B holdover and restored servo lock
 - **[6. Media and notification behavior](#6-media-and-notification-behavior)** — What continues during a time transition, what remains pinned to the internal media clock, and how selected-owner changes feed the complete Table 5.22 scheduler
-- **[7. Verification-only option-off elaboration](#7-verification-only-option-off-elaboration)** — What remains of the retired software-owner arm (#259): the option-off staging/lease CSR ABI as bench-driven verification hardware, with no daemon, no rootfs profile, and no product image behind it.
+- **[7. Verification-only option-off elaboration](#7-verification-only-option-off-elaboration)** — What remains of the retired software-owner arm (#259): the option-off staging/lease CSR ABI as bench-driven verification hardware, with no daemon, no software profile, and no product image behind it.
 
 ## 1. The active owner
 
@@ -44,10 +44,9 @@ The product-default datapath elaborates `KL_gptp_shadow` and the pinned
 - commits GM, parent, flags, peer delay, offset, announce quality and the
   bounded selected PathTrace as one outward publication bank.
 
-No default-rootfs process steers the PHC or mirrors GM/path/CLKV state. The
-host still performs link recovery through `milan-statd --no-gptp --no-path`;
-that mode neither opens a ptp4l management socket nor writes publication
-CSRs. One owner therefore covers the wire protocol, clock actuator and public
+No software process steers the PHC or mirrors GM/path/CLKV state. Link
+recovery is the only job left outside the fabric, and it neither opens a time
+daemon's management socket nor writes publication CSRs. One owner therefore covers the wire protocol, clock actuator and public
 state.
 
 ## 2. Detecting loss and change
@@ -166,11 +165,11 @@ removal.
 
 ## 7. Verification-only option-off elaboration
 
-`fabric_gptp: false` is RETIRED for configurations (#259): the software
-owner, its rootfs profile/marker and the `ptp4l-rt`/`phc2sys`/`milan-statd`
-publication chain no longer exist as product paths. The option-off form
-survives only as verification-only hardware, elaborated directly through
-`milan_soc.py --no-fabric-gptp` and driven by the benches.
+`fabric_gptp: false` is RETIRED for configurations (#259): the software owner,
+its image profile and the whole software publication chain no longer exist as
+product paths. The option-off form survives only as verification-only
+hardware, elaborated directly through `milan_soc.py` and driven by the
+benches.
 
 In that elaboration the compatibility ABI remains:
 
@@ -180,7 +179,8 @@ In that elaboration the compatibility ABI remains:
 - lease expiry clears the software claims and returns `tu` to 1.
 
 Historical 2026-08-06/07 measurements belong to this arm: a long self-GM era
-could make a running linuxptp servo slew a large phase cliff, and restarting
-ptp4l could invalidate statd's management connection until statd restarted.
+could make a running software servo slew a large phase cliff, and restarting
+that daemon could invalidate the mirror's management connection until the
+mirror restarted.
 Those observations explain why the compatibility lease fails safe. They are
 not steps in the product-default recovery path, which contains neither daemon.
