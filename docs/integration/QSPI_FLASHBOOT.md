@@ -2,19 +2,13 @@
 
 ## Contents
 
-- **[The device at a glance](#the-device-at-a-glance)** — The to-scale flash map, generated from the same `load_map()` that emits the kernel's `fixed-partitions` node — so map, device tree and picture cannot drift apart. The generator also re-runs the overlap/alignment check and prints the verdict *onto* the drawing, which is how a broken map becomes visible before flash time.
-- **[Layout "baremetal" - shipping AX7101](#layout-baremetal---shipping-ax7101)** — The two-slot bitstream plus raw AEM manifest, why it has no kernel or FBI wrapper, and the paired-image verification required before firmware enables ADP.
-- **[Layout "full" — RETIRED LINUX BRING-UP HISTORY (#259; silicon-verified 2026-07-24)](#layout-full--retired-linux-bring-up-history-259-silicon-verified-2026-07-24)** — The measured five-slot Linux bring-up record, retired by #259: no tool flashes this manifest any more, and the section survives only as the silicon-verified history behind the bare-metal contract.
-- **[Layout v3 — SUPERSEDED HISTORY (2026-07-12; offsets no longer deployed)](#layout-v3--superseded-history-2026-07-12-offsets-no-longer-deployed)** — Historical: these offsets are not what ships. Kept for the reasoning that is still true — why the kernel is flashed as `Image.xz` (there is no non-EFI self-extracting kernel on RISC-V), the xz stream rule the vendored decoder imposes, and the four cooperating pieces the whole feature is built from.
-- **[The hard constraint: 16 MB flash vs 23 MB of images](#the-hard-constraint-16-mb-flash-vs-23-mb-of-images)** — Retired Linux-layout history (#259): 16 MB of device against ~23 MB of un-slimmed images. The retired kernel-at-offset-0 arrangement (#259) is pre-v3 and has not shipped since 2026-07-12; the current bare-metal slot map starts with the bitstream.
-- **[How the boot works](#how-the-boot-works)** — The boot-method priority chain and what full vs partial each do. The reassuring part: every copy is CRC-checked from the FBI header, so an empty or half-written flash falls through to serialboot rather than bricking the boot.
-- **[Usage](#usage)** — Build and flash the bare-metal pair, the recovery escape, and the JTAG iteration loop; the retired (#259) Linux steps are marked where they stood.
-- **[Getting to zero-upload](#getting-to-zero-upload)** — Retired Linux-era history (#259): the three slimming steps that once made the `full` manifest fit, kept as the measured record.
-- **[Caveats](#caveats)** — DMA coherency, FBI endianness, flash addressing and the profile-specific AEM path; the Linux-era caveats are marked historical (#259).
-- **[Validated](#validated)** — Historical record (#259): what was actually checked at the time, including the negative: the slot check correctly *rejects* a 14 MB kernel against the 8.5 MiB slot.
-- **[2026-07-06: zero-upload ACHIEVED  -  the sizes that made "full" fit](#2026-07-06-zero-upload-achieved-----the-sizes-that-made-full-fit)** — Frozen historical record (#259) of the two rounds of slimming, with the before/after per lever. The kernel-config gotcha worth stealing: without `CONFIG_EXPERT=y` the VT/INPUT disables **silently fail**.
-- **[Planned: boot-chain compression (BIOS-LZ4 kernel)  -  bitstream stays JTAG](#planned-boot-chain-compression-bios-lz4-kernel-----bitstream-stays-jtag)** — A proposal, never shipped, retired with the Linux boot chain (#259). Argued the decompressor belonged in the LiteX BIOS rather than OpenSBI; kept for the flash arithmetic.
-- **[Field notes (2026-07-10 silicon session)](#field-notes-2026-07-10-silicon-session)** — Five things learned the hard way at the bench, including the one that looks like flaky hardware: the BIOS re-tunes the SPI divisor *upward* at boot, defeating the gateware clock cap, and marginal MB-scale reads showed up as one lucky boot in six. Also the manual `litex>` flashboot recovery and a scary-looking initramfs message that is benign.
+- **[The device at a glance](#the-device-at-a-glance)** — The to-scale flash map, generated from `FLASHBOOT_LAYOUT` itself, so the picture cannot drift from the map the build compiles in. The generator also re-runs the overlap/alignment check and prints the verdict *onto* the drawing, which is how a broken map becomes visible before flash time.
+- **[Layout "baremetal" - shipping AX7101](#layout-baremetal---shipping-ax7101)** — The only manifest that ships: bitstream plus raw AEM image, why the AEM bytes carry no FBI wrapper, the two reserved ranges a reflash must not erase, and the paired-image verification required before firmware enables ADP.
+- **[How the boot works](#how-the-boot-works)** — Power-on to entity-enabled in one hop: config logic reads the bitstream, the BIOS is the application, and the AEM copy is length- and CRC-checked, so an empty or half-written slot leaves the entity disabled instead of bricking the boot.
+- **[Usage](#usage)** — Build and flash the pair, the explicit non-atomic escape kept for lab recovery, and the JTAG iteration loop that skips the flash write.
+- **[Caveats](#caveats)** — DMA coherency, FBI endianness, flash addressing, and the AEM path in full: the descriptor image lives in DRAM at a compile-time base, so a custom boot path that skips the copy enumerates nothing.
+- **[Validated](#validated)** — What was actually checked rather than assumed: the emitted constants, the bare-metal BIOS build, the unframed `AEMI` bytes, and what the `flash-pair` gate adds over the recovery-only materializer.
+- **[Field notes (2026-07-10 silicon session)](#field-notes-2026-07-10-silicon-session)** — The bench lesson that looks like flaky hardware: the BIOS re-tunes the SPI divisor *upward* at boot, defeating the gateware clock cap, and marginal MB-scale reads showed up as one lucky boot in six.
 
 ## The device at a glance
 
@@ -34,9 +28,8 @@ The descriptor-read behavior described below is checked against the
 which slots a reflash must never erase* — drawn **to scale**, and **generated**
 by [`flash_layout.gen.py`](../diagrams/flash_layout.gen.py) from the one source
 of truth (`FLASHBOOT_LAYOUT` + `FLASHBOOT_RESERVED` in [`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py)),
-read through the very same `load_map()` that emits the kernel's
-`fixed-partitions` node. The map, the device tree and this picture move
-together or not at all. Regenerate with:
+read through its `load_map()`. The map and this picture move together or not at
+all. Regenerate with:
 
 ```
 python3 docs/diagrams/flash_layout.gen.py docs/diagrams/flash_layout
@@ -50,18 +43,32 @@ map is visible in the picture rather than only at flash time.
 ## Layout "baremetal" - shipping AX7101
 
 The shipping AX7101 build uses `--software-profile baremetal --flashboot
-baremetal`. Firmware is linked into the FPGA ROM, so there is no kernel,
-OpenSBI, DTB or rootfs boot image.
+baremetal`. Firmware is linked into the FPGA ROM, so the flash carries no
+second-stage boot image at all: two slots, and nothing to upload.
 
 | slot | offset | budget | format | notes |
 |---|---:|---:|---|---|
 | bitstream | `0x00_0000` | 4 MiB | raw FPGA configuration | Written with `openFPGALoader -f --verify`; configuration logic reads it at power-on. |
 | AEM | `0x40_0000` | 64 KiB | raw `aem_desc.bin` | Begins with `AEMI`; never FBI-wrapped. Firmware copies it into paired DRAM and verifies the generated length and CRC32 before enabling ADP/processor. |
 
-The AEM slot deliberately aliases the Linux kernel offset because manifests
-are mutually exclusive. The journal and user ranges remain reserved. Always
-flash the AEM from the same build as the bitstream: its entity/model identity,
+The AEM slot sits at `0x40_0000`, immediately after the bitstream budget.
+Always flash the AEM from the same build as the bitstream: its entity/model identity,
 length, CRC and destination are compiled into that firmware.
+
+The `journal` and `user` ranges are RESERVED: no manifest writes them and a
+reflash must not erase them. The saved-state journal that used those slots
+was deleted 2026-08-13 with this repository's own AECP/AEM engine, so nothing
+writes or reads them today. Persistence is a genuine loss, not a relocation:
+the protocol processor's NVM face is answered by a blank-flash responder, so a
+restore walk always completes with zero records and nothing survives a power
+cycle.
+
+The build writes `<build>/flashboot_layout.json` (the single source of truth);
+`deploy.sh flash-pair` reads it, so the gateware's compiled-in offsets, gPTP
+owner, CPU XLEN and flashing never drift. A Vivado-produced copy is deployable
+only when its parsed payload SHA-256 and FPGA part are present; an
+elaboration-only JSON deliberately has no bit binding and fails closed. **Read
+the build's own copy** rather than any number quoted in prose.
 
 ```console
 sw/litex/build.sh ax7101
@@ -70,302 +77,34 @@ INSTALLED_BUILD=<exact-current-build> \
 ```
 
 `deploy.sh flash-pair` proves the live installed offset-zero payload, selects
-`<target-builddir>/aem_desc.bin` by default, snapshots the installed and target
-identity inputs into one exclusive transaction directory, validates and
-prepares that staged target, and uses only staged bytes for identification and
-verified writes. A concurrent rebuild therefore cannot replace a checked
-pathname between live identification and programming. The one supported transition is the fabric-baremetal
+`<target-builddir>/aem_desc.bin` by default, prepares/checks the whole target,
+and uses verified writes. The one supported transition is the fabric-baremetal
 refresh: AEM verifies first, the target bit commits last, and a retry
-recognizes either source or target bit. Layouts naming the retired Linux boot
-images or a non-fabric owner refuse before any programmer I/O (#259). See
+recognizes either source or target bit. Layouts naming a retired boot image or
+a non-fabric owner refuse before any programmer I/O (#259). See
 [BAREMETAL_FIRMWARE.md](BAREMETAL_FIRMWARE.md) for boot ordering and UART
 validation.
 
-## Layout "full" — RETIRED LINUX BRING-UP HISTORY (#259; silicon-verified 2026-07-24)
-
-> **Retired (#259, USER directive 2026-08-25).** The product is bare-metal
-> only: the `full`/`kernel` manifests, the rootfs, OpenSBI, the DTB slot and
-> the software gPTP owner are no longer flashable, and every tool below
-> refuses them. This section is preserved as the measured bring-up record.
-
-The historical layout of record was the `--flashboot full` manifest baked into
-the gateware BIOS. The offsets below are the retired AX/Arty measurements, not
-a manifest any current build accepts:
-
-| slot      | offset      | budget    | measured (AX 07-24) | notes |
-|-----------|-------------|-----------|---------------------|-------|
-| bitstream | `0x00_0000` | 4 MiB     | 3.6 MiB (raw)       | AX: platform-pinned **SPIx4 / CONFIGRATE 50, UNCOMPRESSED** — cold-config silicon-proven (the x1/33/COMPRESS pin is the **Arty-only** override; the milan_soc.py comment says why). `openFPGALoader -f --verify`, NOT fbi-wrapped. |
-| kernel    | `0x40_0000` | 3 MiB     | 2.52 MB             | Image.xz (`xz -9 --check=crc32`); BIOS xz_embedded decodes → DRAM |
-| opensbi   | `0x70_0000` | 384 KiB   | 266,824 B           | fw_jump → 0x40F0_0000. **CARRIES THE KERNEL'S DTB (FW_FDT_PATH embed)** — see the decoy warning below |
-| dtb       | `0x76_0000` | 128 KiB   | ~3 KB               | **A DECOY for the kernel**: the BIOS copies it, but the kernel boots on the *OpenSBI-embedded* FDT. Changing the DTB = rebuild opensbi (`fpga/boot/build_opensbi.sh`, always-clean rule) + flash the OPENSBI slot. Keep this slot in sync anyway (safety copy). |
-| rootfs    | `0x78_0000` | **6.375 MiB** (was 8.5 MiB) | 8,898,244 B was the **2026-07-24** image, i.e. BEFORE the v4 shrink | rootfs.cpio + `xz -9 -e --check=crc32` **by hand** (NOT a buildroot target in this output tree: `rm images/rootfs.cpio*; make rootfs-cpio; xz …`) |
-
-> **The budget column above is a snapshot; the picture is the source.** The v4
-> map (2026-07-26) shrank `rootfs` from 8.5 MiB to `0x66_0000` = 6.375 MiB to
-> make room for the `journal` and `user` slots, and the measured image in the
-> "measured" column predates that change — an 8.49 MiB rootfs would no longer
-> fit. The then-live source recorded 5.6 MiB, leaving ~0.775 MiB of slack.
-> Current `flash-pair` refuses this entire Linux manifest before programmer I/O.
-
-Historically, the Linux images were FBI-wrapped with `crcfbigen` and written at
-these offsets. Current `deploy.sh flash-pair` does not automate or permit that
-set; it accepts only the raw bare-metal `{bitstream, aem}` manifest (#259).
-
-**Historical matched-image rule (the CSR-rot trap, bitten twice — 07-22 and 07-24):**
-the kl-eth LiteX CSR block addresses (dma-ts, dma-pcm, …) are AUTO-ALLOCATED
-and SHIFT whenever the gateware's block set changes (e.g. `--rx-queues 1`
-dropped the RX1 queue CSRs and moved dma-ts 0x3100→0x308c, dma-pcm
-0x3120→0x30ac). The DTB **must be regenerated from the build's `csr.csv`**
-and re-embedded into opensbi with every gateware change that touches the
-map — the symptom of a stale DTB is subtle (e.g. ptp4l "timed out while
-polling for tx timestamp" while everything else works). The same preflight
-passes the layout's compiled `cpu_xlen` to `check_dtb_csr.py`: an RV32 build
-requires `riscv,isa = "rv32…"` and `mmu-type = "riscv,sv32"` in both the slot
-DTB and the FDT embedded in OpenSBI, so an RV64/sv39 boot chain is refused even
-when every CSR window happens to match.
-
-**Matched-owner and installed-state rule (#116/#259):** every new
-`flashboot_layout.json` carries the resolved `gptp_owner` enum and `cpu_xlen`
-compiled into `soc.h`. The only flashable owner is `fabric` on the bare-metal
-{bitstream, aem} manifest: `none`, the retired `software` owner, and any
-layout naming a retired Linux boot image refuse before programmer I/O. A
-completed Vivado build also records `bitstream_payload_sha256` over the
-parsed configuration payload (the exact bytes openFPGALoader writes) and the
-`.bit` header's `bitstream_fpga_part`. It also records
-`aem_image_bytes`, `aem_image_crc32`, and `aem_image_sha256` over the exact
-raw `AEMI` image whose length and CRC are compiled into firmware. Before any
-programmer access, `deploy.sh flash-pair` requires every binding to match the
-staged BIT and AEM; directory adjacency is not artifact identity, and legacy
-layouts without the AEM binding refuse.
-
-The transaction also requires `INSTALLED_LAYOUT` + `INSTALLED_BIT` (or the
-named launcher's `INSTALLED_BUILD`). It verifies the layout SHA-256/part against
-the parsed Xilinx `.bit` payload, then dumps
-the same number of live bytes from QSPI offset zero on the serial-selected
-board, and accepts exactly one match: the supplied installed artifact, or the
-target artifact when resuming after its commit write. An owner string is not
-installed-state evidence. Missing/unknown metadata, a
-short/ambiguous/mismatched readback, a wrong build directory, a
-missing/mismatched payload digest, a `.bit` FPGA part that differs from the
-layout or selected programmer part, and a missing or oversized *last* image
-all refuse before a write. A live target bit beside a stale AEM gets an
-AEM-only repair, because the autonomous fabric commit bit owns gPTP
-independently of AEM. `deploy.sh check-images` retains the read-only
-target preflight.
-Sweep fallback layouts reconstruct the enum and CPU width from the compiled
-`MILAN_GPTP_OWNER` / `MILAN_CPU_XLEN` constants, then hash the explicitly
-selected `.bit`; missing or ambiguous bit artifacts refuse reconstruction.
-
-Write order is part of the invariant:
-
-| installed → target | completed verified writes |
-|---|---|
-| fabric/baremetal → fabric/baremetal | raw AEM, then target fabric bit |
-| anything naming a retired Linux artifact (#259) | refused before programmer I/O |
-| owner `none` or the retired `software` owner | refused before programmer I/O |
-
-At every accepted boundary the old or new fabric owner remains bootable.
-A process/tool failure can be retried with the same installed reference. This
-does not make a single flash slot electrically atomic: power loss *during*
-offset-zero erase/program can tear the only bitstream. A/B or Xilinx MultiBoot
-is required to remove that hardware boundary.
-
-**Boot timing truth (07-24):** power-on → network-up ≈ **7 min** (FPGA
-config and kernel are seconds; the rootfs init + S50milan devmem storm is
-the bulk). Warm boots (link already negotiated) ≈ 2.5–3 min. **Reachability
-probes need ≥ 8 min windows** — two false "cold-boot dead" verdicts were
-probe timeouts.
-
-## Layout v3 — SUPERSEDED HISTORY (2026-07-12; offsets no longer deployed)
-
-The gateware lives in flash and the FPGA config-boots it (mode pins: Arty
-JP1 -> QSPI, AX7101 boot switch -> QSPI); bitstreams are COMPRESSED (pinned:
-COMPRESS + SPI x1 + 33 MHz configrate). The kernel is flashed as the kernel
-build's own **Image.xz** (there is no non-EFI self-extracting kernel on
-riscv — the config's self-extractor is EFI zboot, which our BIOS->OpenSBI
-chain has no loader for; Image.xz is the artifact the kernel proposes for
-bootloader decompression). The BIOS decompresses it with the vendored
-xz_embedded decoder (patch 0003 + files/xz, 0BSD from linux lib/xz; 10.6 KB
-of rv64 code; single-call mode — the destination buffer is the dictionary,
-64 KB state arena; byte-identical decode host-proven on the real Image).
-
-| slot      | offset     | budget   | measured | notes |
-|-----------|------------|----------|----------|-------|
-| bitstream | 0x00_0000  | 2.25 MiB | ~2.0-2.3 | raw config stream committed by `deploy.sh flash-pair`; NOT fbi-wrapped |
-| kernel    | 0x24_0000  | 3.5 MiB  | 2.52 MB  | Image.xz (xz -9 --check=crc32; deploy.sh auto-compresses a raw Image); BIOS stages @ +24 MB, decodes -> 0x4000_0000 |
-| opensbi   | 0x5C_0000  | 384 KiB  | 261 KB   | fw_jump -> 0x40F0_0000 |
-| dtb       | 0x62_0000  | 128 KiB  | ~10 KB   | -> 0x40EF_0000 |
-| rootfs    | 0x64_0000  | 9.75 MiB | 5.6 MB   | CPIO-XZ -> 0x4100_0000 (4 MiB slack — no slimming pressure) |
-
-xz stream rule: plain LZMA2, `--check=crc32` (or none) — the decoder builds
-without CRC64/BCJ. The BIOS magic-sniffs the staged payload, so an
-uncompressed Image keeps booting (transition-safe).
-
-Rollout is atomic per board: flash the v3 bitstream AND the image set in one
-session (a v3 BIOS with old-layout flash finds no kernel at 0x24_0000 and
-vice versa). DRAM scratch during boot: staging at +24 MB, arena at +28 MB —
-clear of kernel (8.1 MB @ +0), initrd (@ +16 MB), dtb/opensbi (@ ~+15 MB).
-The pre-v3 sections below describe the kernel-at-0 layout.
-
-
-Every boot of the fully-FPGA Linux SoC uploads four images over the 1.5 Mbaud LiteX UART  - 
-the 14 MB kernel `Image`, the 8.7 MB `rootfs.cpio.gz`, OpenSBI and the DTB, ~23 MB total,
-which takes **~4 minutes**. This is the "gain time" feature: stage the large, static images
-in the board's QSPI flash so the BIOS copies them straight into DRAM (quad SPI, ~10 MB/s)
-instead of trickling them over the wire.
-
-It has three cooperating pieces, all opt-in behind
-`milan_soc.py --with-spiflash` (included in `--all-blocks`):
-
-| piece | where | what |
-|-------|-------|------|
-| **flash core** | [`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py), [`sw/litex/platforms/alinx_ax7101.py`](../../sw/litex/platforms/alinx_ax7101.py) | memory-maps the on-board flash; emits the `MILAN_FLASHBOOT_*` layout constants |
-| **BIOS method** | [`sw/litex/patches/0001-milan-linux-flashboot.patch`](../../sw/litex/patches/0001-milan-linux-flashboot.patch) | `linux_flashboot` copies images flash→DRAM, boots (or pre-loads then defers to serialboot) |
-| **flashing** | `sw/litex/deploy.sh check-images` / `flash-pair` | SHA-256/part-binds each layout to its parsed `.bit` payload and its compiled CPU width, requires the fabric owner on the bare-metal {bitstream, aem} manifest, refuses every retired Linux boot image and the retired software owner (#259) before programmer I/O, materializes every image, live-matches QSPI offset zero to the exact installed/target payload, then performs verified writes with the target bit last ([qspi_owner_transition.py](../../sw/litex/qspi_owner_transition.py), [check_gptp_owner_pair.py](../../sw/litex/check_gptp_owner_pair.py)) |
-
----
-
-## The hard constraint: 16 MB flash vs 23 MB of images
-
-> **PARTLY SUPERSEDED — read the arithmetic, not the offsets (bannered
-> 2026-07-27).** The *constraint* below is permanent and is why the layout looks
-> the way it does: 16 MB of device against ~23 MB of un-slimmed images. The
-> *arrangement* it describes — kernel at offset 0, bitstream deliberately not in
-> flash — is the **pre-v3** layout and has not been deployed since 2026-07-12.
-> The v3 arrangement put the **bitstream at `0x00_0000` with a 4 MiB budget
-> and the kernel at `0x40_0000`**; that is what the retired (#259) historical
-> [Layout "full"](#layout-full--retired-linux-bring-up-history-259-silicon-verified-2026-07-24)
-> above records. What ships now is the bare-metal manifest, whose raw AEM
-> image aliases that `0x40_0000` slot; a build's own `flashboot_layout.json`
-> remains the export of record (re-verified against a
-> build dir while flashing, 2026-07-27). Two things below are stale rather than
-> merely dated — the *sizes* in the image table (the kernel is flashed as a
-> ~2.5 MB `Image.xz`, not a ~14 MB raw `Image`) and the bitstream paragraph,
-> which is bannered where it sits.
-
-The AX7101 flash is a **Micron N25Q128 = 128 Mbit = 16 MB** (confirmed from the Alinx repo,
-`DATASHEET/QSPI FLASH/N25Q128.pdf`). The boot images total **~23 MB**:
-
-| image | size | DRAM target |
-|-------|------|-------------|
-| kernel `Image` | ~14 MB | `0x4000_0000` |
-| `rootfs.cpio.gz` | ~8.7 MB | `0x4100_0000` (initrd) |
-| `opensbi.bin` (fw_jump) | ~0.26 MB | `0x40f0_0000` (**boot entry**, a0=hartid, a1=0) |
-| `milan.dtb` | ~3 KB | `0x40ef_0000` |
-
-(Those are the *un-slimmed* sizes that created the problem. The kernel has since
-been slimmed and is flashed compressed, which is what dissolved it — see
-[Getting to zero-upload](#getting-to-zero-upload).)
-
-So **not everything fits at once**. Two manifests (`--flashboot`):
-
-* **`kernel` (the `--flashboot` default)  -  partial.** Flash only the big, static kernel (a ~14 MB raw `Image`
-  at the time this was written; ~2.5 MB as `Image.xz` today).
-  `linux_flashboot` pre-loads it to DRAM; serialboot then uploads only OpenSBI+dtb+rootfs
-  (~9 MB). **~60 % faster** per boot, no image rebuild. The kernel + OpenSBI are the images
-  that change *least*, so most iterations upload just the ~9 MB rest.
-* **`full`  -  zero upload.** Flash every image; `linux_flashboot` boots OpenSBI directly with
-  **no serial upload at all**. Fits once the kernel is slimmed to **≤ 8.5 MiB** with a
-  cpio.xz rootfs ≤ 6.75 MiB — achieved 2026-07-06 with an 8.14 MB `-Os` kernel (see
-  [Getting to zero-upload](#getting-to-zero-upload)); the deploy step refuses an oversized
-  image rather than silently corrupt the layout.
-
-> **NOT TRUE OF A CURRENT BUILD.** *"Because the default kernel occupies flash
-> offset 0, the bitstream is not stored in flash in this layout — flash-boot
-> builds are JTAG-`load`ed (`deploy.sh load`) … a bitstream + a 14 MB kernel
-> cannot coexist in 16 MB."* Both halves were resolved rather than refuted: the
-> kernel moved off offset 0 and the 14 MB `Image` became a ~2.5 MB `Image.xz`,
-> which is exactly what made room for the bitstream. **The board now QSPI
-> config-boots the bitstream from offset 0**, and `deploy.sh load` is the fast
-> *iteration* path, not the only one.
-
-### Flash layout (`FLASHBOOT_LAYOUT` in `milan_soc.py`)
-
-The map below is read straight out of `FLASHBOOT_LAYOUT` + `FLASHBOOT_RESERVED`
-in [`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py). It is the same map the
-[Linux bring-up table](#layout-full--linux-bring-up-truth-2026-07-24-silicon-verified-end-to-end)
-above renders slot by slot, and the same one the SVG at the top of this page is
-generated from:
-
-```
- offset      slot       budget      notes
- 0x00_0000   bitstream  4 MiB       config-read by the FPGA, NOT fbi-wrapped
- 0x40_0000   kernel     3 MiB       Image.xz, BIOS xz_embedded -> 0x4000_0000
- 0x70_0000   opensbi    384 KiB     fw_jump -> 0x40F0_0000 (carries the kernel DTB)
- 0x76_0000   dtb        128 KiB     decoy copy; the kernel boots on OpenSBI's FDT
- 0x78_0000   rootfs     6.375 MiB   cpio.xz -> 0x4100_0000 (v4: was 8.5 MiB)
- 0xDE_0000   journal    128 KiB     RESERVED, raw A/B - never erased by a reflash
- 0xE0_0000   user       2 MiB       RESERVED, jffs2 -> /user
-```
-
-The two `RESERVED` slots are not boot images: the BIOS never copies them and a
-reflash must not erase them. (The saved-state journal that used those slots was deleted 2026-08-13 with this repository's own AECP/AEM engine; the slots stay reserved in the flash map, and nothing writes or reads them today. Persistence is a genuine loss, not a relocation: the protocol processor's NVM face is answered by a blank-flash responder, so a restore walk always completes with zero records and nothing survives a power cycle.)
-
-The manifests (`--flashboot`) select which *images* the BIOS copies, not where
-they live: `kernel` (partial) pre-loads only the kernel and lets serialboot
-supply the rest, `full` copies opensbi + dtb + kernel + rootfs for a zero-upload
-boot. The bitstream is in neither manifest — the FPGA config logic reads it
-before any BIOS runs.
-
-The build writes `<build>/flashboot_layout.json` (the single source of truth);
-`deploy.sh flash-pair` reads it, so the gateware's compiled-in offsets, gPTP
-owner, CPU XLEN, rootfs lease and flashing never drift. A Vivado-produced copy
-is deployable only when its parsed payload SHA-256 and FPGA part are present;
-an elaboration-only JSON deliberately has no bit binding and fails closed.
-**Read the build's own copy** — the numbers above are a snapshot of the tree, and
-the `rootfs` budget in particular has already moved once (v4, 2026-07-26).
-
----
-
 ## How the boot works
 
-For `baremetal`, the LiteX BIOS itself is the application. Its Milan init hook
-loads and CRC-checks the raw AEM slot, programs fabric policy, and enables the
-entity only on success. It does not invoke `linux_flashboot` or serialboot.
+The FPGA configuration logic reads the bitstream from offset 0 at power-on,
+before any software runs. The LiteX BIOS is then the application itself: its
+Milan init hook loads and CRC-checks the raw AEM slot, programs fabric policy,
+and enables the entity only on success. There is no second-stage image, no
+boot-method chain and no serial upload in the shipping path.
 
-The Linux `kernel` and `full` manifests retain the boot-method sequence below.
-
-`define_boot_method(milan_flash, …, priority −10)` runs **before** serialboot (priority 0),
-which stays as the fallback. The BIOS boot sequence tries methods in ascending priority:
-
-```
- reset → BIOS → linux_flashboot (−10)  → serialboot (0) → …
-                    │                        │
-   copies flashed images DRAM←flash          uploads whatever linux_flashboot didn't,
-                    │                         then jumps to the last json entry (OpenSBI)
-        full? boot OpenSBI (no serial)
-        partial? print + return  ─────────────┘
-```
-
-* **Full manifest:** `linux_flashboot` copies opensbi+dtb+kernel+rootfs, then
-  `boot(0,0,0, 0x40f0_0000)`  -  the NaxRiscv `boot_helper` leaves `a0=hartid`, `a1=0`, exactly
-  what the OpenSBI fw_jump expects (DTB is embedded via `FW_FDT_PATH`).
-* **Partial manifest:** `linux_flashboot` copies only the kernel to `0x4000_0000`,
-  prints a note and returns. There is no active kernel-from-QSPI serialboot
-  shortcut: the companion `boot.sh` always uploads and verifies the complete
-  volatile kernel/OpenSBI/DTB/rootfs tuple. The partial layout remains only as
-  an explicit non-atomic recovery primitive.
-
-Each copy uses the BIOS's existing `copy_image_from_flash_to_ram`, which **CRC-checks** every
-image (LiteX FBI = `[length][crc32][data]`, little-endian header). A CRC/length failure aborts
-the copy and falls through to serialboot  -  an empty or mid-update flash **cannot brick the
-boot**.
+The AEM copy goes through the BIOS's `copy_image_from_flash_to_ram`, so the
+slot's length and CRC32 are both checked before a byte is used. A failed check
+abandons the copy and leaves the entity disabled rather than advertising a model
+nobody can enumerate: an empty or half-written slot **cannot brick the boot**.
 
 ---
 
 ## Usage
 
-### One-time (historical): the Linux BIOS patch
-
-Retired (#259): the `linux_flashboot` BIOS method and its
-`sw/litex/patches/apply.sh` step belonged to the retired Linux manifests.
-The bare-metal boot needs no BIOS patch; the patch tree stays as the record
-of that mechanism, and the `MILAN_FLASHBOOT_*` constants of a bare-metal
-build describe only the AEM slot.
-
 ### Build a flash-boot bitstream
 
-Every named config produces the same bare-metal {bitstream, AEM} pair (#259);
+Every named config produces the same {bitstream, AEM} pair;
 `ax8x8` and `arty` differ from `ax7101` only in dataplane shape:
 
 ```sh
@@ -376,13 +115,13 @@ INSTALLED_BUILD=<exact-current-build> \
 
 For a direct transaction, replace `INSTALLED_BUILD` with the exact
 `INSTALLED_LAYOUT` + `INSTALLED_BIT`, set the target `LAYOUT` + `BIT`, then
-invoke `sw/litex/deploy.sh flash-pair`. A layout naming a retired Linux boot
-image or a non-fabric owner refuses before any programmer I/O.
+invoke `sw/litex/deploy.sh flash-pair`. A layout naming a retired boot image
+or a non-fabric owner refuses before any programmer I/O.
 
-There is no flashable option-off or software-owner image (#259): the
+There is no flashable option-off or software-owner image: the
 builder refuses `fabric_gptp: false`, and the option-off elaboration exists
-only through the verification-only `milan_soc.py --no-fabric-gptp` door
-(#259), whose artifacts the flash tools refuse.
+only as verification-only hardware, through a direct `milan_soc.py` run with
+the option-off door, whose artifacts the flash tools refuse.
 
 ### Recovery-only partial mode
 
@@ -394,11 +133,11 @@ ALLOW_NONATOMIC_FLASH=1 LAYOUT=<build>/flashboot_layout.json \
     sw/litex/deploy.sh flash-images
 ```
 
-The escape still stages its inputs, runs the owner checks, verifies the
-layout's bitstream and AEM bindings, prepares the entire requested subset and
-uses verified writes from the staged copies. It does **not** prove live installed state or claim
-safe persistent ordering, and a layout naming a retired (#259) Linux image
-slot refuses. Named `build.sh flash` never sets the escape.
+The escape still runs the owner checks (and a direct bit recovery verifies
+the layout's payload SHA-256/part), prepares the entire requested subset and
+uses verified writes. It does **not** prove live installed state or claim
+safe persistent ordering, and a layout naming a retired image slot refuses.
+Named `build.sh flash` never sets the escape.
 
 ### Iterate (the fast loop)
 
@@ -408,26 +147,7 @@ sw/litex/deploy.sh load             # JTAG → SRAM (volatile)
 
 The flashed AEM slot pairs with the flashed bitstream, so after a volatile
 JTAG load of a DIFFERENT build, provision the matching `aem_desc.bin` before
-enabling the entity (see the AEM caveat below). The historical Linux
-serialboot companion (`boot.sh`, the volatile kernel/OpenSBI/DTB/rootfs
-tuple) is retired (#259).
-
----
-
-## Getting to zero-upload
-
-Retired Linux-era history (#259): this section records how the `full` Linux
-manifest was made to fit the 16 MB device; nothing below is a runnable flow.
-The 14 MB kernel was the blocker. Slimmed below the 8.5 MiB slot (achieved:
-8.14 MB, see the 2026-07-06 section below) with the rootfs switched to
-cpio.xz, the **full** manifest fit and a boot uploaded *nothing*: the kernel
-`.config` was trimmed (a lean RV64 buildroot kernel is 4 to 6 MB), `Image`
-was confirmed at or under the 8.5 MiB slot with the cpio.xz rootfs at or
-under 6.75 MiB, and the complete set was flashed transactionally by
-`flash-pair`, which materializes and budgets every image before live
-readback or a write, so an un-slimmed kernel failed without partially
-updating QSPI. The bare-metal manifest needs none of this: its two images
-total under 4.1 MiB.
+enabling the entity (see the AEM caveat below).
 
 ---
 
@@ -446,9 +166,6 @@ total under 4.1 MiB.
   `flash-images` are recovery-only escapes.
   JTAG `load` remains the *iteration* path because it skips the flash write, not
   because flash cannot hold a bitstream.
-* **(Historical, #259) Re-apply the patch after LiteX updates** (`apply.sh` is idempotent and errors clearly if
-  LiteX has moved the patched lines  -  then refresh the `.patch`). Only the
-  retired Linux flashboot method needed the patch.
 * **Endianness:** the FBI header is little-endian (`crcfbigen -l`), matching the BIOS's
   `MMPTR` reads on this RV64 core. `deploy.sh` uses `-l`; don't drop it.
 * **Flash addressing:** the N25Q128 is 16 MB = 3-byte addressable, so the whole chip is
@@ -468,10 +185,7 @@ total under 4.1 MiB.
   `0x40_0000`; firmware copies and CRC-checks it before enabling
   `PP_CTRL[0]` and `ADP_CTRL[0]`. The
   end-station builder produces `aem_desc.bin`, `aem_desc.json`, and
-  `aem_desc.map`. (Historical, #259: the retired Linux image had no flash
-  slot; its rootfs packaged the paired artifacts under `/etc/milan-aem/` and
-  `aemi-load` wrote the image into DRAM on every boot before entity enable.)
-  A custom boot path must provide the equivalent step. An unloaded or
+  `aem_desc.map`. A custom boot path must provide the equivalent step. An unloaded or
   corrupt image reports zero configurations, so every `READ_DESCRIPTOR` returns
   `BAD_ARGUMENTS`; the store watchdog prevents a stalled bus from hanging the
   command, and a late load heals without a reset. Bench walk-through:
@@ -482,57 +196,19 @@ total under 4.1 MiB.
 ## Validated
 
 * Gateware elaborates + generates `csr.json` (SPIFLASH region at `SPIFLASH_BASE`, litespi
-  master CSRs) and emits the correct `MILAN_FLASHBOOT_*` constants for both manifests
-  (`kernel`: kernel-only, no `COMPLETE`; `full`: all four + `COMPLETE`).
-* The patched BIOS compiles; `linux_flashboot` and `milan_flash_boot_method` link into the
-  boot-method section.
+  master CSRs) and emits the `MILAN_FLASHBOOT_*` constants the shipping manifest needs.
 * The RV32I bare-metal BIOS compiles and the generated `baremetal` layout
   contains only bitstream plus the 64 KiB raw AEM slot. The deployment path
   leaves the `AEMI` bytes unframed.
-* The legacy `flash-images` materializer wraps the real 14 MB `Image` into a
-  14 MB+8 B FBI and enforces slot budgets. The current `flash-pair` gate adds
-  whole-set preparation, live `.bit` readback identity, verified direction
-  ordering, 28 before/after-write failure prefixes and resumability.
+* The recovery-only `flash-images` materializer FBI-wraps what it is given and
+  enforces slot budgets. The `flash-pair` gate adds whole-set preparation, live
+  `.bit` readback identity, verified direction ordering, 28 before/after-write
+  failure prefixes and resumability.
 
 See also [pipeline-telemetry.md](../fpga/pipeline-telemetry.md), [BOARD_PORTING_AX7101.md](BOARD_PORTING_AX7101.md),
 and [`sw/litex/patches/README.md`](../../sw/litex/patches/README.md).
 
 ---
-
-## 2026-07-06: zero-upload ACHIEVED  -  the sizes that made "full" fit
-
-The blockers fell in two rounds (fragment: `br2-external/board/milan_naxriscv/linux.fragment`):
-
-| Item | Before | After | How |
-|---|---|---|---|
-| kernel `Image` | 11.9 MB | **8.14 MB** | `-Os` (CC_OPTIMIZE_FOR_SIZE, −25 % alone); SELinux/kexec off; `CONFIG_EXPERT=y` (without it the VT/INPUT disables **silently fail**  -  they need EXPERT); kallsyms off (~1 MB; oops decode moves offline via vmlinux); LOG_BUF 15. +THP added for the 300 Mbit/s plan. |
-| rootfs | 9.13 MB (cpio.gz) | **5.59 MB** (cpio.xz) | `BR2_TARGET_ROOTFS_CPIO_XZ` + kernel `RD_XZ`  -  the BIOS only memcpys flash→DRAM; the *kernel* unpacks the initramfs, so xz costs nothing at the BIOS level. |
-
-Final measured layout (total 14.3 of 16 MiB): kernel ≤8.5 MiB @0 · **opensbi 512 KB @0x88_0000**
-(fw_jump is 261 KB + 8 B FBI wrapper  -  the original 256 KB slot was 4.7 KB short; the
-image budget check caught it) · dtb 256 KB @0x90_0000 · rootfs ≤6.75 MiB @0x94_0000.
-
-The command used in that 2026-07-06 session predates owner transactions. Use
-the current `flash-pair` recipe in [Usage](#usage); it still needs the LiteX
-environment for `crcfbigen`.
-
-## Planned: boot-chain compression (BIOS-LZ4 kernel)  -  bitstream stays JTAG
-
-Stock OpenSBI cannot decompress (`fw_jump` only jumps), and a RISC-V `Image` has no
-self-extracting stub (unlike x86 bzImage). The right layer is the **LiteX BIOS**: our
-patched `linux_flashboot` already does the flash→DRAM copy, so it gains an **LZ4-block
-decompressor** (~200 lines of C, 50–100 MB/s on the 100 MHz core):
-
-| | today | with BIOS-LZ4 |
-|---|---|---|
-| kernel in flash | 8.14 MB raw | ~4.8 MB lz4 (+~0.2 s boot) |
-| free flash | 1.7 MiB | ~5.1 MiB (kernel-growth headroom) |
-
-Rootfs is already maxed (cpio.**xz**, the kernel unpacks it). The freed space would even
-fit the 3.83 MB bitstream for a fully standalone power-on box, but per the 2026-07-06
-decision the **bitstream stays JTAG-loaded** for the iteration loop; only the
-kernel slot gets compressed. Implementation = BIOS patch (lz4 decode into 0x40000000) +
-`deploy.sh` compressing at flash time + a layout shrink  -  one reflash to adopt.
 
 ## Field notes (2026-07-10 silicon session)
 
@@ -557,9 +233,5 @@ kernel slot gets compressed. Implementation = BIOS patch (lz4 decode into 0x4000
    end-to-end, catches stale cache lines too), finally `boot 0x40f00000`.
    Scripted: scratchpad `manual_flashboot.sh`. Validated on silicon (all four
    images CRC-OK first try at div 8).
-4. **`Initramfs unpacking failed: invalid magic at start of compressed archive`
-   ~35 s into boot is benign**: the initrd reservation is 16 MB, the CPIO-XZ is
-   5.3 MB  -  the kernel probes the trailing garbage for a concatenated archive
-   and reports the miss AFTER the real archive already unpacked. Login works.
-5. `rtk` humanizes/dedups tool output on this host  -  when forensics matter
+4. `rtk` humanizes/dedups tool output on this host  -  when forensics matter
    (byte counts, repeated log lines), read raw files or use `rtk proxy`.
