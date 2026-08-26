@@ -23,7 +23,7 @@ summarized at the end of this page. This is the buildable slice of
 
 | File | What |
 |------|------|
-| [`litex/milan_soc.py`](litex/milan_soc.py) | THE board SoC target: `--cpu {naxriscv,vexiiriscv}` (the product profile is `--software-profile baremetal` on VexiiRiscv RV32; see [Section 2.5 of docs/litex/LITEX_SOC.md](../docs/litex/LITEX_SOC.md#25-cpu-vexiiriscv-and-naxriscv---read-this-before-building)) + CRG + UART + RAM + Milan datapath (CSR @ `0x9000_0000`, IRQs → PLIC); **`--full`** adds the Section A.6 DMA + Section A.7 MAC (GMII). |
+| [`litex/milan_soc.py`](litex/milan_soc.py) | THE board SoC target: `--cpu {naxriscv,vexiiriscv}` (the product profile is `--software-profile baremetal` on VexiiRiscv RV32; see [Section 2.5 of docs/litex/LITEX_SOC.md](../docs/litex/LITEX_SOC.md#25-cpu-vexiiriscv-bare-metal-product)) + CRG + UART + RAM + Milan datapath (CSR @ `0x9000_0000`, IRQs → PLIC); **`--full`** adds the Section A.6 DMA + Section A.7 MAC (GMII). |
 | [`litex/milan_sim.py`](litex/milan_sim.py) | Verilator sim SoC: the same NaxRiscv + the NIC CSR, running the BIOS. Proves **M-A2** — the CPU reads `ID="MILN"`. |
 | [`litex/platforms/alinx_ax7101.py`](litex/platforms/alinx_ax7101.py) | Local LiteX platform for the Alinx AX7101 (xc7a100t) — not in upstream litex_boards. |
 | [`litex/evidence/naxriscv_sim_boot.log`](litex/evidence/naxriscv_sim_boot.log) | Captured `litex_sim` boot: the NaxRiscv core running the LiteX BIOS to the `litex>` prompt. |
