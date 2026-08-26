@@ -12,7 +12,7 @@
 <text x="460" y="336.5" font-size="12" font-family="monospace" fill="#546E7A">0x0000000 .. 0x03FFFFF   4 MiB</text>
 <text x="890" y="319.5" font-size="12" fill="#37474F">-&gt; DRAM 0x00000000</text>
 <text x="890" y="336.5" font-size="11.5" fill="#37474F">manifest: none (config-read by the FPGA itself)</text>
-<text x="890" y="351.5" font-size="11.5" fill="#37474F">read-only to Linux</text>
+<text x="890" y="351.5" font-size="11.5" fill="#37474F">read-only at runtime</text>
 <rect x="120" y="435.0" width="300" height="168.8" fill="#E8F5E9" stroke="#2E7D32" stroke-width="2"/>
 <text x="270.0" y="524.4" font-size="15" font-weight="bold" fill="#212121" text-anchor="middle">kernel</text>
 <path d="M420,519.4 L442,519.4 L442,519.4 L446,519.4" fill="none" stroke="#B0BEC5" stroke-width="1.2"/>
@@ -20,40 +20,40 @@
 <text x="460" y="533.4" font-size="12" font-family="monospace" fill="#546E7A">0x0400000 .. 0x06FFFFF   3 MiB</text>
 <text x="890" y="516.4" font-size="12" fill="#37474F">-&gt; DRAM 0x40000000</text>
 <text x="890" y="533.4" font-size="11.5" fill="#37474F">manifest: kernel, full</text>
-<text x="890" y="548.4" font-size="11.5" fill="#37474F">read-only to Linux</text>
+<text x="890" y="548.4" font-size="11.5" fill="#37474F">read-only at runtime</text>
 <rect x="120" y="603.8" width="300" height="21.1" fill="#FFF3E0" stroke="#EF6C00" stroke-width="2"/>
 <path d="M420,614.3 L442,614.3 L442,614.3 L446,614.3" fill="none" stroke="#B0BEC5" stroke-width="1.2"/>
 <text x="460" y="611.3" font-size="13.5" font-weight="bold" fill="#263238">opensbi</text>
 <text x="460" y="628.3" font-size="12" font-family="monospace" fill="#546E7A">0x0700000 .. 0x075FFFF   384 KiB</text>
 <text x="890" y="611.3" font-size="12" fill="#37474F">-&gt; DRAM 0x40F00000</text>
 <text x="890" y="628.3" font-size="11.5" fill="#37474F">manifest: full</text>
-<text x="890" y="643.3" font-size="11.5" fill="#37474F">read-only to Linux</text>
+<text x="890" y="643.3" font-size="11.5" fill="#37474F">read-only at runtime</text>
 <rect x="120" y="624.8" width="300" height="7.0" fill="#FFF3E0" stroke="#EF6C00" stroke-width="2"/>
 <path d="M420,628.4 L442,628.4 L442,666.3 L446,666.3" fill="none" stroke="#B0BEC5" stroke-width="1.2"/>
 <text x="460" y="663.3" font-size="13.5" font-weight="bold" fill="#263238">dtb</text>
 <text x="460" y="680.3" font-size="12" font-family="monospace" fill="#546E7A">0x0760000 .. 0x077FFFF   128 KiB</text>
 <text x="890" y="663.3" font-size="12" fill="#37474F">-&gt; DRAM 0x40EF0000</text>
 <text x="890" y="680.3" font-size="11.5" fill="#37474F">manifest: full</text>
-<text x="890" y="695.3" font-size="11.5" fill="#37474F">read-only to Linux</text>
-<rect x="120" y="631.9" width="300" height="358.6" fill="#E8F5E9" stroke="#2E7D32" stroke-width="2"/>
-<text x="270.0" y="816.2" font-size="15" font-weight="bold" fill="#212121" text-anchor="middle">rootfs</text>
-<path d="M420,811.2 L442,811.2 L442,811.2 L446,811.2" fill="none" stroke="#B0BEC5" stroke-width="1.2"/>
-<text x="460" y="808.2" font-size="13.5" font-weight="bold" fill="#263238">rootfs</text>
-<text x="460" y="825.2" font-size="12" font-family="monospace" fill="#546E7A">0x0780000 .. 0x0DDFFFF   6.38 MiB</text>
-<text x="890" y="808.2" font-size="12" fill="#37474F">-&gt; DRAM 0x41000000</text>
-<text x="890" y="825.2" font-size="11.5" fill="#37474F">manifest: full</text>
-<text x="890" y="840.2" font-size="11.5" fill="#37474F">read-only to Linux</text>
-<rect x="120" y="990.5" width="300" height="7.0" fill="#F3E5F5" stroke="#6A1B9A" stroke-width="2"/>
-<path d="M420,994.0 L442,994.0 L442,994.0 L446,994.0" fill="none" stroke="#B0BEC5" stroke-width="1.2"/>
-<text x="460" y="991.0" font-size="13.5" font-weight="bold" fill="#263238">journal</text>
-<text x="460" y="1008.0" font-size="12" font-family="monospace" fill="#546E7A">0x0DE0000 .. 0x0DFFFFF   128 KiB</text>
-<text x="890" y="991.0" font-size="12" fill="#37474F">WRITABLE - a reflash must NEVER erase this</text>
-<rect x="120" y="997.5" width="300" height="112.5" fill="#F3E5F5" stroke="#6A1B9A" stroke-width="2"/>
-<text x="270.0" y="1058.8" font-size="15" font-weight="bold" fill="#212121" text-anchor="middle">user</text>
-<path d="M420,1053.8 L442,1053.8 L442,1053.8 L446,1053.8" fill="none" stroke="#B0BEC5" stroke-width="1.2"/>
-<text x="460" y="1050.8" font-size="13.5" font-weight="bold" fill="#263238">user</text>
-<text x="460" y="1067.8" font-size="12" font-family="monospace" fill="#546E7A">0x0E00000 .. 0x0FFFFFF   2 MiB</text>
-<text x="890" y="1050.8" font-size="12" fill="#37474F">WRITABLE - a reflash must NEVER erase this</text>
+<text x="890" y="695.3" font-size="11.5" fill="#37474F">read-only at runtime</text>
+<rect x="120" y="631.9" width="300" height="414.8" fill="#E8F5E9" stroke="#2E7D32" stroke-width="2"/>
+<text x="270.0" y="844.3" font-size="15" font-weight="bold" fill="#212121" text-anchor="middle">rootfs</text>
+<path d="M420,839.3 L442,839.3 L442,839.3 L446,839.3" fill="none" stroke="#B0BEC5" stroke-width="1.2"/>
+<text x="460" y="836.3" font-size="13.5" font-weight="bold" fill="#263238">rootfs</text>
+<text x="460" y="853.3" font-size="12" font-family="monospace" fill="#546E7A">0x0780000 .. 0x0EDFFFF   7.38 MiB</text>
+<text x="890" y="836.3" font-size="12" fill="#37474F">-&gt; DRAM 0x41000000</text>
+<text x="890" y="853.3" font-size="11.5" fill="#37474F">manifest: full</text>
+<text x="890" y="868.3" font-size="11.5" fill="#37474F">read-only at runtime</text>
+<rect x="120" y="1046.7" width="300" height="7.0" fill="#F3E5F5" stroke="#6A1B9A" stroke-width="2"/>
+<path d="M420,1050.2 L442,1050.2 L442,1050.2 L446,1050.2" fill="none" stroke="#B0BEC5" stroke-width="1.2"/>
+<text x="460" y="1047.2" font-size="13.5" font-weight="bold" fill="#263238">journal</text>
+<text x="460" y="1064.2" font-size="12" font-family="monospace" fill="#546E7A">0x0EE0000 .. 0x0EFFFFF   128 KiB</text>
+<text x="890" y="1047.2" font-size="12" fill="#37474F">WRITABLE - a reflash must NEVER erase this</text>
+<rect x="120" y="1053.8" width="300" height="56.2" fill="#F3E5F5" stroke="#6A1B9A" stroke-width="2"/>
+<text x="270.0" y="1086.9" font-size="15" font-weight="bold" fill="#212121" text-anchor="middle">user</text>
+<path d="M420,1081.9 L442,1081.9 L442,1102.2 L446,1102.2" fill="none" stroke="#B0BEC5" stroke-width="1.2"/>
+<text x="460" y="1099.2" font-size="13.5" font-weight="bold" fill="#263238">user</text>
+<text x="460" y="1116.2" font-size="12" font-family="monospace" fill="#546E7A">0x0F00000 .. 0x0FFFFFF   1 MiB</text>
+<text x="890" y="1099.2" font-size="12" fill="#37474F">WRITABLE - a reflash must NEVER erase this</text>
 <path d="M108,210.0 L120,210.0" stroke="#90A4AE" stroke-width="1.2"/>
 <text x="102" y="214.0" font-size="11" fill="#90A4AE" text-anchor="end">0 MiB</text>
 <path d="M108,266.2 L120,266.2" stroke="#90A4AE" stroke-width="1.2"/>
@@ -88,15 +88,17 @@
 <text x="102" y="1057.8" font-size="11" fill="#90A4AE" text-anchor="end">15 MiB</text>
 <path d="M108,1110.0 L120,1110.0" stroke="#90A4AE" stroke-width="1.2"/>
 <text x="102" y="1114.0" font-size="11" fill="#90A4AE" text-anchor="end">16 MiB</text>
-<rect x="120" y="1154" width="900" height="100" rx="9" fill="#FFFFFF" stroke="#B0BEC5" stroke-width="1.6"/>
+<rect x="120" y="1154" width="900" height="122" rx="9" fill="#FFFFFF" stroke="#B0BEC5" stroke-width="1.6"/>
 <text x="136" y="1178" font-size="14" font-weight="bold" fill="#212121">FLASHBOOT_MANIFESTS - what the BIOS actually copies to DRAM at boot</text>
 <text x="146" y="1200" font-size="12.5" font-family="monospace" font-weight="bold" fill="#263238">--flashboot none</text>
 <text x="370" y="1200" font-size="12.5" font-family="monospace" fill="#37474F">(nothing - serial upload of every image)</text>
-<text x="146" y="1222" font-size="12.5" font-family="monospace" font-weight="bold" fill="#263238">--flashboot kernel</text>
-<text x="370" y="1222" font-size="12.5" font-family="monospace" fill="#37474F">kernel</text>
-<text x="146" y="1244" font-size="12.5" font-family="monospace" font-weight="bold" fill="#263238">--flashboot full</text>
-<text x="370" y="1244" font-size="12.5" font-family="monospace" fill="#37474F">opensbi, dtb, kernel, rootfs</text>
-<rect x="1060" y="1154" width="480" height="100" rx="9" fill="#FFEBEE" stroke="#C62828" stroke-width="1.6"/>
+<text x="146" y="1222" font-size="12.5" font-family="monospace" font-weight="bold" fill="#263238">--flashboot baremetal</text>
+<text x="370" y="1222" font-size="12.5" font-family="monospace" fill="#37474F">aem</text>
+<text x="146" y="1244" font-size="12.5" font-family="monospace" font-weight="bold" fill="#263238">--flashboot kernel</text>
+<text x="370" y="1244" font-size="12.5" font-family="monospace" fill="#37474F">kernel</text>
+<text x="146" y="1266" font-size="12.5" font-family="monospace" font-weight="bold" fill="#263238">--flashboot full</text>
+<text x="370" y="1266" font-size="12.5" font-family="monospace" fill="#37474F">opensbi, dtb, kernel, rootfs</text>
+<rect x="1060" y="1154" width="480" height="122" rx="9" fill="#FFEBEE" stroke="#C62828" stroke-width="1.6"/>
 <text x="1076" y="1178" font-size="14" font-weight="bold" fill="#B71C1C">The rule the purple slots exist to protect</text>
 <text x="1076" y="1200" font-size="12" fill="#B71C1C">A gateware update that silently wipes saved bindings</text>
 <text x="1076" y="1220" font-size="12" fill="#B71C1C">and fault logs is worse than not having them: the</text>

@@ -9,13 +9,14 @@
 -&gt; DRAM 0x40F00000" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#EF6C00;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="120" y="603.75" width="820" height="21.09375" as="geometry"/></mxCell>
 <mxCell id="b3" value="dtb   0x0760000..0x077FFFF   128 KiB
 -&gt; DRAM 0x40EF0000" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#EF6C00;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="120" y="624.84375" width="820" height="18" as="geometry"/></mxCell>
-<mxCell id="b4" value="rootfs   0x0780000..0x0DDFFFF   6.38 MiB
--&gt; DRAM 0x41000000" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#2E7D32;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="120" y="631.875" width="820" height="358.59375" as="geometry"/></mxCell>
-<mxCell id="b5" value="journal   0x0DE0000..0x0DFFFFF   128 KiB
-WRITABLE - a reflash must NEVER erase this" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#6A1B9A;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="120" y="990.46875" width="820" height="18" as="geometry"/></mxCell>
-<mxCell id="b6" value="user   0x0E00000..0x0FFFFFF   2 MiB
-WRITABLE - a reflash must NEVER erase this" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#6A1B9A;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="120" y="997.5" width="820" height="112.5" as="geometry"/></mxCell>
+<mxCell id="b4" value="rootfs   0x0780000..0x0EDFFFF   7.38 MiB
+-&gt; DRAM 0x41000000" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#2E7D32;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="120" y="631.875" width="820" height="414.84375" as="geometry"/></mxCell>
+<mxCell id="b5" value="journal   0x0EE0000..0x0EFFFFF   128 KiB
+WRITABLE - a reflash must NEVER erase this" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#6A1B9A;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="120" y="1046.71875" width="820" height="18" as="geometry"/></mxCell>
+<mxCell id="b6" value="user   0x0F00000..0x0FFFFFF   1 MiB
+WRITABLE - a reflash must NEVER erase this" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#6A1B9A;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="120" y="1053.75" width="820" height="56.25" as="geometry"/></mxCell>
 <mxCell id="man" value="FLASHBOOT_MANIFESTS - what the BIOS copies to DRAM at boot
 none: (nothing - serial upload)
+baremetal: aem
 kernel: kernel
-full: opensbi, dtb, kernel, rootfs" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#B0BEC5;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="120" y="1154" width="900" height="100" as="geometry"/></mxCell></root></mxGraphModel></diagram></mxfile>
+full: opensbi, dtb, kernel, rootfs" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#B0BEC5;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="120" y="1154" width="900" height="122" as="geometry"/></mxCell></root></mxGraphModel></diagram></mxfile>

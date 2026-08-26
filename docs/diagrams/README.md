@@ -14,16 +14,16 @@ repo's minimal headless renderer
 
 | Diagram | Shows | Editable source | Render(s) | Embedded in |
 |---|---|---|---|---|
-> **`milan_system_map` is obsolete as of 2026-08-16.** Its generator,
-> `.drawio`, and raster renders predate the current AECP served inventory,
-> descriptor-image supply chain, root dynamic-state boundaries, and counter
-> coverage. Do not use any of them as implementation evidence. The current
-> architecture and audit pages are authoritative until the complete map is
-> regenerated and reviewed as one artifact set.
+> **The former `milan_system_map` artifact set was removed on 2026-08-26
+> (#259).** It had been obsolete since 2026-08-16 - generator, `.drawio` and
+> raster renders all predated the current AECP served inventory, the
+> descriptor-image supply chain, the root dynamic-state boundaries and the
+> counter coverage - and it described the retired host stack besides. Git
+> history keeps it. The architecture and audit pages are authoritative until a
+> complete map is regenerated and reviewed as one artifact set.
 > `SYSTEM_DOMAIN_MAP` was regenerated in full — its generator writes SVG
 > directly, so its renders are current.
 
-| `milan_system_map` | THE GIANT single-page system map (4640x2980): the complete AX7101 SoC + NIC datapath with every block, bus width and byte-lane convention on every edge, clock domains by colour, DMA/ring geometry, and all address maps (SoC, milan_csr, AEM store, QSPI slots, control-plane frame formats) | `milan_system_map.gen.py` → `milan_system_map.drawio` (regenerate: `python3 milan_system_map.gen.py milan_system_map.drawio`) | `.svg` / `.png` (rsvg-convert; the minimal drawio renderer this row used to name was deleted with the AECP doc tree on 2026-08-13) | [`../overview/FULL_FPGA_SOLUTION.md`](../overview/FULL_FPGA_SOLUTION.md) |
 | `rx_path_wall.svg` | Perf campaign: the RX receive path - where the CPU time goes, and the wall | `diag_rxpath.py` (uses `svglib.py`; run `python3 diag_rxpath.py rx_path_wall.svg`) | the `.svg` itself | [`../findings/PERFORMANCE_GOAL.md`](../findings/PERFORMANCE_GOAL.md) |
 | `memory_hierarchy_levers.svg` | Perf campaign: the memory hierarchy and the three levers pulled on it | `diag_memhier.py` (same usage) | the `.svg` itself | [`../findings/PERFORMANCE_GOAL.md`](../findings/PERFORMANCE_GOAL.md) |
 | `ddio_before_after.svg` | Perf campaign: the DDIO-analog experiment, before/after | `diag_ddio.py` (same usage) | the `.svg` itself | [`../findings/PERFORMANCE_GOAL.md`](../findings/PERFORMANCE_GOAL.md) |

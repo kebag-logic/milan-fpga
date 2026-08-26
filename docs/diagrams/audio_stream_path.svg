@@ -6,7 +6,7 @@
 <rect x="30" y="104" width="2220" height="440" rx="12" fill="none" stroke="#B0BEC5" stroke-width="1.6" stroke-dasharray="7,5"/>
 <text x="48" y="132" font-size="17" font-weight="bold" fill="#78909C">TALKER - capture to wire</text>
 <rect x="30" y="660" width="2220" height="540" rx="12" fill="none" stroke="#B0BEC5" stroke-width="1.6" stroke-dasharray="7,5"/>
-<text x="48" y="688" font-size="17" font-weight="bold" fill="#78909C">LISTENER - wire to render / ALSA</text>
+<text x="48" y="688" font-size="17" font-weight="bold" fill="#78909C">LISTENER - wire to render / ring</text>
 <path d="M328,209 L440,346" fill="none" stroke="#546E7A" stroke-width="2.2" marker-end="url(#arr)" stroke-dasharray="6,4"/>
 <path d="M328,301 L440,346" fill="none" stroke="#546E7A" stroke-width="2.2" marker-end="url(#arr)" stroke-dasharray="6,4"/>
 <path d="M328,393 L440,346" fill="none" stroke="#546E7A" stroke-width="2.2" marker-end="url(#arr)" stroke-dasharray="6,4"/>
@@ -43,7 +43,7 @@
 <text x="72" y="302" font-size="11.8" fill="#37474F">TDM slave, 8/16/32 slots</text>
 <text x="72" y="317" font-size="11.8" fill="#37474F">pair k = TDM slots {2k, 2k+1}</text>
 <rect x="60" y="354" width="268" height="78" rx="9" fill="#E3F2FD" stroke="#1565C0" stroke-width="2"/>
-<text x="72" y="376" font-size="14.5" font-weight="bold" fill="#212121">KL_pcm_tx  (ALSA playback)</text>
+<text x="72" y="376" font-size="14.5" font-weight="bold" fill="#212121">KL_pcm_tx  (ring playback)</text>
 <text x="72" y="394" font-size="11.8" fill="#37474F">host-written PCM ring, S32BE</text>
 <text x="72" y="409" font-size="11.8" fill="#37474F">pb_* CSRs; underrun repeat/silence</text>
 <rect x="60" y="446" width="268" height="78" rx="9" fill="#E3F2FD" stroke="#1565C0" stroke-width="2"/>
@@ -63,7 +63,7 @@
 <text x="824" y="373" font-size="11.8" fill="#37474F">AAF_CTRL 0x654 + 0x800 TCTX window</text>
 <rect x="812" y="130" width="220" height="64" rx="9" fill="#ECEFF1" stroke="#455A64" stroke-width="2"/>
 <text x="824" y="152" font-size="14.5" font-weight="bold" fill="#212121">host TX DMA</text>
-<text x="824" y="170" font-size="11.8" fill="#37474F">kl-eth frames from Linux</text>
+<text x="824" y="170" font-size="11.8" fill="#37474F">control-lane frames from software</text>
 <rect x="1076" y="130" width="250" height="64" rx="9" fill="#FFF3E0" stroke="#EF6C00" stroke-width="2"/>
 <text x="1088" y="152" font-size="14.5" font-weight="bold" fill="#212121">classify + CBS shaper</text>
 <text x="1088" y="170" font-size="11.8" fill="#37474F">traffic_controller_802_1q</text>
@@ -114,9 +114,9 @@
 <text x="1252" y="1005" font-size="11.8" fill="#37474F">or on-chip BRAM --pcm-ring bram</text>
 <text x="1252" y="1020" font-size="11.8" fill="#37474F">(0x9010_0000, sink.ready == 1)</text>
 <rect x="1240" y="1104" width="320" height="78" rx="9" fill="#ECEFF1" stroke="#455A64" stroke-width="2"/>
-<text x="1252" y="1126" font-size="14.5" font-weight="bold" fill="#212121">ALSA capture / PipeWire</text>
-<text x="1252" y="1144" font-size="11.8" fill="#37474F">snd-kl-milan + pw-milan-ring-source</text>
-<text x="1252" y="1159" font-size="11.8" fill="#37474F">(private test repo)</text>
+<text x="1252" y="1126" font-size="14.5" font-weight="bold" fill="#212121">ring consumer (host side)</text>
+<text x="1252" y="1144" font-size="11.8" fill="#37474F">drains the capture ring</text>
+<text x="1252" y="1159" font-size="11.8" fill="#37474F">(bench tooling, private test repo)</text>
 <rect x="1660" y="700" width="220" height="78" rx="9" fill="#F3E5F5" stroke="#6A1B9A" stroke-width="2"/>
 <text x="1672" y="722" font-size="14.5" font-weight="bold" fill="#212121">KL_pcm_lpf</text>
 <text x="1672" y="740" font-size="11.8" fill="#37474F">20 kHz Butterworth biquad</text>
@@ -164,7 +164,7 @@
 <rect x="76" y="1040" width="26" height="18" rx="4" fill="#FFEBEE" stroke="#C62828" stroke-width="1.6"/>
 <text x="112" y="1054" font-size="12.5" fill="#37474F">PCM ring storage (DRAM default, BRAM option)</text>
 <rect x="616" y="1040" width="26" height="18" rx="4" fill="#ECEFF1" stroke="#455A64" stroke-width="1.6"/>
-<text x="652" y="1054" font-size="12.5" fill="#37474F">software side (Linux driver / PipeWire)</text>
+<text x="652" y="1054" font-size="12.5" fill="#37474F">software side (control lane and ring consumers)</text>
 <circle cx="89" cy="1079" r="8" fill="#F9A825" stroke="#795548"/>
 <text x="112" y="1083" font-size="12.5" fill="#37474F">latency tap (docs/AAF_LATENCY_TAPS.md stage; deltas at CSR 0x870, history ring per docs/LATENCY_HISTORY_RING.md)</text>
 </svg>

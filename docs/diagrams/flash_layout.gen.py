@@ -7,14 +7,14 @@
 **NOTHING HERE IS TRANSCRIBED.**  The slot list, offsets, sizes, DRAM load
 addresses, manifests, device size and erase-block size all come from the ONE
 source of truth, ``FLASHBOOT_LAYOUT`` + ``FLASHBOOT_RESERVED`` in
-``sw/litex/milan_soc.py`` — read here through ``sw/dts/gen_mtd_partitions.py``'s
-``load_map()``, the same reader the kernel's ``fixed-partitions`` node is
-generated from.  A flash map change therefore moves the picture, the device
-tree and the BIOS together, or it does not move at all.
+``sw/litex/milan_soc.py``, parsed here (never transcribed) by ``load_map()``
+below.  A flash map change therefore moves the picture and the BIOS together,
+or it does not move at all.  The reader lived in the retired partition emitter
+until #259 removed it; it is 25 lines and now lives where its one consumer is.
 
-The bands are drawn **to scale** on purpose: "the rootfs shrank to make room
-for the writable slots" is a statement about proportions, and a table of hex
-offsets does not carry it.
+The bands are drawn **to scale** on purpose: "this slot shrank to make room for
+the writable ones" is a statement about proportions, and a table of hex offsets
+does not carry it.
 
 Usage:
     python3 docs/diagrams/flash_layout.gen.py docs/diagrams/flash_layout
@@ -23,28 +23,50 @@ Usage:
 """
 import ast
 import html
-import importlib.util
 import sys
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
 SOC = REPO / "sw" / "litex" / "milan_soc.py"
-GEN_MTD = REPO / "sw" / "dts" / "gen_mtd_partitions.py"
+
+#: Slots no running image may write.  A stray write onto the configuration
+#: slot bricks the board's self-config; `journal` and `user` are deliberately
+#: writable - they are the whole point of reserving them.
+READ_ONLY = {"bitstream", "kernel", "opensbi", "dtb", "rootfs"}
 
 
 def esc(s):
     return html.escape(str(s), quote=True)
 
 
-# --- reuse the device-tree generator's reader: one parser, one truth ---------
-spec = importlib.util.spec_from_file_location("gen_mtd_partitions", GEN_MTD)
-mtd = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(mtd)
+def load_map():
+    """[(name, offset, size, kind)] ordered by offset, plus (flash_size, eb)."""
+    layout, reserved = _literal("FLASHBOOT_LAYOUT"), _literal("FLASHBOOT_RESERVED")
+    rows = [(n, e["offset"], e["size"], "image") for n, e in layout.items()]
+    rows += [(n, e["offset"], e["size"], "reserved") for n, e in reserved.items()]
+    return (sorted(rows, key=lambda r: r[1]),
+            _literal("FLASH_SIZE"), _literal("FLASH_ERASE_BLOCK"))
 
-ROWS, FLASH_SIZE, ERASE = mtd.load_map()
-PROBLEMS = mtd.check_map(ROWS, FLASH_SIZE, ERASE)
 
-# --- the two facts load_map() drops: DRAM target and manifest membership ----
+def check_map(rows, flash_size, erase):
+    """Overlap / alignment / past-the-device, printed onto the drawing."""
+    problems, prev_end, prev_name = [], 0, None
+    for name, off, size, _k in rows:
+        if size <= 0:
+            problems.append(f"{name}: non-positive size {size}")
+        if off % erase:
+            problems.append(f"{name}: offset 0x{off:X} not erase-block aligned")
+        if size % erase:
+            problems.append(f"{name}: size 0x{size:X} not an erase-block multiple")
+        if off < prev_end:
+            problems.append(f"{name} @0x{off:X} overlaps {prev_name} "
+                            f"(ends 0x{prev_end:X})")
+        if off + size > flash_size:
+            problems.append(f"{name}: ends 0x{off + size:X} past the device "
+                            f"(0x{flash_size:X})")
+        prev_end, prev_name = off + size, name
+    return problems
+
 _tree = ast.parse(SOC.read_text(encoding="utf-8"))
 
 
@@ -60,7 +82,8 @@ def _literal(name):
 
 LAYOUT = _literal("FLASHBOOT_LAYOUT")
 MANIFESTS = _literal("FLASHBOOT_MANIFESTS")
-READ_ONLY = mtd.READ_ONLY
+ROWS, FLASH_SIZE, ERASE = load_map()
+PROBLEMS = check_map(ROWS, FLASH_SIZE, ERASE)
 
 # palette (fill, stroke)
 BLUE = ("#E3F2FD", "#1565C0")     # gateware
@@ -177,7 +200,7 @@ def svg():
         if kind == "reserved":
             notes.append("WRITABLE - a reflash must NEVER erase this")
         if name in READ_ONLY:
-            notes.append("read-only to Linux")
+            notes.append("read-only at runtime")
         if notes:
             o.append(f'<text x="{TXT_X+430}" y="{ly-3:.1f}" font-size="12" fill="#37474F">'
                      f'{esc(notes[0])}</text>')

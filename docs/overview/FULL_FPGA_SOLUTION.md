@@ -7,8 +7,9 @@ historical **NaxRiscv RV64GC** core is retained as a pure-NIC/FPU bitstream opti
 an **Alinx AX7101 (Xilinx Artix-7 xc7a100t)**  -  built with an **open toolchain**
 (LiteX + Verilator + Yosys; Vivado only for the final Artix bitstream).
 
-> The former `milan_system_map` artifact set is obsolete as of 2026-08-16 and
-> is not embedded here. It predates the current control-plane integration.
+> The former `milan_system_map` artifact set was removed on 2026-08-26 (#259);
+> it had been obsolete since 2026-08-16 and predated the current control-plane
+> integration.
 > Use this page together with the [current architecture](ARCHITECTURE.md), the
 > [current Milan v1.2 audit](../testing/MILAN_V12_AUDIT_2026-08-16.md), and the
 > retirement note in the [diagram catalog](../diagrams/README.md).
