@@ -25,6 +25,7 @@ shape rather than guess at it.
 - **[Measuring cohesion](#measuring-cohesion)** -- Why line count cannot answer the question, what `scripts/measure_cohesion.py` counts instead (disjoint state groups), what it deliberately cannot see, and the current candidate list read off the tree.
 - **[Rule 2: prefer simple and explicit control flow](#rule-2-prefer-simple-and-explicit-control-flow)** -- The KISS rule, what "explicit" means for a SystemVerilog priority chain versus a host-side parser, the worked simplification that took one function from four levels of nesting to two, a real FSM and a real combinational mux read against the same rule, the measured hotspots with their dispositions, and the review checklist.
 - **[Measuring control flow](#measuring-control-flow)** -- What `scripts/measure_control_flow.py` counts in each language -- nesting and decision points in Python, priority resolved by source order in RTL -- exactly which files and blocks it scans and what it refuses, why no threshold is proposed, and what the tree actually measures today.
+- **[Rule 3: keep one source of truth without weakening test oracles](#rule-3-keep-one-source-of-truth-without-weakening-test-oracles)** -- The single-definition rule and the exception that keeps a test honest, the five RTL source lists that had one authority and four unguarded copies, the drift gate that now derives all of them from the RTL, and the mutation that proves an independent oracle is really independent.
 - **[Rules not yet landed](#rules-not-yet-landed)** -- The remaining nine rules of the contract, named so the numbering is stable and a reader knows what is still coming.
 
 ## The governing rule
@@ -459,14 +460,134 @@ signal by source order. That second number is the reason the rule asks for
 priority to be *visible* rather than absent — forbidding the pattern would be
 a rewrite of nearly half the RTL, and would not make any of it clearer.
 
+## Rule 3: keep one source of truth without weakening test oracles
+
+> A production fact has one authoritative definition, and derived copies are
+> generated or checked for drift. Unexplained magic values are forbidden. Tests
+> stay intentionally independent when they are an oracle: expected values come
+> from the specification, not from the definition being tested.
+
+The two halves pull in opposite directions on purpose. Sharing a constant with
+a test makes the test inherit the implementation's defect; duplicating a
+production fact makes the copies drift. The rule is that **production** has one
+definition, and a **test** may repeat a value when its independence is what
+gives the test its power — with the external rule cited where the repeat is.
+
+### Repository interpretation
+
+- Name constants with their units, and cite the standard or register map where
+  the value is not self-evident.
+- Generate repeated layout, descriptor and build artifacts from one tracked
+  source, and give each derived consumer a drift check.
+- A test may repeat a value or a mapping when independence is load-bearing. The
+  comment cites the external rule and says why importing the implementation's
+  symbol would weaken the test.
+
+### A worked example: five lists, one authority
+
+The set of RTL files needed to compile `milan_datapath` was written out five
+times: the Vivado list in `sw/litex/milan_soc.py`, the `milan_datapath` row in
+`syn/yosys/run.sh`, `DP_SRCS` in `syn/yosys/ooc.sh`, and the source lists in
+`tb/verilator/milan_dp/Makefile` and `tb/verilator/hostplane/Makefile`. Exactly
+one of them was guarded — `scripts/check_soc_sources.py` has watched the Vivado
+list since a missing entry killed three synthesis runs forty minutes in.
+
+The other four were unguarded, and the cost was paid immediately: extracting one
+module under Rule 1 broke three Verilator suites at once, each with the same
+"Cannot find file containing module", one per list nobody had told.
+
+[`scripts/check_rtl_source_lists.py`](../../scripts/check_rtl_source_lists.py)
+makes the RTL the authority and every list a derived consumer. It walks the
+module closure of `milan_datapath` through the sources — what the datapath
+instantiates, what those instantiate, transitively — and checks each consumer
+carries every file in it.
+
+Two properties are what make it a source-of-truth gate rather than a fifth copy:
+
+- **It never checks one list against another.** All five could agree and all
+  five be wrong. The authority is the RTL, and the first-hop instantiation
+  parser is *imported* from `scripts/check_soc_sources.py` rather than
+  re-written — a gate about single sources of truth that forked its own parser
+  would refute itself.
+- **It asks each consumer instead of parsing it.** A recogniser accepts what it
+  has modelled, and `make` and `bash` accept something else; the four escapes
+  recorded in [`syn/ooc/dp_srcs.py`](../../syn/ooc/dp_srcs.py) all worked that
+  way. So each consumer prints the expansion it will really use
+  (`make -s print-srcs`, `syn/yosys/run.sh --emit`, `syn/yosys/ooc.sh
+  --emit-dp`) and the gate reads that. Two of those emit paths did not exist and
+  were added, which is most of what this change is.
+
+The unit is the **file**, not the module, because that is what a source list
+carries and one file may declare several modules — `KL_aaf_latency_chain` lives
+inside `KL_aaf_latency_taps.sv`. Comparing module names to file entries would
+demand entries that must not exist.
+
+A consumer whose tooling is absent is reported `SKIPPED` by name and the verdict
+says it is not covered. A gate that silently drops a consumer it could not reach
+is how a list goes unchecked for months.
+
+### The named-constant half
+
+`milan_datapath` passed `16'h88F7` to the timestamp unit's `ETH_TYPE`
+parameter while already importing `ethernet_packet_pkg`, which defines that
+exact value as `ETH_TYPE_PTP`. That is a second definition of a fact the package
+owns, and it is now the package's name.
+
+The inventory behind that choice: 57 hexadecimal literals appear in four or more
+first-party files. They classify into three kinds, and only the first is debt.
+
+| Kind | Example | Disposition |
+|---|---|---|
+| Drift — a named definition exists and the literal ignores it | `16'h88F7` beside `ETH_TYPE_PTP` | Fix. Done here for the one site whose module already imports the package. |
+| Structural rails and saturation values | `0xFFFF`, `0xFFFFFFFF`, `0x0000` | Not duplication. The same rail in unrelated modules is a coincidence of width, not a shared fact. |
+| Deliberate independent oracles | `0x22F0`, `0x88F7`, `0x8100` in tests and wire-truth tools | Keep. See below. |
+
+Three further sites (`hdl/milan/KL_pp_shadow.sv`,
+`hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv`,
+`hdl/ieee8021as/gptp_plane/KL_gptp_txstamp.sv`) spell the same EtherTypes raw
+but do **not** import the package. Adding an import to three modules changes
+their compile dependencies, so it is a separate change with its own
+verification rather than a rider on this one.
+
+### Proving the oracle exception
+
+A test that reads its expectations back through the implementation's own
+expression agrees with any permutation of it. The claim that an oracle is
+independent is therefore made with a mutation, not asserted.
+
+`tb/verilator/aaf_latency_tap_bank` takes every LTAP word offset and field split
+from the register map at base `0x870`, not from the packing expression in
+`hdl/ieee1722/aaf/KL_aaf_latency_tap_bank.sv`. Swapping the `max` and `last`
+halves of one word in the RTL makes the harness fail — on the one check where a
+sample's maximum and its last value genuinely differ, which is exactly the check
+that can see the swap. A harness that had imported the DUT's word order would
+have stayed green through the same mutation.
+
+### Exceptions
+
+- Values that are coincidentally equal but mean different things are not
+  abstracted together. Two constants that happen to be 8 are two constants.
+- A test keeps its own copy of a specification value when importing the
+  implementation's symbol would make the test grade itself.
+- Wire-format byte comparisons stay literal where a name would hide the bytes;
+  the citation goes beside them instead.
+
+### Review checklist
+
+- Does this fact have exactly one definition, and can a reader find it?
+- If it is copied, is the copy generated or drift-checked — and by what?
+- Does the drift check derive from the authority, or from another copy?
+- If a test repeats a value, is the reason independence, and is the external
+  rule cited?
+- Would a wrong implementation constant still make the test fail?
+
 ## Rules not yet landed
 
-The contract is ten rules. Rules 1 and 2 are above; the rest keep these
+The contract is ten rules. Rules 1, 2 and 3 are above; the rest keep these
 numbers so citations stay stable as they land:
 
 | Rule | Subject |
 |---|---|
-| 3 | One source of truth, without weakening independent test oracles |
 | 4 | Intention-revealing names and explicit units and types |
 | 5 | Explicit ports, contracts, ownership and side effects |
 | 6 | Fail fast and encode invariants |

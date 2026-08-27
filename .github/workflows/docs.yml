@@ -83,6 +83,17 @@ jobs:
       - name: SoC source-list gate (Vivado would fail 40 min in without this)
         run: python3 scripts/check_soc_sources.py
 
+      # The other four lists of the same RTL. check_soc_sources.py guards the
+      # Vivado one; this gate derives the whole milan_datapath file closure
+      # from the RTL and checks every consumer against it, asking each one for
+      # its own expansion rather than parsing it. Placed here because it needs
+      # the same submodules the builder steps above check out. A consumer whose
+      # tooling is absent is reported SKIPPED by name, never dropped silently.
+      - name: RTL source-list drift gate
+        run: |
+          python3 scripts/check_rtl_source_lists.py
+          python3 scripts/check_rtl_source_lists.py --selftest
+
       # CI event and SHA contract gate (#174, #181): the four workflow files
       # and docs/testing/CI_WORKFLOWS.md must agree on the triggers, the cron
       # time, the public check names, cancel-in-progress and the one-SHA rule

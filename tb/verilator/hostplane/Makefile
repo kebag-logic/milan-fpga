@@ -135,7 +135,14 @@ SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv
        $(RTL_DIR)/common/csr/milan_csr.sv \
        $(RTL_DIR)/milan/milan_datapath.sv
 
-.PHONY: all run build clean banner
+.PHONY: all run build clean banner print-srcs
+
+# The list this suite will really compile, printed rather than described, so
+# scripts/check_rtl_source_lists.py grades bash's own expansion instead of a
+# model of it. Paths are relative to this directory.
+print-srcs:
+	@echo $(SRCS)
+
 
 all: run
 

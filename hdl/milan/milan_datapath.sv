@@ -2783,7 +2783,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   ptp_ts_top #(
     .TDATA_WIDTH(TDATA_WIDTH),
     .BIG_ENDIAN(0),
-    .ETH_TYPE(16'h88F7)
+    //! 802.1AS rides the PTP EtherType. The value is ETH_TYPE_PTP in
+    //! hdl/common/ethernet_packet_pkg.sv, which this module already imports;
+    //! spelling the literal here made a second definition of a fact the
+    //! package owns.
+    .ETH_TYPE(ETH_TYPE_PTP)
   ) ptp_timestamp (
     .gtx_clk(gtx_clk),
     .gtx_resetn(gtx_resetn),

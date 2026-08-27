@@ -153,6 +153,7 @@ SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv
        $(RTL_DIR)/ieee1722/aaf/KL_media_adv.sv \
        $(RTL_DIR)/common/cdc_pair_fifo.sv \
        $(RTL_DIR)/common/eth_event_counter/ethernet_events.sv \
+       $(RTL_DIR)/common/eth_event_counter/event_counter.sv \
        $(RTL_DIR)/common/csr/milan_csr.sv \
        $(RTL_DIR)/milan/milan_datapath.sv
 CPP  = sim_main.cpp

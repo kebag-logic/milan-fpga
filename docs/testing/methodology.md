@@ -71,7 +71,11 @@ whether it is correct. Existing L1 gates:
 we advertise against what the fabric emits),
 [`check_entity_shape.py`](../../scripts/check_entity_shape.py) (one declared shape
 across config, generated headers, registers and descriptors) and
-[`check_soc_sources.py`](../../scripts/check_soc_sources.py).
+[`check_soc_sources.py`](../../scripts/check_soc_sources.py) (the Vivado source
+list carries every module `milan_datapath` instantiates), and
+[`check_rtl_source_lists.py`](../../scripts/check_rtl_source_lists.py) (the
+other four lists of the same RTL carry the whole file closure, each asked for
+its own expansion rather than parsed).
 
 **L4 and L5 are the only levels with an independent oracle**, and they are the
 only reason escapes 1 and 7 were ever found. Treat access to them as scarce and
