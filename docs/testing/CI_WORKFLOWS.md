@@ -519,17 +519,20 @@ worktree at the PR's current remote `dev` base:
 python3 -I /absolute/path/to/trusted-dev/scripts/act_ci.py --pr <number>
 ```
 
-Never invoke `scripts/act_ci.py` from the candidate worktree. Python isolated
+Never invoke `scripts/act_ci.py` from the candidate worktree as the host-side
+orchestrator. The candidate copy does run its offline `--selftest` inside the
+disposable `docs` CI job; that contained check grants it no host or Docker
+authority and is not the trusted invocation described here. Python isolated
 mode prevents the candidate directory and ambient `PYTHONPATH` from supplying
-imports. The runner verifies that its own worktree and bytes are the clean
-current base before it reads candidate content. A PR that introduces the runner
-cannot bootstrap trust in its own code: an independent reviewer must first
-audit the exact file, install that file outside the candidate worktree with no
-writable mode bits, record its SHA-256, then use `--trusted-install-sha256`
-together with explicit `--repo` and `--worktree` arguments. That bootstrap is
-an independently granted trust decision, not an executor shortcut. Later PRs,
-including changes to this runner, are validated by the already-trusted base
-copy.
+imports to the host-side runner. The runner verifies that its own worktree and
+bytes are the clean current base before it reads candidate content. A PR that
+introduces the runner cannot bootstrap trust in its own code: an independent
+reviewer must first audit the exact file, install that file outside the
+candidate worktree with no writable mode bits, record its SHA-256, then use
+`--trusted-install-sha256` together with explicit `--repo` and `--worktree`
+arguments. That bootstrap is an independently granted trust decision, not an
+executor shortcut. Later PRs, including changes to this runner, are validated
+by the already-trusted base copy.
 
 The independent bootstrap records both the source commit and file digest, then
 uses a non-writable copy; `<candidate>` and `<audited-install>` are absolute
@@ -538,6 +541,8 @@ paths chosen by that reviewer:
 ```sh
 install -m 0555 <candidate>/scripts/act_ci.py <audited-install>/act_ci.py
 sha256sum <audited-install>/act_ci.py
+python3 -I <audited-install>/act_ci.py --selftest \
+  --worktree <candidate>
 python3 -I <audited-install>/act_ci.py --pr <number> \
   --repo kebag-logic/milan-fpga --worktree <candidate> \
   --trusted-install-sha256 <recorded-64-hex-digest>
@@ -548,23 +553,30 @@ runner's check of `--trusted-install-sha256` is self-attestation and detects
 drift after that audit; it cannot establish that substituted runner code is
 trustworthy by itself.
 
-The default runs `docs`, `elaborate`, `rtl-fast`, and `rtl-full` in that order.
+The `--selftest --worktree <candidate>` command above is the offline construction
+and negative-control gate; the explicit worktree tells an installed runner
+which shipping workflows to audit. The default PR run executes `docs`,
+`elaborate`, `rtl-fast`, and `rtl-full` in that order.
 Use repeatable `--workflow <name>` options for a focused reproduction, and use
 `--dry-run` to perform the trust, fetch, metadata, and byte checks and print the
 generated command before consuming containers. The runner requires `gh`, Git,
-PyYAML, Docker, and `act` 0.2.89 or newer. On a host where the current user
-cannot open the Docker socket, add `--sudo`; this is non-interactive and
-preserves no ambient environment or credential.
+PyYAML, Docker, and exactly `act` 0.2.89. A newer act is refused until its Docker
+mount and cache behavior is audited and the repository pin is deliberately
+updated. On a host where the current user cannot open the Docker socket, add
+`--sudo`; this is non-interactive and preserves no ambient environment or
+credential.
 
-An audited change to the runner's interruption or Docker cleanup boundary must
-also run the live fault-injection gate. It starts a harmless sleeping job,
-waits for its owned container, stops the `act` process group so normal cleanup
-cannot run, interrupts the runner, and requires both the container and its
-network to be absent afterward:
+An audited change to the runner's cache, interruption, or Docker cleanup
+boundary must also run the live fault-injection gate. It first writes a marker
+through the effective runner tool cache and proves a second fresh run cannot see
+it. It then starts a harmless sleeping job, inspects the real cache mount, waits
+for the owned container, stops the `act` process group so normal cleanup cannot
+run, interrupts the runner, and requires the container, network, tool-cache
+volume, and run directory to be absent afterward:
 
 ```sh
 python3 -I <audited-install>/act_ci.py --interrupt-selftest \
-  --act-bin <absolute-act-0.2.89-or-newer> [--sudo]
+  --act-bin <absolute-act-0.2.89> [--sudo]
 ```
 
 The command reads the open PR from GitHub and refuses before validation when
@@ -619,13 +631,29 @@ operator's worktree, and supplies no privileged flag. Candidate workflow code
 consequently runs only in the disposable job boundary.
 
 Every run and SHA gets fresh action/workspace, Actions-cache, artifact, event,
-configuration, and input directories. The artifact and cache servers bind only
-to the gateway address of the runner-created bridge, so they are reachable by
-that run's job containers but not advertised on the host's routable interface.
-Each workflow also receives a freshly allocated nonzero artifact-listener port;
-act treats zero as random only for its cache server. There is no persistent-cache
-override: a candidate cannot seed a later head. Cleanup is restricted to the
-exact generated directory and the network whose ID, name, gateway, and ownership
+configuration, and input directories. `act` 0.2.89 also hard-codes the global
+Docker volume name `act-toolcache`; the runner turns that otherwise persistent
+slot into an exclusive ephemeral boundary. It refuses if that volume already
+exists, creates it empty with the run's unpredictable ownership label, verifies
+the label before every workflow, and removes it with an absence check after the
+last owned container. A legacy cache must be checked for attached containers
+and removed explicitly; the runner never deletes an unowned volume. Concurrent
+runner invocations fail closed because only one can own the upstream global
+name. The live interruption self-test writes a marker through
+`RUNNER_TOOL_CACHE` in one run, creates a fresh second boundary, proves the
+marker is absent there, inspects the effective container mount, and finally
+proves interrupt cleanup removes the volume too.
+
+The artifact and cache servers bind only to the gateway address of the
+runner-created bridge, so they are reachable by that run's job containers but
+not advertised on the host's routable interface. Each workflow also receives a
+freshly allocated nonzero artifact-listener port; act treats zero as random only
+for its cache server. The offline self-test checks both bind arguments; actual
+artifact transport is covered by the mandatory ready-state full run, whose
+evidence must show both four-artifact aggregates downloading through that bridge
+gateway. The interruption probe tests cleanup and tool-cache separation, not
+artifact transfer. Cleanup is restricted to the exact generated directory, the
+labeled tool-cache volume, and the network whose ID, name, gateway, and ownership
 label the runner recorded at creation.
 After every workflow and on every exceptional exit, the runner inventories
 Docker, selects only containers carrying that token, attached to that network,

@@ -50,7 +50,7 @@ RC_OK, RC_FAILED, RC_REFUSED = 0, 1, 2
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 DEFAULT_BASE = "dev"
 RUNNER_IMAGE = "catthehacker/ubuntu:full-latest"
-MIN_ACT_VERSION = (0, 2, 89)
+SUPPORTED_ACT_VERSION = (0, 2, 89)
 SHA_RE = re.compile(r"^[0-9a-f]{40}$")
 REPOSITORY_RE = re.compile(
     r"^[A-Za-z0-9](?:[A-Za-z0-9_.-]{0,98}[A-Za-z0-9])?/"
@@ -62,6 +62,8 @@ MAX_WORKFLOW_BYTES = 1024 * 1024
 MAX_GITMODULES_BYTES = 64 * 1024
 DOCKER_ID_RE = re.compile(r"^[0-9a-f]{64}$")
 DOCKER_OWNER_LABEL = "org.kebag-logic.milan-act-ci.owner"
+ACT_TOOLCACHE_VOLUME = "act-toolcache"
+ACT_TOOLCACHE_TARGET = "/opt/hostedtoolcache"
 DOCKER_COMMAND_TIMEOUT = 30
 
 WORKFLOWS: dict[str, str] = {
@@ -184,12 +186,13 @@ class RunLayout:
 
 @dataclass(frozen=True)
 class DockerBoundary:
-    """One unpredictable, runner-owned Docker network and ownership label."""
+    """One unpredictable runner-owned Docker network and ephemeral cache slot."""
 
     token: str
     name: str
     network_id: str | None = None
     gateway: str | None = None
+    toolcache_owned: bool = False
 
 
 def require_tool(name: str) -> str:
@@ -340,6 +343,16 @@ def parse_act_version(text: str) -> tuple[int, int, int]:
     if not found:
         raise Refusal(f"cannot parse act version from {text!r}")
     return tuple(int(value) for value in found.groups())  # type: ignore[return-value]
+
+
+def require_supported_act_version(version: tuple[int, int, int]) -> None:
+    if version != SUPPORTED_ACT_VERSION:
+        want = ".".join(str(part) for part in SUPPORTED_ACT_VERSION)
+        got = ".".join(str(part) for part in version)
+        raise Refusal(
+            f"act {got} is not the audited version {want}; review its Docker "
+            "tool-cache behavior before changing the pin"
+        )
 
 
 def resolve_act_binary(value: str) -> str:
@@ -1061,6 +1074,190 @@ def run_docker(
     return result
 
 
+def docker_reports_missing_toolcache(
+    result: subprocess.CompletedProcess[str],
+) -> bool:
+    detail = (result.stderr or "").lower()
+    return (
+        result.returncode != 0
+        and ACT_TOOLCACHE_VOLUME in detail
+        and "no such volume" in detail
+    )
+
+
+def parse_act_toolcache_volume(
+    text: str, boundary: DockerBoundary
+) -> Mapping[str, object]:
+    try:
+        volumes = json.loads(text)
+        volume = volumes[0]
+    except (json.JSONDecodeError, IndexError, KeyError, TypeError) as exc:
+        raise Refusal("Docker returned malformed act tool-cache metadata") from exc
+    if not isinstance(volumes, list) or len(volumes) != 1 or not isinstance(
+        volume, dict
+    ):
+        raise Refusal("Docker returned malformed act tool-cache metadata")
+    labels = volume.get("Labels")
+    if (
+        volume.get("Name") != ACT_TOOLCACHE_VOLUME
+        or volume.get("Driver") != "local"
+        or volume.get("Scope") != "local"
+        or not isinstance(labels, dict)
+        or labels.get(DOCKER_OWNER_LABEL) != boundary.token
+    ):
+        raise Refusal("act tool-cache volume identity or ownership changed")
+    return volume
+
+
+def require_act_toolcache_absent(
+    *,
+    use_sudo: bool,
+    cwd: pathlib.Path,
+    env: Mapping[str, str],
+) -> None:
+    result = run_docker(
+        ["volume", "inspect", ACT_TOOLCACHE_VOLUME],
+        use_sudo=use_sudo,
+        cwd=cwd,
+        env=env,
+        description="act tool-cache absence check",
+        check=False,
+    )
+    if result.returncode == 0:
+        raise Refusal(
+            f"shared Docker volume {ACT_TOOLCACHE_VOLUME!r} already exists; "
+            "verify that no container uses it and remove that legacy cache "
+            "explicitly before validation"
+        )
+    if not docker_reports_missing_toolcache(result):
+        detail = (result.stderr or "").strip().splitlines()
+        suffix = f": {detail[-1]}" if detail else ""
+        raise Refusal(f"cannot verify act tool-cache absence{suffix}")
+
+
+def inspect_act_toolcache_volume(
+    boundary: DockerBoundary,
+    *,
+    use_sudo: bool,
+    cwd: pathlib.Path,
+    env: Mapping[str, str],
+) -> Mapping[str, object]:
+    if not boundary.toolcache_owned:
+        raise Refusal("Docker boundary has no owned act tool-cache volume")
+    result = run_docker(
+        ["volume", "inspect", ACT_TOOLCACHE_VOLUME],
+        use_sudo=use_sudo,
+        cwd=cwd,
+        env=env,
+        description="act tool-cache inspection",
+        check=False,
+    )
+    if result.returncode != 0:
+        if docker_reports_missing_toolcache(result):
+            raise Refusal("owned act tool-cache volume disappeared")
+        detail = (result.stderr or "").strip().splitlines()
+        suffix = f": {detail[-1]}" if detail else ""
+        raise Refusal(f"act tool-cache inspection failed{suffix}")
+    return parse_act_toolcache_volume(result.stdout, boundary)
+
+
+def discard_act_toolcache_if_owned(
+    boundary: DockerBoundary,
+    *,
+    use_sudo: bool,
+    cwd: pathlib.Path,
+    env: Mapping[str, str],
+) -> None:
+    """Best-effort rollback used only after an incomplete volume creation."""
+    result = run_docker(
+        ["volume", "inspect", ACT_TOOLCACHE_VOLUME],
+        use_sudo=use_sudo,
+        cwd=cwd,
+        env=env,
+        description="partial act tool-cache inspection",
+        check=False,
+    )
+    if result.returncode != 0:
+        return
+    try:
+        parse_act_toolcache_volume(result.stdout, replace(boundary, toolcache_owned=True))
+    except Refusal:
+        return
+    run_docker(
+        ["volume", "rm", ACT_TOOLCACHE_VOLUME],
+        use_sudo=use_sudo,
+        cwd=cwd,
+        env=env,
+        description="partial act tool-cache rollback",
+        check=False,
+    )
+
+
+def create_act_toolcache_volume(
+    planned: DockerBoundary,
+    *,
+    use_sudo: bool,
+    cwd: pathlib.Path,
+    env: Mapping[str, str],
+) -> DockerBoundary:
+    if planned.toolcache_owned:
+        raise Refusal("refusing to recreate an initialized act tool-cache volume")
+    require_act_toolcache_absent(use_sudo=use_sudo, cwd=cwd, env=env)
+    result = run_docker(
+        [
+            "volume",
+            "create",
+            "--driver",
+            "local",
+            "--label",
+            f"{DOCKER_OWNER_LABEL}={planned.token}",
+            ACT_TOOLCACHE_VOLUME,
+        ],
+        use_sudo=use_sudo,
+        cwd=cwd,
+        env=env,
+        description="ephemeral act tool-cache creation",
+    )
+    boundary = replace(planned, toolcache_owned=True)
+    try:
+        if result.stdout.strip() != ACT_TOOLCACHE_VOLUME:
+            raise Refusal("Docker returned the wrong act tool-cache volume name")
+        inspect_act_toolcache_volume(
+            boundary, use_sudo=use_sudo, cwd=cwd, env=env
+        )
+    except BaseException:
+        discard_act_toolcache_if_owned(
+            boundary, use_sudo=use_sudo, cwd=cwd, env=env
+        )
+        raise
+    return boundary
+
+
+def cleanup_act_toolcache_volume(
+    boundary: DockerBoundary,
+    *,
+    use_sudo: bool,
+    cwd: pathlib.Path,
+    env: Mapping[str, str],
+) -> None:
+    inspect_act_toolcache_volume(
+        boundary, use_sudo=use_sudo, cwd=cwd, env=env
+    )
+    result = run_docker(
+        ["volume", "rm", ACT_TOOLCACHE_VOLUME],
+        use_sudo=use_sudo,
+        cwd=cwd,
+        env=env,
+        description="ephemeral act tool-cache removal",
+        check=False,
+    )
+    if result.returncode != 0:
+        detail = (result.stderr or "").strip().splitlines()
+        suffix = f": {detail[-1]}" if detail else ""
+        raise Refusal(f"act tool-cache removal failed{suffix}")
+    require_act_toolcache_absent(use_sudo=use_sudo, cwd=cwd, env=env)
+
+
 def new_docker_boundary() -> DockerBoundary:
     token = secrets.token_hex(16)
     if not re.fullmatch(r"[0-9a-f]{32}", token):
@@ -1122,6 +1319,9 @@ def inspect_docker_boundary(
         or (boundary.gateway is not None and boundary.gateway != gateway)
     ):
         raise Refusal("Docker boundary identity, ownership, or gateway changed")
+    inspect_act_toolcache_volume(
+        boundary, use_sudo=use_sudo, cwd=cwd, env=env
+    )
     return gateway
 
 
@@ -1132,23 +1332,32 @@ def create_docker_boundary(
     cwd: pathlib.Path,
     env: Mapping[str, str],
 ) -> DockerBoundary:
-    if planned.network_id is not None:
+    if planned.network_id is not None or planned.toolcache_owned:
         raise Refusal("refusing to recreate an initialized Docker boundary")
-    result = run_docker(
-        [
-            "network",
-            "create",
-            "--driver",
-            "bridge",
-            "--label",
-            f"{DOCKER_OWNER_LABEL}={planned.token}",
-            planned.name,
-        ],
-        use_sudo=use_sudo,
-        cwd=cwd,
-        env=env,
-        description="isolated Docker network creation",
+    boundary = create_act_toolcache_volume(
+        planned, use_sudo=use_sudo, cwd=cwd, env=env
     )
+    try:
+        result = run_docker(
+            [
+                "network",
+                "create",
+                "--driver",
+                "bridge",
+                "--label",
+                f"{DOCKER_OWNER_LABEL}={planned.token}",
+                planned.name,
+            ],
+            use_sudo=use_sudo,
+            cwd=cwd,
+            env=env,
+            description="isolated Docker network creation",
+        )
+    except BaseException:
+        cleanup_act_toolcache_volume(
+            boundary, use_sudo=use_sudo, cwd=cwd, env=env
+        )
+        raise
     network_id = result.stdout.strip()
     if not DOCKER_ID_RE.fullmatch(network_id):
         run_docker(
@@ -1159,8 +1368,12 @@ def create_docker_boundary(
             description="malformed Docker boundary removal",
             check=False,
         )
+        cleanup_act_toolcache_volume(
+            boundary, use_sudo=use_sudo, cwd=cwd, env=env
+        )
         raise Refusal("Docker returned an invalid boundary network ID")
     boundary = replace(planned, network_id=network_id)
+    boundary = replace(boundary, toolcache_owned=True)
     try:
         gateway = inspect_docker_boundary(
             boundary, use_sudo=use_sudo, cwd=cwd, env=env
@@ -1173,6 +1386,9 @@ def create_docker_boundary(
             env=env,
             description="invalid Docker boundary removal",
             check=False,
+        )
+        cleanup_act_toolcache_volume(
+            boundary, use_sudo=use_sudo, cwd=cwd, env=env
         )
         raise
     return replace(boundary, gateway=gateway)
@@ -1317,6 +1533,51 @@ def running_container_ids(
     return sorted(running)
 
 
+def verify_runner_toolcache_mounts(
+    inventory: Sequence[Mapping[str, object]],
+    boundary: DockerBoundary,
+    *,
+    require_any: bool,
+) -> int:
+    """Prove every directly labeled act job uses the owned global cache slot."""
+    verified = 0
+    for item in inventory:
+        config = item.get("Config")
+        labels = config.get("Labels") if isinstance(config, dict) else None
+        if not (
+            isinstance(labels, dict)
+            and labels.get(DOCKER_OWNER_LABEL) == boundary.token
+        ):
+            continue
+        mounts = item.get("Mounts")
+        if not isinstance(mounts, list):
+            raise Refusal("owned act container has malformed mount metadata")
+        candidates = [
+            mount
+            for mount in mounts
+            if isinstance(mount, dict)
+            and (
+                mount.get("Name") == ACT_TOOLCACHE_VOLUME
+                or mount.get("Destination") == ACT_TOOLCACHE_TARGET
+            )
+        ]
+        if (
+            len(candidates) != 1
+            or candidates[0].get("Type") != "volume"
+            or candidates[0].get("Name") != ACT_TOOLCACHE_VOLUME
+            or candidates[0].get("Destination") != ACT_TOOLCACHE_TARGET
+            or candidates[0].get("RW") is not True
+        ):
+            raise Refusal(
+                "owned act container does not use exactly the verified ephemeral "
+                "tool-cache volume"
+            )
+        verified += 1
+    if require_any and verified == 0:
+        raise Refusal("no owned act container exposed a verifiable tool-cache mount")
+    return verified
+
+
 def cleanup_owned_containers(
     boundary: DockerBoundary,
     *,
@@ -1422,6 +1683,13 @@ def cleanup_docker_boundary(
         except Refusal as exc:
             errors.append(str(exc))
 
+    try:
+        cleanup_act_toolcache_volume(
+            boundary, use_sudo=use_sudo, cwd=cwd, env=env
+        )
+    except Refusal as exc:
+        errors.append(str(exc))
+
     if boundary.network_id is not None:
         try:
             result = run_docker(
@@ -1502,6 +1770,8 @@ def build_act_command(
 ) -> list[str]:
     if not 1 <= artifact_port <= 65535:
         raise Refusal(f"invalid artifact-server port: {artifact_port}")
+    if not boundary.toolcache_owned:
+        raise Refusal("Docker boundary has no exclusive act tool-cache volume")
     try:
         gateway = ipaddress.ip_address(boundary.gateway or "")
     except ValueError as exc:
@@ -1658,10 +1928,7 @@ def require_runtime(
         description="act version check",
     )
     version = parse_act_version(version_text)
-    if version < MIN_ACT_VERSION:
-        want = ".".join(str(part) for part in MIN_ACT_VERSION)
-        got = ".".join(str(part) for part in version)
-        raise Refusal(f"act {got} is older than the tested minimum {want}")
+    require_supported_act_version(version)
 
     run_docker(
         ["info", "--format", "{{.ServerVersion}}"],
@@ -1917,6 +2184,7 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
                 name=f"milan-act-ci-{'a' * 32}",
                 network_id="b" * 64,
                 gateway="172.30.0.1",
+                toolcache_owned=True,
             )
             command = build_act_command(
                 ["act"], "rtl-full", first, allocated_port, selftest_boundary
@@ -1989,6 +2257,37 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
                     replace(selftest_boundary, gateway=None),
                 ),
             )
+            refused(
+                "a boundary without an exclusive tool cache cannot run act",
+                lambda: build_act_command(
+                    ["act"],
+                    "docs",
+                    first,
+                    allocated_port,
+                    replace(selftest_boundary, toolcache_owned=False),
+                ),
+            )
+            volume_metadata = json.dumps(
+                [
+                    {
+                        "Name": ACT_TOOLCACHE_VOLUME,
+                        "Driver": "local",
+                        "Scope": "local",
+                        "Labels": {
+                            DOCKER_OWNER_LABEL: selftest_boundary.token,
+                        },
+                    }
+                ]
+            )
+            parse_act_toolcache_volume(volume_metadata, selftest_boundary)
+            check("the labeled ephemeral act tool cache is accepted", True)
+            refused(
+                "a tool-cache volume owned by another run is refused",
+                lambda: parse_act_toolcache_volume(
+                    volume_metadata,
+                    replace(selftest_boundary, token="f" * 32),
+                ),
+            )
             check(
                 "two heads receive different writable action/workflow caches",
                 first.action_cache != second.action_cache
@@ -2047,10 +2346,18 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
         {
             "Id": owned_id,
             "Name": "/owned",
-            "Config": {"Labels": {}},
+            "Config": {"Labels": {DOCKER_OWNER_LABEL: selftest_boundary.token}},
             "HostConfig": {"NetworkMode": selftest_boundary.name},
             "NetworkSettings": {"Networks": {}},
             "State": {"Running": False},
+            "Mounts": [
+                {
+                    "Type": "volume",
+                    "Name": ACT_TOOLCACHE_VOLUME,
+                    "Destination": ACT_TOOLCACHE_TARGET,
+                    "RW": True,
+                }
+            ],
         },
         {
             "Id": child_id,
@@ -2079,10 +2386,42 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
         unrelated_id not in selected
         and running_container_ids(inventory, selected) == [child_id],
     )
+    check(
+        "the live-container inspector verifies the effective tool-cache mount",
+        verify_runner_toolcache_mounts(
+            inventory, selftest_boundary, require_any=True
+        )
+        == 1,
+    )
+    invalid_mount_inventory = [
+        {
+            **inventory[0],
+            "Mounts": [
+                {
+                    "Type": "volume",
+                    "Name": "shared-elsewhere",
+                    "Destination": ACT_TOOLCACHE_TARGET,
+                    "RW": True,
+                }
+            ],
+        }
+    ]
+    refused(
+        "an owned container on a different tool-cache volume is refused",
+        lambda: verify_runner_toolcache_mounts(
+            invalid_mount_inventory, selftest_boundary, require_any=True
+        ),
+    )
 
     check(
         "act version parser accepts the tested version",
-        parse_act_version("act version 0.2.89") == MIN_ACT_VERSION,
+        parse_act_version("act version 0.2.89") == SUPPORTED_ACT_VERSION,
+    )
+    require_supported_act_version(SUPPORTED_ACT_VERSION)
+    check("the audited act version is accepted", True)
+    refused(
+        "an unaudited newer act version is refused",
+        lambda: require_supported_act_version((0, 2, 90)),
     )
     refused(
         "unparseable act version is refused",
@@ -2333,7 +2672,7 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
 
 
 def interrupt_selftest(act_binary: str, use_sudo: bool) -> int:
-    """Freeze act with a live job and prove daemon-owned cleanup completes."""
+    """Prove tool-cache separation, then interrupt act and verify cleanup."""
     probe_pr = PullRequest(
         number=1,
         state="OPEN",
@@ -2348,21 +2687,55 @@ def interrupt_selftest(act_binary: str, use_sudo: bool) -> int:
     )
     workflow = "interrupt-selftest"
     relative_workflow = ".github/workflows/interrupt-selftest.yml"
+    seed_workflow = "toolcache-seed-selftest"
+    seed_path = ".github/workflows/toolcache-seed-selftest.yml"
+    probe_workflow = "toolcache-probe-selftest"
+    probe_path = ".github/workflows/toolcache-probe-selftest.yml"
+    marker = "milan-act-ci-cross-run-marker"
     with temporary_run_directory(use_sudo) as run_root:
         layout = make_layout(run_root, probe_pr)
         layout.checkout.mkdir(parents=True)
-        workflow_path = layout.checkout / relative_workflow
-        workflow_path.parent.mkdir(parents=True)
-        workflow_path.write_text(
-            "name: interrupt-selftest\n"
-            "on: pull_request\n"
-            "jobs:\n"
-            "  sleep:\n"
-            "    runs-on: ubuntu-latest\n"
-            "    steps:\n"
-            "      - run: sleep 300\n",
-            encoding="utf-8",
-        )
+        workflow_sources = {
+            relative_workflow: (
+                "name: interrupt-selftest\n"
+                "on: pull_request\n"
+                "jobs:\n"
+                "  sleep:\n"
+                "    runs-on: ubuntu-latest\n"
+                "    steps:\n"
+                "      - run: sleep 300\n"
+            ),
+            seed_path: (
+                "name: toolcache-seed-selftest\n"
+                "on: pull_request\n"
+                "jobs:\n"
+                "  seed:\n"
+                "    runs-on: ubuntu-latest\n"
+                "    steps:\n"
+                "      - shell: bash\n"
+                "        run: |\n"
+                "          set -euo pipefail\n"
+                f'          test "$RUNNER_TOOL_CACHE" = "{ACT_TOOLCACHE_TARGET}"\n'
+                f'          printf "head-a\\n" > "$RUNNER_TOOL_CACHE/{marker}"\n'
+            ),
+            probe_path: (
+                "name: toolcache-probe-selftest\n"
+                "on: pull_request\n"
+                "jobs:\n"
+                "  probe:\n"
+                "    runs-on: ubuntu-latest\n"
+                "    steps:\n"
+                "      - shell: bash\n"
+                "        run: |\n"
+                "          set -euo pipefail\n"
+                f'          test "$RUNNER_TOOL_CACHE" = "{ACT_TOOLCACHE_TARGET}"\n'
+                f'          test ! -e "$RUNNER_TOOL_CACHE/{marker}"\n'
+            ),
+        }
+        for path, contents in workflow_sources.items():
+            workflow_path = layout.checkout / path
+            workflow_path.parent.mkdir(parents=True, exist_ok=True)
+            workflow_path.write_text(contents, encoding="utf-8")
         git = git_prefix()
         git_env = git_environment(layout.home)
         capture(
@@ -2372,7 +2745,13 @@ def interrupt_selftest(act_binary: str, use_sudo: bool) -> int:
             description="interrupt self-test repository creation",
         )
         capture(
-            [*git, "-C", str(layout.checkout), "add", relative_workflow],
+            [
+                *git,
+                "-C",
+                str(layout.checkout),
+                "add",
+                *workflow_sources,
+            ],
             cwd=layout.root,
             env=git_env,
             description="interrupt self-test workflow staging",
@@ -2402,14 +2781,52 @@ def interrupt_selftest(act_binary: str, use_sudo: bool) -> int:
         env = controlled_act_environment(layout)
         validate_isolation_layout(layout)
         prefix = require_runtime(act_binary, use_sudo, layout, env)
-        planned = new_docker_boundary()
-        monitor_cancel = threading.Event()
-        frozen = threading.Event()
-        monitor_problems: list[str] = []
-        monitor_threads: list[threading.Thread] = []
 
         try:
             WORKFLOWS[workflow] = relative_workflow
+            WORKFLOWS[seed_workflow] = seed_path
+            WORKFLOWS[probe_workflow] = probe_path
+
+            def run_completed_live_probe(selected_workflow: str) -> None:
+                with temporary_docker_boundary(
+                    new_docker_boundary(),
+                    use_sudo=use_sudo,
+                    cwd=layout.invocation,
+                    env=env,
+                ) as probe_boundary:
+                    probe_command = build_act_command(
+                        prefix,
+                        selected_workflow,
+                        layout,
+                        allocate_tcp_port(),
+                        probe_boundary,
+                    )
+                    probe_command.append("--pull=false")
+                    probe_result = run_act_process(
+                        probe_command,
+                        cwd=layout.invocation,
+                        env=env,
+                    )
+                    if probe_result.returncode != 0:
+                        raise Refusal(
+                            f"{selected_workflow} exited "
+                            f"{probe_result.returncode}"
+                        )
+
+            run_completed_live_probe(seed_workflow)
+            require_act_toolcache_absent(
+                use_sudo=use_sudo, cwd=layout.invocation, env=env
+            )
+            run_completed_live_probe(probe_workflow)
+            require_act_toolcache_absent(
+                use_sudo=use_sudo, cwd=layout.invocation, env=env
+            )
+
+            planned = new_docker_boundary()
+            monitor_cancel = threading.Event()
+            frozen = threading.Event()
+            monitor_problems: list[str] = []
+            monitor_threads: list[threading.Thread] = []
             with temporary_docker_boundary(
                 planned,
                 use_sudo=use_sudo,
@@ -2437,6 +2854,22 @@ def interrupt_selftest(act_binary: str, use_sudo: bool) -> int:
                                 )
                                 selected = owned_container_ids(inventory, boundary)
                                 if running_container_ids(inventory, selected):
+                                    try:
+                                        inspect_act_toolcache_volume(
+                                            boundary,
+                                            use_sudo=use_sudo,
+                                            cwd=layout.invocation,
+                                            env=env,
+                                        )
+                                        verify_runner_toolcache_mounts(
+                                            inventory,
+                                            boundary,
+                                            require_any=True,
+                                        )
+                                    except Refusal as exc:
+                                        monitor_problems.append(str(exc))
+                                        os.kill(os.getpid(), signal.SIGINT)
+                                        return
                                     try:
                                         signal_process_group(
                                             process_group, signal.SIGSTOP
@@ -2495,7 +2928,12 @@ def interrupt_selftest(act_binary: str, use_sudo: bool) -> int:
                 if not frozen.is_set():
                     raise Refusal("interrupt self-test did not freeze act")
         finally:
-            WORKFLOWS.pop(workflow, None)
+            for selected_workflow in (
+                workflow,
+                seed_workflow,
+                probe_workflow,
+            ):
+                WORKFLOWS.pop(selected_workflow, None)
 
         final_inventory = docker_container_inventory(
             use_sudo=use_sudo, cwd=layout.invocation, env=env
@@ -2505,7 +2943,13 @@ def interrupt_selftest(act_binary: str, use_sudo: bool) -> int:
             raise Refusal(
                 f"interrupt self-test left {len(survivors)} owned container(s)"
             )
-    print("interrupt-selftest: PASS (frozen act left no container or network)")
+        require_act_toolcache_absent(
+            use_sudo=use_sudo, cwd=layout.invocation, env=env
+        )
+    print(
+        "interrupt-selftest: PASS (tool cache did not cross runs; frozen act "
+        "left no container, network, or volume)"
+    )
     return RC_OK
 
 

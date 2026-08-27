@@ -169,7 +169,9 @@ from a separate, clean worktree at the PR's current remote `dev` base:
 python3 -I /absolute/path/to/trusted-dev/scripts/act_ci.py --pr <number>
 ```
 
-Never execute the candidate's copy of this host-side runner. Select applicable
+Never execute the candidate's copy as the **host-side orchestrator**. The
+candidate copy may run its offline `--selftest` only inside the disposable CI
+job boundary; that does not grant it host or Docker authority. Select applicable
 fast workflows on a draft; the ready default runs all four. The command refuses
 a dirty or mismatched candidate, records and rechecks the exact remote head,
 and forwards no host credential. Its result is local evidence only; protected
