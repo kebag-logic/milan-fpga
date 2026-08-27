@@ -9,30 +9,24 @@
 //  Description : Testbench wrap marrying the gptp-processor submodule's
 //                KL_gptp_engine to the PARENT's real timestamp_counter --
 //                the exact pairing the datapath splice will instantiate.
-//                The engine's PHC face maps onto the counter's knobs:
+//                The engine's PHC control outputs map onto the counter's
+//                knobs:
 //
 //                  phc_addend_*  ->  adj_i        (adjfine, Q8.24 ns/tick,
 //                                                  latched here: the engine
 //                                                  pulses, the counter wants
 //                                                  a level)
 //                  phc_step_*    ->  offset_i + cmd_adjust_i  (adjtime)
-//                  timestamp_out ->  phc_ns_i     (the clock it steers;
-//                                                  the ENGINE's port is
-//                                                  UNREAD at the current
-//                                                  submodule pin, so no
-//                                                  check here observes it
-//                                                  (milan-fpga #211). The
-//                                                  SLICE's counter wire is
-//                                                  a different signal and
-//                                                  is covered by
-//                                                  tb/verilator/gptp_shadow)
 //
-//                The addend latch is the one piece of fabric the splice
-//                adds beyond wires; it lives here until then. The counter
-//                runs its 125 MHz shape (8.0 ns Q8.24 increment) while the
-//                bench clock is CLK_HZ_P -- the engine's µcode gain is
-//                generated for the bench's ticks-per-interval, so the
-//                closed loop is exact in counter time.
+//                The engine has no free-running nanosecond-counter input at
+//                the pinned donor revision (milan-fpga #211); timestamps
+//                enter through the event-specific rx_ts_i and txts_ns_i
+//                faces. The addend latch is the one piece of fabric the
+//                splice adds beyond wires; it lives here until then. The
+//                counter runs its 125 MHz shape (8.0 ns Q8.24 increment)
+//                while the bench clock is CLK_HZ_P -- the engine's µcode
+//                gain is generated for the bench's ticks-per-interval, so
+//                the closed loop is exact in counter time.
 //---------------------------------------------------------------------------//
 `default_nettype none
 
@@ -139,7 +133,6 @@ module gptp_plane_wrap #(
       .txts_ns_i          (txts_ns_i),
       .txts_seq_i         (txts_seq_i),
       .txts_type_i        (txts_type_i),
-      .phc_ns_i           (phc_ns_o),
       .phc_addend_we_o    (adj_we_w),
       .phc_addend_o       (adj_val_w),
       .phc_step_we_o      (step_we_w),

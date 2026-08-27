@@ -11,9 +11,10 @@
 //                EtherType 0x88F7 into a frame FIFO, a byte serializer feeds
 //                the gptp-processor submodule's KL_gptp_engine at 1 B/clk,
 //                and the engine's byte TX gears back up onto one wide
-//                control-lane leg. The engine's PHC face becomes the parent
-//                timestamp_counter's knobs (the adjfine pulse latches to a
-//                level here; adjtime passes through), and the publish bank
+//                control-lane leg. The engine's PHC control outputs become
+//                the parent timestamp_counter's knobs (the adjfine pulse
+//                latches to a level here; adjtime passes through), and the
+//                publish bank
 //                (GM identity, parent identity, asCapable/sync flags, peer
 //                delay, offset, selected PathTrace) is latched here as one
 //                transaction on the
@@ -74,7 +75,7 @@ module KL_gptp_shadow #(
     input  wire                       rx_tready_i,
     input  wire                       rx_tlast_i,
 
-    //! the live PHC value (timestamp_counter.timestamp_out)
+    //! live PHC value for ingress timestamp capture
     input  wire [63:0] phc_ns_i,
 
     //! PHC knobs out: adjfine as a latched LEVEL, adjtime as a pulse
@@ -522,7 +523,6 @@ module KL_gptp_shadow #(
       .txts_ns_i          (txts_ns_i),
       .txts_seq_i         (txts_seq_i),
       .txts_type_i        (txts_type_i),
-      .phc_ns_i           (phc_ns_i),
       .phc_addend_we_o    (adj_we_w),
       .phc_addend_o       (adj_val_w),
       .phc_step_we_o      (phc_step_we_o),

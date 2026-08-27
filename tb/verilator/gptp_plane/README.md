@@ -20,33 +20,22 @@ What it proves:
 | 2 | a live auto-answering peer raises asCapable at the second exchange |
 | 3 | a better announce is adopted; the publish bank carries the GM identity and role flags |
 | 4 | closed loop vs a +100 ppm master 1 ms ahead in counter time: ONE adjtime re-base near +1 ms (the correction negates the offset), the latched adjfine level lands at the +100 ppm ideal (13,421 Q8.24 units, within 15%), the measured offset locks under 150 ns, and the REAL counter's advance tracks the master's within 100 ns over the last four sync intervals |
-| 5 | announce silence rides to grandmaster; the two-step Sync's ten reserved octets are zero (802.1AS-2011 Table 11-8) and its paired Follow_Up carries a plausible live timestamp. It does NOT observe `phc_ns_i`: see the note below |
+| 5 | announce silence rides to grandmaster; the two-step Sync's ten reserved octets are zero (802.1AS-2011 Table 11-8) and its paired Follow_Up carries a plausible event-specific egress timestamp |
 
-The `phc_ns_i` blind spot from PR #113's review is RE-OPENED at the
-current submodule pin for the ENGINE's port, and this bench does not
-close it. Measured: tying `.phc_ns_i` to `64'd0` in
-`gptp_plane_wrap.sv` leaves the run at 22 checks, 22 PASS; on `dev` at
-the old pin `5c330fc8` the same tie failed `origin is the real
-counter`. `KL_gptp_engine`'s input has no reader at this pin: the
-microcode generator emits no `GATH` (FPGA-gPTP #10 removed the one that
-gathered the Sync body's origin), and `RTS1`, the register `phc_ns_i`
-feeds through `disp_ts1_r`, is read by no program. The Follow_Up's
-preciseOriginTimestamp comes from the TX timestamp instead, which this
-bench drives itself, so no assertion here can restore observability
-while the input is unread.
+Mister-M-alt/FPGA-gPTP#47 resolves the blind spot found in PR #113's review by
+removing the engine's unread free-running nanosecond input, its dispatch
+preload, and its gather leg. This direct-engine wrapper therefore connects the
+real counter only to the engine's PHC adjustment outputs; ingress and egress
+timestamps enter through `rx_ts_i` and `txts_ns_i` for their specific events.
 
-Scope that carefully, because the same name means two things. What is
-unread is the ENGINE port, which is what this wrapper instantiates.
-The SLICE's `timestamp_counter` wire is read by
+That removal does not apply to the fabric slice's live counter wire. It is read by
 `KL_gptp_shadow.sv`'s `ts_arr_r <= phc_ns_i` and `KL_gptp_txstamp.sv`'s
-first-beat `ts_r <= phc_ns_i` and IS covered:
+first-beat `ts_r <= phc_ns_i` and remains covered:
 tying both slice consumers in `tb/verilator/gptp_shadow`'s wrapper to
-`64'd0` turns that bench red, 59 checks with 45 PASS and 14 FAIL. So a
-mis-wire of the counter into the shipped slice is caught; only the
-engine's own port is invisible. Tracked as
-[#211](https://github.com/kebag-logic/milan-fpga/issues/211), which
-asks the real question: should the engine consume `phc_ns_i`, or is
-that port vestigial at this pin?
+`64'd0` turns that bench red across its delay, capability, publication, servo,
+and timestamp-ring checks. So a mis-wire of the counter into the shipped slice
+is still caught. The distinction and removal decision are tracked by
+[#211](https://github.com/kebag-logic/milan-fpga/issues/211).
 
 The harness derives every injected egress return's `sequenceId` and
 `messageType` from the selected transmitted frame and grades both fields,

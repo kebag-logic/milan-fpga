@@ -396,15 +396,11 @@ int main(int argc, char **argv) {
   // ten octets after the header are RESERVED and transmitted as zero
   // (802.1AS-2011 Table 11-8, since FPGA-gPTP #10); the real time rides
   // the paired Follow_Up's preciseOriginTimestamp (11.4.4.2.1), which is
-  // what this phase checks. It is NOT the phc_ns_i observing check PR
-  // #113's review asked for: at this pin the ENGINE's input has no
-  // reader (no GATH is emitted and RTS1 is never read), the Follow_Up's
-  // origin comes from the TX timestamp this bench drives itself at
-  // :119-122, and a constant-tied phc_ns_i leaves the run green. The
-  // SLICE's counter wire is a different signal and IS covered, by
-  // tb/verilator/gptp_shadow (tying its two consumers gives 31 PASS,
-  // 9 FAIL). Measured, tracked in milan-fpga #211; do not restate the
-  // blind spot as closed here.
+  // what this phase checks. Donor #47 removed the ENGINE's unread
+  // free-running PHC input; the Follow_Up origin comes from the event-specific
+  // TX timestamp this bench drives at :119-122. The SLICE's counter wire is a
+  // different signal and remains covered by tb/verilator/gptp_shadow through
+  // its ingress-capture and boundary-stamper consumers (milan-fpga #211).
   {
     expect("quiet ride to grandmaster",
            wait_flags(FL_AMGM, FL_AMGM, 10000000ull), 1);
