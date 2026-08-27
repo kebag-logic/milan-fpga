@@ -33,7 +33,8 @@ shape rather than guess at it.
 - **[Rule 7: comments explain why, and dead code goes](#rule-7-comments-explain-why-and-dead-code-goes)** -- What a comment is for, why a marker names its issue or is resolved, the near-misses that forced a narrow definition of "marker" and what the gate reads to find one, the two stale markers removed, and the dead code the inventory found.
 - **[Rule 8: tests prove something, and prove they can fail](#rule-8-tests-prove-something-and-prove-they-can-fail)** -- Why a green suite can prove nothing, the three defects injected into the TCAM to show its harness is load-bearing, what counts as an executed arm, the four evidence ratchets, and what was found already clean.
 - **[Rule 9: automate mechanical hygiene with measured ratchets](#rule-9-automate-mechanical-hygiene-with-measured-ratchets)** -- The six candidate checks measured before any was adopted, why the highest-volume one was rejected on the record, why three checks are adopted at zero, and how the formatting-only rewrite was isolated and proven.
-- **[Rules not yet landed](#rules-not-yet-landed)** -- The remaining nine rules of the contract, named so the numbering is stable and a reader knows what is still coming.
+- **[Rule 10: prefer idiomatic SystemVerilog](#rule-10-prefer-idiomatic-systemverilog)** -- Which construct is refused outright and why it is the only one that discards a real check, what is ratcheted instead, why a `wire` is deliberately not a finding, and the reset-less canary converted without gaining a reset. -- The remaining nine rules of the contract, named so the numbering is stable and a reader knows what is still coming.
+- **[The contract is complete](#the-contract-is-complete)** -- What every landed rule carries, and why each of the nine gates that enforce them ships with a self-test proving it can fail.
 
 ## The governing rule
 
@@ -2023,11 +2024,85 @@ content change, and the reviewer reads it as one.
 - A repaired line inside a string literal is a content change, not formatting:
   was every line `--fix` reported reviewed as one?
 
-## Rules not yet landed
+## Rule 10: prefer idiomatic SystemVerilog
 
-The contract is ten rules. Rules 1 to 9 are above; Rule 10 keeps its number
-so citations stay stable when it lands:
+> New first-party HDL MUST be SystemVerilog. New and touched synthesizable HDL
+> SHOULD use the strongest appropriate SystemVerilog constructs to make
+> ownership, state, width and interfaces explicit. Legacy code migrates
+> incrementally in behavior-preserving changes; generated, vendored, primitive
+> and tool-boundary code keeps the representation its owner requires, and
+> records the exception.
 
-| Rule | Subject |
-|---|---|
-| 10 | Idiomatic SystemVerilog and explicit HDL boundaries |
+[CONTRIBUTING.md](../../CONTRIBUTING.md) already requires SystemVerilog for new
+HDL. This rule is about what happens after the file extension: a `.sv` file can
+still be written as Verilog-2001, and what is lost is exactly the compile-time
+checking that makes ownership reviewable.
+
+### One refusal, two ratchets
+
+**A generic `always @` is refused.** It is the only construct here that discards
+a real check. `always_ff` asks every tool in the path to enforce a single driver
+and to reject a block that is not sequential; `always_comb` asks for a complete
+combinational block. `always @` asks for neither, and the difference is silent.
+
+**`reg` declarations are ratcheted at 48**, across twelve modules. A `reg` in a
+`.sv` file is legal and usually harmless; `logic` is the SystemVerilog spelling
+and new code uses it. Rewriting all forty-eight in one change is the churn the
+governing rule forbids.
+
+**Untyped `parameter` declarations are ratcheted at 4.** `parameter W = 8` takes
+an implementation-defined type; `parameter int W = 8` does not.
+
+### A `wire` is deliberately not a finding
+
+A net type is the correct model for module, primitive, continuous-assignment and
+multiple-driver connectivity. Mechanically rewriting `wire` to `logic` across
+the tree would touch nearly every file and change nothing a reader or a tool can
+use. The check does not look for it, and this paragraph exists so that decision
+is visible rather than an omission.
+
+### The one generic `always`, and why converting it was delicate
+
+`hdl/common/csr/milan_csr.sv` carried exactly one, and it was the reset-epoch
+canary: two flops that count datapath reset **releases** and therefore must have
+no reset clause at all, so their bitstream initialisation survives every axis
+reset. Adding a reset would silently destroy the only thing they measure — the
+`reset_less` rule in [CONTRIBUTING.md](../../CONTRIBUTING.md) is about exactly
+this class of observer.
+
+`always_ff` with no reset clause is still reset-less: the keyword states
+sequential intent and asks for single-driver enforcement, and it adds nothing
+else. The block is converted, `reg` becomes `logic`, and the comment now says
+that a reset must never be added there — because the next reader's instinct on
+seeing `always_ff` with no reset will be to add one.
+
+The CSR suite passes unchanged across all four of its windows (385, 385, 104 and
+31 checks), the lint ratchet is unmoved, and `milan_datapath` still elaborates
+with the tied-input and tap-purity gates green.
+
+### Exceptions, recorded rather than assumed
+
+`hdl/milan/milan_dma_wrapper.v` is a Vivado-generated IP wrapper and keeps the
+representation its tool requires. It is not excluded by this gate's own judgement:
+the exclusion list is imported from
+[`scripts/lint_rtl.py`](../../scripts/lint_rtl.py), which already records a reason
+for every entry — the same list Rules 5 and 6 use.
+
+### Review checklist
+
+- Does the procedural block say whether it is sequential or combinational?
+- Does each variable's declaration say who owns it?
+- Do parameters carry a type?
+- If this is a net, is it connectivity — or a variable spelled as one?
+- If a construct is avoided for a tool, is the tool and the reason written down?
+
+## The contract is complete
+
+All ten rules are above. Each carries wording, a repository interpretation,
+worked examples, exceptions, a review checklist, and — where the rule can be
+measured — a tool and a ratchet that only moves downward.
+
+Nine gates run in [the documentation workflow](../../.github/workflows/docs.yml)
+and each one carries a self-test that proves it can fail, because a gate whose
+population is empty is otherwise indistinguishable from a gate that does
+nothing.

@@ -1,0 +1,9 @@
+# Rule 10 ratchets. See scripts/check_sv_idiom.py. A generic `always @` is
+# refused outright and has no entry here; these two are debt.
+# BOTH NUMBERS MAY ONLY GO DOWN.
+#
+# `reg` in a .sv file is legal and usually harmless; `logic` is the
+# SystemVerilog spelling and new code uses it. A `wire` is NOT counted: a net
+# type is the right model for connectivity.
+reg declaration   = 48
+untyped parameter = 4
