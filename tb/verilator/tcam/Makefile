@@ -19,13 +19,22 @@ VFLAGS = --cc --exe --build -j 0 \
 SRCS = $(RTL_DIR)/ieee8021q/filtering/tcam.sv
 CPP  = sim_main.cpp
 
-.PHONY: all run clean
-all: run
+.PHONY: all run mutants clean
+.DEFAULT_GOAL := all
+all: run mutants
 
 run:
 	$(VERILATOR) $(VFLAGS) $(SRCS) $(CPP) -o Vtcam_sim
 	@echo "======================================================================"
 	./obj_dir/Vtcam_sim
+
+# Rule 8: prove the harness above is load-bearing. Three defects are injected
+# into the real RTL, one at a time, and each must make the SAME harness fail;
+# the unmutated build must still pass. Mutants are built in a temporary
+# directory, so nothing is written into the tree.
+mutants:
+	@echo "======================================================================"
+	python3 mutants.py
 
 clean:
 	rm -rf obj_dir

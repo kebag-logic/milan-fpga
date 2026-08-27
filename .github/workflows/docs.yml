@@ -143,6 +143,13 @@ jobs:
           python3 scripts/check_todo_ownership.py
           python3 scripts/check_todo_ownership.py --selftest
 
+      # Rule 8: how much a passing suite proves. Suites without a mutation arm
+      # are ratcheted down; unseeded random draws are held at zero.
+      - name: Test-evidence ratchet
+        run: |
+          python3 scripts/measure_test_evidence.py --check
+          python3 scripts/measure_test_evidence.py --selftest
+
       # CI event and SHA contract gate (#174, #181): the four workflow files
       # and docs/testing/CI_WORKFLOWS.md must agree on the triggers, the cron
       # time, the public check names, cancel-in-progress and the one-SHA rule

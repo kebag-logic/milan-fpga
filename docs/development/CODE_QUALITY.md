@@ -31,6 +31,7 @@ shape rather than guess at it.
 - **[Rule 5: make ports, contracts and ownership explicit](#rule-5-make-ports-contracts-and-ownership-explicit)** -- What a port contract must state, why wildcard, positional and hierarchical bindings are refused outright while missing documentation and unjustified open or tied connections are only ratcheted, the exact scope of the inventory, the boundary documented end to end as proof, and the review checklist.
 - **[Rule 6: fail fast and encode invariants](#rule-6-fail-fast-and-encode-invariants)** -- Where a verdict must be refused rather than logged, one in-tree example per boundary (elaboration, FSM default, generator, pipeline, Tcl flow), the elaboration contract added to the receive shield and mutation-proven by its own diagnostic, where that contract is and is not enforced, the three masked-failure populations ratcheted over a stated population, the sweep's refusal of a suite that logs a failure and exits 0, and the review checklist.
 - **[Rule 7: comments explain why, and dead code goes](#rule-7-comments-explain-why-and-dead-code-goes)** -- What a comment is for, why a marker names its issue or is resolved, the near-misses that forced a narrow definition of "marker" and what the gate reads to find one, the two stale markers removed, and the dead code the inventory found.
+- **[Rule 8: tests prove something, and prove they can fail](#rule-8-tests-prove-something-and-prove-they-can-fail)** -- Why a green suite can prove nothing, the three defects injected into the TCAM to show its harness is load-bearing, the two evidence ratchets, and what was found already clean.
 - **[Rules not yet landed](#rules-not-yet-landed)** -- The remaining nine rules of the contract, named so the numbering is stable and a reader knows what is still coming.
 
 ## The governing rule
@@ -1656,13 +1657,85 @@ behavior.
 - Is any helper, branch or parameter here for a requirement that does not exist
   yet?
 
+## Rule 8: tests prove something, and prove they can fail
+
+> Every behavioral change has a deterministic, self-checking test whose oracle
+> comes from the governing specification or an independent contract. New
+> assertions are mutation-proven, failures return non-zero, and the test names
+> the law it proves.
+
+This consolidates the verification bar in
+[CONTRIBUTING.md](../../CONTRIBUTING.md) rather than competing with it: that
+page says a change owes a self-checking Verilator harness and a runnable matrix
+row. This rule says what makes such a harness *evidence*.
+
+### The failure mode is a green suite that proves nothing
+
+An assertion that has never been observed to fail is indistinguishable from an
+assertion that cannot fail. The two are the same colour in CI, and the second
+one is worse than no test, because it occupies the place where a test would go.
+
+### Three defects, to show the harness is load-bearing
+
+`tb/verilator/tcam` checked exact match, ternary match, priority, the multi-hit
+vector, add/remove/update and a clean miss — and nothing proved any of those
+checks could fail. The TCAM is the match engine behind the receive shield, so a
+silently vacuous test there is a silently unguarded filter.
+
+`make mutants` now injects one defect at a time into the real RTL and runs the
+**same** harness against each:
+
+| Mutant | The assertion it must break |
+|---|---|
+| Priority inverted (`p` counts up, so the highest index wins) | lowest matching index wins |
+| Care mask ignored (the ternary compare becomes exact) | a wildcard entry matches a range |
+| Entry validity ignored (`ent_valid[m] &&` dropped) | a removed entry stops matching |
+
+All three are caught, and the **unmutated build still passes** — without that
+control the arm would be satisfied by a harness that fails on everything.
+
+Two details make it stay honest. Each mutation's pattern must appear in the RTL
+**exactly once**, so a refactor that moves the priority encoder fails here
+loudly instead of silently mutating nothing. And the mutants are built in a
+temporary directory, so a mutated source is never written into the tree.
+
+### The two evidence ratchets
+
+[`scripts/measure_test_evidence.py`](../../scripts/measure_test_evidence.py):
+
+| Population | Count | Disposition |
+|---|---:|---|
+| Verilator suites with no mutation or negative arm | 33 of 54 (was 34) | Ratchet. A new suite proves its own assertions can fail. |
+| First-party files drawing random values with no recorded seed | **0** | Ratchet at zero. |
+
+### Two things found already clean, and verified rather than rebuilt
+
+- **Replayable randomness.** Every first-party file that draws random values
+  already records a seed — `test_tx_bd.py` seeds immediately before each block
+  of draws, `test_ring_bd.py` uses `random.Random(13)`. The first pass of this
+  audit reported five unseeded draws; that was a defect in the audit, which
+  flagged the draws without checking whether the file seeded. The true count is
+  zero, and the ratchet holds it there.
+- **Tally integrity.** A missing or malformed tally is `NOCOUNT` in
+  [`scripts/suite_tally.py`](../../scripts/suite_tally.py), which refuses to let
+  an unknown look like agreement and cannot be suppressed by a skip marker. That
+  is confirmed by running its self-test, not by writing a second one.
+
+### Review checklist
+
+- Where does the expected value come from — the specification, or the thing
+  being tested?
+- Has any assertion here ever been seen to fail?
+- If this test draws randomly, can a failure be replayed from its own output?
+- Does the suite publish a non-zero tally, and does a failure return non-zero?
+- Does the test name the law it proves, or only the function it calls?
+
 ## Rules not yet landed
 
-The contract is ten rules. Rules 1 to 7 are above; the rest keep these
+The contract is ten rules. Rules 1 to 8 are above; the rest keep these
 numbers so citations stay stable as they land:
 
 | Rule | Subject |
 |---|---|
-| 8 | Deterministic, specification-derived tests |
 | 9 | Automated mechanical hygiene with measured ratchets |
 | 10 | Idiomatic SystemVerilog and explicit HDL boundaries |
