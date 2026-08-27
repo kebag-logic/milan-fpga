@@ -101,6 +101,13 @@ are pure observers, and the observer-purity check
 establish that they never drive a stream. Inside a 7,000-line parent that is an
 argument about a body; behind this port list it is a structural fact.
 
+The seam is not free, and the price is worth recording: the new module had to
+be registered in four independent source lists — the Vivado list in
+`sw/litex/milan_soc.py`, the Yosys rows in `syn/yosys/run.sh` and
+`syn/yosys/ooc.sh`, and two testbench makefiles — and three suites failed until
+it was. Rule 3 is where that duplication is addressed; Rule 1 only notes that
+a split costs exactly as much bookkeeping as the tree makes it cost.
+
 What the split is **not**: the measurement model — single in-flight tagged
 reference frame, per-stage re-arm timeout, saturating last/min/max — stays in
 `hdl/ieee1722/aaf/KL_aaf_latency_taps.sv`. Splitting the adapter from the
