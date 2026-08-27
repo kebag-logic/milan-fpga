@@ -41,15 +41,15 @@ artifact-uploading job to record the SHA and every artifact-downloading job to
 verify it.
 
 THE DEFAULT-BRANCH ASSERTION ([R1] on PR #204). The cron was inert because of
-a repository SETTING, and a gate that reads files cannot see a setting. Hosted
-runs therefore read it live (`gh api repos/$GITHUB_REPOSITORY --jq
-.default_branch`). The credential-free trusted act runner supplies the value
-in its synthetic event instead; real GitHub events carry no such marker and
-take the authenticated API arm. The gate hands the one result to
-`--require-default-branch`: a scheduled or dispatched run refuses unless the
-default is `dev`, naming what it saw, and refuses an unreadable value. A PR or
-push prints the value and carries on because that run is about the tree. The
-checker pins both sources, the hosted token, and the fail-closed shape.
+a repository SETTING, and a gate that reads files cannot see a setting. So the
+gate job reads it live on every run (`gh api repos/$GITHUB_REPOSITORY --jq
+.default_branch`) and hands it to `--require-default-branch`: a scheduled or
+dispatched run refuses to continue unless the default branch is `dev`, naming
+the branch it saw, and refuses a value it could not read, since an unknown is
+not agreement. A pull-request or push run prints the value and carries on:
+those runs are about the tree, not the setting, and a contributor's PR must
+not go red for a setting it cannot change. `--check` requires the step, its
+token and its fail-closed shape (no `continue-on-error`, no `|| true`).
 
 WHETHER IT RUNS AT ALL (#209). The four items above hold what the gate job
 DOES. None of them held the conditions under which it does it, and GitHub has
@@ -141,17 +141,12 @@ DEFAULT_BRANCH_EVENTS = ("schedule", "workflow_dispatch")
 #: The default-branch step's script, pinned verbatim after whitespace
 #: normalization ([R1] on PR #204, second round). A substring recognizer was
 #: fooled by a decoy: `observed=dev` beside a `gh api` inside `if false`.
-#: So the script is held to exactly these three lines: one assignment selects
-#: the trusted synthetic-event value under act and the live API everywhere
-#: else, followed by one verifier call, and the
+#: So the script is held to exactly these three lines, one unconditional
+#: live read into `observed` and one verifier call after it, and the
 #: structural reasons in check_default_branch_step name what a deviation
 #: did before the whole-script comparison refuses it.
-CANONICAL_OBSERVED = (
-    'observed="$([ "${{ github.event.milan_act_ci.trusted_runner }}" = true ] '
-    "&& printf '%s\\n' \"${{ github.event.milan_act_ci.default_branch }}\" "
-    '|| gh api "repos/$GITHUB_REPOSITORY" --jq .default_branch 2>/dev/null '
-    '|| echo unreadable)"'
-)
+CANONICAL_OBSERVED = ('observed="$(gh api "repos/$GITHUB_REPOSITORY" '
+                      '--jq .default_branch 2>/dev/null || echo unreadable)"')
 CANONICAL_CALL = ("python3 scripts/ci_events.py --require-default-branch "
                   '--event "$GITHUB_EVENT_NAME" --observed "$observed"')
 CANONICAL_DEFAULT_BRANCH_SCRIPT = ("set -euo pipefail", CANONICAL_OBSERVED,
@@ -1255,6 +1250,14 @@ def check_shard_denominator(c, path, jid, job):
     if not isinstance(shard, list) or not shard:
         return
     size = str(len(shard))
+    expansions = [key for key in ("include", "exclude") if key in matrix]
+    c.item(
+        not expansions,
+        path,
+        f"job `{jid}` sharded matrix must not define `include` or `exclude` "
+        f"(found {expansions or 'none'}): those keys change the produced job "
+        "set without changing the checked shard-list denominator",
+    )
     total = matrix.get("total")
     total_ok = (isinstance(total, list) and len(total) == 1
                 and str(total[0]) == size)
@@ -1391,7 +1394,8 @@ def normalize_script(run):
 
 
 def check_default_branch_step(c, path, gate):
-    """The gate selects trusted-act/live-hosted state and verifies it."""
+    """The gate reads the repository default branch live and hands it to
+    --require-default-branch, in a shape that cannot be neutered quietly."""
     found = [s for s in steps(gate) if DEFAULT_BRANCH_FLAG in step_text(s)]
     c.item(len(found) == 1, path, f"job `{GATE_JOB}` must run scripts/"
            f"ci_events.py {DEFAULT_BRANCH_FLAG} in exactly one step "
@@ -1414,8 +1418,7 @@ def check_default_branch_step(c, path, gate):
            "assignment shadows the live value")
     c.item(bool(assigns) and all(l == CANONICAL_OBSERVED for _, l in assigns),
            path, "the default-branch step's observed value is not sourced "
-           f"from trusted act state or the hosted live API: expected exactly "
-           f"{CANONICAL_OBSERVED} "
+           f"from the live API call: expected exactly {CANONICAL_OBSERVED} "
            f"(found {[l for _, l in assigns] or 'no assignment'})")
     flow = [l for _, l in code if CONTROL_FLOW.search(l)]
     c.item(not flow, path, "the default-branch step must read the setting "
@@ -2316,6 +2319,16 @@ def _mutations():
         job = jobs(w[RTL_FULL])["verilator-shards"]
         job["name"] = job["name"].replace(DERIVED_SHARD_TOTAL, "3")
 
+    def m_shard_matrix_include(w):
+        jobs(w[RTL_FULL])["verilator-shards"]["strategy"]["matrix"][
+            "include"
+        ] = [{"shard": 4, "total": 5}]
+
+    def m_shard_matrix_exclude(w):
+        jobs(w[RTL_FULL])["yosys-shards"]["strategy"]["matrix"][
+            "exclude"
+        ] = [{"shard": 3}]
+
     def verify_step(w, jid):
         for s in steps(jobs(w[RTL_FULL])[jid]):
             if VERIFY_FLAG in step_text(s):
@@ -2633,7 +2646,7 @@ def _mutations():
         ("rtl default-branch step neutered by || true", m_db_or_true,
          "fail closed"),
         ("rtl default-branch decoy: observed=dev beside gh api in `if false`",
-         m_db_decoy_if_false, "not sourced from trusted act state"),
+         m_db_decoy_if_false, "not sourced from the live API call"),
         ("rtl default-branch decoy: control flow around the live read",
          m_db_decoy_if_false, "unconditionally"),
         ("rtl default-branch literal observed=dev after the real call",
@@ -2641,11 +2654,11 @@ def _mutations():
         ("rtl default-branch literal observed=dev after the real read",
          m_db_literal_after_read, "exactly once (found 2)"),
         ("rtl default-branch gh api inside a comment only",
-         m_db_gh_api_in_comment, "not sourced from trusted act state"),
+         m_db_gh_api_in_comment, "not sourced from the live API call"),
         ("rtl default-branch comment line in the script",
          m_db_gh_api_in_comment, "no comment lines"),
         ("rtl default-branch observed from a different command",
-         m_db_other_command, "not sourced from trusted act state"),
+         m_db_other_command, "not sourced from the live API call"),
         ("rtl default-branch two observed assignments",
          m_db_two_assignments, "exactly once (found 2)"),
         ("rtl default-branch verifier called before the read",
@@ -2970,6 +2983,10 @@ def _mutations():
          m_shard_denominator_wrong, "shard denominator"),
         ("O9c a worker name restates a stale denominator", m_shard_name_stale,
          "name: the shard denominator"),
+        ("O9d sharded matrix adds an include expansion", m_shard_matrix_include,
+         "must not define `include` or `exclude`"),
+        ("O9e sharded matrix excludes a worker", m_shard_matrix_exclude,
+         "must not define `include` or `exclude`"),
         ("rtl public name verilator-suites renamed",
          m_rename_job(RTL_FULL, "verilator-suites"), "`verilator-suites`"),
         ("rtl public name yosys-portability renamed",

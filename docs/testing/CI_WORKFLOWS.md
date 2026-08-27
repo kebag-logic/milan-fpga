@@ -139,12 +139,9 @@ compares that line with the PR head before counting it.
 
 **The default-branch assertion.** The cron was inert for three weeks because
 the default branch was `main`, and no gate that reads files can see that
-repository setting. Hosted `full-ci-gate` runs read it live with
-`gh api repos/<owner>/<repo> --jq .default_branch`; the credential-free trusted
-act runner supplies the same value in its synthetic event, whose private
-`milan_act_ci.trusted_runner` marker real GitHub events never carry. The one
-selected value is handed to `scripts/ci_events.py --require-default-branch` and
-prints
+repository setting. So `full-ci-gate` reads it live on every run, with
+`gh api repos/<owner>/<repo> --jq .default_branch` handed to
+`scripts/ci_events.py --require-default-branch`, and prints
 `default_branch=<observed> expected=dev event=<event>`. A scheduled or
 dispatched run refuses to continue unless the observed value is `dev`, naming
 the branch it saw; a value it could not read refuses too, since an unknown is
@@ -159,13 +156,12 @@ under which it runs holds the wrong perimeter, which is what #209 found. So it
 is exactly these ten things:
 
 1. **The script text.** The step's `run:` is pinned verbatim (whitespace
-   aside) to three lines: `set -euo pipefail`, one `observed=...` assignment
-   selecting the trusted synthetic-event value under act or the live API on a
-   hosted run, and one verifier call after it. A substring
+   aside) to three lines: `set -euo pipefail`, one unconditional
+   `observed="$(gh api ...)"` read, one verifier call after it. A substring
    recognizer was fooled by a decoy, a literal `observed=dev` beside a
    `gh api` inside `if false`; the pin refuses it, and the structural reasons
    name what a deviation did: a second assignment, a value not sourced from
-   either trusted carrier, control flow around the read, a comment line, the call
+   the live call, control flow around the read, a comment line, the call
    before the read.
 2. **The step keys.** The step carries exactly `name`, `env` and `run`, and
    its `env` exactly `GH_TOKEN`. A key beside a canonical script decides
@@ -547,6 +543,11 @@ python3 -I <audited-install>/act_ci.py --pr <number> \
   --trusted-install-sha256 <recorded-64-hex-digest>
 ```
 
+The reviewer's audit of those exact installed bytes is the trust anchor. The
+runner's check of `--trusted-install-sha256` is self-attestation and detects
+drift after that audit; it cannot establish that substituted runner code is
+trustworthy by itself.
+
 The default runs `docs`, `elaborate`, `rtl-fast`, and `rtl-full` in that order.
 Use repeatable `--workflow <name>` options for a focused reproduction, and use
 `--dry-run` to perform the trust, fetch, metadata, and byte checks and print the
@@ -573,9 +574,18 @@ remote commit even when index flags hide the edit. Replacement refs are
 refused. A credential-free HTTPS fetch into a new temporary Git repository
 materializes the exact same-repository PR head and current base without using
 the candidate's object database, index, configuration, hooks, filters, or
-worktree. The PR's state, draft bit, base, head, repository, and URL are queried
-again immediately before and after every workflow; any change invalidates the
-whole run.
+worktree. The PR number, state, draft bit, base ref, head ref/SHA, repository,
+cross-repository bit, and URL are queried again immediately before and after
+every workflow; any change invalidates the whole run. If only the `dev` tip
+moves, the runner prints the old and new base SHAs but retains the result: those
+unrelated bytes were not executed and the exact PR head did not change.
+
+This local replica validates the exact head tree, not GitHub's synthetic merge
+commit. Hosted `pull_request` contexts validate `refs/pull/<number>/merge`, so
+they remain the authority for current merge compatibility while the local run
+provides earlier evidence about the candidate's own bytes. A later `dev` move
+can therefore require new hosted merge-context checks without discarding an
+otherwise complete local head-tree run.
 
 Before any candidate-directed network operation, the runner parses the exact
 committed `.gitmodules` blob and requires the trusted name/path/URL pairs with
@@ -609,11 +619,14 @@ operator's worktree, and supplies no privileged flag. Candidate workflow code
 consequently runs only in the disposable job boundary.
 
 Every run and SHA gets fresh action/workspace, Actions-cache, artifact, event,
-configuration, and input directories. Each workflow also receives a freshly
-allocated nonzero artifact-listener port; act treats zero as random only for its
-cache server. There is no persistent-cache override: a candidate cannot seed a
-later head. Cleanup is restricted to the exact generated directory and the
-network whose ID, name, and ownership label the runner recorded at creation.
+configuration, and input directories. The artifact and cache servers bind only
+to the gateway address of the runner-created bridge, so they are reachable by
+that run's job containers but not advertised on the host's routable interface.
+Each workflow also receives a freshly allocated nonzero artifact-listener port;
+act treats zero as random only for its cache server. There is no persistent-cache
+override: a candidate cannot seed a later head. Cleanup is restricted to the
+exact generated directory and the network whose ID, name, gateway, and ownership
+label the runner recorded at creation.
 After every workflow and on every exceptional exit, the runner inventories
 Docker, selects only containers carrying that token, attached to that network,
 or sharing an owned container's network namespace, then stops and forcibly
@@ -627,9 +640,10 @@ contained by the same verified cleanup.
 The four exhaustive workers carry their checked denominator through the
 singleton `matrix.total` dimension. `scripts/ci_events.py` proves that value
 equals the `matrix.shard` list length and that every job name and shard command
-uses it. This retains GitHub's four-worker behavior and avoids the negative
-`strategy.job-total` values produced by `act` 0.2.89 without a local workflow
-edit.
+uses it. Sharded matrices may not use `include` or `exclude`, because either can
+change the produced job set independently of that list and carrier. This retains
+GitHub's four-worker behavior and avoids the negative `strategy.job-total`
+values produced by `act` 0.2.89 without a local workflow edit.
 
 Local success is early exact-head evidence, not a locally manufactured GitHub
 status. The runner does not publish commit statuses, and the seven hosted

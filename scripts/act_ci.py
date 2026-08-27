@@ -26,6 +26,7 @@ from __future__ import annotations
 import argparse
 import contextlib
 import hashlib
+import ipaddress
 import json
 import os
 import pathlib
@@ -188,6 +189,7 @@ class DockerBoundary:
     token: str
     name: str
     network_id: str | None = None
+    gateway: str | None = None
 
 
 def require_tool(name: str) -> str:
@@ -287,7 +289,10 @@ def changed_pr_fields(expected: PullRequest, current: PullRequest) -> list[str]:
     return [
         item.name
         for item in fields(PullRequest)
-        if getattr(expected, item.name) != getattr(current, item.name)
+        if (
+            item.name != "base_sha"
+            and getattr(expected, item.name) != getattr(current, item.name)
+        )
     ]
 
 
@@ -303,6 +308,13 @@ def require_live_pull_request(
         raise Refusal(
             f"pull request #{expected.number} changed during validation "
             f"({', '.join(changed)}); discard this run"
+        )
+    if current.base_sha != expected.base_sha:
+        print(
+            f"act-ci: NOTE: {expected.base_ref} moved from {expected.base_sha} "
+            f"to {current.base_sha} during validation; the unchanged exact-head "
+            f"evidence for {expected.head_sha} remains valid",
+            flush=True,
         )
 
 
@@ -987,11 +999,6 @@ def build_event(pr: PullRequest, repository: str) -> dict[str, object]:
     return {
         "action": action,
         "number": pr.number,
-        "milan_act_ci": {
-            "trusted_runner": True,
-            "default_branch": DEFAULT_BASE,
-            "head_sha": pr.head_sha,
-        },
         "repository": {
             "full_name": repository,
             "default_branch": DEFAULT_BASE,
@@ -1067,7 +1074,7 @@ def inspect_docker_boundary(
     use_sudo: bool,
     cwd: pathlib.Path,
     env: Mapping[str, str],
-) -> None:
+) -> str:
     if boundary.network_id is None or not DOCKER_ID_RE.fullmatch(boundary.network_id):
         raise Refusal("Docker boundary has no valid network ID")
     result = run_docker(
@@ -1083,16 +1090,39 @@ def inspect_docker_boundary(
         actual_id = network["Id"]
         actual_name = network["Name"]
         labels = network["Labels"]
+        ipam_config = network["IPAM"]["Config"]
     except (json.JSONDecodeError, IndexError, KeyError, TypeError) as exc:
         raise Refusal("Docker returned malformed boundary metadata") from exc
     if not isinstance(labels, dict):
         raise Refusal("Docker boundary has no ownership labels")
+    if not isinstance(ipam_config, list):
+        raise Refusal("Docker boundary has malformed IPAM configuration")
+    gateways: list[str] = []
+    for entry in ipam_config:
+        if not isinstance(entry, dict) or "Gateway" not in entry:
+            continue
+        raw_gateway = entry["Gateway"]
+        if not isinstance(raw_gateway, str):
+            raise Refusal("Docker boundary has a malformed gateway address")
+        try:
+            gateway_address = ipaddress.ip_address(raw_gateway)
+        except ValueError as exc:
+            raise Refusal("Docker boundary has an invalid gateway address") from exc
+        if gateway_address.version == 4:
+            gateways.append(str(gateway_address))
+    if len(gateways) != 1:
+        raise Refusal(
+            "Docker boundary must expose exactly one IPv4 bridge gateway"
+        )
+    gateway = gateways[0]
     if (
         actual_id != boundary.network_id
         or actual_name != boundary.name
         or labels.get(DOCKER_OWNER_LABEL) != boundary.token
+        or (boundary.gateway is not None and boundary.gateway != gateway)
     ):
-        raise Refusal("Docker boundary identity or ownership label changed")
+        raise Refusal("Docker boundary identity, ownership, or gateway changed")
+    return gateway
 
 
 def create_docker_boundary(
@@ -1132,7 +1162,7 @@ def create_docker_boundary(
         raise Refusal("Docker returned an invalid boundary network ID")
     boundary = replace(planned, network_id=network_id)
     try:
-        inspect_docker_boundary(
+        gateway = inspect_docker_boundary(
             boundary, use_sudo=use_sudo, cwd=cwd, env=env
         )
     except BaseException:
@@ -1145,7 +1175,7 @@ def create_docker_boundary(
             check=False,
         )
         raise
-    return boundary
+    return replace(boundary, gateway=gateway)
 
 
 def docker_container_inventory(
@@ -1472,6 +1502,13 @@ def build_act_command(
 ) -> list[str]:
     if not 1 <= artifact_port <= 65535:
         raise Refusal(f"invalid artifact-server port: {artifact_port}")
+    try:
+        gateway = ipaddress.ip_address(boundary.gateway or "")
+    except ValueError as exc:
+        raise Refusal("Docker boundary has no valid server-bind gateway") from exc
+    if gateway.version != 4:
+        raise Refusal("Docker boundary server-bind gateway must be IPv4")
+    server_address = str(gateway)
     artifact_path = layout.artifacts / workflow
     artifact_path.mkdir(parents=True, exist_ok=True)
     return [
@@ -1490,12 +1527,16 @@ def build_act_command(
         f"ubuntu-latest={RUNNER_IMAGE}",
         "--artifact-server-path",
         str(artifact_path),
+        "--artifact-server-addr",
+        server_address,
         "--artifact-server-port",
         str(artifact_port),
         "--action-cache-path",
         str(layout.action_cache),
         "--cache-server-path",
         str(layout.cache_server),
+        "--cache-server-addr",
+        server_address,
         "--cache-server-port",
         "0",
         "--env-file",
@@ -1707,13 +1748,12 @@ def run_validation(
 
         def execute_workflows(boundary: DockerBoundary) -> int:
             for workflow in workflows:
-                if not dry_run:
-                    inspect_docker_boundary(
-                        boundary,
-                        use_sudo=use_sudo,
-                        cwd=layout.invocation,
-                        env=env,
-                    )
+                inspect_docker_boundary(
+                    boundary,
+                    use_sudo=use_sudo,
+                    cwd=layout.invocation,
+                    env=env,
+                )
                 artifact_port = allocate_tcp_port()
                 command = build_act_command(
                     prefix, workflow, layout, artifact_port, boundary
@@ -1752,8 +1792,6 @@ def run_validation(
             integrity_check()
             return RC_OK
 
-        if dry_run:
-            return execute_workflows(planned_boundary)
         with temporary_docker_boundary(
             planned_boundary,
             use_sudo=use_sudo,
@@ -1815,13 +1853,9 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
         event_pr["head"]["sha"] == head and event_pr["base"]["sha"] == base,
     )
     check(
-        "event carries the trusted credential-free default-branch marker",
-        event["milan_act_ci"]
-        == {
-            "trusted_runner": True,
-            "default_branch": DEFAULT_BASE,
-            "head_sha": head,
-        },
+        "event names the repository default branch without private markers",
+        event["repository"]["default_branch"] == DEFAULT_BASE
+        and "milan_act_ci" not in event,
     )
 
     draft_raw = dict(raw)
@@ -1882,6 +1916,7 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
                 token="a" * 32,
                 name=f"milan-act-ci-{'a' * 32}",
                 network_id="b" * 64,
+                gateway="172.30.0.1",
             )
             command = build_act_command(
                 ["act"], "rtl-full", first, allocated_port, selftest_boundary
@@ -1903,6 +1938,13 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
                 and command[command.index("--network") + 1]
                 == selftest_boundary.name
                 and "--privileged" not in command,
+            )
+            check(
+                "artifact and cache servers bind only to the bridge gateway",
+                command[command.index("--artifact-server-addr") + 1]
+                == selftest_boundary.gateway
+                and command[command.index("--cache-server-addr") + 1]
+                == selftest_boundary.gateway,
             )
             check(
                 "job containers carry the unpredictable runner ownership label",
@@ -1935,6 +1977,16 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
                 "artifact-server port zero is refused rather than advertised",
                 lambda: build_act_command(
                     ["act"], "docs", first, 0, selftest_boundary
+                ),
+            )
+            refused(
+                "a missing bridge gateway cannot produce an act command",
+                lambda: build_act_command(
+                    ["act"],
+                    "docs",
+                    first,
+                    allocated_port,
+                    replace(selftest_boundary, gateway=None),
                 ),
             )
             check(
@@ -2037,18 +2089,16 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
         lambda: parse_act_version("act unknown"),
     )
 
-    changed = replace(pr, head_sha="4" * 40)
-    answers = iter((pr, changed))
-
-    def moving_query(_number: int, _repository: str) -> PullRequest:
-        return next(answers)
-
     def successful_process(*_args, **_kwargs):  # type: ignore[no-untyped-def]
         return subprocess.CompletedProcess([], 0)
 
-    refused(
-        "remote metadata movement across an act process is refused",
-        lambda: execute_act_boundary(
+    def execute_with_remote_change(changed: PullRequest) -> int:
+        answers = iter((pr, changed))
+
+        def moving_query(_number: int, _repository: str) -> PullRequest:
+            return next(answers)
+
+        return execute_act_boundary(
             ["act"],
             pr=pr,
             repository=repository,
@@ -2057,7 +2107,22 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
             integrity_check=lambda: None,
             query=moving_query,
             run_process=successful_process,
-        ),
+        )
+
+    for label, changed in (
+        ("head SHA", replace(pr, head_sha="4" * 40)),
+        ("state", replace(pr, state="CLOSED")),
+        ("draft state", replace(pr, draft=True)),
+        ("base ref", replace(pr, base_ref="main")),
+    ):
+        refused(
+            f"remote {label} movement across an act process is refused",
+            lambda changed=changed: execute_with_remote_change(changed),
+        )
+
+    check(
+        "base-tip movement is noted without discarding exact-head evidence",
+        execute_with_remote_change(replace(pr, base_sha="5" * 40)) == RC_OK,
     )
 
     cleanup = make_run_directory()
