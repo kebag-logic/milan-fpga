@@ -150,6 +150,15 @@ jobs:
           python3 scripts/measure_test_evidence.py --check
           python3 scripts/measure_test_evidence.py --selftest
 
+      # Rule 9: the five mechanical checks the measurement kept. Four are at
+      # zero and stay there; the line-length candidate was rejected on the
+      # record because it fights the one-format-string $error rule and the
+      # single-line curated source lists.
+      - name: Mechanical hygiene ratchet
+        run: |
+          python3 scripts/check_hygiene.py --check
+          python3 scripts/check_hygiene.py --selftest
+
       # CI event and SHA contract gate (#174, #181): the four workflow files
       # and docs/testing/CI_WORKFLOWS.md must agree on the triggers, the cron
       # time, the public check names, cancel-in-progress and the one-SHA rule

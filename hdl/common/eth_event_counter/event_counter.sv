@@ -45,7 +45,7 @@ module event_counter #(
   input  wire  resetn,           //! Synchronous active-low global reset
   input  wire  stats_reset,      //! Counter-only reset (active high)
   input  wire  incr,             //! Increment signal
-  output logic [WIDTH-1:0] count //! Current counter value 
+  output logic [WIDTH-1:0] count //! Current counter value
 );
 
 always_ff @( posedge clk ) begin : count_event

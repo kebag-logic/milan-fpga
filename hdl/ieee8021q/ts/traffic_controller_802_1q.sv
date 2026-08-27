@@ -118,8 +118,8 @@ module traffic_controller_802_1q #(
     .resetn(resetn),
     .queue_grant_i(queue_grant),
     .queue_has_data_o(queue_has_data),
-    .s_axis(classifier_to_queue), 
-    .m_axis(queue_to_shaper) 
+    .s_axis(classifier_to_queue),
+    .m_axis(queue_to_shaper)
   );
 
   // ---------------------------------------------------------------------------

@@ -32,6 +32,7 @@ shape rather than guess at it.
 - **[Rule 6: fail fast and encode invariants](#rule-6-fail-fast-and-encode-invariants)** -- Where a verdict must be refused rather than logged, one in-tree example per boundary (elaboration, FSM default, generator, pipeline, Tcl flow), the elaboration contract added to the receive shield and mutation-proven by its own diagnostic, where that contract is and is not enforced, the three masked-failure populations ratcheted over a stated population, the sweep's refusal of a suite that logs a failure and exits 0, and the review checklist.
 - **[Rule 7: comments explain why, and dead code goes](#rule-7-comments-explain-why-and-dead-code-goes)** -- What a comment is for, why a marker names its issue or is resolved, the near-misses that forced a narrow definition of "marker" and what the gate reads to find one, the two stale markers removed, and the dead code the inventory found.
 - **[Rule 8: tests prove something, and prove they can fail](#rule-8-tests-prove-something-and-prove-they-can-fail)** -- Why a green suite can prove nothing, the three defects injected into the TCAM to show its harness is load-bearing, what counts as an executed arm, the four evidence ratchets, and what was found already clean.
+- **[Rule 9: automate mechanical hygiene with measured ratchets](#rule-9-automate-mechanical-hygiene-with-measured-ratchets)** -- The six candidate checks measured before any was adopted, why the highest-volume one was rejected on the record, why three checks are adopted at zero, and how the formatting-only rewrite was isolated and proven.
 - **[Rules not yet landed](#rules-not-yet-landed)** -- The remaining nine rules of the contract, named so the numbering is stable and a reader knows what is still coming.
 
 ## The governing rule
@@ -1864,12 +1865,97 @@ behavior, and that inventory is noted here for a later round, not measured.
 - Does the suite publish a non-zero tally, and does a failure return non-zero?
 - Does the test name the law it proves, or only the function it calls?
 
+## Rule 9: automate mechanical hygiene with measured ratchets
+
+> Let pinned tools enforce objective, mechanical rules. Measure signal and
+> false positives before gating; exclude generated and vendored sources; forbid
+> new debt with a non-increasing baseline; and isolate formatting-only changes
+> from functional work.
+
+A generic formatter is the wrong instrument here. It would fight the suffix and
+layout rules in [CONTRIBUTING.md](../../CONTRIBUTING.md), and a flag-day rollout
+would bury real findings under a new baseline nobody reads. So the candidates
+were measured first, and the selection is recorded — including what was
+rejected.
+
+### What was measured, and what was kept
+
+Six candidates over 422 first-party files. The scan takes 0.06 s, so runtime
+rejected nothing.
+
+| Candidate | Findings | Files | Verdict |
+|---|---:|---:|---|
+| Line over 100 columns | 1022 | 145 | **Rejected** |
+| Trailing whitespace | 43 | 17 | Adopted |
+| Missing EOF newline | 14 | 14 | Adopted |
+| CRLF line ending | 0 | 0 | Adopted at zero |
+| UTF-8 BOM | 0 | 0 | Adopted at zero |
+| Tab in SystemVerilog | 0 | 0 | Adopted at zero |
+
+### Why the line-length check is rejected, on the record
+
+It is the highest-volume candidate and it fights two deliberate house rules.
+
+`$error` takes later arguments as **values**, so an elaboration message must be
+one string literal — `milan_datapath` and `KL_media_nco` both carry the note
+saying so, and every one of those messages is over 100 columns by construction.
+The curated source lists in `syn/yosys/run.sh` and `syn/yosys/ooc.sh` are single
+lines by design, because a line continuation is what let a shell comment
+silently shrink one of them.
+
+Wrapping either would trade a real property for a cosmetic one. Rejected, not
+deferred — and written down, so the next person measuring these candidates does
+not rediscover it.
+
+### Why three checks are adopted at zero
+
+A gate whose population is empty costs nothing to hold and is easy to mistake
+for a gate that does nothing. Each of the three carries an arm proving it bites,
+so the difference is visible: a CRLF, a byte-order mark and a tab in
+SystemVerilog are each caught in a fixture, and a tab in a **makefile** is
+deliberately not judged, because there a tab is the syntax.
+
+### Generated sources are excluded, and "generated" has one definition
+
+Five of the nineteen original missing-newline findings are generated Vivado and
+simulation scripts, including a Vivado block design whose banner reads "This is
+a generated script based on design". Their fix belongs in their generator, never
+in the file. What counts as generated is **not** re-decided here: the predicate
+is imported from [`scripts/gen_toc.py`](../../scripts/gen_toc.py), which already
+owns it. That predicate gained "generated script" so it recognises the Vivado
+banner, and the TOC gate was re-run to prove no documentation page newly matched.
+
+### The rewrite is isolated, and the isolation is proven
+
+The gate and its ratchets landed first, at the measured values. The mechanical
+repair is a **separate commit** that changes nothing else — and that is not an
+assertion: `git diff -w`, which ignores whitespace entirely, shows only the
+ratchet file. Twenty-five files were repaired and the two non-zero ratchets went
+to zero.
+
+```
+python3 scripts/check_hygiene.py          # the findings
+python3 scripts/check_hygiene.py --fix    # repair the mechanical ones
+python3 scripts/check_hygiene.py --check  # the ratchet CI runs
+```
+
+A tab in SystemVerilog is deliberately **not** auto-fixed: re-indenting is a
+judgement about layout, not a mechanical repair.
+
+### Review checklist
+
+- Was this check measured on this tree before it was adopted?
+- Does it fight a rule [CONTRIBUTING.md](../../CONTRIBUTING.md) already states?
+- Are generated and vendored sources excluded, by the shared definition?
+- Does the checker have an arm proving it can fail?
+- Is the formatting-only change in its own commit, with the functional work
+  somewhere else?
+
 ## Rules not yet landed
 
-The contract is ten rules. Rules 1 to 8 are above; the rest keep these
-numbers so citations stay stable as they land:
+The contract is ten rules. Rules 1 to 9 are above; Rule 10 keeps its number
+so citations stay stable when it lands:
 
 | Rule | Subject |
 |---|---|
-| 9 | Automated mechanical hygiene with measured ratchets |
 | 10 | Idiomatic SystemVerilog and explicit HDL boundaries |

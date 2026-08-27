@@ -12,8 +12,8 @@ package avtp_pkt_common_pkg;
   typedef bit [63:0] bit64;
 
   typedef enum bit [1:0] {
-    CONTROL_HDR, 
-    STREAM_HDR, 
+    CONTROL_HDR,
+    STREAM_HDR,
     ALTER_HDR
   } subtype_t;
 

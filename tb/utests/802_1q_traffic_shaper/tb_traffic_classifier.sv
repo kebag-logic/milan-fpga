@@ -93,7 +93,7 @@ module tb_traffic_classifier;
     if (ptp_packet) begin
       bytes[idx + 0] = 8'h88;
       bytes[idx + 1] = 8'hF7;
-    end 
+    end
     else if (atdecc_packet)begin
       bytes[idx + 0] = 8'h22;
       bytes[idx + 1] = 8'hF0;

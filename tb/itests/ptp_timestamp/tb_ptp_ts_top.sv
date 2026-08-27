@@ -197,7 +197,7 @@ module tb_ptp_ts_top;
     logic [TDATA_WIDTH-1:0] tdata;
     int beat_count;
     
-    $display("[%0t] Starting TX packet: %s (PTP=%0b, seq_id=0x%04x, length=%0d)", 
+    $display("[%0t] Starting TX packet: %s (PTP=%0b, seq_id=0x%04x, length=%0d)",
              $time, packet.name, packet.is_ptp, packet.seq_id, packet.packet_length);
     
     tx_packet_active = 1;
@@ -271,7 +271,7 @@ module tb_ptp_ts_top;
     logic [TDATA_WIDTH-1:0] tdata;
     int beat_count;
     
-    $display("[%0t] Starting RX packet: %s (PTP=%0b, seq_id=0x%04x, length=%0d)", 
+    $display("[%0t] Starting RX packet: %s (PTP=%0b, seq_id=0x%04x, length=%0d)",
              $time, packet.name, packet.is_ptp, packet.seq_id, packet.packet_length);
     
     rx_packet_active = 1;
@@ -279,7 +279,7 @@ module tb_ptp_ts_top;
     //! Wait for ready
     while (!s_axis_rx_tready) @(posedge axis_clk);
     
-    //! Beat 0: MAC destination and source start  
+    //! Beat 0: MAC destination and source start
     @(posedge axis_clk);
     s_axis_rx_tdata <= 64'h00998877665544aa;
     s_axis_rx_tvalid <= 1;
@@ -309,12 +309,12 @@ module tb_ptp_ts_top;
       beat_count++;
     end
     
-    //! Beat containing PTP sequence ID 
+    //! Beat containing PTP sequence ID
     @(posedge axis_clk);
     tdata = 64'hBABEFACE00000000;
     if (packet.is_ptp) begin
       //! Little endian seq_id at bytes 44-45
-      tdata[47:40] = packet.seq_id[7:0];   // byte 44 (LSB) 
+      tdata[47:40] = packet.seq_id[7:0];   // byte 44 (LSB)
       tdata[39:32] = packet.seq_id[15:8];  // byte 45 (MSB)
     end
     s_axis_rx_tdata <= tdata;
@@ -340,7 +340,7 @@ module tb_ptp_ts_top;
     $display("[%0t] RX packet %s completed", $time, packet.name);
   endtask
 
-  //! Task to send concurrent TX and RX packets  
+  //! Task to send concurrent TX and RX packets
   task send_concurrent_packets(test_packet_t tx_pkt, test_packet_t rx_pkt);
     $display("\n=== CONCURRENT TRANSMISSION TEST ===");
     $display("[%0t] Starting concurrent TX: %s and RX: %s", $time, tx_pkt.name, rx_pkt.name);
@@ -366,7 +366,7 @@ module tb_ptp_ts_top;
           if (test_packets[tx_idx].is_tx) send_tx_packet(test_packets[tx_idx]);
           tx_idx = (tx_idx + 2) % $size(test_packets);
         end
-        begin  
+        begin
           if (!test_packets[rx_idx].is_tx) begin
             test_packets[rx_idx].is_tx = 0; // Ensure it's RX
             send_rx_packet(test_packets[rx_idx]);
@@ -436,7 +436,7 @@ module tb_ptp_ts_top;
           expecting_timestamp = 0;
           metadata_packets_received++;
           
-          $display("[%0t] Metadata complete: seq_id=0x%04x, direction=%s, timestamp=%0d (total=%0d)", 
+          $display("[%0t] Metadata complete: seq_id=0x%04x, direction=%s, timestamp=%0d (total=%0d)",
                    $time, seq_id_out, direction ? "TX" : "RX", timestamp_out, metadata_packets_received);
         end
       end
@@ -462,7 +462,7 @@ module tb_ptp_ts_top;
   //! Main test sequence
   initial begin
     $display("=== PTP Timestamping Top Module Integration Test ===");
-    $display("Configuration: TDATA_WIDTH=%0d, BIG_ENDIAN=%0b, ETH_TYPE=0x%04x", 
+    $display("Configuration: TDATA_WIDTH=%0d, BIG_ENDIAN=%0b, ETH_TYPE=0x%04x",
              TDATA_WIDTH, BIG_ENDIAN, ETH_TYPE);
     
     //! Wait for reset completion
@@ -473,7 +473,7 @@ module tb_ptp_ts_top;
     
     //! Start monitoring tasks
     fork
-      monitor_metadata_output(); 
+      monitor_metadata_output();
       performance_monitor();
     join_none
     
@@ -534,7 +534,7 @@ module tb_ptp_ts_top;
     if (metadata_packets_received == (tx_ptp_packets + rx_ptp_packets)) begin
       $display("SUCCESS: All PTP packets generated metadata");
     end else begin
-      $error("FAILED: Expected %0d metadata packets, got %0d", 
+      $error("FAILED: Expected %0d metadata packets, got %0d",
              tx_ptp_packets + rx_ptp_packets, metadata_packets_received);
     end
 
