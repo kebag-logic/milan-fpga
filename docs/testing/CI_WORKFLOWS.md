@@ -555,6 +555,17 @@ PyYAML, Docker, and `act` 0.2.89 or newer. On a host where the current user
 cannot open the Docker socket, add `--sudo`; this is non-interactive and
 preserves no ambient environment or credential.
 
+An audited change to the runner's interruption or Docker cleanup boundary must
+also run the live fault-injection gate. It starts a harmless sleeping job,
+waits for its owned container, stops the `act` process group so normal cleanup
+cannot run, interrupts the runner, and requires both the container and its
+network to be absent afterward:
+
+```sh
+python3 -I <audited-install>/act_ci.py --interrupt-selftest \
+  --act-bin <absolute-act-0.2.89-or-newer> [--sudo]
+```
+
 The command reads the open PR from GitHub and refuses before validation when
 the base is not `dev`, the head is cross-repository, the candidate worktree is
 dirty or at a different SHA, or selected workflow bytes disagree with the
@@ -566,12 +577,17 @@ worktree. The PR's state, draft bit, base, head, repository, and URL are queried
 again immediately before and after every workflow; any change invalidates the
 whole run.
 
-The temporary checkout also initializes the three public pinned dependencies
-named by every supported workflow (`third_party/verilog-axis`,
-`protocol-processor`, and `gptp-processor`) under the same credential-free Git
-policy. This gives act's local checkout copier the submodule-path parity that a
-hosted checkout exposes; each workflow's own submodule update remains the
-authoritative, idempotent check of those pins.
+Before any candidate-directed network operation, the runner parses the exact
+committed `.gitmodules` blob and requires the trusted name/path/URL pairs with
+no duplicate or extra configuration. It also requires the matching four
+gitlink paths. Git disables every transport by default and enables only HTTPS;
+the inactive SSH-only `external` entry must match the trusted manifest but is
+never fetched. Only then, and only after selected workflows pass their static
+sandbox scan, does the temporary checkout initialize the three allowlisted
+public pinned dependencies (`third_party/verilog-axis`, `protocol-processor`,
+and `gptp-processor`). This gives act's local checkout copier the submodule-path
+parity that a hosted checkout exposes; each workflow's own submodule update
+remains the authoritative, idempotent check of those pins.
 
 The synthetic pull-request event names the exact base and head. A draft uses
 `synchronize`, retaining `draft=true`; a ready PR uses `ready_for_review`, so
@@ -586,20 +602,27 @@ candidate code.
 Candidate jobs must use literal `ubuntu-latest`; reusable workflows and
 job/service containers are refused because they can carry container options or
 host-volume requests that the trusted scanner cannot safely delegate. The act
-command also disables the container Docker socket, uses the Docker bridge
-instead of the host network, never bind-mounts the operator's worktree, and
-supplies no privileged flag. Candidate workflow code consequently runs only in
-the disposable job boundary.
+command also disables the container Docker socket, uses an unpredictable
+runner-created bridge network instead of the host network, applies the same
+unpredictable ownership token as a container label, never bind-mounts the
+operator's worktree, and supplies no privileged flag. Candidate workflow code
+consequently runs only in the disposable job boundary.
 
 Every run and SHA gets fresh action/workspace, Actions-cache, artifact, event,
 configuration, and input directories. Each workflow also receives a freshly
 allocated nonzero artifact-listener port; act treats zero as random only for its
 cache server. There is no persistent-cache override: a candidate cannot seed a
-later head. Cleanup is restricted to the exact generated directory. Sudo
-ownership recovery, recursive removal, and the final absence check are all
-fail-closed; a cleanup failure changes an otherwise green run to exit 2. An
-operator interrupt terminates and reaps the whole act process group before that
-cleanup begins.
+later head. Cleanup is restricted to the exact generated directory and the
+network whose ID, name, and ownership label the runner recorded at creation.
+After every workflow and on every exceptional exit, the runner inventories
+Docker, selects only containers carrying that token, attached to that network,
+or sharing an owned container's network namespace, then stops and forcibly
+removes them. It verifies that no owned container remains before removing and
+verifying absence of the network. Only then does sudo ownership recovery and
+recursive run-directory removal begin. Any unverifiable absence changes an
+otherwise green run to exit 2. An operator interrupt first terminates and reaps
+the whole `act` process group; Docker-daemon-owned containers are independently
+contained by the same verified cleanup.
 
 The four exhaustive workers carry their checked denominator through the
 singleton `matrix.total` dimension. `scripts/ci_events.py` proves that value

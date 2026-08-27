@@ -30,6 +30,7 @@ import json
 import os
 import pathlib
 import re
+import secrets
 import shlex
 import shutil
 import signal
@@ -38,6 +39,8 @@ import stat
 import subprocess
 import sys
 import tempfile
+import threading
+import time
 from dataclasses import dataclass, fields, replace
 from typing import Callable, Iterable, Iterator, Mapping, Sequence
 
@@ -55,6 +58,10 @@ REPOSITORY_RE = re.compile(
 ACT_VERSION_RE = re.compile(r"\b(\d+)\.(\d+)\.(\d+)\b")
 SAFE_PATH = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 MAX_WORKFLOW_BYTES = 1024 * 1024
+MAX_GITMODULES_BYTES = 64 * 1024
+DOCKER_ID_RE = re.compile(r"^[0-9a-f]{64}$")
+DOCKER_OWNER_LABEL = "org.kebag-logic.milan-act-ci.owner"
+DOCKER_COMMAND_TIMEOUT = 30
 
 WORKFLOWS: dict[str, str] = {
     "docs": ".github/workflows/docs.yml",
@@ -62,10 +69,31 @@ WORKFLOWS: dict[str, str] = {
     "rtl-fast": ".github/workflows/rtl-fast.yml",
     "rtl-full": ".github/workflows/rtl.yml",
 }
-REQUIRED_SUBMODULES = (
-    "third_party/verilog-axis",
-    "protocol-processor",
-    "gptp-processor",
+TRUSTED_SUBMODULES = (
+    (
+        "external",
+        "external",
+        "git@github.com:kebag-logic/fpga-avb-ethernet.git",
+    ),
+    (
+        "third_party/verilog-axis",
+        "third_party/verilog-axis",
+        "https://github.com/alexforencich/verilog-axis",
+    ),
+    (
+        "protocol-processor",
+        "protocol-processor",
+        "https://github.com/Mister-M-alt/"
+        "protocol-processor-control-plane-avb-milan.git",
+    ),
+    (
+        "gptp-processor",
+        "gptp-processor",
+        "https://github.com/Mister-M-alt/FPGA-gPTP.git",
+    ),
+)
+REQUIRED_SUBMODULES = tuple(
+    path for name, path, _url in TRUSTED_SUBMODULES if name != "external"
 )
 
 PR_FIELDS = (
@@ -153,6 +181,15 @@ class RunLayout:
     input_file: pathlib.Path
 
 
+@dataclass(frozen=True)
+class DockerBoundary:
+    """One unpredictable, runner-owned Docker network and ownership label."""
+
+    token: str
+    name: str
+    network_id: str | None = None
+
+
 def require_tool(name: str) -> str:
     # Candidate worktrees are commonly the invocation directory. Never resolve
     # a host-side prerequisite through their current directory or PATH entry.
@@ -179,7 +216,7 @@ def capture(
             stderr=subprocess.PIPE,
             check=False,
         )
-    except OSError as exc:
+    except (OSError, UnicodeError) as exc:
         raise Refusal(f"cannot run {description}: {exc}") from exc
     if result.returncode != 0:
         detail = result.stderr.strip().splitlines()
@@ -339,7 +376,9 @@ def git_prefix() -> list[str]:
         "-c",
         "credential.helper=",
         "-c",
-        "protocol.file.allow=never",
+        "protocol.allow=never",
+        "-c",
+        "protocol.https.allow=always",
     ]
 
 
@@ -684,6 +723,98 @@ def validate_isolation_layout(layout: RunLayout) -> None:
             raise Refusal(f"explicit act input is not an empty regular file: {path}")
 
 
+def expected_submodule_config() -> dict[str, str]:
+    expected: dict[str, str] = {}
+    for name, path, url in TRUSTED_SUBMODULES:
+        expected[f"submodule.{name}.path"] = path
+        expected[f"submodule.{name}.url"] = url
+    return expected
+
+
+def validate_submodule_manifest(
+    checkout: pathlib.Path, commit: str, gitlinks: Sequence[str]
+) -> None:
+    """Validate the committed manifest before any candidate-directed fetch."""
+    _mode, oid = expected_file(checkout, commit, ".gitmodules")
+    size_text = git_capture(
+        checkout,
+        ["cat-file", "-s", oid],
+        home=checkout.parent,
+        description="candidate .gitmodules size check",
+    )
+    try:
+        size = int(size_text)
+    except ValueError as exc:
+        raise Refusal("Git returned an invalid .gitmodules blob size") from exc
+    if not 0 <= size <= MAX_GITMODULES_BYTES:
+        raise Refusal(
+            f".gitmodules exceeds the {MAX_GITMODULES_BYTES}-byte safety limit"
+        )
+
+    raw = git_capture(
+        checkout,
+        ["config", "--null", "--list", f"--blob={commit}:.gitmodules"],
+        home=checkout.parent,
+        description="candidate .gitmodules parse",
+    )
+    actual: dict[str, str] = {}
+    records = raw.split("\0")
+    if records and records[-1] == "":
+        records.pop()
+    for record in records:
+        if "\n" not in record:
+            raise Refusal("candidate .gitmodules contains a malformed entry")
+        key, value = record.split("\n", 1)
+        if key in actual:
+            raise Refusal(f"candidate .gitmodules repeats {key!r}")
+        actual[key] = value
+
+    expected = expected_submodule_config()
+    if actual != expected:
+        missing = sorted(expected.keys() - actual.keys())
+        unexpected = sorted(actual.keys() - expected.keys())
+        changed = sorted(
+            key
+            for key in expected.keys() & actual.keys()
+            if expected[key] != actual[key]
+        )
+        details: list[str] = []
+        if missing:
+            details.append(f"missing {missing[0]!r}")
+        if unexpected:
+            details.append(f"unexpected {unexpected[0]!r}")
+        if changed:
+            details.append(f"changed {changed[0]!r}")
+        raise Refusal(
+            "candidate .gitmodules differs from the trusted manifest"
+            + (f" ({'; '.join(details)})" if details else "")
+        )
+
+    expected_gitlinks = {path for _name, path, _url in TRUSTED_SUBMODULES}
+    actual_gitlinks = set(gitlinks)
+    if actual_gitlinks != expected_gitlinks or len(gitlinks) != len(actual_gitlinks):
+        raise Refusal("candidate gitlinks differ from the trusted submodule paths")
+
+
+def initialize_required_submodules(checkout: pathlib.Path, home: pathlib.Path) -> None:
+    """Fetch only the HTTPS dependencies approved by the trusted manifest."""
+    capture(
+        [
+            *git_prefix(),
+            "-C",
+            str(checkout),
+            "submodule",
+            "update",
+            "--init",
+            "--",
+            *REQUIRED_SUBMODULES,
+        ],
+        cwd=checkout,
+        env=git_environment(home),
+        description="trusted public pinned submodule materialization",
+    )
+
+
 def materialize_remote_head(
     pr: PullRequest, repository: str, layout: RunLayout
 ) -> pathlib.Path:
@@ -750,6 +881,7 @@ def materialize_remote_head(
             raise Refusal(f"candidate tree contains unsupported symlink: {path}")
         if line.startswith("160000 "):
             gitlinks.append(line.split("\t", 1)[-1])
+    validate_submodule_manifest(checkout, pr.head_sha, gitlinks)
     capture(
         [*prefix, "-C", str(checkout), "checkout", "--quiet", "--detach", pr.head_sha],
         cwd=layout.root,
@@ -765,24 +897,6 @@ def materialize_remote_head(
         if not target.is_relative_to(checkout):
             raise Refusal(f"candidate gitlink escapes the checkout: {relative}")
         target.mkdir(parents=True, exist_ok=True)
-    # act's local checkout copier omits empty directories. Populate the three
-    # public, pinned dependencies every selected workflow already names so the
-    # copied tree has hosted-checkout parity before the workflow repeats this
-    # idempotent update. Git runs with no credential, hook, or file transport.
-    capture(
-        [
-            *prefix,
-            "-C",
-            str(checkout),
-            "submodule",
-            "update",
-            "--init",
-            *REQUIRED_SUBMODULES,
-        ],
-        cwd=layout.root,
-        env=env,
-        description="public pinned submodule materialization",
-    )
     return checkout
 
 
@@ -900,6 +1014,440 @@ def build_event(pr: PullRequest, repository: str) -> dict[str, object]:
     }
 
 
+def docker_prefix(use_sudo: bool) -> list[str]:
+    command = [require_tool("docker")]
+    if use_sudo:
+        command = [require_tool("sudo"), "-n", "--", *command]
+    return command
+
+
+def run_docker(
+    arguments: Sequence[str],
+    *,
+    use_sudo: bool,
+    cwd: pathlib.Path,
+    env: Mapping[str, str],
+    description: str,
+    check: bool = True,
+    run_command: Callable[..., subprocess.CompletedProcess[str]] = subprocess.run,
+) -> subprocess.CompletedProcess[str]:
+    command = [*docker_prefix(use_sudo), *arguments]
+    try:
+        result = run_command(
+            command,
+            cwd=cwd,
+            env=dict(env),
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            timeout=DOCKER_COMMAND_TIMEOUT,
+            check=False,
+        )
+    except subprocess.TimeoutExpired as exc:
+        raise Refusal(f"{description} timed out") from exc
+    except (OSError, UnicodeError) as exc:
+        raise Refusal(f"cannot run {description}: {exc}") from exc
+    if check and result.returncode != 0:
+        detail = (result.stderr or "").strip().splitlines()
+        suffix = f": {detail[-1]}" if detail else ""
+        raise Refusal(f"{description} failed{suffix}")
+    return result
+
+
+def new_docker_boundary() -> DockerBoundary:
+    token = secrets.token_hex(16)
+    if not re.fullmatch(r"[0-9a-f]{32}", token):
+        raise Refusal("cannot generate a safe Docker ownership token")
+    return DockerBoundary(token=token, name=f"milan-act-ci-{token}")
+
+
+def inspect_docker_boundary(
+    boundary: DockerBoundary,
+    *,
+    use_sudo: bool,
+    cwd: pathlib.Path,
+    env: Mapping[str, str],
+) -> None:
+    if boundary.network_id is None or not DOCKER_ID_RE.fullmatch(boundary.network_id):
+        raise Refusal("Docker boundary has no valid network ID")
+    result = run_docker(
+        ["network", "inspect", boundary.network_id],
+        use_sudo=use_sudo,
+        cwd=cwd,
+        env=env,
+        description="Docker boundary inspection",
+    )
+    try:
+        networks = json.loads(result.stdout)
+        network = networks[0]
+        actual_id = network["Id"]
+        actual_name = network["Name"]
+        labels = network["Labels"]
+    except (json.JSONDecodeError, IndexError, KeyError, TypeError) as exc:
+        raise Refusal("Docker returned malformed boundary metadata") from exc
+    if not isinstance(labels, dict):
+        raise Refusal("Docker boundary has no ownership labels")
+    if (
+        actual_id != boundary.network_id
+        or actual_name != boundary.name
+        or labels.get(DOCKER_OWNER_LABEL) != boundary.token
+    ):
+        raise Refusal("Docker boundary identity or ownership label changed")
+
+
+def create_docker_boundary(
+    planned: DockerBoundary,
+    *,
+    use_sudo: bool,
+    cwd: pathlib.Path,
+    env: Mapping[str, str],
+) -> DockerBoundary:
+    if planned.network_id is not None:
+        raise Refusal("refusing to recreate an initialized Docker boundary")
+    result = run_docker(
+        [
+            "network",
+            "create",
+            "--driver",
+            "bridge",
+            "--label",
+            f"{DOCKER_OWNER_LABEL}={planned.token}",
+            planned.name,
+        ],
+        use_sudo=use_sudo,
+        cwd=cwd,
+        env=env,
+        description="isolated Docker network creation",
+    )
+    network_id = result.stdout.strip()
+    if not DOCKER_ID_RE.fullmatch(network_id):
+        run_docker(
+            ["network", "rm", planned.name],
+            use_sudo=use_sudo,
+            cwd=cwd,
+            env=env,
+            description="malformed Docker boundary removal",
+            check=False,
+        )
+        raise Refusal("Docker returned an invalid boundary network ID")
+    boundary = replace(planned, network_id=network_id)
+    try:
+        inspect_docker_boundary(
+            boundary, use_sudo=use_sudo, cwd=cwd, env=env
+        )
+    except BaseException:
+        run_docker(
+            ["network", "rm", network_id],
+            use_sudo=use_sudo,
+            cwd=cwd,
+            env=env,
+            description="invalid Docker boundary removal",
+            check=False,
+        )
+        raise
+    return boundary
+
+
+def docker_container_inventory(
+    *, use_sudo: bool, cwd: pathlib.Path, env: Mapping[str, str]
+) -> list[dict[str, object]]:
+    listed = run_docker(
+        ["container", "ls", "--all", "--quiet", "--no-trunc"],
+        use_sudo=use_sudo,
+        cwd=cwd,
+        env=env,
+        description="Docker container inventory",
+    )
+    ids = [line for line in listed.stdout.splitlines() if line]
+    if len(ids) != len(set(ids)) or any(
+        not DOCKER_ID_RE.fullmatch(item) for item in ids
+    ):
+        raise Refusal("Docker returned an invalid container inventory")
+    inventory: list[dict[str, object]] = []
+    for requested_id in ids:
+        inspected = run_docker(
+            ["container", "inspect", requested_id],
+            use_sudo=use_sudo,
+            cwd=cwd,
+            env=env,
+            description="Docker container metadata inspection",
+            check=False,
+        )
+        if inspected.returncode != 0:
+            # An act cleanup or an unrelated host task may remove a container
+            # between the inventory and inspection. Its absence is already the
+            # cleanup result we need; every other daemon error fails closed.
+            if "No such container:" in inspected.stderr:
+                continue
+            detail = inspected.stderr.strip().splitlines()
+            suffix = f": {detail[-1]}" if detail else ""
+            raise Refusal(f"Docker container metadata inspection failed{suffix}")
+        try:
+            raw = json.loads(inspected.stdout)
+            item = raw[0]
+        except (json.JSONDecodeError, IndexError, TypeError) as exc:
+            raise Refusal("Docker returned malformed container metadata") from exc
+        if not isinstance(item, dict):
+            raise Refusal("Docker returned a malformed container entry")
+        container_id = item.get("Id")
+        if not isinstance(container_id, str) or not DOCKER_ID_RE.fullmatch(
+            container_id
+        ):
+            raise Refusal("Docker returned a malformed container ID")
+        if container_id != requested_id:
+            raise Refusal("Docker returned metadata for the wrong container")
+        inventory.append(item)
+    return inventory
+
+
+def owned_container_ids(
+    inventory: Sequence[Mapping[str, object]], boundary: DockerBoundary
+) -> set[str]:
+    """Select only containers proven to belong to this unpredictable boundary."""
+    records: dict[str, Mapping[str, object]] = {}
+    names: dict[str, str] = {}
+    owned: set[str] = set()
+    for item in inventory:
+        container_id = item.get("Id")
+        if not isinstance(container_id, str) or not DOCKER_ID_RE.fullmatch(
+            container_id
+        ):
+            raise Refusal("cannot establish ownership of a malformed container ID")
+        records[container_id] = item
+        raw_name = item.get("Name")
+        if isinstance(raw_name, str) and raw_name.startswith("/") and len(raw_name) > 1:
+            names[raw_name[1:]] = container_id
+
+        config = item.get("Config")
+        labels = config.get("Labels") if isinstance(config, dict) else None
+        host_config = item.get("HostConfig")
+        network_mode = (
+            host_config.get("NetworkMode") if isinstance(host_config, dict) else None
+        )
+        network_settings = item.get("NetworkSettings")
+        networks = (
+            network_settings.get("Networks")
+            if isinstance(network_settings, dict)
+            else None
+        )
+        label_owned = (
+            isinstance(labels, dict)
+            and labels.get(DOCKER_OWNER_LABEL) == boundary.token
+        )
+        mode_owned = network_mode == boundary.name or (
+            boundary.network_id is not None and network_mode == boundary.network_id
+        )
+        network_owned = isinstance(networks, dict) and boundary.name in networks
+        if label_owned or mode_owned or network_owned:
+            owned.add(container_id)
+
+    changed = True
+    while changed:
+        changed = False
+        for container_id, item in records.items():
+            if container_id in owned:
+                continue
+            host_config = item.get("HostConfig")
+            network_mode = (
+                host_config.get("NetworkMode")
+                if isinstance(host_config, dict)
+                else None
+            )
+            if not isinstance(network_mode, str) or not network_mode.startswith(
+                "container:"
+            ):
+                continue
+            target = network_mode.removeprefix("container:")
+            if not target:
+                raise Refusal("Docker returned an empty container-network target")
+            matches = {known_id for known_id in records if known_id.startswith(target)}
+            if target in names:
+                matches.add(names[target])
+            if len(matches) > 1:
+                raise Refusal("Docker returned an ambiguous container-network target")
+            if matches.intersection(owned):
+                owned.add(container_id)
+                changed = True
+    return owned
+
+
+def running_container_ids(
+    inventory: Sequence[Mapping[str, object]], selected: set[str]
+) -> list[str]:
+    running: list[str] = []
+    for item in inventory:
+        container_id = item.get("Id")
+        if container_id not in selected:
+            continue
+        state = item.get("State")
+        if isinstance(state, dict) and state.get("Running") is True:
+            if not isinstance(container_id, str):
+                raise Refusal("Docker returned a malformed running container ID")
+            running.append(container_id)
+    return sorted(running)
+
+
+def cleanup_owned_containers(
+    boundary: DockerBoundary,
+    *,
+    use_sudo: bool,
+    cwd: pathlib.Path,
+    env: Mapping[str, str],
+) -> int:
+    inventory = docker_container_inventory(use_sudo=use_sudo, cwd=cwd, env=env)
+    owned = owned_container_ids(inventory, boundary)
+    initial_count = len(owned)
+    attempt_errors: list[str] = []
+    running = running_container_ids(inventory, owned)
+    if running:
+        try:
+            result = run_docker(
+                ["container", "stop", "--time", "3", *running],
+                use_sudo=use_sudo,
+                cwd=cwd,
+                env=env,
+                description="owned Docker container stop",
+                check=False,
+            )
+            if result.returncode != 0:
+                attempt_errors.append("graceful stop failed")
+        except Refusal as exc:
+            attempt_errors.append(str(exc))
+
+    try:
+        inventory = docker_container_inventory(use_sudo=use_sudo, cwd=cwd, env=env)
+        remaining = sorted(owned_container_ids(inventory, boundary))
+    except Refusal as exc:
+        attempt_errors.append(str(exc))
+        remaining = sorted(owned)
+    if remaining:
+        try:
+            result = run_docker(
+                ["container", "rm", "--force", "--volumes", *remaining],
+                use_sudo=use_sudo,
+                cwd=cwd,
+                env=env,
+                description="owned Docker container removal",
+                check=False,
+            )
+            if result.returncode != 0:
+                attempt_errors.append("forced removal failed")
+        except Refusal as exc:
+            attempt_errors.append(str(exc))
+
+    verification_errors: list[str] = []
+    try:
+        final_inventory = docker_container_inventory(
+            use_sudo=use_sudo, cwd=cwd, env=env
+        )
+        survivors = owned_container_ids(final_inventory, boundary)
+        if survivors:
+            verification_errors.append(
+                f"{len(survivors)} owned container(s) survived cleanup"
+            )
+    except Refusal as exc:
+        verification_errors.append(str(exc))
+    if verification_errors:
+        details = [*attempt_errors, *verification_errors]
+        raise Refusal("Docker container cleanup failed: " + "; ".join(details))
+    return initial_count
+
+
+def cleanup_docker_boundary(
+    boundary: DockerBoundary,
+    *,
+    use_sudo: bool,
+    cwd: pathlib.Path,
+    env: Mapping[str, str],
+) -> None:
+    errors: list[str] = []
+    try:
+        cleanup_owned_containers(
+            boundary, use_sudo=use_sudo, cwd=cwd, env=env
+        )
+    except Refusal as exc:
+        errors.append(str(exc))
+    try:
+        inspect_docker_boundary(
+            boundary, use_sudo=use_sudo, cwd=cwd, env=env
+        )
+    except Refusal as exc:
+        errors.append(str(exc))
+    else:
+        network_id = boundary.network_id
+        if network_id is None:
+            errors.append("Docker boundary has no network ID during cleanup")
+            network_id = boundary.name
+        try:
+            result = run_docker(
+                ["network", "rm", network_id],
+                use_sudo=use_sudo,
+                cwd=cwd,
+                env=env,
+                description="Docker boundary network removal",
+                check=False,
+            )
+            if result.returncode != 0:
+                errors.append("Docker boundary network removal failed")
+        except Refusal as exc:
+            errors.append(str(exc))
+
+    if boundary.network_id is not None:
+        try:
+            result = run_docker(
+                ["network", "inspect", boundary.network_id],
+                use_sudo=use_sudo,
+                cwd=cwd,
+                env=env,
+                description="Docker boundary absence check",
+                check=False,
+            )
+            if result.returncode == 0:
+                errors.append("Docker boundary network survived cleanup")
+            elif not any(
+                marker in result.stderr
+                for marker in (
+                    f"network {boundary.network_id} not found",
+                    f"No such network: {boundary.network_id}",
+                )
+            ):
+                detail = result.stderr.strip().splitlines()
+                suffix = f": {detail[-1]}" if detail else ""
+                errors.append(f"cannot verify Docker boundary absence{suffix}")
+        except Refusal as exc:
+            errors.append(str(exc))
+    try:
+        final_inventory = docker_container_inventory(
+            use_sudo=use_sudo, cwd=cwd, env=env
+        )
+        survivors = owned_container_ids(final_inventory, boundary)
+        if survivors:
+            errors.append(f"{len(survivors)} owned container(s) remain")
+    except Refusal as exc:
+        errors.append(str(exc))
+    if errors:
+        raise Refusal("Docker boundary cleanup failed: " + "; ".join(errors))
+
+
+@contextlib.contextmanager
+def temporary_docker_boundary(
+    planned: DockerBoundary,
+    *,
+    use_sudo: bool,
+    cwd: pathlib.Path,
+    env: Mapping[str, str],
+) -> Iterator[DockerBoundary]:
+    boundary = create_docker_boundary(
+        planned, use_sudo=use_sudo, cwd=cwd, env=env
+    )
+    try:
+        yield boundary
+    finally:
+        cleanup_docker_boundary(
+            boundary, use_sudo=use_sudo, cwd=cwd, env=env
+        )
+
+
 def act_prefix(act_binary: str, use_sudo: bool, env: Mapping[str, str]) -> list[str]:
     if not use_sudo:
         return [act_binary]
@@ -916,7 +1464,11 @@ def act_prefix(act_binary: str, use_sudo: bool, env: Mapping[str, str]) -> list[
 
 
 def build_act_command(
-    prefix: Sequence[str], workflow: str, layout: RunLayout, artifact_port: int
+    prefix: Sequence[str],
+    workflow: str,
+    layout: RunLayout,
+    artifact_port: int,
+    boundary: DockerBoundary,
 ) -> list[str]:
     if not 1 <= artifact_port <= 65535:
         raise Refusal(f"invalid artifact-server port: {artifact_port}")
@@ -958,8 +1510,10 @@ def build_act_command(
         "GITHUB_TOKEN=",
         "--container-daemon-socket",
         "-",
+        "--container-options",
+        f"--label={DOCKER_OWNER_LABEL}={boundary.token}",
         "--network",
-        "bridge",
+        boundary.name,
     ]
 
 
@@ -982,6 +1536,7 @@ def run_act_process(
     cwd: pathlib.Path,
     env: Mapping[str, str],
     check: bool = False,
+    started: Callable[[int], None] | None = None,
 ) -> subprocess.CompletedProcess[object]:
     """Run act in its own process group and reap that group on interruption."""
     del check  # This boundary always returns the workflow status to its caller.
@@ -992,6 +1547,8 @@ def run_act_process(
         start_new_session=True,
     )
     try:
+        if started is not None:
+            started(process.pid)
         return subprocess.CompletedProcess(command, process.wait())
     except BaseException:
         for sent_signal, timeout in (
@@ -1002,35 +1559,7 @@ def run_act_process(
             if process.poll() is not None:
                 break
             try:
-                os.killpg(process.pid, sent_signal)
-            except PermissionError:
-                signal_name = signal.Signals(sent_signal).name.removeprefix("SIG")
-                result = subprocess.run(
-                    [
-                        require_tool("sudo"),
-                        "-n",
-                        "--",
-                        require_tool("kill"),
-                        f"-{signal_name}",
-                        "--",
-                        f"-{process.pid}",
-                    ],
-                    env={
-                        "PATH": SAFE_PATH,
-                        "LANG": "C.UTF-8",
-                        "LC_ALL": "C.UTF-8",
-                    },
-                    text=True,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
-                    check=False,
-                )
-                if result.returncode != 0 and process.poll() is None:
-                    detail = result.stderr.strip().splitlines()
-                    suffix = f": {detail[-1]}" if detail else ""
-                    raise Refusal(
-                        f"cannot signal interrupted act process group{suffix}"
-                    )
+                signal_process_group(process.pid, sent_signal)
             except ProcessLookupError:
                 break
             try:
@@ -1040,6 +1569,39 @@ def run_act_process(
         if process.poll() is None:
             raise Refusal("cannot terminate interrupted act process group")
         raise
+
+
+def signal_process_group(process_group: int, sent_signal: int) -> None:
+    try:
+        os.killpg(process_group, sent_signal)
+        return
+    except PermissionError:
+        pass
+    signal_name = signal.Signals(sent_signal).name.removeprefix("SIG")
+    result = subprocess.run(
+        [
+            require_tool("sudo"),
+            "-n",
+            "--",
+            require_tool("kill"),
+            f"-{signal_name}",
+            "--",
+            f"-{process_group}",
+        ],
+        env={
+            "PATH": SAFE_PATH,
+            "LANG": "C.UTF-8",
+            "LC_ALL": "C.UTF-8",
+        },
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    if result.returncode != 0:
+        detail = result.stderr.strip().splitlines()
+        suffix = f": {detail[-1]}" if detail else ""
+        raise Refusal(f"cannot signal act process group{suffix}")
 
 
 def require_runtime(
@@ -1060,12 +1622,9 @@ def require_runtime(
         got = ".".join(str(part) for part in version)
         raise Refusal(f"act {got} is older than the tested minimum {want}")
 
-    docker = require_tool("docker")
-    docker_command = [docker, "info", "--format", "{{.ServerVersion}}"]
-    if use_sudo:
-        docker_command = [require_tool("sudo"), "-n", "--", *docker_command]
-    capture(
-        docker_command,
+    run_docker(
+        ["info", "--format", "{{.ServerVersion}}"],
+        use_sudo=use_sudo,
         cwd=layout.invocation,
         env=env,
         description="Docker daemon check",
@@ -1114,6 +1673,8 @@ def run_validation(
         )
         validate_checkout(pr, layout.checkout, workflows, label="materialized checkout")
         validate_workflow_sandbox(layout.checkout, workflows)
+        initialize_required_submodules(layout.checkout, layout.home)
+        validate_checkout(pr, layout.checkout, workflows, label="materialized checkout")
         require_live_pull_request(pr, repository)
 
         event = build_event(pr, repository)
@@ -1127,6 +1688,7 @@ def run_validation(
             if dry_run
             else require_runtime(act_binary, use_sudo, layout, env)
         )
+        planned_boundary = new_docker_boundary()
         print(f"act-ci: PR #{pr.number} {event['action']} exact head {pr.head_sha}")
         print(
             f"act-ci: base {pr.base_sha} ({pr.base_ref}), "
@@ -1143,28 +1705,62 @@ def run_validation(
                 pr, layout.checkout, workflows, label="materialized checkout"
             )
 
-        for workflow in workflows:
-            artifact_port = allocate_tcp_port()
-            command = build_act_command(prefix, workflow, layout, artifact_port)
-            if dry_run:
-                print(f"act-ci: {workflow}: {shlex.join(command)}")
-                continue
-            print(f"act-ci: running {workflow} ({WORKFLOWS[workflow]})", flush=True)
-            result = execute_act_boundary(
-                command,
-                pr=pr,
-                repository=repository,
-                cwd=layout.invocation,
-                env=env,
-                integrity_check=integrity_check,
-            )
-            if result != 0:
-                print(f"act-ci: {workflow}: FAILED ({result})", file=sys.stderr)
-                return RC_FAILED
-            print(f"act-ci: {workflow}: PASS at {pr.head_sha}")
-        require_live_pull_request(pr, repository)
-        integrity_check()
-    return RC_OK
+        def execute_workflows(boundary: DockerBoundary) -> int:
+            for workflow in workflows:
+                if not dry_run:
+                    inspect_docker_boundary(
+                        boundary,
+                        use_sudo=use_sudo,
+                        cwd=layout.invocation,
+                        env=env,
+                    )
+                artifact_port = allocate_tcp_port()
+                command = build_act_command(
+                    prefix, workflow, layout, artifact_port, boundary
+                )
+                if dry_run:
+                    print(f"act-ci: {workflow}: {shlex.join(command)}")
+                    continue
+                print(
+                    f"act-ci: running {workflow} ({WORKFLOWS[workflow]})",
+                    flush=True,
+                )
+                result = execute_act_boundary(
+                    command,
+                    pr=pr,
+                    repository=repository,
+                    cwd=layout.invocation,
+                    env=env,
+                    integrity_check=integrity_check,
+                )
+                leftovers = cleanup_owned_containers(
+                    boundary,
+                    use_sudo=use_sudo,
+                    cwd=layout.invocation,
+                    env=env,
+                )
+                if leftovers:
+                    raise Refusal(
+                        f"act left {leftovers} owned container(s) after {workflow}; "
+                        "the runner removed them and refuses the run"
+                    )
+                if result != 0:
+                    print(f"act-ci: {workflow}: FAILED ({result})", file=sys.stderr)
+                    return RC_FAILED
+                print(f"act-ci: {workflow}: PASS at {pr.head_sha}")
+            require_live_pull_request(pr, repository)
+            integrity_check()
+            return RC_OK
+
+        if dry_run:
+            return execute_workflows(planned_boundary)
+        with temporary_docker_boundary(
+            planned_boundary,
+            use_sudo=use_sudo,
+            cwd=layout.invocation,
+            env=env,
+        ) as boundary:
+            return execute_workflows(boundary)
 
 
 def expect_refusal(label: str, action: Callable[[], object]) -> bool:
@@ -1282,8 +1878,13 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
         with temporary_run_directory(False) as second_root:
             second = make_layout(second_root, other_pr)
             allocated_port = allocate_tcp_port()
+            selftest_boundary = DockerBoundary(
+                token="a" * 32,
+                name=f"milan-act-ci-{'a' * 32}",
+                network_id="b" * 64,
+            )
             command = build_act_command(
-                ["act"], "rtl-full", first, allocated_port
+                ["act"], "rtl-full", first, allocated_port, selftest_boundary
             )
             check(
                 "act command selects the real strict exhaustive workflow",
@@ -1299,8 +1900,14 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
             check(
                 "job containers receive no Docker socket or host network",
                 command[command.index("--container-daemon-socket") + 1] == "-"
-                and command[command.index("--network") + 1] == "bridge"
+                and command[command.index("--network") + 1]
+                == selftest_boundary.name
                 and "--privileged" not in command,
+            )
+            check(
+                "job containers carry the unpredictable runner ownership label",
+                command[command.index("--container-options") + 1]
+                == f"--label={DOCKER_OWNER_LABEL}={selftest_boundary.token}",
             )
             check(
                 "only an explicitly empty GitHub token reaches candidate jobs",
@@ -1326,7 +1933,9 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
             )
             refused(
                 "artifact-server port zero is refused rather than advertised",
-                lambda: build_act_command(["act"], "docs", first, 0),
+                lambda: build_act_command(
+                    ["act"], "docs", first, 0, selftest_boundary
+                ),
             )
             check(
                 "two heads receive different writable action/workflow caches",
@@ -1378,6 +1987,46 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
             )
             first.secret_file.write_text("", encoding="utf-8")
             validate_isolation_layout(first)
+
+    owned_id = "c" * 64
+    child_id = "d" * 64
+    unrelated_id = "e" * 64
+    inventory = [
+        {
+            "Id": owned_id,
+            "Name": "/owned",
+            "Config": {"Labels": {}},
+            "HostConfig": {"NetworkMode": selftest_boundary.name},
+            "NetworkSettings": {"Networks": {}},
+            "State": {"Running": False},
+        },
+        {
+            "Id": child_id,
+            "Name": "/child",
+            "Config": {"Labels": {}},
+            "HostConfig": {"NetworkMode": f"container:{owned_id[:12]}"},
+            "NetworkSettings": {"Networks": {}},
+            "State": {"Running": True},
+        },
+        {
+            "Id": unrelated_id,
+            "Name": "/unrelated",
+            "Config": {"Labels": {DOCKER_OWNER_LABEL: "f" * 32}},
+            "HostConfig": {"NetworkMode": "bridge"},
+            "NetworkSettings": {"Networks": {"bridge": {}}},
+            "State": {"Running": True},
+        },
+    ]
+    selected = owned_container_ids(inventory, selftest_boundary)
+    check(
+        "stopped boundary and container-network children are owned exactly",
+        selected == {owned_id, child_id},
+    )
+    check(
+        "unrelated containers are excluded from cleanup",
+        unrelated_id not in selected
+        and running_container_ids(inventory, selected) == [child_id],
+    )
 
     check(
         "act version parser accepts the tested version",
@@ -1527,6 +2176,70 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
         )
         test_git("replace", "-d", test_head)
 
+        gitmodules_text = "".join(
+            f'[submodule "{name}"]\n\tpath = {path}\n\turl = {url}\n'
+            for name, path, url in TRUSTED_SUBMODULES
+        )
+        (repo / ".gitmodules").write_text(gitmodules_text, encoding="utf-8")
+        test_git("add", ".gitmodules")
+        gitlink_oid = "9" * 40
+        trusted_gitlinks = tuple(path for _name, path, _url in TRUSTED_SUBMODULES)
+        for gitlink in trusted_gitlinks:
+            test_git(
+                "update-index",
+                "--add",
+                "--cacheinfo",
+                f"160000,{gitlink_oid},{gitlink}",
+            )
+        test_git("commit", "--quiet", "-m", "trusted submodule manifest")
+        manifest_commit = test_git("rev-parse", "HEAD")
+        validate_submodule_manifest(repo, manifest_commit, trusted_gitlinks)
+        check("the exact trusted submodule manifest is accepted", True)
+
+        hostile_manifest = gitmodules_text.replace(
+            "https://github.com/alexforencich/verilog-axis",
+            "https://127.0.0.1:9/attacker/verilog-axis",
+        )
+        (repo / ".gitmodules").write_text(hostile_manifest, encoding="utf-8")
+        test_git("add", ".gitmodules")
+        test_git("commit", "--quiet", "-m", "hostile submodule URL")
+        hostile_commit = test_git("rev-parse", "HEAD")
+        refused(
+            "candidate submodule URL changes are refused before fetch",
+            lambda: validate_submodule_manifest(
+                repo, hostile_commit, trusted_gitlinks
+            ),
+        )
+
+        hostile_update = gitmodules_text.replace(
+            "\turl = https://github.com/alexforencich/verilog-axis\n",
+            "\turl = https://github.com/alexforencich/verilog-axis\n"
+            "\tupdate = !touch /tmp/act-ci-host-command\n",
+        )
+        (repo / ".gitmodules").write_text(hostile_update, encoding="utf-8")
+        test_git("add", ".gitmodules")
+        test_git("commit", "--quiet", "-m", "hostile submodule update")
+        hostile_update_commit = test_git("rev-parse", "HEAD")
+        refused(
+            "candidate submodule update commands are refused before fetch",
+            lambda: validate_submodule_manifest(
+                repo, hostile_update_commit, trusted_gitlinks
+            ),
+        )
+        refused(
+            "candidate gitlink path changes are refused before fetch",
+            lambda: validate_submodule_manifest(
+                repo, manifest_commit, (*trusted_gitlinks[:-1], "unexpected")
+            ),
+        )
+        prefix = git_prefix()
+        check(
+            "Git disables every protocol except credential-free HTTPS",
+            "protocol.allow=never" in prefix
+            and "protocol.https.allow=always" in prefix
+            and not any("protocol.ssh.allow=always" == part for part in prefix),
+        )
+
         unsafe_path = repo / "unsafe.yml"
         unsafe_path.write_text(
             "name: unsafe\non: push\njobs:\n  pwn:\n    runs-on: self-hosted\n"
@@ -1552,6 +2265,183 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
 
     print("selftest:", "PASS" if failures == 0 else f"{failures} FAILURE(S)")
     return RC_OK if failures == 0 else RC_FAILED
+
+
+def interrupt_selftest(act_binary: str, use_sudo: bool) -> int:
+    """Freeze act with a live job and prove daemon-owned cleanup completes."""
+    probe_pr = PullRequest(
+        number=1,
+        state="OPEN",
+        draft=False,
+        base_ref=DEFAULT_BASE,
+        base_sha="1" * 40,
+        head_ref="interrupt-selftest",
+        head_sha="2" * 40,
+        head_repo="kebag-logic/milan-fpga",
+        cross_repo=False,
+        url="https://github.com/kebag-logic/milan-fpga/pull/1",
+    )
+    workflow = "interrupt-selftest"
+    relative_workflow = ".github/workflows/interrupt-selftest.yml"
+    with temporary_run_directory(use_sudo) as run_root:
+        layout = make_layout(run_root, probe_pr)
+        layout.checkout.mkdir(parents=True)
+        workflow_path = layout.checkout / relative_workflow
+        workflow_path.parent.mkdir(parents=True)
+        workflow_path.write_text(
+            "name: interrupt-selftest\n"
+            "on: pull_request\n"
+            "jobs:\n"
+            "  sleep:\n"
+            "    runs-on: ubuntu-latest\n"
+            "    steps:\n"
+            "      - run: sleep 300\n",
+            encoding="utf-8",
+        )
+        git = git_prefix()
+        git_env = git_environment(layout.home)
+        capture(
+            [*git, "init", "--quiet", str(layout.checkout)],
+            cwd=layout.root,
+            env=git_env,
+            description="interrupt self-test repository creation",
+        )
+        capture(
+            [*git, "-C", str(layout.checkout), "add", relative_workflow],
+            cwd=layout.root,
+            env=git_env,
+            description="interrupt self-test workflow staging",
+        )
+        capture(
+            [
+                *git,
+                "-C",
+                str(layout.checkout),
+                "-c",
+                "user.name=act-ci selftest",
+                "-c",
+                "user.email=act-ci@example.invalid",
+                "commit",
+                "--quiet",
+                "-m",
+                "interrupt self-test",
+            ],
+            cwd=layout.root,
+            env=git_env,
+            description="interrupt self-test workflow commit",
+        )
+        layout.event_path.write_text(
+            json.dumps({"action": "ready_for_review", "pull_request": {}}) + "\n",
+            encoding="utf-8",
+        )
+        env = controlled_act_environment(layout)
+        validate_isolation_layout(layout)
+        prefix = require_runtime(act_binary, use_sudo, layout, env)
+        planned = new_docker_boundary()
+        monitor_cancel = threading.Event()
+        frozen = threading.Event()
+        monitor_problems: list[str] = []
+        monitor_threads: list[threading.Thread] = []
+
+        try:
+            WORKFLOWS[workflow] = relative_workflow
+            with temporary_docker_boundary(
+                planned,
+                use_sudo=use_sudo,
+                cwd=layout.invocation,
+                env=env,
+            ) as boundary:
+                command = build_act_command(
+                    prefix,
+                    workflow,
+                    layout,
+                    allocate_tcp_port(),
+                    boundary,
+                )
+                command.append("--pull=false")
+
+                def process_started(process_group: int) -> None:
+                    def freeze_live_act() -> None:
+                        deadline = time.monotonic() + 120
+                        while not monitor_cancel.is_set():
+                            try:
+                                inventory = docker_container_inventory(
+                                    use_sudo=use_sudo,
+                                    cwd=layout.invocation,
+                                    env=env,
+                                )
+                                selected = owned_container_ids(inventory, boundary)
+                                if running_container_ids(inventory, selected):
+                                    try:
+                                        signal_process_group(
+                                            process_group, signal.SIGSTOP
+                                        )
+                                    except (OSError, Refusal) as exc:
+                                        monitor_problems.append(
+                                            f"cannot freeze live act process: {exc}"
+                                        )
+                                        os.kill(os.getpid(), signal.SIGINT)
+                                        return
+                                    frozen.set()
+                                    os.kill(os.getpid(), signal.SIGINT)
+                                    return
+                            except Refusal:
+                                # Container creation/removal can race one inventory;
+                                # retry until the bounded deadline.
+                                pass
+                            if time.monotonic() >= deadline:
+                                monitor_problems.append(
+                                    "no owned running act container appeared "
+                                    "within 120s"
+                                )
+                                os.kill(os.getpid(), signal.SIGINT)
+                                return
+                            monitor_cancel.wait(0.25)
+
+                    monitor = threading.Thread(
+                        target=freeze_live_act,
+                        name="act-ci-interrupt-monitor",
+                        daemon=True,
+                    )
+                    monitor_threads.append(monitor)
+                    monitor.start()
+
+                interrupted = False
+                try:
+                    result = run_act_process(
+                        command,
+                        cwd=layout.invocation,
+                        env=env,
+                        started=process_started,
+                    )
+                except KeyboardInterrupt:
+                    interrupted = True
+                finally:
+                    monitor_cancel.set()
+                    for monitor in monitor_threads:
+                        monitor.join(timeout=5)
+                if not interrupted:
+                    raise Refusal(
+                        f"interrupt self-test act process exited {result.returncode} "
+                        "before fault injection"
+                    )
+                if monitor_problems:
+                    raise Refusal(monitor_problems[0])
+                if not frozen.is_set():
+                    raise Refusal("interrupt self-test did not freeze act")
+        finally:
+            WORKFLOWS.pop(workflow, None)
+
+        final_inventory = docker_container_inventory(
+            use_sudo=use_sudo, cwd=layout.invocation, env=env
+        )
+        survivors = owned_container_ids(final_inventory, planned)
+        if survivors:
+            raise Refusal(
+                f"interrupt self-test left {len(survivors)} owned container(s)"
+            )
+    print("interrupt-selftest: PASS (frozen act left no container or network)")
+    return RC_OK
 
 
 def main(argv: Sequence[str]) -> int:
@@ -1592,6 +2482,11 @@ def main(argv: Sequence[str]) -> int:
         action="store_true",
         help="run offline negative and construction tests",
     )
+    parser.add_argument(
+        "--interrupt-selftest",
+        action="store_true",
+        help="freeze a live act job and verify Docker cleanup (requires Docker)",
+    )
     args = parser.parse_args(argv[1:])
 
     if args.selftest:
@@ -1600,10 +2495,30 @@ def main(argv: Sequence[str]) -> int:
             or args.workflow
             or args.dry_run
             or args.trusted_install_sha256
+            or args.interrupt_selftest
         ):
             parser.error("--selftest cannot be combined with PR-run arguments")
         shipping_root = (args.worktree or ROOT).expanduser().resolve()
         return selftest(shipping_root)
+    if args.interrupt_selftest:
+        if (
+            args.pr is not None
+            or args.workflow
+            or args.dry_run
+            or args.trusted_install_sha256
+            or args.repo is not None
+            or args.worktree is not None
+        ):
+            parser.error(
+                "--interrupt-selftest cannot be combined with PR-run arguments"
+            )
+        try:
+            act_binary = resolve_act_binary(args.act_bin)
+            validate_act_binary(act_binary, pathlib.Path.cwd().resolve())
+            return interrupt_selftest(act_binary, args.sudo)
+        except Refusal as exc:
+            print(f"act-ci: REFUSED: {exc}", file=sys.stderr)
+            return RC_REFUSED
     if args.pr is None or args.pr <= 0:
         parser.error("--pr requires a positive pull-request number")
 
