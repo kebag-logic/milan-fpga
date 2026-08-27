@@ -151,7 +151,7 @@ _CSR, CDC, RMON, utilities_
 | ✅ `milan_csr` | `common/csr/milan_csr.sv` | `csr` · `hostplane` · `milan_dp` | — |
 | ✅ `KL_mac_rmon_events` | `common/eth_event_counter/KL_mac_rmon_events.sv` | `mac_rmon` | — |
 | ✅ `ethernet_events` | `common/eth_event_counter/ethernet_events.sv` | `hostplane` · `milan_dp` | — |
-| ✅ `event_counter` | `common/eth_event_counter/event_counter.sv` | `hostplane` · ➰milan_dp | — |
+| ✅ `event_counter` | `common/eth_event_counter/event_counter.sv` | `hostplane` · `milan_dp` | — |
 
 ## Milan integration
 
