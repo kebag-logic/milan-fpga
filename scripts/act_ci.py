@@ -1093,7 +1093,7 @@ def expect_refusal(label: str, action: Callable[[], object]) -> bool:
     return False
 
 
-def selftest() -> int:
+def selftest(shipping_root: pathlib.Path = ROOT) -> int:
     failures = 0
 
     def check(label: str, condition: bool) -> None:
@@ -1448,7 +1448,7 @@ def selftest() -> int:
             WORKFLOWS["docs"] = original_docs
 
     try:
-        validate_workflow_sandbox(ROOT, tuple(WORKFLOWS))
+        validate_workflow_sandbox(shipping_root, tuple(WORKFLOWS))
     except Refusal as exc:
         check(f"shipping workflows satisfy the sandbox policy ({exc})", False)
     else:
@@ -1506,7 +1506,8 @@ def main(argv: Sequence[str]) -> int:
             or args.trusted_install_sha256
         ):
             parser.error("--selftest cannot be combined with PR-run arguments")
-        return selftest()
+        shipping_root = (args.worktree or ROOT).expanduser().resolve()
+        return selftest(shipping_root)
     if args.pr is None or args.pr <= 0:
         parser.error("--pr requires a positive pull-request number")
 
