@@ -366,7 +366,7 @@ int main(int argc,char**argv){
     { AafCfg c; c.seq=2; c.chans=0; feed(build_aaf(stim, c)); } // zero channels = junk
     ck("[28d] 0ch rejected", dut->cnt_unsupported_fmt_o, 1);
     //! the 08-07 live case: the wire carries MORE channels than the SET
-    //! format (DS20 declared 4ch, sink set 4ch, wire 8ch-era) - accepts,
+    //! format (the peer declared 4ch, sink set 4ch, wire 8ch-era) - accepts,
     //! the maps route what they map
     { AafCfg c; c.seq=2; c.chans=9; feed(build_aaf(stim, c)); } // above the SET format
     ck("[28e] 9ch-wire ACCEPTED over 8ch fmt (BAF family)",

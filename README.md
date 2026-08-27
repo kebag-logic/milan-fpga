@@ -260,7 +260,7 @@ The long form, with what is verified vs what needs a bench: [QUICKSTART.md](QUIC
 | **All Verilator TBs** (one dir per suite, self-checking) | `cd tb/verilator && for d in */; do (cd "$d" && make) \|\| break; done` | verilator ≥ 5.050 (the CI pin) |
 | One TB | `cd tb/verilator/<suite> && make` (exit 0 = PASS) | verilator |
 | **RTL lint** over all of `hdl/` (ratcheted, ~10 s) | `python3 scripts/lint_rtl.py --check` | verilator (the CI pin) |
-| Docs gate (links, wording, dead references) | `python3 scripts/docs_check.py` | python3 — **git optional** |
+| Docs gate (links, wording, dead references; privacy scrub over every tracked text file) | `python3 scripts/docs_check.py` | python3 — **git optional** |
 | Traceability no-drift gate | `python3 docs/traceability/gen_module_matrix.py --check` | python3 |
 | End-station builder gates | `python3 sw/builder/test_builder.py` | python3 + pyyaml |
 | Device portability | `cd syn/yosys && make && make ecp5` | yosys + sv2v |

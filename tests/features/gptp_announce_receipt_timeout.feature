@@ -8,7 +8,7 @@
 # steady - so there was no way to prove any fix.
 #
 # It reproduces DETERMINISTICALLY: a saturating unicast RX flood aimed at the
-# grandmaster board (935 Mb/s UDP, 60 s, `iperf3 -c 192.168.127.1 -u -b 950M
+# grandmaster board (935 Mb/s UDP, 60 s, `iperf3 -c <board mgmt address> -u -b 950M
 # -l 1400`). During the flood the ALINX grandmaster emits ZERO
 # Announce and ZERO Sync - not late, ABSENT - because the single-ring RX path
 # (`rx_queues: 1`, no steer block) consumes the whole softcore in NAPI and

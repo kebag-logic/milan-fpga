@@ -25,7 +25,7 @@ USAGE
   scripts/area_baseline.py
 
   # a specific build
-  scripts/area_baseline.py --build /home/alex/litex-milan/work/build_ax7101_eppo_t540
+  scripts/area_baseline.py --build ~/litex-milan/work/build_ax7101_eppo_t540
 
   # BEFORE vs AFTER a change - the number that actually settles a proposal
   scripts/area_baseline.py --build <after> --compare <before>

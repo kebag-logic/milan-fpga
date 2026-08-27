@@ -273,7 +273,7 @@ Feature: The torture campaign's own coverage is auditable at a desk
   Scenario: the physical conditions are still covered - by strip or by hand
     # The gm-change, gm-loss and power-cycle entries moved to the physical
     # area, where a runner with the powerstrip hook (USER authorization
-    # 2026-08-02: amx-pi OUT4 = the switch DN-1, OUT0 = the DUT) drives them
+    # 2026-08-02: powerstrip OUT4 = the switch DN-1, OUT0 = the DUT) drives them
     # automatically.  In the PLAN they stay needs_human, so a bench without
     # the hook hands them back as NEEDS-HUMAN exactly as before - never a
     # silent skip.  The cable pull stays human forever: a powerstrip cannot
