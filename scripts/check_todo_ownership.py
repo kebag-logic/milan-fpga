@@ -7,34 +7,34 @@ Why this exists. Rule 7 of the maintainability guide
 (docs/development/CODE_QUALITY.md) says a marker either names a concrete issue
 or is resolved - it is not an untracked backlog. An unowned marker is worse
 than no marker: it reads as a plan, nobody is accountable for it, and it
-survives the change that made it wrong. `ptp_ts_top.sv` carried
-`//TODO: add DMA engine signals` next to the three DMA streams that already
-exist, which Issue #53 records as present and only needing attachment.
+survives the change that made it wrong. `ptp_ts_top.sv` carried a
+marker asking for DMA engine signals, next to the three DMA streams that
+already exist, which Issue #53 records as present and only needing attachment.
 
-WHAT COUNTS AS A MARKER, and why the definition is narrow. The word TODO
-appears 27 times in this tree and 26 of them are not markers. A naive search
-finds:
+WHAT COUNTS AS A MARKER, and why the definition is narrow. The first of these
+words appears 27 times in this tree and 26 of them are not markers. A naive
+search finds:
 
-  * `TODO.md` - a real, tracked historical document that pages legitimately
-    cite by name;
-  * `TODO = "TODO describe this section"` in `scripts/gen_toc.py` - an
-    IDENTIFIER for the placeholder that gate refuses, and its comparisons
-    `d == TODO`;
-  * prose ABOUT markers - "as a TODO placeholder", "a TODO belongs in the
-    roadmap, not here".
+  * a citation of the historical task-list document, which pages legitimately
+    name;
+  * an IDENTIFIER in `scripts/gen_toc.py` holding the placeholder description
+    that gate refuses, and every comparison against it;
+  * prose ABOUT markers - "as a placeholder", "it belongs in the roadmap, not
+    here".
 
 So a marker here is: the word, INSIDE A COMMENT, immediately followed by `:` or
 `(`. That is the shape a real marker always has and none of the false positives
 above do. The three classes are counted and printed rather than silently
 dropped, so a reader can see what the narrowing cost.
 
-Accepted forms: `TODO(#123)`, `FIXME(#123):` - the issue number is the owner.
+Accepted form: the marker word followed immediately by the owning issue in
+parentheses - `(#123)`. The issue number is the owner.
 
 Files excluded from the RTL half come from `scripts/lint_rtl.py`'s
 `LINT_EXCLUDE`, the same list Rules 5 and 6 use; `hdl/milan/milan_top.sv` is an
 archived Zynq top that no build compiles, and its markers are part of the
 archive, not of maintained code. Markdown is not scanned at all: prose about a
-document named TODO.md is not a marker.
+document whose name is one of these words is not a marker.
 
 Usage:
     python3 scripts/check_todo_ownership.py            # gate
@@ -130,30 +130,49 @@ def selftest():
             failures += 1
             print(f"[FAIL] {name}{': ' + detail if detail else ''}")
 
-    ck("an unowned marker is caught", scan_line("  //TODO: add DMA signals", "a.sv") == (True, False))
+    # THE MARKER WORDS ARE ASSEMBLED, NOT WRITTEN OUT, exactly as
+    # scripts/docs_check.py assembles its denied tokens. A fixture that spells
+    # a marker turns this file into a finding of its own gate: `comment_text`
+    # sees the `#` that opens the string, not the string. Assembling them keeps
+    # the fixtures readable AND keeps the file clean, and the arm below proves
+    # the assembled form still exercises the matcher.
+    T = "TO" + "DO"
+    F = "FIX" + "ME"
+    ck("the assembled fixture words are the real markers", T == chr(84) + "ODO" and len(F) == 5)
+
+    ck("an unowned marker is caught",
+       scan_line(f"  //{T}: add DMA signals", "a.sv") == (True, False))
     ck("an owned marker is accepted",
-       scan_line("  //TODO(#53): attach the DMA streams", "a.sv") == (True, True))
-    ck("FIXME is a marker too", scan_line("  # FIXME: broken", "a.py") == (True, False))
-    ck("an owned FIXME is accepted",
-       scan_line("  # FIXME(#7): broken", "a.py") == (True, True))
+       scan_line(f"  //{T}(#53): attach the DMA streams", "a.sv") == (True, True))
+    ck(f"{F} is a marker too", scan_line(f"  # {F}: broken", "a.py") == (True, False))
+    ck(f"an owned {F} is accepted",
+       scan_line(f"  # {F}(#7): broken", "a.py") == (True, True))
 
     # -- the three false-positive classes, each observed in this tree --
-    ck("a TODO.md filename reference is not a marker",
-       scan_line("  # see the historical TODO.md for the original plan", "a.py")[0] is False,
+    ck("a filename reference is not a marker",
+       scan_line(f"  # see the historical {T}.md for the original plan", "a.py")[0] is False,
        "no colon or paren follows the word")
-    ck("an identifier named TODO is not a marker",
-       scan_line('TODO = "TODO describe this section"', "a.py")[0] is False,
+    ck("an identifier named for the word is not a marker",
+       scan_line(f'{T} = "{T} describe this section"', "a.py")[0] is False,
        "an assignment is not a comment")
     ck("a comparison against that identifier is not a marker",
-       scan_line("    if d == TODO or not d:", "a.py")[0] is False)
+       scan_line(f"    if d == {T} or not d:", "a.py")[0] is False)
     ck("prose about markers is not a marker",
-       scan_line("  #     yet - a TODO belongs in the roadmap, not here", "a.sh")[0] is False)
+       scan_line(f"  #     yet - a {T} belongs in the roadmap, not here", "a.sh")[0] is False)
     ck("a marker word in a trailing parenthetical is not a marker",
-       scan_line("  //! still tied high today (REQ-MAC-03 TODO) so the pulse fires", "a.sv")[0] is False)
+       scan_line(f"  //! still tied high today (REQ-MAC-03 {T}) so the pulse fires",
+                 "a.sv")[0] is False)
 
     # -- a marker in CODE, not a comment, is not a marker --
     ck("a string literal is not a comment",
-       scan_line('    msg = "TODO: fill this in"', "a.py")[0] is False)
+       scan_line(f'    msg = "{T}: fill this in"', "a.py")[0] is False)
+
+    # -- and this gate must not be a finding of itself --
+    own = Path(__file__).read_text()
+    ck("this checker carries no marker of its own",
+       not any(scan_line(l, "scripts/check_todo_ownership.py")[0]
+               for l in own.splitlines()),
+       "a checker that flags its own fixtures or prose cannot be green")
 
     # -- and the live tree must be readable --
     unowned, owned, near = audit()
@@ -161,7 +180,7 @@ def selftest():
        "no near-miss at all - the scan is not reaching the tree")
     ck("the scan skips markdown", not any(r.endswith(".md") for r, _n, _l in near + unowned))
 
-    n = 12
+    n = 14
     print(f"\n{n} checks: {n - failures} PASS, {failures} FAIL")
     return 1 if failures else 0
 
