@@ -4518,14 +4518,12 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
     @contextlib.contextmanager
     def selftest_child_subreaper() -> Iterator[None]:
         """Give orphaned probe zombies a reaper even under act's bare PID 1."""
-        if not sys.platform.startswith("linux"):
-            yield
-            return
         libc = ctypes.CDLL(None, use_errno=True)
         try:
             prctl = libc.prctl
-        except AttributeError as exc:
-            raise Refusal("self-test cannot configure a child subreaper") from exc
+        except AttributeError:
+            yield
+            return
         current = ctypes.c_int()
         if prctl(37, ctypes.byref(current), 0, 0, 0) != 0:
             error = ctypes.get_errno()

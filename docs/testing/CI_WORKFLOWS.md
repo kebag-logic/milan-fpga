@@ -637,10 +637,11 @@ cannot release the caller until that complete group is terminated, reaped, and
 proved absent. Offline controls deliver process-directed `SIGTERM` and `SIGHUP`
 to a captured child tree, and `SIGTERM` to a production-shaped Git fetch with a
 remote-helper grandchild. Each requires the helper group to be absent before the
-runner reports its conventional interrupted status. The Linux test harness
-temporarily becomes a child subreaper, so it rather than act's bare PID 1 reaps
-already-exited probe descendants; the runner must still terminate the executable
-group, and the probe allows its complete 25-second escalation. A separate
+runner reports its conventional interrupted status. When the host exposes the
+facility, the test harness temporarily becomes a child subreaper, so it rather
+than act's bare PID 1 reaps already-exited probe descendants; the runner must
+still terminate the executable group, and the probe allows its complete
+25-second escalation. A separate
 production-entry control invokes the normal PR command path, interrupts its early
 repository lookup, and therefore fails if signal containment is narrowed to
 workflow execution again.
