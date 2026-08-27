@@ -87,7 +87,9 @@ jobs:
       # hosted run (#268). Its offline self-test holds exact-head refusals,
       # trusted submodule manifests, Docker ownership selection, event
       # construction, workflow selection and secret-free commands without
-      # requiring Docker inside this job. The live interruption gate is local.
+      # requiring Docker inside this job. The CI contract gate above pins this
+      # step and mutates its deletion/neutering. The live interruption gate is
+      # local.
       - name: Local act runner contract gate
         run: python3 scripts/act_ci.py --selftest
 

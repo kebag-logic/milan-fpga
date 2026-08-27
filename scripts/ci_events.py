@@ -310,7 +310,8 @@ PUBLIC_NAMES = {
 #: together, leaving one action invocation with no downloaded evidence. This
 #: direct order keeps that local bootstrap serial without weakening either
 #: aggregate: the later job carries `always()` and still audits its own shards.
-ACT_ARTIFACT_AGGREGATE_ORDER = ("verilator-suites", "yosys-portability")
+ACT_ARTIFACT_AGGREGATE_ORDER = PUBLIC_NAMES[RTL_FULL]
+ACT_CI_SELFTEST = "python3 scripts/act_ci.py --selftest"
 #: ``test_builder.py`` invokes both processor-image/source gates and the
 #: Vivado datapath-manifest consumer (syn/ooc/dp_srcs.py), which resolves the
 #: shipping AXIS primitives by path, so both hosted jobs which call the
@@ -1790,6 +1791,19 @@ def check_docs(c, wf):
         wired = any(f"scripts/ci_events.py {flag}" in t for t in texts)
         c.item(wired, DOCS, f"must run `python3 scripts/ci_events.py {flag}` "
                "(this gate is not a gate unless a workflow runs it)")
+    docs_job = jobs(wf).get("docs-check")
+    act_selftests = [s for s in steps(docs_job)
+                     if tuple(normalize_script(
+                         s.get("run") if isinstance(s.get("run"), str) else ""
+                     )) == (ACT_CI_SELFTEST,)]
+    c.item(len(act_selftests) == 1, DOCS,
+           f"job `docs-check` must run `{ACT_CI_SELFTEST}` exactly once "
+           f"(found {len(act_selftests)}): the runner's refusal and cleanup "
+           "controls are not a hosted gate unless the required docs context "
+           "executes their negative controls")
+    if len(act_selftests) == 1:
+        pinned_step_keys(c, DOCS, "local act runner contract step",
+                         act_selftests[0], ("name", "run"), {})
 
 
 def check_elaborate(c, wf):
@@ -2459,6 +2473,26 @@ def _mutations():
                     return
         raise AssertionError("fixture drift: docs.yml does not run --selftest")
 
+    def docs_act_selftest_step(w):
+        job = jobs(w[DOCS])["docs-check"]
+        found = [s for s in steps(job)
+                 if tuple(normalize_script(
+                     s.get("run") if isinstance(s.get("run"), str) else ""
+                 )) == (ACT_CI_SELFTEST,)]
+        assert len(found) == 1, (
+            "fixture drift: no unique act_ci.py self-test step")
+        return found[0]
+
+    def m_docs_no_act_selftest(w):
+        job = jobs(w[DOCS])["docs-check"]
+        target = docs_act_selftest_step(w)
+        job["steps"].remove(target)
+
+    def m_docs_act_selftest_key(key, value):
+        def mutate(w):
+            docs_act_selftest_step(w)[key] = value
+        return mutate
+
     def builder_fetch_step(w, path, jid):
         found = [s for s in job_steps(w, path, jid)
                  if "git submodule update --init" in
@@ -3066,6 +3100,16 @@ def _mutations():
         ("docs no pull_request", m_drop_pr(DOCS), "must subscribe pull_request"),
         ("docs does not run --check", m_docs_no_check, "--check"),
         ("docs does not run --selftest", m_docs_no_selftest, "--selftest"),
+        ("docs drops the local act runner self-test",
+         m_docs_no_act_selftest, ACT_CI_SELFTEST),
+        ("docs disables the local act runner self-test",
+         m_docs_act_selftest_key("if", False), "must carry no `if`"),
+        ("docs swallows a local act runner self-test failure",
+         m_docs_act_selftest_key("continue-on-error", True),
+         "must carry no `continue-on-error`"),
+        ("docs only parses the local act runner self-test",
+         m_docs_act_selftest_key("shell", "bash -n {0}"),
+         "must carry no `shell`"),
         ("docs builder omits verilog-axis",
          m_builder_drop_submodule(DOCS, "docs-check",
                                   "third_party/verilog-axis"),
