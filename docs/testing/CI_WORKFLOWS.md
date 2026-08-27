@@ -630,6 +630,17 @@ and `gptp-processor`). This gives act's local checkout copier the submodule-path
 parity that a hosted checkout exposes; each workflow's own submodule update
 remains the authoritative, idempotent check of those pins.
 
+Every host-side command routed through the runner's capture boundary, including
+Git metadata, fetch, checkout, and submodule commands, runs in a distinct
+tracked process group with a 30-minute upper bound. An interrupt or timeout
+cannot release the caller until that complete group is terminated, reaped, and
+proved absent. Offline controls run a captured child tree and a production-shaped
+Git fetch with a remote-helper grandchild, deliver process-directed `SIGTERM`
+and `SIGHUP`, and require the helper group to be absent before the runner reports
+its conventional interrupted status. A separate production-entry control invokes
+the normal PR command path, interrupts its early repository lookup, and therefore
+fails if signal containment is narrowed to workflow execution again.
+
 The synthetic pull-request event names the exact base and head. A draft uses
 `synchronize`, retaining `draft=true`; a ready PR uses `ready_for_review`, so
 the real exhaustive selector launches all workers. `act` copies the immutable
@@ -642,8 +653,15 @@ candidate code.
 
 Candidate jobs must use literal `ubuntu-latest`; reusable workflows and
 job/service containers are refused because they can carry container options or
-host-volume requests that the trusted scanner cannot safely delegate. The act
-command also disables the container Docker socket, uses an unpredictable
+host-volume requests that the trusted scanner cannot safely delegate. Steps may
+use only the repository's exact audited non-Docker action set
+(`actions/checkout@v4`, `actions/cache@v4`, `actions/setup-python@v5`,
+`actions/upload-artifact@v4`, and `actions/download-artifact@v4`). Direct
+`docker://` actions, local actions (including `runs.using: docker`), and any
+unaudited remote action are refused before `act` starts; otherwise act can build
+or reuse a daemon-global action image outside the labelled run boundary. Offline
+negative controls cover all three forms. The act command also disables the
+container Docker socket, uses an unpredictable
 runner-created bridge network instead of the host network, applies the same
 unpredictable ownership token as a container label, never bind-mounts the
 operator's worktree, and supplies no privileged flag. Candidate workflow code

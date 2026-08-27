@@ -68,6 +68,7 @@ ACT_TOOLCACHE_TARGET = "/opt/hostedtoolcache"
 DOCKER_COMMAND_TIMEOUT = 30
 DOCKER_MUTATION_STABLE_SECONDS = 0.5
 RUN_DIRECTORY_RECLAIM_TIMEOUT = 120
+HOST_COMMAND_TIMEOUT = 30 * 60
 CLEANUP_SIGNALS = (signal.SIGINT, signal.SIGTERM, signal.SIGHUP)
 
 WORKFLOWS: dict[str, str] = {
@@ -76,6 +77,15 @@ WORKFLOWS: dict[str, str] = {
     "rtl-fast": ".github/workflows/rtl-fast.yml",
     "rtl-full": ".github/workflows/rtl.yml",
 }
+TRUSTED_ACTION_USES = frozenset(
+    {
+        "actions/cache@v4",
+        "actions/checkout@v4",
+        "actions/download-artifact@v4",
+        "actions/setup-python@v5",
+        "actions/upload-artifact@v4",
+    }
+)
 TRUSTED_SUBMODULES = (
     (
         "external",
@@ -387,15 +397,15 @@ def capture(
     env: Mapping[str, str] | None = None,
 ) -> str:
     try:
-        result = subprocess.run(
+        result = run_tracked_process_group_command(
             command,
             cwd=cwd,
-            env=dict(env) if env is not None else None,
-            text=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            check=False,
+            env=dict(os.environ if env is None else env),
+            timeout=HOST_COMMAND_TIMEOUT,
+            use_sudo=False,
         )
+    except subprocess.TimeoutExpired as exc:
+        raise Refusal(f"{description} timed out") from exc
     except (OSError, UnicodeError) as exc:
         raise Refusal(f"cannot run {description}: {exc}") from exc
     if result.returncode != 0:
@@ -1362,6 +1372,25 @@ def validate_workflow_sandbox(root: pathlib.Path, workflows: Sequence[str]) -> N
                     f"workflow {relative} job {job_id} requests job/service containers; "
                     "host mounts and container options are not allowed"
                 )
+            steps = job.get("steps")
+            if not isinstance(steps, list) or not steps:
+                raise Refusal(f"workflow {relative} job {job_id} has no steps list")
+            for step_index, step in enumerate(steps):
+                if not isinstance(step, dict):
+                    raise Refusal(
+                        f"workflow {relative} job {job_id} step {step_index} "
+                        "is not a mapping"
+                    )
+                action = step.get("uses")
+                if action is None:
+                    continue
+                if not isinstance(action, str) or action not in TRUSTED_ACTION_USES:
+                    raise Refusal(
+                        f"workflow {relative} job {job_id} step {step_index} uses "
+                        f"unapproved action {action!r}; local, docker://, and "
+                        "unaudited remote actions can execute through the host "
+                        "Docker daemon"
+                    )
 
 
 def build_event(pr: PullRequest, repository: str) -> dict[str, object]:
@@ -4485,6 +4514,239 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
         and term_probe_status == -signal.SIGTERM,
     )
 
+    def process_directed_signal_probe(
+        action: Callable[[], int],
+        *,
+        ready_path: pathlib.Path,
+        sent_signal: int,
+    ) -> bool:
+        """Signal a runner and prove its recorded command PGID is gone."""
+        try:
+            ready_path.unlink()
+        except FileNotFoundError:
+            pass
+        runner_pid = os.fork()
+        if runner_pid == 0:
+            try:
+                exit_status = action()
+            except BaseException:
+                exit_status = 99
+            os._exit(exit_status)
+
+        recorded: tuple[int, int, int] | None = None
+        ready_deadline = time.monotonic() + 10
+        while time.monotonic() < ready_deadline:
+            try:
+                fields = tuple(
+                    int(item) for item in ready_path.read_text().split()
+                )
+            except (FileNotFoundError, OSError, UnicodeError, ValueError):
+                fields = ()
+            if len(fields) == 3 and all(item > 1 for item in fields):
+                recorded = (fields[0], fields[1], fields[2])
+                break
+            time.sleep(0.05)
+
+        if recorded is not None:
+            os.kill(runner_pid, sent_signal)
+        else:
+            os.kill(runner_pid, signal.SIGKILL)
+
+        runner_status: int | None = None
+        exit_deadline = time.monotonic() + 15
+        while time.monotonic() < exit_deadline:
+            waited, raw_status = os.waitpid(runner_pid, os.WNOHANG)
+            if waited == runner_pid:
+                runner_status = os.waitstatus_to_exitcode(raw_status)
+                break
+            time.sleep(0.05)
+        if runner_status is None:
+            try:
+                os.kill(runner_pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
+            _waited, raw_status = os.waitpid(runner_pid, 0)
+            runner_status = os.waitstatus_to_exitcode(raw_status)
+
+        group_absent = False
+        process_group = recorded[2] if recorded is not None else -1
+        if process_group > 1 and process_group != os.getpgrp():
+            absence_deadline = time.monotonic() + 3
+            while time.monotonic() < absence_deadline:
+                try:
+                    if not process_group_exists(process_group, use_sudo=False):
+                        group_absent = True
+                        break
+                except Refusal:
+                    pass
+                time.sleep(0.05)
+            if not group_absent:
+                try:
+                    os.killpg(process_group, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
+                cleanup_deadline = time.monotonic() + 3
+                while time.monotonic() < cleanup_deadline:
+                    try:
+                        if not process_group_exists(
+                            process_group, use_sudo=False
+                        ):
+                            break
+                    except Refusal:
+                        pass
+                    time.sleep(0.05)
+
+        return (
+            recorded is not None
+            and recorded[0] != recorded[1]
+            and runner_status == 128 + sent_signal
+            and group_absent
+        )
+
+    def process_directed_capture_probe(
+        command: Sequence[str],
+        *,
+        cwd: pathlib.Path,
+        env: Mapping[str, str],
+        ready_path: pathlib.Path,
+        sent_signal: int,
+    ) -> bool:
+        def run_probe_command() -> int:
+            capture(
+                command,
+                cwd=cwd,
+                env=env,
+                description="process-directed capture self-test",
+            )
+            return RC_FAILED
+
+        return process_directed_signal_probe(
+            lambda: run_with_cleanup_signals(run_probe_command),
+            ready_path=ready_path,
+            sent_signal=sent_signal,
+        )
+
+    with tempfile.TemporaryDirectory(
+        prefix="act-ci-capture-signal-selftest-"
+    ) as raw_capture_probe:
+        capture_probe_root = pathlib.Path(raw_capture_probe)
+        tree_ready = capture_probe_root / "tree.ready"
+        tree_code = (
+            "import os,pathlib,subprocess,sys,time; "
+            "child=subprocess.Popen([sys.executable,'-I','-c',"
+            "'import time; time.sleep(300)']); "
+            "pathlib.Path(sys.argv[1]).write_text("
+            "f'{os.getpid()} {child.pid} {os.getpgrp()}'); "
+            "time.sleep(300)"
+        )
+        check(
+            "process-directed TERM contains a captured child tree",
+            process_directed_capture_probe(
+                [sys.executable, "-I", "-c", tree_code, str(tree_ready)],
+                cwd=capture_probe_root,
+                env=child_environment,
+                ready_path=tree_ready,
+                sent_signal=signal.SIGTERM,
+            ),
+        )
+
+        entry_helper_root = capture_probe_root / "entry-bin"
+        entry_helper_root.mkdir()
+        fake_gh = entry_helper_root / "gh"
+        fake_gh.write_text(
+            f"#!{sys.executable}\n"
+            "import os, pathlib, subprocess, sys, time\n"
+            "child = subprocess.Popen([sys.executable, '-I', '-c', "
+            "'import time; time.sleep(300)'])\n"
+            "pathlib.Path(os.environ['ACT_CI_PIDFILE']).write_text("
+            "f'{os.getpid()} {child.pid} {os.getpgrp()}')\n"
+            "time.sleep(300)\n",
+            encoding="utf-8",
+        )
+        fake_gh.chmod(0o755)
+        entry_ready = capture_probe_root / "entry.ready"
+        original_safe_path = SAFE_PATH
+
+        def run_main_entry_probe() -> int:
+            global SAFE_PATH
+            SAFE_PATH = f"{entry_helper_root}:{original_safe_path}"
+            os.environ["ACT_CI_PIDFILE"] = str(entry_ready)
+            return main([str(pathlib.Path(__file__)), "--pr", "1"])
+
+        check(
+            "production main contains an interrupted early repository lookup",
+            process_directed_signal_probe(
+                run_main_entry_probe,
+                ready_path=entry_ready,
+                sent_signal=signal.SIGTERM,
+            ),
+        )
+
+        git_repo = capture_probe_root / "repo"
+        git_repo.mkdir()
+        git_env = git_environment(capture_probe_root)
+        capture(
+            [*git_prefix(), "init", "--quiet", str(git_repo)],
+            cwd=capture_probe_root,
+            env=git_env,
+            description="Git interruption self-test repository creation",
+        )
+        capture(
+            [
+                *git_prefix(),
+                "-C",
+                str(git_repo),
+                "remote",
+                "add",
+                "origin",
+                "https://example.invalid/milan-act-ci-probe.git",
+            ],
+            cwd=capture_probe_root,
+            env=git_env,
+            description="Git interruption self-test remote creation",
+        )
+        helper_root = capture_probe_root / "git-exec"
+        helper_root.mkdir()
+        remote_helper = helper_root / "git-remote-https"
+        remote_helper.write_text(
+            f"#!{sys.executable}\n"
+            "import os, pathlib, subprocess, sys, time\n"
+            "child = subprocess.Popen([sys.executable, '-I', '-c', "
+            "'import time; time.sleep(300)'])\n"
+            "pathlib.Path(os.environ['ACT_CI_PIDFILE']).write_text("
+            "f'{os.getpid()} {child.pid} {os.getpgrp()}')\n"
+            "time.sleep(300)\n",
+            encoding="utf-8",
+        )
+        remote_helper.chmod(0o755)
+        fetch_command = [
+            *git_prefix(),
+            "-C",
+            str(git_repo),
+            "fetch",
+            "--force",
+            "--no-tags",
+            "origin",
+        ]
+        for sent_signal in (signal.SIGTERM, signal.SIGHUP):
+            git_ready = capture_probe_root / f"git-{sent_signal}.ready"
+            probe_env = {
+                **git_env,
+                "GIT_EXEC_PATH": str(helper_root),
+                "ACT_CI_PIDFILE": str(git_ready),
+            }
+            check(
+                f"process-directed {signal.Signals(sent_signal).name} "
+                "contains a Git remote-helper tree",
+                process_directed_capture_probe(
+                    fetch_command,
+                    cwd=git_repo,
+                    env=probe_env,
+                    ready_path=git_ready,
+                    sent_signal=sent_signal,
+                ),
+            )
+
     def execute_with_remote_change(changed: PullRequest) -> int:
         answers = iter((pr, changed))
 
@@ -4783,6 +5045,37 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
                 "self-hosted and candidate container authority is refused",
                 lambda: validate_workflow_sandbox(repo, ("docs",)),
             )
+        finally:
+            WORKFLOWS["docs"] = original_docs
+
+        docker_action_workflows = {
+            "docker-url.yml": "docker://alpine:3.20",
+            "remote-docker-action.yml": "example/docker-action@v1",
+            "local-docker-action.yml": "./local-docker-action",
+        }
+        local_action = repo / "local-docker-action"
+        local_action.mkdir()
+        (local_action / "action.yml").write_text(
+            "name: local docker action\nruns:\n  using: docker\n"
+            "  image: Dockerfile\n",
+            encoding="utf-8",
+        )
+        (local_action / "Dockerfile").write_text(
+            "FROM alpine:3.20\n", encoding="utf-8"
+        )
+        try:
+            for filename, action in docker_action_workflows.items():
+                (repo / filename).write_text(
+                    "name: docker-action-negative\non: push\njobs:\n"
+                    "  unsafe:\n    runs-on: ubuntu-latest\n    steps:\n"
+                    f"      - uses: {action}\n",
+                    encoding="utf-8",
+                )
+                WORKFLOWS["docs"] = filename
+                refused(
+                    f"step-level action {action} is refused before act",
+                    lambda: validate_workflow_sandbox(repo, ("docs",)),
+                )
         finally:
             WORKFLOWS["docs"] = original_docs
 
@@ -5394,7 +5687,7 @@ def main(argv: Sequence[str]) -> int:
     if args.pr is None or args.pr <= 0:
         parser.error("--pr requires a positive pull-request number")
 
-    try:
+    def execute_pr_run() -> int:
         validate_bootstrap_options(
             args.trusted_install_sha256, args.repo, args.worktree
         )
@@ -5406,17 +5699,18 @@ def main(argv: Sequence[str]) -> int:
         validate_runner(pr, candidate_worktree, args.trusted_install_sha256)
         act_binary = resolve_act_binary(args.act_bin)
         validate_act_binary(act_binary, candidate_worktree)
-        return run_with_cleanup_signals(
-            lambda: run_validation(
-                pr,
-                repository,
-                workflows,
-                candidate_worktree,
-                act_binary=act_binary,
-                use_sudo=args.sudo,
-                dry_run=args.dry_run,
-            )
+        return run_validation(
+            pr,
+            repository,
+            workflows,
+            candidate_worktree,
+            act_binary=act_binary,
+            use_sudo=args.sudo,
+            dry_run=args.dry_run,
         )
+
+    try:
+        return run_with_cleanup_signals(execute_pr_run)
     except Refusal as exc:
         print(f"act-ci: REFUSED: {exc}", file=sys.stderr)
         return RC_REFUSED
