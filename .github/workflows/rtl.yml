@@ -373,8 +373,11 @@ jobs:
   yosys-portability:
     name: yosys-portability
     # Same fail-closed selector contract as verilator-suites above.
+    # Keep the two artifact aggregates ordered for act v0.2.89: its shared
+    # action cache can race when both first initialize download-artifact.
+    # always() below still makes this job run when verilator-suites fails.
     if: ${{ always() && (needs.full-ci-gate.result != 'success' || needs.full-ci-gate.outputs.run_full != 'false') }}
-    needs: [full-ci-gate, yosys-shards]
+    needs: [full-ci-gate, yosys-shards, verilator-suites]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:

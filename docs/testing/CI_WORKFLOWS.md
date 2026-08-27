@@ -713,7 +713,16 @@ for its cache server. The offline self-test checks both bind arguments; actual
 artifact transport is covered by the mandatory ready-state full run, whose
 evidence must show both four-artifact aggregates downloading through that bridge
 gateway. The interruption probe tests cleanup and tool-cache separation, not
-artifact transfer. Cleanup is restricted to the exact generated directory, the
+artifact transfer. `rtl.yml` deliberately orders those aggregates:
+`yosys-portability` directly needs `verilator-suites`. This leaves their
+verdicts independent because the later job uses `always()` and still checks its
+own workers, while serializing their first use of `actions/download-artifact`
+under act v0.2.89. Without that edge, act can race initialization through its
+shared action cache and one aggregate can observe no artifacts even after all
+workers uploaded them. `scripts/ci_events.py --check` pins the edge and its
+self-test removes it as a negative control.
+
+Cleanup is restricted to the exact generated directory, the
 labeled tool-cache volume, and the network whose ID, name, gateway, and ownership
 label the runner recorded at creation. Mutable leases are registered before the
 run directory, cache volume, or network can be accepted; post-create inspection

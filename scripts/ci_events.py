@@ -305,6 +305,12 @@ PUBLIC_NAMES = {
     RTL_FAST: ("rtl-fast",),
     ELABORATE: ("elaborate",),
 }
+#: act v0.2.89 shares one action cache across concurrent jobs. Its first use
+#: of download-artifact can race when both exhaustive aggregates start
+#: together, leaving one action invocation with no downloaded evidence. This
+#: direct order keeps that local bootstrap serial without weakening either
+#: aggregate: the later job carries `always()` and still audits its own shards.
+ACT_ARTIFACT_AGGREGATE_ORDER = ("verilator-suites", "yosys-portability")
 #: ``test_builder.py`` invokes both processor-image/source gates and the
 #: Vivado datapath-manifest consumer (syn/ooc/dp_srcs.py), which resolves the
 #: shipping AXIS primitives by path, so both hosted jobs which call the
@@ -736,6 +742,34 @@ def check_public_names(c, path, wf):
                "ambiguous")
 
 
+def check_act_artifact_aggregate_order(c, path, wf):
+    """Keep act's shared download-action bootstrap single-file.
+
+    The public-name check separately proves each display name has exactly one
+    carrier. Once those carriers are known, require each later aggregate to
+    directly need the prior one. A transitive or incidental order is too easy
+    to lose while editing unrelated worker dependencies.
+    """
+    all_jobs = jobs(wf)
+    carriers = {}
+    for name in ACT_ARTIFACT_AGGREGATE_ORDER:
+        found = [jid for jid, job in all_jobs.items()
+                 if display_name(jid, job) == name]
+        if len(found) == 1:
+            carriers[name] = found[0]
+    for earlier, later in zip(ACT_ARTIFACT_AGGREGATE_ORDER,
+                              ACT_ARTIFACT_AGGREGATE_ORDER[1:]):
+        earlier_id = carriers.get(earlier)
+        later_id = carriers.get(later)
+        if earlier_id is None or later_id is None:
+            continue
+        c.item(earlier_id in needs_list(all_jobs[later_id]), path,
+               f"job `{later_id}` must need `{earlier_id}` before starting "
+               "its artifact download: act v0.2.89 shares the action cache, "
+               "and concurrent first-use download actions can lose one "
+               "aggregate's evidence")
+
+
 def check_rtl_full(c, wf, policy):
     path = RTL_FULL
     check_push_and_pr(c, path, wf, exact_types=True)
@@ -769,6 +803,7 @@ def check_rtl_full(c, wf, policy):
 
     check_cancel_in_progress(c, path, wf)
     check_public_names(c, path, wf)
+    check_act_artifact_aggregate_order(c, path, wf)
 
     # One authoritative SHA: no checkout overrides the event's pinned commit.
     for jid, job in jobs(wf).items():
@@ -1998,6 +2033,13 @@ def _mutations():
         job = jobs(w[RTL_FULL])["verilator-suites"]
         job["needs"] = [n for n in job["needs"] if n != GATE_JOB]
 
+    def m_artifact_aggregates_race(w):
+        job = jobs(w[RTL_FULL])["yosys-portability"]
+        assert "verilator-suites" in job["needs"], (
+            "fixture drift: artifact aggregates are not ordered")
+        job["needs"] = [n for n in job["needs"]
+                        if n != "verilator-suites"]
+
     def db_step(w):
         for s in steps(jobs(w[RTL_FULL])[GATE_JOB]):
             if DEFAULT_BRANCH_FLAG in step_text(s):
@@ -2633,6 +2675,8 @@ def _mutations():
          m_yosys_aggregate_no_verify, VERIFY_FLAG),
         ("rtl aggregate no longer needs the gate", m_aggregate_without_gate,
          f"must need `{GATE_JOB}`"),
+        ("rtl artifact aggregates can initialize concurrently",
+         m_artifact_aggregates_race, "concurrent first-use download actions"),
         ("rtl default-branch step removed", m_db_step_removed,
          "exactly one step"),
         ("rtl default-branch step without GH_TOKEN", m_db_token_missing,
