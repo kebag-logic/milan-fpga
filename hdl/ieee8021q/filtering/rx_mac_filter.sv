@@ -122,6 +122,33 @@ module rx_mac_filter #(
     output wire                     frame_dropped_o //! current frame is being dropped
 );
 
+  // =======================================================================
+  //  ELABORATION CONTRACT. The banner above states that the destination
+  //  address is read out of the FIRST BEAT, and that this holds "for
+  //  TDATA_WIDTH>=48". That was a comment, and a comment does not stop a
+  //  build: at TDATA_WIDTH=32 the dmac concatenation below indexes past the
+  //  end of s_tdata, the compare runs against whatever those bits are, and
+  //  the shield silently admits or drops the wrong frames. Nothing downstream
+  //  can detect that - a filter that is wrong is indistinguishable from a
+  //  filter that is right until the traffic is inspected on the wire.
+  //
+  //  ONE format string per check: $error takes later arguments as VALUES, so
+  //  a message split across string literals prints its continuations as
+  //  integers.
+  // =======================================================================
+  if (TDATA_WIDTH < 48)
+    $error("rx_mac_filter: TDATA_WIDTH=%0d cannot carry the 48-bit destination address in one beat, and the first-beat compare this module is built on would read past the end of s_tdata and filter on undefined bits. The 802.3 destination address is 6 bytes (IEEE 802.3 3.2.3), so the RX datapath must be at least 48 bits wide.",
+           TDATA_WIDTH);
+  else if ((TDATA_WIDTH % 8) != 0)
+    $error("rx_mac_filter: TDATA_WIDTH=%0d is not a whole number of bytes, so s_tkeep (TDATA_WIDTH/8) cannot describe the beat it qualifies and the final beat's byte count would be unrepresentable.",
+           TDATA_WIDTH);
+  else if (NUM_ENTRIES < 1)
+    $error("rx_mac_filter: NUM_ENTRIES=%0d leaves the TCAM with no entry to program, so every frame takes the default_pass_i path and the stream-drop shield cannot exist. Prune the filter at its instantiation instead of sizing it to zero.",
+           NUM_ENTRIES);
+  else if (ACTION_WIDTH < 1)
+    $error("rx_mac_filter: ACTION_WIDTH=%0d cannot carry a match action, so frame_action_o would be empty and every hit would be indistinguishable from every other hit.",
+           ACTION_WIDTH);
+
   // -----------------------------------------------------------------------
   //  Destination MAC = first 6 bytes on the wire (byte 0 = MAC MSB).
   //  AXIS byte lane 0 (tdata[7:0]) carries byte 0, so swap into MAC order.

@@ -119,6 +119,14 @@ jobs:
           python3 scripts/check_port_contracts.py
           python3 scripts/check_port_contracts.py --selftest
 
+      # Rule 6: a parameterised module that refuses nothing, and a pipeline
+      # that throws away its producer's verdict. The second ratchet is 0 and
+      # must stay 0; the first is paid down as modules gain contracts.
+      - name: Fail-fast ratchet
+        run: |
+          python3 scripts/measure_fail_fast.py --check
+          python3 scripts/measure_fail_fast.py --selftest
+
       # CI event and SHA contract gate (#174, #181): the four workflow files
       # and docs/testing/CI_WORKFLOWS.md must agree on the triggers, the cron
       # time, the public check names, cancel-in-progress and the one-SHA rule

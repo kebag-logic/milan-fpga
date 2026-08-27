@@ -25,8 +25,18 @@ VFLAGS = --cc --exe --build -j 0 \
 SRCS = $(RTL_DIR)/ieee8021q/filtering/tcam.sv $(RTL_DIR)/ieee8021q/filtering/rx_mac_filter.sv
 CPP  = sim_main.cpp
 
-.PHONY: all run binding-negative print-vflags clean
-all: binding-negative
+# Rule 6: the module's elaboration contract, graded by MUTATION. Each case is
+# a parameter set the module declares impossible; elaboration must REFUSE it.
+# The pair matters as much as the list: a legal default that still elaborates
+# proves the contract is a guard and not a ban. Verilator's default (no
+# -Wno-fatal) makes an elaboration $error exit nonzero, which is the verdict
+# these arms read - they must not go through a pipe, which would return the
+# exit status of the pipe's last command instead.
+NEG_LINT = $(VERILATOR) --lint-only --top-module $(TOP) $(SRCS)
+NEG_CASES = TDATA_WIDTH=32 TDATA_WIDTH=52 NUM_ENTRIES=0 ACTION_WIDTH=0
+
+.PHONY: all run binding-negative negative print-vflags clean
+all: binding-negative negative
 
 run:
 	$(VERILATOR) $(VFLAGS) $(SRCS) $(CPP) -o Vrx_filter_sim
@@ -47,6 +57,26 @@ binding-negative: run
 # a copy of it. One word per line so the shell's quoting of -CFLAGS survives.
 print-vflags:
 	@printf '%s\n' $(VERILATOR) $(VFLAGS)
+
+negative:
+	@echo "======================================================================"
+	@pass=0; fail=0; \
+	for c in $(NEG_CASES); do \
+	  if $(NEG_LINT) -G$$c >/dev/null 2>&1; then \
+	    echo "[FAIL] elaboration ACCEPTED illegal $$c"; fail=$$((fail+1)); \
+	  else \
+	    echo "[PASS] elaboration refused $$c"; pass=$$((pass+1)); \
+	  fi; \
+	done; \
+	if $(NEG_LINT) -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM \
+	     >/dev/null 2>&1; then \
+	  echo "[PASS] elaboration accepted the legal default shape"; pass=$$((pass+1)); \
+	else \
+	  echo "[FAIL] elaboration REFUSED the legal default shape"; fail=$$((fail+1)); \
+	fi; \
+	echo ""; \
+	echo "$$((pass+fail)) checks: $$pass PASS, $$fail FAIL"; \
+	test $$fail -eq 0
 
 clean:
 	rm -rf obj_dir

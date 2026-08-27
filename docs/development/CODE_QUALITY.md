@@ -29,6 +29,7 @@ shape rather than guess at it.
 - **[Rule 4: use intention-revealing names and explicit units](#rule-4-use-intention-revealing-names-and-explicit-units)** -- What a name must reveal, the unit and clock-domain qualifiers that extend the existing HDL suffixes rather than competing with them, cross-language equivalents, and the interface renamed end to end to prove it.
 - **[Measuring hidden units](#measuring-hidden-units)** -- The port's own documentation as the evidence, the three exclusion classes and the false positives that forced them, and why this ships as a ratchet instead of a verdict.
 - **[Rule 5: make ports, contracts and ownership explicit](#rule-5-make-ports-contracts-and-ownership-explicit)** -- What a port contract must state, why wildcard, positional and hierarchical bindings are refused outright while missing documentation and unjustified open or tied connections are only ratcheted, the exact scope of the inventory, the boundary documented end to end as proof, and the review checklist.
+- **[Rule 6: fail fast and encode invariants](#rule-6-fail-fast-and-encode-invariants)** -- Where a verdict must be refused rather than logged, the elaboration contract added to the receive shield and mutation-proven against four illegal parameter sets, the two masked-failure populations that are now ratcheted, and the review checklist.
 - **[Rules not yet landed](#rules-not-yet-landed)** -- The remaining nine rules of the contract, named so the numbering is stable and a reader knows what is still coming.
 
 ## The governing rule
@@ -1194,14 +1195,98 @@ guarded by the build, not by a check that cannot see it.
   backdoor?
 - Is a tied-off or ignored port justified locally, or is it decorative?
 
+## Rule 6: fail fast and encode invariants
+
+> Invalid parameters, configurations, states, inputs and tool failures MUST be
+> rejected at the nearest responsible boundary and MUST propagate a non-success
+> verdict. Important invariants and reset or overflow laws are executable
+> assertions or self-checking tests, not comments alone.
+
+The failure mode this rule exists for is not a crash. It is a build, a
+generator or a gate that reports something wrong and then exits 0, because
+everything downstream then treats a wrong answer as a checked one.
+
+### Repository interpretation
+
+- A shell, Tcl or Python step checks the status of what it ran, and never
+  prints a failure and returns success.
+- SystemVerilog rejects impossible parameter combinations **at elaboration**,
+  where the message can still name the parameter and the law it broke.
+- Counter wrap, saturation, reset and update priority are stated and tested.
+- An assertion carries a message naming the contract it violated, not just the
+  expression that failed.
+
+### A comment is not a guard
+
+`hdl/ieee8021q/filtering/rx_mac_filter.sv` is the receive shield. Its banner
+said the destination-address compare works "for TDATA_WIDTH>=48", and nothing
+enforced it. At 32 bits the concatenation that builds the destination address
+indexes past the end of the beat, the compare runs against whatever those bits
+are, and the shield silently admits or drops the wrong frames — a failure no
+downstream check can see, because a filter that is wrong looks exactly like a
+filter that is right until the traffic is inspected on the wire.
+
+It now carries an elaboration contract in the house form — a module-scope
+`if (…) $error("one format string", …)`, the same shape `milan_datapath` and
+`KL_media_nco` already use. Four laws: the datapath must be wide enough to hold
+the 48-bit destination address in one beat, it must be a whole number of bytes
+so `tkeep` can describe it, the TCAM must have at least one entry, and an
+action must be wide enough to distinguish two matches.
+
+**The contract is graded by mutation, permanently.** `make negative` in
+`tb/verilator/rx_filter` elaborates four illegal parameter sets and requires
+each to be refused, then elaborates the legal default and requires it to be
+accepted. That last arm is what stops the contract from becoming a ban, and it
+is why the arm reads the exit status directly rather than through a pipe — a
+pipeline returns its *last* command's status, which is how a refused build
+reads as a pass.
+
+### The two populations, measured
+
+[`scripts/measure_fail_fast.py`](../../scripts/measure_fail_fast.py) counts
+both ways a failure can pass for success here.
+
+| Population | Count | Disposition |
+|---|---:|---|
+| Parameterised modules with no elaboration contract | 37 of 42 | Ratchet. Paid down as modules gain contracts. |
+| Pipelines that discard their producer's exit status | **0** | Ratchet at zero. It must stay zero. |
+| Pipelines waived because the consumer *is* the assertion | 27 | Named, with the reason recorded |
+
+The waiver matters: `verilator --version | grep -F "$WANT"` wants grep's status,
+because grep is the assertion. Those are excluded by name rather than by
+pattern, so a new one has to be added deliberately.
+
+Both false positives that this check produced on its first run were in the
+checker, not the tree: a tool name inside a `printf` **format string** read as
+a command, and a pipe inside a `$(…)` substitution — whose status is never the
+line's verdict — read as a masked one. Quoted spans and substitutions are
+blanked before the producer search, and both cases have arms.
+
+### Already satisfied, and verified rather than rebuilt
+
+The rule also asks that suite tally parsing treat missing or malformed evidence
+as failure rather than zero checks.
+[`scripts/suite_tally.py`](../../scripts/suite_tally.py) already does: a suite
+whose log carries no readable tally is `NOCOUNT`, an unknown is never allowed to
+look like agreement, and a skip marker cannot suppress it. That was confirmed by
+running its self-test, not by writing a second one.
+
+### Review checklist
+
+- If this step fails, does the caller find out — or does it print and continue?
+- Is the invariant executable, or only written in a comment?
+- Does the assertion message name the contract, or only the expression?
+- Is there an arm proving the refusal fires, **and** one proving the legal case
+  still passes?
+- Does any verdict travel through a pipe?
+
 ## Rules not yet landed
 
-The contract is ten rules. Rules 1 to 5 are above; the rest keep these
+The contract is ten rules. Rules 1 to 6 are above; the rest keep these
 numbers so citations stay stable as they land:
 
 | Rule | Subject |
 |---|---|
-| 6 | Fail fast and encode invariants |
 | 7 | Comments explain why; no dead or speculative code |
 | 8 | Deterministic, specification-derived tests |
 | 9 | Automated mechanical hygiene with measured ratchets |
