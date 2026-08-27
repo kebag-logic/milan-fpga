@@ -635,13 +635,15 @@ Git metadata, fetch, checkout, and submodule commands, runs in a distinct
 tracked process group with a 30-minute upper bound. An interrupt or timeout
 cannot release the caller until that complete group is terminated, reaped, and
 proved absent. Offline controls deliver process-directed `SIGTERM` and `SIGHUP`
-to a captured child tree, and `SIGTERM` to a production-shaped Git fetch with a
-remote-helper grandchild. Each requires the helper group to be absent before the
-runner reports its conventional interrupted status. When the host exposes the
-facility, the test harness temporarily becomes a child subreaper, so it rather
-than act's bare PID 1 reaps already-exited probe descendants; the runner must
-still terminate the executable group, and the probe allows its complete
-25-second escalation. A separate
+to a captured child tree, and both signals to a production-shaped Git fetch with
+a remote-helper grandchild. Each requires the conventional interrupted status
+and proves the helper group absent within a bounded post-exit window. The
+helpers do not clean up their own children, so a cleanup implementation that
+only signals the group leader cannot satisfy the controls. When the
+host exposes the facility, the test harness temporarily becomes a child
+subreaper. It, rather than act's bare PID 1, reaps already-exited probe
+descendants; the runner must still terminate the executable group, and the
+probe allows its complete 25-second escalation. A separate
 production-entry control invokes the normal PR command path, interrupts its early
 repository lookup, and therefore fails if signal containment is narrowed to
 workflow execution again.
@@ -665,8 +667,9 @@ use only the repository's exact audited non-Docker action set
 `docker://` actions, local actions (including `runs.using: docker`), and any
 unaudited remote action are refused before `act` starts; otherwise act can build
 or reuse a daemon-global action image outside the labelled run boundary. Offline
-negative controls cover all three forms. The act command also disables the
-container Docker socket, uses an unpredictable
+negative controls cover all three forms, neutral names, and an unapproved
+version inside the otherwise trusted `actions/*` namespace. The act command
+also disables the container Docker socket, uses an unpredictable
 runner-created bridge network instead of the host network, applies the same
 unpredictable ownership token as a container label, never bind-mounts the
 operator's worktree, and supplies no privileged flag. Candidate workflow code

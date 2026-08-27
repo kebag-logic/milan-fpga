@@ -2663,6 +2663,7 @@ def run_act_process(
     popen: Callable[..., subprocess.Popen[object]] = subprocess.Popen,
     terminate_group: Callable[..., None] = terminate_act_process_group,
     before_terminate_group: Callable[[], None] | None = None,
+    group_exists: Callable[..., bool] | None = None,
 ) -> subprocess.CompletedProcess[object]:
     """Run act in its own process group and reap that group on interruption."""
     del check  # This boundary always returns the workflow status to its caller.
@@ -2681,7 +2682,8 @@ def run_act_process(
         if started is not None:
             started(process.pid)
         returncode = process.wait()
-        if process_group_exists(process.pid, use_sudo=use_sudo):
+        check_group = group_exists or process_group_exists
+        if check_group(process.pid, use_sudo=use_sudo):
             raise Refusal("act process group survived its leader")
         return subprocess.CompletedProcess(command, returncode)
     except BaseException as primary:
@@ -2801,6 +2803,7 @@ def run_tracked_process_group_command(
     use_sudo: bool,
     popen: Callable[..., subprocess.Popen[str]] = subprocess.Popen,
     terminate_group: Callable[..., None] = terminate_act_process_group,
+    group_exists: Callable[..., bool] | None = None,
 ) -> subprocess.CompletedProcess[str]:
     """Run a host command without letting a sudo child outlive its CLI."""
     process: subprocess.Popen[str] | None = None
@@ -2837,7 +2840,8 @@ def run_tracked_process_group_command(
                 start_new_session=True,
             )
         stdout, stderr = process.communicate(timeout=timeout)
-        if process_group_exists(process.pid, use_sudo=use_sudo):
+        check_group = group_exists or process_group_exists
+        if check_group(process.pid, use_sudo=use_sudo):
             raise Refusal("host command process group survived its leader")
         group_absent = True
         return subprocess.CompletedProcess(
@@ -4358,6 +4362,106 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
             "terminated-987654320",
         ],
     )
+    surviving_group_trace: list[str] = []
+
+    class SuccessfulLeader:
+        def __init__(self, pid: int) -> None:
+            self.pid = pid
+            self.returncode = RC_OK
+
+        def wait(self) -> int:
+            surviving_group_trace.append(f"waited-{self.pid}")
+            return RC_OK
+
+        def communicate(self, timeout: float) -> tuple[str, str]:
+            del timeout
+            surviving_group_trace.append(f"communicated-{self.pid}")
+            return "", ""
+
+    def spawn_successful_leader(
+        process: SuccessfulLeader,
+    ) -> Callable[..., subprocess.Popen[object]]:
+        def spawn(*_args: object, **_kwargs: object) -> subprocess.Popen[object]:
+            surviving_group_trace.append(f"spawned-{process.pid}")
+            return process  # type: ignore[return-value]
+
+        return spawn
+
+    def report_surviving_group(process_group: int, *, use_sudo: bool) -> bool:
+        del use_sudo
+        surviving_group_trace.append(f"group-present-{process_group}")
+        return True
+
+    def contain_surviving_group(
+        process: subprocess.Popen[object],
+        *,
+        use_sudo: bool,
+        primary: BaseException,
+    ) -> None:
+        del use_sudo
+        surviving_group_trace.append(
+            f"contained-{process.pid}-{type(primary).__name__}"
+        )
+
+    def check_surviving_group_refusal(
+        label: str,
+        expected_error: str,
+        expected_trace: Sequence[str],
+        action: Callable[[], object],
+    ) -> None:
+        surviving_group_trace.clear()
+        error = ""
+        try:
+            action()
+        except Refusal as exc:
+            error = str(exc)
+        check(
+            label,
+            error == expected_error and surviving_group_trace == expected_trace,
+        )
+
+    act_leader = SuccessfulLeader(987654315)
+    check_surviving_group_refusal(
+        "a successful act leader cannot leave a live process group",
+        "act process group survived its leader",
+        [
+            "spawned-987654315",
+            "waited-987654315",
+            "group-present-987654315",
+            "contained-987654315-Refusal",
+        ],
+        lambda: run_act_process(
+            ["act"],
+            cwd=pathlib.Path.cwd(),
+            env={},
+            popen=spawn_successful_leader(act_leader),
+            terminate_group=contain_surviving_group,
+            group_exists=report_surviving_group,
+        ),
+    )
+
+    host_leader = SuccessfulLeader(987654316)
+    check_surviving_group_refusal(
+        "a successful host-command leader cannot leave a live process group",
+        "host command process group survived its leader",
+        [
+            "spawned-987654316",
+            "communicated-987654316",
+            "group-present-987654316",
+            "contained-987654316-Refusal",
+            "communicated-987654316",
+        ],
+        lambda: run_tracked_process_group_command(
+            ["git", "status"],
+            cwd=pathlib.Path.cwd(),
+            env={},
+            timeout=1,
+            use_sudo=False,
+            popen=spawn_successful_leader(host_leader),  # type: ignore[arg-type]
+            terminate_group=contain_surviving_group,
+            group_exists=report_surviving_group,
+        ),
+    )
     nested_cleanup_trace: list[str] = []
 
     class NestedCleanupProcess:
@@ -4720,6 +4824,16 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
         prefix="act-ci-capture-signal-selftest-"
     ) as raw_capture_probe:
         capture_probe_root = pathlib.Path(raw_capture_probe)
+        noncooperative_tree_program = (
+            f"#!{sys.executable}\n"
+            "import os, pathlib, subprocess, sys, time\n"
+            "child = subprocess.Popen([sys.executable, '-I', '-c', "
+            "'import time; time.sleep(300)'], stdout=subprocess.DEVNULL, "
+            "stderr=subprocess.DEVNULL)\n"
+            "pathlib.Path(os.environ['ACT_CI_PIDFILE']).write_text("
+            "f'{os.getpid()} {child.pid} {os.getpgrp()}')\n"
+            "time.sleep(300)\n"
+        )
         cooperative_tree_program = (
             f"#!{sys.executable}\n"
             "import os, pathlib, signal, subprocess, sys\n"
@@ -4744,8 +4858,8 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
             "while True:\n"
             "    signal.pause()\n"
         )
-        tree_helper = capture_probe_root / "cooperative-tree.py"
-        tree_helper.write_text(cooperative_tree_program, encoding="utf-8")
+        tree_helper = capture_probe_root / "noncooperative-tree.py"
+        tree_helper.write_text(noncooperative_tree_program, encoding="utf-8")
         tree_helper.chmod(0o755)
         for sent_signal in (signal.SIGTERM, signal.SIGHUP):
             tree_ready = capture_probe_root / f"tree-{sent_signal}.ready"
@@ -4813,7 +4927,7 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
         helper_root = capture_probe_root / "git-exec"
         helper_root.mkdir()
         remote_helper = helper_root / "git-remote-https"
-        remote_helper.write_text(cooperative_tree_program, encoding="utf-8")
+        remote_helper.write_text(noncooperative_tree_program, encoding="utf-8")
         remote_helper.chmod(0o755)
         fetch_command = [
             *git_prefix(),
@@ -4824,7 +4938,7 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
             "--no-tags",
             "origin",
         ]
-        for sent_signal in (signal.SIGTERM,):
+        for sent_signal in (signal.SIGTERM, signal.SIGHUP):
             git_ready = capture_probe_root / f"git-{sent_signal}.ready"
             probe_env = {
                 **git_env,
@@ -5144,15 +5258,16 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
         finally:
             WORKFLOWS["docs"] = original_docs
 
-        docker_action_workflows = {
+        forbidden_action_workflows = {
             "docker-url.yml": "docker://alpine:3.20",
-            "remote-docker-action.yml": "example/docker-action@v1",
-            "local-docker-action.yml": "./local-docker-action",
+            "neutral-remote-action.yml": "example/setup@v1",
+            "same-namespace-version-drift.yml": "actions/checkout@v5",
+            "neutral-local-action.yml": "./local-action",
         }
-        local_action = repo / "local-docker-action"
+        local_action = repo / "local-action"
         local_action.mkdir()
         (local_action / "action.yml").write_text(
-            "name: local docker action\nruns:\n  using: docker\n"
+            "name: local action\nruns:\n  using: docker\n"
             "  image: Dockerfile\n",
             encoding="utf-8",
         )
@@ -5160,9 +5275,9 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
             "FROM alpine:3.20\n", encoding="utf-8"
         )
         try:
-            for filename, action in docker_action_workflows.items():
+            for filename, action in forbidden_action_workflows.items():
                 (repo / filename).write_text(
-                    "name: docker-action-negative\non: push\njobs:\n"
+                    "name: action-negative\non: push\njobs:\n"
                     "  unsafe:\n    runs-on: ubuntu-latest\n    steps:\n"
                     f"      - uses: {action}\n",
                     encoding="utf-8",
