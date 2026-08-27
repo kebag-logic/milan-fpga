@@ -154,7 +154,7 @@ one deliberately re-implements the checks a real controller stack makes:
 
 WHERE THE CLAUSES COME FROM. Earlier rounds of this file said the IEEE and
 Milan texts were paywalled and unavailable. They are on this machine, in
-/home/alex/standards (1722.1-2021.pdf, 1722-2016.pdf, Milan v1.2); the
+~/standards (1722.1-2021.pdf, 1722-2016.pdf, Milan v1.2); the
 environment variable $STANDARDS_DIR that pointed at them is simply unset,
 and that is what produced the "paraphrase only" discipline. Every clause in
 C9/C10/C11 is now quoted from the text, extracted with pdftotext -layout.

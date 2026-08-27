@@ -4,7 +4,7 @@
 
 KNOWN-FAIL BANNER. This file is a CHARACTERISATION suite and it is RED today,
 deliberately. Both defects it grades are open in LiteX (`a1e1c36`), not in this
-repo's RTL, and `/home/alex/litex-milan` is read-only to this round. Every red
+repo's RTL, and `~/litex-milan` is read-only to this round. Every red
 check prints as [XFAIL] and is named again in the summary; an [XFAIL] that
 turns [XPASS] means the defect was fixed upstream and this banner is due for
 retirement. That is the same convention `tb/verilator/hostplane` carried from

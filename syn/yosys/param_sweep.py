@@ -212,7 +212,7 @@ def sources_from_run_sh(top):
     """Reuse run.sh's source list verbatim - ONE list, not two that can drift.
 
     run.sh sets `R` from `$0`, which is meaningless when the prelude is
-    evaluated anywhere else (it silently resolved to `/home/alex`, and every
+    evaluated anywhere else (it silently resolved to the caller's home, and every
     source path came out wrong). So `R` is pinned to the repo root here and the
     remaining assignments are evaluated on top of it.
     """
