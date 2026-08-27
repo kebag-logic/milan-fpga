@@ -5242,19 +5242,53 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
             and not any("protocol.ssh.allow=always" == part for part in prefix),
         )
 
-        unsafe_path = repo / "unsafe.yml"
-        unsafe_path.write_text(
-            "name: unsafe\non: push\njobs:\n  pwn:\n    runs-on: self-hosted\n"
-            "    container:\n      image: alpine\n      options: --privileged\n",
-            encoding="utf-8",
-        )
+        sandbox_job_workflows = {
+            "self-hosted-job.yml": (
+                "self-hosted runner authority is refused",
+                "    runs-on: self-hosted\n"
+                "    steps:\n      - run: echo safe\n",
+            ),
+            "missing-runs-on-job.yml": (
+                "a missing runner label is refused",
+                "    steps:\n      - run: echo safe\n",
+            ),
+            "dynamic-runs-on-job.yml": (
+                "a nonliteral runner label is refused",
+                "    runs-on: ${{ matrix.os }}\n"
+                "    steps:\n      - run: echo safe\n",
+            ),
+            "job-container.yml": (
+                "job container authority is refused",
+                "    runs-on: ubuntu-latest\n"
+                "    container: alpine:3.20\n"
+                "    steps:\n      - run: echo safe\n",
+            ),
+            "service-container.yml": (
+                "service container authority is refused",
+                "    runs-on: ubuntu-latest\n"
+                "    services:\n      database:\n        image: postgres:16\n"
+                "    steps:\n      - run: echo safe\n",
+            ),
+            "reusable-workflow-job.yml": (
+                "reusable workflow authority is refused",
+                "    uses: example/workflows/.github/workflows/build.yml@v1\n"
+                "    runs-on: ubuntu-latest\n"
+                "    steps:\n      - run: echo safe\n",
+            ),
+        }
         original_docs = WORKFLOWS["docs"]
         try:
-            WORKFLOWS["docs"] = "unsafe.yml"
-            refused(
-                "self-hosted and candidate container authority is refused",
-                lambda: validate_workflow_sandbox(repo, ("docs",)),
-            )
+            for filename, (label, job) in sandbox_job_workflows.items():
+                (repo / filename).write_text(
+                    "name: sandbox-job-negative\non: push\njobs:\n"
+                    f"  unsafe:\n{job}",
+                    encoding="utf-8",
+                )
+                WORKFLOWS["docs"] = filename
+                refused(
+                    label,
+                    lambda: validate_workflow_sandbox(repo, ("docs",)),
+                )
         finally:
             WORKFLOWS["docs"] = original_docs
 
