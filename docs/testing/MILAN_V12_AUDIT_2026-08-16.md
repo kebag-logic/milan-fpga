@@ -375,8 +375,9 @@ media gate in [`milan_datapath.sv`](../../hdl/milan/milan_datapath.sv).
    ROM, which allowed false-green integration runs.
 2. The root processor integration now grades Milan `ACQUIRE_ENTITY` instead of
    printing a stale unconditional gap.
-3. The repository README now describes the current VERSION `0x0002_0053`
-   control-plane surface and the remaining blockers.
+   <!-- milan-feature-value:gateware_version:historic -->
+3. The repository README described the VERSION `0x0002_0053` control-plane
+   surface and the remaining blockers as they stood at this audit.
 4. First-line-obsolete documents are no longer current authorities. Current
    entry points route compliance verdicts to this audit and the generated
    module matrix.

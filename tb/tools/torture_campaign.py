@@ -3018,7 +3018,7 @@ A_COUNTERS_ZEROED = AssertSpec(
 def plan_physical(dut: Device = ARTY, peer: Device = PEER) -> list:
     """The powerstrip-driven physical family - LAST, always, and never faked.
 
-    USER AUTHORIZATION (2026-08-02): the amx-pi powerstrip may drive OUT4 =
+    USER AUTHORIZATION (2026-08-02): the bench powerstrip may drive OUT4 =
     the AVB switch ("DN-1") and OUT0 = the DUT (the AX cold-cycle precedent).
     Per-port CABLE PULLS stay needs_human in the torture area: a powerstrip
     cannot pull one cable, and simulating a port bounce by cutting the whole
@@ -3094,7 +3094,7 @@ def plan_physical(dut: Device = ARTY, peer: Device = PEER) -> list:
                      "~20 s, then power it back on and wait for links, ssh "
                      "and gPTP to recover.  AUTOMATED when the runner is "
                      "given --powerstrip-cmd and --switch-outlet (bench: "
-                     "amx-pi outlet 4).",
+                     "the powerstrip host, outlet 4).",
         asserts=(A_PARTITION_EXPECTED, A_GM_CHANGED_ADVANCES, A_GM_CONTINUITY,
                  A_PEER_GM_CHANGED, A_LINK_EVENT_SEEN, A_GM_ID_FOLLOWS,
                  A_ONE_GM_RESTORED, A_GM_NOT_FLAPPING, A_AS_CAPABLE_RESTORED,
@@ -3138,8 +3138,8 @@ def plan_physical(dut: Device = ARTY, peer: Device = PEER) -> list:
                      "8 s - the SRAM gateware is lost, QSPI boots it back), "
                      "then wait for the network to come up with NO manual "
                      "intervention.  AUTOMATED when the runner is given "
-                     "--powerstrip-cmd and --dut-outlet (bench: amx-pi "
-                     "outlet 0).",
+                     "--powerstrip-cmd and --dut-outlet (bench: the "
+                     "powerstrip host, outlet 0).",
         asserts=(A_ADP_ALIVE, A_BOOT_UNATTENDED, A_VERSION_UNCHANGED,
                  A_SHIELD_POSTURE, A_STATE_RESTORED, A_STATE_SELF_CONSISTENT,
                  A_STATE_DEFAULTED, A_COUNTERS_ZEROED,

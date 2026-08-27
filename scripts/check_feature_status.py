@@ -51,6 +51,85 @@ FACT_NON_OPERATION_TOKENS = {
 ARCHIVE_PARTS = {"historical_now_obsolete", "archive", "archived", "archives"}
 VERSION_SOURCE = REPO / "hdl/common/csr/milan_csr.sv"
 COMMAND_SOURCE = REPO / "tests/steps/aecp_engine_steps.py"
+FIRMWARE_SOURCE = REPO / "sw/firmware/milan_baremetal/milan_baremetal.c"
+
+# --------------------------------------------------------------------------
+# Repeated values in PROSE (#98). The marked rows and fact blocks above carry
+# the inventory; a sentence repeating the same value carried nothing, and a
+# roadmap shipped for nine days with `0x0002_0053` in its opening line and
+# `0x0002_0055` in its own marked row twenty-five lines below.
+#
+# These rules are deliberately NOT a scan for stale spellings. Each one reads
+# the canonical fact and judges what the prose says against it, so the rule
+# needs no maintenance when the value moves - only the prose does.
+
+#: A current-version claim: the register/product name and the FULL two-word
+#: spelling on one line, IN THE CANONICAL MAJOR. Two spellings are deliberately
+#: not judged, because neither can be a claim about the current version and
+#: gating them would mark seventy historical sentences with no drift behind
+#: any of them: the minor-only idiom (`fixed at VERSION 0x000F`), and an older
+#: major (`VERSION 0x0001_000B`), which the major bump already retired. When
+#: the major next steps, today's `0x0002_xxxx` sentences leave the judged set
+#: the same way - by then they are history, and the new era's are judged.
+VERSION_CLAIM_RE = re.compile(
+    r"\bVERSION\b.{0,40}?`?(0x[0-9A-Fa-f]{4}_[0-9A-Fa-f]{4})`?")
+
+#: A served-inventory count. Keyed on the `opcodes` idiom the served claims
+#: use, because `N AEM commands` means something else here (the roadmap counts
+#: commands still to land, not commands served). The word before the noun is
+#: judged only when it IS a number: `the served AEM opcodes` is a phrase, not
+#: a claim, and reading every adjective as a count made this file's own
+#: description of the rule its first false positive.
+COUNT_CLAIM_RE = re.compile(
+    r"(?:\*\*)?(?P<count>[A-Za-z][A-Za-z-]{2,}|\d{1,3})(?:\*\*)?\s+"
+    r"(?P<kind>AEM opcodes?|MVU (?:command|operation)s?)\b")
+COUNT_FACTS = {"AEM": "served_aem_operations", "MVU": "served_mvu_operations"}
+
+#: Placed on the line before a claim that deliberately records a SUPERSEDED
+#: value (a dated audit, a release note). A historic marker whose line carries
+#: the canonical value is itself a finding: the value moved on to it and the
+#: marker now hides a live claim.
+VALUE_HISTORIC_RE = re.compile(
+    r"^<!-- milan-feature-value:(?P<fact>[a-z0-9_]+):historic -->$")
+
+#: An ORDERED fact: the block's tokens must reproduce the ledger sequence,
+#: not merely its set. `firmware_boot_order` is what makes "the PHC does not
+#: wait for the AEM image" a checkable claim rather than a sentence.
+ORDER_START_RE = re.compile(
+    r"^<!-- milan-feature-order:(?P<fact>[a-z0-9_]+):start -->$")
+ORDER_END_RE = re.compile(
+    r"^<!-- milan-feature-order:(?P<fact>[a-z0-9_]+):end -->$")
+ORDER_TOKEN_RE = re.compile(r"`([a-z_][a-z0-9_]*)\(\)`")
+
+_ONES = ("zero", "one", "two", "three", "four", "five", "six", "seven",
+         "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen",
+         "fifteen", "sixteen", "seventeen", "eighteen", "nineteen")
+_TENS = {2: "twenty", 3: "thirty", 4: "forty", 5: "fifty", 6: "sixty",
+         7: "seventy", 8: "eighty", 9: "ninety"}
+
+
+def is_number_token(token):
+    """Whether ``token`` spells a number this corpus could mean as a count."""
+    return bool(re.fullmatch(r"\d{1,3}", token)) or any(
+        token == spelling for value in range(100)
+        for spelling in number_spellings(value))
+
+
+def number_spellings(count):
+    """Every spelling of ``count`` this corpus accepts, lower-cased.
+
+    Prose here writes small counts as words (`thirty AEM opcodes`); tables
+    write numerals. Both are the same claim, so both are accepted rather than
+    forcing a house number style on a consistency gate.
+    """
+    spellings = {str(count)}
+    if 0 <= count < len(_ONES):
+        spellings.add(_ONES[count])
+    elif 20 <= count < 100:
+        tens, ones = divmod(count, 10)
+        spellings.add(_TENS[tens] if not ones
+                      else f"{_TENS[tens]}-{_ONES[ones]}")
+    return spellings
 
 
 class DuplicateKey(ValueError):
@@ -100,6 +179,17 @@ def load_ledger_text(text, source="ledger"):
             for value in duplicates:
                 findings.append(
                     f"{source}: duplicate operation '{value}' in facts.{name}")
+        order = facts.get("firmware_boot_order")
+        if not isinstance(order, list) or len(order) < 2 or not all(
+                isinstance(step, str) and re.fullmatch(r"[a-z_][a-z0-9_]*",
+                                                       step)
+                for step in order):
+            findings.append(
+                f"{source}: facts.firmware_boot_order must be a list of at "
+                f"least two C identifiers")
+        elif len(order) != len(set(order)):
+            findings.append(
+                f"{source}: facts.firmware_boot_order repeats a step")
 
     features = data.get("features")
     if not isinstance(features, list):
@@ -162,6 +252,27 @@ def load_ledger_text(text, source="ledger"):
             elif len(documents) != len(set(documents)):
                 findings.append(
                     f"{source}: fact_documents.{name} repeats a document")
+
+    # The prose-claim registers (#98). Both are REQUIRED: an absent register
+    # would silently retire the presence half of rules 1 and 4, and a page
+    # that drops the claim entirely is exactly the drift they exist to catch.
+    for key, allowed in (("value_documents", {"gateware_version"}),
+                         ("order_documents", {"firmware_boot_order"})):
+        register = data.get(key)
+        if not isinstance(register, dict) or not register:
+            findings.append(f"{source}: {key} must be a non-empty object")
+            continue
+        for name, documents in register.items():
+            if name not in allowed:
+                findings.append(f"{source}: {key} has unknown fact '{name}'")
+                continue
+            if not isinstance(documents, list) or not documents or not all(
+                    isinstance(document, str) and document.endswith(".md")
+                    for document in documents):
+                findings.append(
+                    f"{source}: {key}.{name} needs a Markdown document list")
+            elif len(documents) != len(set(documents)):
+                findings.append(f"{source}: {key}.{name} repeats a document")
     if findings:
         return None, findings
 
@@ -182,9 +293,49 @@ def load_ledger_text(text, source="ledger"):
     return data, []
 
 
+def boot_order_findings(ledger, firmware_text, firmware_source):
+    """Tie ``facts.firmware_boot_order`` to ``milan_init()``'s call order.
+
+    The order is read from the ONE function that runs at init, with comments
+    and strings removed first so a printf naming a step cannot supply it. Only
+    the relative order of the ledger's steps is judged: the firmware is free
+    to log or read a register between them, and the claim documentation makes
+    is "the PHC is up before the AEM image is looked at", not "nothing else
+    happens".
+    """
+    findings = []
+    body = re.search(r"\bmilan_init\s*\([^)]*\)\s*\{(?P<body>.*?)\n\}",
+                     firmware_text, re.DOTALL)
+    if body is None:
+        findings.append(f"{firmware_source}: cannot locate milan_init()")
+        return findings
+    code = re.sub(r"/\*.*?\*/", " ", body.group("body"), flags=re.DOTALL)
+    code = re.sub(r"//[^\n]*", " ", code)
+    code = re.sub(r'"(?:[^"\\]|\\.)*"', ' ', code)
+    positions = []
+    for step in ledger["facts"]["firmware_boot_order"]:
+        call = re.search(r"\b%s\s*\(" % re.escape(step), code)
+        if call is None:
+            findings.append(
+                f"{firmware_source}: milan_init() does not call {step}()")
+        else:
+            positions.append((step, call.start()))
+    if len(positions) != len(ledger["facts"]["firmware_boot_order"]):
+        return findings
+    actual = [step for step, _ in sorted(positions, key=lambda item: item[1])]
+    if actual != ledger["facts"]["firmware_boot_order"]:
+        findings.append(
+            f"firmware boot-order conflict: ledger="
+            f"{ledger['facts']['firmware_boot_order']}; "
+            f"{firmware_source}={actual}")
+    return findings
+
+
 def check_source_facts(ledger, version_text, command_text,
                        version_source="milan_csr.sv",
-                       command_source="aecp_engine_steps.py"):
+                       command_source="aecp_engine_steps.py",
+                       firmware_text=None,
+                       firmware_source="milan_baremetal.c"):
     """Tie version and served-command facts to their source declarations."""
     findings = []
     version_code = re.sub(r"/\*.*?\*/", "", version_text, flags=re.DOTALL)
@@ -244,6 +395,9 @@ def check_source_facts(ledger, version_text, command_text,
             findings.append(
                 "served AEM inventory conflict: "
                 f"missing-from-source={missing}; missing-from-ledger={extra}")
+    if firmware_text is not None:
+        findings.extend(
+            boot_order_findings(ledger, firmware_text, firmware_source))
     return findings
 
 
@@ -375,6 +529,228 @@ def parse_fact_blocks(text, relpath):
     return blocks, findings
 
 
+def parse_value_claims(text, relpath):
+    """Return ``(version, counts, orders, findings)`` for one document.
+
+    ``version`` and ``counts`` are the prose repetitions rule 1 and rule 3
+    judge; ``orders`` are ordered-fact blocks. Fenced code, HTML comments and
+    the fact blocks are skipped: a fact block already states the inventory
+    under its own check, and re-judging its text would report one drift twice.
+    """
+    version, counts, orders, findings = [], [], {}, []
+    in_fence = in_comment = False
+    in_fact = False
+    historic_for = None
+    active_order = None
+    order_line = 0
+    tokens = []
+    paragraph = []
+
+    def flush(paragraph, marked):
+        """Judge one paragraph, reporting the line each match STARTS on.
+
+        Prose here wraps at about seventy-eight columns, so `serves **thirty**
+        AEM` ends one line and `opcodes plus …` begins the next. A line-at-a-
+        time reader never saw that claim at all - the first live claim this
+        rule was written for, and a silent pass is the one failure mode a
+        consistency gate cannot have. A table row is judged alone: rows are
+        records, and joining them would let one row's `VERSION` reach the next
+        row's hexadecimal.
+        """
+        if not paragraph:
+            return
+        joined, spans = "", []
+        for lineno, line in paragraph:
+            spans.append((len(joined), lineno))
+            joined += line + " "
+
+        def line_of(pos):
+            found = paragraph[0][0]
+            for start, lineno in spans:
+                if start <= pos:
+                    found = lineno
+            return found
+
+        for match in VERSION_CLAIM_RE.finditer(joined):
+            version.append((line_of(match.start()), match.group(1),
+                            marked == "gateware_version"))
+        for count in COUNT_CLAIM_RE.finditer(joined):
+            spelled = count.group("count").lower()
+            if not is_number_token(spelled):
+                continue
+            fact = COUNT_FACTS[count.group("kind").split()[0]]
+            counts.append((line_of(count.start()), fact, spelled,
+                           marked == fact))
+
+    for lineno, line in enumerate(text.splitlines(), 1):
+        stripped = line.strip()
+        # A block quote wraps like any other prose, and its `>` would sit
+        # between `AEM` and `opcodes` when the lines are joined - which is how
+        # the README's own served-count claim escaped the first cut of this
+        # rule. The marker is punctuation here, not content.
+        stripped = re.sub(r"^(?:>\s*)+", "", stripped)
+        boundary = (FENCE_RE.match(line) or in_fence or in_comment or
+                    not stripped or stripped.startswith("|") or
+                    stripped.startswith("<!--"))
+        if boundary and paragraph:
+            flush(paragraph, historic_for[0] if historic_for else None)
+            historic_for = None
+            paragraph = []
+        if FENCE_RE.match(line):
+            in_fence = not in_fence
+            continue
+        if in_fence:
+            continue
+        if in_comment:
+            if "-->" in line:
+                in_comment = False
+            continue
+
+        historic = VALUE_HISTORIC_RE.fullmatch(stripped)
+        if historic:
+            historic_for = (historic.group("fact"), lineno)
+            continue
+        start = ORDER_START_RE.fullmatch(stripped)
+        if start:
+            if active_order is not None:
+                findings.append(f"{relpath}:{lineno}: nested feature-order "
+                                f"block")
+            active_order, order_line, tokens = start.group("fact"), lineno, []
+            continue
+        end = ORDER_END_RE.fullmatch(stripped)
+        if end:
+            fact = end.group("fact")
+            if active_order is None:
+                findings.append(
+                    f"{relpath}:{lineno}: unmatched feature-order end")
+            elif fact != active_order:
+                findings.append(
+                    f"{relpath}:{lineno}: feature-order end '{fact}' does not "
+                    f"match '{active_order}'")
+            elif fact in orders:
+                findings.append(
+                    f"{relpath}:{lineno}: duplicate feature-order '{fact}'")
+            else:
+                orders[fact] = (tokens, order_line)
+            active_order, tokens = None, []
+            continue
+        if FACT_START_RE.fullmatch(stripped):
+            in_fact = True
+            continue
+        if FACT_END_RE.fullmatch(stripped):
+            in_fact = False
+            continue
+        if "<!--" in line and "-->" not in line:
+            in_comment = True
+            continue
+        if active_order is not None:
+            tokens.extend(ORDER_TOKEN_RE.findall(line))
+            continue
+        if not stripped or in_fact:
+            continue
+
+        # A table row is a paragraph of its own (see flush); prose lines
+        # accumulate until a boundary closes them.
+        if stripped.startswith("|"):
+            flush([(lineno, stripped)],
+                  historic_for[0] if historic_for else None)
+            historic_for = None
+            continue
+        paragraph.append((lineno, stripped))
+
+    flush(paragraph, historic_for[0] if historic_for else None)
+    if active_order is not None:
+        findings.append(
+            f"{relpath}:{order_line}: unclosed feature-order '{active_order}'")
+    return version, counts, orders, findings
+
+
+def check_value_claims(ledger, documents):
+    """Judge prose repetitions of ledger values, and ordered-fact blocks."""
+    findings = []
+    facts = ledger["facts"]
+    canonical_version = facts["gateware_version"]
+    canonical_major = canonical_version.split("_")[0].upper()
+    seen_version = set()
+    order_occurrences = defaultdict(dict)
+
+    for relpath, text in sorted(documents.items()):
+        version, counts, orders, parse_findings = parse_value_claims(
+            text, relpath)
+        findings.extend(parse_findings)
+        for fact, block in orders.items():
+            order_occurrences[fact][relpath] = block
+
+        for lineno, value, historic in version:
+            if value.split("_")[0].upper() != canonical_major:
+                continue        # a retired major: history, not a claim
+            matches = value.upper() == canonical_version.upper()
+            if historic and matches:
+                findings.append(
+                    f"{relpath}:{lineno}: historic marker on the CURRENT "
+                    f"version {canonical_version} — the value moved on to "
+                    f"this line; drop the marker or restate the claim")
+            elif historic:
+                continue
+            elif not matches:
+                findings.append(
+                    f"{relpath}:{lineno}: version claim {value} conflicts "
+                    f"with the canonical {canonical_version} — correct it, or "
+                    f"mark the line a record with "
+                    f"<!-- milan-feature-value:gateware_version:historic -->")
+            else:
+                seen_version.add(relpath)
+
+        for lineno, fact, spelled, historic in counts:
+            expected = len(facts[fact])
+            matches = spelled in number_spellings(expected)
+            if historic and matches:
+                findings.append(
+                    f"{relpath}:{lineno}: historic marker on the CURRENT "
+                    f"{fact} count {expected} — drop the marker or restate "
+                    f"the claim")
+            elif historic:
+                continue
+            elif not matches:
+                findings.append(
+                    f"{relpath}:{lineno}: {fact} count '{spelled}' conflicts "
+                    f"with the canonical {expected}")
+
+    for relpath in sorted(ledger["value_documents"]["gateware_version"]):
+        if relpath not in documents:
+            findings.append(
+                f"value 'gateware_version' requires missing or inactive "
+                f"{relpath}")
+        elif relpath not in seen_version:
+            findings.append(
+                f"value 'gateware_version' is not stated in {relpath}")
+
+    order_documents = ledger["order_documents"]
+    for fact, claims in sorted(order_occurrences.items()):
+        if fact not in order_documents:
+            files = ", ".join(sorted(claims))
+            findings.append(f"unknown feature order '{fact}' in {files}")
+            continue
+        for relpath, (tokens, lineno) in sorted(claims.items()):
+            if relpath not in set(order_documents[fact]):
+                findings.append(
+                    f"feature order '{fact}' is not registered for {relpath}")
+            if tokens != facts[fact]:
+                findings.append(
+                    f"feature order conflict '{fact}' in {relpath}:{lineno}: "
+                    f"documented={tokens}; canonical={facts[fact]}")
+    for fact, expected_documents in sorted(order_documents.items()):
+        for relpath in expected_documents:
+            if relpath not in documents:
+                findings.append(
+                    f"feature order '{fact}' requires missing or inactive "
+                    f"{relpath}")
+            elif relpath not in order_occurrences[fact]:
+                findings.append(
+                    f"feature order '{fact}' is not marked in {relpath}")
+    return findings
+
+
 def check_claims(ledger, documents):
     """Check active ``documents`` mapping against a parsed ledger."""
     findings = []
@@ -459,6 +835,7 @@ def check_claims(ledger, documents):
             elif relpath not in fact_occurrences[fact]:
                 findings.append(
                     f"feature fact '{fact}' is not marked in {relpath}")
+    findings.extend(check_value_claims(ledger, documents))
     return sorted(set(findings))
 
 
@@ -488,6 +865,12 @@ def run_self_test():
         "fact_documents": {
             "served_aem_operations": ["one.md", "two.md"]
         },
+        "value_documents": {
+            "gateware_version": ["one.md", "two.md"]
+        },
+        "order_documents": {
+            "firmware_boot_order": ["one.md"]
+        },
         "features": [{
             "id": "aem.read-descriptor",
             "status": "implemented",
@@ -495,20 +878,32 @@ def run_self_test():
             "documents": ["one.md", "two.md"]
         }]
     }
+    base["facts"]["firmware_boot_order"] = ["configure_fabric",
+                                            "load_aem_image",
+                                            "entity_advertise"]
     fact_row = (
         "<!-- milan-feature-fact:served_aem_operations:start -->\n"
         "- `READ_DESCRIPTOR`\n"
         "<!-- milan-feature-fact:served_aem_operations:end -->\n"
     )
+    prose = ("Status today, VERSION `0x0002_0051`, serving one AEM opcode "
+             "plus one MVU command.\n")
+    order_block = (
+        "<!-- milan-feature-order:firmware_boot_order:start -->\n"
+        "1. `configure_fabric()`\n2. `load_aem_image()`\n"
+        "3. `entity_advertise()`\n"
+        "<!-- milan-feature-order:firmware_boot_order:end -->\n"
+    )
     row = (f"{BLOCK_START}\n| Feature ID | Status | Canonical value |\n"
            "|---|---|---|\n"
            "| `aem.read-descriptor` | `implemented` | - |\n"
-           f"{BLOCK_END}\n{fact_row}")
+           f"{BLOCK_END}\n{fact_row}{prose}")
+    ordered_row = row + order_block
 
     ledger, findings = load_ledger_text(json.dumps(base), "fixture")
     cases = []
     cases.append(("clean", not findings and not check_claims(
-        ledger, {"one.md": row, "two.md": row})))
+        ledger, {"one.md": ordered_row, "two.md": row})))
 
     conflict = row.replace("`implemented`", "`missing`")
     conflict_findings = check_claims(
@@ -605,6 +1000,146 @@ def run_self_test():
         "// parameter logic [31:0] VERSION = 32'h0002_0052;\n" + version_text,
         '# SERVED = {0: dict(name="SET_NAME")}\n' + command_text)))
 
+    # ---- #98: repeated values in prose, and the ordered boot claim ----
+    def claims(one, two=row):
+        return check_claims(ledger, {"one.md": one, "two.md": two})
+
+    drift = ordered_row.replace("VERSION `0x0002_0051`",
+                                "VERSION `0x0002_0049`")
+    cases.append(("version drift", any(
+        "one.md:" in item and "0x0002_0049" in item and "0x0002_0051" in item
+        for item in claims(drift))))
+    cases.append(("version drift names every file", len({
+        item.split(":")[0] for item in claims(drift, drift.replace(
+            "0x0002_0049", "0x0002_0050")) if "version claim" in item}) == 2))
+    historic = drift.replace(
+        "Status today", "<!-- milan-feature-value:gateware_version:historic "
+        "-->\nStatus today")
+    cases.append(("historic marker accepted", not any(
+        "version claim" in item for item in claims(historic))))
+    cases.append(("historic marker still needs a live claim", any(
+        "value 'gateware_version' is not stated in one.md" in item
+        for item in claims(historic))))
+    stale_marker = ordered_row.replace(
+        "Status today", "<!-- milan-feature-value:gateware_version:historic "
+        "-->\nStatus today")
+    cases.append(("historic marker on the current value", any(
+        "historic marker on the CURRENT version" in item
+        for item in claims(stale_marker))))
+    retired_major = ordered_row.replace("VERSION `0x0002_0051`",
+                                        "VERSION `0x0001_000B`")
+    cases.append(("retired major is history", not any(
+        "version claim" in item for item in claims(retired_major))))
+    minor_only = ordered_row.replace("VERSION `0x0002_0051`",
+                                     "VERSION `0x0049`")
+    cases.append(("minor-only spelling is history", not any(
+        "version claim" in item for item in claims(minor_only))))
+    cases.append(("version presence", any(
+        "value 'gateware_version' is not stated in two.md" in item
+        for item in claims(ordered_row, row.replace(prose, "")))))
+
+    count_drift = ordered_row.replace("one AEM opcode", "twenty-six AEM opcodes")
+    cases.append(("count drift", any(
+        "served_aem_operations count 'twenty-six'" in item and "one.md:" in item
+        for item in claims(count_drift))))
+    cases.append(("numeral spelling accepted", not any(
+        "count" in item for item in claims(
+            ordered_row.replace("one AEM opcode", "1 AEM opcode")))))
+    cases.append(("mvu count drift", any(
+        "served_mvu_operations count 'two'" in item for item in claims(
+            ordered_row.replace("one MVU command", "two MVU commands")))))
+    cases.append(("count in a fence ignored", not any(
+        "count" in item for item in claims(
+            ordered_row + "\n```\nnine AEM opcodes\n```\n"))))
+    cases.append(("an adjective is not a count", not any(
+        "count" in item for item in claims(ordered_row.replace(
+            "one AEM opcode", "served AEM opcodes")))))
+    # Prose wraps, and the corpus quotes: both put a line break (and a `>`)
+    # between the number and the noun. A line-at-a-time reader passed the
+    # README's real claim silently, which is worse than any false positive.
+    wrapped = ordered_row.replace(
+        "Status today, VERSION `0x0002_0051`, serving one AEM opcode",
+        "Status today, VERSION\n`0x0002_0051`, serving twenty-six AEM\nopcode")
+    cases.append(("claim wrapped across lines", any(
+        "count 'twenty-six'" in item for item in claims(wrapped))))
+    cases.append(("wrapped version claim still read", not any(
+        "value 'gateware_version' is not stated in one.md" in item
+        for item in claims(wrapped))))
+    quoted = ordered_row.replace(
+        "Status today, VERSION `0x0002_0051`, serving one AEM opcode",
+        "> Status today, VERSION `0x0002_0051`, serving twenty-six AEM\n"
+        "> opcode")
+    cases.append(("claim inside a block quote", any(
+        "count 'twenty-six'" in item for item in claims(quoted))))
+    cases.append(("count in a fact block ignored", not any(
+        "count" in item for item in claims(ordered_row.replace(
+            "- `READ_DESCRIPTOR`",
+            "- `READ_DESCRIPTOR` — nine AEM opcodes")))))
+
+    reversed_block = order_block.replace(
+        "1. `configure_fabric()`\n2. `load_aem_image()`",
+        "1. `load_aem_image()`\n2. `configure_fabric()`")
+    cases.append(("documented order reversed", any(
+        "feature order conflict 'firmware_boot_order'" in item and
+        "load_aem_image" in item
+        for item in claims(row + reversed_block))))
+    cases.append(("order block required", any(
+        "feature order 'firmware_boot_order' is not marked in one.md" in item
+        for item in claims(row))))
+    cases.append(("order block unregistered", any(
+        "feature order 'firmware_boot_order' is not registered for two.md"
+        in item for item in claims(ordered_row, row + order_block))))
+
+    # The banner names the LAST step in call shape, before any real call: a
+    # reader of the raw text sees `entity_advertise()` first and reports the
+    # order reversed. Only stripping strings gets this fixture right, which is
+    # what makes the clean arm below load-bearing rather than decorative.
+    firmware = ("static void milan_init(void)\n{\n"
+                '\tprintf("boot: entity_advertise() runs last\\n");\n'
+                "\tconfigure_fabric();\n\taem = load_aem_image();\n"
+                "\tentity_advertise(aem);\n}\n")
+    cases.append(("boot order source tie", not check_source_facts(
+        ledger, version_text, command_text, firmware_text=firmware)))
+    cases.append(("boot order reversed in firmware", any(
+        "firmware boot-order conflict" in item for item in check_source_facts(
+            ledger, version_text, command_text, firmware_text=firmware.replace(
+                "\tconfigure_fabric();\n\taem = load_aem_image();",
+                "\taem = load_aem_image();\n\tconfigure_fabric();")))))
+    cases.append(("boot step absent", any(
+        "does not call configure_fabric()" in item
+        for item in check_source_facts(
+            ledger, version_text, command_text,
+            firmware_text=firmware.replace("\tconfigure_fabric();\n", "")))))
+    cases.append(("commented boot call ignored", any(
+        "does not call configure_fabric()" in item
+        for item in check_source_facts(
+            ledger, version_text, command_text, firmware_text=firmware.replace(
+                "\tconfigure_fabric();", "\t/* configure_fabric(); */")))))
+    cases.append(("missing milan_init refused", any(
+        "cannot locate milan_init()" in item for item in check_source_facts(
+            ledger, version_text, command_text,
+            firmware_text="static void other(void)\n{\n}\n"))))
+
+    no_register = json.loads(json.dumps(base))
+    del no_register["value_documents"]
+    _, register_findings = load_ledger_text(json.dumps(no_register), "fixture")
+    cases.append(("value register required", any(
+        "value_documents must be a non-empty object" in item
+        for item in register_findings)))
+    unknown_register = json.loads(json.dumps(base))
+    unknown_register["order_documents"]["served_aem_operations"] = ["one.md"]
+    _, unknown_findings2 = load_ledger_text(
+        json.dumps(unknown_register), "fixture")
+    cases.append(("unknown register fact", any(
+        "order_documents has unknown fact" in item
+        for item in unknown_findings2)))
+    bad_order = json.loads(json.dumps(base))
+    bad_order["facts"]["firmware_boot_order"] = ["configure_fabric"]
+    _, bad_order_findings = load_ledger_text(json.dumps(bad_order), "fixture")
+    cases.append(("boot order needs two steps", any(
+        "firmware_boot_order must be a list" in item
+        for item in bad_order_findings)))
+
     for name, passed in cases:
         print(f"  {'PASS' if passed else 'FAIL'}  {name}")
     failed = [name for name, passed in cases if not passed]
@@ -638,13 +1173,16 @@ def main():
         try:
             version_text = VERSION_SOURCE.read_text(encoding="utf-8")
             command_text = COMMAND_SOURCE.read_text(encoding="utf-8")
+            firmware_text = FIRMWARE_SOURCE.read_text(encoding="utf-8")
         except OSError as exc:
             findings.append(str(exc))
         else:
             findings.extend(check_source_facts(
                 ledger, version_text, command_text,
                 str(VERSION_SOURCE.relative_to(REPO)),
-                str(COMMAND_SOURCE.relative_to(REPO))))
+                str(COMMAND_SOURCE.relative_to(REPO)),
+                firmware_text,
+                str(FIRMWARE_SOURCE.relative_to(REPO))))
         findings.extend(check_claims(ledger, active_markdown_documents(REPO)))
     for finding in findings:
         print(finding)

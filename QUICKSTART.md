@@ -104,7 +104,7 @@ python3 sw/builder/test_builder.py                   # end-station builder, 17 g
 Green looks like:
 
 ```
-docs_check: 0 finding(s) across <N> md files [git ls-files]
+docs_check: 0 finding(s) across <N> md files + <M> scrubbed text files, scrub self-test <A>/<A> [git ls-files]
 traceability matrix up to date (<N> modules, 1 untested)
 ALL GATES PASS
 ```

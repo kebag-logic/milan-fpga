@@ -37,7 +37,12 @@
     "served_mvu_operations": [
       "GET_MILAN_INFO"
     ],
-    "missing_mandatory_aem_operations": []
+    "missing_mandatory_aem_operations": [],
+    "firmware_boot_order": [
+      "configure_fabric",
+      "load_aem_image",
+      "entity_advertise"
+    ]
   },
   "fact_documents": {
     "served_aem_operations": [
@@ -57,6 +62,19 @@
       "docs/MILAN_V12_ROADMAP.md",
       "docs/reference/MILAN_FEATURE_STATUS.md",
       "docs/testing/MILAN_V12_AUDIT_2026-08-16.md"
+    ]
+  },
+  "value_documents": {
+    "gateware_version": [
+      "README.md",
+      "docs/MILAN_V12_ROADMAP.md",
+      "docs/reference/REGISTER_MAP.md",
+      "docs/reference/REGISTER_MAP_CLASSES.md"
+    ]
+  },
+  "order_documents": {
+    "firmware_boot_order": [
+      "docs/integration/BAREMETAL_FIRMWARE.md"
     ]
   },
   "features": [

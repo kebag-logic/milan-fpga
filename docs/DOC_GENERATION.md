@@ -20,7 +20,7 @@ hand-edits there are lost on the next run and fail review.
 - **[2. Per-module HDL pages (hdl/**/doc/*.md)](#2-per-module-hdl-pages-hdldocmd)** — Driven from the editor via TerosHDL, because there is no headless path on this box. The honest coverage number is here: ~22 of 84 modules have pages while 82 of 84 already carry the `//!` comments, so the backlog is an editor session, not a writing task.
 - **[3. Block diagrams (.gen.py → .drawio + .svg → .png)](#3-block-diagrams-genpy--drawio--svg--png)** — The render chain, the four artifacts that must be committed together, and the catalog entry that goes with them. Two headless caveats: the drawio CLI hangs, and the repo's fallback renderer mangles HTML-formatted labels.
 - **[4. Waveform chronograms (WaveDrom)](#4-waveform-chronograms-wavedrom)** — `gen_wavedrom.py` over a `wd_*.json`, with the `wavedrom` package living in the LiteX venv. Includes the style rules learned the hard way: cap at ~10 lanes, write explicit `010` pulses instead of `H`, and look at the rendered `.png` before embedding it.
-- **[5. The gate and CI](#5-the-gate-and-ci)** — The five rules `docs_check.py` enforces, spelled out. Rule 4 is the one to know — a dead reference left behind by a deletion used to pass silently, so retiring a document now means adding its basename to `RETIRED`. Also covers the no-git fallback and the single opt-out token.
+- **[5. The gate and CI](#5-the-gate-and-ci)** — The five rules `docs_check.py` enforces, spelled out. Two to know: rule 4, because a dead reference left behind by a deletion used to pass silently, so retiring a document means adding its basename to `RETIRED`; and rule 5, the privacy scrub, which reads every tracked text file rather than markdown only and proves on every run that it still bites. Also covers the no-git fallback and the single opt-out token.
 - **[6. Cheat sheet — you changed X, run Y](#6-cheat-sheet--you-changed-x-run-y)** — Seven rows mapping what you touched to the one command that has to follow. The fastest way to use this page if you are already mid-change.
 
 ## 1. Module ↔ spec ↔ test matrix
@@ -111,8 +111,15 @@ python3 docs/traceability/gen_module_matrix.py --check   # matrix no-drift
 python3 sw/builder/test_builder.py                       # end-station builder gates
 ```
 
-[`../scripts/docs_check.py`](../scripts/docs_check.py) enforces five rules
-over every `*.md` in the tree (plus diagram sources for the last one):
+[`../scripts/docs_check.py`](../scripts/docs_check.py) enforces five rules.
+Rules 1-4 read every `*.md` in the tree; rule 5, the privacy scrub, reads every
+tracked **text** file — RTL, scripts, configs, testbenches, feature files and
+diagram sources included. This repo is public, and until #247 the scrub read
+markdown only: the peer's product name sat in a testbench comment where no gate
+could see it, and a sibling token had reached 22 tracked files the same way.
+Vendored code (`third_party/`) is out of scope and a binary file is skipped
+exactly as `git grep -I` skips it, so the gate and a `git grep -nI` audit cannot
+disagree:
 
 1. relative links must resolve;
 2. the wording deny-list;
@@ -127,7 +134,24 @@ over every `*.md` in the tree (plus diagram sources for the last one):
    archive ledger, whose job *is* to name retired
    files — via an HTML-comment line carrying the token
    `docs-check: allow-dead-refs`;
-5. no bench/host-identifying information (hostnames, home paths, serials, bench IPs).
+5. the **privacy scrub**: no private identity (the reference peer's product
+   name, the compliance lab and suite names) and no bench/host-identifying
+   information (home paths, bench addresses, bench host prefix, MAC-derived
+   interface names, USB-serial paths). Every class is judged on every line, so
+   one line can carry two findings — a `continue` between them would mean a
+   correct scrub reveals a new finding and the gate could never be driven green
+   in one pass. A finding names its class and column and never quotes the
+   match: the CI log of a public repo republishes whatever a finding prints.
+   The private tokens are **assembled from code points** in the script, never
+   spelled, so the gate can read itself without becoming the one file in the
+   tree that carries them.
+
+Rule 5's arms run on **every** invocation and the count rides in the summary
+line (`scrub self-test 17/17`): each class is planted in a non-markdown file and
+must be caught, the negative controls must stay clean, and a class with no
+fixture fails the run. A scrub gate that has never failed once is not evidence
+that it works. `--selftest` runs the arms alone; a failing arm is exit 2
+(rule 5 unproven), which is not exit 0 (clean).
 
 The exact allowlist and the `RETIRED` set are in the script header. **The gate
 does not need git**: inside a git working tree it takes the file list from
@@ -152,3 +176,4 @@ honest — run them locally first, exit-checked, never piped through `tail`.
 | Deleted or archived a doc | add its basename to `RETIRED` in [`scripts/docs_check.py`](../scripts/docs_check.py), then run the gate — it lists every reference now pointing at nothing |
 | A config schema / builder emission | [`sw/builder/test_builder.py`](../sw/builder/test_builder.py); an explicit `--write-fragment` or `--write-rtl` transfer generates paired `aem_desc.bin`, `aem_desc.json`, and `aem_desc.map` artifacts beside the bitstream. The board-side `aemi-load` verifies and writes the image before entity enable |
 | Any `*.md` at all | [`scripts/docs_check.py`](../scripts/docs_check.py) before pushing |
+| Any other tracked text — RTL, script, config, testbench, feature file | the same gate: rule 5 reads them too, and a bench or peer identity in a comment is a finding |

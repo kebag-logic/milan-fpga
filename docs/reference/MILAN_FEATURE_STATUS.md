@@ -25,6 +25,35 @@ then rerun the parent gates at the resulting exact head. A branch-only donor
 commit can be fetched today and still disappear tomorrow, so it is never merge
 evidence by itself.
 
+## Values repeated in prose
+
+A marked row is safe because the checker reads it. The same value written into
+a sentence was not, and that is how the roadmap came to open with a version two
+minors behind its own row, and to count six fewer served opcodes than the block
+twenty lines below it (#98). Three prose forms are now judged against the
+ledger, and none of them needs a marker while it is correct:
+
+| Written as | Judged against | Notes |
+|---|---|---|
+| `VERSION `0x0002_0055`` — the name and the full two-word spelling on one line | `facts.gateware_version` | Only the CURRENT major is judged. `VERSION 0x0001_000B` and the minor-only idiom (`fixed at VERSION 0x000F`) are how this corpus writes history, and a bump to major 3 retires today's spellings the same way |
+| `thirty AEM opcodes`, `one MVU command` | the length of the matching `facts.served_*_operations` list | Word and numeral spellings are both accepted. `N AEM commands` is deliberately not judged: in this corpus it counts commands still to land |
+| a `milan-feature-order` block | `facts.firmware_boot_order`, itself read from `milan_init()` | Compared as a SEQUENCE, so reversing the documented steps fails even though the set is unchanged |
+
+A page that deliberately records a superseded value — a dated audit, a release
+note — marks that one line:
+
+```markdown
+<!-- milan-feature-value:gateware_version:historic -->
+3. The repository README described the VERSION `0x0002_0053` control-plane
+   surface as it stood at this audit.
+```
+
+The marker is not an exemption from being read. A historic marker on a line
+carrying the CURRENT value is itself a finding: the value moved on to that
+line, and the marker would otherwise hide a live claim behind a record.
+`value_documents` in the ledger names the pages that must state the current
+version in prose, so dropping the claim is a finding rather than a silence.
+
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|

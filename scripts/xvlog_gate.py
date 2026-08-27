@@ -230,8 +230,8 @@ SECTION_LABEL = {"hdl": "hdl/", "submodules": "pinned processors"}
 #: Where a bench install puts Vivado (docs/reference: 2026.1). $XVLOG wins, then
 #: these, then PATH. Read, not restated in three places.
 XVLOG_CANDIDATES = [
-    "/home/alex/Xilinx/2026.1/Vivado/bin/xvlog",
-    "/home/alex/Xilinx2/2026.1/Vivado/bin/xvlog",
+    os.path.expanduser("~/Xilinx/2026.1/Vivado/bin/xvlog"),
+    os.path.expanduser("~/Xilinx2/2026.1/Vivado/bin/xvlog"),
 ]
 
 #: The cascade line xvlog prints AFTER a real error ("module X is ignored due to
@@ -2108,7 +2108,7 @@ def main(argv):
     # measured, so the skip is decided BEFORE the missing-tree refusal.
     if xvlog is None:
         print("xvlog gate: SKIPPED (no Vivado xvlog found; set $XVLOG or install "
-              "to /home/alex/Xilinx/2026.1). A skip is not a pass.")
+              "to ~/Xilinx/2026.1). A skip is not a pass.")
         return 0
 
     bad = unusable_submodule_trees()
