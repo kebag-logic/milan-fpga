@@ -95,7 +95,7 @@ static const int CBS_MIN_FRAME_BYTES     = 60;   // 64 wire octets less FCS
 // ---------------------------------------------------------------------------
 // State-for-state mirror of the RTL sequential slope engine (slope_engine in
 // credit_based_shaper.sv). Fixed 100-cycle cadence:
-//   cnt 0      sample idle_slope_i / is_1g_i
+//   cnt 0      sample idle_slope_bps_i / is_1g_i
 //   cnt 1      load |idle_slope <<< 16| (48-bit wrap), divisor clk_freq_hz*8
 //   cnt 2..49  48 restoring-divider iterations (idle_slope_per_cycle)
 //   cnt 50     stash signed quotient 1; load |send_slope <<< 16|, divisor link
@@ -123,7 +123,7 @@ struct SlopeEngineRef {
         return (u & ((uint64_t)1 << 47)) ? (int64_t)(u | ~M48) : (int64_t)u;
     }
 
-    void step(int32_t idle_slope_i, bool is_1g_i, int64_t clk_freq_hz) {
+    void step(int32_t idle_slope_bps_i, bool is_1g_i, int64_t clk_freq_hz) {
         // combinational helpers from PRE-step state
         int64_t  link   = is1g_s ? 1000000000LL : 100000000LL;
         int64_t  ldval  = (cnt == 1) ? wrap48(idle_s << CbsConfig::FP)
@@ -138,7 +138,7 @@ struct SlopeEngineRef {
         int64_t  quo_s  = sign ? -(int64_t)quo_r : (int64_t)quo_r;
 
         if (cnt == 0) {
-            idle_s = (int64_t)idle_slope_i;
+            idle_s = (int64_t)idle_slope_bps_i;
             is1g_s = is_1g_i;
         } else if (cnt == 1 || cnt == 50) {
             if (cnt == 50) q1 = quo_s;

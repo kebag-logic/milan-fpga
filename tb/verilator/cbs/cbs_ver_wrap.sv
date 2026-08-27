@@ -24,9 +24,9 @@ module cbs_ver_wrap #(
   input  wire        resetn,            //! Active-low synchronous reset
 
   input  wire        shaped_i,          //! 1 = apply CBS; 0 = strict priority
-  input  wire [31:0] idle_slope_i,      //! idleSlope for current link rate, bits/s
-  input  wire signed [31:0] hi_credit_i,//! hiCredit clamp, signed bytes
-  input  wire signed [31:0] lo_credit_i,//! loCredit clamp, signed bytes
+  input  wire [31:0] idle_slope_bps_i,      //! idleSlope for current link rate, bits/s
+  input  wire signed [31:0] hi_credit_bytes_i,//! hiCredit clamp, signed bytes
+  input  wire signed [31:0] lo_credit_bytes_i,//! loCredit clamp, signed bytes
 
   input  wire        queue_has_data_i,  //! Queue has frames waiting to send
   input  wire        is_transmitting_i, //! This queue is actively transmitting
@@ -52,9 +52,9 @@ module cbs_ver_wrap #(
     .clk               (clk),
     .resetn            (resetn),
     .shaped_i          (shaped_i),
-    .idle_slope_i      (idle_slope_i),
-    .hi_credit_i       (hi_credit_i),
-    .lo_credit_i       (lo_credit_i),
+    .idle_slope_bps_i      (idle_slope_bps_i),
+    .hi_credit_bytes_i       (hi_credit_bytes_i),
+    .lo_credit_bytes_i       (lo_credit_bytes_i),
     .queue_has_data_i  (queue_has_data_i),
     .is_transmitting_i (is_transmitting_i),
     .is_1g_i           (is_1g_i),

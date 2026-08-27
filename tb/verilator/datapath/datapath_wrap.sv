@@ -26,9 +26,9 @@ module datapath_wrap #(
   input  wire [23:0]                   cls_prio_regen_i,
   input  wire [31:0]                   cls_tc_queue_map_i,
   // CBS config (packed per queue)
-  input  wire [32*NUMBER_OF_QUEUES-1:0] cbs_idle_slope_i,
-  input  wire [32*NUMBER_OF_QUEUES-1:0] cbs_hi_credit_i,
-  input  wire [32*NUMBER_OF_QUEUES-1:0] cbs_lo_credit_i,
+  input  wire [32*NUMBER_OF_QUEUES-1:0] cbs_idle_slope_bps_i,
+  input  wire [32*NUMBER_OF_QUEUES-1:0] cbs_hi_credit_bytes_i,
+  input  wire [32*NUMBER_OF_QUEUES-1:0] cbs_lo_credit_bytes_i,
   input  wire [NUMBER_OF_QUEUES-1:0]    cbs_shaped_i,
   // AXIS in
   input  wire [TDATA_WIDTH-1:0]        s_tdata,
@@ -64,8 +64,8 @@ module datapath_wrap #(
     .cls_ctrl_class_i(cls_ctrl_class_i),
     .cls_default_pcp_i(cls_default_pcp_i), .cls_pcp_tc_map_i(cls_pcp_tc_map_i),
     .cls_prio_regen_i(cls_prio_regen_i), .cls_tc_queue_map_i(cls_tc_queue_map_i),
-    .cbs_idle_slope_i(cbs_idle_slope_i), .cbs_hi_credit_i(cbs_hi_credit_i),
-    .cbs_lo_credit_i(cbs_lo_credit_i), .cbs_shaped_i(cbs_shaped_i),
+    .cbs_idle_slope_bps_i(cbs_idle_slope_bps_i), .cbs_hi_credit_bytes_i(cbs_hi_credit_bytes_i),
+    .cbs_lo_credit_bytes_i(cbs_lo_credit_bytes_i), .cbs_shaped_i(cbs_shaped_i),
     .s_axis(s_axis), .m_axis(m_axis)
   );
 

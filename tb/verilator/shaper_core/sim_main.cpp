@@ -60,9 +60,9 @@ struct Harness {
         // Verilator packs <=64-bit wide ports as scalars, wider as arrays; the
         // 128-bit CBS vectors are VlWide — assign per 32-bit lane.
         for (int i = 0; i < NQ; i++) {
-            dut->cbs_idle_slope_i.at(i) = c.idle[i];
-            dut->cbs_hi_credit_i.at(i)  = (uint32_t)c.hi[i];
-            dut->cbs_lo_credit_i.at(i)  = (uint32_t)c.lo[i];
+            dut->cbs_idle_slope_bps_i.at(i) = c.idle[i];
+            dut->cbs_hi_credit_bytes_i.at(i)  = (uint32_t)c.hi[i];
+            dut->cbs_lo_credit_bytes_i.at(i)  = (uint32_t)c.lo[i];
         }
         dut->cbs_shaped_i = c.shaped;
     }

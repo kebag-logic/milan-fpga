@@ -173,9 +173,9 @@ module milan_csr #(
   output wire [31:0]             o_cls_tc_queue_map, //! Traffic-class->queue map (CLS_TC_QUEUE_MAP)
 
   // ---- 802.1Qav CBS, per queue, packed [q*32 +: 32] (REQ-CBS-01..03) ----
-  output wire [32*NUM_QUEUES-1:0] o_cbs_idle_slope, //! Per-queue idleSlope, bits/s (CBS_IDLE_SLOPE)
-  output wire [32*NUM_QUEUES-1:0] o_cbs_hi_credit,  //! Per-queue hiCredit, signed bytes (CBS_HI_CREDIT)
-  output wire [32*NUM_QUEUES-1:0] o_cbs_lo_credit,  //! Per-queue loCredit, signed bytes (CBS_LO_CREDIT)
+  output wire [32*NUM_QUEUES-1:0] o_cbs_idle_slope_bps, //! Per-queue idleSlope, bits/s (CBS_IDLE_SLOPE)
+  output wire [32*NUM_QUEUES-1:0] o_cbs_hi_credit_bytes,  //! Per-queue hiCredit, signed bytes (CBS_HI_CREDIT)
+  output wire [32*NUM_QUEUES-1:0] o_cbs_lo_credit_bytes,  //! Per-queue loCredit, signed bytes (CBS_LO_CREDIT)
   output wire [NUM_QUEUES-1:0]    o_cbs_enable,     //! Per-queue shaped-enable; 0 = strict priority (CBS_CTRL[0])
 
   // ---- PTP hardware clock (REQ-PTP-01..04,06) ----
@@ -2590,9 +2590,9 @@ module milan_csr #(
   genvar g;
   generate
     for (g = 0; g < NUM_QUEUES; g = g + 1) begin : gen_cbs_out
-      assign o_cbs_idle_slope[g*32 +: 32] = cbs_idle[g];
-      assign o_cbs_hi_credit [g*32 +: 32] = cbs_hi[g];
-      assign o_cbs_lo_credit [g*32 +: 32] = cbs_lo[g];
+      assign o_cbs_idle_slope_bps[g*32 +: 32] = cbs_idle[g];
+      assign o_cbs_hi_credit_bytes [g*32 +: 32] = cbs_hi[g];
+      assign o_cbs_lo_credit_bytes [g*32 +: 32] = cbs_lo[g];
       assign o_cbs_enable[g]              = cbs_en[g];
     end
   endgenerate

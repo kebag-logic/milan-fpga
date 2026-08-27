@@ -74,9 +74,9 @@ struct Harness {
         dut->bytes_sent_i      = in.bytes_sent;
         dut->tlast_i           = in.tlast;
         dut->shaped_i          = in.shaped;
-        dut->idle_slope_i      = (uint32_t)in.idle_slope;
-        dut->hi_credit_i       = (uint32_t)in.hi_credit;
-        dut->lo_credit_i       = (uint32_t)in.lo_credit;
+        dut->idle_slope_bps_i      = (uint32_t)in.idle_slope;
+        dut->hi_credit_bytes_i       = (uint32_t)in.hi_credit;
+        dut->lo_credit_bytes_i       = (uint32_t)in.lo_credit;
         posedge();
 
         fref.step(in);

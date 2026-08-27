@@ -100,6 +100,15 @@ jobs:
           python3 scripts/check_rtl_source_lists.py
           python3 scripts/check_rtl_source_lists.py --selftest
 
+      # Rule 4 ratchet: a boundary port whose own //! comment names a unit the
+      # identifier does not carry. The three exclusion classes and the
+      # false-positive measurement behind them are in the script; the count may
+      # only go down.
+      - name: Boundary-unit naming ratchet
+        run: |
+          python3 scripts/measure_naming.py --check
+          python3 scripts/measure_naming.py --selftest
+
       # CI event and SHA contract gate (#174, #181): the four workflow files
       # and docs/testing/CI_WORKFLOWS.md must agree on the triggers, the cron
       # time, the public check names, cancel-in-progress and the one-SHA rule

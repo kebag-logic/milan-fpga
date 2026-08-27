@@ -26,6 +26,8 @@ shape rather than guess at it.
 - **[Rule 2: prefer simple and explicit control flow](#rule-2-prefer-simple-and-explicit-control-flow)** -- The KISS rule, what "explicit" means for a SystemVerilog priority chain versus a host-side parser, the worked simplification that took one function from four levels of nesting to two, a real FSM and a real combinational mux read against the same rule, the measured hotspots with their dispositions, and the review checklist.
 - **[Measuring control flow](#measuring-control-flow)** -- What `scripts/measure_control_flow.py` counts in each language -- nesting and decision points in Python, priority resolved by source order in RTL -- exactly which files and blocks it scans and what it refuses, why no threshold is proposed, and what the tree actually measures today.
 - **[Rule 3: keep one source of truth without weakening test oracles](#rule-3-keep-one-source-of-truth-without-weakening-test-oracles)** -- The single-definition rule and the exception that keeps a test honest, the five RTL source lists that had one authority and four unguarded copies, the drift gate that now derives all of them from the RTL, and the mutation that proves an independent oracle is really independent.
+- **[Rule 4: use intention-revealing names and explicit units](#rule-4-use-intention-revealing-names-and-explicit-units)** -- What a name must reveal, the unit and clock-domain qualifiers that extend the existing HDL suffixes rather than competing with them, cross-language equivalents, and the interface renamed end to end to prove it.
+- **[Measuring hidden units](#measuring-hidden-units)** -- The port's own documentation as the evidence, the three exclusion classes and the false positives that forced them, and why this ships as a ratchet instead of a verdict.
 - **[Rules not yet landed](#rules-not-yet-landed)** -- The remaining nine rules of the contract, named so the numbering is stable and a reader knows what is still coming.
 
 ## The governing rule
@@ -704,14 +706,122 @@ have stayed green through the same mutation.
   rule cited?
 - Would a wrong implementation constant still make the test fail?
 
+## Rule 4: use intention-revealing names and explicit units
+
+> Names MUST reveal role and meaning; boundary types MUST make width,
+> signedness, direction and units explicit. Use the existing `_r`, `_w`, `_p`,
+> `_S`, `_C` and `_P` suffixes, and add a unit or domain qualifier — `_ns`,
+> `_cyc`, `_bytes`, `_bps`, or the clock domain — wherever confusion is
+> possible.
+
+This **extends** the house style in [CONTRIBUTING.md](../../CONTRIBUTING.md);
+it does not compete with it. The suffixes there say what a signal *is*
+(registered, wire, pulse, state, parameter). A unit qualifier says what its
+value *means*. A port can need both: `ring_len_bytes_i` is an input carrying a
+length in bytes.
+
+### The qualifier table
+
+| Concern | Qualifier | Example | Why the bare name is not enough |
+|---|---|---|---|
+| Time | `_ns`, `_us`, `_ms`, `_sec` | `pres_ofs_ns_i` | An offset in cycles and an offset in nanoseconds are the same 32 bits and a different value |
+| Cycle counts | `_cyc` | `timeout_cyc_c` | A cycle count is only meaningful beside its clock |
+| Size and position | `_bytes`, `_samples` | `ring_len_bytes_i` | A ring length in bytes and in records both fit; only one is right |
+| Rate | `_bps`, `_hz`, `_ppb` | `idle_slope_bps_i` | idleSlope is a rate; a bare number invites a per-frame reading |
+| Clock domain | domain name | `gtx_ts_ns_w` | The domain is the difference between a valid read and a metastable one |
+| Predicate | reads as a question | `is_talker_w`, `has_listener_w` | A boolean named for a noun does not say which way true points |
+| Event | `_p` (existing) | `arm_p` | A pulse and a level need different consumers |
+
+Cross-language, the concept keeps its name and its unit: a value that is
+`egress_lat_ns` in SystemVerilog is `egress_lat_ns` in the builder and in the
+harness. A rename that stops at the module boundary has moved the confusion
+rather than removed it.
+
+### What a qualifier is not for
+
+- Not for a signal whose width is its meaning. A port's bit width is already
+  in its type; `_bits` restates the declaration.
+- Not for pulse shape. "One-cycle strobe" is what `_p` already says, and
+  spelling it `_cyc` would make the two conventions disagree.
+- Not for identifiers a published protocol owns. `s_axi_awaddr` is documented
+  as a byte offset and keeps its name, because the name is AXI's contract, not
+  ours.
+
+### The interface renamed end to end
+
+The credit-based shaper's configuration interface carries three quantities with
+three different units, and none of them said so. It is renamed here through
+every hop it crosses — the CSR block, the datapath, the top level, the shaping
+core, the controller, the shaper itself, four testbench wrappers and their
+harnesses, and the register documentation:
+
+| Was | Now | Unit, from its own documentation |
+|---|---|---|
+| `o_cbs_hi_credit`, `hi_credit_i` | `o_cbs_hi_credit_bytes`, `hi_credit_bytes_i` | signed bytes |
+| `o_cbs_lo_credit`, `lo_credit_i` | `o_cbs_lo_credit_bytes`, `lo_credit_bytes_i` | signed bytes |
+| `o_cbs_idle_slope`, `idle_slope_i` | `o_cbs_idle_slope_bps`, `idle_slope_bps_i` | bits per second |
+
+`hiCredit` and `loCredit` are 802.1Q terms and keep their spelling; only the
+unit is added. The rename is pure — no logic moved — and the shaper's own
+harnesses grade the result, including the cycle-accurate reference model.
+
+### Review checklist
+
+- Does the name say what the value means, not just where it came from?
+- If the value has a unit, is the unit in the name or only in the comment?
+- Does a boolean read as a predicate, and is a pulse distinguishable from a
+  level?
+- At a cast, is the truncation or sign change documented — or is the cast
+  hiding a law nobody wrote down?
+- Does the concept keep its name across the module, the builder and the tests?
+
+## Measuring hidden units
+
+The evidence is the port's own `//!` comment. The house style already requires
+one on every port, and those comments say what the value is — "Egress latency
+correction, ns", "hiCredit clamp, signed bytes". When the comment names a unit
+and the identifier does not, the unit is known and simply missing from the
+name. No taste is involved and a reader can check any finding in one line.
+
+[`scripts/measure_naming.py`](../../scripts/measure_naming.py) does that scan.
+
+```
+python3 scripts/measure_naming.py             # the candidate list
+python3 scripts/measure_naming.py --excluded  # what was filtered, and why
+python3 scripts/measure_naming.py --check     # the ratchet
+```
+
+**The false positives were measured before anything was gated**, because the
+naive form of this check is mostly noise. 180 of 1,757 ports match a unit word
+in their comment. Three exclusion classes account for 100 of them:
+
+| Excluded | Count | Reason |
+|---|---:|---|
+| Single-bit ports | 94 | A one-bit port carries no quantity, so a unit cannot be missing from it |
+| Protocol-fixed identifiers | 4 | `s_axi_awaddr` is AXI's name; renaming it breaks what the name is for |
+| Shape, not unit | 2 | "1-cycle pulse" describes shape, which `_p` already encodes |
+
+`bit`, `bits` and `word` are not in the unit vocabulary at all: bit width is
+already explicit in the SystemVerilog type, and "word" is used in this tree both
+as a count and as a noun for the value itself, so it cannot separate a missing
+unit from ordinary prose.
+
+That leaves **80 candidates**, down from 91 before the rename above. The
+residual set still contains judgement calls — `now_i` on a module whose entire
+subject is nanoseconds is arguable — so this ships as a **ratchet**
+(`scripts/naming.budget`), not a verdict. The count may not rise; a new
+boundary states its unit, and existing debt is paid down deliberately.
+
+`--excluded` prints every filtered match with its reason, because a filter
+nobody can see is how a check quietly stops checking.
+
 ## Rules not yet landed
 
-The contract is ten rules. Rules 1, 2 and 3 are above; the rest keep these
+The contract is ten rules. Rules 1 to 4 are above; the rest keep these
 numbers so citations stay stable as they land:
 
 | Rule | Subject |
 |---|---|
-| 4 | Intention-revealing names and explicit units and types |
 | 5 | Explicit ports, contracts, ownership and side effects |
 | 6 | Fail fast and encode invariants |
 | 7 | Comments explain why; no dead or speculative code |

@@ -23,9 +23,9 @@ module shaper_core_wrap #(
   input  wire [NQ-1:0]   queue_has_data_i, //! Per-queue data-available
   input  wire            is_1g_i,      //! Link rate select
 
-  input  wire [32*NQ-1:0] cbs_idle_slope_i, //! Per-queue idleSlope (bits/s)
-  input  wire [32*NQ-1:0] cbs_hi_credit_i,  //! Per-queue hiCredit (signed bytes)
-  input  wire [32*NQ-1:0] cbs_lo_credit_i,  //! Per-queue loCredit (signed bytes)
+  input  wire [32*NQ-1:0] cbs_idle_slope_bps_i, //! Per-queue idleSlope (bits/s)
+  input  wire [32*NQ-1:0] cbs_hi_credit_bytes_i,  //! Per-queue hiCredit (signed bytes)
+  input  wire [32*NQ-1:0] cbs_lo_credit_bytes_i,  //! Per-queue loCredit (signed bytes)
   input  wire [NQ-1:0]    cbs_shaped_i,     //! Per-queue shaped-enable
 
   // flattened s_axis (stimulus) / m_axis (drain) handshake
@@ -105,9 +105,9 @@ module shaper_core_wrap #(
     .resetn            (resetn),
     .queue_has_data_i  (queue_has_data_i),
     .is_1g_i           (is_1g_i),
-    .cbs_idle_slope_i  (cbs_idle_slope_i),
-    .cbs_hi_credit_i   (cbs_hi_credit_i),
-    .cbs_lo_credit_i   (cbs_lo_credit_i),
+    .cbs_idle_slope_bps_i  (cbs_idle_slope_bps_i),
+    .cbs_hi_credit_bytes_i   (cbs_hi_credit_bytes_i),
+    .cbs_lo_credit_bytes_i   (cbs_lo_credit_bytes_i),
     .cbs_shaped_i      (cbs_shaped_i),
     .grant_queue_o     (grant_o),
     .s_axis            (s_if),
@@ -148,9 +148,9 @@ module shaper_core_wrap #(
     .resetn            (resetn),
     .queue_has_data_i  (queue_has_data_i),
     .is_1g_i           (is_1g_i),
-    .cbs_idle_slope_i  (cbs_idle_slope_i),
-    .cbs_hi_credit_i   (cbs_hi_credit_i),
-    .cbs_lo_credit_i   (cbs_lo_credit_i),
+    .cbs_idle_slope_bps_i  (cbs_idle_slope_bps_i),
+    .cbs_hi_credit_bytes_i   (cbs_hi_credit_bytes_i),
+    .cbs_lo_credit_bytes_i   (cbs_lo_credit_bytes_i),
     .cbs_shaped_i      (cbs_shaped_i),
     .grant_queue_o     (),
     .s_axis            (sm_if),

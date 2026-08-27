@@ -23,9 +23,9 @@ module controller_rate_wrap #(
   input  wire [23:0] cls_pcp_tc_map_i,
   input  wire [23:0] cls_prio_regen_i,
   input  wire [31:0] cls_tc_queue_map_i,
-  input  wire [32*NQ-1:0] cbs_idle_slope_i,
-  input  wire [32*NQ-1:0] cbs_hi_credit_i,
-  input  wire [32*NQ-1:0] cbs_lo_credit_i,
+  input  wire [32*NQ-1:0] cbs_idle_slope_bps_i,
+  input  wire [32*NQ-1:0] cbs_hi_credit_bytes_i,
+  input  wire [32*NQ-1:0] cbs_lo_credit_bytes_i,
   input  wire [NQ-1:0]    cbs_shaped_i,
   input  wire [TDATA_WIDTH-1:0]     s_tdata,
   input  wire [(TDATA_WIDTH/8)-1:0] s_tkeep,
@@ -83,8 +83,8 @@ module controller_rate_wrap #(
     .cls_use_pcp_i(cls_use_pcp_i), .cls_dmac_check_i(1'b0), .cls_ctrl_class_i(1'b1),
     .cls_default_pcp_i(cls_default_pcp_i), .cls_pcp_tc_map_i(cls_pcp_tc_map_i),
     .cls_prio_regen_i(cls_prio_regen_i), .cls_tc_queue_map_i(cls_tc_queue_map_i),
-    .cbs_idle_slope_i(cbs_idle_slope_i), .cbs_hi_credit_i(cbs_hi_credit_i),
-    .cbs_lo_credit_i(cbs_lo_credit_i), .cbs_shaped_i(cbs_shaped_i),
+    .cbs_idle_slope_bps_i(cbs_idle_slope_bps_i), .cbs_hi_credit_bytes_i(cbs_hi_credit_bytes_i),
+    .cbs_lo_credit_bytes_i(cbs_lo_credit_bytes_i), .cbs_shaped_i(cbs_shaped_i),
     .s_axis(s_if), .m_axis(m_if)
   );
 endmodule
