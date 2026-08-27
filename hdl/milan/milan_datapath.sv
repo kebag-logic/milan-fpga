@@ -6577,127 +6577,41 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   );
 
   // ==========================================================================
-  //  AAF per-stage latency taps (roadmap item 11) — latch a free-running
-  //  cycle count at each documented AAF pipeline point, expose per-stage
-  //  last/min/max deltas + the gPTP epoch over the LTAP CSR group (0x870).
-  //  TX chain: CAP (pair in) -> PKT_SOF -> PKT_EOF -> MAC_TX.
-  //  RX chain: MAC_RX -> ACCEPT (AVTP parse) -> DEPKT -> PCM_RING.
-  //  (I2S-out playout is FIFO-fill dominated — observed via I2SPB_STAT; a
-  //   DDR3 per-sample history ring is the documented follow-up.)
+  //  AAF per-stage latency taps (roadmap item 11) — the observation-point
+  //  adapter and the LTAP CSR word order live in KL_aaf_latency_tap_bank; the
+  //  datapath only names the points it is observed at. The bank is a pure
+  //  observer: every port below is an input except the two CSR rails.
   // ==========================================================================
-  wire aaf_tx_acc_w = aaf_tx_tvalid       & aaf_tx_tready;
-  wire mac_tx_acc_w = m_axis_mac_tx_tvalid & m_axis_mac_tx_tready;
-  wire mac_rx_acc_w = s_axis_mac_rx_tvalid & s_axis_mac_rx_tready;
-  wire dpkt_acc_w   = dpkt_pcm_tvalid_w    & dpkt_pcm_tready_w;
-  wire ring_acc_w   = m_axis_pcm_tvalid    & m_axis_pcm_tready;
-
-  //! start-of-frame trackers for the two shared AXIS boundaries
-  logic aaf_tx_inframe_r, mac_rx_inframe_r;
-  always_ff @(posedge axis_clk) begin : ltap_inframe
-    if (!axis_resetn) begin
-      aaf_tx_inframe_r <= 1'b0;
-      mac_rx_inframe_r <= 1'b0;
-    end
-    else begin
-      if (aaf_tx_acc_w) aaf_tx_inframe_r <= ~aaf_tx_tlast;
-      if (mac_rx_acc_w) mac_rx_inframe_r <= ~s_axis_mac_rx_tlast;
-    end
-  end : ltap_inframe
-
-  //! single-cycle stage edges (stage 0 = the chain's arm/epoch trigger)
-  wire ltap_txcap_w  = aafcap_pv_w;                             //! ring/I2S pair in
-  wire ltap_txsof_w  = aaf_tx_acc_w & ~aaf_tx_inframe_r;        //! packetizer first beat
-  wire ltap_txeof_w  = aaf_tx_acc_w &  aaf_tx_tlast;            //! packetizer last beat
-  wire ltap_txmac_w  = mac_tx_acc_w &  m_axis_mac_tx_tlast;     //! frame egress at MAC
-  wire ltap_rxsof_w  = mac_rx_acc_w & ~mac_rx_inframe_r;        //! frame ingress from MAC
-  wire ltap_rxacc_w  = avtprx_accept_p;                        //! AVTP monitor accept/parse
-  wire ltap_rxdpk_w  = dpkt_acc_w & dpkt_pcm_tlast_w;          //! depacketizer payload last
-  wire ltap_rxring_w = ring_acc_w & m_axis_pcm_tlast;          //! payload into the PCM ring
-
-  wire [31:0]     ltap_tx_epoch_w, ltap_rx_epoch_w;
-  wire [15:0]     ltap_tx_smp_w, ltap_rx_smp_w, ltap_tx_to_w, ltap_rx_to_w;
-  wire [3*16-1:0] ltap_tx_last_w, ltap_tx_min_w, ltap_tx_max_w;
-  wire [3*16-1:0] ltap_rx_last_w, ltap_rx_min_w, ltap_rx_max_w;
-
-  //! LTAP_P = 0 prunes the taps (see the parameter note). The tie-off is the
-  //! post-clear state the block presents with LTAP_CTRL.en = 0 and clr just
-  //! strobed: every epoch, sample count, timeout count, last/min/max and the
-  //! status word read 0. That is a STRUCTURAL zero and it is NOT a latency
-  //! measurement - a reader that cannot distinguish the two would report
-  //! 0 ns end-to-end, so the builder gate refuses to prune the taps in a
-  //! config that keeps its probes (board.constraints.strip_probes: false).
-  generate if (LTAP_P != 0) begin : g_ltap
-  //! STAGE-PULSE PIPELINE (2026-08-15). The asl v47 route failed timing
-  //! (WNS -0.168) on a cone running from the RX filter's CAM entry masks
-  //! through the MAC-stream handshake into last_r's reset term INSIDE the
-  //! taps: the frame-accept qualifier is combinational off the CAM compare,
-  //! and the taps' arm logic extended that cone. The taps are PURE OBSERVERS
-  //! (tap-purity gate), so delaying EVERY stage pulse by one uniform cycle
-  //! is invisible to every measurement they make - last/min/max are
-  //! stage-to-stage DELTAS between pulses that all shift together, and the
-  //! epoch timestamp moves by one 10 ns cycle on a diagnostic. The CAM cone
-  //! now terminates here, in one 8-bit register, instead of inside the tap
-  //! chain's resets.
-  logic [3:0] ltap_txp_q_r, ltap_rxp_q_r;
-  always_ff @(posedge axis_clk) begin : ltap_stage_pipe
-    if (!axis_resetn) begin
-      ltap_txp_q_r <= 4'd0;
-      ltap_rxp_q_r <= 4'd0;
-    end else begin
-      ltap_txp_q_r <= {ltap_txmac_w, ltap_txeof_w, ltap_txsof_w, ltap_txcap_w};
-      ltap_rxp_q_r <= {ltap_rxring_w, ltap_rxdpk_w, ltap_rxacc_w, ltap_rxsof_w};
-    end
-  end
-  KL_aaf_latency_taps #(
-    .N_STAGES_P (4), .CW_P (32), .DW_P (16),
-    .TIMEOUT_C  (MILAN_CLK_FREQ_HZ / 2000)   //! ~0.5 ms per-stage re-arm guard
-  ) aaf_latency_taps (
+  KL_aaf_latency_tap_bank #(
+    .ENABLE_P  (LTAP_P),
+    .TIMEOUT_C (MILAN_CLK_FREQ_HZ / 2000)   //! ~0.5 ms per-stage re-arm guard
+  ) aaf_latency_tap_bank (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .en_i  (ltap_en_w), .clr_i (ltap_clr_w),
     .now_i (ptp_now_w[31:0]),
-    .tx_stage_p_i (ltap_txp_q_r),
-    .rx_stage_p_i (ltap_rxp_q_r),
-    .tx_epoch_o (ltap_tx_epoch_w), .rx_epoch_o (ltap_rx_epoch_w),
-    .tx_samples_o (ltap_tx_smp_w), .rx_samples_o (ltap_rx_smp_w),
-    .tx_timeouts_o (ltap_tx_to_w), .rx_timeouts_o (ltap_rx_to_w),
-    .tx_last_o (ltap_tx_last_w), .tx_min_o (ltap_tx_min_w), .tx_max_o (ltap_tx_max_w),
-    .rx_last_o (ltap_rx_last_w), .rx_min_o (ltap_rx_min_w), .rx_max_o (ltap_rx_max_w),
+
+    .cap_pair_p_i    (aafcap_pv_w),
+    .aaf_tx_tvalid_i (aaf_tx_tvalid),
+    .aaf_tx_tready_i (aaf_tx_tready),
+    .aaf_tx_tlast_i  (aaf_tx_tlast),
+    .mac_tx_tvalid_i (m_axis_mac_tx_tvalid),
+    .mac_tx_tready_i (m_axis_mac_tx_tready),
+    .mac_tx_tlast_i  (m_axis_mac_tx_tlast),
+
+    .mac_rx_tvalid_i (s_axis_mac_rx_tvalid),
+    .mac_rx_tready_i (s_axis_mac_rx_tready),
+    .mac_rx_tlast_i  (s_axis_mac_rx_tlast),
+    .avtp_accept_p_i (avtprx_accept_p),
+    .dpkt_tvalid_i   (dpkt_pcm_tvalid_w),
+    .dpkt_tready_i   (dpkt_pcm_tready_w),
+    .dpkt_tlast_i    (dpkt_pcm_tlast_w),
+    .ring_tvalid_i   (m_axis_pcm_tvalid),
+    .ring_tready_i   (m_axis_pcm_tready),
+    .ring_tlast_i    (m_axis_pcm_tlast),
+
+    .regs_o   (ltap_regs_w),
     .status_o (ltap_status_w)
   );
-  end else begin : g_no_ltap
-    assign ltap_tx_epoch_w = 32'd0;
-    assign ltap_rx_epoch_w = 32'd0;
-    assign ltap_tx_smp_w   = 16'd0;
-    assign ltap_rx_smp_w   = 16'd0;
-    assign ltap_tx_to_w    = 16'd0;
-    assign ltap_rx_to_w    = 16'd0;
-    assign ltap_tx_last_w  = {(3*16){1'b0}};
-    assign ltap_tx_min_w   = {(3*16){1'b0}};
-    assign ltap_tx_max_w   = {(3*16){1'b0}};
-    assign ltap_rx_last_w  = {(3*16){1'b0}};
-    assign ltap_rx_min_w   = {(3*16){1'b0}};
-    assign ltap_rx_max_w   = {(3*16){1'b0}};
-    assign ltap_status_w   = 32'd0;
-  end endgenerate
-
-  //! pack the 16 RO words in the exact LTAP CSR order (0x874..0x8B0). Per
-  //! delta d: word{2d} = {max16, last16}, word{2d+1} = {16'd0, min16}.
-  assign ltap_regs_w[32*0  +: 32] = ltap_tx_epoch_w;
-  assign ltap_regs_w[32*1  +: 32] = {ltap_tx_to_w, ltap_tx_smp_w};
-  assign ltap_regs_w[32*2  +: 32] = {ltap_tx_max_w[16*0 +: 16], ltap_tx_last_w[16*0 +: 16]};
-  assign ltap_regs_w[32*3  +: 32] = {16'd0,                     ltap_tx_min_w [16*0 +: 16]};
-  assign ltap_regs_w[32*4  +: 32] = {ltap_tx_max_w[16*1 +: 16], ltap_tx_last_w[16*1 +: 16]};
-  assign ltap_regs_w[32*5  +: 32] = {16'd0,                     ltap_tx_min_w [16*1 +: 16]};
-  assign ltap_regs_w[32*6  +: 32] = {ltap_tx_max_w[16*2 +: 16], ltap_tx_last_w[16*2 +: 16]};
-  assign ltap_regs_w[32*7  +: 32] = {16'd0,                     ltap_tx_min_w [16*2 +: 16]};
-  assign ltap_regs_w[32*8  +: 32] = ltap_rx_epoch_w;
-  assign ltap_regs_w[32*9  +: 32] = {ltap_rx_to_w, ltap_rx_smp_w};
-  assign ltap_regs_w[32*10 +: 32] = {ltap_rx_max_w[16*0 +: 16], ltap_rx_last_w[16*0 +: 16]};
-  assign ltap_regs_w[32*11 +: 32] = {16'd0,                     ltap_rx_min_w [16*0 +: 16]};
-  assign ltap_regs_w[32*12 +: 32] = {ltap_rx_max_w[16*1 +: 16], ltap_rx_last_w[16*1 +: 16]};
-  assign ltap_regs_w[32*13 +: 32] = {16'd0,                     ltap_rx_min_w [16*1 +: 16]};
-  assign ltap_regs_w[32*14 +: 32] = {ltap_rx_max_w[16*2 +: 16], ltap_rx_last_w[16*2 +: 16]};
-  assign ltap_regs_w[32*15 +: 32] = {16'd0,                     ltap_rx_min_w [16*2 +: 16]};
 
   // ==========================================================================
   //  protocol-processor plane inputs the fabric computes

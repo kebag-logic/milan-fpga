@@ -551,6 +551,7 @@ _MILAN_DATAPATH_SOURCES = [
     # lists) and only surfaces as a Vivado "module not found" at synthesis.
     "hdl/ieee1722/aaf/KL_i2s_feed_mux.sv",
     "hdl/ieee1722/aaf/KL_aaf_latency_taps.sv",   # item-11: per-stage AAF latency taps (LTAP CSR group 0x870)
+    "hdl/ieee1722/aaf/KL_aaf_latency_tap_bank.sv",  # item-11: observation-point adapter + LTAP CSR word order
     "hdl/ieee1722/aaf/KL_media_adv.sv", "hdl/common/cdc_pair_fifo.sv",
     "hdl/ieee1722/avtp/avtp_subtype_pkg.sv", "hdl/ieee1722/avtp/avtp_stream_parser.sv",
     "hdl/ieee1722/avtp/KL_stream_table.sv",
