@@ -143,6 +143,32 @@ def _run(cmd, cwd):
     return out.stdout, None
 
 
+def default_goal_is_print_srcs(directory):
+    """True when a bare `make` in `directory` would print the source list.
+
+    Adding a `print-srcs` target ABOVE a makefile's first real target makes it
+    the default goal, so the suite stops running and prints a file list. The
+    tally gate then reports NOCOUNT rather than a failure, which is a suite
+    that measured nothing wearing the costume of a suite that passed. This
+    happened here the moment print-srcs was added to the hostplane suite.
+
+    MAKE ASKS ITSELF. A second makefile adds one target that echoes
+    `.DEFAULT_GOAL`, which make has already resolved from the FIRST target of
+    the first makefile - so this reads make's own answer rather than a model of
+    makefile syntax. Comparing a dry run to the printed list does not work: an
+    `@`-prefixed recipe makes `-n` print the command, not run it.
+    """
+    import tempfile
+    with tempfile.TemporaryDirectory() as td:
+        probe = Path(td) / "probe.mk"
+        probe.write_text("__kl_show_default_goal:\n\t@echo $(.DEFAULT_GOAL)\n")
+        out, err = _run(["make", "-s", "-f", "Makefile", "-f", str(probe),
+                         "__kl_show_default_goal"], directory)
+    if out is None:
+        return False
+    return out.strip().splitlines()[-1].strip() == "print-srcs" if out.strip() else False
+
+
 def _from_make(suite):
     d = REPO / "tb/verilator" / suite
     if not (d / "Makefile").is_file():
@@ -150,6 +176,10 @@ def _from_make(suite):
     text, err = _run(["make", "-s", "print-srcs"], d)
     if text is None:
         return None, err
+    if default_goal_is_print_srcs(d):
+        return None, (f"tb/verilator/{suite}: a bare `make` prints the source "
+                      f"list instead of running the suite - print-srcs has "
+                      f"become the default goal")
     return _repo_rel(text.split(), d), None
 
 
@@ -250,12 +280,27 @@ def selftest():
     ck("removing one file from a live list is detected", bitten == len(reached),
        f"{bitten} of {len(reached)} reachable consumers reported the removal")
 
+    # asking a consumer for its list must not become what the consumer DOES
+    import tempfile
+    with tempfile.TemporaryDirectory() as td:
+        good = Path(td) / "good"; good.mkdir()
+        (good / "Makefile").write_text(
+            ".PHONY: all print-srcs\nall:\n\t@echo ran\nprint-srcs:\n\t@echo a.sv\n")
+        bad = Path(td) / "bad"; bad.mkdir()
+        (bad / "Makefile").write_text(
+            ".PHONY: all print-srcs\nprint-srcs:\n\t@echo a.sv\nall:\n\t@echo ran\n")
+        ck("a correctly ordered makefile is accepted",
+           not default_goal_is_print_srcs(good))
+        ck("print-srcs as the default goal is caught",
+           default_goal_is_print_srcs(bad),
+           "a bare make would print the list instead of running the suite")
+
     # the closure is a WALK: it must not be every file in the tree
     every = {p.relative_to(REPO).as_posix() for p in (REPO / "hdl").rglob("*.sv")}
     ck("the closure is a walk, not a directory listing", bool(every - need),
        "the closure covers every .sv under hdl/ - the instantiation walk is inert")
 
-    total = 7
+    total = 9
     print(f"\n{total} checks: {total - failures} PASS, {failures} FAIL")
     return 1 if failures else 0
 

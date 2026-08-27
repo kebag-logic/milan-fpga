@@ -137,14 +137,20 @@ SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv
 
 .PHONY: all run build clean banner print-srcs
 
+# PINNED, because getting this wrong is invisible until CI: make takes the
+# FIRST target in the file as its default goal, so adding print-srcs above
+# `all` silently turned a bare `make` into a source-list dump - the suite ran
+# nothing and the tally gate reported NOCOUNT rather than a failure.
+.DEFAULT_GOAL := all
+
+
+all: run
+
 # The list this suite will really compile, printed rather than described, so
 # scripts/check_rtl_source_lists.py grades bash's own expansion instead of a
 # model of it. Paths are relative to this directory.
 print-srcs:
 	@echo $(SRCS)
-
-
-all: run
 
 banner:
 	@echo "======================================================================"
