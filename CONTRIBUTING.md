@@ -100,8 +100,10 @@ flowchart LR
 
    Run that command from the candidate worktree, but load the script only from
    a separate clean worktree at the PR's current remote `dev` base; candidate
-   Python must never execute on the host. `act` must be used instead of waiting
-   for GitHub Actions to finish. For a changing draft, select only applicable
+   host-side orchestration Python must never execute on the host. The candidate
+   runner's offline self-test may execute only inside its disposable CI job.
+   `act` must be used instead of waiting for GitHub Actions to finish. For a
+   changing draft, select only applicable
    workflows with repeated `--workflow` options; for a ready head, the default
    runs all four. Hosted required contexts continue in parallel and remain part
    of the merge bar; the local runner forwards no credential and publishes no

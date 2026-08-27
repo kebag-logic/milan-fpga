@@ -59,12 +59,16 @@ REPOSITORY_RE = re.compile(
 ACT_VERSION_RE = re.compile(r"\b(\d+)\.(\d+)\.(\d+)\b")
 SAFE_PATH = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 MAX_WORKFLOW_BYTES = 1024 * 1024
+MAX_CHECKED_FILE_BYTES = 4 * 1024 * 1024
 MAX_GITMODULES_BYTES = 64 * 1024
 DOCKER_ID_RE = re.compile(r"^[0-9a-f]{64}$")
 DOCKER_OWNER_LABEL = "org.kebag-logic.milan-act-ci.owner"
 ACT_TOOLCACHE_VOLUME = "act-toolcache"
 ACT_TOOLCACHE_TARGET = "/opt/hostedtoolcache"
 DOCKER_COMMAND_TIMEOUT = 30
+DOCKER_MUTATION_STABLE_SECONDS = 0.5
+RUN_DIRECTORY_RECLAIM_TIMEOUT = 120
+CLEANUP_SIGNALS = (signal.SIGINT, signal.SIGTERM, signal.SIGHUP)
 
 WORKFLOWS: dict[str, str] = {
     "docs": ".github/workflows/docs.yml",
@@ -107,6 +111,157 @@ PR_FIELDS = (
 
 class Refusal(RuntimeError):
     """An unsafe, ambiguous, stale, or unavailable validation prerequisite."""
+
+
+class TerminationRequest(BaseException):
+    """A terminal signal translated into a cleanup-bearing Python unwind."""
+
+    def __init__(self, signum: int) -> None:
+        self.signum = signum
+        super().__init__(signal.Signals(signum).name)
+
+
+@contextlib.contextmanager
+def cleanup_termination_signals() -> Iterator[None]:
+    """Make INT/TERM/HUP run cleanup and defer repeats until it completes."""
+    watched = CLEANUP_SIGNALS
+    previous = {item: signal.getsignal(item) for item in watched}
+
+    def request_cleanup(signum: int, _frame: object) -> None:
+        # Ignore repeats while nested finally blocks reclaim Docker and disk state.
+        prior_mask = signal.pthread_sigmask(signal.SIG_BLOCK, watched)
+        try:
+            for item in watched:
+                signal.signal(item, signal.SIG_IGN)
+        finally:
+            signal.pthread_sigmask(signal.SIG_SETMASK, prior_mask)
+        raise TerminationRequest(signum)
+
+    for item in watched:
+        signal.signal(item, request_cleanup)
+    try:
+        yield
+    finally:
+        for item, handler in previous.items():
+            signal.signal(item, handler)
+
+
+@contextlib.contextmanager
+def blocked_cleanup_signals() -> Iterator[None]:
+    """Defer a first signal that arrives after cleanup has already begun."""
+    previous = signal.pthread_sigmask(signal.SIG_BLOCK, CLEANUP_SIGNALS)
+    try:
+        yield
+    finally:
+        signal.pthread_sigmask(signal.SIG_SETMASK, previous)
+
+
+def start_cleanup_safe_thread(thread: threading.Thread) -> None:
+    """Start a worker with cleanup signals blocked before it can receive them."""
+    previous = signal.pthread_sigmask(signal.SIG_BLOCK, CLEANUP_SIGNALS)
+    try:
+        thread.start()
+    finally:
+        signal.pthread_sigmask(signal.SIG_SETMASK, previous)
+
+
+def start_cleanup_thread_or_refuse(
+    thread: threading.Thread, description: str
+) -> None:
+    try:
+        start_cleanup_safe_thread(thread)
+    except TerminationRequest:
+        raise
+    except Exception as exc:
+        raise Refusal(f"cannot start {description}") from exc
+
+
+@contextlib.contextmanager
+def deferred_cleanup_signal_delivery() -> Iterator[None]:
+    """Latch one parent signal without exporting a blocked mask through exec."""
+    previous = {item: signal.getsignal(item) for item in CLEANUP_SIGNALS}
+    pending: list[int] = []
+
+    if all(handler == signal.SIG_IGN for handler in previous.values()):
+        # A first cleanup signal has already latched and repeats must remain
+        # harmless. Use caught no-op handlers so exec resets the child to its
+        # default dispositions instead of inheriting SIG_IGN.
+        def ignore_repeat(_signum: int, _frame: object) -> None:
+            return
+
+        for item in CLEANUP_SIGNALS:
+            signal.signal(item, ignore_repeat)
+        try:
+            yield
+        finally:
+            with blocked_cleanup_signals():
+                for item, handler in previous.items():
+                    signal.signal(item, handler)
+        return
+
+    def latch(signum: int, _frame: object) -> None:
+        if not pending:
+            pending.append(signum)
+
+    for item in CLEANUP_SIGNALS:
+        signal.signal(item, latch)
+    try:
+        yield
+    finally:
+        # The child has already exec'd before this restoration. Blocking only
+        # this parent-side handler transition prevents a partially restored
+        # disposition set without exporting a mask to the child.
+        with blocked_cleanup_signals():
+            if pending:
+                # Match cleanup_termination_signals.request_cleanup before
+                # unwinding: repeats cannot interrupt the cleanup entry/tail.
+                for item in CLEANUP_SIGNALS:
+                    signal.signal(item, signal.SIG_IGN)
+            else:
+                for item, handler in previous.items():
+                    signal.signal(item, handler)
+    if pending:
+        raise TerminationRequest(pending[0])
+
+
+def cancel_and_join_cleanup_threads(
+    cancel: threading.Event,
+    signal_lock: threading.Lock,
+    workers: Sequence[tuple[threading.Thread, threading.Event]],
+    problems: list[str],
+    *,
+    timeout: float = DOCKER_COMMAND_TIMEOUT + 10,
+) -> None:
+    """Cancel workers and prove them dead before a cleanup boundary can unwind."""
+    registered_but_unstarted = False
+    with blocked_cleanup_signals():
+        with signal_lock:
+            cancel.set()
+        for worker, completed in workers:
+            if worker.ident is None:
+                problems.append("interrupt monitor was registered but never started")
+                registered_but_unstarted = True
+                continue
+            worker.join(timeout=timeout)
+            if worker.is_alive():
+                problems.append("interrupt monitor survived its bounded shutdown")
+                # Monitor operations are independently bounded. Do not permit
+                # Docker teardown to overlap the worker after a latency error.
+                worker.join()
+            if worker.is_alive() or not completed.is_set():
+                raise Refusal("interrupt monitor termination was not proven")
+        if registered_but_unstarted:
+            raise Refusal("interrupt monitor was registered but never started")
+
+
+def run_with_cleanup_signals(action: Callable[[], int]) -> int:
+    try:
+        with cleanup_termination_signals():
+            return action()
+    except TerminationRequest as exc:
+        name = signal.Signals(exc.signum).name
+        print(f"act-ci: interrupted by {name} after cleanup", file=sys.stderr)
+        return 128 + exc.signum
 
 
 @dataclass(frozen=True)
@@ -164,6 +319,17 @@ class RunDirectory:
     inode: int
 
 
+@dataclass
+class RunDirectoryLease:
+    """Mutable acquisition state registered before a run-directory mutation."""
+
+    parent: pathlib.Path
+    path: pathlib.Path | None = None
+    run: RunDirectory | None = None
+    accepted: bool = False
+    released: bool = False
+
+
 @dataclass(frozen=True)
 class RunLayout:
     root: pathlib.Path
@@ -193,6 +359,15 @@ class DockerBoundary:
     network_id: str | None = None
     gateway: str | None = None
     toolcache_owned: bool = False
+
+
+@dataclass
+class DockerBoundaryLease:
+    """Mutable acquisition state registered before any Docker mutation."""
+
+    boundary: DockerBoundary
+    complete: bool = False
+    released: bool = False
 
 
 def require_tool(name: str) -> str:
@@ -473,14 +648,15 @@ def expected_file(root: pathlib.Path, commit: str, relative: str) -> tuple[str, 
 
 def validate_file_bytes(root: pathlib.Path, commit: str, relative: str) -> None:
     expected_mode, expected_oid = expected_file(root, commit, relative)
-    path = root / relative
     try:
-        info = path.lstat()
-        data = path.read_bytes()
+        data, info = read_regular_file_bounded(
+            root,
+            relative,
+            maximum=MAX_CHECKED_FILE_BYTES,
+            description="checked-out file",
+        )
     except (OSError, ValueError) as exc:
         raise Refusal(f"cannot read checked-out {relative}: {exc}") from exc
-    if not stat.S_ISREG(info.st_mode):
-        raise Refusal(f"checked-out {relative} is not a regular file")
     actual_mode = "100755" if info.st_mode & stat.S_IXUSR else "100644"
     if actual_mode != expected_mode or blob_oid(data) != expected_oid:
         raise Refusal(
@@ -594,11 +770,109 @@ def validate_bootstrap_options(
         )
 
 
-def make_run_directory() -> RunDirectory:
-    parent = pathlib.Path(tempfile.gettempdir()).resolve()
-    path = pathlib.Path(tempfile.mkdtemp(prefix="milan-act-ci-", dir=parent))
-    info = path.stat()
-    return RunDirectory(path, parent, info.st_dev, info.st_ino)
+def make_run_directory(
+    lease: RunDirectoryLease | None = None,
+    *,
+    after_create: Callable[[], None] | None = None,
+    inspect_path: Callable[[pathlib.Path], os.stat_result] = pathlib.Path.lstat,
+) -> RunDirectory:
+    """Acquire a private run directory while its mutable lease is registered."""
+    active_lease = lease or RunDirectoryLease(
+        pathlib.Path(tempfile.gettempdir()).resolve()
+    )
+    if (
+        active_lease.path is not None
+        or active_lease.run is not None
+        or active_lease.accepted
+        or active_lease.released
+    ):
+        raise Refusal("refusing to reuse an initialized run-directory lease")
+    try:
+        # A delivered signal cannot land between mkdir returning and the lease
+        # recording that accepted mutation. The caller's pre-registered lease
+        # also closes the function-return/CALL-to-STORE handoff window.
+        with blocked_cleanup_signals():
+            for _attempt in range(128):
+                path = active_lease.parent / (
+                    f"milan-act-ci-{secrets.token_hex(16)}"
+                )
+                active_lease.path = path
+                try:
+                    path.mkdir(mode=0o700)
+                except FileExistsError:
+                    active_lease.path = None
+                    continue
+                active_lease.accepted = True
+                if after_create is not None:
+                    after_create()
+                try:
+                    info = inspect_path(path)
+                except OSError as exc:
+                    raise Refusal(
+                        f"cannot inspect new temporary run directory {path}: {exc}"
+                    ) from exc
+                if not stat.S_ISDIR(info.st_mode):
+                    raise Refusal("new temporary run path is not a directory")
+                run = RunDirectory(
+                    path,
+                    active_lease.parent,
+                    info.st_dev,
+                    info.st_ino,
+                )
+                active_lease.run = run
+                return run
+        raise Refusal("cannot allocate an unpredictable temporary run directory")
+    except BaseException as primary:
+        try:
+            with blocked_cleanup_signals():
+                cleanup_partial_run_directory(active_lease, use_sudo=False)
+        except Refusal as cleanup_error:
+            raise Refusal(
+                f"temporary run-directory setup rollback failed: {cleanup_error}"
+            ) from primary
+        raise
+
+
+def cleanup_partial_run_directory(
+    lease: RunDirectoryLease,
+    use_sudo: bool,
+    *,
+    run_command: Callable[..., subprocess.CompletedProcess[str]] = subprocess.run,
+    remove_tree: Callable[[pathlib.Path], None] = shutil.rmtree,
+    sudo_binary: str | None = None,
+) -> None:
+    """Reconcile an accepted directory even before its identity was returned."""
+    if lease.released or not lease.accepted:
+        return
+    if lease.path is None:
+        raise Refusal("accepted temporary run directory has no recorded path")
+    run = lease.run
+    if run is None:
+        try:
+            info = lease.path.lstat()
+        except OSError as exc:
+            raise Refusal(
+                f"cannot inspect partial temporary run directory {lease.path}: {exc}"
+            ) from exc
+        if not stat.S_ISDIR(info.st_mode):
+            raise Refusal(
+                f"partial temporary run path is not a directory: {lease.path}"
+            )
+        run = RunDirectory(
+            lease.path,
+            lease.parent,
+            info.st_dev,
+            info.st_ino,
+        )
+        lease.run = run
+    cleanup_run_directory(
+        run,
+        use_sudo,
+        run_command=run_command,
+        remove_tree=remove_tree,
+        sudo_binary=sudo_binary,
+    )
+    lease.released = True
 
 
 def cleanup_run_directory(
@@ -626,21 +900,38 @@ def cleanup_run_directory(
         raise Refusal(f"temporary run directory identity changed; not deleting {path}")
     if use_sudo:
         sudo = sudo_binary or require_tool("sudo")
-        result = run_command(
-            [
-                sudo,
-                "-n",
-                "--",
-                require_tool("chown"),
-                "-R",
-                f"{os.getuid()}:{os.getgid()}",
-                str(path),
-            ],
-            text=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            check=False,
-        )
+        command = [
+            sudo,
+            "-n",
+            "--",
+            require_tool("chown"),
+            "-R",
+            f"{os.getuid()}:{os.getgid()}",
+            str(path),
+        ]
+        try:
+            if run_command is subprocess.run:
+                result = run_tracked_process_group_command(
+                    command,
+                    cwd=run.parent,
+                    env={"PATH": SAFE_PATH, "LANG": "C.UTF-8", "LC_ALL": "C.UTF-8"},
+                    timeout=RUN_DIRECTORY_RECLAIM_TIMEOUT,
+                    use_sudo=True,
+                )
+            else:
+                result = run_command(
+                    command,
+                    text=True,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    check=False,
+                )
+        except subprocess.TimeoutExpired as exc:
+            raise Refusal(f"sudo ownership recovery timed out for {path}") from exc
+        except (OSError, UnicodeError) as exc:
+            raise Refusal(
+                f"cannot launch or decode sudo ownership recovery for {path}: {exc}"
+            ) from exc
         if result.returncode != 0:
             detail = (result.stderr or "").strip().splitlines()
             suffix = f": {detail[-1]}" if detail else ""
@@ -655,11 +946,14 @@ def cleanup_run_directory(
 
 @contextlib.contextmanager
 def temporary_run_directory(use_sudo: bool) -> Iterator[pathlib.Path]:
-    run = make_run_directory()
+    lease = RunDirectoryLease(pathlib.Path(tempfile.gettempdir()).resolve())
     try:
+        run = make_run_directory(lease)
         yield run.path
     finally:
-        cleanup_run_directory(run, use_sudo)
+        if lease.accepted and not lease.released:
+            with blocked_cleanup_signals():
+                cleanup_partial_run_directory(lease, use_sudo)
 
 
 def make_layout(run_root: pathlib.Path, pr: PullRequest) -> RunLayout:
@@ -925,13 +1219,77 @@ def materialize_remote_head(
     return checkout
 
 
-def load_workflow(path: pathlib.Path) -> dict[str, object]:
+def read_regular_file_bounded(
+    root: pathlib.Path,
+    relative: str,
+    *,
+    maximum: int,
+    description: str,
+) -> tuple[bytes, os.stat_result]:
+    """Read one regular file beneath root without following any symlink."""
+    relative_path = pathlib.PurePosixPath(relative)
+    parts = relative_path.parts
+    display = root / relative
+    if (
+        relative_path.is_absolute()
+        or not parts
+        or any(part in ("", ".", "..") for part in parts)
+    ):
+        raise Refusal(f"{description} has an unsafe relative path: {relative}")
+    directory_flags = os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW
+    file_flags = os.O_RDONLY | os.O_CLOEXEC | os.O_NONBLOCK | os.O_NOFOLLOW
+    descriptors: list[int] = []
     try:
-        raw = path.read_bytes()
+        current = os.open(root, directory_flags)
+        descriptors.append(current)
+        for component in parts[:-1]:
+            current = os.open(component, directory_flags, dir_fd=current)
+            descriptors.append(current)
+        selected = os.open(parts[-1], file_flags, dir_fd=current)
+        descriptors.append(selected)
+        info = os.fstat(selected)
+        if not stat.S_ISREG(info.st_mode):
+            raise Refusal(f"{description} is not a regular file: {display}")
+        if info.st_size > maximum:
+            raise Refusal(
+                f"{description} exceeds the {maximum}-byte safety limit: {display}"
+            )
+        chunks: list[bytes] = []
+        total = 0
+        while total <= maximum:
+            chunk = os.read(selected, min(65536, maximum + 1 - total))
+            if not chunk:
+                break
+            chunks.append(chunk)
+            total += len(chunk)
+        if total > maximum:
+            raise Refusal(
+                f"{description} exceeds the {maximum}-byte safety limit: {display}"
+            )
+        return b"".join(chunks), info
+    except Refusal:
+        raise
     except OSError as exc:
-        raise Refusal(f"cannot read workflow {path}: {exc}") from exc
-    if len(raw) > MAX_WORKFLOW_BYTES:
-        raise Refusal(f"workflow exceeds the {MAX_WORKFLOW_BYTES}-byte safety limit: {path}")
+        raise Refusal(f"cannot safely read {description} {display}: {exc}") from exc
+    finally:
+        for descriptor in reversed(descriptors):
+            try:
+                os.close(descriptor)
+            except OSError:
+                pass
+
+
+def load_workflow(root: pathlib.Path, relative: str) -> dict[str, object]:
+    path = root / relative
+    try:
+        raw, _info = read_regular_file_bounded(
+            root,
+            relative,
+            maximum=MAX_WORKFLOW_BYTES,
+            description="workflow",
+        )
+    except ValueError as exc:
+        raise Refusal(f"cannot safely read workflow {path}: {exc}") from exc
     try:
         text = raw.decode("utf-8", errors="strict")
     except UnicodeError as exc:
@@ -983,7 +1341,7 @@ def validate_workflow_sandbox(root: pathlib.Path, workflows: Sequence[str]) -> N
     """Reject workflow features that can ask host Docker for extra authority."""
     for workflow in workflows:
         relative = WORKFLOWS[workflow]
-        document = load_workflow(root / relative)
+        document = load_workflow(root, relative)
         jobs = document.get("jobs")
         if not isinstance(jobs, dict) or not jobs:
             raise Refusal(f"workflow has no jobs mapping: {relative}")
@@ -1034,11 +1392,25 @@ def build_event(pr: PullRequest, repository: str) -> dict[str, object]:
     }
 
 
-def docker_prefix(use_sudo: bool) -> list[str]:
-    command = [require_tool("docker")]
-    if use_sudo:
-        command = [require_tool("sudo"), "-n", "--", *command]
-    return command
+def isolated_command_prefix(
+    executable: str, use_sudo: bool, env: Mapping[str, str]
+) -> list[str]:
+    if not use_sudo:
+        return [executable]
+    assignments = [f"{key}={value}" for key, value in sorted(env.items())]
+    return [
+        require_tool("sudo"),
+        "-n",
+        "--",
+        require_tool("env"),
+        "-i",
+        *assignments,
+        executable,
+    ]
+
+
+def docker_prefix(use_sudo: bool, env: Mapping[str, str]) -> list[str]:
+    return isolated_command_prefix(require_tool("docker"), use_sudo, env)
 
 
 def run_docker(
@@ -1051,18 +1423,27 @@ def run_docker(
     check: bool = True,
     run_command: Callable[..., subprocess.CompletedProcess[str]] = subprocess.run,
 ) -> subprocess.CompletedProcess[str]:
-    command = [*docker_prefix(use_sudo), *arguments]
+    command = [*docker_prefix(use_sudo, env), *arguments]
     try:
-        result = run_command(
-            command,
-            cwd=cwd,
-            env=dict(env),
-            text=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            timeout=DOCKER_COMMAND_TIMEOUT,
-            check=False,
-        )
+        if run_command is subprocess.run:
+            result = run_tracked_process_group_command(
+                command,
+                cwd=cwd,
+                env=env,
+                timeout=DOCKER_COMMAND_TIMEOUT,
+                use_sudo=use_sudo,
+            )
+        else:
+            result = run_command(
+                command,
+                cwd=cwd,
+                env=dict(env),
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                timeout=DOCKER_COMMAND_TIMEOUT,
+                check=False,
+            )
     except subprocess.TimeoutExpired as exc:
         raise Refusal(f"{description} timed out") from exc
     except (OSError, UnicodeError) as exc:
@@ -1085,9 +1466,18 @@ def docker_reports_missing_toolcache(
     )
 
 
-def parse_act_toolcache_volume(
-    text: str, boundary: DockerBoundary
-) -> Mapping[str, object]:
+def docker_reports_missing_network(
+    result: subprocess.CompletedProcess[str], target: str
+) -> bool:
+    detail = (result.stderr or "").lower()
+    return (
+        result.returncode != 0
+        and target.lower() in detail
+        and ("no such network" in detail or "not found" in detail)
+    )
+
+
+def decode_act_toolcache_volume(text: str) -> Mapping[str, object]:
     try:
         volumes = json.loads(text)
         volume = volumes[0]
@@ -1097,6 +1487,13 @@ def parse_act_toolcache_volume(
         volume, dict
     ):
         raise Refusal("Docker returned malformed act tool-cache metadata")
+    return volume
+
+
+def parse_act_toolcache_volume(
+    text: str, boundary: DockerBoundary
+) -> Mapping[str, object]:
+    volume = decode_act_toolcache_volume(text)
     labels = volume.get("Labels")
     if (
         volume.get("Name") != ACT_TOOLCACHE_VOLUME
@@ -1114,8 +1511,9 @@ def require_act_toolcache_absent(
     use_sudo: bool,
     cwd: pathlib.Path,
     env: Mapping[str, str],
+    docker_command: Callable[..., subprocess.CompletedProcess[str]] = run_docker,
 ) -> None:
-    result = run_docker(
+    result = docker_command(
         ["volume", "inspect", ACT_TOOLCACHE_VOLUME],
         use_sudo=use_sudo,
         cwd=cwd,
@@ -1126,8 +1524,10 @@ def require_act_toolcache_absent(
     if result.returncode == 0:
         raise Refusal(
             f"shared Docker volume {ACT_TOOLCACHE_VOLUME!r} already exists; "
-            "verify that no container uses it and remove that legacy cache "
-            "explicitly before validation"
+            f"inspect its {DOCKER_OWNER_LABEL!r} label; serialize every act "
+            "runner and prove no container uses an unlabelled legacy cache "
+            "before removal, or remove a labelled cache only after proving no "
+            "runner, container, or network with that owner token remains"
         )
     if not docker_reports_missing_toolcache(result):
         detail = (result.stderr or "").strip().splitlines()
@@ -1141,10 +1541,11 @@ def inspect_act_toolcache_volume(
     use_sudo: bool,
     cwd: pathlib.Path,
     env: Mapping[str, str],
+    docker_command: Callable[..., subprocess.CompletedProcess[str]] = run_docker,
 ) -> Mapping[str, object]:
     if not boundary.toolcache_owned:
         raise Refusal("Docker boundary has no owned act tool-cache volume")
-    result = run_docker(
+    result = docker_command(
         ["volume", "inspect", ACT_TOOLCACHE_VOLUME],
         use_sudo=use_sudo,
         cwd=cwd,
@@ -1167,30 +1568,66 @@ def discard_act_toolcache_if_owned(
     use_sudo: bool,
     cwd: pathlib.Path,
     env: Mapping[str, str],
+    docker_command: Callable[..., subprocess.CompletedProcess[str]] = run_docker,
+    stability_window: float | None = None,
+    monotonic: Callable[[], float] = time.monotonic,
+    sleep: Callable[[float], None] = time.sleep,
 ) -> None:
-    """Best-effort rollback used only after an incomplete volume creation."""
-    result = run_docker(
-        ["volume", "inspect", ACT_TOOLCACHE_VOLUME],
-        use_sudo=use_sudo,
-        cwd=cwd,
-        env=env,
-        description="partial act tool-cache inspection",
-        check=False,
+    """Remove an owned cache and require a stable post-CLI absence window."""
+    window = (
+        DOCKER_MUTATION_STABLE_SECONDS
+        if stability_window is None and docker_command is run_docker
+        else (stability_window or 0)
     )
-    if result.returncode != 0:
-        return
-    try:
-        parse_act_toolcache_volume(result.stdout, replace(boundary, toolcache_owned=True))
-    except Refusal:
-        return
-    run_docker(
-        ["volume", "rm", ACT_TOOLCACHE_VOLUME],
-        use_sudo=use_sudo,
-        cwd=cwd,
-        env=env,
-        description="partial act tool-cache rollback",
-        check=False,
-    )
+    stable_since: float | None = None
+    removals = 0
+    while True:
+        result = docker_command(
+            ["volume", "inspect", ACT_TOOLCACHE_VOLUME],
+            use_sudo=use_sudo,
+            cwd=cwd,
+            env=env,
+            description="partial act tool-cache inspection",
+            check=False,
+        )
+        if result.returncode != 0:
+            if not docker_reports_missing_toolcache(result):
+                detail = (result.stderr or "").strip().splitlines()
+                suffix = f": {detail[-1]}" if detail else ""
+                raise Refusal(f"cannot reconcile partial act tool cache{suffix}")
+            now = monotonic()
+            if stable_since is None:
+                stable_since = now
+            remaining = window - (now - stable_since)
+            if remaining <= 1e-6:
+                return
+            sleep(min(0.05, remaining))
+            continue
+        stable_since = None
+        volume = decode_act_toolcache_volume(result.stdout)
+        labels = volume.get("Labels")
+        if not isinstance(labels, dict):
+            raise Refusal("partial act tool cache has malformed ownership labels")
+        if labels.get(DOCKER_OWNER_LABEL) != boundary.token:
+            return
+        parse_act_toolcache_volume(
+            result.stdout, replace(boundary, toolcache_owned=True)
+        )
+        if removals >= 3:
+            raise Refusal("owned act tool cache survived repeated rollback")
+        removed = docker_command(
+            ["volume", "rm", ACT_TOOLCACHE_VOLUME],
+            use_sudo=use_sudo,
+            cwd=cwd,
+            env=env,
+            description="partial act tool-cache rollback",
+            check=False,
+        )
+        if removed.returncode != 0:
+            detail = (removed.stderr or "").strip().splitlines()
+            suffix = f": {detail[-1]}" if detail else ""
+            raise Refusal(f"partial act tool-cache rollback failed{suffix}")
+        removals += 1
 
 
 def create_act_toolcache_volume(
@@ -1199,36 +1636,53 @@ def create_act_toolcache_volume(
     use_sudo: bool,
     cwd: pathlib.Path,
     env: Mapping[str, str],
+    docker_command: Callable[..., subprocess.CompletedProcess[str]] = run_docker,
 ) -> DockerBoundary:
     if planned.toolcache_owned:
         raise Refusal("refusing to recreate an initialized act tool-cache volume")
-    require_act_toolcache_absent(use_sudo=use_sudo, cwd=cwd, env=env)
-    result = run_docker(
-        [
-            "volume",
-            "create",
-            "--driver",
-            "local",
-            "--label",
-            f"{DOCKER_OWNER_LABEL}={planned.token}",
-            ACT_TOOLCACHE_VOLUME,
-        ],
-        use_sudo=use_sudo,
-        cwd=cwd,
-        env=env,
-        description="ephemeral act tool-cache creation",
+    require_act_toolcache_absent(
+        use_sudo=use_sudo, cwd=cwd, env=env, docker_command=docker_command
     )
     boundary = replace(planned, toolcache_owned=True)
     try:
+        result = docker_command(
+            [
+                "volume",
+                "create",
+                "--driver",
+                "local",
+                "--label",
+                f"{DOCKER_OWNER_LABEL}={planned.token}",
+                ACT_TOOLCACHE_VOLUME,
+            ],
+            use_sudo=use_sudo,
+            cwd=cwd,
+            env=env,
+            description="ephemeral act tool-cache creation",
+        )
         if result.stdout.strip() != ACT_TOOLCACHE_VOLUME:
             raise Refusal("Docker returned the wrong act tool-cache volume name")
         inspect_act_toolcache_volume(
-            boundary, use_sudo=use_sudo, cwd=cwd, env=env
+            boundary,
+            use_sudo=use_sudo,
+            cwd=cwd,
+            env=env,
+            docker_command=docker_command,
         )
-    except BaseException:
-        discard_act_toolcache_if_owned(
-            boundary, use_sudo=use_sudo, cwd=cwd, env=env
-        )
+    except BaseException as primary:
+        try:
+            with blocked_cleanup_signals():
+                discard_act_toolcache_if_owned(
+                    boundary,
+                    use_sudo=use_sudo,
+                    cwd=cwd,
+                    env=env,
+                    docker_command=docker_command,
+                )
+        except Refusal as cleanup_error:
+            raise Refusal(
+                f"act tool-cache setup rollback failed: {cleanup_error}"
+            ) from primary
         raise
     return boundary
 
@@ -1239,11 +1693,16 @@ def cleanup_act_toolcache_volume(
     use_sudo: bool,
     cwd: pathlib.Path,
     env: Mapping[str, str],
+    docker_command: Callable[..., subprocess.CompletedProcess[str]] = run_docker,
 ) -> None:
     inspect_act_toolcache_volume(
-        boundary, use_sudo=use_sudo, cwd=cwd, env=env
+        boundary,
+        use_sudo=use_sudo,
+        cwd=cwd,
+        env=env,
+        docker_command=docker_command,
     )
-    result = run_docker(
+    result = docker_command(
         ["volume", "rm", ACT_TOOLCACHE_VOLUME],
         use_sudo=use_sudo,
         cwd=cwd,
@@ -1255,7 +1714,19 @@ def cleanup_act_toolcache_volume(
         detail = (result.stderr or "").strip().splitlines()
         suffix = f": {detail[-1]}" if detail else ""
         raise Refusal(f"act tool-cache removal failed{suffix}")
-    require_act_toolcache_absent(use_sudo=use_sudo, cwd=cwd, env=env)
+    discard_act_toolcache_if_owned(
+        boundary,
+        use_sudo=use_sudo,
+        cwd=cwd,
+        env=env,
+        docker_command=docker_command,
+    )
+    require_act_toolcache_absent(
+        use_sudo=use_sudo,
+        cwd=cwd,
+        env=env,
+        docker_command=docker_command,
+    )
 
 
 def new_docker_boundary() -> DockerBoundary:
@@ -1265,16 +1736,17 @@ def new_docker_boundary() -> DockerBoundary:
     return DockerBoundary(token=token, name=f"milan-act-ci-{token}")
 
 
-def inspect_docker_boundary(
+def inspect_docker_network(
     boundary: DockerBoundary,
     *,
     use_sudo: bool,
     cwd: pathlib.Path,
     env: Mapping[str, str],
+    docker_command: Callable[..., subprocess.CompletedProcess[str]] = run_docker,
 ) -> str:
     if boundary.network_id is None or not DOCKER_ID_RE.fullmatch(boundary.network_id):
         raise Refusal("Docker boundary has no valid network ID")
-    result = run_docker(
+    result = docker_command(
         ["network", "inspect", boundary.network_id],
         use_sudo=use_sudo,
         cwd=cwd,
@@ -1319,10 +1791,129 @@ def inspect_docker_boundary(
         or (boundary.gateway is not None and boundary.gateway != gateway)
     ):
         raise Refusal("Docker boundary identity, ownership, or gateway changed")
+    return gateway
+
+
+def inspect_docker_boundary(
+    boundary: DockerBoundary,
+    *,
+    use_sudo: bool,
+    cwd: pathlib.Path,
+    env: Mapping[str, str],
+    docker_command: Callable[..., subprocess.CompletedProcess[str]] = run_docker,
+) -> str:
+    gateway = inspect_docker_network(
+        boundary,
+        use_sudo=use_sudo,
+        cwd=cwd,
+        env=env,
+        docker_command=docker_command,
+    )
     inspect_act_toolcache_volume(
-        boundary, use_sudo=use_sudo, cwd=cwd, env=env
+        boundary,
+        use_sudo=use_sudo,
+        cwd=cwd,
+        env=env,
+        docker_command=docker_command,
     )
     return gateway
+
+
+def discard_docker_network_if_owned(
+    boundary: DockerBoundary,
+    *,
+    use_sudo: bool,
+    cwd: pathlib.Path,
+    env: Mapping[str, str],
+    docker_command: Callable[..., subprocess.CompletedProcess[str]] = run_docker,
+    stability_window: float | None = None,
+    monotonic: Callable[[], float] = time.monotonic,
+    sleep: Callable[[float], None] = time.sleep,
+) -> None:
+    """Remove an owned network and require a stable post-CLI absence window."""
+    window = (
+        DOCKER_MUTATION_STABLE_SECONDS
+        if stability_window is None and docker_command is run_docker
+        else (stability_window or 0)
+    )
+    stable_since: float | None = None
+    removals = 0
+    while True:
+        result = docker_command(
+            ["network", "inspect", boundary.name],
+            use_sudo=use_sudo,
+            cwd=cwd,
+            env=env,
+            description="partial Docker boundary inspection",
+            check=False,
+        )
+        if result.returncode != 0:
+            if not docker_reports_missing_network(result, boundary.name):
+                detail = (result.stderr or "").strip().splitlines()
+                suffix = f": {detail[-1]}" if detail else ""
+                raise Refusal(f"cannot reconcile partial Docker boundary{suffix}")
+            now = monotonic()
+            if stable_since is None:
+                stable_since = now
+            remaining = window - (now - stable_since)
+            if remaining <= 1e-6:
+                return
+            sleep(min(0.05, remaining))
+            continue
+        stable_since = None
+        try:
+            networks = json.loads(result.stdout)
+            network = networks[0]
+            network_id = network["Id"]
+            name = network["Name"]
+            labels = network["Labels"]
+        except (json.JSONDecodeError, IndexError, KeyError, TypeError) as exc:
+            raise Refusal("Docker returned malformed partial boundary metadata") from exc
+        if not isinstance(labels, dict):
+            raise Refusal("partial Docker boundary has malformed ownership labels")
+        if name != boundary.name or labels.get(DOCKER_OWNER_LABEL) != boundary.token:
+            return
+        if not isinstance(network_id, str) or not DOCKER_ID_RE.fullmatch(network_id):
+            raise Refusal("partial Docker boundary has a malformed network ID")
+        if removals >= 3:
+            raise Refusal("owned Docker boundary survived repeated rollback")
+        removed = docker_command(
+            ["network", "rm", network_id],
+            use_sudo=use_sudo,
+            cwd=cwd,
+            env=env,
+            description="partial Docker boundary rollback",
+            check=False,
+        )
+        if removed.returncode != 0:
+            detail = (removed.stderr or "").strip().splitlines()
+            suffix = f": {detail[-1]}" if detail else ""
+            raise Refusal(f"partial Docker boundary rollback failed{suffix}")
+        removals += 1
+
+
+def cleanup_partial_docker_boundary(
+    boundary: DockerBoundary,
+    *,
+    use_sudo: bool,
+    cwd: pathlib.Path,
+    env: Mapping[str, str],
+    docker_command: Callable[..., subprocess.CompletedProcess[str]] = run_docker,
+) -> None:
+    errors: list[str] = []
+    for cleanup in (discard_docker_network_if_owned, discard_act_toolcache_if_owned):
+        try:
+            cleanup(
+                boundary,
+                use_sudo=use_sudo,
+                cwd=cwd,
+                env=env,
+                docker_command=docker_command,
+            )
+        except Refusal as exc:
+            errors.append(str(exc))
+    if errors:
+        raise Refusal("partial Docker boundary cleanup failed: " + "; ".join(errors))
 
 
 def create_docker_boundary(
@@ -1331,14 +1922,32 @@ def create_docker_boundary(
     use_sudo: bool,
     cwd: pathlib.Path,
     env: Mapping[str, str],
+    docker_command: Callable[..., subprocess.CompletedProcess[str]] = run_docker,
+    lease: DockerBoundaryLease | None = None,
+    after_toolcache: Callable[[], None] | None = None,
 ) -> DockerBoundary:
     if planned.network_id is not None or planned.toolcache_owned:
         raise Refusal("refusing to recreate an initialized Docker boundary")
-    boundary = create_act_toolcache_volume(
-        planned, use_sudo=use_sudo, cwd=cwd, env=env
-    )
+    active_lease = lease or DockerBoundaryLease(planned)
+    if (
+        active_lease.boundary != planned
+        or active_lease.complete
+        or active_lease.released
+    ):
+        raise Refusal("Docker boundary lease was not initialized from the plan")
+    boundary = planned
     try:
-        result = run_docker(
+        boundary = create_act_toolcache_volume(
+            planned,
+            use_sudo=use_sudo,
+            cwd=cwd,
+            env=env,
+            docker_command=docker_command,
+        )
+        active_lease.boundary = boundary
+        if after_toolcache is not None:
+            after_toolcache()
+        result = docker_command(
             [
                 "network",
                 "create",
@@ -1353,57 +1962,59 @@ def create_docker_boundary(
             env=env,
             description="isolated Docker network creation",
         )
-    except BaseException:
-        cleanup_act_toolcache_volume(
-            boundary, use_sudo=use_sudo, cwd=cwd, env=env
-        )
-        raise
-    network_id = result.stdout.strip()
-    if not DOCKER_ID_RE.fullmatch(network_id):
-        run_docker(
-            ["network", "rm", planned.name],
-            use_sudo=use_sudo,
-            cwd=cwd,
-            env=env,
-            description="malformed Docker boundary removal",
-            check=False,
-        )
-        cleanup_act_toolcache_volume(
-            boundary, use_sudo=use_sudo, cwd=cwd, env=env
-        )
-        raise Refusal("Docker returned an invalid boundary network ID")
-    boundary = replace(planned, network_id=network_id)
-    boundary = replace(boundary, toolcache_owned=True)
-    try:
+        network_id = result.stdout.strip()
+        if not DOCKER_ID_RE.fullmatch(network_id):
+            raise Refusal("Docker returned an invalid boundary network ID")
+        boundary = replace(boundary, network_id=network_id)
+        active_lease.boundary = boundary
         gateway = inspect_docker_boundary(
-            boundary, use_sudo=use_sudo, cwd=cwd, env=env
-        )
-    except BaseException:
-        run_docker(
-            ["network", "rm", network_id],
+            boundary,
             use_sudo=use_sudo,
             cwd=cwd,
             env=env,
-            description="invalid Docker boundary removal",
-            check=False,
+            docker_command=docker_command,
         )
-        cleanup_act_toolcache_volume(
-            boundary, use_sudo=use_sudo, cwd=cwd, env=env
-        )
+        boundary = replace(boundary, gateway=gateway)
+        active_lease.boundary = boundary
+        active_lease.complete = True
+    except BaseException as primary:
+        try:
+            with blocked_cleanup_signals():
+                cleanup_partial_docker_boundary(
+                    active_lease.boundary,
+                    use_sudo=use_sudo,
+                    cwd=cwd,
+                    env=env,
+                    docker_command=docker_command,
+                )
+                active_lease.released = True
+        except Refusal as cleanup_error:
+            raise Refusal(
+                f"Docker boundary setup rollback failed: {cleanup_error}"
+            ) from primary
         raise
-    return replace(boundary, gateway=gateway)
+    return boundary
 
 
 def docker_container_inventory(
-    *, use_sudo: bool, cwd: pathlib.Path, env: Mapping[str, str]
+    *,
+    use_sudo: bool,
+    cwd: pathlib.Path,
+    env: Mapping[str, str],
+    docker_command: Callable[..., subprocess.CompletedProcess[str]] = run_docker,
+    cancel: threading.Event | None = None,
 ) -> list[dict[str, object]]:
-    listed = run_docker(
+    if cancel is not None and cancel.is_set():
+        return []
+    listed = docker_command(
         ["container", "ls", "--all", "--quiet", "--no-trunc"],
         use_sudo=use_sudo,
         cwd=cwd,
         env=env,
         description="Docker container inventory",
     )
+    if cancel is not None and cancel.is_set():
+        return []
     ids = [line for line in listed.stdout.splitlines() if line]
     if len(ids) != len(set(ids)) or any(
         not DOCKER_ID_RE.fullmatch(item) for item in ids
@@ -1411,7 +2022,9 @@ def docker_container_inventory(
         raise Refusal("Docker returned an invalid container inventory")
     inventory: list[dict[str, object]] = []
     for requested_id in ids:
-        inspected = run_docker(
+        if cancel is not None and cancel.is_set():
+            return []
+        inspected = docker_command(
             ["container", "inspect", requested_id],
             use_sudo=use_sudo,
             cwd=cwd,
@@ -1419,6 +2032,8 @@ def docker_container_inventory(
             description="Docker container metadata inspection",
             check=False,
         )
+        if cancel is not None and cancel.is_set():
+            return []
         if inspected.returncode != 0:
             # An act cleanup or an unrelated host task may remove a container
             # between the inventory and inspection. Its absence is already the
@@ -1443,6 +2058,8 @@ def docker_container_inventory(
         if container_id != requested_id:
             raise Refusal("Docker returned metadata for the wrong container")
         inventory.append(item)
+        if cancel is not None and cancel.is_set():
+            return []
     return inventory
 
 
@@ -1584,15 +2201,18 @@ def cleanup_owned_containers(
     use_sudo: bool,
     cwd: pathlib.Path,
     env: Mapping[str, str],
+    docker_command: Callable[..., subprocess.CompletedProcess[str]] = run_docker,
 ) -> int:
-    inventory = docker_container_inventory(use_sudo=use_sudo, cwd=cwd, env=env)
+    inventory = docker_container_inventory(
+        use_sudo=use_sudo, cwd=cwd, env=env, docker_command=docker_command
+    )
     owned = owned_container_ids(inventory, boundary)
     initial_count = len(owned)
     attempt_errors: list[str] = []
     running = running_container_ids(inventory, owned)
     if running:
         try:
-            result = run_docker(
+            result = docker_command(
                 ["container", "stop", "--time", "3", *running],
                 use_sudo=use_sudo,
                 cwd=cwd,
@@ -1606,14 +2226,19 @@ def cleanup_owned_containers(
             attempt_errors.append(str(exc))
 
     try:
-        inventory = docker_container_inventory(use_sudo=use_sudo, cwd=cwd, env=env)
+        inventory = docker_container_inventory(
+            use_sudo=use_sudo,
+            cwd=cwd,
+            env=env,
+            docker_command=docker_command,
+        )
         remaining = sorted(owned_container_ids(inventory, boundary))
     except Refusal as exc:
         attempt_errors.append(str(exc))
         remaining = sorted(owned)
     if remaining:
         try:
-            result = run_docker(
+            result = docker_command(
                 ["container", "rm", "--force", "--volumes", *remaining],
                 use_sudo=use_sudo,
                 cwd=cwd,
@@ -1629,7 +2254,10 @@ def cleanup_owned_containers(
     verification_errors: list[str] = []
     try:
         final_inventory = docker_container_inventory(
-            use_sudo=use_sudo, cwd=cwd, env=env
+            use_sudo=use_sudo,
+            cwd=cwd,
+            env=env,
+            docker_command=docker_command,
         )
         survivors = owned_container_ids(final_inventory, boundary)
         if survivors:
@@ -1650,17 +2278,26 @@ def cleanup_docker_boundary(
     use_sudo: bool,
     cwd: pathlib.Path,
     env: Mapping[str, str],
+    docker_command: Callable[..., subprocess.CompletedProcess[str]] = run_docker,
 ) -> None:
     errors: list[str] = []
     try:
         cleanup_owned_containers(
-            boundary, use_sudo=use_sudo, cwd=cwd, env=env
+            boundary,
+            use_sudo=use_sudo,
+            cwd=cwd,
+            env=env,
+            docker_command=docker_command,
         )
     except Refusal as exc:
         errors.append(str(exc))
     try:
-        inspect_docker_boundary(
-            boundary, use_sudo=use_sudo, cwd=cwd, env=env
+        inspect_docker_network(
+            boundary,
+            use_sudo=use_sudo,
+            cwd=cwd,
+            env=env,
+            docker_command=docker_command,
         )
     except Refusal as exc:
         errors.append(str(exc))
@@ -1670,7 +2307,7 @@ def cleanup_docker_boundary(
             errors.append("Docker boundary has no network ID during cleanup")
             network_id = boundary.name
         try:
-            result = run_docker(
+            result = docker_command(
                 ["network", "rm", network_id],
                 use_sudo=use_sudo,
                 cwd=cwd,
@@ -1683,16 +2320,46 @@ def cleanup_docker_boundary(
         except Refusal as exc:
             errors.append(str(exc))
 
+    if docker_command is run_docker:
+        try:
+            discard_docker_network_if_owned(
+                boundary,
+                use_sudo=use_sudo,
+                cwd=cwd,
+                env=env,
+                docker_command=docker_command,
+            )
+            name_check = docker_command(
+                ["network", "inspect", boundary.name],
+                use_sudo=use_sudo,
+                cwd=cwd,
+                env=env,
+                description="Docker boundary name absence check",
+                check=False,
+            )
+            if name_check.returncode == 0:
+                errors.append("Docker boundary network name survived cleanup")
+            elif not docker_reports_missing_network(name_check, boundary.name):
+                detail = name_check.stderr.strip().splitlines()
+                suffix = f": {detail[-1]}" if detail else ""
+                errors.append(f"cannot verify Docker boundary name absence{suffix}")
+        except Refusal as exc:
+            errors.append(str(exc))
+
     try:
         cleanup_act_toolcache_volume(
-            boundary, use_sudo=use_sudo, cwd=cwd, env=env
+            boundary,
+            use_sudo=use_sudo,
+            cwd=cwd,
+            env=env,
+            docker_command=docker_command,
         )
     except Refusal as exc:
         errors.append(str(exc))
 
     if boundary.network_id is not None:
         try:
-            result = run_docker(
+            result = docker_command(
                 ["network", "inspect", boundary.network_id],
                 use_sudo=use_sudo,
                 cwd=cwd,
@@ -1716,7 +2383,10 @@ def cleanup_docker_boundary(
             errors.append(str(exc))
     try:
         final_inventory = docker_container_inventory(
-            use_sudo=use_sudo, cwd=cwd, env=env
+            use_sudo=use_sudo,
+            cwd=cwd,
+            env=env,
+            docker_command=docker_command,
         )
         survivors = owned_container_ids(final_inventory, boundary)
         if survivors:
@@ -1735,30 +2405,38 @@ def temporary_docker_boundary(
     cwd: pathlib.Path,
     env: Mapping[str, str],
 ) -> Iterator[DockerBoundary]:
-    boundary = create_docker_boundary(
-        planned, use_sudo=use_sudo, cwd=cwd, env=env
-    )
+    lease = DockerBoundaryLease(planned)
     try:
-        yield boundary
-    finally:
-        cleanup_docker_boundary(
-            boundary, use_sudo=use_sudo, cwd=cwd, env=env
+        create_docker_boundary(
+            planned,
+            use_sudo=use_sudo,
+            cwd=cwd,
+            env=env,
+            lease=lease,
         )
+        yield lease.boundary
+    finally:
+        if not lease.released:
+            with blocked_cleanup_signals():
+                if lease.complete:
+                    cleanup_docker_boundary(
+                        lease.boundary,
+                        use_sudo=use_sudo,
+                        cwd=cwd,
+                        env=env,
+                    )
+                else:
+                    cleanup_partial_docker_boundary(
+                        lease.boundary,
+                        use_sudo=use_sudo,
+                        cwd=cwd,
+                        env=env,
+                    )
+                lease.released = True
 
 
 def act_prefix(act_binary: str, use_sudo: bool, env: Mapping[str, str]) -> list[str]:
-    if not use_sudo:
-        return [act_binary]
-    assignments = [f"{key}={value}" for key, value in sorted(env.items())]
-    return [
-        require_tool("sudo"),
-        "-n",
-        "--",
-        require_tool("env"),
-        "-i",
-        *assignments,
-        act_binary,
-    ]
+    return isolated_command_prefix(act_binary, use_sudo, env)
 
 
 def build_act_command(
@@ -1841,6 +2519,109 @@ def allocate_tcp_port() -> int:
     return port
 
 
+def terminate_act_process_group(
+    process: subprocess.Popen[object],
+    *,
+    use_sudo: bool,
+    primary: BaseException,
+    group_exists: Callable[..., bool] | None = None,
+    signal_group: Callable[..., None] | None = None,
+    escalation: Sequence[tuple[int, float]] = (
+        (signal.SIGINT, 10),
+        (signal.SIGTERM, 10),
+        (signal.SIGKILL, 5),
+    ),
+    sleep: Callable[[float], None] = time.sleep,
+    recovery_notice: Callable[[str], None] | None = None,
+) -> None:
+    check_group = group_exists or process_group_exists
+    send_group_signal = signal_group or signal_process_group
+    notify_recovery = recovery_notice or (
+        lambda message: print(message, file=sys.stderr, flush=True)
+    )
+    group_absent = False
+    for sent_signal, timeout in escalation:
+        try:
+            if not check_group(process.pid, use_sudo=use_sudo):
+                group_absent = True
+                break
+        except Exception:
+            # Inspection failure must not suppress the privileged signal.
+            pass
+        try:
+            send_group_signal(process.pid, sent_signal, use_sudo=use_sudo)
+        except ProcessLookupError:
+            # A missing result is encouraging but is not the final proof; the
+            # absence check below remains authoritative.
+            pass
+        except Exception:
+            # Escalate through the remaining signals, then require proof.
+            continue
+        deadline = time.monotonic() + timeout
+        while time.monotonic() < deadline:
+            try:
+                process.poll()
+            except Exception:
+                pass
+            try:
+                if not check_group(process.pid, use_sudo=use_sudo):
+                    group_absent = True
+                    break
+            except Exception:
+                pass
+            try:
+                sleep(0.1)
+            except Exception:
+                pass
+        if group_absent:
+            break
+
+    # Detection is not containment. If the escalation could not establish
+    # absence, stay on this side of the Docker boundary and keep using bounded
+    # kill/check commands until the group is provably gone. An operator can
+    # restore sudo/daemon health or terminate the printed PGID externally.
+    recovery_round = 0
+    while not group_absent:
+        recovery_round += 1
+        detail = "still live"
+        try:
+            group_absent = not check_group(process.pid, use_sudo=use_sudo)
+        except Exception as exc:
+            detail = f"absence is unprovable ({exc})"
+        if group_absent:
+            break
+        try:
+            send_group_signal(process.pid, signal.SIGKILL, use_sudo=use_sudo)
+        except ProcessLookupError:
+            detail = "kill reports missing; awaiting independent absence proof"
+        except Exception as exc:
+            detail = f"kill failed ({exc})"
+        if recovery_round == 1 or recovery_round % 20 == 0:
+            try:
+                notify_recovery(
+                    "act-ci: containment hold for host process group "
+                    f"{process.pid}: {detail}; Docker teardown is paused. "
+                    "Restore sudo/kill access or terminate that process group "
+                    "externally; retrying until absence is proven."
+                )
+            except Exception:
+                # Diagnostics have no authority to release containment.
+                pass
+        try:
+            process.poll()
+        except Exception:
+            pass
+        try:
+            sleep(0.25)
+        except Exception:
+            pass
+
+    try:
+        process.wait(timeout=1)
+    except subprocess.TimeoutExpired:
+        raise Refusal("cannot reap interrupted host process leader") from primary
+
+
 def run_act_process(
     command: Sequence[str],
     *,
@@ -1848,71 +2629,273 @@ def run_act_process(
     env: Mapping[str, str],
     check: bool = False,
     started: Callable[[int], None] | None = None,
+    use_sudo: bool = False,
+    popen: Callable[..., subprocess.Popen[object]] = subprocess.Popen,
+    terminate_group: Callable[..., None] = terminate_act_process_group,
+    before_terminate_group: Callable[[], None] | None = None,
 ) -> subprocess.CompletedProcess[object]:
     """Run act in its own process group and reap that group on interruption."""
     del check  # This boundary always returns the workflow status to its caller.
-    process = subprocess.Popen(
-        command,
-        cwd=cwd,
-        env=dict(env),
-        start_new_session=True,
-    )
+    process: subprocess.Popen[object] | None = None
     try:
+        # Latch parent cleanup signals across fork/exec, Popen return, and
+        # assignment. Caught dispositions reset on exec, so unlike a blocked
+        # mask this does not prevent the act child receiving INT/TERM/HUP.
+        with deferred_cleanup_signal_delivery():
+            process = popen(
+                command,
+                cwd=cwd,
+                env=dict(env),
+                start_new_session=True,
+            )
         if started is not None:
             started(process.pid)
-        return subprocess.CompletedProcess(command, process.wait())
-    except BaseException:
-        for sent_signal, timeout in (
-            (signal.SIGINT, 10),
-            (signal.SIGTERM, 10),
-            (signal.SIGKILL, 5),
-        ):
-            if process.poll() is not None:
-                break
-            try:
-                signal_process_group(process.pid, sent_signal)
-            except ProcessLookupError:
-                break
-            try:
-                process.wait(timeout=timeout)
-            except subprocess.TimeoutExpired:
-                continue
-        if process.poll() is None:
-            raise Refusal("cannot terminate interrupted act process group")
+        returncode = process.wait()
+        if process_group_exists(process.pid, use_sudo=use_sudo):
+            raise Refusal("act process group survived its leader")
+        return subprocess.CompletedProcess(command, returncode)
+    except BaseException as primary:
+        if process is not None:
+            if before_terminate_group is not None:
+                before_terminate_group()
+            with blocked_cleanup_signals():
+                terminate_group(process, use_sudo=use_sudo, primary=primary)
         raise
 
 
-def signal_process_group(process_group: int, sent_signal: int) -> None:
-    try:
-        os.killpg(process_group, sent_signal)
-        return
-    except PermissionError:
-        pass
-    signal_name = signal.Signals(sent_signal).name.removeprefix("SIG")
-    result = subprocess.run(
-        [
-            require_tool("sudo"),
-            "-n",
-            "--",
-            require_tool("kill"),
-            f"-{signal_name}",
-            "--",
-            f"-{process_group}",
-        ],
-        env={
-            "PATH": SAFE_PATH,
-            "LANG": "C.UTF-8",
-            "LC_ALL": "C.UTF-8",
-        },
-        text=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        check=False,
+def sudo_process_group_signal(
+    process_group: int,
+    sent_signal: int,
+    *,
+    run_command: Callable[..., subprocess.CompletedProcess[str]] = subprocess.run,
+) -> subprocess.CompletedProcess[str]:
+    signal_name = (
+        "0"
+        if sent_signal == 0
+        else signal.Signals(sent_signal).name.removeprefix("SIG")
     )
+    try:
+        return run_command(
+            [
+                require_tool("sudo"),
+                "-n",
+                "--",
+                require_tool("kill"),
+                f"-{signal_name}",
+                "--",
+                f"-{process_group}",
+            ],
+            env={
+                "PATH": SAFE_PATH,
+                "LANG": "C.UTF-8",
+                "LC_ALL": "C.UTF-8",
+            },
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            timeout=DOCKER_COMMAND_TIMEOUT,
+            check=False,
+        )
+    except subprocess.TimeoutExpired as exc:
+        raise Refusal("privileged process-group signal timed out") from exc
+    except OSError as exc:
+        raise Refusal(f"cannot run privileged process-group signal: {exc}") from exc
+
+
+def process_group_signal_reports_missing(
+    result: subprocess.CompletedProcess[str],
+) -> bool:
+    return result.returncode != 0 and "no such process" in result.stderr.lower()
+
+
+def process_group_exists(
+    process_group: int,
+    *,
+    use_sudo: bool,
+    run_command: Callable[..., subprocess.CompletedProcess[str]] = subprocess.run,
+    kill_group: Callable[[int, int], None] = os.killpg,
+) -> bool:
+    if process_group <= 0:
+        raise Refusal("invalid host process-group ID")
+    if use_sudo:
+        result = sudo_process_group_signal(
+            process_group, 0, run_command=run_command
+        )
+        if result.returncode == 0:
+            return True
+        if process_group_signal_reports_missing(result):
+            return False
+        detail = result.stderr.strip().splitlines()
+        suffix = f": {detail[-1]}" if detail else ""
+        raise Refusal(f"cannot inspect host process group{suffix}")
+    try:
+        kill_group(process_group, 0)
+        return True
+    except ProcessLookupError:
+        return False
+    except PermissionError as exc:
+        raise Refusal("cannot inspect unprivileged host process group") from exc
+
+
+def signal_process_group(
+    process_group: int,
+    sent_signal: int,
+    *,
+    use_sudo: bool,
+    run_command: Callable[..., subprocess.CompletedProcess[str]] = subprocess.run,
+    kill_group: Callable[[int, int], None] = os.killpg,
+) -> None:
+    if not use_sudo:
+        try:
+            kill_group(process_group, sent_signal)
+            return
+        except PermissionError as exc:
+            raise Refusal("cannot signal unprivileged host process group") from exc
+    result = sudo_process_group_signal(
+        process_group, sent_signal, run_command=run_command
+    )
+    if result.returncode != 0:
+        if process_group_signal_reports_missing(result):
+            raise ProcessLookupError(process_group)
+        detail = result.stderr.strip().splitlines()
+        suffix = f": {detail[-1]}" if detail else ""
+        raise Refusal(f"cannot signal host process group{suffix}")
+
+
+def run_tracked_process_group_command(
+    command: Sequence[str],
+    *,
+    cwd: pathlib.Path,
+    env: Mapping[str, str],
+    timeout: float,
+    use_sudo: bool,
+    popen: Callable[..., subprocess.Popen[str]] = subprocess.Popen,
+    terminate_group: Callable[..., None] = terminate_act_process_group,
+) -> subprocess.CompletedProcess[str]:
+    """Run a host command without letting a sudo child outlive its CLI."""
+    process: subprocess.Popen[str] | None = None
+    group_absent = False
+    current_mask = signal.pthread_sigmask(signal.SIG_BLOCK, set())
+    cleanup_mask_inherited = all(item in current_mask for item in CLEANUP_SIGNALS)
+    try:
+        if (
+            threading.current_thread() is threading.main_thread()
+            and not cleanup_mask_inherited
+        ):
+            with deferred_cleanup_signal_delivery():
+                process = popen(
+                    command,
+                    cwd=cwd,
+                    env=dict(env),
+                    text=True,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    start_new_session=True,
+                )
+        else:
+            # Protected cleanup scopes and runner workers already have these
+            # signals blocked, closing the Popen handoff; workers also cannot
+            # call signal.signal(). A failed child is killed as a complete
+            # PGID below, with SIGKILL first because the mask survives exec.
+            process = popen(
+                command,
+                cwd=cwd,
+                env=dict(env),
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                start_new_session=True,
+            )
+        stdout, stderr = process.communicate(timeout=timeout)
+        if process_group_exists(process.pid, use_sudo=use_sudo):
+            raise Refusal("host command process group survived its leader")
+        group_absent = True
+        return subprocess.CompletedProcess(
+            command,
+            process.returncode,
+            stdout,
+            stderr,
+        )
+    except BaseException as primary:
+        if process is not None and not group_absent:
+            with blocked_cleanup_signals():
+                if (
+                    terminate_group is terminate_act_process_group
+                    and (
+                        threading.current_thread() is not threading.main_thread()
+                        or cleanup_mask_inherited
+                    )
+                ):
+                    terminate_group(
+                        process,
+                        use_sudo=use_sudo,
+                        primary=primary,
+                        escalation=((signal.SIGKILL, 5),),
+                    )
+                else:
+                    terminate_group(process, use_sudo=use_sudo, primary=primary)
+                # The leader is reaped above; drain its captured pipes without
+                # allowing pipe cleanup to precede process-group containment.
+                try:
+                    process.communicate(timeout=1)
+                except subprocess.TimeoutExpired as exc:
+                    raise Refusal(
+                        "cannot drain terminated host command pipes"
+                    ) from exc
+        raise
+
+
+def process_group_inventory(process_group: int) -> list[tuple[int, str, int]]:
+    """Return (pid, state, effective uid) for one host process group."""
+    try:
+        result = subprocess.run(
+            [require_tool("ps"), "-eo", "pid=,pgid=,stat=,euid="],
+            env={"PATH": SAFE_PATH, "LANG": "C.UTF-8", "LC_ALL": "C.UTF-8"},
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            timeout=DOCKER_COMMAND_TIMEOUT,
+            check=False,
+        )
+    except subprocess.TimeoutExpired as exc:
+        raise Refusal("act process-group inventory timed out") from exc
     if result.returncode != 0:
         detail = result.stderr.strip().splitlines()
         suffix = f": {detail[-1]}" if detail else ""
-        raise Refusal(f"cannot signal act process group{suffix}")
+        raise Refusal(f"cannot inventory act process group{suffix}")
+    members: list[tuple[int, str, int]] = []
+    for line in result.stdout.splitlines():
+        fields = line.split()
+        if len(fields) != 4:
+            raise Refusal("host returned malformed process-group metadata")
+        try:
+            pid, pgid, effective_uid = int(fields[0]), int(fields[1]), int(fields[3])
+        except ValueError as exc:
+            raise Refusal("host returned malformed process-group identity") from exc
+        if pgid == process_group:
+            members.append((pid, fields[2], effective_uid))
+    return sorted(members)
+
+
+def wait_for_frozen_process_group(
+    process_group: int,
+    expected_pids: set[int],
+    *,
+    timeout: float = 5,
+) -> list[tuple[int, str, int]]:
+    deadline = time.monotonic() + timeout
+    while True:
+        members = process_group_inventory(process_group)
+        current_pids = {pid for pid, _state, _uid in members}
+        if (
+            members
+            and expected_pids.issubset(current_pids)
+            and all(state.startswith("T") for _pid, state, _uid in members)
+        ):
+            return members
+        if time.monotonic() >= deadline:
+            raise Refusal("act process group did not freeze completely")
+        time.sleep(0.1)
 
 
 def require_runtime(
@@ -1948,6 +2931,7 @@ def execute_act_boundary(
     cwd: pathlib.Path,
     env: Mapping[str, str],
     integrity_check: Callable[[], None],
+    use_sudo: bool = False,
     query: Callable[[int, str], PullRequest] = query_pull_request,
     run_process: Callable[..., subprocess.CompletedProcess[object]] = run_act_process,
 ) -> int:
@@ -1955,7 +2939,13 @@ def execute_act_boundary(
     require_live_pull_request(pr, repository, query)
     integrity_check()
     try:
-        result = run_process(command, cwd=cwd, env=dict(env), check=False)
+        result = run_process(
+            command,
+            cwd=cwd,
+            env=dict(env),
+            check=False,
+            use_sudo=use_sudo,
+        )
     except OSError as exc:
         raise Refusal(f"cannot start act: {exc}") from exc
     require_live_pull_request(pr, repository, query)
@@ -2039,6 +3029,7 @@ def run_validation(
                     cwd=layout.invocation,
                     env=env,
                     integrity_check=integrity_check,
+                    use_sudo=use_sudo,
                 )
                 leftovers = cleanup_owned_containers(
                     boundary,
@@ -2288,6 +3279,485 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
                     replace(selftest_boundary, token="f" * 32),
                 ),
             )
+
+            def docker_completed(
+                arguments: Sequence[str],
+                returncode: int = 0,
+                stdout: str = "",
+                stderr: str = "",
+            ) -> subprocess.CompletedProcess[str]:
+                return subprocess.CompletedProcess(
+                    list(arguments), returncode, stdout, stderr
+                )
+
+            missing_volume = (
+                f"Error response from daemon: No such volume: "
+                f"{ACT_TOOLCACHE_VOLUME}"
+            )
+            foreign_volume_metadata = volume_metadata.replace(
+                selftest_boundary.token, "f" * 32
+            )
+            unowned_calls: list[tuple[str, ...]] = []
+
+            def unowned_volume(
+                arguments: Sequence[str], **_kwargs: object
+            ) -> subprocess.CompletedProcess[str]:
+                call = tuple(arguments)
+                unowned_calls.append(call)
+                if call == ("volume", "inspect", ACT_TOOLCACHE_VOLUME):
+                    return docker_completed(arguments, stdout=foreign_volume_metadata)
+                raise AssertionError(f"unexpected Docker self-test call: {call}")
+
+            existing_message = ""
+            try:
+                require_act_toolcache_absent(
+                    use_sudo=False,
+                    cwd=first.invocation,
+                    env={},
+                    docker_command=unowned_volume,
+                )
+            except Refusal as exc:
+                existing_message = str(exc)
+            check(
+                "a pre-existing unowned tool cache is refused with label guidance",
+                DOCKER_OWNER_LABEL in existing_message,
+            )
+            discard_act_toolcache_if_owned(
+                selftest_boundary,
+                use_sudo=False,
+                cwd=first.invocation,
+                env={},
+                docker_command=unowned_volume,
+            )
+            check(
+                "rollback never removes an unowned tool-cache volume",
+                not any(call[:2] == ("volume", "rm") for call in unowned_calls),
+            )
+
+            race_calls: list[tuple[str, ...]] = []
+            race_inspects = 0
+
+            def rival_volume(
+                arguments: Sequence[str], **_kwargs: object
+            ) -> subprocess.CompletedProcess[str]:
+                nonlocal race_inspects
+                call = tuple(arguments)
+                race_calls.append(call)
+                if call == ("volume", "inspect", ACT_TOOLCACHE_VOLUME):
+                    race_inspects += 1
+                    if race_inspects == 1:
+                        return docker_completed(arguments, 1, stderr=missing_volume)
+                    return docker_completed(arguments, stdout=foreign_volume_metadata)
+                if call[0:2] == ("volume", "create"):
+                    return docker_completed(
+                        arguments, stdout=f"{ACT_TOOLCACHE_VOLUME}\n"
+                    )
+                if call[:2] == ("volume", "rm"):
+                    return docker_completed(arguments)
+                raise AssertionError(f"unexpected Docker self-test call: {call}")
+
+            refused(
+                "a rival winning the tool-cache create race is refused",
+                lambda: create_act_toolcache_volume(
+                    replace(
+                        selftest_boundary,
+                        network_id=None,
+                        gateway=None,
+                        toolcache_owned=False,
+                    ),
+                    use_sudo=False,
+                    cwd=first.invocation,
+                    env={},
+                    docker_command=rival_volume,
+                ),
+            )
+            check(
+                "create-race rollback never removes the rival's volume",
+                not any(call[:2] == ("volume", "rm") for call in race_calls),
+            )
+
+            surviving_calls: list[tuple[str, ...]] = []
+
+            def surviving_volume(
+                arguments: Sequence[str], **_kwargs: object
+            ) -> subprocess.CompletedProcess[str]:
+                call = tuple(arguments)
+                surviving_calls.append(call)
+                if call == ("volume", "inspect", ACT_TOOLCACHE_VOLUME):
+                    return docker_completed(arguments, stdout=volume_metadata)
+                if call == ("volume", "rm", ACT_TOOLCACHE_VOLUME):
+                    return docker_completed(arguments)
+                raise AssertionError(f"unexpected Docker self-test call: {call}")
+
+            refused(
+                "tool-cache cleanup refuses when the volume survives removal",
+                lambda: cleanup_act_toolcache_volume(
+                    selftest_boundary,
+                    use_sudo=False,
+                    cwd=first.invocation,
+                    env={},
+                    docker_command=surviving_volume,
+                ),
+            )
+            check(
+                "surviving-volume control exercised the removal request",
+                ("volume", "rm", ACT_TOOLCACHE_VOLUME) in surviving_calls,
+            )
+
+            accepted_volume = {"exists": False}
+            accepted_volume_calls: list[tuple[str, ...]] = []
+
+            def post_accept_volume_failure(
+                arguments: Sequence[str], **_kwargs: object
+            ) -> subprocess.CompletedProcess[str]:
+                call = tuple(arguments)
+                accepted_volume_calls.append(call)
+                if call == ("volume", "inspect", ACT_TOOLCACHE_VOLUME):
+                    if accepted_volume["exists"]:
+                        return docker_completed(arguments, stdout=volume_metadata)
+                    return docker_completed(arguments, 1, stderr=missing_volume)
+                if call[0:2] == ("volume", "create"):
+                    accepted_volume["exists"] = True
+                    raise Refusal("injected post-accept volume timeout")
+                if call == ("volume", "rm", ACT_TOOLCACHE_VOLUME):
+                    accepted_volume["exists"] = False
+                    return docker_completed(arguments)
+                raise AssertionError(f"unexpected Docker self-test call: {call}")
+
+            refused(
+                "a post-accept volume-create timeout is reconciled",
+                lambda: create_act_toolcache_volume(
+                    replace(
+                        selftest_boundary,
+                        network_id=None,
+                        gateway=None,
+                        toolcache_owned=False,
+                    ),
+                    use_sudo=False,
+                    cwd=first.invocation,
+                    env={},
+                    docker_command=post_accept_volume_failure,
+                ),
+            )
+            check(
+                "post-accept volume rollback removes and verifies its resource",
+                not accepted_volume["exists"]
+                and ("volume", "rm", ACT_TOOLCACHE_VOLUME)
+                in accepted_volume_calls,
+            )
+
+            failed_volume_rollback = {"exists": False}
+
+            def volume_rollback_failure(
+                arguments: Sequence[str], **_kwargs: object
+            ) -> subprocess.CompletedProcess[str]:
+                call = tuple(arguments)
+                if call == ("volume", "inspect", ACT_TOOLCACHE_VOLUME):
+                    if failed_volume_rollback["exists"]:
+                        return docker_completed(arguments, stdout=volume_metadata)
+                    return docker_completed(arguments, 1, stderr=missing_volume)
+                if call[0:2] == ("volume", "create"):
+                    failed_volume_rollback["exists"] = True
+                    raise Refusal("injected post-accept volume timeout")
+                if call == ("volume", "rm", ACT_TOOLCACHE_VOLUME):
+                    return docker_completed(
+                        arguments, 1, stderr="injected volume rollback failure"
+                    )
+                raise AssertionError(f"unexpected Docker self-test call: {call}")
+
+            rollback_message = ""
+            try:
+                create_act_toolcache_volume(
+                    replace(
+                        selftest_boundary,
+                        network_id=None,
+                        gateway=None,
+                        toolcache_owned=False,
+                    ),
+                    use_sudo=False,
+                    cwd=first.invocation,
+                    env={},
+                    docker_command=volume_rollback_failure,
+                )
+            except Refusal as exc:
+                rollback_message = str(exc)
+            check(
+                "a failed setup rollback is surfaced rather than reported clean",
+                "setup rollback failed" in rollback_message
+                and failed_volume_rollback["exists"],
+            )
+
+            network_metadata = json.dumps(
+                [
+                    {
+                        "Id": selftest_boundary.network_id,
+                        "Name": selftest_boundary.name,
+                        "Labels": {
+                            DOCKER_OWNER_LABEL: selftest_boundary.token,
+                        },
+                        "IPAM": {"Config": [{"Gateway": selftest_boundary.gateway}]},
+                    }
+                ]
+            )
+            missing_network = (
+                f"Error response from daemon: No such network: "
+                f"{selftest_boundary.network_id}"
+            )
+            missing_network_name = (
+                f"Error response from daemon: No such network: "
+                f"{selftest_boundary.name}"
+            )
+            teardown_state = {"network": True}
+            teardown_calls: list[tuple[str, ...]] = []
+
+            def cache_failure_during_teardown(
+                arguments: Sequence[str], **_kwargs: object
+            ) -> subprocess.CompletedProcess[str]:
+                call = tuple(arguments)
+                teardown_calls.append(call)
+                if call[0:2] == ("container", "ls"):
+                    return docker_completed(arguments)
+                if call == (
+                    "network",
+                    "inspect",
+                    str(selftest_boundary.network_id),
+                ):
+                    if teardown_state["network"]:
+                        return docker_completed(arguments, stdout=network_metadata)
+                    return docker_completed(arguments, 1, stderr=missing_network)
+                if call == (
+                    "network",
+                    "rm",
+                    str(selftest_boundary.network_id),
+                ):
+                    teardown_state["network"] = False
+                    return docker_completed(arguments)
+                if call == ("volume", "inspect", ACT_TOOLCACHE_VOLUME):
+                    return docker_completed(arguments, 1, stderr=missing_volume)
+                raise AssertionError(f"unexpected Docker self-test call: {call}")
+
+            teardown_message = ""
+            try:
+                cleanup_docker_boundary(
+                    selftest_boundary,
+                    use_sudo=False,
+                    cwd=first.invocation,
+                    env={},
+                    docker_command=cache_failure_during_teardown,
+                )
+            except Refusal as exc:
+                teardown_message = str(exc)
+            check(
+                "tool-cache failure cannot suppress independent network teardown",
+                not teardown_state["network"]
+                and "owned act tool-cache volume disappeared" in teardown_message
+                and "network survived cleanup" not in teardown_message,
+            )
+
+            def run_network_setup_control(
+                *,
+                network_rm_fails: bool,
+                interrupt_create: bool = False,
+                interrupt_after_toolcache: bool = False,
+            ) -> tuple[
+                dict[str, bool], list[tuple[str, ...]], str
+            ]:
+                state = {"volume": False, "network": False}
+                calls: list[tuple[str, ...]] = []
+
+                def post_accept_network_failure(
+                    arguments: Sequence[str], **_kwargs: object
+                ) -> subprocess.CompletedProcess[str]:
+                    call = tuple(arguments)
+                    calls.append(call)
+                    if call == ("volume", "inspect", ACT_TOOLCACHE_VOLUME):
+                        if state["volume"]:
+                            return docker_completed(arguments, stdout=volume_metadata)
+                        return docker_completed(arguments, 1, stderr=missing_volume)
+                    if call[0:2] == ("volume", "create"):
+                        state["volume"] = True
+                        return docker_completed(
+                            arguments, stdout=f"{ACT_TOOLCACHE_VOLUME}\n"
+                        )
+                    if call == ("volume", "rm", ACT_TOOLCACHE_VOLUME):
+                        state["volume"] = False
+                        return docker_completed(arguments)
+                    if call[0:2] == ("network", "create"):
+                        state["network"] = True
+                        if interrupt_create:
+                            raise KeyboardInterrupt
+                        raise Refusal("injected post-accept network timeout")
+                    if call == ("network", "inspect", selftest_boundary.name):
+                        if state["network"]:
+                            return docker_completed(
+                                arguments, stdout=network_metadata
+                            )
+                        return docker_completed(
+                            arguments, 1, stderr=missing_network_name
+                        )
+                    if call == (
+                        "network",
+                        "rm",
+                        str(selftest_boundary.network_id),
+                    ):
+                        if network_rm_fails:
+                            return docker_completed(
+                                arguments,
+                                1,
+                                stderr="injected network rollback failure",
+                            )
+                        state["network"] = False
+                        return docker_completed(arguments)
+                    if call == (
+                        "network",
+                        "inspect",
+                        str(selftest_boundary.network_id),
+                    ):
+                        if state["network"]:
+                            return docker_completed(arguments, stdout=network_metadata)
+                        return docker_completed(arguments, 1, stderr=missing_network)
+                    raise AssertionError(f"unexpected Docker self-test call: {call}")
+
+                message = ""
+
+                def toolcache_handoff() -> None:
+                    if interrupt_after_toolcache:
+                        raise TerminationRequest(signal.SIGTERM)
+
+                try:
+                    create_docker_boundary(
+                        replace(
+                            selftest_boundary,
+                            network_id=None,
+                            gateway=None,
+                            toolcache_owned=False,
+                        ),
+                        use_sudo=False,
+                        cwd=first.invocation,
+                        env={},
+                        docker_command=post_accept_network_failure,
+                        after_toolcache=toolcache_handoff,
+                    )
+                except Refusal as exc:
+                    message = str(exc)
+                except KeyboardInterrupt:
+                    message = "KeyboardInterrupt"
+                except TerminationRequest as exc:
+                    message = signal.Signals(exc.signum).name
+                return state, calls, message
+
+            setup_state, setup_calls, setup_message = run_network_setup_control(
+                network_rm_fails=False
+            )
+            check(
+                "a post-accept network-create timeout reconciles both resources",
+                bool(setup_message)
+                and not setup_state["network"]
+                and not setup_state["volume"]
+                and ("network", "rm", str(selftest_boundary.network_id))
+                in setup_calls,
+            )
+            failed_state, _failed_calls, failed_message = run_network_setup_control(
+                network_rm_fails=True
+            )
+            check(
+                "network rollback failure is surfaced while cache cleanup continues",
+                "setup rollback failed" in failed_message
+                and failed_state["network"]
+                and not failed_state["volume"],
+            )
+            interrupt_state, _interrupt_calls, interrupt_message = (
+                run_network_setup_control(
+                    network_rm_fails=False, interrupt_create=True
+                )
+            )
+            check(
+                "a post-accept KeyboardInterrupt reconciles both resources",
+                interrupt_message == "KeyboardInterrupt"
+                and not interrupt_state["network"]
+                and not interrupt_state["volume"],
+            )
+            handoff_state, handoff_calls, handoff_message = (
+                run_network_setup_control(
+                    network_rm_fails=False,
+                    interrupt_after_toolcache=True,
+                )
+            )
+            check(
+                "a signal after cache return but before network create is reconciled",
+                handoff_message == "SIGTERM"
+                and not handoff_state["network"]
+                and not handoff_state["volume"]
+                and not any(call[:2] == ("network", "create") for call in handoff_calls),
+            )
+            delayed_clock = [0.0]
+            delayed_state = {"volume": False, "network": False, "released": False}
+            delayed_calls: list[tuple[str, ...]] = []
+
+            def delayed_daemon_completion(
+                arguments: Sequence[str], **_kwargs: object
+            ) -> subprocess.CompletedProcess[str]:
+                call = tuple(arguments)
+                delayed_calls.append(call)
+                if call == ("volume", "inspect", ACT_TOOLCACHE_VOLUME):
+                    if delayed_state["volume"]:
+                        return docker_completed(arguments, stdout=volume_metadata)
+                    return docker_completed(arguments, 1, stderr=missing_volume)
+                if call == ("volume", "rm", ACT_TOOLCACHE_VOLUME):
+                    delayed_state["volume"] = False
+                    return docker_completed(arguments)
+                if call == ("network", "inspect", selftest_boundary.name):
+                    if delayed_state["network"]:
+                        return docker_completed(arguments, stdout=network_metadata)
+                    return docker_completed(arguments, 1, stderr=missing_network_name)
+                if call == (
+                    "network",
+                    "rm",
+                    str(selftest_boundary.network_id),
+                ):
+                    delayed_state["network"] = False
+                    return docker_completed(arguments)
+                raise AssertionError(f"unexpected delayed mutation call: {call}")
+
+            def advance_delayed_daemon(duration: float) -> None:
+                delayed_clock[0] += duration
+                if not delayed_state["released"]:
+                    delayed_state["released"] = True
+                    delayed_state["volume"] = True
+                    delayed_state["network"] = True
+
+            discard_act_toolcache_if_owned(
+                selftest_boundary,
+                use_sudo=False,
+                cwd=first.invocation,
+                env={},
+                docker_command=delayed_daemon_completion,
+                stability_window=0.1,
+                monotonic=lambda: delayed_clock[0],
+                sleep=advance_delayed_daemon,
+            )
+            discard_docker_network_if_owned(
+                selftest_boundary,
+                use_sudo=False,
+                cwd=first.invocation,
+                env={},
+                docker_command=delayed_daemon_completion,
+                stability_window=0.1,
+                monotonic=lambda: delayed_clock[0],
+                sleep=advance_delayed_daemon,
+            )
+            check(
+                "stable rollback catches delayed Docker daemon mutations",
+                not delayed_state["volume"]
+                and not delayed_state["network"]
+                and ("volume", "rm", ACT_TOOLCACHE_VOLUME) in delayed_calls
+                and (
+                    "network",
+                    "rm",
+                    str(selftest_boundary.network_id),
+                )
+                in delayed_calls,
+            )
             check(
                 "two heads receive different writable action/workflow caches",
                 first.action_cache != second.action_cache
@@ -2308,6 +3778,334 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
                     "SSH_AUTH_SOCK",
                     "ACTIONS_RUNTIME_TOKEN",
                 }.intersection(controlled),
+            )
+            previous_context = os.environ.get("DOCKER_CONTEXT")
+            os.environ["DOCKER_CONTEXT"] = "attacker-current-context"
+            try:
+                hostile_context = controlled_act_environment(first)
+            finally:
+                if previous_context is None:
+                    os.environ.pop("DOCKER_CONTEXT", None)
+                else:
+                    os.environ["DOCKER_CONTEXT"] = previous_context
+            check(
+                "a fake ambient Docker current context is excluded",
+                not {"DOCKER_CONTEXT", "DOCKER_CONFIG", "DOCKER_HOST"}.intersection(
+                    hostile_context
+                ),
+            )
+            sudo_docker = docker_prefix(True, hostile_context)
+            sudo_act = act_prefix("/audited/act", True, hostile_context)
+            check(
+                "sudo Docker and act share the same explicit isolated environment",
+                sudo_docker[:-1] == sudo_act[:-1]
+                and sudo_docker[-1] == require_tool("docker")
+                and sudo_act[-1] == "/audited/act"
+                and "-i" in sudo_docker
+                and f"HOME={first.home}" in sudo_docker,
+            )
+            privileged_signal_calls: list[tuple[str, ...]] = []
+
+            def fake_privileged_signal(
+                command: Sequence[str], **_kwargs: object
+            ) -> subprocess.CompletedProcess[str]:
+                privileged_signal_calls.append(tuple(command))
+                return docker_completed(command)
+
+            def forbidden_unprivileged_signal(_group: int, _signal: int) -> None:
+                raise AssertionError("unprivileged killpg used for a sudo act group")
+
+            signal_process_group(
+                987654321,
+                signal.SIGSTOP,
+                use_sudo=True,
+                run_command=fake_privileged_signal,
+                kill_group=forbidden_unprivileged_signal,
+            )
+            check(
+                "sudo act groups are privileged-signalled from the first signal",
+                len(privileged_signal_calls) == 1
+                and "-STOP" in privileged_signal_calls[0]
+                and "-987654321" in privileged_signal_calls[0],
+            )
+
+            def fake_missing_group(
+                command: Sequence[str], **_kwargs: object
+            ) -> subprocess.CompletedProcess[str]:
+                privileged_signal_calls.append(tuple(command))
+                return docker_completed(
+                    command, 1, stderr="kill: (-987654321): No such process"
+                )
+
+            check(
+                "sudo process-group absence uses privileged kill zero",
+                not process_group_exists(
+                    987654321,
+                    use_sudo=True,
+                    run_command=fake_missing_group,
+                    kill_group=forbidden_unprivileged_signal,
+                )
+                and "-0" in privileged_signal_calls[-1],
+            )
+            containment_trace: list[str] = []
+            containment_states: Iterator[bool | Refusal] = iter(
+                (
+                    Refusal("injected initial inspection failure"),
+                    Refusal("injected recovery inspection failure"),
+                    True,
+                    False,
+                )
+            )
+            containment_signal_count = 0
+
+            class ContainmentProcess:
+                pid = 987654319
+
+                def poll(self) -> None:
+                    containment_trace.append("poll")
+
+                def wait(self, timeout: float) -> int:
+                    containment_trace.append(f"reaped-{timeout}")
+                    return 0
+
+            def uncertain_group_exists(
+                _group: int, *, use_sudo: bool
+            ) -> bool:
+                del use_sudo
+                state = next(containment_states)
+                if isinstance(state, Refusal):
+                    containment_trace.append("absence-unknown")
+                    raise state
+                containment_trace.append("group-live" if state else "group-absent")
+                return state
+
+            def recovering_group_signal(
+                _group: int, _signal: int, *, use_sudo: bool
+            ) -> None:
+                nonlocal containment_signal_count
+                del use_sudo
+                containment_signal_count += 1
+                containment_trace.append(f"kill-{containment_signal_count}")
+                if containment_signal_count < 3:
+                    raise Refusal("injected privileged kill failure")
+
+            containment_notices: list[str] = []
+
+            def broken_containment_notifier(message: str) -> None:
+                containment_notices.append(message)
+                raise BrokenPipeError("injected closed stderr")
+
+            terminate_act_process_group(
+                ContainmentProcess(),  # type: ignore[arg-type]
+                use_sudo=True,
+                primary=TerminationRequest(signal.SIGTERM),
+                group_exists=uncertain_group_exists,
+                signal_group=recovering_group_signal,
+                escalation=((signal.SIGKILL, 0),),
+                sleep=lambda _duration: containment_trace.append("held"),
+                recovery_notice=broken_containment_notifier,
+            )
+            containment_trace.append("docker-teardown")
+            check(
+                "Docker teardown waits through kill/inspection failure for PGID absence",
+                containment_trace[-2:] == ["reaped-1", "docker-teardown"]
+                and containment_trace.index("group-absent")
+                < containment_trace.index("docker-teardown")
+                and containment_trace.count("absence-unknown") == 2
+                and containment_signal_count == 3
+                and len(containment_notices) == 1
+                and "Docker teardown is paused" in containment_notices[0],
+            )
+            latched_interrupt = False
+            with cleanup_termination_signals():
+                interrupt_handler = signal.getsignal(signal.SIGINT)
+                if callable(interrupt_handler):
+                    try:
+                        interrupt_handler(signal.SIGINT, None)
+                    except TerminationRequest as exc:
+                        latched_interrupt = (
+                            exc.signum == signal.SIGINT
+                            and all(
+                                signal.getsignal(item) == signal.SIG_IGN
+                                for item in (
+                                    signal.SIGINT,
+                                    signal.SIGTERM,
+                                    signal.SIGHUP,
+                                )
+                            )
+                        )
+            check(
+                "the first handled signal defers repeats until cleanup completes",
+                latched_interrupt,
+            )
+            deferred_interrupt = False
+            with cleanup_termination_signals():
+                try:
+                    with blocked_cleanup_signals():
+                        signal.raise_signal(signal.SIGINT)
+                        deferred_interrupt = signal.SIGINT in signal.sigpending()
+                except TerminationRequest as exc:
+                    deferred_interrupt = (
+                        deferred_interrupt and exc.signum == signal.SIGINT
+                    )
+            check(
+                "a first signal during cleanup is delivered only afterward",
+                deferred_interrupt,
+            )
+            worker_trace: list[str] = []
+            worker_ready = threading.Event()
+            worker_stop = threading.Event()
+            worker_threads: list[threading.Thread] = []
+
+            def signal_safe_worker() -> None:
+                worker_ready.set()
+                worker_stop.wait(2)
+
+            def cleanup_with_live_worker() -> int:
+                worker = threading.Thread(
+                    target=signal_safe_worker,
+                    name="act-ci-signal-mask-selftest",
+                    daemon=True,
+                )
+                worker_threads.append(worker)
+                start_cleanup_safe_thread(worker)
+                if not worker_ready.wait(1):
+                    raise Refusal("signal-mask self-test worker did not start")
+                try:
+                    with blocked_cleanup_signals():
+                        worker_trace.append("cleanup-start")
+                        os.kill(os.getpid(), signal.SIGTERM)
+                        time.sleep(0.02)
+                        worker_trace.append("cleanup-finished")
+                finally:
+                    worker_stop.set()
+                    worker.join(timeout=1)
+                return RC_OK
+
+            worker_signal_rc = run_with_cleanup_signals(cleanup_with_live_worker)
+            check(
+                "worker threads cannot intercept a signal before cleanup finishes",
+                worker_signal_rc == 128 + signal.SIGTERM
+                and worker_trace == ["cleanup-start", "cleanup-finished"]
+                and len(worker_threads) == 1
+                and not worker_threads[0].is_alive(),
+            )
+            join_cancel = threading.Event()
+            join_complete = threading.Event()
+            join_lock = threading.Lock()
+            join_trace: list[str] = []
+            join_workers: list[threading.Thread] = []
+            join_problems: list[str] = []
+
+            def signal_during_monitor_join() -> None:
+                try:
+                    join_cancel.wait(1)
+                    join_trace.append("signal-sent")
+                    os.kill(os.getpid(), signal.SIGHUP)
+                    time.sleep(0.02)
+                    join_trace.append("worker-finished")
+                finally:
+                    join_complete.set()
+
+            def join_signal_action() -> int:
+                worker = threading.Thread(
+                    target=signal_during_monitor_join,
+                    name="act-ci-monitor-join-selftest",
+                    daemon=True,
+                )
+                join_workers.append(worker)
+                start_cleanup_safe_thread(worker)
+                cancel_and_join_cleanup_threads(
+                    join_cancel,
+                    join_lock,
+                    [(worker, join_complete)],
+                    join_problems,
+                    timeout=1,
+                )
+                return RC_OK
+
+            join_signal_rc = run_with_cleanup_signals(join_signal_action)
+            check(
+                "a first signal during monitor join waits for proven termination",
+                join_signal_rc == 128 + signal.SIGHUP
+                and join_trace == ["signal-sent", "worker-finished"]
+                and join_complete.is_set()
+                and len(join_workers) == 1
+                and not join_workers[0].is_alive()
+                and not join_problems,
+            )
+            never_started = threading.Thread(
+                target=lambda: None,
+                name="act-ci-never-started-selftest",
+                daemon=True,
+            )
+
+            def injected_thread_start_failure() -> None:
+                raise RuntimeError("injected thread start failure")
+
+            never_started.start = injected_thread_start_failure  # type: ignore[method-assign]
+            refused(
+                "monitor start failure becomes a cleanup refusal",
+                lambda: start_cleanup_thread_or_refuse(
+                    never_started, "interrupt monitor"
+                ),
+            )
+            never_started_problems: list[str] = []
+            refused(
+                "registered monitor start failure is a cleanup refusal",
+                lambda: cancel_and_join_cleanup_threads(
+                    threading.Event(),
+                    threading.Lock(),
+                    [(never_started, threading.Event())],
+                    never_started_problems,
+                    timeout=0.01,
+                ),
+            )
+            check(
+                "registered monitor start failure is reported without an invalid join",
+                never_started.ident is None
+                and never_started_problems
+                == ["interrupt monitor was registered but never started"],
+            )
+            worker_cli_results: list[tuple[str, float]] = []
+
+            def timed_worker_cli() -> None:
+                started_at = time.monotonic()
+                try:
+                    run_tracked_process_group_command(
+                        [
+                            sys.executable,
+                            "-I",
+                            "-c",
+                            "import time; time.sleep(30)",
+                        ],
+                        cwd=pathlib.Path.cwd(),
+                        env={
+                            "PATH": SAFE_PATH,
+                            "LANG": "C.UTF-8",
+                            "LC_ALL": "C.UTF-8",
+                        },
+                        timeout=0.05,
+                        use_sudo=False,
+                    )
+                except subprocess.TimeoutExpired:
+                    worker_cli_results.append(
+                        ("contained", time.monotonic() - started_at)
+                    )
+
+            worker_cli_thread = threading.Thread(
+                target=timed_worker_cli,
+                name="act-ci-worker-cli-selftest",
+                daemon=True,
+            )
+            start_cleanup_safe_thread(worker_cli_thread)
+            worker_cli_thread.join(timeout=3)
+            check(
+                "a worker-thread CLI timeout kills its blocked-mask process group",
+                not worker_cli_thread.is_alive()
+                and len(worker_cli_results) == 1
+                and worker_cli_results[0][0] == "contained"
+                and worker_cli_results[0][1] < 2,
             )
             check(
                 "act configuration roots and invocation directory are per-run",
@@ -2393,6 +4191,56 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
         )
         == 1,
     )
+    delayed_inventory_cancel = threading.Event()
+    delayed_inspect_entered = threading.Event()
+    delayed_inspect_release = threading.Event()
+    delayed_inventory_result: list[list[dict[str, object]]] = []
+    delayed_inventory_errors: list[BaseException] = []
+
+    def delayed_last_inspect(
+        arguments: Sequence[str], **_kwargs: object
+    ) -> subprocess.CompletedProcess[str]:
+        call = tuple(arguments)
+        if call[0:2] == ("container", "ls"):
+            return docker_completed(arguments, stdout=f"{owned_id}\n")
+        if call == ("container", "inspect", owned_id):
+            delayed_inspect_entered.set()
+            if not delayed_inspect_release.wait(1):
+                raise AssertionError("delayed inventory self-test was not released")
+            return docker_completed(arguments, stdout=json.dumps([inventory[0]]))
+        raise AssertionError(f"unexpected delayed inventory call: {call}")
+
+    def collect_delayed_inventory() -> None:
+        try:
+            delayed_inventory_result.append(
+                docker_container_inventory(
+                    use_sudo=False,
+                    cwd=pathlib.Path.cwd(),
+                    env={},
+                    docker_command=delayed_last_inspect,
+                    cancel=delayed_inventory_cancel,
+                )
+            )
+        except BaseException as exc:
+            delayed_inventory_errors.append(exc)
+
+    delayed_inventory_thread = threading.Thread(
+        target=collect_delayed_inventory,
+        name="act-ci-delayed-inventory-selftest",
+        daemon=True,
+    )
+    start_cleanup_safe_thread(delayed_inventory_thread)
+    delayed_inspect_started = delayed_inspect_entered.wait(1)
+    delayed_inventory_cancel.set()
+    delayed_inspect_release.set()
+    delayed_inventory_thread.join(timeout=1)
+    check(
+        "cancellation during the final container inspect stops the monitor inventory",
+        delayed_inspect_started
+        and not delayed_inventory_thread.is_alive()
+        and not delayed_inventory_errors
+        and delayed_inventory_result == [[]],
+    )
     invalid_mount_inventory = [
         {
             **inventory[0],
@@ -2431,6 +4279,212 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
     def successful_process(*_args, **_kwargs):  # type: ignore[no-untyped-def]
         return subprocess.CompletedProcess([], 0)
 
+    spawn_handoff_trace: list[str] = []
+
+    class SpawnHandoffProcess:
+        pid = 987654320
+
+    def signal_before_popen_return(
+        *_args: object, **_kwargs: object
+    ) -> subprocess.Popen[object]:
+        spawn_handoff_trace.append("spawned")
+        os.kill(os.getpid(), signal.SIGTERM)
+        spawn_handoff_trace.append("constructor-returned")
+        return SpawnHandoffProcess()  # type: ignore[return-value]
+
+    def record_spawn_termination(
+        process: subprocess.Popen[object],
+        *,
+        use_sudo: bool,
+        primary: BaseException,
+    ) -> None:
+        del use_sudo, primary
+        spawn_handoff_trace.append(f"terminated-{process.pid}")
+
+    def repeat_signal_at_spawn_cleanup_entry() -> None:
+        spawn_handoff_trace.append("cleanup-entered")
+        os.kill(os.getpid(), signal.SIGHUP)
+        spawn_handoff_trace.append("repeat-ignored")
+
+    spawn_handoff_rc = run_with_cleanup_signals(
+        lambda: run_act_process(
+            ["act"],
+            cwd=pathlib.Path.cwd(),
+            env={},
+            popen=signal_before_popen_return,
+            terminate_group=record_spawn_termination,
+            before_terminate_group=repeat_signal_at_spawn_cleanup_entry,
+        ).returncode
+    )
+    check(
+        "a signal after spawn but before Popen return terminates the stored group",
+        spawn_handoff_rc == 128 + signal.SIGTERM
+        and spawn_handoff_trace
+        == [
+            "spawned",
+            "constructor-returned",
+            "cleanup-entered",
+            "repeat-ignored",
+            "terminated-987654320",
+        ],
+    )
+    nested_cleanup_trace: list[str] = []
+
+    class NestedCleanupProcess:
+        pid = 987654317
+        returncode = 0
+
+        def communicate(self, timeout: float) -> tuple[str, str]:
+            del timeout
+            nested_cleanup_trace.append("cleanup-command-finished")
+            return "", ""
+
+    def repeat_during_cleanup_popen(
+        *_args: object, **_kwargs: object
+    ) -> subprocess.Popen[str]:
+        nested_cleanup_trace.append("cleanup-command-spawned")
+        os.kill(os.getpid(), signal.SIGHUP)
+        nested_cleanup_trace.append("repeat-ignored")
+        return NestedCleanupProcess()  # type: ignore[return-value]
+
+    def tracked_cleanup_after_first_signal() -> int:
+        try:
+            os.kill(os.getpid(), signal.SIGTERM)
+        finally:
+            nested_cleanup_trace.append("cleanup-entered")
+            run_tracked_process_group_command(
+                ["docker", "network", "rm"],
+                cwd=pathlib.Path.cwd(),
+                env={},
+                timeout=1,
+                use_sudo=False,
+                popen=repeat_during_cleanup_popen,
+            )
+            nested_cleanup_trace.append("cleanup-tail-finished")
+        return RC_OK
+
+    nested_cleanup_rc = run_with_cleanup_signals(
+        tracked_cleanup_after_first_signal
+    )
+    check(
+        "a repeat signal inside a tracked cleanup command cannot abort the tail",
+        nested_cleanup_rc == 128 + signal.SIGTERM
+        and nested_cleanup_trace
+        == [
+            "cleanup-entered",
+            "cleanup-command-spawned",
+            "repeat-ignored",
+            "cleanup-command-finished",
+            "cleanup-tail-finished",
+        ],
+    )
+    docker_timeout_trace: list[str] = []
+
+    class DockerTimeoutProcess:
+        pid = 987654318
+        returncode = -signal.SIGKILL
+        communicate_calls = 0
+
+        def communicate(self, timeout: float) -> tuple[str, str]:
+            self.communicate_calls += 1
+            docker_timeout_trace.append(f"communicate-{self.communicate_calls}")
+            if self.communicate_calls == 1:
+                raise subprocess.TimeoutExpired(["docker"], timeout)
+            return "", ""
+
+    def spawn_timeout_command(
+        *_args: object, **_kwargs: object
+    ) -> subprocess.Popen[str]:
+        docker_timeout_trace.append("spawned")
+        return DockerTimeoutProcess()  # type: ignore[return-value]
+
+    def contain_timeout_command(
+        process: subprocess.Popen[object],
+        *,
+        use_sudo: bool,
+        primary: BaseException,
+    ) -> None:
+        del use_sudo, primary
+        docker_timeout_trace.append(f"group-absent-{process.pid}")
+
+    docker_timeout_caught = False
+    try:
+        run_tracked_process_group_command(
+            ["docker", "volume", "create"],
+            cwd=pathlib.Path.cwd(),
+            env={},
+            timeout=0.01,
+            use_sudo=True,
+            popen=spawn_timeout_command,
+            terminate_group=contain_timeout_command,
+        )
+    except subprocess.TimeoutExpired:
+        docker_timeout_caught = True
+        docker_timeout_trace.append("rollback-entry")
+    check(
+        "a timed-out sudo Docker CLI is contained before rollback begins",
+        docker_timeout_caught
+        and docker_timeout_trace
+        == [
+            "spawned",
+            "communicate-1",
+            "group-absent-987654318",
+            "communicate-2",
+            "rollback-entry",
+        ],
+    )
+    child_environment = {
+        "PATH": SAFE_PATH,
+        "LANG": "C.UTF-8",
+        "LC_ALL": "C.UTF-8",
+    }
+    with deferred_cleanup_signal_delivery():
+        child_mask_probe = subprocess.run(
+            [
+                sys.executable,
+                "-I",
+                "-c",
+                (
+                    "import signal; "
+                    "print(sorted(int(item) for item in "
+                    "signal.pthread_sigmask(signal.SIG_BLOCK, set())))"
+                ),
+            ],
+            env=child_environment,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            timeout=5,
+            check=False,
+        )
+    with deferred_cleanup_signal_delivery():
+        term_probe = subprocess.Popen(
+            [sys.executable, "-I", "-c", "import time; time.sleep(30)"],
+            env=child_environment,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            start_new_session=True,
+        )
+    os.kill(term_probe.pid, signal.SIGTERM)
+    try:
+        term_probe_status = term_probe.wait(timeout=5)
+    except subprocess.TimeoutExpired:
+        term_probe.kill()
+        term_probe.wait(timeout=5)
+        term_probe_status = 0
+    try:
+        inherited_mask = {
+            int(item) for item in json.loads(child_mask_probe.stdout or "[]")
+        }
+    except (json.JSONDecodeError, TypeError, ValueError):
+        inherited_mask = set(CLEANUP_SIGNALS)
+    check(
+        "spawned children inherit no cleanup-signal mask and honor SIGTERM",
+        child_mask_probe.returncode == 0
+        and inherited_mask.isdisjoint(CLEANUP_SIGNALS)
+        and term_probe_status == -signal.SIGTERM,
+    )
+
     def execute_with_remote_change(changed: PullRequest) -> int:
         answers = iter((pr, changed))
 
@@ -2464,6 +4518,49 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
         execute_with_remote_change(replace(pr, base_sha="5" * 40)) == RC_OK,
     )
 
+    acquisition_parent = pathlib.Path(tempfile.gettempdir()).resolve()
+    interrupted_run_lease = RunDirectoryLease(acquisition_parent)
+
+    def interrupt_after_run_create() -> None:
+        raise TerminationRequest(signal.SIGTERM)
+
+    interrupted_run_signal = 0
+    try:
+        make_run_directory(
+            interrupted_run_lease,
+            after_create=interrupt_after_run_create,
+        )
+    except TerminationRequest as exc:
+        interrupted_run_signal = exc.signum
+    check(
+        "a signal after run-directory creation reconciles the accepted path",
+        interrupted_run_signal == signal.SIGTERM
+        and interrupted_run_lease.accepted
+        and interrupted_run_lease.released
+        and interrupted_run_lease.path is not None
+        and not interrupted_run_lease.path.exists(),
+    )
+
+    failed_stat_lease = RunDirectoryLease(acquisition_parent)
+
+    def failed_run_stat(_path: pathlib.Path) -> os.stat_result:
+        raise OSError("injected post-create stat failure")
+
+    refused(
+        "a post-create run-directory stat failure is reconciled",
+        lambda: make_run_directory(
+            failed_stat_lease,
+            inspect_path=failed_run_stat,
+        ),
+    )
+    check(
+        "the stat-failure path is absent after acquisition rollback",
+        failed_stat_lease.accepted
+        and failed_stat_lease.released
+        and failed_stat_lease.path is not None
+        and not failed_stat_lease.path.exists(),
+    )
+
     cleanup = make_run_directory()
 
     def failed_chown(*_args, **_kwargs):  # type: ignore[no-untyped-def]
@@ -2475,6 +4572,22 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
             cleanup,
             True,
             run_command=failed_chown,
+            sudo_binary="sudo",
+        ),
+    )
+    shutil.rmtree(cleanup.path)
+
+    cleanup = make_run_directory()
+
+    def failed_chown_launch(*_args, **_kwargs):  # type: ignore[no-untyped-def]
+        raise OSError("injected chown launch failure")
+
+    refused(
+        "sudo chown launch failure is a cleanup refusal",
+        lambda: cleanup_run_directory(
+            cleanup,
+            True,
+            run_command=failed_chown_launch,
             sudo_binary="sudo",
         ),
     )
@@ -2571,6 +4684,19 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
             workflow_path.write_text(workflow_text, encoding="utf-8")
             test_git("update-index", f"--no-{flag}", WORKFLOWS["docs"])
 
+        test_git("update-index", "--assume-unchanged", WORKFLOWS["docs"])
+        workflow_path.unlink()
+        workflow_path.symlink_to("/dev/zero")
+        refused(
+            "an index flag cannot hide a selected workflow symlink",
+            lambda: validate_checkout(
+                test_pr, repo, ("docs",), label="self-test checkout"
+            ),
+        )
+        workflow_path.unlink()
+        workflow_path.write_text(workflow_text, encoding="utf-8")
+        test_git("update-index", "--no-assume-unchanged", WORKFLOWS["docs"])
+
         test_git("replace", test_head, first_commit)
         refused(
             "replacement object is refused even when HEAD text is unchanged",
@@ -2659,6 +4785,37 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
             )
         finally:
             WORKFLOWS["docs"] = original_docs
+
+        reader_root = repo / "workflow-reader"
+        reader_root.mkdir()
+        safe_workflow = reader_root / "safe.yml"
+        safe_workflow.write_text(
+            "name: safe\non: push\njobs:\n  safe:\n    runs-on: ubuntu-latest\n"
+            "    steps:\n      - run: true\n",
+            encoding="utf-8",
+        )
+        symlink_workflow = reader_root / "symlink.yml"
+        symlink_workflow.symlink_to(safe_workflow)
+        refused(
+            "workflow reads do not follow a candidate symlink",
+            lambda: load_workflow(reader_root, "symlink.yml"),
+        )
+        fifo_workflow = reader_root / "fifo.yml"
+        os.mkfifo(fifo_workflow)
+        refused(
+            "workflow reads reject a FIFO without blocking",
+            lambda: load_workflow(reader_root, "fifo.yml"),
+        )
+        refused(
+            "workflow reads reject a host device before reading it",
+            lambda: load_workflow(pathlib.Path("/"), "dev/null"),
+        )
+        oversized_workflow = reader_root / "oversized.yml"
+        oversized_workflow.write_bytes(b"x" * (MAX_WORKFLOW_BYTES + 1))
+        refused(
+            "workflow reads reject an oversized regular file before parsing",
+            lambda: load_workflow(reader_root, "oversized.yml"),
+        )
 
     try:
         validate_workflow_sandbox(shipping_root, tuple(WORKFLOWS))
@@ -2782,6 +4939,96 @@ def interrupt_selftest(act_binary: str, use_sudo: bool) -> int:
         validate_isolation_layout(layout)
         prefix = require_runtime(act_binary, use_sudo, layout, env)
 
+        cli_probe_token = secrets.token_hex(16)
+        cli_probe_volume = f"milan-act-ci-cli-timeout-{cli_probe_token}"
+        cli_probe_script = layout.temporary / "delayed-docker-cli.py"
+        cli_probe_script.write_text(
+            "import subprocess, sys, time\n"
+            "time.sleep(2)\n"
+            "raise SystemExit(subprocess.run(sys.argv[1:], check=False).returncode)\n",
+            encoding="utf-8",
+        )
+        cli_probe_script.chmod(0o555)
+        cli_probe_command = [
+            *isolated_command_prefix(sys.executable, use_sudo, env),
+            "-I",
+            str(cli_probe_script),
+            require_tool("docker"),
+            "volume",
+            "create",
+            "--driver",
+            "local",
+            "--label",
+            f"{DOCKER_OWNER_LABEL}={cli_probe_token}",
+            cli_probe_volume,
+        ]
+        cli_probe_timed_out = False
+        try:
+            run_tracked_process_group_command(
+                cli_probe_command,
+                cwd=layout.invocation,
+                env=env,
+                timeout=0.2,
+                use_sudo=use_sudo,
+            )
+        except subprocess.TimeoutExpired:
+            cli_probe_timed_out = True
+        time.sleep(2.2)
+        cli_probe_inspect = run_docker(
+            ["volume", "inspect", cli_probe_volume],
+            use_sudo=use_sudo,
+            cwd=layout.invocation,
+            env=env,
+            description="delayed Docker CLI containment probe",
+            check=False,
+        )
+        if cli_probe_inspect.returncode == 0:
+            try:
+                cli_probe_metadata = json.loads(cli_probe_inspect.stdout)[0]
+                cli_probe_labels = cli_probe_metadata["Labels"]
+            except (json.JSONDecodeError, IndexError, KeyError, TypeError) as exc:
+                raise Refusal(
+                    "delayed Docker CLI probe left malformed volume metadata"
+                ) from exc
+            if (
+                not isinstance(cli_probe_labels, dict)
+                or cli_probe_labels.get(DOCKER_OWNER_LABEL) != cli_probe_token
+            ):
+                raise Refusal("delayed Docker CLI probe volume ownership changed")
+            run_docker(
+                ["volume", "rm", cli_probe_volume],
+                use_sudo=use_sudo,
+                cwd=layout.invocation,
+                env=env,
+                description="delayed Docker CLI probe cleanup",
+            )
+            cli_probe_absent = run_docker(
+                ["volume", "inspect", cli_probe_volume],
+                use_sudo=use_sudo,
+                cwd=layout.invocation,
+                env=env,
+                description="delayed Docker CLI probe cleanup verification",
+                check=False,
+            )
+            if (
+                cli_probe_absent.returncode == 0
+                or cli_probe_volume.lower()
+                not in (cli_probe_absent.stderr or "").lower()
+                or "no such volume"
+                not in (cli_probe_absent.stderr or "").lower()
+            ):
+                raise Refusal("delayed Docker CLI probe volume survived cleanup")
+            raise Refusal(
+                "timed-out Docker CLI child survived and performed a delayed mutation"
+            )
+        missing_cli_probe = (cli_probe_inspect.stderr or "").lower()
+        if (
+            not cli_probe_timed_out
+            or cli_probe_volume.lower() not in missing_cli_probe
+            or "no such volume" not in missing_cli_probe
+        ):
+            raise Refusal("cannot verify delayed Docker CLI containment")
+
         try:
             WORKFLOWS[workflow] = relative_workflow
             WORKFLOWS[seed_workflow] = seed_path
@@ -2806,6 +5053,7 @@ def interrupt_selftest(act_binary: str, use_sudo: bool) -> int:
                         probe_command,
                         cwd=layout.invocation,
                         env=env,
+                        use_sudo=use_sudo,
                     )
                     if probe_result.returncode != 0:
                         raise Refusal(
@@ -2825,8 +5073,13 @@ def interrupt_selftest(act_binary: str, use_sudo: bool) -> int:
             planned = new_docker_boundary()
             monitor_cancel = threading.Event()
             frozen = threading.Event()
+            privileged_child_seen = threading.Event()
+            process_group_reaped = threading.Event()
             monitor_problems: list[str] = []
             monitor_threads: list[threading.Thread] = []
+            monitor_completions: list[threading.Event] = []
+            monitor_signal_lock = threading.Lock()
+            launched_process_group: int | None = None
             with temporary_docker_boundary(
                 planned,
                 use_sudo=use_sudo,
@@ -2843,6 +5096,17 @@ def interrupt_selftest(act_binary: str, use_sudo: bool) -> int:
                 command.append("--pull=false")
 
                 def process_started(process_group: int) -> None:
+                    nonlocal launched_process_group
+                    launched_process_group = process_group
+
+                    def interrupt_main(message: str, sent_signal: int) -> None:
+                        with monitor_signal_lock:
+                            if monitor_cancel.is_set():
+                                return
+                            if message:
+                                monitor_problems.append(message)
+                            os.kill(os.getpid(), sent_signal)
+
                     def freeze_live_act() -> None:
                         deadline = time.monotonic() + 120
                         while not monitor_cancel.is_set():
@@ -2851,9 +5115,14 @@ def interrupt_selftest(act_binary: str, use_sudo: bool) -> int:
                                     use_sudo=use_sudo,
                                     cwd=layout.invocation,
                                     env=env,
+                                    cancel=monitor_cancel,
                                 )
+                                if monitor_cancel.is_set():
+                                    return
                                 selected = owned_container_ids(inventory, boundary)
                                 if running_container_ids(inventory, selected):
+                                    if monitor_cancel.is_set():
+                                        return
                                     try:
                                         inspect_act_toolcache_volume(
                                             boundary,
@@ -2861,48 +5130,114 @@ def interrupt_selftest(act_binary: str, use_sudo: bool) -> int:
                                             cwd=layout.invocation,
                                             env=env,
                                         )
+                                        if monitor_cancel.is_set():
+                                            return
                                         verify_runner_toolcache_mounts(
                                             inventory,
                                             boundary,
                                             require_any=True,
                                         )
                                     except Refusal as exc:
-                                        monitor_problems.append(str(exc))
-                                        os.kill(os.getpid(), signal.SIGINT)
+                                        interrupt_main(str(exc), signal.SIGINT)
+                                        return
+                                    if monitor_cancel.is_set():
                                         return
                                     try:
-                                        signal_process_group(
-                                            process_group, signal.SIGSTOP
+                                        members = process_group_inventory(
+                                            process_group
                                         )
+                                        if not members:
+                                            raise Refusal(
+                                                "live act process group disappeared"
+                                            )
+                                        if use_sudo:
+                                            if not any(
+                                                pid != process_group and uid == 0
+                                                for pid, _state, uid in members
+                                            ):
+                                                raise Refusal(
+                                                    "no privileged act child appeared"
+                                                )
+                                            privileged_child_seen.set()
+                                        if monitor_cancel.is_set():
+                                            return
                                     except (OSError, Refusal) as exc:
-                                        monitor_problems.append(
-                                            f"cannot freeze live act process: {exc}"
+                                        interrupt_main(
+                                            f"cannot freeze live act process: {exc}",
+                                            signal.SIGINT,
                                         )
-                                        os.kill(os.getpid(), signal.SIGINT)
                                         return
-                                    frozen.set()
-                                    os.kill(os.getpid(), signal.SIGINT)
+                                    # Cancellation and the privileged STOP are
+                                    # one serialized transition. Main cannot
+                                    # begin Docker teardown until this worker
+                                    # either completes the injection or exits.
+                                    with monitor_signal_lock:
+                                        if monitor_cancel.is_set():
+                                            return
+                                        try:
+                                            signal_process_group(
+                                                process_group,
+                                                signal.SIGSTOP,
+                                                use_sudo=use_sudo,
+                                            )
+                                            frozen_members = (
+                                                wait_for_frozen_process_group(
+                                                    process_group,
+                                                    {
+                                                        pid
+                                                        for pid, _state, _uid in members
+                                                    },
+                                                )
+                                            )
+                                            if use_sudo and not any(
+                                                pid != process_group
+                                                and uid == 0
+                                                and state.startswith("T")
+                                                for pid, state, uid in frozen_members
+                                            ):
+                                                raise Refusal(
+                                                    "privileged act child was not frozen"
+                                                )
+                                            frozen.set()
+                                            os.kill(os.getpid(), signal.SIGTERM)
+                                        except (OSError, Refusal) as exc:
+                                            monitor_problems.append(
+                                                "cannot freeze live act process: "
+                                                f"{exc}"
+                                            )
+                                            os.kill(os.getpid(), signal.SIGINT)
                                     return
                             except Refusal:
                                 # Container creation/removal can race one inventory;
                                 # retry until the bounded deadline.
                                 pass
                             if time.monotonic() >= deadline:
-                                monitor_problems.append(
+                                interrupt_main(
                                     "no owned running act container appeared "
-                                    "within 120s"
+                                    "within 120s",
+                                    signal.SIGINT,
                                 )
-                                os.kill(os.getpid(), signal.SIGINT)
                                 return
                             monitor_cancel.wait(0.25)
 
+                    monitor_complete = threading.Event()
+
+                    def monitored_freeze_live_act() -> None:
+                        try:
+                            freeze_live_act()
+                        finally:
+                            monitor_complete.set()
+
                     monitor = threading.Thread(
-                        target=freeze_live_act,
+                        target=monitored_freeze_live_act,
                         name="act-ci-interrupt-monitor",
                         daemon=True,
                     )
                     monitor_threads.append(monitor)
-                    monitor.start()
+                    monitor_completions.append(monitor_complete)
+                    start_cleanup_thread_or_refuse(
+                        monitor, "interrupt monitor"
+                    )
 
                 interrupted = False
                 try:
@@ -2911,13 +5246,28 @@ def interrupt_selftest(act_binary: str, use_sudo: bool) -> int:
                         cwd=layout.invocation,
                         env=env,
                         started=process_started,
+                        use_sudo=use_sudo,
                     )
-                except KeyboardInterrupt:
+                except (KeyboardInterrupt, TerminationRequest) as exc:
+                    if (
+                        isinstance(exc, TerminationRequest)
+                        and exc.signum not in (signal.SIGINT, signal.SIGTERM)
+                    ):
+                        raise
                     interrupted = True
                 finally:
-                    monitor_cancel.set()
-                    for monitor in monitor_threads:
-                        monitor.join(timeout=5)
+                    cancel_and_join_cleanup_threads(
+                        monitor_cancel,
+                        monitor_signal_lock,
+                        list(
+                            zip(
+                                monitor_threads,
+                                monitor_completions,
+                                strict=True,
+                            )
+                        ),
+                        monitor_problems,
+                    )
                 if not interrupted:
                     raise Refusal(
                         f"interrupt self-test act process exited {result.returncode} "
@@ -2927,6 +5277,15 @@ def interrupt_selftest(act_binary: str, use_sudo: bool) -> int:
                     raise Refusal(monitor_problems[0])
                 if not frozen.is_set():
                     raise Refusal("interrupt self-test did not freeze act")
+                if use_sudo and not privileged_child_seen.is_set():
+                    raise Refusal("interrupt self-test did not inspect root act")
+                if launched_process_group is None:
+                    raise Refusal("interrupt self-test did not record the act group")
+                if process_group_exists(
+                    launched_process_group, use_sudo=use_sudo
+                ):
+                    raise Refusal("interrupt self-test left an act process-group member")
+                process_group_reaped.set()
         finally:
             for selected_workflow in (
                 workflow,
@@ -2946,9 +5305,11 @@ def interrupt_selftest(act_binary: str, use_sudo: bool) -> int:
         require_act_toolcache_absent(
             use_sudo=use_sudo, cwd=layout.invocation, env=env
         )
+        if not process_group_reaped.is_set():
+            raise Refusal("interrupt self-test did not prove process-group absence")
     print(
-        "interrupt-selftest: PASS (tool cache did not cross runs; frozen act "
-        "left no container, network, or volume)"
+        "interrupt-selftest: PASS (tool cache did not cross runs; the frozen "
+        "act process group left no process, container, network, or volume)"
     )
     return RC_OK
 
@@ -3024,7 +5385,9 @@ def main(argv: Sequence[str]) -> int:
         try:
             act_binary = resolve_act_binary(args.act_bin)
             validate_act_binary(act_binary, pathlib.Path.cwd().resolve())
-            return interrupt_selftest(act_binary, args.sudo)
+            return run_with_cleanup_signals(
+                lambda: interrupt_selftest(act_binary, args.sudo)
+            )
         except Refusal as exc:
             print(f"act-ci: REFUSED: {exc}", file=sys.stderr)
             return RC_REFUSED
@@ -3043,14 +5406,16 @@ def main(argv: Sequence[str]) -> int:
         validate_runner(pr, candidate_worktree, args.trusted_install_sha256)
         act_binary = resolve_act_binary(args.act_bin)
         validate_act_binary(act_binary, candidate_worktree)
-        return run_validation(
-            pr,
-            repository,
-            workflows,
-            candidate_worktree,
-            act_binary=act_binary,
-            use_sudo=args.sudo,
-            dry_run=args.dry_run,
+        return run_with_cleanup_signals(
+            lambda: run_validation(
+                pr,
+                repository,
+                workflows,
+                candidate_worktree,
+                act_binary=act_binary,
+                use_sudo=args.sudo,
+                dry_run=args.dry_run,
+            )
         )
     except Refusal as exc:
         print(f"act-ci: REFUSED: {exc}", file=sys.stderr)

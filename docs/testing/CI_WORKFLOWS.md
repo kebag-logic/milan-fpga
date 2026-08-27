@@ -555,7 +555,12 @@ trustworthy by itself.
 
 The `--selftest --worktree <candidate>` command above is the offline construction
 and negative-control gate; the explicit worktree tells an installed runner
-which shipping workflows to audit. The default PR run executes `docs`,
+which shipping workflows to audit. That worktree remains untrusted: the reader
+opens every path component without following symlinks, opens the final entry
+nonblocking, requires a regular file and checks its size before a bounded read.
+The negative controls cover symlinks, FIFOs, devices, and oversized files, so
+the host-side bootstrap cannot be redirected into an unbounded candidate read.
+The default PR run executes `docs`,
 `elaborate`, `rtl-fast`, and `rtl-full` in that order.
 Use repeatable `--workflow <name>` options for a focused reproduction, and use
 `--dry-run` to perform the trust, fetch, metadata, and byte checks and print the
@@ -563,16 +568,28 @@ generated command before consuming containers. The runner requires `gh`, Git,
 PyYAML, Docker, and exactly `act` 0.2.89. A newer act is refused until its Docker
 mount and cache behavior is audited and the repository pin is deliberately
 updated. On a host where the current user cannot open the Docker socket, add
-`--sudo`; this is non-interactive and preserves no ambient environment or
-credential.
+`--sudo`; this is non-interactive. Both the host-side Docker CLI and `act` pass
+through the same explicit `env -i` assignments and private empty `HOME`, keeping
+them on the same default local daemon without inheriting root's Docker
+`currentContext`, `DOCKER_CONFIG`, `DOCKER_CONTEXT`, `DOCKER_HOST`, credential
+helpers, or other ambient environment. The offline self-test plants a fake
+ambient current context and proves the two sudo prefixes remain identical apart
+from their executable.
 
 An audited change to the runner's cache, interruption, or Docker cleanup
 boundary must also run the live fault-injection gate. It first writes a marker
 through the effective runner tool cache and proves a second fresh run cannot see
 it. It then starts a harmless sleeping job, inspects the real cache mount, waits
-for the owned container, stops the `act` process group so normal cleanup cannot
-run, interrupts the runner, and requires the container, network, tool-cache
-volume, and run directory to be absent afterward:
+for the owned container, freezes the `act` process group, delivers `SIGTERM` to
+the runner, and requires the container, network, tool-cache volume, and run
+directory to be absent afterward. With `--sudo`, the probe also requires a root
+`act` child distinct from the sudo leader, sends `SIGSTOP` through privileged
+`kill`, proves every process-group member is stopped, and proves the complete
+group is absent before Docker teardown. Cancellation is serialized with that
+STOP transition, and the monitor must signal completion and be joined before
+Docker teardown can begin. A separate delayed-mutation probe times out a CLI
+whose privileged child would create a labelled volume two seconds later, then
+proves the whole CLI group is absent and the mutation never occurs:
 
 ```sh
 python3 -I <audited-install>/act_ci.py --interrupt-selftest \
@@ -583,7 +600,9 @@ The command reads the open PR from GitHub and refuses before validation when
 the base is not `dev`, the head is cross-repository, the candidate worktree is
 dirty or at a different SHA, or selected workflow bytes disagree with the
 remote commit even when index flags hide the edit. Replacement refs are
-refused. A credential-free HTTPS fetch into a new temporary Git repository
+refused. The selected-file byte verifier uses the same no-follow, nonblocking,
+regular-file-only bounded reader as the workflow sandbox. A credential-free
+HTTPS fetch into a new temporary Git repository
 materializes the exact same-repository PR head and current base without using
 the candidate's object database, index, configuration, hooks, filters, or
 worktree. The PR number, state, draft bit, base ref, head ref/SHA, repository,
@@ -636,10 +655,26 @@ Docker volume name `act-toolcache`; the runner turns that otherwise persistent
 slot into an exclusive ephemeral boundary. It refuses if that volume already
 exists, creates it empty with the run's unpredictable ownership label, verifies
 the label before every workflow, and removes it with an absence check after the
-last owned container. A legacy cache must be checked for attached containers
-and removed explicitly; the runner never deletes an unowned volume. Concurrent
-runner invocations fail closed because only one can own the upstream global
-name. The live interruption self-test writes a marker through
+last owned container. The refusal names the
+`org.kebag-logic.milan-act-ci.owner` label. Before removing an unlabelled legacy
+cache, the operator must serialize every act runner and prove no container uses
+it; absence of a label does not prove inactivity. A labelled cache must not be
+removed until no runner, container, or network with its owner token remains.
+The runner never deletes an
+unowned volume. Concurrent runner invocations fail closed because only one can
+own the upstream global name. If a Docker create call times out or is
+interrupted after the daemon accepted it, the runner inspects the exact global
+volume name and unpredictable network name, removes only resources carrying its
+token, and verifies their absence before propagating the setup failure. The
+offline self-test injects post-accept failures, ownership races, surviving
+resources, rollback failures, and a daemon mutation that appears only after an
+initial absence check. Each Docker CLI runs in a tracked process group; timeout
+or interruption terminates and reaps that complete group (privileged from the
+first signal under `--sudo`) before reconciliation begins. Rollback then
+requires a continuous half-second absence window, removing a late owned
+volume/network if the daemon completes an already-submitted request. The live
+interruption self-test writes a
+marker through
 `RUNNER_TOOL_CACHE` in one run, creates a fresh second boundary, proves the
 marker is absent there, inspects the effective container mount, and finally
 proves interrupt cleanup removes the volume too.
@@ -654,16 +689,43 @@ evidence must show both four-artifact aggregates downloading through that bridge
 gateway. The interruption probe tests cleanup and tool-cache separation, not
 artifact transfer. Cleanup is restricted to the exact generated directory, the
 labeled tool-cache volume, and the network whose ID, name, gateway, and ownership
-label the runner recorded at creation.
+label the runner recorded at creation. Mutable leases are registered before the
+run directory, cache volume, or network can be accepted; post-create inspection
+failures and the function-return handoff therefore still reconcile the exact
+resource before propagating failure. Act process creation likewise blocks the
+parent handler from unwinding until the returned process handle is stored, so
+an interrupt cannot strand a process group between spawn and assignment. It
+does not block the signal mask: caught parent dispositions reset on `exec`, and
+a real-child negative control proves act inherits all three signals unblocked
+and terminates on `SIGTERM`.
 After every workflow and on every exceptional exit, the runner inventories
 Docker, selects only containers carrying that token, attached to that network,
 or sharing an owned container's network namespace, then stops and forcibly
-removes them. It verifies that no owned container remains before removing and
-verifying absence of the network. Only then does sudo ownership recovery and
-recursive run-directory removal begin. Any unverifiable absence changes an
-otherwise green run to exit 2. An operator interrupt first terminates and reaps
-the whole `act` process group; Docker-daemon-owned containers are independently
-contained by the same verified cleanup.
+removes them. It verifies that no owned container remains, then independently
+attempts and verifies removal of both the network and tool-cache volume so a
+failure inspecting either cannot suppress teardown of the other. Only then does
+sudo ownership recovery and recursive run-directory removal begin. Any
+unverifiable absence changes an otherwise green run to exit 2. `SIGINT`,
+`SIGTERM`, and `SIGHUP` all unwind through this cleanup; TERM/HUP retain their
+conventional `128 + signal` exit status after cleanup. The first handled signal
+latches the interruption and defers repeats of all three until every nested
+cleanup and absence check completes; a first signal that arrives after cleanup
+has already begun is blocked and delivered only after that cleanup scope exits.
+Every runner-created worker inherits those signals blocked, preventing the
+Python handler from being dispatched through a monitor thread while main is in
+a protected cleanup tail; the offline gate sends a process-directed signal with
+a live worker and proves cleanup finishes before the conventional exit status.
+The monitor's cancel, join, completion event, and dead-thread proof form another
+protected cleanup tail, including when the first signal arrives during a join.
+An operator interrupt first terminates and reaps the whole `act` process group.
+Sudo launches use
+privileged group signaling from the first signal rather than relying on a
+partial unprivileged `killpg`, and privileged `kill -0` must prove no root group
+member survived before Docker teardown begins. If kill or `kill -0` temporarily
+fails, the runner enters a containment hold: bounded commands keep retrying and
+Docker teardown remains paused until absence is actually established, with the
+PGID and operator recovery action printed. Docker-daemon-owned containers are
+independently contained by the same verified cleanup.
 
 The four exhaustive workers carry their checked denominator through the
 singleton `matrix.total` dimension. `scripts/ci_events.py` proves that value
