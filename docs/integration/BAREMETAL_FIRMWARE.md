@@ -93,6 +93,18 @@ this order:
    controls are ORed into one shared control-plane enable, so either bit alone
    enables it.
 
+That order is the claim, so it is checked rather than asserted: the block below
+is compared step by step against the call sequence `milan_init()` actually
+emits, and `scripts/check_feature_status.py` fails if either side moves. Swap
+two steps here, or in the firmware, and the gate names both sequences.
+
+<!-- milan-feature-order:firmware_boot_order:start -->
+1. `configure_fabric()` — the fabric CSRs, with the PHC and the gPTP plane
+   already live from the CSR reset.
+2. `load_aem_image()` — copy from QSPI and verify the CRC32.
+3. `entity_advertise()` — the enable bits, and only on a verified image.
+<!-- milan-feature-order:firmware_boot_order:end -->
+
 Step 4 lives in one function and nowhere else:
 
 ```c

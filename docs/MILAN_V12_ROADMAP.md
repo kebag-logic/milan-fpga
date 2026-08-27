@@ -1,7 +1,7 @@
 <!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
 # Milan v1.2 — the road to full compliance
 
-**Status 2026-08-18, VERSION `0x0002_0053`.** This is the ordered, clause-cited
+**Status 2026-08-27, VERSION `0x0002_0055`.** This is the ordered, clause-cited
 plan from where the device is to a device that passes the Milan
 end-station validation test plan. It supersedes the AECP sections of
 [historical `MILAN_COMPLIANCE_GAPS.md`](MILAN_COMPLIANCE_GAPS.md), whose 2026-08-13 status
@@ -65,7 +65,7 @@ None. Every operation Milan v1.2 mandates for this profile is served since
 
 ### 0.1 Served for real, today
 
-**Twenty-six** AEM opcodes plus one MVU command. The processor's `OP_*_C`
+**Thirty** AEM opcodes plus one MVU command. The processor's `OP_*_C`
 constants are the concrete decode. The feature ledger owns the canonical
 documented inventory, and the compliant bench gates its `SERVED` table against
 the processor RTL.
