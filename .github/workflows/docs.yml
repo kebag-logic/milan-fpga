@@ -129,6 +129,15 @@ jobs:
           python3 scripts/measure_fail_fast.py --check
           python3 scripts/measure_fail_fast.py --selftest
 
+      # Rule 7: a marker in first-party code names the issue that owns it. The
+      # definition is narrow on purpose - 26 of the 27 appearances of the word
+      # in this tree are a filename, an identifier, or prose about markers -
+      # and the self-test carries an arm for each class.
+      - name: TODO ownership gate
+        run: |
+          python3 scripts/check_todo_ownership.py
+          python3 scripts/check_todo_ownership.py --selftest
+
       # CI event and SHA contract gate (#174, #181): the four workflow files
       # and docs/testing/CI_WORKFLOWS.md must agree on the triggers, the cron
       # time, the public check names, cancel-in-progress and the one-SHA rule

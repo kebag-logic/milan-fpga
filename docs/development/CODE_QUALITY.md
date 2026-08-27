@@ -30,6 +30,7 @@ shape rather than guess at it.
 - **[Measuring hidden units](#measuring-hidden-units)** -- The port's own documentation as the evidence, the three exclusion classes and the false positives that forced them, and why this ships as a ratchet instead of a verdict.
 - **[Rule 5: make ports, contracts and ownership explicit](#rule-5-make-ports-contracts-and-ownership-explicit)** -- What a port contract must state, why wildcard, positional and hierarchical bindings are refused outright while missing documentation and unjustified open or tied connections are only ratcheted, the exact scope of the inventory, the boundary documented end to end as proof, and the review checklist.
 - **[Rule 6: fail fast and encode invariants](#rule-6-fail-fast-and-encode-invariants)** -- Where a verdict must be refused rather than logged, one in-tree example per boundary (elaboration, FSM default, generator, pipeline, Tcl flow), the elaboration contract added to the receive shield and mutation-proven by its own diagnostic, where that contract is and is not enforced, the three masked-failure populations ratcheted over a stated population, the sweep's refusal of a suite that logs a failure and exits 0, and the review checklist.
+- **[Rule 7: comments explain why, and dead code goes](#rule-7-comments-explain-why-and-dead-code-goes)** -- What a comment is for, why a marker names its issue or is resolved, the twenty-six false positives that forced a narrow definition of "marker", the stale marker removed, and the dead code the inventory found.
 - **[Rules not yet landed](#rules-not-yet-landed)** -- The remaining nine rules of the contract, named so the numbering is stable and a reader knows what is still coming.
 
 ## The governing rule
@@ -1445,14 +1446,99 @@ was confirmed by running its self-test, not by writing a second one.
 - Does the flow you are relying on evaluate the contract at all — Verilator
   with `USERERROR` fatal, Vivado — or is it the sv2v path?
 
+## Rule 7: comments explain why, and dead code goes
+
+> Code explains what it does; comments explain contracts, rationale, units,
+> standards, timing and non-obvious trade-offs. Update or delete a comment with
+> the code it describes. Remove unreachable or commented-out code and
+> speculative generality until a concrete requirement exists.
+
+### Repository interpretation
+
+- A marker names a concrete issue — `TODO(#123): …` — or it is resolved. An
+  unowned marker is not a backlog; it reads as a plan nobody is accountable
+  for, and it survives the change that made it wrong.
+- Deleted code stays in version control. It is not preserved as a comment.
+- Port `//!` documentation is the interface specification (Rule 5), and states
+  pulse versus level, units and timing where they matter.
+- Historical rationale belongs in one focused comment or a linked finding, not
+  as a chronology attached to every assignment.
+
+### The marker definition is narrow, and the narrowing was measured
+
+The word TODO appears 27 times in this tree. **Twenty-six of them are not
+markers**, in three classes:
+
+| Class | Example | Why it is not a marker |
+|---|---|---|
+| A filename | a citation of the [historical task list](../../TODO.md) | A tracked document pages legitimately cite |
+| An identifier | `TODO = "TODO describe this section"` in `scripts/gen_toc.py`, and `d == TODO` | Code, not a comment — and it names the placeholder that gate *refuses* |
+| Prose about markers | "as a TODO placeholder", "a TODO belongs in the roadmap, not here" | A sentence about markers is not one |
+
+So a marker is: the word, **inside a comment**, immediately followed by `:` or
+`(`. Every real marker has that shape; none of the false positives do.
+[`scripts/check_todo_ownership.py`](../../scripts/check_todo_ownership.py)
+prints the near-misses alongside the verdict, so a reader can see what the
+narrowing cost rather than trusting it.
+
+Markdown is not scanned at all. Prose about the
+[historical task list](../../TODO.md) is not a marker, and treating it as one
+would make the gate unusable.
+
+### The one real marker, and why it was stale rather than pending
+
+`hdl/ieee8021as/ptp_timestamp/ptp_ts_top.sv` carried
+`//TODO: add DMA engine signals` inside its port list. It was not merely
+unowned — it was **wrong**. Issue #53 records that the three DMA streams
+(`s_axis_tx`, `m_axis_rx`, `m_axis_ts`) already exist and that the remaining
+work is attaching them through a Vivado block design, which is a block-design
+change and not a change to this module's port list. The streams the marker asked
+for were declared immediately above it.
+
+That is the failure mode the rule names: a comment that outlived the code it
+described, still reading as a plan. It is removed, not re-owned, because there
+is nothing here for an owner to do.
+
+### Dead code the inventory found
+
+Five module-level Python helpers in first-party code are referenced nowhere in
+the tree. Four are small. The fifth is not:
+
+`sw/litex/test_ring_bd.py` defined `test_hs_livelock_orphan` — a 159-line
+multi-flow livelock reproduction — **after** the `if __name__ == "__main__":`
+block that lists the suite's tests. Python executes top to bottom, so when that
+block ran the name was not bound yet: the test had never run, and calling it
+from there would have raised `NameError`. It was not weak coverage; it was
+coverage that was never wired in, in a file 159 lines larger than the suite it
+actually ran.
+
+The rule says remove dead code — but "dead" was a question about this one, not a
+verdict, so it was answered by running it. **It passes**: seven buffer
+descriptors reaped live, the completion-queue head never jammed. So it is moved
+above the driver and called from it, rather than deleted. Deleting a livelock
+reproduction that works would have thrown away exactly the coverage its author
+intended, and the reason it was invisible is a line-ordering accident, not a
+decision anyone made.
+
+The other four unreferenced helpers are small and stay recorded rather than
+removed; none of them is a test, so none of them is silently missing coverage.
+
+### Review checklist
+
+- Does this comment say *why*, or does it restate the line below it?
+- If the code moved, did the comment move with it?
+- Does every marker name an issue?
+- Is there commented-out code that version control already holds?
+- Is any helper, branch or parameter here for a requirement that does not exist
+  yet?
+
 ## Rules not yet landed
 
-The contract is ten rules. Rules 1 to 6 are above; the rest keep these
+The contract is ten rules. Rules 1 to 7 are above; the rest keep these
 numbers so citations stay stable as they land:
 
 | Rule | Subject |
 |---|---|
-| 7 | Comments explain why; no dead or speculative code |
 | 8 | Deterministic, specification-derived tests |
 | 9 | Automated mechanical hygiene with measured ratchets |
 | 10 | Idiomatic SystemVerilog and explicit HDL boundaries |
