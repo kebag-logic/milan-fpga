@@ -63,8 +63,10 @@ script it calls; and an `env` on the job or on the workflow reaches the
 step's `gh` without appearing anywhere in the step. So `--check` also holds
 the gate job's `needs`, its exact step sequence, every step's key set, and
 the absence of any `GH_*` above the step. Separately, the worker shard
-denominator is derived from the matrix that produces the shards
-(`${{ strategy.job-total }}`) rather than restated beside it.
+denominator is carried as `${{ matrix.total }}`. The checker requires that
+matrix value to be a singleton equal to the shard list's size and requires
+every consumer to derive from it. This preserves one checked count while
+avoiding act v0.2.89's broken `strategy.job-total` value.
 
 THE FAST VERDICT ([R2] on PR #239). rtl-fast.yml's aggregate accepts skipped
 consumers on purpose, so its one verdict step is the entire conversion of
@@ -277,13 +279,11 @@ SELECTOR_READ = "python3 scripts/ci_scope.py <"
 #: an `env` on the JOB or on the WORKFLOW reaches that `gh` without appearing
 #: anywhere in the step (#209, O11/O12), so neither level names a `GH_*`.
 GH_ENV_PREFIX = "GH_"
-#: The shard denominator a worker passes, and states in its display name. It
-#: is DERIVED from the matrix that defines it, or equal to that matrix's size:
-#: a third statement of the same number does not move when the matrix does,
-#: and the shards past it are never produced while every static count still
-#: agrees (#209, O9). `--expect` is already derived checker-side; this is the
-#: same rule on the worker side of the same number.
-DERIVED_SHARD_TOTAL = "${{ strategy.job-total }}"
+#: The shard denominator a worker passes and states in its display name.
+#: `matrix.total` is the act-compatible carrier. check_shard_denominator proves
+#: it is a singleton equal to the `matrix.shard` list's size and that every
+#: consumer uses this expression rather than a literal (#209 O9, #268).
+DERIVED_SHARD_TOTAL = "${{ matrix.total }}"
 _EXPR = r"\$\{\{[^{}]*\}\}"   # one `${{ ... }}`, kept whole while scanning
 SHARD_ARG_RE = re.compile(r'--shard\s+"?((?:' + _EXPR + r'|[^\s"])+)"?')
 NAME_SHARD_RE = re.compile(r"\$\{\{\s*matrix\.shard\s*\}\}/((?:"
@@ -305,6 +305,13 @@ PUBLIC_NAMES = {
     RTL_FAST: ("rtl-fast",),
     ELABORATE: ("elaborate",),
 }
+#: act v0.2.89 shares one action cache across concurrent jobs. Its first use
+#: of download-artifact can race when both exhaustive aggregates start
+#: together, leaving one action invocation with no downloaded evidence. This
+#: direct order keeps that local bootstrap serial without weakening either
+#: aggregate: the later job carries `always()` and still audits its own shards.
+ACT_ARTIFACT_AGGREGATE_ORDER = PUBLIC_NAMES[RTL_FULL]
+ACT_CI_SELFTEST = "python3 scripts/act_ci.py --selftest"
 #: ``test_builder.py`` invokes both processor-image/source gates and the
 #: Vivado datapath-manifest consumer (syn/ooc/dp_srcs.py), which resolves the
 #: shipping AXIS primitives by path, so both hosted jobs which call the
@@ -736,6 +743,34 @@ def check_public_names(c, path, wf):
                "ambiguous")
 
 
+def check_act_artifact_aggregate_order(c, path, wf):
+    """Keep act's shared download-action bootstrap single-file.
+
+    The public-name check separately proves each display name has exactly one
+    carrier. Once those carriers are known, require each later aggregate to
+    directly need the prior one. A transitive or incidental order is too easy
+    to lose while editing unrelated worker dependencies.
+    """
+    all_jobs = jobs(wf)
+    carriers = {}
+    for name in ACT_ARTIFACT_AGGREGATE_ORDER:
+        found = [jid for jid, job in all_jobs.items()
+                 if display_name(jid, job) == name]
+        if len(found) == 1:
+            carriers[name] = found[0]
+    for earlier, later in zip(ACT_ARTIFACT_AGGREGATE_ORDER,
+                              ACT_ARTIFACT_AGGREGATE_ORDER[1:]):
+        earlier_id = carriers.get(earlier)
+        later_id = carriers.get(later)
+        if earlier_id is None or later_id is None:
+            continue
+        c.item(earlier_id in needs_list(all_jobs[later_id]), path,
+               f"job `{later_id}` must need `{earlier_id}` before starting "
+               "its artifact download: act v0.2.89 shares the action cache, "
+               "and concurrent first-use download actions can lose one "
+               "aggregate's evidence")
+
+
 def check_rtl_full(c, wf, policy):
     path = RTL_FULL
     check_push_and_pr(c, path, wf, exact_types=True)
@@ -769,6 +804,7 @@ def check_rtl_full(c, wf, policy):
 
     check_cancel_in_progress(c, path, wf)
     check_public_names(c, path, wf)
+    check_act_artifact_aggregate_order(c, path, wf)
 
     # One authoritative SHA: no checkout overrides the event's pinned commit.
     for jid, job in jobs(wf).items():
@@ -1237,18 +1273,35 @@ def resolve_denominator(token, env):
 
 
 def check_shard_denominator(c, path, jid, job):
-    """A sharded worker states its shard count ONCE, in the matrix that
-    produces the shards. Every `--shard <i>/<n>` it passes, and the `<n>` in
-    its own display name, derives that count or equals it. A restated
-    denominator does not move when the matrix does: with a matrix of three
-    and a literal `/4`, shard 3/4's suites and tops are never produced and
-    every static count still agrees (#209, O9)."""
+    """A sharded worker carries one checked count through ``matrix.total``.
+
+    GitHub's ``strategy.job-total`` is naturally derived, but act v0.2.89
+    renders it as a negative value. A singleton matrix dimension is portable
+    to both engines. It remains derived in substance because this check proves
+    it equals the shard list's size and proves every consumer names it.
+    """
     strat = job.get("strategy") if isinstance(job, dict) else None
     matrix = strat.get("matrix") if isinstance(strat, dict) else None
     shard = matrix.get("shard") if isinstance(matrix, dict) else None
     if not isinstance(shard, list) or not shard:
         return
     size = str(len(shard))
+    expansions = [key for key in ("include", "exclude") if key in matrix]
+    c.item(
+        not expansions,
+        path,
+        f"job `{jid}` sharded matrix must not define `include` or `exclude` "
+        f"(found {expansions or 'none'}): those keys change the produced job "
+        "set without changing the checked shard-list denominator",
+    )
+    total = matrix.get("total")
+    total_ok = (isinstance(total, list) and len(total) == 1
+                and str(total[0]) == size)
+    c.item(total_ok, path,
+           f"job `{jid}` shard denominator matrix `total` must be a singleton "
+           f"equal to the `strategy.matrix.shard` list size, {size} "
+           f"(found {total!r}): GitHub and act workers must receive the same "
+           "checked count")
     seen = []
     name = job.get("name")
     if isinstance(name, str):
@@ -1264,13 +1317,12 @@ def check_shard_denominator(c, path, jid, job):
            "matrix nothing reads splits nothing")
     for where, token, env in seen:
         got = resolve_denominator(token, env)
-        c.item(got in (DERIVED_SHARD_TOTAL, size), path,
+        c.item(got == DERIVED_SHARD_TOTAL, path,
                f"{where}: the shard denominator `{token}` must be "
-               f"`{DERIVED_SHARD_TOTAL}` or the size of this job's "
-               f"`strategy.matrix.shard` list, {size} (it resolves to "
-               f"`{got}`): a restated denominator does not move when the "
-               "matrix does, and the shards past it are never produced while "
-               "every static count still agrees")
+               f"`{DERIVED_SHARD_TOTAL}` (it resolves to `{got}`): a literal "
+               "does not move when the matrix changes, while "
+               "`strategy.job-total` is not portable to the supported act "
+               "runner")
 
 
 def matrix_size(wf, job):
@@ -1739,6 +1791,19 @@ def check_docs(c, wf):
         wired = any(f"scripts/ci_events.py {flag}" in t for t in texts)
         c.item(wired, DOCS, f"must run `python3 scripts/ci_events.py {flag}` "
                "(this gate is not a gate unless a workflow runs it)")
+    docs_job = jobs(wf).get("docs-check")
+    act_selftests = [s for s in steps(docs_job)
+                     if tuple(normalize_script(
+                         s.get("run") if isinstance(s.get("run"), str) else ""
+                     )) == (ACT_CI_SELFTEST,)]
+    c.item(len(act_selftests) == 1, DOCS,
+           f"job `docs-check` must run `{ACT_CI_SELFTEST}` exactly once "
+           f"(found {len(act_selftests)}): the runner's refusal and cleanup "
+           "controls are not a hosted gate unless the required docs context "
+           "executes their negative controls")
+    if len(act_selftests) == 1:
+        pinned_step_keys(c, DOCS, "local act runner contract step",
+                         act_selftests[0], ("name", "run"), {})
 
 
 def check_elaborate(c, wf):
@@ -1981,6 +2046,13 @@ def _mutations():
     def m_aggregate_without_gate(w):
         job = jobs(w[RTL_FULL])["verilator-suites"]
         job["needs"] = [n for n in job["needs"] if n != GATE_JOB]
+
+    def m_artifact_aggregates_race(w):
+        job = jobs(w[RTL_FULL])["yosys-portability"]
+        assert "verilator-suites" in job["needs"], (
+            "fixture drift: artifact aggregates are not ordered")
+        job["needs"] = [n for n in job["needs"]
+                        if n != "verilator-suites"]
 
     def db_step(w):
         for s in steps(jobs(w[RTL_FULL])[GATE_JOB]):
@@ -2289,12 +2361,29 @@ def _mutations():
         jobs(w[RTL_FULL])["verilator-shards"]["strategy"]["matrix"][
             "shard"].append(4)
 
+    def m_shard_total_missing(w):
+        del jobs(w[RTL_FULL])["verilator-shards"]["strategy"]["matrix"][
+            "total"]
+
+    def m_shard_total_wrong(w):
+        jobs(w[RTL_FULL])["yosys-shards"]["strategy"]["matrix"]["total"] = [3]
+
     def m_shard_denominator_wrong(w):
         restate_shards(w, "yosys-shards", "3")
 
     def m_shard_name_stale(w):
         job = jobs(w[RTL_FULL])["verilator-shards"]
         job["name"] = job["name"].replace(DERIVED_SHARD_TOTAL, "3")
+
+    def m_shard_matrix_include(w):
+        jobs(w[RTL_FULL])["verilator-shards"]["strategy"]["matrix"][
+            "include"
+        ] = [{"shard": 4, "total": 5}]
+
+    def m_shard_matrix_exclude(w):
+        jobs(w[RTL_FULL])["yosys-shards"]["strategy"]["matrix"][
+            "exclude"
+        ] = [{"shard": 3}]
 
     def verify_step(w, jid):
         for s in steps(jobs(w[RTL_FULL])[jid]):
@@ -2383,6 +2472,26 @@ def _mutations():
                         "scripts/ci_events.py --selftest", "true")
                     return
         raise AssertionError("fixture drift: docs.yml does not run --selftest")
+
+    def docs_act_selftest_step(w):
+        job = jobs(w[DOCS])["docs-check"]
+        found = [s for s in steps(job)
+                 if tuple(normalize_script(
+                     s.get("run") if isinstance(s.get("run"), str) else ""
+                 )) == (ACT_CI_SELFTEST,)]
+        assert len(found) == 1, (
+            "fixture drift: no unique act_ci.py self-test step")
+        return found[0]
+
+    def m_docs_no_act_selftest(w):
+        job = jobs(w[DOCS])["docs-check"]
+        target = docs_act_selftest_step(w)
+        job["steps"].remove(target)
+
+    def m_docs_act_selftest_key(key, value):
+        def mutate(w):
+            docs_act_selftest_step(w)[key] = value
+        return mutate
 
     def builder_fetch_step(w, path, jid):
         found = [s for s in job_steps(w, path, jid)
@@ -2600,6 +2709,8 @@ def _mutations():
          m_yosys_aggregate_no_verify, VERIFY_FLAG),
         ("rtl aggregate no longer needs the gate", m_aggregate_without_gate,
          f"must need `{GATE_JOB}`"),
+        ("rtl artifact aggregates can initialize concurrently",
+         m_artifact_aggregates_race, "concurrent first-use download actions"),
         ("rtl default-branch step removed", m_db_step_removed,
          "exactly one step"),
         ("rtl default-branch step without GH_TOKEN", m_db_token_missing,
@@ -2938,13 +3049,22 @@ def _mutations():
          set_job_key_at(RTL_FAST, FAST_SELECTOR_JOB, "env",
                         {"EVENT_NAME": "pull_request"}),
          "must carry no `env`"),
-        # #209 O9: the shard denominator restated instead of derived.
+        # #209 O9 / #268: the portable matrix carrier is mandatory, equals
+        # the shard-list size, and every consumer derives from it.
+        ("O9 matrix total carrier is missing", m_shard_total_missing,
+         "shard denominator matrix `total`"),
+        ("O9a matrix total disagrees with the shard list", m_shard_total_wrong,
+         "shard denominator matrix `total`"),
         ("O9 verilator matrix grows, the denominator is a literal",
          m_shard_denominator_stale, "shard denominator"),
         ("O9b yosys denominator below its matrix size",
          m_shard_denominator_wrong, "shard denominator"),
         ("O9c a worker name restates a stale denominator", m_shard_name_stale,
          "name: the shard denominator"),
+        ("O9d sharded matrix adds an include expansion", m_shard_matrix_include,
+         "must not define `include` or `exclude`"),
+        ("O9e sharded matrix excludes a worker", m_shard_matrix_exclude,
+         "must not define `include` or `exclude`"),
         ("rtl public name verilator-suites renamed",
          m_rename_job(RTL_FULL, "verilator-suites"), "`verilator-suites`"),
         ("rtl public name yosys-portability renamed",
@@ -2980,6 +3100,16 @@ def _mutations():
         ("docs no pull_request", m_drop_pr(DOCS), "must subscribe pull_request"),
         ("docs does not run --check", m_docs_no_check, "--check"),
         ("docs does not run --selftest", m_docs_no_selftest, "--selftest"),
+        ("docs drops the local act runner self-test",
+         m_docs_no_act_selftest, ACT_CI_SELFTEST),
+        ("docs disables the local act runner self-test",
+         m_docs_act_selftest_key("if", False), "must carry no `if`"),
+        ("docs swallows a local act runner self-test failure",
+         m_docs_act_selftest_key("continue-on-error", True),
+         "must carry no `continue-on-error`"),
+        ("docs only parses the local act runner self-test",
+         m_docs_act_selftest_key("shell", "bash -n {0}"),
+         "must carry no `shell`"),
         ("docs builder omits verilog-axis",
          m_builder_drop_submodule(DOCS, "docs-check",
                                   "third_party/verilog-axis"),
@@ -3238,9 +3368,7 @@ def selftest(root):
     for s in steps(jobs(world[RTL_FULL])[GATE_JOB]):
         if DEFAULT_BRANCH_FLAG in step_text(s):
             s["run"] = ("  set   -euo pipefail\n\n"
-                        '  observed="$(gh api "repos/$GITHUB_REPOSITORY" \\\n'
-                        "      --jq .default_branch 2>/dev/null \\\n"
-                        '      || echo unreadable)"\n'
+                        f"  {CANONICAL_OBSERVED}\n"
                         "  python3 scripts/ci_events.py \\\n"
                         "    --require-default-branch \\\n"
                         '    --event "$GITHUB_EVENT_NAME" \\\n'

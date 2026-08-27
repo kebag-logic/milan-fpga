@@ -92,6 +92,23 @@ flowchart LR
    branch* — a PR is not the place to discover the sweep is red.
 4. **Open the PR** against `dev`, with the template below and the
    self-test results as a **comment** (a comment is evidence, not approval).
+   After every pushed PR head, start the supported local workflow replica:
+
+   ```bash
+   python3 -I /absolute/path/to/trusted-dev/scripts/act_ci.py --pr <number>
+   ```
+
+   Run that command from the candidate worktree, but load the script only from
+   a separate clean worktree at the PR's current remote `dev` base; candidate
+   host-side orchestration Python must never execute on the host. The candidate
+   runner's offline self-test may execute only inside its disposable CI job.
+   `act` must be used instead of waiting for GitHub Actions to finish. For a
+   changing draft, select only applicable
+   workflows with repeated `--workflow` options; for a ready head, the default
+   runs all four. Hosted required contexts continue in parallel and remain part
+   of the merge bar; the local runner forwards no credential and publishes no
+   status. See
+   [Act-first local replication](docs/testing/CI_WORKFLOWS.md#act-first-local-replication).
 5. **Review with multiple agents, each with CLEARED context.** Not forks of
    the author's session: agents that have never seen the reasoning that
    produced the diff. An agent that helped write a change will re-derive the

@@ -12,6 +12,7 @@ reduce the local verification bar in [CONTRIBUTING.md](../../CONTRIBUTING.md).
 - **[One authoritative SHA](#one-authoritative-sha)** -- How every job of a run is pinned to one tree, what the workers record, what the aggregates refuse, and the gate that holds the files to this page.
 - **[Elaboration](#elaboration)** -- The one job that installs LiteX and observes what elaboration hands the datapath Instance, and what makes it red.
 - **[Pull-request state](#pull-request-state)** -- How draft and ready states control hosted long jobs without changing local responsibilities.
+- **[Act-first local replication](#act-first-local-replication)** -- The required exact-head local response while hosted Actions runs in parallel.
 - **[Protected merge bar](#protected-merge-bar)** -- The active `dev` ruleset, its seven exact required contexts, and why its update policy is loose.
 - **[Issue closing on merge](#issue-closing-on-merge)** -- What `Closes #N` does now that `dev` is the default branch, and what still waits for containment.
 - **[Local commands](#local-commands)** -- The serial commands that remain the authoritative developer-side gates.
@@ -334,8 +335,9 @@ env key on the pin and decision steps; `PR_DRAFT` forced to `true`,
 step moved before the
 checkout; a `GITHUB_PATH` step inserted before it; the pin step removed; the
 pin and assert steps swapped; a checkout without `fetch-depth: 0`; a `GH_HOST`
-on the job and on the workflow; a shard denominator restated below its matrix
-size, restated while the matrix grows, and stale in a worker's display name; a
+on the job and on the workflow; a shard denominator missing or stale in its
+matrix carrier, restated while the shard list grows, and stale in a worker's
+display name; a
 verifier that reassigns `GATE_SHA`, passes the wrong `--expect`, passes none,
 or keeps `--expect` while the matrix grows; an aggregate `if` loosened or
 dropped; the gate's `run_full` and `rtl` outputs each rebound to a literal
@@ -391,14 +393,14 @@ validates one tree. The workflow makes that explicit and machine-checked
   an aggregate cannot quietly stop proving that the gate, the run and its
   checkout agree, or tally three shards as four.
 
-The shard count is stated once, by each worker's `strategy.matrix.shard` list.
-The worker passes `--shard ${{ matrix.shard }}/${{ strategy.job-total }}` and
-names itself the same way, so growing that list moves the split with it, and
-`--check` derives the aggregate's `--expect` from the same list rather than
-reading a number written beside it. A restated denominator is refused, whether
-it appears in a script or in a job name: with a matrix of five and a literal
-`/4`, shard 4/5's suites and tops are never produced while `--expect`, the
-uploaded artifact count and the downloaded shard count all still agree.
+The shard count is defined by each worker's `strategy.matrix.shard` list and
+carried into the jobs by the singleton `matrix.total` dimension. The worker
+passes `--shard ${{ matrix.shard }}/${{ matrix.total }}` and names itself the
+same way. `--check` requires that singleton to equal the shard-list length and
+derives the aggregate's `--expect` from the list. It refuses a missing or stale
+total and any literal or `strategy.job-total` denominator in a script or job
+name. With a matrix of five and a stale total of four, the check fails before
+shard 4/5's suites or tops can be omitted while the artifact counts agree.
 
 The aggregates refuse, and the check fails rather than skips:
 
@@ -504,6 +506,275 @@ A docs-only ready PR remains cheap: the long workflow starts, classifies the
 diff, and skips its RTL workers with explicit skipped results. The two stable
 aggregate contexts are still emitted, so the ruleset never waits for a check
 name that the pull request cannot produce.
+
+## Act-first local replication
+
+After a PR head is pushed, an agent must use `act` instead of waiting for
+GitHub Actions to finish. Start the repository-owned runner immediately while
+the hosted workflows continue in parallel. The runner is host-side security
+code: from the candidate worktree, execute only the copy in a separate, clean
+worktree at the PR's current remote `dev` base:
+
+```sh
+python3 -I /absolute/path/to/trusted-dev/scripts/act_ci.py --pr <number>
+```
+
+Never invoke `scripts/act_ci.py` from the candidate worktree as the host-side
+orchestrator. The candidate copy does run its offline `--selftest` inside the
+disposable `docs` CI job; that contained check grants it no host or Docker
+authority and is not the trusted invocation described here. Python isolated
+mode prevents the candidate directory and ambient `PYTHONPATH` from supplying
+imports to the host-side runner. The runner verifies that its own worktree and
+bytes are the clean current base before it reads candidate content. A PR that
+introduces the runner cannot bootstrap trust in its own code: an independent
+reviewer must first audit the exact file, install that file outside the
+candidate worktree with no writable mode bits, record its SHA-256, then use
+`--trusted-install-sha256` together with explicit `--repo` and `--worktree`
+arguments. That bootstrap is an independently granted trust decision, not an
+executor shortcut. Later PRs, including changes to this runner, are validated
+by the already-trusted base copy.
+
+The independent bootstrap records both the source commit and file digest, then
+uses a non-writable copy; `<candidate>` and `<audited-install>` are absolute
+paths chosen by that reviewer:
+
+```sh
+install -m 0555 <candidate>/scripts/act_ci.py <audited-install>/act_ci.py
+sha256sum <audited-install>/act_ci.py
+python3 -I <audited-install>/act_ci.py --selftest \
+  --worktree <candidate>
+python3 -I <audited-install>/act_ci.py --pr <number> \
+  --repo kebag-logic/milan-fpga --worktree <candidate> \
+  --trusted-install-sha256 <recorded-64-hex-digest>
+```
+
+The reviewer's audit of those exact installed bytes is the trust anchor. The
+runner's check of `--trusted-install-sha256` is self-attestation and detects
+drift after that audit; it cannot establish that substituted runner code is
+trustworthy by itself.
+
+The `--selftest --worktree <candidate>` command above is the offline construction
+and negative-control gate; the explicit worktree tells an installed runner
+which shipping workflows to audit. That worktree remains untrusted: the reader
+opens every path component without following symlinks, opens the final entry
+nonblocking, requires a regular file and checks its size before a bounded read.
+The negative controls cover symlinks, FIFOs, devices, and oversized files, so
+the host-side bootstrap cannot be redirected into an unbounded candidate read.
+The default PR run executes `docs`,
+`elaborate`, `rtl-fast`, and `rtl-full` in that order.
+Use repeatable `--workflow <name>` options for a focused reproduction, and use
+`--dry-run` to perform the trust, fetch, metadata, and byte checks and print the
+generated command before consuming containers. The runner requires `gh`, Git,
+PyYAML, Docker, and exactly `act` 0.2.89. A newer act is refused until its Docker
+mount and cache behavior is audited and the repository pin is deliberately
+updated. On a host where the current user cannot open the Docker socket, add
+`--sudo`; this is non-interactive. Both the host-side Docker CLI and `act` pass
+through the same explicit `env -i` assignments and private empty `HOME`, keeping
+them on the same default local daemon without inheriting root's Docker
+`currentContext`, `DOCKER_CONFIG`, `DOCKER_CONTEXT`, `DOCKER_HOST`, credential
+helpers, or other ambient environment. The offline self-test plants a fake
+ambient current context and proves the two sudo prefixes remain identical apart
+from their executable.
+
+An audited change to the runner's cache, interruption, or Docker cleanup
+boundary must also run the live fault-injection gate. It first writes a marker
+through the effective runner tool cache and proves a second fresh run cannot see
+it. It then starts a harmless sleeping job, inspects the real cache mount, waits
+for the owned container, freezes the `act` process group, delivers `SIGTERM` to
+the runner, and requires the container, network, tool-cache volume, and run
+directory to be absent afterward. With `--sudo`, the probe also requires a root
+`act` child distinct from the sudo leader, sends `SIGSTOP` through privileged
+`kill`, proves every process-group member is stopped, and proves the complete
+group is absent before Docker teardown. Cancellation is serialized with that
+STOP transition, and the monitor must signal completion and be joined before
+Docker teardown can begin. A separate delayed-mutation probe times out a CLI
+whose privileged child would create a labelled volume two seconds later, then
+proves the whole CLI group is absent and the mutation never occurs:
+
+```sh
+python3 -I <audited-install>/act_ci.py --interrupt-selftest \
+  --act-bin <absolute-act-0.2.89> [--sudo]
+```
+
+The command reads the open PR from GitHub and refuses before validation when
+the base is not `dev`, the head is cross-repository, the candidate worktree is
+dirty or at a different SHA, or selected workflow bytes disagree with the
+remote commit even when index flags hide the edit. Replacement refs are
+refused. The selected-file byte verifier uses the same no-follow, nonblocking,
+regular-file-only bounded reader as the workflow sandbox. A credential-free
+HTTPS fetch into a new temporary Git repository
+materializes the exact same-repository PR head and current base without using
+the candidate's object database, index, configuration, hooks, filters, or
+worktree. The PR number, state, draft bit, base ref, head ref/SHA, repository,
+cross-repository bit, and URL are queried again immediately before and after
+every workflow; any change invalidates the whole run. If only the `dev` tip
+moves, the runner prints the old and new base SHAs but retains the result: those
+unrelated bytes were not executed and the exact PR head did not change.
+
+This local replica validates the exact head tree, not GitHub's synthetic merge
+commit. Hosted `pull_request` contexts validate `refs/pull/<number>/merge`, so
+they remain the authority for current merge compatibility while the local run
+provides earlier evidence about the candidate's own bytes. A later `dev` move
+can therefore require new hosted merge-context checks without discarding an
+otherwise complete local head-tree run.
+
+Before any candidate-directed network operation, the runner parses the exact
+committed `.gitmodules` blob and requires the trusted name/path/URL pairs with
+no duplicate or extra configuration. It also requires the matching four
+gitlink paths. Git disables every transport by default and enables only HTTPS;
+the inactive SSH-only `external` entry must match the trusted manifest but is
+never fetched. Only then, and only after selected workflows pass their static
+sandbox scan, does the temporary checkout initialize the three allowlisted
+public pinned dependencies (`third_party/verilog-axis`, `protocol-processor`,
+and `gptp-processor`). This gives act's local checkout copier the submodule-path
+parity that a hosted checkout exposes; each workflow's own submodule update
+remains the authoritative, idempotent check of those pins.
+
+Every host-side command routed through the runner's capture boundary, including
+Git metadata, fetch, checkout, and submodule commands, runs in a distinct
+tracked process group with a 30-minute upper bound. An interrupt or timeout
+cannot release the caller until that complete group is terminated, reaped, and
+proved absent. Offline controls deliver process-directed `SIGTERM` and `SIGHUP`
+to a captured child tree, and both signals to a production-shaped Git fetch with
+a remote-helper grandchild. Each requires the conventional interrupted status
+and proves the helper group absent within a bounded post-exit window. The
+helpers do not clean up their own children, so a cleanup implementation that
+only signals the group leader cannot satisfy the controls. When the
+host exposes the facility, the test harness temporarily becomes a child
+subreaper. It, rather than act's bare PID 1, reaps already-exited probe
+descendants; the runner must still terminate the executable group, and the
+probe allows its complete 25-second escalation. A separate
+production-entry control invokes the normal PR command path, interrupts its early
+repository lookup, and therefore fails if signal containment is narrowed to
+workflow execution again.
+
+The synthetic pull-request event names the exact base and head. A draft uses
+`synchronize`, retaining `draft=true`; a ready PR uses `ready_for_review`, so
+the real exhaustive selector launches all workers. `act` copies the immutable
+temporary checkout rather than fetching through `actions/checkout`. It starts
+from an empty invocation directory with private `HOME`/XDG roots, a minimal
+allowlisted environment, and explicit empty env, secret, variable, and input
+files. `GITHUB_TOKEN` is explicitly empty, so neither the active `gh` credential
+nor an SSH agent, proxy credential, runtime token, or other host secret reaches
+candidate code.
+
+Candidate jobs must use literal `ubuntu-latest`; reusable workflows and
+job/service containers are refused because they can carry container options or
+host-volume requests that the trusted scanner cannot safely delegate. Steps may
+use only the repository's exact audited non-Docker action set
+(`actions/checkout@v4`, `actions/cache@v4`, `actions/setup-python@v5`,
+`actions/upload-artifact@v4`, and `actions/download-artifact@v4`). Direct
+`docker://` actions, local actions (including `runs.using: docker`), and any
+unaudited remote action are refused before `act` starts; otherwise act can build
+or reuse a daemon-global action image outside the labelled run boundary. Offline
+negative controls cover all three forms, neutral names, and an unapproved
+version inside the otherwise trusted `actions/*` namespace. The act command
+also disables the container Docker socket, uses an unpredictable
+runner-created bridge network instead of the host network, applies the same
+unpredictable ownership token as a container label, never bind-mounts the
+operator's worktree, and supplies no privileged flag. Candidate workflow code
+consequently runs only in the disposable job boundary.
+
+Every run and SHA gets fresh action/workspace, Actions-cache, artifact, event,
+configuration, and input directories. `act` 0.2.89 also hard-codes the global
+Docker volume name `act-toolcache`; the runner turns that otherwise persistent
+slot into an exclusive ephemeral boundary. It refuses if that volume already
+exists, creates it empty with the run's unpredictable ownership label, verifies
+the label before every workflow, and removes it with an absence check after the
+last owned container. The refusal names the
+`org.kebag-logic.milan-act-ci.owner` label. Before removing an unlabelled legacy
+cache, the operator must serialize every act runner and prove no container uses
+it; absence of a label does not prove inactivity. A labelled cache must not be
+removed until no runner, container, or network with its owner token remains.
+The runner never deletes an
+unowned volume. Concurrent runner invocations fail closed because only one can
+own the upstream global name. If a Docker create call times out or is
+interrupted after the daemon accepted it, the runner inspects the exact global
+volume name and unpredictable network name, removes only resources carrying its
+token, and verifies their absence before propagating the setup failure. The
+offline self-test injects post-accept failures, ownership races, surviving
+resources, rollback failures, and a daemon mutation that appears only after an
+initial absence check. Each Docker CLI runs in a tracked process group; timeout
+or interruption terminates and reaps that complete group (privileged from the
+first signal under `--sudo`) before reconciliation begins. Rollback then
+requires a continuous half-second absence window, removing a late owned
+volume/network if the daemon completes an already-submitted request. The live
+interruption self-test writes a
+marker through
+`RUNNER_TOOL_CACHE` in one run, creates a fresh second boundary, proves the
+marker is absent there, inspects the effective container mount, and finally
+proves interrupt cleanup removes the volume too.
+
+The artifact and cache servers bind only to the gateway address of the
+runner-created bridge, so they are reachable by that run's job containers but
+not advertised on the host's routable interface. Each workflow also receives a
+freshly allocated nonzero artifact-listener port; act treats zero as random only
+for its cache server. The offline self-test checks both bind arguments; actual
+artifact transport is covered by the mandatory ready-state full run, whose
+evidence must show both four-artifact aggregates downloading through that bridge
+gateway. The interruption probe tests cleanup and tool-cache separation, not
+artifact transfer. `rtl.yml` deliberately orders those aggregates:
+`yosys-portability` directly needs `verilator-suites`. This leaves their
+verdicts independent because the later job uses `always()` and still checks its
+own workers, while serializing their first use of `actions/download-artifact`
+under act v0.2.89. Without that edge, act can race initialization through its
+shared action cache and one aggregate can observe no artifacts even after all
+workers uploaded them. `scripts/ci_events.py --check` pins the edge and its
+self-test removes it as a negative control.
+
+Cleanup is restricted to the exact generated directory, the
+labeled tool-cache volume, and the network whose ID, name, gateway, and ownership
+label the runner recorded at creation. Mutable leases are registered before the
+run directory, cache volume, or network can be accepted; post-create inspection
+failures and the function-return handoff therefore still reconcile the exact
+resource before propagating failure. Act process creation likewise blocks the
+parent handler from unwinding until the returned process handle is stored, so
+an interrupt cannot strand a process group between spawn and assignment. It
+does not block the signal mask: caught parent dispositions reset on `exec`, and
+a real-child negative control proves act inherits all three signals unblocked
+and terminates on `SIGTERM`.
+After every workflow and on every exceptional exit, the runner inventories
+Docker, selects only containers carrying that token, attached to that network,
+or sharing an owned container's network namespace, then stops and forcibly
+removes them. It verifies that no owned container remains, then independently
+attempts and verifies removal of both the network and tool-cache volume so a
+failure inspecting either cannot suppress teardown of the other. Only then does
+sudo ownership recovery and recursive run-directory removal begin. Any
+unverifiable absence changes an otherwise green run to exit 2. `SIGINT`,
+`SIGTERM`, and `SIGHUP` all unwind through this cleanup; TERM/HUP retain their
+conventional `128 + signal` exit status after cleanup. The first handled signal
+latches the interruption and defers repeats of all three until every nested
+cleanup and absence check completes; a first signal that arrives after cleanup
+has already begun is blocked and delivered only after that cleanup scope exits.
+Every runner-created worker inherits those signals blocked, preventing the
+Python handler from being dispatched through a monitor thread while main is in
+a protected cleanup tail; the offline gate sends a process-directed signal with
+a live worker and proves cleanup finishes before the conventional exit status.
+The monitor's cancel, join, completion event, and dead-thread proof form another
+protected cleanup tail, including when the first signal arrives during a join.
+An operator interrupt first terminates and reaps the whole `act` process group.
+Sudo launches use
+privileged group signaling from the first signal rather than relying on a
+partial unprivileged `killpg`, and privileged `kill -0` must prove no root group
+member survived before Docker teardown begins. If kill or `kill -0` temporarily
+fails, the runner enters a containment hold: bounded commands keep retrying and
+Docker teardown remains paused until absence is actually established, with the
+PGID and operator recovery action printed. Docker-daemon-owned containers are
+independently contained by the same verified cleanup.
+
+The four exhaustive workers carry their checked denominator through the
+singleton `matrix.total` dimension. `scripts/ci_events.py` proves that value
+equals the `matrix.shard` list length and that every job name and shard command
+uses it. Sharded matrices may not use `include` or `exclude`, because either can
+change the produced job set independently of that list and carrier. This retains
+GitHub's four-worker behavior and avoids the negative `strategy.job-total`
+values produced by `act` 0.2.89 without a local workflow edit.
+
+Local success is early exact-head evidence, not a locally manufactured GitHub
+status. The runner does not publish commit statuses, and the seven hosted
+contexts in the protected merge bar below remain mandatory. Continue useful
+local validation or review while they run; do not spend the interval polling
+an unfinished hosted run.
 
 ## Protected merge bar
 

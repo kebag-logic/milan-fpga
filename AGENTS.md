@@ -160,6 +160,25 @@ convert the PR back to draft before resuming exploratory work. The detailed
 scheduling and cancellation contract is in the
 [CI workflow policy](docs/testing/CI_WORKFLOWS.md).
 
+After each pushed PR head, start the repository-owned local replica before
+inspecting or polling the hosted run. An agent must use `act` instead of waiting
+for GitHub Actions to finish. From the candidate worktree, invoke the runner
+from a separate, clean worktree at the PR's current remote `dev` base:
+
+```sh
+python3 -I /absolute/path/to/trusted-dev/scripts/act_ci.py --pr <number>
+```
+
+Never execute the candidate's copy as the **host-side orchestrator**. The
+candidate copy may run its offline `--selftest` only inside the disposable CI
+job boundary; that does not grant it host or Docker authority. Select applicable
+fast workflows on a draft; the ready default runs all four. The command refuses
+a dirty or mismatched candidate, records and rechecks the exact remote head,
+and forwards no host credential. Its result is local evidence only; protected
+hosted contexts continue in parallel and remain mandatory. The trust boundary,
+bootstrap rule for a PR that introduces the runner, prerequisites, and failure
+semantics are in [Act-first local replication](docs/testing/CI_WORKFLOWS.md#act-first-local-replication).
+
 Self-test results belong in a PR comment as evidence, not as a review verdict.
 
 ## 6. Reviewer procedure
