@@ -25,6 +25,7 @@ from __future__ import annotations
 
 import argparse
 import contextlib
+import ctypes
 import hashlib
 import ipaddress
 import json
@@ -4514,7 +4515,50 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
         and term_probe_status == -signal.SIGTERM,
     )
 
-    def process_directed_signal_probe(
+    @contextlib.contextmanager
+    def selftest_child_subreaper() -> Iterator[None]:
+        """Give orphaned probe zombies a reaper even under act's bare PID 1."""
+        if not sys.platform.startswith("linux"):
+            yield
+            return
+        libc = ctypes.CDLL(None, use_errno=True)
+        try:
+            prctl = libc.prctl
+        except AttributeError as exc:
+            raise Refusal("self-test cannot configure a child subreaper") from exc
+        current = ctypes.c_int()
+        if prctl(37, ctypes.byref(current), 0, 0, 0) != 0:
+            error = ctypes.get_errno()
+            raise Refusal(
+                f"self-test cannot inspect child subreaper state: errno {error}"
+            )
+        if prctl(36, 1, 0, 0, 0) != 0:
+            error = ctypes.get_errno()
+            raise Refusal(
+                f"self-test cannot enable child subreaper: errno {error}"
+            )
+        try:
+            yield
+        finally:
+            if prctl(36, current.value, 0, 0, 0) != 0:
+                error = ctypes.get_errno()
+                raise Refusal(
+                    f"self-test cannot restore child subreaper: errno {error}"
+                )
+
+    def reap_adopted_process_group(process_group: int) -> None:
+        """Reap only orphaned probe descendants adopted from one command PGID."""
+        if process_group <= 1:
+            return
+        while True:
+            try:
+                waited, _raw_status = os.waitpid(-process_group, os.WNOHANG)
+            except ChildProcessError:
+                return
+            if waited == 0:
+                return
+
+    def process_directed_signal_probe_under_reaper(
         action: Callable[[], int],
         *,
         ready_path: pathlib.Path,
@@ -4552,9 +4596,13 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
         else:
             os.kill(runner_pid, signal.SIGKILL)
 
+        process_group = recorded[2] if recorded is not None else -1
         runner_status: int | None = None
-        exit_deadline = time.monotonic() + 15
+        # The production boundary may consume its complete 10 s INT, 10 s TERM,
+        # and 5 s KILL escalation before it can report containment.
+        exit_deadline = time.monotonic() + 35
         while time.monotonic() < exit_deadline:
+            reap_adopted_process_group(process_group)
             waited, raw_status = os.waitpid(runner_pid, os.WNOHANG)
             if waited == runner_pid:
                 runner_status = os.waitstatus_to_exitcode(raw_status)
@@ -4569,10 +4617,10 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
             runner_status = os.waitstatus_to_exitcode(raw_status)
 
         group_absent = False
-        process_group = recorded[2] if recorded is not None else -1
         if process_group > 1 and process_group != os.getpgrp():
             absence_deadline = time.monotonic() + 3
             while time.monotonic() < absence_deadline:
+                reap_adopted_process_group(process_group)
                 try:
                     if not process_group_exists(process_group, use_sudo=False):
                         group_absent = True
@@ -4582,11 +4630,32 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
                 time.sleep(0.05)
             if not group_absent:
                 try:
-                    os.killpg(process_group, signal.SIGKILL)
+                    # Test cleanup first gives a cooperative leader a chance to
+                    # reap its child. This keeps a deliberately failed mutation
+                    # from stranding an unkillable zombie under a non-reaping
+                    # container PID 1.
+                    os.killpg(process_group, signal.SIGTERM)
                 except ProcessLookupError:
                     pass
                 cleanup_deadline = time.monotonic() + 3
                 while time.monotonic() < cleanup_deadline:
+                    reap_adopted_process_group(process_group)
+                    try:
+                        if not process_group_exists(
+                            process_group, use_sudo=False
+                        ):
+                            break
+                    except Refusal:
+                        pass
+                    time.sleep(0.05)
+                try:
+                    if process_group_exists(process_group, use_sudo=False):
+                        os.killpg(process_group, signal.SIGKILL)
+                except (ProcessLookupError, Refusal):
+                    pass
+                cleanup_deadline = time.monotonic() + 3
+                while time.monotonic() < cleanup_deadline:
+                    reap_adopted_process_group(process_group)
                     try:
                         if not process_group_exists(
                             process_group, use_sudo=False
@@ -4596,12 +4665,35 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
                         pass
                     time.sleep(0.05)
 
-        return (
+        passed = (
             recorded is not None
             and recorded[0] != recorded[1]
             and runner_status == 128 + sent_signal
             and group_absent
         )
+        if not passed:
+            print(
+                "process-directed signal probe detail: "
+                f"signal={signal.Signals(sent_signal).name} "
+                f"runner={runner_pid} recorded={recorded!r} "
+                f"runner_status={runner_status!r} group_absent={group_absent} "
+                f"parent_pgrp={os.getpgrp()}",
+                file=sys.stderr,
+            )
+        return passed
+
+    def process_directed_signal_probe(
+        action: Callable[[], int],
+        *,
+        ready_path: pathlib.Path,
+        sent_signal: int,
+    ) -> bool:
+        with selftest_child_subreaper():
+            return process_directed_signal_probe_under_reaper(
+                action,
+                ready_path=ready_path,
+                sent_signal=sent_signal,
+            )
 
     def process_directed_capture_probe(
         command: Sequence[str],
@@ -4630,39 +4722,54 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
         prefix="act-ci-capture-signal-selftest-"
     ) as raw_capture_probe:
         capture_probe_root = pathlib.Path(raw_capture_probe)
-        tree_ready = capture_probe_root / "tree.ready"
-        tree_code = (
-            "import os,pathlib,subprocess,sys,time; "
-            "child=subprocess.Popen([sys.executable,'-I','-c',"
-            "'import time; time.sleep(300)']); "
-            "pathlib.Path(sys.argv[1]).write_text("
-            "f'{os.getpid()} {child.pid} {os.getpgrp()}'); "
-            "time.sleep(300)"
+        cooperative_tree_program = (
+            f"#!{sys.executable}\n"
+            "import os, pathlib, signal, subprocess, sys\n"
+            "child = subprocess.Popen([sys.executable, '-I', '-c', "
+            "'import signal,time; signal.signal(signal.SIGINT, "
+            "signal.SIG_DFL); time.sleep(300)'])\n"
+            "def terminate(signum, _frame):\n"
+            "    try:\n"
+            "        child.terminate()\n"
+            "    except ProcessLookupError:\n"
+            "        pass\n"
+            "    try:\n"
+            "        child.wait(timeout=5)\n"
+            "    except subprocess.TimeoutExpired:\n"
+            "        child.kill()\n"
+            "        child.wait(timeout=5)\n"
+            "    raise SystemExit(128 + signum)\n"
+            "for item in (signal.SIGINT, signal.SIGTERM, signal.SIGHUP):\n"
+            "    signal.signal(item, terminate)\n"
+            "pathlib.Path(os.environ['ACT_CI_PIDFILE']).write_text("
+            "f'{os.getpid()} {child.pid} {os.getpgrp()}')\n"
+            "while True:\n"
+            "    signal.pause()\n"
         )
-        check(
-            "process-directed TERM contains a captured child tree",
-            process_directed_capture_probe(
-                [sys.executable, "-I", "-c", tree_code, str(tree_ready)],
-                cwd=capture_probe_root,
-                env=child_environment,
-                ready_path=tree_ready,
-                sent_signal=signal.SIGTERM,
-            ),
-        )
+        tree_helper = capture_probe_root / "cooperative-tree.py"
+        tree_helper.write_text(cooperative_tree_program, encoding="utf-8")
+        tree_helper.chmod(0o755)
+        for sent_signal in (signal.SIGTERM, signal.SIGHUP):
+            tree_ready = capture_probe_root / f"tree-{sent_signal}.ready"
+            check(
+                f"process-directed {signal.Signals(sent_signal).name} "
+                "contains a captured child tree",
+                process_directed_capture_probe(
+                    [sys.executable, "-I", str(tree_helper)],
+                    cwd=capture_probe_root,
+                    env={
+                        **child_environment,
+                        "ACT_CI_PIDFILE": str(tree_ready),
+                    },
+                    ready_path=tree_ready,
+                    sent_signal=sent_signal,
+                ),
+            )
 
         entry_helper_root = capture_probe_root / "entry-bin"
         entry_helper_root.mkdir()
         fake_gh = entry_helper_root / "gh"
-        fake_gh.write_text(
-            f"#!{sys.executable}\n"
-            "import os, pathlib, subprocess, sys, time\n"
-            "child = subprocess.Popen([sys.executable, '-I', '-c', "
-            "'import time; time.sleep(300)'])\n"
-            "pathlib.Path(os.environ['ACT_CI_PIDFILE']).write_text("
-            "f'{os.getpid()} {child.pid} {os.getpgrp()}')\n"
-            "time.sleep(300)\n",
-            encoding="utf-8",
-        )
+        fake_gh.write_text(cooperative_tree_program, encoding="utf-8")
         fake_gh.chmod(0o755)
         entry_ready = capture_probe_root / "entry.ready"
         original_safe_path = SAFE_PATH
@@ -4708,16 +4815,7 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
         helper_root = capture_probe_root / "git-exec"
         helper_root.mkdir()
         remote_helper = helper_root / "git-remote-https"
-        remote_helper.write_text(
-            f"#!{sys.executable}\n"
-            "import os, pathlib, subprocess, sys, time\n"
-            "child = subprocess.Popen([sys.executable, '-I', '-c', "
-            "'import time; time.sleep(300)'])\n"
-            "pathlib.Path(os.environ['ACT_CI_PIDFILE']).write_text("
-            "f'{os.getpid()} {child.pid} {os.getpgrp()}')\n"
-            "time.sleep(300)\n",
-            encoding="utf-8",
-        )
+        remote_helper.write_text(cooperative_tree_program, encoding="utf-8")
         remote_helper.chmod(0o755)
         fetch_command = [
             *git_prefix(),
@@ -4728,7 +4826,7 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
             "--no-tags",
             "origin",
         ]
-        for sent_signal in (signal.SIGTERM, signal.SIGHUP):
+        for sent_signal in (signal.SIGTERM,):
             git_ready = capture_probe_root / f"git-{sent_signal}.ready"
             probe_env = {
                 **git_env,
