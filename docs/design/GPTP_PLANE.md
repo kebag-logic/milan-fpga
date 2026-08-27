@@ -144,6 +144,14 @@ The plane has four seams:
   parent counter still feeds the shadow's ingress capture and the separate
   MAC-boundary stamper.
 
+The parent-side synthesis comparison for #211 used
+`syn/yosys/run.sh --top KL_gptp_shadow` at base
+`5b680542a94523d1de2b5e66068ef0a751977fbf` and implementation
+`2faca833f25268abc49a76cb0d296ae5dd6a9fd2`. The reported total cell count
+fell from 204,045 to 203,960 (-85); both runs passed the tied-input and tap
+purity gates. The donor's Vivado out-of-context record, including the
+flattened engine and standalone uCPU results, lives with FPGA-gPTP #47.
+
 ## The ownership boundary
 
 With the product-default option on, the fabric publication bank is the single
