@@ -23,6 +23,8 @@ shape rather than guess at it.
 - **[Scope](#scope)** -- What counts as first-party maintenance surface and what is deliberately outside it, including why a generated file is fixed in its generator and never by hand.
 - **[Rule 1: keep modules and functions cohesive](#rule-1-keep-modules-and-functions-cohesive)** -- The single-responsibility rule, its repository interpretation for SystemVerilog and host code, worked good/bad examples, the exceptions that let a long unit stay whole, and the review checklist.
 - **[Measuring cohesion](#measuring-cohesion)** -- Why line count cannot answer the question, what `scripts/measure_cohesion.py` counts instead (disjoint state groups), what it deliberately cannot see, and the current candidate list read off the tree.
+- **[Rule 2: prefer simple and explicit control flow](#rule-2-prefer-simple-and-explicit-control-flow)** -- The KISS rule, what "explicit" means for a SystemVerilog priority chain versus a host-side parser, the worked simplification that took one function from six levels of nesting to two, and the review checklist.
+- **[Measuring control flow](#measuring-control-flow)** -- What `scripts/measure_control_flow.py` counts in each language -- nesting and decision points in host code, visible priority in RTL -- why no threshold is proposed, and what the tree actually measures today.
 - **[Rules not yet landed](#rules-not-yet-landed)** -- The remaining nine rules of the contract, named so the numbering is stable and a reader knows what is still coming.
 
 ## The governing rule
@@ -210,14 +212,126 @@ real unrelated ownership, and it is reduced one cohesive responsibility at a
 time rather than by a split campaign — the extraction described above moved it
 from 22 groups and 7167 lines to 20 groups and 7081 lines on the current base.
 
+## Rule 2: prefer simple and explicit control flow
+
+> Use the simplest control flow that makes state, priority, timing, and error
+> paths obvious. Prefer named intermediate values, explicit FSM states and
+> cases, bounded loops, and early exits over clever expressions or deep
+> nesting.
+
+Shorter is not the same as simpler. A line that removes a branch by hiding it
+has made the code worse, and the rule is about what a reader can see, not about
+line count.
+
+### Repository interpretation
+
+- **SystemVerilog priority must be visible.** A signal assigned more than once
+  in one procedural block resolves by source order, and accidental
+  last-assignment-wins behavior is not documentation. The pattern is not
+  forbidden — a default followed by a narrower override is often the clearest
+  thing to write — but the default and the override are named as such where
+  they are, so a reader does not have to re-derive the priority from line
+  numbers.
+- **Host code fails where it fails.** A Python, Tcl or shell path that cannot
+  continue returns or raises at that point, rather than setting a flag that is
+  carried through nested code and tested somewhere else.
+- **Table-driven code is welcome when the table is the specification**, and its
+  defaults, bounds and ordering are explicit. A dispatch table beats a branch
+  chain precisely when the chain's final `else` has become a catch-all that
+  nobody can name.
+
+### A worked example
+
+`cluster_names` in `sw/builder/endstation_builder.py` names one AUDIO_CLUSTER
+per cluster of a stream port. It did that with a four-way `if / elif / elif /
+else` chain nested inside two loops, with a further early-exit inside the final
+`else` — six levels of nesting and fourteen decision points in thirty-eight
+lines. The role that was hardest to read, loopback, was the one reached through
+the unnamed `else`.
+
+It is now a table: one small named function per pool role, and a dispatch that
+looks the role up. The measured shape, before and after:
+
+| Unit | Lines | Nesting depth | Decision points |
+|---|---:|---:|---:|
+| `cluster_names` before | 38 | 6 | 14 |
+| `cluster_names` after | 20 | 2 | 4 |
+| `_name_loopback` (deepest namer) | 9 | 1 | 1 |
+
+Behavior is unchanged, and the claim is made with a tool rather than asserted:
+every cluster name the builder can produce — five configurations, every stream
+port, both directions — is byte-identical before and after.
+
+Two things the flattening made visible that the nesting had hidden, and both
+now have arms:
+
+- the loopback namer's **empty receive space** path. A talker whose entity
+  declares no listener has no channel space to walk and names the cluster by
+  its own offset. That path was a `continue` five levels deep and nothing
+  graded it.
+- the chain's **bare `else`**. It swallowed any role that was not physical,
+  virtual or pilot and named it as a loopback channel. The table refuses an
+  unknown role by name instead. The role set is closed today, which is exactly
+  why the refusal needs a test: an unreachable path with no arm is how the next
+  role gets silently mislabelled.
+
+### Exceptions
+
+- A long, flat `case` over an explicit FSM state set is simple, whatever its
+  length. Splitting it to reduce a count would hide the transition table.
+- A compact expression is fine when it IS the specification — a wire-format
+  field split, a documented mask — and the citation is next to it.
+- A default-then-override pair in one block stays, when the two are named and
+  the override's condition is the narrower one.
+
+### Review checklist
+
+- Can a reader name the priority without counting lines?
+- Does every error path end where it is discovered, or is a flag carried?
+- Is each loop bound obvious at its head?
+- If a branch chain ends in `else`, can that branch be named — or is it a
+  catch-all standing in for cases nobody enumerated?
+- Does the change keep observable behavior, and does a differential run over
+  real inputs say so rather than a reading of the diff?
+
+## Measuring control flow
+
+[`scripts/measure_control_flow.py`](../../scripts/measure_control_flow.py) asks
+each language its own question.
+
+For host code it reports, per function, the **nesting depth** (how many
+enclosing branch, loop, `with` or `try` constructs a reader must hold) and the
+**decision points** (`if`, `for`, `while`, exception handlers, boolean
+operators, conditional expressions). A nested definition is measured as its own
+unit, so an orchestrator that defines one helper does not read as deeply nested
+when it is not.
+
+For SystemVerilog it reports, per procedural block, the nesting of `begin` and
+`case`, and the signals the block assigns **more than once** — the ones whose
+value is decided by source order.
+
+```
+python3 scripts/measure_control_flow.py             # both, ranked
+python3 scripts/measure_control_flow.py --selftest  # the fixture arms
+```
+
+**No threshold is proposed, and none is imported.** A generic complexity limit
+from another codebase would fail the parts of this tree that are correctly
+shaped — a wire-format parser and an explicit FSM both score high and are both
+right. What the tree measures today, so a later reader can see whether it moved:
+2,089 first-party functions, of which 30 nest five levels or deeper; and 309
+procedural blocks, of which 263 resolve at least one signal by source order.
+That second number is the reason the rule asks for priority to be *visible*
+rather than absent — forbidding the pattern would be a rewrite of most of the
+RTL, and would not make any of it clearer.
+
 ## Rules not yet landed
 
-The contract is ten rules. Rule 1 is above; the rest keep these numbers so
-citations stay stable as they land:
+The contract is ten rules. Rules 1 and 2 are above; the rest keep these
+numbers so citations stay stable as they land:
 
 | Rule | Subject |
 |---|---|
-| 2 | Simple and explicit control flow |
 | 3 | One source of truth, without weakening independent test oracles |
 | 4 | Intention-revealing names and explicit units and types |
 | 5 | Explicit ports, contracts, ownership and side effects |

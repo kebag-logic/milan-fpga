@@ -7546,6 +7546,61 @@ def test_d10_cluster_names():
           "their current model")
 
 
+def test_d10_cluster_namer_paths():
+    """gate 24d - the cluster namers, including the two paths a live config
+    does not reach.
+
+    Rule 2 (docs/development/CODE_QUALITY.md) turned an `if/elif/elif/else`
+    chain nested inside two loops into a named table. Two of its paths were
+    only ever reachable through that nesting and had no arm:
+
+      * the loopback namer with an EMPTY receive channel space. A talker whose
+        entity declares no listener has nothing to walk, and the cluster is
+        named by its own offset instead. The old shape reached this with a
+        `continue` five levels deep, so nothing graded it.
+      * a pool role with no namer. The old shape's bare `else` swallowed any
+        unknown role and named it as a loopback channel; the table refuses it
+        by name. The set is closed today, which is exactly why the refusal
+        needs an arm - an unreachable path with no test is how the next role
+        gets silently mislabelled.
+    """
+    cfg = eb.load_config(CONFIGS["ax7101_8x8"])
+
+    # -- the empty-rx loopback path -----------------------------------------
+    headless = dict(cfg, listeners=[])
+    port = {"index": 0, "clusters": 3,
+            "pool": [{"role": "loopback", "width": 3, "first": 0, "offset": 0}]}
+    got = eb.cluster_names(headless, port, "output")
+    assert got == ["Loopback ch 0", "Loopback ch 1", "Loopback ch 2"], got
+
+    # and with a receive space present the SAME pool names real sources, so
+    # the arm above is not passing because the namer is inert
+    live = eb.cluster_names(cfg, port, "output")
+    assert live != got and all(n.startswith("Loopback S") for n in live), live
+
+    # -- the unknown-role refusal -------------------------------------------
+    bogus = {"index": 0, "clusters": 1,
+             "pool": [{"role": "teleport", "width": 1, "first": 0, "offset": 0}]}
+    try:
+        eb.cluster_names(cfg, bogus, "output")
+    except eb.ConfigError as e:
+        assert "teleport" in str(e) and "loopback" in str(e), str(e)
+    else:
+        assert False, ("an unknown pool role must be refused by name, not "
+                       "silently named as a loopback channel")
+
+    # -- every known role still has a namer, and the table IS the dispatch ---
+    assert set(eb.CLUSTER_NAMERS) == {"physical", "virtual", "pilot", "loopback"}, \
+        eb.CLUSTER_NAMERS
+    for direction, roles in eb.PRIMARY_ROLE_ORDER.items():
+        for role in roles:
+            assert role in eb.CLUSTER_NAMERS, (
+                f"{role} is a primary role for {direction} but has no namer")
+    print("  [gate 24d] empty-rx loopback names by offset (and by source when "
+          "a receive space exists), an unknown role is refused by name, and "
+          "every primary role in PRIMARY_ROLE_ORDER has a namer")
+
+
 def test_d10_names_reach_the_rom():
     """gate 24d - the cluster ROLE NAMES survive the whole path (config ->
     overlay -> gen_aem_store -> descriptor bytes), and the TRACKED SHAPE
@@ -8439,7 +8494,8 @@ if __name__ == "__main__":
                test_firmware_version_derived_from_rtl,
                test_d8_role_pools, test_d8_role_pools_reject,
                test_prune_guard_hop_gate_bites,
-               test_d10_cluster_names, test_d10_names_reach_the_rom,
+               test_d10_cluster_names, test_d10_cluster_namer_paths,
+               test_d10_names_reach_the_rom,
                test_gptp_domain_is_one_source,
                test_gptp_dataset_matches_engine_announce,
                test_pp_window_contract,

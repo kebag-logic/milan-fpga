@@ -1438,42 +1438,86 @@ def primary_segment(port, direction):
     return port["pool"][0] if port["pool"] else None
 
 
+class _ClusterNaming:
+    """Everything a cluster namer needs, resolved once per port.
+
+    The namers below take this instead of reaching back into `cfg`, so each
+    one is readable on its own and the dispatch table is a table rather than a
+    branch chain that happens to close over local variables."""
+
+    def __init__(self, cfg, direction):
+        self.label = IFACE_LABEL.get(cfg["interface"]["kind"], "AUDIO")
+        #: a cluster on a STREAM_PORT_INPUT is what the entity plays OUT
+        self.way = "Out" if direction == "input" else "In"
+        self._names = cfg["interface"].get("channel_names") or []
+        #: the received stream channel space, in {stream, channel} order: what
+        #: a loopback cluster actually offers a talker.
+        self.rx = [(si, ch) for si, s in enumerate(cfg["listeners"])
+                   for ch in range(s["channels"])]
+
+    def chname(self, k, fallback):
+        return self._names[k] if k < len(self._names) else fallback
+
+    def rx_index(self, stream):
+        """Where `stream`'s channel space starts, or 0 if it has none."""
+        return next((k for k, (si, ch) in enumerate(self.rx)
+                     if si == stream and ch == 0), 0)
+
+
+def _name_physical(ctx, first, n):
+    return f"{ctx.label} {ctx.way} {ctx.chname(first + n, str(first + n))}"
+
+
+def _name_virtual(ctx, first, n):
+    return f"Virtual {ctx.way} {first + n}"
+
+
+def _name_pilot(ctx, first, n):
+    return "Pilot Tone"
+
+
+def _name_loopback(ctx, first, n):
+    """Walk the rx channel space from THIS talker's own stream index, so
+    talker t defaults to rx stream t (per-channel-distinct audio, not eight
+    copies of one). With no receive stream at all there is no channel space to
+    walk and the cluster is named by its own offset."""
+    if not ctx.rx:
+        return f"Loopback ch {n}"
+    si, ch = ctx.rx[(ctx.rx_index(first) + n) % len(ctx.rx)]
+    return f"Loopback S{si} {ctx.chname(ch, f'ch {ch}')}"
+
+
+#: one namer per pool role. The set is closed: `legacy_pool` emits physical
+#: and virtual, `role_pool` emits physical, pilot and loopback, and nothing
+#: else constructs a pool entry. Naming them in a table rather than an
+#: if/elif chain ending in a bare `else` means a role this builder does not
+#: know is refused by name instead of silently named as a loopback channel.
+CLUSTER_NAMERS = {
+    "physical": _name_physical,
+    "virtual":  _name_virtual,
+    "pilot":    _name_pilot,
+    "loopback": _name_loopback,
+}
+
+
 def cluster_names(cfg, port, direction):
     """D10: one object_name per cluster of this port, in offset order.
 
     1722.1-2021 6.2.2.8 lists `object_name` among the fields EXCLUDED from
     "the structure of the data model", so renaming clusters must NOT move
     entity_model_id - and it does not: model_shape() never sees a name."""
-    label = IFACE_LABEL.get(cfg["interface"]["kind"], "AUDIO")
-    cnames = cfg["interface"].get("channel_names") or []
-    def chname(k, fallback):
-        return cnames[k] if k < len(cnames) else fallback
-    # the received stream channel space, in {stream, channel} order: what a
-    # loopback cluster actually offers a talker.
-    rx = [(si, ch) for si, s in enumerate(cfg["listeners"])
-          for ch in range(s["channels"])]
+    ctx = _ClusterNaming(cfg, direction)
     out = []
-    for g in port["pool"]:
-        role, w, first = g["role"], g["width"], g.get("first", 0)
-        for n in range(w):
-            if role == "physical":
-                out.append(f"{label} {'Out' if direction == 'input' else 'In'}"
-                           f" {chname(first + n, str(first + n))}")
-            elif role == "virtual":
-                out.append(f"Virtual {'Out' if direction == 'input' else 'In'}"
-                           f" {first + n}")
-            elif role == "pilot":
-                out.append("Pilot Tone")
-            else:  # loopback: walk the rx channel space from THIS talker's
-                   # own stream index, so talker t defaults to rx stream t
-                   # (per-channel-distinct audio, not eight copies of one)
-                if not rx:
-                    out.append(f"Loopback ch {n}")
-                    continue
-                start = next((k for k, (si, ch) in enumerate(rx)
-                              if si == first and ch == 0), 0)
-                si, ch = rx[(start + n) % len(rx)]
-                out.append(f"Loopback S{si} {chname(ch, f'ch {ch}')}")
+    for group in port["pool"]:
+        role = group["role"]
+        namer = CLUSTER_NAMERS.get(role)
+        if namer is None:
+            raise ConfigError(
+                f"cluster naming: pool role {role!r} on STREAM_PORT_"
+                f"{direction.upper()} {port.get('index')} has no namer. "
+                f"Known roles: {', '.join(sorted(CLUSTER_NAMERS))}")
+        first = group.get("first", 0)
+        out.extend(namer(ctx, first, n) for n in range(group["width"]))
     assert len(out) == port["clusters"]
     return out
 
