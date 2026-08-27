@@ -51,8 +51,8 @@ module rx_mac_filter #(
     parameter int ACTION_WIDTH = 8,
     parameter int IDX_WIDTH    = (NUM_ENTRIES <= 1) ? 1 : $clog2(NUM_ENTRIES)
 )(
-    input  wire                     clk_i,
-    input  wire                     rst_n,
+    input  wire                     clk_i, //! RX datapath clock; every port below is in this domain
+    input  wire                     rst_n, //! synchronous, active-low; clears the frame verdict and the TCAM valid bits
 
     // ---- 802.3 station address filter (REQ-MAC-02, milan_csr 0x100) --------
     input  wire                     addr_filter_en_i, //! TCAM_CTRL[1]: apply the address filter on a TCAM miss
@@ -63,6 +63,12 @@ module rx_mac_filter #(
 
     // ---- filter policy + TCAM programming (from milan_csr 0x700) -----------
     input  wire                     default_pass_i, //! accept frames that miss the TCAM
+
+    //! TCAM entry write port. Level-driven and applied on the cycle en is
+    //! high; there is no handshake and no backpressure, so the writer holds
+    //! index/valid/key/mask/action stable for that cycle. Writing an entry
+    //! while a frame is in flight retimes the NEXT frame's lookup, never the
+    //! one being filtered - the verdict is latched at the frame's first beat.
     input  wire                     tcam_wr_en_i,
     input  wire [IDX_WIDTH-1:0]     tcam_wr_index_i,
     input  wire                     tcam_wr_valid_i,
@@ -71,6 +77,11 @@ module rx_mac_filter #(
     input  wire [ACTION_WIDTH-1:0]  tcam_wr_action_i,
 
     // ---- RX AXIS in (from MAC/PTP) ----------------------------------------
+    //! AXI4-Stream sink, destination address MSB-first in the first beat.
+    //! Standard valid/ready: a beat transfers when tvalid and tready are both
+    //! high, tvalid never waits on tready, and tlast marks the final beat of a
+    //! frame. tready is passed through from the source below, so a dropped
+    //! frame is consumed at full rate rather than stalling the MAC.
     input  wire [TDATA_WIDTH-1:0]   s_tdata,
     input  wire [TDATA_WIDTH/8-1:0] s_tkeep,
     input  wire                     s_tvalid,
@@ -78,6 +89,10 @@ module rx_mac_filter #(
     output wire                     s_tready,
 
     // ---- RX AXIS out (filtered, to DMA) -----------------------------------
+    //! AXI4-Stream source carrying only accepted frames, beat for beat with
+    //! the sink above. A dropped frame is squashed by holding tvalid low for
+    //! its whole length, so a consumer never sees a partial frame and never
+    //! sees a tlast without a preceding first beat.
     output wire [TDATA_WIDTH-1:0]   m_tdata,
     output wire [TDATA_WIDTH/8-1:0] m_tkeep,
     output wire                     m_tvalid,
@@ -85,6 +100,10 @@ module rx_mac_filter #(
     input  wire                     m_tready,
 
     // ---- status (per accepted frame) --------------------------------------
+    //! Per-frame verdict, all three LEVELS and not pulses. They are valid from
+    //! the frame's first beat until its tlast and are observation only: no
+    //! consumer may drive backpressure from them, because the frame they
+    //! describe is already in flight.
     output wire [ACTION_WIDTH-1:0]  frame_action_o, //! action of the current frame's match
     output wire                     frame_match_o,  //! current frame hit a TCAM entry
     output wire                     frame_dropped_o //! current frame is being dropped

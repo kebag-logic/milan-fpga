@@ -28,6 +28,7 @@ shape rather than guess at it.
 - **[Rule 3: keep one source of truth without weakening test oracles](#rule-3-keep-one-source-of-truth-without-weakening-test-oracles)** -- The single-definition rule and the exception that keeps a test honest, the five RTL source lists that had one authority and four unguarded copies, the drift gate that now derives all of them from the RTL, and the mutation that proves an independent oracle is really independent.
 - **[Rule 4: use intention-revealing names and explicit units](#rule-4-use-intention-revealing-names-and-explicit-units)** -- What a name must reveal, the unit and clock-domain qualifiers that extend the existing HDL suffixes rather than competing with them, cross-language equivalents, and the interface renamed end to end to prove it.
 - **[Measuring hidden units](#measuring-hidden-units)** -- The port's own documentation as the evidence, the three exclusion classes and the false positives that forced them, and why this ships as a ratchet instead of a verdict.
+- **[Rule 5: make ports, contracts and ownership explicit](#rule-5-make-ports-contracts-and-ownership-explicit)** -- What a port contract must state, why positional and wildcard bindings are refused outright while missing documentation is only ratcheted, the boundary documented end to end as proof, and the review checklist.
 - **[Rules not yet landed](#rules-not-yet-landed)** -- The remaining nine rules of the contract, named so the numbering is stable and a reader knows what is still coming.
 
 ## The governing rule
@@ -904,14 +905,107 @@ into each processor and require the refusal. After a genuine rename,
 `--write-budget` regenerates the list and the diff shows exactly which
 boundary gained its unit.
 
+## Rule 5: make ports, contracts and ownership explicit
+
+> Every state element has one owner. Dependencies cross production boundaries
+> through explicit, named ports. Each interface documents its inputs, outputs,
+> side effects, clock domain, reset state, and handshake or backpressure law.
+> The module declaration and each instantiation must make the boundary
+> reviewable without searching the implementation for hidden connectivity.
+
+[CONTRIBUTING.md](../../CONTRIBUTING.md) already states half of this — "Ports
+documented **inline with `//!`** — the port list IS the spec". Nothing checked
+it, and 257 of 1,728 first-party ports carried no contract at all.
+
+### What a port contract states
+
+Not what the signal is called again in prose. A contract answers the questions
+a reader would otherwise have to answer by reading the body:
+
+- **role and units** — what the value means, in what unit (see Rule 4);
+- **clock domain** — which clock it is valid in, and whether it crosses one;
+- **reset state** — what it reads after reset, and whether reset clears it;
+- **level or pulse** — a one-cycle strobe and a held level need different
+  consumers, and confusing them is silent;
+- **handshake law** — for a stream, when a beat transfers, whether valid may
+  wait on ready, and what backpressure does;
+- **side effects** — what else moves when this port moves.
+
+A group comment over a cohesive bundle is the contract for that bundle. One
+`//!` above an AXIS valid/ready/last triple says more than three comments
+reading "valid", "ready", "last".
+
+### Two refusals and one ratchet
+
+The three parts of this rule are checked differently on purpose.
+
+**Wildcard `.*` bindings are refused outright.** A `.*` connects by name at
+elaboration, so adding a port to a child silently rewires every parent with no
+diff at the instantiation site.
+
+**Positional bindings are refused outright**, for the same reason with a
+sharper edge: reordering a child's ports rewires every positional parent
+silently, and the widths usually still fit. Only modules this tree declares are
+judged — a vendor primitive or a generated wrapper keeps whatever form its tool
+requires.
+
+Both populations are **zero today**, which is precisely why the arms that prove
+those checks bite matter more than the counts. A gate with an empty population
+is indistinguishable from a gate that does nothing, so
+[`scripts/check_port_contracts.py`](../../scripts/check_port_contracts.py)
+carries fixtures for a wildcard binding, a positional binding, a named binding,
+a parameterised named binding, a foreign module, control flow that must not read
+as an instantiation, and a commented-out binding.
+
+**Undocumented ports are ratcheted, not refused.** There are 239 of them. A
+flag-day pass over every one would be exactly the churn the governing rule
+forbids, so the count may only fall.
+
+The gate does not write its own list of which files are first-party gated
+surface: it imports `LINT_EXCLUDE` from
+[`scripts/lint_rtl.py`](../../scripts/lint_rtl.py), which already owns that
+question and records a reason for each entry. `hdl/milan/milan_top.sv` is in it
+— a Zynq top no build compiles and that cannot elaborate here — and documenting
+its ports would decorate a file every gate already ignores.
+
+### The boundary documented as proof
+
+`hdl/ieee8021q/filtering/rx_mac_filter.sv` is the receive shield: it decides
+which frames reach the host at all, and eighteen of its ports carried no
+contract. Each of its four bundles now states the law a consumer needs:
+
+- the **TCAM write port** is level-driven with no handshake, and a write during
+  a frame retimes the *next* lookup, never the one in flight;
+- the **sink** is standard valid/ready, and `tready` is passed straight through
+  so a dropped frame is consumed at full rate instead of stalling the MAC;
+- the **source** squashes a dropped frame by holding `tvalid` low for its whole
+  length, so a consumer never sees a partial frame or a `tlast` with no first
+  beat;
+- the **verdict** rails are levels valid for the frame's duration, and are
+  observation only — nothing may drive backpressure from them, because the
+  frame they describe is already in flight.
+
+None of that was inferable from the port list before, and all of it is
+load-bearing for anyone connecting to this module.
+
+### Review checklist
+
+- Can a reader connect to this module without opening its body?
+- Does each port say its clock domain, its reset state, and level versus pulse?
+- For a stream, is the handshake law written down — including what
+  backpressure does?
+- Is every instantiation connected by name?
+- Does any production path depend on a hierarchical reference or a test
+  backdoor?
+- Is a tied-off or ignored port justified locally, or is it decorative?
+
 ## Rules not yet landed
 
-The contract is ten rules. Rules 1 to 4 are above; the rest keep these
+The contract is ten rules. Rules 1 to 5 are above; the rest keep these
 numbers so citations stay stable as they land:
 
 | Rule | Subject |
 |---|---|
-| 5 | Explicit ports, contracts, ownership and side effects |
 | 6 | Fail fast and encode invariants |
 | 7 | Comments explain why; no dead or speculative code |
 | 8 | Deterministic, specification-derived tests |

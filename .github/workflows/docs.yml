@@ -109,6 +109,14 @@ jobs:
           python3 scripts/measure_naming.py --check
           python3 scripts/measure_naming.py --selftest
 
+      # Rule 5: no wildcard or positional port binding anywhere (both refused
+      # outright, both currently zero, both with arms proving the check bites),
+      # and undocumented ports held to a ratchet.
+      - name: Port contract gate
+        run: |
+          python3 scripts/check_port_contracts.py
+          python3 scripts/check_port_contracts.py --selftest
+
       # CI event and SHA contract gate (#174, #181): the four workflow files
       # and docs/testing/CI_WORKFLOWS.md must agree on the triggers, the cron
       # time, the public check names, cancel-in-progress and the one-SHA rule
