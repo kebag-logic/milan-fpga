@@ -1,0 +1,10 @@
+# Rule 9 ratchets, one per adopted check. See scripts/check_hygiene.py for the
+# measurement that selected these five and the recorded reason the line-length
+# check was REJECTED. EVERY NUMBER MAY ONLY GO DOWN.
+#
+# `python3 scripts/check_hygiene.py --fix` repairs the first four.
+trailing whitespace  = 43
+missing EOF newline  = 14
+CRLF line ending     = 0
+UTF-8 BOM            = 0
+tab in SystemVerilog = 0
