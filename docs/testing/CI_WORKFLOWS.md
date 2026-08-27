@@ -592,11 +592,14 @@ supplies no privileged flag. Candidate workflow code consequently runs only in
 the disposable job boundary.
 
 Every run and SHA gets fresh action/workspace, Actions-cache, artifact, event,
-configuration, and input directories. There is no persistent-cache override:
-a candidate cannot seed a later head. Cleanup is restricted to the exact
-generated directory. Sudo ownership recovery, recursive removal, and the final
-absence check are all fail-closed; a cleanup failure changes an otherwise green
-run to exit 2.
+configuration, and input directories. Each workflow also receives a freshly
+allocated nonzero artifact-listener port; act treats zero as random only for its
+cache server. There is no persistent-cache override: a candidate cannot seed a
+later head. Cleanup is restricted to the exact generated directory. Sudo
+ownership recovery, recursive removal, and the final absence check are all
+fail-closed; a cleanup failure changes an otherwise green run to exit 2. An
+operator interrupt terminates and reaps the whole act process group before that
+cleanup begins.
 
 The four exhaustive workers carry their checked denominator through the
 singleton `matrix.total` dimension. `scripts/ci_events.py` proves that value

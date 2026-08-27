@@ -32,6 +32,8 @@ import pathlib
 import re
 import shlex
 import shutil
+import signal
+import socket
 import stat
 import subprocess
 import sys
@@ -914,8 +916,10 @@ def act_prefix(act_binary: str, use_sudo: bool, env: Mapping[str, str]) -> list[
 
 
 def build_act_command(
-    prefix: Sequence[str], workflow: str, layout: RunLayout
+    prefix: Sequence[str], workflow: str, layout: RunLayout, artifact_port: int
 ) -> list[str]:
+    if not 1 <= artifact_port <= 65535:
+        raise Refusal(f"invalid artifact-server port: {artifact_port}")
     artifact_path = layout.artifacts / workflow
     artifact_path.mkdir(parents=True, exist_ok=True)
     return [
@@ -935,7 +939,7 @@ def build_act_command(
         "--artifact-server-path",
         str(artifact_path),
         "--artifact-server-port",
-        "0",
+        str(artifact_port),
         "--action-cache-path",
         str(layout.action_cache),
         "--cache-server-path",
@@ -957,6 +961,85 @@ def build_act_command(
         "--network",
         "bridge",
     ]
+
+
+def allocate_tcp_port() -> int:
+    """Select a currently free host port; a later bind race fails closed in act."""
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as listener:
+            listener.bind(("", 0))
+            port = listener.getsockname()[1]
+    except OSError as exc:
+        raise Refusal(f"cannot allocate an artifact-server port: {exc}") from exc
+    if not isinstance(port, int) or not 1 <= port <= 65535:
+        raise Refusal(f"host returned an invalid artifact-server port: {port!r}")
+    return port
+
+
+def run_act_process(
+    command: Sequence[str],
+    *,
+    cwd: pathlib.Path,
+    env: Mapping[str, str],
+    check: bool = False,
+) -> subprocess.CompletedProcess[object]:
+    """Run act in its own process group and reap that group on interruption."""
+    del check  # This boundary always returns the workflow status to its caller.
+    process = subprocess.Popen(
+        command,
+        cwd=cwd,
+        env=dict(env),
+        start_new_session=True,
+    )
+    try:
+        return subprocess.CompletedProcess(command, process.wait())
+    except BaseException:
+        for sent_signal, timeout in (
+            (signal.SIGINT, 10),
+            (signal.SIGTERM, 10),
+            (signal.SIGKILL, 5),
+        ):
+            if process.poll() is not None:
+                break
+            try:
+                os.killpg(process.pid, sent_signal)
+            except PermissionError:
+                signal_name = signal.Signals(sent_signal).name.removeprefix("SIG")
+                result = subprocess.run(
+                    [
+                        require_tool("sudo"),
+                        "-n",
+                        "--",
+                        require_tool("kill"),
+                        f"-{signal_name}",
+                        "--",
+                        f"-{process.pid}",
+                    ],
+                    env={
+                        "PATH": SAFE_PATH,
+                        "LANG": "C.UTF-8",
+                        "LC_ALL": "C.UTF-8",
+                    },
+                    text=True,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    check=False,
+                )
+                if result.returncode != 0 and process.poll() is None:
+                    detail = result.stderr.strip().splitlines()
+                    suffix = f": {detail[-1]}" if detail else ""
+                    raise Refusal(
+                        f"cannot signal interrupted act process group{suffix}"
+                    )
+            except ProcessLookupError:
+                break
+            try:
+                process.wait(timeout=timeout)
+            except subprocess.TimeoutExpired:
+                continue
+        if process.poll() is None:
+            raise Refusal("cannot terminate interrupted act process group")
+        raise
 
 
 def require_runtime(
@@ -999,7 +1082,7 @@ def execute_act_boundary(
     env: Mapping[str, str],
     integrity_check: Callable[[], None],
     query: Callable[[int, str], PullRequest] = query_pull_request,
-    run_process: Callable[..., subprocess.CompletedProcess[object]] = subprocess.run,
+    run_process: Callable[..., subprocess.CompletedProcess[object]] = run_act_process,
 ) -> int:
     """Bind one act process between fresh remote-state and byte checks."""
     require_live_pull_request(pr, repository, query)
@@ -1061,7 +1144,8 @@ def run_validation(
             )
 
         for workflow in workflows:
-            command = build_act_command(prefix, workflow, layout)
+            artifact_port = allocate_tcp_port()
+            command = build_act_command(prefix, workflow, layout, artifact_port)
             if dry_run:
                 print(f"act-ci: {workflow}: {shlex.join(command)}")
                 continue
@@ -1197,7 +1281,10 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
         other_pr = replace(pr, head_sha="3" * 40)
         with temporary_run_directory(False) as second_root:
             second = make_layout(second_root, other_pr)
-            command = build_act_command(["act"], "rtl-full", first)
+            allocated_port = allocate_tcp_port()
+            command = build_act_command(
+                ["act"], "rtl-full", first, allocated_port
+            )
             check(
                 "act command selects the real strict exhaustive workflow",
                 "--strict" in command
@@ -1231,6 +1318,15 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
                         "--input-file",
                     )
                 ),
+            )
+            check(
+                "artifact uploads receive a real isolated listener port",
+                command[command.index("--artifact-server-port") + 1]
+                == str(allocated_port),
+            )
+            refused(
+                "artifact-server port zero is refused rather than advertised",
+                lambda: build_act_command(["act"], "docs", first, 0),
             )
             check(
                 "two heads receive different writable action/workflow caches",
