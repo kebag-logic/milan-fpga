@@ -139,9 +139,12 @@ compares that line with the PR head before counting it.
 
 **The default-branch assertion.** The cron was inert for three weeks because
 the default branch was `main`, and no gate that reads files can see that
-repository setting. So `full-ci-gate` reads it live on every run, with
-`gh api repos/<owner>/<repo> --jq .default_branch` handed to
-`scripts/ci_events.py --require-default-branch`, and prints
+repository setting. Hosted `full-ci-gate` runs read it live with
+`gh api repos/<owner>/<repo> --jq .default_branch`; the credential-free trusted
+act runner supplies the same value in its synthetic event, whose private
+`milan_act_ci.trusted_runner` marker real GitHub events never carry. The one
+selected value is handed to `scripts/ci_events.py --require-default-branch` and
+prints
 `default_branch=<observed> expected=dev event=<event>`. A scheduled or
 dispatched run refuses to continue unless the observed value is `dev`, naming
 the branch it saw; a value it could not read refuses too, since an unknown is
@@ -156,12 +159,13 @@ under which it runs holds the wrong perimeter, which is what #209 found. So it
 is exactly these ten things:
 
 1. **The script text.** The step's `run:` is pinned verbatim (whitespace
-   aside) to three lines: `set -euo pipefail`, one unconditional
-   `observed="$(gh api ...)"` read, one verifier call after it. A substring
+   aside) to three lines: `set -euo pipefail`, one `observed=...` assignment
+   selecting the trusted synthetic-event value under act or the live API on a
+   hosted run, and one verifier call after it. A substring
    recognizer was fooled by a decoy, a literal `observed=dev` beside a
    `gh api` inside `if false`; the pin refuses it, and the structural reasons
    name what a deviation did: a second assignment, a value not sourced from
-   the live call, control flow around the read, a comment line, the call
+   either trusted carrier, control flow around the read, a comment line, the call
    before the read.
 2. **The step keys.** The step carries exactly `name`, `env` and `run`, and
    its `env` exactly `GH_TOKEN`. A key beside a canonical script decides
@@ -510,30 +514,89 @@ name that the pull request cannot produce.
 ## Act-first local replication
 
 After a PR head is pushed, an agent must use `act` instead of waiting for
-GitHub Actions to finish. Start the repository-owned runner immediately; the
-hosted workflows continue in parallel:
+GitHub Actions to finish. Start the repository-owned runner immediately while
+the hosted workflows continue in parallel. The runner is host-side security
+code: from the candidate worktree, execute only the copy in a separate, clean
+worktree at the PR's current remote `dev` base:
 
 ```sh
-python3 scripts/act_ci.py --pr <number>
+python3 -I /absolute/path/to/trusted-dev/scripts/act_ci.py --pr <number>
+```
+
+Never invoke `scripts/act_ci.py` from the candidate worktree. Python isolated
+mode prevents the candidate directory and ambient `PYTHONPATH` from supplying
+imports. The runner verifies that its own worktree and bytes are the clean
+current base before it reads candidate content. A PR that introduces the runner
+cannot bootstrap trust in its own code: an independent reviewer must first
+audit the exact file, install that file outside the candidate worktree with no
+writable mode bits, record its SHA-256, then use `--trusted-install-sha256`
+together with explicit `--repo` and `--worktree` arguments. That bootstrap is
+an independently granted trust decision, not an executor shortcut. Later PRs,
+including changes to this runner, are validated by the already-trusted base
+copy.
+
+The independent bootstrap records both the source commit and file digest, then
+uses a non-writable copy; `<candidate>` and `<audited-install>` are absolute
+paths chosen by that reviewer:
+
+```sh
+install -m 0555 <candidate>/scripts/act_ci.py <audited-install>/act_ci.py
+sha256sum <audited-install>/act_ci.py
+python3 -I <audited-install>/act_ci.py --pr <number> \
+  --repo kebag-logic/milan-fpga --worktree <candidate> \
+  --trusted-install-sha256 <recorded-64-hex-digest>
 ```
 
 The default runs `docs`, `elaborate`, `rtl-fast`, and `rtl-full` in that order.
 Use repeatable `--workflow <name>` options for a focused reproduction, and use
-`--dry-run` to inspect the generated command before consuming containers. The
-runner requires `gh`, Docker, and `act` 0.2.89 or newer. On a host where the
-current user cannot open the Docker socket, add `--sudo`; this is
-non-interactive and preserves only the masked token needed by `act`.
+`--dry-run` to perform the trust, fetch, metadata, and byte checks and print the
+generated command before consuming containers. The runner requires `gh`, Git,
+PyYAML, Docker, and `act` 0.2.89 or newer. On a host where the current user
+cannot open the Docker socket, add `--sudo`; this is non-interactive and
+preserves no ambient environment or credential.
 
 The command reads the open PR from GitHub and refuses before validation when
-the base is not `dev`, the worktree is dirty, or local `HEAD` differs from the
-remote PR head. It writes a synthetic pull-request event that names the exact
-base and head. A draft uses `synchronize`, retaining `draft=true`; a ready PR
-uses `ready_for_review`, so the real exhaustive selector launches all workers.
-The token returned by `gh auth token` is passed as the environment-backed
-`GITHUB_TOKEN` secret, never as a command argument. Each workflow gets an
-isolated artifact store, `actions/checkout` fetches the event's exact remote
-SHA, the host worktree is never bind-mounted, and temporary event and artifact
-data is removed on exit.
+the base is not `dev`, the head is cross-repository, the candidate worktree is
+dirty or at a different SHA, or selected workflow bytes disagree with the
+remote commit even when index flags hide the edit. Replacement refs are
+refused. A credential-free HTTPS fetch into a new temporary Git repository
+materializes the exact same-repository PR head and current base without using
+the candidate's object database, index, configuration, hooks, filters, or
+worktree. The PR's state, draft bit, base, head, repository, and URL are queried
+again immediately before and after every workflow; any change invalidates the
+whole run.
+
+The temporary checkout also initializes the three public pinned dependencies
+named by every supported workflow (`third_party/verilog-axis`,
+`protocol-processor`, and `gptp-processor`) under the same credential-free Git
+policy. This gives act's local checkout copier the submodule-path parity that a
+hosted checkout exposes; each workflow's own submodule update remains the
+authoritative, idempotent check of those pins.
+
+The synthetic pull-request event names the exact base and head. A draft uses
+`synchronize`, retaining `draft=true`; a ready PR uses `ready_for_review`, so
+the real exhaustive selector launches all workers. `act` copies the immutable
+temporary checkout rather than fetching through `actions/checkout`. It starts
+from an empty invocation directory with private `HOME`/XDG roots, a minimal
+allowlisted environment, and explicit empty env, secret, variable, and input
+files. `GITHUB_TOKEN` is explicitly empty, so neither the active `gh` credential
+nor an SSH agent, proxy credential, runtime token, or other host secret reaches
+candidate code.
+
+Candidate jobs must use literal `ubuntu-latest`; reusable workflows and
+job/service containers are refused because they can carry container options or
+host-volume requests that the trusted scanner cannot safely delegate. The act
+command also disables the container Docker socket, uses the Docker bridge
+instead of the host network, never bind-mounts the operator's worktree, and
+supplies no privileged flag. Candidate workflow code consequently runs only in
+the disposable job boundary.
+
+Every run and SHA gets fresh action/workspace, Actions-cache, artifact, event,
+configuration, and input directories. There is no persistent-cache override:
+a candidate cannot seed a later head. Cleanup is restricted to the exact
+generated directory. Sudo ownership recovery, recursive removal, and the final
+absence check are all fail-closed; a cleanup failure changes an otherwise green
+run to exit 2.
 
 The four exhaustive workers carry their checked denominator through the
 singleton `matrix.total` dimension. `scripts/ci_events.py` proves that value

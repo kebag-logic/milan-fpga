@@ -162,11 +162,19 @@ scheduling and cancellation contract is in the
 
 After each pushed PR head, start the repository-owned local replica before
 inspecting or polling the hosted run. An agent must use `act` instead of waiting
-for GitHub Actions to finish: run `python3 scripts/act_ci.py --pr <number>` for
-a ready head, or select the applicable fast workflows on a draft. The command
-refuses a dirty or mismatched checkout and records the exact remote head. Its
-result is local evidence only; the protected hosted contexts continue in
-parallel and remain mandatory. The exact command, prerequisites, and failure
+for GitHub Actions to finish. From the candidate worktree, invoke the runner
+from a separate, clean worktree at the PR's current remote `dev` base:
+
+```sh
+python3 -I /absolute/path/to/trusted-dev/scripts/act_ci.py --pr <number>
+```
+
+Never execute the candidate's copy of this host-side runner. Select applicable
+fast workflows on a draft; the ready default runs all four. The command refuses
+a dirty or mismatched candidate, records and rechecks the exact remote head,
+and forwards no host credential. Its result is local evidence only; protected
+hosted contexts continue in parallel and remain mandatory. The trust boundary,
+bootstrap rule for a PR that introduces the runner, prerequisites, and failure
 semantics are in [Act-first local replication](docs/testing/CI_WORKFLOWS.md#act-first-local-replication).
 
 Self-test results belong in a PR comment as evidence, not as a review verdict.

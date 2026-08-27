@@ -65,15 +65,16 @@ jobs:
       # naming what they saw (a value they could not read refuses too). PR and
       # push runs are about the tree, not the setting: they print the value
       # and carry on, so a drift is visible on every run and fatal on the runs
-      # it would misdirect. scripts/ci_events.py holds the decision and pins
-      # this step's script verbatim (whitespace aside): one unconditional
-      # live read into `observed`, one verifier call after it, nothing else.
+      # it would misdirect. The credential-free trusted act runner supplies the
+      # same value in its synthetic event; hosted events do not carry that
+      # marker and still take the authenticated live API path. ci_events.py
+      # pins both sources into one assignment and the verifier call after it.
       - name: Assert the repository default branch is dev
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          observed="$(gh api "repos/$GITHUB_REPOSITORY" --jq .default_branch 2>/dev/null || echo unreadable)"
+          observed="$([ "${{ github.event.milan_act_ci.trusted_runner }}" = true ] && printf '%s\n' "${{ github.event.milan_act_ci.default_branch }}" || gh api "repos/$GITHUB_REPOSITORY" --jq .default_branch 2>/dev/null || echo unreadable)"
           python3 scripts/ci_events.py --require-default-branch \
             --event "$GITHUB_EVENT_NAME" --observed "$observed"
 

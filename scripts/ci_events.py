@@ -41,15 +41,15 @@ artifact-uploading job to record the SHA and every artifact-downloading job to
 verify it.
 
 THE DEFAULT-BRANCH ASSERTION ([R1] on PR #204). The cron was inert because of
-a repository SETTING, and a gate that reads files cannot see a setting. So the
-gate job reads it live on every run (`gh api repos/$GITHUB_REPOSITORY --jq
-.default_branch`) and hands it to `--require-default-branch`: a scheduled or
-dispatched run refuses to continue unless the default branch is `dev`, naming
-the branch it saw, and refuses a value it could not read, since an unknown is
-not agreement. A pull-request or push run prints the value and carries on:
-those runs are about the tree, not the setting, and a contributor's PR must
-not go red for a setting it cannot change. `--check` requires the step, its
-token and its fail-closed shape (no `continue-on-error`, no `|| true`).
+a repository SETTING, and a gate that reads files cannot see a setting. Hosted
+runs therefore read it live (`gh api repos/$GITHUB_REPOSITORY --jq
+.default_branch`). The credential-free trusted act runner supplies the value
+in its synthetic event instead; real GitHub events carry no such marker and
+take the authenticated API arm. The gate hands the one result to
+`--require-default-branch`: a scheduled or dispatched run refuses unless the
+default is `dev`, naming what it saw, and refuses an unreadable value. A PR or
+push prints the value and carries on because that run is about the tree. The
+checker pins both sources, the hosted token, and the fail-closed shape.
 
 WHETHER IT RUNS AT ALL (#209). The four items above hold what the gate job
 DOES. None of them held the conditions under which it does it, and GitHub has
@@ -141,12 +141,17 @@ DEFAULT_BRANCH_EVENTS = ("schedule", "workflow_dispatch")
 #: The default-branch step's script, pinned verbatim after whitespace
 #: normalization ([R1] on PR #204, second round). A substring recognizer was
 #: fooled by a decoy: `observed=dev` beside a `gh api` inside `if false`.
-#: So the script is held to exactly these three lines, one unconditional
-#: live read into `observed` and one verifier call after it, and the
+#: So the script is held to exactly these three lines: one assignment selects
+#: the trusted synthetic-event value under act and the live API everywhere
+#: else, followed by one verifier call, and the
 #: structural reasons in check_default_branch_step name what a deviation
 #: did before the whole-script comparison refuses it.
-CANONICAL_OBSERVED = ('observed="$(gh api "repos/$GITHUB_REPOSITORY" '
-                      '--jq .default_branch 2>/dev/null || echo unreadable)"')
+CANONICAL_OBSERVED = (
+    'observed="$([ "${{ github.event.milan_act_ci.trusted_runner }}" = true ] '
+    "&& printf '%s\\n' \"${{ github.event.milan_act_ci.default_branch }}\" "
+    '|| gh api "repos/$GITHUB_REPOSITORY" --jq .default_branch 2>/dev/null '
+    '|| echo unreadable)"'
+)
 CANONICAL_CALL = ("python3 scripts/ci_events.py --require-default-branch "
                   '--event "$GITHUB_EVENT_NAME" --observed "$observed"')
 CANONICAL_DEFAULT_BRANCH_SCRIPT = ("set -euo pipefail", CANONICAL_OBSERVED,
@@ -1386,8 +1391,7 @@ def normalize_script(run):
 
 
 def check_default_branch_step(c, path, gate):
-    """The gate reads the repository default branch live and hands it to
-    --require-default-branch, in a shape that cannot be neutered quietly."""
+    """The gate selects trusted-act/live-hosted state and verifies it."""
     found = [s for s in steps(gate) if DEFAULT_BRANCH_FLAG in step_text(s)]
     c.item(len(found) == 1, path, f"job `{GATE_JOB}` must run scripts/"
            f"ci_events.py {DEFAULT_BRANCH_FLAG} in exactly one step "
@@ -1410,7 +1414,8 @@ def check_default_branch_step(c, path, gate):
            "assignment shadows the live value")
     c.item(bool(assigns) and all(l == CANONICAL_OBSERVED for _, l in assigns),
            path, "the default-branch step's observed value is not sourced "
-           f"from the live API call: expected exactly {CANONICAL_OBSERVED} "
+           f"from trusted act state or the hosted live API: expected exactly "
+           f"{CANONICAL_OBSERVED} "
            f"(found {[l for _, l in assigns] or 'no assignment'})")
     flow = [l for _, l in code if CONTROL_FLOW.search(l)]
     c.item(not flow, path, "the default-branch step must read the setting "
@@ -2628,7 +2633,7 @@ def _mutations():
         ("rtl default-branch step neutered by || true", m_db_or_true,
          "fail closed"),
         ("rtl default-branch decoy: observed=dev beside gh api in `if false`",
-         m_db_decoy_if_false, "not sourced from the live API call"),
+         m_db_decoy_if_false, "not sourced from trusted act state"),
         ("rtl default-branch decoy: control flow around the live read",
          m_db_decoy_if_false, "unconditionally"),
         ("rtl default-branch literal observed=dev after the real call",
@@ -2636,11 +2641,11 @@ def _mutations():
         ("rtl default-branch literal observed=dev after the real read",
          m_db_literal_after_read, "exactly once (found 2)"),
         ("rtl default-branch gh api inside a comment only",
-         m_db_gh_api_in_comment, "not sourced from the live API call"),
+         m_db_gh_api_in_comment, "not sourced from trusted act state"),
         ("rtl default-branch comment line in the script",
          m_db_gh_api_in_comment, "no comment lines"),
         ("rtl default-branch observed from a different command",
-         m_db_other_command, "not sourced from the live API call"),
+         m_db_other_command, "not sourced from trusted act state"),
         ("rtl default-branch two observed assignments",
          m_db_two_assignments, "exactly once (found 2)"),
         ("rtl default-branch verifier called before the read",
@@ -3258,9 +3263,7 @@ def selftest(root):
     for s in steps(jobs(world[RTL_FULL])[GATE_JOB]):
         if DEFAULT_BRANCH_FLAG in step_text(s):
             s["run"] = ("  set   -euo pipefail\n\n"
-                        '  observed="$(gh api "repos/$GITHUB_REPOSITORY" \\\n'
-                        "      --jq .default_branch 2>/dev/null \\\n"
-                        '      || echo unreadable)"\n'
+                        f"  {CANONICAL_OBSERVED}\n"
                         "  python3 scripts/ci_events.py \\\n"
                         "    --require-default-branch \\\n"
                         '    --event "$GITHUB_EVENT_NAME" \\\n'
