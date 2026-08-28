@@ -30,7 +30,15 @@ usage: syn/yosys/run.sh [options]
   --mode full|elaborate  full synthesis or fast hierarchy/process smoke
   --results DIRECTORY    write one machine-readable result per top/gate
   --no-structural        do not run the tied-input and tap-purity checks
+  --selftest-alloc       check the YOSYS_MALLOC selection rules and exit;
+                         needs neither jemalloc, yosys, sv2v nor a submodule
   -h, --help             show this help
+
+environment:
+
+  YOSYS_MALLOC=<path>    preload that allocator for yosys (speed only)
+  YOSYS_MALLOC=none      run yosys under the system allocator
+  (unset)                use jemalloc when it is installed
 EOF
 }
 
@@ -40,6 +48,7 @@ LIST=0
 EMIT=""
 RESULTS=""
 NO_STRUCTURAL=0
+SELFTEST_ALLOC=0
 REQUESTED_TOPS=()
 while [ "$#" -gt 0 ]; do
   case "$1" in
@@ -65,6 +74,7 @@ while [ "$#" -gt 0 ]; do
       EMIT="$2"; shift 2 ;;
     --emit=*) EMIT="${1#--emit=}"; shift ;;
     --no-structural) NO_STRUCTURAL=1; shift ;;
+    --selftest-alloc) SELFTEST_ALLOC=1; shift ;;
     -h|--help) usage; exit 0 ;;
     *) echo "unknown option: $1" >&2; usage >&2; exit 2 ;;
   esac
@@ -83,6 +93,95 @@ fi
 if [ -n "$EMIT" ] && [ "$LIST" -eq 1 ]; then
   echo "--emit and --list are mutually exclusive" >&2
   exit 2
+fi
+
+# THIS GATE IS ALLOCATION-BOUND, NOT PARSE-BOUND (#286, #288). On the heaviest
+# top Yosys spends about three quarters of its time in the `opt*` family and
+# 0.5% in `read_verilog`, and a large share of that is glibc's allocator:
+# preloading jemalloc takes milan_datapath from 656 s to 361 s and the whole
+# eight-way sharded gate from 616 s to 358 s, on the same machine, with all 46
+# tops still passing.
+#
+# It is a SPEED knob and never a correctness one: `write_rtlil` after this
+# script's own program is BYTE-IDENTICAL under glibc, tcmalloc, jemalloc and
+# mimalloc (#286). So it is optional in both directions - the documented tool
+# requirement stays "yosys and sv2v on PATH" (README "Tooling") and a machine
+# without jemalloc runs exactly as it did before, with no warning to silence.
+#
+#   YOSYS_MALLOC=<path>   preload that library
+#   YOSYS_MALLOC=none     run yosys under the system allocator
+#   unset                 use jemalloc when it is installed
+#
+# A NAMED library that is absent REFUSES rather than falling back. Falling back
+# would let a run that was asked to reproduce one allocator quietly report
+# another one's timing, which is the measurement defect this whole lane exists
+# to remove.
+ldconfig_path() {
+  local p
+  for p in ldconfig /usr/sbin/ldconfig /sbin/ldconfig; do
+    command -v "$p" >/dev/null 2>&1 && { printf '%s\n' "$p"; return 0; }
+  done
+  return 1
+}
+
+select_malloc() {
+  local want="${YOSYS_MALLOC-}" cand lc
+  case "$want" in
+    none) return 0 ;;
+    "")   ;;
+    *)    [ -e "$want" ] || {
+            echo "YOSYS_MALLOC=$want: no such file" >&2
+            return 2
+          }
+          printf '%s\n' "$want"
+          return 0 ;;
+  esac
+  # ldconfig answers for the loader's own search path, which is the only
+  # authority on where a distribution put the library. The literal list below
+  # is the fallback for a machine whose ldconfig a normal user cannot run.
+  if lc="$(ldconfig_path)"; then
+    while IFS= read -r cand; do
+      [ -e "$cand" ] && { printf '%s\n' "$cand"; return 0; }
+    done < <("$lc" -p 2>/dev/null | sed -n 's/^.* => //p' | grep -F libjemalloc.so.2)
+  fi
+  for cand in /usr/lib/libjemalloc.so.2 /usr/lib64/libjemalloc.so.2 \
+              /usr/lib/x86_64-linux-gnu/libjemalloc.so.2 \
+              /usr/local/lib/libjemalloc.so.2; do
+    [ -e "$cand" ] && { printf '%s\n' "$cand"; return 0; }
+  done
+  return 0
+}
+
+# The interesting case is the machine WITHOUT jemalloc, because that is the one
+# the documented tool requirement covers and the one nobody runs by accident.
+# This self-test needs neither jemalloc, nor yosys, nor sv2v, nor a submodule.
+selftest_alloc() {
+  local rc=0 out probe
+  probe="$(mktemp)"
+
+  out="$(YOSYS_MALLOC=none select_malloc)" || rc=1
+  [ -z "$out" ] || { echo "selftest: YOSYS_MALLOC=none selected '$out'" >&2; rc=1; }
+
+  out="$(YOSYS_MALLOC="$probe" select_malloc)" || rc=1
+  [ "$out" = "$probe" ] || { echo "selftest: explicit path selected '$out'" >&2; rc=1; }
+
+  if out="$(YOSYS_MALLOC="$probe.absent" select_malloc 2>/dev/null)"; then
+    echo "selftest: a missing YOSYS_MALLOC was accepted as '$out'" >&2; rc=1
+  fi
+
+  out="$(unset YOSYS_MALLOC; select_malloc)" || rc=1
+  [ -z "$out" ] || [ -e "$out" ] || {
+    echo "selftest: the default selected a non-existent '$out'" >&2; rc=1
+  }
+
+  rm -f "$probe"
+  [ "$rc" -eq 0 ] && echo "allocator selection self-test: PASS"
+  return "$rc"
+}
+
+if [ "$SELFTEST_ALLOC" -eq 1 ]; then
+  selftest_alloc
+  exit $?
 fi
 
 export PATH="$HOME/.local/bin:$PATH"
@@ -298,6 +397,10 @@ for tool in sv2v yosys; do
   }
 done
 
+# Resolved once, after the tool check, so a machine missing yosys is told that
+# and not something about an allocator.
+MALLOC_LIB="$(select_malloc)" || exit 2
+
 [ -z "$RESULTS" ] || mkdir -p "$RESULTS"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
@@ -353,6 +456,9 @@ if [ "$MODE" = full ]; then
 else
   echo "== Yosys fast elaboration check (via sv2v) =="
 fi
+# Named, because a wall-clock figure quoted from this output is only
+# reproducible if the allocator that produced it is on the record (#286).
+echo "   yosys allocator: ${MALLOC_LIB:-system}"
 pass=0
 fail=0
 for name in "${selected_names[@]}"; do
@@ -373,7 +479,17 @@ for name in "${selected_names[@]}"; do
   else
     program="read_verilog $TMP/$top.v; hierarchy -check -top $top; proc; opt_clean; check -assert; stat -top $top"
   fi
-  (cd "$TMP" && yosys -p "$program") > "$TMP/$top.yos.log" 2>&1
+  # The preload is exported INSIDE the subshell, so it reaches yosys and the
+  # children yosys spawns - `abc`, which is 16% of the heaviest top - and dies
+  # with them. sv2v above is a GHC binary and the helpers are python3, and
+  # neither was measured under a replacement allocator. Proved rather than
+  # asserted: preloading a library that records `program_invocation_short_name`
+  # over one top logs yosys, sh and abc, and neither sv2v nor python3.
+  (
+    cd "$TMP" || exit 2
+    [ -z "$MALLOC_LIB" ] || export LD_PRELOAD="$MALLOC_LIB"
+    yosys -p "$program"
+  ) > "$TMP/$top.yos.log" 2>&1
   rc=$?
   cells="$(awk '/=== design hierarchy ===/{f=1} f && /^[[:space:]]+[0-9]+ cells$/{print $1; exit}' "$TMP/$top.yos.log")"
   if [ "$rc" -eq 0 ]; then
