@@ -1675,6 +1675,34 @@ An assertion that has never been observed to fail is indistinguishable from an
 assertion that cannot fail. The two are the same colour in CI, and the second
 one is worse than no test, because it occupies the place where a test would go.
 
+Three small shapes make the rule concrete. A wire-format oracle writes the
+governing bytes independently instead of asking the encoder under test to
+produce its own expected value:
+
+```python
+expected_dmac = bytes.fromhex("0180c200000e")  # IEEE reserved gPTP address
+check("destination bytes", encoded_frame[:6], expected_dmac)
+```
+
+A randomized test prints the exact seed before drawing, so the failing case is
+one command away from replay:
+
+```python
+seed = int(os.environ.get("TEST_SEED", "23"))
+print(f"TEST_SEED={seed}")
+rng = random.Random(seed)
+frame = bytes(rng.randrange(256) for _ in range(64))
+```
+
+And a mutation-proven assertion has both signs: the clean implementation
+passes, while a named defect must make the same assertion fail. A comment that
+someone once tried a mutation is not an executable arm.
+
+```text
+[PASS] the unmutated RTL still passes the harness
+[PASS] mutant caught: priority inverted -- lowest matching index wins
+```
+
 ### Three defects, to show the harness is load-bearing
 
 `tb/verilator/tcam` checked exact match, ternary match, priority, the multi-hit
@@ -1699,7 +1727,7 @@ Two details make it stay honest. Each mutation's pattern must appear in the RTL
 loudly instead of silently mutating nothing. And the mutants are built in a
 temporary directory, so a mutated source is never written into the tree.
 
-### The two evidence ratchets
+### The four evidence populations
 
 [`scripts/measure_test_evidence.py`](../../scripts/measure_test_evidence.py):
 
@@ -1707,6 +1735,24 @@ temporary directory, so a mutated source is never written into the tree.
 |---|---:|---|
 | RTL suites with no executable mutation or negative arm | 82 of 87 (was 83) | Ratchet across the superproject and both project-owned processor submodules. A comment or manual mutation record is not evidence; a new suite exposes a runnable arm that proves its assertions can fail. |
 | First-party files drawing random values with no recorded seed | **0** | Ratchet at zero. |
+| Unexplained tests reading production HDL text | **0** | Four readers are explicitly classified: three mutation campaigns and one structural boundary check. A new reader is refused until review proves it is not importing expected behavior from the DUT. |
+| Suite files using host wall-clock/process deadlines | **2** | Ratcheted. Both are in the external `tsn_fuzz` cosimulation boundary; behavioral RTL timeouts elsewhere advance explicit DUT cycles. |
+
+### Audit of weak-evidence failure modes
+
+The audit separates a count from its interpretation:
+
+| Failure mode | Audit result | Evidence contract |
+|---|---|---|
+| Zero-evidence pass | 82 of 87 suites lack an executable negative/mutation arm. | Ratchet; the TCAM repair moves one suite to the armed side. |
+| Implementation-derived oracle | Four test programs read HDL text; all are structural or mutation-only, with zero unexplained readers. | A disposition allowlist must match the live readers exactly. The TCAM behavioral oracle remains literal/specification-derived. |
+| Nondeterministic timeout | Two suite files use host deadlines, both in `tsn_fuzz`; other protocol deadlines are cycle-counted. | The common sweep maps host kills (124/137) to UNKNOWN/exit 92, never pass or fail. New wall-clock files exceed the ratchet. |
+| Missing or malformed tally | The candidate sweep reported every root suite; no `NOCOUNT` or unparsed tally. | `suite_tally.py --selftest` runs before the first suite. A silent/zero/unparsed log exits 90, and a skip marker cannot hide it. |
+
+`measure_test_evidence.py` mutation-arms both the static classifications and
+the runner wiring: changing the UNKNOWN exit to an ordinary failure makes its
+self-test fail. This keeps a future runner edit from turning infrastructure
+contention into test evidence.
 
 ### Two things found already clean, and verified rather than rebuilt
 

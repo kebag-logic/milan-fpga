@@ -1,5 +1,5 @@
 # Rule 8 ratchets, in order. See scripts/measure_test_evidence.py.
-# BOTH NUMBERS MAY ONLY GO DOWN.
+# ALL FOUR NUMBERS MAY ONLY GO DOWN.
 #
 # 1. RTL suites with no executable mutation or negative arm. This covers the
 #    superproject and both project-owned processor submodules. A suite whose
@@ -10,3 +10,11 @@
 #    Currently zero, and it must stay zero: the cost of finding out otherwise
 #    is a flaky failure nobody can reproduce.
 0
+# 3. Test programs that read production HDL without an explicit structural or
+#    mutation-only disposition. Reading expected values from the DUT is not an
+#    independent oracle. The four classified readers do not consume budget.
+0
+# 4. Suite files that use host time, sleep, or process/socket deadlines. The
+#    two current files belong to the external tsn_fuzz cosimulation boundary;
+#    behavioral protocol timeouts elsewhere advance explicit DUT cycles.
+2
