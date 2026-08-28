@@ -21,6 +21,7 @@ make ecp5       # map to a real non-Xilinx device: Lattice ECP5 (TRELLIS_FF/LUT4
 
 - **[How it works](#how-it-works)** — The two-stage pipeline and why each stage is there: sv2v converts the SystemVerilog Yosys cannot parse (interfaces, packages, assignment patterns), then `hierarchy -check` is what makes a PASS mean something — it fails on any surviving vendor primitive, so green = fully mapped to generic logic with nothing Xilinx-specific left.
 - **[Tooling](#tooling)** — The two binaries you need and where to get them. No Xilinx tools are required, which is the point — this flow is the evidence that the RTL is not tied to one vendor's toolchain.
+- **[Runtime levers](#runtime-levers)** — Why this gate is optimisation-bound and not parse-bound, which is the one fact that decides every speed question here: the jemalloc preload it now runs under (−45% on the heaviest top, −42% on the whole sharded gate, byte-identical netlist) and how to turn it off, and the measured reason `read_verilog -defer` is *not* used — it removes 85% of a step that is 0.5% of the run, and changes the cell count by 1.3% while doing it.
 - **[Coverage](#coverage)** — What the tops actually span, and the standing rule that the `tops=()` array is the count while this prose is not. Also names the one deliberate gap: `milan_top`, which pulls in the RGMII SelectIO and PS block design.
 - **[Notes](#notes)** — Two facts that stop you misreading the output: the concrete non-Xilinx targets (`synth_ecp5`, `synth_ice40`) with real cell counts, and why `axis_fifo` looks enormous — its 4096-deep default, which no instance in the design uses.
 - **[ooc.sh — AREA measurement (a different question from run.sh)](#oocsh--area-measurement-a-different-question-from-runsh)** — `run.sh` asks *does it map*; this asks *what does it cost*, which is the only number an area lever may be judged on. Three traps it exists to avoid, and the third is the sharpest: `-flatten` can read a genuinely deleted block as **−1 LUT / −0 FF**, so a structural lever needs the hierarchy-preserving form as well. Ends with the honest caveat — these are estimates with a yosys→Vivado ratio between 0.25 and 0.86, and control sets are not measurable here at all.
@@ -40,6 +41,100 @@ make ecp5       # map to a real non-Xilinx device: Lattice ECP5 (TRELLIS_FF/LUT4
 - `sv2v` on `PATH` — pinned prebuilt release from
   [github.com/zachjs/sv2v/releases](https://github.com/zachjs/sv2v/releases)
   (drop into `~/.local/bin`). No Xilinx tools required.
+
+## Runtime levers
+
+This gate is **optimisation-bound, not parse-bound**. `yosys -d` on
+`milan_datapath` — 1,137,752 wires and 1,597,718 cells in one single-threaded
+process — spends its time like this ([#286](https://github.com/kebag-logic/milan-fpga/issues/286)):
+
+| pass | share |
+| --- | ---: |
+| `opt_dff` | 25% |
+| `opt_clean` | 23% |
+| `abc` | 16% |
+| `opt_expr` | 14% |
+| `opt_merge`, `opt_muxtree`, … | 9% |
+| `read_verilog` | **0.5%** |
+
+Everything below follows from that one table. **The front end is not the
+cost**, so no front-end change — `-defer`, a faster parser, or a commercial
+one — can move this gate much. `sv2v` over the *whole* 46-top inventory is
+34.6 s.
+
+### The allocator: on by default, worth ~45%
+
+Yosys allocates constantly, and glibc's allocator is where a large share of
+the `opt*` time goes. `run.sh` therefore preloads **jemalloc** for its `yosys`
+children when the library is installed:
+
+| scope | glibc | jemalloc |
+| --- | ---: | ---: |
+| `milan_datapath`, one process | 656.3 s | **361.5 s** (−44.9%) |
+| `KL_pp_shadow`, one process | 273.9 s | 171.8 s (−37.3%) |
+| whole gate, 8 shards, 46/46 pass | 616.2 s | **357.8 s** (−41.9%) |
+
+Peak RSS *falls* as well (3033 → 2786 MiB on `milan_datapath`), so this does
+not spend the memory a parallel shard run needs.
+
+**It changes speed and never results**, and that was measured, not assumed:
+`write_rtlil` after this gate's own program is byte-identical under glibc,
+tcmalloc, jemalloc and mimalloc (`sha256 cc79dc89adbce892…`, 43,920,712 bytes
+on `KL_gptp_shadow`).
+
+It is optional in both directions — the tool requirement above is still just
+`yosys` and `sv2v`, and a machine without jemalloc runs exactly as before:
+
+```sh
+YOSYS_MALLOC=none  ./run.sh     # system allocator
+YOSYS_MALLOC=/path/to/lib.so ./run.sh
+./run.sh --selftest-alloc       # check the selection rules; needs nothing else
+```
+
+A **named** library that is absent refuses rather than falling back, so a run
+asked to reproduce one allocator cannot quietly report another one's timing.
+The header line prints which allocator was in effect, because a wall-clock
+figure quoted from this output is only reproducible with it. The preload
+reaches `yosys` and the `abc` it spawns; `sv2v` and the `python3` helpers run
+under the system allocator.
+
+### `read_verilog -defer`: right instrument, wrong script
+
+`-defer` postpones turning a parsed module into RTLIL until something
+instantiates it. **It only pays where one file holding many modules is read
+once per top**, so the reader spends time elaborating modules that top will
+never use.
+
+That is not this gate. `run.sh` gives every top its *own* `sv2v` output, built
+from that top's own source list, so there is almost nothing to defer. Measured
+on the two tops with the largest surplus — both are handed the entire
+protocol-processor tree and instantiate a subset of it:
+
+| top | plain | `-defer` | `read_verilog` step | cells |
+| --- | ---: | ---: | ---: | ---: |
+| `milan_datapath` | 353.5 s | 350.0 s (−1.0%) | 2.30 s → 0.26 s | 1,597,718 → 1,598,979 |
+| `KL_pp_shadow` | 165.9 s | 166.4 s (+0.3%) | 0.89 s → 0.16 s | 1,133,318 → 1,148,270 |
+
+`-defer` does what it says — it removes 82–89% of the `read_verilog` step —
+and that step is 0.5% of the run, so the gate does not get faster. Worse, the
+result is **not** the same netlist: +0.08% cells on `milan_datapath` and
++1.3% on `KL_pp_shadow`, because deferring changes which parameterised
+specialisations exist by the time the `opt*` passes run. The same binary run
+twice reproduces its own digest, so that is the flag and not run-to-run
+variation.
+
+So `run.sh` does **not** use `-defer`: it costs a changed answer and buys
+nothing. The flag belongs in
+[`protocol-processor/syn/yosys/run.sh`](../../protocol-processor/syn/yosys/run.sh),
+which lowers its whole `hdl/` tree into a single `all.v` and then re-reads it
+once per top, 32 times — there it is 39.65 s → 10.31 s, and 1.25 s with a
+bounded process pool. Before applying it there, read that repository's issue
+#25: the redundant re-parse is currently the only front-end coverage six of
+its modules get, so the tops array has to be completed first.
+
+The rule to carry to the next script: **`-defer` is a fix for re-reading, not
+a fix for synthesis.** Check the `read_verilog` line in `yosys -d` output
+before reaching for it.
 
 ## Coverage
 44 tops as of 2026-08-13 (the `tops=()` array in `run.sh` is authoritative — that
