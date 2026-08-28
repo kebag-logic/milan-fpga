@@ -125,7 +125,7 @@ def scan_pipeline(line):
 def scan_pipelines(text, workflow=False):
     """Return masked and waived pipeline rows, respecting activation order.
 
-    GitHub's default Linux bash shell starts every `run` script with
+    GitHub Actions starts its default bash shell for every `run` script with
     `-o pipefail`; ordinary `.sh` files must enable it before the pipeline.
     A later mention of pipefail cannot retroactively protect an earlier line.
     """
@@ -215,7 +215,7 @@ def selftest():
     ck("a later pipefail cannot protect an earlier pipeline",
        scan_pipelines("python3 x.py | tee log\nset -o pipefail")[0] ==
        [(1, "python3 x.py | tee log")])
-    ck("GitHub's default bash shell carries pipefail",
+    ck("the GitHub Actions default bash shell carries pipefail",
        not scan_pipelines("python3 x.py | tee log", workflow=True)[0])
     ck("the version assertion is waived by name, with a reason",
        scan_pipeline('  verilator --version | grep -F "$WANT"') == (False,
