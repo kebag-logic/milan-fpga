@@ -890,8 +890,12 @@ def selftest():
     # Arm 32. [R0] round two's plant: cd "$rundir" -> cd "$R", restoring the
     # launch-directory dependency #245 exists to kill. The yosys model
     # refuses to run anywhere but an exclusive per-top dir under $OOC_TMP.
-    mut = _mutant(r'\(cd "\$rundir" && yosys', '(cd "$R" && yosys',
-                  "cwd-escape")
+    # The anchor tracks ooc.sh's text and moved when the allocator preload was
+    # applied inside this subshell (#290). The mutation is unchanged in meaning:
+    # it still runs the synthesis somewhere other than the exclusive per-top
+    # directory, and must still be caught.
+    mut = _mutant(r'\(cd "\$rundir" && apply_malloc_env',
+                  '(cd "$R" && apply_malloc_env', "cwd-escape")
     try:
         arm("mut-cwd-escape", "tcam", "YOSYS-WRONG-CWD", False, script=mut)
     finally:
@@ -1058,8 +1062,9 @@ def selftest():
     # Arm 48. Consumption moved back to the SHARED published directory
     # (cd "$rundir" -> cd "$TMP"): the yosys model refuses $OOC_TMP itself,
     # so the exclusive-run-dir contract cannot silently regress.
-    mut = _mutant(r'\(cd "\$rundir" && yosys', '(cd "$TMP" && yosys',
-                  "consume-shared-dir")
+    # Same anchor move as arm 47 (#290); the mutation is unchanged in meaning.
+    mut = _mutant(r'\(cd "\$rundir" && apply_malloc_env',
+                  '(cd "$TMP" && apply_malloc_env', "consume-shared-dir")
     try:
         arm("mut-consume-shared-dir", "tcam", "YOSYS-WRONG-CWD", False,
             script=mut)

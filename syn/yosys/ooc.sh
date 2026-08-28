@@ -33,6 +33,12 @@
 # Self-test: syn/yosys/ooc_selftest.py drives the refusals on planted failures.
 
 set -u
+# The allocator rules, shared with run.sh. This script never moves the main
+# shell's directory - every yosys run happens in a `(cd "$rundir" && ...)`
+# subshell - so a relative YOSYS_MALLOC resolves against the caller's directory
+# as they meant it, and the selection below can sit anywhere before the runs.
+. "$(dirname "$0")/malloc.sh"
+if [ "${1:-}" = "--selftest-alloc" ]; then selftest_alloc; exit $?; fi
 export PATH="$HOME/.local/bin:$PATH"
 R="$(cd "$(dirname "$0")/../.." && pwd)"
 A="$R/third_party/verilog-axis/rtl"
@@ -126,6 +132,18 @@ tops=(
 RECORD=0
 if [ "${1:-}" = "--record-rom-digests" ]; then RECORD=1; shift; fi
 want=("$@")
+
+# THIS FLOW GAINS MORE FROM THE ALLOCATOR THAN THE PORTABILITY GATE DOES,
+# because `synth_xilinx -flatten` is the heavier program: `KL_pp_shadow` runs
+# 241.51 s under glibc and 171.00 s under jemalloc on one machine (-29.2%),
+# reporting the same area row to the digit. Speed only, never results - #286
+# proved the netlist byte-identical across glibc, tcmalloc, jemalloc and
+# mimalloc, and the rows below are what this script exists to publish.
+#
+#   YOSYS_MALLOC=<path>   preload that library
+#   YOSYS_MALLOC=none     run yosys under the system allocator
+#   unset                 use jemalloc when it is installed
+MALLOC_LIB="$(select_malloc)" || exit 2
 # A requested name that matches no list entry must refuse, not print a bare
 # header and exit 0 (#245): the silent no-op is the same false green as a
 # swallowed synth failure, and a typo is exactly how it happens.
@@ -459,6 +477,9 @@ if [ "$RECORD" -eq 1 ]; then
 fi
 status=0
 printf "== OOC area (synth_xilinx -family xc7 -flatten) ==\n"
+# Named, because a wall-clock figure quoted beside these rows is only
+# reproducible if the allocator that produced it is on the record (#290).
+printf "   yosys allocator: %s\n" "${MALLOC_LIB:-system}"
 printf "%-28s %8s %8s %8s %8s %8s %8s %8s %8s\n" \
        top LUT LUTRAM LUT_TOT FF RAMB36 RAMB18 DSP CARRY4
 for spec in "${tops[@]}"; do
@@ -538,7 +559,12 @@ for spec in "${tops[@]}"; do
       exit 2
     fi
   done
-  (cd "$rundir" && yosys -p "read_verilog $TMP/$top.ooc.v;$chp synth_xilinx -family xc7$nodsp -top $top -flatten; stat; write_json $TMP/$top.ooc.json") \
+  # apply_malloc_env is INSIDE the subshell, so the preload reaches yosys and
+  # the abc it spawns and dies with them: sv2v and the python3 ROM generators
+  # above were not measured under a replacement allocator and keep the caller's
+  # environment. The `(cd "$rundir" && yosys` shape is load-bearing - the
+  # cwd-escape arm of ooc_selftest.py plants its mutation on exactly that text.
+  (cd "$rundir" && apply_malloc_env "$MALLOC_LIB" && yosys -p "read_verilog $TMP/$top.ooc.v;$chp synth_xilinx -family xc7$nodsp -top $top -flatten; stat; write_json $TMP/$top.ooc.json") \
     > "$TMP/$top.ooc.log" 2>&1
   yosys_rc=$?
   for img in ucode.hex ltn_rom.hex gptp_ucode.hex; do
