@@ -9,8 +9,9 @@ result must be rejected at the nearest responsible boundary and must propagate
 a non-success verdict. Two populations in this tree can break that, and they
 break it silently:
 
-  1. A PARAMETERISED MODULE WITH NO ELABORATION CONTRACT. Forty-three
-     first-party modules declare parameters; four reject an impossible
+  1. A PARAMETERISED MODULE WITH NO ELABORATION CONTRACT. Fifty-three
+     first-party modules across the superproject and its project-owned
+     processor submodules declare parameters; ten reject an impossible
      combination at elaboration. The rest accept any value the caller passes.
      `rx_mac_filter` documented "true for TDATA_WIDTH>=48" in a banner for
      months - a comment does not stop a build, and at 32 bits the destination
@@ -38,7 +39,6 @@ Exit 0 = at or under the ratchet in scripts/fail_fast.budget.
 
 import argparse
 import re
-import subprocess
 import sys
 from pathlib import Path
 
@@ -47,6 +47,7 @@ BUDGET = Path(__file__).resolve().parent / "fail_fast.budget"
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from lint_rtl import LINT_EXCLUDE
+from code_quality_scope import tracked
 
 COMMENT = re.compile(r"//[^\n]*|/\*.*?\*/", re.S)
 PARAM = re.compile(r"\bparameter\s+(?:int|logic|bit|integer|byte)?\s*"
@@ -72,18 +73,27 @@ def blank_comments(text):
                        text)
 
 
-def tracked(*pats):
-    out = subprocess.run(["git", "ls-files", *pats], cwd=REPO,
-                         capture_output=True, text=True, check=True).stdout.split()
-    return [p for p in out
-            if not p.startswith(("third_party/", "external/", "protocol-processor/",
-                                 "gptp-processor/", "gen/", "build/"))]
-
-
 def scan_module(text):
     """(declares_parameters, has_elaboration_check) for one SystemVerilog source."""
     code = blank_comments(text)
     return bool(PARAM.search(code)), bool(ELAB_CHECK.search(code))
+
+
+MODULE = re.compile(r"^\s*module\s+([A-Za-z_]\w*)\b", re.M)
+ENDMODULE = re.compile(r"\bendmodule\b")
+
+
+def scan_modules(text):
+    """Return `(name, has_parameters, has_check)` per module, never per file."""
+    code = blank_comments(text)
+    rows = []
+    for match in MODULE.finditer(code):
+        end = ENDMODULE.search(code, match.end())
+        if end is None:
+            continue
+        has_params, has_check = scan_module(code[match.start():end.end()])
+        rows.append((match.group(1), has_params, has_check))
+    return rows
 
 
 #: quoted spans and command substitutions, blanked before the producer search
@@ -107,31 +117,52 @@ def scan_pipeline(line):
     for needle, why in INTENTIONAL:
         if needle in line:
             return False, why
-    if "pipefail" in line:
-        return False, "the line sets pipefail"
     if line.lstrip().startswith("#"):
         return False, ""
     return bool(PIPE.match(shell_code(line))), ""
 
 
+def scan_pipelines(text, workflow=False):
+    """Return masked and waived pipeline rows, respecting activation order.
+
+    GitHub's default Linux bash shell starts every `run` script with
+    `-o pipefail`; ordinary `.sh` files must enable it before the pipeline.
+    A later mention of pipefail cannot retroactively protect an earlier line.
+    """
+    active = workflow
+    masked, waived = [], []
+    for n, line in enumerate(text.splitlines(), 1):
+        code = shell_code(line)
+        if re.search(r"\bset\s+\+o\s+pipefail\b", code):
+            active = False
+        elif re.search(r"\bset\b[^#\n]*\bpipefail\b", code):
+            active = True
+        is_masked, why = scan_pipeline(line)
+        if why:
+            waived.append((n, why))
+        elif is_masked and not active:
+            masked.append((n, line.strip()[:96]))
+    return masked, waived
+
+
 def audit():
     unguarded, guarded = [], []
     for rel in [p for p in tracked("hdl") if p.endswith(".sv") and p not in LINT_EXCLUDE]:
-        has_params, has_check = scan_module((REPO / rel).read_text(errors="replace"))
-        if not has_params:
-            continue
-        (guarded if has_check else unguarded).append(rel)
+        for name, has_params, has_check in scan_modules(
+                (REPO / rel).read_text(errors="replace")):
+            if not has_params:
+                continue
+            unit = f"{rel}:{name}"
+            (guarded if has_check else unguarded).append(unit)
 
     masked, waived = [], []
     for rel in tracked("*.sh", ".github/workflows/*.yml", "syn/**/*.sh", "harness/**/*.sh"):
         text = (REPO / rel).read_text(errors="replace")
-        pipefail_file = "pipefail" in text
-        for n, line in enumerate(text.splitlines(), 1):
-            is_masked, why = scan_pipeline(line)
-            if why:
-                waived.append((rel, n, why))
-            elif is_masked and not pipefail_file:
-                masked.append((rel, n, line.strip()[:96]))
+        found, exceptions = scan_pipelines(
+            text, workflow=rel.startswith(".github/workflows/") or
+            "/.github/workflows/" in rel)
+        masked.extend((rel, n, line) for n, line in found)
+        waived.extend((rel, n, why) for n, why in exceptions)
     return unguarded, guarded, masked, waived
 
 
@@ -164,6 +195,11 @@ def selftest():
        scan_module("module m #(parameter int W = 8)();\n // $error(\"no\");\n"
                    "endmodule") == (True, False),
        "comments are blanked before the search")
+    rows = scan_modules(
+        "module guarded #(parameter int A=1)(); if (!A) $error(\"A\"); endmodule\n"
+        "module bare #(parameter int B=1)(); endmodule")
+    ck("two modules in one file are measured independently",
+       rows == [("guarded", True, True), ("bare", True, False)], f"{rows}")
 
     ck("a piped gate is masked", scan_pipeline("  python3 scripts/x.py | tee log")[0])
     ck("a piped make is masked", scan_pipeline("  make run | tail -5")[0])
@@ -175,7 +211,12 @@ def selftest():
     ck("a pipe inside a command substitution is not the line's verdict",
        not scan_pipeline('  msg=$(grep ERROR log | head -1); python3 x.py')[0])
     ck("a line that sets pipefail is not masked",
-       not scan_pipeline("  set -o pipefail; python3 x.py | tee log")[0])
+       not scan_pipelines("set -o pipefail\npython3 x.py | tee log")[0])
+    ck("a later pipefail cannot protect an earlier pipeline",
+       scan_pipelines("python3 x.py | tee log\nset -o pipefail")[0] ==
+       [(1, "python3 x.py | tee log")])
+    ck("GitHub's default bash shell carries pipefail",
+       not scan_pipelines("python3 x.py | tee log", workflow=True)[0])
     ck("the version assertion is waived by name, with a reason",
        scan_pipeline('  verilator --version | grep -F "$WANT"') == (False,
        "the grep IS the version assertion; its status is the verdict"))
@@ -190,7 +231,7 @@ def selftest():
     ck("the waiver actually fires on the live tree", bool(waived),
        "no intentional pipeline was seen - the waiver is untested here")
 
-    n = 16
+    n = 19
     print(f"\n{n} checks: {n - failures} PASS, {failures} FAIL")
     return 1 if failures else 0
 

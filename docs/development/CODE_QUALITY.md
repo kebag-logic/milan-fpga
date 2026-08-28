@@ -1248,19 +1248,29 @@ both ways a failure can pass for success here.
 
 | Population | Count | Disposition |
 |---|---:|---|
-| Parameterised modules with no elaboration contract | 37 of 42 | Ratchet. Paid down as modules gain contracts. |
+| Parameterised modules with no elaboration contract | 43 of 53 | Ratchet across the superproject and both project-owned processor submodules. Paid down as modules gain contracts. |
 | Pipelines that discard their producer's exit status | **0** | Ratchet at zero. It must stay zero. |
-| Pipelines waived because the consumer *is* the assertion | 27 | Named, with the reason recorded |
+| Pipelines waived because the consumer *is* the assertion | 2 | Named, with the reason recorded |
 
 The waiver matters: `verilator --version | grep -F "$WANT"` wants grep's status,
-because grep is the assertion. Those are excluded by name rather than by
-pattern, so a new one has to be added deliberately.
+because grep is the assertion. Those two sites are excluded by name rather than
+by pattern, so a new one has to be added deliberately. GitHub workflow `run`
+blocks use the runner's default bash `-o pipefail`; ordinary shell scripts are
+protected only after their own `set ... pipefail` executes. A later setting no
+longer retroactively masks an earlier unsafe pipeline in the measurement.
 
 Both false positives that this check produced on its first run were in the
 checker, not the tree: a tool name inside a `printf` **format string** read as
 a command, and a pipe inside a `$(…)` substitution — whose status is never the
 line's verdict — read as a masked one. Quoted spans and substitutions are
 blanked before the producer search, and both cases have arms.
+
+Review found the opposite false negative too: the first implementation treated
+the word `pipefail` anywhere in a file as protection for every pipeline in that
+file. The mutation `python3 gate.py | tee log` followed by `set -o pipefail`
+therefore passed even though the producer status had already been lost. The
+scan now models activation in line order, and a permanent arm requires that
+mutation to fail.
 
 ### Already satisfied, and verified rather than rebuilt
 
