@@ -11,9 +11,10 @@ survives the change that made it wrong. `ptp_ts_top.sv` carried a
 marker asking for DMA engine signals, next to the three DMA streams that
 already exist, which Issue #53 records as present and only needing attachment.
 
-WHAT COUNTS AS A MARKER, and why the definition is narrow. The first of these
-words appears 27 times in this tree and 26 of them are not markers. A naive
-search finds:
+WHAT COUNTS AS A MARKER, and why the definition is narrow. Across the
+superproject and both project-owned processor submodules, the first of these
+words appears fifteen times before the cleanup and fourteen are not markers. A
+naive search finds:
 
   * a citation of the historical task-list document, which pages legitimately
     name;
@@ -46,7 +47,6 @@ Exit 0 = every marker in gated first-party code names an issue.
 
 import argparse
 import re
-import subprocess
 import sys
 from pathlib import Path
 
@@ -54,6 +54,7 @@ REPO = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from lint_rtl import LINT_EXCLUDE
+from code_quality_scope import tracked
 
 WORDS = "TODO|FIXME|XXX|HACK"
 #: the marker shape: the word, then optional space, then `:` or `(`
@@ -66,34 +67,83 @@ ANY = re.compile(r"\b(%s)\b" % WORDS)
 SLASH = (".sv", ".v", ".cpp", ".h", ".hpp", ".c")
 HASH = (".py", ".sh", ".yml", ".yaml", ".tcl", ".mk")
 
-EXCLUDED_PREFIXES = ("third_party/", "external/", "protocol-processor/",
-                     "gptp-processor/", "gen/", "build/",
-                     "historical_now_obsolete/")
+SOURCE_PATTERNS = ("*.py", "*.sh", "*.tcl", "*.mk", "*.yml", "*.yaml",
+                   ".github", "hdl", "sw", "scripts", "tb", "syn", "harness")
+
+
+def comments_only(text, path):
+    """Preserve comments/newlines and blank code plus quoted strings."""
+    out = ["\n" if char == "\n" else " " for char in text]
+    if path.endswith(SLASH):
+        i, state, quote = 0, "code", ""
+        while i < len(text):
+            char = text[i]
+            nxt = text[i + 1] if i + 1 < len(text) else ""
+            if state == "code":
+                if char in ('"', "'"):
+                    state, quote = "string", char
+                elif char == "/" and nxt == "/":
+                    state = "line"
+                    out[i] = out[i + 1] = "/"
+                    i += 1
+                elif char == "/" and nxt == "*":
+                    state = "block"
+                    out[i], out[i + 1] = "/", "*"
+                    i += 1
+            elif state == "string":
+                if char == "\\":
+                    i += 1
+                elif char == quote:
+                    state = "code"
+            elif state == "line":
+                out[i] = char
+                if char == "\n":
+                    state = "code"
+            else:  # block comment
+                out[i] = char
+                if char == "*" and nxt == "/":
+                    out[i + 1] = "/"
+                    i += 1
+                    state = "code"
+            i += 1
+        return "".join(out)
+
+    if path.endswith(HASH):
+        for offset, line in _lines_with_offsets(text):
+            quote, escaped = "", False
+            for n, char in enumerate(line):
+                if escaped:
+                    escaped = False
+                    continue
+                if char == "\\" and quote:
+                    escaped = True
+                elif quote:
+                    if char == quote:
+                        quote = ""
+                elif char in ('"', "'"):
+                    quote = char
+                elif char == "#":
+                    out[offset + n:offset + len(line)] = line[n:]
+                    break
+        return "".join(out)
+    return "".join(out)
+
+
+def _lines_with_offsets(text):
+    offset = 0
+    for line in text.splitlines(keepends=True):
+        yield offset, line
+        offset += len(line)
 
 
 def comment_text(line, path):
-    """The comment part of one line, or "" if the line has none.
-
-    Only the comment is searched, because the false positives that matter are
-    an identifier and a string literal, and neither is a comment.
-    """
-    if path.endswith(SLASH):
-        i = line.find("//")
-        j = line.find("/*")
-        starts = [k for k in (i, j) if k >= 0]
-        return line[min(starts):] if starts else ""
-    if path.endswith(HASH):
-        i = line.find("#")
-        return line[i:] if i >= 0 else ""
-    return ""
+    """The comment part of one line, retained for the fixture API."""
+    return comments_only(line, path).strip()
 
 
 def scannable():
-    out = subprocess.run(["git", "ls-files"], cwd=REPO,
-                         capture_output=True, text=True, check=True).stdout.split()
-    return [p for p in out
+    return [p for p in tracked(*SOURCE_PATTERNS)
             if p.endswith(SLASH + HASH)
-            and not p.startswith(EXCLUDED_PREFIXES)
             and p not in LINT_EXCLUDE]
 
 
@@ -110,8 +160,13 @@ def scan_line(line, path="x.py"):
 def audit():
     unowned, owned, near = [], [], []
     for rel in scannable():
-        for n, line in enumerate((REPO / rel).read_text(errors="replace").splitlines(), 1):
-            is_marker, is_owned = scan_line(line, rel)
+        text = (REPO / rel).read_text(errors="replace")
+        comments = comments_only(text, rel).splitlines()
+        lines = text.splitlines()
+        for n, line in enumerate(lines, 1):
+            body = comments[n - 1] if n <= len(comments) else ""
+            is_marker = bool(MARKER.search(body))
+            is_owned = is_marker and bool(OWNED.search(body))
             if is_marker:
                 (owned if is_owned else unowned).append((rel, n, line.strip()[:92]))
             elif ANY.search(line):
@@ -166,6 +221,10 @@ def selftest():
     # -- a marker in CODE, not a comment, is not a marker --
     ck("a string literal is not a comment",
        scan_line(f'    msg = "{T}: fill this in"', "a.py")[0] is False)
+    block = f"/*\n * {T}: inside a block comment\n */\n"
+    view = comments_only(block, "a.sv")
+    ck("a marker on a later line of a block comment is caught",
+       any(MARKER.search(line) for line in view.splitlines()))
 
     # -- and this gate must not be a finding of itself --
     own = Path(__file__).read_text()
@@ -180,7 +239,7 @@ def selftest():
        "no near-miss at all - the scan is not reaching the tree")
     ck("the scan skips markdown", not any(r.endswith(".md") for r, _n, _l in near + unowned))
 
-    n = 14
+    n = 15
     print(f"\n{n} checks: {n - failures} PASS, {failures} FAIL")
     return 1 if failures else 0
 

@@ -30,7 +30,7 @@ shape rather than guess at it.
 - **[Measuring hidden units](#measuring-hidden-units)** -- The port's own documentation as the evidence, the three exclusion classes and the false positives that forced them, and why this ships as a ratchet instead of a verdict.
 - **[Rule 5: make ports, contracts and ownership explicit](#rule-5-make-ports-contracts-and-ownership-explicit)** -- What a port contract must state, why wildcard, positional and hierarchical bindings are refused outright while missing documentation and unjustified open or tied connections are only ratcheted, the exact scope of the inventory, the boundary documented end to end as proof, and the review checklist.
 - **[Rule 6: fail fast and encode invariants](#rule-6-fail-fast-and-encode-invariants)** -- Where a verdict must be refused rather than logged, one in-tree example per boundary (elaboration, FSM default, generator, pipeline, Tcl flow), the elaboration contract added to the receive shield and mutation-proven by its own diagnostic, where that contract is and is not enforced, the three masked-failure populations ratcheted over a stated population, the sweep's refusal of a suite that logs a failure and exits 0, and the review checklist.
-- **[Rule 7: comments explain why, and dead code goes](#rule-7-comments-explain-why-and-dead-code-goes)** -- What a comment is for, why a marker names its issue or is resolved, the twenty-six false positives that forced a narrow definition of "marker", the stale marker removed, and the dead code the inventory found.
+- **[Rule 7: comments explain why, and dead code goes](#rule-7-comments-explain-why-and-dead-code-goes)** -- What a comment is for, why a marker names its issue or is resolved, the fourteen false positives that forced a narrow definition of "marker", the stale marker removed, and the dead code the inventory found.
 - **[Rules not yet landed](#rules-not-yet-landed)** -- The remaining nine rules of the contract, named so the numbering is stable and a reader knows what is still coming.
 
 ## The governing rule
@@ -1466,8 +1466,9 @@ was confirmed by running its self-test, not by writing a second one.
 
 ### The marker definition is narrow, and the narrowing was measured
 
-The word TODO appears 27 times in this tree. **Twenty-six of them are not
-markers**, in three classes:
+Across the superproject and both project-owned processor submodules, the word
+TODO appears fifteen times before the cleanup. **Fourteen are not markers**, in
+three classes:
 
 | Class | Example | Why it is not a marker |
 |---|---|---|
@@ -1480,6 +1481,11 @@ So a marker is: the word, **inside a comment**, immediately followed by `:` or
 [`scripts/check_todo_ownership.py`](../../scripts/check_todo_ownership.py)
 prints the near-misses alongside the verdict, so a reader can see what the
 narrowing cost rather than trusting it.
+
+The scanner retains quoted-string boundaries and every line of a multiline
+`/* ... */` comment. The latter is mutation-armed because the first version
+only inspected a line containing `/*` and silently missed a marker on the next
+line of the same comment.
 
 Markdown is not scanned at all. Prose about the
 [historical task list](../../TODO.md) is not a marker, and treating it as one
