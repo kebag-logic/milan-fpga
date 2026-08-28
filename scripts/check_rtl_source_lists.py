@@ -30,9 +30,11 @@ own expansion (`make -s print-srcs`, `syn/yosys/run.sh --emit`) and this gate
 reads that. The Vivado list is the exception: it is a Python literal with no
 expansion step, and `check_soc_sources.py` owns reading it.
 
-A consumer whose tooling is absent is reported SKIPPED, by name, and the
-verdict says so. A gate that silently drops a consumer it could not reach is
-how a list goes unchecked for months.
+The Vivado consumer combines its quoted superproject entries with the
+`pp_srcs.py` expansion that `milan_soc.py` itself uses for the project-owned
+protocol-processor submodule. A consumer whose tooling is absent is reported
+SKIPPED, by name, and the verdict says so. A gate that silently drops a
+consumer it could not reach is how a list goes unchecked for months.
 
 Usage:
     python3 scripts/check_rtl_source_lists.py            # gate
@@ -47,6 +49,7 @@ Exit 2 = the closure itself could not be built.
 import re
 import subprocess
 import sys
+from functools import lru_cache
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
@@ -55,6 +58,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 #: the first-hop derivation is OWNED by check_soc_sources.py. Importing it is
 #: the point of this gate: two instantiation parsers would be two truths.
 from check_soc_sources import INST_RE, PREFIXES
+from pp_srcs import pp_sources
 
 #: Trees a source list may legitimately draw from. The vendored AXI-stream
 #: RTL is here because every consumer must carry it too - it is Verilog, not
@@ -68,26 +72,44 @@ def absent_roots():
     return [r for r in SEARCH_ROOTS if not (REPO / r).is_dir()]
 
 
-def module_file(name):
-    """The source file declaring `name`, or None. Found by declaration, not by
-    filename: a module may live in a file named for something else."""
+@lru_cache(maxsize=1)
+def declaration_index():
+    """Every module/package/interface declaration, indexed by unit name."""
+    found = {}
     for root in SEARCH_ROOTS:
         base = REPO / root
         if not base.is_dir():
             continue
         for path in sorted(list(base.rglob("*.sv")) + list(base.rglob("*.v"))):
-            if re.search(r"^\s*module\s+%s\b" % re.escape(name),
-                         path.read_text(errors="replace"), re.M):
-                return path
-    return None
+            text = path.read_text(errors="replace")
+            for kind, name in re.findall(
+                    r"^\s*(module|package|interface)\s+([A-Za-z_]\w*)\b",
+                    text, re.M):
+                found.setdefault(name, (kind, path))
+    return found
+
+
+def module_file(name):
+    """The source file declaring `name`, or None.
+
+    Declaration membership, not a naming prefix, decides whether a child is
+    first-party/project RTL. Prefixes are retained only to turn a misspelled
+    project-looking child into an unresolved error.
+    """
+    item = declaration_index().get(name)
+    return item[1] if item else None
+
+
+PACKAGE_REF_RE = re.compile(r"\b([A-Za-z_]\w*)::")
+INTERFACE_REF_RE = re.compile(r"\b([A-Za-z_]\w*)\.(?:master|slave|monitor)\b")
 
 
 def closure(top="milan_datapath"):
-    """Every project module reachable from `top` by instantiation.
+    """Every project compilation unit reachable from `top`.
 
-    Returns (modules, unresolved): the module names, and the ones whose source
-    file could not be found. An unresolved name is not silently dropped - a
-    list cannot be checked for a module nobody can locate.
+    Module instantiations, package-qualified references and interface/modport
+    types all add their declaring file. Returns (units, unresolved): the unit
+    names, and project-looking module names whose source could not be found.
     """
     start = module_file(top)
     if start is None:
@@ -99,12 +121,18 @@ def closure(top="milan_datapath"):
             continue
         seen[name] = path.relative_to(REPO).as_posix()
         text = path.read_text(errors="replace")
-        for child in {m for m in INST_RE.findall(text) if m.startswith(PREFIXES)}:
+        children = set(INST_RE.findall(text))
+        children |= {name for name in PACKAGE_REF_RE.findall(text)
+                     if declaration_index().get(name, (None,))[0] == "package"}
+        children |= {name for name in INTERFACE_REF_RE.findall(text)
+                     if declaration_index().get(name, (None,))[0] == "interface"}
+        for child in children:
             if child in seen:
                 continue
             child_path = module_file(child)
             if child_path is None:
-                unresolved.add(child)
+                if child.startswith(PREFIXES):
+                    unresolved.add(child)
             else:
                 queue.append((child, child_path))
     return seen, unresolved
@@ -201,9 +229,11 @@ def _from_yosys_ooc():
     return _repo_rel(text.split(), REPO / "syn/yosys"), None
 
 
-#: every quoted source path in milan_soc.py's curated list. check_soc_sources.py
-#: reads only the `hdl/` half, because it grades module registration; this gate
-#: grades FILE coverage and the vendored `.v` entries count too.
+#: every quoted source path in milan_soc.py's curated superproject list. The
+#: protocol-processor half is expanded by `_pp_sources()` at import time, so it
+#: is asked through the same `pp_srcs.py` authority rather than guessed from
+#: Python syntax. This gate grades FILE coverage and the vendored `.v` entries
+#: count too.
 _VIVADO_SRC_RE = re.compile(r'"((?:[\w.-]+/)+[\w.-]+\.(?:sv|v))"')
 
 
@@ -211,7 +241,8 @@ def _from_vivado_list():
     soc = REPO / "sw/litex/milan_soc.py"
     if not soc.is_file():
         return None, "sw/litex/milan_soc.py is absent"
-    return _repo_rel(_VIVADO_SRC_RE.findall(soc.read_text()), REPO), None
+    tokens = _VIVADO_SRC_RE.findall(soc.read_text()) + pp_sources()
+    return _repo_rel(tokens, REPO), None
 
 
 CONSUMERS = (
@@ -257,6 +288,15 @@ def selftest():
     ck("the closure is transitive, not one hop",
        "KL_aaf_latency_taps" in modules,
        "a module instantiated by a CHILD of milan_datapath must be in the closure")
+    ck("a declared child needs no approved naming prefix",
+       "credit_based_shaper" in modules,
+       "the closure must follow declarations, not silently omit a new name family")
+    ck("package dependencies are part of the file closure",
+       "pp_pkg" in modules and "ethernet_packet_pkg" in modules,
+       "removing a package-only source must fail before compilation")
+    ck("interface dependencies are part of the file closure",
+       "axi_stream_if" in modules,
+       "an interface declaration is a source dependency even though it is not a module")
     ck("a module sharing another module's file needs no entry of its own",
        modules.get("KL_aaf_latency_chain") == modules.get("KL_aaf_latency_taps")
        and modules.get("KL_aaf_latency_chain") is not None,
@@ -300,7 +340,7 @@ def selftest():
     ck("the closure is a walk, not a directory listing", bool(every - need),
        "the closure covers every .sv under hdl/ - the instantiation walk is inert")
 
-    total = 9
+    total = 12
     print(f"\n{total} checks: {total - failures} PASS, {failures} FAIL")
     return 1 if failures else 0
 
@@ -327,7 +367,7 @@ def main():
 
     if "--list" in args:
         print(f"file closure of milan_datapath ({len(need)} file(s), "
-              f"{len(modules)} module(s)):")
+              f"{len(modules)} module/package/interface unit(s)):")
         for path in sorted(need):
             names = sorted(m for m, p in modules.items() if p == path)
             print(f"   {path}  [{', '.join(names)}]")

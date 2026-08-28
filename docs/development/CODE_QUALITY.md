@@ -498,9 +498,14 @@ module under Rule 1 broke three Verilator suites at once, each with the same
 
 [`scripts/check_rtl_source_lists.py`](../../scripts/check_rtl_source_lists.py)
 makes the RTL the authority and every list a derived consumer. It walks the
-module closure of `milan_datapath` through the sources — what the datapath
-instantiates, what those instantiate, transitively — and checks each consumer
-carries every file in it.
+compilation-unit closure of `milan_datapath` through the sources — module
+instantiations, package references and interface/modport types, transitively —
+and checks each consumer carries every file in it. A declaration makes a child
+part of that walk; a hard-coded naming-prefix allowlist does not. That
+distinction is load-bearing for `protocol_processor_top` and
+`credit_based_shaper`, whose ordinary names were silently absent from the first
+version of the closure. Package-only and interface-only files are equally
+load-bearing even though they instantiate no module.
 
 Two properties are what make it a source-of-truth gate rather than a fifth copy:
 
@@ -515,7 +520,10 @@ Two properties are what make it a source-of-truth gate rather than a fifth copy:
   way. So each consumer prints the expansion it will really use
   (`make -s print-srcs`, `syn/yosys/run.sh --emit`, `syn/yosys/ooc.sh
   --emit-dp`) and the gate reads that. Two of those emit paths did not exist and
-  were added, which is most of what this change is.
+  were added, which is most of what this change is. The Vivado Python list has
+  no print mode: its quoted superproject entries are combined with the same
+  `scripts/pp_srcs.py` expansion that `milan_soc.py` calls for the
+  protocol-processor half.
 
 The unit is the **file**, not the module, because that is what a source list
 carries and one file may declare several modules — `KL_aaf_latency_chain` lives
