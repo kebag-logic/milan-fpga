@@ -937,6 +937,43 @@ A group comment over a cohesive bundle is the contract for that bundle. One
 `//!` above an AXIS valid/ready/last triple says more than three comments
 reading "valid", "ready", "last".
 
+The declaration and the use site carry the same boundary. This is the good
+shape: typed, documented ports and named connections.
+
+```systemverilog
+module queue_gate (
+  input  logic clk_i,        //! queue clock; all ports are synchronous here
+  input  logic request_i,    //! level request, held until ready_o is observed
+  output logic ready_o       //! level response; no side effects until high
+);
+
+queue_gate u_gate (
+  .clk_i    (clk_i),
+  .request_i(request),
+  .ready_o  (ready)
+);
+```
+
+These are bad shapes because a reviewer cannot establish the same contract at
+the boundary:
+
+```systemverilog
+module queue_gate(input clk_i, input request_i, output ready_o); // no contract
+queue_gate u_by_order (clk_i, request, ready);                    // positional
+queue_gate u_by_name  (.*);                                      // implicit
+assign ready = u_by_name.ready_r;                                // child backdoor
+```
+
+A tool-owned primitive or generated wrapper is a narrow exception, not a way
+to make first-party boundaries implicit. Keep the form required by that owner
+and put the disposition at the connection:
+
+```systemverilog
+vendor_axis_fifo u_vendor_fifo (
+  .m_axis_tid() //! vendor-only optional metadata; this design carries no ID
+);
+```
+
 ### Three refusals and one ratchet
 
 The four parts of this rule are checked differently on purpose.
@@ -980,6 +1017,29 @@ question and records a reason for each entry. `hdl/milan/milan_top.sv` is in it
 — a Zynq top no build compiles and that cannot elaborate here — and documenting
 its ports would decorate a file every gate already ignores.
 
+### Audited boundary inventory
+
+The inventory is deliberately broader than the three refusals. Run
+`python3 scripts/check_port_contracts.py --list` to reproduce the file and line
+detail; the summary covers the superproject and both project-owned processor
+submodules.
+
+| Population | Result | Disposition |
+|---|---:|---|
+| Module/interface ports | 2,003 total; 204 undocumented | Documentation debt is ratcheted at 204. |
+| Wildcard first-party bindings | 0 | Refused. |
+| Positional first-party bindings | 0 | Refused, including parameterised instances. |
+| Production child-state references | 0 | Refused. |
+| State with multiple procedural owners | 0 in 110 module elaborations | The superproject and both processor lint sweeps report no `MULTIDRIVEN` finding. |
+| Open named child ports | 92 | Review inventory, not an automatic failure: optional status outputs can be intentionally unused. |
+| Literal-bound named child ports | 43 | Review inventory: resets, feature disables and unused inputs each need local rationale. |
+| Test-only hierarchical observations | 80 in 7 test wrappers | Confined to tracked `tb/` trees and read-only; production behavior cannot depend on them. |
+
+The open/literal populations are syntax-level review leads, not a claim that
+135 defects exist. The representative boundary below makes its two ignored
+TCAM diagnostics explicit and states why. Test backdoors remain observable in
+the list output rather than disappearing behind a production count of zero.
+
 ### The boundary documented as proof
 
 `hdl/ieee8021q/filtering/rx_mac_filter.sv` is the receive shield: it decides
@@ -999,6 +1059,15 @@ contract. Each of its four bundles now states the law a consumer needs:
 
 None of that was inferable from the port list before, and all of it is
 load-bearing for anyone connecting to this module.
+
+The internal TCAM seam is explicit as well: `tcam_match` and `tcam_action`
+carry the named child outputs into the frame decision, while the unused winning
+index and multi-hit vector are open beside their local rationale. The focused
+suite's `binding-negative` arm replaces the real `.lookup_key_i(dmac)` binding
+with a constant zero, rebuilds the same boundary and requires the same harness
+to fail. Its clean run is a prerequisite, so a harness that rejects everything
+cannot satisfy the arm. This proves a tied-off lookup connection is observable
+through real ports rather than through a test-only child-state read.
 
 ### Review checklist
 

@@ -139,20 +139,30 @@ module rx_mac_filter #(
   //! Miss policy: the address filter when armed, else the legacy blanket bit.
   wire miss_pass = addr_filter_en_i ? addr_pass : default_pass_i;
 
-  wire                    match;
-  wire [ACTION_WIDTH-1:0] action;
+  //! Explicit TCAM lookup seam. These names keep the dependency visible at
+  //! both sides of the child boundary instead of leaking generic `match` and
+  //! `action` state into the frame-decision logic below.
+  wire                    tcam_match;
+  wire [ACTION_WIDTH-1:0] tcam_action;
 
   tcam #(
     .KEY_WIDTH(48), .NUM_ENTRIES(NUM_ENTRIES), .ACTION_WIDTH(ACTION_WIDTH)
   ) mac_cam (
-    .clk_i(clk_i), .rst_n(rst_n),
-    .wr_en_i(tcam_wr_en_i), .wr_index_i(tcam_wr_index_i), .wr_valid_i(tcam_wr_valid_i),
-    .wr_key_i(tcam_wr_key_i), .wr_mask_i(tcam_wr_mask_i), .wr_action_i(tcam_wr_action_i),
+    .clk_i(clk_i),
+    .rst_n(rst_n),
+    .wr_en_i(tcam_wr_en_i),
+    .wr_index_i(tcam_wr_index_i),
+    .wr_valid_i(tcam_wr_valid_i),
+    .wr_key_i(tcam_wr_key_i),
+    .wr_mask_i(tcam_wr_mask_i),
+    .wr_action_i(tcam_wr_action_i),
     .lookup_key_i(dmac),
-    .match_o(match),
+    .match_o(tcam_match),
     //! The filter consumes the winning action only; software diagnostics own
     //! neither the numeric winning index nor the multi-hit vector at this seam.
-    .match_index_o(), .match_action_o(action), .match_vec_o()
+    .match_index_o(),
+    .match_action_o(tcam_action),
+    .match_vec_o()
   );
 
   // -----------------------------------------------------------------------
@@ -175,7 +185,7 @@ module rx_mac_filter #(
   //! switches off.
   wire pass_sof  = runt_sof  ? 1'b0
                  : promisc_i ? 1'b1
-                 : match     ? ~action[0] : miss_pass;             //! SOF decision
+                 : tcam_match ? ~tcam_action[0] : miss_pass;       //! SOF decision
   wire pass_now  = sof ? pass_sof : pass_r;                        //! decision applied this beat
 
   // Cut-through: forward when passing, silently consume when dropping.
@@ -193,15 +203,15 @@ module rx_mac_filter #(
     end else if (beat_acc) begin
       if (sof) begin
         pass_r   <= pass_sof;
-        action_r <= action;
-        match_r  <= match;
+        action_r <= tcam_action;
+        match_r  <= tcam_match;
       end
       in_frame <= ~s_tlast;    // clear at end of frame, set within a frame
     end
   end
 
-  assign frame_action_o  = sof ? action   : action_r;
-  assign frame_match_o   = sof ? match     : match_r;
+  assign frame_action_o  = sof ? tcam_action : action_r;
+  assign frame_match_o   = sof ? tcam_match  : match_r;
   assign frame_dropped_o = ~pass_now;
 
 endmodule

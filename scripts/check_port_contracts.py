@@ -72,7 +72,7 @@ PORT = re.compile(
 COMMENT = re.compile(r"//[^\n]*|/\*.*?\*/", re.S)
 MODULE_DECL = re.compile(r"^\s*module\s+(\w+)", re.M)
 BOUNDARY_DECL = re.compile(r"^\s*(?:module|interface)\s+(\w+)", re.M)
-WILDCARD = re.compile(r"\.\s*\*\s*\)")
+WILDCARD = re.compile(r"\.\s*\*")
 
 #: SystemVerilog keywords that can open a parenthesised block and would
 #: otherwise read as a module instantiation
@@ -173,26 +173,67 @@ def scan_ports(text, require_header=False):
     return total, undoc
 
 
+def _close_paren(code, opening):
+    """Index after the balanced `)` beginning at `opening`, or None."""
+    if opening >= len(code) or code[opening] != "(":
+        return None
+    depth = 0
+    for pos in range(opening, len(code)):
+        depth += 1 if code[pos] == "(" else (-1 if code[pos] == ")" else 0)
+        if depth == 0:
+            return pos + 1
+    return None
+
+
+def _skip_space(code, pos):
+    while pos < len(code) and code[pos].isspace():
+        pos += 1
+    return pos
+
+
+def declared_instances(text, known):
+    """Yield known-module instances with their balanced connection text.
+
+    A regex that jumps from `#(` to the instance name silently skips every
+    parameterised instantiation because the parameter body lies between them.
+    Walking the two balanced lists makes parameterised and plain instances the
+    same population and keeps module declarations out (they have no instance
+    identifier after their optional parameter list).
+    """
+    code = blank_comments(text)
+    for module_match in re.finditer(r"\b[A-Za-z_]\w*\b", code):
+        name = module_match.group(0)
+        if name in NOT_A_MODULE or name not in known:
+            continue
+        pos = _skip_space(code, module_match.end())
+        if pos < len(code) and code[pos] == "#":
+            pos = _skip_space(code, pos + 1)
+            end = _close_paren(code, pos)
+            if end is None:
+                continue
+            pos = _skip_space(code, end)
+        inst_match = re.match(r"[A-Za-z_]\w*", code[pos:])
+        if not inst_match:
+            continue
+        inst = inst_match.group(0)
+        pos = _skip_space(code, pos + inst_match.end())
+        end = _close_paren(code, pos)
+        if end is None:
+            continue
+        yield name, inst, code[pos + 1:end - 1], module_match.start(), code
+
+
 def scan_bindings(text, known):
     """(wildcards, positionals, hierarchical) for one source. `known` is the set of module
     names this tree declares; anything else is a vendor or generated boundary
     whose form its tool dictates."""
     code = blank_comments(text)
-    wildcards = [m.start() for m in WILDCARD.finditer(code)]
-    positional, instances = [], set()
-    for m in re.finditer(r"\b([A-Za-z_]\w*)\s*(#\s*\(|\s)\s*([A-Za-z_]\w*)\s*\(", code):
-        name, inst = m.group(1), m.group(3)
-        if name in NOT_A_MODULE or name not in known:
-            continue
+    wildcards, positional, instances = [], [], set()
+    for name, inst, conns, offset, _code in declared_instances(text, known):
         instances.add(inst)
-        start = m.end()
-        depth, j = 1, start
-        while j < len(code) and depth:
-            depth += 1 if code[j] == "(" else (-1 if code[j] == ")" else 0)
-            j += 1
-        conns = code[start:j - 1]
-        if conns.strip() and "." not in conns:
-            positional.append((name, inst, code[:m.start()].count("\n") + 1))
+        wildcards += [offset + m.start() for m in WILDCARD.finditer(conns)]
+        if conns.strip() and not re.search(r"\.\s*(?:\*|[A-Za-z_]\w*\s*\()", conns):
+            positional.append((name, inst, code[:offset].count("\n") + 1))
     hierarchical = []
     for inst in sorted(instances):
         for ref in re.finditer(r"\b" + re.escape(inst) + r"\s*\.\s*([A-Za-z_]\w*)", code):
@@ -200,6 +241,58 @@ def scan_bindings(text, known):
     for ref in re.finditer(r"\$root\s*\.\s*([A-Za-z_]\w*)", code):
         hierarchical.append(("$root", ref.group(1), code[:ref.start()].count("\n") + 1))
     return wildcards, positional, hierarchical
+
+
+EMPTY_CONNECTION = re.compile(r"\.\s*([A-Za-z_]\w*)\s*\(\s*\)")
+LITERAL_CONNECTION = re.compile(
+    r"\.\s*([A-Za-z_]\w*)\s*\(\s*(?:\d+\s*)?'[sS]?[bBdDhHoO][0-9a-fA-F_xXzZ]+\s*\)"
+    r"|\.\s*([A-Za-z_]\w*)\s*\(\s*'[01xXzZ]\s*\)"
+    r"|\.\s*([A-Za-z_]\w*)\s*\(\s*[01]\s*\)")
+
+
+def scan_connection_dispositions(text, known):
+    """Return open and literal-bound named ports on first-party children.
+
+    These are an inventory, not an automatic verdict: an intentionally unused
+    status output and a required reset tie-off can both be the clearest
+    boundary. Review still owes each one a local rationale.
+    """
+    opens, literals = [], []
+    for name, inst, conns, offset, code in declared_instances(text, known):
+        line = code[:offset].count("\n") + 1
+        opens += [(name, inst, m.group(1), line) for m in EMPTY_CONNECTION.finditer(conns)]
+        for match in LITERAL_CONNECTION.finditer(conns):
+            port = next(group for group in match.groups() if group is not None)
+            literals.append((name, inst, port, line))
+    return opens, literals
+
+
+def test_backdoors(known):
+    """Read-only inventory of hierarchical observation confined to test RTL."""
+    found = []
+    for rel in tracked("tb/**/*.sv"):
+        text = (REPO / rel).read_text(errors="replace")
+        code = blank_comments(text)
+        instances = {inst for _name, inst, _conns, _offset, _code
+                     in declared_instances(text, known)}
+        for inst in sorted(instances):
+            for ref in re.finditer(r"\b" + re.escape(inst)
+                                   + r"\s*\.\s*([A-Za-z_]\w*)", code):
+                found.append((rel, inst, ref.group(1),
+                              code[:ref.start()].count("\n") + 1))
+    return found
+
+
+def disposition_inventory():
+    paths = sources()
+    known = declared_modules(paths)
+    opens, literals = [], []
+    for rel in paths:
+        o, tied = scan_connection_dispositions(
+            (REPO / rel).read_text(errors="replace"), known)
+        opens += [(rel,) + item for item in o]
+        literals += [(rel,) + item for item in tied]
+    return opens, literals, test_backdoors(known)
 
 
 def audit():
@@ -252,10 +345,14 @@ def selftest():
     ck("a named binding is accepted", not w and not p, f"{w} {p}")
     w, p, h = scan_bindings("  KL_child #(.W(8)) u_c (.a(sig_a));", known)
     ck("a parameterised named binding is accepted", not w and not p, f"{w} {p}")
+    w, p, h = scan_bindings("  KL_child #(.W(8)) u_c (sig_a);", known)
+    ck("a parameterised positional binding is caught", len(p) == 1, f"{p}")
 
     # a module this tree does NOT declare keeps whatever form its tool needs
     w, p, h = scan_bindings("  VendorPrimitive u_v (sig_a, sig_b);", known)
     ck("a foreign module is not judged", not p, f"{p}")
+    w, p, h = scan_bindings("  VendorPrimitive u_v (.*);", known)
+    ck("a foreign wildcard keeps its boundary exception", not w, f"{w}")
 
     # control flow must not read as an instantiation
     w, p, h = scan_bindings("  if (cond) begin\n    x <= 1;\n  end", known)
@@ -293,7 +390,12 @@ def selftest():
     ck("the live scan reads the tree", total > 500, f"{total} ports")
     ck("the exclusion list is shared with lint_rtl", "hdl/milan/milan_top.sv" in LINT_EXCLUDE)
 
-    n = 17
+    opens, tied = scan_connection_dispositions(
+        "KL_child u_c (.unused_o(), .reset_i(1'b0), .data_i(sig));", known)
+    ck("open and literal-bound ports are inventoried",
+       len(opens) == 1 and len(tied) == 1, f"{opens} {tied}")
+
+    n = 20
     print(f"\n{n} checks: {n - failures} PASS, {failures} FAIL")
     return 1 if failures else 0
 
@@ -308,6 +410,7 @@ def main():
         return selftest()
 
     total, undoc, wild, pos, hier = audit()
+    opens, literals, backdoors = disposition_inventory()
     count = sum(len(v) for v in undoc.values())
     bad = 0
 
@@ -327,6 +430,12 @@ def main():
     if args.list:
         for rel in sorted(undoc, key=lambda r: -len(undoc[r])):
             print(f"  {len(undoc[rel]):>4} undocumented  {rel}")
+        for rel, name, inst, port, line in opens:
+            print(f"  OPEN  {rel}:{line} {name} {inst}.{port}")
+        for rel, name, inst, port, line in literals:
+            print(f"  TIED  {rel}:{line} {name} {inst}.{port}")
+        for rel, inst, member, line in backdoors:
+            print(f"  TEST-XMR  {rel}:{line} {inst}.{member}")
         print()
 
     budget = read_budget()
@@ -343,6 +452,9 @@ def main():
     print(f"port contract gate: OK ({total} first-party port(s), {count} "
           f"undocumented <= ratchet {budget}; 0 wildcard, 0 positional, "
           f"0 hierarchical binding)")
+    print(f"  review inventory: {len(opens)} open named connection(s), "
+          f"{len(literals)} literal-bound named connection(s), "
+          f"{len(backdoors)} test-only hierarchical observation(s)")
     if count < budget:
         print(f"  the ratchet can be lowered to {count}")
     return 0
