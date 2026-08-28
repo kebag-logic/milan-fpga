@@ -17,7 +17,8 @@ and simply absent from the name. That is a finding a reader can check in one
 line, and it needs no taste.
 
 FALSE POSITIVES WERE MEASURED BEFORE ANY GATE, and they dominated the naive
-form of this check: 180 of 1757 ports matched a unit word in their comment, and
+form of this check: 408 of 3,491 ports across the superproject and its two
+project-owned processor submodules matched a unit word in their comment, and
 most were not findings at all. Three exclusion classes, each with a reason:
 
   * SHAPE, not unit. "1-cycle pulse", "single-cycle strobe", "flips every
@@ -30,7 +31,7 @@ most were not findings at all. Three exclusion classes, each with a reason:
   * SINGLE-BIT ports. A one-bit port carries no quantity, so a unit cannot be
     missing from it.
 
-Applying those three excludes 100 of the 180 and leaves 80 candidates. The
+Applying those three excludes 255 of the 408 and leaves 153 candidates. The
 residual set still contains judgement calls - `now_i` on a module whose entire
 subject is nanoseconds is arguable - so this is a RATCHET and not a verdict.
 The count may not rise. New boundaries state their units; existing debt is
@@ -50,15 +51,14 @@ Exit 0 = at or under the ratchet.
 
 import argparse
 import re
-import subprocess
 import sys
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
 BUDGET = Path(__file__).resolve().parent / "naming.budget"
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-EXCLUDED_PREFIXES = ("third_party/", "external/", "protocol-processor/",
-                     "gptp-processor/", "gen/", "build/")
+from code_quality_scope import tracked
 
 #: A UNIT OF MEASURE, as written in a port's own `//!` comment. Singular forms
 #: are included deliberately: they are most of what the exclusion classes below
@@ -73,7 +73,7 @@ EXCLUDED_PREFIXES = ("third_party/", "external/", "protocol-processor/",
 #: missing unit from ordinary prose.
 UNIT = re.compile(
     r"\b(nanoseconds?|microseconds?|milliseconds?|ns|us|cycles?|bytes?|octets?"
-    r"|hertz|Hz|ppb|ppm|samples?|seconds?|bits/s|bit/s|bps)\b")
+    r"|hertz|Hz|ppb|ppm|samples?|seconds|secs?|bits/s|bit/s|bps)\b")
 
 #: the same unit, already carried by the identifier
 NAME_UNIT = re.compile(
@@ -98,9 +98,7 @@ PORT = re.compile(
 
 
 def sources():
-    out = subprocess.run(["git", "ls-files", "hdl"], cwd=REPO,
-                         capture_output=True, text=True, check=True).stdout.split()
-    return [p for p in out if p.endswith(".sv") and not p.startswith(EXCLUDED_PREFIXES)]
+    return [p for p in tracked("hdl") if p.endswith(".sv")]
 
 
 def scan_text(text):
@@ -173,6 +171,8 @@ FIXTURES = [
      "  input wire [31:0] thing_i,  //! some opaque configuration word", 0, 0),
     ("an undocumented port is not a candidate",
      "  input wire [31:0] thing_i,", 0, 0),
+    ("ordinary prose using second is not a time unit",
+     "  input wire [31:0] stream_id_i, //! avoids a second copy", 0, 0),
     ("the comment may sit on the line above",
      "  //! ring size (bytes)\n  input wire [31:0] ring_len_i,", 1, 0),
 ]

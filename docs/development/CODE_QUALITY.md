@@ -792,8 +792,9 @@ python3 scripts/measure_naming.py --check     # the ratchet
 ```
 
 **The false positives were measured before anything was gated**, because the
-naive form of this check is mostly noise. 180 of 1,757 ports match a unit word
-in their comment. Three exclusion classes account for 100 of them:
+naive form of this check is mostly noise. Across the superproject and both
+project-owned processor submodules, 408 of 3,491 ports match a unit word in
+their comment. Three exclusion classes account for 255 of them:
 
 | Excluded | Count | Reason |
 |---|---:|---|
@@ -806,7 +807,7 @@ already explicit in the SystemVerilog type, and "word" is used in this tree both
 as a count and as a noun for the value itself, so it cannot separate a missing
 unit from ordinary prose.
 
-That leaves **80 candidates**, down from 91 before the rename above. The
+That leaves **153 candidates**, down from 164 before the rename above. The
 residual set still contains judgement calls — `now_i` on a module whose entire
 subject is nanoseconds is arguable — so this ships as a **ratchet**
 (`scripts/naming.budget`), not a verdict. The count may not rise; a new
