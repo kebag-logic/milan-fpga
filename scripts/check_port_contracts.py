@@ -8,9 +8,11 @@ Why this exists. Rule 5 of the maintainability guide
 instantiation must make the boundary reviewable on their own.
 `CONTRIBUTING.md` already states the half about declarations — "Ports
 documented inline with `//!` — the port list IS the spec" — and nothing checked
-it, so 509 of 1,757 first-party ports carry no documentation at all.
+it. Across the superproject and both project-owned processor submodules, 222
+of 2,003 module/interface ports carried no documentation before the
+representative cleanup below.
 
-Three things are checked, and they are deliberately different kinds of check:
+Four things are checked, and they are deliberately different kinds of check:
 
   1. WILDCARD BINDINGS (`.*`) are refused outright. A `.*` connects by name at
      elaboration, so adding a port to a child silently rewires the parent with
@@ -25,28 +27,32 @@ Three things are checked, and they are deliberately different kinds of check:
      TREE declares are judged - a vendor primitive or generated wrapper keeps
      whatever form its tool requires.
 
-  3. UNDOCUMENTED PORTS are RATCHETED, not refused. There are hundreds, they
+  3. PRODUCTION HIERARCHICAL READS through a declared child instance are
+     refused. A child register is not a boundary; a dependency on it becomes a
+     documented named port instead.
+
+  4. UNDOCUMENTED PORTS are RATCHETED, not refused. There are hundreds, they
      are real debt, and a flag-day pass over them would be exactly the churn
      the governing rule forbids. The count may not rise.
 
-The excluded-file list is NOT written again here: it is imported from
-`scripts/lint_rtl.py`, which already owns the question of which files are
-first-party gated surface and records why for each one. `hdl/milan/milan_top.sv`
-is in it — a Zynq top that no build compiles and that cannot elaborate here —
-and documenting its ports would decorate a file every gate already ignores.
+The project-owned processor submodules come from the shared code-quality scope.
+The individual excluded-file list is NOT written again here: it is imported
+from `scripts/lint_rtl.py`, which records why for each exception.
+`hdl/milan/milan_top.sv` is in it — a Zynq top that no build compiles and that
+cannot elaborate here — and documenting its ports would decorate a file every
+gate already ignores.
 
 Usage:
     python3 scripts/check_port_contracts.py            # gate
     python3 scripts/check_port_contracts.py --list     # per-file counts
     python3 scripts/check_port_contracts.py --selftest # mutation arms
 
-Exit 0 = no wildcard/positional binding, and undocumented ports at or under the
-ratchet in scripts/port_docs.budget.
+Exit 0 = no wildcard/positional/hierarchical production binding, and
+undocumented ports at or under the ratchet in scripts/port_docs.budget.
 """
 
 import argparse
 import re
-import subprocess
 import sys
 from pathlib import Path
 
@@ -58,12 +64,14 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 #: recorded reason per exclusion. Importing it means the two gates can never
 #: disagree about what this repository is responsible for.
 from lint_rtl import LINT_EXCLUDE
+from code_quality_scope import tracked
 
 PORT = re.compile(
     r"^\s*(input|output|inout)\s+(?:wire|logic|var)?\s*(?:signed\s+)?"
     r"(?:\[[^\]]*\]\s*)?(\w+)")
 COMMENT = re.compile(r"//[^\n]*|/\*.*?\*/", re.S)
 MODULE_DECL = re.compile(r"^\s*module\s+(\w+)", re.M)
+BOUNDARY_DECL = re.compile(r"^\s*(?:module|interface)\s+(\w+)", re.M)
 WILDCARD = re.compile(r"\.\s*\*\s*\)")
 
 #: SystemVerilog keywords that can open a parenthesised block and would
@@ -84,9 +92,7 @@ def blank_comments(text):
 
 
 def sources():
-    out = subprocess.run(["git", "ls-files", "hdl"], cwd=REPO,
-                         capture_output=True, text=True, check=True).stdout.split()
-    return [p for p in out if p.endswith(".sv") and p not in LINT_EXCLUDE]
+    return [p for p in tracked("hdl") if p.endswith(".sv") and p not in LINT_EXCLUDE]
 
 
 def declared_modules(paths):
@@ -96,7 +102,20 @@ def declared_modules(paths):
     return names
 
 
-def scan_ports(text):
+def module_headers(text):
+    """Yield module declarations through the semicolon after their port list."""
+    code = blank_comments(text)
+    for match in BOUNDARY_DECL.finditer(code):
+        depth = 0
+        for pos in range(match.end(), len(code)):
+            char = code[pos]
+            depth += 1 if char == "(" else (-1 if char == ")" else 0)
+            if char == ";" and depth == 0:
+                yield text[match.start():pos + 1]
+                break
+
+
+def _scan_port_lines(text):
     """(total, undocumented_names) for one source, comments intact.
 
     A port is documented when it carries `//!` on its own line, or when a `//!`
@@ -134,17 +153,38 @@ def scan_ports(text):
     return total, undoc
 
 
+def scan_ports(text, require_header=False):
+    """(total, undocumented_names) for module ports only.
+
+    Task/function arguments also use the `input` and `output` keywords. They
+    are not module boundary ports and must not consume or hide ratchet budget.
+    Header extraction keeps those later declarations out of the population.
+    Bare snippets remain supported for the fixture arms.
+    """
+    headers = list(module_headers(text))
+    if require_header and not headers:
+        return 0, []
+    targets = headers if headers else [text]
+    total, undoc = 0, []
+    for header in targets:
+        n, names = _scan_port_lines(header)
+        total += n
+        undoc.extend(names)
+    return total, undoc
+
+
 def scan_bindings(text, known):
-    """(wildcards, positionals) for one source. `known` is the set of module
+    """(wildcards, positionals, hierarchical) for one source. `known` is the set of module
     names this tree declares; anything else is a vendor or generated boundary
     whose form its tool dictates."""
     code = blank_comments(text)
     wildcards = [m.start() for m in WILDCARD.finditer(code)]
-    positional = []
+    positional, instances = [], set()
     for m in re.finditer(r"\b([A-Za-z_]\w*)\s*(#\s*\(|\s)\s*([A-Za-z_]\w*)\s*\(", code):
         name, inst = m.group(1), m.group(3)
         if name in NOT_A_MODULE or name not in known:
             continue
+        instances.add(inst)
         start = m.end()
         depth, j = 1, start
         while j < len(code) and depth:
@@ -153,23 +193,30 @@ def scan_bindings(text, known):
         conns = code[start:j - 1]
         if conns.strip() and "." not in conns:
             positional.append((name, inst, code[:m.start()].count("\n") + 1))
-    return wildcards, positional
+    hierarchical = []
+    for inst in sorted(instances):
+        for ref in re.finditer(r"\b" + re.escape(inst) + r"\s*\.\s*([A-Za-z_]\w*)", code):
+            hierarchical.append((inst, ref.group(1), code[:ref.start()].count("\n") + 1))
+    for ref in re.finditer(r"\$root\s*\.\s*([A-Za-z_]\w*)", code):
+        hierarchical.append(("$root", ref.group(1), code[:ref.start()].count("\n") + 1))
+    return wildcards, positional, hierarchical
 
 
 def audit():
     paths = sources()
     known = declared_modules(paths)
-    total, undoc, wild, pos = 0, {}, [], []
+    total, undoc, wild, pos, hier = 0, {}, [], [], []
     for rel in paths:
         text = (REPO / rel).read_text(errors="replace")
-        n, u = scan_ports(text)
+        n, u = scan_ports(text, require_header=True)
         total += n
         if u:
             undoc[rel] = u
-        w, p = scan_bindings(text, known)
+        w, p, h = scan_bindings(text, known)
         wild += [(rel, off) for off in w]
         pos += [(rel,) + t for t in p]
-    return total, undoc, wild, pos
+        hier += [(rel,) + t for t in h]
+    return total, undoc, wild, pos, hier
 
 
 def read_budget():
@@ -195,28 +242,32 @@ def selftest():
 
     known = {"KL_child"}
 
-    # -- the two refusals must BITE. Their live population is zero, so without
+    # -- the three refusals must BITE. Their live population is zero, so without
     # -- these arms the gate is indistinguishable from an inert one.
-    w, p = scan_bindings("  KL_child u_c (.*);", known)
+    w, p, h = scan_bindings("  KL_child u_c (.*);", known)
     ck("a wildcard binding is caught", len(w) == 1, f"{w}")
-    w, p = scan_bindings("  KL_child u_c (sig_a, sig_b);", known)
+    w, p, h = scan_bindings("  KL_child u_c (sig_a, sig_b);", known)
     ck("a positional binding is caught", len(p) == 1, f"{p}")
-    w, p = scan_bindings("  KL_child u_c (.a(sig_a), .b(sig_b));", known)
+    w, p, h = scan_bindings("  KL_child u_c (.a(sig_a), .b(sig_b));", known)
     ck("a named binding is accepted", not w and not p, f"{w} {p}")
-    w, p = scan_bindings("  KL_child #(.W(8)) u_c (.a(sig_a));", known)
+    w, p, h = scan_bindings("  KL_child #(.W(8)) u_c (.a(sig_a));", known)
     ck("a parameterised named binding is accepted", not w and not p, f"{w} {p}")
 
     # a module this tree does NOT declare keeps whatever form its tool needs
-    w, p = scan_bindings("  VendorPrimitive u_v (sig_a, sig_b);", known)
+    w, p, h = scan_bindings("  VendorPrimitive u_v (sig_a, sig_b);", known)
     ck("a foreign module is not judged", not p, f"{p}")
 
     # control flow must not read as an instantiation
-    w, p = scan_bindings("  if (cond) begin\n    x <= 1;\n  end", known)
+    w, p, h = scan_bindings("  if (cond) begin\n    x <= 1;\n  end", known)
     ck("control flow is not an instantiation", not p, f"{p}")
 
     # a binding inside a comment is not a binding
-    w, p = scan_bindings("  // KL_child u_c (sig_a, sig_b);", known)
+    w, p, h = scan_bindings("  // KL_child u_c (sig_a, sig_b);", known)
     ck("a commented-out binding is not counted", not p and not w, f"{p} {w}")
+    w, p, h = scan_bindings(
+        "  KL_child u_c (.a(sig_a));\n  assign leak = u_c.hidden_r;", known)
+    ck("a production hierarchical dependency is caught",
+       h == [("u_c", "hidden_r", 2)], f"{h}")
 
     # -- port documentation --
     n, u = scan_ports("  input wire clk_i,  //! the clock")
@@ -238,11 +289,11 @@ def selftest():
     ck("a plain // banner is not a port contract", n == 1 and u == ["a_i"], f"{n} {u}")
 
     # -- and the live scan must actually read the tree --
-    total, undoc, wild, pos = audit()
+    total, undoc, wild, pos, hier = audit()
     ck("the live scan reads the tree", total > 500, f"{total} ports")
     ck("the exclusion list is shared with lint_rtl", "hdl/milan/milan_top.sv" in LINT_EXCLUDE)
 
-    n = 16
+    n = 17
     print(f"\n{n} checks: {n - failures} PASS, {failures} FAIL")
     return 1 if failures else 0
 
@@ -256,7 +307,7 @@ def main():
     if args.selftest:
         return selftest()
 
-    total, undoc, wild, pos = audit()
+    total, undoc, wild, pos, hier = audit()
     count = sum(len(v) for v in undoc.values())
     bad = 0
 
@@ -268,6 +319,10 @@ def main():
         bad += 1
         print(f"POSITIONAL BINDING: {rel}:{line} instantiates {name} as {inst} "
               f"by position. Reordering the child's ports would rewire it silently.")
+    for rel, inst, member, line in hier:
+        bad += 1
+        print(f"HIERARCHICAL DEPENDENCY: {rel}:{line} reads `{inst}.{member}`. "
+              f"Production dependencies cross the module boundary through a named port.")
 
     if args.list:
         for rel in sorted(undoc, key=lambda r: -len(undoc[r])):
@@ -286,7 +341,8 @@ def main():
         return 1
 
     print(f"port contract gate: OK ({total} first-party port(s), {count} "
-          f"undocumented <= ratchet {budget}; 0 wildcard, 0 positional binding)")
+          f"undocumented <= ratchet {budget}; 0 wildcard, 0 positional, "
+          f"0 hierarchical binding)")
     if count < budget:
         print(f"  the ratchet can be lowered to {count}")
     return 0

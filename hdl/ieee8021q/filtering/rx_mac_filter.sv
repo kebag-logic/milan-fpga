@@ -149,7 +149,10 @@ module rx_mac_filter #(
     .wr_en_i(tcam_wr_en_i), .wr_index_i(tcam_wr_index_i), .wr_valid_i(tcam_wr_valid_i),
     .wr_key_i(tcam_wr_key_i), .wr_mask_i(tcam_wr_mask_i), .wr_action_i(tcam_wr_action_i),
     .lookup_key_i(dmac),
-    .match_o(match), .match_index_o(), .match_action_o(action), .match_vec_o()
+    .match_o(match),
+    //! The filter consumes the winning action only; software diagnostics own
+    //! neither the numeric winning index nor the multi-hit vector at this seam.
+    .match_index_o(), .match_action_o(action), .match_vec_o()
   );
 
   // -----------------------------------------------------------------------

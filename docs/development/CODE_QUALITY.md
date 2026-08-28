@@ -915,7 +915,9 @@ boundary gained its unit.
 
 [CONTRIBUTING.md](../../CONTRIBUTING.md) already states half of this — "Ports
 documented **inline with `//!`** — the port list IS the spec". Nothing checked
-it, and 257 of 1,728 first-party ports carried no contract at all.
+it. Across the superproject and both project-owned processor submodules, 222 of
+2,003 module/interface ports carried no contract before the representative
+cleanup.
 
 ### What a port contract states
 
@@ -935,9 +937,9 @@ A group comment over a cohesive bundle is the contract for that bundle. One
 `//!` above an AXIS valid/ready/last triple says more than three comments
 reading "valid", "ready", "last".
 
-### Two refusals and one ratchet
+### Three refusals and one ratchet
 
-The three parts of this rule are checked differently on purpose.
+The four parts of this rule are checked differently on purpose.
 
 **Wildcard `.*` bindings are refused outright.** A `.*` connects by name at
 elaboration, so adding a port to a child silently rewires every parent with no
@@ -949,20 +951,30 @@ silently, and the widths usually still fit. Only modules this tree declares are
 judged — a vendor primitive or a generated wrapper keeps whatever form its tool
 requires.
 
-Both populations are **zero today**, which is precisely why the arms that prove
+**Production hierarchical reads are refused outright.** The checker derives
+each declared child-instance name, then rejects `child.member` use outside the
+child's named port list. Interface/modport member access is not a child-instance
+backdoor and is intentionally outside this population.
+
+All three hidden-connection populations are **zero today**: wildcard and
+positional bindings, plus production reads through a child instance hierarchy.
+That is precisely why the arms that prove
 those checks bite matter more than the counts. A gate with an empty population
 is indistinguishable from a gate that does nothing, so
 [`scripts/check_port_contracts.py`](../../scripts/check_port_contracts.py)
 carries fixtures for a wildcard binding, a positional binding, a named binding,
 a parameterised named binding, a foreign module, control flow that must not read
-as an instantiation, and a commented-out binding.
+as an instantiation, a commented-out binding, and a child-state backdoor.
 
-**Undocumented ports are ratcheted, not refused.** There are 239 of them. A
+**Undocumented ports are ratcheted, not refused.** There are 204 of them after
+the receive-filter cleanup. A
 flag-day pass over every one would be exactly the churn the governing rule
 forbids, so the count may only fall.
 
-The gate does not write its own list of which files are first-party gated
-surface: it imports `LINT_EXCLUDE` from
+The gate uses the shared code-quality scope, so the project-owned
+`protocol-processor` and `gptp-processor` submodules are included and must be
+checked out at their pins. It does not write its own list of individual HDL
+exceptions: it imports `LINT_EXCLUDE` from
 [`scripts/lint_rtl.py`](../../scripts/lint_rtl.py), which already owns that
 question and records a reason for each entry. `hdl/milan/milan_top.sv` is in it
 — a Zynq top no build compiles and that cannot elaborate here — and documenting
