@@ -2130,6 +2130,13 @@ already exist in the required build paths. Verilator, the Yosys/sv2v path, and
 the Vivado/xvlog gate are therefore validation targets for these edits, not
 assumptions used to introduce an unproven construct.
 
+The final candidate records the compatibility result: all 54 local Verilator
+suites passed (2,116,640 checks, zero in-suite failures), all 46 full Yosys/sv2v
+synthesis tops passed with the tied-input and observer-purity gates, and the
+xvlog compatibility gate held its existing four processor findings with no new
+finding in `hdl/`. No new interface/modport form was proposed, so there is no
+rejected construct to disguise as an accepted experiment.
+
 ### Exceptions, recorded rather than assumed
 
 The gate imports [`scripts/lint_rtl.py`](../../scripts/lint_rtl.py)'s
