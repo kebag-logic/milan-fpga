@@ -44,29 +44,21 @@ import argparse
 import ast
 import json
 import re
-import subprocess
 import sys
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-EXCLUDED_PREFIXES = (
-    "third_party/", "external/", "protocol-processor/", "gptp-processor/",
-    "gen/", "build/", "historical_now_obsolete/",
-)
+from code_quality_scope import tracked
 
 #: constructs that add a level of nesting a reader must hold
-_NESTING = (ast.If, ast.For, ast.While, ast.With, ast.Try,
+_NESTING = (ast.If, ast.For, ast.While, ast.With, ast.Try, ast.Match,
             ast.AsyncFor, ast.AsyncWith)
 #: constructs that add a decision point
-_DECISION = (ast.If, ast.For, ast.While, ast.ExceptHandler, ast.BoolOp,
-             ast.IfExp, ast.Assert, ast.comprehension)
-
-
-def tracked(*patterns):
-    out = subprocess.run(["git", "ls-files", *patterns], cwd=REPO,
-                         capture_output=True, text=True, check=True).stdout.split()
-    return [p for p in out if not p.startswith(EXCLUDED_PREFIXES)]
+_DECISION = (ast.If, ast.For, ast.While, ast.Match, ast.match_case,
+             ast.ExceptHandler, ast.BoolOp, ast.IfExp, ast.Assert,
+             ast.comprehension)
 
 
 # ---------------------------------------------------------------------------
@@ -211,6 +203,8 @@ PY_FIXTURES = [
     ("boolean operators are decisions", "def f(a, b):\n    return a and b\n", 0, 1),
     ("a nested def is measured on its own",
      "def outer():\n    def inner(a):\n        if a:\n            pass\n    return inner\n", 0, 0),
+    ("match cases are visible control flow",
+     "def f(x):\n    match x:\n        case 0: return 0\n        case _: return 1\n", 1, 3),
 ]
 
 SV_FIXTURES = [
@@ -240,7 +234,7 @@ def selftest():
                   f"{row['decisions']}, want {want_depth}/{want_dec}")
 
     # the nested-def arm also proves the inner function is reported separately
-    rows = measure_python_source(PY_FIXTURES[-1][1])
+    rows = measure_python_source(PY_FIXTURES[-2][1])
     inner = [r for r in rows if r["name"] == "inner"]
     if len(inner) == 1 and inner[0]["depth"] == 1:
         print("[PASS] python: inner function reported with its own depth")

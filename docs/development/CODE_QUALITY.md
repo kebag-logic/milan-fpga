@@ -275,6 +275,22 @@ now have arms:
   why the refusal needs a test: an unreachable path with no arm is how the next
   role gets silently mislabelled.
 
+### Measured hotspots, not automatic findings
+
+The ranked scan leaves a small review set whose complexity has a concrete
+reason. These rows include both project-owned processor submodules:
+
+| Unit | Measured shape | Why it is complex / disposition |
+|---|---:|---|
+| `sw/litex/test_ring_bd.py:stim` | depth 10, 26 decisions | A cycle-accurate concurrent DMA stimulus nested inside a test; retain the timing shape, but split the next new scenario out of this closure. |
+| `tb/tools/hive_compliance.py:main` | depth 7, 95 decisions | CLI orchestration for many independent protocol checks; the checks are already helpers, so its remaining branches are explicit dispatch and failure aggregation. |
+| `protocol-processor/scripts/render-wavedrom.py:collect_blocks` | depth 7, 13 decisions | A small Markdown/fence parser; a future change should table-drive token states, but no rewrite is justified without a failing case. |
+| `hdl/common/csr/milan_csr.sv:register_write` | depth 6, 142 order-dependent targets | The address decode is the register-map specification; splitting it would hide priority and address order, so it stays a named explicit decode. |
+| `protocol-processor/hdl/aecp/KL_aecp_engine.sv:command_machine` | depth 7, 85 order-dependent targets | An explicit command FSM with defaults followed by state-specific overrides; review priority at each override rather than imposing a generic count. |
+
+The worked `cluster_names` case was selected because its complexity came from
+an unnamed catch-all and nested error path, not merely because it ranked high.
+
 ### Exceptions
 
 - A long, flat `case` over an explicit FSM state set is simple, whatever its
@@ -318,9 +334,10 @@ python3 scripts/measure_control_flow.py --selftest  # the fixture arms
 **No threshold is proposed, and none is imported.** A generic complexity limit
 from another codebase would fail the parts of this tree that are correctly
 shaped — a wire-format parser and an explicit FSM both score high and are both
-right. What the tree measures today, so a later reader can see whether it moved:
-2,089 first-party functions, of which 30 nest five levels or deeper; and 309
-procedural blocks, of which 263 resolve at least one signal by source order.
+right. What the pinned superproject and its two project-owned processor
+submodules measure today, so a later reader can see whether it moved: 2,322
+first-party functions, of which 35 nest five levels or deeper; and 616
+procedural blocks, of which 507 resolve at least one signal by source order.
 That second number is the reason the rule asks for priority to be *visible*
 rather than absent — forbidding the pattern would be a rewrite of most of the
 RTL, and would not make any of it clearer.
