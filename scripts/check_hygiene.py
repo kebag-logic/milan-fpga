@@ -8,14 +8,15 @@ Why this exists. Rule 9 of the maintainability guide
 mechanical rules - and measure signal and false positives BEFORE gating, so a
 new baseline does not bury real findings or start a fight with the house style.
 
-WHAT WAS MEASURED. Six candidates were run over 405 first-party files. The scan
-takes 0.06 s, so runtime is not a reason to reject any of them:
+WHAT WAS MEASURED. Six candidates are run over first-party files in this
+superproject and both project-owned processor submodules. Runtime is not a
+reason to reject any of them:
 
   | candidate                | findings | files | verdict |
   |--------------------------|---------:|------:|---------|
-  | line over 100 columns    |     1022 |   145 | REJECTED |
-  | trailing whitespace      |       45 |    17 | adopted |
-  | missing EOF newline      |       19 |    19 | adopted |
+  | line over 100 columns    |     1164 |   167 | REJECTED |
+  | trailing whitespace      |       44 |    18 | adopted |
+  | missing EOF newline      |       14 |    14 | adopted |
   | CRLF line ending         |        0 |     0 | adopted at zero |
   | UTF-8 BOM                |        0 |     0 | adopted at zero |
   | tab in SystemVerilog     |        0 |     0 | adopted at zero |
@@ -51,7 +52,6 @@ Exit 0 = every check at or under its ratchet in scripts/hygiene.budget.
 
 import argparse
 import re
-import subprocess
 import sys
 from pathlib import Path
 
@@ -62,11 +62,11 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 #: what "generated" means is OWNED by gen_toc.py; a second definition here
 #: would be exactly the drift Rule 3 forbids
 from gen_toc import GENERATED_RE, GENERATED_SCAN_LINES
+from code_quality_scope import PROJECT_SUBMODULES, tracked
 
 SCANNED_SUFFIXES = (".sv", ".svh", ".v", ".py", ".cpp", ".h", ".hpp", ".c",
                     ".sh", ".tcl", ".mk", ".yml", ".yaml")
-EXCLUDED_PREFIXES = ("third_party/", "external/", "protocol-processor/",
-                     "gptp-processor/", "gen/", "build/")
+EXCLUDED_PREFIXES = ("third_party/", "external/", "gen/", "build/")
 
 #: name -> (fixable, description). Order is the report order.
 CHECKS = (
@@ -84,10 +84,14 @@ def is_generated(text):
 
 
 def sources():
-    out = subprocess.run(["git", "ls-files"], cwd=REPO,
-                         capture_output=True, text=True, check=True).stdout.split()
+    out = tracked(*(f"*{suffix}" for suffix in SCANNED_SUFFIXES))
     return [p for p in out
             if p.endswith(SCANNED_SUFFIXES) and not p.startswith(EXCLUDED_PREFIXES)]
+
+
+def is_project_submodule_path(rel):
+    """Whether a finding must be repaired in the owning submodule repository."""
+    return rel.startswith(tuple(f"{name}/" for name in PROJECT_SUBMODULES))
 
 
 def scan_bytes(raw, path="x.sv"):
@@ -193,10 +197,16 @@ def selftest():
     totals, per_file, skipped = audit()
     ck("the live scan reads the tree", sum(totals.values()) >= 0 and len(sources()) > 100,
        f"{len(sources())} files")
+    ck("the live scan reaches both project processor submodules",
+       any(p.startswith("protocol-processor/") for p in sources())
+       and any(p.startswith("gptp-processor/") for p in sources()))
     ck("generated files are actually being skipped", bool(skipped),
        "nothing was skipped - the generated predicate is not firing")
+    ck("project-submodule fixes are owned upstream",
+       is_project_submodule_path("protocol-processor/hdl/example.sv")
+       and not is_project_submodule_path("hdl/example.sv"))
 
-    n = 14
+    n = 16
     print(f"\n{n} checks: {n - failures} PASS, {failures} FAIL")
     return 1 if failures else 0
 
@@ -213,6 +223,7 @@ def main():
 
     if args.fix:
         changed = 0
+        upstream = 0
         for rel in sources():
             path = REPO / rel
             raw = path.read_bytes()
@@ -220,19 +231,27 @@ def main():
                 continue
             new = fix_bytes(raw)
             if new != raw:
+                if is_project_submodule_path(rel):
+                    upstream += 1
+                    print(f"needs upstream fix in project submodule: {rel}")
+                    continue
                 path.write_bytes(new)
                 changed += 1
                 print(f"fixed {rel}")
         print(f"\n{changed} file(s) repaired. A tab in SystemVerilog is NOT fixed "
               f"automatically: re-indenting is a judgement about layout.")
-        return 0
+        if upstream:
+            print(f"{upstream} project-submodule file(s) were not rewritten; "
+                  "repair them in their owning repository and update the pin.")
+        return 1 if upstream else 0
 
     totals, per_file, skipped = audit()
     for rel in sorted(per_file):
         bits = ", ".join(f"{k} x{v}" for k, v in per_file[rel].items() if v)
         print(f"{rel}: {bits}")
 
-    print(f"\n{len(sources())} first-party file(s) scanned, {len(skipped)} generated "
+    print(f"\n{len(sources())} first-party file(s) scanned across the superproject "
+          f"and processor submodules, {len(skipped)} generated "
           f"file(s) skipped (their fix is in their generator)")
     for name, _fixable, _desc in CHECKS:
         print(f"  {name:<24} {totals[name]}")

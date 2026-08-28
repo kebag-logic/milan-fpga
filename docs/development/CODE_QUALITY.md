@@ -1880,13 +1880,15 @@ rejected.
 
 ### What was measured, and what was kept
 
-Six candidates over 422 first-party files. The scan takes 0.06 s, so runtime
-rejected nothing.
+Six candidates over 547 first-party files in the superproject and both
+project-owned processor submodules. The scan takes about 0.21 s, so runtime
+rejected nothing. An absent or off-pin processor submodule refuses the scan
+instead of silently shrinking this population.
 
 | Candidate | Findings | Files | Verdict |
 |---|---:|---:|---|
-| Line over 100 columns | 1022 | 145 | **Rejected** |
-| Trailing whitespace | 43 | 17 | Adopted |
+| Line over 100 columns | 1164 | 167 | **Rejected** |
+| Trailing whitespace | 44 | 18 | Adopted |
 | Missing EOF newline | 14 | 14 | Adopted |
 | CRLF line ending | 0 | 0 | Adopted at zero |
 | UTF-8 BOM | 0 | 0 | Adopted at zero |
@@ -1928,10 +1930,12 @@ banner, and the TOC gate was re-run to prove no documentation page newly matched
 ### The rewrite is isolated, and the isolation is proven
 
 The gate and its ratchets landed first, at the measured values. The mechanical
-repair is a **separate commit** that changes nothing else — and that is not an
-assertion: `git diff -w`, which ignores whitespace entirely, shows only the
-ratchet file. Twenty-five files were repaired and the two non-zero ratchets went
-to zero.
+repair is a **separate commit**: for every executable/source file it touches,
+`git diff -w` is empty. That commit also wires the gate into CI, updates this
+guide, and lowers the ratchets explicitly. Twenty-five superproject files were
+repaired. Missing newlines went to zero; the one remaining trailing-whitespace
+finding is inside `protocol-processor` and is held at one until it is fixed in
+that repository and the submodule pin is updated.
 
 ```
 python3 scripts/check_hygiene.py          # the findings
@@ -1940,7 +1944,9 @@ python3 scripts/check_hygiene.py --check  # the ratchet CI runs
 ```
 
 A tab in SystemVerilog is deliberately **not** auto-fixed: re-indenting is a
-judgement about layout, not a mechanical repair.
+judgement about layout, not a mechanical repair. `--fix` also refuses to rewrite
+a processor-submodule checkout: it reports those paths and exits non-zero so the
+repair is made and reviewed in the repository that owns them.
 
 ### Review checklist
 

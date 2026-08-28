@@ -2,8 +2,9 @@
 # measurement that selected these five and the recorded reason the line-length
 # check was REJECTED. EVERY NUMBER MAY ONLY GO DOWN.
 #
-# `python3 scripts/check_hygiene.py --fix` repairs the first four.
-trailing whitespace  = 0
+# `python3 scripts/check_hygiene.py --fix` repairs the first four in this
+# repository. Findings in a project submodule are reported for an upstream fix.
+trailing whitespace  = 1
 missing EOF newline  = 0
 CRLF line ending     = 0
 UTF-8 BOM            = 0
