@@ -33,7 +33,7 @@ shape rather than guess at it.
 - **[Rule 7: comments explain why, and dead code goes](#rule-7-comments-explain-why-and-dead-code-goes)** -- What a comment is for, why a marker names its issue or is resolved, the near-misses that forced a narrow definition of "marker" and what the gate reads to find one, the two stale markers removed, and the dead code the inventory found.
 - **[Rule 8: tests prove something, and prove they can fail](#rule-8-tests-prove-something-and-prove-they-can-fail)** -- Why a green suite can prove nothing, the three defects injected into the TCAM to show its harness is load-bearing, what counts as an executed arm, the four evidence ratchets, and what was found already clean.
 - **[Rule 9: automate mechanical hygiene with measured ratchets](#rule-9-automate-mechanical-hygiene-with-measured-ratchets)** -- The six candidate checks measured before any was adopted, why the highest-volume one was rejected on the record, why three checks are adopted at zero, and how the formatting-only rewrite was isolated and proven.
-- **[Rule 10: prefer idiomatic SystemVerilog](#rule-10-prefer-idiomatic-systemverilog)** -- Which construct is refused outright and why it is the only one that discards a real check, what is ratcheted instead, why a `wire` is deliberately not a finding, and the reset-less canary converted without gaining a reset. -- The remaining nine rules of the contract, named so the numbering is stable and a reader knows what is still coming.
+- **[Rule 10: prefer idiomatic SystemVerilog](#rule-10-prefer-idiomatic-systemverilog)** -- Why ordinary `.v` files and generic `always @` are refused, what is ratcheted instead, why a `wire` is deliberately not a finding, and the representative boundaries modernized without changing behavior.
 - **[The contract is complete](#the-contract-is-complete)** -- What every landed rule carries, and why each of the nine gates that enforce them ships with a self-test proving it can fail.
 
 ## The governing rule
@@ -2038,20 +2038,53 @@ HDL. This rule is about what happens after the file extension: a `.sv` file can
 still be written as Verilog-2001, and what is lost is exactly the compile-time
 checking that makes ownership reviewable.
 
-### One refusal, two ratchets
+### Two refusals, two ratchets
+
+**An ordinary first-party `.v` file is refused.** The one checked-in `.v` file
+is a documented Vivado boundary in the shared exclusion inventory. A new `.v`
+file cannot silently bypass the SystemVerilog-only rule: it must become `.sv`,
+or its generator/tool owner and evidence must be recorded in `LINT_EXCLUDE`.
 
 **A generic `always @` is refused.** It is the only construct here that discards
 a real check. `always_ff` asks every tool in the path to enforce a single driver
 and to reject a block that is not sequential; `always_comb` asks for a complete
 combinational block. `always @` asks for neither, and the difference is silent.
 
-**`reg` declarations are ratcheted at 48**, across twelve modules. A `reg` in a
+**`reg` declarations are ratcheted at 58**, across fifteen files. A `reg` in a
 `.sv` file is legal and usually harmless; `logic` is the SystemVerilog spelling
-and new code uses it. Rewriting all forty-eight in one change is the churn the
+and new code uses it. Rewriting all fifty-eight in one change is the churn the
 governing rule forbids.
 
-**Untyped `parameter` declarations are ratcheted at 4.** `parameter W = 8` takes
-an implementation-defined type; `parameter int W = 8` does not.
+The first checker reported 48 because its expression only recognized `reg` at
+the beginning of a line. It missed fourteen ANSI `output reg` declarations and
+attribute-prefixed declarations. The gate now blanks comments and strings and
+recognizes the reserved `reg` keyword in every declaration context; a fixture
+specifically kills the old `output reg` blind spot. The corrected baseline is
+58 after the four variables modernized in `rx_mac_filter` below.
+
+**Untyped `parameter` declarations are held at zero.** `parameter W = 8` takes
+an implementation-defined type; `parameter int unsigned W = 8` does not. The
+four parameters of `axi_stream_if` were the complete measured population and
+are now typed, so the ratchet admits no new ones.
+
+### Inventory and repository examples
+
+The gate follows the same submodule-aware first-party scope as the other rules
+and refuses an absent or off-pin processor checkout. The tracked inventory is
+117 `.sv` files, four `.svh` headers, and one `.v` file: 122 total. Of those,
+120 are gated (116 `.sv`, four `.svh`); the two excluded tool boundaries are
+listed below. Forty-eight of the gated files live in `protocol-processor` or
+`gptp-processor`, so processor RTL is not silently outside the rule.
+
+| Concern | Avoid | Prefer / repository proof |
+|---|---|---|
+| Typed ANSI boundary | `output reg [7:0] data` or an implicit-width port | An ANSI direction plus an intentional net/variable type and explicit width; `rx_mac_filter` documents every stream and TCAM port. |
+| Named instantiation | `child u (clk, data)` or `child u (.*)` | `.clk_i(clk_i)` and `.lookup_key_i(dmac)` at the `rx_mac_filter`/`tcam` seam; Rule 5 refuses positional and wildcard bindings. |
+| Variable versus net | `reg` for procedural state, or blind `wire` replacement | `logic pass_r` for `always_ff` state and `wire dmac` for continuous connectivity in `rx_mac_filter`. |
+| Procedural intent | `always @(posedge clk)` or `always @*` | `always_ff` for owned state and `always_comb` for complete combinational logic, as in `axis_mux_rr_2in_1out`. |
+| Domain types | Magic integer state and repeated bit slicing | The typed enum in `axis_mux_rr_2in_1out` and structs/packages in `ethernet_packet_pkg`. |
+| Width/sign conversion | Relying on assignment truncation or promotion | Sized casts such as `SW_C'(SLOTS_P - 1)` in `gptp-processor/hdl/common/KL_gptp_timer.sv`. |
+| Repeated protocol | An interface merely to reduce port count | Existing `axi_stream_if`/modports only where the real `milan_datapath` tool path accepts it; otherwise named discrete ports remain clearer. |
 
 ### A `wire` is deliberately not a finding
 
@@ -2080,13 +2113,34 @@ The CSR suite passes unchanged across all four of its windows (385, 385, 104 and
 31 checks), the lint ratchet is unmoved, and `milan_datapath` still elaborates
 with the tied-input and tap-purity gates green.
 
+### Representative module and integration boundaries
+
+The cumulative rule stack modernizes a real, tested seam rather than a sample
+module. Rule 5 documents the `rx_mac_filter` stream and TCAM boundary end to end;
+Rule 6 mutation-proves its four illegal parameter contracts; this rule changes
+its four procedural state declarations from `reg` to `logic` while retaining
+the intentional `wire` connectivity and named `tcam` binding. The focused
+`rx_filter` suite exercises that boundary and its negative elaboration arms.
+
+The shared `axi_stream_if` boundary is also real: `milan_datapath` instantiates
+it on its shipping stream path. Its four width parameters now use `int unsigned`
+instead of an implementation-defined type. Neither change adopts a new language
+construct: `logic`, typed parameters, interfaces, modports, and explicit casts
+already exist in the required build paths. Verilator, the Yosys/sv2v path, and
+the Vivado/xvlog gate are therefore validation targets for these edits, not
+assumptions used to introduce an unproven construct.
+
 ### Exceptions, recorded rather than assumed
 
-`hdl/milan/milan_dma_wrapper.v` is a Vivado-generated IP wrapper and keeps the
-representation its tool requires. It is not excluded by this gate's own judgement:
-the exclusion list is imported from
-[`scripts/lint_rtl.py`](../../scripts/lint_rtl.py), which already records a reason
-for every entry — the same list Rules 5 and 6 use.
+The gate imports [`scripts/lint_rtl.py`](../../scripts/lint_rtl.py)'s
+`LINT_EXCLUDE` instead of inventing another exception list. Each `.v` exception
+must contain both a reason and repository evidence; an empty rationale is a
+hard failure.
+
+| File | Recorded boundary |
+|---|---|
+| `hdl/milan/milan_dma_wrapper.v` | Vivado-generated Zynq AXI-DMA wrapper; its tool/version header and `bd/milan-dma.tcl` own regeneration. |
+| `hdl/milan/milan_top.sv` | Archived, non-elaboratable Zynq top whose external MAC and generated DMA IP are unavailable; the local banner and `milan_soc.py` exclusion record why it is not a gated fabric source. |
 
 ### Review checklist
 

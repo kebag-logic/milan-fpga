@@ -226,10 +226,10 @@ module rx_mac_filter #(
   // -----------------------------------------------------------------------
   //  Per-frame decision, latched at start-of-frame (SOF) and held to tlast.
   // -----------------------------------------------------------------------
-  reg                    in_frame;   //! high after SOF, until tlast accepted
-  reg                    pass_r;     //! latched pass decision for the frame
-  reg [ACTION_WIDTH-1:0] action_r;   //! latched action for the frame
-  reg                    match_r;    //! latched match flag for the frame
+  logic                    in_frame; //! high after SOF, until tlast accepted
+  logic                    pass_r;   //! latched pass decision for the frame
+  logic [ACTION_WIDTH-1:0] action_r; //! latched action for the frame
+  logic                    match_r;  //! latched match flag for the frame
 
   wire sof       = s_tvalid && !in_frame;                          //! first beat of a frame
   //! Runt guard: a frame whose FIRST beat carries tlast is at most 8 bytes, so
