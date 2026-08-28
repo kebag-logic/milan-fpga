@@ -1,10 +1,11 @@
 # Rule 8 ratchets, in order. See scripts/measure_test_evidence.py.
 # BOTH NUMBERS MAY ONLY GO DOWN.
 #
-# 1. Verilator suites with no mutation or negative arm. A suite whose
+# 1. RTL suites with no executable mutation or negative arm. This covers the
+#    superproject and both project-owned processor submodules. A suite whose
 #    assertions have never been observed to fail is indistinguishable from a
 #    suite that asserts nothing.
-33
+82
 # 2. First-party files that draw random values without recording a seed.
 #    Currently zero, and it must stay zero: the cost of finding out otherwise
 #    is a flaky failure nobody can reproduce.

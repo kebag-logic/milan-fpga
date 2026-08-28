@@ -75,8 +75,15 @@ def tracked(*patterns):
 
     With no pattern, every tracked first-party path.
     """
+    return tracked_exact(*scoped_pathspecs(*patterns))
+
+
+def tracked_exact(*pathspecs):
+    """Tracked first-party paths for already-rooted pathspecs, without scope
+    expansion; the vendor gitlinks are filtered here too, so no caller can
+    reach a third-party tree by spelling its path."""
     _assert_pinned_submodules()
     run = subprocess.run(
-        ["git", "ls-files", "--recurse-submodules", "--", *scoped_pathspecs(*patterns)],
+        ["git", "ls-files", "--recurse-submodules", "--", *pathspecs],
         cwd=REPO, capture_output=True, text=True, check=True)
     return first_party(run.stdout.splitlines(), gitlinks())

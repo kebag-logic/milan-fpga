@@ -1705,7 +1705,7 @@ temporary directory, so a mutated source is never written into the tree.
 
 | Population | Count | Disposition |
 |---|---:|---|
-| Verilator suites with no mutation or negative arm | 33 of 54 (was 34) | Ratchet. A new suite proves its own assertions can fail. |
+| RTL suites with no executable mutation or negative arm | 82 of 87 (was 83) | Ratchet across the superproject and both project-owned processor submodules. A comment or manual mutation record is not evidence; a new suite exposes a runnable arm that proves its assertions can fail. |
 | First-party files drawing random values with no recorded seed | **0** | Ratchet at zero. |
 
 ### Two things found already clean, and verified rather than rebuilt

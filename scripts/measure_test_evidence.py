@@ -11,9 +11,10 @@ never been observed to fail are indistinguishable from assertions that cannot.
 
 Two things are counted, and one is already clean.
 
-  1. MUTATION COVERAGE. A suite carries an arm that deliberately breaks
+  1. MUTATION COVERAGE. A suite carries an executable arm that deliberately breaks
      something and requires the suite to notice - a mutated DUT, an illegal
-     parameter, a broken fixture. Thirty of fifty-four Verilator suites do.
+     parameter, a broken fixture. The inventory includes the superproject's
+     Verilator suites and the processor submodules' own RTL suites.
      This is a RATCHET: the number without one may only fall.
 
   2. REPLAYABLE RANDOMNESS. A test that draws random values without recording
@@ -36,7 +37,6 @@ Exit 0 = at or under the ratchets in scripts/test_evidence.budget.
 
 import argparse
 import re
-import subprocess
 import sys
 from pathlib import Path
 
@@ -44,32 +44,29 @@ REPO = Path(__file__).resolve().parent.parent
 BUDGET = Path(__file__).resolve().parent / "test_evidence.budget"
 SUITE_ROOT = REPO / "tb/verilator"
 
-#: A suite has a mutation arm when it deliberately breaks something and
-#: requires the break to be noticed. The vocabulary is the one this tree
-#: already uses in the suites that have one.
-ARM = re.compile(r"mutant|mutation|negative (?:arm|control|self-?test)"
-                 r"|deliberately broken|anti-vacuity|must fail|gate bites"
-                 r"|self-?test", re.I)
+#: Executable evidence, not prose claiming that a mutation once ran. A suite
+#: must expose a runnable target/command, a mutation table, an illegal-case
+#: table, or compile-time mutation defines that the driver actually exercises.
+ARM = re.compile(
+    r"(?m)^\s*(?:mutants?|negative|self-?test)\s*:"
+    r"|\bmutants?\.py\b|--self-?test\b|\bMUTATIONS?\s*="
+    r"|\bNEG_CASES\s*=|\bmutation_checks\s*\("
+    r"|-D[A-Za-z0-9_]*MUT[A-Za-z0-9_]*"
+    r"|\+define\+[A-Za-z0-9_]*MUT[A-Za-z0-9_]*", re.I)
 
 #: a random draw, and the seed that makes it replayable
 DRAW = re.compile(r"(?<![\w.])random\.(?:random|randint|choice|shuffle|randrange"
                   r"|uniform|sample|getrandbits)\s*\(|(?<![\w:])rand\s*\(\s*\)")
 SEED = re.compile(r"random\.Random\s*\(\s*\d|random\.seed\s*\(\s*\d|srand\s*\(\s*\d")
 
-EXCLUDED_PREFIXES = ("third_party/", "external/", "protocol-processor/",
-                     "gptp-processor/", "gen/", "build/")
-
-
-def tracked(*pats):
-    out = subprocess.run(["git", "ls-files", *pats], cwd=REPO,
-                         capture_output=True, text=True, check=True).stdout.split()
-    return [p for p in out if not p.startswith(EXCLUDED_PREFIXES)]
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from code_quality_scope import tracked, tracked_exact
 
 
 def suite_text(name):
     """Everything a suite is made of: its makefile, harnesses and wrappers."""
     parts = []
-    for rel in tracked(f"tb/verilator/{name}/*"):
+    for rel in tracked_exact(f"{name}/*"):
         try:
             parts.append((REPO / rel).read_text(errors="replace"))
         except OSError:
@@ -78,12 +75,9 @@ def suite_text(name):
 
 
 def suites():
-    names = set()
-    for rel in tracked("tb/verilator/*/*"):
-        bits = rel.split("/")
-        if len(bits) >= 4:
-            names.add(bits[2])
-    return sorted(names)
+    makefiles = tracked("tb/verilator/*/Makefile", "tb/*/Makefile")
+    return sorted({str(Path(rel).parent) for rel in makefiles
+                   if "/tb/" in rel or rel.startswith("tb/")})
 
 
 def has_arm(text):
@@ -125,10 +119,12 @@ def selftest():
             failures += 1
             print(f"[FAIL] {name}{': ' + detail if detail else ''}")
 
-    ck("a suite naming a mutant is armed", has_arm("run mutants.py # mutant caught"))
-    ck("a suite naming a negative control is armed", has_arm("negative control: must fail"))
+    ck("a runnable mutant command is armed", has_arm("python3 mutants.py"))
+    ck("an executable negative target is armed", has_arm("negative:\n\t./broken-case"))
     ck("a suite with a self-test is armed", has_arm("python3 x.py --selftest"))
     ck("an ordinary suite is not armed", not has_arm("build and run the harness"))
+    ck("mutation prose alone is not an executable arm",
+       not has_arm("the mutation was run by hand and failed"))
 
     ck("an unseeded draw is caught", draws_without_seed("x = random.choice([1,2])"))
     ck("a seeded draw is not", not draws_without_seed("random.seed(11)\nx = random.choice([1,2])"))
@@ -145,7 +141,7 @@ def selftest():
        bool(armed) and bool(unarmed),
        "an inert classifier would put every suite on one side")
 
-    n = 12
+    n = 13
     print(f"\n{n} checks: {n - failures} PASS, {failures} FAIL")
     return 1 if failures else 0
 
@@ -160,7 +156,7 @@ def main():
         return selftest()
 
     armed, unarmed, unseeded = audit()
-    print(f"Verilator suites with a mutation or negative arm: "
+    print(f"RTL suites with an executable mutation or negative arm: "
           f"{len(armed)} of {len(armed) + len(unarmed)}")
     print(f"\nsuites with none ({len(unarmed)}):")
     for name in unarmed:
