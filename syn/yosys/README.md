@@ -91,12 +91,24 @@ YOSYS_MALLOC=/path/to/lib.so ./run.sh
 ./run.sh --selftest-alloc       # check the selection rules; needs nothing else
 ```
 
-A **named** library that is absent refuses rather than falling back, so a run
-asked to reproduce one allocator cannot quietly report another one's timing.
+A **named** library is refused rather than quietly ignored if it is absent, or
+if the dynamic loader will not take it — an existing file that is not a shared
+object counts. The loader drops such a preload by *ignoring* it: the process
+still exits 0 and the complaint goes to stderr, which for a `yosys` child lands
+in that top's log and is never read, so the check is that stderr stayed empty.
+A relative path is made absolute first, because `yosys` runs from the gate's
+own temporary directory and would otherwise resolve it there. All three cases
+are the same defect: a run asked to reproduce one allocator reporting another
+one's timing under its name.
+
+`YOSYS_MALLOC=none` **unsets** `LD_PRELOAD` for the `yosys` child rather than
+merely declining to set it, so it still means "system allocator" in a shell
+that already exports one.
+
 The header line prints which allocator was in effect, because a wall-clock
 figure quoted from this output is only reproducible with it. The preload
-reaches `yosys` and the `abc` it spawns; `sv2v` and the `python3` helpers run
-under the system allocator.
+reaches `yosys` and the `abc` it spawns; `sv2v` and the `python3` helpers are
+left alone and keep whatever the caller's environment gives them.
 
 ### `read_verilog -defer`: right instrument, wrong script
 
