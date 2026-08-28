@@ -124,13 +124,13 @@ twice reproduces its own digest, so that is the flag and not run-to-run
 variation.
 
 So `run.sh` does **not** use `-defer`: it costs a changed answer and buys
-nothing. The flag belongs in
-[`protocol-processor/syn/yosys/run.sh`](../../protocol-processor/syn/yosys/run.sh),
-which lowers its whole `hdl/` tree into a single `all.v` and then re-reads it
-once per top, 32 times — there it is 39.65 s → 10.31 s, and 1.25 s with a
-bounded process pool. Before applying it there, read that repository's issue
-#25: the redundant re-parse is currently the only front-end coverage six of
-its modules get, so the tops array has to be completed first.
+nothing. The flag belongs in the control plane's own portability gate
+(`syn/yosys/run.sh` inside the `protocol-processor` submodule), which lowers
+its whole `hdl/` tree into a single `all.v` and then re-reads it once per top,
+32 times — there it is 39.65 s → 10.31 s, and 1.25 s with a bounded process
+pool. Before applying it there, read that repository's issue #25: the
+redundant re-parse is currently the only front-end coverage six of its modules
+get, so the tops array has to be completed first.
 
 The rule to carry to the next script: **`-defer` is a fix for re-reading, not
 a fix for synthesis.** Check the `read_verilog` line in `yosys -d` output
