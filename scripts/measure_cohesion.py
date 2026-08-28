@@ -39,17 +39,13 @@ Exit 0 unless --selftest fails.
 import argparse
 import json
 import re
-import subprocess
 import sys
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-#: submodules and generated trees are not first-party maintenance surface
-EXCLUDED_PREFIXES = (
-    "third_party/", "external/", "protocol-processor/", "gptp-processor/",
-    "gen/", "build/", "historical_now_obsolete/",
-)
+from code_quality_scope import tracked
 
 #: `always_ff @(...) begin : name` - the name is optional
 _BLOCK_RE = re.compile(r"always_ff\s*@\s*\(([^)]*)\)\s*begin(?:\s*:\s*(\w+))?")
@@ -65,6 +61,8 @@ _EDGE_RE = re.compile(r"(?:pos|neg)edge\s+(\w+)")
 #: line comments and block comments, stripped before any body analysis so a
 #: signal named only inside a comment cannot couple two independent groups
 _COMMENT_RE = re.compile(r"//[^\n]*|/\*.*?\*/", re.S)
+_MODULE_RE = re.compile(r"^\s*module\s+([A-Za-z_]\w*)\b", re.M)
+_ENDMODULE_RE = re.compile(r"\bendmodule\b")
 
 
 def strip_comments(text):
@@ -149,18 +147,35 @@ def measure_text(text):
 
 
 def first_party_sources():
-    out = subprocess.run(["git", "ls-files", "hdl"], cwd=REPO,
-                         capture_output=True, text=True, check=True).stdout.split()
-    return [p for p in out
-            if p.endswith(".sv") and not p.startswith(EXCLUDED_PREFIXES)]
+    return [p for p in tracked("hdl") if p.endswith(".sv")]
+
+
+def measure_source(text):
+    """Return one measurement per module declaration in a source file."""
+    code = strip_comments(text)
+    rows = []
+    for match in _MODULE_RE.finditer(code):
+        end = _ENDMODULE_RE.search(code, match.end())
+        if end is None:
+            continue
+        first_line = code[:match.start()].count("\n")
+        row = measure_text(code[match.start():end.end()])
+        row["module"] = match.group(1)
+        row["line"] = first_line + 1
+        row["detail"] = [
+            [(name, line + first_line) for name, line in group]
+            for group in row["detail"]
+        ]
+        rows.append(row)
+    return rows
 
 
 def measure_repo(paths=None):
     rows = []
     for rel in (paths if paths is not None else first_party_sources()):
-        row = measure_text((REPO / rel).read_text(errors="replace"))
-        row["path"] = rel
-        rows.append(row)
+        for row in measure_source((REPO / rel).read_text(errors="replace")):
+            row["path"] = rel
+            rows.append(row)
     rows.sort(key=lambda r: (-r["groups"], -r["loc"]))
     return rows
 
@@ -245,7 +260,16 @@ def selftest():
     else:
         failures += 1
         print(f"[FAIL] block finder counts every always_ff: got {blocks}, want 3")
-    total = len(WRITE_FIXTURES) + len(FIXTURES) + 1
+    split = measure_source("""
+      module one; always_ff @(posedge c) begin a_r <= 1; end endmodule
+      module two; always_ff @(posedge c) begin b_r <= 1; end endmodule
+    """)
+    if len(split) == 2 and [row["groups"] for row in split] == [1, 1]:
+        print("[PASS] files with multiple modules are measured per module")
+    else:
+        failures += 1
+        print(f"[FAIL] files with multiple modules are measured per module: {split}")
+    total = len(WRITE_FIXTURES) + len(FIXTURES) + 2
     print(f"\n{total} checks: {total - failures} PASS, {failures} FAIL")
     return 1 if failures else 0
 
@@ -269,18 +293,20 @@ def main():
         return 0
 
     if args.module:
-        row = rows[0]
-        print(f"{row['path']}: {row['loc']} lines, {row['blocks']} always_ff block(s), "
-              f"{row['groups']} disjoint state group(s), clock(s): {', '.join(row['clocks']) or 'none'}")
-        for group in sorted(row["detail"], key=len, reverse=True):
-            names = ", ".join(f"{n}@{ln}" for n, ln in group)
-            print(f"  [{len(group)} block(s)] {names}")
+        for row in rows:
+            print(f"{row['path']}:{row['module']}: {row['loc']} lines, "
+                  f"{row['blocks']} always_ff block(s), {row['groups']} disjoint "
+                  f"state group(s), clock(s): {', '.join(row['clocks']) or 'none'}")
+            for group in sorted(row["detail"], key=len, reverse=True):
+                names = ", ".join(f"{n}@{ln}" for n, ln in group)
+                print(f"  [{len(group)} block(s)] {names}")
         return 0
 
     shown = rows if args.list else [r for r in rows if r["groups"] > 1][: args.top]
-    print(f"{'path':<54}{'loc':>7}{'blocks':>8}{'groups':>8}")
+    print(f"{'path:module':<68}{'loc':>7}{'blocks':>8}{'groups':>8}")
     for row in shown:
-        print(f"{row['path']:<54}{row['loc']:>7}{row['blocks']:>8}{row['groups']:>8}")
+        unit = f"{row['path']}:{row['module']}"
+        print(f"{unit:<68}{row['loc']:>7}{row['blocks']:>8}{row['groups']:>8}")
     multi = sum(1 for r in rows if r["groups"] > 1)
     worst = rows[0]["groups"] if rows else 0
     print(f"\n{len(rows)} first-party module(s); {multi} own more than one state group; "

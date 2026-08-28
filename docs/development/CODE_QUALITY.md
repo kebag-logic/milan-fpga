@@ -49,12 +49,15 @@ Five obligations make that reviewable:
 ## Scope
 
 The rules apply to first-party sources: `hdl/`, `sw/`, `scripts/`, `tb/`,
-`syn/` and `harness/`.
+`syn/` and `harness/` in this repository, plus the corresponding tracked
+sources in the project-owned `protocol-processor/` and `gptp-processor/`
+submodules. A scan refuses an absent or off-pin project submodule rather than
+quietly establishing a smaller baseline.
 
 They do not apply to:
 
-- **submodules** — `third_party/`, `external/`, `protocol-processor/` and
-  `gptp-processor/` are upstream trees with their own contracts;
+- **vendored/external submodules** — `third_party/` and `external/` are upstream
+  trees with their own contracts;
 - **generated output** — anything a generator writes is fixed by changing the
   generator, which is also the only change a review can verify;
 - **archived pages and evidence** — records of their time are not rewritten to
@@ -173,24 +176,27 @@ in-frame tracker reaches the stage-pulse register through a combinational
 reviewer, never a verdict, and no gate fails on it.
 
 The tool grades its own extraction rather than asserting it: `--selftest` runs
-seventeen fixture arms whose answers are known by construction, including the
+eighteen fixture arms whose answers are known by construction, including the
 one that matters most for false coupling — `<=` is also the less-than-or-equal
 operator, so `if (count_r <= LIMIT)` must not be read as a write to
 `count_r`.
 
 ### Current candidates
 
-Read off the tree with the command above. Sixty-eight first-party modules carry
-an `always_ff` block; thirty-four own more than one state group.
+Read off the pinned superproject and both project-owned processor submodules
+with the command above. One hundred and six of 110 first-party modules carry an
+`always_ff` block; fifty-five own more than one state group. Files containing
+more than one module are split at `endmodule`, so their independent owners are
+never merged into one misleading file-level score.
 
 | Module | Lines | Blocks | Disjoint state groups |
 |---|---:|---:|---:|
-| `hdl/milan/milan_datapath.sv` | 7152 | 23 | 20 |
-| `hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv` | 728 | 8 | 7 |
-| `hdl/common/csr/milan_csr.sv` | 3131 | 14 | 6 |
-| `hdl/milan/KL_pp_shadow.sv` | 1287 | 6 | 6 |
-| `hdl/ieee1722/crf/KL_mmcm_drp_servo.sv` | 845 | 7 | 5 |
-| `hdl/ieee1722/aaf/KL_tdm_capture_master.sv` | 282 | 5 | 5 |
+| `hdl/milan/milan_datapath.sv:milan_datapath` | 7081 | 23 | 20 |
+| `protocol-processor/hdl/top/protocol_processor_top.sv:protocol_processor_top` | 3959 | 15 | 8 |
+| `hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv:KL_gptp_shadow` | 670 | 8 | 7 |
+| `hdl/milan/KL_pp_shadow.sv:KL_pp_shadow` | 1129 | 6 | 6 |
+| `hdl/common/csr/milan_csr.sv:milan_csr` | 3046 | 14 | 5 |
+| `protocol-processor/hdl/adp/KL_adp_engine.sv:KL_adp_engine` | 1029 | 11 | 5 |
 
 The list is a starting point for review, not a work queue. Three of these rows
 are expected to stay as they are: `milan_csr` is a register decode whose order
@@ -198,7 +204,7 @@ is its meaning, and both shadow wrappers are integration seams whose groups are
 the planes they wrap. `milan_datapath` is the one row where the count reflects
 real unrelated ownership, and it is reduced one cohesive responsibility at a
 time rather than by a split campaign — the extraction described above moved it
-from 22 groups and 7238 lines to 20 groups and 7152 lines.
+from 22 groups and 7167 lines to 20 groups and 7081 lines on the current base.
 
 ## Rules not yet landed
 
