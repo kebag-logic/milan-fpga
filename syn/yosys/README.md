@@ -128,9 +128,15 @@ nothing. The flag belongs in the control plane's own portability gate
 (`syn/yosys/run.sh` inside the `protocol-processor` submodule), which lowers
 its whole `hdl/` tree into a single `all.v` and then re-reads it once per top,
 32 times — there it is 39.65 s → 10.31 s, and 1.25 s with a bounded process
-pool. Before applying it there, read that repository's issue #25: the
-redundant re-parse is currently the only front-end coverage six of its modules
-get, so the tops array has to be completed first.
+pool. Before applying it there, read that repository's issue #25: six of its
+modules are not in its `tops` array at all, so nothing ever elaborates them as
+a top, and that array should be completed first.
+
+One thing `-defer` does **not** cost, measured rather than assumed: it still
+parses every module. Four fault classes injected into a module no top
+instantiates — a syntax error, a negative-width vector, an undefined
+submodule, and a `$fatal` — are caught identically with and without the flag.
+`-defer` postpones elaboration, not parsing.
 
 The rule to carry to the next script: **`-defer` is a fix for re-reading, not
 a fix for synthesis.** Check the `read_verilog` line in `yosys -d` output
