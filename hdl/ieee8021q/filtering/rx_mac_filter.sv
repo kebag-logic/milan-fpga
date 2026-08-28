@@ -18,12 +18,10 @@
 //                Whitelist: default_pass_i=0, add accept entries (action[0]=0).
 //                Blacklist: default_pass_i=1, add drop entries (action[0]=1).
 //
-//                REQ-MAC-02 (2026-07-26): on top of the TCAM the block now
-//                implements the 802.3 §4.2.4.2.2 station address filter that
-//                the CSR ABI has advertised since 2026-07-01 but nothing in
-//                fabric consumed - MAC_CTRL promisc/allmulti, MAC_ADDR_HI/LO
-//                exact-match unicast and the MC_HASH_HI/LO multicast bucket
-//                set. Decision order for a frame's first beat:
+//                REQ-MAC-02: on a TCAM miss, the block implements the 802.3
+//                §4.2.4.2.2 station-address filter controlled by MAC_CTRL,
+//                MAC_ADDR_HI/LO and MC_HASH_HI/LO. Decision order for a
+//                frame's first beat:
 //
 //                  runt (tlast at SOF)         -> drop, always
 //                  promisc_i                   -> pass (tcpdump must see all)
@@ -234,10 +232,10 @@ module rx_mac_filter #(
   reg                    match_r;    //! latched match flag for the frame
 
   wire sof       = s_tvalid && !in_frame;                          //! first beat of a frame
-  //! runt guard: a frame whose FIRST beat carries tlast is at most 8 bytes -
-  //! no legal Ethernet frame. Upstream pipeline warts can mint such ghosts
-  //! at drop-frame tails (dp TB 2026-07-19); swallow them here so the host
-  //! DMA never sees them, whatever their origin.
+  //! Runt guard: a frame whose FIRST beat carries tlast is at most 8 bytes, so
+  //! it cannot be a legal Ethernet frame. A dropped-frame tail can otherwise
+  //! appear as that one-beat ghost; swallow it here so the host DMA never sees
+  //! it, whatever its upstream origin.
   wire runt_sof  = sof && s_tlast;
   //! SOF decision. promisc outranks an explicit TCAM drop on purpose: MAC_CTRL
   //! promiscuous means "hand me the wire", which is exactly what a capture

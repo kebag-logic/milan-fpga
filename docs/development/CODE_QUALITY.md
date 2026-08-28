@@ -1529,6 +1529,18 @@ decision anyone made.
 The other four unreferenced helpers are small and stay recorded rather than
 removed; none of them is a test, so none of them is silently missing coverage.
 
+### Representative module and harness cleanup
+
+The receive-filter module and its focused harness carried the same dated
+implementation chronology: when CSR fields first appeared, when fabric began
+to consume them, and when a runt regression was found. Those timestamps did
+not explain the present contract and would become misleading after the next
+refactor. Both sides now state the durable reason instead: which controls own
+the 802.3 station filter, the decision order, and why a one-beat frame is
+swallowed even under a pass policy. Executable RTL and harness stimulus are
+unchanged; the 62-check focused suite proves the paired cleanup did not alter
+behavior.
+
 ### Review checklist
 
 - Does this comment say *why*, or does it restate the line below it?

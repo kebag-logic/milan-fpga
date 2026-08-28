@@ -123,18 +123,14 @@ int main(int argc, char** argv) {
     ck("blacklist: gPTP passes",    (long)send_frame(MAC_GPTP, 4).size(),  4);
 
     printf("--------------------------------------------------------------\n");
-    // runt guard (2026-07-19): a 1-beat frame (tlast at SOF, <=8 bytes) is
-    // never a legal Ethernet frame - swallowed even in default-pass mode
+// A one-beat frame (tlast at SOF, at most 8 bytes) is never legal Ethernet;
+// the filter must swallow it even when the miss policy would otherwise pass.
     dut->default_pass_i = 1;
     ck("runt 1-beat frame swallowed", (long)send_frame(MAC_UNI, 1).size(), 0);
     ck("normal frame after runt passes", send_frame(MAC_UNI, 8).size() == 8 ? 1 : 0, 1);
 
 
-    // ======================================================================
-    //  REQ-MAC-02 - 802.3 station address filter (the CSR ABI has advertised
-    //  promisc/allmulti/MAC_ADDR/MC_HASH since 2026-07-01; nothing in fabric
-    //  consumed them, so non-matching unicast was NEVER dropped in hardware).
-    // ======================================================================
+// ---- REQ-MAC-02: 802.3 station-address filter -----------------------
     // reference hash: 6-bit XOR fold of the 48-bit address, MSB-aligned
     auto mc_bucket = [](uint64_t mac) {
         int h = 0;
