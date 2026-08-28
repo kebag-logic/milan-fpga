@@ -137,15 +137,16 @@ select_malloc() {
           return 0 ;;
   esac
   # ldconfig answers for the loader's own search path, which is the only
-  # authority on where a distribution put the library. The literal list below
-  # is the fallback for a machine whose ldconfig a normal user cannot run.
+  # authority on where a distribution put the library - multiarch layouts
+  # included, which is why no such path is spelled below. The literal list is
+  # only the fallback for a machine whose ldconfig a normal user cannot run,
+  # and an empty answer is a valid one: the gate then runs unchanged.
   if lc="$(ldconfig_path)"; then
     while IFS= read -r cand; do
       [ -e "$cand" ] && { printf '%s\n' "$cand"; return 0; }
     done < <("$lc" -p 2>/dev/null | sed -n 's/^.* => //p' | grep -F libjemalloc.so.2)
   fi
   for cand in /usr/lib/libjemalloc.so.2 /usr/lib64/libjemalloc.so.2 \
-              /usr/lib/x86_64-linux-gnu/libjemalloc.so.2 \
               /usr/local/lib/libjemalloc.so.2; do
     [ -e "$cand" ] && { printf '%s\n' "$cand"; return 0; }
   done
