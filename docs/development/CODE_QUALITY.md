@@ -12,10 +12,10 @@ spec" are not restated here as weaker preferences. This page adds the rules
 those house rules do not cover, and gives each one wording, examples,
 exceptions, a measurement and a review checklist.
 
-Rules land one at a time. Each rule that has landed carries its own section
-below; the rules still to come are listed under
-[Rules not yet landed](#rules-not-yet-landed) so a reader can see the whole
-shape rather than guess at it.
+The rules landed one at a time, and all ten are now below, each in its own
+section. [The contract is complete](#the-contract-is-complete) at the end says
+what every landed rule ships with and which of them a workflow gate enforces,
+so a reader can see the whole shape rather than guess at it.
 
 ## Contents
 
@@ -34,7 +34,7 @@ shape rather than guess at it.
 - **[Rule 8: tests prove something, and prove they can fail](#rule-8-tests-prove-something-and-prove-they-can-fail)** -- Why a green suite can prove nothing, the three defects injected into the TCAM to show its harness is load-bearing, what counts as an executed arm, the four evidence ratchets, and what was found already clean.
 - **[Rule 9: automate mechanical hygiene with measured ratchets](#rule-9-automate-mechanical-hygiene-with-measured-ratchets)** -- The six candidate checks measured before any was adopted, why the highest-volume one was rejected on the record, why three checks are adopted at zero, and how the formatting-only rewrite was isolated and proven.
 - **[Rule 10: prefer idiomatic SystemVerilog](#rule-10-prefer-idiomatic-systemverilog)** -- Why ordinary `.v` files and generic `always @` are refused, what is ratcheted instead, why a `wire` is deliberately not a finding, and the representative boundaries modernized without changing behavior.
-- **[The contract is complete](#the-contract-is-complete)** -- What every landed rule carries, and why each of the nine gates that enforce them ships with a self-test proving it can fail.
+- **[The contract is complete](#the-contract-is-complete)** -- What every landed rule carries, which eight of the ten rules a gate in the documentation workflow enforces and why each of those gates ships with a self-test proving it can fail, and why Rules 1 and 2 are measurements rather than gates.
 
 ## The governing rule
 
@@ -2038,17 +2038,27 @@ HDL. This rule is about what happens after the file extension: a `.sv` file can
 still be written as Verilog-2001, and what is lost is exactly the compile-time
 checking that makes ownership reviewable.
 
-### Two refusals, two ratchets
+### Two refusals, three ratchets
 
-**An ordinary first-party `.v` file is refused.** The one checked-in `.v` file
-is a documented Vivado boundary in the shared exclusion inventory. A new `.v`
-file cannot silently bypass the SystemVerilog-only rule: it must become `.sv`,
-or its generator/tool owner and evidence must be recorded in `LINT_EXCLUDE`.
+**A first-party HDL file that is not SystemVerilog is refused.** The accepted
+spellings are a lower-case `.sv` or `.svh`; every other tracked file under
+`hdl/` whose extension names an HDL source — `.v`, `.vh`, `.vhd`, an upper-case
+`.V` or `.SV`, compared case-insensitively — is refused, because each of them is
+invisible to the `*.sv` globs every other tool in this repository matches. The
+one checked-in `.v` file is a documented Vivado boundary in the shared exclusion
+inventory. A new file cannot silently bypass the SystemVerilog-only rule: it
+must become `.sv`, or its generator/tool owner and evidence must be recorded in
+`LINT_EXCLUDE`. Only tracked files are scanned, so a new file is invisible to
+the gate until it is `git add`ed.
 
-**A generic `always @` is refused.** It is the only construct here that discards
-a real check. `always_ff` asks every tool in the path to enforce a single driver
-and to reject a block that is not sequential; `always_comb` asks for a complete
-combinational block. `always @` asks for neither, and the difference is silent.
+**A generic `always` is refused** — the bare keyword, whatever follows it:
+`always @(posedge clk)`, `always @*`, `always begin @(...)`, `always #5`. It is
+the only construct here that discards a real check. `always_ff` asks every tool
+in the path to enforce a single driver and to reject a block that is not
+sequential; `always_comb` asks for a complete combinational block. `always`
+asks for neither, and the difference is silent. The first gate looked for
+`always` followed by `@`, which a legal `always begin @(...)` walked past; the
+keyword itself is now the finding, and a fixture holds that spelling.
 
 **`reg` declarations are ratcheted at 58**, across fifteen files. A `reg` in a
 `.sv` file is legal and usually harmless; `logic` is the SystemVerilog spelling
@@ -2065,16 +2075,70 @@ specifically kills the old `output reg` blind spot. The corrected baseline is
 **Untyped `parameter` declarations are held at zero.** `parameter W = 8` takes
 an implementation-defined type; `parameter int unsigned W = 8` does not. The
 four parameters of `axi_stream_if` were the complete measured population and
-are now typed, so the ratchet admits no new ones.
+are now typed, so the ratchet admits no new ones — in any spelling: a
+`parameter W;` with no default (the must-override form) counts, and every name
+of a `parameter A = 1, B = 2;` list counts once, both of which the first gate's
+expression missed. A packed range (`parameter [3:0] W = 4`) is an explicit
+width and is not counted, and a user-defined type ahead of the name is a type.
+
+**Untyped `localparam` declarations are ratcheted at 2**, as their own entry.
+The rule the issue wrote names parameters and localparams together; the two
+that remain are the `$clog2`-derived `TDEST_WIDTH` constants in
+`hdl/ieee8021q/ts/traffic_queues.sv` and
+`hdl/ieee8021q/ts/traffic_controller_802_1q.sv`. A localparam crosses no
+boundary, so this is a smaller debt than an untyped port parameter would be,
+but it is counted rather than left out, and the entry is separate so localparam
+debt is never traded against port parameters.
 
 ### Inventory and repository examples
 
 The gate follows the same submodule-aware first-party scope as the other rules
-and refuses an absent or off-pin processor checkout. The tracked inventory is
+and refuses an absent or off-pin processor checkout. It also refuses, with exit
+code 2 and the state named, a population that is empty or reaches no tracked
+file under `hdl/` or under either processor's `hdl/`, before the budget is read:
+a scan over a missing tree reports zero of everything, and zero of everything
+is a clean ratchet unless the gate refuses to count it. The tracked inventory is
 117 `.sv` files, four `.svh` headers, and one `.v` file: 122 total. Of those,
 120 are gated (116 `.sv`, four `.svh`); the two excluded tool boundaries are
 listed below. Forty-eight of the gated files live in `protocol-processor` or
 `gptp-processor`, so processor RTL is not silently outside the rule.
+
+Three populations the rule names sit beside the counts above, each with a
+recorded decision rather than an omission:
+
+- **The excluded Zynq top carries debt of its own.** `hdl/milan/milan_top.sv`
+  holds three untyped string-valued parameters (`MAC_TARGET`, `MAC_IODDR_STYLE`
+  and `MAC_CLK_STYLE`) and seven `reg` declarations on six lines. They are
+  outside both ratchets because the file is outside every build, for the reason
+  `LINT_EXCLUDE` records; they are quantified here so the exclusion is not a
+  blind spot, and whoever revives the top pays them then.
+- **The generated CSR headers are gated on purpose.**
+  `hdl/common/csr/gen/adp_shape_defaults.svh` and
+  `hdl/common/csr/gen/lwsrp_csr_defaults.svh` are written by
+  `sw/builder/endstation_builder.py`; they hold 32 and 7 typed localparams and
+  no finding. They are inside the 120 rather than excluded, because a finding in
+  generator output is fixed in the generator, and the gate reading the output is
+  how a generator regression would be seen. `LINT_EXCLUDE` lists whole files
+  with a reason each and names neither header.
+- **Untyped `localparam`s are counted**, two of them, as their own ratchet
+  above.
+
+One tooling exception on the processor side is recorded here rather than fixed,
+because the fix belongs upstream. `gptp-processor`'s own lint target
+(`gptp-processor/Makefile` and `gptp-processor/bench/arty/Makefile`) passes
+`-Wno-WIDTHEXPAND -Wno-WIDTHTRUNC`, so the implicit width conversions this
+rule's table asks to make explicit are visible to no lint in this repository:
+the superproject ratchet sweeps `hdl/` only (its census names no processor
+file), and `protocol-processor`'s `lint_hdl.sh`, whose flag set carries no
+width suppression, does not run over gptp. Re-running gptp's own command without
+the two flags reports six warnings at four sites: one `WIDTHTRUNC` and one
+`WIDTHEXPAND` in `gptp-processor/hdl/wire/KL_gptp_rx_parser.sv` (lines 297 and
+298) and two `WIDTHEXPAND` each in `gptp-processor/hdl/top/KL_gptp_engine.sv`
+(lines 261 and 680). The upstream fix is a sized cast or a waiver with its
+reason at each of those sites and the removal of the two flags from both
+Makefiles; until it lands, the `SW_C'(SLOTS_P - 1)` row in the table is one
+explicit cast in that processor, not evidence that its width conversions are all
+explicit.
 
 | Concern | Avoid | Prefer / repository proof |
 |---|---|---|
@@ -2093,6 +2157,33 @@ multiple-driver connectivity. Mechanically rewriting `wire` to `logic` across
 the tree would touch nearly every file and change nothing a reader or a tool can
 use. The check does not look for it, and this paragraph exists so that decision
 is visible rather than an omission.
+
+### The `default_nettype` directive is CONTRIBUTING's rule already
+
+The issue's interpretation asks for `` `default_nettype none `` around every
+first-party compilation unit. [CONTRIBUTING.md](../../CONTRIBUTING.md) already
+requires it — `none` at the top of the file and `wire` at the bottom — and this
+page does not restate a house rule as a weaker preference, so what is recorded
+here is the measured state and why no third refusal was added. Of the 120 gated
+files, 113 carry the directive. The seven that do not are two packages
+(`hdl/common/ethernet_packet_pkg.sv` and
+`hdl/ieee1722/avtp/avtp_subtype_pkg.sv`), four include headers
+(`hdl/common/parameters.svh`,
+`hdl/common/eth_event_counter/ethernet_events.svh` and the two generated CSR
+headers) and one interface (`hdl/common/axi_stream_if.sv`). The packages and
+headers are correct as they are: a package instantiates nothing and has no
+continuous assignment, so no implicit net can arise in it, and an included
+header must not carry the pair at all, because the directive is
+compilation-unit state and a `wire` at the bottom of a header would silently
+re-enable implicit nets in the module that included it; the generated headers'
+banner records that they are include-only and carry none. The interface is
+genuine debt: an interface can instantiate and assign, and it is recorded here
+for the next functional touch of that file under this rule's "touched" clause
+rather than edited inside a language-modernization change. No gate is added
+for the directive: the failure
+it prevents, a misspelled port becoming an implicit net, is Verilator's
+`IMPLICIT` class, which the lint sweep behind `scripts/lint_rtl.py` reports
+whether or not the directive is present.
 
 ### The one generic `always`, and why converting it was delicate
 
@@ -2163,7 +2254,20 @@ All ten rules are above. Each carries wording, a repository interpretation,
 worked examples, exceptions, a review checklist, and — where the rule can be
 measured — a tool and a ratchet that only moves downward.
 
-Nine gates run in [the documentation workflow](../../.github/workflows/docs.yml)
-and each one carries a self-test that proves it can fail, because a gate whose
-population is empty is otherwise indistinguishable from a gate that does
-nothing.
+Eight of the ten rules are enforced by a gate that runs in
+[the documentation workflow](../../.github/workflows/docs.yml) — Rules 3 to 10,
+one script each: `scripts/check_rtl_source_lists.py`,
+`scripts/measure_naming.py`, `scripts/check_port_contracts.py`,
+`scripts/measure_fail_fast.py`, `scripts/check_todo_ownership.py`,
+`scripts/measure_test_evidence.py`, `scripts/check_hygiene.py` and
+`scripts/check_sv_idiom.py`. Every one of those steps runs the gate and then its
+`--selftest`, because a gate whose population is empty is otherwise
+indistinguishable from a gate that does nothing. Rule 10's gate also refuses
+(exit 2, the state named) a population that is empty or reaches none of its
+three trees, so the bare gate, run without its self-test, cannot read a missing
+tree as a clean ratchet either.
+
+Rules 1 and 2 are measurements, not gates. `scripts/measure_cohesion.py` and
+`scripts/measure_control_flow.py` propose no threshold and refuse nothing, so
+they have no verdict for the workflow to take; each still carries a `--selftest`
+whose fixture answers are known by construction.
