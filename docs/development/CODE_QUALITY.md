@@ -534,6 +534,34 @@ A consumer whose tooling is absent is reported `SKIPPED` by name and the verdict
 says it is not covered. A gate that silently drops a consumer it could not reach
 is how a list goes unchecked for months.
 
+### The processor-native list, and where the scope statement ends
+
+The five lists above all compile the same top, and `scripts/pp_srcs.py` feeds
+the processor half of each. One list in scope is neither: the protocol
+processor's own portability gate, `protocol-processor/syn/yosys/run.sh`, keeps
+a hand-written `tops` array that rule 2 of the processor's own HDL README says must name
+every module, so each is elaborated as a Yosys top on its own. Nothing derived
+it and nothing checked it, and at pin `3770ae02` it had drifted: 38 modules are
+declared under `protocol-processor/hdl` and the array names 32. The six absent
+ones — `KL_acmp_nvm_shadow`, `KL_mrp_strip`, `KL_pp_dispatch_fifo`,
+`KL_srp_admission`, `KL_srp_top`, `protocol_processor_top` — all elaborate when
+asked; the gate simply never asked, and both repositories reported the
+processor as covered.
+
+The same gate now reads that list too, with the declared modules as the
+authority. Every declared module is a top, or it is named in
+[`scripts/processor_yosys_tops.budget`](../../scripts/processor_yosys_tops.budget)
+with the reason it is not. The six are recorded there as **drift at the pin**,
+not as helper exceptions, because that is what they are; the fix is upstream,
+and the pin bump that brings it in deletes the lines, since a recorded name
+that has become a top is refused as stale and an omission that is not recorded
+is refused outright. The record can therefore only shrink.
+
+The gPTP processor keeps no native tops list. Its portability coverage is the
+closure walk itself — every one of its six sources is reached from
+`milan_datapath` — and `--list` prints that count so a gPTP module that fell
+out of the walk would be visible rather than merely unelaborated.
+
 ### The named-constant half
 
 `milan_datapath` passed `16'h88F7` to the timestamp unit's `ETH_TYPE`

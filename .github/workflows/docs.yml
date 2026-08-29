@@ -89,6 +89,8 @@ jobs:
       # its own expansion rather than parsing it. Placed here because it needs
       # the same submodules the builder steps above check out. A consumer whose
       # tooling is absent is reported SKIPPED by name, never dropped silently.
+      # It also reads the protocol processor's own Yosys tops array against the
+      # modules that processor declares (scripts/processor_yosys_tops.budget).
       - name: RTL source-list drift gate
         run: |
           python3 scripts/check_rtl_source_lists.py

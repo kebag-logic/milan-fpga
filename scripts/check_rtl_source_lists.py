@@ -36,13 +36,30 @@ protocol-processor submodule. A consumer whose tooling is absent is reported
 SKIPPED, by name, and the verdict says so. A gate that silently drops a
 consumer it could not reach is how a list goes unchecked for months.
 
+THE PROCESSOR'S OWN LIST IS A SIXTH CONSUMER, OF A DIFFERENT AUTHORITY. The
+protocol processor's portability gate (`protocol-processor/syn/yosys/run.sh`)
+keeps a hand-written `tops` array that its `hdl/README.md` rule 2 says must
+name every module, so each is elaborated as a Yosys top. It is not one of the
+five milan_datapath lists and `pp_srcs.py` does not feed it, so the closure
+walk above cannot see it drift - and at pin 3770ae02 it had: six declared
+modules were absent and both repositories reported the processor as covered.
+Here the authority is the set of modules DECLARED under `protocol-processor/hdl`;
+every one must be a top, or be named in `scripts/processor_yosys_tops.budget`
+with the reason it is not. An omission that is not recorded is refused; a
+recorded name that has become a top is refused as stale, so the record cannot
+outlive the debt it describes. The gPTP processor keeps no native list: its
+portability coverage is the closure walk itself, and the inventory prints how
+many of its files that walk reaches.
+
 Usage:
     python3 scripts/check_rtl_source_lists.py            # gate
     python3 scripts/check_rtl_source_lists.py --list     # closure + per list
     python3 scripts/check_rtl_source_lists.py --selftest # mutation arms
 
-Exit 0 = every reachable consumer carries the whole closure.
-Exit 1 = a consumer is missing a module.
+Exit 0 = every reachable consumer carries the whole closure, and the processor
+         tops array names every declared module that the budget does not.
+Exit 1 = a consumer is missing a module, or the processor tops array has an
+         unrecorded omission or a stale record.
 Exit 2 = the closure itself could not be built.
 """
 
@@ -254,6 +271,86 @@ CONSUMERS = (
 )
 
 
+# ---------------------------------------------------------------------------
+# the processor-native Yosys tops list - declared modules are the authority
+# ---------------------------------------------------------------------------
+#: (submodule, its portability script, the RTL root whose declarations it must
+#: name). One entry today; a second processor that grows a native tops list is
+#: added here and nowhere else.
+PROCESSOR_TOPS = (("protocol-processor", "syn/yosys/run.sh", "hdl"),)
+TOPS_BUDGET = REPO / "scripts/processor_yosys_tops.budget"
+_TOPS_ARRAY_RE = re.compile(r"\btops=\(([^)]*)\)", re.S)
+
+
+def parse_tops_array(text):
+    """The names in a bash `tops=( ... )` array, or None when there is none."""
+    m = _TOPS_ARRAY_RE.search(text)
+    if m is None:
+        return None
+    return set(m.group(1).split())
+
+
+def declared_modules(text):
+    """Module names declared in one SystemVerilog source (packages and
+    interfaces are not tops and are not counted)."""
+    return set(re.findall(r"^\s*module\s+([A-Za-z_]\w*)\b", text, re.M))
+
+
+def read_tops_budget(text):
+    """`name  reason` per line; `#` starts a comment. Returns {name: reason}."""
+    out = {}
+    for line in text.splitlines():
+        line = line.split("#", 1)[0].strip()
+        if not line:
+            continue
+        name, _, reason = line.partition(" ")
+        out[name] = reason.strip()
+    return out
+
+
+def compare_tops(tops, declared, recorded):
+    """(unrecorded, stale) - the two refusals.
+
+    `unrecorded`: declared modules that are neither tops nor in the budget.
+    `stale`: budget names that are tops now (the debt was paid upstream and the
+    record must go) or that no source declares any more."""
+    missing = declared - tops
+    unrecorded = sorted(missing - set(recorded))
+    stale = sorted(n for n in recorded if n not in missing)
+    return unrecorded, stale
+
+
+def processor_tops_audit():
+    """[(submodule, script, tops, declared, recorded_missing, unrecorded,
+    stale, skip_reason)] - one row per PROCESSOR_TOPS entry."""
+    recorded = read_tops_budget(TOPS_BUDGET.read_text()) if TOPS_BUDGET.is_file() else {}
+    rows = []
+    for sub, script, hdl in PROCESSOR_TOPS:
+        path = REPO / sub / script
+        root = REPO / sub / hdl
+        if not root.is_dir():
+            rows.append((sub, script, set(), set(), [], [], [],
+                         f"{sub}/{hdl} is not checked out"))
+            continue
+        if not path.is_file():
+            rows.append((sub, script, set(), set(), [], [], [],
+                         f"{sub}/{script} is absent at this pin"))
+            continue
+        tops = parse_tops_array(path.read_text(errors="replace"))
+        if tops is None:
+            rows.append((sub, script, set(), set(), [], [], [],
+                         f"{sub}/{script} carries no tops=( ... ) array"))
+            continue
+        declared = set()
+        for src in sorted(root.rglob("*.sv")):
+            declared |= declared_modules(src.read_text(errors="replace"))
+        unrecorded, stale = compare_tops(tops, declared, recorded)
+        recorded_missing = sorted((declared - tops) & set(recorded))
+        rows.append((sub, script, tops, declared, recorded_missing, unrecorded,
+                     stale, None))
+    return rows
+
+
 def audit():
     """Returns (need, unresolved, results) with results as
     [(label, missing_sorted_or_None, skip_reason_or_None)]."""
@@ -340,7 +437,50 @@ def selftest():
     ck("the closure is a walk, not a directory listing", bool(every - need),
        "the closure covers every .sv under hdl/ - the instantiation walk is inert")
 
-    total = 12
+    # THE PROCESSOR-NATIVE LIST. Fixtures whose answer is known by construction,
+    # then the live pin, where the budget must name exactly the drift and
+    # nothing else.
+    tops = parse_tops_array("set -eu\ntops=(KL_a KL_b\n      KL_c)\nwork=x\n")
+    ck("a multi-line tops array is read whole", tops == {"KL_a", "KL_b", "KL_c"},
+       f"got {tops}")
+    ck("a script without a tops array is told apart from an empty one",
+       parse_tops_array("set -eu\nfor t in a b; do :; done\n") is None)
+    declared = declared_modules(
+        "package p_pkg; endpackage\nmodule KL_a; endmodule\n"
+        "interface bus_if; endinterface\n  module KL_new #(parameter W=1)(); endmodule\n")
+    ck("declarations are modules only - packages and interfaces are not tops",
+       declared == {"KL_a", "KL_new"}, f"got {declared}")
+    ck("adding a declared module that the tops array does not name is refused",
+       compare_tops({"KL_a"}, {"KL_a", "KL_new"}, {}) == (["KL_new"], []))
+    ck("a recorded omission is debt, not a refusal",
+       compare_tops({"KL_a"}, {"KL_a", "KL_new"}, {"KL_new": "drift"}) == ([], []))
+    ck("a recorded name that became a top is refused as stale",
+       compare_tops({"KL_a", "KL_new"}, {"KL_a", "KL_new"}, {"KL_new": "drift"})
+       == ([], ["KL_new"]))
+    ck("removing a declared module from the tops array is refused",
+       compare_tops({"KL_a"}, {"KL_a", "KL_b"}, {}) == (["KL_b"], []),
+       "a top dropped from the array is exactly the drift the gate exists for")
+    budget = read_tops_budget("# c\nKL_x  why x\n\nKL_y why y # trailing\n")
+    ck("the budget names each omission with its reason",
+       budget == {"KL_x": "why x", "KL_y": "why y"}, f"got {budget}")
+    live = [r for r in processor_tops_audit() if r[7] is None]
+    ck("the live processor tops array was read", bool(live) and len(live[0][2]) >= 30,
+       "no PROCESSOR_TOPS entry was reachable, or the array parsed as nearly empty")
+    if live:
+        sub, script, l_tops, l_decl, l_rec, l_unrec, l_stale, _ = live[0]
+        ck("every recorded omission is real drift at this pin, and every drift is recorded",
+           not l_unrec and not l_stale,
+           f"unrecorded {l_unrec}, stale {l_stale}")
+        ck("the record is non-empty at this pin, so the refusal arms grade a live population",
+           bool(l_rec), "an empty record would make the stale/unrecorded arms vacuous here")
+        mutated = compare_tops(l_tops, l_decl | {"KL_zz_probe"},
+                               read_tops_budget(TOPS_BUDGET.read_text()))
+        ck("a new declared processor module is refused by the live comparison",
+           mutated[0] == ["KL_zz_probe"], f"got {mutated}")
+    else:
+        failures += 3
+
+    total = 24
     print(f"\n{total} checks: {total - failures} PASS, {failures} FAIL")
     return 1 if failures else 0
 
@@ -389,11 +529,39 @@ def main():
         elif "--list" in args:
             print(f"ok       {label}")
 
-    if bad:
+    tops_bad = 0
+    tops_note = []
+    for sub, script, tops, declared, recorded, unrecorded, stale, why in processor_tops_audit():
+        if why is not None:
+            skipped += 1
+            print(f"SKIPPED  {sub} native tops list: {why}")
+            continue
+        for name in unrecorded:
+            tops_bad += 1
+            print(f"TOPS DRIFT: {sub}/{script} does not elaborate declared module "
+                  f"'{name}' as a top and scripts/processor_yosys_tops.budget does "
+                  f"not record why -> its portability is unproven")
+        for name in stale:
+            tops_bad += 1
+            print(f"STALE RECORD: scripts/processor_yosys_tops.budget names '{name}' "
+                  f"but {sub}/{script} elaborates it (or nothing declares it) -> "
+                  f"remove the line")
+        if "--list" in args or recorded:
+            print(f"{sub} native tops list ({script}): {len(tops)} top(s) for "
+                  f"{len(declared)} declared module(s); {len(recorded)} recorded "
+                  f"omission(s) at this pin: {', '.join(recorded) or '-'}")
+        tops_note.append(f"{sub} {len(tops)}/{len(declared)} tops, {len(recorded)} recorded")
+    gptp = [m for m in modules.values() if m.startswith("gptp-processor/")]
+    if "--list" in args:
+        print(f"gptp-processor keeps no native tops list; the closure walk reaches "
+              f"{len(set(gptp))} of its file(s)")
+
+    if bad or tops_bad:
         return 1
     verdict = (f"RTL source-list gate: OK ({len(need)} files in the "
                f"milan_datapath closure, {len(results) - skipped} of "
-               f"{len(results)} consumer list(s) carry all of them")
+               f"{len(results)} consumer list(s) carry all of them; "
+               f"{'; '.join(tops_note) or 'no processor tops list reachable'}")
     print(verdict + (f"; {skipped} SKIPPED and NOT covered by this verdict)"
                      if skipped else ")"))
     return 0
