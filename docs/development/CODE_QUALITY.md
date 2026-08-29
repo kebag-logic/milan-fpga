@@ -31,7 +31,7 @@ shape rather than guess at it.
 - **[Rule 5: make ports, contracts and ownership explicit](#rule-5-make-ports-contracts-and-ownership-explicit)** -- What a port contract must state, why wildcard, positional and hierarchical bindings are refused outright while missing documentation and unjustified open or tied connections are only ratcheted, the exact scope of the inventory, the boundary documented end to end as proof, and the review checklist.
 - **[Rule 6: fail fast and encode invariants](#rule-6-fail-fast-and-encode-invariants)** -- Where a verdict must be refused rather than logged, one in-tree example per boundary (elaboration, FSM default, generator, pipeline, Tcl flow), the elaboration contract added to the receive shield and mutation-proven by its own diagnostic, where that contract is and is not enforced, the three masked-failure populations ratcheted over a stated population, the sweep's refusal of a suite that logs a failure and exits 0, and the review checklist.
 - **[Rule 7: comments explain why, and dead code goes](#rule-7-comments-explain-why-and-dead-code-goes)** -- What a comment is for, why a marker names its issue or is resolved, the near-misses that forced a narrow definition of "marker" and what the gate reads to find one, the two stale markers removed, and the dead code the inventory found.
-- **[Rule 8: tests prove something, and prove they can fail](#rule-8-tests-prove-something-and-prove-they-can-fail)** -- Why a green suite can prove nothing, the three defects injected into the TCAM to show its harness is load-bearing, the two evidence ratchets, and what was found already clean.
+- **[Rule 8: tests prove something, and prove they can fail](#rule-8-tests-prove-something-and-prove-they-can-fail)** -- Why a green suite can prove nothing, the three defects injected into the TCAM to show its harness is load-bearing, what counts as an executed arm, the four evidence ratchets, and what was found already clean.
 - **[Rules not yet landed](#rules-not-yet-landed)** -- The remaining nine rules of the contract, named so the numbering is stable and a reader knows what is still coming.
 
 ## The governing rule
@@ -1722,10 +1722,47 @@ silently vacuous test there is a silently unguarded filter.
 All three are caught, and the **unmutated build still passes** — without that
 control the arm would be satisfied by a harness that fails on everything.
 
-Two details make it stay honest. Each mutation's pattern must appear in the RTL
-**exactly once**, so a refactor that moves the priority encoder fails here
-loudly instead of silently mutating nothing. And the mutants are built in a
-temporary directory, so a mutated source is never written into the tree.
+Three details make it stay honest. Each mutation's pattern must appear in the
+RTL **exactly once**, so a refactor that moves the priority encoder fails here
+loudly instead of silently mutating nothing. The mutants are built in a
+temporary directory, so a mutated source is never written into the tree. And
+"caught" is the harness's **own verdict** — a `[FAIL]` line or a failing tally
+in its stdout, read by the same [`scripts/suite_tally.py`](../../scripts/suite_tally.py)
+the sweep uses — never a bare non-zero exit: a mutant that makes the DUT abort,
+dies by a signal, or hangs past the driver's per-mutant guard is reported as
+exactly that and is **not** a catch. The guard is why the driver is one of the
+three wall-clock files below.
+
+```
+make -C tb/verilator/tcam                           # the suite: run, then mutants (~25 s)
+make -C tb/verilator/tcam mutants                   # the mutation arm alone
+python3 scripts/measure_test_evidence.py            # the four inventories, and what arms each armed suite
+python3 scripts/measure_test_evidence.py --check    # the ratchets
+python3 scripts/measure_test_evidence.py --selftest # the fixture arms
+```
+
+### What counts as an arm: something the entry executes
+
+The first version of the audit matched text — any file in the suite directory
+naming `mutants.py`, a `mutants:` target, a `-D…MUT…` define — and a review
+showed that a README sentence, a comment, an empty `mutants:` target and
+`-DUSE_MUTEX` each satisfied it. Text is not an arm. The classifier now reads
+the suite's **Makefile** (targets, prerequisites, recipes, with its variables
+expanded) and the suite's **entry** — the sweep's bare `make`, the protocol
+processor's runner and CI, the gPTP processor's top-level Makefile — and an arm
+is one of three shapes sitting in the recipe of a target that entry reaches:
+
+- a **driver script** the recipe invokes that carries a mutation or negative
+  table (`MUTATIONS =`, `NEG_CASES =`, `mutation_checks(`), or that reads the
+  DUT text, rewrites it and runs the harness on the result;
+- a **compile-time mutation define** the recipe passes (`+define+NVM_MUT_…`,
+  `-D…_MUTANT`; `MUT` as a whole `_`-delimited word, so `USE_MUTEX` is not);
+- a **negative-case table** the recipe consumes (`$(NEG_CASES)`).
+
+A driver named in a comment, in `echo`, or on a target nothing runs is not an
+arm; the self-test carries a fixture for every one of those shapes and for the
+five live arms. The tool prints, for each armed suite, the executed target and
+the shape that arms it.
 
 ### The four evidence populations
 
@@ -1733,10 +1770,10 @@ temporary directory, so a mutated source is never written into the tree.
 
 | Population | Count | Disposition |
 |---|---:|---|
-| RTL suites with no executable mutation or negative arm | 82 of 87 (was 83) | Ratchet across the superproject and both project-owned processor submodules. A comment or manual mutation record is not evidence; a new suite exposes a runnable arm that proves its assertions can fail. |
-| First-party files drawing random values with no recorded seed | **0** | Ratchet at zero. |
-| Unexplained tests reading production HDL text | **0** | Four readers are explicitly classified: three mutation campaigns and one structural boundary check. A new reader is refused until review proves it is not importing expected behavior from the DUT. |
-| Suite files using host wall-clock/process deadlines | **2** | Ratcheted. Both are in the external `tsn_fuzz` cosimulation boundary; behavioral RTL timeouts elsewhere advance explicit DUT cycles. |
+| RTL suites with no executable mutation or negative arm | 82 of 87 (was 83) | Ratchet across the superproject (54 suites, entry `scripts/run_all_suites.sh`) and both project-owned processor submodules (30 under `protocol-processor/tb`, entry `protocol-processor/scripts/run_suites.sh` and its CI; 3 under `gptp-processor/tb/verilator`, entry `gptp-processor/Makefile`). Only an executed recipe arms a suite, as defined above. |
+| First-party files drawing random values with no recorded seed | **10** | Ratchet. The scan reads code, not comments or strings, in every language the test trees carry: Python module draws, `random.Random()`/`SystemRandom()` instance draws, `from random import …`, `choices`/`gauss` and friends, numpy, `secrets`; C `rand()`, `std::rand()`, `random()`, `*rand48`, `random_device`; SystemVerilog `$urandom`, `$urandom_range`, `$random`, `randomize()`. A seed is `random.seed(x)`, `random.Random(x)` with any non-empty `x` (the documented `TEST_SEED` pattern), `np.random.seed`/`default_rng(x)`, `srand(x)` (not `srand(time(NULL))`), a printed seed beside `random_device`, `srandom(x)`, `$urandom(x)` or a `+seed` plusarg. **All ten are legacy xsim benches** under `tb/utests`, `tb/itests` and `tb/avtp_packet_gen_sv` drawing `$urandom` with no seed ([TESTING.md section 5](../testing/TESTING.md#5-legacy--auxiliary-testbenches): superseded, not exit-code gating). Every gating harness is seeded. |
+| Unexplained tests reading production HDL text | **0** | Four readers are explicitly classified: three mutation campaigns and one structural boundary check. Idioms: `read_text`/`read_bytes`, `open(…).read()`/`readlines()`, C++ `ifstream`/`fopen`, SystemVerilog `` `include `` of `hdl/` or `$fopen`/`$readmemh`, shell `cat`/`grep`/`sed`/`awk` over `hdl/`, each paired with an `hdl/` path. A new reader is refused until review proves it is not importing expected behavior from the DUT. |
+| Suite files using host wall-clock/process deadlines | **3** | Ratcheted. Two are in the external `tsn_fuzz` cosimulation boundary; the third is the tcam mutation driver's per-mutant guard, a bound on a hang, not an oracle. Idioms: Python `time.*`/`datetime.now`/`settimeout`/`select.select`/`signal.alarm`/`SO_RCVTIMEO` and a `timeout=` keyword on `run`/`check_output`/`communicate`/`wait`/`wait_for` and friends (nested parentheses included); C++ `chrono`, `clock()`, `time(NULL)`, `gettimeofday`, `usleep`/`sleep`; shell and Makefile `sleep N`, `timeout N …`, `date`. Behavioral RTL timeouts elsewhere advance explicit DUT cycles. |
 
 ### Audit of weak-evidence failure modes
 
@@ -1746,26 +1783,50 @@ The audit separates a count from its interpretation:
 |---|---|---|
 | Zero-evidence pass | 82 of 87 suites lack an executable negative/mutation arm. | Ratchet; the TCAM repair moves one suite to the armed side. |
 | Implementation-derived oracle | Four test programs read HDL text; all are structural or mutation-only, with zero unexplained readers. | A disposition allowlist must match the live readers exactly. The TCAM behavioral oracle remains literal/specification-derived. |
-| Nondeterministic timeout | Two suite files use host deadlines, both in `tsn_fuzz`; other protocol deadlines are cycle-counted. | The common sweep maps host kills (124/137) to UNKNOWN/exit 92, never pass or fail. New wall-clock files exceed the ratchet. |
-| Missing or malformed tally | The candidate sweep reported every root suite; no `NOCOUNT` or unparsed tally. | `suite_tally.py --selftest` runs before the first suite. A silent/zero/unparsed log exits 90, and a skip marker cannot hide it. |
+| Nondeterministic timeout | Three suite files use host deadlines: two in `tsn_fuzz`, one the tcam mutation driver's hang guard; other protocol deadlines are cycle-counted. | The common sweep maps host kills (124/137) to UNKNOWN/exit 92, never pass or fail. New wall-clock files exceed the ratchet. |
+| Missing or malformed tally | **Population: the 54 superproject suites** that [`scripts/run_all_suites.sh`](../../scripts/run_all_suites.sh) sweeps. Every one reported; no `NOCOUNT` or unparsed tally. The 33 processor suites are **outside** that sweep: the 30 `protocol-processor/tb` suites run under `protocol-processor/scripts/run_suites.sh` in the processor's own CI, and the 3 `gptp-processor/tb/verilator` suites run only from `gptp-processor/Makefile` — gptp-processor has **no CI of its own** and its Makefile reads no tally. | `suite_tally.py --selftest` runs before the first suite. A silent/zero/unparsed log exits 90, and a skip marker cannot hide it. **Processor debt, recorded in the budget:** the protocol processor's reader (`run_suites.sh`) takes a zero tally as PASS, keeps only the last tally line of a multi-executable suite, and knows one shape; the superproject reader refuses all three, and `measure_test_evidence.py --selftest` proves that on those exact logs. The upstream fix is to sum every tally line in every shape and treat zero as `NOCOUNT`, or to call `suite_tally.py`'s `scan`. |
 
 `measure_test_evidence.py` mutation-arms both the static classifications and
 the runner wiring: changing the UNKNOWN exit to an ordinary failure makes its
 self-test fail. This keeps a future runner edit from turning infrastructure
-contention into test evidence.
+contention into test evidence. The gate refuses (exit 2) an empty suite
+population or a missing entry file, so a checkout that finds nothing is never
+a pass, and the self-test's printed total is counted from its arms rather than
+typed.
+
+**Known limits, by name.** A package import in a testbench wrapper
+(`import x_pkg::*`) binds the DUT's types and constants and is not read as a
+DUT-source reader: the seven live wrappers carry no compare lines, and telling
+a structural import from an oracle import needs a reading of each wrapper, not
+a pattern. `secrets.token_*` is a nonce, not a test draw (the draw-shaped
+`secrets.randbelow/randbits/choice` are counted and can never be seeded). A
+deadline passed positionally (`asyncio.wait_for(coro, 5)`) is not seen; the
+keyword form is. A Makefile conditional is read with every branch live. Eight
+harnesses include the Verilator-internal `V*___024root.h` to reach state
+through a backdoor (`crf_rx`, five `milan_dp` programs, `pp_shadow`, `tkdiag`);
+this rule says a backdoor may seed a state but must not be the only proof of
+behavior, and that inventory is noted here for a later round, not measured.
 
 ### Two things found already clean, and verified rather than rebuilt
 
-- **Replayable randomness.** Every first-party file that draws random values
-  already records a seed — `test_tx_bd.py` seeds immediately before each block
-  of draws, `test_ring_bd.py` uses `random.Random(13)`. The first pass of this
-  audit reported five unseeded draws; that was a defect in the audit, which
-  flagged the draws without checking whether the file seeded. The true count is
-  zero, and the ratchet holds it there.
+- **Replayable randomness.** Every **gating** first-party file that draws
+  random values records a seed — `test_tx_bd.py` seeds immediately before each
+  block of draws, `test_ring_bd.py` uses `random.Random(13)`, the `tsn_fuzz`
+  campaigns and the Verilator harnesses seed their `random.Random`/`mt19937`
+  instances. The first pass of this audit reported five unseeded draws; that
+  was a defect in the audit, which flagged the draws without checking whether
+  the file seeded. The second pass reported zero, and a review showed that was
+  a defect too: it recognised only module-level `random.<fn>(` and bare
+  `rand()`, so the guide's own recommended idiom and every SystemVerilog
+  `$urandom` were invisible. The scan now reads the shapes listed in the table
+  above, and what it measures is **ten** — all legacy xsim benches that no
+  exit code gates. That is the ratchet, and seeding one of them lowers it.
 - **Tally integrity.** A missing or malformed tally is `NOCOUNT` in
   [`scripts/suite_tally.py`](../../scripts/suite_tally.py), which refuses to let
   an unknown look like agreement and cannot be suppressed by a skip marker. That
-  is confirmed by running its self-test, not by writing a second one.
+  is confirmed by running its self-test, not by writing a second one — and
+  by the evidence gate's own arms, which feed that reader the three log shapes
+  the protocol processor's runner gets wrong.
 
 ### Review checklist
 
