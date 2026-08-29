@@ -36,11 +36,12 @@
 //                addr_filter_en_i is TCAM_CTRL[1], reset 0, so a build that
 //                never sets it behaves exactly as before.
 //
-//                Assumes the 6-byte destination MAC lies entirely in beat 0
-//                (true for TDATA_WIDTH>=48, e.g. the 64-bit datapath), so the
-//                accept/drop decision is available before beat 0 is forwarded —
-//                no store-and-forward buffering. The TCAM write port is exported
-//                so milan_csr can add/remove entries (0x700 group).
+//                Requires the 6-byte destination MAC to lie entirely in beat 0
+//                (TDATA_WIDTH >= 48, e.g. the 64-bit datapath) — refused at
+//                elaboration below, not assumed — so the accept/drop decision is
+//                available before beat 0 is forwarded: no store-and-forward
+//                buffering. The TCAM write port is exported so milan_csr can
+//                add/remove entries (0x700 group).
 //---------------------------------------------------------------------------//
 
 `default_nettype none
@@ -134,20 +135,39 @@ module rx_mac_filter #(
   //
   //  ONE format string per check: $error takes later arguments as VALUES, so
   //  a message split across string literals prints its continuations as
-  //  integers.
+  //  integers. The blocks are NAMED (gen_guard_*), the form KL_media_nco
+  //  uses: an unnamed generate block is a GENUNNAMED warning in every -Wall
+  //  build of this module.
+  //
+  //  WHERE THIS IS ENFORCED. Verilator refuses the build whenever USERERROR
+  //  is fatal: its default (no -Wno-fatal), or -Werror-USERERROR, which every
+  //  suite that builds this module carries (tb/verilator/rx_filter, milan_dp,
+  //  hostplane, tcam_csr) because -Wno-fatal on its own demotes a $error to a
+  //  warning and the illegal shape BUILDS. Vivado refuses it at elaboration.
+  //  It is NOT enforced on the sv2v -> Yosys path (syn/yosys/run.sh, ooc.sh):
+  //  sv2v lowers a module-scope $error to an `initial $display`, which Yosys
+  //  ignores, so that flow synthesises an illegal shape without a word. A
+  //  Yosys-side check would take the shape of
+  //  protocol-processor/tb/timer_map/shape_elab.sh - elaborate each illegal
+  //  shape and require the guard's own message - fed the original
+  //  SystemVerilog, since Yosys's own `read_verilog -sv` does honour it.
   // =======================================================================
-  if (TDATA_WIDTH < 48)
+  if (TDATA_WIDTH < 48) begin : gen_guard_dmac_in_beat0
     $error("rx_mac_filter: TDATA_WIDTH=%0d cannot carry the 48-bit destination address in one beat, and the first-beat compare this module is built on would read past the end of s_tdata and filter on undefined bits. The 802.3 destination address is 6 bytes (IEEE 802.3 3.2.3), so the RX datapath must be at least 48 bits wide.",
            TDATA_WIDTH);
-  else if ((TDATA_WIDTH % 8) != 0)
+  end
+  else if ((TDATA_WIDTH % 8) != 0) begin : gen_guard_byte_lanes
     $error("rx_mac_filter: TDATA_WIDTH=%0d is not a whole number of bytes, so s_tkeep (TDATA_WIDTH/8) cannot describe the beat it qualifies and the final beat's byte count would be unrepresentable.",
            TDATA_WIDTH);
-  else if (NUM_ENTRIES < 1)
+  end
+  else if (NUM_ENTRIES < 1) begin : gen_guard_tcam_entries
     $error("rx_mac_filter: NUM_ENTRIES=%0d leaves the TCAM with no entry to program, so every frame takes the default_pass_i path and the stream-drop shield cannot exist. Prune the filter at its instantiation instead of sizing it to zero.",
            NUM_ENTRIES);
-  else if (ACTION_WIDTH < 1)
+  end
+  else if (ACTION_WIDTH < 1) begin : gen_guard_action_width
     $error("rx_mac_filter: ACTION_WIDTH=%0d cannot carry a match action, so frame_action_o would be empty and every hit would be indistinguishable from every other hit.",
            ACTION_WIDTH);
+  end
 
   // -----------------------------------------------------------------------
   //  Destination MAC = first 6 bytes on the wire (byte 0 = MAC MSB).
