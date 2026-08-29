@@ -119,9 +119,11 @@ jobs:
           python3 scripts/check_port_contracts.py
           python3 scripts/check_port_contracts.py --selftest
 
-      # Rule 6: a parameterised module that refuses nothing, and a pipeline
-      # that throws away its producer's verdict. The second ratchet is 0 and
-      # must stay 0; the first is paid down as modules gain contracts.
+      # Rule 6: a parameterised module that refuses nothing, a pipeline that
+      # throws away its producer's verdict, and a captured verdict whose exit
+      # status is never read. Three ratchets that may only go down: the first
+      # is paid down as modules gain contracts, the other two hold pinned
+      # processor debt and two coverage recipes until their fixes land.
       - name: Fail-fast ratchet
         run: |
           python3 scripts/measure_fail_fast.py --check
