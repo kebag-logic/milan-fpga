@@ -126,8 +126,9 @@ from lint_rtl import LINT_EXCLUDE
 from code_quality_scope import tracked
 from sv_ports import declarations
 
-#: vendor and archive scope: tracked() recurses into every submodule, and the
-#: Makefile pathspec below would otherwise pull in verilog-axis's test benches
+#: archive scope: code_quality_scope.tracked() drops the vendor gitlinks itself
+#: (third_party/, external/), so what this filter still owns is the
+#: superproject's own archive directory - a historical Makefile is not a build
 NOT_FIRST_PARTY = ("third_party/", "external/", "historical_now_obsolete/")
 
 
@@ -1117,9 +1118,13 @@ def selftest():
        any(rel.startswith("protocol-processor/") for rel, _, _ in masked + captured),
        f"masked {[r for r, _, _ in masked]}, captured {[r for r, _, _ in captured]}")
     ck("the Makefile population is first-party only and not empty",
-       population["makefile"] > 50 and population["vendor_makefiles_excluded"] > 0
-       and not any(rel.startswith(NOT_FIRST_PARTY) for rel, _, _ in masked + captured),
-       f"{population} - tracked() recurses into verilog-axis, whose benches are vendor scope")
+       population["makefile"] > 50
+       and not any(rel.startswith(NOT_FIRST_PARTY) for rel, _, _ in masked + captured)
+       and [p for p in ("third_party/verilog-axis/tb/Makefile", "external/x/Makefile",
+                        "historical_now_obsolete/tb/Makefile", "tb/verilator/cbs/Makefile")
+            if not p.startswith(NOT_FIRST_PARTY)] == ["tb/verilator/cbs/Makefile"],
+       f"{population} - a vendor or archive Makefile must never join the population, "
+       "whichever layer drops it")
 
     print(f"\n{arms} checks: {arms - failures} PASS, {failures} FAIL")
     return 1 if failures else 0
