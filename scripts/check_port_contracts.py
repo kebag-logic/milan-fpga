@@ -256,6 +256,16 @@ def declared_instances(text, known, foreign=False):
     not declare is also matched, but only at the start of a line - where an
     instantiation lives and a function call, cast or declaration does not - so
     its instance names can root a hierarchical read.
+
+    One head may declare several instances: `child u_a (.a(a)), u_b (.*);` is
+    legal SystemVerilog (`module_instance { , module_instance } ;`). So after
+    the first connection list the walk continues through every `, instance
+    [range] ( ... )` of the tail, and each instance is yielded with the head's
+    parameter text, its own connection list and its own position, so a
+    wildcard, a positional list, an open or literal-bound connection or a
+    hierarchical root on a later instance is judged like the first one's. The
+    first version stopped after the first list, and review of PR #279 showed
+    `u_bad(.*)` in that fixture passing the gate.
     """
     code = blank_comments(text)
     for module_match in re.finditer(r"\b[A-Za-z_]\w*\b", code):
@@ -275,20 +285,25 @@ def declared_instances(text, known, foreign=False):
                 continue
             params = code[pos + 1:end - 1]
             pos = _skip_space(code, end)
-        inst_match = re.match(r"[A-Za-z_]\w*", code[pos:])
-        if not inst_match or inst_match.group(0) in NOT_A_MODULE:
-            continue
-        inst = inst_match.group(0)
-        pos = _skip_space(code, pos + inst_match.end())
-        if pos < len(code) and code[pos] == "[":            # instance array
-            end = _close(code, pos, "[", "]")
+        while True:                                         # every instance of the declaration
+            inst_match = re.match(r"[A-Za-z_]\w*", code[pos:])
+            if not inst_match or inst_match.group(0) in NOT_A_MODULE:
+                break
+            inst = inst_match.group(0)
+            pos = _skip_space(code, pos + inst_match.end())
+            if pos < len(code) and code[pos] == "[":        # instance array
+                end = _close(code, pos, "[", "]")
+                if end is None:
+                    break
+                pos = _skip_space(code, end)
+            end = _close(code, pos)
             if end is None:
-                continue
+                break
+            yield name, inst, params, code[pos + 1:end - 1], pos + 1, code
             pos = _skip_space(code, end)
-        end = _close(code, pos)
-        if end is None:
-            continue
-        yield name, inst, params, code[pos + 1:end - 1], pos + 1, code
+            if pos >= len(code) or code[pos] != ",":        # `;` (or anything else) ends the tail
+                break
+            pos = _skip_space(code, pos + 1)
 
 
 def _line(code, pos):
@@ -555,6 +570,39 @@ def selftest():
     w, p, h = B("  KL_child u_c [0:1] (.a(sig_a));")
     ck("an instance array bound by name is accepted", not w and not p, f"{w} {p}")
 
+    # -- one head, several instances: `module_instance { , module_instance } ;`.
+    # -- The first version stopped after the first connection list, so the
+    # -- reviewer's `u_bad(.*)` passed (PR #279).
+    w, p, h = scan_bindings("child u_ok(.a(a)), u_bad(.*);", {"child"}, ifaces)
+    ck("a wildcard on the second instance of a declaration is caught, with its line",
+       w == [1], f"{w}")
+    w, p, h = B("  KL_child u_ok (.a(sig_a)), u_bad (sig_a, sig_b);")
+    ck("a positional binding on the second instance is caught",
+       [(x[1], x[3]) for x in p] == [("u_bad", "ports")], f"{p}")
+    w, p, h = B("  KL_child u_a (.a(sig_a)), u_b (.a(sig_b));")
+    seen = [i for _m, i, *_ in declared_instances("  KL_child u_a (.a(sig_a)), u_b (.a(sig_b));", known)]
+    ck("a clean two-instance declaration is accepted and both instances are seen",
+       not w and not p and seen == ["u_a", "u_b"], f"{w} {p} {seen}")
+    three = "  KL_child #(.W(8)) u_a (.a(sig_a)),\n    u_b [0:1] (.a(sig_b)),\n    u_c (.a(sig_c));"
+    w, p, h = B(three)
+    seen = [(i, prm.strip()) for _m, i, prm, *_ in declared_instances(three, known)]
+    ck("a three-instance declaration with an array and a parameterised head is accepted, every instance seen",
+       not w and not p and seen == [("u_a", ".W(8)"), ("u_b", ".W(8)"), ("u_c", ".W(8)")], f"{w} {p} {seen}")
+    w, p, h = B(three.replace("(.a(sig_c))", "(.*)"))
+    ck("a wildcard on the third instance is caught on its own line", w == [3], f"{w}")
+    w, p, h = B(three.replace("(.a(sig_b))", "(sig_b)"))
+    ck("a positional array instance in the middle of a declaration is caught",
+       [(x[1], x[2], x[3]) for x in p] == [("u_b", 2, "ports")], f"{p}")
+    w, p, h = B("  KL_child #(8) u_a (.a(sig_a)), u_b (.a(sig_b));")
+    ck("a positional parameter list on a shared head is refused for every instance it configures",
+       [(x[1], x[3]) for x in p] == [("u_a", "parameters"), ("u_b", "parameters")], f"{p}")
+    w, p, h = B("  KL_child u_a (.a(sig_a)), u_b (.a(sig_b));\n  assign leak = u_b.hidden_r;")
+    ck("a read through the second instance is a hierarchical dependency",
+       h == [("u_b", "hidden_r", 2)], f"{h}")
+    w, p, h = B("  VendorPrimitive u_a (sig_a), u_b (sig_b);\n  assign leak = u_b.q;")
+    ck("a foreign head's later instance is not judged but still roots a read",
+       not p and h == [("u_b", "q", 2)], f"{p} {h}")
+
     # a module this tree does NOT declare keeps whatever form its tool needs
     w, p, h = B("  VendorPrimitive u_v (sig_a, sig_b);")
     ck("a foreign module is not judged", not p, f"{p}")
@@ -648,6 +696,10 @@ def selftest():
     ck("an ordinary connection ends the run", [x[5] for x in d] == [True, False], f"{d}")
     d = D("  KL_child u_c (\n    .a_o(), //! a's own reason\n    .b_o());")
     ck("a sibling's own comment ends the run", [x[5] for x in d] == [True, False], f"{d}")
+    d = D("  KL_child u_a (.a(sig)), u_b (\n    .x_o(),\n    .y_i(1'b0), //! y is a feature disable here\n    .a(sig));")
+    ck("open and literal-bound ports on the second instance are inventoried with their rationale",
+       [(x[1], x[2], x[3], x[4], x[5]) for x in d]
+       == [("u_b", "x_o", 2, "OPEN", False), ("u_b", "y_i", 3, "TIED", True)], f"{d}")
 
     # -- the ratchets, on synthetic results --
     res = {"undoc_per_tree": {"hdl": 5, "gptp-processor": 1, "protocol-processor": 2},

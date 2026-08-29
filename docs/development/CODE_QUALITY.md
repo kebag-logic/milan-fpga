@@ -1016,13 +1016,19 @@ those checks bite matter more than the counts. A gate with an empty population
 is indistinguishable from a gate that does nothing, so
 [`scripts/check_port_contracts.py`](../../scripts/check_port_contracts.py)
 carries fixtures for a wildcard binding (with its line), a positional port list
-and a positional parameter list, instance arrays in all three forms, a named and
-a parameterised named binding, a foreign module, control flow that must not
-read as an instantiation, a commented-out binding, a string literal that must
-not read as a reference, a backdoor through a first-party and through a
-foreign instance, a module-name-rooted and a `$root` reference, an `import`
-header, a non-ANSI header, and an empty and a partial population — 70 arms,
-each of which fails when the defect it guards is put back.
+and a positional parameter list, instance arrays in all three forms, a
+declaration naming several instances after one head (`child u_ok (.a(a)),
+u_bad (.*);` is legal, and the first version of the walk stopped after the
+first connection list, so review found `u_bad` passing: a wildcard and a
+positional list on a later instance, a clean pair, a three-instance form with
+an array and a parameterised head, and an open, a literal-bound and a
+hierarchically read port on the second instance), a named and a parameterised
+named binding, a foreign module, control flow that must not read as an
+instantiation, a commented-out binding, a string literal that must not read as
+a reference, a backdoor through a first-party and through a foreign instance,
+a module-name-rooted and a `$root` reference, an `import` header, a non-ANSI
+header, and an empty and a partial population — 80 arms, each of which fails
+when the defect it guards is put back.
 
 **Undocumented ports are ratcheted, not refused.** There are 376 of them after
 the receive-filter cleanup: 246 in `hdl/`, 19 in `gptp-processor`, 111 in
