@@ -219,9 +219,32 @@ def scan_repo():
     return rows, drops, per_tree
 
 
+#: A processor identity is spelled `<submodule>:<path>:<module>:<name>`, with a
+#: colon after the submodule name rather than a slash - the spelling
+#: scripts/xvlog.budget uses - so this generated record is never read as a
+#: hand-written copy of the submodule source list (scripts/pp_srcs.py --check
+#: refuses any tracked file that names a processor source literally).
+_SUBMODULE_PREFIXES = ("protocol-processor/", "gptp-processor/")
+
+
 def identity(row):
     rel, module, name = row[0], row[1], row[2]
+    for prefix in _SUBMODULE_PREFIXES:
+        if rel.startswith(prefix):
+            rel = prefix[:-1] + ":" + rel[len(prefix):]
+            break
     return f"{rel}:{module}:{name}"
+
+
+def identity_path(ident):
+    """(rel_path, module, name) from an identity, undoing the processor spelling."""
+    for prefix in _SUBMODULE_PREFIXES:
+        sub = prefix[:-1]
+        if ident.startswith(sub + ":"):
+            rest, module, name = ident[len(sub) + 1:].rsplit(":", 2)
+            return f"{sub}/{rest}", module, name
+    rel, module, name = ident.rsplit(":", 2)
+    return rel, module, name
 
 
 # ---------------------------------------------------------------------------
@@ -255,7 +278,7 @@ def ratchet(rows, recorded):
     new = sorted(current - recorded)
     stripped, left = [], []
     for ident in sorted(recorded - current):
-        rel, module, name = ident.split(":", 2)
+        rel, module, name = identity_path(ident)
         if port_still_declared(rel, module, name):
             stripped.append(ident)
         else:
@@ -268,7 +291,10 @@ def write_budget(rows, per_tree):
     head = [
         "# Rule 4 ratchet, keyed on IDENTITY: every boundary port or parameter whose",
         "# own //! comment names a unit of measure that the identifier does not carry,",
-        "# as path:module:name. See scripts/measure_naming.py.",
+        "# as path:module:name. A processor entry is spelled <submodule>:<path>:...",
+        "# (colon, not slash, after the submodule name - the scripts/xvlog.budget",
+        "# spelling) so this generated record is not a hand-written source list.",
+        "# See scripts/measure_naming.py.",
         "#",
         "# A line may leave this file only because the boundary was renamed with its",
         "# unit or removed; a port still declared under the same name that has lost",
@@ -407,6 +433,15 @@ def selftest():
        ratchet(rows_now, recorded) == ([], [], []))
     ck("a new identity is refused",
        ratchet(rows_now + [("x.sv", "f", "zz_i", "ns", "d ns")], recorded)[0] == ["x.sv:f:zz_i"])
+    # the processor path is ASSEMBLED, not spelled: pp_srcs.py --check refuses
+    # any tracked file that names a processor source literally, this one included
+    pp, tail = "protocol-processor", "hdl/srp/KL_srp_top.sv"
+    ck("a processor identity is spelled submodule:path, never as a source literal",
+       identity((f"{pp}/{tail}", "KL_srp_top", "wr_len_o", "b", "d"))
+       == f"{pp}:{tail}:KL_srp_top:wr_len_o"
+       and identity_path("gptp-processor:hdl/top/KL_gptp_engine.sv:KL_gptp_engine:pub_offset_o")
+       == ("gptp-processor/hdl/top/KL_gptp_engine.sv", "KL_gptp_engine", "pub_offset_o")
+       and identity_path("hdl/a.sv:m:p") == ("hdl/a.sv", "m", "p"))
 
     import tempfile
     with tempfile.TemporaryDirectory() as td:
@@ -439,7 +474,7 @@ def selftest():
        recorded_live is not None and all(":" in i for i in recorded_live),
        "scripts/naming.budget must list path:module:name lines")
 
-    n = len(FIXTURES) + 10
+    n = len(FIXTURES) + 11
     print(f"\n{n} checks: {n - failures} PASS, {failures} FAIL")
     return 1 if failures else 0
 

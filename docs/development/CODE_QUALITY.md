@@ -853,7 +853,10 @@ so this ships as a ratchet, not a verdict.
 
 **The ratchet is keyed on identity, not a count.**
 [`scripts/naming.budget`](../../scripts/naming.budget) names every candidate as
-`path:module:port`. A candidate may leave the list only by being renamed with
+`path:module:port` — a processor entry as `submodule:path:module:port`, the
+`xvlog.budget` spelling, so the generated record is never read as a
+hand-written copy of a processor source list. A candidate may leave the list
+only by being renamed with
 its unit or by being removed; a port still declared under the same name whose
 comment has merely lost the unit word is refused as *stripped*. Review found
 the count-only form of this ratchet could be paid down by deleting units from

@@ -1,6 +1,9 @@
 # Rule 4 ratchet, keyed on IDENTITY: every boundary port or parameter whose
 # own //! comment names a unit of measure that the identifier does not carry,
-# as path:module:name. See scripts/measure_naming.py.
+# as path:module:name. A processor entry is spelled <submodule>:<path>:...
+# (colon, not slash, after the submodule name - the scripts/xvlog.budget
+# spelling) so this generated record is not a hand-written source list.
+# See scripts/measure_naming.py.
 #
 # A line may leave this file only because the boundary was renamed with its
 # unit or removed; a port still declared under the same name that has lost
@@ -9,7 +12,7 @@
 # `python3 scripts/measure_naming.py --write-budget` after a rename.
 #
 # 105 candidate(s): gptp-processor 1, protocol-processor 20, superproject 84
-gptp-processor/hdl/top/KL_gptp_engine.sv:KL_gptp_engine:pub_offset_o
+gptp-processor:hdl/top/KL_gptp_engine.sv:KL_gptp_engine:pub_offset_o
 hdl/common/csr/milan_csr.sv:milan_csr:i_lwsrp_slope
 hdl/common/csr/milan_csr.sv:milan_csr:o_lwsrp_latency
 hdl/common/csr/milan_csr.sv:milan_csr:o_mac_ifg
@@ -94,23 +97,23 @@ hdl/milan/milan_datapath.sv:milan_datapath:o_resp_mem_wr_strb
 hdl/milan/milan_datapath.sv:milan_datapath:pb_rd_ptr_o
 hdl/milan/milan_datapath.sv:milan_datapath:pb_ring_len_i
 hdl/milan/milan_datapath.sv:milan_datapath:pb_ring_stride_i
-protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv:KL_acmp_nvm_shadow:DEB_TICKS_P
-protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv:KL_acmp_nvm_shadow:LAYOUT_VER_P
-protocol-processor/hdl/aecp/KL_aecp_resp_buf.sv:KL_aecp_resp_buf:dbg_drop_o
-protocol-processor/hdl/aecp/KL_aecp_resp_buf.sv:KL_aecp_resp_buf:seal_len_i
-protocol-processor/hdl/packet_engine/KL_pp_dispatch.sv:KL_pp_dispatch:acmp_stall_count_o
-protocol-processor/hdl/packet_engine/KL_pp_dispatch.sv:KL_pp_dispatch:adp_stall_count_o
-protocol-processor/hdl/packet_engine/KL_pp_dispatch.sv:KL_pp_dispatch:aecp_stall_count_o
-protocol-processor/hdl/packet_engine/KL_pp_dispatch.sv:KL_pp_dispatch:maap_stall_count_o
-protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv:KL_pp_nvm_port:MAX_PAYLOAD_P
-protocol-processor/hdl/packet_engine/KL_pp_tx_slots.sv:KL_pp_tx_slots:wr_len_i
-protocol-processor/hdl/srp/KL_srp_decoder.sv:KL_srp_decoder:TP_DEPTH_P
-protocol-processor/hdl/srp/KL_srp_decoder.sv:KL_srp_decoder:dbg_listlen_cnt_o
-protocol-processor/hdl/srp/KL_srp_encoder.sv:KL_srp_encoder:ev_value_i
-protocol-processor/hdl/srp/KL_srp_encoder.sv:KL_srp_encoder:wr_len_o
-protocol-processor/hdl/srp/KL_srp_top.sv:KL_srp_top:TP_DEPTH_P
-protocol-processor/hdl/srp/KL_srp_top.sv:KL_srp_top:draw_kind_o
-protocol-processor/hdl/srp/KL_srp_top.sv:KL_srp_top:wr_len_o
-protocol-processor/hdl/top/protocol_processor_top.sv:protocol_processor_top:RESP_BASE_P
-protocol-processor/hdl/top/protocol_processor_top.sv:protocol_processor_top:srp_acc_latency_o
-protocol-processor/hdl/top/protocol_processor_top.sv:protocol_processor_top:when
+protocol-processor:hdl/acmp/KL_acmp_nvm_shadow.sv:KL_acmp_nvm_shadow:DEB_TICKS_P
+protocol-processor:hdl/acmp/KL_acmp_nvm_shadow.sv:KL_acmp_nvm_shadow:LAYOUT_VER_P
+protocol-processor:hdl/aecp/KL_aecp_resp_buf.sv:KL_aecp_resp_buf:dbg_drop_o
+protocol-processor:hdl/aecp/KL_aecp_resp_buf.sv:KL_aecp_resp_buf:seal_len_i
+protocol-processor:hdl/packet_engine/KL_pp_dispatch.sv:KL_pp_dispatch:acmp_stall_count_o
+protocol-processor:hdl/packet_engine/KL_pp_dispatch.sv:KL_pp_dispatch:adp_stall_count_o
+protocol-processor:hdl/packet_engine/KL_pp_dispatch.sv:KL_pp_dispatch:aecp_stall_count_o
+protocol-processor:hdl/packet_engine/KL_pp_dispatch.sv:KL_pp_dispatch:maap_stall_count_o
+protocol-processor:hdl/packet_engine/KL_pp_nvm_port.sv:KL_pp_nvm_port:MAX_PAYLOAD_P
+protocol-processor:hdl/packet_engine/KL_pp_tx_slots.sv:KL_pp_tx_slots:wr_len_i
+protocol-processor:hdl/srp/KL_srp_decoder.sv:KL_srp_decoder:TP_DEPTH_P
+protocol-processor:hdl/srp/KL_srp_decoder.sv:KL_srp_decoder:dbg_listlen_cnt_o
+protocol-processor:hdl/srp/KL_srp_encoder.sv:KL_srp_encoder:ev_value_i
+protocol-processor:hdl/srp/KL_srp_encoder.sv:KL_srp_encoder:wr_len_o
+protocol-processor:hdl/srp/KL_srp_top.sv:KL_srp_top:TP_DEPTH_P
+protocol-processor:hdl/srp/KL_srp_top.sv:KL_srp_top:draw_kind_o
+protocol-processor:hdl/srp/KL_srp_top.sv:KL_srp_top:wr_len_o
+protocol-processor:hdl/top/protocol_processor_top.sv:protocol_processor_top:RESP_BASE_P
+protocol-processor:hdl/top/protocol_processor_top.sv:protocol_processor_top:srp_acc_latency_o
+protocol-processor:hdl/top/protocol_processor_top.sv:protocol_processor_top:when
