@@ -29,6 +29,7 @@ Every mutant is written under a temporary directory with its own --Mdir;
 nothing lands in the tree.
 """
 
+import re
 import subprocess
 import sys
 import tempfile
@@ -60,9 +61,16 @@ ARMS = (
 
 def build_recipe():
     """[verilator, flag, ...] exactly as the Makefile builds the clean run."""
-    run = subprocess.run(["make", "-s", "-C", str(HERE), "print-vflags"],
+    # --no-print-directory: this driver runs UNDER make (the suite's default
+    # goal), and GNU make 4.3 - the CI runner's - prints "make[1]: Entering
+    # directory ..." for a sub-make even with -s once -w is inherited through
+    # MAKEFLAGS; make 4.4 does not, which is how the first version passed
+    # locally and executed that line as a command on CI. Only the recipe's
+    # own words are kept.
+    run = subprocess.run(["make", "-s", "--no-print-directory", "-C", str(HERE), "print-vflags"],
                          capture_output=True, text=True, check=True)
-    lines = [line for line in run.stdout.splitlines() if line]
+    lines = [line for line in run.stdout.splitlines()
+             if line and not re.match(r"make(\[\d+\])?: ", line)]
     if len(lines) < 2:
         raise RuntimeError("make print-vflags returned no recipe")
     return lines
