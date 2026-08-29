@@ -257,6 +257,14 @@ CONFIGS = {
         ROOT, "configs/endstation_ax7101_1x1_tdm8.yaml"),
 }
 OUT = os.path.join(HERE, "out")
+#: gate 24d's pin of the cluster namer: every object_name the builder produces
+#: for a loopback-bearing config and for the channel_names config, per
+#: direction and STREAM_PORT, in offset order. Generated from the
+#: implementation by `python3 sw/builder/test_builder.py --write-cluster-golden`;
+#: a deliberate naming change regenerates it, and the diff of that file is what
+#: a reviewer reads.
+CLUSTER_NAMES_GOLDEN = os.path.join(HERE, "cluster_names_golden.json")
+CLUSTER_NAMES_GOLDEN_CONFIGS = ("ax7101_8x8", "ax7101_1x1_tdm8")
 SWEEP = os.path.join(ROOT, "sw/litex/sweep.sh")
 BUILD_SH = os.path.join(ROOT, "sw/litex/build.sh")
 PATCH_DIR = os.path.join(ROOT, "sw/litex/patches")
@@ -7546,9 +7554,45 @@ def test_d10_cluster_names():
           "their current model")
 
 
+def cluster_name_census(name):
+    """Every cluster name the builder produces for config `name`: per
+    direction, one list per STREAM_PORT in port order, names in offset order.
+    Read off the overlay, which is what gen_aem_store turns into descriptor
+    bytes, so a name is counted where it ships rather than where it is made."""
+    ovl = eb.build(CONFIGS[name], OUT)["overlay"]
+    census = {}
+    for direction in ("input", "output"):
+        ports = ovl["stream_ports"][direction]
+        slot = {p["index"]: k for k, p in enumerate(ports)}
+        rows = [[] for _ in ports]
+        for c in sorted(ovl["audio_clusters"],
+                        key=lambda c: (c["port_index"], c["offset"])):
+            if c["direction"] == direction:
+                rows[slot[c["port_index"]]].append(c["name"])
+        assert [len(r) for r in rows] == [p["clusters"] for p in ports], name
+        census[direction] = rows
+    return census
+
+
+def write_cluster_names_golden():
+    """Regenerate cluster_names_golden.json from the current builder."""
+    golden = {
+        "_generated_by": "python3 sw/builder/test_builder.py --write-cluster-golden",
+        "_what": "gate 24d: every AUDIO_CLUSTER object_name the builder "
+                 "produces, per config, direction and STREAM_PORT, in offset "
+                 "order; regenerate only for a deliberate naming change",
+    }
+    for name in CLUSTER_NAMES_GOLDEN_CONFIGS:
+        golden[name] = cluster_name_census(name)
+    with open(CLUSTER_NAMES_GOLDEN, "w") as f:
+        json.dump(golden, f, indent=1)
+        f.write("\n")
+    print(f"wrote {CLUSTER_NAMES_GOLDEN}")
+
+
 def test_d10_cluster_namer_paths():
-    """gate 24d - the cluster namers, including the two paths a live config
-    does not reach.
+    """gate 24d - the cluster namers: the two paths a live config does not
+    reach, and the moved logic pinned name by name.
 
     Rule 2 (docs/development/CODE_QUALITY.md) turned an `if/elif/elif/else`
     chain nested inside two loops into a named table. Two of its paths were
@@ -7563,6 +7607,19 @@ def test_d10_cluster_namer_paths():
         by name. The set is closed today, which is exactly why the refusal
         needs an arm - an unreachable path with no test is how the next role
         gets silently mislabelled.
+
+    Those two arms grade the paths; the golden below grades what the refactor
+    MOVED. The talker-t -> rx-stream-t walk, the `+ n` channel step and the
+    channel_names mapping survive only as names, and gate 24c checks loopback
+    names by prefix and physical names by label, so `rx_index() -> 0`,
+    dropping `+ n`, and a physical namer that ignores channel_names each
+    moved 56, 63 and 8 real names past every builder gate. Every name the
+    builder produces for the loopback-bearing ax7101_8x8 (both directions:
+    its listeners are headless, and the golden records those empty ports
+    too) and for the channel_names config ax7101_1x1_tdm8 is therefore pinned
+    in cluster_names_golden.json, generated from the implementation that a
+    replay of every cluster_names() call proved byte-identical to the
+    pre-refactor chain. Each of those three mutations fails here.
     """
     cfg = eb.load_config(CONFIGS["ax7101_8x8"])
 
@@ -7596,9 +7653,40 @@ def test_d10_cluster_namer_paths():
         for role in roles:
             assert role in eb.CLUSTER_NAMERS, (
                 f"{role} is a primary role for {direction} but has no namer")
+
+    # -- the moved logic itself, name by name --------------------------------
+    with open(CLUSTER_NAMES_GOLDEN) as f:
+        golden = json.load(f)
+    pinned = 0
+    for name in CLUSTER_NAMES_GOLDEN_CONFIGS:
+        got = cluster_name_census(name)
+        for direction in ("input", "output"):
+            want = golden[name][direction]
+            assert len(got[direction]) == len(want), (
+                f"{name}: builds {len(got[direction])} STREAM_PORT_"
+                f"{direction.upper()}s, the golden pins {len(want)}")
+            for pi, (w, g) in enumerate(zip(want, got[direction])):
+                assert g == w, (
+                    f"{name} STREAM_PORT_{direction.upper()} {pi}: cluster "
+                    f"names moved\n  golden: {w}\n  built:  {g}\n"
+                    "a deliberate naming change regenerates the golden with "
+                    "`python3 sw/builder/test_builder.py --write-cluster-golden`"
+                    " and the diff of that file is the review")
+                pinned += len(w)
+    # the golden must pin the two behaviours it exists for, so an emptied or
+    # truncated file cannot pass by matching nothing
+    flat = [n for name in CLUSTER_NAMES_GOLDEN_CONFIGS
+            for ports in golden[name].values() for p in ports for n in p]
+    assert sum(1 for n in flat if n.startswith("Loopback S")) >= 64, \
+        "the golden pins no loopback walk"
+    cnames = eb.load_config(CONFIGS["ax7101_1x1_tdm8"])["interface"]["channel_names"]
+    assert cnames and all(any(n.endswith(" " + c) for n in flat) for c in cnames), \
+        "the golden pins no channel_names mapping"
     print("  [gate 24d] empty-rx loopback names by offset (and by source when "
-          "a receive space exists), an unknown role is refused by name, and "
-          "every primary role in PRIMARY_ROLE_ORDER has a namer")
+          "a receive space exists), an unknown role is refused by name, "
+          "every primary role in PRIMARY_ROLE_ORDER has a namer, and "
+          f"{pinned} cluster names across {len(CLUSTER_NAMES_GOLDEN_CONFIGS)} "
+          "configs match the tracked golden name for name")
 
 
 def test_d10_names_reach_the_rom():
@@ -8449,6 +8537,9 @@ def test_milan_base_formats_are_rate_complete():
 
 
 if __name__ == "__main__":
+    if "--write-cluster-golden" in sys.argv:
+        write_cluster_names_golden()
+        sys.exit(0)
     for fn in (test_all_configs_build, test_baremetal_profile_contract,
                test_gptp_product_default_and_legacy_option,
                test_qspi_owner_transition_completed_write_prefixes,
