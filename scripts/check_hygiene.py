@@ -497,7 +497,10 @@ def selftest():
        tree is None and why == "off pin", f"{tree!r} {why!r}")
 
     # -- the live tree ---------------------------------------------------------
-    tree = read_tree()
+    tree, why = load_tree()
+    if tree is None:
+        print(f"REFUSED: {why}")
+        return 2
     totals, per_file, skipped, sizes = audit_files(tree)
     ck("the live scan reads the tree", len(tree) > 100, f"{len(tree)} files")
     ck("the live scan reaches both project processor submodules",
