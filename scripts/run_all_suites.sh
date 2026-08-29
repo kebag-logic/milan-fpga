@@ -16,7 +16,11 @@
 #
 # Exit status:
 #   0        every suite passed AND every check count was readable
-#   1..89    that many suites FAILED (unchanged - CI can still gate on it)
+#   1..89    that many suites FAILED (unchanged - CI can still gate on it). A
+#            suite whose make exited 0 while its log reports a failure - a
+#            [FAIL] line or a tally counting one - is a FAILED suite here too
+#            (scripts/suite_tally.py --verdict), because an assertion that
+#            only logs is exactly the false green Rule 6 exists to stop.
 #   90       every suite passed, but the CHECK ACCOUNTING is incomplete: some
 #            suite's count could not be read, so the printed total is a partial
 #            sum and must not be quoted. See scripts/suite_tally.py.
@@ -265,8 +269,21 @@ for suite in "${suites[@]}"; do
   d="$ROOT/tb/verilator/$suite"
   timeout "$TMO" make -C "$d" > "$OUT/$suite.log" 2>&1
   rc=$?
+  # Rule 6: a suite that PRINTS a failure and exits 0 is a masked verdict, and
+  # make cannot read. The log is asked, with the same recognisers the tally
+  # uses, whether it reports a failure - a [FAIL] line, or a tally counting
+  # one - and a green that its own log contradicts is a FAIL here.
+  masked_verdict=""
+  if [ "$rc" -eq 0 ] && \
+     ! masked_verdict=$(python3 "$ROOT/scripts/suite_tally.py" --verdict "$OUT/$suite.log" 2>&1); then
+    rc=93
+  fi
   case $rc in
     0)   pass=$((pass + 1)); printf 'PASS     %s\n' "$suite" ;;
+    93)  fail=$((fail + 1)); failed="$failed $suite"
+         printf 'FAIL     %s   (exited 0, but its log reports a failure - a masked verdict)\n' \
+                "$suite"
+         printf '%s\n' "$masked_verdict" | sed 's/^/         /' ;;
     # 124: timeout(1) killed it. 137: SIGKILL, i.e. timeout's -k follow-up or
     # the OOM killer - either way the suite did not get to render a verdict.
     124|137)

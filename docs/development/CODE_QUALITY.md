@@ -29,7 +29,7 @@ shape rather than guess at it.
 - **[Rule 4: use intention-revealing names and explicit units](#rule-4-use-intention-revealing-names-and-explicit-units)** -- What a name must reveal, the unit and clock-domain qualifiers that extend the existing HDL suffixes rather than competing with them, cross-language equivalents, and the interface renamed end to end to prove it.
 - **[Measuring hidden units](#measuring-hidden-units)** -- The port's own documentation as the evidence, the three exclusion classes and the false positives that forced them, and why this ships as a ratchet instead of a verdict.
 - **[Rule 5: make ports, contracts and ownership explicit](#rule-5-make-ports-contracts-and-ownership-explicit)** -- What a port contract must state, why wildcard, positional and hierarchical bindings are refused outright while missing documentation and unjustified open or tied connections are only ratcheted, the exact scope of the inventory, the boundary documented end to end as proof, and the review checklist.
-- **[Rule 6: fail fast and encode invariants](#rule-6-fail-fast-and-encode-invariants)** -- Where a verdict must be refused rather than logged, the elaboration contract added to the receive shield and mutation-proven against four illegal parameter sets, the two masked-failure populations that are now ratcheted, and the review checklist.
+- **[Rule 6: fail fast and encode invariants](#rule-6-fail-fast-and-encode-invariants)** -- Where a verdict must be refused rather than logged, one in-tree example per boundary (elaboration, FSM default, generator, pipeline, Tcl flow), the elaboration contract added to the receive shield and mutation-proven by its own diagnostic, where that contract is and is not enforced, the three masked-failure populations ratcheted over a stated population, the sweep's refusal of a suite that logs a failure and exits 0, and the review checklist.
 - **[Rules not yet landed](#rules-not-yet-landed)** -- The remaining nine rules of the contract, named so the numbering is stable and a reader knows what is still coming.
 
 ## The governing rule
@@ -1216,6 +1216,19 @@ everything downstream then treats a wrong answer as a checked one.
 - An assertion carries a message naming the contract it violated, not just the
   expression that failed.
 
+### Five boundaries, one in-tree example each
+
+None of these was written for this page; each is where the tree already
+refuses, or — for the pipeline — where it used to let a failure through.
+
+| Boundary | Example | What is refused, and how |
+|---|---|---|
+| RTL elaboration | `hdl/ieee8021q/filtering/rx_mac_filter.sv`, the `gen_guard_*` blocks | A datapath narrower than the 48-bit destination address, a beat that is not whole bytes, a TCAM with no entry, an action that cannot tell two matches apart. Each `$error` names the parameter, its value and the law. Detailed below. |
+| FSM default arm | `hdl/ieee1722/aaf/KL_aes3_rx.sv`, `default: st_r <= HUNT_S;` | The decoder's 2-bit state has four legal values and one arm no transition produces. Rather than leave that arm to hold whatever the `case` did not cover, it sends the receiver back to `HUNT_S` — re-acquiring the unit interval from nothing, the one state that assumes nothing about what came before. |
+| Python generator | `scripts/pp_srcs.py` | An empty source list. The script raises instead of printing nothing, because an empty list builds cleanly and proves nothing, and every consumer — `syn/yosys/run.sh`, `syn/yosys/ooc.sh`, `tb/verilator/milan_dp/Makefile`, `syn/ooc/dp_srcs.py` — takes that status rather than discarding it. |
+| Shell pipeline | `gate \| tee log` in a shell without `pipefail` | Nothing — that is the defect. The pipeline exits with `tee`'s status, so a failing gate is a pass. Measured and ratcheted below. |
+| Tcl synthesis flow | `bd/build.tcl` after each `wait_on_run`; `syn/ooc/milan_datapath_ooc.tcl` around its ROM generators | A run whose `PROGRESS` is not `100%` is `error "SYNTHESIS FAILED …"`, so the bitstream step can never run on a synthesis that quietly did not finish. The OOC flow's `exec` raises on a non-zero generator status, and a generator that exited 0 leaving no file, or a malformed image, is refused before Yosys reads it. |
+
 ### A comment is not a guard
 
 `hdl/ieee8021q/filtering/rx_mac_filter.sv` is the receive shield. Its banner
@@ -1227,46 +1240,116 @@ downstream check can see, because a filter that is wrong looks exactly like a
 filter that is right until the traffic is inspected on the wire.
 
 It now carries an elaboration contract in the house form — a module-scope
-`if (…) $error("one format string", …)`, the same shape `milan_datapath` and
-`KL_media_nco` already use. Four laws: the datapath must be wide enough to hold
+`if (…) begin : gen_guard_… $error("one format string", …) end`, the named
+generate block `KL_media_nco` writes. `milan_datapath` leaves its guard blocks
+unnamed, which is a `GENUNNAMED` warning in every `-Wall` build; the named
+form is the house form. Four laws: the datapath must be wide enough to hold
 the 48-bit destination address in one beat, it must be a whole number of bytes
 so `tkeep` can describe it, the TCAM must have at least one entry, and an
 action must be wide enough to distinguish two matches.
 
-**The contract is graded by mutation, permanently.** `make negative` in
-`tb/verilator/rx_filter` elaborates four illegal parameter sets and requires
-each to be refused, then elaborates the legal default and requires it to be
-accepted. That last arm is what stops the contract from becoming a ban, and it
-is why the arm reads the exit status directly rather than through a pipe — a
-pipeline returns its *last* command's status, which is how a refused build
-reads as a pass.
+**Where the contract is enforced, and where it is not.** Verilator refuses
+the build whenever `USERERROR` is fatal: its default with no `-Wno-fatal`, or
+`-Werror-USERERROR`. Every suite that builds the shield carries the latter —
+`tb/verilator/rx_filter`, `milan_dp`, `hostplane` and `tcam_csr` — because
+`-Wno-fatal` on its own demotes a `$error` to a warning, and review built
+`-GTDATA_WIDTH=52` in the rx_filter suite with rc 0 before the flag was added
+there. Vivado refuses it at elaboration. It is **not** enforced on the
+sv2v → Yosys path that `syn/yosys/run.sh` and `syn/yosys/ooc.sh` use: sv2v
+lowers a module-scope `$error` to an `initial $display`, which Yosys ignores,
+so `OOC_CHPARAM="TDATA_WIDTH=52" syn/yosys/ooc.sh rx_mac_filter` synthesises
+the illegal shape and reports PASS. Yosys's own `read_verilog -sv` does honour
+the `$error`, so a Yosys-side check would take the shape
+`protocol-processor/tb/timer_map/shape_elab.sh` already has for the
+processor top: elaborate each illegal shape and require the guard's own
+message, fed the original SystemVerilog rather than sv2v's output. That check
+is not in this change; this paragraph is here so nobody reads the Yosys gate's
+PASS as the contract having run.
 
-### The two populations, measured
+**The contract is graded by mutation, permanently, and by its own
+diagnostic.** `make negative` in `tb/verilator/rx_filter` elaborates four
+illegal parameter sets and requires each to be refused *with a `USERERROR`
+line carrying `rx_mac_filter: <PARAM>=<value>`*, then elaborates the legal
+default and requires it to be accepted — that last arm is what stops the
+contract from becoming a ban. The exit status alone was not proof: review
+deleted the whole `$error` chain and three of the four arms still printed
+`[PASS]`, refused by an accidental `SELRANGE`, `ASCRANGE` or `ZEROREPL`
+warning in `tcam.sv` rather than by the contract. Each arm now captures
+stderr to a file and lets `grep -q` on that file be the assertion — the shape
+`shape_elab.sh` uses — and nothing goes through a pipe, because a pipeline
+returns its *last* command's status. With the chain deleted all four arms
+print `[FAIL]`; restored, five of five.
+
+### What the module ratchet counts
+
+Which modules have parameters is read with `scripts/sv_ports.py`, the header
+parser the Rule 4 and Rule 5 gates share, so every parameter form the tree
+writes counts: `int unsigned`, `string`, `type`, `real`, `longint`, a packed
+range, a parameter with no default. The first version carried a private regex
+that knew only `parameter int X =`; it saw 53 of the 102 parameterised modules
+and none of gptp-processor's, and the ratchet it published (43) was satisfied
+vacuously by exactly the `_P` / `int unsigned` idiom Rule 4 asks for.
+
+What counts as a contract is a `$error` or `$fatal` at **module or generate
+scope** — outside every `always`, `initial` and `final` block and every
+function or task. That is the one form every flow evaluates when the
+parameters are bound. An `initial begin … $fatal` (`KL_pp_acmp_listener`) or
+an `initial … assert … else $error` (`KL_avtp_common_parser`) is a simulation
+check: Verilator builds the binary, Vivado and Yosys synthesise the module,
+and only a simulation run refuses, so both are inventoried as unguarded. A
+`$error` inside `always` is a runtime assertion; before this distinction
+`KL_gptp_engine` would have counted as guarded on three PathTrace assertions
+that never look at a parameter. The self-test has an arm for each shape.
+
+### The three populations, measured
 
 [`scripts/measure_fail_fast.py`](../../scripts/measure_fail_fast.py) counts
-both ways a failure can pass for success here.
+the ways a failure can pass for success here, over a stated population: every
+first-party `.sh` (34), every GitHub workflow `run:` block (5 files), and
+every recipe line of every first-party Makefile (93). Python and Tcl are
+**not** measured: review surveyed both at this head — no `os.system`, no
+`shell=True`, every `check=False` keeps the return code, Tcl `exec` raises on
+a non-zero status and the only `catch` sites are Vivado-generated — and this
+table says what it covers rather than reading as tree-wide.
 
 | Population | Count | Disposition |
 |---|---:|---|
-| Parameterised modules with no elaboration contract | 43 of 53 | Ratchet across the superproject and both project-owned processor submodules. Paid down as modules gain contracts. |
-| Pipelines that discard their producer's exit status | **2** | Ratchet. Both are `gptp-processor/syn/ooc/run.sh` reading a Vivado report through `grep … | head` (see below); fixed upstream, and the pin bump takes this to zero, where it must then stay. |
-| Captured verdicts whose exit status is discarded | **1** | Ratchet. `protocol-processor/scripts/lint_hdl.sh:14` (see below); fixed upstream, and the pin bump takes this to zero. |
-| Pipelines waived because the consumer *is* the assertion | 2 | Named, with the reason recorded |
+| Parameterised modules with no elaboration contract | 85 of 102 | Ratchet across the superproject and both project-owned processor submodules. Paid down as modules gain contracts. |
+| Pipelines that discard their producer's exit status | **4** | Ratchet. Two are `gptp-processor/syn/ooc/run.sh` reading a Vivado report through `grep … \| head` (below); fixed upstream, the pin bump removes them. Two are coverage recipes, `tb/verilator/avtp_rxmon/Makefile` and `tb/verilator/maap/Makefile`, piping `verilator_coverage --annotate` into `tail` under make's own `/bin/sh -c`; `cov_gate.py` refuses a missing annotate directory behind them, and the fix is to drop the pipe. |
+| Captured verdicts whose exit status is discarded | **2** | Ratchet. `protocol-processor/scripts/lint_hdl.sh:14` (below), and `protocol-processor/tb/timer_map/shape_elab.sh:48`, whose over-large arm decides from the guard's text — a silent Verilator there reads as GUARD FAIL, so it fails closed, but the status is never read; line 35 of the same script reads `$?` on the next line and is the model. Both fixed upstream. |
+| Pipelines waived because the consumer *is* the assertion | 2 | Waived by **site** — path and exact line — with the reason recorded. |
 
-The waiver matters: `verilator --version | grep -F "$WANT"` wants grep's status,
-because grep is the assertion. Those two sites are excluded by name rather than
-by pattern, so a new one has to be added deliberately.
+The waiver is by site, not by pattern. `verilator --version | grep -F "$WANT"`
+wants grep's status, because grep is the assertion. The first version waived
+any line containing `--version | grep`, before it had even tested for a
+producer, and review bypassed the ratchet by appending `--version` to a lint
+gate's arguments. Now the producer test runs first, the table names the path
+and the exact line, a new `--version | grep` anywhere else is reported as
+masked, and a waiver whose line no longer exists fails the self-test.
 
-The shell model is per unit, in line order. An ordinary script starts with
-neither `errexit` nor `pipefail` and is protected only after its own `set`
-executes; a later setting cannot retroactively protect an earlier line. A
-GitHub workflow step is its own shell, and the default one is `bash -e {0}`:
+The shell model is per unit, in line order. A script starts with whatever its
+shebang says (`#!/bin/bash -eo pipefail` counts) and is protected only after
+its own `set` runs; a later setting cannot retroactively protect an earlier
+line. Comments are blanked before that search, so `# set -o pipefail is not
+used here` protects nothing; a here-document body is text, not commands, and
+an unterminated one makes the file unreadable, which the tool refuses with
+exit 2 rather than scan a partial population; a `set` inside `( … )` lasts
+until the subshell closes; backslash-continued lines are one line. A GitHub
+workflow step is its own shell, and the default one is `bash -e {0}`:
 **errexit, no pipefail**. Only a step that declares `shell: bash` runs
-`bash --noprofile --norc -eo pipefail {0}`. The first version of this scan
-assumed every step had pipefail and let a `set -o pipefail` in one step protect
-the next; both were wrong, both have arms now, and the correction found no
-victim only because every piped step in this tree sets `set -euo pipefail`
-itself.
+`bash --noprofile --norc -eo pipefail {0}`, and options set inside one step
+never reach the next. The first version of this scan assumed every step had
+pipefail and let a `set -o pipefail` in one step protect the next; both were
+wrong, both have arms now, and the correction found no victim only because
+every piped step in this tree sets `set -euo pipefail` itself. Producers are
+the tools (`verilator`, `verilator_coverage`, `yosys`, `sv2v`, `vivado`,
+`xvlog`, `xelab`, `iverilog`, `python3`), `make` bare or as `$MAKE`, any
+`.sh` invocation, and a simulator binary (`./obj_dir/V…`). A Makefile recipe
+line is its own `/bin/sh -c` with neither option unless `.SHELLFLAGS` says so
+(no Makefile here sets it), and `$(VERILATOR)`, `$(PY)` and `$(MAKE)` are
+expanded from the file's own definitions before the line is read; a group
+that saves its producer's status before the pipe, `{ tool; echo $? > f; } \|
+tee out`, keeps its verdict and is not a finding.
 
 ### Two shapes the first scan could not see, both in the processors
 
@@ -1277,16 +1360,17 @@ the scan reported zero for both because it had not modelled either shape.
    runs `out=$(verilator --lint-only …)` under `set -u` only, then greps the
    text for `%Error`. The assignment's exit status goes nowhere. A `verilator`
    stub that exits 7 and prints nothing makes it print `LINT OK` for every top
-   and exit 0 — reproduced here, not inferred. The scan now reads `$(tool …)`
+   and exit 0 — reproduced here, not inferred. The scan reads `$(tool …)`
    captures on the raw logical line (continuations joined): a bare assignment
-   with no `errexit` in force and no `||`/`&&` consulting the status is a
-   discarded verdict, and `local`/`export` in front discards it even under
-   `errexit`, because the shell sees the builtin's status. `if`/`!`/`[`
-   forms consult the status and are not findings. An argument form such as
-   `echo "rtl=$(python3 scripts/ci_scope.py)"` is the *consumer's* verdict and
-   is deliberately not modelled: the one site of that shape here is the CI
-   scope publication in `elaborate.yml`, which the CI contract fails closed —
-   an empty publication is treated as RTL-relevant.
+   with no `errexit` in force and nothing consulting the status is a discarded
+   verdict, and `local`/`export` in front discards it even under `errexit`,
+   because the shell sees the builtin's status. `||`, `&&`, an `if`/`!`/`[`
+   in front, or `$?` read on the same or the next line, consult it and are not
+   findings. An argument form such as `echo "rtl=$(python3 scripts/ci_scope.py)"`
+   is the *consumer's* verdict and is deliberately not modelled: the one site
+   of that shape here is the CI scope publication in `elaborate.yml`, which
+   the CI contract fails closed — an empty publication is treated as
+   RTL-relevant.
 2. **A file-reading `grep` piped under `set -e` without `pipefail`.**
    `gptp-processor/syn/ooc/run.sh` is `#!/bin/sh` with `set -e` and reads each
    utilisation report through `grep -A2 "…" ucpu_util.rpt | head -20`. When
@@ -1301,7 +1385,7 @@ ratcheted at the pin with the reason written beside the number in
 `scripts/fail_fast.budget`, exactly as the Rule 9 hygiene ratchet carries its
 one pinned processor finding. The upstream fixes are one line each — consult
 `$?` after the capture; `test -r` the report before reading it — and the pin
-bump that brings them in lowers both ratchets to zero.
+bump that brings them in lowers both ratchets.
 
 Both false positives that this check produced on its first run were in the
 checker, not the tree: a tool name inside a `printf` **format string** read as
@@ -1309,30 +1393,40 @@ a command, and a pipe inside a `$(…)` substitution — whose status is never t
 line's verdict — read as a masked one. Quoted spans and substitutions are
 blanked before the producer search, and both cases have arms.
 
-Review found the opposite false negative too: the first implementation treated
-the word `pipefail` anywhere in a file as protection for every pipeline in that
-file. The mutation `python3 gate.py | tee log` followed by `set -o pipefail`
-therefore passed even though the producer status had already been lost. The
-scan now models activation in line order, and a permanent arm requires that
-mutation to fail.
+### Assertions that only log: inventoried and gated
 
-### Already satisfied, and verified rather than rebuilt
+The issue's other inventory is the harness whose `check()` prints `[FAIL]`,
+counts it, and whose `main()` returns 0 anyway — or the target that prints
+`5 checks: 4 PASS, 1 FAIL` above an `exit 0`. `make` cannot read, so such a
+suite was a PASS of the sweep; review crafted exactly that log and
+[`scripts/run_all_suites.sh`](../../scripts/run_all_suites.sh) accepted it.
+Now every suite that exits 0 has its log read back by
+[`scripts/suite_tally.py`](../../scripts/suite_tally.py) `--verdict`, with the
+same recognisers the tally uses: a tally in any shape with a non-zero failure
+count, or a line that starts with `[FAIL]`, turns that green into
+`FAIL … (exited 0, but its log reports a failure - a masked verdict)`, counted
+among the failed suites. This is the representative masked failure fixed
+here. `suite_tally.py --selftest` refuses the contradictory log through the
+CLI and its exit code, and accepts a clean one; every `[FAIL]` printer in the
+tree sits on a counted failure branch, and the two suites that run deliberate
+failures keep that output out of their logs, so a green sweep stays green.
 
-The rule also asks that suite tally parsing treat missing or malformed evidence
-as failure rather than zero checks.
-[`scripts/suite_tally.py`](../../scripts/suite_tally.py) already does: a suite
-whose log carries no readable tally is `NOCOUNT`, an unknown is never allowed to
-look like agreement, and a skip marker cannot suppress it. That was confirmed by
-running its self-test, not by writing a second one.
+The rule also asks that suite tally parsing treat missing or malformed
+evidence as failure rather than zero checks. `suite_tally.py` already did: a
+suite whose log carries no readable tally is `NOCOUNT`, an unknown is never
+allowed to look like agreement, and a skip marker cannot suppress it. That
+was confirmed by running its self-test, not by writing a second one.
 
 ### Review checklist
 
 - If this step fails, does the caller find out — or does it print and continue?
 - Is the invariant executable, or only written in a comment?
 - Does the assertion message name the contract, or only the expression?
-- Is there an arm proving the refusal fires, **and** one proving the legal case
-  still passes?
-- Does any verdict travel through a pipe?
+- Is there an arm proving the refusal fires **by its own diagnostic**, and one
+  proving the legal case still passes?
+- Does any verdict travel through a pipe, or sit in a `$(…)` nobody consults?
+- Does the flow you are relying on evaluate the contract at all — Verilator
+  with `USERERROR` fatal, Vivado — or is it the sv2v path?
 
 ## Rules not yet landed
 
