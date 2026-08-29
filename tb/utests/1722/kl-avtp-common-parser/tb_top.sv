@@ -87,7 +87,7 @@ module tb_top();
   task check_total_parse_pkt;
     if (avtp_random_pkt.total_count == (number_of_not_supported + number_of_supported_control + number_of_supported_stream + number_of_supported_alter))
       $display("[INFO][TOP] : All Generated Pkts Parsed Correctly. ");
-    else 
+    else
       $fatal(1, "[FATAL][TOP] : # number of total generated pkts is not equal to # of total parsed");
   endtask
 

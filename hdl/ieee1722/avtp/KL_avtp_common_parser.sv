@@ -13,7 +13,7 @@
                 oguz.kahraman@kebag-logic.com
 
   Date        : 2025-03-20
-  Description : Get the AVTP common header (Big endian ETH packets - 
+  Description : Get the AVTP common header (Big endian ETH packets -
                 Starting from the EthernetType - 22F0 + AVTPDU common headers + ...
                 e.g first STREAM DATA contains --> S_AXIS_TDATA[63:48]= EthernetType, S_AXIS_TDATA[47:40]=subtype)
                 to identify the received packets, convey
@@ -23,7 +23,7 @@
                   Supported Alternative Packets -- CRF
                 Discard the rest of the AVTP packets received.
                 TDEST port of the AXI4-Stream Master indicates the packet type;
-                0 - Supported Control Packet 
+                0 - Supported Control Packet
                 1 - Supported Stream Packet
                 2 - Supported Alternative Packet
                 3 - Others
@@ -154,7 +154,7 @@ module KL_avtp_common_parser #(
   end : tready_pipeline
 
   //! Handle the TDEST[1:0] w.r.t control, alternative or stream
-  //! h0 : Packet Control 
+  //! h0 : Packet Control
   //! h1 : Packet Stream
   //! h2 : Packet Alternative
   //! h3 : Not supported, not transmitted

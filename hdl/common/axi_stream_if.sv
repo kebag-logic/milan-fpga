@@ -19,10 +19,10 @@
 //! `lint_off SELRANGE` pragmas in hdl/ieee17221/aecp/ to paper over.  A
 //! default that no caller uses should name the tree it lives in.
 interface axi_stream_if #(
-  parameter TDATA_WIDTH_P = 64,
-  parameter TID_WIDTH_P = 1,
-  parameter TDEST_WIDTH_P = 1,
-  parameter TUSER_WIDTH_P = 1
+  parameter int unsigned TDATA_WIDTH_P = 64,
+  parameter int unsigned TID_WIDTH_P = 1,
+  parameter int unsigned TDEST_WIDTH_P = 1,
+  parameter int unsigned TUSER_WIDTH_P = 1
   )
   (
     input bit clk,

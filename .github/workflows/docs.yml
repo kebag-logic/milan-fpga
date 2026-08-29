@@ -150,6 +150,25 @@ jobs:
           python3 scripts/measure_test_evidence.py --check
           python3 scripts/measure_test_evidence.py --selftest
 
+      # Rule 9: the five mechanical checks the measurement kept. Four are at
+      # zero and stay there; the line-length candidate was rejected on the
+      # record because it fights the one-format-string $error rule and the
+      # single-line curated source lists.
+      - name: Mechanical hygiene ratchet
+        run: |
+          python3 scripts/check_hygiene.py --check
+          python3 scripts/check_hygiene.py --selftest
+
+      # Rule 10: first-party HDL that is not lower-case .sv/.svh and generic
+      # `always` are refused outright. `reg`, untyped parameters and untyped
+      # localparams are ratcheted; a `wire` is deliberately not a finding. The
+      # shared scope includes both pinned project-owned processor submodules,
+      # and an empty or partial population is refused (exit 2) by the bare gate.
+      - name: SystemVerilog idiom gate
+        run: |
+          python3 scripts/check_sv_idiom.py
+          python3 scripts/check_sv_idiom.py --selftest
+
       # CI event and SHA contract gate (#174, #181): the four workflow files
       # and docs/testing/CI_WORKFLOWS.md must agree on the triggers, the cron
       # time, the public check names, cancel-in-progress and the one-SHA rule

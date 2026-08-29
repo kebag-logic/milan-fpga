@@ -51,7 +51,7 @@ package avtp_control_pkg;
     SUPPORTS_UDPV6_STREAMING = 32'h0080_0000,
     MULTIPLE_PTP_INSTANCES = 32'h0100_0000,
     AEM_CONFIGURATION_INDEX_VALID = 32'h0200_0000
-  } adp_entity_capabilities_t; 
+  } adp_entity_capabilities_t;
 
   typedef enum bit16 {
     TALKER_IMPLEMENTED = 16'h0001,

@@ -370,7 +370,7 @@ parameter int PTP_CONTROL_FIELD_WIDTH      = 1;
 parameter int PTP_LOG_MSG_INTERVAL_WIDTH   = 1;
 
 //! Offset of sequenceId within the PTP message
-parameter int PTP_SEQ_ID_OFFSET_IN_PTP = 
+parameter int PTP_SEQ_ID_OFFSET_IN_PTP =
   PTP_MSG_TYPE_WIDTH +
   PTP_VERSION_WIDTH +
   PTP_MSG_LENGTH_WIDTH +

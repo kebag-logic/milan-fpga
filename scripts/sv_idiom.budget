@@ -1,0 +1,17 @@
+# Rule 10 ratchets across the superproject and both project-owned processor
+# submodules. See scripts/check_sv_idiom.py. Files that are not lower-case
+# .sv/.svh and generic `always` are refused outright and have no entries here.
+# The three populations below are legacy debt, measured by the gate.
+# EVERY NUMBER MAY ONLY GO DOWN.
+#
+# `reg` in a .sv file is legal and usually harmless; `logic` is the
+# SystemVerilog spelling and new code uses it. A `wire` is NOT counted: a net
+# type is the right model for connectivity.
+reg declaration    = 58
+# The complete measured population (axi_stream_if's four) was typed in this
+# change, so the entry admits no new one: a `parameter W;` with no default and
+# every name of a `parameter A = 1, B = 2;` list count as well.
+untyped parameter  = 0
+# The two `$clog2`-derived TDEST_WIDTH constants in hdl/ieee8021q/ts/. Kept as
+# its own entry so localparam debt is never traded against port parameters.
+untyped localparam = 2

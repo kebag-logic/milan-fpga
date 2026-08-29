@@ -240,7 +240,7 @@ module tb_ptp_ts_core;
     logic [TDATA_WIDTH-1:0] tdata;
     int beat_count;
     
-    $display("=== Starting packet: %s (PTP=%0b, seq_id=0x%04x, endian=%s) ===", 
+    $display("=== Starting packet: %s (PTP=%0b, seq_id=0x%04x, endian=%s) ===",
              packet.name, packet.is_ptp, packet.seq_id, big_endian ? "BIG" : "LITTLE");
     
     //! Select the correct interface based on endianness
@@ -395,7 +395,7 @@ module tb_ptp_ts_core;
           $display("  -> BE seq_id=0x%04x, direction=%0s", seq_id_out, direction ? "TX" : "RX");
         end else begin
           timestamp_out = ts_m_axis_be.tdata;
-          $display("BE Metadata (HIGH): 0x%016x (tlast=%0b) - Timestamp=%0d", 
+          $display("BE Metadata (HIGH): 0x%016x (tlast=%0b) - Timestamp=%0d",
                    ts_m_axis_be.tdata, ts_m_axis_be.tlast, timestamp_out);
         end
       end
@@ -410,7 +410,7 @@ module tb_ptp_ts_core;
           $display("  -> LE seq_id=0x%04x, direction=%0s", seq_id_out, direction ? "TX" : "RX");
         end else begin
           timestamp_out = ts_m_axis_le.tdata;
-          $display("LE Metadata (HIGH): 0x%016x (tlast=%0b) - Timestamp=%0d", 
+          $display("LE Metadata (HIGH): 0x%016x (tlast=%0b) - Timestamp=%0d",
                    ts_m_axis_le.tdata, ts_m_axis_le.tlast, timestamp_out);
         end
       end
@@ -468,7 +468,7 @@ module tb_ptp_ts_core;
       
       //! Report every 10 packets
       if (packet_count % 10 == 0 && packet_count > 0) begin
-        $display("Performance: %0d packets processed, %0d PTP, %0d metadata outputs", 
+        $display("Performance: %0d packets processed, %0d PTP, %0d metadata outputs",
                  packet_count, ptp_packet_count, metadata_count);
       end
     end

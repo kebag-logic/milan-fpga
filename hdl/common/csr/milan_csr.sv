@@ -2236,7 +2236,7 @@ module milan_csr #(
   //! Reset-epoch canary (documented with epoch_cnt below, which drives it):
   //! a flop WITHOUT a reset clause, bitstream-initialised. Declared here
   //! ahead of read_mux, its first reader (#193).
-  reg [7:0] rst_epoch_r = 8'd0;
+  logic [7:0] rst_epoch_r = 8'd0;
   logic        live_hit;
 
   always_comb begin : read_mux
@@ -2708,8 +2708,14 @@ module milan_csr #(
   //! epochs to detect hidden fabric resets that the config shadow masks
   //! (the 2026-07-19 link-bounce forensics: CSR reads lied after a reset).
   //! rst_epoch_r is declared above read_mux, its first reader (#193)
-  reg       rstn_seen_r = 1'b0;
-  always @(posedge aclk) begin : epoch_cnt
+  //! RESET-LESS BY CONSTRUCTION, and `always_ff` keeps it that way. The block
+  //! has no reset clause on purpose - these two flops carry their bitstream
+  //! init across every axis reset, which is the only reason the epoch can
+  //! count resets at all. `always_ff` states the sequential intent and asks
+  //! the tools to enforce a single driver; it does NOT add a reset, and one
+  //! must never be added here (the reset_less rule in CONTRIBUTING.md).
+  logic     rstn_seen_r = 1'b0;
+  always_ff @(posedge aclk) begin : epoch_cnt
     rstn_seen_r <= aresetn;
     if (aresetn && !rstn_seen_r) rst_epoch_r <= rst_epoch_r + 8'd1;
   end : epoch_cnt

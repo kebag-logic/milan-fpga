@@ -19,7 +19,7 @@
   Company     : Kebag Logic
   Project     : 802.1Q Traffic Shaper
 
-  Notes       : 
+  Notes       :
     - Tested with TDATA_WIDTH = 32, 64, 128.
     - Automatically detects and decodes Ethernet headers.
     - Endianness configurable per instance.
@@ -34,7 +34,7 @@
 ------------------------------------------------------------------------------
 */
 
-//! This module implements an Ethernet packet classifier that parses incoming AXIS frames and 
+//! This module implements an Ethernet packet classifier that parses incoming AXIS frames and
 //! assigns traffic priority based on the VLAN PCP field or Ethertype (e.g., PTP detection).
 //! Per frame it also emits the 802.1Q drop-eligibility indicator on `m_axis.tuser[0]`
 //! (REQ-CLS-05) and validates the reserved gPTP destination multicast (REQ-CLS-07).

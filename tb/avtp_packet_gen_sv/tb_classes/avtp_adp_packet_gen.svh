@@ -55,7 +55,7 @@ class avtp_adp_packet_gen extends avtp_control_subtype;
     //   q.push_back(tmp[i]);
     // end
     // tmp = {>>8{avtp_adp.entity_id, avtp_adp.entity_model_id}};
-    // foreach (tmp[i]) 
+    // foreach (tmp[i])
     //   q.push_back(tmp[i]);
     
     q.push_back({avtp_adp.valid_time, avtp_adp.control_data_length[10:8]});

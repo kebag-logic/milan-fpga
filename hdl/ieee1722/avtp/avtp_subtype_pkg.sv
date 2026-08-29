@@ -7,7 +7,7 @@
 /*
 ------------------------------------------------------------------------------
   File        : avtp_subtype_pkg.sv
-  Author      : Cemal Dogan 
+  Author      : Cemal Dogan
 
                 cemal.dogan@kebag-logic.com
 
@@ -15,7 +15,7 @@
   Description : AVTP Subtype package
 
   Company     : Kebag Logic
-  Project     : AVTP Parsing 
+  Project     : AVTP Parsing
 
 ------------------------------------------------------------------------------
 */

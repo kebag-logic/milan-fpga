@@ -1727,7 +1727,7 @@ class RingDMAWriter(LiteXModule):
       1. one classic-Wishbone write per 8-byte beat costs the full coherent-bus round
          trip (~38 sys cycles) -> ~21 MB/s sustained drain vs the 125 MB/s wire. Every
          frame longer than the ~70-beat upstream elasticity (LiteEth RX CDC + datapath
-         FIFOs) overflowed MID-FRAME: the GMII side cannot stall the wire, so beats  - 
+         FIFOs) overflowed MID-FRAME: the GMII side cannot stall the wire, so beats  -
          including `last`  -  vanished silently and frames merged (ping -s 600 fine,
          -s 800 dead, 100% loss).
       2. any transient sink backpressure reaches LiteEth. The DMA must be ALWAYS READY.
@@ -1751,7 +1751,7 @@ class RingDMAWriter(LiteXModule):
     {rsvd[31:0], seq[15:0], length[15:0]} (length = padded payload bytes); frames may
     wrap the ring end (software splits the copy).
 
-    CSRs (7 words, same footprint/order as v1 and as the simple-mode block before it  - 
+    CSRs (7 words, same footprint/order as v1 and as the simple-mode block before it  -
     the DT `dma-rx` window and every downstream CSR address stay put):
       base[64] | mask[32] | wr_ptr[32] RO | rd_ptr[32] RW | enable[1] | dropped[32] RO
     """
@@ -1799,7 +1799,7 @@ class RingDMAWriter(LiteXModule):
         # in-order CPU on an MMIO wr_ptr/dropped CSR read every poll (the measured hot-path
         # cost  -  backing the poll off 200us->4ms alone gave +32% RX). 0 = writeback off.
         self.status  = CSRStorage(64, description="Coherent addr of the {dropped,wr_ptr} writeback shadow (0=off).")
-        # RX-path telemetry (2026-07-05): make the interrupt/CPPI behaviour observable  - 
+        # RX-path telemetry (2026-07-05): make the interrupt/CPPI behaviour observable  -
         # `frames` = HW-committed frame count (vs the driver's rx_packets shows SW keeping up);
         # `occ_hi` = ring occupancy high-water in bytes (near 0 => latency-bound / starving,
         # near `mask` => driver too slow / filling); `irqs` = empty->non-empty edges (~one per
@@ -2109,7 +2109,7 @@ class RingDMAWriter(LiteXModule):
         # entries = the -P4 "RX BD desync" storms; silently poisonous at 256 where the
         # 8-bit seq aliases). wr may never catch rd: wr+16==rd IS full (the driver-side
         # "posted max 63" comment is this same rule from the other side). Stalling the
-        # drain backs pressure into the CQ, so overload becomes counted ingress drops  - 
+        # drain backs pressure into the CQ, so overload becomes counted ingress drops  -
         # never corruption. bd_room2 pre-checks the slot AFTER this one for the WB_B
         # drain-chain, where wr has already advanced by 16 in the same cycle.
         bd_room  = Signal()
@@ -2725,7 +2725,7 @@ class RingDMAWriter(LiteXModule):
                 ).Else(
                     # CQ full (extreme corner): flushing would need an entry we don't
                     # have, and staying here would deadlock (drain runs from IDLE).
-                    # A stale pure ACK is droppable  -  the wire could have lost it  - 
+                    # A stale pure ACK is droppable  -  the wire could have lost it  -
                     # so the newcomer replaces it and the old one counts as dropped.
                     *(ack_capture() + [NextValue(drops, drops + 1), NextState("IDLE")])
                 )
@@ -2954,7 +2954,7 @@ class RingDMAWriter(LiteXModule):
                 NextValue(hs_cross, 1),
                 NextState("PREP"),
             ).Else(
-                # famine: stage the meta close (v3 for THIS page just filled above  - 
+                # famine: stage the meta close (v3 for THIS page just filled above  -
                 # it is the aggregate's last), drop the in-flight frame's tail.
                 NextValue(meta_w0,
                     Cat(C(0xBD, 8), C(0, 8),
@@ -3605,7 +3605,7 @@ class RingDMAReader(LiteXModule):
         ]
 
         def window_setup(addr, ln, eof):
-            """program the streaming machinery for one (addr,len,eof) window  - 
+            """program the streaming machinery for one (addr,len,eof) window  -
             the register set the BD parse fills, fed from TSO registers instead"""
             a3 = addr[:3]
             return [
@@ -4087,7 +4087,7 @@ class RingDMAReader(LiteXModule):
         self.dbg_cs_pass = Signal()     # 1 = silent csum/TSO pre-pass (source suppressed)
         self.dbg_reading = Signal()     # in a state that awaits/consumes an R beat
         self.dbg_idle    = Signal()     # IDLE: no work queued (rd == wr)
-        # M1 telemetry: TX ring/BD occupancy (bytes queued by SW, unconsumed by HW  - 
+        # M1 telemetry: TX ring/BD occupancy (bytes queued by SW, unconsumed by HW  -
         # "is the CPU keeping the ring fed") + doorbell strobe (wr_ptr CSR writes,
         # for the frames-per-doorbell batching factor). Tracked/snapped in MilanDebug.
         self.dbg_occ      = Signal(32)
@@ -5065,7 +5065,7 @@ class MilanDebug(LiteXModule):
     def rd_latency_probe(self, name, rdr, desc):
         """AR-accepted -> first-R-beat round-trip latency. Mean L = acc/n cyc (×1000/f_MHz
         ns); payload-only split (ar.len>=8) excludes header/BD/shadow reads. Phase-0 tool:
-        the single (waiting,lat) pair is exact ONLY while the reader is single-outstanding  - 
+        the single (waiting,lat) pair is exact ONLY while the reader is single-outstanding  -
         which is the gateware Phase-0 runs on (see plan A.1)."""
         bus = rdr.bus
         ar_fire = Signal()

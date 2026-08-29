@@ -12,10 +12,10 @@ spec" are not restated here as weaker preferences. This page adds the rules
 those house rules do not cover, and gives each one wording, examples,
 exceptions, a measurement and a review checklist.
 
-Rules land one at a time. Each rule that has landed carries its own section
-below; the rules still to come are listed under
-[Rules not yet landed](#rules-not-yet-landed) so a reader can see the whole
-shape rather than guess at it.
+The rules landed one at a time, and all ten are now below, each in its own
+section. [The contract is complete](#the-contract-is-complete) at the end says
+what every landed rule ships with and which of them a workflow gate enforces,
+so a reader can see the whole shape rather than guess at it.
 
 ## Contents
 
@@ -32,7 +32,9 @@ shape rather than guess at it.
 - **[Rule 6: fail fast and encode invariants](#rule-6-fail-fast-and-encode-invariants)** -- Where a verdict must be refused rather than logged, one in-tree example per boundary (elaboration, FSM default, generator, pipeline, Tcl flow), the elaboration contract added to the receive shield and mutation-proven by its own diagnostic, where that contract is and is not enforced, the three masked-failure populations ratcheted over a stated population, the sweep's refusal of a suite that logs a failure and exits 0, and the review checklist.
 - **[Rule 7: comments explain why, and dead code goes](#rule-7-comments-explain-why-and-dead-code-goes)** -- What a comment is for, why a marker names its issue or is resolved, the near-misses that forced a narrow definition of "marker" and what the gate reads to find one, the two stale markers removed, and the dead code the inventory found.
 - **[Rule 8: tests prove something, and prove they can fail](#rule-8-tests-prove-something-and-prove-they-can-fail)** -- Why a green suite can prove nothing, the three defects injected into the TCAM to show its harness is load-bearing, what counts as an executed arm, the four evidence ratchets, and what was found already clean.
-- **[Rules not yet landed](#rules-not-yet-landed)** -- The remaining nine rules of the contract, named so the numbering is stable and a reader knows what is still coming.
+- **[Rule 9: automate mechanical hygiene with measured ratchets](#rule-9-automate-mechanical-hygiene-with-measured-ratchets)** -- The six candidate checks measured before any was adopted, why the highest-volume one was rejected on the record, why three checks are adopted at zero, and how the formatting-only rewrite was isolated and proven.
+- **[Rule 10: prefer idiomatic SystemVerilog](#rule-10-prefer-idiomatic-systemverilog)** -- Why ordinary `.v` files and generic `always @` are refused, what is ratcheted instead, why a `wire` is deliberately not a finding, and the representative boundaries modernized without changing behavior.
+- **[The contract is complete](#the-contract-is-complete)** -- What every landed rule carries, which eight of the ten rules a gate in the documentation workflow enforces and why each of those gates ships with a self-test proving it can fail, and why Rules 1 and 2 are measurements rather than gates.
 
 ## The governing rule
 
@@ -1864,12 +1866,408 @@ behavior, and that inventory is noted here for a later round, not measured.
 - Does the suite publish a non-zero tally, and does a failure return non-zero?
 - Does the test name the law it proves, or only the function it calls?
 
-## Rules not yet landed
+## Rule 9: automate mechanical hygiene with measured ratchets
 
-The contract is ten rules. Rules 1 to 8 are above; the rest keep these
-numbers so citations stay stable as they land:
+> Let pinned tools enforce objective, mechanical rules. Measure signal and
+> false positives before gating; exclude generated and vendored sources; forbid
+> new debt with a non-increasing baseline; and isolate formatting-only changes
+> from functional work.
 
-| Rule | Subject |
+A generic formatter is the wrong instrument here. It would fight the suffix and
+layout rules in [CONTRIBUTING.md](../../CONTRIBUTING.md), and a flag-day rollout
+would bury real findings under a new baseline nobody reads. So the candidates
+were measured first, and the selection is recorded — including what was
+rejected.
+
+### What was measured, and what was kept
+
+Five checks and one rejected candidate, over the first-party files of the
+superproject and both project-owned processor submodules. The population is
+every tracked file with one of the suffixes `.sv .svh .v .py .cpp .h .hpp .c
+.sh .tcl .mk .xdc .yml .yaml` or the name `Makefile`, outside `third_party/`,
+`external/`, `gen/` and `build/`, minus the generated files below. Everything
+else is outside it, Markdown deliberately so: a Markdown hard line break **is**
+two trailing spaces, and the check would fight the format. An absent or off-pin
+processor submodule refuses the scan instead of silently shrinking this
+population. That refusal looks at the submodule's HEAD only: a working-tree
+edit inside a pinned checkout is scanned as-is, so a pinned finding fixed
+locally leaves the count before the pin moves.
+
+`python3 scripts/check_hygiene.py --measure` prints the table for the tree it
+runs on; this is its output at the head that landed it, after the repair
+commits — 646 first-party files (superproject 487, protocol-processor 130,
+gptp-processor 29), 15 generated files skipped, about 0.4 s on the host that
+measured it, so runtime rejected nothing:
+
+| Candidate | Findings | Files | Verdict |
+|---|---:|---:|---|
+| Line over 100 columns | 1204 | 179 | rejected |
+| Trailing whitespace | 1 | 1 | adopted |
+| Missing EOF newline | 0 | 0 | adopted |
+| CRLF line ending | 0 | 0 | adopted at zero |
+| UTF-8 BOM | 0 | 0 | adopted at zero |
+| Tab in SystemVerilog | 0 | 0 | adopted at zero |
+
+Before the repair commits the same scanner counted 44 trailing-whitespace lines
+in 17 files (43 in 16 superproject files, 1 in protocol-processor) and 15 files
+without a final newline. Every one in the superproject was repaired; the line
+that remains is inside `protocol-processor` (its nvm_port bench's
+`measure_figures.py`, line 206) and is that repository's to fix.
+
+### Why the line-length check is rejected, on the record
+
+It is the highest-volume candidate and it fights two deliberate house rules.
+
+`$error` takes later arguments as **values**, so an elaboration message must be
+one string literal — `hdl/milan/milan_datapath.sv:808` and
+`hdl/ieee8021q/filtering/rx_mac_filter.sv:120` carry the note saying so, and
+every one of those messages is over 100 columns by construction. The curated
+source lists in `syn/yosys/run.sh` and `syn/yosys/ooc.sh` are single lines by
+design, because a line continuation is what let a shell comment silently shrink
+one of them.
+
+Wrapping either would trade a real property for a cosmetic one. Rejected, not
+deferred — and written down, so the next person measuring these candidates does
+not rediscover it. The candidate is still measured, so its figure can be
+regenerated: `--measure` counts a line whose text, without its line ending, is
+longer than 100 characters after UTF-8 decoding, a tab counting as one.
+
+### Why three checks are adopted at zero
+
+A gate whose population is empty costs nothing to hold and is easy to mistake
+for a gate that does nothing. Each of the three carries an arm proving it bites,
+so the difference is visible: a CRLF, a byte-order mark and a tab in
+SystemVerilog are each caught in a fixture. Makefiles and `.xdc` constraints are
+in the population for the other four checks, and a tab in a **makefile** is
+deliberately not judged, because there a tab is the syntax — the arm that proves
+it uses a tracked Makefile's path, so it guards a real population.
+
+### What "trailing whitespace" means here
+
+A **non-blank** line ending in spaces or tabs. A line that is only spaces or
+tabs is an indented blank line — layout, not debt — so it is neither counted
+nor repaired, and this count and `git diff --check` (whose `blank-at-eol` rule
+flags whitespace-only lines too) disagree by exactly that class.
+
+### Generated sources are excluded, and "generated" has one definition
+
+Five of the missing-newline findings the first measurement counted are
+generated Vivado and simulation scripts, including a Vivado block design whose
+banner reads "This is a generated script based on design". Their fix belongs in
+their generator, never in the file. What counts as generated is **not**
+re-decided here: the phrases and the twelve-line window are imported from
+[`scripts/gen_toc.py`](../../scripts/gen_toc.py), which already owns them. That
+predicate gained "generated script" so it recognises the Vivado banner, and no
+documentation page newly matched: `head -12` of every tracked `.md` in the
+three repositories, grepped for that phrase, returns nothing.
+
+One tightening applies to code and not to Markdown: a banner must be a
+**comment line** that leads with the phrase — at most three words before it,
+the Vivado block design's "This is a" being the longest lead-in in this tree.
+A Markdown page announces its banner as visible prose
+(`**GENERATED - do not hand-edit**`), so `gen_toc` must match prose; a code
+file's prose is its docstring, and a docstring that quotes another file's banner
+is not a banner. `scripts/check_results_fresh.py` was silently exempt from the
+gate by exactly such a sentence until review found it, which is why the tool
+prints the skipped list in full: an exemption is never invisible.
+
+### The ratchet holds each population separately
+
+[`scripts/hygiene.budget`](../../scripts/hygiene.budget) has one section per
+population — `superproject`, `protocol-processor`, `gptp-processor` — and
+`--check` compares each against its own section, so a finding inside a pinned
+processor never frees a slot for a new finding in the superproject. A processor
+finding is that repository's debt: it is reported here, held in its own section
+until it is fixed upstream and the pin moves, and the superproject stays at
+zero meanwhile. Every number may only go down; lowering one is a normal commit.
+Neither processor runs a hygiene check of its own, so new processor debt is
+first seen here, at the pin bump that brings it. That is the recorded state,
+not a plan: whether the owning repositories adopt the check is their decision.
+
+### The rewrite is isolated, and the isolation is proven
+
+The gate and its ratchets landed first, at the measured values. The mechanical
+repair is a **separate commit**, and the proof is the exact command: with
+`<gate>` the commit that adopted the gate and `<repair>` the one after it,
+`git diff -w --ignore-blank-lines <gate> <repair> -- . ':!docs' ':!.github'`
+shows only `scripts/hygiene.budget` — restricted, because that commit also
+wired the gate into CI and updated this guide. Twenty-five superproject files
+were repaired there; `constraints/rgmii.xdc` followed in its own
+formatting-only commit when the constraints joined the population.
+
+```
+python3 scripts/check_hygiene.py            # the findings, per population
+python3 scripts/check_hygiene.py --fix      # repair the mechanical ones
+python3 scripts/check_hygiene.py --check    # the ratchet CI runs
+python3 scripts/check_hygiene.py --measure  # the table above, regenerated
+```
+
+A tab in SystemVerilog is deliberately **not** auto-fixed: re-indenting is a
+judgement about layout, not a mechanical repair. `--fix` also refuses to rewrite
+a processor-submodule checkout: it reports those paths and exits non-zero so the
+repair is made and reviewed in the repository that owns them. It works on
+bytes — a byte that is not UTF-8 comes out exactly as it went in — and writes a
+file only when it repaired a finding in it. And it reports every repaired line
+that sits inside a string literal (a Python triple-quoted string, or a line
+whose double quotes do not balance) or in a make variable's value, as far as a
+simple scan can tell, because whitespace there is a value: stripping it is a
+content change, and the reviewer reads it as one.
+
+### Review checklist
+
+- Was this check measured on this tree before it was adopted?
+- Does it fight a rule [CONTRIBUTING.md](../../CONTRIBUTING.md) already states?
+- Are generated and vendored sources excluded, by the shared definition?
+- Does the checker have an arm proving it can fail?
+- Is the formatting-only change in its own commit, with the functional work
+  somewhere else?
+- A repaired line inside a string literal is a content change, not formatting:
+  was every line `--fix` reported reviewed as one?
+
+## Rule 10: prefer idiomatic SystemVerilog
+
+> New first-party HDL MUST be SystemVerilog. New and touched synthesizable HDL
+> SHOULD use the strongest appropriate SystemVerilog constructs to make
+> ownership, state, width and interfaces explicit. Legacy code migrates
+> incrementally in behavior-preserving changes; generated, vendored, primitive
+> and tool-boundary code keeps the representation its owner requires, and
+> records the exception.
+
+[CONTRIBUTING.md](../../CONTRIBUTING.md) already requires SystemVerilog for new
+HDL. This rule is about what happens after the file extension: a `.sv` file can
+still be written as Verilog-2001, and what is lost is exactly the compile-time
+checking that makes ownership reviewable.
+
+### Two refusals, three ratchets
+
+**A first-party HDL file that is not SystemVerilog is refused.** The accepted
+spellings are a lower-case `.sv` or `.svh`; every other tracked file under
+`hdl/` whose extension names an HDL source — `.v`, `.vh`, `.vhd`, an upper-case
+`.V` or `.SV`, compared case-insensitively — is refused, because each of them is
+invisible to the `*.sv` globs every other tool in this repository matches. The
+one checked-in `.v` file is a documented Vivado boundary in the shared exclusion
+inventory. A new file cannot silently bypass the SystemVerilog-only rule: it
+must become `.sv`, or its generator/tool owner and evidence must be recorded in
+`LINT_EXCLUDE`. Only tracked files are scanned, so a new file is invisible to
+the gate until it is `git add`ed.
+
+**A generic `always` is refused** — the bare keyword, whatever follows it:
+`always @(posedge clk)`, `always @*`, `always begin @(...)`, `always #5`. It is
+the only construct here that discards a real check. `always_ff` asks every tool
+in the path to enforce a single driver and to reject a block that is not
+sequential; `always_comb` asks for a complete combinational block. `always`
+asks for neither, and the difference is silent. The first gate looked for
+`always` followed by `@`, which a legal `always begin @(...)` walked past; the
+keyword itself is now the finding, and a fixture holds that spelling.
+
+**`reg` declarations are ratcheted at 58**, across fifteen files. A `reg` in a
+`.sv` file is legal and usually harmless; `logic` is the SystemVerilog spelling
+and new code uses it. Rewriting all fifty-eight in one change is the churn the
+governing rule forbids.
+
+The first checker reported 48 because its expression only recognized `reg` at
+the beginning of a line. It missed fourteen ANSI `output reg` declarations and
+attribute-prefixed declarations. The gate now blanks comments and strings and
+recognizes the reserved `reg` keyword in every declaration context; a fixture
+specifically kills the old `output reg` blind spot. The corrected baseline is
+58 after the four variables modernized in `rx_mac_filter` below.
+
+**Untyped `parameter` declarations are held at zero.** `parameter W = 8` takes
+an implementation-defined type; `parameter int unsigned W = 8` does not. The
+four parameters of `axi_stream_if` were the complete measured population and
+are now typed, so the ratchet admits no new ones — in any spelling: a
+`parameter W;` with no default (the must-override form) counts, and every name
+of a `parameter A = 1, B = 2;` list counts once, both of which the first gate's
+expression missed. A packed range (`parameter [3:0] W = 4`) is an explicit
+width and is not counted, and a user-defined type ahead of the name is a type.
+
+**Untyped `localparam` declarations are ratcheted at 2**, as their own entry.
+The rule the issue wrote names parameters and localparams together; the two
+that remain are the `$clog2`-derived `TDEST_WIDTH` constants in
+`hdl/ieee8021q/ts/traffic_queues.sv` and
+`hdl/ieee8021q/ts/traffic_controller_802_1q.sv`. A localparam crosses no
+boundary, so this is a smaller debt than an untyped port parameter would be,
+but it is counted rather than left out, and the entry is separate so localparam
+debt is never traded against port parameters.
+
+### Inventory and repository examples
+
+The gate follows the same submodule-aware first-party scope as the other rules
+and refuses an absent or off-pin processor checkout. It also refuses, with exit
+code 2 and the state named, a population that is empty or reaches no tracked
+file under `hdl/` or under either processor's `hdl/`, before the budget is read:
+a scan over a missing tree reports zero of everything, and zero of everything
+is a clean ratchet unless the gate refuses to count it. The tracked inventory is
+117 `.sv` files, four `.svh` headers, and one `.v` file: 122 total. Of those,
+120 are gated (116 `.sv`, four `.svh`); the two excluded tool boundaries are
+listed below. Forty-eight of the gated files live in `protocol-processor` or
+`gptp-processor`, so processor RTL is not silently outside the rule.
+
+Three populations the rule names sit beside the counts above, each with a
+recorded decision rather than an omission:
+
+- **The excluded Zynq top carries debt of its own.** `hdl/milan/milan_top.sv`
+  holds three untyped string-valued parameters (`MAC_TARGET`, `MAC_IODDR_STYLE`
+  and `MAC_CLK_STYLE`) and seven `reg` declarations on six lines. They are
+  outside both ratchets because the file is outside every build, for the reason
+  `LINT_EXCLUDE` records; they are quantified here so the exclusion is not a
+  blind spot, and whoever revives the top pays them then.
+- **The generated CSR headers are gated on purpose.**
+  `hdl/common/csr/gen/adp_shape_defaults.svh` and
+  `hdl/common/csr/gen/lwsrp_csr_defaults.svh` are written by
+  `sw/builder/endstation_builder.py`; they hold 32 and 7 typed localparams and
+  no finding. They are inside the 120 rather than excluded, because a finding in
+  generator output is fixed in the generator, and the gate reading the output is
+  how a generator regression would be seen. `LINT_EXCLUDE` lists whole files
+  with a reason each and names neither header.
+- **Untyped `localparam`s are counted**, two of them, as their own ratchet
+  above.
+
+One tooling exception on the processor side is recorded here rather than fixed,
+because the fix belongs upstream. `gptp-processor`'s own lint target
+(`gptp-processor/Makefile` and `gptp-processor/bench/arty/Makefile`) passes
+`-Wno-WIDTHEXPAND -Wno-WIDTHTRUNC`, so the implicit width conversions this
+rule's table asks to make explicit are visible to no lint in this repository:
+the superproject ratchet sweeps `hdl/` only (its census names no processor
+file), and `protocol-processor`'s `lint_hdl.sh`, whose flag set carries no
+width suppression, does not run over gptp. Re-running gptp's own command without
+the two flags reports six warnings at four sites: one `WIDTHTRUNC` and one
+`WIDTHEXPAND` in `gptp-processor/hdl/wire/KL_gptp_rx_parser.sv` (lines 297 and
+298) and two `WIDTHEXPAND` each in `gptp-processor/hdl/top/KL_gptp_engine.sv`
+(lines 261 and 680). The upstream fix is a sized cast or a waiver with its
+reason at each of those sites and the removal of the two flags from both
+Makefiles; until it lands, the `SW_C'(SLOTS_P - 1)` row in the table is one
+explicit cast in that processor, not evidence that its width conversions are all
+explicit.
+
+| Concern | Avoid | Prefer / repository proof |
+|---|---|---|
+| Typed ANSI boundary | `output reg [7:0] data` or an implicit-width port | An ANSI direction plus an intentional net/variable type and explicit width; `rx_mac_filter` documents every stream and TCAM port. |
+| Named instantiation | `child u (clk, data)` or `child u (.*)` | `.clk_i(clk_i)` and `.lookup_key_i(dmac)` at the `rx_mac_filter`/`tcam` seam; Rule 5 refuses positional and wildcard bindings. |
+| Variable versus net | `reg` for procedural state, or blind `wire` replacement | `logic pass_r` for `always_ff` state and `wire dmac` for continuous connectivity in `rx_mac_filter`. |
+| Procedural intent | `always @(posedge clk)` or `always @*` | `always_ff` for owned state and `always_comb` for complete combinational logic, as in `axis_mux_rr_2in_1out`. |
+| Domain types | Magic integer state and repeated bit slicing | The typed enum in `axis_mux_rr_2in_1out` and structs/packages in `ethernet_packet_pkg`. |
+| Width/sign conversion | Relying on assignment truncation or promotion | Sized casts such as `SW_C'(SLOTS_P - 1)` in `gptp-processor/hdl/common/KL_gptp_timer.sv`. |
+| Repeated protocol | An interface merely to reduce port count | Existing `axi_stream_if`/modports only where the real `milan_datapath` tool path accepts it; otherwise named discrete ports remain clearer. |
+
+### A `wire` is deliberately not a finding
+
+A net type is the correct model for module, primitive, continuous-assignment and
+multiple-driver connectivity. Mechanically rewriting `wire` to `logic` across
+the tree would touch nearly every file and change nothing a reader or a tool can
+use. The check does not look for it, and this paragraph exists so that decision
+is visible rather than an omission.
+
+### The `default_nettype` directive is CONTRIBUTING's rule already
+
+The issue's interpretation asks for `` `default_nettype none `` around every
+first-party compilation unit. [CONTRIBUTING.md](../../CONTRIBUTING.md) already
+requires it — `none` at the top of the file and `wire` at the bottom — and this
+page does not restate a house rule as a weaker preference, so what is recorded
+here is the measured state and why no third refusal was added. Of the 120 gated
+files, 113 carry the directive. The seven that do not are two packages
+(`hdl/common/ethernet_packet_pkg.sv` and
+`hdl/ieee1722/avtp/avtp_subtype_pkg.sv`), four include headers
+(`hdl/common/parameters.svh`,
+`hdl/common/eth_event_counter/ethernet_events.svh` and the two generated CSR
+headers) and one interface (`hdl/common/axi_stream_if.sv`). The packages and
+headers are correct as they are: a package instantiates nothing and has no
+continuous assignment, so no implicit net can arise in it, and an included
+header must not carry the pair at all, because the directive is
+compilation-unit state and a `wire` at the bottom of a header would silently
+re-enable implicit nets in the module that included it; the generated headers'
+banner records that they are include-only and carry none. The interface is
+genuine debt: an interface can instantiate and assign, and it is recorded here
+for the next functional touch of that file under this rule's "touched" clause
+rather than edited inside a language-modernization change. No gate is added
+for the directive: the failure
+it prevents, a misspelled port becoming an implicit net, is Verilator's
+`IMPLICIT` class, which the lint sweep behind `scripts/lint_rtl.py` reports
+whether or not the directive is present.
+
+### The one generic `always`, and why converting it was delicate
+
+`hdl/common/csr/milan_csr.sv` carried exactly one, and it was the reset-epoch
+canary: two flops that count datapath reset **releases** and therefore must have
+no reset clause at all, so their bitstream initialisation survives every axis
+reset. Adding a reset would silently destroy the only thing they measure — the
+`reset_less` rule in [CONTRIBUTING.md](../../CONTRIBUTING.md) is about exactly
+this class of observer.
+
+`always_ff` with no reset clause is still reset-less: the keyword states
+sequential intent and asks for single-driver enforcement, and it adds nothing
+else. The block is converted, `reg` becomes `logic`, and the comment now says
+that a reset must never be added there — because the next reader's instinct on
+seeing `always_ff` with no reset will be to add one.
+
+The CSR suite passes unchanged across all four of its windows (385, 385, 104 and
+31 checks), the lint ratchet is unmoved, and `milan_datapath` still elaborates
+with the tied-input and tap-purity gates green.
+
+### Representative module and integration boundaries
+
+The cumulative rule stack modernizes a real, tested seam rather than a sample
+module. Rule 5 documents the `rx_mac_filter` stream and TCAM boundary end to end;
+Rule 6 mutation-proves its four illegal parameter contracts; this rule changes
+its four procedural state declarations from `reg` to `logic` while retaining
+the intentional `wire` connectivity and named `tcam` binding. The focused
+`rx_filter` suite exercises that boundary and its negative elaboration arms.
+
+The shared `axi_stream_if` boundary is also real: `milan_datapath` instantiates
+it on its shipping stream path. Its four width parameters now use `int unsigned`
+instead of an implementation-defined type. Neither change adopts a new language
+construct: `logic`, typed parameters, interfaces, modports, and explicit casts
+already exist in the required build paths. Verilator, the Yosys/sv2v path, and
+the Vivado/xvlog gate are therefore validation targets for these edits, not
+assumptions used to introduce an unproven construct.
+
+The final candidate records the compatibility result: all 54 local Verilator
+suites passed (2,116,640 checks, zero in-suite failures), all 46 full Yosys/sv2v
+synthesis tops passed with the tied-input and observer-purity gates, and the
+xvlog compatibility gate held its existing four processor findings with no new
+finding in `hdl/`. No new interface/modport form was proposed, so there is no
+rejected construct to disguise as an accepted experiment.
+
+### Exceptions, recorded rather than assumed
+
+The gate imports [`scripts/lint_rtl.py`](../../scripts/lint_rtl.py)'s
+`LINT_EXCLUDE` instead of inventing another exception list. Each `.v` exception
+must contain both a reason and repository evidence; an empty rationale is a
+hard failure.
+
+| File | Recorded boundary |
 |---|---|
-| 9 | Automated mechanical hygiene with measured ratchets |
-| 10 | Idiomatic SystemVerilog and explicit HDL boundaries |
+| `hdl/milan/milan_dma_wrapper.v` | Vivado-generated Zynq AXI-DMA wrapper; its tool/version header and `bd/milan-dma.tcl` own regeneration. |
+| `hdl/milan/milan_top.sv` | Archived, non-elaboratable Zynq top whose external MAC and generated DMA IP are unavailable; the local banner and `milan_soc.py` exclusion record why it is not a gated fabric source. |
+
+### Review checklist
+
+- Does the procedural block say whether it is sequential or combinational?
+- Does each variable's declaration say who owns it?
+- Do parameters carry a type?
+- If this is a net, is it connectivity — or a variable spelled as one?
+- If a construct is avoided for a tool, is the tool and the reason written down?
+
+## The contract is complete
+
+All ten rules are above. Each carries wording, a repository interpretation,
+worked examples, exceptions, a review checklist, and — where the rule can be
+measured — a tool and a ratchet that only moves downward.
+
+Eight of the ten rules are enforced by a gate that runs in
+[the documentation workflow](../../.github/workflows/docs.yml) — Rules 3 to 10,
+one script each: `scripts/check_rtl_source_lists.py`,
+`scripts/measure_naming.py`, `scripts/check_port_contracts.py`,
+`scripts/measure_fail_fast.py`, `scripts/check_todo_ownership.py`,
+`scripts/measure_test_evidence.py`, `scripts/check_hygiene.py` and
+`scripts/check_sv_idiom.py`. Every one of those steps runs the gate and then its
+`--selftest`, because a gate whose population is empty is otherwise
+indistinguishable from a gate that does nothing. Rule 10's gate also refuses
+(exit 2, the state named) a population that is empty or reaches none of its
+three trees, so the bare gate, run without its self-test, cannot read a missing
+tree as a clean ratchet either.
+
+Rules 1 and 2 are measurements, not gates. `scripts/measure_cohesion.py` and
+`scripts/measure_control_flow.py` propose no threshold and refuse nothing, so
+they have no verdict for the workflow to take; each still carries a `--selftest`
+whose fixture answers are known by construction.

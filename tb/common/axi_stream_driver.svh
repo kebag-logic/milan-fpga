@@ -14,7 +14,7 @@ class axi_stream_driver #(
 
 
   // Interface to drive
-  virtual axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH_P), .TID_WIDTH_P(TID_WIDTH_P), 
+  virtual axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH_P), .TID_WIDTH_P(TID_WIDTH_P),
                           .TDEST_WIDTH_P(TDEST_WIDTH_P), .TUSER_WIDTH_P(TUSER_WIDTH_P)) axis_if;
 
 
