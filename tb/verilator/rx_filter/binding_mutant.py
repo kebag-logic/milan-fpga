@@ -94,8 +94,23 @@ def run_arm(recipe, path, old, new, marker):
                            "exercised:\n" + build.stderr[-800:])
         run = subprocess.run([str(obj / exe)], capture_output=True, text=True)
         if run.returncode != 0 and "RESULT: FAIL" in run.stdout:
+            # Say how many comparisons the mutant failed WITHOUT repeating the
+            # harness's own "checks: N   failures: M" line, and without a
+            # "<number> checks" phrase: this driver's output is the suite log,
+            # and scripts/suite_tally.py reads a failure-shaped tally anywhere
+            # in a line as the suite's verdict and any tally-shaped line it
+            # cannot parse as an accounting failure - a mutant that was rightly
+            # rejected must read as neither.
             tally = [line for line in run.stdout.splitlines() if line.startswith("checks:")]
-            return True, "the harness rejected it" + (f" ({tally[-1]})" if tally else "")
+            detail = "the harness rejected it"
+            if tally:
+                words = tally[-1].replace(":", " ").split()
+                try:
+                    n, m = int(words[words.index("checks") + 1]), int(words[words.index("failures") + 1])
+                    detail += f" ({m} of its {n} comparisons failed)"
+                except (ValueError, IndexError):
+                    pass
+            return True, detail
         return False, "the harness accepted it:\n" + run.stdout[-800:] + run.stderr[-400:]
 
 
