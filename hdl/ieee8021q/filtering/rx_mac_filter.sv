@@ -64,11 +64,15 @@ module rx_mac_filter #(
     // ---- filter policy + TCAM programming (from milan_csr 0x700) -----------
     input  wire                     default_pass_i, //! accept frames that miss the TCAM
 
-    //! TCAM entry write port. Level-driven and applied on the cycle en is
-    //! high; there is no handshake and no backpressure, so the writer holds
-    //! index/valid/key/mask/action stable for that cycle. Writing an entry
-    //! while a frame is in flight retimes the NEXT frame's lookup, never the
-    //! one being filtered - the verdict is latched at the frame's first beat.
+    //! TCAM entry write port. Level-driven, no handshake, no backpressure:
+    //! the entry is committed on the clock edge where en is high, so the
+    //! writer holds index/valid/key/mask/action stable for that edge. The
+    //! lookup is combinational on the live table and the frame verdict is
+    //! latched only when the first beat is ACCEPTED (tvalid and tready both
+    //! high), so a write lands in whichever frame has not yet handed over its
+    //! first beat: a first beat stalled on m_tready sees the new entry and its
+    //! verdict changes in flight. Once the first beat is accepted the verdict
+    //! is held to tlast and a write retimes only the next frame's lookup.
     input  wire                     tcam_wr_en_i,
     input  wire [IDX_WIDTH-1:0]     tcam_wr_index_i,
     input  wire                     tcam_wr_valid_i,
@@ -80,8 +84,9 @@ module rx_mac_filter #(
     //! AXI4-Stream sink, destination address MSB-first in the first beat.
     //! Standard valid/ready: a beat transfers when tvalid and tready are both
     //! high, tvalid never waits on tready, and tlast marks the final beat of a
-    //! frame. tready is passed through from the source below, so a dropped
-    //! frame is consumed at full rate rather than stalling the MAC.
+    //! frame. tready is passed through from the source below for an accepted
+    //! frame and forced high for a dropped one, so a dropped frame is consumed
+    //! at full rate rather than stalling the MAC.
     input  wire [TDATA_WIDTH-1:0]   s_tdata,
     input  wire [TDATA_WIDTH/8-1:0] s_tkeep,
     input  wire                     s_tvalid,
@@ -92,7 +97,14 @@ module rx_mac_filter #(
     //! AXI4-Stream source carrying only accepted frames, beat for beat with
     //! the sink above. A dropped frame is squashed by holding tvalid low for
     //! its whole length, so a consumer never sees a partial frame and never
-    //! sees a tlast without a preceding first beat.
+    //! sees a tlast without a preceding first beat. KNOWN BEND, kept as is:
+    //! while the FIRST beat is stalled on m_tready the verdict is still live
+    //! (see the TCAM write port), so a TCAM or policy write in that window
+    //! withdraws tvalid without a transfer, which AXI4-Stream (ARM IHI 0051A
+    //! 2.2.1: TVALID, once asserted, holds until the handshake) forbids. That
+    //! is a functional change for its own ticket, not a documentation one;
+    //! the focused suite pins the sequence so this contract and the RTL are
+    //! graded together.
     output wire [TDATA_WIDTH-1:0]   m_tdata,
     output wire [TDATA_WIDTH/8-1:0] m_tkeep,
     output wire                     m_tvalid,
@@ -100,10 +112,11 @@ module rx_mac_filter #(
     input  wire                     m_tready,
 
     // ---- status (per accepted frame) --------------------------------------
-    //! Per-frame verdict, all three LEVELS and not pulses. They are valid from
-    //! the frame's first beat until its tlast and are observation only: no
-    //! consumer may drive backpressure from them, because the frame they
-    //! describe is already in flight.
+    //! Per-frame verdict, all three LEVELS and not pulses. They follow the live
+    //! lookup while a first beat is stalled, hold from the first ACCEPTED beat
+    //! until its tlast, and are observation only: no consumer may drive
+    //! backpressure from them, because the frame they describe is already in
+    //! flight.
     output wire [ACTION_WIDTH-1:0]  frame_action_o, //! action of the current frame's match
     output wire                     frame_match_o,  //! current frame hit a TCAM entry
     output wire                     frame_dropped_o //! current frame is being dropped

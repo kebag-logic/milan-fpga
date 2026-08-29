@@ -1046,19 +1046,39 @@ the list output rather than disappearing behind a production count of zero.
 which frames reach the host at all, and eighteen of its ports carried no
 contract. Each of its four bundles now states the law a consumer needs:
 
-- the **TCAM write port** is level-driven with no handshake, and a write during
-  a frame retimes the *next* lookup, never the one in flight;
-- the **sink** is standard valid/ready, and `tready` is passed straight through
-  so a dropped frame is consumed at full rate instead of stalling the MAC;
+- the **TCAM write port** is level-driven with no handshake; the lookup is
+  combinational on the live table and the verdict is latched only when the
+  first beat is *accepted*, so a write lands in whichever frame has not yet
+  handed over its first beat — a first beat stalled on `m_tready` is re-judged
+  by it — and retimes only the next lookup once the first beat is through;
+- the **sink** is standard valid/ready, and `tready` is passed through for an
+  accepted frame and forced high for a dropped one, so a dropped frame is
+  consumed at full rate instead of stalling the MAC;
 - the **source** squashes a dropped frame by holding `tvalid` low for its whole
   length, so a consumer never sees a partial frame or a `tlast` with no first
-  beat;
-- the **verdict** rails are levels valid for the frame's duration, and are
+  beat — and it names its one known bend: while the first beat is stalled, a
+  TCAM or policy write that flips the verdict withdraws `tvalid` without a
+  transfer, which AXI4-Stream (ARM IHI 0051A Section 2.2.1, `TVALID` holds until the
+  handshake) forbids;
+- the **verdict** rails are levels that follow the live lookup while a first
+  beat is stalled and hold from the first accepted beat to `tlast`, and are
   observation only — nothing may drive backpressure from them, because the
   frame they describe is already in flight.
 
 None of that was inferable from the port list before, and all of it is
-load-bearing for anyone connecting to this module.
+load-bearing for anyone connecting to this module. The first version of this
+contract said the opposite of the first bullet — "the verdict is latched at
+the frame's first beat" — and review caught it with a probe: a first beat
+presented with `m_tready` low, then a one-cycle TCAM write of a drop entry for
+that address, and `m_tvalid` went from 1 to 0 with no transfer. The rule this
+section states is that the port list *is* the spec, so the contract now states
+the law the RTL implements, bend included, and the focused suite pins that
+sequence (stalled first beat, TCAM write, `m_tvalid` withdrawn, frame dropped;
+the same for a policy write; and a write after acceptance holding for the
+in-flight frame and landing on the next) so the contract and the RTL are
+graded together. Removing the bend is a functional change with its own ticket,
+not a documentation edit: when it lands, the checks that pin the withdrawal
+are the ones that must be rewritten with it.
 
 The internal TCAM seam is explicit as well: `tcam_match` and `tcam_action`
 carry the named child outputs into the frame decision, while the unused winning
