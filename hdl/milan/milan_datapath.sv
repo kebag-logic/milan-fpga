@@ -2921,6 +2921,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .m_tvalid(rx_axis_to_dma.tvalid),
     .m_tlast (rx_axis_to_dma.tlast),
     .m_tready(rx_axis_to_dma.tready),
+    //! Verdict rails are observation-only levels (rx_mac_filter.sv contract);
+    //! nothing in this datapath consumes them, so they stay open rather than
+    //! being routed to a consumer that would ignore them.
     .frame_action_o(), .frame_match_o(), .frame_dropped_o()
   );
   end else begin : g_no_rx_filter

@@ -174,8 +174,8 @@ module rx_mac_filter #(
     //! The filter consumes the winning action only; software diagnostics own
     //! neither the numeric winning index nor the multi-hit vector at this seam.
     .match_index_o(),
-    .match_action_o(tcam_action),
-    .match_vec_o()
+    .match_vec_o(),
+    .match_action_o(tcam_action)
   );
 
   // -----------------------------------------------------------------------
