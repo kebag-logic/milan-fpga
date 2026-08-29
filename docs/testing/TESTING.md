@@ -364,7 +364,7 @@ verdicts and for check counts.
 | [`tb/verilator/queues`](../../tb/verilator/queues) | — |
 | [`tb/verilator/rx_filter`](../../tb/verilator/rx_filter) | — |
 | [`tb/verilator/shaper_core`](../../tb/verilator/shaper_core) | FQTSS/arbitration, incl. the gPTP-not-starved measurement |
-| [`tb/verilator/tcam`](../../tb/verilator/tcam) | — |
+| [`tb/verilator/tcam`](../../tb/verilator/tcam) | the ternary CAM behind the receive shield: exact and ternary match, priority, the multi-hit vector, add/remove/update, a clean miss — **and its mutation arm**: `make` runs `run` then `mutants` (~25 s, four extra Verilator builds), three injected RTL defects must each make the same harness fail by its own verdict, the clean build must pass, and a DUT abort or a hang is not a catch |
 | [`tb/verilator/tcam_csr`](../../tb/verilator/tcam_csr) | — |
 | [`tb/verilator/tdm`](../../tb/verilator/tdm) | — |
 | [`tb/verilator/tdm_render`](../../tb/verilator/tdm_render) | — |
