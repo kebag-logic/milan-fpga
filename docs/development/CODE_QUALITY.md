@@ -1471,17 +1471,25 @@ A marker is one of the words `TODO`, `FIXME`, `XXX` or `HACK`, in any case,
 form is the word followed by exactly one issue number in parentheses —
 `TODO(#123)`. Every other spelling is unowned and fails the gate: a bare
 colon, `TODO #123` without the parentheses, two issues in one pair, the issue
-after the colon. **The owner's issue number is taken on trust.** The gate does
-not ask the tracker whether `#123` exists, so `TODO(#999999)` passes it; the
-reviewer checks the issue, and `--list` prints every owned marker under that
-caveat.
+after the colon. **Every occurrence is classified on its own.** The owner is
+the `(#N)` immediately after *its* word, never something elsewhere on the
+line: `TODO(#123): first; FIXME: second` is one owned marker and one unowned
+one, in either order, and the owned neighbour does not launder the bare one.
+An issue written *before* a word — `(#123) TODO: …`, `fixed in #123. TODO: …`
+— owns nothing: the contract's one form attaches an owner only after the
+word, and a number before it could as well close the sentence it ends. An
+unowned marker is reported as `path:line:word`, one line per occurrence.
+**The owner's issue number is taken on trust.** The gate does not ask the
+tracker whether `#123` exists, so `TODO(#999999)` passes it; the reviewer
+checks the issue, and `--list` prints every owned marker under that caveat.
 
-The word anywhere else is a near-miss, counted and printed rather than
-silently dropped, so a reader can see what the narrowing cost. At the head
-this section describes,
+The word anywhere else is a near-miss, counted and printed per occurrence
+rather than silently dropped, so a reader can see what the narrowing cost; a
+second word beside a marker on the same line is its own near-miss, not part
+of the marker. At the head this section describes,
 [`scripts/check_todo_ownership.py`](../../scripts/check_todo_ownership.py)
-reads 686 first-party files of 24 types and finds the word on **15 lines,
-none of them a marker**, in three classes:
+reads 687 first-party files of 24 types and finds the word **21 times on 15
+lines, none of them a marker**, in three classes:
 
 | Class | Example | Why it is not a marker |
 |---|---|---|
@@ -1489,10 +1497,12 @@ none of them a marker**, in three classes:
 | An identifier | `TODO = "TODO describe this section"` in `scripts/gen_toc.py`, `d == TODO`, and the lowercase `todo` counter beside them | Code, not a comment — and it names the placeholder that gate *refuses* |
 | Prose about markers | "as a TODO placeholder", "a TODO belongs in the roadmap, not here", the gate's own docstring and its CI step name | A sentence about markers is not one |
 
-Five of the fifteen are lines this gate and its CI step added; ten predate
-them. The count is printed beside the verdict, and the gate's docstring and
-the CI step comment in `.github/workflows/docs.yml` carry the same number
-from the same run, so three places cannot drift into three figures.
+Five of the fifteen lines (eight of the occurrences — the gate's own word
+list is one line and four near-misses) are lines this gate and its CI step
+added; ten lines (thirteen occurrences) predate them. Both counts are printed
+beside the verdict, and the gate's docstring and the CI step comment in
+`.github/workflows/docs.yml` carry the same numbers from the same run, so
+three places cannot drift into three figures.
 
 Markdown is not scanned at all. Prose about the
 [historical task list](../../TODO.md) is not a marker, and treating it as one
@@ -1554,7 +1564,9 @@ across lines, so a marker-shaped example inside a docstring is not a marker;
 line of one is caught. A misread quote can therefore hide at most the rest of
 its own line, never the next one. The self-test carries an arm for each of
 these shapes and for every registered type; thirteen of its arms fail when
-the extractor and population this replaces are wired back in.
+the extractor and population this replaces are wired back in, and five fail
+when the per-line classification that once let an owned marker vouch for an
+unowned one beside it is wired back in.
 
 ### The markers the sweep found
 

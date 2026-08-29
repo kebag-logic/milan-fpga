@@ -19,18 +19,25 @@ without regard to case) immediately followed by `:`, `(` or `#` is a marker.
 The one accepted owned form is the word followed by the owning issue in
 parentheses - `TODO(#123)`; any other spelling (a bare colon, `#123` without
 the parentheses, two issues in one pair, the issue after the colon) is
-unowned. THE OWNER'S ISSUE NUMBER IS TAKEN ON TRUST: it is not checked against
-the tracker, so a fabricated number passes, and `--list` prints every owned
-marker under that caveat.
+unowned. EVERY OCCURRENCE IS CLASSIFIED ON ITS OWN: the owner is the `(#N)`
+immediately after ITS word, so a line carrying one owned marker and one bare
+one is one owned marker and one unowned marker, not an owned line, and an
+issue written BEFORE a word (`(#12) <word>: ...`) owns nothing - it is not
+attached to the word by the contract's one form, and could as well close the
+sentence before it. THE OWNER'S ISSUE NUMBER IS TAKEN ON TRUST: it is not
+checked against the tracker, so a fabricated number passes, and `--list`
+prints every owned marker under that caveat.
 
-The word anywhere else is a NEAR-MISS, counted and printed by `--list` rather
-than silently dropped, so a reader can see what the narrowing cost. The
-classes observed in this tree: a citation of the historical task-list
-document; an IDENTIFIER in `scripts/gen_toc.py` (the placeholder description
-that gate refuses) and every comparison against it; prose about markers, this
-docstring and the CI step name included. At the head this text was written
-against the gate printed 15 near-misses; the guide's Rule 7
-and the CI step comment carry the same number from the same run.
+The word anywhere else is a NEAR-MISS, counted and printed by `--list` per
+occurrence rather than silently dropped, so a reader can see what the
+narrowing cost - a second word beside a marker on the same line is its own
+near-miss, not part of the marker. The classes observed in this tree: a
+citation of the historical task-list document; an IDENTIFIER in
+`scripts/gen_toc.py` (the placeholder description that gate refuses) and every
+comparison against it; prose about markers, this docstring and the CI step
+name included. At the head this text was written against the gate printed
+21 near-miss occurrences on 15 lines; the guide's Rule 7 and the CI step
+comment carry the same numbers from the same run.
 
 WHAT IS READ. The population is `code_quality_scope.tracked()`: the
 superproject plus the two project-owned processor submodules, with the vendor
@@ -68,7 +75,7 @@ Usage:
     python3 scripts/check_todo_ownership.py --selftest # fixture arms
 
 Exit 0 = every marker in gated first-party code names an issue.
-Exit 1 = an unowned marker, printed as path:line.
+Exit 1 = an unowned marker, printed as path:line:word, one per occurrence.
 Exit 2 = REFUSED before any verdict: git is missing, a processor submodule is
          absent or off-pin, or the population has nothing from the
          superproject or from a processor. A partial population is never a pass.
@@ -251,35 +258,42 @@ def comment_views(text, path):
     return views
 
 
-def comments_only(text, path):
-    """Preserve comments and newlines; blank code and quoted strings."""
-    return "\n".join(comment_views(text, path))
-
-
-def comment_text(line, path):
-    """The comment part of one line, retained for the fixture API."""
-    return comments_only(line, path).strip()
-
-
-def scan_line(line, path="x.py"):
-    """(is_marker, is_owned) for one line."""
-    body = comment_text(line, path)
-    if not body or not MARKER.search(body):
-        return False, False
-    return True, bool(OWNED.search(body))
+class Hit(NamedTuple):
+    """One occurrence of a marker word, classified on its own."""
+    line: int    #: 1-based line number
+    kind: str    #: "owned", "unowned" or "near"
+    word: str    #: the word as written
+    text: str    #: the source line, stripped and clipped
 
 
 def scan_text(text, path):
-    """Every line of `text` carrying a marker word: (line number, kind, stripped line)."""
+    """Every occurrence of a marker word in `text`, each classified on its own.
+
+    A marker is owned by what follows ITS word - `(#N)` immediately after it -
+    never by what appears elsewhere on the line. So one owned marker and one
+    bare marker on a line are one owned and one unowned occurrence, and an
+    issue written before a word owns nothing. The kind is read off the
+    comment view at the word's own position; the view is character-aligned
+    with the line, so a word in code is a near-miss and a word in a comment
+    is judged by what the comment says right after it.
+    """
     lines = text.split("\n")
     for n, (line, view) in enumerate(zip(lines, comment_views(text, path)), 1):
-        if MARKER.search(view):
-            kind = "owned" if OWNED.search(view) else "unowned"
-        elif ANY.search(line):
-            kind = "near"
-        else:
-            continue
-        yield n, kind, line.strip()[:92]
+        for found in ANY.finditer(line):
+            at = found.start()
+            if MARKER.match(view, at):
+                kind = "owned" if OWNED.match(view, at) else "unowned"
+            else:
+                kind = "near"
+            yield Hit(n, kind, found.group(1), line.strip()[:92])
+
+
+def scan_line(line, path="x.py"):
+    """(is_marker, is_owned) for one line: is_owned only when EVERY marker on it is."""
+    markers = [h for h in scan_text(line, path) if h.kind != "near"]
+    if not markers:
+        return False, False
+    return True, all(h.kind == "owned" for h in markers)
 
 
 def select(paths):
@@ -304,13 +318,19 @@ def population_problem(paths):
 
 
 def audit(paths=None):
-    """(unowned, owned, near) as (path, line, text) over the population, or over `paths`."""
+    """(unowned, owned, near) as (path, line, word, text), one entry per occurrence."""
     unowned, owned, near = [], [], []
     for rel in (scannable() if paths is None else paths):
         text = (REPO / rel).read_text(errors="replace")
-        for n, kind, line in scan_text(text, rel):
-            {"unowned": unowned, "owned": owned, "near": near}[kind].append((rel, n, line))
+        for hit in scan_text(text, rel):
+            {"unowned": unowned, "owned": owned, "near": near}[hit.kind].append(
+                (rel, hit.line, hit.word, hit.text))
     return unowned, owned, near
+
+
+def lines_of(hits):
+    """How many distinct file lines the occurrences in `hits` fall on."""
+    return len({(rel, n) for rel, n, _word, _text in hits})
 
 
 def selftest():
@@ -325,8 +345,15 @@ def selftest():
             failures += 1
             print(f"[FAIL] {name}{': ' + detail if detail else ''}")
 
+    def hits(text, path):
+        """(line, kind, WORD) per occurrence, in file order."""
+        return [(h.line, h.kind, h.word.upper()) for h in scan_text(text, path)]
+
     def kinds(text, path):
-        return {n: kind for n, kind, _line in scan_text(text, path)}
+        """Line number -> kind, for fixtures with one occurrence per line."""
+        found = hits(text, path)
+        assert len({n for n, _k, _w in found}) == len(found), found
+        return {n: kind for n, kind, _w in found}
 
     # THE MARKER WORDS ARE ASSEMBLED, NOT WRITTEN OUT. Not because the gate
     # would flag a spelled fixture - a fixture is a string literal, and the
@@ -357,6 +384,29 @@ def selftest():
        and scan_line(f"  // {T}: (#12) x", "a.sv") == (True, False))
     ck("the owner issue number is taken on trust, not checked against the tracker",
        scan_line(f"  // {T}(#999999): x", "a.sv") == (True, True))
+
+    # -- every occurrence on a line is classified on its own: an owner belongs
+    # to the word it follows, and one owned marker does not launder its
+    # neighbour (the P2 review finding on this gate) --
+    mixed = f"// {T}(#123): first; {F}: second"
+    ck("an owned marker beside an unowned one does not own it",
+       hits(mixed, "a.sv") == [(1, "owned", T), (1, "unowned", F)]
+       and scan_line(mixed, "a.sv") == (True, False), str(hits(mixed, "a.sv")))
+    ck("nor in the other order",
+       hits(f"// {F}: second; {T}(#123): first", "a.sv")
+       == [(1, "unowned", F), (1, "owned", T)])
+    ck("two owned markers on one line are both owned",
+       hits(f"// {T}(#1): a; {F}(#2): b", "a.sv") == [(1, "owned", T), (1, "owned", F)]
+       and scan_line(f"// {T}(#1): a; {F}(#2): b", "a.sv") == (True, True))
+    ck("an issue written before its word owns nothing: the owner follows the word",
+       hits(f"// (#123) {T}: x", "a.sv") == [(1, "unowned", T)]
+       and hits(f"// #123 {T}: x", "a.sv") == [(1, "unowned", T)]
+       and hits(f"// fixed in #123. {T}: x", "a.sv") == [(1, "unowned", T)])
+    ck("a second word beside a marker is its own near-miss",
+       hits(f"// {T}(#7): see the historical {T}.md", "a.sv")
+       == [(1, "owned", T), (1, "near", T)])
+    ck("an owned marker in a comment beside the word in code",
+       hits(f'{T} = "x"  # {T}(#7): rename', "a.py") == [(1, "near", T), (1, "owned", T)])
 
     # -- the near-miss classes, each observed in this tree --
     ck("a filename reference is not a marker",
@@ -462,7 +512,7 @@ def selftest():
     # -- and this gate must not be a finding of itself --
     own = Path(__file__).read_text()
     ck("this checker carries no marker of its own",
-       not any(kind != "near" for _n, kind, _l in scan_text(own, "scripts/check_todo_ownership.py")),
+       not any(h.kind != "near" for h in scan_text(own, "scripts/check_todo_ownership.py")),
        "a checker that flags its own fixtures or prose cannot be green")
 
     # -- the live tree: what is reached, independent of how much debt it holds --
@@ -477,10 +527,10 @@ def selftest():
        and not any(p.startswith(("third_party/", "external/")) for p in paths)
        and population_problem(paths) is None)
     unowned, owned, near = audit(paths)
-    ck("every reported line is a real line of its file that carries a marker word",
-       all(ANY.search((REPO / rel).read_text(errors="replace").split("\n")[n - 1])
-           for rel, n, _l in unowned + owned + near))
-    ck("the scan skips markdown", not any(r.endswith(".md") for r, _n, _l in near + unowned))
+    ck("every reported occurrence is a real line of its file that carries the word reported",
+       all(re.search(r"\b%s\b" % word, (REPO / rel).read_text(errors="replace").split("\n")[n - 1])
+           for rel, n, word, _text in unowned + owned + near))
+    ck("the scan skips markdown", not any(r.endswith(".md") for r, _n, _w, _t in near + unowned))
     run = subprocess.run([sys.executable, __file__], env={"PATH": "/nonexistent"},
                          capture_output=True, text=True, cwd=REPO)
     ck("a host without git is refused by name, never passed",
@@ -521,11 +571,12 @@ def main():
     if args.list:
         print(f"owned markers ({len(owned)}) - the owner issue number is taken on trust, "
               "not checked against the tracker:")
-        for rel, n, line in owned:
-            print(f"   {rel}:{n}  {line}")
-        print(f"\nnear-misses - the word, but not a marker ({len(near)}):")
-        for rel, n, line in near:
-            print(f"   {rel}:{n}  {line}")
+        for rel, n, word, line in owned:
+            print(f"   {rel}:{n}:{word}  {line}")
+        print(f"\nnear-misses - the word, but not a marker "
+              f"({len(near)} occurrence(s) on {lines_of(near)} line(s)):")
+        for rel, n, word, line in near:
+            print(f"   {rel}:{n}:{word}  {line}")
         read = Counter(type_key(p) for p in paths)
         chosen = set(paths)
         unread = Counter(type_key(p) for p in everything
@@ -538,16 +589,16 @@ def main():
         print("not read - scripts/lint_rtl.py LINT_EXCLUDE: " + ", ".join(excluded))
         print()
 
-    for rel, n, line in unowned:
-        print(f"UNOWNED MARKER: {rel}:{n} — {line}\n"
+    for rel, n, word, line in unowned:
+        print(f"UNOWNED MARKER: {rel}:{n}:{word} — {line}\n"
               f"    A marker names the issue that owns it, as TODO(#N), or it is "
               f"resolved. An unowned marker reads as a plan nobody is accountable for.")
 
     if unowned:
         return 1
     print(f"TODO ownership gate: OK ({len(owned)} owned marker(s), 0 unowned; "
-          f"{len(near)} near-miss(es) correctly not treated as markers; "
-          f"{len(paths)} first-party file(s) read)")
+          f"{len(near)} near-miss occurrence(s) on {lines_of(near)} line(s) "
+          f"correctly not treated as markers; {len(paths)} first-party file(s) read)")
     return 0
 
 

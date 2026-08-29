@@ -129,13 +129,15 @@ jobs:
           python3 scripts/measure_fail_fast.py --check
           python3 scripts/measure_fail_fast.py --selftest
 
-      # Rule 7: a marker in first-party code names the issue that owns it. The
-      # definition is narrow on purpose: at the head this comment was written
-      # against, the gate reads 686 first-party files and finds a marker word
-      # on 15 lines, none of them a marker (a filename, an identifier, prose
+      # Rule 7: a marker in first-party code names the issue that owns it, and
+      # every occurrence on a line is judged on its own. The definition is
+      # narrow on purpose: at the head this comment was written against, the
+      # gate reads 687 first-party files and finds a marker word 21 times on
+      # 15 lines, none of them a marker (a filename, an identifier, prose
       # about markers - all printed by --list), and the self-test carries an
-      # arm for each class, for every type read, and for every literal shape
-      # that once hid a comment. The same 15 is in the guide and the gate.
+      # arm for each class, for every type read, for every literal shape that
+      # once hid a comment and for a line mixing an owned marker with a bare
+      # one. The same 21 and 15 are in the guide and the gate.
       - name: TODO ownership gate
         run: |
           python3 scripts/check_todo_ownership.py
