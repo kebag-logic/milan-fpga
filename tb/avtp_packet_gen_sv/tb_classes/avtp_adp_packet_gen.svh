@@ -92,7 +92,6 @@ class avtp_adp_packet_gen extends avtp_control_subtype;
     // q[58:65] - association_id
     // q[66:69] - reserved1 - ignored for now
 
-    // TODO: find a way to make it better!!!
     avtp_adp.entity_capabilities  = {q[22],q[23],q[24],q[25]};
     avtp_adp.talker_stream_sources = {q[26],q[27]};
     avtp_adp.talker_capabilities = {q[28],q[29]};
