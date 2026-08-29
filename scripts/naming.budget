@@ -19,9 +19,10 @@
 # scripts/measure_naming.py classify): a unit token in the name no longer
 # satisfies a comment that documents a different unit.
 #
-# 110 candidate(s): gptp-processor 1, protocol-processor 21, superproject 88; 6 of them named for a different unit than documented
+# 108 candidate(s): gptp-processor 1, protocol-processor 21, superproject 86; 6 of them named for a different unit than documented
 gptp-processor:hdl/top/KL_gptp_engine.sv:KL_gptp_engine:pub_offset_o
 hdl/common/KL_link_guard.sv:KL_link_guard:SETTLE_CYC_C  # named for a different unit than documented
+hdl/common/csr/milan_csr.sv:milan_csr:VERSION
 hdl/common/csr/milan_csr.sv:milan_csr:i_lwsrp_slope
 hdl/common/csr/milan_csr.sv:milan_csr:o_lwsrp_latency
 hdl/common/csr/milan_csr.sv:milan_csr:o_mac_ifg
@@ -61,17 +62,14 @@ hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv:KL_avtp_rx_monitor:ptp_now_i
 hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:KL_avtp_rx_monitor_ctx:CLK_FREQ_HZ_P  # named for a different unit than documented
 hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:KL_avtp_rx_monitor_ctx:dirty_p_o
 hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:KL_avtp_rx_monitor_ctx:fsh_i
-hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:KL_avtp_rx_monitor_ctx:mirrored
 hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:KL_avtp_rx_monitor_ctx:pres_ofs_i
 hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:KL_avtp_rx_monitor_ctx:ptp_now_i
 hdl/ieee1722/avtp/avtp_stream_parser.sv:avtp_stream_parser:fsh2_o
-hdl/ieee1722/crf/KL_crf_rx.sv:KL_crf_rx:a
 hdl/ieee1722/crf/KL_crf_rx.sv:KL_crf_rx:ptp_now_i
 hdl/ieee1722/crf/KL_crf_rx.sv:KL_crf_rx:rate_o
 hdl/ieee1722/crf/KL_media_nco.sv:KL_media_nco:TRIM_MAX_P
-hdl/ieee1722/crf/KL_media_nco.sv:KL_media_nco:a
-hdl/ieee1722/crf/KL_media_nco.sv:KL_media_nco:clamp
 hdl/ieee1722/crf/KL_media_nco.sv:KL_media_nco:servo_trim_i
+hdl/ieee1722/crf/KL_media_nco.sv:KL_media_nco:trim_i
 hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:KL_mmcm_drp_servo:GAIN_NUM_P
 hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:KL_mmcm_drp_servo:LOCK_THR_P
 hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:KL_mmcm_drp_servo:NORM_SHIFT_P
@@ -127,6 +125,6 @@ protocol-processor:hdl/srp/KL_srp_encoder.sv:KL_srp_encoder:wr_len_o
 protocol-processor:hdl/srp/KL_srp_top.sv:KL_srp_top:TP_DEPTH_P
 protocol-processor:hdl/srp/KL_srp_top.sv:KL_srp_top:draw_kind_o
 protocol-processor:hdl/srp/KL_srp_top.sv:KL_srp_top:wr_len_o
+protocol-processor:hdl/top/protocol_processor_top.sv:protocol_processor_top:DESC_BASE_P
 protocol-processor:hdl/top/protocol_processor_top.sv:protocol_processor_top:RESP_BASE_P
 protocol-processor:hdl/top/protocol_processor_top.sv:protocol_processor_top:srp_acc_latency_o
-protocol-processor:hdl/top/protocol_processor_top.sv:protocol_processor_top:when

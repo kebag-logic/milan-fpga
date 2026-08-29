@@ -24,9 +24,15 @@ interface type, or a parameter).
 
 Documentation attribution is the bundle rule: a `//!` on a name's own line
 documents every name declared on that line; a run of standalone `//!` lines
-documents the undocumented names that follow until one carries its own
-comment, which ends the bundle. Function and task arguments inside module
-bodies are not boundaries and are never returned.
+documents the undocumented names that follow until the bundle ends. Four
+things end it, because each is how a port list separates one contract from
+the next: a name that carries its own comment; a new standalone `//!` run; a
+blank line (an ordinary `//` banner blanks to one), before or after the run;
+and the `)(` between the parameter list and the port list, so a comment over
+a parameter never becomes a port's contract - unless a fresh `//!` run follows
+it. Direction and parameter keywords inside a kept `//!` comment are prose,
+not declarations. Function and task arguments inside module bodies are not
+boundaries and are never returned.
 
     from sv_ports import declarations
     for module, name, doc, multibit, kind in declarations(text): ...
@@ -93,9 +99,13 @@ def _split_decls(header):
     next such start. Returns (preamble, [(kind, chunk)]) with kind in
     {'port', 'param', 'iface'}; the preamble is the text before the first
     declaration, where a group `//!` comment may already be in force."""
-    marks = [(m.start(), "port") for m in _DIRECTION.finditer(header)]
-    marks += [(m.start(), "param") for m in _PARAM_KW.finditer(header)]
-    marks += [(m.start(1), "iface") for m in _IFACE_PORT.finditer(header)]
+    # a direction or parameter keyword inside a kept `//!` comment is prose
+    # ("the output of ...", "the parameter exists so ..."), not a declaration;
+    # blanking the comment text keeps every offset where it was
+    code = re.sub(r"//![^\n]*", lambda m: " " * len(m.group(0)), header)
+    marks = [(m.start(), "port") for m in _DIRECTION.finditer(code)]
+    marks += [(m.start(), "param") for m in _PARAM_KW.finditer(code)]
+    marks += [(m.start(1), "iface") for m in _IFACE_PORT.finditer(code)]
     marks.sort()
     chunks = []
     for k, (pos, kind) in enumerate(marks):
@@ -109,12 +119,14 @@ def _group_comment_in(text):
     """The last run of consecutive standalone `//!` lines in `text`, joined,
     or None."""
     found, run = None, []
-    for line in text.split("\n"):
+    for line in text.split("\n")[:-1]:             # the tail is the next line's indent
         if "//!" in line and not line.split("//!", 1)[0].strip():
             run.append(line.split("//!", 1)[1].strip())
             found = " ".join(run)
         elif line.strip():
             run = []
+        elif run:
+            run, found = [], None                  # a blank line ends the bundle
     return found
 
 
@@ -122,12 +134,18 @@ def _parse_chunk(kind, chunk, carried_doc):
     """Parse one declaration chunk into [(name, doc, multibit)].
 
     `carried_doc` is a standalone `//!` group comment still in force; the
-    return also carries the group comment this chunk leaves in force."""
+    return also carries the group comment this chunk leaves in force and
+    whether that comment is fresh (written after this declaration)."""
     lines = chunk.split("\n")
-    # standalone `//!` lines inside the chunk are group comments for what follows
+    # standalone `//!` lines inside the chunk are group comments for what
+    # follows; a blank line ends a bundle whether it comes after the names or
+    # after such a run, because a blank line is how a port list separates one
+    # bundle from the next. The chunk's last line is the next declaration's
+    # indentation, not a blank line.
     docs_by_line, group_after = {}, None
     code_lines = []
     run = []
+    seen_code, gap_after_code = False, False
     for ln, line in enumerate(lines):
         if "//!" in line:
             code, doc = line.split("//!", 1)
@@ -139,9 +157,17 @@ def _parse_chunk(kind, chunk, carried_doc):
             run = []
             docs_by_line[ln] = doc.strip()
             code_lines.append(code)
+            seen_code = True
         else:
             if line.strip():
                 run = []
+                seen_code = True
+            elif ln < len(lines) - 1:
+                run = []
+                if group_after is not None:
+                    group_after, gap_after_code = None, False
+                elif seen_code:
+                    gap_after_code = True
             code_lines.append(line)
     # the declaration's own line is the line of its first name; a same-line
     # `//!` documents every name declared on that line
@@ -198,15 +224,15 @@ def _parse_chunk(kind, chunk, carried_doc):
         any_own |= own
         rows.append((name, (doc if own else carried_doc) or "", multibit, own))
     # what stays in force for the next declaration: a standalone `//!` after
-    # this one starts a new bundle; a declaration with its own comment ends
-    # the bundle; otherwise the group comment carries on
+    # this one starts a new bundle; a declaration with its own comment, or a
+    # blank line after it, ends the bundle; otherwise the group comment carries
+    # on. The third value says whether what carries on was written after this
+    # declaration (fresh) rather than inherited through it.
     if group_after is not None:
-        nxt = group_after
-    elif any_own:
-        nxt = None
-    else:
-        nxt = carried_doc
-    return rows, nxt
+        return rows, group_after, True
+    if any_own or gap_after_code:
+        return rows, None, False
+    return rows, carried_doc, False
 
 
 def declarations(text):
@@ -214,9 +240,16 @@ def declarations(text):
     out = []
     for module, header, _ in module_headers(text):
         preamble, chunks = _split_decls(header)
-        carried = _group_comment_in(preamble)
+        carried, fresh, last_kind = _group_comment_in(preamble), True, None
         for kind, chunk in chunks:
-            rows, carried = _parse_chunk(kind, chunk, carried)
+            # the `)(` between the parameter list and the port list ends a
+            # bundle: a comment inherited through a parameter is not a port's
+            # contract, nor a port's a parameter's - unless a fresh `//!` run
+            # was written after it
+            if last_kind is not None and not fresh and (kind == "param") != (last_kind == "param"):
+                carried = None
+            rows, carried, fresh = _parse_chunk(kind, chunk, carried)
+            last_kind = kind
             for name, doc, multibit, _own in rows:
                 out.append((module, name, doc, multibit, kind))
     return out

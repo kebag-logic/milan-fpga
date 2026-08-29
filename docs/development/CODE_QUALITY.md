@@ -823,26 +823,26 @@ here, and the house style's "one on every port" is a rule with debt behind it:
 5's ratchet, not a Rule 4 finding, and the tool prints it per tree so a
 processor reading as nearly clean can be told apart from one that is merely
 undocumented — the gPTP processor's 1 candidate sits beside its
-22 undocumented ports:
+24 undocumented ports:
 
 | Tree | Files | Ports | Parameters | Documented | Undocumented | Unit in the name | Unit in the comment | Excluded | Named for another unit | Candidates |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| superproject | 69 | 1791 | 263 | 1779 | 275 | 99 | 320 | 232 | 5 | 88 |
-| protocol-processor | 42 | 1548 | 270 | 1698 | 120 | 99 | 182 | 161 | 1 | 21 |
-| gptp-processor | 6 | 120 | 6 | 104 | 22 | 7 | 20 | 19 | 0 | 1 |
-| total | 117 | 3459 | 539 | 3581 | 417 | 205 | 522 | 412 | 6 | 110 |
+| superproject | 69 | 1754 | 259 | 1709 | 304 | 99 | 268 | 182 | 5 | 86 |
+| protocol-processor | 42 | 1547 | 265 | 1692 | 120 | 99 | 182 | 161 | 1 | 21 |
+| gptp-processor | 6 | 120 | 6 | 102 | 24 | 7 | 20 | 19 | 0 | 1 |
+| total | 117 | 3421 | 530 | 3503 | 448 | 205 | 470 | 362 | 6 | 108 |
 
 **The false positives were measured before anything was gated**, because the
-naive form of this check is mostly noise: 522 declarations match a unit
-word in their comment and 412 of them are not findings. Four exclusion
+naive form of this check is mostly noise: 470 declarations match a unit
+word in their comment and 362 of them are not findings. Four exclusion
 classes, each printed in full by `--excluded` with its reason:
 
 | Excluded | Count | Reason |
 |---|---:|---|
-| Noun for the value, or timing prose | 313 | "write byte", "subframe A sample", "(byte 0 = MSB)" name what the value *is*, "applied on the cycle `en` is high" says *when*, and "1-cycle pulse" or "16-byte aligned" is an adjective; a singular byte, octet, sample or cycle is a unit only after "in", "per" or "every" |
-| Single-bit ports | 61 | A one-bit port carries no quantity, so a unit cannot be missing from it |
-| Protocol-fixed identifiers | 37 | The published AXI4/AXI-Stream signal names (`s_axi_awaddr`, `m_axis_tdata`) keep their names; a prefix alone earns no exemption |
-| Shape, not unit | 1 | "held 2 cycles", "per cycle" describe shape, which `_p` already encodes; applied only when the matched unit is the cycle one, so "length in bytes, sampled every cycle" still counts |
+| Noun for the value, or timing prose | 312 | "write byte", "subframe A sample", "(byte 0 = MSB)" name what the value *is*, "applied on the cycle `en` is high" says *when*, and "1-cycle pulse" or "16-byte aligned" is an adjective; a singular byte, octet, sample or cycle is a unit only after "in", "per" or "every" |
+| Single-bit ports | 50 | A one-bit port carries no quantity, so a unit cannot be missing from it |
+| Protocol-fixed identifiers | 0 | The published AXI4/AXI-Stream signal names (`s_axi_awaddr`, `m_axis_tdata`) keep their names; a prefix alone earns no exemption |
+| Shape, not unit | 0 | "held 2 cycles", "per cycle" describe shape, which `_p` already encodes; applied only when the matched unit is the cycle one, so "length in bytes, sampled every cycle" still counts |
 
 `bit`, `bits` and `word` are not in the unit vocabulary at all: bit width is
 already explicit in the SystemVerilog type, and "word" is used in this tree
@@ -851,7 +851,7 @@ ordinal "second" count only in a unit context ("hold time, us", "1 second"),
 and a unit word joined by a hyphen into an identifier or an adjective
 (`P-RX-SLOT-BYTES`, "byte-identical", "cycle-count width") is prose.
 
-That leaves **110 candidates**, **6** of them named for a different unit
+That leaves **108 candidates**, **6** of them named for a different unit
 than they document. The residual set still holds judgement calls — `now_i` on
 a module whose entire subject is nanoseconds is arguable — so this ships as a
 ratchet, not a verdict.
