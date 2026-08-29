@@ -499,13 +499,39 @@ module under Rule 1 broke three Verilator suites at once, each with the same
 [`scripts/check_rtl_source_lists.py`](../../scripts/check_rtl_source_lists.py)
 makes the RTL the authority and every list a derived consumer. It walks the
 compilation-unit closure of `milan_datapath` through the sources — module
-instantiations, package references and interface/modport types, transitively —
-and checks each consumer carries every file in it. A declaration makes a child
-part of that walk; a hard-coded naming-prefix allowlist does not. That
-distinction is load-bearing for `protocol_processor_top` and
-`credit_based_shaper`, whose ordinary names were silently absent from the first
-version of the closure. Package-only and interface-only files are equally
-load-bearing even though they instantiate no module.
+instantiations, package references, interface types through any modport and
+`` `include``d bodies, transitively — and checks each consumer carries every
+file in it. A declaration makes a child part of that walk; a hard-coded
+naming-prefix allowlist does not. That distinction is load-bearing for
+`protocol_processor_top` and `credit_based_shaper`, whose ordinary names were
+silently absent from the first version of the closure. Package-only and
+interface-only files are equally load-bearing even though they instantiate no
+module.
+
+The walk has to see every instantiation shape a front end accepts, because a
+shape it does not see is a file no consumer is told about. The first version
+needed two leading spaces and walked past the one column-0 instantiation the
+tree already had — `traffic_class_map` in
+`hdl/ieee8021q/ts/traffic_classifier.sv` — so both Yosys rows could drop that
+file with the gate green while Yosys failed on it. The first hop now lives
+once, in `scripts/check_soc_sources.py`: any indentation, an arrayed instance,
+`X #(` with or without the space, comments blanked first, and every included
+header spliced in the way the preprocessor does. The oracle for the walk is an
+independent front end over exactly the closure, with an include directory that
+holds only headers so no module can be found by filename; the one `.sv` copied
+beside them is the package five closure files `` `include``, which declares no
+module:
+
+```
+inc=$(mktemp -d); mkdir -p "$inc/gen"
+for f in $(git ls-files -- 'hdl/*.svh') hdl/common/ethernet_packet_pkg.sv; do
+  case "$f" in */gen/*) cp "$f" "$inc/gen/";; *) cp "$f" "$inc/";; esac; done
+verilator --lint-only -Wno-fatal -Wno-lint -Wno-style --top-module milan_datapath \
+  "+incdir+$inc" $(python3 scripts/check_rtl_source_lists.py --files) 2>&1 | grep -c MODMISSING
+```
+
+It prints `0` at this head, over 109 files. Over the 108 the first version
+derived it printed `1`, naming `traffic_class_map`.
 
 Two properties are what make it a source-of-truth gate rather than a fifth copy:
 
@@ -521,18 +547,38 @@ Two properties are what make it a source-of-truth gate rather than a fifth copy:
   (`make -s print-srcs`, `syn/yosys/run.sh --emit`, `syn/yosys/ooc.sh
   --emit-dp`) and the gate reads that. Two of those emit paths did not exist and
   were added, which is most of what this change is. The Vivado Python list has
-  no print mode: its quoted superproject entries are combined with the same
-  `scripts/pp_srcs.py` expansion that `milan_soc.py` calls for the
-  protocol-processor half.
+  no print mode, so it is read the way Python reads it: the
+  `_MILAN_DATAPATH_SOURCES` literal and the registrations beside it through the
+  `ast` module, in which a comment does not exist — a regex over the file's
+  text had counted a commented-out row as carried — with its starred
+  `_pp_sources()` entry expanded through the same `scripts/pp_srcs.py` that
+  `milan_soc.py` calls for the protocol-processor half.
 
 The unit is the **file**, not the module, because that is what a source list
 carries and one file may declare several modules — `KL_aaf_latency_chain` lives
 inside `KL_aaf_latency_taps.sv`. Comparing module names to file entries would
 demand entries that must not exist.
 
-A consumer whose tooling is absent is reported `SKIPPED` by name and the verdict
-says it is not covered. A gate that silently drops a consumer it could not reach
-is how a list goes unchecked for months.
+A consumer that cannot answer — an emit path that exits non-zero, a Makefile
+that is absent, a host without `make` — fails the gate with exit 2 by default,
+and CI runs that default. A gate that reads a consumer it could not reach as
+covered is how a list goes unchecked for months. `--allow-skip` is the explicit
+opt-out for a host without the tooling: it prints a `!! SKIPPED` marker per
+consumer and the verdict counts them as not covered, and a run in which every
+consumer was skipped is still exit 2. A diagnosed defect — `print-srcs` having
+become a Makefile's default goal, so a bare `make` prints a list instead of
+running the suite — is a finding, and no flag skips it. `--list` also prints,
+per consumer, the files it carries that the closure does not need; the two
+single-top Yosys rows each carry six today, harmless but stale.
+
+The self-test proves the bite on copies, never on the tree. It copies each
+consumer, removes one closure file from the copy and runs the copy's own emit
+path — `make -f` from the suite directory; the copied script beside the
+original under a temporary name, because it resolves the repository from its
+own location — then requires that path and nothing else to report the removal,
+and the tree to be byte-identical afterwards. Set arithmetic on an
+already-fetched list, which is what the first version did, would have passed
+with every fetcher stubbed to return the closure.
 
 ### The processor-native list, and where the scope statement ends
 
@@ -562,6 +608,20 @@ closure walk itself — every one of its six sources is reached from
 `milan_datapath` — and `--list` prints that count so a gPTP module that fell
 out of the walk would be visible rather than merely unelaborated.
 
+The gPTP engine's source list is itself an inventory item, and it is written by
+hand ten times. Five copies are in this repository — the gPTP rows of
+`sw/litex/milan_soc.py`, `GPTP_ENGINE_SRCS` in `syn/yosys/run.sh` and
+`syn/yosys/ooc.sh`, `GPTP_SRCS` in `tb/verilator/milan_dp/Makefile` and
+`tb/verilator/hostplane/Makefile` — and five are in the gPTP processor's own
+repository: its top-level Makefile's lint target, its out-of-context Tcl, the
+Arty bench Makefile and build Tcl, and its Verilator engine suite. They
+classify as follows.
+
+| Copies | Classification | Why |
+|---|---|---|
+| The five in this repository | Drift-checked derived copies | The walk reaches all six engine files from `milan_datapath`, so a gPTP file any of the five omits is a `MISSING SOURCE`. No generator like `scripts/pp_srcs.py` exists for them yet, and the comment in `milan_soc.py` that once called the `milan_dp` Makefile "authoritative" now names the gate: a copy that calls another copy authoritative is the circular authority that let four protocol-processor copies drift together. |
+| The five in the processor repository | Outside this gate | They live in the submodule at its pin, which this repository can neither generate nor edit; the gate guards the six files the superproject needs, not the processor's build inputs. They carry a defect of their own — a module added under the processor's `hdl` that the engine does not instantiate is never linted or elaborated there — which belongs to that repository's own gate, not to a superproject check parsing a pinned tree it does not own. |
+
 ### The named-constant half
 
 `milan_datapath` passed `16'h88F7` to the timestamp unit's `ETH_TYPE`
@@ -569,21 +629,44 @@ parameter while already importing `ethernet_packet_pkg`, which defines that
 exact value as `ETH_TYPE_PTP`. That is a second definition of a fact the package
 owns, and it is now the package's name.
 
-The inventory behind that choice: 57 hexadecimal literals appear in four or more
-first-party files. They classify into three kinds, and only the first is debt.
+The inventory behind that choice, measured rather than estimated: 24 distinct
+SystemVerilog hexadecimal literals (the `N'hX` spelling, exact text) appear in
+four or more first-party RTL files. The command is the definition of the
+number:
+
+```
+git ls-files --recurse-submodules -- 'hdl/*.sv' 'protocol-processor/hdl/*.sv' 'gptp-processor/hdl/*.sv' \
+  | xargs grep -oHE "[0-9]*'h[0-9A-Fa-f_]+" | sort -u | cut -d: -f2- | sort | uniq -c | awk '$1 >= 4' | wc -l
+```
+
+They classify into three kinds, and only the first is debt.
 
 | Kind | Example | Disposition |
 |---|---|---|
-| Drift — a named definition exists and the literal ignores it | `16'h88F7` beside `ETH_TYPE_PTP` | Fix. Done here for the one site whose module already imports the package. |
+| Drift — a named definition exists and the literal ignores it | `16'h88F7` beside `ETH_TYPE_PTP` | Fix. Done here for the instantiation in `milan_datapath`; the six remaining sites are listed below. |
 | Structural rails and saturation values | `0xFFFF`, `0xFFFFFFFF`, `0x0000` | Not duplication. The same rail in unrelated modules is a coincidence of width, not a shared fact. |
 | Deliberate independent oracles | `0x22F0`, `0x88F7`, `0x8100` in tests and wire-truth tools | Keep. See below. |
 
-Three further sites (`hdl/milan/KL_pp_shadow.sv`,
-`hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv`,
-`hdl/ieee8021as/gptp_plane/KL_gptp_txstamp.sv`) spell the same EtherTypes raw
-but do **not** import the package. Adding an import to three modules changes
-their compile dependencies, so it is a separate change with its own
-verification rather than a rider on this one.
+Every raw EtherType site outside the package, from
+`grep -rnE "'h(88F7|22F0|8100|22EA)" hdl --include=*.sv` with
+`hdl/common/ethernet_packet_pkg.sv` itself removed:
+
+| Site | Literal | Package name | Imports the package? |
+|---|---|---|---|
+| `hdl/milan/KL_pp_shadow.sv`, `ET_1722_C` | `16'h22F0` | `ETH_TYPE_AVTP` | no |
+| `hdl/milan/KL_pp_shadow.sv`, `ET_MSRP_C` | `16'h22EA` | `ETH_TYPE_MSRP` | no |
+| `hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv`, `ET_GPTP_C` | `16'h88F7` | `ETH_TYPE_PTP` | no |
+| `hdl/ieee8021as/gptp_plane/KL_gptp_txstamp.sv`, `ET_GPTP_C` | `16'h88F7` | `ETH_TYPE_PTP` | no |
+| `hdl/ieee8021as/ptp_timestamp/ptp_ts_top.sv`, `ETH_TYPE` default | `'h88F7` | `ETH_TYPE_PTP` | no |
+| `hdl/ieee8021as/ptp_timestamp/ptp_ts_core.sv`, `ETH_TYPE` default | `'h88F7` | `ETH_TYPE_PTP` | yes |
+
+The two parameter defaults are overridden on the shipping path —
+`milan_datapath` passes `ETH_TYPE_PTP` to `ptp_ts_top`, which passes it on —
+so they are defaults, not the value the wire sees; `ptp_ts_core` is the one
+remaining site whose module already imports the package. Four of the modules
+would need a new import, which changes their compile dependencies, so all six
+stay a separate change with its own verification rather than a rider on this
+one.
 
 ### Proving the oracle exception
 

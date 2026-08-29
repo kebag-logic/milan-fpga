@@ -81,14 +81,18 @@ jobs:
           python3 scripts/check_nvm_record_space.py
           python3 scripts/check_nvm_record_space.py --self-test
       - name: SoC source-list gate (Vivado would fail 40 min in without this)
-        run: python3 scripts/check_soc_sources.py
+        run: |
+          python3 scripts/check_soc_sources.py
+          python3 scripts/check_soc_sources.py --selftest
 
       # The other four lists of the same RTL. check_soc_sources.py guards the
       # Vivado one; this gate derives the whole milan_datapath file closure
       # from the RTL and checks every consumer against it, asking each one for
       # its own expansion rather than parsing it. Placed here because it needs
-      # the same submodules the builder steps above check out. A consumer whose
-      # tooling is absent is reported SKIPPED by name, never dropped silently.
+      # the same submodules the builder steps above check out. A consumer that
+      # cannot answer FAILS the gate (exit 2): this job runs the strict default
+      # and never passes --allow-skip, the tool-less-host opt-out that prints a
+      # loud SKIPPED marker instead of a verdict that covers it.
       # It also reads the protocol processor's own Yosys tops array against the
       # modules that processor declares (scripts/processor_yosys_tops.budget).
       - name: RTL source-list drift gate
