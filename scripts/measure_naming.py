@@ -92,8 +92,10 @@ UNIT = re.compile(r"\b(" + _UNIT_WORDS + r")\b", re.I)
 _CONTEXT_UNIT = re.compile(
     r"(?:(?<=\d)\s*|(?<=[(,/])\s*|\b(?:in|per|every)\s+|^\s*)(us|seconds?)\b", re.I)
 #: singular nouns that are a unit only after "in", "per" or "every" ("in byte
-#: units"); "frame byte", "channel 0 sample", "(byte 0 = MSB)" name the value
-_NOUN_SINGULAR = re.compile(r"^(byte|octet|sample)$", re.I)
+#: units"); "frame byte", "channel 0 sample", "(byte 0 = MSB)" name the value,
+#: and a singular "cycle" outside a count ("applied on the cycle en is high",
+#: "the next cycle") is timing prose, not a quantity measured in cycles
+_NOUN_SINGULAR = re.compile(r"^(byte|octet|sample|cycle|clock)$", re.I)
 _COUNT_CONTEXT = re.compile(r"\b(?:in|per|every)\s+$", re.I)
 #: a unit word joined by a hyphen or underscore is part of an identifier or a
 #: compound adjective (P-RX-SLOT-BYTES, byte-identical, cycle-count), not a unit
@@ -106,8 +108,13 @@ NAME_UNIT = re.compile(
 
 #: SHAPE phrasing - `_p` already encodes this. Only meaningful for the cycle
 #: unit; "frame length in bytes, sampled every cycle" documents a real unit.
+#: A plural count is a shape only when it is the signal's own duration
+#: ("held 2 cycles", "asserted for 3 clocks", "2 cycles wide"); "latency,
+#: 3 cycles after the strobe" is a quantity the port carries.
 SHAPE = re.compile(
     r"\b\d+\s*-?\s*(cycle|clock)\b|\bone[- ]cycle\b|\bsingle[- ]cycle\b"
+    r"|\b(held|asserted|driven|high|low|stays?)\s+(for\s+)?\d+\s*(cycles|clocks)\b"
+    r"|\b\d+\s*(cycles|clocks)\s+(wide|long)\b"
     r"|\bper[- ]cycle\b|\bevery\b[^,;]*\bcycle\b", re.I)
 _CYCLE = re.compile(r"cycle|clock", re.I)
 
@@ -143,7 +150,7 @@ def unit_in(doc):
             if not _CONTEXT_UNIT.search(doc[:m.end()]):
                 continue
         if _NOUN_SINGULAR.match(word) and not _COUNT_CONTEXT.search(doc[:m.start()]):
-            noun = noun or word
+            noun = noun or word          # "16-byte aligned", "1-cycle pulse": adjectives
             continue
         return word, "unit"
     return (noun, "noun") if noun else (None, "")
@@ -155,7 +162,7 @@ def classify(name, doc, multibit):
     if not unit or NAME_UNIT.search(name):
         return None, unit, ""
     if kind == "noun":
-        return "excluded", unit, "noun for the value, not a unit of measure"
+        return "excluded", unit, "noun for the value or timing prose, not a unit of measure"
     if PROTOCOL.search(name):
         return "excluded", unit, "protocol-fixed identifier"
     if not multibit:
@@ -322,8 +329,10 @@ FIXTURES = [
      _wrap("  input wire [31:0] pres_ofs_i,  //! presentation offset ns"), 1, 0),
     ("a name that already carries the unit is not",
      _wrap("  input wire [31:0] pres_ofs_ns_i,  //! presentation offset ns"), 0, 0),
-    ("a one-cycle pulse is a shape, not a unit",
+    ("a 1-cycle pulse is timing prose, not a unit",
      _wrap("  input wire [3:0] arm_i,  //! 1-cycle pulse: arm the chain"), 0, 1),
+    ("a strobe held for N cycles is a shape, not a unit",
+     _wrap("  input wire [3:0] arm_i,  //! arm the chain, held 2 cycles"), 0, 1),
     ("shape phrasing does not swallow a real unit",
      _wrap("  input wire [15:0] len_i,  //! frame length in bytes, sampled every cycle"), 1, 0),
     ("a single-bit port carries no quantity",
@@ -360,6 +369,9 @@ FIXTURES = [
     ("a position noun with a number after it is a noun, not a count",
      _wrap("  input wire [47:0] mac_i, //! MSB-first (byte 0 in [47:40])\n"
            "  input wire [23:0] ph_i, //! phys channel 0 sample"), 0, 2),
+    ("a singular cycle in timing prose is not a quantity in cycles",
+     _wrap("  input wire [47:0] tcam_wr_key_i, //! TCAM entry write port. Applied on the cycle en is high\n"
+           "  input wire [7:0] lat_i, //! latency, 3 cycles after the strobe"), 1, 1),
     ("a unit word joined by a hyphen is an identifier or an adjective, not a unit",
      _wrap("  input wire [7:0] a_i, //! P-RX-SLOTS / P-RX-SLOT-BYTES (F01.5)\n"
            "  input wire [7:0] b_i, //! stereo framer, byte-identical\n"
@@ -419,8 +431,11 @@ def selftest():
            f"got {len(c)} candidate(s) {[(x[1], x[2]) for x in c]} / {len(e)} excluded "
            f"{[(x[1], x[3]) for x in e]}, want {want_c} / {want_e}")
 
-    _c, e, _s = scan_text(FIXTURES[2][1])
+    _c, e, _s = scan_text(FIXTURES[3][1])
     ck("an exclusion names its reason", bool(e) and e[0][3].startswith("shape"), f"{e}")
+    _c, e2, _s = scan_text(FIXTURES[2][1])
+    ck("timing prose is excluded under its own reason",
+       bool(e2) and e2[0][3].startswith("noun"), f"{e2}")
 
     _c, _e, st = scan_text(_wrap("  input wire [31:0] a_i,\n  input wire [31:0] b_i, //! x"))
     ck("undocumented ports are counted, not silently skipped",
@@ -474,7 +489,7 @@ def selftest():
        recorded_live is not None and all(":" in i for i in recorded_live),
        "scripts/naming.budget must list path:module:name lines")
 
-    n = len(FIXTURES) + 11
+    n = len(FIXTURES) + 12
     print(f"\n{n} checks: {n - failures} PASS, {failures} FAIL")
     return 1 if failures else 0
 

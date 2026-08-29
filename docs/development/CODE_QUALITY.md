@@ -823,22 +823,22 @@ undocumented — the gPTP processor's 1 candidate sits beside its
 
 | Tree | Files | Ports | Parameters | Documented | Undocumented | Unit in the name | Unit in the comment | Excluded | Candidates |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| superproject | 69 | 1791 | 263 | 1779 | 275 | 99 | 315 | 231 | 84 |
+| superproject | 69 | 1791 | 263 | 1779 | 275 | 99 | 315 | 232 | 83 |
 | protocol-processor | 42 | 1548 | 270 | 1698 | 120 | 99 | 181 | 161 | 20 |
 | gptp-processor | 6 | 120 | 6 | 104 | 22 | 7 | 20 | 19 | 1 |
-| total | 117 | 3459 | 539 | 3581 | 417 | 205 | 516 | 411 | 105 |
+| total | 117 | 3459 | 539 | 3581 | 417 | 205 | 516 | 412 | 104 |
 
 **The false positives were measured before anything was gated**, because the
 naive form of this check is mostly noise: 516 declarations match a unit
-word in their comment and 411 of them are not findings. Four exclusion
+word in their comment and 412 of them are not findings. Four exclusion
 classes, each printed in full by `--excluded` with its reason:
 
 | Excluded | Count | Reason |
 |---|---:|---|
-| Noun for the value | 196 | "write byte", "subframe A sample", "(byte 0 = MSB)" name what the value *is*; a singular byte, octet or sample is a unit only after "in", "per" or "every" |
-| Single-bit ports | 152 | A one-bit port carries no quantity, so a unit cannot be missing from it |
+| Noun for the value, or timing prose | 313 | "write byte", "subframe A sample", "(byte 0 = MSB)" name what the value *is*, "applied on the cycle `en` is high" says *when*, and "1-cycle pulse" or "16-byte aligned" is an adjective; a singular byte, octet, sample or cycle is a unit only after "in", "per" or "every" |
+| Single-bit ports | 61 | A one-bit port carries no quantity, so a unit cannot be missing from it |
 | Protocol-fixed identifiers | 37 | The published AXI4/AXI-Stream signal names (`s_axi_awaddr`, `m_axis_tdata`) keep their names; a prefix alone earns no exemption |
-| Shape, not unit | 26 | "1-cycle pulse" describes shape, which `_p` already encodes; applied only when the matched unit is the cycle one, so "length in bytes, sampled every cycle" still counts |
+| Shape, not unit | 1 | "held 2 cycles", "per cycle" describe shape, which `_p` already encodes; applied only when the matched unit is the cycle one, so "length in bytes, sampled every cycle" still counts |
 
 `bit`, `bits` and `word` are not in the unit vocabulary at all: bit width is
 already explicit in the SystemVerilog type, and "word" is used in this tree
@@ -847,7 +847,7 @@ ordinal "second" count only in a unit context ("hold time, us", "1 second"),
 and a unit word joined by a hyphen into an identifier or an adjective
 (`P-RX-SLOT-BYTES`, "byte-identical", "cycle-count width") is prose.
 
-That leaves **105 candidates**. The residual set still holds judgement
+That leaves **104 candidates**. The residual set still holds judgement
 calls — `now_i` on a module whose entire subject is nanoseconds is arguable —
 so this ships as a ratchet, not a verdict.
 
