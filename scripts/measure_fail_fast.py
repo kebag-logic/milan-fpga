@@ -11,7 +11,7 @@ break it silently:
 
   1. A PARAMETERISED MODULE WITH NO ELABORATION CONTRACT. 102 first-party
      modules across the superproject and its project-owned processor
-     submodules declare parameters; 18 reject an impossible combination at
+     submodules declare parameters; 17 reject an impossible combination at
      elaboration. The rest accept any value the caller passes.
      `rx_mac_filter` documented "true for TDATA_WIDTH>=48" in a banner for
      months - a comment does not stop a build, and at 32 bits the destination
@@ -28,7 +28,19 @@ break it silently:
      are inventoried as unguarded for that reason). A `$error` inside `always`
      is a runtime assertion and is not counted either, so adding one cannot
      empty this ratchet (review found KL_gptp_engine would otherwise have
-     counted as guarded on three runtime PathTrace assertions).
+     counted as guarded on three runtime PathTrace assertions). Nor is a
+     CONCURRENT or DEFERRED assertion at module scope: `assert property
+     (@(posedge clk) P) else $error` fires its action block at a clock edge
+     during simulation, `assert #0 (...) else $error` in the Observed region,
+     and neither can refuse an illegal parameter when the parameters are
+     bound - review reproduced the concurrent form counting as a contract.
+     So the recognition is POSITIVE: the scan starts after the module header
+     and descends only into what elaboration evaluates - `generate`,
+     `if`/`else`, `for`, `case` and `begin : name ... end` - and steps over
+     every other item whole (a procedural block, any assert/assume/cover/
+     restrict with its action block, a property/sequence/function/task
+     declaration, a preprocessor line, a plain item to its `;`). A `$error`
+     the walk never reaches is not the contract.
 
      WHICH MODULES HAVE PARAMETERS is read with scripts/sv_ports.py, the one
      header parser the Rule 4 and Rule 5 gates already use, so every parameter
@@ -133,7 +145,20 @@ MODULE = re.compile(r"^\s*module\s+([A-Za-z_]\w*)\b", re.M)
 ENDMODULE = re.compile(r"\bendmodule\b")
 
 #: what follows one of these runs at simulation time, not at elaboration
-_PROCEDURAL = re.compile(r"\b(?:always(?:_ff|_comb|_latch)?|initial|final)\b")
+_PROCEDURAL = ("always", "always_ff", "always_comb", "always_latch", "initial", "final")
+#: an assertion of any kind - immediate, deferred (`#0`, `final`) or
+#: concurrent (`property`, `sequence`) - whose action block is simulation-time
+_ASSERTION = ("assert", "assume", "cover", "restrict")
+#: declarations that close with their own keyword and hold no generate scope
+_OPAQUE = {
+    "property": "endproperty", "sequence": "endsequence",
+    "function": "endfunction", "task": "endtask", "checker": "endchecker",
+    "class": "endclass", "clocking": "endclocking", "covergroup": "endgroup",
+    "module": "endmodule", "macromodule": "endmodule",
+    "interface": "endinterface", "program": "endprogram", "package": "endpackage",
+}
+#: a closer met where no opener was walked: stepped over, never descended
+_STRAY = ("end", "endcase", "endgenerate", "endmodule", "join", "join_any", "join_none")
 _FUNC_TASK = re.compile(r"\bfunction\b.*?\bendfunction\b|\btask\b.*?\bendtask\b", re.S)
 _WORD = re.compile(r"[A-Za-z_]\w*")
 _BLOCKS = {
@@ -200,9 +225,14 @@ def _statement_end(code, i):
         return _block_end(code, i + len(w), w)
     if w in ("case", "casez", "casex"):
         return _block_end(code, i + len(w), "case")
-    if w in ("if", "assert", "assume", "cover"):
+    if w == "if" or w in _ASSERTION:
         j = _skip_ws(code, i + len(w))
-        while _word_at(code, j) in ("property", "final"):
+        if j < len(code) and code[j] == "#":  # deferred immediate: `assert #0 (...)`
+            j = _skip_ws(code, j + 1)
+            while j < len(code) and code[j].isdigit():
+                j += 1
+            j = _skip_ws(code, j)
+        while _word_at(code, j) in ("property", "sequence", "final"):
             j = _skip_ws(code, j + len(_word_at(code, j)))
         if j < len(code) and code[j] == "(":
             j = _skip_parens(code, j)
@@ -231,36 +261,154 @@ def _statement_end(code, i):
     return len(code)
 
 
-def procedural_spans(code):
-    """[(start, end)] of every always/initial/final block, sensitivity list
-    and all, in comment- and string-blanked module text."""
-    spans = []
-    for m in _PROCEDURAL.finditer(code):
-        j = _skip_ws(code, m.end())
-        if j < len(code) and code[j] == "@":
-            j = _skip_ws(code, j + 1)
-            if j < len(code) and code[j] == "(":
-                j = _skip_parens(code, j)
-            elif j < len(code) and code[j] == "*":
-                j += 1
-        spans.append((m.start(), _statement_end(code, j)))
-    return spans
+def _procedural_end(code, i, w):
+    """`i` at always*/initial/final: the index just past the whole procedural
+    statement, sensitivity list and all."""
+    j = _skip_ws(code, i + len(w))
+    if j < len(code) and code[j] == "@":
+        j = _skip_ws(code, j + 1)
+        if j < len(code) and code[j] == "(":
+            j = _skip_parens(code, j)
+        elif j < len(code) and code[j] == "*":
+            j += 1
+    return _statement_end(code, j)
 
 
-def has_elaboration_check(code):
-    """True when `$error`/`$fatal` sits at module or generate scope.
+def _skip_block_label(code, j):
+    """`j` just past `begin`/`end`: past an optional `: name`."""
+    k = _skip_ws(code, j)
+    if k < len(code) and code[k] == ":" and code[k:k + 2] != "::":
+        k = _skip_ws(code, k + 1)
+        return k + len(_word_at(code, k))
+    return j
 
-    `code` is one module with comments blanked. Strings go too (a message may
-    say "always"), then imports (a DPI `import ... function` has no
-    `endfunction`), then function and task bodies; what is left inside a
-    procedural span is a simulation check, and everything else is the
-    contract."""
+
+_LABEL_TOK = re.compile(r"::|[;?:`()\[\]{}]|\b(?:begin|end)\b")
+
+
+def _label_end(code, i):
+    """`i` at an item that may start with a label - `a1: assert ...`,
+    `8, 16: begin`, `default:` - the index just past its `:`, or -1 when no
+    label opens the item. A `;`, a ternary `?`, a directive, a `begin` or an
+    `end` met first means there is none: the `begin : name` of a block is
+    not a label, and reading it as one would walk INTO the block
+    (KL_gptp_engine, whose `endif sits right before a named always_ff)."""
+    depth = 0
+    for m in _LABEL_TOK.finditer(code, i):
+        t = m.group(0)
+        if t in ("(", "[", "{"):
+            depth += 1
+        elif t in (")", "]", "}"):
+            depth -= 1
+        elif t == "::" or depth:
+            continue
+        elif t == ":":
+            return m.end()
+        else:
+            return -1
+    return -1
+
+
+def _directive_end(code, i):
+    """`i` at a backtick: past the preprocessor line and any backslash-
+    continued line after it. `ifdef/`else/`endif/`define/`include are
+    lines, not items; nothing on such a line opens a scope."""
+    while True:
+        j = code.find("\n", i)
+        if j < 0:
+            return len(code)
+        if code[i:j].rstrip().endswith("\\"):
+            i = j + 1
+            continue
+        return j + 1
+
+
+def _walk_one(code, i, found):
+    """One generate item at `i`; the index just past it."""
+    i = _skip_ws(code, i)
+    if i >= len(code):
+        return i
+    j = _walk_item(code, i, _word_at(code, i), found)
+    return j if j > i else i + 1
+
+
+def _walk_items(code, i, closer, found):
+    """Generate items from `i` up to and including `closer` (or the end)."""
+    while True:
+        i = _skip_ws(code, i)
+        if i >= len(code):
+            return i
+        w = _word_at(code, i)
+        if closer is not None and w == closer:
+            return _skip_block_label(code, i + len(w))
+        j = _walk_item(code, i, w, found)
+        i = j if j > i else i + 1
+
+
+def _walk_item(code, i, w, found):
+    """Classify the item at `i` and descend only into what elaboration
+    evaluates; record a `$error`/`$fatal` met at that scope in `found`."""
+    n = len(code)
+    if code[i] == ";":
+        return i + 1
+    if code[i] == "`":
+        return _directive_end(code, i)
+    if ELAB_CHECK.match(code, i):
+        found.append(i)
+        return _statement_end(code, i)
+    if w in _PROCEDURAL:
+        return _procedural_end(code, i, w)
+    if w in _ASSERTION:
+        return _statement_end(code, i)
+    if w in _OPAQUE:
+        m = re.compile(r"\b" + _OPAQUE[w] + r"\b").search(code, i + len(w))
+        return m.end() if m else n
+    if w == "generate":
+        return i + len(w)
+    if w == "begin":
+        return _walk_items(code, _skip_block_label(code, i + len(w)), "end", found)
+    if w in ("if", "for", "case", "casex", "casez"):
+        j = _skip_ws(code, i + len(w))
+        if j < n and code[j] == "(":
+            j = _skip_parens(code, j)
+        if w.startswith("case"):
+            return _walk_items(code, j, "endcase", found)
+        j = _walk_one(code, j, found)
+        if w == "if":
+            k = _skip_ws(code, j)
+            if _word_at(code, k) == "else":
+                j = _walk_one(code, k + 4, found)
+        return j
+    if w in _STRAY:
+        return _skip_block_label(code, i + len(w))
+    k = _label_end(code, i)
+    if k > 0:
+        return k
+    return _statement_end(code, i)
+
+
+def elaboration_checks(code):
+    """Indexes of every `$error`/`$fatal` reached from module scope through
+    generate constructs only. `code` is one module, comments blanked. Strings
+    go too (a message may say "always"), then imports (a DPI `import ...
+    function` has no `endfunction`), then function and task bodies. The walk
+    starts after the module header and descends only into `generate`,
+    `if`/`else`, `for`, `case` and `begin : name ... end`; a procedural
+    block, an assertion of any kind with its action block (immediate,
+    deferred `#0`/`final`, concurrent `property`/`sequence`), a
+    property/sequence declaration and every plain item are stepped over
+    whole. A `$error` the walk never reaches is not the contract."""
     code = STRING.sub(_blank, code)
     code = IMPORT.sub(_blank, code)
     code = _FUNC_TASK.sub(_blank, code)
-    spans = procedural_spans(code)
-    return any(not any(a <= m.start() < b for a, b in spans)
-               for m in ELAB_CHECK.finditer(code))
+    found = []
+    _walk_items(code, _statement_end(code, 0), None, found)
+    return found
+
+
+def has_elaboration_check(code):
+    """True when `$error`/`$fatal` sits at module or generate scope."""
+    return bool(elaboration_checks(code))
 
 
 def scan_modules(text):
@@ -722,9 +870,80 @@ def selftest():
        scan_module("module m #(parameter string F=\"\")();\n logic [7:0] rom [0:3];\n"
                    " initial $readmemh(F, rom);\n if (F == \"\") $error(\"F\");\nendmodule")
        == (True, True))
-    ck("the word `always` inside a $error message does not open a span",
+    ck("the word `always` inside a $error message does not open a procedural block",
        scan_module("module m #(parameter int W=8)();\n"
                    " if (W < 2) $error(\"W is always at least 2\");\nendmodule") == (True, True))
+
+    # --- modules: assertions are simulation-time, whatever scope they sit at --
+    ck("a module-scope concurrent `assert property ... else $error` is NOT a contract",
+       scan_module("module m #(parameter int W=8)(input logic clk, P);\n"
+                   " assert property (@(posedge clk) P) else $error;\nendmodule") == (True, False),
+       "review: its action block fires at a clock edge in simulation and cannot refuse a parameter")
+    ck("a labelled concurrent assertion with a begin/end action block is not a contract",
+       scan_module("module m #(parameter int W=8)(input logic clk, P);\n"
+                   " a_p: assert property (@(posedge clk) disable iff (!P) P |-> W > 1)\n"
+                   "  else begin $error(\"p\"); end\nendmodule") == (True, False))
+    ck("assume property and cover property are not contracts either",
+       scan_module("module m #(parameter int W=8)(input logic clk, P);\n"
+                   " assume property (@(posedge clk) P) else $error(\"a\");\n"
+                   " cover property (@(posedge clk) P) $error(\"c\");\nendmodule") == (True, False))
+    ck("a deferred immediate `assert #0 (...) else $error` at module scope is not a contract",
+       scan_module("module m #(parameter int W=8)(input logic P);\n"
+                   " assert #0 (P) else $error(\"P\");\nendmodule") == (True, False),
+       "a deferred assertion is evaluated in the simulator's Observed region; synthesis drops it")
+    ck("an `assert final` at module scope is not a contract",
+       scan_module("module m #(parameter int W=8)(input logic P);\n"
+                   " assert final (P) else $error(\"P\");\nendmodule") == (True, False))
+    ck("a $error inside property ... endproperty is not a contract",
+       scan_module("module m #(parameter int W=8)(input logic clk, P);\n"
+                   " property p; @(posedge clk) P; endproperty\n"
+                   " a1: assert property (p) else $error(\"p\");\nendmodule") == (True, False))
+    ck("a $error inside sequence ... endsequence is not a contract",
+       scan_module("module m #(parameter int W=8)(input logic clk, P);\n"
+                   " sequence s; @(posedge clk) P ##1 P; endsequence\n"
+                   " cover sequence (s) $error(\"s\");\nendmodule") == (True, False))
+    ck("a concurrent assertion NEXT TO a module-scope $error does not hide the guard",
+       scan_module("module m #(parameter int W=8)(input logic clk, P);\n"
+                   " a1: assert property (@(posedge clk) P) else $error;\n"
+                   " if (W < 2) $error(\"W\");\n"
+                   " assert property (@(posedge clk) !P) else $error;\nendmodule") == (True, True),
+       "the assertion is stepped over whole; the guard beside it is still reached")
+    ck("a $error inside an always inside a generate block is still a runtime assertion",
+       scan_module("module m #(parameter int W=8)(input logic clk);\n if (W > 1) begin : g\n"
+                   "  always @(posedge clk) if (W) $error(\"r\");\n end\nendmodule") == (True, False))
+
+    # --- modules: the generate shapes the positive walk must reach ---------
+    ck("a generate-if guard with an else arm is a contract",
+       scan_module("module m #(parameter int W=8)();\n generate\n"
+                   "  if (W < 2) begin : gen_guard\n   $error(\"W\");\n  end else begin : gen_ok\n"
+                   "   wire ok = 1'b1;\n  end\n endgenerate\nendmodule") == (True, True))
+    ck("a guard at the end of an else-if chain is a contract",
+       scan_module("module m #(parameter int W=8)();\n"
+                   " if (W == 8) begin : g8 end else if (W == 16) begin : g16 end\n"
+                   " else $error(\"W\");\nendmodule") == (True, True))
+    ck("a case-generate default $error is a contract",
+       scan_module("module m #(parameter int W=8)();\n case (W)\n  8, 16: begin : ok end\n"
+                   "  default: $error(\"W\");\n endcase\nendmodule") == (True, True))
+    ck("a guard inside a for-generate body is a contract",
+       scan_module("module m #(parameter int N=2)();\n for (genvar i = 0; i < N; i++) begin : g\n"
+                   "  if (i > 3) $error(\"N\");\n end\nendmodule") == (True, True))
+    ck("a preprocessor directive before a named always block is a line, not a label",
+       scan_module("module m #(parameter int W=8)(input logic clk, output logic q);\n"
+                   "`ifndef SYNTHESIS\n logic dbg_r;\n`endif\n"
+                   " always_ff @(posedge clk) begin : st\n  q <= ~q;\n"
+                   "`ifndef SYNTHESIS\n  if (W) $error(\"r\");\n`endif\n end : st\nendmodule")
+       == (True, False),
+       "KL_gptp_engine: `endif then `begin : st_port` read as a label and the walk entered the block")
+    ck("a guard wrapped in `ifdef/`else/`endif is still reached",
+       scan_module("module m #(parameter int W=8)();\n`ifdef FOO\n if (W < 2) $error(\"W\");\n"
+                   "`else\n if (W < 4) $error(\"W\");\n`endif\nendmodule") == (True, True))
+    ck("a guard after a typedef, an instantiation and a DPI import is still reached",
+       scan_module("module m #(parameter int W=8)(input logic clk);\n"
+                   " import \"DPI-C\" function int f(input int x);\n"
+                   " typedef struct packed { logic a; logic b; } t_s;\n"
+                   " sub #(.A(1)) u_sub (.clk(clk), .q());\n"
+                   " if (W < 2) $error(\"W\");\nendmodule") == (True, True),
+       "a plain item runs to its `;`; none of them may swallow what follows")
 
     # --- pipelines: producers ---------------------------------------------
     ck("a piped gate is masked", scan_pipeline("  python3 scripts/x.py | tee log")[0])

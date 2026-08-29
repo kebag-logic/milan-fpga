@@ -1299,7 +1299,24 @@ check: Verilator builds the binary, Vivado and Yosys synthesise the module,
 and only a simulation run refuses, so both are inventoried as unguarded. A
 `$error` inside `always` is a runtime assertion; before this distinction
 `KL_gptp_engine` would have counted as guarded on three PathTrace assertions
-that never look at a parameter. The self-test has an arm for each shape.
+that never look at a parameter. A concurrent assertion at module scope —
+`assert property (@(posedge clk) …) else $error`, its `assume`/`cover`
+forms, a `property … endproperty` it names — or a deferred immediate
+`assert #0 (…) else $error` is not a contract either: the action block fires
+during simulation, at a clock edge or in the Observed region, and cannot
+refuse an illegal parameter when the parameters are bound. Review reproduced
+the concurrent form counting as a guard, so the recognition is now
+**positive** rather than a list of exclusions: the scan starts after the
+module header and descends only into what elaboration evaluates —
+`generate`, `if`/`else`, `for`, `case` and `begin : name … end` — and steps
+over every other item whole (a procedural block, any assertion with its
+action block, a `property`/`sequence`/`function`/`task` declaration, a
+preprocessor line, a plain item to its `;`); a `$error` the walk never
+reaches is not the contract. Re-measured under that rule no module moved —
+the first-party HDL writes no concurrent assertion today — and the count in
+the table below is what the tool printed. The self-test has an arm for each
+shape, including the `` `endif `` that sits right before a named `always_ff`
+in `KL_gptp_engine`, which the first positive walk read as a block label.
 
 ### The three populations, measured
 

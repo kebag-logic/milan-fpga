@@ -12,6 +12,12 @@
 #    MODULE-SCOPE $error/$fatal counts as a contract - an initial-block $fatal
 #    is a simulation check that every synthesis flow drops, so
 #    KL_pp_acmp_listener and KL_avtp_common_parser moved into this count.
+#    Re-measured 2026-08-29 when review showed a module-scope CONCURRENT
+#    assertion (`assert property ... else $error`) counted as a contract:
+#    the recognition is now positive (generate scope only; every assertion,
+#    procedural block and preprocessor line stepped over) and the tool
+#    printed the same 85 of 102 - the tree writes no concurrent assertion -
+#    so this number did not move.
 85
 # 2. Pipelines whose producer is a verdict and whose exit status is therefore
 #    the CONSUMER's. Four: two in gptp-processor/syn/ooc/run.sh (lines 15 and
