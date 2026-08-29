@@ -1,11 +1,21 @@
 # Rule 6 ratchets, in order. See scripts/measure_fail_fast.py.
-# BOTH NUMBERS MAY ONLY GO DOWN.
+# ALL THREE NUMBERS MAY ONLY GO DOWN.
 #
 # 1. Parameterised first-party modules with NO elaboration contract. A module
 #    that accepts any parameter its caller passes cannot refuse an impossible
 #    build, and a banner comment does not stop one.
 43
 # 2. Pipelines whose producer is a verdict and whose exit status is therefore
-#    the CONSUMER's. Currently zero: it must stay zero. Pipelines where the
+#    the CONSUMER's. Two at the pin, both gptp-processor/syn/ooc/run.sh
+#    (lines 15 and 17): `grep ... util.rpt | head` under `set -e` in a POSIX
+#    sh that has no pipefail, so a flow whose Vivado produced no report exits
+#    0. The fix is upstream (test for the report before reading it); the pin
+#    bump lowers this to 0, where it must then stay. Pipelines where the
 #    consumer IS the assertion are waived by name in the script, with a reason.
-0
+2
+# 3. Captured verdicts whose exit status is discarded: `out=$(tool ...)` with
+#    no errexit and no guard, or behind local/export. One at the pin,
+#    protocol-processor/scripts/lint_hdl.sh:14, where a Verilator that exits
+#    non-zero without printing %Error reads as LINT OK. Fixed upstream by
+#    consulting the status; the pin bump lowers this to 0.
+1

@@ -1249,15 +1249,59 @@ both ways a failure can pass for success here.
 | Population | Count | Disposition |
 |---|---:|---|
 | Parameterised modules with no elaboration contract | 43 of 53 | Ratchet across the superproject and both project-owned processor submodules. Paid down as modules gain contracts. |
-| Pipelines that discard their producer's exit status | **0** | Ratchet at zero. It must stay zero. |
+| Pipelines that discard their producer's exit status | **2** | Ratchet. Both are `gptp-processor/syn/ooc/run.sh` reading a Vivado report through `grep … | head` (see below); fixed upstream, and the pin bump takes this to zero, where it must then stay. |
+| Captured verdicts whose exit status is discarded | **1** | Ratchet. `protocol-processor/scripts/lint_hdl.sh:14` (see below); fixed upstream, and the pin bump takes this to zero. |
 | Pipelines waived because the consumer *is* the assertion | 2 | Named, with the reason recorded |
 
 The waiver matters: `verilator --version | grep -F "$WANT"` wants grep's status,
 because grep is the assertion. Those two sites are excluded by name rather than
-by pattern, so a new one has to be added deliberately. GitHub workflow `run`
-blocks use the runner's default bash `-o pipefail`; ordinary shell scripts are
-protected only after their own `set ... pipefail` executes. A later setting no
-longer retroactively masks an earlier unsafe pipeline in the measurement.
+by pattern, so a new one has to be added deliberately.
+
+The shell model is per unit, in line order. An ordinary script starts with
+neither `errexit` nor `pipefail` and is protected only after its own `set`
+executes; a later setting cannot retroactively protect an earlier line. A
+GitHub workflow step is its own shell, and the default one is `bash -e {0}`:
+**errexit, no pipefail**. Only a step that declares `shell: bash` runs
+`bash --noprofile --norc -eo pipefail {0}`. The first version of this scan
+assumed every step had pipefail and let a `set -o pipefail` in one step protect
+the next; both were wrong, both have arms now, and the correction found no
+victim only because every piped step in this tree sets `set -euo pipefail`
+itself.
+
+### Two shapes the first scan could not see, both in the processors
+
+Review reproduced two false-green paths at the pinned processor commits, and
+the scan reported zero for both because it had not modelled either shape.
+
+1. **A captured verdict decided from text.** `protocol-processor/scripts/lint_hdl.sh`
+   runs `out=$(verilator --lint-only …)` under `set -u` only, then greps the
+   text for `%Error`. The assignment's exit status goes nowhere. A `verilator`
+   stub that exits 7 and prints nothing makes it print `LINT OK` for every top
+   and exit 0 — reproduced here, not inferred. The scan now reads `$(tool …)`
+   captures on the raw logical line (continuations joined): a bare assignment
+   with no `errexit` in force and no `||`/`&&` consulting the status is a
+   discarded verdict, and `local`/`export` in front discards it even under
+   `errexit`, because the shell sees the builtin's status. `if`/`!`/`[`
+   forms consult the status and are not findings. An argument form such as
+   `echo "rtl=$(python3 scripts/ci_scope.py)"` is the *consumer's* verdict and
+   is deliberately not modelled: the one site of that shape here is the CI
+   scope publication in `elaborate.yml`, which the CI contract fails closed —
+   an empty publication is treated as RTL-relevant.
+2. **A file-reading `grep` piped under `set -e` without `pipefail`.**
+   `gptp-processor/syn/ooc/run.sh` is `#!/bin/sh` with `set -e` and reads each
+   utilisation report through `grep -A2 "…" ucpu_util.rpt | head -20`. When
+   Vivado produced no report, `grep` fails, `head` succeeds, and the flow exits
+   0 having measured nothing. `grep` reading stdin is a consumer and stays
+   out of the producer set; a leftmost `grep`/`cat` naming a file operand is a
+   producer, because the file is the flow's product and its absence is the
+   failure.
+
+Neither wrapper can be fixed from this repository, so both are counted and
+ratcheted at the pin with the reason written beside the number in
+`scripts/fail_fast.budget`, exactly as the Rule 9 hygiene ratchet carries its
+one pinned processor finding. The upstream fixes are one line each — consult
+`$?` after the capture; `test -r` the report before reading it — and the pin
+bump that brings them in lowers both ratchets to zero.
 
 Both false positives that this check produced on its first run were in the
 checker, not the tree: a tool name inside a `printf` **format string** read as
