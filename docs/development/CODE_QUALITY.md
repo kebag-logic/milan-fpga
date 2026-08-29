@@ -731,11 +731,16 @@ length in bytes.
 | Clock domain | domain name | `gtx_ts_ns_w` | The domain is the difference between a valid read and a metastable one |
 | Predicate | reads as a question | `is_talker_w`, `has_listener_w` | A boolean named for a noun does not say which way true points |
 | Event | `_p` (existing) | `arm_p` | A pulse and a level need different consumers |
+| Boundary type | explicit width and sign in the declaration | `input logic signed [31:0] hi_credit_bytes_i` | A bare `[31:0]` on a credit that can go negative documents the width and hides the sign; the cast at the consumer then decides it silently |
+| C++ harness | the same qualifier on the field or argument | `int32_t idle_slope_bps;` in `cbs_ref_model.h`, `run_rate(…, uint32_t idle_slope_bps, …)` | The reference model is graded against the DUT in the same unit; a field called `idle_slope` beside a port called `idle_slope_bps_i` is the confusion moved one file over |
+| Python builder | the same qualifier on the key or argument | `egress_lat_ns`, `ring_len_bytes` | A builder key feeds a CSR default; a reader of the YAML has no type to fall back on, only the name |
 
 Cross-language, the concept keeps its name and its unit: a value that is
 `egress_lat_ns` in SystemVerilog is `egress_lat_ns` in the builder and in the
 harness. A rename that stops at the module boundary has moved the confusion
-rather than removed it.
+rather than removed it — which is why the shaper rename below reaches the
+reference model's fields and the harness helpers' arguments, not only the
+`dut->` bindings.
 
 ### What a qualifier is not for
 
@@ -763,7 +768,12 @@ harnesses, and the register documentation:
 
 `hiCredit` and `loCredit` are 802.1Q terms and keep their spelling; only the
 unit is added. The rename is pure — no logic moved — and the shaper's own
-harnesses grade the result, including the cycle-accurate reference model.
+harnesses grade the result, including the cycle-accurate reference model,
+whose `CbsConfig` fields and slope helpers carry the same qualifiers
+(`idle_slope_bps`, `hi_credit_bytes`, `lo_credit_bytes`). The package functions
+`calc_hi_credit`/`calc_lo_credit` in `ethernet_packet_pkg` keep their names:
+they are 802.1Q's formula names, and their arguments are typed `int` with the
+unit in the function's own `//!` line.
 
 ### Review checklist
 
@@ -777,44 +787,81 @@ harnesses grade the result, including the cycle-accurate reference model.
 
 ## Measuring hidden units
 
-The evidence is the port's own `//!` comment. The house style already requires
-one on every port, and those comments say what the value is — "Egress latency
-correction, ns", "hiCredit clamp, signed bytes". When the comment names a unit
-and the identifier does not, the unit is known and simply missing from the
-name. No taste is involved and a reader can check any finding in one line.
+The evidence is the port's own `//!` comment. Those comments say what the value
+is — "Egress latency correction, ns", "hiCredit clamp, signed bytes" — and when
+the comment names a unit and the identifier does not, the unit is known and
+simply missing from the name. A reader can check any finding in one line.
 
 [`scripts/measure_naming.py`](../../scripts/measure_naming.py) does that scan.
 
 ```
-python3 scripts/measure_naming.py             # the candidate list
-python3 scripts/measure_naming.py --excluded  # what was filtered, and why
-python3 scripts/measure_naming.py --check     # the ratchet
+python3 scripts/measure_naming.py                # candidates + the per-tree table
+python3 scripts/measure_naming.py --excluded     # every filtered match, and why
+python3 scripts/measure_naming.py --check        # the identity ratchet
+python3 scripts/measure_naming.py --write-budget # regenerate the budget after a rename
 ```
 
+**What is scanned, and what is not.** Every module header — ports and
+parameters — in first-party `.sv` under `hdl/` across the superproject and both
+project-owned processor submodules: 117 files, 3459 ports and 539
+parameters at this head. Declarations are parsed rather than pattern-matched,
+so `output reg`, `int`, package-typed and interface-modport ports, packed and
+unpacked dimensions, declarations split across lines and names sharing one
+declaration are all boundaries. Function and task arguments in module bodies
+are not boundaries and are not counted. Outside the scan, and said so here
+rather than left to be discovered: signals declared inside an `interface`
+body, and `hdl/milan/milan_dma_wrapper.v`, the generated Vivado wrapper the
+lint gate already excludes with its reason.
+
+**The blind spot has a size.** A port with no `//!` at all cannot be judged
+here, and the house style's "one on every port" is a rule with debt behind it:
+417 of the 3459 ports carry no comment. That population is Rule
+5's ratchet, not a Rule 4 finding, and the tool prints it per tree so a
+processor reading as nearly clean can be told apart from one that is merely
+undocumented — the gPTP processor's 1 candidate sits beside its
+22 undocumented ports:
+
+| Tree | Files | Ports | Parameters | Documented | Undocumented | Unit in the name | Unit in the comment | Excluded | Candidates |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| superproject | 69 | 1791 | 263 | 1779 | 275 | 99 | 315 | 231 | 84 |
+| protocol-processor | 42 | 1548 | 270 | 1698 | 120 | 99 | 181 | 161 | 20 |
+| gptp-processor | 6 | 120 | 6 | 104 | 22 | 7 | 20 | 19 | 1 |
+| total | 117 | 3459 | 539 | 3581 | 417 | 205 | 516 | 411 | 105 |
+
 **The false positives were measured before anything was gated**, because the
-naive form of this check is mostly noise. Across the superproject and both
-project-owned processor submodules, 408 of 3,491 ports match a unit word in
-their comment. Three exclusion classes account for 255 of them:
+naive form of this check is mostly noise: 516 declarations match a unit
+word in their comment and 411 of them are not findings. Four exclusion
+classes, each printed in full by `--excluded` with its reason:
 
 | Excluded | Count | Reason |
 |---|---:|---|
-| Single-bit ports | 94 | A one-bit port carries no quantity, so a unit cannot be missing from it |
-| Protocol-fixed identifiers | 4 | `s_axi_awaddr` is AXI's name; renaming it breaks what the name is for |
-| Shape, not unit | 2 | "1-cycle pulse" describes shape, which `_p` already encodes |
+| Noun for the value | 196 | "write byte", "subframe A sample", "(byte 0 = MSB)" name what the value *is*; a singular byte, octet or sample is a unit only after "in", "per" or "every" |
+| Single-bit ports | 152 | A one-bit port carries no quantity, so a unit cannot be missing from it |
+| Protocol-fixed identifiers | 37 | The published AXI4/AXI-Stream signal names (`s_axi_awaddr`, `m_axis_tdata`) keep their names; a prefix alone earns no exemption |
+| Shape, not unit | 26 | "1-cycle pulse" describes shape, which `_p` already encodes; applied only when the matched unit is the cycle one, so "length in bytes, sampled every cycle" still counts |
 
 `bit`, `bits` and `word` are not in the unit vocabulary at all: bit width is
-already explicit in the SystemVerilog type, and "word" is used in this tree both
-as a count and as a noun for the value itself, so it cannot separate a missing
-unit from ordinary prose.
+already explicit in the SystemVerilog type, and "word" is used in this tree
+both as a count and as a noun for the value itself. The pronoun "us" and the
+ordinal "second" count only in a unit context ("hold time, us", "1 second"),
+and a unit word joined by a hyphen into an identifier or an adjective
+(`P-RX-SLOT-BYTES`, "byte-identical", "cycle-count width") is prose.
 
-That leaves **153 candidates**, down from 164 before the rename above. The
-residual set still contains judgement calls — `now_i` on a module whose entire
-subject is nanoseconds is arguable — so this ships as a **ratchet**
-(`scripts/naming.budget`), not a verdict. The count may not rise; a new
-boundary states its unit, and existing debt is paid down deliberately.
+That leaves **105 candidates**. The residual set still holds judgement
+calls — `now_i` on a module whose entire subject is nanoseconds is arguable —
+so this ships as a ratchet, not a verdict.
 
-`--excluded` prints every filtered match with its reason, because a filter
-nobody can see is how a check quietly stops checking.
+**The ratchet is keyed on identity, not a count.**
+[`scripts/naming.budget`](../../scripts/naming.budget) names every candidate as
+`path:module:port`. A candidate may leave the list only by being renamed with
+its unit or by being removed; a port still declared under the same name whose
+comment has merely lost the unit word is refused as *stripped*. Review found
+the count-only form of this ratchet could be paid down by deleting units from
+documentation — the opposite of the rule — and reported it as a lowering. No
+new identity may appear either, in any of the three trees; the arms inject one
+into each processor and require the refusal. After a genuine rename,
+`--write-budget` regenerates the list and the diff shows exactly which
+boundary gained its unit.
 
 ## Rules not yet landed
 

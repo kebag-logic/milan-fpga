@@ -142,10 +142,10 @@ struct Harness {
 //  bursty the drain is. If bytes_sent/is_transmitting counted anything other
 //  than accepted beats, the two regimes would disagree.
 // ---------------------------------------------------------------------------
-static long run_rate(Harness& h, uint32_t idle_slope, int ready_period,
+static long run_rate(Harness& h, uint32_t idle_slope_bps, int ready_period,
                      int cycles, int frame_beats, const char* tag) {
     Cfg c;
-    c.idle[0] = idle_slope;
+    c.idle[0] = idle_slope_bps;
     c.hi[0]   = 456; c.lo[0] = -1065;
     c.shaped  = 0x3F;
     h.apply_cfg(c);

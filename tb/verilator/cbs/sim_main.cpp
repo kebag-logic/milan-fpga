@@ -42,7 +42,7 @@ static CbsInputs mk(bool resetn, bool qhd, bool istx, bool is1g, bool isg,
     CbsInputs in;
     in.resetn = resetn; in.queue_has_data = qhd; in.is_transmitting = istx;
     in.is_1g = is1g; in.is_granted = isg; in.bytes_sent = bytes;
-    in.shaped = shaped; in.idle_slope = idle; in.hi_credit = hi; in.lo_credit = lo;
+    in.shaped = shaped; in.idle_slope_bps = idle; in.hi_credit_bytes = hi; in.lo_credit_bytes = lo;
     in.tlast = tlast;
     return in;
 }
@@ -74,9 +74,9 @@ struct Harness {
         dut->bytes_sent_i      = in.bytes_sent;
         dut->tlast_i           = in.tlast;
         dut->shaped_i          = in.shaped;
-        dut->idle_slope_bps_i      = (uint32_t)in.idle_slope;
-        dut->hi_credit_bytes_i       = (uint32_t)in.hi_credit;
-        dut->lo_credit_bytes_i       = (uint32_t)in.lo_credit;
+        dut->idle_slope_bps_i      = (uint32_t)in.idle_slope_bps;
+        dut->hi_credit_bytes_i       = (uint32_t)in.hi_credit_bytes;
+        dut->lo_credit_bytes_i       = (uint32_t)in.lo_credit_bytes;
         posedge();
 
         fref.step(in);

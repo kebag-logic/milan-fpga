@@ -75,9 +75,9 @@ struct CbsInputs {
     bool     tlast      = false;           // bytes_sent carries the frame's last beat
     // runtime configuration ports
     bool     shaped     = true;
-    int32_t  idle_slope = 500000000;       // bits/s for current link rate
-    int32_t  hi_credit  = 761;             // signed bytes
-    int32_t  lo_credit  = -761;            // signed bytes
+    int32_t  idle_slope_bps = 500000000;       // bits/s for current link rate
+    int32_t  hi_credit_bytes  = 761;             // signed bytes
+    int32_t  lo_credit_bytes  = -761;            // signed bytes
 };
 
 // ---------------------------------------------------------------------------
@@ -96,7 +96,7 @@ static const int CBS_MIN_FRAME_BYTES     = 60;   // 64 wire octets less FCS
 // State-for-state mirror of the RTL sequential slope engine (slope_engine in
 // credit_based_shaper.sv). Fixed 100-cycle cadence:
 //   cnt 0      sample idle_slope_bps_i / is_1g_i
-//   cnt 1      load |idle_slope <<< 16| (48-bit wrap), divisor clk_freq_hz*8
+//   cnt 1      load |idle_slope_bps <<< 16| (48-bit wrap), divisor clk_freq_hz*8
 //   cnt 2..49  48 restoring-divider iterations (idle_slope_per_cycle)
 //   cnt 50     stash signed quotient 1; load |send_slope <<< 16|, divisor link
 //   cnt 51..98 48 iterations (send_slope_per_byte)
@@ -185,14 +185,14 @@ public:
         if ((m % d) * 2 >= d) q++;
         return neg ? -(int64_t)q : (int64_t)q;
     }
-    int64_t idle_slope_per_cycle(bool is_1g, int32_t idle_slope) const {
+    int64_t idle_slope_per_cycle(bool is_1g, int32_t idle_slope_bps) const {
         (void)is_1g;
-        int64_t idle = (int64_t)idle_slope;
+        int64_t idle = (int64_t)idle_slope_bps;
         return div_round(idle << CbsConfig::FP, cfg.clk_freq_hz * CbsConfig::BYTE_TO_BIT);
     }
-    int64_t send_slope_per_byte(bool is_1g, int32_t idle_slope) const {
+    int64_t send_slope_per_byte(bool is_1g, int32_t idle_slope_bps) const {
         int64_t link = is_1g ? 1000000000LL : 100000000LL;
-        int64_t send = (int64_t)idle_slope - link;   // negative
+        int64_t send = (int64_t)idle_slope_bps - link;   // negative
         return div_round(send << CbsConfig::FP, link);
     }
 
@@ -202,8 +202,8 @@ public:
 
     // Advance one posedge. `in` are the input values stable before the edge.
     void step(const CbsInputs& in) {
-        const int64_t HIc = (int64_t)in.hi_credit << CbsConfig::FP;
-        const int64_t LOc = (int64_t)in.lo_credit << CbsConfig::FP;
+        const int64_t HIc = (int64_t)in.hi_credit_bytes << CbsConfig::FP;
+        const int64_t LOc = (int64_t)in.lo_credit_bytes << CbsConfig::FP;
 
         // ---- next-state values (nonblocking: all computed from current) ----
 
@@ -276,7 +276,7 @@ public:
             wire_debt = 0; debt_add = 0; frame_cnt = 0; is1g_r = false;
         } else {
             credit = n_credit;
-            eng.step(in.idle_slope, in.is_1g, cfg.clk_freq_hz);
+            eng.step(in.idle_slope_bps, in.is_1g, cfg.clk_freq_hz);
             send_delta = n_send_delta; credit_add_idle = n_credit_add_idle;
             istx = n_istx; qhd = n_qhd; isg = n_isg; shaped = n_shaped;
             wire_debt = n_wire_debt; debt_add = n_debt_add;
@@ -318,18 +318,18 @@ public:
         wire_debt = 0.0; debt_add = 0.0; frame_cnt = 0; is1g_r = false;
     }
 
-    double idle_rate_per_cycle(bool is_1g, int32_t idle_slope) const {
+    double idle_rate_per_cycle(bool is_1g, int32_t idle_slope_bps) const {
         (void)is_1g;
-        return (double)idle_slope / (double)cfg.clk_freq_hz / (double)CbsConfig::BYTE_TO_BIT;
+        return (double)idle_slope_bps / (double)cfg.clk_freq_hz / (double)CbsConfig::BYTE_TO_BIT;
     }
-    double send_rate_per_byte(bool is_1g, int32_t idle_slope) const {
+    double send_rate_per_byte(bool is_1g, int32_t idle_slope_bps) const {
         double link = is_1g ? 1e9 : 1e8;
-        return ((double)idle_slope - link) / link;
+        return ((double)idle_slope_bps - link) / link;
     }
 
     void step(const CbsInputs& in) {
-        const double HIc = (double)in.hi_credit;
-        const double LOc = (double)in.lo_credit;
+        const double HIc = (double)in.hi_credit_bytes;
+        const double LOc = (double)in.lo_credit_bytes;
 
         // slope-engine cadence mirror (float): sample the exact rates at cnt 0,
         // commit at cnt 99, exactly aligned with SlopeEngineRef so the DUT-vs-
@@ -337,8 +337,8 @@ public:
         double n_isc_r = isc_r, n_ssb_r = ssb_r;
         double n_pend_isc = pend_isc, n_pend_ssb = pend_ssb;
         if (cnt == 0) {
-            n_pend_isc = idle_rate_per_cycle(in.is_1g, in.idle_slope);
-            n_pend_ssb = send_rate_per_byte(in.is_1g, in.idle_slope);
+            n_pend_isc = idle_rate_per_cycle(in.is_1g, in.idle_slope_bps);
+            n_pend_ssb = send_rate_per_byte(in.is_1g, in.idle_slope_bps);
         } else if (cnt == 99) {
             n_isc_r = pend_isc; n_ssb_r = pend_ssb;
         }
