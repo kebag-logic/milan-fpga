@@ -11,7 +11,8 @@
 #
 # Two disciplined text-level checks over the SOURCE (same parse style as
 # scripts/check_tied_inputs.sh - the house pattern):
-#   1. module level (PURE observers: hdl/**/*_taps.sv + the AVTP RX
+#   1. module level (PURE observers: hdl/**/*_taps.sv, the *_tap_bank.sv
+#      observation-point adapters that wrap them, + the AVTP RX
 #      monitors): no OUTPUT port may carry a stream-handshake name
 #      (tvalid/tready/tdata/tkeep/tlast/tuser);
 #   2. site level (pure observers + every raw-stream tap reader wired in
@@ -33,10 +34,13 @@ set -u
 R="$(cd "$(dirname "$0")/../.." && pwd)"
 DP="$R/hdl/milan/milan_datapath.sv"
 
-# PURE observers: telemetry-only modules - both checks apply.
+# PURE observers: telemetry-only modules - both checks apply. The *_tap_bank.sv
+# glob is load-bearing: the LTAP adapter Rule 1 cut out of milan_datapath is
+# the module whose port list binds the observed MAC/AAF stream nets, and a
+# find over *_taps.sv alone never read it (24 bindings checked either way).
 PURE_FILES=()
 while IFS= read -r f; do PURE_FILES+=("$f"); done \
-    < <(find "$R/hdl" -name "*_taps.sv" | sort)
+    < <(find "$R/hdl" \( -name "*_taps.sv" -o -name "*_tap_bank.sv" \) | sort)
 PURE_FILES+=("$R/hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv"
              "$R/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv")
 

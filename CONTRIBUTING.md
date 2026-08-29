@@ -10,6 +10,7 @@ lane-per-worktree, every change grows the test suite, and nothing merges on
 - **[2. Workflow](#2-workflow)** -- The issue-to-merge lane: an issue moves to *In progress*, a branch is cut **from the issue**, the work lands on it, a PR opens, review runs as **multiple agents with cleared context**, and only then does it merge back to `dev`. Plus one lane = one worktree, one-line commits, and two traps with history: `cp -r` (never symlink) `third_party/` into a worktree, and rebuild `LAYOUTS` merges semantically rather than by marker-union.
 - **[3. Verification bar](#3-verification-bar)** -- What a change owes before it merges: a self-checking Verilator harness under `tb/verilator/<name>/`, a ratcheted `scripts/lint_rtl.py --check` that fails on any new lint violation, a justification for every `lint_off`, a matrix row that only turns ✅ with a runnable test, and timing claims quoted with the full cell recipe rather than a bare WNS.
 - **[4. Bench discipline (the expensive lessons)](#4-bench-discipline-the-expensive-lessons)** -- Four rules paid for on hardware: ≥ 8 min AX boot probes, never resume a frozen PCM ring, dump a QSPI slot before overwriting it, and regenerate every window map from `csr.csv` on any gateware block-set change.
+- **[5. Code quality](#5-code-quality)** -- The numbered cross-language maintainability contract: the Boy Scout rule that keeps cleanup out of functional changes, and the rules that give each cleanup wording, examples, exceptions and a measurement instead of a taste argument.
 
 ## 1. HDL house style (Cemal Dogan / Oguz Kahraman school)
 
@@ -426,3 +427,18 @@ Two board rules that go with it:
   first; regenerate every consumer's window map from the build's `csr.csv` on
   ANY gateware block-set change (CSR-rot rule,
   [`docs/integration/QSPI_FLASHBOOT.md`](docs/integration/QSPI_FLASHBOOT.md)).
+
+## 5. Code quality
+
+The rules above are the HDL house style, the lane and the verification bar.
+The cross-language maintainability contract - one primary responsibility per
+unit, explicit control flow, one source of truth, and the rest - lives in the
+[code quality guide](docs/development/CODE_QUALITY.md), which also carries the
+governing rule for cleanup:
+
+> Leave touched first-party code at least as clear, small, and well-tested as
+> it was, but do not broaden a functional change into an unrelated rewrite.
+
+Cleanup that preserves behavior is a change of its own, reviewable on its own.
+A functional change carries no repository-wide formatting, mass rename or
+opportunistic refactor outside its stated scope.

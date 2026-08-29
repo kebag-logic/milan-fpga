@@ -219,6 +219,7 @@ import gzip
 import io
 import json
 import os
+import pathlib
 import re
 import shlex
 import shutil
@@ -4926,6 +4927,58 @@ def _optional_block_prune_chain(soc):
     return routes
 
 
+def _module_source(module):
+    """Return the text of the .sv file that declares `module`, or None.
+
+    The datapath's source list is curated in milan_soc.py, but a module's file
+    is found here by NAME across hdl/ so this helper cannot be fooled by a
+    stale list - a module that exists is found, a module that does not is not.
+    """
+    for path in sorted(pathlib.Path(ROOT, "hdl").rglob("*.sv")):
+        text = path.read_text(errors="replace")
+        if re.search(r"^\s*module\s+%s\b" % re.escape(module), text, re.M):
+            return text
+    return None
+
+
+def _prune_guard_site(param, rtl):
+    """Find the source text that carries `param`'s `generate if`, and the name
+    the guard uses there.
+
+    Two shapes are legitimate, and only two:
+      * the datapath guards the block itself -> (rtl, param);
+      * the datapath binds the parameter into a child module's own parameter,
+        `Child #(.CHILD_P (PARAM))`, and the child guards it -> (child, CHILD_P).
+
+    Anything else - including a parameter that is passed to a child which does
+    not guard it either - returns (None, param) and fails the gate.
+    """
+    if re.search(r"generate if \(%s != 0\) begin : \w+" % re.escape(param), rtl):
+        return rtl, param
+
+    #: `Module #( .A (X), .B (Y) ) inst (` - the parameter block, balanced
+    for m in re.finditer(r"\b([A-Za-z_]\w*)\s*#\s*\(", rtl):
+        start = m.end()
+        depth, i = 1, start
+        while i < len(rtl) and depth:
+            if rtl[i] == "(":
+                depth += 1
+            elif rtl[i] == ")":
+                depth -= 1
+            i += 1
+        params = rtl[start:i - 1]
+        bind = re.search(r"\.\s*(\w+)\s*\(\s*%s\s*\)" % re.escape(param), params)
+        if not bind:
+            continue
+        child = _module_source(m.group(1))
+        if child is None:
+            continue
+        if re.search(r"generate if \(%s != 0\) begin : \w+"
+                     % re.escape(bind.group(1)), child):
+            return child, bind.group(1)
+    return None, param
+
+
 def test_optional_block_names_reach_the_rtl():
     """gate 23d - the DECORATIVE-ABI gate, and the reason it exists is on the
     record: `milan_soc.py` passed `p_AAF_PLAYBACK` for weeks while the SV
@@ -4968,11 +5021,23 @@ def test_optional_block_names_reach_the_rtl():
             "prune parameter MUST default to 1 = PRESENT (AREA_BUDGET rule 1)")
         # 4. it actually gates a generate, and the generate has an else arm
         #    (an inert tie-off, rule 3) - a parameter that guards nothing is
-        #    the same lie in a different costume
+        #    the same lie in a different costume.
+        #
+        #    The guard may be ONE HOP AWAY. When a block is extracted into its
+        #    own module the datapath keeps the parameter and binds it to the
+        #    child's own name (`.ENABLE_P (LTAP_P)`), and the generate lives in
+        #    the child. Following that binding is not a relaxation: the pruned
+        #    arm still has to exist and still has to tie its outputs off, just
+        #    in the file that now owns the logic. Refusing to follow it would
+        #    make the gate forbid extraction rather than forbid a decorative
+        #    parameter.
+        where, guard = _prune_guard_site(param, rtl)
+        assert where is not None, (
+            f"{param} guards no `generate if`, in milan_datapath.sv or in any "
+            f"module the datapath binds it to")
         g = re.search(r"generate if \(%s != 0\) begin : (\w+)"
-                      % re.escape(param), rtl)
-        assert g, f"{param} guards no `generate if` in milan_datapath.sv"
-        tail = rtl[g.end():]
+                      % re.escape(guard), where)
+        tail = where[g.end():]
         nxt = tail.find("generate if (")
         arm = tail[:nxt if nxt > 0 else len(tail)]
         assert re.search(r"end else begin : \w+", arm), \
@@ -5071,6 +5136,57 @@ def _chain_control(label, soc, pattern, repl, expect, flags=0):
         raise AssertionError(
             f"{label}: gate 23d accepted it, and a real build would ship the "
             "block it claims to have pruned")
+
+
+def test_prune_guard_hop_gate_bites():
+    """gate 23d, the ONE-HOP arm. Following a parameter into a child module is
+    only safe if the follow refuses everything except a real guarded generate
+    with an inert else arm. Each case below is a mutation of the live LTAP
+    shape, and every negative one must leave the site unfound.
+
+    The positives matter as much: an arm that only ever returns None is a ban,
+    not a gate, so the datapath-local shape and the real one-hop shape are both
+    asserted FOUND, with the guard name the site actually uses."""
+    local = "generate if (X_P != 0) begin : g_x\n end else begin : g_no_x\n"
+    site, guard = _prune_guard_site("X_P", local)
+    assert site is local and guard == "X_P", \
+        "a datapath-local generate must still be found, under its own name"
+
+    # the live shape: the datapath binds LTAP_P into the bank's ENABLE_P and
+    # the bank owns the generate.
+    rtl = open(os.path.join(ROOT, "hdl/milan/milan_datapath.sv")).read()
+    site, guard = _prune_guard_site("LTAP_P", rtl)
+    assert site is not None and guard == "ENABLE_P", (
+        "the live one-hop binding .ENABLE_P (LTAP_P) must resolve to the "
+        f"bank's own guard, got {guard!r}")
+    assert "KL_aaf_latency_tap_bank" in site, \
+        "the resolved site must be the bank's source, not some other module"
+
+    # NEGATIVES - each one is a way the follow could be fooled.
+    for label, mutant, param in [
+        ("no generate anywhere",
+         "KL_child #(.ENABLE_P (X_P)) inst (.a(b));", "X_P"),
+        ("bound to a module that does not exist",
+         "KL_not_a_real_module_at_all #(.ENABLE_P (X_P)) inst (.a(b));", "X_P"),
+        ("child exists but guards a DIFFERENT parameter",
+         "KL_aaf_latency_tap_bank #(.TIMEOUT_C (X_P)) inst (.a(b));", "X_P"),
+        ("parameter never bound at all",
+         "KL_aaf_latency_tap_bank #(.ENABLE_P (OTHER_P)) inst (.a(b));", "X_P"),
+    ]:
+        site, _guard = _prune_guard_site(param, mutant)
+        assert site is None, f"one-hop follow accepted {label!r} - it must not"
+
+    # and the else arm is still required AT THE SITE: a child whose generate
+    # has no inert arm must not satisfy the gate. Graded on text, because that
+    # is what the gate itself reads.
+    bank = open(os.path.join(ROOT,
+                "hdl/ieee1722/aaf/KL_aaf_latency_tap_bank.sv")).read()
+    g = re.search(r"generate if \(ENABLE_P != 0\) begin : (\w+)", bank)
+    assert g, "the bank must carry the guarded generate this gate follows to"
+    assert re.search(r"end else begin : \w+", bank[g.end():]), \
+        "the bank's generate must tie its outputs off in an else arm"
+    print("  [gate 23d one-hop] 2 positive site(s) resolved, 4 mutations "
+          "refused, inert else arm present at the followed site")
 
 
 def test_optional_block_consumption_gate_bites():
@@ -8322,6 +8438,7 @@ if __name__ == "__main__":
                test_i2s_pair_blend_gate_bites,
                test_firmware_version_derived_from_rtl,
                test_d8_role_pools, test_d8_role_pools_reject,
+               test_prune_guard_hop_gate_bites,
                test_d10_cluster_names, test_d10_names_reach_the_rom,
                test_gptp_domain_is_one_source,
                test_gptp_dataset_matches_engine_announce,

@@ -22,6 +22,7 @@ records verified behavior and the remaining mandatory gaps:
 | Check canonical feature status | [Milan feature status ledger](reference/MILAN_FEATURE_STATUS.md) |
 | Find a CSR | [Register map](reference/REGISTER_MAP.md) |
 | Run verification | [Testing guide](testing/TESTING.md) |
+| Clean up code without breaking it | [Code quality guide](development/CODE_QUALITY.md) |
 | Build and deploy | [Building](integration/BUILDING.md) and [QSPI flash boot](integration/QSPI_FLASHBOOT.md) |
 | Diagnose a failure | [Troubleshooting](limitations/TROUBLESHOOTING.md) |
 

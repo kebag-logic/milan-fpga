@@ -113,6 +113,7 @@ SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv
        $(RTL_DIR)/ieee1722/aaf/KL_i2s_playback.sv $(RTL_DIR)/ieee1722/aaf/KL_i2s_feed_mux.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_tone_gen.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_aaf_latency_taps.sv \
+       $(RTL_DIR)/ieee1722/aaf/KL_aaf_latency_tap_bank.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_media_adv.sv $(C)/cdc_pair_fifo.sv \
        $(RTL_DIR)/ieee1722/avtp/avtp_subtype_pkg.sv $(RTL_DIR)/ieee1722/avtp/avtp_stream_parser.sv \
        $(RTL_DIR)/ieee1722/avtp/KL_stream_table.sv \
