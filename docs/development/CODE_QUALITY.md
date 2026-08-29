@@ -30,7 +30,7 @@ shape rather than guess at it.
 - **[Measuring hidden units](#measuring-hidden-units)** -- The port's own documentation as the evidence, the three exclusion classes and the false positives that forced them, and why this ships as a ratchet instead of a verdict.
 - **[Rule 5: make ports, contracts and ownership explicit](#rule-5-make-ports-contracts-and-ownership-explicit)** -- What a port contract must state, why wildcard, positional and hierarchical bindings are refused outright while missing documentation and unjustified open or tied connections are only ratcheted, the exact scope of the inventory, the boundary documented end to end as proof, and the review checklist.
 - **[Rule 6: fail fast and encode invariants](#rule-6-fail-fast-and-encode-invariants)** -- Where a verdict must be refused rather than logged, one in-tree example per boundary (elaboration, FSM default, generator, pipeline, Tcl flow), the elaboration contract added to the receive shield and mutation-proven by its own diagnostic, where that contract is and is not enforced, the three masked-failure populations ratcheted over a stated population, the sweep's refusal of a suite that logs a failure and exits 0, and the review checklist.
-- **[Rule 7: comments explain why, and dead code goes](#rule-7-comments-explain-why-and-dead-code-goes)** -- What a comment is for, why a marker names its issue or is resolved, the fourteen false positives that forced a narrow definition of "marker", the stale marker removed, and the dead code the inventory found.
+- **[Rule 7: comments explain why, and dead code goes](#rule-7-comments-explain-why-and-dead-code-goes)** -- What a comment is for, why a marker names its issue or is resolved, the near-misses that forced a narrow definition of "marker" and what the gate reads to find one, the two stale markers removed, and the dead code the inventory found.
 - **[Rules not yet landed](#rules-not-yet-landed)** -- The remaining nine rules of the contract, named so the numbering is stable and a reader knows what is still coming.
 
 ## The governing rule
@@ -1466,68 +1466,160 @@ was confirmed by running its self-test, not by writing a second one.
 
 ### The marker definition is narrow, and the narrowing was measured
 
-Across the superproject and both project-owned processor submodules, the word
-TODO appears fifteen times before the cleanup. **Fourteen are not markers**, in
-three classes:
+A marker is one of the words `TODO`, `FIXME`, `XXX` or `HACK`, in any case,
+**inside a comment**, immediately followed by `:`, `(` or `#`. The one owned
+form is the word followed by exactly one issue number in parentheses —
+`TODO(#123)`. Every other spelling is unowned and fails the gate: a bare
+colon, `TODO #123` without the parentheses, two issues in one pair, the issue
+after the colon. **The owner's issue number is taken on trust.** The gate does
+not ask the tracker whether `#123` exists, so `TODO(#999999)` passes it; the
+reviewer checks the issue, and `--list` prints every owned marker under that
+caveat.
+
+The word anywhere else is a near-miss, counted and printed rather than
+silently dropped, so a reader can see what the narrowing cost. At the head
+this section describes,
+[`scripts/check_todo_ownership.py`](../../scripts/check_todo_ownership.py)
+reads 686 first-party files of 24 types and finds the word on **15 lines,
+none of them a marker**, in three classes:
 
 | Class | Example | Why it is not a marker |
 |---|---|---|
-| A filename | a citation of the [historical task list](../../TODO.md) | A tracked document pages legitimately cite |
-| An identifier | `TODO = "TODO describe this section"` in `scripts/gen_toc.py`, and `d == TODO` | Code, not a comment — and it names the placeholder that gate *refuses* |
-| Prose about markers | "as a TODO placeholder", "a TODO belongs in the roadmap, not here" | A sentence about markers is not one |
+| A filename | a citation of the [historical task list](../../TODO.md) in `scripts/check_doc_paths.py` | A tracked document pages legitimately cite |
+| An identifier | `TODO = "TODO describe this section"` in `scripts/gen_toc.py`, `d == TODO`, and the lowercase `todo` counter beside them | Code, not a comment — and it names the placeholder that gate *refuses* |
+| Prose about markers | "as a TODO placeholder", "a TODO belongs in the roadmap, not here", the gate's own docstring and its CI step name | A sentence about markers is not one |
 
-So a marker is: the word, **inside a comment**, immediately followed by `:` or
-`(`. Every real marker has that shape; none of the false positives do.
-[`scripts/check_todo_ownership.py`](../../scripts/check_todo_ownership.py)
-prints the near-misses alongside the verdict, so a reader can see what the
-narrowing cost rather than trusting it.
-
-The scanner retains quoted-string boundaries and every line of a multiline
-`/* ... */` comment. The latter is mutation-armed because the first version
-only inspected a line containing `/*` and silently missed a marker on the next
-line of the same comment.
+Five of the fifteen are lines this gate and its CI step added; ten predate
+them. The count is printed beside the verdict, and the gate's docstring and
+the CI step comment in `.github/workflows/docs.yml` carry the same number
+from the same run, so three places cannot drift into three figures.
 
 Markdown is not scanned at all. Prose about the
 [historical task list](../../TODO.md) is not a marker, and treating it as one
 would make the gate unusable.
 
-### The one real marker, and why it was stale rather than pending
+### What the gate reads, and how it finds a comment
+
+The population is the shared first-party scope of
+[`scripts/code_quality_scope.py`](../../scripts/code_quality_scope.py): the
+superproject plus both project-owned processor submodules, with everything
+under a vendor gitlink (`third_party/`, `external/`) dropped. `git ls-files
+--recurse-submodules` descends into every initialised submodule, so a bare
+`*.py` pathspec once reached 88 files of `third_party/verilog-axis`, and the
+same population missed `gptp-processor/bench/` because it was assembled from
+directory names; both processors' benches, headers and Makefiles are in it
+now. An absent or off-pin processor, a missing `git`, or a population with
+nothing from the superproject or from a processor is **refused** (exit 2)
+before any verdict: a partial population is never read as a pass.
+
+Every file in the population whose type has a registered comment syntax is
+read — 24 types at this head:
+
+| Comment syntax | Types |
+|---|---|
+| `//` and `/* … */`; only `"` opens a string | `.sv` `.svh` `.v` `.vh` `.vlt` |
+| `//` and `/* … */`; `"` strings, `'x'` character literals, digit separators | `.cpp` `.c` `.h` `.hpp` |
+| `#`; `"` and `'` strings; triple-quoted strings tracked across lines | `.py` |
+| `#`; `"` and `'` strings on one line | `.sh` `.sh.example` `Containerfile.*` |
+| `#`; `"` strings; an apostrophe inside a word is prose | `.yml` `.yaml` `Makefile` `.mk` `.toml` `.budget` `.gitignore` `.gitattributes` |
+| `#`; `"` strings; no apostrophe quoting | `.tcl` `.xdc` `.do` |
+| whole-line `#` (Gherkin); whole-line `#` or `;` (INI) | `.feature` `.ini` `.gitmodules` |
+| `//`, `#` and `/* … */`; no strings | `.f` |
+
+`--list` prints the census of tracked types that are **not** read (`.md` by
+design; images, JSON, logs and the like), so the blind spots are visible
+instead of assumed away. Two RTL files are excluded by name through
+[`scripts/lint_rtl.py`](../../scripts/lint_rtl.py)'s `LINT_EXCLUDE`, the same
+list Rules 5 and 6 use: `hdl/milan/milan_top.sv` is an archived Zynq top that
+no build compiles, and its two unowned markers — line 329, *derive from
+PHY/MAC status (REQ-MAC-03)*, and line 751, *from gPTP GM tracking
+(REQ-PTP)* — are part of the archive, not of maintained code. `--list` names
+both excluded files.
+
+The extractor obeys one rule: **string state never crosses a line.** The
+first version treated an apostrophe as a string delimiter in SystemVerilog,
+so `1'b0` opened a "string" that swallowed every comment up to the next
+apostrophe, however many lines later. Measured against an independent
+`"`-only reference at the head that shipped it, 5,923 of 26,616 comment lines
+(22.3 %) in 154 of 194 SystemVerilog-family files were invisible — 480 in
+`hdl/milan/milan_datapath.sv`, 2,172 across the protocol-processor, 178
+across the gPTP processor — and a marker injected after a sized literal was
+printed as a near-miss. The corrected extractor hides 0 lines against that
+reference. Only `"` delimits a SystemVerilog string; in C/C++ an apostrophe
+opens a character literal only when it does not follow a word character, so
+`1'000` and `0x00A0'0000ull` are digit separators, and the literal closes on
+its own line; Python triple-quoted strings are the one string state carried
+across lines, so a marker-shaped example inside a docstring is not a marker;
+`/* … */` block comments are the other carried state, so a marker on a later
+line of one is caught. A misread quote can therefore hide at most the rest of
+its own line, never the next one. The self-test carries an arm for each of
+these shapes and for every registered type; thirteen of its arms fail when
+the extractor and population this replaces are wired back in.
+
+### The markers the sweep found
 
 `hdl/ieee8021as/ptp_timestamp/ptp_ts_top.sv` carried
 `//TODO: add DMA engine signals` inside its port list. It was not merely
-unowned — it was **wrong**. Issue #53 records that the three DMA streams
-(`s_axis_tx`, `m_axis_rx`, `m_axis_ts`) already exist and that the remaining
-work is attaching them through a Vivado block design, which is a block-design
-change and not a change to this module's port list. The streams the marker asked
-for were declared immediately above it.
+unowned — it was **wrong**. Issue #53 records that the three DMA streams the
+module declares (`s_axis_tx_*`, `m_axis_rx_*`, `ts_m_axis_*`) already exist
+and that the remaining work is attaching them through a Vivado block design,
+which is a block-design change and not a change to this module's port list.
+The streams the marker asked for were declared immediately above it. That is
+the failure mode the rule names: a comment that outlived the code it
+described, still reading as a plan. It is removed, not re-owned, because
+there is nothing here for an owner to do.
 
-That is the failure mode the rule names: a comment that outlived the code it
-described, still reading as a plan. It is removed, not re-owned, because there
-is nothing here for an owner to do.
+`tb/avtp_packet_gen_sv/tb_classes/avtp_adp_packet_gen.svh` carried
+`// TODO: find a way to make it better!!!` above the field-by-field assembly
+of an ADP entity from a byte queue, in the randomized packet-generator class
+library that [`docs/testing/TESTING.md`](../../docs/testing/TESTING.md) lists
+as a development aid in progress. The first version of the gate could not see
+it, because `.svh` was not a type it read. It names no task — "better" is a
+wish, not a plan — so it is removed; the assembly it sat above is unchanged.
 
 ### Dead code the inventory found
 
-Five module-level Python helpers in first-party code are referenced nowhere in
-the tree. Four are small. The fifth is not:
+Five module-level Python helpers in first-party code have names that occur
+nowhere else in the tree. Four are small and none of them is a test, so none
+is silently missing coverage; they stay, recorded here rather than removed,
+because removing them is a cleanup of its own under the governing rule:
+`scripts/check_wire_accountability.py:168` `i2s_capture_pads` (9 lines),
+`sw/builder/test_builder.py:1439` `rv32_verdict_edge` (23),
+`sw/builder/test_builder.py:1557` `rv32_unit` (47) and
+`tb/verilator/tsn_fuzz/wire.py:82` `aecp_vu_cmd` (8).
 
-`sw/litex/test_ring_bd.py` defined `test_hs_livelock_orphan` — a 159-line
-multi-flow livelock reproduction — **after** the `if __name__ == "__main__":`
-block that lists the suite's tests. Python executes top to bottom, so when that
-block ran the name was not bound yet: the test had never run, and calling it
-from there would have raised `NameError`. It was not weak coverage; it was
-coverage that was never wired in, in a file 159 lines larger than the suite it
-actually ran.
+The fifth is not small. `sw/litex/test_ring_bd.py` defined
+`test_hs_livelock_orphan` — a 159-line multi-flow livelock reproduction —
+**after** the `if __name__ == "__main__":` driver that lists the suite's
+tests, and the driver did not call it: Python executes top to bottom, so when
+the driver ran the name was not bound yet, and calling it from there would
+have raised `NameError`. It was not dead. It was runnable and documented via
+import —
+[`docs/testing/RUNNING_TESTS.md`](../../docs/testing/RUNNING_TESTS.md) gives
+`t.test_hs_livelock_orphan()` as its one-test example and lists the livelock
+probe among what the suite covers — and what it lacked was a place in the
+driver's run, so `python3 test_ring_bd.py` never exercised it. "Dead" was a
+question, and it was answered by running it the documented way. **It
+passes**: seven buffer descriptors reaped live, the completion-queue head
+never jammed. So it is moved above the driver and called from it, last,
+rather than deleted; the reason the driver never reached it is a
+line-ordering accident, not a decision anyone made.
 
-The rule says remove dead code — but "dead" was a question about this one, not a
-verdict, so it was answered by running it. **It passes**: seven buffer
-descriptors reaped live, the completion-queue head never jammed. So it is moved
-above the driver and called from it, rather than deleted. Deleting a livelock
-reproduction that works would have thrown away exactly the coverage its author
-intended, and the reason it was invisible is a line-ordering accident, not a
-decision anyone made.
-
-The other four unreferenced helpers are small and stay recorded rather than
-removed; none of them is a test, so none of them is silently missing coverage.
+The stale-comment sweep is the marker sweep above plus a reading of the
+representative module and its harness (next section); it found the
+`ptp_ts_top.sv` marker, contradicted by the streams declared above it, and
+the dated implementation chronology in `rx_mac_filter.sv` and its harness. A
+sweep for unreachable branches (`#if 0`, `if (0)`, `if (false)`, `if False`,
+`if (1'b0)`, `while (0)`) over the whole gated population finds none outside
+[`protocol-processor/tb/nvm_port/measure_figures.py`](../../protocol-processor/tb/nvm_port/measure_figures.py),
+whose mutation fixtures build `if (1'b0)` on purpose. A sweep for
+commented-out statements over the gate's own comment view finds them in the
+same in-progress packet-generator library and nowhere else: four
+commented-out test cases (lines 18–54) in
+[`tb/avtp_packet_gen_sv/examples/top.sv`](../../tb/avtp_packet_gen_sv/examples/top.sv)
+and six commented-out statements in `avtp_adp_packet_gen.svh`. They are
+recorded here, not cleaned: that library is not this change's representative
+module, and Rule 7 cleanup travels with the code it touches.
 
 ### Representative module and harness cleanup
 
@@ -1545,7 +1637,8 @@ behavior.
 
 - Does this comment say *why*, or does it restate the line below it?
 - If the code moved, did the comment move with it?
-- Does every marker name an issue?
+- Does every marker name one issue, in the `TODO(#123)` form — and does that
+  issue exist? The gate checks the form, not the issue.
 - Is there commented-out code that version control already holds?
 - Is any helper, branch or parameter here for a requirement that does not exist
   yet?

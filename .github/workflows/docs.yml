@@ -130,9 +130,12 @@ jobs:
           python3 scripts/measure_fail_fast.py --selftest
 
       # Rule 7: a marker in first-party code names the issue that owns it. The
-      # definition is narrow on purpose - 26 of the 27 appearances of the word
-      # in this tree are a filename, an identifier, or prose about markers -
-      # and the self-test carries an arm for each class.
+      # definition is narrow on purpose: at the head this comment was written
+      # against, the gate reads 686 first-party files and finds a marker word
+      # on 15 lines, none of them a marker (a filename, an identifier, prose
+      # about markers - all printed by --list), and the self-test carries an
+      # arm for each class, for every type read, and for every literal shape
+      # that once hid a comment. The same 15 is in the guide and the gate.
       - name: TODO ownership gate
         run: |
           python3 scripts/check_todo_ownership.py
