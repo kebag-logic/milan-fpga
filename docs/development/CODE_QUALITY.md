@@ -102,10 +102,14 @@ The seam is worth having for a reason a size metric cannot express. The taps
 are pure observers, and the observer-purity check
 ([`syn/yosys/check_tap_purity.sh`](../../syn/yosys/check_tap_purity.sh)) has to
 establish that they never drive a stream. Inside a 7,000-line parent that is an
-argument about a body; behind this port list it is a structural fact.
+argument about a body; behind this port list it is a structural fact — provided
+the gate reads the file. It enumerates pure observers by name (`*_taps.sv`), so
+the extraction also had to teach it the `*_tap_bank.sv` shape; the witness is
+its own count, which went from 24 to 33 stream-net bindings checked, and an
+output on the bank named after a stream lane is now a violation.
 
 The seam is not free, and the price is worth recording: the new module had to
-be registered in four independent source lists — the Vivado list in
+be registered in five independent source lists — the Vivado list in
 `sw/litex/milan_soc.py`, the Yosys rows in `syn/yosys/run.sh` and
 `syn/yosys/ooc.sh`, and two testbench makefiles — and three suites failed until
 it was. Rule 3 is where that duplication is addressed; Rule 1 only notes that
