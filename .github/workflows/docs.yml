@@ -30,6 +30,17 @@ jobs:
         # present rather than STALE. The builder's dp_srcs.py self-test also
         # resolves the five verilog-axis leaves in the shipping OOC manifest.
         run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
+      # Code-quality measurement self-tests (Rules 1 and 2 of
+      # docs/development/CODE_QUALITY.md): the fixture arms of the two tools
+      # the guide quotes its numbers from. Each arm fails when the defect it
+      # guards is reintroduced - an exclusive case arm read as source-order
+      # priority, an elif read as a nesting level, a `<=` comparison read as
+      # a write - and the population arm refuses a scan that reaches neither
+      # processor's Python, so it needs the submodule checkout above.
+      - name: Code-quality measurement self-tests
+        run: |
+          python3 scripts/measure_control_flow.py --selftest
+          python3 scripts/measure_cohesion.py --selftest
       # dp_srcs.py refuses to answer without a front end (no model may stand
       # in for sv2v), and the builder runs its self-test unconditionally, so
       # this job needs the same pinned release the portability gate uses.

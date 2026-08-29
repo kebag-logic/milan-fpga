@@ -23,8 +23,8 @@ shape rather than guess at it.
 - **[Scope](#scope)** -- What counts as first-party maintenance surface and what is deliberately outside it, including why a generated file is fixed in its generator and never by hand.
 - **[Rule 1: keep modules and functions cohesive](#rule-1-keep-modules-and-functions-cohesive)** -- The single-responsibility rule, its repository interpretation for SystemVerilog and host code, worked good/bad examples, the exceptions that let a long unit stay whole, and the review checklist.
 - **[Measuring cohesion](#measuring-cohesion)** -- Why line count cannot answer the question, what `scripts/measure_cohesion.py` counts instead (disjoint state groups), what it deliberately cannot see, and the current candidate list read off the tree.
-- **[Rule 2: prefer simple and explicit control flow](#rule-2-prefer-simple-and-explicit-control-flow)** -- The KISS rule, what "explicit" means for a SystemVerilog priority chain versus a host-side parser, the worked simplification that took one function from six levels of nesting to two, and the review checklist.
-- **[Measuring control flow](#measuring-control-flow)** -- What `scripts/measure_control_flow.py` counts in each language -- nesting and decision points in host code, visible priority in RTL -- why no threshold is proposed, and what the tree actually measures today.
+- **[Rule 2: prefer simple and explicit control flow](#rule-2-prefer-simple-and-explicit-control-flow)** -- The KISS rule, what "explicit" means for a SystemVerilog priority chain versus a host-side parser, the worked simplification that took one function from four levels of nesting to two, a real FSM and a real combinational mux read against the same rule, the measured hotspots with their dispositions, and the review checklist.
+- **[Measuring control flow](#measuring-control-flow)** -- What `scripts/measure_control_flow.py` counts in each language -- nesting and decision points in Python, priority resolved by source order in RTL -- exactly which files and blocks it scans and what it refuses, why no threshold is proposed, and what the tree actually measures today.
 - **[Rules not yet landed](#rules-not-yet-landed)** -- The remaining nine rules of the contract, named so the numbering is stable and a reader knows what is still coming.
 
 ## The governing rule
@@ -225,13 +225,15 @@ line count.
 
 ### Repository interpretation
 
-- **SystemVerilog priority must be visible.** A signal assigned more than once
-  in one procedural block resolves by source order, and accidental
-  last-assignment-wins behavior is not documentation. The pattern is not
-  forbidden — a default followed by a narrower override is often the clearest
-  thing to write — but the default and the override are named as such where
-  they are, so a reader does not have to re-derive the priority from line
-  numbers.
+- **SystemVerilog priority must be visible.** A signal assigned twice on one
+  path through a procedural block — a default at the top and a narrower
+  override below it, or one write repeated in two separate `if`s — resolves
+  by source order, and accidental last-assignment-wins behavior is not
+  documentation. The pattern is not forbidden — a default followed by a
+  narrower override is often the clearest thing to write — but the default
+  and the override are named as such where they are, so a reader does not
+  have to re-derive the priority from line numbers. The arms of one
+  `if`/`else` or one `case` are exclusive; no source order is involved there.
 - **Host code fails where it fails.** A Python, Tcl or shell path that cannot
   continue returns or raises at that point, rather than setting a flag that is
   carried through nested code and tested somewhere else.
@@ -245,16 +247,17 @@ line count.
 `cluster_names` in `sw/builder/endstation_builder.py` names one AUDIO_CLUSTER
 per cluster of a stream port. It did that with a four-way `if / elif / elif /
 else` chain nested inside two loops, with a further early-exit inside the final
-`else` — six levels of nesting and fourteen decision points in thirty-eight
-lines. The role that was hardest to read, loopback, was the one reached through
-the unnamed `else`.
+`else` — four levels of nesting (the two loops, the chain, and the exit inside
+its last arm) and fourteen decision points in thirty-eight lines. The role that
+was hardest to read, loopback, was the one reached through the unnamed
+`else`.
 
 It is now a table: one small named function per pool role, and a dispatch that
 looks the role up. The measured shape, before and after:
 
 | Unit | Lines | Nesting depth | Decision points |
 |---|---:|---:|---:|
-| `cluster_names` before | 38 | 6 | 14 |
+| `cluster_names` before | 38 | 4 | 14 |
 | `cluster_names` after | 20 | 2 | 4 |
 | `_name_loopback` (deepest namer) | 9 | 1 | 1 |
 
@@ -275,6 +278,72 @@ now have arms:
   why the refusal needs a test: an unreachable path with no arm is how the next
   role gets silently mislabelled.
 
+The moved logic is pinned too, not only the two paths: every cluster name the
+builder produces for the loopback-bearing `ax7101_8x8` and for the
+`channel_names` config `ax7101_1x1_tdm8` is tracked in
+`sw/builder/cluster_names_golden.json`, generated from the implementation the
+differential proved identical, and gate 24d compares the built names to it one
+by one. Three mutations that survive every prefix check — a loopback walk that
+always starts at stream 0, one that never steps a channel, and a physical
+namer that ignores `channel_names` — each fail that comparison.
+
+### An RTL FSM example
+
+`guard_fsm` in `hdl/common/KL_link_guard.sv` is a three-state link-guard
+machine (`RUN_S`, `HOLD_S`, `SETTLE_S`) written the way the rule asks. Reset,
+the disable input and the `unique case` over the state are the branch
+structure, every transition sits in the arm of the state it leaves, and the
+`default` arm says what an illegal encoding does (`state_r <= RUN_S`). Nothing
+about the priority of those arms is re-derived from line numbers: `if (!rst_n)
+... else if (dis_i) ... else case (state_r)` states it. The tool reports the
+block at depth 5 with two signals resolved by source order, `guard_rst_r` and
+`eth_rst_r`, and both are the allowed shape — each state arm first assigns the
+reset rails their value for that state, and the transition condition nested
+inside the arm overrides them for the cycle the state changes. The `RUN_S`
+arm, annotated:
+
+```
+RUN_S : begin
+  guard_rst_r <= 1'b0;                      // the state's value
+  eth_rst_r   <= 1'b0;
+  if (!both_alive_w || man_edge_w) begin    // the transition overrides it
+    state_r     <= HOLD_S;
+    guard_rst_r <= 1'b1;
+    eth_rst_r   <= 1'b1;
+```
+
+The default is the first statement of the arm and the override is the
+narrower condition inside it, so a reader names the priority without counting
+lines. The state register itself is not reported: every write to it is in an
+exclusive arm, which is what "explicit FSM states and cases" means in the rule.
+
+### A combinational mux example
+
+`confl_pick` in `hdl/milan/KL_pp_maap_shim.sv` selects the lowest pending
+conflict source, and it is source-order priority on purpose:
+
+```
+//! lowest pending source first (descending sweep, last write wins)
+always_comb begin : confl_pick
+  conflict_src_o = '0;
+  for (int unsigned i = N_SRC_P; i > 0; i--) begin
+    if (confl_pend_r[i-1]) conflict_src_o = SRC_W_C'(i - 1);
+  end
+end : confl_pick
+```
+
+The tool reports `conflict_src_o` as resolved by source order, and it is: the
+sweep runs from the highest source down, so the lowest pending one writes last
+and wins. What makes that acceptable is that nothing has to be simulated to
+know it. The default (`'0`, no conflict) is the first line, the comment on the
+block names both the priority and the mechanism, and the loop direction *is*
+the priority. The accidental form is the same six lines with the loop
+ascending and the comment absent: it would pick the highest source — legally,
+synthesizably — and nothing in the block would say whether that was meant.
+That is what the rule calls accidental last-assignment-wins: an override that
+only line order documents. An `if`/`else if` chain over the sources would make
+the same priority structural; the loop is allowed because it is named.
+
 ### Measured hotspots, not automatic findings
 
 The ranked scan leaves a small review set whose complexity has a concrete
@@ -282,14 +351,25 @@ reason. These rows include both project-owned processor submodules:
 
 | Unit | Measured shape | Why it is complex / disposition |
 |---|---:|---|
-| `sw/litex/test_ring_bd.py:stim` | depth 10, 26 decisions | A cycle-accurate concurrent DMA stimulus nested inside a test; retain the timing shape, but split the next new scenario out of this closure. |
 | `tb/tools/hive_compliance.py:main` | depth 7, 95 decisions | CLI orchestration for many independent protocol checks; the checks are already helpers, so its remaining branches are explicit dispatch and failure aggregation. |
 | `protocol-processor/scripts/render-wavedrom.py:collect_blocks` | depth 7, 13 decisions | A small Markdown/fence parser; a future change should table-drive token states, but no rewrite is justified without a failing case. |
-| `hdl/common/csr/milan_csr.sv:register_write` | depth 6, 142 order-dependent targets | The address decode is the register-map specification; splitting it would hide priority and address order, so it stays a named explicit decode. |
-| `protocol-processor/hdl/aecp/KL_aecp_engine.sv:command_machine` | depth 7, 85 order-dependent targets | An explicit command FSM with defaults followed by state-specific overrides; review priority at each override rather than imposing a generic count. |
+| `tb/tools/hive_compliance_clusters.py:main` | depth 6, 37 decisions | The same shape as `hive_compliance.py:main` for the STREAM_PORT and cluster probes: descriptor-type, port, cluster and map loops with a status check at each level, and every failure recorded where it is found. |
+| `scripts/act_ci.py:freeze_live_act` | depth 6, 23 decisions | A container monitor that re-checks its cancel flag after every blocking call — the early return the rule asks for, paid for in depth because it polls the inventory, the running set and the tool-cache volume in one closure; the next thing it watches goes in a helper. |
+| `sw/litex/test_ring_dma.py:axi_slave` | depth 6, 18 decisions | A cycle-accurate AXI slave model inside a test; the nesting is the address, data-beat and response handshake sequence, so it is retained, and the next protocol rule it checks belongs in a helper rather than a deeper branch. |
+| `hdl/common/csr/milan_csr.sv:register_write` | depth 6, 30 order-dependent targets | The address decode is the register-map specification, and the 30 targets are one-cycle write strobes cleared at the top of the block and raised by the decode — a named default-then-override — so it stays a named explicit decode. |
+| `protocol-processor/hdl/aecp/KL_aecp_notify.sv:notify_core` | depth 7, 27 order-dependent targets | The unsolicited-notification FSM: per-cycle defaults for its request and arm outputs, then state-specific overrides across eight states; review the priority at each override rather than imposing a count. |
+| `protocol-processor/hdl/packet_engine/KL_pp_rx_validator.sv:validator_seq` | depth 6, 27 order-dependent targets | The receive-frame sequencer: its pulses fall by default each cycle and its captured header fields are written when their byte arrives, so the order is the wire order. |
+| `hdl/milan/milan_datapath.sv:amap_edit_validate` | depth 2, 27 order-dependent targets | Flat, and still the widest set: an AUDIO_MAP edit validator that gives every verdict, key and live word a default and narrows each per descriptor type — the allowed shape as long as each default stays above its override. |
 
 The worked `cluster_names` case was selected because its complexity came from
 an unnamed catch-all and nested error path, not merely because it ranked high.
+Two rows an earlier count put at the top are absent for a reason worth
+recording: the nine-arm `elif` ladder in `sw/litex/test_ring_bd.py:stim` read
+as depth 10 while an `elif` counted as a level and is depth 4 now that it does
+not, and the explicit command FSM in
+`protocol-processor/hdl/aecp/KL_aecp_engine.sv:command_machine` read as 85
+order-dependent targets while exclusive `case` arms were counted and holds 5
+now that they are not. Both were artefacts of the measurement, not of the code.
 
 ### Exceptions
 
@@ -315,32 +395,69 @@ an unnamed catch-all and nested error path, not merely because it ranked high.
 [`scripts/measure_control_flow.py`](../../scripts/measure_control_flow.py) asks
 each language its own question.
 
-For host code it reports, per function, the **nesting depth** (how many
-enclosing branch, loop, `with` or `try` constructs a reader must hold) and the
-**decision points** (`if`, `for`, `while`, exception handlers, boolean
-operators, conditional expressions). A nested definition is measured as its own
-unit, so an orchestrator that defines one helper does not read as deeply nested
-when it is not.
+For host code it reports, per function, the **nesting depth** — how many
+enclosing branch, loop, `with` or `try` constructs a reader must hold, where an
+`elif` continues its chain and adds no level — and the **decision points**:
+`if`, `for`, `async for`, `while`, `match` and each of its `case` arms,
+exception handlers, boolean operators, conditional expressions, `assert`, and
+each `for` clause of a comprehension (its `if` filters are not counted
+separately). A nested definition is measured as its own unit, so an
+orchestrator that defines one helper does not read as deeply nested when it is
+not. Host code means Python: the C++ harnesses, Tcl and shell in the tree are
+not measured, and no hotspot in them can reach the table above.
 
 For SystemVerilog it reports, per procedural block, the nesting of `begin` and
-`case`, and the signals the block assigns **more than once** — the ones whose
-value is decided by source order.
+`case`, and the signals the block **resolves by source order**: a signal
+written at a point that is not mutually exclusive with an earlier write to the
+same signal. `x = 1; if (q) x = 2;` is that shape, and so is a write repeated
+in two separate `if`s. An `if`/`else` pair, an `else if` chain and a full
+`case` with one write per arm are not — their arms are exclusive — so the
+explicit FSM the Exceptions call simple is not reported for being one. A
+struct member is its own target and a whole-struct write covers it, a
+concatenation writes each of its elements, a loop variable is not a signal,
+writes to different constant bits of one vector are disjoint, and a variable
+index is taken to overlap anything.
+
+**The population, stated plainly.** Python is scanned under `scripts/`, `sw/`,
+`tb/`, `harness/`, `syn/` and `hdl/` here and under the same names plus
+`bench/` in each processor: 115 files today — 104 in this repository (31 under
+`scripts/`, 29 `sw/`, 26 `harness/`, 14 `tb/`, 4 `syn/`), 9 in
+`protocol-processor` (`scripts/`, `hdl/`, `tb/`) and 2 in `gptp-processor`
+(`hdl/`, `tb/`). Python under `avdecc/`, `bd/`, `docs/` and `tests/` is outside
+the Scope list above and is not measured. The RTL number covers every
+`always_ff`, `always_comb`, `always_latch` and `always @` block, with or
+without a `begin`, in the `.sv` files under `hdl/` of the three trees;
+testbench and synthesis-flow SystemVerilog under `tb/` and `syn/`, `.svh`
+headers and the generated `.v` wrapper are not in it. A Python file that does
+not parse or a block that does not close is named on stderr, the summary line
+says how many were `NOT measured`, and the run exits 2, so an unmarked number
+is the whole population.
 
 ```
 python3 scripts/measure_control_flow.py             # both, ranked
 python3 scripts/measure_control_flow.py --selftest  # the fixture arms
 ```
 
+The tool grades itself the way the cohesion tool does: `--selftest` runs
+forty-five fixture arms whose answers are known by construction — an
+`if`/`else` pair and a full `case` are exclusive, a flat `elif` chain is depth
+1, a block without `begin` is still a block, a `begin` inside a string does
+not unbalance one — plus one arm per processor that fails when the scan
+reaches none of its Python. Both measurement self-tests run in the `docs-check`
+job of [`.github/workflows/docs.yml`](../../.github/workflows/docs.yml), after
+the submodule checkout they need.
+
 **No threshold is proposed, and none is imported.** A generic complexity limit
 from another codebase would fail the parts of this tree that are correctly
 shaped — a wire-format parser and an explicit FSM both score high and are both
 right. What the pinned superproject and its two project-owned processor
-submodules measure today, so a later reader can see whether it moved: 2,322
-first-party functions, of which 35 nest five levels or deeper; and 616
-procedural blocks, of which 507 resolve at least one signal by source order.
-That second number is the reason the rule asks for priority to be *visible*
-rather than absent — forbidding the pattern would be a rewrite of most of the
-RTL, and would not make any of it clearer.
+submodules measure today, so a later reader can see whether it moved: 2,485
+first-party functions (2,399 here, 46 in `protocol-processor`, 40 in
+`gptp-processor`), of which 13 nest five levels or deeper; and 626 procedural
+blocks (319, 271 and 36), of which 291 (128, 152 and 11) resolve at least one
+signal by source order. That second number is the reason the rule asks for
+priority to be *visible* rather than absent — forbidding the pattern would be
+a rewrite of nearly half the RTL, and would not make any of it clearer.
 
 ## Rules not yet landed
 
