@@ -1880,73 +1880,137 @@ rejected.
 
 ### What was measured, and what was kept
 
-Six candidates over 547 first-party files in the superproject and both
-project-owned processor submodules. The scan takes about 0.21 s, so runtime
-rejected nothing. An absent or off-pin processor submodule refuses the scan
-instead of silently shrinking this population.
+Five checks and one rejected candidate, over the first-party files of the
+superproject and both project-owned processor submodules. The population is
+every tracked file with one of the suffixes `.sv .svh .v .py .cpp .h .hpp .c
+.sh .tcl .mk .xdc .yml .yaml` or the name `Makefile`, outside `third_party/`,
+`external/`, `gen/` and `build/`, minus the generated files below. Everything
+else is outside it, Markdown deliberately so: a Markdown hard line break **is**
+two trailing spaces, and the check would fight the format. An absent or off-pin
+processor submodule refuses the scan instead of silently shrinking this
+population. That refusal looks at the submodule's HEAD only: a working-tree
+edit inside a pinned checkout is scanned as-is, so a pinned finding fixed
+locally leaves the count before the pin moves.
+
+`python3 scripts/check_hygiene.py --measure` prints the table for the tree it
+runs on; this is its output at the head that landed it, after the repair
+commits — 646 first-party files (superproject 487, protocol-processor 130,
+gptp-processor 29), 15 generated files skipped, about 0.4 s on the host that
+measured it, so runtime rejected nothing:
 
 | Candidate | Findings | Files | Verdict |
 |---|---:|---:|---|
-| Line over 100 columns | 1164 | 167 | **Rejected** |
-| Trailing whitespace | 44 | 18 | Adopted |
-| Missing EOF newline | 14 | 14 | Adopted |
-| CRLF line ending | 0 | 0 | Adopted at zero |
-| UTF-8 BOM | 0 | 0 | Adopted at zero |
-| Tab in SystemVerilog | 0 | 0 | Adopted at zero |
+| Line over 100 columns | 1204 | 179 | rejected |
+| Trailing whitespace | 1 | 1 | adopted |
+| Missing EOF newline | 0 | 0 | adopted |
+| CRLF line ending | 0 | 0 | adopted at zero |
+| UTF-8 BOM | 0 | 0 | adopted at zero |
+| Tab in SystemVerilog | 0 | 0 | adopted at zero |
+
+Before the repair commits the same scanner counted 44 trailing-whitespace lines
+in 17 files (43 in 16 superproject files, 1 in protocol-processor) and 15 files
+without a final newline. Every one in the superproject was repaired; the line
+that remains is inside `protocol-processor` (its nvm_port bench's
+`measure_figures.py`, line 206) and is that repository's to fix.
 
 ### Why the line-length check is rejected, on the record
 
 It is the highest-volume candidate and it fights two deliberate house rules.
 
 `$error` takes later arguments as **values**, so an elaboration message must be
-one string literal — `milan_datapath` and `KL_media_nco` both carry the note
-saying so, and every one of those messages is over 100 columns by construction.
-The curated source lists in `syn/yosys/run.sh` and `syn/yosys/ooc.sh` are single
-lines by design, because a line continuation is what let a shell comment
-silently shrink one of them.
+one string literal — `hdl/milan/milan_datapath.sv:808` and
+`hdl/ieee8021q/filtering/rx_mac_filter.sv:120` carry the note saying so, and
+every one of those messages is over 100 columns by construction. The curated
+source lists in `syn/yosys/run.sh` and `syn/yosys/ooc.sh` are single lines by
+design, because a line continuation is what let a shell comment silently shrink
+one of them.
 
 Wrapping either would trade a real property for a cosmetic one. Rejected, not
 deferred — and written down, so the next person measuring these candidates does
-not rediscover it.
+not rediscover it. The candidate is still measured, so its figure can be
+regenerated: `--measure` counts a line whose text, without its line ending, is
+longer than 100 characters after UTF-8 decoding, a tab counting as one.
 
 ### Why three checks are adopted at zero
 
 A gate whose population is empty costs nothing to hold and is easy to mistake
 for a gate that does nothing. Each of the three carries an arm proving it bites,
 so the difference is visible: a CRLF, a byte-order mark and a tab in
-SystemVerilog are each caught in a fixture, and a tab in a **makefile** is
-deliberately not judged, because there a tab is the syntax.
+SystemVerilog are each caught in a fixture. Makefiles and `.xdc` constraints are
+in the population for the other four checks, and a tab in a **makefile** is
+deliberately not judged, because there a tab is the syntax — the arm that proves
+it uses a tracked Makefile's path, so it guards a real population.
+
+### What "trailing whitespace" means here
+
+A **non-blank** line ending in spaces or tabs. A line that is only spaces or
+tabs is an indented blank line — layout, not debt — so it is neither counted
+nor repaired, and this count and `git diff --check` (whose `blank-at-eol` rule
+flags whitespace-only lines too) disagree by exactly that class.
 
 ### Generated sources are excluded, and "generated" has one definition
 
-Five of the nineteen original missing-newline findings are generated Vivado and
-simulation scripts, including a Vivado block design whose banner reads "This is
-a generated script based on design". Their fix belongs in their generator, never
-in the file. What counts as generated is **not** re-decided here: the predicate
-is imported from [`scripts/gen_toc.py`](../../scripts/gen_toc.py), which already
-owns it. That predicate gained "generated script" so it recognises the Vivado
-banner, and the TOC gate was re-run to prove no documentation page newly matched.
+Five of the missing-newline findings the first measurement counted are
+generated Vivado and simulation scripts, including a Vivado block design whose
+banner reads "This is a generated script based on design". Their fix belongs in
+their generator, never in the file. What counts as generated is **not**
+re-decided here: the phrases and the twelve-line window are imported from
+[`scripts/gen_toc.py`](../../scripts/gen_toc.py), which already owns them. That
+predicate gained "generated script" so it recognises the Vivado banner, and no
+documentation page newly matched: `head -12` of every tracked `.md` in the
+three repositories, grepped for that phrase, returns nothing.
+
+One tightening applies to code and not to Markdown: a banner must be a
+**comment line** that leads with the phrase — at most three words before it,
+the Vivado block design's "This is a" being the longest lead-in in this tree.
+A Markdown page announces its banner as visible prose
+(`**GENERATED - do not hand-edit**`), so `gen_toc` must match prose; a code
+file's prose is its docstring, and a docstring that quotes another file's banner
+is not a banner. `scripts/check_results_fresh.py` was silently exempt from the
+gate by exactly such a sentence until review found it, which is why the tool
+prints the skipped list in full: an exemption is never invisible.
+
+### The ratchet holds each population separately
+
+[`scripts/hygiene.budget`](../../scripts/hygiene.budget) has one section per
+population — `superproject`, `protocol-processor`, `gptp-processor` — and
+`--check` compares each against its own section, so a finding inside a pinned
+processor never frees a slot for a new finding in the superproject. A processor
+finding is that repository's debt: it is reported here, held in its own section
+until it is fixed upstream and the pin moves, and the superproject stays at
+zero meanwhile. Every number may only go down; lowering one is a normal commit.
+Neither processor runs a hygiene check of its own, so new processor debt is
+first seen here, at the pin bump that brings it. That is the recorded state,
+not a plan: whether the owning repositories adopt the check is their decision.
 
 ### The rewrite is isolated, and the isolation is proven
 
 The gate and its ratchets landed first, at the measured values. The mechanical
-repair is a **separate commit**: for every executable/source file it touches,
-`git diff -w` is empty. That commit also wires the gate into CI, updates this
-guide, and lowers the ratchets explicitly. Twenty-five superproject files were
-repaired. Missing newlines went to zero; the one remaining trailing-whitespace
-finding is inside `protocol-processor` and is held at one until it is fixed in
-that repository and the submodule pin is updated.
+repair is a **separate commit**, and the proof is the exact command: with
+`<gate>` the commit that adopted the gate and `<repair>` the one after it,
+`git diff -w --ignore-blank-lines <gate> <repair> -- . ':!docs' ':!.github'`
+shows only `scripts/hygiene.budget` — restricted, because that commit also
+wired the gate into CI and updated this guide. Twenty-five superproject files
+were repaired there; `constraints/rgmii.xdc` followed in its own
+formatting-only commit when the constraints joined the population.
 
 ```
-python3 scripts/check_hygiene.py          # the findings
-python3 scripts/check_hygiene.py --fix    # repair the mechanical ones
-python3 scripts/check_hygiene.py --check  # the ratchet CI runs
+python3 scripts/check_hygiene.py            # the findings, per population
+python3 scripts/check_hygiene.py --fix      # repair the mechanical ones
+python3 scripts/check_hygiene.py --check    # the ratchet CI runs
+python3 scripts/check_hygiene.py --measure  # the table above, regenerated
 ```
 
 A tab in SystemVerilog is deliberately **not** auto-fixed: re-indenting is a
 judgement about layout, not a mechanical repair. `--fix` also refuses to rewrite
 a processor-submodule checkout: it reports those paths and exits non-zero so the
-repair is made and reviewed in the repository that owns them.
+repair is made and reviewed in the repository that owns them. It works on
+bytes — a byte that is not UTF-8 comes out exactly as it went in — and writes a
+file only when it repaired a finding in it. And it reports every repaired line
+that sits inside a string literal (a Python triple-quoted string, or a line
+whose double quotes do not balance) or in a make variable's value, as far as a
+simple scan can tell, because whitespace there is a value: stripping it is a
+content change, and the reviewer reads it as one.
 
 ### Review checklist
 
@@ -1956,6 +2020,8 @@ repair is made and reviewed in the repository that owns them.
 - Does the checker have an arm proving it can fail?
 - Is the formatting-only change in its own commit, with the functional work
   somewhere else?
+- A repaired line inside a string literal is a content change, not formatting:
+  was every line `--fix` reported reviewed as one?
 
 ## Rules not yet landed
 
