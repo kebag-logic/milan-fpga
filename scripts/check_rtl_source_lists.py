@@ -72,6 +72,10 @@ name every module, so each is elaborated as a Yosys top. It is not one of the
 five milan_datapath lists and `pp_srcs.py` does not feed it, so the closure
 walk above cannot see it drift - and at pin 3770ae02 it had: six declared
 modules were absent and both repositories reported the processor as covered.
+This list is read, not asked, because its only expansion path runs Yosys; so
+it is read the way bash reads it - `#` at the start of a word is a comment to
+the end of the line, quotes are unquoted - since splitting the raw text
+credited a commented-out top as elaborated.
 Here the authority is the set of modules DECLARED under `protocol-processor/hdl`;
 every one must be a top, or be named in `scripts/processor_yosys_tops.budget`
 with the reason it is not. An omission that is not recorded is refused; a
@@ -386,15 +390,80 @@ CONSUMERS = (
 #: added here and nowhere else.
 PROCESSOR_TOPS = (("protocol-processor", "syn/yosys/run.sh", "hdl"),)
 TOPS_BUDGET = REPO / "scripts/processor_yosys_tops.budget"
-_TOPS_ARRAY_RE = re.compile(r"\btops=\(([^)]*)\)", re.S)
+_TOPS_ARRAY_RE = re.compile(r"\btops=\(")
+
+
+def bash_array_words(text, pos):
+    """The words of a bash `( ... )` array literal whose body starts at `pos`,
+    read the way bash reads it: `#` at the start of a word opens a comment to
+    the end of the line; `'...'` is literal; `"..."` is literal except that a
+    backslash quotes a following `"`, `\\`, `$`, backquote or newline; an
+    unquoted backslash quotes the next character; and the literal ends at the
+    first `)` that is none of those. Nothing is expanded - the entries are
+    plain module names, and a `$var` here stays the word `$var`, which names
+    no declared module and so is refused rather than credited. Returns
+    (words, index after the `)`), or None when the literal is never closed.
+
+    The array cannot be ASKED like the other consumers: the script's only
+    expansion path elaborates every top through Yosys. Reading its raw text
+    with split() credited a commented-out top as elaborated, since `# KL_b`
+    became the words `#` and `KL_b` (PR #277 review)."""
+    words, word, in_word = [], [], False
+    n = len(text)
+    while pos < n:
+        c = text[pos]
+        if c in " \t\n":
+            if in_word:
+                words.append("".join(word))
+                word, in_word = [], False
+            pos += 1
+        elif c == "#" and not in_word:
+            nl = text.find("\n", pos)
+            pos = n if nl < 0 else nl + 1
+        elif c == ")":
+            if in_word:
+                words.append("".join(word))
+            return words, pos + 1
+        elif c == "'":
+            end = text.find("'", pos + 1)
+            if end < 0:
+                return None
+            word.append(text[pos + 1:end])
+            in_word, pos = True, end + 1
+        elif c == '"':
+            in_word, pos = True, pos + 1
+            while pos < n and text[pos] != '"':
+                if text[pos] == "\\" and pos + 1 < n and text[pos + 1] in '"\\$`\n':
+                    if text[pos + 1] != "\n":
+                        word.append(text[pos + 1])
+                    pos += 2
+                else:
+                    word.append(text[pos])
+                    pos += 1
+            if pos >= n:
+                return None
+            pos += 1
+        elif c == "\\":
+            if pos + 1 >= n:
+                return None
+            if text[pos + 1] != "\n":
+                word.append(text[pos + 1])
+                in_word = True
+            pos += 2
+        else:
+            word.append(c)
+            in_word, pos = True, pos + 1
+    return None
 
 
 def parse_tops_array(text):
-    """The names in a bash `tops=( ... )` array, or None when there is none."""
+    """The names in a bash `tops=( ... )` array as bash would run them, or
+    None when there is no such array or it is never closed."""
     m = _TOPS_ARRAY_RE.search(text)
     if m is None:
         return None
-    return set(m.group(1).split())
+    parsed = bash_array_words(text, m.end())
+    return None if parsed is None else set(parsed[0])
 
 
 def declared_modules(text):
@@ -446,7 +515,7 @@ def processor_tops_audit():
         tops = parse_tops_array(path.read_text(errors="replace"))
         if tops is None:
             rows.append((sub, script, set(), set(), [], [], [],
-                         f"{sub}/{script} carries no tops=( ... ) array"))
+                         f"{sub}/{script} carries no closed tops=( ... ) array"))
             continue
         declared = set()
         for src in sorted(root.rglob("*.sv")):
@@ -820,6 +889,49 @@ def selftest():
        f"got {tops}")
     ck("a script without a tops array is told apart from an empty one",
        parse_tops_array("set -eu\nfor t in a b; do :; done\n") is None)
+    # THE ARRAY IS READ AS BASH READS IT. The fixture below is the PR #277
+    # review's: split() on the raw body returned `#`, `KL_a`, `KL_b`, bash runs
+    # only KL_a, and the commented-out top passed as covered. Each fixture's
+    # answer is known by construction, and bash itself is the oracle for all
+    # of them (the literals are constants here; the processor's script is
+    # never run, because its expansion path is Yosys).
+    bash_fixtures = (
+        ("a commented-out top is not covered: the review's fixture",
+         "tops=(KL_a\n # KL_b\n)\n", {"KL_a"}),
+        ("a quoted name is unquoted and covered",
+         "tops=('KL_a' \"KL_b\")\n", {"KL_a", "KL_b"}),
+        ("an inline comment after a name runs to the end of its line only",
+         "tops=(KL_a # KL_b retired\n KL_c)\n", {"KL_a", "KL_c"}),
+        ("a `#` that does not start a word is not a comment, quoted or bare",
+         "tops=(\"KL_a#x\" 'KL_b#y' KL_c#z)\n", {"KL_a#x", "KL_b#y", "KL_c#z"}),
+        ("a `)` inside a comment or quotes does not close the array",
+         "tops=(KL_a # (was KL_b)\n 'KL_c)' KL_d)\n", {"KL_a", "KL_c)", "KL_d"}),
+    )
+    for name, fixture, want in bash_fixtures:
+        got = parse_tops_array(fixture)
+        ck(name, got == want, f"got {got}")
+    fx_tops = parse_tops_array(bash_fixtures[0][1])
+    ck("the commented-out top is refused as unrecorded, not credited",
+       compare_tops(fx_tops, {"KL_a", "KL_b"}, {}) == (["KL_b"], []),
+       f"got {compare_tops(fx_tops, {'KL_a', 'KL_b'}, {})}")
+    fx_row = ("protocol-processor", "syn/yosys/run.sh", fx_tops, {"KL_a", "KL_b"},
+              [], *compare_tops(fx_tops, {"KL_a", "KL_b"}, {}), None)
+    rc, lines = verdict(cl, need, [Row("fixture complete list", "ok", [], [], None)],
+                        [fx_row])
+    ck("the commented-out top reaches the verdict as TOPS DRIFT and exit 1",
+       rc == 1 and any(l.startswith("TOPS DRIFT") and "KL_b" in l for l in lines),
+       f"rc {rc}: {lines}")
+    oracle = []
+    for name, fixture, want in bash_fixtures:
+        run = subprocess.run(["bash", "-c", fixture + 'printf "%s\\n" "${tops[@]}"'],
+                             capture_output=True, text=True)
+        said = set(run.stdout.splitlines()) if run.returncode == 0 else None
+        if said != want:
+            oracle.append(f"{name}: bash said {said}, the fixture expects {want}")
+    ck("bash itself reads every fixture the way the parser does",
+       not oracle, "; ".join(oracle))
+    ck("an array that is never closed is refused, not read to the end of the file",
+       parse_tops_array("tops=(KL_a\n # KL_b)\n") is None)
     declared = declared_modules(
         "package p_pkg; endpackage\nmodule KL_a; endmodule\n"
         "interface bus_if; endinterface\n  module KL_new #(parameter W=1)(); endmodule\n")

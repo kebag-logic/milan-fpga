@@ -595,7 +595,11 @@ asked; the gate simply never asked, and both repositories reported the
 processor as covered.
 
 The same gate now reads that list too, with the declared modules as the
-authority. Every declared module is a top, or it is named in
+authority. It reads the array the way bash does — a `#` at the start of a word
+is a comment to the end of its line, quoted names are unquoted — because this
+is the one consumer that cannot be asked (its expansion path is Yosys), and
+splitting the raw text had credited a commented-out top as elaborated. Every
+declared module is a top, or it is named in
 [`scripts/processor_yosys_tops.budget`](../../scripts/processor_yosys_tops.budget)
 with the reason it is not. The six are recorded there as **drift at the pin**,
 not as helper exceptions, because that is what they are; the fix is upstream,
