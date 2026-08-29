@@ -28,7 +28,7 @@ shape rather than guess at it.
 - **[Rule 3: keep one source of truth without weakening test oracles](#rule-3-keep-one-source-of-truth-without-weakening-test-oracles)** -- The single-definition rule and the exception that keeps a test honest, the five RTL source lists that had one authority and four unguarded copies, the drift gate that now derives all of them from the RTL, and the mutation that proves an independent oracle is really independent.
 - **[Rule 4: use intention-revealing names and explicit units](#rule-4-use-intention-revealing-names-and-explicit-units)** -- What a name must reveal, the unit and clock-domain qualifiers that extend the existing HDL suffixes rather than competing with them, cross-language equivalents, and the interface renamed end to end to prove it.
 - **[Measuring hidden units](#measuring-hidden-units)** -- The port's own documentation as the evidence, the three exclusion classes and the false positives that forced them, and why this ships as a ratchet instead of a verdict.
-- **[Rule 5: make ports, contracts and ownership explicit](#rule-5-make-ports-contracts-and-ownership-explicit)** -- What a port contract must state, why positional and wildcard bindings are refused outright while missing documentation is only ratcheted, the boundary documented end to end as proof, and the review checklist.
+- **[Rule 5: make ports, contracts and ownership explicit](#rule-5-make-ports-contracts-and-ownership-explicit)** -- What a port contract must state, why wildcard, positional and hierarchical bindings are refused outright while missing documentation and unjustified open or tied connections are only ratcheted, the exact scope of the inventory, the boundary documented end to end as proof, and the review checklist.
 - **[Rules not yet landed](#rules-not-yet-landed)** -- The remaining nine rules of the contract, named so the numbering is stable and a reader knows what is still coming.
 
 ## The governing rule
@@ -915,9 +915,14 @@ boundary gained its unit.
 
 [CONTRIBUTING.md](../../CONTRIBUTING.md) already states half of this — "Ports
 documented **inline with `//!`** — the port list IS the spec". Nothing checked
-it. Across the superproject and both project-owned processor submodules, 222 of
-2,003 module/interface ports carried no contract before the representative
-cleanup.
+it. Across the superproject and both project-owned processor submodules, 394 of
+3,392 module ports carried no contract before the representative cleanup, and
+376 after it. The first version of this section said 222 of 2,003: its private
+header parser ended a `module X import pkg::*;` header at the import's `;`, so
+the 23 modules written that way — all three integration tops among them —
+contributed no ports at all, and review caught it. The ports now come from the
+one shared parser, [`scripts/sv_ports.py`](../../scripts/sv_ports.py), that
+Rule 4 reads too.
 
 ### What a port contract states
 
@@ -935,7 +940,13 @@ a reader would otherwise have to answer by reading the body:
 
 A group comment over a cohesive bundle is the contract for that bundle. One
 `//!` above an AXIS valid/ready/last triple says more than three comments
-reading "valid", "ready", "last".
+reading "valid", "ready", "last". The gate reads that as an explicit bundle
+rule: a standalone `//!` run documents every port beneath it until a blank
+line, a port carrying its own `//!`, the next standalone run, or the `)(`
+between the parameter list and the port list. So a port added inside a
+documented bundle inherits that bundle's contract, and one added after a blank
+line owes its own — which is why a new port is written beside the bundle it
+belongs to, or with its own comment, never floating.
 
 The declaration and the use site carry the same boundary. This is the good
 shape: typed, documented ports and named connections.
@@ -974,24 +985,29 @@ vendor_axis_fifo u_vendor_fifo (
 );
 ```
 
-### Three refusals and one ratchet
+### Three refusals and two ratchets
 
-The four parts of this rule are checked differently on purpose.
+The five parts of this rule are checked differently on purpose.
 
 **Wildcard `.*` bindings are refused outright.** A `.*` connects by name at
 elaboration, so adding a port to a child silently rewires every parent with no
 diff at the instantiation site.
 
-**Positional bindings are refused outright**, for the same reason with a
-sharper edge: reordering a child's ports rewires every positional parent
+**Positional bindings are refused outright** — port lists and parameter lists
+alike, instance arrays included — for the same reason with a sharper edge:
+reordering a child's ports or parameters rewires every positional parent
 silently, and the widths usually still fit. Only modules this tree declares are
 judged — a vendor primitive or a generated wrapper keeps whatever form its tool
-requires.
+requires. Both refusals print `path:line`, because the instance they name may
+sit in a 4,000-line integration top.
 
-**Production hierarchical reads are refused outright.** The checker derives
-each declared child-instance name, then rejects `child.member` use outside the
-child's named port list. Interface/modport member access is not a child-instance
-backdoor and is intentionally outside this population.
+**Production hierarchical reads are refused outright.** A reference is
+recognised by its first component: an instance the file declares (first-party
+or foreign — a read through a vendor FIFO's `rd_ptr_reg` is still a backdoor),
+a module name this tree declares (the `top.a.b` shape), or `$root`. String
+literals are blanked first, so `$display("u_x.hit")` is not a read.
+Interface/modport member access is not a child-instance backdoor and is
+intentionally outside this population.
 
 All three hidden-connection populations are **zero today**: wildcard and
 positional bindings, plus production reads through a child instance hierarchy.
@@ -999,14 +1015,42 @@ That is precisely why the arms that prove
 those checks bite matter more than the counts. A gate with an empty population
 is indistinguishable from a gate that does nothing, so
 [`scripts/check_port_contracts.py`](../../scripts/check_port_contracts.py)
-carries fixtures for a wildcard binding, a positional binding, a named binding,
-a parameterised named binding, a foreign module, control flow that must not read
-as an instantiation, a commented-out binding, and a child-state backdoor.
+carries fixtures for a wildcard binding (with its line), a positional port list
+and a positional parameter list, instance arrays in all three forms, a named and
+a parameterised named binding, a foreign module, control flow that must not
+read as an instantiation, a commented-out binding, a string literal that must
+not read as a reference, a backdoor through a first-party and through a
+foreign instance, a module-name-rooted and a `$root` reference, an `import`
+header, a non-ANSI header, and an empty and a partial population — 70 arms,
+each of which fails when the defect it guards is put back.
 
-**Undocumented ports are ratcheted, not refused.** There are 204 of them after
-the receive-filter cleanup. A
-flag-day pass over every one would be exactly the churn the governing rule
-forbids, so the count may only fall.
+**Undocumented ports are ratcheted, not refused.** There are 376 of them after
+the receive-filter cleanup: 246 in `hdl/`, 19 in `gptp-processor`, 111 in
+`protocol-processor`, each tree held to its own line in
+[`scripts/port_docs.budget`](../../scripts/port_docs.budget) so a processor's
+debt is never traded against the superproject's. A flag-day pass over every one
+would be exactly the churn the governing rule forbids, so each count may only
+fall. Two shapes the census cannot count are refused rather than read as zero:
+a header whose port list names ports without a direction (the non-ANSI form,
+whose directions live in the body), and a population that is empty or in which
+any of the three trees contributes no file or no parsed port — exit 2, named,
+because a pathspec or checkout problem must never look like a green gate. The
+[shared scope](../../scripts/code_quality_scope.py) refuses an absent or
+off-pin processor the same way, before anything is counted.
+
+**Open and literal-bound connections are ratcheted by identity, not refused.**
+An open status output or a tied-off input can each be the clearest boundary —
+the receive filter leaves the TCAM's winning index and multi-hit vector open
+on purpose — so the issue asks for a local rationale, the way a lint waiver
+carries one, rather than a count. The gate inventories every open (`.x()`) and
+literal-bound (`.x(1'b0)`, `.x('0)`) named connection on a first-party child,
+reads a connection as justified when a comment sits on its line or a comment
+run sits directly above the contiguous run of such connections it belongs to
+(a blank line, an ordinary connection or a sibling with its own comment ends
+the run), and records every one without a rationale as `path:instance.port`
+in the same budget. A line may only leave, by adding the rationale or removing
+the port; none may be added. Whether the comment *is* a rationale is review's
+job; that one exists is the gate's.
 
 The gate uses the shared code-quality scope, so the project-owned
 `protocol-processor` and `gptp-processor` submodules are included and must be
@@ -1021,24 +1065,48 @@ its ports would decorate a file every gate already ignores.
 
 The inventory is deliberately broader than the three refusals. Run
 `python3 scripts/check_port_contracts.py --list` to reproduce the file and line
-detail; the summary covers the superproject and both project-owned processor
-submodules.
+detail. Its scope is exact: the tracked `.sv` and `.svh` files under `hdl/` in
+the superproject and in both project-owned processor submodules for every row
+but the last, and the tracked `.sv` test wrappers under the `tb/` trees for the
+last. Every number below is the tool's output at this head.
 
 | Population | Result | Disposition |
 |---|---:|---|
-| Module/interface ports | 2,003 total; 204 undocumented | Documentation debt is ratcheted at 204. |
-| Wildcard first-party bindings | 0 | Refused. |
-| Positional first-party bindings | 0 | Refused, including parameterised instances. |
-| Production child-state references | 0 | Refused. |
-| State with multiple procedural owners | 0 in 110 module elaborations | The superproject and both processor lint sweeps report no `MULTIDRIVEN` finding. |
-| Open named child ports | 92 | Review inventory, not an automatic failure: optional status outputs can be intentionally unused. |
-| Literal-bound named child ports | 43 | Review inventory: resets, feature disables and unused inputs each need local rationale. |
-| Test-only hierarchical observations | 80 in 7 test wrappers | Confined to tracked `tb/` trees and read-only; production behavior cannot depend on them. |
+| Module ports | 3,392 total (`hdl/` 1,725; `gptp-processor` 120; `protocol-processor` 1,547); 376 undocumented | Documentation debt is ratcheted per tree at 246 / 19 / 111. |
+| Wildcard first-party bindings | 0 | Refused, by `path:line`. |
+| Positional first-party bindings | 0 | Refused — port and parameter lists, instance arrays included. |
+| Production child-state references | 0 | Refused — rooted in a declared instance, a declared module name or `$root`. |
+| Non-ANSI headers | 0 | Refused: the census cannot count ports declared in the body. |
+| State with multiple procedural owners | 0 `MULTIDRIVEN` in 104 module elaborations | 66 in `hdl/` (`scripts/lint_rtl.py --check`), 1 in `gptp-processor` (`make lint`: `KL_gptp_engine` with its hierarchy), 37 in `protocol-processor` (its own `lint_hdl.sh` lint sweep); the scanned sources declare 109 modules and 1 interface, which is a different number. |
+| Open named child ports | 92, of which 60 carry no local rationale | Inventory, ratcheted by identity: optional status outputs can be intentionally unused, and the ones that are say so at the connection. |
+| Literal-bound named child ports | 43, of which 16 carry no local rationale | Inventory, ratcheted by identity: resets, feature disables and unused inputs each need a local rationale. |
+| Test-only hierarchical observations | 80 in 7 `.sv` test wrappers (superproject `tb/` 46; `protocol-processor` 34) | Confined to tracked `tb/` trees and read-only; production behavior cannot depend on them. |
 
 The open/literal populations are syntax-level review leads, not a claim that
-135 defects exist. The representative boundary below makes its two ignored
-TCAM diagnostics explicit and states why. Test backdoors remain observable in
-the list output rather than disappearing behind a production count of zero.
+135 defects exist; the 76 without a rationale are the list that may only
+shrink. The representative boundary below makes its two ignored TCAM
+diagnostics explicit and states why, and the datapath does the same for the
+three verdict rails it leaves open. Test backdoors remain observable in the
+list output rather than disappearing behind a production count of zero.
+
+Two populations sit outside the inventory, named here so the table is not read
+as complete. The C++ harnesses reach into the DUT through Verilator's root
+access (`__DOT__`): 73 lines in 7 files under
+[`tb/verilator/`](../../tb/verilator) — `milan_dp/sim_nxn.cpp` 38,
+`pp_shadow/sim_main.cpp` 14, `milan_dp/sim_gptp.cpp` 12, `tkdiag/sim_main.cpp`
+5, `crf_rx/sim_main.cpp` 2, `milan_dp/sim_main.cpp` 1, `milan_dp/sim_aclk.cpp`
+1 — test-only by construction and not counted above. And the gPTP processor's
+board bench RTL, the `bench/arty` directory of the submodule, is synthesizable
+(its top instantiates `KL_gptp_engine`) but outside the `hdl` pathspec: 6
+files, 70 ports, 64 undocumented, neither ratcheted nor judged. The 57 tracked
+`.sv` files under `tb/` and `bench/` are inventoried for hierarchical reads
+only; a hand run of the gate's own functions over them finds 0 wildcard and 0
+positional bindings today. Two narrower limits: the one `interface` header in
+the tree (`hdl/common/axi_stream_if.sv`, two ports and four parameters) is
+outside both Rule 4's and Rule 5's port census, because the shared parser
+reads `module` headers; and a hierarchical reference rooted in an instance
+that another file declares, or in a name a macro introduces, is not seen. All
+of this is recorded in the script's docstring as well.
 
 ### The boundary documented as proof
 
@@ -1083,11 +1151,31 @@ are the ones that must be rewritten with it.
 The internal TCAM seam is explicit as well: `tcam_match` and `tcam_action`
 carry the named child outputs into the frame decision, while the unused winning
 index and multi-hit vector are open beside their local rationale. The focused
-suite's `binding-negative` arm replaces the real `.lookup_key_i(dmac)` binding
-with a constant zero, rebuilds the same boundary and requires the same harness
-to fail. Its clean run is a prerequisite, so a harness that rejects everything
-cannot satisfy the arm. This proves a tied-off lookup connection is observable
-through real ports rather than through a test-only child-state read.
+suite's `binding-negative` target
+([`tb/verilator/rx_filter/binding_mutant.py`](../../tb/verilator/rx_filter/binding_mutant.py))
+then applies the four binding defects the issue names, one at a time, to a
+copy of the RTL, and builds each with the Makefile's own recipe — read through
+`make -s print-vflags`, not a second copy of `VFLAGS` — so the mutants and the
+clean run share one boundary. What each arm proves is exactly this:
+
+- a **missing** binding (`.lookup_key_i` dropped) and a **direction-wrong**
+  port (the child's `lookup_key_i` declared `output`; the filter's own
+  `m_tready` declared `output`) are refused at the build **by name** —
+  `%Error-PINMISSING`, `%Error-UNDRIVEN` — because the recipe promotes those
+  two warnings to errors even under `-Wno-fatal`. Verilator inlines the child
+  and erases direction, so a direction error has no behavioural signature:
+  review measured the child mutation building with a warning and running
+  62/62 under the old flags. Without the two `-Werror` flags three of the five
+  arms fail, which is the mutation that proves them;
+- a **swapped** binding (`wr_key_i`/`wr_mask_i` exchanged) and a **tied-off**
+  one (`.lookup_key_i(48'b0)`) are legal SystemVerilog, so they build, and the
+  unmodified harness must reject them with its own `RESULT: FAIL` (5 and 11
+  failing checks of 78); a build failure does not count for these two.
+
+The clean run is a prerequisite, so a harness that rejects everything cannot
+satisfy the arms. The seam is therefore observable through real ports rather
+than through a test-only child-state read, and the boundary's direction is
+guarded by the build, not by a check that cannot see it.
 
 ### Review checklist
 

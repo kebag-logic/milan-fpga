@@ -109,9 +109,11 @@ jobs:
           python3 scripts/measure_naming.py --check
           python3 scripts/measure_naming.py --selftest
 
-      # Rule 5: no wildcard or positional port binding anywhere (both refused
-      # outright, both currently zero, both with arms proving the check bites),
-      # and undocumented ports held to a ratchet.
+      # Rule 5: no wildcard, positional or hierarchical binding in the
+      # first-party hdl/ trees (three refusals, all currently zero, each with an
+      # arm proving it bites), undocumented ports held to a per-tree ratchet,
+      # and open or literal-bound connections without a rationale held to a
+      # ratchet by identity.
       - name: Port contract gate
         run: |
           python3 scripts/check_port_contracts.py
