@@ -1764,6 +1764,26 @@ arm; the self-test carries a fixture for every one of those shapes and for the
 five live arms. The tool prints, for each armed suite, the executed target and
 the shape that arms it.
 
+**And the recipe's error control must let the arm turn the suite red.** A
+second review showed the classifier erasing Make's leading `-` and splitting
+`||` into independent commands, so `-python3 mutants.py` and
+`python3 mutants.py || true` both armed a suite whose mutation campaign could
+fail without the suite noticing. The classifier now reads a recipe the way
+Make and `sh -c` do. A line whose prefix carries `-` (in any order with `@`
+and `+`, read after expansion), or a target `.IGNORE` names, has its errors
+ignored and arms nothing, whatever shape sits on it. Per command, a driver
+followed by `||` reports the fallback's status — `|| true`, `|| :` and
+`|| echo …` mask it, a fallback ending in `exit`, `exit N` or `false`
+re-raises it and still counts; a driver followed by `;` and another command
+reports that command's status unless `set -e` (or `.POSIX`/`.SHELLFLAGS -e`)
+is in force and the driver is the last element of its own list; a driver
+feeding a pipe reports the consumer's; an `if`/`while` condition is consumed.
+A plain driver and an `&&` chain carry the failure and count, and a `-` on
+another line of the same target (`-rm -rf obj_mut`) does not touch the
+driver's line. The self-test carries a fixture for each of these shapes; the
+five live arms are all plain or `@`-silenced, so the count in the table below
+did not move.
+
 ### The four evidence populations
 
 [`scripts/measure_test_evidence.py`](../../scripts/measure_test_evidence.py):
@@ -1801,7 +1821,14 @@ a structural import from an oracle import needs a reading of each wrapper, not
 a pattern. `secrets.token_*` is a nonce, not a test draw (the draw-shaped
 `secrets.randbelow/randbits/choice` are counted and can never be seeded). A
 deadline passed positionally (`asyncio.wait_for(coro, 5)`) is not seen; the
-keyword form is. A Makefile conditional is read with every branch live. Eight
+keyword form is. A Makefile conditional is read with every branch live.
+Recipe error control is read as Make and `sh -c` read it and no further: a
+status captured and re-raised later (`x || rc=1; …; exit $$rc`, the shape the
+multi-binary suites use for their own harnesses), a driver used as an
+`if`/`while` condition, a driver inside `$(…)`, backticks or `$(shell …)`,
+`set -o pipefail` (Make's shell is `/bin/sh`) and `make -i`/`MAKEFLAGS` at the
+entry are not followed, so a driver in those shapes is not credited — write
+the arm plain or `&&`-chained. Eight
 harnesses include the Verilator-internal `V*___024root.h` to reach state
 through a backdoor (`crf_rx`, five `milan_dp` programs, `pp_shadow`, `tkdiag`);
 this rule says a backdoor may seed a state but must not be the only proof of

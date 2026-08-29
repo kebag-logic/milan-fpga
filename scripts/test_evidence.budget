@@ -7,8 +7,11 @@
 #    from the suite's Makefile: a recipe on a target the suite's entry runs,
 #    invoking a mutation/negative driver, passing a mutation define, or
 #    consuming a negative-case table. Prose, comments and empty targets count
-#    for nothing (review of #282). A suite whose assertions have never been
-#    observed to fail is indistinguishable from a suite that asserts nothing.
+#    for nothing (review of #282), and so does a recipe whose error control
+#    keeps the arm's failure from Make: a `-` prefix, `.IGNORE`, a `|| true`
+#    fallback, a `; cmd` tail without errexit, a pipe (second review of
+#    #282). A suite whose assertions have never been observed to fail is
+#    indistinguishable from a suite that asserts nothing.
 82
 # 2. First-party files that draw random values without recording a seed.
 #    The population widened in the review of #282 to every language the test

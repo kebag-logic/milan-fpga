@@ -19,7 +19,14 @@ Four things are counted or refused.
      a mutation/negative driver script the recipe invokes, a compile-time
      mutation define the recipe passes, or a negative-case table the recipe
      consumes. A README sentence, a comment naming `mutants.py`, an empty
-     `mutants:` target and an unrelated `-DUSE_MUTEX` all count for nothing.
+     `mutants:` target and an unrelated `-DUSE_MUTEX` all count for nothing,
+     and so does an arm whose recipe's own error control keeps it from ever
+     failing the suite: Make ignores the errors of a line whose prefix carries
+     `-` and of a target `.IGNORE` names, and the shell reports the fallback's
+     status after `||` (`|| true`, `|| :`, `|| echo`), the next command's
+     after `;` and the consumer's after `|`. A plain driver, an `&&` chain, a
+     driver run under `set -e` as the last element of its own list, and a
+     `||` fallback that ends in `exit`/`false` carry the failure and count.
      The inventory includes the superproject's Verilator suites and the
      processor submodules' own RTL suites. This is a RATCHET: the number
      without an arm may only fall.
@@ -66,7 +73,13 @@ KNOWN LIMITS, by name, so nobody rediscovers them:
     `ifeq` counts even when that branch would not be taken on the sweep host;
   - a default-constructed C++ engine (`std::mt19937 g;`) is deterministic by
     the standard and is not flagged; `srand(time(NULL))` is not a recorded
-    seed and is.
+    seed and is;
+  - recipe error control is read as Make and `sh -c` read it, no further: a
+    status captured and re-raised later (`x || rc=1; ...; exit $$rc`), a
+    driver used as an `if`/`while` condition, a driver inside `$(...)`,
+    backticks or `$(shell ...)`, `set -o pipefail` (Make's shell is /bin/sh)
+    and `make -i`/`MAKEFLAGS` at the entry are not followed, so a driver in
+    those shapes is not credited; write the arm plain or `&&`-chained.
 
 Usage:
     python3 scripts/measure_test_evidence.py            # the inventories
@@ -165,7 +178,13 @@ MAKE_SKIP = re.compile(r"^(?:ifeq|ifneq|ifdef|ifndef|else|endif|include|-include
 MAKE_CALL = re.compile(r"(?:\$\(MAKE\)|(?<![\w/.-])make)\s+([^;&|)>\n]*)")
 CD_MAKE_CALL = re.compile(r"cd\s+\"?(\$\{?\w+\}?)\"?/?\s*&&\s*make\b([^;&|)>\n]*)")
 SHELL_WORDS = {"if", "then", "else", "elif", "fi", "do", "done", "for", "while",
-               "until", "!", "{", "}", "in", "case", "esac", "exec", "time"}
+               "until", "!", "{", "}", "(", ")", "in", "case", "esac", "exec", "time"}
+#: A keyword whose command's status the shell consumes instead of reporting.
+CONDITION = {"if", "elif", "while", "until", "!"}
+#: A recipe line's prefix, read after expansion the way Make reads it (the
+#: kernel's `$(Q)` idiom): `@` silences, `+` runs under -n, `-` IGNORES ERRORS.
+RECIPE_PREFIX = re.compile(r"^[\s@+-]*")
+SHELL_OP = re.compile(r"\s*(;|&&|\|\||\|)\s*")
 INTERPRETERS = re.compile(r"^(?:python[\d.]*|sh|bash|dash|env)$")
 #: A define that means "mutate", as a whole `_`-delimited word: NVM_MUT_MAP_ALIAS
 #: and X_MUTANT are; USE_MUTEX and COMMUTE are not.
@@ -307,20 +326,96 @@ def reachable_targets(variables, rules, first, goals):
     return seen
 
 
-def commands(line):
-    """The (command, argument) pairs a recipe line runs, per shell segment."""
-    pairs = []
-    for segment in re.split(r"\s*(?:;|&&|\|\||\|)\s*", line):
-        words = [w for w in segment.split() if w]
-        while words and (words[0].lstrip("@-+") in SHELL_WORDS
-                         or re.match(r"^\w+=", words[0]) or not words[0].lstrip("@-+")):
-            words.pop(0)
+def shell_words(segment):
+    """(leading keywords, command words) of one shell segment. Keywords,
+    assignments and a group opener come off the front and a closer off the
+    end, so `{ exit 1` and `(exit 1)` both read as `exit 1`."""
+    words = segment.split()
+    if words and len(words[0]) > 1 and words[0][0] in "{(":
+        words[0:1] = [words[0][0], words[0][1:]]
+    if words and len(words[-1]) > 1 and words[-1][-1] in "})" \
+            and {"}": "{", ")": "("}[words[-1][-1]] not in words[-1]:
+        words[-1:] = [words[-1][:-1], words[-1][-1]]
+    lead = []
+    while words and (words[0] in SHELL_WORDS or re.match(r"^\w+=", words[0])):
+        lead.append(words.pop(0))
+    while words and words[-1] in ("}", ")"):
+        words.pop()
+    return lead, words
+
+
+def set_errexit(words, errexit):
+    """errexit after this command: `set -e`/`set +e`, `set -o/+o errexit`."""
+    if not words or words[0] != "set":
+        return errexit
+    for i, flag in enumerate(words[1:], 1):
+        if flag in ("-o", "+o"):
+            if i + 1 < len(words) and words[i + 1] == "errexit":
+                errexit = flag == "-o"
+        elif flag[:1] in "-+" and "e" in flag[1:]:
+            errexit = flag[0] == "-"
+    return errexit
+
+
+def reraises(segments, k):
+    """Does the `||` fallback beginning at segment k end in `exit`/`false`,
+    so the failure it caught still reaches Make? `|| true`, `|| :` and
+    `|| echo ...` do not; `|| exit 1` and `|| { echo ...; exit 1; }` do."""
+    if k >= len(segments):
+        return False
+    closer = {"{": "}", "(": ")"}.get(segments[k].lstrip()[:1])
+    last = None
+    for m in range(k, len(segments)):
+        last = shell_words(segments[m])[1] or last
+        if closer is None or segments[m].rstrip().endswith(closer):
+            break
+    if not last:
+        return False
+    return last[0] == "false" or (last[0] == "exit" and (len(last) < 2 or last[1] != "0"))
+
+
+def reaches_make(segments, ops, leads, cmds, i, errexit):
+    """Does a non-zero exit of segment i become the recipe line's status?
+
+    Make runs the line as one `sh -c` and reads that shell's exit status: an
+    `&&` chain carries the first failure, `A || B` reports B's status, `A | B`
+    reports B's, `A; B` reports B's unless errexit is on and A is the last
+    element of its own and-or list, and a condition's status is consumed."""
+    if CONDITION & set(leads[i]):
+        return False
+    j = i
+    while ops[j] == "&&" or (ops[j] == "|" and j > i):
+        j += 1
+    if ops[j] is None:
+        return True
+    if ops[j] == "|":
+        return False
+    if ops[j] == "||":
+        return reraises(segments, j + 1)
+    if any(cmds[k] for k in range(j + 1, len(cmds))):
+        return errexit and j == i
+    return True
+
+
+def commands(line, errexit=False):
+    """The (command, argument, counts) triples a recipe line runs, per shell
+    segment. `counts` is False where the recipe's own error control (the `-`
+    prefix, `||`, `|`, `;`, a condition) keeps the command's failure from
+    Make, so a failed campaign there would leave the suite green."""
+    prefix = RECIPE_PREFIX.match(line).group(0)
+    parts = SHELL_OP.split(line[len(prefix):])
+    segments, ops = parts[0::2], parts[1::2] + [None]
+    peeled = [shell_words(segment) for segment in segments]
+    leads, cmds = [lead for lead, _ in peeled], [words for _, words in peeled]
+    triples = []
+    for i, words in enumerate(cmds):
         if not words:
             continue
-        cmd = words[0].lstrip("@-+")
         rest = [w for w in words[1:] if not w.startswith("-")]
-        pairs.append((cmd, rest[0] if rest else None))
-    return pairs
+        counts = "-" not in prefix and reaches_make(segments, ops, leads, cmds, i, errexit)
+        triples.append((words[0], rest[0] if rest else None, counts))
+        errexit = set_errexit(words, errexit)
+    return triples
 
 
 def is_driver(text, suffix):
@@ -335,19 +430,33 @@ def is_driver(text, suffix):
 
 def arms(makefile, goals, scripts):
     """Every executable arm: (target, kind, detail). `scripts` maps a script's
-    basename to its text; only .py/.sh files are consulted, never prose."""
+    basename to its text; only .py/.sh files are consulted, never prose. A
+    recipe whose error control keeps the arm from failing the suite is not
+    one: a `-` prefix or `.IGNORE` for a whole line or target, and per
+    command whatever `commands()` marks as not counting."""
     variables, rules, first = parse_makefile(makefile)
+    errexit = ".POSIX" in rules or any(
+        flag.startswith("-") and "e" in flag[1:]
+        for flag in expand(variables.get(".SHELLFLAGS", ""), variables).split())
+    ignore = rules.get(".IGNORE")
+    ignored = None if ignore is None else set(expand(" ".join(ignore[0]), variables).split())
     found = []
     for target in sorted(reachable_targets(variables, rules, first, goals)):
+        if ignored is not None and (not ignored or target in ignored):
+            continue
         for raw in rules[target][1]:
             line = expand(raw, variables)
+            if "-" in RECIPE_PREFIX.match(line).group(0):
+                continue
             for m in MUT_DEFINE.finditer(line):
                 if MUT_NAME.search(m.group(1)):
                     found.append((target, "define", m.group(0)))
             for m in TABLE_VAR.finditer(raw):
                 if expand(m.group(0), variables).strip() not in ("", m.group(0)):
                     found.append((target, "table", m.group(0)))
-            for cmd, arg in commands(line):
+            for cmd, arg, counts in commands(line, errexit):
+                if not counts:
+                    continue
                 candidate = arg if INTERPRETERS.match(cmd) and arg else cmd
                 name = candidate.rsplit("/", 1)[-1].strip("\"'")
                 suffix = Path(name).suffix
@@ -665,6 +774,43 @@ def selftest():
        not arms("all:\n\t./sim\n# the mutation was run by hand and failed\n", default, {}))
     ck("a comment marker inside the driver does not make it one",
        not arms("all:\n\tpython3 x.py\n", default, {"x.py": "# MUTATIONS = none yet\nrun()\n"}))
+    # -- error control: a failure Make never sees is not evidence -------------
+    mut = {"mutants.py": driver}
+    ck("(G) a `-` recipe line ignores errors: `-python3 mutants.py` is not an arm",
+       not arms("all: mutants\nmutants:\n\t-python3 mutants.py\n", default, mut)
+       and not arms("all:\n\t-verilator +define+NVM_MUT_MAP_ALIAS x.sv\n", default, {}))
+    ck("(H) `python3 mutants.py || true` is not an arm: the fallback masks the driver",
+       not arms("all: mutants\nmutants:\n\tpython3 mutants.py || true\n", default, mut))
+    ck("`|| :` and `|| echo ...` mask the same way",
+       not arms("all:\n\tpython3 mutants.py || :\n", default, mut)
+       and not arms("all:\n\tpython3 mutants.py || echo 'mutants failed'\n", default, mut))
+    ck("a `-` on another line of the same target leaves the driver's line evidence",
+       arms("all: mutants\nmutants:\n\t-rm -rf obj_mut\n\tpython3 mutants.py\n", default, mut)
+       == [("mutants", "driver", "mutants.py")])
+    ck("an && chain carries the driver's failure, so it still counts",
+       bool(arms("all:\n\t./sim && python3 mutants.py && echo ok\n", default, mut)))
+    ck("`@-` and `-@` are both the ignore prefix, before and after expansion",
+       not arms("all:\n\t@-python3 mutants.py\n", default, mut)
+       and not arms("all:\n\t-@python3 mutants.py\n", default, mut)
+       and not arms("Q = -\nall:\n\t$(Q)python3 mutants.py\n", default, mut))
+    ck("a `; true` tail masks; `set -e` restores the driver's failure, `set +e` drops it",
+       not arms("all:\n\tpython3 mutants.py; true\n", default, mut)
+       and bool(arms("all:\n\tset -e; python3 mutants.py; rm -rf obj_mut\n", default, mut))
+       and not arms("all:\n\tset -e; set +e; python3 mutants.py; rm -rf obj_mut\n", default, mut))
+    ck("a driver feeding a pipe reports the consumer's status, not its own",
+       not arms("all:\n\tpython3 mutants.py | tee mutants.log\n", default, mut))
+    ck("a fallback that re-raises (`|| exit 1`, `|| { ...; exit 1; }`) still counts",
+       bool(arms("all:\n\tpython3 mutants.py || exit 1\n", default, mut))
+       and bool(arms("all:\n\tpython3 mutants.py || { echo FAIL; exit 1; }\n", default, mut))
+       and not arms("all:\n\tpython3 mutants.py || { echo FAIL; exit 0; }\n", default, mut))
+    ck("an if condition, a $$(...) and a backtick substitution are not arms",
+       not arms("all:\n\tif python3 mutants.py; then echo ok; fi\n", default, mut)
+       and not arms("all:\n\techo $$(python3 mutants.py)\n", default, mut)
+       and not arms("all:\n\techo `python3 mutants.py`\n", default, mut))
+    ck(".IGNORE makes a target's, or every, recipe non-evidence",
+       not arms(".IGNORE: mutants\nall: mutants\nmutants:\n\tpython3 mutants.py\n", default, mut)
+       and not arms(".IGNORE:\nall:\n\tpython3 mutants.py\n", default, mut)
+       and bool(arms(".IGNORE: clean\nall:\n\tpython3 mutants.py\n", default, mut)))
     calls = make_invocations('for d in tb/*/; do\n  if (cd "$d" && make) >"$log" 2>&1; then\n'
                              'make -C tb/nvm_port figures\n$(MAKE) -C tb/verilator/ucpu\n')
     ck("the entry reader sees the loop, the named target and the sub-make",
