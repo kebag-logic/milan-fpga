@@ -10,6 +10,7 @@ vendored code.  ``third_party`` and ``external`` remain upstream/vendor scope.
 """
 
 import subprocess
+import sys
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
@@ -17,11 +18,14 @@ PROJECT_SUBMODULES = ("protocol-processor", "gptp-processor")
 
 
 def _assert_pinned_submodules():
-    """Refuse an absent or off-pin project submodule.
+    """Refuse an absent or off-pin project submodule, with exit 2.
 
     A partial scan must never establish a smaller baseline.  ``git submodule
     status`` prefixes a healthy, checked-out pinned commit with one space; ``-``
     means absent, ``+`` means a different commit, and ``U`` means conflicted.
+    Only the pinned HEAD is proved here: a working-tree edit inside a submodule
+    that still sits at its pin is scanned as-is, which is what lets a reviewer
+    inject a probe there and watch the gate see it.
     """
     run = subprocess.run(
         ["git", "submodule", "status", "--", *PROJECT_SUBMODULES],
@@ -29,10 +33,13 @@ def _assert_pinned_submodules():
     rows = [line for line in run.stdout.splitlines() if line]
     if len(rows) != len(PROJECT_SUBMODULES) or any(line[0] != " " for line in rows):
         detail = "; ".join(rows) if rows else "no submodule status returned"
-        raise RuntimeError(
-            "project submodules must be initialized at their pinned commits "
-            f"before a code-quality scan ({detail}); run `git submodule update "
-            "--init protocol-processor gptp-processor`")
+        # A named refusal with exit 2, not a traceback: the same shape the
+        # lint and xvlog gates use. Exit 2 is "the population could not be
+        # established", which no caller may read as a count of zero.
+        print("REFUSED: project submodules must be initialized at their pinned "
+              f"commits before a code-quality scan ({detail}); run `git submodule "
+              "update --init protocol-processor gptp-processor`", file=sys.stderr)
+        sys.exit(2)
 
 
 def scoped_pathspecs(*patterns):
