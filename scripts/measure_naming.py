@@ -14,7 +14,11 @@ port to be documented inline with `//!`, and those comments say what the value
 IS - "Egress latency correction, ns", "hiCredit clamp, signed bytes". When the
 comment names a unit of measure and the identifier does not, the unit is known
 and simply absent from the name. That is a finding a reader can check in one
-line.
+line. The converse is worse and is measured too: when the identifier carries
+a unit token and the comment documents a different family - `timeout_bytes_i
+//! timeout in cycles` - the name is not vague, it is wrong. Review found the
+first form of this tool stopped at "the name has a unit token", so a
+misleading `_bytes` satisfied a cycles contract and fell out of the ratchet.
 
 WHAT IS SCANNED. Every module header - ports and parameters - in first-party
 `.sv` under `hdl/` across the superproject and both project-owned processor
@@ -41,14 +45,30 @@ with a reason, and each printed in full by `--excluded`:
     word" name what the value IS, not what it is measured in. A singular
     byte/sample/octet with no count, "in", "per" or comma before it is prose.
 
+UNITS ARE COMPARED BY FAMILY, DEFINED ONCE. `FAMILIES` maps every spelling the
+tool knows - in a comment or as an identifier token - to time, bytes, cycles,
+frequency, ratio, rate or samples, so `_ns` satisfies "nanoseconds", `_cyc`
+satisfies "clock cycles" and `_bps` satisfies "bits per second". A unit-named
+boundary is a candidate when the comment documents a unit of measure and never
+names the name's family at all (nouns count: "tone sample" confirms `_smp`),
+or when it states the value as "X per Y" and the name carries only Y - a cycle
+count named for the tick it produces. The NOUN and SHAPE exclusions carry over
+because they say the comment documents no unit; PROTOCOL carries over because
+the name is not ours; SINGLE-BIT does not, because it excused a unit that was
+missing from a port with no quantity, and a unit that is present and wrong is
+a false statement at any width.
+
 THE RATCHET IS KEYED ON IDENTITY, NOT A COUNT. `scripts/naming.budget` names
 every candidate as `path:module:port`. A candidate may leave the list only by
-being renamed with its unit or by being removed; a port that is still there
-under the same name and has merely lost the unit word from its comment is
-refused - the cheapest way to lower a count would otherwise be to strip the
-documentation, which is the opposite of the rule. No new identity may appear.
-`--write-budget` regenerates the list after a rename, so lowering is a normal
-commit and the diff shows exactly which boundary gained its unit.
+being renamed with its unit or by being removed - or, for a name that already
+carries a unit, by a comment that now names that family, since the tool cannot
+tell a conversion ("~21 ms" on a cycle count) from a contradiction and the diff
+can; a port that is still there under the same name and has merely lost the
+unit word from its comment is refused - the cheapest way to lower a count would
+otherwise be to strip the documentation, which is the opposite of the rule. No
+new identity may appear. `--write-budget` regenerates the list after a rename,
+so lowering is a normal commit and the diff shows exactly which boundary gained
+its unit.
 
 Usage:
     python3 scripts/measure_naming.py                # candidates + per-tree table
@@ -76,17 +96,58 @@ from sv_ports import declarations, module_headers
 # ---------------------------------------------------------------------------
 # vocabulary
 # ---------------------------------------------------------------------------
+#: THE UNIT FAMILIES, defined once. Every unit spelling the tool knows - as
+#: written in a `//!` comment or carried as a `_`-delimited identifier token -
+#: belongs to exactly one family, and two spellings agree when their families
+#: do. `bit`, `bits` and `word` are deliberately absent: bit width is already
+#: in the type, and "word" is a noun for the value in this tree
+#: ("configuration word").
+FAMILIES = {
+    "time": ("ns", "us", "µs", "μs", "ms", "nsec", "usec", "msec", "sec", "secs",
+             "second", "seconds", "nanosecond", "nanoseconds", "microsecond",
+             "microseconds", "millisecond", "milliseconds"),
+    "bytes": ("byte", "bytes", "octet", "octets"),
+    "cycles": ("cyc", "cycle", "cycles", "clock cycle", "clock cycles", "clock", "clocks"),
+    "frequency": ("hz", "khz", "mhz", "ghz", "hertz"),
+    "ratio": ("ppb", "ppm"),
+    "rate": ("bps", "kbps", "mbps", "gbps", "bit/s", "bits/s", "bit per second",
+             "bits per second", "byte per second", "bytes per second"),
+    "samples": ("smp", "sample", "samples"),
+}
+_FAMILY_OF = {alias: fam for fam, aliases in FAMILIES.items() for alias in aliases}
+#: spellings a comment never uses as a unit: the identifier abbreviations
+#: ("1-cyc strobe" is shape) and the singular clock, which is the signal or
+#: timing prose ("per Clock Domain", "every clock") - the counted plural is
+#: the unit ("in clocks", "6250 clocks per 3 samples")
+_NOT_IN_PROSE = frozenset({"cyc", "smp", "clock"})
+#: the tokens an identifier carries: the abbreviations and plain words, not
+#: the English long forms, the compounds or the non-ASCII spellings, and not
+#: `clock` (`clock_en_i` is a signal, not a count) or `second` (`second_stage_r`)
+_NAME_TOKENS = ("ns", "us", "ms", "nsec", "usec", "msec", "cyc", "cycle", "cycles",
+                "byte", "bytes", "octet", "octets", "hz", "khz", "mhz", "ghz", "ppb",
+                "ppm", "smp", "sample", "samples", "sec", "secs", "bps", "kbps",
+                "mbps", "gbps")
+
+
+def family(word):
+    """The family of a unit spelling from either vocabulary, or None."""
+    return _FAMILY_OF.get(re.sub(r"\s*/\s*", "/", re.sub(r"\s+", " ", word.lower().strip())))
+
+
+def _alternation(words):
+    """A regex alternation of unit spellings, longest first so "clock cycles"
+    beats "cycles" and "bytes per second" beats "bytes"; a space matches any
+    whitespace and a slash tolerates spaces around it."""
+    def pat(w):
+        return r"\s+".join(r"\s*/\s*".join(re.escape(p) for p in tok.split("/"))
+                           for tok in w.split(" "))
+    return "|".join(pat(w) for w in sorted(words, key=len, reverse=True))
+
+
+_DOC_ALT = _alternation(w for w in _FAMILY_OF if w not in _NOT_IN_PROSE)
 #: A UNIT OF MEASURE as written in a `//!` comment. Case-insensitive except
-#: where case is the unit (Hz/MHz vs the pronoun "us"). `bit`, `bits` and
-#: `word` are deliberately absent: bit width is already in the type, and
-#: "word" is a noun for the value in this tree ("configuration word").
-_UNIT_WORDS = (
-    r"nanoseconds?|microseconds?|milliseconds?|nsec|usec|msec|ns|us|ms"
-    r"|clock\s+cycles?|cycles?|bytes?|octets?|samples?"
-    r"|hertz|k?hz|mhz|ghz|ppb|ppm|secs?|seconds?"
-    r"|bits?\s*/\s*s|bits?\s+per\s+second|bytes?\s+per\s+second|[kmg]?bps"
-)
-UNIT = re.compile(r"\b(" + _UNIT_WORDS + r")\b", re.I)
+#: where case is the unit (Hz/MHz vs the pronoun "us").
+UNIT = re.compile(r"\b(" + _DOC_ALT + r")\b", re.I)
 #: `us` is also a pronoun and `second` an ordinal: both need a unit context -
 #: a count, a bracket, a comma, "in" or "per" in front.
 _CONTEXT_UNIT = re.compile(
@@ -97,14 +158,19 @@ _CONTEXT_UNIT = re.compile(
 #: "the next cycle") is timing prose, not a quantity measured in cycles
 _NOUN_SINGULAR = re.compile(r"^(byte|octet|sample|cycle|clock)$", re.I)
 _COUNT_CONTEXT = re.compile(r"\b(?:in|per|every)\s+$", re.I)
+#: clocks are a unit only when counted ("in clocks", "6250 clocks per 3
+#: samples"); elsewhere the word is the verb or the signals ("clocks alive",
+#: "the ADC clocks are") and is not even a noun for the value
+_COUNTED_ONLY = re.compile(r"^clocks$", re.I)
+_COUNTED_BEFORE = re.compile(r"(?:\d\s*-?\s*|\b(?:in|per|every)\s+)$", re.I)
+#: "X per Y": a value stated as a rate whose denominator is Y
+_PER = re.compile(r"\b(" + _DOC_ALT + r")\s+per\s+(?:\d+\s*)?(" + _DOC_ALT + r")\b", re.I)
 #: a unit word joined by a hyphen or underscore is part of an identifier or a
 #: compound adjective (P-RX-SLOT-BYTES, byte-identical, cycle-count), not a unit
 _JOINED = re.compile(r"[-_]")
 
-#: the same unit already carried by the identifier, as a `_`-delimited token
-NAME_UNIT = re.compile(
-    r"(^|_)(ns|us|ms|nsec|usec|msec|cyc|cycles?|bytes?|octets?|k?hz|mhz|ghz"
-    r"|ppb|ppm|smp|samples?|secs?|[kmg]?bps)(_|\d|$)", re.I)
+#: a unit carried by the identifier, as a `_`-delimited token
+NAME_UNIT = re.compile(r"(^|_)(" + "|".join(_NAME_TOKENS) + r")(?=_|\d|$)", re.I)
 
 #: SHAPE phrasing - `_p` already encodes this. Only meaningful for the cycle
 #: unit; "frame length in bytes, sampled every cycle" documents a real unit.
@@ -128,15 +194,14 @@ PROTOCOL = re.compile(
 # ---------------------------------------------------------------------------
 # classification
 # ---------------------------------------------------------------------------
-def unit_in(doc):
-    """(word, kind) for the first unit-looking word in a comment, or (None, '').
+def units_in(doc):
+    """Every unit-looking word in a comment, in order, as (word, kind).
 
-    kind is 'unit' for a unit of measure, 'noun' for a singular byte/octet/
-    sample used as a noun for the value (reported as an exclusion so the
-    class stays visible), or '' when no unit word is present at all. Words
-    joined by a hyphen or underscore into an identifier or adjective, the
-    pronoun `us` and the ordinal `second` are prose, not units."""
-    noun = None
+    kind is 'unit' for a unit of measure or 'noun' for a singular byte/octet/
+    sample/cycle used as a noun for the value. Words joined by a hyphen or
+    underscore into an identifier or adjective, the pronoun `us`, the ordinal
+    `second` and a clock outside a count are prose and are not listed."""
+    found = []
     for m in UNIT.finditer(doc):
         word = m.group(1)
         low = word.lower()
@@ -149,18 +214,73 @@ def unit_in(doc):
         if low == "us" or low.startswith("second"):
             if not _CONTEXT_UNIT.search(doc[:m.end()]):
                 continue
-        if _NOUN_SINGULAR.match(word) and not _COUNT_CONTEXT.search(doc[:m.start()]):
-            noun = noun or word          # "16-byte aligned", "1-cycle pulse": adjectives
+        if _COUNTED_ONLY.match(word) and not _COUNTED_BEFORE.search(doc[:m.start()]):
             continue
-        return word, "unit"
-    return (noun, "noun") if noun else (None, "")
+        if _NOUN_SINGULAR.match(word) and not _COUNT_CONTEXT.search(doc[:m.start()]):
+            found.append((word, "noun"))  # "16-byte aligned", "1-cycle pulse": adjectives
+            continue
+        found.append((word, "unit"))
+    return found
+
+
+def unit_in(doc):
+    """(word, kind) for the first unit of measure in a comment, else the first
+    noun for the value (reported as an exclusion so the class stays visible),
+    else (None, '') when no unit word is present at all."""
+    words = units_in(doc)
+    for word, kind in words:
+        if kind == "unit":
+            return word, kind
+    return (words[0][0], "noun") if words else (None, "")
+
+
+def name_families(name):
+    """The unit families an identifier carries as `_`-delimited tokens."""
+    return {family(m.group(2)) for m in NAME_UNIT.finditer(name)}
+
+
+MISMATCH = "named for a different unit than documented"
+
+
+def _classify_named(name, doc, unit, named):
+    """A boundary whose identifier already carries a unit.
+
+    Not a candidate when the comment agrees with the name; a candidate when
+    the comment documents a unit of measure and never names the name's family
+    (`timeout_bytes_i //! timeout in cycles`), or states the value as "X per
+    Y" with only Y in the name (`DIV_US_P //! clk cycles per 1 us tick` is a
+    cycle count named for the tick it produces).
+
+    Which exclusions carry over. NOUN and SHAPE describe the comment - "write
+    byte" and "held 2 cycles" document no unit of measure - so there is
+    nothing to compare and the name stands. PROTOCOL-fixed names are not ours
+    to rename either way. SINGLE-BIT does not carry over: it excused a unit
+    that was MISSING because a one-bit port carries no quantity, and a unit
+    that is present and wrong is a false statement at any width."""
+    words = units_in(doc)
+    documented = {family(w) for w, k in words if k == "unit"}
+    if SHAPE.search(doc):
+        documented.discard("cycles")
+    if not documented:
+        return None, unit, ""
+    if PROTOCOL.search(name):
+        return "excluded", unit, "protocol-fixed identifier"
+    for m in _PER.finditer(doc):
+        if family(m.group(1)) not in named and family(m.group(2)) in named:
+            return "candidate", m.group(1), MISMATCH
+    if named & {family(w) for w, _k in words}:
+        return None, unit, ""
+    return "candidate", unit, MISMATCH
 
 
 def classify(name, doc, multibit):
     """('candidate'|'excluded'|None, unit, reason)."""
     unit, kind = unit_in(doc)
-    if not unit or NAME_UNIT.search(name):
+    if not unit:
         return None, unit, ""
+    named = name_families(name)
+    if named:
+        return _classify_named(name, doc, unit, named)
     if kind == "noun":
         return "excluded", unit, "noun for the value or timing prose, not a unit of measure"
     if PROTOCOL.search(name):
@@ -175,11 +295,14 @@ def classify(name, doc, multibit):
 def scan_text(text):
     """(candidates, excluded, stats) for one source.
 
-    candidates: [(module, name, unit, doc)]
+    candidates: [(module, name, unit, doc, reason)] - reason is '' for a name
+                that hides its documented unit, MISMATCH for one named for
+                another
     excluded:   [(module, name, unit, reason)]
-    stats: dict(ports, documented, undocumented, named)."""
+    stats: dict(ports, params, documented, undocumented, named, mismatched)."""
     candidates, excluded = [], []
-    stats = {"ports": 0, "documented": 0, "undocumented": 0, "named": 0, "params": 0}
+    stats = {"ports": 0, "documented": 0, "undocumented": 0, "named": 0, "params": 0,
+             "mismatched": 0}
     for module, name, doc, multibit, kind in declarations(text):
         stats["params" if kind == "param" else "ports"] += 1
         if doc.strip():
@@ -190,7 +313,8 @@ def scan_text(text):
             stats["named"] += 1
         verdict, unit, reason = classify(name, doc, multibit)
         if verdict == "candidate":
-            candidates.append((module, name, unit, doc.strip()))
+            candidates.append((module, name, unit, doc.strip(), reason))
+            stats["mismatched"] += reason == MISMATCH
         elif verdict == "excluded":
             excluded.append((module, name, unit, reason))
     return candidates, excluded, stats
@@ -214,9 +338,10 @@ def scan_repo():
         t = per_tree.setdefault(tree_of(rel), {"files": 0, "ports": 0, "params": 0,
                                                "documented": 0, "undocumented": 0,
                                                "named": 0, "matches": 0,
-                                               "excluded": 0, "candidates": 0})
+                                               "excluded": 0, "mismatched": 0,
+                                               "candidates": 0})
         t["files"] += 1
-        for k in ("ports", "params", "documented", "undocumented", "named"):
+        for k in ("ports", "params", "documented", "undocumented", "named", "mismatched"):
             t[k] += st[k]
         t["matches"] += len(c) + len(e)
         t["excluded"] += len(e)
@@ -269,13 +394,25 @@ def read_budget():
     return ids
 
 
-def port_still_declared(rel, module, name):
-    """True when `module` in `rel` still declares a port/parameter called `name`."""
+def declared_as(rel, module, name):
+    """The `//!` comment when `module` in `rel` still declares a port or
+    parameter called `name`, else None."""
     path = REPO / rel
     if not path.is_file():
-        return False
-    return any(m == module and n == name
-               for m, n, _d, _mb, _k in declarations(path.read_text(errors="replace")))
+        return None
+    for m, n, doc, _mb, _k in declarations(path.read_text(errors="replace")):
+        if m == module and n == name:
+            return doc
+    return None
+
+
+def agrees(name, doc):
+    """True when the identifier carries a unit and the comment names that
+    family: the one way a unit-named record may leave the ratchet without a
+    rename, because the tool cannot tell a conversion ("~21 ms" on a cycle
+    count) from a contradiction, and the diff can."""
+    named = name_families(name)
+    return bool(named) and bool(named & {family(w) for w, _k in units_in(doc)})
 
 
 def ratchet(rows, recorded):
@@ -286,33 +423,44 @@ def ratchet(rows, recorded):
     stripped, left = [], []
     for ident in sorted(recorded - current):
         rel, module, name = identity_path(ident)
-        if port_still_declared(rel, module, name):
-            stripped.append(ident)
-        else:
+        doc = declared_as(rel, module, name)
+        if doc is None or agrees(name, doc):
             left.append(ident)
+        else:
+            stripped.append(ident)
     return new, stripped, left
 
 
 def write_budget(rows, per_tree):
     total = sum(t["candidates"] for t in per_tree.values())
+    mismatched = sum(t["mismatched"] for t in per_tree.values())
     head = [
         "# Rule 4 ratchet, keyed on IDENTITY: every boundary port or parameter whose",
         "# own //! comment names a unit of measure that the identifier does not carry,",
-        "# as path:module:name. A processor entry is spelled <submodule>:<path>:...",
-        "# (colon, not slash, after the submodule name - the scripts/xvlog.budget",
-        "# spelling) so this generated record is not a hand-written source list.",
+        "# or documents a unit of a different family than the one the identifier",
+        "# carries (marked `# " + MISMATCH + "`), as path:module:name.",
+        "# A processor entry is spelled <submodule>:<path>:... (colon, not slash,",
+        "# after the submodule name - the scripts/xvlog.budget spelling) so this",
+        "# generated record is not a hand-written source list.",
         "# See scripts/measure_naming.py.",
         "#",
         "# A line may leave this file only because the boundary was renamed with its",
-        "# unit or removed; a port still declared under the same name that has lost",
-        "# the unit word from its comment is refused, so the documentation cannot be",
-        "# stripped to lower the count. No line may be added. Regenerate with",
-        "# `python3 scripts/measure_naming.py --write-budget` after a rename.",
+        "# unit or removed - or, for a name that already carries a unit, because its",
+        "# comment now names that unit's family; a port still declared under the same",
+        "# name that has lost the unit word from its comment is refused, so the",
+        "# documentation cannot be stripped to lower the count. No line may be added.",
+        "# Regenerate with `python3 scripts/measure_naming.py --write-budget`.",
+        "#",
+        "# 2026-08-29: the mismatch lines arrived when the measurement began comparing",
+        "# the identifier's unit family to the documented one (PR #278 review,",
+        "# scripts/measure_naming.py classify): a unit token in the name no longer",
+        "# satisfies a comment that documents a different unit.",
         "#",
         f"# {total} candidate(s): " + ", ".join(
-            f"{k} {v['candidates']}" for k, v in sorted(per_tree.items())),
+            f"{k} {v['candidates']}" for k, v in sorted(per_tree.items()))
+        + f"; {mismatched} of them {MISMATCH}",
     ]
-    body = sorted(identity(r) for r in rows)
+    body = sorted(identity(r) + (f"  # {r[5]}" if r[5] else "") for r in rows)
     BUDGET.write_text("\n".join(head + body) + "\n")
 
 
@@ -411,6 +559,32 @@ FIXTURES = [
      "module f (\n  input wire clk_i //! clock\n);\n  function automatic int g(input int idle_slope); //! bits/s\n    return idle_slope;\n  endfunction\nendmodule\n", 0, 0),
     ("an interface modport port parses as one name",
      _wrap("  axi_stream_if.slave s_axis, //! ingress, bytes per beat"), 1, 0),
+    # the unit families: a name must agree with its documented unit, not just carry one
+    ("a name carrying a unit of a different family than documented is a candidate",
+     _wrap("  input wire [31:0] timeout_bytes_i,  //! timeout in cycles"), 1, 0),
+    ("a same-family alias in the comment agrees with the name",
+     _wrap("  input wire [31:0] hold_ns_i,  //! hold, nanoseconds\n"
+           "  input wire [31:0] guard_cyc_i,  //! guard, clock cycles\n"
+           "  input wire [31:0] slope_bps_i,  //! slope, bits per second\n"
+           "  input wire [31:0] len_octets_i,  //! length, bytes"), 0, 0),
+    ("a cycle count named for the tick it produces is the tree's own cross-family pair",
+     "module f #(\n  parameter int unsigned DIV_US_P = 100 //! clk cycles per 1 µs tick; override to compress time\n"
+     ") (\n  input wire clk_i //! clock\n);\nendmodule\n", 1, 0),
+    ("a single-bit port with a wrong-unit suffix is still misleading",
+     _wrap("  input wire go_ns_i,  //! start, in cycles"), 1, 0),
+    ("shape phrasing and a noun for the value do not contradict a unit-named port",
+     _wrap("  input wire [7:0] arm_ns_i,  //! arm delay, held 2 cycles\n"
+           "  input wire [23:0] tone_smp_i,  //! tone generator sample (live)"), 0, 0),
+    ("a name carrying several tokens agrees when any of them matches",
+     _wrap("  input wire [31:0] sample_lat_ns_i,  //! measured stage latency (ns or cycles)"), 0, 0),
+    ("a comment that names the name's family anywhere is not a contradiction",
+     "module f #(\n  //! PHC clock frequency. Sets the increment = the true clock period in ns\n"
+     "  //! (125 MHz -> 0x08000000)\n  parameter int unsigned CLK_FREQ_HZ_P = 125_000_000\n"
+     ") (\n  input wire clk_i //! clock\n);\nendmodule\n", 0, 0),
+    ("in clocks is a cycle count; clocks outside a count are the verb or the signals",
+     _wrap("  input wire [15:0] wdog_i,  //! no-progress watchdog, in clocks\n"
+           "  input wire [15:0] alive_i,  //! clocks alive, reinit released\n"
+           "  input wire [15:0] dom_i,  //! one setting per Clock Domain, every clock"), 1, 0),
 ]
 
 
@@ -436,6 +610,25 @@ def selftest():
     _c, e2, _s = scan_text(FIXTURES[2][1])
     ck("timing prose is excluded under its own reason",
        bool(e2) and e2[0][3].startswith("noun"), f"{e2}")
+
+    # the reviewer's reproduction, verbatim: a misleading suffix must not satisfy the contract
+    verdict, unit, reason = classify("timeout_bytes_i", "timeout in cycles", True)
+    ck("classify refuses a name whose unit family differs from the documented one",
+       verdict == "candidate" and unit == "cycles" and reason == MISMATCH,
+       f"{(verdict, unit, reason)}")
+    ck("classify accepts a same-family alias",
+       classify("hold_ns_i", "hold, nanoseconds", True) == (None, "nanoseconds", ""))
+    rows_mm = scan_text(_wrap("  input wire [31:0] timeout_bytes_i, //! timeout in cycles"))[0]
+    ck("a mismatch is reported under its own reason",
+       bool(rows_mm) and rows_mm[0][4] == MISMATCH, f"{rows_mm}")
+    ck("every spelling in both vocabularies has a family, and aliases share it",
+       all(family(w) for w in _NAME_TOKENS) and all(family(w) for w in _FAMILY_OF)
+       and _NOT_IN_PROSE <= set(_FAMILY_OF)
+       and family("clock  cycles") == family("CYC") == "cycles"
+       and family("Bits per second") == family("bits / s") == family("Mbps") == "rate"
+       and family("nanoseconds") == family("NS") == family("µs") == "time"
+       and family("octets") == family("byte") == "bytes" and family("word") is None,
+       f"{[w for w in _NAME_TOKENS if not family(w)]}")
 
     _c, _e, st = scan_text(_wrap("  input wire [31:0] a_i,\n  input wire [31:0] b_i, //! x"))
     ck("undocumented ports are counted, not silently skipped",
@@ -473,6 +666,21 @@ def selftest():
             (REPO / "x.sv").write_text(_wrap(""))
             ck("a recorded port that was removed has left legitimately",
                ratchet([], recorded) == ([], [], ["x.sv:f:pres_ofs_i"]))
+            # a recorded MISMATCH may also leave by a comment that names the name's family
+            wrong = {"x.sv:f:timeout_bytes_i"}
+            (REPO / "x.sv").write_text(_wrap("  input wire [31:0] timeout_bytes_i, //! timeout in cycles"))
+            ck("a recorded mismatch that is still one is neither new nor gone",
+               ratchet([("x.sv", "f", "timeout_bytes_i", "cycles", "timeout in cycles", MISMATCH)], wrong)
+               == ([], [], []))
+            (REPO / "x.sv").write_text(_wrap("  input wire [31:0] timeout_bytes_i, //! timeout in bytes"))
+            ck("a recorded mismatch whose comment now names the name's unit has left legitimately",
+               ratchet([], wrong) == ([], [], ["x.sv:f:timeout_bytes_i"]))
+            (REPO / "x.sv").write_text(_wrap("  input wire [31:0] timeout_bytes_i, //! timeout"))
+            ck("a recorded mismatch that merely lost the unit from its comment is refused as stripped",
+               ratchet([], wrong) == ([], ["x.sv:f:timeout_bytes_i"], []))
+            (REPO / "x.sv").write_text(_wrap("  input wire [31:0] pres_ofs_i, //! presentation offset"))
+            ck("a name without a unit still cannot leave by a comment edit",
+               ratchet([], recorded) == ([], ["x.sv:f:pres_ofs_i"], []))
         finally:
             REPO = real
 
@@ -489,7 +697,7 @@ def selftest():
        recorded_live is not None and all(":" in i for i in recorded_live),
        "scripts/naming.budget must list path:module:name lines")
 
-    n = len(FIXTURES) + 12
+    n = len(FIXTURES) + 20
     print(f"\n{n} checks: {n - failures} PASS, {failures} FAIL")
     return 1 if failures else 0
 
@@ -522,22 +730,29 @@ def main():
         print(f"wrote {BUDGET.relative_to(REPO)}: {len(rows)} candidate(s)")
         return 0
 
-    for rel, module, name, unit, doc in rows:
-        print(f"{rel}:{module}: {name} — documented in {unit}, not named for it: {doc}")
+    for rel, module, name, unit, doc, reason in rows:
+        if reason == MISMATCH:
+            print(f"{rel}:{module}: {name} — named for a different unit "
+                  f"({', '.join(sorted(name_families(name)))}) than documented "
+                  f"({unit}, {family(unit)}): {doc}")
+        else:
+            print(f"{rel}:{module}: {name} — documented in {unit}, not named for it: {doc}")
 
     print(f"\n{'tree':<20}{'files':>6}{'ports':>7}{'params':>7}{'documented':>11}"
-          f"{'undocumented':>13}{'unit-named':>11}{'matches':>8}{'excluded':>9}{'candidates':>11}")
+          f"{'undocumented':>13}{'unit-named':>11}{'matches':>8}{'excluded':>9}"
+          f"{'mismatched':>11}{'candidates':>11}")
     for tree, t in sorted(per_tree.items()):
         print(f"{tree:<20}{t['files']:>6}{t['ports']:>7}{t['params']:>7}{t['documented']:>11}"
               f"{t['undocumented']:>13}{t['named']:>11}{t['matches']:>8}{t['excluded']:>9}"
-              f"{t['candidates']:>11}")
+              f"{t['mismatched']:>11}{t['candidates']:>11}")
     tot = {k: sum(t[k] for t in per_tree.values()) for k in
            ("files", "ports", "params", "documented", "undocumented", "named",
-            "matches", "excluded", "candidates")}
+            "matches", "excluded", "mismatched", "candidates")}
     print(f"{'total':<20}{tot['files']:>6}{tot['ports']:>7}{tot['params']:>7}{tot['documented']:>11}"
           f"{tot['undocumented']:>13}{tot['named']:>11}{tot['matches']:>8}{tot['excluded']:>9}"
-          f"{tot['candidates']:>11}")
-    print(f"\n{len(rows)} boundary name(s) hide a documented unit "
+          f"{tot['mismatched']:>11}{tot['candidates']:>11}")
+    print(f"\n{len(rows)} candidate(s): {len(rows) - tot['mismatched']} boundary name(s) hide "
+          f"a documented unit and {tot['mismatched']} are {MISMATCH} "
           f"({tot['ports']} ports and {tot['params']} parameters scanned, "
           f"{tot['undocumented']} with no //! and so not judged here, "
           f"{len(drops)} match(es) excluded with a reason)")
@@ -555,7 +770,8 @@ def main():
     for ident in stripped:
         print(f"\nSTRIPPED: {ident} is still declared under that name and is no longer a "
               f"candidate only because its comment no longer names the unit - restore the "
-              f"documentation or rename the boundary")
+              f"documentation, rename the boundary, or (for a name that carries a unit) "
+              f"document that unit")
     if new or stripped:
         print(f"\nNAMING RATCHET: FAIL ({len(new)} new, {len(stripped)} stripped)")
         return 1

@@ -791,6 +791,9 @@ The evidence is the port's own `//!` comment. Those comments say what the value
 is — "Egress latency correction, ns", "hiCredit clamp, signed bytes" — and when
 the comment names a unit and the identifier does not, the unit is known and
 simply missing from the name. A reader can check any finding in one line.
+The converse is measured too, and is the worse finding: when the identifier
+carries a unit and the comment documents a different one, the name is not
+vague, it is wrong.
 
 [`scripts/measure_naming.py`](../../scripts/measure_naming.py) does that scan.
 
@@ -821,15 +824,15 @@ processor reading as nearly clean can be told apart from one that is merely
 undocumented — the gPTP processor's 1 candidate sits beside its
 22 undocumented ports:
 
-| Tree | Files | Ports | Parameters | Documented | Undocumented | Unit in the name | Unit in the comment | Excluded | Candidates |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| superproject | 69 | 1791 | 263 | 1779 | 275 | 99 | 315 | 232 | 83 |
-| protocol-processor | 42 | 1548 | 270 | 1698 | 120 | 99 | 181 | 161 | 20 |
-| gptp-processor | 6 | 120 | 6 | 104 | 22 | 7 | 20 | 19 | 1 |
-| total | 117 | 3459 | 539 | 3581 | 417 | 205 | 516 | 412 | 104 |
+| Tree | Files | Ports | Parameters | Documented | Undocumented | Unit in the name | Unit in the comment | Excluded | Named for another unit | Candidates |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| superproject | 69 | 1791 | 263 | 1779 | 275 | 99 | 320 | 232 | 5 | 88 |
+| protocol-processor | 42 | 1548 | 270 | 1698 | 120 | 99 | 182 | 161 | 1 | 21 |
+| gptp-processor | 6 | 120 | 6 | 104 | 22 | 7 | 20 | 19 | 0 | 1 |
+| total | 117 | 3459 | 539 | 3581 | 417 | 205 | 522 | 412 | 6 | 110 |
 
 **The false positives were measured before anything was gated**, because the
-naive form of this check is mostly noise: 516 declarations match a unit
+naive form of this check is mostly noise: 522 declarations match a unit
 word in their comment and 412 of them are not findings. Four exclusion
 classes, each printed in full by `--excluded` with its reason:
 
@@ -847,18 +850,53 @@ ordinal "second" count only in a unit context ("hold time, us", "1 second"),
 and a unit word joined by a hyphen into an identifier or an adjective
 (`P-RX-SLOT-BYTES`, "byte-identical", "cycle-count width") is prose.
 
-That leaves **104 candidates**. The residual set still holds judgement
-calls — `now_i` on a module whose entire subject is nanoseconds is arguable —
-so this ships as a ratchet, not a verdict.
+That leaves **110 candidates**, **6** of them named for a different unit
+than they document. The residual set still holds judgement calls — `now_i` on
+a module whose entire subject is nanoseconds is arguable — so this ships as a
+ratchet, not a verdict.
+
+**A wrong unit is a candidate too.** The first form of this tool stopped as
+soon as the identifier carried any unit token, so `timeout_bytes_i //!
+timeout in cycles` satisfied a cycles contract and fell out of the ratchet;
+review caught it. Units are now compared by family, defined once in the tool:
+
+| Family | Spellings, in a comment or as a `_`-delimited token |
+|---|---|
+| time | `ns`, `us`, `µs`, `ms`, `nsec`, `usec`, `msec`, `sec`, `second(s)`, `nanosecond(s)`, `microsecond(s)`, `millisecond(s)` |
+| bytes | `byte(s)`, `octet(s)` |
+| cycles | `cyc`, `cycle(s)`, `clock cycle(s)`, a counted `clocks` ("in clocks", "6250 clocks") |
+| frequency | `hz`, `khz`, `mhz`, `ghz`, `hertz` |
+| ratio | `ppb`, `ppm` |
+| rate | `bps`, `kbps`, `mbps`, `gbps`, `bits/s`, `bits per second`, `bytes per second` |
+| samples | `smp`, `sample(s)` |
+
+so `_ns` satisfies "nanoseconds" and `_cyc` satisfies "clock cycles". A
+unit-named boundary is a candidate when its comment documents a unit of
+measure and never names the name's family at all — nouns count, so "tone
+generator sample" confirms `tone_smp_i` — or when the comment states the
+value as "X per Y" and the name carries only Y: `DIV_US_P //! clk cycles per
+1 µs tick` is a cycle count named for the tick it produces. Comparing against
+the first documented word alone was measured and rejected: it would have
+recorded `MILAN_CLK_FREQ_HZ_P` because "ns" appears in the second sentence of
+its comment and "125 MHz" in the fourth. Of the exclusion classes, *noun* and
+*shape* carry over, because they say the comment documents no unit of measure
+and there is nothing to compare; *protocol-fixed* carries over because the
+name is not ours to change; *single-bit* does not, because it excused a unit
+that was missing from a port with no quantity, and a unit that is present and
+wrong is a false statement at any width — `go_ns_i //! start, in cycles` is a
+candidate.
 
 **The ratchet is keyed on identity, not a count.**
 [`scripts/naming.budget`](../../scripts/naming.budget) names every candidate as
 `path:module:port` — a processor entry as `submodule:path:module:port`, the
 `xvlog.budget` spelling, so the generated record is never read as a
 hand-written copy of a processor source list. A candidate may leave the list
-only by being renamed with
-its unit or by being removed; a port still declared under the same name whose
-comment has merely lost the unit word is refused as *stripped*. Review found
+only by being renamed with its unit or by being removed — or, for a name that
+already carries a unit, by a comment that now names that unit's family,
+because the tool cannot tell a conversion (`SETTLE_CYC_C //! clean-clock hold
+(~21 ms)`) from a contradiction and the diff can; a port still declared under
+the same name whose comment has merely lost the unit word is refused as
+*stripped*. Review found
 the count-only form of this ratchet could be paid down by deleting units from
 documentation — the opposite of the rule — and reported it as a lowering. No
 new identity may appear either, in any of the three trees; the arms inject one

@@ -1,18 +1,27 @@
 # Rule 4 ratchet, keyed on IDENTITY: every boundary port or parameter whose
 # own //! comment names a unit of measure that the identifier does not carry,
-# as path:module:name. A processor entry is spelled <submodule>:<path>:...
-# (colon, not slash, after the submodule name - the scripts/xvlog.budget
-# spelling) so this generated record is not a hand-written source list.
+# or documents a unit of a different family than the one the identifier
+# carries (marked `# named for a different unit than documented`), as path:module:name.
+# A processor entry is spelled <submodule>:<path>:... (colon, not slash,
+# after the submodule name - the scripts/xvlog.budget spelling) so this
+# generated record is not a hand-written source list.
 # See scripts/measure_naming.py.
 #
 # A line may leave this file only because the boundary was renamed with its
-# unit or removed; a port still declared under the same name that has lost
-# the unit word from its comment is refused, so the documentation cannot be
-# stripped to lower the count. No line may be added. Regenerate with
-# `python3 scripts/measure_naming.py --write-budget` after a rename.
+# unit or removed - or, for a name that already carries a unit, because its
+# comment now names that unit's family; a port still declared under the same
+# name that has lost the unit word from its comment is refused, so the
+# documentation cannot be stripped to lower the count. No line may be added.
+# Regenerate with `python3 scripts/measure_naming.py --write-budget`.
 #
-# 104 candidate(s): gptp-processor 1, protocol-processor 20, superproject 83
+# 2026-08-29: the mismatch lines arrived when the measurement began comparing
+# the identifier's unit family to the documented one (PR #278 review,
+# scripts/measure_naming.py classify): a unit token in the name no longer
+# satisfies a comment that documents a different unit.
+#
+# 110 candidate(s): gptp-processor 1, protocol-processor 21, superproject 88; 6 of them named for a different unit than documented
 gptp-processor:hdl/top/KL_gptp_engine.sv:KL_gptp_engine:pub_offset_o
+hdl/common/KL_link_guard.sv:KL_link_guard:SETTLE_CYC_C  # named for a different unit than documented
 hdl/common/csr/milan_csr.sv:milan_csr:i_lwsrp_slope
 hdl/common/csr/milan_csr.sv:milan_csr:o_lwsrp_latency
 hdl/common/csr/milan_csr.sv:milan_csr:o_mac_ifg
@@ -39,14 +48,17 @@ hdl/ieee1722/aaf/KL_lat_history_ring.sv:KL_lat_history_ring:ring_len_i
 hdl/ieee1722/aaf/KL_pcm_ring_bram.sv:KL_pcm_ring_bram:length_i
 hdl/ieee1722/aaf/KL_pcm_ring_bram.sv:KL_pcm_ring_bram:offset_o
 hdl/ieee1722/aaf/KL_pcm_ring_bram.sv:KL_pcm_ring_bram:stride_i
+hdl/ieee1722/aaf/KL_pcm_tx.sv:KL_pcm_tx:SAMPLE_DIV_C  # named for a different unit than documented
 hdl/ieee1722/aaf/KL_pcm_tx.sv:KL_pcm_tx:rd_ptr_o
 hdl/ieee1722/aaf/KL_pcm_tx.sv:KL_pcm_tx:ring_len_i
 hdl/ieee1722/aaf/KL_pcm_tx.sv:KL_pcm_tx:ring_stride_i
 hdl/ieee1722/aaf/KL_tdm_capture_master.sv:KL_tdm_capture_master:BCLK_HALF_P
 hdl/ieee1722/aaf/aaf_talker_i2s.sv:aaf_talker_i2s:MCLK_DIV_LOG2
+hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv:KL_avtp_rx_monitor:CLK_FREQ_HZ_P  # named for a different unit than documented
 hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv:KL_avtp_rx_monitor:fsh_i
 hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv:KL_avtp_rx_monitor:pres_ofs_i
 hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv:KL_avtp_rx_monitor:ptp_now_i
+hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:KL_avtp_rx_monitor_ctx:CLK_FREQ_HZ_P  # named for a different unit than documented
 hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:KL_avtp_rx_monitor_ctx:dirty_p_o
 hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:KL_avtp_rx_monitor_ctx:fsh_i
 hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:KL_avtp_rx_monitor_ctx:mirrored
@@ -69,6 +81,7 @@ hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:KL_mmcm_drp_servo:WIN_LOG2_P
 hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:KL_mmcm_drp_servo:crf_rate_i
 hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:KL_mmcm_drp_servo:drp_addr_o
 hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:KL_mmcm_drp_servo:ptp_now_i
+hdl/ieee1722/maap/KL_maap.sv:KL_maap:CLK_FREQ_HZ_P  # named for a different unit than documented
 hdl/ieee17221/adp/adp_tx_arbiter.sv:adp_tx_arbiter:TO_LOG2_P
 hdl/ieee8021as/ptp_timestamp/ptp_ts_core.sv:ptp_ts_core:lat_corr_i
 hdl/ieee8021as/ptp_timestamp/ptp_ts_top.sv:ptp_ts_top:i_ptp_adj
@@ -100,6 +113,7 @@ protocol-processor:hdl/acmp/KL_acmp_nvm_shadow.sv:KL_acmp_nvm_shadow:DEB_TICKS_P
 protocol-processor:hdl/acmp/KL_acmp_nvm_shadow.sv:KL_acmp_nvm_shadow:LAYOUT_VER_P
 protocol-processor:hdl/aecp/KL_aecp_resp_buf.sv:KL_aecp_resp_buf:dbg_drop_o
 protocol-processor:hdl/aecp/KL_aecp_resp_buf.sv:KL_aecp_resp_buf:seal_len_i
+protocol-processor:hdl/common/KL_pp_timer_service.sv:KL_pp_timer_service:DIV_US_P  # named for a different unit than documented
 protocol-processor:hdl/packet_engine/KL_pp_dispatch.sv:KL_pp_dispatch:acmp_stall_count_o
 protocol-processor:hdl/packet_engine/KL_pp_dispatch.sv:KL_pp_dispatch:adp_stall_count_o
 protocol-processor:hdl/packet_engine/KL_pp_dispatch.sv:KL_pp_dispatch:aecp_stall_count_o
