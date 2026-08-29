@@ -241,7 +241,7 @@ module milan_top import ethernet_packet_pkg::*; #(
   wire [31:0] cfg_cls_tc_queue_map;
 
   //! CBS config (packed per queue)
-  wire [32*NUM_QUEUES-1:0] cfg_cbs_idle_slope, cfg_cbs_hi_credit, cfg_cbs_lo_credit;
+  wire [32*NUM_QUEUES-1:0] cfg_cbs_idle_slope_bps, cfg_cbs_hi_credit_bytes, cfg_cbs_lo_credit_bytes;
   wire [NUM_QUEUES-1:0]    cfg_cbs_enable;
 
   //! PTP config / status
@@ -459,9 +459,9 @@ module milan_top import ethernet_packet_pkg::*; #(
     .o_cls_prio_regen  (cfg_cls_prio_regen),
     .o_cls_tc_queue_map(cfg_cls_tc_queue_map),
     // CBS
-    .o_cbs_idle_slope(cfg_cbs_idle_slope),
-    .o_cbs_hi_credit (cfg_cbs_hi_credit),
-    .o_cbs_lo_credit (cfg_cbs_lo_credit),
+    .o_cbs_idle_slope_bps(cfg_cbs_idle_slope_bps),
+    .o_cbs_hi_credit_bytes (cfg_cbs_hi_credit_bytes),
+    .o_cbs_lo_credit_bytes (cfg_cbs_lo_credit_bytes),
     .o_cbs_enable    (cfg_cbs_enable),
     // PTP
     .o_ptp_enable      (cfg_ptp_enable),
@@ -598,9 +598,9 @@ module milan_top import ethernet_packet_pkg::*; #(
     .cls_pcp_tc_map_i  (cfg_cls_pcp_tc_map),
     .cls_prio_regen_i  (cfg_cls_prio_regen),
     .cls_tc_queue_map_i(cfg_cls_tc_queue_map),
-    .cbs_idle_slope_i  (cfg_cbs_idle_slope),
-    .cbs_hi_credit_i   (cfg_cbs_hi_credit),
-    .cbs_lo_credit_i   (cfg_cbs_lo_credit),
+    .cbs_idle_slope_bps_i  (cfg_cbs_idle_slope_bps),
+    .cbs_hi_credit_bytes_i   (cfg_cbs_hi_credit_bytes),
+    .cbs_lo_credit_bytes_i   (cfg_cbs_lo_credit_bytes),
     .cbs_shaped_i      (cfg_cbs_enable),
     .s_axis(tx_axis_to_shaper),
     .m_axis(tx_axis_shaper_to_ts)

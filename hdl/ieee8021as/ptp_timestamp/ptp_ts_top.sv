@@ -101,8 +101,6 @@ module ptp_ts_top#(
   output wire ts_m_axis_tlast,
   output wire [(METADATA_TDATA_WIDTH/8)-1:0] ts_m_axis_tkeep
 
-  //TODO: add DMA engine signals
-
 );
 
   // ===========================================================================

@@ -60,9 +60,9 @@ struct Harness {
         // Verilator packs <=64-bit wide ports as scalars, wider as arrays; the
         // 128-bit CBS vectors are VlWide — assign per 32-bit lane.
         for (int i = 0; i < NQ; i++) {
-            dut->cbs_idle_slope_i.at(i) = c.idle[i];
-            dut->cbs_hi_credit_i.at(i)  = (uint32_t)c.hi[i];
-            dut->cbs_lo_credit_i.at(i)  = (uint32_t)c.lo[i];
+            dut->cbs_idle_slope_bps_i.at(i) = c.idle[i];
+            dut->cbs_hi_credit_bytes_i.at(i)  = (uint32_t)c.hi[i];
+            dut->cbs_lo_credit_bytes_i.at(i)  = (uint32_t)c.lo[i];
         }
         dut->cbs_shaped_i = c.shaped;
     }
@@ -142,10 +142,10 @@ struct Harness {
 //  bursty the drain is. If bytes_sent/is_transmitting counted anything other
 //  than accepted beats, the two regimes would disagree.
 // ---------------------------------------------------------------------------
-static long run_rate(Harness& h, uint32_t idle_slope, int ready_period,
+static long run_rate(Harness& h, uint32_t idle_slope_bps, int ready_period,
                      int cycles, int frame_beats, const char* tag) {
     Cfg c;
-    c.idle[0] = idle_slope;
+    c.idle[0] = idle_slope_bps;
     c.hi[0]   = 456; c.lo[0] = -1065;
     c.shaped  = 0x3F;
     h.apply_cfg(c);

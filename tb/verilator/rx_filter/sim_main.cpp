@@ -123,18 +123,14 @@ int main(int argc, char** argv) {
     ck("blacklist: gPTP passes",    (long)send_frame(MAC_GPTP, 4).size(),  4);
 
     printf("--------------------------------------------------------------\n");
-    // runt guard (2026-07-19): a 1-beat frame (tlast at SOF, <=8 bytes) is
-    // never a legal Ethernet frame - swallowed even in default-pass mode
+    // A one-beat frame (tlast at SOF, at most 8 bytes) is never legal Ethernet;
+    // the filter must swallow it even when the miss policy would otherwise pass.
     dut->default_pass_i = 1;
     ck("runt 1-beat frame swallowed", (long)send_frame(MAC_UNI, 1).size(), 0);
     ck("normal frame after runt passes", send_frame(MAC_UNI, 8).size() == 8 ? 1 : 0, 1);
 
 
-    // ======================================================================
-    //  REQ-MAC-02 - 802.3 station address filter (the CSR ABI has advertised
-    //  promisc/allmulti/MAC_ADDR/MC_HASH since 2026-07-01; nothing in fabric
-    //  consumed them, so non-matching unicast was NEVER dropped in hardware).
-    // ======================================================================
+    // ---- REQ-MAC-02: 802.3 station-address filter -----------------------
     // reference hash: 6-bit XOR fold of the 48-bit address, MSB-aligned
     auto mc_bucket = [](uint64_t mac) {
         int h = 0;
@@ -288,6 +284,92 @@ int main(int argc, char** argv) {
 
         wr_tcam(15, 0, 0, 0, 0);
         dut->addr_filter_en_i = 0;
+    }
+
+    // ======================================================================
+    //  STALLED FIRST BEAT - the verdict is LIVE until the first beat is
+    //  ACCEPTED, not latched when it is first presented (review of PR #279).
+    //
+    //  These checks pin the observed sequence so the `//!` contract in
+    //  rx_mac_filter.sv and the RTL are graded together: a first beat stalled
+    //  on m_tready is re-judged by every TCAM and policy write that lands
+    //  meanwhile, and a pass->drop flip withdraws m_tvalid without a transfer,
+    //  which is the AXI4-Stream bend the contract names (ARM IHI 0051A 2.2.1).
+    //  Changing that behaviour is a functional ticket of its own; when it
+    //  lands, the "withdrawn" and "forced high" checks below are the ones that
+    //  must be rewritten with it, on purpose and visibly.
+    // ======================================================================
+    printf("--------------------------------------------------------------\n");
+    {
+        wr_tcam(0, 0, 0, 0, 0);                        // bare table
+        dut->default_pass_i = 1; dut->addr_filter_en_i = 0; dut->promisc_i = 0;
+
+        // drive the rest of a 4-beat frame at full sink rate; return the
+        // number of beats the sink saw
+        auto drain_tail = [&]() {
+            long out = 0;
+            for (int b = 1; b < 4; b++) {
+                dut->s_tdata = 0xC0FFEE0000000000ULL | (uint64_t)b;
+                dut->s_tkeep = (b == 3) ? 0x3F : 0xFF; dut->s_tlast = (b == 3);
+                dut->s_tvalid = 1; dut->m_tready = 1;
+                lo(); if (dut->m_tvalid && dut->m_tready) out++;
+                hi();
+            }
+            dut->s_tvalid = 0; dut->s_tlast = 0; step();
+            return out;
+        };
+        // present the first beat of a frame that passes today, sink stalled
+        auto offer_stalled_sof = [&]() {
+            dut->s_tdata = beat0(MAC_UNI, 0xAB); dut->s_tkeep = 0xFF; dut->s_tlast = 0;
+            dut->s_tvalid = 1; dut->m_tready = 0;
+            lo();
+        };
+
+        // ---- (1) a TCAM drop entry lands while the first beat is stalled ----
+        offer_stalled_sof();
+        ck("sof stall: passing first beat offered (m_tvalid)", dut->m_tvalid, 1);
+        ck("sof stall: sink stalled with the source (s_tready)", dut->s_tready, 0);
+        ck("sof stall: not dropped before the write", dut->frame_dropped_o, 0);
+        hi();                                          // edge: no handshake, nothing latched
+        dut->tcam_wr_en_i = 1; dut->tcam_wr_index_i = 0; dut->tcam_wr_valid_i = 1;
+        dut->tcam_wr_key_i = MAC_UNI; dut->tcam_wr_mask_i = MASK_ALL; dut->tcam_wr_action_i = 0x01;
+        lo(); hi();                                    // the write commits on this edge
+        dut->tcam_wr_en_i = 0;
+        lo();
+        ck("sof stall: TCAM write re-judges the stalled beat (frame_match_o)", dut->frame_match_o, 1);
+        ck("sof stall: verdict flips to drop in flight", dut->frame_dropped_o, 1);
+        ck("sof stall: m_tvalid withdrawn without a transfer (AXI4-Stream bend)", dut->m_tvalid, 0);
+        ck("sof stall: dropped first beat consumed (s_tready forced high)", dut->s_tready, 1);
+        hi();                                          // first beat accepted as DROPPED
+        ck("sof stall: whole frame squashed after the flip", drain_tail(), 0);
+        wr_tcam(0, 0, 0, 0, 0);
+
+        // ---- (2) a policy write (default_pass 1->0) while stalled ----
+        offer_stalled_sof();
+        ck("sof stall/policy: passing first beat offered", dut->m_tvalid, 1);
+        hi();
+        dut->default_pass_i = 0;                       // the miss policy flips under the beat
+        lo();
+        ck("sof stall/policy: miss becomes a drop in flight", dut->frame_dropped_o, 1);
+        ck("sof stall/policy: m_tvalid withdrawn without a transfer", dut->m_tvalid, 0);
+        ck("sof stall/policy: dropped first beat consumed", dut->s_tready, 1);
+        hi();
+        ck("sof stall/policy: whole frame squashed", drain_tail(), 0);
+        dut->default_pass_i = 1;
+
+        // ---- (3) once the first beat is ACCEPTED the verdict is held ----
+        dut->s_tdata = beat0(MAC_UNI, 0xAB); dut->s_tkeep = 0xFF; dut->s_tlast = 0;
+        dut->s_tvalid = 1; dut->m_tready = 1;
+        lo();
+        ck("post-accept: first beat transfers", (dut->m_tvalid && dut->m_tready) ? 1 : 0, 1);
+        hi();                                          // accepted: pass latched, in_frame
+        dut->s_tvalid = 0;                             // the source pauses between beats
+        wr_tcam(0, 1, 0, 0, 0x01);                     // mask 0 = drop EVERYTHING, live
+        ck("post-accept: a drop-all entry does not touch the in-flight frame",
+           drain_tail(), 3);
+        ck("post-accept: the same entry drops the NEXT frame",
+           (long)send_frame(MAC_UNI, 4).size(), 0);
+        wr_tcam(0, 0, 0, 0, 0);
     }
 
     printf("checks: %ld   failures: %ld\n", checks, fails);

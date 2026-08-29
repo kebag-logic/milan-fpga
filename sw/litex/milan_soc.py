@@ -516,9 +516,11 @@ _MILAN_DATAPATH_SOURCES = [
     "hdl/milan/KL_pp_shadow.sv", "hdl/milan/KL_pp_maap_shim.sv",
     # the gPTP plane (#114): milan_datapath instantiates KL_gptp_shadow and
     # KL_gptp_txstamp under GPTP_PLANE_EN_P (product default ON), so Vivado must see
-    # the wrappers and the gptp-processor engine they wrap. Order mirrors the
-    # authoritative GPTP_SRCS in tb/verilator/milan_dp/Makefile: the package
-    # first, its importers after.
+    # the wrappers and the gptp-processor engine they wrap. No copy of this
+    # list is authoritative - not this one, and not GPTP_SRCS in the milan_dp
+    # Verilator Makefile, which this comment once called so: the RTL is, and
+    # scripts/check_rtl_source_lists.py checks every copy against the engine
+    # files the datapath really reaches. The package first, its importers after.
     "gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv", "gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv",
     "gptp-processor/hdl/wire/KL_gptp_rx_parser.sv", "gptp-processor/hdl/wire/KL_gptp_tx_slot.sv",
     "gptp-processor/hdl/common/KL_gptp_timer.sv", "gptp-processor/hdl/top/KL_gptp_engine.sv",

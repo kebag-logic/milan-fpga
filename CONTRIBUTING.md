@@ -22,7 +22,10 @@ lane-per-worktree, every change grows the test suite, and nothing merges on
 - Ports documented **inline with `//!`** — the port list IS the spec.
 - Naming: `_r` registered, `_w` wire/comb, `_p` one-cycle pulse, `_S` FSM
   states, `_C`/`_P` params. Named `always_ff`/`always_comb` blocks
-  (`begin : name … end : name`).
+  (`begin : name … end : name`). A boundary whose value has a unit carries it
+  in the name beside these suffixes (`ring_len_bytes_i`, `timeout_cyc_c`);
+  the qualifier table is Rule 4 of the
+  [code quality guide](docs/development/CODE_QUALITY.md#rule-4-use-intention-revealing-names-and-explicit-units).
 - Reset: synchronous, active-low `rst_n`, every register reset. 2-space
   indent.
 - CDC: only via the blessed primitives (`cdc_pulse`, `cdc_handshake`,

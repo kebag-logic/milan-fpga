@@ -257,9 +257,9 @@ int main(int argc, char** argv) {
   dut->eval();
   ck("o_cls_tc_queue_map == CLS_TCQ readback", dut->o_cls_tc_queue_map,
      axi_read(A_CLS_TCQ));
-  ck("o_cbs_idle_slope[0] == CBS0_IDLE readback", dut->o_cbs_idle_slope[0],
+  ck("o_cbs_idle_slope_bps[0] == CBS0_IDLE readback", dut->o_cbs_idle_slope_bps[0],
      axi_read(A_CBS0_IDLE));
-  ck("o_cbs_idle_slope[4] == CBS4_IDLE readback", dut->o_cbs_idle_slope[4],
+  ck("o_cbs_idle_slope_bps[4] == CBS4_IDLE readback", dut->o_cbs_idle_slope_bps[4],
      axi_read(A_CBS4_IDLE));
   ck("o_cbs_enable == 0 at reset (all five unshaped)", dut->o_cbs_enable, 0);
 
@@ -321,7 +321,7 @@ int main(int argc, char** argv) {
   axi_write(A_CBS1_IDLE, 0x0AABBCCD);
   ck("CBS1_IDLE rw", axi_read(A_CBS1_IDLE), 0x0AABBCCD);
   dut->eval();
-  ck("o_cbs_idle_slope[1]", dut->o_cbs_idle_slope[1], 0x0AABBCCD);
+  ck("o_cbs_idle_slope_bps[1]", dut->o_cbs_idle_slope_bps[1], 0x0AABBCCD);
 
   axi_write(A_CBS3_CTRL, 0x1);           // enable queue 3 shaping
   dut->eval();
@@ -332,7 +332,7 @@ int main(int argc, char** argv) {
   axi_write(A_CBS4_IDLE, 0x0C0FFEE0);
   ck("CBS4_IDLE rw", axi_read(A_CBS4_IDLE), 0x0C0FFEE0);
   dut->eval();
-  ck("o_cbs_idle_slope[4]", dut->o_cbs_idle_slope[4], 0x0C0FFEE0);
+  ck("o_cbs_idle_slope_bps[4]", dut->o_cbs_idle_slope_bps[4], 0x0C0FFEE0);
   axi_write(A_CBS4_CTRL, 0x1);           // shape the class-A queue
   dut->eval();
   ck("o_cbs_enable bit4", (dut->o_cbs_enable >> 4) & 1, 1);

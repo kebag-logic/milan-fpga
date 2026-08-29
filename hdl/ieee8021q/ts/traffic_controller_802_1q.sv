@@ -58,9 +58,9 @@ module traffic_controller_802_1q #(
   input wire [31:0] cls_tc_queue_map_i,       //! Traffic-class->queue map, 8x4 bits
 
   //! --- per-queue CBS runtime config, packed [q*32 +: 32] (from milan_csr) ---
-  input wire [32*NUMBER_OF_QUEUES-1:0] cbs_idle_slope_i, //! idleSlope per queue, bits/s
-  input wire [32*NUMBER_OF_QUEUES-1:0] cbs_hi_credit_i,  //! hiCredit per queue, signed bytes
-  input wire [32*NUMBER_OF_QUEUES-1:0] cbs_lo_credit_i,  //! loCredit per queue, signed bytes
+  input wire [32*NUMBER_OF_QUEUES-1:0] cbs_idle_slope_bps_i, //! idleSlope per queue, bits/s
+  input wire [32*NUMBER_OF_QUEUES-1:0] cbs_hi_credit_bytes_i,  //! hiCredit per queue, signed bytes
+  input wire [32*NUMBER_OF_QUEUES-1:0] cbs_lo_credit_bytes_i,  //! loCredit per queue, signed bytes
   input wire [NUMBER_OF_QUEUES-1:0]    cbs_shaped_i,     //! 1 = shaped, 0 = strict priority
 
   axi_stream_if.slave s_axis,                 //! slave interface of AXIS
@@ -136,9 +136,9 @@ module traffic_controller_802_1q #(
     .resetn(resetn),
     .queue_has_data_i(queue_has_data),
     .is_1g_i(is_1g_i),
-    .cbs_idle_slope_i(cbs_idle_slope_i),
-    .cbs_hi_credit_i(cbs_hi_credit_i),
-    .cbs_lo_credit_i(cbs_lo_credit_i),
+    .cbs_idle_slope_bps_i(cbs_idle_slope_bps_i),
+    .cbs_hi_credit_bytes_i(cbs_hi_credit_bytes_i),
+    .cbs_lo_credit_bytes_i(cbs_lo_credit_bytes_i),
     .cbs_shaped_i(cbs_shaped_i),
     .grant_queue_o(queue_grant),
     .s_axis(queue_to_shaper),

@@ -30,6 +30,17 @@ jobs:
         # present rather than STALE. The builder's dp_srcs.py self-test also
         # resolves the five verilog-axis leaves in the shipping OOC manifest.
         run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
+      # Code-quality measurement self-tests (Rules 1 and 2 of
+      # docs/development/CODE_QUALITY.md): the fixture arms of the two tools
+      # the guide quotes its numbers from. Each arm fails when the defect it
+      # guards is reintroduced - an exclusive case arm read as source-order
+      # priority, an elif read as a nesting level, a `<=` comparison read as
+      # a write - and the population arm refuses a scan that reaches neither
+      # processor's Python, so it needs the submodule checkout above.
+      - name: Code-quality measurement self-tests
+        run: |
+          python3 scripts/measure_control_flow.py --selftest
+          python3 scripts/measure_cohesion.py --selftest
       # dp_srcs.py refuses to answer without a front end (no model may stand
       # in for sv2v), and the builder runs its self-test unconditionally, so
       # this job needs the same pinned release the portability gate uses.
@@ -70,7 +81,74 @@ jobs:
           python3 scripts/check_nvm_record_space.py
           python3 scripts/check_nvm_record_space.py --self-test
       - name: SoC source-list gate (Vivado would fail 40 min in without this)
-        run: python3 scripts/check_soc_sources.py
+        run: |
+          python3 scripts/check_soc_sources.py
+          python3 scripts/check_soc_sources.py --selftest
+
+      # The other four lists of the same RTL. check_soc_sources.py guards the
+      # Vivado one; this gate derives the whole milan_datapath file closure
+      # from the RTL and checks every consumer against it, asking each one for
+      # its own expansion rather than parsing it. Placed here because it needs
+      # the same submodules the builder steps above check out. A consumer that
+      # cannot answer FAILS the gate (exit 2): this job runs the strict default
+      # and never passes --allow-skip, the tool-less-host opt-out that prints a
+      # loud SKIPPED marker instead of a verdict that covers it.
+      # It also reads the protocol processor's own Yosys tops array against the
+      # modules that processor declares (scripts/processor_yosys_tops.budget).
+      - name: RTL source-list drift gate
+        run: |
+          python3 scripts/check_rtl_source_lists.py
+          python3 scripts/check_rtl_source_lists.py --selftest
+
+      # Rule 4 ratchet: a boundary port whose own //! comment names a unit the
+      # identifier does not carry. The three exclusion classes and the
+      # false-positive measurement behind them are in the script; the count may
+      # only go down.
+      - name: Boundary-unit naming ratchet
+        run: |
+          python3 scripts/measure_naming.py --check
+          python3 scripts/measure_naming.py --selftest
+
+      # Rule 5: no wildcard, positional or hierarchical binding in the
+      # first-party hdl/ trees (three refusals, all currently zero, each with an
+      # arm proving it bites), undocumented ports held to a per-tree ratchet,
+      # and open or literal-bound connections without a rationale held to a
+      # ratchet by identity.
+      - name: Port contract gate
+        run: |
+          python3 scripts/check_port_contracts.py
+          python3 scripts/check_port_contracts.py --selftest
+
+      # Rule 6: a parameterised module that refuses nothing, a pipeline that
+      # throws away its producer's verdict, and a captured verdict whose exit
+      # status is never read. Three ratchets that may only go down: the first
+      # is paid down as modules gain contracts, the other two hold pinned
+      # processor debt and two coverage recipes until their fixes land.
+      - name: Fail-fast ratchet
+        run: |
+          python3 scripts/measure_fail_fast.py --check
+          python3 scripts/measure_fail_fast.py --selftest
+
+      # Rule 7: a marker in first-party code names the issue that owns it, and
+      # every occurrence on a line is judged on its own. The definition is
+      # narrow on purpose: at the head this comment was written against, the
+      # gate reads 687 first-party files and finds a marker word 21 times on
+      # 15 lines, none of them a marker (a filename, an identifier, prose
+      # about markers - all printed by --list), and the self-test carries an
+      # arm for each class, for every type read, for every literal shape that
+      # once hid a comment and for a line mixing an owned marker with a bare
+      # one. The same 21 and 15 are in the guide and the gate.
+      - name: TODO ownership gate
+        run: |
+          python3 scripts/check_todo_ownership.py
+          python3 scripts/check_todo_ownership.py --selftest
+
+      # Rule 8: how much a passing suite proves. Suites without a mutation arm
+      # are ratcheted down; unseeded random draws are held at zero.
+      - name: Test-evidence ratchet
+        run: |
+          python3 scripts/measure_test_evidence.py --check
+          python3 scripts/measure_test_evidence.py --selftest
 
       # CI event and SHA contract gate (#174, #181): the four workflow files
       # and docs/testing/CI_WORKFLOWS.md must agree on the triggers, the cron

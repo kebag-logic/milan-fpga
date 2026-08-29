@@ -1,0 +1,42 @@
+# Rule 6 ratchets, in order. See scripts/measure_fail_fast.py.
+# ALL THREE NUMBERS MAY ONLY GO DOWN. Each was re-based ONCE, on 2026-08-28,
+# when review showed the population it had been measured over was incomplete;
+# the reason sits beside the number and the value is what the tool printed.
+#
+# 1. Parameterised first-party modules with NO elaboration contract. A module
+#    that accepts any parameter its caller passes cannot refuse an impossible
+#    build, and a banner comment does not stop one. 85 of 102: the first
+#    reading said 43 of 53 because the parameter regex knew only
+#    `parameter int X =` and saw none of gptp-processor's modules; the shared
+#    header parser (scripts/sv_ports.py) now reads every form, and only a
+#    MODULE-SCOPE $error/$fatal counts as a contract - an initial-block $fatal
+#    is a simulation check that every synthesis flow drops, so
+#    KL_pp_acmp_listener and KL_avtp_common_parser moved into this count.
+#    Re-measured 2026-08-29 when review showed a module-scope CONCURRENT
+#    assertion (`assert property ... else $error`) counted as a contract:
+#    the recognition is now positive (generate scope only; every assertion,
+#    procedural block and preprocessor line stepped over) and the tool
+#    printed the same 85 of 102 - the tree writes no concurrent assertion -
+#    so this number did not move.
+85
+# 2. Pipelines whose producer is a verdict and whose exit status is therefore
+#    the CONSUMER's. Four: two in gptp-processor/syn/ooc/run.sh (lines 15 and
+#    17, `grep ... util.rpt | head` under `set -e` in a POSIX sh that has no
+#    pipefail, so a flow whose Vivado produced no report exits 0 - fixed
+#    upstream, the pin bump removes them), and two Makefile coverage recipes
+#    the scan did not read before this re-base (tb/verilator/avtp_rxmon:56 and
+#    tb/verilator/maap:27, `verilator_coverage --annotate ... | tail -2` under
+#    make's own /bin/sh -c; cov_gate.py refuses a missing annotate directory
+#    behind them, and the fix is to drop the pipe). Pipelines where the
+#    consumer IS the assertion are waived by SITE in the script, with a reason.
+4
+# 3. Captured verdicts whose exit status is discarded: `out=$(tool ...)` with
+#    no errexit and nothing consulting the status, or behind local/export.
+#    Two, both in the pinned protocol-processor: scripts/lint_hdl.sh:14, where
+#    a Verilator that exits non-zero without printing %Error reads as LINT OK;
+#    and tb/timer_map/shape_elab.sh:48, whose OVER arm decides from the guard's
+#    text - a silent Verilator there reads as GUARD FAIL, so it fails closed
+#    today, but the status is still never read (line 35 of the same script
+#    reads `$?` on the next line and is the model). Both are fixed upstream;
+#    the pin bump lowers this to 0.
+2

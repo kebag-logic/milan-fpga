@@ -118,9 +118,9 @@ source for both groups rather than a second hand-written copy:
 | o_cls_pcp_tc_map    | output    | wire [23:0]             | Priority->traffic-class table (8x3)                  |
 | o_cls_prio_regen    | output    | wire [23:0]             | Priority regeneration table (8x3)                    |
 | o_cls_tc_queue_map  | output    | wire [31:0]             | Traffic-class->queue map                             |
-| o_cbs_idle_slope    | output    | wire [32*NUM_QUEUES-1:0]| Per-queue idleSlope, bits/s                          |
-| o_cbs_hi_credit     | output    | wire [32*NUM_QUEUES-1:0]| Per-queue hiCredit, signed bytes                     |
-| o_cbs_lo_credit     | output    | wire [32*NUM_QUEUES-1:0]| Per-queue loCredit, signed bytes                     |
+| o_cbs_idle_slope_bps | output    | wire [32*NUM_QUEUES-1:0]| Per-queue idleSlope, bits/s                          |
+| o_cbs_hi_credit_bytes | output   | wire [32*NUM_QUEUES-1:0]| Per-queue hiCredit, signed bytes                     |
+| o_cbs_lo_credit_bytes | output   | wire [32*NUM_QUEUES-1:0]| Per-queue loCredit, signed bytes                     |
 | o_cbs_enable        | output    | wire [NUM_QUEUES-1:0]   | Per-queue shaped-enable; 0 = strict priority         |
 | o_ptp_enable        | output    | wire                    | PTP counter enable (PTP_CTRL[0])                    |
 | o_ptp_incr          | output    | wire [31:0]             | Nominal per-tick increment, ns.frac                  |

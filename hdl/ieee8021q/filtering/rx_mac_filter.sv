@@ -18,12 +18,10 @@
 //                Whitelist: default_pass_i=0, add accept entries (action[0]=0).
 //                Blacklist: default_pass_i=1, add drop entries (action[0]=1).
 //
-//                REQ-MAC-02 (2026-07-26): on top of the TCAM the block now
-//                implements the 802.3 §4.2.4.2.2 station address filter that
-//                the CSR ABI has advertised since 2026-07-01 but nothing in
-//                fabric consumed - MAC_CTRL promisc/allmulti, MAC_ADDR_HI/LO
-//                exact-match unicast and the MC_HASH_HI/LO multicast bucket
-//                set. Decision order for a frame's first beat:
+//                REQ-MAC-02: on a TCAM miss, the block implements the 802.3
+//                §4.2.4.2.2 station-address filter controlled by MAC_CTRL,
+//                MAC_ADDR_HI/LO and MC_HASH_HI/LO. Decision order for a
+//                frame's first beat:
 //
 //                  runt (tlast at SOF)         -> drop, always
 //                  promisc_i                   -> pass (tcpdump must see all)
@@ -36,11 +34,12 @@
 //                addr_filter_en_i is TCAM_CTRL[1], reset 0, so a build that
 //                never sets it behaves exactly as before.
 //
-//                Assumes the 6-byte destination MAC lies entirely in beat 0
-//                (true for TDATA_WIDTH>=48, e.g. the 64-bit datapath), so the
-//                accept/drop decision is available before beat 0 is forwarded —
-//                no store-and-forward buffering. The TCAM write port is exported
-//                so milan_csr can add/remove entries (0x700 group).
+//                Requires the 6-byte destination MAC to lie entirely in beat 0
+//                (TDATA_WIDTH >= 48, e.g. the 64-bit datapath) — refused at
+//                elaboration below, not assumed — so the accept/drop decision is
+//                available before beat 0 is forwarded: no store-and-forward
+//                buffering. The TCAM write port is exported so milan_csr can
+//                add/remove entries (0x700 group).
 //---------------------------------------------------------------------------//
 
 `default_nettype none
@@ -51,8 +50,8 @@ module rx_mac_filter #(
     parameter int ACTION_WIDTH = 8,
     parameter int IDX_WIDTH    = (NUM_ENTRIES <= 1) ? 1 : $clog2(NUM_ENTRIES)
 )(
-    input  wire                     clk_i,
-    input  wire                     rst_n,
+    input  wire                     clk_i, //! RX datapath clock; every port below is in this domain
+    input  wire                     rst_n, //! synchronous, active-low; clears the frame verdict and the TCAM valid bits
 
     // ---- 802.3 station address filter (REQ-MAC-02, milan_csr 0x100) --------
     input  wire                     addr_filter_en_i, //! TCAM_CTRL[1]: apply the address filter on a TCAM miss
@@ -63,6 +62,16 @@ module rx_mac_filter #(
 
     // ---- filter policy + TCAM programming (from milan_csr 0x700) -----------
     input  wire                     default_pass_i, //! accept frames that miss the TCAM
+
+    //! TCAM entry write port. Level-driven, no handshake, no backpressure:
+    //! the entry is committed on the clock edge where en is high, so the
+    //! writer holds index/valid/key/mask/action stable for that edge. The
+    //! lookup is combinational on the live table and the frame verdict is
+    //! latched only when the first beat is ACCEPTED (tvalid and tready both
+    //! high), so a write lands in whichever frame has not yet handed over its
+    //! first beat: a first beat stalled on m_tready sees the new entry and its
+    //! verdict changes in flight. Once the first beat is accepted the verdict
+    //! is held to tlast and a write retimes only the next frame's lookup.
     input  wire                     tcam_wr_en_i,
     input  wire [IDX_WIDTH-1:0]     tcam_wr_index_i,
     input  wire                     tcam_wr_valid_i,
@@ -71,6 +80,12 @@ module rx_mac_filter #(
     input  wire [ACTION_WIDTH-1:0]  tcam_wr_action_i,
 
     // ---- RX AXIS in (from MAC/PTP) ----------------------------------------
+    //! AXI4-Stream sink, destination address MSB-first in the first beat.
+    //! Standard valid/ready: a beat transfers when tvalid and tready are both
+    //! high, tvalid never waits on tready, and tlast marks the final beat of a
+    //! frame. tready is passed through from the source below for an accepted
+    //! frame and forced high for a dropped one, so a dropped frame is consumed
+    //! at full rate rather than stalling the MAC.
     input  wire [TDATA_WIDTH-1:0]   s_tdata,
     input  wire [TDATA_WIDTH/8-1:0] s_tkeep,
     input  wire                     s_tvalid,
@@ -78,6 +93,17 @@ module rx_mac_filter #(
     output wire                     s_tready,
 
     // ---- RX AXIS out (filtered, to DMA) -----------------------------------
+    //! AXI4-Stream source carrying only accepted frames, beat for beat with
+    //! the sink above. A dropped frame is squashed by holding tvalid low for
+    //! its whole length, so a consumer never sees a partial frame and never
+    //! sees a tlast without a preceding first beat. KNOWN BEND, kept as is:
+    //! while the FIRST beat is stalled on m_tready the verdict is still live
+    //! (see the TCAM write port), so a TCAM or policy write in that window
+    //! withdraws tvalid without a transfer, which AXI4-Stream (ARM IHI 0051A
+    //! 2.2.1: TVALID, once asserted, holds until the handshake) forbids. That
+    //! is a functional change for its own ticket, not a documentation one;
+    //! the focused suite pins the sequence so this contract and the RTL are
+    //! graded together.
     output wire [TDATA_WIDTH-1:0]   m_tdata,
     output wire [TDATA_WIDTH/8-1:0] m_tkeep,
     output wire                     m_tvalid,
@@ -85,10 +111,61 @@ module rx_mac_filter #(
     input  wire                     m_tready,
 
     // ---- status (per accepted frame) --------------------------------------
+    //! Per-frame verdict, all three LEVELS and not pulses. They follow the live
+    //! lookup while a first beat is stalled, hold from the first ACCEPTED beat
+    //! until its tlast, and are observation only: no consumer may drive
+    //! backpressure from them, because the frame they describe is already in
+    //! flight.
     output wire [ACTION_WIDTH-1:0]  frame_action_o, //! action of the current frame's match
     output wire                     frame_match_o,  //! current frame hit a TCAM entry
     output wire                     frame_dropped_o //! current frame is being dropped
 );
+
+  // =======================================================================
+  //  ELABORATION CONTRACT. The banner above states that the destination
+  //  address is read out of the FIRST BEAT, and that this holds "for
+  //  TDATA_WIDTH>=48". That was a comment, and a comment does not stop a
+  //  build: at TDATA_WIDTH=32 the dmac concatenation below indexes past the
+  //  end of s_tdata, the compare runs against whatever those bits are, and
+  //  the shield silently admits or drops the wrong frames. Nothing downstream
+  //  can detect that - a filter that is wrong is indistinguishable from a
+  //  filter that is right until the traffic is inspected on the wire.
+  //
+  //  ONE format string per check: $error takes later arguments as VALUES, so
+  //  a message split across string literals prints its continuations as
+  //  integers. The blocks are NAMED (gen_guard_*), the form KL_media_nco
+  //  uses: an unnamed generate block is a GENUNNAMED warning in every -Wall
+  //  build of this module.
+  //
+  //  WHERE THIS IS ENFORCED. Verilator refuses the build whenever USERERROR
+  //  is fatal: its default (no -Wno-fatal), or -Werror-USERERROR, which every
+  //  suite that builds this module carries (tb/verilator/rx_filter, milan_dp,
+  //  hostplane, tcam_csr) because -Wno-fatal on its own demotes a $error to a
+  //  warning and the illegal shape BUILDS. Vivado refuses it at elaboration.
+  //  It is NOT enforced on the sv2v -> Yosys path (syn/yosys/run.sh, ooc.sh):
+  //  sv2v lowers a module-scope $error to an `initial $display`, which Yosys
+  //  ignores, so that flow synthesises an illegal shape without a word. A
+  //  Yosys-side check would take the shape of
+  //  protocol-processor/tb/timer_map/shape_elab.sh - elaborate each illegal
+  //  shape and require the guard's own message - fed the original
+  //  SystemVerilog, since Yosys's own `read_verilog -sv` does honour it.
+  // =======================================================================
+  if (TDATA_WIDTH < 48) begin : gen_guard_dmac_in_beat0
+    $error("rx_mac_filter: TDATA_WIDTH=%0d cannot carry the 48-bit destination address in one beat, and the first-beat compare this module is built on would read past the end of s_tdata and filter on undefined bits. The 802.3 destination address is 6 bytes (IEEE 802.3 3.2.3), so the RX datapath must be at least 48 bits wide.",
+           TDATA_WIDTH);
+  end
+  else if ((TDATA_WIDTH % 8) != 0) begin : gen_guard_byte_lanes
+    $error("rx_mac_filter: TDATA_WIDTH=%0d is not a whole number of bytes, so s_tkeep (TDATA_WIDTH/8) cannot describe the beat it qualifies and the final beat's byte count would be unrepresentable.",
+           TDATA_WIDTH);
+  end
+  else if (NUM_ENTRIES < 1) begin : gen_guard_tcam_entries
+    $error("rx_mac_filter: NUM_ENTRIES=%0d leaves the TCAM with no entry to program, so every frame takes the default_pass_i path and the stream-drop shield cannot exist. Prune the filter at its instantiation instead of sizing it to zero.",
+           NUM_ENTRIES);
+  end
+  else if (ACTION_WIDTH < 1) begin : gen_guard_action_width
+    $error("rx_mac_filter: ACTION_WIDTH=%0d cannot carry a match action, so frame_action_o would be empty and every hit would be indistinguishable from every other hit.",
+           ACTION_WIDTH);
+  end
 
   // -----------------------------------------------------------------------
   //  Destination MAC = first 6 bytes on the wire (byte 0 = MAC MSB).
@@ -120,17 +197,30 @@ module rx_mac_filter #(
   //! Miss policy: the address filter when armed, else the legacy blanket bit.
   wire miss_pass = addr_filter_en_i ? addr_pass : default_pass_i;
 
-  wire                    match;
-  wire [ACTION_WIDTH-1:0] action;
+  //! Explicit TCAM lookup seam. These names keep the dependency visible at
+  //! both sides of the child boundary instead of leaking generic `match` and
+  //! `action` state into the frame-decision logic below.
+  wire                    tcam_match;
+  wire [ACTION_WIDTH-1:0] tcam_action;
 
   tcam #(
     .KEY_WIDTH(48), .NUM_ENTRIES(NUM_ENTRIES), .ACTION_WIDTH(ACTION_WIDTH)
   ) mac_cam (
-    .clk_i(clk_i), .rst_n(rst_n),
-    .wr_en_i(tcam_wr_en_i), .wr_index_i(tcam_wr_index_i), .wr_valid_i(tcam_wr_valid_i),
-    .wr_key_i(tcam_wr_key_i), .wr_mask_i(tcam_wr_mask_i), .wr_action_i(tcam_wr_action_i),
+    .clk_i(clk_i),
+    .rst_n(rst_n),
+    .wr_en_i(tcam_wr_en_i),
+    .wr_index_i(tcam_wr_index_i),
+    .wr_valid_i(tcam_wr_valid_i),
+    .wr_key_i(tcam_wr_key_i),
+    .wr_mask_i(tcam_wr_mask_i),
+    .wr_action_i(tcam_wr_action_i),
     .lookup_key_i(dmac),
-    .match_o(match), .match_index_o(), .match_action_o(action), .match_vec_o()
+    .match_o(tcam_match),
+    //! The filter consumes the winning action only; software diagnostics own
+    //! neither the numeric winning index nor the multi-hit vector at this seam.
+    .match_index_o(),
+    .match_vec_o(),
+    .match_action_o(tcam_action)
   );
 
   // -----------------------------------------------------------------------
@@ -142,10 +232,10 @@ module rx_mac_filter #(
   reg                    match_r;    //! latched match flag for the frame
 
   wire sof       = s_tvalid && !in_frame;                          //! first beat of a frame
-  //! runt guard: a frame whose FIRST beat carries tlast is at most 8 bytes -
-  //! no legal Ethernet frame. Upstream pipeline warts can mint such ghosts
-  //! at drop-frame tails (dp TB 2026-07-19); swallow them here so the host
-  //! DMA never sees them, whatever their origin.
+  //! Runt guard: a frame whose FIRST beat carries tlast is at most 8 bytes, so
+  //! it cannot be a legal Ethernet frame. A dropped-frame tail can otherwise
+  //! appear as that one-beat ghost; swallow it here so the host DMA never sees
+  //! it, whatever its upstream origin.
   wire runt_sof  = sof && s_tlast;
   //! SOF decision. promisc outranks an explicit TCAM drop on purpose: MAC_CTRL
   //! promiscuous means "hand me the wire", which is exactly what a capture
@@ -153,7 +243,7 @@ module rx_mac_filter #(
   //! switches off.
   wire pass_sof  = runt_sof  ? 1'b0
                  : promisc_i ? 1'b1
-                 : match     ? ~action[0] : miss_pass;             //! SOF decision
+                 : tcam_match ? ~tcam_action[0] : miss_pass;       //! SOF decision
   wire pass_now  = sof ? pass_sof : pass_r;                        //! decision applied this beat
 
   // Cut-through: forward when passing, silently consume when dropping.
@@ -171,15 +261,15 @@ module rx_mac_filter #(
     end else if (beat_acc) begin
       if (sof) begin
         pass_r   <= pass_sof;
-        action_r <= action;
-        match_r  <= match;
+        action_r <= tcam_action;
+        match_r  <= tcam_match;
       end
       in_frame <= ~s_tlast;    // clear at end of frame, set within a frame
     end
   end
 
-  assign frame_action_o  = sof ? action   : action_r;
-  assign frame_match_o   = sof ? match     : match_r;
+  assign frame_action_o  = sof ? tcam_action : action_r;
+  assign frame_match_o   = sof ? tcam_match  : match_r;
   assign frame_dropped_o = ~pass_now;
 
 endmodule

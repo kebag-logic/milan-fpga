@@ -6,7 +6,11 @@
 The shipping RTL spans this superproject and two project-owned submodules.
 Git does not recurse into gitlinks for an ordinary ``git ls-files``, so every
 quality rule uses this helper instead of silently treating those processors as
-vendored code.  ``third_party`` and ``external`` remain upstream/vendor scope.
+vendored code.  ``third_party`` and ``external`` remain upstream/vendor scope:
+``git ls-files --recurse-submodules`` descends into EVERY initialised
+submodule, so a bare ``*.py`` pathspec reaches ``third_party/verilog-axis``
+too, and ``tracked`` drops what lies under a gitlink that is not a project
+processor before returning.
 """
 
 import subprocess
@@ -50,10 +54,36 @@ def scoped_pathspecs(*patterns):
     return out
 
 
+def gitlinks():
+    """Every submodule path the superproject index records (mode 160000)."""
+    run = subprocess.run(
+        ["git", "ls-files", "--stage"],
+        cwd=REPO, capture_output=True, text=True, check=True)
+    return [line.split("\t", 1)[1] for line in run.stdout.splitlines()
+            if line.startswith("160000 ")]
+
+
+def first_party(paths, links):
+    """Drop every path at or under a gitlink that is not a project processor."""
+    vendor = tuple(link for link in links if link not in PROJECT_SUBMODULES)
+    return [p for p in paths
+            if not any(p == v or p.startswith(v + "/") for v in vendor)]
+
+
 def tracked(*patterns):
-    """Tracked first-party paths across the superproject and project submodules."""
+    """Tracked first-party paths across the superproject and project submodules.
+
+    With no pattern, every tracked first-party path.
+    """
+    return tracked_exact(*scoped_pathspecs(*patterns))
+
+
+def tracked_exact(*pathspecs):
+    """Tracked first-party paths for already-rooted pathspecs, without scope
+    expansion; the vendor gitlinks are filtered here too, so no caller can
+    reach a third-party tree by spelling its path."""
     _assert_pinned_submodules()
     run = subprocess.run(
-        ["git", "ls-files", "--recurse-submodules", "--", *scoped_pathspecs(*patterns)],
+        ["git", "ls-files", "--recurse-submodules", "--", *pathspecs],
         cwd=REPO, capture_output=True, text=True, check=True)
-    return run.stdout.splitlines()
+    return first_party(run.stdout.splitlines(), gitlinks())

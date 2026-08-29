@@ -22,8 +22,8 @@ int main(int argc, char** argv) {
     dut->cls_pcp_tc_map_i = 0xFAC688; dut->cls_prio_regen_i = 0xFAC688;
     dut->cls_tc_queue_map_i = 0xE1;                  // TC0->q1, TC1->q0
     for (int q = 0; q < 4; q++) {
-        dut->cbs_idle_slope_i[q] = (q == 0) ? 10000000u : 0u;
-        dut->cbs_hi_credit_i[q] = 200; dut->cbs_lo_credit_i[q] = (uint32_t)-1522;
+        dut->cbs_idle_slope_bps_i[q] = (q == 0) ? 10000000u : 0u;
+        dut->cbs_hi_credit_bytes_i[q] = 200; dut->cbs_lo_credit_bytes_i[q] = (uint32_t)-1522;
     }
     dut->cbs_shaped_i = 0x1; dut->m_tready = 1;
 

@@ -1,0 +1,48 @@
+# Rule 8 ratchets, in order. See scripts/measure_test_evidence.py.
+# ALL FOUR NUMBERS MAY ONLY GO DOWN. A number here is the tool's measured
+# value at the commit that wrote it, never a hand-chosen target.
+#
+# 1. RTL suites with no executable mutation or negative arm. This covers the
+#    superproject and both project-owned processor submodules. An arm is read
+#    from the suite's Makefile: a recipe on a target the suite's entry runs,
+#    invoking a mutation/negative driver, passing a mutation define, or
+#    consuming a negative-case table. Prose, comments and empty targets count
+#    for nothing (review of #282), and so does a recipe whose error control
+#    keeps the arm's failure from Make: a `-` prefix, `.IGNORE`, a `|| true`
+#    fallback, a `; cmd` tail without errexit, a pipe (second review of
+#    #282). A suite whose assertions have never been observed to fail is
+#    indistinguishable from a suite that asserts nothing.
+82
+# 2. First-party files that draw random values without recording a seed.
+#    The population widened in the review of #282 to every language the test
+#    trees carry (SystemVerilog `$urandom`/`$random`/`randomize`, C `rand()`
+#    and `random_device`, Python instance/numpy/`from random import` draws),
+#    and the ten it then found are all legacy xsim benches under tb/utests,
+#    tb/itests and tb/avtp_packet_gen_sv that draw `$urandom` with no seed
+#    (docs/testing/TESTING.md section 5: superseded, not exit-code gating).
+#    Every gating harness is seeded. Ten was measured, not chosen; it may
+#    only fall, and seeding one of those benches lowers it.
+10
+# 3. Test programs that read production HDL without an explicit structural or
+#    mutation-only disposition. Reading expected values from the DUT is not an
+#    independent oracle. The four classified readers do not consume budget.
+0
+# 4. Suite files that use host time, sleep, or process/socket deadlines. Two
+#    belong to the external tsn_fuzz cosimulation boundary. The third is the
+#    tcam mutation driver's per-mutant guard (review of #282): a livelocking
+#    mutant is reported TIMEOUT and NOT caught, so the arm fails in seconds
+#    instead of hanging the sweep; the bound is a guard, never an oracle.
+#    Behavioral protocol timeouts elsewhere advance explicit DUT cycles.
+3
+#
+# Known processor debt, recorded here so it is inventoried and not implied
+# covered (review of #282); the fix is upstream, in the submodule:
+#  - protocol-processor/scripts/run_suites.sh reads each suite log with a
+#    single `grep | tail -1`: a zero tally (`0 checks: 0 PASS, 0 FAIL`) reads
+#    as PASS, only the LAST tally line of a multi-executable suite is counted,
+#    and only one shape is known. The superproject reader
+#    (scripts/suite_tally.py) refuses all three, and measure_test_evidence.py
+#    --selftest proves that; the upstream fix is to sum every tally line in
+#    every shape and treat zero as NOCOUNT, or to call suite_tally.py's scan.
+#  - gptp-processor has no CI of its own; its three suites run only from
+#    gptp-processor/Makefile (`tb`), which reads no tally at all.

@@ -87,9 +87,9 @@ module credit_based_shaper #(
 
   //! --- runtime configuration (from milan_csr CBS register group, REQ-CBS-01) ---
   input  wire        shaped_i,              //! 1 = apply CBS; 0 = strict priority (always eligible)
-  input  wire [31:0] idle_slope_i,          //! idleSlope for the current link rate, bits/s
-  input  wire signed [31:0] hi_credit_i,    //! hiCredit clamp, signed bytes
-  input  wire signed [31:0] lo_credit_i,    //! loCredit clamp, signed bytes
+  input  wire [31:0] idle_slope_bps_i,          //! idleSlope for the current link rate, bits/s
+  input  wire signed [31:0] hi_credit_bytes_i,    //! hiCredit clamp, signed bytes
+  input  wire signed [31:0] lo_credit_bytes_i,    //! loCredit clamp, signed bytes
 
   //! --- datapath status ---
   input  wire        queue_has_data_i,      //! Queue has a frame ready to send
@@ -121,7 +121,7 @@ module credit_based_shaper #(
   //  idle_slope_per_cycle_r = (idle_slope <<< 16) / CLK_FREQ_HZ / BYTE_TO_BIT
   //  send_slope_per_byte_r  = ((idle_slope - link_rate) <<< 16) / link_rate
   //
-  //  Both terms are functions ONLY of quasi-static config (idle_slope_i,
+  //  Both terms are functions ONLY of quasi-static config (idle_slope_bps_i,
   //  is_1g_i). The 2026-07-01 rework computed them with per-cycle combinational
   //  constant-divisor cones; measured on xc7a100t 2026-07-11 those cost ~2.3K
   //  LUTs per queue (~9.3K over 4 queues, 18 percent of the SoC, partly
@@ -130,7 +130,7 @@ module credit_based_shaper #(
   //  31-bit serial restoring divider, 1 bit per cycle, on a FIXED 100-cycle
   //  cadence (data-independent, free-running):
   //
-  //    cnt 0        sample idle_slope_i / is_1g_i
+  //    cnt 0        sample idle_slope_bps_i / is_1g_i
   //    cnt 1        load dividend |idle_slope <<< 16|, divisor CLK_FREQ_HZ*8
   //    cnt 2..49    48 divide iterations -> idle_slope_per_cycle quotient
   //    cnt 50       stash quotient 1; load |send_slope <<< 16|, divisor link
@@ -159,7 +159,7 @@ module credit_based_shaper #(
   localparam logic [30:0] SLOPE_DEN1 = 31'(CLK_FREQ_HZ * BYTE_TO_BIT);
 
   logic [6:0]         eng_cnt;    //! engine cadence counter, 0..99
-  logic signed [47:0] eng_idle_s; //! sampled idle_slope_i (sign extended)
+  logic signed [47:0] eng_idle_s; //! sampled idle_slope_bps_i (sign extended)
   logic               eng_is1g_s; //! sampled link-rate select
   logic               eng_sign;   //! dividend sign of the divide in flight
   logic [47:0]        eng_num;    //! dividend magnitude shift register
@@ -220,8 +220,8 @@ module credit_based_shaper #(
   //! reconfiguration that lowers hiCredit shrinks the burst allowance on the
   //! very next cycle, REQ-CBS-01).
   always_comb begin : clamp_calc
-    hi_credit_q16 = 48'(signed'(hi_credit_i)) <<< FP_DECIMAL_POINT;
-    lo_credit_q16 = 48'(signed'(lo_credit_i)) <<< FP_DECIMAL_POINT;
+    hi_credit_q16 = 48'(signed'(hi_credit_bytes_i)) <<< FP_DECIMAL_POINT;
+    lo_credit_q16 = 48'(signed'(lo_credit_bytes_i)) <<< FP_DECIMAL_POINT;
   end
 
   //! Slope engine combinational helpers: dividend selection (with the same
@@ -273,7 +273,7 @@ module credit_based_shaper #(
     end else begin
       eng_cnt <= (eng_cnt == 7'd99) ? 7'd0 : (eng_cnt + 7'd1);
       if (eng_cnt == 7'd0) begin
-        eng_idle_s <= 48'(signed'(idle_slope_i));
+        eng_idle_s <= 48'(signed'(idle_slope_bps_i));
         eng_is1g_s <= is_1g_i;
       end else if (eng_cnt == 7'd1 || eng_cnt == 7'd50) begin
         if (eng_cnt == 7'd50) eng_q1 <= eng_quo_s;

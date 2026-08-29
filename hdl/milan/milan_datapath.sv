@@ -1438,7 +1438,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [23:0] cfg_cls_pcp_tc_map, cfg_cls_prio_regen;
   wire [31:0] cfg_cls_tc_queue_map;
 
-  wire [32*NUM_QUEUES-1:0] cfg_cbs_idle_slope, cfg_cbs_hi_credit, cfg_cbs_lo_credit;
+  wire [32*NUM_QUEUES-1:0] cfg_cbs_idle_slope_bps, cfg_cbs_hi_credit_bytes, cfg_cbs_lo_credit_bytes;
   wire [NUM_QUEUES-1:0]    cfg_cbs_enable;
 
   wire        cfg_ptp_enable;
@@ -2377,9 +2377,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .o_cls_prio_regen  (cfg_cls_prio_regen),
     .o_cls_tc_queue_map(cfg_cls_tc_queue_map),
     // CBS
-    .o_cbs_idle_slope(cfg_cbs_idle_slope),
-    .o_cbs_hi_credit (cfg_cbs_hi_credit),
-    .o_cbs_lo_credit (cfg_cbs_lo_credit),
+    .o_cbs_idle_slope_bps(cfg_cbs_idle_slope_bps),
+    .o_cbs_hi_credit_bytes (cfg_cbs_hi_credit_bytes),
+    .o_cbs_lo_credit_bytes (cfg_cbs_lo_credit_bytes),
     .o_cbs_enable    (cfg_cbs_enable),
     // PTP
     .o_ptp_enable      (cfg_ptp_enable),
@@ -2726,7 +2726,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! instead of corrupting a neighbouring queue's slope.
   wire lwsrp_qidx_ok_w = (32'(cfg_lwsrp_qidx) < NUM_QUEUES);
   always_comb begin
-    cbs_idle_slope_mux = cfg_cbs_idle_slope;
+    cbs_idle_slope_mux = cfg_cbs_idle_slope_bps;
     cbs_enable_mux     = cfg_cbs_enable;
     if (lwsrp_slope_en && lwsrp_qidx_ok_w) begin
       cbs_idle_slope_mux[32*cfg_lwsrp_qidx +: 32] = lwsrp_idle_slope;
@@ -2750,9 +2750,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .cls_pcp_tc_map_i  (cfg_cls_pcp_tc_map),
     .cls_prio_regen_i  (cfg_cls_prio_regen),
     .cls_tc_queue_map_i(cfg_cls_tc_queue_map),
-    .cbs_idle_slope_i  (cbs_idle_slope_mux),
-    .cbs_hi_credit_i   (cfg_cbs_hi_credit),
-    .cbs_lo_credit_i   (cfg_cbs_lo_credit),
+    .cbs_idle_slope_bps_i  (cbs_idle_slope_mux),
+    .cbs_hi_credit_bytes_i   (cfg_cbs_hi_credit_bytes),
+    .cbs_lo_credit_bytes_i   (cfg_cbs_lo_credit_bytes),
     .cbs_shaped_i      (cbs_enable_mux),
     .s_axis(tx_axis_to_shaper),
     .m_axis(tx_axis_shaper_to_ts)
@@ -2783,7 +2783,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   ptp_ts_top #(
     .TDATA_WIDTH(TDATA_WIDTH),
     .BIG_ENDIAN(0),
-    .ETH_TYPE(16'h88F7)
+    //! 802.1AS rides the PTP EtherType. The value is ETH_TYPE_PTP in
+    //! hdl/common/ethernet_packet_pkg.sv, which this module already imports;
+    //! spelling the literal here made a second definition of a fact the
+    //! package owns.
+    .ETH_TYPE(ETH_TYPE_PTP)
   ) ptp_timestamp (
     .gtx_clk(gtx_clk),
     .gtx_resetn(gtx_resetn),
@@ -2917,6 +2921,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .m_tvalid(rx_axis_to_dma.tvalid),
     .m_tlast (rx_axis_to_dma.tlast),
     .m_tready(rx_axis_to_dma.tready),
+    //! Verdict rails are observation-only levels (rx_mac_filter.sv contract);
+    //! nothing in this datapath consumes them, so they stay open rather than
+    //! being routed to a consumer that would ignore them.
     .frame_action_o(), .frame_match_o(), .frame_dropped_o()
   );
   end else begin : g_no_rx_filter

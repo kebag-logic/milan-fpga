@@ -3,6 +3,7 @@
 
     python3 scripts/suite_tally.py <logdir>... [--quiet]
         [--expect-suite-root <tb/verilator>]
+    python3 scripts/suite_tally.py --verdict <suite.log>
 
 ``<logdir>`` is the directory ``scripts/run_all_suites.sh`` writes
 ``<suite>.log`` into (default ``.suite-logs/``).  This script is the *only*
@@ -41,7 +42,11 @@ Two detectors implement that:
   which is the case a per-log "did anything match?" test would miss.
 
 Both are accounting verdicts.  Neither changes whether a suite passed --
-``run_all_suites.sh`` still gates that on the suite's exit status alone.
+``run_all_suites.sh`` gates that on the suite's exit status, plus one more
+reading of the same log: ``--verdict`` (``log_reports_failure()``) refuses a
+suite that exited 0 while its log carries a ``[FAIL]`` line or a tally with a
+non-zero failure count.  An assertion that only logs is Rule 6's masked
+verdict, and make cannot see it.
 
 DECLARED SKIPS ARE REPORTING, NOT A VERDICT
 -------------------------------------------
@@ -256,6 +261,33 @@ def campaign_accounted_for(text):
         return (f"tallied {checks} checks and {failures} failures -- it ran, "
                 f"and measured nothing", False)
     return (f"tallied {checks} checks, {failures} failures", True)
+
+
+# A line a harness prints for a check that FAILED. Anchored at the start of the
+# line: the shape every sim_main.cpp here prints from its check() helper, and
+# the shape the negative arms print. Prose mentioning FAIL mid-line is not it.
+FAIL_MARKER = re.compile(r"^\s*\[FAIL\]")
+
+
+def log_reports_failure(text):
+    """(reason, failed) - does one suite log say that something FAILED?
+
+    Rule 6's other inventory: an assertion that only logs. A harness whose
+    check() prints `[FAIL]` and counts it, but whose main() returns 0 anyway,
+    hands make a green it did not earn; so does a tally reading `4 PASS, 1
+    FAIL` above an `exit 0`. ``run_all_suites.sh`` calls this for every suite
+    that exited 0 and refuses the pass when its log contradicts it. Two
+    detectors: a tally in any shape above with a non-zero failure count, and a
+    line that starts with ``[FAIL]``. Silence is not this function's business
+    (that is ``NOCOUNT``), and a suite that exited non-zero has already failed.
+    """
+    checks, failures, _matched, _unparsed, _skipped = scan(text)
+    markers = [line.strip() for line in text.splitlines() if FAIL_MARKER.match(line)]
+    if failures:
+        return (f"its tallies report {failures} failure(s) across {checks} checks", True)
+    if markers:
+        return (f"it carries {len(markers)} [FAIL] line(s), first: {markers[0][:80]}", True)
+    return ("no failure reported", False)
 
 
 # --- self-test ---------------------------------------------------------------
@@ -596,6 +628,67 @@ def selftest():
         bad += 1
         print("       expected rc=1")
 
+    # --- the LOG VERDICT: an assertion that only logs --------------------------
+    # Rule 6. A suite that prints [FAIL] and exits 0 used to be a PASS of the
+    # sweep, because make cannot read; review crafted exactly that log and the
+    # sweep accepted it. These pin the detector, then its CLI and exit code.
+    for name, text, want_failed, why in (
+        ("verdict-clean", "5 checks: 5 PASS, 0 FAIL\n", False,
+         "a clean tally reports no failure"),
+        ("verdict-tally-failure", "5 checks: 4 PASS, 1 FAIL\n", True,
+         "a tally with a non-zero failure count is a failure, whatever make said"),
+        ("verdict-marker-beside-clean-tally",
+         "[FAIL] elaboration ACCEPTED illegal TDATA_WIDTH=52\n5 checks: 5 PASS, 0 FAIL\n",
+         True, "a [FAIL] line is a failure even when the tally beside it says 0"),
+        ("verdict-canonical-failures", "checks: 100   failures: 3\n", True,
+         "...in every shape the sweep reads, not just one"),
+        ("verdict-prose-is-not-a-marker",
+         "note: a [FAIL] here would mean the guard fired\n0 FAIL lines seen\n", False,
+         "FAIL mid-line is prose; the marker is anchored"),
+        ("verdict-silence-is-not-this-detector", "building...\n", False,
+         "a silent log is NOCOUNT's finding, not a reported failure"),
+    ):
+        reason, got = log_reports_failure(text)
+        ok = got == want_failed
+        print(f"  {'ok  ' if ok else 'FAIL'} {name:<32} failed={got}  -- {why}")
+        if not ok:
+            bad += 1
+            print(f"       expected failed={want_failed}, got reason: {reason}")
+
+    for name, text, want_rc, want_out, why in (
+        ("cli-verdict-accepts", "62 checks: 62 PASS, 0 FAIL\n", 0, None,
+         "the verdict CLI passes a log that reports no failure"),
+        ("cli-verdict-refuses-marker",
+         "62 checks: 62 PASS, 0 FAIL\n[FAIL] elaboration ACCEPTED illegal TDATA_WIDTH=52\n",
+         1, "VERDICT CONTRADICTED", "...and refuses one that printed [FAIL], with a non-zero exit"),
+        ("cli-verdict-refuses-tally", "5 checks: 4 PASS, 1 FAIL\n", 1,
+         "1 failure(s)", "...and one whose tally counts a failure"),
+    ):
+        with tempfile.TemporaryDirectory() as td:
+            log = Path(td, "suite.log")
+            log.write_text(text)
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf), \
+                    contextlib.redirect_stderr(io.StringIO()):
+                rc = main([sys.argv[0], "--verdict", str(log)])
+        out = buf.getvalue()
+        ok = rc == want_rc and (want_out is None or want_out in out)
+        print(f"  {'ok  ' if ok else 'FAIL'} {name:<32} rc={rc}  -- {why}")
+        if not ok:
+            bad += 1
+            print(f"       expected rc={want_rc}"
+                  + (f" and {want_out!r} in the output" if want_out else ""))
+    with tempfile.TemporaryDirectory() as td:
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf), contextlib.redirect_stderr(io.StringIO()):
+            rc = main([sys.argv[0], "--verdict", str(Path(td, "absent.log"))])
+    ok = rc == 2
+    print(f"  {'ok  ' if ok else 'FAIL'} {'cli-verdict-unreadable-log':<32} rc={rc}  "
+          f"-- a log that cannot be read is an unknown, never a pass")
+    if not ok:
+        bad += 1
+        print("       expected rc=2")
+
     print("selftest:", "PASS" if bad == 0 else f"{bad} FAILURE(S)")
     return 1 if bad else 0
 
@@ -617,6 +710,23 @@ def main(argv):
         print("  NOT show up as a NOCOUNT. Print a tally in one of the shapes")
         print("  in scripts/suite_tally.py, or a SUITE-SKIP: line saying why")
         print("  the campaign ran nothing.")
+        return 1
+    if "--verdict" in argv[1:]:
+        #! One suite log, asked whether it REPORTS a failure. run_all_suites.sh
+        #! consults it for every suite that exited 0. See log_reports_failure().
+        path = argv[argv.index("--verdict") + 1]
+        try:
+            text = Path(path).read_text(errors="replace")
+        except OSError as exc:
+            sys.stderr.write(f"suite_tally: cannot read {path}: {exc}\n")
+            return 2
+        reason, failed = log_reports_failure(text)
+        if not failed:
+            return 0
+        print(f"VERDICT CONTRADICTED -- {reason}.")
+        print("  The suite exited 0 while its own log reports a failure: an")
+        print("  assertion that only logs is a masked verdict (Rule 6). Make the")
+        print("  harness return non-zero when a check fails.")
         return 1
     quiet = False
     expected_root = None

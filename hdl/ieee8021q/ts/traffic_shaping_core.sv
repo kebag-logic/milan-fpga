@@ -65,9 +65,9 @@ module traffic_shaping_core #(
   input wire is_1g_i,                 //! High when the link rate is 1GBps
 
   //! --- per-queue CBS runtime config, packed [q*32 +: 32] (from milan_csr) ---
-  input wire [32*NUMBER_OF_QUEUES-1:0] cbs_idle_slope_i, //! idleSlope per queue, bits/s
-  input wire [32*NUMBER_OF_QUEUES-1:0] cbs_hi_credit_i,  //! hiCredit per queue, signed bytes
-  input wire [32*NUMBER_OF_QUEUES-1:0] cbs_lo_credit_i,  //! loCredit per queue, signed bytes
+  input wire [32*NUMBER_OF_QUEUES-1:0] cbs_idle_slope_bps_i, //! idleSlope per queue, bits/s
+  input wire [32*NUMBER_OF_QUEUES-1:0] cbs_hi_credit_bytes_i,  //! hiCredit per queue, signed bytes
+  input wire [32*NUMBER_OF_QUEUES-1:0] cbs_lo_credit_bytes_i,  //! loCredit per queue, signed bytes
   input wire [NUMBER_OF_QUEUES-1:0]    cbs_shaped_i,     //! 1 = shaped, 0 = strict priority
 
   //! One-hot: indicates which queue is granted
@@ -114,9 +114,9 @@ module traffic_shaping_core #(
         .clk               (clk),
         .resetn            (resetn),
         .shaped_i          (cbs_shaped_i[i]),
-        .idle_slope_i      (cbs_idle_slope_i[i*32 +: 32]),
-        .hi_credit_i       (cbs_hi_credit_i[i*32 +: 32]),
-        .lo_credit_i       (cbs_lo_credit_i[i*32 +: 32]),
+        .idle_slope_bps_i      (cbs_idle_slope_bps_i[i*32 +: 32]),
+        .hi_credit_bytes_i       (cbs_hi_credit_bytes_i[i*32 +: 32]),
+        .lo_credit_bytes_i       (cbs_lo_credit_bytes_i[i*32 +: 32]),
         .queue_has_data_i  (queue_has_data_i[i]),
         .is_1g_i           (is_1g_i),
         .is_transmitting_i (is_transmitting[i]),

@@ -123,6 +123,15 @@ tops=(
   "KL_nvm_backend_sizer|$R/syn/ooc/sizing/KL_nvm_backend_sizer.sv"
 )
 
+# Print bash's own expansion of DP_SRCS and exit. scripts/check_rtl_source_lists.py
+# grades what this script will really read, not a model of this file: a
+# recogniser accepts what it has modelled and bash accepts something else
+# (syn/ooc/dp_srcs.py records four escapes that worked exactly that way).
+if [ "${1:-}" = "--emit-dp" ]; then
+  printf '%s\n' $DP_SRCS
+  exit 0
+fi
+
 RECORD=0
 if [ "${1:-}" = "--record-rom-digests" ]; then RECORD=1; shift; fi
 want=("$@")

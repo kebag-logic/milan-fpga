@@ -49,7 +49,7 @@ An AXI4-Lite master BFM (`sim_main.cpp`) exercises the register map
 * **RO enforcement** — writes to `ID`/`MAC_STATUS` are ignored.
 * **RW + output wiring** — SCRATCH, MAC control bits drive `o_mac_*`, station MAC
   reconstructs on `o_mac_addr`, per-queue CBS idleSlope drives
-  `o_cbs_idle_slope[q]`, CBS enable drives `o_cbs_enable`.
+  `o_cbs_idle_slope_bps[q]`, CBS enable drives `o_cbs_enable`.
 * **IRQ** — hardware event latch → `IRQ_STATUS`, masking → `o_irq`, and
   write-1-to-clear.
 * **PTP command strobes** — `PTP_CMD` snapshot latches the live TOD into

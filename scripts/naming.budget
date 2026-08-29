@@ -1,0 +1,130 @@
+# Rule 4 ratchet, keyed on IDENTITY: every boundary port or parameter whose
+# own //! comment names a unit of measure that the identifier does not carry,
+# or documents a unit of a different family than the one the identifier
+# carries (marked `# named for a different unit than documented`), as path:module:name.
+# A processor entry is spelled <submodule>:<path>:... (colon, not slash,
+# after the submodule name - the scripts/xvlog.budget spelling) so this
+# generated record is not a hand-written source list.
+# See scripts/measure_naming.py.
+#
+# A line may leave this file only because the boundary was renamed with its
+# unit or removed - or, for a name that already carries a unit, because its
+# comment now names that unit's family; a port still declared under the same
+# name that has lost the unit word from its comment is refused, so the
+# documentation cannot be stripped to lower the count. No line may be added.
+# Regenerate with `python3 scripts/measure_naming.py --write-budget`.
+#
+# 2026-08-29: the mismatch lines arrived when the measurement began comparing
+# the identifier's unit family to the documented one (PR #278 review,
+# scripts/measure_naming.py classify): a unit token in the name no longer
+# satisfies a comment that documents a different unit.
+#
+# 108 candidate(s): gptp-processor 1, protocol-processor 21, superproject 86; 6 of them named for a different unit than documented
+gptp-processor:hdl/top/KL_gptp_engine.sv:KL_gptp_engine:pub_offset_o
+hdl/common/KL_link_guard.sv:KL_link_guard:SETTLE_CYC_C  # named for a different unit than documented
+hdl/common/csr/milan_csr.sv:milan_csr:VERSION
+hdl/common/csr/milan_csr.sv:milan_csr:i_lwsrp_slope
+hdl/common/csr/milan_csr.sv:milan_csr:o_lwsrp_latency
+hdl/common/csr/milan_csr.sv:milan_csr:o_mac_ifg
+hdl/common/csr/milan_csr.sv:milan_csr:o_ptp_egress_lat
+hdl/common/csr/milan_csr.sv:milan_csr:o_ptp_incr
+hdl/common/csr/milan_csr.sv:milan_csr:o_ptp_ingress_lat
+hdl/common/csr/milan_csr.sv:milan_csr:o_tone_att
+hdl/ieee1722/aaf/KL_aaf_latency_tap_bank.sv:KL_aaf_latency_tap_bank:TIMEOUT_C
+hdl/ieee1722/aaf/KL_aaf_latency_tap_bank.sv:KL_aaf_latency_tap_bank:now_i
+hdl/ieee1722/aaf/KL_aaf_latency_taps.sv:KL_aaf_latency_chain:TIMEOUT_C
+hdl/ieee1722/aaf/KL_aaf_latency_taps.sv:KL_aaf_latency_chain:epoch_o
+hdl/ieee1722/aaf/KL_aaf_latency_taps.sv:KL_aaf_latency_chain:now_i
+hdl/ieee1722/aaf/KL_aaf_latency_taps.sv:KL_aaf_latency_taps:TIMEOUT_C
+hdl/ieee1722/aaf/KL_aaf_latency_taps.sv:KL_aaf_latency_taps:now_i
+hdl/ieee1722/aaf/KL_aaf_packetizer.sv:KL_aaf_packetizer:mr_i
+hdl/ieee1722/aaf/KL_aes3_rx.sv:KL_aes3_rx:RUN_W_P
+hdl/ieee1722/aaf/KL_aes3_tx.sv:KL_aes3_tx:OVERSAMPLE_P
+hdl/ieee1722/aaf/KL_chan_map_capture.sv:KL_chan_map_capture:lb_flush_i
+hdl/ieee1722/aaf/KL_chan_map_capture.sv:KL_chan_map_capture:lb_tdata_i
+hdl/ieee1722/aaf/KL_chan_map_render.sv:KL_chan_map_render:map_flat_o
+hdl/ieee1722/aaf/KL_i2s_feed_mux.sv:KL_i2s_feed_mux:tap_tdata_i
+hdl/ieee1722/aaf/KL_lat_history_ring.sv:KL_lat_history_ring:ring_base_i
+hdl/ieee1722/aaf/KL_lat_history_ring.sv:KL_lat_history_ring:ring_len_i
+hdl/ieee1722/aaf/KL_pcm_ring_bram.sv:KL_pcm_ring_bram:length_i
+hdl/ieee1722/aaf/KL_pcm_ring_bram.sv:KL_pcm_ring_bram:offset_o
+hdl/ieee1722/aaf/KL_pcm_ring_bram.sv:KL_pcm_ring_bram:stride_i
+hdl/ieee1722/aaf/KL_pcm_tx.sv:KL_pcm_tx:SAMPLE_DIV_C  # named for a different unit than documented
+hdl/ieee1722/aaf/KL_pcm_tx.sv:KL_pcm_tx:rd_ptr_o
+hdl/ieee1722/aaf/KL_pcm_tx.sv:KL_pcm_tx:ring_len_i
+hdl/ieee1722/aaf/KL_pcm_tx.sv:KL_pcm_tx:ring_stride_i
+hdl/ieee1722/aaf/KL_tdm_capture_master.sv:KL_tdm_capture_master:BCLK_HALF_P
+hdl/ieee1722/aaf/aaf_talker_i2s.sv:aaf_talker_i2s:MCLK_DIV_LOG2
+hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv:KL_avtp_rx_monitor:CLK_FREQ_HZ_P  # named for a different unit than documented
+hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv:KL_avtp_rx_monitor:fsh_i
+hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv:KL_avtp_rx_monitor:pres_ofs_i
+hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv:KL_avtp_rx_monitor:ptp_now_i
+hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:KL_avtp_rx_monitor_ctx:CLK_FREQ_HZ_P  # named for a different unit than documented
+hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:KL_avtp_rx_monitor_ctx:dirty_p_o
+hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:KL_avtp_rx_monitor_ctx:fsh_i
+hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:KL_avtp_rx_monitor_ctx:pres_ofs_i
+hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:KL_avtp_rx_monitor_ctx:ptp_now_i
+hdl/ieee1722/avtp/avtp_stream_parser.sv:avtp_stream_parser:fsh2_o
+hdl/ieee1722/crf/KL_crf_rx.sv:KL_crf_rx:ptp_now_i
+hdl/ieee1722/crf/KL_crf_rx.sv:KL_crf_rx:rate_o
+hdl/ieee1722/crf/KL_media_nco.sv:KL_media_nco:TRIM_MAX_P
+hdl/ieee1722/crf/KL_media_nco.sv:KL_media_nco:servo_trim_i
+hdl/ieee1722/crf/KL_media_nco.sv:KL_media_nco:trim_i
+hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:KL_mmcm_drp_servo:GAIN_NUM_P
+hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:KL_mmcm_drp_servo:LOCK_THR_P
+hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:KL_mmcm_drp_servo:NORM_SHIFT_P
+hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:KL_mmcm_drp_servo:SLEW_MAX_P
+hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:KL_mmcm_drp_servo:U_MAX_P
+hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:KL_mmcm_drp_servo:WIN_LOG2_P
+hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:KL_mmcm_drp_servo:crf_rate_i
+hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:KL_mmcm_drp_servo:drp_addr_o
+hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:KL_mmcm_drp_servo:ptp_now_i
+hdl/ieee1722/maap/KL_maap.sv:KL_maap:CLK_FREQ_HZ_P  # named for a different unit than documented
+hdl/ieee17221/adp/adp_tx_arbiter.sv:adp_tx_arbiter:TO_LOG2_P
+hdl/ieee8021as/ptp_timestamp/ptp_ts_core.sv:ptp_ts_core:lat_corr_i
+hdl/ieee8021as/ptp_timestamp/ptp_ts_top.sv:ptp_ts_top:i_ptp_adj
+hdl/ieee8021as/ptp_timestamp/ptp_ts_top.sv:ptp_ts_top:i_ptp_egress_lat
+hdl/ieee8021as/ptp_timestamp/ptp_ts_top.sv:ptp_ts_top:i_ptp_incr
+hdl/ieee8021as/ptp_timestamp/ptp_ts_top.sv:ptp_ts_top:i_ptp_ingress_lat
+hdl/ieee8021as/ptp_timestamp/ptp_ts_top.sv:ptp_ts_top:i_ptp_offset
+hdl/ieee8021as/ptp_timestamp/ptp_ts_top.sv:ptp_ts_top:i_ptp_tod_wr
+hdl/ieee8021as/ptp_timestamp/ptp_ts_top.sv:ptp_ts_top:o_ptp_tod_rd
+hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:timestamp_counter:FRAC_WIDTH
+hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:timestamp_counter:adj_i
+hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:timestamp_counter:incr_i
+hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:timestamp_counter:offset_i
+hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:timestamp_counter:tod_wr_i
+hdl/milan/KL_pp_shadow.sv:KL_pp_shadow:RESP_BASE_P
+hdl/milan/KL_pp_shadow.sv:KL_pp_shadow:srp_acc_latency_o
+hdl/milan/milan_datapath.sv:milan_datapath:MCSERVO_P
+hdl/milan/milan_datapath.sv:milan_datapath:PP_RESP_BASE_P
+hdl/milan/milan_datapath.sv:milan_datapath:i_resp_mem_rsp_data
+hdl/milan/milan_datapath.sv:milan_datapath:o_resp_mem_req_addr
+hdl/milan/milan_datapath.sv:milan_datapath:o_resp_mem_req_beats
+hdl/milan/milan_datapath.sv:milan_datapath:o_resp_mem_wr_addr
+hdl/milan/milan_datapath.sv:milan_datapath:o_resp_mem_wr_data
+hdl/milan/milan_datapath.sv:milan_datapath:o_resp_mem_wr_strb
+hdl/milan/milan_datapath.sv:milan_datapath:pb_rd_ptr_o
+hdl/milan/milan_datapath.sv:milan_datapath:pb_ring_len_i
+hdl/milan/milan_datapath.sv:milan_datapath:pb_ring_stride_i
+protocol-processor:hdl/acmp/KL_acmp_nvm_shadow.sv:KL_acmp_nvm_shadow:DEB_TICKS_P
+protocol-processor:hdl/acmp/KL_acmp_nvm_shadow.sv:KL_acmp_nvm_shadow:LAYOUT_VER_P
+protocol-processor:hdl/aecp/KL_aecp_resp_buf.sv:KL_aecp_resp_buf:dbg_drop_o
+protocol-processor:hdl/aecp/KL_aecp_resp_buf.sv:KL_aecp_resp_buf:seal_len_i
+protocol-processor:hdl/common/KL_pp_timer_service.sv:KL_pp_timer_service:DIV_US_P  # named for a different unit than documented
+protocol-processor:hdl/packet_engine/KL_pp_dispatch.sv:KL_pp_dispatch:acmp_stall_count_o
+protocol-processor:hdl/packet_engine/KL_pp_dispatch.sv:KL_pp_dispatch:adp_stall_count_o
+protocol-processor:hdl/packet_engine/KL_pp_dispatch.sv:KL_pp_dispatch:aecp_stall_count_o
+protocol-processor:hdl/packet_engine/KL_pp_dispatch.sv:KL_pp_dispatch:maap_stall_count_o
+protocol-processor:hdl/packet_engine/KL_pp_nvm_port.sv:KL_pp_nvm_port:MAX_PAYLOAD_P
+protocol-processor:hdl/packet_engine/KL_pp_tx_slots.sv:KL_pp_tx_slots:wr_len_i
+protocol-processor:hdl/srp/KL_srp_decoder.sv:KL_srp_decoder:TP_DEPTH_P
+protocol-processor:hdl/srp/KL_srp_decoder.sv:KL_srp_decoder:dbg_listlen_cnt_o
+protocol-processor:hdl/srp/KL_srp_encoder.sv:KL_srp_encoder:ev_value_i
+protocol-processor:hdl/srp/KL_srp_encoder.sv:KL_srp_encoder:wr_len_o
+protocol-processor:hdl/srp/KL_srp_top.sv:KL_srp_top:TP_DEPTH_P
+protocol-processor:hdl/srp/KL_srp_top.sv:KL_srp_top:draw_kind_o
+protocol-processor:hdl/srp/KL_srp_top.sv:KL_srp_top:wr_len_o
+protocol-processor:hdl/top/protocol_processor_top.sv:protocol_processor_top:DESC_BASE_P
+protocol-processor:hdl/top/protocol_processor_top.sv:protocol_processor_top:RESP_BASE_P
+protocol-processor:hdl/top/protocol_processor_top.sv:protocol_processor_top:srp_acc_latency_o

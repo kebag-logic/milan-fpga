@@ -41,9 +41,9 @@ static const int NQ = 5;    // ethernet_packet_pkg::NUMBER_OF_QUEUES (802.1Q ord
 static void set_cbs(bool shaped, uint32_t slope, int32_t hicr, int32_t locr) {
     dut->cbs_shaped_i = shaped ? ((1u << NQ) - 1) : 0x0;
     for (int q = 0; q < NQ; q++) {
-        dut->cbs_idle_slope_i[q] = slope;
-        dut->cbs_hi_credit_i[q]  = (uint32_t)hicr;
-        dut->cbs_lo_credit_i[q]  = (uint32_t)locr;
+        dut->cbs_idle_slope_bps_i[q] = slope;
+        dut->cbs_hi_credit_bytes_i[q]  = (uint32_t)hicr;
+        dut->cbs_lo_credit_bytes_i[q]  = (uint32_t)locr;
     }
 }
 

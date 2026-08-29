@@ -12,5 +12,5 @@ hand-edit. Part of the Common / integration family; rolled up in
 |---|---|---|---|
 | ✅ `KL_mac_rmon_events` | `KL_mac_rmon_events.sv` | `mac_rmon` | — |
 | ✅ `ethernet_events` | `ethernet_events.sv` | `hostplane` · `milan_dp` | — |
-| ✅ `event_counter` | `event_counter.sv` | `hostplane` · ➰milan_dp | — |
+| ✅ `event_counter` | `event_counter.sv` | `hostplane` · `milan_dp` | — |
 
