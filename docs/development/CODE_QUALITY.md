@@ -1611,7 +1611,8 @@ representative module and its harness (next section); it found the
 the dated implementation chronology in `rx_mac_filter.sv` and its harness. A
 sweep for unreachable branches (`#if 0`, `if (0)`, `if (false)`, `if False`,
 `if (1'b0)`, `while (0)`) over the whole gated population finds none outside
-[`protocol-processor/tb/nvm_port/measure_figures.py`](../../protocol-processor/tb/nvm_port/measure_figures.py),
+`protocol-processor/tb/nvm_port/measure_figures.py` (a submodule file, so
+named rather than linked: the docs gate runs before the submodules exist),
 whose mutation fixtures build `if (1'b0)` on purpose. A sweep for
 commented-out statements over the gate's own comment view finds them in the
 same in-progress packet-generator library and nowhere else: four
