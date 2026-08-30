@@ -366,7 +366,12 @@ JOB_KEY_EXTRAS = {
     (RTL_FULL, "yosys-shards"): ("strategy",),
 }
 STEP_KEYS = ("name", "run", "uses", "with", "id", "env", "if",
-             "continue-on-error", "working-directory")
+             "continue-on-error")
+#: `working-directory` only where the tree carries it ([R4] round 7 on PR
+#: #293): on any other step it redirects a gate to a checked-in decoy tree.
+STEP_KEY_EXTRAS = {
+    (RTL_FAST, "bdd-conformance"): ("working-directory",),
+}
 #: THE ENVIRONMENT FILES ([R3] round 8 on PR #293). The runner sets the same
 #: inherited environment from `$GITHUB_ENV` and prepends `$GITHUB_PATH` for
 #: every later step of the job, and any `run:` step may write them - so one
@@ -1701,12 +1706,14 @@ def check_key_allowlists(c, path, wf):
                "its own env map and picks the image every step's python3 "
                "comes from, `services` starts more, and an unknown key is "
                "refused for the same reason")
+        step_keys = set(STEP_KEYS) | set(STEP_KEY_EXTRAS.get((path, jid), ()))
         for n, step in enumerate(steps(job), 1):
-            extra = sorted({str(k) for k in step} - set(STEP_KEYS))
+            extra = sorted({str(k) for k in step} - step_keys)
             c.item(not extra, path, f"job `{jid}` step {n} "
                    f"({step_label(step)}) may carry only the keys "
-                   f"{list(STEP_KEYS)} (surplus: {extra}): `shell` chooses "
-                   "the interpreter the script runs under")
+                   f"{sorted(step_keys)} (surplus: {extra}): `shell` chooses "
+                   "the interpreter the script runs under and "
+                   "`working-directory` the tree it reads")
 
 
 def check_no_gh_env(c, path, where, env):
@@ -4148,6 +4155,9 @@ def _mutations():
         ("#261 wire-accountability job outputs",
          m_job_key_any(DOCS, "wire-accountability", "outputs", {"x": "1"}),
          "job `wire-accountability` may carry only the keys"),
+        ("#261 docs-check ci_events step working-directory",
+         m_step_key_any(DOCS, "docs-check", "scripts/ci_events.py --check", "working-directory", "sub"),
+         "may carry only the keys"),
     ]
 
 
