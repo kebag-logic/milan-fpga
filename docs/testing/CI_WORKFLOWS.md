@@ -218,7 +218,7 @@ is exactly these twelve things:
    Additionally, neither the workflow's top-level `env` nor `full-ci-gate`'s
    own names any `GH_*` variable: the step's `env` is pinned to exactly
    `GH_TOKEN`, but a `GH_HOST` or `GH_CONFIG_DIR` set at either level above it
-   reaches the same `gh` without appearing anywhere in the step.
+   reaches the same `gh` without appearing anywhere in the step. Item 12 widens that from `GH_*` to every name at every level.
 6. **The env bindings.** A pinned step's `env` is held as a name *and* the
    source expression that name is bound to, because the name is not the
    contract. The decision step carries
@@ -400,6 +400,29 @@ is exactly these twelve things:
     `run: true` job of the required id satisfies the id rule, the
     one-carrier rule and the key rule at once ([R3] round 2 on PR #293);
     that is #295.
+12. **The inherited execution environment.** None of the keys above is
+    `env`, and a name set at the workflow or job level reaches every step's
+    shell before any pinned script runs: `BASH_ENV` names a file bash
+    sources at the start of every non-interactive shell -- which a `run:`
+    step is -- so `env: BASH_ENV: scripts/ci-bypass.sh` with a checked-in
+    file holding `python3() { return 0; }` turned every python gate of every
+    protected job, the gate's contract step included, into a no-op with
+    every pinned key and script character in place and the required context
+    green (maintainer [R0] on PR #293). A blacklist of known names is the
+    wrong shape, because the runner's shell honours more than this page can
+    enumerate, so the environment is held by exact allowlist at all three
+    levels, in every one of the four files: the workflow-level `env` names
+    exactly what the tree carries today (`VERILATOR_VERSION` and
+    `TSN_GEN_REV` in the exhaustive workflow, `VERILATOR_VERSION` in the fast
+    one, nothing in the other two); no job carries a job-level `env`; and
+    the names a job's steps bind stay inside that job's recorded set (the
+    gate's four, the workers' shard and target names, the aggregates'
+    `GATE_SHA` and `SHARD_RESULT`, the selectors' event names, the verdict
+    step's result bindings, `elaborate`'s scope pair, and nothing in the
+    documentation jobs). Each refusal names the scope, the job or step, and
+    the surplus names. Measured under act: a job-level `BASH_ENV` on
+    `docs-check` makes that job's own gates green and `full-ci-gate`'s
+    contract step refuse it, so both required aggregates fail.
 
 `--selftest` covers, one at a time: the step removed, the token missing, the
 live read replaced by an echo, the event not passed, `|| true`, the decoy
@@ -455,7 +478,12 @@ expression -- in the parsed world and, for the directory scan itself, as a
 real file beside copies of the five, with an unparseable one refused as
 cannot-run -- the gate's contract step removed, given `if: false`, given a
 `continue-on-error`, made to swallow its exit status and moved behind the
-decision, a decoy whose `name` is an
+decision, a job-level `BASH_ENV` on `docs-check`, `wire-accountability`,
+`elaborate` and `full-ci-gate`, a benign job-level name, a workflow-level
+`BASH_ENV` on docs.yml and rtl.yml, a benign workflow-level name on
+rtl-fast.yml, a step-level `BASH_ENV` on the docs ci_events step, the
+elaborate builder call and the wire-accountability gate step, a fifth
+workflow file on disk under both suffixes, a decoy whose `name` is an
 expression evaluating to a required name in each of the four files, a
 matrix job whose `name` renders one (its own file's and another file's), and
 the enumeration's edges - a matrix value that is itself an expression, an
