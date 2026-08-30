@@ -447,15 +447,23 @@ is exactly these twelve things:
     #293) -- every other mention is refused naming the step, a `uses:`
     outside the five recorded `actions/*` versions is refused, every
     checkout's `with` may carry nothing but `fetch-depth: 0`, a job may
-    carry `outputs` or `strategy` only where the tree records it, and a
-    non-mapping `env` is refused at every level. What this cannot hold, and
-    #295 owns, is the step-list class itself: in the ten jobs whose step
-    lists are not pinned the way the gate's is (item 4) -- every job but
-    `full-ci-gate` and `changes`, the RTL workers included -- an inserted
-    step of ANY content still passes, and such a step can reach the runner's
-    environment file without spelling its name (the `_runner_file_commands`
-    glob, an indirect expansion, a checked-in script); only a sequence pin
-    on every job closes that, which is #295's widened acceptance row.
+    carry `outputs` or `strategy` only where the tree records it, a step may
+    carry `working-directory` only where the tree records it (the behave
+    step; anywhere else it redirects a gate to a checked-in decoy tree,
+    [R4] round 7 on PR #293), and a non-mapping `env` is refused at every
+    level. What this cannot hold, and #295 owns, is the step-list class
+    itself: in the ten jobs whose step lists are not pinned the way the
+    gate's is (item 4) -- every job but `full-ci-gate` and `changes`, the
+    RTL workers included -- an inserted step of ANY content still passes,
+    such a step can reach the runner's environment file without spelling
+    its name (the `_runner_file_commands` glob, an indirect expansion, a
+    checked-in script), and the CONTENT of the existing unpinned steps is
+    not held either: `docs-check`'s gates other than the ci_events step
+    (`docs_check`, `check_feature_status`, the traceability matrix, the
+    builder gates and the rest) can be rewritten, `if: false`'d or
+    swallowed with the context green, and the second runner backs up only
+    `ci_events --check`. Only a sequence-and-content pin on every job
+    closes that, which is #295's widened acceptance row.
 
 `--selftest` covers, one at a time: the step removed, the token missing, the
 live read replaced by an echo, the event not passed, `|| true`, the decoy
@@ -524,7 +532,8 @@ worker, a write added to an existing step, a recorded writer renamed, a
 local and a third-party `uses:`, a recorded writer's script given a hostile
 line and the tsn-gen export rewritten, an added step under a recorded name,
 a recorded writer duplicated, a checkout given `ref` and `repository`, a
-`strategy` and an `outputs` on a documentation job, a non-mapping `env` at
+`strategy` and an `outputs` on a documentation job, a `working-directory`
+on the docs ci_events step, a non-mapping `env` at
 the workflow and step level, a fifth workflow file on disk under both
 suffixes as a literal pair, a decoy whose `name` is an
 expression evaluating to a required name in each of the four files, a
