@@ -311,7 +311,15 @@ def _preloadable_library():
     """A shared object the loader will preload into any process, for the
     allocator-scoping arms: libc itself, which every dynamically linked
     process already maps. None when no such library can be found or the
-    loader complains about it (a static or exotic toolchain)."""
+    loader complains about it (a static or exotic toolchain).
+
+    CANONICAL, the way select_malloc hands it on: an explicit YOSYS_MALLOC
+    goes through abs_path (readlink -f) before it reaches the yosys child
+    and the header line, and arm 73 compares both against this value. On a
+    merged-/usr layout ldconfig answers `/lib/<triplet>/libc.so.6` while the
+    loader is given `/usr/lib/<triplet>/libc.so.6` - the two spellings
+    disagreed on the hosted runner and agreed only on a host whose ldconfig
+    already speaks the canonical path."""
     cands = []
     try:
         out = subprocess.run(["ldconfig", "-p"], capture_output=True, text=True)
@@ -326,6 +334,7 @@ def _preloadable_library():
     for c in cands:
         if not (os.path.isfile(c) and true_bin):
             continue
+        c = os.path.realpath(c)
         env = dict(os.environ, LD_PRELOAD=c)
         r = subprocess.run([true_bin], env=env, capture_output=True, text=True)
         if r.returncode == 0 and not r.stderr:
