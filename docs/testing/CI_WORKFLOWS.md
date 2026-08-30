@@ -345,7 +345,11 @@ is exactly these eleven things:
     the four jobs: a step-level `if`, `continue-on-error` or `|| true` on
     `docs-check`'s ci_events step, `wire-accountability`'s gate step,
     `docs-check-no-git`'s single step or `elaborate`'s scope step still
-    passes; that is #295.
+    passes, and so does the step's absence -- for the two carriers no
+    builder step touches, the real job's id renamed away beside a
+    `run: true` job of the required id satisfies the id rule, the
+    one-carrier rule and the key rule at once ([R3] round 2 on PR #293);
+    that is #295.
 
 `--selftest` covers, one at a time: the step removed, the token missing, the
 live read replaced by an echo, the event not passed, `|| true`, the decoy
@@ -840,8 +844,8 @@ are independent required siblings, so a failure in `wire-accountability` or
 `scripts/ci_events.py --check` holds each of them, and `elaborate`, to the
 same rule as the RTL jobs (#261): the job whose id is the required name
 carries it, carries no `needs`, `if`, `continue-on-error` or `defaults`, and
-exactly one job carries each name; the gate steps inside those jobs are
-#295.
+exactly one job carries each name; the gate steps inside those jobs, their
+shape and their presence, are #295.
 
 ## Issue closing on merge
 
