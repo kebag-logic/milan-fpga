@@ -327,7 +327,13 @@ is exactly these eleven things:
     enumerated and refused if it equals a required name in any file, and
     any other expression (`${{ 'docs-check' }}`, a `github`, `vars` or
     `needs` context, a matrix carrying `include`/`exclude` or built by
-    `fromJSON`) is refused outright because it cannot be enumerated here.
+    `fromJSON`, a referenced key that is not a non-empty list of literal
+    scalars, a `${{` the expression scan does not match) is refused
+    outright because it cannot be enumerated here. The lists must be
+    literal to the last character: the runner evaluates `strategy` before
+    the matrix expands, so `n: ["${{ 'docs-check' }}"]` under
+    `name: ${{ matrix.n }}` publishes the required name while an
+    enumeration would see the text ([R3] round 4 on PR #293).
     `name: ${{ 'docs-check' }}` on a `run: true` job published a second
     check run under a required name that no literal comparison saw, in all
     four workflow files.
@@ -412,8 +418,11 @@ and `elaborate` given a job-level `if: false`, a `continue-on-error` and a
 `defaults.run.shell` too, a second job carrying each of the four names,
 each documentation carrier renamed, and each of the four carriers renamed
 away while a `run: true` job takes its name, a decoy whose `name` is an
-expression evaluating to a required name in each of the four files, and a
-matrix job whose `name` renders one; a whitespace-only reformatting of all
+expression evaluating to a required name in each of the four files, a
+matrix job whose `name` renders one (its own file's and another file's), and
+the enumeration's edges - a matrix value that is itself an expression, an
+unmatched `${{`, `include`, a `fromJSON` matrix, a missing key, an empty
+list; a whitespace-only reformatting of all
 five canonical scripts that must still pass; and the decision itself for
 every event class.
 

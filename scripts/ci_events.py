@@ -334,16 +334,20 @@ ACT_ARTIFACT_AGGREGATE_ORDER = PUBLIC_NAMES[RTL_FULL]
 #: Every required name in every file: a rendered display name equal to any of
 #: them, in any file, is a second carrier ([R4] on PR #293).
 ALL_PUBLIC_NAMES = frozenset(n for names in PUBLIC_NAMES.values() for n in names)
-EXPRESSION_RE = re.compile(r"\$\{\{.*?\}\}")
+EXPRESSION_RE = re.compile(r"\$\{\{.*?\}\}", re.DOTALL)
 MATRIX_REF_RE = re.compile(r"\$\{\{\s*matrix\.([A-Za-z_][A-Za-z0-9_-]*)\s*\}\}")
 
 
 def rendered_names(job):
     """Every display name an expression-valued `name` can render, enumerated
     from the job's own literal `strategy.matrix`; None when the name uses
-    anything but `${{ matrix.<key> }}`, when a referenced key is not a
-    non-empty list of scalars, or when the matrix carries `include` or
-    `exclude` (either can add a combination this enumeration never saw)."""
+    anything but `${{ matrix.<key> }}`, when a `${{` survives the expression
+    scan, when a referenced key is not a non-empty list of scalars, when a
+    value carries `${{` of its own (the runner evaluates `strategy` before
+    the matrix expands, so `n: ["${{ 'docs-check' }}"]` publishes the name
+    while this enumeration would see the text - [R3] round 4 on PR #293),
+    or when the matrix carries `include` or `exclude` (either can add a
+    combination this enumeration never saw)."""
     name = job.get("name") if isinstance(job, dict) else None
     if not isinstance(name, str):
         return None
@@ -354,6 +358,8 @@ def rendered_names(job):
             return None
         if m.group(1) not in keys:
             keys.append(m.group(1))
+    if "${{" in EXPRESSION_RE.sub("", name):
+        return None
     strat = job.get("strategy")
     matrix = strat.get("matrix") if isinstance(strat, dict) else None
     if not isinstance(matrix, dict) or "include" in matrix or "exclude" in matrix:
@@ -362,7 +368,8 @@ def rendered_names(job):
     for key in keys:
         values = matrix.get(key)
         if (not isinstance(values, list) or not values
-                or not all(isinstance(v, (str, int, float, bool)) for v in values)):
+                or not all(isinstance(v, (str, int, float, bool)) for v in values)
+                or any(isinstance(v, str) and "${{" in v for v in values)):
             return None
         lists.append([str(v) for v in values])
     out = []
@@ -2158,6 +2165,16 @@ def _mutations():
                                       "steps": [{"run": "true"}]}
         return f
 
+    def m_matrix_decoy(path, name, matrix):
+        # The allowed `matrix.n` form over a matrix the enumeration must
+        # refuse or must render ([R3] round 4 on PR #293): a value that is
+        # itself an expression, `include`, a missing key, an empty list.
+        def f(w):
+            jobs(w[path])["decoy"] = {"name": name, "runs-on": "ubuntu-latest",
+                                      "strategy": {"matrix": matrix},
+                                      "steps": [{"run": "true"}]}
+        return f
+
     def m_swap_carrier(path, jid):
         # The real job renamed away and a `run: true` stub given the required
         # name ([R3] on PR #293): the unique carrier has no neuter key, the
@@ -3481,6 +3498,29 @@ def _mutations():
         ("#261 rtl-full decoy renders a required name from its own matrix",
          m_matrix_carrier(RTL_FULL, "yosys-portability"),
          "job `decoy` `name` renders `yosys-portability` for one matrix combination"),
+        # The enumeration's own edges ([R3] round 4 on PR #293).
+        ("#261 docs decoy matrix value is itself an expression",
+         m_matrix_decoy(DOCS, "${{ matrix.n }}", {"n": ["${{ 'docs-check' }}"]}),
+         "job `decoy` `name` must be a literal or reference only"),
+        ("#261 docs decoy name carries a `${{` the scan does not match",
+         m_matrix_decoy(DOCS, "${{\n 'docs-check' }}", {"n": ["x"]}),
+         "job `decoy` `name` must be a literal or reference only"),
+        ("#261 rtl-full decoy matrix carries include",
+         m_matrix_decoy(RTL_FULL, "${{ matrix.n }}",
+                        {"n": ["x"], "include": [{"n": "verilator-suites"}]}),
+         "job `decoy` `name` must be a literal or reference only"),
+        ("#261 elaborate decoy matrix is an expression",
+         m_matrix_decoy(ELABORATE, "${{ matrix.n }}", "${{ fromJSON(vars.M) }}"),
+         "job `decoy` `name` must be a literal or reference only"),
+        ("#261 rtl-fast decoy references a key its matrix lacks",
+         m_matrix_decoy(RTL_FAST, "${{ matrix.n }}", {"m": ["x"]}),
+         "job `decoy` `name` must be a literal or reference only"),
+        ("#261 docs decoy matrix list is empty",
+         m_matrix_decoy(DOCS, "${{ matrix.n }}", {"n": []}),
+         "job `decoy` `name` must be a literal or reference only"),
+        ("#261 docs decoy renders another file's required name",
+         m_matrix_decoy(DOCS, "${{ matrix.n }}", {"n": ["x", "verilator-suites"]}),
+         "job `decoy` `name` renders `verilator-suites` for one matrix combination"),
     ]
 
 
