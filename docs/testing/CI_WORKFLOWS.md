@@ -153,7 +153,7 @@ of surfacing as a nightly that silently stopped. `ci_events.py --check` holds
 the assertion in its fail-closed shape. That shape is not only what the step
 says: a check that reads a step's contents and nothing about the conditions
 under which it runs holds the wrong perimeter, which is what #209 found. So it
-is exactly these ten things:
+is exactly these twelve things:
 
 1. **The script text.** The step's `run:` is pinned verbatim (whitespace
    aside) to three lines: `set -euo pipefail`, one unconditional
@@ -179,16 +179,33 @@ is exactly these ten things:
    `if: ${{ github.event_name != 'schedule' }}` plus a `needs: [noop]` on the
    gate leaves every pinned character in place and stops the assertion running
    on the one event it exists for.
-4. **The step sequence.** The gate job carries exactly four steps, in this
+4. **The step sequence.** The gate job carries exactly five steps, in this
    order: the checkout with `fetch-depth: 0`, the pin step (`id: target`), the
-   default-branch step, and the decision step (`id: gate`). The order is part
+   default-branch step, the contract step, and the decision step
+   (`id: gate`). The order is part
    of the contract, because the assertion runs the `ci_events.py` the checkout
    brought and the decision diffs the tree that checkout produced; the count is
    part of it too, because a step inserted anywhere runs before everything
    after it and can change what those steps read, and an entry appended to
    `GITHUB_PATH` puts another `gh` ahead of the runner's. A refusal names the
-   position, what belongs there, and what it found.
-5. **The sibling steps' keys.** The pin step, the decision step and the
+   position, what belongs there, and what it found. The contract step is
+   this gate's SECOND hosted runner (#261, maintainer review on PR #293):
+   its script is exactly `python3 -m pip install --quiet pyyaml` followed by
+   `python3 scripts/ci_events.py --check`, its keys exactly `name` and `run`,
+   and it is refused when removed, given an `if`, a `continue-on-error`, a
+   `|| true`, or moved behind the decision. It exists because `docs-check`
+   cannot police itself: every job-level lever that neuters that job
+   (`if: false`, a `needs` on a skipped job, `continue-on-error`,
+   `defaults.run.shell: bash -n`) also prevents or neuters the one step in
+   docs.yml that would have refused it, and a skipped or falsely green
+   required context satisfies the ruleset. This job cannot be neutered the
+   same way: a gate that is skipped or fails makes both required aggregates
+   fail closed (item 8), so the finding reaches the merge bar from a job
+   docs.yml does not gate. Measured under act: `if: false` on `docs-check`
+   fails the contract step, `full-ci-gate` fails, and both aggregates fail on
+   the absent gate.
+5. **The sibling steps' keys.** The pin step, the contract step, the
+   decision step and the
    checkout are pinned to their own key sets exactly as the default-branch
    step is, so `if: false`, an `if:` naming only some events, a `shell:`, a
    `continue-on-error` or a `working-directory` on any of them is refused by
@@ -201,7 +218,7 @@ is exactly these ten things:
    Additionally, neither the workflow's top-level `env` nor `full-ci-gate`'s
    own names any `GH_*` variable: the step's `env` is pinned to exactly
    `GH_TOKEN`, but a `GH_HOST` or `GH_CONFIG_DIR` set at either level above it
-   reaches the same `gh` without appearing anywhere in the step.
+   reaches the same `gh` without appearing anywhere in the step. Item 12 widens that from `GH_*` to every name at every level.
 6. **The env bindings.** A pinned step's `env` is held as a name *and* the
    source expression that name is bound to, because the name is not the
    contract. The decision step carries
@@ -315,9 +332,143 @@ is exactly these ten things:
     `${{ needs.<job>.result }}`; and its normalized script equals the
     canonical form derived from the same list, whose `case` accepts exactly
     `success` and `skipped`. Each public check name (`verilator-suites`,
-    `yosys-portability`, `rtl-fast`, `elaborate`) must be carried by exactly
+    `yosys-portability`, `rtl-fast`, `elaborate`, `docs-check`,
+    `wire-accountability`, `docs-check-no-git`) must be carried by exactly
     one job, so a second job renamed to a required name cannot make the
-    ruleset's binding ambiguous.
+    ruleset's binding ambiguous. The rule reads a job's `name` as a literal,
+    and GitHub evaluates it as an expression, so a `name` containing `${{`
+    is held too ([R4] on PR #293): it may reference nothing but
+    `${{ matrix.<key> }}` lists of the job's own literal `strategy.matrix`
+    -- the sharded workers' `Verilator shard ${{ matrix.shard }}/${{
+    matrix.total }}` is the shape this tree carries -- every rendering is
+    enumerated and refused if it equals a required name in any file, and
+    any other expression (`${{ 'docs-check' }}`, a `github`, `vars` or
+    `needs` context, a matrix carrying `include`/`exclude` or built by
+    `fromJSON`, a referenced key that is not a non-empty list of literal
+    scalars, a `${{` the expression scan does not match) is refused
+    outright because it cannot be enumerated here. The lists must be
+    literal to the last character: the runner evaluates `strategy` before
+    the matrix expands, so `n: ["${{ 'docs-check' }}"]` under
+    `name: ${{ matrix.n }}` publishes the required name while an
+    enumeration would see the text ([R3] round 4 on PR #293).
+    `name: ${{ 'docs-check' }}` on a `run: true` job published a second
+    check run under a required name that no literal comparison saw, in all
+    four workflow files. And the count is per name, not per file: a job in
+    any of the four files whose display name is a required name another
+    workflow owns is refused, because the merge bar binds the name and a
+    docs.yml job literally named `elaborate` is a second `elaborate` on
+    every pull request the two workflows share ([R4] round 2 on PR #293).
+    Nor is it per inventory (maintainer review on PR #293): the reader
+    lists every `.yml`/`.yaml` under `.github/workflows/`, inventoried or
+    not, parses each, and builds one map from required name to
+    `(file, job id)` over all of them; each of the seven names must map to
+    exactly one entry, in its owning file, under its own id, and a job in
+    an un-inventoried file may carry no expression `name` at all, because
+    nothing outside the inventory is legitimately named by one. A fifth
+    file carrying `docs-check` -- which GitHub runs and binds all the same
+    -- was invisible to the four-file inventory and is refused naming the
+    file and the job.
+11. **The non-RTL required contexts.** `docs-check`, `wire-accountability`,
+    `docs-check-no-git` and `elaborate` are four of the seven names the merge
+    bar reads, and their workflows have no aggregate: the carrier job IS the
+    required context, and a skipped required context satisfies the ruleset.
+    Both workflows sat outside items 1--10 (#261, found by the round-6 review
+    of PR #239): `if: false` on `docs-check` retired this gate itself, since
+    docs.yml was then the only workflow that ran `--check` (the gate job of
+    rtl.yml is the second runner since PR #293, item 4), and
+    `continue-on-error` on `elaborate` retired the elaboration gate, each
+    with `checked=171 findings=0`. So the job carrying each of those names is
+    held at the job level exactly as an RTL contributor is: no `needs`, no
+    `if`, no `continue-on-error`, no `defaults`, and no top-level `defaults`
+    on the workflow, each refusal naming the job and the key. The builder
+    contract already held `docs-check` and `elaborate` for its own reason;
+    the rule now reaches `wire-accountability` and `docs-check-no-git`,
+    which no builder step touches, and the three documentation names join
+    the one-carrier rule of item 10. The name and the content are held on
+    ONE job ([R3] on PR #293): the merge bar binds a display name, the
+    content checks read `docs-check` and `elaborate` by job id, and held
+    apart the real job renamed to `docs-check-real` beside a `run: true`
+    job named `docs-check` passed with no finding -- the unique carrier had
+    no neuter key, the id-named job kept its pinned steps, and the required
+    context ran nothing. So the job whose id is the public name must carry
+    it. What this item does not yet hold is the gate step inside each of
+    the four jobs: a step-level `if`, `continue-on-error` or `|| true` on
+    `docs-check`'s ci_events step, `wire-accountability`'s gate step,
+    `docs-check-no-git`'s single step or `elaborate`'s scope step still
+    passes, and so does the step's absence -- for the two carriers no
+    builder step touches, the real job's id renamed away beside a
+    `run: true` job of the required id satisfies the id rule, the
+    one-carrier rule and the key rule at once ([R3] round 2 on PR #293);
+    that is #295.
+12. **The inherited execution environment.** None of the keys above is
+    `env`, and a name set at the workflow or job level reaches every step's
+    shell before any pinned script runs: `BASH_ENV` names a file bash
+    sources at the start of every non-interactive shell -- which a `run:`
+    step is -- so `env: BASH_ENV: scripts/ci-bypass.sh` with a checked-in
+    file holding `python3() { return 0; }` turned every python gate of every
+    protected job, the gate's contract step included, into a no-op with
+    every pinned key and script character in place and the required context
+    green (maintainer [R0] on PR #293). A blacklist of known names is the
+    wrong shape, because the runner's shell honours more than this page can
+    enumerate, so the environment is held by exact allowlist at all three
+    levels, in every one of the four files: the workflow-level `env` names
+    exactly what the tree carries today (`VERILATOR_VERSION` and
+    `TSN_GEN_REV` in the exhaustive workflow, `VERILATOR_VERSION` in the fast
+    one, nothing in the other two); no job carries a job-level `env`; and
+    the names a job's steps bind stay inside that job's recorded set (the
+    gate's four, the workers' shard and target names, the aggregates'
+    `GATE_SHA` and `SHARD_RESULT`, the selectors' event names, the verdict
+    step's result bindings, `elaborate`'s scope pair, and nothing in the
+    documentation jobs). Each refusal names the scope, the job or step, and
+    the surplus names. Measured under act: a job-level `BASH_ENV` on
+    `docs-check` makes that job's own gates green and `full-ci-gate`'s
+    contract step refuse it, so both required aggregates fail. Declared
+    `env` is not the only key that reaches those shells ([R4] round 6 on
+    PR #293): `jobs.<id>.container` carries its own `env` map and chooses
+    the image every step's `python3` comes from, `services` starts more of
+    them, a step's `shell` picks the interpreter, and GitHub can add a key
+    tomorrow. So the KEY SETS are held the same way: a workflow may carry
+    only `name`, `on`, `concurrency`, `env` and `jobs`; a job only `name`,
+    `runs-on`, `timeout-minutes`, `steps`, `needs`, `if`, `outputs` and
+    `strategy` -- and that rule reaches EVERY job, an added standalone one
+    included: `defaults` and `continue-on-error` are refused here as well
+    as by the per-class rules, because those classify only the jobs they
+    know, and a new job carried either with no finding (maintainer [R0]
+    round 4 on PR #293); a step only `name`, `run`, `uses`, `with`, `id`, `env`,
+    `if`, `continue-on-error` and `working-directory` -- what the tree
+    carries today -- and a surplus key is refused by name whatever it does.
+    The runner sets the same inherited environment from INSIDE a job too
+    ([R3] round 8 on PR #293): any `run:` step may write `$GITHUB_ENV` or
+    prepend `$GITHUB_PATH` for every later step, and a local `./` or
+    third-party `uses:` runs code this page never reads; one added line in
+    any job without a pinned sequence set `BASH_ENV` at run time with every
+    declared level clean. So those are held by allowlist as well: exactly
+    four recorded steps may mention either file (the two Verilator PATH
+    steps, the tsn-gen `TSN_GEN_ROOT` export, the sbt PATH step), each
+    bound by its normalised SCRIPT and appearing exactly once in its job --
+    a name alone let the writer's own script gain a hostile line, and an
+    added step under a recorded name write anything ([R3] round 9 on PR
+    #293) -- every other mention is refused naming the step, a `uses:`
+    outside the five recorded `actions/*` versions is refused, every
+    checkout's `with` may carry nothing but `fetch-depth: 0`, a job may
+    carry `outputs` or `strategy` only where the tree records it, a step may
+    carry `working-directory` only on the one step that records it and
+    only with its recorded value -- the behave step, `tests`; anywhere else
+    the key, and on that step any other value, redirects a gate to a
+    checked-in decoy tree ([R4] round 7, [R3] round 10 on PR #293) -- and a
+    non-mapping `env` is refused at every level. What this cannot hold, and #295 owns, is the step-list class
+    itself: in the ten jobs whose step lists are not pinned the way the
+    gate's is (item 4) -- every job but `full-ci-gate` and `changes`, the
+    RTL workers included -- an inserted step of ANY content still passes,
+    such a step can reach the runner's environment file without spelling
+    its name (the `_runner_file_commands` glob, an indirect expansion, a
+    checked-in script), and the CONTENT of the existing unpinned steps is
+    not held either: `docs-check`'s gates other than the ci_events step
+    (`docs_check`, `check_feature_status`, the traceability matrix, the
+    builder gates and the rest) can be rewritten, `if: false`'d or
+    swallowed with the context green, and the second runner backs up only
+    `ci_events --check`. Only a sequence-and-content pin on every job
+    closes that, which is #295's widened acceptance row.
 
 `--selftest` covers, one at a time: the step removed, the token missing, the
 live read replaced by an echo, the event not passed, `|| true`, the decoy
@@ -362,9 +513,43 @@ left outside them; `bdd-conformance` itself given `if: false`, a
 `continue-on-error` and a `defaults.run.shell`; a `.result` read from a job
 outside `needs`, in the dotted and in the bracket spelling; `verilator-lint`
 renamed to the public name `rtl-fast`; a job-level `env` on the fast
-selector; a whitespace-only reformatting of all five
-canonical scripts that must still pass; and the decision itself for every
-event class.
+selector; each of `docs-check`, `wire-accountability`, `docs-check-no-git`
+and `elaborate` given a job-level `if: false`, a `continue-on-error` and a
+`needs`, the two the builder contract never touches given a
+`defaults.run.shell` too, a second job carrying each of the four names,
+each documentation carrier renamed, each of the four carriers renamed
+away while a `run: true` job takes its name, a fifth workflow file carrying
+`docs-check` by name and `elaborate` by job id and naming a job by an
+expression -- in the parsed world and, for the directory scan itself, as a
+real file beside copies of the five, with an unparseable one refused as
+cannot-run -- the gate's contract step removed, given `if: false`, given a
+`continue-on-error`, made to swallow its exit status and moved behind the
+decision, a job-level `BASH_ENV` on `docs-check`, `wire-accountability`,
+`elaborate` and `full-ci-gate`, a benign job-level name, a workflow-level
+`BASH_ENV` on docs.yml and rtl.yml, a benign workflow-level name on
+rtl-fast.yml, a step-level `BASH_ENV` on the docs ci_events step, the
+elaborate builder call and the wire-accountability gate step, a `container`
+with its own `BASH_ENV` on `docs-check`, `full-ci-gate` and `elaborate`,
+`services`, an `Env:` spelling, a benign job key, a workflow-level
+`defaults`, a step `shell` and a benign step key, an inserted step writing
+`$GITHUB_ENV` or `$GITHUB_PATH` in a documentation job and in an RTL
+worker, a write added to an existing step, a recorded writer renamed, a
+local and a third-party `uses:`, a recorded writer's script given a hostile
+line and the tsn-gen export rewritten, an added step under a recorded name,
+a recorded writer duplicated, a checkout given `ref` and `repository`, a
+`strategy` and an `outputs` on a documentation job, a `working-directory`
+on the docs ci_events step and on the other behave-job step, the behave
+step pointed at a decoy tree, a non-mapping `env` at
+the workflow and step level, a fifth workflow file on disk under both
+suffixes as a literal pair, a decoy whose `name` is an
+expression evaluating to a required name in each of the four files, a
+matrix job whose `name` renders one (its own file's and another file's), and
+the enumeration's edges - a matrix value that is itself an expression, an
+unmatched `${{`, `include`, a `fromJSON` matrix, a missing key, an empty
+list - and a literal decoy carrying a required name another file owns, in
+each of the four files; a whitespace-only reformatting of all
+five canonical scripts that must still pass; and the decision itself for
+every event class.
 
 ## One authoritative SHA
 
@@ -425,7 +610,9 @@ default-branch assertion in its fail-closed shape, the trigger lists, the
 says, and the cron time string on this page matches the YAML. Its
 `--selftest` removes or alters each item on in-memory copies and requires
 the check to catch every one, and fails if the checker is stubbed to find
-nothing. Both run in the hosted docs job.
+nothing. `--check` runs in the hosted docs job and, since PR #293, in the
+gate job of the exhaustive workflow (item 4 below); `--selftest` runs in the
+docs job only, so the vacuity control has one hosted runner.
 
 ## Elaboration
 
@@ -804,6 +991,11 @@ would otherwise satisfy the ruleset. Do not add workflow-level `paths`,
 never starts leaves its required name pending. The three documentation jobs
 are independent required siblings, so a failure in `wire-accountability` or
 `docs-check-no-git` blocks the PR even when `docs-check` itself succeeds.
+`scripts/ci_events.py --check` holds each of them, and `elaborate`, to the
+same rule as the RTL jobs (#261): the job whose id is the required name
+carries it, carries no `needs`, `if`, `continue-on-error` or `defaults`, and
+exactly one job carries each name; the gate steps inside those jobs, their
+shape and their presence, are #295.
 
 ## Issue closing on merge
 

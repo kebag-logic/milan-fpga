@@ -80,6 +80,37 @@ from that `needs` list; each public check name is carried by exactly one
 job; and the reference audit covers every static `needs` chain, `.result`
 included, not only `.outputs.`.
 
+THE NON-RTL REQUIRED CONTEXTS (#261). `docs-check`, `wire-accountability`,
+`docs-check-no-git` and `elaborate` are four of the seven names the merge bar
+reads, and docs.yml and elaborate.yml have no aggregate: the carrier job IS
+the context. Both workflows sat outside the perimeter above, so `if: false`
+on `docs-check` retired this gate itself and `continue-on-error` on
+`elaborate` retired the elaboration gate, each with every required context
+satisfied, because a skipped required context satisfies the ruleset. So the
+carrier of every public name in every workflow is held to the same rule as
+the RTL jobs -- no `needs`, `if`, `continue-on-error` or `defaults` -- the
+three documentation names join the one-carrier rule, and the job whose id is
+the public name must be the one carrying it ([R3] on PR #293): the content
+checks read that job by id, and a stub carrying the name under another id
+was the required context with 233 items and no finding. The gate steps
+inside those jobs are #295. Two more from the maintainer's review of that
+PR: the count is GLOBAL - every file under .github/workflows/ is read,
+inventoried or not, and each required name must map to exactly one
+(file, job id) across all of them - and `--check` has a SECOND hosted
+runner, a pinned step of rtl.yml's `full-ci-gate`, because docs.yml's
+`docs-check` could not police its own `if: false`: the lever that skips the
+job skips the only step that would have refused it, while a skipped
+required context satisfies the ruleset. A gate that fails or is skipped
+fails both required aggregates, so the finding reaches the merge bar from
+a job docs.yml does not gate. And the INHERITED EXECUTION ENVIRONMENT is held
+by exact allowlist at every level (maintainer [R0] on PR #293): none of the
+keys above is `env`, and `BASH_ENV: scripts/ci-bypass.sh` at the workflow,
+job or step level, with a checked-in file defining `python3() { return 0; }`,
+made every python gate of every protected job a no-op with every pinned
+character in place. Each file's workflow-level names, each job's absence of
+a job-level env, and each job's step-level names are what the tree carries
+today and nothing else; a blacklist of known variables is refused as a shape.
+
     scripts/ci_events.py --check        # the live tree against the contract
     scripts/ci_events.py --selftest     # mutation arms over in-memory copies
     scripts/ci_events.py --require-target-sha --sha gate=<sha> \\
@@ -95,6 +126,7 @@ from __future__ import annotations
 
 import argparse
 import copy
+import itertools
 import pathlib
 import re
 import sys
@@ -111,6 +143,12 @@ ELABORATE = ".github/workflows/elaborate.yml"
 POLICY = "docs/testing/CI_WORKFLOWS.md"
 WORKFLOWS = (RTL_FULL, RTL_FAST, DOCS, ELABORATE)
 FILES = WORKFLOWS + (POLICY,)
+#: Every other workflow file under this directory is read too (maintainer
+#: review on PR #293): GitHub binds a required check by NAME across every
+#: workflow, so a fifth file carrying `docs-check` is a second carrier the
+#: four-file inventory never opened.
+WORKFLOW_DIR = ".github/workflows"
+WORKFLOW_SUFFIXES = (".yml", ".yaml")
 
 #: The pull-request activity types both RTL workflows subscribe, exactly.
 PR_TYPES = ("opened", "reopened", "synchronize", "ready_for_review",
@@ -178,6 +216,19 @@ EXPECT_RE = re.compile(r"--expect\s+(\S+)")
 #: canonical and the assertion dead. So the key set is pinned, the env key
 #: set is pinned, and the verifier step's one permitted `if` is pinned.
 ASSERT_STEP_KEYS = ("name", "env", "run")
+#: THE SECOND RUNNER OF --check (maintainer review on PR #293). docs.yml's
+#: `docs-check` was the only hosted job that ran this gate, and every
+#: job-level lever that neuters `docs-check` (`if: false`, a `needs` on a
+#: skipped job, `continue-on-error`, `defaults.run.shell: bash -n`) also
+#: prevents or neuters the one step that would have refused it, while the
+#: skipped or falsely green required context satisfies the ruleset. So the
+#: gate job of rtl.yml runs `--check` too, as a pinned step: a gate that
+#: fails or is skipped makes both required aggregates fail closed (item 8),
+#: so the finding reaches the merge bar from a job docs.yml does not gate.
+CONTRACT_CHECK = "python3 scripts/ci_events.py --check"
+CONTRACT_STEP_KEYS = ("name", "run")
+CANONICAL_CONTRACT_SCRIPT = ("python3 -m pip install --quiet pyyaml",
+                             CONTRACT_CHECK)
 VERIFY_STEP_KEYS = ("name", "if", "env", "run")
 VERIFY_STEP_IF = "${{ always() }}"
 #: Every pinned step's `env`, as the BINDING each name must carry, never the
@@ -279,6 +330,118 @@ SELECTOR_READ = "python3 scripts/ci_scope.py <"
 #: an `env` on the JOB or on the WORKFLOW reaches that `gh` without appearing
 #: anywhere in the step (#209, O11/O12), so neither level names a `GH_*`.
 GH_ENV_PREFIX = "GH_"
+#: THE INHERITED EXECUTION ENVIRONMENT, by exact allowlist (maintainer [R0]
+#: on PR #293). check_job_keys holds the keys that decide whether a job runs;
+#: none of them is `env`, and a name set at the workflow or job level reaches
+#: every step's shell before any pinned script runs. `BASH_ENV` names a file
+#: bash sources at the start of every non-interactive shell, which is what a
+#: `run:` step is; a checked-in file holding `python3() { return 0; }` then
+#: turns every gate into a no-op with every pinned key and script character
+#: in place, and the required context is green. A blacklist of known names
+#: is the wrong shape for that: the runner's shell honours more than we can
+#: enumerate. So the environment is held the other way round - these are
+#: the only names each level may carry, and anything else is refused.
+INHERITED_WORKFLOW_ENV = {
+    RTL_FULL: ("VERILATOR_VERSION", "TSN_GEN_REV"),
+    RTL_FAST: ("VERILATOR_VERSION",),
+    DOCS: (),
+    ELABORATE: (),
+}
+#: THE KEY SETS, by exact allowlist ([R4] round 6 on PR #293). `env` was
+#: not the only key that reaches every step's shell: `jobs.<id>.container`
+#: carries its own `env` map and chooses the image whose `python3` the steps
+#: call, `services` starts more of them, a step's `shell` picks the
+#: interpreter, and GitHub can add a key tomorrow. So every workflow, job
+#: and step may carry only the keys the tree carries today; a surplus key is
+#: refused by name whatever it does. `env` on a job and the neuter keys are
+#: reported by their own rules and left out of this one's surplus.
+WORKFLOW_KEYS = ("name", "on", "concurrency", "env", "jobs")
+JOB_KEYS = ("name", "runs-on", "timeout-minutes", "steps", "needs", "if")
+#: Keys only some jobs carry, by (file, job) ([R3] round 9 SUGGESTION): a
+#: `strategy` on a carrier would be a matrix lever the carriers never need.
+JOB_KEY_EXTRAS = {
+    (RTL_FULL, GATE_JOB): ("outputs",),
+    (RTL_FAST, "changes"): ("outputs",),
+    (RTL_FULL, "verilator-shards"): ("strategy",),
+    (RTL_FULL, "yosys-shards"): ("strategy",),
+}
+STEP_KEYS = ("name", "run", "uses", "with", "id", "env", "if",
+             "continue-on-error")
+#: `working-directory` only on the one step that carries it, with its exact
+#: value ([R4] round 7, [R3] round 10 on PR #293): a job-wide licence let
+#: the behave step itself point at a checked-in decoy tree; on any other
+#: step the key redirects a gate the same way.
+STEP_KEY_EXTRAS = {
+    (RTL_FAST, "bdd-conformance", "Run the specification-facing suite"): {
+        "working-directory": "tests"},
+}
+#: THE ENVIRONMENT FILES ([R3] round 8 on PR #293). The runner sets the same
+#: inherited environment from `$GITHUB_ENV` and prepends `$GITHUB_PATH` for
+#: every later step of the job, and any `run:` step may write them - so one
+#: added line in any job without a pinned step sequence sets `BASH_ENV` at
+#: run time with every declared level clean. These are the steps that may
+#: mention either file, by (file, job, step name, variable); every other
+#: mention is refused naming the step. Likewise only the recorded actions
+#: may be `uses:`d: a local `./` action or a third-party one runs code this
+#: checker does not read.
+#: Each recorded writer is bound by its SCRIPT, not by its name ([R3] round
+#: 9 on PR #293): a name alone let the writer's own script gain a hostile
+#: line, and an added step under a recorded name write anything. The entry
+#: is (file, job, step name) -> the normalised script the step must equal,
+#: and the name must appear exactly once in that job.
+ENV_FILE_WRITERS = {
+    (RTL_FAST, "verilator-lint", "Run the ratcheted whole-tree lint gate"): (
+        'echo "/opt/verilator/bin" >> "$GITHUB_PATH"',
+        '/opt/verilator/bin/verilator --version',
+        '/opt/verilator/bin/verilator --version | grep -F "${VERILATOR_VERSION#v}"',
+        'PATH="/opt/verilator/bin:$PATH" python3 scripts/lint_rtl.py --check --self-test',
+    ),
+    (RTL_FULL, "verilator-shards", "Put Verilator on PATH and prove the version"): (
+        'echo "/opt/verilator/bin" >> "$GITHUB_PATH"',
+        '/opt/verilator/bin/verilator --version',
+        '/opt/verilator/bin/verilator --version | grep -F "${VERILATOR_VERSION#v}"',
+    ),
+    (RTL_FULL, "verilator-shards", "Build the pinned tsn-gen field oracle on its suite owner"): (
+        'set -euo pipefail',
+        'git clone --filter=blob:none https://github.com/kebag-logic/tsn-gen.git "$RUNNER_TEMP/tsn-gen"',
+        'git -C "$RUNNER_TEMP/tsn-gen" checkout "$TSN_GEN_REV"',
+        'git -C "$RUNNER_TEMP/tsn-gen" submodule update --init --depth 1 --recursive external/rapidyaml',
+        'cmake -S "$RUNNER_TEMP/tsn-gen" -B "$RUNNER_TEMP/tsn-gen/build" -DCMAKE_BUILD_TYPE=Release -DENABLE_PARSER_TESTS=OFF',
+        'cmake --build "$RUNNER_TEMP/tsn-gen/build" --target packet_gen --parallel',
+        'test -x "$RUNNER_TEMP/tsn-gen/build/traffic-gen/packet_gen"',
+        'echo "TSN_GEN_ROOT=$RUNNER_TEMP/tsn-gen" >> "$GITHUB_ENV"',
+    ),
+    (ELABORATE, "elaborate", "Install sbt"): (
+        'sbt --version >/dev/null 2>&1 && exit 0',
+        'curl -fsSL --retry 3 -o /tmp/sbt.tgz https://github.com/sbt/sbt/releases/download/v1.10.7/sbt-1.10.7.tgz',
+        'sudo tar xzf /tmp/sbt.tgz -C /opt',
+        'echo /opt/sbt/bin >> "$GITHUB_PATH"',
+    ),
+}
+#: Every checkout in the four files carries no `with` beyond `fetch-depth: 0`
+#: ([R3] round 9): `ref:` or `repository:` on an unpinned carrier's checkout
+#: computes the required context on another tree.
+CHECKOUT_WITH_ALLOWED = {"fetch-depth": CHECKOUT_FETCH_DEPTH}
+ENV_FILE_NAMES = ("GITHUB_ENV", "GITHUB_PATH")
+RECORDED_ACTIONS = frozenset({
+    "actions/checkout@v4", "actions/cache@v4", "actions/setup-python@v5",
+    "actions/upload-artifact@v4", "actions/download-artifact@v4",
+})
+#: Step-level env names each job's steps may carry, across all of its steps.
+#: The pinned steps bind these exactly elsewhere; this table closes the
+#: unpinned steps too, and a job absent from it may carry none.
+INHERITED_STEP_ENV = {
+    (RTL_FULL, GATE_JOB): ("EVENT_NAME", "GH_TOKEN", "PR_BASE_SHA", "PR_DRAFT"),
+    (RTL_FULL, "verilator-shards"): ("SHARD", "SHARDS", "TARGET_SHA"),
+    (RTL_FULL, "verilator-suites"): ("GATE_SHA", "SHARD_RESULT"),
+    (RTL_FULL, "yosys-shards"): ("TARGET_SHA",),
+    (RTL_FULL, "yosys-portability"): ("GATE_SHA", "SHARD_RESULT"),
+    (RTL_FAST, "changes"): ("EVENT_NAME", "PR_BASE_SHA", "PUSH_BEFORE_SHA"),
+    (RTL_FAST, "rtl-fast"): ("BDD_CONFORMANCE_RESULT", "CHANGES_RESULT",
+                             "VERILATOR_LINT_RESULT",
+                             "YOSYS_ELABORATION_RESULT"),
+    (ELABORATE, "elaborate"): ("EVENT_NAME", "PR_BASE_SHA"),
+}
 #: The shard denominator a worker passes and states in its display name.
 #: `matrix.total` is the act-compatible carrier. check_shard_denominator proves
 #: it is a singleton equal to the `matrix.shard` list's size and that every
@@ -300,9 +463,13 @@ AGGREGATE_JOB_IF = (
 )
 RUNNER_TEMP_PREFIX = "${{ runner.temp }}/"
 #: Public check names the merge bar reads (AGENTS.md section 7), per file.
+#: The three documentation contexts are here since #261: a name absent from
+#: this map is held by nobody, so a second job renamed to `docs-check`, or
+#: `docs-check` itself renamed, passed with every hosted context green.
 PUBLIC_NAMES = {
     RTL_FULL: ("verilator-suites", "yosys-portability"),
     RTL_FAST: ("rtl-fast",),
+    DOCS: ("docs-check", "wire-accountability", "docs-check-no-git"),
     ELABORATE: ("elaborate",),
 }
 #: act v0.2.89 shares one action cache across concurrent jobs. Its first use
@@ -311,6 +478,58 @@ PUBLIC_NAMES = {
 #: direct order keeps that local bootstrap serial without weakening either
 #: aggregate: the later job carries `always()` and still audits its own shards.
 ACT_ARTIFACT_AGGREGATE_ORDER = PUBLIC_NAMES[RTL_FULL]
+#: Every required name in every file: a rendered display name equal to any of
+#: them, in any file, is a second carrier ([R4] on PR #293).
+ALL_PUBLIC_NAMES = frozenset(n for names in PUBLIC_NAMES.values() for n in names)
+#: Which file owns each required name: the merge bar binds a check-run NAME,
+#: not a file, so a docs.yml job literally named `elaborate` is a second
+#: `elaborate` on the same pull request ([R4] round 2 on PR #293).
+PUBLIC_NAME_OWNER = {n: path for path, names in PUBLIC_NAMES.items() for n in names}
+EXPRESSION_RE = re.compile(r"\$\{\{.*?\}\}", re.DOTALL)
+MATRIX_REF_RE = re.compile(r"\$\{\{\s*matrix\.([A-Za-z_][A-Za-z0-9_-]*)\s*\}\}")
+
+
+def rendered_names(job):
+    """Every display name an expression-valued `name` can render, enumerated
+    from the job's own literal `strategy.matrix`; None when the name uses
+    anything but `${{ matrix.<key> }}`, when a `${{` survives the expression
+    scan, when a referenced key is not a non-empty list of scalars, when a
+    value carries `${{` of its own (the runner evaluates `strategy` before
+    the matrix expands, so `n: ["${{ 'docs-check' }}"]` publishes the name
+    while this enumeration would see the text - [R3] round 4 on PR #293),
+    or when the matrix carries `include` or `exclude` (either can add a
+    combination this enumeration never saw)."""
+    name = job.get("name") if isinstance(job, dict) else None
+    if not isinstance(name, str):
+        return None
+    keys = []
+    for expr in EXPRESSION_RE.findall(name):
+        m = MATRIX_REF_RE.fullmatch(expr)
+        if m is None:
+            return None
+        if m.group(1) not in keys:
+            keys.append(m.group(1))
+    if "${{" in EXPRESSION_RE.sub("", name):
+        return None
+    strat = job.get("strategy")
+    matrix = strat.get("matrix") if isinstance(strat, dict) else None
+    if not isinstance(matrix, dict) or "include" in matrix or "exclude" in matrix:
+        return None
+    lists = []
+    for key in keys:
+        values = matrix.get(key)
+        if (not isinstance(values, list) or not values
+                or not all(isinstance(v, (str, int, float, bool)) for v in values)
+                or any(isinstance(v, str) and "${{" in v for v in values)):
+            return None
+        lists.append([str(v) for v in values])
+    out = []
+    for combo in itertools.product(*lists):
+        binding = dict(zip(keys, combo))
+        out.append(EXPRESSION_RE.sub(
+            lambda m: binding[MATRIX_REF_RE.fullmatch(m.group(0)).group(1)],
+            name))
+    return out
 ACT_CI_SELFTEST = "python3 scripts/act_ci.py --selftest"
 #: ``test_builder.py`` invokes both processor-image/source gates and the
 #: Vivado datapath-manifest consumer (syn/ooc/dp_srcs.py), which resolves the
@@ -550,8 +769,20 @@ def load_yaml(text, path):
     return doc
 
 
+def is_extra_workflow(rel):
+    """A workflow file the inventory does not name."""
+    return (rel not in FILES and rel.startswith(WORKFLOW_DIR + "/")
+            and rel.endswith(WORKFLOW_SUFFIXES))
+
+
+def extra_workflows(world):
+    return sorted(rel for rel in world if is_extra_workflow(rel))
+
+
 def read_tree(root):
-    """The five files as text, keyed by their repository-relative path."""
+    """The five files as text, keyed by their repository-relative path, plus
+    every other workflow file the directory holds: the inventory decides
+    what is held, the directory decides what GitHub runs."""
     world = {}
     for rel in FILES:
         path = root / rel
@@ -559,18 +790,31 @@ def read_tree(root):
             world[rel] = path.read_text(encoding="utf-8")
         except OSError as exc:
             raise CannotRun(f"{rel}: cannot read: {exc}") from exc
+    wdir = root / WORKFLOW_DIR
+    for path in sorted(wdir.iterdir()) if wdir.is_dir() else ():
+        rel = f"{WORKFLOW_DIR}/{path.name}"
+        if path.is_file() and is_extra_workflow(rel):
+            try:
+                world[rel] = path.read_text(encoding="utf-8")
+            except OSError as exc:
+                raise CannotRun(f"{rel}: cannot read: {exc}") from exc
     return world
 
 
 def parse_world(world):
     """Text world -> parsed world: YAML mappings for workflows, text for the
-    policy page. Raises CannotRun for anything it cannot judge."""
+    policy page. Raises CannotRun for anything it cannot judge. A workflow
+    file outside the inventory is parsed too, so the global carrier count
+    below can see it."""
     parsed = {}
     for rel in FILES:
         if rel not in world:
             raise CannotRun(f"{rel}: missing")
         parsed[rel] = (load_yaml(world[rel], rel) if rel in WORKFLOWS
                        else world[rel])
+    for rel in extra_workflows(world):
+        parsed[rel] = (world[rel] if isinstance(world[rel], dict)
+                       else load_yaml(world[rel], rel))
     return parsed
 
 
@@ -645,6 +889,10 @@ def _is_decide_step(step):
     return step.get("id") == DECIDE_STEP_ID
 
 
+def _is_contract_step(step):
+    return CONTRACT_CHECK in step_text(step)
+
+
 #: (label, recognizer, what it must be, keys, env keys, optional keys) for
 #: every step of the gate job, in the order they must appear. The SEQUENCE is
 #: the point: the assertion runs the `ci_events.py` the checkout brought and
@@ -663,6 +911,9 @@ GATE_STEPS = (
     ("the default-branch step", _is_assert_step,
      f"the step that runs `ci_events.py {DEFAULT_BRANCH_FLAG}`",
      ASSERT_STEP_KEYS, ASSERT_STEP_ENV, ()),
+    ("the contract step", _is_contract_step,
+     f"the step that runs `{CONTRACT_CHECK}`",
+     CONTRACT_STEP_KEYS, {}, ()),
     ("the decision step", _is_decide_step,
      f"the step with `id: {DECIDE_STEP_ID}` that publishes `run_full`",
      DECIDE_STEP_KEYS, DECIDE_STEP_ENV, ()),
@@ -732,6 +983,41 @@ def check_public_names(c, path, wf):
     under the required name, and which of the two the ruleset binds is
     ambiguous."""
     all_jobs = jobs(wf)
+    # A display name is read here as a literal string, and GitHub evaluates
+    # `jobs.<id>.name` as an expression ([R4] on PR #293): `name: ${{ 'X' }}`
+    # publishes a check run named X that no literal comparison sees, so a
+    # `run: true` job spelled that way was a second carrier of every
+    # required name with no finding. The only expression names this tree
+    # carries are the sharded workers' `... shard ${{ matrix.shard }}/${{
+    # matrix.total }}`, so the rule is: a `name` may reference nothing but
+    # `matrix.<key>` lists of the job's own literal `strategy.matrix`, every
+    # rendering is enumerated and none may be a required name, and any other
+    # expression is refused outright, because it cannot be enumerated here.
+    for jid, j in all_jobs.items():
+        shown = display_name(jid, j)
+        owner = PUBLIC_NAME_OWNER.get(shown)
+        c.item(owner is None or owner == path, path,
+               f"job `{jid}` carries the required check name `{shown}` owned "
+               f"by {owner}: the merge bar binds a name, not a file, so this "
+               "job is a second carrier of that context on every pull request "
+               "the two workflows share")
+    for jid, j in all_jobs.items():
+        name = j.get("name") if isinstance(j, dict) else None
+        if not (isinstance(name, str) and "${{" in name):
+            continue
+        rendered = rendered_names(j)
+        c.item(rendered is not None, path,
+               f"job `{jid}` `name` must be a literal or reference only "
+               f"`${{{{ matrix.<key> }}}}` lists of its own `strategy.matrix` "
+               f"(found {name!r}): any other expression evaluates on the "
+               "runner to a display name this rule cannot read, so it can "
+               "publish a check run under a required name unseen")
+        for got in rendered or ():
+            c.item(got not in ALL_PUBLIC_NAMES, path,
+                   f"job `{jid}` `name` renders `{got}` for one matrix "
+                   "combination, which is a required check name: a matrix "
+                   "job publishing that name is a second carrier the "
+                   "literal comparison above cannot see")
     for want in PUBLIC_NAMES.get(path, ()):
         carriers = [jid for jid, j in all_jobs.items()
                     if display_name(jid, j) == want]
@@ -741,6 +1027,49 @@ def check_public_names(c, path, wf):
                f"{sorted(all_jobs)}): the merge bar reads this name, and two "
                "jobs publishing it make which run the ruleset binds "
                "ambiguous")
+
+
+def check_required_context_carriers(c, path, wf, held_by_builder=()):
+    """Each public check name is carried by the job of that id, and that job
+    runs as written: no `needs`, no `if`, no `continue-on-error`, no
+    `defaults` (#261).
+
+    The RTL workflows reach every job through their aggregate's `needs` and
+    classify each one as the selector, a consumer or a held contributor. The
+    documentation and elaboration workflows have no aggregate: the carrier
+    IS the required context, and a skipped required context satisfies the
+    ruleset. So `if: false` on `docs-check` retired this gate itself (docs.yml
+    is the only workflow that runs `--check`), and the same lever on
+    `wire-accountability` or `docs-check-no-git` retired the item-00 record
+    or the no-git proof, with `checked=171 findings=0` at `70421f5c`.
+
+    The NAME and the CONTENT must be held on one job ([R3] on PR #293). The
+    merge bar binds a display name; the builder contract and the step pins
+    below read `docs-check` and `elaborate` by job id. Held apart, the real
+    job renamed to `docs-check-real` beside a `decoy` job named `docs-check`
+    with one `run: true` step passed with 233 items and no finding: the
+    unique carrier had no neuter key and the id-named job kept its pinned
+    content, while the required context ran nothing. So the job whose id is
+    the public name must carry it. `held_by_builder` names the ids whose
+    keys check_builder_dependencies already holds by the same function, so
+    each refusal is printed once. An ambiguous carrier is named by
+    check_public_names, not here."""
+    all_jobs = jobs(wf)
+    for want in PUBLIC_NAMES.get(path, ()):
+        job = all_jobs.get(want)
+        got = display_name(want, job) if isinstance(job, dict) else None
+        c.item(got == want, path,
+               f"required context `{want}` must be carried by the job of that "
+               f"id (found "
+               + ("no such job" if got is None else f"job `{want}` named `{got}`")
+               + "): the content checks read that job by id, so a job "
+               "carrying the name under another id is a stub the merge bar "
+               "binds while the real gates run under a name it does not read")
+        carriers = [jid for jid, j in all_jobs.items()
+                    if display_name(jid, j) == want]
+        if len(carriers) != 1 or carriers[0] in held_by_builder:
+            continue
+        check_job_keys(c, path, carriers[0], all_jobs[carriers[0]])
 
 
 def check_act_artifact_aggregate_order(c, path, wf):
@@ -825,6 +1154,7 @@ def check_rtl_full(c, wf, policy):
         c.item(prints, path, f"job `{GATE_JOB}` must print the event name and "
                "GITHUB_SHA in one step")
         check_default_branch_step(c, path, gate)
+        check_contract_step(c, path, gate)
         check_decide_step(c, path, gate)
         check_gate_steps(c, path, gate)
         check_job_keys(c, path, GATE_JOB, gate)
@@ -1212,6 +1542,26 @@ def script_difference(got, want):
     return f"{len(want)} line(s) expected, {len(got)} found"
 
 
+def check_contract_step(c, path, gate):
+    """The gate's own run of `--check`: exactly one such step, its script
+    verbatim (a `|| true` or a second command beside the call would let the
+    finding print and the job pass). Its keys and position are held by
+    check_gate_steps."""
+    found = [s for s in steps(gate) if _is_contract_step(s)]
+    c.item(len(found) == 1, path, f"job `{GATE_JOB}` must run "
+           f"`{CONTRACT_CHECK}` exactly once (found {len(found)}): this is "
+           "the runner of the contract that docs.yml cannot police for "
+           "itself, and a skipped or failed gate fails both aggregates")
+    if len(found) != 1:
+        return
+    run = found[0].get("run") if isinstance(found[0].get("run"), str) else ""
+    lines = normalize_script(run)
+    c.item(tuple(lines) == CANONICAL_CONTRACT_SCRIPT, path,
+           "the contract step script is not the canonical form: "
+           + script_difference(lines, CANONICAL_CONTRACT_SCRIPT)
+           + "; a line beside the call can swallow its exit status")
+
+
 def check_decide_step(c, path, gate):
     """The decision step publishes `run_full`, the one value that decides
     whether the exhaustive gates run at all. Its keys and its env bindings
@@ -1239,6 +1589,149 @@ def check_decide_step(c, path, gate):
            + "; this script publishes `run_full`, so a line changed here "
            "selects the no-op path with every pinned name and key still in "
            "place")
+
+
+def check_inherited_env(c, path, wf):
+    """The inherited execution environment of every job in this file, by
+    exact allowlist (maintainer [R0] on PR #293): the workflow-level `env`
+    names exactly INHERITED_WORKFLOW_ENV[path]; no job carries a job-level
+    `env`; and the names a job's steps bind stay inside INHERITED_STEP_ENV.
+    `BASH_ENV: scripts/ci-bypass.sh` at any of the three levels, with a
+    checked-in file defining `python3() { return 0; }`, made every python
+    gate of every protected job a no-op with 273 items and no finding."""
+    want = set(INHERITED_WORKFLOW_ENV.get(path, ()))
+    top = wf.get("env")
+    c.item(top is None or isinstance(top, dict), path,
+           f"the workflow-level `env` must be a mapping (found {top!r})")
+    top = top if isinstance(top, dict) else {}
+    have = {str(k) for k in top}
+    c.item(have == want, path,
+           f"the workflow-level `env` must name exactly "
+           f"{sorted(want) or 'nothing'} (found {sorted(have) or 'nothing'}): "
+           "a name set here reaches every step's shell of every job before "
+           "any pinned script runs, and `BASH_ENV` makes a checked-in file "
+           "the startup script of each of them")
+    for jid, job in jobs(wf).items():
+        if not isinstance(job, dict):
+            continue
+        jenv = job.get("env")
+        names = sorted(str(k) for k in jenv) if isinstance(jenv, dict) else []
+        c.item("env" not in job, path,
+               f"job `{jid}` must carry no job-level `env` (found "
+               f"{names or jenv!r}): it reaches every step's shell before any "
+               "pinned script runs, and `BASH_ENV` there turns every gate "
+               "into a shell function that returns 0")
+        allowed = set(INHERITED_STEP_ENV.get((path, jid), ()))
+        for n, step in enumerate(steps(job), 1):
+            raw = step.get("env")
+            c.item(raw is None or isinstance(raw, dict), path,
+                   f"job `{jid}` step {n} ({step_label(step)}) `env` must be "
+                   f"a mapping (found {raw!r})")
+            senv = raw if isinstance(raw, dict) else {}
+            surplus = sorted(str(k) for k in senv if str(k) not in allowed)
+            c.item(not surplus, path,
+                   f"job `{jid}` step {n} ({step_label(step)}) `env` names "
+                   f"{surplus} outside this job's allowlist "
+                   f"{sorted(allowed) or '(none)'}: a step-level `BASH_ENV` "
+                   "reaches that step's shell the same way")
+
+
+def check_env_files(c, path, wf):
+    """Only the recorded steps may mention `$GITHUB_ENV` or `$GITHUB_PATH`,
+    and only the recorded actions may be `uses:`d ([R3] round 8 on PR
+    #293): `echo "BASH_ENV=..." >> "$GITHUB_ENV"` in one added step of a
+    job without a pinned sequence set the inherited environment at run
+    time for every later step with 390 items and no finding."""
+    for jid, job in jobs(wf).items():
+        names = [s.get("name") for s in steps(job)]
+        for n, step in enumerate(steps(job), 1):
+            text = step_text(step)
+            name = step.get("name") if isinstance(step.get("name"), str) else ""
+            key = (path, jid, name)
+            if any(var in text for var in ENV_FILE_NAMES):
+                c.item(key in ENV_FILE_WRITERS, path,
+                       f"job `{jid}` step {n} ({step_label(step)}) mentions "
+                       f"an environment file and is not a recorded writer: "
+                       "whatever a step writes there is the inherited "
+                       "environment of every later step, so `BASH_ENV` set "
+                       "here turns the gates after it into no-ops with every "
+                       "declared `env` level clean")
+            if key in ENV_FILE_WRITERS:
+                run = step.get("run") if isinstance(step.get("run"), str) else ""
+                lines = normalize_script(run)
+                c.item(tuple(lines) == ENV_FILE_WRITERS[key], path,
+                       f"recorded writer `{name}` in job `{jid}` script is "
+                       "not the canonical form: "
+                       + script_difference(lines, ENV_FILE_WRITERS[key])
+                       + "; the name is not the binding, the script is")
+                c.item(names.count(name) == 1, path,
+                       f"recorded writer `{name}` must appear exactly once "
+                       f"in job `{jid}` (found {names.count(name)}): a second "
+                       "step under a recorded name would inherit its licence")
+            if _is_checkout_step(step):
+                with_ = step.get("with") if isinstance(step.get("with"), dict) else {}
+                bad = sorted(str(k) for k in with_
+                             if str(k) not in CHECKOUT_WITH_ALLOWED
+                             or with_[k] != CHECKOUT_WITH_ALLOWED[str(k)])
+                c.item(not bad, path, f"job `{jid}` step {n} checkout `with` "
+                       f"may carry only {CHECKOUT_WITH_ALLOWED} (found "
+                       f"{with_!r}): a `ref` or `repository` here computes the "
+                       "required context on another tree")
+            action = step.get("uses")
+            if action is not None:
+                c.item(action in RECORDED_ACTIONS, path,
+                       f"job `{jid}` step {n} uses `{action}`, which is not "
+                       f"a recorded action {sorted(RECORDED_ACTIONS)}: a "
+                       "local or third-party action runs code this checker "
+                       "does not read, before every step after it")
+
+
+def check_key_allowlists(c, path, wf):
+    """Every workflow-, job- and step-level key set is exactly a subset of
+    what the tree carries today ([R4] round 6 on PR #293): `container` with
+    its own `env` map put `BASH_ENV` into every step's shell of every
+    protected job with the three declared `env` levels clean and 390 items
+    green; `services`, a step `shell`, an `Env:` spelling and any key GitHub
+    adds later are the same gap. A surplus key is refused by name."""
+    top = {("on" if k is True else str(k)) for k in wf}
+    extra = sorted(top - set(WORKFLOW_KEYS))
+    c.item(not extra, path, f"the workflow may carry only the keys "
+           f"{list(WORKFLOW_KEYS)} (surplus: {extra}): a key outside that "
+           "set decides how or where every job runs")
+    # `env` is the inherited-environment rule's business; the other neuter
+    # keys are NOT excused here (maintainer [R0] round 4 on PR #293): the
+    # per-class rules report them only on the jobs they classify, so an
+    # ADDED standalone job carried `defaults` or `continue-on-error` with no
+    # finding. A held job with one of them now draws two true lines, its
+    # own rule's and this one's, which is the cheaper defect.
+    covered = {"env", "needs", "if"}
+    for jid, job in jobs(wf).items():
+        if not isinstance(job, dict):
+            continue
+        allowed_keys = set(JOB_KEYS) | set(JOB_KEY_EXTRAS.get((path, jid), ()))
+        extra = sorted({str(k) for k in job} - allowed_keys - covered)
+        c.item(not extra, path, f"job `{jid}` may carry only the keys "
+               f"{sorted(allowed_keys)} (surplus: {extra}): `container` carries "
+               "its own env map and picks the image every step's python3 "
+               "comes from, `services` starts more, and an unknown key is "
+               "refused for the same reason")
+        for n, step in enumerate(steps(job), 1):
+            name = step.get("name") if isinstance(step.get("name"), str) else ""
+            extras = STEP_KEY_EXTRAS.get((path, jid, name), {})
+            step_keys = set(STEP_KEYS) | set(extras)
+            extra = sorted({str(k) for k in step} - step_keys)
+            c.item(not extra, path, f"job `{jid}` step {n} "
+                   f"({step_label(step)}) may carry only the keys "
+                   f"{sorted(step_keys)} (surplus: {extra}): `shell` chooses "
+                   "the interpreter the script runs under and "
+                   "`working-directory` the tree it reads")
+            for key, value in extras.items():
+                if key in step:
+                    c.item(step[key] == value, path,
+                           f"job `{jid}` step {n} ({step_label(step)}) "
+                           f"`{key}` must be exactly {value!r} (found "
+                           f"{step[key]!r}): the licence is for that tree, "
+                           "not for a checked-in decoy")
 
 
 def check_no_gh_env(c, path, where, env):
@@ -1785,6 +2278,8 @@ def check_builder_dependencies(c, path, wf, jid):
 
 def check_docs(c, wf):
     check_push_and_pr(c, DOCS, wf, exact_types=False)
+    check_public_names(c, DOCS, wf)
+    check_required_context_carriers(c, DOCS, wf, held_by_builder=("docs-check",))
     check_builder_dependencies(c, DOCS, wf, "docs-check")
     texts = [step_text(s) for j in jobs(wf).values() for s in steps(j)]
     for flag in ("--check", "--selftest"):
@@ -1809,7 +2304,52 @@ def check_docs(c, wf):
 def check_elaborate(c, wf):
     check_push_and_pr(c, ELABORATE, wf, exact_types=False)
     check_public_names(c, ELABORATE, wf)
+    check_required_context_carriers(c, ELABORATE, wf,
+                                    held_by_builder=("elaborate",))
     check_builder_dependencies(c, ELABORATE, wf, "elaborate")
+
+
+def check_global_carriers(c, parsed):
+    """One carrier per required name across EVERY workflow file (maintainer
+    review on PR #293). GitHub binds a required check by name and does not
+    distinguish the workflow that published it, so the per-file counts above
+    are necessary and not sufficient: a job in a fifth file, one the
+    inventory never named, carrying `docs-check` is a second `docs-check` on
+    every pull request. The multimap is name -> [(file, job id)] over the
+    inventoried files and every other file the directory holds; each
+    required name must map to exactly one entry, in its owning file, under
+    its own id. A job in an un-inventoried file may carry no expression name
+    at all: that file has no shard workers, so nothing there is legitimately
+    named by an expression, and an expression is the one spelling the
+    literal count cannot see."""
+    files = list(WORKFLOWS) + extra_workflows(parsed)
+    carriers = {}
+    for rel in files:
+        for jid, job in jobs(parsed[rel]).items():
+            carriers.setdefault(display_name(jid, job), []).append((rel, jid))
+            if is_extra_workflow(rel):
+                name = job.get("name") if isinstance(job, dict) else None
+                c.item(not (isinstance(name, str) and "${{" in name), rel,
+                       f"job `{jid}` in the un-inventoried workflow `{rel}` "
+                       f"must not carry an expression `name` (found "
+                       f"{name!r}): nothing outside the inventory is "
+                       "legitimately named by an expression, and an "
+                       "expression can evaluate to a required check name")
+    for name in sorted(ALL_PUBLIC_NAMES):
+        found = carriers.get(name, [])
+        want = (PUBLIC_NAME_OWNER[name], name)
+        # Carriers inside the owning file are the per-file rules' business
+        # (one-carrier, ownership, id): reporting them here again printed
+        # every owner-file mutant twice ([R3] round 6 on PR #293). This item
+        # holds what only a global view can see - a carrier in any OTHER
+        # file, inventoried or not.
+        foreign = [entry for entry in found if entry[0] != want[0]]
+        c.item(not foreign, PUBLIC_NAME_OWNER[name],
+               f"required check name `{name}` must be carried by exactly "
+               f"one job across every workflow file, `{want[1]}` in "
+               f"`{want[0]}` (found {found or 'none'} over "
+               f"{len(files)} file(s)): the merge bar binds the name and "
+               "does not distinguish the workflow that published it")
 
 
 def check(parsed):
@@ -1819,6 +2359,11 @@ def check(parsed):
     check_rtl_fast(c, parsed[RTL_FAST])
     check_docs(c, parsed[DOCS])
     check_elaborate(c, parsed[ELABORATE])
+    for rel in WORKFLOWS:
+        check_inherited_env(c, rel, parsed[rel])
+        check_key_allowlists(c, rel, parsed[rel])
+        check_env_files(c, rel, parsed[rel])
+    check_global_carriers(c, parsed)
     return c
 
 
@@ -1986,6 +2531,116 @@ def _mutations():
     def m_rename_job(path, jid):
         def f(w):
             jobs(w[path])[jid]["name"] = jid + "-renamed"
+        return f
+
+    def m_job_key(path, jid, key, value):
+        # A neuter key on the JOB, not on one of its steps (#261): the step
+        # arms leave the job's own run conditions untouched.
+        def f(w):
+            jobs(w[path])[jid][key] = value
+        return f
+
+    def m_second_carrier(path, name):
+        # A second job publishing a required check name, so which run the
+        # ruleset binds is ambiguous ([R2] on PR #239, widened by #261).
+        def f(w):
+            jobs(w[path])["decoy"] = {"name": name, "runs-on": "ubuntu-latest",
+                                      "steps": [{"run": "true"}]}
+        return f
+
+    def m_expression_carrier(path, name):
+        # The decoy's `name` is an EXPRESSION that evaluates to the required
+        # name on the runner ([R4] on PR #293); the real job is untouched.
+        def f(w):
+            jobs(w[path])["decoy"] = {"name": "${{ '" + name + "' }}",
+                                      "runs-on": "ubuntu-latest",
+                                      "steps": [{"run": "true"}]}
+        return f
+
+    def m_matrix_carrier(path, name):
+        # A matrix job whose `name` RENDERS the required name from its own
+        # matrix list ([R4] on PR #293): the expression is the allowed
+        # `matrix.<key>` form, so only enumeration can see the collision.
+        def f(w):
+            jobs(w[path])["decoy"] = {"name": "${{ matrix.n }}",
+                                      "runs-on": "ubuntu-latest",
+                                      "strategy": {"matrix": {"n": [name]}},
+                                      "steps": [{"run": "true"}]}
+        return f
+
+    def m_foreign_carrier(path, name):
+        # A literal decoy carrying a required name ANOTHER file owns ([R4]
+        # round 2 on PR #293): the per-file carrier count never sees it.
+        def f(w):
+            jobs(w[path])["decoy"] = {"name": name, "runs-on": "ubuntu-latest",
+                                      "steps": [{"run": "true"}]}
+        return f
+
+    def m_matrix_decoy(path, name, matrix):
+        # The allowed `matrix.n` form over a matrix the enumeration must
+        # refuse or must render ([R3] round 4 on PR #293): a value that is
+        # itself an expression, `include`, a missing key, an empty list.
+        def f(w):
+            jobs(w[path])["decoy"] = {"name": name, "runs-on": "ubuntu-latest",
+                                      "strategy": {"matrix": matrix},
+                                      "steps": [{"run": "true"}]}
+        return f
+
+    def m_job_env(path, jid, name, value="scripts/ci-bypass.sh"):
+        # The inherited environment (maintainer [R0] on PR #293).
+        def f(w):
+            jobs(w[path])[jid]["env"] = {name: value}
+        return f
+
+    def m_workflow_env(path, name, value="scripts/ci-bypass.sh"):
+        def f(w):
+            env = dict(w[path].get("env") or {})
+            env[name] = value
+            w[path]["env"] = env
+        return f
+
+    def ce_add(w, path, key, value):
+        # An ADDED standalone job carrying a neuter key (maintainer [R0]
+        # round 4 on PR #293): no per-class rule classifies it.
+        jobs(w[path])["standalone"] = {"runs-on": "ubuntu-latest", key: value,
+                                       "steps": [{"run": "true"}]}
+
+    def m_job_key_any(path, jid, key, value):
+        # Any job key outside the allowlist ([R4] round 6 on PR #293).
+        def f(w):
+            jobs(w[path])[jid][key] = value
+        return f
+
+    def m_step_key_any(path, jid, needle, key, value):
+        def f(w):
+            found = [s for s in job_steps(w, path, jid) if needle in step_text(s)]
+            assert len(found) == 1, f"fixture drift: {needle!r} in {jid}"
+            found[0][key] = value
+        return f
+
+    def m_insert_step(path, jid, step, index=1):
+        # A step inserted into an unpinned job ([R3] round 8 on PR #293).
+        def f(w):
+            job_steps(w, path, jid).insert(index, step)
+        return f
+
+    def m_step_env(path, jid, needle, name, value="scripts/ci-bypass.sh"):
+        def f(w):
+            found = [s for s in job_steps(w, path, jid) if needle in step_text(s)]
+            assert len(found) == 1, f"fixture drift: {needle!r} in {jid}"
+            env = dict(found[0].get("env") or {})
+            env[name] = value
+            found[0]["env"] = env
+        return f
+
+    def m_swap_carrier(path, jid):
+        # The real job renamed away and a `run: true` stub given the required
+        # name ([R3] on PR #293): the unique carrier has no neuter key, the
+        # id-named job keeps every pinned step, and the context runs nothing.
+        def f(w):
+            jobs(w[path])[jid]["name"] = jid + "-real"
+            jobs(w[path])["decoy"] = {"name": jid, "runs-on": "ubuntu-latest",
+                                      "steps": [{"run": "true"}]}
         return f
 
     def m_drop_dispatch(w):
@@ -2169,6 +2824,35 @@ def _mutations():
         ss = gate_step_list(w)
         del ss[next(i for i, s in enumerate(ss)
                     if s.get("id") == PIN_STEP_ID)]
+
+    def contract_step(w):
+        found = [s for s in gate_step_list(w) if _is_contract_step(s)]
+        assert len(found) == 1, "fixture drift: no unique contract step"
+        return found[0]
+
+    def m_contract_step_removed(w):
+        gate_step_list(w).remove(contract_step(w))
+
+    def m_contract_step_swallowed(w):
+        contract_step(w)["run"] = (contract_step(w)["run"].rstrip("\n")
+                                   + " || true\n")
+
+    def m_contract_step_after_decide(w):
+        ss = gate_step_list(w)
+        step = contract_step(w)
+        ss.remove(step)
+        ss.append(step)
+
+    def m_fifth_workflow(jid, name=None):
+        # A workflow file the inventory never named (maintainer review on
+        # PR #293): GitHub runs it and binds its check-run names all the same.
+        def f(w):
+            job = {"runs-on": "ubuntu-latest", "steps": [{"run": "true"}]}
+            if name is not None:
+                job["name"] = name
+            w[f"{WORKFLOW_DIR}/decoy.yml"] = {
+                "name": "decoy", "on": ["pull_request"], "jobs": {jid: job}}
+        return f
 
     def m_checkout_shallow(w):
         del gate_step_list(w)[0]["with"]["fetch-depth"]
@@ -2838,9 +3522,9 @@ def _mutations():
         ("O14 assert step moved before the checkout", m_assert_before_checkout,
          "step 1 must be the gate checkout step"),
         ("O6 a GITHUB_PATH step inserted before the assertion",
-         m_gate_extra_path_step, "must carry exactly 4 steps"),
+         m_gate_extra_path_step, "must carry exactly 5 steps"),
         ("gate pin step removed", m_pin_step_removed,
-         "must carry exactly 4 steps"),
+         "must carry exactly 5 steps"),
         ("gate pin and assert steps swapped", m_pin_and_assert_swapped,
          "step 2 must be the pin step"),
         ("gate checkout without fetch-depth: 0", m_checkout_shallow,
@@ -3156,6 +3840,66 @@ def _mutations():
         ("docs sv2v installed after the builder call",
          m_sv2v_after_call(DOCS, "docs-check"),
          "must install sv2v before calling"),
+        ("#261 `docs-check` job if: false",
+         m_job_key(DOCS, "docs-check", "if", False),
+         "job `docs-check` must carry no `if`"),
+        ("#261 `docs-check` job continue-on-error",
+         m_job_key(DOCS, "docs-check", "continue-on-error", True),
+         "job `docs-check` must carry no `continue-on-error`"),
+        ("#261 `docs-check` job needs a sibling",
+         m_job_key(DOCS, "docs-check", "needs", ["wire-accountability"]),
+         "job `docs-check` must carry no `needs`"),
+        ("#261 a second job carries `docs-check`",
+         m_second_carrier(DOCS, "docs-check"),
+         "`docs-check` must be carried by exactly one job (carried by ['docs-check', 'decoy']"),
+        ("#261 `docs-check` renamed",
+         m_rename_job(DOCS, "docs-check"),
+         "`docs-check` must be carried by exactly one job (carried by none"),
+        ("#261 `docs-check` renamed away while a stub takes the name",
+         m_swap_carrier(DOCS, "docs-check"),
+         "required context `docs-check` must be carried by the job of that id"),
+        ("#261 `wire-accountability` job if: false",
+         m_job_key(DOCS, "wire-accountability", "if", False),
+         "job `wire-accountability` must carry no `if`"),
+        ("#261 `wire-accountability` job continue-on-error",
+         m_job_key(DOCS, "wire-accountability", "continue-on-error", True),
+         "job `wire-accountability` must carry no `continue-on-error`"),
+        ("#261 `wire-accountability` job needs a sibling",
+         m_job_key(DOCS, "wire-accountability", "needs", ["docs-check"]),
+         "job `wire-accountability` must carry no `needs`"),
+        ("#261 `wire-accountability` job defaults.run.shell bash -n",
+         m_job_key(DOCS, "wire-accountability", "defaults", {"run": {"shell": "bash -n {0}"}}),
+         "job `wire-accountability` must carry no `defaults`"),
+        ("#261 a second job carries `wire-accountability`",
+         m_second_carrier(DOCS, "wire-accountability"),
+         "`wire-accountability` must be carried by exactly one job (carried by ['wire-accountability', 'decoy']"),
+        ("#261 `wire-accountability` renamed",
+         m_rename_job(DOCS, "wire-accountability"),
+         "`wire-accountability` must be carried by exactly one job (carried by none"),
+        ("#261 `wire-accountability` renamed away while a stub takes the name",
+         m_swap_carrier(DOCS, "wire-accountability"),
+         "required context `wire-accountability` must be carried by the job of that id"),
+        ("#261 `docs-check-no-git` job if: false",
+         m_job_key(DOCS, "docs-check-no-git", "if", False),
+         "job `docs-check-no-git` must carry no `if`"),
+        ("#261 `docs-check-no-git` job continue-on-error",
+         m_job_key(DOCS, "docs-check-no-git", "continue-on-error", True),
+         "job `docs-check-no-git` must carry no `continue-on-error`"),
+        ("#261 `docs-check-no-git` job needs a sibling",
+         m_job_key(DOCS, "docs-check-no-git", "needs", ["docs-check"]),
+         "job `docs-check-no-git` must carry no `needs`"),
+        ("#261 `docs-check-no-git` job defaults.run.shell bash -n",
+         m_job_key(DOCS, "docs-check-no-git", "defaults", {"run": {"shell": "bash -n {0}"}}),
+         "job `docs-check-no-git` must carry no `defaults`"),
+        ("#261 a second job carries `docs-check-no-git`",
+         m_second_carrier(DOCS, "docs-check-no-git"),
+         "`docs-check-no-git` must be carried by exactly one job (carried by ['docs-check-no-git', 'decoy']"),
+        ("#261 `docs-check-no-git` renamed",
+         m_rename_job(DOCS, "docs-check-no-git"),
+         "`docs-check-no-git` must be carried by exactly one job (carried by none"),
+        ("#261 `docs-check-no-git` renamed away while a stub takes the name",
+         m_swap_carrier(DOCS, "docs-check-no-git"),
+         "required context `docs-check-no-git` must be carried by the job of that id"),
         # elaborate.yml
         ("elaborate push on main, not dev", m_push_main(ELABORATE),
          "push must subscribe"),
@@ -3207,6 +3951,255 @@ def _mutations():
          "exactly the pinned v0.0.12 release script"),
         ("elaborate sv2v install disabled by if",
          m_sv2v_if_disabled, "sv2v install `if` must be exactly"),
+        ("#261 `elaborate` job if: false",
+         m_job_key(ELABORATE, "elaborate", "if", False),
+         "job `elaborate` must carry no `if`"),
+        ("#261 `elaborate` job continue-on-error",
+         m_job_key(ELABORATE, "elaborate", "continue-on-error", True),
+         "job `elaborate` must carry no `continue-on-error`"),
+        ("#261 `elaborate` job needs another job",
+         m_job_key(ELABORATE, "elaborate", "needs", ["noop"]),
+         "job `elaborate` must carry no `needs`"),
+        ("#261 a second job carries `elaborate`",
+         m_second_carrier(ELABORATE, "elaborate"),
+         "`elaborate` must be carried by exactly one job (carried by ['elaborate', 'decoy']"),
+        ("#261 `elaborate` renamed away while a stub takes the name",
+         m_swap_carrier(ELABORATE, "elaborate"),
+         "required context `elaborate` must be carried by the job of that id"),
+        # An expression-valued display name, one arm per file ([R4] on #293).
+        ("#261 docs decoy named by an expression",
+         m_expression_carrier(DOCS, "docs-check"),
+         "job `decoy` `name` must be a literal or reference only"),
+        ("#261 elaborate decoy named by an expression",
+         m_expression_carrier(ELABORATE, "elaborate"),
+         "job `decoy` `name` must be a literal or reference only"),
+        ("#261 rtl-fast decoy named by an expression",
+         m_expression_carrier(RTL_FAST, "rtl-fast"),
+         "job `decoy` `name` must be a literal or reference only"),
+        ("#261 rtl-full decoy named by an expression",
+         m_expression_carrier(RTL_FULL, "verilator-suites"),
+         "job `decoy` `name` must be a literal or reference only"),
+        ("#261 docs decoy renders a required name from its own matrix",
+         m_matrix_carrier(DOCS, "docs-check"),
+         "job `decoy` `name` renders `docs-check` for one matrix combination"),
+        ("#261 rtl-full decoy renders a required name from its own matrix",
+         m_matrix_carrier(RTL_FULL, "yosys-portability"),
+         "job `decoy` `name` renders `yosys-portability` for one matrix combination"),
+        # The enumeration's own edges ([R3] round 4 on PR #293).
+        ("#261 docs decoy matrix value is itself an expression",
+         m_matrix_decoy(DOCS, "${{ matrix.n }}", {"n": ["${{ 'docs-check' }}"]}),
+         "job `decoy` `name` must be a literal or reference only"),
+        ("#261 docs decoy name carries a `${{` the scan does not match",
+         m_matrix_decoy(DOCS, "${{\n 'docs-check' }}", {"n": ["x"]}),
+         "job `decoy` `name` must be a literal or reference only"),
+        ("#261 rtl-full decoy matrix carries include",
+         m_matrix_decoy(RTL_FULL, "${{ matrix.n }}",
+                        {"n": ["x"], "include": [{"n": "verilator-suites"}]}),
+         "job `decoy` `name` must be a literal or reference only"),
+        ("#261 elaborate decoy matrix is an expression",
+         m_matrix_decoy(ELABORATE, "${{ matrix.n }}", "${{ fromJSON(vars.M) }}"),
+         "job `decoy` `name` must be a literal or reference only"),
+        ("#261 rtl-fast decoy references a key its matrix lacks",
+         m_matrix_decoy(RTL_FAST, "${{ matrix.n }}", {"m": ["x"]}),
+         "job `decoy` `name` must be a literal or reference only"),
+        ("#261 docs decoy matrix list is empty",
+         m_matrix_decoy(DOCS, "${{ matrix.n }}", {"n": []}),
+         "job `decoy` `name` must be a literal or reference only"),
+        ("#261 docs decoy renders another file's required name",
+         m_matrix_decoy(DOCS, "${{ matrix.n }}", {"n": ["x", "verilator-suites"]}),
+         "job `decoy` `name` renders `verilator-suites` for one matrix combination"),
+        # A literal name another file owns, one arm per file ([R4] round 2).
+        ("#261 docs decoy literally named elaborate",
+         m_foreign_carrier(DOCS, "elaborate"),
+         "job `decoy` carries the required check name `elaborate` owned by"),
+        ("#261 elaborate decoy literally named docs-check-no-git",
+         m_foreign_carrier(ELABORATE, "docs-check-no-git"),
+         "job `decoy` carries the required check name `docs-check-no-git` owned by"),
+        ("#261 rtl-fast decoy literally named verilator-suites",
+         m_foreign_carrier(RTL_FAST, "verilator-suites"),
+         "job `decoy` carries the required check name `verilator-suites` owned by"),
+        ("#261 rtl-full decoy literally named docs-check",
+         m_foreign_carrier(RTL_FULL, "docs-check"),
+         "job `decoy` carries the required check name `docs-check` owned by"),
+        # A fifth workflow file (maintainer review on PR #293).
+        ("#261 a fifth workflow file carries docs-check",
+         m_fifth_workflow("decoy", "docs-check"),
+         "required check name `docs-check` must be carried by exactly one job "
+         "across every workflow file"),
+        ("#261 a fifth workflow file's job id is elaborate",
+         m_fifth_workflow("elaborate"),
+         "required check name `elaborate` must be carried by exactly one job "
+         "across every workflow file"),
+        ("#261 a fifth workflow file names a job by an expression",
+         m_fifth_workflow("decoy", "${{ 'wire-accountability' }}"),
+         "in the un-inventoried workflow `.github/workflows/decoy.yml` must "
+         "not carry an expression `name`"),
+        # The gate's own --check runner (maintainer review on PR #293).
+        ("#261 gate contract step removed", m_contract_step_removed,
+         f"must run `{CONTRACT_CHECK}` exactly once"),
+        ("#261 gate contract step if: false",
+         set_step_key(contract_step, "if", False),
+         "the contract step must carry no `if`"),
+        ("#261 gate contract step continue-on-error",
+         set_step_key(contract_step, "continue-on-error", True),
+         "the contract step must carry no `continue-on-error`"),
+        ("#261 gate contract step swallows its exit status",
+         m_contract_step_swallowed,
+         "the contract step script is not the canonical form"),
+        ("#261 gate contract step moved after the decision",
+         m_contract_step_after_decide,
+         "step 4 must be the contract step"),
+        # The inherited execution environment (maintainer [R0] on PR #293).
+        ("#261 docs-check job-level BASH_ENV",
+         m_job_env(DOCS, "docs-check", "BASH_ENV"),
+         "job `docs-check` must carry no job-level `env`"),
+        ("#261 wire-accountability job-level BASH_ENV",
+         m_job_env(DOCS, "wire-accountability", "BASH_ENV"),
+         "job `wire-accountability` must carry no job-level `env`"),
+        ("#261 elaborate job-level BASH_ENV",
+         m_job_env(ELABORATE, "elaborate", "BASH_ENV"),
+         "job `elaborate` must carry no job-level `env`"),
+        ("#261 full-ci-gate job-level BASH_ENV",
+         m_job_env(RTL_FULL, GATE_JOB, "BASH_ENV"),
+         f"job `{GATE_JOB}` must carry no job-level `env`"),
+        ("#261 docs-check job-level env with a benign name",
+         m_job_env(DOCS, "docs-check", "PYTHONWARNINGS", "ignore"),
+         "job `docs-check` must carry no job-level `env`"),
+        ("#261 docs.yml workflow-level BASH_ENV",
+         m_workflow_env(DOCS, "BASH_ENV"),
+         "the workflow-level `env` must name exactly nothing"),
+        ("#261 rtl.yml workflow-level BASH_ENV",
+         m_workflow_env(RTL_FULL, "BASH_ENV"),
+         "the workflow-level `env` must name exactly ['TSN_GEN_REV', 'VERILATOR_VERSION']"),
+        ("#261 rtl-fast.yml workflow-level env with a benign name",
+         m_workflow_env(RTL_FAST, "PIP_QUIET", "1"),
+         "the workflow-level `env` must name exactly ['VERILATOR_VERSION']"),
+        ("#261 docs-check ci_events step-level BASH_ENV",
+         m_step_env(DOCS, "docs-check", "scripts/ci_events.py --check", "BASH_ENV"),
+         "`env` names ['BASH_ENV'] outside this job's allowlist (none)"),
+        ("#261 elaborate builder-call step-level BASH_ENV",
+         m_step_env(ELABORATE, "elaborate", BUILDER_CALL, "BASH_ENV"),
+         "`env` names ['BASH_ENV'] outside this job's allowlist ['EVENT_NAME', 'PR_BASE_SHA']"),
+        ("#261 wire-accountability gate step-level BASH_ENV",
+         m_step_env(DOCS, "wire-accountability", "check_wire_accountability", "BASH_ENV"),
+         "`env` names ['BASH_ENV'] outside this job's allowlist (none)"),
+        # The key allowlists ([R4] round 6 on PR #293).
+        ("#261 docs-check job container with BASH_ENV",
+         m_job_key_any(DOCS, "docs-check", "container",
+                       {"image": "ubuntu:24.04", "env": {"BASH_ENV": "scripts/ci-bypass.sh"}}),
+         "job `docs-check` may carry only the keys"),
+        ("#261 full-ci-gate job container with BASH_ENV",
+         m_job_key_any(RTL_FULL, GATE_JOB, "container",
+                       {"image": "ubuntu:24.04", "env": {"BASH_ENV": "scripts/ci-bypass.sh"}}),
+         f"job `{GATE_JOB}` may carry only the keys"),
+        ("#261 elaborate job container image",
+         m_job_key_any(ELABORATE, "elaborate", "container", "docker.io/attacker/noop-python:latest"),
+         "job `elaborate` may carry only the keys"),
+        ("#261 docs-check-no-git job services",
+         m_job_key_any(DOCS, "docs-check-no-git", "services", {"x": {"image": "busybox"}}),
+         "job `docs-check-no-git` may carry only the keys"),
+        ("#261 docs-check job Env spelled with a capital",
+         m_job_key_any(DOCS, "docs-check", "Env", {"BASH_ENV": "scripts/ci-bypass.sh"}),
+         "job `docs-check` may carry only the keys"),
+        ("#261 wire-accountability job benign key",
+         m_job_key_any(DOCS, "wire-accountability", "permissions", {"contents": "read"}),
+         "job `wire-accountability` may carry only the keys"),
+        ("#261 rtl-fast.yml workflow-level defaults",
+         (lambda w: w[RTL_FAST].__setitem__("defaults", {"run": {"shell": "bash -n {0}"}})),
+         "the workflow may carry only the keys"),
+        ("#261 docs-check-no-git single step shell",
+         m_step_key_any(DOCS, "docs-check-no-git", "docs_check.py", "shell", "scripts/noop.sh {0}"),
+         "may carry only the keys"),
+        ("#261 docs-check step benign key",
+         m_step_key_any(DOCS, "docs-check", "scripts/ci_events.py --check", "timeout-minutes", 1),
+         "may carry only the keys"),
+        # The environment files and the action set ([R3] round 8 on PR #293).
+        ("#261 docs-check inserted step writes GITHUB_ENV",
+         m_insert_step(DOCS, "docs-check",
+                       {"name": "prep", "run": 'echo "BASH_ENV=$PWD/scripts/ci-bypass.sh" >> "$GITHUB_ENV"'}),
+         "mentions an environment file and is not a recorded writer"),
+        ("#261 wire-accountability inserted step prepends GITHUB_PATH",
+         m_insert_step(DOCS, "wire-accountability",
+                       {"name": "prep", "run": 'echo "$PWD/scripts/bin" >> "$GITHUB_PATH"'}),
+         "mentions an environment file and is not a recorded writer"),
+        ("#261 yosys-shards inserted step writes GITHUB_ENV",
+         m_insert_step(RTL_FULL, "yosys-shards",
+                       {"name": "prep", "run": 'echo "BASH_ENV=x" >> "$GITHUB_ENV"'}),
+         "mentions an environment file and is not a recorded writer"),
+        ("#261 docs-check existing step gains a GITHUB_ENV write",
+         (lambda w: [s for s in job_steps(w, DOCS, "docs-check")
+                     if "pip install --quiet pyyaml" in step_text(s)][0].__setitem__(
+                         "run", 'echo "BASH_ENV=x" >> "$GITHUB_ENV"\npython3 -m pip install --quiet pyyaml')),
+         "mentions an environment file and is not a recorded writer"),
+        ("#261 docs-check inserted local action",
+         m_insert_step(DOCS, "docs-check", {"uses": "./.github/actions/prep"}),
+         "uses `./.github/actions/prep`, which is not a recorded action"),
+        ("#261 elaborate inserted third-party action",
+         m_insert_step(ELABORATE, "elaborate", {"uses": "attacker/action@v1"}),
+         "uses `attacker/action@v1`, which is not a recorded action"),
+        ("#261 rtl.yml recorded writer renamed",
+         (lambda w: [s for s in job_steps(w, RTL_FULL, "verilator-shards")
+                     if s.get("name") == "Put Verilator on PATH and prove the version"][0].__setitem__("name", "Put Verilator on PATH")),
+         "mentions an environment file and is not a recorded writer"),
+        ("#261 docs.yml workflow-level env is not a mapping",
+         (lambda w: w[DOCS].__setitem__("env", "BASH_ENV=scripts/ci-bypass.sh")),
+         "the workflow-level `env` must be a mapping"),
+        ("#261 docs-check step env is not a mapping",
+         m_step_key_any(DOCS, "docs-check", "scripts/ci_events.py --check", "env", ["BASH_ENV=x"]),
+         "`env` must be a mapping"),
+        # The writers are bound by script and count ([R3] round 9 on #293).
+        ("#261 elaborate Install sbt script gains a PATH prepend",
+         (lambda w: [s for s in job_steps(w, ELABORATE, "elaborate") if s.get("name") == "Install sbt"][0].__setitem__(
+             "run", 'echo "$PWD/scripts/bin" >> "$GITHUB_PATH"\n' + [s for s in job_steps(w, ELABORATE, "elaborate") if s.get("name") == "Install sbt"][0]["run"])),
+         "recorded writer `Install sbt` in job `elaborate` script is not the canonical form"),
+        ("#261 elaborate added step under the recorded name Install sbt",
+         m_insert_step(ELABORATE, "elaborate", {"name": "Install sbt", "run": 'echo "$PWD/scripts/bin" >> "$GITHUB_PATH"'}),
+         "recorded writer `Install sbt` must appear exactly once in job `elaborate`"),
+        ("#261 rtl.yml tsn-gen export rewritten to set BASH_ENV",
+         (lambda w: [s for s in job_steps(w, RTL_FULL, "verilator-shards") if s.get("name", "").startswith("Build the pinned tsn-gen")][0].__setitem__(
+             "run", [s for s in job_steps(w, RTL_FULL, "verilator-shards") if s.get("name", "").startswith("Build the pinned tsn-gen")][0]["run"].replace('echo "TSN_GEN_ROOT=$RUNNER_TEMP/tsn-gen" >> "$GITHUB_ENV"', 'echo "BASH_ENV=$PWD/scripts/ci-bypass.sh" >> "$GITHUB_ENV"'))),
+         "recorded writer `Build the pinned tsn-gen field oracle on its suite owner` in job `verilator-shards` script is not the canonical form"),
+        ("#261 rtl-fast.yml lint step gains a hostile PATH prepend",
+         (lambda w: [s for s in job_steps(w, RTL_FAST, "verilator-lint") if s.get("name") == "Run the ratcheted whole-tree lint gate"][0].__setitem__(
+             "run", 'echo "$PWD/scripts/bin" >> "$GITHUB_PATH"\n' + [s for s in job_steps(w, RTL_FAST, "verilator-lint") if s.get("name") == "Run the ratcheted whole-tree lint gate"][0]["run"])),
+         "recorded writer `Run the ratcheted whole-tree lint gate` in job `verilator-lint` script is not the canonical form"),
+        ("#261 rtl.yml recorded writer duplicated",
+         (lambda w: job_steps(w, RTL_FULL, "verilator-shards").append(dict(
+             [s for s in job_steps(w, RTL_FULL, "verilator-shards") if s.get("name") == "Put Verilator on PATH and prove the version"][0]))),
+         "recorded writer `Put Verilator on PATH and prove the version` must appear exactly once"),
+        ("#261 wire-accountability checkout with ref",
+         (lambda w: [s for s in job_steps(w, DOCS, "wire-accountability") if uses(s, "actions/checkout")][0].__setitem__("with", {"ref": "main"})),
+         "checkout `with` may carry only"),
+        ("#261 docs-check-no-git checkout with repository",
+         (lambda w: [s for s in job_steps(w, DOCS, "docs-check-no-git") if uses(s, "actions/checkout")][0].__setitem__("with", {"repository": "attacker/x"})),
+         "checkout `with` may carry only"),
+        ("#261 docs-check job strategy",
+         m_job_key_any(DOCS, "docs-check", "strategy", {"matrix": {"x": "${{ fromJSON('[]') }}"}}),
+         "job `docs-check` may carry only the keys"),
+        ("#261 wire-accountability job outputs",
+         m_job_key_any(DOCS, "wire-accountability", "outputs", {"x": "1"}),
+         "job `wire-accountability` may carry only the keys"),
+        ("#261 rtl.yml standalone job with defaults",
+         (lambda w: ce_add(w, RTL_FULL, "defaults", {"run": {"shell": "bash -n {0}"}})),
+         "job `standalone` may carry only the keys"),
+        ("#261 docs.yml standalone job with defaults",
+         (lambda w: ce_add(w, DOCS, "defaults", {"run": {"shell": "bash -n {0}"}})),
+         "job `standalone` may carry only the keys"),
+        ("#261 elaborate.yml standalone job with continue-on-error",
+         (lambda w: ce_add(w, ELABORATE, "continue-on-error", True)),
+         "job `standalone` may carry only the keys"),
+        ("#261 rtl-fast.yml standalone job with continue-on-error",
+         (lambda w: ce_add(w, RTL_FAST, "continue-on-error", True)),
+         "job `standalone` may carry only the keys"),
+        ("#261 docs-check ci_events step working-directory",
+         m_step_key_any(DOCS, "docs-check", "scripts/ci_events.py --check", "working-directory", "sub"),
+         "may carry only the keys"),
+        ("#261 behave step working-directory points at a decoy tree",
+         m_step_key_any(RTL_FAST, "bdd-conformance", "behave --no-capture", "working-directory", "tb/fake"),
+         "`working-directory` must be exactly 'tests'"),
+        ("#261 bdd-conformance other step working-directory",
+         m_step_key_any(RTL_FAST, "bdd-conformance", "pip install --quiet behave", "working-directory", "tb/fake"),
+         "may carry only the keys"),
     ]
 
 
@@ -3276,6 +4269,46 @@ def selftest(root):
             checked_arms += 1
         else:
             problems.append(f"{name} was accepted instead of refused")
+
+    # The directory scan itself, on disk ([R3] round 6 on PR #293): the
+    # fifth-file arms above inject the parsed world, so only a real file in
+    # a real `.github/workflows/` can prove read_tree lists what GitHub runs.
+    with tempfile.TemporaryDirectory() as td:
+        tree = pathlib.Path(td)
+        for rel, text in read_tree(root).items():
+            (tree / rel).parent.mkdir(parents=True, exist_ok=True)
+            (tree / rel).write_text(text, encoding="utf-8")
+        want = "`docs-check` must be carried by exactly one job across every workflow file"
+        # Both suffixes GitHub loads, each as a real file (maintainer [R0]
+        # on PR #293: a `.yml`-only fixture let `.yaml` discovery regress).
+        # A LITERAL pair, not WORKFLOW_SUFFIXES: looping over the constant
+        # this control exists to hold let a narrowed constant drop the
+        # `.yaml` fixture instead of failing it ([R4] round 6 on PR #293).
+        for suffix in (".yml", ".yaml"):
+            decoy = tree / WORKFLOW_DIR / f"decoy{suffix}"
+            decoy.write_text("name: decoy\non: [pull_request]\njobs:\n  decoy:\n"
+                             "    name: docs-check\n    runs-on: ubuntu-latest\n"
+                             "    steps:\n      - run: 'true'\n", encoding="utf-8")
+            findings = check(parse_world(read_tree(tree))).findings
+            if any(want in f and f"decoy{suffix}" in f for f in findings):
+                print(f"  ok   caught: #261 a fifth workflow file ON DISK "
+                      f"(decoy{suffix}) carries docs-check")
+            else:
+                problems.append(f"SELF-TEST FAILED [fifth-file-on-disk {suffix}]: "
+                                "read_tree did not list the extra workflow "
+                                f"file, got {findings or 'no findings'}")
+            checked_arms += 1
+            decoy.write_text("jobs: [\n", encoding="utf-8")
+            try:
+                parse_world(read_tree(tree))
+            except CannotRun:
+                print(f"  ok   cannot-run: unparseable extra workflow file "
+                      f"(decoy{suffix})")
+                checked_arms += 1
+            else:
+                problems.append(f"an unparseable extra workflow file (decoy{suffix}) "
+                                "was accepted instead of refused")
+            decoy.unlink()
 
     # --require-target-sha arms, over a temporary directory.
     sha = "0123456789abcdef0123456789abcdef01234567"
@@ -3462,7 +4495,8 @@ def selftest(root):
 
 def run_check(root):
     try:
-        c = check(parse_world(read_tree(root)))
+        parsed = parse_world(read_tree(root))
+        c = check(parsed)
     except CannotRun as exc:
         print(f"ci_events: cannot run: {exc}")
         return RC_CANNOT_RUN
@@ -3475,7 +4509,7 @@ def run_check(root):
               "contract item(s)")
         return RC_FINDING
     print(f"ci_events: OK ({c.checked} contract item(s) across "
-          f"{len(WORKFLOWS)} workflow files and {POLICY})")
+          f"{len(WORKFLOWS) + len(extra_workflows(parsed))} workflow files and {POLICY})")
     return RC_OK
 
 

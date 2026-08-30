@@ -77,6 +77,17 @@ jobs:
           python3 scripts/ci_events.py --require-default-branch \
             --event "$GITHUB_EVENT_NAME" --observed "$observed"
 
+      # The second hosted runner of the workflow contract (#261, maintainer
+      # review on PR #293). docs.yml's `docs-check` runs `--check` too, and
+      # it cannot police itself: `if: false` on that job skips the one step
+      # that would have refused it, and a skipped required context satisfies
+      # the ruleset. This job cannot be neutered the same way: a gate that
+      # is skipped or fails makes both required aggregates fail closed.
+      - name: Hold every workflow file to its contract
+        run: |
+          python3 -m pip install --quiet pyyaml
+          python3 scripts/ci_events.py --check
+
       - name: Decide whether this exact head needs the exhaustive gates
         id: gate
         env:
