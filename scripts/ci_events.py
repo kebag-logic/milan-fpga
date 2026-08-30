@@ -102,7 +102,14 @@ runner, a pinned step of rtl.yml's `full-ci-gate`, because docs.yml's
 job skips the only step that would have refused it, while a skipped
 required context satisfies the ruleset. A gate that fails or is skipped
 fails both required aggregates, so the finding reaches the merge bar from
-a job docs.yml does not gate.
+a job docs.yml does not gate. And the INHERITED EXECUTION ENVIRONMENT is held
+by exact allowlist at every level (maintainer [R0] on PR #293): none of the
+keys above is `env`, and `BASH_ENV: scripts/ci-bypass.sh` at the workflow,
+job or step level, with a checked-in file defining `python3() { return 0; }`,
+made every python gate of every protected job a no-op with every pinned
+character in place. Each file's workflow-level names, each job's absence of
+a job-level env, and each job's step-level names are what the tree carries
+today and nothing else; a blacklist of known variables is refused as a shape.
 
     scripts/ci_events.py --check        # the live tree against the contract
     scripts/ci_events.py --selftest     # mutation arms over in-memory copies
@@ -323,6 +330,38 @@ SELECTOR_READ = "python3 scripts/ci_scope.py <"
 #: an `env` on the JOB or on the WORKFLOW reaches that `gh` without appearing
 #: anywhere in the step (#209, O11/O12), so neither level names a `GH_*`.
 GH_ENV_PREFIX = "GH_"
+#: THE INHERITED EXECUTION ENVIRONMENT, by exact allowlist (maintainer [R0]
+#: on PR #293). check_job_keys holds the keys that decide whether a job runs;
+#: none of them is `env`, and a name set at the workflow or job level reaches
+#: every step's shell before any pinned script runs. `BASH_ENV` names a file
+#: bash sources at the start of every non-interactive shell, which is what a
+#: `run:` step is; a checked-in file holding `python3() { return 0; }` then
+#: turns every gate into a no-op with every pinned key and script character
+#: in place, and the required context is green. A blacklist of known names
+#: is the wrong shape for that: the runner's shell honours more than we can
+#: enumerate. So the environment is held the other way round - these are
+#: the only names each level may carry, and anything else is refused.
+INHERITED_WORKFLOW_ENV = {
+    RTL_FULL: ("VERILATOR_VERSION", "TSN_GEN_REV"),
+    RTL_FAST: ("VERILATOR_VERSION",),
+    DOCS: (),
+    ELABORATE: (),
+}
+#: Step-level env names each job's steps may carry, across all of its steps.
+#: The pinned steps bind these exactly elsewhere; this table closes the
+#: unpinned steps too, and a job absent from it may carry none.
+INHERITED_STEP_ENV = {
+    (RTL_FULL, GATE_JOB): ("EVENT_NAME", "GH_TOKEN", "PR_BASE_SHA", "PR_DRAFT"),
+    (RTL_FULL, "verilator-shards"): ("SHARD", "SHARDS", "TARGET_SHA"),
+    (RTL_FULL, "verilator-suites"): ("GATE_SHA", "SHARD_RESULT"),
+    (RTL_FULL, "yosys-shards"): ("TARGET_SHA",),
+    (RTL_FULL, "yosys-portability"): ("GATE_SHA", "SHARD_RESULT"),
+    (RTL_FAST, "changes"): ("EVENT_NAME", "PR_BASE_SHA", "PUSH_BEFORE_SHA"),
+    (RTL_FAST, "rtl-fast"): ("BDD_CONFORMANCE_RESULT", "CHANGES_RESULT",
+                             "VERILATOR_LINT_RESULT",
+                             "YOSYS_ELABORATION_RESULT"),
+    (ELABORATE, "elaborate"): ("EVENT_NAME", "PR_BASE_SHA"),
+}
 #: The shard denominator a worker passes and states in its display name.
 #: `matrix.total` is the act-compatible carrier. check_shard_denominator proves
 #: it is a singleton equal to the `matrix.shard` list's size and that every
@@ -1472,6 +1511,44 @@ def check_decide_step(c, path, gate):
            "place")
 
 
+def check_inherited_env(c, path, wf):
+    """The inherited execution environment of every job in this file, by
+    exact allowlist (maintainer [R0] on PR #293): the workflow-level `env`
+    names exactly INHERITED_WORKFLOW_ENV[path]; no job carries a job-level
+    `env`; and the names a job's steps bind stay inside INHERITED_STEP_ENV.
+    `BASH_ENV: scripts/ci-bypass.sh` at any of the three levels, with a
+    checked-in file defining `python3() { return 0; }`, made every python
+    gate of every protected job a no-op with 273 items and no finding."""
+    want = set(INHERITED_WORKFLOW_ENV.get(path, ()))
+    top = wf.get("env") if isinstance(wf.get("env"), dict) else {}
+    have = {str(k) for k in top}
+    c.item(have == want, path,
+           f"the workflow-level `env` must name exactly "
+           f"{sorted(want) or 'nothing'} (found {sorted(have) or 'nothing'}): "
+           "a name set here reaches every step's shell of every job before "
+           "any pinned script runs, and `BASH_ENV` makes a checked-in file "
+           "the startup script of each of them")
+    for jid, job in jobs(wf).items():
+        if not isinstance(job, dict):
+            continue
+        jenv = job.get("env")
+        names = sorted(str(k) for k in jenv) if isinstance(jenv, dict) else []
+        c.item("env" not in job, path,
+               f"job `{jid}` must carry no job-level `env` (found "
+               f"{names or jenv!r}): it reaches every step's shell before any "
+               "pinned script runs, and `BASH_ENV` there turns every gate "
+               "into a shell function that returns 0")
+        allowed = set(INHERITED_STEP_ENV.get((path, jid), ()))
+        for n, step in enumerate(steps(job), 1):
+            senv = step.get("env") if isinstance(step.get("env"), dict) else {}
+            surplus = sorted(str(k) for k in senv if str(k) not in allowed)
+            c.item(not surplus, path,
+                   f"job `{jid}` step {n} ({step_label(step)}) `env` names "
+                   f"{surplus} outside this job's allowlist "
+                   f"{sorted(allowed) or '(none)'}: a step-level `BASH_ENV` "
+                   "reaches that step's shell the same way")
+
+
 def check_no_gh_env(c, path, where, env):
     """No `GH_*` above the assert step. Its own env is pinned to exactly
     GH_TOKEN, but a job- or workflow-level `env: GH_HOST` reaches its `gh`
@@ -2097,6 +2174,8 @@ def check(parsed):
     check_rtl_fast(c, parsed[RTL_FAST])
     check_docs(c, parsed[DOCS])
     check_elaborate(c, parsed[ELABORATE])
+    for rel in WORKFLOWS:
+        check_inherited_env(c, rel, parsed[rel])
     check_global_carriers(c, parsed)
     return c
 
@@ -2318,6 +2397,28 @@ def _mutations():
             jobs(w[path])["decoy"] = {"name": name, "runs-on": "ubuntu-latest",
                                       "strategy": {"matrix": matrix},
                                       "steps": [{"run": "true"}]}
+        return f
+
+    def m_job_env(path, jid, name, value="scripts/ci-bypass.sh"):
+        # The inherited environment (maintainer [R0] on PR #293).
+        def f(w):
+            jobs(w[path])[jid]["env"] = {name: value}
+        return f
+
+    def m_workflow_env(path, name, value="scripts/ci-bypass.sh"):
+        def f(w):
+            env = dict(w[path].get("env") or {})
+            env[name] = value
+            w[path]["env"] = env
+        return f
+
+    def m_step_env(path, jid, needle, name, value="scripts/ci-bypass.sh"):
+        def f(w):
+            found = [s for s in job_steps(w, path, jid) if needle in step_text(s)]
+            assert len(found) == 1, f"fixture drift: {needle!r} in {jid}"
+            env = dict(found[0].get("env") or {})
+            env[name] = value
+            found[0]["env"] = env
         return f
 
     def m_swap_carrier(path, jid):
@@ -3736,6 +3837,40 @@ def _mutations():
         ("#261 gate contract step moved after the decision",
          m_contract_step_after_decide,
          "step 4 must be the contract step"),
+        # The inherited execution environment (maintainer [R0] on PR #293).
+        ("#261 docs-check job-level BASH_ENV",
+         m_job_env(DOCS, "docs-check", "BASH_ENV"),
+         "job `docs-check` must carry no job-level `env`"),
+        ("#261 wire-accountability job-level BASH_ENV",
+         m_job_env(DOCS, "wire-accountability", "BASH_ENV"),
+         "job `wire-accountability` must carry no job-level `env`"),
+        ("#261 elaborate job-level BASH_ENV",
+         m_job_env(ELABORATE, "elaborate", "BASH_ENV"),
+         "job `elaborate` must carry no job-level `env`"),
+        ("#261 full-ci-gate job-level BASH_ENV",
+         m_job_env(RTL_FULL, GATE_JOB, "BASH_ENV"),
+         f"job `{GATE_JOB}` must carry no job-level `env`"),
+        ("#261 docs-check job-level env with a benign name",
+         m_job_env(DOCS, "docs-check", "PYTHONWARNINGS", "ignore"),
+         "job `docs-check` must carry no job-level `env`"),
+        ("#261 docs.yml workflow-level BASH_ENV",
+         m_workflow_env(DOCS, "BASH_ENV"),
+         "the workflow-level `env` must name exactly nothing"),
+        ("#261 rtl.yml workflow-level BASH_ENV",
+         m_workflow_env(RTL_FULL, "BASH_ENV"),
+         "the workflow-level `env` must name exactly ['TSN_GEN_REV', 'VERILATOR_VERSION']"),
+        ("#261 rtl-fast.yml workflow-level env with a benign name",
+         m_workflow_env(RTL_FAST, "PIP_QUIET", "1"),
+         "the workflow-level `env` must name exactly ['VERILATOR_VERSION']"),
+        ("#261 docs-check ci_events step-level BASH_ENV",
+         m_step_env(DOCS, "docs-check", "scripts/ci_events.py --check", "BASH_ENV"),
+         "`env` names ['BASH_ENV'] outside this job's allowlist (none)"),
+        ("#261 elaborate builder-call step-level BASH_ENV",
+         m_step_env(ELABORATE, "elaborate", BUILDER_CALL, "BASH_ENV"),
+         "`env` names ['BASH_ENV'] outside this job's allowlist ['EVENT_NAME', 'PR_BASE_SHA']"),
+        ("#261 wire-accountability gate step-level BASH_ENV",
+         m_step_env(DOCS, "wire-accountability", "check_wire_accountability", "BASH_ENV"),
+         "`env` names ['BASH_ENV'] outside this job's allowlist (none)"),
     ]
 
 
@@ -3814,28 +3949,34 @@ def selftest(root):
         for rel, text in read_tree(root).items():
             (tree / rel).parent.mkdir(parents=True, exist_ok=True)
             (tree / rel).write_text(text, encoding="utf-8")
-        decoy = tree / WORKFLOW_DIR / "decoy.yml"
-        decoy.write_text("name: decoy\non: [pull_request]\njobs:\n  decoy:\n"
-                         "    name: docs-check\n    runs-on: ubuntu-latest\n"
-                         "    steps:\n      - run: 'true'\n", encoding="utf-8")
-        findings = check(parse_world(read_tree(tree))).findings
         want = "`docs-check` must be carried by exactly one job across every workflow file"
-        if any(want in f and "decoy.yml" in f for f in findings):
-            print("  ok   caught: #261 a fifth workflow file ON DISK carries docs-check")
-        else:
-            problems.append("SELF-TEST FAILED [fifth-file-on-disk]: read_tree "
-                            "did not list the extra workflow file, got "
-                            f"{findings or 'no findings'}")
-        checked_arms += 1
-        decoy.write_text("jobs: [\n", encoding="utf-8")
-        try:
-            parse_world(read_tree(tree))
-        except CannotRun:
-            print("  ok   cannot-run: unparseable extra workflow file")
+        # Both suffixes GitHub loads, each as a real file (maintainer [R0]
+        # on PR #293: a `.yml`-only fixture let `.yaml` discovery regress).
+        for suffix in WORKFLOW_SUFFIXES:
+            decoy = tree / WORKFLOW_DIR / f"decoy{suffix}"
+            decoy.write_text("name: decoy\non: [pull_request]\njobs:\n  decoy:\n"
+                             "    name: docs-check\n    runs-on: ubuntu-latest\n"
+                             "    steps:\n      - run: 'true'\n", encoding="utf-8")
+            findings = check(parse_world(read_tree(tree))).findings
+            if any(want in f and f"decoy{suffix}" in f for f in findings):
+                print(f"  ok   caught: #261 a fifth workflow file ON DISK "
+                      f"(decoy{suffix}) carries docs-check")
+            else:
+                problems.append(f"SELF-TEST FAILED [fifth-file-on-disk {suffix}]: "
+                                "read_tree did not list the extra workflow "
+                                f"file, got {findings or 'no findings'}")
             checked_arms += 1
-        else:
-            problems.append("an unparseable extra workflow file was accepted "
-                            "instead of refused")
+            decoy.write_text("jobs: [\n", encoding="utf-8")
+            try:
+                parse_world(read_tree(tree))
+            except CannotRun:
+                print(f"  ok   cannot-run: unparseable extra workflow file "
+                      f"(decoy{suffix})")
+                checked_arms += 1
+            else:
+                problems.append(f"an unparseable extra workflow file (decoy{suffix}) "
+                                "was accepted instead of refused")
+            decoy.unlink()
 
     # --require-target-sha arms, over a temporary directory.
     sha = "0123456789abcdef0123456789abcdef01234567"
