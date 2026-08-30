@@ -153,7 +153,7 @@ of surfacing as a nightly that silently stopped. `ci_events.py --check` holds
 the assertion in its fail-closed shape. That shape is not only what the step
 says: a check that reads a step's contents and nothing about the conditions
 under which it runs holds the wrong perimeter, which is what #209 found. So it
-is exactly these ten things:
+is exactly these eleven things:
 
 1. **The script text.** The step's `run:` is pinned verbatim (whitespace
    aside) to three lines: `set -euo pipefail`, one unconditional
@@ -315,9 +315,26 @@ is exactly these ten things:
     `${{ needs.<job>.result }}`; and its normalized script equals the
     canonical form derived from the same list, whose `case` accepts exactly
     `success` and `skipped`. Each public check name (`verilator-suites`,
-    `yosys-portability`, `rtl-fast`, `elaborate`) must be carried by exactly
+    `yosys-portability`, `rtl-fast`, `elaborate`, `docs-check`,
+    `wire-accountability`, `docs-check-no-git`) must be carried by exactly
     one job, so a second job renamed to a required name cannot make the
     ruleset's binding ambiguous.
+11. **The non-RTL required contexts.** `docs-check`, `wire-accountability`,
+    `docs-check-no-git` and `elaborate` are four of the seven names the merge
+    bar reads, and their workflows have no aggregate: the carrier job IS the
+    required context, and a skipped required context satisfies the ruleset.
+    Both workflows sat outside items 1--10 (#261, found by the round-6 review
+    of PR #239): `if: false` on `docs-check` retired this gate itself, since
+    docs.yml is the only workflow that runs `--check`, and
+    `continue-on-error` on `elaborate` retired the elaboration gate, each
+    with `checked=171 findings=0`. So the job carrying each of those names is
+    held exactly as an RTL contributor is: no `needs`, no `if`, no
+    `continue-on-error`, no `defaults`, and no top-level `defaults` on the
+    workflow, each refusal naming the job and the key. The builder contract
+    already held `docs-check` and `elaborate` for its own reason; the rule
+    now reaches `wire-accountability` and `docs-check-no-git`, which no
+    builder step touches, and the three documentation names join the
+    one-carrier rule of item 10.
 
 `--selftest` covers, one at a time: the step removed, the token missing, the
 live read replaced by an echo, the event not passed, `|| true`, the decoy
@@ -362,9 +379,13 @@ left outside them; `bdd-conformance` itself given `if: false`, a
 `continue-on-error` and a `defaults.run.shell`; a `.result` read from a job
 outside `needs`, in the dotted and in the bracket spelling; `verilator-lint`
 renamed to the public name `rtl-fast`; a job-level `env` on the fast
-selector; a whitespace-only reformatting of all five
-canonical scripts that must still pass; and the decision itself for every
-event class.
+selector; each of `docs-check`, `wire-accountability`, `docs-check-no-git`
+and `elaborate` given a job-level `if: false`, a `continue-on-error` and a
+`needs`, the two the builder contract never touches given a
+`defaults.run.shell` too, a second job carrying each of the four names, and
+each documentation carrier renamed; a whitespace-only reformatting of all
+five canonical scripts that must still pass; and the decision itself for
+every event class.
 
 ## One authoritative SHA
 
@@ -804,6 +825,10 @@ would otherwise satisfy the ruleset. Do not add workflow-level `paths`,
 never starts leaves its required name pending. The three documentation jobs
 are independent required siblings, so a failure in `wire-accountability` or
 `docs-check-no-git` blocks the PR even when `docs-check` itself succeeds.
+`scripts/ci_events.py --check` holds each of them, and `elaborate`, to the
+same rule as the RTL jobs (#261): the carrier of a required name carries no
+`needs`, `if`, `continue-on-error` or `defaults`, and exactly one job
+carries each name.
 
 ## Issue closing on merge
 
