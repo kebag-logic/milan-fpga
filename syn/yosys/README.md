@@ -110,6 +110,15 @@ figure quoted from this output is only reproducible with it. The preload
 reaches `yosys` and the `abc` it spawns; `sv2v` and the `python3` helpers are
 left alone and keep whatever the caller's environment gives them.
 
+The rules live in one place, [`malloc.sh`](malloc.sh), and `ooc.sh` below
+sources the same file and honours the same `YOSYS_MALLOC` values. That flow
+gains more, because `synth_xilinx -flatten` is the heavier program — 235.09 s
+to 177.85 s over `KL_pp_shadow`, `KL_crf_rx` and `tcam` together (−24.3%),
+with every reported area row identical to the digit. `run.sh --list` does
+**not** source it: `check_list_hermetic.sh` proves `--list` reads nothing but
+`run.sh` and `scripts/yosys_shards.py`, and that contract outranks the tidiness
+of an unconditional `source`.
+
 ### `read_verilog -defer`: right instrument, wrong script
 
 `-defer` postpones turning a parsed module into RTLIL until something
