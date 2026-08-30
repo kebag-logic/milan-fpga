@@ -318,7 +318,19 @@ is exactly these eleven things:
     `yosys-portability`, `rtl-fast`, `elaborate`, `docs-check`,
     `wire-accountability`, `docs-check-no-git`) must be carried by exactly
     one job, so a second job renamed to a required name cannot make the
-    ruleset's binding ambiguous.
+    ruleset's binding ambiguous. The rule reads a job's `name` as a literal,
+    and GitHub evaluates it as an expression, so a `name` containing `${{`
+    is held too ([R4] on PR #293): it may reference nothing but
+    `${{ matrix.<key> }}` lists of the job's own literal `strategy.matrix`
+    -- the sharded workers' `Verilator shard ${{ matrix.shard }}/${{
+    matrix.total }}` is the shape this tree carries -- every rendering is
+    enumerated and refused if it equals a required name in any file, and
+    any other expression (`${{ 'docs-check' }}`, a `github`, `vars` or
+    `needs` context, a matrix carrying `include`/`exclude` or built by
+    `fromJSON`) is refused outright because it cannot be enumerated here.
+    `name: ${{ 'docs-check' }}` on a `run: true` job published a second
+    check run under a required name that no literal comparison saw, in all
+    four workflow files.
 11. **The non-RTL required contexts.** `docs-check`, `wire-accountability`,
     `docs-check-no-git` and `elaborate` are four of the seven names the merge
     bar reads, and their workflows have no aggregate: the carrier job IS the
@@ -399,7 +411,9 @@ and `elaborate` given a job-level `if: false`, a `continue-on-error` and a
 `needs`, the two the builder contract never touches given a
 `defaults.run.shell` too, a second job carrying each of the four names,
 each documentation carrier renamed, and each of the four carriers renamed
-away while a `run: true` job takes its name; a whitespace-only reformatting of all
+away while a `run: true` job takes its name, a decoy whose `name` is an
+expression evaluating to a required name in each of the four files, and a
+matrix job whose `name` renders one; a whitespace-only reformatting of all
 five canonical scripts that must still pass; and the decision itself for
 every event class.
 

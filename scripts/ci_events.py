@@ -110,6 +110,7 @@ from __future__ import annotations
 
 import argparse
 import copy
+import itertools
 import pathlib
 import re
 import sys
@@ -330,6 +331,47 @@ PUBLIC_NAMES = {
 #: direct order keeps that local bootstrap serial without weakening either
 #: aggregate: the later job carries `always()` and still audits its own shards.
 ACT_ARTIFACT_AGGREGATE_ORDER = PUBLIC_NAMES[RTL_FULL]
+#: Every required name in every file: a rendered display name equal to any of
+#: them, in any file, is a second carrier ([R4] on PR #293).
+ALL_PUBLIC_NAMES = frozenset(n for names in PUBLIC_NAMES.values() for n in names)
+EXPRESSION_RE = re.compile(r"\$\{\{.*?\}\}")
+MATRIX_REF_RE = re.compile(r"\$\{\{\s*matrix\.([A-Za-z_][A-Za-z0-9_-]*)\s*\}\}")
+
+
+def rendered_names(job):
+    """Every display name an expression-valued `name` can render, enumerated
+    from the job's own literal `strategy.matrix`; None when the name uses
+    anything but `${{ matrix.<key> }}`, when a referenced key is not a
+    non-empty list of scalars, or when the matrix carries `include` or
+    `exclude` (either can add a combination this enumeration never saw)."""
+    name = job.get("name") if isinstance(job, dict) else None
+    if not isinstance(name, str):
+        return None
+    keys = []
+    for expr in EXPRESSION_RE.findall(name):
+        m = MATRIX_REF_RE.fullmatch(expr)
+        if m is None:
+            return None
+        if m.group(1) not in keys:
+            keys.append(m.group(1))
+    strat = job.get("strategy")
+    matrix = strat.get("matrix") if isinstance(strat, dict) else None
+    if not isinstance(matrix, dict) or "include" in matrix or "exclude" in matrix:
+        return None
+    lists = []
+    for key in keys:
+        values = matrix.get(key)
+        if (not isinstance(values, list) or not values
+                or not all(isinstance(v, (str, int, float, bool)) for v in values)):
+            return None
+        lists.append([str(v) for v in values])
+    out = []
+    for combo in itertools.product(*lists):
+        binding = dict(zip(keys, combo))
+        out.append(EXPRESSION_RE.sub(
+            lambda m: binding[MATRIX_REF_RE.fullmatch(m.group(0)).group(1)],
+            name))
+    return out
 ACT_CI_SELFTEST = "python3 scripts/act_ci.py --selftest"
 #: ``test_builder.py`` invokes both processor-image/source gates and the
 #: Vivado datapath-manifest consumer (syn/ooc/dp_srcs.py), which resolves the
@@ -751,6 +793,33 @@ def check_public_names(c, path, wf):
     under the required name, and which of the two the ruleset binds is
     ambiguous."""
     all_jobs = jobs(wf)
+    # A display name is read here as a literal string, and GitHub evaluates
+    # `jobs.<id>.name` as an expression ([R4] on PR #293): `name: ${{ 'X' }}`
+    # publishes a check run named X that no literal comparison sees, so a
+    # `run: true` job spelled that way was a second carrier of every
+    # required name with no finding. The only expression names this tree
+    # carries are the sharded workers' `... shard ${{ matrix.shard }}/${{
+    # matrix.total }}`, so the rule is: a `name` may reference nothing but
+    # `matrix.<key>` lists of the job's own literal `strategy.matrix`, every
+    # rendering is enumerated and none may be a required name, and any other
+    # expression is refused outright, because it cannot be enumerated here.
+    for jid, j in all_jobs.items():
+        name = j.get("name") if isinstance(j, dict) else None
+        if not (isinstance(name, str) and "${{" in name):
+            continue
+        rendered = rendered_names(j)
+        c.item(rendered is not None, path,
+               f"job `{jid}` `name` must be a literal or reference only "
+               f"`${{{{ matrix.<key> }}}}` lists of its own `strategy.matrix` "
+               f"(found {name!r}): any other expression evaluates on the "
+               "runner to a display name this rule cannot read, so it can "
+               "publish a check run under a required name unseen")
+        for got in rendered or ():
+            c.item(got not in ALL_PUBLIC_NAMES, path,
+                   f"job `{jid}` `name` renders `{got}` for one matrix "
+                   "combination, which is a required check name: a matrix "
+                   "job publishing that name is a second carrier the "
+                   "literal comparison above cannot see")
     for want in PUBLIC_NAMES.get(path, ()):
         carriers = [jid for jid, j in all_jobs.items()
                     if display_name(jid, j) == want]
@@ -2069,6 +2138,26 @@ def _mutations():
                                       "steps": [{"run": "true"}]}
         return f
 
+    def m_expression_carrier(path, name):
+        # The decoy's `name` is an EXPRESSION that evaluates to the required
+        # name on the runner ([R4] on PR #293); the real job is untouched.
+        def f(w):
+            jobs(w[path])["decoy"] = {"name": "${{ '" + name + "' }}",
+                                      "runs-on": "ubuntu-latest",
+                                      "steps": [{"run": "true"}]}
+        return f
+
+    def m_matrix_carrier(path, name):
+        # A matrix job whose `name` RENDERS the required name from its own
+        # matrix list ([R4] on PR #293): the expression is the allowed
+        # `matrix.<key>` form, so only enumeration can see the collision.
+        def f(w):
+            jobs(w[path])["decoy"] = {"name": "${{ matrix.n }}",
+                                      "runs-on": "ubuntu-latest",
+                                      "strategy": {"matrix": {"n": [name]}},
+                                      "steps": [{"run": "true"}]}
+        return f
+
     def m_swap_carrier(path, jid):
         # The real job renamed away and a `run: true` stub given the required
         # name ([R3] on PR #293): the unique carrier has no neuter key, the
@@ -3373,6 +3462,25 @@ def _mutations():
         ("#261 `elaborate` renamed away while a stub takes the name",
          m_swap_carrier(ELABORATE, "elaborate"),
          "required context `elaborate` must be carried by the job of that id"),
+        # An expression-valued display name, one arm per file ([R4] on #293).
+        ("#261 docs decoy named by an expression",
+         m_expression_carrier(DOCS, "docs-check"),
+         "job `decoy` `name` must be a literal or reference only"),
+        ("#261 elaborate decoy named by an expression",
+         m_expression_carrier(ELABORATE, "elaborate"),
+         "job `decoy` `name` must be a literal or reference only"),
+        ("#261 rtl-fast decoy named by an expression",
+         m_expression_carrier(RTL_FAST, "rtl-fast"),
+         "job `decoy` `name` must be a literal or reference only"),
+        ("#261 rtl-full decoy named by an expression",
+         m_expression_carrier(RTL_FULL, "verilator-suites"),
+         "job `decoy` `name` must be a literal or reference only"),
+        ("#261 docs decoy renders a required name from its own matrix",
+         m_matrix_carrier(DOCS, "docs-check"),
+         "job `decoy` `name` renders `docs-check` for one matrix combination"),
+        ("#261 rtl-full decoy renders a required name from its own matrix",
+         m_matrix_carrier(RTL_FULL, "yosys-portability"),
+         "job `decoy` `name` renders `yosys-portability` for one matrix combination"),
     ]
 
 
