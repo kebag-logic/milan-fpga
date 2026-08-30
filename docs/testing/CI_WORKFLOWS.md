@@ -451,7 +451,9 @@ and `elaborate` given a job-level `if: false`, a `continue-on-error` and a
 each documentation carrier renamed, each of the four carriers renamed
 away while a `run: true` job takes its name, a fifth workflow file carrying
 `docs-check` by name and `elaborate` by job id and naming a job by an
-expression, the gate's contract step removed, given `if: false`, given a
+expression -- in the parsed world and, for the directory scan itself, as a
+real file beside copies of the five, with an unparseable one refused as
+cannot-run -- the gate's contract step removed, given `if: false`, given a
 `continue-on-error`, made to swallow its exit status and moved behind the
 decision, a decoy whose `name` is an
 expression evaluating to a required name in each of the four files, a
@@ -522,7 +524,9 @@ default-branch assertion in its fail-closed shape, the trigger lists, the
 says, and the cron time string on this page matches the YAML. Its
 `--selftest` removes or alters each item on in-memory copies and requires
 the check to catch every one, and fails if the checker is stubbed to find
-nothing. Both run in the hosted docs job.
+nothing. `--check` runs in the hosted docs job and, since PR #293, in the
+gate job of the exhaustive workflow (item 4 below); `--selftest` runs in the
+docs job only, so the vacuity control has one hosted runner.
 
 ## Elaboration
 

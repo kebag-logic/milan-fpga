@@ -2076,7 +2076,13 @@ def check_global_carriers(c, parsed):
     for name in sorted(ALL_PUBLIC_NAMES):
         found = carriers.get(name, [])
         want = (PUBLIC_NAME_OWNER[name], name)
-        c.item(found == [want], PUBLIC_NAME_OWNER[name],
+        # Carriers inside the owning file are the per-file rules' business
+        # (one-carrier, ownership, id): reporting them here again printed
+        # every owner-file mutant twice ([R3] round 6 on PR #293). This item
+        # holds what only a global view can see - a carrier in any OTHER
+        # file, inventoried or not.
+        foreign = [entry for entry in found if entry[0] != want[0]]
+        c.item(not foreign, PUBLIC_NAME_OWNER[name],
                f"required check name `{name}` must be carried by exactly "
                f"one job across every workflow file, `{want[1]}` in "
                f"`{want[0]}` (found {found or 'none'} over "
@@ -3799,6 +3805,37 @@ def selftest(root):
             checked_arms += 1
         else:
             problems.append(f"{name} was accepted instead of refused")
+
+    # The directory scan itself, on disk ([R3] round 6 on PR #293): the
+    # fifth-file arms above inject the parsed world, so only a real file in
+    # a real `.github/workflows/` can prove read_tree lists what GitHub runs.
+    with tempfile.TemporaryDirectory() as td:
+        tree = pathlib.Path(td)
+        for rel, text in read_tree(root).items():
+            (tree / rel).parent.mkdir(parents=True, exist_ok=True)
+            (tree / rel).write_text(text, encoding="utf-8")
+        decoy = tree / WORKFLOW_DIR / "decoy.yml"
+        decoy.write_text("name: decoy\non: [pull_request]\njobs:\n  decoy:\n"
+                         "    name: docs-check\n    runs-on: ubuntu-latest\n"
+                         "    steps:\n      - run: 'true'\n", encoding="utf-8")
+        findings = check(parse_world(read_tree(tree))).findings
+        want = "`docs-check` must be carried by exactly one job across every workflow file"
+        if any(want in f and "decoy.yml" in f for f in findings):
+            print("  ok   caught: #261 a fifth workflow file ON DISK carries docs-check")
+        else:
+            problems.append("SELF-TEST FAILED [fifth-file-on-disk]: read_tree "
+                            "did not list the extra workflow file, got "
+                            f"{findings or 'no findings'}")
+        checked_arms += 1
+        decoy.write_text("jobs: [\n", encoding="utf-8")
+        try:
+            parse_world(read_tree(tree))
+        except CannotRun:
+            print("  ok   cannot-run: unparseable extra workflow file")
+            checked_arms += 1
+        else:
+            problems.append("an unparseable extra workflow file was accepted "
+                            "instead of refused")
 
     # --require-target-sha arms, over a temporary directory.
     sha = "0123456789abcdef0123456789abcdef01234567"
