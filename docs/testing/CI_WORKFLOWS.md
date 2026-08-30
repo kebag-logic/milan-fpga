@@ -430,7 +430,11 @@ is exactly these twelve things:
     tomorrow. So the KEY SETS are held the same way: a workflow may carry
     only `name`, `on`, `concurrency`, `env` and `jobs`; a job only `name`,
     `runs-on`, `timeout-minutes`, `steps`, `needs`, `if`, `outputs` and
-    `strategy`; a step only `name`, `run`, `uses`, `with`, `id`, `env`,
+    `strategy` -- and that rule reaches EVERY job, an added standalone one
+    included: `defaults` and `continue-on-error` are refused here as well
+    as by the per-class rules, because those classify only the jobs they
+    know, and a new job carried either with no finding (maintainer [R0]
+    round 4 on PR #293); a step only `name`, `run`, `uses`, `with`, `id`, `env`,
     `if`, `continue-on-error` and `working-directory` -- what the tree
     carries today -- and a surplus key is refused by name whatever it does.
     The runner sets the same inherited environment from INSIDE a job too

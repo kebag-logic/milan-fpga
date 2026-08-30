@@ -1698,7 +1698,13 @@ def check_key_allowlists(c, path, wf):
     c.item(not extra, path, f"the workflow may carry only the keys "
            f"{list(WORKFLOW_KEYS)} (surplus: {extra}): a key outside that "
            "set decides how or where every job runs")
-    covered = set(JOB_NEUTER_KEYS) | {"env"}
+    # `env` is the inherited-environment rule's business; the other neuter
+    # keys are NOT excused here (maintainer [R0] round 4 on PR #293): the
+    # per-class rules report them only on the jobs they classify, so an
+    # ADDED standalone job carried `defaults` or `continue-on-error` with no
+    # finding. A held job with one of them now draws two true lines, its
+    # own rule's and this one's, which is the cheaper defect.
+    covered = {"env", "needs", "if"}
     for jid, job in jobs(wf).items():
         if not isinstance(job, dict):
             continue
@@ -2592,6 +2598,12 @@ def _mutations():
             env[name] = value
             w[path]["env"] = env
         return f
+
+    def ce_add(w, path, key, value):
+        # An ADDED standalone job carrying a neuter key (maintainer [R0]
+        # round 4 on PR #293): no per-class rule classifies it.
+        jobs(w[path])["standalone"] = {"runs-on": "ubuntu-latest", key: value,
+                                       "steps": [{"run": "true"}]}
 
     def m_job_key_any(path, jid, key, value):
         # Any job key outside the allowlist ([R4] round 6 on PR #293).
@@ -4167,6 +4179,18 @@ def _mutations():
         ("#261 wire-accountability job outputs",
          m_job_key_any(DOCS, "wire-accountability", "outputs", {"x": "1"}),
          "job `wire-accountability` may carry only the keys"),
+        ("#261 rtl.yml standalone job with defaults",
+         (lambda w: ce_add(w, RTL_FULL, "defaults", {"run": {"shell": "bash -n {0}"}})),
+         "job `standalone` may carry only the keys"),
+        ("#261 docs.yml standalone job with defaults",
+         (lambda w: ce_add(w, DOCS, "defaults", {"run": {"shell": "bash -n {0}"}})),
+         "job `standalone` may carry only the keys"),
+        ("#261 elaborate.yml standalone job with continue-on-error",
+         (lambda w: ce_add(w, ELABORATE, "continue-on-error", True)),
+         "job `standalone` may carry only the keys"),
+        ("#261 rtl-fast.yml standalone job with continue-on-error",
+         (lambda w: ce_add(w, RTL_FAST, "continue-on-error", True)),
+         "job `standalone` may carry only the keys"),
         ("#261 docs-check ci_events step working-directory",
          m_step_key_any(DOCS, "docs-check", "scripts/ci_events.py --check", "working-directory", "sub"),
          "may carry only the keys"),
