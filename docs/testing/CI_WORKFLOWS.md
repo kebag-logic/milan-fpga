@@ -336,7 +336,11 @@ is exactly these eleven things:
     enumeration would see the text ([R3] round 4 on PR #293).
     `name: ${{ 'docs-check' }}` on a `run: true` job published a second
     check run under a required name that no literal comparison saw, in all
-    four workflow files.
+    four workflow files. And the count is per name, not per file: a job in
+    any of the four files whose display name is a required name another
+    workflow owns is refused, because the merge bar binds the name and a
+    docs.yml job literally named `elaborate` is a second `elaborate` on
+    every pull request the two workflows share ([R4] round 2 on PR #293).
 11. **The non-RTL required contexts.** `docs-check`, `wire-accountability`,
     `docs-check-no-git` and `elaborate` are four of the seven names the merge
     bar reads, and their workflows have no aggregate: the carrier job IS the
@@ -422,7 +426,8 @@ expression evaluating to a required name in each of the four files, a
 matrix job whose `name` renders one (its own file's and another file's), and
 the enumeration's edges - a matrix value that is itself an expression, an
 unmatched `${{`, `include`, a `fromJSON` matrix, a missing key, an empty
-list; a whitespace-only reformatting of all
+list - and a literal decoy carrying a required name another file owns, in
+each of the four files; a whitespace-only reformatting of all
 five canonical scripts that must still pass; and the decision itself for
 every event class.
 

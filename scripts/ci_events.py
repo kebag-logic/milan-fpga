@@ -334,6 +334,10 @@ ACT_ARTIFACT_AGGREGATE_ORDER = PUBLIC_NAMES[RTL_FULL]
 #: Every required name in every file: a rendered display name equal to any of
 #: them, in any file, is a second carrier ([R4] on PR #293).
 ALL_PUBLIC_NAMES = frozenset(n for names in PUBLIC_NAMES.values() for n in names)
+#: Which file owns each required name: the merge bar binds a check-run NAME,
+#: not a file, so a docs.yml job literally named `elaborate` is a second
+#: `elaborate` on the same pull request ([R4] round 2 on PR #293).
+PUBLIC_NAME_OWNER = {n: path for path, names in PUBLIC_NAMES.items() for n in names}
 EXPRESSION_RE = re.compile(r"\$\{\{.*?\}\}", re.DOTALL)
 MATRIX_REF_RE = re.compile(r"\$\{\{\s*matrix\.([A-Za-z_][A-Za-z0-9_-]*)\s*\}\}")
 
@@ -810,6 +814,14 @@ def check_public_names(c, path, wf):
     # `matrix.<key>` lists of the job's own literal `strategy.matrix`, every
     # rendering is enumerated and none may be a required name, and any other
     # expression is refused outright, because it cannot be enumerated here.
+    for jid, j in all_jobs.items():
+        shown = display_name(jid, j)
+        owner = PUBLIC_NAME_OWNER.get(shown)
+        c.item(owner is None or owner == path, path,
+               f"job `{jid}` carries the required check name `{shown}` owned "
+               f"by {owner}: the merge bar binds a name, not a file, so this "
+               "job is a second carrier of that context on every pull request "
+               "the two workflows share")
     for jid, j in all_jobs.items():
         name = j.get("name") if isinstance(j, dict) else None
         if not (isinstance(name, str) and "${{" in name):
@@ -2162,6 +2174,14 @@ def _mutations():
             jobs(w[path])["decoy"] = {"name": "${{ matrix.n }}",
                                       "runs-on": "ubuntu-latest",
                                       "strategy": {"matrix": {"n": [name]}},
+                                      "steps": [{"run": "true"}]}
+        return f
+
+    def m_foreign_carrier(path, name):
+        # A literal decoy carrying a required name ANOTHER file owns ([R4]
+        # round 2 on PR #293): the per-file carrier count never sees it.
+        def f(w):
+            jobs(w[path])["decoy"] = {"name": name, "runs-on": "ubuntu-latest",
                                       "steps": [{"run": "true"}]}
         return f
 
@@ -3521,6 +3541,19 @@ def _mutations():
         ("#261 docs decoy renders another file's required name",
          m_matrix_decoy(DOCS, "${{ matrix.n }}", {"n": ["x", "verilator-suites"]}),
          "job `decoy` `name` renders `verilator-suites` for one matrix combination"),
+        # A literal name another file owns, one arm per file ([R4] round 2).
+        ("#261 docs decoy literally named elaborate",
+         m_foreign_carrier(DOCS, "elaborate"),
+         "job `decoy` carries the required check name `elaborate` owned by"),
+        ("#261 elaborate decoy literally named docs-check-no-git",
+         m_foreign_carrier(ELABORATE, "docs-check-no-git"),
+         "job `decoy` carries the required check name `docs-check-no-git` owned by"),
+        ("#261 rtl-fast decoy literally named verilator-suites",
+         m_foreign_carrier(RTL_FAST, "verilator-suites"),
+         "job `decoy` carries the required check name `verilator-suites` owned by"),
+        ("#261 rtl-full decoy literally named docs-check",
+         m_foreign_carrier(RTL_FULL, "docs-check"),
+         "job `decoy` carries the required check name `docs-check` owned by"),
     ]
 
 
