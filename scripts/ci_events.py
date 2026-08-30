@@ -88,8 +88,12 @@ on `docs-check` retired this gate itself and `continue-on-error` on
 `elaborate` retired the elaboration gate, each with every required context
 satisfied, because a skipped required context satisfies the ruleset. So the
 carrier of every public name in every workflow is held to the same rule as
-the RTL jobs -- no `needs`, `if`, `continue-on-error` or `defaults` -- and
-the three documentation names join the one-carrier rule.
+the RTL jobs -- no `needs`, `if`, `continue-on-error` or `defaults` -- the
+three documentation names join the one-carrier rule, and the job whose id is
+the public name must be the one carrying it ([R3] on PR #293): the content
+checks read that job by id, and a stub carrying the name under another id
+was the required context with 233 items and no finding. The gate steps
+inside those jobs are #295.
 
     scripts/ci_events.py --check        # the live tree against the contract
     scripts/ci_events.py --selftest     # mutation arms over in-memory copies
@@ -758,9 +762,10 @@ def check_public_names(c, path, wf):
                "ambiguous")
 
 
-def check_required_context_carriers(c, path, wf):
-    """Each job that carries a public check name runs as written: no `needs`,
-    no `if`, no `continue-on-error`, no `defaults` (#261).
+def check_required_context_carriers(c, path, wf, held_by_builder=()):
+    """Each public check name is carried by the job of that id, and that job
+    runs as written: no `needs`, no `if`, no `continue-on-error`, no
+    `defaults` (#261).
 
     The RTL workflows reach every job through their aggregate's `needs` and
     classify each one as the selector, a consumer or a held contributor. The
@@ -769,15 +774,33 @@ def check_required_context_carriers(c, path, wf):
     ruleset. So `if: false` on `docs-check` retired this gate itself (docs.yml
     is the only workflow that runs `--check`), and the same lever on
     `wire-accountability` or `docs-check-no-git` retired the item-00 record
-    or the no-git proof, with `checked=171 findings=0` at `70421f5c`. The
-    builder contract holds `docs-check` and `elaborate` by the same function
-    for its own reason; the two agree by construction. An ambiguous carrier
-    is named by check_public_names, not here."""
+    or the no-git proof, with `checked=171 findings=0` at `70421f5c`.
+
+    The NAME and the CONTENT must be held on one job ([R3] on PR #293). The
+    merge bar binds a display name; the builder contract and the step pins
+    below read `docs-check` and `elaborate` by job id. Held apart, the real
+    job renamed to `docs-check-real` beside a `decoy` job named `docs-check`
+    with one `run: true` step passed with 233 items and no finding: the
+    unique carrier had no neuter key and the id-named job kept its pinned
+    content, while the required context ran nothing. So the job whose id is
+    the public name must carry it. `held_by_builder` names the ids whose
+    keys check_builder_dependencies already holds by the same function, so
+    each refusal is printed once. An ambiguous carrier is named by
+    check_public_names, not here."""
     all_jobs = jobs(wf)
     for want in PUBLIC_NAMES.get(path, ()):
+        job = all_jobs.get(want)
+        got = display_name(want, job) if isinstance(job, dict) else None
+        c.item(got == want, path,
+               f"required context `{want}` must be carried by the job of that "
+               f"id (found "
+               + ("no such job" if got is None else f"job `{want}` named `{got}`")
+               + "): the content checks read that job by id, so a job "
+               "carrying the name under another id is a stub the merge bar "
+               "binds while the real gates run under a name it does not read")
         carriers = [jid for jid, j in all_jobs.items()
                     if display_name(jid, j) == want]
-        if len(carriers) != 1:
+        if len(carriers) != 1 or carriers[0] in held_by_builder:
             continue
         check_job_keys(c, path, carriers[0], all_jobs[carriers[0]])
 
@@ -1825,7 +1848,7 @@ def check_builder_dependencies(c, path, wf, jid):
 def check_docs(c, wf):
     check_push_and_pr(c, DOCS, wf, exact_types=False)
     check_public_names(c, DOCS, wf)
-    check_required_context_carriers(c, DOCS, wf)
+    check_required_context_carriers(c, DOCS, wf, held_by_builder=("docs-check",))
     check_builder_dependencies(c, DOCS, wf, "docs-check")
     texts = [step_text(s) for j in jobs(wf).values() for s in steps(j)]
     for flag in ("--check", "--selftest"):
@@ -1850,7 +1873,8 @@ def check_docs(c, wf):
 def check_elaborate(c, wf):
     check_push_and_pr(c, ELABORATE, wf, exact_types=False)
     check_public_names(c, ELABORATE, wf)
-    check_required_context_carriers(c, ELABORATE, wf)
+    check_required_context_carriers(c, ELABORATE, wf,
+                                    held_by_builder=("elaborate",))
     check_builder_dependencies(c, ELABORATE, wf, "elaborate")
 
 
@@ -2042,6 +2066,16 @@ def _mutations():
         # ruleset binds is ambiguous ([R2] on PR #239, widened by #261).
         def f(w):
             jobs(w[path])["decoy"] = {"name": name, "runs-on": "ubuntu-latest",
+                                      "steps": [{"run": "true"}]}
+        return f
+
+    def m_swap_carrier(path, jid):
+        # The real job renamed away and a `run: true` stub given the required
+        # name ([R3] on PR #293): the unique carrier has no neuter key, the
+        # id-named job keeps every pinned step, and the context runs nothing.
+        def f(w):
+            jobs(w[path])[jid]["name"] = jid + "-real"
+            jobs(w[path])["decoy"] = {"name": jid, "runs-on": "ubuntu-latest",
                                       "steps": [{"run": "true"}]}
         return f
 
@@ -3224,10 +3258,13 @@ def _mutations():
          "job `docs-check` must carry no `needs`"),
         ("#261 a second job carries `docs-check`",
          m_second_carrier(DOCS, "docs-check"),
-         "public check name `docs-check` must be carried by exactly one job"),
+         "`docs-check` must be carried by exactly one job (carried by ['docs-check', 'decoy']"),
         ("#261 `docs-check` renamed",
          m_rename_job(DOCS, "docs-check"),
-         "public check name `docs-check` must be carried by exactly one job"),
+         "`docs-check` must be carried by exactly one job (carried by none"),
+        ("#261 `docs-check` renamed away while a stub takes the name",
+         m_swap_carrier(DOCS, "docs-check"),
+         "required context `docs-check` must be carried by the job of that id"),
         ("#261 `wire-accountability` job if: false",
          m_job_key(DOCS, "wire-accountability", "if", False),
          "job `wire-accountability` must carry no `if`"),
@@ -3242,10 +3279,13 @@ def _mutations():
          "job `wire-accountability` must carry no `defaults`"),
         ("#261 a second job carries `wire-accountability`",
          m_second_carrier(DOCS, "wire-accountability"),
-         "public check name `wire-accountability` must be carried by exactly one job"),
+         "`wire-accountability` must be carried by exactly one job (carried by ['wire-accountability', 'decoy']"),
         ("#261 `wire-accountability` renamed",
          m_rename_job(DOCS, "wire-accountability"),
-         "public check name `wire-accountability` must be carried by exactly one job"),
+         "`wire-accountability` must be carried by exactly one job (carried by none"),
+        ("#261 `wire-accountability` renamed away while a stub takes the name",
+         m_swap_carrier(DOCS, "wire-accountability"),
+         "required context `wire-accountability` must be carried by the job of that id"),
         ("#261 `docs-check-no-git` job if: false",
          m_job_key(DOCS, "docs-check-no-git", "if", False),
          "job `docs-check-no-git` must carry no `if`"),
@@ -3260,10 +3300,13 @@ def _mutations():
          "job `docs-check-no-git` must carry no `defaults`"),
         ("#261 a second job carries `docs-check-no-git`",
          m_second_carrier(DOCS, "docs-check-no-git"),
-         "public check name `docs-check-no-git` must be carried by exactly one job"),
+         "`docs-check-no-git` must be carried by exactly one job (carried by ['docs-check-no-git', 'decoy']"),
         ("#261 `docs-check-no-git` renamed",
          m_rename_job(DOCS, "docs-check-no-git"),
-         "public check name `docs-check-no-git` must be carried by exactly one job"),
+         "`docs-check-no-git` must be carried by exactly one job (carried by none"),
+        ("#261 `docs-check-no-git` renamed away while a stub takes the name",
+         m_swap_carrier(DOCS, "docs-check-no-git"),
+         "required context `docs-check-no-git` must be carried by the job of that id"),
         # elaborate.yml
         ("elaborate push on main, not dev", m_push_main(ELABORATE),
          "push must subscribe"),
@@ -3321,12 +3364,15 @@ def _mutations():
         ("#261 `elaborate` job continue-on-error",
          m_job_key(ELABORATE, "elaborate", "continue-on-error", True),
          "job `elaborate` must carry no `continue-on-error`"),
-        ("#261 `elaborate` job needs a job that skips",
+        ("#261 `elaborate` job needs another job",
          m_job_key(ELABORATE, "elaborate", "needs", ["noop"]),
          "job `elaborate` must carry no `needs`"),
         ("#261 a second job carries `elaborate`",
          m_second_carrier(ELABORATE, "elaborate"),
-         "public check name `elaborate` must be carried by exactly one job"),
+         "`elaborate` must be carried by exactly one job (carried by ['elaborate', 'decoy']"),
+        ("#261 `elaborate` renamed away while a stub takes the name",
+         m_swap_carrier(ELABORATE, "elaborate"),
+         "required context `elaborate` must be carried by the job of that id"),
     ]
 
 

@@ -328,13 +328,24 @@ is exactly these eleven things:
     docs.yml is the only workflow that runs `--check`, and
     `continue-on-error` on `elaborate` retired the elaboration gate, each
     with `checked=171 findings=0`. So the job carrying each of those names is
-    held exactly as an RTL contributor is: no `needs`, no `if`, no
-    `continue-on-error`, no `defaults`, and no top-level `defaults` on the
-    workflow, each refusal naming the job and the key. The builder contract
-    already held `docs-check` and `elaborate` for its own reason; the rule
-    now reaches `wire-accountability` and `docs-check-no-git`, which no
-    builder step touches, and the three documentation names join the
-    one-carrier rule of item 10.
+    held at the job level exactly as an RTL contributor is: no `needs`, no
+    `if`, no `continue-on-error`, no `defaults`, and no top-level `defaults`
+    on the workflow, each refusal naming the job and the key. The builder
+    contract already held `docs-check` and `elaborate` for its own reason;
+    the rule now reaches `wire-accountability` and `docs-check-no-git`,
+    which no builder step touches, and the three documentation names join
+    the one-carrier rule of item 10. The name and the content are held on
+    ONE job ([R3] on PR #293): the merge bar binds a display name, the
+    content checks read `docs-check` and `elaborate` by job id, and held
+    apart the real job renamed to `docs-check-real` beside a `run: true`
+    job named `docs-check` passed with no finding -- the unique carrier had
+    no neuter key, the id-named job kept its pinned steps, and the required
+    context ran nothing. So the job whose id is the public name must carry
+    it. What this item does not yet hold is the gate step inside each of
+    the four jobs: a step-level `if`, `continue-on-error` or `|| true` on
+    `docs-check`'s ci_events step, `wire-accountability`'s gate step,
+    `docs-check-no-git`'s single step or `elaborate`'s scope step still
+    passes; that is #295.
 
 `--selftest` covers, one at a time: the step removed, the token missing, the
 live read replaced by an echo, the event not passed, `|| true`, the decoy
@@ -382,8 +393,9 @@ renamed to the public name `rtl-fast`; a job-level `env` on the fast
 selector; each of `docs-check`, `wire-accountability`, `docs-check-no-git`
 and `elaborate` given a job-level `if: false`, a `continue-on-error` and a
 `needs`, the two the builder contract never touches given a
-`defaults.run.shell` too, a second job carrying each of the four names, and
-each documentation carrier renamed; a whitespace-only reformatting of all
+`defaults.run.shell` too, a second job carrying each of the four names,
+each documentation carrier renamed, and each of the four carriers renamed
+away while a `run: true` job takes its name; a whitespace-only reformatting of all
 five canonical scripts that must still pass; and the decision itself for
 every event class.
 
@@ -826,9 +838,10 @@ never starts leaves its required name pending. The three documentation jobs
 are independent required siblings, so a failure in `wire-accountability` or
 `docs-check-no-git` blocks the PR even when `docs-check` itself succeeds.
 `scripts/ci_events.py --check` holds each of them, and `elaborate`, to the
-same rule as the RTL jobs (#261): the carrier of a required name carries no
-`needs`, `if`, `continue-on-error` or `defaults`, and exactly one job
-carries each name.
+same rule as the RTL jobs (#261): the job whose id is the required name
+carries it, carries no `needs`, `if`, `continue-on-error` or `defaults`, and
+exactly one job carries each name; the gate steps inside those jobs are
+#295.
 
 ## Issue closing on merge
 
