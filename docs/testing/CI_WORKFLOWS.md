@@ -422,7 +422,31 @@ is exactly these twelve things:
     documentation jobs). Each refusal names the scope, the job or step, and
     the surplus names. Measured under act: a job-level `BASH_ENV` on
     `docs-check` makes that job's own gates green and `full-ci-gate`'s
-    contract step refuse it, so both required aggregates fail.
+    contract step refuse it, so both required aggregates fail. Declared
+    `env` is not the only key that reaches those shells ([R4] round 6 on
+    PR #293): `jobs.<id>.container` carries its own `env` map and chooses
+    the image every step's `python3` comes from, `services` starts more of
+    them, a step's `shell` picks the interpreter, and GitHub can add a key
+    tomorrow. So the KEY SETS are held the same way: a workflow may carry
+    only `name`, `on`, `concurrency`, `env` and `jobs`; a job only `name`,
+    `runs-on`, `timeout-minutes`, `steps`, `needs`, `if`, `outputs` and
+    `strategy`; a step only `name`, `run`, `uses`, `with`, `id`, `env`,
+    `if`, `continue-on-error` and `working-directory` -- what the tree
+    carries today -- and a surplus key is refused by name whatever it does.
+    The runner sets the same inherited environment from INSIDE a job too
+    ([R3] round 8 on PR #293): any `run:` step may write `$GITHUB_ENV` or
+    prepend `$GITHUB_PATH` for every later step, and a local `./` or
+    third-party `uses:` runs code this page never reads; one added line in
+    any job without a pinned sequence set `BASH_ENV` at run time with every
+    declared level clean. So those are held by allowlist as well: exactly
+    four recorded steps may mention either file (the two Verilator PATH
+    steps, the tsn-gen `TSN_GEN_ROOT` export, the sbt PATH step), every
+    other mention is refused naming the step, and a `uses:` outside the five
+    recorded `actions/*` versions is refused. A non-mapping `env` is refused
+    at every level. What remains for #295 is the step-list class itself:
+    an inserted step that does none of those things is still not refused in
+    the four non-RTL carriers, whose step lists are not pinned the way the
+    gate's is (item 4).
 
 `--selftest` covers, one at a time: the step removed, the token missing, the
 live read replaced by an echo, the event not passed, `|| true`, the decoy
@@ -482,8 +506,15 @@ decision, a job-level `BASH_ENV` on `docs-check`, `wire-accountability`,
 `elaborate` and `full-ci-gate`, a benign job-level name, a workflow-level
 `BASH_ENV` on docs.yml and rtl.yml, a benign workflow-level name on
 rtl-fast.yml, a step-level `BASH_ENV` on the docs ci_events step, the
-elaborate builder call and the wire-accountability gate step, a fifth
-workflow file on disk under both suffixes, a decoy whose `name` is an
+elaborate builder call and the wire-accountability gate step, a `container`
+with its own `BASH_ENV` on `docs-check`, `full-ci-gate` and `elaborate`,
+`services`, an `Env:` spelling, a benign job key, a workflow-level
+`defaults`, a step `shell` and a benign step key, an inserted step writing
+`$GITHUB_ENV` or `$GITHUB_PATH` in a documentation job and in an RTL
+worker, a write added to an existing step, a recorded writer renamed, a
+local and a third-party `uses:`, a non-mapping `env` at the workflow and
+step level, a fifth workflow file on disk under both suffixes as a literal
+pair, a decoy whose `name` is an
 expression evaluating to a required name in each of the four files, a
 matrix job whose `name` renders one (its own file's and another file's), and
 the enumeration's edges - a matrix value that is itself an expression, an

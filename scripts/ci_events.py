@@ -347,6 +347,39 @@ INHERITED_WORKFLOW_ENV = {
     DOCS: (),
     ELABORATE: (),
 }
+#: THE KEY SETS, by exact allowlist ([R4] round 6 on PR #293). `env` was
+#: not the only key that reaches every step's shell: `jobs.<id>.container`
+#: carries its own `env` map and chooses the image whose `python3` the steps
+#: call, `services` starts more of them, a step's `shell` picks the
+#: interpreter, and GitHub can add a key tomorrow. So every workflow, job
+#: and step may carry only the keys the tree carries today; a surplus key is
+#: refused by name whatever it does. `env` on a job and the neuter keys are
+#: reported by their own rules and left out of this one's surplus.
+WORKFLOW_KEYS = ("name", "on", "concurrency", "env", "jobs")
+JOB_KEYS = ("name", "runs-on", "timeout-minutes", "steps", "needs", "if",
+            "outputs", "strategy")
+STEP_KEYS = ("name", "run", "uses", "with", "id", "env", "if",
+             "continue-on-error", "working-directory")
+#: THE ENVIRONMENT FILES ([R3] round 8 on PR #293). The runner sets the same
+#: inherited environment from `$GITHUB_ENV` and prepends `$GITHUB_PATH` for
+#: every later step of the job, and any `run:` step may write them - so one
+#: added line in any job without a pinned step sequence sets `BASH_ENV` at
+#: run time with every declared level clean. These are the steps that may
+#: mention either file, by (file, job, step name, variable); every other
+#: mention is refused naming the step. Likewise only the recorded actions
+#: may be `uses:`d: a local `./` action or a third-party one runs code this
+#: checker does not read.
+ENV_FILE_WRITERS = frozenset({
+    (RTL_FAST, "verilator-lint", "Run the ratcheted whole-tree lint gate", "GITHUB_PATH"),
+    (RTL_FULL, "verilator-shards", "Put Verilator on PATH and prove the version", "GITHUB_PATH"),
+    (RTL_FULL, "verilator-shards", "Build the pinned tsn-gen field oracle on its suite owner", "GITHUB_ENV"),
+    (ELABORATE, "elaborate", "Install sbt", "GITHUB_PATH"),
+})
+ENV_FILE_NAMES = ("GITHUB_ENV", "GITHUB_PATH")
+RECORDED_ACTIONS = frozenset({
+    "actions/checkout@v4", "actions/cache@v4", "actions/setup-python@v5",
+    "actions/upload-artifact@v4", "actions/download-artifact@v4",
+})
 #: Step-level env names each job's steps may carry, across all of its steps.
 #: The pinned steps bind these exactly elsewhere; this table closes the
 #: unpinned steps too, and a job absent from it may carry none.
@@ -1520,7 +1553,10 @@ def check_inherited_env(c, path, wf):
     checked-in file defining `python3() { return 0; }`, made every python
     gate of every protected job a no-op with 273 items and no finding."""
     want = set(INHERITED_WORKFLOW_ENV.get(path, ()))
-    top = wf.get("env") if isinstance(wf.get("env"), dict) else {}
+    top = wf.get("env")
+    c.item(top is None or isinstance(top, dict), path,
+           f"the workflow-level `env` must be a mapping (found {top!r})")
+    top = top if isinstance(top, dict) else {}
     have = {str(k) for k in top}
     c.item(have == want, path,
            f"the workflow-level `env` must name exactly "
@@ -1540,13 +1576,76 @@ def check_inherited_env(c, path, wf):
                "into a shell function that returns 0")
         allowed = set(INHERITED_STEP_ENV.get((path, jid), ()))
         for n, step in enumerate(steps(job), 1):
-            senv = step.get("env") if isinstance(step.get("env"), dict) else {}
+            raw = step.get("env")
+            c.item(raw is None or isinstance(raw, dict), path,
+                   f"job `{jid}` step {n} ({step_label(step)}) `env` must be "
+                   f"a mapping (found {raw!r})")
+            senv = raw if isinstance(raw, dict) else {}
             surplus = sorted(str(k) for k in senv if str(k) not in allowed)
             c.item(not surplus, path,
                    f"job `{jid}` step {n} ({step_label(step)}) `env` names "
                    f"{surplus} outside this job's allowlist "
                    f"{sorted(allowed) or '(none)'}: a step-level `BASH_ENV` "
                    "reaches that step's shell the same way")
+
+
+def check_env_files(c, path, wf):
+    """Only the recorded steps may mention `$GITHUB_ENV` or `$GITHUB_PATH`,
+    and only the recorded actions may be `uses:`d ([R3] round 8 on PR
+    #293): `echo "BASH_ENV=..." >> "$GITHUB_ENV"` in one added step of a
+    job without a pinned sequence set the inherited environment at run
+    time for every later step with 390 items and no finding."""
+    for jid, job in jobs(wf).items():
+        for n, step in enumerate(steps(job), 1):
+            text = step_text(step)
+            name = step.get("name") if isinstance(step.get("name"), str) else ""
+            for var in ENV_FILE_NAMES:
+                if var not in text:
+                    continue
+                c.item((path, jid, name, var) in ENV_FILE_WRITERS, path,
+                       f"job `{jid}` step {n} ({step_label(step)}) mentions "
+                       f"`{var}` and is not a recorded writer: whatever a "
+                       "step writes there is the inherited environment of "
+                       "every later step, so `BASH_ENV` set here turns the "
+                       "gates after it into no-ops with every declared "
+                       "`env` level clean")
+            action = step.get("uses")
+            if action is not None:
+                c.item(action in RECORDED_ACTIONS, path,
+                       f"job `{jid}` step {n} uses `{action}`, which is not "
+                       f"a recorded action {sorted(RECORDED_ACTIONS)}: a "
+                       "local or third-party action runs code this checker "
+                       "does not read, before every step after it")
+
+
+def check_key_allowlists(c, path, wf):
+    """Every workflow-, job- and step-level key set is exactly a subset of
+    what the tree carries today ([R4] round 6 on PR #293): `container` with
+    its own `env` map put `BASH_ENV` into every step's shell of every
+    protected job with the three declared `env` levels clean and 390 items
+    green; `services`, a step `shell`, an `Env:` spelling and any key GitHub
+    adds later are the same gap. A surplus key is refused by name."""
+    top = {("on" if k is True else str(k)) for k in wf}
+    extra = sorted(top - set(WORKFLOW_KEYS))
+    c.item(not extra, path, f"the workflow may carry only the keys "
+           f"{list(WORKFLOW_KEYS)} (surplus: {extra}): a key outside that "
+           "set decides how or where every job runs")
+    covered = set(JOB_NEUTER_KEYS) | {"env"}
+    for jid, job in jobs(wf).items():
+        if not isinstance(job, dict):
+            continue
+        extra = sorted({str(k) for k in job} - set(JOB_KEYS) - covered)
+        c.item(not extra, path, f"job `{jid}` may carry only the keys "
+               f"{list(JOB_KEYS)} (surplus: {extra}): `container` carries "
+               "its own env map and picks the image every step's python3 "
+               "comes from, `services` starts more, and an unknown key is "
+               "refused for the same reason")
+        for n, step in enumerate(steps(job), 1):
+            extra = sorted({str(k) for k in step} - set(STEP_KEYS))
+            c.item(not extra, path, f"job `{jid}` step {n} "
+                   f"({step_label(step)}) may carry only the keys "
+                   f"{list(STEP_KEYS)} (surplus: {extra}): `shell` chooses "
+                   "the interpreter the script runs under")
 
 
 def check_no_gh_env(c, path, where, env):
@@ -2176,6 +2275,8 @@ def check(parsed):
     check_elaborate(c, parsed[ELABORATE])
     for rel in WORKFLOWS:
         check_inherited_env(c, rel, parsed[rel])
+        check_key_allowlists(c, rel, parsed[rel])
+        check_env_files(c, rel, parsed[rel])
     check_global_carriers(c, parsed)
     return c
 
@@ -2410,6 +2511,25 @@ def _mutations():
             env = dict(w[path].get("env") or {})
             env[name] = value
             w[path]["env"] = env
+        return f
+
+    def m_job_key_any(path, jid, key, value):
+        # Any job key outside the allowlist ([R4] round 6 on PR #293).
+        def f(w):
+            jobs(w[path])[jid][key] = value
+        return f
+
+    def m_step_key_any(path, jid, needle, key, value):
+        def f(w):
+            found = [s for s in job_steps(w, path, jid) if needle in step_text(s)]
+            assert len(found) == 1, f"fixture drift: {needle!r} in {jid}"
+            found[0][key] = value
+        return f
+
+    def m_insert_step(path, jid, step, index=1):
+        # A step inserted into an unpinned job ([R3] round 8 on PR #293).
+        def f(w):
+            job_steps(w, path, jid).insert(index, step)
         return f
 
     def m_step_env(path, jid, needle, name, value="scripts/ci-bypass.sh"):
@@ -3871,6 +3991,70 @@ def _mutations():
         ("#261 wire-accountability gate step-level BASH_ENV",
          m_step_env(DOCS, "wire-accountability", "check_wire_accountability", "BASH_ENV"),
          "`env` names ['BASH_ENV'] outside this job's allowlist (none)"),
+        # The key allowlists ([R4] round 6 on PR #293).
+        ("#261 docs-check job container with BASH_ENV",
+         m_job_key_any(DOCS, "docs-check", "container",
+                       {"image": "ubuntu:24.04", "env": {"BASH_ENV": "scripts/ci-bypass.sh"}}),
+         "job `docs-check` may carry only the keys"),
+        ("#261 full-ci-gate job container with BASH_ENV",
+         m_job_key_any(RTL_FULL, GATE_JOB, "container",
+                       {"image": "ubuntu:24.04", "env": {"BASH_ENV": "scripts/ci-bypass.sh"}}),
+         f"job `{GATE_JOB}` may carry only the keys"),
+        ("#261 elaborate job container image",
+         m_job_key_any(ELABORATE, "elaborate", "container", "docker.io/attacker/noop-python:latest"),
+         "job `elaborate` may carry only the keys"),
+        ("#261 docs-check-no-git job services",
+         m_job_key_any(DOCS, "docs-check-no-git", "services", {"x": {"image": "busybox"}}),
+         "job `docs-check-no-git` may carry only the keys"),
+        ("#261 docs-check job Env spelled with a capital",
+         m_job_key_any(DOCS, "docs-check", "Env", {"BASH_ENV": "scripts/ci-bypass.sh"}),
+         "job `docs-check` may carry only the keys"),
+        ("#261 wire-accountability job benign key",
+         m_job_key_any(DOCS, "wire-accountability", "permissions", {"contents": "read"}),
+         "job `wire-accountability` may carry only the keys"),
+        ("#261 rtl-fast.yml workflow-level defaults",
+         (lambda w: w[RTL_FAST].__setitem__("defaults", {"run": {"shell": "bash -n {0}"}})),
+         "the workflow may carry only the keys"),
+        ("#261 docs-check-no-git single step shell",
+         m_step_key_any(DOCS, "docs-check-no-git", "docs_check.py", "shell", "scripts/noop.sh {0}"),
+         "may carry only the keys"),
+        ("#261 docs-check step benign key",
+         m_step_key_any(DOCS, "docs-check", "scripts/ci_events.py --check", "timeout-minutes", 1),
+         "may carry only the keys"),
+        # The environment files and the action set ([R3] round 8 on PR #293).
+        ("#261 docs-check inserted step writes GITHUB_ENV",
+         m_insert_step(DOCS, "docs-check",
+                       {"name": "prep", "run": 'echo "BASH_ENV=$PWD/scripts/ci-bypass.sh" >> "$GITHUB_ENV"'}),
+         "mentions `GITHUB_ENV` and is not a recorded writer"),
+        ("#261 wire-accountability inserted step prepends GITHUB_PATH",
+         m_insert_step(DOCS, "wire-accountability",
+                       {"name": "prep", "run": 'echo "$PWD/scripts/bin" >> "$GITHUB_PATH"'}),
+         "mentions `GITHUB_PATH` and is not a recorded writer"),
+        ("#261 yosys-shards inserted step writes GITHUB_ENV",
+         m_insert_step(RTL_FULL, "yosys-shards",
+                       {"name": "prep", "run": 'echo "BASH_ENV=x" >> "$GITHUB_ENV"'}),
+         "mentions `GITHUB_ENV` and is not a recorded writer"),
+        ("#261 docs-check existing step gains a GITHUB_ENV write",
+         (lambda w: [s for s in job_steps(w, DOCS, "docs-check")
+                     if "pip install --quiet pyyaml" in step_text(s)][0].__setitem__(
+                         "run", 'echo "BASH_ENV=x" >> "$GITHUB_ENV"\npython3 -m pip install --quiet pyyaml')),
+         "mentions `GITHUB_ENV` and is not a recorded writer"),
+        ("#261 docs-check inserted local action",
+         m_insert_step(DOCS, "docs-check", {"uses": "./.github/actions/prep"}),
+         "uses `./.github/actions/prep`, which is not a recorded action"),
+        ("#261 elaborate inserted third-party action",
+         m_insert_step(ELABORATE, "elaborate", {"uses": "attacker/action@v1"}),
+         "uses `attacker/action@v1`, which is not a recorded action"),
+        ("#261 rtl.yml recorded writer renamed",
+         (lambda w: [s for s in job_steps(w, RTL_FULL, "verilator-shards")
+                     if s.get("name") == "Put Verilator on PATH and prove the version"][0].__setitem__("name", "Put Verilator on PATH")),
+         "mentions `GITHUB_PATH` and is not a recorded writer"),
+        ("#261 docs.yml workflow-level env is not a mapping",
+         (lambda w: w[DOCS].__setitem__("env", "BASH_ENV=scripts/ci-bypass.sh")),
+         "the workflow-level `env` must be a mapping"),
+        ("#261 docs-check step env is not a mapping",
+         m_step_key_any(DOCS, "docs-check", "scripts/ci_events.py --check", "env", ["BASH_ENV=x"]),
+         "`env` must be a mapping"),
     ]
 
 
@@ -3952,7 +4136,10 @@ def selftest(root):
         want = "`docs-check` must be carried by exactly one job across every workflow file"
         # Both suffixes GitHub loads, each as a real file (maintainer [R0]
         # on PR #293: a `.yml`-only fixture let `.yaml` discovery regress).
-        for suffix in WORKFLOW_SUFFIXES:
+        # A LITERAL pair, not WORKFLOW_SUFFIXES: looping over the constant
+        # this control exists to hold let a narrowed constant drop the
+        # `.yaml` fixture instead of failing it ([R4] round 6 on PR #293).
+        for suffix in (".yml", ".yaml"):
             decoy = tree / WORKFLOW_DIR / f"decoy{suffix}"
             decoy.write_text("name: decoy\non: [pull_request]\njobs:\n  decoy:\n"
                              "    name: docs-check\n    runs-on: ubuntu-latest\n"
