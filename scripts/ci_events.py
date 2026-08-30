@@ -367,10 +367,13 @@ JOB_KEY_EXTRAS = {
 }
 STEP_KEYS = ("name", "run", "uses", "with", "id", "env", "if",
              "continue-on-error")
-#: `working-directory` only where the tree carries it ([R4] round 7 on PR
-#: #293): on any other step it redirects a gate to a checked-in decoy tree.
+#: `working-directory` only on the one step that carries it, with its exact
+#: value ([R4] round 7, [R3] round 10 on PR #293): a job-wide licence let
+#: the behave step itself point at a checked-in decoy tree; on any other
+#: step the key redirects a gate the same way.
 STEP_KEY_EXTRAS = {
-    (RTL_FAST, "bdd-conformance"): ("working-directory",),
+    (RTL_FAST, "bdd-conformance", "Run the specification-facing suite"): {
+        "working-directory": "tests"},
 }
 #: THE ENVIRONMENT FILES ([R3] round 8 on PR #293). The runner sets the same
 #: inherited environment from `$GITHUB_ENV` and prepends `$GITHUB_PATH` for
@@ -1706,14 +1709,23 @@ def check_key_allowlists(c, path, wf):
                "its own env map and picks the image every step's python3 "
                "comes from, `services` starts more, and an unknown key is "
                "refused for the same reason")
-        step_keys = set(STEP_KEYS) | set(STEP_KEY_EXTRAS.get((path, jid), ()))
         for n, step in enumerate(steps(job), 1):
+            name = step.get("name") if isinstance(step.get("name"), str) else ""
+            extras = STEP_KEY_EXTRAS.get((path, jid, name), {})
+            step_keys = set(STEP_KEYS) | set(extras)
             extra = sorted({str(k) for k in step} - step_keys)
             c.item(not extra, path, f"job `{jid}` step {n} "
                    f"({step_label(step)}) may carry only the keys "
                    f"{sorted(step_keys)} (surplus: {extra}): `shell` chooses "
                    "the interpreter the script runs under and "
                    "`working-directory` the tree it reads")
+            for key, value in extras.items():
+                if key in step:
+                    c.item(step[key] == value, path,
+                           f"job `{jid}` step {n} ({step_label(step)}) "
+                           f"`{key}` must be exactly {value!r} (found "
+                           f"{step[key]!r}): the licence is for that tree, "
+                           "not for a checked-in decoy")
 
 
 def check_no_gh_env(c, path, where, env):
@@ -4157,6 +4169,12 @@ def _mutations():
          "job `wire-accountability` may carry only the keys"),
         ("#261 docs-check ci_events step working-directory",
          m_step_key_any(DOCS, "docs-check", "scripts/ci_events.py --check", "working-directory", "sub"),
+         "may carry only the keys"),
+        ("#261 behave step working-directory points at a decoy tree",
+         m_step_key_any(RTL_FAST, "bdd-conformance", "behave --no-capture", "working-directory", "tb/fake"),
+         "`working-directory` must be exactly 'tests'"),
+        ("#261 bdd-conformance other step working-directory",
+         m_step_key_any(RTL_FAST, "bdd-conformance", "pip install --quiet behave", "working-directory", "tb/fake"),
          "may carry only the keys"),
     ]
 

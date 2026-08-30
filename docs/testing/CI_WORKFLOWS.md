@@ -448,10 +448,11 @@ is exactly these twelve things:
     outside the five recorded `actions/*` versions is refused, every
     checkout's `with` may carry nothing but `fetch-depth: 0`, a job may
     carry `outputs` or `strategy` only where the tree records it, a step may
-    carry `working-directory` only where the tree records it (the behave
-    step; anywhere else it redirects a gate to a checked-in decoy tree,
-    [R4] round 7 on PR #293), and a non-mapping `env` is refused at every
-    level. What this cannot hold, and #295 owns, is the step-list class
+    carry `working-directory` only on the one step that records it and
+    only with its recorded value -- the behave step, `tests`; anywhere else
+    the key, and on that step any other value, redirects a gate to a
+    checked-in decoy tree ([R4] round 7, [R3] round 10 on PR #293) -- and a
+    non-mapping `env` is refused at every level. What this cannot hold, and #295 owns, is the step-list class
     itself: in the ten jobs whose step lists are not pinned the way the
     gate's is (item 4) -- every job but `full-ci-gate` and `changes`, the
     RTL workers included -- an inserted step of ANY content still passes,
@@ -533,7 +534,8 @@ local and a third-party `uses:`, a recorded writer's script given a hostile
 line and the tsn-gen export rewritten, an added step under a recorded name,
 a recorded writer duplicated, a checkout given `ref` and `repository`, a
 `strategy` and an `outputs` on a documentation job, a `working-directory`
-on the docs ci_events step, a non-mapping `env` at
+on the docs ci_events step and on the other behave-job step, the behave
+step pointed at a decoy tree, a non-mapping `env` at
 the workflow and step level, a fifth workflow file on disk under both
 suffixes as a literal pair, a decoy whose `name` is an
 expression evaluating to a required name in each of the four files, a
