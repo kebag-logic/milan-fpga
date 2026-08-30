@@ -1,339 +1,119 @@
-# The LiteX SoC - `sw/litex/` in depth
+# LiteX bare-metal SoC
 
-[`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py) (~3600 lines) is "the LiteX line of code": the fully-
-FPGA host that replaced the Zynq PS. It builds the RISC-V SoC on the
-Alinx AX7101 (Artix-7 `xc7a100t`) with the Milan TSN datapath attached as a
-real RTL instance, the ring-DMA engines, the LiteEth GMII MAC, DDR3, QSPI
-flash-boot and the telemetry block.
-
-This page maps the whole directory and the SoC's anatomy; the step-by-step
-build/boot recipe stays in [`sw/README.md`](../../sw/README.md) and
-[../integration/QSPI_FLASHBOOT.md](../integration/QSPI_FLASHBOOT.md).
-
----
+`sw/litex/milan_soc.py` builds the supported target: a cacheless RV32
+VexiiRiscv control CPU, LiteEth MAC/PHY glue, optional DDR3 and QSPI, the Milan
+fabric datapath, board audio I/O, and one AXI-Lite CSR bridge. The target runs
+the firmware in `sw/firmware/milan_baremetal`; no operating system is part of
+the product image.
 
 ## Contents
 
-- **[1. Directory map - what each file is](#1-directory-map---what-each-file-is)** — One row per file with who it is for, so you can tell the SoC from the board file from the research instruments. Includes the two easy-to-misread entries: `milan_rgmii.py` is legacy and imported by nothing, and `evidence/` is where the known-good LiteX commit is recorded.
-- **[2. SoC anatomy (milan_soc.py)](#2-soc-anatomy-milan_socpy)** — The memory map with bases read from the source, not prose (`milan_csr` at `0x9000_0000`, PCM BRAM at `0x9010_0000`), and why: everything at or above `0x8000_0000` is uncached IO on these CPUs, which is what moved the CSR window off the Zynq address. Six subsections take clocking, the datapath attach, DMA, MAC, CPU choice and flash-boot in turn — the flash map is generated, and the note there warns that the layout has moved twice, so any offset you remember is probably from before one of those moves.
-- **[3. Building](#3-building)** — The ship-shape command line to copy, and the useful distinction: without `--build` you get elaboration and Verilog export with **no vendor tools at all**. Vivado is currently the only P&R backend wired for this board.
-- **[4. The flags that are not optional](#4-the-flags-that-are-not-optional)** — Four flags and the exact failure each one prevents. `--coherent-dma` is not implied by `--all-blocks` and its absence looks like all-zero skbs and a garbage destination MAC; `--gtx-tx-invert` is the difference between 25–40 % corrupt frames and none.
-- **[5. Simulation (milan_sim.py)](#5-simulation-milan_simpy)** — A single non-interactive command that boots the BIOS on a softcore and reads `"MILN"` back through the real datapath — the SoC-level rung between the RTL harnesses and silicon.
-- **[6. Patches (patches/)](#6-patches-patches)** — The six patches applied in place to your LiteX/LiteEth/VexiiRiscv trees. Upstream cannot build any shape of this design without them, so this is a required install step and not a tuning one, and a gate now proves the result.
-- **[7. Reproducibility - versions](#7-reproducibility---versions)** — There is no pinned requirements file; this is the list of known-good anchors instead (LiteX `a1e1c36`, openFPGALoader ≥ v1.1.1, the `verilog-axis` gitlink) and what to do when `apply.sh` fails after an upgrade.
-- **[8. The Migen DMA sims and on-target tools](#8-the-migen-dma-sims-and-on-target-tools)** — The six commands to run after touching ring or BD logic, straight from the interpreter with no pytest. Also flags that the `tools_*.c` benchmarks are board-side research instruments, not part of any build.
+- **[1. Boundary](#1-boundary)** — The four product interfaces and the division between fabric packet work and CPU control work.
+- **[2. Components](#2-components)** — Clocking, MAC adaptation, the RV32 control CPU, media I/O, developer alternatives, and QSPI boot.
+- **[3. Register access](#3-register-access)** — The AXI-Lite CSR bridge, address window, and bounded firmware access model.
+- **[4. The flags that are not optional](#4-the-flags-that-are-not-optional)** — The explicit release-shape arguments that prevent silent build defaults.
+- **[5. Build and elaborate](#5-build-and-elaborate)** — Commands for generating and checking the selected SoC without conflating elaboration with implementation.
+- **[6. Verification](#6-verification)** — The builder, source, RTL, UART, and external-wire checks for the SoC integration.
+- **[7. Reproducibility - versions](#7-reproducibility---versions)** — The pinned tools, submodules, configuration, and generated artifacts needed to reproduce a candidate.
 
-## 1. Directory map - what each file is
+## 1. Boundary
 
-| File | Role | Audience |
-|---|---|---|
-| `milan_soc.py` | **The SoC.** CRG, CPU (VexiiRiscv/NaxRiscv), DDR3, LiteEth MAC, Milan datapath attach, ring-DMA engines, IRQs, QSPI flash-boot layout, CLI | everyone |
-| `platforms/alinx_ax7101.py` | The board: pins (clk200, UART, GMII "e1" + RGMII "e2" RTL8211E PHYs, DDR3 2×MT41J256M16 = 512 MB, N25Q128 QSPI, LEDs), `xc7a100t-fgg484-2`, openFPGALoader programming | board porters |
-| `deploy.sh` | Turnkey `build / load / flash-pair / console` for the AX7101; live-proves the installed QSPI owner and keeps direct partial writes behind an explicit recovery escape | everyone |
-| `milan_sim.py` | Verilator **SoC-level sim**: boots the LiteX BIOS on a softcore with the real `milan_datapath` at `0x9000_0000`, proves the CPU⇄CSR path (reads ID `"MILN"`, milestone M-A2) | everyone |
-| `patches/` | LiteX-ecosystem patches + `apply.sh` (Section 6) | everyone |
-| `test_ring_dma.py` (+ `test_ring_bd.py`, `test_ring_tx.py`, `test_ring_writeback.py`, `test_rx_steer.py`, `test_tx_bd.py`) | **Migen behavioral sims** of the DMA engines (self-checking, print `ALL PASS`); `test_ring_dma.py` is the base harness the others import | DMA developers |
-| `test_pb_bus_err.py`, `test_pp_mem_bridge.py` | **Migen bus-fault sims** of the non-DMA masters: the AAF playback fetch must not latch a failed read, and the protocol processor's two main-memory bridges must not wedge on an access that is never acked | SoC developers |
-| `tools_*.c` (8 files) | On-target microbenchmarks compiled for the board (`lat_mem_rd`, `mapbench`, `recv_ring`, `recv_spin`, `recv_trunc`, `recv_zc`, `tcp_blast`, `wakebench`) - the instruments behind the perf findings | perf work |
-| `phase0_measure.sh` | On-board telemetry/iperf sweep script (busybox `devmem`); CSR addresses are build-specific - regenerate before reuse | perf work |
-| `poll_cost_model.py` | Analytical model projecting RX pps from measured sweeps | perf work |
-| `evidence/` | Captured proof logs (sim + on-silicon `hw_*` logs, the M-A3 write-up). `hw_naxriscv_reads_MILN.log` records the **known-good LiteX commit `a1e1c36`** (Section 7) | reviewers |
-| `milan_rgmii.py` | **Legacy, unused.** An RX-clock-inverted Series-7 RGMII PHY variant from before the board was confirmed GMII-wired; nothing imports it. Kept for reference only | - |
+The SoC connects four product surfaces:
 
----
+- the MAC-facing 64-bit packet stream;
+- the AXI-Lite Milan CSR window;
+- the descriptor-memory read port used by the protocol processor after the
+  firmware verifies and copies the paired AEM image;
+- physical I2S/TDM capture and render pins.
 
-## 2. SoC anatomy (`milan_soc.py`)
+Packet generation, reception, time synchronization, and media routing remain
+in fabric. The CPU configures policy and identity over CSRs and exposes a
+small UART command set; it is not a packet relay.
 
-**Where each window lives.** Bases below are read from `milan_soc.py`, not from
-prose: `MILAN_CSR_BASE`/`MILAN_CSR_SIZE`, `MILAN_PCM_BRAM_BASE`/`_SIZE`, the
-`FLASHBOOT_LAYOUT` DRAM targets, and the CPU-map comment in `MilanSoC.__init__`
-("BOTH map csr @ `0xf000_0000` / clint @ `0xf001_0000` / plic @ `0xf0c0_0000`"),
-which is why NaxRiscv and VexiiRiscv builds need no address changes.
+## 2. Components
 
-| window | base | size | what it is |
-|---|---|---|---|
-| DRAM (LiteDRAM `main_ram`) | `0x4000_0000` | 512 MB (2 × MT41J256M16) | firmware working set, the PCM rings, and the descriptor image in the reserved top 1 MiB; the retired boot chain's load addresses (#259) are in git history. The rest is free RAM. Wherever a load address is needed, read it from the build's own `csr.csv`/`soc.json`, never from prose. Historical detail: the retired multi-image manifest loaded four separate payloads into this window before entry.<!-- trimmed #259 -->rd `0x4100_0000` |
-| `milan_csr` | `0x9000_0000` | `0x1_0000` (64 KB) | the datapath's AXI4-Lite register ABI, added with `cached=False` |
-| `milan_pcm_bram` | `0x9010_0000` | `0x8000` (32 KB) | dual-port PCM window, present only when the PCM ring is elaborated as BRAM (`--pcm-ring bram`) |
-| LiteX CSR bank | `0xf000_0000` | — | the Migen-generated CSRs (DMA rings, telemetry, LiteEth, LiteDRAM) |
-| CLINT | `0xf001_0000` | — | timer + software interrupts |
-| PLIC | `0xf0c0_0000` | — | external interrupts; the Milan `EventManager` is one source here |
+### 2.1 Clock/reset generation
 
-Everything at or above `0x8000_0000` is the CPUs' uncached IO region — the
-constraint that forced the Milan CSR window off the Zynq's `0x43C0_0000`
-(Section 2.2, and [Section 2 of ../integration/AXIS_CORES_ON_NAXRISCV.md](../integration/AXIS_CORES_ON_NAXRISCV.md#2-what-naxriscv-exposes-in-litex)).
+`_CRG` owns the board input clock, system clocks, Ethernet clocks, reset
+synchronization, and the audio-MMCM controls exported by `milan_datapath`.
+When `--milan-clk-freq` differs from `sys`, explicit stream and AXI-Lite clock
+crossings isolate the domains.
 
-**The skeleton.** One picture of what is instantiated and which clock domain it
-sits in — the subsections below then take each block in turn:
+### 2.2 MilanNIC and MilanMAC
 
-```mermaid
-flowchart LR
-    subgraph ETH["eth_tx / eth_rx — GMII clocks, mirrored as maceth_tx / maceth_rx"]
-        PHY["LiteEthPHYGMII<br/>→ RTL8211E"]
-    end
+`MilanNIC` calls the single `add_milan_datapath()` integration helper, which
+registers the complete transitive RTL source set and wires the fabric boundary.
+`MilanMAC` adapts LiteEth's stream convention to the 64-bit wire-order boundary
+and supplies the RMON events consumed by the CSR block.
 
-    subgraph MCD["cd_milan — own PLL output, 50 MHz deployed"]
-        DP["milan_datapath<br/>real RTL from _MILAN_DATAPATH_SOURCES"]
-    end
+### 2.3 Bare-metal control CPU
 
-    subgraph SYS["sys domain — 100 MHz, --sys-clk-freq"]
-        MACSYS["MilanMAC Section 2.4, cd_macsys<br/>LiteEthMACCore<br/>+ store-and-forward PacketFIFO"]
-        DMA["MilanDMA Section 2.3<br/>RingDMAReader TX · RingDMAWriter RX / RX1<br/>WishboneDMAWriter TS + PCM"]
-        BUS["SoC bus + dma_bus<br/>coherent AXI, 64-bit"]
-        CPU["VexiiRiscv or NaxRiscv<br/>+ L2 + LiteDRAM / A7DDRPHY"]
-        QSPI["LiteSPI flash Section 2.6"]
-        EV["EventManager · 4 level sources<br/>self.irq.add — ONE PLIC line"]
-    end
+The product profile selects one RV32I VexiiRiscv hart in machine mode without
+MMU or caches. Firmware initializes the paired descriptor image, establishes
+the PHC epoch, enables the protocol/media fabric, and provides diagnostic UART
+commands. Wider developer CPU configurations are not release images.
 
-    PHY <--> MACSYS
-    MACSYS <-->|"mac_tx_cdc / mac_rx_cdc"| DP
-    DMA <-->|"stream.ClockDomainCrossing async FIFOs"| DP
-    DMA -->|"add_master milan_dma_tx / rx / rx1 / ts / pcm"| BUS
-    BUS --- CPU
-    BUS --- QSPI
-    BUS -->|"AXI-Lite slave @ 0x9000_0000, via AXILiteClockDomainCrossing"| DP
-    DMA -->|"ring non_empty levels"| EV
-    DP -->|"CSR IRQ via MultiReg"| EV
-```
+### 2.4 Fabric media I/O
 
-### 2.1 Clocking (`_CRG`)
+Capture sources feed the AAF packetizer through the capture map. Accepted AAF
+listeners feed the render map and physical I2S/TDM outputs. These paths never
+round-trip samples through CPU memory.
 
-`S7PLL` takes the board's 200 MHz to `sys` (100 MHz for the full build - DDR3
-requires it), plus `sys4x`/`sys4x_dqs` + 200 MHz `idelay`/`S7IDELAYCTRL` for
-the `A7DDRPHY`.
+### 2.5 CPU: VexiiRiscv and developer alternatives
 
-With `--milan-clk-freq` the Milan datapath gets its **own clock domain**.
-The deployed recipe selects 50 MHz for `cd_milan`. The 100 MHz `sys` domain
-still serves LiteX and DDR3. A 64-bit datapath at 50 MHz provides 3.2 Gb/s.
+Release configurations use VexiiRiscv RV32. A developer may elaborate another
+LiteX-supported core for simulation, but that does not change the product
+firmware contract and is not accepted as release evidence.
 
-The crossings:
+### 2.6 QSPI flash boot
 
-- CSR bus via `AXILiteClockDomainCrossing`;
-- each DMA/MAC AXIS lane via a `stream.ClockDomainCrossing` FIFO;
-- the IRQ via `MultiReg`.
+The generated layout pairs the offset-zero FPGA image with the raw AEM image.
+The firmware validates length and CRC before copying the AEM image to the
+reserved descriptor window and enabling the entity. Persistent updates use
+`deploy.sh flash-pair`, which verifies the installed identity and writes the
+new AEM image before committing the new bitstream. See
+[`../integration/QSPI_FLASHBOOT.md`](../integration/QSPI_FLASHBOOT.md).
 
-### 2.2 The datapath attach (`MilanNIC` / `add_milan_datapath()`)
+## 3. Register access
 
-Instantiates `milan_datapath` as **real RTL** (no black box) from the curated
-`_MILAN_DATAPATH_SOURCES` list (the same file set the [`tb/verilator/milan_dp`](../../tb/verilator/milan_dp)
-harness and [`syn/yosys`](../../syn/yosys) use, so the build can't drift from what is verified).
-
-The CSR window is an AXI4-Lite slave at `MILAN_CSR_BASE = 0x9000_0000`
-(64 KB, uncached-IO region on these CPUs; the Zynq build used
-`0x43C0_0000` - only the base differs, offsets are the ABI in
-[../reference/REGISTER_MAP.md](../reference/REGISTER_MAP.md)).
-
-It also emits the CBS slope **multicycle constraint** on Xilinx parts - a
-porting-relevant detail explained in
-[Section 4.5 of ../integration/PORTING_GUIDE.md](../integration/PORTING_GUIDE.md#45-timing-constraints-translate-dont-skip).
-
-Interrupts: an `EventManager` with four level sources (`tx`/`rx`/`ts`/`csr`)
-folded into one PLIC line - matching the driver's four `interrupt-names`
-(the DT encodes the aggregation; see the retired binding toolkit).
-
-### 2.3 The DMA (`MilanDMA`)
-
-The engines:
-
-- TX is a `RingDMAReader` (native AXI bursts, DRAM → datapath);
-- RX a `RingDMAWriter` (always-ready ingress, datapath → DRAM,
-  completion-queue depth 32);
-- TS a `WishboneDMAWriter`.
-
-Masters attach to the CPU's **coherent** `dma_bus` when present - which is
-why `--coherent-dma` is mandatory (Section 4). An optional second RX queue
-(`--rx-queues 2`) adds an `RxSteer` classifier — since 2026-07-26 that is a
-**dedicated gPTP lane** (q1 = DMAC `01-80-C2-00-00-0E` + EtherType `0x88F7`,
-q0 = everything else), not the TCP-flow load-balancer it used to be. Each queue
-is its own ring writer, interrupt and NAPI; per-board `rx_queues` and the
-reflash gate on raising it are in
-[../reference/EGRESS_QUEUE_MAP.md](../reference/EGRESS_QUEUE_MAP.md).
-
-Endianness is `"big"` on purpose: memory order == wire order, so the CPU
-never byte-swaps.
-
-The BD-format/zero-copy/checksum evolution of these engines is chronicled
-in the archived CPPI DMA redesign log (#259, in git history)
-and the [findings log](../findings/README.md).
-
-### 2.4 The MAC (`MilanMAC`)
-
-`LiteEthPHYGMII` + `LiteEthMACCore` (preamble/CRC/padding) + a
-store-and-forward `PacketFIFO` + a thin stream↔AXIS adapter.
-
-The AX7101's RTL8211E port is wired **GMII** (not RGMII - see
-[Section 3 of ../integration/BOARD_PORTING_AX7101.md](../integration/BOARD_PORTING_AX7101.md#3-what-changed)),
-and the TX clock is forwarded **inverted** (`--gtx-tx-invert`, via the LiteEth
-patch, Section 6) because edge-aligned launch off IOB-packed FFs was hold-marginal at
-the PHY (25-40 % corrupt frames without it).
-
-The Milan datapath keeps all packet intelligence; the MAC does L1/framing
-only.
-
-### 2.5 CPU: VexiiRiscv and NaxRiscv - read this before building
-
-Both named cores remain available.
-
-<!-- solution-cpu-contract:start -->
-| Invocation | CPU | Harts | XLEN | Firmware | L2 bytes | Datapath clock |
-|---|---|---:|---:|---|---:|---:|
-| CLI defaults | `vexiiriscv` | `1` | `32` | `baremetal` | `unset` | `unset` |
-| `deploy.sh` | `vexiiriscv` | `1` | `32` | `baremetal` | `0` | `50 MHz` |
-<!-- solution-cpu-contract:end -->
-
-- VexiiRiscv is the product and CLI default.
-- `deploy.sh` explicitly selects the shipping profile.
-- That profile uses cacheless, single-hart RV32I.
-- An unset L2 still selects zero VexiiRiscv bytes.
-- NaxRiscv remains an opt-in pure-NIC option.
-- `milan_sim.py` still exercises its simulation path.
-- Older performance results used different cache configurations.
-
-Read the historical measurements in [findings](../findings/README.md).
-
-Use the named [build configurations](../integration/BUILDING.md).
-
-### 2.6 QSPI flash-boot
-`FLASHBOOT_LAYOUT` / `FLASHBOOT_RESERVED` / `FLASHBOOT_MANIFESTS` in
-`milan_soc.py` are the **single source of truth** for the 16 MiB N25Q128
-layout; the build writes `flashboot_layout.json` so gateware and
-`deploy.sh flash-pair` never drifts from the compiled target and can prove the
-installed offset-zero payload before choosing an order. Guide:
-[../integration/QSPI_FLASHBOOT.md](../integration/QSPI_FLASHBOOT.md).
-
-*What is at which offset, and what must a reflash never erase?* — the map,
-drawn to scale and **generated from those dicts**, so this page cannot carry a
-stale copy of them:
-
-![QSPI flash map](../diagrams/flash_layout.svg)
-
-Master: [`flash_layout.gen.py`](../diagrams/flash_layout.gen.py) — it reads the
-dicts through the retired flash-partition emitter's `load_map()`, the same reader
-the kernel's `fixed-partitions` node comes from, and prints
-`check_flash_map()`'s verdict on the drawing.
-
-That check is not cosmetic: every slot is erase-block (`0x1_0000`) aligned
-because a partition starting or ending mid-block cannot be erased without
-destroying its neighbour. Note the open item recorded in the source:
-`deploy.sh` derives each image's ceiling from the *next image* offset and does
-not read the `reserved` key, so an oversized image is still caught by
-hand-check only.
-
-> **The layout has moved twice.** v3 (2026-07-12) put the bitstream at offset 0;
-> v4 (2026-07-26) shrank a payload slot to make room for the writable
-> `journal` and `user` slots. Any offsets quoted from memory — including the
-> comment above the dict in `milan_soc.py` — predate one of those moves. Read the picture, or the build's own
-> `flashboot_layout.json`.
-
----
-
-## 3. Building
-
-```sh
-cd sw/litex
-./deploy.sh build --dry-run    # inspect the exact product recipe
-./deploy.sh build              # build the product bitstream
-./deploy.sh load               # load the newest bitstream
-```
-
-`deploy.sh` owns the verified product options. Its `MILAN_OPTS` assignment is
-the canonical deployment recipe for the AX7101.
-
-Vivado is currently the **only P&R backend wired up for this board** (the
-platform is instantiated with `toolchain="vivado"`). Elaboration-only runs
-need no vendor tools, and re-targeting to another board/toolchain is Route A
-in [Section 6.1 of ../integration/PORTING_GUIDE.md](../integration/PORTING_GUIDE.md#61-route-a---stay-on-litex-swap-the-board-least-work).
+The Milan CSR window is the only runtime control contract. Its authoritative
+offsets and ownership rules are in
+[`../reference/REGISTER_MAP.md`](../reference/REGISTER_MAP.md). Generated
+`csr.csv` files describe the enclosing LiteX address map for the exact build.
 
 ## 4. The flags that are not optional
 
-| Flag | Why it is required |
-|---|---|
-| `--coherent-dma` | **NOT implied by `--all-blocks`.** Without it the DMA masters bypass the CPU's snooping `dma_bus`: RX buffers are never CPU-visible (all-zero skbs, every frame dropped) and TX reads stale data (garbage dst MAC). Hardware-confirmed 2026-07-04 |
-| `--gtx-tx-invert` | AX7101/RTL8211E GMII: edge-aligned TX launch is hold-marginal → 25-40 % corrupt frames; inverted (mid-bit) sampling → 0. Needs the LiteEth patch (Section 6) |
-| `--milan-clk-freq 50e6` | Puts the deployed datapath in its own `cd_milan` domain while LiteX and DDR3 retain their configured system clock |
-| `--all-blocks` | NIC+DMA+MAC+DDR3 in one build; implies `--with-spiflash` |
+Release recipes explicitly select:
 
-## 5. Simulation (`milan_sim.py`)
+- `--software-profile baremetal`;
+- `--fabric-gptp`, making fabric the sole time owner;
+- the board, Ethernet port, fabric/audio clock, stream count, and physical
+  audio interface from the end-station configuration;
+- `--with-spiflash --flashboot baremetal` for persistent images;
+- RV32 single-hart CPU parameters.
 
-```sh
-./milan_sim.py --non-interactive     # Verilator: BIOS boots, reads "MILN"
-```
+The builder and sweep-shape gate compare the effective command line with the
+selected YAML configuration before a build launches. The direct fabric-gPTP
+option-OFF shape exists only for verification and is not flashable.
 
-This is the SoC-level layer of the verification stack (RTL harnesses below
-it, silicon above it) - see [../testing/TESTING.md](../testing/TESTING.md) and
-[../testing/SIMULATION.md](../testing/SIMULATION.md). The sim SoC uses
-NaxRiscv and the same `add_milan_datapath()` as the board build.
+## 5. Build and elaborate
 
-## 6. Patches (`patches/`)
+Use `sw/litex/build.sh <config>` for named configurations. The builder emits
+the AEM image and fabric-gPTP ROM from the same YAML input. For a quick source
+closure check, run `python3 scripts/check_soc_sources.py`; for full release
+instructions see [`../integration/BUILDING.md`](../integration/BUILDING.md).
 
-Applied **in place** to the active Python env's LiteX/LiteEth/VexiiRiscv
-trees by `patches/apply.sh` (idempotent; **re-run after every LiteX update**).
+## 6. Verification
 
-**This is a required step, not a tuning one.** The pinned upstream LiteX tree
-does not contain the cacheless `baremetal` VexiiRiscv variant used here.
-
-`apply.sh` normalises before it applies, then applies the complete product
-series. `test_builder.py` gate 23h reverses and reapplies the series against
-the installed trees and requires the result to be byte-identical.
-
-| Patch | What it does |
-|---|---|
-| `0002-liteeth-gmii-tx-clk-invert.patch` | Adds `tx_clk_invert` to `LiteEthPHYGMII` → the `--gtx-tx-invert` flag |
-| `0004-vexiiriscv-baremetal-variant.patch` | The LiteX `baremetal` VexiiRiscv variant. Upstream has no such variant, and it is the shipping AX profile |
-| `0005-vexiiriscv-cacheless-litex.patch` | The cacheless iBus/dBus fabric and direct DMA path the bare-metal shape needs at netlist time |
-
-Details and re-diff instructions: [`patches/README.md`](../../sw/litex/patches/README.md).
+The required layers are SoC elaboration, builder tests, source-closure gates,
+Verilator integration suites, Yosys synthesis, placed timing/utilization, and
+the UART plus external-wire board campaign. Commands are collected in
+[`../testing/RUNNING_TESTS.md`](../testing/RUNNING_TESTS.md).
 
 ## 7. Reproducibility - versions
 
-Revisions are pinned in
-[`sw/litex/litex_pins.txt`](../../sw/litex/litex_pins.txt), which also records
-why each one is a git revision rather than a PyPI release. The full install is
-three steps, in this order:
-
-```sh
-python3 -m pip install -r sw/litex/litex_pins.txt
-python3 scripts/ci_litex_env.py    # the VexiiRiscv checkout at the revision LiteX pins
-sw/litex/patches/apply.sh          # the six patches
-```
-
-Known-good anchors, recorded from working builds:
-
-* LiteX git `a1e1c36` (from `evidence/hw_naxriscv_reads_MILN.log` - the
-  on-silicon M-A2 run), which is what `litex_pins.txt` pins.
-* openFPGALoader ≥ v1.1.1; Vivado with Artix-7 support for `--build`.
-* `verilog-axis` submodule pinned by the gitlink
-  (`git submodule update --init third_party/verilog-axis` - required for any
-  elaboration).
-
-If `apply.sh` fails after a LiteX upgrade, the patch context moved - re-diff
-per `patches/README.md`. The open pinning work is tracked in GitHub issues.
-
-## 8. The Migen DMA sims and on-target tools
-
-The `test_*.py` sims are the regression net for the DMA engines - run them
-after touching `RingDMAReader`/`RingDMAWriter`/BD logic:
-
-```sh
-cd sw/litex
-python3 test_ring_dma.py      # base ring engines
-python3 test_ring_bd.py       # BD-mode engines (largest suite)
-python3 test_ring_tx.py  ; python3 test_ring_writeback.py
-python3 test_rx_steer.py ; python3 test_tx_bd.py
-python3 test_pb_bus_err.py    # AAF playback fetch: a FAILED read
-python3 test_pp_mem_bridge.py # pp desc/resp bridges: an UNACKED access
-```
-
-Each prints `PASS <name>` per test and `ALL PASS` at the end (no pytest;
-plain interpreter from your LiteX venv). The `tools_*.c` benchmarks are
-cross-compiled and run **on the board**; they are research instruments, not
-part of any build - their measurements live in the
-[findings log](../findings/README.md).
-
----
-
-*Related: [../integration/INTEGRATION_GUIDE.md](../integration/INTEGRATION_GUIDE.md) ·
-[../integration/PORTING_GUIDE.md](../integration/PORTING_GUIDE.md) ·
-[../integration/QSPI_FLASHBOOT.md](../integration/QSPI_FLASHBOOT.md) ·
-[../integration/AXIS_CORES_ON_NAXRISCV.md](../integration/AXIS_CORES_ON_NAXRISCV.md)
-(the three-plane attach model) · [../testing/TESTING.md](../testing/TESTING.md).*
+Record the superproject commit, both processor pins, end-station YAML, LiteX
+and LiteEth revisions, CPU core revision, Python environment, FPGA part and
+speed grade, and synthesis-tool version with every candidate. Preserve the
+generated build plan, source manifest, timing/utilization reports, bitstream
+hash, AEM hash, UART transcript, and packet capture.

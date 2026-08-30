@@ -22,8 +22,8 @@
 //       the "L != R" checks survive a pure swap - distinctness catches
 //       DUPLICATION, only the exact-value checks catch CROSSING. Both kept.
 //   Lane A: chmap(32) -> packetizer(N=2, t0=2ch slot0 / t1=8ch slots1..4).
-//     - per-slot source routing (I2S / TDM / RING / TONE), payload-exact;
-//     - mid-run remap (RING->ZERO, TONE->RING1);
+//     - per-slot source routing (I2S / TDM / RESERVED / TONE), payload-exact;
+//     - mid-run remap proving source 3 remains a reserved-zero encoding;
 //     - disabled slot = absence (drop t0 by disabling its only slot);
 //     - map RAM readback port;
 //     - LOOPBACK source (src 5): a RECEIVED stream's channel pair feeding a
@@ -175,11 +175,6 @@ static void drv_tdm(int slot, uint32_t l, uint32_t r) {
   dut->tdm_pair_valid_i = 1; dut->tdm_pair_slot_i = slot;
   dut->tdm_l_i = l & 0xFFFFFF; dut->tdm_r_i = r & 0xFFFFFF;
   cyc(); dut->tdm_pair_valid_i = 0; cyc(); }
-static void drv_ring(int slot, uint32_t l, uint32_t r) {
-  dut->ring_pair_valid_i = 1; dut->ring_pair_slot_i = slot;
-  dut->ring_l_i = l & 0xFFFFFF; dut->ring_r_i = r & 0xFFFFFF;
-  cyc(); dut->ring_pair_valid_i = 0; cyc(); }
-
 // ---- LOOPBACK payload stimulus: a synthetic KL_aaf_rx_depacketizer clone --
 // One 64-bit beat = 2 consecutive S32BE samples in WIRE order (byte lane j =
 // wire byte j; the top 24 bits are the audio, lanes 3/7 are the S32 pad), one
@@ -241,9 +236,6 @@ static const uint32_t I2S_L = 0x1A1111, I2S_R = 0x1A2222;
 static const uint32_t TONE  = 0x7A7A7A;
 static uint32_t TDM_L(int p) { return 0x2B0000 | (p << 4); }
 static uint32_t TDM_R(int p) { return 0x2BB000 | (p << 4); }
-static uint32_t RNG_L(int r) { return 0x3C0000 | (r << 4); }
-static uint32_t RNG_R(int r) { return 0x3CC000 | (r << 4); }
-
 int main(int argc, char** argv) {
   Verilated::commandArgs(argc, argv);
   dut = new Vchmap_wrap;
@@ -253,7 +245,7 @@ int main(int argc, char** argv) {
   dut->a_tready_i = 1; dut->b_tready_i = 1;
   dut->dest_mac_i = 0x91E0F000FE01ULL; dut->station_mac_i = 0x020000000002ULL;
   dut->vlan_vid_i = 2; dut->ptp_ns_i = 0x11223344; dut->transit_ns_i = 2000000;
-  dut->i2s_pair_valid_i = 0; dut->tdm_pair_valid_i = 0; dut->ring_pair_valid_i = 0;
+  dut->i2s_pair_valid_i = 0; dut->tdm_pair_valid_i = 0;
   dut->tone_smp_i = 0;
   dut->lb_tdata_i = 0; dut->lb_tvalid_i = 0; dut->lb_tlast_i = 0;
   dut->lb_tuser_i = 0; dut->lb_wire_chans_i = 0;
@@ -286,7 +278,7 @@ int main(int argc, char** argv) {
      a_map_mask(0), 0);
 
   // ====================================================================== //
-  printf("\n[A] per-slot routing: I2S / TDM / RING / TONE across t0(2ch)+t1(8ch)\n");
+  printf("\n[A] per-slot routing: I2S / TDM / RESERVED / TONE across t0(2ch)+t1(8ch)\n");
   // t1 CFG via the TCTX window (chans=8 so t1 owns pair slots 1..4)
   a_tctx_wr(1, 1, 0xF000FE02u);            // DMAC_LO (wire bytes 2..5) = base+1
   a_tctx_wr(1, 2, (1u << 16) | 0x91E0u);   // {UID=1, DMAC_HI}
@@ -296,15 +288,13 @@ int main(int argc, char** argv) {
   a_map_wr(0, ent(1, 1, 0));   // slot0 (t0 pair0) = I2S
   a_map_wr(1, ent(1, 2, 0));   // slot1 (t1 pair0) = TDM idx0
   a_map_wr(2, ent(1, 2, 1));   // slot2 (t1 pair1) = TDM idx1
-  a_map_wr(3, ent(1, 3, 0));   // slot3 (t1 pair2) = RING idx0
+  a_map_wr(3, ent(1, 3, 0));   // slot3 (t1 pair2) = RESERVED (silence)
   a_map_wr(4, ent(1, 4, 0));   // slot4 (t1 pair3) = TONE
 
   dut->tone_smp_i = TONE;
   drv_i2s(I2S_L, I2S_R);
   drv_tdm(0, TDM_L(0), TDM_R(0));
   drv_tdm(1, TDM_L(1), TDM_R(1));
-  drv_ring(0, RNG_L(0), RNG_R(0));
-  drv_ring(1, RNG_L(1), RNG_R(1));   // preloaded for the remap phase
   cyc(4);
 
   afr.clear();
@@ -326,8 +316,8 @@ int main(int argc, char** argv) {
     ck("A: t1 pair0 slot1 = TDM0 L", be(afr[ia1], 42, 3), TDM_L(0));
     ck("A: t1 pair0 slot1 = TDM0 R", be(afr[ia1], 46, 3), TDM_R(0));
     ck("A: t1 pair1 slot2 = TDM1 L", be(afr[ia1], 50, 3), TDM_L(1));
-    ck("A: t1 pair2 slot3 = RING0 L", be(afr[ia1], 58, 3), RNG_L(0));
-    ck("A: t1 pair2 slot3 = RING0 R", be(afr[ia1], 62, 3), RNG_R(0));
+    ck("A: t1 pair2 reserved source = silence L", be(afr[ia1], 58, 3), 0);
+    ck("A: t1 pair2 reserved source = silence R", be(afr[ia1], 62, 3), 0);
     ck("A: t1 pair3 slot4 = TONE L", be(afr[ia1], 66, 3), TONE);
     ck("A: t1 pair3 slot4 = TONE R", be(afr[ia1], 70, 3), TONE);
     ck("A: t0 seq 0", afr[ia0][20], 0);
@@ -335,9 +325,9 @@ int main(int argc, char** argv) {
   } else { for (int k = 0; k < 15; k++) ck("A content (skipped: frames missing)", 0, 1); }
 
   // ====================================================================== //
-  printf("\n[A2] mid-run remap: slot3 RING0->ZERO(silence), slot4 TONE->RING1\n");
+  printf("\n[A2] mid-run remap: slot3 ZERO, slot4 RESERVED (both silence)\n");
   a_map_wr(3, ent(1, 0, 0));   // slot3 -> ZERO source (silence, en=1)
-  a_map_wr(4, ent(1, 3, 1));   // slot4 -> RING idx1
+  a_map_wr(4, ent(1, 3, 1));   // slot4 -> RESERVED idx1
   cyc(4);
   afr.clear();
   for (int i = 0; i < 6; i++) a_tick();
@@ -347,8 +337,8 @@ int main(int argc, char** argv) {
   if (j1 >= 0) {
     ck("A2: t1 pair2 slot3 now silence L", be(afr[j1], 58, 3), 0);
     ck("A2: t1 pair2 slot3 now silence R", be(afr[j1], 62, 3), 0);
-    ck("A2: t1 pair3 slot4 now RING1 L", be(afr[j1], 66, 3), RNG_L(1));
-    ck("A2: t1 pair3 slot4 now RING1 R", be(afr[j1], 70, 3), RNG_R(1));
+    ck("A2: t1 pair3 reserved source is silence L", be(afr[j1], 66, 3), 0);
+    ck("A2: t1 pair3 reserved source is silence R", be(afr[j1], 70, 3), 0);
     ck("A2: t1 seq advanced to 1", afr[j1][20], 1);
   } else { for (int k = 0; k < 5; k++) ck("A2 content (skipped)", 0, 1); }
   if (j0 >= 0) ck("A2: t0 seq advanced to 1", afr[j0][20], 1);
@@ -391,7 +381,7 @@ int main(int argc, char** argv) {
   if (k1 >= 0) {
     ck("A3: t1 is unaffected by t0's unmapped slot", afr[k1][36], 8);
     ck("A3: t1 seq advanced to 2", afr[k1][20], 2);
-    ck("A3: t1 pair3 slot4 still RING1 L", be(afr[k1], 66, 3), RNG_L(1));
+    ck("A3: t1 pair3 reserved source still silence", be(afr[k1], 66, 3), 0);
   } else { for (int k = 0; k < 3; k++) ck("A3 t1 content (skipped)", 0, 1); }
   //! slot0 is deliberately LEFT unmapped - [RB] below reads it back
 
@@ -541,11 +531,11 @@ int main(int argc, char** argv) {
   printf("     DIFFERENT sources in ONE pair slot, each channel its own\n");
   {
     uint16_t sl = a_map_ent(1);
-    //! ch2 (slot1 even) <- TDM pair0's R half; ch3 (slot1 odd) <- RING
-    //! pair1's L half - impossible on the pair-granular store, the whole
-    //! point of the per-channel rework
+    //! ch2 (slot1 even) <- TDM pair0's R half; ch3 (slot1 odd) <- the
+    //! reserved-zero source - impossible on the pair-granular store, the
+    //! whole point of the per-channel rework
     a_map_wr_ch(2, ch_word(1, 1, 2, 0, 0));   // en, half=R, TDM, idx0
-    a_map_wr_ch(3, ch_word(1, 0, 3, 0, 1));   // en, half=L, RING, idx1
+    a_map_wr_ch(3, ch_word(1, 0, 3, 0, 1));   // en, half=L, RESERVED, idx1
     cyc(4);
     afr.clear();
     for (int i = 0; i < 6; i++) a_tick();
@@ -554,11 +544,11 @@ int main(int argc, char** argv) {
     ck("A8: frames with a split slot", h1 >= 0, 1);
     if (h1 >= 0) {
       ck("A8: ch2 carries TDM pair0 R", be(afr[h1], 42, 3), TDM_R(0));
-      ck("A8: ch3 carries RING pair1 L", be(afr[h1], 46, 3), RNG_L(1));
+      ck("A8: ch3 reserved source is silence", be(afr[h1], 46, 3), 0);
     } else { for (int k = 0; k < 2; k++) ck("A8 split (skipped)", 0, 1); }
     //! per-channel readback shows each channel its own truth
     ck("A8: ch2 entry {en,R,TDM,0}",  a_map_rd_ch(2) & 0x1FFF, 0x1A00);
-    ck("A8: ch3 entry {en,L,RING,1}", a_map_rd_ch(3) & 0x1FFF, 0x1301);
+    ck("A8: ch3 entry {en,L,RESERVED,1}", a_map_rd_ch(3) & 0x1FFF, 0x1301);
     a_map_wr(1, sl);   // restore the legacy slot state
   }
 
@@ -566,7 +556,7 @@ int main(int argc, char** argv) {
   printf("\n[RB] map RAM readback port\n");
   ck("RB: slot1 = {en,TDM,0}",  a_map_ent(1), ent(1, 2, 0));
   ck("RB: slot3 = {en,ZERO,0}", a_map_ent(3), ent(1, 0, 0));
-  ck("RB: slot4 = {en,RING,1}", a_map_ent(4), ent(1, 3, 1));
+  ck("RB: slot4 = {en,RESERVED,1}", a_map_ent(4), ent(1, 3, 1));
   ck("RB: slot0 = disabled",    a_map_ent(0), ent(0, 1, 0));
 
   // ====================================================================== //
@@ -581,14 +571,13 @@ int main(int argc, char** argv) {
 
   b_map_wr(28, ent(1, 1, 0));  // slot28 (t7 pair0) = I2S
   b_map_wr(29, ent(1, 2, 0));  // slot29 (t7 pair1) = TDM idx0
-  b_map_wr(30, ent(1, 3, 0));  // slot30 (t7 pair2) = RING idx0
+  b_map_wr(30, ent(1, 3, 0));  // slot30 (t7 pair2) = RESERVED
   b_map_wr(31, ent(1, 4, 0));  // slot31 (t7 pair3) = TONE  <-- widened slot
 
   // refresh the shared source holds for lane B
   dut->tone_smp_i = TONE;
   drv_i2s(I2S_L, I2S_R);
   drv_tdm(0, TDM_L(0), TDM_R(0));
-  drv_ring(0, RNG_L(0), RNG_R(0));
   cyc(4);
 
   bfr.clear();
@@ -603,7 +592,7 @@ int main(int argc, char** argv) {
     ck("B: t7 DMAC = base+7", be(bfr[0], 0, 6), 0x91E0F000FE08UL);
     ck("B: slot28 pair0 = I2S L", be(bfr[0], 42, 3), I2S_L);
     ck("B: slot29 pair1 = TDM0 L", be(bfr[0], 50, 3), TDM_L(0));
-    ck("B: slot30 pair2 = RING0 L", be(bfr[0], 58, 3), RNG_L(0));
+    ck("B: slot30 pair2 reserved source = silence", be(bfr[0], 58, 3), 0);
     ck("B: slot31 pair3 = TONE L (widened >15 slot)", be(bfr[0], 66, 3), TONE);
     ck("B: slot31 pair3 = TONE R (widened >15 slot)", be(bfr[0], 70, 3), TONE);
   } else { for (int k = 0; k < 9; k++) ck("B content (skipped: count wrong)", 0, 1); }
@@ -854,7 +843,6 @@ int main(int argc, char** argv) {
   drv_i2s(I2S_L, I2S_R);
   drv_tdm(0, TDM_L(0), TDM_R(0));
   drv_tdm(1, TDM_L(1), TDM_R(1));
-  drv_ring(0, RNG_L(0), RNG_R(0));
   cyc(4);
   afr.clear();
   for (int i = 0; i < 6; i++) a_tick();     // loopback AXIS IDLE
@@ -902,7 +890,7 @@ int main(int argc, char** argv) {
     ck("LBB: slot31 loop R = s3 ch5 e1", be(bfr[0], 70, 3), LBV(3, 5, 1));
     ck("LBB: slot31 loop L != R", be(bfr[0], 66, 3) != be(bfr[0], 70, 3), 1);
     ck("LBB: slot28 still I2S L (untouched)", be(bfr[0], 42, 3), I2S_L);
-    ck("LBB: slot30 still RING0 L (untouched)", be(bfr[0], 58, 3), RNG_L(0));
+    ck("LBB: slot30 reserved source stays silence", be(bfr[0], 58, 3), 0);
   } else { for (int k = 0; k < 5; k++) ck("LBB content (skipped)", 0, 1); }
 
   // ====================================================================== //

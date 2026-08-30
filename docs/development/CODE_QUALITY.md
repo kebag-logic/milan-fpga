@@ -59,8 +59,8 @@ Five obligations make that reviewable:
 
 ## Scope
 
-The rules apply to first-party sources: `hdl/`, `sw/`, `scripts/`, `tb/`,
-`syn/` and `harness/` in this repository, plus the corresponding tracked
+The rules apply to first-party sources: `hdl/`, `sw/`, `scripts/`, `tb/` and
+`syn/` in this repository, plus the corresponding tracked
 sources in the project-owned `protocol-processor/` and `gptp-processor/`
 submodules. A scan refuses an absent or off-pin project submodule rather than
 quietly establishing a smaller baseline.
@@ -364,7 +364,6 @@ reason. These rows include both project-owned processor submodules:
 | `protocol-processor/scripts/render-wavedrom.py:collect_blocks` | depth 7, 13 decisions | A small Markdown/fence parser; a future change should table-drive token states, but no rewrite is justified without a failing case. |
 | `tb/tools/hive_compliance_clusters.py:main` | depth 6, 37 decisions | The same shape as `hive_compliance.py:main` for the STREAM_PORT and cluster probes: descriptor-type, port, cluster and map loops with a status check at each level, and every failure recorded where it is found. |
 | `scripts/act_ci.py:freeze_live_act` | depth 6, 23 decisions | A container monitor that re-checks its cancel flag after every blocking call — the early return the rule asks for, paid for in depth because it polls the inventory, the running set and the tool-cache volume in one closure; the next thing it watches goes in a helper. |
-| `sw/litex/test_ring_dma.py:axi_slave` | depth 6, 18 decisions | A cycle-accurate AXI slave model inside a test; the nesting is the address, data-beat and response handshake sequence, so it is retained, and the next protocol rule it checks belongs in a helper rather than a deeper branch. |
 | `hdl/common/csr/milan_csr.sv:register_write` | depth 6, 30 order-dependent targets | The address decode is the register-map specification, and the 30 targets are one-cycle write strobes cleared at the top of the block and raised by the decode — a named default-then-override — so it stays a named explicit decode. |
 | `protocol-processor/hdl/aecp/KL_aecp_notify.sv:notify_core` | depth 7, 27 order-dependent targets | The unsolicited-notification FSM: per-cycle defaults for its request and arm outputs, then state-specific overrides across eight states; review the priority at each override rather than imposing a count. |
 | `protocol-processor/hdl/packet_engine/KL_pp_rx_validator.sv:validator_seq` | depth 6, 27 order-dependent targets | The receive-frame sequencer: its pulses fall by default each cycle and its captured header fields are written when their byte arrives, so the order is the wire order. |
@@ -372,13 +371,12 @@ reason. These rows include both project-owned processor submodules:
 
 The worked `cluster_names` case was selected because its complexity came from
 an unnamed catch-all and nested error path, not merely because it ranked high.
-Two rows an earlier count put at the top are absent for a reason worth
-recording: the nine-arm `elif` ladder in `sw/litex/test_ring_bd.py:stim` read
-as depth 10 while an `elif` counted as a level and is depth 4 now that it does
-not, and the explicit command FSM in
+One row an earlier count put at the top is absent for a reason worth recording:
+the explicit command FSM in
 `protocol-processor/hdl/aecp/KL_aecp_engine.sv:command_machine` read as 85
 order-dependent targets while exclusive `case` arms were counted and holds 5
-now that they are not. Both were artefacts of the measurement, not of the code.
+now that they are not. That was an artefact of the measurement, not of the
+code.
 
 ### Exceptions
 
@@ -427,13 +425,11 @@ concatenation writes each of its elements, a loop variable is not a signal,
 writes to different constant bits of one vector are disjoint, and a variable
 index is taken to overlap anything.
 
-**The population, stated plainly.** Python is scanned under `scripts/`, `sw/`,
-`tb/`, `harness/`, `syn/` and `hdl/` here and under the same names plus
-`bench/` in each processor: 115 files today — 104 in this repository (31 under
-`scripts/`, 29 `sw/`, 26 `harness/`, 14 `tb/`, 4 `syn/`), 9 in
-`protocol-processor` (`scripts/`, `hdl/`, `tb/`) and 2 in `gptp-processor`
-(`hdl/`, `tb/`). Python under `avdecc/`, `bd/`, `docs/` and `tests/` is outside
-the Scope list above and is not measured. The RTL number covers every
+**The population, stated plainly.** Python is discovered from the tracked
+first-party `scripts/`, `sw/`, `tb/`, `syn/`, `hdl/`, and processor `bench/`
+trees by `scripts/code_quality_scope.py`; removed trees are not retained as a
+documentation-only count. Python under `avdecc/`, `bd/`, `docs/` and `tests/`
+is outside the Scope list above and is not measured. The RTL number covers every
 `always_ff`, `always_comb`, `always_latch` and `always @` block, with or
 without a `begin`, in the `.sv` files under `hdl/` of the three trees;
 testbench and synthesis-flow SystemVerilog under `tb/` and `syn/`, `.svh`
@@ -491,16 +487,16 @@ gives the test its power — with the external rule cited where the repeat is.
   comment cites the external rule and says why importing the implementation's
   symbol would weaken the test.
 
-### A worked example: five lists, one authority
+### A worked example: four lists, one authority
 
-The set of RTL files needed to compile `milan_datapath` was written out five
+The set of RTL files needed to compile `milan_datapath` was written out four
 times: the Vivado list in `sw/litex/milan_soc.py`, the `milan_datapath` row in
-`syn/yosys/run.sh`, `DP_SRCS` in `syn/yosys/ooc.sh`, and the source lists in
-`tb/verilator/milan_dp/Makefile` and `tb/verilator/hostplane/Makefile`. Exactly
+`syn/yosys/run.sh`, `DP_SRCS` in `syn/yosys/ooc.sh`, and the source list in
+`tb/verilator/milan_dp/Makefile`. Exactly
 one of them was guarded — `scripts/check_soc_sources.py` has watched the Vivado
 list since a missing entry killed three synthesis runs forty minutes in.
 
-The other four were unguarded, and the cost was paid immediately: extracting one
+The other three were unguarded, and the cost was paid immediately: extracting one
 module under Rule 1 broke three Verilator suites at once, each with the same
 "Cannot find file containing module", one per list nobody had told.
 
@@ -621,17 +617,16 @@ closure walk itself — every one of its six sources is reached from
 out of the walk would be visible rather than merely unelaborated.
 
 The gPTP engine's source list is itself an inventory item, and it is written by
-hand ten times. Five copies are in this repository — the gPTP rows of
+hand nine times. Four copies are in this repository — the gPTP rows of
 `sw/litex/milan_soc.py`, `GPTP_ENGINE_SRCS` in `syn/yosys/run.sh` and
-`syn/yosys/ooc.sh`, `GPTP_SRCS` in `tb/verilator/milan_dp/Makefile` and
-`tb/verilator/hostplane/Makefile` — and five are in the gPTP processor's own
+`syn/yosys/ooc.sh`, and `GPTP_SRCS` in `tb/verilator/milan_dp/Makefile` — and five are in the gPTP processor's own
 repository: its top-level Makefile's lint target, its out-of-context Tcl, the
 Arty bench Makefile and build Tcl, and its Verilator engine suite. They
 classify as follows.
 
 | Copies | Classification | Why |
 |---|---|---|
-| The five in this repository | Drift-checked derived copies | The walk reaches all six engine files from `milan_datapath`, so a gPTP file any of the five omits is a `MISSING SOURCE`. No generator like `scripts/pp_srcs.py` exists for them yet, and the comment in `milan_soc.py` that once called the `milan_dp` Makefile "authoritative" now names the gate: a copy that calls another copy authoritative is the circular authority that let four protocol-processor copies drift together. |
+| The four in this repository | Drift-checked derived copies | The walk reaches all engine files from `milan_datapath`, so a gPTP file any copy omits is a `MISSING SOURCE`. No generator like `scripts/pp_srcs.py` exists for them yet, and the comment in `milan_soc.py` that once called the `milan_dp` Makefile "authoritative" now names the gate. |
 | The five in the processor repository | Outside this gate | They live in the submodule at its pin, which this repository can neither generate nor edit; the gate guards the six files the superproject needs, not the processor's build inputs. They carry a defect of their own — a module added under the processor's `hdl` that the engine does not instantiate is never linted or elaborated there — which belongs to that repository's own gate, not to a superproject check parsing a pinned tree it does not own. |
 
 ### The named-constant half
@@ -813,14 +808,12 @@ python3 scripts/measure_naming.py --write-budget # regenerate the budget after a
 **What is scanned, and what is not.** Every module header — ports and
 parameters — in first-party `.sv` under `hdl/` across the superproject and both
 project-owned processor submodules: 117 files, 3459 ports and 539
-parameters at this head. Declarations are parsed rather than pattern-matched,
+parameters at the measured head. Declarations are parsed rather than pattern-matched,
 so `output reg`, `int`, package-typed and interface-modport ports, packed and
 unpacked dimensions, declarations split across lines and names sharing one
 declaration are all boundaries. Function and task arguments in module bodies
-are not boundaries and are not counted. Outside the scan, and said so here
-rather than left to be discovered: signals declared inside an `interface`
-body, and `hdl/milan/milan_dma_wrapper.v`, the generated Vivado wrapper the
-lint gate already excludes with its reason.
+are not boundaries and are not counted. Signals declared inside an `interface`
+body remain outside this module-header scan.
 
 **The blind spot has a size.** A port with no `//!` at all cannot be judged
 here, and the house style's "one on every port" is a rule with debt behind it:
@@ -1068,9 +1061,7 @@ The gate uses the shared code-quality scope, so the project-owned
 checked out at their pins. It does not write its own list of individual HDL
 exceptions: it imports `LINT_EXCLUDE` from
 [`scripts/lint_rtl.py`](../../scripts/lint_rtl.py), which already owns that
-question and records a reason for each entry. `hdl/milan/milan_top.sv` is in it
-— a Zynq top no build compiles and that cannot elaborate here — and documenting
-its ports would decorate a file every gate already ignores.
+question and records a reason for each entry. The list is currently empty.
 
 ### Audited boundary inventory
 
@@ -1122,7 +1113,7 @@ of this is recorded in the script's docstring as well.
 ### The boundary documented as proof
 
 `hdl/ieee8021q/filtering/rx_mac_filter.sv` is the receive shield: it decides
-which frames reach the host at all, and eighteen of its ports carried no
+which addressed frames reach the protocol processor, and eighteen of its ports carried no
 contract. Each of its four bundles now states the law a consumer needs:
 
 - the **TCAM write port** is level-driven with no handshake; the lookup is
@@ -1255,7 +1246,7 @@ action must be wide enough to distinguish two matches.
 **Where the contract is enforced, and where it is not.** Verilator refuses
 the build whenever `USERERROR` is fatal: its default with no `-Wno-fatal`, or
 `-Werror-USERERROR`. Every suite that builds the shield carries the latter —
-`tb/verilator/rx_filter`, `milan_dp`, `hostplane` and `tcam_csr` — because
+`tb/verilator/rx_filter`, `milan_dp` and `tcam_csr` — because
 `-Wno-fatal` on its own demotes a `$error` to a warning, and review built
 `-GTDATA_WIDTH=52` in the rx_filter suite with rc 0 before the flag was added
 there. Vivado refuses it at elaboration. It is **not** enforced on the
@@ -1541,13 +1532,9 @@ read — 24 types at this head:
 
 `--list` prints the census of tracked types that are **not** read (`.md` by
 design; images, JSON, logs and the like), so the blind spots are visible
-instead of assumed away. Two RTL files are excluded by name through
+instead of assumed away. RTL whole-file exclusions are imported from
 [`scripts/lint_rtl.py`](../../scripts/lint_rtl.py)'s `LINT_EXCLUDE`, the same
-list Rules 5 and 6 use: `hdl/milan/milan_top.sv` is an archived Zynq top that
-no build compiles, and its two unowned markers — line 329, *derive from
-PHY/MAC status (REQ-MAC-03)*, and line 751, *from gPTP GM tracking
-(REQ-PTP)* — are part of the archive, not of maintained code. `--list` names
-both excluded files.
+list Rules 5 and 6 use; it is currently empty.
 
 The extractor obeys one rule: **string state never crosses a line.** The
 first version treated an apostrophe as a string delimiter in SystemVerilog,
@@ -1573,17 +1560,6 @@ unowned one beside it is wired back in.
 
 ### The markers the sweep found
 
-`hdl/ieee8021as/ptp_timestamp/ptp_ts_top.sv` carried
-`//TODO: add DMA engine signals` inside its port list. It was not merely
-unowned — it was **wrong**. Issue #53 records that the three DMA streams the
-module declares (`s_axis_tx_*`, `m_axis_rx_*`, `ts_m_axis_*`) already exist
-and that the remaining work is attaching them through a Vivado block design,
-which is a block-design change and not a change to this module's port list.
-The streams the marker asked for were declared immediately above it. That is
-the failure mode the rule names: a comment that outlived the code it
-described, still reading as a plan. It is removed, not re-owned, because
-there is nothing here for an owner to do.
-
 `tb/avtp_packet_gen_sv/tb_classes/avtp_adp_packet_gen.svh` carried
 `// TODO: find a way to make it better!!!` above the field-by-field assembly
 of an ADP entity from a byte queue, in the randomized packet-generator class
@@ -1594,31 +1570,14 @@ wish, not a plan — so it is removed; the assembly it sat above is unchanged.
 
 ### Dead code the inventory found
 
-Five module-level Python helpers in first-party code have names that occur
-nowhere else in the tree. Four are small and none of them is a test, so none
+Four module-level Python helpers in first-party code have names that occur
+nowhere else in the tree. They are small and none of them is a test, so none
 is silently missing coverage; they stay, recorded here rather than removed,
 because removing them is a cleanup of its own under the governing rule:
 `scripts/check_wire_accountability.py:168` `i2s_capture_pads` (9 lines),
 `sw/builder/test_builder.py:1439` `rv32_verdict_edge` (23),
 `sw/builder/test_builder.py:1557` `rv32_unit` (47) and
 `tb/verilator/tsn_fuzz/wire.py:82` `aecp_vu_cmd` (8).
-
-The fifth is not small. `sw/litex/test_ring_bd.py` defined
-`test_hs_livelock_orphan` — a 159-line multi-flow livelock reproduction —
-**after** the `if __name__ == "__main__":` driver that lists the suite's
-tests, and the driver did not call it: Python executes top to bottom, so when
-the driver ran the name was not bound yet, and calling it from there would
-have raised `NameError`. It was not dead. It was runnable and documented via
-import —
-[`docs/testing/RUNNING_TESTS.md`](../testing/RUNNING_TESTS.md) gives
-`t.test_hs_livelock_orphan()` as its one-test example and lists the livelock
-probe among what the suite covers — and what it lacked was a place in the
-driver's run, so `python3 test_ring_bd.py` never exercised it. "Dead" was a
-question, and it was answered by running it the documented way. **It
-passes**: seven buffer descriptors reaped live, the completion-queue head
-never jammed. So it is moved above the driver and called from it, last,
-rather than deleted; the reason the driver never reached it is a
-line-ordering accident, not a decision anyone made.
 
 The stale-comment sweep is the marker sweep above plus a reading of the
 representative module and its harness (next section); it found the
@@ -1839,10 +1798,9 @@ behavior, and that inventory is noted here for a later round, not measured.
 ### Two things found already clean, and verified rather than rebuilt
 
 - **Replayable randomness.** Every **gating** first-party file that draws
-  random values records a seed — `test_tx_bd.py` seeds immediately before each
-  block of draws, `test_ring_bd.py` uses `random.Random(13)`, the `tsn_fuzz`
-  campaigns and the Verilator harnesses seed their `random.Random`/`mt19937`
-  instances. The first pass of this audit reported five unseeded draws; that
+  random values records a seed — the `tsn_fuzz` campaigns and the Verilator
+  harnesses seed their `random.Random`/`mt19937` instances. The first pass of
+  this audit reported five unseeded draws; that
   was a defect in the audit, which flagged the draws without checking whether
   the file seeded. The second pass reported zero, and a review showed that was
   a defect too: it recognised only module-level `random.<fn>(` and bare
@@ -2098,20 +2056,12 @@ code 2 and the state named, a population that is empty or reaches no tracked
 file under `hdl/` or under either processor's `hdl/`, before the budget is read:
 a scan over a missing tree reports zero of everything, and zero of everything
 is a clean ratchet unless the gate refuses to count it. The tracked inventory is
-117 `.sv` files, four `.svh` headers, and one `.v` file: 122 total. Of those,
-120 are gated (116 `.sv`, four `.svh`); the two excluded tool boundaries are
-listed below. Forty-eight of the gated files live in `protocol-processor` or
-`gptp-processor`, so processor RTL is not silently outside the rule.
+the live `.sv` and `.svh` inventory printed by the gate. Processor RTL is
+included rather than silently outside the rule.
 
 Three populations the rule names sit beside the counts above, each with a
 recorded decision rather than an omission:
 
-- **The excluded Zynq top carries debt of its own.** `hdl/milan/milan_top.sv`
-  holds three untyped string-valued parameters (`MAC_TARGET`, `MAC_IODDR_STYLE`
-  and `MAC_CLK_STYLE`) and seven `reg` declarations on six lines. They are
-  outside both ratchets because the file is outside every build, for the reason
-  `LINT_EXCLUDE` records; they are quantified here so the exclusion is not a
-  blind spot, and whoever revives the top pays them then.
 - **The generated CSR headers are gated on purpose.**
   `hdl/common/csr/gen/adp_shape_defaults.svh` and
   `hdl/common/csr/gen/lwsrp_csr_defaults.svh` are written by
@@ -2235,10 +2185,7 @@ The gate imports [`scripts/lint_rtl.py`](../../scripts/lint_rtl.py)'s
 must contain both a reason and repository evidence; an empty rationale is a
 hard failure.
 
-| File | Recorded boundary |
-|---|---|
-| `hdl/milan/milan_dma_wrapper.v` | Vivado-generated Zynq AXI-DMA wrapper; its tool/version header and `bd/milan-dma.tcl` own regeneration. |
-| `hdl/milan/milan_top.sv` | Archived, non-elaboratable Zynq top whose external MAC and generated DMA IP are unavailable; the local banner and `milan_soc.py` exclusion record why it is not a gated fabric source. |
+There are currently no whole-file HDL exceptions.
 
 ### Review checklist
 

@@ -227,14 +227,11 @@ int main(int argc, char** argv) {
     //  filter could never have been the cause, so the next reachability
     //  scare can be pointed at the network instead of re-audited here.
     //
-    //  This models EXACTLY what the driver installs. kl-eth.c kl_open():
-    //      kl_wr_station_mac(kl, ndev->dev_addr);   // MAC_ADDR_LO then _HI
-    //      kl_rx_shield_arm(kl);                    // TCAM idx 15, then
-    //                                               // TCAM_CTRL[1] = 1
-    //      kl_wr(CSR_MAC_CTRL, TX_EN | RX_EN | IS_1G);
-    //  and kl_rx_shield_arm() programs ONE ternary DROP over the whole IEEE
-    //  1722 MAAP space 91:E0:F0:00:xx:xx. Note the station MAC is written
-    //  BEFORE the arm, and MAC RX is enabled only after both.
+    //  This models the bare-metal initialization order: write MAC_ADDR_LO then
+    //  MAC_ADDR_HI; program TCAM entry 15 and arm TCAM_CTRL[1]; finally enable
+    //  MAC TX/RX. The shield entry is one ternary DROP over the whole IEEE 1722
+    //  MAAP space 91:E0:F0:00:xx:xx. The station MAC is written before the arm,
+    //  and MAC RX is enabled only after both.
     //
     //  The three ARP shapes below are the desk half of that diagnosis: the
     //  filter CANNOT be the cause, because a broadcast ARP REQUEST is

@@ -10,14 +10,14 @@
 # (not just a Verilator RTL harness): boot to the BIOS prompt and `mem_read` the ID.
 #
 #   ./milan_sim.py                       # build + boot the sim (interactive BIOS)
-#   ./milan_sim.py --non-interactive     # scripted boot-check (reads the ID)
+#   ./milan_sim.py --non-interactive     # scripted elaboration/boot smoke (no CSR read)
 #
 # It reuses litex_sim's proven sim plumbing (SimSoC + sim Platform + serial2console)
 # and milan_soc.add_milan_datapath() (the same wrapper wiring as the board SoC).
 #
 # XLEN: **RV32 is the default focus** — the board shape is RV32 VexiiRiscv (area;
-# HANDOVER_0801 §1) and the sim core has always defaulted to `--xlen=32`. RV64 stays
-# supported but is not primary: pass `--xlen=64` explicitly.
+# the named product recipe) and the sim core has always defaulted to `--xlen=32`.
+# RV64 remains a developer-simulator option only: pass `--xlen=64` explicitly.
 #
 # Verilator multithreading: OFF by default (that is the proven M-A2 path). Opt in per
 # run with VERILATOR_THREADS / VERILATOR_JOBS — see _verilator_build_kwargs() below and
@@ -94,8 +94,8 @@ class MilanSimSoC(SimSoC):
             self.cd_audio.rst.eq(ResetSignal("sys")),
         ]
 
-        # Instantiate the real wrapper (DMA/MAC ports idle — only the CSR path matters
-        # for M-A2) and add its RTL so Verilator compiles it into the sim model.
+        # Instantiate the real wrapper (MAC idle — only the CSR path matters for
+        # M-A2) and add its RTL so Verilator compiles it into the sim model.
         #
         # THE TWO BASES ARE NOT OPTIONAL and this file had not run since they
         # stopped being: `add_milan_datapath` RAISES rather than defaulting,
@@ -107,8 +107,7 @@ class MilanSimSoC(SimSoC):
         ram = self.bus.regions["main_ram"]
         desc_base, resp_base = _pp_windows_for_sim(ram.origin, ram.size,
                                                    entity_gen_dir)
-        irq_csr = Signal()
-        add_milan_datapath(self, self.platform, axil, irq_csr,
+        add_milan_datapath(self, self.platform, axil,
                            desc_base=desc_base, resp_base=resp_base,
                            gptp_plane=True,
                            entity_gen_dir=entity_gen_dir)
@@ -152,8 +151,9 @@ def _verilator_build_kwargs():
 def main():
     ap = argparse.ArgumentParser(description="Milan SoC Verilator simulation (M-A2 proof)")
     ap.add_argument("--xlen", default=32, type=int, choices=[32, 64],
-                    help="NaxRiscv width (default 32 — matches the RV32 board shape, "
-                         "and a smaller/faster Verilator model; 64 = supported, not primary)")
+                    help="developer NaxRiscv simulation width (default 32 mirrors the "
+                         "product word width and gives a smaller/faster model; 64 is "
+                         "a developer option, not a product profile)")
     ap.add_argument("--non-interactive", action="store_true",
                     help="run without a BIOS console (won't read mem; for CI elaboration)")
     ap.add_argument("--output-dir", default="build_milan_sim")
@@ -168,7 +168,8 @@ def main():
                     help="integrated main_ram bytes (default 0x200000)")
     args = ap.parse_args()
 
-    # NaxRiscv config, exactly like the board target.
+    # Developer-only NaxRiscv simulation config. The product board target is
+    # cacheless RV32I VexiiRiscv; this compatibility model is not deployable.
     from litex.soc.cores.cpu.naxriscv import NaxRiscv
     _p = argparse.ArgumentParser(); NaxRiscv.args_fill(_p)
     _na, _ = _p.parse_known_args([]); _na.xlen = args.xlen; _na.cpu_count = 1

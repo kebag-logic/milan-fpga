@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net"><diagram name="audio-stream-path"><mxGraphModel dx="1600" dy="1000" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2280" pageHeight="1240" math="0" shadow="0"><root><mxCell id="0"/>
+<mxfile host="app.diagrams.net"><diagram name="audio-stream-path"><mxGraphModel dx="1600" dy="1000" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2500" pageHeight="1060" math="0" shadow="0"><root><mxCell id="0"/>
 <mxCell id="1" parent="0"/>
 <mxCell id="title" value="milan-fpga audio stream path - capture to render" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=none;fontSize=22;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="40" y="20" width="1400" height="36" as="geometry"/></mxCell>
 <mxCell id="n_i2s" value="KL_aaf_capture_i2s
@@ -7,35 +7,31 @@ Pmod I2S2 ADC (CS5343), I2S master
 <mxCell id="n_tdm" value="KL_tdm_capture
 TDM slave, 8/16/32 slots
 pair k = TDM slots {2k, 2k+1}" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1565C0;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="60" y="262" width="268" height="78" as="geometry"/></mxCell>
-<mxCell id="n_ring" value="KL_pcm_tx  (ring playback)
-host-written PCM ring, S32BE
-pb_* CSRs; underrun repeat/silence" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1565C0;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="60" y="354" width="268" height="78" as="geometry"/></mxCell>
+<mxCell id="n_loop" value="received AAF loopback
+accepted depacketizer channel pairs
+elastic replay queues, per RX stream" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1565C0;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="60" y="354" width="268" height="78" as="geometry"/></mxCell>
 <mxCell id="n_tone" value="KL_tone_gen
 1 kHz 0 dBFS, 48-entry table
 TONE_CTRL 0x6DC" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1565C0;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="60" y="446" width="268" height="78" as="geometry"/></mxCell>
 <mxCell id="n_cmux" value="KL_chan_map_capture
 32-slot map RAM {en, src, idx}
-src: I2S / TDM / RING / TONE / zero
+src: I2S / TDM / TONE / LOOP / zero
 CSR 0x900 window (bypass = legacy)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#6A1B9A;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="440" y="288" width="268" height="116" as="geometry"/></mxCell>
 <mxCell id="n_pkt" value="KL_aaf_packetizer
 TCTX xN talkers, 6 samples/ch per PDU
 payload 24*C B, frame 42+24*C B
 avtp_timestamp = PHC ns + transit offset
 AAF_CTRL 0x654 + 0x800 TCTX window" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#2E7D32;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="812" y="288" width="292" height="116" as="geometry"/></mxCell>
-<mxCell id="n_hosttx" value="host TX DMA
-control-lane frames from software" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#455A64;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="812" y="130" width="220" height="64" as="geometry"/></mxCell>
-<mxCell id="n_cbs" value="classify + CBS shaper
-traffic_controller_802_1q" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#EF6C00;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="1076" y="130" width="250" height="64" as="geometry"/></mxCell>
-<mxCell id="n_ptptx" value="ptp_ts_top (TX)
-egress HW timestamp" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#EF6C00;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="1370" y="130" width="220" height="64" as="geometry"/></mxCell>
-<mxCell id="n_inject" value="post-shaper inject
-adp_tx_arbiter aaf_final_mux
-AAF joins AFTER the CBS queue;
-bandwidth held by the lwSRP
-admission gate (0x680 group)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#EF6C00;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="1208" y="288" width="268" height="116" as="geometry"/></mxCell>
+<mxCell id="n_fabricctl" value="fabric protocol / time sources
+protocol processor · MAAP · gPTP · CRF" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#455A64;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="850" y="130" width="300" height="64" as="geometry"/></mxCell>
+<mxCell id="n_inject" value="fabric egress arbiter
+adp_tx_arbiter + aaf_final_mux
+AAF joins the fabric TX trunk;
+bandwidth held by processor SRP
+reservation face grants admission" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#EF6C00;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="1208" y="288" width="268" height="116" as="geometry"/></mxCell>
 <mxCell id="n_mactx" value="MAC TX
-RGMII, VLAN SR class
-VID from AAF_CTRL[27:16]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#EF6C00;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="1580" y="300" width="190" height="92" as="geometry"/></mxCell>
+GMII, VLAN SR class
+egress timestamp at MAC boundary" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#EF6C00;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="1580" y="300" width="190" height="92" as="geometry"/></mxCell>
 <mxCell id="n_wire" value="the wire
 AAF-PCM class A, 8000 PDU/s @48 k
 DMAC = MAAP claim, VLAN SR VID
@@ -56,29 +52,25 @@ S32BE payload, 1 AXIS frame/PDU,
 tuser = stream; commits only on the
 monitor accept pulse - PCMRX_CNT 0x6C4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#2E7D32;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="1004" y="748" width="280" height="116" as="geometry"/></mxCell>
 <mxCell id="n_route" value="KL_pcm_route
-per-stream flags {RENDER, DMA}
-reset: stream 0 = RENDER|DMA" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#6A1B9A;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="1344" y="760" width="240" height="92" as="geometry"/></mxCell>
-<mxCell id="n_pcmring" value="PCM DMA ring
-DRAM _PCMRingNxN (LiteX 0xf0003120)
-or on-chip BRAM --pcm-ring bram
-(0x9010_0000, sink.ready == 1)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFEBEE;strokeColor=#C62828;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="1240" y="950" width="320" height="104" as="geometry"/></mxCell>
-<mxCell id="n_ringcons" value="ring consumer (host side)
-drains the capture ring
-(bench tooling, private test repo)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#455A64;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="1240" y="1104" width="320" height="78" as="geometry"/></mxCell>
+route word {RENDER, reserved}
+reset: stream 0 = RENDER" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#6A1B9A;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="1344" y="760" width="240" height="92" as="geometry"/></mxCell>
 <mxCell id="n_lpf" value="KL_pcm_lpf
 20 kHz Butterworth biquad
 serial-MAC, ~12 clk/pair
-LPF_P=0 PRUNES it (ax7101 does)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#6A1B9A;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="1660" y="700" width="220" height="78" as="geometry"/></mxCell>
+LPF_P=0 PRUNES it (ax7101 does)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#6A1B9A;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="1640" y="690" width="220" height="78" as="geometry"/></mxCell>
+<mxCell id="n_feed" value="KL_i2s_feed_mux
+direct listener tap or
+mapped physical pair {0,1}" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#6A1B9A;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="1900" y="690" width="220" height="78" as="geometry"/></mxCell>
 <mxCell id="n_i2spb" value="KL_i2s_playback
 CS4344 DAC, clean-clock free-run
-I2SPB_STAT 0x6D8, wire-truth chans" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1565C0;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="1948" y="700" width="268" height="78" as="geometry"/></mxCell>
+I2SPB_STAT 0x6D8, wire-truth chans" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1565C0;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="2160" y="690" width="268" height="78" as="geometry"/></mxCell>
 <mxCell id="n_cxbar" value="KL_chan_map_render
 64 stream-ch -&gt; 10 phys
 wire-truth channels_per_frame
-CSR 0x900 window" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#6A1B9A;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="1660" y="812" width="220" height="92" as="geometry"/></mxCell>
+CSR 0x900 window" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#6A1B9A;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="1640" y="820" width="220" height="92" as="geometry"/></mxCell>
 <mxCell id="n_tdmout" value="KL_tdm_render
 TDM8 out, lane 0 slots 0..7
-double-buffered frames" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1565C0;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="1948" y="812" width="268" height="92" as="geometry"/></mxCell>
+double-buffered frames" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1565C0;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="2160" y="820" width="268" height="92" as="geometry"/></mxCell>
 <mxCell id="tap0" value="CAP" style="ellipse;whiteSpace=wrap;html=1;fillColor=#F9A825;strokeColor=#795548;fontSize=9;verticalLabelPosition=top;verticalAlign=bottom;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="391" y="337" width="18" height="18" as="geometry"/></mxCell>
 <mxCell id="tap1" value="PKT_SOF" style="ellipse;whiteSpace=wrap;html=1;fillColor=#F9A825;strokeColor=#795548;fontSize=9;verticalLabelPosition=top;verticalAlign=bottom;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="1121" y="311" width="18" height="18" as="geometry"/></mxCell>
 <mxCell id="tap2" value="PKT_EOF" style="ellipse;whiteSpace=wrap;html=1;fillColor=#F9A825;strokeColor=#795548;fontSize=9;verticalLabelPosition=top;verticalAlign=bottom;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="1121" y="363" width="18" height="18" as="geometry"/></mxCell>
@@ -86,26 +78,24 @@ double-buffered frames" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2F
 <mxCell id="tap4" value="MAC_RX" style="ellipse;whiteSpace=wrap;html=1;fillColor=#F9A825;strokeColor=#795548;fontSize=9;verticalLabelPosition=top;verticalAlign=bottom;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="281" y="797" width="18" height="18" as="geometry"/></mxCell>
 <mxCell id="tap5" value="ACCEPT" style="ellipse;whiteSpace=wrap;html=1;fillColor=#F9A825;strokeColor=#795548;fontSize=9;verticalLabelPosition=top;verticalAlign=bottom;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="961" y="797" width="18" height="18" as="geometry"/></mxCell>
 <mxCell id="tap6" value="DEPKT" style="ellipse;whiteSpace=wrap;html=1;fillColor=#F9A825;strokeColor=#795548;fontSize=9;verticalLabelPosition=top;verticalAlign=bottom;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="1301" y="797" width="18" height="18" as="geometry"/></mxCell>
-<mxCell id="tap7" value="PCM_RING" style="ellipse;whiteSpace=wrap;html=1;fillColor=#F9A825;strokeColor=#795548;fontSize=9;verticalLabelPosition=top;verticalAlign=bottom;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="1411" y="911" width="18" height="18" as="geometry"/></mxCell>
+<mxCell id="tap7" value="FABRIC_RENDER" style="ellipse;whiteSpace=wrap;html=1;fillColor=#F9A825;strokeColor=#795548;fontSize=9;verticalLabelPosition=top;verticalAlign=bottom;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="1591" y="797" width="18" height="18" as="geometry"/></mxCell>
 <mxCell id="e0" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#546E7A;strokeWidth=2;dashed=1;" edge="1" parent="1" source="n_i2s" target="n_cmux"><mxGeometry relative="1" as="geometry"/></mxCell>
 <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#546E7A;strokeWidth=2;dashed=1;" edge="1" parent="1" source="n_tdm" target="n_cmux"><mxGeometry relative="1" as="geometry"/></mxCell>
-<mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#546E7A;strokeWidth=2;dashed=1;" edge="1" parent="1" source="n_ring" target="n_cmux"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#546E7A;strokeWidth=2;dashed=1;" edge="1" parent="1" source="n_loop" target="n_cmux"><mxGeometry relative="1" as="geometry"/></mxCell>
 <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#546E7A;strokeWidth=2;dashed=1;" edge="1" parent="1" source="n_tone" target="n_cmux"><mxGeometry relative="1" as="geometry"/></mxCell>
 <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#546E7A;strokeWidth=2;" edge="1" parent="1" source="n_cmux" target="n_pkt"><mxGeometry relative="1" as="geometry"/></mxCell>
 <mxCell id="e5" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#546E7A;strokeWidth=2;" edge="1" parent="1" source="n_pkt" target="n_inject"><mxGeometry relative="1" as="geometry"/></mxCell>
-<mxCell id="e6" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#546E7A;strokeWidth=2;" edge="1" parent="1" source="n_hosttx" target="n_cbs"><mxGeometry relative="1" as="geometry"/></mxCell>
-<mxCell id="e7" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#546E7A;strokeWidth=2;" edge="1" parent="1" source="n_cbs" target="n_ptptx"><mxGeometry relative="1" as="geometry"/></mxCell>
-<mxCell id="e8" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#546E7A;strokeWidth=2;" edge="1" parent="1" source="n_ptptx" target="n_inject"><mxGeometry relative="1" as="geometry"/></mxCell>
-<mxCell id="e9" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#546E7A;strokeWidth=2;" edge="1" parent="1" source="n_inject" target="n_mactx"><mxGeometry relative="1" as="geometry"/></mxCell>
-<mxCell id="e10" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#546E7A;strokeWidth=2;" edge="1" parent="1" source="n_mactx" target="n_wire"><mxGeometry relative="1" as="geometry"/></mxCell>
-<mxCell id="e11" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#546E7A;strokeWidth=2;" edge="1" parent="1" source="n_wire" target="n_macrx"><mxGeometry relative="1" as="geometry"/></mxCell>
-<mxCell id="e12" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#546E7A;strokeWidth=2;" edge="1" parent="1" source="n_macrx" target="n_parser"><mxGeometry relative="1" as="geometry"/></mxCell>
-<mxCell id="e13" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#546E7A;strokeWidth=2;" edge="1" parent="1" source="n_parser" target="n_rxmon"><mxGeometry relative="1" as="geometry"/></mxCell>
-<mxCell id="e14" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#546E7A;strokeWidth=2;" edge="1" parent="1" source="n_rxmon" target="n_depkt"><mxGeometry relative="1" as="geometry"/></mxCell>
-<mxCell id="e15" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#546E7A;strokeWidth=2;" edge="1" parent="1" source="n_depkt" target="n_route"><mxGeometry relative="1" as="geometry"/></mxCell>
-<mxCell id="e16" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#546E7A;strokeWidth=2;" edge="1" parent="1" source="n_route" target="n_pcmring"><mxGeometry relative="1" as="geometry"/></mxCell>
-<mxCell id="e17" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#546E7A;strokeWidth=2;" edge="1" parent="1" source="n_pcmring" target="n_ringcons"><mxGeometry relative="1" as="geometry"/></mxCell>
-<mxCell id="e18" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#546E7A;strokeWidth=2;" edge="1" parent="1" source="n_route" target="n_lpf"><mxGeometry relative="1" as="geometry"/></mxCell>
-<mxCell id="e19" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#546E7A;strokeWidth=2;" edge="1" parent="1" source="n_lpf" target="n_i2spb"><mxGeometry relative="1" as="geometry"/></mxCell>
-<mxCell id="e20" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#546E7A;strokeWidth=2;" edge="1" parent="1" source="n_route" target="n_cxbar"><mxGeometry relative="1" as="geometry"/></mxCell>
-<mxCell id="e21" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#546E7A;strokeWidth=2;" edge="1" parent="1" source="n_cxbar" target="n_tdmout"><mxGeometry relative="1" as="geometry"/></mxCell></root></mxGraphModel></diagram></mxfile>
+<mxCell id="e6" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#546E7A;strokeWidth=2;" edge="1" parent="1" source="n_fabricctl" target="n_inject"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="e7" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#546E7A;strokeWidth=2;" edge="1" parent="1" source="n_inject" target="n_mactx"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="e8" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#546E7A;strokeWidth=2;" edge="1" parent="1" source="n_mactx" target="n_wire"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="e9" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#546E7A;strokeWidth=2;" edge="1" parent="1" source="n_wire" target="n_macrx"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="e10" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#546E7A;strokeWidth=2;" edge="1" parent="1" source="n_macrx" target="n_parser"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="e11" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#546E7A;strokeWidth=2;" edge="1" parent="1" source="n_parser" target="n_rxmon"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="e12" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#546E7A;strokeWidth=2;" edge="1" parent="1" source="n_rxmon" target="n_depkt"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="e13" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#546E7A;strokeWidth=2;" edge="1" parent="1" source="n_depkt" target="n_route"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="e14" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#546E7A;strokeWidth=2;" edge="1" parent="1" source="n_route" target="n_lpf"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="e15" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#546E7A;strokeWidth=2;" edge="1" parent="1" source="n_lpf" target="n_feed"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="e16" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#546E7A;strokeWidth=2;" edge="1" parent="1" source="n_feed" target="n_i2spb"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="e17" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#546E7A;strokeWidth=2;" edge="1" parent="1" source="n_route" target="n_cxbar"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="e18" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#546E7A;strokeWidth=2;" edge="1" parent="1" source="n_cxbar" target="n_feed"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="e19" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#546E7A;strokeWidth=2;" edge="1" parent="1" source="n_cxbar" target="n_tdmout"><mxGeometry relative="1" as="geometry"/></mxCell></root></mxGraphModel></diagram></mxfile>

@@ -220,13 +220,13 @@ def _waive_axis_if_pins(v):
 RULE_WAIVERS = {
     "TIMESCALEMOD": (
         None,
-        "a lint-only artifact, not a property of the RTL: exactly two of the 95 "
-        "files in hdl/ carry a `timescale (axis_mux_rr_2in_1out.sv and the "
-        "Zynq-only milan_dma_wrapper.v), and Verilator then flags all the "
+        "a lint-only artifact, not a property of the RTL: exactly two files in "
+        "hdl/ carry a `timescale (axis_mux_rr_2in_1out.sv and KL_pp_shadow.sv), "
+        "and Verilator then flags all the "
         "others for not matching. A timescale has no synthesis meaning and "
         "every Verilator harness sets its own on the command line, so the 106 "
         "hits say nothing about the design",
-        "hdl/common/axis_mux_rr_2in_1out.sv:7 and hdl/milan/milan_dma_wrapper.v:18 "
+        "hdl/common/axis_mux_rr_2in_1out.sv:7 and hdl/milan/KL_pp_shadow.sv:156 "
         "are the only two `timescale lines in hdl/; tb/verilator/*/Makefile "
         "carry the harness timescales",
     ),
@@ -238,8 +238,7 @@ RULE_WAIVERS = {
         "instance exists anywhere in hdl/ or tb/ (grep -rnoE "
         "'[a-z_][a-z0-9_]*\\.(clk|rst_n)' returns nothing). All 53 instances "
         "are written `axi_stream_if #(...) name();` on purpose. PINMISSING "
-        "stays live for every OTHER instance - the 116 hits in milan_top.sv "
-        "are counted, not waived",
+        "stays live for every OTHER instance",
         "hdl/common/axi_stream_if.sv:14-15 (the ports) and :28-29 (the modports "
         "that omit them)",
     ),
@@ -266,29 +265,7 @@ PRAGMA_WAIVERS = {}
 #: `hdl/` files deliberately outside the lint sweep, with the reason.  Only
 #: whole FILES, never whole directories - a directory exclusion is how a scan
 #: gets silently capped.
-LINT_EXCLUDE = {
-    "hdl/milan/milan_dma_wrapper.v": (
-        "Verilog-2001 shim around the Xilinx AXI DMA PS primitives; it is part "
-        "of the Zynq flow only, no fabric build compiles it, and the `milan_dma` "
-        "IP core it instantiates is not in this repository at all",
-        "sw/litex/milan_soc.py:640 - 'Zynq-only milan_top.sv / "
-        "milan_dma_wrapper.v are excluded from the fabric build'",
-    ),
-    "hdl/milan/milan_top.sv": (
-        "the Zynq top. It cannot ELABORATE here, not merely lint dirty: it "
-        "instantiates eth_mac_1g_rgmii_fifo, which lives in the `external/` "
-        "submodule (an SSH remote CI does not and cannot fetch), and milan_dma, "
-        "which is Xilinx IP absent from the tree. It is in no build: "
-        "syn/yosys/run.sh's tops end at milan_datapath and the fabric flow "
-        "excludes it by name. NOTE for whoever revives it - the 2026-07 reading, "
-        "linting it against a checked-out external/, was 116 PINMISSING (91 on "
-        "its milan_csr instance, 24 on the AECP top it wired, 1 on ptp_ts_top). "
-        "That AECP top no longer exists, so the drift is now strictly worse than "
-        "that number: it wires a control plane this repository deleted",
-        "sw/litex/milan_soc.py:640 and .gitmodules (submodule 'external' = "
-        "git@github.com:kebag-logic/fpga-avb-ethernet.git)",
-    ),
-}
+LINT_EXCLUDE = {}
 
 #: Coded diagnostics that mean the SWEEP failed, not that the code is dirty:
 #: a module the tool could not find is a setup problem, and grandfathering it

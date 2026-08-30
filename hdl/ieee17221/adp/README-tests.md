@@ -10,5 +10,5 @@ hand-edit. Part of the IEEE 1722.1 (ATDECC) family; rolled up in
 
 | module | file | test | clauses |
 |---|---|---|---|
-| ✅ `adp_tx_arbiter` | `adp_tx_arbiter.sv` | `adp_tx` · `hostplane` · `milan_dp` | — |
+| ✅ `adp_tx_arbiter` | `adp_tx_arbiter.sv` | `adp_tx` · `milan_dp` | — |
 

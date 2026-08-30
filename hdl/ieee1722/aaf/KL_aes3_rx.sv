@@ -64,8 +64,8 @@
                     LOCK_BLOCKS_P consecutive CLEAN 192-frame blocks;
                   * V (validity) set does NOT drop lock and does NOT
                     suppress the pair: the wire truth reaches the talker and
-                    invalid_o counts it (policy belongs to the listener /
-                    provisioning daemon, never to the capture front-end);
+                    invalid_o counts it (policy belongs to the control plane,
+                    never to the capture front-end);
                   * a line with no transition for 2**RUN_W_P cycles is a
                     lock loss, not a hang;
                   * every counter is a saturating 16-bit CSR-observable

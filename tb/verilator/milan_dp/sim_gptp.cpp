@@ -8,8 +8,10 @@
 // cadence is the stimulus. It then plays one peer through the real wide
 // RX tap, establishes a nonzero committed publication bank, and grades
 // that bank byte-exactly in GET_AVB_INFO / GET_AS_PATH responses at the
-// real MAC boundary. The donor's own suites remain the deep state-machine
-// oracle; THIS leg pins every integration seam in the real datapath.
+// real MAC boundary. A selected Sync then proves CLOCK_DOMAIN lock/unlock,
+// descriptor-specific GET_COUNTERS dirty notifications, and the shared AAF /
+// CRF tu wire. The donor's own suites remain the deep state-machine oracle;
+// THIS leg pins every integration seam in the real datapath.
 //
 // MILAN_CLK_FREQ_HZ=2 MHz for this leg so the 1200 ms boot cadence
 // fires within a runnable window; the ucode hex is generated for the
@@ -27,6 +29,10 @@
 #include <verilated.h>
 #include "Vmilan_datapath.h"
 #include "Vmilan_datapath___024root.h"
+
+#ifndef PP_MS_CYC_TB
+#error "Makefile must couple PP_MS_CYC_TB to GPP_TIM_DIV_MS_P"
+#endif
 
 static const uint64_t PEER_CID = 0x0080E1FFFE112233ull;
 static const uint64_t GMID = 0x00AACCFFFE010203ull;
@@ -76,6 +82,23 @@ static Frame ptp(uint8_t mtype, uint16_t seq, uint64_t corr,
   f.u64(src); f.u16(1);
   f.u16(seq);
   f.u8(0x05); f.u8(0x7F);
+  return f;
+}
+
+//! The shortest legal 802.1AS Follow_Up includes the 32-byte organization
+//! extension TLV after preciseOriginTimestamp. The selected peer's one Sync
+//! pair is enough for the engine to publish sync-ok; omitting the TLV would
+//! exercise only the parser's malformed-frame rejection.
+static Frame follow_up(uint16_t seq, uint64_t origin_ns) {
+  Frame f = ptp(0x8, seq, 0, 0x0008, 42);
+  f.ts(origin_ns);
+  f.u16(0x0003); f.u16(28);
+  f.u8(0x00); f.u8(0x80); f.u8(0xC2);
+  f.u8(0x00); f.u8(0x00); f.u8(0x01);
+  f.u32(0);
+  f.u16(0);
+  f.u64(0); f.u32(0);
+  f.u32(0);
   return f;
 }
 
@@ -237,6 +260,8 @@ static std::vector<uint64_t> tx_sof_ns;
 static std::vector<uint8_t> tx_cur;
 static bool tx_open = false;
 static uint64_t sim_cyc = 0;
+static bool pp_ctr_avb_seen = false;
+static bool pp_ctr_ckd_seen = false;
 
 struct CycleFires {
   bool rx = false;
@@ -249,6 +274,7 @@ struct CycleFires {
 
 static CycleFires tick(Vmilan_datapath *dut) {
   dut->axis_clk = 0; dut->gtx_clk = 0;
+  dut->clk_audio_i = 0; dut->clk_tdm_i = 0;
   rmem_drive(dut); dmem_drive(dut); dut->eval();
   CycleFires fire;
   fire.rx = dut->s_axis_mac_rx_tvalid && dut->s_axis_mac_rx_tready;
@@ -273,8 +299,17 @@ static CycleFires tick(Vmilan_datapath *dut) {
       tx_open = false;
     }
   }
+  if (dut->rootp->milan_datapath__DOT__pp_ctr_evt_valid_w) {
+    const unsigned type =
+        dut->rootp->milan_datapath__DOT__pp_ctr_evt_type_w;
+    const unsigned index =
+        dut->rootp->milan_datapath__DOT__pp_ctr_evt_index_w;
+    if (type == 0x0009 && index == 0) pp_ctr_avb_seen = true;
+    if (type == 0x0024 && index == 0) pp_ctr_ckd_seen = true;
+  }
   rmem_edge(dut); dmem_edge(dut);
-  dut->axis_clk = 1; dut->gtx_clk = 1; dut->eval();
+  dut->axis_clk = 1; dut->gtx_clk = 1;
+  dut->clk_audio_i = 1; dut->clk_tdm_i = 1; dut->eval();
   sim_cyc++;
   return fire;
 }
@@ -329,6 +364,27 @@ static void send_wide(Vmilan_datapath *dut,
   }
   dut->s_axis_mac_rx_tvalid = 0;
   dut->s_axis_mac_rx_tlast = 0;
+}
+
+static void send_sync_pair(Vmilan_datapath *dut, uint16_t seq) {
+  const uint32_t phc_lo = axi_read(dut, 0x530);
+  const uint64_t origin = ((uint64_t)axi_read(dut, 0x534) << 32) | phc_lo;
+  Frame sync = ptp(0x0, seq, 0, 0x0208, 10);
+  sync.ts(0);
+  send_wide(dut, sync.b);
+  run(dut, 1000);
+  Frame fu = follow_up(seq, origin);
+  send_wide(dut, fu.b);
+}
+
+static void run_peer(Vmilan_datapath *dut, uint64_t n);
+static bool await_fabric_lock(Vmilan_datapath *dut, unsigned polls = 350) {
+  for (unsigned n = 0; n < polls; n++) {
+    run_peer(dut, 1000);
+    const uint32_t stat = axi_read(dut, 0x77C);
+    if (((stat >> 1) & 1) && !(stat & 1)) return true;
+  }
+  return false;
 }
 
 static size_t pd_scan = 0;
@@ -452,6 +508,18 @@ static uint32_t be32(const std::vector<uint8_t> &f, size_t off) {
   return v;
 }
 
+static std::vector<uint8_t> get_counters(Vmilan_datapath *dut,
+                                         uint16_t seq, uint16_t type) {
+  return aecp_xact(dut, 0x0029, seq,
+                   {(uint8_t)(type >> 8), (uint8_t)type, 0x00, 0x00});
+}
+
+static uint32_t counter_word(const std::vector<uint8_t> &f, unsigned word) {
+  if (f.size() < 174 || word > 32) return 0xDEADBEEFu;
+  const size_t off = word == 32 ? 42u : 46u + 4u * word;
+  return be32(f, off);
+}
+
 static int aecp_status(const std::vector<uint8_t> &f) {
   return f.size() > 16 ? (f[16] >> 3) & 0x1F : -1;
 }
@@ -469,18 +537,88 @@ static unsigned unsolicited_count(size_t first, uint16_t cmd) {
   return n;
 }
 
-static const std::vector<uint8_t> *last_unsolicited(size_t first,
-                                                    uint16_t cmd) {
-  const std::vector<uint8_t> *last = nullptr;
+//! Return an owned copy. tx_frames keeps growing while the following
+//! solicited comparison is built, so retaining a pointer or reference into
+//! the vector would be invalidated by a reallocation before it is graded.
+static std::vector<uint8_t> last_unsolicited(size_t first, uint16_t cmd) {
+  std::vector<uint8_t> last;
   for (size_t i = first; i < tx_frames.size(); i++)
-    if (unsolicited_cmd(tx_frames[i], cmd)) last = &tx_frames[i];
+    if (unsolicited_cmd(tx_frames[i], cmd)) last = tx_frames[i];
   return last;
 }
 
-static bool same_from(const std::vector<uint8_t> *a,
+static bool unsolicited_desc(const std::vector<uint8_t> &f, uint16_t cmd,
+                             uint16_t type) {
+  return unsolicited_cmd(f, cmd) && f.size() >= 42
+      && (((unsigned)f[38] << 8) | f[39]) == type
+      && f[40] == 0 && f[41] == 0;
+}
+
+static unsigned unsolicited_desc_count(size_t first, uint16_t type) {
+  unsigned n = 0;
+  for (size_t i = first; i < tx_frames.size(); i++)
+    if (unsolicited_desc(tx_frames[i], 0x0029, type)) n++;
+  return n;
+}
+
+static std::vector<uint8_t> last_unsolicited_desc(size_t first,
+                                                  uint16_t type) {
+  std::vector<uint8_t> last;
+  for (size_t i = first; i < tx_frames.size(); i++)
+    if (unsolicited_desc(tx_frames[i], 0x0029, type)) last = tx_frames[i];
+  return last;
+}
+
+static bool same_from(const std::vector<uint8_t> &a,
                       const std::vector<uint8_t> &b, size_t off) {
-  return a && a->size() == b.size() && a->size() > off
-      && std::equal(a->begin() + off, a->end(), b.begin() + off);
+  return a.size() == b.size() && a.size() > off
+      && std::equal(a.begin() + off, a.end(), b.begin() + off);
+}
+
+static bool await_unsolicited_desc_count(Vmilan_datapath *dut, size_t first,
+                                         uint16_t type, unsigned want,
+                                         uint64_t max_cycles) {
+  for (uint64_t elapsed = 0; elapsed < max_cycles; elapsed += 100) {
+    if (unsolicited_desc_count(first, type) >= want) return true;
+    run_peer(dut, 100);
+  }
+  return unsolicited_desc_count(first, type) >= want;
+}
+
+struct MediaTuSeen {
+  bool aaf = false;
+  bool crf = false;
+};
+
+//! Observe the real MAC-bound AAF and CRF headers. Looking for an exact bit,
+//! rather than merely sampling the first completion, tolerates a frame that
+//! was already in flight at a verdict edge without weakening the wiring test:
+//! a disconnected/stuck tu input can never satisfy both the certain and
+//! uncertain calls made below.
+static MediaTuSeen await_media_tu(Vmilan_datapath *dut, size_t first,
+                                  unsigned want_tu, uint64_t max_cycles) {
+  MediaTuSeen seen;
+  size_t scan = first;
+  for (uint64_t n = 0; n < max_cycles && !(seen.aaf && seen.crf); n++) {
+    while (scan < tx_frames.size()) {
+      const std::vector<uint8_t> &f = tx_frames[scan++];
+      if (f.size() > 21 && f[12] == 0x81 && f[13] == 0x00
+          && f[16] == 0x22 && f[17] == 0xF0 && f[18] == 0x02
+          && (f[21] & 1) == want_tu)
+        seen.aaf = true;
+      if (f.size() > 15 && f[12] == 0x22 && f[13] == 0xF0
+          && f[14] == 0x04 && (f[15] & 1) == want_tu)
+        seen.crf = true;
+      if (f.size() > 19 && f[12] == 0x81 && f[13] == 0x00
+          && f[16] == 0x22 && f[17] == 0xF0 && f[18] == 0x04
+          && (f[19] & 1) == want_tu)
+        seen.crf = true;
+    }
+    tick(dut);
+    if ((n & 255) == 0) service_pdelay(dut);
+  }
+  service_pdelay(dut);
+  return seen;
 }
 
 int main(int argc, char **argv) {
@@ -492,17 +630,18 @@ int main(int argc, char **argv) {
   dut->gtx_resetn = 0;
   dut->s_axi_awvalid = dut->s_axi_wvalid = dut->s_axi_arvalid = 0;
   dut->s_axi_bready = dut->s_axi_rready = 0;
-  dut->s_axis_tx_tvalid = 0;
   dut->s_axis_mac_rx_tvalid = 0;
   dut->s_axis_mac_rx_tlast = 0;
-  dut->m_axis_rx_tready = 1;
-  dut->m_axis_ts_tready = 1;
-  dut->m_axis_pcm_tready = 1;
   dut->m_axis_mac_tx_tready = 1;
   dut->i_mac_speed = 2;
   dut->i_link_up = 1;
   dut->i_full_duplex = 1;
   dut->i_mac_events = 0;
+  dut->i2s_sdout_i = 0;
+  dut->tdm_bclk_i = 0;
+  dut->tdm_fsync_i = 0;
+  dut->tdm_data_i = 0;
+  dut->i_mmcm_locked = 1;
   for (int i = 0; i < 16; i++) tick(dut);
   dut->axis_resetn = 1;
   dut->gtx_resetn = 1;
@@ -515,13 +654,13 @@ int main(int argc, char **argv) {
 
   // The option is omitted from this elaboration: these are assertions about
   // the RTL default.  Before any peer answers, the engine's committed bank is
-  // zero. Writes to the old software mirror remain accepted for ABI safety but
-  // cannot change any live read or manufacture a healthy CLKV claim.
-  expect("default-on VERSION", axi_read(dut, 0x004), 0x00020055);
+  // zero. Retained legacy addresses remain mapped for ABI stability, but every
+  // write is inert and cannot manufacture a publication or healthy CLKV claim.
+  expect("default-on VERSION", axi_read(dut, 0x004), 0x00020056);
   axi_write(dut, 0x624, 0x55667788); axi_write(dut, 0x628, 0x11223344);
   axi_write(dut, 0x6E4, 1234);
   axi_write(dut, 0x730, 0xDDEEFF00); axi_write(dut, 0x734, 0x99AABBCC);
-  axi_write(dut, 0x778, 0x00000085); // sync + asCapable + live SW lease
+  axi_write(dut, 0x778, 0x00000085); // maximal retired sync/asCapable fields
   // The nonzero compatibility domain write: the engine speaks only domain 0
   // (802.1AS 8.1), so this 5 must never surface on the CSR readback, the
   // GET_AVB_INFO gather below, or the MAC-bound Pdelay_Req scanned below.
@@ -534,10 +673,10 @@ int main(int argc, char **argv) {
   expect("fabric domain overrides SW (engine owns domain 0)",
          axi_read(dut, 0x62C), 0);
   uint32_t clkv = axi_read(dut, 0x77C);
-  expect("software lease cannot clear tu", clkv & 1, 1);
-  expect("software sync claim hidden", (clkv >> 1) & 1, 0);
-  expect("software lease fields hidden", (clkv >> 2) & 0x3FFF, 0);
-  expect("software asCapable hidden", (clkv >> 16) & 1, 0);
+  expect("legacy write cannot clear tu", clkv & 1, 1);
+  expect("legacy sync claim is inert", (clkv >> 1) & 1, 0);
+  expect("compatibility CLKV fields read zero", (clkv >> 2) & 0x3FFF, 0);
+  expect("legacy asCapable claim is inert", (clkv >> 16) & 1, 0);
 
   // A_TXARB_DIAG is a public ABI, not a comment about implementation names.
   // Exercise the real default-only gptp_ctl_mux and prove its three verdicts
@@ -681,15 +820,14 @@ int main(int argc, char **argv) {
   expect("fabric live AS_PATH generation advanced",
          ((asp_live_a >> 4) & 0xF) != 0, 1);
 
-  // 0x7DC/0x7E0 remain readable compatibility staging in product mode, but
-  // neither a combined COMMIT+PUBLISH nor its requested count may alter the
-  // engine-owned public state or generation at 0x7E4.
+  // 0x7DC/0x7E0 remain mapped but are inert in product mode too. There is no
+  // parallel writable mirror beside the engine-owned state.
   axi_write(dut, 0x7DC, 0x01234567u);
   axi_write(dut, 0x7E0, 0xDEADBEEFu);
-  expect("fabric mode retains compatibility stage LO",
-         axi_read(dut, 0x7DC), 0x01234567u);
-  expect("fabric mode retains compatibility stage HI",
-         axi_read(dut, 0x7E0), 0xDEADBEEFu);
+  expect("fabric mode ASP stage LO is inert",
+         axi_read(dut, 0x7DC), 0u);
+  expect("fabric mode ASP stage HI is inert",
+         axi_read(dut, 0x7E0), 0u);
   axi_write(dut, 0x7E4, 0xC0000107u);
   expect("software publish cannot move live fabric 0x7E4",
          axi_read(dut, 0x7E4), asp_live_a);
@@ -731,6 +869,22 @@ int main(int argc, char **argv) {
   expect("GET_AS_PATH ordered parent", path.size() >= 74
          ? be64(path, 66) : 0, PEER_CID);
 
+  // Both product talkers consume the same fabric-owner CLKV verdict. Before
+  // any valid Sync/Follow_Up pair, keep streaming but stamp uncertainty on
+  // the actual MAC-bound AAF and CRF headers.
+  axi_write(dut, 0x654, 0x00020003u);  // AAF enable + admission bypass, VID 2
+  axi_write(dut, 0x754, 0x00010001u);
+  axi_write(dut, 0x758, 0x02000000u);
+  axi_write(dut, 0x75C, 0xF0002A07u);
+  axi_write(dut, 0x760, 0x000091E0u);
+  axi_write(dut, 0x750, 1u);           // CRF Media Clock Output enable
+  const size_t unsync_media_first = tx_frames.size();
+  const MediaTuSeen unsync_media =
+      await_media_tu(dut, unsync_media_first, 1, 200000);
+  expect("unsynchronised fabric verdict is tu", axi_read(dut, 0x77C) & 1, 1);
+  expect("fabric tu reaches AAF before Sync", unsync_media.aaf, 1);
+  expect("fabric tu reaches CRF before Sync", unsync_media.crf, 1);
+
   // Register this controller, then refresh the selected parent twice. A
   // tail-only change with stable GM/parent must advance the complete served
   // generation and emit exactly one Table 5.22 GET_AS_PATH push; replaying
@@ -740,6 +894,141 @@ int main(int argc, char **argv) {
       dut, 0x0024, 0x7103, {0x00, 0x00, 0x00, 0x00});
   expect("REGISTER_UNSOLICITED_NOTIFICATION SUCCESS", aecp_status(reg), 0);
   run(dut, 200000);
+
+  // Repeat the retired-publication attack with a controller registered.
+  // Merely preserving public readback is insufficient: an inert address must
+  // also leave both counter families and every Table 5.22 dirty input quiet.
+  const std::vector<uint8_t> inert_avb_before =
+      get_counters(dut, 0x7120, 0x0009);
+  const std::vector<uint8_t> inert_ckd_before =
+      get_counters(dut, 0x7121, 0x0024);
+  const size_t inert_first = tx_frames.size();
+  pp_ctr_avb_seen = false;
+  pp_ctr_ckd_seen = false;
+  axi_write(dut, 0x624, 0xFFFFFFFFu);
+  axi_write(dut, 0x628, 0xFFFFFFFFu);
+  axi_write(dut, 0x62C, 0xFFFFFFFFu);
+  axi_write(dut, 0x6E4, 0xFFFFFFFFu);
+  axi_write(dut, 0x730, 0xFFFFFFFFu);
+  axi_write(dut, 0x734, 0xFFFFFFFFu);
+  axi_write(dut, 0x778, 0xFFFFFFFFu);
+  axi_write(dut, 0x7DC, 0xFFFFFFFFu);
+  axi_write(dut, 0x7E0, 0xFFFFFFFFu);
+  axi_write(dut, 0x7E4, 0xFFFFFFFFu);
+  run_peer(dut, 20000);
+  expect("retired writes do not dirty AVB counters", pp_ctr_avb_seen, 0);
+  expect("retired writes do not dirty CLOCK counters", pp_ctr_ckd_seen, 0);
+  expect("retired writes emit no GET_AVB_INFO push",
+         unsolicited_count(inert_first, 0x0027), 0);
+  expect("retired writes emit no GET_AS_PATH push",
+         unsolicited_count(inert_first, 0x0028), 0);
+  expect("retired writes emit no GET_COUNTERS push",
+         unsolicited_count(inert_first, 0x0029), 0);
+  const std::vector<uint8_t> inert_avb_after =
+      get_counters(dut, 0x7122, 0x0009);
+  const std::vector<uint8_t> inert_ckd_after =
+      get_counters(dut, 0x7123, 0x0024);
+  expect("retired writes leave AVB counters unchanged",
+         same_from(inert_avb_before, inert_avb_after, 38), 1);
+  expect("retired writes leave CLOCK counters unchanged",
+         same_from(inert_ckd_before, inert_ckd_after, 38), 1);
+
+  // Exercise the per-descriptor one-second limiter through the real product
+  // event path. LINK_DOWN emits immediately. LINK_UP follows within one
+  // compressed processor second, must remain dirty without a second push,
+  // then must be released exactly once when that descriptor's limiter opens.
+  const std::vector<uint8_t> rate_avb_before =
+      get_counters(dut, 0x7124, 0x0009);
+  const size_t rate_first = tx_frames.size();
+  pp_ctr_avb_seen = false;
+  axi_write(dut, 0x71C, 0u);
+  for (unsigned n = 0; n < 200 && !pp_ctr_avb_seen; n++) run_peer(dut, 100);
+  const uint64_t down_evt_cyc = sim_cyc;
+  expect("LINK_DOWN reaches AVB counter descriptor arbiter",
+         pp_ctr_avb_seen, 1);
+  const bool down_emitted =
+      await_unsolicited_desc_count(dut, rate_first, 0x0009, 1, 50000);
+  expect("LINK_DOWN emits first AVB GET_COUNTERS push", down_emitted, 1);
+  expect("first AVB limiter window contains one push",
+         unsolicited_desc_count(rate_first, 0x0009), 1);
+  const std::vector<uint8_t> down_push =
+      last_unsolicited_desc(rate_first, 0x0009);
+  const std::vector<uint8_t> rate_avb_down =
+      get_counters(dut, 0x7125, 0x0009);
+  expect("LINK_DOWN increments AVB counter",
+         counter_word(rate_avb_down, 1) - counter_word(rate_avb_before, 1), 1);
+  expect("LINK_DOWN leaves LINK_UP stable",
+         counter_word(rate_avb_down, 0) - counter_word(rate_avb_before, 0), 0);
+  expect("LINK_DOWN push body equals solicited counters",
+         same_from(down_push, rate_avb_down, 38), 1);
+
+  pp_ctr_avb_seen = false;
+  axi_write(dut, 0x71C, 1u);
+  for (unsigned n = 0; n < 200 && !pp_ctr_avb_seen; n++) run_peer(dut, 100);
+  const uint64_t up_evt_cyc = sim_cyc;
+  expect("LINK_UP reaches AVB counter descriptor arbiter", pp_ctr_avb_seen, 1);
+  expect("LINK_UP event is inside first one-second limiter window",
+         (up_evt_cyc - down_evt_cyc) < 1000ull * PP_MS_CYC_TB, 1);
+  run_peer(dut, 200ull * PP_MS_CYC_TB);
+  expect("within-window LINK_UP push is suppressed",
+         unsolicited_desc_count(rate_first, 0x0009), 1);
+  const bool up_released =
+      await_unsolicited_desc_count(dut, rate_first, 0x0009, 2,
+                                   1200ull * PP_MS_CYC_TB);
+  expect("pending LINK_UP releases when AVB limiter opens", up_released, 1);
+  expect("pending LINK_UP releases exactly one second push",
+         unsolicited_desc_count(rate_first, 0x0009), 2);
+  const std::vector<uint8_t> up_push =
+      last_unsolicited_desc(rate_first, 0x0009);
+  const std::vector<uint8_t> rate_avb_after =
+      get_counters(dut, 0x7126, 0x0009);
+  expect("released LINK_UP increments AVB counter",
+         counter_word(rate_avb_after, 0) - counter_word(rate_avb_before, 0), 1);
+  expect("released state retains one LINK_DOWN",
+         counter_word(rate_avb_after, 1) - counter_word(rate_avb_before, 1), 1);
+  expect("released LINK_UP push body equals solicited counters",
+         same_from(up_push, rate_avb_after, 38), 1);
+
+  // One selected-peer Sync/Follow_Up raises the fabric sync publication.
+  // The resulting tu 1->0 edge must increment CLOCK_DOMAIN.LOCKED, traverse
+  // ctr_ckd_dirty_w and the descriptor arbiter, and arrive as a GET_COUNTERS
+  // notification. The same verdict must clear tu on both media wire formats.
+  std::vector<uint8_t> ckd_before = get_counters(dut, 0x7110, 0x0024);
+  expect("pre-Sync CLOCK_DOMAIN counters SUCCESS", aecp_status(ckd_before), 0);
+  expect("CLOCK_DOMAIN counters_valid", counter_word(ckd_before, 32), 3);
+  const uint32_t lock_before = counter_word(ckd_before, 0);
+  const uint32_t unlock_before = counter_word(ckd_before, 1);
+  pp_ctr_ckd_seen = false;
+  const size_t sync_first = tx_frames.size();
+  send_sync_pair(dut, 0x7200);
+  const bool fabric_locked = await_fabric_lock(dut);
+  expect("fabric Sync reaches CLKV sync-ok", (axi_read(dut, 0x77C) >> 1) & 1,
+         1);
+  expect("fabric Sync clears CLKV tu after hold", fabric_locked, 1);
+  const size_t locked_media_first = tx_frames.size();
+  const MediaTuSeen locked_media =
+      await_media_tu(dut, locked_media_first, 0, 100000);
+  expect("fabric certainty reaches AAF tu", locked_media.aaf, 1);
+  expect("fabric certainty reaches CRF tu", locked_media.crf, 1);
+  run_peer(dut, 100000);
+  expect("CLKV lock edge reaches counter descriptor arbiter",
+         pp_ctr_ckd_seen, 1);
+  expect("CLKV lock emits one CLOCK_DOMAIN GET_COUNTERS push",
+         unsolicited_desc_count(sync_first, 0x0024), 1);
+  const std::vector<uint8_t> lock_push =
+      last_unsolicited_desc(sync_first, 0x0024);
+  std::vector<uint8_t> ckd_locked = get_counters(dut, 0x7111, 0x0024);
+  expect("fabric lock increments CLOCK_DOMAIN.LOCKED",
+         counter_word(ckd_locked, 0) - lock_before, 1);
+  expect("fabric lock leaves CLOCK_DOMAIN.UNLOCKED stable",
+         counter_word(ckd_locked, 1) - unlock_before, 0);
+  expect("CLOCK_DOMAIN push body equals solicited counters",
+         same_from(lock_push, ckd_locked, 38), 1);
+
+  // Let the locally compressed per-descriptor notification limiter reopen
+  // before the later GM switch, without exceeding syncReceiptTimeout. Pdelay
+  // service keeps the selected peer capable throughout.
+  run_peer(dut, 150000);
   const size_t changed_first = tx_frames.size();
   const unsigned gen_a = (axi_read(dut, 0x7E4) >> 4) & 0xF;
   const std::vector<uint64_t> path_b =
@@ -760,7 +1049,7 @@ int main(int argc, char **argv) {
   run(dut, 200000);
   expect("tail-only refresh emits one GET_AS_PATH push",
          unsolicited_count(changed_first, 0x0028), 1);
-  const std::vector<uint8_t> *changed_push =
+  const std::vector<uint8_t> changed_push =
       last_unsolicited(changed_first, 0x0028);
   std::vector<uint8_t> path_new = aecp_xact(
       dut, 0x0028, 0x7104, {0x00, 0x00, 0x00, 0x00});
@@ -796,7 +1085,7 @@ int main(int argc, char **argv) {
   run(dut, 200000);
   expect("present to absent emits one GET_AS_PATH push",
          unsolicited_count(absent_first, 0x0028), 1);
-  const std::vector<uint8_t> *absent_push =
+  const std::vector<uint8_t> absent_push =
       last_unsolicited(absent_first, 0x0028);
   std::vector<uint8_t> path_empty = aecp_xact(
       dut, 0x0028, 0x7105, {0x00, 0x00, 0x00, 0x00});
@@ -819,9 +1108,27 @@ int main(int argc, char **argv) {
   expect("identical absent refresh emits no AS_PATH push",
          unsolicited_count(absent_same_first, 0x0028), 0);
 
+  // The PathTrace cases above intentionally take longer than one Sync receipt
+  // window. Re-establish the selected peer immediately before the GM-switch
+  // proof, then reopen the compressed counter-notification limiter while the
+  // domain is still locked.
+  send_sync_pair(dut, 0x7201);
+  expect("pre-switch fabric domain is locked", await_fabric_lock(dut), 1);
+  run_peer(dut, 150000);
+
   // The scalar GM remains live independently of PathTrace. Switching between
   // two selected TLV-less masters drives AVB_INFO and GPTP_GM_CHANGED, but the
-  // served AS_PATH is empty on both sides and therefore stays silent.
+  // served AS_PATH is empty on both sides and therefore stays silent. It also
+  // drives the product counter families: AVB_INTERFACE records the GM change,
+  // while the discontinuity makes the previously locked CLOCK_DOMAIN unlock.
+  const std::vector<uint8_t> avb_ctr_before =
+      get_counters(dut, 0x7112, 0x0009);
+  const std::vector<uint8_t> ckd_ctr_before =
+      get_counters(dut, 0x7113, 0x0024);
+  expect("AVB_INTERFACE counters_valid", counter_word(avb_ctr_before, 32),
+         0x23);
+  pp_ctr_avb_seen = false;
+  pp_ctr_ckd_seen = false;
   const size_t empty_gm_first = tx_frames.size();
   const unsigned long gmchg_before =
       dut->rootp->milan_datapath__DOT__ctr_gmchg_r;
@@ -837,6 +1144,38 @@ int main(int argc, char **argv) {
          0);
   expect("absent GM switch spends no path generation",
          (axi_read(dut, 0x7E4) >> 4) & 0xF, gen_empty);
+  expect("fabric GM switch asserts CLKV tu hold", axi_read(dut, 0x77C) & 1, 1);
+  const MediaTuSeen switch_media =
+      await_media_tu(dut, empty_gm_first, 1, 90000);
+  expect("GM-switch tu reaches AAF wire", switch_media.aaf, 1);
+  expect("GM-switch tu reaches CRF wire", switch_media.crf, 1);
+  run_peer(dut, 5000);
+  expect("GM switch reaches AVB counter descriptor arbiter",
+         pp_ctr_avb_seen, 1);
+  expect("GM-switch tu reaches CLOCK_DOMAIN descriptor arbiter",
+         pp_ctr_ckd_seen, 1);
+  expect("GM switch emits one AVB_INTERFACE GET_COUNTERS push",
+         unsolicited_desc_count(empty_gm_first, 0x0009), 1);
+  expect("GM-switch tu emits one CLOCK_DOMAIN GET_COUNTERS push",
+         unsolicited_desc_count(empty_gm_first, 0x0024), 1);
+  const std::vector<uint8_t> avb_ctr_push =
+      last_unsolicited_desc(empty_gm_first, 0x0009);
+  const std::vector<uint8_t> ckd_ctr_push =
+      last_unsolicited_desc(empty_gm_first, 0x0024);
+  const std::vector<uint8_t> avb_ctr_after =
+      get_counters(dut, 0x7114, 0x0009);
+  const std::vector<uint8_t> ckd_ctr_after =
+      get_counters(dut, 0x7115, 0x0024);
+  expect("GET_COUNTERS records fabric GPTP_GM_CHANGED",
+         counter_word(avb_ctr_after, 5) - counter_word(avb_ctr_before, 5), 1);
+  expect("GET_COUNTERS records GM-switch CLOCK_DOMAIN.UNLOCKED",
+         counter_word(ckd_ctr_after, 1) - counter_word(ckd_ctr_before, 1), 1);
+  expect("GM-switch hold has not relocked CLOCK_DOMAIN early",
+         counter_word(ckd_ctr_after, 0) - counter_word(ckd_ctr_before, 0), 0);
+  expect("AVB counter push body equals solicited counters",
+         same_from(avb_ctr_push, avb_ctr_after, 38), 1);
+  expect("CLOCK_DOMAIN push body equals solicited counters",
+         same_from(ckd_ctr_push, ckd_ctr_after, 38), 1);
   run(dut, 200000);
   expect("absent GM switch emits no false GET_AS_PATH push",
          unsolicited_count(empty_gm_first, 0x0028), 0);
@@ -920,7 +1259,7 @@ int main(int argc, char **argv) {
   run(dut, 200000);
   expect("explicit GM withdrawal emits one AS_PATH push",
          unsolicited_count(withdraw_first, 0x0028), 1);
-  const std::vector<uint8_t> *withdraw_push =
+  const std::vector<uint8_t> withdraw_push =
       last_unsolicited(withdraw_first, 0x0028);
   std::vector<uint8_t> cut_new = aecp_xact(
       dut, 0x0028, 0x7108, {0x00, 0x00, 0x00, 0x00});
@@ -952,7 +1291,7 @@ int main(int argc, char **argv) {
          unsolicited_count(max_first, 0x0028), 1);
   expect("maximum path emits no false GET_AVB_INFO push",
          unsolicited_count(max_first, 0x0027), 0);
-  const std::vector<uint8_t> *max_push =
+  const std::vector<uint8_t> max_push =
       last_unsolicited(max_first, 0x0028);
   std::vector<uint8_t> path_max_wire = aecp_xact(
       dut, 0x0028, 0x7109, {0x00, 0x00, 0x00, 0x00});

@@ -10,33 +10,31 @@
 
   Date        : 2026-07-17
   Description : AAF RX payload extractor for the bound listener sink — the
-                media half of the Milan listener (task-12 lineage,
-                ARCHITECTURE_HW_SW_SPLIT "DMA PCM ring first" plan).
+                media half of the Milan Listener fabric path.
 
                 Taps the RX AXI-Stream (never backpressures the datapath),
                 buffers every frame through a drop-capable frame FIFO, and
                 emits ONLY the AAF sample payload (bytes O+24 .. O+24+
-                data_len-1, wire byte order = S32BE interleaved PCM as
-                the host consumer reads it) as one AXIS frame per PDU toward the
-                DRAM PCM ring writer.
+                data_len-1, wire byte order = S32BE interleaved PCM) as one
+                AXIS frame per PDU toward the route, render-map and loopback
+                consumers.
 
                 The accept/kill verdict is NOT re-derived here: the paired
                 KL_avtp_rx_monitor pulses pdu_accept_p for every PDU it
                 counts in FRAMES_RX (bound + stream_id match + current-format
                 match), and that pulse lands at parse-complete (frame byte 48)
                 — always before tlast of any real AAF PDU (>= 230 B). Frames
-                without the pulse are dropped at FIFO commit, so the ring
-                receives exactly the PDUs FRAMES_RX counts.
+                without the pulse are dropped at FIFO commit, so the fabric
+                output receives exactly the PDUs FRAMES_RX counts.
 
                 Payload realignment: payload starts at frame byte 38
                 (untagged, rotate 2) or 42 (C-VLAN, rotate 6); the read side
                 re-parses the buffered header (VLAN flag from bytes 12..13,
                 data_len from O+20..21) and rotates through a hold register.
-                Output beats are always FULL 8-byte words (the DRAM ring
-                writer consumes whole words): Milan base-format payloads are
+                Output beats are always FULL 8-byte words: Milan base-format payloads are
                 8-byte multiples (48k: 192 B, 96k: 384 B, 192k: 768 B); a
                 non-multiple data_len is zero-padded in the final beat and
-                the ring advances by the padded length.
+                the output advances by the padded length.
 
   Company     : Kebag Logic
   Project     : Milan AVTP
@@ -44,7 +42,7 @@
   Notes       :
     - The write side marks frames bad by default; the monitor's accept pulse
       (arriving mid-frame) clears the mark before commit.
-    - FIFO overflow (downstream ring stalled) drops WHOLE frames and counts
+    - FIFO overflow (downstream consumer stalled) drops WHOLE frames and counts
       them in drops_o — the tap itself never stalls the RX datapath.
 ------------------------------------------------------------------------------
 */
@@ -52,10 +50,10 @@
 //! AAF RX payload extractor (listener media path): taps the RX AXI-Stream
 //! without ever backpressuring it, buffers frames through a drop-capable
 //! frame FIFO, and emits only the AAF sample payload (wire byte order =
-//! S32BE interleaved PCM) as one AXIS frame per PDU toward the DRAM PCM
-//! ring writer. The commit verdict comes from `KL_avtp_rx_monitor`'s
+//! S32BE interleaved PCM) as one AXIS frame per PDU toward the fabric
+//! consumers. The commit verdict comes from `KL_avtp_rx_monitor`'s
 //! `pdu_accept_p` pulse (bound + stream_id + current-format match), so the
-//! ring receives exactly the PDUs FRAMES_RX counts. Payload realignment
+//! output receives exactly the PDUs FRAMES_RX counts. Payload realignment
 //! strips 38 (untagged) or 42 (C-VLAN) header bytes via a hold-register
 //! rotation; output beats are always full 8-byte words (Milan base-format
 //! payloads are 8-byte multiples), zero-padded on a non-multiple tail.
@@ -99,7 +97,7 @@ module KL_aaf_rx_depacketizer #(
   input  wire         m_axis_tready,
 
   //! --- observability ------------------------------------------------------
-  output logic [15:0] pdus_o,             //! payloads emitted to the ring
+  output logic [15:0] pdus_o,             //! payloads emitted to fabric render
   output logic [15:0] drops_o,            //! whole frames lost to FIFO overflow
   //! per-stream attribution pulses (LCTX w11 DEPKT_CNT, NXN §1.4)
   output logic        pdu_out_p_o,        //! pulse per emitted payload PDU

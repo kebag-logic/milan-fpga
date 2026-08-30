@@ -56,7 +56,7 @@ trace:
   # `hostname`/`sysname` are deliberately absent: a trace is an artifact that
   # leaves the bench, and the repo's local-information rule applies to it too.
   environment:
-    milan_trace_abi: 1
+    milan_trace_abi: 2
     project: milan-fpga
 
   type:
@@ -94,7 +94,7 @@ trace:
       str:  {class: string}
 
       # severity drives the FLUSH POLICY, not just pretty printing: a record at
-      # WARN or above is what arms a flush to /user (TRACE_LOGGING.md section 6).
+      # WARN or above arms a raw-segment export from the firmware ring.
       sev:
         class: unsigned-enumeration
         size: 8
@@ -112,12 +112,12 @@ trace:
         class: unsigned-enumeration
         size: 8
         mappings:
-          FABRIC:    [0]    # a CSR-plane poller reading gateware state
-          JOURNALD:  [1]    # the saved-state journal writer/replayer
+          FABRIC:    [0]    # fabric/CSR observations
+          JOURNAL:   [1]    # the saved-state journal writer/replayer
           LINKMON:   [2]    # link/PHY supervisor
           PROVISION: [3]    # stream-window provisioning (the 0x800 writer)
-      AUDIO:     [4]    # audio-side agent
-          KERNEL:    [5]    # kl-eth / snd-kl-milan shim
+          AUDIO:     [4]    # audio-side agent
+          FIRMWARE:  [5]    # bare-metal firmware
           TRACE:     [6]    # the tracer talking about itself
           TEST:      [7]    # host self-test / bench injection
 
@@ -176,10 +176,8 @@ trace:
         class: unsigned-enumeration
         size: 8
         mappings:
-          RX_BD:  [0]     # host-plane RX descriptor ring
-          TX_BD:  [1]
-          PCM_RX: [2]     # AVTP depacketizer -> PCM ring
-          PCM_TX: [3]
+          MEDIA_RX: [2]   # AVTP depacketizer -> fabric render path
+          MEDIA_TX: [3]   # fabric capture -> AAF talker
           TRACE:  [4]     # this tracer's own RAM ring
 
       # why the tracer lost records
@@ -189,8 +187,8 @@ trace:
         mappings:
           RING_FULL:    [0]   # producer outran the ring; oldest packets dropped
           BACKEND_FULL: [1]   # barectf back end refused a packet
-          FLUSH_FAIL:   [2]   # the write to /user failed
-          BUDGET:       [3]   # the flash write budget refused the flush
+          FLUSH_FAIL:   [2]   # raw-segment export failed
+          BUDGET:       [3]   # the export byte budget refused the segment
           TRUNCATED:    [4]   # a segment was found torn at read time
 
       flushv:
@@ -239,7 +237,7 @@ trace:
             timestamp-field-type: u32
 
         # `boot_id` distinguishes packets written before and after a reboot when
-        # segments from several boots sit in /user/log together. It is the cheap
+        # a workstation trace bundle contains segments from several boots. It is the cheap
         # 4-byte answer to what the dropped 16-byte trace UUID would have said.
         packet-context-field-type-extra-members:
           - boot_id: x32
@@ -539,9 +537,9 @@ trace:
                 - write: bool
 
           # -- 18 ------------------------------------------------------------
-          # The tracer describing its own flush to /user. in/out bytes give the
-          # live compression ratio; `ms` gives the live compressor cost on the
-          # softcore, which is the number no host measurement can supply.
+          # The tracer describing a segment extraction. The workstation packer
+          # reports the input/output byte counts and elapsed time back with the
+          # export verdict.
           trace_flush:
             payload-field-type:
               class: structure
@@ -552,7 +550,7 @@ trace:
                 - out_bytes: u32
                 - ms:        u32
                 - verdict:   flushv
-                - free_bytes: u32   # /user/log budget left after this flush
+                - free_bytes: u32   # retained-bundle budget after this export
 
           # -- 19 ------------------------------------------------------------
           # Records LOST. A trace that silently omits records is worse than no
@@ -568,8 +566,8 @@ trace:
                 - lost_bytes:  u32
 
           # -- 20 ------------------------------------------------------------
-          # Rotation evicted an older segment. Without this, "the evidence is
-          # not in /user/log" is ambiguous between never-written and evicted.
+          # Workstation rotation evicted an older segment. Without this, a
+          # missing segment is ambiguous between never-extracted and evicted.
           trace_evict:
             payload-field-type:
               class: structure
@@ -580,8 +578,8 @@ trace:
                 - pinned:     bool   # the first-fault segment is never evicted
 
           # -- 21 ------------------------------------------------------------
-          # Producer lifecycle: which daemon started, stopped, or failed.
-          daemon:
+          # Bare-metal trace-producer lifecycle: start, stop, error or config.
+          firmware_lifecycle:
             payload-field-type:
               class: structure
               members:

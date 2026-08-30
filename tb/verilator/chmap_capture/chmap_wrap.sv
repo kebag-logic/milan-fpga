@@ -51,10 +51,6 @@ module chmap_wrap (
   input  wire [3:0]   tdm_pair_slot_i,
   input  wire [23:0]  tdm_l_i,
   input  wire [23:0]  tdm_r_i,
-  input  wire         ring_pair_valid_i,
-  input  wire [3:0]   ring_pair_slot_i,
-  input  wire [23:0]  ring_l_i,
-  input  wire [23:0]  ring_r_i,
   input  wire [23:0]  tone_smp_i,
 
   //! --- shared LOOPBACK payload AXIS (depacketizer clone; both chmaps) -----
@@ -151,7 +147,7 @@ module chmap_wrap (
   assign a_pv_o = a_pv_w;
 
   KL_chan_map_capture #(
-    .N_SLOTS_P (32), .N_TDM_P (8), .N_RING_P (16), .GAP_CYC_P (24),
+    .N_SLOTS_P (32), .N_TDM_P (8), .GAP_CYC_P (24),
     .N_LB_STREAMS_P (8), .N_LB_CH_P (8)
   ) u_chmap_a (
     .clk_i (clk), .rst_n (rst_n),
@@ -162,8 +158,6 @@ module chmap_wrap (
     .i2s_pair_valid_i (i2s_pair_valid_i), .i2s_l_i (i2s_l_i), .i2s_r_i (i2s_r_i),
     .tdm_pair_valid_i (tdm_pair_valid_i), .tdm_pair_slot_i (tdm_pair_slot_i),
     .tdm_l_i (tdm_l_i), .tdm_r_i (tdm_r_i),
-    .ring_pair_valid_i (ring_pair_valid_i), .ring_pair_slot_i (ring_pair_slot_i),
-    .ring_l_i (ring_l_i), .ring_r_i (ring_r_i),
     .tone_smp_i (tone_smp_i),
     .lb_tdata_i (lb_tdata_i), .lb_tvalid_i (lb_tvalid_i),
     .lb_tlast_i (lb_tlast_i), .lb_tuser_i (lb_tuser_i),
@@ -207,7 +201,7 @@ module chmap_wrap (
   wire [23:0] b_l_w, b_r_w;
 
   KL_chan_map_capture #(
-    .N_SLOTS_P (32), .N_TDM_P (8), .N_RING_P (16), .GAP_CYC_P (24),
+    .N_SLOTS_P (32), .N_TDM_P (8), .GAP_CYC_P (24),
     .N_LB_STREAMS_P (8), .N_LB_CH_P (8)
   ) u_chmap_b (
     .clk_i (clk), .rst_n (rst_n),
@@ -218,8 +212,6 @@ module chmap_wrap (
     .i2s_pair_valid_i (i2s_pair_valid_i), .i2s_l_i (i2s_l_i), .i2s_r_i (i2s_r_i),
     .tdm_pair_valid_i (tdm_pair_valid_i), .tdm_pair_slot_i (tdm_pair_slot_i),
     .tdm_l_i (tdm_l_i), .tdm_r_i (tdm_r_i),
-    .ring_pair_valid_i (ring_pair_valid_i), .ring_pair_slot_i (ring_pair_slot_i),
-    .ring_l_i (ring_l_i), .ring_r_i (ring_r_i),
     .tone_smp_i (tone_smp_i),
     .lb_tdata_i (lb_tdata_i), .lb_tvalid_i (lb_tvalid_i),
     .lb_tlast_i (lb_tlast_i), .lb_tuser_i (lb_tuser_i),

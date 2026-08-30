@@ -44,7 +44,7 @@ struct milan_trace_state {
     uint64_t last_flush_us;
     uint64_t last_heartbeat_us;
 
-    /* flash-wear token bucket, bytes; refilled from the clock, spent by
+    /* export token bucket, bytes; refilled from the clock, spent by
      * milan_trace_flush_wrote() */
     uint32_t budget_left;
     uint64_t budget_refill_us;
@@ -164,7 +164,7 @@ void milan_trace_flush_request(void)
     g_ts.forced = 1;
 }
 
-/* Refill the flash-wear bucket for the elapsed time.  Integer-only, and the
+/* Refill the export bucket for the elapsed time. Integer-only, and the
  * remainder is carried by advancing `budget_refill_us` only by the whole
  * microseconds actually consumed, so a fast poll loop cannot round the refill
  * down to zero forever. */

@@ -13,10 +13,8 @@ it.
 What is measured. Every tracked `.sv` and `.svh` under `hdl/` in the
 superproject and both project-owned processor submodules: the shared
 code-quality scope, minus the `LINT_EXCLUDE` list that `scripts/lint_rtl.py`
-owns with a reason per entry (`hdl/milan/milan_top.sv` is in it - a Zynq top no
-build compiles and that cannot elaborate here - and documenting its ports
-would decorate a file every gate already ignores). Ports come from the ONE
-shared header parser, `scripts/sv_ports.py`. The first version of this gate
+owns with a reason per entry (currently empty). Ports come from the ONE shared
+header parser, `scripts/sv_ports.py`. The first version of this gate
 carried a private one, and review found it ended a `module X import pkg::*;`
 header at the import's `;`, so 23 modules - all three integration tops among
 them - contributed no ports to the ratchet at all. One parser, both gates,
@@ -160,7 +158,7 @@ def tree_of(rel):
 
 def sources():
     return [p for p in tracked("hdl") if p.endswith((".sv", ".svh"))
-            and p not in LINT_EXCLUDE]
+            and p not in LINT_EXCLUDE and (REPO / p).is_file()]
 
 
 def declared_modules(paths):
@@ -752,7 +750,7 @@ def selftest():
     ck("the live scan reads the tree", total > 3000, f"{total} ports")
     for tree in TREES:
         ck(f"the live scan reaches {tree}", result["ports"][tree] > 0, f"{result['ports']}")
-    ck("the exclusion list is shared with lint_rtl", "hdl/milan/milan_top.sv" in LINT_EXCLUDE)
+    ck("the exclusion list is shared with lint_rtl", not LINT_EXCLUDE)
     paths = sources()
     known_live, _ = declared_modules(paths)
     for rel, least in (("hdl/milan/milan_datapath.sv", 100),

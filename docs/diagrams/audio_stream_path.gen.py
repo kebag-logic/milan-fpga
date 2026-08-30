@@ -22,9 +22,8 @@ BLUE   = ("#E3F2FD", "#1565C0")   # capture / frontend sources
 PURPLE = ("#F3E5F5", "#6A1B9A")   # channel-map fabric (mux / crossbar)
 GREEN  = ("#E8F5E9", "#2E7D32")   # AAF engines (packetizer / depacketizer / monitor)
 ORANGE = ("#FFF3E0", "#EF6C00")   # egress-ingress boundary (shaper / MAC / PTP)
-GREY   = ("#ECEFF1", "#455A64")   # host / software side
+GREY   = ("#ECEFF1", "#455A64")   # other fabric egress sources
 GOLD   = ("#FFF8E1", "#F9A825")   # latency tap chips
-RED    = ("#FFEBEE", "#C62828")   # ring storage
 
 # ---- nodes: id -> (x, y, w, h, title, sublines, (fill, stroke)) -------------
 # Talker lane (top), listener lane (bottom). Coordinates hand-placed.
@@ -37,33 +36,29 @@ node("i2s",  60, 170, 268, 78, "KL_aaf_capture_i2s",
      ["Pmod I2S2 ADC (CS5343), I2S master", "24.576 MHz MMCM /512 = 48 kHz, slot 0"], BLUE)
 node("tdm",  60, 262, 268, 78, "KL_tdm_capture",
      ["TDM slave, 8/16/32 slots", "pair k = TDM slots {2k, 2k+1}"], BLUE)
-node("ring", 60, 354, 268, 78, "KL_pcm_tx  (ring playback)",
-     ["host-written PCM ring, S32BE", "pb_* CSRs; underrun repeat/silence"], BLUE)
+node("loop", 60, 354, 268, 78, "received AAF loopback",
+     ["accepted depacketizer channel pairs", "elastic replay queues, per RX stream"], BLUE)
 node("tone", 60, 446, 268, 78, "KL_tone_gen",
      ["1 kHz 0 dBFS, 48-entry table", "TONE_CTRL 0x6DC"], BLUE)
 
 node("cmux", 440, 288, 268, 116, "KL_chan_map_capture",
-     ["32-slot map RAM {en, src, idx}", "src: I2S / TDM / RING / TONE / zero",
+     ["32-slot map RAM {en, src, idx}", "src: I2S / TDM / TONE / LOOP / zero",
       "CSR 0x900 window (bypass = legacy)"], PURPLE)
 
 node("pkt", 812, 288, 292, 116, "KL_aaf_packetizer",
      ["TCTX xN talkers, 6 samples/ch per PDU", "payload 24*C B, frame 42+24*C B",
       "avtp_timestamp = PHC ns + transit offset", "AAF_CTRL 0x654 + 0x800 TCTX window"], GREEN)
 
-# host TX side chain (joins at the arbiter)
-node("hosttx", 812, 130, 220, 64, "host TX DMA",
-     ["control-lane frames from software"], GREY)
-node("cbs", 1076, 130, 250, 64, "classify + CBS shaper",
-     ["traffic_controller_802_1q"], ORANGE)
-node("ptptx", 1370, 130, 220, 64, "ptp_ts_top (TX)",
-     ["egress HW timestamp"], ORANGE)
+# Other live fabric sources join the AAF talker at the arbiter.
+node("fabricctl", 850, 130, 300, 64, "fabric protocol / time sources",
+     ["protocol processor · MAAP · gPTP · CRF"], GREY)
 
-node("inject", 1208, 288, 268, 116, "post-shaper inject",
-     ["adp_tx_arbiter aaf_final_mux", "AAF joins AFTER the CBS queue;",
-      "bandwidth held by the lwSRP", "admission gate (0x680 group)"], ORANGE)
+node("inject", 1208, 288, 268, 116, "fabric egress arbiter",
+     ["adp_tx_arbiter + aaf_final_mux", "AAF joins the fabric TX trunk;",
+      "bandwidth held by processor SRP", "reservation face grants admission"], ORANGE)
 
 node("mactx", 1580, 300, 190, 92, "MAC TX",
-     ["RGMII, VLAN SR class", "VID from AAF_CTRL[27:16]"], ORANGE)
+     ["GMII, VLAN SR class", "egress timestamp at MAC boundary"], ORANGE)
 
 # --- wire ---
 node("wire", 1880, 296, 300, 100, "the wire",
@@ -82,27 +77,22 @@ node("depkt", 1004, 748, 280, 116, "KL_aaf_rx_depacketizer",
      ["S32BE payload, 1 AXIS frame/PDU,", "tuser = stream; commits only on the",
       "monitor accept pulse - PCMRX_CNT 0x6C4"], GREEN)
 node("route", 1344, 760, 240, 92, "KL_pcm_route",
-     ["per-stream flags {RENDER, DMA}", "reset: stream 0 = RENDER|DMA"], PURPLE)
-
-# DMA branch (down)
-node("pcmring", 1240, 950, 320, 104, "PCM DMA ring",
-     ["DRAM _PCMRingNxN (LiteX 0xf0003120)", "or on-chip BRAM --pcm-ring bram",
-      "(0x9010_0000, sink.ready == 1)"], RED)
-node("ringcons", 1240, 1104, 320, 78, "ring consumer (host side)",
-     ["drains the capture ring", "(bench tooling, private test repo)"], GREY)
+     ["route word {RENDER, reserved}", "reset: stream 0 = RENDER"], PURPLE)
 
 # RENDER branch (right)
-node("lpf", 1660, 700, 220, 78, "KL_pcm_lpf",
+node("lpf", 1640, 690, 220, 78, "KL_pcm_lpf",
      ["20 kHz Butterworth biquad", "serial-MAC, ~12 clk/pair",
       "LPF_P=0 PRUNES it (ax7101 does)"], PURPLE)
-node("i2spb", 1948, 700, 268, 78, "KL_i2s_playback",
+node("feed", 1900, 690, 220, 78, "KL_i2s_feed_mux",
+     ["direct listener tap or", "mapped physical pair {0,1}"], PURPLE)
+node("i2spb", 2160, 690, 268, 78, "KL_i2s_playback",
      ["CS4344 DAC, clean-clock free-run", "I2SPB_STAT 0x6D8, wire-truth chans"], BLUE)
-node("cxbar", 1660, 812, 220, 92, "KL_chan_map_render",
+node("cxbar", 1640, 820, 220, 92, "KL_chan_map_render",
      ["64 stream-ch -> 10 phys", "wire-truth channels_per_frame", "CSR 0x900 window"], PURPLE)
-node("tdmout", 1948, 812, 268, 92, "KL_tdm_render",
+node("tdmout", 2160, 820, 268, 92, "KL_tdm_render",
      ["TDM8 out, lane 0 slots 0..7", "double-buffered frames"], BLUE)
 
-W, H = 2280, 1240
+W, H = 2500, 1060
 
 # ---- latency tap chips (AAF_LATENCY_TAPS.md stage names, CSR 0x870) ---------
 # (cx, cy, label)
@@ -114,26 +104,25 @@ TAPS = [
     (290, 806, "MAC_RX"),     # frame ingress
     (970, 806, "ACCEPT"),     # monitor parse-complete/accept
     (1310, 806, "DEPKT"),     # payload last beat
-    (1420, 920, "PCM_RING"),  # ring write
+    (1600, 806, "FABRIC_RENDER"),  # selected render payload
 ]
 
 # ---- edges (svg hand-routed; drawio uses source/target ids) -----------------
 # (from, to, kind) kind: "h" straight horizontal, "elbow" via mid, "v" vertical
 EDGES = [
     ("i2s", "cmux", "pair"), ("tdm", "cmux", "pair"),
-    ("ring", "cmux", "pair"), ("tone", "cmux", "pair"),
+    ("loop", "cmux", "pair"), ("tone", "cmux", "pair"),
     ("cmux", "pkt", "h"),
     ("pkt", "inject", "h"),
-    ("hosttx", "cbs", "h"), ("cbs", "ptptx", "h"),
-    ("ptptx", "inject", "v"),
+    ("fabricctl", "inject", "v"),
     ("inject", "mactx", "h"),
     ("mactx", "wire", "h"),
     ("wire", "macrx", "wrap"),
     ("macrx", "parser", "h"), ("parser", "rxmon", "h"),
     ("rxmon", "depkt", "h"), ("depkt", "route", "h"),
-    ("route", "pcmring", "v"), ("pcmring", "ringcons", "v"),
-    ("route", "lpf", "h"), ("lpf", "i2spb", "h"),
-    ("route", "cxbar", "h2"), ("cxbar", "tdmout", "h"),
+    ("route", "lpf", "h"), ("lpf", "feed", "h"),
+    ("feed", "i2spb", "h"), ("route", "cxbar", "h2"),
+    ("cxbar", "feed", "h"), ("cxbar", "tdmout", "h"),
 ]
 
 def svg():
@@ -153,10 +142,10 @@ def svg():
              f'stroke="#B0BEC5" stroke-width="1.6" stroke-dasharray="7,5"/>')
     o.append(f'<text x="48" y="132" font-size="17" font-weight="bold" fill="#78909C">'
              f'TALKER - capture to wire</text>')
-    o.append(f'<rect x="30" y="660" width="{W-60}" height="540" rx="12" fill="none" '
+    o.append(f'<rect x="30" y="660" width="{W-60}" height="370" rx="12" fill="none" '
              f'stroke="#B0BEC5" stroke-width="1.6" stroke-dasharray="7,5"/>')
     o.append(f'<text x="48" y="688" font-size="17" font-weight="bold" fill="#78909C">'
-             f'LISTENER - wire to render / ring</text>')
+             f'LISTENER - wire to fabric render</text>')
 
     def edge_pts(a, b, kind):
         ax, ay, aw, ah = N[a][:4]
@@ -187,15 +176,15 @@ def svg():
              f'{esc("{pair_valid, pair_slot, L, R}")}</text>')
     o.append('<text x="352" y="268" font-size="12.5" fill="#37474F" font-style="italic">'
              'one shared contract</text>')
-    # playback-override note under KL_pcm_tx
-    o.append('<text x="440" y="430" font-size="12" fill="#6A1B9A">pb_enable replaces the ADC '
-             'frontend wholesale;</text>')
-    o.append('<text x="440" y="446" font-size="12" fill="#6A1B9A">the RING map source picks '
-             'ring pairs per slot</text>')
+    # loopback note under the received-AAF source
+    o.append('<text x="440" y="430" font-size="12" fill="#6A1B9A">the LOOP source replays '
+             'accepted receive pairs;</text>')
+    o.append('<text x="440" y="446" font-size="12" fill="#6A1B9A">reserved source encodings '
+             'resolve to digital silence</text>')
     # wire annotation on the wrap edge
     o.append('<text x="620" y="600" font-size="13.5" font-weight="bold" fill="#8D6E63">'
              'AAF-PCM PDUs with presentation time (avtp_timestamp) - the reference AVB '
-             'switch forwards per the lwSRP reservation</text>')
+             'switch forwards per the SRP reservation</text>')
 
     # nodes
     for nid, (x, y, w, h, title, sub, (fill, stroke)) in N.items():
@@ -215,18 +204,17 @@ def svg():
                  f'fill="#795548" text-anchor="middle">{esc(lab)}</text>')
 
     # legend
-    lx, ly = 60, 940
-    o.append(f'<rect x="{lx}" y="{ly}" width="1080" height="150" rx="10" fill="#FFFFFF" '
+    lx, ly = 60, 930
+    o.append(f'<rect x="{lx}" y="{ly}" width="1080" height="118" rx="10" fill="#FFFFFF" '
              f'stroke="#B0BEC5" stroke-width="1.4"/>')
     o.append(f'<text x="{lx+16}" y="{ly+26}" font-size="14" font-weight="bold" '
              f'fill="#212121">Legend</text>')
     items = [
-        (BLUE,   "physical audio I/O (ADC/DAC/TDM) + ring sources"),
+        (BLUE,   "physical audio I/O (ADC/DAC/TDM) + receive loopback"),
         (PURPLE, "channel-map fabric: capture mux / render crossbar / route"),
         (GREEN,  "AAF engines: packetizer - parser - monitor - depacketizer"),
         (ORANGE, "egress/ingress boundary: CBS shaper, PTP timestamps, MAC"),
-        (RED,    "PCM ring storage (DRAM default, BRAM option)"),
-        (GREY,   "software side (control lane and ring consumers)"),
+        (GREY,   "fabric protocol and time egress sources"),
     ]
     for i, ((f_, s_), txt) in enumerate(items):
         col = i % 2
@@ -237,10 +225,9 @@ def svg():
                  f'stroke="{s_}" stroke-width="1.6"/>')
         o.append(f'<text x="{bx+36}" y="{by+14}" font-size="12.5" fill="#37474F">'
                  f'{esc(txt)}</text>')
-    o.append(f'<circle cx="{lx+29}" cy="{ly+139}" r="8" fill="{GOLD[1]}" stroke="#795548"/>')
-    o.append(f'<text x="{lx+52}" y="{ly+143}" font-size="12.5" fill="#37474F">latency tap '
-             f'(docs/AAF_LATENCY_TAPS.md stage; deltas at CSR 0x870, history ring per '
-             f'docs/LATENCY_HISTORY_RING.md)</text>')
+    o.append(f'<circle cx="{lx+569}" cy="{ly+94}" r="8" fill="{GOLD[1]}" stroke="#795548"/>')
+    o.append(f'<text x="{lx+592}" y="{ly+98}" font-size="12.5" fill="#37474F">latency tap '
+             f'(docs/AAF_LATENCY_TAPS.md; CSR 0x870)</text>')
 
     o.append('</svg>')
     return "\n".join(o)

@@ -60,8 +60,8 @@
 #
 # 3. THE WALL CLOCK MANUFACTURED RED RUNS.  Each suite runs under `timeout`,
 #    and any non-zero status was recorded as a FAILING SUITE. Under CPU
-#    contention from parallel lanes a perfectly healthy suite (hostplane, more
-#    than once) exceeds the wall clock and got reported as a test failure -
+#    contention from parallel lanes a perfectly healthy suite exceeds the wall
+#    clock and got reported as a test failure -
 #    costing someone a hunt for a defect that does not exist. `timeout` exits
 #    124 when it is the one that killed the job, so that case is now its own
 #    TIMEOUT verdict: not a pass, not a failure, an UNKNOWN, and the sweep says

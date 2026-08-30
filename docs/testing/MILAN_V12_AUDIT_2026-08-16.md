@@ -37,7 +37,7 @@ Machine-checked status rows are defined by the
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
-| `gateware.current-version` | `implemented` | `0x0002_0055` |
+| `gateware.current-version` | `implemented` | `0x0002_0056` |
 | `aem.served-command-set` | `implemented` | - |
 | `aem.acquire-entity-refusal` | `not-supported` | - |
 | `aem.mandatory-missing-set` | `implemented` | - |
@@ -62,7 +62,6 @@ counts in the pull request; counts in this table must not be carried forward.
 | Gate | Result | Interpretation |
 |---|---:|---|
 | All 50 `tb/verilator/*/Makefile` suites | PASS | Every suite returned zero. Some suites still print explicit gap messages, so exit status alone is not a compliance verdict. |
-| `tb/verilator/hostplane` after ROM fix | PASS | Both `ltn_rom.hex` and `ucode.hex` were generated before simulation. No missing `$readmem` image warning remained. |
 | `tb/verilator/pp_shadow` | 273 checks passed | The 2026-08-17 rerun passed with zero failures. Milan `ACQUIRE_ENTITY` is checked on the wire for `NOT_SUPPORTED`, a zero owner, correct length, and correct addressing. The dynamic arty input also passed the GET_AUDIO_MAP body checks. |
 | `tests/` Behave suite | 15 features and 334 scenarios passed | 1,571 steps passed with no skipped scenarios or steps in the 2026-08-18 rerun (the unimplemented-echo outline is retired: since 0x0002_0054 no mandatory command falls through to it). This is an offline behavior model, not an external compliance lab result. |
 | Pinned protocol processor suites | 14,507 checks passed | All 27 processor suites passed. The processor's `pp_top` suite contributes 1,180 passing checks, including the START/STOP completion boundary read with no post-response delay, the exact 38 through 45 byte foreign-target AECP regression, the configuration overlay's fallback-versus-overlay evidence, GET_DYNAMIC_INFO batch coverage, record-level handling of the complete command-side status byte, getter-length drift detection, cdl 525 command rejection, and the stream-setter families: SET_STREAM_FORMAT's per-descriptor running refusal against a really bound sink and really streaming output, the one-gather format verdict in both refusal directions, SET_STREAM_INFO's 2021-only length rule with the 2013-size negative pinned, and the per-row settings publication graded beside every echo, plus the name-access family (the generated name table walked byte-exact, SET/GET/READ_DESCRIPTOR coherence, and the lock refusal carrying the current name). It also covers the 63-record mapping command maximum, atomic rejection of 64 mapping records, and exclusion between a reserved mapping edit and an ACMP stream-state transaction. The processor's zero-tolerance RTL lint and documentation gates also passed. |
@@ -248,41 +247,28 @@ behavior through the root, with its timed leg measuring the probe, the retry
 and the removal on the processor's compressed timebase (one of its
 milliseconds is 100 fabric cycles).
 
-### B6. Multi-bridge AS_PATH reporting (historical option-off contract at 0x0002_0055)
+### B6. Multi-bridge AS_PATH reporting (owner boundary at 0x0002_0056)
 
-This section records the software-owned option-off contract landed by #227.
-The product-default fabric owner now preserves the donor's distinct no-TLV
-count zero; its current contract and evidence live in
-[`GPTP_PLANE.md`](../design/GPTP_PLANE.md) and the
-fabric `sim_gptp` leg. In the historical option-off shape, the root gather face
-serves `GET_AS_PATH` as a zero-entry response when no grandmaster is known, and
-otherwise as the grandmaster identity followed by the last complete PathTrace
-tail the daemon published through the `0x7DC` CSR group. Slot LO/HI writes and
-`COMMIT` update a private staging bank only;
-they cannot change a solicited response or arm a notification. A changed
-`PUBLISH` atomically transfers the complete staged tail and count to the
-published bank and advances the publication generation only when its canonical
-path changes (legacy count 0 and explicit count 1 are the same GM-only path).
-The Table 5.22 detector separately compares the complete sequence the command
-actually serves, so any tail/count publication while the grandmaster is zero
-is silent rather than pushing an unchanged empty response. Publishing content
-identical to the current snapshot is also silent. The response gather snapshots
-GM, count and all tail slots at its first count request. The wire test then
-completes a count-and-multi-slot PUBLISH before the first entry request and
-proves the in-flight response wholly old and the next response wholly new. A
-tail that has not been published leaves the one-entry path seen by a leaf
-directly under its grandmaster.
+The fabric engine is now the only PathTrace publication owner. It preserves the
+donor's distinct no-TLV count zero; otherwise `GET_AS_PATH` serves the
+grandmaster followed by up to seven traversed identities from one atomic
+commit. The response gather snapshots GM, count and every active tail slot at
+its first count request, so an in-flight response is wholly old or wholly new.
+The Table 5.22 detector compares the same complete sequence that the command
+serves: fabric count 0 and count 1 are distinct empty and `[GM]` sequences,
+while a GM change at count zero remains AS_PATH-silent.
 
-What the daemon must do for the report to be complete is stage every tail entry
-from the latest Announce PathTrace TLV and issue `PUBLISH` only after the tail
-is complete. The root serves only the controller-visible published snapshot; incomplete
-staging remains private.
+The verification-only option-OFF elaboration is deliberately ownerless. GM,
+parent, PathTrace count/generation/tails, and peer delay all read zero;
+sync/asCapable are zero and `tu` is one. The retained `0x7DC`-`0x7E4`
+addresses acknowledge legacy writes but discard them, so no staged identity,
+commit, or publish command can change `GET_AS_PATH` or trigger a notification.
 
-Evidence: the `asp_served_count_w` / `asp_served_entry_w` selection and the
+Evidence: the selected `asp_live_count_w` / `asp_live_path_w` gather and the
 `gsi_asp_chg_w` strobe in
-[`milan_datapath.sv`](../../hdl/milan/milan_datapath.sv), the `[NOTIFY]`
-atomic COMMIT/PUBLISH and identical-publish arms of `tb/verilator/milan_dp`,
-and the staging group in
+[`milan_datapath.sv`](../../hdl/milan/milan_datapath.sv), the product-fabric
+present/no-TLV/in-flight cases and the option-OFF attempted-write isolation in
+`tb/verilator/milan_dp`, and the inert compatibility group in
 [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md).
 
 ### B7. Identify control has no public indication
@@ -295,17 +281,14 @@ output is tied low, so no board indication can follow the control.
 Evidence: the `o_identify` assignment in
 [`milan_datapath.sv`](../../hdl/milan/milan_datapath.sv).
 
-### B8. GET_AVB_INFO propagation delay (closed at 0x0002_0055)
+### B8. GET_AVB_INFO propagation delay (owner boundary at 0x0002_0056)
 
-Software publishes the measured neighbor propagation delay through
-`GPTP_PDELAY` at `0x6E4`, and since 0x0002_0055 the root selects that word --
-or the fabric gPTP plane's own `pub_pdelay_ns_o` when `GPTP_PLANE_EN_P` is
-set, the same selection the grandmaster identity uses -- as the effective
-`propagation_delay` the gather face serves. One wire feeds both the served
-answer and its change detector, so the Milan section 5.4.2.23 response
-reports the stored measurement and a change to it is a Table 5.22
-`GET_AVB_INFO` trigger. Until then the CSR output was discarded and the served
-field was a structural zero.
+The fabric gPTP plane's `pub_pdelay_ns_o` is now the only effective
+`propagation_delay` source for `GPTP_PDELAY` at `0x6E4` and the root gather
+face. One wire feeds both the served answer and its change detector, so the
+Milan section 5.4.2.23 response reports the engine measurement and a change to
+it is a Table 5.22 `GET_AVB_INFO` trigger. In option OFF the field reads and
+serves zero, and every legacy write to `0x6E4` is inert.
 
 The same trigger set closed the two neighbouring gaps this finding sat beside:
 the gPTP domain number at `0x62C` and the grandmaster identity are
@@ -378,7 +361,7 @@ media gate in [`milan_datapath.sv`](../../hdl/milan/milan_datapath.sv).
 
 ## Corrections made by this audit
 
-1. The host-plane suite now generates both processor ROM images before any
+1. The integrated fabric suite now generates both processor ROM images before any
    simulator starts. Verilator otherwise warns and continues with an all-zero
    ROM, which allowed false-green integration runs.
 2. The root processor integration now grades Milan `ACQUIRE_ENTITY` instead of

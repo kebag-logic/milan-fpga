@@ -22,7 +22,7 @@
 +            # tx_clk_invert=True forwards gtx 180° out of phase with eth_tx, so its rising
 +            # edge lands mid-bit of TXD (TXD is registered on eth_tx rising) instead of at the
 +            # TXD transition — the fix for the marginal GMII-TX setup/hold at the RTL8211E
-+            # (docs/kl-eth-tx-debug §GMII-TX). Edge-aligned (default) samples at the transition.
++            # Bench-confirmed phase option. Edge-aligned (default) samples at the transition.
 +            self.specials += DDROutput(0 if tx_clk_invert else 1,
 +                                       1 if tx_clk_invert else mii_mode,
 +                                       clock_pads.gtx, ClockSignal("eth_tx"))

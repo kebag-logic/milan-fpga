@@ -2,9 +2,10 @@
 
 **System:** a small **Milan v1.2** audio endpoint (PAAD  -  Professional Audio AVB
 Device)  -  a **stereo (2-channel) talker + listener at 48 kHz**  -  implemented on
-the fully-FPGA RISC-V platform (VexiiRiscv + LiteX on Alinx AX7101; NaxRiscv historical), designed to
-**scale up** (more channels / streams / sample rates) and **scale out** (more than
-one softcore).
+the fully-FPGA RISC-V platform (VexiiRiscv + LiteX on Alinx AX7101). The
+release uses one cacheless RV32I control hart and scales media capacity through
+fabric stream contexts, channels, sample rates, and, in future profiles,
+replicated physical ports.
 
 - **Current Milan v1.2 implementation verdict:** [`../testing/MILAN_V12_AUDIT_2026-08-16.md`](../testing/MILAN_V12_AUDIT_2026-08-16.md)
 - **Current entity definitions:** [`configs/endstation_*.yaml`](../../configs) through the [end-station builder](../ENDSTATION_BUILDER.md)
@@ -23,10 +24,10 @@ Requirement keywords per RFC 2119 (**MUST / SHOULD / MAY**). Each requirement ha
 
 ## Contents
 
-- **[1. Scope, actors, and the baseline system](#1-scope-actors-and-the-baseline-system)** -- What "the baseline endpoint" concretely means, plus the `P_CH`/`P_SI`/`P_SO`/`P_SR`/`P_CORES`/`P_PORTS` parameter table every later requirement is written against. States the asymmetry that drives Section 2.7: the talker is fixed stereo, the listener is format-adaptive.
+- **[1. Scope, actors, and the baseline system](#1-scope-actors-and-the-baseline-system)** -- What "the baseline endpoint" concretely means, plus the `P_CH`/`P_SI`/`P_SO`/`P_SR`/`P_PORTS` parameter table every later requirement is written against. States the asymmetry that drives Section 2.7: the talker is fixed stereo, the listener is format-adaptive.
 - **[2. Functional Requirements (FR)](#2-functional-requirements-fr)** -- Opens with **[Section 2.0, the implementation-status ledger](#20-implementation-status-after-the-protocol-processor-substitution-2026-08-13)**: which groups the protocol processor owns, which AECP commands it serves, which dynamic outputs the root integration does not yet consume, and which mandatory requirements remain open. Read it before any row, and read a refusal as a refusal. Then nine subsections of MUST/SHOULD rows with priority and verification method, covering ADP through AECP/MVU, ACMP, MAAP/SRP, clocking, streaming, QoS and management.
-- **[3. Non-Functional Requirements (NFR)](#3-non-functional-requirements-nfr)** -- The budgets and bounds: line rate, 8000 pkt/s per stream, ≤ 1 µs gPTP sync, ≤ 60 % LUT at baseline. Scale-out (Section 3.4) is flagged in the page as *the* key architectural NFR -- both SMP and AMP must be buildable, and adding cores must not change the ABI.
-- **[4. Scalability architecture](#4-scalability-architecture)** -- How the three growth axes are actually meant to work: the JSON entity model as the scale-up knob, the control/media/time plane split as the basis for scale-out, an SMP-vs-AMP comparison with a worked 3-core diagram, and the sizing formula Section 4.5 admits is not yet populated.
+- **[3. Non-Functional Requirements (NFR)](#3-non-functional-requirements-nfr)** -- The line-rate, packet-rate, timing, resource, fabric scale-up, and future multi-port bounds for the one-hart bare-metal product.
+- **[4. Scalability architecture](#4-scalability-architecture)** -- How configuration grows fabric streams, channels, rates, and optional endpoint replicas while the CPU remains a single boot-and-policy controller outside packet and media deadlines.
 - **[5. Steps to comply with Milan v1.2 (procedure)](#5-steps-to-comply-with-milan-v12-procedure)** -- The ordered twelve-step path from bare platform to conformance run, each step citing the FRs it discharges. Ends with the explicit out-of-scope list -- redundancy, rates beyond 192 kHz, AEM authentication.
 - **[6. Traceability (summary)](#6-traceability-summary)** -- One compact table joining each functional area to its Milan clause, its entity-model artifact, and its plan milestone -- the index to use when you need "which requirement covers this".
 - **[7. Verification approach](#7-verification-approach)** -- Which evidence class answers which kind of requirement: Verilator harnesses for leaf blocks, controller, fabric-gPTP and CSR tooling for interop, YAML models for PDU byte-exactness, and repetition at full profile for the scale claims.
@@ -62,10 +63,12 @@ media-clock stream:
 | Param | Meaning | Baseline | Scale-up target | Scale-out lever |
 |-------|---------|----------|-----------------|-----------------|
 | `P_CH` | channels per stream | 2 | 8 → 64 |  -  |
-| `P_SI` / `P_SO` | stream sinks / sources | 1 / 1 | 8 / 8 | per-core streams |
+| `P_SI` / `P_SO` | stream sinks / sources | 1 / 1 | 8 / 8 | fabric contexts |
 | `P_SR` | sample-rate set | {48k} | {48,96,192k} |  -  |
-| `P_CORES` | RISC-V softcores | 1 | 1 (faster) | **2 … N** |
-| `P_PORTS` | AVB interfaces / entities | 1 | 1 | **2 … N** (scale-out) |
+| `P_PORTS` | AVB interfaces / entities | 1 | 1 | future replicated fabric endpoint |
+
+The release CPU count is fixed at one. It is not a media-capacity parameter:
+all per-frame protocol, time, packet, and audio work is fabric-owned.
 
 ### 1.3 Actors
 AVDECC **Controller**; peer **Talker**/**Listener** entities; **802.1AS**
@@ -108,8 +111,8 @@ fallback response, but that fallback does not implement their required behavior.
 below that reads NOT IMPLEMENTED is not describing silence. It describes a
 device that answers "no" correctly and does not perform the operation. The
 end-station builder generates `aem_desc.bin`, `aem_desc.json`, and
-`aem_desc.map` from the selected configuration. The tracked board flow packages
-the paired image and manifest and runs `aemi-load` to verify and load them at
+`aem_desc.map` from the selected configuration. The tracked bare-metal deployment
+packages the paired artifacts; firmware verifies the generated length and CRC and copies the image to
 `PP_DESC_BASE_P` before entity enable. A custom integration that omits that step
 still fails closed with `BAD_ARGUMENTS`. The Table 5.22 counter-change producer,
 the other root-observed notification triggers, and the departing-controller
@@ -133,7 +136,7 @@ These repeated claims are checked against the
 | Requirement group | Verdict | Where it lives now |
 |---|---|---|
 | **FR-DISC-01..05** (ADP) | **OWNED BY THE PROTOCOL PROCESSOR** | `KL_adp_engine`. Advertisement content is the entity model via `adp_shape_defaults.svh`; `available_index` is published to the CSR plane. The historic `ADP_CTRL.en` still enables the entity (ORed with `PP_CTRL[0]`), but the ADPDU *content* CSR words are write-only scratch that reach nothing |
-| **FR-ENUM-01** (`READ_DESCRIPTOR`) | **IMPLEMENTED AND SUPPLIED** | The uCPU's descriptor store fetches over a read-only master at compile-time `PP_DESC_BASE_P`. The builder generates the image, JSON manifest, and map; `aemi-load` verifies and writes the paired image before entity enable. An omitted or invalid image fails closed with `BAD_ARGUMENTS`, a locate miss returns `NO_SUCH_DESCRIPTOR`, a late load heals without reset, and the 4096-cycle watchdog prevents a stalled memory path from hanging the responder |
+| **FR-ENUM-01** (`READ_DESCRIPTOR`) | **IMPLEMENTED AND SUPPLIED** | The uCPU's descriptor store fetches over a read-only master at compile-time `PP_DESC_BASE_P`. The builder generates the image, JSON manifest, and map; bare-metal firmware verifies and copies the paired image from QSPI before entity enable. An omitted or invalid image fails closed with `BAD_ARGUMENTS`, a locate miss returns `NO_SUCH_DESCRIPTOR`, a late load heals without reset, and the 4096-cycle watchdog prevents a stalled memory path from hanging the responder |
 | **FR-ENUM-02** (the Milan-mandatory descriptor tree) | **IMPLEMENTED IN THE TRACKED BUILD FLOW** | The selected entity configuration generates the mandatory descriptor tree and flat image artifacts. The tracked board flow packages and loads them. Custom integrations must preserve the same load-before-enable ordering |
 | **FR-CTRL-01..05** (acquire/lock, get/set, unsolicited, counters, fast enumeration) | **PARTLY MET** | The processor serves the mandatory command inventory. `ACQUIRE_ENTITY` returns Milan Delta 7 `NOT_SUPPORTED` with no owner. FR-CTRL-03's registration, successful-command notifications, Table 5.22 scheduler, and departing-controller monitor are implemented. FR-CTRL-04 serves every supported counter bank and rate-limits each descriptor's push to at most once per second. Persistence remains open, and the declared CRF Stream Input still has no served counter bank |
 | **FR-CTRL-06** (validate cdl / message_type / target, correct status) | **PARTLY MET** | Met: the duty to answer, correct response shape and identity fields, silent refusal of a foreign target or response-as-input, command-specific `BAD_ARGUMENTS`, `NOT_SUPPORTED`, and descriptor-locate statuses, and lock conflict behavior within the served inventory. The mandatory commands listed in the current audit still need their own payload validation and behavior before this group can be closed |
@@ -208,7 +211,7 @@ conformant fallback, and the current audit lists the remaining mandatory gaps.
 | FR-CLK-02 | The PHC MUST be disciplined from a fixed 125 MHz free-running clock (REQ-PTP-07), independent of link speed. | M | A,T |
 | FR-CLK-03 | The media clock MUST be selectable (CLOCK_DOMAIN → CLOCK_SOURCE) among Internal, input-stream (AAF), and CRF. | M | T |
 | FR-CLK-04 | As a media-clock talker the entity MUST source a CRF stream; as a follower it MUST recover media clock from CRF or the input stream. | M | T |
-| FR-CLK-05 | HW ingress/egress timestamps MUST be captured at the GMII SFD and exposed to the driver for `SO_TIMESTAMPING`. | M | T |
+| FR-CLK-05 | HW ingress/egress timestamps MUST be captured at the GMII SFD and delivered directly to the fabric gPTP plane and diagnostic counters. | M | T |
 
 ### 2.7 Streaming  -  AVTP AAF talker/listener  *(1722-2016 Section 7; Milan Section 6)*
 | ID | Requirement | Pri | Ver |
@@ -243,7 +246,7 @@ conformant fallback, and the current audit lists the remaining mandatory gaps.
 |----|-------------|-----|-----|
 | NFR-PERF-01 | The datapath MUST sustain line-rate 1 GbE for the shaped streams without frame loss at baseline load. | M | T |
 | NFR-PERF-02 | The AVTP talker/listener MUST sustain the Class A packet rate (8000 pkt/s per stream) continuously. | M | T |
-| NFR-LAT-01 | End-to-end (talker capture → listener render) latency MUST meet the Milan Class A presentation-time bound (2 ms default), configurable per stream. | M | T |
+| NFR-LAT-01 | End-to-end (talker capture → listener render) latency MUST meet the Milan Class A presentation-time bound using the product's 2 ms per-output default. | M | T |
 | NFR-LAT-02 | AVDECC control command→response round-trip SHOULD be < 250 ms (well within 1722.1 inflight timeouts). | S | T |
 | NFR-DET-01 | The media/AVTP path MUST be deterministic: bounded, jitter-controlled processing independent of best-effort/management load. | M | T |
 
@@ -257,29 +260,29 @@ conformant fallback, and the current audit lists the remaining mandatory gaps.
 ### 3.3 Scale-**up** (same node, bigger workload)
 | ID | Requirement | Pri | Ver |
 |----|-------------|-----|-----|
-| NFR-SCUP-01 | The entity model, driver, and datapath MUST be parameterized by `P_CH`, `P_SI`, `P_SO`, `P_SR` so a larger endpoint (e.g. 8-ch, 48/96/192 kHz  -  the full entity model) is a configuration change, not a redesign. | M | A,I |
+| NFR-SCUP-01 | The end-station model, generated artifacts, and fabric datapath MUST be parameterized by `P_CH`, `P_SI`, `P_SO`, `P_SR` so a larger endpoint (for example 8-channel, 48/96/192 kHz) is a configuration change, not a redesign. | M | A,I |
 | NFR-SCUP-02 | Increasing `P_CH`/`P_SR` MUST only linearly increase bandwidth, buffer, and DSP; the control plane (ADP/AECP/ACMP) MUST be unaffected. | M | A |
 | NFR-SCUP-03 | FPGA resource use MUST stay within the `xc7a100t` budget at the largest supported single-node profile (document the profile that first exceeds it). | S | A |
-| NFR-SCUP-04 | The AEM memory (HW 4-level) MUST size from the JSON model at build time so more descriptors need no RTL edit. **Re-pointed 2026-08-13: there is no AEM memory in this gateware** -- the processor's uCPU serves descriptors out of a flat image in main memory at a compile-time base, so "sizing" becomes "generating and loading the image", and **that build step does not exist here** (Section 2.0). The requirement stands, against the new subject. | S | I |
+| NFR-SCUP-04 | The builder MUST generate and size the flat AEM image from the selected end-station model, and bare-metal boot MUST validate and install it at the processor's compile-time descriptor base without an RTL edit as descriptor counts grow. | S | I |
 
-### 3.4 Scale-**out** (more than one softcore)  *(the key architectural NFR)*
+### 3.4 Fabric scale-out and future ports
 | ID | Requirement | Pri | Ver |
 |----|-------------|-----|-----|
-| NFR-SCOUT-01 | The architecture MUST support `P_CORES ≥ 2` RISC-V softcores. Two models MUST both be buildable: **(a) SMP** (coherent multi-core, one firmware image) and **(b) AMP** (independent cores by plane, see Section 4.3). | M | A,D |
-| NFR-SCOUT-02 | Work MUST partition across cores along the **control / media / time** planes with well-defined interfaces, so adding a core adds capacity without reworking protocol logic. | M | A |
-| NFR-SCOUT-03 | Inter-core communication MUST use a defined shared-memory + mailbox/IPI mechanism with bounded latency; the real-time media plane MUST NOT block on the control plane. | M | A,T |
-| NFR-SCOUT-04 | Shared HW resources (PHC, MAC, CSR, DMA queues) MUST be safely arbitrated across cores (single owner or lock-free per-core queues); the PHC MUST present a single coherent time to all cores. | M | A,T |
-| NFR-SCOUT-05 | The design MUST also scale out to `P_PORTS ≥ 2` **independent entities** (each its own AVB_INTERFACE + softcore + entity_id), so a multi-port device is N replicated endpoints on one FPGA. | S | A,D |
-| NFR-SCOUT-06 | Adding cores/ports MUST NOT change the ABI (CSR register map, entity model schema)  -  only instance counts. | M | I |
-| NFR-SCOUT-07 | Per-core/per-stream capacity MUST be documented so the number of cores needed for a target stream/channel count is computable (a sizing formula/table). | S | A |
+| NFR-SCOUT-01 | The release architecture MUST use one cacheless RV32I control hart; increasing stream capacity MUST elaborate additional fabric contexts rather than create a software packet or media plane. | M | A,D |
+| NFR-SCOUT-02 | Protocol control, media movement, and time discipline MUST retain their explicit fabric owners as stream counts grow. | M | A |
+| NFR-SCOUT-03 | Packet and audio deadlines MUST depend only on bounded fabric handshakes, never on firmware service latency. | M | A,T |
+| NFR-SCOUT-04 | The PHC, MAC trunk, CSR window, and fabric egress arbiter MUST each have one coherent owner and deterministic arbitration across all elaborated streams. | M | A,T |
+| NFR-SCOUT-05 | A future `P_PORTS ≥ 2` profile MAY replicate complete fabric endpoint instances with distinct AVB interfaces and entity identities; the current release profile remains one port. | S | A,D |
+| NFR-SCOUT-06 | Increasing stream or endpoint instance counts MUST NOT change the CSR register definitions or end-station configuration schema. | M | I |
+| NFR-SCOUT-07 | Per-stream and per-port fabric resource costs MUST be documented so a target stream/channel/port shape can be checked against the device budget. | S | A |
 
 ### 3.5 Resource, reliability, and the rest
 | ID | Requirement | Pri | Ver |
 |----|-------------|-----|-----|
 | NFR-RES-01 | Baseline (1 core, stereo 48 k) MUST fit `xc7a100t` with headroom (target ≤ 60 % LUT) to leave room for scale-out. | M | A |
 | NFR-REL-01 | A stream fault (link flap, GM change, talker loss) MUST auto-recover without a reboot; counters MUST record the event. | M | T |
-| NFR-REL-02 | Watchdog/keepalive MUST detect a hung media core (AMP) and restart it without dropping the control plane. | S | T |
-| NFR-OBS-01 | The system MUST expose observability: fabric-gPTP status/publication counters and CSRs, AVDECC counters, MAC/RMON counters over the CSR ABI, and per-core load. | S | D |
+| NFR-REL-02 | Fabric liveness monitors SHOULD detect a stalled protocol, time, or media engine and recover or report it without requiring a full-board reboot. | S | T |
+| NFR-OBS-01 | The system MUST expose fabric-gPTP status/publication counters and CSRs, AVDECC counters, MAC/RMON counters, and protocol/media liveness through the CSR contract. | S | D |
 | NFR-MAINT-01 | The entity model MUST be single-source (JSON) and shared HW/SW/test; divergence MUST be caught in CI. | M | I |
 | NFR-PORT-01 | The firmware MUST build for the shipping RV32I bare-metal profile with no OS dependency, and MUST stay buildable for a wider core should the profile grow. | S | A |
 | NFR-SEC-01 | Milan v1.2 does not mandate AEM authentication; the entity MUST advertise `AEM_AUTHENTICATION` = not-required and behave safely when unauthenticated. | M | I |
@@ -289,52 +292,52 @@ conformant fallback, and the current audit lists the remaining mandatory gaps.
 ## 4. Scalability architecture
 
 ### 4.1 One design, three axes
-- **Scale up (workload):** grow `P_CH`, `P_SI/P_SO`, `P_SR`. The JSON entity model
-  is the knob  -  the small (stereo/48k) and full (8-ch/48-96-192k) models are the
-  same schema; the driver and datapath read counts/rates from it. HW cost grows
-  ~linearly with channels × sample-rate; control plane is unchanged.
-- **Scale out (compute):** grow `P_CORES`  -  multiple NaxRiscv softcores (SMP or AMP).
-- **Scale out (ports/entities):** grow `P_PORTS`  -  replicate the endpoint (MAC +
-  interface + softcore + entity) N times on one FPGA.
+- **Scale streams:** grow `P_SI/P_SO`; shared engines retain one context record
+  per stream and generated descriptors advertise the same shape.
+- **Scale media:** grow `P_CH` and `P_SR`; capture, packetize, map, and render
+  remain fabric paths whose resource and bandwidth costs are measured.
+- **Scale ports/entities:** a future `P_PORTS` profile may replicate a complete
+  fabric endpoint and physical interface. The current product remains one port
+  and one RV32 control hart.
 
 ### 4.2 Plane partitioning (the basis for scale-out)
-| Plane | Functions | Real-time? | Baseline core | Scales to |
+| Plane | Functions | Real-time? | Product owner | Scales to |
 |-------|-----------|-----------|---------------|-----------|
-| **Control** | ADP, AECP/AEM+MVU, ACMP, MAAP, MSRP/MVRP | soft (ms) | the protocol processor in fabric | 1 instance (rarely the bottleneck) |
-| **Media** | AVTP talker/listener, sample transport, presentation-time, media-clock | hard (µs) | fabric datapath | **1 datapath per K streams** |
-| **Time** | gPTP state machines/servo, PHC discipline, CRF gen/recover | hard (µs) | integrated fabric gPTP owner + HW PHC | hardware-owned; no software core |
+| **Control** | ADP, AECP/AEM+MVU, ACMP, MAAP, MSRP/MVRP | bounded protocol deadlines | protocol processor plus fabric MAAP | generated stream contexts |
+| **Media** | AVTP talker/listener, sample transport, presentation-time, media-clock | hard (µs) | AAF/CRF and physical-audio fabric | channels and stream contexts |
+| **Time** | gPTP state machines/servo, PHC discipline, CRF generate/observe | hard (µs) | integrated fabric gPTP owner + PHC | one coherent time domain per endpoint |
+| **Boot/policy** | image verification, CSR initialization, persistence, diagnostics | not per frame | one bare-metal RV32I hart | fixed at one in release profiles |
 
-### 4.3 SMP vs AMP (both required by NFR-SCOUT-01)
-- **SMP**  -  coherent multi-core, one firmware image, LiteX SMP config. Media
-  work pinned per core. *Easiest scale-up of stream/channel count; good for
-  `P_CORES` 2–4.*
-- **AMP**  -  core0 runs the firmware's management plane while the integrated
-  fabric owns time; cores 1..N run a bare-metal **media engine** (AVTP
-  encode/decode, DMA to the audio interface), no OS jitter. Control↔media via a
-  shared-memory ring + IPI mailbox (NFR-SCOUT-03). *Best determinism; each media
-  core adds a fixed stream budget.*
+### 4.3 One control CPU, fabric capacity
+
+The control CPU never becomes a packet or sample worker. Increasing stream or
+channel count changes generated fabric context counts and the descriptor image;
+it does not add firmware workers, packet queues, or a CPU-to-CPU transport.
+This preserves bounded media and protocol behavior independently of firmware
+load.
 
 ```
-  AMP scale-out (P_CORES = 3, P_PORTS = 1):
-    core0  firmware: boot policy, identity, persistence          (management)
-    core1  bare-metal media engine: AVTP talker/listener  stream set A
-    core2  bare-metal media engine: AVTP talker/listener  stream set B
-    fabric integrated gPTP owner + PHC                            (time)
-      │ shared-mem rings + IPI                     │ per-core DMA queues
-      └──────────────► single coherent PHC ◄───────┘  (NFR-SCOUT-04)
-                       single MAC / CBS / classifier (HW, arbitrated)
+  one-port release endpoint:
+    RV32 firmware: boot policy · identity · persistence · diagnostics
+                       │ AXI-Lite CSR + descriptor-image provisioning
+    protocol fabric: ADP · ACMP · AECP · SRP · MAAP
+    media fabric:    AAF/CRF capture · packetize · map · render
+    time fabric:     gPTP owner + single coherent PHC
+                       │ deterministic fabric egress arbitration
+                    one GMII MAC / physical port
 ```
 
 ### 4.4 Multi-entity scale-out (`P_PORTS`)
-Each port = an independent replicated slice: MAC + AVB_INTERFACE + softcore +
-`entity_id` (distinct EUI-64) + its own entity model instance. Shared: the FPGA,
-the build, the CSR ABI (instanced). This grows a **switchless multi-port** or
-**multi-endpoint** device without touching protocol code (NFR-SCOUT-06).
+Any future additional port is an independent fabric endpoint slice: MAC,
+AVB_INTERFACE, distinct `entity_id`, protocol/media/time context, and generated
+entity model. The current release does not claim this profile; it is accepted
+only after the replicated source, clock, CSR, and wire evidence closes.
 
 ### 4.5 Sizing (NFR-SCOUT-07)
-Provide a table `cores = ceil(total_streams / streams_per_core)` where
-`streams_per_core` is measured per media-core at each `P_CH`/`P_SR`. Populate from
-benchmarks during bring-up; publish alongside the resource report.
+For every supported `P_SI/P_SO`, `P_CH`, `P_SR`, and `P_PORTS` shape, publish
+the builder estimate, open-synthesis delta, placed utilization, timing, and
+wire-rate result. The supported ceiling is the largest shape that fits and
+passes those gates; CPU count is not part of the formula.
 
 ---
 
@@ -351,7 +354,7 @@ the completed PS-to-fabric migration plan (#259, in git history).
    acceptance remains #117. *(FR-CLK-01/02, NFR-TIME-01)*
 3. **Entity model**  -  select an `endstation_*.yaml` configuration. The
    builder generates `aem_desc.bin`, `aem_desc.json`, and `aem_desc.map`; the
-   tracked board flow packages the pair and runs `aemi-load` at
+   tracked bare-metal boot verifies and copies the paired image from QSPI to
    `PP_DESC_BASE_P` before enabling the entity. Verify a byte-exact
    `READ_DESCRIPTOR` walk. *(FR-ENUM-01/02)*
 4. **ADP**  -  advertise/discover/depart with correct `available_index`. *(FR-DISC-\*)*
@@ -369,8 +372,9 @@ the completed PS-to-fabric migration plan (#259, in git history).
 11. **Conformance**  -  run the internal Milan conformance plan (bench suite) + `srcs/the-private-test-repo`
     (`avdecc_l2.py`, fabric-gPTP capture/CSR oracles) and the `tsn-gen` AECP PDU
     checks. *(all Ver=T)*
-12. **Scale**  -  re-run with the full entity model (8-ch, 48/96/192k) and with
-    `P_CORES ≥ 2` (SMP then AMP) to prove Sections 3.3/3.4. *(NFR-SCUP/SCOUT)*
+12. **Scale**  -  re-run with every claimed fabric stream/channel/rate shape
+    and any future replicated-port profile to prove Sections 3.3/3.4.
+    *(NFR-SCUP/SCOUT)*
 
 > Milan features intentionally **out of scope for now** (documented, not required
 > here): seamless network **redundancy** (single interface), sample rates beyond
@@ -383,7 +387,7 @@ the completed PS-to-fabric migration plan (#259, in git history).
 | Area | FR/NFR | Milan v1.2 | Entity model | Plan milestone |
 |------|--------|-----------|--------------|----------------|
 | Discovery | FR-DISC-\* | Section 5.2 | `adp`, ENTITY | M-B2 -- processor (Section 2.0) |
-| Enum/Control | FR-ENUM/CTRL | Section 5.3–5.4 | full descriptor tree | M-B3, processor AECP uCPU plus builder-generated image and `aemi-load`; the served inventory and mandatory gaps are listed in Section 2.0 |
+| Enum/Control | FR-ENUM/CTRL | Section 5.3–5.4 | full descriptor tree | M-B3, processor AECP uCPU plus the builder-generated image copied by bare-metal firmware; the served inventory and mandatory gaps are listed in Section 2.0 |
 | MVU | FR-MVU-\* | Section 5.4.3 | `milan_mvu` | M-B3 -- **NOT IMPLEMENTED**, no `protocol_id` recognised (Section 2.0) |
 | Connection | FR-CONN-\* | Section 5.5 | STREAM_\*, CBS CSR | M-B4 -- processor; fast-connect/persistence **NOT MET** |
 | MAAP/SRP | FR-MAAP/SRP | Section 5.6 | STREAM_\*, classifier/CBS | M-B5 -- MAAP in fabric, SRP on the processor |
@@ -391,7 +395,7 @@ the completed PS-to-fabric migration plan (#259, in git history).
 | Streaming | FR-STR-\* | Section 6 | STREAM_INPUT/OUTPUT | (D5) |
 | QoS | FR-QOS-\* | 802.1Q/Qav |  -  (HW) | M-A5 |
 | Scale-up | NFR-SCUP-\* |  -  | small ↔ full JSON | Section A/Section B params |
-| Scale-out | NFR-SCOUT-\* |  -  | replicated entity | Section 4 (SMP/AMP) |
+| Scale-out | NFR-SCOUT-\* |  -  | fabric contexts / replicated endpoint | Section 4 |
 
 ## 7. Verification approach
 - **HW leaf blocks:** Verilator self-checking harnesses (CBS, classifier, PTP,
@@ -411,4 +415,5 @@ the completed PS-to-fabric migration plan (#259, in git history).
   the AECP/AEM clause rows to fail, and record them as failing -- Section 2.0 is the
   reason, not an excuse to re-grade them. **A conformant refusal is not a pass**:
   a row asking what a command DOES is not answered by the fact that it replies.
-- **Scale:** repeat the suite at the full profile and at `P_CORES=2..N` (SMP, AMP).
+- **Scale:** repeat the suite at every claimed fabric stream/channel/rate shape
+  and at any future replicated-port profile.

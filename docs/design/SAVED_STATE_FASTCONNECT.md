@@ -81,10 +81,10 @@ it.
 - **[5. Where it lives in the 16 MB QSPI](#5-where-it-lives-in-the-16-mb-qspi)** -- The two reserved slots and why `journal` is raw rather than a filesystem, plus the rule a reflash must obey. Cited by `milan_soc.py` as the map's single source of truth, and 5.1 re-derives every citation of this page at this head: zero unresolved, because the five RTL comments round 2 left stale are repaired against the register map.
 - **[6. The record image format: KLJ2](#6-the-record-image-format-klj2)** -- A new versioned container, not KLJ1 carried forward: byte-level field widths, the endianness seam between the little-endian container and the big-endian records, the exact CRC coverage, the identity and shape binding, and a twelve-row acceptance order with a verdict code per failure, including the rule that refuses a CRC-clean image which omits a mandatory record.
 - **[7. Durability: the A/B contract](#7-durability-the-ab-contract)** -- The write and read rules in full, and the property they buy: at every instant of a commit at least one slot holds a complete image whose CRC closes.
-- **[8. Where the image lives in fabric, and what it costs](#8-where-the-image-lives-in-fabric-and-what-it-costs)** -- The memory is settled (the reserved DRAM window, not BRAM) and so is the transfer (ordinary loads and stores, no DMA and no CSR data window), with the measured slack behind both. Then the area, MEASURED: a before/after pair OOC-mapped at both shapes and DRIVEN against a byte-exact image, bounded at 773 LUT-equivalents and 280 FF, and calibrated against three blocks already in the tree.
+- **[8. Where the image lives in fabric, and what it costs](#8-where-the-image-lives-in-fabric-and-what-it-costs)** -- The memory is settled (the reserved DRAM window, not BRAM) and so is the transfer (ordinary loads and stores, with no CSR data window), with the measured slack behind both. Then the area, MEASURED: a before/after pair OOC-mapped at both shapes and DRIVEN against a byte-exact image, bounded at 773 LUT-equivalents and 280 FF, and calibrated against three blocks already in the tree.
 - **[9. What the fabric may claim: the durability and liveness contract](#9-what-the-fabric-may-claim-the-durability-and-liveness-contract)** -- Why an answered-once bit cannot report a writer that wedges later, and the replacement: a live `nvm_backed` with a revocation list, `nvm_dirty` and `nvm_stale`, the rule that says when the loss is forgiven, all eight bit combinations with the one that cannot occur named (unreachable in the STATE now, not merely masked at the face), and the two deadlines derived from the flash datasheet rather than chosen.
-- **[10. Boot-side work](#10-boot-side-work)** -- Five items, and why the block-layer route the host era assumed was never available on this controller.
-- **[11. Bench recipe](#11-bench-recipe)** -- G0 and G0b, which run today, and why G1 belonged to the retired host profile. Cited by `milan_soc.py`.
+- **[10. Boot-side work](#10-boot-side-work)** -- Five items, and why the block-layer route a previous profile assumed was never available on this controller.
+- **[11. Bench recipe](#11-bench-recipe)** -- G0 and G0b, which run today, and why G1 belonged to a superseded target profile. Cited by `milan_soc.py`.
 - **[12. The commit marks that already exist](#12-the-commit-marks-that-already-exist)** -- Eight marks across seven programs, derived from the pinned donor rather than from a comment, plus the exemplar that is not one and the deliberate absence at IDENTIFY that is a requirement. Round 1 said three.
 - **[13. Risks, stated rather than discovered later](#13-risks-stated-rather-than-discovered-later)** -- The proven writer no longer exists in the tree, persistence depends on firmware liveness, the debounce window is a data-loss window a PR must quantify, four donor defects are open against the port, and the names allocation is blocked on a donor amendment nobody has filed yet.
 - **[14. What this page does NOT decide](#14-what-this-page-does-not-decide)** -- Three things: the names allocation, which is not this page's to decide at all; the debounce window's value; and where the proposed CSR bits actually land.
@@ -174,11 +174,10 @@ Three things make that the answer rather than a fabric-side flash master:
    contend for the same physical device with the boot path. The standing
    instruction to keep usage low and re-use existing resources points the same
    way.
-3. **The recipe is silicon-proven, in history.** The deleted page records that a
-   userspace writer, `acmp-persist`, drove RDID / WREN / SE-D8 / PP / RDSR over
-   those CSRs against this board, with a JEDEC guard and an address clamp. It is
-   no longer in the tree -- see the risk in section 13 -- but the sequence is not
-   speculative.
+3. **The controller is directly usable from bare-metal firmware.** The required
+   RDID / WREN / SE-D8 / PP / RDSR sequence is issued through those CSRs, with a
+   JEDEC guard and an address clamp. Section 13 keeps the missing firmware writer
+   explicit rather than treating controller reachability as completed persistence.
 
 Reason 1 is the one that was wrong in round 1, and it was wrong by omission
 rather than by arithmetic: bytes were counted, ids were not. Section 4 is the
@@ -304,7 +303,7 @@ every descriptor with a user-settable name has its name persisted. At that
 shape the record contract had to change or the 8x8 could not be made
 compliant; that arithmetic is what originally forced the amendment. The
 floor table above is the HISTORICAL forcing record: #259 retired the 8x8's
-host clusters, its floor fell to 164/256, and no shipped shape forces
+nonphysical clusters, its floor fell to 164/256, and no shipped shape forces
 banking any more.
 
 PERSISTED-FORMAT DECISION (#259, 2026-08-25): the banked NAMES layout is
@@ -511,7 +510,7 @@ the retired flash-partition emitter derived the same
 | Offset | Size | Slot | Written by |
 |---|---|---|---|
 | `0xEE_0000` | 128 KiB | **`journal`** -- 2 x 64 KiB erase blocks, slot A and slot B, raw | the persistence writer only |
-| `0xF0_0000` | 1 MiB | `user` -- writable region, unclaimed today | the retired host profile only |
+| `0xF0_0000` | 1 MiB | `user` -- writable region, unclaimed today | no current product owner |
 
 `journal` is raw and filesystem-free on purpose. Each slot is exactly one erase
 block, so "a torn write cannot damage the other slot" is a property of the flash
@@ -729,8 +728,9 @@ reserved main-memory window, not in block RAM.
   image in main memory rather than on chip for exactly this reason.
 - The window exists and is reserved.
   [`sw/builder/endstation_builder.py`](../../sw/builder/endstation_builder.py)
-  derives `pp_mem_phys = pcm_ring_phys - PP_MEM_BYTES` and emits a `no-map`
-  `ppmem` reservation of `PP_MEM_BYTES` = 1,048,576 bytes at `0x7F700000`;
+  reads the config's explicit `platform.pp_mem_phys`, validates its alignment,
+  and emits a `no-map` `ppmem` reservation of `PP_MEM_BYTES` = 1,048,576 bytes
+  (the AX7101 shapes place it at `0x7F700000`);
   `sw/litex/milan_soc.py` reads it and only checks it. It holds the descriptor
   image, measured at 40,000 bytes at 8x8, plus the 4,096-byte response buffer.
   Adding the measured 18,144-byte record image brings the window to 62,240 of
@@ -740,18 +740,17 @@ reserved main-memory window, not in block RAM.
   that decides it: 18,144 bytes byte-wide is 5 BRAM36 at the 8x8 shape, on a
   device whose area campaign is fought in single-digit percentages.
 
-### 8.2 The transfer: ordinary loads and stores, no DMA, no CSR data window
+### 8.2 The transfer: ordinary loads and stores, no CSR data window
 
 **Decided.** Because the image is in DRAM, the firmware reaches it the way it
 reaches anything else in DRAM. Nothing streams it through a CSR window and
-nothing needs a DMA engine, because the data never has to move: the fabric
+nothing needs a separate transfer engine, because the data never has to move: the fabric
 writes it where the CPU can already read it.
 
 What crosses the CSR boundary is a control tuple only: the image base and
 length, the sequence number, the dirty and verdict state of section 9, and the
 firmware's acknowledgement. That is the smallest contract that can carry the
-decision, and it is why "DMA versus a CSR window" stopped being a question
-rather than being answered as one.
+decision; bulk data does not cross the CSR window.
 
 ### 8.3 The area, measured
 
@@ -1107,11 +1106,11 @@ erase is not conformant, and the alternative -- stretching the liveness deadline
 past the commit timeout -- would leave a dead writer advertised as durable
 backing for over eight seconds.
 
-2,000 ms is not a free choice either: it is the same lease the CSR map already
-uses for the other liveness claim in this device, `CLKV_CTRL`'s eight
-quarter-seconds, whose reset comment records the same reasoning ("a daemon that
-stops refreshing therefore loses the claim in <= 2 s"). One liveness convention
-for the device is worth more than a second tuned constant.
+The 2,000 ms value is an NVM-local writer contract: it admits four required
+heartbeat opportunities at the 500 ms maximum period while remaining well
+below the commit timeout. `CLKV_CTRL` at `0x778` is an inert compatibility
+address in the current map and supplies no timer or refresh mechanism to this
+contract.
 
 **The relation, stated once**, and asserted by the gate:
 
@@ -1127,12 +1126,13 @@ and section 13 says what the PR that picks it owes.
 ## 10. Boot-side work
 
 Cited by the retired flash-partition emitter as
-where the kernel-side story lives.
+where the previous target-side experiment lived; it is not part of the current
+bare-metal persistence contract.
 
 1. **The slot offsets are generated, not hand-written.** `journal@ee0000` and
    `user@f00000` come from the same `FLASHBOOT_RESERVED` reader `milan_soc.py`
    uses, so there is no second copy to drift.
-2. **The host-era block layer never bound this controller.** In the retired
+2. **The previous block layer never bound this controller.** In the superseded
    profile the slots were declared and never parsed, which is the reason G1 in
    section 11 is a falsifier rather than a pass criterion.
 3. **The write path is the LiteSPI CSR master either way.** Nothing in this
@@ -1147,24 +1147,24 @@ where the kernel-side story lives.
 
 ## 11. Bench recipe
 
-**G0 -- build with the layout (host only, no board).** `sw/builder/test_builder.py`
+**G0 -- build with the layout (workstation only, no board).** `sw/builder/test_builder.py`
 checks the map's internal consistency, including that every image still fits under
 the reserved slots. It passes today.
 
-**G0b -- the record set is complete and fits the namespace (host only, no
+**G0b -- the record set is complete and fits the namespace (workstation only, no
 board).** `scripts/check_nvm_record_space.py`, and `--self-test` for its eleven
 negative controls. Both pass today. The gate also publishes the F07.8
 conformance floor of section 4.3 and the worst-case commit time of section 9.4
 per shape, so those two figures are re-derived on every run rather than quoted
 from this page.
 
-**G1 -- the partition appears.** This gate belonged to the retired host
+**G1 -- the partition appears.** This gate belonged to a superseded target
 profile, where the two reserved slots were published to a block layer that
 never bound this controller, so they were declared and never parsed. **On the
 shipping baremetal profile G1 does not apply**; section 10 item 4 is the
 equivalent.
 
-**G2 to G5** -- restore from a host-written image, fast connect with no
+**G2 to G5** -- restore from a preloaded image, fast connect with no
 controller, the write path, and the reboot drill -- are the implementation
 ticket's and need a board. The bench is down at the time of writing.
 
@@ -1214,12 +1214,9 @@ manager's job.
 
 ## 13. Risks, stated rather than discovered later
 
-- **The proven writer is gone.** `acmp-persist` was a host userspace program;
-  the shipping profile is `--flashboot baremetal` and the
-  baremetal firmware is one C file that only reads. The write path must be
-  written again, in `sw/firmware/milan_baremetal/`, against the same CSRs. The
-  historical program is recoverable from git if its exact command sequence is
-  wanted.
+- **The firmware writer is missing.** The shipping profile is
+  `--flashboot baremetal` and the current firmware only reads. The write path
+  must be implemented in `sw/firmware/milan_baremetal/` against the same CSRs.
 - **Persistence depends on firmware liveness.** A fabric-owned master would not.
   This is the price of re-using the controller, and section 9 is what keeps that
   price honest rather than hidden.

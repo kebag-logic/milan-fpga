@@ -86,7 +86,7 @@ int main(int argc, char** argv) {
 
     printf("== [NC] KL_chan_map_capture NETLIST decode pin (yosys proc/memory lowering) ==\n");
     dut->rst_n = 0; dut->tick_i = 0; dut->map_wr_en_i = 0; dut->map_rd_en_i = 0;
-    dut->i2s_pair_valid_i = 0; dut->tdm_pair_valid_i = 0; dut->ring_pair_valid_i = 0;
+    dut->i2s_pair_valid_i = 0; dut->tdm_pair_valid_i = 0;
     dut->lb_tvalid_i = 0; dut->lb_tlast_i = 0; dut->tone_smp_i = 0;
     dut->lb_wire_chans_i = 0; dut->lb_flush_i = 0;
     cyc(4); dut->rst_n = 1; cyc(4);

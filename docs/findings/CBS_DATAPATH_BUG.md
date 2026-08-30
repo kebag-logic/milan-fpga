@@ -157,7 +157,8 @@ its 10 Mbit/s reservation) while best-effort runs, because both classes share ON
 classifier ingress  -  BE frames occupy ingress slots and delay reserved frames into
 their queue. CBS still bounds egress correctly (single-flow B clips to 9.95); it cannot
 protect the *reservation* from ingress contention when ingress is shared. The cure is
-per-class ingress / the multi-queue fabric (S2 in [`AVB_SWITCH_DIRECTION.md`](../overview/AVB_SWITCH_DIRECTION.md)).
+per-class ingress in a future multi-ingress fabric; the current egress design is
+documented in [`../reference/EGRESS_QUEUE_MAP.md`](../reference/EGRESS_QUEUE_MAP.md).
 
 ## Status
 
@@ -166,7 +167,7 @@ per-class ingress / the multi-queue fabric (S2 in [`AVB_SWITCH_DIRECTION.md`](..
   single-flow CBS shaping silicon-confirmed (A/B/C above).
 * `traffic_queues` arbiter cross-lock (two-flow TX wedge)  -  **fixed** (grant-indexed
   mux), sim-verified; silicon interference re-test on ring10.
-* Remaining architectural limit (documented in [`AVB_SWITCH_DIRECTION.md`](../overview/AVB_SWITCH_DIRECTION.md)): the shared
+* Remaining architectural limit: the shared
   single-ingress classifier means a full queue backpressures *ingress* for all queues
   (bounded, not a deadlock, once the cross-lock is gone). Per-class ingress / the
   multi-queue fabric (S2) is the structural cure.

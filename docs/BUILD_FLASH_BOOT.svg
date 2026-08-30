@@ -2,7 +2,7 @@
 <defs><marker id="fa" markerWidth="16" markerHeight="16" refX="4" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#455A64"/></marker></defs>
 <rect width="2002" height="735" fill="#FAFAFA"/>
 <text x="40" y="56" font-size="30" font-weight="bold" fill="#263238">Build → Flash → Boot → Verify — the AX7101 pipeline</text>
-<text x="40" y="88" font-size="15" fill="#546E7A">One flow, four stages. Each stage lists the real commands (bold) and the load-bearing rules. Details: docs/integration/BUILDING · LITEX_SOC · QSPI_FLASHBOOT · findings/BENCH_TOPOLOGY.</text>
+<text x="40" y="88" font-size="15" fill="#546E7A">One flow, four stages. Each stage lists the real commands (bold) and the load-bearing rules. Details: docs/integration/BUILDING · LITEX_SOC · QSPI_FLASHBOOT.</text>
 <text x="40" y="112" font-size="15" fill="#546E7A">Persistent writes require two exact build identities: live-proven installed BIT/LAYOUT and one fully prepared target set.</text>
 <rect x="40" y="150" width="440" height="369" rx="10" fill="#E8F5E9" stroke="#2E7D32" stroke-width="2"/>
 <rect x="40" y="150" width="440" height="56" rx="10" fill="#2E7D32" stroke="#2E7D32"/>
@@ -12,7 +12,7 @@
 <rect x="52" y="218" width="416" height="30" rx="5" fill="#263238"/>
 <text x="61" y="238" font-size="12.5" font-family="Menlo,Consolas,monospace" fill="#B9F6CA">sw/litex/build.sh ax7101</text>
 <text x="58" y="275" font-size="13" fill="#37474F">--software-profile baremetal</text>
-<text x="58" y="312" font-size="13" fill="#37474F">--fabric-gptp --all-blocks</text>
+<text x="58" y="312" font-size="13" fill="#37474F">--fabric-gptp --full</text>
 <rect x="52" y="329" width="416" height="30" rx="5" fill="#263238"/>
 <text x="61" y="349" font-size="12.5" font-family="Menlo,Consolas,monospace" fill="#B9F6CA">--with-spiflash --flashboot baremetal</text>
 <text x="58" y="386" font-size="13" fill="#37474F">generated AEM + gPTP ROM from one YAML</text>
@@ -54,7 +54,7 @@
 <text x="1046" y="349" font-size="13" fill="#37474F">AEM length + CRC verified into DRAM</text>
 <text x="1046" y="386" font-size="13" fill="#37474F">entity enables only after valid AEM</text>
 <text x="1046" y="423" font-size="13" fill="#37474F">fabric gPTP owns PHC + publication</text>
-<text x="1046" y="460" font-size="13" fill="#37474F">no host image · no time daemon · no mirrors</text>
+<text x="1046" y="460" font-size="13" fill="#37474F">one firmware image · one time owner · no mirrors</text>
 <rect x="1028" y="541" width="440" height="64" rx="8" fill="#ffffff" stroke="#1565C0" stroke-width="1.6" stroke-dasharray="5 3"/>
 <text x="1042" y="561" font-size="11.5" font-weight="bold" fill="#1565C0">OUTPUT</text>
 <text x="1042" y="579" font-size="12.5" fill="#212121">cacheless RV32 bare-metal control,</text>
@@ -66,14 +66,14 @@
 <text x="1540" y="177" font-size="19" font-weight="bold" fill="#ffffff">4 · VERIFY</text>
 <text x="1540" y="195" font-size="12.5" fill="#ffffff" fill-opacity="0.92">on the bench</text>
 <rect x="1534" y="218" width="416" height="30" rx="5" fill="#263238"/>
-<text x="1543" y="238" font-size="12.5" font-family="Menlo,Consolas,monospace" fill="#B9F6CA">MILAN_PROFILE=baremetal hostplane_smoke.sh</text>
-<text x="1540" y="275" font-size="13" fill="#37474F">UART reports VERSION 0x00020055</text>
+<text x="1543" y="238" font-size="12.5" font-family="Menlo,Consolas,monospace" fill="#B9F6CA">baremetal_uart_smoke.py --port &lt;UART&gt;</text>
+<text x="1540" y="275" font-size="13" fill="#37474F">UART reports VERSION 0x00020056 + gPTP state</text>
 <rect x="1534" y="292" width="416" height="30" rx="5" fill="#263238"/>
 <text x="1543" y="312" font-size="12.5" font-family="Menlo,Consolas,monospace" fill="#B9F6CA">focused RTL + processor suites</text>
 <text x="1540" y="349" font-size="13" fill="#37474F">traceability + builder gates</text>
 <text x="1540" y="386" font-size="13" fill="#37474F">#117: physical / two-board pending</text>
 <text x="1540" y="423" font-size="13" fill="#37474F">REGISTER_MAP.md = the ABI</text>
-<text x="1540" y="460" font-size="13" fill="#37474F">BENCH_TOPOLOGY.md = the rig</text>
+<text x="1540" y="460" font-size="13" fill="#37474F">#117 records topology + raw evidence</text>
 <rect x="1522" y="541" width="440" height="64" rx="8" fill="#ffffff" stroke="#6A1B9A" stroke-width="1.6" stroke-dasharray="5 3"/>
 <text x="1536" y="561" font-size="11.5" font-weight="bold" fill="#6A1B9A">OUTPUT</text>
 <text x="1536" y="579" font-size="12.5" fill="#212121">digitally validated candidate;</text>

@@ -1,13 +1,12 @@
 // SPDX-FileCopyrightText: 2026 Kebag Logic
 // SPDX-License-Identifier: CERN-OHL-W-2.0
 //
-//! # milan_datapath — PS-less Milan TSN datapath wrapper (migration §A.9)
+//! # milan_datapath — Milan TSN fabric endpoint
 //!
-//! `milan_top.sv` **minus the Zynq PS** (`milan_dma_wrapper`) **and minus the MAC**.
-//! This is the single clean HW/gateware boundary the LiteX SoC (sw/litex/milan_soc.py)
-//! instantiates for the fully-FPGA RISC-V build — it contains everything that is
-//! vendor-neutral RTL and therefore fully open-toolchain verifiable (Verilator +
-//! Yosys), with **no Xilinx PS7 and no verilog-ethernet dependency**.
+//! This is the single clean hardware boundary instantiated by the LiteX SoC. It
+//! contains the complete vendor-neutral protocol and media fabric and is fully
+//! open-toolchain verifiable (Verilator + Yosys). Its external boundaries are
+//! AXI-Lite control, protocol memory, MAC AXIS and physical audio.
 //!
 //! What it owns:
 //!   milan_csr · traffic_controller_802_1q (classify + CBS) · ptp_ts_top ·
@@ -48,22 +47,16 @@
 //! live processor output read STRUCTURAL ZEROS and are documented at their
 //! tie-offs. The current compliance blockers are recorded in
 //! docs/testing/MILAN_V12_AUDIT_2026-08-16.md.
-//! milan_top.sv remains the (archived, unbuildable) Zynq variant.
-//!
 //! What moved OUT to the integration layer:
-//!   * the **Zynq PS + AXI-DMA** → replaced by the exposed AXI4-Lite CSR **slave**
-//!     + the three DMA AXIS ports (the LiteX CPU bridge + §A.6 DMA drive these);
 //!   * the **1G RGMII MAC** → exposed as a **MAC-facing AXIS pair** + MAC cfg/status
 //!     ports, so the MAC is attached at the board layer (LiteEth `LiteEthMAC`, or
-//!     Forencich `eth_mac_1g_rgmii_fifo`). This keeps the wrapper synth/sim-clean and
-//!     lets the MAC be chosen per host. `milan_top.sv` remains the Zynq variant with
-//!     the MAC + PS in place.
+//!     Forencich `eth_mac_1g_rgmii_fifo`). This keeps the wrapper synth/sim-clean.
 //!
 //! Boundary summary:
 //!   CPU  ── AXI4-Lite slave (s_axi_*, 16-bit offset) ─────► control plane
-//!   DMA  ── s_axis_tx_* (DRAM→) / m_axis_rx_* (→DRAM) / m_axis_ts_* (→DRAM)
 //!   MAC  ── m_axis_mac_tx_* (→MAC) / s_axis_mac_rx_* (MAC→) + o_mac_* cfg / i_mac_* status
-//!   IRQ  ── o_irq_csr (milan_csr aggregate; DMA-done IRQs come from the §A.6 engine)
+//!   MEM  ── protocol-processor descriptor and response-buffer request/response faces
+//!   IRQ  ── o_irq_csr (diagnostic aggregate; the product firmware polls its CSR state)
 
 `default_nettype none
 `include "ethernet_events.svh"
@@ -82,8 +75,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! axis_clk frequency (AX7101 100 MHz, Arty 50 MHz) — AECP lock-timer divider.
   parameter int MILAN_CLK_FREQ_HZ = 100_000_000,
   //! the fabric gPTP plane (issue #110/#114): elaboration-time option.
-  //! Fabric owns gPTP in the product shape; the 0 side remains an explicit
-  //! software-owner comparison build. ON splices
+  //! Fabric owns gPTP in the product shape; the 0 side is permanently
+  //! ownerless and publishes uncertainty. ON splices
   //! KL_gptp_shadow onto the control TX (gasket-free, like CRF) and hands it
   //! the PHC's adjfine/adjtime; settime stays with the CSR face.
   parameter bit GPTP_PLANE_EN_P = 1'b1,
@@ -108,8 +101,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! UNSUPPORTED_FORMAT.
   //!
   //! It is NOT a free declaration. It DRIVES the packetizer (the chans reset
-  //! for every talker) and KL_pcm_tx, and the elaboration guard below refuses
-  //! any value the selected capture front-end cannot actually feed. Raising
+  //! for every talker), and the elaboration guard below refuses any value the
+  //! selected capture front-end cannot actually feed. Raising
   //! it therefore requires raising the framer - which is roadmap item 5.
   //! Default 2 = today's stereo framer, byte-identical.
   parameter int TALKER_WIRE_CHANS_P = 2,
@@ -152,23 +145,6 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   parameter int AUDIO_IF_I2S_PAIR_P = 0,
 parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
                                    //! TBs shrink it to keep injections short)
-  //! item-7 PCM playback: 1 = instantiate KL_pcm_tx (host PCM ring -> AAF
-  //! pair source) and let it drive the packetizer in place of the ADC capture
-  //! front-end while pb_enable_i is set. 0 (default) prunes the whole block so
-  //! the datapath is byte-identical to the pre-item-7 shape.
-  parameter int AAF_PLAYBACK_P = 0,
-  //! Host sound-card surface. Zero structurally removes the listener PCM-ring
-  //! route; AAF receive, render, TDM/I2S and the channel crossbars remain.
-  parameter int SOUND_CARD_P = 0,
-  //! task #31 START-SMALL lever: how many host playback RINGS KL_pcm_tx
-  //! serves (1..N_STREAMS). The full-N shape measured 2216 LUT / 2389 FF
-  //! OOC at 8x8x8 - unpayable at WNS +0.014 - while the USER target (host
-  //! audio into chosen channels of ONE talker) needs exactly one ring: the
-  //! 64ch chmap places its CHANS/2 ring pairs onto ANY talker's slots, so
-  //! one ring already reaches every wire channel. Ports stay N_STREAMS-
-  //! sized (ABI stable); rings past this count read zero and their
-  //! stream_en bits are ignored. Only meaningful with AAF_PLAYBACK_P != 0.
-  parameter int AAF_PB_STREAMS_P = 1,
   //! task #65: wire KL_chan_map_capture's rx -> talker LOOPBACK bucket
   //! (SRC_LOOP = 5) to the depacketizer payload clone, so a talker slot
   //! naming a loopback AUDIO_CLUSTER really carries that received channel
@@ -190,7 +166,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   parameter int LPF_P = 1,
   //! KL_ptp_clock_validity time base: cycles per 250 ms quarter-tick. The
   //! real value is MILAN_CLK_FREQ_HZ/4; simulation shapes shrink it so a
-  //! grandmaster holdover and a lease expiry are reachable in a TB run
+  //! grandmaster holdover and an observation interval are reachable in a TB run
   //! (the -GPB_PREFILL_C precedent). Never shrink it in a real build - the
   //! Milan Annex B.1.1 holdover is 0.25 s of WALL time.
   parameter int CLKV_QTICK_CYC_P = MILAN_CLK_FREQ_HZ / 4,
@@ -264,12 +240,12 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   parameter int I2SPB_P = 1,
   //! RX station-address filter (rx_mac_filter + tcam, 504-569 LUT /
   //! 1568-1570 FF measured). 0 prunes it and wires the post-PTP RX stream
-  //! STRAIGHT to the DMA/monitor tap - which is bit-for-bit what the shipping
+  //! STRAIGHT to the fabric-observer tap - which is bit-for-bit what the shipping
   //! filter does with promisc_i = 1 (or with TCAM_CTRL[1] = 0 and
   //! default_pass = 1). Legal when the port is promiscuous or address
-  //! filtering is done in software; the TCAM_* CSR window keeps its
+  //! filtering is deliberately disabled; the TCAM_* CSR window keeps its
   //! addresses but nothing consumes them, so the builder gate keys on
-  //! platform.rx_address_filter being declared 'software'/'promiscuous'.
+  //! platform.rx_address_filter being declared 'promiscuous'.
   parameter int RXFILT_P = 1,
   //! Area-budget static-conversion record (2026-07-29): the APRB
   //! (0x8B4-0x8C4) and PBK (0x8C8-0x8D0) probe groups - closed-finding
@@ -412,7 +388,6 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   output wire        s_axi_rvalid,
   input  wire        s_axi_rready,
 
-  // ---- TX DMA: DRAM → datapath (feeds the 802.1Q shaper) ----
   // ---- Pmod I2S2 (AAF talker audio in; fabric is I2S clock master) ----
   output wire                     i2s_mclk_o,
   output wire                     i2s_sclk_o,
@@ -445,37 +420,6 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   output wire                     i2s_dac_sclk_o,
   output wire                     i2s_dac_lrck_o,
   output wire                     i2s_dac_sdin_o,
-
-  input  wire [TDATA_WIDTH-1:0]   s_axis_tx_tdata,
-  input  wire [TDATA_WIDTH/8-1:0] s_axis_tx_tkeep,
-  input  wire                     s_axis_tx_tvalid,
-  input  wire                     s_axis_tx_tlast,
-  output wire                     s_axis_tx_tready,
-
-  // ---- RX DMA: datapath (after the dest-MAC filter) → DRAM ----
-  output wire [TDATA_WIDTH-1:0]   m_axis_rx_tdata,
-  output wire [TDATA_WIDTH/8-1:0] m_axis_rx_tkeep,
-  output wire                     m_axis_rx_tvalid,
-  output wire                     m_axis_rx_tlast,
-  input  wire                     m_axis_rx_tready,
-
-  // ---- TS-metadata: PTP core → DRAM (timestamp + seq_id + direction) ----
-  output wire [TDATA_WIDTH-1:0]   m_axis_ts_tdata,
-  output wire [TDATA_WIDTH/8-1:0] m_axis_ts_tkeep,
-  output wire                     m_axis_ts_tvalid,
-  output wire                     m_axis_ts_tlast,
-  input  wire                     m_axis_ts_tready,
-
-  // ---- PCM payload: AAF RX depacketizer → DRAM PCM ring (full 8-B beats,
-  //      wire byte order = S32BE interleaved; one AXIS frame per PDU).
-  //      tuser = stream index s (NXN §1.3 P3: the per-stream ring writer
-  //      key, ring base + s*stride at the SoC layer) ----
-  output wire [TDATA_WIDTH-1:0]   m_axis_pcm_tdata,
-  output wire [TDATA_WIDTH/8-1:0] m_axis_pcm_tkeep,
-  output wire                     m_axis_pcm_tvalid,
-  output wire                     m_axis_pcm_tlast,
-  output wire [3:0]               m_axis_pcm_tuser,
-  input  wire                     m_axis_pcm_tready,
 
   // ---- MAC-facing TX: datapath (shaper→PTP→ADP arbiter) → external MAC ----
   output wire [TDATA_WIDTH-1:0]   m_axis_mac_tx_tdata,
@@ -559,28 +503,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   input  wire        i_mmcm_locked,
   output wire        o_mmcm_ps_en,
   output wire        o_mmcm_ps_incdec,
-  input  wire        i_mmcm_ps_done,
-
-  // ---- item-7 PCM playback: host PCM ring -> KL_pcm_tx pair source ---------
-  //! Only live when AAF_PLAYBACK_P != 0; the SoC inert-ties these otherwise
-  //! (and the KL_pcm_tx generate prunes, so the ports read/drive constants).
-  //! The word-fetch port (pb_mem_*) is bridged to a DRAM ring read master at
-  //! the SoC layer; control/status are the milan_dma playback CSR block.
-  input  wire        pb_enable_i,             //! master play enable (pair mux)
-  input  wire        pb_underrun_silence_i,   //! 0 repeat-last, 1 digital silence
-  input  wire [N_STREAMS-1:0] pb_stream_en_i, //! per-stream ring-read gate
-  input  wire [63:0] pb_ring_base_i,          //! stream-0 sub-ring byte base
-  input  wire [31:0] pb_ring_len_i,           //! per-stream sub-ring bytes (mult 8)
-  input  wire [31:0] pb_ring_stride_i,        //! bytes between stream sub-ring bases
-  input  wire [N_STREAMS*32-1:0] pb_wr_ptr_i, //! per-stream host write pointers
-  output wire [31:0] pb_mem_addr_o,           //! ring word fetch: byte address
-  output wire        pb_mem_rd_o,             //! ring word fetch: read strobe
-  input  wire [63:0] pb_mem_data_i,           //! ring word fetch: returned word
-  input  wire        pb_mem_valid_i,          //! ring word fetch: data valid
-  output wire [N_STREAMS*32-1:0] pb_rd_ptr_o,   //! per-stream consumed bytes
-  output wire [N_STREAMS*16-1:0] pb_underrun_o, //! per-stream underrun count
-  output wire [N_STREAMS*16-1:0] pb_overrun_o,  //! per-stream overrun count
-  output wire        pb_playing_o             //! engine walking a sample tick
+  input  wire        i_mmcm_ps_done
 );
   // P12 (docs/fpga/FPGA_DESIGN.md section 2): the 0x800 window's LCTX/TCTX port-B
   // read/snap/write bundles and the ACMP context-table port are wired to
@@ -589,7 +512,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   // boundary ports and their SoC inert ties are GONE.
 
   // ==========================================================================
-  //  Internal AXIS hops (identical topology to milan_top)
+  //  Internal AXIS hops for the fabric endpoint
   // ==========================================================================
   axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) tx_axis_to_shaper();
   axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) tx_axis_shaper_to_ts();
@@ -597,17 +520,16 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) tx_axis_to_mac();
   axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) rx_axis_to_ts();
   axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) rx_axis_ptp_to_filt();
-  axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) rx_axis_to_dma();
+  axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) rx_axis_fabric();
   axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) ts_metadata_axis();
 
-  // ---- boundary flat ports <-> internal interfaces ----
-  // TX DMA in -> shaper
-  //! host TX -> shaper (unchanged path)
-  assign tx_axis_to_shaper.tdata  = s_axis_tx_tdata;
-  assign tx_axis_to_shaper.tkeep  = s_axis_tx_tkeep;
-  assign tx_axis_to_shaper.tvalid = s_axis_tx_tvalid;
-  assign tx_axis_to_shaper.tlast  = s_axis_tx_tlast;
-  assign s_axis_tx_tready         = tx_axis_to_shaper.tready;
+  //! The general-data classifier/shaper input is structurally idle. Product
+  //! traffic is emitted by the fabric AAF, CRF, MAAP, gPTP and protocol sources
+  //! merged below.
+  assign tx_axis_to_shaper.tdata  = '0;
+  assign tx_axis_to_shaper.tkeep  = '0;
+  assign tx_axis_to_shaper.tvalid = 1'b0;
+  assign tx_axis_to_shaper.tlast  = 1'b0;
 
   //! I2S divider scale: mclk = clk/2^N ~= 12.5 MHz -> 48.8 kHz sample rate
   //! on EITHER datapath clock. Un-parameterized, the 100 MHz AX sampled at
@@ -615,10 +537,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   localparam int MCLK_DIV_LOG2_C = $clog2(MILAN_CLK_FREQ_HZ / 12_500_000);
 
   //! chmap media grid: THE 48 kHz strobe on the datapath clock. It paces the
-  //! render/capture map walks (docs/CHANNEL_MAP_64.md §3/§4), their tone
-  //! source below, AND the host playback ring (KL_pcm_tx) - one grid for
-  //! every channel in both directions, which is the precondition for a single
-  //! selected clock master meaning anything. The generator is KL_media_nco
+  //! render/capture map walks (docs/CHANNEL_MAP_64.md §3/§4) and their tone
+  //! source below - one grid for every fabric audio channel in both
+  //! directions, which is the precondition for a single selected clock master
+  //! meaning anything. The generator is KL_media_nco
   //! below; the grid it used to be (a fixed localparam divider that no clock
   //! source could reach) is why a listener draining a stream on this fabric
   //! slipped one sample per beat period.
@@ -667,7 +589,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! rather than accidentally true.
   localparam logic [15:0] MEDIA_CLK_SRC_NONE_C = 16'hFFFF;
   //! the station MAC as a NUMERIC EUI-48 ([47:40] = first wire byte).
-  //! cfg_mac_addr is the platform LSB-first convention (the driver packs
+  //! cfg_mac_addr is the platform LSB-first CSR convention (firmware writes
   //! MAC_ADDR_LO/HI that way and the RX filter consumes it that way), and
   //! every protocol engine here wants the other one. Byte-reversed ONCE.
   //! cfg_mac_addr belongs to the CSR <-> datapath block below; it is
@@ -683,17 +605,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .enable_i (cfg_tone_enable), .att_i (cfg_tone_att), .smp_o (tone_smp)
   );
 
-  //! ONE-GRID rule, arithmetic half: this grid and the KL_pcm_tx playback grid
-  //! are both "48 kHz on axis_clk", so they must be the SAME 48 kHz. Flooring
-  //! clk/48000 here while the playback divider carries its remainder would put
-  //! the two grids 160 ppm apart at 100 MHz - the same producer/consumer grid
-  //! mismatch documented above, just expressed in ppm instead of in wiring.
-  //! Same Bresenham remainder, same denominator, derived from the same ratio.
-  //! and since the grid became steerable, the SAME strobe rather than two
-  //! dividers that merely agree: KL_pcm_tx takes media_tick_p on its
-  //! USE_EXT_TICK_P port - the hook its own banner reserved for "the recovered
-  //! media clock" - so the host playback ring and the capture crossbar cannot
-  //! drift apart even in phase.
+  //! ONE-GRID rule, arithmetic half: render, capture, and the mapped tone use
+  //! this SAME 48 kHz strobe. A second floored clk/48000 divider would drift
+  //! by 160 ppm at 100 MHz, recreating the producer/consumer mismatch above.
   //!
   //! The divider is KL_media_nco: same Bresenham, same remainder, same
   //! denominator, plus a signed runtime trim. With mnco_trim_w tied to 0 it is
@@ -748,8 +662,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
 
   //! media-grid pilot for the capture crossbar: the SAME table, stepped by
   //! the SAME media_tick_p the crossbar's walk drains on - producer and
-  //! consumer share one grid by construction (the KL_pcm_tx pacing
-  //! principle: ring -> packetizer is 1:1 fixed-phase). Also an axis-domain
+  //! consumer share one grid by construction. Also an axis-domain
   //! register, so the raw clk_audio -> axis crossing into the walk's mux is
   //! gone. TONE_CTRL 0x6DC en/att semantics unchanged (shared with the
   //! front-end instance above).
@@ -995,128 +908,14 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     assign tdm_mclk_o  = 1'b0;
   end endgenerate
 
-  // ==========================================================================
-  //  item-7 PCM playback source (KL_pcm_tx) - the TX/talker mirror of the RX
-  //  depacketizer PCM ring. A host-written DRAM PCM ring, read through the
-  //  SoC's word-fetch bridge (pb_mem_*), is de-interleaved and media-clock-
-  //  paced into the SAME {pair_valid, pair_slot, L, R} contract the packetizer
-  //  consumes. While pb_enable_i is set it REPLACES the ADC capture front-end
-  //  as the pair source (KL_pcm_tx.sv's drop-in contract); the packetizer,
-  //  merge, PTP-stamp and MAC-TX path downstream are unchanged. AAF_PLAYBACK_P
-  //  = 0 prunes it and the packetizer sees the capture front-end bit-identically.
-  // ==========================================================================
-  //! capture-or-playback pair bus (item-7 KL_pcm_tx mux output); feeds the
-  //! chmap capture stage below - both features default-off => legacy path
-  //! chmap follow-up 2: the RAW KL_pcm_tx pair bus exposed as the capture
-  //! mux's RING source (per-map-entry src selection, independent of the
-  //! wholesale pb_enable replacement below). Zero when playback is pruned.
-  //! (slot buses are the widened 5-bit pair-slot space: the 8x8x8 ship shape
-  //! is 32 pair slots and a 4-bit bus aliased streams 4-7 onto 0-3)
-  wire        ring_src_pv_w;
-  wire [4:0]  ring_src_slot_w;
-  wire [23:0] ring_src_l_w, ring_src_r_w;
-  wire        cappb_pv_w;
-  wire [4:0]  cappb_slot_w;
-  wire [23:0] cappb_l_w, cappb_r_w;
-
-  //! internal sample-tick divider. ONE ratio, stated once: the playback media
-  //! clock is MILAN_CLK_FREQ_HZ / PB_FS_HZ_C, and that ratio is carried WHOLE
-  //! (floor + exact remainder) rather than floored. Flooring it was worth
-  //! +160 ppm on the 100 MHz shipping datapath - 100e6/48000 = 2083.333... ran
-  //! as 2083, i.e. 48,007.68 Hz - which a Milan sink renders on ITS OWN clock
-  //! and therefore reports as EARLY_TIMESTAMP once the accumulated skew walks
-  //! past its playout buffer (bench 2026-08-03). KL_pcm_tx turns the pair into
-  //! a Bresenham period so the average is exact; at 100 MHz/48 kHz it is
-  //! mathematically exact (6250 clocks per 3 samples = 62.5 us).
-  //! A CRF-disciplined external smp_tick remains the follow-up for locking to
-  //! a REMOTE media clock; this fixes our own free-running one.
-  localparam int PB_FS_HZ_C      = 48000;
-  localparam int PB_SAMPLE_DIV_C = (MILAN_CLK_FREQ_HZ / PB_FS_HZ_C < 2)
-                                   ? 2 : MILAN_CLK_FREQ_HZ / PB_FS_HZ_C;
-  //! remainder only when the floor above was NOT clamped (the clamp is a
-  //! degenerate-clock guard, and a remainder against it would be meaningless)
-  localparam int PB_SAMPLE_REM_C = (MILAN_CLK_FREQ_HZ / PB_FS_HZ_C < 2)
-                                   ? 0 : MILAN_CLK_FREQ_HZ % PB_FS_HZ_C;
-
-  generate if (AAF_PLAYBACK_P != 0) begin : g_aaf_playback
-    //! START-SMALL ring count (see the parameter): the engine serves
-    //! PB_T_C rings; the boundary ports stay N_STREAMS-sized and the
-    //! unserved tail reads/drives constant zero.
-    localparam int PB_T_C = (AAF_PB_STREAMS_P < 1) ? 1
-                          : (AAF_PB_STREAMS_P > N_STREAMS) ? N_STREAMS
-                          : AAF_PB_STREAMS_P;
-    wire        pb_pv_w;
-    wire [4:0]  pb_slot_w;
-    wire [23:0] pb_l_w, pb_r_w;
-    wire [PB_T_C*32-1:0] pb_rd_ptr_w;
-    wire [PB_T_C*16-1:0] pb_under_w, pb_over_w;
-    KL_pcm_tx #(
-      .N_STREAMS_P   (PB_T_C),
-      //! the ring de-interleaver produces exactly the width the framer emits
-      //! (item-00 constant; was a literal 2 - one of the two places the
-      //! stereo truth was hiding)
-      .CHANS_P       (TALKER_WIRE_CHANS_P),
-      .SAMPLE_DIV_C  (PB_SAMPLE_DIV_C),
-      .SAMPLE_REM_P  (PB_SAMPLE_REM_C),
-      .SAMPLE_DEN_P  (PB_FS_HZ_C),
-      //! ONE-GRID rule, wiring half: the playback ring drains on the SAME
-      //! strobe the capture crossbar walks on. SAMPLE_DIV/REM/DEN above are
-      //! now vestigial (the module ignores them when USE_EXT_TICK_P is set)
-      //! and are left in place so a build that ever needs the local divider
-      //! back does not have to re-derive them.
-      .USE_EXT_TICK_P(1'b1)
-    ) pcm_tx (
-      .clk_i (axis_clk), .rst_n (axis_resetn),
-      .enable_i (pb_enable_i), .stream_en_i (pb_stream_en_i[PB_T_C-1:0]),
-      .underrun_silence_i (pb_underrun_silence_i),
-      .ring_base_i (pb_ring_base_i), .ring_len_i (pb_ring_len_i),
-      .ring_stride_i (pb_ring_stride_i),
-      .wr_ptr_i (pb_wr_ptr_i[PB_T_C*32-1:0]),
-      .smp_tick_i (media_tick_p),
-      .mem_addr_o (pb_mem_addr_o), .mem_rd_o (pb_mem_rd_o),
-      .mem_data_i (pb_mem_data_i), .mem_valid_i (pb_mem_valid_i),
-      .pair_valid_o (pb_pv_w), .pair_slot_o (pb_slot_w),
-      .pair_l_o (pb_l_w), .pair_r_o (pb_r_w),
-      .rd_ptr_o (pb_rd_ptr_w), .underrun_o (pb_under_w),
-      .overrun_o (pb_over_w), .smp_tick_o (), .playing_o (pb_playing_o)
-    );
-    //! pad the served slice up to the N_STREAMS-sized boundary ports
-    assign pb_rd_ptr_o   = {{(N_STREAMS-PB_T_C)*32{1'b0}}, pb_rd_ptr_w};
-    assign pb_underrun_o = {{(N_STREAMS-PB_T_C)*16{1'b0}}, pb_under_w};
-    assign pb_overrun_o  = {{(N_STREAMS-PB_T_C)*16{1'b0}}, pb_over_w};
-    assign ring_src_pv_w   = pb_pv_w;
-    assign ring_src_slot_w = pb_slot_w;
-    assign ring_src_l_w    = pb_l_w;
-    assign ring_src_r_w    = pb_r_w;
-    //! playback overrides the capture front-end at the packetizer's pair port
-    assign cappb_pv_w   = pb_enable_i ? pb_pv_w   : aafcap_pv_w;
-    assign cappb_slot_w = pb_enable_i ? pb_slot_w : {1'b0, aafcap_slot_w};
-    assign cappb_l_w    = pb_enable_i ? pb_l_w    : aafcap_l_w;
-    assign cappb_r_w    = pb_enable_i ? pb_r_w    : aafcap_r_w;
-  end else begin : g_no_playback
-    assign ring_src_pv_w   = 1'b0;
-    assign ring_src_slot_w = 5'd0;
-    assign ring_src_l_w    = 24'd0;
-    assign ring_src_r_w    = 24'd0;
-    assign cappb_pv_w   = aafcap_pv_w;
-    assign cappb_slot_w = {1'b0, aafcap_slot_w};
-    assign cappb_l_w    = aafcap_l_w;
-    assign cappb_r_w    = aafcap_r_w;
-    assign pb_mem_addr_o = 32'd0;
-    assign pb_mem_rd_o   = 1'b0;
-    assign pb_rd_ptr_o   = '0;
-    assign pb_underrun_o = '0;
-    assign pb_overrun_o  = '0;
-    assign pb_playing_o  = 1'b0;
-  end endgenerate
   //  Channel-map CAPTURE mux (docs/CHANNEL_MAP_64.md §4), added alongside.
   //  Sits between the physical capture front-end and the shared packetizer.
   //  cfg_chmap_enable = 0 (reset default) selects the front-end pair stream
   //  BIT-IDENTICALLY (today's compliance wiring); = 1 selects the CMAP-routed source
   //  per media tick. The map RAM resets all-zero, so the enable bit is the
   //  single bypass truth (program CMAP through the 0x900 port, then arm).
-  //  Phase-1 sources: physical capture (I2S/TDM front-end pair) + tone; the
-  //  PCM ring (KL_pcm_tx) and per-lane TDM sources are documented follow-ups.
+  //  Sources are physical capture (I2S/TDM), tone and listener loopback;
+  //  source encoding 3 remains reserved and resolves to silence.
   // ==========================================================================
   wire        cmap_pv_w;
   wire [4:0]  cmap_slot_w;
@@ -1166,7 +965,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! LOOP QUEUE banner). The 32 x 48 b hold bank itself stays flops (it
   //! takes a full-clear reset and the bind-wipe flush). At 61,039/63,400
   //! LUT and packing-bound the ON lane does not fit today - hence the
-  //! lever, and hence the power-on map pointing at the HOST pool instead
+  //! lever, and hence the power-on mapper skipping this unbacked pool
   //! (endstation_builder PRIMARY_ROLE_ORDER). OFF still prunes: the feed
   //! strobe folds to constant 0, so queues, skid and holds never toggle
   //! and synthesis sweeps the bucket. The two are driven by ONE declared
@@ -1199,7 +998,6 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   KL_chan_map_capture #(
     .N_SLOTS_P (N_STREAMS*4),
     .N_TDM_P   (8),
-    .N_RING_P  (16),
     //! ON: sized to exactly what the AEM declares - talker t's loopback pool
     //! is rx stream t's wire channels, so the bucket keeps every listener
     //! stream at the full rx wire width. Anything smaller would re-open the
@@ -1236,8 +1034,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .map_rd_addr_i (cfg_chmap_rd_addr[$clog2(N_STREAMS*8)-1:0]),
     .map_rd_data_o (cmap_rd_data_w), .map_rd_valid_o (cmap_rd_valid_w),
     .map_flat_o    (cmap_flat_w),
-    .i2s_pair_valid_i (cappb_pv_w),
-    .i2s_l_i (cappb_l_w), .i2s_r_i (cappb_r_w),
+    .i2s_pair_valid_i (aafcap_pv_w),
+    .i2s_l_i (aafcap_l_w), .i2s_r_i (aafcap_r_w),
     //! THE SLOT-INDEXED PHYSICAL BUCKET. i2s_pair_valid_i above lands in a
     //! SINGLE 48-bit hold (KL_chan_map_capture.sv:444 "the single stereo I2S
     //! pair", read with the cluster's idx IGNORED), so it can only ever carry
@@ -1249,15 +1047,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     //! slave, TDM master, blend - emits the same {pair_valid, pair_slot, L, R}
     //! contract, so one wiring serves all of them; an I2S-only front end just
     //! parks at slot 0.
-    //!
-    //! Deliberately aafcap_* and NOT cappb_*: the playback ring has its own
-    //! slot-indexed bucket below (SRC_RING), and folding it in here would make
-    //! a "physical" cluster silently read host audio whenever playback armed.
     .tdm_pair_valid_i (aafcap_pv_w), .tdm_pair_slot_i (aafcap_slot_w),
     .tdm_l_i (aafcap_l_w), .tdm_r_i (aafcap_r_w),
-    //! follow-up 2: the host-playback ring (KL_pcm_tx) as a selectable source
-    .ring_pair_valid_i (ring_src_pv_w), .ring_pair_slot_i (ring_src_slot_w),
-    .ring_l_i (ring_src_l_w), .ring_r_i (ring_src_r_w),
     //! the media-grid pilot (task #59): stepped by the same media_tick_p as
     //! the walk below, never the clk_audio-grid tone_smp
     .tone_smp_i (tone_smp_media),
@@ -1319,8 +1110,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [23:0] zf_l_w, zf_r_w;
   KL_pair_zero_fill #(.TOTAL_P (ZF_TOTAL_C), .SLOT_W_P (5)) pair_zero_fill (
     .clk_i (axis_clk), .rst_n (axis_resetn), .tick_i (zf_tick_w),
-    .pair_valid_i (cappb_pv_w), .pair_slot_i (cappb_slot_w),
-    .pair_l_i (cappb_l_w), .pair_r_i (cappb_r_w),
+    .pair_valid_i (aafcap_pv_w), .pair_slot_i ({1'b0, aafcap_slot_w}),
+    .pair_l_i (aafcap_l_w), .pair_r_i (aafcap_r_w),
     .pair_valid_o (zf_pv_w), .pair_slot_o (zf_slot_w),
     .pair_l_o (zf_l_w), .pair_r_o (zf_r_w),
     //! fills are deliberately NOT in A_AAF_PAIRS (that instrument counts
@@ -1407,18 +1198,12 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   assign rx_axis_to_ts.tvalid = s_axis_mac_rx_tvalid;
   assign rx_axis_to_ts.tlast  = s_axis_mac_rx_tlast;
   assign s_axis_mac_rx_tready = rx_axis_to_ts.tready;
-  // filter out -> RX DMA
-  assign m_axis_rx_tdata  = rx_axis_to_dma.tdata;
-  assign m_axis_rx_tkeep  = rx_axis_to_dma.tkeep;
-  assign m_axis_rx_tvalid = rx_axis_to_dma.tvalid;
-  assign m_axis_rx_tlast  = rx_axis_to_dma.tlast;
-  assign rx_axis_to_dma.tready = m_axis_rx_tready;
-  // PTP metadata -> TS DMA
-  assign m_axis_ts_tdata  = ts_metadata_axis.tdata;
-  assign m_axis_ts_tkeep  = ts_metadata_axis.tkeep;
-  assign m_axis_ts_tvalid = ts_metadata_axis.tvalid;
-  assign m_axis_ts_tlast  = ts_metadata_axis.tlast;
-  assign ts_metadata_axis.tready = m_axis_ts_tready;
+  //! The filtered RX stream is consumed only by fabric observers. They are
+  //! handshake-qualified but never apply backpressure, so the shared tap is
+  //! permanently ready. Timestamp metadata likewise has no memory-export ABI;
+  //! drain it locally so timestamp generation cannot stall the PHC pipeline.
+  assign rx_axis_fabric.tready = 1'b1;
+  assign ts_metadata_axis.tready = 1'b1;
 
   // ==========================================================================
   //  CSR <-> datapath signals
@@ -1446,7 +1231,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [63:0] cfg_ptp_tod_wr, cfg_ptp_offset;
   wire        cfg_ptp_cmd_load, cfg_ptp_cmd_adjust, cfg_ptp_cmd_snapshot;
   wire        cfg_clkv_wr_p, cfg_clkv_sync_ok, cfg_clkv_disc_p;
-  wire        cfg_clkv_as_cap;   //! CLKV_CTRL[2] as written (gh #64 J3)
+  //! Legacy CLKV_CTRL[2] output. Intentionally unconsumed: the owner mux's
+  //! software input is hard zero, product asCapable comes only from fabric,
+  //! and the option-off shape has no owner or writable lease.
+  wire        cfg_clkv_as_cap;
   wire [11:0] cfg_clkv_wdog_q;
   wire [31:0] cfg_ptp_ingress_lat, cfg_ptp_egress_lat;
   wire [63:0] ptp_tod_rd;
@@ -1469,14 +1257,15 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire signed [31:0] gptp_adj_w;
   wire               gptp_step_we_w;
   wire        [63:0] gptp_step_w;
-  //! One owner for every consumer and the CSR live-read face. The 0 side is
-  //! the retained software comparison; it is not the product default.
+  //! One owner for every consumer and the CSR live-read face. With the gPTP
+  //! engine absent every publication output is zero; no alternate publisher
+  //! exists.
   wire [63:0] cfg_adp_gptp_gm = (GPTP_PLANE_EN_P != 1'b0)
-                              ? gptp_pub_gm_w : cfg_adp_gptp_gm_csr;
+                              ? gptp_pub_gm_w : 64'd0;
   wire [63:0] cfg_as_parent = (GPTP_PLANE_EN_P != 1'b0)
-                            ? gptp_pub_parent_w : cfg_as_parent_csr;
+                            ? gptp_pub_parent_w : 64'd0;
   wire [31:0] cfg_gptp_pdelay = (GPTP_PLANE_EN_P != 1'b0)
-                              ? gptp_pub_pdelay_w : cfg_gptp_pdelay_csr;
+                              ? gptp_pub_pdelay_w : 32'd0;
   //! Keep the notification and gather faces on the exact selected-owner
   //! value. This alias retains the post-#227 name used by both consumers.
   wire [31:0] eff_gptp_pdelay_w = cfg_gptp_pdelay;
@@ -1864,7 +1653,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! CRF talker identity follows the ACMP answer when the CSR fields are
   //! left at 0: a controller that probe-binds tuid = N_STREAMS is told
   //! {station MAC, N_STREAMS} / MAAP base+N_STREAMS, and the CRF PDUs the
-  //! fabric emits then carry exactly that - no provisioning daemon has to
+  //! fabric emits then carry exactly that - firmware does not have to
   //! recompute the pair and no mismatch is possible. A non-zero CRFT_SID /
   //! CRFT_DMAC still wins outright (today's static provisioning, exact).
   wire [47:0] crft_auto_dmac_w = eff_aaf_dmac + 48'(CRF_TUID_C);
@@ -1899,8 +1688,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! folds the wire into its readers once the counter-edge terms use it)
   wire        clkv_tu_w /* verilator public_flat_rd */;
   //! IEEE 802.1AS-2020 10.2.5.1 asCapable is sourced beside tu from the
-  //! selected owner. The option-off software owner is lease-backed; the
-  //! default fabric owner supplies both claims from its committed bank.
+  //! selected owner. The option-off shape has no owner; the default fabric
+  //! owner supplies both claims from its committed bank.
   wire        clkv_as_cap_w;
   wire [31:0] clkv_stat_w, clkv_tucnt_w;
   KL_ptp_clock_validity #(
@@ -1908,11 +1697,13 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .FABRIC_GPTP_P (GPTP_PLANE_EN_P)
   ) ptp_clock_validity (
     .clk_i (axis_clk), .rst_n (axis_resetn),
-    .sw_wr_p_i    (cfg_clkv_wr_p),
-    .sw_sync_ok_i (cfg_clkv_sync_ok),
-    .sw_disc_p_i  (cfg_clkv_disc_p),
-    .sw_as_cap_i  (cfg_clkv_as_cap),
-    .sw_wdog_q_i  (cfg_clkv_wdog_q),
+    //! Retired ABI ports are tied low here as a second structural boundary;
+    //! KL_ptp_clock_validity also ignores them in every elaboration.
+    .sw_wr_p_i    (1'b0),
+    .sw_sync_ok_i (1'b0),
+    .sw_disc_p_i  (1'b0),
+    .sw_as_cap_i  (1'b0),
+    .sw_wdog_q_i  (12'd0),
     //! A settime / adjtime IS a gPTP time discontinuity (4.4.4.7). In the
     //! default shape adjtime comes from the engine, not CLKV software.
     .phc_load_p_i (cfg_ptp_cmd_load),
@@ -2013,26 +1804,24 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire        cfg_lpf_enable;
   wire        cfg_crf_en;
   wire [63:0] cfg_crf_sid;
-  //! gh #64 J4 local PathTrace staging (CSR 0x7DC group): the published
-  //! tail GET_AS_PATH serves behind the grandmaster. The notification edge is
+  //! gh #64 J4 selected PathTrace: the published tail GET_AS_PATH serves
+  //! behind the grandmaster. The notification edge is
   //! derived below from the complete LIVE served sequence, not a raw CSR
   //! generation. Product fabric mode preserves the donor's raw distinction:
-  //! count zero is an absent PathTrace and count one is `[GM]`. Only the
-  //! option-off software ABI aliases raw counts 0/1 to GM-only. Every owner
-  //! aliases to empty while no grandmaster exists.
+  //! count zero is an absent PathTrace and count one is `[GM]`. The
+  //! option-off shape has no path owner. Every owner aliases to empty while no
+  //! grandmaster exists.
   //! Slot count DERIVED from the port width (one source, as the CSR does).
   wire [7*64-1:0] asp_path_w /* verilator public_flat_rd */;
   wire [3:0]      asp_count_w /* verilator public_flat_rd */;
   wire [3:0]      asp_gen_w   /* verilator public_flat_rd */;
   localparam int unsigned ASP_SLOTS_C = $bits(asp_path_w) / 64;
   //! milan_csr owner-selects o_asp_*: the engine's complete committed
-  //! PathTrace in product mode, #227's atomically published software tail in
-  //! option-off mode. Apply #227's legacy min-one alias only to the software
-  //! owner; fabric count zero means empty even with a separately known GM.
+  //! PathTrace in product mode and structural zero in option-off mode.
+  //! Fabric count zero means empty even with a separately known GM.
   //! The conditional head below is the exact entry-zero value GET_AS_PATH
   //! serves and the Table 5.22 comparator observes.
-  wire [3:0] asp_owner_count_w = GPTP_PLANE_EN_P ? asp_count_w
-      : ((asp_count_w > 4'd1) ? asp_count_w : 4'd1);
+  wire [3:0] asp_owner_count_w = GPTP_PLANE_EN_P ? asp_count_w : 4'd0;
   wire [3:0] asp_live_count_w = !(|cfg_adp_gptp_gm) ? 4'd0
       : asp_owner_count_w;
   wire [7*64-1:0] asp_live_path_w = !(|cfg_adp_gptp_gm) ? '0
@@ -2043,7 +1832,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire        pcm_lpf_tvalid;
   wire        pcm_lpf_active;
   //! effective PHY link: the SoC's i_link_up (constant 1 on boards without
-  //! HW tracking) gated by the daemon-maintained LINK_CTRL[0] - drives the
+  //! HW tracking) gated by firmware's LINK_CTRL[0] qualification - drives the
   //! AVB_INTERFACE LinkUp/LinkDown counters and the ADP link behavior
   wire        eff_link_w;
   wire        cfg_tcam_default_pass, cfg_tcam_addr_filt_en, cfg_tcam_wr_en, cfg_tcam_wr_valid;
@@ -2115,6 +1904,13 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire        csr_lctx_wr_p_w;
   wire [7:0]  csr_lctx_wr_addr_w;
   wire [31:0] csr_lctx_wr_data_w;
+  //! LCTX CTRL keeps its historical route[2:1] shape, but route bit 0
+  //! (CSR bit 1) named a retired secondary media sink. Store and fan out zero
+  //! for that reserved position so write/readback cannot advertise a path
+  //! the fabric no longer implements.
+  wire [31:0] lctx_wr_data_sane_w = (csr_lctx_wr_addr_w[4:0] == 5'd4)
+                                      ? (csr_lctx_wr_data_w & ~32'h0000_0002)
+                                      : csr_lctx_wr_data_w;
   wire        lctx_wr_rdy_w;
   wire        csr_tctx_rd_en_w;
   wire [6:0]  csr_tctx_rd_addr_w;
@@ -2155,15 +1951,6 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! of the listener path - 5 packed RO words, see the probe block below.
   wire [5*32-1:0]  aprb_regs_w;
   wire [31:0]      aprb_parsed_w, aprb_matched_w;
-
-  //! item-7 playback probe (PBK CSR group, base 0x8C8): the host-ring ->
-  //! KL_pcm_tx -> render crossbar -> DAC chain read as 3 packed RO words.
-  //! Every other playback counter lives in the LiteX/migen CSR block, which
-  //! a fabric-only build (and the CSR TB) cannot see - this group is the
-  //! chain's evidence on the AXI-Lite control plane.
-  wire [3*32-1:0]  pbk_regs_w;
-  wire [31:0]      pbk_feeds_w;
-  wire [15:0]      pbk_unarmed_w;
 
   //! ------------------------------------------------------------------------
   //! SATURATING narrow views of the 32-bit STREAM_INPUT counters.
@@ -2299,10 +2086,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //!
   //! They are OPEN rather than bound to a net, so a reader sees AT THE
   //! CONNECTION that nothing consumes them - a named net going nowhere is
-  //! exactly the "dead RTL that looks alive" shape. The REGISTERS still exist
-  //! and still read back what software wrote: the register map is an ABI and
-  //! shrinking it would break every board script. What changed is that
-  //! writing them no longer changes anything on the wire.
+  //! exactly the "dead RTL that looks alive" shape. Ordinary retained staging
+  //! words still read back what firmware wrote, but owner-selected gPTP
+  //! publications are the deliberate exception: AS_PATH and its peers read
+  //! fabric state in the product shape and structural zero in option-off.
+  //! Writing an open staging word never changes anything on the wire.
   //!
   //! FIVE ADPDU FIELDS ARE NOW BEYOND SOFTWARE'S REACH, and that is a real
   //! loss rather than a tidy-up: entity_capabilities, valid_time,
@@ -2552,7 +2340,6 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .i_ltap_regs        (ltap_regs_w),
     .i_ltap_status      (ltap_status_w),
     .i_aprb_regs        (aprb_regs_w),
-    .i_pbk_regs         (pbk_regs_w),
     .o_ltap_en          (ltap_en_w),
     .o_ltap_clr         (ltap_clr_w),
     .o_chmap_enable     (cfg_chmap_enable),
@@ -2847,7 +2634,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   // ==========================================================================
   //! link guard: hardware eth-clock liveness -> automatic MAC reinit across
   //! link bounces (the 2026-07-19 TX-wedge class), plus the first hardware
-  //! link estimate. LINK_CTRL[1] stays OR-ed in as the daemon fallback.
+  //! link estimate. LINK_CTRL[1] stays OR-ed in as a firmware fallback.
   wire [31:0] linkg_stat_w;
   wire        cfg_linkg_dis, cfg_linkg_freeze;
   wire        linkg_reinit_w, linkg_eth_rst_w, linkg_est_w;
@@ -2869,9 +2656,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
 
   assign eff_link_w = i_link_up & cfg_sw_link &
                       (cfg_linkg_dis | linkg_est_w);
-  //! Counter-only link view: PHY + guard, WITHOUT the linkmon daemon term.
+  //! Counter-only link view: PHY + guard, without firmware qualification.
   //! One physical flap = guard pair (41us detect/21ms settle) + a second
-  //! sw_link pair 7-14s later (rx-liveness lags the recovered link) -> the
+  //! delayed firmware qualification pair (if any) -> the
   //! Milan LINK_UP/LINK_DOWN counters read +2 per flap on eff_link. The
   //! counters follow the physical event; eff_link keeps gating ADP/datapath.
   wire cnt_link_w;
@@ -2888,7 +2675,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! The tie-off is a straight wire, which is EXACTLY what the shipping
   //! filter emits with promisc_i = 1: every beat forwarded, tready passed
   //! back combinationally, no drop. The TCAM_* CSR window still accepts
-  //! writes; nothing reads them, so software must own the filtering.
+  //! writes; nothing reads them, so a pruned build is explicitly promiscuous.
   generate if (RXFILT_P != 0) begin : g_rx_filter
   rx_mac_filter #(.TDATA_WIDTH(TDATA_WIDTH)) rx_filter (
     .clk_i(axis_clk), .rst_n(axis_resetn),
@@ -2896,8 +2683,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .promisc_i      (cfg_mac_promisc),
     .allmulti_i     (cfg_mac_allmulti),
     //! BYTE ORDER: cfg_mac_addr = {MAC_ADDR_HI[15:0], MAC_ADDR_LO} holds the
-    //! station MAC LSB-first (wire byte 0 in [7:0] - the driver's plain memcpy
-    //! of a 6-byte array into two LE words); rx_mac_filter compares MSB-first
+    //! station MAC LSB-first (wire byte 0 in [7:0], matching the CSR words);
+    //! rx_mac_filter compares MSB-first
     //! against the wire, same as the TCAM key. Swap, exactly as the AAF talker
     //! instantiation above does.
     .station_mac_i  ({cfg_mac_addr[7:0],   cfg_mac_addr[15:8],
@@ -2916,22 +2703,22 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .s_tvalid(rx_axis_ptp_to_filt.tvalid),
     .s_tlast (rx_axis_ptp_to_filt.tlast),
     .s_tready(rx_axis_ptp_to_filt.tready),
-    .m_tdata (rx_axis_to_dma.tdata),
-    .m_tkeep (rx_axis_to_dma.tkeep),
-    .m_tvalid(rx_axis_to_dma.tvalid),
-    .m_tlast (rx_axis_to_dma.tlast),
-    .m_tready(rx_axis_to_dma.tready),
+    .m_tdata (rx_axis_fabric.tdata),
+    .m_tkeep (rx_axis_fabric.tkeep),
+    .m_tvalid(rx_axis_fabric.tvalid),
+    .m_tlast (rx_axis_fabric.tlast),
+    .m_tready(rx_axis_fabric.tready),
     //! Verdict rails are observation-only levels (rx_mac_filter.sv contract);
     //! nothing in this datapath consumes them, so they stay open rather than
     //! being routed to a consumer that would ignore them.
     .frame_action_o(), .frame_match_o(), .frame_dropped_o()
   );
   end else begin : g_no_rx_filter
-    assign rx_axis_to_dma.tdata        = rx_axis_ptp_to_filt.tdata;
-    assign rx_axis_to_dma.tkeep        = rx_axis_ptp_to_filt.tkeep;
-    assign rx_axis_to_dma.tvalid       = rx_axis_ptp_to_filt.tvalid;
-    assign rx_axis_to_dma.tlast        = rx_axis_ptp_to_filt.tlast;
-    assign rx_axis_ptp_to_filt.tready  = rx_axis_to_dma.tready;
+    assign rx_axis_fabric.tdata        = rx_axis_ptp_to_filt.tdata;
+    assign rx_axis_fabric.tkeep        = rx_axis_ptp_to_filt.tkeep;
+    assign rx_axis_fabric.tvalid       = rx_axis_ptp_to_filt.tvalid;
+    assign rx_axis_fabric.tlast        = rx_axis_ptp_to_filt.tlast;
+    assign rx_axis_ptp_to_filt.tready  = rx_axis_fabric.tready;
   end endgenerate
 
   // ==========================================================================
@@ -3383,7 +3170,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //!     as "the AVB interface is up". Counting the raw PHY here would let
   //!     LINK_UP outrun what every other part of this device reports.
   //!   * GM:     pp_gm_id_change_p_w - a change of the nonzero grandmaster
-  //!     IDENTITY the daemon publishes, and nothing else. Milan Table 5.1
+  //!     identity the product fabric owner publishes, and nothing else. Milan Table 5.1
   //!     defines GPTP_GM_CHANGED as "Number of gPTP GM changes, since
   //!     boot", so the only edge that may move it is an edge of
   //!     gptp_grandmaster_id. The ADP duty pp_gm_change_p_w is a WIDER
@@ -3395,7 +3182,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //!   * media clock: ~clkv_tu_w. Milan leaves "locked" explicitly open
   //!     ("the definition of locked is left open to each manufacturer",
   //!     5.3.11.2); this build's definition is the active-owner CLKV verdict -
-  //!     the SAME truth the tu bit stamps into every AVTPDU (VERSION 0x0055).
+  //!     the SAME truth the tu bit stamps into every AVTPDU (VERSION 0x0056).
   //!     One clock-validity authority, two views; a LOCKED count that
   //!     disagreed with the tu bit on the wire would be two answers to one
   //!     question. tu resets 1 (unknown is NOT valid), so locked resets LOW.
@@ -3534,10 +3321,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! = the port-relative offset, mapping_cluster_channel = 0 - every
   //! cluster of this model is MONO (one cluster == one audio channel, the
   //! 0x0027 law), so channel 0 is the only channel a cluster has. NOT
-  //! represented: an en = 1, src = 1 entry (the host playback ring feeding
-  //! a physical output) is real routing but not a Stream Input mapping, so
-  //! GET_AUDIO_MAP reports that cluster channel as unmapped - the ring is
-  //! not a STREAM_INPUT and 7.4.44.2.1 has no words for it.
+  //! represented: any en = 1 entry whose source is not 0. Source 0 is the
+  //! fabric AVB-listener namespace; all other source codes are reserved and
+  //! GET_AUDIO_MAP truthfully reports them as unmapped.
   //!
   //! WHO SUPPLIES THE PER-PORT GEOMETRY: this fabric, from elaboration
   //! constants, because it CANNOT come from anywhere else - the µISA has no
@@ -3545,8 +3331,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! offsets) and the gather face carries no µCPU operands. The constants
   //! The generated entity definition carries the exact STREAM_PORT_INPUT
   //! geometry used by the AEM image. The live protocol store therefore has
-  //! one entry for every declared input cluster, including host or virtual
-  //! clusters that do not project onto the render crossbar. A generated
+  //! one entry for every declared input cluster, including fabric-only
+  //! clusters that do not project onto the physical render crossbar. A generated
   //! RPHYS entry controls that projection and prevents a non-physical global
   //! cluster key from aliasing one of the ten physical render slots.
   //! EXISTENCE is not decided here at all: the processor locates the
@@ -3899,7 +3685,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //!
   //! The CSR debug writer is held out while amap_edit_txn_active_r is set.
   //! This freezes the live baseline between the validation and commit passes,
-  //! so a host write cannot create a time-of-check/time-of-use partial edit.
+  //! so a concurrent CSR write cannot create a time-of-check/time-of-use partial edit.
   //! Phase 1 rechecks that baseline and reserves the complete commit. This
   //! root never asserts wait, so phases 5 and 2 complete without a timeout
   //! point between live writes.
@@ -4350,11 +4136,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //!    through the processor's published rows.
   //!  - a source's declared DA is the block-allocator law the maap shim
   //!    already applies (blk_addr + source), valid while a claim is held.
-  //!  - propagation_delay is the selected effective gPTP measurement: the
-  //!    fabric plane when present, otherwise the GPTP_PDELAY CSR.
+  //!  - propagation_delay is the fabric gPTP measurement when that owner is
+  //!    present, otherwise zero.
   //!  - GET_AS_PATH answers one coherent selected-owner snapshot. Fabric mode
   //!    serves the engine-selected full bounded PathTrace; option off serves
-  //!    GM followed by the atomically published 0x7DC PathTrace tail.
+  //!    an empty sequence.
 
   //! CLAMPED index widths - a 1-sink shape's 2-bit vectors must never be
   //! part-selected with a wider index (the lint ratchet's own catch)
@@ -4652,12 +4438,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   end
 
   //! ---- the served 802.1AS path (Milan 5.4.2.17 GET_AS_PATH) ----------
-  //! Entry 0, when count is nonzero, is the grandmaster the 0x624/0x628 CSR
-  //! pair commits (derive, never mirror: the J4 staging store refuses slot 0
-  //! for the same reason). Entries 1.. are the selected PathTrace tail. No
-  //! grandmaster is always empty. With a GM, product fabric count zero is also
-  //! empty because the selected Announce had no PathTrace TLV; option-off raw
-  //! counts 0/1 retain #227's one-entry `{GM}` compatibility meaning.
+  //! Entry 0, when count is nonzero, is the selected owner's grandmaster;
+  //! entries 1.. are its PathTrace tail. No grandmaster is always empty. With
+  //! a fabric GM, count zero is also empty because the selected Announce had
+  //! no PathTrace TLV. Option-off aliases are structural zero, so software
+  //! writes cannot create either a count or an entry.
   wire [3:0] asp_served_count_w = asp_resp_count_r;
   logic [63:0] asp_served_entry_w;
   always_comb begin : asp_entry_pick
@@ -4795,10 +4580,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! stores the value already held moves nothing and strobes nothing, which
   //! is the same silence 5.4.5.2 requires of a no-op SET.
   //!
-  //! gsi_snap_v_r suppresses the reset cycle itself. The snapshots come out
-  //! of reset at zero while cfg_adp_gptp_domain comes out at the
-  //! config-derived ADP_GPTP_DOMAIN_C, so without it a nonzero configured
-  //! domain would fake a change at t=0 into an empty registry.
+  //! gsi_snap_v_r suppresses the reset cycle itself. The snapshots and the
+  //! Milan domain both start at structural zero, so reset cannot manufacture
+  //! a change into an empty registry.
   //!
   //! GET_AS_PATH keeps its own served-tuple comparator and never uses the ADP
   //! strobe or the unconditional grandmaster-identity edge.
@@ -4806,9 +4590,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! and this fabric serves that sequence from one selected owner. Compare
   //! exactly `(count ? GM : 0, count, active tails)`, not a raw publication
   //! generation. Thus fabric count 0 <-> 1 is a real sequence edge; GM A->B
-  //! while both fabric counts are zero is silent; software counts 0/1 remain
-  //! the same GM-only sequence; every tail aliases to empty while GM=0; and
-  //! hidden software staging cannot perturb fabric mode.
+  //! while both fabric counts are zero is silent; every tail aliases to empty
+  //! while GM=0. Option OFF is ownerless and has no staging state to compare.
   //!
   //! What is NOT a term is the gPTP domain number. It is a GET_AVB_INFO
   //! field (below) and an ADPDU field, but it is not a path entry, so a
@@ -5067,15 +4850,15 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
             //! another listener's stale sid and detach the ACMP alias for
             //! good (bound-but-never-matching). 2026-07-23 bench: the
             //! zero-sid variant of the same write froze a locked stream.
-            wing_tbl_we_r   <= wing_stg_hit_w | ~csr_lctx_wr_data_w[0];
+            wing_tbl_we_r   <= wing_stg_hit_w | ~lctx_wr_data_sane_w[0];
             wing_route_we_r <= 1'b1;
             wing_idx_r      <= {1'b0, wing_wr_idx_w};
             //! an eviction with nothing staged for this index commits the
             //! ZERO sid, which is `KL_stream_table`'s release-to-alias code
             wing_sid_r      <= wing_stg_hit_w ? {wing_sid_hi_r, wing_sid_lo_r}
                                               : 64'd0;
-            wing_en_r       <= csr_lctx_wr_data_w[0];
-            wing_route_r    <= csr_lctx_wr_data_w[2:1];
+            wing_en_r       <= lctx_wr_data_sane_w[0];
+            wing_route_r    <= lctx_wr_data_sane_w[2:1];
             wing_stg_vld_r  <= 1'b0;   //! staging is spent by its commit
           end
           default : ;
@@ -5296,11 +5079,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .clk (axis_clk), .resetn (axis_resetn),
     .cfg_stream_id_i (strtbl_sid_w),
     .cfg_stream_en_i (strtbl_en_w),
-    //! PRE-FILTER tap (2026-07-19): the media path must not depend on the
-    //! host stack's dest-MAC filter config - the TCAM now shields the CPU from
-    //! the AVTP multicast flood (16 kfps ate the 1-hart host: 55k RX
-    //! drops, pdelay responses down to 35% = asCapable flaps at the switch)
-    //! while the fabric keeps consuming the stream here.
+    //! PRE-FILTER tap: an accepted AVTP stream is a fabric-media input and must
+    //! not depend on the station-address policy applied to protocol observers.
     .s_tdata_i  (rx_axis_ptp_to_filt.tdata),
     .s_tkeep_i  (rx_axis_ptp_to_filt.tkeep),
     .s_tvalid_i (rx_axis_ptp_to_filt.tvalid),
@@ -5660,7 +5440,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .depkt_drop_idx_i (pcmrx_drop_idx_w),
     //! P12: LCTX window port <- the CSR 0x800 window (listener dir)
     .lctx_wr_en_i (csr_lctx_wr_p_w), .lctx_wr_addr_i (csr_lctx_wr_addr_w),
-    .lctx_wr_data_i (csr_lctx_wr_data_w), .lctx_wr_rdy_o (lctx_wr_rdy_w),
+    .lctx_wr_data_i (lctx_wr_data_sane_w), .lctx_wr_rdy_o (lctx_wr_rdy_w),
     .lctx_rd_en_i (csr_lctx_rd_en_w), .lctx_rd_addr_i (csr_lctx_rd_addr_w),
     .lctx_rd_data_o (lctx_rd_data_w), .lctx_rd_valid_o (lctx_rd_valid_w),
     .cnt_media_locked_o       (avtprx_locked_c),
@@ -5698,9 +5478,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
 
   // ==========================================================================
   //  AAF RX depacketizer (listener media path) — same RX tap; the monitor's
-  //  accept pulse is the commit verdict, so the PCM ring receives exactly
+  //  accept pulse is the commit verdict, so fabric render receives exactly
   //  the PDUs FRAMES_RX counts. Payload leaves as full 8-byte beats in wire
-  //  order (S32BE interleaved) toward the SoC DRAM PCM ring writer.
+  //  order (S32BE interleaved) toward the render path.
   // ==========================================================================
   KL_aaf_rx_depacketizer aaf_rx_depkt (
     .clk_i (axis_clk), .rst_n (axis_resetn),
@@ -5714,7 +5494,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     //! NXN §1.1 tuser tag: the shared monitor's per-stream accept index
     .pdu_accept_idx_i (avtprx_accept_idx_w),
     .m_axis_tdata (dpkt_pcm_tdata_w),
-    .m_axis_tkeep (m_axis_pcm_tkeep),
+    .m_axis_tkeep (), //! Listener PCM output is always a full 8-byte beat.
     .m_axis_tvalid(dpkt_pcm_tvalid_w),
     .m_axis_tlast (dpkt_pcm_tlast_w),
     .m_axis_tuser (dpkt_pcm_tuser_w),
@@ -5726,13 +5506,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   );
 
   // ==========================================================================
-  //  PCM routing policy (NXN §1.3, P3 + flag rework) — per-stream route
-  //  FLAGS between the shared depacketizer and the sinks: bit1 RENDER
-  //  (lowest-indexed wins) feeds the LPF + I2S playback tap, bit0 DMA rides
-  //  the ring output tagged with tuser = s; independently combinable
-  //  (0b11 = capture-while-rendering, 0b00 = NULL discards). Reset default
-  //  (s0 = RENDER|DMA, others NULL) is today's shape bit-exactly; writes
-  //  arrive from the window CTRL[2:1] commit (wing glue above).
+  //  PCM routing policy — per-stream route field between the shared
+  //  depacketizer and fabric render. Bit 1 enables RENDER (lowest-indexed
+  //  wins); bit 0 is a reserved-zero ABI position. Writes arrive from the
+  //  listener-window CTRL[2:1] commit (wing glue above).
   // ==========================================================================
   wire [TDATA_WIDTH-1:0] dpkt_pcm_tdata_w;
   wire                   dpkt_pcm_tvalid_w, dpkt_pcm_tlast_w;
@@ -5764,8 +5541,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [3:0]             route_render_sel_w;
 
   KL_pcm_route #(
-    .N_LISTENERS_P (N_STREAMS),
-    .DMA_ENABLE_P  (SOUND_CARD_P)
+    .N_LISTENERS_P (N_STREAMS)
   ) pcm_route (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .s_tdata_i (dpkt_pcm_tdata_w), .s_tvalid_i (dpkt_pcm_tvalid_w),
@@ -5774,9 +5550,6 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     //! P12: route field <- the window CTRL[2:1] commit (glue above)
     .route_wr_en_i (wing_route_we_r), .route_wr_idx_i (wing_idx_r),
     .route_wr_val_i (wing_route_r),
-    .m_axis_tdata (m_axis_pcm_tdata), .m_axis_tvalid (m_axis_pcm_tvalid),
-    .m_axis_tlast (m_axis_pcm_tlast), .m_axis_tuser (m_axis_pcm_tuser),
-    .m_axis_tready (m_axis_pcm_tready),
     .render_tvalid_o (rend_pcm_tvalid_w), .render_tdata_o (rend_pcm_tdata_w),
     .render_tlast_o (rend_pcm_tlast_w),
     .render_sel_o (route_render_sel_w), .render_active_o ()
@@ -5789,11 +5562,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //  the FIFO rails and MEASURED via I2SPB_STAT until CRF media-clock
   //  discipline lands.
   // ==========================================================================
-  //! 2nd-order Butterworth LPF on the DAC render tap only (the DMA-ring /
-  //! AVB copies stay bit-true): band-limits the analog output feeding the
+  //! 2nd-order Butterworth LPF on the DAC render tap only (AVB data stays
+  //! bit-true): band-limits the analog output feeding the
   //! loop ADC. LPF_CTRL 0x72C[0], default on; auto-bypass for !=2ch.
-  //! render tap = the route policy's RENDER stream share of the ring
-  //! handshake (bit-identical to the flat m_axis_pcm tap at N=1)
+  //! render tap = the route policy's selected RENDER stream.
   //! LPF_P = 0 prunes the filter (see the parameter's note). The tie-off is
   //! the runtime-bypass state, term by term: active_o = 0 makes
   //! KL_i2s_playback take the RAW AXIS path, and m_tvalid = 0 means the
@@ -5806,7 +5578,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       .chans_i  ({2'b0, mon_wire_chans_w}),   //! wire truth (2ch engages)
       .s_tdata  (rend_pcm_tdata_w),
       .s_tvalid (rend_pcm_tvalid_w),
-      .s_tready (m_axis_pcm_tready),
+      .s_tready (1'b1), //! The filter observes a clone and cannot stall routing.
       .m_tdata  (pcm_lpf_tdata),
       .m_tvalid (pcm_lpf_tvalid),
       .active_o (pcm_lpf_active)
@@ -5841,7 +5613,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! seconds. Nothing in the media path reacted, so the playback FIFO
   //! walked back into its convergence band at the residual rate error.
   //! One pulse per GM-identity change re-centers it instead; the first
-  //! lease out of reset (0 -> id) is exempt (prefill owns boot).
+  //! fabric GM publication out of reset (0 -> id) is exempt
+  //! (prefill owns boot).
   logic [63:0] gm_recentre_q_r;
   logic        gm_recentre_p_r;
   always_ff @(posedge axis_clk) begin : g_gm_recentre
@@ -5916,7 +5689,6 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   localparam int CHMAP_PHYS_C = 10;
   wire [CHMAP_PHYS_C*24-1:0] chmap_phys_w;
   wire                       chmap_phys_v_w;
-  wire [CHMAP_PHYS_C-1:0]    chmap_pb_mask_w;
   wire [CHMAP_PHYS_C-1:0]    chmap_mapped_mask_w;
   //! the whole render map, exported for the GET_AUDIO_MAP page walk (the
   //! single map_rd_* readback port stays the CSR CHMAP_SNAP path's - two
@@ -5929,11 +5701,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     //! (RX_WIRE_CHANS_C) and read here - the LOOP bucket keeps the same
     //! space, and the two must not be able to drift apart
     .N_CH_P       (RX_WIRE_CHANS_C),
-    .N_PHYS_P     (CHMAP_PHYS_C),
-    //! item-7 + item-00: KL_pcm_tx is elaborated CHANS_P=TALKER_WIRE_CHANS_P,
-    //! so the playback pair-slot space is streams x chans/2 (was N_STREAMS
-    //! from the stereo era - at 8x8x8 that refused ring pairs past slot 7)
-    .N_PB_SLOTS_P (N_STREAMS * (TALKER_WIRE_CHANS_P / 2))
+    .N_PHYS_P     (CHMAP_PHYS_C)
   ) chan_map_render (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     //! clone tap: accepted-beat strobe (tvalid && tready); never backpressures
@@ -5944,11 +5712,6 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     //! per-stream LCTX wire-truth fan-out (follow-up 3 DONE: each stream
     //! de-interleaves by its OWN wire channels_per_frame)
     .wire_chans_i (mon_wire_chans_all_w),
-    //! item-7 host playback ring: the RAW KL_pcm_tx pair bus (the same net
-    //! the capture mux takes as its RING source) - map entries with src = 1
-    //! route it to the physical outputs, closing ring -> render -> I2S
-    .pb_valid_i (ring_src_pv_w), .pb_slot_i (ring_src_slot_w),
-    .pb_l_i (ring_src_l_w), .pb_r_i (ring_src_r_w),
     .tick_i (media_tick_p),
     //! write mux with the live AECP transaction leg and CSR 0x900 writer.
     //! The map key is the GLOBAL cluster index and the model may declare
@@ -5980,9 +5743,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
                     ? aecp_dmap_wr_addr_w[$clog2(CHMAP_PHYS_C)-1:0]
                     : cfg_chmap_rphys_w[$clog2(CHMAP_PHYS_C)-1:0]),
     //! §5 16-bit word -> render 8-bit {en[7], src[6], idx[5:0]}. SRC[12] of
-    //! the §5 word selects the source bank (0 = AVB listener {stream,ch},
-    //! 1 = host playback ring channel). The AECP leg carries the already
-    //! projected store word.
+    //! the §5 word selects the source bank (0 = AVB listener {stream,ch});
+    //! source 1 is retained as a reserved-zero ABI encoding. The AECP leg
+    //! carries the already projected store word.
     .map_wr_data_i (aecp_dmap_wr_p_w ? aecp_dmap_wr_word_w
                     : {cfg_chmap_wr_data[15], cfg_chmap_wr_data[12],
                        cfg_chmap_wr_data[6:4], cfg_chmap_wr_data[2:0]}),
@@ -5992,14 +5755,14 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .map_rd_data_o (rmap_rd_data_w),
     .map_flat_o (rmap_flat_w),
     .phys_smp_o (chmap_phys_w), .phys_valid_o (chmap_phys_v_w),
-    .mapped_mask_o (chmap_mapped_mask_w), .pb_mask_o (chmap_pb_mask_w)
+    .mapped_mask_o (chmap_mapped_mask_w)
   );
 
   // ---- DAC feed selector (item-7): the one place the DAC's source AND its
   //      pace are decided, and the one place the render chain is counted.
   //      enable=0 -> the compliance tap passes through bit-/cycle-identically;
   //      enable=1 -> phys{0,1} on the 48 kHz media tick (the ONLY pace at
-  //      which a host-ring playback can reach the line-out at all). ------
+  //      which mapped fabric playback reaches the line-out). -------------
   KL_i2s_feed_mux i2s_feed_mux (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     //! The crossbar has no current boot seeder. The bring-up tap passes
@@ -6007,7 +5770,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .sel_render_i (aecp_dmap_dyn_w | cfg_chmap_enable),
     .tap_tdata_i  (rend_pcm_tdata_w),
     .tap_tvalid_i (rend_pcm_tvalid_w),
-    .tap_tready_i (m_axis_pcm_tready),
+    .tap_tready_i (1'b1), //! The feed selector observes a non-blocking clone.
     .tap_tlast_i  (rend_pcm_tlast_w),
     .tap_chans_i  (mon_wire_chans_w),
     .lpf_active_i (pcm_lpf_active),
@@ -6018,43 +5781,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .pcm_tdata_o (i2s_feed_tdata_w), .pcm_tvalid_o (i2s_feed_tvalid_w),
     .pcm_tready_o (i2s_feed_tready_w), .pcm_tlast_o (i2s_feed_tlast_w),
     .chans_o (i2s_feed_chans_w), .lpf_active_o (i2s_feed_lpf_act_w),
-    .feeds_o (pbk_feeds_w), .unarmed_o (pbk_unarmed_w), .src_render_o ()
+    .feeds_o (),   //! Optional selector activity diagnostic is not published.
+    .unarmed_o (), //! Optional unarmed diagnostic is not published.
+    .src_render_o () //! Optional source diagnostic is not published.
   );
-
-  // ---- item-7 playback probe pack (PBK group 0x8C8-0x8D0) ----------------
-  //! per-stream KL_pcm_tx rails rolled into ONE saturating pair: only one
-  //! stream renders locally, but ANY starving stream is evidence the host
-  //! is not feeding the ring, so the sum (not stream 0) is the honest read.
-  logic [19:0] pbk_und_sum_w, pbk_ovr_sum_w;
-  generate if (DPROBES_P != 0) begin : g_pbk
-    always_comb begin : pbk_rail_sum
-      pbk_und_sum_w = 20'd0;
-      pbk_ovr_sum_w = 20'd0;
-      for (int s = 0; s < N_STREAMS; s++) begin
-        pbk_und_sum_w = pbk_und_sum_w + 20'(pb_underrun_o[s*16 +: 16]);
-        pbk_ovr_sum_w = pbk_ovr_sum_w + 20'(pb_overrun_o[s*16 +: 16]);
-      end
-    end : pbk_rail_sum
-    wire [15:0] pbk_und_w = (|pbk_und_sum_w[19:16]) ? 16'hFFFF
-                                                    : pbk_und_sum_w[15:0];
-    wire [15:0] pbk_ovr_w = (|pbk_ovr_sum_w[19:16]) ? 16'hFFFF
-                                                    : pbk_ovr_sum_w[15:0];
-
-    //! 0x8C8 PBK_STAT: {pb_mask[9:0], 2'0, armed, pb_en, playing, src, unarmed}
-    assign pbk_regs_w[32*0 +: 32] = {
-      10'(chmap_pb_mask_w), 2'd0, |chmap_mapped_mask_w[1:0], pb_enable_i,
-      pb_playing_o, cfg_chmap_enable, pbk_unarmed_w };
-    //! 0x8CC PBK_FEEDS: frames handed to the DAC producer on the live source
-    assign pbk_regs_w[32*1 +: 32] = pbk_feeds_w;
-    //! 0x8D0 PBK_RAILS: {KL_pcm_tx underruns, overruns} (saturating sums)
-    assign pbk_regs_w[32*2 +: 32] = {pbk_und_w, pbk_ovr_w};
-  end else begin : g_no_pbk
-    always_comb begin : pbk_rail_zero
-      pbk_und_sum_w = 20'd0;
-      pbk_ovr_sum_w = 20'd0;
-    end : pbk_rail_zero
-    assign pbk_regs_w = '0;
-  end endgenerate
 
   // ---- parked TDM8 render lane (docs §8): phys{2..9} -> 8 slot writes -------
   //! The render xbar emits the whole phys vector once per media tick; the TDM
@@ -6135,11 +5865,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
                      cfg_mac_addr[39:32], cfg_mac_addr[47:40]}),
     .seed_offset_i (cfg_maap_seed_offset),
     .seed_valid_i  (cfg_maap_seed_valid),
-    .rx_tdata_i  (rx_axis_to_dma.tdata),
-    .rx_tkeep_i  (rx_axis_to_dma.tkeep),
-    .rx_tvalid_i (rx_axis_to_dma.tvalid),
-    .rx_tready_i (rx_axis_to_dma.tready),
-    .rx_tlast_i  (rx_axis_to_dma.tlast),
+    .rx_tdata_i  (rx_axis_fabric.tdata),
+    .rx_tkeep_i  (rx_axis_fabric.tkeep),
+    .rx_tvalid_i (rx_axis_fabric.tvalid),
+    .rx_tready_i (rx_axis_fabric.tready),
+    .rx_tlast_i  (rx_axis_fabric.tlast),
     .m_axis_tdata (maap_tx_tdata), .m_axis_tkeep (maap_tx_tkeep),
     .m_axis_tvalid(maap_tx_tvalid), .m_axis_tlast (maap_tx_tlast),
     .m_axis_tready(maap_tx_tready),
@@ -6379,10 +6109,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! a time-critical frame must not queue 512 cycles per control burst)
   //! through its own staggered merge (ctl 2^15 -> this 2^16 -> boundary
   //! 2^17). The egress stamper observes the TRUE MAC boundary; ingress
-  //! rides the same rx_axis_to_dma tap every plane uses (input only,
+  //! rides the same rx_axis_fabric tap every plane uses (input only,
   //! tvalid && tready qualified). The publication bank directly owns the GM,
-  //! parent, pdelay, tu/asCapable, CSR, and protocol-answer faces. The option
-  //! off arm selects the retained software publication path.
+  //! parent, pdelay, tu/asCapable, CSR, and protocol-answer faces. The direct
+  //! option-OFF arm has no owner: those publications are zero, tu is one, and
+  //! every retained publication write is inert.
   wire [TDATA_WIDTH-1:0]   ctlg3_tdata;
   wire [TDATA_WIDTH/8-1:0] ctlg3_tkeep;
   wire                     ctlg3_tvalid, ctlg3_tlast, ctlg3_tready;
@@ -6405,11 +6136,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     ) u_gptp_shadow (
         .clk_i           (axis_clk),
         .rst_n           (axis_resetn),
-        .rx_tdata_i      (rx_axis_to_dma.tdata),
-        .rx_tkeep_i      (rx_axis_to_dma.tkeep),
-        .rx_tvalid_i     (rx_axis_to_dma.tvalid),
-        .rx_tready_i     (rx_axis_to_dma.tready),
-        .rx_tlast_i      (rx_axis_to_dma.tlast),
+        .rx_tdata_i      (rx_axis_fabric.tdata),
+        .rx_tkeep_i      (rx_axis_fabric.tkeep),
+        .rx_tvalid_i     (rx_axis_fabric.tvalid),
+        .rx_tready_i     (rx_axis_fabric.tready),
+        .rx_tlast_i      (rx_axis_fabric.tlast),
         .phc_ns_i        (ptp_now_w),
         .phc_adj_o       (gptp_adj_w),
         .phc_step_we_o   (gptp_step_we_w),
@@ -6612,9 +6343,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .dpkt_tvalid_i   (dpkt_pcm_tvalid_w),
     .dpkt_tready_i   (dpkt_pcm_tready_w),
     .dpkt_tlast_i    (dpkt_pcm_tlast_w),
-    .ring_tvalid_i   (m_axis_pcm_tvalid),
-    .ring_tready_i   (m_axis_pcm_tready),
-    .ring_tlast_i    (m_axis_pcm_tlast),
+    //! Final RX stage: selected listener payload accepted by fabric render.
+    .render_tvalid_i (rend_pcm_tvalid_w),
+    .render_tready_i (1'b1), //! Latency observer cannot backpressure render.
+    .render_tlast_i  (rend_pcm_tlast_w),
 
     .regs_o   (ltap_regs_w),
     .status_o (ltap_status_w)
@@ -6694,10 +6426,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! KL_pp_shadow's banner carries the full rationale; the facts that matter
   //! HERE are:
   //!
-  //!   1. It taps rx_axis_to_dma the same way every other plane does -
-  //!      INPUT ONLY, qualified on tvalid && tready (the gh #65 hazard: a
-  //!      stalled DMA parks a beat with tvalid held and a tvalid-only tap
-  //!      re-eats it).
+  //!   1. It taps rx_axis_fabric the same way every other plane does -
+  //!      INPUT ONLY, qualified on tvalid && tready. The shared fabric tap is
+  //!      permanently ready now; retaining handshake qualification prevents a
+  //!      future sink policy from re-eating a held beat.
   //!   2. Its packed TX is the ONE control-lane leg beside MAAP
   //!      (ctl_tx_mux). tx_drain_i is 0: the processor owns the wire.
   //!   3. Its class-D face IS this fabric's ACMP bind record, talker
@@ -7006,11 +6738,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       .gm_change_i       (pp_gm_change_p_w),
       .gm_id_i           (cfg_adp_gptp_gm),
       .gptp_domain_i     (cfg_adp_gptp_domain),
-      .rx_tdata_i        (rx_axis_to_dma.tdata),
-      .rx_tkeep_i        (rx_axis_to_dma.tkeep),
-      .rx_tvalid_i       (rx_axis_to_dma.tvalid),
-      .rx_tready_i       (rx_axis_to_dma.tready),
-      .rx_tlast_i        (rx_axis_to_dma.tlast),
+      .rx_tdata_i        (rx_axis_fabric.tdata),
+      .rx_tkeep_i        (rx_axis_fabric.tkeep),
+      .rx_tvalid_i       (rx_axis_fabric.tvalid),
+      .rx_tready_i       (rx_axis_fabric.tready),
+      .rx_tlast_i        (rx_axis_fabric.tlast),
       //! SUBSTITUTED: the drain is OFF and the packed AXIS port is this
       //! device's control egress (ctl_tx_mux, the leg the deleted
       //! aecp/acmp/acmpl/adp/lwsrp legs used to occupy).

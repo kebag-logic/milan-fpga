@@ -91,11 +91,11 @@ Milan-validated reference device received 31 M frames from a talker whose PHC
 was 216,446 s off the domain, counted 99.4 % of them LATE or EARLY, and its
 `TIMESTAMP_UNCERTAIN` stayed at 0 the whole time
 (the retired reference-listener sweep of 2026-07-27 (#259, in git history)).
-Closed at VERSION `0x0015` by `KL_ptp_clock_validity` — and note the *other*
-half of the fix, the one this section keeps insisting on: `CLKV_STAT` `0x77C`
-bit 2 says **"no live lease"**, so software can tell "the clock is fine" from
-"nobody has ever told this gateware anything about the clock". A zero
-`CLKV_TUCNT` means different things in those two worlds.
+Closed at VERSION `0x0015` by `KL_ptp_clock_validity`. In the current fabric
+owner profile, read `CLKV_STAT[1]` (`sync_ok`), `[3]` (discontinuity holdover),
+and `[16]` (`asCapable`) beside the emitted `tu` bit; `[2]` is structural zero.
+A zero `CLKV_TUCNT` means only that no one-second observation interval has yet
+contained `tu=1`, so the live publication bits supply the health context.
 
 **Seen as.** `milan_csr` exported `MAC_ADDR`, `MC_HASH`, promisc and allmulti;
 nothing in fabric read them, so non-matching unicast was never dropped in
@@ -151,7 +151,7 @@ second with the first's stream id. This was the fabric-listener blocker: the
 listener reported bound and never matched a frame.
 
 **Why it survived.** The comment above the guard described the intent correctly,
-and a single-writer daemon writing one index at a time never exercises the bug.
+and a single control writer updating one index at a time never exercises the bug.
 It only appears when two indices interleave — which is exactly what a real
 provisioning sequence does and what a single-stream test never does.
 
@@ -181,9 +181,7 @@ documented inverse and test the round trip: set → observe → clear → observ
 
 ## 4. The build recipe drifts from the declarative config
 
-**Seen as.** Twice. `rx-queues` was set globally in `sweep.sh` while the boards
-need different values, so the built gateware's DMA window map disagreed with the
-shipping `csr.csv`. Then, worse: [`sw/litex/sweep.sh`](../../sw/litex/sweep.sh) contains **no occurrence of
+**Seen as.** [`sw/litex/sweep.sh`](../../sw/litex/sweep.sh) once contained **no occurrence of
 the string "stream"** — it never passes `--num-streams`, which
 [`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py) defaults to `1`. The shipping 8×8 bitstream was built by
 a **hand-edited invocation**; sweep-and-flash would silently rebuild the board as
@@ -370,7 +368,7 @@ green row that names a suite nobody can run any more is a decorative claim.
    BY <the replacement> where it really is, and **NOT IMPLEMENTED** where it
    really is. The AECP surface is the live worked example, and it cuts both
    ways. `READ_DESCRIPTOR` really is implemented by the processor and the
-   tracked builder plus `aemi-load` supply its image, so a row that still says
+   tracked builder plus the verified bare-metal QSPI-to-DRAM copy supply its image, so a row that still says
    "not implemented" or "not supplied" is wrong. The current served inventory
    includes `GET_COUNTERS` and `GET_MILAN_INFO`, while `SET_NAME` remains a
    conformant fallback. **An answer is

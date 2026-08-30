@@ -78,15 +78,14 @@ FLASH_SIZE=$((16*1024*1024))  # N25Q128 = 16 MB
 FPGA_PART="${FPGA_PART:-xc7a100tfgg484}"
 
 # Current AX7101 shipping profile: one cacheless RV32I VexiiRiscv hart in
-# machine mode. The fabric,
-# NIC DMA, protocol processor, physical TDM capture and render-free talker
-# datapath remain present.
+# machine mode. The fabric, protocol processor, physical TDM capture and
+# render-free talker datapath remain present.
 # --gtx-tx-invert is REQUIRED on this board: the GMII TX FFs are IOB-packed (deterministic
 # skew ~0 vs the forwarded gtx_clk), so edge-aligned sampling is hold-marginal at the
 # RTL8211E — measured 25-40 % corrupt frames edge-aligned vs 0 % with mid-bit sampling.
-# Direct DMA remains enabled, but no cache-coherency hub is elaborated because
-# the CPU itself is cacheless.
-MILAN_OPTS="--board ax7101 --cpu vexiiriscv --cpu-count 1 --xlen 32 --software-profile baremetal --all-blocks --coherent-dma --milan-clk-freq 50e6 --with-spiflash --flashboot baremetal --gtx-tx-invert --timing-opt --floorplan --eth-port e1 --no-i2s-playback --no-render-lpf --audio-interface tdm8 --audio-interface-master --talker-wire-chans 8 --cbs-queues-mask 0x10 --loopback-lane --fabric-gptp --entity-gen-dir $HERE/../../configs/generated/endstation_ax7101_1x1_tdm8 --l2-bytes 0 --rx-queues 2 --strip-probes --hs-page-bytes 16384"
+# The protocol processor retains its dedicated CPU memory attachment; the
+# cacheless CPU does not elaborate a cache-coherency hub.
+MILAN_OPTS="--board ax7101 --cpu vexiiriscv --cpu-count 1 --xlen 32 --software-profile baremetal --full --milan-clk-freq 50e6 --with-spiflash --flashboot baremetal --gtx-tx-invert --timing-opt --floorplan --eth-port e1 --no-i2s-playback --no-render-lpf --audio-interface tdm8 --audio-interface-master --talker-wire-chans 8 --cbs-queues-mask 0x10 --loopback-lane --fabric-gptp --entity-gen-dir $HERE/../../configs/generated/endstation_ax7101_1x1_tdm8 --l2-bytes 0"
 run_milan_soc() {
     local label="$1"; shift
     # MILAN_OPTS is a trusted, fixed launcher recipe. Deliberate word splitting

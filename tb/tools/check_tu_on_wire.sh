@@ -27,9 +27,9 @@
 # their byte 21 means something else entirely. Filtering only on the source MAC
 # once produced a "MIXED" verdict built from three control frames.
 #
-# READING THE RESULT. tu = 1 on every frame is the CORRECT state for a board
-# whose gPTP daemon has not leased CLKV_CTRL (0x778): reset is no-lease, and an
-# unknown clock state means NOT valid. tu = 0 has to be earned by a live lease.
+# READING THE RESULT. In the product shape, the fabric gPTP owner drives `tu`
+# from its live sync/asCapable state. In the verification-only ownerless shape,
+# `tu = 1` is fail-safe and legacy CLKV writes are inert.
 set -u
 IF=${1:?usage: check_tu_on_wire.sh <iface> <talker-mac> [seconds] [--tap]}
 MAC=${2:?talker source MAC, e.g. 02:00:00:00:00:01}
@@ -59,5 +59,5 @@ fi
 echo "frames=$n  tu=1: $t1  tu=0: $t0"
 if   [ "$t1" -eq "$n" ]; then echo "VERDICT: tu SET on every frame - talker declares its clock UNCERTAIN"
 elif [ "$t0" -eq "$n" ]; then echo "VERDICT: tu CLEAR on every frame - talker claims a VALID clock"
-else echo "VERDICT: MIXED ($t1/$n set) - tu changed during the window (a lease was taken or lapsed)"
+else echo "VERDICT: MIXED ($t1/$n set) - fabric clock-validity state changed during the window"
 fi

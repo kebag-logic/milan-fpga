@@ -49,12 +49,8 @@ board:
     floorplan: true
     flashboot: baremetal
     uart_baudrate: 115200
-    rx_queues: 2
-    hs_page_bytes: 16384
-    strip_probes: true
     num_queues: 5
     eth_port: e1
-    render_lpf: false
 
 srp:
   sr_class: A
@@ -68,9 +64,7 @@ srp:
     interval_frames: 1
 
 platform:
-  csr_base: 0x90000000
   mac_address: "02:00:00:00:00:01"   # board 1
-  interrupt: 3
   pp_mem_phys: 0x7f700000            # 1 MiB protocol-processor window
 
 soc:
@@ -79,8 +73,8 @@ soc:
   scala_args: []
 
 gptp:
-  # ONE source (USER 2026-08-05): these values generate BOTH the
-  # AVB_INTERFACE descriptor's clock fields and /etc/gptp.<board>.cfg.
+  # ONE source (USER 2026-08-05): these values generate the
+  # AVB_INTERFACE descriptor's clock fields and fabric microcode.
   # priority1 248 = the Milan end-station DEFAULT: the device DEFERS rather
   # than contesting the grandmaster role (Milan es-1.1 compliance posture is
   # 246|248, and 248 is the deferring end of it). The older 238 "AX bench

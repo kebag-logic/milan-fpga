@@ -6,15 +6,11 @@ check_sweep_shape.py - the sweep-vs-config shape gate.
 
 WHY THIS EXISTS.  `sw/litex/sweep.sh` composes the milan_soc.py command line
 that actually produces the flashed bitstream.  Every knob it gets wrong is
-invisible until silicon:
-
-  * 2026-07-24 (5ce9a13): sweep.sh passed `--rx-queues 1` for BOTH boards while
-    the deployed arty gateware carried two RX queues. A 2-queue build shifts
-    every DMA window by 0x74 under an unchanged firmware map.
-  * 2026-07-26 (this gate): sweep.sh passed NO `--num-streams` AT ALL, so
+invisible until silicon. For example, in 2026-07-26 sweep.sh passed NO
+`--num-streams` AT ALL, so
     `sweep.sh ax7101` built the DEFAULT 1x1 datapath while the config, the docs
     and the build directories all called it 8x8.
-  * 2026-08-22 (#157): two named recipes passed no `--xlen`, so the script
+In 2026-08-22 (#157), two named recipes passed no `--xlen`, so the script
     and declarative configuration could select different CPU widths.
 
 Same shape both times: a build knob that lives in the declarative end-station
@@ -25,7 +21,7 @@ Two modes:
 
   runtime  (what sweep.sh calls, just before it launches Vivado)
       check_sweep_shape.py --board ax7101 --config configs/endstation_ax7101_8x8.yaml \
-                           --num-streams 8 --rx-queues 1 --l2-bytes 32768
+                           --num-streams 8 --l2-bytes 16384
 
   static   (CI / review: no shell, no Vivado - parse sweep.sh itself)
       check_sweep_shape.py                    # every board in sweep.sh's tables
@@ -70,16 +66,7 @@ FLOW_FLAGS = {
 # pair stops holding, which is the point: the exception is visible and dated
 # instead of being an untracked gap.
 #   (source, board/cfg, key): (source_value, config_value, reason)
-PINNED = {
-    # The ax8x8 l2_bytes divergence was RESOLVED 2026-07-26 by
-    # correcting configs/endstation_ax7101_8x8.yaml from 32768 to 16384.
-    # The USER 32K authorisation belongs to the 1x1 bench shape
-    # (build.sh cfg_ax7101, --rx-queues 2); cfg_ax8x8 is --l2-bytes 16384
-    # and its own comment records the measured close: WNS +0.080,
-    # LUT 85.15%, TNS 0, all seeds. The deployed 8x8 bitstream was built
-    # at 16384. Keep this dict as the place to record a DELIBERATE, dated
-    # divergence rather than letting one go untracked.
-}
+PINNED = {}
 
 # CPU WIDTH AND HART COUNT (2026-08-22, #157). The two entry points default
 # this one decision opposite ways: milan_soc.py --xlen defaults to 64, and
@@ -104,7 +91,7 @@ def _yaml():
 
 
 def config_shape(path):
-    """(board, num_streams, rx_queues, l2_bytes, render_lpf) implied by a config.
+    """(board, num_streams, l2_bytes, render_lpf) implied by a config.
 
     num_streams == milan_datapath N_STREAMS == the WIDER of the two stream
     directions, exactly as sw/builder/endstation_builder.emit_soc_argv computes
@@ -118,34 +105,34 @@ def config_shape(path):
     cfg = yaml.safe_load(open(path))
     s = cfg.get("streams") or {}
     n_streams = max(len(s.get("listeners") or []), len(s.get("talkers") or []))
-    c = (cfg.get("board") or {}).get("constraints") or {}
+    board_cfg = cfg.get("board") or {}
+    c = board_cfg.get("constraints") or {}
+    features = board_cfg.get("features") or {}
     # render_lpf is the milan_datapath LPF_P area lever
     # (docs/design/AREA_BUDGET.md). Absent = filter PRESENT, which is
     # what every config said before 2026-07-27, so the default keeps old
     # configs byte-identical. It is gated here for the same reason
-    # --eth-port and --rx-queues are: it changes the BITSTREAM, one board at
+    # --eth-port is: it changes the BITSTREAM, one board at
     # a time, and a silent divergence between build.sh and sweep.sh is how
     # this project has lost builds twice.
-    return (cfg["board"]["target"], n_streams,
-            int(c["rx_queues"]), int(c["l2_bytes"]),
-            bool(c.get("render_lpf", True)))
+    return (board_cfg["target"], n_streams, int(c["l2_bytes"]),
+            bool(features.get("render_lpf", True)))
 
 
 def parse_sweep(path=SWEEP):
-    """sweep.sh's per-board default tables -> {board: {opts,l2,rxq,ns,cfg}}.
+    """sweep.sh's per-board default tables -> {board: {opts,l2,ns,cfg}}.
 
     Deliberately the SAME parse shape test_builder.sweep_inline() uses for
-    OPTS/L2/RXQ, extended with the NS/CFG line - if either table is reformatted
+    OPTS/L2, extended with the NS/CFG line - if either table is reformatted
     so this regex misses, the gate fails loudly rather than passing vacuously.
     """
     txt = open(path).read()
     boards = {}
-    for m in re.finditer(r'^\s*(\w+)\)\s+OPTS="([^"]+)"; L2=(\d+); RXQ=(\d+)',
+    for m in re.finditer(r'^\s*(\w+)\)\s+OPTS="([^"]+)"; L2=(\d+);',
                          txt, re.M):
-        boards[m.group(1)] = dict(opts=m.group(2), l2=int(m.group(3)),
-                                  rxq=int(m.group(4)))
+        boards[m.group(1)] = dict(opts=m.group(2), l2=int(m.group(3)))
     if not boards:
-        sys.exit(f"check_sweep_shape: no OPTS/L2/RXQ table found in {path}")
+        sys.exit(f"check_sweep_shape: no OPTS/L2 table found in {path}")
     for m in re.finditer(r'^\s*(\w+)\)\s+NS=(\d+); CFG=\$\{SWEEP_CFG:-([^}]+)\}',
                          txt, re.M):
         if m.group(1) in boards:
@@ -183,9 +170,9 @@ def parse_flags(tokens):
     return d
 
 
-def compare(board, cfg_path, ns, rxq, l2, where, opts=""):
+def compare(board, cfg_path, ns, l2, where, opts=""):
     """One board's effective shape vs its config. Returns a list of problems."""
-    c_board, c_ns, c_rxq, c_l2, c_lpf = config_shape(cfg_path)
+    c_board, c_ns, c_l2, c_lpf = config_shape(cfg_path)
     bad = []
     if c_board != board:
         bad.append(f"config board {c_board!r} != sweep board {board!r}")
@@ -193,9 +180,6 @@ def compare(board, cfg_path, ns, rxq, l2, where, opts=""):
         bad.append(f"--num-streams {ns} != config streams {c_ns} "
                    f"(max(listeners, talkers)) - the bitstream would be "
                    f"{ns}x{ns}, the config says {c_ns}x{c_ns}")
-    if c_rxq != rxq:
-        bad.append(f"--rx-queues {rxq} != config rx_queues {c_rxq} "
-                   "(CSR-rot rule: shifts every DMA window under the firmware map)")
     if c_l2 != l2:
         bad.append(f"--l2-bytes {l2} != config l2_bytes {c_l2}")
     lpf = "--no-render-lpf" not in opts
@@ -229,7 +213,7 @@ def compare(board, cfg_path, ns, rxq, l2, where, opts=""):
         for b in bad:
             print(f"  - {b}", file=sys.stderr)
     else:
-        print(f"  [sweep-shape] {board}: num-streams {ns}, rx-queues {rxq}, "
+        print(f"  [sweep-shape] {board}: num-streams {ns}, "
               f"l2 {l2}, render-lpf {lpf} == {os.path.basename(cfg_path)}")
     return bad
 
@@ -439,7 +423,7 @@ def run_static(sweep_path=SWEEP, quiet=False):
     boards = parse_sweep(sweep_path)
     bad = []
     for board, v in sorted(boards.items()):
-        bad += compare(board, v["cfg"], v["ns"], v["rxq"], v["l2"],
+        bad += compare(board, v["cfg"], v["ns"], v["l2"],
                        os.path.basename(sweep_path), opts=v["opts"])
         frag_ns = check_fragment(board)
         if frag_ns is not None and frag_ns != v["ns"]:
@@ -460,7 +444,6 @@ def main():
     ap.add_argument("--board")
     ap.add_argument("--config")
     ap.add_argument("--num-streams", type=int)
-    ap.add_argument("--rx-queues", type=int)
     ap.add_argument("--l2-bytes", type=int)
     # The EFFECTIVE option string, after sweep.sh has sourced the generated
     # fragment. Without it the runtime branch compared the render-LPF lever
@@ -475,12 +458,12 @@ def main():
                     help="also prove a deliberately mutated sweep.sh is REJECTED")
     a = ap.parse_args()
 
-    runtime = [a.board, a.config, a.num_streams, a.rx_queues, a.l2_bytes]
+    runtime = [a.board, a.config, a.num_streams, a.l2_bytes]
     if any(x is not None for x in runtime):
         if any(x is None for x in runtime):
             ap.error("runtime mode needs --board --config --num-streams "
-                     "--rx-queues --l2-bytes together")
-        bad = compare(a.board, a.config, a.num_streams, a.rx_queues,
+                     "--l2-bytes together")
+        bad = compare(a.board, a.config, a.num_streams,
                       a.l2_bytes, "sweep.sh runtime", opts=a.opts)
         if bad:
             print("REFUSING TO BUILD: sweep.sh would produce a bitstream that "

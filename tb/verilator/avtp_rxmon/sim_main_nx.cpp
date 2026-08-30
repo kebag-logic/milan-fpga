@@ -7,10 +7,9 @@
 //        contract (lock/settle/mismatch/interrupt/silence/format/bind).
 //   [I]  P2 matrix row: per-stream counter isolation - stream-0 events
 //        never leak into stream 1's LCTX CNT region and vice versa.
-//   [T]  P1 matrix row: tuser stream-index tag parser->FIFO->PCM output.
-//   [R]  P3 matrix row: PCM routing policy - RENDER-lowest-wins, NULL
-//        discard (monitor still counts), DMA passes tagged, render tap
-//        follows the configured stream.
+//   [T]  P1 matrix row: accepted payload reaches the fabric render clone.
+//   [R]  P3 matrix row: RENDER-lowest-wins, NULL discards after PCMRX
+//        accounting, and the reserved route bit is inert.
 //   [IV] Milan v1.2 Table 5.6 OBSERVATION-INTERVAL semantics ("incremented
 //        at the end of every observation interval during which ...", <= 1 s)
 //        for SEQ_NUM_MISMATCH / MEDIA_RESET / TIMESTAMP_UNCERTAIN /
@@ -36,11 +35,10 @@ static void ck(const char* t, long got, long exp){
     checks++; if(got!=exp){ fails++; printf("  [FAIL] %-46s got=%ld exp=%ld\n",t,got,exp);}
     else printf("  [ ok ] %-46s = %ld\n",t,got); }
 
-static std::vector<uint8_t> pcm;         // ring-output payload bytes
-static std::vector<int>     pcm_users;   // tuser per ring PDU (at tlast)
-static std::vector<int>     rend_users;  // render-tap PDUs (tuser at tlast)
+static std::vector<uint8_t> render;      // fabric-render payload bytes
+static std::vector<int>     rend_users;  // selected stream per render PDU
 static std::vector<int>     acc_idx;     // accept-pulse indices
-static bool pcm_last=false;
+static bool render_last=false;
 
 // Milan v1.2 Table 5.6, MEDIA_UNLOCKED: "At any time, the PAAD-AE shall
 // ensure that either MEDIA_LOCKED=MEDIA_UNLOCKED (in this case, the input
@@ -80,12 +78,14 @@ static void sample(){
     check_lock_invariant();
     for(int s=0;s<4;s++) if((dut->dirty_p_o>>s)&1) g_dirty[s]++;
     if(dut->pdu_accept_p_o) acc_idx.push_back(dut->pdu_accept_idx_o);
-    if(dut->pcm_tvalid_o && dut->pcm_tready_i){
-        for(int l=0;l<8;l++) pcm.push_back((dut->pcm_tdata_o>>(8*l))&0xFF);
-        if(dut->pcm_tlast_o){ pcm_last=true; pcm_users.push_back(dut->pcm_tuser_o); }
+    if(dut->render_tvalid_o){
+        for(int l=0;l<8;l++)
+            render.push_back((dut->render_tdata_o>>(8*l))&0xFF);
+        if(dut->render_tlast_o){
+            render_last=true;
+            rend_users.push_back((int)dut->render_sel_o);
+        }
     }
-    if(dut->render_tvalid_o && dut->pcm_tready_i && dut->render_tlast_o)
-        rend_users.push_back((int)dut->pcm_tuser_o);
 }
 static long gcyc=0;        // total clocked cycles (interval-phase tracking)
 static long rst_cyc=0;     // gcyc at reset release = interval phase origin
@@ -222,7 +222,7 @@ int main(int argc,char**argv){
 
     dut->bound0_i=0; dut->sid0_i=SID0; dut->fmt0_i=FMT;
     dut->tbl_wr_en_i=0; dut->lctx_wr_en_i=0; dut->lctx_rd_en_i=0;
-    dut->route_wr_en_i=0; dut->pcm_tready_i=1;
+    dut->route_wr_en_i=0;
     dut->ptp_now_i=0xA55AC33CUL-1000000; dut->pres_ofs_i=2000000;
     dut->clk_src_i=0; dut->servo_conv_i=0;
     dut->resetn=0; dut->s_tvalid_i=0;
@@ -326,7 +326,7 @@ int main(int argc,char**argv){
     ck("EARLY counted", dut->cnt_early_ts_o, 1);
     dut->ptp_now_i = 0xA55AC33CUL - 1000000;
     //! Milan Table 5.6 MEDIA_RESET = the received mr bit TOGGLED (a wire
-    //! event), not a local playback rail
+    //! event), not a local renderer-health rail
     { AafCfg c; c.seq=3; c.mr=true; feed(build_aaf(stim, c)); }
     flush_iv();
     ck("MEDIA_RESET counted", dut->cnt_media_reset_o, 1);
@@ -336,15 +336,16 @@ int main(int argc,char**argv){
     flush_iv();
     ck("MEDIA_RESET counts the return toggle too", dut->cnt_media_reset_o, 2);
 
-    printf("\n[T1] P1: PCM payload byte-exact with tuser = 0 (stream 0)\n");
-    pcm.clear(); pcm_users.clear(); pcm_last=false;
+    printf("\n[T1] P1: stream-0 payload reaches fabric render byte-exact\n");
+    render.clear(); rend_users.clear(); render_last=false;
     { AafCfg c; c.seq=5; feed(build_aaf(stim, c)); }
-    ck("PCM 64 bytes", (long)pcm.size(), 64);
-    ck("PCM tlast", pcm_last?1:0, 1);
-    { bool ok=pcm.size()>=64;
-      for(int i=0;i<64&&ok;i++) if(pcm[i]!=(uint8_t)(0x30+i)) ok=false;
-      ck("PCM payload byte-exact", ok?1:0, 1); }
-    ck("PCM tuser = 0", pcm_users.size()==1 ? pcm_users[0] : -1, 0);
+    ck("render payload 64 bytes", (long)render.size(), 64);
+    ck("render tlast", render_last?1:0, 1);
+    { bool ok=render.size()>=64;
+      for(int i=0;i<64&&ok;i++) if(render[i]!=(uint8_t)(0x30+i)) ok=false;
+      ck("render payload byte-exact", ok?1:0, 1); }
+    ck("render selector = stream 0",
+       rend_users.size()==1 ? rend_users[0] : -1, 0);
     ck("accept idx = 0", acc_idx.empty() ? -1 : acc_idx.back(), 0);
 
     printf("\n[I1] P2 isolation: arm stream 1 (table + LCTX FMT), s0 noise\n");
@@ -386,40 +387,36 @@ int main(int argc,char**argv){
     ck("s0 legacy ML untouched", dut->cnt_media_locked_o, s0_ml);
     ck("s1 w8 wire_chans = 8", (lctx_rd(1, 8) >> 14) & 0xFF, 8);
 
-    printf("\n[R1] P3: s1 NULL by default - monitor counts, no PCM copy\n");
-    pcm.clear(); pcm_users.clear();
+    printf("\n[R1] P3: s1 NULL by default - monitor counts, no render\n");
+    render.clear(); rend_users.clear();
     align_iv();
     { AafCfg c; c.sid=SID1; c.seq=2; feed(build_aaf(stim, c)); }
     flush_iv();
-    ck("NULL route: no ring bytes", (long)pcm.size(), 0);
+    ck("NULL route: no render bytes", (long)render.size(), 0);
     ck("NULL route: s1 LCTX FRX advanced", lctx_rd(1, W_FRX), 3);
 
-    printf("\n[R2] P3: s1 -> DMA passes tagged, render tap stays s0\n");
-    //! route field = FLAGS since the host-driver design rework: bit0 DMA, bit1
-    //! RENDER (s0 reset = 0b11 RENDER|DMA = the P3 RENDER behavior)
-    routewr(1, 1 /*DMA flag*/);
-    pcm.clear(); pcm_users.clear(); rend_users.clear();
+    printf("\n[R2] P3: reserved route bit is inert, render stays s0\n");
+    //! bit0 is a reserved-zero ABI position; bit1 is RENDER.
+    routewr(1, 1 /*reserved compatibility bit*/);
+    render.clear(); rend_users.clear();
     { AafCfg c; c.sid=SID1; c.seq=3; feed(build_aaf(stim, c)); }
     { AafCfg c; c.seq=5; feed(build_aaf(stim, c)); }        // s0 (RENDER default)
-    ck("two ring PDUs", (long)pcm_users.size(), 2);
-    ck("first ring PDU tuser = 1", pcm_users.size()>0 ? pcm_users[0] : -1, 1);
-    ck("second ring PDU tuser = 0", pcm_users.size()>1 ? pcm_users[1] : -1, 0);
-    ck("render tap saw only s0", (long)rend_users.size(), 1);
+    ck("retired bit emitted no s1 render PDU", (long)rend_users.size(), 1);
     ck("render tap PDU was s0", rend_users.size()==1 ? rend_users[0] : -1, 0);
-    ck("s1 DEPKT pdus accumulated (2 NULL + 1 NULL + 1 DMA)",
+    ck("s1 DEPKT pdus accumulated (2 initial + 1 NULL + 1 retired)",
        lctx_rd(1, 11) & 0xFFFF, 4);
 
     printf("\n[R3] P3: RENDER-lowest-wins + render switch\n");
     routewr(1, 2 /*RENDER flag*/);                // s0 and s1 both RENDER
     ck("lowest-indexed RENDER wins (sel=0)", dut->render_sel_o, 0);
-    routewr(0, 1 /*DMA only*/);                   // s0 leaves RENDER
+    routewr(0, 0 /*NULL*/);                       // s0 leaves RENDER
     ck("render_sel moves to 1", dut->render_sel_o, 1);
     rend_users.clear();
     { AafCfg c; c.sid=SID1; c.seq=4; c.chans=2; feed(build_aaf(stim, c)); }
-    { AafCfg c; c.seq=6; feed(build_aaf(stim, c)); }        // s0 now DMA-only
+    { AafCfg c; c.seq=6; feed(build_aaf(stim, c)); }        // s0 now NULL
     ck("render tap follows s1", rend_users.size()==1 && rend_users[0]==1, 1);
     ck("wire_chans follows the RENDER stream", dut->wire_chans_o, 2);
-    routewr(0, 3); routewr(1, 0);                 // restore defaults
+    routewr(0, 2); routewr(1, 0);                 // restore defaults
 
     printf("\n[E1] P1 eviction: unbind + retarget s1's table entry\n");
     //! an in-place rewrite keeps en=1 (no not-bound->bound edge, so no
@@ -654,7 +651,7 @@ int main(int argc,char**argv){
 
     printf("\n[IV7] back-to-back PDUs across EVERY interval-drain phase: the\n"
            "      commit verdict must beat each frame's tlast (walker yield;\n"
-           "      hostplane ax8x8 lost 1 of 2 b2b ring frames without it)\n");
+           "      the 8x8 stress case lost 1 of 2 accepted frames without it)\n");
     {
         // stream 3 (fresh): bind, set FMT, lock + drain settle
         static const uint64_t SID3 = 0x020000FFFE040000ULL;

@@ -8,10 +8,8 @@
 //      — this is migration deliverable M-A2 ("CPU reaches the CSR plane").
 //   2. Program the classifier over the CSR (identity PCP->queue) — proves the
 //      CSR -> datapath config wiring.
-//   3. TX: push a VLAN frame into the TX DMA port -> collect on the MAC-facing TX
-//      port; byte-exact through classifier -> CBS -> PTP -> ADP arbiter.
-//   4. RX: push a frame into the MAC-facing RX port -> collect on the RX DMA port;
-//      byte-exact through PTP-RX -> dest-MAC filter (default-pass).
+//   3. Drive the MAC ingress and observe retained protocol/media consumers.
+//   4. Observe fabric-generated protocol/media traffic at the MAC egress.
 //
 // gtx_clk is tied to axis_clk (single clock) — the PTP CDC works identically.
 
@@ -30,7 +28,6 @@
 #include <vector>
 #include <array>
 #include <cstdint>
-#include <functional>
 
 // ---------------------------------------------------------------------------
 // THE ELABORATED SHAPE, stated ONCE per leg by the Makefile.
@@ -62,10 +59,6 @@
 #ifndef AIF_I2S_PAIR_TB
 #define AIF_I2S_PAIR_TB 0       // milan_datapath AUDIO_IF_I2S_PAIR_P default
 #endif
-#ifndef SOUND_CARD_TB
-#define SOUND_CARD_TB 1          // historical legs exercise the host PCM ring
-#endif
-
 //! Is the TONE_CTRL pilot override wired into the CAPTURE FRONT END on this
 //! build? It is an I2S-bench feature and lives in KL_aaf_capture_i2s alone:
 //! the two TDM front-ends (KL_tdm_capture, KL_tdm_capture_master) have no
@@ -183,37 +176,12 @@ static std::vector<uint64_t> vlan_frame(int pcp, uint8_t marker, uint16_t ethert
     return beats;
 }
 
-// ---- push a frame into an AXIS slave port, collect from an AXIS master port ----
-// Templated on the port accessors via lambdas would be neat, but keep it explicit.
 struct Res { std::vector<uint64_t> data; bool got = false; };
 
-// TX: s_axis_tx_* in -> m_axis_mac_tx_* out
-static Res run_tx(const std::vector<uint64_t>& beats, int cycles) {
-    Res r; size_t idx = 0;
-    dut->m_axis_mac_tx_tready = 1;
-    for (int c = 0; c < cycles; c++) {
-        if (idx < beats.size()) {
-            dut->s_axis_tx_tdata = beats[idx];
-            dut->s_axis_tx_tkeep = 0xFF;
-            dut->s_axis_tx_tvalid = 1;
-            dut->s_axis_tx_tlast = (idx == beats.size()-1);
-        } else {
-            dut->s_axis_tx_tvalid = 0; dut->s_axis_tx_tlast = 0;
-        }
-        step();
-        if (dut->s_axis_tx_tvalid && dut->s_axis_tx_tready) idx++;
-        if (dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready) {
-            r.data.push_back(dut->m_axis_mac_tx_tdata); r.got = true;
-        }
-    }
-    dut->s_axis_tx_tvalid = 0;
-    return r;
-}
-
-// RX: s_axis_mac_rx_* in -> m_axis_rx_* out
-static Res run_rx(const std::vector<uint64_t>& beats, int cycles) {
-    Res r; size_t idx = 0;
-    dut->m_axis_rx_tready = 1;
+// Drive a frame into the retained MAC ingress; callers observe fabric counters
+// or protocol responses.
+static size_t run_mac_rx(const std::vector<uint64_t>& beats, int cycles) {
+    size_t idx = 0;
     for (int c = 0; c < cycles; c++) {
         if (idx < beats.size()) {
             dut->s_axis_mac_rx_tdata = beats[idx];
@@ -223,36 +191,25 @@ static Res run_rx(const std::vector<uint64_t>& beats, int cycles) {
         } else {
             dut->s_axis_mac_rx_tvalid = 0; dut->s_axis_mac_rx_tlast = 0;
         }
-        // pre-edge sampling: read what this edge commits (post-edge reads
-        // miss single-cycle final beats and catch upstream re-presents)
         lo();
         bool in_acc = dut->s_axis_mac_rx_tvalid && dut->s_axis_mac_rx_tready;
-        bool out_acc = dut->m_axis_rx_tvalid && dut->m_axis_rx_tready;
-        uint64_t out_d = dut->m_axis_rx_tdata;
         hi();
         if (in_acc) idx++;
-        if (out_acc) { r.data.push_back(out_d); r.got = true; }
     }
     dut->s_axis_mac_rx_tvalid = 0;
-    return r;
+    return idx;
 }
 
 static void do_reset() {
     dut->axis_resetn = 0; dut->gtx_resetn = 0;
     dut->s_axi_awvalid = dut->s_axi_wvalid = dut->s_axi_arvalid = 0;
     dut->s_axi_bready = dut->s_axi_rready = 0;
-    dut->s_axis_tx_tvalid = 0; dut->s_axis_mac_rx_tvalid = 0;
-    dut->m_axis_mac_tx_tready = 0; dut->m_axis_rx_tready = 0; dut->m_axis_ts_tready = 1;
+    dut->s_axis_mac_rx_tvalid = 0;
+    dut->m_axis_mac_tx_tready = 0;
     dut->i_mac_speed = 2; dut->i_link_up = 1; dut->i_full_duplex = 1; dut->i_mac_events = 0;
     for (int i = 0; i < 8; i++) step();
     dut->axis_resetn = 1; dut->gtx_resetn = 1;
     for (int i = 0; i < 8; i++) step();
-}
-
-static bool frames_equal(const std::vector<uint64_t>& a, const std::vector<uint64_t>& b) {
-    if (a.size() != b.size()) return false;
-    for (size_t i = 0; i < a.size(); i++) if (a[i] != b[i]) return false;
-    return true;
 }
 
 int main(int argc, char** argv) {
@@ -265,7 +222,7 @@ int main(int argc, char** argv) {
     // --- 1. CSR identity over AXI4-Lite (M-A2) ---
     printf("[CSR] identity + reset values\n");
     ck("ID == 'MILN'",  axi_read(A_ID),      0x4D494C4E);
-    ck("VERSION",       axi_read(A_VERSION), 0x00020055);
+    ck("VERSION",       axi_read(A_VERSION), 0x00020056);
     // link guard: TB leaves the eth toggles static -> unarmed = inert
     // (alive/alive, RUN, no reinit) exactly like a no-PHY top
     ck("LINKG unarmed", axi_read(0x774), 0x00000003);
@@ -305,22 +262,6 @@ int main(int argc, char** argv) {
     ck("CLS_REGEN readback", axi_read(A_CLS_REGEN), 0x00FAC688);
     ck("CLS_TCQ   readback", axi_read(A_CLS_TCQ),   0x000000E4);
 
-    // --- 3. TX datapath: DMA -> shaper -> PTP -> arbiter -> MAC ---
-    // PCP=3 -> queue 3, which is strict-priority (unshaped) at reset, so no CBS
-    // credit gating; proves the full TX assembly forwards byte-exact.
-    printf("[TX] frame DMA-port -> MAC-port (PCP=3, unshaped queue)\n");
-    auto txf = vlan_frame(/*pcp=*/3, /*marker=*/0x5A);
-    Res tx = run_tx(txf, 400);
-    ck("TX frame emerged on MAC port", tx.got ? 1 : 0, 1);
-    ck("TX byte-exact (8 beats)", frames_equal(tx.data, txf) ? 1 : 0, 1);
-
-    // --- 4. RX datapath: MAC -> PTP-RX -> dest-MAC filter (default-pass) -> DMA ---
-    printf("[RX] frame MAC-port -> DMA-port (TCAM default-pass)\n");
-    auto rxf = vlan_frame(/*pcp=*/1, /*marker=*/0xA5, /*ethertype=*/0x0806);
-    Res rx = run_rx(rxf, 400);
-    ck("RX frame emerged on DMA port", rx.got ? 1 : 0, 1);
-    ck("RX byte-exact (8 beats)", frames_equal(rx.data, rxf) ? 1 : 0, 1);
-
     // --- 5. ADP: THE ADVERTISER IS THE PROCESSOR'S NOW ---------------------
     //
     // WHAT THIS SECTION USED TO BE, AND WHY IT IS NOT THAT ANY MORE.
@@ -351,7 +292,7 @@ int main(int argc, char** argv) {
     printf("[ADP] served by the protocol processor; diag words are structural zeros\n");
     enum { A_ADP_CTRL = 0x600, A_ADP_EIDLO = 0x604, A_ADP_EIDHI = 0x608,
            A_ADP_STATUS = 0x644, A_MAC_ALO = 0x108, A_MAC_AHI = 0x10C };
-    // station MAC exactly as kl-eth programs it (platform LSB-first packing:
+    // station MAC in the platform's LSB-first CSR packing:
     // ALO/AHI hold 02:00:00:00:00:01 with [7:0] = first wire byte). This is
     // also the sid root every AAF/CRF framer and the processor's own
     // cfg_stream_id_i derive from, so it is load-bearing well past ADP.
@@ -449,7 +390,7 @@ int main(int argc, char** argv) {
     }
 
     // --- 6b. ACMP GET_TX_STATE through the full datapath ---
-    // The responder taps rx_axis_to_dma (little lane, like silicon); inject a
+    // The responder taps rx_axis_fabric (little lane, like silicon); inject a
     // 70-byte GET_TX_STATE_COMMAND for our entity on the MAC RX port and
     // expect the GET_TX_STATE_RESPONSE (SUCCESS, count=0) on the MAC TX port.
     printf("[ACMP] GET_TX_STATE -> RESPONSE through datapath\n");
@@ -476,7 +417,7 @@ int main(int argc, char** argv) {
         // inject and capture in ONE loop: the response can egress within a
         // few cycles of tlast, before a separate capture loop would start
         Res ac; size_t idx = 0;
-        dut->m_axis_rx_tready = 1; dut->m_axis_mac_tx_tready = 1;
+        dut->m_axis_mac_tx_tready = 1;
         for (int c = 0; c < 800; c++) {
             if (idx < beats.size()) {
                 dut->s_axis_mac_rx_tdata  = beats[idx];
@@ -533,149 +474,38 @@ int main(int argc, char** argv) {
     printf("[IRQ] o_irq_csr is driven\n");
     ck("o_irq_csr defined (0/1)", (dut->o_irq_csr <= 1) ? 1 : 0, 1);
 
-    // --- 7. PTP ts record end-to-end through the REAL ingress (phase B) ---
-    // A 0x88F7 frame at s_axis_mac_rx must yield one 2-beat metadata record on
-    // m_axis_ts: {ns; {seq<<8 | dir}}. This is the check that would have caught
-    // the BIG_ENDIAN(0)/F788 instantiation (extracted src-MAC bytes under the
-    // BE-lane convention -> zero records on silicon while the unit TB agreed
-    // with the wrong pair by driving LE lanes).
+    // --- 7. PTP clock control remains fabric-owned -----------------------
+    // Exercise PHC rate and one-shot offset on the retained CSR path; timestamp
+    // records are consumed inside the fabric boundary.
     {
-        printf("[PTP-TS] gPTP RX -> metadata record\n");
+        printf("[PTP] retained PHC CSR control\n");
         enum { A_PTP_CTRL = 0x500, A_PTP_INCR = 0x504, A_PTP_ADJ = 0x508,
                A_PTP_OFLO = 0x518, A_PTP_OFHI = 0x51C, A_PTP_CMD2 = 0x520,
                A_PTP_TRLO = 0x530, A_PTP_TRHI = 0x534 };
-        axi_write(A_PTP_INCR, 20u << 24);       // 20 ns/tick Q8.24
+        axi_write(A_PTP_INCR, 20u << 24);
         axi_write(A_PTP_CTRL, 1);
-
-        // [GPTP-OPT] the CSR keeps the PHC knobs while the plane option
-        // is OFF: a polarity-swapped eff_* mux (the plane's zeros taking
-        // the wires) would leave adjfine and adjtime silently dead on
-        // silicon -- this block is that regression's tripwire.
-        {
-            printf("[GPTP-OPT] CSR adjfine/adjtime own the counter with the option off\n");
-            auto snap = [&]() -> uint64_t {
-                axi_write(A_PTP_CMD2, 0x4);
-                for (int i = 0; i < 6; i++) step();
-                return ((uint64_t)axi_read(A_PTP_TRHI) << 32)
-                     | axi_read(A_PTP_TRLO);
-            };
-            uint64_t t0 = snap();
-            for (int i = 0; i < 1000; i++) step();
-            uint64_t d_base = snap() - t0;      // ~1000 ticks at 20 ns
-            axi_write(A_PTP_ADJ, 10u << 24);    // adjfine: +10 ns/tick
-            uint64_t t2 = snap();
-            for (int i = 0; i < 1000; i++) step();
-            uint64_t d_adj = snap() - t2;       // ~1000 ticks at 30 ns
-            // the adjusted window must run ~1.5x the base one
-            ck("[GPTP-OPT] adjfine owns the rate",
-               (d_adj > d_base + (d_base >> 2)) && (d_adj < 2 * d_base), 1);
-            uint64_t t4 = snap();
-            axi_write(A_PTP_OFLO, 100000);      // adjtime: one +100 us hop
-            axi_write(A_PTP_OFHI, 0);
-            axi_write(A_PTP_CMD2, 0x2);
-            uint64_t t5 = snap();
-            ck("[GPTP-OPT] adjtime hops the counter",
-               (t5 - t4 > 100000) && (t5 - t4 < 103000), 1);
-            axi_write(A_PTP_ADJ, 0);            // rate restored for the rest
-        }
-        uint8_t g[68]; memset(g, 0, sizeof g);
-        const uint8_t gh[14] = {0x01,0x80,0xC2,0,0,0x0E, 2,0,0,0,0,2, 0x88,0xF7};
-        memcpy(g, gh, 14);
-        g[14] = 0x12; g[15] = 0x02; g[17] = 54;  // pdelay_req, v2, len 54
-        g[44] = 0xBE; g[45] = 0xEF;              // sequenceId
-        std::vector<uint64_t> gb;
-        for (int bt = 0; bt < 9; bt++) {
-            uint64_t v = 0;
-            for (int j = 0; j < 8 && bt*8+j < 68; j++)
-                v |= (uint64_t)g[bt*8+j] << (8*j);   // LE lanes = the real ingress
-            gb.push_back(v);
-        }
-        std::vector<uint64_t> ts;
-        size_t idx = 0;
-        dut->m_axis_ts_tready = 1;
-        for (int c = 0; c < 600; c++) {
-            if (idx < gb.size()) {
-                dut->s_axis_mac_rx_tdata = gb[idx];
-                dut->s_axis_mac_rx_tkeep = (idx == gb.size()-1) ? 0x0F : 0xFF;
-                dut->s_axis_mac_rx_tvalid = 1;
-                dut->s_axis_mac_rx_tlast = (idx == gb.size()-1);
-            } else {
-                dut->s_axis_mac_rx_tvalid = 0; dut->s_axis_mac_rx_tlast = 0;
-            }
-            lo();
-            bool adv = dut->s_axis_mac_rx_tvalid && dut->s_axis_mac_rx_tready;
-            bool tsx = dut->m_axis_ts_tvalid && dut->m_axis_ts_tready;
-            uint64_t td = dut->m_axis_ts_tdata;
-            hi();
-            if (adv) idx++;
-            if (tsx) ts.push_back(td);
-        }
-        dut->s_axis_mac_rx_tvalid = 0;
-        ck("ts record emitted (2 beats)", ts.size(), 2);
-        if (ts.size() == 2) {
-            ck("ts word0 (ns) nonzero", ts[0] != 0 ? 1 : 0, 1);
-            ck("ts word1 dir=RX",       (unsigned long)(ts[1] & 1), 0);
-            ck("ts word1 mtype=2 (pdelay_req)", (unsigned long)((ts[1] >> 4) & 0xF), 2);
-            ck("ts word1 seq=0xBEEF",   (unsigned long)((ts[1] >> 8) & 0xFFFF), 0xBEEFUL);
-        }
-        // interference variant: same event frame at LINE RATE between two
-        // full-rate IPv4 floods + one general gPTP (Follow_Up, must NOT
-        // record). Exactly one more record, correct meta.
-        uint64_t ts1 = ts.size() == 2 ? ts[0] : 0;
-        ts.clear();
-        {
-            auto flood = vlan_frame(/*pcp=*/1, /*marker=*/0x77);
-            std::vector<uint64_t> mix;
-            for (int r = 0; r < 3; r++) mix.insert(mix.end(), flood.begin(), flood.end());
-            g[14] = 0x18;                          // majorSdoId 1 | Follow_Up(8): general
-            g[44] = 0xDE; g[45] = 0xAD;
-            for (int bt = 0; bt < 9; bt++) {
-                uint64_t v = 0;
-                for (int j = 0; j < 8 && bt*8+j < 68; j++)
-                    v |= (uint64_t)g[bt*8+j] << (8*j);
-                mix.push_back(v);
-            }
-            g[14] = 0x12;                          // pdelay_req again: event
-            g[44] = 0xCA; g[45] = 0xFE;
-            for (int bt = 0; bt < 9; bt++) {
-                uint64_t v = 0;
-                for (int j = 0; j < 8 && bt*8+j < 68; j++)
-                    v |= (uint64_t)g[bt*8+j] << (8*j);
-                mix.push_back(v);
-            }
-            for (int r = 0; r < 3; r++) mix.insert(mix.end(), flood.begin(), flood.end());
-            // beat boundaries: flood frames are 8 beats, gptp 9 beats
-            std::vector<int> lens = {8,8,8, 9, 9, 8,8,8};
-            size_t idx = 0; int fi = 0, fb = 0;
-            for (int c = 0; c < 1200 && idx < mix.size(); c++) {
-                dut->s_axis_mac_rx_tdata = mix[idx];
-                dut->s_axis_mac_rx_tkeep = (fi >= 3 && fi <= 4 && fb == 8) ? 0x0F : 0xFF;
-                dut->s_axis_mac_rx_tvalid = 1;
-                dut->s_axis_mac_rx_tlast = (fb == lens[fi] - 1);
-                lo();
-                bool adv = dut->s_axis_mac_rx_tready;
-                bool tsx = dut->m_axis_ts_tvalid && dut->m_axis_ts_tready;
-                uint64_t td = dut->m_axis_ts_tdata;
-                hi();
-                if (adv) { idx++; if (++fb == lens[fi]) { fb = 0; fi++; } }
-                if (tsx) ts.push_back(td);
-            }
-            dut->s_axis_mac_rx_tvalid = 0;
-            for (int c = 0; c < 300; c++) {
-                lo();
-                bool tsx = dut->m_axis_ts_tvalid && dut->m_axis_ts_tready;
-                uint64_t td = dut->m_axis_ts_tdata;
-                hi();
-                if (tsx) ts.push_back(td);
-            }
-            ck("interference: exactly one record", ts.size(), 2);
-            if (ts.size() == 2) {
-                ck("interference: ns advanced", ts[0] > ts1 ? 1 : 0, 1);
-                ck("interference: mtype=2 seq=0xCAFE",
-                   (unsigned long)(((ts[1] >> 4) & 0xF) | (((ts[1] >> 8) & 0xFFFF) << 4)),
-                   (unsigned long)(2 | (0xCAFEUL << 4)));
-            }
-        }
+        auto snap = [&]() -> uint64_t {
+            axi_write(A_PTP_CMD2, 0x4);
+            for (int i = 0; i < 6; i++) step();
+            return ((uint64_t)axi_read(A_PTP_TRHI) << 32) | axi_read(A_PTP_TRLO);
+        };
+        uint64_t t0 = snap();
+        for (int i = 0; i < 1000; i++) step();
+        uint64_t d_base = snap() - t0;
+        axi_write(A_PTP_ADJ, 10u << 24);
+        uint64_t t2 = snap();
+        for (int i = 0; i < 1000; i++) step();
+        uint64_t d_adj = snap() - t2;
+        ck("PHC adjfine owns the rate",
+           (d_adj > d_base + (d_base >> 2)) && (d_adj < 2 * d_base), 1);
+        uint64_t t4 = snap();
+        axi_write(A_PTP_OFLO, 100000);
+        axi_write(A_PTP_OFHI, 0);
+        axi_write(A_PTP_CMD2, 0x2);
+        uint64_t t5 = snap();
+        ck("PHC adjtime hops the counter",
+           (t5 - t4 > 100000) && (t5 - t4 < 103000), 1);
+        axi_write(A_PTP_ADJ, 0);
     }
 
     // --- 8. DELETED 2026-08-13: the ADP depart witness + enable-toggle
@@ -998,30 +828,21 @@ int main(int argc, char** argv) {
         }
 
         // ------------------------------------------------------------------
-        // [CLKV] the 2026-07-27 defect, end to end: CSR -> wire byte 21.
+        // [CLKV] #116 ownerless option-off mode, end to end: retained CSR
+        // writes -> selected publication faces -> AVTP tu on the wire.
         //
-        // On 2026-07-27 this datapath streamed at full rate from a PHC 60 h
-        // out of the gPTP domain while stamping tu = 0 on every frame, so the
-        // receiving Milan device counted 99.4 % of them LATE or EARLY with no
-        // way to know why (docs/findings/REF_LISTENER_TIMESTAMP_SWEEP_0727.md).
-        //
-        // The requirement is NOT to stop: Milan v1.2 5.3.7.3 excludes stopping
-        // a Stream Output ("STREAMING_WAIT shall not be implemented"), and
-        // IEEE 1722-2016 7.5 makes tv = 1 mandatory for AAF at sp = 0. The
-        // lever the standard gives us is the tu bit (Milan 4.3.5.2 -> IEEE
-        // 1722-2016 4.4.4.7). So: frames keep flowing, byte 21 bit 0 tells
-        // the truth, and NOTHING claims validity until software leases it.
-        //
-        // Mutation anchor: revert the RTL to a hard fb[21]=8'h00 and the very
-        // first check here fails, because a fresh datapath has no lease.
+        // Frames keep flowing (Milan v1.2 5.3.7.3) and tv remains one, but
+        // without a fabric gPTP engine no software write may make timestamps
+        // certain, claim asCapable, or publish identity/path/delay state.
         // ------------------------------------------------------------------
         {
-            printf("[CLKV] clock validity -> AVTP tu on the wire (0x778)\n");
+            printf("[CLKV] option-off is permanently ownerless (#116)\n");
             enum { A_CLKV_CTRL = 0x778, A_CLKV_STAT = 0x77C,
                    A_CLKV_TUCNT = 0x780, A_PTP_CMD = 0x520,
-                   A_ADP_GMLO = 0x624, A_ADP_GMHI = 0x628 };
+                   A_ADP_GMLO = 0x624, A_ADP_GMHI = 0x628,
+                   A_ADP_DOMAIN = 0x62C, A_GPTP_PDELAY = 0x6E4,
+                   A_AS2_LO = 0x730, A_AS2_HI = 0x734 };
 
-            // grab the next AAF frame off the MAC TX port
             auto next_aaf = [&](std::vector<uint8_t>& out) -> bool {
                 std::vector<uint8_t> fr;
                 dut->m_axis_mac_tx_tready = 1;
@@ -1033,57 +854,10 @@ int main(int argc, char** argv) {
                                 fr.push_back((dut->m_axis_mac_tx_tdata >> (8*l)) & 0xFF);
                         if (dut->m_axis_mac_tx_tlast) {
                             if (fr.size() >= 42 && fr[12] == 0x81 && fr[16] == 0x22 &&
-                                fr[17] == 0xF0 && fr[18] == 0x02) { out = fr; return true; }
-                            fr.clear();
-                        }
-                    }
-                }
-                return false;
-            };
-
-            // Grab the next AAF frame with a DISCONTINUITY HELD UP over the
-            // packetizer's epoch grant.
-            //
-            // KL_aaf_packetizer latches tu ONCE, at the grant, and says why:
-            // "the holdover (0.25 s) dwarfs the 125 us frame period, so no
-            // arming edge can slip between the two points". That is true on
-            // silicon and it is NOT true here, because this harness builds
-            // with -GCLKV_QTICK_CYC_P=4096 so that a lease can expire inside
-            // a simulation at all. Two quarter-ticks of holdover is then
-            // 8192 cycles, and the AAF frame period is 3069 cycles on the
-            // Arty shape (the I2S front end paces the talker) but 12497 on
-            // the AX7101 one (the media tick does). So the stereo shape
-            // catches the next grant inside the holdover with room to spare
-            // and the eight-channel shape misses it by 4000 cycles - a
-            // property of the compressed time base, not of the tu path,
-            // which still asserts in CLKV_STAT either way. Holding the
-            // discontinuity across the wait restores the silicon relation:
-            // the frame is provably composed while the clock IS uncertain.
-            // Mutation anchor unchanged - tie fb[21] to 0 in the RTL and this
-            // runs its full budget and fails.
-            auto next_aaf_held = [&](std::vector<uint8_t>& out,
-                                     const std::function<void()>& rearm) -> bool {
-                std::vector<uint8_t> fr;
-                long armed_at = g_step;
-                dut->m_axis_mac_tx_tready = 1;
-                for (int c = 0; c < 400000; c++) {
-                    // re-arm BETWEEN frames only, with the TX port held off,
-                    // so the AXI transaction's own clocking cannot eat beats
-                    // out of the middle of the frame being collected
-                    if (fr.empty() && (g_step - armed_at) > 2048) {
-                        dut->m_axis_mac_tx_tready = 0;
-                        rearm();
-                        dut->m_axis_mac_tx_tready = 1;
-                        armed_at = g_step;
-                    }
-                    step();
-                    if (dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready) {
-                        for (int l = 0; l < 8; l++)
-                            if ((dut->m_axis_mac_tx_tkeep >> l) & 1)
-                                fr.push_back((dut->m_axis_mac_tx_tdata >> (8*l)) & 0xFF);
-                        if (dut->m_axis_mac_tx_tlast) {
-                            if (fr.size() >= 42 && fr[12] == 0x81 && fr[16] == 0x22 &&
-                                fr[17] == 0xF0 && fr[18] == 0x02) { out = fr; return true; }
+                                fr[17] == 0xF0 && fr[18] == 0x02) {
+                                out = fr;
+                                return true;
+                            }
                             fr.clear();
                         }
                     }
@@ -1092,146 +866,100 @@ int main(int argc, char** argv) {
             };
 
             std::vector<uint8_t> f;
-            ck("CLKV: reset CLKV_CTRL = lease 8, SYNC_OK 0",
-               axi_read(A_CLKV_CTRL), 0x00000080);
-            ck("CLKV: reset STAT[0] tu = 1 (unknown clock is NOT valid)",
-               axi_read(A_CLKV_STAT) & 1, 1);
-            ck("CLKV: reset STAT[1] sync_ok = 0",
-               (axi_read(A_CLKV_STAT) >> 1) & 1, 0);
+            ck("CLKV: retained CTRL resets zero", axi_read(A_CLKV_CTRL), 0);
+            uint32_t stat = axi_read(A_CLKV_STAT);
+            ck("CLKV: reset tu = 1", stat & 1, 1);
+            ck("CLKV: reset sync_ok = 0", (stat >> 1) & 1, 0);
+            ck("CLKV: retired no-lease bit = 0", (stat >> 2) & 1, 0);
+            ck("CLKV: retired lease count = 0", (stat >> 4) & 0xFFF, 0);
+            ck("CLKV: reset asCapable = 0", (stat >> 16) & 1, 0);
 
-            ck("CLKV: unsynchronised -> a frame is STILL emitted", next_aaf(f), 1);
-            ck("CLKV: unsynchronised -> byte 21 bit 0 = 1", f.size() ? f[21] : 0xEE, 0x01);
-            ck("CLKV: unsynchronised -> tv still 1 (1722-2016 7.5)",
+            ck("CLKV: ownerless frame is still emitted", next_aaf(f), 1);
+            ck("CLKV: ownerless frame carries tu=1",
+               f.size() ? f[21] & 1 : 0xEE, 1);
+            ck("CLKV: ownerless frame keeps tv=1",
                f.size() ? f[19] : 0, 0x81);
-            // 14 Ethernet + 4 C-TAG + 24 AVTP + 24 octets per wire channel:
-            // 90 on the Arty stereo shape, 234 on the AX7101 eight-channel
-            // one. The literal 90 was the whole reason the shipping shape
-            // could not run here.
-            ck("CLKV: unsynchronised -> frame still the full AAF PDU",
+            ck("CLKV: frame remains the full AAF PDU",
                (long)f.size(), (long)AAF_BYTES);
 
-            // software leases the sync claim -> tu clears
-            axi_write(A_CLKV_CTRL, 0x00000FF1);      // SYNC_OK, long lease
-            ck("CLKV: leased -> STAT[1] sync_ok", (axi_read(A_CLKV_STAT) >> 1) & 1, 1);
-            ck("CLKV: leased -> STAT[0] tu clears", axi_read(A_CLKV_STAT) & 1, 0);
+            // Exercise every historical control bit, including sync,
+            // discontinuity, asCapable, and the maximum watchdog.
+            axi_write(A_CLKV_CTRL, 0x0000FFF7u);
+            ck("CLKV: all owner-control bits read back zero",
+               axi_read(A_CLKV_CTRL), 0);
+            stat = axi_read(A_CLKV_STAT);
+            ck("CLKV: write cannot clear tu", stat & 1, 1);
+            ck("CLKV: write cannot assert sync", (stat >> 1) & 1, 0);
+            ck("CLKV: write cannot assert asCapable", (stat >> 16) & 1, 0);
+            ck("CLKV: write cannot create a lease", (stat >> 4) & 0xFFF, 0);
+            ck("CLKV: software discontinuity is inert", (stat >> 3) & 1, 0);
             f.clear();
-            ck("CLKV: leased -> frame emitted", next_aaf(f), 1);
-            ck("CLKV: leased -> byte 21 = 0", f.size() ? f[21] : 0xEE, 0x00);
+            ck("CLKV: frame after owner write is emitted", next_aaf(f), 1);
+            ck("CLKV: owner write cannot clear wire tu",
+               f.size() ? f[21] & 1 : 0xEE, 1);
 
-            // a PHC settime IS a gPTP discontinuity - no software help needed
+            // Retained identity/domain/delay/parent CSRs are equally inert.
+            axi_write(A_ADP_GMLO, 0xDEADBEEFu);
+            axi_write(A_ADP_GMHI, 0x01234567u);
+            axi_write(A_ADP_DOMAIN, 5);
+            axi_write(A_GPTP_PDELAY, 0x00021F6Au);
+            axi_write(A_AS2_LO, 0xCCDDEEFFu);
+            axi_write(A_AS2_HI, 0x8899AABBu);
+            ck("CLKV: GM LO write reads zero", axi_read(A_ADP_GMLO), 0);
+            ck("CLKV: GM HI write reads zero", axi_read(A_ADP_GMHI), 0);
+            ck("CLKV: domain write reads zero", axi_read(A_ADP_DOMAIN), 0);
+            ck("CLKV: pdelay write reads zero", axi_read(A_GPTP_PDELAY), 0);
+            ck("CLKV: parent LO write reads zero", axi_read(A_AS2_LO), 0);
+            ck("CLKV: parent HI write reads zero", axi_read(A_AS2_HI), 0);
+            ck("CLKV: publication writes cannot assert GM holdover",
+               (axi_read(A_CLKV_STAT) >> 3) & 1, 0);
+            ck("CLKV: publication writes cannot clear tu",
+               axi_read(A_CLKV_STAT) & 1, 1);
+
+            // A fabric-observed PHC step still arms the diagnostic holdover,
+            // but ownerless tu is one before, during, and after that hold.
             axi_write(A_PTP_CMD, 0x1);
-            ck("CLKV: settime -> STAT[3] holdover", (axi_read(A_CLKV_STAT) >> 3) & 1, 1);
-            f.clear();
-            // ...and every frame composed while the PHC is being stepped
-            // carries tu on the wire
-            ck("CLKV: settime -> frame emitted",
-               next_aaf_held(f, [&]{ axi_write(A_PTP_CMD, 0x1); }), 1);
-            ck("CLKV: settime -> byte 21 bit 0 = 1", f.size() ? f[21] : 0xEE, 0x01);
-
-            // ... and it lapses on its own (Milan Annex B.1.1 holdover)
-            for (int c = 0; c < 12000 && (axi_read(A_CLKV_STAT) & 1); c++) step();
-            ck("CLKV: holdover ends by itself", axi_read(A_CLKV_STAT) & 1, 0);
-            f.clear();
-            ck("CLKV: post-holdover frame emitted", next_aaf(f), 1);
-            ck("CLKV: post-holdover byte 21 = 0", f.size() ? f[21] : 0xEE, 0x00);
-
-            // a grandmaster change (Milan v1.2 Annex B.1.1). The GM id is an
-            // ATOMIC pair since 2026-08-02: a lone LO write only STAGES, the
-            // HI write commits both halves (gptp2csr.sh's LO-then-HI order)
-            // — so publish it the way the daemon does.
-            axi_write(A_ADP_GMLO, 0xDEADBEEF);
-            ck("CLKV: staged LO alone is NOT a GM change (torn-latch fix)",
-               axi_read(A_CLKV_STAT) & 1, 0);
-            axi_write(A_ADP_GMHI, 0x00000000);       // commit the pair
-            ck("CLKV: GM change -> tu asserts", axi_read(A_CLKV_STAT) & 1, 1);
-            f.clear();
-            {
-                // ...and a grandmaster that KEEPS changing keeps tu on the
-                // wire. Each re-arm publishes a genuinely different identity
-                // in the daemon's LO-then-HI order - re-writing the same one
-                // is not a change and would not re-arm anything.
-                uint32_t gm_lo = 0xDEADBEEF;
-                ck("CLKV: GM change -> byte 21 bit 0 = 1 on the wire",
-                   next_aaf_held(f, [&]{
-                       gm_lo ^= 1u;
-                       axi_write(A_ADP_GMLO, gm_lo);
-                       axi_write(A_ADP_GMHI, 0x00000000);
-                   }) ? f[21] : 0xEE, 0x01);
-            }
-            for (int c = 0; c < 12000 && (axi_read(A_CLKV_STAT) & 1); c++) step();
-            axi_write(A_ADP_GMLO, 0x00000000);       // restore (paired)
-            axi_write(A_ADP_GMHI, 0x00000000);
-            for (int c = 0; c < 12000 && (axi_read(A_CLKV_STAT) & 1); c++) step();
-
-            // the lease EXPIRES: a claim written once and never renewed must
-            // lapse. This is what the Arty's 60-hour drift looked like.
-            axi_write(A_CLKV_CTRL, 0x00000011);      // SYNC_OK, lease = 1
-            ck("CLKV: short lease -> tu clear", axi_read(A_CLKV_STAT) & 1, 0);
-            for (int c = 0; c < 12000 && !(axi_read(A_CLKV_STAT) & 1); c++) step();
-            ck("CLKV: lease lapses -> tu re-asserts", axi_read(A_CLKV_STAT) & 1, 1);
-            ck("CLKV: lapsed -> sync_ok dropped", (axi_read(A_CLKV_STAT) >> 1) & 1, 0);
-            f.clear();
-            ck("CLKV: lapsed -> byte 21 bit 0 = 1", next_aaf(f) ? f[21] : 0xEE, 0x01);
-            ck("CLKV: TUCNT moved (not a decorative counter)",
-               axi_read(A_CLKV_TUCNT) > 0, 1);
-
-            // ---- gh #64 J3: asCapable rides the SAME lease, end to end.
-            // The path proved here is CSR write -> o_clkv_as_cap ->
-            // KL_ptp_clock_validity's leased register -> CLKV_STAT[16], the
-            // same bit the AECP builder serves as GET_AVB_INFO's AS_CAPABLE
-            // flag. The old consumer read "a nonzero propagation delay was
-            // once written" (0x6E4), which no lease can ever retire.
-            ck("CLKV: asCapable is 0 while nobody claims it",
-               (axi_read(A_CLKV_STAT) >> 16) & 1, 0);
-            axi_write(A_CLKV_CTRL, 0x00000FF5);      // SYNC_OK|AS_CAP, lease
-            ck("CLKV: CLKV_CTRL[2] readable", (axi_read(A_CLKV_CTRL) >> 2) & 1, 1);
-            ck("CLKV: asCapable claimed -> STAT[16]",
-               (axi_read(A_CLKV_STAT) >> 16) & 1, 1);
-            ck("CLKV: the claim did not disturb tu", axi_read(A_CLKV_STAT) & 1, 0);
-            // the deadman: a lease nobody renews takes asCapable with it
-            axi_write(A_CLKV_CTRL, 0x00000015);      // SYNC_OK|AS_CAP, lease 1
-            for (int c = 0; c < 12000 && ((axi_read(A_CLKV_STAT) >> 16) & 1); c++)
+            ck("CLKV: PHC step arms holdover",
+               (axi_read(A_CLKV_STAT) >> 3) & 1, 1);
+            ck("CLKV: PHC step keeps tu asserted",
+               axi_read(A_CLKV_STAT) & 1, 1);
+            for (int c = 0; c < 12000 &&
+                 ((axi_read(A_CLKV_STAT) >> 3) & 1); ++c)
                 step();
-            ck("CLKV: lease lapses -> asCapable falls",
-               (axi_read(A_CLKV_STAT) >> 16) & 1, 0);
-            ck("CLKV: ...in the SAME branch as sync_ok",
-               (axi_read(A_CLKV_STAT) >> 1) & 1, 0);
+            ck("CLKV: holdover expires", (axi_read(A_CLKV_STAT) >> 3) & 1, 0);
+            ck("CLKV: ownerless tu remains asserted after holdover",
+               axi_read(A_CLKV_STAT) & 1, 1);
 
-            axi_write(A_CLKV_CTRL, 0x00000FF5);      // synchronised + capable
+            for (int c = 0; c < 20000; ++c) step();
+            ck("CLKV: TUCNT advances for permanent uncertainty",
+               axi_read(A_CLKV_TUCNT) > 0, 1);
+            f.clear();
+            ck("CLKV: post-holdover frame is emitted", next_aaf(f), 1);
+            ck("CLKV: post-holdover frame still carries tu=1",
+               f.size() ? f[21] & 1 : 0xEE, 1);
         }
 
         // ------------------------------------------------------------------
-        // [ASPATH] gh #64 J4 / gh #69: local PathTrace publication ABI.
-        // The wire-level GET_AS_PATH response and notification behavior live
-        // in sim_nxn; this leg pins the same changed-only generation contract
-        // at the CSR boundary.
+        // [ASPATH] Retained 0x7DC publication addresses are inert with no
+        // fabric owner. Writes cannot synthesize a GM-only legacy path.
         // ------------------------------------------------------------------
         {
-            printf("[ASPATH] published 802.1AS PathTrace store (0x7DC)\n");
+            printf("[ASPATH] option-off path publication is inert (#116)\n");
             enum { A_ASP_LO = 0x7DC, A_ASP_HI = 0x7E0, A_ASP_CMD = 0x7E4 };
-            ck("ASP: reset {gen,count} = 0 (the LEGACY arm)",
-               axi_read(A_ASP_CMD), 0);
-            axi_write(A_ASP_LO, 0xFFFE0210);
-            axi_write(A_ASP_HI, 0x3CC0C6FF);
-            ck("ASP: LO stages and reads back", axi_read(A_ASP_LO), 0xFFFE0210);
-            ck("ASP: HI stages and reads back", axi_read(A_ASP_HI), 0x3CC0C6FF);
-            axi_write(A_ASP_CMD, 0x80000100);        // commit -> slot 1
-            ck("ASP: a commit alone publishes nothing", axi_read(A_ASP_CMD), 0);
-            axi_write(A_ASP_LO, 0xFE001122);
-            axi_write(A_ASP_HI, 0xAABBCCFF);
-            axi_write(A_ASP_CMD, 0x80000200);        // commit -> slot 2
-            axi_write(A_ASP_CMD, 0x40000003);        // publish GM + 2 bridges
-            ck("ASP: publish latches {gen 1, count 3}",
-               axi_read(A_ASP_CMD), 0x00000013);
-            axi_write(A_ASP_CMD, 0x40000003);        // bare re-publish
-            ck("ASP: an identical re-publish is silent",
-               axi_read(A_ASP_CMD), 0x00000013);
-            axi_write(A_ASP_CMD, 0x4000000F);        // ask for 15 entries
-            ck("ASP: changed length saturates and advances generation",
-               axi_read(A_ASP_CMD), 0x00000028);
-            axi_write(A_ASP_CMD, 0x40000000);        // withdraw
-            ck("ASP: withdrawal advances generation and returns to legacy",
-               axi_read(A_ASP_CMD), 0x00000030);
+            ck("ASP: reset LO zero", axi_read(A_ASP_LO), 0);
+            ck("ASP: reset HI zero", axi_read(A_ASP_HI), 0);
+            ck("ASP: reset {gen,count} zero", axi_read(A_ASP_CMD), 0);
+
+            axi_write(A_ASP_LO, 0xFFFE0210u);
+            axi_write(A_ASP_HI, 0x3CC0C6FFu);
+            axi_write(A_ASP_CMD, 0xC0000108u);
+            axi_write(A_ASP_LO, 0x11111111u);
+            axi_write(A_ASP_HI, 0xAABBCCDDu);
+            axi_write(A_ASP_CMD, 0xFFFFFFFFu);
+
+            ck("ASP: LO write reads zero", axi_read(A_ASP_LO), 0);
+            ck("ASP: HI write reads zero", axi_read(A_ASP_HI), 0);
+            ck("ASP: commit/publish writes read zero", axi_read(A_ASP_CMD), 0);
         }
 
         // restore the reset default (bypass=1) so later sections see legacy
@@ -1245,10 +973,9 @@ int main(int argc, char** argv) {
         ck("RXMON stat idle", axi_read(A_AVTPRX_STAT), 0);
         ck("RXMON frames_rx idle", axi_read(A_AVTPRX_FRX), 0);
 
-        // helper: inject one little-lane frame on the MAC RX port, draining
-        // any TX response and collecting PCM-ring beats the datapath produces
-        std::vector<uint8_t> pcm;
-        bool pcm_last = false;
+        // Helper: inject one little-lane frame on the MAC RX port, draining
+        // any TX response and counting the retained fabric-render clone.
+        uint64_t render_beats = 0;
         //! THE PROBE SNIFFER (2026-08-13). The bind ladder is the processor's
         //! now, and it is a REAL ladder: KL_pp_acmp_listener answers the
         //! CONNECT_RX_COMMAND, then launches a CONNECT_TX_COMMAND (Milan
@@ -1298,7 +1025,6 @@ int main(int argc, char** argv) {
             }
             size_t idx = 0;
             dut->m_axis_mac_tx_tready = 1;
-            dut->m_axis_pcm_tready = 1;
             sniff_fr.clear();   // a fragment drained elsewhere is not a frame
             for (int c = 0; c < 1500; c++) {
                 if (idx < beats.size()) {
@@ -1311,14 +1037,12 @@ int main(int argc, char** argv) {
                 }
                 lo();
                 bool in_acc = dut->s_axis_mac_rx_tvalid && dut->s_axis_mac_rx_tready;
+                bool render_acc =
+                    dut->rootp->milan_datapath__DOT__rend_pcm_tvalid_w;
                 sniff_probe();
-                if (dut->m_axis_pcm_tvalid) {
-                    for (int l = 0; l < 8; l++)
-                        pcm.push_back((dut->m_axis_pcm_tdata >> (8*l)) & 0xFF);
-                    if (dut->m_axis_pcm_tlast) pcm_last = true;
-                }
                 hi();
                 if (in_acc) idx++;
+                if (render_acc) render_beats++;
             }
             dut->s_axis_mac_rx_tvalid = 0;
         };
@@ -1421,8 +1145,8 @@ int main(int argc, char** argv) {
         // briefly read `assign aecp_in0_fmt = 64'd0`. Against a zero format
         // the very first term, subtype == fmt[63:56], is 0x02 != 0x00, so a
         // PERFECTLY CONFORMANT AAF PDU on the bound stream_id was counted
-        // UNSUPPORTED_FORMAT and never reached the depacketizer or the PCM
-        // ring: stream 0 accepted NOTHING.
+        // UNSUPPORTED_FORMAT and never reached the depacketizer or fabric
+        // render: stream 0 accepted NOTHING.
         //
         // milan_datapath.sv now reads `assign aecp_in0_fmt =
         // ADP_STRIN0_FMT_C` - the entity model's DECLARED STREAM_INPUT[0]
@@ -1432,67 +1156,49 @@ int main(int argc, char** argv) {
         // declaration never was.
         //
         // So the acceptance mechanism is graded here again, end to end:
-        // parser -> format compare -> depacketizer -> PCM ring, untagged
-        // and tagged, with the ring's own AXIS port decoded rather than
-        // counted. The gate is proved DISCRIMINATING and not merely open by
+        // parser -> format compare -> depacketizer -> fabric render, untagged
+        // and tagged. The gate is proved DISCRIMINATING and not merely open by
         // the wrong-rate PDU further down (nsr 0x07 -> UNSUPPORTED_FORMAT
-        // +1, no ring traffic): a format compare that accepted everything
+        // +1, no render traffic): a format compare that accepted everything
         // would fail there, and a compare against a zero format fails here.
         // ================================================================
         enum { A_PCMRX_CNT = 0x6C4, A_PCMRX_TS = 0x6C8 };
-        pcm.clear(); pcm_last = false;
+        uint64_t render0 = render_beats;
+        uint32_t pcmrx0 = axi_read(A_PCMRX_CNT);
         inject(mkaaf(5, 0x05), 120);
         printf("  [i] STREAM_INPUT[0] declared-format acceptance: "
-               "0x6BC=%u 0x6C0=0x%08x 0x6C4=0x%08x ring=%zu B\n",
+               "0x6BC=%u 0x6C0=0x%08x 0x6C4=0x%08x render=%llu beats\n",
                axi_read(A_AVTPRX_FRX), axi_read(A_AVTPRX_ERR),
-               axi_read(A_PCMRX_CNT), pcm.size());
+               axi_read(A_PCMRX_CNT),
+               (unsigned long long)(render_beats - render0));
         ck("in0 fmt is the DECLARED format: a conformant PDU is ACCEPTED",
            (axi_read(A_AVTPRX_ERR) >> 8) & 0xFF, 0);
         ck("...so FRAMES_RX moved (0x6BC)", axi_read(A_AVTPRX_FRX), 1);
-        ck("...and the PCM ring advanced (0x6C4)",
-           axi_read(A_PCMRX_CNT), 1);
-        //! ...and the ring's AXIS port carried the PDU's OWN payload, byte
-        //! for byte. A counter can move on a runt; these are the 48 octets
-        //! mkaaf put on the wire (0x30..0x5F), in wire order, and the last
-        //! beat closed the packet.
-        {
-            long ring_bad = 0;
-            for (size_t i = 0; i < pcm.size() && i < 48; i++)
-                if (pcm[i] != (uint8_t)(0x30 + i)) ring_bad++;
-            ck("...host PCM payload follows the sound-card shape",
-               (long)pcm.size(), SOUND_CARD_TB ? 48 : 0);
-            ck("...present host payload is byte-exact", ring_bad, 0);
-            ck("...host ring tlast follows the sound-card shape",
-               pcm_last ? 1 : 0, SOUND_CARD_TB ? 1 : 0);
-        }
+        ck("...and PCMRX advanced (0x6C4)",
+           axi_read(A_PCMRX_CNT), pcmrx0 + 1);
+        ck("...and the 48-byte PDU reached fabric render (6 beats)",
+           render_beats - render0, 6);
         //! the MEDIA_LOCKED level is a consequence of acceptance
         ck("...and MEDIA_LOCKED asserts (0x6B8)",
            axi_read(A_AVTPRX_STAT) & 0x1, 1);
 
         // The VLAN-tagged PDU exercises the rotate-6 realignment in the
         // PARSER, which is upstream of the format gate - and it must reach
-        // the ring too, or a C-tagged Milan stream is silently deaf.
+        // fabric render too, or a C-tagged Milan stream is silently deaf.
         {
             uint8_t tf[124]; memset(tf, 0, sizeof tf);
             const uint8_t* uf = mkaaf(6, 0x05);
             memcpy(tf, uf, 12);
             tf[12]=0x81; tf[13]=0x00; tf[14]=0x00; tf[15]=0x02;   // C-VLAN, VID 2
             memcpy(tf+16, uf+12, 108);                            // shifted rest
-            pcm.clear(); pcm_last = false;
+            render0 = render_beats;
             inject(tf, 124);
         }
         ck("tagged: the format gate accepts it too (UNSUPPORTED still 0)",
            (axi_read(A_AVTPRX_ERR) >> 8) & 0xFF, 0);
         ck("tagged: FRAMES_RX = 2", axi_read(A_AVTPRX_FRX), 2);
-        {
-            long ring_bad = 0;
-            for (size_t i = 0; i < pcm.size() && i < 48; i++)
-                if (pcm[i] != (uint8_t)(0x30 + i)) ring_bad++;
-            ck("tagged: host payload follows the sound-card shape",
-               (long)(SOUND_CARD_TB
-                      ? (pcm.size() == 48 && ring_bad == 0)
-                      : pcm.empty()), 1);
-        }
+        ck("tagged: 48-byte PDU reached fabric render (6 beats)",
+           render_beats - render0, 6);
         // ---- RX parser probe (APRB 0x8B4-0x8C4) --------------------------
         // The pre-match view: every counter above only exists once a frame
         // MATCHED, so on a listener that accepts nothing they all read 0 and
@@ -1517,7 +1223,7 @@ int main(int argc, char** argv) {
             // able to report.
             uint8_t nf[112]; memcpy(nf, mkaaf(7, 0x05), 112);
             nf[18+5] = 0x09;                      // sid ...0009 0000: unknown
-            pcm.clear(); pcm_last = false;
+            render0 = render_beats;
             inject(nf, 112);
             ck("APRB unknown-sid: parsed = 3",  axi_read(A_APRB_PARSED), 3);
             ck("APRB unknown-sid: matched still 2", axi_read(A_APRB_MATCHED), 2);
@@ -1525,7 +1231,8 @@ int main(int argc, char** argv) {
                axi_read(A_APRB_SIDLO), 0x00090000);
             ck("APRB unknown-sid: match flag clear",
                (axi_read(A_APRB_INFO) >> 8) & 1, 0);
-            ck("APRB unknown-sid: no PCM payload", (long)pcm.size(), 0);
+            ck("APRB unknown-sid: no fabric-render payload",
+               render_beats - render0, 0);
             //! ...and the ACCEPT counter did not move either. This is the
             //! line the in0-format zero used to make vacuous (it read 0
             //! whatever happened). With stream 0 accepting again it has
@@ -1536,16 +1243,11 @@ int main(int argc, char** argv) {
                axi_read(A_AVTPRX_FRX), 2);
         }
 
-        // PRE-FILTER TAP (2026-07-19): program a TCAM drop entry for the
-        // AVTP multicast range (91:E0:F0::/24) - the HOST-DMA path must go
-        // quiet while the fabric depacketizer keeps consuming the stream.
+        // PRE-FILTER TAP: program a TCAM drop entry for the AVTP multicast
+        // range and prove the fabric depacketizer keeps consuming the stream.
         {
             enum { A_TCAM_KLO = 0x704, A_TCAM_KHI = 0x708, A_TCAM_MLO = 0x70C,
                    A_TCAM_MHI = 0x710, A_TCAM_ACT = 0x714, A_TCAM_CMD = 0x718 };
-            // the shared inject() never drives the DMA-port tready, so passed
-            // frames' tails stall at the filter boundary and flush into LATER
-            // windows as ghost beats - drain them before arming the drop
-            dut->m_axis_rx_tready = 1;
             for (int c = 0; c < 200; c++) step();
             axi_write(A_TCAM_KHI, 0x000091E0);
             axi_write(A_TCAM_KLO, 0xF0000000);
@@ -1554,7 +1256,6 @@ int main(int argc, char** argv) {
             axi_write(A_TCAM_ACT, 0x00000001);          // action[0]=drop
             axi_write(A_TCAM_CMD, 0x00010100);          // commit|valid, entry 0
             long pcm0 = axi_read(A_PCMRX_CNT);
-            long kern = 0; long kern_beats = 0; uint64_t kern_dmac = 0;
             auto inject_cnt = [&](const uint8_t* f, size_t len) {
                 std::vector<uint64_t> beats;
                 for (size_t bt = 0; bt < (len + 7) / 8; bt++) {
@@ -1565,8 +1266,6 @@ int main(int argc, char** argv) {
                 }
                 size_t idx = 0;
                 dut->m_axis_mac_tx_tready = 1;
-                dut->m_axis_pcm_tready = 1;
-                dut->m_axis_rx_tready = 1;
                 for (int c = 0; c < 1500; c++) {
                     if (idx < beats.size()) {
                         dut->s_axis_mac_rx_tdata  = beats[idx];
@@ -1580,37 +1279,14 @@ int main(int argc, char** argv) {
                     // read what this edge will commit, then clock high.
                     lo();
                     bool in_acc  = dut->s_axis_mac_rx_tvalid && dut->s_axis_mac_rx_tready;
-                    bool pcm_acc = dut->m_axis_pcm_tvalid;
-                    uint64_t pcm_d = dut->m_axis_pcm_tdata;
-                    bool k_acc   = dut->m_axis_rx_tvalid && dut->m_axis_rx_tready;
-                    bool k_last  = dut->m_axis_rx_tlast;
-                    uint64_t k_d = dut->m_axis_rx_tdata;
+                    bool render_acc =
+                        dut->rootp->milan_datapath__DOT__rend_pcm_tvalid_w;
                     hi(); g_step++;
                     if (in_acc) idx++;
-                    if (pcm_acc)
-                        for (int l = 0; l < 8; l++)
-                            pcm.push_back((pcm_d >> (8*l)) & 0xFF);
-                    if (k_acc) {
-                        if (kern_dmac == 0 && kern_beats == 0) kern_dmac = k_d;
-                        kern_beats++;
-                        if (k_last) kern++;
-                    }
+                    if (render_acc) render_beats++;
                 }
                 dut->s_axis_mac_rx_tvalid = 0;
             };
-            // isolate: plain (non-AVTP) frame on the filtered dmac range
-            {
-                uint8_t pf[64]; memset(pf, 0, sizeof pf);
-                const uint8_t pdst[6] = {0x91,0xE0,0xF0,0x00,0x77,0x77};
-                memcpy(pf, pdst, 6); pf[12]=0x08; pf[13]=0x00;
-                kern = 0; kern_beats = 0; kern_dmac = 0;
-                inject_cnt(pf, 64);
-                ck("prefilter: plain 91E0F0 frame dropped from DMA", kern, 0);
-                const uint8_t odst[6] = {0x00,0x11,0x22,0x33,0x44,0x55};
-                memcpy(pf, odst, 6);
-                kern = 0; inject_cnt(pf, 64);
-                ck("prefilter: other dmac still passes", kern, 1);
-            }
             // EXACT silicon wire frame (tap capture 2026-07-19): 86 bytes,
             // partial last beat keep=0x3F - the shape mkaaf never covered
             {
@@ -1644,31 +1320,38 @@ int main(int argc, char** argv) {
                 inject_cnt(mkaaf(12, 0x05), 86);
                 printf("  [mkaaf86] FRX delta=%ld\n", axi_read(A_AVTPRX_FRX)-f0);
             }
-            kern = 0;
             pcm0 = axi_read(A_PCMRX_CNT);   // rebase: the 2ch default now
                                             // ACCEPTS the bisect probes above
+            render0 = render_beats;
             inject_cnt(mkaaf(8, 0x05), 124);
             inject_cnt(mkaaf(9, 0x05), 124);
-            //! BOTH HALVES ARE GRADED AGAIN. The host half (below) is the
-            //! one that protects the board; the FABRIC half is the one that
-            //! proves the TCAM drop is a HOST-path drop and not a global
-            //! one, and it was unprovable on stream 0 while aecp_in0_fmt was
-            //! tied to zero. With the declared format restored the ring must
-            //! advance by exactly the two PDUs injected into this window
-            //! while the DMA port stays silent.
-            ck("prefilter: the fabric ring KEPT consuming (+2 PDUs)",
+            //! The media tap is upstream of the station-address policy.
+            //! PCMRX and the fabric render clone therefore advance by exactly
+            //! the two PDUs injected into this window.
+            ck("prefilter: PCMRX KEPT consuming (+2 PDUs)",
                axi_read(A_PCMRX_CNT), pcm0 + 2);
-            ck("prefilter: host DMA saw NOTHING", kern, 0);
+            ck("prefilter: fabric render KEPT consuming (+12 beats)",
+               render_beats - render0, 12);
             axi_write(A_TCAM_CMD, 0x00010000);          // commit|remove entry 0
         }
 
-        // I2S playback: the injected pair (payload bytes 0..2 = ch0 S32BE)
+        // I2S fabric render: the injected pair (payload bytes 0..2 = ch0 S32BE)
         // emerges serialized on the DAC pins - decode the first non-zero
         // LEFT sample (Philips I2S: 1 delay bit after the LRCK fall).
         // LPF off for this check: wire-truth chans (2) would engage it and
         // the samples would arrive FILTERED, not byte-exact.
         {
             axi_write(0x72C, 0x0);
+#if I2SPB_TB
+            // The current fabric-owned map shape selects the render crossbar
+            // even when the CSR debug arm is low. Seed its two physical DAC
+            // slots explicitly: an unarmed crossbar truthfully renders
+            // silence and is not evidence that the retained listener path
+            // reached the serializer.
+            axi_write(0x900, 0x1);
+            axi_write(0x904, 0x0); axi_write(0x908, 0x8000); // L <- s0.ch0
+            axi_write(0x904, 0x1); axi_write(0x908, 0x8001); // R <- s0.ch1
+#endif
             // the first PDU's pairs can serialize before this decoder starts
             // (they sit ~1 audio frame in the CDC); inject a fresh PDU so
             // the decode window provably contains samples
@@ -1680,23 +1363,12 @@ int main(int argc, char** argv) {
             // structurally inert under live traffic) is sim_prune.cpp's job.
             ck_skip("I2S left sample from payload",
                     "I2SPB_P=0: no DAC serializer in this elaboration");
-#elif !defined(I2S_RING_FED)
-            //! BLOCKED, NAMED, NOT SILENTLY GREEN. The DAC serializer is fed
-            //! from the PCM ring, and the ring is empty because
-            //! STREAM_INPUT[0] accepts nothing (aecp_in0_fmt = 0, the finding
-            //! above). Decoding the pins would read stale CDC contents or
-            //! silence, and either would be a pass that means nothing.
-            //!
-            //! The decoder is KEPT below, behind I2S_RING_FED: define it the
-            //! day aecp_in0_fmt carries the entity's declared STREAM_INPUT[0]
-            //! format and this is a live wire-truth check again, unchanged.
-            ck_skip("I2S left sample from payload",
-                    "blocked: aecp_in0_fmt = 0 keeps the PCM ring empty");
 #else
             // scan for the injected values (the CDC may hold a few stale
             // pairs from earlier sections now that the walker runs at the
             // full wire rate - stop-at-first-nonzero would grab those)
             uint32_t sample = 0; bool got_nz = false;
+            std::vector<uint32_t> observed;
             int sclk_q = dut->i2s_dac_sclk_o, lrck_q = dut->i2s_dac_lrck_o;
             int bitcnt = -1; uint32_t acc = 0;
             for (int c = 0; c < 60000 && !got_nz; c++) {
@@ -1710,7 +1382,10 @@ int main(int argc, char** argv) {
                         acc = (acc << 1) | (dut->i2s_dac_sdin_o & 1);
                         bitcnt++;
                         if (bitcnt == 24) {
-                            if (acc == 0x303132 || acc == 0x505152) {
+                            if (observed.size() < 16) observed.push_back(acc);
+                            if (acc == 0x303132 || acc == 0x38393A ||
+                                acc == 0x404142 || acc == 0x48494A ||
+                                acc == 0x505152 || acc == 0x58595A) {
                                 sample = acc; got_nz = true;
                             }
                             bitcnt = -1;
@@ -1721,17 +1396,26 @@ int main(int argc, char** argv) {
                 }
                 sclk_q = sclk;
             }
-            // the FIFO drains continuously, so the decoder catches pair 0
-            // (payload bytes 0..2 = 0x303132) or pair 1 (bytes 32..34 =
-            // 0x505152) - both prove byte-exact serialization
+            // Any left-channel event in the injected six-event PDU proves
+            // byte-exact serialization; the FIFO may begin at any buffered
+            // event after the map is armed.
+            if (!got_nz) {
+                printf("  [i] I2S words observed:");
+                for (uint32_t word : observed) printf(" %06x", word);
+                printf("; stat=0x%08x trim=0x%08x dbg=0x%08x\n",
+                       axi_read(0x6D8), axi_read(0x6E0), axi_read(0x6F0));
+            }
             ck("I2S left sample from payload",
-               sample == 0x303132 || sample == 0x505152, 1);
+               sample == 0x303132 || sample == 0x38393A ||
+               sample == 0x404142 || sample == 0x48494A ||
+               sample == 0x505152 || sample == 0x58595A, 1);
+            axi_write(0x900, 0x0);
 #endif
             axi_write(0x72C, 0x1);
         }
 
         // wrong-rate PDU: UNSUPPORTED_FORMAT ticks, FRAMES_RX does not,
-        // and NOTHING more enters the PCM ring
+        // and NOTHING more reaches fabric render
         // ---- DELETED 2026-08-13: the lwSRP TX pair through the full egress.
         // The subject was hdl/ieee8021q/srp/'s applicant: LWSRP_CTRL 0x680's
         // rising edge fired a PROMPT declare pair (MSRP TalkerAdvertise +
@@ -1762,7 +1446,7 @@ int main(int argc, char** argv) {
             // is heavy here - instead verify the ADP reacts (depart on down,
             // re-advertise on up) via its diag pulses + the counters through
             // the aecp TB. Here: toggle and confirm no datapath disturbance.
-            axi_write(A_LINK_CTRL, 0x0);          // daemon says link DOWN
+            axi_write(A_LINK_CTRL, 0x0);          // firmware qualifies link DOWN
             for (int c = 0; c < 200; c++) step();
             ck("LINK_CTRL reads back 0 (shadowed)", axi_read(A_LINK_CTRL), 0);
             axi_write(A_LINK_CTRL, 0x1);          // link UP again
@@ -1781,14 +1465,14 @@ int main(int argc, char** argv) {
             ck("LPF_CTRL bypass set", axi_read(0x72C), 0);
         }
 
-        pcm.clear(); pcm_last = false;
+        render0 = render_beats;
         long frx_before = axi_read(A_AVTPRX_FRX);
         long uns_before = (long)(axi_read(A_AVTPRX_ERR) >> 8);
         long pcm_before = axi_read(A_PCMRX_CNT);
         inject(mkaaf(7, 0x07), 120);
         ck("UNSUPPORTED_FORMAT +1 (0x6C0)", (long)(axi_read(A_AVTPRX_ERR) >> 8) - uns_before, 1);
         ck("FRAMES_RX unchanged by wrong-rate", axi_read(A_AVTPRX_FRX), frx_before);
-        ck("no PCM for rejected PDU", (long)pcm.size(), 0);
+        ck("no fabric render for rejected PDU", render_beats - render0, 0);
         ck("PCMRX unchanged by wrong-rate", axi_read(A_PCMRX_CNT), pcm_before);
 
         // ---- narrow counter views SATURATE, they do not wrap ---------------
@@ -2020,10 +1704,9 @@ int main(int argc, char** argv) {
         // silence the AAF talker (preserve VID 2) so the TX side carries
         // control-lane frames only; the subtype filter below guards the rest
         axi_write(0x654, 0x00020000);
-        // This is a SYNCHRONISED-clock golden: lease the sync claim with the
-        // maximum lifetime so CRF byte 15 stays 0x80 (tu = 0) for the whole
-        // capture. The tu = 1 shape of the same byte is proved in the
-        // KL_crf_tx unit harness and in [CLKV] above.
+        // This leg is the direct ownerless option-OFF elaboration. Exercise
+        // the former maximum-lifetime sync write, but require it to remain
+        // inert: CRF byte 15 must keep tu=1 for the whole capture.
         axi_write(0x778, 0x0000FFF1);
 
         // provision: sid {02:00:00:00:00:01, uid 1}, DMAC 91:E0:F0:00:2A:07
@@ -2085,8 +1768,9 @@ int main(int argc, char** argv) {
         // made this check fail whenever an earlier section left either level
         // set - it is asserting the OTHER sections' subjects, not its own. The
         // structural half (sv = 1, version = 0, reserved = 0, fs = 0) is
-        // compared strictly; the two levels are reported, not asserted here.
-        long ok_hdr = 1, ok_seq = 1, ok_pad = 1;
+        // compared strictly; mr is reported separately, while ownerless tu is
+        // an exact #116 assertion in this option-OFF leg.
+        long ok_hdr = 1, ok_seq = 1, ok_pad = 1, ok_tu = 1;
         int bad_at = -1; unsigned bad_got = 0, bad_exp = 0;
         auto hdrb = [&](const uint8_t* f, int off, unsigned exp) {
             if (f[off] != exp) {
@@ -2106,6 +1790,7 @@ int main(int argc, char** argv) {
                 ok_hdr = 0;
                 if (bad_at < 0) { bad_at = 15; bad_got = f[15] & 0xF6; bad_exp = 0x80; }
             }
+            if ((f[15] & 1) != 1) ok_tu = 0;
             hdrb(f, 17, 0x01);                       // type CRF_AUDIO_SAMPLE
             for (int j = 0; j < 8; j++) hdrb(f, 18 + j, sid8[j]);
             hdrb(f, 26, 0x00); hdrb(f, 27, 0x00);
@@ -2116,13 +1801,14 @@ int main(int argc, char** argv) {
             for (int p = 42; p < 60; p++) if (f[p]) ok_pad = 0;
         }
         if (!crf.empty())
-            printf("  [i]    CRFTX byte15 = 0x%02x (mr=%d tu=%d, both graded "
-                   "elsewhere)\n", crf[0][15], (crf[0][15] >> 3) & 1,
+            printf("  [i]    CRFTX byte15 = 0x%02x (mr=%d, ownerless tu=%d)\n",
+                   crf[0][15], (crf[0][15] >> 3) & 1,
                    crf[0][15] & 1);
         if (bad_at >= 0)
             printf("  [i]    CRFTX first header mismatch at wire byte %d: "
                    "got 0x%02x want 0x%02x\n", bad_at, bad_got, bad_exp);
         ck("CRFTX header/sid/base/dlen/ival byte-exact", ok_hdr, 1);
+        ck("CRFTX option-off ownerless tu stays one", ok_tu, 1);
         ck("CRFTX sequence_num 0..9 consecutive", ok_seq, 1);
         ck("CRFTX zero pad to 60B", ok_pad, 1);
 
@@ -2491,8 +2177,8 @@ int main(int argc, char** argv) {
     // Silicon "never worked" root cause (2026-07-22): the LiteX glue ties
     // i_mac_events to 0, so every counter lane was structurally silent. The
     // datapath now derives TX/RX_FIFO_GOOD_FRAME from its own MAC AXIS
-    // boundary handshake - this case pushes frames through the REAL boundary
-    // ports (the same path the SoC uses) and reads the latched lanes back
+    // boundary handshake - this case pushes frames through the real MAC RX
+    // boundary and reads the latched lanes back
     // over AXI. On the pre-fix RTL the good-frame checks read 0 and FAIL.
     printf("[RMON] boundary good-frame lanes + STATS_CTRL snapshot\n");
     {
@@ -2504,20 +2190,17 @@ int main(int argc, char** argv) {
         axi_write(A_STATS_CTRL, 0x1);
         ck("[RMON] baseline TX_GOOD 0", axi_read(A_STAT_TX_GOOD), 0);
         ck("[RMON] baseline RX_GOOD 0", axi_read(A_STAT_RX_GOOD), 0);
-        // traffic through the real MAC boundary: 3 TX out, 2 RX in
-        for (int k = 0; k < 3; k++) {
-            Res t = run_tx(vlan_frame(/*pcp=*/3, (uint8_t)(0x30 + k)), 400);
-            ck("[RMON] TX frame drained to MAC port", t.got ? 1 : 0, 1);
-        }
+        // traffic through the real MAC boundary: two complete RX frames
         for (int k = 0; k < 2; k++)
-            (void)run_rx(vlan_frame(/*pcp=*/1, (uint8_t)(0x40 + k), 0x0806), 400);
+            ck("[RMON] RX frame accepted at MAC ingress",
+               run_mac_rx(vlan_frame(/*pcp=*/1, (uint8_t)(0x40 + k), 0x0806), 400), 8);
         // the snapshot is a latch: lanes hold until software re-arms
         ck("[RMON] lanes latched (pre-re-arm TX_GOOD still 0)",
            axi_read(A_STAT_TX_GOOD), 0);
         axi_write(A_STATS_CTRL, 0x1);
-        ck("[RMON] TX_GOOD == 3 (0x21C)", axi_read(A_STAT_TX_GOOD), 3);
         ck("[RMON] RX_GOOD == 2 (0x230)", axi_read(A_STAT_RX_GOOD), 2);
         ck("[RMON] UNDERFLOW == 0 (0x210)", axi_read(A_STAT_TX_UNDER), 0);
+        const uint32_t tx_good_before = axi_read(A_STAT_TX_GOOD);
         // i_mac_events: MAC-internal lanes pass through; its good-frame bits
         // are IGNORED (boundary derivation owns them - no double count)
         dut->i_mac_events = (1u << 0) | (1u << 3) | (1u << 8);
@@ -2526,7 +2209,7 @@ int main(int argc, char** argv) {
         for (int i = 0; i < 4; i++) step();
         axi_write(A_STATS_CTRL, 0x1);
         ck("[RMON] ext UNDERFLOW pulse == 1", axi_read(A_STAT_TX_UNDER), 1);
-        ck("[RMON] ext TX_GOOD bit ignored", axi_read(A_STAT_TX_GOOD), 3);
+        ck("[RMON] ext TX_GOOD bit ignored", axi_read(A_STAT_TX_GOOD), tx_good_before);
         ck("[RMON] ext RX_GOOD bit ignored", axi_read(A_STAT_RX_GOOD), 2);
         // MAC-reinit release (LINK_CTRL[1] pulse, guard parked disabled)
         // invalidates the snapshot: all-zero = "no valid snapshot"

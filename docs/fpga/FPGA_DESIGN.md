@@ -4,9 +4,10 @@ The complete map of the gateware: what each RTL module does, its interfaces
 and clock domain, which harness verifies it, and where its detailed doc
 lives. Companion pages: [../integration/INTEGRATION_GUIDE.md](../integration/INTEGRATION_GUIDE.md)
 (the outside of the boundary), [../reference/REGISTER_MAP.md](../reference/REGISTER_MAP.md)
-(the CSR ABI), [PIPELINE_STAGES.md](PIPELINE_STAGES.md) (stage-by-stage
-datapath prose), [pipeline-telemetry.md](pipeline-telemetry.md) (the
-in-fabric observability block).
+(the CSR ABI), [DATAPLANE_WALKTHROUGH.md](DATAPLANE_WALKTHROUGH.md)
+(stage-by-stage datapath prose), and
+[../design/TRACE_LOGGING.md](../design/TRACE_LOGGING.md) (the in-fabric
+observability surface).
 
 **Where the control plane went (2026-08-13).** The IEEE 1722.1 / SRP control
 plane of this device is [`hdl/milan/KL_pp_shadow.sv`](../../hdl/milan/KL_pp_shadow.sv),
@@ -64,8 +65,8 @@ These repeated claims are checked against the
 descriptor-memory master (`o_desc_mem_*` / `i_desc_mem_*`) that the SoC bridges
 to DRAM at the compile-time `PP_DESC_BASE_P` — no base register, no runtime
 relocation. The end-station builder generates `aem_desc.bin`, `aem_desc.json`,
-and `aem_desc.map` from the selected configuration. The board-side `aemi-load`
-utility verifies and loads the paired image before entity enable. A missing or
+and `aem_desc.map` from the selected configuration. Bare-metal firmware verifies
+the generated image identity and copies it from QSPI before entity enable. A missing or
 invalid image still answers `BAD_ARGUMENTS`; `NO_SUCH_DESCRIPTOR` means a valid
 image lacks the requested descriptor. The store never hangs on a failed read: a
 4096-cycle watchdog abandons a stalled burst and covers the request handshake.
@@ -73,11 +74,11 @@ image lacks the requested descriptor. The store never hangs on a failed read: a
 ## Contents
 
 - **[0. Global conventions](#0-global-conventions)** -- The four rules every module obeys: 64-bit big-endian AXIS (wire order *is* memory order, so the CPU never byte-swaps), AXI4-Lite CSR decoded in 0x100 groups, house style, no vendor primitives. Also flags one relic -- the `AXIS_TDEST_WIDTH 2` define is dead outside the legacy xsim TBs.
-- **[1. Top level - two wrappers, one datapath](#1-top-level---two-wrappers-one-datapath)** -- What each wrapper adds around the same datapath, and the TX/RX/TS pipeline drawn out. The sentence that changes how you read every other page: only CPU-originated frames traverse the classifier, the queues and the CBS -- the fabric engines inject *after* the shaper and the RX media path taps *before* the dest-MAC filter. Section 1.1 adds the audio chain as composed on main, both new stages defaulting to bypass; Section 1.2 is the four-mux TX arbiter cascade and the three functional losses the AECP boundary costs.
+- **[1. Top level - one datapath boundary](#1-top-level---one-datapath-boundary)** -- The MAC-less fabric boundary and its TX/RX pipeline. Product traffic comes from fabric media and protocol engines; the retained classifier/queue chain has an inactive input.
 - **[2. Module inventory (from the RTL banners; refreshed 2026-08-13)](#2-module-inventory-from-the-rtl-banners-refreshed-2026-08-13)** -- Every module in `hdl/`, one row each, grouped by directory, with descriptions lifted from the RTL banners. It states no total on purpose: the live count belongs to the generated matrix, and `ls hdl/` is the authority.
 - **[3. Clock domains & CDC (complete inventory)](#3-clock-domains--cdc-complete-inventory)** -- Which of the four domains each block lives in, and the complete crossing list -- all plain-FF or handshake, no vendor macros. Explains why the timestamp metadata FIFOs are deliberately same-clock: the crossing already happened upstream in `ptp_ts_core`.
-- **[4. What is \*not\* in hdl/ (and where it lives instead)](#4-what-is-not-in-hdl-and-where-it-lives-instead)** -- Four things you will hunt for in the RTL tree and not find. Mainly the ring-DMA engines, which are Migen inside `milan_soc.py` rather than SystemVerilog, and the MAC, which is external by design.
-- **[5. HDL reference generation](#5-hdl-reference-generation)** -- Build and validate the source-derived HTML reference.
+- **[4. What is \*not\* in hdl/ (and where it lives instead)](#4-what-is-not-in-hdl-and-where-it-lives-instead)** -- The external MAC, descriptor image, trace tooling, and CPU/SoC integration.
+- **[5. Per-module doc regeneration](#5-per-module-doc-regeneration)** -- How the `hdl/**/doc/*.md` pages are produced, which three are hand-written exceptions, and the current list of modules with no page at all. Tie-break rule if a page lags: the RTL wins.
 
 ## 0. Global conventions
 
@@ -95,32 +96,30 @@ image lacks the requested descriptor. The store never hangs on a failed read: a
   [Section 2 of ../integration/PORTING_GUIDE.md](../integration/PORTING_GUIDE.md#2-what-is-and-is-not-xilinx-specific-in-the-rtl---the-full-inventory) for
   the audited inventory of the few vendor-*attributes* that remain.
 
-## 1. Top level - two wrappers, one datapath
+## 1. Top level - one datapath boundary
 
 | Wrapper | File | Host | Contains |
 |---|---|---|---|
 | `milan_datapath` | [`hdl/milan/milan_datapath.sv`](../../hdl/milan/milan_datapath.sv) | LiteX RISC-V SoC (and the Verilator/Yosys flows) | everything below, MAC-less and PS-less - **the integration boundary** |
-| `milan_top` | [`hdl/milan/milan_top.sv`](../../hdl/milan/milan_top.sv) | Zynq-7020 PS (`bd/milan-dma.tcl`, `milan_dma_wrapper.v`) | same datapath + the verilog-ethernet `eth_mac_1g_rgmii_fifo` MAC (external source) + PS wiring |
 
 Pipeline (identical in both wrappers):
 
 ```
-TX: DMA ──► traffic_controller_802_1q ──► ptp_ts_top(TX stamp) ──► arb cascade ──► MAC
-            (classify ► 5 queues ► CBS)                               ▲
+TX: inactive classifier/queue chain ──► ptp_ts_top(TX stamp) ──► arb cascade ──► MAC
+                                                                      ▲
                           fabric sources (AAF talkers, CRF talker,    │
-                          KL_pp_shadow + KL_maap) inject HERE ────────┘
-RX: MAC ──► ptp_ts_top(RX stamp) ─┬─► rx_mac_filter(TCAM) ─┬─► DMA    (host copy)
-                                  │                        └─► KL_pp_shadow (a pure
+                          KL_pp_shadow + KL_maap + gPTP) inject HERE ─┘
+RX: MAC ──► ptp_ts_top(RX stamp) ─┬─► rx_mac_filter(TCAM) ───► KL_pp_shadow (a pure
                                   │      monitor of the post-filter stream: classify
                                   │      first, control frames only, then 1 B/clk into
                                   │      the protocol processor)
                                   └─► avtp_stream_parser ► stream table ► RX monitor
-                                      ► depacketizer ► PCM route ► ring / DAC
-TS: ptp_ts_top ──► m_axis_ts (timestamp metadata records) ──► DMA
+                                      ► depacketizer ► PCM route ► render map / DAC / TDM
+TS: ptp_ts_top metadata output ──► always-ready internal sink
 ```
 
-**Only CPU-originated frames traverse the classifier, the queues and the CBS.**
-The fabric engines merge in *after* the shaper, and the RX media path taps
+**No product packet source traverses the classifier, queues, or CBS.**
+The fabric engines merge in *after* that inactive chain, and the RX media path taps
 *before* the dest-MAC filter. Hop-by-hop, with the CSR to read at each stage:
 [DATAPLANE_WALKTHROUGH.md](DATAPLANE_WALKTHROUGH.md).
 
@@ -129,16 +128,17 @@ The fabric engines merge in *after* the shaper, and the RX media path taps
 
 ```mermaid
 flowchart LR
-    ADC[I2S / tone capture front-end] --> PB{{item-7 playback mux\npb_enable, def 0}}
-    RING[KL_pcm_tx DRAM ring] --> PB
-    PB --> CM{{chmap capture mux\nCHMAP_CTRL 0x900, def 0}}
-    CM --> PKT[KL_aaf_packetizer] --> MERGE[traffic merge + CBS] --> MAC[MilanMAC + PTP stamp] --> WIRE((wire))
-    WIRE --> RX[classifier + depacketizer] --> RB[PCM DMA ring _PCMRingNxN] --> CONS[host ring consumer]
-    RX --> XBAR[chmap render xbar] --> TDM[KL_tdm_render / I2S out]
+    ADC[I2S / TDM capture front-end] --> CM{{chmap capture mux\nCHMAP_CTRL 0x900}}
+    TONE[tone / accepted-RX loopback] --> CM
+    CM --> PKT[KL_aaf_packetizer] --> MERGE[fabric traffic merge] --> MAC[MilanMAC + PTP stamp] --> WIRE((wire))
+    WIRE --> RX[classifier + depacketizer] --> ROUTE[KL_pcm_route\nRENDER / reserved]
+    ROUTE --> LPF[KL_pcm_lpf] --> I2S[KL_i2s_playback]
+    RX -. accepted-beat clone .-> XBAR[chmap render xbar] --> TDM[KL_tdm_render / mapped I2S out]
 ```
 
-Both new stages default to bypass: with `pb_enable=0` and `chmap_enable=0`
-the packetizer input is bit-identical to the pre-merge datapath.
+With `chmap_enable=0`, the physical capture pair drives the packetizer
+bit-identically. Listener routing remains entirely in fabric; the route word's
+low bit is reserved and only RENDER selects an output.
 
 ### 1.2 The TX arbiter cascade, and what the AECP boundary costs
 
@@ -258,9 +258,7 @@ this table whenever `hdl/` changes shape.
 | `KL_pair_blend` | two-source capture pair-stream blend (the Arty I2S-beside-TDM shape) |
 | `KL_pair_zero_fill` | silence filler for unfed capture pair slots |
 | `KL_pcm_lpf` | 2nd-order IIR low-pass (Butterworth fc 20 kHz @ fs 48 kHz) |
-| `KL_pcm_ring_bram` | on-chip dual-port BRAM PCM ring for the listener media path |
-| `KL_pcm_route` | NxN PCM routing policy (RENDER-lowest-wins, per-stream DMA rings) |
-| `KL_pcm_tx` | host PCM ring → AAF pair-stream source (the playback arm) |
+| `KL_pcm_route` | NxN fabric-render policy (`{RENDER, reserved}`, lowest-index RENDER wins) |
 | `KL_tdm_capture` / `KL_tdm_capture_master` | TDM slave and TDM master audio-capture front-ends (item-4 family) |
 | `KL_tdm_render` | TDM slave audio-render front-end |
 | `KL_tone_gen` | 1 kHz / 0 dBFS pilot tone: 48-sample exact-period 24-bit sine table |
@@ -342,7 +340,6 @@ this table whenever `hdl/` changes shape.
 | `KL_pp_maap_shim` | adapter between this fabric's BLOCK allocator (`KL_maap`) and the processor's per-source ALLOC/RELEASE face — the same block+uid law on both sides |
 | `KL_pp_shadow` | **this device's entire IEEE 1722.1 / SRP control plane**: the consumer-side wrapper around the pinned `protocol-processor` submodule (ADP, ACMP talker + listener, SRP, and the live AECP uCPU), its classify-first control-frame tap, its blank-flash NVM responder, the root gather faces used by counters and audio-map reads, and the class-D face republished 1:1. The [current audit](../testing/MILAN_V12_AUDIT_2026-08-16.md) owns the exact served-command inventory |
 | `milan_datapath` | the single clean HW/gateware boundary the LiteX SoC ([sw/litex/milan_soc.py](../../sw/litex/milan_soc.py)) instantiates — including the read-only descriptor-memory master (`o_desc_mem_*`) the AECP store fetches the entity model over |
-| `milan_top` | the Zynq variant (PS + MAC in line) |
 
 <!-- Count deliberately not stated here: docs/traceability/MODULE_MATRIX.md is
      GENERATED from the tree and prints the live total; `ls hdl/` is authoritative. -->
@@ -358,7 +355,7 @@ style: `//!` port docs); this table is the index, not the spec.
 | `axis_clk` (`cd_milan`: 50 MHz deployed; 100 MHz AX bring-up) | all of Section 2 except the PHC |
 | `gtx_clk` (125 MHz) | `timestamp_counter` (PHC), MAC-side timestamp capture |
 | MAC RX recovered clock | inside the external MAC only |
-| host clocks (PS7 / LiteX `sys`, `sys4x`, `idelay`) | outside the datapath |
+| SoC clocks (LiteX `sys`, `sys4x`, `idelay`) | outside the datapath |
 
 Crossings - all in-fabric, all `(* ASYNC_REG *)` plain-FF or handshake based
 (no vendor macros): `ptp_csr_sync` (CSR commands → PHC, snapshot return),
@@ -366,34 +363,34 @@ Crossings - all in-fabric, all `(* ASYNC_REG *)` plain-FF or handshake based
 value), the 2-FF `i_mac_speed` sync in the wrappers. Timestamp metadata
 FIFOs are same-clock (`axis_clk`) on purpose - the crossing happens in
 `ptp_ts_core`/`ptp_csr_sync`, not in the FIFOs. Constraint requirements per
-toolchain: [Section 4.5 of ../integration/PORTING_GUIDE.md](../integration/PORTING_GUIDE.md#45-timing-constraints-translate-dont-skip).
+toolchain: [Section 4.5 of ../integration/PORTING_GUIDE.md](../integration/PORTING_GUIDE.md#45-timing-constraints---translate-dont-skip).
 
 ## 4. What is *not* in `hdl/` (and where it lives instead)
 
-* **The ring-DMA engines** (`RingDMAReader`/`RingDMAWriter`, BD formats,
-  header-split, RSC/GRO) are **Migen**, inside [`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py) -
-  design docs: the archived CPPI DMA redesign log (#259, in git history),
-  [HW_GRO_RSC.md (archived)](../history/v1/fpga/HW_GRO_RSC.md),
-  [HEADER_SPLIT_DESIGN.md](HEADER_SPLIT_DESIGN.md) (includes the hsq12 cut-through chapter); running system view:
-  [PIPELINE_STAGES.md](PIPELINE_STAGES.md).
-* **The MAC** - external by design (LiteEth on LiteX, verilog-ethernet on
-  Zynq).
+* **The MAC** - external by design (LiteEth in the LiteX integration).
 * **The AECP responder and the entity model it serves.** The uCPU is in the
   pinned `protocol-processor` submodule, behind `KL_pp_shadow`; the descriptors
   are not RTL at all but a flat image in DRAM at `PP_DESC_BASE_P`, fetched over
-  `milan_datapath`'s read-only descriptor-memory master. Nothing in `hdl/`,
-  `sw/` or `scripts/` builds or loads that image today — it is the one piece of
-  the AECP path this repository still owes.
-* **The telemetry block** `milan_tlm` - [pipeline-telemetry.md](pipeline-telemetry.md).
+  `milan_datapath`'s read-only descriptor-memory master. The bare-metal
+  firmware copies the generated QSPI image into that window and verifies its
+  generated CRC before enabling the entity.
+* **Trace capture** is described in
+  [TRACE_LOGGING.md](../design/TRACE_LOGGING.md).
 * **The CPU/SoC** - [../litex/LITEX_SOC.md](../litex/LITEX_SOC.md).
 
-## 5. HDL reference generation
+## 5. Per-module doc regeneration
 
-- RTL `//!` comments remain authoritative.
-- [`gen_teroshdl.py`](../../scripts/gen_teroshdl.py) builds one HTML reference.
-- The wrapper validates source and SVG structure.
-- One recorded module uses a port-derived fallback.
-- Generated HTML remains outside Git.
-- Historical module pages may lag current sources.
-- Never treat generated output as specification.
-- See [`DOC_GENERATION.md`](../DOC_GENERATION.md) for commands.
+The `hdl/**/doc/*.md` pages are TerosHDL-generated from the in-code `//!`
+comments (plus a couple of hand-written ones:
+[`tcam.md`](../../hdl/ieee8021q/filtering/doc/tcam.md),
+[`milan_csr.md`](../../hdl/common/csr/doc/milan_csr.md); the hand-written
+`adp_advertiser.md` went with its module). `find hdl -name doc -type d` is the
+authority on which directories still carry pages — `hdl/ieee17221/adp/` no
+longer does. Regenerate after RTL changes by running the TerosHDL documenter on
+the `.sv`, and treat the RTL as the source of truth if a generated page lags.
+Modules with no doc page: `milan_datapath` / `KL_pp_shadow` /
+`KL_pp_maap_shim` (rich header comments serve instead — for the last two the
+banner *is* the contract, since the wrapper is deliberately a port list),
+`rx_mac_filter`, `cdc_pulse` / `cdc_handshake`, `ptp_csr_sync`,
+`avtp_stream_parser`, `adp_tx_arbiter`, `axis_mux_rr_2in_1out`,
+`traffic_class_map`.

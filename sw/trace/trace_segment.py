@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""trace_segment.py - the /user/log segment container: pack, unpack, rotate, verify.
+"""trace_segment.py - workstation trace bundles: pack, unpack, rotate, verify.
 
 A SEGMENT is the unit of compression, rotation and loss.  One segment = one
-independent xz stream = one file.  A power cut can damage only the segment that
-was being written; every other segment on the flash is a complete, independently
-decodable xz stream, which is the entire reason rotation is done by FILE and not
-by appending to one growing archive.
+independent xz stream = one file. An interrupted workstation pack can damage
+only the file being replaced; every completed segment remains independently
+decodable. That is why rotation is by file rather than by appending to one
+growing archive.
 
 The filter chain below is PINNED and MEASURED (docs/design/TRACE_LOGGING.md
 section 7).  Do not "improve" it without re-running
@@ -25,25 +25,22 @@ sw/trace/test_trace_roundtrip.py, which reports the ratio it actually achieves.
     preset 6e dict 256 KiB   ratio 0.1997    5.3 MB/s   49.6 ms
     xz -9e   (dict 64 MiB)   ratio 0.1997    2.7 MB/s   96.9 ms
 
-  * THE RATIO CLIFF IS THE MATCH FINDER, NOT THE PRESET NUMBER.  Presets 0-3
+  * THE RATIO CLIFF IS THE MATCH FINDER, NOT THE PRESET NUMBER. Presets 0-3
     (HC4) all land within 0.6 % of each other; presets 4+ (BT4) buy ~7 % of the
-    bytes for 3-6x the CPU.  On a ~100 MHz softcore that is a multi-second stall
-    in the same core that runs gPTP, ACMP and the audio stack - so take the
-    cheapest member of the HC4 family and spend nothing on the cliff.
+    bytes for 3-6x the workstation CPU time. Use the cheapest HC4 member.
   * A DICTIONARY LARGER THAN THE SEGMENT IS DEAD WEIGHT: nothing can match
     beyond the start of the input.  Capping it at the segment size holds the
     encoder to a measured ~9.2 MiB of address space, against 101 MiB for
     `xz -6` and 679 MiB for `xz -9`.
-  * CRC-32, not the xz default CRC-64: cheaper on a softcore, and it is the
-    check the BIOS's vendored xz_embedded already implements - the same choice
-    the kernel slot makes in sw/litex/deploy.sh.
+  * CRC-32, not the xz default CRC-64: the round-trip gate proves it catches
+    damaged bundles without doubling the check field.
   * ONE BLOCK, no `--block-size`.  Independent blocks cost 7-15 % of the ratio
     (measured) and buy nothing here: a truncated single-block xz stream still
     decodes proportionally to the bytes that survived (MEASURED - gate 8 of
     test_trace_roundtrip.py), and CTF packets are self-delimiting, so the reader
     stops cleanly at the last whole packet.  The honest cost of one block is
-    that NONE of a truncated segment is check-verified; jffs2's own per-node
-    CRCs and the reader's structural validation carry that instead.
+    that NONE of a truncated segment is check-verified; the reader's CTF packet
+    validation is what admits the recovered whole-packet prefix.
 
 usage:
     trace_segment.py pack   <raw.ctf>... -o <dir>       raw CTF -> .ctf.xz
@@ -73,22 +70,21 @@ XZ_DICT = SEGMENT_BYTES
 XZ_CHECK = lzma.CHECK_CRC32
 SEG_RE = re.compile(r"^seg-(\d{6})\.ctf(?:\.xz)?$")
 
-# The log tree gets the /user slot MINUS a fixed reserve of erase blocks; the
-# reserve is what /user exists for (entity names, channel maps, mixer state)
-# plus the free blocks jffs2 wants for garbage collection.  Expressing it as
-# "slot minus reserve" rather than as two independent sizes makes
-# `budget + reserve == slot` true by construction instead of by assertion.
+# The workstation bundle keeps the repository's reserved `user` slot as a
+# compatibility size ceiling, minus five erase blocks reserved for other
+# artifacts. The tool itself writes only the output directory supplied on the
+# workstation; it never opens a target path. Expressing the ceiling as
+# "slot minus reserve" keeps `budget + reserve == slot` true by construction.
 #
-# DERIVED, NOT RESTATED.  This was `1536 * 1024` under the comment "/user is
-# 2 MiB", and that comment stopped being true on 2026-07-28 when flash-map v5
-# took `user` down to 1 MiB. The constant did not move, so
-# the fault log's budget became LARGER than the partition holding it and the
+# DERIVED, NOT RESTATED. This was `1536 * 1024` while the source map still
+# described a 2 MiB slot; flash-map v5 later took `user` down to 1 MiB. The
+# constant did not move, so the bundle ceiling became larger than its authority and the
 # gate that should have caught it (test_trace_roundtrip gate 1) was asserting
 # the old 2 MiB too - two copies of one number, both stale, agreeing with each
 # other and with nothing else.  Reading the slot means the budget cannot
 # outlive the map again.
 def _user_slot(default=(2 * 1024 * 1024, 64 * 1024)):
-    """(`user` slot size, erase-block size) from FLASHBOOT_RESERVED.
+    """Compatibility ceiling and erase-block size from FLASHBOOT_RESERVED.
 
     Falls back to `default` when the SoC source is not readable, so this
     module still works in a bare checkout - but says so on stderr.  `default`
@@ -103,12 +99,12 @@ def _user_slot(default=(2 * 1024 * 1024, 64 * 1024)):
     except Exception as exc:
         print(f"trace_segment: WARNING: could not read the flash map "
               f"({exc!r}); falling back to the hardcoded "
-              f"{default[0]} B /user budget, which may exceed the real slot",
+              f"{default[0]} B trace-bundle ceiling, which may exceed the map",
               file=sys.stderr)
         return default
 
 
-#: erase blocks kept out of the log tree for /user's own state + jffs2 GC
+#: erase blocks withheld from the compatibility bundle ceiling
 USER_RESERVE_BLOCKS = 5
 
 USER_SLOT_BYTES, USER_ERASE_BYTES = _user_slot()
@@ -170,9 +166,8 @@ def cmd_pack(args):
         n = segment_number(src)
         base = f"seg-{n:06d}.ctf.xz" if n is not None else \
             os.path.basename(src) + ".xz"
-        # Write-then-rename: the reader must never see a half-written segment.
-        # On the board this is the same primitive, plus an fsync before the
-        # rename (see TRACE_LOGGING.md section 9).
+        # Write, fsync, then rename on the workstation: the reader must never
+        # see a half-written segment.
         tmp = os.path.join(args.o, base + ".partial")
         with open(tmp, "wb") as f:
             f.write(blob)

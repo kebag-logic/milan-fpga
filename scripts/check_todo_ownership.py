@@ -8,9 +8,9 @@ Why this exists. Rule 7 of the maintainability guide
 or is resolved - it is not an untracked backlog. An unowned marker is worse
 than no marker: it reads as a plan, nobody is accountable for it, and it
 survives the change that made it wrong. `ptp_ts_top.sv` carried a marker
-asking for DMA engine signals beside the three DMA streams the module already
-declares (`s_axis_tx_*`, `m_axis_rx_*`, `ts_m_axis_*`), which Issue #53
-records as present and only needing attachment.
+asking for a packet-mover interface beside ports that already existed. Issue
+#259 removed that interface; the historical example remains useful because
+the marker itself was unowned.
 
 WHAT IT MEASURES. Every tracked first-party file whose type has a comment
 syntax registered in SYNTAX below is read, its comment text is extracted with
@@ -46,10 +46,9 @@ processor. Every file in it whose type is registered is read: RTL and its
 headers, C/C++, Python, shell, Tcl with constraints and simulator scripts,
 Makefiles, YAML, TOML, INI, Gherkin features, Verilator config and file lists,
 and the git dotfiles.
-Files in `scripts/lint_rtl.py`'s LINT_EXCLUDE are not: `hdl/milan/milan_top.sv`
-is an archived Zynq top no build compiles, and its two markers (lines 329 and
-751) are part of the archive, not of maintained code. Markdown is not scanned
-at all - prose about a document whose name is one of these words is not a
+Files in `scripts/lint_rtl.py`'s LINT_EXCLUDE are not (the list is currently
+empty). Markdown is not scanned at all - prose about a document whose name is
+one of these words is not a
 marker - and `--list` prints the census of tracked types that are not read, so
 the blind spots are visible instead of assumed away.
 
@@ -486,11 +485,11 @@ def selftest():
     ck("markdown and images are not read", syntax_for("docs/x.md") is None
        and syntax_for("x.svg") is None)
 
-    # -- the population: first-party types, no vendor tree, no archived top --
+    # -- the population: first-party types, no vendor tree --
     sample = ["hdl/a.sv", "tb/x/Makefile", "hdl/common/parameters.svh",
               "third_party/verilog-axis/rtl/a.py", "external/b.sv",
               "gptp-processor/bench/arty/bench_phc.sv", "protocol-processor/Makefile",
-              "hdl/milan/milan_top.sv", "docs/a.md", "x.svg"]
+              "docs/a.md", "x.svg"]
     links = ["external", "third_party/verilog-axis", "protocol-processor", "gptp-processor"]
     ck("a vendor gitlink is dropped and a project processor is kept",
        first_party(sample, links) == [p for p in sample

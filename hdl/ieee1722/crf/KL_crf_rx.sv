@@ -20,7 +20,7 @@
 
                 Outputs (CSR-read, all captured per accepted PDU):
                   delta_o : crf_ts - ptp_now (signed 32) - the phase error
-                            the media-clock servo daemon consumes (same
+                            the fabric media-clock servo consumes (same
                             contract as the AAF ts_delta CSR 0x6EC).
                   rate_o  : accumulated (crf_ts[n] - crf_ts[n-256]) minus
                             nominal 256*2ms, signed ns per 512 ms window -

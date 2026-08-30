@@ -149,9 +149,8 @@ CANDIDATES = (
 #: A banner is a COMMENT line - shebang, `#`, `//`, `--`, `*`, `/*`, `<!--`,
 #: `;` - and the phrase LEADS it: at most BANNER_LEAD_WORDS words may stand
 #: before it. Measured on this tree: every real banner leads with no word at
-#: all except the Vivado block design's `# This is a generated script based on
-#: design` (3), and the one comment that mentions generation mid-sentence,
-#: bd/milan-dma.tcl line 5, leads with 6. The docstring sentence that exempted
+#: all except Vivado's `# This is a generated script based on design` (3).
+#: The docstring sentence that exempted
 #: scripts/check_results_fresh.py is not a comment line at all.
 COMMENT_LEAD_RE = re.compile(r"^\s*(?:#!?|//!?|--|/\*+|\*|<!--|;)\s*")
 BANNER_LEAD_WORDS = 3

@@ -10,15 +10,16 @@
      }
    }
  
-@@ -430,6 +431,30 @@
+@@ -430,6 +431,31 @@
        hardFork(fiber.logic.phy.setName(spec.name))
      }
  
 +    // Cacheless RV32 bare-metal shape. With no LSU L1 the instruction and
 +    // data masters are ordinary TileLink clients, so route both through one
 +    // address-decoded fabric to LiteDRAM and the LiteX peripheral bridge.
-+    // DMA joins that same non-coherent fabric directly; with no cache there
-+    // is no stale CPU copy to snoop and no Hub/L2 is required.
++    // The dedicated protocol-memory attachment joins that same non-coherent
++    // fabric directly; with no cache there is no stale CPU copy to snoop and
++    // no Hub/L2 is required.
 +    val unified = !vexiiParam.lsuL1Enable generate new Area {
 +      val mBus = Node()
 +      mBus.forceDataWidth(mainDataWidth)
@@ -41,7 +42,7 @@
      // Implement the main interconnect of the SoC when VexiiRiscv has a data cache (io and cached accesses are on independent busses)
      val splited = vexiiParam.lsuL1Enable generate new Area{
        val mBus = Node()
-@@ -515,8 +540,10 @@
+@@ -515,8 +541,10 @@
        val debug = out(Delay(debugIn, 2))
        debugIn := 0
  
@@ -54,7 +55,7 @@
        println("PBUS => ")
        println(MemoryConnection.getMemoryTransfers(vexiis(0).dBus).mkString("\n"))
        println("IBUS => ")
-@@ -573,7 +600,8 @@
+@@ -573,7 +601,8 @@
      opt[Unit]("reduced-io") action { (v, c) => reducedIo = true }
    }.parse(args, ()).nonEmpty)
  
@@ -64,7 +65,7 @@
  
    val spinalConfig = SpinalConfig(inlineRom = true, targetDirectory = netlistDirectory)
    spinalConfig.addTransformationPhase(new MultiPortWritesSymplifier)
-@@ -608,7 +636,8 @@
+@@ -608,7 +637,8 @@
  
    }.parse(args, ()).nonEmpty)
  

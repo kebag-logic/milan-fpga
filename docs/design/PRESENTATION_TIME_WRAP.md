@@ -270,8 +270,7 @@ That has a second, immediate consequence for a register we already ship.
 `AVTPRX_TSD` (`0x6EC`) latches `avtp_timestamp - ptp_now` at every accepted PDU
 and is documented in
 [`../reference/REGISTER_MAP.md`](../reference/REGISTER_MAP.md) as the
-stream-sync error signal; the RTL comment offers it as a "zero-noise error
-signal for userspace PHC discipline". **That reading is valid only while the
+stream-sync error signal. **That reading is valid only while the
 two clocks are within one lap of each other.** Past that it is a walking,
 meaningless number that looks exactly like a well-behaved error signal, and
 disciplining anything from it would lock onto a fiction. Anything consuming
@@ -295,12 +294,13 @@ It was the talker end that was missing.
 **That drive now exists** —
 [`hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv`](../../hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv)
 feeds `tu` to every talker, and this page's argument is exactly why its
-`SYNC_OK` term is a **software lease** (`CLKV_CTRL` `0x778`) rather than
-anything derived on the wire: past one lap there is nothing on the wire to
-derive it from. See [`../reference/REGISTER_MAP.md`](../reference/REGISTER_MAP.md),
-the `0x778` group. This page deliberately does not duplicate that design; what
-belongs here is only the reason — the wrap, not a policy preference, is what
-makes talker-side declaration the only option.
+sync term comes from the fabric servo's committed publication rather than an
+offset inferred from the wire: past one lap there is nothing in the modular
+timestamp to derive it from. Option OFF has no servo and therefore holds `tu`
+at one. See [`../reference/REGISTER_MAP.md`](../reference/REGISTER_MAP.md), the
+`0x778` group. This page deliberately does not duplicate that design; what
+belongs here is only the reason — the wrap, not a policy preference, makes a
+truthful owner-side declaration mandatory.
 
 ## Reproducing the arithmetic
 

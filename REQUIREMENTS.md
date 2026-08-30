@@ -1,395 +1,186 @@
-# TSN on FPGA — Requirements
+# TSN/Milan FPGA requirements
+
+This document is the normative product contract for VERSION `0x0002_0056`.
+The supported product is an Artix-7 end station with RV32I bare-metal firmware,
+a memory-mapped CSR plane at `0x9000_0000`, fabric protocol processing, and a
+1-Gbit/s MAC datapath. Superseded platform briefs and campaign narratives are
+kept in Git history rather than the tracked product tree (#259).
 
 ## Contents
 
-- **[1. Goal and scope](#1-goal-and-scope)** -- The four standards in scope and the software deliverables, prefaced by the platform-migration note that supersedes the Zynq framing everywhere below: softcore on Artix-7, GMII not RGMII, CSR base `0x9000_0000`. The `REQ-*` IDs survived the move; only the mechanics changed.
-- **[2. Reference standards](#2-reference-standards)** -- One table pinning each abbreviation to an edition and the clauses actually used (802.1Q Section 8.6.8 CBS, Section 34 deltaBandwidth, 802.3 Clauses 22/28/30/31), and the two gPTP scopes this repository answers to.
-- **[3. Missing elements to comply with the 802.1 configuration standards (gap analysis)](#3-missing-elements-to-comply-with-the-8021-configuration-standards-gap-analysis)** -- The frozen original audit: 60 gaps across six domains, one root cause (no memory-mapped CSR plane at all), and the CBS-math verdict split into confirmed / latent / refuted. Historically it is the motivation for Section 4, not current state; the refuted "hiCredit wrong at 100 M" claim is worth reading before you re-raise it.
-- **[4. Requirements (normative)](#4-requirements-normative)** -- The normative register itself, `REQ-CSR/PTP/CBS/CLS/MAC/VER-*`, each with a standard clause and an acceptance criterion. The long entries carry the history: REQ-CLS-10 on why untagged control frames match by destination MAC and not PCP, and REQ-MAC-04 on why "readable via CSR" was not enough when the event bus was tied to `0`.
-- **[5. Priority / phasing](#5-priority--phasing)** -- Two sentences: the CSR plane was the critical path that unblocked everything else; current compliance blockers live in the [Milan v1.2 audit](docs/testing/MILAN_V12_AUDIT_2026-08-16.md) and open GitHub issues.
-- **[6. Out of scope (future work)](#6-out-of-scope-future-work)** -- The explicit not-doing list, 802.1Qbv/TAS, Qci PSFP, one-step PTP, UDP/IPv4 transport, 802.1ad, and frame preemption, so their absence reads as a decision rather than an oversight.
-- **[7. Traceability](#7-traceability)** -- Where the per-gap detail went: each requirement traces to a clause and a Section 3 gap ID, while current implementation coverage is in the [generated module matrix](docs/traceability/MODULE_MATRIX.md).
-- **[8. Acceptance (end-to-end)](#8-acceptance-end-to-end)** -- The definition of done for the whole interface: one fabric PHC and publication owner, the shaper meeting SR reservations while best-effort takes the remainder, counters served over the CSR ABI, and green harnesses in CI.
-- **[9. Original brief (preserved)](#9-original-brief-preserved)** -- The verbatim starting brief and its status snapshot, kept so the scope creep is visible, with a delivered-so-far list appended at the end.
+- **[1. Product ownership](#1-product-ownership)** — Defines the one supported bare-metal target and its fabric/firmware responsibilities.
+- **[2. Reference standards](#2-reference-standards)** — Names the IEEE, Milan and interface specifications that constrain the design.
+- **[3. CSR plane](#3-csr-plane)** — Requires a stable, coherent AXI-Lite register ABI and explicit access semantics.
+- **[4. Time synchronization and timestamping](#4-time-synchronization-and-timestamping)** — Assigns the PHC, gPTP publication and AVTP uncertainty contracts to fabric.
+- **[5. Credit-based shaping](#5-credit-based-shaping)** — Specifies fixed-point CBS behavior, limits and runtime configuration.
+- **[6. Classification and queues](#6-classification-and-queues)** — Defines class mapping, control traffic treatment and queue ordering.
+- **[7. MAC and PHY management](#7-mac-and-phy-management)** — Covers frame integrity, filtering, link recovery and timestamp boundaries.
+- **[8. Verification and release acceptance](#8-verification-and-release-acceptance)** — Sets the local, remote and exact-candidate evidence bar.
+- **[9. Out of scope](#9-out-of-scope)** — Records deliberately unsupported profiles without creating alternate product paths.
 
-## 1. Goal and scope
+## 1. Product ownership
 
-Turn the Milan FPGA design (Zynq-7020, custom 1 G RGMII MAC) into a **real,
-software-configurable TSN network interface** that complies with the relevant
-IEEE 802 standards:
-
-> **Bare-metal-only supersession (#259, USER directive 2026-08-25).** The
-> supported product target is **bare-metal RV32I only**. The host-software
-> deliverables this section originally framed are **retired as product paths**
-> and their requirement text now lives in git history rather than in this
-> checkout. The fabric gPTP plane is the product's one PHC and
-> publication owner; an option-off elaboration is verification-only hardware
-> with no software owner and no supported image.
-
-> **Platform migration note (as-built, supersedes the Zynq-era framing below).**
-> The design shipped as a **fully-FPGA VexiiRiscv softcore on Artix-7 (Alinx
-> AX7101)**, not a Zynq-7020 PS. The board MAC is **GMII** (8-bit SDR), not RGMII
-> — the RGMII path was a mis-strap and is retired. The CSR window base moved from
-> the Zynq PS `0x43C0_0000` to the softcore IO region **`0x9000_0000`** (offsets =
-> the same ABI). The REQ-* IDs below remain normative; only the platform
-> mechanics changed.
-
-* **IEEE 802.1Q** traffic classification and queuing (PCP → traffic class).
-* **IEEE 802.1Qav** credit-based shaper (CBS) for the SR classes.
-* **IEEE 802.1AS / IEEE 1588** gPTP hardware timestamping (**timestamp + a
-  disciplinable clock**). The fabric gPTP plane (`gptp-processor`) is the
-  product default and the one owner: it runs transport and BMCA to the Milan
-  v1.2 profile of IEEE 802.1AS-2011, as section 2 says. With
-  `GPTP_PLANE_EN_P` explicitly off the elaboration is verification-only
-  hardware carrying the option-off CSR ABI and NO gPTP owner (#259 retired
-  the software owner).
-* **IEEE 802.3** MAC configuration and management so the block also behaves like
-  a traditional MAC (station address, filters, speed/duplex, statistics),
-  configurable over a **memory-mapped** register interface (and/or MDIO).
-
-The product ships no host-software deliverable: the bare-metal firmware in
-this repository owns every software-visible contract (#259).
-
-> This document is the normative requirements spec. Current compliance blockers
-> live in the [Milan v1.2 audit](docs/testing/MILAN_V12_AUDIT_2026-08-16.md),
-> and executable work is tracked in the repository's open GitHub issues. The
-> prior free-form brief is preserved in Section 9. The gap analysis backing every
-> requirement is summarised in Section 3.
+- Bare-metal firmware owns boot policy, CSR initialization, identity,
+  persistence orchestration, UART diagnostics, and remaining software-visible
+  control.
+- The fabric gPTP plane is the sole product PHC, protocol, servo, and public
+  state owner.
+- `GPTP_PLANE_EN_P=0` is verification-only hardware. It has no product image
+  and zero runtime gPTP owners: GM, parent, PathTrace and peer delay are zero;
+  sync/asCapable are zero; `tu` is one; retained writes are inert.
+- The fabric owns per-frame classification, reservation, shaping,
+  timestamping, AVTP/AAF/CRF, MAAP, and IEEE 1722.1 processing.
+- Required Milan state must survive power loss. The current blank-flash NVM
+  face does not satisfy this requirement and is the release blocker in #70.
 
 ## 2. Reference standards
 
-| Ref | Standard |
-|-----|----------|
-| 802.1Q | IEEE 802.1Q-2018/2022 -- Bridges and Bridged Networks (classification, queuing, Section 8.6.8 CBS, Section 34 deltaBandwidth, clause 12 managed objects) |
-| 802.1Qav | IEEE 802.1Qav (Forwarding and Queuing for Time-Sensitive Streams -- CBS), folded into 802.1Q Section 8.6.8 |
-| 802.1AS | IEEE 802.1AS-2020 — gPTP (timing and synchronization) |
-| 802.1AS (Milan profile) | IEEE 802.1AS-2011 with Cor1-2013 and Cor2-2015, as profiled by Milan v1.2 section 4.2.6 -- the fabric gPTP plane's wire formats and state machines (`GPTP_PLANE_EN_P`, [docs/design/GPTP_PLANE.md](docs/design/GPTP_PLANE.md)); the controlField is the 11.4.2.7 / Table 11-7 value per message (Sync 0x0, Follow_Up 0x2, Announce and the three Pdelay messages 0x5) |
-| 1588 | IEEE 1588-2019 — Precision Time Protocol |
-| 802.3 | IEEE 802.3-2022 — Ethernet MAC, Clause 22 (MDIO), Clause 28 (autoneg), Clause 30 (management), Clause 31 (PAUSE) |
+| Ref | Product use |
+|---|---|
+| IEEE 802.1Q-2018/2022 | classification, queuing, managed objects, and Section 34 bandwidth rules |
+| IEEE 802.1Qav | credit-based shaping, folded into IEEE 802.1Q Section 8.6.8 |
+| IEEE 802.1AS-2011 with Cor1/Cor2 | Milan v1.2 gPTP wire profile and state machines |
+| IEEE 802.1AS-2020 | PHC/timestamp-assist semantics and traceability context |
+| IEEE 1588-2019 | timestamp representation and PTP terminology |
+| IEEE 802.3-2022 | MAC, MDIO, autonegotiation, counters, and PAUSE |
+| IEEE 1722-2016 | AVTP/AAF/CRF transport and timestamp-validity fields |
+| IEEE 1722.1-2021 | discovery, connection management, descriptors, commands, and counters |
+| Milan v1.2 | PAAD-AE product profile and validation obligations |
 
-**Two gPTP scopes.** The 802.1AS-2020 row covers the hardware-assist scope this
-register was written for: the PTP hardware clock, the timestamping planes,
-ingress/egress latency and the AS-1 to AS-12 rows of
-[docs/traceability/ieee8021as.md](docs/traceability/ieee8021as.md). The fabric
-gPTP plane that builds and parses the messages itself targets Milan v1.2, and
-Milan v1.2 section 4.2.6 defines gPTP by IEEE Std 802.1AS-2011,
-802.1AS-2011/Cor1-2013 and 802.1AS-2011/Cor2-2015 ("A PAAD shall implement all
-applicable requirements ... as defined by [802.1AS], [802.1AS-2011/Cor1], and
-[802.1AS-2011/Cor2]"); the plane therefore transmits the 802.1AS-2011 11.4.2.7 /
-Table 11-7 control values, where 802.1AS-2020 10.6.2.2.13 ("The value is 0.")
-would transmit 0. The two editions interoperate on this byte: IEEE 1588-2008
-13.3.2.10 deprecates its use by the receiver and IEEE 1588-2019 13.3.2.13 has it
-transmitted as 0 and ignored on receipt, so a 2020 peer accepts either value;
-what the Table 11-7 values buy is Milan conformance, which is what the tsn-gen
-802.1AS models and the Milan test plan grade. Decision recorded on #139
-(2026-08-22); no `REQ-*` row moves.
+The fabric gPTP transmitter follows the Milan-selected 802.1AS-2011 control
+field values. Receivers ignore that deprecated field as required by the later
+1588 edition.
 
-## 3. Missing elements to comply with the 802.1 configuration standards (gap analysis)
+## 3. CSR plane
 
-> **This section is the ORIGINAL audit snapshot, and it is deliberately frozen.**
-> It is the *motivation* for the `REQ-*` register below, not a statement of
-> current state — as its own headline finding ("there is no memory-mapped CSR
-> plane anywhere in the design") makes plain. Many rows have since been closed;
-> for example "stats invisible to SW" is satisfied by `REQ-MAC-04` (Section 4), the
-> `0x200` RMON group and the `STATS_CAP` capability mask. **Read Section 4's per-`REQ`
-> status for what is true today**, and
-> [the current Milan audit](docs/testing/MILAN_V12_AUDIT_2026-08-16.md) for
-> the compliance verdict and
-> [the generated module matrix](docs/traceability/MODULE_MATRIX.md) for live
-> RTL-to-test coverage.
+- **REQ-CSR-01 (MUST):** One documented AXI4-Lite CSR plane exposes version,
+  capabilities, interrupts, MAC, queues, PHC, protocol state, audio state, and
+  diagnostics. Acceptance: [`docs/reference/REGISTER_MAP.md`](docs/reference/REGISTER_MAP.md) matches RTL decode
+  and the CSR bench exercises every implemented group.
+- **REQ-CSR-02 (MUST):** Multiword live values use an explicit snapshot or
+  commit rule; no consumer may observe a torn identity, timestamp, path, or
+  counter set.
+- **REQ-CSR-03 (MUST):** Every clock-domain crossing uses a reviewed pulse,
+  toggle, handshake, or asynchronous-FIFO contract and survives independent
+  clock ratios and reset order.
+- **REQ-CSR-04 (MUST):** Interrupt status is latched, maskable, readable, and
+  clearable without losing a simultaneous event.
+- **REQ-CSR-05 (MUST):** `ID`, `VERSION`, and `CAP` are read-only authorities;
+  unsupported functionality is explicit rather than represented by a
+  plausible zero.
 
-A structured, multi-domain audit of the RTL/driver **as it stood at the time**
-was performed (with adversarial verification of the CBS arithmetic). **60 gaps**
-were identified.
-The single root cause behind most blockers: **there is no memory-mapped
-control/status-register (CSR) plane anywhere in the design** — every TSN knob is
-a compile-time parameter or a tied constant, so nothing can be configured at
-runtime, and the driver has nothing to bind to.
+## 4. Time synchronization and timestamping
 
-| Domain | Blockers | High | Med | Low | Headline finding |
-|--------|:---:|:---:|:---:|:---:|------------------|
-| Control plane / CSR | 3 | 3 | 2 | – | No AXI4-Lite CSR block exists; PS reaches only the two DMAs + DDR (`bd/milan-dma.tcl`). |
-| gPTP / 1588 / PHC | 5 | 1 | 5 | 1 | Timestamp counter is a fixed free-running adder — no adjfine/adjtime/settime/gettime, no IRQ. |
-| 802.1Q classification | 2 | 2 | 4 | 2 | PCP is decoded but **never used**; class is picked by EtherType; no PCP→TC table, no default priority. |
-| 802.1Qav CBS | 1 | 4 | 4 | – | Math is dimensionally sound but all knobs compile-time; all queues credit-limited; SR idleSlope sums to 100 %. |
-| 802.3 MAC / mgmt | 2 | 4 | 3 | 1 | MAC cfg tied constant (`cfg_ifg/tx_en/rx_en`, `is_1g`); no address filter; stats invisible to SW; no MAC IRQ. |
+- **REQ-PTP-01 (MUST):** The PHC supports enable, nominal increment, and
+  signed rate adjustment in Q8.24 nanoseconds per datapath tick.
+- **REQ-PTP-02 (MUST):** Absolute set, signed offset adjustment, and coherent
+  snapshot reads cross into the PHC domain exactly once per command.
+- **REQ-PTP-03 (MUST):** RX and TX event timestamps include direction,
+  sequence ID, and message type and cannot be re-paired across frames.
+- **REQ-PTP-04 (MUST):** Timestamp-ready events are observable through the CSR
+  interrupt contract.
+- **REQ-PTP-05 (MUST):** The fabric engine implements the Milan gPTP message
+  set, best-master selection, peer delay, receipt timers, and PHC servo.
+- **REQ-PTP-06 (MUST):** Ingress correction is subtracted and egress correction
+  is added at the documented timestamp boundary. #64 owns physical measurement
+  of the split.
+- **REQ-PTP-07 (MUST):** GM, parent, PathTrace, peer delay, sync and asCapable
+  publish atomically from the fabric bank to every CSR/protocol consumer.
+- **REQ-PTP-08 (MUST):** AVTP `tu` asserts on loss of sync and on the same edge
+  as a GM/sync discontinuity, remains asserted for the Milan holdover interval,
+  and is never used to stop a licensed stream.
+- **REQ-PTP-09 (MUST):** No write outside the fabric engine can manufacture
+  live gPTP health. Option OFF remains ownerless under adversarial writes.
 
-### CBS math verification (the flagged concern)
+Acceptance combines the focused PHC, timestamp, gPTP-plane, publication,
+clock-validity, CSR, and full-datapath benches with #117's two-board wire and
+publication correlation.
 
-Each CBS correctness claim was independently checked from three lenses
-(units / 802.1Qav conformance / RTL simulation) **and** with a new runnable
-Verilator harness ([`tb/verilator/cbs`](tb/verilator/cbs)):
+## 5. Credit-based shaping
 
-* **Confirmed real:** no runtime config; all queues credit-limited; SR idleSlope
-  = 100 % of link (violates Section 34 deltaBandwidth ≤ 75 %); ~2-cycle credit/transmit
-  pipeline skew; credit frozen during grant-with-backpressure; idle-per-cycle vs
-  send-per-byte decoupled from real line occupancy; stale/non-self-checking TB.
-* **Latent:** chained integer-division truncation in the slope terms — **zero
-  error for today's evenly-divisible slopes** (the harness measures 0.0 bytes of
-  quantization for the queue-0 config) but real once idleSlope is arbitrary/
-  runtime-programmable.
-* **Refuted (not a defect):** "hiCredit/loCredit wrong at 100 M." Because
-  hiCredit/loCredit depend on the *ratio* idleSlope/portRate, which is preserved
-  (500 M/1 G = 50 M/100 M = 0.5), the value 761 is correct at both rates.
+- **REQ-CBS-01 (MUST):** Each implemented shaped traffic class has independent
+  idleSlope, sendSlope, hiCredit, loCredit, enable, and reset controls.
+- **REQ-CBS-02 (MUST):** Credit accrues, freezes, transmits, and returns toward
+  zero according to IEEE 802.1Qav, including downstream backpressure.
+- **REQ-CBS-03 (MUST):** The sum of reserved idleSlope values does not exceed
+  the configured link budget; invalid programming is refused or flagged.
+- **REQ-CBS-04 (MUST):** Best-effort traffic receives the unreserved bandwidth
+  and is not credit-limited at reset.
+- **REQ-CBS-05 (MUST):** Queue priority and the configured SR class mapping are
+  stable across every shipping shape.
+- **REQ-CBS-06 (MUST):** Credit width and saturation prevent overflow at the
+  supported line rates and frame sizes.
+- **REQ-CBS-07 (SHOULD):** Configuration changes take effect at a documented
+  safe boundary and expose their active values.
+- **REQ-CBS-08 (MUST):** Focused arithmetic tests use an oracle independent of
+  the RTL implementation and include mutation-sensitive backpressure cases.
 
-## 4. Requirements (normative)
+## 6. Classification and queues
 
-Keywords **MUST / SHOULD / MAY** per RFC 2119. Each item lists a standard ref
-and the acceptance criterion. IDs are stable across the current documentation
-and verification artifacts.
+- **REQ-CLS-01 (MUST):** VLAN PCP maps through a programmable PCP-to-traffic-
+  class table.
+- **REQ-CLS-02 (MUST):** Untagged traffic uses an explicit default class.
+- **REQ-CLS-03 (MUST):** Station unicast, multicast, broadcast, and
+  promiscuous/all-multicast controls have documented precedence.
+- **REQ-CLS-04 (MUST):** Reserved protocol destinations are classified without
+  relying on a VLAN tag.
+- **REQ-CLS-05 (MUST):** Each frame's class sideband remains stable from the
+  classification decision through end-of-frame.
+- **REQ-CLS-06 (MUST):** Queue selection cannot change mid-frame under
+  back-to-back traffic or downstream stalls.
+- **REQ-CLS-07 (MUST):** Queue capacity, drops, and overflow conditions are
+  observable and cannot silently wrap.
+- **REQ-CLS-08 (SHOULD):** Runtime table updates are atomic from the frame's
+  point of view.
+- **REQ-CLS-09 (MUST):** Fabric-originated protocol traffic joins at the
+  documented priority boundary and cannot be starved by bulk traffic.
+- **REQ-CLS-10 (MUST):** Untagged gPTP and control PDUs are classified by
+  destination address and EtherType where required; PCP is not invented for
+  an untagged frame.
 
-### 4.A Control plane — memory-mapped CSR (foundation)
+## 7. MAC and PHY management
 
-* **REQ-CSR-01 (MUST)** The design MUST expose an **AXI4-Lite CSR slave** mapped
-  into PS `M_AXI_GP0` (e.g. `0x43C0_0000`, 64 KB) carrying all TSN configuration
-  and status. *(802.1Q clause 12; 802.3 Clause 30)* — *Accept:* driver `reg`
-  region reads back an ID/version register.
-* **REQ-CSR-02 (MUST)** The CSR block MUST provide read-only **ID / VERSION /
-  CAPABILITIES** registers; CAPABILITIES MUST encode `NUMBER_OF_QUEUES` and
-  feature bits (CBS, PTP, timestamp width) so the driver self-describes. —
-  *Accept:* driver sizes its queue/CBS tables from CAPABILITIES.
-* **REQ-CSR-03 (MUST)** CSR fields consumed in the `gtx_clk` (PTP/TX) domain MUST
-  cross clock domains safely (multi-bit value + synchronized apply-strobe;
-  single-bit via 2-FF). — *Accept:* CDC constraints + no metastability in review.
-* **REQ-CSR-04 (MUST)** The CSR block MUST provide **IRQ_STATUS (W1C)** and
-  **IRQ_MASK** registers and drive a PS interrupt line, aggregating: TX
-  timestamp available, link/speed change, RMON counter rollover. — *Accept:*
-  masked events raise IRQ_F2P and are cleared W1C.
-* **REQ-CSR-05 (MUST)** The register map MUST be documented as a stable **ABI**
-  ([`docs/reference/REGISTER_MAP.md`](docs/reference/REGISTER_MAP.md)) shared by the HDL and the firmware.
+- **REQ-MAC-01 (MUST):** IFG, TX/RX enable, link speed, and statistics reset
+  are controlled through the CSR contract.
+- **REQ-MAC-02 (MUST):** The RX path filters station unicast and programmable
+  multicast traffic, with explicit diagnostic bypass controls.
+- **REQ-MAC-03 (MUST):** Autonegotiated speed/duplex and link state reach the
+  MAC and firmware-visible status/interrupt paths.
+- **REQ-MAC-04 (MUST):** Good/bad frame, FCS, FIFO, and supported MAC events
+  feed coherent counters; `STATS_CAP` distinguishes unsupported lanes from
+  valid zero counts.
+- **REQ-MAC-05 (SHOULD):** Link and error events raise maskable interrupts.
+- **REQ-MAC-06 (SHOULD):** Bare-metal firmware can assert the PHY reset through
+  the SoC GPIO/CSR contract.
+- **REQ-MAC-07 (MAY):** PAUSE and jumbo-frame controls may be exposed when the
+  selected MAC implements them.
+- **REQ-MAC-08 (SHOULD):** Bare-metal firmware can access Clause-22 MDIO through
+  a fabric management master.
 
-### 4.B gPTP / IEEE 1588 hardware clock (PHC)
+## 8. Verification and release acceptance
 
-* **REQ-PTP-01 (MUST)** The timestamp counter MUST become a **register-controlled
-  accumulator**: a SW-writable nominal increment with **fractional-ns** bits
-  (phase accumulator) so frequency can be tuned. *(1588 Section 11.2)*
-  — *Accept:* writing ±ppm changes the measured rate accordingly.
-* **REQ-PTP-02 (MUST)** The clock MUST support **offset add/subtract (adjtime)**
-  and **absolute set (settime)** via a load register + apply strobe. *(1588
-  Section 7.2.1)* -- *Accept:* PHC_SET then gettime returns
-  the set value + elapsed.
-* **REQ-PTP-03 (MUST)** The clock MUST support **snapshot-on-read (gettime)** —
-  a read strobe latches the 64-bit TOD. — *Accept:* two reads differ by the
-  elapsed interval within jitter.
-* **REQ-PTP-04 (MUST)** TX egress timestamp completion MUST be signalled to
-  software (IRQ + status) and each metadata record MUST carry an unambiguous
-  TX-to-frame key (messageType + seq_id, ideally a HW cookie). *(1588 two-step)*
-  — *Accept:* every TX event frame matches its timestamp with no aliasing under
-  2 in-flight event messages.
-* **REQ-PTP-05 (SHOULD)** Only **event** PTP messages (Sync, Delay_Req,
-  Pdelay_Req/Resp) SHOULD be timestamped; general messages SHOULD NOT consume
-  the metadata FIFO. Parse `messageType[3:0]` (+ optional domain). *(1588 Section 7.3.4)*
-* **REQ-PTP-06 (SHOULD)** The PHC SHOULD provide SW-programmable per-port
-  **ingress/egress latency correction** registers; the capture point SHOULD be
-  characterized against the GMII SFD. *(802.1AS Sections 8.4/11.3.2)* -- the current
-  AXIS-SOP capture has fixed, uncorrected asymmetric latency.
-* **REQ-PTP-07 (SHOULD)** The PHC counter SHOULD be clocked from a **fixed
-  125 MHz** free-running clock (not the speed-switched `gtx_clk`) so the ns rate
-  is correct at 10/100/1000, or make the increment link-speed/`adjfine` driven.
-* **REQ-PTP-08 (MAY)** Provide **1PPS output** / external timestamp capture /
-  periodic output for PHC validation.
-* **REQ-PTP-09 (SHOULD)** Handle **C-VLAN-tagged gPTP**: detect 0x8100 and shift
-  the PTP field offsets by the tag width (today offsets assume untagged).
+- **REQ-VER-01 (MUST):** Focused Verilator suites cover CSR, PHC, timestamp,
+  gPTP, shaping, classification, protocol, persistence, and audio behavior.
+- **REQ-VER-02 (MUST):** The complete first-party RTL passes lint, elaboration,
+  and the pinned Yosys portability gate on the exact candidate.
+- **REQ-VER-03 (MUST):** Builder tests elaborate every shipping configuration,
+  refuse unsupported product options, and bind generated firmware/AEM/gPTP
+  images to the manifest.
+- **REQ-VER-04 (MUST):** Documentation, generated artifacts, source lists,
+  feature status, traceability, and the repository-wide bare-metal-only gate
+  are green with zero policy findings.
+- **REQ-VER-05 (MUST):** A booted shipping board demonstrates firmware startup,
+  UART diagnostics, fabric-owned gPTP, persistent state, and audio operation.
+  Two matched boards additionally demonstrate asCapable, GM transition/recovery,
+  publication/`tu` correlation, conformance, and latency (#117).
 
-### 4.C IEEE 802.1Qav credit-based shaper
+Release acceptance requires all requirements above or an explicit standards-
+cited deviation in the traceability table. At the current candidate, #70 and
+#117 remain hard blockers; desk checks cannot substitute for their power-cycle
+and physical measurements.
 
-* **REQ-CBS-01 (MUST)** Per-traffic-class **idleSlope, hiCredit, loCredit** MUST
-  be runtime-writable via CSR (sendSlope derived), plus a **per-queue CBS
-  enable**. *(802.1Q Sections 8.6.8.2 and 12.20, Section 34)* -- *Accept:* `tc qdisc … cbs`
-  parameters take effect without re-synthesis.
-* **REQ-CBS-02 (MUST)** **Non-SR classes (best-effort, and gPTP/control unless
-  explicitly shaped) MUST NOT be credit-limited** — they use strict priority
-  (`allow_transmit` forced high). *(802.1Q Section 8.6.8)* -- *Accept:* BE uses the full
-  idle link when SR queues are empty.
-* **REQ-CBS-03 (MUST)** Total configured SR idleSlope MUST be bounded by the
-  **deltaBandwidth** limit (default ≤ 75 % of port rate). *(802.1Q Section 34.3)* --
-  *Accept:* default config reserves ≤ 75 %; excess is rejected by the driver.
-* **REQ-CBS-04 (SHOULD)** Credit MUST continue to **accrue at idleSlope while a
-  queue is queued-and-blocked**, including *grant-with-backpressure* (not frozen).
-  *(802.1Q Section 8.6.8.2)* -- fixes `credit-frozen-during-backpressure`.
-* **REQ-CBS-05 (SHOULD)** Credit accounting MUST track real transmission with
-  minimal skew: collapse the double registration of `is_transmitting`/`bytes_sent`
-  and make arbitration see non-stale `allow_transmit`. *(802.1Q Section 8.6.8.2)*
-* **REQ-CBS-06 (SHOULD)** Slope fixed-point conversion SHOULD **round** (or use a
-  combined divisor / wider fraction) so credit does not drift for arbitrary
-  runtime idleSlope. *(precision)* — verified 0-error only for today's slopes.
-* **REQ-CBS-07 (SHOULD)** The `m_axis` egress MUST be **paced to true line rate**
-  (or line-occupancy time modelled) so idle accrual and send debit correspond to
-  real occupancy; document the upstream pacing assumption. *(802.1Q Section 8.6.8.2)*
-* **REQ-CBS-08 (MUST)** hiCredit/loCredit MUST track the **active port rate**
-  (already correct today via the preserved idleSlope/portRate ratio — keep this
-  invariant when values become runtime-writable). *(802.1Q Section 8.6.8.2)*
+## 9. Out of scope
 
-### 4.D IEEE 802.1Q classification and queuing
-
-* **REQ-CLS-01 (MUST)** Classification MUST derive priority from the received
-  **PCP** (`vlan_tci[15:13]`) for tagged frames, then map priority → traffic
-  class via a **programmable PCP→TC table** (Table 8-5), replacing the
-  EtherType-based decision. *(802.1Q Sections 6.9.3 and 8.6.6)* -- *Accept:* two AVTP
-  streams with different PCP land in different queues.
-* **REQ-CLS-02 (MUST)** The PCP→TC map, priority-regeneration table, and TC→queue
-  map MUST be **software-writable** via CSR. *(802.1Q clause 12)*
-* **REQ-CLS-03 (MUST)** Untagged/priority-tagged frames MUST use a configurable
-  **default port priority**, not a hardwired Best-Effort. *(802.1Q Section 6.9.3)*
-* **REQ-CLS-04 (SHOULD)** The class→queue ordering MUST be configurable and its
-  defaults MUST follow the standard. *(802.1Q Table 8-5)* — *Satisfied
-  2026-07-27 by the five-queue 802.1Q-ordered map* (q4 SR class A, q3 SR class B,
-  q2 gPTP, q1 control, q0 best effort; higher index = higher
-  priority; the map had a sixth, spare queue from VERSION `0x0011` to `0x0013`
-  and it was dropped for area). Note the **deliberate deviation**: gPTP is ranked **below** the
-  CBS-shaped classes, not above them. Credit-based shaping only bounds class-A
-  latency if the shaped queues are the top of the strict-priority order; gPTP
-  tolerates the demotion because it is timestamped in hardware at the egress
-  SFD, so queueing delay shifts *when* a message leaves, not the timestamp it
-  carries. Full reasoning in
-  [`docs/reference/EGRESS_QUEUE_MAP.md`](docs/reference/EGRESS_QUEUE_MAP.md).
-* **REQ-CLS-05 (SHOULD)** Extract and propagate **DEI** (`vlan_tci[12]`) as
-  sideband for policing/drop decisions. *(802.1Q Section 6.9.4)*
-* **REQ-CLS-06 (SHOULD)** The classifier MUST parse frames **back-to-back at line
-  rate** without requiring an inter-frame idle beat. *(802.3 min IFG)* — fixes the
-  documented "one clock cycle delay" limitation.
-* **REQ-CLS-07 (SHOULD)** gPTP/AVTP identification SHOULD validate the reserved
-  **destination multicast** (01-80-C2-00-00-0E for gPTP), not trust EtherType
-  alone. *(802.1AS Section 10.5)*
-* **REQ-CLS-10 (MUST)** **Untagged control frames MUST be classified by their
-  reserved destination MAC address, not by a PCP they do not carry.** MAAP,
-  MSRP, MVRP and the IEEE 1722.1-2021 ADP/ACMP/AECP trio are untagged
-  link-local PDUs; expressing their queue as a PCP mapping is fiction, and at
-  the reset configuration (`use_pcp = 1`) they fell through
-  `CLS_DEFAULT_PCP` into the ordinary tables and landed on best effort, leaving
-  the `CONTROL_CLASS` (q1) row of
-  [`docs/reference/EGRESS_QUEUE_MAP.md`](docs/reference/EGRESS_QUEUE_MAP.md)
-  documented but unimplemented. *(802.1Q Table 8-1; 802.1Q-2018 Section 35.2.2.1 MSRP;
-  Section 11.2.3.1.6 MVRP; 1722.1-2021 Section 6.2.1; 1722-2016 Annex B)* -- *Satisfied
-  2026-07-26, VERSION `0x0012`.* Structural requirements, in order:
-  1. the match MUST be a **table of destination addresses** so a protocol is
-     added as a row, not a redesign;
-  2. a row hit MUST NOT be conditioned on an EtherType — RSTP BPDUs ride
-     `01-80-C2-00-00-00` and have **no EtherType** (802.3/LLC, DSAP/SSAP
-     `0x42`), so an EtherType precondition would lock them out permanently;
-  3. the EtherType MAY refine **only** an address that carries two protocols —
-     today exactly one does, `01-80-C2-00-00-0E` (gPTP `0x88F7` → q2, MSRP
-     `0x22EA` → q1), and the two MUST NOT collapse into one queue;
-  4. AECP has **no** group address (it is addressed to the peer entity's
-     individual MAC, which on egress is the far end, not our station address),
-     so it is covered by one EtherType-keyed arm — untagged `0x22F0` to a
-     unicast destination — and that limitation MUST be documented, not hidden;
-  5. a **tagged** `0x22F0` is an AVTP stream and MUST still classify to
-     `SRA_CLASS`/`SRB_CLASS` by its PCP;
-  6. the fast path is enabled by `CLS_CTRL[2]`, which **resets to 1**; clearing
-     it MUST restore VERSION `0x0011` behaviour exactly.
-* **REQ-CLS-08 (MAY)** Recognize the configurable **S-TAG (0x88A8)** and stacked
-  C/S-TAG (802.1ad). *(802.1Q Section 9.5)*
-* **REQ-CLS-09 (MAY)** Per-stream filtering and policing (**802.1Qci**) —
-  stream gates + flow meters — is future scope.
-
-### 4.E IEEE 802.3 MAC configuration and management
-
-* **REQ-MAC-01 (MUST)** MAC control (`IFG`, `TX_ENABLE`, `RX_ENABLE`,
-  link-speed/`is_1g`, `stats_reset`) MUST be driven from CSR, not tied constants.
-  *(802.3 Sections 4.2 and 30.3.1)* -- *Accept:* interface up/down and IFG change from SW.
-* **REQ-MAC-02 (MUST)** The RX path MUST provide a **station-MAC address filter**
-  (exact-match unicast + multicast hash/CAM + promiscuous/allmulti) fed by CSR.
-  *(802.3 Section 4.2.4.2.2)* -- *Accept:*
-  non-matching unicast is dropped in HW unless promiscuous.
-* **REQ-MAC-03 (MUST)** The PHY autoneg result MUST configure the MAC speed/duplex
-  and **link state MUST be reported** to SW (status bit + IRQ). *(802.3 Clause 28)*
-* **REQ-MAC-04 (MUST)** MAC statistics (`ethernet_events`: tx/rx good/bad frame,
-  FCS error, FIFO over/underflow) MUST be **readable via CSR** with a coherent
-  **snapshot latch** and a `stats_reset` bit. *(802.3 Clause 30 / RMON;
-  `ethtool -S`)* — replaces the ILA/VIO-only `mark_debug` regs. — *Satisfied
-  2026-07-26, VERSION `0x0013`.* Readable-via-CSR was true from the start and
-  was **not enough**: the counters were wired, latched, documented and unit
-  tested while the event bus into them was tied to `0` in SoC glue, so both
-  boards read the whole group as zero for months. So the requirement now also
-  demands, and the build now provides:
-  1. every lane a soft MAC can honestly source MUST be sourced — good frames
-     from the MAC AXIS boundary, FCS and preamble/alignment errors and the
-     per-frame bad-frame flag from the MAC itself (`KL_mac_rmon_events`);
-  2. a lane with **no** source MUST be distinguishable from a lane with nothing
-     to report, through the `STATS_CAP` capability mask (`0x204`) — a zero
-     count alone is not an acceptable answer to "is this feature present?";
-  3. a never-overridden constant tie on the datapath boundary MUST fail a gate
-     ([`scripts/check_tied_inputs.sh`](scripts/check_tied_inputs.sh)) unless it carries a justified-tie entry
-     naming the reason and where the reason is recorded.
-* **REQ-MAC-05 (SHOULD)** MAC error/link events (RX overrun, TX underrun,
-  bad-FCS, link change) SHOULD raise a **PS interrupt** (via REQ-CSR-04).
-* **REQ-MAC-06 (SHOULD)** Provide a **software-controllable PHY reset** GPIO
-  (EMIO) described as `phy-reset-gpios` in DT. *(802.3 Section 22.2.4.1.1)*
-* **REQ-MAC-07 (MAY)** 802.3 **PAUSE** flow control and configurable **MTU/jumbo**.
-  *(802.3 Clause 31; `ethtool -A`, `ndo_change_mtu`)*
-* **REQ-MAC-08 (SHOULD)** PHY management (**MDIO**) MUST be reachable by the
-  driver (PS GEM1 EMIO MDIO referenced by `phy-handle`, or a fabric MDIO master),
-  bound to phylib. *(802.3 Clause 22)*
-
-### 4.H Verification
-
-* **REQ-VER-01 (MUST — DONE)** A **self-checking, runnable CBS harness** MUST
-  verify idle accrual→hiCredit, sendSlope→loCredit, empty reset-to-zero,
-  negative-credit recovery, grant/backpressure, 1 G & 100 M, against a reference
-  model. — *Done:* [`tb/verilator/cbs`](tb/verilator/cbs) (`make` → PASS, CI exit
-  code). Supersedes the stale `tb/utests/.../tb_credit_based_shaper.sv`.
-* **REQ-VER-02 (SHOULD)** A harness for **multi-queue arbitration**
-  (`traffic_shaping_core`) — one-hot grant, hold-until-`tlast`, eligibility,
-  priority, passthrough. *(mostly implemented by [`tb/verilator/shaper_core`](tb/verilator/shaper_core): grant one-hot, hold-until-`tlast`, eligibility and priority are checked; the passthrough leg is not yet observed)*
-* **REQ-VER-03 (SHOULD)** A **classifier** harness (PCP→TC table, VLAN offsets,
-  default priority, back-to-back frames).
-* **REQ-VER-04 (SHOULD)** A **CSR/register-map** testbench (reset values, W1C,
-  RO/RW masks, CDC apply-strobe) checked against [`docs/reference/REGISTER_MAP.md`](docs/reference/REGISTER_MAP.md).
-* **REQ-VER-05 (RETIRED, #259)** Host driver bring-up validation left the
-  requirement set with the host software target.
-
-## 5. Priority / phasing
-
-The CSR plane (Section 4.A) was the **critical path** that unblocked PTP, CBS,
-classifier and MAC config. Current blockers and
-their release rule are in the
-[Milan v1.2 audit](docs/testing/MILAN_V12_AUDIT_2026-08-16.md); executable work
-is tracked in the repository's open GitHub issues.
-
-## 6. Out of scope (future work)
-
-802.1Qbv/TAS (time-aware shaper) beyond a `taprio` hook; 802.1Qci PSFP; one-step
-PTP / transparent clock; UDP/IPv4 PTP transport; 802.1ad provider bridging;
-frame preemption (802.1Qbu/802.3br).
-
-## 7. Traceability
-
-Every requirement traces to a standard clause (above) and to a gap ID from the
-Section 3 audit. Current implementation and verification coverage is published in the
-[generated module matrix](docs/traceability/MODULE_MATRIX.md). The
-[historical `TODO.md`](docs/history/v1/TODO.md) preserves the original per-gap task descriptions
-as historical evidence only.
-
-## 8. Acceptance (end-to-end)
-
-The interface is "done" when the bare-metal product criteria hold: the
-fabric gPTP plane is the one PHC and publication owner and publishes coherent
-live state on every public face, the HW shaper meets SR reservations while BE
-uses the remainder, HW counters serve over the CSR ABI, and the CBS and CSR
-harnesses pass in CI. The host-driver criteria that once completed this list
-left it with the host software target (#259).
-
-## 9. Original brief (preserved)
-
-> The goal is to create a TSN network interface that complies with 802.1Qav,
-> gPTP (timestamp only) and traffic classification, and the 802.1 standard
-> overall; adding configuration features to behave like a traditional MAC over
-> MDIO or memory-mapped configuration, with PTP config/timestamping,
-> traffic-classifier config, CBS config and N hardware queues all reachable
-> from software.
->
-> **Status (original):** code in good shape but missing pieces to be usable as a
-> NIC. gPTP tested but not yet driven end to end. CBS math is complex — needs a
-> way to verify and run it. Memory-mapped configuration not done.
->
-> **What was to do →** ① list the missing elements for 802.1 compliance → **done
-> (Section 3)**; ② add standards-compliant requirements → **done (Section 4)**; ③ create
-> [historical `TODO.md`](docs/history/v1/TODO.md) → **done**; ④ tackle the tasks → **in progress**. Delivered so far:
-> the CBS verification harness ([`tb/verilator/cbs`](tb/verilator/cbs), REQ-VER-01), the CSR register
-> ABI ([`docs/reference/REGISTER_MAP.md`](docs/reference/REGISTER_MAP.md), REQ-CSR-05), the AXI4-Lite control-plane RTL
-> ([`hdl/common/csr/milan_csr.sv`](hdl/common/csr/milan_csr.sv), REQ-CSR-01/02/04) — the previously-missing
-> memory-mapped configuration — and its verification harness
-> ([`tb/verilator/csr`](tb/verilator/csr), REQ-VER-04). The remaining work named
-> at that snapshot is preserved in the [historical `TODO.md`](docs/history/v1/TODO.md). Current
-> work is tracked by the audit and open GitHub issues.
+802.1Qbv time-aware scheduling, Qci per-stream filtering/policing, frame
+preemption, one-step timestamping, routed PTP transport, stacked VLAN service
+tags, and unrelated HDL modernization are not part of this release.

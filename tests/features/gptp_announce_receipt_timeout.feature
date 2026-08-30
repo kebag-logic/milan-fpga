@@ -7,12 +7,10 @@
 # reason" (open defect D7). It had never been reproduced - a 25 s sample held
 # steady - so there was no way to prove any fix.
 #
-# It reproduces DETERMINISTICALLY: a saturating unicast RX flood aimed at the
-# grandmaster board (935 Mb/s UDP, 60 s, `iperf3 -c <board mgmt address> -u -b 950M
-# -l 1400`). During the flood the ALINX grandmaster emits ZERO
-# Announce and ZERO Sync - not late, ABSENT - because the single-ring RX path
-# (`rx_queues: 1`, no steer block) consumes the whole softcore in NAPI and
-# userspace never runs. Every peer then loses the master and re-elects.
+# It reproduces DETERMINISTICALLY: a 60 s saturating unicast RX flood aimed at
+# the grandmaster board. During the flood the ALINX grandmaster emits ZERO
+# Announce and ZERO Sync - not late, ABSENT - because sustained ingress traffic
+# starves time-sync processing. Every peer then loses the master and re-elects.
 #
 # THE RE-ELECTION IS NOT THE DEFECT. Losing a grandmaster that stopped
 # announcing is exactly what IEEE 802.1AS-2020 REQUIRES (the

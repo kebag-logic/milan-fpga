@@ -46,13 +46,6 @@ hdl/ieee1722/aaf/KL_chan_map_render.sv:KL_chan_map_render:map_flat_o
 hdl/ieee1722/aaf/KL_i2s_feed_mux.sv:KL_i2s_feed_mux:tap_tdata_i
 hdl/ieee1722/aaf/KL_lat_history_ring.sv:KL_lat_history_ring:ring_base_i
 hdl/ieee1722/aaf/KL_lat_history_ring.sv:KL_lat_history_ring:ring_len_i
-hdl/ieee1722/aaf/KL_pcm_ring_bram.sv:KL_pcm_ring_bram:length_i
-hdl/ieee1722/aaf/KL_pcm_ring_bram.sv:KL_pcm_ring_bram:offset_o
-hdl/ieee1722/aaf/KL_pcm_ring_bram.sv:KL_pcm_ring_bram:stride_i
-hdl/ieee1722/aaf/KL_pcm_tx.sv:KL_pcm_tx:SAMPLE_DIV_C  # named for a different unit than documented
-hdl/ieee1722/aaf/KL_pcm_tx.sv:KL_pcm_tx:rd_ptr_o
-hdl/ieee1722/aaf/KL_pcm_tx.sv:KL_pcm_tx:ring_len_i
-hdl/ieee1722/aaf/KL_pcm_tx.sv:KL_pcm_tx:ring_stride_i
 hdl/ieee1722/aaf/KL_tdm_capture_master.sv:KL_tdm_capture_master:BCLK_HALF_P
 hdl/ieee1722/aaf/aaf_talker_i2s.sv:aaf_talker_i2s:MCLK_DIV_LOG2
 hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv:KL_avtp_rx_monitor:CLK_FREQ_HZ_P  # named for a different unit than documented
@@ -104,9 +97,6 @@ hdl/milan/milan_datapath.sv:milan_datapath:o_resp_mem_req_beats
 hdl/milan/milan_datapath.sv:milan_datapath:o_resp_mem_wr_addr
 hdl/milan/milan_datapath.sv:milan_datapath:o_resp_mem_wr_data
 hdl/milan/milan_datapath.sv:milan_datapath:o_resp_mem_wr_strb
-hdl/milan/milan_datapath.sv:milan_datapath:pb_rd_ptr_o
-hdl/milan/milan_datapath.sv:milan_datapath:pb_ring_len_i
-hdl/milan/milan_datapath.sv:milan_datapath:pb_ring_stride_i
 protocol-processor:hdl/acmp/KL_acmp_nvm_shadow.sv:KL_acmp_nvm_shadow:DEB_TICKS_P
 protocol-processor:hdl/acmp/KL_acmp_nvm_shadow.sv:KL_acmp_nvm_shadow:LAYOUT_VER_P
 protocol-processor:hdl/aecp/KL_aecp_resp_buf.sv:KL_aecp_resp_buf:dbg_drop_o

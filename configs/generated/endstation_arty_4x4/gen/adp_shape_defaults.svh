@@ -72,31 +72,6 @@
   //! generated pass apart and can be compared:
   //! scripts/check_wire_accountability.py does exactly that.
   localparam int TALKER_WIRE_CHANS_C = 4;
-  //! gptp_domain_number - ADPDU byte 48 (1722.1-2021 6.2.1.16), served
-  //! from CSR 0x62C. It is the RESET value of that register, not a
-  //! read-only word, and the reason is Milan v1.2 5.3.6.1: the gPTP
-  //! domain number is DYNAMIC STATE the PAAD-AE 'shall maintain and
-  //! expose through the Control layer', not a build-time constant. A
-  //! write is already wired to the notification duty - gptp_domain_i is
-  //! a term of w_avbi_sig (KL_aecp_response_builder.sv:2260), so a change
-  //! raises the unsolicited GET_AVB_INFO push Milan Table 5.22 requires.
-  //! It now BOOTS holding the same number the builder wrote into this
-  //! config's /etc/gptp.<board>.cfg domainNumber line.
-  //! NOTE the value is not free: Milan 2 pins [802.1AS] to 802.1AS-2011
-  //! +Cor1-2013 +Cor2-2015 (NOT -2020), and 802.1AS-2011 8.1 states 'The
-  //! domain number of a gPTP domain shall be 0'. Multi-domain is an
-  //! 802.1AS-2020 feature Milan v1.2 does not adopt, so any non-zero
-  //! gptp.domain is out of spec for a Milan network - it is accepted
-  //! here only because the same config drives non-Milan bench setups.
-  //! Before this constant the two came from different places - the cfg
-  //! from gptp.domain, the register from a hardcoded
-  //! `w 0x62C 0x00000000` in avdecc/aecp_csr_setup.sh - and agreed only
-  //! because the shipping config happens to say 0. A config that said 1
-  //! would have run the selected gPTP owner on domain 1 while ADP
-  //! advertised domain 0,
-  //! silently. One YAML section, one number (USER 2026-08-05).
-  localparam int ADP_GPTP_DOMAIN_C   = 0;
-
   //! STREAM_INPUT[0]'s declared DEFAULT stream_format - the value
   //! KL_avtp_rx_monitor_ctx accepts frames against until a controller
   //! SET_STREAM_FORMATs the stream, and the base whose 48 kHz family

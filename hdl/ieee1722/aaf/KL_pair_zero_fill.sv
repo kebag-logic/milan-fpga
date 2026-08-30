@@ -57,9 +57,9 @@
                 periods (~41.7 us, two samples) of gap once, then steady
                 silence.
 
-                PLACEMENT. Downstream of the capture/playback pair mux and
-                upstream of the packetizer bypass mux, so it covers the
-                physical front-ends AND the PCM-ring playback source. The
+                PLACEMENT. Downstream of the physical capture/blend front end
+                and upstream of the packetizer bypass mux, so it covers every
+                physical capture slot the selected board shape supplies. The
                 output stage is REGISTERED: every strobe (live pass-through
                 or fill) leaves one clk_i cycle after its decision cycle -
                 a timing cut, not a semantic one; the packetizer is
@@ -92,7 +92,7 @@ module KL_pair_zero_fill #(
   input  wire                 rst_n,    //! active-low synchronous reset
   input  wire                 tick_i,   //! one-cycle 48 kHz media-grid strobe
 
-  // ---- physical pair stream in (capture/playback mux) ------------------
+  // ---- physical/blended capture pair stream in -------------------------
   input  wire                 pair_valid_i,
   input  wire [SLOT_W_P-1:0]  pair_slot_i,
   input  wire [23:0]          pair_l_i,

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Raw-socket AVDECC (IEEE 1722.1) controller: ADP discovery, READ_DESCRIPTOR,
 GET_COUNTERS, GET_STREAM_INFO, GET_AVB_INFO.  No la_avdecc dependency."""
-import argparse, socket, struct, sys, time, binascii, json
+import argparse, binascii, fcntl, json, socket, struct, sys, time
 
 ETH_P_ALL = 0x0003
 ETHERTYPE_AVTP = 0x22F0
@@ -10,6 +10,7 @@ AVDECC_MCAST = bytes.fromhex('91e0f0010000')
 SOL_PACKET = 263
 PACKET_ADD_MEMBERSHIP = 1
 PACKET_MR_MULTICAST = 0
+SIOCGIFHWADDR = 0x8927
 
 SUBTYPE_ADP, SUBTYPE_AECP, SUBTYPE_ACMP = 0xFA, 0xFB, 0xFC
 
@@ -91,8 +92,16 @@ def open_sock(iface, timeout=1.0):
 
 
 def my_mac(iface):
-    with open('/sys/class/net/%s/address' % iface) as f:
-        return bytes.fromhex(f.read().strip().replace(':', ''))
+    # The raw-socket host tool already requires AF_PACKET. Query the same
+    # interface descriptor directly instead of coupling it to a pseudo-file.
+    probe = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        info = fcntl.ioctl(
+            probe.fileno(), SIOCGIFHWADDR,
+            struct.pack('256s', iface.encode('ascii')[:15]))
+    finally:
+        probe.close()
+    return info[18:24]
 
 
 def strip_vlan(pkt):

@@ -11,7 +11,7 @@ makes the accept/reject verdict per field directly observable:
     good PDU            frames_rx++, pcm_pdus++, and after a few, media LOCK
     sequence jump       seq_mismatch++ / stream_interrupted++ ... but LOCKED
     unsupported format  unsupported_fmt++ and frames_rx UNCHANGED (rejected
-                        before acceptance, so no bad audio reaches the ring)
+                        before acceptance, so no bad audio reaches fabric)
     foreign stream_id   nothing moves at all (not our stream)
     non-AAF subtype     ignored by the parser
 
@@ -102,7 +102,7 @@ class Campaign:
 
     # ----------------------------------------------------------- 2 baseline
     def baseline(self):
-        self.rep.section("baseline: a good stream locks and reaches the PCM ring")
+        self.rep.section("baseline: a good stream locks and reaches the depacketizer output")
         st0 = self.reset()
         self.rep.eq("fresh stack: not locked", st0[C_LOCKED], 0)
         self.rep.eq("fresh stack: no frames", st0[C_FRAMES], 0)
@@ -110,7 +110,7 @@ class Campaign:
         for i in range(10):
             st = self.send()
         self.rep.eq("10 good PDUs -> frames_rx", st[C_FRAMES], 10)
-        self.rep.eq("10 good PDUs -> pcm_pdus (payload reached the ring)",
+        self.rep.eq("10 good PDUs -> pcm_pdus (payload reached fabric output)",
                     st[C_PCMPDUS], 10)
         self.rep.eq("media LOCKED", st[C_LOCKED], 1)
         self.rep.ck("lock counted exactly once", st[C_LOCKCNT] == 1,
@@ -152,7 +152,7 @@ class Campaign:
             else:
                 self.rep.eq("%s: REJECTED before acceptance (frames_rx frozen)"
                             % label, after[C_FRAMES], before[C_FRAMES])
-                self.rep.eq("%s: no bad payload reached the ring" % label,
+                self.rep.eq("%s: no bad payload reached fabric output" % label,
                             after[C_PCMPDUS], before[C_PCMPDUS])
             self.rep.eq("%s: STREAM STAYS LOCKED" % label, after[C_LOCKED], 1)
             self.rep.eq("%s: no unlock event" % label,
@@ -169,7 +169,7 @@ class Campaign:
                         str(self.delta(before, after)))
             self.rep.eq("channels_per_frame=%d: not flagged unsupported" % chans,
                         after[C_UNSUPFMT], before[C_UNSUPFMT])
-            self.rep.eq("channels_per_frame=%d: reaches the PCM ring" % chans,
+            self.rep.eq("channels_per_frame=%d: reaches fabric output" % chans,
                         after[C_PCMPDUS], before[C_PCMPDUS] + 1)
             self.rep.eq("channels_per_frame=%d: STREAM STAYS LOCKED" % chans,
                         after[C_LOCKED], 1)
@@ -193,7 +193,7 @@ class Campaign:
             moved = self.delta(before, after)
             self.rep.eq("%s: not accepted as our stream" % label,
                         after[C_FRAMES], before[C_FRAMES])
-            self.rep.eq("%s: nothing reached the PCM ring" % label,
+            self.rep.eq("%s: nothing reached fabric output" % label,
                         after[C_PCMPDUS], before[C_PCMPDUS])
             self.rep.eq("%s: STREAM STAYS LOCKED" % label, after[C_LOCKED], 1)
             if moved:
@@ -342,7 +342,7 @@ class Campaign:
                     drought[C_MATCHED], st2[C_MATCHED])
         self.rep.eq("accept drought: frames_rx never moved",
                     drought[C_FRAMES], st2[C_FRAMES])
-        self.rep.eq("accept drought: nothing reached the PCM ring",
+        self.rep.eq("accept drought: nothing reached fabric output",
                     drought[C_PCMPDUS], st2[C_PCMPDUS])
         self.rep.eq("accept drought: media UNLOCKED (no LOCKED lie)",
                     drought[C_LOCKED], 0)

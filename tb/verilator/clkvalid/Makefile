@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 #
 # KL_ptp_clock_validity harness: the AVTP "tu" verdict. Two shapes.
-#   fast  - QTICK_CYC_P = 8, so a lease expiry / holdover / observation
-#           interval all complete in a few hundred cycles; every behavioural
+#   fast  - QTICK_CYC_P = 8, so the holdover and observation intervals both
+#           complete in a few hundred cycles; every behavioural
 #           check lives here.
 #   real  - QTICK_CYC_P = 25_000_000 (the 100 MHz build's real 250 ms tick).
 #           Proves the divider arithmetic at the shipping value rather than

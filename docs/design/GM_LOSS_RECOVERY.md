@@ -5,10 +5,9 @@ SPDX-License-Identifier: CERN-OHL-W-2.0
 
 # Grandmaster loss and recovery — one fabric-owned mechanism
 
-Status: product architecture at VERSION `0x0002_0055` (2026-08-23).
-This page describes the default fabric-gPTP build. The older software-owner
-measurements remain useful only for the explicit option-off comparison and
-are separated in the final section. Booted-board and two-board acceptance
+Status: product architecture at VERSION `0x0002_0056` (2026-08-30).
+This page describes the fabric-gPTP product build and its ownerless
+verification-only option-OFF elaboration. Booted-board and two-board acceptance
 remain owned by #117; this document does not turn simulation into that
 physical evidence.
 
@@ -25,13 +24,13 @@ Companion to [TIME_SYNC.md](TIME_SYNC.md) for steady state and
 
 ## Contents
 
-- **[1. The active owner](#1-the-active-owner)** — The product-default `gptp-processor` owns the wire protocol, PHC actuator and one atomic public-state bank; host recovery runs without a gPTP daemon or CSR mirror
+- **[1. The active owner](#1-the-active-owner)** — The product-default `gptp-processor` owns the wire protocol, PHC actuator and one atomic public-state bank; recovery needs no parallel CSR mirror
 - **[2. Detecting loss and change](#2-detecting-loss-and-change)** — How Announce/Sync receipt expiry, BTCA and Pdelay qualification distinguish GM identity, synchronization and asCapable, including the valid “GM known but unsynchronized” state
 - **[3. Publication and tu ordering](#3-publication-and-tu-ordering)** — The commit boundary that prevents torn GM/parent/pdelay reads and asserts `tu` on the discontinuity edge before any frame can leak the old-health verdict
 - **[4. Public recovery surface](#4-public-recovery-surface)** — The selected-owner mapping into legacy CSRs, GET_AVB_INFO, GET_AS_PATH and AAF/CRF `tu`, with coherent multiword snapshots and ineffective software writes in fabric mode
 - **[5. End-to-end timeline](#5-end-to-end-timeline)** — The ordered loss-to-recovery sequence from receipt timeout through atomic publication, Annex B holdover and restored servo lock
 - **[6. Media and notification behavior](#6-media-and-notification-behavior)** — What continues during a time transition, what remains pinned to the internal media clock, and how selected-owner changes feed the complete Table 5.22 scheduler
-- **[7. Verification-only option-off elaboration](#7-verification-only-option-off-elaboration)** — What remains of the retired software-owner arm (#259): the option-off staging/lease CSR ABI as bench-driven verification hardware, with no daemon, no software profile, and no product image behind it.
+- **[7. Verification-only option-off elaboration](#7-verification-only-option-off-elaboration)** — The option-OFF proof target is deliberately ownerless: its publication outputs are zero, `tu` is asserted, and legacy writes are inert.
 
 ## 1. The active owner
 
@@ -44,10 +43,10 @@ The product-default datapath elaborates `KL_gptp_shadow` and the pinned
 - commits GM, parent, flags, peer delay, offset, announce quality and the
   bounded selected PathTrace as one outward publication bank.
 
-No software process steers the PHC or mirrors GM/path/CLKV state. Link
-recovery is the only job left outside the fabric, and it neither opens a time
-daemon's management socket nor writes publication CSRs. One owner therefore covers the wire protocol, clock actuator and public
-state.
+The fabric plane directly steers the PHC and atomically publishes GM/path/CLKV
+state. Link recovery only resets and requalifies the physical boundary; it does
+not participate in time selection or publication. One owner therefore covers
+the wire protocol, clock actuator and public state.
 
 ## 2. Detecting loss and change
 
@@ -59,8 +58,8 @@ state machines:
    when no better candidate remains.
 2. Sync/Follow_Up loss clears the published synchronized flag even if the last
    GM identity is still known.
-3. Pdelay qualification drives the published asCapable level and peer delay;
-   stale daemon values cannot survive because there is no daemon mirror.
+3. Pdelay qualification directly drives the published asCapable level and
+   peer delay in the engine's atomic publication bank.
 4. A different selected vector changes the published GM, parent and complete
    PathTrace at one engine commit boundary.
 
@@ -120,9 +119,9 @@ publication commit lands between transactions. GET_AVB_INFO and GET_AS_PATH
 likewise snapshot all gPTP fields at selector zero and hold them through the
 multi-word response.
 
-The legacy writes still receive AXI acknowledgements for ABI compatibility,
-but while the fabric option is on they cannot change these live faces or grant
-clock health.
+Legacy writes still receive AXI acknowledgements for address-map compatibility,
+but they cannot change these live faces or grant clock health in either
+elaboration.
 
 ## 5. End-to-end timeline
 
@@ -165,22 +164,12 @@ removal.
 
 ## 7. Verification-only option-off elaboration
 
-`fabric_gptp: false` is RETIRED for configurations (#259): the software owner,
-its image profile and the whole software publication chain no longer exist as
-product paths. The option-off form survives only as verification-only
-hardware, elaborated directly through `milan_soc.py` and driven by the
-benches.
+`fabric_gptp: false` is refused for every product configuration. The form
+survives only as a direct, verification-only elaboration and has no image or
+runtime owner behind it.
 
-In that elaboration the compatibility ABI remains:
-
-- software stages GM/parent LO and commits on HI;
-- `CLKV_CTRL` carries sync, discontinuity and asCapable plus a renewable
-  quarter-second lease; and
-- lease expiry clears the software claims and returns `tu` to 1.
-
-Historical 2026-08-06/07 measurements belong to this arm: a long self-GM era
-could make a running software servo slew a large phase cliff, and restarting
-that daemon could invalidate the mirror's management connection until the
-mirror restarted.
-Those observations explain why the compatibility lease fails safe. They are
-not steps in the product-default recovery path, which contains neither daemon.
+The retained addresses are inert compatibility surfaces. GM, parent, path and
+peer-delay publications read as zero; sync and asCapable read as zero; `tu`
+reads as one. Writes are acknowledged but cannot create a publication, renew a
+lease, clear `tu`, or assert clock health. The option-OFF tests explicitly try
+those writes and prove that the ownerless verdict does not change.

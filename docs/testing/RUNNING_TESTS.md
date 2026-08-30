@@ -1,252 +1,157 @@
-# Running the tests  -  the complete guide
+# Running the tests
 
-*2026-07-10. Every verification layer in this repo, how to run each one, what it
-covers, how long it takes, and the traps that have actually bitten. Written from a
-session that used all of them to root-cause two RTL bugs and a livelock.*
-
-The layers, cheapest-first (run them in this order when iterating):
-
-| # | Layer | Tool | Time | Catches |
-|---|-------|------|------|---------|
-| 1 | Import/elaboration smoke | python | ~2 s / ~2 min | syntax, width/name errors, Migen codegen traps |
-| 2 | LiteX/Migen behavioral suites | migen sim | 1–20 min | protocol/ordering/pairing logic, driver-contract breaks |
-| 3 | Verilator harnesses | verilator | ~1 min each | standalone SV modules (ADP, CBS, classifier, CDC…) |
-| 4 | Yosys portability | yosys+sv2v | minutes | Xilinx-primitive leakage, device portability |
-| 5 | P&R + timing | Vivado | ~50 min | timing, congestion, utilization |
-| 6 | Silicon validation checklist | board | ~15 min | everything the models missed |
-
-Layer 5 launcher: `sw/litex/build.sh <config> [<config>...] [--sweep]` - named
-board configurations (ax7101 ship shape, arty bring-up shape) defined ONCE in
-the script; pass several to build them in parallel (90 s stagger, 32 threads
-each, setsid, max 3 = the saturated box). `--sweep` expands each config into
-the 3-place-directive sweep. `--dry-run` prints the exact commands.
-`TAG=name` suffixes the output dirs; `-- <args>` appends milan_soc.py overrides.
-
----
+This is the execution guide for the current bare-metal product tree. Run the
+cheap structural checks first, then the RTL suites, synthesis, and finally the
+board acceptance lane.
 
 ## Contents
 
-- **[1. Elaboration smoke test (ALWAYS before committing RTL to P&R)](#1-elaboration-smoke-test-always-before-committing-rtl-to-pr)** -- Two seconds of import, then the **mandatory Migen-codegen grep**: three named constructs make Migen emit illegal Verilog that only Vivado rejects, and the Python simulator cannot see it because it evaluates the intent, not the emitted code.
-- **[2. The LiteX/Migen behavioral suites (sw/litex/test_\*.py)](#2-the-litexmigen-behavioral-suites-swlitextest_py)** -- Which suite owns which engine, how to run one test instead of twenty minutes of them (there is no pytest), and the standing rule to run the whole ring suite after any `RingDMAWriter` change. Three subsections follow: what a test body looks like and the warning that the driver models mirror the *contract* not the C code -- so when silicon disagrees with a green sim, suspect the driver; the geometry traps that produce convincing fake failures (a default `max_frame_beats=16` silently clips MTU frames; an un-replenished buffer pool fakes famine); and the cycle-exact `dbg_*` alias toolkit, including the `while True` watcher that turned a 10-minute test into 4 hours.
-- **[3. Verilator harnesses (tb/verilator/\*, one dir per suite — ls tb/verilator/ is authoritative)](#3-verilator-harnesses-tbverilator-one-dir-per-suite--ls-tbverilator-is-authoritative)** -- `make` in the suite directory, roughly a minute each, self-checking. Also the one-liner that sweeps every suite before a release-ish commit.
-- **[4. Yosys device-portability check (syn/yosys)](#4-yosys-device-portability-check-synyosys)** -- One script that maps the RTL to a generic cell library, which is what catches silent Xilinx-primitive dependence. The `tops` array in `run.sh` is the authoritative module list.
-- **[5. P&R (Vivado)  -  see the build scripts](#5-pr-vivado-----see-the-build-scripts)** -- The conventions that keep a 50-minute build from being wasted: the hard 32-thread cap (more aborts P&R), reading the **last** timing summary because mid-router WNS lines are pessimistic, and checking the place-utilization report because headroom is thin enough for a big register array to overflow placement.
-- **[6. Silicon validation checklist](#6-silicon-validation-checklist)** -- Five checks to run after a flash **before trusting any number**, ending with two that invalidate whole sessions when skipped: take throughput only from the peer's `tx_bytes` time series (short cells are slow-start-flattered), and confirm the peer in `ip neigh` is real, because a stale ARP to a ghost host voids everything above it.
-- **[The debug playbook that worked (for the next hard bug)](#the-debug-playbook-that-worked-for-the-next-hard-bug)** -- The four-step loop distilled from a session that caught two RTL bugs and a livelock: fingerprint on silicon, reproduce in sim *including the driver's reap-and-repost*, bisect with layered monitors, then one build.
+- **[1. LiteX and builder checks](#1-litex-and-builder-checks)** — Fast configuration, generated-artifact, source, and elaboration checks for the SoC.
+- **[2. Verilator suites](#2-verilator-suites)** — Running one affected RTL harness or the complete discovered suite inventory.
+- **[3. Protocol campaigns and behavior tests](#3-protocol-campaigns-and-behavior-tests)** — Processor-native and standards-facing campaigns for control, time, media, and robustness.
+- **[4. Yosys portability and static gates](#4-yosys-portability-and-static-gates)** — Open synthesis plus documentation, source, contract, and hygiene checks.
+- **[5. Place and route](#5-place-and-route)** — Candidate implementation, timing closure, and placed-resource evidence.
+- **[6. Silicon acceptance](#6-silicon-acceptance)** — UART grading and external-wire measurements on the exact flashed artifacts.
+- **[Debug loop](#debug-loop)** — The shortest evidence-preserving iteration sequence for a failing layer.
 
-## 1. Elaboration smoke test (ALWAYS before committing RTL to P&R)
+## 1. LiteX and builder checks
 
-```sh
-cd sw/litex
-python3 -c "import milan_soc"       # ~2 s: syntax/widths (use your LiteX venv)
-```
-
-Full elaboration without Vivado (generates verilog + csr.csv, no bitstream, ~2 min):
-run the intended build script with `--build` REMOVED (run=False path). Then the
-**mandatory Migen-codegen grep**  -  Migen can emit ILLEGAL Verilog that only Vivado
-rejects (Synth 8-2716), from three known constructs:
-
-- nested Array proxies: `arr[sig_a[sig_b]]`  -  resolve the inner index into a plain
-  comb Signal first (the "single-level hop" pattern, see `cq_of_*` in milan_soc.py);
-- computed array-WRITE indices: `arr[(tail+1)[:n]]`  -  precompute into a Signal;
-- FSM `NextValue` on packed 1-bit Arrays  -  use a `Signal(N)` bit-vector with RMW.
-
-Check the generated build dir: `grep -nE "^\s*\(.*\+.*\) *(<=|=) " <build>/gateware/*.v`
-(any arithmetic on the LHS = miscompile). Sim will NOT catch these  -  the Python
-simulator evaluates the intent, not the emitted Verilog.
-
-## 2. The LiteX/Migen behavioral suites (sw/litex/test_*.py)
-
-These are plain scripts  -  **no pytest** (not installed in the venv). Two ways to run:
+Start with an import and the builder's generated-artifact tests:
 
 ```sh
-cd sw/litex
-python3 test_ring_bd.py          # full suite (~10-20 min)
-python3 -c "
-import test_ring_bd as t
-t.test_hs_livelock_orphan()"                                    # one test
+python3 -c "import sys; sys.path.insert(0, 'sw/litex'); import milan_soc"
+python3 sw/builder/test_builder.py
+python3 scripts/check_soc_sources.py
+python3 scripts/check_sweep_shape.py --self-test
 ```
 
-Suites and what they own:
+For a full SoC elaboration without launching Vivado, invoke the intended
+`sw/litex/build.sh` recipe with its build action disabled. Inspect the emitted
+Verilog as well as the Python return status: Migen can represent an expression
+that a downstream Verilog front end rejects.
 
-- **test_ring_bd.py**  -  THE regression net for the RX BD/RSC/header-split engine
-  (~42 tests: +full-gate, +hs CQ pressure, cut-through ordering since hsq12; +the
-  byte-ring-fold pair since cbsf: folded-BD equivalence and the unarmed quiesce).
-  - For a fold-shape sweep, flip the class defaults to legacy_ring=False and
-    rerun the BD suites  -  the byte-ring suites test_ring_dma/test_ring_tx/
-    test_ring_writeback need the legacy default.
-  - Covers: ordering invariants (BD order == posted-pop order), the
-    drops/v2-alias regression, half-BD guards, multi-slot RSC, hs
-    split/crossing/interleave/famine, reload flush, storm models, the
-    livelock probe, the BD-ring full-gate (hsq6: drain stalls at wr+16==rd
-    instead of lapping the driver).
-  - `ALL PASS` on success; each test prints a `PASS <name>` line.
-  - NOTE the driver contract the models mirror since hsq6: every mid-sim
-    reap ends with a RING_RD write (`BDHarness.rd_sync(m.bd_rd)`), every
-    heal with `rd_sync(0)`  -  a model that reaps without advancing rd_ptr
-    wedges the gated HW exactly like a dead driver.
-- **test_ring_dma.py**  -  the base `Harness` (ring mode) + AXI slave memory model.
-  Imported by test_ring_bd via `importlib` (module name `trd`), also runnable alone.
-- **test_ring_tx.py / test_tx_bd.py**  -  TX ring + TX BD engines (HW-TSO era).
-- **test_ring_writeback.py**  -  pointer-writeback.
-- **test_rx_steer.py**  -  the 2-queue RX steering front-end (gPTP to q1, everything else q0).
+The small `sw/litex/test_*.py` inventory now covers only integration helpers
+that remain in the bare-metal SoC. The deleted memory-delivery engines and
+their behavioral models are not a product contract. Treat `ls sw/litex/test_*.py`
+as the inventory and run each tracked script directly with Python.
 
-Run the WHOLE ring suite after ANY RingDMAWriter change; it is the contract net that
-caught the s_cq width relic shrink and would catch a CQ regression.
+## 2. Verilator suites
 
-### 2.1 Harness architecture (what a test looks like)
-
-```python
-h = BDHarness(ring_size=4096, max_frame_beats=256, fifo_beats=2048,
-              burst_beats=16, cycles=150000)
-def stim():                       # ONE generator = the test body
-    yield from h.init_bd(bd_entries=64)
-    yield h.dut.rsc_en.storage.eq(1)          # poke CSRs directly
-    yield from h.post_buf(0x100000)           # post an RX buffer (the driver's job)
-    yield from h.send_frame(words)            # inject a frame (64-bit beats)
-    ...
-h.run(stim)                       # wraps stim + axi_slave + ready_monitor
-```
-
-- `h.mem` is a plain dict = the AXI slave memory. Read it mid-sim (`h.mem.get(addr)`)
-  or via `h.read_bd(idx)` / `h.read_buf(addr, beats)`. BDs land at `BD_BASE`.
-- `tcp_frame()/tcp_tagged()` build real TCP frames (flags/doff/seq/ports) so the RSC
-  eligibility decode runs authentically.
-- Checkers: `DriverModel`/`StormModel` MIRROR kl-eth's reap (incl. the half-BD guard
-  and w1-clear). **They mirror the CONTRACT, not the C code**  -  a bug in the driver's
-  own control flow (e.g. the hsplit consume fall-through) is invisible here. When
-  silicon disagrees with a green sim, suspect the driver C first.
-
-### 2.2 Timing budgets and geometry traps
-
-- `cycles=` is the hard sim budget. The 100 MHz silicon values scale 1:1 (rsc_tout
-  500 µs = 50 000 cycles, agemax 2 ms = 200 000)  -  size `cycles` to cover the phases
-  you need, not more: python sim runs ~10-50k cycles/min depending on watchers.
-- `Harness` DEFAULT `max_frame_beats=16` TRUNCATES MTU frames  -  a 1448-byte frame
-  needs `max_frame_beats>=190`; use 256. Symptom of the trap: phantom "wedges" from
-  silently clipped frames.
-- Bounded posted pools must be REPLENISHED if the regime is supposed to model the
-  driver (kl-eth reposts what it consumes). A fixed pool that dries up produces
-  convincing-but-fake famine failures (this session's first false repro).
-
-### 2.3 Cycle-exact introspection (the livelock toolkit)
-
-`RingDMAWriter` exposes zero-cost debug aliases (plain attribute refs, no hardware):
-`dbg_cq_head/tail/done`, `dbg_s_open/s_cq/s_cqm`, `dbg_pv3_pend/pv3_cqi/meta_cqi`,
-`dbg_head_open_hit`, `dbg_cq_level`. Read them in any generator:
-`hd = yield h.dut.dbg_cq_head`, arrays per-element: `yield h.dut.dbg_cq_done[i]`.
-FSM state: `st = yield h.dut.fsm.state`; decode numbers with
-`h.dut.fsm.encoding` (dict name→code; build a dut + `.finalize()` to print it).
-
-For 1-cycle pulses (e.g. `pv3_pend` set one cycle, consumed the next) a sampler
-INSIDE stim aliases  -  you MUST use an independent full-rate generator:
-
-```python
-def watcher():
-    while not state["stop"]:      # MUST be stoppable  -  see trap below
-        yield
-        ... read dbg signals, print transitions with a cycle counter ...
-h.run(stim, extra_gens=[watcher()])   # Harness.run grew extra_gens for this
-```
-
-**Trap:** a `while True` watcher never exhausts, so `run_simulation` runs to the FULL
-`cycles=` budget even after stim returns (a 2M-cycle budget turned a 10-minute test
-into 4+ hours). Always share a stop flag that stim sets on every exit path.
-
-**Trap:** printed event ORDER from sparse samplers is meaningless  -  batch prints
-lag. Only the full-rate watcher's cycle numbers are ordering-trustworthy.
-
-## 3. Verilator harnesses (tb/verilator/*, one dir per suite — `ls tb/verilator/` is authoritative)
-
-Standalone self-checking C++ harnesses for the pure-SV modules (adp_tx, cbs,
-cdc, classifier, csr, datapath, pp_shadow, ptp, …). Each dir:
+Each directory below `tb/verilator/` that contains a `Makefile` is a
+self-checking suite. Run one affected suite while iterating:
 
 ```sh
-cd tb/verilator/adp_tx && make     # builds + runs; self-checking, prints PASS/checks
+make -C tb/verilator/milan_dp
+make -C tb/verilator/pp_shadow
+make -C tb/verilator/csr
 ```
 
-> **The suite list shrank on 2026-08-13.** Thirteen suites went with the legacy
-> IEEE 1722.1 / SRP control-plane RTL they exercised — `aecp`, `aempatch`,
-> `acmp`, `acmp_lstn`, `persist`, `adp`, `adp_advertise`, `adp_parser`, `lwsrp`,
-> `lwsrp_ctx`, `lwsrp_rx`, `lwsrp_tx`, `lwsrp_switchpdu` — along with the `csr`
-> suite's `obj_live` leg and the `tsn_fuzz` AECP/ACMP/ADP campaigns (only the
-> AAF campaign survives). The control plane is now the protocol processor, and
-> `tb/verilator/pp_shadow` is its suite. `ls tb/verilator/` remains the
-> authority; do not take a suite name from prose.
->
-> **AECP now has an integration acceptance lane.** The processor serves its
-> declared command inventory, including `READ_DESCRIPTOR`, `GET_COUNTERS`,
-> stream-state getters, clock-source operations, Identify controls, and Milan
-> information. Unsupported commands receive the conformant fallback. The
-> builder generates `aem_desc.bin`, `aem_desc.json`, and `aem_desc.map`; the
-> tracked board flow runs `aemi-load` before enabling the entity. A custom
-> integration that omits the load still fails closed with `BAD_ARGUMENTS`, while
-> a locate miss in a valid image returns `NO_SUCH_DESCRIPTOR`.
->
-> `tb/verilator/pp_shadow` grades processor presence, the RX classify path, the
-> class-D face, the MAAP adapter, the anti-wedge invariant, and Milan Delta 7
-> `ACQUIRE_ENTITY` response shape on the root wire. The processor's own pinned
-> suites remain the field-level command evidence. Consult the current audit for
-> the mandatory commands and root dynamic-state connections that remain open.
-
-No Xilinx dependencies (the RTL is XPM-free). Run the affected module's harness after
-touching its SV; run the full [tb/verilator/](../../tb/verilator) sweep before a
-release-ish commit:
+Run the complete inventory before release review:
 
 ```sh
 suite_logs=$(mktemp -d)
 scripts/run_all_suites.sh "$suite_logs"
 ```
 
-The no-option form is the complete serial local gate. GitHub schedules the
-same inventory as four isolated `--shard INDEX/4` workers and then rejects any
-missing, duplicate, or unexpected log in the aggregate `verilator-suites`
-check. To inspect that deterministic assignment without compiling, use
-`scripts/run_all_suites.sh --shard 0/4 --list`.
-
-## 4. Yosys device-portability check (syn/yosys)
+The runner discovers suites from the filesystem, serializes whole-tree sweeps,
+enforces a per-suite wall clock, and refuses to quote a total when a suite's
+check count cannot be read. CI uses the same inventory split into deterministic
+shards. Inspect the assignment without compiling with:
 
 ```sh
-cd syn/yosys && ./run.sh           # sv2v + yosys generic-cell mapping, per-module
+scripts/run_all_suites.sh --shard 0/4 --list
 ```
 
-Proves the RTL maps to a generic cell library (no silent Xilinx-primitive
-dependences); historically green across every top in the [`syn/yosys/run.sh`](../../syn/yosys/run.sh) `tops`
-array (the authoritative list; ECP5 target as the neutral device).
+The `milan_dp` suite is the integration authority for MAC-facing wire traffic,
+fabric AAF/TDM/I2S routing, protocol-processor merges, and the fabric gPTP
+option. The direct option-OFF shape is verification-only: it must publish zero
+GM, parent, path, and peer-delay state, remain unsynchronized and not
+AS-capable, set time-uncertain, ignore legacy publication writes, and emit no
+gPTP traffic.
 
-## 5. P&R (Vivado)  -  see the build scripts
+## 3. Protocol campaigns and behavior tests
 
-`~/litex-milan/work/build_*.sh` are the reproducible build recipes (each one = a
-documented experiment). Conventions: `source <your Vivado install>/settings64.sh`,
-venv on PATH, `--vivado-max-threads 32` (hard cap  -  more aborts P&R), launch via
-`nohup <script> > <log> &`, watch for the bitstream file. ~50 min.
+The pinned processor repositories own their native protocol suites. The
+superproject additionally runs the generated AAF and gPTP wire campaigns from
+`tb/verilator/tsn_fuzz` against the pinned `tsn-gen` revision. Set
+`TSN_GEN_ROOT` to that checkout when running them locally.
 
-Read the LAST "Design Timing Summary" (post-physopt)  -  mid-router WNS
-lines are pessimistic.
+Run the repository behavior layer with:
 
-Utilization headroom is thin (~81-98% LUT/slice depending on build): big register
-arrays (e.g. CQ depth) can overflow placement  -  check
-`<build>/gateware/*utilization_place.rpt`.
+```sh
+behave tests/features
+```
 
-## 6. Silicon validation checklist
+These scenarios exercise cross-artifact contracts and external-tool evidence;
+they complement, rather than replace, the cycle-accurate RTL harnesses.
 
-After flashing/JTAG-loading any new bitstream, BEFORE trusting any number:
-1. `MILN` ID probe (driver prints it at insmod), CBS `en=0` at reset,
-2. correct driver + params (`cat /sys/module/kl_eth/version`; rsc/rsc_clk_mhz/hwtso/hwcs/hsplit),
-3. known-good single-flow cell vs the build's baseline, `dmesg` clean
-   (no pairing/realign/resync), drop counters sane (`devmem 0xf000303c`),
-4. throughput claims ONLY from the peer-side tx_bytes 5 s time-series
-   (`ssh peer-host cat /sys/class/net/enp6s0/statistics/tx_bytes`, delta/5 s ×8)  - 
-   short cells are slow-start-flattered,
-5. verify the PEER is real: board `ip neigh` for `<peer-ip>` must show the peer
-   host's i210 MAC (`<peer-host-mac>`)  -  a stale ARP to a ghost host invalidates everything.
+## 4. Yosys portability and static gates
 
-## The debug playbook that worked (for the next hard bug)
+```sh
+syn/yosys/run.sh
+python3 scripts/check_baremetal_only.py
+python3 scripts/check_baremetal_only.py --self-test
+python3 scripts/check_rtl_source_lists.py --selftest
+python3 scripts/lint_rtl.py
+python3 docs/traceability/gen_module_matrix.py --check
+```
 
-1. Reproduce on silicon with counters (CSR probes)  -  capture the fingerprint.
-2. Reproduce in sim at the same regime  -  INCLUDING the driver's behavior (reap+repost),
-   or you will chase harness artifacts.
-3. Bisect with the layered monitors: transition sampler → full-rate watcher →
-   FSM-state tags on events → (if needed) new dbg aliases. Every iteration is
-   minutes, not builds.
-4. Name the exact state/cycle, read that RTL path, fix, suite, ONE build, silicon.
+`syn/yosys/run.sh` elaborates the authoritative top inventory and maps it to a
+generic cell library. The source-list gate independently walks the
+`milan_datapath` module closure and asks every synthesis/simulation consumer
+for its real source expansion.
+
+Run the documentation and traceability checks after any path or architecture
+change:
+
+```sh
+python3 scripts/docs_check.py
+python3 scripts/check_doc_paths.py
+python3 scripts/gen_toc.py --check
+python3 scripts/check_feature_status.py
+```
+
+## 5. Place and route
+
+The canonical launcher is:
+
+```sh
+sw/litex/build.sh <config> [<config> ...] [--sweep]
+```
+
+Gate the final candidate on non-negative post-route WNS and the placed
+utilization report. For AX7101 release candidates, retain comfortable timing
+margin and run the configured placement-directive sweep; an elaboration or
+out-of-context estimate is not a substitute for the placed design.
+
+## 6. Silicon acceptance
+
+After flashing or JTAG-loading a candidate, run the UART grader from the bench
+workstation:
+
+```sh
+python3 scripts/baremetal_uart_smoke.py \
+  --port /dev/serial/by-id/<adapter>
+```
+
+Require `ID=MILN`, `VERSION=0x0002_0056`, a loaded AEM image, enabled
+PTP/ADP/protocol processing, nonzero GM and parent identities, a bounded
+measured peer delay, a published path, `sync=1`, `asCapable=1`,
+`time_uncertain=0`, and two increasing PHC reads.
+
+Then generate and capture traffic with an external workstation or instrument.
+Preserve the exact bitstream identity, generated configuration, UART
+transcript, packet capture, and any external CSR transcript with the result.
+The UART intentionally exposes a small documented command set; it is not a
+general register shell.
+
+Physical and two-board acceptance for this change remains tracked in issue
+#117.
+
+## Debug loop
+
+1. Capture a reproducible wire/UART/CSR fingerprint on the candidate.
+2. Reproduce the same packet and timing conditions in the narrowest RTL suite.
+3. Add cycle-numbered observation at the first divergent fabric boundary.
+4. Fix the owning layer, rerun its focused suite, then run the full gates before
+   producing one new board candidate.

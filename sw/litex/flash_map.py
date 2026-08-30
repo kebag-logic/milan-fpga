@@ -9,10 +9,8 @@ lives at which offset.  The flash-map diagram, the trace-segment budget and
 the roundtrip gates read them THROUGH this module, by parsing the SoC source
 rather than importing it, so nothing needs LiteX installed to know the map.
 
-This reader lived in the retired partition emitter (`sw/dts/`) until #259
-removed that toolkit with the rest of the host stack.  The map it reads is
-still real, so the reader moved here, beside the file it parses, instead of
-being copied into each consumer.
+The reader lives beside the SoC source it parses so every consumer derives the
+same map without importing LiteX or maintaining a second copy.
 
 Usage:
     from flash_map import load_map, check_map, literal, READ_ONLY

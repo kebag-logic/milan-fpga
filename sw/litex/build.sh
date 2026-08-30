@@ -49,8 +49,8 @@ board_facts() {  # -> "serial cable fpga_part flash_policy bit_name"
     esac
 }
 gptp_owner_for_config() {
-    # #259: the fabric plane is the ONE gPTP owner; the software owner is
-    # retired, so no named config may expect it.
+    # #259: the fabric plane is the one gPTP owner, so every named product
+    # configuration must select it.
     case "$1" in
         ax7101|ax8x8|arty) echo fabric;;
         *)          return 1;;
@@ -139,16 +139,10 @@ fi
 cfg_ax7101() {   # shipping bare-metal shape: one cacheless RV32I hart.
                  # cfg_ax8x8 is the 8-stream bare-metal shape and cfg_arty the
                  # Arty bare-metal shape.
-    # BODY = the tdm8 internal-COMPLIANCE/ship set (byte-matched to the t529 sweep Command;
-    # the nic-perf RV64 revision below had leaked back in as the bare body,
-    # so an extras-less `--sweep ax7101` built prefetch-rpt/l2-16K/no-tdm8 -
-    # the whole t530 sweep was that wrong SoC, +11.5k LUTs, unplaceable).
-    # nic-perf revision (dormant, launch WITH extras if ever needed):
-    #   --l2-bytes 16384 --scala-args=--lsu-l1-refill-count=8
-    #   --scala-args=--lsu-hardware-prefetch=rpt
-    #   --scala-args=--l2-down-pending=8 --scala-args=--l2-general-slots=16
+    # TDM8 shipping profile: cacheless RV32, fabric protocol/media planes,
+    # board MAC/PHY and persistent AEM image.
     echo "--board ax7101 --cpu vexiiriscv --cpu-count 1 --xlen 32 \
-          --software-profile baremetal --all-blocks --coherent-dma \
+          --software-profile baremetal --full --num-streams 1 \
           --milan-clk-freq 50e6 --with-spiflash --flashboot baremetal \
           --gtx-tx-invert --timing-opt --floorplan --eth-port e1 \
           --no-i2s-playback --no-render-lpf --audio-interface tdm8 \
@@ -157,25 +151,10 @@ cfg_ax7101() {   # shipping bare-metal shape: one cacheless RV32I hart.
           --entity-gen-dir $SOC_DIR/../../configs/generated/endstation_ax7101_1x1_tdm8 \
           --synth-directive AreaOptimized_high --opt-directive ExploreArea \
           --l2-bytes 0 \
-          --uart-baudrate 115200 --rx-queues 2 --strip-probes --hs-page-bytes 16384 \
+          --uart-baudrate 115200 \
           --place-directive ExtraPostPlacementOpt"
 }
-cfg_ax8x8() {    # 8-stream (64ch) shape. History: the 07-24 close used
-                 # --rx-queues 1 (dropping the RX1 DMA RSC engine removed the
-                 # sys_clk critical path and freed ~3% LUT) - but D7 ended
-                 # that option on 2026-07-28: with one queue there is no
-                 # flow-steer block; under a 950M flood the time-sync ingress
-                 # starves and a conformant BMCA deposes the local GM
-                 # (docs/findings/GPTP_GM_LOSS_UNDER_RX_LOAD.md, 2/2). So
-                 # rx-queues is 2 NOW, non-negotiable, and the area it costs
-                 # is why the 0x0019 round spends the tier-1 prunes below.
-                 # The other 07-24 move stands: default (timing) synth
-                 # instead of the blunt AreaOptimized flag. The remaining -0.155 was a FALSE path
-                 # (cap_luid_r -> shared ctx read mux -> ACMP sweep writeback,
-                 # impossible: sweep write needs !w_frame_latch) fixed in RTL by
-                 # a dedicated sweep read port in the then-current ACMP listener
-                 # context (deleted 2026-08-13 with the legacy plane). Result
-                 # 2026-07-24: WNS +0.080, LUT 85.15%, TNS 0 (all seeds close).
+cfg_ax8x8() {    # 8-stream (64ch) bare-metal fabric endpoint.
     # 2026-08-22 (#157): --xlen 32 is STATED. This recipe carried no --xlen
     # from its creation (8a98d265, 07-24) and milan_soc.py defaults to 64, so
     # it implied an RV64 core while the 8x8 config, SOC_DEFAULTS, sweep.sh and
@@ -187,10 +166,10 @@ cfg_ax8x8() {    # 8-stream (64ch) shape. History: the 07-24 close used
     # for this recipe, not its figure.
     # 2026-08-25 (#259): this recipe is the cacheless bare-metal product.
     echo "--board ax7101 --cpu vexiiriscv --cpu-count 1 --xlen 32 \
-          --software-profile baremetal --all-blocks --coherent-dma --fabric-gptp \
+          --software-profile baremetal --full --fabric-gptp \
           --milan-clk-freq 100e6 --with-spiflash --flashboot baremetal --gtx-tx-invert \
           --timing-opt --floorplan --eth-port e1 --l2-bytes 0 \
-          --uart-baudrate 115200 --rx-queues 2 --strip-probes --hs-page-bytes 16384 \
+          --uart-baudrate 115200 \
           --num-streams 8 --audio-interface tdm32 --audio-interface-master \
           --talker-wire-chans 8 --no-latency-taps --no-i2s-playback \
           --entity-gen-dir $SOC_DIR/../../configs/generated/endstation_ax7101_8x8 \
@@ -221,17 +200,15 @@ cfg_arty() {     # Arty A7-100 small endstation: MII 100M, QSPI flashboot (probe
     # configs/generated/sweep_opts_arty.sh. The 2-hart count dated from the
     # launcher's first commit (207192cc) and never matched a deployed Arty
     # bitstream (the m0019 ship was one hart); the absent --xlen implied RV64
-    # through milan_soc.py's default. The Arty is a retired DUT
-    # (docs/findings/BENCH_TOPOLOGY.md), so this recipe is proven to reach
-    # the Instance (test_builder gate 23g), not built.
+    # through milan_soc.py's default. The Arty recipe is proven to reach the
+    # Instance (test_builder gate 23g), not built.
     # 2026-08-25 (#259): bare-metal, like every named config.
     echo "--board arty --cpu vexiiriscv --cpu-count 1 --xlen 32 \
-          --software-profile baremetal --all-blocks --coherent-dma --fabric-gptp \
+          --software-profile baremetal --full --fabric-gptp --num-streams 1 \
           --sys-clk-freq 83.333e6 --milan-clk-freq 50e6 --with-spiflash --flashboot baremetal \
-          --uart-baudrate 115200 --timing-opt --strip-probes --l2-bytes 0 \
+          --uart-baudrate 115200 --timing-opt --l2-bytes 0 \
           --cbs-queues-mask 0x10 \
-          --entity-gen-dir $SOC_DIR/../../configs/generated/endstation_arty_current \
-          --rx-queues 2 --hs-page-bytes 16384"
+          --entity-gen-dir $SOC_DIR/../../configs/generated/endstation_arty_current"
 }
 
 SWEEP_DIRECTIVES="ExtraPostPlacementOpt AltSpreadLogic_high ExtraTimingOpt"

@@ -36,16 +36,15 @@
                 Milan v1.2 Annex B.1.1 (on a grandmaster change tu shall
                 be 1 for at least 0.25 s).
 
-                THE THREE TERMS, and where each owner's evidence lives:
+                THE THREE TERMS, and where the fabric owner's evidence lives:
 
-                  * SYNC HEALTH (sw_* / fabric_sync_ok_i). In compatibility
-                    mode the PHC is disciplined off-chip, so its health is a
-                    daemon servo fact that the datapath cannot infer. In
-                    fabric mode the on-chip gPTP engine owns that servo and
-                    publishes its selected-and-synchronised verdict directly;
-                    the software lease is inert. The compatibility boundary
-                    is not merely a wiring
-                    gap, it is information-theoretic - see
+                  * SYNC HEALTH (fabric_sync_ok_i). The on-chip gPTP engine
+                    owns the servo and publishes its selected-and-synchronised
+                    verdict directly. When the engine is not elaborated there
+                    is no clock owner: sync and asCapable are structural zero
+                    and tu is structural one. The retained sw_* ports are an
+                    inert ABI boundary; CSR writes cannot manufacture an
+                    owner. This boundary is information-theoretic - see
                     docs/design/PRESENTATION_TIME_WRAP.md: avtp_timestamp
                     is the LOW 32 BITS of an unsigned nanosecond count,
                     so it laps every 4.294967296 s, and once the true
@@ -56,20 +55,10 @@
                     indistinguishable from a well-behaved error signal -
                     which is precisely the square wave measured on
                     2026-07-27. No listener-side heuristic, and no
-                    fabric-side observation of our own wire, can recover
-                    the truth; only the active servo knows. Compatibility
-                    software therefore publishes its verdict -
-                    the established gptp2csr.sh pattern (GM id 0x624/8,
-                    pdelay 0x6E4, AS_PATH 0x730/4) - and it publishes it
-                    as a LEASE, not a flag: every CLKV_CTRL write
-                    reloads a countdown, and when the countdown runs out
-                    the claim lapses. A boolean written once at boot is
-                    exactly the defect above (the Arty was synchronised
-                    once, then drifted 60 h away while still asserting
-                    health). Reset state is sync_ok=0 / lease=0, i.e.
-                    UNKNOWN == NOT VALID: a compatibility build nobody
-                    teaches to publish sync state emits tu=1 forever, which
-                    is the honest answer, not the convenient one.
+                    fabric-side observation of our own wire, can recover the
+                    truth; only an active servo knows. An option-off build
+                    therefore emits tu=1 forever, which is the honest answer,
+                    not the convenient one.
 
                   * FABRIC-OBSERVED PHC STEPS (phc_load_p_i /
                     phc_adj_p_i). A settime or adjtime IS a discontinuity
@@ -78,10 +67,11 @@
                     here, as the PTP_CMD strobes. No software help
                     needed, no software trust required.
 
-                  * GRANDMASTER CHANGE (gm_id_i). The active owner publishes
+                  * GRANDMASTER CHANGE (gm_id_i). The fabric owner publishes
                     gptp_grandmaster_id for the advertiser; a change in that
                     value is a change of grandmaster. Detecting it here gets
-                    Milan Annex B.1.1 for free.
+                    Milan Annex B.1.1 for free. The option-off identity is
+                    always zero, so software cannot arm this path.
 
                 The last two arm a holdover of HOLD_QTICK_P quarter-
                 seconds (default 2 -> 0.25..0.5 s against a free-running
@@ -97,25 +87,15 @@
                 the second half of the decorative-ABI fix
                 (docs/limitations/RECURRING_DEFECT_PATTERNS.md 1).
 
-                asCAPABLE FOLLOWS THE ACTIVE OWNER (gh #64 J3). 802.1AS-2020
+                asCAPABLE FOLLOWS THE FABRIC OWNER (gh #64 J3). 802.1AS-2020
                 10.2.5.1: "A Boolean that is TRUE if and only if it is
                 determined that this PTP Instance and the PTP Instance at
                 the other end of the link attached to this PTP Port can
                 interoperate with each other via the IEEE 802.1AS
                 protocol" - and the clause adds that the determination is
-                MEDIUM-DEPENDENT. In compatibility mode it is the exchange
-                verdict the daemon computes; in fabric mode the on-chip engine
-                publishes its own verdict through fabric_as_cap_i. The old
-                compatibility consumer proxied it as |pdelay CSR|, which is
-                stale-true forever once the daemon dies and flag-flaps
-                when a starved pmc read maps "no answer" to pdelay 0.
-                So the compatibility daemon publishes its verdict as
-                CLKV_CTRL[2] on the SAME write that renews the lease, and
-                as_cap_r obeys the lease law sync_ok_r obeys: latched
-                only with a live lease, CLEARED when the lease lapses -
-                daemon death answers asCapable=0 by construction, and
-                Milan v1.2 Table 5.22 (asCapable is a GET_AVB_INFO push
-                trigger) fires exactly one honest edge for it.
+                MEDIUM-DEPENDENT. The on-chip engine publishes that verdict
+                through fabric_as_cap_i. Without the engine there is no
+                exchange and asCapable remains false by construction.
 
   Spec refs   : Milan v1.2 4.3.5.2 (talker shall set tu), 5.3.7.3
                 (streaming shall not stop), Annex B.1.1 (0.25 s on GM
@@ -134,28 +114,26 @@
 
 module KL_ptp_clock_validity #(
   //! cycles per 250 ms quarter-tick (= CLK_FREQ_HZ / 4). Simulation shapes
-  //! override this so a holdover and a lease expiry are reachable.
+  //! override this so a holdover and an observation interval are reachable.
   parameter int unsigned QTICK_CYC_P  = 25_000_000,
   //! discontinuity holdover in quarter-ticks. 2 => 0.25..0.5 s against the
   //! free-running prescaler, so Milan v1.2 Annex B.1.1's 0.25 s minimum
   //! holds whatever the phase of the event.
   parameter int unsigned HOLD_QTICK_P = 2,
-  //! Default 0 preserves the standalone/legacy CLKV lease contract. The
-  //! product datapath passes its gPTP elaboration option here; at 1, the
-  //! engine's published sync/asCapable levels own the verdict and software
-  //! writes cannot manufacture clock health.
+  //! The product datapath passes its gPTP elaboration option here. At 1, the
+  //! engine's published sync/asCapable levels own the verdict. At 0 there is
+  //! no owner, so sync/asCapable are zero and tu is one permanently.
   parameter bit FABRIC_GPTP_P = 1'b0
 ) (
   input  wire        clk_i,           //! datapath clock
   input  wire        rst_n,           //! active-low synchronous reset
 
-  //! --- software-published gPTP sync state (CSR CLKV_CTRL 0x778) ---------
-  input  wire        sw_wr_p_i,       //! 1-cycle pulse: CLKV_CTRL was written
-  input  wire        sw_sync_ok_i,    //! CLKV_CTRL[0] as written
-  input  wire        sw_disc_p_i,     //! CLKV_CTRL[1] W1S: software saw a discontinuity
-  input  wire        sw_as_cap_i,     //! CLKV_CTRL[2] as written: daemon's 802.1AS-2020
-                                      //! 10.2.5.1 asCapable verdict (leased, like [0])
-  input  wire [11:0] sw_wdog_q_i,     //! CLKV_CTRL[15:4] lease, quarter-ticks (0 = never trust)
+  //! --- inert compatibility inputs (intentionally ignored) --------------
+  input  wire        sw_wr_p_i,
+  input  wire        sw_sync_ok_i,
+  input  wire        sw_disc_p_i,
+  input  wire        sw_as_cap_i,
+  input  wire [11:0] sw_wdog_q_i,
 
   //! --- fabric gPTP publication bank ------------------------------------
   input  wire        fabric_sync_ok_i,//! engine has selected and synchronised to a GM
@@ -175,8 +153,8 @@ module KL_ptp_clock_validity #(
 );
 
   // --------------------------------------------------------------------
-  //  250 ms prescaler - the single time base for the lease, the holdover
-  //  and the observation interval.
+  //  250 ms prescaler - the single time base for the holdover and the
+  //  observation interval.
   // --------------------------------------------------------------------
   localparam int unsigned QTICK_MAX_C = (QTICK_CYC_P < 2) ? 2 : QTICK_CYC_P;
   localparam int unsigned QDIV_W_C    = $clog2(QTICK_MAX_C);
@@ -192,46 +170,16 @@ module KL_ptp_clock_validity #(
   end
 
   // --------------------------------------------------------------------
-  //  The software lease. Reset = no lease = NOT synchronised.
-  //  A write with wdog = 0 is a legal way to say "never trust me": it
-  //  arms an already-expired lease instead of an infinite one.
+  //  One possible owner. The option-off shape has no gPTP servo and cannot
+  //  truthfully claim synchronisation or asCapable. Keep that fact in the
+  //  combinational owner select so no state or software write can override it.
   // --------------------------------------------------------------------
-  logic        sync_ok_r;
-  logic        as_cap_r;
-  logic [11:0] lease_r;
-  logic        no_lease_r;
-
-  wire sync_ok_w = FABRIC_GPTP_P ? fabric_sync_ok_i : sync_ok_r;
-  wire as_cap_w  = FABRIC_GPTP_P ? fabric_as_cap_i  : as_cap_r;
-
-  always_ff @(posedge clk_i) begin : p_lease
-    if (!rst_n) begin
-      sync_ok_r  <= 1'b0;
-      as_cap_r   <= 1'b0;
-      lease_r    <= 12'd0;
-      no_lease_r <= 1'b1;
-    end else if (sw_wr_p_i) begin
-      sync_ok_r  <= sw_sync_ok_i & (|sw_wdog_q_i);
-      //! asCapable is a claim exactly like sync_ok: only a live lease can
-      //! carry it, and every write re-states it (a daemon that renews the
-      //! lease with [2] clear is REPORTING asCapable false, not silent)
-      as_cap_r   <= sw_as_cap_i & (|sw_wdog_q_i);
-      lease_r    <= sw_wdog_q_i;
-      no_lease_r <= ~(|sw_wdog_q_i);
-    end else if (qtick_w && (lease_r != 12'd0)) begin
-      lease_r <= lease_r - 12'd1;
-      if (lease_r == 12'd1) begin
-        sync_ok_r  <= 1'b0;   //! the claim lapsed - stop asserting health
-        as_cap_r   <= 1'b0;   //! ...and asCapable lapses WITH it (J3: a dead
-                              //! daemon's last claim must not outlive it)
-        no_lease_r <= 1'b1;
-      end
-    end
-  end
+  wire sync_ok_w = FABRIC_GPTP_P ? fabric_sync_ok_i : 1'b0;
+  wire as_cap_w  = FABRIC_GPTP_P ? fabric_as_cap_i  : 1'b0;
 
   // --------------------------------------------------------------------
-  //  Discontinuity holdover: PHC step, or a change of grandmaster, or a
-  //  software-reported discontinuity. Milan v1.2 Annex B.1.1.
+  //  Discontinuity holdover: PHC step or a fabric-owner change of
+  //  grandmaster. Milan v1.2 Annex B.1.1.
   // --------------------------------------------------------------------
   localparam int unsigned HOLD_MAX_C = (HOLD_QTICK_P < 1) ? 1 : HOLD_QTICK_P;
   localparam int unsigned HOLD_W_C   = $clog2(HOLD_MAX_C + 1);
@@ -245,8 +193,8 @@ module KL_ptp_clock_validity #(
   //! publication of a real grandmaster id IS a change and arms the holdover.
   //! That is correct: before it we did not know who the grandmaster was.
   assign disc_p_w = phc_load_p_i | phc_adj_p_i |
-                    ((!FABRIC_GPTP_P) & sw_disc_p_i) |
-                    (FABRIC_GPTP_P & fabric_disc_p_i) | (gm_id_i != gm_r);
+                    (FABRIC_GPTP_P &
+                     (fabric_disc_p_i | (gm_id_i != gm_r)));
   assign hold_w   = (hold_r != '0);
 
   always_ff @(posedge clk_i) begin : p_hold
@@ -297,19 +245,14 @@ module KL_ptp_clock_validity #(
 
   assign tu_ivals_o = tu_ivals_r;
 
-  //! Active-owner asCapable for GET_AVB_INFO and its Table 5.22 push
-  //! signature. The compatibility owner is leased; the fabric owner publishes
-  //! directly.
+  //! Fabric-owner asCapable for GET_AVB_INFO and its Table 5.22 push
+  //! signature. Option-off has no owner and therefore reports false.
   assign as_capable_o = as_cap_w;
 
-  //! CLKV_STAT: [0] tu now, [1] effective sync claim, [2] no live SOFTWARE
-  //! lease (legacy arm only), [3] discontinuity holdover, [15:4] legacy lease
-  //! remaining, [16] effective asCapable. In fabric mode the lease fields are
-  //! structural zero: the engine bank is the source, not a daemon deadman.
-  assign stat_o = FABRIC_GPTP_P
-                ? {15'd0, as_cap_w, 12'd0, hold_w, 1'b0, sync_ok_w,
-                   ts_uncertain_o}
-                : {15'd0, as_cap_w, lease_r, hold_w, no_lease_r, sync_ok_w,
+  //! CLKV_STAT: [0] tu now, [1] effective sync claim, [3] discontinuity
+  //! holdover, [16] effective asCapable. Compatibility fields [2] and
+  //! [15:4] are structural zero in every shape.
+  assign stat_o = {15'd0, as_cap_w, 12'd0, hold_w, 1'b0, sync_ok_w,
                    ts_uncertain_o};
 
 endmodule

@@ -256,11 +256,9 @@ module traffic_class_map #(
     // docs/reference/EGRESS_QUEUE_MAP.md - do not "fix" this by promoting
     // gPTP back above the SR classes.
     //
-    // NOTE: the TX-flood tx-ts timeouts of 2026-07-13 were NOT queue
-    // starvation - the delay lives in the DRIVER's single TX descriptor ring
-    // (256 slots ~ 30 ms of bulk backlog at 100 Mbit, upstream of this
-    // classifier). tx_timestamp_timeout 50 covers it; the real fix for that
-    // class is a priority TX ring/doorbell (future).
+    // Fabric control sources join after this classifier through dedicated
+    // arbitration. Bulk traffic classified here therefore cannot be used to
+    // infer or tune the latency of those control sources.
     // CONTROL FAST-PATH (2026-07-26, REQ-CLS-10): same argument as gPTP, for
     // the same reason. MAAP, MSRP, MVRP and the 1722.1 ADP/ACMP/AECP trio are
     // untagged link-local frames - they carry no PCP, so the PCP tables could

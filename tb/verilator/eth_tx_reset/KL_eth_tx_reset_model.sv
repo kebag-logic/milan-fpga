@@ -19,9 +19,8 @@
                 too, freezing (a) the reset_less pads.tx_en/tx_data launch
                 registers and (b) the gtx clock-forward. On RXC return the
                 framing/pointer state is stale = the silicon "TX wedge until
-                reload". The daemon-only phy_crg_reset used to be the sole
-                thing that re-inited that PHY-side state; eth_rst never reached
-                it.
+                reload". The old manual reset path was the sole thing that
+                re-initialized that PHY-side state; eth_rst never reached it.
 
                 This module carries the two register classes of that stage:
                   * tx_data_r  - a RESET_LESS data register (mirrors

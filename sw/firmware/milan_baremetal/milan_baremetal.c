@@ -32,11 +32,18 @@
 #define MILAN_ADP_MID_LO     0x60cu
 #define MILAN_ADP_MID_HI     0x610u
 #define MILAN_ADP_CAPS       0x614u
+#define MILAN_ADP_GM_LO      0x624u
+#define MILAN_ADP_GM_HI      0x628u
 #define MILAN_AAF_CTRL       0x654u
 #define MILAN_LWSRP_CTRL     0x680u
 #define MILAN_LWSRP_VID      0x684u
 #define MILAN_MAAP_CTRL      0x6ccu
+#define MILAN_GPTP_PDELAY    0x6e4u
+#define MILAN_AS_PARENT_LO   0x730u
+#define MILAN_AS_PARENT_HI   0x734u
 #define MILAN_CRF_TX_CTRL    0x750u
+#define MILAN_CLKV_STAT      0x77cu
+#define MILAN_AS_PATH_CMD    0x7e4u
 #define MILAN_PP_CTRL        0x920u
 #define MILAN_PP_STAT        0x924u
 
@@ -206,8 +213,19 @@ define_init_func(milan_init);
 
 static void milan_status_handler(int nb_params, char **params)
 {
+	uint32_t gm_lo, gm_hi, parent_lo, parent_hi;
+	uint32_t pdelay_ns, as_path, clkv_stat;
+
 	(void)nb_params;
 	(void)params;
+	/* The first half read snapshots each complete live 64-bit identity. */
+	gm_lo = milan_read(MILAN_ADP_GM_LO);
+	gm_hi = milan_read(MILAN_ADP_GM_HI);
+	parent_lo = milan_read(MILAN_AS_PARENT_LO);
+	parent_hi = milan_read(MILAN_AS_PARENT_HI);
+	pdelay_ns = milan_read(MILAN_GPTP_PDELAY);
+	as_path = milan_read(MILAN_AS_PATH_CMD);
+	clkv_stat = milan_read(MILAN_CLKV_STAT);
 	printf("ID=%08lx VERSION=%08lx PTP_CTRL=%08lx ADP_CTRL=%08lx PP_CTRL=%08lx PP_STAT=%08lx AEM=%s\n",
 	       (unsigned long)milan_read(MILAN_ID),
 	       (unsigned long)milan_read(MILAN_VERSION),
@@ -216,11 +234,21 @@ static void milan_status_handler(int nb_params, char **params)
 	       (unsigned long)milan_read(MILAN_PP_CTRL),
 	       (unsigned long)milan_read(MILAN_PP_STAT),
 	       aem_loaded ? "loaded" : "disabled");
+	printf("GPTP_GM=%08lx%08lx GPTP_PARENT=%08lx%08lx PDELAY_NS=%lu AS_PATH_COUNT=%lu AS_PATH_GEN=%lu CLKV_STAT=%08lx SYNC=%lu ASCAPABLE=%lu TU=%lu\n",
+	       (unsigned long)gm_hi, (unsigned long)gm_lo,
+	       (unsigned long)parent_hi, (unsigned long)parent_lo,
+	       (unsigned long)pdelay_ns,
+	       (unsigned long)(as_path & 0xfu),
+	       (unsigned long)((as_path >> 4) & 0xfu),
+	       (unsigned long)clkv_stat,
+	       (unsigned long)((clkv_stat >> 1) & 1u),
+	       (unsigned long)((clkv_stat >> 16) & 1u),
+	       (unsigned long)(clkv_stat & 1u));
 	print_tod(gettime_ns());
 }
 
 define_command(milan_status, milan_status_handler,
-	       "Show fabric, entity-image and PHC status", SYSTEM_CMDS);
+	       "Show fabric, gPTP publication, entity-image and PHC status", SYSTEM_CMDS);
 
 static void milan_gettime_handler(int nb_params, char **params)
 {

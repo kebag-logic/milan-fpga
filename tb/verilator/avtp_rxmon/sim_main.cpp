@@ -262,7 +262,7 @@ int main(int argc,char**argv){
        dut->cnt_media_reset_o | dut->cnt_late_ts_o | dut->cnt_early_ts_o, 0);
     { AafCfg c; c.seq=0; feed(build_aaf(stim, c)); }     // relock for later tests
 
-    printf("\n[19] ring backpressure: FIFO drops whole frames, tap never stalls\n");
+    printf("\n[19] depacketizer backpressure: FIFO drops whole frames, tap never stalls\n");
     dut->pcm_tready_i=0;
     for(int n=0;n<40;n++){ AafCfg c; c.seq=(uint8_t)(100+n); feed(build_aaf(stim, c)); }
     ck("drops counted", dut->pcm_drops_o > 0, 1);
@@ -399,7 +399,7 @@ int main(int argc,char**argv){
     //! for >= 8 AVTPDUs [1722-2016 4.4.4.3], so ONLY the edge is the event.
     //! This block used to pin the OPPOSITE as an accepted gap (AVTP-5): the
     //! parser never extracted mr, and the counter ticked on the local I2S
-    //! playback overrun/underrun rail instead - a signal the clause never
+    //! local renderer overrun/underrun rail instead - a signal the clause never
     //! mentions, tied to 1'b0 outright on a DAC-less shape.
     // (a) mr-toggled PDUs are format-valid and must keep flowing
     { AafCfg c; c.seq=11; c.mr=true;  feed(build_aaf(stim, c)); }

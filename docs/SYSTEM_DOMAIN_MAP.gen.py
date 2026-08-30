@@ -3,7 +3,7 @@
 import html, sys
 
 # (title, subtitle, fill, stroke, [module lines])
-TEAL=("#B2DFDB","#00796B"); RED=("#F8BBD0","#AD1457"); ORANGE=("#FFE0B2","#EF6C00")
+TEAL=("#B2DFDB","#00796B"); ORANGE=("#FFE0B2","#EF6C00")
 GREEN=("#C8E6C9","#2E7D32"); BLUE=("#BBDEFB","#1565C0"); PURPLE=("#E1BEE7","#6A1B9A")
 DARK=("#CFD8DC","#37474F"); YELLOW=("#FFF9C4","#F9A825")
 
@@ -11,16 +11,13 @@ LAYERS = [
  ("Bare-metal firmware", "on target · C (the one software surface, #259)", TEAL, [
     "Milan UART/CSR firmware: milan_status · milan_gettime · milan_settime · milan_utc",
     "LiteX BIOS (ROM): console + CRC'd copy of the raw AEM image from its QSPI slot"]),
- ("Retired software stack (#259, historical)", "no longer shipped · kept in git history", RED, [
-    "host kernel + NIC driver · supervisor firmware · published node · image build",
-    "host media userspace · the software gPTP owner"]),
  ("SoC integration: LiteX / Migen", "dev host · Python → Verilog  (sw/litex/milan_soc.py)", GREEN, [
     "MilanSoC (top: VexiiRiscv RV32 + DDR3 + NIC + flash)   ·   _CRG (PLL/clocks/CDC)",
-    "MilanNIC / add_milan_datapath   ·   MilanMAC (LiteEth glue)",
-    "MilanDMA (WishboneDMA engines)   ·   MilanDebug (pipeline telemetry)"]),
+    "MilanNIC / add_milan_datapath   ·   MilanMAC (LiteEth wire glue)",
+    "CSR bridge to bare-metal firmware   ·   fabric audio pins to board I/O"]),
  ("Milan datapath: RTL", "FPGA fabric · SystemVerilog / Verilog  (hdl/)", BLUE, [
-    "common: milan_top · milan_datapath · rx_mac_filter · tcam · milan_dma_wrapper · cdc_*",
-    "csr: milan_csr  (the AXI-Lite register ABI shared with the driver + DT)",
+    "common: milan_datapath · rx_mac_filter · tcam · cdc_*",
+    "csr: milan_csr  (the AXI-Lite register ABI shared with bare-metal firmware)",
     "802.1Q CBS: credit_based_shaper · traffic_classifier · traffic_class_map ·",
     "            traffic_controller_802_1q · traffic_queues · traffic_shaping_core",
     "PTP: ptp_ts_top · ptp_ts_core · timestamp_counter · ptp_csr_sync",
@@ -32,7 +29,7 @@ LAYERS = [
     "               unsupported commands return NOT_IMPLEMENTED",
     "events: ethernet_events · event_counter"]),
  ("Vendored IP", "FPGA fabric · 3rd-party cores", PURPLE, [
-    "VexiiRiscv (product RV32/sv32 CPU, SpinalHDL; NaxRiscv historical)   ·   LiteEth (MAC + GMII/RGMII PHY)",
+    "VexiiRiscv (product RV32I CPU, SpinalHDL)   ·   LiteEth (MAC + GMII PHY)",
     "LiteDRAM (DDR3, A7DDRPHY)   ·   LiteSPI (QSPI flash)   ·   verilog-axis (Forencich)"]),
  ("Board / silicon", "physical", DARK, [
     "XC7A100T-2FGG484 (Artix-7)  ·  DDR3 512 MB (MT41J256M16)",
@@ -43,8 +40,7 @@ SIDE = ("Host tooling", "Python / bash", YELLOW, [
     "endstation_builder.py: AEM image + fabric gPTP ROM from ONE config",
     "deploy.sh: build / load / flash-pair (live QSPI owner proof)",
     "build.sh: named bare-metal configs + flash transaction",
-    "crcfbigen: FBI image wrapper",
-    "retired (#259): the host-era generators, boot script and patch step"])
+    "crcfbigen: firmware-image wrapper"])
 
 # ---- layout geometry ----
 X0, Y0 = 30, 90

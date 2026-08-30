@@ -77,8 +77,8 @@ These repeated claims are checked against the
 | `notifications.change-events` | `implemented` | - |
 <!-- milan-feature-status:end -->
 
-**15 features / 338 scenarios / 1,615 steps**, all passing, counted by running
-the suite on 2026-08-18 (the run's own tally is authoritative -- prose counts
+**14 features / 312 scenarios / 1,467 steps**, all passing, counted by running
+the suite on 2026-08-30 (the run's own tally is authoritative -- prose counts
 go stale). It is the **conformance suite**, and it is a CI gate (the
 `bdd-conformance` job in `.github/workflows/rtl.yml`).
 
@@ -87,16 +87,15 @@ go stale). It is the **conformance suite**, and it is a CI gate (the
 | `wire_truth_avtp.feature` | 37 | `@torture`; hand-built AVTP **and MSRP/MVRP** byte vectors through `tb/tools/avtp_wire_truth.py` |
 | `counters_contract_milan.feature` | 86 | `@torture` + L1; the Milan Table 5.6 counter table, its mask arithmetic and update laws, the CRF sink's per-era obligations in `KL_crf_rx`, and the documented `A_STRMW_CNT0..9` window |
 | `aecp_read_descriptor.feature` | 28 | the READ_DESCRIPTOR answer -- the SUCCESS shape (28 + N), the NO_SUCH_DESCRIPTOR locate miss, the BAD_ARGUMENTS bad-configuration index, and the IEEE Section 7.4.5 four-octet {type, index} stub on **both** failure paths |
-| `aecp_response_contract.feature` | 19 | the served-inventory and fallback contract, IDENTIFY_NOTIFICATION → `BAD_ARGUMENTS`, Milan Delta 7 ACQUIRE_ENTITY refusal, and the two silent refusals asserted as **no frame at all** |
+| `aecp_response_contract.feature` | 32 | the served-inventory and fallback contract, IDENTIFY_NOTIFICATION → `BAD_ARGUMENTS`, Milan Delta 7 ACQUIRE_ENTITY refusal, and the two silent refusals asserted as **no frame at all** |
 | `torture_campaign_plan.feature` | 27 | `@torture`; audits `tb/tools/torture_campaign.py`'s own plan, assertion contract and cross-participant invariants |
 | `milan_8021q_conformance.feature` | 22 | the 5-queue architecture, the PCP→TC→queue map, the CBS algorithm and its idleSlope/hiCredit/loCredit budgets, and listener VID/format filtering |
 | `milan_base_formats.feature` | 14 | the required Base Audio Format family for every declared AAF Stream Input, with Stream Output and CRF exclusions |
 | `audio_walking_tone_identity.feature` | 22 | `@torture` + L1; channel identity through the production decode path and a THD+N method validated against an independent coherent DFT |
-| `clkv_tu_lease.feature` | 22 | the AVTP `tu` verdict and its CLKV lease |
 | `wire_channel_accountability.feature` | 11 | the end-station builder's own width derivation over the shipping configs, plus the `milan_datapath` elaboration guards |
 | `chmap_capture_identity.feature` | 11 | the capture-side chmap64 mux |
 | `gptp_announce_receipt_timeout.feature` | 10 | the BMCA announce-receipt timeout |
-| `item10_audio_maps.feature` | 4 | the chmap64 render-crossbar word format and its base_cluster + offset key space |
+| `item10_audio_maps.feature` | 5 | the chmap64 render-crossbar word format and its base_cluster + offset key space |
 | `milan_streaming_licence.feature` | 4 | the AAF admission composition, the t>0 wire identity in `KL_aaf_packetizer`, and a byte-exact bench MSRPDU capture |
 | `crf_sr_class_a.feature` | 3 | the CRF emitter's 802.1Q C-TAG and the lane it leaves on |
 
@@ -105,9 +104,8 @@ go stale). It is the **conformance suite**, and it is a CI gate (the
 
 **`@torture` tier (2026-07-30):** the desk half of the standing
 torture/compliance campaign. See the current
-[`testing/TESTING.md`](../docs/testing/TESTING.md) map and the
-[`harness/README.md`](../harness/README.md) runner contract. These features need
-no DUT, no simulator and no `numpy`; they
+[`testing/TESTING.md`](../docs/testing/TESTING.md) map. These features need no
+DUT, no simulator and no `numpy`; they
 audit the campaign's plan, its payload decoders, its counter contract and its
 audio properties, so the parts that can be wrong silently are wrong at a desk
 instead of on the bench.
@@ -125,7 +123,7 @@ python3 tb/tools/torture_campaign.py --checklist # what a human must do at the b
 
 **Run everything (offline, no DUT, no simulator — finishes in under a second):**
 ```bash
-cd tests && behave -f plain          # 15 features / 338 scenarios (2026-08-18)
+cd tests && behave -f plain          # 14 features / 312 scenarios (2026-08-30)
 ```
 `behave` is not installed system-wide here; any virtualenv with it will do
 (CI does `python3 -m pip install behave`).

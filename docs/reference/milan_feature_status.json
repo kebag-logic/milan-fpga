@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "facts": {
-    "gateware_version": "0x0002_0055",
+    "gateware_version": "0x0002_0056",
     "served_aem_operations": [
       "ACQUIRE_ENTITY",
       "LOCK_ENTITY",
@@ -81,7 +81,7 @@
     {
       "id": "gateware.current-version",
       "status": "implemented",
-      "value": "0x0002_0055",
+      "value": "0x0002_0056",
       "summary": "Current gateware and processor integration version.",
       "documents": [
         "README.md",
@@ -96,7 +96,7 @@
     {
       "id": "gptp.fabric-product-owner",
       "status": "implemented",
-      "summary": "The product default uses one fabric owner for 802.1AS, PHC steering, atomic public state and AVTP time validity; option off is a verification-only elaboration with zero owners (#259 retired the software comparison).",
+      "summary": "The product uses one fabric owner for 802.1AS, PHC steering, atomic public state and AVTP time validity; option OFF is verification-only hardware with zero owners, zero publications, and inert legacy writes.",
       "documents": [
         "docs/ARCHITECTURE_HW_SW_SPLIT.md",
         "docs/design/GM_LOSS_RECOVERY.md",
@@ -328,18 +328,6 @@
         "docs/integration/BAREMETAL_FIRMWARE.md",
         "docs/integration/BUILDING.md",
         "docs/integration/QSPI_FLASHBOOT.md",
-        "docs/overview/ARCHITECTURE.md",
-        "docs/reference/MILAN_FEATURE_STATUS.md",
-        "sw/builder/README-parameters.md"
-      ]
-    },
-    {
-      "id": "host.sound-card-option",
-      "status": "not-supported",
-      "summary": "The host PCM DMA, published node, reserved-ring, playback and host-cluster product surfaces are retired; fabric audio remains.",
-      "documents": [
-        "docs/integration/BAREMETAL_FIRMWARE.md",
-        "docs/integration/BUILDING.md",
         "docs/overview/ARCHITECTURE.md",
         "docs/reference/MILAN_FEATURE_STATUS.md",
         "sw/builder/README-parameters.md"

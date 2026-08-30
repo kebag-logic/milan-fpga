@@ -19,7 +19,7 @@ The current version is checked against the
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
-| `gateware.current-version` | `implemented` | `0x0002_0055` |
+| `gateware.current-version` | `implemented` | `0x0002_0056` |
 <!-- milan-feature-status:end -->
 
 ## Contents
@@ -40,8 +40,8 @@ The current version is checked against the
 
 ## Description
 
-Memory-mapped control plane ([REQUIREMENTS.md](../../../../REQUIREMENTS.md) `REQ-CSR-*`) that host software
-binds to. It converts the previously compile-time-only TSN knobs (MAC config,
+Memory-mapped control plane ([REQUIREMENTS.md](../../../../REQUIREMENTS.md) `REQ-CSR-*`) that bare-metal
+firmware uses. It converts the previously compile-time-only TSN knobs (MAC config,
 802.1Q classifier map, 802.1Qav CBS slopes, PTP clock control) into
 runtime-writable registers, and exposes MAC statistics, link status and
 interrupts back to software. The AXI4-Lite slave uses the combinational-ready,
@@ -59,7 +59,7 @@ consumer using those strobes (`REQ-CSR-03`).
 | ADDR_WIDTH   | int           | 16             | Byte-address width of the AXI-Lite window (16 => 64 KB) |
 | N_LISTENERS_P | int          | 1              | listener stream contexts addressable by the 0x800 window (`A_STRM_SEL` dir=0) |
 | N_TALKERS_P  | int           | 1              | talker stream contexts (`A_STRM_SEL` dir=1) |
-| VERSION      | logic [31:0]  | 32'h0002_0053  | Value returned by the read-only VERSION register. The RTL parameter comment is the per-version changelog, and [REGISTER_MAP.md](../../../../docs/reference/REGISTER_MAP.md) `0x004` is the ABI statement of the same number. |
+| VERSION      | logic [31:0]  | 32'h0002_0056  | Value returned by the read-only VERSION register. [REGISTER_MAP.md](../../../../docs/reference/REGISTER_MAP.md) `0x004` is the ABI authority for the same number. |
 
 ## Generated includes
 

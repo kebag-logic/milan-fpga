@@ -2,12 +2,12 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 #
-# Observer-purity structural gate (the host-plane regression class, 2026-07-25):
+# Observer-purity structural gate (stream-observer regression class, 2026-07-25):
 # tap/telemetry modules must drive ONLY their own CSR/counter outputs and
 # NEVER drive the observed streams' tvalid/tready/tdata/tkeep/tlast/tuser
 # nets. An "observer" that participates in a stream handshake is a datapath
 # actor wearing telemetry clothing - the wiring-mistake class that can kill a
-# host lane while every green TB watches the counters instead of the stream.
+# data path while every green TB watches the counters instead of the stream.
 #
 # Two disciplined text-level checks over the SOURCE (same parse style as
 # scripts/check_tied_inputs.sh - the house pattern):
@@ -18,7 +18,7 @@
 #   2. site level (pure observers + every raw-stream tap reader wired in
 #      hdl/milan/milan_datapath.sv - parser/MAAP/protocol processor): every
 #      instantiation port binding one of the datapath's observed stream nets
-#      (rx_axis_*/tx_axis_*/ts_metadata_axis members, [sm]_axis_* boundary
+#      (rx_axis_*/tx_axis_* members, [sm]_axis_* boundary
 #      lanes) must be an INPUT of that module - reads only, never drives.
 #      The bindings-checked count is printed so a vacuous pass is visible.
 #
@@ -57,7 +57,7 @@ READER_FILES=(
     # rx_axis as a monitor tap and owns its own TX lane, so it must never
     # appear on the drive side of an observed stream net.
     "$R/hdl/milan/KL_pp_shadow.sv"
-    # The gPTP plane's two observers (#114): the shadow taps rx_axis_to_dma
+    # The gPTP plane's two observers (#114): the shadow taps rx_axis_fabric
     # and owns its own TX lane; the boundary stamper watches tx_axis_to_mac
     # and must never drive it. Listing them is what makes GPTP_PLANE.md's
     # "check_tap_purity holds" claim NON-vacuous.
@@ -68,9 +68,10 @@ READER_FILES=(
 STREAM_TERM='t(valid|ready|data|keep|last|user)'
 # nets a tap may READ but never DRIVE (datapath interface members + flat
 # boundary lanes of milan_datapath)
-STREAM_NET_RE='((rx_axis_to_ts|rx_axis_ptp_to_filt|rx_axis_to_dma|ts_metadata_axis|tx_axis_to_shaper|tx_axis_shaper_to_ts|tx_axis_dp_to_arb|tx_axis_to_mac)\.t(valid|ready|data|keep|last|user)|[sm]_axis_[a-z_]*t(valid|ready|data|keep|last|user))'
+STREAM_NET_RE='((rx_axis_to_ts|rx_axis_ptp_to_filt|rx_axis_fabric|tx_axis_to_shaper|tx_axis_shaper_to_ts|tx_axis_dp_to_arb|tx_axis_to_mac)\.t(valid|ready|data|keep|last|user)|[sm]_axis_[a-z_]*t(valid|ready|data|keep|last|user))'
 
 n_bind=0    # stream-net bindings actually resolved (anti-vacuity witness)
+n_rx_fabric=0 # bindings on the live post-filter fabric-observer seam
 
 # ---- helpers ---------------------------------------------------------------
 # port_dirs FILE -> lines "dir name" for every ANSI header port in the file
@@ -116,12 +117,13 @@ inst_bindings() {
 # run_checks MODE(pure|reader) WIRING_FILE FILE... -> prints violations, returns count
 run_checks() {
     local mode="$1" wiring="$2"; shift 2
-    local viol=0 f m dirs dir name port expr
+    local viol=0 f m dirs dir name port expr m_bind
     for f in "$@"; do
         [ -r "$f" ] || { echo "  [ERROR] missing tap source $f"; viol=$((viol+1)); continue; }
         dirs="$(port_dirs "$f")"
         [ -n "$dirs" ] || { echo "  [ERROR] no ports parsed from $f (header drifted?)"; viol=$((viol+1)); continue; }
         for m in $(module_names "$f"); do
+            m_bind=0
             if [ "$mode" = "pure" ]; then
                 # 1) module level: no stream-handshake-named OUTPUT
                 while read -r dir name; do
@@ -137,6 +139,10 @@ run_checks() {
                 [ -n "$port" ] || continue
                 echo "$expr" | grep -qE "$STREAM_NET_RE" || continue
                 n_bind=$((n_bind+1))
+                m_bind=$((m_bind+1))
+                if echo "$expr" | grep -qE 'rx_axis_fabric\.'; then
+                    n_rx_fabric=$((n_rx_fabric+1))
+                fi
                 dir="$(echo "$dirs" | awk -v p="$port" '$2 == p { print $1; exit }')"
                 if [ -z "$dir" ]; then
                     echo "  [VIOLATION] $m.$port: bound to a stream net but not on the module header (parse drift)"
@@ -146,6 +152,10 @@ run_checks() {
                     viol=$((viol+1))
                 fi
             done < <(inst_bindings "$wiring" "$m")
+            if [ "$mode" = "reader" ] && [ "$m_bind" -eq 0 ]; then
+                echo "  [VIOLATION] $m: no observed-stream binding resolved at its datapath site"
+                viol=$((viol+1))
+            fi
         done
     done
     return $viol
@@ -169,8 +179,8 @@ cat > "$TMP/fixture_dp.sv" <<'EOF'
 module fixture_dp;
   bad_probe_taps probe (
     .clk_i       (clk),
-    .rx_tvalid_i (rx_axis_to_dma.tvalid),
-    .rx_tready_o (rx_axis_to_dma.tready)
+    .rx_tvalid_i (rx_axis_fabric.tvalid),
+    .rx_tready_o (rx_axis_fabric.tready)
   );
 endmodule
 EOF
@@ -189,14 +199,19 @@ fi
 [ -r "$DP" ] || { echo "  missing $DP"; exit 2; }
 # in-shell runs (redirects, no subshell) so the n_bind witness accumulates
 n_bind=0
+n_rx_fabric=0
 viol=0
 run_checks pure   "$DP" "${PURE_FILES[@]}"   > "$TMP/pure.log";   viol=$((viol+$?))
 run_checks reader "$DP" "${READER_FILES[@]}" > "$TMP/reader.log"; viol=$((viol+$?))
 cat "$TMP/pure.log" "$TMP/reader.log" | grep -v '^$' || true
 echo "--------------------------------------------------------------"
-echo "pure observers: ${#PURE_FILES[@]} file(s)   tap readers: ${#READER_FILES[@]} file(s)   stream-net bindings checked: $n_bind   violations: $viol"
+echo "pure observers: ${#PURE_FILES[@]} file(s)   tap readers: ${#READER_FILES[@]} file(s)   stream-net bindings checked: $n_bind (rx_axis_fabric: $n_rx_fabric)   violations: $viol"
 if [ "$n_bind" -eq 0 ]; then
     echo "  [ERROR] zero stream-net bindings resolved - the wiring parse went vacuous"
+    viol=$((viol+1))
+fi
+if [ "$n_rx_fabric" -eq 0 ]; then
+    echo "  [ERROR] zero bindings resolved on the live rx_axis_fabric observer seam"
     viol=$((viol+1))
 fi
 echo "TAP-PURITY RESULT: $([ "$viol" -eq 0 ] && echo PASS || echo FAIL)"

@@ -10,8 +10,8 @@ The series contains:
   clock phase control used by `milan_soc.py --gtx-tx-invert`.
 - `0004-vexiiriscv-baremetal-variant.patch`: add the cacheless, machine-mode
   RV32I Vexii variant and publish an MMU constant only when one exists.
-- `0005-vexiiriscv-cacheless-litex.patch`: connect the cacheless instruction,
-  data, and DMA paths to the LiteX bus fabric.
+- `0005-vexiiriscv-cacheless-litex.patch`: connect the cacheless instruction and
+  data buses plus the dedicated protocol-memory port to the LiteX bus fabric.
 
 Usage:
 

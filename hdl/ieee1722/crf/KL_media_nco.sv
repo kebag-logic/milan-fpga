@@ -196,7 +196,7 @@ module KL_media_nco #(
   end : trim_pipe
 
   //! ONE predicate set decides the borrowed/lent cycle AND the accumulator
-  //! wrap, so the two can never disagree (the KL_pcm_tx pace_div discipline)
+  //! wrap, so the two can never disagree (one shared fractional-N predicate)
   wire signed [SUMW_C-1:0] sum_w = SUMW_C'(signed'({1'b0, frac_r}))
                                  + SUMW_C'(signed'(REM_C))
                                  + trim_r;

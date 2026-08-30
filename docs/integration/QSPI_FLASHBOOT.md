@@ -6,7 +6,7 @@
 - **[Layout "baremetal" - shipping AX7101](#layout-baremetal---shipping-ax7101)** — The only manifest that ships: bitstream plus raw AEM image, why the AEM bytes carry no FBI wrapper, the two reserved ranges a reflash must not erase, and the paired-image verification required before firmware enables ADP.
 - **[How the boot works](#how-the-boot-works)** — Power-on to entity-enabled in one hop: config logic reads the bitstream, the BIOS is the application, and the AEM copy is length- and CRC-checked, so an empty or half-written slot leaves the entity disabled instead of bricking the boot.
 - **[Usage](#usage)** — Build and flash the pair, the explicit non-atomic escape kept for lab recovery, and the JTAG iteration loop that skips the flash write.
-- **[Caveats](#caveats)** — DMA coherency, FBI endianness, flash addressing, and the AEM path in full: the descriptor image lives in DRAM at a compile-time base, so a custom boot path that skips the copy enumerates nothing.
+- **[Caveats](#caveats)** — Flash addressing and the AEM path in full: the descriptor image lives in reserved memory at a compile-time base, so a custom boot path that skips the copy enumerates nothing.
 - **[Validated](#validated)** — What was actually checked rather than assumed: the emitted constants, the bare-metal BIOS build, the unframed `AEMI` bytes, and what the `flash-pair` gate adds over the recovery-only materializer.
 - **[Field notes (2026-07-10 silicon session)](#field-notes-2026-07-10-silicon-session)** — The bench lesson that looks like flaky hardware: the BIOS re-tunes the SPI divisor *upward* at boot, defeating the gateware clock cap, and marginal MB-scale reads showed up as one lucky boot in six.
 
@@ -118,10 +118,11 @@ For a direct transaction, replace `INSTALLED_BUILD` with the exact
 invoke `sw/litex/deploy.sh flash-pair`. A layout naming a retired boot image
 or a non-fabric owner refuses before any programmer I/O.
 
-There is no flashable option-off or software-owner image: the
-builder refuses `fabric_gptp: false`, and the option-off elaboration exists
-only as verification-only hardware, through a direct `milan_soc.py` run with
-the option-off door, whose artifacts the flash tools refuse.
+The current CSR ABI is `VERSION=0x0002_0056`. Every flashable manifest selects
+the sole fabric gPTP owner. The direct option-OFF elaboration is
+verification-only and ownerless: GM identity, parent identity, path data and
+pdelay are zero; `sync=0`, `asCapable=0`, and `time_uncertain=1`; every legacy
+publication write is inert. Its artifacts are refused by the flash tools.
 
 ### Recovery-only partial mode
 
@@ -153,28 +154,16 @@ enabling the entity (see the AEM caveat below).
 
 ## Caveats
 
-* **`--coherent-dma` is mandatory and NOT implied by `--all-blocks`.** Without it the NIC's
-  DMA masters bypass the NaxRiscv snooping `dma_bus`: RX data never becomes CPU-visible (the
-  stack drops every frame  -  all-zero skbs) and TX reads stale skb data (garbage dst MAC that
-  the peer NIC silently filters). Hardware-confirmed 2026-07-04; `deploy.sh` includes it.
-* ~~**No bitstream in flash (kernel layout).**~~ **NO LONGER TRUE (since the v3
-  layout, 2026-07-12).** This bullet described the pre-v3 arrangement, where the
-  kernel sat at offset 0, a power-cycle left the FPGA unconfigured and every
-  power-on needed a JTAG `load`. The deployed layout puts the **bitstream at
-  offset 0** and the board config-boots it from flash. `flash-pair` owns both
-  disjoint slot classes and orders them as one transaction; direct `flash` and
-  `flash-images` are recovery-only escapes.
-  JTAG `load` remains the *iteration* path because it skips the flash write, not
-  because flash cannot hold a bitstream.
-* **Endianness:** the FBI header is little-endian (`crcfbigen -l`), matching the BIOS's
-  `MMPTR` reads on this RV64 core. `deploy.sh` uses `-l`; don't drop it.
+* **The bitstream is the offset-zero commit artifact.** The board config-boots
+  it directly. `flash-pair` owns the bitstream and AEM slots and orders them as
+  one transaction; direct `flash` and `flash-images` are recovery-only escapes.
+  JTAG `load` remains the fast iteration path because it skips the flash write.
 * **Flash addressing:** the N25Q128 is 16 MB = 3-byte addressable, so the whole chip is
   reachable with the standard quad read (`READ_1_1_4`, 0x6B). `mode="4x"` drives all four DQ,
   so WP#/HOLD# are never left floating.
-* **openFPGALoader offset 0** is only guarded on *Efinix* boards; the Xilinx SPI path (v1.1.1,
-  verified) writes raw at any offset, so writing offset 0 by hand is fine here
-  (it is the bitstream slot in the deployed layout, and was the kernel slot
-  pre-v3).
+* **Do not write offset zero by hand for a normal update.** The Xilinx SPI path
+  can write it, but only `flash-pair` proves the installed/target artifacts and
+  preserves the bitstream+AEM ordering contract.
 * **The AEM path is profile-specific.** Since 2026-08-13 the entity model is
   not a ROM in gateware:
   the protocol processor's descriptor store fetches it from **DRAM**, at a
@@ -205,20 +194,16 @@ enabling the entity (see the AEM caveat below).
   `.bit` readback identity, verified direction ordering, 28 before/after-write
   failure prefixes and resumability.
 
-See also [pipeline-telemetry.md](../fpga/pipeline-telemetry.md), [BOARD_PORTING_AX7101.md](BOARD_PORTING_AX7101.md),
-and [`sw/litex/patches/README.md`](../../sw/litex/patches/README.md).
+See also [BOARD_PORTING_AX7101.md](BOARD_PORTING_AX7101.md) and
+[`sw/litex/patches/README.md`](../../sw/litex/patches/README.md).
 
 ---
 
 ## Field notes (2026-07-10 silicon session)
 
-1. **Never `-f` a bitstream to this flash.** The kernel lives at offset 0 (the
-   table above); `openFPGALoader -f <bit>` overwrites its FBI. Symptom on the
-   next flashboot: `Error: invalid image length 0xffffffff` at the kernel step
-   (the bit-file's leading dummy words read as the length). Recovery: re-flash
-   `kernel.fbi` raw at `-o 0` (crcfbigen `-f -l`), load bitstreams via **JTAG
-   SRAM only**. Corollary: a power-cycle leaves the FPGA unconfigured (flash
-   holds no bitstream)  -  the board needs one JTAG load per power-on by design.
+1. **Use `flash-pair` for persistent updates.** It proves the live offset-zero
+   payload, validates the target pair and writes the AEM image before the
+   bitstream commit artifact. Use JTAG `load` for volatile iteration.
 2. **The BIOS boot-time SPI auto-calibration defeats the gateware clock cap.**
    liblitespi `spiflash_freq_init()` re-tunes the divisor UP from the gateware
    default while a short CRC block reads stably  -  silicon locked div=2 (50 MHz),
@@ -226,12 +211,9 @@ and [`sw/litex/patches/README.md`](../../sw/litex/patches/README.md).
    failures). One lucky boot in ~6 was the tell. Fix (build_hsq3+):
    `add_constant("SPIFLASH_SKIP_FREQ_INIT")` next to `add_spi_flash(...,
    clk_freq=12.5e6)`  -  the BIOS then keeps the built-for divisor.
-3. **Manual flashboot from `litex>`** (roulette recovery, no serial upload):
-   `mem_write 0xf0005000 8` and `0xf0005008 8` (phy+mmap divisors → ~12.5 MHz),
-   then per image `mem_read <hdr> 8` (FBI = LE [len][crc32]), `mem_copy <dst>
-   <hdr+8> <ceil(len/4)>`, `crc <dst> <len>` == header crc (host-computed ⇒
-   end-to-end, catches stale cache lines too), finally `boot 0x40f00000`.
-   Scripted: scratchpad `manual_flashboot.sh`. Validated on silicon (all four
-   images CRC-OK first try at div 8).
-4. `rtk` humanizes/dedups tool output on this host  -  when forensics matter
-   (byte counts, repeated log lines), read raw files or use `rtk proxy`.
+3. **Grade every persistent update over UART from the bench workstation.** Run
+   `python3 scripts/baremetal_uart_smoke.py --port /dev/serial/by-id/<adapter>`; it checks
+   the image, identity, `0x0002_0056` publication ABI and advancing PHC.
+4. **Use an external JTAG/CSR transport for evidence not exposed by the UART
+   firmware.** The console deliberately provides only the documented
+   `milan_status`, time and UTC commands; it is not a general register shell.

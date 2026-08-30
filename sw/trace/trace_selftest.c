@@ -5,8 +5,8 @@
  * write the resulting CTF segments to disk.
  *
  * This is NOT a mock.  It links the SAME generated barectf producer and the
- * SAME ring (milan_trace.c) that the board daemon links; only the clock and the
- * CSR values are synthetic.  That is what makes the compression ratios and the
+ * SAME ring (milan_trace.c) that the bare-metal image links; only the clock and
+ * CSR values are synthetic. That is what makes the compression ratios and the
  * truncation behaviour measured by sw/trace/test_trace_roundtrip.py properties
  * of the shipping producer rather than of a test fixture.
  *
@@ -77,8 +77,8 @@ static const char *g_outdir;
 static uint32_t    g_segno;
 
 /* A flush takes at most one segment; take one as soon as a full segment's
- * worth of packets is resident, which is what the rate-limited board daemon
- * does when faults keep arriving. */
+ * worth of packets is resident, which is what the rate-limited bench transport
+ * extracts when faults keep arriving. */
 static int segment_ready(void)
 {
     struct milan_trace_stats st;
@@ -203,9 +203,9 @@ int main(int argc, char **argv)
     MILAN_TRACE(boot, MILAN_TRACE_SEV_NOTICE, MILAN_TRACE_SRC_TRACE,
                 cfg.boot_id, 0x4D494C4Eu /* 'MILN' */, 0x00010010u,
                 0x0200000000020000ull, "ax7101", 8u, 8u,
-                (uint32_t)sizeof(g_ring), 1u);
-    MILAN_TRACE(daemon, MILAN_TRACE_SEV_INFO, MILAN_TRACE_SRC_TRACE,
-                0u, 0u, "tracer up, ring in DRAM, /user/log armed");
+                (uint32_t)sizeof(g_ring), MILAN_TRACE_ABI);
+    MILAN_TRACE(firmware_lifecycle, MILAN_TRACE_SEV_INFO, MILAN_TRACE_SRC_TRACE,
+                0u, 0u, "bare-metal tracer up; raw segment export armed");
     MILAN_TRACE(heartbeat, MILAN_TRACE_SEV_DEBUG, MILAN_TRACE_SRC_FABRIC,
                 0u, 0x0000003Fu);
     milan_trace_heartbeat_done();
@@ -260,8 +260,8 @@ int main(int argc, char **argv)
                 11u, 0u, 216u, 1u, 2u, 6144000u, 0u);
 
     /* -- 6. ring lap, tap saturation, media-clock drift ------------------- */
-    MILAN_TRACE(ring, MILAN_TRACE_SEV_ERROR, MILAN_TRACE_SRC_KERNEL,
-                /* RX_BD */ 0u, 4096u, 3712u, 384u, 256u, 1u);
+    MILAN_TRACE(ring, MILAN_TRACE_SEV_ERROR, MILAN_TRACE_SRC_FIRMWARE,
+                /* MEDIA_RX */ 2u, 4096u, 3712u, 384u, 256u, 1u);
     MILAN_TRACE(ltap, MILAN_TRACE_SEV_WARN, MILAN_TRACE_SRC_FABRIC,
                 /* RX_MAC_ACCEPT */ 3u, 49u, 50u, 0xFFFFu, 0u, 0xFFFFu, 1u);
     MILAN_TRACE(mediaclk, MILAN_TRACE_SEV_WARN, MILAN_TRACE_SRC_AUDIO,
@@ -274,9 +274,9 @@ int main(int argc, char **argv)
     write_segment();
 
     /* -- 7. journal: a CRC verdict, then a clean ACCEPT on the other slot -- */
-    MILAN_TRACE(journal, MILAN_TRACE_SEV_ERROR, MILAN_TRACE_SRC_JOURNALD,
+    MILAN_TRACE(journal, MILAN_TRACE_SEV_ERROR, MILAN_TRACE_SRC_JOURNAL,
                 /* VERIFY */ 1u, 0u, /* CRC */ 6u, 0u, 0u, 0u, 0x00u);
-    MILAN_TRACE(journal, MILAN_TRACE_SEV_NOTICE, MILAN_TRACE_SRC_JOURNALD,
+    MILAN_TRACE(journal, MILAN_TRACE_SEV_NOTICE, MILAN_TRACE_SRC_JOURNAL,
                 /* REPLAY */ 2u, 1u, /* ACCEPT */ 1u, 41u, 8u, 8u, 0x00u);
 
     /* -- 8. recovery: the fix lands and matched starts climbing ----------- */
@@ -330,14 +330,14 @@ int main(int argc, char **argv)
     /* -- 10. wind-down ---------------------------------------------------- */
     MILAN_TRACE(trace_evict, MILAN_TRACE_SEV_INFO, MILAN_TRACE_SRC_TRACE,
                 0u, 65536u, 1048576u, 0u);
-    MILAN_TRACE(daemon, MILAN_TRACE_SEV_INFO, MILAN_TRACE_SRC_TRACE,
+    MILAN_TRACE(firmware_lifecycle, MILAN_TRACE_SEV_INFO, MILAN_TRACE_SRC_TRACE,
                 1u, 0u, "tracer down, final flush");
     milan_trace_flush_request();
     /* DRAIN, oldest first.  One flush takes at most one segment, so after a
      * storm the ring still holds several segments' worth; a single final flush
      * would write the OLDEST 64 packets and silently lose the shutdown
      * records.  Draining oldest-first keeps ONE policy in the system: the ring
-     * is emptied in order and /user/log rotation decides what survives - see
+     * is emptied in order and workstation rotation decides what survives - see
      * TRACE_LOGGING.md section 6.  Bounded: each pass retires 64 packets. */
     while (write_segment() == 0) {
         milan_trace_get_stats(&st);
@@ -348,11 +348,11 @@ int main(int argc, char **argv)
     milan_trace_get_stats(&st);
     sim_us_at_end = g_now_us;
 
-    /* -- 11. flash-wear budget drill --------------------------------------
+    /* -- 11. export-byte budget drill -------------------------------------
      * Drive the REAL token bucket with the shipping defaults and record how
-     * many 100 KiB flushes a continuously-faulting board gets before the
-     * budget refuses one.  This is the mechanism the >11-year flash lifetime
-     * claim rests on, so it is exercised rather than asserted. */
+     * many 100 KiB exports a continuously-faulting device gets before the
+     * budget refuses one. This bounds bench-transport use and is exercised
+     * rather than asserted. */
     {
         struct milan_trace_cfg bcfg = cfg;
         uint32_t n = 0;

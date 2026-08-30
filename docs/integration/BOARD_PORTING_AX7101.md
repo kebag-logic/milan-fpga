@@ -55,8 +55,9 @@ re-derived if the board revision changes:
 > LiteEth's default for a 1G Artix + RTL8211), and it produced **100 % MAC preamble
 > errors** on silicon  -  reading a 4-bit-DDR stream off an 8-bit-SDR bus corrupts every
 > byte. The Alinx vendor top (`SRC/15_ethernet_test/.../ethernet_test.v`) is explicit:
-> `input [7:0] e_rxd`, separate `e_rxdv`/`e_rxer`, `assign e_gtxc=e_rxc`. Full story in
-> [Section 17 of `docs/limitations/TROUBLESHOOTING.md`](../limitations/TROUBLESHOOTING.md#section-17-on-hardware-nic-bring-up-----dma-works-but-no-packet-on-the-wire-its-gmii-not-rgmii) + [`sw/litex/evidence/hw_ma3_dma_datapath_100mhz.md`](../../sw/litex/evidence/hw_ma3_dma_datapath_100mhz.md).
+> `input [7:0] e_rxd`, separate `e_rxdv`/`e_rxer`, `assign e_gtxc=e_rxc`.
+> The retired console capture remains available in Git history under #259;
+> exact-candidate physical acceptance is tracked by #117.
 
 The **GMII (8-bit)** wiring per port is therefore: `rx_data[0:7]`, `tx_data[0:7]`,
 `rx_dv = e_rxdv`, `rx_er = e_rxer`, `tx_en = e_txen`, clocks `rx = e_rxc` /
@@ -106,13 +107,15 @@ gateware** (exit 0):
   Until then the
   data path runs on the PHY power-on straps. Migration Section A.7.
 - **Artix-7 bitstream**  -  `--full --build` needs Vivado with Artix-7 device
-  support (the original dev host had only Spartan-7 installed). This gate has since
-  been cleared: bitstreams were built and run on the board — see the `hw_*` logs in
-  [`sw/litex/evidence/`](../../sw/litex/evidence).
+  support (the original dev host had only Spartan-7 installed). Earlier bitstreams
+  were built and run on the board; those retired captures remain in Git history
+  under #259. Re-run the current named build and #117 bench procedure for
+  exact-candidate physical acceptance.
 - **On-board bring-up**  -  the board is attached and **verified reachable**:
   **JTAG** = Digilent FT232H (`0403:6014`), `openFPGALoader -c ft232` reads IDCODE
   `0x3631093` = xc7a100t ✅; **console** = CP2102N (`10c4:ea60`), currently showing the
   Alinx factory demo (`Hello ALINX AX7101` @ 9600). Identify by `/dev/serial/by-id/`
   (the `ttyUSBn` numbers flip on re-plug). Program with [`sw/litex/deploy.sh`](../../sw/litex/deploy.sh), then
-  M-A1…M-A5 (see [Section 9 of `FULL_FPGA_SOLUTION.md`](../overview/FULL_FPGA_SOLUTION.md#9-what-remains-and-how-to-finish-it-the-roadmap)). Since completed on silicon -- the boot
-  banners and memtest logs are in [`sw/litex/evidence/`](../../sw/litex/evidence).
+  M-A1…M-A5 (see [Section 9 of `FULL_FPGA_SOLUTION.md`](../overview/FULL_FPGA_SOLUTION.md#9-what-remains-and-how-to-finish-it---the-roadmap)). The old boot banners and memtest captures
+  were retired under #259 and remain in Git history; #117 owns the current
+  two-board physical run.

@@ -43,10 +43,8 @@ board:
     latency_taps: false   # pure instrumentation; stays PRESENT on the
                           # Arty build, so item-11's telemetry lives on
                           # the board with the known-good analog loop
-    render_lpf: false     # dependency of i2s_playback: false (the builder
-                          # refuses a filter with nothing behind it). Was
-                          # already pruned via constraints.render_lpf below
-                          # - this line makes the two levers agree.
+    render_lpf: false     # dependency of i2s_playback: false; the area round
+                          # measured this prune at 428 LUT / 756 FF / 0 DSP
     datapath_probes: false # AREA_80 static-conversion row (2026-07-29):
                           # closed-finding diagnostics (APRB/PBK); pruned to
                           # unlock AreaOptimized_medium synthesis - the AX
@@ -62,24 +60,6 @@ board:
     floorplan: true
     flashboot: baremetal             # #259: the {bitstream, aem} manifest
     uart_baudrate: 115200
-    rx_queues: 2                     # RAISED 1 -> 2 on 2026-07-28 with the
-                                     # reflash that carries it (D7 root cause,
-                                     # docs/findings/GPTP_GM_LOSS_UNDER_RX_LOAD
-                                     # .md): with 1 queue there is no steer
-                                     # block at all, gPTP shares the bulk ring,
-                                     # and under a 950M iperf flood the former
-                                     # time-sync process starved; our GM stopped and
-                                     # a CONFORMANT peer BMCA deposes it
-                                     # (802.1AS 10.3; reproduced 2/2). Two
-                                     # queues = flow-steered gPTP ingress, the
-                                     # USER's 2-CPU-ingress-queue directive.
-                                     # boot_chain_pin moved +0x74 with it (the
-                                     # steer block shifts every later window)
-                                     # and MUST be re-verified against the
-                                     # BUILD's csr.csv before flashing - the
-                                     # 5ce9a13 CSR-rot class, gate 19c.
-    hs_page_bytes: 16384
-    strip_probes: true
     num_queues: 5
     eth_port: e1                     # MUST match the physical cable, which is
                                      # on e1 (USER 2026-07-27) - and the
@@ -88,27 +68,6 @@ board:
                                      # 2026-07-22 e1 GMII-RX cold-soak fault:
                                      # move the cable FIRST, then change this.
                                      # See docs/integration/BUILDING.md.
-    render_lpf: false                # SPENT AREA LEVER (milan_datapath LPF_P,
-                                     # docs/design/AREA_BUDGET.md): prune
-                                     # KL_pcm_lpf, the 2nd-order Butterworth on
-                                     # the DAC render tap. This is the ONLY
-                                     # Vivado-PROVEN area figure in the 07-27
-                                     # round - 428 LUT / 756 FF / 0 DSP, read
-                                     # off the shipping 8x8 place report, not
-                                     # estimated - and this board is the one
-                                     # that missed placement by 282 slices.
-                                     # A pruned build behaves exactly like a
-                                     # shipped one with LPF_CTRL[0] = 0 (raw
-                                     # AXIS to the DAC): no CSR moves, no
-                                     # digital acceptance surface moves. What
-                                     # it DOES cost is the analog loop THD+N
-                                     # record its bitstream - that number was
-                                     # measured THROUGH the filter and must be
-                                     # re-measured before it is quoted against
-                                     # a pruned build. Set back to true (or
-                                     # delete the key) to restore the filter;
-                                     # nothing else has to change.
-
 srp:
   sr_class: A
   vid: 2
@@ -128,14 +87,12 @@ srp:
     interval_frames: 1
 
 platform:
-  csr_base: 0x90000000
   mac_address: "02:00:00:00:00:01"   # board 1
-  interrupt: 3
   pp_mem_phys: 0x7f700000            # 1 MiB protocol-processor window
 
 gptp:
-  # ONE source (USER 2026-08-05): these values generate BOTH the
-  # AVB_INTERFACE descriptor's clock fields and /etc/gptp.<board>.cfg.
+  # ONE source (USER 2026-08-05): these values generate the
+  # AVB_INTERFACE descriptor's clock fields and fabric microcode.
   # priority1 248 = the Milan end-station DEFAULT: the device DEFERS rather
   # than contesting the grandmaster role (Milan es-1.1 compliance posture is
   # 246|248, and 248 is the deferring end of it). The older 238 "AX bench
@@ -247,7 +204,7 @@ audio_interface:
                                      # 0, so the eight talkers see eight
                                      # DIFFERENT sources rather than eight
                                      # copies of one. 8 (not 64) keeps the
-                                     # descriptor ROM at 23713 B - the full
+                                     # packed image at 19,520 B - the full
                                      # 64-wide pool D8 sketches is a D6-sized
                                      # model (BRAM hot stub + DRAM bulk tree).
                                      # USER 2026-07-28: "For the AX Loopback,

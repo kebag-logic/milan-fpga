@@ -18,8 +18,8 @@
  *
  *   group          PRESENT (sim_main)                 PRUNED (here)
  *   -------------  ---------------------------------  ----------------------
- *   rx_mac_filter  "prefilter: plain 91E0F0 frame     the same frame REACHES
- *                   dropped from DMA"                  the DMA port, byte-exact
+ *   rx_mac_filter  filter counters respond to live    MAC ingress remains live;
+ *                   traffic                            CSR window is inert
  *   latency taps   LTAP epochs/samples advance on     every LTAP word reads 0
  *                   real traffic                       FOREVER (structural)
  *   mmcm servo     MCSRV_STAT state/flags live        0x8F8 reads 0, MMCM
@@ -102,9 +102,8 @@ static void do_reset() {
     dut->axis_resetn = 0; dut->gtx_resetn = 0;
     dut->s_axi_awvalid = dut->s_axi_wvalid = dut->s_axi_arvalid = 0;
     dut->s_axi_bready = dut->s_axi_rready = 0;
-    dut->s_axis_tx_tvalid = 0; dut->s_axis_mac_rx_tvalid = 0;
-    dut->m_axis_mac_tx_tready = 0; dut->m_axis_rx_tready = 0; dut->m_axis_ts_tready = 1;
-    dut->m_axis_pcm_tready = 1;
+    dut->s_axis_mac_rx_tvalid = 0;
+    dut->m_axis_mac_tx_tready = 0;
     dut->i_mac_speed = 2; dut->i_link_up = 1; dut->i_full_duplex = 1; dut->i_mac_events = 0;
     for (int i = 0; i < 8; i++) step();
     dut->axis_resetn = 1; dut->gtx_resetn = 1;
@@ -128,9 +127,10 @@ static void sample_pins() {
     if (dut->i2s_dac_sdin_o)   g_dac_seen |= 1u << 3;
 }
 
-//! Inject a raw frame on the MAC RX AXIS and collect what reaches the DMA
-//! port (m_axis_rx_*). Pre-edge sampling, exactly as sim_main does.
-static std::vector<uint64_t> inject_rx(const uint8_t* f, size_t len, long* frames) {
+//! Inject a raw frame on the MAC RX AXIS. The useful pruned-shape invariant is
+//! that ingress keeps making
+//! progress while the optional observers are absent.
+static size_t inject_rx(const uint8_t* f, size_t len) {
     std::vector<uint64_t> beats;
     for (size_t bt = 0; bt < (len + 7) / 8; bt++) {
         uint64_t v = 0;
@@ -138,9 +138,7 @@ static std::vector<uint64_t> inject_rx(const uint8_t* f, size_t len, long* frame
             if (bt * 8 + j < len) v |= (uint64_t)f[bt * 8 + j] << (8 * j);
         beats.push_back(v);
     }
-    std::vector<uint64_t> out;
     size_t idx = 0;
-    dut->m_axis_rx_tready = 1;
     dut->m_axis_mac_tx_tready = 1;
     for (int c = 0; c < 400; c++) {
         if (idx < beats.size()) {
@@ -153,16 +151,12 @@ static std::vector<uint64_t> inject_rx(const uint8_t* f, size_t len, long* frame
         }
         lo();
         bool in_acc  = dut->s_axis_mac_rx_tvalid && dut->s_axis_mac_rx_tready;
-        bool out_acc = dut->m_axis_rx_tvalid && dut->m_axis_rx_tready;
-        bool out_last = dut->m_axis_rx_tlast;
-        uint64_t out_d = dut->m_axis_rx_tdata;
         sample_pins();
         hi();
         if (in_acc) idx++;
-        if (out_acc) { out.push_back(out_d); if (out_last && frames) (*frames)++; }
     }
     dut->s_axis_mac_rx_tvalid = 0;
-    return out;
+    return idx;
 }
 
 int main(int argc, char** argv) {
@@ -179,7 +173,7 @@ int main(int argc, char** argv) {
     // owed" - the register contract did not move, only which logic backs it.
     printf("[identity] the CSR contract is unchanged by pruning\n");
     ck("ID == 'MILN'", axi_read(A_ID), 0x4D494C4E);
-    ck("VERSION unchanged by the prunes", axi_read(A_VERSION), 0x00020055);
+    ck("VERSION unchanged by the prunes", axi_read(A_VERSION), 0x00020056);
     {
         uint32_t cap = axi_read(A_CAP);
         ck("CAP.ADP bit12 still set",  (cap >> 12) & 1, 1);
@@ -232,11 +226,10 @@ int main(int argc, char** argv) {
     axi_write(A_LPF_CTRL, 0x1);
 
     // ---------------------------------------------------------------- 6 ----
-    // The headline contrast. sim_main programs EXACTLY this TCAM drop entry
-    // and checks "prefilter: plain 91E0F0 frame dropped from DMA". With the
-    // filter pruned the same frame must arrive, byte-for-byte, because the
-    // tie-off is a straight wire = promiscuous.
-    printf("[RXFILT_P=0] filter pruned: RX is a wire (promiscuous)\n");
+    // Exercise the MAC ingress under the harshest legacy filter configuration
+    // and prove the retained
+    // fabric endpoint cannot be backpressured by a missing observer.
+    printf("[RXFILT_P=0] filter pruned: MAC ingress remains live\n");
     axi_write(A_MAC_ADDR_LO, 0x33221100);      // station 00:11:22:33:44:55
     axi_write(A_MAC_ADDR_HI, 0x00005544);
     axi_write(A_TCAM_KHI, 0x000091E0);
@@ -257,26 +250,14 @@ int main(int argc, char** argv) {
         pf[6] = 0x66; pf[7] = 0x77; pf[8] = 0x88;
         pf[12] = 0x08; pf[13] = 0x00;
         for (int i = 18; i < 64; i++) pf[i] = (uint8_t)(0x5A ^ i);
-        long frames = 0;
-        std::vector<uint64_t> got = inject_rx(pf, 64, &frames);
-        ck("TCAM-drop dmac REACHES the DMA port", frames, 1);
-        ck("...as 8 beats", (unsigned long)got.size(), 8);
-        bool exact = got.size() == 8;
-        for (size_t bt = 0; bt < got.size() && exact; bt++) {
-            uint64_t want = 0;
-            for (int j = 0; j < 8; j++) want |= (uint64_t)pf[bt * 8 + j] << (8 * j);
-            if (got[bt] != want) exact = false;
-        }
-        ck("...byte-exact (a wire, not a rewrite)", exact ? 1 : 0, 1);
+        ck("TCAM-drop dmac is accepted at MAC ingress", inject_rx(pf, 64), 8);
 
         //! second contrast: a foreign UNICAST with default_pass=0 and the
         //! station filter armed. The PRESENT build drops this one on the
         //! station-address test alone.
         const uint8_t fdst[6] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xF0};
         memcpy(pf, fdst, 6);
-        frames = 0;
-        got = inject_rx(pf, 64, &frames);
-        ck("foreign unicast REACHES the DMA port", frames, 1);
+        ck("foreign unicast is accepted at MAC ingress", inject_rx(pf, 64), 8);
     }
 
     // ---------------------------------------------------------------- 7 ----
@@ -294,8 +275,7 @@ int main(int argc, char** argv) {
         af[6] = 0x02; af[11] = 0x02;
         af[12] = 0x22; af[13] = 0xF0;                  // AVTP ethertype
         af[14] = 0x02;                                  // subtype AAF
-        long frames = 0;
-        for (int r = 0; r < 4; r++) (void)inject_rx(af, 124, &frames);
+        for (int r = 0; r < 4; r++) (void)inject_rx(af, 124);
         for (int c = 0; c < 4000; c++) { lo(); sample_pins(); hi(); }
     }
     ck("LTAP words STILL 0 after traffic", axi_read(A_LTAP_BASE) |
@@ -309,40 +289,9 @@ int main(int argc, char** argv) {
     ck("no DAC pin ever moved",  g_dac_seen,  0);
 
     // ---------------------------------------------------------------- 8 ----
-    // What must STILL work: the prunes touch none of the mandatory path.
-    printf("[unaffected] the mandatory datapath still runs\n");
-    {
-        //! a tagged best-effort frame still traverses classify -> queue ->
-        //! shaper -> PTP stamp -> MAC TX
-        uint8_t b[64]; memset(b, 0, sizeof b);
-        const uint8_t dst[6] = {0x00, 0x11, 0x22, 0x33, 0x44, 0x55};
-        memcpy(b, dst, 6);
-        b[12] = 0x81; b[13] = 0x00; b[16] = 0x08; b[17] = 0x00;
-        for (int i = 18; i < 64; i++) b[i] = (uint8_t)(0xA5 ^ i);
-        std::vector<uint64_t> beats;
-        for (int bt = 0; bt < 8; bt++) {
-            uint64_t v = 0;
-            for (int j = 0; j < 8; j++) v |= (uint64_t)b[bt * 8 + j] << (8 * (7 - j));
-            beats.push_back(v);
-        }
-        size_t idx = 0; long out_beats = 0;
-        dut->m_axis_mac_tx_tready = 1;
-        for (int c = 0; c < 600; c++) {
-            if (idx < beats.size()) {
-                dut->s_axis_tx_tdata = beats[idx];
-                dut->s_axis_tx_tkeep = 0xFF;
-                dut->s_axis_tx_tvalid = 1;
-                dut->s_axis_tx_tlast = (idx == beats.size() - 1);
-            } else {
-                dut->s_axis_tx_tvalid = 0; dut->s_axis_tx_tlast = 0;
-            }
-            step(); sample_pins();
-            if (dut->s_axis_tx_tvalid && dut->s_axis_tx_tready) idx++;
-            if (dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready) out_beats++;
-        }
-        dut->s_axis_tx_tvalid = 0;
-        ck("TX shaper path still egresses the frame", out_beats >= 8 ? 1 : 0, 1);
-    }
+    // What must STILL work: the prunes touch none of the mandatory control
+    // path, and the live traffic above has crossed the retained MAC ingress.
+    printf("[unaffected] the mandatory control path still runs\n");
     ck("RST_EPOCH live (no shadow lie)", axi_read(0x720) >= 1 ? 1 : 0, 1);
 
     printf("--------------------------------------------------------------\n");

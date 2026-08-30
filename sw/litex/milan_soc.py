@@ -5,8 +5,8 @@
 # cacheless RV32 VexiiRiscv running the Milan bare-metal control firmware.
 #
 #   ./milan_soc.py                         # NIC (CSR only); elaborate + export gateware
-#   ./milan_soc.py --full                  # FULL FPGA solution: NIC + DMA + MAC + PHY
-#   ./milan_soc.py --with-dma / --with-mac # attach just one boundary
+#   ./milan_soc.py --full                  # complete fabric endpoint + MAC/PHY + DDR3
+#   ./milan_soc.py --with-mac              # attach the board MAC/PHY boundary
 #   ./milan_soc.py --no-milan              # bare SoC (bring-up smoke; self-contained)
 #   ./milan_soc.py --software-profile baremetal --cpu vexiiriscv --xlen 32 \
 #       --with-spiflash --flashboot baremetal
@@ -16,8 +16,9 @@
 # The Artix-7 (xc7a100t) bitstream needs Vivado with Artix-7 device support. This
 # box only has Spartan-7 installed, so `--build` P&R is blocked here; gateware
 # EXPORT (the default, run=False) works with no vendor tools. The CPU⇄CSR path is
-# proven on the softcore in sim: sw/litex/milan_sim.py -> the BIOS reads ID="MILN"
-# (M-A2), evidence in sw/litex/evidence/naxriscv_reads_MILN.log.
+# proven by the rerunnable softcore integration sim: sw/litex/milan_sim.py ->
+# the BIOS reads ID="MILN" (M-A2). The old captured bring-up logs were retired
+# with #259 and remain available in Git history.
 
 import os
 import re
@@ -43,7 +44,6 @@ from litex.soc.cores.clock import S7PLL, S7MMCM
 from litex.soc.interconnect import axi
 from litex.soc.interconnect.csr import CSRStorage, CSRStatus, CSRField
 from litex.gen.genlib.cdc import BusSynchronizer
-from litex.soc.interconnect.csr_eventmanager import EventManager, EventSourceLevel
 from litex.soc.integration.soc_core import SoCCore
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import Builder, builder_args, builder_argdict
@@ -54,22 +54,11 @@ import alinx_ax7101
 import board_audio_routing
 
 # The Milan CSR window. The register OFFSETS (0x000..0x700) match docs/reference/REGISTER_MAP.md;
-# only the BASE is CPU-specific: on this NaxRiscv SoC an MMIO peripheral must live in
-# the CPU IO region (>= 0x8000_0000, uncached), so we map it at 0x9000_0000. The Zynq
+# only the BASE is CPU-specific: on the supported LiteX CPU maps an MMIO peripheral
+# must live in the IO region (>= 0x8000_0000, uncached), so we map it at 0x9000_0000. The Zynq
 # alternate integration used 0x43C0_0000. Firmware and gateware must share this base.
 MILAN_CSR_BASE = 0x9000_0000
 MILAN_CSR_SIZE = 0x0001_0000  # 64 KB
-
-# On-chip BRAM PCM ring MMIO window (--pcm-ring bram). Uncached IO region just
-# above the CSR window; the CPU mmaps this to read received PCM straight out of
-# the dual-port BRAM (no DRAM ring, no DMA writer => the datapath's sink.ready is
-# constant 1, so mf52 SHED + I6 are structurally impossible). The pcm CSR block
-# (base/length/stride/enable/sel/offset) is UNCHANGED - the driver ABI is
-# identical; only `base` now reads this window instead of a DRAM address. 32 KB
-# = 64b x 4096 = 8 RAMB36 (mf53e has 36 free); the CSR `length` may program a
-# smaller live sub-ring.
-MILAN_PCM_BRAM_BASE = 0x9010_0000
-MILAN_PCM_BRAM_SIZE = 0x0000_8000  # 32 KB, power of two
 
 # ---- item-4 audio-interface family: the TDM frame's arithmetic ----------------------------------
 # A TDM slot is 32 bit clocks wide whatever the sample word inside it is - the
@@ -111,8 +100,9 @@ FLASHBOOT_AEM = FLASHBOOT_LAYOUT["aem"]
 #            "a torn write cannot damage the other slot" is then a property of
 #            the flash geometry, not a promise from a log-structured fs, and the
 #            slot is readable before any mount.
-#   user     application records: entity/group names, channel maps, mixer
-#            state, and the rotating compressed CTF fault log.
+#   user     raw bare-metal records: entity/group names, channel maps, mixer
+#            state, and the rotating compressed CTF fault log. There is no
+#            filesystem or target-OS mount associated with this region.
 #
 # deploy.sh treats every image budget and every reserved-slot boundary as a
 # hard ceiling before writing. That protects these writable ranges from an
@@ -123,7 +113,7 @@ FLASHBOOT_RESERVED = {
     # Keep these stable across product revisions: moving them intentionally
     # starts with empty persistence and requires an explicit migration plan.
     "journal": {"offset": 0xEE_0000, "size": 0x02_0000},   # 128 KiB, raw A/B
-    "user":    {"offset": 0xF0_0000, "size": 0x10_0000},   # 1 MiB, jffs2 -> /user
+    "user":    {"offset": 0xF0_0000, "size": 0x10_0000},   # 1 MiB raw records
 }
 
 
@@ -143,7 +133,7 @@ def flash_map():
 def check_flash_map():
     """Return a list of problems with the flash map; empty means consistent.
 
-    Erase-block alignment is not cosmetic: an mtd partition that starts or ends
+    Erase-block alignment is not cosmetic: a writable region that starts or ends
     mid-block cannot be erased without destroying its neighbour, which would
     turn "write the journal" into "corrupt the adjacent slot".
     """
@@ -417,53 +407,32 @@ class _CRG(LiteXModule):
 class MilanNIC(LiteXModule):
     """The Milan TSN datapath (`milan_datapath.sv`) wired into the SoC.
 
-    `milan_datapath` is the **PS-less §A.9 wrapper** (milan_top minus the Zynq PS
-    and minus the MAC)  -  a real, Verilator+Yosys-verified module (tb/verilator/
-    milan_dp, syn/yosys). It exposes:
+    `milan_datapath` is the vendor-neutral fabric endpoint: a real,
+    Verilator+Yosys-verified module (tb/verilator/milan_dp, syn/yosys). It exposes:
       * an AXI4-Lite CSR slave (milan_csr control plane)  -  wired here to the CPU bus;
-      * three DMA AXIS ports (tx from DRAM / rx to DRAM / ts to DRAM)  -  the §A.6 DMA
-        engine attaches here (stubbed idle for now);
       * a MAC-facing AXIS pair + MAC cfg/status  -  the §A.7 MAC (LiteEth `LiteEthMAC`
         or Forencich `eth_mac_1g_rgmii_fifo` + RGMII PHY) attaches here (stubbed);
-      * `o_irq_csr` (link/PTP/RMON aggregate)  -  routed to the PLIC below.
+      * protocol-processor descriptor/response memory faces bridged by the SoC.
 
-    This makes the SoC instantiate REAL RTL (no black box). The DMA + MAC attach are
-    the next migration steps (§A.6/§A.7); until then their AXIS ports are tied idle,
-    which still elaborates and exports gateware and keeps the CPU⇄CSR path live
-    (proven end-to-end in tb/verilator/milan_dp: CPU reads ID="MILN", M-A2).
+    This makes the SoC instantiate real RTL with no target-OS data-plane boundary.
+    The fabric AAF/CRF/gPTP/protocol sources and the MAC are the complete product
+    packet path; the CPU remains a control-plane owner over CSRs and the two
+    protocol-processor memory regions.
     """
-    def __init__(self, platform, axil, dma_mac_ports=None, milan_cd="sys", rx_irq=None,
+    def __init__(self, platform, axil, board_ports=None, milan_cd="sys",
                  desc_base=None, resp_base=None,
-                 rx1_irq=None, milan_clk_hz=100_000_000, num_streams=1,
+                 milan_clk_hz=100_000_000, num_streams=1,
                  audio_if_slots=0, talker_wire_chans=2, audio_if_master=False,
-                 audio_if_i2s_pair=False, gptp_plane=None, sound_card=False,
-                 aaf_playback=False, aaf_pb_streams=1,
+                 audio_if_i2s_pair=False, gptp_plane=None,
                  loopback_lane=False,
                  render_lpf=True, optional_blocks=None,
                  cbs_queues_mask=None, entity_gen_dir=None):
-        # Interrupts, level-triggered, CPU-facing via the SoC IRQ handler. Four lines
-        # match the DT/driver (tx/rx/ts-dma + csr); tx/ts come from the §A.6 DMA engine
-        # (held 0 until attached); csr is driven by the datapath.
-        self.submodules.ev = ev = EventManager()
-        ev.tx  = EventSourceLevel()
-        ev.rx  = EventSourceLevel()
-        ev.ts  = EventSourceLevel()
-        ev.csr = EventSourceLevel()
-        ev.finalize()
-        # ev.rx = RX-completion interrupt: level-high while the RX ring is non-empty
-        # (RingDMAWriter.non_empty, sys domain  -  same as ev, no CDC), so the driver delivers
-        # on arrival (interrupt-driven NAPI) instead of the hrtimer poll. 0 when no DMA.
-        # ev.tx is unused by the DMA reader (TX has no completion IRQ  -  the driver
-        # reaps in NAPI), so the RX fan-out reuses it as RX-queue-1's completion line.
-        self.comb += [ev.tx.trigger.eq(rx1_irq if rx1_irq is not None else 0),
-                      ev.rx.trigger.eq(rx_irq if rx_irq is not None else 0),
-                      ev.ts.trigger.eq(0)]
         # AECP IDENTIFY control level (Milan FR-MGT-01) - wired to a board LED
         # by the SoC so a controller's "identify" visibly blinks the device.
         self.identify = Signal()
-        add_milan_datapath(self, platform, axil, ev.csr.trigger, desc_base=desc_base,
+        add_milan_datapath(self, platform, axil, desc_base=desc_base,
                            resp_base=resp_base,
-                           extra_ports=dict(dma_mac_ports or {}, o_o_identify=self.identify),
+                           extra_ports=dict(board_ports or {}, o_o_identify=self.identify),
                            milan_cd=milan_cd,
                            milan_clk_hz=milan_clk_hz, num_streams=num_streams,
                            audio_if_slots=audio_if_slots,
@@ -471,8 +440,6 @@ class MilanNIC(LiteXModule):
                            audio_if_master=audio_if_master,
                            audio_if_i2s_pair=audio_if_i2s_pair,
                            gptp_plane=gptp_plane,
-                           sound_card=sound_card,
-                           aaf_playback=aaf_playback, aaf_pb_streams=aaf_pb_streams,
                            loopback_lane=loopback_lane,
                            render_lpf=render_lpf, optional_blocks=optional_blocks,
                            cbs_queues_mask=cbs_queues_mask,
@@ -545,7 +512,6 @@ _MILAN_DATAPATH_SOURCES = [
     "hdl/ieee17221/adp/adp_tx_arbiter.sv",
     # AVTP AAF talker (MVP: Pmod I2S2 on pmoda -> class-A stream, fabric-only)
     "hdl/ieee1722/aaf/aaf_talker_i2s.sv", "hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv",
-    "hdl/ieee1722/aaf/KL_pcm_ring_bram.sv",   # --pcm-ring bram: shed-proof on-chip PCM ring
     "hdl/ieee1722/aaf/KL_i2s_playback.sv", "hdl/ieee1722/aaf/KL_tone_gen.sv",
     # item-7 playback: picks the DAC source AND its pace (render crossbar vs
     # the legacy RX tap). Instantiated by milan_datapath - a missing entry
@@ -650,42 +616,87 @@ def _arty_serial_io(name, pmod):
              IOStandard("LVCMOS33"))]
 
 
-def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_cd="sys",
+def _board_audio_ports(platform):
+    """Bind the fabric audio interfaces directly to board pads.
+
+    Audio is a fabric function, not a side effect of a packet-memory engine.
+    Keeping this binding beside `add_milan_datapath` makes that ownership
+    explicit and lets the product omit a general packet interface.
+    Returns `(instance_ports, i2s_capture_pads)`; the latter is used only to
+    decide whether the Arty TDM/I2S blend is physically routed.
+    """
+    i2s_pads = None
+    i2s_dac_pads = None
+    try:
+        connectors = platform.constraint_manager.connector_manager.connector_table
+    except AttributeError:
+        connectors = {}
+
+    if "pmoda" in connectors:
+        try:
+            from litex_boards.platforms.digilent_arty import i2s_pmod_io
+            platform.add_extension(i2s_pmod_io("pmoda"))
+            rx = platform.request("i2s_rx")
+            rx_mclk = platform.request("i2s_rx_mclk")
+            tx = platform.request("i2s_tx")
+            tx_mclk = platform.request("i2s_tx_mclk")
+            i2s_pads = (rx_mclk, rx.clk, rx.sync, rx.rx)
+            i2s_dac_pads = (tx_mclk, tx.clk, tx.sync, tx.tx)
+        except Exception:
+            # Board variants may expose the connector without the complete
+            # I2S resource. An absent interface is represented by the explicit
+            # structural-zero input below and is caught by the routing gate.
+            i2s_pads = None
+            i2s_dac_pads = None
+
+    # The Arty TDM8-master header lives on pmodb. This declaration is also the
+    # routing oracle consumed by board_audio_routing.py.
+    if "pmodb" in connectors:
+        platform.add_extension(_arty_serial_io("tdm", "pmodb"))
+
+    ports = dict(
+        o_i2s_dac_mclk_o=(i2s_dac_pads[0] if i2s_dac_pads else Signal()),
+        o_i2s_dac_sclk_o=(i2s_dac_pads[1] if i2s_dac_pads else Signal()),
+        o_i2s_dac_lrck_o=(i2s_dac_pads[2] if i2s_dac_pads else Signal()),
+        o_i2s_dac_sdin_o=(i2s_dac_pads[3] if i2s_dac_pads else Signal()),
+        o_i2s_mclk_o=(i2s_pads[0] if i2s_pads else Signal()),
+        o_i2s_sclk_o=(i2s_pads[1] if i2s_pads else Signal()),
+        o_i2s_lrck_o=(i2s_pads[2] if i2s_pads else Signal()),
+        i_i2s_sdout_i=(i2s_pads[3] if i2s_pads else 0),
+    )
+    return ports, i2s_pads
+
+
+def add_milan_datapath(host, platform, axil, extra_ports=None, milan_cd="sys",
                        desc_base=None, resp_base=None,
                        milan_clk_hz=100_000_000, num_streams=1, audio_if_slots=0,
                        talker_wire_chans=2, audio_if_master=False,
                        audio_if_i2s_pair=False,
                        gptp_plane=None,
-                       sound_card=False, aaf_playback=False, aaf_pb_streams=1,
                        loopback_lane=False,
                        render_lpf=True,
                        optional_blocks=None, cbs_queues_mask=None,
                        entity_gen_dir=None):
     """Instantiate `milan_datapath` and add its RTL sources  -  the single place the
     wrapper is wired, reused by the board SoC (`MilanNIC`) and the sim SoC
-    (`milan_sim.py`). `axil` is the AXI-Lite CSR slave; `o_irq_csr` gets the datapath
-    interrupt. `extra_ports` overrides/adds Instance ports to attach the DMA (§A.6)
-    and MAC (§A.7) at the exposed AXIS boundary  -  without it, those ports are tied
-    idle (still elaborates; keeps the CPU⇄CSR path live). Instance ports for RTL
-    signals already named `i_*`/`o_*` get the doubled migen prefix (e.g. milan port
+    (`milan_sim.py`). `axil` is the AXI-Lite CSR slave. `extra_ports`
+    overrides/adds Instance ports to attach the board MAC and audio pads. The
+    datapath exposes AXI-Lite control, protocol memory, MAC AXIS and physical
+    audio boundaries. Instance ports for RTL signals already named `i_*`/`o_*`
+    get the doubled migen prefix (e.g. milan port
     `i_i_mac_speed`, `o_o_irq_csr`)  -  that is correct, not a typo."""
     # Run the datapath in `milan_cd`. When that is not `sys`, cross the CPU's
     # AXI-Lite CSR bus (sys) into `milan_cd` with an async-FIFO CDC  -  so the dense
     # datapath logic leaves the sys (100 MHz) timing budget while the CPU/DDR3 stay
     # fast. `milan_cd == "sys"` (the default, and what the sim uses) keeps the old
-    # single-clock direct wiring. The DMA/MAC AXIS boundary is likewise crossed by
-    # its own stream CDC in MilanDMA/MilanMAC when `milan_cd != "sys"`.
+    # single-clock direct wiring. The MAC AXIS boundary is likewise crossed by
+    # its own stream CDC in MilanMAC when `milan_cd != "sys"`.
     if milan_cd != "sys":
         csr_axil = axi.AXILiteInterface(data_width=32, address_width=32)
         host.submodules.milan_axil_cdc = axi.AXILiteClockDomainCrossing(
             axil, csr_axil, cd_from="sys", cd_to=milan_cd)
-        # The aggregate CSR IRQ is a level in milan_cd; 2-FF-synchronise it into the
-        # sys-domain EventManager (o_irq_csr) to avoid metastability.
-        irq_port = Signal()
-        host.specials += MultiReg(irq_port, o_irq_csr, odomain="sys")
     else:
         csr_axil = axil
-        irq_port = o_irq_csr
     ports = dict(
         # clocks / reset  -  the whole datapath runs in `milan_cd`
         i_axis_clk    = ClockSignal(milan_cd),  i_axis_resetn = ~ResetSignal(milan_cd),
@@ -702,10 +713,6 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
         o_s_axi_arready = csr_axil.ar.ready,
         o_s_axi_rdata   = csr_axil.r.data,  o_s_axi_rresp = csr_axil.r.resp,
         o_s_axi_rvalid  = csr_axil.r.valid, i_s_axi_rready = csr_axil.r.ready,
-        # TX/RX/TS DMA AXIS  -  §A.6 engine attaches here (idle stub)
-        i_s_axis_tx_tdata = 0, i_s_axis_tx_tkeep = 0, i_s_axis_tx_tvalid = 0,
-        i_s_axis_tx_tlast = 0,
-        i_m_axis_rx_tready = 0, i_m_axis_ts_tready = 0,
         # MAC-facing AXIS  -  §A.7 MAC attaches here (idle stub)
         i_m_axis_mac_tx_tready = 0,
         i_s_axis_mac_rx_tdata = 0, i_s_axis_mac_rx_tkeep = 0,
@@ -748,8 +755,9 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
         # P12: the 0x800 window's LCTX/TCTX/ACMP-tbl engine boundary moved
         # INSIDE milan_datapath (wired to the live monitor_ctx/packetizer/
         # acmp engines) - the P11 inert ties are gone with the ports.
-        # interrupt (csr aggregate; DMA-done IRQs come from §A.6). CDC'd to sys above.
-        o_o_irq_csr = irq_port,
+        # The bare-metal firmware polls the CSR state it owns. The aggregate
+        # diagnostic interrupt has no CPU event-manager ABI in this product.
+        o_o_irq_csr = Signal(),
     )
     if extra_ports:
         ports.update(extra_ports)
@@ -766,11 +774,8 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
     # select (0 = stereo I2S default, 8/16/32 = KL_tdm_capture TDM slave).
     # The builder emits --audio-interface for the tdm kinds; default 0 keeps
     # the shipping I2S build bit-identical.
-    # AAF_PLAYBACK_P (item-7): passed ONLY when --aaf-playback is on, so the
-    # default build's Instance (and generated top .v) is byte-identical - the
-    # SV default AAF_PLAYBACK_P=0 prunes the KL_pcm_tx generate.
     # TALKER_WIRE_CHANS_P (item 00): the channels_per_frame the framer emits.
-    # Passed ONLY above the default, on the AAF_PLAYBACK_P discipline, so the
+    # Passed only above the default, so the
     # shipping build's Instance and generated top .v stay byte-identical.
     # milan_datapath REFUSES at elaboration any width the front-end selected by
     # audio_if_slots cannot feed - that guard is what makes this a fabric fact
@@ -798,8 +803,6 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
         # not the repository and a relative $readmemh silently yields zero ROM.
         dp_params["p_GPTP_UCODE_HEX_P"] = _builder_out(
             entity_gen_dir, "gptp_ucode.hex")
-    if sound_card:
-        dp_params["p_SOUND_CARD_P"] = 1
     # THE ACMP TRANSITION ROM IS NOT OPTIONAL. protocol_processor_top - which
     # milan_datapath now instantiates unconditionally through KL_pp_shadow -
     # $readmemh's its listener transition ROM by the RELATIVE name
@@ -866,38 +869,23 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
     dp_params["p_PP_RESP_BASE_P"] = resp_base
     if int(talker_wire_chans) != 2:
         dp_params["p_TALKER_WIRE_CHANS_P"] = int(talker_wire_chans)
-    if aaf_playback:
-        # param NAME must match the SV declaration exactly - a mismatched
-        # LiteX Instance param silently no-ops (latent find 2026-07-25:
-        # this line passed p_AAF_PLAYBACK for weeks and pruned nothing in,
-        # because the RTL parameter is AAF_PLAYBACK_P)
-        dp_params["p_AAF_PLAYBACK_P"] = 1
-        # task #31 START-SMALL: how many host playback rings KL_pcm_tx
-        # serves. ONE value drives BOTH the datapath parameter and the
-        # MilanDMA pb CSR sizing (the derive-never-mirror rule); ship
-        # default 1 - the full-N engine OOC'd 2216 LUT at 8x8x8, the one-
-        # ring shape is ~1/8th of that and the 64ch chmap already places
-        # its pairs on any talker's wire slots.
-        dp_params["p_AAF_PB_STREAMS_P"] = int(aaf_pb_streams)
     if loopback_lane:
-        # task #65 rx -> talker LOOPBACK bucket. SAME DISCIPLINE as
-        # AAF_PLAYBACK_P above, and the same name trap: the SV parameter is
+        # task #65 rx -> talker LOOPBACK bucket. The SV parameter is
         # LOOPBACK_P. Passed only when asked for, so a build that does not
         # ask emits a byte-identical top .v. It buys the entity's declared
         # loopback AUDIO_CLUSTERs their actual source; it costs +2303 LUT /
         # +1542 FF OOC at the 8x8 shape, which is why the shipping config
-        # leaves it off and points its power-on map at the host pool.
+        # leaves it off and points its power-on map at silence.
         dp_params["p_LOOPBACK_P"] = 1
     if audio_if_master and int(audio_if_slots):
         # AUDIO_IF_MASTER_P / AUDIO_IF_CLK_HZ_P (item 4): the TDM bus ROLE and
-        # the clock the master divides. SAME DISCIPLINE as AAF_PLAYBACK_P -
+        # the clock the master divides. Passed
         # passed ONLY when asked for, so a build that does not ask emits a
         # byte-identical top .v - and the SAME TRAP applies: the names below
         # must match the SV parameter declarations CHARACTER FOR CHARACTER
         # (`AUDIO_IF_MASTER_P`, `AUDIO_IF_CLK_HZ_P` in hdl/milan/
         # milan_datapath.sv), because LiteX does not diagnose a parameter the
-        # module does not have - it silently drops it, which is how
-        # p_AAF_PLAYBACK pruned nothing for weeks.
+        # module does not have - it silently drops it.
         dp_params["p_AUDIO_IF_MASTER_P"] = 1
         dp_params["p_AUDIO_IF_CLK_HZ_P"] = (2 * int(audio_if_slots)
                                             * AUDIO_IF_WORD_BITS
@@ -933,7 +921,7 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
             dp_params[f"p_{param}"] = 0
     # CBS instance mask (2026-07-28 area lever, traffic_shaping_core has the
     # contract). Passed ONLY when it actually prunes - None or all-ones emits
-    # a byte-identical top .v (the AAF_PLAYBACK_P discipline), and the name
+    # a byte-identical top .v, and the name
     # must match the SV declaration CHARACTER FOR CHARACTER (the silent-drop
     # trap above).
     if cbs_queues_mask is not None and int(cbs_queues_mask) != (1 << 5) - 1:
@@ -943,8 +931,8 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
     # =======================================================================
     # The processor's descriptor store fetches the entity model from main
     # memory. This is that master, bridged to a LiteX wishbone READ master on
-    # the DMA bus - the same shape as the AAF playback word-fetch bridge above
-    # (`milan_aaf_pb`), extended from one word to a BURST.
+    # the CPU's dedicated fabric-memory port and extended across a burst of
+    # 64-bit words.
     #
     # CONTRACT (the submodule's): ONE outstanding request, held until ready;
     # responses IN ORDER; `beats` is 64-bit beats, >= 1, max 128; `rsp_last`
@@ -953,12 +941,10 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
     # wire order, i.e. BIG-ENDIAN, a byte-reverse of the little-endian words
     # the bus returns.
     #
-    # THE ERROR ARM IS NOT OPTIONAL, and this is the second time this exact
-    # trap has been paid for on this bus: LiteX's wishbone2axi asserts `err`
+    # THE ERROR ARM IS NOT OPTIONAL: LiteX's wishbone2axi asserts `err`
     # TOGETHER WITH `ack` in its error state, so `If(ack, ...)` alone accepts a
-    # FAILED read and latches whatever `dat_r` held. The audio path had to
-    # substitute silence because KL_pcm_tx has no error input. THIS master has
-    # one: `desc_mem_rsp_err` aborts the burst and the store degrades that
+    # FAILED read and latches whatever `dat_r` held. This master has an error
+    # output: `desc_mem_rsp_err` aborts the burst and the store degrades that
     # locate to NO_SUCH_DESCRIPTOR. So the error is PROPAGATED, never masked -
     # a corrupt descriptor is never served as though it were good.
     desc_req_valid = Signal();     desc_req_ready = Signal()
@@ -982,7 +968,7 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
     ]
     # THE BUS MASTER LIVES AT THE SoC, not here: this is a LiteXModule and has
     # no bus. Publish the sys-domain endpoints and let the SoC bridge them
-    # (see `descmem` in the SoC body) - the same split MilanDMA already uses.
+    # (see `descmem` in the SoC body).
     host.descmem_req_sys = d_req.sys
     host.descmem_rsp_sys = d_rsp.sys
 
@@ -1101,8 +1087,7 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
     # set_multicycle_path 4 on the config->slope_r capture; the engine's
     # 1-bit-per-cycle divider paths close timing natively.
     # RTL sources for elaboration / P&R. Curated list (NOT add_source_dir) so the
-    # Zynq-only milan_top.sv / milan_dma_wrapper.v are excluded from the fabric build
-    #  -  same file set the tb/verilator/milan_dp + syn/yosys checks use.
+    # Same file set the tb/verilator/milan_dp + syn/yosys checks use.
     # abspath: normalize a literal "./" in __file__ (e.g. `python ./milan_sim.py` on
     # 3.14 keeps it) — an un-normalized "." component silently eats one dirname level.
     # (base is hoisted above dp_params: the transition-ROM path needs it too)
@@ -1122,30 +1107,25 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
                 "hdl/ieee17221/adp", "hdl/common/csr", "hdl/common/eth_event_counter",
                 "hdl/ieee1722/avtp"):
         platform.add_verilog_include_path(os.path.join(base, inc))
-    srcs = list(_MILAN_DATAPATH_SOURCES)
-    if aaf_playback:
-        # item-7: the host-PCM-ring AAF talker source (only referenced when the
-        # AAF_PLAYBACK_P generate is live, so the default source list is unchanged).
-        srcs.append("hdl/ieee1722/aaf/KL_pcm_tx.sv")
-    for f in srcs:
+    for f in _MILAN_DATAPATH_SOURCES:
         platform.add_source(os.path.join(base, f))
 
 
-# AXIS clock-domain crossing (DMA/MAC boundary) ---------------------------------------------------
+# AXIS clock-domain crossing (protocol-memory/MAC boundaries) -------------------------------------
 
 class _AxisDP:
     """Pair of stream endpoints for one AXIS lane crossing the datapath boundary:
-    `.dp` is bound to the `milan_datapath` Instance, `.sys` to the sys-domain DMA/MAC."""
+    `.dp` is bound to the `milan_datapath` Instance, `.sys` to the SoC-side
+    protocol-memory bridge or MAC."""
     def __init__(self, dp, sys):
         self.dp  = dp
         self.sys = sys
 
 def _axis_dp_cdc(host, name, layout, milan_cd, to_datapath, depth=16, rename=None):
-    """Cross one AXIS lane between the sys domain (DMA engine / MAC core) and the
+    """Cross one AXIS lane between the sys domain (memory bridge / MAC core) and the
     datapath's `milan_cd` domain with an async-FIFO `stream.ClockDomainCrossing`
-    (the "use a FIFO to compensate the timing" boundary). `to_datapath=True` is a
-    sys->milan_cd lane (memory->TX, MAC-RX->datapath); False is milan_cd->sys
-    (datapath->RX/TS memory, datapath->MAC-TX). When `milan_cd == "sys"` there is no
+    boundary. `to_datapath=True` is a sys->milan_cd lane; False is
+    milan_cd->sys. When `milan_cd == "sys"` there is no
     crossing: `.dp` and `.sys` are the same endpoint (direct wire)."""
     if milan_cd == "sys":
         ep = stream.Endpoint(layout)
@@ -1182,7 +1162,7 @@ class MilanMAC(LiteXModule):
     the MAC core just does L1/framing.
 
     `dp_ports` is the dict of `milan_datapath` Instance ports this MAC drives  -  pass
-    it as `MilanNIC(..., dma_mac_ports=mac.dp_ports)`.
+    it as `MilanNIC(..., board_ports=mac.dp_ports)`.
 
     NOTE (board-gated): the exact `last_be`↔`tkeep` byte-enable mapping and the
     link/speed status (MDIO) are wired to sensible values for elaboration; they are
@@ -1223,7 +1203,8 @@ class MilanMAC(LiteXModule):
             # The AX7101 RTL8211E is strapped for **GMII** (8-bit SDR), per the Alinx
             # example top (`input [7:0] e_rxd`, separate rxdv/rxer, gtx=rxc). An RGMII
             # (4-bit DDR) read of this bus corrupts every byte  -  hardware-confirmed as 100%
-            # MAC preamble errors (evidence/hw_ma3_*). LiteEthPHYGMII is the right PHY.
+            # MAC preamble errors (TROUBLESHOOTING Section 17; the retired bench log
+            # remains in Git history under #259). LiteEthPHYGMII is the right PHY.
             # (`**_rgmii` absorbs the now-unused --rgmii-*-delay knobs for API compat.)
             self.phy  = LiteEthPHYGMII(clk_pads, pads, with_hw_init_reset=True,
                                        tx_clk_invert=gtx_tx_invert,
@@ -1361,9 +1342,9 @@ class MilanMAC(LiteXModule):
         # clock domains reset via phy_crg_reset, but the core's SYS-side CDC
         # halves kept their pointers = permanent desync after a link bounce
         # (silicon: TX or RX wedges until a gateware reload). `reinit` holds
-        # the whole sys side (core + tx FIFO) in reset; the recovery daemon
-        # strobes phy_crg_reset + reinit together for a clean eth re-init
-        # WITHOUT touching the Milan datapath.
+        # the whole sys side (core + tx FIFO) in reset. The fabric guard now
+        # owns both reset halves and performs a clean eth re-init without
+        # touching the Milan datapath.
         self.reinit = Signal()   # driven from the datapath's link guard | LINK_CTRL[1]
         self.cd_macsys = ClockDomain()
         self.comb += self.cd_macsys.clk.eq(ClockSignal("sys"))
@@ -1401,8 +1382,8 @@ class MilanMAC(LiteXModule):
         # per eth clock (AsyncResetSynchronizer: asserts even while the eth clock is
         # stopped, releases only on a running clock). The guard drops eth_rst
         # mid-settle - strictly BEFORE `reinit` - so both CDC halves restart from
-        # matched pointers with zero software involvement (previously only the
-        # daemon's phy_crg_reset strobe covered the eth side).
+        # matched pointers without an external reset writer; the fabric guard
+        # owns the eth-side reset too.
         # (AsyncResetSynchronizer comes from the module-level import: a local
         # re-import here made the name function-local and blew up the EARLIER
         # macsys use with UnboundLocalError - Python scoping, m001d launch.)
@@ -1428,14 +1409,14 @@ class MilanMAC(LiteXModule):
                                        with_preamble_crc=True, with_padding=True))
         # Store-and-forward TX packet FIFO (HW-root-caused 2026-07-04): the bare MACCore is
         # CUT-THROUGH and GMII has no mid-frame flow control (`tx_en = sink.valid` cycle by
-        # cycle), while our DMA/datapath source can drop below 1 Gbps mid-frame (Wishbone
-        # wait states) -> a single `valid` bubble becomes a tx_en glitch -> the PHY emits a
+        # cycle), while a fabric source may pause mid-frame -> a single `valid` bubble
+        # becomes a tx_en glitch -> the PHY emits a
         # fragment the peer NIC discards WITHOUT counting (total silence). Sim-reproduced
         # (starved source -> 6 bubbles/frame) and sim-fixed by this FIFO: it releases a
         # frame downstream only once COMPLETELY buffered, so the drain is always gapless.
         # 512 x 8 B = 4 KB >= 2 max-size frames; 8 frame slots.
         # (Full LiteEthMAC has SRAM buffering for exactly this reason; we drive the bare
-        # core, so we provide it here. docs/findings/kl-eth-tx-debug.md #Second bug.)
+        # core, so we provide the gapless drain FIFO here.)
         self.tx_sf = ClockDomainsRenamer({"sys": "macsys"})(
                          PacketFIFO(eth_phy_description(data_width),
                                     # 512 x 8 B = 4 KB >= 2 max frames (the
@@ -1463,7 +1444,7 @@ class MilanMAC(LiteXModule):
                                     # drain still runs 1 beat/cycle with no
                                     # bubble - the gapless-drain property this
                                     # FIFO exists to provide is preserved (and
-                                    # is pinned by test_tx_sf_gapless.py).
+                                    # is a structural requirement of this boundary).
                                     buffered=True))
         self.comb += self.tx_sf.source.connect(self.core.sink)
 
@@ -1498,11 +1479,6 @@ class MilanMAC(LiteXModule):
                              rename=mac_cdc_rename)  # dp -> MAC
         rx_dp = _axis_dp_cdc(self, "mac_rx_cdc", L, milan_cd, to_datapath=True,
                              rename=mac_cdc_rename)  # MAC -> dp
-        # Debug/telemetry taps (sys side): datapath->MAC-TX out and MAC-RX->datapath in.
-        # `MilanDebug` also taps self.core.sink/source (LiteEth in/out) and
-        # self.phy.sink/source (GMII wire, eth_tx/eth_rx).
-        self.dbg_tx_dp = tx_dp.sys
-        self.dbg_rx_dp = rx_dp.sys
         # LiteEth's `last_be` is NOT an AXIS keep mask  -  it is a **one-hot pointer to the
         # last valid byte** of the final beat (liteeth/mac/padding.py Case: 0x01->1 byte,
         # 0x02->2 … 0x80->8; the RX side builds it by up-converting a single `last` bit).
@@ -1514,9 +1490,9 @@ class MilanMAC(LiteXModule):
         #   RX  last_be(one-hot) -> keep(mask up to that byte):        (last_be<<1) - 1
         #
         # `loopback` (CSR, sys domain): when 1, the datapath's MAC-TX stream is fed straight
-        # back into its MAC-RX stream (bypassing the LiteEth core + PHY) so a full frame can
-        # be verified memory->TX-DMA->datapath->RX-DMA->memory with no wire/rig. Both are
-        # AXIS keep-masks here, so no last_be conversion is needed on the loop path.
+        # back into its MAC-RX stream (bypassing the LiteEth core + PHY) so the complete
+        # fabric packet path can be verified with no wire rig. Both are AXIS keep-masks
+        # here, so no last_be conversion is needed on the loop path.
         self.loopback = CSRStorage(1, description="1 = internal MAC-TX->MAC-RX AXIS loopback")
         lb = self.loopback.storage
         self.comb += [
@@ -1558,12 +1534,6 @@ class MilanMAC(LiteXModule):
             ),
         ]
 
-        # (i2s pads are requested at the DMA/datapath layer - the block that
-        # lived here could never run: `soc` is not in this scope and the old
-        # try/except only ever swallowed its own NameError)
-        self.i2s_pads = None
-        self.i2s_dac_pads = None
-
         # ---- PHY/MAC link status (MAC_STATUS 0x110 / REQ-MAC-03) --------------------
         # WHY A CSR AND NOT A WIRE: LiteEth's GMII/MII PHY wrappers expose NO link,
         # speed or duplex output. `LiteEthPHYGMII`/`LiteEthPHYMII` carry the TX/RX
@@ -1571,8 +1541,8 @@ class MilanMAC(LiteXModule):
         # `LiteEthPHYMDIO`, which is a SOFTWARE BIT-BANG register pair (mdc / mdio_w
         # {oe,w} / mdio_r), NOT an autoneg-result register. There is no hardware MDIO
         # master anywhere in the SoC, so the negotiated state only ever exists where
-        # the MDIO transactions happen: in software (kl-eth's phylib/ethtool path,
-        # `phy` reg window 0xf000_3800). A fabric MDIO poller would be new
+        # the MDIO transactions happen: through the `phy` register window at
+        # 0xf000_3800. A fabric MDIO poller would be new
         # SystemVerilog, i.e. a different lane - see docs/testing/MILAN_V12_AUDIT_2026-08-16.md.
         #
         # Before this register the three datapath status inputs were CONSTANTS
@@ -1688,7 +1658,7 @@ class MilanMAC(LiteXModule):
             o_o_eth_rst         = self.eth_rst,
             # ETH GUARD (USER 08-06): exported for future SoC-side gating of
             # the LiteEth phy_crg_reset chain (v2); v1 guards the milan-csr
-            # levers inside the datapath and statd respects the CSR
+            # levers inside the datapath; the CSR remains the control boundary
             o_o_eth_guard       = self.eth_guard,
             o_m_axis_mac_tx_tdata  = tx_dp.dp.data,  o_m_axis_mac_tx_tkeep = tx_dp.dp.keep,
             o_m_axis_mac_tx_tvalid = tx_dp.dp.valid, o_m_axis_mac_tx_tlast = tx_dp.dp.last,
@@ -1712,3454 +1682,6 @@ class MilanMAC(LiteXModule):
         )
 
 
-# DMA (§A.6) ---------------------------------------------------------------------------------------
-
-
-class RingDMAWriter(LiteXModule):
-    """Pipeline reference: docs/fpga/PIPELINE_STAGES.md (stages R3-R5: slots, pages,
-    CQ/BD publication, every knob with measured effects) and
-    docs/findings/PERFORMANCE_GOAL.md. Historical driver pairings are archived.
-
-    AXIS-frame -> circular-DRAM-ring **AXI burst** DMA writer (RX upgrade v2, 2026-07-04).
-
-    v1 (wishbone) taught two HW lessons, both measured on silicon via the pipeline
-    telemetry (rx_dma: 18 stall-cycles/beat @ 50 MHz):
-      1. one classic-Wishbone write per 8-byte beat costs the full coherent-bus round
-         trip (~38 sys cycles) -> ~21 MB/s sustained drain vs the 125 MB/s wire. Every
-         frame longer than the ~70-beat upstream elasticity (LiteEth RX CDC + datapath
-         FIFOs) overflowed MID-FRAME: the GMII side cannot stall the wire, so beats  -
-         including `last`  -  vanished silently and frames merged (ping -s 600 fine,
-         -s 800 dead, 100% loss).
-      2. any transient sink backpressure reaches LiteEth. The DMA must be ALWAYS READY.
-
-    v2 therefore:
-      * ingress = store-and-forward frame FIFO with whole-frame drop-when-full:
-        `sink.ready` is CONSTANT 1, so upstream can never overflow/corrupt. The drop
-        decision is taken at frame start (reserving one max frame); dropped frames
-        bump `dropped`. Frames longer than `max_frame_beats` are truncated (cannot
-        happen from the MAC; safety only).
-      * drain = native AXI4 burst master on the NaxRiscv coherent dma_bus (the port
-        is full AXI4  -  the wishbone adapter was the bottleneck, not the CPU). The
-        frame length is known up front, so the header streams FIRST in the same
-        burst sequence; bursts are <= `burst_beats` beats, split at the ring-wrap
-        and 4 KB boundaries; `wr_ptr` only advances after the LAST B response, so
-        software still never observes a partial frame.
-      * ring full -> the buffered frame is discarded from the FIFO, `dropped`++.
-
-    Ring protocol (BYTES, 8-aligned, wrap via `mask`)  -  UNCHANGED from v1, driver-ABI
-    compatible: frame slot = 8-byte header + payload padded to 8 B; header word =
-    {rsvd[31:0], seq[15:0], length[15:0]} (length = padded payload bytes); frames may
-    wrap the ring end (software splits the copy).
-
-    CSRs (7 words, same footprint/order as v1 and as the simple-mode block before it  -
-    the DT `dma-rx` window and every downstream CSR address stay put):
-      base[64] | mask[32] | wr_ptr[32] RO | rd_ptr[32] RW | enable[1] | dropped[32] RO
-    """
-    def __init__(self, bus, max_frame_beats=512, fifo_beats=2048, burst_beats=16,
-                 n_slots=4, cq_depth=8, hs_capable=True, hs_page_bytes=4096,
-                 legacy_ring=True, rsc_capable=True):
-        # hs_page_bytes (hsq10): posted-page size the hs page-crossing arithmetic
-        # assumes  -  MUST match the driver's page-pool order (STRICT pairing, kl-eth
-        # hsplit12 `hs_pgsz`). 16384 quadruples the posted-pool burst absorbency
-        # (60 pages: 240KB->960KB/queue = the legacy 0-drop regime) at the cost of
-        # coarser page granularity. Power of two; only three sites use it (the
-        # crossing compare + the two mod-page slices).
-        # legacy_ring (AREA-70 byte-ring fold, 2026-07-11): False elaborates OUT
-        # the byte-ring datapath (the bd_base==0 fallback ABI)  -  every shape mux
-        # hardwires to the BD arm and the ring dispatch/commit arms are not
-        # generated. bd_mode remains the runtime ARMING gate: unarmed + enabled
-        # = frames back up the drop-FIFO (counted ingress drops), NEVER a DMA
-        # write via base.storage/addr 0 (the lethal-pairing lesson applied to
-        # old bd=0 drivers on folded gateware). See docs/fpga/PIPELINE_STAGES.md.
-        # rsc_capable (rxq2-sans-RSC fold, 2026-08-01): False elaborates OUT the
-        # RSC coalescing engine - the header-capture regfile + eth/IP/TCP parse,
-        # the n_slots aggregate state with its MATCH/DISPATCH pipeline and
-        # timers, ACK-run merging, the append rotator and every header-split
-        # state - keeping the plain single-frame BD path, which is ALSO the
-        # runtime rsc_en=0 path: drivers see a supported mode where every BD is
-        # a v1 single (the path all non-TCP traffic takes today) and coalescing
-        # simply never arms. Every RSC/hs CSR KEEPS its offset (the driver bakes
-        # them in): the storages stay, nothing reads them; status CSRs read 0.
-        # The 2-queue steering front-end is outside this class and untouched.
-        assert hs_page_bytes & (hs_page_bytes - 1) == 0
-        assert hs_page_bytes <= 32768   # v3 w0[31:16] carries the page fill length
-        PGB = hs_page_bytes.bit_length() - 1
-        self.bus  = bus                 # axi.AXIInterface(data_width=64), byte-addressed
-        self.sink = sink = stream.Endpoint([("data", 64), ("keep", 8)])
-
-        self.base    = CSRStorage(64, description="Ring base address (bytes, 8-aligned).")
-        self.mask    = CSRStorage(32, description="Ring size-1 (size = power of two).")
-        self.wr_ptr  = CSRStatus(32,  description="HW write pointer (committed frames).")
-        self.rd_ptr  = CSRStorage(32, description="SW read pointer (consumed up to here).")
-        self.enable  = CSRStorage(1,  description="Ring enable.")
-        self.dropped = CSRStatus(32,  description="Whole frames dropped (ingress/ring full).")
-        # Pointer-writeback shadow (perf, 2026-07-05): after each frame commit the engine
-        # DMA-writes {dropped[63:32], wr_ptr[31:0]} to this coherent 8-byte address, so the
-        # driver detects new frames by reading the shadow FROM CACHE instead of stalling the
-        # in-order CPU on an MMIO wr_ptr/dropped CSR read every poll (the measured hot-path
-        # cost  -  backing the poll off 200us->4ms alone gave +32% RX). 0 = writeback off.
-        self.status  = CSRStorage(64, description="Coherent addr of the {dropped,wr_ptr} writeback shadow (0=off).")
-        # RX-path telemetry (2026-07-05): make the interrupt/CPPI behaviour observable  -
-        # `frames` = HW-committed frame count (vs the driver's rx_packets shows SW keeping up);
-        # `occ_hi` = ring occupancy high-water in bytes (near 0 => latency-bound / starving,
-        # near `mask` => driver too slow / filling); `irqs` = empty->non-empty edges (~one per
-        # IRQ batch, so frames/irqs = batching factor). Also exposes `non_empty` for ev.rx.
-        self.frames  = CSRStatus(32, description="RX frames committed (HW delivered).")
-        self.occ_hi  = CSRStatus(32, description="Ring occupancy high-water (bytes used, max seen).")
-        self.irqs    = CSRStatus(32, description="ev.rx rising edges (empty->non-empty; ~one per IRQ batch).")
-        # ---- BD (buffer-descriptor) mode  -  CPPI-style zero-copy RX (P2/P4, 2026-07-05) ----
-        # Instead of the byte-ring, the driver POSTS per-frame buffers (write the 8-aligned
-        # phys addr to `post`; 64-deep FIFO) and the engine DMA-writes each frame's payload
-        # STRAIGHT into the next posted buffer (no ring, no header, no driver memcpy), then
-        # DMA-writes a 16 B completion BD {magic,seq,len,csum | buf_addr} into a coherent
-        # DRAM BD ring. The driver detects frames by reading the BD from CACHED memory (one
-        # coherent read)  -  no wr_ptr MMIO, no DRAM header read, no 35 us/1500 B copy (the
-        # two measured per-frame costs, LATENCY_INVESTIGATION §4-6). No posted buffer when a
-        # frame arrives => whole-frame drop (`dropped`++)  -  the always-ready invariant holds.
-        # bd_base==0 (reset) = BD mode off => the legacy byte-ring path is bit-identical.
-        # In BD mode the existing ring CSRs are REUSED for the BD ring: `mask` = BD-ring
-        # bytes-1 (entries*16-1), `wr_ptr` = HW BD write offset, `rd_ptr` = SW consumed-BD
-        # offset  -  so `non_empty` (ev.rx), occupancy telemetry and the IRQ path all work
-        # unchanged; `base` is unused. BD (16 B, 2 beats, little-endian):
-        #   word0 = {drops[15:0], csum[15:0], len_bytes[15:0], seq[7:0], magic 0xBD}
-        #   word1 = posted buffer phys addr (debug/robustness; consumption order == post order)
-        #   len_bytes = the TRUE frame byte length (gPTP RX-pad fix: single-frame BDs
-        #   subtract the last beat's invalid bytes; RSC aggregates were always parse-
-        #   derived). The DMA itself still moves whole 8-byte beats - only the report
-        #   changed, so old drivers (which size the skb from len) need no change and
-        #   the kl-eth PTP-trim becomes a no-op on this gateware.
-        self.post    = CSRStorage(32, description="Write a posted RX buffer phys addr (8-aligned, >= max frame). FIFO of 64.")
-        self.bd_base = CSRStorage(64, description="Completion-BD ring base (coherent, 16 B/entry, 16-aligned). 0 = BD mode off.")
-        self.posted  = CSRStatus(8,   description="Posted buffers currently queued (telemetry).")
-
-        # # #
-
-        drops   = Signal(32)
-        seq     = Signal(16)
-        wr      = Signal(32)            # committed ring write offset (== wr_ptr CSR)
-        # ---- M1 telemetry (docs/findings/PERFORMANCE_GOAL.md): closure + coalesce ratio.
-        # Counted at the close-ARMING sites (psh / seg-cap / idle-timeout / parked-
-        # newcomer|mack); v2_segs accumulates each closed aggregate's segment count so
-        # Σsegs/v2_cnt = the measured coalescing factor. Snapped by MilanDebug.
-        close_psh  = Signal(32)
-        close_cap  = Signal(32)
-        close_tout = Signal(32)
-        close_park = Signal(32)
-        close_age  = Signal(32)         # lifetime cap closes (multi-slot HOL bound)
-        close_prs  = Signal(32)         # CQ pressure closes (head-of-line open slot)
-        v2_cnt     = Signal(32)
-        v2_segs    = Signal(32)
-        self.dbg_close_psh, self.dbg_close_cap = close_psh, close_cap
-        self.dbg_close_tout, self.dbg_close_park = close_tout, close_park
-        self.dbg_close_age, self.dbg_close_prs = close_age, close_prs
-        self.dbg_v2_cnt, self.dbg_v2_segs = v2_cnt, v2_segs
-        frames  = Signal(32)           # committed frame counter (telemetry)
-        occ_hi  = Signal(32)           # occupancy high-water (telemetry)
-        irq_cnt = Signal(32)           # non_empty rising edges (telemetry)
-        ne_prev = Signal()
-        self.non_empty = Signal()      # -> ev.rx.trigger (level RX-completion interrupt)
-        self.comb += [
-            self.wr_ptr.status.eq(wr),
-            self.dropped.status.eq(drops),
-            self.frames.status.eq(frames),
-            self.occ_hi.status.eq(occ_hi),
-            self.irqs.status.eq(irq_cnt),
-            self.non_empty.eq(wr != self.rd_ptr.storage),
-        ]
-        self.sync += [
-            ne_prev.eq(self.non_empty),
-            If(~self.enable.storage, irq_cnt.eq(0)).Elif(self.non_empty & ~ne_prev,
-                                                         irq_cnt.eq(irq_cnt + 1)),
-        ]
-
-        # ---- ingress: always-ready store-and-forward, whole-frame drop ----------------
-        self.data_fifo = data_fifo = stream.SyncFIFO([("data", 64)], depth=fifo_beats, buffered=True)
-        # `pad` (gPTP RX-pad fix, GPTP_RXPAD_ROOTCAUSE.md): invalid bytes of the frame's
-        # LAST beat (0-7, from the ingress `keep`), so BD completions can report the TRUE
-        # byte length. 0 when the upstream drives no keep (sim harnesses) = old behavior.
-        self.len_fifo  = len_fifo  = stream.SyncFIFO([("beats", 11), ("csum", 16), ("pad", 3)], depth=64)
-
-        # ---- BD mode: posted-buffer FIFO + completion-BD state -------------------------
-        bd_mode = Signal()
-        self.post_fifo = post_fifo = stream.SyncFIFO([("addr", 32)], depth=64)
-        buf_addr_r = Signal(32)         # posted buffer being filled (registered at pop)
-        wb_beat    = Signal()           # 0 = BD word0 (meta), 1 = word1 (buf addr)
-        post_pop = Signal()             # FSM pops the next posted buffer this cycle
-        # ---- RSC phase A (docs/fpga/PIPELINE_STAGES.md): capture nine beats into a register
-        # file and parse eth/IPv4/TCP fields. Phase A is OBSERVE-ONLY (frames still
-        # stream unchanged as single-frame BDs); rsc_dbg exposes the parse for sims.
-        self.rsc_en = CSRStorage(1, description="RSC parse enable (phase A: observe-only).")
-        # capability gate (rxq2-sans-RSC fold): the runtime enable, forced to a
-        # constant 0 when the engine is not elaborated - derived from the one
-        # elaboration param, never mirrored (same shape trick as hs below).
-        rsc_on = self.rsc_en.storage if rsc_capable else C(0)
-        hdr_reg  = Array([Signal(64) for _ in range(9)])
-        hdr_cnt  = Signal(4)
-        hdr_take = Signal(4)            # beats to capture = min(total_beats, 9)
-        fbeat    = Signal(12)           # frame-beat index for the regfile replay
-        in_hdrr  = Signal()
-        def _b(idx):                    # frame byte idx as an 8-bit slice of the regfile
-            return hdr_reg[idx >> 3][8*(idx & 7):8*(idx & 7)+8]
-        p_eth_ip  = Signal()
-        p_ihl5    = Signal()
-        p_tcp     = Signal()
-        p_nofrag  = Signal()
-        p_flags   = Signal(8)
-        p_doff    = Signal(4)
-        p_eligible = Signal()
-        p_seq     = Signal(32)
-        p_totlen  = Signal(16)
-        self.comb += [
-            p_eth_ip.eq((_b(12) == 0x08) & (_b(13) == 0x00)),
-            p_ihl5.eq(_b(14) == 0x45),
-            p_tcp.eq(_b(23) == 6),
-            p_nofrag.eq(((_b(20) & 0x3F) == 0) & (_b(21) == 0)),
-            p_flags.eq(_b(47)),
-            p_doff.eq(_b(46)[4:8]),
-            p_seq.eq(Cat(_b(41), _b(40), _b(39), _b(38))),
-            p_totlen.eq(Cat(_b(17), _b(16))),
-            # data segment, flags subset {ACK(0x10), PSH(0x08)}, sane doff
-            p_eligible.eq((hdr_take >= 7) & p_eth_ip & p_ihl5 & p_tcp & p_nofrag &
-                          ((p_flags & 0xE7) == 0) & (p_flags[4]) &
-                          (p_doff >= 5) &
-                          (p_totlen > (20 + Cat(C(0, 2), p_doff)))),
-        ]
-        p_ack   = Signal(32)
-        p_win   = Signal(16)
-        p_plen  = Signal(16)            # exact TCP payload bytes (from ip.tot_len)
-        p_soff  = Signal(8)             # payload start byte in the frame = 34 + doff*4
-        p_srcip = Signal(32)
-        p_dstip = Signal(32)
-        p_ports = Signal(32)
-        self.comb += [
-            p_ack.eq(Cat(_b(45), _b(44), _b(43), _b(42))),
-            p_win.eq(Cat(_b(49), _b(48))),
-            p_plen.eq(p_totlen - 20 - Cat(C(0, 2), p_doff)),
-            p_soff.eq(34 + Cat(C(0, 2), p_doff)),
-            p_srcip.eq(Cat(_b(26), _b(27), _b(28), _b(29))),
-            p_dstip.eq(Cat(_b(30), _b(31), _b(32), _b(33))),
-            p_ports.eq(Cat(_b(34), _b(35), _b(36), _b(37))),
-        ]
-        # ---- RSC phase C (R2, 2026-07-09): N-slot aggregate state + pop-ordered CQ ----
-        # n_slots concurrent aggregates kill the park tax (a different-flow newcomer no
-        # longer closes the open aggregate  -  it takes its own slot). Correctness rests on
-        # the completion queue below: BDs become VISIBLE strictly in posted-buffer pop
-        # order, so the driver's blind FIFO pairing (docs/fpga/PIPELINE_STAGES.md)
-        # holds by construction  -  v2 BDs still carry no address, driver ABI unchanged.
-        NS = n_slots
-        assert NS >= 1 and (NS & (NS - 1)) == 0, "n_slots must be a power of two (victim wrap)"
-        s_open  = Array(Signal(name=f"s_open{i}")       for i in range(NS))
-        s_srcip = Array(Signal(32, name=f"s_srcip{i}")  for i in range(NS))
-        s_dstip = Array(Signal(32, name=f"s_dstip{i}")  for i in range(NS))
-        s_ports = Array(Signal(32, name=f"s_ports{i}")  for i in range(NS))
-        s_doff  = Array(Signal(4,  name=f"s_doff{i}")   for i in range(NS))
-        s_eseq  = Array(Signal(32, name=f"s_eseq{i}")   for i in range(NS))
-        s_off   = Array(Signal(16, name=f"s_off{i}")    for i in range(NS))
-        s_buf   = Array(Signal(32, name=f"s_buf{i}")    for i in range(NS))
-        s_segs  = Array(Signal(8,  name=f"s_segs{i}")   for i in range(NS))
-        s_mss   = Array(Signal(16, name=f"s_mss{i}")    for i in range(NS))
-        s_ack   = Array(Signal(32, name=f"s_ack{i}")    for i in range(NS))
-        s_win   = Array(Signal(16, name=f"s_win{i}")    for i in range(NS))
-        s_psh   = Array(Signal(name=f"s_psh{i}")        for i in range(NS))
-        s_idle  = Array(Signal(24, name=f"s_idle{i}")   for i in range(NS))
-        s_age   = Array(Signal(24, name=f"s_age{i}")    for i in range(NS))
-        s_cq    = Array(Signal(max=cq_depth, name=f"s_cq{i}") for i in range(NS))  # CQ index: MUST track cq_depth (4-bit relic broke CQD=32: closes stamped done on entry&0xF, head starved)
-        self.rsc_bufsz = CSRStorage(16, reset=2048, description="RSC aggregate buffer bytes (driver posts this size).")
-        self.rsc_tout  = CSRStorage(24, reset=5000, description="RSC aggregate idle-close timeout (sys_clk cycles; 5000 = 50 us @ 100 MHz).")
-        # slot selection combs
-        slot_hit  = Signal(NS)          # per-slot: open & same flow & in-seq & fits
-        agg_match = Signal()
-        hit_idx   = Signal(max=max(NS, 2))
-        free_any  = Signal()
-        free_idx  = Signal(max=max(NS, 2))
-        exp_any   = Signal()
-        exp_idx   = Signal(max=max(NS, 2))
-        exp_age   = Signal()            # exp_idx expired by lifetime (vs idle)
-        victim    = Signal(max=max(NS, 2))  # round-robin park victim when all slots busy
-        slot_sel  = Signal(max=max(NS, 2))  # slot the in-flight frame operates on
-        sel_off   = Signal(16)
-        sel_buf   = Signal(32)
-        slot_touch_sel = Signal()       # comb strobe from WAIT_B: reset slot_sel's idle timer
-        self.comb += [slot_hit[i].eq(s_open[i] & p_eligible &
-                                     (p_srcip == s_srcip[i]) & (p_dstip == s_dstip[i]) &
-                                     (p_ports == s_ports[i]) & (p_doff == s_doff[i]) &
-                                     (p_seq == s_eseq[i]) &
-                                     ((s_off[i] + p_plen) <= self.rsc_bufsz.storage))
-                      for i in range(NS)]
-        # same flow but NOT appendable (seq gap / buffer full): the stale aggregate can
-        # never extend  -  close it immediately (v1 park semantics) instead of leaking a
-        # second slot for the flow and stranding the first until its idle timeout.
-        slot_flow = Signal(NS)
-        flow_any  = Signal()
-        flow_idx  = Signal(max=max(NS, 2))
-        self.comb += [slot_flow[i].eq(s_open[i] & p_eligible & ~slot_hit[i] &
-                                      (p_srcip == s_srcip[i]) & (p_dstip == s_dstip[i]) &
-                                      (p_ports == s_ports[i]))
-                      for i in range(NS)]
-        self.comb += flow_any.eq(slot_flow != 0)
-        _fl = flow_idx.eq(0)
-        for i in reversed(range(NS)):
-            _fl = If(slot_flow[i], flow_idx.eq(i)).Else(_fl)
-        self.comb += _fl
-        self.comb += [
-            agg_match.eq(slot_hit != 0),
-            free_any.eq(Cat(*[s_open[i] for i in range(NS)]) != (2**NS - 1)),
-            sel_off.eq(s_off[hit_idx]),
-            sel_buf.eq(s_buf[hit_idx]),
-        ]
-        _hi = hit_idx.eq(0)
-        _fi = free_idx.eq(0)
-        for i in reversed(range(NS)):
-            _hi = If(slot_hit[i], hit_idx.eq(i)).Else(_hi)
-            _fi = If(~s_open[i], free_idx.eq(i)).Else(_fi)
-        self.comb += [_hi, _fi]
-        # MATCH pipeline stage (timing): the wide per-slot compares + priority encodes
-        # + slot-field muxes fed DISPATCH's branch select as one cone (physopt named
-        # agg_match/state_reg among the -1.2ns violators). A 1-cycle MATCH state
-        # registers them; DISPATCH consumes registers only. Slot state cannot change
-        # between MATCH and DISPATCH (the FSM is sequential), and every re-dispatch
-        # path re-enters through MATCH so freshly-freed slots are re-evaluated.
-        m_hit      = Signal()
-        m_hit_idx  = Signal(max=max(NS, 2))
-        m_free_any = Signal()
-        m_free_idx = Signal(max=max(NS, 2))
-        m_flow_any = Signal()
-        m_flow_idx = Signal(max=max(NS, 2))
-        m_sel_off  = Signal(16)
-        m_sel_buf  = Signal(32)
-        # per-slot timers: idle (touch-reset) + lifetime age (never reset while open).
-        # Idle close keeps latency bounded when a flow stops; the age cap bounds the CQ
-        # head-of-line hold a slow-trickle flow could otherwise stretch to ~segcap*tout.
-        # agemax_v aliases the rsc_agemax CSR declared AFTER acks_merged (CSR offsets of
-        # every pre-existing register must not move  -  the driver bakes them in).
-        agemax_v = Signal(24)
-        s_exp = Signal(NS)
-        s_expage = Signal(NS)
-        if rsc_capable:                 # folded: timers undriven => s_exp stays 0
-            for i in range(NS):
-                self.sync += [
-                    If(~s_open[i] | (slot_touch_sel & (slot_sel == i)),
-                        s_idle[i].eq(0),
-                    ).Elif(s_idle[i] < self.rsc_tout.storage,
-                        s_idle[i].eq(s_idle[i] + 1),
-                    ),
-                    If(~s_open[i],
-                        s_age[i].eq(0),
-                    ).Elif(s_age[i] < agemax_v,
-                        s_age[i].eq(s_age[i] + 1),
-                    ),
-                ]
-                self.comb += [
-                    s_expage[i].eq(s_open[i] & (s_age[i] >= agemax_v)),
-                    s_exp[i].eq((s_open[i] & (s_idle[i] >= self.rsc_tout.storage)) | s_expage[i]),
-                ]
-        self.comb += exp_any.eq(s_exp != 0)
-        _ei = [exp_idx.eq(0), exp_age.eq(s_expage[0])]
-        for i in reversed(range(NS)):
-            _ei = If(s_exp[i], exp_idx.eq(i), exp_age.eq(s_expage[i])).Else(_ei)
-        self.comb += _ei
-        # ---- completion queue: BD visibility in pop order (depth power of 2) ----------
-        CQD = cq_depth
-        CQB = CQD.bit_length() - 1      # index bits (depth must be a power of two)
-        assert (1 << CQB) == CQD
-        # CQ word storage in distributed LUTRAM (2026-07-10 slice diet, for 2-queue hs):
-        # as Array(Signal(64))×CQD these were 4 Kb of FFs plus a CQD-way write demux at
-        # EVERY fill site and a CQD-way read mux at the drain  -  the writer's single
-        # biggest slice consumer (hsq6 placed at 96.8% slices). One 128-bit Memory with
-        # a sync-write + async-read port (RAM32M) is cycle-exact equivalent: the write
-        # lands on the clock edge (= NextValue), the async read feeds the drain comb.
-        # Every fill site writes w0|w1 to ONE index per cycle (FSM states are exclusive,
-        # CQ_FILL's pv3/meta passes sequential), so a single write port suffices. An
-        # entry being filled has done=0 so the drain never reads the address being
-        # written in the same cycle. done/hs flags and head/tail stay FFs.
-        cq_mem = Memory(128, CQD)
-        cq_wp  = cq_mem.get_port(write_capable=True)
-        cq_rp  = cq_mem.get_port(async_read=True)
-        self.specials += cq_mem, cq_wp, cq_rp
-
-        def cq_write(idx, w0, w1):
-            """comb strobe inside an fsm.act branch: sync write, visible next cycle"""
-            return [cq_wp.we.eq(1), cq_wp.adr.eq(idx), cq_wp.dat_w.eq(Cat(w0, w1))]
-        cq_done = Array(Signal(name=f"cq_done{i}")    for i in range(CQD))
-        cq_head = Signal(CQB + 1)       # extra bit: full/empty disambiguation
-        cq_tail = Signal(CQB + 1)
-        cq_level = Signal(CQB + 1)
-        cq_room  = Signal()             # a pop may allocate an entry
-        cq_drain = Signal()             # head entry ready to write back
-        cq_nhead = Signal(CQB + 1)
-        cq_more  = Signal()             # after head retires, next is ready too
-        head_open_hit = Signal()        # CQ head entry belongs to a still-open slot
-        head_slot     = Signal(max=max(NS, 2))
-        self.comb += [
-            cq_level.eq(cq_tail - cq_head),
-            cq_room.eq(cq_level < (CQD - 1)),
-            cq_drain.eq((cq_level != 0) & cq_done[cq_head[:CQB]]),
-            cq_nhead.eq(cq_head + 1),
-            cq_more.eq((cq_tail != cq_nhead) & cq_done[cq_nhead[:CQB]]),
-            cq_rp.adr.eq(cq_head[:CQB]),   # drain only ever reads the head
-        ]
-        # (hsplit14: metas allocate at CLOSE and pages are done-at-completion, so
-        # the only undone head an open slot can own is its PAGE entry  -  s_cq-only
-        # matching is complete again; the hsq9 meta-term came and went with the
-        # meta-first ordering.)
-        cq_pressure = Signal()
-        # DRAM BD-ring flow control (2026-07-10): the drain used to write BDs whenever
-        # the CQ head was done, so under a reap gap the HW LAPPED the driver's rd and
-        # overwrote unread BDs (seq skew of exactly `entries`  -  detected+resynced at 64
-        # entries = the -P4 "RX BD desync" storms; silently poisonous at 256 where the
-        # 8-bit seq aliases). wr may never catch rd: wr+16==rd IS full (the driver-side
-        # "posted max 63" comment is this same rule from the other side). Stalling the
-        # drain backs pressure into the CQ, so overload becomes counted ingress drops  -
-        # never corruption. bd_room2 pre-checks the slot AFTER this one for the WB_B
-        # drain-chain, where wr has already advanced by 16 in the same cycle.
-        bd_room  = Signal()
-        bd_room2 = Signal()
-        self.comb += [
-            bd_room.eq(((wr + 16) & self.mask.storage) != self.rd_ptr.storage),
-            bd_room2.eq(((wr + 32) & self.mask.storage) != self.rd_ptr.storage),
-        ]
-        # sim-introspection aliases (zero hardware: attribute refs only)
-        self.dbg_cq_head, self.dbg_cq_tail, self.dbg_cq_done = cq_head, cq_tail, cq_done
-        self.dbg_head_open_hit = head_open_hit
-        self.dbg_s_open, self.dbg_s_cq = s_open, s_cq
-        self.dbg_cq_level = cq_level
-        cq_tail1 = Signal(CQB)          # (tail+1) as a plain Signal: Migen array WRITES
-        self.comb += cq_tail1.eq((cq_tail + 1)[:CQB])   # need non-computed indices
-        cur_cq = Signal(CQB)            # CQ entry allocated by the in-flight pop
-        def cq_alloc():
-            """allocate the tail CQ entry for a buffer pop (call at post_pop sites)"""
-            return [NextValue(cur_cq, cq_tail[:CQB]),
-                    NextValue(cq_done[cq_tail[:CQB]], 0),
-                    NextValue(cq_tail, cq_tail + 1)]
-        # single-level comb hops for each close site's CQ index: cq_w0[s_cq[k]] would
-        # nest one Array proxy inside another (k is a Signal)  -  resolve s_cq[k] into a
-        # plain Signal first so every Array index stays single-level.
-        cq_of_exp  = Signal(CQB)
-        cq_of_head = Signal(CQB)
-        cq_of_vic  = Signal(CQB)
-        cq_of_mflow = Signal(CQB)
-        cq_of_sel  = Signal(CQB)
-        self.comb += [
-            cq_of_exp.eq(s_cq[exp_idx]),
-            cq_of_head.eq(s_cq[head_slot]),
-            cq_of_vic.eq(s_cq[victim]),
-            cq_of_mflow.eq(s_cq[m_flow_idx]),
-            cq_of_sel.eq(s_cq[slot_sel]),
-        ]
-        # v2-close staging (timing): the close cone {slot-field mux(k) + adders -> 64b
-        # Cat -> CQ-entry demux(cqi)} failed 100 MHz as one cycle (route WNS -1.2, all
-        # violators cq_w1*). stage_close() registers the finished meta + target index;
-        # the 1-cycle CQ_FILL state then does the short reg->demux write. Closes are
-        # per-aggregate (rare), so the extra cycle is noise.
-        meta_w0  = Signal(64)
-        meta_w1  = Signal(64)
-        meta_cqi = Signal(CQB)
-        cqf_ret_match = Signal()        # CQ_FILL exit: 1 = re-dispatch (MATCH), 0 = IDLE
-        def stage_close(k, cqi, mcqi, ret_match, extra_segs=0):  # mcqi: dead since hsplit14
-            """stage slot k's close: legacy = one v2 BD into `cqi` (the open-pop entry);
-            header-split = last-page v3 into `cqi` (w1 = current page) + v2 meta into
-            `mcqi` (hs layout: len = payload+hdrlen, tag = k, hdr_idx). CQ_FILL commits
-            next cycle(s). seq/drops are patched at drain (WB_W)."""
-            hdrlen = 34 + Cat(C(0, 2), s_doff[k])          # 14 + 20 + 4*doff (ihl=5)
-            k2 = Signal(2)
-            self.comb += k2.eq(k)                          # slot tag, width-forced
-            return [If(hs,
-                        NextValue(meta_w0,
-                            Cat(C(0xBD, 8), C(0, 8), (s_off[k] + hdrlen)[:16], s_mss[k],
-                                C(0, 6), k2, C(1, 1), s_psh[k], C(0, 1), s_hidx[k])),
-                        NextValue(pv3_cqi, cqi),
-                        NextValue(pv3_addr, s_buf[k]),
-                        NextValue(pv3_tag, k2),
-                        NextValue(pv3_hidx, s_hidx[k]),
-                        NextValue(pv3_fill, Mux(s_off[k][:PGB] == 0,
-                                                hs_page_bytes, s_off[k][:PGB])),
-                        NextValue(pv3_pend, 1),
-                    ).Else(
-                        NextValue(meta_w0,
-                            Cat(C(0xBD, 8), C(0, 8), s_off[k], s_mss[k], C(0, 8),
-                                Cat(C(1, 1), s_psh[k], C(0, 6)))),
-                        NextValue(pv3_pend, 0),
-                        NextValue(meta_cqi, cqi),
-                    ),
-                    # hsplit14 (hs only): the meta allocates AT CLOSE (drains LAST,
-                    # after every page v3  -  pages become visible as they complete).
-                    # Callers gate on cq_room. Legacy v2s keep their popped entry.
-                    If(hs,
-                        NextValue(meta_cqi, cq_tail[:CQB]),
-                    NextValue(cq_done[cq_tail[:CQB]], 0),
-                    NextValue(cq_tail, cq_tail + 1)
-                    ),
-                    NextValue(meta_w1,
-                        Cat(s_ack[k], s_win[k], s_segs[k], Cat(C(0, 2), s_doff[k]), C(0, 2))),
-                    NextValue(cqf_ret_match, ret_match),
-                    NextValue(s_open[k], 0),
-                    NextValue(v2_cnt, v2_cnt + 1),
-                    NextValue(v2_segs, v2_segs + s_segs[k] + extra_segs),
-                    NextState("CQ_FILL")]
-        # append-path registers (set at DISPATCH  -  keeps cones off the data path)
-        ap_append = Signal()            # this frame appends payload-only
-        ap_arm    = Signal()            # this frame opens an aggregate at WAIT_B
-        ap_p      = Signal(3)           # byte rotate = (s_lane - r_lane) mod 8
-        ap_pass   = Signal()            # p == 0 passthrough
-        ap_head   = Signal(8)           # first-beat wstrb
-        ap_tail   = Signal(8)           # last-beat wstrb
-        ap_inrem  = Signal(12)          # input beats still to consume
-        ap_flush  = Signal(2)           # trailing pad beats to sink after payload
-        ap_carry  = Signal(64)
-        ap_prime  = Signal()            # s>r regime: preload one beat into carry
-        ap_first  = Signal()            # next W beat is the append's first (head strb)
-        self.rsc_dbg = CSRStatus(32, description="RSC parse of the last captured frame: "
-                                 "{eligible, doff[3:0], flags[7:0], totlen[15:0]}.")
-        # ---- RSC ACK-run merging (2026-07-06): coalesce runs of PURE ACKs ----------
-        # A mergeable ACK (flags==ACK only, no payload, doff 5 or the common
-        # timestamp-only option layout 01 01 08 0A) lives ENTIRELY in hdr_reg
-        # (<= 9 beats incl. 60 B pad). One pending slot: a same-flow successor
-        # REPLACES it (TCP acks are cumulative  -  the stale one carries nothing);
-        # a different flow / idle timeout flushes it as a NORMAL v1 single-frame
-        # BD (zero driver change). SACK ACKs (other option layouts) never match
-        # the predicate and pass through untouched, preserving loss recovery.
-        # Cuts the dominant RX cost of a TX-heavy workload: the per-ACK driver
-        # build+GRO (~90 us/ACK at 115 Mbit/s was ~40% of the NAPI hart).
-        p_mack = Signal()
-        self.comb += p_mack.eq(
-            p_eth_ip & p_ihl5 & p_tcp & p_nofrag &
-            (p_flags == 0x10) & (p_plen == 0) &
-            ((p_doff == 5) | ((p_doff == 8) & (_b(54) == 1) & (_b(55) == 1) &
-                              (_b(56) == 8) & (_b(57) == 10))))
-        ack_open  = Signal()
-        ack_srcip = Signal(32)
-        ack_dstip = Signal(32)
-        ack_ports = Signal(32)
-        ack_hdr   = Array([Signal(64) for _ in range(9)])
-        ack_beats = Signal(11)          # captured frame beats (BD len = beats*8 - pad)
-        ack_pad   = Signal(3)           # captured frame's last-beat pad
-        ack_csum  = Signal(16)
-        ack_wb    = Signal()            # W stage streams from ack_hdr (flush in flight)
-        ack_ret   = Signal()            # after the flush WB: 1 = re-DISPATCH newcomer
-        nc_pad    = Signal(3)           # parked newcomer's last-beat pad
-        nc_beats  = Signal(11)          # parked newcomer's geometry (the flush reuses
-        nc_csum   = Signal(16)          # frame_beats/frame_csum; restore at WB_B)
-        ack_match = Signal()
-        self.acks_merged = CSRStatus(32, description="Pure ACKs absorbed by ACK-run merging (telemetry).")
-        ack_timer = Signal(24)
-        ack_touch = Signal()
-        ack_expired = Signal()
-        self.comb += [
-            ack_match.eq(ack_open & (p_srcip == ack_srcip) &
-                         (p_dstip == ack_dstip) & (p_ports == ack_ports)),
-            ack_expired.eq(ack_open & (ack_timer >= self.rsc_tout.storage)),
-        ]
-        ack_merged = Signal(32)
-        self.comb += self.acks_merged.status.eq(ack_merged)
-        # R2 geometry knobs  -  declared LAST so every pre-existing CSR keeps its offset
-        # (the driver hardcodes them). segcap replaces the v1 `agg_segs == 15` constant;
-        # agemax bounds an open slot's total lifetime (CQ head-of-line + delivery bound).
-        self.rsc_segcap = CSRStorage(8, reset=15, description="RSC aggregate segment cap (close after this many merged segments).")
-        self.rsc_agemax = CSRStorage(24, reset=200000, description="RSC aggregate lifetime cap in sys_clk cycles (200000 = 2 ms @ 100 MHz); bounds CQ head-of-line hold.")
-        self.comb += agemax_v.eq(self.rsc_agemax.storage)
-        # R-3 header-split (HEADER_SPLIT_DESIGN.md): payload at offset 0 of order-0
-        # 4 KB posted pages + opener headers to a side ring -> every full frag is
-        # tcp_zerocopy_receive-mappable. hs_en=0 (reset) keeps all paths bit-exact.
-        self.hs_en = CSRStorage(1, description="Header-split mode (driver must post 4 KB pages + set hs_hdr_base).")
-        self.hs_hdr_base = CSRStorage(64, description="Header ring base (32 x 128 B, coherent). Opener header lands at slot v2.w0[63:59].")
-        hs = Signal()
-        # hs_capable=False (2nd queue) forces hs=0 so synthesis prunes the header-split
-        # datapath + HS_* states  -  the CSRs stay (map-stable) but the area is gone,
-        # relieving the datapath congestion that the full 2-queue hs build hit (mac_cam
-        # WNS -0.105). q0-only hs is the first-silicon proof vehicle.
-        self.comb += hs.eq(C(1 if hs_capable else 0) & self.hs_en.storage &
-                           bd_mode & rsc_on)
-        hdr_ctr = Signal(5)             # free-running header-slot allocator (32 slots:
-                                        # outstanding v2s are BD-ring/pool bounded < 32)
-        hw_cnt  = Signal(4)             # header-write beat counter (fbeat stays for payload)
-        s_hidx  = Array(Signal(5,  name=f"s_hidx{i}") for i in range(NS))   # header slot
-        cq_hs   = Signal(CQD)           # per-entry hs-drop6-layout flag (bit-vector: the
-                                        # packed 1-bit Array miscompiled under FSM NextValue)
-        pv3_cqi  = Signal(CQB)          # staged last-page v3 fill (closes emit v3 + meta)
-        pv3_addr = Signal(32)
-        pv3_pend = Signal()
-        pv3_tag  = Signal(2)
-        pv3_hidx = Signal(5)            # hsplit14: v3 carries hdr_idx (early header bind)
-        pv3_fill = Signal(16)           # hsplit14: bytes in THIS page (last page: partial)
-        drops6   = Signal(6)            # saturating drops for hs BDs ([53:48])
-        self.comb += drops6.eq(Mux(drops > 63, 63, drops[:6]))
-        slot_tag2 = Signal(2)
-        self.comb += slot_tag2.eq(slot_sel)
-        self.dbg_pv3_pend, self.dbg_pv3_cqi, self.dbg_meta_cqi = pv3_pend, pv3_cqi, meta_cqi
-        # CQ head-of-line detector: an open slot blocks the head via its current
-        # PAGE entry (s_cq). Pressure force-closes it; the close allocates its meta
-        # at the tail (hsplit14 ordering: pages drain as they complete, meta last).
-        _hs = [head_open_hit.eq(0), head_slot.eq(0)]
-        for i in reversed(range(NS)):
-            _hs = If(s_open[i] & (s_cq[i] == cq_head[:CQB]) & (cq_level != 0),
-                     head_open_hit.eq(1), head_slot.eq(i)).Else(_hs)
-        self.comb += _hs
-        self.comb += cq_pressure.eq((cq_level >= (CQD - 2)) & head_open_hit)
-        cur_hidx = Signal(5)
-        hs_cross = Signal()             # this frame swapped pages (update s_cq/s_buf)
-        ap_needswap = Signal()          # append starts exactly on a page boundary
-        cqf_disc    = Signal()          # CQ_FILL exits to DISCARD (famine mid-frame)
-        self.comb += [        ]
-        if rsc_capable:                 # folded: ack_timer/rsc_dbg undriven (0)
-            self.sync += [
-                If(~ack_open | ack_touch,
-                    ack_timer.eq(0),
-                ).Elif(~ack_expired,
-                    ack_timer.eq(ack_timer + 1),
-                ),
-            ]
-            self.sync += If(hdr_cnt == hdr_take,
-                self.rsc_dbg.status.eq(Cat(p_totlen, p_flags, p_doff, p_eligible)))
-        self.comb += in_hdrr.eq(bd_mode & rsc_on &
-                                (ack_wb | (fbeat < hdr_cnt)))
-        # bd_mode REGISTERED (2026-07-29): the 64-bit bd_base != 0 compare was
-        # computed combinationally from the CSR storage and fanned into every
-        # dispatch site - the AX csfix build's worst path ran bd_base_storage
-        # -> the rx1 data_fifo readable cone at -0.948 (19 levels, 72% route).
-        # bd_base is written ONCE at driver init, so arming one cycle later
-        # is invisible; the flop kills the compare from every timing path.
-        self.sync += bd_mode.eq(self.bd_base.storage != 0)
-        self.comb += [
-            post_fifo.sink.valid.eq(self.post.re),    # one push per CSR write
-        ]
-        # SHAPE-vs-GATE split for the fold: bd_shape selects datapath shape (a
-        # constant 1 when the byte-ring is folded out => the ring arms of every
-        # mux die at synthesis); bd_mode stays the runtime arming gate at every
-        # dispatch site in both modes.
-        bd_shape = bd_mode if legacy_ring else C(1)
-        self.comb += [
-            post_fifo.sink.addr.eq(self.post.storage),
-            self.posted.status.eq(post_fifo.level),
-            # DRAIN the posted-buffer FIFO while the ring is disabled: buffers posted by a
-            # previous driver load would otherwise SURVIVE a reload and desync the FIFO<->
-            # driver pairing by their count  -  the HW then fills freed memory and every BD
-            # pairs with the wrong buffer (silicon bug 2026-07-05: reload -> 100% garbage RX).
-            post_fifo.source.ready.eq(post_pop | ~self.enable.storage),
-        ]
-
-        in_frame = Signal()             # mid-frame (first beat already seen)
-        in_drop  = Signal()             # this frame is being swallowed
-        in_beats = Signal(11)           # beats stored for the current frame
-
-        # TIMING (build_ring6): the checksum adders may not load the upstream CDC
-        # FIFO's BRAM output directly (BRAM clk-to-out + adder cone missed 100 MHz by
-        # -0.36 ns), so the stream is registered once at entry  -  free, because
-        # sink.ready is CONSTANT 1 (no handshake to pipeline)  -  and the end-of-frame
-        # FOLD runs one cycle AFTER the last beat (delayed length push).
-        s_valid = Signal()
-        s_data  = Signal(64)
-        s_last  = Signal()
-        s_keep  = Signal(8)
-        self.sync += [
-            s_valid.eq(sink.valid),
-            s_data.eq(sink.data),
-            s_last.eq(sink.last),
-            s_keep.eq(sink.keep),
-        ]
-        self.comb += sink.ready.eq(1)   # THE invariant: upstream is never backpressured
-
-        # RX checksum offload (CHECKSUM_COMPLETE): ones-complement sum of ALL stored
-        # bytes (16-bit LE lanes, exactly what the RISC-V kernel's csum_partial computes
-        # over the same memory), accumulated as beats stream in and delivered to
-        # software in the frame header's spare bits  -  the kernel then skips its own
-        # per-byte checksum pass. Invalid last-beat lanes ARE summed on purpose: the
-        # padded bytes land in the skb too, so the sum matches the skb contents
-        # (pskb_trim_rcsum subtracts trimmed bytes itself).
-        # INVARIANT (gPTP RX-pad fix): pad lanes are ZERO on this pipeline (LiteEth
-        # converter zero-fills; observed on silicon both PHY paths), so a BD skb built
-        # to the TRUE length still matches this sum. If a future ingress can deliver
-        # nonzero pad lanes, mask `lanes` by s_keep here (costs one LUT layer in the
-        # timing-critical csum cone - that is why it is not done unconditionally).
-        lanes    = Signal(18)           # this beat's four 16-bit lanes, summed
-        acc      = Signal(30)           # frame accumulator (512 beats max fits easily)
-        acc_fin  = Signal(30)           # final acc, registered at end-of-frame
-        fold_a   = Signal(17)
-        csum16   = Signal(16)
-
-        pend       = Signal()           # a length+csum push is due (1 cycle after last)
-        pend_beats = Signal(11)
-        pend_pad   = Signal(3)          # last-beat invalid bytes (from registered keep)
-        keep_pop   = Signal(4)          # popcount of the (registered) last-beat keep
-        last_pad   = Signal(3)
-
-        fifo_free  = Signal(max=fifo_beats + 1)
-        start_drop = Signal()           # drop decision, valid on the FIRST beat only
-        drop_now   = Signal()
-        take       = Signal()
-        self.comb += [
-            fifo_free.eq(fifo_beats - data_fifo.level),
-            start_drop.eq((fifo_free < max_frame_beats) | ~len_fifo.sink.ready
-                          | ~self.enable.storage),
-            drop_now.eq(Mux(in_frame, in_drop, start_drop)),
-            # store the beat unless dropping or past the truncation cap
-            take.eq(s_valid & ~drop_now & (in_beats != max_frame_beats)),
-            data_fifo.sink.valid.eq(take),
-            data_fifo.sink.data.eq(s_data),
-            lanes.eq(s_data[0:16] + s_data[16:32] + s_data[32:48] + s_data[48:64]),
-            # end-of-frame double fold, one full cycle after the final accumulate
-            fold_a.eq(acc_fin[:16] + acc_fin[16:]),
-            csum16.eq(fold_a[:16] + fold_a[16]),
-            # keep==0 = upstream drives no byte mask (unit sims): report pad 0, i.e.
-            # the padded length - exactly the pre-fix behavior. Real ingress always
-            # drives keep (0xFF mid-frame, last_be-derived mask on last).
-            keep_pop.eq(sum([s_keep[i] for i in range(8)])),
-            last_pad.eq(Mux(keep_pop == 0, 0, 8 - keep_pop)),
-            len_fifo.sink.valid.eq(pend),
-            len_fifo.sink.beats.eq(pend_beats),
-            len_fifo.sink.csum.eq(csum16),
-            len_fifo.sink.pad.eq(pend_pad),
-        ]
-        self.sync += [
-            # a pending push completes in one cycle (the len FIFO can never be full
-            # here: the frame-start drop decision reserved the slot); a new end-of-
-            # frame in the same cycle just re-loads pend  -  the old push has completed.
-            pend.eq(0),
-            If(s_valid,
-                If(s_last,
-                    in_frame.eq(0),
-                    in_drop.eq(0),
-                    in_beats.eq(0),
-                    acc.eq(0),
-                    If(drop_now,
-                        drops.eq(drops + 1),
-                    ).Else(
-                        pend.eq(1),
-                        pend_beats.eq(Mux(in_beats != max_frame_beats, in_beats + 1,
-                                          max_frame_beats)),
-                        # truncated frame: the stored tail is not the wire tail - report
-                        # the full padded length (safety path, cannot happen from the MAC)
-                        pend_pad.eq(Mux(in_beats != max_frame_beats, last_pad, 0)),
-                        acc_fin.eq(acc + Mux(take, lanes, 0)),
-                    ),
-                ).Else(
-                    in_frame.eq(1),
-                    If(~in_frame, in_drop.eq(start_drop)),
-                    If(take,
-                        in_beats.eq(in_beats + 1),
-                        acc.eq(acc + lanes),
-                    ),
-                )
-            )
-        ]
-
-        # ---- drain: AXI burst engine ---------------------------------------------------
-        # TIMING NOTE (silicon, build_ring4): computing the burst address/length in one
-        # combinational cone (ptr + done*8 -> mask -> base+off -> 4K/wrap mins -> awlen)
-        # missed 100 MHz by ~0.6 ns at 512-beat widths. So the geometry runs off a small
-        # REGISTERED state instead: `off_r` (next ring offset) and `rem_r` (beats left)
-        # update incrementally per burst, and a PREP state registers each burst's
-        # address/length before AW. Costs 1-2 cycles per <=16-beat burst  -  noise.
-        frame_beats = Signal(11)        # payload beats of the frame being written
-        pad_r       = Signal(3)         # its last-beat pad (BD len reports beats*8 - pad)
-        total_beats = Signal(12)        # + header (registered in IDLE)
-        wcnt        = Signal(9)         # W beats sent in the current burst
-        disc        = Signal(11)        # beats left to discard (ring full)
-        outstanding = Signal(6)         # AW issued minus B received
-        off_r       = Signal(32)        # ring byte offset of the next beat to issue
-        rem_r       = Signal(12)        # beats (incl. header) not yet issued
-        blen_r      = Signal(10)        # burst length, registered in PREP
-        blen_m1     = Signal(10)        # blen_r - 1, registered beside it (the same
-                                        # per-beat-cone hoist as the reader's)
-        rem_z       = Signal()          # rem_r == 0 as of this burst's AW-accept
-        burst_last  = Signal()          # wcnt == blen_m1
-        addr_r      = Signal(32)        # burst address, registered in PREP
-        hdr_sent    = Signal()
-        frame_csum  = Signal(16)        # ones-complement sum for CHECKSUM_COMPLETE
-
-        # ring-fit check for the WHOLE frame (header+payload+8 spare so wr never == rd
-        # when full)  -  evaluated in CHECK from registered frame_beats.
-        used, free, need = Signal(32), Signal(33), Signal(15)
-        no_fit = Signal()
-        self.comb += [
-            used.eq((wr - self.rd_ptr.storage) & self.mask.storage),
-            free.eq(self.mask.storage + 1 - used),
-            need.eq(((frame_beats + 1) << 3) + 8),
-            no_fit.eq(free < need),
-        ]
-        # telemetry high-water, reset when the ring is disabled (driver re-init clears the
-        # stale `wr-rd` spike a reload would otherwise latch  -  occ_hi is now per-session).
-        self.sync += If(~self.enable.storage, occ_hi.eq(0)).Elif(used > occ_hi, occ_hi.eq(used))
-
-        # burst geometry from the REGISTERED off_r/rem_r (registered again in PREP)
-        cur_addr = Signal(32)
-        to_wrap  = Signal(30)           # beats to the ring end
-        to_4k    = Signal(10)           # beats to the next 4 KB boundary
-        blen_a   = Signal(12)
-        blen_b   = Signal(12)
-        blen     = Signal(12)
-        self.comb += [
-            # BD mode: the write target is the posted buffer (linear, never wraps  -  cap the
-            # wrap term above the max frame). Ring mode: base+offset with ring-wrap splits.
-            cur_addr.eq(Mux(bd_shape, buf_addr_r + off_r,
-                                      self.base.storage[:32] + off_r)),
-            to_wrap.eq(Mux(bd_shape, max_frame_beats + 1,
-                                     (self.mask.storage + 1 - off_r) >> 3)),
-            to_4k.eq((4096 - (cur_addr & 0xFFF)) >> 3),
-            blen_a.eq(Mux(rem_r > burst_beats, burst_beats, rem_r)),
-            blen_b.eq(Mux(blen_a > to_wrap, to_wrap, blen_a)),
-            blen.eq(Mux(blen_b > to_4k, to_4k, blen_b)),
-        ]
-
-        # W beat 0 of the whole frame is the header (length known up front); commit  -
-        # wr_ptr/seq  -  still waits for the last B, so software never sees a partial frame.
-        # NOTE (measured 2026-07-11): pinning is_hdr low in folded builds was
-        # tried and made the OOC writer BIGGER (5739 -> 6653 LUTs; the constant
-        # broke the W-mux sharing pattern and Vivado restructured worse). Leave
-        # the runtime term; synthesis already shares it.
-        is_hdr    = Signal()
-        len_bytes = Signal(16)          # PADDED length: byte-ring header ABI (rd advance
-                                        # = 8+len, len&7==0 check) - never changes
-        bd_len    = Signal(16)          # TRUE length: single-frame BD w0 (gPTP fix; the
-                                        # driver sizes the skb from it, ring/geometry
-                                        # never touch it - aggregates are parse-derived)
-        self.comb += [
-            is_hdr.eq(~hdr_sent),
-            len_bytes.eq(frame_beats << 3),
-            bd_len.eq((frame_beats << 3) - pad_r),
-        ]
-
-        aw_fire = Signal()
-        self.comb += [
-            aw_fire.eq(self.bus.aw.valid & self.bus.aw.ready),
-            self.bus.b.ready.eq(1),
-        ]
-        self.sync += outstanding.eq(outstanding + aw_fire - self.bus.b.valid)
-
-        def ack_capture():
-            """latch the just-parsed pure ACK (fully in hdr_reg) into the pending slot"""
-            return ([NextValue(ack_hdr[i], hdr_reg[i]) for i in range(9)] +
-                    [NextValue(ack_beats, frame_beats),
-                     NextValue(ack_pad, pad_r),
-                     NextValue(ack_csum, frame_csum),
-                     NextValue(ack_srcip, p_srcip), NextValue(ack_dstip, p_dstip),
-                     NextValue(ack_ports, p_ports),
-                     NextValue(ack_open, 1),
-                     ack_touch.eq(1)])
-
-        def ack_flush(ret):
-            """emit the pending ACK as a normal v1 single BD (via ACK_POP);
-            ret=1 re-DISPATCHes the frame parked in hdr_reg afterwards"""
-            return [
-                NextValue(nc_beats, frame_beats),
-                NextValue(nc_pad, pad_r),
-                NextValue(nc_csum, frame_csum),
-                NextValue(frame_beats, ack_beats),
-                NextValue(pad_r, ack_pad),
-                NextValue(total_beats, ack_beats),
-                NextValue(frame_csum, ack_csum),
-                NextValue(rem_r, ack_beats),
-                NextValue(rem_z, ack_beats == 0),
-                NextValue(off_r, 0),
-                NextValue(hdr_sent, 1),
-                NextValue(fbeat, 0),
-                NextValue(ap_append, 0),
-                NextValue(ap_arm, 0),
-                NextValue(ack_wb, 1),
-                NextValue(ack_ret, ret),
-                NextValue(ack_open, 0),
-                NextState("ACK_POP"),
-            ]
-
-        self.fsm = fsm = FSM(reset_state="IDLE")
-        # IDLE dispatch, built incrementally so the byte-ring arm is generated
-        # only when legacy_ring elaborates the fallback path (AREA-70 fold),
-        # and the RSC arms only when rsc_capable elaborates the engine.
-        idle_disp = (
-            # While the ring is disabled, hold wr/seq/frames at 0 so a driver re-init (which
-            # toggles enable) starts a truly-empty ring  -  no stale mid-ring `wr` for the fresh
-            # rd=0 to read as ~full (the occ_hi reload artifact), and per-session `frames`.
-            If(~self.enable.storage,
-                NextValue(wr, 0), NextValue(seq, 0), NextValue(frames, 0),
-                *([NextValue(s_open[i], 0) for i in range(NS)] +
-                  [NextValue(cq_done[i], 0) for i in range(CQD)] +
-                  [NextValue(cq_hs, 0)] +
-                  [NextValue(cq_head, 0), NextValue(cq_tail, 0), NextValue(victim, 0),
-                   NextValue(pv3_pend, 0), NextValue(cqf_disc, 0), NextValue(hs_cross, 0)]),
-                NextValue(ack_open, 0), NextValue(ack_wb, 0),
-                NextValue(ack_merged, 0),
-            ).Elif(bd_mode & cq_drain & bd_room,
-                # pop-ordered BD visibility: write back every ready head entry first
-                # (bd_room: never lap the driver's rd  -  stall here, not corrupt there)
-                NextState("WB_AW"),
-            )
-        )
-        if rsc_capable:
-            idle_disp = idle_disp.Elif(bd_mode & exp_any & cq_room,
-                # RSC: close an idle-expired (or lifetime-capped) slot; its BD becomes
-                # drainable and the (possibly blocked) CQ head advances. 1-cycle action.
-                If(exp_age,
-                    NextValue(close_age, close_age + 1),
-                ).Else(
-                    NextValue(close_tout, close_tout + 1),
-                ),
-                *stage_close(exp_idx, cq_of_exp, 0, 0),
-            ).Elif(bd_mode & cq_pressure & cq_room,
-                # CQ backpressure: the head entry's slot is still open while the queue
-                # fills behind it  -  force-close it so completions keep flowing.
-                NextValue(close_prs, close_prs + 1),
-                *stage_close(head_slot, cq_of_head, 0, 0),
-            )
-        if rsc_capable:
-            # RSC gateware: head beats detour through the parse regfile; the
-            # posted-buffer pop is decided at DISPATCH.
-            bd_disp = If(rsc_on,
-                NextValue(hdr_cnt, 0),
-                NextValue(fbeat, 0),
-                NextValue(hdr_take, Mux(len_fifo.source.beats > 9, 9,
-                                        len_fifo.source.beats)),
-                NextState("HDR_CAP"),        # buffer pop decided at DISPATCH
-            ).Elif(post_fifo.source.valid & cq_room,
-                post_pop.eq(1),
-                *cq_alloc(),
-                NextValue(buf_addr_r, post_fifo.source.addr),
-                NextState("PREP"),
-            ).Else(                                          # no buffer/CQ room -> drop
-                NextValue(disc, len_fifo.source.beats),
-                NextState("DISCARD"),
-            )
-        else:
-            # folded: every frame is a plain single v1 BD (the runtime rsc_en=0
-            # dispatch, made the only shape)
-            bd_disp = If(post_fifo.source.valid & cq_room,
-                post_pop.eq(1),
-                *cq_alloc(),
-                NextValue(buf_addr_r, post_fifo.source.addr),
-                NextState("PREP"),
-            ).Else(                                          # no buffer/CQ room -> drop
-                NextValue(disc, len_fifo.source.beats),
-                NextState("DISCARD"),
-            )
-        idle_disp = idle_disp.Elif(len_fifo.source.valid & bd_mode,
-            # BD/zero-copy mode: payload -> the next POSTED buffer, meta -> a BD.
-            len_fifo.source.ready.eq(1),
-            NextValue(frame_beats, len_fifo.source.beats),
-            NextValue(pad_r, len_fifo.source.pad),
-            NextValue(total_beats, len_fifo.source.beats),   # no header beat
-            NextValue(frame_csum, len_fifo.source.csum),
-            NextValue(rem_r, len_fifo.source.beats),
-            NextValue(rem_z, len_fifo.source.beats == 0),
-            NextValue(off_r, 0),
-            NextValue(hdr_sent, 1),                          # suppress the header
-            bd_disp,
-        )
-        if rsc_capable:
-            idle_disp = idle_disp.Elif(bd_mode & ack_expired & cq_room,
-                # ACK-run idle-timeout  -  deliver the latest pending ACK. The historical
-                # ~agg_open gate (RX-wedge fix, 2026-07-08) is GONE: the completion
-                # queue serializes BD visibility to pop order by construction, so the
-                # flush may pop while aggregates are open  -  its BD simply waits its
-                # turn behind theirs (bounded by rsc_tout/rsc_agemax).
-                *ack_flush(ret=0)
-            )
-        if legacy_ring:
-            # byte-ring dispatch (the bd_base==0 fallback ABI): frame -> ring
-            # header slot + wrapped payload. Folded builds do NOT generate this
-            # arm  -  unarmed-but-enabled backs up the drop-FIFO (counted ingress
-            # drops), never a write through base.storage.
-            idle_disp = idle_disp.Elif(len_fifo.source.valid,
-                len_fifo.source.ready.eq(1),        # frame is fully buffered by now
-                NextValue(frame_beats, len_fifo.source.beats),
-                NextValue(pad_r, 0),                # ring header stays PADDED (ABI)
-                NextValue(total_beats, len_fifo.source.beats + 1),
-                NextValue(frame_csum, len_fifo.source.csum),
-                NextValue(rem_r, len_fifo.source.beats + 1),
-                NextValue(rem_z, 0),
-                NextValue(off_r, wr),               # header slot first
-                NextValue(hdr_sent, 0),
-                NextState("CHECK"),
-            )
-        fsm.act("IDLE", idle_disp)
-        # RSC-only states: elaborated only when the engine exists. For capable
-        # builds act_rsc IS fsm.act (bit-identical elaboration); folded builds
-        # discard the constructed statement trees, so none of these states or
-        # their NextState targets are ever created (stage_close's k2 staging
-        # comb is the one construction side effect - a dangling wire nothing
-        # reads, swept at synthesis).
-        act_rsc = fsm.act if rsc_capable else (lambda name, *stmts: None)
-        act_rsc("HDR_CAP",              # RSC: consume the head beats into the regfile
-            data_fifo.source.ready.eq(1),
-            If(data_fifo.source.valid,
-                NextValue(hdr_reg[hdr_cnt], data_fifo.source.data),
-                NextValue(hdr_cnt, hdr_cnt + 1),
-                If(hdr_cnt == hdr_take - 1,
-                    NextState("MATCH"),
-                )
-            )
-        )
-        # DISPATCH: decide append / close-first / fresh-open / plain single
-        s_lane  = Signal(3)
-        r_lane  = Signal(3)
-        ap_outb = Signal(12)            # output beats for the append
-        self.comb += [
-            s_lane.eq(p_soff[:3]),
-            r_lane.eq(m_sel_off[:3]),   # matched slot's fill point (registered at MATCH)
-            ap_outb.eq((r_lane + p_plen + 7)[3:]),
-        ]
-        tl_lane   = Signal(3)
-        self.comb += tl_lane.eq((m_sel_off + p_plen - 1)[:3])
-
-        act_rsc("MATCH",          # register the slot-selection cones (timing stage)
-            NextValue(m_hit, agg_match),
-            NextValue(m_hit_idx, hit_idx),
-            NextValue(m_free_any, free_any),
-            NextValue(m_free_idx, free_idx),
-            NextValue(m_flow_any, flow_any),
-            NextValue(m_flow_idx, flow_idx),
-            NextValue(m_sel_off, sel_off),
-            NextValue(m_sel_buf, sel_buf),
-            NextState("DISPATCH"),
-        )
-        act_rsc("DISPATCH",
-            If(rsc_on & p_mack,
-                # pure-ACK run: replace-in-place (cumulative ack), open, or flush
-                # the other flow's pending ACK (newcomer re-dispatches). The flush may
-                # run with aggregates open  -  the CQ keeps BD order == pop order.
-                # NOTE: the frame is FULLY inside hdr_reg (beats <= 9), so absorbing
-                # it consumes nothing from data_fifo  -  the disc=0 rule.
-                If(ack_match | ~ack_open,
-                    *(ack_capture() +
-                      [If(ack_match, NextValue(ack_merged, ack_merged + 1)),
-                       NextState("IDLE")])
-                ).Elif(cq_room,
-                    *ack_flush(ret=1)
-                ).Else(
-                    # CQ full (extreme corner): flushing would need an entry we don't
-                    # have, and staying here would deadlock (drain runs from IDLE).
-                    # A stale pure ACK is droppable  -  the wire could have lost it  -
-                    # so the newcomer replaces it and the old one counts as dropped.
-                    *(ack_capture() + [NextValue(drops, drops + 1), NextState("IDLE")])
-                )
-            ).Elif(m_hit,
-                # payload-only append into the matched slot's buffer
-                NextValue(ap_append, 1),
-                NextValue(ap_arm, 0),
-                NextValue(slot_sel, m_hit_idx),
-                NextValue(ap_p, s_lane - r_lane),
-                NextValue(ap_pass, s_lane == r_lane),
-                NextValue(ap_prime, s_lane > r_lane),
-                NextValue(ap_first, 1),
-                NextValue(ap_head, 0xFF & (0xFF << r_lane)),
-                NextValue(ap_tail, (0x1FF & ((2 << tl_lane) - 1))[:8]),
-                NextValue(ap_inrem, (s_lane + p_plen + 7)[3:]),
-                NextValue(fbeat, p_soff[3:]),
-                NextValue(rem_r, ap_outb),
-                NextValue(rem_z, ap_outb == 0),
-                NextValue(off_r, Mux(hs, Cat(C(0, 3), m_sel_off[3:PGB]),
-                                         Cat(C(0, 3), m_sel_off[3:]))),
-                NextValue(ap_needswap, hs & (m_sel_off[:PGB] == 0)),
-                NextValue(hs_cross, 0),
-                NextValue(buf_addr_r, m_sel_buf),
-                NextState("APRIME"),
-            ).Elif(m_flow_any & cq_room,
-                # same-flow seq-gap / buffer-full: close that slot now (frame stays
-                # parked in hdr_reg and re-dispatches into a fresh aggregate)
-                NextValue(close_park, close_park + 1),          # M1 telemetry
-                *stage_close(m_flow_idx, cq_of_mflow, 0, 1),
-            ).Elif(p_eligible & rsc_on & ~m_free_any & cq_room,
-                # all slots busy: park-close the round-robin victim (1-cycle CQ fill),
-                # then this frame re-dispatches into the freed slot. This is the only
-                # interleave park left  -  expect it rare (slots >= concurrent flows).
-                NextValue(close_park, close_park + 1),          # M1 telemetry
-                NextValue(victim, victim + 1),
-                *stage_close(victim, cq_of_vic, 0, 1),
-            ).Elif(hs & p_eligible & ~p_flags[3] & post_fifo.source.valid &
-                   (cq_level < (CQD - 2)),
-                # header-split opener: TWO CQ entries (meta first = drains first,
-                # then this page), header slot, payload written at page offset 0
-                # through the append rotator (s_lane = soff&7 -> r_lane = 0).
-                post_pop.eq(1),
-                NextValue(cur_cq, cq_tail[:CQB]),
-                NextValue(cq_done[cq_tail[:CQB]], 0),
-                NextValue(cq_tail, cq_tail + 1),
-                NextValue(cur_hidx, hdr_ctr),
-                NextValue(hdr_ctr, hdr_ctr + 1),
-                NextValue(buf_addr_r, post_fifo.source.addr),
-                NextValue(ap_append, 1),            # W-path in append/rotate mode
-                NextValue(ap_arm, 1),               # WAIT_B arms the slot
-                NextValue(slot_sel, m_free_idx),
-                NextValue(ap_p, s_lane),            # r_lane = 0
-                NextValue(ap_pass, s_lane == 0),
-                NextValue(ap_prime, s_lane > 0),
-                NextValue(ap_first, 1),
-                NextValue(ap_head, 0xFF),
-                NextValue(ap_tail, (0x1FF & ((2 << (p_plen - 1)[:3]) - 1))[:8]),
-                NextValue(ap_inrem, (s_lane + p_plen + 7)[3:]),
-                NextValue(fbeat, p_soff[3:]),
-                NextValue(rem_r, (p_plen + 7)[3:]),
-                NextValue(rem_z, (p_plen + 7)[3:] == 0),
-                NextValue(off_r, 0),
-                NextValue(hs_cross, 0),
-                NextValue(hw_cnt, 0),
-                NextState("HS_HAW"),
-            ).Elif(post_fifo.source.valid & cq_room,
-                post_pop.eq(1),
-                *cq_alloc(),
-                NextValue(buf_addr_r, post_fifo.source.addr),
-                NextValue(ap_append, 0),
-                NextValue(ap_arm, p_eligible),      # open an aggregate at WAIT_B
-                NextValue(slot_sel, m_free_idx),
-                NextValue(ap_first, 0),
-                NextState("PREP"),
-            ).Else(
-                # no free buffer -> drop. A frame with beats <= hdr_take lives ENTIRELY
-                # in hdr_reg  -  data_fifo holds none of it, so entering DISCARD with
-                # disc=0 would eat 2047 beats of FOLLOWING frames (11-bit wrap) and
-                # permanently desync len/data FIFOs (the -P4 RX wedge, 2026-07-06).
-                If(frame_beats == hdr_take,
-                    NextValue(drops, drops + 1),
-                    NextState("IDLE"),
-                ).Else(
-                    NextValue(disc, frame_beats - hdr_take),
-                    NextState("DISCARD"),
-                )
-            )
-        )
-        act_rsc("CQ_FILL",         # commit staged BDs (reg -> demux only). hs closes
-            If(pv3_pend,               # take two passes: last-page v3, then the meta.
-                *cq_write(pv3_cqi,
-                    Cat(C(0xBD, 8), C(0, 8), pv3_fill, C(0, 16), C(0, 6),
-                        pv3_tag, C(1, 1), C(0, 1), C(1, 1), pv3_hidx),
-                    pv3_addr),
-                NextValue(cq_done[pv3_cqi], 1),
-                NextValue(cq_hs, (cq_hs & ~(C(1, CQD) << pv3_cqi)) | (C(1, 1) << pv3_cqi)),
-                NextValue(pv3_pend, 0),
-            ).Else(
-                *cq_write(meta_cqi, meta_w0, meta_w1),
-                NextValue(cq_done[meta_cqi], 1),
-                NextValue(cq_hs, (cq_hs & ~(C(1, CQD) << meta_cqi)) | (hs << meta_cqi)),
-                If(cqf_disc & (disc != 0),
-                    NextValue(cqf_disc, 0),
-                    NextState("DISCARD"),
-                ).Elif(cqf_ret_match,
-                    NextValue(cqf_disc, 0),
-                    NextState("MATCH"),
-                ).Else(
-                    NextValue(cqf_disc, 0),
-                    NextState("IDLE"),
-                )
-            )
-        )
-        act_rsc("ACK_POP",              # pending-ACK flush: needs a posted buffer
-            If(post_fifo.source.valid,
-                post_pop.eq(1),
-                *cq_alloc(),            # callers guarantee cq_room
-                NextValue(buf_addr_r, post_fifo.source.addr),
-                NextState("PREP"),
-            ).Else(                     # no buffer -> the pending ACK drops whole
-                NextValue(drops, drops + 1),
-                NextValue(ack_wb, 0),
-                If(ack_ret,
-                    NextValue(frame_beats, nc_beats),   # restore parked newcomer
-                    NextValue(pad_r, nc_pad),
-                    NextValue(frame_csum, nc_csum),
-                    NextState("MATCH"),
-                ).Else(
-                    NextState("IDLE"),
-                )
-            )
-        )
-        act_rsc("APRIME",
-            If(ap_prime,                             # consume ONE source beat into carry
-                If(in_hdrr,
-                    NextValue(ap_carry, hdr_reg[fbeat[:4]]),
-                    NextValue(fbeat, fbeat + 1),
-                    NextValue(ap_inrem, ap_inrem - 1),
-                    NextState("PREP"),
-                ).Elif(data_fifo.source.valid,
-                    data_fifo.source.ready.eq(1),
-                    NextValue(ap_carry, data_fifo.source.data),
-                    NextValue(fbeat, fbeat + 1),
-                    NextValue(ap_inrem, ap_inrem - 1),
-                    NextState("PREP"),
-                )
-            ).Else(
-                NextState("PREP"),
-            )
-        )
-        if legacy_ring:
-            # ring-only admission state (reached solely from the byte-ring
-            # dispatch arm above; not generated in folded builds)
-            fsm.act("CHECK",
-                If(~self.enable.storage | no_fit,
-                    NextValue(disc, frame_beats),
-                    NextState("DISCARD"),
-                ).Else(
-                    NextState("PREP"),
-                )
-            )
-        if rsc_capable:
-            fsm.act("PREP",                         # register this burst's geometry
-                If(hs & ap_append & ((off_r == hs_page_bytes) | ap_needswap),
-                    NextState("HS_PGSWAP"),         # page full: v3 + JIT next-page pop
-                ).Else(
-                    NextValue(blen_r, blen),
-                    NextValue(blen_m1, blen - 1),
-                    NextValue(addr_r, cur_addr),
-                    NextState("AW"),
-                )
-            )
-        else:
-            # folded: no hs page swaps (hs is a constant 0) - PREP is pure geometry
-            fsm.act("PREP",                         # register this burst's geometry
-                NextValue(blen_r, blen),
-                NextValue(blen_m1, blen - 1),
-                NextValue(addr_r, cur_addr),
-                NextState("AW"),
-            )
-        act_rsc("HS_HAW",           # header-split opener: header -> ring slot
-            self.bus.aw.valid.eq(1),
-            self.bus.aw.addr.eq(self.hs_hdr_base.storage[:32] + Cat(C(0, 7), cur_hidx)),
-            self.bus.aw.len.eq(hdr_take - 1),
-            self.bus.aw.size.eq(3),
-            self.bus.aw.burst.eq(1),
-            If(self.bus.aw.ready,
-                NextState("HS_HW"),
-            )
-        )
-        act_rsc("HS_HW",
-            self.bus.w.valid.eq(1),
-            self.bus.w.data.eq(hdr_reg[hw_cnt]),
-            self.bus.w.strb.eq(2**len(self.bus.w.strb) - 1),
-            self.bus.w.last.eq(hw_cnt == hdr_take - 1),
-            If(self.bus.w.ready,
-                NextValue(hw_cnt, hw_cnt + 1),
-                If(hw_cnt == hdr_take - 1,
-                    NextState("APRIME"),    # payload via the rotator (B's tracked
-                )                           # by `outstanding`; WAIT_B syncs all)
-            )
-        )
-        act_rsc("HS_PGSWAP",
-            # the CURRENT page is complete: emit its v3 (reg->demux, shallow) and swap
-            # to a freshly-popped page. Famine here = close the aggregate with what is
-            # fully written (s_off excludes the in-flight frame) and discard its rest.
-            # v3 target = the SLOT'S registered page entry (cq_of_sel), NOT cur_cq:
-            # cur_cq is a global last-pop register  -  another slot's open/crossing pops
-            # between this slot's crossings under interleave, so cur_cq points at the
-            # wrong entry and this slot's real page entry stays done=0 forever => the
-            # CQ head jams = the multi-flow hs livelock (task #13, sim c5681 fsm=DISCARD).
-            *cq_write(cq_of_sel,
-                Cat(C(0xBD, 8), C(0, 8), C(hs_page_bytes, 16), C(0, 16), C(0, 6),
-                    slot_tag2, C(1, 1), C(0, 1), C(1, 1), s_hidx[slot_sel]),
-                buf_addr_r),
-            NextValue(cq_done[cq_of_sel], 1),
-            NextValue(cq_hs, (cq_hs & ~(C(1, CQD) << cq_of_sel)) | (C(1, 1) << cq_of_sel)),
-            NextValue(ap_needswap, 0),
-            If(post_fifo.source.valid & cq_room,
-                post_pop.eq(1),
-                NextValue(cur_cq, cq_tail[:CQB]),
-                NextValue(cq_done[cq_tail[:CQB]], 0),
-                NextValue(cq_tail, cq_tail + 1),
-                NextValue(buf_addr_r, post_fifo.source.addr),
-                NextValue(off_r, 0),
-                NextValue(hs_cross, 1),
-                NextState("PREP"),
-            ).Else(
-                # famine: stage the meta close (v3 for THIS page just filled above  -
-                # it is the aggregate's last), drop the in-flight frame's tail.
-                NextValue(meta_w0,
-                    Cat(C(0xBD, 8), C(0, 8),
-                        (s_off[slot_sel] + 34 + Cat(C(0, 2), s_doff[slot_sel]))[:16],
-                        s_mss[slot_sel], C(0, 6), slot_tag2, C(1, 1),
-                        s_psh[slot_sel], C(0, 1), s_hidx[slot_sel])),
-                NextValue(meta_w1,
-                    Cat(s_ack[slot_sel], s_win[slot_sel], s_segs[slot_sel],
-                        Cat(C(0, 2), s_doff[slot_sel]), C(0, 2))),
-                NextValue(meta_cqi, cq_tail[:CQB]),
-                NextValue(cq_done[cq_tail[:CQB]], 0),
-                NextValue(cq_tail, cq_tail + 1),
-                NextValue(pv3_pend, 0),
-                NextValue(cqf_ret_match, 0),
-                NextValue(cqf_disc, 1),
-                NextValue(disc, frame_beats - Mux(fbeat > hdr_cnt, fbeat, hdr_cnt)),
-                NextValue(s_open[slot_sel], 0),
-                NextValue(v2_cnt, v2_cnt + 1),
-                NextValue(v2_segs, v2_segs + s_segs[slot_sel]),
-                NextValue(close_park, close_park + 1),
-                NextValue(drops, drops + 1),
-                NextState("CQ_FILL"),
-            )
-        )
-        fsm.act("AW",
-            self.bus.aw.valid.eq(1),
-            self.bus.aw.addr.eq(addr_r),
-            self.bus.aw.len.eq(blen_m1),
-            self.bus.aw.size.eq(3),                 # 8 bytes/beat
-            self.bus.aw.burst.eq(1),                # INCR
-            If(self.bus.aw.ready,
-                NextValue(wcnt, 0),
-                # BD mode: off_r is a LINEAR offset into the posted buffer  -  masking it with
-                # the (BD-ring!) mask wrapped it at ring-size bytes and overwrote the frame
-                # head (silicon bug 2026-07-05: >1 KB frames corrupt, ping fine, TCP dead).
-                NextValue(off_r, Mux(bd_shape, off_r + (blen_r << 3),
-                                     (off_r + (blen_r << 3)) & self.mask.storage)),
-                NextValue(rem_r, rem_r - blen_r),
-                NextValue(rem_z, rem_r == blen_r),
-                NextState("W"),
-            )
-        )
-        raw_beat = Signal(64)           # current source beat (regfile / FIFO / drain-0)
-        ap_out   = Signal(64)           # realigned append beat
-        ap_srcv  = Signal()             # source valid for this beat
-        ap_last  = Signal()             # final beat of the whole append
-        self.comb += [
-            raw_beat.eq(Mux(ap_inrem == 0, 0,
-                        Mux(in_hdrr, hdr_reg[fbeat[:4]], data_fifo.source.data))),
-            ap_srcv.eq((ap_inrem == 0) | in_hdrr | data_fifo.source.valid),
-            ap_out.eq(Mux(ap_pass, raw_beat,
-                      (Cat(ap_carry, raw_beat) >> Cat(C(0, 3), ap_p))[:64])),
-            burst_last.eq(wcnt == blen_m1),
-            ap_last.eq(rem_z & burst_last),
-        ]
-        fsm.act("W",
-            self.bus.w.valid.eq(Mux(ap_append, ap_srcv,
-                                    is_hdr | in_hdrr | data_fifo.source.valid)),
-            self.bus.w.data.eq(Mux(is_hdr,
-                Cat(len_bytes, seq, frame_csum, Signal(16)),     # {0, csum, seq, len}
-                Mux(ap_append, ap_out,
-                    Mux(in_hdrr, Mux(ack_wb, ack_hdr[fbeat[:4]],
-                                     hdr_reg[fbeat[:4]]),
-                        data_fifo.source.data)))),
-            self.bus.w.strb.eq(Mux(ap_append,
-                                   Mux(ap_first, ap_head, 0xFF) &
-                                   Mux(ap_last, ap_tail, 0xFF),
-                                   2**len(self.bus.w.strb) - 1)),
-            self.bus.w.last.eq(burst_last),
-            If(self.bus.w.valid & self.bus.w.ready,
-                data_fifo.source.ready.eq(~is_hdr & ~in_hdrr &
-                                          (~ap_append | (ap_inrem != 0))),
-                NextValue(hdr_sent, 1),
-                NextValue(wcnt, wcnt + 1),
-                If(ap_append,
-                    NextValue(ap_first, 0),
-                    NextValue(ap_carry, raw_beat),
-                    If(ap_inrem != 0,
-                        NextValue(fbeat, fbeat + 1),
-                        NextValue(ap_inrem, ap_inrem - 1),
-                    )
-                ).Elif(~is_hdr,
-                    NextValue(fbeat, fbeat + 1),
-                ),
-                If(self.bus.w.last,
-                    If(rem_z,                       # updated at AW: post-burst remaining
-                        NextState("WAIT_B"),
-                    ).Else(
-                        NextState("PREP"),
-                    )
-                )
-            )
-        )
-        # WAIT_B dispatch, built incrementally: folded builds keep only the
-        # plain single-BD commit arm (+ the legacy/quiesce Else).
-        if rsc_capable:
-            wb_disp = If(bd_mode & ap_arm & ~p_flags[3],
-                    # RSC: first frame parked  -  slot_sel opens, BD deferred to close.
-                    # hs mode: s_off counts PAYLOAD only (headers live in the side
-                    # ring at s_hidx; the meta CQ entry pre-allocated at dispatch).
-                    NextValue(s_open[slot_sel], 1),
-                    NextValue(s_srcip[slot_sel], p_srcip), NextValue(s_dstip[slot_sel], p_dstip),
-                    NextValue(s_ports[slot_sel], p_ports), NextValue(s_doff[slot_sel], p_doff),
-                    NextValue(s_eseq[slot_sel], p_seq + p_plen),
-                    NextValue(s_off[slot_sel], Mux(hs, p_plen, 14 + p_totlen)),
-                    NextValue(s_buf[slot_sel], buf_addr_r),
-                    NextValue(s_segs[slot_sel], 1), NextValue(s_mss[slot_sel], p_plen),
-                    NextValue(s_ack[slot_sel], p_ack), NextValue(s_win[slot_sel], p_win),
-                    NextValue(s_psh[slot_sel], 0),
-                    NextValue(s_cq[slot_sel], cur_cq),   # page entry (hs) / only entry
-                    NextValue(s_hidx[slot_sel], cur_hidx),
-                    NextValue(ap_arm, 0),
-                    NextValue(ap_append, 0),
-                    NextState("IDLE"),
-                ).Elif(bd_mode & ap_append,
-                    # RSC: payload appended  -  update slot_sel, maybe close
-                    slot_touch_sel.eq(1),                # reset the slot's idle timer
-                    NextValue(ap_append, 0),
-                    If(p_flags[3] | (s_segs[slot_sel] == self.rsc_segcap.storage),
-                        # close with THIS frame folded in  -  staged via CQ_FILL (timing).
-                        # hs: last-page v3 (the page this frame ended on) + hs meta.
-                        If(hs,
-                            NextValue(meta_w0,
-                                Cat(C(0xBD, 8), C(0, 8),
-                                    (s_off[slot_sel] + p_plen + 34 +
-                                     Cat(C(0, 2), s_doff[slot_sel]))[:16],
-                                    s_mss[slot_sel], C(0, 6), slot_tag2, C(1, 1),
-                                    s_psh[slot_sel] | p_flags[3], C(0, 1),
-                                    s_hidx[slot_sel])),
-                            NextValue(pv3_cqi, Mux(hs_cross, cur_cq, cq_of_sel)),
-                            NextValue(pv3_addr, buf_addr_r),
-                            NextValue(pv3_tag, slot_tag2),
-                            NextValue(pv3_pend, 1),
-                            NextValue(pv3_hidx, s_hidx[slot_sel]),
-                            NextValue(pv3_fill,
-                                Mux((s_off[slot_sel] + p_plen)[:PGB] == 0,
-                                    hs_page_bytes,
-                                    (s_off[slot_sel] + p_plen)[:PGB])),
-                            NextValue(meta_cqi, cq_tail[:CQB]),
-                            NextValue(cq_done[cq_tail[:CQB]], 0),
-                            NextValue(cq_tail, cq_tail + 1),
-                        ).Else(
-                            NextValue(meta_w0,
-                                Cat(C(0xBD, 8), C(0, 8), (s_off[slot_sel] + p_plen)[:16],
-                                    s_mss[slot_sel], C(0, 8),
-                                    Cat(C(1, 1), s_psh[slot_sel] | p_flags[3], C(0, 6)))),
-                            NextValue(pv3_pend, 0),
-                            NextValue(meta_cqi, cq_of_sel),
-                        ),
-                        NextValue(meta_w1,
-                            Cat(p_ack, p_win, (s_segs[slot_sel] + 1)[:8],
-                                Cat(C(0, 2), s_doff[slot_sel]), C(0, 2))),
-                        NextValue(cqf_ret_match, 0),
-                        NextValue(s_open[slot_sel], 0),
-                        # M1 telemetry: s_segs is pre-increment here → final = +1
-                        If(p_flags[3],
-                            NextValue(close_psh, close_psh + 1),
-                        ).Else(
-                            NextValue(close_cap, close_cap + 1),
-                        ),
-                        NextValue(v2_cnt, v2_cnt + 1),
-                        NextValue(v2_segs, v2_segs + s_segs[slot_sel] + 1),
-                        NextState("CQ_FILL"),
-                    ).Else(
-                        NextValue(s_off[slot_sel], s_off[slot_sel] + p_plen),
-                        NextValue(s_eseq[slot_sel], s_eseq[slot_sel] + p_plen),
-                        NextValue(s_segs[slot_sel], s_segs[slot_sel] + 1),
-                        NextValue(s_ack[slot_sel], p_ack), NextValue(s_win[slot_sel], p_win),
-                        NextValue(s_psh[slot_sel], s_psh[slot_sel] | p_flags[3]),
-                        NextValue(s_buf[slot_sel], buf_addr_r),   # page may have swapped
-                        If(hs_cross,
-                            NextValue(s_cq[slot_sel], cur_cq),
-                        ),
-                        NextState("IDLE"),
-                    )
-                ).Elif(bd_mode,
-                    # plain single (incl. arm+PSH: eligible-but-pushed -> v1 BD):
-                    # fill this pop's CQ entry; seq/drops patched at drain
-                    NextValue(ap_arm, 0),
-                    *cq_write(cur_cq,
-                        Cat(C(0xBD, 8), C(0, 8), bd_len, frame_csum, C(0, 16)),
-                        buf_addr_r),
-                    NextValue(cq_done[cur_cq], 1),
-                    If(ack_wb,
-                        # pending-ACK flush payload done; restore a parked newcomer
-                        NextValue(ack_wb, 0),
-                        If(ack_ret,
-                            NextValue(frame_beats, nc_beats),
-                            NextValue(pad_r, nc_pad),
-                            NextValue(frame_csum, nc_csum),
-                            NextState("MATCH"),
-                        ).Else(
-                            NextState("IDLE"),
-                        )
-                    ).Else(
-                        NextState("IDLE"),
-                    )
-                )
-        else:
-            wb_disp = If(bd_mode,
-                # plain single v1 BD - the folded build's only BD commit arm
-                *cq_write(cur_cq,
-                    Cat(C(0xBD, 8), C(0, 8), bd_len, frame_csum, C(0, 16)),
-                    buf_addr_r),
-                NextValue(cq_done[cur_cq], 1),
-                NextState("IDLE"),
-            )
-        wb_disp = wb_disp.Else(
-                    # legacy: byte-ring frame commit (wr advance + optional shadow
-                    # writeback). Folded: quiesce  -  reachable only if bd_base is
-                    # cleared mid-frame (drivers never do; enable-toggle re-inits);
-                    # drop the in-flight frame's commit rather than write anywhere.
-                    *([NextValue(wr, (wr + (total_beats << 3)) & self.mask.storage),
-                       NextValue(seq, seq + 1),
-                       NextValue(frames, frames + 1),   # telemetry: HW-committed frames
-                       If(self.status.storage != 0,
-                           NextState("WB_AW"),
-                       ).Else(
-                           NextState("IDLE"),
-                       )] if legacy_ring else [NextState("IDLE")])
-        )
-        fsm.act("WAIT_B", If(outstanding == 0, wb_disp))
-        # ---- writeback: ring mode = one 8-byte {dropped, wr_ptr} shadow write (poll from
-        # cache, not MMIO); BD mode = the 16-byte completion BD (meta + buf addr) to
-        # bd_base+wr. Either way the write happens only AFTER the payload's last B response,
-        # so software never observes a frame before its data is globally visible.
-        fsm.act("WB_AW",
-            self.bus.aw.valid.eq(1),
-            self.bus.aw.addr.eq(Mux(bd_shape, self.bd_base.storage[:32] + wr,
-                                              self.status.storage[:32])),
-            self.bus.aw.len.eq(Mux(bd_shape, 1, 0)),  # BD = 2 beats, shadow = 1
-            self.bus.aw.size.eq(3),                   # 8 bytes/beat
-            self.bus.aw.burst.eq(1),
-            If(self.bus.aw.ready, NextValue(wb_beat, 0), NextState("WB_W")),
-        )
-        fsm.act("WB_W",
-            self.bus.w.valid.eq(1),
-            # BD mode: drain the CQ head entry  -  BDs hit memory strictly in posted-
-            # buffer pop order (the wedge invariant, now by queue construction). The
-            # live `seq`/`drops` fields are OR-patched here so BD sequence numbers
-            # reflect WRITE order and drops stay 8-bit at [55:48] ([63:56] belongs to
-            # the v2 marker/flags  -  the drops/bit-56 alias, 2026-07-08, stays fixed).
-            self.bus.w.data.eq(Mux(bd_shape,
-                Mux(wb_beat, cq_rp.dat_r[64:],
-                             cq_rp.dat_r[:64] | (seq[:8] << 8) |
-                             Mux((cq_hs >> cq_head[:CQB])[0],
-                                 (drops6 << 48),          # hs BDs: 6-bit at [53:48]
-                                 (drops[:8] << 48))),     # legacy: 8-bit at [55:48]
-                Cat(wr, drops))),                     # ring-mode shadow {drops, wr}
-            self.bus.w.strb.eq(2**len(self.bus.w.strb) - 1),
-            self.bus.w.last.eq(~bd_shape | wb_beat),
-            If(self.bus.w.valid & self.bus.w.ready,
-                NextValue(wb_beat, 1),
-                If(~bd_shape | wb_beat, NextState("WB_B")),
-            )
-        )
-        fsm.act("WB_B",
-            If(self.bus.b.valid,
-                If(bd_shape,                          # commit: BD slot consumed, frame live
-                    NextValue(wr, (wr + 16) & self.mask.storage),
-                    NextValue(seq, seq + 1),
-                    NextValue(frames, frames + 1),
-                    NextValue(cq_done[cq_head[:CQB]], 0),   # retire: clear done+hs so
-                    NextValue(cq_hs, cq_hs & ~(C(1, CQD) << cq_head[:CQB])),  # reuse=legacy
-                    NextValue(cq_head, cq_head + 1),
-                    If(cq_more & bd_room2,            # drain every ready successor now
-                        NextState("WB_AW"),           # (room for the slot AFTER the wr
-                    ).Else(                           # bump this cycle commits)
-                        NextState("IDLE"),
-                    )
-                ).Else(
-                    NextState("IDLE"),
-                )
-            )
-        )
-        fsm.act("DISCARD",                          # ring full/disabled: pop + count
-            data_fifo.source.ready.eq(1),
-            If(data_fifo.source.valid,
-                NextValue(disc, disc - 1),
-                If(disc == 1,
-                    NextValue(drops, drops + 1),
-                    NextState("IDLE"),
-                )
-            )
-        )
-
-        # Phase-0: expose the live AW-outstanding count for MilanDebug.outstanding_hi_probe
-        #  -  the write-side depth the AXIInterconnectShared actually grants is the pre-build
-        # proxy for the read-side depth TX prefetch would need.
-        self.dbg_outstanding = Signal(6)
-        self.comb += self.dbg_outstanding.eq(outstanding)
-        # sim-only probe of the W-stage source mux (R2 bring-up)
-        self.dbg_w = Signal(64)
-        self.comb += self.dbg_w.eq(Cat(wcnt, blen_r, rem_r[:10], ap_inrem, fbeat[:8],
-                                       hdr_cnt, self.bus.w.valid, self.bus.w.ready,
-                                       ap_srcv, in_hdrr, ap_append, ap_prime))
-
-
-class RingDMAReader(LiteXModule):
-    """Circular-DRAM-ring -> AXIS-frame **AXI burst** DMA reader (TX upgrade, 2026-07-04).
-
-    Mirror image of RingDMAWriter, replacing the simple-mode WishboneDMAReader whose
-    protocol capped TX two ways (both silicon-measured):
-      * one classic-Wishbone read per beat = the full coherent-bus round trip per 8 B
-        (same ~38 sys-cycles as the RX writer measured) -> ~21 MB/s = ~170 Mbit/s wire
-        ceiling (masked so far by the latency-bound stack, but it also throttles ACK
-        egress and thereby PEER->FPGA TCP);
-      * one frame in flight with a base/length/enable CSR dance + a DONE wait per
-        frame -> the driver poll cadence sat in the TX hot path.
-
-    With the ring, software memcpys a frame into the ring, writes ONE CSR (wr_ptr)
-    and returns; hardware walks rd -> wr at burst speed. ~40 MTU frames queue in a
-    64 KB ring, so the NIC streams back-to-back while the CPU prepares the next.
-
-    Ring protocol (BYTES, 8-aligned, wrap via `mask`)  -  same slot format as RX:
-      * frame slot = 8-byte header + payload padded to 8 B;
-      * header word = {rsvd[47:0], length[15:0]}, length = EXACT payload bytes  -  the
-        last AXIS beat carries the true byte mask in `keep` (the MAC glue converts it
-        to LiteEth's one-hot last_be), so wire frames are no longer 8-padded;
-      * frames may wrap the ring end (bursts split there; software splits its memcpy);
-      * a nonsense header (len 0 or > max_frame_bytes) can only mean a software bug:
-        hardware resyncs rd := wr and drops the ring content rather than streaming
-        garbage to the MAC.
-
-    Downstream elasticity: MilanMAC's store-and-forward PacketFIFO (the TX starvation
-    fix) launches a frame onto GMII only when fully buffered, so this reader may be
-    arbitrarily bursty  -  R-channel backpressure mid-frame is harmless.
-
-    CSRs (7 words  -  SAME footprint as the simple-mode block it replaces, so the DT
-    `dma-tx` window and every downstream CSR address stay put; roles mirror RX):
-      base[64] | mask[32] | wr_ptr[32] RW | rd_ptr[32] RO | enable[1] | sent[32] RO
-    """
-    def __init__(self, bus, max_frame_bytes=4096, burst_beats=64,
-                 legacy_ring=True):
-        # legacy_ring: as in RingDMAWriter (AREA-70 byte-ring fold). The reader
-        # side is read-only, so folded builds simply hardwire the BD shape; a
-        # doorbell with bd_base==0 parses low DRAM as BDs and lands in the
-        # existing bad-BD resync (len 0/oversized -> BD_FLUSH), never a write.
-        # burst_beats 16->64 (2026-07-07): the reader is SERIAL (PAY_AR issues one AR,
-        # PAY_R streams it, then the next AR) so every burst pays the full coherent-DMA
-        # read latency (~140 cyc) unhidden. With HW-TSO's csum pre-pass reading each
-        # segment twice, 16-beat bursts left the reader ~45% idle waiting on reads and
-        # capped TX at 186 (silicon-profiled: tx_dma 52% stall + 45% idle, datapath NOT
-        # the limit). 64-beat bursts (512 B, well under the 4 KB split) amortize the
-        # latency ~3x/burst. Still capped by to_4k/to_wrap in the blen chain, so any
-        # frame/ring geometry stays correct.
-        self.bus    = bus               # axi.AXIInterface(data_width=64), byte-addressed
-        self.source = source = stream.Endpoint([("data", 64), ("keep", 8)])
-
-        self.base   = CSRStorage(64, description="Ring base address (bytes, 8-aligned).")
-        self.mask   = CSRStorage(32, description="Ring size-1 (size = power of two).")
-        self.wr_ptr = CSRStorage(32, description="SW write pointer (frames queued up to here).")
-        self.rd_ptr = CSRStatus(32,  description="HW read pointer (consumed up to here).")
-        self.enable = CSRStorage(1,  description="Ring enable.")
-        self.sent   = CSRStatus(32,  description="Frames streamed to the datapath.")
-        # ---- TX BD (descriptor) mode  -  P5 zero-copy TX (2026-07-06) -------------------
-        # xmit stage timers measured skb_copy_and_csum_dev at ~166 us/frame: the CPU's
-        # SERIAL cold-DRAM reads (no MLP) are the cost, while this engine's 16-beat bursts
-        # hide the same latency. So in BD mode software writes 16-byte descriptors instead
-        # of copying payload: the engine reads each segment STRAIGHT from skb memory.
-        #   BD w0 (LE): addr[31:0] | len[15:0]<<32 | flags[15:0]<<48; flags bit0 = EOF.
-        #   w1: reserved (v2: csum_start/csum_off for HW checksum insert).
-        # CSR reuse (same trick as RX BD): mask = BD-ring bytes-1, wr_ptr = SW BD tail
-        # (doorbell), rd_ptr = HW consumed-BD offset. DRIVER CONTRACT: every segment addr
-        # is 8-aligned; non-EOF segments have len%8 == 0 (no inter-segment byte shifter);
-        # the EOF segment's exact len drives the last-beat keep. bd_base==0 = ring mode.
-        self.bd_base = CSRStorage(64, description="TX BD ring base (16 B/entry, coherent). 0 = byte-ring mode.")
-
-        # # #
-
-        rd    = Signal(32)              # HW consumption pointer (internal; may rewind)
-        rd_pub = Signal(32)             # PUBLISHED rd (== rd_ptr CSR): frame ends only
-        nsent = Signal(32)
-        bd_mode  = Signal()
-        seg_addr = Signal(32)           # current segment base (BD mode; MAY be unaligned)
-        seg_eof  = Signal()             # this segment ends the frame
-        # v2 byte-offset realignment (2026-07-06): Ethernet's 14-byte header makes
-        # skb->data =2 mod 8 essentially always, so true zero-copy TX must read from
-        # UNALIGNED addresses. The engine reads aligned beats from addr&~7 and realigns
-        # through a one-beat carry: out = carry>>8o | in<<(64-8o); ceil((o+len)/8) input
-        # beats produce ceil(len/8) outputs (+ at most one DRAIN beat from the carry).
-        seg_off  = Signal(3)            # byte offset within the first beat
-        sh_lo    = Signal(6)            # 8*seg_off, registered at BD parse
-        carry    = Signal(64)
-        carry_v  = Signal()
-        obeat    = Signal(12)           # OUTPUT beats emitted (drives last/keep)
-        self.comb += [
-            self.rd_ptr.status.eq(rd_pub),   # pre-pass rd excursions stay hidden
-            self.sent.status.eq(nsent),
-            bd_mode.eq(self.bd_base.storage != 0),
-        ]
-        # SHAPE constant for the byte-ring fold (see RingDMAWriter): every ring
-        # arm below dies at synthesis when the fallback is elaborated out.
-        bd_shape = bd_mode if legacy_ring else C(1)
-        # v2b HW checksum-insert (2026-07-07): BD w1 = {en[63], csum_off[31:16],
-        # csum_start[15:0]} (frame-relative bytes). The engine burst-reads the region
-        # [start, seg_len) FIRST, accumulates the 16-bit ones-complement sum (the stack
-        # pre-seeds the csum field with the pseudo-header sum, exactly as for software
-        # checksum_help), folds, then streams the frame with the folded sum muxed into
-        # the csum_off beat. Offsets are even so both bytes sit in one beat.
-        cs_en    = Signal()
-        cs_start = Signal(16)
-        cs_off   = Signal(16)
-        cs_acc   = Signal(32)
-        cs_init  = Signal(32)           # registered TSO P seed for the current segment
-        cs_seed  = Signal(32)           # comb: what cs_clr loads (default 0; TSO drives cs_init)
-        cs_val   = Signal(16)           # folded, ready to patch
-        cs_lanes = Signal(18)
-        cs_fold1 = Signal(17)
-        cs_pass  = Signal()             # 1 = silent checksum pre-pass through PAY/DRAIN
-        # cs-across-BDs (2026-07-06): the pre-pass walks the WHOLE BD chain (the
-        # accumulator survives seg_finish), then rewinds the BD ring to the chain's
-        # first BD and re-walks it for real. cs fields latch ONLY from the first BD's
-        # w1; rd_pub shields the driver from the pre-pass rd excursion (reap would
-        # otherwise free skbs the real pass still reads).
-        rd_c     = Signal(32)           # BD-ring offset of the chain's first BD
-        cs_done  = Signal()             # pre-pass finished: real pass in flight
-        chain_first = Signal()          # next parsed BD is the chain's first
-        # pipelined accumulate (2026-07-07): the keep-decode+mask+lane-add+32b-accumulate
-        # cone was the design's critical path (21 levels; -0.065 with the 2nd hart).
-        # Stage 1 registers the beat's lane sum; stage 2 adds it. Sum identical; the
-        # trailing add completes during PREP, one cycle before any consumer.
-        cs_take  = Signal()             # comb strobe: pre-pass beat accepted this cycle
-        cs_clr   = Signal()             # comb strobe: new BD parsed  -  reset accumulator
-        cs_lanes_r = Signal(18)
-        cs_lv    = Signal()
-        cs_sel_lo = Signal(8)           # one-hot byte select for csum low byte (REGISTERED
-        cs_sel_hi = Signal(8)           # at parse  -  keeps comparators out of the data cone)
-        # checksum datapath: byte-mask the candidate output beat by its keep, sum as
-        # 16-bit LE lanes (same convention as the RX offload the kernel already accepts)
-        cs_beat  = Signal(64)           # the would-be output beat during the pre-pass
-        cs_keep  = Signal(8)
-        cs_masked = Signal(64)
-        # stage-0 registers (2026-07-29): the keep-decode reached the lane
-        # adder COMBINATIONALLY - blen_r -> last-beat keep -> 64-bit mask ->
-        # adder tree -> cs_lanes_r was the worst path on BOTH boards' m0019h
-        # builds (arty -0.099 over exactly the cs_lanes_r[13..17] fan after
-        # two recovery passes; AX -1.079 systemic). Registering {beat, keep,
-        # take} first cuts blen_r out of the arithmetic cone; the sum is
-        # IDENTICAL one cycle later. Ordering is safe by construction:
-        # cs_clr fires at CHAIN start only, and a chain begins with a BD
-        # fetch (a DRAM read, tens of cycles after the previous chain's last
-        # take), so the deeper pipe always drains first - and cs_clr kills
-        # the in-flight stages anyway, which can only hold already-consumed
-        # data from the previous chain.
-        cs_beat_q = Signal(64)
-        cs_keep_q = Signal(8)
-        cs_tk_q   = Signal()
-        self.comb += [
-            cs_masked.eq(Cat(*[Mux(cs_keep_q[i], cs_beat_q[8*i:8*i+8], 0) for i in range(8)])),
-            cs_lanes.eq(cs_masked[0:16] + cs_masked[16:32] +
-                        cs_masked[32:48] + cs_masked[48:64]),
-            cs_fold1.eq(cs_acc[:16] + cs_acc[16:]),
-            cs_val.eq(~(cs_fold1[:16] + cs_fold1[16])),
-        ]
-        self.sync += [
-            cs_beat_q.eq(cs_beat),
-            cs_keep_q.eq(cs_keep),
-            cs_tk_q.eq(cs_take),
-            If(cs_tk_q,
-                cs_lanes_r.eq(cs_lanes),
-                cs_lv.eq(1),
-            ).Else(
-                cs_lv.eq(0),
-            ),
-            If(cs_lv, cs_acc.eq(cs_acc + cs_lanes_r)),
-            # TSO seeds the accumulator with the driver's pseudo-header sum P so the
-            # folded result IS the TCP checksum; non-TSO paths seed 0 (cs_seed is a
-            # comb default-0, driven only by the TSO pre-pass entry).
-            If(cs_clr, cs_acc.eq(cs_seed), cs_lv.eq(0), cs_tk_q.eq(0)),
-        ]
-        # patch mux for the real pass: replace the 2 checksum bytes in their beat
-        patch_hit = Signal()
-        # realigned data path (pure comb from carry + live r.data)
-        shifted = Signal(64)
-        self.comb += shifted.eq((carry >> sh_lo) |
-                                Mux(sh_lo == 0, 0, self.bus.r.data << (64 - sh_lo)))
-
-        frame_bytes = Signal(16)        # exact payload bytes (from the header)
-        frame_beats = Signal(11)        # ceil(bytes/8)
-        rbeat       = Signal(12)        # payload beats already streamed on R
-        rlast_keep  = Signal(8)
-        self.comb += [
-            frame_beats.eq((frame_bytes + 7)[3:]),
-            # last-beat byte mask from the exact length (0 -> all 8 valid)
-            rlast_keep.eq(Mux(frame_bytes[:3] == 0, 0xFF,
-                              (1 << frame_bytes[:3]) - 1)),
-        ]
-
-        # burst geometry over the PAYLOAD region. Same TIMING NOTE as the writer: the
-        # geometry cone runs off REGISTERED off_r/rem_r (updated incrementally per
-        # burst) and each burst's address/length is registered in PREP before AR.
-        off_r  = Signal(32)             # ring byte offset of the next payload beat
-        rem_r  = Signal(12)             # payload beats not yet requested
-        blen_r = Signal(12)             # burst length, registered in PREP
-        blen_m1 = Signal(12)            # blen_r - 1, registered BESIDE it: the runtime
-                                        # 12-bit decrement used to sit inside the
-                                        # per-beat in_last cone (5 of 15 logic levels,
-                                        # 4.65 ns of an 11.95 ns path - m001d analysis)
-        rem_z   = Signal()              # rem_r == 0 as of this burst's AR-accept
-        burst_last = Signal()           # bcnt == blen_m1: the only per-beat term
-        addr_r = Signal(32)             # burst address, registered in PREP
-        bcnt   = Signal(12)             # R beats received in the current burst
-        cur_addr = Signal(32)
-        to_wrap  = Signal(30)
-        to_4k    = Signal(10)
-        blen_a   = Signal(12)
-        blen_b   = Signal(12)
-        blen     = Signal(12)
-        self.comb += [
-            # BD mode: segment reads are LINEAR from skb memory (no ring wrap  -  cap the
-            # wrap term above any segment). Ring mode: base+offset with wrap splits.
-            cur_addr.eq(Mux(bd_shape, Cat(C(0, 3), seg_addr[3:]) + off_r,
-                                      self.base.storage[:32] + off_r)),
-            to_wrap.eq(Mux(bd_shape, 1024,
-                                     (self.mask.storage + 1 - off_r) >> 3)),
-            to_4k.eq((4096 - (cur_addr & 0xFFF)) >> 3),
-            blen_a.eq(Mux(rem_r > burst_beats, burst_beats, rem_r)),
-            blen_b.eq(Mux(blen_a > to_wrap, to_wrap, blen_a)),
-            blen.eq(Mux(blen_b > to_4k, to_4k, blen_b)),
-        ]
-
-        hdr_addr = Signal(32)
-        self.comb += hdr_addr.eq(Mux(bd_shape, self.bd_base.storage[:32] + rd,
-                                               self.base.storage[:32] + rd))
-
-        self.comb += [
-            self.bus.ar.size.eq(3),     # 8 bytes/beat
-            self.bus.ar.burst.eq(1),    # INCR
-        ]
-
-        fb_new = Signal(11)             # ceil(len/8) of the header being parsed
-        self.comb += fb_new.eq((self.bus.r.data[:16] + 7)[3:])
-
-        # ---- cross-BD continuity assembly (TX>=200 step 1) ----
-        # A holds 0-14 pending OUTPUT bytes across the BD chain of one frame; each R
-        # beat inserts its valid bytes at A[aocc]; a full 8 emits. No %8 contract.
-        A_reg   = Signal(120)
-        aocc    = Signal(4)
-        first_in = Signal()
-        f_first = Signal(4)
-        f_tail  = Signal(4)
-        v_in    = Signal(4)
-        in_last = Signal()
-        raw_al  = Signal(64)
-        raw_msk = Signal(64)
-        m_first = Signal(8)             # byte-valid masks, REGISTERED at BD parse
-        m_tail  = Signal(8)             # (the 65-bit variable-shift mask was -4.4 WNS)
-        msk8    = Signal(8)
-        ins_sh  = Signal(120)
-        a_nxt   = Signal(120)
-        occ_nxt = Signal(5)
-        emit_now = Signal()
-        eof_done = Signal()
-        self.comb += [
-            burst_last.eq(bcnt == blen_m1),
-            in_last.eq(rem_z & burst_last),
-            v_in.eq(Mux(first_in, f_first, Mux(in_last, f_tail, 8))),
-            raw_al.eq(Mux(first_in, self.bus.r.data >> sh_lo, self.bus.r.data)),
-            # CRITICAL: mask to the v_in VALID bytes  -  unmasked tail garbage ORs into
-            # A_reg, survives frames, and corrupts every later frame's first bytes
-            # (silicon-only: sim memory beyond segments reads 0; real DRAM does not).
-            # Masks are REGISTERED per segment; per-beat cone = one byte-select level.
-            msk8.eq(Mux(first_in, m_first, Mux(in_last, m_tail, 0xFF))),
-            raw_msk.eq(Cat(*[Mux(msk8[i], raw_al[8*i:8*i+8], 0) for i in range(8)])),
-            ins_sh.eq(raw_msk << Cat(C(0, 3), aocc[:3])),
-            a_nxt.eq(A_reg | ins_sh),
-            occ_nxt.eq(aocc + v_in),
-            emit_now.eq(occ_nxt >= 8),
-            eof_done.eq(in_last & seg_eof),
-        ]
-        bd_beat2 = Signal()             # BD reads are 2 beats: w0 parsed, w1 skipped
-
-        # ---- HW header-generation TSO (TX>=200 step 3, 2026-07-07) -------------
-        # ONE descriptor pair + the frag payload BDs describe a whole gso super-skb;
-        # the ENGINE loops the segments: per segment it synthesizes a template window
-        # (re-read from the arena) + payload windows sliced from the frag BDs, streams
-        # them through the UNCHANGED continuity/csum machinery, and patches the per-
-        # segment header fields at CONSTANT frame offsets (driver guards eth+ihl5:
-        # tot_len@16 ipck@24 [last seg only, driver-precomputed], seq@38 flags@47
-        # [k>0], tcp.check@50 via the existing cs machinery with cs_acc SEEDED to a
-        # driver-provided pseudo-header sum P  -  the pre-pass sums the PATCHED beats,
-        # so seq/flag drift self-accounts). IP id stays fixed (DF set  -  RFC-legal).
-        # Descriptor ABI (2 ring entries, TSO flag = w0 bit 49):
-        #   e0.w0 = tmpl_addr | hlen<<32 | TSO49    e0.w1 = mss | pay<<16 |
-        #           fmid<<32 | flast<<40
-        #   e1.w0 = P_full | P_last<<32             e1.w1 = tot_len_last |
-        #           ipck_last<<16 | seq0<<32
-        tso_on      = Signal()          # segment loop active
-        tso_pend    = Signal()          # descriptor e0.w1 parse pending
-        tso_tmpl    = Signal(32)        # template address (arena, any alignment)
-        tso_hlen    = Signal(8)         # header bytes (54..94)
-        tso_mss     = Signal(14)
-        tso_payrem  = Signal(17)        # payload bytes not yet COMMITTED
-        tso_fmid    = Signal(8)         # flags byte, mid segments (driver-precomputed)
-        tso_flast   = Signal(8)         # flags byte, last segment
-        tso_pfull   = Signal(32)        # cs_acc seed, full-mss segments
-        tso_plast   = Signal(32)        # cs_acc seed, last segment
-        tso_lenlast = Signal(16)        # ip.tot_len, last segment (logical u16)
-        tso_cklast  = Signal(16)        # ip.check,  last segment (logical u16)
-        tso_seq     = Signal(32)        # THIS segment's tcp.seq (logical u32)
-        tso_k0      = Signal()          # first segment (template streams unpatched)
-        tso_last    = Signal()          # last segment
-        tso_chunk   = Signal(14)        # this segment's payload bytes
-        tso_wleft   = Signal(14)        # window walk: chunk bytes not yet windowed
-        pbd_v       = Signal()          # a payload BD is loaded
-        pbd_addr    = Signal(32)
-        pbd_len     = Signal(16)
-        pbd_cons    = Signal(16)        # bytes of the loaded BD consumed
-        anc_rd      = Signal(32)        # segment-start rewind anchors (pre-pass
-        anc_cons    = Signal(16)        #  re-walks the same windows, then rewinds)
-        tbd_beat    = Signal()          # payload-BD read beat toggle
-        twin_addr   = Signal(32)
-        t_avail     = Signal(16)
-        twin_take   = Signal(16)
-        twin_eof    = Signal()
-        self.comb += [
-            twin_addr.eq(pbd_addr + pbd_cons),
-            t_avail.eq(pbd_len - pbd_cons),
-            twin_take.eq(Mux(t_avail < tso_wleft, t_avail, tso_wleft)),
-            twin_eof.eq(twin_take == tso_wleft),
-        ]
-        # per-segment field patches on the assembled OUTPUT beats  -  all offsets are
-        # constants (rbeat==N compares only), one 2-3 deep byte mux on top of a_nxt;
-        # the check field itself is the existing cs patch (cs_off=50) downstream.
-        t_nxt  = Signal(64)
-        tp_b2  = Signal()
-        tp_b3  = Signal()
-        tp_b4  = Signal()
-        tp_b5  = Signal()
-        self.comb += [
-            tp_b2.eq(tso_on & tso_last & (rbeat == 2)),
-            tp_b3.eq(tso_on & tso_last & (rbeat == 3)),
-            tp_b4.eq(tso_on & ~tso_k0 & (rbeat == 4)),
-            tp_b5.eq(tso_on & ~tso_k0 & (rbeat == 5)),
-            t_nxt.eq(Cat(
-                Mux(tp_b2, tso_lenlast[8:16],
-                    Mux(tp_b3, tso_cklast[8:16],
-                        Mux(tp_b5, tso_seq[8:16], a_nxt[0:8]))),
-                Mux(tp_b2, tso_lenlast[0:8],
-                    Mux(tp_b3, tso_cklast[0:8],
-                        Mux(tp_b5, tso_seq[0:8], a_nxt[8:16]))),
-                a_nxt[16:24], a_nxt[24:32], a_nxt[32:40], a_nxt[40:48],
-                Mux(tp_b4, tso_seq[24:32], a_nxt[48:56]),
-                Mux(tp_b4, tso_seq[16:24],
-                    Mux(tp_b5, Mux(tso_last, tso_flast, tso_fmid),
-                        a_nxt[56:64])))),
-        ]
-
-        def window_setup(addr, ln, eof):
-            """program the streaming machinery for one (addr,len,eof) window  -
-            the register set the BD parse fills, fed from TSO registers instead"""
-            a3 = addr[:3]
-            return [
-                NextValue(frame_bytes, ln),
-                NextValue(rem_r, (ln + a3 + 7)[3:]),
-                NextValue(rem_z, (ln + a3 + 7)[3:] == 0),
-                NextValue(seg_addr, addr),
-                NextValue(seg_off, a3),
-                NextValue(sh_lo, Cat(C(0, 3), a3)),
-                NextValue(carry_v, 0),
-                NextValue(obeat, 0),
-                NextValue(first_in, 1),
-                NextValue(f_first, Mux(ln < (8 - a3), ln[:4], 8 - a3)),
-                NextValue(f_tail, ((a3 + ln - 1) & 0x7) + 1),
-                NextValue(m_first,
-                          ((C(1, 9) << Mux(ln < (8 - a3), ln[:4], 8 - a3)) - 1)[:8]),
-                NextValue(m_tail, ((C(1, 9) << (((a3 + ln - 1) & 0x7) + 1)) - 1)[:8]),
-                NextValue(seg_eof, eof),
-                NextValue(off_r, 0),
-            ]
-
-        def tso_rewind():
-            """end of a segment's silent pre-pass: rewind the payload cursor and
-            re-walk the same windows for real (mirrors cs_restart for chains)"""
-            return [
-                NextValue(cs_pass, 0),
-                NextValue(rd, anc_rd),
-                NextValue(pbd_v, 0),        # pbd regs may hold a LATER BD: re-fetch
-                NextValue(pbd_cons, anc_cons),
-                NextState("TSO_TGO"),
-            ]
-
-        self.fsm = fsm = FSM(reset_state="IDLE")
-        fsm.act("IDLE",
-            If(~self.enable.storage,
-                NextValue(rd, 0),       # reload hygiene (mirror of the RX post-FIFO drain)
-                NextValue(rd_pub, 0),
-                NextValue(tso_on, 0),
-                NextValue(tso_pend, 0),
-            ).Elif(self.wr_ptr.storage != rd,
-                NextValue(rbeat, 0),
-                NextValue(bd_beat2, 0),
-                NextValue(rd_c, rd),    # chain anchor for the csum-restart rewind
-                NextValue(cs_done, 0),
-                NextValue(chain_first, 1),
-                NextState("HDR_AR"),
-            )
-        )
-        fsm.act("HDR_AR",
-            self.bus.ar.valid.eq(1),
-            self.bus.ar.addr.eq(hdr_addr),
-            self.bus.ar.len.eq(Mux(bd_shape, 1, 0)),  # BD = 2 beats, ring header = 1
-            If(self.bus.ar.ready,
-                NextState("HDR_R"),
-            )
-        )
-        fsm.act("HDR_R",
-            self.bus.r.ready.eq(1),
-            If(self.bus.r.valid,
-                If(bd_shape & bd_beat2,
-                    If(tso_pend,
-                        # TSO descriptor e0.w1: {flast[47:40], fmid[39:32],
-                        # pay_total[31:16], mss[13:0]}
-                        NextValue(tso_pend, 0),
-                        NextValue(tso_mss, self.bus.r.data[:14]),
-                        NextValue(tso_payrem, self.bus.r.data[16:32]),
-                        NextValue(tso_fmid, self.bus.r.data[32:40]),
-                        NextValue(tso_flast, self.bus.r.data[40:48]),
-                        NextValue(rd, (rd + 16) & self.mask.storage),
-                        If((self.bus.r.data[:14] == 0) |
-                           (self.bus.r.data[16:32] == 0),
-                            NextValue(rd, self.wr_ptr.storage & self.mask.storage),
-                            NextValue(rd_pub, self.wr_ptr.storage & self.mask.storage),
-                            NextState("IDLE"),
-                        ).Else(
-                            NextState("TSO_EXT_AR"),
-                        )
-                    ).Else(
-                        # second BD word: {en[63], csum_off[31:16], csum_start[15:0]}.
-                        # cs state latches ONLY from the chain's FIRST BD, and only on
-                        # the pre-pass entry (~cs_done)  -  mid-chain w1s are ignored and
-                        # the post-rewind re-parse must not restart the pre-pass.
-                        If(chain_first & ~cs_done,
-                            NextValue(cs_en,    self.bus.r.data[63]),
-                            NextValue(cs_start, self.bus.r.data[:16]),
-                            NextValue(cs_off,   self.bus.r.data[16:32]),
-                            NextValue(cs_sel_lo, Mux(self.bus.r.data[63],
-                                                     1 << self.bus.r.data[16:19], 0)),
-                            NextValue(cs_sel_hi, Mux(self.bus.r.data[63],
-                                                     2 << self.bus.r.data[16:19], 0)),
-                            cs_clr.eq(1),
-                            NextValue(cs_pass, self.bus.r.data[63]),
-                        ),
-                        NextValue(chain_first, 0),
-                        NextState("PREP"),
-                    )
-                ).Elif(bd_shape & self.bus.r.data[49],
-                    # TSO descriptor e0.w0: {TSO=1<<49, hlen[39:32], tmpl_addr[31:0]}
-                    NextValue(tso_tmpl, self.bus.r.data[:32]),
-                    NextValue(tso_hlen, self.bus.r.data[32:40]),
-                    NextValue(tso_pend, 1),
-                    NextValue(bd_beat2, 1),
-                    If((self.bus.r.data[32:40] < 54) | (self.bus.r.data[32:40] > 94),
-                        # malformed template: resync like any bad BD
-                        NextValue(tso_pend, 0),
-                        NextValue(rd, self.wr_ptr.storage & self.mask.storage),
-                        NextValue(rd_pub, self.wr_ptr.storage & self.mask.storage),
-                        NextState("BD_FLUSH"),
-                    )
-                ).Else(
-                    NextValue(frame_bytes, Mux(bd_shape, self.bus.r.data[32:48],
-                                                         self.bus.r.data[:16])),
-                    # input beats = ceil((off + len)/8); output beats = ceil(len/8)
-                    NextValue(rem_r, Mux(bd_shape,
-                        (self.bus.r.data[32:48] + self.bus.r.data[:3] + 7)[3:], fb_new)),
-                    NextValue(rem_z, Mux(bd_shape,
-                        (self.bus.r.data[32:48] + self.bus.r.data[:3] + 7)[3:], fb_new) == 0),
-                    NextValue(seg_addr, self.bus.r.data[:32]),
-                    NextValue(seg_off, self.bus.r.data[:3]),
-                    NextValue(sh_lo, Cat(C(0, 3), self.bus.r.data[:3])),
-                    NextValue(carry_v, 0),
-                    NextValue(obeat, 0),
-                    # continuity (TX>=200 step 1): per-segment byte-valid counts for the
-                    # assembly shifter; f_first covers tiny one-beat segments too
-                    NextValue(first_in, 1),
-                    NextValue(f_first, Mux(
-                        self.bus.r.data[32:48] < (8 - self.bus.r.data[:3]),
-                        self.bus.r.data[32:36],
-                        8 - self.bus.r.data[:3])),
-                    NextValue(f_tail, ((self.bus.r.data[:3] +
-                                        self.bus.r.data[32:48] - 1) & 0x7) + 1),
-                    NextValue(m_first, ((C(1, 9) << Mux(
-                        self.bus.r.data[32:48] < (8 - self.bus.r.data[:3]),
-                        self.bus.r.data[32:36],
-                        8 - self.bus.r.data[:3])) - 1)[:8]),
-                    NextValue(m_tail, ((C(1, 9) << (((self.bus.r.data[:3] +
-                        self.bus.r.data[32:48] - 1) & 0x7) + 1)) - 1)[:8]),
-                    NextValue(seg_eof, self.bus.r.data[48]),
-                    NextValue(off_r, Mux(bd_shape, 0, (rd + 8) & self.mask.storage)),
-                    NextValue(bd_beat2, 1),
-                    # len==0 / oversized can only be a software bug: resync, don't stream garbage
-                    If(bd_shape,
-                        If((self.bus.r.data[32:48] == 0) |
-                           (self.bus.r.data[32:48] > max_frame_bytes),
-                            NextValue(rd, self.wr_ptr.storage & self.mask.storage),
-                            NextValue(rd_pub, self.wr_ptr.storage & self.mask.storage),
-                            NextValue(bd_beat2, 1),      # still drain the 2nd beat
-                            NextState("BD_FLUSH"),
-                        )
-                    ).Elif((self.bus.r.data[:16] == 0) | (self.bus.r.data[:16] > max_frame_bytes),
-                        NextValue(rd, self.wr_ptr.storage & self.mask.storage),
-                        NextValue(rd_pub, self.wr_ptr.storage & self.mask.storage),
-                        NextState("IDLE"),
-                    ).Else(
-                        NextState("PREP"),
-                    )
-                )
-            )
-        )
-        fsm.act("BD_FLUSH",             # bad BD: eat the second beat, then resync'd IDLE
-            self.bus.r.ready.eq(1),
-            If(self.bus.r.valid, NextState("IDLE")),
-        )
-        fsm.act("PREP",                 # register this burst's geometry
-            NextValue(blen_r, blen),
-            NextValue(blen_m1, blen - 1),
-            NextValue(addr_r, cur_addr),
-            NextState("PAY_AR"),
-        )
-        fsm.act("PAY_AR",
-            self.bus.ar.valid.eq(1),
-            self.bus.ar.addr.eq(addr_r),
-            self.bus.ar.len.eq(blen_m1),
-            If(self.bus.ar.ready,
-                NextValue(bcnt, 0),
-                # BD mode: LINEAR segment offset  -  masking with the (BD-ring!) mask would
-                # wrap the read at ring-size bytes (the same class of bug the RX BD mode
-                # shipped with; its 1520 B content test is the template for test_tx_bd).
-                NextValue(off_r, Mux(bd_shape, off_r + (blen_r << 3),
-                                     (off_r + (blen_r << 3)) & self.mask.storage)),
-                NextValue(rem_r, rem_r - blen_r),
-                NextValue(rem_z, rem_r == blen_r),
-                NextState("PAY_R"),
-            )
-        )
-        # segment-finish micro-sequence, shared by aligned / realigned / drain exits
-        def seg_finish():
-            return [
-                If(bd_shape,
-                    NextValue(rd, (rd + 16) & self.mask.storage),  # consume the BD
-                    # rbeat is FRAME-relative across the chain (patch_here indexes
-                    # the assembled output); IDLE re-zeroes it per frame.
-                    NextValue(bd_beat2, 0),
-                    If(seg_eof,
-                        NextValue(nsent, nsent + 1),
-                        # publish rd only at committed frame ends  -  the csum
-                        # pre-pass advances rd through the chain and REWINDS;
-                        # exposing that excursion would let the driver reap
-                        # skbs the real pass still reads.
-                        NextValue(rd_pub, (rd + 16) & self.mask.storage),
-                        NextState("IDLE"),
-                    ).Else(
-                        NextState("HDR_AR"),            # next segment of the same frame
-                    )
-                ).Else(
-                    NextValue(rd, (rd + 8 + (frame_beats << 3)) & self.mask.storage),
-                    NextValue(rd_pub, (rd + 8 + (frame_beats << 3)) & self.mask.storage),
-                    NextValue(nsent, nsent + 1),
-                    NextState("IDLE"),
-                )
-            ]
-
-        def cs_patched(base):
-            """base beat with the folded checksum muxed in  -  REGISTERED one-hot selects
-            (cs_sel_lo/hi), so the cone is one 2-level per-byte mux, no comparators
-            (the +0.039 flake fix: this mux sits in the datapath even with csum off)."""
-            byts = []
-            for i in range(8):
-                byts.append(Mux(cs_sel_lo[i], cs_val[:8],
-                            Mux(cs_sel_hi[i], cs_val[8:16],
-                                base[8*i:8*i+8])))
-            return Cat(*byts)
-
-        def cs_restart():
-            """end of the silent pre-pass: fold is combinational; rerun for real.
-            cs-across-BDs: rewind the BD ring to the chain's first BD and re-walk
-            the whole chain through HDR_AR (per-BD geometry reloads on re-parse;
-            cs_done blocks a second pre-pass). Ring mode rewinds trivially (rd
-            never moved). The accumulator's trailing pipeline add completes during
-            HDR_AR/HDR_R, well before the first patched beat."""
-            return [
-                NextValue(cs_pass, 0),
-                NextValue(cs_done, 1),
-                NextValue(chain_first, 1),
-                NextValue(rd, rd_c),
-                NextValue(rbeat, 0),
-                NextValue(bd_beat2, 0),
-                NextValue(carry_v, 0),
-                NextValue(A_reg, 0),
-                NextValue(aocc, 0),
-                NextValue(first_in, 1),
-                NextState("HDR_AR"),
-            ]
-
-        pay_last = Signal()             # this output beat is the segment's final one
-        patch_here = Signal()           # csum bytes live in THIS output beat
-        self.comb += [
-            pay_last.eq(rbeat == frame_beats - 1),
-            patch_here.eq(cs_en & ~cs_pass & (rbeat == cs_off[3:])),
-        ]
-
-        fsm.act("PAY_R",
-            If(~bd_shape,
-                # aligned path: input beats == output beats (bit-identical to pre-v2)
-                # (byte-ring only  -  dead-folds out of legacy_ring=False builds)
-                source.valid.eq(self.bus.r.valid & ~cs_pass),
-                source.data.eq(Mux(patch_here, cs_patched(self.bus.r.data),
-                                   self.bus.r.data)),
-                source.last.eq(pay_last & (~bd_shape | seg_eof)),
-                source.keep.eq(Mux(pay_last, rlast_keep, 0xFF)),
-                self.bus.r.ready.eq(source.ready | cs_pass),
-                cs_beat.eq(self.bus.r.data),
-                cs_keep.eq(Mux(pay_last, rlast_keep, 0xFF)),
-                If(self.bus.r.valid & self.bus.r.ready,
-                    cs_take.eq(cs_pass),
-                    NextValue(rbeat, rbeat + 1),
-                    NextValue(bcnt, bcnt + 1),
-                    If(rbeat == frame_beats - 1,
-                        If(cs_pass, *cs_restart()).Else(*seg_finish())
-                    ).Elif(burst_last,
-                        NextState("PREP"),
-                    )
-                )
-            ).Else(
-                # assembly path: insert v_in bytes at A[aocc]; emit on >=8. Continuity:
-                # A/aocc persist across non-EOF segments (no drain mid-frame).
-                source.valid.eq(self.bus.r.valid & emit_now & ~cs_pass),
-                source.data.eq(Mux(patch_here, cs_patched(t_nxt), t_nxt)),
-                source.last.eq(eof_done & (occ_nxt == 8)),
-                source.keep.eq(0xFF),
-                self.bus.r.ready.eq(~emit_now | source.ready | cs_pass),
-                # cs taps the FIELD-PATCHED stream: the pre-pass then sums exactly
-                # what the real pass emits, so per-segment seq/flag drift lands in
-                # the checksum automatically (the check field itself streams as the
-                # template's zeros during accumulation).
-                cs_beat.eq(t_nxt),
-                cs_keep.eq(0xFF),
-                If(self.bus.r.valid & self.bus.r.ready,
-                    cs_take.eq(cs_pass & emit_now),
-                    NextValue(first_in, 0),
-                    NextValue(bcnt, bcnt + 1),
-                    If(emit_now,
-                        NextValue(A_reg, a_nxt[64:]),
-                        NextValue(aocc, occ_nxt - 8),
-                        NextValue(rbeat, rbeat + 1),
-                    ).Else(
-                        NextValue(A_reg, a_nxt),
-                        NextValue(aocc, occ_nxt),
-                    ),
-                    If(eof_done,
-                        If(occ_nxt == 8,                # frame ends beat-aligned
-                            NextValue(A_reg, 0),
-                            NextValue(aocc, 0),
-                            If(cs_pass,
-                                If(tso_on,
-                                    *tso_rewind()
-                                ).Else(
-                                    *cs_restart()
-                                )
-                            ).Elif(tso_on,              # segment committed
-                                NextState("TSO_COMMIT"),
-                            ).Else(
-                                *seg_finish()
-                            )
-                        ).Else(
-                            NextState("DRAIN"),         # residual bytes flush
-                        )
-                    ).Elif(in_last,                     # non-EOF: A/aocc carry over
-                        If(tso_on,
-                            NextState("TSO_WIN"),       # next synthesized window
-                        ).Else(
-                            *seg_finish()
-                        )
-                    ).Elif(burst_last,
-                        NextState("PREP"),
-                    )
-                )
-            )
-        )
-        drain_keep = Signal(8)
-        self.comb += drain_keep.eq((1 << aocc[:3]) - 1)
-        fsm.act("DRAIN",                                # assembly residual flush (EOF)
-            source.valid.eq(~cs_pass),
-            source.data.eq(Mux(patch_here, cs_patched(A_reg[:64]), A_reg[:64])),
-            source.last.eq(1),
-            source.keep.eq(drain_keep),
-            cs_beat.eq(A_reg[:64]),
-            cs_keep.eq(drain_keep),
-            If(cs_pass,
-                cs_take.eq(1),
-                NextValue(A_reg, 0),
-                NextValue(aocc, 0),
-                If(tso_on,
-                    *tso_rewind()
-                ).Else(
-                    *cs_restart()
-                )
-            ).Elif(source.ready,
-                NextValue(A_reg, 0),
-                NextValue(aocc, 0),
-                If(tso_on,
-                    NextState("TSO_COMMIT"),
-                ).Else(
-                    *seg_finish()
-                )
-            )
-        )
-
-        # ---- HW-TSO sequencer -------------------------------------------------
-        fsm.act("TSO_EXT_AR",           # fetch descriptor entry 2
-            self.bus.ar.valid.eq(1),
-            self.bus.ar.addr.eq(self.bd_base.storage[:32] + rd),
-            self.bus.ar.len.eq(1),
-            If(self.bus.ar.ready,
-                NextValue(tbd_beat, 0),
-                NextState("TSO_EXT_R"),
-            )
-        )
-        fsm.act("TSO_EXT_R",
-            self.bus.r.ready.eq(1),
-            If(self.bus.r.valid,
-                If(~tbd_beat,
-                    # e1.w0 = {P_last[63:32], P_full[31:0]}
-                    NextValue(tso_pfull, self.bus.r.data[:32]),
-                    NextValue(tso_plast, self.bus.r.data[32:64]),
-                    NextValue(tbd_beat, 1),
-                ).Else(
-                    # e1.w1 = {seq0[63:32], ipck_last[31:16], tot_len_last[15:0]}
-                    NextValue(tso_lenlast, self.bus.r.data[:16]),
-                    NextValue(tso_cklast, self.bus.r.data[16:32]),
-                    NextValue(tso_seq, self.bus.r.data[32:64]),
-                    NextValue(rd, (rd + 16) & self.mask.storage),
-                    NextValue(tso_on, 1),
-                    NextValue(tso_k0, 1),
-                    NextValue(pbd_v, 0),
-                    NextValue(pbd_cons, 0),
-                    NextState("TSO_SEG"),
-                )
-            )
-        )
-        fsm.act("TSO_SEG",              # per-segment setup + rewind anchors
-            NextValue(tso_chunk, Mux(tso_payrem > tso_mss, tso_mss,
-                                     tso_payrem[:14])),
-            NextValue(tso_last, tso_payrem <= tso_mss),
-            NextValue(cs_init, Mux(tso_payrem <= tso_mss, tso_plast, tso_pfull)),
-            NextValue(cs_en, 1),
-            NextValue(cs_off, 50),      # tcp.check, frame-relative (ihl=5 contract)
-            NextValue(cs_sel_lo, 1 << 2),
-            NextValue(cs_sel_hi, 1 << 3),
-            NextValue(cs_pass, 1),
-            NextValue(anc_rd, rd),
-            NextValue(anc_cons, pbd_cons),
-            NextState("TSO_TGO"),
-        )
-        fsm.act("TSO_TGO",              # start a pass: template window first
-            If(cs_pass, cs_clr.eq(1), cs_seed.eq(cs_init)),
-            NextValue(tso_wleft, tso_chunk),
-            NextValue(A_reg, 0),
-            NextValue(aocc, 0),
-            NextValue(rbeat, 0),
-            *window_setup(tso_tmpl, tso_hlen, C(0, 1)),
-            NextState("PREP"),
-        )
-        fsm.act("TSO_WIN",              # next payload window of this segment
-            If(~pbd_v,
-                NextState("TSO_BD_AR"),
-            ).Else(
-                NextValue(tso_wleft, tso_wleft - twin_take),
-                NextValue(pbd_cons, pbd_cons + twin_take),
-                If(pbd_cons + twin_take == pbd_len,   # BD exhausted: consume it
-                    NextValue(rd, (rd + 16) & self.mask.storage),
-                    NextValue(pbd_v, 0),
-                    NextValue(pbd_cons, 0),
-                ),
-                *window_setup(twin_addr, twin_take, twin_eof),
-                NextState("PREP"),
-            )
-        )
-        fsm.act("TSO_BD_AR",            # fetch the next payload BD
-            self.bus.ar.valid.eq(1),
-            self.bus.ar.addr.eq(self.bd_base.storage[:32] + rd),
-            self.bus.ar.len.eq(1),
-            If(self.bus.ar.ready,
-                NextValue(tbd_beat, 0),
-                NextState("TSO_BD_R"),
-            )
-        )
-        fsm.act("TSO_BD_R",
-            self.bus.r.ready.eq(1),
-            If(self.bus.r.valid,
-                If(~tbd_beat,
-                    NextValue(pbd_addr, self.bus.r.data[:32]),
-                    NextValue(pbd_len, self.bus.r.data[32:48]),
-                    NextValue(tbd_beat, 1),
-                    If(self.bus.r.data[32:48] == 0,   # garbage BD: resync
-                        NextValue(tso_on, 0),
-                        NextValue(rd, self.wr_ptr.storage & self.mask.storage),
-                        NextValue(rd_pub, self.wr_ptr.storage & self.mask.storage),
-                        NextState("BD_FLUSH"),
-                    )
-                ).Else(                                # drain w1 (ignored)
-                    NextValue(pbd_v, 1),
-                    NextState("TSO_WIN"),
-                )
-            )
-        )
-        fsm.act("TSO_COMMIT",           # real pass of one segment finished
-            NextValue(tso_payrem, tso_payrem - tso_chunk),
-            NextValue(tso_seq, tso_seq + tso_chunk),
-            NextValue(tso_k0, 0),
-            NextValue(nsent, nsent + 1),
-            If(tso_payrem == tso_chunk,               # that was the last segment
-                # publish ONLY here: earlier segments still re-read the TEMPLATE
-                # (descriptor entry 0's arena slot)  -  a mid-frame publish would
-                # let the driver recycle it under the engine.
-                NextValue(rd_pub, rd),
-                NextValue(tso_on, 0),
-                NextValue(cs_en, 0),
-                NextState("IDLE"),
-            ).Else(
-                NextState("TSO_SEG"),
-            )
-        )
-
-        # ---- Phase-0 observability taps (read-only comb; no functional effect) --------
-        # Exposed for MilanDebug's reader probes (rd_latency_probe / rd_produce_probe) so
-        # they can attribute, each sys cycle, WHY the reader is or isn't feeding `source`.
-        # All sys-domain (the reader is a sys master) → the probes need no CDC.
-        self.dbg_cs_pass = Signal()     # 1 = silent csum/TSO pre-pass (source suppressed)
-        self.dbg_reading = Signal()     # in a state that awaits/consumes an R beat
-        self.dbg_idle    = Signal()     # IDLE: no work queued (rd == wr)
-        # M1 telemetry: TX ring/BD occupancy (bytes queued by SW, unconsumed by HW  -
-        # "is the CPU keeping the ring fed") + doorbell strobe (wr_ptr CSR writes,
-        # for the frames-per-doorbell batching factor). Tracked/snapped in MilanDebug.
-        self.dbg_occ      = Signal(32)
-        self.dbg_doorbell = Signal()
-        self.comb += [
-            self.dbg_cs_pass.eq(cs_pass),
-            self.dbg_reading.eq(fsm.ongoing("HDR_R") | fsm.ongoing("PAY_R") |
-                                fsm.ongoing("TSO_EXT_R") | fsm.ongoing("TSO_BD_R") |
-                                fsm.ongoing("BD_FLUSH")),
-            self.dbg_idle.eq(fsm.ongoing("IDLE")),
-            self.dbg_occ.eq((self.wr_ptr.storage - rd_pub) & self.mask.storage),
-            self.dbg_doorbell.eq(self.wr_ptr.re),
-        ]
-
-
-class RxSteer(LiteXModule):
-    """2-way RX steering front-end: gPTP gets its OWN queue, everything else shares q0.
-
-    USER directive (2026-07-26, the 802.1Q-ordered egress round): "one [ingress queue]
-    dedicated to gPTP, one for everything else".
-
-      q1  frames whose DMAC is the 802.1AS reserved multicast 01-80-C2-00-00-0E
-          AND whose (inner) EtherType is 0x88F7  -  i.e. exactly the gPTP test
-          `hdl/ieee8021q/ts/traffic_class_map.sv` applies on egress with
-          CLS_CTRL[1] set (REQ-CLS-07). One detector, one rule, both directions.
-      q0  everything else.
-
-    WHAT THIS REPLACES AND WHAT IT COSTS. Until this commit the block was a TCP
-    4-tuple flow hash built for THROUGHPUT: it split one MTU-1500 RX stream into
-    two flow-consistent queues so two TCP flows' ACK/recv processing ran on two
-    harts, breaking the single-NAPI ACK-processing ceiling (measured RX 223
-    Mbit, see docs/findings/PERFORMANCE_GOAL.md). That parallel ACK split is
-    GONE - bulk RX is single-NAPI again and the RX ceiling reverts to the
-    one-hart number. What is bought is latency where it actually matters: PTP
-    event messages no longer queue behind bulk traffic in a shared ring, and
-    RX-side PTP latency is precisely what once held `asCapable` false
-    (docs/findings/GPTP_RXPAD_ROOTCAUSE.md - late RX stamps, not a switch
-    fault). A sync/pdelay pair is ~64-90 B at
-    8-16 frames/s, so the dedicated queue is essentially never backlogged and
-    its NAPI never competes with a 1500 B bulk burst.
-
-    Per frame: buffer the head (<=3 beats = wire bytes 0..23, enough for the
-    DMAC, the EtherType and one C-TAG's inner EtherType), decide, then route the
-    WHOLE frame to the chosen queue. Frames never reorder within a queue.
-
-    Downstream (both RingDMAWriter.sink) is always-ready (drop-on-full), so a small
-    SyncFIFO holds `sink` (constant-ready preserved) while the head is decoded; the
-    FIFO peaks ~3 beats/frame (head re-fill during replay) and never backpressures."""
-    def __init__(self, depth=64):
-        self.sink    = sink    = stream.Endpoint([("data", 64), ("keep", 8)])
-        self.source0 = source0 = stream.Endpoint([("data", 64), ("keep", 8)])
-        self.source1 = source1 = stream.Endpoint([("data", 64), ("keep", 8)])
-        self.q0_frames = CSRStatus(32, description="frames steered to RX queue 0 (everything but gPTP)")
-        self.q1_frames = CSRStatus(32, description="frames steered to RX queue 1 (gPTP)")
-        # NAME KEPT ON PURPOSE: `hash_sel` is the third and last register of the
-        # steer block and the DMA window map is pinned to its size/offset
-        # (endstation_builder DMA_STEER_BYTES = 0x0C). Renaming it would move
-        # nothing but would break every csr.csv-derived tool. It is now simply
-        # the bypass bit it always doubled as.
-        self.hash_sel  = CSRStorage(1, reset=0, description="0 = steer gPTP to q1; 1 = force all to q0 (bypass)")
-
-        # # #
-        self.fifo = fifo = stream.SyncFIFO([("data", 64), ("keep", 8)], depth=depth, buffered=True)
-        self.comb += sink.connect(fifo.sink)          # sink.ready = fifo.sink.ready (~always 1)
-        src = fifo.source
-
-        NHEAD = 3                                     # beats buffered: wire bytes 0..23
-        obuf_d = Array([Signal(64) for _ in range(NHEAD)])
-        obuf_k = Array([Signal(8)  for _ in range(NHEAD)])
-        obuf_l = Array([Signal()   for _ in range(NHEAD)])
-        ocnt   = Signal(4)                            # beats collected into obuf (0..3)
-        sawlast = Signal()                            # frame ended within the head
-        q      = Signal()                             # latched queue for the current frame
-        ridx   = Signal(4)                            # replay index
-        n0 = Signal(32); n1 = Signal(32)
-        self.comb += [self.q0_frames.status.eq(n0), self.q1_frames.status.eq(n1)]
-
-        def B(beat, byte):                            # byte `byte` (0..7) of head beat `beat`
-            return obuf_d[beat][8*byte:8*byte+8]
-        # 802.1AS-2020 s10.5: gPTP rides the reserved multicast 01-80-C2-00-00-0E.
-        # EtherType 0x88F7 ALONE is not proof of a gPTP frame (any station can mint
-        # one at an arbitrary destination) - the same argument REQ-CLS-07 makes on
-        # the egress side, so demand both here too. A spoofed 0x88F7 lands on q0.
-        dmac_gptp = Signal(); et_ptp = Signal(); et_vlan = Signal(); vet_ptp = Signal()
-        self.comb += [
-            dmac_gptp.eq((B(0,0) == 0x01) & (B(0,1) == 0x80) & (B(0,2) == 0xC2) &
-                         (B(0,3) == 0x00) & (B(0,4) == 0x00) & (B(0,5) == 0x0E)),
-            et_ptp.eq((B(1,4) == 0x88) & (B(1,5) == 0xF7)),   # bytes 12,13 = 0x88F7
-            et_vlan.eq((B(1,4) == 0x81) & (B(1,5) == 0x00)),  # bytes 12,13 = C-TAG
-            vet_ptp.eq((B(2,0) == 0x88) & (B(2,1) == 0xF7)),  # bytes 16,17 after a C-TAG
-        ]
-        gptp = Signal()
-        self.comb += gptp.eq(dmac_gptp & (et_ptp | (et_vlan & vet_ptp)))
-        # decision from the (registered) head  -  evaluated when HEAD is complete.
-        # `sawlast` = the frame ended inside the head; a runt that short cannot be a
-        # valid gPTP PDU (the smallest, pdelay_resp_follow_up, is 60 B on the wire),
-        # so it takes q0 like every other non-gPTP frame.
-        qsel = Signal()
-        self.comb += If(sawlast | ~gptp | self.hash_sel.storage,
-                        qsel.eq(0)).Else(qsel.eq(1))
-
-        self.submodules.fsm = fsm = FSM(reset_state="HEAD")
-        fsm.act("HEAD",
-            src.ready.eq(1),
-            If(src.valid,
-                NextValue(obuf_d[ocnt], src.data),
-                NextValue(obuf_k[ocnt], src.keep),
-                NextValue(obuf_l[ocnt], src.last),
-                NextValue(ocnt, ocnt + 1),
-                If(src.last, NextValue(sawlast, 1)),
-                If(src.last | (ocnt == NHEAD - 1),      # short frame, or the 5th beat stored
-                    NextState("DECODE"),                # obuf fully registered next cycle
-                )
-            )
-        )
-        fsm.act("DECODE",                               # obuf[0..ocnt-1] all visible now
-            NextValue(q, qsel),
-            NextValue(ridx, 0),
-            NextState("REPLAY"),
-        )
-        # emit the buffered head (REPLAY) or the streamed tail (PASS) to the chosen queue
-        for s in (source0, source1):
-            self.comb += [
-                s.data.eq(Mux(fsm.ongoing("PASS"), src.data, obuf_d[ridx])),
-                s.keep.eq(Mux(fsm.ongoing("PASS"), src.keep, obuf_k[ridx])),
-                s.last.eq(Mux(fsm.ongoing("PASS"), src.last, obuf_l[ridx])),
-            ]
-        fsm.act("REPLAY",
-            If(q == 0, source0.valid.eq(1)).Else(source1.valid.eq(1)),
-            # both writer sinks are always-ready; advance every cycle
-            NextValue(ridx, ridx + 1),
-            If(obuf_l[ridx],                            # head contained the whole frame
-                NextValue(ocnt, 0), NextValue(sawlast, 0),
-                If(q == 0, NextValue(n0, n0 + 1)).Else(NextValue(n1, n1 + 1)),
-                NextState("HEAD"),
-            ).Elif(ridx == ocnt - 1,                    # head drained; stream the tail
-                NextState("PASS"),
-            )
-        )
-        fsm.act("PASS",
-            src.ready.eq(1),
-            If(q == 0, source0.valid.eq(src.valid)).Else(source1.valid.eq(src.valid)),
-            If(src.valid & src.last,
-                NextValue(ocnt, 0), NextValue(sawlast, 0),
-                If(q == 0, NextValue(n0, n0 + 1)).Else(NextValue(n1, n1 + 1)),
-                NextState("HEAD"),
-            )
-        )
-
-
-class _PCMRingNxN(LiteXModule):
-    """NxN per-stream PCM DRAM ring writer (docs/fpga/FPGA_DESIGN.md section 2).
-
-    Generalizes the single `WishboneDMAWriter` PCM ring with the stream index:
-    a beat tagged `user = s` (the datapath's `m_axis_pcm_tuser`) lands at
-    `base + s*stride + offset[s]`, where `offset[s]` is that stream's private
-    write pointer wrapping at `length` (one sub-ring of `length` bytes per
-    stream, sub-rings `stride` bytes apart; the consumer chases the per-stream
-    offsets exactly like the flat ring's `offset` CSR). Stream 0 lands at the
-    base — programming `stride = 0, length = ring bytes` with only stream 0
-    routed reproduces the flat ring layout bit-for-bit.
-
-    CSRs: base[64], length[32] (per-stream sub-ring BYTES, multiple of the bus
-    word), stride[32] (BYTES between stream bases), enable, sel[4] + offset[32]
-    (the selected stream's write pointer readback), cap[32] (RO geometry
-    capability at +0x1c, the hs_pgsz precedent - snd-kl-milan refuses L>1
-    without it). Disable clears all offsets and drops beats (the flat writer's
-    disabled behavior)."""
-    def __init__(self, bus, n_streams):
-        from litex.soc.cores.dma import WishboneDMAWriter
-        from litex.soc.interconnect import stream as _stream
-        self.writer = WishboneDMAWriter(bus, endianness="big", with_csr=False)
-        self.sink   = _stream.Endpoint([("data", bus.data_width), ("user", 4)])
-        self._base   = CSRStorage(64, description="PCM NxN ring base address.")
-        self._length = CSRStorage(32, description="per-stream sub-ring length (bytes).")
-        self._stride = CSRStorage(32, description="byte distance between stream sub-ring bases.")
-        self._enable = CSRStorage(description="ring writer enable (0 drops beats + clears offsets).")
-        self._sel    = CSRStorage(4,  description="stream index for the offset readback.")
-        self._offset = CSRStatus(32,  description="selected stream's write pointer (bytes).")
-        # Geometry capability word, declared right after _offset so it lands at
-        # +0x1c (LiteX maps CSRs in declaration order; the engine block ends at
-        # OFFSET +0x18). Every field is the elaboration TRUTH, never policy:
-        # [23:16] stride/64KiB = 0 because THIS engine has no baked stride (the
-        # runtime _stride CSRStorage above is driver-programmed); [15:8] T = 0
-        # because this block serves capture rings only (KL_pcm_tx playback rings
-        # live behind their own pb_* CSR block, not this geometry).
-        assert 1 <= n_streams <= 0xFF
-        self._cap = CSRStatus(32, description="geometry capability: [31:24]=0x4D 'M', "
-                              "[23:16]=stride/64KiB (0 = driver-programmed via the stride CSR), "
-                              "[15:8]=T playback rings behind this block (0), "
-                              "[7:0]=L capture rings (elaborated N_STREAMS).")
-
-        # # #
-
-        import math
-        nb    = bus.data_width // 8
-        shift = int(math.log2(nb))
-        offsets = Array(Signal(32) for _ in range(n_streams))
-        # Absolute per-stream pointers (m001d net analysis, cone C): the beat
-        # address used to be base + stride*user + offsets[user] computed in
-        # the beat cone - a ~40-bit carry propagation (CARRY4=10, 15-18 logic
-        # levels, eppo's WNS). base/stride are init-time CSRs, so the multiply
-        # and both 64-bit adds are loop-invariant: sbase[] registers them off
-        # the static CSRs (stride*i with constant i is shift-add, no DSP) and
-        # ptrs[] advances by nb per beat - the addr mux is all that remains.
-        # offsets[] stays for the CSR readback + wrap test (ABI unchanged).
-        # Ordering is enforced in hardware: ~en reloads ptrs from sbase, and
-        # the driver programs base/stride before enable (it always has).
-        sbase   = Array(Signal(64) for _ in range(n_streams))
-        ptrs    = Array(Signal(64) for _ in range(n_streams))
-        user    = Signal(4)
-        sel     = Signal(4)
-        addr    = Signal(64)
-        en      = self._enable.storage
-        # Payload register stage (2026-07-29): the sink comes straight off the
-        # pcm CDC FIFO's BRAM read port, and computing base + stride*user +
-        # offsets[user] combinationally from that read made
-        # BRAM CLKARDCLK -> multiplier/adder chain -> writer AW the #1/#2
-        # violated path on both boards' m0019j builds (arty -0.113 floor
-        # after recovery, AX -0.596). One stream.Buffer re-times the whole
-        # cone from registers; the PCM ring is media-paced (ms-scale), so a
-        # cycle of added latency is invisible.
-        from litex.soc.interconnect import stream as _stream
-        self.submodules.inbuf = inbuf = _stream.Buffer(
-            [("data", bus.data_width), ("user", 4)])
-        self.comb += self.sink.connect(inbuf.sink)
-        src = inbuf.source
-        # clamp both indexes to the elaborated stream count (the datapath only
-        # emits tuser < N_STREAMS; the clamp keeps a stray sel/user in range)
-        self.comb += [
-            user.eq(Mux(src.user >= n_streams, 0, src.user)),
-            sel.eq(Mux(self._sel.storage >= n_streams, 0, self._sel.storage)),
-            addr.eq(ptrs[user]),
-            self.writer.sink.valid.eq(src.valid & en),
-            self.writer.sink.data.eq(src.data),
-            self.writer.sink.address.eq(addr[shift:]),
-            src.ready.eq(self.writer.sink.ready | ~en),
-            self._offset.status.eq(offsets[sel]),
-            self._cap.status.eq((0x4D << 24) | int(n_streams)),
-        ]
-        self.sync += [
-            *[sbase[i].eq(self._base.storage + self._stride.storage * i)
-              for i in range(n_streams)],
-            If(~en,
-                *[o.eq(0) for o in offsets],
-                *[p.eq(sb) for p, sb in zip(ptrs, sbase)]
-            ).Elif(src.valid & src.ready,
-                If(offsets[user] + nb >= self._length.storage,
-                    offsets[user].eq(0),
-                    ptrs[user].eq(sbase[user])
-                ).Else(
-                    offsets[user].eq(offsets[user] + nb),
-                    ptrs[user].eq(ptrs[user] + nb)
-                )
-            ),
-        ]
-
-
-class _PCMRingBRAM(LiteXModule):
-    """On-chip dual-port BRAM PCM ring (KL_pcm_ring_bram.sv) - the shed-proof
-    drop-in for the WishboneDMAWriter / _PCMRingNxN DRAM ring.
-
-    Same sink + SAME CSR block as _PCMRingNxN (base[64], length[32], stride[32],
-    enable, sel[4], offset[32], cap[32] at +0x1c) so the ring ABI is
-    byte-for-byte unchanged; N=1 is byte-identical to the flat ring. The write side rides the
-    pcm CDC lane and its ready is CONSTANT 1 (single-cycle BRAM write), so the
-    non-stallable datapath can never be told to wait - mf52 SHED + I6 cannot
-    exist. The CPU reads PCM words through a read-only wishbone slave into the
-    2nd BRAM port, mapped by MilanDMA into an uncached SoCRegion at
-    MILAN_PCM_BRAM_BASE (a CPU *write* to the window is unacked by design)."""
-    def __init__(self, n_streams=1, ring_bytes=MILAN_PCM_BRAM_SIZE, data_width=64):
-        from litex.soc.interconnect import stream as _stream
-        from litex.soc.interconnect import wishbone
-        import math
-        adr_w = 32 - int(math.log2(data_width // 8))
-        self.sink    = _stream.Endpoint([("data", data_width), ("user", 4)])
-        self._base   = CSRStorage(64, description="PCM ring base = BRAM MMIO window "
-                                  "(driver-programmed; gateware ignores it for intra-BRAM addressing).")
-        self._length = CSRStorage(32, description="per-stream sub-ring length (bytes).")
-        self._stride = CSRStorage(32, description="byte distance between stream sub-ring bases.")
-        self._enable = CSRStorage(description="ring enable (0 drops beats + clears offsets).")
-        self._sel    = CSRStorage(4,  description="stream index for the offset readback.")
-        self._offset = CSRStatus(32,  description="selected stream's write pointer (bytes).")
-        # Geometry capability at +0x1c - identical word + placement as the
-        # _PCMRingNxN one (SAME-CSR-block axiom above); see that class for the
-        # honesty notes on the zero stride/T fields.
-        assert 1 <= n_streams <= 0xFF
-        self._cap = CSRStatus(32, description="geometry capability: [31:24]=0x4D 'M', "
-                              "[23:16]=stride/64KiB (0 = driver-programmed via the stride CSR), "
-                              "[15:8]=T playback rings behind this block (0), "
-                              "[7:0]=L capture rings (elaborated N_STREAMS).")
-        # CPU read port: read-only wishbone slave into BRAM port B.
-        self.bus = wishbone.Interface(data_width=data_width, adr_width=adr_w, addressing="word")
-
-        # # #
-
-        # `base` is a plain RW CSR the driver programs (byte-identical to the
-        # _PCMRingNxN ABI); the gateware does NOT drive it. An earlier revision
-        # combinationally forced `_base.storage`, DOUBLE-DRIVING the register that
-        # the CSR bus already writes (a migen driver conflict). The SoC decoder
-        # places the whole BRAM array at MILAN_PCM_BRAM_BASE and the driver mmaps
-        # that window (from the DT reg node); the SV ignores base for addressing.
-        self.specials += Instance("KL_pcm_ring_bram",
-            p_DATA_W     = data_width,
-            p_N_STREAMS  = n_streams,
-            p_RING_BYTES = ring_bytes,
-            i_clk_i      = ClockSignal("sys"),
-            i_rst_n      = ~ResetSignal("sys"),
-            i_wr_data_i  = self.sink.data,
-            i_wr_user_i  = self.sink.user,
-            i_wr_valid_i = self.sink.valid,
-            o_wr_ready_o = self.sink.ready,
-            i_length_i   = self._length.storage,
-            i_stride_i   = self._stride.storage,
-            i_enable_i   = self._enable.storage,
-            i_sel_i      = self._sel.storage,
-            o_offset_o   = self._offset.status,
-            i_wb_adr_i   = self.bus.adr,
-            i_wb_cyc_i   = self.bus.cyc,
-            i_wb_stb_i   = self.bus.stb,
-            o_wb_dat_o   = self.bus.dat_r,
-            o_wb_ack_o   = self.bus.ack,
-        )
-        self.comb += self._cap.status.eq((0x4D << 24) | int(n_streams))
-
-
-class MilanDMA(LiteXModule):
-    """AXIS ↔ system-memory DMA (§A.6), attaching the milan_datapath TX/RX/TS DMA
-    AXIS ports to the CPU's memory via three LiteX simple-mode DMA engines:
-
-      * TX   -  `WishboneDMAReader` : memory → `s_axis_tx`  (frames to transmit)
-      * RX   -  `WishboneDMAWriter` : `m_axis_rx`  → memory (received frames)
-      * TS   -  `WishboneDMAWriter` : `m_axis_ts`  → memory (PTP timestamp metadata)
-
-    Each engine is `with_csr=True`, i.e. it exposes a **simple-mode** register block
-    (`base` [64], `length` [32], `enable`, `done`, `loop`, `offset`) auto-mapped in
-    the SoC CSR space  -  this is the firmware-visible ABI
-    axi_dma simple mode). Each engine is its own Wishbone bus master into the SoC
-    interconnect (width-adapted to the main bus automatically).
-
-    `dp_ports` is merged with the MAC's into the single `milan_datapath` Instance.
-
-    NOTE (board-gated): this elaborates against integrated RAM here; on the board it
-    targets LiteDRAM. Descriptor/scatter-gather (Option 6b, multi-queue) is a later
-    upgrade  -  see docs/integration/FULLY_FPGA_RISCV_MIGRATION.md §A.6 + the protocol/test matrix."""
-    def __init__(self, soc, data_width=64, milan_cd="sys", rx_queues=1, hs_page_bytes=4096,
-                 legacy_ring=True, rx_fifo_beats=2048, num_streams=1, pcm_ring="dram",
-                 sound_card=False, aaf_playback=False, rx_rsc=True, talker_wire_chans=2,
-                 aaf_pb_streams=1):
-        # rx_fifo_beats: store-and-forward ingress FIFO depth per RX queue (BRAM:
-        # 2048 beats = 16KB = 4 RAMB36). Sized in the byte-ring era; in BD/hs
-        # mode burst absorbency lives in the 60x16K posted-page pool, so 1024 is
-        # the staged AREA-70 diet  -  gate any change on silicon drop counters
-        # (q0 0xf000303c / q1 0xf00030b0) under the P4/P8 cells, never assume.
-        from litex.soc.cores.dma import WishboneDMAReader, WishboneDMAWriter
-        from litex.soc.interconnect import wishbone
-        import math
-        nb      = data_width // 8
-        adr_w   = 32 - int(math.log2(nb))     # word-addressed wishbone
-
-        def mk_bus():
-            return wishbone.Interface(data_width=data_width, adr_width=adr_w, addressing="word")
-
-        # Attach the DMA masters to the CPU's dedicated DMA port when it exists.
-        # NaxRiscv --with-coherent-dma exposes a snooping port; the cacheless
-        # bare-metal Vexii profile exposes the same attachment without coherence
-        # hardware because there are no CPU caches. Otherwise use the plain SoC bus.
-        # Without the coherent port, a cached NaxRiscv
-        # reaches DRAM via a direct LiteDRAM memory bus while these masters go through the
-        # wishbone L2  -  a different path, so CPU writes and DMA reads are NOT coherent
-        # (hardware-confirmed: the DMA transmits stale DRAM). Coherent DMA closes that gap
-        # so a CPU-written frame is DMA-read correctly without manual cache flushes.
-        dma_bus = getattr(soc, "dma_bus", soc.bus)
-        # `endianness="big"` = **no** byte-swap (with_byteswap=False): keep the Wishbone word
-        # order == AXIS stream order == on-the-wire byte order. The LiteX default "little"
-        # byte-swaps each word, which (with LiteEth's little-endian GMII path) reverses every
-        # frame word vs memory  -  hardware-confirmed: an RX frame `ff ff ff ff ff ff 02 aa`
-        # landed in memory as `aa 02 ff ff ff ff ff ff`, and TX broadcast egressed with a
-        # mangled `00:02:ff:..` dst so the peer dropped it. "big" makes memory<->wire match
-        # in both directions (and the internal loopback stays byte-exact, being symmetric).
-        # TX: memory -> datapath. RingDMAReader (see its docstring)  -  a native AXI
-        # burst master like the RX writer: software queues frames in a DRAM ring and
-        # writes ONE CSR per frame; the per-frame base/length/enable+DONE dance (and
-        # the ~21 MB/s per-beat wishbone ceiling) are gone. Same 7-word CSR footprint,
-        # so the DT `dma-tx` window and all later CSR addresses stay put.
-        self.tx = RingDMAReader(axi.AXIInterface(data_width=data_width, address_width=32,
-                                                 id_width=4), legacy_ring=legacy_ring)
-        dma_bus.add_master("milan_dma_tx", master=self.tx.bus)
-        # RX: datapath -> circular DRAM ring (RingDMAWriter  -  see its docstring; replaces
-        # the single-shot writer whose re-arm-per-frame protocol corrupted RX under load).
-        # Same 7-word CSR footprint, so the DT `dma-rx` window and all later CSRs stay put.
-        # NATIVE AXI master (not wishbone): the NaxRiscv coherent dma_bus is full AXI4,
-        # and burst writes amortize the per-transaction coherency round trip that capped
-        # the wishbone adapter at ~21 MB/s (< the 125 MB/s wire  -  HW-measured, see the
-        # RingDMAWriter docstring). The dma_bus handler is standard "axi", so this master
-        # connects through AXIInterconnectShared with bursts intact.
-        # cq_depth=32 (was the 8 default): header-split spends 1+pages CQ entries per
-        # aggregate (legacy spent 1)  -  at 8, one 20KB aggregate (6 entries) trips the
-        # CQD-2 opener gate and a 39KB cwnd burst overruns mid-frame => PGSWAP no-room
-        # famine => tail discard => TCP loss every burst clamped cwnd~27 (silicon
-        # 2026-07-10: 138 Mbit; BUFSZ=16K config probe confirmed the model at 279).
-        # 32 fits PAYCAP (meta+14 pages) plus a second aggregate with slack.
-        # rx_rsc=False (rxq2-sans-RSC): both queue writers elaborate WITHOUT the
-        # RSC engine; steering, BD/hs CSR maps and the plain v1 path are intact.
-        self.rx = RingDMAWriter(axi.AXIInterface(data_width=data_width, address_width=32,
-                                                 id_width=4), cq_depth=32,
-                                hs_page_bytes=hs_page_bytes, legacy_ring=legacy_ring,
-                                fifo_beats=rx_fifo_beats, rsc_capable=rx_rsc)
-        dma_bus.add_master("milan_dma_rx", master=self.rx.bus)
-        # RX fan-out (rx_queues=2): a steering front-end splits the single RX stream
-        # into 2 queues, each its own RingDMAWriter + IRQ + NAPI. Since the 802.1Q-ordered
-        # round (2026-07-26) the split is gPTP (q1) vs everything else (q0) per the
-        # USER's 2-ingress-queue directive, NOT the old TCP 4-tuple flow hash - see
-        # RxSteer's docstring for what that trades away (parallel ACK processing)
-        # and what it buys (PTP off the bulk ring). rx1's IRQ reuses the unused
-        # ev.tx line.
-        if rx_queues >= 2:
-            self.steer = RxSteer()
-            # hsq8 (2026-07-10): rx1 goes hs-capable + CQD=32  -  the CQ LUTRAM diet +
-            # --strip-probes bought the area (hsq7t proved 2q FITS at 99.4% slices,
-            # hsq8p reclaimed 274 more + 4.3K FFs). CQD=32 per the hsq4 lesson (hs
-            # spends 1+pages CQ entries/agg; 8 clamps cwnd ~27 => 138 Mbit). rx1's
-            # CSR block already carried the inert rsc/hs registers, so this changes
-            # NO addresses  -  kl-eth hsplit11 (hsplit=2) enables q1-hs; hsplit<=1
-            # drivers keep q1 legacy (hs_en=0 reset => bit-exact legacy behavior).
-            self.rx1 = RingDMAWriter(axi.AXIInterface(data_width=data_width,
-                                                      address_width=32, id_width=4),
-                                     cq_depth=32, hs_capable=True,
-                                     hs_page_bytes=hs_page_bytes,
-                                     legacy_ring=legacy_ring,
-                                     fifo_beats=rx_fifo_beats, rsc_capable=rx_rsc)
-            dma_bus.add_master("milan_dma_rx1", master=self.rx1.bus)
-        self.ts = WishboneDMAWriter(mk_bus(), endianness="big", with_csr=True)
-        dma_bus.add_master("milan_dma_ts", master=self.ts.bus)
-        # hs page-size capability readback (hsq14 hardening): the driver's hs_pgsz
-        # MUST equal the elaborated hs_page_bytes  -  a mismatch makes the writer DMA
-        # gateware-page strides into smaller driver pages = kernel memory overwrite
-        # (panicked 2026-07-11). Registered LAST in this bank so no existing CSR
-        # address moves (csv-diff-verified additions-only). 0 on older gateware
-        # (unmapped reads) => the driver treats absence as "no capability, trust
-        # the operator" for backward compatibility.
-        self.hs_pgsz_cap = CSRStatus(17, description="elaborated hs_page_bytes (driver pairing check)")
-        self.comb += self.hs_pgsz_cap.status.eq(hs_page_bytes)
-        # PCM: AAF RX depacketizer payload -> DRAM PCM ring (Milan listener media
-        # path. Same
-        # recipe as the TS record ring: WishboneDMAWriter with loop=1 wraps
-        # base..base+length and the `offset` CSR is the ring write pointer the
-        # consumer chases. Payload is full 64-bit words in wire byte
-        # order (S32BE interleaved) - the depacketizer zero-pads any non-multiple
-        # tail. Registered AFTER hs_pgsz_cap so no existing CSR address moves.
-        # P12 (NXN §1.3): at num_streams == 1 the flat single-ring writer is
-        # kept EXACTLY (same CSR block, same behavior — the N=1 byte-identity
-        # axiom); num_streams > 1 swaps in the per-stream ring writer keyed by
-        # the datapath's m_axis_pcm_tuser: stream s lands at base + s*stride
-        # (stream 0 at the base; stride only engages for s > 0).
-        if sound_card and pcm_ring == "bram":
-            # On-chip BRAM ring: NO DMA master (not a DMA) and NO DRAM arbitration
-            # => sink.ready is constant 1, so mf52 SHED + I6 cannot occur. The read
-            # port is an uncached SoCRegion at MILAN_PCM_BRAM_BASE; the pcm CSR block
-            # is identical to the DRAM path so the ring ABI is unchanged
-            # (N=1 stays byte-identical to the flat ring).
-            self.pcm = _PCMRingBRAM(n_streams=num_streams, ring_bytes=MILAN_PCM_BRAM_SIZE,
-                                    data_width=data_width)
-            soc.bus.add_slave("milan_pcm_bram", self.pcm.bus,
-                              region=SoCRegion(origin=MILAN_PCM_BRAM_BASE,
-                                               size=MILAN_PCM_BRAM_SIZE, cached=False))
-        elif sound_card and num_streams > 1:
-            self.pcm = _PCMRingNxN(mk_bus(), n_streams=num_streams)
-            dma_bus.add_master("milan_dma_pcm", master=self.pcm.writer.bus)
-        elif sound_card:
-            self.pcm = WishboneDMAWriter(mk_bus(), endianness="big", with_csr=True)
-            dma_bus.add_master("milan_dma_pcm", master=self.pcm.bus)
-
-        # datapath-facing endpoints in `milan_cd`, async-FIFO CDC'd to the sys-domain
-        # DMA engines when the domains differ (see _axis_dp_cdc). TX is mem->datapath;
-        # RX/TS are datapath->mem.
-        L = [("data", data_width), ("keep", nb)]
-        tx_dp = _axis_dp_cdc(self, "dma_tx_cdc", L, milan_cd, to_datapath=True)
-        rx_dp = _axis_dp_cdc(self, "dma_rx_cdc", L, milan_cd, to_datapath=False)
-        ts_dp = _axis_dp_cdc(self, "dma_ts_cdc", L, milan_cd, to_datapath=False)
-        # PCM lane carries the stream-index tuser through the CDC at N > 1
-        # (the per-stream ring writer's key); N = 1 keeps the exact P11 lane.
-        Lp = L + [("user", 4)] if num_streams > 1 else L
-        # depth 128 (2026-07-23): the 16-deep lane dropped EXACTLY 1 beat in 24
-        # whenever the CPU read the ring region concurrently (arecord rw path;
-        # ring holes at a stable mod-24 phase, 2 kHz whole-frame artifact) -
-        # the wishbone writer sustains ~23/24 of the PCM rate under DRAM
-        # contention and the real-time datapath side sheds on full. 1 KB of
-        # FIFO absorbs the CPU's bursty copy stalls outright.
-        pcm_dp = (_axis_dp_cdc(self, "dma_pcm_cdc", Lp, milan_cd,
-                               to_datapath=False, depth=128)
-                  if sound_card else None)
-        # exposed for MilanDebug's TX datapath-input probe: tx_dp.dp is the milan-domain
-        # endpoint feeding the datapath (traffic_controller s_axis). tx_dp.dp.ready IS
-        # the traffic_controller's backpressure  -  the direct "is the datapath the TX
-        # limit?" signal (stall = valid&~ready) vs "is the CPU/reader?" (starve = ~valid).
-        self.tx_dp    = tx_dp
-        self.milan_cd = milan_cd
-        # TX: reader.source (sys) -> REGISTER STAGE -> datapath TX endpoint. The Buffer
-        # cuts the reader's byte-assembly cone (blen_r -> in_last -> a_nxt -> source.data)
-        # off the CDC FIFO's write-port setup path  -  the exact WNS violators of the
-        # 112.5 MHz sys build (x1125: -0.226, ALL in this cone; the CPU itself closed).
-        # +1 cycle of TX latency, zero protocol change; the reader RTL is untouched.
-        self.tx_buf = tx_buf = stream.Buffer(L)
-        self.comb += [
-            # The ring reader carries the exact last-beat byte mask (from the header's
-            # byte length), so wire frames are not padded to 8 B  -  the MAC glue turns
-            # keep into last_be.
-            self.tx.source.connect(tx_buf.sink),
-            tx_dp.sys.valid.eq(tx_buf.source.valid), tx_dp.sys.data.eq(tx_buf.source.data),
-            tx_dp.sys.last.eq(tx_buf.source.last),   tx_dp.sys.keep.eq(tx_buf.source.keep),
-            tx_buf.source.ready.eq(tx_dp.sys.ready),
-            # TS: datapath TS endpoint (sys side) -> writer.sink
-            self.ts.sink.valid.eq(ts_dp.sys.valid), self.ts.sink.data.eq(ts_dp.sys.data),
-            # tlast is NOT forwarded: the LiteX ctrl FSM treats sink.last as
-            # end-of-transfer and (loop=1) restarts offset at 0 - with the
-            # 2-beat records that made EVERY record overwrite slot 0 (the
-            # phase B "offset stuck at 0" silicon finding; one record was in
-            # DRAM, perfect, always at base+0). Untied, the writer runs
-            # offset 0..length-1 and wraps = a true linear record ring.
-            ts_dp.sys.ready.eq(self.ts.sink.ready),
-        ]
-        if sound_card:
-            # PCM: datapath PCM endpoint (sys side) -> ring writer.sink.
-            # tlast is NOT forwarded - same reason as the TS ring above: the
-            # LiteX ctrl FSM restarts offset on sink.last, and PCM leaves the
-            # datapath as one AXIS frame per AAF PDU.
-            self.comb += [
-                self.pcm.sink.valid.eq(pcm_dp.sys.valid),
-                self.pcm.sink.data.eq(pcm_dp.sys.data),
-                pcm_dp.sys.ready.eq(self.pcm.sink.ready),
-            ]
-        if sound_card and num_streams > 1:
-            # per-stream ring key: the tuser stream index rides the CDC lane
-            self.comb += self.pcm.sink.user.eq(pcm_dp.sys.user)
-        if rx_queues >= 2:
-            # RX: datapath -> steer -> {rx.sink (q0), rx1.sink (q1)}
-            self.comb += [
-                self.steer.sink.valid.eq(rx_dp.sys.valid),
-                self.steer.sink.data.eq(rx_dp.sys.data),
-                self.steer.sink.keep.eq(rx_dp.sys.keep),
-                self.steer.sink.last.eq(rx_dp.sys.last),
-                rx_dp.sys.ready.eq(self.steer.sink.ready),
-                self.steer.source0.connect(self.rx.sink),
-                self.steer.source1.connect(self.rx1.sink),
-            ]
-        else:
-            # RX: datapath RX endpoint (sys side) -> single writer.sink
-            self.comb += [
-                self.rx.sink.valid.eq(rx_dp.sys.valid), self.rx.sink.data.eq(rx_dp.sys.data),
-                self.rx.sink.last.eq(rx_dp.sys.last),    rx_dp.sys.ready.eq(self.rx.sink.ready),
-            ]
-
-        # Pmod I2S2 on pmoda (AAF talker audio-in). Plumbing only: request the
-        # pins where the board has them; absent (AX7101) -> talker input ties 0.
-        # GATE ON THE CONNECTOR TABLE, not try/except: add_extension/request
-        # succeed regardless - the missing-connector assertion only fires at
-        # constraint RESOLUTION (finalization), far outside any except here
-        # (the AX7101 elaboration broke on 'pmoda' 2026-07-13 because of it).
-        self.i2s_pads = None
-        self.i2s_dac_pads = None
-        plat = soc.platform
-        try:
-            _has_pmoda = "pmoda" in plat.constraint_manager.connector_manager.connector_table
-        except AttributeError:
-            _has_pmoda = False
-        if _has_pmoda:
-            try:
-                from litex_boards.platforms.digilent_arty import i2s_pmod_io
-                plat.add_extension(i2s_pmod_io("pmoda"))
-                _rx  = plat.request("i2s_rx")
-                _mck = plat.request("i2s_rx_mclk")
-                self.i2s_pads = (_mck, _rx.clk, _rx.sync, _rx.rx)
-                # DAC (line-out) jack: zero-CPU playback of the bound stream
-                _tx  = plat.request("i2s_tx")
-                _tmk = plat.request("i2s_tx_mclk")
-                self.i2s_dac_pads = (_tmk, _tx.clk, _tx.sync, _tx.tx)
-            except Exception:
-                self.i2s_pads = None
-        # ---- HANDOVER 8.3b: the Arty TDM8 MASTER header on pmodb ----
-        # Declared whenever the board has the connector, requested (loosely)
-        # only by a master build below - same connector-table gate as pmoda.
-        # This one add_extension line is what flips board_audio_routing.py's
-        # routing oracle for the Arty; pmoda and the Pmod I2S2 are untouched.
-        try:
-            _has_pmodb = "pmodb" in plat.constraint_manager.connector_manager.connector_table
-        except AttributeError:
-            _has_pmodb = False
-        if _has_pmodb:
-            plat.add_extension(_arty_serial_io("tdm", "pmodb"))
-        # ---- optional PCM playback ring -> KL_pcm_tx pair source ----
-        # The TX/talker mirror of the RX depacketizer PCM ring. Software writes
-        # S32BE-interleaved PCM into a DRAM ring (per-stream sub-rings at
-        # base + s*stride, `length` bytes each) and bumps the per-stream wr_ptr
-        # doorbell; KL_pcm_tx (inside milan_datapath, milan_cd) paces the media
-        # clock, de-interleaves, and drives the AAF packetizer pair stream in
-        # place of the ADC capture front-end. KL_pcm_tx OWNS the ring addressing
-        # (rd_ptr/wrap), so its word-fetch port is bridged to a dumb random-
-        # access wishbone READ master on the DMA bus (req/resp AXIS CDC when
-        # milan_cd != sys). Control/status are a small CSR block in the milan_dma
-        # group. All gated on --aaf-playback: off => none of this exists, so the
-        # default build is byte-identical.
-        pb_ports = {}
-        if sound_card and aaf_playback:
-            shift = int(math.log2(nb))
-            ns    = int(num_streams)
-            wch   = int(talker_wire_chans)
-            # task #31 START-SMALL: the pb CSR block is sized by the SERVED
-            # ring count (the same value add_milan_datapath passes as
-            # p_AAF_PB_STREAMS_P - one writer, both sides derived), not by
-            # N_STREAMS: the boundary ports stay N_STREAMS-wide and the
-            # unserved tail is constant zero (swept in synthesis).
-            pbs   = max(1, min(int(aaf_pb_streams), ns))
-            # Geometry capability word FIRST in the block (the +0x1c capture
-            # precedent, self-identifying): the driver reads pb-dma +0x00 and
-            # refuses a window whose magic/shape disagrees with its DT. Every
-            # field is elaboration TRUTH: [31:24]=0x4D 'M', [23:16]=wire
-            # channels per stream (TALKER_WIRE_CHANS_P - the ring's frame is
-            # chans/2 x 8-byte pair words), [15:8]=T playback rings SERVED
-            # (aaf_pb_streams), [7:0]=L capture rings behind this
-            # block (0 - the capture geometry lives at pcm-dma +0x1c).
-            assert 1 <= pbs <= 0xFF and 2 <= wch <= 0xFF
-            self._pb_cap = CSRStatus(32, description="playback geometry capability: "
-                                     "[31:24]=0x4D 'M', [23:16]=wire chans/stream, "
-                                     "[15:8]=T playback rings (elaborated), [7:0]=0.")
-            self.comb += self._pb_cap.status.eq((0x4D << 24) | (wch << 16) | (pbs << 8))
-            self._pb_enable      = CSRStorage(description="AAF playback master enable (KL_pcm_tx pair source).")
-            self._pb_silence     = CSRStorage(description="underrun policy: 0 repeat-last, 1 digital silence.")
-            self._pb_ring_base   = CSRStorage(64, description="playback PCM ring base (stream 0 sub-ring, bytes).")
-            self._pb_ring_len    = CSRStorage(32, description="per-stream sub-ring length (bytes, multiple of 8).")
-            self._pb_ring_stride = CSRStorage(32, description="bytes between stream sub-ring bases.")
-            self._pb_stream_en   = CSRStorage(pbs, description="per-stream ring-read gate (bit s).")
-            self._pb_playing     = CSRStatus(description="KL_pcm_tx is walking a sample tick.")
-            # per-stream vectors packed 32/16b each in one wide CSR (spanning
-            # ceil(width/32) sub-words; stream s is bits [s*w +: w]). wr_ptr is
-            # the host doorbell; rd_ptr/under/over are the KL_pcm_tx status.
-            self._pb_wr_ptr = CSRStorage(pbs*32, description="per-stream host write pointers (32b each, absolute bytes).")
-            self._pb_rd_ptr = CSRStatus(pbs*32,  description="per-stream consumed pointers (32b each, absolute bytes).")
-            self._pb_under  = CSRStatus(pbs*16,  description="per-stream underrun counts (16b each).")
-            self._pb_over   = CSRStatus(pbs*16,  description="per-stream overrun counts (16b each).")
-            # BUS ERRORS on the DDR3 fetch path. NOT a duplicate of under/over:
-            # those two are ring-flow faults the FSM can see, this one is the
-            # INTERCONNECT failing a read. It was invisible until 2026-08-11 -
-            # see the err arm in the READ state below for why it silently
-            # corrupted audio. Saturating, not wrapping: a count that rolls to
-            # zero reads as "no errors", and this must never lie.
-            self._pb_bus_err = CSRStatus(32, description="DDR3/interconnect read errors on the playback fetch path (saturating). Nonzero = fetched samples were replaced with digital silence; the audio is not bit-exact.")
-            # served-slice <-> N_STREAMS-wide boundary pads
-            pb_sen_full = Signal(ns)
-            pb_wr_full  = Signal(ns*32)
-            self.comb += [pb_sen_full[:pbs].eq(self._pb_stream_en.storage),
-                          pb_wr_full[:pbs*32].eq(self._pb_wr_ptr.storage)]
-            # CDC control sys<->milan_cd. Multi-bit -> BusSynchronizer (coherent
-            # word); 1-bit -> MultiReg. The wr_ptr doorbell tolerates the resync
-            # latency (KL_pcm_tx only reads it to gauge fill); a credit handshake
-            # is the silicon follow-up.
-            def _in(name, sig):
-                if milan_cd == "sys":
-                    return sig
-                if len(sig) == 1:
-                    d = Signal(); self.specials += MultiReg(sig, d, odomain=milan_cd); return d
-                bs = BusSynchronizer(len(sig), "sys", milan_cd); setattr(self, name, bs)
-                self.comb += bs.i.eq(sig); return bs.o
-            def _out(name, width):
-                dp = Signal(width)
-                if milan_cd == "sys":
-                    return dp, dp
-                if width == 1:
-                    o = Signal(); self.specials += MultiReg(dp, o); return dp, o
-                bs = BusSynchronizer(width, milan_cd, "sys"); setattr(self, name, bs)
-                self.comb += bs.i.eq(dp); return dp, bs.o
-            pb_rd_dp, pb_rd_s = _out("aafpb_bs_rd", ns*32)
-            pb_un_dp, pb_un_s = _out("aafpb_bs_un", ns*16)
-            pb_ov_dp, pb_ov_s = _out("aafpb_bs_ov", ns*16)
-            pb_pl_dp, pb_pl_s = _out("aafpb_bs_pl", 1)
-            self.comb += [self._pb_rd_ptr.status.eq(pb_rd_s[:pbs*32]),
-                          self._pb_under.status.eq(pb_un_s[:pbs*16]),
-                          self._pb_over.status.eq(pb_ov_s[:pbs*16]),
-                          self._pb_playing.status.eq(pb_pl_s)]
-            # word-fetch bridge: KL_pcm_tx mem port <-> wishbone READ master.
-            pb_mem_addr  = Signal(32)      # milan_cd (datapath out)
-            pb_mem_rd    = Signal()        # milan_cd
-            pb_mem_data  = Signal(64)      # milan_cd (datapath in)
-            pb_mem_valid = Signal()        # milan_cd
-            req  = _axis_dp_cdc(self, "aafpb_req_cdc",  [("addr", 32)], milan_cd, to_datapath=False)
-            resp = _axis_dp_cdc(self, "aafpb_resp_cdc", [("data", 64)], milan_cd, to_datapath=True)
-            self.comb += [
-                req.dp.valid.eq(pb_mem_rd), req.dp.addr.eq(pb_mem_addr),
-                pb_mem_data.eq(resp.dp.data), pb_mem_valid.eq(resp.dp.valid),
-                resp.dp.ready.eq(1),       # KL_pcm_tx latches its awaited word
-            ]
-            self.aafpb_wb = wishbone.Interface(data_width=data_width, adr_width=adr_w, addressing="word")
-            dma_bus.add_master("milan_aaf_pb", master=self.aafpb_wb)
-            pb_addr_l = Signal(32); pb_data_l = Signal(data_width)
-            self.aafpb_fsm = fsm = FSM(reset_state="IDLE")
-            fsm.act("IDLE",
-                req.sys.ready.eq(1),
-                If(req.sys.valid, NextValue(pb_addr_l, req.sys.addr), NextState("READ")))
-            # THE ERROR ARM (2026-08-11). Wishbone's `err` is not an alternative
-            # to `ack` on this path - LiteX's wishbone2axi asserts BOTH in its
-            # error state, so a bare `If(ack, ...)` accepts a FAILED read and
-            # latches whatever dat_r happens to hold. Verified in the flashed
-            # build's own netlist (gateware/alinx_ax7101.v): the error state
-            # drives `..._ack = 1'd1; ..._err = 1'd1;` together, the FSM tests
-            # `if (milandma_aafpb_wb_ack)` alone, and `milandma_aafpb_wb_err`
-            # occurs exactly twice in the whole file - its declaration and its
-            # assign. ZERO consumers. An undefined 64-bit word therefore went
-            # into KL_pcm_tx as a valid PCM sample, in a hard-real-time audio
-            # path, with nothing to observe it by.
-            # The substitution is DIGITAL SILENCE rather than a stall: refusing
-            # to answer would hang KL_pcm_tx, which waits for the word it asked
-            # for (KL_pcm_tx.sv:84 "any latency" means any, not never). Silence
-            # keeps the grid running and makes the damage bounded, deterministic
-            # and - via _pb_bus_err - visible.
-            pb_err_cnt = Signal(32)
-            self.comb += self._pb_bus_err.status.eq(pb_err_cnt)
-            fsm.act("READ",
-                self.aafpb_wb.cyc.eq(1), self.aafpb_wb.stb.eq(1),
-                self.aafpb_wb.adr.eq(pb_addr_l[shift:]), self.aafpb_wb.sel.eq(2**nb - 1),
-                If(self.aafpb_wb.ack,
-                    If(self.aafpb_wb.err,
-                        NextValue(pb_data_l, 0),
-                        # saturate: 0xFFFFFFFF is "at least this many", never 0
-                        If(pb_err_cnt != 2**32 - 1,
-                           NextValue(pb_err_cnt, pb_err_cnt + 1)),
-                    ).Else(
-                        NextValue(pb_data_l, self.aafpb_wb.dat_r),
-                    ),
-                    NextState("RESP")))
-            fsm.act("RESP",
-                resp.sys.valid.eq(1), resp.sys.data.eq(pb_data_l),
-                If(resp.sys.ready, NextState("IDLE")))
-            pb_ports = dict(
-                i_pb_enable_i           = _in("aafpb_bs_en",  self._pb_enable.storage),
-                i_pb_underrun_silence_i = _in("aafpb_bs_sil", self._pb_silence.storage),
-                i_pb_stream_en_i        = _in("aafpb_bs_sen", pb_sen_full),
-                i_pb_ring_base_i        = _in("aafpb_bs_base", self._pb_ring_base.storage),
-                i_pb_ring_len_i         = _in("aafpb_bs_len",  self._pb_ring_len.storage),
-                i_pb_ring_stride_i      = _in("aafpb_bs_str",  self._pb_ring_stride.storage),
-                i_pb_wr_ptr_i           = _in("aafpb_bs_wr",   pb_wr_full),
-                i_pb_mem_data_i         = pb_mem_data,
-                i_pb_mem_valid_i        = pb_mem_valid,
-                o_pb_mem_addr_o         = pb_mem_addr,
-                o_pb_mem_rd_o           = pb_mem_rd,
-                o_pb_rd_ptr_o           = pb_rd_dp,
-                o_pb_underrun_o         = pb_un_dp,
-                o_pb_overrun_o          = pb_ov_dp,
-                o_pb_playing_o          = pb_pl_dp,
-            )
-        pcm_ports = dict(
-            o_m_axis_pcm_tdata=Signal(64), o_m_axis_pcm_tkeep=Signal(8),
-            o_m_axis_pcm_tvalid=Signal(), o_m_axis_pcm_tlast=Signal(),
-            o_m_axis_pcm_tuser=Signal(4), i_m_axis_pcm_tready=1,
-        )
-        if sound_card:
-            pcm_ports = dict(
-                o_m_axis_pcm_tdata=pcm_dp.dp.data,
-                o_m_axis_pcm_tkeep=pcm_dp.dp.keep,
-                o_m_axis_pcm_tvalid=pcm_dp.dp.valid,
-                o_m_axis_pcm_tlast=pcm_dp.dp.last,
-                i_m_axis_pcm_tready=pcm_dp.dp.ready,
-                o_m_axis_pcm_tuser=(pcm_dp.dp.user if num_streams > 1 else Signal(4)),
-            )
-        self.dp_ports = dict(
-            # TX: reader.source (mem data) -> datapath s_axis_tx
-            i_s_axis_tx_tdata  = tx_dp.dp.data,  i_s_axis_tx_tkeep = tx_dp.dp.keep,
-            i_s_axis_tx_tvalid = tx_dp.dp.valid, i_s_axis_tx_tlast = tx_dp.dp.last,
-            o_s_axis_tx_tready = tx_dp.dp.ready,
-            # RX: datapath m_axis_rx -> writer.sink
-            o_m_axis_rx_tdata  = rx_dp.dp.data,  o_m_axis_rx_tvalid = rx_dp.dp.valid,
-            o_m_axis_rx_tlast  = rx_dp.dp.last,  i_m_axis_rx_tready = rx_dp.dp.ready,
-            # TS: datapath m_axis_ts -> writer.sink
-            o_i2s_dac_mclk_o = self.i2s_dac_pads[0] if self.i2s_dac_pads else Signal(),
-            o_i2s_dac_sclk_o = self.i2s_dac_pads[1] if self.i2s_dac_pads else Signal(),
-            o_i2s_dac_lrck_o = self.i2s_dac_pads[2] if self.i2s_dac_pads else Signal(),
-            o_i2s_dac_sdin_o = self.i2s_dac_pads[3] if self.i2s_dac_pads else Signal(),
-            o_i2s_mclk_o = self.i2s_pads[0] if self.i2s_pads else Signal(),
-            o_i2s_sclk_o = self.i2s_pads[1] if self.i2s_pads else Signal(),
-            o_i2s_lrck_o = self.i2s_pads[2] if self.i2s_pads else Signal(),
-            i_i2s_sdout_i = self.i2s_pads[3] if self.i2s_pads else 0,
-            o_m_axis_ts_tdata  = ts_dp.dp.data,  o_m_axis_ts_tvalid = ts_dp.dp.valid,
-            o_m_axis_ts_tlast  = ts_dp.dp.last,  i_m_axis_ts_tready = ts_dp.dp.ready,
-            # PCM: the optional host-facing capture ring. With sound_card=0
-            # all outputs terminate here and ready is tied high; the media
-            # render/loopback paths remain inside milan_datapath.
-            **pcm_ports,
-            # Optional playback ports (empty unless the internal feature is enabled)
-            **pb_ports,
-        )
-
-
-# Debug / pipeline telemetry ----------------------------------------------------------------------
-
-class MilanDebug(LiteXModule):
-    """Memory-mapped observability for the whole TX+RX AXIS pipeline  -  the numbers a HW
-    developer wants to localise where a frame is lost or where it queues up.
-
-    At each pipeline stage it counts, free-running (reset via `reset`):
-      * `*_frames`  -  completed frames (valid & ready & last). A frame present at stage N
-        but missing at N+1 pinpoints the loss.
-      * `*_beats`   -  beats transferred (valid & ready). frames→size, beats→throughput.
-      * `*_stalls`  -  cycles the stage was back-pressured (valid & ~ready). The bottleneck
-        stage is the one with high stalls upstream of it.
-
-    Stages (see the pipeline both ways):
-      TX:  dma_out → dp_out → core_in → [LiteEth] → tx_wire (GMII)
-      RX:  rx_wire (GMII) → [LiteEth] → core_out → dp_in → dma_in
-
-    `tx_wire`/`rx_wire` count frames on the GMII pins (eth_tx/eth_rx domains, brought to
-    sys with a BusSynchronizer)  -  the answer to "did it actually reach the wire?".
-
-    `*_inflight_acc` accumulate Σ(in-flight) each cycle across the black-box datapath
-    (in-flight = frames_in − frames_out). By Little's law: **avg occupancy = acc/cycles**
-    and **avg latency (wait time) = acc/frames**  -  the average FIFO depth and the average
-    time a frame spends crossing the datapath. `cycles` is the free-running normaliser.
-
-    **Coherent capture.** All counters run live; writing `capture` latches EVERY counter
-    into a shadow at the same clock edge, and the CSRs read the shadow. So software does:
-    one write to `capture`, then read the whole set  -  a consistent snapshot, not values
-    still moving between reads. `reset` zeroes the live counters.
-
-    **Extensible.** The probe primitives are public methods  -  `sys_probe`, `wire_probe`,
-    `match_probe`, `ethertype_probe`, `inflight_acc` (all auto-`snap`'d and CSR-mapped).
-    Add a new observable in one line, either inline below or via the `extra(dbg)` hook,
-    e.g. count gPTP frames (done here), PTP-event frames, a VLAN/PCP, a dst-MAC match, a
-    drop point, another FIFO's occupancy … The gPTP TX/RX counters below are the worked
-    example of `ethertype_probe`.
-
-    **Cross-platform (LiteX vs Zynq).** This class is the **LiteX** binding  -  it uses
-    LiteX for the LiteX-specific things: LiteX `CSRStatus` registers, `BusSynchronizer`
-    for the CDC, and taps on the LiteX edges (the `WishboneDMAReader/Writer` and the
-    `LiteEthPHYGMII` wire). The *shared* observables  -  everything at the `milan_datapath`
-    AXIS boundary (tx_dp/rx_dp) and inside it  -  are the same on Zynq; the cross-platform
-    home for those is the shared `milan_datapath.sv` counters exposed through the shared
-    `milan_csr` block (0x9000_0000 on LiteX, 0x43c0_0000 on Zynq), so the Zynq wrapper
-    gets them for free and only re-binds its own edges (axi_dma, its MAC). Keep new
-    *datapath-internal* probes in the SV/`milan_csr` path; keep *edge/SoC-fabric* probes
-    (DMA-to-memory, MAC-to-wire) in the per-platform wrapper like this one."""
-    def __init__(self, dma, mac, extra=None):
-        self.reset   = CSRStorage(1, description="write 1 to zero all live counters")
-        self.capture = CSRStorage(1, description="write 1 to LATCH a coherent snapshot of every counter, then read them")
-        self._rst = self.reset.storage
-        self._cap = self.capture.re               # 1-cycle pulse on write → latch all shadows together
-
-        cyc = Signal(64)
-        self.sync += If(self._rst, cyc.eq(0)).Else(cyc.eq(cyc + 1))
-        self._snap(cyc, 64, "cycles", "free-running sys cycles at capture  -  normaliser")
-
-        # --- standard TX/RX stage probes (frames / beats / stalls) ---
-        tx_dma = self.sys_probe("tx_dma",  dma.tx.source,   "TX: DMA read -> AXIS")
-        tx_dp  = self.sys_probe("tx_dp",   mac.dbg_tx_dp,   "TX: datapath -> MAC")
-        self.sys_probe("tx_core", mac.core.sink,   "TX: -> LiteEth core")
-        self.sys_probe("rx_core", mac.core.source, "RX: LiteEth core ->")
-        rx_dp  = self.sys_probe("rx_dp",   mac.dbg_rx_dp,   "RX: datapath -> AXIS")
-        rx_dma = self.sys_probe("rx_dma",  dma.rx.sink,     "RX: -> DMA write")
-
-        # --- wire-level GMII frame counts (eth_tx/eth_rx) ---
-        phy_tx = getattr(mac.phy, "sink", None)   or getattr(getattr(mac.phy, "tx", None), "sink", None)
-        phy_rx = getattr(mac.phy, "source", None) or getattr(getattr(mac.phy, "rx", None), "source", None)
-        self.wire_probe("tx_wire", phy_tx, "eth_tx", "TX: frames onto the GMII wire")
-        self.wire_probe("rx_wire", phy_rx, "eth_rx", "RX: frames off the GMII wire")
-
-        # --- TX datapath INPUT (milan domain): is the datapath the TX limit? -----------
-        # Counts, in the DATAPATH clock domain, the handshake at tx_dp.dp (feeding the
-        # traffic_controller s_axis). busy = beats accepted; stall = data offered but
-        # the datapath back-pressures (datapath-internally-limited); starve = no data
-        # (reader/CPU can't feed it). High stall -> the 50 MHz datapath IS the cap;
-        # high starve -> the CPU/reader is, and the datapath has headroom.
-        self.dp_in_probe("txdp_in", getattr(dma, "tx_dp", None),
-                         getattr(dma, "milan_cd", "sys"),
-                         "TX datapath input (traffic_controller s_axis)")
-
-        # --- datapath occupancy / latency (Little's law) ---
-        self.inflight_acc("tx_datapath", tx_dma, tx_dp, "TX datapath Σ in-flight/cycle (avg occ=acc/cycles, avg wait=acc/tx_dp_frames)")
-        self.inflight_acc("rx_datapath", rx_dp, rx_dma, "RX datapath Σ in-flight/cycle (avg occ=acc/cycles, avg wait=acc/rx_dma_frames)")
-
-        # --- EXAMPLE filtered probes: gPTP (802.1AS, EtherType 0x88F7) TX + RX ---
-        self.ethertype_probe("tx_gptp", mac.dbg_tx_dp, 0x88F7, "TX gPTP (0x88F7) frames")
-        self.ethertype_probe("rx_gptp", mac.dbg_rx_dp, 0x88F7, "RX gPTP (0x88F7) frames")
-
-        # --- user extension hook: extra(dbg) may add any further probes ---
-        if extra is not None:
-            extra(self)
-
-    # ---- probe primitives (public → extensible) --------------------------------------------
-    def _snap(self, live, width, name, desc):
-        """Latch `live` into a shadow on `capture` and expose it as a CSR."""
-        sh = Signal(width)
-        self.sync += If(self._cap, sh.eq(live))
-        cs = CSRStatus(width, name=name, description=desc)
-        setattr(self, name, cs)
-        self.comb += cs.status.eq(sh)
-
-    def sys_probe(self, name, ep, desc):
-        """frames / beats / stalls at a sys-domain AXIS endpoint. Returns the frame counter."""
-        frames, beats, stalls = Signal(32), Signal(32), Signal(32)
-        self.sync += If(self._rst, frames.eq(0), beats.eq(0), stalls.eq(0)).Else(
-            If(ep.valid & ep.ready & ep.last, frames.eq(frames + 1)),
-            If(ep.valid & ep.ready,           beats.eq(beats + 1)),
-            If(ep.valid & ~ep.ready,          stalls.eq(stalls + 1)),
-        )
-        self._snap(frames, 32, f"{name}_frames", f"{desc}  -  completed frames")
-        self._snap(beats,  32, f"{name}_beats",  f"{desc}  -  beats (valid&ready)")
-        self._snap(stalls, 32, f"{name}_stalls", f"{desc}  -  back-pressure cycles")
-        return frames
-
-    def dp_in_probe(self, name, ep, cd, desc):
-        """busy/stall/starve/cyc at a datapath-input endpoint in domain `cd`, to sys.
-
-        Free-running (like wire_probe); the reader takes a delta between two captures.
-        stall (valid & ~ready) = the datapath back-pressures = datapath-limited;
-        starve (~valid)        = no data offered        = reader/CPU-limited."""
-        ep = getattr(ep, "dp", ep) if ep is not None else None
-        if ep is None:
-            return
-        busy, stall, starve, cyc = (Signal(32) for _ in range(4))
-        counts = [
-            cyc.eq(cyc + 1),
-            If(ep.valid & ep.ready,  busy.eq(busy + 1)),
-            If(ep.valid & ~ep.ready, stall.eq(stall + 1)),
-            If(~ep.valid,            starve.eq(starve + 1)),
-        ]
-        pairs = ((busy, "busy"), (stall, "stall"), (starve, "starve"), (cyc, "cyc"))
-        if cd == "sys":                       # same domain: no CDC needed
-            self.sync += counts
-            for sig, tag in pairs:
-                self._snap(sig, 32, f"{name}_{tag}", f"{desc}  -  {tag}")
-            return
-        getattr(self.sync, cd).__iadd__(counts)
-        for sig, tag in pairs:                # cross the datapath domain to sys
-            bs = BusSynchronizer(32, cd, "sys"); setattr(self, f"{name}_{tag}_bs", bs)
-            self.comb += bs.i.eq(sig)
-            self._snap(bs.o, 32, f"{name}_{tag}", f"{desc}  -  {tag}")
-
-    def wire_probe(self, name, ep, cd, desc):
-        """Frame count at an endpoint in clock domain `cd`, brought to sys and captured."""
-        if ep is None:
-            return
-        fr = Signal(32)
-        getattr(self.sync, cd).__iadd__(If(ep.valid & ep.ready & ep.last, fr.eq(fr + 1)))
-        bs = BusSynchronizer(32, cd, "sys"); setattr(self, f"{name}_bs", bs)
-        self.comb += bs.i.eq(fr)
-        self._snap(bs.o, 32, f"{name}_frames", desc)
-
-    def match_probe(self, name, ep, match, desc):
-        """Count only frames for which `match` (held over the frame) is asserted at `last`."""
-        frames = Signal(32)
-        self.sync += If(self._rst, frames.eq(0)).Elif(
-            ep.valid & ep.ready & ep.last & match, frames.eq(frames + 1))
-        self._snap(frames, 32, f"{name}_frames", desc)
-
-    def ethertype_probe(self, name, ep, etype, desc):
-        """Count frames whose (untagged) EtherType == `etype`. `ep` must carry `.data`
-        (>= 64-bit): byte 12/13 = the EtherType land in beat 1 (bytes 8..15). VLAN-tagged
-        frames carry it 4 bytes later  -  extend here if you need the tagged case."""
-        # beat 1 = frame bytes 8..15; EtherType = frame bytes 12,13 = word bytes 4,5 =
-        # data[32:40], data[40:48]. et = byte12<<8 | byte13 -> 0x88F7 for gPTP.
-        beat, et = Signal(4), Signal(16)
-        self.sync += If(ep.valid & ep.ready,
-            If(ep.last, beat.eq(0)).Else(beat.eq(beat + 1)),
-            If(beat == 1, et.eq(Cat(ep.data[40:48], ep.data[32:40]))),  # [7:0]=byte13, [15:8]=byte12
-        )
-        self.match_probe(name, ep, et == etype, desc)
-
-    def inflight_acc(self, name, cin, cout, desc):
-        """Σ(cin−cout) per cycle across a segment: avg occupancy = acc/cycles, avg wait = acc/frames."""
-        acc, inflight = Signal(64), Signal(16)
-        self.comb += inflight.eq(cin - cout)
-        self.sync += If(self._rst, acc.eq(0)).Else(acc.eq(acc + inflight))
-        self._snap(acc, 64, f"{name}_inflight_acc", desc)
-
-    # ---- Phase-0 reader probes (docs/fpga/PIPELINE_STAGES.md) ---------------------------
-    # All sys-domain (the RingDMAReader/Writer are sys masters) → no CDC. Reset-based, like
-    # sys_probe: pulse `reset`, run the load, pulse `capture`, read a coherent snapshot.
-    def rd_latency_probe(self, name, rdr, desc):
-        """AR-accepted -> first-R-beat round-trip latency. Mean L = acc/n cyc (×1000/f_MHz
-        ns); payload-only split (ar.len>=8) excludes header/BD/shadow reads. Phase-0 tool:
-        the single (waiting,lat) pair is exact ONLY while the reader is single-outstanding  -
-        which is the gateware Phase-0 runs on (see plan A.1)."""
-        bus = rdr.bus
-        ar_fire = Signal()
-        self.comb += ar_fire.eq(bus.ar.valid & bus.ar.ready)
-        waiting = Signal(); lat = Signal(16); is_pay = Signal()
-        acc = Signal(48); n = Signal(32); mx = Signal(16)
-        pacc = Signal(48); pn = Signal(32)
-        self.sync += If(self._rst,
-            acc.eq(0), n.eq(0), mx.eq(0), pacc.eq(0), pn.eq(0), waiting.eq(0), lat.eq(0),
-        ).Else(
-            If(waiting,
-                If(bus.r.valid,                     # first R beat of this burst: record
-                    waiting.eq(0),
-                    acc.eq(acc + lat), n.eq(n + 1),
-                    If(lat > mx, mx.eq(lat)),
-                    If(is_pay, pacc.eq(pacc + lat), pn.eq(pn + 1)),
-                ).Else(
-                    lat.eq(lat + 1),
-                )
-            ).Elif(ar_fire,                         # start timing (single-outstanding: safe)
-                waiting.eq(1), lat.eq(0), is_pay.eq(bus.ar.len >= 8),
-            ),
-        )
-        for sig, w, tag, d in ((acc, 48, "acc", "sum AR->firstR cyc, all reads"),
-                               (n,   32, "n",   "read count"),
-                               (mx,  16, "max", "worst-case latency cyc"),
-                               (pacc, 48, "pacc", "sum cyc, payload bursts len>=8"),
-                               (pn,  32, "pn",  "payload-burst count")):
-            self._snap(sig, w, f"{name}_{tag}", f"{desc} - {d}")
-
-    def rd_produce_probe(self, name, rdr, desc):
-        """Partition every sys cycle by WHY the reader is/ isn't feeding `source`. Splits the
-        silent pre-pass into read-blocked (PREFETCHABLE) vs summing-beats (STRUCTURAL double-
-        read)  -  the number that decides whether prefetch alone can reach 200. Books balance:
-        busy+stall+pre_wait+pre_busy+rd_wait+idle+setup == cyc."""
-        src, bus = rdr.source, rdr.bus
-        prod = Signal(); stall = Signal(); nov = Signal(); rwait = Signal()
-        self.comb += [
-            prod.eq(src.valid & src.ready),
-            stall.eq(src.valid & ~src.ready),
-            nov.eq(~src.valid),
-            rwait.eq(rdr.dbg_reading & ~bus.r.valid),
-        ]
-        busy = Signal(32); st = Signal(32); cyc = Signal(32)
-        pre_wait = Signal(32); pre_busy = Signal(32); rd_wait = Signal(32)
-        idle = Signal(32); setup = Signal(32)
-        self.sync += If(self._rst,
-            busy.eq(0), st.eq(0), cyc.eq(0), pre_wait.eq(0), pre_busy.eq(0),
-            rd_wait.eq(0), idle.eq(0), setup.eq(0),
-        ).Else(
-            cyc.eq(cyc + 1),
-            If(prod,  busy.eq(busy + 1)),
-            If(stall, st.eq(st + 1)),
-            If(nov,                                 # not producing → why? (priority order)
-                If(rdr.dbg_cs_pass & rwait, pre_wait.eq(pre_wait + 1)
-                ).Elif(rdr.dbg_cs_pass,     pre_busy.eq(pre_busy + 1)
-                ).Elif(rwait,               rd_wait.eq(rd_wait + 1)
-                ).Elif(rdr.dbg_idle,        idle.eq(idle + 1)
-                ).Else(                     setup.eq(setup + 1)),
-            ),
-        )
-        for sig, tag, d in ((busy, "busy", "producing valid&ready"),
-                            (st, "stall", "source back-pressured by datapath"),
-                            (pre_wait, "pre_wait", "pre-pass read-blocked PREFETCHABLE"),
-                            (pre_busy, "pre_busy", "pre-pass summing beats STRUCTURAL"),
-                            (rd_wait, "rd_wait", "real-pass read-blocked PREFETCHABLE"),
-                            (idle, "idle", "IDLE ring-empty CPU/driver-bound"),
-                            (setup, "setup", "AR-issue/PREP/header setup"),
-                            (cyc, "cyc", "total cycles (normaliser)")):
-            self._snap(sig, 32, f"{name}_{tag}", f"{desc} - {d}")
-
-    def outstanding_hi_probe(self, name, wtr, desc):
-        """Max AW-in-flight high-water on a RingDMAWriter  -  the read-depth proxy (same
-        AXIInterconnectShared). ≥4 ⇒ read prefetch depth almost certainly available; ≤2 ⇒
-        interconnect/L2 serializing (defer prefetch). Read after RX load."""
-        hi = Signal(6)
-        self.sync += If(self._rst, hi.eq(0)).Elif(wtr.dbg_outstanding > hi,
-                                                  hi.eq(wtr.dbg_outstanding))
-        self._snap(hi, 6, f"{name}_hi", f"{desc} - max AW in flight")
-
-    # ---- M1 probes (docs/findings/PERFORMANCE_GOAL.md) ----------------------------------
-    def hiwater_probe(self, name, sig, width, desc):
-        """Track max(sig) since `reset` and snap it (e.g. TX ring occupancy)."""
-        hi = Signal(width)
-        self.sync += If(self._rst, hi.eq(0)).Elif(sig > hi, hi.eq(sig))
-        self._snap(hi, width, f"{name}_hi", desc)
-
-    def pulse_count_probe(self, name, strobe, desc):
-        """Count 1-cycle strobes since `reset` (e.g. TX doorbells = wr_ptr writes)."""
-        n = Signal(32)
-        self.sync += If(self._rst, n.eq(0)).Elif(strobe, n.eq(n + 1))
-        self._snap(n, 32, name, desc)
-
-
 class _PPMemDiag(LiteXModule):
     """Bus-level diagnosis for the protocol processor's two main-memory bridges.
 
@@ -5172,8 +1694,7 @@ class _PPMemDiag(LiteXModule):
     that asked and was never answered. Those have nothing in common - the
     first is a dead request path inside the fabric, the second is the bus -
     and telling them apart from the board took a week and several wrong
-    hypotheses. `milan_aaf_pb` had `_pb_bus_err` and was diagnosable in one
-    read; these two had nothing.
+    hypotheses. These two bridges had no direct bus-level diagnostics.
 
     THE DISCRIMINATOR, which is the whole point of the block:
 
@@ -5193,7 +1714,7 @@ class _PPMemDiag(LiteXModule):
 
     SATURATING at 65,535, the project convention: a wrapped counter reads as a
     small number and lies, and 0xFFFF means "at least that many" (the same rule
-    `_pb_bus_err` and the `PBK_RAILS` rails follow). 16 bits, not 32, because
+    the `PBK_RAILS` rails follow). 16 bits, not 32, because
     area is the binding constraint at 99.88% slice occupancy and a control-path
     fault that has happened 65,535 times needs no more resolution than that.
 
@@ -5291,8 +1812,8 @@ class _PPMemDiag(LiteXModule):
             "response bridge driving cyc/stb, [4] the LiteDRAM DFI handover "
             "has been seen, i.e. the BIOS got past sdram_init (0 = both "
             "bridges answer err without touching the bus, which is why "
-            "`issued` is 0). Bit 4 observes LiteDRAM only: the dma_bus slave "
-            "is the CPU's coherent-DMA port and nothing here watches it, "
+            "`issued` is 0). Bit 4 observes LiteDRAM only: the dedicated CPU "
+            "memory port itself publishes no readiness signal here, "
             "[31:24] = 0x5B liveness tag "
             "(a build without these counters reads 0 here)."))
         self.comb += self.stat.status.eq(Cat(*flags) | (self.TAG_C << 24))
@@ -5318,67 +1839,18 @@ PP_MEM_TMO_SHARE = (3, 4)
 
 
 def pp_mem_bus_worst_cycles(sys_clk_hz):
-    """Worst case, in sys cycles, from a bridge entering its bus state to `ack`.
+    """Conservative arbitration floor for the two protocol-memory masters.
 
-    THE COUNTER STARTS ON ENTRY TO THE BUS STATE, so it measures ARBITRATION
-    WAIT plus memory latency, not memory latency alone. The arithmetic, from the
-    LiteX arbiter and from what the other masters on `dma_bus` actually do:
-
-      * the arbiter re-arbitrates only on
-        ``rr_read.ce = ~(ar.valid | r.valid) & rd_lock.ready``
-        (litex/soc/interconnect/axi/axi_full.py:1188; `ready` is that counter's
-        own alias for `empty`, same file:1113, and `empty` is the spelling the
-        generated netlist carries, `socbushandler1_rd_lock_empty`). `r.valid`
-        there is the SLAVE's, so the grant is held for as long as the granted
-        master leaves a read beat UNACCEPTED - the term the old 2,048 left out
-        entirely;
-
-      * eight masters share the bus but only SIX ever assert `ar.valid`: the ts
-        and pcm rings are WishboneDMAWriters with `we` tied 1 (netlist:
-        `assign milandma_interface0_we = 1'd1`), so they never contend for the
-        READ channel at all;
-
-      * the lap is ONE lap, not a livelock: migen's SP_CE round-robin moves the
-        grant to the first requester in i+1..i+n-1 order, so each of the other
-        five is granted AT MOST ONCE before this master;
-
-      * and the lap is DOMINATED by the TX ring reader, not by memory. Its
-        `r.ready` is the TX datapath's backpressure (RingDMAReader's PAY_R:
-        `self.bus.r.ready.eq(source.ready | cs_pass)`) behind a 16-deep CDC
-        FIFO (`_axis_dp_cdc` default depth), and what stalls the
-        datapath is the per-frame TX grant (CBS shaper + MAC store-and-forward),
-        i.e. a FRAME time and not a memory time. Silicon measured that
-        backpressure at 39% of the reader's cycles.
-
-    `MEM` below is the SILICON-measured round trip on THIS bus: L_pay = 45
-    cycles = 450 ns (docs/findings/PERFORMANCE_GOAL.md:155). It is NOT the 1,424
-    ns the old comment cited: that is a CPU-side random DRAM miss, half of it a
-    713 ns sv39 page-table walk no DMA master ever pays.
-
-    WHY THE COUNTER CANNOT JUST STOP WHILE IT WAITS FOR THE GRANT, which is the
-    first idea anyone has on reading the above, and it is dead: the master
-    cannot SEE arbitration. Its face is Wishbone (cyc, stb, we, adr, dat_w, sel
-    out; ack, dat_r, err back) and not one of those carries a grant, so from the
-    bridge FSM "queued behind five masters" and "granted, memory is slow" are
-    the same silence. The only signal that separates them is `_cmd_done` inside
-    LiteX's Wishbone2AXILite, set when `ar` is accepted and therefore meaning
-    exactly "granted, now waiting for data" - and it is a plain local `Signal()`
-    (axi_lite_to_wishbone.py:159), never bound to the converter object, so
-    nothing outside that FSM can reference it without patching vendored LiteX.
-    The wait is ONE indivisible number. Budgeting for all of it, which is what
-    this function does, is the only honest option rather than the cheapest one.
-
-    Conservative by construction: it prices every optional master (both RX
-    queues, the AAF playback fetch) whether or not this build elaborates them.
+    Only the descriptor reader and response-buffer reader/writer share this
+    dedicated fabric-memory port.
+    A requester can therefore wait for at most one peer access before its own.
+    The 45-cycle term is the measured memory-port round trip; the response peer
+    adds one data beat. `sys_clk_hz` remains in the signature because the
+    timeout API is clock-pair based, but there is no longer a frame-time term.
     """
-    MEM   = 45                                  # AR -> first R, measured
-    # one maximum-size frame on the wire, 1,522 bytes + preamble/SFD + IFG
-    FRAME = -(-(1522 + 8 + 12) * 8 * int(sys_clk_hz) // 1000000000)
-    return (FRAME + MEM + 64          # TX ring reader: grant wait + 64 beats
-            + 2 * (MEM + 2)           # 2 RX ring writers: BD reads, <=2 beats
-            + (MEM + 1)               # AAF playback fetch: 1 beat
-            + (MEM + 1)               # the other processor bridge: 1 beat
-            + MEM)                    # our own access, once granted
+    del sys_clk_hz
+    mem_cycles = 45
+    return (mem_cycles + 1) + mem_cycles
 
 
 def pp_mem_timeout_cycles(sys_clk_hz, milan_clk_hz,
@@ -5423,12 +1895,12 @@ def pp_mem_timeout_cycles(sys_clk_hz, milan_clk_hz,
             f"{milan_clk_hz/1e6:g} MHz: the bridge would not report first")
     # And it must still clear the bus. A clock pair that cannot satisfy both
     # ends is a REFUSAL, not a number to round up: every access would time out
-    # spuriously under TX load and every AECP command would answer wrongly.
+    # spuriously under peer-bridge load and every AECP command would answer wrongly.
     worst = pp_mem_bus_worst_cycles(sys_clk_hz)
     if cyc <= worst:
         raise RuntimeError(
             f"the protocol-processor memory-bridge watchdog ({cyc} sys cycles) "
-            f"is inside the worst-case dma_bus wait ({worst} sys cycles at "
+            f"is inside the worst-case memory-port wait ({worst} sys cycles at "
             f"{sys_clk_hz/1e6:g} MHz): a healthy bus would time out. "
             f"milan_clk {milan_clk_hz/1e6:g} MHz is too fast against sys")
     return cyc
@@ -5445,8 +1917,8 @@ def pp_mem_gate(m, dfi_sel):
     1 -> 0 -> 1 edge is, and only that edge opens this gate.
 
     WHAT IT OBSERVES IS ONE HOP, and the label has to say so: that the BIOS got
-    past `sdram_init`. It does not observe the CPU's coherent-DMA port, which
-    is the block that took the AR and never answered it (see the bridge below),
+    past `sdram_init`. It does not observe the CPU's dedicated memory port,
+    which is the block that took the AR and never answered it (see the bridge below),
     and it cannot - nothing on that path publishes a ready. What defends the
     gate is WHERE IT SITS IN TIME, not what it measures.
 
@@ -5496,8 +1968,8 @@ def pp_desc_bridge(m, req, rsp, wb, mem_rdy, tmo, sel_mask, addr_sh):
     # which is what keeps a stale word from being paired with a new address.
     #
     # POISONED, THE BUS STATE STILL DRIVES cyc/stb, and that is the only way
-    # the flag can clear. Without a coherent `dma_bus` these masters land on
-    # `self.bus`, whose Arbiter gates every slave->master signal on the grant
+    # the flag can clear. On a generic SoC bus the Arbiter gates every
+    # slave->master signal on the grant
     # (wishbone.py Arbiter: `dest.eq(source & (rr.grant == i))`) and drives the
     # requests from the masters' own `cyc`, so an answer owed to a master that
     # is asking for nothing goes to whoever holds the bus instead. A master
@@ -5514,8 +1986,8 @@ def pp_desc_bridge(m, req, rsp, wb, mem_rdy, tmo, sel_mask, addr_sh):
     # a second access while one is outstanding - a watchdog firing again while
     # poisoned re-abandons that SAME access. `err` rides WITH `ack` on a failed
     # access (same file, ERROR state) and either settles the debt. The debt is
-    # watched in EVERY state and not from the bus state's own arm, because on a
-    # `dma_bus` each master owns its converter (SoCBusHandler.add_master adapts
+    # watched in EVERY state and not from the bus state's own arm, because on the
+    # dedicated memory attachment each master owns its converter (SoCBusHandler.add_master adapts
     # per master) and that converter's `ack` is combinational on the AXI
     # response: the answer can land on a master that has already let go.
     _dpsn = Signal(); _dpsn_set = Signal()
@@ -5566,17 +2038,14 @@ def pp_desc_bridge(m, req, rsp, wb, mem_rdy, tmo, sel_mask, addr_sh):
 
 class MilanSoC(SoCCore):
     def __init__(self, platform, sys_clk_freq, xlen=64, cpu_count=1,
-                 with_milan=True, with_mac=False, with_dma=False, with_dram=False,
+                 with_milan=True, with_mac=False, with_dram=False,
                  with_spiflash=False, flashboot="none", gtx_tx_invert=False,
-                 main_ram_size=0x8000, milan_clk_freq=None, coherent_dma=False,
+                 main_ram_size=0x8000, milan_clk_freq=None,
                  rgmii_tx_delay=2e-9, rgmii_rx_delay=2e-9, l2_bytes=None, with_fpu=False,
-                 extra_scala_args=None, cpu="naxriscv", rx_queues=1, rx_rsc=True,
-                 strip_probes=False, hs_page_bytes=4096, legacy_ring=False,
-                 rx_fifo_beats=2048, board="ax7101", eth_phy_index=0,
+                 extra_scala_args=None, cpu="naxriscv",
+                 board="ax7101", eth_phy_index=0,
                  num_streams=1, audio_if_slots=0, talker_wire_chans=2,
                  audio_if_master=False,
-                 pcm_ring="dram", sound_card=False, aaf_playback=False,
-                 aaf_pb_streams=1,
                  loopback_lane=False,
                  bus_standard="wishbone",
                  software_profile="baremetal",
@@ -5604,15 +2073,11 @@ class MilanSoC(SoCCore):
             raise ValueError(
                 "MilanSoC needs a resolved gptp_plane=True/False when the "
                 "Milan datapath is present")
-        # ---- RISC-V core(s). Two cores are supported, selected by
-        #      `cpu`: NaxRiscv (out-of-order, high IPC, ~100 MHz on this -2 Artix) or
-        #      VexiiRiscv (in-order, higher fmax + smaller  -  the AVB-switch direction,
-        #      see AVB_SWITCH_DIRECTION.md "CPU budget"). Both expose an AXI
-        #      `dma_bus` (soc.dma_bus) that the Milan DMA masters attach to identically;
-        #      it is coherent only for cache-bearing CPU profiles
-        #      (MilanDMA reads getattr(soc, "dma_bus", soc.bus)), and BOTH map csr @
-        #      0xf000_0000 / clint @ 0xf001_0000 / plic @ 0xf0c0_0000  -  so the datapath
-        #      and the ring DMA port over with no address changes.
+        # ---- RISC-V core(s). Two cores are understood by the integration, although
+        #      the product gate below accepts only cacheless RV32 VexiiRiscv. The
+        #      processor descriptor/response bridges need the core's dedicated
+        #      fabric-memory attachment whenever the Milan endpoint is present;
+        #      it is a structural part of those two protocol faces.
         if cpu == "vexiiriscv":
             from litex.soc.cores.cpu.vexiiriscv import VexiiRiscv
             _vex_parser = argparse.ArgumentParser()
@@ -5621,7 +2086,7 @@ class MilanSoC(SoCCore):
             # cpu_variant is a SoCCore-level argument (not in the CPU parser).
             _vex_args.cpu_variant = "baremetal"
             _vex_args.cpu_count   = cpu_count
-            _vex_args.with_dma    = coherent_dma          # coherent AXI dma_bus
+            _vex_args.with_dma    = bool(with_milan)
             # The cacheless core trades latency for gates: its direct fetch/data
             # TileLink paths trade latency for gates. Clock the CPU side with the
             # already-present 50 MHz Milan domain; Vexii inserts its supported
@@ -5655,13 +2120,13 @@ class MilanSoC(SoCCore):
             _nax_args, _ = _nax_parser.parse_known_args([])
             _nax_args.xlen      = xlen
             _nax_args.cpu_count = cpu_count
-            # Cache-coherent DMA: NaxRiscv then exposes a snooping `dma_bus` (soc.dma_bus)
-            # that the Milan DMA masters attach to, so CPU writes and DMA reads share one
-            # coherent view of DRAM (see MilanDMA). Without it the DMA reads stale DRAM.
-            _nax_args.with_coherent_dma = coherent_dma
-            # IPC knob I1 (AVB_SWITCH_DIRECTION.md): the shared L2 is BRAM and its size is
-            # a pure config choice  -  a bigger L2 keeps the ring buffers + stack working set
-            # out of DDR3 (each miss pays the full DRAM round trip on this 100 MHz core).
+            # The protocol processor's two memory faces require the same dedicated
+            # attachment on this developer-only CPU shape.
+            _nax_args.with_coherent_dma = bool(with_milan)
+            # The optional shared L2 is BRAM and its size is a pure config
+            # choice: a bigger L2 keeps the bare-metal protocol/application
+            # working set out of DDR3 (each miss pays the full DRAM round trip
+            # on this 100 MHz core).
             if l2_bytes:
                 _nax_args.l2_bytes = int(l2_bytes)
             # Hardware FPU. TWO things must happen and LiteX's --with-fpu only does the
@@ -5669,7 +2134,7 @@ class MilanSoC(SoCCore):
             # actual FP hardware is a NaxRiscv Scala-config option (gen.scala `arg("rvf")`
             # / `arg("rvd")`), enabled via --scala-args  -  WITHOUT this the softcore has NO
             # FPU even though the toolchain is hard-float (HW-confirmed 2026-07-05: misa
-            # reported rv64ima and a CONFIG_FPU kernel hung on FP init). scala_args ARE in
+            # reported rv64ima and an FPU-enabled runtime hung during FP init). scala_args ARE in
             # the netlist hash, so this regenerates a distinct FPU netlist.
             _nax_args.with_fpu = with_fpu
             _nax_args.scala_args = list(_nax_args.scala_args or [])
@@ -5697,9 +2162,10 @@ class MilanSoC(SoCCore):
         # the same for milan_csr). Saying "axi-lite" deletes BOTH round-trip bridges - OOC
         # measured 106 LUT (AXILite2Wishbone) + 150 LUT (Wishbone2AXILite) on xc7a100t - and
         # turns the CSR bridge from Wishbone2CSR (48 LUT) into AXILite2CSR (66 LUT), +18.
-        # This bus carries NO bulk traffic: with VexiiRiscv the CPU reaches DRAM on its own
-        # 256-bit AXI4 mBus and the DMA masters live on the separate 64-bit AXI dma_bus, so
-        # the only slaves here are rom / sram / spiflash / milan_csr / csr.
+        # This bus carries no packet payload: with VexiiRiscv the CPU reaches DRAM on
+        # its own 256-bit AXI4 mBus and the protocol-processor memory masters use the
+        # dedicated 64-bit attachment. The slaves here are rom / sram / spiflash /
+        # milan_csr / csr.
         kwargs.setdefault("bus_standard", bus_standard)
 
         # DERIVE the ident from the core that was actually selected. It used to say
@@ -5728,7 +2194,7 @@ class MilanSoC(SoCCore):
         # bench number measured through it, is untouched.
         if audio_if_master and not int(audio_if_slots):
             # REFUSE, do not ignore. A flag that is accepted and does nothing
-            # is the p_AAF_PLAYBACK defect wearing a different hat: the build
+            # is a silent configuration defect: the build
             # succeeds, the argv records the intent, and the gateware is the
             # one you did not ask for. The stereo I2S front-end is already its
             # own clock master, so there is no coherent thing to do here.
@@ -5817,28 +2283,8 @@ class MilanSoC(SoCCore):
             self.bus.add_slave("milan_csr", axil,
                                region=SoCRegion(origin=MILAN_CSR_BASE, size=MILAN_CSR_SIZE,
                                                 cached=False))
-            # §A.6 DMA + §A.7 MAC: attach the memory-DMA and the 1G MAC/RGMII PHY at
-            # the datapath's DMA/MAC-facing AXIS boundary. Both contribute Instance
-            # ports; merge them (idle stubs remain for any port neither drives).
-            dp_ports = {}
             milan_cd = "milan" if milan_clk_freq else "sys"
-            # item-7: playback needs the DMA (the PCM-ring read master lives in
-            # MilanDMA); silently no-op it without --with-dma/--full.
-            aaf_pb = bool(aaf_playback) and bool(sound_card) and with_dma
-            if aaf_playback and not with_dma:
-                print("[milan] --aaf-playback ignored without --with-dma/--full")
-            if with_dma:
-                self.milan_dma = MilanDMA(self, data_width=64, milan_cd=milan_cd,
-                                          rx_queues=rx_queues, rx_rsc=rx_rsc,
-                                          hs_page_bytes=hs_page_bytes,
-                                          legacy_ring=legacy_ring,
-                                          rx_fifo_beats=rx_fifo_beats,
-                                          num_streams=int(num_streams),
-                                          pcm_ring=pcm_ring, sound_card=bool(sound_card),
-                                          aaf_playback=aaf_pb,
-                                          talker_wire_chans=int(talker_wire_chans),
-                                          aaf_pb_streams=int(aaf_pb_streams))
-                dp_ports.update(self.milan_dma.dp_ports)
+            dp_ports, i2s_pads = _board_audio_ports(platform)
             if with_mac:
                 self.milan_mac = MilanMAC(platform, data_width=64, milan_cd=milan_cd,
                                           gtx_tx_invert=gtx_tx_invert,
@@ -5847,62 +2293,6 @@ class MilanSoC(SoCCore):
                                           rgmii_tx_delay=rgmii_tx_delay,
                                           rgmii_rx_delay=rgmii_rx_delay)
                 dp_ports.update(self.milan_mac.dp_ports)
-            # Pipeline telemetry (memory-mapped): frame/beat/stall counts at every TX+RX
-            # AXIS stage + GMII wire counts + datapath occupancy/latency + gPTP counters,
-            # all coherently snapshot-latched by one `capture` write. Needs both engines.
-            # --strip-probes drops the whole block (area-70 lever #2: every counter is
-            # 32 FFs + a capture shadow + increment logic  -  thousands of LUTs across
-            # ~40 probes). The kl-eth driver probes tlm presence and tolerates absence
-            # ("optional (absent on minimal gateware)"); dev/forensics builds keep it.
-            if with_dma and with_mac and not strip_probes:
-                # Phase-0 reader instrumentation (docs/fpga/PIPELINE_STAGES.md): measure
-                # L, the starve breakdown, and the outstanding-depth proxy BEFORE any prefetch
-                # RTL. Added via MilanDebug's extra hook so it's one closure, trivially dropped.
-                def _phase0(dbg):
-                    dbg.rd_latency_probe("txrd_lat", self.milan_dma.tx,
-                                         "TX reader AR->firstR latency")
-                    dbg.rd_produce_probe("txrd", self.milan_dma.tx,
-                                         "TX reader produce/starve breakdown")
-                    dbg.outstanding_hi_probe("rxw_out", self.milan_dma.rx,
-                                             "RX writer outstanding")
-                    if hasattr(self.milan_dma, "rx1"):
-                        dbg.outstanding_hi_probe("rx1w_out", self.milan_dma.rx1,
-                                                 "RX1 writer outstanding")
-                    # ---- M1 (docs/findings/PERFORMANCE_GOAL.md): campaign probes ----
-                    # RSC close reasons + coalesce ratio (free-running; read as deltas)
-                    for tag, sig, d in (
-                        ("rsc_close_psh",  self.milan_dma.rx.dbg_close_psh,  "aggregate closes: PSH"),
-                        ("rsc_close_cap",  self.milan_dma.rx.dbg_close_cap,  "aggregate closes: seg-cap 16"),
-                        ("rsc_close_tout", self.milan_dma.rx.dbg_close_tout, "aggregate closes: idle timeout"),
-                        ("rsc_close_park", self.milan_dma.rx.dbg_close_park, "aggregate closes: parked newcomer/mack"),
-                        ("rsc_v2_cnt",     self.milan_dma.rx.dbg_v2_cnt,     "v2 aggregate BDs written"),
-                        ("rsc_v2_segs",    self.milan_dma.rx.dbg_v2_segs,    "sum of segs over v2 BDs (ratio = segs/cnt)"),
-                    ):
-                        dbg._snap(sig, 32, tag, f"{d} (q0, free-running)")
-                    # TX-side CPU-feed evidence: ring occupancy high-water + doorbells
-                    dbg.hiwater_probe("txring_occ", self.milan_dma.tx.dbg_occ, 32,
-                                      "TX ring/BD bytes queued-unconsumed, max since reset")
-                    dbg.pulse_count_probe("tx_doorbells", self.milan_dma.tx.dbg_doorbell,
-                                          "TX wr_ptr CSR writes (frames/doorbell = batching)")
-                    # RX queue-1 stage probe + steer output stalls (fan-out attribution)
-                    if hasattr(self.milan_dma, "rx1"):
-                        dbg.sys_probe("rx1_dma", self.milan_dma.rx1.sink,
-                                      "RX q1: steer -> DMA write")
-                    if hasattr(self.milan_dma, "steer"):
-                        dbg.sys_probe("steer0", self.milan_dma.steer.source0,
-                                      "RxSteer q0 output")
-                        dbg.sys_probe("steer1", self.milan_dma.steer.source1,
-                                      "RxSteer q1 output")
-                    # R2 multi-slot RSC: the two new close reasons (appended LAST so
-                    # every earlier probe keeps its snapshot address)
-                    for tag, sig, d in (
-                        ("rsc_close_age", self.milan_dma.rx.dbg_close_age,
-                         "aggregate closes: lifetime cap (rsc_agemax)"),
-                        ("rsc_close_prs", self.milan_dma.rx.dbg_close_prs,
-                         "aggregate closes: CQ pressure (head-of-line)"),
-                    ):
-                        dbg._snap(sig, 32, tag, f"{d} (q0, free-running)")
-                self.milan_tlm = MilanDebug(self.milan_dma, self.milan_mac, extra=_phase0)
             # audio-MMCM servo boundary: the real MMCME2_ADV DRP/PS wiring
             # (KL_mmcm_drp_servo inside milan_datapath <-> _CRG mmcm_audio)
             if hasattr(self.crg, "audio_mmcm_rst"):
@@ -5934,15 +2324,9 @@ class MilanSoC(SoCCore):
             # pmoda-less I2S front-end (i_i2s_sdout_i = 0 -> one pair of
             # silence, still one FED pair).
             self.tdm_pads = None
-            # The I2S pads belong to MilanDMA (it requests the Pmod I2S2);
-            # the SoC has none of its own. getattr, not self.i2s_pads: a
-            # migen Module raises AttributeError for names never assigned,
-            # and on a board with NO i2s front-end (the AX7101 tdm32 master
-            # build) nothing assigns one - the first elaboration of that
-            # path died exactly here on 2026-07-28. Hoisted above the master
-            # branch because the blend kwarg below reads it on EVERY build.
-            _dma_i2s = getattr(getattr(self, "milan_dma", None),
-                               "i2s_pads", None)
+            # The direct board-audio binding above publishes whether the I2S
+            # Pmod is physically present; a padless board gets structural
+            # silence, while the Arty can blend it with the TDM master.
             if audio_if_master and int(audio_if_slots):
                 # `loose=True` returns None when the platform declares no
                 # `tdm` resource (the Arty today) instead of raising, so a
@@ -5977,11 +2361,11 @@ class MilanSoC(SoCCore):
                     # milan_datapath routes the TDM master's MCLK out of
                     # i2s_mclk_o (one pin serves both front-ends; a TDM build
                     # parks i2s_sclk/lrck), so on a master build that pin IS
-                    # the TDM MCLK - override MilanDMA's I2S-Pmod binding.
+                    # the TDM MCLK - override the I2S-Pmod binding.
                     o_i2s_mclk_o  = (self.tdm_pads.mclk if self.tdm_pads
                                      else Signal()),
                 )
-                if self.tdm_pads is not None and _dma_i2s is not None:
+                if self.tdm_pads is not None and i2s_pads is not None:
                     # HANDOVER 8.3b blend (the Arty): BOTH front-ends are
                     # real, so the override above is itself overridden -
                     # o_i2s_mclk_o goes BACK to the Pmod I2S2 (pmoda:4, D13,
@@ -5989,7 +2373,7 @@ class MilanSoC(SoCCore):
                     # header gets the master's mclk on its OWN pad. The
                     # datapath blends the pair streams (KL_pair_blend, I2S =
                     # pair slot 0).
-                    dp_ports["o_i2s_mclk_o"] = _dma_i2s[0]
+                    dp_ports["o_i2s_mclk_o"] = i2s_pads[0]
                     dp_ports["o_tdm_mclk_o"] = self.tdm_pads.mclk
                 if self.tdm_pads is None:
                     print("[milan] --audio-interface-master: no `tdm` pads on "
@@ -6005,42 +2389,20 @@ class MilanSoC(SoCCore):
             # loaded" rather than as a valid empty model.
             #
             # THE BASE COMES FROM THE END-STATION CONFIG, NOT FROM THIS SoC.
-            # Deriving it here as "top of main_ram" is what the previous
-            # revision did, and it was WRONG in both directions: the only
-            # region reserved for PCM is the ring, which this build
-            # places at 0x7F800000, so the top megabyte of a 1x1 board is
-            # ordinary kernel RAM - and the response buffer WRITES there. At
-            # the 8x8 shape the ring is 8 MiB and swallows the top megabyte
-            # outright, so the two would have shared it. A base that the DT
-            # does not reserve is silent corruption: no counter reports it and
-            # the entity still answers.
-            #
-            # So the window is READ from the config's platform shape - the same
-            # value that generated the `ppmem` no-map reservation in the device
-            # tree the kernel honours - and only CHECKED here.
+            # The platform shape reserves the processor window and this binding
+            # checks that the whole reservation lies inside main memory. A base
+            # derived independently here could silently diverge from the loader.
             _ram = self.bus.regions["main_ram"]
             _shape = _platform_shape(entity_gen_dir)
             _desc_base  = int(_shape["pp_mem"]["phys"], 16)
             _PP_WINDOW  = int(_shape["pp_mem"]["bytes"], 16)
-            _pcm_shape  = _shape.get("pcm")
-            # Refuse rather than build a bitstream that writes where it must
-            # not. Both failures are invisible on silicon: one corrupts kernel
-            # memory, the other corrupts captured audio.
+            # Refuse rather than build a bitstream that writes outside memory.
             if _desc_base < _ram.origin or (
                     _desc_base + _PP_WINDOW) > (_ram.origin + _ram.size):
                 raise RuntimeError(
                     f"the protocol processor's window "
                     f"0x{_desc_base:08x}+0x{_PP_WINDOW:x} is not inside "
                     f"main_ram 0x{_ram.origin:08x}+0x{_ram.size:x}")
-            if _pcm_shape is not None:
-                _ring_phys  = int(_pcm_shape["ring_phys"], 16)
-                _ring_bytes = int(_pcm_shape["ring_bytes"], 16)
-                if (_desc_base + _PP_WINDOW) > _ring_phys and (
-                        _ring_phys + _ring_bytes) > _desc_base:
-                    raise RuntimeError(
-                        f"the protocol processor's window "
-                        f"0x{_desc_base:08x}+0x{_PP_WINDOW:x} overlaps the PCM "
-                        f"ring 0x{_ring_phys:08x}+0x{_ring_bytes:x}")
             # ...AND WHERE THE AECP RESPONSE BUFFER LIVES. Same reserved window,
             # same derivation from the SoC's own map, one extra rule: this
             # region is WRITTEN by the processor, so it must not overlap the
@@ -6053,10 +2415,8 @@ class MilanSoC(SoCCore):
             #     in the LAST 4 KiB of the same window, 0x100000 - 0x1000 =
             #     1,044,480 bytes above the image's first byte.
             # So the two collide only if the entity model grows past a megabyte
-            # - forty-five times the largest shape in the tree - and the window
-            # would run into the PCM ring first, which the check above refuses.
-            # Both bases are DERIVED from the ring base and ONE window constant,
-            # so moving the reserved band moves both together.
+            # - forty-five times the largest shape in the tree. Both bases are
+            # derived from one reserved window, so moving it moves both together.
             _resp_base = _desc_base + _PP_WINDOW - 0x1000
             # Published for the manifest that ships with the image. The loader
             # must not restate this address: it is compiled into the gateware,
@@ -6065,12 +2425,9 @@ class MilanSoC(SoCCore):
             self._pp_windows = {"desc_base": _desc_base,
                                 "resp_base": _resp_base,
                                 "window_bytes": _PP_WINDOW}
-            self.milan = MilanNIC(platform, axil, dma_mac_ports=dp_ports or None,
+            self.milan = MilanNIC(platform, axil, board_ports=dp_ports or None,
                                   desc_base=_desc_base, resp_base=_resp_base,
                                   milan_cd=milan_cd,
-                                  rx_irq=self.milan_dma.rx.non_empty if with_dma else None,
-                                  rx1_irq=(self.milan_dma.rx1.non_empty
-                                           if (with_dma and rx_queues >= 2) else None),
                                   milan_clk_hz=int(milan_clk_freq or sys_clk_freq),
                                   num_streams=int(num_streams),
                                   audio_if_slots=int(audio_if_slots),
@@ -6078,17 +2435,13 @@ class MilanSoC(SoCCore):
                                   audio_if_master=bool(audio_if_master),
                                   # 8.3b blend: on only when the board routes
                                   # BOTH the I2S Pmod and a tdm header (the
-                                  # same _dma_i2s the mclk rebind used - the
-                                  # pads are MilanDMA's, and a padless board
-                                  # never assigns them)
+                                  # same directly-bound I2S pad tuple the mclk
+                                  # rebind used; a padless board never blends)
                                   audio_if_i2s_pair=(self.tdm_pads is not None
-                                                     and _dma_i2s is not None),
+                                                     and i2s_pads is not None),
                                   # Preserve None so add_milan_datapath catches
                                   # a severed ownership carrier.
                                   gptp_plane=gptp_plane,
-                                  sound_card=bool(sound_card),
-                                  aaf_playback=aaf_pb,
-                                  aaf_pb_streams=int(aaf_pb_streams),
                                   loopback_lane=bool(loopback_lane),
                                   render_lpf=bool(render_lpf),
                                   optional_blocks=optional_blocks,
@@ -6097,164 +2450,30 @@ class MilanSoC(SoCCore):
             # ===============================================================
             #  AECP DESCRIPTOR-IMAGE READ BRIDGE (protocol-processor 07 §3.3)
             # ===============================================================
-            # The processor's descriptor store fetches the entity model from a
-            # DDR3 ADDRESS over a read-only master. MilanNIC published the
-            # sys-domain endpoints; this is the bus side, a wishbone READ
-            # master on the DMA bus - the same shape as `milan_aaf_pb`,
-            # extended from one word to a BURST.
+            # The processor fetches its entity image through a read-only,
+            # 64-bit Wishbone master on the CPU core dedicated memory port.
+            # The response-buffer bridge below is the only peer on that port.
+            # Both faces propagate bus errors, bound no-progress with a
+            # watchdog, and keep a timed-out transaction poisoned until the
+            # answer still owed by AXI is collected.
             #
-            # THE ROUTE IS NOT DIRECT, and every fault report below turns on
-            # that: this master's ONLY slave is the CPU's coherent-DMA port
-            # ("AXIInterconnectShared (8 <-> 1)"), so an unanswered access is
-            # unanswered BY THE CPU's coherency hub. Main memory is two hops
-            # further on. See the gate block below.
-            #
-            # CONTRACT: ONE outstanding request; responses IN ORDER; `beats`
-            # counts 64-bit beats (>=1, max 128); `last` ends the burst. A
-            # beat carries its LOWEST byte address in bits [63:56] - 1722.1
-            # wire order, i.e. BIG-ENDIAN, a byte-reverse of the little-endian
-            # words the bus returns.
-            #
-            # THE ERROR ARM IS NOT OPTIONAL, and this bus has already charged
-            # for that lesson once: LiteX's wishbone2axi asserts `err`
-            # TOGETHER WITH `ack`, so `If(ack, ...)` alone accepts a FAILED
-            # read and latches whatever `dat_r` held. The audio path had to
-            # substitute silence because KL_pcm_tx has no error input. This
-            # master HAS one, so the error is PROPAGATED: the store aborts the
-            # burst and degrades that locate to NO_SUCH_DESCRIPTOR. A corrupt
-            # descriptor is never served as though it were good.
-            #
-            # NEITHER IS THE WATCHDOG, and THAT is what the 08-13 board round
-            # cost. A timeout is not an error response: LiteX's wishbone2axi
-            # answers a failed access with `err` AND `ack` together, so the
-            # error arm above never fires for an access that is simply never
-            # acked. Every bus state used to leave ONLY on `ack`, so one
-            # unanswered access parked the FSM there with `cyc`/`stb` held -
-            # and the dma_bus arbiter re-arbitrates only when nothing is
-            # outstanding (generated netlist: `rr_read_ce = ~(ar_valid |
-            # r_valid) & rd_lock_empty`), so that one access froze the READ
-            # half of the bus for EVERY master on it, permanently and with
-            # nothing to observe it by. Measured consequence: descriptor store
-            # fault 8 = FAULT_TIMEOUT, response buffer fault 1 = FAULT_WTMO,
-            # image invalid, and every AECP command answered ENTITY_MISBEHAVING
-            # - while the write half stayed alive long enough to commit two
-            # lanes (dbg_lane_wr = 2), which is what proves the masters
-            # themselves transact and the wedge is the missing `ack`.
-            #
-            # WIDTH. One access per 64-bit beat, `milan_aaf_pb`'s shape and
-            # the processor's own lane width, with the address width DERIVED
-            # from it rather than restated. The 32-bit master this replaces
-            # worked (it up-converted, and both halves of a lane reached the
-            # right bytes with the right strobes) but spent two accesses and
-            # an inserted converter per beat - two chances to wedge where the
-            # protocol has one, and a split-strobe write arm that exists only
-            # because the master was narrower than the lane.
+            # The processor contract is one outstanding request, in-order
+            # responses, a 9-bit 64-bit-beat count, and big-endian byte lanes.
+            # LiteX reports an error with ack, so every ack arm checks err before
+            # accepting data. The DFI handover gate prevents either master from
+            # issuing while the BIOS owns DDR3 training.
             from litex.soc.interconnect import wishbone as _wb
             import math as _math
             _pp_dw   = 64                      # the processor's memory lane
             _pp_selm = 2**(_pp_dw // 8) - 1
             _pp_adrw = 32 - int(_math.log2(_pp_dw // 8))
             _pp_sh   = int(_math.log2(_pp_dw // 8))
-            # Watchdog, in sys cycles, DERIVED from the two clocks and the
-            # processor's own per-beat budget - see `pp_mem_timeout_cycles` for
-            # the ceiling and `pp_mem_bus_worst_cycles` for the floor, both of
-            # which this call enforces rather than asserts in prose.
-            #
-            # WHAT IT REPLACES AND WHY. The number was 2,048, justified against
-            # "a 1,424 ns worst-case miss = 143 cycles" with the ARBITER left
-            # out. The counter starts on entry to the bus state, so it measures
-            # grant wait plus memory, and the grant wait is not a lap of memory
-            # latencies: the dma_bus arbiter holds the grant while the granted
-            # master leaves a read beat unaccepted, and the TX ring reader is
-            # left unaccepted for a per-frame TX grant - 1,542 wire bytes at
-            # 1 Gbit = 12.34 us = 1,234 sys cycles at 100 MHz, on its own more
-            # than half of the old budget. Priced in full at the shipping AX
-            # shape (sys 100 MHz):
-            #     TX ring reader   1,234 + 45 + 64 = 1,343
-            #     2 RX ring writers      2 x (45 + 2) = 94
-            #     AAF playback fetch          45 + 1 = 46
-            #     the response bridge         45 + 1 = 46
-            #     our own access                       45
-            #                                       = 1,574 cycles
-            # 2,048 was 1.30x that. The derived value is 3,072 (30.7 us) =
-            # 1.95x, and it leaves the processor 1,024 milan cycles of its own
-            # budget. It is FREE: migen sizes the counter `Signal(max=n+1)`, and
-            # both 2,048 and 3,072 need 12 bits, so no flop and no comparator
-            # bit moves.
-            #
-            # It does NOT make a spurious timeout impossible - nothing under the
-            # 4,096-cycle ceiling can, against a term whose scale is a frame
-            # time. It makes one improbable, and `_PPMemDiag`'s `timed_out`
-            # counter is what will settle the residual from the board instead of
-            # from an argument.
+            # Derive a watchdog below the processor per-beat ceiling and above
+            # one complete two-master arbitration lap. The two-master floor is
+            # 91 sys cycles.
             _pp_tmo = pp_mem_timeout_cycles(sys_clk_freq,
                                             milan_clk_freq or sys_clk_freq)
-            # ---------------------------------------------------------------
-            #  NO BUS ACCESS UNTIL THE BIOS HAS FINISHED WITH THE DDR3
-            # ---------------------------------------------------------------
-            # A TIMED-OUT ACCESS IS NOT A RELEASED BUS, and that is what the
-            # watchdog above cannot do anything about. Dropping `cyc`/`stb`
-            # ends the WISHBONE cycle; the AXI transaction it already became
-            # cannot be retracted. LiteX's Wishbone2AXILite stays parked in its
-            # READ state (it samples `stb & cyc` in IDLE alone), and the
-            # arbiter's `rd_lock` still counts the accepted AR, so
-            # `rr_read.ce = ~(ar.valid | r.valid) & rd_lock.ready`
-            # (axi_full.py:1188; `ready` is that counter's own alias for
-            # `empty`, same file:1113) is 0 for the LIFE OF THE BITSTREAM.
-            # Measured in simulation against the real LiteX chain
-            # (test_pp_boot_bus_freeze.py): rd_lock 1, grant 6, ce 0, another
-            # master requesting and never granted. Measured on silicon
-            # 2026-08-14: milan_dma_tx_rd_ptr 0, milan_dma_tx_sent 0 and
-            # STAT_TX_GOOD 0 after 1,800 s with tx_enable 1 and tx_wr_ptr
-            # 0x760 - the CPU transmitted NOTHING all session, because the TX
-            # ring reader is a read master on this same bus.
-            #
-            # WHO NEVER ANSWERED IS NOT THE DDR3, and naming it wrongly sends
-            # the next reader to the wrong block. `dma_bus` has EXACTLY ONE
-            # SLAVE and it is the CPU: "Interconnect: AXIInterconnectShared
-            # (8 <-> 1)" (litex.log:103 of the flashed build) and the slave's
-            # AR lands on `milansoc_milansoc_vexiiriscv_dma_bus_ar_valid`
-            # (alinx_ax7101.v:12288). What accepted that AR and never returned
-            # R is the VexiiRiscv coherent-DMA slave port and its coherency
-            # hub; main memory is two hops further on.
-            #
-            # THE TRIGGER IS UNIDENTIFIED, and this comment says so rather than
-            # supplying a mechanism. What is measured: `KL_aecp_desc_store`
-            # resets to S_HDR_REQ (KL_aecp_desc_store.sv:449), so it is the one
-            # master here that TRANSACTS OUT OF RESET - the response buffer has
-            # no software enable either, but resets to R_FILL
-            # (KL_aecp_resp_buf.sv:353), which does not transact - and it asks
-            # at FPGA-configuration time. The board's receipt is the fresh-boot
-            # counter pair: 1 issued, 1 timed out, with no AECP traffic at all.
-            # What is NOT known is why that first access was never answered.
-            # Two mechanisms were written here before and BOTH ARE REFUTED:
-            #   * "the DDR3 is not up yet". At configuration LiteDRAM's own
-            #     controller owns the DFI (`sel` resets to 1, litedram/dfii.py
-            #     DFIInjector) and `rddata_valid` is a pure latency shift of
-            #     `rddata_en` with no dependence on initialisation
-            #     (litedram/phy/s7ddrphy.py:510), so an uninitialised but
-            #     hardware-controlled LiteDRAM ANSWERS a read, with garbage.
-            #   * "nothing is loaded at 0x7F700000 yet". That answers too, and
-            #     garbage fails the store's own header check as fault 1 =
-            #     FAULT_MAGIC_C, not the fault 8 = FAULT_TIMEOUT_C measured.
-            # The one DRAM-side window that can genuinely swallow a read is
-            # `sel` = 0, the BIOS's SOFTWARE-CONTROL window, which is DURING
-            # `sdram_init` and not before it. That window is inside the one
-            # this gate holds shut, but no measurement ties the boot probe to
-            # it, and the CPU-side path above is not covered by that reading at
-            # all.
-            #
-            # SO THE GATE IS DEFENDED BY ITS PLACE IN TIME, not by a mechanism:
-            # it opens STRICTLY LATER than every boot-window culprit that can
-            # be named, which is how it covers one that cannot be. If the board
-            # still reads a timed-out boot probe with `stat[4]` = 1, the cause
-            # is downstream of the BIOS and this gate was the wrong fix.
-            #
-            # SAMPLED PER REQUEST, in IDLE, so it can never stall a burst
-            # half-way: `sel` drops exactly once, inside the window where the
-            # gate is already shut and no burst can be in flight, and nothing
-            # in this SoC re-levels afterwards. Without DDR3 main_ram is
-            # on-chip and always answerable, so the gate is a constant 1 there.
+            # Hold both masters off while the BIOS owns the LiteDRAM DFI.
             if with_dram:
                 _mem_rdy = pp_mem_gate(self,
                                        self.sdram.dfii._control.fields.sel)
@@ -6265,8 +2484,8 @@ class MilanSoC(SoCCore):
             self.descmem_wb = _dwb = _wb.Interface(data_width=_pp_dw,
                                                    adr_width=_pp_adrw,
                                                    addressing="word")
-            _dmab = getattr(self, "dma_bus", self.bus)
-            _dmab.add_master("milan_desc_mem", master=_dwb)
+            _mem_bus = getattr(self, "dma_bus", self.bus)
+            _mem_bus.add_master("milan_desc_mem", master=_dwb)
 
             # The arms live in `pp_desc_bridge` above, not here, for one
             # reason: this SoC cannot be elaborated in a migen simulation, so
@@ -6321,7 +2540,7 @@ class MilanSoC(SoCCore):
             self.respmem_wb = _rwb = _wb.Interface(data_width=_pp_dw,
                                                    adr_width=_pp_adrw,
                                                    addressing="word")
-            _dmab.add_master("milan_resp_mem", master=_rwb)
+            _mem_bus.add_master("milan_resp_mem", master=_rwb)
 
             _ra = Signal(32); _rl = Signal(9)
             _rdat = Signal(64); _re = Signal()
@@ -6440,7 +2659,6 @@ class MilanSoC(SoCCore):
                                      ("resp", _rwb, _rpsn, _rpsn_set)],
                                     mem_rdy=_mem_rdy)
 
-            self.irq.add("milan", use_loc_if_exists=True)  # 4 lines -> CPU via EventManager
             # Milan IDENTIFY -> board LED (controllers blink it to locate the
             # device). Skipped quietly on platforms without user_led pads.
             try:
@@ -6592,63 +2810,22 @@ def main():
     ap.add_argument("--with-fpu",     action="store_true", help="hardware FP unit (rv64imafd / lp64d)")
     ap.add_argument("--scala-args",   action="append", default=[], help="extra NaxRiscv scala args, e.g. alu-count=1,decode-count=1 (append)")
     ap.add_argument("--sys-clk-freq", default=100e6, type=float)
-    ap.add_argument("--rx-queues", default=1, type=int,
-                    help="RX DMA queues (2 = flow-steered fan-out for parallel ACK/recv on 2 harts)")
-    ap.add_argument("--no-rx-rsc", action="store_true",
-                    help="AREA LEVER (rxq2-sans-RSC): elaborate OUT the RSC "
-                         "coalescing engine from EVERY RX queue writer - header "
-                         "parse regfile, 4-slot aggregate state, ACK-run merge, "
-                         "append rotator, header-split states - while KEEPING "
-                         "the 2-queue steering front-end (the D7 gPTP fix) and "
-                         "the whole CSR map (RSC/hs registers stay, inert). "
-                         "Every BD is then a v1 single frame, the path all "
-                         "non-TCP traffic takes today, so a deployed kl-eth "
-                         "(rsc=1 default) runs unmodified: coalescing simply "
-                         "never kicks in and SW GRO takes over (expect the "
-                         "pre-RSC ~43 Mbit/s TCP RX regime; AVTP/gPTP/UDP are "
-                         "unaffected). Default off => engine PRESENT, build "
-                         "byte-identical.")
-    ap.add_argument("--hs-page-bytes", default=4096, type=lambda x: int(x, 0),
-                    help="posted-page size the hs crossing arithmetic assumes (power of 2; "
-                         "16384 = 4x burst absorbency, pairs STRICTLY with kl-eth hsplit12 "
-                         "hs_pgsz=16384)")
-    ap.add_argument("--strip-probes", action="store_true",
-                    help="drop the MilanDebug telemetry block (tlm CSRs @0xf0004000+ incl. "
-                         "Phase-0/M1 probes)  -  the area-70 ship-build diet; kl-eth handles "
-                         "the absence. Keep probes on dev/forensics builds.")
     ap.add_argument("--board", default="ax7101", choices=["ax7101", "arty"],
                     help="target board: ax7101 (Alinx, 1G GMII, QSPI flashboot) or "
                          "arty (Digilent Arty A7-100: 100M MII DP83848, serial boot, "
                          "second Milan node for AVDECC interop).")
-    ap.add_argument("--rx-fifo-beats", default=2048, type=float,
-                    help="store-and-forward ingress FIFO depth per RX queue, beats "
-                         "(2048 = 16KB = 4 RAMB36/queue). AREA-70 staged diet: 1024; "
-                         "gate on silicon drop counters under the P4/P8 cells.")
-    ap.add_argument("--legacy-ring", action="store_true",
-                    help="elaborate the legacy byte-ring DMA fallback (bd_base==0 ABI) back "
-                         "in. DEFAULT IS FOLDED OUT (AREA-70): shape muxes hardwire to the "
-                         "BD arm and the ring dispatch/commit arms are not generated; an "
-                         "unarmed engine parks (counted drops), never DMA via base/addr 0. "
-                         "Only the kl-eth bd=0 A/B forensics lever needs this flag.")
     ap.add_argument("--l2-bytes", default=None, type=float,
-                    help="NaxRiscv shared-L2 size in bytes (default 128 KiB; IPC knob I1).")
+                    help="shared-L2 size in bytes (the cacheless RV32I product recipes state 0)")
     ap.add_argument("--milan-clk-freq", default=None, type=float,
                     help="run the Milan datapath in its own slower clock domain (Hz, e.g. "
                          "50e6), async-FIFO CDC'd to sys on the AXI-Lite CSR bus and the "
-                         "DMA/MAC AXIS boundary  -  lifts the dense datapath off the 100 MHz "
+                         "MAC AXIS boundary  -  lifts the dense datapath off the 100 MHz "
                          "sys critical path (it still exceeds 1 GbE). Works with --full.")
     ap.add_argument("--num-streams", default=1, type=int,
                     help="NxN dataplane width (docs/fpga/FPGA_DESIGN.md section 2): AAF stream "
                          "contexts per shared engine (milan_datapath N_STREAMS). The "
                          "builder emits this from the config's streams section; default "
                          "1 = today's bit-compatible single-stream shape.")
-    ap.add_argument("--pcm-ring", default="dram", choices=("dram", "bram"),
-                    help="Milan listener PCM ring backend. 'dram' (default) = the LiteDRAM "
-                         "WishboneDMAWriter ring (unchanged). 'bram' = the on-chip dual-port "
-                         "BRAM ring (KL_pcm_ring_bram): single-cycle writes, sink.ready "
-                         "constant 1, so no beat can ever be shed (kills mf52 SHED + I6 at "
-                         "root). CPU mmaps MILAN_PCM_BRAM_BASE (0x9010_0000); the pcm CSR ABI "
-                         "is unchanged. ~8 RAMB36.")
     gptp_group = ap.add_mutually_exclusive_group()
     gptp_group.add_argument("--fabric-gptp", dest="fabric_gptp",
                             action="store_true",
@@ -6733,10 +2910,9 @@ def main():
                          "(the LTAP precedent). Default off => probes PRESENT.")
     ap.add_argument("--no-rx-mac-filter", action="store_true",
                     help="AREA LEVER: prune rx_mac_filter + its TCAM. The RX stream "
-                         "becomes a straight wire to the DMA port, which is bit-exactly "
+                         "becomes a straight wire to the fabric observers, which is bit-exactly "
                          "what the filter does with promisc=1 - so this is legal only "
-                         "when the port is meant to be PROMISCUOUS or filtering is done "
-                         "in software. The TCAM_* CSR window still accepts writes and "
+                         "when the port is meant to be PROMISCUOUS. The TCAM_* CSR window still accepts writes and "
                          "nothing reads them. Default off => filter PRESENT.")
     # NOTE: there is no --with-pp-plane any more. The protocol processor was a
     # shadow plane behind PP_PLANE_P for exactly one round; scenario B
@@ -6791,41 +2967,34 @@ def main():
     ap.add_argument("--no-milan", action="store_true", help="bare SoC, no NIC (bring-up smoke test)")
     ap.add_argument("--with-mac", action="store_true",
                     help="attach the 1G MAC + RGMII PHY (§A.7) at the datapath MAC boundary")
-    ap.add_argument("--with-dma", action="store_true",
-                    help="attach the AXIS<->memory DMA engines (§A.6) with simple-mode CSRs")
     ap.add_argument("--with-dram", action="store_true",
                     help="512 MB DDR3 via LiteDRAM (A7DDRPHY + MT41J256M16)")
-    ap.add_argument("--coherent-dma", action="store_true",
-                    help="request a dedicated DMA port (cache-coherent for NaxRiscv; "
-                         "direct and coherence-free for the cacheless bare-metal Vexii core)")
     ap.add_argument("--bus-standard", default="wishbone", choices=["wishbone", "axi-lite"],
                     help="main SoC bus standard. 'axi-lite' makes the control path AXI end "
                          "to end and deletes the two round-trip bridges LiteX inserts when "
                          "the default 'wishbone' sits between the CPU's AXI-Lite pBus and "
                          "the AXI-Lite milan_csr window (OOC: 106 + 150 LUT, minus 18 for "
-                         "AXILite2CSR over Wishbone2CSR). Carries no DRAM or DMA traffic.")
+                         "AXILite2CSR over Wishbone2CSR). Carries no packet payload.")
     ap.add_argument("--with-spiflash", action="store_true",
                     help="memory-map the on-board N25Q128 QSPI flash (16 MB) so the BIOS can "
                          "load the bare-metal AEM image. "
-                         "Included by --all-blocks.")
+                         "Included by --full.")
     ap.add_argument("--flashboot", default="none",
                     choices=["none", "baremetal"],
-                    help="which artifacts live in flash (needs --with-spiflash or --all-blocks): "
+                    help="which artifacts live in flash (needs --with-spiflash or --full): "
                          "'baremetal' stores the raw AEM image beside the bitstream; 'none' "
                          "(default) maps the flash but adds no boot method.")
-    ap.add_argument("--all-blocks", "--full", dest="all_blocks", action="store_true",
-                    help="enable ALL fabric blocks: NIC + DMA + MAC + DDR3 (= --with-dma "
-                         "--with-mac --with-dram). This means 'every block instantiated', NOT "
-                         "a complete/validated NIC  -  MDIO/PHY management, DMA "
-                         "scatter-gather, and physical traffic (M-A3..M-A5) are still open. "
-                         "(--full is a legacy alias for this flag.)")
+    ap.add_argument("--full", action="store_true",
+                    help="enable the complete fabric endpoint + MAC/PHY + DDR3 "
+                         "(= --with-mac --with-dram). Physical two-board traffic "
+                         "acceptance remains a separate bench obligation.")
     ap.add_argument("--eth-port", default="e1", choices=["e1", "e2"],
                     help="AX7101 PHY port: e1 (default) or e2 — the e1-GMII-RX "
                          "hardware-fault fallback (2026-07-22); both are 8-bit GMII")
     ap.add_argument("--gtx-tx-invert", action="store_true",
                     help="forward GMII gtx_clk 180° out of phase with TXD so the PHY samples "
-                         "mid-bit  -  the fix for the marginal GMII-TX setup/hold at the RTL8211E "
-                         "(docs/kl-eth-tx-debug §GMII-TX). Default off = edge-aligned (upstream).")
+                         "mid-bit - the GMII-TX setup/hold correction for the RTL8211E. "
+                         "Default off = edge-aligned.")
     ap.add_argument("--rgmii-tx-delay", default=2e-9, type=float,
                     help="RGMII MAC-side TX clock delay, seconds (default 2e-9).")
     ap.add_argument("--rgmii-rx-delay", default=0e-9, type=float,
@@ -6866,7 +3035,7 @@ def main():
                          "(DONT_TOUCH on the synchronizer clock), so the RTL max_fanout attr this "
                          "sets AND the forced phys_opt both leave sys_rst at fo~3969. The real fix "
                          "is a multicycle/false-path on the reset, not this flag; the clock itself "
-                         "is set via --sys-clk-freq. See docs/findings/LATENCY_INVESTIGATION.md §8.")
+                         "is set via --sys-clk-freq.")
     builder_args(ap)
     args = ap.parse_args()
 
@@ -6950,20 +3119,15 @@ def main():
     soc = MilanSoC(platform, int(args.sys_clk_freq), xlen=args.xlen,
                    cpu_count=args.cpu_count, cpu=args.cpu, with_milan=not args.no_milan,
                    board=args.board, bus_standard=args.bus_standard,
-                   with_mac=args.with_mac or args.all_blocks,
-                   with_dma=args.with_dma or args.all_blocks,
-                   with_dram=args.with_dram or args.all_blocks,
-                   with_spiflash=args.with_spiflash or args.all_blocks,
+                   with_mac=args.with_mac or args.full,
+                   with_dram=args.with_dram or args.full,
+                   with_spiflash=args.with_spiflash or args.full,
                    flashboot=args.flashboot,
                    gtx_tx_invert=args.gtx_tx_invert,
                    main_ram_size=args.main_ram_size,
                    milan_clk_freq=args.milan_clk_freq, l2_bytes=args.l2_bytes,
                    num_streams=args.num_streams,
-                   pcm_ring=args.pcm_ring,
-                   sound_card=False,
                    gptp_plane=args.fabric_gptp,
-                   aaf_playback=False,
-                   aaf_pb_streams=1,
                    loopback_lane=args.loopback_lane,
                    render_lpf=not args.no_render_lpf,
                    # tier-1 optional blocks: a key is emitted only when the
@@ -6982,15 +3146,9 @@ def main():
                                    "tdm32": 32}[args.audio_interface],
                    talker_wire_chans=int(args.talker_wire_chans),
                    audio_if_master=bool(args.audio_interface_master),
-                   rx_queues=args.rx_queues, rx_rsc=not args.no_rx_rsc,
-                   strip_probes=args.strip_probes,
-                   legacy_ring=args.legacy_ring,
-                   rx_fifo_beats=int(args.rx_fifo_beats),
                    eth_phy_index=(1 if args.eth_port == "e2" else 0),
-                   hs_page_bytes=args.hs_page_bytes,
                    with_fpu=args.with_fpu, extra_scala_args=args.scala_args,
                    software_profile=args.software_profile,
-                   coherent_dma=args.coherent_dma,
                    rgmii_tx_delay=args.rgmii_tx_delay,
                    rgmii_rx_delay=args.rgmii_rx_delay,
                    uart_baudrate=args.uart_baudrate)
@@ -7013,8 +3171,7 @@ def main():
         # the arc 2 cycles (-setup 2 / -hold 1) lets the ~8.9 ns fanout-3969 route arrive within
         # 20 ns, so the reset stops being a timing constraint DETERMINISTICALLY (not placer
         # luck)  -  the same pattern LiteX already uses for the CBS slope path above. (The sys
-        # clock is raised separately via --sys-clk-freq; the 112.5 MHz fp builds are in
-        # docs/findings/LATENCY_INVESTIGATION.md §8.)
+        # clock is raised separately via --sys-clk-freq.)
         soc.platform.add_platform_command("set_multicycle_path 2 -setup -through [get_nets sys_rst]")
         soc.platform.add_platform_command("set_multicycle_path 1 -hold  -through [get_nets sys_rst]")
     builder = Builder(soc, **builder_argdict(args))

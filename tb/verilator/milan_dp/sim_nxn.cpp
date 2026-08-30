@@ -11,18 +11,18 @@
  *      (the monitor context RAM, not a CSR shadow);
  *   2. feed tagged AAF frames of both streams + an unknown sid on the MAC
  *      RX AXIS: classification tuser rides parser -> monitor -> depkt ->
- *      route; stream 1 (route=DMA flag) lands on the PCM ring output with
- *      tuser=1, stream 2 (route=NULL) is counted but not forwarded;
+ *      route; both streams reach isolated PCMRX counters while only a
+ *      RENDER-selected stream reaches the fabric render clone;
  *   3. read ISOLATED per-stream counters back through the window with SNAP
  *      (Table 7-157 block from the live LCTX; stream 0 legacy aliases and
  *      idx 3 stay zero); a seq-gap on stream 1 moves ONLY stream 1;
  *   4. talker side: TCTX CFG words written and read back through the live
  *      KL_aaf_packetizer window port.
  *
- * P12 follow-up gates (route flags + talker t>0 arming):
- *   5. route FLAGS {bit1 RENDER, bit0 DMA}: RENDER|DMA renders AND rings
- *      (capture-while-rendering), RENDER-only renders without a ring copy,
- *      NULL suppresses both (render truth = the datapath render-tap valid,
+ * P12 follow-up gates (render selection + talker t>0 arming):
+ *   5. route ABI {bit1 RENDER, bit0 reserved}: the reserved bit is
+ *      masked from storage/readback, RENDER reaches the fabric clone, and
+ *      NULL suppresses it (render truth = the datapath render-tap valid,
  *      a verilator-public probe - the flat CSRs expose no per-stream tap);
  *   6. talker t>0 arming composition (aaf_stream_en_w, verilator-public;
  *      2026-07-26 mirrored contract): t1 arms via the window TCTX CTRL[0]
@@ -81,11 +81,9 @@ static void ck(const char* what, unsigned long got, unsigned long exp) {
     }
 }
 
-//! Milan Table 5.1 GPTP_GM_CHANGED, read WHERE IT IS COUNTED. The served
-//! GET_COUNTERS quadlet 5 is the same register (graded byte-for-byte in the
-//! timed arm of (N6)); reading the counter itself is what makes a DELTA of
-//! zero across one CSR write a statement about the increment condition
-//! rather than about the notification limiter in front of it.
+//! Milan Table 5.1 GPTP_GM_CHANGED, read where it is counted.  The
+//! ownerless-mode test reads the counter itself so a zero delta proves that
+//! inert publication writes did not create a hidden grandmaster event.
 static unsigned long gm_changed_ctr() {
     return dut->rootp->milan_datapath__DOT__ctr_gmchg_r;
 }
@@ -110,7 +108,7 @@ static uint8_t  rmem[RESP_BYTES];
 // A memory that NEVER ACKS is a distinct failure from a memory that answers an
 // error, and until 2026-08-13 nothing in this tree drove it: the SoC-side
 // bridge left its bus states only on `ack`, so one unanswered access parked it
-// there for good - with `cyc`/`stb` held, which the dma_bus arbiter reads as an
+// there for good - with `cyc`/`stb` held, which the shared-memory arbiter reads as an
 // outstanding transaction and stops re-arbitrating on, taking every other
 // master with it. On the board that showed up as descriptor-store fault 8
 // (FAULT_TIMEOUT), response-buffer fault 1 (FAULT_WTMO) and every AECP command
@@ -518,16 +516,8 @@ static unsigned long pp_ctr_evt_sin_seen = 0;
 static unsigned long pp_ctr_evt_sout_seen = 0;
 static bool pp_ctr_evt_avb_seen = false;
 static bool pp_ctr_evt_ckd_seen = false;
-//! Deterministic AS_PATH interleave witness: enabled only around the AXI
-//! PUBLISH placed after count capture. If selector 8 appears first, an old
-//! response could pass without exercising the gather-coherence boundary.
-static bool asp_cut_watch = false;
-static bool asp_cut_entry_seen = false;
 static void step() {
     lo();
-    if (asp_cut_watch
-        && dut->rootp->milan_datapath__DOT__asp_resp_entry_w)
-        asp_cut_entry_seen = true;
     hi();
     tkd_dirty_seen |= dut->rootp->milan_datapath__DOT__tkd_dirty_p_w;
     if (dut->rootp->milan_datapath__DOT__pp_ctr_evt_valid_w) {
@@ -614,8 +604,9 @@ static uint32_t sp_read(uint32_t word_addr, bool* ok) {
     return axi_read(A_PP_SPDATA);
 }
 
-// route flags (KL_pcm_route / window CTRL[2:1]): bit0 = DMA, bit1 = RENDER
-enum { RT_NULL = 0, RT_DMA = 1, RT_RENDER = 2, RT_RENDER_DMA = 3 };
+// Route ABI (KL_pcm_route / window CTRL[2:1]): bit0 is reserved and masked;
+// bit1 selects the fabric render clone.
+enum { RT_NULL = 0, RT_RETIRED = 1, RT_RENDER = 2, RT_RENDER_RETIRED = 3 };
 
 // composed per-stream talker enables (milan_datapath aaf_stream_en_w)
 static unsigned tap_stream_en() {
@@ -634,19 +625,9 @@ static void snap_and_wait() {
         if ((axi_read(A_STRM_SNAP) & 1) == 0) return;
 }
 
-// ---- PCM ring collection: {tuser, payload bytes} per AXIS frame ----
-struct PcmFrame { int user; std::vector<uint8_t> bytes; };
-static std::vector<PcmFrame> pcm_frames;
-static bool pcm_open = false;
 static long render_beats = 0;   // datapath render-tap beats (public probe)
 
-static void pcm_sample() {
-    if (dut->m_axis_pcm_tvalid) {
-        if (!pcm_open) { pcm_frames.push_back({(int)dut->m_axis_pcm_tuser, {}}); pcm_open = true; }
-        for (int l = 0; l < 8; l++)
-            pcm_frames.back().bytes.push_back((dut->m_axis_pcm_tdata >> (8*l)) & 0xFF);
-        if (dut->m_axis_pcm_tlast) pcm_open = false;
-    }
+static void render_sample() {
     if (dut->rootp->milan_datapath__DOT__rend_pcm_tvalid_w) render_beats++;
 }
 
@@ -694,7 +675,6 @@ static void inject(const uint8_t* f, size_t len, int drain = 1200,
     }
     size_t idx = 0;
     dut->m_axis_mac_tx_tready = tx_ready ? 1 : 0;
-    dut->m_axis_pcm_tready = 1;
     acmp_sniff_fr.clear();   // a fragment drained elsewhere is not a frame
     for (int c = 0; c < drain; c++) {
         if (idx < beats.size()) {
@@ -707,52 +687,12 @@ static void inject(const uint8_t* f, size_t len, int drain = 1200,
         }
         lo();
         bool in_acc = dut->s_axis_mac_rx_tvalid && dut->s_axis_mac_rx_tready;
-        pcm_sample();
+        render_sample();
         acmp_sniff();
         hi();
         if (in_acc) idx++;
     }
     dut->s_axis_mac_rx_tvalid = 0;
-}
-
-// PARKED-LANE TORTURE (gh #65). rx_axis_to_dma.tready IS m_axis_rx_tready,
-// so dropping the host DMA's ready parks a beat on the tapped lane with
-// tvalid held — the documented starvation/flood regime. A monitor tap that
-// samples tvalid alone eats every parked cycle as a NEW beat, tears the
-// frame, and spends the next real PDU realigning.
-static void inject_parked(const uint8_t* f, size_t len, int park_beat,
-                          int park_cycles, int drain = 6000) {
-    std::vector<uint64_t> beats;
-    for (size_t bt = 0; bt < (len + 7) / 8; bt++) {
-        uint64_t v = 0;
-        for (int j = 0; j < 8; j++)
-            if (bt*8 + j < len) v |= (uint64_t)f[bt*8+j] << (8*j);
-        beats.push_back(v);
-    }
-    size_t idx = 0;
-    int parked = 0;
-    dut->m_axis_mac_tx_tready = 1;
-    dut->m_axis_pcm_tready = 1;
-    for (int c = 0; c < drain; c++) {
-        if (idx < beats.size()) {
-            dut->s_axis_mac_rx_tdata  = beats[idx];
-            dut->s_axis_mac_rx_tkeep  = 0xFF;
-            dut->s_axis_mac_rx_tvalid = 1;
-            dut->s_axis_mac_rx_tlast  = (idx == beats.size()-1);
-        } else {
-            dut->s_axis_mac_rx_tvalid = 0; dut->s_axis_mac_rx_tlast = 0;
-        }
-        bool want_park = ((int)idx == park_beat) && (parked < park_cycles);
-        dut->m_axis_rx_tready = want_park ? 0 : 1;
-        if (want_park) parked++;
-        lo();
-        bool in_acc = dut->s_axis_mac_rx_tvalid && dut->s_axis_mac_rx_tready;
-        pcm_sample();
-        hi();
-        if (in_acc) idx++;
-    }
-    dut->s_axis_mac_rx_tvalid = 0;
-    dut->m_axis_rx_tready = 1;
 }
 
 // ---- gh #58 D1 end-to-end: one AECP AEM transaction through the REAL RX
@@ -1240,530 +1180,97 @@ static void notify_section(bool timed) {
     ck("[NOTIFY] GET_NAME right after is byte-identical from the body on",
        (long)(gB.size() >= 110 && notify_same_from(nB2, gB, 38)), 1);
 
-    // ---- (N6) a grandmaster CHANGE: three Table 5.22 rows at once ------
-    //! GET_AVB_INFO (gptp_grandmaster_id), GET_AS_PATH (entry 0) and the
-    //! AVB_INTERFACE counters (GPTP_GM_CHANGED) all change on one commit.
-    //! The pair is COMMIT-ON-HI (milan_csr), so every change ends with a
-    //! HI write. A zero grandmaster first makes the later discovery arm
-    //! (N8) deterministic whatever the earlier sections left here.
-    const uint32_t gm_lo0 = axi_read(0x624), gm_hi0 = axi_read(0x628);
-    uint32_t gm_lo = 0x00C0FFEEu, gm_hi = 0x001BC500u;
-    if (gm_lo0 == gm_lo && gm_hi0 == gm_hi) gm_lo ^= 0x10u;
-    if ((gm_lo0 | gm_hi0) == 0) {
-        //! no grandmaster yet: discover one first, its pushes drained
-        axi_write(0x624, gm_lo); axi_write(0x628, gm_hi);
-        drain_tx(NOTIFY_WIN);
-        gm_lo ^= 0x10u;
-    }
-    notify_clear();
-    const unsigned long gmchg_n6 = gm_changed_ctr();
-    axi_write(0x624, gm_lo); axi_write(0x628, gm_hi);       // the CHANGE
-    uint32_t gm_cur_lo = gm_lo;                             // what the wire holds now
-    drain_tx(NOTIFY_WIN);
-    ck("[NOTIFY] GM change: one unsolicited GET_AVB_INFO to A",
-       notify_count(0x0027, &CTL_A), 1);
-    ck("[NOTIFY] GM change: GPTP_GM_CHANGED moved exactly once",
-       gm_changed_ctr() - gmchg_n6, 1);
-    ck("[NOTIFY] ...and one to B", notify_count(0x0027, &CTL_B), 1);
-    ck("[NOTIFY] GM change: one unsolicited GET_AS_PATH to A",
-       notify_count(0x0028, &CTL_A), 1);
-    ck("[NOTIFY] ...and one to B", notify_count(0x0028, &CTL_B), 1);
+    // ---- (N6-N8c) GPTP-off is permanently ownerless (#116) -----------
+    //
+    // The retained software publication addresses are ABI landmarks only.
+    // With GPTP_PLANE_EN_P=0 there is no runtime owner: maximal writes must
+    // leave the CSR face, GET_AVB_INFO, GET_AS_PATH, validity verdict, and
+    // unsolicited-notification detectors at the same ownerless state.
     {
-        const std::vector<uint8_t> ga = {0x00, 0x09, 0x00, 0x00};
-        const std::vector<uint8_t> sa = aecp_xact_from(CTL_A, 0x0027, sq++, ga);
-        ck("[NOTIFY] ...AVB_INFO body == the solicited read that follows",
-           (long)(aecp_status(sa) == 0
-                  && notify_same_from(notify_last(0x0027, CTL_A), sa, 38)), 1);
-        ck("[NOTIFY] ...and it names the NEW grandmaster",
-           (long)(sa.size() >= 50 && sa[42] == (uint8_t)(gm_hi >> 24)
-                  && sa[49] == (uint8_t)gm_lo), 1);
-        const std::vector<uint8_t> gp(4, 0);
-        const std::vector<uint8_t> sp = aecp_xact_from(CTL_A, 0x0028, sq++, gp);
-        ck("[NOTIFY] ...AS_PATH body == the solicited read that follows",
-           (long)(aecp_status(sp) == 0
-                  && notify_same_from(notify_last(0x0028, CTL_A), sp, 38)), 1);
-    }
-    printf("  [i]    GM change also pushed GET_COUNTERS: AVB_INTERFACE %ld, "
-           "CLOCK_DOMAIN %ld, STREAM_INPUT %ld, STREAM_OUTPUT %ld (to A)\n",
-           notify_count(0x0029, &CTL_A, 0x0009, 0),
-           notify_count(0x0029, &CTL_A, 0x0024, 0),
-           notify_count(0x0029, &CTL_A, 0x0005, 0),
-           notify_count(0x0029, &CTL_A, 0x0006, 0));
-    if (timed) {
-        //! the counters arm needs a processor second to be runnable: the
-        //! FIRST push of a descriptor is immediate, every later one waits
-        //! until >= 1000 ms after the last emission. GPTP_GM_CHANGED moved
-        //! exactly once above, so AVB_INTERFACE 0 pushed exactly once...
-        ck("[NOTIFY-T] GM change: one GET_COUNTERS(AVB_INTERFACE,0) to A",
-           notify_count(0x0029, &CTL_A, 0x0009, 0), 1);
-        ck("[NOTIFY-T] ...and one to B",
-           notify_count(0x0029, &CTL_B, 0x0009, 0), 1);
-        const std::vector<uint8_t> gc = {0x00, 0x09, 0x00, 0x00};
-        const std::vector<uint8_t> sc = aecp_xact_from(CTL_A, 0x0029, sq++, gc);
-        const std::vector<uint8_t>* nc = notify_last(0x0029, CTL_A, 0x0009, 0);
-        ck("[NOTIFY-T] ...its body == the solicited GET_COUNTERS that follows",
-           (long)(aecp_status(sc) == 0 && notify_same_from(nc, sc, 38)), 1);
-        ck("[NOTIFY-T] ...with GPTP_GM_CHANGED (quadlet 5) nonzero in it",
-           (long)(nc && nc->size() >= 174
-                  && (nc->at(66) | nc->at(67) | nc->at(68) | nc->at(69)) != 0), 1);
-        //! ...and a SECOND change inside the same second is WITHHELD, then
-        //! RELEASED once the second has elapsed, carrying the state of the
-        //! moment it is emitted (so it equals the solicited read after it).
-        const long t_first = notify_when(0x0029, CTL_A, 0, false);
-        notify_clear();
-        gm_cur_lo = gm_lo ^ 0x20u;
-        axi_write(0x624, gm_cur_lo); axi_write(0x628, gm_hi);       // change 2
-        //! a 200 ms window: long enough for a push (they land in ~3000
-        //! cycles), and still inside the first push's second
-        drain_tx(200 * MS_CYC_TB);
-        ck("[NOTIFY-T] a second change within the second is withheld",
-           notify_count(0x0029, &CTL_A, 0x0009, 0), 0);
-        ck("[NOTIFY-T] ...while the class pushes (AVB_INFO) are not limited",
-           notify_count(0x0027, &CTL_A), 1);
-        //! walk to 1100 ms after the first emission, in NOTIFY_WIN slices
-        while (uns_log_cycle - t_first < 1100L * MS_CYC_TB) drain_tx(NOTIFY_WIN);
-        ck("[NOTIFY-T] ...and released after the second elapsed (A)",
-           notify_count(0x0029, &CTL_A, 0x0009, 0), 1);
-        ck("[NOTIFY-T] ...(B)", notify_count(0x0029, &CTL_B, 0x0009, 0), 1);
-        const long t_second = notify_when(0x0029, CTL_A, 0, false);
-        //! The processor measures its second from emission SELECTION to
-        //! emission selection; what the trunk sees is that second plus the
-        //! difference of two selection-to-wire latencies (a table walk, an
-        //! engine job and a TX slot each time), a few hundred microseconds
-        //! either way. The compliance interval floor is 900 ms; 990 ms here
-        //! leaves the limiter no room to be anything but the full second.
-        ck("[NOTIFY-T] ...>= 990 ms after the first on the wire (the limiter's "
-           "full second, less the selection-to-wire jitter)",
-           (long)(t_second >= 0 && (t_second - t_first) >= 990L * MS_CYC_TB), 1);
-        printf("  [i]    GET_COUNTERS(AVB_INTERFACE) wire interval: %ld cycles = "
-               "%.3f ms\n", t_second >= 0 ? (t_second - t_first) : -1L,
-               t_second >= 0 ? (double)(t_second - t_first) / MS_CYC_TB : -1.0);
-        const std::vector<uint8_t> sc2 = aecp_xact_from(CTL_A, 0x0029, sq++, gc);
-        ck("[NOTIFY-T] ...body == the solicited read that follows (current state)",
-           (long)(aecp_status(sc2) == 0
-                  && notify_same_from(notify_last(0x0029, CTL_A, 0x0009, 0), sc2, 38)), 1);
-    }
-
-    // ---- (N7) PathTrace COMMIT is private; PUBLISH is atomic -----------
-    //! 0x7DC/0x7E0 stage a clockIdentity and 0x7E4 bit 31 COMMITs it into
-    //! the private image. Only bit 30 PUBLISHes the whole image + length.
-    //! The generation advances exactly when that canonical publication
-    //! changes. The root qualifies that edge against the complete served
-    //! {GM,count,tail} tuple before it becomes an AS_PATH event.
-    notify_clear();
-    const unsigned long gmchg_n7 = gm_changed_ctr();
-    const unsigned asp_alias_gen = (axi_read(0x7E4) >> 4) & 0xFu;
-    ck("[R0] count-alias arm starts with a grandmaster",
-       (unsigned long)(((uint64_t)axi_read(0x628) << 32) | axi_read(0x624)) != 0,
-       1);
-    //! Count 0 is the legacy spelling and count 1 the explicit spelling of
-    //! the same served sequence, {GM}. Neither direction may spend a
-    //! generation or emit a false Table 5.22 push.
-    axi_write(0x7E4, 0x40000001u);
-    drain_tx(NOTIFY_WIN);
-    ck("[R0] legacy count 0 -> explicit count 1 emits no AS_PATH push",
-       notify_count(0x0028, nullptr), 0);
-    ck("[R0] ...and spends no publication generation",
-       (axi_read(0x7E4) >> 4) & 0xFu, asp_alias_gen);
-    ck("[R0] ...while raw readback truthfully reports count 1",
-       axi_read(0x7E4) & 0xFu, 1);
-    notify_clear();
-    axi_write(0x7E4, 0x40000000u);
-    drain_tx(NOTIFY_WIN);
-    ck("[R0] explicit count 1 -> legacy count 0 emits no AS_PATH push",
-       notify_count(0x0028, nullptr), 0);
-    ck("[R0] ...and also spends no publication generation",
-       (axi_read(0x7E4) >> 4) & 0xFu, asp_alias_gen);
-
-    const uint64_t asp_old1 = 0x0011223300000001ull;
-    const uint64_t asp_old2 = 0x0011223300000002ull;
-    const uint64_t asp_new1 = 0x445566778899AA01ull;
-    const uint64_t asp_new2 = 0x445566778899AA02ull;
-    const uint64_t asp_new3 = 0x445566778899AA03ull;
-    const auto asp_entry = [](const std::vector<uint8_t>& f, unsigned k) {
-        uint64_t v = 0;
-        const size_t off = 42 + 8 * k;
-        if (f.size() < off + 8) return v;
-        for (unsigned b = 0; b < 8; b++) v = (v << 8) | f[off + b];
-        return v;
-    };
-    const auto asp_stage = [](unsigned slot, uint64_t value) {
-        axi_write(0x7DC, (uint32_t)value);
-        axi_write(0x7E0, (uint32_t)(value >> 32));
-        axi_write(0x7E4, 0x80000000u | (slot << 8));
-    };
-    asp_stage(1, asp_old1);
-    asp_stage(2, asp_old2);
-    drain_tx(NOTIFY_WIN);
-    ck("[NOTIFY] initial COMMITs are private (no AS_PATH push)",
-       notify_count(0x0028, nullptr), 0);
-    axi_write(0x7E4, 0x40000000u | 3u);       // publish {GM, old1, old2}
-    drain_tx(NOTIFY_WIN);
-    ck("[NOTIFY] first changed PUBLISH: one GET_AS_PATH to A",
-       notify_count(0x0028, &CTL_A), 1);
-    ck("[NOTIFY] ...and one to B", notify_count(0x0028, &CTL_B), 1);
-    ck("[NOTIFY] ...and no GET_AVB_INFO (the grandmaster did not change)",
-       notify_count(0x0027, nullptr), 0);
-    ck("[NOTIFY] ...and GPTP_GM_CHANGED did not move either",
-       gm_changed_ctr() - gmchg_n7, 0);
-    {
-        const std::vector<uint8_t> gp(4, 0);
-        const std::vector<uint8_t> sp = aecp_xact_from(CTL_B, 0x0028, sq++, gp);
-        ck("[NOTIFY] solicited GET_AS_PATH now answers count 3 (cdl 40)",
-           (long)(aecp_status(sp) == 0 && notify_cdl(sp) == 40
-                  && sp.size() >= 66
-                  && (((unsigned)sp[40] << 8) | sp[41]) == 3), 1);
-        ck("[NOTIFY] ...entry 0 is the grandmaster",
-           asp_entry(sp, 0), ((uint64_t)gm_hi << 32) | gm_cur_lo);
-        ck("[NOTIFY] ...entry 1 is the first published slot",
-           asp_entry(sp, 1), asp_old1);
-        ck("[NOTIFY] ...entry 2 is the second published slot",
-           asp_entry(sp, 2), asp_old2);
-        ck("[NOTIFY] ...AS_PATH push body == that solicited read",
-           (long)notify_same_from(notify_last(0x0028, CTL_B), sp, 38), 1);
-    }
-
-    //! THE MISSING ATOMICITY INTERVAL. Rewrite both live tail slots, add a
-    //! third one and COMMIT all three privately, but do not PUBLISH. There
-    //! must be no push, and a solicited GET_AS_PATH on the real wire must
-    //! still return the PRIOR publication. The old single-array implementation
-    //! passed the no-push check and then leaked the new slots immediately.
-    notify_clear();
-    const unsigned asp_gen_old = (axi_read(0x7E4) >> 4) & 0xFu;
-    asp_stage(1, asp_new1);
-    asp_stage(2, asp_new2);
-    asp_stage(3, asp_new3);
-    drain_tx(NOTIFY_WIN);
-    ck("[R0] three re-COMMITs before PUBLISH emit no GET_AS_PATH push",
-       notify_count(0x0028, nullptr), 0);
-    ck("[R0] ...and leaves the published generation unchanged",
-       (axi_read(0x7E4) >> 4) & 0xFu, asp_gen_old);
-    {
-        const std::vector<uint8_t> gp(4, 0);
-        const std::vector<uint8_t> sp = aecp_xact_from(CTL_A, 0x0028, sq++, gp);
-        ck("[R0] solicited GET_AS_PATH between COMMIT and PUBLISH stays count 3",
-           (long)(aecp_status(sp) == 0 && notify_cdl(sp) == 40
-                  && sp.size() >= 66
-                  && (((unsigned)sp[40] << 8) | sp[41]) == 3), 1);
-        ck("[R0] ...and serves PRIOR slot 1 atomically",
-           asp_entry(sp, 1), asp_old1);
-        ck("[R0] ...and serves PRIOR slot 2 atomically",
-           asp_entry(sp, 2), asp_old2);
-    }
-
-    //! THE IN-FLIGHT CUT. Launch a real solicited GET_AS_PATH with TX held so
-    //! no response byte can escape, stop on the exact first-count capture
-    //! edge, then PUBLISH while the processor is still gathering the rest of
-    //! that response. The in-flight body must remain wholly old; the next
-    //! response and the changed-path pushes must be wholly new.
-    notify_clear();
-    const std::vector<uint8_t> gp_inflight(4, 0);
-    const std::vector<uint8_t> rq_inflight =
-        aecp_request(0x0028, sq++, gp_inflight, CTL_A);
-    inject(rq_inflight.data(), rq_inflight.size(),
-           (int)((rq_inflight.size() + 7) / 8), false);
-    bool asp_capture_seen = false;
-    for (int c = 0; c < 200000 && !asp_capture_seen; c++) {
-        lo();
-        asp_capture_seen =
-            dut->rootp->milan_datapath__DOT__asp_resp_capture_w;
-        hi();
-        uns_log_cycle++;
-    }
-    ck("[R0] in-flight GET_AS_PATH reached its first-count snapshot edge",
-       asp_capture_seen, 1);
-    asp_cut_entry_seen = false;
-    asp_cut_watch = asp_capture_seen;
-    axi_write(0x7E4, 0x40000000u | 4u);       // {GM, new1, new2, new3}
-    const bool asp_entry_before_publish = asp_cut_entry_seen
-        || dut->rootp->milan_datapath__DOT__asp_resp_entry_w;
-    asp_cut_watch = false;
-    ck("[R0] PUBLISH completed before the first path-entry gather request",
-       !asp_entry_before_publish, 1);
-    const std::vector<uint8_t> sp_inflight = await_aecp();
-    ck("[R0] PUBLISH during gather leaves in-flight response count wholly old",
-       (long)(aecp_status(sp_inflight) == 0 && notify_cdl(sp_inflight) == 40
-              && sp_inflight.size() >= 66
-              && (((unsigned)sp_inflight[40] << 8) | sp_inflight[41]) == 3), 1);
-    ck("[R0] ...and leaves tail entry 1 wholly old",
-       asp_entry(sp_inflight, 1), asp_old1);
-    ck("[R0] ...and leaves tail entry 2 wholly old",
-       asp_entry(sp_inflight, 2), asp_old2);
-    drain_tx(NOTIFY_WIN);
-    ck("[R0] changed PUBLISH sends GET_AS_PATH to A",
-       notify_count(0x0028, &CTL_A), 1);
-    ck("[R0] ...and to B", notify_count(0x0028, &CTL_B), 1);
-    ck("[R0] ...advances the publication generation once",
-       (axi_read(0x7E4) >> 4) & 0xFu, (asp_gen_old + 1u) & 0xFu);
-    {
-        const std::vector<uint8_t> gp(4, 0);
-        const std::vector<uint8_t> sp = aecp_xact_from(CTL_B, 0x0028, sq++, gp);
-        ck("[R0] solicited GET_AS_PATH after PUBLISH answers count 4 (cdl 48)",
-           (long)(aecp_status(sp) == 0 && notify_cdl(sp) == 48
-                  && sp.size() >= 74
-                  && (((unsigned)sp[40] << 8) | sp[41]) == 4), 1);
-        ck("[R0] ...serves NEW slot 1", asp_entry(sp, 1), asp_new1);
-        ck("[R0] ...serves NEW slot 2", asp_entry(sp, 2), asp_new2);
-        ck("[R0] ...serves NEW slot 3", asp_entry(sp, 3), asp_new3);
-        ck("[R0] ...changed push body == that solicited read",
-           (long)notify_same_from(notify_last(0x0028, CTL_B), sp, 38), 1);
-    }
-
-    //! Negative plus positive controls for changed-only generation. The
-    //! exact same staged bytes and count are not a path change, so an
-    //! identical re-publish must leave both the generation and wire silent;
-    //! the two changed publishes above prove the event path is reachable.
-    notify_clear();
-    const unsigned asp_gen_new = (axi_read(0x7E4) >> 4) & 0xFu;
-    axi_write(0x7E4, 0x40000000u | 4u);
-    drain_tx(NOTIFY_WIN);
-    ck("[R0] identical re-PUBLISH generates no false GET_AS_PATH notification",
-       notify_count(0x0028, nullptr), 0);
-    ck("[R0] ...and does not spend a publication generation",
-       (axi_read(0x7E4) >> 4) & 0xFu, asp_gen_new);
-
-    //! back to the leaf's one-entry path: a publish of length 0 (legacy),
-    //! itself an edge, drained so the later arms start clean
-    axi_write(0x7E4, 0x40000000u);
-    drain_tx(NOTIFY_WIN);
-
-    // ---- (N8) the FIRST grandmaster commit -------------------------------
-    //! Commit zero (a change from a nonzero id: pushes ride gm_change),
-    //! drain, then commit again: pp_gm_change_p_w stays LOW by design (no
-    //! ADP GM_CHANGE at every boot), yet the served gptp_grandmaster_id and
-    //! the path both went from nothing to something - the fabric's
-    //! first-commit term is what pushes here.
-    axi_write(0x624, 0); axi_write(0x628, 0);
-    drain_tx(NOTIFY_WIN);
-    notify_clear();
-    axi_write(0x624, gm_cur_lo); axi_write(0x628, gm_hi);
-    drain_tx(NOTIFY_WIN);
-    ck("[NOTIFY] first GM commit: one unsolicited GET_AVB_INFO to A",
-       notify_count(0x0027, &CTL_A), 1);
-    ck("[NOTIFY] ...and one to B", notify_count(0x0027, &CTL_B), 1);
-    ck("[NOTIFY] first GM commit: one unsolicited GET_AS_PATH to A",
-       notify_count(0x0028, &CTL_A), 1);
-    ck("[NOTIFY] ...and one to B", notify_count(0x0028, &CTL_B), 1);
-    ck("[NOTIFY] ...and the ADP duty untouched: no GM_CHANGE strobe, so no "
-       "AVB_INTERFACE counter push", notify_count(0x0029, nullptr, 0x0009, 0), 0);
-    {
-        const std::vector<uint8_t> gp(4, 0);
-        const std::vector<uint8_t> sp = aecp_xact_from(CTL_A, 0x0028, sq++, gp);
-        ck("[NOTIFY] ...the path is {GM} again (count 1)",
-           (long)(aecp_status(sp) == 0 && notify_cdl(sp) == 24
-                  && (((unsigned)sp[40] << 8) | sp[41]) == 1), 1);
-        ck("[NOTIFY] ...AS_PATH push body == that solicited read",
-           (long)notify_same_from(notify_last(0x0028, CTL_A), sp, 38), 1);
-    }
-
-    // ---- (N8b) the gPTP DOMAIN, and the no-grandmaster boundary ---------
-    //! Table 5.22 names gptp_domain_number as its own GET_AVB_INFO trigger,
-    //! and 0x62C is independently writable (802.1AS-2020 8.1 makes
-    //! domainNumber a configured attribute). The ADP GM_CHANGE strobe is
-    //! silent while the PREVIOUS grandmaster id is zero - the rule that stops
-    //! every boot announcing a change - so a domain write in the startup or
-    //! GM-loss window used to reach the served response with no push behind
-    //! it. This arm walks GM=0 BEFORE, DURING and AFTER a domain change, and
-    //! grades the repeat write for silence.
-    //! Body offsets, from the AEM command body at 38: descriptor_type 38,
-    //! descriptor_index 40, gptp_grandmaster_id 42, propagation_delay 50,
-    //! gptp_domain_number 54, flags 55, msrp_mappings_count 56.
-    {
-        const std::vector<uint8_t> ga = {0x00, 0x09, 0x00, 0x00};
-        const uint32_t dom0 = axi_read(0x62C) & 0xFFu;
-        const uint32_t dom1 = dom0 ^ 0x01u;
-
-        //! GM back to zero: the boundary state reset establishes and GM loss
-        //! returns to. Its own pushes drained before the arm starts.
-        axi_write(0x624, 0); axi_write(0x628, 0);
-        drain_tx(NOTIFY_WIN);
-        notify_clear();
-        const unsigned long gmchg_nogm = gm_changed_ctr();
-
-        //! A changed tail/count while GM=0 changes the private publication
-        //! available to a future grandmaster, but the served sequence remains
-        //! byte-identical empty NOW. The notification detector therefore
-        //! compares the served tuple, not the raw publication generation.
-        axi_write(0x7E4, 0x40000002u);
-        drain_tx(NOTIFY_WIN);
-        ck("[R0] changed PUBLISH with GM=0 emits no false AS_PATH push",
-           notify_count(0x0028, nullptr), 0);
-        ck("[R0] ...while raw publication count really moved to 2",
-           axi_read(0x7E4) & 0xFu, 2);
-        {
-            const std::vector<uint8_t> gp(4, 0);
-            const std::vector<uint8_t> sp =
-                aecp_xact_from(CTL_A, 0x0028, sq++, gp);
-            ck("[R0] ...and solicited GET_AS_PATH remains empty on the wire",
-               (long)(aecp_status(sp) == 0 && notify_cdl(sp) == 16
-                      && sp.size() >= 42
-                      && (((unsigned)sp[40] << 8) | sp[41]) == 0), 1);
-        }
-        notify_clear();
-        axi_write(0x7E4, 0x40000000u);             // restore legacy raw count
-        drain_tx(NOTIFY_WIN);
-        ck("[R0] changed withdrawal with GM=0 is equally silent",
-           notify_count(0x0028, nullptr), 0);
-        notify_clear();
-
-        axi_write(0x62C, dom1);                       // domain change, GM = 0
-        drain_tx(NOTIFY_WIN);
-        ck("[NOTIFY] domain change with NO grandmaster: one unsolicited "
-           "GET_AVB_INFO to A", notify_count(0x0027, &CTL_A), 1);
-        ck("[NOTIFY] ...and one to B", notify_count(0x0027, &CTL_B), 1);
-        ck("[NOTIFY] ...and the ADP duty stays silent: no GM_CHANGE, so no "
-           "AVB_INTERFACE counter push",
-           notify_count(0x0029, nullptr, 0x0009, 0), 0);
-        ck("[NOTIFY] ...and no GET_AS_PATH (the path did not change)",
-           notify_count(0x0028, nullptr), 0);
-        //! THE SYMMETRY THIS ARM EXISTS TO PIN. The GM-present twin of this
-        //! write is graded in (N8d) below with the same three negatives, so
-        //! a domain write behaves IDENTICALLY on both sides of the
-        //! grandmaster boundary: one GET_AVB_INFO per registered controller,
-        //! and nothing else. It used to differ purely because of the ADP
-        //! rule's `|pp_gm_id_q_r|` guard -- GM absent suppressed the false
-        //! events, GM present manufactured them -- and a state-dependent
-        //! answer to one write is the robustness defect, not just the false
-        //! events themselves.
-        ck("[NOTIFY] ...and GPTP_GM_CHANGED did not move",
-           gm_changed_ctr() - gmchg_nogm, 0);
-        {
-            const std::vector<uint8_t> sa = aecp_xact_from(CTL_A, 0x0027, sq++, ga);
-            ck("[NOTIFY] ...AVB_INFO body == the solicited read that follows",
-               (long)(aecp_status(sa) == 0
-                      && notify_same_from(notify_last(0x0027, CTL_A), sa, 38)), 1);
-            ck("[NOTIFY] ...and it names the NEW domain number",
-               (long)(sa.size() >= 58 ? sa[54] : -1), (long)dom1);
-        }
-        //! the no-op rule: the same value stored again is not a change
-        notify_clear();
-        axi_write(0x62C, dom1);
-        drain_tx(NOTIFY_WIN);
-        ck("[NOTIFY] the SAME domain written again pushes NOTHING",
-           notify_count(0x0027, nullptr), 0);
-
-        //! AFTER: a grandmaster arrives, then the domain moves again with one
-        //! present. The push is still exactly one per registered controller.
-        axi_write(0x624, gm_cur_lo); axi_write(0x628, gm_hi);
-        drain_tx(NOTIFY_WIN);
-
-        //! ---- (N8d) ONE ADP STROBE IS NOT THREE FACTS ------------------
-        //! The GM-present arm is where a single combined "the gPTP pair
-        //! moved" strobe does its damage, so it is graded here in TWO
-        //! halves that share one window and one limiter phase.
-        //!
-        //! The POSITIVE half first, because it also puts the GET_COUNTERS
-        //! one-second limiter in a KNOWN phase: move the grandmaster
-        //! IDENTITY and all three identity facts must fire - the served AS
-        //! path's entry 0 changed, Milan Table 5.1 GPTP_GM_CHANGED ("Number
-        //! of gPTP GM changes, since boot") moves exactly once, and the
-        //! AVB_INTERFACE counter block is dirty. Without this half, the
-        //! negative half below could pass by being unreachable.
-        notify_clear();
-        const unsigned long gmchg_id0 = gm_changed_ctr();
-        gm_cur_lo ^= 0x40u;
-        axi_write(0x624, gm_cur_lo); axi_write(0x628, gm_hi);
-        drain_tx(NOTIFY_WIN);
-        ck("[R0] a grandmaster IDENTITY change pushes GET_AS_PATH",
-           notify_count(0x0028, nullptr), 2);
-        ck("[R0] ...and increments GPTP_GM_CHANGED exactly once",
-           gm_changed_ctr() - gmchg_id0, 1);
-        long t_ctr_id = -1;
-        if (timed) {
-            ck("[R0] ...and pushes GET_COUNTERS(AVB_INTERFACE,0)",
-               notify_count(0x0029, nullptr, 0x0009, 0), 2);
-            t_ctr_id = notify_when(0x0029, CTL_A, 0, false);
-            //! walk past that push's second so the negative half below sees
-            //! a FREE limiter: a withheld push and a push that was never
-            //! armed look identical on the wire, and only one of them is
-            //! the property under test.
-            if (t_ctr_id >= 0)
-                while (uns_log_cycle - t_ctr_id < 1200L * MS_CYC_TB)
-                    drain_tx(NOTIFY_WIN);
-        }
-
-        //! The NEGATIVE half: the domain number alone. Milan Table 5.22
-        //! names gptp_domain_number a GET_AVB_INFO trigger and NOTHING
-        //! else. It is not the grandmaster, so GPTP_GM_CHANGED must not
-        //! move and no AVB_INTERFACE counter became dirty; it is not a path
-        //! entry, so the served AS path (entry 0 = the grandmaster, entries
-        //! 1.. = the published PathTrace tail) is byte-for-byte what it
-        //! was and Table 5.22's "the path sequence changes" is not met.
-        //! The ADP GM_CHANGE duty strobe legitimately covers BOTH fields -
-        //! 1722.1-2021 6.2.6 re-advertises on either, both being ADPDU
-        //! fields - and that is exactly why it may not be spent as any of
-        //! these three.
-        notify_clear();
-        const unsigned long gmchg_dom = gm_changed_ctr();
-        axi_write(0x62C, dom0);                       // back, GM present
-        drain_tx(NOTIFY_WIN);
-        ck("[NOTIFY] domain change WITH a grandmaster: one GET_AVB_INFO to A",
-           notify_count(0x0027, &CTL_A), 1);
-        ck("[NOTIFY] ...and one to B", notify_count(0x0027, &CTL_B), 1);
-        ck("[R0] domain-only change does not push unchanged GET_AS_PATH",
-           notify_count(0x0028, nullptr), 0);
-        ck("[R0] domain-only change does not increment GPTP_GM_CHANGED",
-           gm_changed_ctr() - gmchg_dom, 0);
-        if (timed)
-            ck("[R0] domain-only change does not push GET_COUNTERS",
-               notify_count(0x0029, nullptr, 0x0009, 0), 0);
-        {
-            const std::vector<uint8_t> sa = aecp_xact_from(CTL_A, 0x0027, sq++, ga);
-            ck("[NOTIFY] ...AVB_INFO body == the solicited read that follows",
-               (long)(aecp_status(sa) == 0
-                      && notify_same_from(notify_last(0x0027, CTL_A), sa, 38)), 1);
-            ck("[NOTIFY] ...restored to the configured domain number",
-               (long)(sa.size() >= 58 ? sa[54] : -1), (long)dom0);
-        }
-    }
-
-    // ---- (N8c) the measured propagation delay --------------------------
-    //! GPTP_PDELAY (0x6E4) is the ns neighbour measurement the gptp daemon
-    //! publishes (or, with the fabric plane elaborated, KL_gptp_shadow's own
-    //! pub_pdelay_ns_o - ONE selected source feeding both the served word and
-    //! its detector). It used to be written and DISCARDED, with
-    //! GET_AVB_INFO's propagation_delay a structural zero (audit B8).
-    //! 0 -> 1, 1 -> max, max -> max (silent), max -> 0, each graded on the
-    //! wire and against the solicited read that follows.
-    {
-        const std::vector<uint8_t> ga = {0x00, 0x09, 0x00, 0x00};
-        struct { uint32_t v; const char* what; long pushes; } steps[] = {
-            {0x00000001u, "0 -> 1 ns",              1},
-            {0xFFFFFFFFu, "1 -> 0xFFFFFFFF ns",     1},
-            {0xFFFFFFFFu, "0xFFFFFFFF again",       0},
-            {0x00000000u, "0xFFFFFFFF -> 0 ns",     1},
+        enum {
+            A_GM_LO = 0x624, A_GM_HI = 0x628, A_DOMAIN = 0x62C,
+            A_PDELAY = 0x6E4, A_PARENT_LO = 0x730, A_PARENT_HI = 0x734,
+            A_CLKV_CTRL = 0x778, A_CLKV_STAT = 0x77C,
+            A_ASP_LO = 0x7DC, A_ASP_HI = 0x7E0, A_ASP_CMD = 0x7E4
         };
-        axi_write(0x6E4, 0);                    // the reset value, drained
-        drain_tx(NOTIFY_WIN);
-        for (unsigned k = 0; k < sizeof steps / sizeof steps[0]; k++) {
-            notify_clear();
-            axi_write(0x6E4, steps[k].v);
-            drain_tx(NOTIFY_WIN);
-            char msg[160];
-            snprintf(msg, sizeof msg,
-                     "[NOTIFY] propagation delay %s: %ld unsolicited "
-                     "GET_AVB_INFO to A", steps[k].what, steps[k].pushes);
-            ck(msg, notify_count(0x0027, &CTL_A), steps[k].pushes);
-            snprintf(msg, sizeof msg, "[NOTIFY] ...and %ld to B",
-                     steps[k].pushes);
-            ck(msg, notify_count(0x0027, &CTL_B), steps[k].pushes);
-            const std::vector<uint8_t> sa = aecp_xact_from(CTL_A, 0x0027, sq++, ga);
-            const uint32_t served = sa.size() >= 58
-                ? (((uint32_t)sa[50] << 24) | ((uint32_t)sa[51] << 16)
-                   | ((uint32_t)sa[52] << 8) | (uint32_t)sa[53]) : 0xDEADBEEFu;
-            snprintf(msg, sizeof msg, "[NOTIFY] ...GET_AVB_INFO serves it back "
-                     "(0x%08X, no longer a structural zero)", steps[k].v);
-            ck(msg, (long)(aecp_status(sa) == 0 && served == steps[k].v), 1);
-            if (steps[k].pushes) {
-                snprintf(msg, sizeof msg, "[NOTIFY] ...push body == that "
-                         "solicited read (%s)", steps[k].what);
-                ck(msg, (long)notify_same_from(notify_last(0x0027, CTL_A), sa, 38), 1);
-            }
-        }
-        //! ...and back to the reset value so every later section reads the
-        //! face the image shipped with
+        const unsigned long gmchg_before = gm_changed_ctr();
+
         notify_clear();
+        axi_write(A_GM_LO,     0xDEADBEEFu);
+        axi_write(A_GM_HI,     0x01234567u);
+        axi_write(A_DOMAIN,    0x000000FFu);
+        axi_write(A_PDELAY,    0xFFFFFFFFu);
+        axi_write(A_PARENT_LO, 0x89ABCDEFu);
+        axi_write(A_PARENT_HI, 0x76543210u);
+        axi_write(A_CLKV_CTRL, 0xFFFFFFFFu);
+        axi_write(A_ASP_LO,    0x11111111u);
+        axi_write(A_ASP_HI,    0xAABBCCDDu);
+        axi_write(A_ASP_CMD,   0xFFFFFFFFu);
         drain_tx(NOTIFY_WIN);
+
+        ck("[OWNERLESS] GM LO write is inert", axi_read(A_GM_LO), 0);
+        ck("[OWNERLESS] GM HI write is inert", axi_read(A_GM_HI), 0);
+        ck("[OWNERLESS] domain write is inert", axi_read(A_DOMAIN), 0);
+        ck("[OWNERLESS] pdelay write is inert", axi_read(A_PDELAY), 0);
+        ck("[OWNERLESS] parent LO write is inert", axi_read(A_PARENT_LO), 0);
+        ck("[OWNERLESS] parent HI write is inert", axi_read(A_PARENT_HI), 0);
+        ck("[OWNERLESS] CLKV control write is inert", axi_read(A_CLKV_CTRL), 0);
+        ck("[OWNERLESS] AS path LO write is inert", axi_read(A_ASP_LO), 0);
+        ck("[OWNERLESS] AS path HI write is inert", axi_read(A_ASP_HI), 0);
+        ck("[OWNERLESS] AS path command/write is inert", axi_read(A_ASP_CMD), 0);
+
+        const uint32_t clkv = axi_read(A_CLKV_STAT);
+        ck("[OWNERLESS] timestamp uncertainty is permanent", clkv & 1u, 1);
+        ck("[OWNERLESS] sync_ok remains clear", (clkv >> 1) & 1u, 0);
+        ck("[OWNERLESS] retired no-lease bit remains clear",
+           (clkv >> 2) & 1u, 0);
+        ck("[OWNERLESS] software discontinuity cannot arm holdover",
+           (clkv >> 3) & 1u, 0);
+        ck("[OWNERLESS] retired lease count remains zero",
+           (clkv >> 4) & 0xFFFu, 0);
+        ck("[OWNERLESS] asCapable remains clear", (clkv >> 16) & 1u, 0);
+
+        ck("[OWNERLESS] writes emit no GET_AVB_INFO notification",
+           notify_count(0x0027, nullptr), 0);
+        ck("[OWNERLESS] writes emit no GET_AS_PATH notification",
+           notify_count(0x0028, nullptr), 0);
+        ck("[OWNERLESS] writes emit no AVB_INTERFACE counter notification",
+           notify_count(0x0029, nullptr, 0x0009, 0), 0);
+        ck("[OWNERLESS] writes do not count a grandmaster change",
+           gm_changed_ctr() - gmchg_before, 0);
+
+        const std::vector<uint8_t> ga = {0x00, 0x09, 0x00, 0x00};
+        const std::vector<uint8_t> avb =
+            aecp_xact_from(CTL_A, 0x0027, sq++, ga);
+        uint64_t served_gm = 0;
+        if (avb.size() >= 50)
+            for (unsigned b = 42; b < 50; b++)
+                served_gm = (served_gm << 8) | avb[b];
+        const uint32_t served_pdelay = avb.size() >= 54
+            ? ((uint32_t)avb[50] << 24) | ((uint32_t)avb[51] << 16)
+              | ((uint32_t)avb[52] << 8) | (uint32_t)avb[53]
+            : 0xDEADBEEFu;
+        ck("[OWNERLESS] solicited GET_AVB_INFO succeeds",
+           avb.size() >= 58 ? aecp_status(avb) : -1, 0);
+        ck("[OWNERLESS] GET_AVB_INFO grandmaster is zero", served_gm, 0);
+        ck("[OWNERLESS] GET_AVB_INFO propagation delay is zero",
+           served_pdelay, 0);
+        ck("[OWNERLESS] GET_AVB_INFO domain is zero",
+           avb.size() >= 58 ? avb[54] : 0xEE, 0);
+        ck("[OWNERLESS] GET_AVB_INFO asCapable flag is clear",
+           avb.size() >= 58 ? avb[55] & 1u : 0xEE, 0);
+
+        const std::vector<uint8_t> gp(4, 0);
+        const std::vector<uint8_t> path =
+            aecp_xact_from(CTL_B, 0x0028, sq++, gp);
+        ck("[OWNERLESS] solicited GET_AS_PATH succeeds",
+           path.size() >= 42 ? aecp_status(path) : -1, 0);
+        ck("[OWNERLESS] GET_AS_PATH has the empty cdl",
+           path.size() >= 42 ? notify_cdl(path) : 0, 16);
+        ck("[OWNERLESS] GET_AS_PATH count is zero",
+           path.size() >= 42
+               ? (((unsigned)path[40] << 8) | path[41]) : 0xEEEEu,
+           0);
     }
 
     if (timed) {
@@ -1894,9 +1401,8 @@ int main(int argc, char** argv) {
     dut->axis_resetn = 0; dut->gtx_resetn = 0;
     dut->s_axi_awvalid = dut->s_axi_wvalid = dut->s_axi_arvalid = 0;
     dut->s_axi_bready = dut->s_axi_rready = 0;
-    dut->s_axis_tx_tvalid = 0; dut->s_axis_mac_rx_tvalid = 0;
-    dut->m_axis_mac_tx_tready = 1; dut->m_axis_rx_tready = 1;
-    dut->m_axis_ts_tready = 1; dut->m_axis_pcm_tready = 1;
+dut->s_axis_mac_rx_tvalid = 0;
+dut->m_axis_mac_tx_tready = 1;
     dut->i_mac_speed = 2; dut->i_link_up = 1; dut->i_full_duplex = 1;
     dut->i_mac_events = 0;
     for (int i = 0; i < 8; i++) step();
@@ -1904,8 +1410,8 @@ int main(int argc, char** argv) {
     for (int i = 0; i < 8; i++) step();
 
     ck("ID == 'MILN'", axi_read(A_ID), 0x4D494C4E);
-    ck("VERSION 0x0055 carries the Table 5.22 pushes and the controller monitor",
-       axi_read(A_VERSION), 0x00020055);
+    ck("VERSION 0x0056 carries ownerless option OFF and the 0x0055 notification work",
+       axi_read(A_VERSION), 0x00020056);
 
     //! ENTITY IDENTITY, PROVISIONED ONCE AND EARLY (moved here 2026-08-13).
     //! These two writes used to sit inside the N-sink ACMP ctx2 section,
@@ -1964,7 +1470,7 @@ int main(int argc, char** argv) {
     //! shape and nothing in this tree could have caught it: the bridge that
     //! stands where `rm_answering` stands here left its bus states only on
     //! `ack`, so ONE unanswered access parked it forever, silently. What made
-    //! it lethal rather than local is the arbiter: the dma_bus re-arbitrates
+    //! it lethal rather than local is the arbiter: the memory attachment re-arbitrates
     //! only when nothing is outstanding, so a master holding cyc/stb freezes
     //! every other master on that bus. The visible half of the fix is graded
     //! here - a memory that never acks must produce a well-formed
@@ -2540,11 +2046,11 @@ int main(int argc, char** argv) {
         }
     }
 
-#ifdef AAF_PB_TB
+#ifdef AX8X8_TB
     // ---- task #26: RESET STARTS FROM AN EMPTY DYNAMIC-MAP STORE ------------
     //      This check used to prove the AECP builder had walked the declared
     //      identity image into the capture map RAM during its post-reset IDLE
-    //      cycles, so key 0 read the declared RING template 0x1300 with
+    //      cycles, so key 0 read the now-retired reserved-source template with
     //      0x900[0] never written - the "in-circuit by construction" law.
     //      The boot seeder remains absent, so the RAM starts empty. The AECP
     //      transaction writer is now live and [T66] below proves that accepted
@@ -2554,8 +2060,8 @@ int main(int argc, char** argv) {
     //      as breakage (milan_datapath.sv:1238-1252): with the crossbar
     //      bypassed the DECLARED front-end routing stays wired straight to the
     //      packetizer, so talkers do NOT wake streaming an empty map's
-    //      silence - the pb/loopback sections below frame real audio through
-    //      that path.
+    //      silence - the loopback/fabric sections below frame real audio
+    //      through that path.
     //
     //      So the two checks become the two halves of the new structural
     //      truth, and neither is vacuous: the READ mux is still live (bit 26
@@ -2656,15 +2162,15 @@ int main(int argc, char** argv) {
     // AAF format u64 for {AAF, 48k, INT32, depth 32, up to 2 ch}
     const uint32_t FMT_HI = 0x02050220, FMT_LO = 2u << 22;
 
-    printf("-- provision listener 1 (route=DMA flag) + 2 (route=NULL) via 0x800 --\n");
+    printf("-- provision listener 1 (retired route bit) + 2 (route=NULL) via 0x800 --\n");
     axi_write(A_STRM_SEL, 0x001);                    // dir=0 idx=1
     axi_write(A_SW_SID_LO, 0x00030001);              // sidB[63:0] LSW
     axi_write(A_SW_SID_HI, 0x03000000);
     axi_write(A_SW_FMT_LO, FMT_LO);
     axi_write(A_SW_FMT_HI, FMT_HI);
-    axi_write(A_SW_CTRL, (RT_DMA << 1) | 1u);        // en, DMA flag only
+    axi_write(A_SW_CTRL, (RT_RETIRED << 1) | 1u);    // en + retired route bit
     // CFG readback through the ENGINE-ARBITRATED LCTX port B (real RAM)
-    ck("LCTX w4 CTRL readback (port B)",  axi_read(A_SW_CTRL), 0x3);
+    ck("LCTX w4 masks retired route bit (port B)", axi_read(A_SW_CTRL), 0x1);
     ck("LCTX w2 FMT_LO readback (port B)", axi_read(A_SW_FMT_LO), FMT_LO);
     ck("LCTX w3 FMT_HI readback (port B)", axi_read(A_SW_FMT_HI), FMT_HI);
 
@@ -2682,12 +2188,15 @@ int main(int argc, char** argv) {
         // stream-table override: before the fix it wrote {sid=0, en=1},
         // hijacking the live ACMP alias AND matching sid-0 frames
         axi_write(A_STRM_SEL, 0x000);                // dir=0 idx=0
-        axi_write(A_SW_CTRL, (RT_DMA << 1) | 1u);    // en + DMA, sid NOT staged
-        size_t before = pcm_frames.size();
+        axi_write(A_SW_CTRL, (RT_RETIRED << 1) | 1u); // retired bit, sid NOT staged
+        uint32_t before = axi_read(A_PCMRX_CNT);
+        long render_before = render_beats;
         const uint8_t sid0[8] = {0,0,0,0,0,0,0,0};
         inject(mkaaf(sid0, 5, 2, 0x10), 120);        // sid 0 must NOT match
         ck("route-only idx0 commit: sid-0 frame ignored",
-           pcm_frames.size(), before);
+           axi_read(A_PCMRX_CNT), before);
+        ck("route-only idx0 commit: no fabric-render beat",
+           render_beats, render_before);
         // ...and it is now BLOCKED, not merely mis-aimed. The pre-2026-07-26
         // guard was `(|{wing_sid_hi_r, wing_sid_lo_r})` over a staging pair
         // that is GLOBAL, not per index: it still held listener 2's sid from
@@ -2708,7 +2217,8 @@ int main(int argc, char** argv) {
     inject(mkaaf(sidC, 78, 2, 0x70), 120);
     inject(mkaaf(sidX, 99, 2, 0x00), 120);           // no table entry: ignored
 
-    ck("PCM ring frames = 3 (stream 1 only)", pcm_frames.size(), 3);
+    ck("shared PCMRX counts the five matched PDUs", axi_read(A_PCMRX_CNT), 5);
+    ck("retired/null routes produce no fabric-render beats", render_beats, 0);
 
     // ---- RX parser probe at width N (APRB 0x8B4) ------------------------
     // The last frame injected above carries sidX, which no table entry
@@ -2737,17 +2247,6 @@ int main(int argc, char** argv) {
         ck("APRB armed entries = 2 (idx0 still the ACMP alias)",
            (info >> 16) & 0xFF, 2);
     }
-    bool user_ok = true, pay_ok = true;
-    for (auto& fr : pcm_frames) {
-        if (fr.user != 1) user_ok = false;
-        if (fr.bytes.size() != 48) pay_ok = false;
-    }
-    if (!pcm_frames.empty() && pay_ok)
-        for (int i = 0; i < 48; i++)
-            if (pcm_frames[0].bytes[i] != (uint8_t)(0x30+i)) pay_ok = false;
-    ck("ring tuser == 1 on every frame", user_ok, 1);
-    ck("48-byte payload, frame 0 byte-exact", pay_ok, 1);
-
     printf("-- SNAP isolation: per-stream Table 7-157 blocks --\n");
     axi_write(A_STRM_SEL, 0x001);
     snap_and_wait();
@@ -3143,10 +2642,11 @@ int main(int argc, char** argv) {
                (long)lu, (long)(ld + 1));
             ck("[CTRS2] the link has risen at least once", (long)(lu >= 1), 1);
 
-            // -- GPTP_GM_CHANGED, by delta ----------------------------------
-            //! the strobe fires only when a NONZERO grandmaster identity
-            //! changes (a first publication is a discovery, not a change) -
-            //! so publish A, then move to B, and expect exactly the B edge
+            // -- ownerless GPTP_GM_CHANGED, by delta -------------------------
+            //! The option-off ABI retains the GM pair as inert compatibility
+            //! state with zero runtime publishers. Neither a first write nor
+            //! a later write may create a GM identity, counter edge, or
+            //! notification event.
             const uint32_t gm0 = ctr_of(0x0009, 0, 5);
             //! the GM pair is COMMIT-ON-HI (milan_csr: "LO stages, HI
             //! commits both halves in one cycle") - a LO write alone changes
@@ -3167,46 +2667,46 @@ int main(int argc, char** argv) {
                    (unsigned)dut->rootp->milan_datapath__DOT__ctr_gmchg_r,
                    (unsigned)dut->rootp->milan_datapath__DOT__pp_gm_change_p_w);
             const uint32_t gm1 = ctr_of(0x0009, 0, 5);
-            ck("[CTRS2] GPTP_GM_CHANGED counted the A-to-B move",
-               (long)(gm1 - gm0 >= 1), 1);
-            ck("[CTRS2] ...and the AVB_INTERFACE change reached the arbiter",
-               (long)pp_ctr_evt_avb_seen, 1);
+            ck("[CTRS2] ownerless GM writes read zero",
+               (long)(axi_read(0x624) | axi_read(0x628)), 0);
+            ck("[CTRS2] ownerless GM writes do not move GPTP_GM_CHANGED",
+               (long)(gm1 - gm0), 0);
+            ck("[CTRS2] ownerless GM writes do not reach the arbiter",
+               (long)pp_ctr_evt_avb_seen, 0);
 
-            // -- the clock-domain family, by delta --------------------------
-            //! the GM commits above are gPTP DISCONTINUITIES to the clock
-            //! validity block (gm_id_i != gm_r arms HOLD_QTICK_P = 2
-            //! quarter-ticks of holdover, 4096 cycles each in this leg), and
-            //! tu cannot fall while holdover runs. Drain it first, or the
-            //! lock edge lands after the read that grades it.
+            // -- the ownerless clock-domain family, by delta ----------------
+            //! The counter face remains present, but inert CLKV control writes
+            //! cannot manufacture lock/unlock transitions.
             for (int i = 0; i < 15000; i++) step();
             const uint32_t lk0 = ctr_of(0x0024, 0, 0);
             const uint32_t ul0 = ctr_of(0x0024, 0, 1);
             pp_ctr_evt_ckd_seen = false;
             ck("[CTRS2] CLOCK_DOMAIN mask = 0x3 (LOCKED, UNLOCKED)",
                (long)ctr_of(0x0024, 0, 32), 0x3);
-            //! lock = the CLKV lease (0x778: [0] SYNC_OK, [15:4] lease in
-            //! quarter-ticks; any write reloads). tu falls -> LOCKED++
+            //! Exercise the old sync/lease bits.  The control register reads
+            //! zero and the live verdict remains {tu,sync_ok} = {1,0}.
             axi_write(0x778, (0xFFFu << 4) | 1u);
             snap_and_wait();
             printf("  [i]    after lease: CLKV_STAT 0x%08X\n", axi_read(0x77C));
             const uint32_t lk1 = ctr_of(0x0024, 0, 0);
-            ck("[CTRS2] the lease LOCKED the domain (+1)",
-               (long)(lk1 - lk0), 1);
-            //! a reported gPTP discontinuity (bit 1, W1S) drops the verdict:
-            //! tu rises -> UNLOCKED++ (write keeps SYNC_OK so the NEXT lease
-            //! re-locks; here we only grade the unlock edge)
+            ck("[CTRS2] retired lease control reads zero", axi_read(0x778), 0);
+            ck("[CTRS2] retired lease cannot LOCK the domain",
+               (long)(lk1 - lk0), 0);
+            ck("[CTRS2] ownerless verdict remains tu=1, sync_ok=0",
+               (long)(axi_read(0x77C) & 3u), 1);
+            //! The compatibility discontinuity bit is equally inert.
             axi_write(0x778, (0xFFFu << 4) | 2u | 1u);
             for (int i = 0; i < 32; i++) step();
             const uint32_t ul1 = ctr_of(0x0024, 0, 1);
-            ck("[CTRS2] the discontinuity UNLOCKED the domain (+1)",
-               (long)(ul1 - ul0 >= 1), 1);
+            ck("[CTRS2] retired discontinuity cannot UNLOCK the domain",
+               (long)(ul1 - ul0), 0);
             //! 5.3.11.2's invariant across whatever the two writes left
             const uint32_t lkf = ctr_of(0x0024, 0, 0);
             const uint32_t ulf = ctr_of(0x0024, 0, 1);
             ck("[CTRS2] LOCKED - UNLOCKED is 0 or 1 (the shall-invariant)",
                (long)(lkf - ulf <= 1), 1);
-            ck("[CTRS2] the clock-domain changes reached the arbiter",
-               (long)pp_ctr_evt_ckd_seen, 1);
+            ck("[CTRS2] retired clock controls do not reach the arbiter",
+               (long)pp_ctr_evt_ckd_seen, 0);
 
             // -- the unclaimed stay unclaimed -------------------------------
             //! FRAMES_TX/RX + RX_CRC_ERROR live in mac_rmon's domain: the
@@ -3267,7 +2767,7 @@ int main(int argc, char** argv) {
     // ======================================================================
     //! The protocol store covers the entity model's full input cluster space;
     //! RMAP is only its generated physical projection. The 0x900 window
-    //! updates both. GET_AUDIO_MAP therefore returns host/virtual mappings,
+    //! updates both. GET_AUDIO_MAP therefore returns protocol-store mappings,
     //! while CHMAP_LOOP proves those keys do not alias a physical output.
     //!
     //! GEOMETRY ACROSS LEGS: this file elaborates under the 4x4 header
@@ -3282,8 +2782,8 @@ int main(int argc, char** argv) {
                A_CHMAP_WORD = 0x908, A_CHMAP_SNAP = 0x910,
                A_CHMAP_LOOP = 0x914 };
         // provision: cluster 0 <- AVB {stream 1, ch 1}, cluster 2 <- AVB
-        // {stream 0, ch 3}, cluster 1 <- HOST RING ch 5 (real routing that
-        // must NOT appear as a 7.4.44.2.1 record), cluster 3 left unmapped
+        // {stream 0, ch 3}, cluster 1 <- a retired/reserved source encoding
+        // that must NOT appear as a 7.4.44.2.1 record, cluster 3 unmapped
         axi_write(A_CHMAP_CTRL, 0x1);
         axi_write(A_CHMAP_SEL, 0);  axi_write(A_CHMAP_WORD, 0x8011);
         axi_write(A_CHMAP_SEL, 2);  axi_write(A_CHMAP_WORD, 0x8003);
@@ -3299,14 +2799,14 @@ int main(int argc, char** argv) {
         };
         const uint32_t e0 = loop_rd(0), e1 = loop_rd(1), e2 = loop_rd(2),
                        e3 = loop_rd(3);
-#ifdef AAF_PB_TB
+#ifdef AX8X8_TB
         ck("[AMAP] retired input key 0 does not alias RMAP (#259)",
            (long)e0, 0x00);
         ck("[AMAP] retired input key 1 does not alias RMAP (#259)",
            (long)e1, 0x00);
 #else
         ck("[AMAP] LOOP reads cluster 0 = {en, avb 1.1}", (long)e0, 0x89);
-        ck("[AMAP] LOOP reads cluster 1 = {en, RING 5}",  (long)e1, 0xC5);
+        ck("[AMAP] LOOP reads cluster 1 = {en, reserved 5}", (long)e1, 0xC5);
 #endif
         ck("[AMAP] non-physical cluster 2 does not alias RMAP",
            (long)e2, 0x00);
@@ -3316,7 +2816,7 @@ int main(int argc, char** argv) {
         //! ({en, src 0}) at global cluster g means {stream idx[5:3],
         //! channel idx[2:0], cluster_offset g (base 0 on port 0),
         //! cluster_channel 0 (mono clusters)}
-#ifndef AAF_PB_TB
+#ifndef AX8X8_TB
         auto rec_of = [](uint32_t ent, uint32_t g, uint8_t* out) {
             out[0] = 0; out[1] = (uint8_t)((ent >> 3) & 7);
             out[2] = 0; out[3] = (uint8_t)(ent & 7);
@@ -3331,8 +2831,8 @@ int main(int argc, char** argv) {
         ck("[AMAP] GET_AUDIO_MAP(SPI 0, page 0) was ANSWERED",
            (long)(r.size() >= 60), 1);
         if (r.size() >= 60) {
-#ifdef AAF_PB_TB
-            // #259: bare-metal retired the host input pool, so this leg's
+#ifdef AX8X8_TB
+            // This shape has no Stream Port Input cluster pool, so this leg's
             // SPI declares ZERO clusters. The correct answer for a port
             // with nothing to map is NOT_IMPLEMENTED with zero maps; the
             // arty legs keep proving the served path.
@@ -3356,7 +2856,7 @@ int main(int argc, char** argv) {
                (long)(((unsigned)r[40] << 8) | r[41]), 0);
             ck("[AMAP] map_index echoed",
                (long)(((unsigned)r[42] << 8) | r[43]), 0);
-#ifdef AAF_PB_TB
+#ifdef AX8X8_TB
             ck("[AMAP] number_of_maps = 0: no partition remains (#259)",
                (long)(((unsigned)r[44] << 8) | r[45]), 0);
             ck("[AMAP] number_of_mappings = 0",
@@ -3364,12 +2864,12 @@ int main(int argc, char** argv) {
 #else
             ck("[AMAP] number_of_maps = the ONE fixed partition",
                (long)(((unsigned)r[44] << 8) | r[45]), 1);
-            ck("[AMAP] number_of_mappings = 2 (the RING entry excluded)",
+            ck("[AMAP] number_of_mappings = 2 (reserved entry excluded)",
                (long)(((unsigned)r[46] << 8) | r[47]), 2);
 #endif
             ck("[AMAP] reserved zero",
                (long)(((unsigned)r[48] << 8) | r[49]), 0);
-#ifndef AAF_PB_TB
+#ifndef AX8X8_TB
             uint8_t want0[8], want1[8];
             rec_of(0x89, 0, want0);
             rec_of(0x83, 2, want1);
@@ -3386,7 +2886,7 @@ int main(int argc, char** argv) {
         //! the 7.4.44.1 page rule: map_index 1 of a 1-page port
         pl[5] = 0x01;
         const std::vector<uint8_t> rb = aecp_xact(0x002B, 0x4031, pl);
-#ifdef AAF_PB_TB
+#ifdef AX8X8_TB
         // #259: with zero input clusters there is no page to rule on -
         // the retirement answer outranks the page check
         ck("[AMAP] page 1 also answers NOT_IMPLEMENTED(11) (#259)",
@@ -3422,7 +2922,7 @@ int main(int argc, char** argv) {
         //! runtime page here.
         pl[1] = 0x0F; pl[3] = 0x00;
         const std::vector<uint8_t> ro = aecp_xact(0x002B, 0x4033, pl);
-#ifdef AAF_PB_TB
+#ifdef AX8X8_TB
         ck("[AMAP] STREAM_PORT_OUTPUT is served now: SUCCESS(0)",
            aecp_status(ro), 0);
         ck("[AMAP] ...number_of_maps 1, empty page, cdl 24",
@@ -3461,47 +2961,48 @@ int main(int argc, char** argv) {
     axi_write(A_STRM_SEL, 0x102);                    // untouched talker ctx
     ck("talker 2 CTRL reads 0", axi_read(A_SW_CTRL), 0);
 
-    printf("-- route flags: RENDER|DMA / RENDER-only / NULL (stream 1) --\n");
-    // so far every injected frame belonged to s1 (DMA-only) or s2 (NULL)
-    // while s0 held the reset RENDER|DMA claim: the render tap must have
+    printf("-- route ABI: retired bit / RENDER / NULL (stream 1) --\n");
+    // So far every injected frame belonged to s1 (retired bit only) or s2
+    // (NULL) while s0 held the reset RENDER claim: the render tap must have
     // stayed silent (RENDER-lowest-wins picks s0, which got no frames)
     ck("render tap silent while s0 owns RENDER", render_beats, 0);
     // demote s0 (window idx 0 commit: en=0 evicts the table override,
     // route=NULL drops its RENDER claim) so s1 wins the render pick
     axi_write(A_STRM_SEL, 0x000);
     axi_write(A_SW_CTRL, (RT_NULL << 1) | 0u);
-    // RENDER|DMA = capture-while-rendering: ring copy AND render tap.
+    // RENDER plus the retired bit: storage masks the retired bit and render
+    // still reaches the fabric clone.
     // A CTRL commit re-writes the stream-table entry from the STAGED sid
     // registers (the window ABI: SEL, stage SID, commit CTRL) - re-stage
     // sidB before every s1 CTRL rewrite.
     axi_write(A_STRM_SEL, 0x001);
     axi_write(A_SW_SID_LO, 0x00030001);
     axi_write(A_SW_SID_HI, 0x03000000);
-    axi_write(A_SW_CTRL, (RT_RENDER_DMA << 1) | 1u);
-    ck("s1 CTRL = RENDER|DMA readback", axi_read(A_SW_CTRL), 0x7);
-    size_t rb0 = pcm_frames.size(); long xb0 = render_beats;
+    axi_write(A_SW_CTRL, (RT_RENDER_RETIRED << 1) | 1u);
+    ck("s1 CTRL masks retired bit but keeps RENDER", axi_read(A_SW_CTRL), 0x5);
+    long xb0 = render_beats;
+    uint32_t pc0 = axi_read(A_PCMRX_CNT);
     inject(mkaaf(sidB, 22, 2, 0x30), 120);
     inject(mkaaf(sidB, 23, 2, 0x40), 120);
-    ck("RENDER|DMA: +2 ring frames", pcm_frames.size() - rb0, 2);
-    ck("RENDER|DMA: ring tuser == 1", pcm_frames.back().user, 1);
-    ck("RENDER|DMA: 12 render beats (2 x 6)", render_beats - xb0, 12);
-    // RENDER-only: renders, NO ring copy
+    ck("RENDER+retired: PCMRX +2", axi_read(A_PCMRX_CNT) - pc0, 2);
+    ck("RENDER+retired: 12 fabric-render beats", render_beats - xb0, 12);
+    // RENDER alone has the identical observable behavior.
     axi_write(A_SW_SID_LO, 0x00030001);
     axi_write(A_SW_SID_HI, 0x03000000);
     axi_write(A_SW_CTRL, (RT_RENDER << 1) | 1u);
-    rb0 = pcm_frames.size(); xb0 = render_beats;
+    xb0 = render_beats; pc0 = axi_read(A_PCMRX_CNT);
     inject(mkaaf(sidB, 24, 2, 0x50), 120);
     inject(mkaaf(sidB, 25, 2, 0x60), 120);
-    ck("RENDER-only: no ring frames", pcm_frames.size() - rb0, 0);
-    ck("RENDER-only: 12 render beats", render_beats - xb0, 12);
-    // NULL: neither sink; the monitor/depkt still count ([M-5.3.8.10])
+    ck("RENDER: PCMRX +2", axi_read(A_PCMRX_CNT) - pc0, 2);
+    ck("RENDER: 12 fabric-render beats", render_beats - xb0, 12);
+    // NULL: no render; the monitor/depacketizer still count ([M-5.3.8.10]).
     axi_write(A_SW_SID_LO, 0x00030001);
     axi_write(A_SW_SID_HI, 0x03000000);
     axi_write(A_SW_CTRL, (RT_NULL << 1) | 1u);
-    rb0 = pcm_frames.size(); xb0 = render_beats;
+    xb0 = render_beats; pc0 = axi_read(A_PCMRX_CNT);
     inject(mkaaf(sidB, 26, 2, 0x70), 120);
     inject(mkaaf(sidB, 27, 2, 0x80), 120);
-    ck("NULL: no ring frames", pcm_frames.size() - rb0, 0);
+    ck("NULL: PCMRX still counts two PDUs", axi_read(A_PCMRX_CNT) - pc0, 2);
     ck("NULL: no render beats", render_beats - xb0, 0);
     axi_write(A_STRM_SEL, 0x001);
     snap_and_wait();
@@ -3843,9 +3344,9 @@ int main(int argc, char** argv) {
     // so a PASS here IS the 8-stream routing proof the AX shape needs.
     printf("-- N-wide routing: fresh streams 3..%d live at once, by index --\n",
            NSTREAMS_TB - 1);
-    // provision every fresh stream simultaneously, DMA route so each lands on
-    // the PCM ring tagged with its own tuser. sid(s) = {0x30+s,0,0,0,0,
-    // 0x30+s,0,s}: distinct from sidB/C/X and from each other.
+    // Provision every fresh stream simultaneously with the retired route bit
+    // set. PCMRX attribution must remain live while the bit is masked and no
+    // reserved media surface reappears. sid(s) = {0x30+s,0,0,0,0,0x30+s,0,s}.
     for (int s = 3; s < NSTREAMS_TB; s++) {
         uint32_t sid_hi = ((uint32_t)(0x30 + s) << 24);
         uint32_t sid_lo = ((uint32_t)(0x30 + s) << 16) | (uint32_t)s;
@@ -3854,36 +3355,27 @@ int main(int argc, char** argv) {
         axi_write(A_SW_SID_HI, sid_hi);
         axi_write(A_SW_FMT_LO, FMT_LO);
         axi_write(A_SW_FMT_HI, FMT_HI);
-        axi_write(A_SW_CTRL, (RT_DMA << 1) | 1u);        // en, DMA flag
+        axi_write(A_SW_CTRL, (RT_RETIRED << 1) | 1u);    // en, retired bit
     }
     // CFG readback per stream through the ENGINE-ARBITRATED LCTX port B
     for (int s = 3; s < NSTREAMS_TB; s++) {
         axi_write(A_STRM_SEL, s & 0xF);
         char nm[56]; snprintf(nm, sizeof nm, "ctx%d CTRL readback (port B)", s);
-        ck(nm, axi_read(A_SW_CTRL), 0x3);
+        ck(nm, axi_read(A_SW_CTRL), 0x1);
     }
     // inject one uniquely-payloaded frame per stream, interleaved, ALL table
     // entries live: the classifier must tag each frame with the right index.
-    size_t ring0 = pcm_frames.size();
+    uint32_t pcwide0 = axi_read(A_PCMRX_CNT);
+    long rwide0 = render_beats;
     for (int s = 3; s < NSTREAMS_TB; s++) {
         uint8_t sid[8] = {(uint8_t)(0x30 + s), 0, 0, 0, 0,
                           (uint8_t)(0x30 + s), 0, (uint8_t)s};
         inject(mkaaf(sid, (uint8_t)(0x40 + s), 2, (uint8_t)(0xA0 + s)), 120);
     }
-    ck("sweep: one ring frame per fresh stream",
-       (unsigned)(pcm_frames.size() - ring0), (unsigned)(NSTREAMS_TB - 3));
-    // each ring frame carries its own stream's tuser + byte-exact payload
-    bool sweep_user_ok = true, sweep_pay_ok = true;
-    for (int s = 3; s < NSTREAMS_TB; s++) {
-        size_t k = ring0 + (size_t)(s - 3);
-        if (k >= pcm_frames.size()) { sweep_user_ok = false; break; }
-        if (pcm_frames[k].user != s) sweep_user_ok = false;
-        if (pcm_frames[k].bytes.size() != 48) sweep_pay_ok = false;
-        else for (int i = 0; i < 48; i++)
-            if (pcm_frames[k].bytes[i] != (uint8_t)(0xA0 + s + i)) sweep_pay_ok = false;
-    }
-    ck("sweep: ring tuser == stream index for all", sweep_user_ok, 1);
-    ck("sweep: 48-byte payload byte-exact for all", sweep_pay_ok, 1);
+    ck("sweep: shared PCMRX counts one PDU per fresh stream",
+       axi_read(A_PCMRX_CNT) - pcwide0, (unsigned)(NSTREAMS_TB - 3));
+    ck("sweep: retired route bit never reaches fabric render",
+       render_beats - rwide0, 0);
     // isolation: each fresh stream counted EXACTLY its own single frame (no
     // cross-count across the N simultaneously-live contexts) - Table 7-157.
     for (int s = 3; s < NSTREAMS_TB; s++) {
@@ -3898,177 +3390,13 @@ int main(int argc, char** argv) {
     // an unknown sid (no table entry at any index) is still ignored at width N
     {
         const uint8_t sidU[8] = {0x5A, 0, 0, 0, 0, 0x5A, 0, 0x0F};
-        size_t before = pcm_frames.size();
+        uint32_t before = axi_read(A_PCMRX_CNT);
+        long render_before = render_beats;
         inject(mkaaf(sidU, 50, 2, 0x11), 120);
-        ck("sweep: unknown sid ignored (no ring frame)",
-           (unsigned)pcm_frames.size(), (unsigned)before);
-    }
-
-    // ======================================================================
-    // HOST-PLANE drill (silicon 0x1000B regression, 2026-07-25): the fabric
-    // above is fully provisioned and N streams are live - exactly the state
-    // the flashed ax8x8 build was in when host RX read dead. In THIS shape
-    // (N=NSTREAMS_TB, single host RX lane) the host-facing lanes must work:
-    //   [H1] a non-AVTP broadcast frame on the MAC RX AXIS emerges byte-exact
-    //        on the host DMA RX port (MAC -> PTP-RX -> dest-MAC filter ->
-    //        m_axis_rx = the RingDMAWriter's input);
-    //   [H2] a gPTP pdelay_req (event) frame yields one 2-beat metadata
-    //        record on m_axis_ts (= the dma-ts writer's input), with the
-    //        host RX copy of the same frame still delivered.
-    // sim_main proves both at N=1 only; this is the N>1 silicon-shape gate.
-    // ======================================================================
-    printf("-- host plane: MAC->host-RX + PTP ts record at N=%d --\n",
-           NSTREAMS_TB);
-    {
-        // drain the host RX lane first: every earlier inject() left frames
-        // parked against m_axis_rx_tready=0 (the fabric tests never drain it)
-        dut->m_axis_rx_tready = 1;
-        for (int c = 0; c < 4000; c++) step();
-
-        // [H1] 64-byte broadcast ARP-ish frame, LE lanes like the real ingress
-        uint8_t hf[64]; memset(hf, 0, sizeof hf);
-        const uint8_t hh[14] = {0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
-                                0x02,0x11,0x22,0x33,0x44,0x55, 0x08,0x06};
-        memcpy(hf, hh, 14);
-        for (int i = 14; i < 64; i++) hf[i] = (uint8_t)(0xC0 + i);
-        std::vector<uint64_t> hb, hout;
-        for (int bt = 0; bt < 8; bt++) {
-            uint64_t v = 0;
-            for (int j = 0; j < 8; j++) v |= (uint64_t)hf[bt*8+j] << (8*j);
-            hb.push_back(v);
-        }
-        size_t idx = 0;
-        for (int c = 0; c < 800; c++) {
-            if (idx < hb.size()) {
-                dut->s_axis_mac_rx_tdata  = hb[idx];
-                dut->s_axis_mac_rx_tkeep  = 0xFF;
-                dut->s_axis_mac_rx_tvalid = 1;
-                dut->s_axis_mac_rx_tlast  = (idx == hb.size()-1);
-            } else {
-                dut->s_axis_mac_rx_tvalid = 0; dut->s_axis_mac_rx_tlast = 0;
-            }
-            lo();
-            bool in_acc  = dut->s_axis_mac_rx_tvalid && dut->s_axis_mac_rx_tready;
-            bool out_acc = dut->m_axis_rx_tvalid && dut->m_axis_rx_tready;
-            uint64_t od  = dut->m_axis_rx_tdata;
-            hi();
-            if (in_acc) idx++;
-            if (out_acc) hout.push_back(od);
-        }
-        dut->s_axis_mac_rx_tvalid = 0;
-        ck("host RX: broadcast frame beats delivered", hout.size(), hb.size());
-        bool hexact = hout.size() == hb.size();
-        if (hexact)
-            for (size_t i = 0; i < hb.size(); i++)
-                if (hout[i] != hb[i]) hexact = false;
-        ck("host RX: broadcast frame byte-exact", hexact ? 1 : 0, 1);
-
-        // [H2] PTP event frame -> exactly one 2-beat ts record + host RX copy
-        enum { A_PTP_CTRL = 0x500, A_PTP_INCR = 0x504 };
-        axi_write(A_PTP_INCR, 20u << 24);          // 20 ns/tick Q8.24
-        axi_write(A_PTP_CTRL, 1);
-        uint8_t g[68]; memset(g, 0, sizeof g);
-        const uint8_t gh[14] = {0x01,0x80,0xC2,0,0,0x0E, 2,0,0,0,0,2, 0x88,0xF7};
-        memcpy(g, gh, 14);
-        g[14] = 0x12; g[15] = 0x02; g[17] = 54;    // pdelay_req, v2, len 54
-        g[44] = 0xBE; g[45] = 0xEF;                // sequenceId
-        std::vector<uint64_t> gb, ts;
-        size_t hrx_beats = 0;
-        for (int bt = 0; bt < 9; bt++) {
-            uint64_t v = 0;
-            for (int j = 0; j < 8 && bt*8+j < 68; j++)
-                v |= (uint64_t)g[bt*8+j] << (8*j);
-            gb.push_back(v);
-        }
-        idx = 0;
-        dut->m_axis_ts_tready = 1;
-        for (int c = 0; c < 800; c++) {
-            if (idx < gb.size()) {
-                dut->s_axis_mac_rx_tdata  = gb[idx];
-                dut->s_axis_mac_rx_tkeep  = (idx == gb.size()-1) ? 0x0F : 0xFF;
-                dut->s_axis_mac_rx_tvalid = 1;
-                dut->s_axis_mac_rx_tlast  = (idx == gb.size()-1);
-            } else {
-                dut->s_axis_mac_rx_tvalid = 0; dut->s_axis_mac_rx_tlast = 0;
-            }
-            lo();
-            bool in_acc = dut->s_axis_mac_rx_tvalid && dut->s_axis_mac_rx_tready;
-            bool tsx    = dut->m_axis_ts_tvalid && dut->m_axis_ts_tready;
-            uint64_t td = dut->m_axis_ts_tdata;
-            bool hrx    = dut->m_axis_rx_tvalid && dut->m_axis_rx_tready;
-            hi();
-            if (in_acc) idx++;
-            if (tsx) ts.push_back(td);
-            if (hrx) hrx_beats++;
-        }
-        dut->s_axis_mac_rx_tvalid = 0;
-        ck("ts record emitted (2 beats)", ts.size(), 2);
-        if (ts.size() == 2) {
-            ck("ts word1 dir=RX", (unsigned long)(ts[1] & 1), 0);
-            ck("ts word1 mtype=2 (pdelay_req)",
-               (unsigned long)((ts[1] >> 4) & 0xF), 2);
-            ck("ts word1 seq=0xBEEF",
-               (unsigned long)((ts[1] >> 8) & 0xFFFF), 0xBEEFUL);
-        }
-        ck("host RX: gPTP frame copy delivered (9 beats)", hrx_beats, 9);
-
-        // [H3] silicon boot ordering: the dma-ts writer is NOT armed at boot
-        // (m_axis_ts_tready = 0) while the LAN already carries gPTP event
-        // frames (the switch runs 802.1AS). The ts record lane fills - and
-        // MUST NOT wedge the shared RX pipeline: after a burst of un-drained
-        // event frames, a host-destined frame still has to emerge on
-        // m_axis_rx. This is the exact state the flashed ax8x8 build boots
-        // into (rx_packets = 0 forever, fabric TX still perfect).
-        dut->m_axis_ts_tready = 0;
-        for (int burst = 0; burst < 40; burst++) {
-            g[44] = (uint8_t)(burst >> 8); g[45] = (uint8_t)burst;
-            idx = 0;
-            for (int c = 0; c < 60; c++) {
-                if (idx < gb.size()) {
-                    dut->s_axis_mac_rx_tdata  = gb[idx];
-                    dut->s_axis_mac_rx_tkeep  = (idx == gb.size()-1) ? 0x0F : 0xFF;
-                    dut->s_axis_mac_rx_tvalid = 1;
-                    dut->s_axis_mac_rx_tlast  = (idx == gb.size()-1);
-                } else {
-                    dut->s_axis_mac_rx_tvalid = 0; dut->s_axis_mac_rx_tlast = 0;
-                }
-                lo();
-                bool in_acc = dut->s_axis_mac_rx_tvalid && dut->s_axis_mac_rx_tready;
-                hi();
-                if (in_acc) idx++;
-            }
-            dut->s_axis_mac_rx_tvalid = 0;
-        }
-        // now the host frame again, RX ring armed (tready=1), ts still unarmed
-        std::vector<uint64_t> hout2;
-        idx = 0;
-        for (int c = 0; c < 800; c++) {
-            if (idx < hb.size()) {
-                dut->s_axis_mac_rx_tdata  = hb[idx];
-                dut->s_axis_mac_rx_tkeep  = 0xFF;
-                dut->s_axis_mac_rx_tvalid = 1;
-                dut->s_axis_mac_rx_tlast  = (idx == hb.size()-1);
-            } else {
-                dut->s_axis_mac_rx_tvalid = 0; dut->s_axis_mac_rx_tlast = 0;
-            }
-            lo();
-            bool in_acc  = dut->s_axis_mac_rx_tvalid && dut->s_axis_mac_rx_tready;
-            bool out_acc = dut->m_axis_rx_tvalid && dut->m_axis_rx_tready;
-            uint64_t od  = dut->m_axis_rx_tdata;
-            hi();
-            if (in_acc) idx++;
-            if (out_acc) hout2.push_back(od);
-        }
-        dut->s_axis_mac_rx_tvalid = 0;
-        ck("host RX alive under un-drained ts lane (8 beats)",
-           hout2.size(), hb.size());
-        bool h2exact = hout2.size() == hb.size();
-        if (h2exact)
-            for (size_t i = 0; i < hb.size(); i++)
-                if (hout2[i] != hb[i]) h2exact = false;
-        ck("host RX under ts backpressure byte-exact", h2exact ? 1 : 0, 1);
-        dut->m_axis_ts_tready = 1;
-        dut->m_axis_rx_tready = 0;
+        ck("sweep: unknown sid ignored by PCMRX",
+           axi_read(A_PCMRX_CNT), before);
+        ck("sweep: unknown sid ignored by fabric render",
+           render_beats, render_before);
     }
 
     // ======================================================================
@@ -4080,7 +3408,7 @@ int main(int argc, char** argv) {
     // listener SM reported bound, the stream table never saw that stream_id,
     // the parser never matched. PARSED climbed, MATCHED did not: the 8x8
     // blocker's exact symptom, reached from a CSR write sequence a
-    // provisioning daemon would make. Two RTL terms combined to allow it:
+    // provisioning client would make. Two RTL terms combined to allow it:
     //   * `(|{wing_sid_hi_r, wing_sid_lo_r})` was meant to mean "a sid was
     //     staged for this commit", but the staging pair is GLOBAL, not per
     //     index - any earlier stage for any OTHER listener satisfied it, so a
@@ -4114,12 +3442,8 @@ int main(int argc, char** argv) {
         auto matched = [&]{ return axi_read(A_APRB_MATCHED); };
         auto parsed  = [&]{ return axi_read(A_APRB_PARSED); };
 
-        // the host-plane drill above deliberately left the DMA RX port
-        // un-drained; the shared inject() never drives it, so frame tails
-        // stall at the filter boundary and back-pressure the whole RX
-        // pipeline - including the PRE-filter parser tap. Arm the port and
-        // let the stalled tails flush before measuring anything.
-        dut->m_axis_rx_tready = 1;
+        // Let any retained protocol response finish before measuring the
+        // pre-filter parser tap.
         for (int c = 0; c < 400; c++) step();
 
         // ---- PLAY THE TALKER (2026-08-13) -------------------------------
@@ -4548,8 +3872,8 @@ int main(int argc, char** argv) {
                 ck("#67 baseline: the base format is in force",
                    aecp_status(r2), 0);
                 std::vector<uint8_t> ra = aecp_xact(0x002C, sq2++, ap);
-#ifdef AAF_PB_TB
-                // #259: bare-metal retired the host input pool, so this
+#ifdef AX8X8_TB
+                // This shape has no Stream Port Input cluster pool, so this
                 // leg's Stream Port Inputs declare ZERO clusters - the
                 // mapping never lands and no format member can orphan it.
                 // The arty legs keep proving the served survival path.
@@ -4577,7 +3901,7 @@ int main(int argc, char** argv) {
                 ck("#67 the 8ch base still satisfies the mapping",
                    aecp_status(r2), 0);
                 ra = aecp_xact(0x002D, sq2++, ap);
-#ifdef AAF_PB_TB
+#ifdef AX8X8_TB
                 ck("#67 input REMOVE refuses the same retired surface (#259)",
                    aecp_status(ra), 7);
 #else
@@ -4597,7 +3921,7 @@ int main(int argc, char** argv) {
                 r2 = aecp_xact(0x0008, sq2++, sf_pl(0x0005, hi_in, fmt_base));
                 ck("#67 restore: the base format is back", aecp_status(r2), 0);
                 ra = aecp_xact(0x002C, sq2++, ap);
-#ifdef AAF_PB_TB
+#ifdef AX8X8_TB
                 ck("#67 ...and the base does not revive the surface (#259)",
                    aecp_status(ra), 7);
                 ra = aecp_xact(0x002D, sq2++, ap);
@@ -4717,10 +4041,10 @@ int main(int argc, char** argv) {
                lat_of(g2), 2000000ul);
         }
 
-        // a route-flags-only CTRL write at idx 0 - the exact write that used
-        // to detach the alias - must now leave it completely alone
+        // A retired-route-bit-only CTRL write at idx 0 - the exact write that
+        // used to detach the alias - must now leave it completely alone.
         axi_write(A_STRM_SEL, 0x000);                 // dir=0 idx=0
-        axi_write(A_SW_CTRL, (RT_DMA << 1) | 1u);     // en + DMA, sid NOT staged
+        axi_write(A_SW_CTRL, (RT_RETIRED << 1) | 1u); // retired bit, no staged sid
         ck("TRAP-1 route-only CTRL at idx0 does not arm an override",
            armed(), armed_bound);
         m0 = matched(); p0 = parsed();
@@ -4728,11 +4052,11 @@ int main(int argc, char** argv) {
         ck("TRAP-1 route-only CTRL at idx0: STILL MATCHES", matched() - m0, 1);
 
         // the explicit-override path still works: stage the sid FOR idx 0,
-        // then commit. This is the deliberate bench/daemon override.
+        // then commit. This is the deliberate bench override.
         axi_write(A_STRM_SEL, 0x000);
         axi_write(A_SW_SID_LO, 0x00020000);
         axi_write(A_SW_SID_HI, 0x02000000);
-        axi_write(A_SW_CTRL, (RT_DMA << 1) | 1u);
+        axi_write(A_SW_CTRL, (RT_RETIRED << 1) | 1u);
         m0 = matched(); p0 = parsed();
         inject(mkaaf(sid0, 0x13, 2, 0xC0), 120);
         ck("TRAP-1 explicit override at idx0: MATCH", matched() - m0, 1);
@@ -5225,217 +4549,6 @@ int main(int argc, char** argv) {
         axi_write(A_LWSRP_CTRL, 0x0);
     }
 
-#ifdef AAF_PB_TB
-    // ==================================================================
-    //  TASK #31 - HOST PLAYBACK RING -> chmap RING bucket -> TALKER WIRE
-    //  (AAF_PLAYBACK_P=1, the cfg_ax8x8 ship flip). The full playback
-    //  path IN the datapath: a host-written PCM ring is fetched over the
-    //  pb_mem word port, paced by KL_pcm_tx, latched by the capture
-    //  crossbar's RING bucket, and framed by the packetizer - the host
-    //  playback direction, ending at the MAC TX AXIS.
-    //
-    //  Placement decoupling is the point of the map: ring PAIR 0 (host
-    //  channels 0/1) is mapped onto BOTH talker 0's and talker 1's wire
-    //  slots - the mechanism that puts host stereo on the peer-facing
-    //  stream channels of the USER's choice (ch2/3 in the 8ch target).
-    //
-    //  Underrun continuity (Milan 5.3.7.3): starving the ring must KEEP
-    //  the talkers framing - payload goes digital-silence, cadence never
-    //  stalls - and the starvation is CSR-observable (PBK_RAILS 0x8D0 +
-    //  the pb_underrun_o rail).
-    // ==================================================================
-    printf("-- task #31: host ring -> RING bucket -> talker wire (pb) --\n");
-    {
-        enum { A_CHMAP_CTRL = 0x900, A_CHMAP_SEL = 0x904, A_CHMAP_WORD = 0x908,
-               A_PBK_RAILS = 0x8D0 };
-        const uint32_t PB_LEN    = 512;      // 64-word sub-ring
-        const uint32_t PB_STRIDE = 4096;
-        const int      PB_LEAD   = 32;       // words kept ahead of the reader
-
-        // streaming posture (VID-2 rule + bypass licence), lwSRP off
-        axi_write(A_AAF_CTRL, 0x00020003);
-        axi_write(A_LWSRP_CTRL, 0x0);
-
-        //! TALKER 1'S IDENTITY IS THIS SECTION'S OWN PRECONDITION (2026-08-13).
-        //! The TCTX case ~1300 lines up stages talker 1 with uid 5 in
-        //! A_SW_DMAC_HI[31:16], and KL_aaf_packetizer's documented rule is
-        //! that a software-named uid OUTRANKS the fabric-derived one (0 = not
-        //! named). Until the substitution, two lwSRP/0x800-window cases that
-        //! ran in between put that field back - and they are deleted with the
-        //! legacy plane. So this section inherited uid 5 while classifying
-        //! talker 1's PDUs as uid 1, and read t1 as SILENT when it was
-        //! framing perfectly: the same file asserted uid 5 in one case and
-        //! uid 1 in another. Talker 1 is NOT dark and never was.
-        //! Re-stage it here rather than leaning on a neighbour: a section
-        //! whose precondition is set 1300 lines away by a case that may be
-        //! deleted again is a section that will lie again. The DMAC half of
-        //! the word is left exactly as staged.
-        axi_write(A_STRM_SEL, 0x101);                 // dir=talker, idx=1
-        axi_write(A_SW_DMAC_HI, 0x000091E0);          // uid field 0 -> derived 1
-        ck("pb: talker 1's uid field cleared (derived uid wins)",
-           axi_read(A_SW_DMAC_HI), 0x000091E0);
-        for (int c = 0; c < 64; c++) step();
-
-        // capture map, PER-CHANNEL (0x0027): channels 0..3 <- RING pair 0,
-        // halves L,R,L,R. Window word {en[15], src[14:12]=3 RING,
-        // half[8], idxh[7:4]=0, idx[3:0]=0}. At 2 wire channels keys 2/3
-        // are talker 1's pair (the same harmless extra coverage the old
-        // slot-1 strobe gave); the 4-wire-channel shape NEEDS all four or
-        // its talker-0 frame carries silence on ch2/ch3.
-        axi_write(A_CHMAP_CTRL, 0x1);        // arm the fabric + the CSR port
-        for (int k = 0; k < 4; k++) {
-            axi_write(A_CHMAP_SEL, 0x100 | k);
-            axi_write(A_CHMAP_WORD, 0xB000 | ((k & 1) << 8));
-        }
-
-        // playback engine: ring stream 0 only, silence-on-underrun
-        dut->pb_ring_base_i   = 0;
-        dut->pb_ring_len_i    = PB_LEN;
-        dut->pb_ring_stride_i = PB_STRIDE;
-        dut->pb_underrun_silence_i = 1;
-        dut->pb_enable_i    = 1;
-        dut->pb_stream_en_i = 0x01;
-
-        // host ring model: ramp-tagged S32BE pairs, L=0x7A0000|j R=0x7B0000|j
-        static uint8_t pbram[PB_STRIDE + PB_LEN + 64];
-        uint32_t pb_committed = 0;           // words written
-        auto pb_put = [&](uint32_t j) {
-            uint32_t a = (j * 8) % PB_LEN;
-            uint32_t L = 0x7A0000u | (j & 0xFFFF), R = 0x7B0000u | (j & 0xFFFF);
-            pbram[a+0] = L >> 16; pbram[a+1] = L >> 8; pbram[a+2] = L; pbram[a+3] = 0;
-            pbram[a+4] = R >> 16; pbram[a+5] = R >> 8; pbram[a+6] = R; pbram[a+7] = 0;
-        };
-        bool pb_feed = true;
-        bool mem_pend = false; uint32_t mem_addr = 0;
-        auto pb_service = [&](void) {        // call between lo() and hi()
-            // 1-cycle-latency word port (the BRAM-ring timing)
-            dut->pb_mem_valid_i = mem_pend ? 1 : 0;
-            if (mem_pend) {
-                uint64_t w = 0;
-                for (int b = 0; b < 8; b++)
-                    w |= (uint64_t)pbram[(mem_addr % (PB_STRIDE + PB_LEN)) + b] << (8*b);
-                dut->pb_mem_data_i = w;
-            }
-            mem_pend = dut->pb_mem_rd_o; mem_addr = dut->pb_mem_addr_o;
-            if (pb_feed) {
-                uint32_t rdw = dut->pb_rd_ptr_o[0] / 8;
-                while (pb_committed < rdw + PB_LEAD) pb_put(pb_committed++);
-            }
-            dut->pb_wr_ptr_i[0] = pb_committed * 8;
-        };
-
-        // AAF PDU capture with the ring-tag payload decode (t0 + t1)
-        struct Pdu { int uid; std::vector<uint32_t> smp; bool zero; };
-        auto collect = [&](int want_t0, int want_t1, int budget) {
-            std::vector<Pdu> got;
-            std::vector<uint8_t> cur;
-            int n0 = 0, n1 = 0;
-            dut->m_axis_mac_tx_tready = 1;
-            for (int c = 0; c < budget && (n0 < want_t0 || n1 < want_t1); c++) {
-                lo();
-                pb_service();
-                if (dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready) {
-                    for (int l = 0; l < 8; l++)
-                        if ((dut->m_axis_mac_tx_tkeep >> l) & 1)
-                            cur.push_back((dut->m_axis_mac_tx_tdata >> (8*l)) & 0xFF);
-                    if (dut->m_axis_mac_tx_tlast) {
-                        size_t off = (cur.size() > 17 && cur[12] == 0x81
-                                      && cur[13] == 0x00) ? 4 : 0;
-                        if (cur.size() >= 86 + off && cur[12+off] == 0x22
-                            && cur[13+off] == 0xF0 && cur[14+off] == 0x02) {
-                            Pdu p; p.uid = (cur[24+off] << 8) | cur[25+off];
-                            p.zero = true;
-                            for (int s = 0; s < 12; s++) {   // 6 events x 2ch
-                                size_t o = 38 + off + 4*s;
-                                uint32_t v = ((uint32_t)cur[o] << 16) |
-                                             ((uint32_t)cur[o+1] << 8) | cur[o+2];
-                                p.smp.push_back(v);
-                                if (v) p.zero = false;
-                            }
-                            if (p.uid == 0) { n0++; got.push_back(p); }
-                            else if (p.uid == 1) { n1++; got.push_back(p); }
-                        }
-                        cur.clear();
-                    }
-                }
-                hi();
-            }
-            return got;
-        };
-
-        // ---- LEG 1: both talkers carry the ring pair, ramp-exact -------
-        // settle: let the engine start fetching and the buckets fill
-        for (int c = 0; c < 4096; c++) { lo(); pb_service(); hi(); }
-        auto pdus = collect(3, 3, 200000);
-        int t0n = 0, t1n = 0; bool tags_ok = true, ramp_ok = true, lr_ok = true;
-        int started = 0;                     // per-uid bit: ring seen yet
-        for (auto& p : pdus) {
-            (p.uid ? t1n : t0n)++;
-            int prev = -1;
-            for (int s = 0; s < 12; s += 2) {
-                uint32_t L = p.smp[s], R = p.smp[s+1];
-                //! 0x002C: the crossbar frames from BOOT, so the first
-                //! captured PDU may straddle the silence->ring start -
-                //! leading digital-silence events are the stream's legal
-                //! pre-start tail, never a tag or ramp defect. A zero
-                //! event AFTER the ring started still fails both checks.
-                if (!((started >> p.uid) & 1)) {
-                    if (L == 0 && R == 0) continue;
-                    started |= 1 << p.uid;
-                }
-                if ((L >> 16) != 0x7A || (R >> 16) != 0x7B) tags_ok = false;
-                if ((L & 0xFFFF) != (R & 0xFFFF)) lr_ok = false;
-                // consecutive sample events step the ramp by exactly 1
-                // (same clk, same divisor: no repeats, no drops)
-                if (prev >= 0 &&
-                    (uint16_t)(p.smp[s] & 0xFFFF) !=
-                    (uint16_t)((p.smp[prev] & 0xFFFF) + 1)) ramp_ok = false;
-                prev = s;
-            }
-        }
-        ck("pb: t0 frames the host ring (>= 3 PDUs)", t0n >= 3, 1);
-        ck("pb: t1 frames the SAME ring pair (>= 3)", t1n >= 3, 1);
-        ck("pb: every sample carries the ring tag (L=7A/R=7B)", tags_ok, 1);
-        ck("pb: L/R of one ring word stay a pair", lr_ok, 1);
-        ck("pb: ramp steps by 1 per sample event (no slip)", ramp_ok, 1);
-        ck("pb: engine consumed the ring (rd_ptr advanced)",
-           dut->pb_rd_ptr_o[0] > 0, 1);
-        ck("pb: no underrun while fed", dut->pb_underrun_o[0] & 0xFFFF, 0);
-
-        // ---- LEG 2: starvation = SILENCE payload, cadence NEVER stalls -
-        pb_feed = false;                      // freeze the host write pointer
-        // drain the PB_LEAD words still queued (one word per media sample
-        // at CHANS=2: ~PB_LEAD x 2083 cycles) until the engine reports the
-        // first real underrun - the rail IS the drain oracle
-        { int dg = 0;
-          while ((dut->pb_underrun_o[0] & 0xFFFF) == 0 && dg++ < 400000) {
-              lo(); pb_service(); hi(); } }
-        auto starved = collect(3, 0, 200000);
-        int zt0 = 0;
-        for (auto& p : starved) if (p.uid == 0 && p.zero) zt0++;
-        ck("pb starve: t0 KEEPS framing (5.3.7.3 cadence)",
-           starved.size() >= 3, 1);
-        ck("pb starve: payload is digital silence", zt0 >= 2, 1);
-        ck("pb starve: underruns counted on the rail",
-           (dut->pb_underrun_o[0] & 0xFFFF) > 0, 1);
-        uint32_t rails = axi_read(A_PBK_RAILS);
-        ck("pb starve: PBK_RAILS 0x8D0 shows the underruns",
-           (rails >> 16) > 0, 1);
-
-        // ---- LEG 3: refeed = audio returns (session survives a gap) ----
-        pb_feed = true;
-        for (int c = 0; c < 4096; c++) { lo(); pb_service(); hi(); }
-        auto back = collect(3, 0, 200000);
-        bool alive = false;
-        for (auto& p : back) if (p.uid == 0 && !p.zero &&
-                                 (p.smp[0] >> 16) == 0x7A) alive = true;
-        ck("pb refeed: ramp audio returns on the wire", alive, 1);
-
-        // restore: engine off, map disarmed (the legacy bit-identical path)
-        dut->pb_enable_i = 0; dut->pb_stream_en_i = 0;
-        axi_write(A_CHMAP_CTRL, 0x0);
-    }
-#endif
 
     // ==================================================================
     //  TASK #65 - rx -> talker LOOPBACK: the AEM's DECLARED source, made
@@ -5481,8 +4594,7 @@ int main(int argc, char** argv) {
                  |  (uint32_t)(uint8_t)(LB_PAY0 + 4*j + 2);
         };
 
-        // streaming posture: VID-2 rule + the bypass licence, lwSRP off -
-        // the same arming the host-ring leg above uses
+        // Streaming posture: VID-2 rule + the bypass licence, lwSRP off.
         axi_write(A_AAF_CTRL, 0x00020003);
         axi_write(A_LWSRP_CTRL, 0x0);
 
@@ -5506,6 +4618,13 @@ int main(int argc, char** argv) {
         // last received pair and the talker keeps re-emitting it.
         for (uint8_t s = 0; s < 3; s++)
             inject(mkaaf(sidB, (uint8_t)(120 + s), 2, LB_PAY0), 2000);
+
+        // A talker frame may already be in the packetizer when the final
+        // listener beat updates the loop holds.  Drain more than two class-A
+        // intervals before grading so the sample window cannot mix that
+        // pre-update prefix with the retained received pair (the N=8 shape
+        // has the longest arbitration tail).
+        for (int c = 0; c < 40000; c++) step();
 
         // collect talker 0's PDUs (uid 0), decoding the 6 events x 2 ch
         std::vector<std::vector<uint32_t>> lbp;
@@ -5647,7 +4766,7 @@ int main(int argc, char** argv) {
         axi_write(A_CHMAP_CTRL, 0x0);            // restore the legacy path
     }
 
-#ifdef AAF_PB_TB
+#ifdef AX8X8_TB
     // ==================================================================
     //  [T66] DYNAMIC AUDIO MAP COMMANDS THROUGH THE REAL CROSSBAR RAM
     //
@@ -5743,7 +4862,7 @@ int main(int argc, char** argv) {
             return aecp_status(r);
         };
         // Port 0's generated CMAP templates, {valid, half, src[2:0],
-        // idxh[3:0], idx[3:0]}. #259 retired the 8-cluster host RING pool
+        // idxh[3:0], idx[3:0]}. The obsolete 8-cluster media pool is absent
         // (src 3), so the port block is 9 clusters: the pilot TONE at
         // offset 0 (src 4, valid) then 8 declared-but-unbacked loopback
         // clusters (src 5, valid clear).
@@ -5815,8 +4934,7 @@ int main(int argc, char** argv) {
                 (spo && spo->size() >= 14) ? model_be16(*spo, 12) : 0;
             ck("T66: generated output port declares clusters",
                (long)declared_clusters, 9);   // pilot + 8 loopback; the
-                                              // 8-cluster host pool is
-                                              // retired (#259)
+                                              // obsolete 8-cluster pool is absent
             long accepted = 0, stored = 0, roundtripped = 0, removed = 0;
             for (unsigned co = 0; co < declared_clusters; ++co) {
                 const int sc = 2;
@@ -6063,8 +5181,8 @@ int main(int argc, char** argv) {
                (long)(((unsigned)r[44] << 8) | r[45]), 1);
         }
 
-        // #259: bare-metal retired the host input pool, so every Stream
-        // Port Input declares ZERO clusters. Walk the full FORMER surface
+        // Every Stream Port Input declares ZERO clusters. Walk the full
+        // former surface
         // (port 0 key 0, the page of eight on port 6, port 7 cluster 7):
         // every ADD/REMOVE must refuse BAD_ARGUMENTS without touching
         // physical RMAP, and GET_AUDIO_MAP must answer the NOT_IMPLEMENTED
@@ -6125,7 +5243,7 @@ int main(int argc, char** argv) {
         // (Milan 5.4.2.21/2/1/2/10/23/24: REGISTER_UNSOLICITED_NOTIFICATION,
         //  LOCK_ENTITY, GET_STREAM_INFO, GET_AVB_INFO, GET_AS_PATH - wire
         //  truth through the REAL datapath servers: binding view, SRP nets,
-        //  the gPTP CSR pair, the clock validator's asCapable.)
+        //  and the ownerless gPTP/clock-validity publication face.)
         {
             // REGISTER (2021 format, flags 0) -> SUCCESS with flags echoed
             std::vector<uint8_t> fl0(4, 0);
@@ -6217,7 +5335,7 @@ int main(int argc, char** argv) {
                (long)(r.size() >= 62 && (r[42] & 0x80) != 0
                       && r[46] == 0x02 && r[47] == 0x05), 1);
 
-            // GET_AVB_INFO: gm + domain + flags + the one class-A mapping
+            // GET_AVB_INFO: ownerless gPTP fields + one class-A mapping
             std::vector<uint8_t> ga = {0x00, 0x09, 0x00, 0x00};
             seq = sq++;
             r = aecp_xact(0x0027, seq, ga);
@@ -6226,19 +5344,20 @@ int main(int argc, char** argv) {
                       && ((((unsigned)r[16] & 7) << 8) | r[17]) == 36
                       && (((unsigned)r[56] << 8) | r[57]) == 1
                       && r[58] == 0x06), 1);
-            ck("B2: ...the grandmaster is the committed CSR pair",
-               (long)(r.size() >= 50
-                      && r[42] == 0x00 && r[43] == 0x1B && r[44] == 0xC5), 1);
+            ck("B2: ...ownerless GM, pdelay, domain, and asCapable are zero",
+               (long)(r.size() >= 58
+                      && std::all_of(r.begin() + 42, r.begin() + 55,
+                                     [](uint8_t b) { return b == 0; })
+                      && (r[55] & 1u) == 0), 1);
 
-            // GET_AS_PATH: count 1 = {gm} - the leaf's honest path
+            // GET_AS_PATH: ownerless means an empty path sequence.
             std::vector<uint8_t> gp = {0x00, 0x00, 0x00, 0x00};
             seq = sq++;
             r = aecp_xact(0x0028, seq, gp);
-            ck("B2: GET_AS_PATH answers count 1 with the grandmaster",
+            ck("B2: GET_AS_PATH answers the empty ownerless path",
                (long)(aecp_status(r) == 0
-                      && ((((unsigned)r[16] & 7) << 8) | r[17]) == 24
-                      && (((unsigned)r[40] << 8) | r[41]) == 1
-                      && r[42] == 0x00 && r[43] == 0x1B && r[44] == 0xC5), 1);
+                      && ((((unsigned)r[16] & 7) << 8) | r[17]) == 16
+                      && (((unsigned)r[40] << 8) | r[41]) == 0), 1);
 
             // DEREGISTER: leave the registry clean for the rest of the leg
             seq = sq++;
@@ -6732,17 +5851,14 @@ int main(int argc, char** argv) {
     // ==================================================================
 
     // ------------------------------------------------------------------ //
-    //  MEDIA GRID (VERSION 0x0041): one steerable grid, and the playback
-    //  ring rides it.
+    //  MEDIA GRID (VERSION 0x0041): one steerable fabric grid.
     //
     //  These are WIRING claims, deliberately. tb/verilator/media_nco already
     //  grades KL_media_nco's arithmetic to 0.01 ppm against a closed form and
     //  nothing here re-proves that. What only the whole datapath can show is
-    //  that media_tick_p really comes OUT of the NCO, that KL_pcm_tx really
-    //  advances on it instead of on its own divider, and that
-    //  clock_source = INTERNAL really pins the trim to zero - the three
-    //  things a parameter typo would break silently while every ppm check
-    //  in the tree stayed green.
+    //  that media_tick_p really comes OUT of the NCO and that clock_source =
+    //  INTERNAL really pins the trim to zero - wiring a parameter typo could
+    //  break silently while every ppm check in the tree stayed green.
     // ------------------------------------------------------------------ //
     {
         auto* rp = dut->rootp;
@@ -6777,7 +5893,7 @@ int main(int argc, char** argv) {
         //  proof that the feed exists: restore the tie-off and it stays 0.
         long tdm_written = 0;
 
-        long ticks = 0, pcm_local = 0, mismatch = 0;
+        long ticks = 0;
         long gate_bad = 0, cmd_bad = 0;
         for (long c = 0; c < GRID_CLK; c++) {
             step();
@@ -6796,18 +5912,9 @@ int main(int argc, char** argv) {
             if (rp->milan_datapath__DOT__mnco_servo_en_w != 0) gate_bad++;
             //  and the command must BE the servo's published trim field
             if (servo16() != stat16()) cmd_bad++;
-#ifdef AAF_PB_TB
-            //  KL_pcm_tx only exists on the playback shape (obj_nxn8); on the
-            //  N=4 build the generate is not taken, so these taps do not exist
-            //  and the one-grid claim is checked by the 8x8 leg alone.
-            const bool pt = rp->milan_datapath__DOT__g_aaf_playback__DOT__pcm_tx__DOT__tick_w != 0;
-            if (pt != mt) mismatch++;
-            if (rp->milan_datapath__DOT__g_aaf_playback__DOT__pcm_tx__DOT__tick_r) pcm_local++;
-#endif
         }
-        printf("  [i]    media grid: %ld ticks in %ld clocks (want %ld +/-1), "
-               "pcm local-divider pulses %ld, tick mismatches %ld\n",
-               ticks, GRID_CLK, GRID_WANT, pcm_local, mismatch);
+        printf("  [i]    media grid: %ld ticks in %ld clocks (want %ld +/-1)\n",
+               ticks, GRID_CLK, GRID_WANT);
 
         //  WHAT THIS LEG CANNOT CHECK: alignment between the media grid and
         //  the TDM word clock - and the reason is blunter than the earlier
@@ -6846,13 +5953,6 @@ int main(int argc, char** argv) {
            ticks > 0, 1);
         ck("0x0041 grid: rate is 48 kHz on the milan clock",
            (ticks >= GRID_WANT - 1 && ticks <= GRID_WANT + 1), 1);
-#ifdef AAF_PB_TB
-        ck("0x0041 grid: KL_pcm_tx's OWN divider never pulses",
-           pcm_local, 0);
-        ck("0x0041 grid: KL_pcm_tx advances on media_tick_p, every cycle",
-           mismatch, 0);
-#endif
-
         //  The steering WIRING. Both of these are falsifiable regardless of
         //  whether the servo ever moves, which the earlier "trim == 0 while
         //  INTERNAL" formulation was not: with clock_source = INTERNAL the

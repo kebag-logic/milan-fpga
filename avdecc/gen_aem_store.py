@@ -46,9 +46,8 @@ software loads the resulting aem_desc.bin before entity enable:
     builder packs the descriptor bytes into the processor's DRAM image.
 
 Outputs (all generated, do not edit):
-  avdecc/aem_rom.json             - the model for the python controller and
-                                    avdecc/pack_aem_bin.py (aem_rom.bin for a
-                                    SOFTWARE responder).  The default target.
+  avdecc/aem_rom.json             - the model for the Python measurement
+                                    controller. The default target.
   <out-dir>/aecp_aem_rom.svh      - only under --out-dir, only for a caller
   <out-dir>/aem_rom.json            that wants the text in a scratch
                                     directory (the builder gates do).  This
@@ -176,7 +175,7 @@ RATES = [0x0000BB80, 0x00017700, 0x0002EE00]          # 48 k / 96 k / 192 k
 #! derived in endstation_builder.base_format_complete() and arrives here
 #! through the overlay; these constants are the builtin model's own.
 #! order matters: FORMATS[0] is the RESET default of the dynamic store.
-#! 2ch-first (kernel-shield lesson 2026-07-19, re-learned 2026-07-21: an
+#! 2ch-first: an
 #! 8ch default + reboot + pure-ACMP bind starved the render at 1/4 rate);
 #! the ut entry keeps the full Milan 6.4 1..8ch family coverage.
 FORMATS = [0x0205022000806000, 0x0215022002006000]
@@ -901,11 +900,19 @@ def _out_cluster_sources(ovl, j, p):
     """Capture-crossbar source templates for a dynamic OUTPUT port's
     clusters, derived from the overlay's D8 role pool. One dict per
     cluster: {src, idxh, idx, half, valid} in KL_chan_map_capture bucket
-    terms (1 I2S / 2 TDM / 3 RING / 4 TONE / 5 LOOP). Bounds are the
-    fabric's: 16 ring pairs, 4 TDM pairs, 8 loopback streams x 4 pairs.
-    Ports without role pools return None (the ring-identity default)."""
-    if p.get("map_mode", "static") != "dynamic" or not p.get("pool"):
+    terms (2 PHYSICAL / 4 TONE / 5 LOOP). Encoding 3 is retired and remains
+    reserved-zero in RTL. Bounds are the fabric's: 4 physical pairs and
+    8 loopback streams x 4 pairs. Static ports need no templates and return
+    None. A dynamic port without its builder-emitted role pool is ambiguous:
+    counts alone cannot recover whether a cluster is physical, pilot,
+    loopback, or virtual, so a stale/custom overlay must be regenerated."""
+    if p.get("map_mode", "static") != "dynamic":
         return None
+    if not p.get("pool"):
+        raise ValueError(
+            f"stream_ports.output[{j}]: dynamic output has no nonempty "
+            "source pool; regenerate the AEM overlay so its source topology "
+            "is explicit")
     # the received stream channel space, mirroring the builder's
     # cluster_names() walk: loopback cluster n of port j starts at rx
     # stream j channel 0
@@ -915,11 +922,6 @@ def _out_cluster_sources(ovl, j, p):
             continue
         ch = (int(s["formats"][0], 16) >> 22) & 0x3FF
         rx.extend((si, c) for c in range(ch))
-    # global host-channel prefix across the OUTPUT ports before this one
-    host_pfx = 0
-    for q in ovl["stream_ports"]["output"][:j]:
-        host_pfx += sum(g["width"] for g in q.get("pool", [])
-                        if g["role"] == "host")
     # task #65: what the BITSTREAM behind this model actually elaborates.
     # A template's `valid` is what the identity image below tests before it
     # wires a stream channel to a cluster, so this is the join between the
@@ -927,7 +929,6 @@ def _out_cluster_sources(ovl, j, p):
     # talker woke mapped to a loopback cluster no fabric could feed.
     fab = ovl.get("cluster_fabric") or {}
     lb_lane = bool(fab.get("loopback_lane", True))
-    pb_rings = fab.get("playback_rings")
     srcs = []
     for g in p["pool"]:
         for n in range(g["width"]):
@@ -949,30 +950,6 @@ def _out_cluster_sources(ovl, j, p):
                 a = n
                 srcs.append(dict(src=2, idxh=0, idx=a // 2, half=a % 2,
                                  valid=a // 2 < 4))   # 4 pair holds in fabric
-            elif g["role"] == "host":
-                if pb_rings is None:
-                    # undeclared: the fabric maximum, exactly as before -
-                    # including `half` off the GLOBAL channel index, which is
-                    # only the same parity as n when every preceding host pool
-                    # was even-width. Keep it exact.
-                    gch = host_pfx + n
-                    idx, half, ok = gch // 2, gch % 2, gch // 2 < 16
-                else:
-                    # DECLARED ring count. KL_pcm_tx serves pb_rings rings of
-                    # this port's wire width, and the chmap can place ANY ring
-                    # pair on ANY talker slot - so talker j draws on ring
-                    # (j mod pb_rings) and its host cluster n is that ring's
-                    # pair n//2. The old global stride assumed one ring PER
-                    # talker: with the shipping single ring it pointed talkers
-                    # 1..3 at ring pairs that are not elaborated and left 4..7
-                    # with no template at all, which is the same "declared but
-                    # unbuildable" defect one bucket over.
-                    pps = max(1, g["width"] // 2)
-                    idx = (j % pb_rings) * pps + n // 2
-                    half = n % 2
-                    ok = idx < pb_rings * pps and idx < 16
-                srcs.append(dict(src=3, idxh=0, idx=idx, half=half,
-                                 valid=ok))
             elif g["role"] == "pilot":
                 srcs.append(dict(src=4, idxh=0, idx=0, half=0, valid=True))
             elif g["role"] == "loopback":
@@ -986,9 +963,11 @@ def _out_cluster_sources(ovl, j, p):
                                  # the LOOP bucket only exists when
                                  # milan_datapath was built with LOOPBACK_P
                                  valid=lb_lane and si < 8 and c < 8))
-            else:                # virtual: nothing behind it
+            elif g["role"] == "virtual":
                 srcs.append(dict(src=0, idxh=0, idx=0, half=n % 2,
                                  valid=False))
+            else:
+                raise ValueError(f"unsupported output cluster role {g['role']!r}")
     return srcs
 
 
@@ -1502,12 +1481,16 @@ def build_model(spec):
             stream = p.get("stream_index", j)
             srcs = p.get("cluster_sources")
             if srcs is None:
-                # default policy (no role pools declared): the port's
-                # clusters are its talker's own pair sources in order -
-                # cluster c = ring pair (slot base + c//2), half c%2
-                srcs = [dict(src=3, idxh=0, idx=slotb_str[stream] + c // 2,
-                             half=c % 2, valid=slotb_str[stream] + c // 2 < 16)
-                        for c in range(p["clusters"])]
+                if p.get("map_mode", "static") == "dynamic":
+                    raise ValueError(
+                        f"ports_out[{j}]: dynamic output lacks explicit "
+                        "cluster_sources/source topology; regenerate the "
+                        "AEM overlay")
+                # A static port needs no capture-crossbar template. Keep a
+                # zero-invalid row only so a mixed legacy model retains the
+                # table shape when another port enables the dynamic engine.
+                srcs = [dict(src=0, idxh=0, idx=0, half=0, valid=False)
+                        for _ in range(p["clusters"])]
             if len(srcs) != p["clusters"]:
                 raise ValueError(
                     f"ports_out[{j}]: {len(srcs)} cluster_sources for "

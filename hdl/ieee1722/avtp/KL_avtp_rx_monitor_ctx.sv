@@ -979,7 +979,7 @@ module KL_avtp_rx_monitor_ctx #(
             monst_r <= monst_next_w;
             //! TV/TNV live in flops (below), NOT in this serial walk: a
             //! 12th RMW step per accepted PDU delayed the next verdict
-            //! enough that the hostplane ax8x8 shape dropped the 3rd of 3
+            //! enough that the dense 8x8 shape dropped the 3rd of 3
             //! back-to-back frames at the depacketizer commit. They keep
             //! the 1722.1-2021 Table 7-153 per-frame reading; the seven
             //! Table 5.6 interval flags were raised by iv_events this
@@ -1058,8 +1058,8 @@ module KL_avtp_rx_monitor_ctx #(
             //! PDU pressure YIELDS the counter walk: the depacketizer's
             //! commit verdict must land BEFORE the frame's tlast beat, and
             //! an interval drain starting at an arbitrary tick phase pushed
-            //! it one cycle past that window (hostplane ax8x8 lost 1 of 2
-            //! back-to-back ring frames; the verdict landed ON the tlast).
+            //! it one cycle past that window (the 8x8 stress case lost 1 of 2
+            //! back-to-back frames; the verdict landed ON the tlast).
             //! The park happens in the SAME cycle - between RMWs it costs
             //! the walk nothing, mid-RMW the in-flight write still lands
             //! and only the remainder parks - so the queued dispatch runs

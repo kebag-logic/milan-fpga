@@ -15,7 +15,7 @@ TOP        = rx_mac_filter
 # also demotes an elaboration $error to a warning, so an illegal shield shape
 # BUILDS and simulates (review built -GTDATA_WIDTH=52 here, rc 0).
 # -Werror-USERERROR restores the contract: a $error is a failed verilate, the
-# same discipline tb/verilator/milan_dp and tb/verilator/hostplane carry.
+# same discipline the integrated milan_dp suite carries.
 # -Werror-PINMISSING / -Werror-UNDRIVEN: a missing binding or a port with the
 # wrong direction is refused BY NAME even under -Wno-fatal. Verilator inlines
 # the child, so no harness check can see a direction error; these two are what

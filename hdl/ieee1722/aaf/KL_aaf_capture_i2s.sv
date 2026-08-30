@@ -59,7 +59,7 @@ module KL_aaf_capture_i2s (
     output logic [23:0] pair_l_o,
     output logic [23:0] pair_r_o,
 
-    // ---- status (host-observable via CSR) -------------------------------
+    // ---- status (firmware-visible via CSR) ------------------------------
     output reg  [31:0]  pairs_captured_o   //! pairs captured (liveness)
 );
 

@@ -150,10 +150,9 @@ module KL_avtp_rx_monitor #(
                                          //! never the AEM store default)
   output logic [31:0] last_ts_o,         //! avtp_timestamp of the last
                                          //! accepted PDU (media-clock hook)
-  output logic [31:0] last_tsd_o         //! signed ts_delta (avtp_ts - now)
-                                         //! HW-latched at each accepted PDU:
-                                         //! zero-noise error signal for
-                                         //! userspace PHC discipline (07-18)
+  output logic [31:0] last_tsd_o         //! signed ts_delta (avtp_ts - now),
+                                         //! HW-latched at each accepted PDU
+                                         //! for fabric diagnostics
 );
 
   //! Milan §5.4.5.3 / reference MEDIA_UNLOCK_TIMEOUT_NS = 100 ms
