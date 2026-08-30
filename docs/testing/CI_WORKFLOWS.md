@@ -179,16 +179,33 @@ is exactly these eleven things:
    `if: ${{ github.event_name != 'schedule' }}` plus a `needs: [noop]` on the
    gate leaves every pinned character in place and stops the assertion running
    on the one event it exists for.
-4. **The step sequence.** The gate job carries exactly four steps, in this
+4. **The step sequence.** The gate job carries exactly five steps, in this
    order: the checkout with `fetch-depth: 0`, the pin step (`id: target`), the
-   default-branch step, and the decision step (`id: gate`). The order is part
+   default-branch step, the contract step, and the decision step
+   (`id: gate`). The order is part
    of the contract, because the assertion runs the `ci_events.py` the checkout
    brought and the decision diffs the tree that checkout produced; the count is
    part of it too, because a step inserted anywhere runs before everything
    after it and can change what those steps read, and an entry appended to
    `GITHUB_PATH` puts another `gh` ahead of the runner's. A refusal names the
-   position, what belongs there, and what it found.
-5. **The sibling steps' keys.** The pin step, the decision step and the
+   position, what belongs there, and what it found. The contract step is
+   this gate's SECOND hosted runner (#261, maintainer review on PR #293):
+   its script is exactly `python3 -m pip install --quiet pyyaml` followed by
+   `python3 scripts/ci_events.py --check`, its keys exactly `name` and `run`,
+   and it is refused when removed, given an `if`, a `continue-on-error`, a
+   `|| true`, or moved behind the decision. It exists because `docs-check`
+   cannot police itself: every job-level lever that neuters that job
+   (`if: false`, a `needs` on a skipped job, `continue-on-error`,
+   `defaults.run.shell: bash -n`) also prevents or neuters the one step in
+   docs.yml that would have refused it, and a skipped or falsely green
+   required context satisfies the ruleset. This job cannot be neutered the
+   same way: a gate that is skipped or fails makes both required aggregates
+   fail closed (item 8), so the finding reaches the merge bar from a job
+   docs.yml does not gate. Measured under act: `if: false` on `docs-check`
+   fails the contract step, `full-ci-gate` fails, and both aggregates fail on
+   the absent gate.
+5. **The sibling steps' keys.** The pin step, the contract step, the
+   decision step and the
    checkout are pinned to their own key sets exactly as the default-branch
    step is, so `if: false`, an `if:` naming only some events, a `shell:`, a
    `continue-on-error` or a `working-directory` on any of them is refused by
@@ -341,13 +358,24 @@ is exactly these eleven things:
     workflow owns is refused, because the merge bar binds the name and a
     docs.yml job literally named `elaborate` is a second `elaborate` on
     every pull request the two workflows share ([R4] round 2 on PR #293).
+    Nor is it per inventory (maintainer review on PR #293): the reader
+    lists every `.yml`/`.yaml` under `.github/workflows/`, inventoried or
+    not, parses each, and builds one map from required name to
+    `(file, job id)` over all of them; each of the seven names must map to
+    exactly one entry, in its owning file, under its own id, and a job in
+    an un-inventoried file may carry no expression `name` at all, because
+    nothing outside the inventory is legitimately named by one. A fifth
+    file carrying `docs-check` -- which GitHub runs and binds all the same
+    -- was invisible to the four-file inventory and is refused naming the
+    file and the job.
 11. **The non-RTL required contexts.** `docs-check`, `wire-accountability`,
     `docs-check-no-git` and `elaborate` are four of the seven names the merge
     bar reads, and their workflows have no aggregate: the carrier job IS the
     required context, and a skipped required context satisfies the ruleset.
     Both workflows sat outside items 1--10 (#261, found by the round-6 review
     of PR #239): `if: false` on `docs-check` retired this gate itself, since
-    docs.yml is the only workflow that runs `--check`, and
+    docs.yml was then the only workflow that ran `--check` (the gate job of
+    rtl.yml is the second runner since PR #293, item 4), and
     `continue-on-error` on `elaborate` retired the elaboration gate, each
     with `checked=171 findings=0`. So the job carrying each of those names is
     held at the job level exactly as an RTL contributor is: no `needs`, no
@@ -420,8 +448,12 @@ selector; each of `docs-check`, `wire-accountability`, `docs-check-no-git`
 and `elaborate` given a job-level `if: false`, a `continue-on-error` and a
 `needs`, the two the builder contract never touches given a
 `defaults.run.shell` too, a second job carrying each of the four names,
-each documentation carrier renamed, and each of the four carriers renamed
-away while a `run: true` job takes its name, a decoy whose `name` is an
+each documentation carrier renamed, each of the four carriers renamed
+away while a `run: true` job takes its name, a fifth workflow file carrying
+`docs-check` by name and `elaborate` by job id and naming a job by an
+expression, the gate's contract step removed, given `if: false`, given a
+`continue-on-error`, made to swallow its exit status and moved behind the
+decision, a decoy whose `name` is an
 expression evaluating to a required name in each of the four files, a
 matrix job whose `name` renders one (its own file's and another file's), and
 the enumeration's edges - a matrix value that is itself an expression, an

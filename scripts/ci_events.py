@@ -93,7 +93,16 @@ three documentation names join the one-carrier rule, and the job whose id is
 the public name must be the one carrying it ([R3] on PR #293): the content
 checks read that job by id, and a stub carrying the name under another id
 was the required context with 233 items and no finding. The gate steps
-inside those jobs are #295.
+inside those jobs are #295. Two more from the maintainer's review of that
+PR: the count is GLOBAL - every file under .github/workflows/ is read,
+inventoried or not, and each required name must map to exactly one
+(file, job id) across all of them - and `--check` has a SECOND hosted
+runner, a pinned step of rtl.yml's `full-ci-gate`, because docs.yml's
+`docs-check` could not police its own `if: false`: the lever that skips the
+job skips the only step that would have refused it, while a skipped
+required context satisfies the ruleset. A gate that fails or is skipped
+fails both required aggregates, so the finding reaches the merge bar from
+a job docs.yml does not gate.
 
     scripts/ci_events.py --check        # the live tree against the contract
     scripts/ci_events.py --selftest     # mutation arms over in-memory copies
@@ -127,6 +136,12 @@ ELABORATE = ".github/workflows/elaborate.yml"
 POLICY = "docs/testing/CI_WORKFLOWS.md"
 WORKFLOWS = (RTL_FULL, RTL_FAST, DOCS, ELABORATE)
 FILES = WORKFLOWS + (POLICY,)
+#: Every other workflow file under this directory is read too (maintainer
+#: review on PR #293): GitHub binds a required check by NAME across every
+#: workflow, so a fifth file carrying `docs-check` is a second carrier the
+#: four-file inventory never opened.
+WORKFLOW_DIR = ".github/workflows"
+WORKFLOW_SUFFIXES = (".yml", ".yaml")
 
 #: The pull-request activity types both RTL workflows subscribe, exactly.
 PR_TYPES = ("opened", "reopened", "synchronize", "ready_for_review",
@@ -194,6 +209,19 @@ EXPECT_RE = re.compile(r"--expect\s+(\S+)")
 #: canonical and the assertion dead. So the key set is pinned, the env key
 #: set is pinned, and the verifier step's one permitted `if` is pinned.
 ASSERT_STEP_KEYS = ("name", "env", "run")
+#: THE SECOND RUNNER OF --check (maintainer review on PR #293). docs.yml's
+#: `docs-check` was the only hosted job that ran this gate, and every
+#: job-level lever that neuters `docs-check` (`if: false`, a `needs` on a
+#: skipped job, `continue-on-error`, `defaults.run.shell: bash -n`) also
+#: prevents or neuters the one step that would have refused it, while the
+#: skipped or falsely green required context satisfies the ruleset. So the
+#: gate job of rtl.yml runs `--check` too, as a pinned step: a gate that
+#: fails or is skipped makes both required aggregates fail closed (item 8),
+#: so the finding reaches the merge bar from a job docs.yml does not gate.
+CONTRACT_CHECK = "python3 scripts/ci_events.py --check"
+CONTRACT_STEP_KEYS = ("name", "run")
+CANONICAL_CONTRACT_SCRIPT = ("python3 -m pip install --quiet pyyaml",
+                             CONTRACT_CHECK)
 VERIFY_STEP_KEYS = ("name", "if", "env", "run")
 VERIFY_STEP_IF = "${{ always() }}"
 #: Every pinned step's `env`, as the BINDING each name must carry, never the
@@ -622,8 +650,20 @@ def load_yaml(text, path):
     return doc
 
 
+def is_extra_workflow(rel):
+    """A workflow file the inventory does not name."""
+    return (rel not in FILES and rel.startswith(WORKFLOW_DIR + "/")
+            and rel.endswith(WORKFLOW_SUFFIXES))
+
+
+def extra_workflows(world):
+    return sorted(rel for rel in world if is_extra_workflow(rel))
+
+
 def read_tree(root):
-    """The five files as text, keyed by their repository-relative path."""
+    """The five files as text, keyed by their repository-relative path, plus
+    every other workflow file the directory holds: the inventory decides
+    what is held, the directory decides what GitHub runs."""
     world = {}
     for rel in FILES:
         path = root / rel
@@ -631,18 +671,31 @@ def read_tree(root):
             world[rel] = path.read_text(encoding="utf-8")
         except OSError as exc:
             raise CannotRun(f"{rel}: cannot read: {exc}") from exc
+    wdir = root / WORKFLOW_DIR
+    for path in sorted(wdir.iterdir()) if wdir.is_dir() else ():
+        rel = f"{WORKFLOW_DIR}/{path.name}"
+        if path.is_file() and is_extra_workflow(rel):
+            try:
+                world[rel] = path.read_text(encoding="utf-8")
+            except OSError as exc:
+                raise CannotRun(f"{rel}: cannot read: {exc}") from exc
     return world
 
 
 def parse_world(world):
     """Text world -> parsed world: YAML mappings for workflows, text for the
-    policy page. Raises CannotRun for anything it cannot judge."""
+    policy page. Raises CannotRun for anything it cannot judge. A workflow
+    file outside the inventory is parsed too, so the global carrier count
+    below can see it."""
     parsed = {}
     for rel in FILES:
         if rel not in world:
             raise CannotRun(f"{rel}: missing")
         parsed[rel] = (load_yaml(world[rel], rel) if rel in WORKFLOWS
                        else world[rel])
+    for rel in extra_workflows(world):
+        parsed[rel] = (world[rel] if isinstance(world[rel], dict)
+                       else load_yaml(world[rel], rel))
     return parsed
 
 
@@ -717,6 +770,10 @@ def _is_decide_step(step):
     return step.get("id") == DECIDE_STEP_ID
 
 
+def _is_contract_step(step):
+    return CONTRACT_CHECK in step_text(step)
+
+
 #: (label, recognizer, what it must be, keys, env keys, optional keys) for
 #: every step of the gate job, in the order they must appear. The SEQUENCE is
 #: the point: the assertion runs the `ci_events.py` the checkout brought and
@@ -735,6 +792,9 @@ GATE_STEPS = (
     ("the default-branch step", _is_assert_step,
      f"the step that runs `ci_events.py {DEFAULT_BRANCH_FLAG}`",
      ASSERT_STEP_KEYS, ASSERT_STEP_ENV, ()),
+    ("the contract step", _is_contract_step,
+     f"the step that runs `{CONTRACT_CHECK}`",
+     CONTRACT_STEP_KEYS, {}, ()),
     ("the decision step", _is_decide_step,
      f"the step with `id: {DECIDE_STEP_ID}` that publishes `run_full`",
      DECIDE_STEP_KEYS, DECIDE_STEP_ENV, ()),
@@ -975,6 +1035,7 @@ def check_rtl_full(c, wf, policy):
         c.item(prints, path, f"job `{GATE_JOB}` must print the event name and "
                "GITHUB_SHA in one step")
         check_default_branch_step(c, path, gate)
+        check_contract_step(c, path, gate)
         check_decide_step(c, path, gate)
         check_gate_steps(c, path, gate)
         check_job_keys(c, path, GATE_JOB, gate)
@@ -1360,6 +1421,26 @@ def script_difference(got, want):
             return (f"line {i + 1} must be {w!r} (found {g!r}); "
                     f"{len(want)} line(s) expected, {len(got)} found")
     return f"{len(want)} line(s) expected, {len(got)} found"
+
+
+def check_contract_step(c, path, gate):
+    """The gate's own run of `--check`: exactly one such step, its script
+    verbatim (a `|| true` or a second command beside the call would let the
+    finding print and the job pass). Its keys and position are held by
+    check_gate_steps."""
+    found = [s for s in steps(gate) if _is_contract_step(s)]
+    c.item(len(found) == 1, path, f"job `{GATE_JOB}` must run "
+           f"`{CONTRACT_CHECK}` exactly once (found {len(found)}): this is "
+           "the runner of the contract that docs.yml cannot police for "
+           "itself, and a skipped or failed gate fails both aggregates")
+    if len(found) != 1:
+        return
+    run = found[0].get("run") if isinstance(found[0].get("run"), str) else ""
+    lines = normalize_script(run)
+    c.item(tuple(lines) == CANONICAL_CONTRACT_SCRIPT, path,
+           "the contract step script is not the canonical form: "
+           + script_difference(lines, CANONICAL_CONTRACT_SCRIPT)
+           + "; a line beside the call can swallow its exit status")
 
 
 def check_decide_step(c, path, gate):
@@ -1966,6 +2047,43 @@ def check_elaborate(c, wf):
     check_builder_dependencies(c, ELABORATE, wf, "elaborate")
 
 
+def check_global_carriers(c, parsed):
+    """One carrier per required name across EVERY workflow file (maintainer
+    review on PR #293). GitHub binds a required check by name and does not
+    distinguish the workflow that published it, so the per-file counts above
+    are necessary and not sufficient: a job in a fifth file, one the
+    inventory never named, carrying `docs-check` is a second `docs-check` on
+    every pull request. The multimap is name -> [(file, job id)] over the
+    inventoried files and every other file the directory holds; each
+    required name must map to exactly one entry, in its owning file, under
+    its own id. A job in an un-inventoried file may carry no expression name
+    at all: that file has no shard workers, so nothing there is legitimately
+    named by an expression, and an expression is the one spelling the
+    literal count cannot see."""
+    files = list(WORKFLOWS) + extra_workflows(parsed)
+    carriers = {}
+    for rel in files:
+        for jid, job in jobs(parsed[rel]).items():
+            carriers.setdefault(display_name(jid, job), []).append((rel, jid))
+            if is_extra_workflow(rel):
+                name = job.get("name") if isinstance(job, dict) else None
+                c.item(not (isinstance(name, str) and "${{" in name), rel,
+                       f"job `{jid}` in the un-inventoried workflow `{rel}` "
+                       f"must not carry an expression `name` (found "
+                       f"{name!r}): nothing outside the inventory is "
+                       "legitimately named by an expression, and an "
+                       "expression can evaluate to a required check name")
+    for name in sorted(ALL_PUBLIC_NAMES):
+        found = carriers.get(name, [])
+        want = (PUBLIC_NAME_OWNER[name], name)
+        c.item(found == [want], PUBLIC_NAME_OWNER[name],
+               f"required check name `{name}` must be carried by exactly "
+               f"one job across every workflow file, `{want[1]}` in "
+               f"`{want[0]}` (found {found or 'none'} over "
+               f"{len(files)} file(s)): the merge bar binds the name and "
+               "does not distinguish the workflow that published it")
+
+
 def check(parsed):
     """The whole contract over a parsed world. Returns a Contract."""
     c = Contract()
@@ -1973,6 +2091,7 @@ def check(parsed):
     check_rtl_fast(c, parsed[RTL_FAST])
     check_docs(c, parsed[DOCS])
     check_elaborate(c, parsed[ELABORATE])
+    check_global_carriers(c, parsed)
     return c
 
 
@@ -2386,6 +2505,35 @@ def _mutations():
         ss = gate_step_list(w)
         del ss[next(i for i, s in enumerate(ss)
                     if s.get("id") == PIN_STEP_ID)]
+
+    def contract_step(w):
+        found = [s for s in gate_step_list(w) if _is_contract_step(s)]
+        assert len(found) == 1, "fixture drift: no unique contract step"
+        return found[0]
+
+    def m_contract_step_removed(w):
+        gate_step_list(w).remove(contract_step(w))
+
+    def m_contract_step_swallowed(w):
+        contract_step(w)["run"] = (contract_step(w)["run"].rstrip("\n")
+                                   + " || true\n")
+
+    def m_contract_step_after_decide(w):
+        ss = gate_step_list(w)
+        step = contract_step(w)
+        ss.remove(step)
+        ss.append(step)
+
+    def m_fifth_workflow(jid, name=None):
+        # A workflow file the inventory never named (maintainer review on
+        # PR #293): GitHub runs it and binds its check-run names all the same.
+        def f(w):
+            job = {"runs-on": "ubuntu-latest", "steps": [{"run": "true"}]}
+            if name is not None:
+                job["name"] = name
+            w[f"{WORKFLOW_DIR}/decoy.yml"] = {
+                "name": "decoy", "on": ["pull_request"], "jobs": {jid: job}}
+        return f
 
     def m_checkout_shallow(w):
         del gate_step_list(w)[0]["with"]["fetch-depth"]
@@ -3055,9 +3203,9 @@ def _mutations():
         ("O14 assert step moved before the checkout", m_assert_before_checkout,
          "step 1 must be the gate checkout step"),
         ("O6 a GITHUB_PATH step inserted before the assertion",
-         m_gate_extra_path_step, "must carry exactly 4 steps"),
+         m_gate_extra_path_step, "must carry exactly 5 steps"),
         ("gate pin step removed", m_pin_step_removed,
-         "must carry exactly 4 steps"),
+         "must carry exactly 5 steps"),
         ("gate pin and assert steps swapped", m_pin_and_assert_swapped,
          "step 2 must be the pin step"),
         ("gate checkout without fetch-depth: 0", m_checkout_shallow,
@@ -3554,6 +3702,34 @@ def _mutations():
         ("#261 rtl-full decoy literally named docs-check",
          m_foreign_carrier(RTL_FULL, "docs-check"),
          "job `decoy` carries the required check name `docs-check` owned by"),
+        # A fifth workflow file (maintainer review on PR #293).
+        ("#261 a fifth workflow file carries docs-check",
+         m_fifth_workflow("decoy", "docs-check"),
+         "required check name `docs-check` must be carried by exactly one job "
+         "across every workflow file"),
+        ("#261 a fifth workflow file's job id is elaborate",
+         m_fifth_workflow("elaborate"),
+         "required check name `elaborate` must be carried by exactly one job "
+         "across every workflow file"),
+        ("#261 a fifth workflow file names a job by an expression",
+         m_fifth_workflow("decoy", "${{ 'wire-accountability' }}"),
+         "in the un-inventoried workflow `.github/workflows/decoy.yml` must "
+         "not carry an expression `name`"),
+        # The gate's own --check runner (maintainer review on PR #293).
+        ("#261 gate contract step removed", m_contract_step_removed,
+         f"must run `{CONTRACT_CHECK}` exactly once"),
+        ("#261 gate contract step if: false",
+         set_step_key(contract_step, "if", False),
+         "the contract step must carry no `if`"),
+        ("#261 gate contract step continue-on-error",
+         set_step_key(contract_step, "continue-on-error", True),
+         "the contract step must carry no `continue-on-error`"),
+        ("#261 gate contract step swallows its exit status",
+         m_contract_step_swallowed,
+         "the contract step script is not the canonical form"),
+        ("#261 gate contract step moved after the decision",
+         m_contract_step_after_decide,
+         "step 4 must be the contract step"),
     ]
 
 
@@ -3809,7 +3985,8 @@ def selftest(root):
 
 def run_check(root):
     try:
-        c = check(parse_world(read_tree(root)))
+        parsed = parse_world(read_tree(root))
+        c = check(parsed)
     except CannotRun as exc:
         print(f"ci_events: cannot run: {exc}")
         return RC_CANNOT_RUN
@@ -3822,7 +3999,7 @@ def run_check(root):
               "contract item(s)")
         return RC_FINDING
     print(f"ci_events: OK ({c.checked} contract item(s) across "
-          f"{len(WORKFLOWS)} workflow files and {POLICY})")
+          f"{len(WORKFLOWS) + len(extra_workflows(parsed))} workflow files and {POLICY})")
     return RC_OK
 
 
