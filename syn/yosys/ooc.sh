@@ -562,8 +562,12 @@ for spec in "${tops[@]}"; do
   # apply_malloc_env is INSIDE the subshell, so the preload reaches yosys and
   # the abc it spawns and dies with them: sv2v and the python3 ROM generators
   # above were not measured under a replacement allocator and keep the caller's
-  # environment. The `(cd "$rundir" && yosys` shape is load-bearing - the
-  # cwd-escape arm of ooc_selftest.py plants its mutation on exactly that text.
+  # environment. The opening of the line below - `(cd "$rundir" &&` followed
+  # by the apply_malloc_env call - is load-bearing: the cwd-escape and
+  # consume-shared-dir arms of ooc_selftest.py plant their mutations on
+  # exactly that text (and refuse if it appears twice, so do not quote it
+  # verbatim here), and its allocator arms read the model's record of what
+  # yosys and sv2v ran under.
   (cd "$rundir" && apply_malloc_env "$MALLOC_LIB" && yosys -p "read_verilog $TMP/$top.ooc.v;$chp synth_xilinx -family xc7$nodsp -top $top -flatten; stat; write_json $TMP/$top.ooc.json") \
     > "$TMP/$top.ooc.log" 2>&1
   yosys_rc=$?

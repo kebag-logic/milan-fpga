@@ -51,7 +51,13 @@ THE STUBS ARE MODELS WITH TEETH, not silence:
     accumulator in any column is caught;
   - stat blocks appear only when the -p command carries their source,
     mapped cells only from `synth_xilinx`, JSON only from `write_json`, and
-    an empty JSON artifact is its own arm.
+    an empty JSON artifact is its own arm;
+  - the yosys and sv2v models can RECORD the LD_PRELOAD they ran under, so
+    the allocator preload (#290) is proved to reach yosys and not the front
+    end, and `YOSYS_MALLOC=none` to clear an inherited one for yosys only -
+    with libc as the fixture library, so no compiler and no jemalloc are
+    needed, and a mutant that exports the preload once for every child is
+    caught.
 
 Mutation copies of ooc.sh itself (report-phase deletions, the population
 replaced by a hand list, `cd "$TMP"` -> `cd "$R"`, the digest ledger
@@ -193,7 +199,7 @@ def ledger():
     return _LEDGER
 
 #: How many arms run. A deleted arm is a self-test that still prints a pass.
-ARMS = 72
+ARMS = 75
 
 #: The clean row the full-cell yosys model must produce for any top:
 #: 8 LUT4, 2 RAM32M (= 8 LUTRAM-LUT), 4 FDRE, 3 RAMB36E1, 2 RAMB18E1,
@@ -291,6 +297,40 @@ esac
 exit 0
 """
 YOSYS_OK = YOSYS_TMPL.replace("@PLANT@", "")
+#: The honest model plus a record of the allocator it ran under (#290): the
+#: preload is applied INSIDE the per-top subshell, so this is the only place
+#: that can testify whether it reached yosys - and the sv2v twin below is the
+#: only place that can testify it did NOT reach the front end.
+YOSYS_ENV = YOSYS_TMPL.replace("@PLANT@",
+    'printf \'%s\\n\' "${LD_PRELOAD-<unset>}" >> "$HOME/yosys-env.txt"')
+SV2V_ENV = SV2V_OK.replace('exit 0\n',
+    'printf \'%s\\n\' "${LD_PRELOAD-<unset>}" >> "$HOME/sv2v-env.txt"\nexit 0\n')
+
+
+def _preloadable_library():
+    """A shared object the loader will preload into any process, for the
+    allocator-scoping arms: libc itself, which every dynamically linked
+    process already maps. None when no such library can be found or the
+    loader complains about it (a static or exotic toolchain)."""
+    cands = []
+    try:
+        out = subprocess.run(["ldconfig", "-p"], capture_output=True, text=True)
+        cands += [ln.rsplit("=> ", 1)[1].strip() for ln in out.stdout.splitlines()
+                  if "libc.so.6" in ln and "=> " in ln]
+    except OSError:
+        pass
+    # ldconfig answers for multiarch layouts; the literal list is only the
+    # fallback for a machine whose ldconfig a normal user cannot run.
+    cands += ["/usr/lib/libc.so.6", "/lib64/libc.so.6", "/usr/lib64/libc.so.6"]
+    true_bin = shutil.which("true")
+    for c in cands:
+        if not (os.path.isfile(c) and true_bin):
+            continue
+        env = dict(os.environ, LD_PRELOAD=c)
+        r = subprocess.run([true_bin], env=env, capture_output=True, text=True)
+        if r.returncode == 0 and not r.stderr:
+            return c
+    return None
 #: A planted failure for ONE top of a multi-top run.
 YOSYS_FAIL_TCAM = YOSYS_TMPL.replace("@PLANT@",
     'case "$p" in *"-top tcam "*) '
@@ -437,8 +477,14 @@ def _stub(bindir, name, content):
     os.chmod(p, 0o755)
 
 
-def _run(script, tops, home, rundir, ooc_tmp):
+def _run(script, tops, home, rundir, ooc_tmp, extra_env=None):
     env = dict(os.environ)
+    if extra_env:
+        for k, v in extra_env.items():
+            if v is None:
+                env.pop(k, None)
+            else:
+                env[k] = v
     bindir = os.path.join(home, ".local", "bin")
     env["HOME"] = home
     env["PATH"] = bindir + os.pathsep + env.get("PATH", "")
@@ -490,7 +536,7 @@ def selftest():
 
     def arm(name, tops, want, expect_rc0, sv2v=SV2V_OK, yosys=YOSYS_OK,
             py=None, awk=None, git=None, chmod=None, script=OOC, setup=None,
-            check=None):
+            check=None, env=None):
         nonlocal ran
         ran += 1
         if isinstance(tops, str):
@@ -517,7 +563,7 @@ def selftest():
                 _stub(bindir, "git", git % {"real": REAL_GIT})
             if chmod:
                 _stub(bindir, "chmod", chmod % {"real": REAL_CHMOD})
-            rc, log = _run(script, tops, home, rundir, ooc_tmp)
+            rc, log = _run(script, tops, home, rundir, ooc_tmp, env)
             litter = os.listdir(rundir)
             if expect_rc0:
                 if rc != 0:
@@ -1228,6 +1274,90 @@ def selftest():
             check=stale_priced)
     finally:
         os.unlink(mut)
+
+    # ---- allocator scoping (#290) ------------------------------------------
+    # Arms 73-75. The preload is applied INSIDE the per-top yosys subshell so
+    # it reaches yosys (and the abc it spawns) and nothing else; sv2v and the
+    # ROM generators keep the caller's environment, and YOSYS_MALLOC=none
+    # UNSETS an inherited LD_PRELOAD for the yosys child. Review [R1] proved
+    # both properties by hand with a shim and then showed that a one-line
+    # regression - exporting the preload once, for every child - passed
+    # every arm here and the allocator self-test. These arms are that shim,
+    # without a compiler: the yosys and sv2v models record the LD_PRELOAD they
+    # ran under, and the fixture library is libc, which every dynamically
+    # linked process already maps, so the loader takes it anywhere.
+    lib = _preloadable_library()
+
+    def _env_lines(home, name):
+        try:
+            with open(os.path.join(home, name)) as fh:
+                return [ln.strip() for ln in fh if ln.strip()]
+        except OSError:
+            return []
+
+    def scoped_to_yosys(log, ooc_tmp, home):
+        y = _env_lines(home, "yosys-env.txt")
+        v = _env_lines(home, "sv2v-env.txt")
+        if not y or not v:
+            return "the models did not run (yosys %d, sv2v %d records)" \
+                   % (len(y), len(v))
+        if any(x != lib for x in y):
+            return "yosys ran under %s, not the selected %s" % (y, lib)
+        if any(x != "<unset>" for x in v):
+            return "the preload leaked to sv2v: %s" % v
+        if "yosys allocator: " + lib not in log:
+            return "the header does not name the selected library"
+        return None
+
+    def none_clears_child(log, ooc_tmp, home):
+        y = _env_lines(home, "yosys-env.txt")
+        v = _env_lines(home, "sv2v-env.txt")
+        if not y or not v:
+            return "the models did not run (yosys %d, sv2v %d records)" \
+                   % (len(y), len(v))
+        if any(x != "<unset>" for x in y):
+            return "YOSYS_MALLOC=none left the inherited preload on yosys: %s" % y
+        if any(x != lib for x in v):
+            return "sv2v lost the caller's own environment: %s" % v
+        if "yosys allocator: system" not in log:
+            return "the header does not say system"
+        return None
+
+    if lib is None:
+        for name in ("alloc-scoped-to-yosys", "alloc-none-clears-child",
+                     "mut-alloc-exported-once"):
+            print("  SKIPPED [%s]: no preloadable library on this machine "
+                  "(libc.so.6 not found, or the loader refused it)" % name)
+            ran += 1
+    else:
+        # Arm 73. An explicit library reaches the yosys model and only it.
+        arm("alloc-scoped-to-yosys", "tcam", None, True,
+            yosys=YOSYS_ENV, sv2v=SV2V_ENV,
+            env={"YOSYS_MALLOC": lib, "LD_PRELOAD": None},
+            check=scoped_to_yosys)
+        # Arm 74. `none` unsets an inherited preload for yosys, and for yosys
+        # only: sv2v still sees what the caller exported.
+        arm("alloc-none-clears-child", "tcam", None, True,
+            yosys=YOSYS_ENV, sv2v=SV2V_ENV,
+            env={"YOSYS_MALLOC": "none", "LD_PRELOAD": lib},
+            check=none_clears_child)
+        # Arm 75. The regression review planted: the preload exported once,
+        # at top level, for every child. The subshell text is untouched, so
+        # the cwd arms cannot see it; arm 73's check must.
+        mut = _mutant(r'MALLOC_LIB="\$\(select_malloc\)" \|\| exit 2\n',
+                      'MALLOC_LIB="$(select_malloc)" || exit 2\n'
+                      'apply_malloc_env "$MALLOC_LIB"\n',
+                      "alloc-exported-once")
+        try:
+            arm("mut-alloc-exported-once", "tcam", None, True, script=mut,
+                yosys=YOSYS_ENV, sv2v=SV2V_ENV,
+                env={"YOSYS_MALLOC": lib, "LD_PRELOAD": None},
+                check=lambda log, t, h: None
+                if scoped_to_yosys(log, t, h) else
+                "the mutant that exports the preload for every child was "
+                "not caught: sv2v ran under it unnoticed")
+        finally:
+            os.unlink(mut)
 
     if ran != ARMS:
         problems.append("SELF-TEST FAILED [arm-count]: ran %d arm(s), this "
