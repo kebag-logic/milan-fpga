@@ -356,8 +356,15 @@ INHERITED_WORKFLOW_ENV = {
 #: refused by name whatever it does. `env` on a job and the neuter keys are
 #: reported by their own rules and left out of this one's surplus.
 WORKFLOW_KEYS = ("name", "on", "concurrency", "env", "jobs")
-JOB_KEYS = ("name", "runs-on", "timeout-minutes", "steps", "needs", "if",
-            "outputs", "strategy")
+JOB_KEYS = ("name", "runs-on", "timeout-minutes", "steps", "needs", "if")
+#: Keys only some jobs carry, by (file, job) ([R3] round 9 SUGGESTION): a
+#: `strategy` on a carrier would be a matrix lever the carriers never need.
+JOB_KEY_EXTRAS = {
+    (RTL_FULL, GATE_JOB): ("outputs",),
+    (RTL_FAST, "changes"): ("outputs",),
+    (RTL_FULL, "verilator-shards"): ("strategy",),
+    (RTL_FULL, "yosys-shards"): ("strategy",),
+}
 STEP_KEYS = ("name", "run", "uses", "with", "id", "env", "if",
              "continue-on-error", "working-directory")
 #: THE ENVIRONMENT FILES ([R3] round 8 on PR #293). The runner sets the same
@@ -369,12 +376,44 @@ STEP_KEYS = ("name", "run", "uses", "with", "id", "env", "if",
 #: mention is refused naming the step. Likewise only the recorded actions
 #: may be `uses:`d: a local `./` action or a third-party one runs code this
 #: checker does not read.
-ENV_FILE_WRITERS = frozenset({
-    (RTL_FAST, "verilator-lint", "Run the ratcheted whole-tree lint gate", "GITHUB_PATH"),
-    (RTL_FULL, "verilator-shards", "Put Verilator on PATH and prove the version", "GITHUB_PATH"),
-    (RTL_FULL, "verilator-shards", "Build the pinned tsn-gen field oracle on its suite owner", "GITHUB_ENV"),
-    (ELABORATE, "elaborate", "Install sbt", "GITHUB_PATH"),
-})
+#: Each recorded writer is bound by its SCRIPT, not by its name ([R3] round
+#: 9 on PR #293): a name alone let the writer's own script gain a hostile
+#: line, and an added step under a recorded name write anything. The entry
+#: is (file, job, step name) -> the normalised script the step must equal,
+#: and the name must appear exactly once in that job.
+ENV_FILE_WRITERS = {
+    (RTL_FAST, "verilator-lint", "Run the ratcheted whole-tree lint gate"): (
+        'echo "/opt/verilator/bin" >> "$GITHUB_PATH"',
+        '/opt/verilator/bin/verilator --version',
+        '/opt/verilator/bin/verilator --version | grep -F "${VERILATOR_VERSION#v}"',
+        'PATH="/opt/verilator/bin:$PATH" python3 scripts/lint_rtl.py --check --self-test',
+    ),
+    (RTL_FULL, "verilator-shards", "Put Verilator on PATH and prove the version"): (
+        'echo "/opt/verilator/bin" >> "$GITHUB_PATH"',
+        '/opt/verilator/bin/verilator --version',
+        '/opt/verilator/bin/verilator --version | grep -F "${VERILATOR_VERSION#v}"',
+    ),
+    (RTL_FULL, "verilator-shards", "Build the pinned tsn-gen field oracle on its suite owner"): (
+        'set -euo pipefail',
+        'git clone --filter=blob:none https://github.com/kebag-logic/tsn-gen.git "$RUNNER_TEMP/tsn-gen"',
+        'git -C "$RUNNER_TEMP/tsn-gen" checkout "$TSN_GEN_REV"',
+        'git -C "$RUNNER_TEMP/tsn-gen" submodule update --init --depth 1 --recursive external/rapidyaml',
+        'cmake -S "$RUNNER_TEMP/tsn-gen" -B "$RUNNER_TEMP/tsn-gen/build" -DCMAKE_BUILD_TYPE=Release -DENABLE_PARSER_TESTS=OFF',
+        'cmake --build "$RUNNER_TEMP/tsn-gen/build" --target packet_gen --parallel',
+        'test -x "$RUNNER_TEMP/tsn-gen/build/traffic-gen/packet_gen"',
+        'echo "TSN_GEN_ROOT=$RUNNER_TEMP/tsn-gen" >> "$GITHUB_ENV"',
+    ),
+    (ELABORATE, "elaborate", "Install sbt"): (
+        'sbt --version >/dev/null 2>&1 && exit 0',
+        'curl -fsSL --retry 3 -o /tmp/sbt.tgz https://github.com/sbt/sbt/releases/download/v1.10.7/sbt-1.10.7.tgz',
+        'sudo tar xzf /tmp/sbt.tgz -C /opt',
+        'echo /opt/sbt/bin >> "$GITHUB_PATH"',
+    ),
+}
+#: Every checkout in the four files carries no `with` beyond `fetch-depth: 0`
+#: ([R3] round 9): `ref:` or `repository:` on an unpinned carrier's checkout
+#: computes the required context on another tree.
+CHECKOUT_WITH_ALLOWED = {"fetch-depth": CHECKOUT_FETCH_DEPTH}
 ENV_FILE_NAMES = ("GITHUB_ENV", "GITHUB_PATH")
 RECORDED_ACTIONS = frozenset({
     "actions/checkout@v4", "actions/cache@v4", "actions/setup-python@v5",
@@ -1596,19 +1635,40 @@ def check_env_files(c, path, wf):
     job without a pinned sequence set the inherited environment at run
     time for every later step with 390 items and no finding."""
     for jid, job in jobs(wf).items():
+        names = [s.get("name") for s in steps(job)]
         for n, step in enumerate(steps(job), 1):
             text = step_text(step)
             name = step.get("name") if isinstance(step.get("name"), str) else ""
-            for var in ENV_FILE_NAMES:
-                if var not in text:
-                    continue
-                c.item((path, jid, name, var) in ENV_FILE_WRITERS, path,
+            key = (path, jid, name)
+            if any(var in text for var in ENV_FILE_NAMES):
+                c.item(key in ENV_FILE_WRITERS, path,
                        f"job `{jid}` step {n} ({step_label(step)}) mentions "
-                       f"`{var}` and is not a recorded writer: whatever a "
-                       "step writes there is the inherited environment of "
-                       "every later step, so `BASH_ENV` set here turns the "
-                       "gates after it into no-ops with every declared "
-                       "`env` level clean")
+                       f"an environment file and is not a recorded writer: "
+                       "whatever a step writes there is the inherited "
+                       "environment of every later step, so `BASH_ENV` set "
+                       "here turns the gates after it into no-ops with every "
+                       "declared `env` level clean")
+            if key in ENV_FILE_WRITERS:
+                run = step.get("run") if isinstance(step.get("run"), str) else ""
+                lines = normalize_script(run)
+                c.item(tuple(lines) == ENV_FILE_WRITERS[key], path,
+                       f"recorded writer `{name}` in job `{jid}` script is "
+                       "not the canonical form: "
+                       + script_difference(lines, ENV_FILE_WRITERS[key])
+                       + "; the name is not the binding, the script is")
+                c.item(names.count(name) == 1, path,
+                       f"recorded writer `{name}` must appear exactly once "
+                       f"in job `{jid}` (found {names.count(name)}): a second "
+                       "step under a recorded name would inherit its licence")
+            if _is_checkout_step(step):
+                with_ = step.get("with") if isinstance(step.get("with"), dict) else {}
+                bad = sorted(str(k) for k in with_
+                             if str(k) not in CHECKOUT_WITH_ALLOWED
+                             or with_[k] != CHECKOUT_WITH_ALLOWED[str(k)])
+                c.item(not bad, path, f"job `{jid}` step {n} checkout `with` "
+                       f"may carry only {CHECKOUT_WITH_ALLOWED} (found "
+                       f"{with_!r}): a `ref` or `repository` here computes the "
+                       "required context on another tree")
             action = step.get("uses")
             if action is not None:
                 c.item(action in RECORDED_ACTIONS, path,
@@ -1634,9 +1694,10 @@ def check_key_allowlists(c, path, wf):
     for jid, job in jobs(wf).items():
         if not isinstance(job, dict):
             continue
-        extra = sorted({str(k) for k in job} - set(JOB_KEYS) - covered)
+        allowed_keys = set(JOB_KEYS) | set(JOB_KEY_EXTRAS.get((path, jid), ()))
+        extra = sorted({str(k) for k in job} - allowed_keys - covered)
         c.item(not extra, path, f"job `{jid}` may carry only the keys "
-               f"{list(JOB_KEYS)} (surplus: {extra}): `container` carries "
+               f"{sorted(allowed_keys)} (surplus: {extra}): `container` carries "
                "its own env map and picks the image every step's python3 "
                "comes from, `services` starts more, and an unknown key is "
                "refused for the same reason")
@@ -4025,20 +4086,20 @@ def _mutations():
         ("#261 docs-check inserted step writes GITHUB_ENV",
          m_insert_step(DOCS, "docs-check",
                        {"name": "prep", "run": 'echo "BASH_ENV=$PWD/scripts/ci-bypass.sh" >> "$GITHUB_ENV"'}),
-         "mentions `GITHUB_ENV` and is not a recorded writer"),
+         "mentions an environment file and is not a recorded writer"),
         ("#261 wire-accountability inserted step prepends GITHUB_PATH",
          m_insert_step(DOCS, "wire-accountability",
                        {"name": "prep", "run": 'echo "$PWD/scripts/bin" >> "$GITHUB_PATH"'}),
-         "mentions `GITHUB_PATH` and is not a recorded writer"),
+         "mentions an environment file and is not a recorded writer"),
         ("#261 yosys-shards inserted step writes GITHUB_ENV",
          m_insert_step(RTL_FULL, "yosys-shards",
                        {"name": "prep", "run": 'echo "BASH_ENV=x" >> "$GITHUB_ENV"'}),
-         "mentions `GITHUB_ENV` and is not a recorded writer"),
+         "mentions an environment file and is not a recorded writer"),
         ("#261 docs-check existing step gains a GITHUB_ENV write",
          (lambda w: [s for s in job_steps(w, DOCS, "docs-check")
                      if "pip install --quiet pyyaml" in step_text(s)][0].__setitem__(
                          "run", 'echo "BASH_ENV=x" >> "$GITHUB_ENV"\npython3 -m pip install --quiet pyyaml')),
-         "mentions `GITHUB_ENV` and is not a recorded writer"),
+         "mentions an environment file and is not a recorded writer"),
         ("#261 docs-check inserted local action",
          m_insert_step(DOCS, "docs-check", {"uses": "./.github/actions/prep"}),
          "uses `./.github/actions/prep`, which is not a recorded action"),
@@ -4048,13 +4109,45 @@ def _mutations():
         ("#261 rtl.yml recorded writer renamed",
          (lambda w: [s for s in job_steps(w, RTL_FULL, "verilator-shards")
                      if s.get("name") == "Put Verilator on PATH and prove the version"][0].__setitem__("name", "Put Verilator on PATH")),
-         "mentions `GITHUB_PATH` and is not a recorded writer"),
+         "mentions an environment file and is not a recorded writer"),
         ("#261 docs.yml workflow-level env is not a mapping",
          (lambda w: w[DOCS].__setitem__("env", "BASH_ENV=scripts/ci-bypass.sh")),
          "the workflow-level `env` must be a mapping"),
         ("#261 docs-check step env is not a mapping",
          m_step_key_any(DOCS, "docs-check", "scripts/ci_events.py --check", "env", ["BASH_ENV=x"]),
          "`env` must be a mapping"),
+        # The writers are bound by script and count ([R3] round 9 on #293).
+        ("#261 elaborate Install sbt script gains a PATH prepend",
+         (lambda w: [s for s in job_steps(w, ELABORATE, "elaborate") if s.get("name") == "Install sbt"][0].__setitem__(
+             "run", 'echo "$PWD/scripts/bin" >> "$GITHUB_PATH"\n' + [s for s in job_steps(w, ELABORATE, "elaborate") if s.get("name") == "Install sbt"][0]["run"])),
+         "recorded writer `Install sbt` in job `elaborate` script is not the canonical form"),
+        ("#261 elaborate added step under the recorded name Install sbt",
+         m_insert_step(ELABORATE, "elaborate", {"name": "Install sbt", "run": 'echo "$PWD/scripts/bin" >> "$GITHUB_PATH"'}),
+         "recorded writer `Install sbt` must appear exactly once in job `elaborate`"),
+        ("#261 rtl.yml tsn-gen export rewritten to set BASH_ENV",
+         (lambda w: [s for s in job_steps(w, RTL_FULL, "verilator-shards") if s.get("name", "").startswith("Build the pinned tsn-gen")][0].__setitem__(
+             "run", [s for s in job_steps(w, RTL_FULL, "verilator-shards") if s.get("name", "").startswith("Build the pinned tsn-gen")][0]["run"].replace('echo "TSN_GEN_ROOT=$RUNNER_TEMP/tsn-gen" >> "$GITHUB_ENV"', 'echo "BASH_ENV=$PWD/scripts/ci-bypass.sh" >> "$GITHUB_ENV"'))),
+         "recorded writer `Build the pinned tsn-gen field oracle on its suite owner` in job `verilator-shards` script is not the canonical form"),
+        ("#261 rtl-fast.yml lint step gains a hostile PATH prepend",
+         (lambda w: [s for s in job_steps(w, RTL_FAST, "verilator-lint") if s.get("name") == "Run the ratcheted whole-tree lint gate"][0].__setitem__(
+             "run", 'echo "$PWD/scripts/bin" >> "$GITHUB_PATH"\n' + [s for s in job_steps(w, RTL_FAST, "verilator-lint") if s.get("name") == "Run the ratcheted whole-tree lint gate"][0]["run"])),
+         "recorded writer `Run the ratcheted whole-tree lint gate` in job `verilator-lint` script is not the canonical form"),
+        ("#261 rtl.yml recorded writer duplicated",
+         (lambda w: job_steps(w, RTL_FULL, "verilator-shards").append(dict(
+             [s for s in job_steps(w, RTL_FULL, "verilator-shards") if s.get("name") == "Put Verilator on PATH and prove the version"][0]))),
+         "recorded writer `Put Verilator on PATH and prove the version` must appear exactly once"),
+        ("#261 wire-accountability checkout with ref",
+         (lambda w: [s for s in job_steps(w, DOCS, "wire-accountability") if uses(s, "actions/checkout")][0].__setitem__("with", {"ref": "main"})),
+         "checkout `with` may carry only"),
+        ("#261 docs-check-no-git checkout with repository",
+         (lambda w: [s for s in job_steps(w, DOCS, "docs-check-no-git") if uses(s, "actions/checkout")][0].__setitem__("with", {"repository": "attacker/x"})),
+         "checkout `with` may carry only"),
+        ("#261 docs-check job strategy",
+         m_job_key_any(DOCS, "docs-check", "strategy", {"matrix": {"x": "${{ fromJSON('[]') }}"}}),
+         "job `docs-check` may carry only the keys"),
+        ("#261 wire-accountability job outputs",
+         m_job_key_any(DOCS, "wire-accountability", "outputs", {"x": "1"}),
+         "job `wire-accountability` may carry only the keys"),
     ]
 
 

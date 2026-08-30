@@ -440,13 +440,22 @@ is exactly these twelve things:
     any job without a pinned sequence set `BASH_ENV` at run time with every
     declared level clean. So those are held by allowlist as well: exactly
     four recorded steps may mention either file (the two Verilator PATH
-    steps, the tsn-gen `TSN_GEN_ROOT` export, the sbt PATH step), every
-    other mention is refused naming the step, and a `uses:` outside the five
-    recorded `actions/*` versions is refused. A non-mapping `env` is refused
-    at every level. What remains for #295 is the step-list class itself:
-    an inserted step that does none of those things is still not refused in
-    the four non-RTL carriers, whose step lists are not pinned the way the
-    gate's is (item 4).
+    steps, the tsn-gen `TSN_GEN_ROOT` export, the sbt PATH step), each
+    bound by its normalised SCRIPT and appearing exactly once in its job --
+    a name alone let the writer's own script gain a hostile line, and an
+    added step under a recorded name write anything ([R3] round 9 on PR
+    #293) -- every other mention is refused naming the step, a `uses:`
+    outside the five recorded `actions/*` versions is refused, every
+    checkout's `with` may carry nothing but `fetch-depth: 0`, a job may
+    carry `outputs` or `strategy` only where the tree records it, and a
+    non-mapping `env` is refused at every level. What this cannot hold, and
+    #295 owns, is the step-list class itself: in the ten jobs whose step
+    lists are not pinned the way the gate's is (item 4) -- every job but
+    `full-ci-gate` and `changes`, the RTL workers included -- an inserted
+    step of ANY content still passes, and such a step can reach the runner's
+    environment file without spelling its name (the `_runner_file_commands`
+    glob, an indirect expansion, a checked-in script); only a sequence pin
+    on every job closes that, which is #295's widened acceptance row.
 
 `--selftest` covers, one at a time: the step removed, the token missing, the
 live read replaced by an echo, the event not passed, `|| true`, the decoy
@@ -512,9 +521,12 @@ with its own `BASH_ENV` on `docs-check`, `full-ci-gate` and `elaborate`,
 `defaults`, a step `shell` and a benign step key, an inserted step writing
 `$GITHUB_ENV` or `$GITHUB_PATH` in a documentation job and in an RTL
 worker, a write added to an existing step, a recorded writer renamed, a
-local and a third-party `uses:`, a non-mapping `env` at the workflow and
-step level, a fifth workflow file on disk under both suffixes as a literal
-pair, a decoy whose `name` is an
+local and a third-party `uses:`, a recorded writer's script given a hostile
+line and the tsn-gen export rewritten, an added step under a recorded name,
+a recorded writer duplicated, a checkout given `ref` and `repository`, a
+`strategy` and an `outputs` on a documentation job, a non-mapping `env` at
+the workflow and step level, a fifth workflow file on disk under both
+suffixes as a literal pair, a decoy whose `name` is an
 expression evaluating to a required name in each of the four files, a
 matrix job whose `name` renders one (its own file's and another file's), and
 the enumeration's edges - a matrix value that is itself an expression, an
