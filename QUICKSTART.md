@@ -341,7 +341,7 @@ firmware boot/CSR contract → connect the board to the timed network.
 3. [`docs/testing/MILAN_V12_AUDIT_2026-08-16.md`](docs/testing/MILAN_V12_AUDIT_2026-08-16.md)
    and [`docs/limitations/RECURRING_DEFECT_PATTERNS.md`](docs/limitations/RECURRING_DEFECT_PATTERNS.md)
    for current limitations and integration hazards.
-4. [`docs/testing/PROTOCOL_VALIDATION_MATRIX.md`](docs/testing/PROTOCOL_VALIDATION_MATRIX.md)
+4. [`docs/testing/PROTOCOL_VALIDATION_MATRIX.md` (historical)](docs/testing/PROTOCOL_VALIDATION_MATRIX.md)
    — the evidence required for simulation and the two-board physical acceptance
    tracked by #117.
 

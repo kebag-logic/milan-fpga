@@ -177,7 +177,7 @@ normative statement of what lives in fabric vs the softcore is
 
 The clause-by-clause verification status — what is proven by a self-checking
 test, what is partial, what is missing, and *why* a clause is N/A — is
-[`SPEC_TRACEABILITY.md`](../SPEC_TRACEABILITY.md). The honest gap narrative is
+[`SPEC_TRACEABILITY.md` (historical)](../SPEC_TRACEABILITY.md). The honest gap narrative is
 [`MILAN_COMPLIANCE_GAPS.md`](../MILAN_COMPLIANCE_GAPS.md). Neither hides
 anything: read them before you commit to this.
 

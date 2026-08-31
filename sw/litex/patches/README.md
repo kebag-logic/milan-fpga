@@ -24,3 +24,19 @@ PYTHON=/path/to/venv/bin/python3 ./apply.sh
 If an upstream revision changes a patched hunk, `apply.sh` stops at that patch.
 Refresh the diff against the newly pinned source tree, then rerun the builder's
 toolchain-patch gate before committing it.
+
+If the series text changes without an upstream change - `0005` had a
+comment-only rewrite on 2026-08-30 - a tree patched with the previous text can
+neither reverse the new patch nor take it again, and gate 23h reports that tree
+as not upstream plus this series. Migrate such a tree by reversing the previous
+text first, then applying the current series (run from this directory):
+
+```sh
+old=$(git log -1 --format=%H --diff-filter=M -- 0005-vexiiriscv-cacheless-litex.patch)~1
+tree=$(python3 -c 'import pythondata_cpu_vexiiriscv as m, os; print(os.path.dirname(os.path.dirname(m.__file__)))')
+git show "$old:sw/litex/patches/0005-vexiiriscv-cacheless-litex.patch" | git -C "$tree" apply --reverse
+./apply.sh
+```
+
+A fresh environment (`scripts/ci_litex_env.py`, the one CI builds) needs no
+migration.

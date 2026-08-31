@@ -164,7 +164,7 @@ audio end-station (talker + listener) on the wire.
   deleted RTL is now **owned by the protocol processor** where it really is (ADP / ACMP / SRP,
   plus the AECP served-command inventory) and **NOT IMPLEMENTED** where the
   processor still returns its fallback response. Read
-  [`docs/SPEC_TRACEABILITY.md`](SPEC_TRACEABILITY.md) for the live tally rather than a number
+  [`docs/SPEC_TRACEABILITY.md` (historical)](SPEC_TRACEABILITY.md) for the live tally rather than a number
   quoted here.
 - **Media-clock servo (MMCM-DRP)**: silicon-proven at **-83.9 dB** (the CS4344+CS5343 converter
   power-sum floor) on the pre-substitution build — and **structurally off in this one**, because
@@ -280,7 +280,7 @@ Each entry: the doc and **when to read it**. `→` marks the doc to start each s
   slope mux and the talker gate. The lwSRP engine spec that used to head this section
   documented deleted RTL and is retired with it; the `0x680` CSR group survives with its
   domain/slope/over-limit words repointed and its MRPDU counters reading structural zeros.
-- **[`docs/NXN_ARCHITECTURE.md`](NXN_ARCHITECTURE.md)** — how the shared-engine-per-function + N per-stream BRAM
+- **[`docs/NXN_ARCHITECTURE.md` (historical)](NXN_ARCHITECTURE.md)** — how the shared-engine-per-function + N per-stream BRAM
   contexts scale the dataplane (AAF/CRF) to NxN streams (roadmap item 5). Read for the scaling
   model; its §3 control-plane sections are marked where the owner changed.
 
@@ -292,7 +292,7 @@ Each entry: the doc and **when to read it**. `→` marks the doc to start each s
 - **[`hdl/milan/KL_pp_shadow.sv`](../../../hdl/milan/KL_pp_shadow.sv) + [`hdl/milan/milan_datapath.sv`](../../../hdl/milan/milan_datapath.sv) banners** —
   the design record for what the control plane is now, what it replaced, and what it does not do.
   Read these before any older control-plane page.
-- **[`docs/design/MILAN_TALKER_SM.md`](design/MILAN_TALKER_SM.md)** — the talker connection model (ACMP PROBE_TX,
+- **[`docs/design/MILAN_TALKER_SM.md` (historical)](design/MILAN_TALKER_SM.md)** — the talker connection model (ACMP PROBE_TX,
   stream_id = {mac,uid}). *(Written against the deleted fabric responder; the connection model
   it describes is the processor's now, and its GET/SET_STREAM_INFO byte rules describe commands
   that today get a `NOT_IMPLEMENTED` echo — a well-formed answer carrying none of those bytes.)*
@@ -306,10 +306,10 @@ Each entry: the doc and **when to read it**. `→` marks the doc to start each s
 - → **[`docs/design/AUDIO_STREAMING.md`](design/AUDIO_STREAMING.md)** — the end-to-end media-plane deep-dive: talker and
   listener chains with CSR touchpoints, presentation-time vs pipeline latency (links
   AAF_LATENCY_TAPS + LATENCY_HISTORY_RING), honest status. **Read this first for audio.**
-- **[`docs/traceability/ieee1722-2016.md`](traceability/ieee1722-2016.md)** — per-clause AVTP/AAF/CRF/MAAP map (the verification
+- **[`docs/traceability/ieee1722-2016.md` (historical)](traceability/ieee1722-2016.md)** — per-clause AVTP/AAF/CRF/MAAP map (the verification
   view). *(CRF-8 still says the servo is "not built" — stale: the MMCM-DRP servo IS built and
   silicon-proven.)*
-- **[`docs/MVP_TALKER.md`](MVP_TALKER.md)** — the AAF-PCM talker: the 90-byte frame format, the CSR 0x654 group,
+- **[`docs/MVP_TALKER.md` (historical)](MVP_TALKER.md)** — the AAF-PCM talker: the 90-byte frame format, the CSR 0x654 group,
   silicon bring-up. *(Its headline "media clock not locked" caveat is superseded by the servo;
   the frame/CSR content is still live.)*
 - **Media-clock servo** — the MMCM-DRP servo ([`hdl/ieee1722/crf/KL_mmcm_drp_servo.sv`](../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv),
@@ -392,10 +392,10 @@ Each entry: the doc and **when to read it**. `→` marks the doc to start each s
   migen sims → verilator → yosys → P&R → silicon) with time budgets and the traps that bit.
 - **[`docs/testing/SIMULATION.md`](../../testing/SIMULATION.md)** — the conceptual explainer of the three sim layers + the M-A2
   "CPU reads MILN" evidence walk. Read to understand what each sim layer can/can't catch.
-- **[`docs/testing/PROTOCOL_VALIDATION_MATRIX.md`](testing/PROTOCOL_VALIDATION_MATRIX.md)** — the protocol × module × test coverage view
+- **[`docs/testing/PROTOCOL_VALIDATION_MATRIX.md` (historical)](testing/PROTOCOL_VALIDATION_MATRIX.md)** — the protocol × module × test coverage view
   ("which harness proves protocol X"). *(Status glyphs are a pre-silicon snapshot — many rows are
   now bench/silicon-done.)*
-- **[`docs/testing/BEHAVE_TEST_PLAN.md`](testing/BEHAVE_TEST_PLAN.md)** — the live plan (roadmap item 10) turning the 204-row
+- **[`docs/testing/BEHAVE_TEST_PLAN.md` (historical)](testing/BEHAVE_TEST_PLAN.md)** — the live plan (roadmap item 10) turning the 204-row
   traceability matrix into a tag-taxonomy'd behave suite. Dated today; the active compliance-test
   bridge. Read for the executable-compliance direction.
 - **[`docs/templates/README-parameters.template.md`](../../templates/README-parameters.template.md)** / **[`README-tests.template.md`](../../templates/README-tests.template.md)** — the
@@ -409,14 +409,14 @@ Each entry: the doc and **when to read it**. `→` marks the doc to start each s
   Durable; the first place to look when something breaks.
 
 ### Stage 7 — Compliance status
-- → **[`docs/SPEC_TRACEABILITY.md`](SPEC_TRACEABILITY.md)** — the traceability hub: the reconciled coverage table
+- → **[`docs/SPEC_TRACEABILITY.md` (historical)](SPEC_TRACEABILITY.md)** — the traceability hub: the reconciled coverage table
   (204 rows = **163✅/17🟡/7❌/17➖**, reconciled today), the N/A taxonomy, the module→family map,
   the top-MISSING attack order. Start here to find which clause is verified where.
 - **Per-standard family files** (under [`docs/traceability/`](../../traceability)):
   [`ieee1722_1-2021.md`](traceability/ieee1722_1-2021.md) (ATDECC), [`ieee1722-2016.md`](traceability/ieee1722-2016.md) (AVTP/AAF/CRF/MAAP),
   [`ieee8021as.md`](../../traceability/ieee8021as.md) (gPTP), [`ieee8021q.md`](../../traceability/ieee8021q.md) (802.1Q QoS+SRP), [`milan-v12.md`](traceability/milan-v12.md) (Milan overlay).
   Read the one for the protocol you're auditing.
-- **[`docs/reference/MILAN_V12_DEPENDENCY_MATRIX.md`](reference/MILAN_V12_DEPENDENCY_MATRIX.md)** — the ⇄ companion of FR_NFR: WHY each Milan
+- **[`docs/reference/MILAN_V12_DEPENDENCY_MATRIX.md` (historical)](reference/MILAN_V12_DEPENDENCY_MATRIX.md)** — the ⇄ companion of FR_NFR: WHY each Milan
   requirement forces each FR/NFR + the verification artifact per area. Read paired with FR_NFR.
 - **[`docs/MILAN_COMPLIANCE_GAPS.md`](MILAN_COMPLIANCE_GAPS.md)** — the live narrative "what's still missing/approximate" +
   the USER-ordered 12-item attack order. The best "what's left and why" orientation; read next

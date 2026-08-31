@@ -98,6 +98,7 @@ response-boundary and stopped CRF observation gaps that keep START/STOP partial.
 - **[6. On-silicon validation](#6-on-silicon-validation)** -- The mandatory post-flash step: simulation cannot prove board clocking, PHY pins, external-wire behavior, or the physical audio path. Then the bring-up order and where silicon measurements get logged.
 - **[6c. Controller-side validation -- la_avdecc and Hive](#6c-controller-side-validation----la_avdecc-and-hive)** -- The standing rule that every round validates with BOTH la_avdecc and Hive, and why our own tools cannot substitute: how to run the counters probe and read its CLEAN/DIRTY verdict, where the example controllers live, the feature-define ABI trap that SIGSEGVs at run time, and the Hive compile option that makes malformed responses look like a pass.
 - **[6b. Bench evidence retention](#6b-bench-evidence-retention)** -- The current rule for retaining UART, external-wire and JTAG/CSR evidence on the bench workstation without depending on removed target-side campaign machinery.
+- **[6d. Unattended campaign vehicle](#6d-unattended-campaign-vehicle)** -- What stands in place of the removed campaign runner: the UART grader per flash, the desk half of the torture campaign, and the two issues that own the bench and power-cut lanes.
 - **[7. Known gaps (kept honest)](#7-known-gaps-kept-honest)** -- The current CI boundary, including public IDENTIFY, persistence, commands outside the served inventory and the supported Verilator version.
 - **[Policy](#policy)** -- The two standing rules in three sentences: a DUT change ships with its harness update in the same commit, and a module is not done until it appears in layer 1 (and layer 4 unless vendor-gated).
 
@@ -625,6 +626,23 @@ UART, capture and external JTAG/CSR transport:
 Board-side evidence consists only of direct bare-metal firmware UART output.
 Any unattended orchestration runs in site-local workstation tooling; its
 behavior and notification policy are not specified by this repository.
+
+## 6d. Unattended campaign vehicle
+
+The unattended campaign runner left the tree with #259: its transport was the
+retired target's remote shell, memory-poke and flash-log access, it had no
+bare-metal consumer, and it was in no workflow or sweep. Its sixteen
+target-agnostic files went with it rather than being re-targeted, because the
+bare-metal board exposes only the UART. What stands in its place:
+
+- the UART grader in Section 6 (`scripts/baremetal_uart_smoke.py`) is the
+  per-flash acceptance step, and Section 6b says what to keep from each run;
+- the desk half of the torture/compliance campaign is
+  `tb/tools/torture_campaign.py` (`--self-test`, and `--checklist` for the
+  bench steps a person performs) with the `@torture` behave tier described in
+  [`tests/README.md`](../../tests/README.md);
+- two-board sync, GM switch and wire-capture acceptance are #117's lane, and
+  the power-cut soak is #70's.
 
 ## 7. Known gaps (kept honest)
 

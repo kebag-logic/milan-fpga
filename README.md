@@ -277,7 +277,7 @@ direction-safe verified write order. The full flow, with the load-bearing rules
 
 Details: [docs/integration/BUILDING.md](docs/integration/BUILDING.md) ·
 [docs/integration/QSPI_FLASHBOOT.md](docs/integration/QSPI_FLASHBOOT.md) ·
-[docs/testing/PROTOCOL_VALIDATION_MATRIX.md](docs/testing/PROTOCOL_VALIDATION_MATRIX.md).
+[docs/testing/PROTOCOL_VALIDATION_MATRIX.md (historical)](docs/testing/PROTOCOL_VALIDATION_MATRIX.md).
 
 ## Credits
 

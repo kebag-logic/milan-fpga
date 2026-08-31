@@ -89,8 +89,8 @@ they complement, rather than replace, the cycle-accurate RTL harnesses.
 
 ```sh
 syn/yosys/run.sh
-python3 scripts/check_baremetal_only.py
-python3 scripts/check_baremetal_only.py --self-test
+python3 scripts/check_baremetal_only.py --check
+python3 scripts/check_baremetal_only.py --selftest
 python3 scripts/check_rtl_source_lists.py --selftest
 python3 scripts/lint_rtl.py
 python3 docs/traceability/gen_module_matrix.py --check

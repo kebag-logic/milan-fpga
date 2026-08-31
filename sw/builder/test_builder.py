@@ -6479,9 +6479,11 @@ def _reconstruct(python, series, roots=None):
                 problems.append(
                     f"{patch}: does not reverse out of the live {key}, so "
                     "that tree is not upstream plus this series. Either the "
-                    "patch was never applied (run sw/litex/patches/apply.sh) "
-                    "or the file drifted (re-diff per "
-                    "sw/litex/patches/README.md)")
+                    "patch was never applied (run sw/litex/patches/apply.sh), "
+                    "the file drifted (re-diff per sw/litex/patches/README.md), "
+                    "or the series TEXT changed since this tree was patched - "
+                    "reverse the previous text first, as the README's "
+                    "migration note says")
                 return problems
         for key, patch in series:
             rc = subprocess.run(

@@ -103,8 +103,10 @@ go stale). It is the **conformance suite**, and it is a CI gate (the
 > every run; if this table and the run disagree, the run wins.
 
 **`@torture` tier (2026-07-30):** the desk half of the standing
-torture/compliance campaign. See the current
-[`testing/TESTING.md`](../docs/testing/TESTING.md) map. These features need no
+torture/compliance campaign; the bench half and what replaced the unattended
+runner are in the
+[unattended campaign vehicle section of the testing map](../docs/testing/TESTING.md#6d-unattended-campaign-vehicle).
+These features need no
 DUT, no simulator and no `numpy`; they
 audit the campaign's plan, its payload decoders, its counter contract and its
 audio properties, so the parts that can be wrong silently are wrong at a desk

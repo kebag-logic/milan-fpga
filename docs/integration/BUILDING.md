@@ -248,8 +248,7 @@ four times.
 Per board, `sweep.sh` sets the design defaults first and *then* sources
 `configs/generated/sweep_opts_<board>.sh`, so a fragment that predates a knob
 can never silently drop it, and a fragment that pins one wins. The stream count
-rides as `NS=` (or, for the historical `sweep_opts_arty_4x4.sh`, inline in
-`OPTS` - `sweep.sh` lifts it out so the flag is emitted exactly once).
+rides as `NS=`; `sweep.sh` sets it per board and emits the flag exactly once.
 
 ```sh
 python3 scripts/check_sweep_shape.py              # static check, no shell/Vivado
