@@ -79,30 +79,61 @@ GEN_GPTP = os.path.join(REPO, "gptp-processor", "hdl", "ucode",
 #: recipe under test must arrive at the same binding on its own.
 STUBS = """
 set ::ooc_read {}
+set ::ooc_sv 0
 set ::ooc_sev [dict create]
 proc read_verilog args {
   foreach a $args {
-    if {$a eq "-sv"} continue
+    if {$a eq "-sv"} { set ::ooc_sv 1; continue }
     foreach f $a { lappend ::ooc_read $f }
   }
 }
 proc set_msg_config args {
   set id ""; set sev ""
   for {set i 0} {$i < [llength $args]} {incr i} {
-    switch -- [lindex $args $i] {
+    set opt [lindex $args $i]
+    switch -- $opt {
       -id           { set id  [lindex $args [incr i]] }
       -new_severity { set sev [lindex $args [incr i]] }
+      -suppress     { set sev SUPPRESSED }
+      default {
+        # Fail CLOSED. A rule spelled with an option this model does not
+        # know may move the effective severity in a direction the model
+        # cannot see, and "silently ignored" is the exact defect the
+        # effective-severity model exists to catch.
+        error "OOC-MSG-CONFIG-UNMODELLED: $opt"
+      }
     }
   }
   if {$id ne "" && $sev ne ""} { dict set ::ooc_sev $id $sev }
 }
 proc synth_design args {
+  # Everything the recipe hands the tool is recorded, not only -generic.
+  # -top / -part / -mode / -include_dirs / -verilog_define decide WHICH
+  # design is measured, and an unobserved include path is precisely how the
+  # recipe came to elaborate a different entity shape than the portability
+  # gate while all 40 arms stayed green.
+  #
+  # The canonical image map below is TEST knowledge and duplicates the
+  # pinned packages' geometry: bump it when ucpu_pkg.sv / pp_acmp_pkg.sv /
+  # gptp_ucpu_pkg.sv move, or a COHERENT ROM change fails here and the
+  # message will blame the recipe.
+  set ::ooc_top {}; set ::ooc_part {}; set ::ooc_mode {}
+  set ::ooc_incs {}; set ::ooc_defs {}
   set expect [dict create PP_TROM_HEX_P {ltn_rom.hex 8 128} \\
                           PP_UCODE_HEX_P {ucode.hex 12 2048} \\
                           GPTP_UCODE_HEX_P {gptp_ucode.hex 12 1024}]
   for {set i 0} {$i < [llength $args]} {incr i} {
-    if {[lindex $args $i] ne "-generic"} continue
-    set g [lindex $args [expr {$i + 1}]]
+    set opt [lindex $args $i]
+    switch -- $opt {
+      -top            { set ::ooc_top  [lindex $args [incr i]]; continue }
+      -part           { set ::ooc_part [lindex $args [incr i]]; continue }
+      -mode           { set ::ooc_mode [lindex $args [incr i]]; continue }
+      -include_dirs   { set ::ooc_incs [lindex $args [incr i]]; continue }
+      -verilog_define { lappend ::ooc_defs [lindex $args [incr i]]; continue }
+      -generic        { }
+      default         { continue }
+    }
+    set g [lindex $args [incr i]]
     if {![regexp {^((?:PP|GPTP)_[A-Z_]+_HEX_P)="(.*)"$} $g -> name val]} continue
     if {[file pathtype $val] ne "absolute"} {
       error "SYNTH-GENERIC-NOT-ABSOLUTE: $g"
@@ -136,13 +167,28 @@ proc synth_design args {
   foreach id [dict keys $::ooc_sev] {
     puts "OOC-EFFECTIVE-SEV: [list $id] = [dict get $::ooc_sev $id]"
   }
+  puts "OOC-TOP: $::ooc_top"
+  puts "OOC-PART: $::ooc_part"
+  puts "OOC-MODE: $::ooc_mode"
+  puts "OOC-SV: $::ooc_sv"
+  set fi [open ooc-incdirs.txt w]
+  foreach d $::ooc_incs { puts $fi $d }
+  close $fi
+  set fd2 [open ooc-defines.txt w]
+  foreach d $::ooc_defs { puts $fd2 $d }
+  close $fd2
   set fh [open %s w]
   foreach f $::ooc_read { puts $fh $f }
   close $fh
   puts "%s"
 }
 proc create_clock args {}
-proc get_ports args { return {} }
+set ::ooc_ports {axis_clk}
+proc get_ports args {
+  set want [lindex $args end]
+  if {[lsearch -exact $::ooc_ports $want] >= 0} { return $want }
+  return {}
+}
 proc report_utilization args {}
 proc report_timing_summary args {}
 source {%s}
@@ -168,20 +214,54 @@ exec %(real)s "$@"
 """
 
 #: How many arms run. A deleted arm is a self-test that still prints a pass.
-ARMS = 40
+ARMS = 49
 
 _DERIVED = None
+_RECORD = None
+
+
+class SelfTestPrereq(Exception):
+    """A prerequisite of the suite itself is unavailable. Distinct from an arm
+    failure: it means nothing was proven, so it must NAME itself rather than
+    unwind as a traceback that also discards the arms already run."""
 
 
 def derived_sources():
     """dp_srcs.py's own answer, cached: the record the recipe must consume."""
     global _DERIVED
     if _DERIVED is None:
-        out = subprocess.run(
-            [REAL_PYTHON, os.path.join(HERE, "dp_srcs.py")],
-            capture_output=True, text=True, check=True)
-        _DERIVED = sorted(l for l in out.stdout.splitlines() if l.strip())
+        _DERIVED = sorted(derived_record()["src"])
     return _DERIVED
+
+
+def derived_record():
+    """The WHOLE record dp_srcs.py hands the recipe -- top/define/incdir/src.
+    The recipe must consume every half of it: the sources decide what is read,
+    the include path and defines decide which entity shape is elaborated."""
+    global _RECORD
+    if _RECORD is None:
+        out = subprocess.run(
+            [REAL_PYTHON, os.path.join(HERE, "dp_srcs.py"), "--record"],
+            capture_output=True, text=True)
+        if out.returncode != 0:
+            raise SelfTestPrereq(
+                "dp_srcs.py --record exited %d. Every datapath arm derives "
+                "the record it holds the recipe to, so no arm can run: check "
+                "the submodules (protocol-processor, gptp-processor) and "
+                "sv2v.\n%s" % (out.returncode, (out.stderr or "").strip()))
+        rec = {"top": [], "define": [], "incdir": [], "src": []}
+        for line in out.stdout.splitlines():
+            if not line.strip():
+                continue
+            key, _, val = line.partition("=")
+            if key not in rec:
+                raise SelfTestPrereq(
+                    "dp_srcs.py --record emitted an unrecognized key %r; the "
+                    "suite and the recipe would consume different records."
+                    % key)
+            rec[key].append(val)
+        _RECORD = rec
+    return _RECORD
 
 
 def _run(workdir, env=None, tcl=TCL):
@@ -238,8 +318,21 @@ def selftest():
                 "unexercised refusal is the defect this file tests for."
                 % os.path.relpath(TCL, REPO)], 0
 
+    # Derived FIRST, for the same reason the recipe derives first: if the
+    # record is unavailable, nothing below proves anything. Reaching it here
+    # turns a raw CalledProcessError traceback -- which used to unwind past
+    # the problem report and discard every arm already run -- into a named
+    # refusal at arm zero.
+    try:
+        derived_record()
+    except SelfTestPrereq as exc:
+        return ["SELF-TEST PREREQUISITE UNAVAILABLE: %s" % exc], 0
+
     def arm(name, want, expect_rc0, setup=None, env=None, tcl=TCL,
-            check=None):
+            check=None, post_synth=False):
+        # post_synth: the refusal under test is AFTER synth_design (the clock
+        # constraint), so the sentinel is legitimately present. Every other
+        # refusal must still beat synthesis to the run.
         nonlocal ran
         ran += 1
         with tempfile.TemporaryDirectory() as d:
@@ -254,11 +347,13 @@ def selftest():
                                     "sentinel=%s\n%s"
                                     % (name, rc, reached, log.strip()))
                     return
-            elif rc == 0 or reached or want not in log:
+            elif rc == 0 or (reached and not post_synth) or want not in log:
                 problems.append("SELF-TEST FAILED [%s]: expected a refusal "
-                                "naming %r before synthesis, got rc=%d, "
+                                "naming %r %s synthesis, got rc=%d, "
                                 "sentinel=%s\n%s"
-                                % (name, want, rc, reached, log.strip()))
+                                % (name, want,
+                                   "after" if post_synth else "before",
+                                   rc, reached, log.strip()))
                 return
             if check:
                 miss = check(d, log)
@@ -324,6 +419,17 @@ def selftest():
         finally:
             shutil.rmtree(stub, ignore_errors=True)
 
+    def unpublished(img):
+        """A refused image must not be left in the run directory: the recipe
+        renames into place only AFTER rom_check passes."""
+        def check(d, log):
+            if os.path.exists(os.path.join(d, img)):
+                return ("%s was published to the run directory despite "
+                        "failing validation -- the publish-after-validate "
+                        "ordering is gone" % img)
+            return None
+        return check
+
     # Arm 6. A dead microcode generator aborts the script: its exit status
     # is taken by `exec`, never discarded.
     dp_arm("dp-ucode-generator-fail", "planted ucode generator failure",
@@ -353,7 +459,8 @@ def selftest():
            "gen_ucode.py",
            "%s %s -o \"$out\" > /dev/null && "
            "sed -i '5s/.*/00000000000Z/' \"$out\"\n  exit 0"
-           % (REAL_PYTHON, GEN_UCODE))
+           % (REAL_PYTHON, GEN_UCODE),
+           check=unpublished('ucode.hex'))
 
     # Arm 11. STALE image + no-op generator ([R-parallel]'s exact plant):
     # the pre-created file must not survive to be measured; the no-op leaves
@@ -373,7 +480,8 @@ def selftest():
     # Arm 13. ...and the identical width contract.
     dp_arm("dp-ltn-malformed", "not exactly 8 hex digits", "gen_ltn_rom.py",
            "%s %s -o \"$out\" > /dev/null && sed -i '2s/.*/123/' \"$out\"\n"
-           "  exit 0" % (REAL_PYTHON, GEN_LTN))
+           "  exit 0" % (REAL_PYTHON, GEN_LTN),
+           check=unpublished('ltn_rom.hex'))
 
     # Arm 14. ...and its generator's exit status.
     dp_arm("dp-ltn-generator-fail", "planted ltn generator failure",
@@ -405,7 +513,44 @@ def selftest():
             return ("the read set (%d files) is not the dp_srcs.py record "
                     "(%d files): the derived-source connection is broken"
                     % (len(got), len(derived_sources())))
+        # Which design gets measured is decided by the REST of the call, and
+        # none of it was observed until this review: -include_dirs was a hand
+        # list whose ORDER selected a different entity shape than the gate.
+        rec = derived_record()
+        if "OOC-SV: 1" not in log:
+            return ("read_verilog was not given -sv: the SystemVerilog half "
+                    "of the read set would be parsed as Verilog-2001")
+        if ("OOC-TOP: %s" % rec["top"][0]) not in log:
+            return ("synth_design was not given the record's own top (%s): "
+                    "the module this recipe reads and the module it "
+                    "synthesizes must not be two different strings (#235)"
+                    % rec["top"][0])
+        if "OOC-MODE: out_of_context" not in log:
+            return "synth_design was not run -mode out_of_context"
+        if "OOC-PART: xc7a100tfgg484-2" not in log:
+            return "synth_design was not given the ship part"
+        inc = os.path.join(d, "ooc-incdirs.txt")
+        if not os.path.isfile(inc):
+            return "synth_design received no include path at all"
+        got_inc = [l.rstrip("\n") for l in open(inc) if l.strip()]
+        if got_inc != rec["incdir"]:
+            return ("the include path is not the record's, IN ORDER.\n"
+                    "  record: %s\n  passed: %s\n"
+                    "Order decides which gen/adp_shape_defaults.svh wins: "
+                    "hdl/common/csr/gen/ and configs/generated/*/gen/ both "
+                    "carry one, so a reordered path silently elaborates a "
+                    "different entity shape than the portability gate proves."
+                    % (rec["incdir"], got_inc))
+        dfn = os.path.join(d, "ooc-defines.txt")
+        got_def = ([l.rstrip("\n") for l in open(dfn) if l.strip()]
+                   if os.path.isfile(dfn) else [])
+        if got_def != rec["define"]:
+            return ("the defines are not the record's (record %s, passed %s): "
+                    "KL_gptp_engine.sv gates simulation-only $error blocks on "
+                    "`ifndef SYNTHESIS, so the define is not cosmetic"
+                    % (rec["define"], got_def))
         return None
+
     arm("dp-empty-dir-generates-and-passes", None, True, tcl=DP_TCL,
         check=dp_positive)
 
@@ -601,10 +746,11 @@ def selftest():
     pp_root = "$REPO/protocol-processor" + "/hdl"
     gp_root = "$REPO/gptp-processor" + "/hdl"
     mut = _mutant(
-        r"set SRC_LINES \[split \[string trim \[exec python3 "
-        r"\$REPO/syn/ooc/dp_srcs\.py\]\] \"\\n\"\]",
-        "set SRC_LINES [list %s/aecp/ucpu_pkg.sv %s/acmp/pp_acmp_pkg.sv"
-        " %s/ucpu/gptp_ucpu_pkg.sv]"
+        r"exec -ignorestderr python3 \$DP_SRCS --record",
+        'set _ "top=milan_datapath\\ndefine=SYNTHESIS'
+        '\\nincdir=$REPO/configs/generated/endstation_arty_current'
+        '\\nsrc=%s/aecp/ucpu_pkg.sv\\nsrc=%s/acmp/pp_acmp_pkg.sv'
+        '\\nsrc=%s/ucpu/gptp_ucpu_pkg.sv"'
         % (pp_root, pp_root, gp_root),
         "srcs-hand-list")
     try:
@@ -622,14 +768,15 @@ def selftest():
     finally:
         os.unlink(mut)
 
-    # Arm 27. MUTATION: the dp_srcs.py invocation DELETED. Nothing downstream
-    # may quietly supply a list: the recipe must die on its first consumer.
-    mut = _mutant(
-        r"set SRC_LINES \[split \[string trim \[exec python3 "
-        r"\$REPO/syn/ooc/dp_srcs\.py\]\] \"\\n\"\]\n",
-        "", "srcs-deleted")
+    # Arm 27. MUTATION: the record comes back EMPTY. Nothing downstream may
+    # quietly supply a list, and the refusal must be one the recipe AUTHORS:
+    # the old spelling asserted the bare substring "SRC_LINES", which Tcl's
+    # own undefined-variable error satisfied by echoing the source line.
+    mut = _mutant(r"exec -ignorestderr python3 \$DP_SRCS --record",
+                  'set _ ""', "srcs-empty-record")
     try:
-        arm("dp-mut-srcs-deleted", "SRC_LINES", False, tcl=mut)
+        arm("dp-mut-srcs-empty-record",
+            "names 0 tops, expected exactly one", False, tcl=mut)
     finally:
         os.unlink(mut)
 
@@ -650,7 +797,8 @@ def selftest():
            "gen_gptp_ucode.py",
            "%s %s -o \"$out\" > /dev/null && "
            "sed -i '5s/.*/00000000000Z/' \"$out\"\n  exit 0"
-           % (REAL_PYTHON, GEN_GPTP))
+           % (REAL_PYTHON, GEN_GPTP),
+           check=unpublished('gptp_ucode.hex'))
 
     # Arm 32. MUTATION: the gptp generic deleted from synth_design's call.
     mut = _mutant(r" \\\n  -generic \$GUCODE_GENERIC", "",
@@ -664,7 +812,10 @@ def selftest():
         os.unlink(mut)
 
     # Arm 33. MUTATION: the gptp generic cross-wired at the AECP image. It
-    # exists and opens; only the canonical-basename binding refuses it.
+    # exists and opens, so Synth 8-4445 never fires. (The basename binding
+    # and the geometry check BOTH refuse it today, because 8- and 12-digit
+    # words are mutually exclusive; the basename guard only becomes the sole
+    # detector if two ROMs ever share a geometry.)
     mut = _mutant(r'set GUCODE_GENERIC "GPTP_UCODE_HEX_P=\\"\[file normalize '
                   r'gptp_ucode\.hex\]\\""',
                   'set GUCODE_GENERIC "GPTP_UCODE_HEX_P=\\"[file normalize '
@@ -686,6 +837,126 @@ def selftest():
     finally:
         os.unlink(mut)
         os.unlink(pkg)
+
+    # ---- what the recipe hands the TOOL (post-merge review of PR #264) ----
+    #
+    # The stub used to inspect only -generic, so every other argument of the
+    # synth_design line was unobserved -- and that is exactly where the recipe
+    # was wrong: it spelled -include_dirs by hand, in an order that selected a
+    # different elaboration shape than the portability gate, and dropped the
+    # record's define. Each mutation below is caught by dp_positive; the arm
+    # passes when the detector fires.
+
+    def undetected(what):
+        return "the %s mutant was not detected: %s" % (what, (
+            "the recipe can hand synth_design a design other than the one the "
+            "record describes, and no arm would notice"))
+
+    # Arm 35. The include path ROTATED so the shape config dir lands LAST --
+    # the pre-fix spelling, byte-for-byte in effect. Both orders elaborate
+    # cleanly; only the order decides which adp_shape_defaults.svh wins.
+    mut = _mutant(
+        r"foreach d \$DEFINES \{ lappend DEFARGS -verilog_define \$d \}",
+        "foreach d $DEFINES { lappend DEFARGS -verilog_define $d }\n"
+        "set INCS [concat [lrange $INCS 1 end] [list [lindex $INCS 0]]]",
+        "incdirs-reordered")
+    try:
+        arm("dp-mut-incdirs-reordered", None, True, tcl=mut,
+            check=lambda d, log: None if dp_positive(d, log)
+            else undetected("reordered include path"))
+    finally:
+        os.unlink(mut)
+
+    # Arm 36. The top cross-wired at the plane -- a plausible copy-paste from
+    # pp_shadow_ooc.tcl, which this file calls "the same instrument". It would
+    # report the PLANE's utilization as the assembled datapath's.
+    mut = _mutant(r"-top \[lindex \$DP_TOP 0\]", "-top KL_pp_shadow",
+                  "top-cross-wired")
+    try:
+        arm("dp-mut-top-cross-wired", None, True, tcl=mut,
+            check=lambda d, log: None if dp_positive(d, log)
+            else undetected("cross-wired top"))
+    finally:
+        os.unlink(mut)
+
+    # Arm 37. The record's defines dropped. KL_gptp_engine.sv gates
+    # simulation-only $error blocks on `ifndef SYNTHESIS.
+    mut = _mutant(r" \{\*\}\$DEFARGS", "", "defines-dropped")
+    try:
+        arm("dp-mut-defines-dropped", None, True, tcl=mut,
+            check=lambda d, log: None if dp_positive(d, log)
+            else undetected("dropped defines"))
+    finally:
+        os.unlink(mut)
+
+    # Arm 38. -sv dropped: the SystemVerilog half parsed as Verilog-2001.
+    mut = _mutant(r"read_verilog -sv \$SV", "read_verilog $SV", "sv-dropped")
+    try:
+        arm("dp-mut-sv-flag-dropped", None, True, tcl=mut,
+            check=lambda d, log: None if dp_positive(d, log)
+            else undetected("dropped -sv flag"))
+    finally:
+        os.unlink(mut)
+
+    # Arm 39. The part changed: an area figure is only a figure for a device.
+    mut = _mutant(r"-part xc7a100tfgg484-2", "-part xc7z020clg400-1",
+                  "part-changed")
+    try:
+        arm("dp-mut-part-changed", None, True, tcl=mut,
+            check=lambda d, log: None if dp_positive(d, log)
+            else undetected("changed part"))
+    finally:
+        os.unlink(mut)
+
+    # ---- the two guards that had no arm at all ---------------------------
+
+    # Arm 40. UPC_W_C = 0 asks for a ONE-WORD ucode image -- "the same lie as
+    # an absent one" by the recipe's own contract, admitted through the single
+    # geometry constant that used to reach `expr` with no guard.
+    pkg, mut = pkg_mutant(
+        "localparam int unsigned UCODE_W_C = 48;\n"
+        "localparam int unsigned UPC_W_C = 0;\n", "pkg-upc-zero")
+    try:
+        arm("dp-pkg-upc-zero", "not a positive ROM address width", False,
+            tcl=mut)
+    finally:
+        os.unlink(mut)
+        os.unlink(pkg)
+
+    # Arm 41. A zero depth would let an empty transition ROM validate.
+    pkg, mut = pkg_mutant(
+        "localparam int unsigned TROM_W_C = 32;\n"
+        "localparam int unsigned TROM_DEPTH_C = 0;\n", "pkg-trom-depth-zero",
+        which="acmp")
+    try:
+        arm("dp-pkg-trom-depth-zero", "not a positive ROM depth", False,
+            tcl=mut)
+    finally:
+        os.unlink(mut)
+        os.unlink(pkg)
+
+    # Arm 42. one_source: a record that no longer carries the geometry source
+    # is a refusal, never a guessed path. No arm reached this guard before --
+    # every package arm replaced the one_source call itself.
+    mut = _mutant(r"one_source \$SRC_LINES ucpu_pkg\.sv",
+                  "one_source $SRC_LINES no_such_pkg.sv", "one-source-missing")
+    try:
+        arm("dp-mut-one-source-missing", "expected exactly one no_such_pkg.sv",
+            False, tcl=mut)
+    finally:
+        os.unlink(mut)
+
+    # Arm 43. The clock port renamed out from under create_clock. -quiet
+    # would hand it an empty object list and define a VIRTUAL clock, so
+    # timing_$TAG.rpt would report an essentially unconstrained design at
+    # rc=0. The refusal is the only honest outcome.
+    mut = _mutant(r"set CLK_NAME axis_clk", "set CLK_NAME renamed_clk",
+                  "clock-port-renamed")
+    try:
+        arm("dp-mut-clock-port-renamed", "A virtual clock would report an",
+            False, tcl=mut, post_synth=True)
+    finally:
+        os.unlink(mut)
 
     if ran != ARMS:
         problems.append("SELF-TEST FAILED [arm-count]: ran %d arm(s), this "
