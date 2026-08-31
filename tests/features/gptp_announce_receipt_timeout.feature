@@ -27,7 +27,7 @@
 # the check demonstrably can fail (R2).
 #
 # Intervals asserted here are the 802.1AS-2020 Clause 10.6 defaults, which are
-# also what Milan v1.2 4.2.6.2 requires and what /etc/gptp.cfg ships:
+# also what Milan v1.2 4.2.6.2 requires:
 #   logAnnounceInterval 0  -> 1 Announce/s      announceReceiptTimeout 3 -> 3 s
 #   logSyncInterval    -3  -> 8 Sync/s
 #   logMinPdelayReqInterval 0 -> 1 Pdelay_Req/s
