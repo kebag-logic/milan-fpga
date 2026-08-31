@@ -143,7 +143,10 @@ TERMS = (
     # the same stack's boot loader, kernel images, init ramdisk, userland
     # image, flattened device-tree spellings and pseudo-filesystems
     "u-boot", "uboot", "vmlinux", "vmlinuz", "zimage", "uimage", "initrd",
-    "busybox", "dtbo", "fdt", "sysfs", "procfs",
+    "dtbo", "fdt", "sysfs", "procfs",
+    # not "busybox": dev's CI contract self-test names it as a generic
+    # container image (scripts/ci_events.py), so the bare word is not a
+    # retired-stack signal; rootfs/initrd/initramfs carry that meaning.
 )
 # Underscore is a separator for policy tokens. A word-bound expression would
 # miss spellings such as an ALSA-prefixed identifier because Python treats
@@ -359,7 +362,7 @@ RETIRED_PATH_CLASSES = (
         "devicetree", "device-tree", "device_tree", "dts", "dtsi", "dtb",
         "dtc", "jffs2", "mtd", "napi", "skb",
         "u-boot", "uboot", "vmlinux", "vmlinuz", "zimage", "uimage",
-        "initrd", "busybox", "sysroot", "dtbo", "fdt", "sysfs", "procfs",
+        "initrd", "sysroot", "dtbo", "fdt", "sysfs", "procfs",
     ))),
     ("target-service", _path_term_re((
         "linuxptp", "ptp4l", "phc2sys", "gptp2csr", "milan-statd",
