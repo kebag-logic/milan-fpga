@@ -92,7 +92,7 @@ Suite inventories change frequently.
 | Flash matched images | [QSPI flash boot](integration/QSPI_FLASHBOOT.md) |
 | Diagnose failures | [Troubleshooting](limitations/TROUBLESHOOTING.md) |
 | Review bench topology | [Bench topology](findings/BENCH_TOPOLOGY.md) |
-| Find measured changes | [Change log](../CHANGELOG.md) |
+| Find measured changes | [Historical performance ledger](history/v1/PERFORMANCE_CHANGELOG.md) |
 
 Board measurements remain dated evidence.
 

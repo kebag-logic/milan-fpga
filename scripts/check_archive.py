@@ -30,6 +30,18 @@ REPLACED_RE = re.compile(r"^> Replaced in place: yes$", re.MULTILINE)
 SUCCESSOR_RE = re.compile(
     r"^> Current successor: \[[^\]]+]\(([^)]+)\)$", re.MULTILINE
 )
+ARCHIVE_TOTAL_RE = re.compile(
+    r"^- Archive total: (\d+) Markdown pages\.$", re.MULTILINE
+)
+RETIRED_ROLE_PATTERNS = {
+    "CHANGELOG.md": re.compile(
+        r"measured (?:per-lever )?(?:performance )?ledger|"
+        r"per-lever (?:perf(?:ormance)? )?ledger|"
+        r"perf(?:ormance)?-lineage ledger|"
+        r"campaign numbers|perf numbers|measured changes",
+        re.IGNORECASE,
+    ),
+}
 
 
 @dataclass(frozen=True)
@@ -140,6 +152,26 @@ def valid_in_place_replacement(metadata: Metadata, original: Path) -> bool:
     )
 
 
+def has_retired_role(original: str, line: str) -> bool:
+    """Detect an old role assigned to a surviving replacement path."""
+    pattern = RETIRED_ROLE_PATTERNS.get(original)
+    return pattern is not None and pattern.search(line) is not None
+
+
+def declared_archive_totals(text: str) -> list[int]:
+    """Return every inventory total declared by the archive index."""
+    return [int(value) for value in ARCHIVE_TOTAL_RE.findall(text)]
+
+
+def archive_total_problem(totals: list[int], expected: int) -> str | None:
+    """Explain a missing, duplicate, or stale archive total."""
+    if len(totals) != 1:
+        return "archive index needs exactly one inventory total"
+    if totals[0] != expected:
+        return f"archive inventory total is {totals[0]}, expected {expected}"
+    return None
+
+
 def selftest() -> int:
     good = """[OBSOLETE + 2026-08-01]
 
@@ -230,7 +262,25 @@ def selftest() -> int:
     if link_is_marked("old result"):
         print("archive selftest: unmarked link passed")
         return 1
-    print("archive selftest: OK (15 controls)")
+    if not has_retired_role("CHANGELOG.md", "[old](CHANGELOG.md), measured ledger"):
+        print("archive selftest: retired replacement role escaped")
+        return 1
+    if has_retired_role("CHANGELOG.md", "[current changelog](CHANGELOG.md)"):
+        print("archive selftest: current replacement role failed")
+        return 1
+    if declared_archive_totals("- Archive total: 43 Markdown pages.\n") != [43]:
+        print("archive selftest: valid inventory total failed")
+        return 1
+    if declared_archive_totals("- Archive total: forty-three pages.\n"):
+        print("archive selftest: malformed inventory total passed")
+        return 1
+    if archive_total_problem([43], 43) is not None:
+        print("archive selftest: matching inventory total failed")
+        return 1
+    if archive_total_problem([42], 43) is None:
+        print("archive selftest: inventory count drift escaped")
+        return 1
+    print("archive selftest: OK (21 controls)")
     return 0
 
 
@@ -298,6 +348,17 @@ def main() -> int:
                 f"successor mismatch for {page.relative_to(REPO)}"
             )
 
+    totals = declared_archive_totals(INDEX.read_text(encoding="utf-8"))
+    total_problem = archive_total_problem(totals, len(pages))
+    if total_problem is not None:
+        problems.append(total_problem)
+
+    replacement_targets = {
+        (REPO / parsed.original).resolve(): parsed.original
+        for parsed in metadata.values()
+        if parsed.replaced_in_place
+    }
+
     for page in current_pages(tracked):
         text = page.read_text(encoding="utf-8")
         lines = text.splitlines()
@@ -306,6 +367,12 @@ def main() -> int:
         for line_number, line in enumerate(lines, start=1):
             for link_text, raw_target in LINK_RE.findall(line):
                 target = resolve_link(page, raw_target)
+                original = replacement_targets.get(target)
+                if original is not None and has_retired_role(original, line):
+                    problems.append(
+                        f"retired replacement role: {page.relative_to(REPO)}:"
+                        f"{line_number}: {original}"
+                    )
                 if target not in expected:
                     continue
                 if not link_is_marked(link_text):

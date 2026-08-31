@@ -3,7 +3,7 @@
 > 📌 **CAMPAIGN CLOSED 2026-07-10/11 (header-split zero-copy RX).** This doc is the consolidated
 > campaign **record**; every number in it is a **2-hart perf-campaign** measurement — the
 > **current product is 1-hart + `--l2-bytes 0`**, so these are cached perf-lineage records, not the
-> shipped configuration. The per-lever ledger is [`../CHANGELOG.md`](../../CHANGELOG.md); the
+> shipped configuration. The per-lever ledger is [historical](../history/v1/PERFORMANCE_CHANGELOG.md); the
 > as-built datapath is [`../fpga/PIPELINE_STAGES.md`](../fpga/PIPELINE_STAGES.md); the historical
 > profiling method is [archived](../history/v1/findings/PERF_ON_MILAN.md); the memory root cause is
 > [`LATENCY_INVESTIGATION.md`](LATENCY_INVESTIGATION.md). **DDIO was REFUTED** — the copy tax
@@ -529,7 +529,7 @@ R3 112.5 MHz final mile) is the "path to RX > 500" section above.
 
 **Refuted along the way** (so we don't retry them): the depth-2 DMA interconnect (RX writer has
 30× headroom), growing L2 past 64 KB, a BRAM buffer scratchpad, software prefetch (blocking D$),
-and 112.5 MHz (only +4–8%). See [`../CHANGELOG.md`](../../CHANGELOG.md).
+and 112.5 MHz (only +4–8%). See the [historical performance ledger](../history/v1/PERFORMANCE_CHANGELOG.md).
 
 ## Gigabit headroom at 100 MHz (2026-07-09/10 night  -  folded from [historical `GIGABIT_HEADROOM_ANALYSIS.md`](../history/v1/findings/GIGABIT_HEADROOM_ANALYSIS.md), 2026-07-25)
 

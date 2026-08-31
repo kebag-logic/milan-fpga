@@ -47,7 +47,9 @@ Earlier files used two historical storage patterns.
 - Thirty pages remained beside current documentation.
 - One integration guide was replaced in place.
 - One legacy index documented the earlier archive.
+- One root page joined the archive.
 - Three obsolete diagram files remained current.
+- Archive total: 43 Markdown pages.
 
 The 2026-08-31 migration preserved every tracked artifact.
 

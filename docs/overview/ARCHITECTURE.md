@@ -121,7 +121,7 @@ milan-fpga/
 ├─ README.md                 landing page + quick jumps
 ├─ REQUIREMENTS.md           normative requirements + 802.1 gap analysis
 ├─ docs/history/v1/TODO.md   historical task list
-├─ CHANGELOG.md              the measured per-lever performance ledger
+├─ CHANGELOG.md              current release navigation
 ├─ docs/                     ← the documentation tree (see docs/README.md)
 │  ├─ overview/  integration/  fpga/  litex/  testing/  limitations/
 │  ├─ reference/             REGISTER_MAP, FR/NFR, Milan v1.2 matrix

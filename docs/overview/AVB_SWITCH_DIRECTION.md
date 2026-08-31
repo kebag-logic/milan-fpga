@@ -8,7 +8,7 @@ DMA work this builds on).*
 > decision matrix and every measured table below (LUT/WNS/throughput
 > scoreboards) are the numbers that drove the direction *at that date*; do
 > not read them as current. Current measured numbers live in
-> [`CHANGELOG.md`](../../CHANGELOG.md) (the per-lever perf ledger). What has
+> [historical performance ledger](../history/v1/PERFORMANCE_CHANGELOG.md). What has
 > landed since is noted at the scoreboard paragraph under "Execution order"
 > (S1 AVTP/AAF engine, the MMCM-DRP media-clock servo, I1 L2).
 >
@@ -192,7 +192,7 @@ prototype on copper) → S4 (SRP) → I2/I3 experiments during build waits → C
 proven CPU-port bulk-TCP requirement appears.
 
 **Production scoreboard @ MTU 1500** — **SUPERSEDED early snapshot; for current perf numbers see
-[`../../CHANGELOG.md`](../../CHANGELOG.md) (perf-lineage ledger).**
+[historical performance ledger](../history/v1/PERFORMANCE_CHANGELOG.md).**
 The ladder below (ring8 + C1 driver) was measured on the **historical NaxRiscv** CPU (2026-07-05):
 TX TCP 62.3 Mbit/s 0 retr · RX TCP 66.7 · TX UDP 27.5 lossless · 0 desync/InCsumErrors · 0 fabric
 stalls. The VexiiRiscv **TX ~27 / RX ~30 Mbit/s** figures were the *early-migration* single-flow

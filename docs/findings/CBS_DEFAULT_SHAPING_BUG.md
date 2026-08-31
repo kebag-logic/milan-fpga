@@ -1,6 +1,6 @@
 # CBS default-shaping bug  -  reset config paced ALL best-effort TX at 300 Mb/s [FIXED]
 
-> ⚠️ **Point-in-time snapshot (2026-07-08).** Superseded  -  for the campaign numbers and the close-out scoreboard see [`PERFORMANCE_GOAL.md`](PERFORMANCE_GOAL.md) + [`../CHANGELOG.md`](../../CHANGELOG.md). Numbers and "next steps" below are historical.
+> ⚠️ **Point-in-time snapshot (2026-07-08).** Superseded  -  for the campaign numbers and the close-out scoreboard see [`PERFORMANCE_GOAL.md`](PERFORMANCE_GOAL.md) + [historical performance ledger](../history/v1/PERFORMANCE_CHANGELOG.md). Numbers and "next steps" below are historical.
 
 *Found 2026-07-08 during the >500 Mbit/s campaign, by following the datapath-input
 probe's 39–42 % `stall` to its source instead of assuming it; verified live on silicon

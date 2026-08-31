@@ -4,7 +4,7 @@ Chronological engineering record: every entry is a "symptom → measurement
 chain → root cause → fix → verification" write-up (or a campaign plan with
 its measured verdicts). Read these to learn *how this system is debugged*;
 read [the dated Milan audit](../testing/MILAN_V12_AUDIT_2026-08-16.md)
-for what is still open, and [`CHANGELOG.md`](../../CHANGELOG.md) for the
+for what is still open, and the [historical performance ledger](../history/v1/PERFORMANCE_CHANGELOG.md) for the
 per-lever measured ledger.
 
 Many entries carry **superseded/historical banners** - that is deliberate:
