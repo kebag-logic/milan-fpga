@@ -55,6 +55,7 @@ The 2026-08-31 migration preserved every tracked artifact.
 
 | Historical page | Original path | Archived | Why archived | Current successor |
 |---|---|---|---|---|
+| [Performance changelog](PERFORMANCE_CHANGELOG.md) | `CHANGELOG.md` | 2026-08-31 | Completed performance campaign | [Current changelog](../../../CHANGELOG.md) |
 | [TODO](TODO.md) | `TODO.md` | 2026-08-31 | Retired phase and platform snapshot | [Milan roadmap](../../MILAN_V12_ROADMAP.md) |
 | [Conformance testing guide](tests/CONFORMANCE_TESTING_HOWTO.md) | `tests/CONFORMANCE_TESTING_HOWTO.md` | 2026-08-31 | Deleted feature inventory | [Test index](../../../tests/README.md) |
 | [Compliance gaps](MILAN_COMPLIANCE_GAPS.md) | `docs/MILAN_COMPLIANCE_GAPS.md` | 2026-08-31 | Expired gap inventory | [Milan roadmap](../../MILAN_V12_ROADMAP.md) |
