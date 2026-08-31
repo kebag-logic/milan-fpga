@@ -95,9 +95,12 @@ Current donor prose contains known contradictions.
 
 Use root RTL for integration truth.
 
+Imported prose never defines root runtime behavior.
+
 | Conflict | Implementation evidence |
 |---|---|
 | gPTP README reports default-off integration | `milan_datapath.sv` defaults enabled |
+| gPTP README describes retired host services | Full solution uses bare-metal firmware and fabric gPTP |
 | Protocol interface guide shows word-wide RX | Landed processor receives bytes |
 | Protocol interface guide shows RX backpressure | Landed processor has no RX ready |
 

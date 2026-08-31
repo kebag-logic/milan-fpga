@@ -21,6 +21,10 @@ reproduction, the 2026-08-03 throughput-collapse and playback-path audits, the
 measured on the retired host path, which #259 removes from the checkout; the
 write-ups stay in git history.
 
+A tenth entry moved on 2026-08-31.
+
+It preserves the retired runtime profiling method.
+
 ## Contents
 
 - **[Fixed-bug post-mortems](#fixed-bug-post-mortems)** -- The closed root causes in one table -- the classifier `tdest` wedge, credit-paced best-effort TX, ADP falling dormant, the 8x8 board advertising the 1x1 shape -- each with its status and, where one exists, the gating harness that keeps it fixed.
@@ -53,7 +57,7 @@ write-ups stay in git history.
 | [SINGLE_PORT_PERF.md (archived)](../history/v1/findings/SINGLE_PORT_PERF.md) | Would a second core help a single flow? (No - latency-bound; merged into [LATENCY_INVESTIGATION.md](LATENCY_INVESTIGATION.md) 2026-07-25) |
 | [TX_READER_PREFETCH_PLAN.md (archived)](../history/v1/findings/TX_READER_PREFETCH_PLAN.md) | A full plan whose measured verdict is **do not build it** (kept as the refutation record) |
 | [Historical RX performance tuning map](../history/v1/findings/RX_PERF_TUNING_MAP.md) | Retired host-driver pairings and measurements |
-| [PERF_ON_MILAN.md](PERF_ON_MILAN.md) | How to run `perf` on the board (no kallsyms) |
+| [Historical board profiling method](../history/v1/findings/PERF_ON_MILAN.md) | Retired runtime measurements and attribution method |
 
 On-silicon evidence logs live in
 [`sw/litex/evidence/`](../../sw/litex/evidence) (BIOS banners, memtest, the

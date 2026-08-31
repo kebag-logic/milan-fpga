@@ -33,6 +33,9 @@ T. retired-stack TERM, anywhere, any context: the appearance itself is the
    development tooling is not the product target, and the RV32 cross
    compiler's triplet names its libc and the pinned sv2v release asset's
    file name names the host OS its binary runs on, not a product path).
+P. protected product documentation: even an embedded ``linux`` substring is
+   forbidden. Host-tooling masks never apply there. Deleting the protected
+   document is also a failure, preventing removal from bypassing this class.
 O. retired launcher option token: ``--sound-card``, ``--flashboot full``,
    ``--flashboot kernel`` (any run of spaces/tabs or ``=`` between them);
    and ``--no-fabric-gptp`` anywhere but its one code home,
@@ -47,8 +50,10 @@ Y. ``fabric_gptp: false`` in any tracked YAML, found by PARSING the file
 ``--selftest`` builds pristine scratch git trees (with the git environment
 scrubbed, so a hook's GIT_DIR cannot redirect the fixtures at the real
 repository) and proves: every term in the table is caught on its own; a term
-planted in a generated .svg is caught (generated outputs are scanned); each
-option token bites, including the aligned-spaces and tab spellings; the
+planted in a generated .svg is caught (generated outputs are scanned); the
+protected product document rejects embedded and host-tooling spellings;
+deleting that document fails; each option token bites, including the
+aligned-spaces and tab spellings; the
 parsed YAML arm bites through key case, a custom tag and a self-referential
 anchor; the host-tooling allowlist suppresses the WHOLE triplet family in
 either case and still cannot launder a second term on the same line; the
@@ -76,6 +81,12 @@ SELF = pathlib.Path(__file__).resolve().relative_to(ROOT).as_posix()
 #: The verification-only door's one code home, plus the gate that proves
 #: launch recipes never carry it.
 OPTION_HOMES = ("sw/litex/milan_soc.py", "sw/builder/test_builder.py")
+
+#: Product-facing architecture must never imply another runtime. This class
+#: intentionally uses substring matching. It catches names such as vmlinux,
+#: and it does not inherit host-tooling exemptions.
+PRODUCT_DOCS = ("docs/overview/FULL_FPGA_SOLUTION.md",)
+PRODUCT_TERM_RE = re.compile("linux", re.IGNORECASE)
 
 #: Binary payloads: nothing greppable lives here. Generated TEXT formats
 #: (.svg, .drawio) are deliberately NOT in this set.
@@ -195,6 +206,13 @@ def scan_file(root, path):
                 f"{path}:{n}: [T] retired-stack term {m.group(0)!r}: "
                 f"{line.strip()[:100]!r} (#259: the checkout is bare-metal "
                 f"only; history lives in git)")
+        if path in PRODUCT_DOCS:
+            m = PRODUCT_TERM_RE.search(line)
+            if m:
+                findings.append(
+                    f"{path}:{n}: [P] protected product document contains "
+                    f"{m.group(0)!r}: {line.strip()[:100]!r} (the full FPGA "
+                    f"solution is bare-metal only)")
         m = OPT_RE.search(line)
         if m:
             findings.append(
@@ -268,6 +286,12 @@ def scan_yaml(root, path, text):
 def check(root=ROOT):
     files = inventory(root)
     findings = []
+    present = set(files)
+    for path in PRODUCT_DOCS:
+        if path not in present:
+            findings.append(
+                f"{path}: [P] protected product document is missing; "
+                f"deletion cannot bypass the product-runtime guard")
     for path in files:
         findings += scan_file(pathlib.Path(root), path)
     return findings, len(files)
@@ -285,6 +309,9 @@ def selftest():
                        check=True, env=_GIT_ENV)
         (root / "clean.md").write_text("The bare-metal firmware owns boot "
                                        "policy and identity.\n")
+        product = root / PRODUCT_DOCS[0]
+        product.parent.mkdir(parents=True)
+        product.write_text("The full FPGA solution uses bare-metal firmware.\n")
         build(root)
         subprocess.run(["git", "-C", str(root), "add", "-A"],
                        check=True, env=_GIT_ENV)
@@ -357,6 +384,16 @@ def selftest():
         lambda r: (r / "d.svg").write_text(
             '<svg content="agent=&quot;Mozilla/5.0 (X11; Linux x86_64)&quot;">'
             '<text>rootfs</text></svg>\n'), True, "[T]")
+
+    # P: the product page rejects embedded spellings and host-tool masks
+    arm("product-doc-embedded-term",
+        lambda r: (r / PRODUCT_DOCS[0]).write_text(
+            "The debug artifact is vmlinux.\n"), True, "[P]")
+    arm("product-doc-host-mask-disabled",
+        lambda r: (r / PRODUCT_DOCS[0]).write_text(
+            "Download sv2v-Linux.zip for this solution.\n"), True, "[P]")
+    arm("product-doc-required",
+        lambda r: (r / PRODUCT_DOCS[0]).unlink(), True, "[P]")
 
     # O: option tokens, both spellings of the flashboot value
     arm("opt-sound-card",

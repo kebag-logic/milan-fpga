@@ -63,6 +63,7 @@ Each conflict keeps its original authority.
 | Conflict | Implementation evidence | Current treatment |
 |---|---|---|
 | Donor gPTP README says default-off | `hdl/milan/milan_datapath.sv` defaults `GPTP_PLANE_EN_P` on | Track donor Issue [#48](https://github.com/Mister-M-alt/FPGA-gPTP/issues/48) |
+| Donor gPTP README retains retired host services | Full solution specifies bare-metal firmware | Treat donor runtime prose as historical |
 | Donor protocol page retains word-wide RX | `protocol_processor_top.sv` exposes byte RX without ready | Track donor Issue [#27](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/27) |
 | Existing integration guide omits response memory | `milan_datapath.sv` exposes `resp_mem_*` | New integrator guide includes it |
 | Existing Behave counts are stale | Executed baseline reports 14/312/1,467 | New guide avoids volatile counts |
@@ -91,6 +92,14 @@ Tracked documentation contains no forbidden peer name.
 New examples use `test device`.
 
 The privacy gate remains mandatory.
+
+The full solution names only bare-metal firmware.
+
+A product-document guard rejects retired platform substrings.
+
+Historical runtime profiling remains under `docs/history/v1/`.
+
+Host tooling names remain outside product descriptions.
 
 ## Diagram verification
 

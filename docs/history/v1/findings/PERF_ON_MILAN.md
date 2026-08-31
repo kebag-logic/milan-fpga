@@ -1,3 +1,15 @@
+[OBSOLETE + 2026-08-31]
+
+> Status: Historical
+>
+> Original path: `docs/findings/PERF_ON_MILAN.md`
+>
+> Archived: 2026-08-31
+>
+> Relocated: 2026-08-31
+>
+> Current successor: [open current performance evidence](../../../findings/PERFORMANCE_GOAL.md)
+
 # Profiling on the Milan board  -  method, and the misaligned-usercopy case study
 
 *2026-07-10. How `perf` runs on this SoC, how kernel addresses get symbolized without
@@ -137,7 +149,7 @@ PCs, not inferred.
    the shift-merge op count predicts ~2–3× the aligned loop's cost  -  consistent.
    (The earlier campaign number "copy = 0.64 cy/B" was therefore a *misaligned*
    figure, and the budget table in the headroom analysis — now folded into
-   [`PERFORMANCE_GOAL.md`](PERFORMANCE_GOAL.md) — was corrected.)
+   [`PERFORMANCE_GOAL.md`](../../../findings/PERFORMANCE_GOAL.md) — was corrected.)
 3. **"Why misaligned": reasoned from the data layout, then checked for
    self-consistency.** The RX buffer is page-aligned and the frame lands at +0, so
    the payload begins at +54 (doff=5) or +66 (doff=8)  -  neither ≡ 0 (mod 8). The

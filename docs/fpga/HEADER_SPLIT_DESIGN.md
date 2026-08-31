@@ -204,7 +204,7 @@ fraction: 1.7 %  -  matches the drift model, not a bug. Fixes, in order of value
 3. Accept the copy path: header-split still delivers the **aligned** copy
    (payload at page offset 0 ⇒ dst/src co-aligned ⇒ the fast 64 B-unrolled
    loop, 2–3× the misaligned baseline). This is the near-term win; the
-   falsifiable prediction in [Section 6 of PERF_ON_MILAN.md](../findings/PERF_ON_MILAN.md#6-drawing-the-conclusions-each-with-its-check)
+   falsifiable prediction in [Section 6 of the historical profiling method](../history/v1/findings/PERF_ON_MILAN.md#6-drawing-the-conclusions-each-with-its-check)
    (hs-mode profile shows the fast loop) is still PENDING a valid-peer re-run.
 
 **Open on silicon  -  multi-page pairing storm (UNDER SUSPICION, DATA TAINTED):**
@@ -273,7 +273,7 @@ Corrected model:
 **However zc throughput (90 Mbit) < aligned-copy (138) at 100 MHz**  -  mapbench's
 flip(44.9 µs/page) > copy(25 µs) verdict holds; zerocopy is not the fast path on this core.
 
-**Aligned-copy prediction CONFIRMED on silicon** (PERF_ON_MILAN Section 6.4): the hs-mode profile
+**Aligned-copy prediction CONFIRMED on silicon** (historical profiling method, Section 6.4): the hs-mode profile
 shows the copy at `fallback_scalar_usercopy+0x3c/+0x40` (the 64 B-unrolled aligned loop)
 at only ~4 % of the hart; the misaligned +0xa8..+0xcc cluster is gone. At 130–138 Mbit
 both harts are ~63 % in `default_idle_call`  -  **hs single-flow is latency/serialization-
@@ -456,7 +456,7 @@ Next levers, in handoff order: 2-queue hs
 (mslot keeper's 368-407 is 2-queue; hs is 1-queue), then drop-window shaving
 (pressure-close covering the open-slot-PAGE-at-head case, poll cadence).
 
-**Post-fix perf profile @ -P4 295 (PERF_ON_MILAN method, timer 250 Hz, 12 s,
+**Post-fix perf profile @ -P4 295 (historical profiling method, timer 250 Hz, 12 s,
 symbolized host-side; /proc/stat ground truth over the window):**
 - **cpu1 (app hart): 0 idle ticks  -  saturated; 66.4% = the recv payload copy**
   (`fallback_scalar_usercopy_sum_enabled`, cold-DRAM reads). The copy hart is

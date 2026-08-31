@@ -42,7 +42,7 @@ Each page retains its original obsolete header.
 Earlier files used two historical storage patterns.
 
 - Ten pages lived under `historical_now_obsolete/`.
-- Twenty-nine pages remained beside current documentation.
+- Thirty pages remained beside current documentation.
 - One legacy index documented the earlier archive.
 - Three obsolete diagram files remained current.
 
@@ -68,6 +68,7 @@ The 2026-08-31 migration preserved every tracked artifact.
 | [Physical-family triage](findings/PHYSICAL_FAMILY_TRIAGE_0802.md) | `docs/findings/PHYSICAL_FAMILY_TRIAGE_0802.md` | 2026-08-31 | Superseded single-run triage | [Milan audit](../../testing/MILAN_V12_AUDIT_2026-08-16.md) |
 | [Protocol area measurement](findings/PP_SHADOW_AREA_0812.md) | `docs/findings/PP_SHADOW_AREA_0812.md` | 2026-08-31 | Pre-integration measurement | [Area budget](../../design/AREA_BUDGET.md) |
 | [RX performance tuning map](findings/RX_PERF_TUNING_MAP.md) | `docs/findings/RX_PERF_TUNING_MAP.md` | 2026-08-31 | Retired host-driver tuning map | [Performance goal](../../findings/PERFORMANCE_GOAL.md) |
+| [Board profiling method](findings/PERF_ON_MILAN.md) | `docs/findings/PERF_ON_MILAN.md` | 2026-08-31 | Retired runtime profiling method | [Performance goal](../../findings/PERFORMANCE_GOAL.md) |
 | [Known limitations snapshot](limitations/KNOWN_ISSUES_AND_LIMITATIONS.md) | `docs/limitations/KNOWN_ISSUES_AND_LIMITATIONS.md` | 2026-08-31 | Stale capability snapshot | [Milan audit](../../testing/MILAN_V12_AUDIT_2026-08-16.md) |
 | [At a glance](overview/AT_A_GLANCE.md) | `docs/overview/AT_A_GLANCE.md` | 2026-08-31 | Stale status summary | [Documentation index](../../README.md) |
 | [Dependency matrix](reference/MILAN_V12_DEPENDENCY_MATRIX.md) | `docs/reference/MILAN_V12_DEPENDENCY_MATRIX.md` | 2026-08-31 | Stale manual dependencies | [Requirements register](../../reference/FR_NFR.md) |

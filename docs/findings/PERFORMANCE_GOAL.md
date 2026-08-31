@@ -4,8 +4,8 @@
 > campaign **record**; every number in it is a **2-hart perf-campaign** measurement — the
 > **ship shape is 1-hart + `--l2-bytes 32768`**, so these are perf-lineage records, not the
 > shipped configuration. The per-lever ledger is [`../CHANGELOG.md`](../../CHANGELOG.md); the
-> as-built datapath is [`../fpga/PIPELINE_STAGES.md`](../fpga/PIPELINE_STAGES.md); the profiling
-> method is [`PERF_ON_MILAN.md`](PERF_ON_MILAN.md); the memory root cause is
+> as-built datapath is [`../fpga/PIPELINE_STAGES.md`](../fpga/PIPELINE_STAGES.md); the historical
+> profiling method is [archived](../history/v1/findings/PERF_ON_MILAN.md); the memory root cause is
 > [`LATENCY_INVESTIGATION.md`](LATENCY_INVESTIGATION.md). **DDIO was REFUTED** — the copy tax
 > was removed by header-split, not DDIO.
 > Consolidated 2026-07-25: this file absorbed [`RX_TX_PERFORMANCE.md` (archived)](../history/v1/findings/RX_TX_PERFORMANCE.md) (the plain-language RX

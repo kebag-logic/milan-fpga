@@ -253,7 +253,7 @@ Each entry: the doc and **when to read it**. `→` marks the doc to start each s
 - **[`docs/findings/PERFORMANCE_GOAL.md`](../../findings/PERFORMANCE_GOAL.md)** — the perf-campaign record (>500 Mbit RX+TX north-star
   + the forced-march evidence log). *(Consolidation home for the RX/TX/headroom campaign narrative;
   numbers are perf-lineage on 2-hart.)*
-- **[`docs/findings/PERF_ON_MILAN.md`](../../findings/PERF_ON_MILAN.md)** — the durable **profiling method** (cross-built perf,
+- **[`PERF_ON_MILAN.md`](findings/PERF_ON_MILAN.md)** — the historical **profiling method** (cross-built perf,
   timer sampling, offline System.map symbolization, cluster-reading). Clock/hart-agnostic; read
   before profiling this SoC.
 - **[`docs/findings/LATENCY_INVESTIGATION.md`](../../findings/LATENCY_INVESTIGATION.md)** — the deep memory-latency root cause: 1424 ns/miss
