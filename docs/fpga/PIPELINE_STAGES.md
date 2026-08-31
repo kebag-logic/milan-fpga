@@ -47,9 +47,15 @@ Conventions used below.
 ### Stage R1: wire, RGMII PHY, MAC
 
 Purpose: bits to AXIS beats. Code: `MilanMAC` in [`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py), the
-RGMII PHY wrappers, LiteEth core underneath. The datapath runs at 100 MHz
-(`--milan-clk-freq 100e6`) and exceeds 1 GbE line rate; this stage has never
-been a bottleneck. Trap fixed long ago: LiteEth `last_be` is one-hot, AXIS
+RGMII PHY wrappers, LiteEth core underneath.
+
+The deployed datapath runs at 50 MHz.
+
+- Recipe: `--milan-clk-freq 50e6`.
+- Its width exceeds 1 GbE line rate.
+- This stage has never bottlenecked.
+
+Trap fixed long ago: LiteEth `last_be` is one-hot, AXIS
 `tkeep` is a mask; the M-A3 bug (no frames on the wire at all) came from that
 mismatch.
 
@@ -98,7 +104,7 @@ Knobs (per queue, offsets from the queue base):
 - `rsc_bufsz` (PAYCAP) at +0x44, currently 57344. Warning: the CSR field is
   16 bits wide; writing 0x1C000 silently stores 0xC000. Widening it is the
   documented RTL lever for aggregates larger than 64 KB.
-- `rsc_tout` at +0x48, idle close in 100 MHz ticks. `ethtool -C rx-usecs`
+- `rsc_tout` at +0x48, idle close in datapath-clock ticks. `ethtool -C rx-usecs`
   writes this AND the driver poll cadence together; poke the CSR afterwards
   if you need them decoupled (measured: flat either way at P4 with 16K pages).
 - `rsc_segcap` at +0x54, currently 60. Setting 10 was measured harmful
@@ -261,9 +267,11 @@ processes and is scheduler-fairness bound, not NIC bound.
   MMIO doorbell per batch, HW-TSO segments 64 KB GSO frames in gateware.
 - T2: the reader DMAs payload straight from DRAM (cache state irrelevant),
   so TX pays almost no per-byte CPU on the send side.
-- T3: the datapath (classifier, optional CBS shaper which resets DISABLED
-  since the CBS_EN_RST bug, MAC) runs at 100 MHz. The shaper's credit
-  contract, as a chronogram:
+- T3 uses the deployed 50 MHz datapath.
+- It contains the classifier, shaper, and MAC.
+- The optional CBS shaper resets disabled.
+- This avoids the earlier CBS reset bug.
+- The shaper's credit contract follows:
 
 ![CBS credit evolution: slopes, clamps, and the transmit gate](../diagrams/wd_cbs_credit.png)
 

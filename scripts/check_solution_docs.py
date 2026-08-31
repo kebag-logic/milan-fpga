@@ -239,6 +239,14 @@ SHIPPING_CONTEXT = re.compile(
 )
 STALE_CACHE = re.compile(r"\b(?:32\s*kib|l2[- ]?32k|32768)\b", re.IGNORECASE)
 STALE_CLOCK = re.compile(r"\b(?:100\s*mhz|100e6)\b", re.IGNORECASE)
+STALE_PIPELINE_CLOCK = re.compile(
+    r"\b(?:datapath|mac\))\s+runs\s+at\s+(?:100\s*mhz|100e6)\b",
+    re.IGNORECASE,
+)
+STALE_PIPELINE_OPTION = re.compile(
+    r"--milan-clk-freq(?:=|\s+)100e6\b",
+    re.IGNORECASE,
+)
 
 
 def scalar(value: object) -> str:
@@ -322,6 +330,15 @@ def clock_label(value: str) -> str:
     if frequency % 1_000_000 == 0:
         return f"{frequency // 1_000_000} MHz"
     return f"{frequency} Hz"
+
+
+def clock_option(value: str) -> str:
+    if value == "unset":
+        return value
+    frequency = int(value)
+    if frequency % 1_000_000 == 0:
+        return f"{frequency // 1_000_000}e6"
+    return value
 
 
 def product_table(cli: dict[str, str], deploy: dict[str, str]) -> str:
@@ -532,8 +549,27 @@ def validate(root: Path) -> list[str]:
         f"The product uses `{deploy['--cpu-count']}` hart and "
         f"`{deploy['--l2-bytes']}` L2 bytes."
     )
-    if pipeline is not None and pipeline_product_sentence not in pipeline:
-        errors.append(f"{PIPELINE_DOC}: source-derived product shape is missing")
+    pipeline_clock_sentences = (
+        "The deployed datapath runs at "
+        f"{clock_label(deploy['--milan-clk-freq'])}.",
+        f"- Recipe: `--milan-clk-freq "
+        f"{clock_option(deploy['--milan-clk-freq'])}`.",
+        "- T3 uses the deployed "
+        f"{clock_label(deploy['--milan-clk-freq'])} datapath.",
+    )
+    if pipeline is not None:
+        if pipeline_product_sentence not in pipeline:
+            errors.append(f"{PIPELINE_DOC}: source-derived product shape is missing")
+        for sentence in pipeline_clock_sentences:
+            if sentence not in pipeline:
+                errors.append(
+                    f"{PIPELINE_DOC}: source-derived datapath clock is missing: "
+                    f"{sentence}"
+                )
+        if STALE_PIPELINE_CLOCK.search(pipeline):
+            errors.append(f"{PIPELINE_DOC}: stale deployed datapath clock claim")
+        if STALE_PIPELINE_OPTION.search(pipeline):
+            errors.append(f"{PIPELINE_DOC}: stale deployed datapath clock option")
 
     solution = documents.get(SOLUTION_DOC)
     if solution is not None:
@@ -689,6 +725,36 @@ def selftest() -> int:
             "The product uses `1` hart and `0` L2 bytes.",
             "The product uses `1` hart and `32768` L2 bytes.",
             "source-derived product shape is missing",
+        ),
+        (
+            "pipeline receive clock",
+            PIPELINE_DOC,
+            "The deployed datapath runs at 50 MHz.",
+            "The deployed datapath runs at 25 MHz.",
+            "source-derived datapath clock is missing",
+        ),
+        (
+            "pipeline transmit clock",
+            PIPELINE_DOC,
+            "- T3 uses the deployed 50 MHz datapath.",
+            "- T3 uses the deployed 100 MHz datapath.",
+            "source-derived datapath clock is missing",
+        ),
+        (
+            "contradictory pipeline clock",
+            PIPELINE_DOC,
+            "The deployed datapath runs at 50 MHz.",
+            "The deployed datapath runs at 50 MHz.\n\n"
+            "The datapath runs at 100 MHz.",
+            "stale deployed datapath clock claim",
+        ),
+        (
+            "contradictory pipeline clock option",
+            PIPELINE_DOC,
+            "- Recipe: `--milan-clk-freq 50e6`.",
+            "- Recipe: `--milan-clk-freq 50e6`.\n\n"
+            "- Old recipe: `--milan-clk-freq 100e6`.",
+            "stale deployed datapath clock option",
         ),
         (
             "product clock table",
