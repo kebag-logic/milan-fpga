@@ -56,7 +56,7 @@
 ------------------------------------------------------------------------------
 */
 
-//! NxN PCM routing policy (NXN_ARCHITECTURE §1.3 / P3 + flag rework): per-
+//! Per-stream PCM routing policy (docs/overview/ARCHITECTURE.md): per-
 //! stream 2-bit route FLAGS {bit1 RENDER, bit0 DMA} - independently
 //! combinable (0b11 = capture-while-rendering, 0b00 = NULL), RENDER-lowest-
 //! wins arbitration, tuser-tagged ring output, combinational render tap

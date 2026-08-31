@@ -355,7 +355,7 @@ style: `//!` port docs); this table is the index, not the spec.
 
 | Domain | Contents |
 |---|---|
-| `axis_clk` (100 MHz `cd_milan` in the deployed LiteX build; ~50 MHz only when split via `--milan-clk-freq`) | all of Section 2 except the PHC |
+| `axis_clk` (`cd_milan`: 50 MHz deployed; 100 MHz AX bring-up) | all of Section 2 except the PHC |
 | `gtx_clk` (125 MHz) | `timestamp_counter` (PHC), MAC-side timestamp capture |
 | MAC RX recovered clock | inside the external MAC only |
 | host clocks (PS7 / LiteX `sys`, `sys4x`, `idelay`) | outside the datapath |
@@ -373,7 +373,7 @@ toolchain: [Section 4.5 of ../integration/PORTING_GUIDE.md](../integration/PORTI
 * **The ring-DMA engines** (`RingDMAReader`/`RingDMAWriter`, BD formats,
   header-split, RSC/GRO) are **Migen**, inside [`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py) -
   design docs: the archived CPPI DMA redesign log (#259, in git history),
-  [HW_GRO_RSC.md (archived)](../../historical_now_obsolete/fpga/HW_GRO_RSC.md),
+  [HW_GRO_RSC.md (archived)](../history/v1/fpga/HW_GRO_RSC.md),
   [HEADER_SPLIT_DESIGN.md](HEADER_SPLIT_DESIGN.md) (includes the hsq12 cut-through chapter); running system view:
   [PIPELINE_STAGES.md](PIPELINE_STAGES.md).
 * **The MAC** - external by design (LiteEth on LiteX, verilog-ethernet on

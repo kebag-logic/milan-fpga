@@ -629,7 +629,7 @@ change skips every step after the classification and the `elaborate` check
 still completes. A relevant change installs the pinned LiteX of
 [`sw/litex/litex_pins.txt`](../../sw/litex/litex_pins.txt), places the
 VexiiRiscv source at the revision LiteX itself pins, applies the patch series
-in [`sw/litex/patches/`](../../sw/litex/patches/) with its `apply.sh`, and runs
+in [`sw/litex/patches/`](../../sw/litex/patches) with its `apply.sh`, and runs
 `sw/builder/test_builder.py --require-elaboration`: gates 23f, 23g and 23h and
 their mutation arms. Upstream LiteX elaborates no configuration in this tree
 (#185), so the series is a required install step and gate 23h proves the

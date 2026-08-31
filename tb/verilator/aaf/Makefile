@@ -1,7 +1,7 @@
 VERILATOR ?= verilator
 TOP = aaf_talker_i2s
 SRCS = ../../../hdl/ieee1722/aaf/aaf_talker_i2s.sv ../../../hdl/common/cdc_pair_fifo.sv
-# NxN talker lane (NXN_ARCHITECTURE P4): golden byte-compare (flat talker vs
+# Multi-stream talker lane (docs/overview/ARCHITECTURE.md): golden byte-compare (flat talker vs
 # capture+packetizer) + two-talker interleave at N=2
 NXSRCS = ../../../hdl/ieee1722/aaf/aaf_talker_i2s.sv \
          ../../../hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv \

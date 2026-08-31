@@ -89,7 +89,7 @@ ROOT = os.path.dirname(HERE)
 #: .yaml hardcoded `firmware_version: "0.1.0"` and this generator stamped that
 #: string into the descriptor, so every board we ship told every controller it
 #: ran firmware 0.1.0 while the fabric was at 0x0001_0016.  Same class of
-#: defect as the ADP shape registers (docs/findings/ADP_SHAPE_STATIC_0727.md):
+#: defect as the ADP shape registers (docs/ENDSTATION_BUILDER.md):
 #: a hand-typed declaration that no gate could compare against the fabric.
 MILAN_CSR_SV = os.path.join(ROOT, "hdl/common/csr/milan_csr.sv")
 

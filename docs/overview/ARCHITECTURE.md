@@ -112,7 +112,7 @@ the symptom.
 - **[6. HDL ↔ software mapping](#6-hdl--software-mapping)** -- One row per concern joining a CSR group to the software that touches it, so you can trace a feature end to end without opening three repos.
 - **[7. Verification](#7-verification)** -- What the six layers each prove, including the split worth internalising: the Verilator suites prove the RTL does what it does, the BDD conformance suite proves it does what the standard says. Also the Yosys gate on tied-off datapath inputs, the defect class that let RMON read zero for months.
 - **[8. Where to change things (maintainability)](#8-where-to-change-things-maintainability)** -- The maintenance table: for each kind of change, every file that must move together and the harnesses to re-run. Note the paired edits that are easy to half-do: queue count lives in two places, CBS defaults in two more.
-- **[9. The Zynq-7020 variant (legacy)](#9-the-zynq-7020-variant-legacy)** -- The legacy host, kept working but off the main line. Read it for the decoder ring on older docs: wherever [`REQUIREMENTS.md`](../../REQUIREMENTS.md) or [historical `TODO.md`](../../TODO.md) mention `0x43C0_0000`, `IRQ_F2P` or the Xilinx block-design tooling, they mean this variant only.
+- **[9. The Zynq-7020 variant (legacy)](#9-the-zynq-7020-variant-legacy)** -- The legacy host, kept working but off the main line. Read it for the decoder ring on older docs: wherever [`REQUIREMENTS.md`](../../REQUIREMENTS.md) or [historical `TODO.md`](../history/v1/TODO.md) mention `0x43C0_0000`, `IRQ_F2P` or the Xilinx block-design tooling, they mean this variant only.
 
 ## 1. Repository layout
 
@@ -120,7 +120,7 @@ the symptom.
 milan-fpga/
 ├─ README.md                 landing page + quick jumps
 ├─ REQUIREMENTS.md           normative requirements + 802.1 gap analysis
-├─ TODO.md                   obsolete historical task list
+├─ docs/history/v1/TODO.md   historical task list
 ├─ CHANGELOG.md              the measured per-lever performance ledger
 ├─ docs/                     ← the documentation tree (see docs/README.md)
 │  ├─ overview/  integration/  fpga/  litex/  testing/  limitations/
@@ -498,7 +498,7 @@ harness. Every DUT change ships with its harness update in the same commit.
 PS7 via `milan_dma_wrapper.v` + the `bd/milan-dma.tcl` block design (PS7,
 2× AXI-DMA, `clk_wiz`, `smartconnect`; CSR at `0x43C0_0000`, four GIC IRQ
 lines). Constraints in `constraints/*.xdc`. [`REQUIREMENTS.md`](../../REQUIREMENTS.md) and parts of
-[historical `TODO.md`](../../TODO.md) were written in this era - where they talk about `0x43C0_0000`,
+[historical `TODO.md`](../history/v1/TODO.md) were written in this era - where they talk about `0x43C0_0000`,
 `IRQ_F2P` or the Xilinx block-design tooling, they describe this variant only. The
 migration story from PS to softcore is
 the completed PS-to-fabric migration plan (#259, in git history).

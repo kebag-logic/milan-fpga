@@ -18,8 +18,40 @@ jobs:
       # rather than in the middle of the job.
       - name: Install the python gate dependencies
         run: python3 -m pip install --quiet pyyaml
+      - name: Install diagram gate dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends librsvg2-bin
+          python3 -m pip install --quiet wavedrom==2.0.3.post3
       - name: Link health, wording, dead-reference and local-info gate
         run: python3 scripts/docs_check.py
+      - name: Concise audience documentation gate
+        run: |
+          python3 scripts/check_doc_style.py
+          python3 scripts/check_doc_style.py --selftest
+      - name: Audience diagram no-drift gate
+        run: |
+          python3 docs/DOC_MAP.gen.py --check
+          python3 docs/DOC_MAP.gen.py --selftest
+      - name: Product solution source-fact gate
+        run: |
+          python3 scripts/check_solution_docs.py
+          python3 scripts/check_solution_docs.py --selftest
+      - name: Verified submodule documentation gate
+        run: |
+          python3 docs/diagrams/submodule_boundaries.gen.py --check
+          python3 docs/diagrams/submodule_boundaries.gen.py --selftest
+          python3 scripts/check_submodule_docs.py
+          python3 scripts/check_submodule_docs.py --selftest
+      - name: HDL timing diagram no-drift gate
+        run: |
+          python3 scripts/gen_wavedrom.py --selftest
+          python3 scripts/gen_wavedrom.py docs/diagrams/wd_axis_backpressure.json --background=white --check
+          python3 scripts/gen_wavedrom.py docs/diagrams/wd_cdc_handshake.json --background=white --check
+      - name: Published diagram PNG gate
+        run: |
+          python3 scripts/check_diagram_pngs.py
+          python3 scripts/check_diagram_pngs.py --selftest
       - name: Milan feature-status consistency gate
         run: python3 scripts/check_feature_status.py --self-test
       - name: Traceability matrix no-drift gate
@@ -201,7 +233,9 @@ jobs:
       # row, and a successor that still exists. Renaming one living doc broke
       # six forward pointers at once in testing.
       - name: Archive integrity gate
-        run: python3 scripts/check_archive.py
+        run: |
+          python3 scripts/check_archive.py
+          python3 scripts/check_archive.py --selftest
 
       # Contents gate: every page of 3+ sections carries an annotated contents
       # list, its entries match the headings that exist, and no entry is left

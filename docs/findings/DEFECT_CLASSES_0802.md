@@ -11,7 +11,7 @@ to report, while the thing it described was something else.** Each section is
 a symptom → measurement chain → root cause → fix → verification record; the
 general lesson sits at the end of each. Repos: `milan-fpga` (fabric + desk
 harness) and `milan-tests-avb` (board software + bench runner). The campaign
-context is the [historical torture campaign](../testing/TORTURE_CAMPAIGN.md); the bench
+context is the [historical torture campaign](../history/v1/testing/TORTURE_CAMPAIGN.md); the bench
 itself is [BENCH_TOPOLOGY.md](BENCH_TOPOLOGY.md).
 
 ## Contents
@@ -159,7 +159,7 @@ event counters may legitimately re-tick to ≤ 8, interval/tally counters to
 ≤ 64, inside the observation window. Before these distinctions the campaign
 had filed **31 conformant binds** (26 re-lock shapes + 5 rebinds/leftovers) as
 SHALL violations. The full verdict/excuse tables live in
-[historical torture campaign](../testing/TORTURE_CAMPAIGN.md).
+[historical torture campaign](../history/v1/testing/TORTURE_CAMPAIGN.md).
 
 **Lessons.** (a) **Attribute, never smear**: a two-party check that FAILs the
 pair manufactures a defect record against the conformant side, and those

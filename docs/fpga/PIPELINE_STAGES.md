@@ -2,8 +2,8 @@
 
 *2026-07-11. The canonical prose reference for developers (what each stage does
 and where its code lives) and maintainers (which knob changes which behavior,
-what was measured, what breaks if you get it wrong). The visual twin is
-`RX_PERF_TUNING_MAP.drawio`.*
+what was measured, what breaks if you get it wrong). The older
+[historical tuning map](../history/v1/findings/RX_PERF_TUNING_MAP.md) remains evidence.*
 
 *Silicon history lives in [`HEADER_SPLIT_DESIGN.md`](HEADER_SPLIT_DESIGN.md),
 the live state in [`../findings/BENCH_TOPOLOGY.md`](../findings/BENCH_TOPOLOGY.md) and
@@ -47,9 +47,15 @@ Conventions used below.
 ### Stage R1: wire, RGMII PHY, MAC
 
 Purpose: bits to AXIS beats. Code: `MilanMAC` in [`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py), the
-RGMII PHY wrappers, LiteEth core underneath. The datapath runs at 100 MHz
-(`--milan-clk-freq 100e6`) and exceeds 1 GbE line rate; this stage has never
-been a bottleneck. Trap fixed long ago: LiteEth `last_be` is one-hot, AXIS
+RGMII PHY wrappers, LiteEth core underneath.
+
+The deployed datapath runs at 50 MHz.
+
+- Recipe: `--milan-clk-freq 50e6`.
+- Its width exceeds 1 GbE line rate.
+- This stage has never bottlenecked.
+
+Trap fixed long ago: LiteEth `last_be` is one-hot, AXIS
 `tkeep` is a mask; the M-A3 bug (no frames on the wire at all) came from that
 mismatch.
 
@@ -70,7 +76,7 @@ Each queue is its own ring writer, interrupt and NAPI.
 > TCP 4-tuple XOR-parity flow hash built for *throughput* — it split one
 > MTU-1500 RX stream into two flow-consistent queues so two flows' ACK/receive
 > processing ran on two harts (measured RX 223 Mbit, see
-> [../findings/RX_PERF_TUNING_MAP.md](../findings/RX_PERF_TUNING_MAP.md)).
+> [performance evidence](../findings/PERFORMANCE_GOAL.md)).
 > **That parallel ACK split is gone**: bulk RX is single-NAPI again and the RX
 > throughput ceiling reverts to the one-hart number. What is bought instead is
 > RX-side PTP latency, which is what once held `asCapable` false
@@ -98,9 +104,14 @@ Knobs (per queue, offsets from the queue base):
 - `rsc_bufsz` (PAYCAP) at +0x44, currently 57344. Warning: the CSR field is
   16 bits wide; writing 0x1C000 silently stores 0xC000. Widening it is the
   documented RTL lever for aggregates larger than 64 KB.
-- `rsc_tout` at +0x48, idle close in 100 MHz ticks. `ethtool -C rx-usecs`
-  writes this AND the driver poll cadence together; poke the CSR afterwards
-  if you need them decoupled (measured: flat either way at P4 with 16K pages).
+- `rsc_tout` at +0x48 uses system-clock ticks.
+- System clock: 100 MHz.
+- Default: 5,000 cycles, or 50 us.
+- `ethtool -C rx-usecs` also changes driver polling.
+- Poke the CSR afterward for independent tuning.
+- P4 measurements were flat with 16K pages.
+- `rsc_agemax` uses identical system-clock ticks.
+- Lifetime default: 200,000 cycles, or 2 ms.
 - `rsc_segcap` at +0x54, currently 60. Setting 10 was measured harmful
   (256 Mbit at P4, chaotic flows).
 
@@ -225,10 +236,15 @@ version (STRICT gateware pairing):
 
 ### Stage R8: the consumer
 
-The consumer choice decides the record (all records in this section are the
-2-hart + 64 KB-L2 performance-campaign peak; the shipped SoC is 1-hart + 32 KB
-L2, so these are the ceiling, not the deployed-config figure). All four lanes
-measured on the keeper:
+The consumer choice decides the record.
+
+All records use the two-hart, 64 KB campaign peak.
+
+The product uses `1` hart and `0` L2 bytes.
+
+These records are ceilings, not deployed results.
+
+All four lanes measured on the keeper:
 - Socket read with copy (recv_spin, iperf3): 363-381 Mbit sustained at P4.
   The copy costs one cold DRAM read per cache line (about 18 cycles per 8
   bytes at 100 MHz); it is two thirds of the application hart.
@@ -256,9 +272,11 @@ processes and is scheduler-fairness bound, not NIC bound.
   MMIO doorbell per batch, HW-TSO segments 64 KB GSO frames in gateware.
 - T2: the reader DMAs payload straight from DRAM (cache state irrelevant),
   so TX pays almost no per-byte CPU on the send side.
-- T3: the datapath (classifier, optional CBS shaper which resets DISABLED
-  since the CBS_EN_RST bug, MAC) runs at 100 MHz. The shaper's credit
-  contract, as a chronogram:
+- T3 uses the deployed 50 MHz datapath.
+- It contains the classifier, shaper, and MAC.
+- The optional CBS shaper resets disabled.
+- This avoids the earlier CBS reset bug.
+- The shaper's credit contract follows:
 
 ![CBS credit evolution: slopes, clamps, and the transmit gate](../diagrams/wd_cbs_credit.png)
 

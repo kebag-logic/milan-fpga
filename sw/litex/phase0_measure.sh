@@ -1,5 +1,5 @@
 #!/bin/sh
-# Phase-0 on-silicon measurement — TX_READER_PREFETCH_PLAN.md Appendix A.5.
+# Phase-0 on-silicon measurement — docs/fpga/PIPELINE_STAGES.md.
 # Runs ON THE BOARD (busybox sh + devmem + iperf3) against the peer, on the
 # build_dp100_p0 gateware. Measures, by hardware counter (never assume, always measure):
 #   * L  — RingDMAReader AR->first-R round-trip latency (mean, payload-only + all)

@@ -299,7 +299,7 @@ Two board rules that go with it:
 - PRs use the template: Status / Description / how-to-reproduce / how-to-
   validate / DoD. **Self-test results go in a PR comment** — a comment is
   evidence, not approval. Maintainer merges by default.
-- **`LAYOUTS`-style merges in [`tests/steps/`](tests/steps/) are semantic, never
+- **`LAYOUTS`-style merges in [`tests/steps/`](tests/steps) are semantic, never
   marker-union**: rebuild each command's block from its owning commit
   verbatim (naive unions broke main twice; a third time gets you named in
   this file). The rule was written for the PDU-generator step file that carried

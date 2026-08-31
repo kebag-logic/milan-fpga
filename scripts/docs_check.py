@@ -36,7 +36,7 @@ Checks, over every ``*.md`` file in the tree:
    about their own checks. The absolute rules live in the scrub (rule 5).
 3. **Bare doc references** — a mention of an existing ``.md`` file that is not
    an actual markdown link (living tree only; generated files, code fences,
-   HTML comments and ``historical_now_obsolete/`` are exempt).
+   HTML comments and ``docs/history/v1/`` are exempt).
 4. **Dead references** — a bare mention of a ``.md`` path that points *inside
    this repo* but does not exist (5a), or of a document retired from the tree
    (``RETIRED``, 5b). Rule 3 only sees references to files that still exist, so
@@ -470,7 +470,7 @@ def check_md(path, relpath, resolve, tracked_set):
         return [f"{relpath}:0: not valid UTF-8"]
     lines = text.splitlines()
     generated = bool(GENERATED_MARK.search(text[:400]))
-    historical = relpath.startswith("historical_now_obsolete/")
+    historical = relpath.startswith("docs/history/v1/")
     obsolete = bool(lines and OBSOLETE_HEADER_RE.fullmatch(lines[0]))
     allow_dead = bool(ALLOW_DEAD_MARK.search(text))
     filedir = Path(relpath).parent

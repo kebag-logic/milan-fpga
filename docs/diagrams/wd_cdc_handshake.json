@@ -1,0 +1,29 @@
+{
+  "head": {"text": "Multi-bit CDC with default synchronizer parameters"},
+  "signal": [
+    ["source",
+      {"name": "src_clk",     "wave": "p..........."},
+      {"name": "src_rst_n",   "wave": "01.........."},
+      {"name": "src_send",    "wave": "0.1....0...."},
+      {"name": "src_in",      "wave": "x.=....x....", "data": ["payload"]},
+      {"name": "req_tog",     "wave": "0.1........."},
+      {"name": "ack_sync[0]", "wave": "0....1......"},
+      {"name": "ack_sync[1]", "wave": "0.....1....."},
+      {"name": "ack_sync[2]", "wave": "0......1...."},
+      {"name": "src_rcv",     "wave": "0.....10...."}
+    ],
+    ["destination",
+      {"name": "dest_clk",    "wave": "p...........", "phase": -0.5},
+      {"name": "dest_rst_n",  "wave": "01..........", "phase": -0.5},
+      {"name": "req_sync[0]", "wave": "0.1.........", "phase": -0.5},
+      {"name": "req_sync[1]", "wave": "0..1........", "phase": -0.5},
+      {"name": "req_sync[2]", "wave": "0...1.......", "phase": -0.5},
+      {"name": "req_edge",    "wave": "0..10.......", "phase": -0.5},
+      {"name": "dest_req",    "wave": "0...10......", "phase": -0.5},
+      {"name": "dest_out",    "wave": "x...=.......", "phase": -0.5, "data": ["payload"]},
+      {"name": "ack_tog",     "wave": "0...1.......", "phase": -0.5}
+    ]
+  ],
+  "foot": {"text": "DEST_SYNC_FF=2 and SRC_SYNC_FF=2; clock phase remains variable"},
+  "config": {"hscale": 1}
+}

@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: CERN-OHL-W-2.0
  */
 
-//! Verilator harness wrapper for the NxN talker lane (NXN_ARCHITECTURE
-//! §2.1-§2.3, phases P4): side-by-side golden pairing - the flat
+//! Verilator harness wrapper for the multi-stream talker lane
+//! (docs/overview/ARCHITECTURE.md): side-by-side golden pairing - the flat
 //! aaf_talker_i2s vs KL_aaf_capture_i2s + KL_aaf_packetizer(N=1) on the
 //! same stimulus (byte-compare gate), plus a second packetizer at N=2 with
 //! direct pair injection for the two-talker interleave checks.

@@ -21,7 +21,7 @@ measured enabler: batched PTE moves 1.22 µs/page vs 26.3 µs copy (21.5×). Tar
 - **[build_hsq6 (2026-07-10)  -  MULTI-FLOW NEGATIVE SCALING ROOT-CAUSED: the un-gated BD ring](#build_hsq6-2026-07-10-----multi-flow-negative-scaling-root-caused-the-un-gated-bd-ring)** — The drain never compared against the driver's `rd_ptr`, so the hardware lapped the 64-entry ring and overwrote unread BDs. Includes the corollary that the earlier BD-ring-256 attempt was the same bug made *silent* (seq skew 0 mod 256), and the standing rule: never run a 256-entry driver on un-gated gateware.
 - **[build_hsq8/9/10 (2026-07-10 overnight)  -  2-QUEUE HS ON SILICON; 16K PAGES BREAK THE FAMINE](#build_hsq8910-2026-07-10-overnight-----2-queue-hs-on-silicon-16k-pages-break-the-famine)** — 16 KB pages break the famine and turn scaling positive: 381 steady, 374 over a 120 s soak. Carries the drop law that explains every earlier cell (loss every ~60 ms pins cubic, so aggregate ≈ nflows × 60–65 Mbit regardless of queues) and the finding that both harts sit ~40 % idle at 381 — so 500 is CPU-feasible. The hsq6 A/B table and perf profile sit at the end of this section rather than under hsq6.
 - **[build_hsq7 / hsq7t (2026-07-10)  -  CQ LUTRAM diet; the 2-queue slice wall FALLS](#build_hsq7--hsq7t-2026-07-10-----cq-lutram-diet-the-2-queue-slice-wall-falls)** — One `Array(Signal)` → `Memory` swap bought −4866 LUTs and made the 2-queue shape fit (99.40 % slices), with the equivalence argument for why the async-read LUTRAM is cycle-exact. It fits, but leaves no room for `rx1 hs_capable`.
-- **[hsplit14 / hsq12  -  per-page (cut-through) hs delivery (2026-07-11; folded from HSPLIT14_DESIGN.md, 2026-07-25)](#hsplit14--hsq12-----per-page-cut-through-hs-delivery-2026-07-11-folded-from-hsplit14_designmd-2026-07-25)** — Move the meta from the head of the CQ to its tail and pages drain as they fill: hold drops from ~4.8 ms to ~1.3 ms, because a pop-ordered drain queues everything behind an entry that only completes at close. Took the single-flow record at 329 and lost multi-flow back to hsq10.
+- **[hsplit14 / hsq12  -  per-page (cut-through) hs delivery (2026-07-11; folded from historical HSPLIT14 design, 2026-07-25)](#hsplit14--hsq12-----per-page-cut-through-hs-delivery-2026-07-11-folded-from-historical-hsplit14-design-2026-07-25)** — Move metadata behind completed pages, reducing delivery hold while preserving completion order.
 - **[The ladder in one grid](#the-ladder-in-one-grid)** — Every build's cells in one table, quoted from the section that measured it. The takeaway is the shape: single-flow peaked at hsq4/hsq12, multi-flow at hsq10, and no build ever held both.
 
 ## Layout
@@ -204,7 +204,7 @@ fraction: 1.7 %  -  matches the drift model, not a bug. Fixes, in order of value
 3. Accept the copy path: header-split still delivers the **aligned** copy
    (payload at page offset 0 ⇒ dst/src co-aligned ⇒ the fast 64 B-unrolled
    loop, 2–3× the misaligned baseline). This is the near-term win; the
-   falsifiable prediction in [Section 6 of PERF_ON_MILAN.md](../findings/PERF_ON_MILAN.md#6-drawing-the-conclusions-each-with-its-check)
+   falsifiable prediction in [Section 6 of the historical profiling method](../history/v1/findings/PERF_ON_MILAN.md#6-drawing-the-conclusions-each-with-its-check)
    (hs-mode profile shows the fast loop) is still PENDING a valid-peer re-run.
 
 **Open on silicon  -  multi-page pairing storm (UNDER SUSPICION, DATA TAINTED):**
@@ -273,7 +273,7 @@ Corrected model:
 **However zc throughput (90 Mbit) < aligned-copy (138) at 100 MHz**  -  mapbench's
 flip(44.9 µs/page) > copy(25 µs) verdict holds; zerocopy is not the fast path on this core.
 
-**Aligned-copy prediction CONFIRMED on silicon** (PERF_ON_MILAN Section 6.4): the hs-mode profile
+**Aligned-copy prediction CONFIRMED on silicon** (historical profiling method, Section 6.4): the hs-mode profile
 shows the copy at `fallback_scalar_usercopy+0x3c/+0x40` (the 64 B-unrolled aligned loop)
 at only ~4 % of the hart; the misaligned +0xa8..+0xcc cluster is gone. At 130–138 Mbit
 both harts are ~63 % in `default_idle_call`  -  **hs single-flow is latency/serialization-
@@ -456,7 +456,7 @@ Next levers, in handoff order: 2-queue hs
 (mslot keeper's 368-407 is 2-queue; hs is 1-queue), then drop-window shaving
 (pressure-close covering the open-slot-PAGE-at-head case, poll cadence).
 
-**Post-fix perf profile @ -P4 295 (PERF_ON_MILAN method, timer 250 Hz, 12 s,
+**Post-fix perf profile @ -P4 295 (historical profiling method, timer 250 Hz, 12 s,
 symbolized host-side; /proc/stat ground truth over the window):**
 - **cpu1 (app hart): 0 idle ticks  -  saturated; 66.4% = the recv payload copy**
   (`fallback_scalar_usercopy_sum_enabled`, cold-DRAM reads). The copy hart is
@@ -505,7 +505,7 @@ rx1 hs_capable  -  the strip-probes diet (area-70 catalog) gates the full
 2-queue-hs build. Next: strip-probes flag → rebuild 2-queue with rx1-hs →
 kl-eth hsplit11 (per-queue hs) → the 368-407 mslot aggregate assault.
 
-## hsplit14 / hsq12  -  per-page (cut-through) hs delivery (2026-07-11; folded from [HSPLIT14_DESIGN.md](../../historical_now_obsolete/fpga/HSPLIT14_DESIGN.md), 2026-07-25)
+## hsplit14 / hsq12  -  per-page (cut-through) hs delivery (2026-07-11; folded from [historical HSPLIT14 design](../history/v1/fpga/HSPLIT14_DESIGN.md), 2026-07-25)
 
 *2026-07-11. Kills the RSC hold latency (the per-flow ~95 Mbit plateau closed-form:
 rate = PAYCAP/fill-cycle, because ACKs wait for aggregate close). Pages become visible

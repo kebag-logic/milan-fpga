@@ -48,7 +48,7 @@ or a vendor MAC) - see Section 4.3.
 
 The datapath RTL contains **no instantiated vendor primitives**. The
 `xpm_fifo_axis` / `xpm_cdc_*` / generated `axis_switch_*` IP that used to block
-portability were removed (history: [OPEN_SOURCE_MIGRATION.md (archived)](../../historical_now_obsolete/integration/OPEN_SOURCE_MIGRATION.md));
+portability were removed (history: [OPEN_SOURCE_MIGRATION.md (archived)](../history/v1/integration/OPEN_SOURCE_MIGRATION.md));
 FIFOs/demux now come from the MIT-licensed
 [`third_party/verilog-axis`](../../THIRD_PARTY.md) submodule and the CDC from
 in-repo plain-FF primitives ([`hdl/common/cdc_pulse.sv`](../../hdl/common/cdc_pulse.sv),
@@ -140,7 +140,7 @@ Options, in order of least work:
 3. **Any vendor MAC** that can present 64-bit AXI-Stream (or a width you
    adapt) with `tkeep`/`tlast`, plus the config/status sideband
    (`o_mac_*`/`i_mac_*`, RMON event pulses) - the exact contract is in
-   [Section 3 of INTEGRATION_GUIDE.md](INTEGRATION_GUIDE.md#3-source-files-and-includes).
+   [required sources](INTEGRATION_GUIDE.md#include-required-sources).
 
 ### 4.4 The host CPU/DMA
 - **LiteX** (recommended): the whole Zynq-PS role - RISC-V CPU, DDR
@@ -258,7 +258,7 @@ non-LiteX host.
 ---
 
 *Related: [INTEGRATION_GUIDE.md](INTEGRATION_GUIDE.md) ·
-[OPEN_SOURCE_MIGRATION.md (archived)](../../historical_now_obsolete/integration/OPEN_SOURCE_MIGRATION.md) (how the RTL got
+[OPEN_SOURCE_MIGRATION.md (archived)](../history/v1/integration/OPEN_SOURCE_MIGRATION.md) (how the RTL got
 vendor-neutral) · [BOARD_PORTING_AX7101.md](BOARD_PORTING_AX7101.md) (worked
 board port) · [../litex/LITEX_SOC.md](../litex/LITEX_SOC.md) (the LiteX host in
 depth) · [../testing/TESTING.md](../testing/TESTING.md) (what to run after every

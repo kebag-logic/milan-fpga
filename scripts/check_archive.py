@@ -1,202 +1,331 @@
 #!/usr/bin/env python3
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""Gate: the archive stays navigable in both directions.
+"""Verify versioned history metadata, routing, and current links."""
 
-`historical_now_obsolete/` holds superseded documents, completed plans and
-point-in-time snapshots. The USER rule is that obsolete docs are **archived,
-never deleted** - history is preserved. That only works if an archived page
-stays *reachable* and *labelled*, and both rot the moment someone moves a page
-in a hurry:
+from __future__ import annotations
 
-  * a page with no banner reads as current to whoever lands on it from a
-    search engine or an old link, which is worse than deleting it - it is a
-    confident answer that stopped being true;
-  * a page missing from the index is unreachable by browsing;
-  * a "read instead" pointer to a doc that has itself since moved is a dead
-    end at exactly the moment someone is trying to find current state.
-
-So every archived page must carry a banner, appear exactly once in the index,
-and name a living successor that still exists.
-
-Usage:
-    python3 scripts/check_archive.py           # gate (exit 1 on a violation)
-    python3 scripts/check_archive.py --list    # show the resolved index
-"""
 import re
 import subprocess
 import sys
+import tempfile
+from collections import Counter
+from dataclasses import dataclass, replace
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parent.parent
-ARCHIVE = REPO / "historical_now_obsolete"
+
+REPO = Path(__file__).resolve().parents[1]
+ARCHIVE = REPO / "docs" / "history" / "v1"
 INDEX = ARCHIVE / "README.md"
-
-#: words that mark a page as not-current. Checked in the opening lines, which
-#: is the only part a reader is guaranteed to see before acting on the content.
-BANNER_RE = re.compile(
-    r"supersed|archiv|historical|read instead|successor|no longer|obsolete"
-    r"|frozen|completed plan|snapshot", re.I)
-BANNER_SCAN_LINES = 20
-
-#: Historical pages can also stay at their original path when moving them
-#: would break long-lived references. Their first line is the current-tree
-#: equivalent of the archive banner.
-OBSOLETE_HEADER_RE = re.compile(
-    r"^\[OBSOLETE \+ \d{4}-\d{2}-\d{2}\]$")
-
-#: a link to something inside the archive: `[text](findings/X.md)`
-IN_LINK_RE = re.compile(r"\[[^\]]*\]\((?!\.\./)([A-Za-z0-9_./-]+\.md)\)")
-#: a link OUT of the archive, i.e. the living successor: `[text](../docs/Y.md)`
-OUT_LINK_RE = re.compile(r"\[[^\]]*\]\((\.\./[A-Za-z0-9_./-]+\.md)\)")
+ARCHIVE_PREFIX = "docs/history/v1/"
+OLD_PREFIX = "historical_now_obsolete/"
+OBSOLETE_HEADER_RE = re.compile(r"^\[OBSOLETE \+ \d{4}-\d{2}-\d{2}\]$")
+DATE_RE = re.compile(r"\d{4}-\d{2}-\d{2}")
+LINK_RE = re.compile(r"\[([^\]]+)]\(([^)]+)\)")
+STATUS_RE = re.compile(r"^> Status: Historical$", re.MULTILINE)
+ORIGINAL_RE = re.compile(r"^> Original path: `([^`]+)`$", re.MULTILINE)
+ARCHIVED_RE = re.compile(r"^> Archived: (\d{4}-\d{2}-\d{2})$", re.MULTILINE)
+RELOCATED_RE = re.compile(r"^> Relocated: (\d{4}-\d{2}-\d{2})$", re.MULTILINE)
+REPLACED_RE = re.compile(r"^> Replaced in place: yes$", re.MULTILINE)
+SUCCESSOR_RE = re.compile(
+    r"^> Current successor: \[[^\]]+]\(([^)]+)\)$", re.MULTILINE
+)
 
 
-def tracked_outside_archive():
-    """Committed markdown that is NOT itself in the archive."""
-    out = subprocess.run(["git", "-C", str(REPO), "ls-files", "-z", "*.md"],
-                         capture_output=True, text=True, check=True).stdout
-    return [REPO / p for p in sorted(out.split("\0"))
-            if p and not p.startswith("historical_now_obsolete/")]
+@dataclass(frozen=True)
+class Metadata:
+    original: str
+    archived: str
+    relocated: str
+    successor: Path
+    replaced_in_place: bool
 
 
-def archived():
-    out = subprocess.run(
-        ["git", "-C", str(REPO), "ls-files", "-z", "historical_now_obsolete/*.md"],
-        capture_output=True, text=True, check=True).stdout
-    return sorted(REPO / p for p in out.split("\0") if p and
-                  (REPO / p) != INDEX)
+def tracked_markdown() -> list[str]:
+    output = subprocess.run(
+        ["git", "-C", str(REPO), "ls-files", "-z", "*.md"],
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout
+    return sorted(path for path in output.split("\0") if path)
 
 
-def in_place_obsolete():
-    """Tracked pages outside the archive that carry the obsolete header."""
-    pages = []
-    for md in tracked_outside_archive():
-        lines = md.read_text().split("\n", 1)
-        if lines and OBSOLETE_HEADER_RE.fullmatch(lines[0]):
-            pages.append(md.resolve())
-    return set(pages)
+def archived_pages(paths: list[str]) -> list[Path]:
+    return [
+        REPO / path
+        for path in paths
+        if path.startswith(ARCHIVE_PREFIX) and (REPO / path) != INDEX
+    ]
 
 
-def index_rows():
-    """(archived_target, [successor targets]) for each table row in the index."""
-    rows = []
-    for line in INDEX.read_text().split("\n"):
-        if not line.startswith("|") or line.startswith("|--") or "---" in line:
+def current_pages(paths: list[str]) -> list[Path]:
+    return [REPO / path for path in paths if not path.startswith(ARCHIVE_PREFIX)]
+
+
+def resolve_link(source: Path, raw_target: str) -> Path | None:
+    target = raw_target.split("#", 1)[0].split("?", 1)[0].strip("<>")
+    if not target or target.startswith("/") or "://" in target:
+        return None
+    return (source.parent / target).resolve()
+
+
+def parse_metadata(path: Path) -> tuple[Metadata | None, list[str]]:
+    text = path.read_text(encoding="utf-8")
+    lines = text.splitlines()
+    try:
+        relative = path.relative_to(REPO)
+    except ValueError:
+        relative = Path(path.name)
+    errors: list[str] = []
+    if not lines or not OBSOLETE_HEADER_RE.fullmatch(lines[0]):
+        errors.append(f"{relative}: missing obsolete header")
+    head = "\n".join(lines[:24])
+    if not STATUS_RE.search(head):
+        errors.append(f"{relative}: missing historical status")
+    original = ORIGINAL_RE.search(head)
+    archived = ARCHIVED_RE.search(head)
+    relocated = RELOCATED_RE.search(head)
+    successor = SUCCESSOR_RE.search(head)
+    if original is None:
+        errors.append(f"{relative}: missing original path")
+    if archived is None or not DATE_RE.fullmatch(archived.group(1)):
+        errors.append(f"{relative}: missing archived date")
+    if relocated is None or not DATE_RE.fullmatch(relocated.group(1)):
+        errors.append(f"{relative}: missing relocation date")
+    successor_path = None
+    if successor is None:
+        errors.append(f"{relative}: missing current successor")
+    else:
+        successor_path = resolve_link(path, successor.group(1))
+        if successor_path is None or not successor_path.is_file():
+            errors.append(f"{relative}: current successor does not exist")
+    if errors:
+        return None, errors
+    return Metadata(
+        original.group(1),
+        archived.group(1),
+        relocated.group(1),
+        successor_path,
+        REPLACED_RE.search(head) is not None,
+    ), []
+
+
+def index_rows(index: Path = INDEX) -> list[tuple[Path, Path, str]]:
+    rows: list[tuple[Path, Path, str]] = []
+    for line in index.read_text(encoding="utf-8").splitlines():
+        if not line.startswith("|") or "---" in line:
             continue
-        ins = IN_LINK_RE.findall(line)
-        outs = OUT_LINK_RE.findall(line)
-        if ins:
-            rows.append((ins[0], outs, line))
+        links = LINK_RE.findall(line)
+        if len(links) < 2:
+            continue
+        page = resolve_link(index, links[0][1])
+        successor = resolve_link(index, links[-1][1])
+        if page is not None and successor is not None:
+            rows.append((page, successor, line))
     return rows
 
 
-def main():
-    listing = "--list" in sys.argv[1:]
-    problems = []
+def link_is_marked(text: str) -> bool:
+    lowered = text.lower()
+    return any(word in lowered for word in ("archiv", "histor", "obsolete"))
 
-    pages = archived()
-    rows = index_rows()
-    indexed = {}
-    for tgt, outs, line in rows:
-        indexed.setdefault(tgt, []).append((outs, line))
 
-    # 1. every archived page: banner + exactly one index row
-    for md in pages:
-        rel = md.relative_to(ARCHIVE).as_posix()
-        head = "\n".join(md.read_text().split("\n")[:BANNER_SCAN_LINES])
-        if not BANNER_RE.search(head):
-            problems.append(f"NO BANNER   {rel}: nothing in its first "
-                            f"{BANNER_SCAN_LINES} lines says it is not current")
-        n = len(indexed.get(rel, []))
-        if n == 0:
-            problems.append(f"UNINDEXED   {rel}: not listed in "
-                            f"historical_now_obsolete/README.md")
-        elif n > 1:
-            problems.append(f"DUPLICATED  {rel}: {n} index rows")
-        if listing:
-            print(f"  {'ok' if n == 1 else 'BAD':<4} {rel}")
+def valid_in_place_replacement(metadata: Metadata, original: Path) -> bool:
+    """Accept only a real document replacing its exact historical path."""
+    return (
+        metadata.replaced_in_place
+        and original == metadata.successor
+        and original.is_file()
+    )
 
-    # 2. every index row points at a real archived page and a LIVING successor
-    have = {md.relative_to(ARCHIVE).as_posix() for md in pages}
-    for tgt, entries in indexed.items():
-        if tgt not in have:
-            problems.append(f"STALE ROW   index lists '{tgt}' which is not in "
-                            f"the archive")
-        for outs, _ in entries:
-            if not outs:
-                problems.append(f"NO SUCCESSOR {tgt}: the row names no living "
-                                f"document to read instead")
-            for o in outs:
-                if not (ARCHIVE / o).resolve().exists():
-                    problems.append(f"DEAD FORWARD {tgt} -> '{o}' does not "
-                                    f"exist; the successor moved or was renamed")
 
-    # 3. a link INTO the archive must SAY so in its visible text. `[`X.md`](
-    #    ../historical_now_obsolete/findings/X.md)` renders as a bare filename,
-    #    so a reader following it has no way to know they are being sent to a
-    #    retired document until they land on it - the banner catches them one
-    #    click too late, and only if they read it.
-    for md in tracked_outside_archive():
-        rel = md.relative_to(REPO)
-        for line in md.read_text().split("\n"):
-            # HEADINGS are exempt: a heading is a structural identifier, and
-            # editing its text changes its anchor, which silently breaks every
-            # inbound `#fragment` link and the page's own contents list. The
-            # three headings in the tree that link into the archive already say
-            # "folded from", which conveys the same thing without moving an
-            # anchor.
-            if line.startswith("#"):
-                continue
-            for m in re.finditer(r"\[([^\]]+)\]\(([^)]+)\)", line):
-                text, tgt = m.group(1), m.group(2)
-                if "historical_now_obsolete" not in tgt:
-                    continue
-                low = text.lower()
-                if "archiv" in low or "historical_now_obsolete" in low:
-                    continue
-                problems.append(f"UNMARKED    {rel}: link text {text!r} points "
-                                f"into the archive but does not say so")
+def selftest() -> int:
+    good = """[OBSOLETE + 2026-08-01]
 
-    # 4. In-place obsolete pages follow the same routing rule as moved archive
-    #    pages. A current page may use one as historical evidence, but the
-    #    visible link must tell the reader that it is not a current authority.
-    obsolete = in_place_obsolete()
-    for md in tracked_outside_archive():
-        if md.resolve() in obsolete:
-            continue
-        rel = md.relative_to(REPO)
-        for line in md.read_text().split("\n"):
-            for m in re.finditer(r"\[([^\]]+)\]\(([^)]+)\)", line):
-                link_text, raw_target = m.group(1), m.group(2)
-                target = raw_target.split("#", 1)[0].strip("<>")
-                if not target or "://" in target or target.startswith("/"):
-                    continue
-                resolved = (md.parent / target).resolve()
-                if resolved not in obsolete:
-                    continue
-                low = link_text.lower()
-                if any(word in low for word in
-                       ("archiv", "historical", "obsolete")):
-                    continue
+> Status: Historical
+>
+> Original path: `old.md`
+>
+> Archived: 2026-08-01
+>
+> Relocated: 2026-08-31
+>
+> Current successor: [open current documentation](current.md)
+"""
+    mutations = {
+        "header": ("[OBSOLETE + 2026-08-01]", "# Old page"),
+        "status": ("> Status: Historical", "> State: Historical"),
+        "original": ("> Original path:", "> Previous path:"),
+        "archived": ("> Archived:", "> First archived:"),
+        "relocated": ("> Relocated:", "> Moved:"),
+        "successor": ("> Current successor:", "> Replacement:"),
+        "dead successor": ("current.md", "missing.md"),
+    }
+    with tempfile.TemporaryDirectory() as directory:
+        root = Path(directory)
+        page = root / "old.md"
+        current = root / "current.md"
+        current.write_text("# Current\n", encoding="utf-8")
+        page.write_text(good, encoding="utf-8")
+        metadata, errors = parse_metadata(page)
+        if errors or metadata is None or metadata.original != "old.md":
+            print(f"archive selftest: valid fixture failed: {errors}")
+            return 1
+        replaced = good.replace(
+            "> Current successor:",
+            "> Replaced in place: yes\n>\n> Current successor:",
+        )
+        page.write_text(replaced, encoding="utf-8")
+        metadata, errors = parse_metadata(page)
+        if errors or metadata is None or not metadata.replaced_in_place:
+            print(f"archive selftest: replacement metadata failed: {errors}")
+            return 1
+        for name, (old, new) in mutations.items():
+            page.write_text(good.replace(old, new, 1), encoding="utf-8")
+            _metadata, errors = parse_metadata(page)
+            if not errors:
+                print(f"archive selftest: {name} mutation escaped")
+                return 1
+        valid_replacement = Metadata(
+            "current.md",
+            "2026-08-01",
+            "2026-08-31",
+            current.resolve(),
+            True,
+        )
+        if not valid_in_place_replacement(valid_replacement, current.resolve()):
+            print("archive selftest: valid in-place replacement failed")
+            return 1
+        if valid_in_place_replacement(
+            replace(valid_replacement, replaced_in_place=False), current.resolve()
+        ):
+            print("archive selftest: unmarked in-place replacement escaped")
+            return 1
+        if valid_in_place_replacement(
+            replace(valid_replacement, successor=page.resolve()), current.resolve()
+        ):
+            print("archive selftest: mismatched in-place successor escaped")
+            return 1
+        missing = root / "missing.md"
+        if valid_in_place_replacement(
+            replace(valid_replacement, successor=missing), missing
+        ):
+            print("archive selftest: missing in-place successor escaped")
+            return 1
+        index = root / "README.md"
+        index.write_text(
+            "| Historical page | Current successor |\n"
+            "|---|---|\n"
+            "| [Old](old.md) | [Current](current.md) |\n",
+            encoding="utf-8",
+        )
+        rows = index_rows(index)
+        if len(rows) != 1 or rows[0][0] != page.resolve():
+            print("archive selftest: index row parsing failed")
+            return 1
+    if not link_is_marked("historical result"):
+        print("archive selftest: marked link failed")
+        return 1
+    if link_is_marked("old result"):
+        print("archive selftest: unmarked link passed")
+        return 1
+    print("archive selftest: OK (15 controls)")
+    return 0
+
+
+def main() -> int:
+    if sys.argv[1:] == ["--selftest"]:
+        return selftest()
+    listing = sys.argv[1:] == ["--list"]
+    if sys.argv[1:] not in ([], ["--list"]):
+        print(__doc__)
+        return 2
+
+    problems: list[str] = []
+    tracked = tracked_markdown()
+    old_paths = [path for path in tracked if path.startswith(OLD_PREFIX)]
+    if old_paths:
+        problems.append("legacy archive paths remain: " + ", ".join(old_paths))
+
+    pages = archived_pages(tracked)
+    metadata: dict[Path, Metadata] = {}
+    originals: list[str] = []
+    for page in pages:
+        parsed, errors = parse_metadata(page)
+        problems.extend(errors)
+        if parsed is not None:
+            metadata[page.resolve()] = parsed
+            originals.append(parsed.original)
+            original = (REPO / parsed.original).resolve()
+            replaced_here = valid_in_place_replacement(parsed, original)
+            if original.exists() and not replaced_here:
                 problems.append(
-                    f"UNMARKED OBSOLETE {rel}: link text {link_text!r} points "
-                    "to an in-place obsolete page but does not say so")
+                    f"{page.relative_to(REPO)}: original path still exists"
+                )
+            if parsed.replaced_in_place and not replaced_here:
+                problems.append(
+                    f"{page.relative_to(REPO)}: invalid in-place replacement"
+                )
+        if listing:
+            print(f"  {'ok' if not errors else 'BAD':<4} {page.relative_to(ARCHIVE)}")
+
+    duplicates = sorted(
+        original for original, count in Counter(originals).items() if count != 1
+    )
+    if duplicates:
+        problems.append("duplicate original paths: " + ", ".join(duplicates))
+
+    rows = index_rows()
+    row_counts = Counter(page for page, _successor, _line in rows)
+    expected = {page.resolve() for page in pages}
+    actual = set(row_counts)
+    for missing in sorted(expected - actual):
+        problems.append(f"unindexed page: {missing.relative_to(REPO)}")
+    for stale in sorted(actual - expected):
+        problems.append(f"stale index row: {stale.relative_to(REPO)}")
+    for duplicate, count in sorted(row_counts.items()):
+        if count != 1:
+            problems.append(
+                f"duplicate index rows: {duplicate.relative_to(REPO)} ({count})"
+            )
+    for page, successor, _line in rows:
+        if not successor.exists():
+            problems.append(f"dead index successor for {page.relative_to(REPO)}")
+        parsed = metadata.get(page)
+        if parsed is not None and parsed.successor != successor:
+            problems.append(
+                f"successor mismatch for {page.relative_to(REPO)}"
+            )
+
+    for page in current_pages(tracked):
+        text = page.read_text(encoding="utf-8")
+        lines = text.splitlines()
+        if lines and OBSOLETE_HEADER_RE.fullmatch(lines[0]):
+            problems.append(f"obsolete page remains current: {page.relative_to(REPO)}")
+        for line_number, line in enumerate(lines, start=1):
+            for link_text, raw_target in LINK_RE.findall(line):
+                target = resolve_link(page, raw_target)
+                if target not in expected:
+                    continue
+                if not link_is_marked(link_text):
+                    problems.append(
+                        f"unmarked history link: {page.relative_to(REPO)}:"
+                        f"{line_number}: {link_text!r}"
+                    )
 
     if problems:
-        print(f"archive gate: {len(problems)} problem(s)\n")
-        for p in problems:
-            print(f"  {p}")
-        print("\nAn archived page must stay labelled and reachable: a banner in "
-              "its opening\nlines, exactly one row in "
-              "historical_now_obsolete/README.md, and a successor\nthat still "
-              "exists. Archived, never deleted - but never orphaned either.")
+        print(f"archive gate: FAIL ({len(problems)} findings)")
+        for problem in problems:
+            print("  " + problem)
         return 1
 
-    print(f"archive gate: OK ({len(pages)} archived page(s), each bannered, "
-          f"indexed once, with a living successor; {len(obsolete)} in-place "
-          "obsolete page(s), with every current inbound link marked)")
+    print(
+        f"archive gate: OK ({len(pages)} historical page(s), "
+        "each indexed with metadata and a current successor)"
+    )
     return 0
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    raise SystemExit(main())

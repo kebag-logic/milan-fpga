@@ -1,5 +1,13 @@
 # Milan v1.2 implementation audit, 2026-08-16
 
+> This page records dated evidence only.
+>
+> Later changes invalidate several implementation details.
+>
+> Its gPTP integration statement is now obsolete.
+>
+> Use the [feature-status ledger](../reference/MILAN_FEATURE_STATUS.md) today.
+
 ## Contents
 
 - **[Verdict](#verdict)** -- Release-level compliance conclusion and declared scope.

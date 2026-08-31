@@ -4,7 +4,7 @@
 **Status 2026-08-27, VERSION `0x0002_0055`.** This is the ordered, clause-cited
 plan from where the device is to a device that passes the Milan
 end-station validation test plan. It supersedes the AECP sections of
-[historical `MILAN_COMPLIANCE_GAPS.md`](MILAN_COMPLIANCE_GAPS.md), whose 2026-08-13 status
+[historical `MILAN_COMPLIANCE_GAPS.md`](history/v1/MILAN_COMPLIANCE_GAPS.md), whose 2026-08-13 status
 banner ("every AECP command except READ_DESCRIPTOR draws a NOT_IMPLEMENTED
 echo") expired three days after it was written.
 

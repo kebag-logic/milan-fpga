@@ -83,7 +83,7 @@ The current AECP entry is checked against the
 | **XDC** | Xilinx Design Constraints file (pins, clocks, properties). |
 | **P&R** | Place and route (the long Vivado phase). |
 | **WNS / TNS / WHS** | Worst/Total Negative Slack (setup) and Worst Hold Slack  -  timing-closure verdicts; negative = failed. |
-| **Timing closure** | Getting all paths to meet the clock period; see [`RX_RING_DMA.md` (archived)](../historical_now_obsolete/findings/RX_RING_DMA.md) for the two lessons this repo paid for (register burst-geometry cones; never load BRAM outputs with adder trees). |
+| **Timing closure** | Getting all paths to meet the clock period; see [`RX_RING_DMA.md` (archived)](history/v1/findings/RX_RING_DMA.md) for the two lessons this repo paid for (register burst-geometry cones; never load BRAM outputs with adder trees). |
 | **DCP** | Design checkpoint  -  a snapshot Vivado can reopen to inspect placement/routing post-hoc. |
 | **CDC** | Clock-domain crossing (async FIFOs, synchronizers); sys 100 MHz ⇄ milan 50 MHz ⇄ eth 125 MHz here. |
 | **PLL / MMCM** | On-chip clock synthesis (S7PLL in LiteX). |
@@ -123,7 +123,7 @@ The current AECP entry is checked against the
 | **`ctl_tx` / `aaf_final` / `crf_dp` / `adp_tx`** | The four TX arbiter muxes, in that LSB-first order in `A_TXARB_DIAG` (`0x784`); bits 7:4 are a structural zero. The cascade was eight muxes before 2026-08-13, so **anything decoding `0x784` by the old numbers reads the wrong mux**. `ctl_tx` merges the protocol processor's packed TX with MAAP; `adp_tx` is the MAC boundary and its name, like `adp_tx_arbiter`'s, is historical — the module is a generic 2-in/1-out AXIS packet merge. |
 | **MilanMAC / MilanDMA** | The LiteX glue wrapping LiteEth (+ PacketFIFO, IOB constraints) / the three DMA engines (`milan_soc.py`). |
 | **MILN** | The CSR ID magic (`0x4D494C4E`) proving the CPU⇄NIC path. |
-| **Ring DMA** | The circular coherent-DRAM frame rings (`RingDMAWriter` RX / `RingDMAReader` TX) walked by AXI-burst engines  -  see [`RX_RING_DMA.md` (archived)](../historical_now_obsolete/findings/RX_RING_DMA.md) + `RX_RING_OPERATION.svg`. |
+| **Ring DMA** | The circular coherent-DRAM frame rings (`RingDMAWriter` RX / `RingDMAReader` TX) walked by AXI-burst engines  -  see [`RX_RING_DMA.md` (archived)](history/v1/findings/RX_RING_DMA.md) + `RX_RING_OPERATION.svg`. |
 | **wr_ptr / rd_ptr / seq** | Ring producer/consumer byte offsets (one side per direction is HW-owned) and the per-frame sequence counter. |
 | **Ingress drop-FIFO** | The always-ready store-and-forward front of the RX writer: upstream is *never* backpressured; overload = counted whole-frame drops. |
 | **Store-and-forward vs cut-through** | Buffer the whole frame before launching vs stream-as-it-arrives; bare LiteEthMACCore is cut-through, which is why TX needs the PacketFIFO (`TX_STARVATION_FIX.svg`). |

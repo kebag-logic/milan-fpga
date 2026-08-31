@@ -21,7 +21,7 @@ Read alongside [`ARCHITECTURE.md`](../overview/ARCHITECTURE.md), the generated
 [`Milan v1.2 audit`](MILAN_V12_AUDIT_2026-08-16.md). If something goes wrong,
 see [`TROUBLESHOOTING.md`](../limitations/TROUBLESHOOTING.md).
 
-> **Softcore note:** the current ship softcore is **VexiiRiscv** (1-hart, `--l2-bytes 32768`);
+> **Softcore note:** the current product uses **VexiiRiscv** (1-hart, `--l2-bytes 0`);
 > NaxRiscv is the historical / pure-NIC option, and the NaxRiscv boot logs referenced below
 > are retained as the original softcore-boot evidence trail.
 

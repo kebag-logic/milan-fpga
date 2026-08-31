@@ -1,6 +1,6 @@
 # Latency & memory investigation  -  why single-port TCP caps at 30 Mbit/s (2026-07-05)
 
-> ⚠️ **Point-in-time snapshot (2026-07-05).** Superseded  -  for the campaign numbers and the close-out scoreboard see [`PERFORMANCE_GOAL.md`](PERFORMANCE_GOAL.md) + [`../CHANGELOG.md`](../../CHANGELOG.md). Numbers and "next steps" below are historical. Section 2.1 absorbs the [`SINGLE_PORT_PERF.md` (archived)](../../historical_now_obsolete/findings/SINGLE_PORT_PERF.md) prequel (merged 2026-07-25).
+> ⚠️ **Point-in-time snapshot (2026-07-05).** Superseded  -  for the campaign numbers and the close-out scoreboard see [`PERFORMANCE_GOAL.md`](PERFORMANCE_GOAL.md) + [`../CHANGELOG.md`](../../CHANGELOG.md). Numbers and "next steps" below are historical. Section 2.1 absorbs the [`SINGLE_PORT_PERF.md` (archived)](../history/v1/findings/SINGLE_PORT_PERF.md) prequel (merged 2026-07-25).
 
 **Platform:** AX7101 (XC7A100T-2), VexiiRiscv RV64IMA @100 MHz, sv39, 32 KB L2, DDR3-800
 (MT41J256M16, 1:4), Milan datapath @50 MHz · **Link:** 1000BASE-T to an Intel i210 peer
@@ -18,7 +18,7 @@ in cycle-accurate sim; nothing is estimated unless labelled "model".
 > kernel→user usercopy  -  while the TCP protocol logic itself costs ~1 % per function.
 > See the **2026-07-07 campaign** addendum in
 > the archived CPPI DMA redesign log (#259, in git history) for the profile and the copybreak/page-frag
-> fix (RX 25 → 45.6 Mbit/s), and [HW_GRO_RSC.md (archived)](../../historical_now_obsolete/fpga/HW_GRO_RSC.md) for the ÷K plan toward
+> fix (RX 25 → 45.6 Mbit/s), and [HW_GRO_RSC.md (archived)](../history/v1/fpga/HW_GRO_RSC.md) for the ÷K plan toward
 > ≥200. This document's history below is unchanged.
 
 ---
@@ -104,7 +104,7 @@ clockevent are correct. **Lesson: a marker that can be corrupted is not a measur
 
 **Not a silicon delivery gate.** See Section 3  -  the flood proves the CPU *does* saturate.
 
-### 2.1 Prequel  -  a second core won't help a single flow (folded from [`SINGLE_PORT_PERF.md`](../../historical_now_obsolete/findings/SINGLE_PORT_PERF.md), 2026-07-25)
+### 2.1 Prequel  -  a second core won't help a single flow (folded from [historical `SINGLE_PORT_PERF.md`](../history/v1/findings/SINGLE_PORT_PERF.md), 2026-07-25)
 
 The first slice of this investigation (2026-07-05, same silicon and load) asked one
 question: *would a second core raise single-port throughput?* Answer: **no  -  measured
@@ -130,7 +130,7 @@ do not.
 For the switch role the number is moot anyway: forwarding runs in fabric at line
 rate and the CPU is the control plane, so this software ceiling never gates switched
 traffic. Full matrices + reproduce recipe:
-[`SINGLE_PORT_PERF.md` (archived)](../../historical_now_obsolete/findings/SINGLE_PORT_PERF.md).
+[`SINGLE_PORT_PERF.md` (archived)](../history/v1/findings/SINGLE_PORT_PERF.md).
 
 ## 3. The two regimes  -  flood localises the ceiling
 

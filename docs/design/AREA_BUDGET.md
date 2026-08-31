@@ -29,7 +29,7 @@ The current command-surface claim is checked against the
 > no number has been invented to replace one.
 >
 > **The measured record of what that change cost and returned is
-> [historical protocol-processor area measurement](../findings/PP_SHADOW_AREA_0812.md)**
+> [historical protocol-processor area measurement](../history/v1/findings/PP_SHADOW_AREA_0812.md)**
 > — same instrument, both sides in context. Read it, not an extrapolation
 > from this page, for any question about post-substitution area. Two things
 > from it are worth carrying here because they change how this page should be
@@ -441,7 +441,7 @@ parameter question, and it should be costed separately.
 > or shared: they were **REMOVED**, together with the rest of the 1722.1/SRP
 > plane, and replaced by a processor plane that measures **+6,956 LUT in
 > context** against **−15,474** removed
-> ([historical protocol-processor area measurement](../findings/PP_SHADOW_AREA_0812.md),
+> ([historical protocol-processor area measurement](../history/v1/findings/PP_SHADOW_AREA_0812.md),
 > hierarchical utilization, both sides same instrument). The tier-3 verdict
 > was right that no parameter could reach them, and wrong to imply that made
 > them permanent. `csr` and `traffic_shaper` remain, and their structural

@@ -46,7 +46,7 @@
 ------------------------------------------------------------------------------
 */
 
-//! NxN stream-table authority (NXN_ARCHITECTURE §1.1 / P1): per-sink 64-bit
+//! Per-stream table authority (docs/overview/ARCHITECTURE.md): per-sink 64-bit
 //! stream_id match entries for `avtp_stream_parser`. Entry 0 aliases the ACMP
 //! bound record combinationally (bit-exact N=1 legacy); entries 1..N-1 and
 //! bench overrides come through the CSR-window write port (P11 hook).

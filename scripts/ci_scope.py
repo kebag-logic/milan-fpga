@@ -20,7 +20,6 @@ from collections.abc import Iterable, Sequence
 
 DOC_PREFIXES = (
     "docs/",
-    "historical_now_obsolete/",
     ".github/ISSUE_TEMPLATE/",
 )
 DOC_FILES = {

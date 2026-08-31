@@ -117,6 +117,15 @@ flash manifest, `--gtx-tx-invert`, `--timing-opt --floorplan`, and a
 three-directive placement sweep. See
 [BAREMETAL_FIRMWARE.md](BAREMETAL_FIRMWARE.md).
 
+<!-- solution-cpu-contract:start -->
+| Invocation | CPU | Harts | XLEN | Firmware | L2 bytes | Datapath clock |
+|---|---|---:|---:|---|---:|---:|
+| CLI defaults | `vexiiriscv` | `1` | `32` | `baremetal` | `unset` | `unset` |
+| `deploy.sh` | `vexiiriscv` | `1` | `32` | `baremetal` | `0` | `50 MHz` |
+<!-- solution-cpu-contract:end -->
+
+Use `./deploy.sh build` for the canonical product recipe.
+
 ### `ax8x8`  -  AX7101 8-stream (64-channel) bare-metal shape
 
 Same board, wider dataplane, same bare-metal profile (#259: the host bring-up

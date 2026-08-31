@@ -68,10 +68,10 @@ _AAF / CRF / MAAP / AVTP common_
 
 | module | file | test | clauses |
 |---|---|---|---|
-| ✅ `KL_aaf_capture_i2s` | `ieee1722/aaf/KL_aaf_capture_i2s.sv` | `aaf` · `hostplane` · `milan_dp` · 🔬`make aaf` | 7.3.3 |
+| ✅ `KL_aaf_capture_i2s` | `ieee1722/aaf/KL_aaf_capture_i2s.sv` | `aaf` · `hostplane` · `milan_dp` · 🔬`make aaf` | — |
 | ✅ `KL_aaf_latency_tap_bank` | `ieee1722/aaf/KL_aaf_latency_tap_bank.sv` | `aaf_latency_tap_bank` · `hostplane` · `milan_dp` · 🔬`make aaf` | — |
 | ✅ `KL_aaf_latency_chain` | `ieee1722/aaf/KL_aaf_latency_taps.sv` | `aaf_latency_tap_bank` · `aaf_latency_taps` · `hostplane` · `milan_dp` · 🔬`make aaf` | — |
-| ✅ `KL_aaf_packetizer` | `ieee1722/aaf/KL_aaf_packetizer.sv` | `aaf` · `aaf_audio_loop` · `chmap_capture` · `hostplane` · `milan_dp` · `tdm` · 🔬`make aaf` | 35.2.2.8.4, 4.3.5.2, 4.4.2.3, 802.3 |
+| ✅ `KL_aaf_packetizer` | `ieee1722/aaf/KL_aaf_packetizer.sv` | `aaf` · `aaf_audio_loop` · `chmap_capture` · `hostplane` · `milan_dp` · `tdm` · 🔬`make aaf` | 35.2.2.8.4, 802.3 |
 | ✅ `KL_aaf_rx_depacketizer` | `ieee1722/aaf/KL_aaf_rx_depacketizer.sv` | `aaf_audio_loop` · `avtp_rxmon` · `hostplane` · `milan_dp` · `tsn_fuzz` · 🔬`make aaf` | — |
 | ✅ `KL_aes3_rx` | `ieee1722/aaf/KL_aes3_rx.sv` | `aes3` · 🔬`make aaf` | — |
 | ✅ `KL_aes3_tx` | `ieee1722/aaf/KL_aes3_tx.sv` | `aes3` · 🔬`make aaf` | — |
@@ -82,29 +82,29 @@ _AAF / CRF / MAAP / AVTP common_
 | ✅ `KL_lat_history_ring` | `ieee1722/aaf/KL_lat_history_ring.sv` | `lat_history_ring` · 🔬`make aaf` | — |
 | ✅ `KL_media_adv` | `ieee1722/aaf/KL_media_adv.sv` | `hostplane` · `milan_dp` · 🔬`make aaf` | — |
 | ✅ `KL_pair_blend` | `ieee1722/aaf/KL_pair_blend.sv` | `hostplane` · `milan_dp` · `pair_fill` · 🔬`make aaf` | — |
-| ✅ `KL_pair_zero_fill` | `ieee1722/aaf/KL_pair_zero_fill.sv` | `hostplane` · `milan_dp` · `pair_fill` · 🔬`make aaf` | 5.3.7.2, 5.3.7.3, M-DEV-13 |
+| ✅ `KL_pair_zero_fill` | `ieee1722/aaf/KL_pair_zero_fill.sv` | `hostplane` · `milan_dp` · `pair_fill` · 🔬`make aaf` | — |
 | ✅ `KL_pcm_lpf` | `ieee1722/aaf/KL_pcm_lpf.sv` | `hostplane` · `milan_dp` · `pcmlpf` · 🔬`make aaf` | — |
 | ✅ `KL_pcm_ring_bram` | `ieee1722/aaf/KL_pcm_ring_bram.sv` | `hostplane` · `pcm_ring_bram` · 🔬`make aaf` | — |
 | ✅ `KL_pcm_route` | `ieee1722/aaf/KL_pcm_route.sv` | `avtp_rxmon` · `hostplane` · `milan_dp` · 🔬`make aaf` | — |
 | ✅ `KL_pcm_tx` | `ieee1722/aaf/KL_pcm_tx.sv` | `hostplane` · `milan_dp` · `pcm_playback` · `pcm_tx` · 🔬`make aaf` | — |
-| ✅ `KL_tdm_capture` | `ieee1722/aaf/KL_tdm_capture.sv` | `hostplane` · `milan_dp` · `tdm` · 🔬`make aaf` | 7.3.3 |
-| ✅ `KL_tdm_capture_master` | `ieee1722/aaf/KL_tdm_capture_master.sv` | `hostplane` · `milan_dp` · `tdm` · 🔬`make aaf` | 7.3.3 |
+| ✅ `KL_tdm_capture` | `ieee1722/aaf/KL_tdm_capture.sv` | `hostplane` · `milan_dp` · `tdm` · 🔬`make aaf` | — |
+| ✅ `KL_tdm_capture_master` | `ieee1722/aaf/KL_tdm_capture_master.sv` | `hostplane` · `milan_dp` · `tdm` · 🔬`make aaf` | — |
 | ✅ `KL_tdm_render` | `ieee1722/aaf/KL_tdm_render.sv` | `hostplane` · `milan_dp` · `tdm_render` · 🔬`make aaf` | — |
 | ✅ `KL_tone_gen` | `ieee1722/aaf/KL_tone_gen.sv` | `chmap_capture` · `hostplane` · `milan_dp` · 🔬`make aaf` | — |
-| ✅ `aaf_talker_i2s` | `ieee1722/aaf/aaf_talker_i2s.sv` | `aaf` · `hostplane` · `milan_dp` · 🔬`make aaf` | 4.3.5.2, 4.4.2.3, M-DEV-13 |
+| ✅ `aaf_talker_i2s` | `ieee1722/aaf/aaf_talker_i2s.sv` | `aaf` · `hostplane` · `milan_dp` · 🔬`make aaf` | — |
 | 🔬 `KL_avtp_common_parser` | `ieee1722/avtp/KL_avtp_common_parser.sv` | 🔬`make aaf` | — |
 | ✅ `KL_avtp_rx_monitor` | `ieee1722/avtp/KL_avtp_rx_monitor.sv` | `aaf_audio_loop` · `avtp_rxmon` · `hostplane` · `milan_dp` · `tsn_fuzz` · 🔬`make aaf` | — |
-| ✅ `KL_avtp_rx_monitor_ctx` | `ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv` | `avtp_rxmon` · `hostplane` · `milan_dp` · 🔬`make aaf` | 4.3.5.2, 4.4.2.3, 4.4.4.7, 5.16 |
-| ✅ `KL_media_clock_restart` | `ieee1722/avtp/KL_media_clock_restart.sv` | `hostplane` · `milan_dp` · `tkdiag` · 🔬`make aaf` | 4.4.4.3, 5.4 |
+| ✅ `KL_avtp_rx_monitor_ctx` | `ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv` | `avtp_rxmon` · `hostplane` · `milan_dp` · 🔬`make aaf` | — |
+| ✅ `KL_media_clock_restart` | `ieee1722/avtp/KL_media_clock_restart.sv` | `hostplane` · `milan_dp` · `tkdiag` · 🔬`make aaf` | — |
 | ✅ `KL_stream_table` | `ieee1722/avtp/KL_stream_table.sv` | `avtp_parser` · `avtp_rxmon` · `avtp_stream` · `hostplane` · `milan_dp` · 🔬`make aaf` | — |
-| ✅ `KL_talker_diag_ctx` | `ieee1722/avtp/KL_talker_diag_ctx.sv` | `hostplane` · `milan_dp` · `tkdiag` · 🔬`make aaf` | 4.25, 4.4.4.3, 5.17, 5.4 |
-| ✅ `avtp_stream_parser` | `ieee1722/avtp/avtp_stream_parser.sv` | `aaf_audio_loop` · `avtp_parser` · `avtp_rxmon` · `avtp_stream` · `hostplane` · `milan_dp` · `tsn_fuzz` · 🔬`make aaf` | 4.4.3.4, 4.4.4.3, 5.6 |
+| ✅ `KL_talker_diag_ctx` | `ieee1722/avtp/KL_talker_diag_ctx.sv` | `hostplane` · `milan_dp` · `tkdiag` · 🔬`make aaf` | — |
+| ✅ `avtp_stream_parser` | `ieee1722/avtp/avtp_stream_parser.sv` | `aaf_audio_loop` · `avtp_parser` · `avtp_rxmon` · `avtp_stream` · `hostplane` · `milan_dp` · `tsn_fuzz` · 🔬`make aaf` | — |
 | 📦 `avtp_subtype_pkg` | `ieee1722/avtp/avtp_subtype_pkg.sv` | 🔬`make aaf` | — |
-| ✅ `KL_crf_rx` | `ieee1722/crf/KL_crf_rx.sv` | `crf_rx` · `hostplane` · `milan_dp` | 1.2, 10.6, 10.8, 4.4.4.3 |
-| ✅ `KL_crf_tx` | `ieee1722/crf/KL_crf_tx.sv` | `crf_tx` · `hostplane` · `milan_dp` | 10.4.2, 10.4.3, 10.4.6, 10.7 |
-| ✅ `KL_media_nco` | `ieee1722/crf/KL_media_nco.sv` | `hostplane` · `media_nco` · `milan_dp` | 10.6, 10.8, 7.2.2, 7.5.2 |
+| ✅ `KL_crf_rx` | `ieee1722/crf/KL_crf_rx.sv` | `crf_rx` · `hostplane` · `milan_dp` | — |
+| ✅ `KL_crf_tx` | `ieee1722/crf/KL_crf_tx.sv` | `crf_tx` · `hostplane` · `milan_dp` | — |
+| ✅ `KL_media_nco` | `ieee1722/crf/KL_media_nco.sv` | `hostplane` · `media_nco` · `milan_dp` | — |
 | ✅ `KL_mmcm_drp_servo` | `ieee1722/crf/KL_mmcm_drp_servo.sv` | `hostplane` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` | — |
-| ✅ `KL_maap` | `ieee1722/maap/KL_maap.sv` | `hostplane` · `maap` · `milan_dp` | 2.2, 4.3.5.1, 8.2.1.13, 8.2.1.7 |
+| ✅ `KL_maap` | `ieee1722/maap/KL_maap.sv` | `hostplane` · `maap` · `milan_dp` | — |
 
 ## IEEE 802.1Q
 
@@ -127,9 +127,9 @@ _gPTP timestamping / pdelay / sync_
 
 | module | file | test | clauses |
 |---|---|---|---|
-| ✅ `KL_gptp_shadow` | `ieee8021as/gptp_plane/KL_gptp_shadow.sv` | `gptp_shadow` · `hostplane` · `milan_dp` · `tsn_fuzz` | 1.00, 1.2, 4.3.5.2, 4.4.2.1 |
+| ✅ `KL_gptp_shadow` | `ieee8021as/gptp_plane/KL_gptp_shadow.sv` | `gptp_shadow` · `hostplane` · `milan_dp` · `tsn_fuzz` | — |
 | ✅ `KL_gptp_txstamp` | `ieee8021as/gptp_plane/KL_gptp_txstamp.sv` | `gptp_shadow` · `hostplane` · `milan_dp` · `tsn_fuzz` | — |
-| ✅ `KL_ptp_clock_validity` | `ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv` | `clkvalid` · `gptp_shadow` · `hostplane` · `milan_dp` · `tsn_fuzz` | 1.00, 1.2, 4.3.5.2, 4.4.2.1 |
+| ✅ `KL_ptp_clock_validity` | `ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv` | `clkvalid` · `gptp_shadow` · `hostplane` · `milan_dp` · `tsn_fuzz` | — |
 | ✅ `ptp_csr_sync` | `ieee8021as/ptp_timestamp/ptp_csr_sync.sv` | `hostplane` · `milan_dp` · `ptp_sync` · `ptp_ts` | — |
 | ✅ `ptp_ts_core` | `ieee8021as/ptp_timestamp/ptp_ts_core.sv` | `hostplane` · `milan_dp` · `ptp_ts` | — |
 | ✅ `ptp_ts_top` | `ieee8021as/ptp_timestamp/ptp_ts_top.sv` | `hostplane` · `milan_dp` · `ptp_ts` | — |
@@ -141,7 +141,7 @@ _CSR, CDC, RMON, utilities_
 
 | module | file | test | clauses |
 |---|---|---|---|
-| ✅ `KL_link_guard` | `common/KL_link_guard.sv` | `hostplane` · `link_guard` · `milan_dp` | 5.49, 5.6.3, 6.2.5, 6.2.5.2.2 |
+| ✅ `KL_link_guard` | `common/KL_link_guard.sv` | `hostplane` · `link_guard` · `milan_dp` | — |
 | ✅ `axis_mux_rr_2in_1out` | `common/axis_mux_rr_2in_1out.sv` | `hostplane` · `milan_dp` · `ptp_ts` | — |
 | ✅ `cdc_handshake` | `common/cdc_handshake.sv` | `cdc` · `hostplane` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · `ptp_ts` | — |
 | ✅ `cdc_pair_fifo` | `common/cdc_pair_fifo.sv` | `aaf` · `aes3` · `hostplane` · `i2spb` · `milan_dp` · `mmcm_servo` · `pcm_playback` · `tdm` · `tdm_render` | — |
@@ -160,7 +160,7 @@ _datapath + top wrappers_
 | module | file | test | clauses |
 |---|---|---|---|
 | ✅ `KL_pp_maap_shim` | `milan/KL_pp_maap_shim.sv` | `milan_dp` · ➰hostplane | — |
-| ✅ `KL_pp_shadow` | `milan/KL_pp_shadow.sv` | `milan_dp` · ➰hostplane | 34.3, 34.4, 4.2.7.1.1, 4.2.7.1.2 |
-| ✅ `milan_datapath` | `milan/milan_datapath.sv` | `hostplane` · `milan_dp` | 1722.1, 34.4, 35.2.2.8.4, 35.2.7 |
+| ✅ `KL_pp_shadow` | `milan/KL_pp_shadow.sv` | `milan_dp` · ➰hostplane | 34.3, 34.4 |
+| ✅ `milan_datapath` | `milan/milan_datapath.sv` | `hostplane` · `milan_dp` | 34.4, 35.2.2.8.4, 35.2.7, 802.1 |
 | 🗄️ `milan_top` | `milan/milan_top.sv` | 🗄️ archived | — |
 

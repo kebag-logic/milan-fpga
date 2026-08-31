@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: CERN-OHL-W-2.0
  */
 
-//! Verilator harness wrapper for the NxN lane-A RX stack (NXN_ARCHITECTURE
-//! phases P1+P2+P3): KL_stream_table (N=4) -> avtp_stream_parser ->
+//! Verilator harness wrapper for the multi-stream lane-A RX stack
+//! (docs/overview/ARCHITECTURE.md): KL_stream_table (N=4) -> avtp_stream_parser ->
 //! KL_avtp_rx_monitor_ctx (LCTX) -> KL_aaf_rx_depacketizer (tuser tag) ->
 //! KL_pcm_route (routing policy). The exact milan_datapath pairing at N=4.
 

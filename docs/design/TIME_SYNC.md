@@ -590,7 +590,7 @@ Proven, with the evidence next to each claim:
 * **Media-clock servo silicon-proven**: coherent chain measured **-83.9 dB
   loop THD+N = the converter floor** (2026-07-23) —
   [current Milan audit](../testing/MILAN_V12_AUDIT_2026-08-16.md);
-  [historical Milan traceability](../traceability/milan-v12.md) row M-DEV-15.
+  [historical Milan traceability](../history/v1/traceability/milan-v12.md) row M-DEV-15.
 
 Partial or missing, each with its row id:
 
@@ -606,13 +606,13 @@ Partial or missing, each with its row id:
   clockAccuracy 0x20 and outranks every Milan-legal end-station value. The
   shipping priority1 must be 246; the bench 100 override is bench-only —
   row AS-6; [current Milan audit](../testing/MILAN_V12_AUDIT_2026-08-16.md);
-  [historical Milan traceability](../traceability/milan-v12.md)
+  [historical Milan traceability](../history/v1/traceability/milan-v12.md)
   row M-DEV-1.
 * **M-DEV-2/3/4 — partial**: the historical option-off rows still lack a full
   explicit bench recreation of the Milan pdelay edge-case deltas. The default
   fabric plane now has hard malformed/stale/foreign-domain pairing,
   multiple-responder and asCapable recovery assertions, but #117 still owns
-  its wire evidence - [historical Milan traceability](../traceability/milan-v12.md)
+  its wire evidence - [historical Milan traceability](../history/v1/traceability/milan-v12.md)
   section 1 and [802.1AS traceability](../traceability/ieee8021as.md) AS-8.
 * **M-CLK-2 — MISSING**: the CRF stream rides untagged best-effort (an
   SR-tagged unregistered stream would be pruned to zero ports); it needs the
@@ -621,7 +621,7 @@ Partial or missing, each with its row id:
 * **M-CLK-3 — CLOSED**: the clock-recovery actuator is built and
   silicon-proven (servo LOCKED, coherent chain −83.9 dB), and the matrix row
   now reads ✅ rather than carrying both "actuator MISSING" and "now BUILT" at
-  once - [historical Milan traceability](../traceability/milan-v12.md)
+  once - [historical Milan traceability](../history/v1/traceability/milan-v12.md)
   row M-CLK-3. What survives is the two bench-gated knobs in the "Servo
   residuals" bullet below, not a missing function.
 * **M-CLK-5 — MISSING**: Milan 7.6 media-clock reference election /

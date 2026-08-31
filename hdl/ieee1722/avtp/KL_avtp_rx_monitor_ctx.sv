@@ -93,7 +93,7 @@
 ------------------------------------------------------------------------------
 */
 
-//! Shared NxN Milan STREAM_INPUT monitor (NXN_ARCHITECTURE §1.2/§1.4, P2):
+//! Shared Milan STREAM_INPUT monitor (docs/overview/ARCHITECTURE.md):
 //! one engine, N listener contexts in the LCTX RAM (CNT region in Table
 //! 7-157 offset order), serial RMW walk per lock/unlock/interrupt event,
 //! Milan Table 5.6 observation-interval commit for the seven interval

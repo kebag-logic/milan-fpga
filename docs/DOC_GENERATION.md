@@ -1,179 +1,217 @@
-<!--
-SPDX-FileCopyrightText: 2026 Kebag Logic
-SPDX-License-Identifier: CERN-OHL-W-2.0
--->
-# Generating the documentation — every generator in one page
+# Generate documentation
 
-A large part of this doc set is **generated, not written**: the module↔spec↔test
-matrix, the per-module HDL pages, every diagram render, and the waveform
-chronograms. This page says which tool produces what, the exact command, and
-when you must re-run it.
+Edit every authoritative source first.
 
-The one rule behind all of them: **edit the master, never the render.** Masters
-are the RTL `//!` comments, the `*.gen.py` scripts, the `.drawio` files and the
-WaveDrom `.json` files. Rendered `.svg`/`.png` and generated `.md` are outputs;
-hand-edits there are lost on the next run and fail review.
+Then regenerate every committed output.
 
 ## Contents
 
-- **[1. Module ↔ spec ↔ test matrix](#1-module--spec--test-matrix)** — The generator behind [`MODULE_MATRIX.md`](traceability/MODULE_MATRIX.md) and the `README-tests.md` in every `hdl/` leaf. Run it after *any* RTL or TB tree change; the `--check` form is what fails CI when the committed output has gone stale.
-- **[2. Per-module HDL pages (hdl/**/doc/*.md)](#2-per-module-hdl-pages-hdldocmd)** — Driven from the editor via TerosHDL, because there is no headless path on this box. The honest coverage number is here: ~22 of 84 modules have pages while 82 of 84 already carry the `//!` comments, so the backlog is an editor session, not a writing task.
-- **[3. Block diagrams (.gen.py → .drawio + .svg → .png)](#3-block-diagrams-genpy--drawio--svg--png)** — The render chain, the four artifacts that must be committed together, and the catalog entry that goes with them. Two headless caveats: the drawio CLI hangs, and the repo's fallback renderer mangles HTML-formatted labels.
-- **[4. Waveform chronograms (WaveDrom)](#4-waveform-chronograms-wavedrom)** — `gen_wavedrom.py` over a `wd_*.json`, with the `wavedrom` package living in the LiteX venv. Includes the style rules learned the hard way: cap at ~10 lanes, write explicit `010` pulses instead of `H`, and look at the rendered `.png` before embedding it.
-- **[5. The gate and CI](#5-the-gate-and-ci)** — The five rules `docs_check.py` enforces, spelled out. Two to know: rule 4, because a dead reference left behind by a deletion used to pass silently, so retiring a document means adding its basename to `RETIRED`; and rule 5, the privacy scrub, which reads every tracked text file rather than markdown only and proves on every run that it still bites. Also covers the no-git fallback and the single opt-out token.
-- **[6. Cheat sheet — you changed X, run Y](#6-cheat-sheet--you-changed-x-run-y)** — Seven rows mapping what you touched to the one command that has to follow. The fastest way to use this page if you are already mid-change.
+- **[Source rules](#source-rules)** — Identify authoritative inputs.
+- **[Module documentation](#module-documentation)** — Regenerate traceability outputs.
+- **[Drawio diagrams](#drawio-diagrams)** — Export and inspect editable masters.
+- **[Wavedrom timing](#wavedrom-timing)** — Render verified HDL timing.
+- **[Historical pages](#historical-pages)** — Preserve obsolete documentation safely.
+- **[Required gates](#required-gates)** — Reject stale documentation automatically.
+- **[Change checklist](#change-checklist)** — Match changes with commands.
 
-## 1. Module ↔ spec ↔ test matrix
+## Source rules
 
-**Tool:** [`traceability/gen_module_matrix.py`](traceability/gen_module_matrix.py)
-**Masters:** the RTL tree (`hdl/`), the TB tree ([`tb/verilator/`](../tb/verilator)), the
-per-standard clause tables in [`traceability/`](traceability/MODULE_MATRIX.md).
-**Outputs:** [`traceability/MODULE_MATRIX.md`](traceability/MODULE_MATRIX.md)
-(the generator prints the live total — 82 modules on 2026-07-26) plus a generated `README-tests.md` in every `hdl/` leaf.
+- RTL comments own module interface facts.
+- Generator scripts own derived diagrams.
+- Draw.io files own editable manual diagrams.
+- WaveDrom JSON owns timing diagrams.
+- Markdown owns reader guidance.
+- Rendered files never own source facts.
 
-```sh
-python3 docs/traceability/gen_module_matrix.py           # regenerate
-python3 docs/traceability/gen_module_matrix.py --check   # no-drift gate (CI runs this)
-# same, via make (from tb/verilator/tsn_fuzz/): make matrix / make matrix-check
-```
+Never hand-edit generated renders.
 
-Run it after **any** RTL or TB tree change — adding a module, renaming a
-harness, touching a clause row. The `--check` form fails CI when the committed
-outputs are stale.
+## Module documentation
 
-## 2. Per-module HDL pages (`hdl/**/doc/*.md`)
-
-**Tool:** the TerosHDL documenter (VS Code extension).
-**Masters:** the `//!` documentation comments the house style requires on every
-generic, port and signal (see [Section 1 of `../CONTRIBUTING.md`](../CONTRIBUTING.md#1-hdl-house-style-cemal-dogan--oguz-kahraman-school)).
-
-How to generate a page: open the module's `.sv` in VS Code with the TerosHDL
-extension installed, run its **"Save documentation"** action, and save the
-markdown (plus the schematic SVG it draws) into the module's `doc/` directory.
-The page-header convention is the one
-[`hdl/common/csr/doc/milan_csr.md`](../hdl/common/csr/doc/milan_csr.md) uses.
-
-Two honest caveats:
-
-- There is **no headless CLI path on this box today** — the documenter is
-  Node-based and Node is not installed here; generation goes through the
-  editor.
-- Coverage is partial: roughly 22 of 84 modules have pages. The `//!` source
-  coverage is 82 of 84, so the regeneration backlog is an editor session, not
-  a writing task. Newly generated pages must use repo-relative links at the
-  right depth — [`../scripts/docs_check.py`](../scripts/docs_check.py) catches
-  the classic `../../../`-off-by-one.
-
-## 3. Block diagrams (`.gen.py` → `.drawio` + `.svg` → `.png`)
-
-**Masters:** a checked-in generator script (`*.gen.py`, e.g.
-[`DOC_MAP.gen.py`](DOC_MAP.gen.py)) or, for the two hand-drawn ones, the
-`.drawio` file itself. The perf diagrams use the tiny shared builder
-[`diagrams/svglib.py`](diagrams/svglib.py).
+The matrix derives relationships from repository sources.
 
 ```sh
-# the common shape (each script prints its own usage line):
-python3 docs/DOC_MAP.gen.py docs/DOC_MAP
-rsvg-convert -w 2400 docs/DOC_MAP.svg -o docs/DOC_MAP.png
+python3 docs/traceability/gen_module_matrix.py
+python3 docs/traceability/gen_module_matrix.py --check
 ```
 
-Commit all of: the `.gen.py`, the `.drawio`, the `.svg`, the `.png` — and
-register the diagram in the catalog,
-[`diagrams/README.md`](diagrams/README.md) (what it shows, editable source,
-renders, embed sites). Caveat: the drawio desktop CLI hangs headless on this
-box, and the repo's own minimal drawio renderer was **deleted on 2026-08-13**
-with the AECP doc tree it lived in. Render with `rsvg-convert`, which is what
-every catalog entry in `diagrams/README.md` now names.
+Run both after relevant tree changes.
 
-## 4. Waveform chronograms (WaveDrom)
+TerosHDL produces detailed module pages.
 
-**Tool:** [`../scripts/gen_wavedrom.py`](../scripts/gen_wavedrom.py).
-**Master:** the WaveDrom `.json` under [`diagrams/`](diagrams/README.md)
-(`wd_*.json`) — the standard, easily-modifiable timing-diagram format.
+- Open the SystemVerilog module.
+- Run TerosHDL's documentation action.
+- Save output under the module's `doc/` directory.
+- Keep links repository-relative.
+- Run every documentation gate afterward.
+
+## Drawio diagrams
+
+Prefer generators for source-derived facts.
 
 ```sh
-~/litex-milan/venv/bin/python3 scripts/gen_wavedrom.py docs/diagrams/wd_cbs_credit.json
-# emits wd_cbs_credit.svg + wd_cbs_credit.png next to the json
+python3 docs/DOC_MAP.gen.py
+python3 docs/DOC_MAP.gen.py --check
+python3 docs/DOC_MAP.gen.py --selftest
+python3 docs/diagrams/submodule_boundaries.gen.py
+python3 docs/diagrams/submodule_boundaries.gen.py --check
+python3 docs/diagrams/submodule_boundaries.gen.py --selftest
 ```
 
-The `wavedrom` package lives in the LiteX venv (`pip install wavedrom`
-elsewhere). Style rules learned the hard way: at most ~10 lanes, annotate only
-the load-bearing edges, prefer explicit `010` pulses over the `H` wave
-character (it renders oddly in this renderer), and **look at the rendered
-`.png` before embedding it** — a mangled render does not ship. Every timing
-edge must be derived from the RTL or a named doc, never invented.
+The generators also write source-bound PNG renders.
 
-## 5. The gate and CI
+They require `rsvg-convert`.
+
+`PNG_MANIFEST.json` pins decompressed raster bytes.
+
+- PNG compression changes remain acceptable.
+- Local renderer pixels are never compared.
+- Renderer changes may alter the pinned raster.
+- Regenerate and visually approve those changes.
+
+Directly export changed Draw.io masters.
 
 ```sh
-python3 scripts/docs_check.py                            # exit 0 or it lists findings
-python3 docs/traceability/gen_module_matrix.py --check   # matrix no-drift
-python3 sw/builder/test_builder.py                       # end-station builder gates
+render_dir=$(mktemp -d)
+xvfb-run -a drawio --disable-gpu --export --format png \
+  --crop --scale 2 --output "$render_dir/direct.png" \
+  docs/diagrams/submodule_boundaries.drawio
+xvfb-run -a drawio --disable-gpu --export --format pdf \
+  --crop --output "$render_dir/native.pdf" \
+  docs/diagrams/submodule_boundaries.drawio
 ```
 
-[`../scripts/docs_check.py`](../scripts/docs_check.py) enforces five rules.
-Rules 1-4 read every `*.md` in the tree; rule 5, the privacy scrub, reads every
-tracked **text** file — RTL, scripts, configs, testbenches, feature files and
-diagram sources included. This repo is public, and until #247 the scrub read
-markdown only: the peer's product name sat in a testbench comment where no gate
-could see it, and a sibling token had reached 22 tracked files the same way.
-Vendored code (`third_party/`) is out of scope and a binary file is skipped
-exactly as `git grep -I` skips it, so the gate and a `git grep -nI` audit cannot
-disagree:
+Simulate an A4 landscape print.
 
-1. relative links must resolve;
-2. the wording deny-list;
-3. a mentioned doc that **exists** must be a real link (generated files and
-   [`../historical_now_obsolete/`](../historical_now_obsolete/README.md) are exempt);
-4. a mentioned doc that **does not exist** is a *dead reference* — either a path
-   inside this repo that is not there, or a document listed as retired in the
-   script's `RETIRED` set. Rule 3 cannot see these, so a reference left behind by
-   a deletion used to survive the gate silently; it no longer does. Sibling-repo
-   paths are left alone (the rule only fires when the reference's parent
-   directory is a real directory of this repo). One document opts out — the
-   archive ledger, whose job *is* to name retired
-   files — via an HTML-comment line carrying the token
-   `docs-check: allow-dead-refs`;
-5. the **privacy scrub**: no private identity (the reference peer's product
-   name, the compliance lab and suite names) and no bench/host-identifying
-   information (home paths, bench addresses, bench host prefix, MAC-derived
-   interface names, USB-serial paths). Every class is judged on every line, so
-   one line can carry two findings — a `continue` between them would mean a
-   correct scrub reveals a new finding and the gate could never be driven green
-   in one pass. A finding names its class and column and never quotes the
-   match: the CI log of a public repo republishes whatever a finding prints.
-   The private tokens are **assembled from code points** in the script, never
-   spelled, so the gate can read itself without becoming the one file in the
-   tree that carries them.
+```sh
+pdftocairo -svg "$render_dir/native.pdf" "$render_dir/native.svg"
+rsvg-convert -f pdf \
+  --page-width 297mm --page-height 210mm \
+  -w 277mm -h 160.73mm --left 10mm --top 24.635mm -a \
+  "$render_dir/native.svg" -o "$render_dir/a4.pdf"
+pdftoppm -png -r 150 -singlefile \
+  "$render_dir/a4.pdf" "$render_dir/a4"
+```
 
-Rule 5's arms run on **every** invocation and the count rides in the summary
-line (`scrub self-test 17/17`): each class is planted in a non-markdown file and
-must be caught, the negative controls must stay clean, and a class with no
-fixture fails the run. A scrub gate that has never failed once is not evidence
-that it works. `--selftest` runs the arms alone; a failing arm is exit 2
-(rule 5 unproven), which is not exit 0 (clean).
+Inspect every direct export.
 
-The exact allowlist and the `RETIRED` set are in the script header. **The gate
-does not need git**: inside a git working tree it takes the file list from
-`git ls-files`, and otherwise falls back to a `.gitignore`-aware filesystem walk,
-printing which source it used — so it runs identically in an extracted tarball or
-a downloaded zip. When you retire a document, add its basename to `RETIRED` and
-the gate will find every reference left pointing at it.
+- Confirm all labels appear.
+- Confirm all connectors remain visible.
+- Confirm colors retain strong contrast.
+- Confirm text survives A4 printing.
+- Confirm no clipping occurs.
+- Confirm source facts independently.
 
-All three commands run in CI on every push to `main` and every PR
-([`../.github/workflows/docs.yml`](../.github/workflows/docs.yml)), which also
-re-runs the docs gate a second time with `.git` deleted to keep the no-git path
-honest — run them locally first, exit-checked, never piped through `tail`.
+Keep temporary inspection files under `/tmp`.
 
-## 6. Cheat sheet — you changed X, run Y
+Commit generators, masters, and requested renders together.
 
-| You changed… | Run |
+## Wavedrom timing
+
+Use the pinned rendering package.
+
+```sh
+python3 -m venv /tmp/milan-wavedrom
+/tmp/milan-wavedrom/bin/pip install wavedrom==2.0.3.post3
+```
+
+Install `rsvg-convert` separately.
+
+Generate current timing diagrams.
+
+```sh
+/tmp/milan-wavedrom/bin/python3 scripts/gen_wavedrom.py \
+  docs/diagrams/wd_axis_backpressure.json --background=white
+/tmp/milan-wavedrom/bin/python3 scripts/gen_wavedrom.py \
+  docs/diagrams/wd_cdc_handshake.json --background=white
+```
+
+Check committed sources and reviewed raster evidence.
+
+```sh
+/tmp/milan-wavedrom/bin/python3 scripts/gen_wavedrom.py \
+  docs/diagrams/wd_axis_backpressure.json --background=white --check
+/tmp/milan-wavedrom/bin/python3 scripts/gen_wavedrom.py \
+  docs/diagrams/wd_cdc_handshake.json --background=white --check
+```
+
+- WaveDrom SVG output remains deterministic.
+- PNG raster evidence uses the shared manifest.
+- Different renderer versions may change raster output.
+- Such changes require regeneration and visual approval.
+
+White backgrounds protect dark-theme readability.
+
+Legacy diagrams retain their existing background behavior.
+
+- Limit diagrams to essential signals.
+- Label only important edges.
+- Verify timing against RTL.
+- Inspect every generated PNG.
+- Check readability at reduced width.
+
+## Historical pages
+
+Move obsolete pages into versioned history.
+
+Use [`history/v1/README.md`](history/v1/README.md) as the ledger.
+
+Every historical page needs these fields.
+
+> Status: Historical
+>
+> Original path: repository-relative path
+>
+> Archived: YYYY-MM-DD
+>
+> Relocated: YYYY-MM-DD
+>
+> Current successor: repository-relative link
+
+- Preserve the obsolete first-line marker.
+- Preserve original content afterward.
+- Update current inbound links.
+- Label every historical link visibly.
+- Never delete historical evidence.
+
+## Required gates
+
+Run focused documentation checks first.
+
+```sh
+python3 scripts/docs_check.py
+python3 scripts/docs_check.py --selftest
+python3 scripts/check_doc_style.py
+python3 scripts/check_doc_style.py --selftest
+python3 scripts/check_solution_docs.py
+python3 scripts/check_solution_docs.py --selftest
+python3 scripts/check_submodule_docs.py
+python3 scripts/check_submodule_docs.py --selftest
+python3 scripts/check_diagram_pngs.py
+python3 scripts/check_diagram_pngs.py --selftest
+python3 scripts/check_archive.py
+python3 scripts/check_archive.py --selftest
+python3 scripts/check_doc_paths.py
+python3 scripts/check_feature_status.py --self-test
+python3 docs/traceability/gen_module_matrix.py --check
+python3 scripts/gen_toc.py --verify-anchors
+python3 scripts/gen_toc.py --check
+```
+
+Run generator checks for changed diagrams.
+
+Hosted documentation CI repeats these checks.
+
+## Change checklist
+
+| Changed source | Required action |
 |---|---|
-| RTL module / TB dir / clause table | `gen_module_matrix.py` (then `--check`) |
-| A module's `//!` comments | TerosHDL "Save documentation" on that `.sv` |
-| A `.gen.py` or `.drawio` diagram master | the `.gen.py` (or draw.io export) + `rsvg-convert`; update the catalog |
-| A `wd_*.json` chronogram | [`scripts/gen_wavedrom.py`](../scripts/gen_wavedrom.py) on it; inspect the png |
-| Deleted or archived a doc | add its basename to `RETIRED` in [`scripts/docs_check.py`](../scripts/docs_check.py), then run the gate — it lists every reference now pointing at nothing |
-| A config schema / builder emission | [`sw/builder/test_builder.py`](../sw/builder/test_builder.py); an explicit `--write-fragment` or `--write-rtl` transfer generates paired `aem_desc.bin`, `aem_desc.json`, and `aem_desc.map` artifacts beside the bitstream. The board-side `aemi-load` verifies and writes the image before entity enable |
-| Any `*.md` at all | [`scripts/docs_check.py`](../scripts/docs_check.py) before pushing |
-| Any other tracked text — RTL, script, config, testbench, feature file | the same gate: rule 5 reads them too, and a bench or peer identity in a comment is a finding |
+| RTL or test structure | Regenerate the module matrix |
+| Module documentation comments | Regenerate its TerosHDL page |
+| Draw.io generator | Regenerate master, SVG, and PNG |
+| Manual Draw.io master | Export and inspect PNG and PDF |
+| WaveDrom JSON | Regenerate and inspect SVG and PNG |
+| Current guide | Run concise-style checks |
+| Archived page | Update metadata and history ledger |
+| Submodule pin | Regenerate verified boundary documentation |
+| Any Markdown | Run link and path checks |
+| Any tracked text | Run the privacy scrub |

@@ -2,15 +2,15 @@
 
 > 📌 **CAMPAIGN CLOSED 2026-07-10/11 (header-split zero-copy RX).** This doc is the consolidated
 > campaign **record**; every number in it is a **2-hart perf-campaign** measurement — the
-> **ship shape is 1-hart + `--l2-bytes 32768`**, so these are perf-lineage records, not the
+> **current product is 1-hart + `--l2-bytes 0`**, so these are cached perf-lineage records, not the
 > shipped configuration. The per-lever ledger is [`../CHANGELOG.md`](../../CHANGELOG.md); the
-> as-built datapath is [`../fpga/PIPELINE_STAGES.md`](../fpga/PIPELINE_STAGES.md); the profiling
-> method is [`PERF_ON_MILAN.md`](PERF_ON_MILAN.md); the memory root cause is
+> as-built datapath is [`../fpga/PIPELINE_STAGES.md`](../fpga/PIPELINE_STAGES.md); the historical
+> profiling method is [archived](../history/v1/findings/PERF_ON_MILAN.md); the memory root cause is
 > [`LATENCY_INVESTIGATION.md`](LATENCY_INVESTIGATION.md). **DDIO was REFUTED** — the copy tax
 > was removed by header-split, not DDIO.
-> Consolidated 2026-07-25: this file absorbed [`RX_TX_PERFORMANCE.md` (archived)](../../historical_now_obsolete/findings/RX_TX_PERFORMANCE.md) (the plain-language RX
-> story + diagrams) and [`GIGABIT_HEADROOM_ANALYSIS.md` (archived)](../../historical_now_obsolete/findings/GIGABIT_HEADROOM_ANALYSIS.md) (the cycles/byte budget model); the
-> originals are archived under [`historical_now_obsolete/findings/`](../../historical_now_obsolete/README.md).
+> Consolidated 2026-07-25: this file absorbed [`RX_TX_PERFORMANCE.md` (archived)](../history/v1/findings/RX_TX_PERFORMANCE.md) (the plain-language RX
+> story + diagrams) and [`GIGABIT_HEADROOM_ANALYSIS.md` (archived)](../history/v1/findings/GIGABIT_HEADROOM_ANALYSIS.md) (the cycles/byte budget model); the
+> originals appear in the [historical v1 index](../history/v1/README.md).
 
 ## Contents
 
@@ -25,8 +25,8 @@
 - **[T1 result (2026-07-08, build_dp100_m1  -  TX gate ≥420 MET at 417)](#t1-result-2026-07-08-build_dp100_m1-----tx-gate-420-met-at-417)** — The original notes, kept beneath their own correction. Still the record of the lever itself: the never-measured peer-side coalesce zone, and the board `rx-usecs` ladder 500→1k→2k that scaled TX 236→352→417.
 - **[Phase X MEASURED (2026-07-08)  -  clock uplift REFUTES the linear projection](#phase-x-measured-2026-07-08-----clock-uplift-refutes-the-linear-projection)** — 112.5 MHz reached on silicon, and a projection killed: +12.5 % of clock bought +4 % (−P4) and +8 % (single). The structural reason is that `--milan-clk-freq` leaves the datapath at 100 MHz, so neither direction reaches 500 by clock alone.
 - **[Phase X status + T2 latency decomposition (2026-07-08)](#phase-x-status--t2-latency-decomposition-2026-07-08)** — The RTL win banked (one `stream.Buffer` stage cut every violator out of the TX reader's cone) against a boot failure (QSPI CRC at the higher sys clock). Then latency decomposed: threaded NAPI off removes 0.65 ms, ~1.0 ms remains unexplained — and since TCP runs 0-retr and CPU-pegged, latency is *not* the blocker.
-- **[The RX story in plain language (2026-07-08/09  -  folded from RX_TX_PERFORMANCE.md, 2026-07-25)](#the-rx-story-in-plain-language-2026-07-0809-----folded-from-rx_tx_performancemd-2026-07-25)** — The teaching version, with charts. Best single insight: eight refill slots alone bought *nothing* because an in-order core replays the missing load rather than running ahead — capacity for parallelism is not parallelism, and the RPT prefetcher is what filled them. Then `perf` naming the wall (51 % of RX CPU in one copy) and DDIO dying on residency rather than on principle.
-- **[Gigabit headroom at 100 MHz (2026-07-09/10 night  -  folded from GIGABIT_HEADROOM_ANALYSIS.md, 2026-07-25)](#gigabit-headroom-at-100-mhz-2026-07-0910-night-----folded-from-gigabit_headroom_analysismd-2026-07-25)** — The cycles-per-byte budget model, and the conclusion that reframed the campaign: two harts have 200 M cycles/s, the no-copy path spends 1.73 cy/B and the with-copy path 4.0, so even a *free* copy leaves ~470 Mbit. Reaching the wire means removing bytes from the socket path, not polishing it. Includes ranked RX/TX levers and the app profile that traced 83 % of the app hart to the **misaligned** usercopy loop.
+- **[The RX story in plain language (2026-07-08/09  -  folded from historical RX_TX_PERFORMANCE.md, 2026-07-25)](#the-rx-story-in-plain-language-2026-07-0809-----folded-from-historical-rx_tx_performancemd-2026-07-25)** — Consolidates the receive-path experiments, measured bottlenecks, and rejected levers into one explanation.
+- **[Gigabit headroom at 100 MHz (2026-07-09/10 night  -  folded from historical GIGABIT_HEADROOM_ANALYSIS.md, 2026-07-25)](#gigabit-headroom-at-100-mhz-2026-07-0910-night-----folded-from-historical-gigabit_headroom_analysismd-2026-07-25)** — Quantifies resource headroom, timing limits, and the remaining path beyond 500 Mbit/s.
 - **[Why we are not at 1 Gbit/s  -  the early bottleneck map (pre-07-08 view; close-out view = the headroom chapter above)](#why-we-are-not-at-1-gbits-----the-early-bottleneck-map-pre-07-08-view-close-out-view--the-headroom-chapter-above)** — Superseded by the headroom chapter, kept for the *order* the walls surfaced in as load rose — shaper, then DMA reader, then per-frame CPU, with memory latency at 1424 ns/miss underneath all of it.
 - **[Roadmap toward >500 Mbit/s, then 1 Gbit/s (historical execution plan  -  campaign closed 07-10/11)](#roadmap-toward-500-mbits-then-1-gbits-historical-execution-plan-----campaign-closed-07-1011)** — The historical execution plan, with items struck through as they were done or refuted. Useful now mainly as the list of levers that carry on past 500 — faster memory, more queues or harts, and the separate UDP-offload track.
 - **[Detailed investigations (read these for the evidence)](#detailed-investigations-read-these-for-the-evidence)** — One row per investigation, pointing at the document that actually holds the data. The index to use when a number above needs its evidence.
@@ -157,7 +157,7 @@ two runs, rsc250 hwtso+rsc_clk_mhz=100, hash_sel=1): TX **238/247 Mbit/s, 0 retr
 **3.8% busy**; `L_pay = 45 cyc` (450 ns, NOT the ~140 assumed); prefetchable read-latency stall is
 only **~13%** and interconnect depth (`rxw_out_hi`) is **2**. So **reader prefetch was refuted**  - 
 the walls were datapath back-pressure (`stall` 39%) and CPU/ring-empty (`idle` 39%). Full evidence:
-[`historical_now_obsolete/findings/TX_READER_PREFETCH_PLAN.md`](../../historical_now_obsolete/findings/TX_READER_PREFETCH_PLAN.md) (MEASURED VERDICT + Appendix A). "Never assume, always measure."
+[historical TX reader-prefetch plan](../history/v1/findings/TX_READER_PREFETCH_PLAN.md) (MEASURED VERDICT + Appendix A). "Never assume, always measure."
 
 ³ **CBS root cause, MEASURED + FIXED 2026-07-08.** The 39–42% datapath-input `stall` was the
 **802.1Qav CBS shaper actively pacing best-effort traffic**: `milan_csr` reset `CBS_EN_RST=0011`
@@ -220,7 +220,7 @@ BD's 16-bit `drops` field aliased bit 56 (the v2 marker) at drops ≥ 256, makin
 completion parse as a v2 aggregate under parallel-storm famine (`2c44757`). **Both fixes are
 silicon-validated on `build_dp100_v2fix` (WNS +0.123)**: the previously-fatal storm sequence
 runs clean (192/145/112/142/196 Mbit, canary 0, drops 4792). Full record:
-[`historical_now_obsolete/findings/RX_OVERLOAD_WEDGE.md`](../../historical_now_obsolete/findings/RX_OVERLOAD_WEDGE.md).
+[historical RX overload finding](../history/v1/findings/RX_OVERLOAD_WEDGE.md).
 
 
 ⁵ **RX memory levers, MEASURED 2026-07-08** (the archived RX memory-hierarchy plan (#259, in git history) + [`docs/fpga/LSU_NONBLOCKING_DCACHE.md`](../fpga/LSU_NONBLOCKING_DCACHE.md)). Chain: −P2 was 238 (2-hart fan-out). (a) **64 KB L2** (`build_l2x2`) → −P2 278–280 (+17 %, L2 *capacity* lever, single flat). (b) **Non-blocking D$ alone** (`build_mlp1`, `lsuL1RefillCount=8`, 0 BRAM) → **no gain** (229≈238): on the in-order core the demand miss REDO-replays, so 8 refill slots sit empty without a filler. (c) **RPT hardware prefetcher** (`build_mlp2`, `--lsu-hardware-prefetch=rpt`, +2 BRAM tiles) *fills* the slots by stride-prefetching the payload copy → **single-flow RX 207→277 (+34 %)**, −P2 +7 %. (d) **Combination** (`build_mlp3`, refill+rpt+64 KB L2) → **−P2 298 (best, Section V canary=0, split-verified)** + best TX−P4 431  -  the two levers compound (capacity + latency-hiding). RPT=single/latency, L2=aggregate/capacity. The 2-hart aggregate remains a *shared-resource* wall (~1.2× single); >500 needs more queues/harts or fewer memory touches, not more cache.
@@ -406,7 +406,7 @@ records, **latency is not the 500-blocker**  -  T2 driver surgery is parked.
 "peer sweep" silently never applied (peer sat at 1000 µs); always verify with
 `ethtool -c` readback. The genuine peer knob is mild (437/435/452/424 at 3/50/200/1000).
 
-## The RX story in plain language (2026-07-08/09  -  folded from [`RX_TX_PERFORMANCE.md`](../../historical_now_obsolete/findings/RX_TX_PERFORMANCE.md), 2026-07-25)
+## The RX story in plain language (2026-07-08/09  -  folded from [historical `RX_TX_PERFORMANCE.md`](../history/v1/findings/RX_TX_PERFORMANCE.md), 2026-07-25)
 
 *Written 2026-07-09 after the R2 multi-slot-RSC campaign; kept as the pedagogical
 walk-through of the RX levers. Deep mechanism:
@@ -531,7 +531,7 @@ R3 112.5 MHz final mile) is the "path to RX > 500" section above.
 30× headroom), growing L2 past 64 KB, a BRAM buffer scratchpad, software prefetch (blocking D$),
 and 112.5 MHz (only +4–8%). See [`../CHANGELOG.md`](../../CHANGELOG.md).
 
-## Gigabit headroom at 100 MHz (2026-07-09/10 night  -  folded from [`GIGABIT_HEADROOM_ANALYSIS.md`](../../historical_now_obsolete/findings/GIGABIT_HEADROOM_ANALYSIS.md), 2026-07-25)
+## Gigabit headroom at 100 MHz (2026-07-09/10 night  -  folded from [historical `GIGABIT_HEADROOM_ANALYSIS.md`](../history/v1/findings/GIGABIT_HEADROOM_ANALYSIS.md), 2026-07-25)
 
 *2026-07-09/10 night. Every number here is silicon-measured on `build_r2slots`
 (+ kl-eth `mslot60c/d`) unless marked **hypothesis**. Clock fixed at 100 MHz by
@@ -689,7 +689,7 @@ in the order they surfaced as load rose:
 ## Roadmap toward >500 Mbit/s, then 1 Gbit/s (historical execution plan  -  campaign closed 07-10/11)
 
 **Immediate bar: >500 both directions** (≥200 met; TX at 354). The phased, gateware-gated
-execution plan was **[`historical_now_obsolete/findings/CAMPAIGN_500_PLAN.md`](../../historical_now_obsolete/findings/CAMPAIGN_500_PLAN.md)** (M1 instrumentation → R0 re-baseline →
+execution plan was the **[historical campaign plan](../history/v1/findings/CAMPAIGN_500_PLAN.md)** (M1 instrumentation → R0 re-baseline →
 R1 2-queue fan-out → R2 RSC geometry → T1/T2 TX levers + completion-IRQ → conditional
 T3/X)  -  every phase has a numeric gate read from HW counters. The levers below are the
 same ones that carry on to 1 Gbit.
@@ -704,7 +704,7 @@ same ones that carry on to 1 Gbit.
    the old bottleneck map is **also resolved**: it was the CBS default shaping BE (footnote ³,
    fixed in `milan_csr`). The measured TX levers now: cut per-ACK/per-reap/per-wakeup CPU cost
    (rx-usecs 1000 already buys +23%), a second TX queue for dual-hart xmit, completion-IRQ
-   latency. See [`TX_READER_PREFETCH_PLAN.md` (archived)](../../historical_now_obsolete/findings/TX_READER_PREFETCH_PLAN.md) MEASURED VERDICT.
+   latency. See [`TX_READER_PREFETCH_PLAN.md` (archived)](../history/v1/findings/TX_READER_PREFETCH_PLAN.md) MEASURED VERDICT.
 2. **Recover 100 MHz timing margin:** +0.031 ns on `build_dp100_cbs0`; **2-queue RxSteer at
    100 MHz** still needs re-validation once the wedge (item 0) is fixed  -  it may have been the
    wedge all along. Then run both directions at 100 MHz with the fan-out intact.
@@ -722,9 +722,9 @@ same ones that carry on to 1 Gbit.
 
 | topic | doc |
 |-------|-----|
-| **RX overload wedge**: completion-order inversion, sim repro + fix (2026-07-08) | [`historical_now_obsolete/findings/RX_OVERLOAD_WEDGE.md`](../../historical_now_obsolete/findings/RX_OVERLOAD_WEDGE.md) |
+| **RX overload wedge**: completion-order inversion, sim repro + fix (2026-07-08) | [historical RX overload finding](../history/v1/findings/RX_OVERLOAD_WEDGE.md) |
 | **CBS default-shaping bug**: reset config paced BE TX at 300 Mb/s (2026-07-08) | [`docs/findings/CBS_DEFAULT_SHAPING_BUG.md`](CBS_DEFAULT_SHAPING_BUG.md) |
-| Reader-prefetch refutation (Phase-0 probes, MEASURED VERDICT) | [`historical_now_obsolete/findings/TX_READER_PREFETCH_PLAN.md`](../../historical_now_obsolete/findings/TX_READER_PREFETCH_PLAN.md) |
+| Reader-prefetch refutation (Phase-0 probes, MEASURED VERDICT) | [historical reader-prefetch plan](../history/v1/findings/TX_READER_PREFETCH_PLAN.md) |
 | HW-TSO, single-flow ceiling, RX fan-out, datapath-input probe, 100 MHz datapath | the archived RX fan-out and TX-ceiling finding (#259, in git history) |
 | Memory-latency root cause (1424 ns/miss), floorplan/clock experiments, the second-core refutation | [`docs/findings/LATENCY_INVESTIGATION.md`](LATENCY_INVESTIGATION.md) |
 | Header-split silicon history (hsq4-hsq12) + live BD v2/v3 ABI | [`docs/fpga/HEADER_SPLIT_DESIGN.md`](../fpga/HEADER_SPLIT_DESIGN.md) |

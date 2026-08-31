@@ -1382,7 +1382,7 @@ def test_bd_drops_overflow_v2_alias():
 
 
 def test_rsc_close_reason_counters():
-    """M1 telemetry (CAMPAIGN_500_PLAN): the close-reason counters + coalesce ratio
+    """M1 telemetry (docs/findings/PERFORMANCE_GOAL.md): close-reason counters + coalesce ratio
     that Phase R2 gates on. Drives one close of each kind and checks the counts:
     PSH close (3 segs), idle-timeout close (1 seg), parked-newcomer close (1 seg)."""
     h = _mk_overload_harness(cycles=200000)
@@ -2278,4 +2278,3 @@ if __name__ == "__main__":
     # works would have thrown away the coverage its author intended.
     test_hs_livelock_orphan()
     print("ALL PASS")
-

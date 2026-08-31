@@ -7,7 +7,7 @@ the fully-FPGA RISC-V platform (VexiiRiscv + LiteX on Alinx AX7101; NaxRiscv his
 one softcore).
 
 - **Current Milan v1.2 implementation verdict:** [`../testing/MILAN_V12_AUDIT_2026-08-16.md`](../testing/MILAN_V12_AUDIT_2026-08-16.md)
-- **Current entity definitions:** [`configs/endstation_*.yaml`](../../configs/) through the [end-station builder](../ENDSTATION_BUILDER.md)
+- **Current entity definitions:** [`configs/endstation_*.yaml`](../../configs) through the [end-station builder](../ENDSTATION_BUILDER.md)
 - **Platform & phasing:** the completed PS-to-fabric migration plan (#259, in git history)
 - **HW AEM/AECP design:** the fabric AECP/AEM engine and its design page are
   **deleted** (2026-08-13); AECP now lives in the pinned `protocol-processor`

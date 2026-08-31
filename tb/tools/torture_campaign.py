@@ -2960,7 +2960,7 @@ A_BOOT_UNATTENDED = AssertSpec(
     "hand at any rung is exactly the FAIL this exists to catch")
 A_VERSION_UNCHANGED = AssertSpec(
     "boot.same-gateware-version",
-    "the same-version rule (docs/testing/TORTURE_CAMPAIGN.md): a power cycle "
+    "the same-version rule (docs/testing/RUNNING_TESTS.md): a power cycle "
     "boots the QSPI image, so the VERSION CSR (0x004) must read back what the "
     "pre-snapshot read - a changed word means the golden-image fallback "
     "engaged (or a mid-campaign reflash), and every later verdict would be "

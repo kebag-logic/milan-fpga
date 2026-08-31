@@ -6,7 +6,7 @@
 
 ```sh
 git clone https://github.com/kebag-logic/milan-fpga && cd milan-fpga
-git submodule update --init third_party/verilog-axis protocol-processor  # required
+git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
 cd tb/verilator/tcam && make                           # ~5 s → RESULT: PASS
 ```
 
@@ -18,19 +18,18 @@ before installing anything? → **[docs/overview/ARCHITECTURE.md](docs/overview/
 
 ## Who are you?
 
-Four doors, three links each. Every other doc hangs off one of these.
+Choose your current responsibility.
 
-| | You are… | Start | Then | Then |
-|---|---|---|---|---|
-| 🔌 | **Integrator** — putting this datapath in *your* SoC or on *your* board | [integration/INTEGRATION_GUIDE.md](docs/integration/INTEGRATION_GUIDE.md) — the `milan_datapath` boundary as a port-by-port contract | [reference/REGISTER_MAP.md](docs/reference/REGISTER_MAP.md) — the AXI4-Lite ABI your driver programs | [integration/PORTING_GUIDE.md](docs/integration/PORTING_GUIDE.md) — off-Xilinx, off-Vivado, per-vendor translation |
-| 🛠 | **RTL developer** -- changing or adding fabric | [Section 8 of overview/ARCHITECTURE.md](docs/overview/ARCHITECTURE.md#8-where-to-change-things-maintainability) "where to change things" | [fpga/FPGA_DESIGN.md](docs/fpga/FPGA_DESIGN.md) -- every module in `hdl/` and the harness that verifies it | [CONTRIBUTING.md](CONTRIBUTING.md) -- house style; a DUT change ships its testbench in the same commit |
-| 🔧 | **Bench operator** — building, flashing, bringing a board up | [integration/BUILDING.md](docs/integration/BUILDING.md) — `build.sh` configs and the gates a build must pass | [integration/QSPI_FLASHBOOT.md](docs/integration/QSPI_FLASHBOOT.md) — flash a **matched** image set, boot the board | [limitations/TROUBLESHOOTING.md](docs/limitations/TROUBLESHOOTING.md) — symptom → cause → fix, from the field |
-| 📖 | **Curious reader / evaluator**, deciding if this is worth your time | [overview/ARCHITECTURE.md](docs/overview/ARCHITECTURE.md) | [the current Milan v1.2 audit](docs/testing/MILAN_V12_AUDIT_2026-08-16.md) | [reference/FR_NFR.md](docs/reference/FR_NFR.md) |
+| Role | Start | Outcome |
+|---|---|---|
+| 🛠 Implementation developer | [Implementation guide](docs/guides/IMPLEMENTATION_DEVELOPER.md) | Safe product changes |
+| 🧪 Verification developer | [Verification guide](docs/guides/VERIFICATION_DEVELOPER.md) | Independent test evidence |
+| 🔌 System integrator | [Integration guide](docs/guides/SYSTEM_INTEGRATOR.md) | Correct boundary wiring |
+| 📊 Project manager | [Management guide](docs/guides/PROJECT_MANAGER.md) | Evidence-based decisions |
 
-More lanes (system engineer, tester, hobbyist) and the full index:
-**[docs/README.md](docs/README.md)**. Everyone's long-form orientation is the
-current architecture, verification, and audit entry points are listed there.
-Terms → [glossary](docs/GLOSSARY.md).
+The [documentation index](docs/README.md) lists current authorities.
+
+The [glossary](docs/GLOSSARY.md) explains shared terminology.
 
 ![Documentation map — the four reading lanes by role](docs/DOC_MAP.png)
 
@@ -224,9 +223,9 @@ exactly: `podman build -t milan-fpga-dev -f Containerfile.dev . && podman run --
 ## Quickstart — copy/paste
 
 ```sh
-# 1. clone and initialize the two required RTL submodules
+# 1. clone and initialize required RTL submodules
 git clone https://github.com/kebag-logic/milan-fpga && cd milan-fpga
-git submodule update --init third_party/verilog-axis protocol-processor
+git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
 
 # 2 · tier-1 toolchain, once (Arch shown — see Prerequisites for your distro)
 sudo pacman -S --needed gcc make python python-yaml verilator git
@@ -257,14 +256,14 @@ The long form, with what is verified vs what needs a bench: [QUICKSTART.md](QUIC
 
 | Suite | Command | Needs |
 |---|---|---|
-| **All Verilator TBs** (one dir per suite, self-checking) | `cd tb/verilator && for d in */; do (cd "$d" && make) \|\| break; done` | verilator ≥ 5.050 (the CI pin) |
+| **All Verilator TBs** | `logs=$(mktemp -d); scripts/run_all_suites.sh "$logs"` | verilator ≥ 5.050 |
 | One TB | `cd tb/verilator/<suite> && make` (exit 0 = PASS) | verilator |
 | **RTL lint** over all of `hdl/` (ratcheted, ~10 s) | `python3 scripts/lint_rtl.py --check` | verilator (the CI pin) |
 | Docs gate (links, wording, dead references; privacy scrub over every tracked text file) | `python3 scripts/docs_check.py` | python3 — **git optional** |
 | Traceability no-drift gate | `python3 docs/traceability/gen_module_matrix.py --check` | python3 |
 | End-station builder gates | `python3 sw/builder/test_builder.py` | python3 + pyyaml |
 | Device portability | `cd syn/yosys && make && make ecp5` | yosys + sv2v |
-| **BDD conformance suite** (15 features / 338 scenarios / 1,615 steps, no skips in the 2026-08-18 run) | `cd tests && behave -f plain` | `behave` (any venv; the `@tsn_gen` tier also wants `TSAGEN_DIR`) |
+| **BDD conformance suite** | `cd tests && behave -f plain` | `behave` (any venv; the `@tsn_gen` tier also wants `TSAGEN_DIR`) |
 
 `ls tb/verilator/` is the authoritative suite list. Full map: [docs/testing/TESTING.md](docs/testing/TESTING.md).
 
@@ -335,7 +334,7 @@ the desk suites + internal COMPLIANCE behave gates stay green at 100 % coverage.
 > `[AECP-MODEL]` block proves it by walking **every** descriptor the generator
 > emits and grading each answer against the model's own bytes. What is still
 > open is the write side. See the mandatory gaps in
-> [the current audit](docs/testing/MILAN_V12_AUDIT_2026-08-16.md) and the open GitHub issues.
+> [the dated audit](docs/testing/MILAN_V12_AUDIT_2026-08-16.md) and open GitHub issues.
 
 ### P1.5 — Conformance hardening (2026-08, rides P1)
 
@@ -350,7 +349,7 @@ implementation boundary.
 > processor's to satisfy. The processor's AECP uCPU serves **thirty** AEM
 > opcodes plus MVU `GET_MILAN_INFO` as of VERSION `0x0055`, so some AECP rows
 > below are closed and some are not, and the per-clause status is **not** kept
-> here. [The current audit](docs/testing/MILAN_V12_AUDIT_2026-08-16.md) records
+> here. [The dated audit](docs/testing/MILAN_V12_AUDIT_2026-08-16.md) records
 > the exact evidence and remaining gaps. This table is kept
 > only as the record of what the traceability review found. Do not read a row
 > as work in flight against this tree.
@@ -434,4 +433,4 @@ ends derive from gPTP) plus making the Bresenham remainder a register the
 servo drives, which gives 0.01 ppm per LSB for a register and an adder.
 
 Full evidence, the ruled-out list and the oscillator table:
-[obsolete historical media-clock finding](docs/findings/MEDIA_CLOCK_LOCK_0810.md).
+[obsolete historical media-clock finding](docs/history/v1/findings/MEDIA_CLOCK_LOCK_0810.md).

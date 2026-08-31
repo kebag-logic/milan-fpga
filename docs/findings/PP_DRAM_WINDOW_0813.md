@@ -16,8 +16,8 @@ described it.
 
 `KL_aecp_desc_store` READS the AEM descriptor image from main memory and
 `KL_aecp_resp_buf` WRITES the AECP response buffer to main memory, both at bases
-compiled into the bitstream (the processor holds no base register — see
-`docs/findings/PP_SHADOW_AREA_0812.md` for why those regions are not on-die).
+compiled into the bitstream (the processor holds no base register — see the
+[historical area study](../history/v1/findings/PP_SHADOW_AREA_0812.md) for why those regions are not on-die).
 
 `sw/litex/milan_soc.py` derived those bases as *the top 1 MiB of `main_ram`*:
 
