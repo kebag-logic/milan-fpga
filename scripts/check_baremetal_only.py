@@ -38,6 +38,10 @@ T. retired-stack TERM, anywhere, any context: the appearance itself is the
 P. protected product documentation: even an embedded ``linux`` substring is
    forbidden. Host-tooling masks never apply there. Deleting the protected
    document is also a failure, preventing removal from bypassing this class.
+   A file-pinned mask (``TERM_MASKS``) covers the one generic
+   container-image name in dev's CI-contract fixture; like the class-R
+   masks it is bound to its single file and cannot launder the same term on
+   another line or in another file.
 R. retired target RUNTIME/service surface: the former helper services and
    target-OS interfaces are forbidden even when a line avoids the broader
    class-T vocabulary. This includes exact absolute pseudo-filesystem/device
@@ -49,6 +53,14 @@ P. retired PRODUCT PATH: a tracked first-party path itself cannot retain an
    name while carrying clean (or binary) contents. Path scanning uses the
    same narrow host-tooling mask as content scanning, and still excludes
    submodules and ``third_party/``.
+K. retired stack BUILD-CONFIGURATION vocabulary: a kernel or Buildroot
+   defconfig is a target-Linux artifact whose own text need not name the
+   stack at all, so ``CONFIG_<SYM>=y|m|n``, a ``# CONFIG_<SYM> is not set``
+   line, ``BR2_<SYM>`` and the word ``defconfig`` are each the finding, on
+   any path. ``defconfig`` is a path token too, so the name alone fails even
+   when the contents are clean or binary. Case-sensitive on the symbol
+   namespaces: Kconfig symbols are upper-case by construction, so an
+   ordinary ``config_word = y`` assignment is a clean near-miss.
 O. retired launcher option token: ``--sound-card``, ``--flashboot full``,
    ``--flashboot kernel`` (any run of spaces/tabs or ``=`` between them);
    and ``--no-fabric-gptp`` anywhere but its one code home,
@@ -83,7 +95,10 @@ either case and still cannot launder a second term on the same line; the
 door is exempt at its home and caught away from it; a missing/unreadable
 inventory fails rather than counting zero; and the clean control stays clean.
 planted in a generated .svg is caught (generated outputs are scanned); every
-runtime token and exact target-OS path is caught; the exact workstation PHC
+runtime token and exact target-OS path is caught; every build-configuration
+symbol namespace is caught, on a neutral path and on the file name alone,
+while a lower-case assignment stays clean; the container-image fixture is
+masked at its own file and nowhere else; the exact workstation PHC
 probe stays legal but cannot launder another target path; every retired
 sound- and host-plane-surface token is caught; every retired product-path
 class bites even with clean or binary contents, while near-miss and
@@ -143,10 +158,7 @@ TERMS = (
     # the same stack's boot loader, kernel images, init ramdisk, userland
     # image, flattened device-tree spellings and pseudo-filesystems
     "u-boot", "uboot", "vmlinux", "vmlinuz", "zimage", "uimage", "initrd",
-    "dtbo", "fdt", "sysfs", "procfs",
-    # not "busybox": dev's CI contract self-test names it as a generic
-    # container image (scripts/ci_events.py), so the bare word is not a
-    # retired-stack signal; rootfs/initrd/initramfs carry that meaning.
+    "dtbo", "fdt", "sysfs", "procfs", "busybox",
 )
 # Underscore is a separator for policy tokens. A word-bound expression would
 # miss spellings such as an ALSA-prefixed identifier because Python treats
@@ -235,6 +247,15 @@ TARGET_OS_DEVICE_RE = re.compile(
 # host-tooling non-goal, not a product runtime. Mask only the literal spelling
 # in its one tracked tool; a second target path on the same line must still
 # fail.
+# dev's CI contract self-test names a generic container image in ONE synthetic
+# job fixture (#293, scripts/ci_events.py). That is a placeholder registry tag,
+# not a retired userland: mask the exact fixture spelling in its one file so
+# the term stays banned everywhere else, including a bare `busybox` elsewhere
+# in that same file. Renaming the fixture image on dev retires this entry.
+TERM_MASKS = {
+    "scripts/ci_events.py": re.compile(r'"image":\s*"busybox"'),
+}
+
 HOST_RUNTIME_MASKS = {
     "tb/tools/crf_vs_phc.py": re.compile(r"/dev/ptp(?:N|[0-9]+)\b",
                                          re.IGNORECASE),
@@ -339,6 +360,22 @@ ALLOWED_HOST_TOOLING = (
 TRIPLET_RE = re.compile("|".join(ALLOWED_HOST_TOOLING), re.IGNORECASE)
 
 
+#: Class K: the retired stack's BUILD CONFIGURATION vocabulary. A kernel or
+#: Buildroot defconfig is a target-Linux artifact whose own text need not name
+#: the stack at all - `CONFIG_PTP_1588_CLOCK=y` on a neutral path such as
+#: `configs/milan_defconfig` carried no class-T term and no retired path, so
+#: the tree could reacquire a kernel configuration through a gate that only
+#: watched vocabulary and paths. The symbol namespaces are the finding.
+#: Case-sensitive: Kconfig symbols are upper-case by construction, so an
+#: ordinary lower-case `config_word = y` assignment is not a match.
+KCONFIG_RE = re.compile(
+    r"(?<![A-Za-z0-9_])(?:"
+    r"CONFIG_[A-Z0-9_]+\s*(?:=|:=)\s*[ymn](?![A-Za-z0-9_])"
+    r"|# CONFIG_[A-Z0-9_]+ is not set"
+    r"|BR2_[A-Z0-9_]+"
+    r"|defconfig"
+    r")")
+
 def _path_term_re(terms):
     """Build a path-token matcher where '-' and '_' are separators.
 
@@ -363,6 +400,7 @@ RETIRED_PATH_CLASSES = (
         "dtc", "jffs2", "mtd", "napi", "skb",
         "u-boot", "uboot", "vmlinux", "vmlinuz", "zimage", "uimage",
         "initrd", "sysroot", "dtbo", "fdt", "sysfs", "procfs",
+        "defconfig",
     ))),
     ("target-service", _path_term_re((
         "linuxptp", "ptp4l", "phc2sys", "gptp2csr", "milan-statd",
@@ -492,6 +530,9 @@ def scan_file(root, path):
         # correct scrub would REVEAL a new finding and the gate could never
         # be driven green in one pass.
         probe = TRIPLET_RE.sub("", line)
+        term_mask = TERM_MASKS.get(path)
+        if term_mask is not None:
+            probe = term_mask.sub("", probe)
         m = TERM_RE.search(probe) or PHRASE_RE.search(probe)
         if m:
             findings.append(
@@ -536,6 +577,12 @@ def scan_file(root, path):
                 f"{path}:{n}: [H] retired target host-plane surface "
                 f"{m.group(0)!r}: {line.strip()[:100]!r} "
                 f"(#259: no dormant target driver/memory-ring contract)")
+        m = KCONFIG_RE.search(line)
+        if m:
+            findings.append(
+                f"{path}:{n}: [K] retired build-configuration symbol "
+                f"{m.group(0)!r}: {line.strip()[:100]!r} "
+                f"(#259: no kernel or Buildroot configuration in the tree)")
         m = OPT_RE.search(line)
         if m:
             findings.append(
@@ -969,6 +1016,63 @@ def selftest():
         target.parent.mkdir(parents=True)
         target.write_text("bare-metal fixture payload\n")
     arm("path-near-misses-clean", plant_near_miss_path, False)
+
+    # K: the retired stack's build-configuration vocabulary. A defconfig is a
+    # target-Linux artifact whose own text need not name the stack, so the
+    # symbol namespaces are the finding - on ANY path, and on the name alone.
+    arm("kconfig-symbol-y-caught",
+        lambda r: (r / "cfg.txt").write_text("CONFIG_PTP_1588_CLOCK=y\n"),
+        True, "[K]")
+    arm("kconfig-symbol-m-caught",
+        lambda r: (r / "cfg.txt").write_text("CONFIG_SND_SOC = m\n"),
+        True, "[K]")
+    arm("kconfig-symbol-not-set-caught",
+        lambda r: (r / "cfg.txt").write_text("# CONFIG_MMU is not set\n"),
+        True, "[K]")
+    arm("kconfig-buildroot-symbol-caught",
+        lambda r: (r / "pkg.mk").write_text("BR2_PACKAGE_FOO=y\n"),
+        True, "[K]")
+    arm("kconfig-defconfig-word-caught",
+        lambda r: (r / "notes.md").write_text("Start from the defconfig.\n"),
+        True, "[K]")
+    # the neutral-path defconfig that motivated the class: no class-T term,
+    # no retired path component, clean under every other class
+    arm("kconfig-neutral-path-defconfig-caught",
+        lambda r: (r / "configs").mkdir() or
+        (r / "configs" / "milan_defconfig").write_text(
+            "CONFIG_NET_VENDOR_XILINX=y\n"),
+        True, "[K]")
+    # ... and on the NAME alone, with contents this gate cannot read
+    arm("kconfig-path-defconfig-binary-contents-caught",
+        lambda r: (r / "board_defconfig.bin").write_bytes(b"\x00\x01"),
+        True, "[P]")
+    # near misses: lower-case assignment, a prose word, an ordinary constant
+    arm("kconfig-near-misses-clean",
+        lambda r: (r / "ok.md").write_text(
+            "config_word = y in the local script; reconfigure the yes-path; "
+            "CONFIGURE_ME is a placeholder; CONFIG_NAME is documented\n"),
+        False)
+
+    # T: the one generic container-image fixture is masked in its own file,
+    # and the mask cannot launder the term anywhere else - not in another
+    # file, and not on another line of the same file.
+    arm("term-busybox-caught",
+        lambda r: (r / "boot.md").write_text("We ship a busybox init.\n"),
+        True, "[T]")
+    arm("term-busybox-fixture-masked-at-home",
+        lambda r: (r / "scripts").mkdir() or
+        (r / "scripts" / "ci_events.py").write_text(
+            'job("docs", "services", {"x": {"image": "busybox"}}),\n'),
+        False)
+    arm("term-busybox-mask-does-not-launder-same-file",
+        lambda r: (r / "scripts").mkdir() or
+        (r / "scripts" / "ci_events.py").write_text(
+            'job("docs", {"image": "busybox"})  # unpack the busybox rootfs\n'),
+        True, "[T]")
+    arm("term-busybox-mask-is-file-pinned",
+        lambda r: (r / "other.py").write_text(
+            'job("docs", "services", {"x": {"image": "busybox"}}),\n'),
+        True, "[T]")
 
     # O: option tokens, both spellings of the flashboot value
     arm("opt-sound-card",
