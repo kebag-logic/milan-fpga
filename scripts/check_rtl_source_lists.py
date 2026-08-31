@@ -707,12 +707,9 @@ def selftest():
        "KL_aaf_latency_taps" in modules,
        "a module instantiated by a CHILD of milan_datapath must be in the closure")
     ck("a declared child needs no approved naming prefix",
-       "credit_based_shaper" in modules,
-       "the closure must follow declarations, not silently omit a new name family")
-    ck("a column-0 instantiation is followed (traffic_class_map, the shape the tree has)",
-       "traffic_class_map" in modules
-       and modules.get("traffic_class_map") == "hdl/ieee8021q/ts/traffic_class_map.sv",
-       "traffic_classifier.sv instantiates traffic_class_map at column 0")
+       "timestamp_counter" in modules,
+       "the closure must follow declarations, not silently omit a new name "
+       "family (timestamp_counter carries no KL_ prefix)")
     ck("package dependencies are part of the file closure",
        "pp_pkg" in modules and "ethernet_packet_pkg" in modules,
        "removing a package-only source must fail before compilation")
@@ -732,6 +729,11 @@ def selftest():
     base = dp.read_text()
     end = base.rfind("endmodule")
     probes = (
+        # The shaper chain that instantiated traffic_class_map at column 0 left
+        # milan_datapath with #259, so the shape is probed on a copy; the module
+        # is still declared in the tree.
+        ("a column-0 instantiation is followed (traffic_class_map at column 0)",
+         "\n\ntraffic_class_map u_zz_col0_plain ();\n", "traffic_class_map"),
         ("a column-0 instantiation under a non-blank line is followed",
          "\nassign zz_probe_a = 1'b0;\nKL_aes3_tx u_zz_col0 ();\n", "KL_aes3_tx"),
         ("a tab-indented instantiation under a non-blank line is followed",
