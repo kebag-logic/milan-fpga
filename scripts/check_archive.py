@@ -36,7 +36,7 @@ ARCHIVE_TOTAL_RE = re.compile(
 RETIRED_ROLE_PATTERNS = {
     "CHANGELOG.md": re.compile(
         r"measured (?:per-lever )?(?:performance )?ledger|"
-        r"per-lever (?:perf(?:ormance)? )?ledger|"
+        r"per-lever (?:(?:measured|perf(?:ormance)?) )?ledger|"
         r"perf(?:ormance)?-lineage ledger|"
         r"campaign numbers|perf numbers|measured changes",
         re.IGNORECASE,
@@ -158,6 +158,22 @@ def has_retired_role(original: str, line: str) -> bool:
     return pattern is not None and pattern.search(line) is not None
 
 
+def retired_role_lines(original: str, text: str) -> list[int]:
+    """Find surviving-path references retaining their retired role."""
+    reference = re.compile(
+        rf"(?<![A-Za-z0-9_]){re.escape(original)}(?![A-Za-z0-9_])"
+    )
+    lines = text.splitlines()
+    findings: list[int] = []
+    for index, line in enumerate(lines):
+        if reference.search(line) is None:
+            continue
+        context = "\n".join(lines[max(0, index - 1):index + 2])
+        if has_retired_role(original, context):
+            findings.append(index + 1)
+    return findings
+
+
 def declared_archive_totals(text: str) -> list[int]:
     """Return every inventory total declared by the archive index."""
     return [int(value) for value in ARCHIVE_TOTAL_RE.findall(text)]
@@ -268,6 +284,23 @@ def selftest() -> int:
     if has_retired_role("CHANGELOG.md", "[current changelog](CHANGELOG.md)"):
         print("archive selftest: current replacement role failed")
         return 1
+    wrapped_route = (
+        "[CHANGELOG.md](../../CHANGELOG.md) for the\n"
+        "per-lever measured ledger.\n"
+    )
+    if retired_role_lines("CHANGELOG.md", wrapped_route) != [1]:
+        print("archive selftest: wrapped replacement role escaped")
+        return 1
+    raw_route = "├─ CHANGELOG.md  the measured per-lever performance ledger\n"
+    if retired_role_lines("CHANGELOG.md", raw_route) != [1]:
+        print("archive selftest: raw replacement role escaped")
+        return 1
+    historical_route = (
+        "[historical ledger](docs/history/v1/PERFORMANCE_CHANGELOG.md)\n"
+    )
+    if retired_role_lines("CHANGELOG.md", historical_route):
+        print("archive selftest: historical target misclassified")
+        return 1
     if declared_archive_totals("- Archive total: 43 Markdown pages.\n") != [43]:
         print("archive selftest: valid inventory total failed")
         return 1
@@ -280,7 +313,7 @@ def selftest() -> int:
     if archive_total_problem([42], 43) is None:
         print("archive selftest: inventory count drift escaped")
         return 1
-    print("archive selftest: OK (21 controls)")
+    print("archive selftest: OK (24 controls)")
     return 0
 
 
@@ -364,15 +397,15 @@ def main() -> int:
         lines = text.splitlines()
         if lines and OBSOLETE_HEADER_RE.fullmatch(lines[0]):
             problems.append(f"obsolete page remains current: {page.relative_to(REPO)}")
+        for original in replacement_targets.values():
+            for line_number in retired_role_lines(original, text):
+                problems.append(
+                    f"retired replacement role: {page.relative_to(REPO)}:"
+                    f"{line_number}: {original}"
+                )
         for line_number, line in enumerate(lines, start=1):
             for link_text, raw_target in LINK_RE.findall(line):
                 target = resolve_link(page, raw_target)
-                original = replacement_targets.get(target)
-                if original is not None and has_retired_role(original, line):
-                    problems.append(
-                        f"retired replacement role: {page.relative_to(REPO)}:"
-                        f"{line_number}: {original}"
-                    )
                 if target not in expected:
                     continue
                 if not link_is_marked(link_text):
