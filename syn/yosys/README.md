@@ -166,7 +166,7 @@ a fix for synthesis.** Check the `read_verilog` line in `yosys -d` output
 before reaching for it.
 
 ## Coverage
-45 tops as of 2026-08-30 (the `tops=()` array in `run.sh` is authoritative — that
+47 tops as of 2026-08-31 (the `tops=()` array in `run.sh` is authoritative — that
 array is the count, this prose is not; re-read it rather than trusting a number
 here):
 
@@ -177,14 +177,16 @@ here):
   (`adp_advertiser`, `KL_aecp_top`, the two ACMP contexts and their two
   wrappers, `KL_persist_journal`, `KL_lwsrp_top`) are gone with that RTL,
 - the CSR (`milan_csr`),
-- the de-Xilinx'd 802.1Q datapath (`classifier_wrap`→`traffic_classifier`,
-  `queues_wrap`→`traffic_queues`),
+- the de-Xilinx'd 802.1Q chain (`classifier_wrap`→`traffic_classifier`,
+  `queues_wrap`→`traffic_queues`, `datapath_wrap`→`traffic_controller_802_1q`
+  with its queues and shaping core) and the `ptp_ts_top` record stampers —
+  both are stand-alone tops since `0x0002_0056`, because `milan_datapath` no
+  longer instantiates them and their portability would otherwise go unproven,
 - the CBS/PTP/RMON leaves,
 - the vendored Forencich cores (`axis_fifo`, `axis_demux`, `axis_arb_mux` —
   kept as a portability check even though the queue egress now uses a plain
   grant-indexed mux instead of `axis_arb_mux`), and
-- **`milan_datapath` itself** (the full integration wrapper, which pulls in
-  `ptp_ts_top`/`ptp_ts_core` hierarchically).
+- **`milan_datapath` itself** (the full integration wrapper).
 
 The `avtp_stream_parser` gap noted here previously is **closed** — it is a top
 in the array.

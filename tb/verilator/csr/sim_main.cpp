@@ -59,26 +59,12 @@ static bool seen_ptp_load, seen_ptp_adjust, seen_ptp_snap;
 static bool seen_stats_snap, seen_stats_reset;
 static bool seen_adp_adv, seen_adp_dep;
 static bool seen_i2spb_clru, seen_i2spb_clro;
-static bool seen_clkv_wr, seen_clkv_disc;
 // TCAM entry-write capture (o_tcam_wr_en is a 1-cycle strobe)
 static bool     seen_tcam_wr;
 static uint32_t tcam_wr_index, tcam_wr_valid, tcam_wr_action;
 static uint64_t tcam_wr_key, tcam_wr_mask;
-// GM torn-latch monitor: counts 64-bit value changes of o_adp_gptp_gm per
-// posedge while armed — every change IS a grandmaster change to the
-// GPTP_GM_CHANGED detectors / CLKV holdover / ADP re-advertise, so one
-// LO+HI write pair must produce exactly ONE change (Milan v1.2 Table 5.1:
-// "Number of gPTP GM changes, since boot")
-static bool     gm_mon_on;
-static uint64_t gm_mon_prev;
-static int      gm_mon_edges;
-
 static void posedge() {
   dut->aclk = 1; dut->eval();
-  if (gm_mon_on && dut->o_adp_gptp_gm != gm_mon_prev) {
-    gm_mon_edges++;
-    gm_mon_prev = dut->o_adp_gptp_gm;
-  }
   seen_ptp_load    |= dut->o_ptp_cmd_load;
   seen_ptp_adjust  |= dut->o_ptp_cmd_adjust;
   seen_ptp_snap    |= dut->o_ptp_cmd_snapshot;
@@ -88,8 +74,6 @@ static void posedge() {
   seen_adp_dep     |= dut->o_adp_depart_p;
   seen_i2spb_clru  |= dut->o_i2spb_clr_under;
   seen_i2spb_clro  |= dut->o_i2spb_clr_over;
-  seen_clkv_wr     |= dut->o_clkv_wr_p;
-  seen_clkv_disc   |= dut->o_clkv_disc_p;
   if (dut->o_tcam_wr_en) {          // latch the committed entry
     seen_tcam_wr = true;
     tcam_wr_index = dut->o_tcam_wr_index; tcam_wr_valid = dut->o_tcam_wr_valid;
@@ -158,7 +142,7 @@ int main(int argc, char** argv) {
   dut->aresetn = 0;
   dut->s_axi_awvalid = dut->s_axi_wvalid = dut->s_axi_bready = 0;
   dut->s_axi_arvalid = dut->s_axi_rready = 0;
-  dut->i_evt_tx_ts_ready = dut->i_evt_link_change = dut->i_evt_rmon_rollover = 0;
+  dut->i_evt_link_change = dut->i_evt_rmon_rollover = 0;
   dut->i_link_up = 1; dut->i_speed = 2; dut->i_full_duplex = 1;
   dut->i_ptp_tod = 0; dut->i_ptp_tod_valid = 0;
   dut->i_adp_available_index = 0;
@@ -181,7 +165,9 @@ int main(int argc, char** argv) {
   ck("VERSION",       axi_read(A_VERSION), 0x00020056);
   uint32_t cap = axi_read(A_CAP);
   ck("CAP.num_queues", cap & 0xF, 5);
-  ck("CAP.CBS",        (cap >> 8) & 1, 1);
+  // CAP[8] CBS is 0: no shaper is elaborated since the general-data chain
+  // left milan_datapath; [3:0] num_queues is the retained 0x400 geometry.
+  ck("CAP.CBS = 0 (no shaper elaborated)", (cap >> 8) & 1, 0);
   ck("CAP.PTP",        (cap >> 9) & 1, 1);
   ck("CAP.STATS",      (cap >> 10) & 1, 1);
   ck("CAP.ADP",        (cap >> 12) & 1, 1);
@@ -196,9 +182,6 @@ int main(int argc, char** argv) {
   // opt-in), [2] ctrl_class = 1 - the REQ-CLS-10 control fast path ships ON so
   // the CONTROL_CLASS row of EGRESS_QUEUE_MAP.md is true on the wire at reset.
   ck("CLS_CTRL(reset)",  axi_read(A_CLS_CTRL), 0x5);
-  ck("o_cls_use_pcp(reset)",    dut->o_cls_use_pcp,    1);
-  ck("o_cls_dmac_check(reset)", dut->o_cls_dmac_check, 0);
-  ck("o_cls_ctrl_class(reset)", dut->o_cls_ctrl_class, 1);
   ck("CLS_MAP(reset)",   axi_read(A_CLS_MAP),  0x00FAC688);
   // 5-queue map, 3 bits per traffic class: TC0/1 -> q0, TC2 -> q3 (SR-B),
   // TC3 -> q4 (SR-A), TC4/5 -> q1 (control), TC6/7 -> q2 (gPTP). No spare.
@@ -249,19 +232,11 @@ int main(int argc, char** argv) {
   ck("0x480 IS mapped (q4 IDLE takes the write)", axi_read(A_CBS4_IDLE), 0xA5A5A5A5);
   axi_write(A_CBS4_IDLE, 450000000u);
 
-  // RESET VALUE vs RESET OUTPUT. Readback is served from the shadow BRAM
-  // (seeded from the `csr_default` table) while the datapath sees the register
-  // file's own reset assignment - two independent literals. If they diverge the
-  // classifier/shaper run on one value while software reads another, which no
-  // readback-only check can see. Pin them equal for the queue-shaped ones.
+  // CLS_* and the CBS window are WRITE-ONLY SCRATCH: served from the shadow
+  // BRAM (seeded from `csr_default`), stored on write, consumed by nothing -
+  // the block has no o_cls_*/o_cbs_* ports any more. The readbacks above are
+  // therefore the whole contract; there is no second literal to pin against.
   dut->eval();
-  ck("o_cls_tc_queue_map == CLS_TCQ readback", dut->o_cls_tc_queue_map,
-     axi_read(A_CLS_TCQ));
-  ck("o_cbs_idle_slope_bps[0] == CBS0_IDLE readback", dut->o_cbs_idle_slope_bps[0],
-     axi_read(A_CBS0_IDLE));
-  ck("o_cbs_idle_slope_bps[4] == CBS4_IDLE readback", dut->o_cbs_idle_slope_bps[4],
-     axi_read(A_CBS4_IDLE));
-  ck("o_cbs_enable == 0 at reset (all five unshaped)", dut->o_cbs_enable, 0);
 
   // FQTSS bandwidth availability (802.1Q-2018 §34.3.1 / REQ-CBS-03) over the
   // registers SOFTWARE actually reads, not over the RTL package. `deltaBandwidth`
@@ -319,48 +294,48 @@ int main(int argc, char** argv) {
   ck("o_mac_addr", dut->o_mac_addr, 0x554433221100ULL);
 
   axi_write(A_CBS1_IDLE, 0x0AABBCCD);
-  ck("CBS1_IDLE rw", axi_read(A_CBS1_IDLE), 0x0AABBCCD);
-  dut->eval();
-  ck("o_cbs_idle_slope_bps[1]", dut->o_cbs_idle_slope_bps[1], 0x0AABBCCD);
+  ck("CBS1_IDLE rw (scratch)", axi_read(A_CBS1_IDLE), 0x0AABBCCD);
 
-  axi_write(A_CBS3_CTRL, 0x1);           // enable queue 3 shaping
-  dut->eval();
-  ck("o_cbs_enable bit3", (dut->o_cbs_enable >> 3) & 1, 1);
+  axi_write(A_CBS3_CTRL, 0x1);           // CTRL readback is masked to bit 0
+  ck("CBS3_CTRL rw (scratch, bit 0)", axi_read(A_CBS3_CTRL), 0x1);
   axi_write(A_CBS3_CTRL, 0x0);
 
-  // the TOP queue is reachable end-to-end (write -> readback -> output)
+  // the TOP queue's row is still addressable (write -> readback)
   axi_write(A_CBS4_IDLE, 0x0C0FFEE0);
-  ck("CBS4_IDLE rw", axi_read(A_CBS4_IDLE), 0x0C0FFEE0);
-  dut->eval();
-  ck("o_cbs_idle_slope_bps[4]", dut->o_cbs_idle_slope_bps[4], 0x0C0FFEE0);
-  axi_write(A_CBS4_CTRL, 0x1);           // shape the class-A queue
-  dut->eval();
-  ck("o_cbs_enable bit4", (dut->o_cbs_enable >> 4) & 1, 1);
+  ck("CBS4_IDLE rw (scratch)", axi_read(A_CBS4_IDLE), 0x0C0FFEE0);
+  axi_write(A_CBS4_CTRL, 0x1);
+  ck("CBS4_CTRL rw (scratch, bit 0)", axi_read(A_CBS4_CTRL), 0x1);
   axi_write(A_CBS4_CTRL, 0x0);
   axi_write(A_CBS4_IDLE, 450000000u);
 
   printf("-- IRQ: event latch, mask, W1C --\n");
   axi_write(A_IRQ_MASK, 0x7);
-  dut->i_evt_tx_ts_ready = 1; posedge(); dut->i_evt_tx_ts_ready = 0; posedge();
-  ck("IRQ_STATUS[0] set", axi_read(A_IRQ_STATUS) & 1, 1);
-  dut->eval();
-  ck("o_irq asserted", dut->o_irq, 1);
-  axi_write(A_IRQ_STATUS, 0x1);          // W1C bit0
-  ck("IRQ_STATUS[0] cleared", axi_read(A_IRQ_STATUS) & 1, 0);
-  dut->eval();
-  ck("o_irq deasserted", dut->o_irq, 0);
   dut->i_evt_link_change = 1; posedge(); dut->i_evt_link_change = 0; posedge();
   ck("IRQ_STATUS[1] set", (axi_read(A_IRQ_STATUS) >> 1) & 1, 1);
-  axi_write(A_IRQ_STATUS, 0x2);
+  dut->eval();
+  ck("o_irq asserted", dut->o_irq, 1);
+  axi_write(A_IRQ_STATUS, 0x2);          // W1C bit1
+  ck("IRQ_STATUS[1] cleared", (axi_read(A_IRQ_STATUS) >> 1) & 1, 0);
+  dut->eval();
+  ck("o_irq deasserted", dut->o_irq, 0);
+  dut->i_evt_rmon_rollover = 1; posedge(); dut->i_evt_rmon_rollover = 0; posedge();
+  ck("IRQ_STATUS[2] set", (axi_read(A_IRQ_STATUS) >> 2) & 1, 1);
+  axi_write(A_IRQ_STATUS, 0x4);
+  // IRQ_STATUS[0] tx_ts_ready is a STRUCTURAL ZERO: the TX record stamper
+  // that pulsed it left milan_datapath with the general-data chain and the
+  // block has no event input for it. It never sets; its W1C is inert.
+  ck("IRQ_STATUS[0] is structural zero", axi_read(A_IRQ_STATUS) & 1, 0);
+  axi_write(A_IRQ_STATUS, 0x1);
+  ck("IRQ_STATUS[0] W1C is inert", axi_read(A_IRQ_STATUS) & 1, 0);
 
   // Hardware event set must win over a coincident W1C clear (event not lost).
   // With the event held asserted across the W1C ack, the bit stays set.
-  dut->i_evt_tx_ts_ready = 1;
-  axi_write(A_IRQ_STATUS, 0x1);          // W1C bit0 while the event is asserted
-  ck("event beats W1C (bit stays set)", axi_read(A_IRQ_STATUS) & 1, 1);
-  dut->i_evt_tx_ts_ready = 0; posedge();
-  axi_write(A_IRQ_STATUS, 0x1);          // now the event is gone, W1C clears it
-  ck("W1C clears once event deasserts", axi_read(A_IRQ_STATUS) & 1, 0);
+  dut->i_evt_link_change = 1;
+  axi_write(A_IRQ_STATUS, 0x2);          // W1C bit1 while the event is asserted
+  ck("event beats W1C (bit stays set)", (axi_read(A_IRQ_STATUS) >> 1) & 1, 1);
+  dut->i_evt_link_change = 0; posedge();
+  axi_write(A_IRQ_STATUS, 0x2);          // now the event is gone, W1C clears it
+  ck("W1C clears once event deasserts", (axi_read(A_IRQ_STATUS) >> 1) & 1, 0);
 
   printf("-- PTP command strobes + TOD snapshot --\n");
   seen_ptp_snap = false;
@@ -467,25 +442,18 @@ int main(int argc, char** argv) {
   ck("o_adp_listener_caps unmoved",  dut->o_adp_listener_caps, 0x4801);
   // #116: without the fabric engine there is no runtime gPTP owner. The
   // historical publication addresses stay mapped but are inert and read zero.
-  ck("ownerless GM resets zero", dut->o_adp_gptp_gm, 0);
-  ck("ownerless parent resets zero", dut->o_as_parent_ckid, 0);
+  // The block exports no GM/parent/pdelay mirror ports at all (the datapath's
+  // consumers read the fabric bank directly), so the addresses ARE the face.
   ck("ownerless domain is zero", dut->o_adp_gptp_domain, 0);
 
-  gm_mon_prev  = dut->o_adp_gptp_gm;
-  gm_mon_edges = 0;
-  gm_mon_on    = true;
   axi_write(A_ADP_GMLO, 0x44556677);
   axi_write(A_ADP_GMHI, 0x00112233);
   for (int g = 0; g < 8; ++g) posedge();
-  gm_mon_on = false;
-  ck("GM writes cannot manufacture an owner", dut->o_adp_gptp_gm, 0);
   ck("GM LO retained address reads zero", axi_read(A_ADP_GMLO), 0);
   ck("GM HI retained address reads zero", axi_read(A_ADP_GMHI), 0);
-  ck("GM writes create no publication edges", gm_mon_edges, 0);
 
   axi_write(A_AS2_LO, 0xCCDDEEFF);
   axi_write(A_AS2_HI, 0x8899AABB);
-  ck("parent writes cannot manufacture an owner", dut->o_as_parent_ckid, 0);
   ck("parent LO retained address reads zero", axi_read(A_AS2_LO), 0);
   ck("parent HI retained address reads zero", axi_read(A_AS2_HI), 0);
 
@@ -524,14 +492,13 @@ int main(int argc, char** argv) {
   dut->eval();
   ck("o_lwsrp_enable",    dut->o_lwsrp_enable, 1);
   ck("o_lwsrp_talker_en", dut->o_lwsrp_talker_en, 1);
-  ck("o_lwsrp_qidx",      dut->o_lwsrp_qidx, 1);
-  // the widened field must actually REACH the top queue: bit 4 used to be
-  // reserved-0, so a build that kept [3:2] would report qidx 0 here instead of
-  // 4. (5..7 are still writable and name no queue - milan_datapath gates the
-  // slope MUX on qidx < NUM_QUEUES, which tb/verilator/milan_dp pins.)
+  // LWSRP_CTRL[4:2] (the class-A queue index) is stored and read back but
+  // has no port: it selected the CBS slope MUX target, and the shaper is no
+  // longer instantiated by milan_datapath.
+  ck("LWSRP_CTRL[4:2] stores (no consumer)", (axi_read(0x680) >> 2) & 7, 1);
   axi_write(0x680, 0x11);                // enable, queue 4
   dut->eval();
-  ck("o_lwsrp_qidx q4",   dut->o_lwsrp_qidx, 4);
+  ck("LWSRP_CTRL[4:2] q4 stores", (axi_read(0x680) >> 2) & 7, 4);
   axi_write(0x680, 0x7);
   axi_write(0x684, 42);
   axi_write(0x690, 0x000200F0);
@@ -628,27 +595,15 @@ int main(int argc, char** argv) {
   // ---- 0x778 retired clock-owner ABI (#116) --------------------------
   // The word remains addressable, but no write may produce a pulse, lease,
   // sync claim, discontinuity, or asCapable claim.
+  // The block has no o_clkv_* ports (deleted, not tied): a write here has
+  // no wire to travel down, so the readback is the whole observable face.
   ck("CLKV_CTRL reset is inert zero", axi_read(0x778), 0);
-  ck("o_clkv_wr_p resets zero", dut->o_clkv_wr_p, 0);
-  ck("o_clkv_sync_ok resets zero", dut->o_clkv_sync_ok, 0);
-  ck("o_clkv_disc_p resets zero", dut->o_clkv_disc_p, 0);
-  ck("o_clkv_as_cap resets zero", dut->o_clkv_as_cap, 0);
-  ck("o_clkv_wdog_q resets zero", dut->o_clkv_wdog_q, 0);
 
-  seen_clkv_wr = seen_clkv_disc = false;
   axi_write(0x778, 0xFFFFFFFFu);
   ck("CLKV_CTRL all-ones write reads zero", axi_read(0x778), 0);
-  ck("CLKV_CTRL write emits no owner pulse", seen_clkv_wr, 0);
-  ck("CLKV_CTRL write emits no discontinuity", seen_clkv_disc, 0);
-  ck("CLKV_CTRL write cannot assert sync", dut->o_clkv_sync_ok, 0);
-  ck("CLKV_CTRL write cannot assert asCapable", dut->o_clkv_as_cap, 0);
-  ck("CLKV_CTRL write cannot create a lease", dut->o_clkv_wdog_q, 0);
 
   axi_write(0x778, 0x00000045u);
   ck("legacy sync/asCapable/lease pattern remains inert", axi_read(0x778), 0);
-  ck("legacy pattern leaves every output zero",
-     dut->o_clkv_wr_p | dut->o_clkv_sync_ok | dut->o_clkv_disc_p |
-     dut->o_clkv_as_cap | dut->o_clkv_wdog_q, 0);
 
   // Status/counter remain live read-only views of the fabric validity block.
   dut->i_clkv_stat = 0x00000009; dut->eval();
@@ -711,7 +666,7 @@ int main(int argc, char** argv) {
   // Inert propagation-delay compatibility address (#116).
   ck("GPTP_PDELAY reset 0", axi_read(0x6E4), 0);
   axi_write(0x6E4, 0x00021F6A); dut->eval();
-  ck("pdelay write cannot manufacture an owner", dut->o_gptp_pdelay_ns, 0);
+  // (no o_gptp_pdelay_ns mirror port exists; the retained address is the face)
   ck("GPTP_PDELAY retained address reads zero", axi_read(0x6E4), 0);
 
   printf("-- RX dest-MAC TCAM programming (REQ-MAC-02) --\n");

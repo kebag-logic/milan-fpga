@@ -25,8 +25,8 @@ AAF_CTRL 0x654 + 0x800 TCTX window" style="rounded=1;whiteSpace=wrap;html=1;fill
 <mxCell id="n_fabricctl" value="fabric protocol / time sources
 protocol processor · MAAP · gPTP · CRF" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#455A64;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="850" y="130" width="300" height="64" as="geometry"/></mxCell>
 <mxCell id="n_inject" value="fabric egress arbiter
-adp_tx_arbiter + aaf_final_mux
-AAF joins the fabric TX trunk;
+adp_tx_arbiter (crf_dp_mux)
+AAF heads the fabric TX trunk;
 bandwidth held by processor SRP
 reservation face grants admission" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#EF6C00;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="1208" y="288" width="268" height="116" as="geometry"/></mxCell>
 <mxCell id="n_mactx" value="MAC TX
@@ -37,7 +37,7 @@ AAF-PCM class A, 8000 PDU/s @48 k
 DMAC = MAAP claim, VLAN SR VID
 presentation time rides every PDU" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF8E1;strokeColor=#F9A825;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="1880" y="296" width="300" height="100" as="geometry"/></mxCell>
 <mxCell id="n_macrx" value="MAC RX
-ptp_ts_top RX stamp
+rx_axis_from_mac tap
 TCAM DMAC filter" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#EF6C00;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="60" y="760" width="200" height="92" as="geometry"/></mxCell>
 <mxCell id="n_parser" value="avtp_stream_parser
 + KL_stream_table: wire-truth

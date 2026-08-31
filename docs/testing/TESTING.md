@@ -164,7 +164,7 @@ for d in */ ; do ( cd "$d" && make clean >/dev/null && make ) || exit 1; done
 Per-suite DUT/what-it-proves table: [`tb/verilator/README.md`](../../tb/verilator/README.md).
 `ls tb/verilator/` is authoritative (one dir per suite).
 Highlights: `milan_dp` drives the **whole `milan_datapath` wrapper** (the
-LiteX integration boundary - CSR ID read, classifier programming, byte-exact
+LiteX integration boundary - CSR ID read, scratch-word readback, byte-exact
 TX/RX); `pp_shadow` is the suite that **grades** the protocol processor as this
 device's control plane, and since 2026-08-13 it is the only control-plane suite
 of any kind; `controller_rate` is the gating regression born from the

@@ -52,21 +52,6 @@ static void tick(long n = 1) {
     }
 }
 
-//! Drive every CLKV compatibility pin as one maximal write. They must have no
-//! effect in either shape.
-static void clkv_write(bool sync_ok, unsigned wdog_q, bool disc = false,
-                       bool as_cap = false) {
-    dut->sw_sync_ok_i = sync_ok;
-    dut->sw_wdog_q_i  = wdog_q;
-    dut->sw_disc_p_i  = disc;
-    dut->sw_as_cap_i  = as_cap;
-    dut->sw_wr_p_i    = 1;
-    tick();
-    dut->sw_wr_p_i   = 0;
-    dut->sw_disc_p_i = 0;
-    tick();
-}
-
 //! run until tu clears, or give up. Returns cycles waited.
 static long wait_tu(int want, long limit) {
     long n = 0;
@@ -82,9 +67,6 @@ int main(int argc, char** argv) {
 
     dut = new VKL_ptp_clock_validity;
     dut->rst_n = 0;
-    dut->sw_wr_p_i = 0; dut->sw_sync_ok_i = 0; dut->sw_disc_p_i = 0;
-    dut->sw_as_cap_i = 0;
-    dut->sw_wdog_q_i = 0;
     dut->fabric_sync_ok_i = 0; dut->fabric_as_cap_i = 0;
     dut->fabric_disc_p_i = 0;
     dut->phc_load_p_i = 0; dut->phc_adj_p_i = 0;
@@ -102,9 +84,10 @@ int main(int argc, char** argv) {
         ck("fabric mode keeps retired no-lease field zero",
            (dut->stat_o >> 2) & 1, 0);
 
-        clkv_write(true, 8, false, true);
-        ck("software sync lease ignored", (dut->stat_o >> 1) & 1, 0);
-        ck("software asCapable ignored", dut->as_capable_o, 0);
+        //! There is no software input to this block any more (the retired
+        //! sw_* ports are deleted), so the owner fields can only be fabric's.
+        ck("no software sync claim exists", (dut->stat_o >> 1) & 1, 0);
+        ck("no software asCapable claim exists", dut->as_capable_o, 0);
         ck("retired lease count is zero", (dut->stat_o >> 4) & 0xFFF, 0);
 
         dut->gm_id_i = 0x1122334455667788ull;
@@ -157,21 +140,12 @@ int main(int argc, char** argv) {
     ck("reset: STAT[16] asCapable", (dut->stat_o >> 16) & 1, 0);
     ck("reset: TUCNT = 0", dut->tu_ivals_o, 0);
 
-    // Drive every inert compatibility input at once. This is the mutation
-    // anchor: reconnecting them makes sync/asCapable rise and tu clear.
-    clkv_write(/*sync_ok=*/true, /*wdog_q=*/0xFFF,
-               /*disc=*/true, /*as_cap=*/true);
-    ck("software write cannot clear tu", dut->ts_uncertain_o, 1);
-    ck("software write cannot assert sync", (dut->stat_o >> 1) & 1, 0);
-    ck("software write cannot assert asCapable", dut->as_capable_o, 0);
-    ck("software write cannot create a lease", (dut->stat_o >> 4) & 0xFFF, 0);
-    ck("software discontinuity input is inert", (dut->stat_o >> 3) & 1, 0);
-
-    for (int n = 0; n < 8; ++n)
-        clkv_write((n & 1) != 0, 1u << n, (n & 2) != 0, (n & 4) != 0);
-    ck("repeated writes still cannot clear tu", dut->ts_uncertain_o, 1);
-    ck("repeated writes leave owner fields zero",
-       dut->stat_o & 0x0001FFF6u, 0);
+    // There is no software input port left on this block (the retired sw_*
+    // ports are deleted), so nothing a CSR write reaches can clear tu or
+    // claim sync/asCapable; the owner fields stay zero over time.
+    tick(16);
+    ck("time alone cannot clear tu", dut->ts_uncertain_o, 1);
+    ck("owner fields stay zero with no input", dut->stat_o & 0x0001FFF6u, 0);
 
     // Fabric publication pins are also irrelevant in the option-off
     // elaboration; only FABRIC_GPTP_P=1 may consume them.
@@ -214,7 +188,7 @@ int main(int argc, char** argv) {
         // The real-divider shape proves the wide counter arithmetic without
         // simulating a full quarter second.
         tick(32);
-        ck("shipping divider: writes still cannot clear tu",
+        ck("shipping divider: tu still asserted with no owner",
            dut->ts_uncertain_o, 1);
         ck("shipping divider: owner fields remain zero",
            dut->stat_o & 0x0001FFF6u, 0);

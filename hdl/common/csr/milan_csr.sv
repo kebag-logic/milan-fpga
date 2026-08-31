@@ -13,9 +13,19 @@
                 network interface. This is the memory-mapped control plane
                 (REQUIREMENTS.md REQ-CSR-*) that bare-metal firmware uses; it
                 turns the previously compile-time-only TSN knobs (MAC config,
-                802.1Q classifier map, 802.1Qav CBS slopes, PTP clock control)
-                into runtime-writable registers, and exposes MAC statistics,
-                link status and interrupts back to software.
+                PTP clock control, the fabric media and protocol faces) into
+                runtime-writable registers, and exposes MAC statistics, link
+                status and interrupts back to software.
+
+                THE 802.1Q CLASSIFIER / 802.1Qav CBS FACES ARE WRITE-ONLY
+                SCRATCH SINCE VERSION 0x0002_0056. traffic_controller_802_1q
+                and the ptp_ts_top record stampers are no longer instantiated
+                by milan_datapath (their only input was the retired host
+                plane's TX), so CLS_* (0x300), the CBS window (0x400) and
+                PTP_INGRESS/EGRESS_LAT (0x540/0x544) still store and read
+                back what software writes but reach no logic; CAP.CBS and
+                IRQ_STATUS[0] tx_ts_ready are structural zero. The output
+                ports that carried them are deleted, not tied.
 
                 THE LEGACY 1722.1 / SRP GROUPS ARE INERT SINCE 2026-08-13.
                 The RTL that consumed them - this repository's own ADP
@@ -54,8 +64,8 @@
                   0x000  ID / VERSION / CAPABILITIES / IRQ
                   0x100  MAC control + status
                   0x200  Statistics (RMON) snapshot window
-                  0x300  802.1Q classifier (PCP->TC map, default priority)
-                  0x400  802.1Qav CBS, per queue (stride 0x20)
+                  0x300  802.1Q classifier (PCP->TC map; write-only scratch)
+                  0x400  802.1Qav CBS, per queue (stride 0x20; write-only scratch)
                   0x500  PTP hardware clock (adjfine/adjtime/settime/gettime)
 
                 Design notes:
@@ -171,22 +181,13 @@ module milan_csr #(
   //! silicon for months (docs/limitations/RECURRING_DEFECT_PATTERNS.md 1).
   input  wire [31:0]             i_stats_cap,
 
-  // ---- 802.1Q classifier (REQ-CLS-01..04) ----
-  output wire                    o_cls_use_pcp,      //! 1 = classify by PCP table, 0 = legacy EtherType (CLS_CTRL[0])
-  output wire                    o_cls_dmac_check,   //! Enable reserved-DMAC validation (CLS_CTRL[1])
-  output wire                    o_cls_ctrl_class,   //! Enable the untagged-control DMAC fast path (CLS_CTRL[2])
-  output wire [2:0]              o_cls_default_pcp,  //! Default port priority for untagged frames (CLS_DEFAULT_PCP)
-  output wire [23:0]             o_cls_pcp_tc_map,   //! Priority->traffic-class table, 8x3 bits (CLS_PCP_TC_MAP)
-  output wire [23:0]             o_cls_prio_regen,   //! Priority regeneration table, 8x3 bits (CLS_PRIO_REGEN)
-  output wire [31:0]             o_cls_tc_queue_map, //! Traffic-class->queue map (CLS_TC_QUEUE_MAP)
+  // ---- 802.1Q classifier (0x300) and 802.1Qav CBS (0x400): NO PORTS.
+  //      The words are write-only scratch - stored in the shadow, served
+  //      with their documented reset values, consumed by nothing - since the
+  //      classifier/queue/shaper chain left milan_datapath. A port carrying a
+  //      value no module reads is the dead-face shape this block refuses.
 
-  // ---- 802.1Qav CBS, per queue, packed [q*32 +: 32] (REQ-CBS-01..03) ----
-  output wire [32*NUM_QUEUES-1:0] o_cbs_idle_slope_bps, //! Per-queue idleSlope, bits/s (CBS_IDLE_SLOPE)
-  output wire [32*NUM_QUEUES-1:0] o_cbs_hi_credit_bytes,  //! Per-queue hiCredit, signed bytes (CBS_HI_CREDIT)
-  output wire [32*NUM_QUEUES-1:0] o_cbs_lo_credit_bytes,  //! Per-queue loCredit, signed bytes (CBS_LO_CREDIT)
-  output wire [NUM_QUEUES-1:0]    o_cbs_enable,     //! Per-queue shaped-enable; 0 = strict priority (CBS_CTRL[0])
-
-  // ---- PTP hardware clock (REQ-PTP-01..04,06) ----
+  // ---- PTP hardware clock (REQ-PTP-01, 02) ----
   output wire                    o_ptp_enable,      //! PTP counter enable (PTP_CTRL[0])
   output wire [31:0]             o_ptp_incr,        //! Nominal per-tick increment, ns.frac (PTP_INCR)
   output wire [31:0]             o_ptp_adj,         //! Signed adjfine addend added each tick (PTP_ADJ)
@@ -195,8 +196,8 @@ module milan_csr #(
   output wire                    o_ptp_cmd_load,    //! settime apply strobe (1-cycle pulse, PTP_CMD[0])
   output wire                    o_ptp_cmd_adjust,  //! adjtime apply strobe (1-cycle pulse, PTP_CMD[1])
   output wire                    o_ptp_cmd_snapshot,//! gettime latch strobe (1-cycle pulse, PTP_CMD[2])
-  output wire [31:0]             o_ptp_ingress_lat, //! Ingress latency correction, ns (PTP_INGRESS_LAT)
-  output wire [31:0]             o_ptp_egress_lat,  //! Egress latency correction, ns (PTP_EGRESS_LAT)
+  //! PTP_INGRESS_LAT / PTP_EGRESS_LAT (0x540/0x544) have no port: their only
+  //! reader was the ptp_ts_core record path, gone with the general-data chain
   input  wire [63:0]             i_ptp_tod,         //! gettime snapshot value from the PHC (gtx_clk, synchronised)
   input  wire                    i_ptp_tod_valid,   //! 1-cycle pulse: latch i_ptp_tod into PTP_TOD_RD (REQ-PTP-03/CSR-03)
 
@@ -211,8 +212,6 @@ module milan_csr #(
   output wire [15:0]             o_adp_listener_sinks,//! listener_stream_sinks (ADP_LIST[15:0], RO = ADP_LISTENER_SINK_C, from the config)
   output wire [15:0]             o_adp_listener_caps, //! listener_capabilities (ADP_LIST[31:16], RO = ADP_LISTENER_CAPS_C, from the config)
   output wire [31:0]             o_adp_controller_caps, //! controller_capabilities (ADP_CCAPS)
-  output wire [63:0]             o_adp_gptp_gm,       //! selected-owner gptp_grandmaster_id (zero with no fabric owner)
-  output wire [31:0]             o_gptp_pdelay_ns,    //! selected-owner propagation delay (zero with no fabric owner)
   input  wire [63:0]             i_gptp_gm_id,        //! fabric publication bank GM (live read when enabled)
   input  wire [63:0]             i_gptp_parent_id,    //! fabric publication bank parent clockIdentity
   input  wire [31:0]             i_gptp_pdelay_ns,    //! fabric publication bank neighbor delay
@@ -272,7 +271,8 @@ module milan_csr #(
   // ---- lwSRP engine (0x680 group, docs/LWSRP_FPGA_ARCHITECTURE.md) ----
   output wire                    o_lwsrp_enable,        //! LWSRP_CTRL[0] engine enable
   output wire                    o_lwsrp_talker_en,     //! LWSRP_CTRL[1] TalkerAdvertise declare
-  output wire [2:0]              o_lwsrp_qidx,          //! LWSRP_CTRL[4:2] class-A queue (slope MUX target); 3 bits since the 802.1Q-order map put class A on the TOP queue (q4 at N=5)
+  //! LWSRP_CTRL[4:2] (the class-A queue index) has no port: it selected the
+  //! CBS slope MUX target, and there is no shaper to select a queue of
   output wire                    o_lwsrp_decl_bypass,   //! LWSRP_CTRL[5] declare-always bypass (reset 0: Milan 4.3.3.1 gates the TalkerAdvertise)
   output wire [11:0]             o_lwsrp_vid,           //! LWSRP_VID[11:0] SR VID
   output wire [47:0]             o_lwsrp_dest_mac,      //! stream DMAC {DMHI[15:0], DMLO}
@@ -379,15 +379,10 @@ module milan_csr #(
   input  wire [31:0]             i_bdbg1,
   input  wire [31:0]             i_bdbg2,
   input  wire [31:0]             i_linkg_stat,        //! RO 0x774: link-guard status
-  //! ---- 0x778 inert clock-validity compatibility ABI -------------------
-  //! The address and output ports remain for compatibility, but every output
-  //! and the CTRL readback are zero. Clock validity comes only from the fabric
-  //! gPTP engine; an option-off build cannot manufacture an owner by writing.
-  output wire                    o_clkv_wr_p,
-  output wire                    o_clkv_sync_ok,
-  output wire                    o_clkv_disc_p,
-  output wire                    o_clkv_as_cap,
-  output wire [11:0]             o_clkv_wdog_q,
+  //! ---- 0x778 inert clock-validity compatibility address ----------------
+  //! The address remains for compatibility and its readback is zero; it has
+  //! NO output ports. Clock validity comes only from the fabric gPTP engine;
+  //! an option-off build cannot manufacture an owner by writing.
   input  wire [31:0]             i_clkv_stat,         //! RO 0x77C: selected-owner validity status
   input  wire [31:0]             i_clkv_tucnt,        //! RO 0x780: Milan Table 5.4 TIMESTAMP_UNCERTAIN (talker)
   input  wire [31:0]             i_txarb_diag,        //! RO 0x784: TX-trunk arbiter lock supervision
@@ -397,7 +392,6 @@ module milan_csr #(
                                                       //! the STAT0-8 snapshot (stale-shadow fix)
   output wire                    o_linkg_dis,         //! LINK_CTRL[2]: 1 = link guard disabled
   output wire                    o_linkg_freeze,      //! LINK_CTRL[3]: test - fake eth clock death
-  output wire [63:0]             o_as_parent_ckid,    //! selected-owner 802.1AS parent clockIdentity
   output wire                    o_tcam_default_pass, //! accept frames that miss the TCAM (TCAM_CTRL[0])
   output wire                    o_tcam_addr_filt_en, //! apply the 802.3 station address filter on a TCAM miss (TCAM_CTRL[1], REQ-MAC-02)
   output wire                    o_tcam_wr_en,        //! 1-cycle: commit an entry write to the TCAM
@@ -566,7 +560,9 @@ module milan_csr #(
   input  wire [15:0]             i_pp_tx_frames,    //! frames the PP WOULD have sent
 
   // ---- Interrupt (REQ-CSR-04) ----
-  input  wire                    i_evt_tx_ts_ready,   //! Event: TX egress timestamp available (sets IRQ_STATUS[0])
+  //! IRQ_STATUS[0] tx_ts_ready has no event input: the TX record stamper that
+  //! pulsed it is gone with the general-data chain, so the bit is a
+  //! structural zero (W1C of a bit that never sets)
   input  wire                    i_evt_link_change,   //! Event: link/speed change (sets IRQ_STATUS[1])
   input  wire                    i_evt_rmon_rollover, //! Event: RMON counter rollover (sets IRQ_STATUS[2])
   output wire                    o_eth_guard,         //! ETH GUARD (0x7D8): 1 = CPU eth-disruption levers refused (also gates phy_crg in the SoC)
@@ -1007,11 +1003,9 @@ module milan_csr #(
   (* quasi_static = "yes" *) logic [31:0] mc_hi;     //! MC_HASH_HI: multicast hash [63:32]
   logic [31:0] phy_rst;                  //! PHY_RESET: PHY reset (active-low bit 0)
   logic        eth_guard;                //! ETH_GUARD[0]: 1 = CPU eth levers refused
-  logic [31:0] cls_ctrl;                 //! CLS_CTRL: classifier mode bits
-  (* quasi_static = "yes" *) logic [31:0] cls_dpcp;  //! CLS_DEFAULT_PCP: default port priority
-  (* quasi_static = "yes" *) logic [31:0] cls_map;   //! CLS_PCP_TC_MAP: PCP->TC table
-  (* quasi_static = "yes" *) logic [31:0] cls_regen; //! CLS_PRIO_REGEN: priority regeneration table
-  (* quasi_static = "yes" *) logic [31:0] cls_tcq;   //! CLS_TC_QUEUE_MAP: TC->queue map
+  //! CLS_* (0x300) and the CBS window (0x400) have no flops: they are plain
+  //! RW words served from the shadow RAM (reset image from csr_default) with
+  //! no consumer - write-only scratch, see the header.
   logic [31:0] ptp_ctrl;                 //! PTP_CTRL: PTP clock enable
   //! PTP_INCR reset value: the clock period in Q8.24 ns, derived from the
   //! instantiator's declared PHC clock (never a mirrored per-board constant)
@@ -1023,15 +1017,8 @@ module milan_csr #(
   logic [31:0] ptp_twhi;                 //! PTP_TOD_WR_HI: settime target high
   logic [31:0] ptp_oflo;                 //! PTP_OFFSET_LO: adjtime delta low
   logic [31:0] ptp_ofhi;                 //! PTP_OFFSET_HI: adjtime delta high
-  logic [31:0] ptp_ilat;                 //! PTP_INGRESS_LAT: ingress latency correction
-  logic [31:0] ptp_elat;                 //! PTP_EGRESS_LAT: egress latency correction
   logic [63:0] ptp_tod_rd;               //! PTP_TOD_RD: TOD latched on snapshot (gettime)
   logic [31:0] stat_snap [0:NS-1];       //! Coherent snapshot of the RMON counters
-
-  logic [31:0] cbs_idle [0:NUM_QUEUES-1];//! Per-queue CBS idleSlope (bits/s)
-  logic [31:0] cbs_hi   [0:NUM_QUEUES-1];//! Per-queue CBS hiCredit (signed bytes)
-  logic [31:0] cbs_lo   [0:NUM_QUEUES-1];//! Per-queue CBS loCredit (signed bytes)
-  logic [NUM_QUEUES-1:0] cbs_en;         //! Per-queue CBS shaped-enable
 
   logic stats_snap_p;                    //! Stats snapshot command strobe (1 cycle)
   logic stats_rst_p;                     //! Stats reset command strobe (1 cycle)
@@ -1369,39 +1356,14 @@ module milan_csr #(
       mac_ctrl <= 32'h13; mac_ifg <= 32'h0C; mac_alo <= 32'h0; mac_ahi <= 32'h0;
       mc_lo <= 32'h0; mc_hi <= 32'h0; phy_rst <= 32'h1;
       eth_guard <= 1'b1;                //! guarded from power-on (USER 08-06)
-      // CLS_CTRL reset 0x5: [0] use_pcp = 1 (802.1Q tables), [1] dmac_check = 0
-      // (REQ-CLS-07 opt-in), [2] ctrl_class = 1 (REQ-CLS-10 - the control fast
-      // path ships ON, because the q2 row of EGRESS_QUEUE_MAP.md is the spec and
-      // untagged control frames have no PCP the tables could route them by).
-      cls_ctrl <= 32'h5; cls_dpcp <= 32'h0; cls_map <= 32'h00FAC688;
-      // PRIO_REGEN resets to IDENTITY (0xFAC688 packs p->p at 3 bits/entry).
-      // The previous 0x688FAC half-swapped priorities (0..3 <-> 4..7), silently
-      // regenerating PCP 1..3 to 5..7 so SR-class frames landed in the wrong
-      // queue (HW-diagnosed 2026-07-05 during the CBS interference bring-up).
-      // CLS_TC_QUEUE_MAP packs one ceil(log2 NUM_QUEUES)-bit queue index per
-      // traffic class. At NUM_QUEUES = 5 that is still 3 bits/entry and the
-      // reset word is the 5-queue map (docs/reference/EGRESS_QUEUE_MAP.md):
-      //   TC0,TC1 -> q0 (best effort / background)
-      //   TC2     -> q3 (SR class B, 802.1Q Table 34-1 default priority 2)
-      //   TC3     -> q4 (SR class A, 802.1Q Table 34-1 default priority 3 -
-      //                  the PCP the AAF packetizer and lwSRP actually emit)
-      //   TC4,TC5 -> q1 (control: MAAP/MSRP/MVRP + 1722.1 ADP/ACMP/AECP)
-      //   TC6,TC7 -> q2 (internetwork/network control -> gPTP)
-      // Every queue is mapped; the 6-queue map's unmapped spare is gone. A
-      // traffic class that still named q5/q6/q7 would be CLAMPED to best
-      // effort by traffic_class_map rather than silently dropped in the demux.
-      cls_regen <= 32'h00FAC688; cls_tcq <= 32'h004898C0;
+      // CLS_* and the CBS window: no flops. Their documented reset values
+      // (CLS_CTRL 0x5, the identity PCP maps, the 5-queue TC map, the
+      // CBS_*_RST tables) live in csr_default and are swept into the shadow.
       //! free-run increment = the TRUE clock period (see MILAN_CLK_FREQ_HZ_P)
       ptp_ctrl <= 32'h1; ptp_incr <= PTP_INCR_RST_C; ptp_adj <= 32'h0;
       ptp_twlo <= 32'h0; ptp_twhi <= 32'h0; ptp_oflo <= 32'h0; ptp_ofhi <= 32'h0;
-      ptp_ilat <= 32'h0; ptp_elat <= 32'h0; ptp_tod_rd <= 64'h0;
+      ptp_tod_rd <= 64'h0;
       for (i = 0; i < NS; i = i + 1) stat_snap[i] <= 32'h0;
-      for (i = 0; i < NUM_QUEUES; i = i + 1) begin
-        cbs_idle[i] <= (i < 5) ? CBS_IDLE_RST[i][31:0] : 32'h0;
-        cbs_hi[i]   <= (i < 5) ? CBS_HI_RST[i][31:0]   : 32'h0;
-        cbs_lo[i]   <= (i < 5) ? CBS_LO_RST[i][31:0]   : 32'h0;
-      end
-      cbs_en <= CBS_EN_RST[NUM_QUEUES-1:0];
       adp_ctrl <= 32'h0000_0A00;   // enable=0, valid_time=10 (Milan 5.6.2 "shall be set to 10"; validity 20 s)
       // enable=0, bypass=1 (bit1: legacy stream-whenever-enabled — the
       // Milan probe-gated mode is opt-in until silicon-proven), VID=2
@@ -1483,8 +1445,7 @@ module milan_csr #(
         unique case (wr_addr)
           A_SCRATCH:   scratch  <= s_axi_wdata;
           A_IRQ_MASK:  irq_mask <= s_axi_wdata;
-          A_IRQ_STATUS: begin // write-1-to-clear
-            if (s_axi_wdata[0]) irq_status[0] <= 1'b0;
+          A_IRQ_STATUS: begin // write-1-to-clear ([0] never sets: structural zero)
             if (s_axi_wdata[1]) irq_status[1] <= 1'b0;
             if (s_axi_wdata[2]) irq_status[2] <= 1'b0;
           end
@@ -1505,11 +1466,6 @@ module milan_csr #(
             end
             if (s_axi_wdata[1]) stats_rst_p <= 1'b1; // reset external counters
           end
-          A_CLS_CTRL:  cls_ctrl  <= s_axi_wdata;
-          A_CLS_DPCP:  cls_dpcp  <= s_axi_wdata;
-          A_CLS_MAP:   cls_map   <= s_axi_wdata;
-          A_CLS_REGEN: cls_regen <= s_axi_wdata;
-          A_CLS_TCQ:   cls_tcq   <= s_axi_wdata;
           A_PTP_CTRL:  ptp_ctrl  <= s_axi_wdata;
           A_PTP_INCR:  ptp_incr  <= s_axi_wdata;
           A_PTP_ADJ:   ptp_adj   <= s_axi_wdata;
@@ -1517,8 +1473,6 @@ module milan_csr #(
           A_PTP_TWHI:  ptp_twhi  <= s_axi_wdata;
           A_PTP_OFLO:  ptp_oflo  <= s_axi_wdata;
           A_PTP_OFHI:  ptp_ofhi  <= s_axi_wdata;
-          A_PTP_ILAT:  ptp_ilat  <= s_axi_wdata;
-          A_PTP_ELAT:  ptp_elat  <= s_axi_wdata;
           A_PTP_CMD: begin // command strobes, self-clearing (read back 0)
             if (s_axi_wdata[0]) ptp_load_p <= 1'b1;
             if (s_axi_wdata[1]) ptp_adj_p  <= 1'b1;
@@ -1755,20 +1709,9 @@ module milan_csr #(
               tcam_wr_valid_r <= s_axi_wdata[8];
             end
           end
-          default: begin
-            // per-queue CBS window 0x400 + q*0x20 (stride 0x20 => off[5+:QW] = queue)
-            if (wr_addr >= A_CBS_BASE && wr_addr < A_CBS_END) begin
-              logic [ADDR_WIDTH-1:0] off;
-              off = wr_addr - A_CBS_BASE;
-              case (off[4:0])
-                5'h00: cbs_idle[off[5 +: QW]] <= s_axi_wdata;
-                5'h04: cbs_hi  [off[5 +: QW]] <= s_axi_wdata;
-                5'h08: cbs_lo  [off[5 +: QW]] <= s_axi_wdata;
-                5'h0C: cbs_en  [off[5 +: QW]] <= s_axi_wdata[0];
-                default: ;
-              endcase
-            end
-          end
+          //! CLS_*, PTP_*_LAT and the 0x400 CBS window land in the shadow
+          //! only (is_plain_rw): write-only scratch, no flop, no consumer
+          default: ;
         endcase
       end
 
@@ -1785,7 +1728,6 @@ module milan_csr #(
       // Hardware-set event latches, applied AFTER the W1C write above so a
       // hardware event coincident with a software acknowledge is NOT lost: the
       // set wins the same-cycle race (REQ-CSR-04).
-      if (i_evt_tx_ts_ready)   irq_status[0] <= 1'b1;
       if (i_evt_link_change)   irq_status[1] <= 1'b1;
       if (i_evt_rmon_rollover) irq_status[2] <= 1'b1;
 
@@ -1808,9 +1750,11 @@ module milan_csr #(
     unique case (a)
       A_ID[10:0]:         csr_default = 32'h4D49_4C4E;      // "MILN"
       A_VERSION[10:0]:    csr_default = VERSION;
+      //! CAP[8] CBS = 0: no shaper is elaborated (REQ-CSR-05 - unsupported
+      //! is explicit). [3:0] num_queues stays the 0x400 window's geometry.
       A_CAP[10:0]:        csr_default = { 8'h00, 8'd64,
                                           1'b0, 1'b1, 1'b1, 1'b1,
-                                          1'b1, 1'b1, 1'b1, 1'b1,
+                                          1'b1, 1'b1, 1'b1, 1'b0,
                                           4'h0, 4'(NUM_QUEUES) };
       A_MAC_CTRL[10:0]:   csr_default = 32'h13;
       A_MAC_IFG[10:0]:    csr_default = 32'h0C;
@@ -1852,7 +1796,8 @@ module milan_csr #(
             5'h00:   csr_default = CBS_IDLE_RST[a[5 +: QW]][31:0];
             5'h04:   csr_default = CBS_HI_RST[a[5 +: QW]][31:0];
             5'h08:   csr_default = CBS_LO_RST[a[5 +: QW]][31:0];
-            default: csr_default = 32'h0;   // CTRL: en resets 0
+            5'h0C:   csr_default = {31'h0, CBS_EN_RST[a[5 +: QW]]}; // CTRL: en resets 0
+            default: csr_default = 32'h0;
           endcase
         end
       end
@@ -2390,24 +2335,6 @@ module milan_csr #(
   assign o_stats_snapshot = stats_snap_p;
   assign o_stats_reset    = stats_rst_p;
 
-  assign o_cls_use_pcp      = cls_ctrl[0];
-  assign o_cls_dmac_check   = cls_ctrl[1];
-  assign o_cls_ctrl_class   = cls_ctrl[2];
-  assign o_cls_default_pcp  = cls_dpcp[2:0];
-  assign o_cls_pcp_tc_map   = cls_map[23:0];
-  assign o_cls_prio_regen   = cls_regen[23:0];
-  assign o_cls_tc_queue_map = cls_tcq;
-
-  genvar g;
-  generate
-    for (g = 0; g < NUM_QUEUES; g = g + 1) begin : gen_cbs_out
-      assign o_cbs_idle_slope_bps[g*32 +: 32] = cbs_idle[g];
-      assign o_cbs_hi_credit_bytes [g*32 +: 32] = cbs_hi[g];
-      assign o_cbs_lo_credit_bytes [g*32 +: 32] = cbs_lo[g];
-      assign o_cbs_enable[g]              = cbs_en[g];
-    end
-  endgenerate
-
   assign o_ptp_enable       = ptp_ctrl[0];
   assign o_ptp_incr         = ptp_incr;
   assign o_ptp_adj          = ptp_adj;
@@ -2416,8 +2343,6 @@ module milan_csr #(
   assign o_ptp_cmd_load     = ptp_load_p;
   assign o_ptp_cmd_adjust   = ptp_adj_p;
   assign o_ptp_cmd_snapshot = ptp_snap_p;
-  assign o_ptp_ingress_lat  = ptp_ilat;
-  assign o_ptp_egress_lat   = ptp_elat;
 
   assign o_aaf_enable          = aaf_ctrl[0];
   assign o_aaf_bypass          = aaf_ctrl[1];
@@ -2549,20 +2474,12 @@ module milan_csr #(
                                ent_name_hi[7:0],  ent_name_hi[15:8],
                                ent_name_hi[23:16], ent_name_hi[31:24]};
   assign o_lpf_enable       = lpf_ctrl[0];
-  //! Inert compatibility face: keep the public ports and address, but make
-  //! the absence of a writable owner structural.
-  assign o_clkv_wr_p        = 1'b0;
-  assign o_clkv_sync_ok     = 1'b0;
-  assign o_clkv_disc_p      = 1'b0;
-  assign o_clkv_as_cap      = 1'b0;
-  assign o_clkv_wdog_q      = 12'd0;
   assign o_crf_en           = crf_ctrl[0];
   assign o_crf_sid          = {crf_sidhi, crf_sidlo};
   assign o_crft_en          = crft_ctrl[0];
   assign o_crft_class_a     = crft_ctrl[1];
   assign o_crft_sid         = {crft_sidhi, crft_sidlo};
   assign o_crft_dest_mac    = {crft_dmhi[15:0], crft_dmlo};
-  assign o_as_parent_ckid   = GPTP_PLANE_EN_P ? i_gptp_parent_id : 64'd0;
   //! Selected-owner PathTrace tail, flattened slot 1 first. Without the
   //! fabric engine there is no path owner; legacy writes remain inert.
   assign o_asp_path  = GPTP_PLANE_EN_P ? i_gptp_asp_path  : '0;
@@ -2579,7 +2496,6 @@ module milan_csr #(
 
   assign o_lwsrp_enable        = lwsrp_ctrl[0];
   assign o_lwsrp_talker_en     = lwsrp_ctrl[1];
-  assign o_lwsrp_qidx          = lwsrp_ctrl[4:2];
   //! [5] declare-always bypass, reset 0 (the generated LWSRP_CTRL_RST_C
   //! never sets it): Milan 4.3.3.1 conditions the TalkerAdvertise on a
   //! PROBE_TX within 15 s or a registered Listener attribute; this bit is
@@ -2602,8 +2518,6 @@ module milan_csr #(
   assign o_adp_listener_sinks  = ADP_LIST_C[15:0];
   assign o_adp_listener_caps   = ADP_LIST_C[31:16];
   assign o_adp_controller_caps = adp_ccaps;
-  assign o_adp_gptp_gm         = GPTP_PLANE_EN_P ? i_gptp_gm_id     : 64'd0;
-  assign o_gptp_pdelay_ns      = GPTP_PLANE_EN_P ? i_gptp_pdelay_ns : 32'd0;
   //! The engine speaks domain 0; option-off has no publication owner.
   assign o_adp_gptp_domain     = 8'd0;
   assign o_adp_current_config  = adp_idx0[15:0];

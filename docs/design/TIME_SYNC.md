@@ -106,18 +106,23 @@ wire-scale audit its RESET value is DERIVED from the instantiator's
 125 MHz / 8.0 ns contract, REQ-PTP-07) — a free-run PHC ticks true
 nanoseconds on every shape before firmware initialization.
 
-The tie also satisfies the timestamping core's one hard requirement:
-`ts_in` synchronous to the AXIS domain (`ptp_ts_core.sv` header,
-2026-07-13 redesign note).
+The tie is also what lets every consumer of `ptp_now` - the AAF/CRF talkers,
+the latency taps, `KL_gptp_txstamp` and `KL_gptp_shadow` - read the counter
+synchronously on the AXIS clock without a crossing.
 
 ### 2.2 Where frames get stamped
 
-`ptp_ts_top.sv` sits in-line in `milan_datapath.sv`: the TX tap between the
-CBS shaper and the TX arbiter to the MAC, the RX tap directly after MAC
-ingress, before the destination-MAC filter (instance `ptp_timestamp`,
-streams `tx_axis_shaper_to_ts -> tx_axis_dp_to_arb` and
-`rx_axis_to_ts -> rx_axis_ptp_to_filt`). Both taps are pure pass-throughs —
-they never stall a frame. Per direction, `ptp_ts_core.sv`:
+In the shipped datapath the frames that matter - the fabric gPTP plane's own -
+are stamped by the plane: `KL_gptp_txstamp` latches the PHC at the first beat
+of an `0x88F7` frame at the TRUE MAC boundary (`tx_axis_to_mac`, armed by the
+plane's lane), and `KL_gptp_shadow` stamps committed ingress frames off the
+filtered RX tap. Since VERSION `0x0002_0056` `milan_datapath` instantiates only
+the PHC (`timestamp_counter` + `ptp_csr_sync`); the `ptp_ts_top` TX/RX record
+stampers that used to sit in-line (TX between the CBS shaper and the arbiter,
+RX directly after MAC ingress) are gone with the general-data chain, because
+their records had no consumer once #259 removed the transmit path. The record
+core remains a stand-alone verified block (`ptp_ts` suite) and this is what
+it does, per direction (`ptp_ts_core.sv`):
 
 * latches the live PHC value at the frame's **first beat** (SOP);
 * parses ethertype (`0x88F7`), PTP `messageType` and `sequenceId` at their
@@ -145,8 +150,8 @@ Both exchanges, as this design stamps them:
 > Generated chronogram (master
 > [wd_gptp_pdelay.json](../diagrams/wd_gptp_pdelay.json); regenerate with
 > `~/litex-milan/venv/bin/python3 scripts/gen_wavedrom.py
-> docs/diagrams/wd_gptp_pdelay.json`). Each tap's `ptp_ts_core` latches the
-> PHC at SOP and qualifies the record at TLAST (event messages only), so
+> docs/diagrams/wd_gptp_pdelay.json`). The plane's stampers latch the PHC at
+> the frame's first beat (event messages only), so
 > `t1`/`t4` come from hardware records while the peer's `t2`/`t3` arrive
 > inside `Pdelay_Resp`/`Pdelay_Resp_Follow_Up`; the active gPTP owner computes
 > `meanLinkDelay = ((t4 - t1) - (t3 - t2)) / 2` (802.1AS 11.2.19) and the
@@ -156,18 +161,13 @@ Both exchanges, as this design stamps them:
 
 ### 2.3 Where stamps are consumed
 
-`ptp_ts_top` still qualifies shaped-data PTP event frames and keeps its
-per-direction stamp queues backpressure-safe. The integrated product has no
-memory-export contract for those records, so `milan_datapath` drains the
-metadata stream locally; `IRQ_STATUS[0]` remains a diagnostic pulse when a TX
-event stamp is emitted.
-
-The fabric gPTP owner does not depend on that stream. Its control frames bypass
-the shaped-data stamper, and `KL_gptp_txstamp` captures their egress time at the
-final MAC boundary. `KL_gptp_shadow` captures committed ingress frames against
-the same live PHC and returns the matched event stamps directly to the
-`gptp-processor` engine. Thus BMCA, Pdelay and Sync/Follow_Up timing remain
-entirely inside the fabric plane.
+Only the fabric gPTP plane consumes stamps, and it makes its own:
+`KL_gptp_txstamp` captures egress time at the final MAC boundary and
+`KL_gptp_shadow` captures committed ingress frames against the same live PHC,
+returning the matched event stamps directly to the `gptp-processor` engine.
+BMCA, Pdelay and Sync/Follow_Up timing therefore live entirely inside the
+fabric plane. There is no record stream any more and `IRQ_STATUS[0]`
+(`tx_ts_ready`) is a structural zero ([REGISTER_MAP.md](../reference/REGISTER_MAP.md)).
 
 ### 2.4 The ingress/egress latency constants
 
@@ -185,9 +185,10 @@ single biggest gPTP field bug of this project
 Three honest caveats, tracked as traceability rows: the constants are
 not yet established per board *type*, there is no per-unit calibration
 procedure, and the ingress/egress split has not been measured separately
-(row AS-4, MISSING). `PTP_INGRESS_LAT`/`PTP_EGRESS_LAT` (0x540/0x544) reach the
-shaped-data timestamp taps, but the gPTP plane captures its own ingress and
-egress events at the fabric/MAC boundary. That plane's actual wire offset is
+(row AS-4, MISSING). `PTP_INGRESS_LAT`/`PTP_EGRESS_LAT` (0x540/0x544) are
+write-only scratch since `0x0002_0056` - the record taps they corrected are no
+longer instantiated - and the gPTP plane captures its own ingress and egress
+events at the fabric/MAC boundary. That plane's actual wire offset is
 therefore part of #117's physical acceptance and is not inferred here.
 
 ### 2.5 Who runs where
@@ -204,7 +205,7 @@ The option-OFF elaboration is verification-only hardware (#259):
 | Agent | Where | Job |
 |-------|-------|-----|
 | `timestamp_counter` + `ptp_csr_sync` | fabric | the PHC: rate/offset/absolute set, snapshot reads |
-| `ptp_ts_top` / `ptp_ts_core` | fabric | per-frame event-message timestamps, both directions |
+| `KL_gptp_txstamp` + `KL_gptp_shadow` | fabric | the plane's own egress (MAC boundary) and ingress event stamps; `ptp_ts_top`/`ptp_ts_core` are stand-alone verified blocks, not instantiated since `0x0002_0056` |
 | `gptp-processor` + `KL_gptp_shadow` | fabric (default) | BMCA, Announce/Sync/Pdelay, PHC servo, and one atomic GM/parent/pdelay/flags publication bank |
 | `KL_ptp_clock_validity` | fabric | derives AVTP `tu` and public asCapable from the engine; same-edge discontinuity plus Annex B.1.1 holdover |
 
@@ -466,7 +467,7 @@ there.
 | Offset | Name | One line |
 |--------|------|----------|
 | `0x008` | `CAP[9]` | PTP capability present |
-| `0x010` | `IRQ_STATUS[0]` | `tx_ts_ready` — TX egress timestamp record emitted |
+| `0x010` | `IRQ_STATUS[0]` | `tx_ts_ready` — structural zero since `0x0002_0056` (no TX record stamper) |
 | `0x500` | `PTP_CTRL` | `[0]` PHC counter enable |
 | `0x504` | `PTP_INCR` | nominal Q8.24-ns increment per tick |
 | `0x508` | `PTP_ADJ` | signed Q8.24-ns adjfine addend added each tick |

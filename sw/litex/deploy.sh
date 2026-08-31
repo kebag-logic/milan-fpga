@@ -85,7 +85,7 @@ FPGA_PART="${FPGA_PART:-xc7a100tfgg484}"
 # RTL8211E — measured 25-40 % corrupt frames edge-aligned vs 0 % with mid-bit sampling.
 # The protocol processor retains its dedicated CPU memory attachment; the
 # cacheless CPU does not elaborate a cache-coherency hub.
-MILAN_OPTS="--board ax7101 --cpu vexiiriscv --cpu-count 1 --xlen 32 --software-profile baremetal --full --milan-clk-freq 50e6 --with-spiflash --flashboot baremetal --gtx-tx-invert --timing-opt --floorplan --eth-port e1 --no-i2s-playback --no-render-lpf --audio-interface tdm8 --audio-interface-master --talker-wire-chans 8 --cbs-queues-mask 0x10 --loopback-lane --fabric-gptp --entity-gen-dir $HERE/../../configs/generated/endstation_ax7101_1x1_tdm8 --l2-bytes 0"
+MILAN_OPTS="--board ax7101 --cpu vexiiriscv --cpu-count 1 --xlen 32 --software-profile baremetal --full --milan-clk-freq 50e6 --with-spiflash --flashboot baremetal --gtx-tx-invert --timing-opt --floorplan --eth-port e1 --no-i2s-playback --no-render-lpf --audio-interface tdm8 --audio-interface-master --talker-wire-chans 8 --loopback-lane --fabric-gptp --entity-gen-dir $HERE/../../configs/generated/endstation_ax7101_1x1_tdm8 --l2-bytes 0"
 run_milan_soc() {
     local label="$1"; shift
     # MILAN_OPTS is a trusted, fixed launcher recipe. Deliberate word splitting

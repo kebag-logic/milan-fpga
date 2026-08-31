@@ -622,7 +622,7 @@ not in ACMP.
   UNSUPPORTED_FORMAT instead of accepting. `AVTPRX_ERR` reads **0**, so no PDU ever
   arrived at the monitor with a match - the verdict is being made (or not made) in the
   **parser**.
-- *The parser's input bus is alive.* The parser tap (`rx_axis_ptp_to_filt`) is a passive
+- *The parser's input bus is alive.* The parser tap (`rx_axis_from_mac`) is a passive
   fan-out of the same stream that feeds the processor control-frame RX filter, and that
   network lane is working normally over the path. Frames reach the parser; the parser does not
   match them.

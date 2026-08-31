@@ -9,7 +9,7 @@
 //! AXI-Lite control, protocol memory, MAC AXIS and physical audio.
 //!
 //! What it owns:
-//!   milan_csr · traffic_controller_802_1q (classify + CBS) · ptp_ts_top ·
+//!   milan_csr · the PHC (timestamp_counter + ptp_csr_sync) ·
 //!   rx_mac_filter (TCAM) · the AVTP/AAF/CRF stream engines · KL_maap ·
 //!   adp_tx_arbiter · ethernet_events · **KL_pp_shadow**, the protocol
 //!   processor, which is this device's entire IEEE 1722.1 / SRP control plane.
@@ -63,15 +63,6 @@
 
 module milan_datapath import ethernet_packet_pkg::*; #(
   parameter int TDATA_WIDTH = 64,
-  parameter int NUM_QUEUES  = NUMBER_OF_QUEUES,
-  //! CBS instance mask for the egress queues (traffic_shaping_core has the
-  //! contract; a 0 bit = strict-priority only, identical to runtime
-  //! cbs_shaped_i=0, CSR words stay and read back). Default all-ones = every
-  //! pre-2026-07-28 build. The builder derives the real mask from the SR
-  //! class queue map (srp.class_queue) - the two SR classes keep CBS, the
-  //! gPTP/control/BE queues never had a licence to be credit-shaped (USER
-  //! queue directive: gPTP MUST stay below the shaped queues).
-  parameter bit [NUM_QUEUES-1:0] CBS_QUEUES_MASK_P = '1,
   //! axis_clk frequency (AX7101 100 MHz, Arty 50 MHz) — AECP lock-timer divider.
   parameter int MILAN_CLK_FREQ_HZ = 100_000_000,
   //! the fabric gPTP plane (issue #110/#114): elaboration-time option.
@@ -514,22 +505,26 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   // ==========================================================================
   //  Internal AXIS hops for the fabric endpoint
   // ==========================================================================
-  axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) tx_axis_to_shaper();
-  axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) tx_axis_shaper_to_ts();
-  axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) tx_axis_dp_to_arb();
   axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) tx_axis_to_mac();
-  axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) rx_axis_to_ts();
-  axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) rx_axis_ptp_to_filt();
+  axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) rx_axis_from_mac();
   axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) rx_axis_fabric();
-  axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) ts_metadata_axis();
 
-  //! The general-data classifier/shaper input is structurally idle. Product
-  //! traffic is emitted by the fabric AAF, CRF, MAAP, gPTP and protocol sources
-  //! merged below.
-  assign tx_axis_to_shaper.tdata  = '0;
-  assign tx_axis_to_shaper.tkeep  = '0;
-  assign tx_axis_to_shaper.tvalid = 1'b0;
-  assign tx_axis_to_shaper.tlast  = 1'b0;
+  //! NO GENERAL-DATA TX CHAIN. The 802.1Q classifier / per-queue FIFOs /
+  //! 802.1Qav CBS shaper (traffic_controller_802_1q) and the ptp_ts_top TX/RX
+  //! record stampers left this wrapper with the retired target (#259): removing
+  //! the retired transmit path left the shaper's ONLY input structurally idle, and
+  //! every product source - the AAF talkers, the CRF talker, MAAP, the
+  //! protocol processor and the fabric gPTP plane - joins the TX trunk in the
+  //! arbiter cascade below, AFTER the point the shaper occupied, so no frame
+  //! could ever reach it. An elaborated chain on a tied-off input is silicon
+  //! spent on nothing in a packing-bound build and a CSR face advertising a
+  //! shaper the product cannot exercise. The modules stay verified stand-alone
+  //! (tb/verilator/{classifier,queues,cbs,shaper_core,datapath,
+  //! controller_rate,ptp_ts}) as the building blocks of a class-A shaping lane
+  //! for the fabric's own streams, which is a separate lane. The CSR words
+  //! that configured the chain (0x300 CLS_*, 0x400 CBS_*, 0x540/0x544
+  //! PTP_*_LAT) are WRITE-ONLY SCRATCH and CAP.CBS / IRQ_STATUS[0] are
+  //! structural zero - docs/reference/REGISTER_MAP.md records each.
 
   //! I2S divider scale: mclk = clk/2^N ~= 12.5 MHz -> 48.8 kHz sample rate
   //! on EITHER datapath clock. Un-parameterized, the 100 MHz AX sampled at
@@ -1192,18 +1187,19 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   assign m_axis_mac_tx_tvalid = tx_axis_to_mac.tvalid;
   assign m_axis_mac_tx_tlast  = tx_axis_to_mac.tlast;
   assign tx_axis_to_mac.tready = m_axis_mac_tx_tready;
-  // MAC-facing RX -> PTP RX
-  assign rx_axis_to_ts.tdata  = s_axis_mac_rx_tdata;
-  assign rx_axis_to_ts.tkeep  = s_axis_mac_rx_tkeep;
-  assign rx_axis_to_ts.tvalid = s_axis_mac_rx_tvalid;
-  assign rx_axis_to_ts.tlast  = s_axis_mac_rx_tlast;
-  assign s_axis_mac_rx_tready = rx_axis_to_ts.tready;
+  //! MAC-facing RX -> the shared pre-filter tap. The ptp_ts_top RX stamper
+  //! that sat on this hop was a combinational pass-through whose records
+  //! nothing consumed; the fabric gPTP plane stamps its own ingress off
+  //! rx_axis_fabric and its egress at the MAC boundary (KL_gptp_txstamp).
+  assign rx_axis_from_mac.tdata  = s_axis_mac_rx_tdata;
+  assign rx_axis_from_mac.tkeep  = s_axis_mac_rx_tkeep;
+  assign rx_axis_from_mac.tvalid = s_axis_mac_rx_tvalid;
+  assign rx_axis_from_mac.tlast  = s_axis_mac_rx_tlast;
+  assign s_axis_mac_rx_tready = rx_axis_from_mac.tready;
   //! The filtered RX stream is consumed only by fabric observers. They are
   //! handshake-qualified but never apply backpressure, so the shared tap is
-  //! permanently ready. Timestamp metadata likewise has no memory-export ABI;
-  //! drain it locally so timestamp generation cannot stall the PHC pipeline.
+  //! permanently ready.
   assign rx_axis_fabric.tready = 1'b1;
-  assign ts_metadata_axis.tready = 1'b1;
 
   // ==========================================================================
   //  CSR <-> datapath signals
@@ -1218,37 +1214,18 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [32*9-1:0] stats_counts;
   wire        stats_rollover;
 
-  wire        cfg_cls_use_pcp, cfg_cls_dmac_check, cfg_cls_ctrl_class;
-  wire [2:0]  cfg_cls_default_pcp;
-  wire [23:0] cfg_cls_pcp_tc_map, cfg_cls_prio_regen;
-  wire [31:0] cfg_cls_tc_queue_map;
-
-  wire [32*NUM_QUEUES-1:0] cfg_cbs_idle_slope_bps, cfg_cbs_hi_credit_bytes, cfg_cbs_lo_credit_bytes;
-  wire [NUM_QUEUES-1:0]    cfg_cbs_enable;
-
   wire        cfg_ptp_enable;
   wire [31:0] cfg_ptp_incr, cfg_ptp_adj;
   wire [63:0] cfg_ptp_tod_wr, cfg_ptp_offset;
   wire        cfg_ptp_cmd_load, cfg_ptp_cmd_adjust, cfg_ptp_cmd_snapshot;
-  wire        cfg_clkv_wr_p, cfg_clkv_sync_ok, cfg_clkv_disc_p;
-  //! Legacy CLKV_CTRL[2] output. Intentionally unconsumed: the owner mux's
-  //! software input is hard zero, product asCapable comes only from fabric,
-  //! and the option-off shape has no owner or writable lease.
-  wire        cfg_clkv_as_cap;
-  wire [11:0] cfg_clkv_wdog_q;
-  wire [31:0] cfg_ptp_ingress_lat, cfg_ptp_egress_lat;
   wire [63:0] ptp_tod_rd;
   wire        ptp_tod_rd_valid;
-  wire        evt_tx_ts_ready;
 
   wire        cfg_adp_enable;
   wire [63:0] cfg_adp_entity_id, cfg_adp_entity_model_id;
   //! The gPTP engine's publication bank. These declarations live beside the
   //! consumers rather than the late generate block so clock validity, CSR,
   //! and protocol answers all select the same compile-time owner.
-  wire [63:0] cfg_adp_gptp_gm_csr;
-  wire [63:0] cfg_as_parent_csr;
-  wire [31:0] cfg_gptp_pdelay_csr;
   wire [63:0] gptp_pub_gm_w, gptp_pub_parent_w, gptp_pub_annq_w;
   wire [31:0] gptp_pub_flags_w, gptp_pub_pdelay_w, gptp_pub_offset_w;
   wire [7*64-1:0] gptp_pub_path_w;
@@ -1262,8 +1239,6 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! exists.
   wire [63:0] cfg_adp_gptp_gm = (GPTP_PLANE_EN_P != 1'b0)
                               ? gptp_pub_gm_w : 64'd0;
-  wire [63:0] cfg_as_parent = (GPTP_PLANE_EN_P != 1'b0)
-                            ? gptp_pub_parent_w : 64'd0;
   wire [31:0] cfg_gptp_pdelay = (GPTP_PLANE_EN_P != 1'b0)
                               ? gptp_pub_pdelay_w : 32'd0;
   //! Keep the notification and gather faces on the exact selected-owner
@@ -1366,7 +1341,6 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire        cfg_lwsrp_enable, cfg_lwsrp_talker_en;
   //! LWSRP_CTRL[5], reset 0: declare-always bypass of the 4.3.3.1
   //! TalkerAdvertise gate (the pre-gate posture, bring-up escape only)
-  wire [2:0]  cfg_lwsrp_qidx;
   wire [11:0] cfg_lwsrp_vid;
   wire [31:0] cfg_lwsrp_latency;
   // ------------------------------------------------------------------------
@@ -1697,13 +1671,6 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .FABRIC_GPTP_P (GPTP_PLANE_EN_P)
   ) ptp_clock_validity (
     .clk_i (axis_clk), .rst_n (axis_resetn),
-    //! Retired ABI ports are tied low here as a second structural boundary;
-    //! KL_ptp_clock_validity also ignores them in every elaboration.
-    .sw_wr_p_i    (1'b0),
-    .sw_sync_ok_i (1'b0),
-    .sw_disc_p_i  (1'b0),
-    .sw_as_cap_i  (1'b0),
-    .sw_wdog_q_i  (12'd0),
     //! A settime / adjtime IS a gPTP time discontinuity (4.4.4.7). In the
     //! default shape adjtime comes from the engine, not CLKV software.
     .phc_load_p_i (cfg_ptp_cmd_load),
@@ -2100,7 +2067,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! carries the processor's values. Closing that needs a port on the
   //! submodule, which is pinned.
   milan_csr #(
-    .NUM_QUEUES(NUM_QUEUES),
+    //! the retained 0x400 window geometry and CAP.num_queues: the package
+    //! constant, not a wrapper parameter, since no queue is elaborated here
+    .NUM_QUEUES(NUMBER_OF_QUEUES),
     .ADDR_WIDTH(16),
     .N_LISTENERS_P(N_STREAMS),
     .N_TALKERS_P(N_STREAMS),
@@ -2156,37 +2125,17 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .o_stats_reset   (cfg_stats_reset),
     .i_stats         (stats_counts),
     .i_stats_cap     ({{(32-_ETH_EVENT_COUNTER){1'b0}}, stats_cap_w}),
-    // classifier
-    .o_cls_use_pcp     (cfg_cls_use_pcp),
-    .o_cls_dmac_check  (cfg_cls_dmac_check),
-    .o_cls_ctrl_class  (cfg_cls_ctrl_class),
-    .o_cls_default_pcp (cfg_cls_default_pcp),
-    .o_cls_pcp_tc_map  (cfg_cls_pcp_tc_map),
-    .o_cls_prio_regen  (cfg_cls_prio_regen),
-    .o_cls_tc_queue_map(cfg_cls_tc_queue_map),
-    // CBS
-    .o_cbs_idle_slope_bps(cfg_cbs_idle_slope_bps),
-    .o_cbs_hi_credit_bytes (cfg_cbs_hi_credit_bytes),
-    .o_cbs_lo_credit_bytes (cfg_cbs_lo_credit_bytes),
-    .o_cbs_enable    (cfg_cbs_enable),
     // PTP
     .o_ptp_enable      (cfg_ptp_enable),
     .o_ptp_incr        (cfg_ptp_incr),
     .o_ptp_adj         (cfg_ptp_adj),
     .o_ptp_tod_wr      (cfg_ptp_tod_wr),
     .o_ptp_offset      (cfg_ptp_offset),
-    .o_clkv_wr_p       (cfg_clkv_wr_p),
-    .o_clkv_sync_ok    (cfg_clkv_sync_ok),
-    .o_clkv_disc_p     (cfg_clkv_disc_p),
-    .o_clkv_as_cap     (cfg_clkv_as_cap),
-    .o_clkv_wdog_q     (cfg_clkv_wdog_q),
     .i_clkv_stat       (clkv_stat_w),
     .i_clkv_tucnt      (clkv_tucnt_w),
     .o_ptp_cmd_load    (cfg_ptp_cmd_load),
     .o_ptp_cmd_adjust  (cfg_ptp_cmd_adjust),
     .o_ptp_cmd_snapshot(cfg_ptp_cmd_snapshot),
-    .o_ptp_ingress_lat (cfg_ptp_ingress_lat),
-    .o_ptp_egress_lat  (cfg_ptp_egress_lat),
     .i_ptp_tod         (ptp_tod_rd),
     .i_ptp_tod_valid   (ptp_tod_rd_valid),
     // ADP advertiser identity/control (0x600 group, FR-DISC-*)
@@ -2200,8 +2149,6 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .o_adp_listener_sinks (cfg_adp_listener_sinks),
     .o_adp_listener_caps  (cfg_adp_listener_caps),
     .o_adp_controller_caps(),
-    .o_adp_gptp_gm        (cfg_adp_gptp_gm_csr),
-    .o_gptp_pdelay_ns     (cfg_gptp_pdelay_csr),
     .i_gptp_gm_id         (gptp_pub_gm_w),
     .i_gptp_parent_id     (gptp_pub_parent_w),
     .i_gptp_pdelay_ns     (gptp_pub_pdelay_w),
@@ -2251,7 +2198,6 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .o_lwsrp_enable       (cfg_lwsrp_enable),
     .o_lwsrp_talker_en    (cfg_lwsrp_talker_en),
     .o_lwsrp_decl_bypass  (),
-    .o_lwsrp_qidx         (cfg_lwsrp_qidx),
     .o_lwsrp_vid          (cfg_lwsrp_vid),
     .o_lwsrp_dest_mac     (),
     .o_lwsrp_max_frame    (),
@@ -2447,7 +2393,6 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .i_mac_reinit       (linkg_reinit_w),
     .o_linkg_dis        (cfg_linkg_dis),
     .o_linkg_freeze     (cfg_linkg_freeze),
-    .o_as_parent_ckid   (cfg_as_parent_csr),
     .o_asp_path         (asp_path_w),
     .o_asp_count        (asp_count_w),
     .o_asp_gen          (asp_gen_w),
@@ -2479,7 +2424,6 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .i_pp_rx_drops      (pp_rx_drops_w),
     .i_pp_tx_frames     (pp_tx_frames_w),
     // interrupts
-    .i_evt_tx_ts_ready  (evt_tx_ts_ready),
     .i_evt_link_change  (evt_link_change),
     .i_evt_rmon_rollover(stats_rollover),
     .o_eth_guard        (o_eth_guard),
@@ -2487,76 +2431,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   );
 
   // ==========================================================================
-  //  802.1Q classify + 802.1Qav CBS shaper (CSR-configured)
+  //  PTP hardware clock (CSR-configured)
   // ==========================================================================
-  //! SRP slope MUX: an ACTIVE reservation drives the class-A queue's
-  //! idleSlope from the granted TSpec and shapes the queue; the 0x400 CSR
-  //! values stay intact and win back the moment the grant releases. No CSR
-  //! write-back.
-  //!
-  //! ITS SOURCE MOVED. KL_lwsrp_bw_gate is deleted; the Sigma of granted
-  //! idleSlopes now comes from the protocol processor's admission engine
-  //! (srp_sum_slope_bps_o) and the select from its per-source admitted vector
-  //! (srp_sr_admitted_o). The ORDERING DIFFERENCE between the two is analysed
-  //! in full at the SRP section below - short version: the invariant "no
-  //! stream transmits against an un-budgeted slope" holds on both edges, and
-  //! the teardown edge is now MORE conservative because the Sigma is
-  //! round-latched and lags the gate closing.
-  logic [32*NUM_QUEUES-1:0] cbs_idle_slope_mux;
-  logic [NUM_QUEUES-1:0]    cbs_enable_mux;
-  //! LWSRP_CTRL[4:2] is 3 bits wide (it must reach the top queue - q4 in the
-  //! 5-queue map, q5 in the 6-queue map it replaced - and $clog2 of neither
-  //! count is under 3) so software CAN name a queue this build does not have,
-  //! and at N=5 three of the eight codes name nothing at all. An
-  //! out-of-range part-select write is undefined, so gate the MUX on the index
-  //! being real: a bogus qidx then leaves the 0x400 CSR values untouched
-  //! instead of corrupting a neighbouring queue's slope.
-  wire lwsrp_qidx_ok_w = (32'(cfg_lwsrp_qidx) < NUM_QUEUES);
-  always_comb begin
-    cbs_idle_slope_mux = cfg_cbs_idle_slope_bps;
-    cbs_enable_mux     = cfg_cbs_enable;
-    if (lwsrp_slope_en && lwsrp_qidx_ok_w) begin
-      cbs_idle_slope_mux[32*cfg_lwsrp_qidx +: 32] = lwsrp_idle_slope;
-      cbs_enable_mux[cfg_lwsrp_qidx]              = 1'b1;
-    end
-  end
-
-  traffic_controller_802_1q #(
-    .TDATA_WIDTH(TDATA_WIDTH),
-    .BIG_ENDIAN(0),
-    .NUMBER_OF_QUEUES(NUM_QUEUES),
-    .CBS_QUEUES_MASK_P(CBS_QUEUES_MASK_P)
-  ) traffic_controller(
-    .clk(axis_clk),
-    .resetn(axis_resetn),
-    .is_1g_i(cfg_mac_is_1g),
-    .cls_use_pcp_i     (cfg_cls_use_pcp),
-    .cls_dmac_check_i  (cfg_cls_dmac_check),
-    .cls_ctrl_class_i  (cfg_cls_ctrl_class),
-    .cls_default_pcp_i (cfg_cls_default_pcp),
-    .cls_pcp_tc_map_i  (cfg_cls_pcp_tc_map),
-    .cls_prio_regen_i  (cfg_cls_prio_regen),
-    .cls_tc_queue_map_i(cfg_cls_tc_queue_map),
-    .cbs_idle_slope_bps_i  (cbs_idle_slope_mux),
-    .cbs_hi_credit_bytes_i   (cfg_cbs_hi_credit_bytes),
-    .cbs_lo_credit_bytes_i   (cfg_cbs_lo_credit_bytes),
-    .cbs_shaped_i      (cbs_enable_mux),
-    .s_axis(tx_axis_to_shaper),
-    .m_axis(tx_axis_shaper_to_ts)
-  );
-
-  // ==========================================================================
-  //  PTP hardware clock + TX/RX timestamping (CSR-configured)
-  // ==========================================================================
-  // BIG_ENDIAN(0) + natural 0x88F7: the MAC-side streams carry the FIRST wire
-  // byte in tdata[7:0] (Forencich AXIS convention - stated and SILICON-PROVEN
-  // by adp_advertiser.sv, whose frames egress correctly through this very
-  // path). A 2026-07-13 misdiagnosis flipped this to BIG_ENDIAN(1) after
-  // trusting a wrong-convention harness comment - that build (hwts3) parsed
-  // src-MAC bytes as the ethertype and emitted nothing; the OOC A/B + the
-  // advertiser's comment settled the truth. The redesigned core picks header
-  // bytes explicitly, so ETH_TYPE is the natural wire value (no pre-swapped
-  // F788 constant).
   //! PHC knob ownership: the plane owns adjfine/adjtime when enabled
   //! (constant-folds to the CSR face when the option is off); settime
   //! (tod_wr/cmd_load) always stays with software -- boot sets the epoch.
@@ -2567,66 +2443,73 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire        eff_ptp_adjust_w = (GPTP_PLANE_EN_P != 1'b0)
                                ? gptp_step_we_w          : cfg_ptp_cmd_adjust;
 
-  ptp_ts_top #(
-    .TDATA_WIDTH(TDATA_WIDTH),
-    .BIG_ENDIAN(0),
-    //! 802.1AS rides the PTP EtherType. The value is ETH_TYPE_PTP in
-    //! hdl/common/ethernet_packet_pkg.sv, which this module already imports;
-    //! spelling the literal here made a second definition of a fact the
-    //! package owns.
-    .ETH_TYPE(ETH_TYPE_PTP)
-  ) ptp_timestamp (
-    .gtx_clk(gtx_clk),
-    .gtx_resetn(gtx_resetn),
-    .axis_clk(axis_clk),
-    .axis_resetn(axis_resetn),
+  //! The PHC is the counter and its CSR crossing, nothing else. ptp_ts_top's
+  //! TX/RX record stampers, their record FIFOs and the tx_ts_ready pulse left
+  //! with the general-data chain (see the TX-trunk note at the interface
+  //! declarations): the TX stamper only ever saw the shaper's idle output and
+  //! both directions' records drained into an always-ready sink, so
+  //! IRQ_STATUS[0] and PTP_INGRESS/EGRESS_LAT had no consumer. o_ptp_now is
+  //! what the AAF/CRF talkers, the latency taps and the fabric gPTP plane
+  //! read; the plane stamps its own frames (KL_gptp_txstamp at the MAC
+  //! boundary, its ingress tap off rx_axis_fabric).
+  wire        phc_enable_ts_w;
+  wire [31:0] phc_incr_ts_w, phc_adj_ts_w;
+  wire [63:0] phc_tod_wr_ts_w, phc_offset_ts_w, phc_tod_snap_ts_w;
+  wire        phc_load_ts_w, phc_adjust_ts_w, phc_snapshot_ts_w;
+  wire        phc_tod_snap_valid_ts_w;
 
-    .i_ptp_enable      (cfg_ptp_enable),
-    .i_ptp_incr        (cfg_ptp_incr),
-    .i_ptp_adj         (eff_ptp_adj_w),
-    .i_ptp_tod_wr      (cfg_ptp_tod_wr),
-    .i_ptp_offset      (eff_ptp_offset_w),
-    .i_ptp_cmd_load    (cfg_ptp_cmd_load),
-    .i_ptp_cmd_adjust  (eff_ptp_adjust_w),
-    .i_ptp_cmd_snapshot(cfg_ptp_cmd_snapshot),
-    //! REQ-PTP-06: the 0x540/0x544 correction registers reach the capture
-    //! point instead of stopping at a wire declaration (reset 0 = no change).
-    .i_ptp_ingress_lat (cfg_ptp_ingress_lat),
-    .i_ptp_egress_lat  (cfg_ptp_egress_lat),
-    .o_ptp_tod_rd      (ptp_tod_rd),
-    .o_ptp_tod_rd_valid(ptp_tod_rd_valid),
-    .o_tx_ts_ready     (evt_tx_ts_ready),
-    .o_ptp_now         (ptp_now_w),
+  //! CSR -> PHC clock-domain crossing (axis_clk -> gtx_clk + snapshot return).
+  ptp_csr_sync #(
+    .TS_WIDTH   (64),
+    .INCR_WIDTH (32)
+  ) ptp_sync (
+    .aclk           (axis_clk),
+    .aresetn        (axis_resetn),
+    .a_enable       (cfg_ptp_enable),
+    .a_incr         (cfg_ptp_incr),
+    .a_adj          (eff_ptp_adj_w),
+    .a_tod_wr       (cfg_ptp_tod_wr),
+    .a_offset       (eff_ptp_offset_w),
+    .a_cmd_load     (cfg_ptp_cmd_load),
+    .a_cmd_adjust   (eff_ptp_adjust_w),
+    .a_cmd_snapshot (cfg_ptp_cmd_snapshot),
+    .a_tod_rd       (ptp_tod_rd),
+    .a_tod_rd_valid (ptp_tod_rd_valid),
 
-    .s_axis_tx_tdata(tx_axis_shaper_to_ts.tdata),
-    .s_axis_tx_tvalid(tx_axis_shaper_to_ts.tvalid),
-    .s_axis_tx_tready(tx_axis_shaper_to_ts.tready),
-    .s_axis_tx_tlast(tx_axis_shaper_to_ts.tlast),
-    .s_axis_tx_tkeep(tx_axis_shaper_to_ts.tkeep),
+    .ts_clk         (gtx_clk),
+    .ts_resetn      (gtx_resetn),
+    .t_enable       (phc_enable_ts_w),
+    .t_incr         (phc_incr_ts_w),
+    .t_adj          (phc_adj_ts_w),
+    .t_tod_wr       (phc_tod_wr_ts_w),
+    .t_cmd_load     (phc_load_ts_w),
+    .t_offset       (phc_offset_ts_w),
+    .t_cmd_adjust   (phc_adjust_ts_w),
+    .t_cmd_snapshot (phc_snapshot_ts_w),
+    .t_tod_snapshot       (phc_tod_snap_ts_w),
+    .t_tod_snapshot_valid (phc_tod_snap_valid_ts_w)
+  );
 
-    .m_axis_tx_tdata(tx_axis_dp_to_arb.tdata),
-    .m_axis_tx_tvalid(tx_axis_dp_to_arb.tvalid),
-    .m_axis_tx_tready(tx_axis_dp_to_arb.tready),
-    .m_axis_tx_tlast(tx_axis_dp_to_arb.tlast),
-    .m_axis_tx_tkeep(tx_axis_dp_to_arb.tkeep),
-
-    .s_axis_rx_tdata(rx_axis_to_ts.tdata),
-    .s_axis_rx_tvalid(rx_axis_to_ts.tvalid),
-    .s_axis_rx_tready(rx_axis_to_ts.tready),
-    .s_axis_rx_tlast(rx_axis_to_ts.tlast),
-    .s_axis_rx_tkeep(rx_axis_to_ts.tkeep),
-
-    .m_axis_rx_tdata(rx_axis_ptp_to_filt.tdata),
-    .m_axis_rx_tvalid(rx_axis_ptp_to_filt.tvalid),
-    .m_axis_rx_tready(rx_axis_ptp_to_filt.tready),
-    .m_axis_rx_tlast(rx_axis_ptp_to_filt.tlast),
-    .m_axis_rx_tkeep(rx_axis_ptp_to_filt.tkeep),
-
-    .ts_m_axis_tdata(ts_metadata_axis.tdata),
-    .ts_m_axis_tvalid(ts_metadata_axis.tvalid),
-    .ts_m_axis_tready(ts_metadata_axis.tready),
-    .ts_m_axis_tlast(ts_metadata_axis.tlast),
-    .ts_m_axis_tkeep(ts_metadata_axis.tkeep)
+  //! the 64-bit PHC (REQ-PTP-01/02): gtx_clk == axis_clk in every real
+  //! instantiation, which is what lets ptp_now_w be read synchronously
+  timestamp_counter #(
+    .COUNTER_WIDTH (64),
+    .INCR_WIDTH    (32),
+    .FRAC_WIDTH    (24)
+  ) ts_counter (
+    .clk                  (gtx_clk),
+    .resetn               (gtx_resetn),
+    .enable_i             (phc_enable_ts_w),
+    .incr_i               (phc_incr_ts_w),
+    .adj_i                (phc_adj_ts_w),
+    .tod_wr_i             (phc_tod_wr_ts_w),
+    .cmd_load_i           (phc_load_ts_w),
+    .offset_i             (phc_offset_ts_w),
+    .cmd_adjust_i         (phc_adjust_ts_w),
+    .cmd_snapshot_i       (phc_snapshot_ts_w),
+    .timestamp_out        (ptp_now_w),
+    .tod_snapshot_o       (phc_tod_snap_ts_w),
+    .tod_snapshot_valid_o (phc_tod_snap_valid_ts_w)
   );
 
   // ==========================================================================
@@ -2698,11 +2581,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .tcam_wr_key_i  (cfg_tcam_wr_key),
     .tcam_wr_mask_i (cfg_tcam_wr_mask),
     .tcam_wr_action_i(cfg_tcam_wr_action),
-    .s_tdata (rx_axis_ptp_to_filt.tdata),
-    .s_tkeep (rx_axis_ptp_to_filt.tkeep),
-    .s_tvalid(rx_axis_ptp_to_filt.tvalid),
-    .s_tlast (rx_axis_ptp_to_filt.tlast),
-    .s_tready(rx_axis_ptp_to_filt.tready),
+    .s_tdata (rx_axis_from_mac.tdata),
+    .s_tkeep (rx_axis_from_mac.tkeep),
+    .s_tvalid(rx_axis_from_mac.tvalid),
+    .s_tlast (rx_axis_from_mac.tlast),
+    .s_tready(rx_axis_from_mac.tready),
     .m_tdata (rx_axis_fabric.tdata),
     .m_tkeep (rx_axis_fabric.tkeep),
     .m_tvalid(rx_axis_fabric.tvalid),
@@ -2714,11 +2597,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .frame_action_o(), .frame_match_o(), .frame_dropped_o()
   );
   end else begin : g_no_rx_filter
-    assign rx_axis_fabric.tdata        = rx_axis_ptp_to_filt.tdata;
-    assign rx_axis_fabric.tkeep        = rx_axis_ptp_to_filt.tkeep;
-    assign rx_axis_fabric.tvalid       = rx_axis_ptp_to_filt.tvalid;
-    assign rx_axis_fabric.tlast        = rx_axis_ptp_to_filt.tlast;
-    assign rx_axis_ptp_to_filt.tready  = rx_axis_fabric.tready;
+    assign rx_axis_fabric.tdata        = rx_axis_from_mac.tdata;
+    assign rx_axis_fabric.tkeep        = rx_axis_from_mac.tkeep;
+    assign rx_axis_fabric.tvalid       = rx_axis_from_mac.tvalid;
+    assign rx_axis_fabric.tlast        = rx_axis_from_mac.tlast;
+    assign rx_axis_from_mac.tready  = rx_axis_fabric.tready;
   end endgenerate
 
   // ==========================================================================
@@ -5081,11 +4964,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .cfg_stream_en_i (strtbl_en_w),
     //! PRE-FILTER tap: an accepted AVTP stream is a fabric-media input and must
     //! not depend on the station-address policy applied to protocol observers.
-    .s_tdata_i  (rx_axis_ptp_to_filt.tdata),
-    .s_tkeep_i  (rx_axis_ptp_to_filt.tkeep),
-    .s_tvalid_i (rx_axis_ptp_to_filt.tvalid),
-    .s_tready_i (rx_axis_ptp_to_filt.tready),
-    .s_tlast_i  (rx_axis_ptp_to_filt.tlast),
+    .s_tdata_i  (rx_axis_from_mac.tdata),
+    .s_tkeep_i  (rx_axis_from_mac.tkeep),
+    .s_tvalid_i (rx_axis_from_mac.tvalid),
+    .s_tready_i (rx_axis_from_mac.tready),
+    .s_tlast_i  (rx_axis_from_mac.tlast),
     .match_valid_o (avtprx_match),
     .match_index_o (avtprx_idx),
     .stream_id_o   (avtprx_sid_frame),
@@ -5485,11 +5368,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   KL_aaf_rx_depacketizer aaf_rx_depkt (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     //! pre-filter tap - see avtp_rx_parser note
-    .s_tdata_i  (rx_axis_ptp_to_filt.tdata),
-    .s_tkeep_i  (rx_axis_ptp_to_filt.tkeep),
-    .s_tvalid_i (rx_axis_ptp_to_filt.tvalid),
-    .s_tready_i (rx_axis_ptp_to_filt.tready),
-    .s_tlast_i  (rx_axis_ptp_to_filt.tlast),
+    .s_tdata_i  (rx_axis_from_mac.tdata),
+    .s_tkeep_i  (rx_axis_from_mac.tkeep),
+    .s_tvalid_i (rx_axis_from_mac.tvalid),
+    .s_tready_i (rx_axis_from_mac.tready),
+    .s_tlast_i  (rx_axis_from_mac.tlast),
     .pdu_accept_p_i (avtprx_accept_p),
     //! NXN §1.1 tuser tag: the shared monitor's per-stream accept index
     .pdu_accept_idx_i (avtprx_accept_idx_w),
@@ -6005,9 +5888,16 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [7:0] txarb_locked_w, txarb_abort_w, txarb_stall_w;
   //! lanes 0..3 as documented above; lane 4 = the gPTP plane's merge
   //! (a structural zero while GPTP_PLANE_EN_P is off); 7:5 structural
+  //! zero. Lane 1 WAS aaf_final_mux, the merge of the shaped general-data
+  //! lane with AAF: with the general-data chain gone AAF enters crf_dp_mux
+  //! directly, so lane 1 is a structural zero too. The lane numbers are an
+  //! ABI (REGISTER_MAP 0x784), so nothing is renumbered.
   assign txarb_locked_w[7:5] = 3'd0;
   assign txarb_abort_w [7:5] = 3'd0;
   assign txarb_stall_w [7:5] = 3'd0;
+  assign txarb_locked_w[1]   = 1'b0;
+  assign txarb_abort_w [1]   = 1'b0;
+  assign txarb_stall_w [1]   = 1'b0;
 
   //! THE control merge: the protocol processor's packed TX (s_data - ADP,
   //! ACMP and SRP, internally arbitrated) + the fabric KL_maap
@@ -6031,27 +5921,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .abort_evt_o (txarb_abort_w[0]), .stall_evt_o (txarb_stall_w[0])
   );
 
-  //! Merge datapath (ptp_ts_top output) + low-rate control into the MAC TX.
-  //! AAF injected AFTER the shaper (MVP: bypasses CBS for continuous emission,
-  //! like ADP; class-A shaping = the is_1g follow-up). Merge shaped-data + AAF.
-  wire [TDATA_WIDTH-1:0]   dpaaf_tdata;
-  wire [TDATA_WIDTH/8-1:0] dpaaf_tkeep;
-  wire                     dpaaf_tvalid, dpaaf_tlast, dpaaf_tready;
-  adp_tx_arbiter #(.DATA_WIDTH(TDATA_WIDTH), .TO_LOG2_P(16)) aaf_final_mux (
-    .clk_i (axis_clk), .rst_n (axis_resetn),
-    .s_data_tdata (tx_axis_dp_to_arb.tdata),  .s_data_tkeep (tx_axis_dp_to_arb.tkeep),
-    .s_data_tvalid(tx_axis_dp_to_arb.tvalid), .s_data_tlast (tx_axis_dp_to_arb.tlast),
-    .s_data_tready(tx_axis_dp_to_arb.tready),
-    .s_adp_tdata (aaf_tx_tdata),  .s_adp_tkeep (aaf_tx_tkeep),
-    .s_adp_tvalid(aaf_tx_tvalid), .s_adp_tlast (aaf_tx_tlast),
-    .s_adp_tready(aaf_tx_tready),
-    .m_tdata (dpaaf_tdata), .m_tkeep (dpaaf_tkeep),
-    .m_tvalid(dpaaf_tvalid), .m_tlast (dpaaf_tlast), .m_tready(dpaaf_tready),
-    .diag_locked_o(txarb_locked_w[1]),
-    .abort_evt_o (txarb_abort_w[1]), .stall_evt_o (txarb_stall_w[1])
-  );
-
-  //! ...and the CRF talker's PDUs - on the DATA lane beside AAF, NOT on the
+  //! The AAF talkers head the DATA lane of the trunk: they are the first
+  //! source of the data-side merges (the shaped general-data lane that used to
+  //! sit beside them is gone - TX-trunk note at the interface declarations).
+  //! The CRF talker's PDUs join them here - on the DATA lane beside AAF, NOT on the
   //! low-rate control merge (docs/overview/ARCHITECTURE.md section 3,
   //! moved 2026-07-28). The CRF PDU is a STREAM carrying a gPTP timestamp
   //! that a listener steers its 48 kHz recovery clock against; behind the
@@ -6062,19 +5935,18 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! presentation margin. The data lane is gasket-free and already carries
   //! the 8 AAF talkers, which is where a class A stream belongs.
   //!
-  //! HONEST BOUND: this puts CRF on the same lane as AAF, it does NOT put it
-  //! in the CBS class A SHAPED queue - AAF is not there either (it is
-  //! injected AFTER the shaper, see aaf_final_mux). Credit-shaping the
-  //! fabric's own stream sources is the same open `is_1g` follow-up for
-  //! both, not something this change quietly claims.
+  //! HONEST BOUND: neither AAF nor CRF is credit-shaped. The 802.1Qav shaper
+  //! is not in this wrapper any more (it only ever shaped the retired target's
+  //! general-data lane), so class-A shaping of the fabric's own stream
+  //! sources is a separate lane, not something this merge quietly claims.
   wire [TDATA_WIDTH-1:0]   dpcrf_tdata;
   wire [TDATA_WIDTH/8-1:0] dpcrf_tkeep;
   wire                     dpcrf_tvalid, dpcrf_tlast, dpcrf_tready;
   adp_tx_arbiter #(.DATA_WIDTH(TDATA_WIDTH), .TO_LOG2_P(16)) crf_dp_mux (
     .clk_i (axis_clk), .rst_n (axis_resetn),
-    .s_data_tdata (dpaaf_tdata),  .s_data_tkeep (dpaaf_tkeep),
-    .s_data_tvalid(dpaaf_tvalid), .s_data_tlast (dpaaf_tlast),
-    .s_data_tready(dpaaf_tready),
+    .s_data_tdata (aaf_tx_tdata),  .s_data_tkeep (aaf_tx_tkeep),
+    .s_data_tvalid(aaf_tx_tvalid), .s_data_tlast (aaf_tx_tlast),
+    .s_data_tready(aaf_tx_tready),
     .s_adp_tdata (crft_tx_tdata),  .s_adp_tkeep (crft_tx_tkeep),
     .s_adp_tvalid(crft_tx_tvalid), .s_adp_tlast (crft_tx_tlast),
     .s_adp_tready(crft_tx_tready),

@@ -51,8 +51,8 @@ Machine-checked status rows are defined by the
 
 Wire ingress fans out entirely in fabric: one branch feeds media parsing and
 render, another feeds addressed protocol observation. Fabric AAF/CRF, control,
-MAAP, and gPTP sources arbitrate onto MAC egress. The retained generic
-classifier/shaper input is inactive in release builds.
+MAAP, and gPTP sources arbitrate onto MAC egress. The generic
+classifier/shaper chain is not instantiated in release builds.
 
 ## 3. Software responsibility
 

@@ -667,9 +667,10 @@ Every raw EtherType site outside the package, from
 | `hdl/ieee8021as/ptp_timestamp/ptp_ts_top.sv`, `ETH_TYPE` default | `'h88F7` | `ETH_TYPE_PTP` | no |
 | `hdl/ieee8021as/ptp_timestamp/ptp_ts_core.sv`, `ETH_TYPE` default | `'h88F7` | `ETH_TYPE_PTP` | yes |
 
-The two parameter defaults are overridden on the shipping path —
-`milan_datapath` passes `ETH_TYPE_PTP` to `ptp_ts_top`, which passes it on —
-so they are defaults, not the value the wire sees; `ptp_ts_core` is the one
+The two parameter defaults are not on the shipping path at all any more —
+`milan_datapath` no longer instantiates `ptp_ts_top` (its `ETH_TYPE_PTP`
+override went with it) — so they are defaults the `ptp_ts` suite elaborates,
+not the value the wire sees; `ptp_ts_core` is the one
 remaining site whose module already imports the package. Four of the modules
 would need a new import, which changes their compile dependencies, so all six
 stay a separate change with its own verification rather than a rider on this

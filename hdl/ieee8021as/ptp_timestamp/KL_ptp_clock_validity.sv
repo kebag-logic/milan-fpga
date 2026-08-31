@@ -42,9 +42,9 @@
                     owns the servo and publishes its selected-and-synchronised
                     verdict directly. When the engine is not elaborated there
                     is no clock owner: sync and asCapable are structural zero
-                    and tu is structural one. The retained sw_* ports are an
-                    inert ABI boundary; CSR writes cannot manufacture an
-                    owner. This boundary is information-theoretic - see
+                    and tu is structural one. There is no software input at
+                    all - the retired sw_* ports are deleted, so a CSR write
+                    has nothing to reach. This boundary is information-theoretic - see
                     docs/design/PRESENTATION_TIME_WRAP.md: avtp_timestamp
                     is the LOW 32 BITS of an unsigned nanosecond count,
                     so it laps every 4.294967296 s, and once the true
@@ -127,13 +127,6 @@ module KL_ptp_clock_validity #(
 ) (
   input  wire        clk_i,           //! datapath clock
   input  wire        rst_n,           //! active-low synchronous reset
-
-  //! --- inert compatibility inputs (intentionally ignored) --------------
-  input  wire        sw_wr_p_i,
-  input  wire        sw_sync_ok_i,
-  input  wire        sw_disc_p_i,
-  input  wire        sw_as_cap_i,
-  input  wire [11:0] sw_wdog_q_i,
 
   //! --- fabric gPTP publication bank ------------------------------------
   input  wire        fabric_sync_ok_i,//! engine has selected and synchronised to a GM

@@ -5964,8 +5964,8 @@ def test_optional_block_instance_gate_bites():
          [("not args.no_maap", "True", 1)], ["maap"], []),
         ("MilanSoC never forwards optional_blocks to MilanNIC",
          [("optional_blocks=optional_blocks,\n                              "
-           "    cbs_queues_mask=cbs_queues_mask,",
-           "cbs_queues_mask=cbs_queues_mask,", 1)], ["latency_taps"], []),
+           "    entity_gen_dir=entity_gen_dir)",
+           "entity_gen_dir=entity_gen_dir)", 1)], ["latency_taps"], []),
         ("MilanSoC never forwards render_lpf to MilanNIC",
          [("render_lpf=bool(render_lpf),\n", "", 1)], ["render_lpf"], []),
         ("MilanNIC never forwards optional_blocks to add_milan_datapath",

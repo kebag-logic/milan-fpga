@@ -24,33 +24,34 @@ wrong — say so.
 
 ## Contents
 
-- **[0. The one thing to know first](#0-the-one-thing-to-know-first)** -- Product traffic is emitted by fabric protocol and media engines. AAF streams never enter the retained classifier/queue/shaper chain.
+- **[0. The one thing to know first](#0-the-one-thing-to-know-first)** -- Product traffic is emitted by fabric protocol and media engines. There is no classifier/queue/shaper chain in the shipped trunk.
 - **[1. Egress: a captured sample becomes an AAF frame (the fabric talker)](#1-egress-a-captured-sample-becomes-an-aaf-frame-the-fabric-talker)** -- Follows capture, mapping, packetization, admission, arbitration, and MAC egress with a live observation point at each hop.
-- **[2. Egress: the inactive classifier path](#2-egress-the-inactive-classifier-path)** -- Records why the queue/CBS implementation remains present but has no product packet source.
+- **[2. Egress: where the classifier/queue/shaper chain went](#2-egress-where-the-classifierqueueshaper-chain-went)** -- Records why the queue/CBS chain is no longer instantiated, what remains of it in the register map, and where the blocks still live.
 - **[3. Ingress: a frame off the wire reaches fabric render](#3-ingress-a-frame-off-the-wire-reaches-fabric-render)** -- Follows the RX tee through parsing, stream matching, monitoring, depacketization, fabric routing, channel mapping, and physical I2S/TDM render.
 - **[4. What is \*not\* on either path](#4-what-is-not-on-either-path)** -- Three things people go looking for in the wrong place, including the fact that capture and render are two *different* crossbars with two different map RAMs.
 
 ## 0. The one thing to know first
 
-**Product egress is generated in fabric and skips the retained shaper chain.**
+**Product egress is generated in fabric; there is no shaper chain in the trunk.**
 
 The classifier, queues and credit-based shaper have no packet source in the
-bare-metal product shape. Their input is tied inactive; their CSR-visible
-configuration remains for compatibility and focused RTL verification. The AAF
-and CRF talkers, protocol-processor traffic, MAAP, and fabric gPTP all inject
-downstream through `adp_tx_arbiter` mergers.
+bare-metal product shape and, since VERSION `0x0002_0056`, are not
+instantiated by `milan_datapath` at all; their CSR words remain as write-only
+scratch for compatibility and the blocks stay under focused RTL verification.
+The AAF and CRF talkers, protocol-processor traffic, MAAP, and fabric gPTP all
+inject through `adp_tx_arbiter` mergers.
 
-That is deliberate and it is stated in the RTL at the merge point: the AAF
-talker is *"injected AFTER the shaper (MVP: bypasses CBS for continuous
-emission, like ADP; class-A shaping = the `is_1g` follow-up)"*. Its admission
-uses the processor's ACMP and SRP class-D state plus MAAP. The consequence for a reader:
-queue assignments do not select any product traffic today, which is
-the same boundary
+That is deliberate and it is stated in the RTL at the interface declarations
+(the TX-trunk note) and at the CRF merge: *"neither AAF nor CRF is
+credit-shaped ... class-A shaping of the fabric's own stream sources is a
+separate lane"*. AAF admission uses the processor's ACMP and SRP class-D
+state plus MAAP. The consequence for a reader: queue assignments select no
+product traffic, which is the same boundary
 [EGRESS_QUEUE_MAP.md](../reference/EGRESS_QUEUE_MAP.md#where-the-fabric-bypasses-all-of-this)
 says from the queue's side.
 
-Section 1 is the live fabric talker path; Section 2 records the deliberately
-inactive queue path so its presence in RTL is not mistaken for a target packet API.
+Section 1 is the live fabric talker path; Section 2 records where the queue
+chain went so its register footprint is not mistaken for a target packet API.
 
 ---
 
@@ -73,9 +74,9 @@ flowchart LR
     TONE["KL_tone_gen"] --> XBAR
     CAP --> XBAR["KL_chan_map_capture<br/>(capture crossbar)"]
     XBAR --> PKT["KL_aaf_packetizer<br/>(per-talker TCTX)"]
-    PKT --> AMUX["aaf_final_mux<br/>adp_tx_arbiter"]
-    IDLE["inactive classifier path<br/>(no product source)"] --> AMUX
-    CTRL["protocol processor: ADP · ACMP · AECP · SRP<br/>MAAP → ctl_ifg"] --> TMUX
+    PKT --> AMUX["crf_dp_mux<br/>adp_tx_arbiter"]
+    CRF["KL_crf_tx"] --> AMUX
+    CTRL["protocol processor: ADP · ACMP · AECP · SRP<br/>MAAP → ctl_ifg → gptp_ctl_mux"] --> TMUX
     AMUX --> TMUX["adp_tx_mux<br/>adp_tx_arbiter"]
     TMUX --> MAC["MilanMAC → GMII → PHY"]
 ```
@@ -86,8 +87,8 @@ flowchart LR
 | 2 | **channel map** | `KL_chan_map_capture` | the capture crossbar picks, per wire slot, which I2S/TDM pair, tone source, receive-loopback pair, or zero feeds it; reserved source encodings resolve to silence. The map resets empty; `CHMAP_CTRL` selects the CSR-programmed crossbar, and with the enable clear the front-end pair drives the packetizer bit-identically | `CHMAP_CTRL` `0x900` is the direct diagnostic writer. `GET_AUDIO_MAP` reads the live stores, and `ADD_AUDIO_MAPPINGS` plus `REMOVE_AUDIO_MAPPINGS` update them through the processor's transactional path. See [../CHANNEL_MAP_64.md](../CHANNEL_MAP_64.md) |
 | 3 | **packetize** | `aaf_packetizer` (`KL_aaf_packetizer`) | accumulates a PDU's worth of pairs, then emits one AAF frame: VLAN tag from `AAF_CTRL[27:16]`, destination from `AAF_DMLO`/`AAF_DMHI`, source = the station MAC, `avtp_timestamp` = the PHC now plus the presentation offset AECP holds. Per-talker state lives in the TCTX rows the `0x800` window writes | `AAF_FRAMES` `0x660`, `AAF_PAIRS` `0x664`; `LTAP_TX_D0/D1` `0x87C`/`0x884` bracket the accumulate + serialize |
 | 4 | **admission** | `aaf_stream_en_w` inside the packetizer | a stream emits when the common AAF enable and MAAP term are true and its processor-owned ACMP talker and SRP bandwidth state grant admission. `AAF_CTRL[1]` is the documented debug bypass | `PP_STAT` `0x924`, `AAF_CTRL` `0x678`, and the processor class-D diagnostics |
-| 5 | **merge boundary** | `aaf_final_mux` (`adp_tx_arbiter`) | the packetizer output joins the structurally inactive classifier path. Product audio sees no queue and no credit accounting | — |
-| 6 | **merge with control** | `adp_tx_mux` / `gptp_ctl_mux` (`adp_tx_arbiter`) | the protocol processor's packed ADP/ACMP/AECP/SRP stream merges with MAAP in `ctl_tx_mux`, passes through `ctl_ifg`, and joins the fabric media lane here. CRF joins AAF through `crf_dp_mux`. With the product-default option on, the fabric gPTP stream joins at the final `gptp_ctl_mux`, independently of the inactive generic classifier/shaper path | -- |
+| 5 | **merge boundary** | `crf_dp_mux` (`adp_tx_arbiter`) | the packetizer output heads the data lane and the CRF talker joins it here. Product audio sees no queue and no credit accounting - there is no shaper in the trunk (Section 2) | `TXARB_DIAG` `0x784` lane 2 |
+| 6 | **merge with control** | `adp_tx_mux` / `gptp_ctl_mux` (`adp_tx_arbiter`) | the protocol processor's packed ADP/ACMP/AECP/SRP stream merges with MAAP in `ctl_tx_mux`, passes through `ctl_ifg`, and joins the fabric media lane here. CRF joins AAF through `crf_dp_mux`. With the product-default option on, the fabric gPTP stream joins at the final `gptp_ctl_mux` | -- |
 | 7 | **control-lane IFG** | `ctl_ifg` (`tx_ifg_gasket`, `GAP_CYCLES = 512`) | spaces control frames so the MAC cannot eat one that arrives back-to-back behind another. **Control lane only** — fabric audio and the other protocol/time lanes do not pass through it, so it costs no stream throughput | — |
 | 8 | **MAC** | `tx_axis_to_mac` → `m_axis_mac_tx_*` | out of `milan_datapath`, into the SoC's MilanMAC (LiteEth GMII), onto the wire | `STAT_TX_FIFO_GOOD_FRAME` `0x21C`; `LTAP_TX_D2` `0x88C` closes the chain |
 
@@ -98,41 +99,35 @@ flowchart LR
 > measured `D2` maximum to a shaper slot; that attribution cannot be right for
 > this lane, whatever the measurement itself shows.
 
-The PTP TX timestamp is taken independently of all of this, at the egress SFD
-inside `ptp_ts_top` — which is why queueing order does not perturb gPTP
-accuracy ([EGRESS_QUEUE_MAP.md](../reference/EGRESS_QUEUE_MAP.md#why-gptp-sits-below-the-shaped-classes)).
+The gPTP egress timestamp is taken independently of all of this, at the MAC
+boundary by `KL_gptp_txstamp` (armed by the plane's own lane) — which is why
+merge order does not perturb gPTP accuracy
+([EGRESS_QUEUE_MAP.md](../reference/EGRESS_QUEUE_MAP.md#why-gptp-sits-below-the-shaped-classes)).
 
-## 2. Egress: the inactive classifier path
+## 2. Egress: where the classifier/queue/shaper chain went
 
-The classifier, queues, and CBS remain synthesizable and CSR-visible, but the
-target has no packet-injection interface. `tx_axis_to_shaper.tvalid` is tied
-low in `milan_datapath`; fabric gPTP and every product media/control source use
-the downstream merges described in Section 1.
+There is no classifier, queue bank or credit-based shaper in the shipped
+`milan_datapath` since VERSION `0x0002_0056`. The chain
+(`traffic_controller_802_1q`, plus the `ptp_ts_top` TX/RX record stampers that
+followed it) had exactly one packet source - the retired transmit path - and #259
+removed that plane; every product source enters the trunk at the merges below
+the point the chain occupied, so an elaborated chain was silicon on a tied-off
+input and a CSR face advertising a shaper no frame could reach. The blocks are
+unchanged and verified stand-alone (`classifier`, `queues`, `cbs`,
+`shaper_core`, `datapath`, `controller_rate`, `ptp_ts` suites; `datapath_wrap`
+and `ptp_ts_top` Yosys tops) as the building material of a class-A shaping lane
+over the fabric's own sources - a separate lane.
 
-```mermaid
-flowchart LR
-    IDLE["constant inactive input"] --> CLS["traffic_classifier<br/>→ traffic_class_map"]
-    CLS --> Q["traffic_queues<br/>axis_demux → 6 × axis_fifo"]
-    Q --> CBS["traffic_shaping_core<br/>6 × credit_based_shaper"]
-    CBS --> PTP["ptp_ts_top<br/>TX stamp @ egress SFD"]
-    PTP --> AMUX["aaf_final_mux → adp_tx_mux"]
-    AMUX --> MAC["MilanMAC"]
-```
+What a reader still sees of it:
 
-All three classifier/queue/shaper blocks are children of one wrapper,
-`traffic_controller_802_1q`.
+| where | what remains | why |
+|---|---|---|
+| `CLS_*` `0x300`, `0x400`-`0x49F`, `PTP_INGRESS/EGRESS_LAT` `0x540`/`0x544` | write-only scratch: stored, read back as documented, consumed by nothing | the register map is an ABI; no address moves |
+| `CAP[8]` `0x008`, `IRQ_STATUS[0]` `0x010`, `TXARB_DIAG` lane 1 `0x784` | structural zero | the shaper, the TX record stamper and the `aaf_final_mux` merge are gone |
+| `CAP[3:0]` = 5 | the retained `0x400` window geometry | see [EGRESS_QUEUE_MAP.md](../reference/EGRESS_QUEUE_MAP.md) |
 
-| # | hop | instance | what happens | read it at |
-|---|---|---|---|---|
-| 1 | **inactive input** | `traffic_classifier` → `traffic_class_map` | the input valid is tied low, so no product frame is classified | `CLS_CTRL` `0x300`, `CLS_TC_QUEUE_MAP` `0x310` retain their documented reset values |
-| 2 | **enqueue** | `traffic_queues` | `axis_demux` fans the frame out by `tdest` into one of five `axis_fifo`s. A FIFO drains only while the shaper grants it | `CAP.num_queues` `0x008` reads 5 |
-| 3 | **shape** | `traffic_shaping_core` → five `credit_based_shaper` instances | per-queue 802.1Qav credit accounting decides which backlogged queue is *eligible*; a plain grant mux (not a second arbiter) selects among the eligible ones, highest index first. **Every queue powers up unshaped**, so at reset this is pure strict priority | `0x400 + q*0x20` for `q ∈ [0,5)` → `0x400`–`0x49F`; `CBS_CTRL[0]` at `+0x0C` per queue |
-| 4 | **timestamp** | `ptp_ts_top` | remains on the shared egress boundary. The legacy metadata stream is drained internally; fabric gPTP uses its dedicated timestamp handshake | PTP group `0x500` |
-| 5–7 | **merge + MAC** | as Section 1 hops 5–8 | the shaped stream is the *data* port of `aaf_final_mux` and then of `adp_tx_mux` | `STAT_TX_FIFO_GOOD_FRAME` `0x21C` |
-
-The full queue table, the reset slopes, the reserved-DMAC rows and the argument
-for gPTP sitting at q3 are all in
-[EGRESS_QUEUE_MAP.md](../reference/EGRESS_QUEUE_MAP.md) — it is the authority
+The full queue table, the reset slopes and the reserved-DMAC rows are all in
+[EGRESS_QUEUE_MAP.md](../reference/EGRESS_QUEUE_MAP.md) - it is the authority
 and this page does not restate it.
 
 ## 3. Ingress: a frame off the wire reaches fabric render
@@ -143,8 +138,7 @@ target memory-delivery path.
 
 ```mermaid
 flowchart TB
-    MAC["MilanMAC → s_axis_mac_rx_*"] --> PTP["ptp_ts_top<br/>RX stamp @ ingress SFD"]
-    PTP --> TEE(("rx_axis_ptp_to_filt"))
+    MAC["MilanMAC → s_axis_mac_rx_*"] --> TEE(("rx_axis_from_mac"))
     TEE --> FILT["rx_mac_filter<br/>TCAM + station MAC"]
     FILT --> CTRL["protocol-processor<br/>control-frame tap"]
     TEE --> PARSE["avtp_stream_parser"]
@@ -163,7 +157,7 @@ flowchart TB
 
 | # | hop | instance | what happens | read it at |
 |---|---|---|---|---|
-| 1 | **RX timestamp** | `ptp_ts_top` | ingress-SFD capture for gPTP event messages, then the frame continues unchanged on `rx_axis_ptp_to_filt` | `LTAP_RX_EPOCH` `0x894` samples the gPTP ns here |
+| 1 | **RX tap** | `rx_axis_from_mac` | the MAC stream itself, fanned out untouched to the filter and the two pre-filter media taps; gPTP ingress stamps are the plane's own (`KL_gptp_shadow` off the filtered tap) - the `ptp_ts_top` RX stamper that sat here is no longer instantiated (Section 2) | `LTAP_RX_EPOCH` `0x894` samples the gPTP ns here |
 | 2a | **control-plane filter** | `rx_filter` (`rx_mac_filter`) | station-MAC exact match + multicast hash + the 16-entry TCAM, armed by `TCAM_CTRL[1]`. Surviving frames are observed by the protocol processor's classify-first control tap | TCAM group `0x700`; `STAT_RX_FIFO_GOOD_FRAME` `0x230` |
 | 2b | **stream parse** | `avtp_rx_parser` (`avtp_stream_parser`) | lifts the AVTP header off the wire — `stream_id`, `subtype`, `sequence_num`, `avtp_timestamp`, the `tu` bit, format bytes — and compares the `stream_id` against the armed table | `APRB_PARSED` `0x8B4`, `APRB_MATCHED` `0x8B8`, `APRB_SID_LO/HI` `0x8BC`/`0x8C0`, `APRB_INFO` `0x8C4` |
 | 3 | **what to match** | `stream_table` (`KL_stream_table`) | holds one `{stream_id, enable}` row per listener and drives the parser's `cfg_stream_id_i`/`cfg_stream_en_i`. Entry 0 **aliases the live ACMP bound record** unless an explicit `0x800`-window override is armed for it | `A_STRMW_CTRL` `0x810` / `A_STRMW_SID_LO`/`_HI` `0x814`/`0x818` per selected index |

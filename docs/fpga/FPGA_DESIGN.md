@@ -76,7 +76,7 @@ image lacks the requested descriptor. The store never hangs on a failed read: a
 - **[0. Global conventions](#0-global-conventions)** -- The four rules every module obeys: 64-bit big-endian AXIS (wire order *is* memory order, so the CPU never byte-swaps), AXI4-Lite CSR decoded in 0x100 groups, house style, no vendor primitives. Also flags one relic -- the `AXIS_TDEST_WIDTH 2` define is dead outside the legacy xsim TBs.
 - **[1. Top level - one datapath boundary](#1-top-level---one-datapath-boundary)** -- The MAC-less fabric boundary and its TX/RX pipeline. Product traffic comes from fabric media and protocol engines; the retained classifier/queue chain has an inactive input.
 - **[2. Module inventory (from the RTL banners; refreshed 2026-08-13)](#2-module-inventory-from-the-rtl-banners-refreshed-2026-08-13)** -- Every module in `hdl/`, one row each, grouped by directory, with descriptions lifted from the RTL banners. It states no total on purpose: the live count belongs to the generated matrix, and `ls hdl/` is the authority.
-- **[3. Clock domains & CDC (complete inventory)](#3-clock-domains--cdc-complete-inventory)** -- Which of the four domains each block lives in, and the complete crossing list -- all plain-FF or handshake, no vendor macros. Explains why the timestamp metadata FIFOs are deliberately same-clock: the crossing already happened upstream in `ptp_ts_core`.
+- **[3. Clock domains & CDC (complete inventory)](#3-clock-domains--cdc-complete-inventory)** -- Which of the four domains each block lives in, and the complete crossing list -- all plain-FF or handshake, no vendor macros. Notes that the only PHC crossing left in the datapath is `ptp_csr_sync`; the `ptp_ts_core` record path with its same-clock metadata FIFOs is no longer instantiated.
 - **[4. What is \*not\* in hdl/ (and where it lives instead)](#4-what-is-not-in-hdl-and-where-it-lives-instead)** -- The external MAC, descriptor image, trace tooling, and CPU/SoC integration.
 - **[5. Per-module doc regeneration](#5-per-module-doc-regeneration)** -- How the `hdl/**/doc/*.md` pages are produced, which three are hand-written exceptions, and the current list of modules with no page at all. Tie-break rule if a page lags: the RTL wins.
 
@@ -105,17 +105,18 @@ image lacks the requested descriptor. The store never hangs on a failed read: a
 Pipeline (identical in both wrappers):
 
 ```
-TX: inactive classifier/queue chain ──► ptp_ts_top(TX stamp) ──► arb cascade ──► MAC
-                                                                      ▲
-                          fabric sources (AAF talkers, CRF talker,    │
-                          KL_pp_shadow + KL_maap + gPTP) inject HERE ─┘
-RX: MAC ──► ptp_ts_top(RX stamp) ─┬─► rx_mac_filter(TCAM) ───► KL_pp_shadow (a pure
-                                  │      monitor of the post-filter stream: classify
-                                  │      first, control frames only, then 1 B/clk into
-                                  │      the protocol processor)
-                                  └─► avtp_stream_parser ► stream table ► RX monitor
-                                      ► depacketizer ► PCM route ► render map / DAC / TDM
-TS: ptp_ts_top metadata output ──► always-ready internal sink
+TX: fabric sources (AAF talkers ► crf_dp_mux ◄ CRF talker; KL_pp_shadow + KL_maap
+    ► ctl_tx_mux ► ctl_ifg ► gptp_ctl_mux ◄ gPTP plane) ──► adp_tx_mux ──► MAC
+    (no classifier/queue/shaper chain and no ptp_ts_top TX stamper since
+    0x0002_0056: their only source was the transmit path that #259 removed;
+    KL_gptp_txstamp watches the MAC boundary for the plane's own frames)
+RX: MAC ──► rx_axis_from_mac ─┬─► rx_mac_filter(TCAM) ───► KL_pp_shadow (a pure
+                              │      monitor of the post-filter stream: classify
+                              │      first, control frames only, then 1 B/clk into
+                              │      the protocol processor) and KL_gptp_shadow
+                              └─► avtp_stream_parser ► stream table ► RX monitor
+                                  ► depacketizer ► PCM route ► render map / DAC / TDM
+PHC: ptp_csr_sync ◄─► timestamp_counter ──► ptp_now to every talker, tap and the plane
 ```
 
 **No product packet source traverses the classifier, queues, or CBS.**
@@ -358,11 +359,11 @@ style: `//!` port docs); this table is the index, not the spec.
 | SoC clocks (LiteX `sys`, `sys4x`, `idelay`) | outside the datapath |
 
 Crossings - all in-fabric, all `(* ASYNC_REG *)` plain-FF or handshake based
-(no vendor macros): `ptp_csr_sync` (CSR commands → PHC, snapshot return),
-`cdc_pulse` + `cdc_handshake` inside `ptp_ts_core` (SOP pulse, timestamp
-value), the 2-FF `i_mac_speed` sync in the wrappers. Timestamp metadata
-FIFOs are same-clock (`axis_clk`) on purpose - the crossing happens in
-`ptp_ts_core`/`ptp_csr_sync`, not in the FIFOs. Constraint requirements per
+(no vendor macros): `ptp_csr_sync` (CSR commands → PHC, snapshot return) and
+the 2-FF `i_mac_speed` sync in the wrappers. The `ptp_ts_core` record path
+(its `cdc_pulse` + `cdc_handshake` and same-clock metadata FIFOs) is no longer
+instantiated by the datapath since `0x0002_0056`; it remains a stand-alone
+verified block. Constraint requirements per
 toolchain: [Section 4.5 of ../integration/PORTING_GUIDE.md](../integration/PORTING_GUIDE.md#45-timing-constraints---translate-dont-skip).
 
 ## 4. What is *not* in `hdl/` (and where it lives instead)

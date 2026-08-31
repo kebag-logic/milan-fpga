@@ -47,7 +47,7 @@ One entity, one network port, on **one softcore**:
    │   • ADP/AECP/ACMP/MAAP + SRP: the protocol processor, in fabric    │
    ├───────────────────────────────────────────────────────────────────┤
    │  FPGA datapath (HW): integrated gPTP default owner + PHC steering  │
-   │    GMII MAC ─ 802.1Q classifier ─ CBS ─ AVTP talker/listener       │
+   │    GMII MAC ─ AVTP talker/listener (no classifier/CBS in the trunk)│
    └───────────────────────────────────────────────────────────────────┘
                                    │ GMII 1 GbE
                                    ▼  AVB/TSN network (bridge)
@@ -204,6 +204,12 @@ conformant fallback, and the current audit lists the remaining mandatory gaps.
 | FR-SRP-02 | The entity MUST register the stream VLAN via MVRP. | M | T |
 | FR-SRP-03 | On reservation grant the CBS shaper MUST be configured to the reserved idleSlope; on failure the stream MUST NOT transmit. | M | T |
 
+> **Scope (VERSION `0x0002_0056`):** FR-CONN-02's queue/CBS programming and
+> FR-SRP-03's shaper configuration have no object in the shipped datapath - the
+> classifier/CBS chain is not instantiated ([REQUIREMENTS.md section 5](../../REQUIREMENTS.md)).
+> The obligation that survives, *no transmit without a grant*, is met at the
+> AAF admission gate from the processor's SRP class-D face.
+
 ### 2.6 Time & media clock  -  gPTP, CRF  *(802.1AS; 1722-2016 Section 10; Milan Section 5.7)*
 | ID | Requirement | Pri | Ver |
 |----|-------------|-----|-----|
@@ -348,7 +354,7 @@ cites the FRs it satisfies and the milestone in
 the completed PS-to-fabric migration plan (#259, in git history).
 
 1. **Platform up**  -  bare-metal RV32I firmware on the AX7101 with the HW
-   datapath (MAC/CBS/classifier/PHC). *(M-A5)*
+   datapath (MAC/PHC/AVTP). *(M-A5)*
 2. **gPTP (802.1AS)**  -  enable the integrated fabric owner and verify its
    wire/CSR/publication behavior plus ≤ 1 µs sync. Booted and two-board
    acceptance remains #117. *(FR-CLK-01/02, NFR-TIME-01)*

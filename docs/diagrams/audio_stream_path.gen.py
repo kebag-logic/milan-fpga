@@ -54,7 +54,7 @@ node("fabricctl", 850, 130, 300, 64, "fabric protocol / time sources",
      ["protocol processor · MAAP · gPTP · CRF"], GREY)
 
 node("inject", 1208, 288, 268, 116, "fabric egress arbiter",
-     ["adp_tx_arbiter + aaf_final_mux", "AAF joins the fabric TX trunk;",
+     ["adp_tx_arbiter (crf_dp_mux)", "AAF heads the fabric TX trunk;",
       "bandwidth held by processor SRP", "reservation face grants admission"], ORANGE)
 
 node("mactx", 1580, 300, 190, 92, "MAC TX",
@@ -67,7 +67,7 @@ node("wire", 1880, 296, 300, 100, "the wire",
 
 # --- listener lane ---
 node("macrx", 60, 760, 200, 92, "MAC RX",
-     ["ptp_ts_top RX stamp", "TCAM DMAC filter"], ORANGE)
+     ["rx_axis_from_mac tap", "TCAM DMAC filter"], ORANGE)
 node("parser", 320, 760, 268, 92, "avtp_stream_parser",
      ["+ KL_stream_table: wire-truth", "stream_id match (entry 0 =", "ACMP-bound record)"], GREEN)
 node("rxmon", 648, 748, 296, 116, "KL_avtp_rx_monitor_ctx",

@@ -18,9 +18,9 @@ LAYERS = [
  ("Milan datapath: RTL", "FPGA fabric · SystemVerilog / Verilog  (hdl/)", BLUE, [
     "common: milan_datapath · rx_mac_filter · tcam · cdc_*",
     "csr: milan_csr  (the AXI-Lite register ABI shared with bare-metal firmware)",
-    "802.1Q CBS: credit_based_shaper · traffic_classifier · traffic_class_map ·",
-    "            traffic_controller_802_1q · traffic_queues · traffic_shaping_core",
-    "PTP: ptp_ts_top · ptp_ts_core · timestamp_counter · ptp_csr_sync",
+    "PTP: timestamp_counter · ptp_csr_sync (the PHC) · KL_ptp_clock_validity",
+    "stand-alone verified, not in the shipped datapath: 802.1Q CBS/classifier chain",
+    "            (traffic_controller_802_1q + queues/shaping core) · ptp_ts_top/ptp_ts_core",
     "1722 AVTP: KL_avtp_common_parser   ·   adp_tx_arbiter (generic 2-in-1-out AXIS mux)",
     "control plane: KL_pp_shadow (protocol-processor submodule: ADP · ACMP · SRP · AECP)",
     "               KL_pp_maap_shim + KL_maap  (MAAP stays in this fabric)",

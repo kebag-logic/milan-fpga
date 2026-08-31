@@ -68,7 +68,7 @@ READER_FILES=(
 STREAM_TERM='t(valid|ready|data|keep|last|user)'
 # nets a tap may READ but never DRIVE (datapath interface members + flat
 # boundary lanes of milan_datapath)
-STREAM_NET_RE='((rx_axis_to_ts|rx_axis_ptp_to_filt|rx_axis_fabric|tx_axis_to_shaper|tx_axis_shaper_to_ts|tx_axis_dp_to_arb|tx_axis_to_mac)\.t(valid|ready|data|keep|last|user)|[sm]_axis_[a-z_]*t(valid|ready|data|keep|last|user))'
+STREAM_NET_RE='((rx_axis_from_mac|rx_axis_fabric|tx_axis_to_mac)\.t(valid|ready|data|keep|last|user)|[sm]_axis_[a-z_]*t(valid|ready|data|keep|last|user))'
 
 n_bind=0    # stream-net bindings actually resolved (anti-vacuity witness)
 n_rx_fabric=0 # bindings on the live post-filter fabric-observer seam

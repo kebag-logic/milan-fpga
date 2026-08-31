@@ -426,7 +426,7 @@ class MilanNIC(LiteXModule):
                  audio_if_i2s_pair=False, gptp_plane=None,
                  loopback_lane=False,
                  render_lpf=True, optional_blocks=None,
-                 cbs_queues_mask=None, entity_gen_dir=None):
+                 entity_gen_dir=None):
         # AECP IDENTIFY control level (Milan FR-MGT-01) - wired to a board LED
         # by the SoC so a controller's "identify" visibly blinks the device.
         self.identify = Signal()
@@ -442,7 +442,6 @@ class MilanNIC(LiteXModule):
                            gptp_plane=gptp_plane,
                            loopback_lane=loopback_lane,
                            render_lpf=render_lpf, optional_blocks=optional_blocks,
-                           cbs_queues_mask=cbs_queues_mask,
                            entity_gen_dir=entity_gen_dir)
 
 
@@ -494,15 +493,15 @@ _MILAN_DATAPATH_SOURCES = [
     "hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv",
     "hdl/ieee8021as/gptp_plane/KL_gptp_txstamp.sv",
     "hdl/common/ethernet_packet_pkg.sv", "hdl/common/axi_stream_if.sv",
-    "third_party/verilog-axis/rtl/axis_fifo.v", "third_party/verilog-axis/rtl/axis_demux.v",
+    "third_party/verilog-axis/rtl/axis_fifo.v",
     "third_party/verilog-axis/rtl/axis_arb_mux.v", "third_party/verilog-axis/rtl/arbiter.v",
     "third_party/verilog-axis/rtl/priority_encoder.v",
-    "hdl/ieee8021q/ts/traffic_class_map.sv", "hdl/ieee8021q/ts/traffic_classifier.sv",
-    "hdl/ieee8021q/ts/credit_based_shaper.sv", "hdl/ieee8021q/ts/traffic_shaping_core.sv",
-    "hdl/ieee8021q/ts/traffic_queues.sv", "hdl/ieee8021q/ts/traffic_controller_802_1q.sv",
+    # the 802.1Q classifier/queue/CBS chain (hdl/ieee8021q/ts/*) and the
+    # ptp_ts_top record stampers are NOT datapath sources any more: the
+    # retired transmit path that fed them is gone (#259) and milan_datapath no longer
+    # instantiates them. They keep their unit suites and Yosys tops.
     "hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv", "hdl/ieee8021as/ptp_timestamp/ptp_csr_sync.sv",
-    "hdl/common/cdc_pulse.sv", "hdl/common/cdc_handshake.sv", "hdl/common/axis_mux_rr_2in_1out.sv",
-    "hdl/ieee8021as/ptp_timestamp/ptp_ts_core.sv", "hdl/ieee8021as/ptp_timestamp/ptp_ts_top.sv",
+    "hdl/common/cdc_pulse.sv", "hdl/common/cdc_handshake.sv",
     "hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv",
     "hdl/ieee8021q/filtering/tcam.sv", "hdl/ieee8021q/filtering/rx_mac_filter.sv", "hdl/common/tx_ifg_gasket.sv", "hdl/ieee1722/aaf/KL_pcm_lpf.sv",
     "hdl/common/KL_link_guard.sv",
@@ -675,7 +674,7 @@ def add_milan_datapath(host, platform, axil, extra_ports=None, milan_cd="sys",
                        gptp_plane=None,
                        loopback_lane=False,
                        render_lpf=True,
-                       optional_blocks=None, cbs_queues_mask=None,
+                       optional_blocks=None,
                        entity_gen_dir=None):
     """Instantiate `milan_datapath` and add its RTL sources  -  the single place the
     wrapper is wired, reused by the board SoC (`MilanNIC`) and the sim SoC
@@ -919,13 +918,10 @@ def add_milan_datapath(host, platform, axil, extra_ports=None, milan_cd="sys",
     for k, param in MILAN_OPTIONAL_BLOCKS.items():
         if not blocks[k]:
             dp_params[f"p_{param}"] = 0
-    # CBS instance mask (2026-07-28 area lever, traffic_shaping_core has the
-    # contract). Passed ONLY when it actually prunes - None or all-ones emits
-    # a byte-identical top .v, and the name
-    # must match the SV declaration CHARACTER FOR CHARACTER (the silent-drop
-    # trap above).
-    if cbs_queues_mask is not None and int(cbs_queues_mask) != (1 << 5) - 1:
-        dp_params["p_CBS_QUEUES_MASK_P"] = int(cbs_queues_mask)
+    # There is no CBS instance mask any more: milan_datapath stopped
+    # instantiating the 802.1Q classifier/queue/CBS chain when the retired-target
+    # TX that fed it left (#259), so the 2026-07-28 area lever has nothing to
+    # prune and CBS_QUEUES_MASK_P is not a parameter of the module.
     # =======================================================================
     #  AECP DESCRIPTOR-IMAGE READ BRIDGE  (protocol-processor 07 §3.3)
     # =======================================================================
@@ -2051,7 +2047,7 @@ class MilanSoC(SoCCore):
                  software_profile="baremetal",
                  gptp_plane=None,
                  render_lpf=True, optional_blocks=None,
-                 cbs_queues_mask=None, entity_gen_dir=None, **kwargs):
+                 entity_gen_dir=None, **kwargs):
         self._cpu_xlen = int(xlen)
         if software_profile != "baremetal":
             raise ValueError("unsupported software profile")
@@ -2445,7 +2441,6 @@ class MilanSoC(SoCCore):
                                   loopback_lane=bool(loopback_lane),
                                   render_lpf=bool(render_lpf),
                                   optional_blocks=optional_blocks,
-                                  cbs_queues_mask=cbs_queues_mask,
                                   entity_gen_dir=entity_gen_dir)
             # ===============================================================
             #  AECP DESCRIPTOR-IMAGE READ BRIDGE (protocol-processor 07 §3.3)
@@ -2894,15 +2889,6 @@ def main():
                          "instead of the tracked hdl/ copy - lets both boards' "
                          "sweeps build CONCURRENTLY from one tree with no "
                          "svh-ownership handoff")
-    ap.add_argument("--cbs-queues-mask", type=lambda x: int(x, 0), default=None,
-                    help="AREA LEVER: which egress queues get a credit_based_shaper "
-                         "INSTANCE (bit i = queue i). A masked-out queue is strict-"
-                         "priority only - bit-identical to a built CBS whose runtime "
-                         "cbs_shaped_i is 0, which is how every non-SR queue runs "
-                         "today; its cbs_* CSR words stay and read back as written. "
-                         "The builder derives this from srp.class_queue (the SR "
-                         "classes keep CBS). Default None = all queues, the "
-                         "pre-2026-07-28 build, byte-identical.")
     ap.add_argument("--no-datapath-probes", action="store_true",
                     help="AREA LEVER: prune the APRB (0x8B4-0x8C4) and PBK "
                          "(0x8C8-0x8D0) probe groups - closed-finding "
@@ -3140,7 +3126,6 @@ def main():
                        "rx_mac_filter":     not args.no_rx_mac_filter,
                        "datapath_probes":   not args.no_datapath_probes,
                    },
-                   cbs_queues_mask=args.cbs_queues_mask,
                    entity_gen_dir=args.entity_gen_dir,
                    audio_if_slots={"i2s_philips": 0, "tdm8": 8, "tdm16": 16,
                                    "tdm32": 32}[args.audio_interface],

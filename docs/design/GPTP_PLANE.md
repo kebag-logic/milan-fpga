@@ -118,8 +118,9 @@ The plane has four seams:
   for. A frame that is a single beat and arrives while the ring is full
   is shed without being counted -- its EtherType verdict never lands, so
   it is indistinguishable from the runts the tap already reclaims.
-- **Egress**: the control lane does not traverse `ptp_ts_top`'s TX
-  stamper (only the shaped data path does), so `KL_gptp_txstamp`
+- **Egress**: there is no in-line TX stamper in the trunk (the
+  `ptp_ts_top` record stampers left with the general-data chain in
+  `0x0002_0056`), so `KL_gptp_txstamp`
   observes the TRUE MAC boundary: armed by the plane's lane sof, it
   latches the counter at an 0x88F7 frame's first beat and returns
   {ts, sequenceId, messageType} for the engine's pending exchange.

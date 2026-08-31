@@ -29,11 +29,11 @@
 <rect x="40" y="478" width="880" height="26" rx="4" fill="#ffffff" fill-opacity="0.72" stroke="#1565C0" stroke-opacity="0.5" stroke-width="1"/>
 <text x="50" y="495" font-size="12.5" fill="#212121">csr: milan_csr  (the AXI-Lite register ABI shared with bare-metal firmware)</text>
 <rect x="40" y="510" width="880" height="26" rx="4" fill="#ffffff" fill-opacity="0.72" stroke="#1565C0" stroke-opacity="0.5" stroke-width="1"/>
-<text x="50" y="527" font-size="12.5" fill="#212121">802.1Q CBS: credit_based_shaper · traffic_classifier · traffic_class_map ·</text>
+<text x="50" y="527" font-size="12.5" fill="#212121">PTP: timestamp_counter · ptp_csr_sync (the PHC) · KL_ptp_clock_validity</text>
 <rect x="40" y="542" width="880" height="26" rx="4" fill="#ffffff" fill-opacity="0.72" stroke="#1565C0" stroke-opacity="0.5" stroke-width="1"/>
-<text x="50" y="559" font-size="12.5" fill="#212121">            traffic_controller_802_1q · traffic_queues · traffic_shaping_core</text>
+<text x="50" y="559" font-size="12.5" fill="#212121">stand-alone verified, not in the shipped datapath: 802.1Q CBS/classifier chain</text>
 <rect x="40" y="574" width="880" height="26" rx="4" fill="#ffffff" fill-opacity="0.72" stroke="#1565C0" stroke-opacity="0.5" stroke-width="1"/>
-<text x="50" y="591" font-size="12.5" fill="#212121">PTP: ptp_ts_top · ptp_ts_core · timestamp_counter · ptp_csr_sync</text>
+<text x="50" y="591" font-size="12.5" fill="#212121">            (traffic_controller_802_1q + queues/shaping core) · ptp_ts_top/ptp_ts_core</text>
 <rect x="40" y="606" width="880" height="26" rx="4" fill="#ffffff" fill-opacity="0.72" stroke="#1565C0" stroke-opacity="0.5" stroke-width="1"/>
 <text x="50" y="623" font-size="12.5" fill="#212121">1722 AVTP: KL_avtp_common_parser   ·   adp_tx_arbiter (generic 2-in-1-out AXIS mux)</text>
 <rect x="40" y="638" width="880" height="26" rx="4" fill="#ffffff" fill-opacity="0.72" stroke="#1565C0" stroke-opacity="0.5" stroke-width="1"/>

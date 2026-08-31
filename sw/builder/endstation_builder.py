@@ -3625,35 +3625,14 @@ def emit_design_opts(cfg):
     wire_chans = framer_wire_channels(cfg)
     if wire_chans != WIRE_CHANS_MIN:
         argv += ["--talker-wire-chans", str(wire_chans)]
-    # CBS instance mask (2026-07-28 area lever): only the SR-class queues
-    # carry a credit_based_shaper INSTANCE. DERIVED, not declared - the class
-    # A queue is srp.class_queue and class B sits directly below it (the
-    # 802.1Q priority order behind the reset PCP map; the USER queue
-    # directive shapes exactly those two and forbids CBS above gPTP). A
-    # masked-out queue is bit-identical to a built CBS with cbs_shaped_i=0,
-    # which is how every non-SR queue has ALWAYS run - so this prunes ~425
-    # LUT + 6 DSP per queue (ship-report figure) and moves no behaviour.
-    # Emitted only when it prunes something, byte-identity as ever.
-    # CLASS A ONLY (USER 2026-07-31). The class B queue used to get a
-    # credit_based_shaper INSTANCE too, and it never had a stream to shape:
-    # SRP_SR_CLASSES defines class A alone and load_srp REFUSES class B, Milan
-    # v1.2 puts every Milan stream on class A, and the CRF Media Clock is
-    # class-A-mandatory (7.3.3). So the class B shaper was pure area for a
-    # class this product does not carry - measured at 417 LUT + 211 FF + 6 DSP
-    # on the ax7101 8x8 (gen_cbs[3].g_cbs.u_cbs in the m0021 hierarchical
-    # report), which the xc7a100t needs back: that shape misses placement by
-    # 858 slices with LUTs at 99.94 % of capacity.
-    #
-    # This does NOT change how q3 behaves. A masked-out queue is bit-identical
-    # to a built CBS with cbs_shaped_i = 0 (the same reasoning the 07-28 lever
-    # rests on) - q3 simply runs unshaped strict-priority, exactly as every
-    # non-SR queue always has. Re-enable by widening this expression if a
-    # class B talker is ever declared; the RTL supports it unchanged.
-    nq = cfg["constraints"]["num_queues"]
-    cq = cfg["srp"]["class_queue"]
-    cbs_mask = (1 << cq)
-    if cbs_mask != (1 << nq) - 1:
-        argv += ["--cbs-queues-mask", f"0x{cbs_mask:x}"]
+    # NO --cbs-queues-mask. The 2026-07-28 area lever (a credit_based_shaper
+    # instance per SR-class queue, class A only since USER 2026-07-31) is
+    # gone with its object: milan_datapath no longer instantiates the 802.1Q
+    # classifier/queue/CBS chain, because the retired transmit path that was its only
+    # source left with #259 and every product source joins the trunk after
+    # it. srp.class_queue still names the class-A queue for the SRP engine and
+    # the retained LWSRP_CTRL[4:2] scratch field; num_queues still pins the
+    # CSR 0x400 geometry against ethernet_packet_pkg::NUMBER_OF_QUEUES.
     # task #65: the rx -> talker LOOP bucket. Emitted ONLY when declared, so
     # every config that predates the key produces a byte-identical argv. This
     # is the SAME declaration primary_segment reads, which is the whole point:

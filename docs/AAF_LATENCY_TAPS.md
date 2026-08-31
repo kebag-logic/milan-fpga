@@ -40,8 +40,9 @@ flowchart LR
   the packetizer only starts a frame once it has a full PDU's worth of pairs.
 * **PKT_SOF → PKT_EOF** (`D1`) is the packetizer's own serialization time.
 * **PKT_EOF → MAC_TX** (`D2`) is the **`adp_tx_arbiter` merge chain + the MAC
-  boundary** — *not* a CBS queue. The fabric AAF talker injects **after** the
-  shaper (`aaf_final_mux` in `milan_datapath.sv`), so its frames never enter a
+  boundary** — *not* a CBS queue. There is no shaper in the shipped trunk at
+  all since `0x0002_0056` (the AAF talker heads the data lane at `crf_dp_mux`
+  in `milan_datapath.sv`), so its frames never enter a
   queue and never wait for credit; pacing comes from the SRP admission gate
   instead — published by the protocol processor's class-D face since the lwSRP
   engine was deleted (2026-08-13). See
@@ -49,9 +50,10 @@ flowchart LR
   and [Section 0 of `fpga/DATAPLANE_WALKTHROUGH.md`](fpga/DATAPLANE_WALKTHROUGH.md#0-the-one-thing-to-know-first). Under
   mixed traffic this shared boundary may catch a nearer non-AAF edge, which is
   why the envelope (min/max) matters more than a single sample here.
-* The existing `ptp_ts_top` **TX hardware timestamp** stamps the actual wire
-  egress independently; `TX_EPOCH` records the gPTP ns at the CAP edge so the
-  fabric delta and the on-wire stamp can be reconciled.
+* The gPTP plane's `KL_gptp_txstamp` stamps its own frames at the MAC boundary
+  independently (the `ptp_ts_top` TX record stamper is no longer instantiated);
+  `TX_EPOCH` records the gPTP ns at the CAP edge so the fabric delta and an
+  on-wire capture can be reconciled.
 
 ## RX pipeline (listener: wire → fabric render)
 

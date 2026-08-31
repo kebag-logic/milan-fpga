@@ -92,11 +92,35 @@ field values. Receivers ignore that deprecated field as required by the later
 - **REQ-PTP-09 (MUST):** No write outside the fabric engine can manufacture
   live gPTP health. Option OFF remains ownerless under adversarial writes.
 
+Scope note (VERSION `0x0002_0056`): the shipping datapath instantiates the PHC
+(`timestamp_counter` + `ptp_csr_sync`) and the fabric engine's own ingress and
+egress stamps. The `ptp_ts_top`/`ptp_ts_core` record path that carried
+REQ-PTP-03, REQ-PTP-04 and REQ-PTP-06 in the retired product is no longer
+instantiated: its records had no consumer once #259 removed the transmit path.
+Those three requirements bind the record cores stand-alone (`ptp_ts` suite)
+and are not product claims: `IRQ_STATUS[0]` is a structural zero and
+`PTP_INGRESS_LAT`/`PTP_EGRESS_LAT` are write-only scratch
+([REGISTER_MAP.md](docs/reference/REGISTER_MAP.md)). Per-frame pairing and the
+latency reference plane of the shipped gPTP path are the fabric engine's
+(REQ-PTP-05) and #117's to measure.
+
 Acceptance combines the focused PHC, timestamp, gPTP-plane, publication,
 clock-validity, CSR, and full-datapath benches with #117's two-board wire and
 publication correlation.
 
 ## 5. Credit-based shaping
+
+Scope note (VERSION `0x0002_0056`): the 802.1Q classifier / queue / 802.1Qav
+shaper chain (`traffic_controller_802_1q`) is verified stand-alone (the
+`classifier`, `queues`, `cbs`, `shaper_core`, `datapath` and `controller_rate`
+suites) and is **not instantiated in the shipping datapath**: its only packet
+source was the transmit path retired by #259, and every product source (AAF,
+CRF, MAAP, the protocol processor, fabric gPTP) joins the TX trunk after the
+point it occupied. REQ-CBS-* and the queue rows of REQ-CLS-* therefore bind the
+retained blocks, not the shipped wire behaviour; `CAP.CBS` reads 0 and the
+`0x300`/`0x400` words are write-only scratch
+([REGISTER_MAP.md](docs/reference/REGISTER_MAP.md)). Credit-shaping the
+fabric's own class-A sources is a separate lane.
 
 - **REQ-CBS-01 (MUST):** Each implemented shaped traffic class has independent
   idleSlope, sendSlope, hiCredit, loCredit, enable, and reset controls.
@@ -116,6 +140,11 @@ publication correlation.
   the RTL implementation and include mutation-sensitive backpressure cases.
 
 ## 6. Classification and queues
+
+Scope note: see section 5 - the classifier and queue bank are retained,
+verified blocks outside the shipping datapath; the station-address rules
+(REQ-CLS-03) and the reserved-destination handling of fabric-originated traffic
+(REQ-CLS-09/10) are implemented in `rx_mac_filter` and at the fabric merges.
 
 - **REQ-CLS-01 (MUST):** VLAN PCP maps through a programmable PCP-to-traffic-
   class table.

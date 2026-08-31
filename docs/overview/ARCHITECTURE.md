@@ -50,8 +50,9 @@ The filtered tap lets the protocol processor observe addressed control frames.
 No packet payload is delivered to target memory.
 
 Egress AAF/CRF, MAAP, protocol-processor, and fabric-gPTP sources merge in
-fabric before the MAC. The classifier/queue/CBS implementation remains
-CSR-visible but its packet input is tied inactive in the product boundary.
+fabric before the MAC. The classifier/queue/CBS chain is not instantiated in
+the product datapath (its only source was the retired transmit path); its CSR
+words remain as write-only scratch and the blocks stay verified stand-alone.
 
 ## 3. Control and identity
 

@@ -146,7 +146,7 @@ cfg_ax7101() {   # shipping bare-metal shape: one cacheless RV32I hart.
           --milan-clk-freq 50e6 --with-spiflash --flashboot baremetal \
           --gtx-tx-invert --timing-opt --floorplan --eth-port e1 \
           --no-i2s-playback --no-render-lpf --audio-interface tdm8 \
-          --audio-interface-master --talker-wire-chans 8 --cbs-queues-mask 0x10 \
+          --audio-interface-master --talker-wire-chans 8 \
           --loopback-lane --fabric-gptp \
           --entity-gen-dir $SOC_DIR/../../configs/generated/endstation_ax7101_1x1_tdm8 \
           --synth-directive AreaOptimized_high --opt-directive ExploreArea \
@@ -173,7 +173,7 @@ cfg_ax8x8() {    # 8-stream (64ch) bare-metal fabric endpoint.
           --num-streams 8 --audio-interface tdm32 --audio-interface-master \
           --talker-wire-chans 8 --no-latency-taps --no-i2s-playback \
           --entity-gen-dir $SOC_DIR/../../configs/generated/endstation_ax7101_8x8 \
-          --no-render-lpf --no-datapath-probes --cbs-queues-mask 0x10 \
+          --no-render-lpf --no-datapath-probes \
           --synth-directive AreaOptimized_high \
           --opt-directive ExploreArea --place-directive AltSpreadLogic_high"
                  # --no-render-lpf = the SPENT LPF_P area lever (2026-07-27,
@@ -207,7 +207,7 @@ cfg_arty() {     # Arty A7-100 small endstation: MII 100M, QSPI flashboot (probe
           --software-profile baremetal --full --fabric-gptp --num-streams 1 \
           --sys-clk-freq 83.333e6 --milan-clk-freq 50e6 --with-spiflash --flashboot baremetal \
           --uart-baudrate 115200 --timing-opt --l2-bytes 0 \
-          --cbs-queues-mask 0x10 \
+          \
           --entity-gen-dir $SOC_DIR/../../configs/generated/endstation_arty_current"
 }
 

@@ -108,9 +108,8 @@ flowchart TB
             SERVO["MMCM-DRP media-clock servo<br/>(structurally off — no SET_CLOCK_SOURCE)"]
         end
         subgraph NET["Network plane (802.1Q / 802.1AS)"]
-            CLS["classifier → 5 egress queues<br/>q4 SR-A · q3 SR-B · q2 gPTP<br/>q1 control · q0 BE"]
-            CBS["802.1Qav credit-based shaper<br/>(q4 / q3 only)"]
-            PHC["PTP hardware clock<br/>+ TX/RX timestamp unit"]
+            CLS["802.1Q classifier / queues / CBS<br/>(verified blocks, not in the shipped trunk)"]
+            PHC["PTP hardware clock<br/>+ the gPTP plane's own stampers"]
             GPTP["KL_gptp_shadow → gptp-processor<br/>product-default BMCA · servo · pdelay"]
             FILT["RX dest-MAC TCAM filter"]
         end
@@ -195,7 +194,7 @@ Verilator suite is its executable form.
 |---|---|
 | `0x000` | Identification / IRQ — read `ID` here first: it spells `MILN` |
 | `0x100` · `0x200` | MAC control/status · RMON statistics — **read `STATS_CAP` (`0x204`) before believing a zero** |
-| `0x300` · `0x400` | 802.1Q classifier · 802.1Qav CBS (per queue, stride `0x20`; `0x400`–`0x49F` at 5 queues) |
+| `0x300` · `0x400` | 802.1Q classifier · 802.1Qav CBS (per queue, stride `0x20`; `0x400`–`0x49F` at 5 queues) — write-only scratch since `0x0056`, no shaper in the trunk |
 | `0x500` | PTP hardware clock |
 | `0x600` · `0x648` | entity identity + enable (`ADP_CTRL.en`) · AECP/ACMP status + AAF talker (stream 0) |
 | `0x680` · `0x6A4` | SRP group · ACMP listener bind record + AVTP RX / MAAP / audio diagnostics |

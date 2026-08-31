@@ -2,8 +2,14 @@
 
 The classifier, queue bank, and 802.1Qav credit logic remain implemented and
 independently verified, but the bare-metal product boundary supplies no packet
-source to them. Their input valid is tied low in `milan_datapath`. Product AAF,
-CRF, MAAP, protocol, and fabric-gPTP traffic joins downstream of this chain.
+source to them, and since VERSION `0x0002_0056` `milan_datapath` **does not
+instantiate them at all**: the retired transmit path that was their only source left
+with #259, so an elaborated chain would have been silicon on a tied-off input
+and a CSR face advertising a shaper no frame could reach. Product AAF, CRF,
+MAAP, protocol, and fabric-gPTP traffic joins the trunk at the merges that sat
+below the chain. The CSR words below are write-only scratch and `CAP.CBS` reads
+0 ([REGISTER_MAP.md](REGISTER_MAP.md)); the blocks are building material for a
+class-A shaping lane over the fabric's own sources, which is a separate lane.
 
 The notification claim is checked against the
 [Milan feature status ledger](MILAN_FEATURE_STATUS.md):
@@ -66,10 +72,14 @@ which is conservative: no stream can transmit against an unbudgeted slope.
 
 ## Why gPTP sits below the shaped classes
 
-Fabric gPTP has its own timer-driven transmit source and merges after the
-inactive classifier/shaper chain. It therefore cannot be delayed by queue
-occupancy or firmware service. TX/RX event timestamps are captured at the MAC
-boundary, and the fabric plane consumes its dedicated timestamp handshake.
+Fabric gPTP has its own timer-driven transmit source and merges directly onto
+the control lane; there is no classifier/shaper chain in the shipped trunk for
+it to sit below. It therefore cannot be delayed by queue occupancy or firmware
+service. TX/RX event timestamps are captured at the MAC boundary
+(`KL_gptp_txstamp`) and off the RX tap, and the fabric plane consumes its
+dedicated timestamp handshake. The rule this section is named for - gPTP
+must never queue behind a shaped class - is what any future class-A shaping
+lane over the fabric's own sources has to preserve.
 
 The `0x88F7` classifier rule remains a tested generic mapping but is not the
 release gPTP path.
@@ -89,7 +99,10 @@ exposed to target software.
 
 ## Verification boundary
 
-Use the focused `classifier`, `queues`, and CBS harnesses for the generic
-blocks. Use `tb/verilator/milan_dp` and generated wire campaigns for product
-traffic ordering and time ownership. A CSR reset map alone is not evidence that
-a release packet traverses these queues.
+Use the focused `classifier`, `queues`, `cbs`, `shaper_core`, `datapath` and
+`controller_rate` harnesses for the generic blocks (and the `datapath_wrap` /
+`credit_based_shaper` Yosys tops for their portability). Use
+`tb/verilator/milan_dp` and generated wire campaigns for product traffic
+ordering and time ownership. A CSR reset map is not evidence that a release
+packet traverses these queues: none does, and none can - the chain is not in
+the shipped datapath.

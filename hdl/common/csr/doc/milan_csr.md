@@ -55,7 +55,7 @@ consumer using those strobes (`REQ-CSR-03`).
 
 | Generic name | Type          | Value          | Description                                             |
 | ------------ | ------------- | -------------- | ------------------------------------------------------- |
-| NUM_QUEUES   | int           | 5              | Number of HW traffic-class queues (reported in CAP.num_queues); q4 = highest priority |
+| NUM_QUEUES   | int           | 5              | Geometry of the retained 0x400 window (reported in CAP.num_queues); no queue is elaborated in the datapath since 0x0002_0056; q4 = highest priority |
 | ADDR_WIDTH   | int           | 16             | Byte-address width of the AXI-Lite window (16 => 64 KB) |
 | N_LISTENERS_P | int          | 1              | listener stream contexts addressable by the 0x800 window (`A_STRM_SEL` dir=0) |
 | N_TALKERS_P  | int           | 1              | talker stream contexts (`A_STRM_SEL` dir=1) |
@@ -111,17 +111,6 @@ source for both groups rather than a second hand-written copy:
 | o_stats_reset       | output    | wire                    | 1-cycle pulse: clear RMON counters                   |
 | i_stats             | input     | wire [32*9-1:0]         | Live RMON counters, packed {STAT8..STAT0}            |
 | i_stats_cap         | input     | wire [31:0]             | Per-lane STAT capability mask -> RO STATS_CAP (0x204) |
-| o_cls_use_pcp       | output    | wire                    | Classify by PCP table vs EtherType (CLS_CTRL[0])    |
-| o_cls_dmac_check    | output    | wire                    | Reserved-DMAC validation (CLS_CTRL[1])              |
-| o_cls_ctrl_class    | output    | wire                    | Untagged-control DMAC fast path (CLS_CTRL[2])       |
-| o_cls_default_pcp   | output    | wire [2:0]              | Default port priority (untagged)                     |
-| o_cls_pcp_tc_map    | output    | wire [23:0]             | Priority->traffic-class table (8x3)                  |
-| o_cls_prio_regen    | output    | wire [23:0]             | Priority regeneration table (8x3)                    |
-| o_cls_tc_queue_map  | output    | wire [31:0]             | Traffic-class->queue map                             |
-| o_cbs_idle_slope_bps | output    | wire [32*NUM_QUEUES-1:0]| Per-queue idleSlope, bits/s                          |
-| o_cbs_hi_credit_bytes | output   | wire [32*NUM_QUEUES-1:0]| Per-queue hiCredit, signed bytes                     |
-| o_cbs_lo_credit_bytes | output   | wire [32*NUM_QUEUES-1:0]| Per-queue loCredit, signed bytes                     |
-| o_cbs_enable        | output    | wire [NUM_QUEUES-1:0]   | Per-queue shaped-enable; 0 = strict priority         |
 | o_ptp_enable        | output    | wire                    | PTP counter enable (PTP_CTRL[0])                    |
 | o_ptp_incr          | output    | wire [31:0]             | Nominal per-tick increment, ns.frac                  |
 | o_ptp_adj           | output    | wire [31:0]             | Signed adjfine addend                                |
@@ -130,11 +119,8 @@ source for both groups rather than a second hand-written copy:
 | o_ptp_cmd_load      | output    | wire                    | settime apply strobe (pulse)                         |
 | o_ptp_cmd_adjust    | output    | wire                    | adjtime apply strobe (pulse)                         |
 | o_ptp_cmd_snapshot  | output    | wire                    | gettime latch strobe (pulse)                         |
-| o_ptp_ingress_lat   | output    | wire [31:0]             | Ingress latency correction, ns                       |
-| o_ptp_egress_lat    | output    | wire [31:0]             | Egress latency correction, ns                        |
 | i_ptp_tod           | input     | wire [63:0]             | PHC gettime snapshot value (synchronised from gtx_clk) |
 | i_ptp_tod_valid     | input     | wire                    | 1-cycle pulse: latch i_ptp_tod into PTP_TOD_RD       |
-| i_evt_tx_ts_ready   | input     | wire                    | Event: TX egress timestamp available                 |
 | i_evt_link_change   | input     | wire                    | Event: link/speed change                             |
 | i_evt_rmon_rollover | input     | wire                    | Event: RMON counter rollover                         |
 | o_irq               | output    | wire                    | Level IRQ = \|(IRQ_STATUS & IRQ_MASK)                |
@@ -158,8 +144,6 @@ source for both groups rather than a second hand-written copy:
 | ptp_*       | logic [31:0]/[63:0]      | PTP ctrl / incr / adj / tod-wr / offset / lat  |
 | ptp_tod_rd  | logic [63:0]             | Latched TOD for gettime                          |
 | stat_snap   | logic [31:0][0:NS-1]     | Coherent RMON snapshot                          |
-| cbs_idle/hi/lo | logic [31:0][0:NUM_QUEUES-1] | Per-queue CBS parameters                  |
-| cbs_en      | logic [NUM_QUEUES-1:0]   | Per-queue CBS shaped-enable                     |
 | *_p strobes | logic                    | Single-cycle command pulses                     |
 
 ## Processes
