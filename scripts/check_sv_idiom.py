@@ -412,7 +412,8 @@ def selftest():
        and any(p.startswith("gptp-processor/") for p in paths))
     ck("the live population is complete", population_problem(paths) is None,
        str(population_problem(paths)))
-    ck("the excluded list is shared with lint_rtl", not LINT_EXCLUDE)
+    ck("lint_rtl's exclusion list is empty today, so no first-party HDL file is outside this population",
+       not LINT_EXCLUDE)
     ck("every HDL exception has a reason and evidence",
        not undocumented_hdl_exceptions())
     ck("the ratcheted populations are non-empty",
