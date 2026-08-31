@@ -21,43 +21,47 @@
 <text x="1002" y="298" text-anchor="middle" font-size="16" fill="#37474F">RTL</text>
 <path d="M1045,625 L1002,625 L1002,535 L960,535" fill="none" stroke="#455A64" stroke-width="2.5" marker-end="url(#arrow)" stroke-dasharray="9,7"/>
 <text x="1002" y="573" text-anchor="middle" font-size="16" fill="#37474F">legacy</text>
-<rect x="35" y="135" width="420" height="250" rx="13" fill="#E8F5E9" stroke="#2E7D32" stroke-width="2.5"/>
+<rect x="35" y="135" width="420" height="270" rx="13" fill="#E8F5E9" stroke="#2E7D32" stroke-width="2.5"/>
 <rect x="53" y="152" width="160" height="32" rx="16" fill="#2E7D32"/>
 <text x="133" y="174" text-anchor="middle" font-size="15" font-weight="bold" fill="#FFFFFF">ACTIVE CONTROL</text>
 <text x="53" y="215" font-size="20" font-weight="bold" fill="#212121">protocol-processor</text>
 <text x="53" y="258" font-size="16" fill="#37474F">ADP, ACMP, AECP, and SRP engine</text>
 <text x="53" y="297" font-size="16" fill="#37474F">pin 3770ae02c56c</text>
-<text x="53" y="323" font-size="16" fill="#37474F">root: hdl/milan/</text>
-<text x="53" y="344" font-size="16" fill="#37474F">KL_pp_shadow.sv</text>
-<text x="53" y="368" font-size="16" fill="#37474F">test: tb/verilator/pp_shadow</text>
-<rect x="35" y="500" width="420" height="250" rx="13" fill="#E3F2FD" stroke="#1565C0" stroke-width="2.5"/>
+<text x="53" y="323" font-size="16" fill="#37474F">wrapper:</text>
+<text x="53" y="344" font-size="16" fill="#37474F">hdl/milan/</text>
+<text x="53" y="365" font-size="16" fill="#37474F">KL_pp_shadow.sv</text>
+<text x="53" y="389" font-size="16" fill="#37474F">test: tb/verilator/pp_shadow</text>
+<rect x="35" y="500" width="420" height="270" rx="13" fill="#E3F2FD" stroke="#1565C0" stroke-width="2.5"/>
 <rect x="53" y="517" width="160" height="32" rx="16" fill="#1565C0"/>
 <text x="133" y="539" text-anchor="middle" font-size="15" font-weight="bold" fill="#FFFFFF">ACTIVE TIME</text>
 <text x="53" y="580" font-size="20" font-weight="bold" fill="#212121">gptp-processor</text>
 <text x="53" y="623" font-size="16" fill="#37474F">IEEE 802.1AS fabric engine</text>
 <text x="53" y="662" font-size="16" fill="#37474F">pin 903a58125da8</text>
-<text x="53" y="688" font-size="16" fill="#37474F">root: hdl/ieee8021as/gptp_plane/</text>
-<text x="53" y="709" font-size="16" fill="#37474F">KL_gptp_shadow.sv</text>
-<text x="53" y="733" font-size="16" fill="#37474F">test: tb/verilator/gptp_shadow</text>
-<rect x="1045" y="135" width="420" height="250" rx="13" fill="#FFF3E0" stroke="#EF6C00" stroke-width="2.5"/>
+<text x="53" y="688" font-size="16" fill="#37474F">wrapper:</text>
+<text x="53" y="709" font-size="16" fill="#37474F">hdl/ieee8021as/gptp_plane/</text>
+<text x="53" y="730" font-size="16" fill="#37474F">KL_gptp_shadow.sv</text>
+<text x="53" y="754" font-size="16" fill="#37474F">test: tb/verilator/gptp_shadow</text>
+<rect x="1045" y="135" width="420" height="270" rx="13" fill="#FFF3E0" stroke="#EF6C00" stroke-width="2.5"/>
 <rect x="1063" y="152" width="160" height="32" rx="16" fill="#EF6C00"/>
 <text x="1143" y="174" text-anchor="middle" font-size="15" font-weight="bold" fill="#FFFFFF">ACTIVE VENDOR</text>
 <text x="1063" y="215" font-size="20" font-weight="bold" fill="#212121">third_party/verilog-axis</text>
 <text x="1063" y="247" font-size="16" fill="#37474F">AXI-Stream FIFO and demultiplexer</text>
 <text x="1063" y="269" font-size="16" fill="#37474F">primitives</text>
 <text x="1063" y="297" font-size="16" fill="#37474F">pin 48ff7a7e2ef7</text>
-<text x="1063" y="323" font-size="16" fill="#37474F">root: hdl/ieee8021q/ts/</text>
-<text x="1063" y="344" font-size="16" fill="#37474F">traffic_queues.sv</text>
-<text x="1063" y="368" font-size="16" fill="#37474F">test: tb/verilator/queues</text>
-<rect x="1045" y="500" width="420" height="250" rx="13" fill="#ECEFF1" stroke="#546E7A" stroke-width="2.5"/>
+<text x="1063" y="323" font-size="16" fill="#37474F">representative consumer:</text>
+<text x="1063" y="344" font-size="16" fill="#37474F">hdl/ieee8021q/ts/</text>
+<text x="1063" y="365" font-size="16" fill="#37474F">traffic_queues.sv</text>
+<text x="1063" y="389" font-size="16" fill="#37474F">test: tb/verilator/queues</text>
+<rect x="1045" y="500" width="420" height="270" rx="13" fill="#ECEFF1" stroke="#546E7A" stroke-width="2.5"/>
 <rect x="1063" y="517" width="160" height="32" rx="16" fill="#546E7A"/>
 <text x="1143" y="539" text-anchor="middle" font-size="15" font-weight="bold" fill="#FFFFFF">LEGACY ONLY</text>
 <text x="1063" y="580" font-size="20" font-weight="bold" fill="#212121">external</text>
 <text x="1063" y="623" font-size="16" fill="#37474F">Legacy Ethernet MAC implementation</text>
 <text x="1063" y="662" font-size="16" fill="#37474F">pin efeb541ae5fe</text>
-<text x="1063" y="688" font-size="16" fill="#37474F">root: hdl/milan/</text>
-<text x="1063" y="709" font-size="16" fill="#37474F">milan_top.sv</text>
-<text x="1063" y="733" font-size="16" fill="#37474F">test: none; legacy top cannot elaborate</text>
+<text x="1063" y="688" font-size="16" fill="#37474F">legacy root:</text>
+<text x="1063" y="709" font-size="16" fill="#37474F">hdl/milan/</text>
+<text x="1063" y="730" font-size="16" fill="#37474F">milan_top.sv</text>
+<text x="1063" y="754" font-size="16" fill="#37474F">test: none; legacy top cannot elaborate</text>
 <rect x="190" y="785" width="1120" height="70" rx="12" fill="#FFFFFF" stroke="#78909C" stroke-width="2"/>
 <text x="750" y="813" text-anchor="middle" font-size="18" font-weight="bold" fill="#263238">Evidence rule</text>
 <text x="750" y="839" text-anchor="middle" font-size="17" fill="#455A64">Run donor suites before root integration suites.</text>

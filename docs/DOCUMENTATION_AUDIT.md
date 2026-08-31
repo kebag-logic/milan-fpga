@@ -46,13 +46,13 @@ Volatile counts never define future coverage.
 
 | Evidence | Observed result | Documentation consequence |
 |---|---|---|
-| `scripts/run_all_suites.sh --list` | 53 root Verilator suites | Avoid copied suite inventories |
+| `scripts/run_all_suites.sh --list` | 54 root Verilator suites | Avoid copied suite inventories |
 | `cd tests && behave -f plain` | 14 features, 312 scenarios, 1,467 steps | Existing published counts are stale |
 | `sw/litex/test_*.py` | 12 standalone scripts | Missing aggregate ownership needs follow-up |
 | Root Verilator sweep | Donor suites excluded | Donor and root evidence stay separate |
 | C++ harnesses | Clocks, stimulus, assertions, reference models | Verification guide assigns cycle checking |
 | Python tests | Models, orchestration, gates, decoding | Verification guide assigns control flow |
-| C sources | Firmware, Linux utilities, and trace tooling | Keep target and host roles separate |
+| C sources | Firmware, research microbenchmarks, and trace tooling | Keep target and host roles separate |
 
 ## Authority conflicts
 
@@ -64,8 +64,6 @@ Each conflict keeps its original authority.
 |---|---|---|
 | Donor gPTP README says default-off | `hdl/milan/milan_datapath.sv` defaults `GPTP_PLANE_EN_P` on | Track donor Issue [#48](https://github.com/Mister-M-alt/FPGA-gPTP/issues/48) |
 | Donor protocol page retains word-wide RX | `protocol_processor_top.sv` exposes byte RX without ready | Track donor Issue [#27](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/27) |
-| [`THIRD_PARTY.md`](../THIRD_PARTY.md) carries an old protocol pin | Git records `3770ae02c56ca712d4a3505f429298b62edd5da8` | Use [`reference/SUBMODULES.md`](reference/SUBMODULES.md) |
-| [`THIRD_PARTY.md`](../THIRD_PARTY.md) omits gPTP ownership | `.gitmodules` records `gptp-processor` | Use [`reference/SUBMODULES.md`](reference/SUBMODULES.md) |
 | Existing integration guide omits response memory | `milan_datapath.sv` exposes `resp_mem_*` | New integrator guide includes it |
 | Existing Behave counts are stale | Executed baseline reports 14/312/1,467 | New guide avoids volatile counts |
 | Current Milan audit says gPTP is unintegrated | Root RTL defaults fabric gPTP on | Managers use the feature ledger |
@@ -98,7 +96,11 @@ The privacy gate remains mandatory.
 
 Diagram facts come from Git and verified root paths.
 
-The generator rejects missing wrappers and root gates.
+Audience paths come from validated repository files.
+
+Submodule generation rejects missing integration evidence.
+
+Audience generation rejects missing reader paths.
 
 Path-derived node identities prevent edge rebinding.
 
@@ -110,15 +112,18 @@ Temporary render files stayed under `/tmp`.
 
 Desktop export requires an available display.
 
+| Diagram | Direct PNG | Native PDF | A4 PNG | Result |
+|---|---:|---:|---:|---|
+| Audience paths | 3,526 × 2,030 | 1,270.08 × 731.04 points | 1,754 × 1,241 | PASS |
+| Submodule boundaries | 2,866 × 1,664 | 1,032 × 599.04 points | 1,754 × 1,241 | PASS |
+
 | Check | Inspected evidence | Result |
 |---|---|---|
 | Editable structure | Parsed Draw.io XML | PASS |
-| Direct PNG | 2,866 × 1,664 pixels | PASS |
-| Native PDF | One page, 1,032 × 599.04 points | PASS |
 | A4 print simulation | 841.89 × 595.276 points | PASS |
-| A4 page raster | 1,754 × 1,241 pixels at 150 DPI | PASS |
-| Text extraction | Every expected label appeared | PASS |
+| Text extraction | Every native PDF label appeared | PASS |
 | Visual inspection | No clipping or overlaps | PASS |
+| Audience data | Twenty-four repository paths exist | PASS |
 | Git data | Four exact Gitlinks matched | PASS |
 
 All labels remained readable at page scale.
@@ -131,6 +136,7 @@ Reproduce the print review locally.
 
 ```sh
 render_dir=$(mktemp -d)
+python3 docs/DOC_MAP.gen.py --check
 python3 docs/diagrams/submodule_boundaries.gen.py --check
 drawio --export --format pdf --crop \
   --output "$render_dir/native.pdf" \
@@ -138,6 +144,9 @@ drawio --export --format pdf --crop \
 drawio --export --format png --crop --scale 2 \
   --output "$render_dir/direct.png" \
   docs/diagrams/submodule_boundaries.drawio
+drawio --export --format png --crop --scale 2 \
+  --output "$render_dir/audiences.png" \
+  docs/DOC_MAP.drawio
 pdftocairo -svg "$render_dir/native.pdf" "$render_dir/native.svg"
 rsvg-convert -f pdf \
   --page-width 297mm --page-height 210mm \

@@ -9,6 +9,7 @@ import configparser
 import re
 import subprocess
 import sys
+import tempfile
 import xml.etree.ElementTree as ET
 from collections import Counter
 from dataclasses import dataclass
@@ -106,8 +107,8 @@ def validate_rows(rows: list[Row], pins: dict[str, str]) -> list[str]:
     return errors
 
 
-def validate_drawio(paths: list[str]) -> list[str]:
-    root = ET.parse(DRAWIO).getroot()
+def validate_drawio(paths: list[str], source: Path = DRAWIO) -> list[str]:
+    root = ET.parse(source).getroot()
     cells = {cell.get("id"): cell for cell in root.iter("mxCell")}
     errors: list[str] = []
     expected_sources = {"sub-" + path.replace("/", "-") for path in paths}
@@ -165,7 +166,32 @@ def selftest() -> int:
     else:
         print("selftest: missing marker escaped")
         return 1
-    print("submodule documentation selftest: OK")
+    diagram = """<mxfile><diagram><mxGraphModel><root>
+<mxCell id="root"/>
+<mxCell id="sub-protocol-processor" value="protocol-processor"/>
+<mxCell id="sub-external" value="external"/>
+<mxCell id="edge-control" edge="1" source="sub-protocol-processor"
+ target="root" value="wrapper" style="strokeWidth=2;"/>
+<mxCell id="edge-legacy" edge="1" source="sub-external"
+ target="root" value="legacy" style="strokeWidth=2;dashed=1;"/>
+</root></mxGraphModel></diagram></mxfile>
+"""
+    with tempfile.TemporaryDirectory() as directory:
+        path = Path(directory) / "diagram.drawio"
+        path.write_text(diagram, encoding="utf-8")
+        paths = ["protocol-processor", "external"]
+        if validate_drawio(paths, path):
+            print("selftest: valid Draw.io fixture failed")
+            return 1
+        path.write_text(diagram.replace('value="wrapper"', 'value="wrong"'), encoding="utf-8")
+        if not validate_drawio(paths, path):
+            print("selftest: incorrect edge label escaped")
+            return 1
+        path.write_text(diagram.replace("dashed=1;", ""), encoding="utf-8")
+        if not validate_drawio(paths, path):
+            print("selftest: incorrect legacy styling escaped")
+            return 1
+    print("submodule documentation selftest: OK (table and diagram controls)")
     return 0
 
 

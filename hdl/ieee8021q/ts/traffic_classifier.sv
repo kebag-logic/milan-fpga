@@ -75,7 +75,7 @@ module traffic_classifier #(
 axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) m_axis_fifo();
 //! Storing incoming packets in the fifo till headers parsing is completed.
 //! Open-core AXIS FIFO (Forencich verilog-axis), replacing xpm_fifo_axis — makes
-//! this module Verilator-simulatable and vendor-neutral (see docs/integration/OPEN_SOURCE_MIGRATION.md).
+//! this module Verilator-simulatable and vendor-neutral (see docs/integration/PORTING_GUIDE.md).
 //! Common-clock, non-packet (FRAME_FIFO=0), tkeep+tlast, no tid/tdest/tuser.
 axis_fifo #(
    .DEPTH(FIFO_DEPTH),

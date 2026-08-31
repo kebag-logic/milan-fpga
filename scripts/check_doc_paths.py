@@ -14,17 +14,16 @@ That is not hypothetical. Two tree-wide moves left 33 dangling citations:
     `hdl/ieee8021q/srp/`, `hdl/adp/` to `hdl/ieee17221/adp/`, and so on -
     13 stale `hdl/` citations across 5 documents, every one of them sending
     a reader to a directory that does not exist;
-  * the documentation overhaul retired ~20 pages to
-    `historical_now_obsolete/` while the citations kept saying `docs/`.
+  * the documentation overhaul retired pages into versioned history;
+    citations still referenced their previous locations.
 
 Markdown *links* were fine throughout - all 1218 of them resolved. Only the
 inline backtick citations rotted, because a link is visibly broken in a
 rendered page and a backtick is not.
 
-Scope. Committed markdown outside the archive: `docs/`, `harness/` and the
-repo-root pages. `historical_now_obsolete/` is deliberately NOT scanned - it
-is a record of what things looked like at the time, and rewriting its
-pointers would destroy exactly the value it has.
+Scope. Committed markdown outside versioned history includes `docs/`,
+`harness/`, and repository-root pages. `docs/history/v1/` is excluded.
+Historical references intentionally preserve their recorded context.
 
 Usage:
     python3 scripts/check_doc_paths.py           # gate (exit 1 on a dangling path)
@@ -62,15 +61,6 @@ LEDGER_MARKER = "docs-check: allow-dead-refs"
 #: prose - so they are recorded here rather than deleted. The gate refuses
 #: SILENT additions: a new dangling path fails until someone writes the reason.
 ALLOW = {
-    # STACKED-BRANCH ABSENCE, not a dead reference. The elaboration workflow
-    # gates its heavy steps on this classifier and TESTING.md says so; the
-    # script itself arrives with PR #176, which is on `dev`, while this work
-    # is stacked on a base predating it. The workflow falls back to
-    # elaborating unconditionally while the file is absent, and the entry
-    # goes away when the stack retargets to `dev` and the path resolves.
-    "scripts/ci_scope.py":
-        "arrives with PR #176 on dev; this stack predates it and the "
-        "workflow falls back to unconditional elaboration until retarget",
     "tb/utests/802_1q_traffic_shaper/tb_credit_based_shaper.sv":
         "removed bench, named by REQUIREMENTS/TODO to record that "
         "tb/verilator/cbs supersedes it",
@@ -112,7 +102,12 @@ def scanned_files():
     """Committed markdown outside the archive."""
     known = tracked()
     for d in ("docs", "harness"):
-        yield from (p for p in sorted((REPO / d).rglob("*.md")) if p in known)
+        yield from (
+            p
+            for p in sorted((REPO / d).rglob("*.md"))
+            if p in known
+            and not p.relative_to(REPO).as_posix().startswith("docs/history/v1/")
+        )
     yield from (p for p in sorted(REPO.glob("*.md")) if p in known)
 
 

@@ -54,7 +54,7 @@ module traffic_queues #(
 
   // ==========================================================================
   //  Open-core datapath (Forencich verilog-axis) replacing the Xilinx
-  //  axis_switch IP + xpm_fifo_axis (docs/integration/OPEN_SOURCE_MIGRATION.md Track 1.3):
+  //  axis_switch IP + xpm_fifo_axis (docs/integration/PORTING_GUIDE.md):
   //    axis_demux (1->N by tdest) -> N x axis_fifo -> axis_arb_mux (N->1).
   //  The 4->1 grant suppression (s_req_suppress) is reproduced by gating each
   //  arbiter input's tvalid with queue_grant_i; the final m_axis.tdest is the

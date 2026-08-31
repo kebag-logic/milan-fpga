@@ -1,8 +1,8 @@
 // SPDX-FileCopyrightText: 2026 Kebag Logic
 // SPDX-License-Identifier: CERN-OHL-W-2.0
 //
-// KL_stream_table + avtp_stream_parser harness (NXN_ARCHITECTURE §1.1,
-// phase P1, matrix row P1 "stream-table CSR authority + tuser stream-index
+// KL_stream_table + avtp_stream_parser harness (docs/overview/ARCHITECTURE.md,
+// matrix row P1 "stream-table CSR authority + tuser stream-index
 // tag"): entry-0 ACMP alias, CSR-window writes for s>0, match/miss/eviction,
 // bind-rise pulses, and the stream index riding the match pulse.
 #include "Vstream_table_wrap.h"

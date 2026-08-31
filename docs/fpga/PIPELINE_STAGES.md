@@ -2,8 +2,8 @@
 
 *2026-07-11. The canonical prose reference for developers (what each stage does
 and where its code lives) and maintainers (which knob changes which behavior,
-what was measured, what breaks if you get it wrong). The visual twin is
-`RX_PERF_TUNING_MAP.drawio`.*
+what was measured, what breaks if you get it wrong). The older
+[historical tuning map](../history/v1/findings/RX_PERF_TUNING_MAP.md) remains evidence.*
 
 *Silicon history lives in [`HEADER_SPLIT_DESIGN.md`](HEADER_SPLIT_DESIGN.md),
 the live state in [`../findings/BENCH_TOPOLOGY.md`](../findings/BENCH_TOPOLOGY.md) and
@@ -70,7 +70,7 @@ Each queue is its own ring writer, interrupt and NAPI.
 > TCP 4-tuple XOR-parity flow hash built for *throughput* — it split one
 > MTU-1500 RX stream into two flow-consistent queues so two flows' ACK/receive
 > processing ran on two harts (measured RX 223 Mbit, see
-> [../findings/RX_PERF_TUNING_MAP.md](../findings/RX_PERF_TUNING_MAP.md)).
+> [performance evidence](../findings/PERFORMANCE_GOAL.md)).
 > **That parallel ACK split is gone**: bulk RX is single-NAPI again and the RX
 > throughput ceiling reverts to the one-hart number. What is bought instead is
 > RX-side PTP latency, which is what once held `asCapable` false

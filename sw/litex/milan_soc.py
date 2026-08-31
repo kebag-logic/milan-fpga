@@ -1718,7 +1718,7 @@ class MilanMAC(LiteXModule):
 class RingDMAWriter(LiteXModule):
     """Pipeline reference: docs/fpga/PIPELINE_STAGES.md (stages R3-R5: slots, pages,
     CQ/BD publication, every knob with measured effects) and
-    docs/RX_PERF_TUNING_MAP.drawio. STRICT driver pairings live there too.
+    docs/findings/PERFORMANCE_GOAL.md. Historical driver pairings are archived.
 
     AXIS-frame -> circular-DRAM-ring **AXI burst** DMA writer (RX upgrade v2, 2026-07-04).
 
@@ -1837,7 +1837,7 @@ class RingDMAWriter(LiteXModule):
         drops   = Signal(32)
         seq     = Signal(16)
         wr      = Signal(32)            # committed ring write offset (== wr_ptr CSR)
-        # ---- M1 telemetry (CAMPAIGN_500_PLAN): WHY aggregates close + coalesce ratio.
+        # ---- M1 telemetry (docs/findings/PERFORMANCE_GOAL.md): closure + coalesce ratio.
         # Counted at the close-ARMING sites (psh / seg-cap / idle-timeout / parked-
         # newcomer|mack); v2_segs accumulates each closed aggregate's segment count so
         # Σsegs/v2_cnt = the measured coalescing factor. Snapped by MilanDebug.
@@ -1885,7 +1885,7 @@ class RingDMAWriter(LiteXModule):
         buf_addr_r = Signal(32)         # posted buffer being filled (registered at pop)
         wb_beat    = Signal()           # 0 = BD word0 (meta), 1 = word1 (buf addr)
         post_pop = Signal()             # FSM pops the next posted buffer this cycle
-        # ---- RSC phase A (HW_GRO_RSC.md): capture the first 9 beats into a register
+        # ---- RSC phase A (docs/fpga/PIPELINE_STAGES.md): capture nine beats into a register
         # file and parse eth/IPv4/TCP fields. Phase A is OBSERVE-ONLY (frames still
         # stream unchanged as single-frame BDs); rsc_dbg exposes the parse for sims.
         self.rsc_en = CSRStorage(1, description="RSC parse enable (phase A: observe-only).")
@@ -1944,7 +1944,7 @@ class RingDMAWriter(LiteXModule):
         # n_slots concurrent aggregates kill the park tax (a different-flow newcomer no
         # longer closes the open aggregate  -  it takes its own slot). Correctness rests on
         # the completion queue below: BDs become VISIBLE strictly in posted-buffer pop
-        # order, so the driver's blind FIFO pairing (RX_OVERLOAD_WEDGE.md invariant)
+        # order, so the driver's blind FIFO pairing (docs/fpga/PIPELINE_STAGES.md)
         # holds by construction  -  v2 BDs still carry no address, driver ABI unchanged.
         NS = n_slots
         assert NS >= 1 and (NS & (NS - 1)) == 0, "n_slots must be a power of two (victim wrap)"
@@ -4119,7 +4119,7 @@ class RxSteer(LiteXModule):
     4-tuple flow hash built for THROUGHPUT: it split one MTU-1500 RX stream into
     two flow-consistent queues so two TCP flows' ACK/recv processing ran on two
     harts, breaking the single-NAPI ACK-processing ceiling (measured RX 223
-    Mbit, see docs/findings/RX_PERF_TUNING_MAP.md). That parallel ACK split is
+    Mbit, see docs/findings/PERFORMANCE_GOAL.md). That parallel ACK split is
     GONE - bulk RX is single-NAPI again and the RX ceiling reverts to the
     one-hart number. What is bought is latency where it actually matters: PTP
     event messages no longer queue behind bulk traffic in a shared ring, and
@@ -5059,7 +5059,7 @@ class MilanDebug(LiteXModule):
         self.sync += If(self._rst, acc.eq(0)).Else(acc.eq(acc + inflight))
         self._snap(acc, 64, f"{name}_inflight_acc", desc)
 
-    # ---- Phase-0 reader probes (TX_READER_PREFETCH_PLAN.md Appendix A) ------------------
+    # ---- Phase-0 reader probes (docs/fpga/PIPELINE_STAGES.md) ---------------------------
     # All sys-domain (the RingDMAReader/Writer are sys masters) → no CDC. Reset-based, like
     # sys_probe: pulse `reset`, run the load, pulse `capture`, read a coherent snapshot.
     def rd_latency_probe(self, name, rdr, desc):
@@ -5146,7 +5146,7 @@ class MilanDebug(LiteXModule):
                                                   hi.eq(wtr.dbg_outstanding))
         self._snap(hi, 6, f"{name}_hi", f"{desc} - max AW in flight")
 
-    # ---- M1 probes (CAMPAIGN_500_PLAN §M1) ----------------------------------------------
+    # ---- M1 probes (docs/findings/PERFORMANCE_GOAL.md) ----------------------------------
     def hiwater_probe(self, name, sig, width, desc):
         """Track max(sig) since `reset` and snap it (e.g. TX ring occupancy)."""
         hi = Signal(width)
@@ -5855,7 +5855,7 @@ class MilanSoC(SoCCore):
             # ~40 probes). The kl-eth driver probes tlm presence and tolerates absence
             # ("optional (absent on minimal gateware)"); dev/forensics builds keep it.
             if with_dma and with_mac and not strip_probes:
-                # Phase-0 reader instrumentation (TX_READER_PREFETCH_PLAN.md App. A): measure
+                # Phase-0 reader instrumentation (docs/fpga/PIPELINE_STAGES.md): measure
                 # L, the starve breakdown, and the outstanding-depth proxy BEFORE any prefetch
                 # RTL. Added via MilanDebug's extra hook so it's one closure, trivially dropped.
                 def _phase0(dbg):
@@ -5868,7 +5868,7 @@ class MilanSoC(SoCCore):
                     if hasattr(self.milan_dma, "rx1"):
                         dbg.outstanding_hi_probe("rx1w_out", self.milan_dma.rx1,
                                                  "RX1 writer outstanding")
-                    # ---- M1 (CAMPAIGN_500_PLAN): the probes the >500 phases gate on ----
+                    # ---- M1 (docs/findings/PERFORMANCE_GOAL.md): campaign probes ----
                     # RSC close reasons + coalesce ratio (free-running; read as deltas)
                     for tag, sig, d in (
                         ("rsc_close_psh",  self.milan_dma.rx.dbg_close_psh,  "aggregate closes: PSH"),

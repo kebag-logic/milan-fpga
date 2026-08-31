@@ -129,7 +129,7 @@ from sv_ports import declarations
 #: archive scope: code_quality_scope.tracked() drops the vendor gitlinks itself
 #: (third_party/, external/), so what this filter still owns is the
 #: superproject's own archive directory - a historical Makefile is not a build
-NOT_FIRST_PARTY = ("third_party/", "external/", "historical_now_obsolete/")
+NOT_FIRST_PARTY = ("third_party/", "external/", "docs/history/v1/")
 
 
 class Unreadable(Exception):
@@ -1121,7 +1121,7 @@ def selftest():
        population["makefile"] > 50
        and not any(rel.startswith(NOT_FIRST_PARTY) for rel, _, _ in masked + captured)
        and [p for p in ("third_party/verilog-axis/tb/Makefile", "external/x/Makefile",
-                        "historical_now_obsolete/tb/Makefile", "tb/verilator/cbs/Makefile")
+                        "docs/history/v1/tb/Makefile", "tb/verilator/cbs/Makefile")
             if not p.startswith(NOT_FIRST_PARTY)] == ["tb/verilator/cbs/Makefile"],
        f"{population} - a vendor or archive Makefile must never join the population, "
        "whichever layer drops it")

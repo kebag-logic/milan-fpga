@@ -216,7 +216,7 @@ def pages():
     out = subprocess.run(["git", "-C", str(REPO), "ls-files", "-z", "*.md"],
                          capture_output=True, text=True, check=True).stdout
     for p in sorted(out.split("\0")):
-        if not p or p.startswith("historical_now_obsolete/") or p in SKIP:
+        if not p or p.startswith("docs/history/v1/") or p in SKIP:
             continue
         md = REPO / p
         if not md.is_file():

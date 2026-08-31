@@ -4,11 +4,6 @@ Choose one path before opening detailed references.
 
 Each path starts with verified repository evidence.
 
-## Contents
-
-- **[Choose a role](#choose-a-role)** — Match your immediate responsibility.
-- **[Shared foundations](#shared-foundations)** — Read these authorities before deciding.
-
 ## Choose a role
 
 ```mermaid

@@ -13,6 +13,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 DOCUMENTS = (
+    ROOT / "docs" / "README.md",
+    ROOT / "docs" / "DOC_GENERATION.md",
+    ROOT / "docs" / "diagrams" / "README.md",
     ROOT / "docs" / "guides" / "README.md",
     ROOT / "docs" / "guides" / "IMPLEMENTATION_DEVELOPER.md",
     ROOT / "docs" / "guides" / "VERIFICATION_DEVELOPER.md",

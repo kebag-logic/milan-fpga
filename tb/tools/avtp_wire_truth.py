@@ -758,7 +758,7 @@ class WireTruth:
     Every check has a stable name and carries its clause.  Adding one is a
     method plus one line in `checks()`; that is the extension contract, and it
     is the same contract torture_campaign.py uses (see
-    docs/testing/TORTURE_CAMPAIGN.md).
+    docs/testing/RUNNING_TESTS.md).
     """
 
     def __init__(self, expect: Optional[Expectation] = None):
@@ -2338,7 +2338,7 @@ def main() -> int:
     ap = argparse.ArgumentParser(
         description="decode AVTP + MSRP/MVRP off a capture and check the wire "
                     "invariants - the oracle is the wire and the clause",
-        epilog="FULL DOCS: docs/testing/TORTURE_CAMPAIGN.md.  HOW TO GET A "
+        epilog="FULL DOCS: docs/testing/RUNNING_TESTS.md.  HOW TO GET A "
                "CAPTURE: an INLINE tap, on the tap host (a different machine "
                "from the controller host).  `ip link set <if> up` is NOT enough "
                "- the tap does not flow until a capture socket opens it "

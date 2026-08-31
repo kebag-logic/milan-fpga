@@ -40,7 +40,7 @@ flowchart LR
 | MAC streams | Bidirectional | Preserve final-boundary backpressure |
 | Descriptor memory | Datapath read master | Serve the generated entity image |
 | Response memory | Datapath read-write master | Complete every accepted operation |
-| Playback memory | Bidirectional | Serve host PCM ring fetches |
+| Playback memory | Datapath read master | Serve host PCM ring fetches |
 | MAC control and status | Bidirectional | Provide honest capabilities and controls |
 | Interrupt | Datapath to host | Route and acknowledge events |
 | Identify output | Datapath to board | Route the requested visual indication |
@@ -116,6 +116,11 @@ Never tie response interfaces silently.
 
 ```sh
 make -C tb/verilator/milan_dp
+```
+
+Activate the documented [LiteX environment](../litex/LITEX_SOC.md#7-reproducibility---versions).
+
+```sh
 python3 sw/litex/test_pp_mem_bridge.py
 python3 sw/litex/test_pp_boot_bus_freeze.py
 ```
@@ -124,6 +129,8 @@ The raw harness cannot prove SoC bridge wiring.
 
 Run SoC evidence after every bridge change.
 
+Read the complete [simulation procedure](../testing/SIMULATION.md#section-33-the-scripted-path-used-to-capture-the-evidence).
+
 Build the softcore simulator once.
 
 ```sh
@@ -131,7 +138,7 @@ python3 sw/litex/milan_sim.py --xlen 32 --non-interactive \
   --output-dir build_milan_sim
 ```
 
-Stop after the first `litex>` prompt.
+Press Ctrl-C after the first `litex>` prompt.
 
 Run the cached simulator with scripted input.
 
@@ -143,7 +150,5 @@ grep -F '4e 4c 49 4d' /tmp/milan-id.log
 ```
 
 The byte sequence proves the `MILN` identification word.
-
-Read the complete [simulation procedure](../testing/SIMULATION.md#section-33-the-scripted-path-used-to-capture-the-evidence).
 
 Then run the required complete gates.

@@ -138,7 +138,7 @@ end up in the tree; `sw/litex/build.sh` and `sweep.sh` REFUSE to launch unless
 the tracked definition is the config being built
 (`scripts/check_entity_shape.py --built-config`). Before 2026-07-27 nothing
 checked, the tracked ROM was the 1x1 shape, and every build compiled it in -
-including the 8x8 ([historical ADP shape finding](findings/ADP_SHAPE_STATIC_0727.md)). The generator's own
+including the 8x8 ([historical ADP shape finding](history/v1/findings/ADP_SHAPE_STATIC_0727.md)). The generator's own
 header (`sw/builder/endstation_builder.py`) is authoritative for this list.
 
 The tree above says *what is emitted*; it cannot say **who reads each file

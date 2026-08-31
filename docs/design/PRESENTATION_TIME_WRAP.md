@@ -44,7 +44,7 @@ Checked end to end rather than assumed:
 | Where | What it says | Type |
 |---|---|---|
 | IEEE 1722-2016 **4.4.4.9** | `avtp_timestamp` = presentation time, gPTP ns, mod 2³² | — |
-| [historical IEEE 1722 traceability](../traceability/ieee1722-2016.md) row AVTP-10 | historical evidence for that clause mapping | n/a |
+| [historical IEEE 1722 traceability](../history/v1/traceability/ieee1722-2016.md) row AVTP-10 | historical evidence for that clause mapping | n/a |
 | [`hdl/milan/milan_datapath.sv`](../../hdl/milan/milan_datapath.sv) | `wire [63:0] ptp_now_w` — the PHC as the fabric sees it | unsigned 64 |
 | [`hdl/ieee1722/aaf/aaf_talker_i2s.sv`](../../hdl/ieee1722/aaf/aaf_talker_i2s.sv) | `ts_r <= ptp_ns_i[31:0] + transit_ns_i`, `reg [31:0] ts_r` | unsigned 32 |
 | [`hdl/ieee1722/aaf/KL_aaf_packetizer.sv`](../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv) | `logic [31:0] ets_r` placed at frame bytes 30..33 | unsigned 32 |

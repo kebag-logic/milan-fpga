@@ -271,7 +271,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! addresses but nothing consumes them, so the builder gate keys on
   //! platform.rx_address_filter being declared 'software'/'promiscuous'.
   parameter int RXFILT_P = 1,
-  //! AREA_80_CAMPAIGN static-conversion row (2026-07-29): the APRB
+  //! Area-budget static-conversion record (2026-07-29): the APRB
   //! (0x8B4-0x8C4) and PBK (0x8C8-0x8D0) probe groups - closed-finding
   //! diagnostics whose counters/latches die with the parameter; the CSR
   //! range reads 0 on a pruned build (the LTAP precedent).
@@ -5333,7 +5333,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //  STREAM-subtype frame (subtype[7]=0; control subtypes ADP/ACMP/MAAP are
   //  excluded so they cannot overwrite the media evidence).
   // ==========================================================================
-  //! DPROBES_P (AREA_80_CAMPAIGN static-conversion row, 2026-07-29): the
+  //! DPROBES_P (docs/design/AREA_BUDGET.md, 2026-07-29): the
   //! APRB/PBK groups are closed-finding diagnostics (fabric-listener
   //! blocker + item-7 chain, both TB-pinned since); a build that prunes
   //! them reads the whole 0x8B4-0x8D0 range as 0 - the LTAP precedent, an

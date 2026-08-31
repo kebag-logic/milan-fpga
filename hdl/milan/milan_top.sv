@@ -67,7 +67,7 @@
     (a) the Zynq variant is on the roadmap - then the drift needs a GATE, not a
         note. The measurement above is ~100 lines of lexical port-vs-connection
         diffing and would have failed at pin 1 instead of pin 116; or
-    (b) it is not - then this belongs in historical_now_obsolete/ alongside the
+    (b) it is not - then this belongs in docs/history/v1/ alongside the
         rest of the retired flow, and bd/ + constraints/*.xdc go with it.
   Leaving it in hdl/ ungated is the one option that costs edit time on every
   lane and buys no verification. This lane records the price; it does not spend
@@ -141,7 +141,7 @@ module milan_top import ethernet_packet_pkg::*; #(
   //! Zynq variant (its stream engines are the milan_datapath set; N unused
   //! here until that wrapper's shared engines are ported back).
   parameter int N_STREAMS = 1,
-  //! MAC synthesis target (portability, docs/integration/OPEN_SOURCE_MIGRATION.md T2.1):
+  //! MAC synthesis target (portability, docs/integration/PORTING_GUIDE.md):
   //! "XILINX" for the Artix/Zynq bitstream; "GENERIC" for open flows / other
   //! devices / Verilator (the Forencich MAC then uses generic DDR I/O, no SelectIO).
   parameter MAC_TARGET      = "XILINX",

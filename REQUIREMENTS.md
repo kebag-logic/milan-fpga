@@ -358,7 +358,7 @@ frame preemption (802.1Qbu/802.3br).
 Every requirement traces to a standard clause (above) and to a gap ID from the
 Section 3 audit. Current implementation and verification coverage is published in the
 [generated module matrix](docs/traceability/MODULE_MATRIX.md). The
-[historical `TODO.md`](TODO.md) preserves the original per-gap task descriptions
+[historical `TODO.md`](docs/history/v1/TODO.md) preserves the original per-gap task descriptions
 as historical evidence only.
 
 ## 8. Acceptance (end-to-end)
@@ -385,11 +385,11 @@ left it with the host software target (#259).
 >
 > **What was to do →** ① list the missing elements for 802.1 compliance → **done
 > (Section 3)**; ② add standards-compliant requirements → **done (Section 4)**; ③ create
-> [historical `TODO.md`](TODO.md) → **done**; ④ tackle the tasks → **in progress**. Delivered so far:
+> [historical `TODO.md`](docs/history/v1/TODO.md) → **done**; ④ tackle the tasks → **in progress**. Delivered so far:
 > the CBS verification harness ([`tb/verilator/cbs`](tb/verilator/cbs), REQ-VER-01), the CSR register
 > ABI ([`docs/reference/REGISTER_MAP.md`](docs/reference/REGISTER_MAP.md), REQ-CSR-05), the AXI4-Lite control-plane RTL
 > ([`hdl/common/csr/milan_csr.sv`](hdl/common/csr/milan_csr.sv), REQ-CSR-01/02/04) — the previously-missing
 > memory-mapped configuration — and its verification harness
 > ([`tb/verilator/csr`](tb/verilator/csr), REQ-VER-04). The remaining work named
-> at that snapshot is preserved in the [historical `TODO.md`](TODO.md). Current
+> at that snapshot is preserved in the [historical `TODO.md`](docs/history/v1/TODO.md). Current
 > work is tracked by the audit and open GitHub issues.

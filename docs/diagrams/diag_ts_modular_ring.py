@@ -9,7 +9,7 @@ There is no signed quantity anywhere in the presentation-time path. The
 avtp_timestamp is a 32-bit UNSIGNED absolute time - the low 32 bits of the
 gPTP nanosecond count plus the presentation offset:
 
-  * IEEE 1722-2016 4.4.4.9 (docs/traceability/ieee1722-2016.md row AVTP-10)
+  * IEEE 1722-2016 4.4.4.9 (docs/traceability/MODULE_MATRIX.md)
   * hdl/ieee1722/aaf/aaf_talker_i2s.sv    reg   [31:0] ts_r  <= ptp_ns_i[31:0]
                                                               + transit_ns_i
   * hdl/ieee1722/aaf/KL_aaf_packetizer.sv logic [31:0] ets_r -> frame bytes 30..33

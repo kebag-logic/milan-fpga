@@ -6,6 +6,7 @@ Use this path when tests are deliverables.
 
 - **[Choose a layer](#choose-a-layer)** — Match evidence with failure scope.
 - **[Understand language ownership](#understand-language-ownership)** — Separate orchestration, stimulus, and target code.
+- **[Trace the frameworks](#trace-the-frameworks)** — Follow each executable path.
 - **[Build one useful test](#build-one-useful-test)** — Prove the oracle can fail.
 - **[Run focused evidence](#run-focused-evidence)** — Start small before aggregating.
 - **[Debug failures](#debug-failures)** — Localize failures without hiding them.
@@ -48,6 +49,29 @@ Python drives several independent layers.
 C has no general harness framework.
 
 C++ owns most cycle-accurate RTL checking.
+
+## Trace the frameworks
+
+```mermaid
+flowchart TB
+    MAKE[Make] --> VL[Verilator compilation]
+    VL --> CPP[C++ sim_main]
+    CPP --> DUT[SystemVerilog DUT]
+    BEH[Behave] --> STEPS[Python steps]
+    STEPS --> MODEL[Python models and assertions]
+    PYTEST[Python test script] --> MIGEN[Migen simulation]
+    TRACE[Python round-trip gate] --> BUILD[Compile C producer]
+    BUILD --> RUN[Run C producer]
+    RUN --> DECODE[Python decoder and oracle]
+```
+
+- `tb/verilator/*/sim_main.cpp` owns cycle-level checking.
+- `tests/steps/` owns Behave steps and models.
+- `sw/litex/test_*.py` owns standalone Migen simulations.
+- `sw/trace/test_trace_roundtrip.py` owns trace verification.
+- C produces target-format trace data.
+- Python independently decodes that data.
+- C never judges its own correctness.
 
 ## Build one useful test
 
@@ -97,6 +121,8 @@ behave -f plain
 ```
 
 ### One LiteX simulation
+
+Activate the documented [LiteX environment](../litex/LITEX_SOC.md#7-reproducibility---versions).
 
 ```sh
 python3 sw/litex/test_ring_dma.py

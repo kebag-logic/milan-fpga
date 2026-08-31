@@ -402,7 +402,7 @@ module milan_csr #(
   output wire [47:0]             o_tcam_wr_mask,      //! care mask {TCAM_MASK_HI[15:0], TCAM_MASK_LO}
   output wire [7:0]              o_tcam_wr_action,    //! action/tag (TCAM_ACTION[7:0])
 
-  // ---- P11 indexed per-stream CSR window (0x800, NXN_ARCHITECTURE.md §1.5) ----
+  // ---- P11 indexed per-stream CSR window (docs/reference/REGISTER_MAP.md) ----
   //! LCTX context-RAM port B (KL_avtp_rx_monitor_ctx window port; NORMATIVE
   //! contract, P12 shape): the engine arbitrates its single explicit RAM
   //! read port (T2 rule: registered BRAM output, ONE read port, no CSR-side
@@ -861,7 +861,7 @@ module milan_csr #(
   //! POISON for CHMAP_LOOP: the house "not-backed / not a measurement"
   //! sentinel already used by the 0x800 window's CNT words.
   localparam logic [31:0] CHMAP_LOOP_POISON_C = 32'hDEAD_DEAD;
-  // ---- 0x800 indexed per-stream window (P11, NXN_ARCHITECTURE.md §1.5).
+  // ---- 0x800 indexed per-stream window (docs/reference/REGISTER_MAP.md).
   //  SEL picks {dir, idx}; the 0x810-0x85C word block then views ONE stream.
   //  Legacy flat registers stay the authority for index 0 (N=1 bit-compat
   //  axiom); idx >= N_LISTENERS_P/N_TALKERS_P reads 0 and ignores writes.
@@ -1247,7 +1247,7 @@ module milan_csr #(
   //! the advertised range, the addressable range and the descriptor set
   //! cannot disagree. Nothing here is a parameter and nothing is a register:
   //! a stream count is not something an instantiation or a boot script gets
-  //! to choose (docs/findings/ADP_SHAPE_STATIC_0727.md).
+  //! to choose (docs/ENDSTATION_BUILDER.md).
   `include "gen/adp_shape_defaults.svh"
 
   //! The two RO words, assembled once and served from the defaults ROM like
@@ -2826,7 +2826,7 @@ module milan_csr #(
   assign o_tcam_wr_action    = tcam_act[7:0];
 
   // ==========================================================================
-  //  P11 indexed per-stream window engines (NXN_ARCHITECTURE.md §1.5)
+  //  P11 indexed per-stream window engines (docs/reference/REGISTER_MAP.md)
   // ==========================================================================
   localparam logic [2:0] SN_IDLE_C = 3'd0, SN_DONE_C = 3'd1, SN_WAIT_C = 3'd2,
                          SN_ARM_C  = 3'd3, SN_FETCH_C = 3'd4;

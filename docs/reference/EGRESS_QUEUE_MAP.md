@@ -170,7 +170,7 @@ estimates, both anchored on real Vivado reports:
 
 * **Vivado-to-Vivado.** The shipping 8×8 bitstream (4-queue map) placed at
   **15 839 / 15 850 slices** — 99.93 %, 11 slices spare
-  ([Section 6.2 of the historical NxN architecture](../NXN_ARCHITECTURE.md#62-lever-3-priced-is-removing-the-render-lpf-worth-it-2026-07-26)). The 6-queue build needed
+  ([Section 6.2 of the historical NxN architecture](../history/v1/NXN_ARCHITECTURE.md#62-lever-3-priced-is-removing-the-render-lpf-worth-it-2026-07-26)). The 6-queue build needed
   `15850 − 11673 + 11955` = **16 132** slices. That is **+293 slices for +2
   queues ≈ 147 slices per queue**, so dropping one gives back **≈ 147** — barely
   half the 282 needed. (Caveat: the 6-queue round also added the DMAC control
@@ -186,7 +186,7 @@ required**, and the estimate anchored on real Vivado numbers sits at the
 place.**
 
 **Both follow-on levers have since been spent (2026-07-27,
-[Section 6.3 of the historical NxN architecture](../NXN_ARCHITECTURE.md#63-area-round-2026-07-27-logic-levers-measured-no-vivado)), so the 5-queue map no
+[Section 6.3 of the historical NxN architecture](../history/v1/NXN_ARCHITECTURE.md#63-area-round-2026-07-27-logic-levers-measured-no-vivado)), so the 5-queue map no
 longer stands alone.** `LPF_P = 0` (**428 LUT / 756 FF ≈ 109 slices**, the
 shipping 8×8 place report's own row) is now declared in
 `board.constraints.render_lpf` of the `ax7101` config and rides `sweep.sh`
@@ -195,7 +195,7 @@ lwSRP walker and the two ACMP context engines added an **estimated
 383 … 877 slices** on top. (Three of those four blocks were **deleted
 outright** on 2026-08-13 with the 1722.1/SRP plane, which returns far more
 than the levers ever would have — measured in
-[historical protocol-processor area measurement](../findings/PP_SHADOW_AREA_0812.md).
+[historical protocol-processor area measurement](../history/v1/findings/PP_SHADOW_AREA_0812.md).
 The ladder below is kept as the record of the decision that was taken at the
 time.) The ladder — 282 over, −147 for the queue,
 −109 for the filter, −383…877 for the logic — leaves **357 … 851 slices of
@@ -521,7 +521,7 @@ Each queue is its own DMA ring writer, its own interrupt and its own NAPI.
 built for throughput: it split one MTU-1500 RX stream into two flow-consistent
 queues so two TCP flows' ACK/receive processing ran on two harts, which is how
 the single-NAPI ACK-processing ceiling was broken (measured RX 223 Mbit — see
-[RX_PERF_TUNING_MAP.md](../findings/RX_PERF_TUNING_MAP.md)). **That parallel
+[current performance evidence](../findings/PERFORMANCE_GOAL.md)). **That parallel
 ACK split is gone.** Bulk RX is single-NAPI again and the RX throughput ceiling
 reverts to the one-hart number.
 

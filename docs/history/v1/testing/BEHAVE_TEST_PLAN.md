@@ -1,0 +1,464 @@
+[OBSOLETE + 2026-08-16]
+
+> Status: Historical
+>
+> Original path: `docs/testing/BEHAVE_TEST_PLAN.md`
+>
+> Archived: 2026-08-31
+>
+> Relocated: 2026-08-31
+>
+> Current successor: [open current documentation](../../../../tests/README.md)
+
+# Behave test plan — validate every aspect of the Milan end-station
+
+Status: 2026-07-23 (planning round), **partly superseded 2026-08-13** — see the
+capability-boundary block below before working any AVDECC row. Executes
+**roadmap item 10** (peer-review the
+204-row traceability matrix 1:1, then author a behave per confirmed row). Companion
+docs: [`docs/SPEC_TRACEABILITY.md`](../SPEC_TRACEABILITY.md) (the 204-row matrix this suite mirrors),
+[`docs/testing/PROTOCOL_VALIDATION_MATRIX.md`](PROTOCOL_VALIDATION_MATRIX.md), [`docs/reference/REGISTER_MAP.md`](../../../reference/REGISTER_MAP.md)
+(CSR ABI, base `0x90000000`), [`docs/findings/BENCH_TOPOLOGY.md`](../../../findings/BENCH_TOPOLOGY.md) (rig + tap tools).
+
+> ## The capability boundary this plan now runs into (2026-08-13)
+>
+> This repository's IEEE 1722.1 / SRP control plane was deleted and replaced by
+> the `protocol-processor` submodule
+> ([`hdl/milan/KL_pp_shadow.sv`](../../../../hdl/milan/KL_pp_shadow.sv), instantiated
+> unconditionally by
+> [`hdl/milan/milan_datapath.sv`](../../../../hdl/milan/milan_datapath.sv)).
+>
+> * **ADP, ACMP and SRP are still testable** and are now the processor's. Every
+>   domain row below that asserts on discovery, connection management or a
+>   reservation is still authorable; the DUT behind it changed.
+> * **CORRECTION: this entity serves AECP commands.** The processor's AECP uCPU
+>   serves its declared inventory, including `READ_DESCRIPTOR` and
+>   `GET_COUNTERS`. Unsupported commands receive the conformant fallback with
+>   the correct message type, length and control data length.
+>   `IDENTIFY_NOTIFICATION` (0x0026) arriving
+>   as a **command** is answered `BAD_ARGUMENTS` (IEEE 1722.1 §7.4.39.2 beats
+>   §9.3.5.3.3). A command whose `target_entity_id` is not ours, and any AECP
+>   **response** arriving as input, are silently refused — freed, counted, no
+>   reply.
+> * **What that re-opens, and what it does not.** Scenarios for commands in the
+>   implemented inventory are authorable again. That inventory includes
+>   `READ_DESCRIPTOR`, `GET_COUNTERS`, stream and clock getters, configuration
+>   and rate setters, Identify control, stream start and stop, the unsolicited
+>   registration pair, `GET_AUDIO_MAP`, and `GET_MILAN_INFO`. The exact current
+>   list is maintained in `tests/steps/aecp_engine_steps.py` and summarized in
+>   the [current Milan v1.2 audit](../../../testing/MILAN_V12_AUDIT_2026-08-16.md). Commands outside that inventory
+>   still draw the conformant fallback and serve no function. The Milan Table
+>   5.22 counter-change scheduler, persistence, stream-format and stream-info
+>   setters remain open. Name access, live audio-map mutation, and
+>   `GET_DYNAMIC_INFO` are in the implemented inventory. A fallback response is
+>   not coverage.
+> * **The descriptor image is not supplied by this repository.** The processor's
+>   descriptor store reads the entity model from DRAM at a compile-time base, and
+>   no step in `sw/builder/`, `scripts/`, the SoC builder or the boot path writes
+>   an image there. On a stock build **every `READ_DESCRIPTOR` answers
+>   `BAD_ARGUMENTS`** — not `NO_SUCH_DESCRIPTOR`: the microprogram range-checks
+>   `configuration_index` against `configurations_count` before it locates, and
+>   an invalid image reports a count of zero, so the locate is never reached.
+>   That is itself an assertable behaviour, and is not enumeration. It is also a
+>   discriminator worth asserting on: `BAD_ARGUMENTS` to every read = no image or
+>   a corrupt one, `NO_SUCH_DESCRIPTOR` = image loaded and that descriptor
+>   genuinely absent from the model.
+> * **Known gap kept visible:** Milan Δ7 `ACQUIRE_ENTITY` (`NOT_SUPPORTED` with
+>   `owner_id` = 0) is **not** distinguished from the generic echo.
+> * The in-repo suite **shrank**: ~33 `.feature` files went with the deleted
+>   plane. `ls tests/features/` is the authority on what survives — several
+>   feature names below are among the casualties, and the AECP command coverage
+>   they carried is **GONE**, not reassigned. The AECP tier is authorable again
+>   only for the narrow surface listed above, and the same listing is the
+>   authority on what covers it now. **No result against this build's gateware is
+>   recorded in this corpus** — a feature existing is not a feature having been
+>   run against the device.
+
+## Contents
+
+- **[0. Principle — the suite IS the matrix](#0-principle--the-suite-is-the-matrix)** — The rule that makes this a plan rather than a wish list: every scenario carries `@clause`/`@matrix`/`@roadmap` tags, so the traceability matrix's amber and red rows *generate* the backlog and a row may go green only once a passing non-`@wip` scenario cites it.
+- **[1. Current state (reconnaissance 2026-07-23)](#1-current-state-reconnaissance-2026-07-23)** — Inventory of the four suites that already exist, what each is good for, and the two problems: no shared `behave.ini`, and suites A and B are drifting copies. Carries a 2026-07-26 update — the in-repo suite is now a CI gate and has roughly doubled to 22 features / 122 scenarios. Ends with the immediately-visible coverage holes.
+- **[2. Architecture (decisions locked with USER)](#2-architecture-decisions-locked-with-user)** — Three locked decisions: organise by subsystem (tags do the clause slicing), three tiers with T0/T1 CI-green and T2 `@bench`-gated, and P0 = the seven red matrix rows first.
+- **[3. Tag taxonomy (author into a shared behave.ini + environment.py)](#3-tag-taxonomy-author-into-a-shared-behaveini--environmentpy)** — The tag vocabulary in one block, plus the three command lines it buys you (green gate, bench gate, per-row compliance report). Note `@rtl-defect`: a scenario that deliberately asserts current NON-compliant behaviour and must be flipped when the RTL is fixed.
+- **[4. The 14-domain coverage map](#4-the-14-domain-coverage-map)** — The working table of the whole plan: per subsystem, what exists, which matrix rows are still open, the planned feature file, and — most usefully — the concrete assertion mechanism, down to the tap filter or CSR offset you would read.
+- **[5. P0 backlog — concrete feature skeletons](#5-p0-backlog--concrete-feature-skeletons)** — Real Gherkin, not prose: the seven red rows split into "lock the win" (already silicon-proven, author the scenario and flip the row), roadmap gates whose sim half already passes, and `@wip` scenarios written to drive an implementation that does not exist yet.
+- **[6. P1 backlog — the 17 🟡 partials (each pins the one missing assertion)](#6-p1-backlog--the-17--partials-each-pins-the-one-missing-assertion)** — One row per partial, each naming the *single* assertion that would close it. Also the reconciled doc bug: the old 18-partials/162✅ tally was a summing typo, and the authoritative counts are 163✅ / 17🟡 / 7❌ / 17➖.
+- **[7. P2 — regression pins + verification infrastructure](#7-p2--regression-pins--verification-infrastructure)** — Two long-tail items: a red-forever scenario per hard-won past bug, and the tsn_gen model-authoring lane in value order — ACMP first, because it is the most stateful engine with no model, which is why its green rows can be replayed but never fuzzed.
+- **[8. Cross-cutting infrastructure](#8-cross-cutting-infrastructure)** — The shared plumbing to build once, and the section to read before writing any step: a list of harness traps that will silently corrupt a result — the ProfiShark +28 offset, the multicast group raw AVDECC sockets must join, board responses that never reach the peer host, and the ≥0x800 CSR carve-out without which reads simply lie.
+- **[9. Execution phasing](#9-execution-phasing)** — The four-phase order (infra, P0, P1, P2) and the exact `behave` invocations for the green gate, the rig, and a per-row compliance report.
+
+## 0. Principle — the suite IS the matrix
+
+The behave suite is a **live mirror of [`SPEC_TRACEABILITY.md`](../SPEC_TRACEABILITY.md)**, not a parallel pile.
+Every `Scenario` carries `@clause/@matrix/@roadmap` tags, so running the suite *reports
+compliance* and the matrix's 🟡/❌ rows literally generate the backlog. A matrix row
+may be marked ✅ only once a passing (non-`@wip`) behave scenario cites it. Prefer
+real-wiring-path assertions (USER standing rule); fall back to CSR readback only where
+the behavior is wire-invisible.
+
+## 1. Current state (reconnaissance 2026-07-23)
+
+Four real behave suites exist; **no `behave.ini` and no tag taxonomy** ties them
+together, and the two conformance-suite copies are drifting.
+
+> **Update 2026-07-26 — "no CI" is no longer true for suite D.** The in-repo
+> suite (`milan-fpga/tests/`) is now the **BDD conformance suite** and runs as a
+> **gate** in the `bdd-conformance` job of
+> [`.github/workflows/rtl.yml`](../../../../.github/workflows/rtl.yml), per the USER
+> standing order that it runs on every verification round. It had roughly
+> doubled by 2026-08-06, the growth being the `item10_*` command coverage. The
+> `behave.ini` / shared tag-taxonomy work below is still open, and suites A/B/C
+> are still un-gated.
+>
+> **Update 2026-08-13 — it then shrank, by more than it had grown.** The
+> `item10_*` command features and ~33 `.feature` files in total were deleted
+> with the AECP/ACMP/ADP/lwSRP RTL they asserted against. Run
+> `cd tests && behave -f plain` and read its own tally; no number is quoted
+> here, because the point of the number was to show growth and it would now be
+> read as a target. What is gone with those files — the AECP command contracts,
+> the ADP advertiser's wire fields, the ACMP listener state machine, the
+> saved-state fast-connect walk — is asserted by nothing else in this tree.
+
+| Suite | Path | Feat/Scen | Class | Role in the new plan |
+|-------|------|-----------|-------|----------------------|
+| **A bench-conf** | `the-private-test-repo/tests/cert-recreate/features/` | 26 / 63 | real-wire (AVDECC + tap) | the T2 AVDECC/AEM backbone; retag + keep |
+| **B private snapshot** | `the-private-test-repo/private/recreate/<snapshot_20260721>/` | 25 / ~58 | real-wire (snapshot, bundles `aem/`) | **converge into A** (drift source) |
+| **C host-media E2E** | `the-private-test-repo/tests/features/` | 7 / ~24 | real-wire HIL (audio/THD+N/clock) | the T2 media/stream backbone; retag + extend |
+| **D milan-fpga conformance** | `milan-fpga/tests/` | 8 / 55 at recon; **21 / 113** on 2026-07-26 | host-sim (+ tsn_gen frame codec) | the T0 RTL-contract tier; already has `@tsn_gen @T2 @wip`, and is now a CI gate |
+
+**Coverage holes visible immediately** (domains with weak/no behave today): **MAAP**,
+**CBS/shaper + classifier/TCAM/VLAN**, **DMA/perf/throughput**, **saved-state /
+fast-connect**, **AX42 TX-wedge recovery**, **PCM-ring integrity under CPU read**,
+**RMON good/bad vs tap ground-truth**, and the media-map **es-4.16** (absent between
+es-4.15 and es-4.17). Suite D has no live-DUT wiring (Verilator socket "pending").
+
+## 2. Architecture (decisions locked with USER)
+
+1. **Organize by subsystem**, clause-tagged (one `.feature` per subsystem; tags let you
+   still slice by clause / matrix-row / roadmap for a compliance report).
+2. **Three tiers**, keep **T0/T1 CI-green**, gate **T2** behind `@bench`:
+   - **T0 host/sim** — no board: packet builders, tsn_gen frame codec, Python RTL-mirror
+     models, AEM-JSON schema, Verilator-TB outputs. Runs in CI / the `Containerfile.bdd-runner`.
+   - **T1 board-CSR** — one board via ssh through the peer host + `devmem` on base `0x90000000`; asserts on
+     CSR readback. Headless-capable.
+   - **T2 real-wire** — both boards + ProfiShark taps + peer-host raw sockets; asserts on captured
+     frames / decoded audio / iperf. The gold tier; `@bench`-gated.
+3. **P0 first** = the 7 matrix-❌ rows + this session's roadmap validations (they double as
+   acceptance gates for work already proven or in flight).
+
+## 3. Tag taxonomy (author into a shared `behave.ini` + `environment.py`)
+
+```
+@subsystem:{gptp,srp,maap,avdecc,aaf_talker,aaf_listener,crf,audio,link,qos,dma,saved_state,rmon,robustness}
+@clause:{1722.1-7.4.15, 802.1as-8.4.3, milan-5.5.1.4, ...}   # normative anchor
+@matrix:{R-id or family row, e.g. M-ACMP-9, AVTP-3}          # SPEC_TRACEABILITY row
+@roadmap:{1..12}                                             # USER 12-item roadmap
+@tier:{t0,t1,t2}                                             # + @bench on every t2
+@negative        # asserts a correct rejection / no-crash on bad input
+@wip             # not-yet-implemented; spec-anchored TODO, excluded from green gate
+@rtl-defect      # asserts CURRENT non-compliant behavior on a pinned RTL gap (flip when fixed)
+@regression:{name}  # pins a hard-won past bug (mf52-shed, vid2-clobber, mac-tx-wedge, ...)
+@tsn_gen         # frames really generated/decoded by the tsn-gen packet_gen codec
+@soak            # long-running (hour rails soak, 1000× flap)
+```
+Green gate = `behave --tags=-wip --tags=-bench --tags=-soak` (T0+T1, CI).
+Bench gate = add `--tags=bench`. Compliance report = `--tags=@matrix:<row>` per row.
+
+## 4. The 14-domain coverage map
+
+Legend: **E**=exists today · **G**=gap (matrix row) · **→**=planned feature · tool =
+the "Then" assertion mechanism (see BENCH_TOPOLOGY / REGISTER_MAP for each).
+
+| # | Subsystem | Exists (E) | Gaps (matrix) | Planned feature(s) | Assertion tool |
+|---|-----------|-----------|---------------|--------------------|----------------|
+| 1 | **gPTP/802.1AS** | es-1.1 cadence via tap | AS-4 latency calib ❌; AS-6 DUT-BMCA 🟡; M-DEV-2/3/4 Pdelay 🟡; M-DEV-13 tu 🟡 | `gptp.feature`, `gptp_latency.feature`, `gptp_bmca.feature`(@wip switch-gated) | `gptp_cadence.py` (tap1, ether[40:2]=0x88f7); CSR GM `0x624/8`, pdelay `0x6E4` |
+| 2 | **SRP/lwSRP** | es-1.2 Domain via tap | SRP-9 NxN ❌; SRP-8 class B 🟡; SRP-2 single-stream 🟡; MRP-7 🟡; M-CLK-2 ❌ | `srp.feature`, `srp_nxn.feature`, `srp_classb.feature`(@wip) | `srp_domain.py` (0x22ea), `srp_qna.py`; CSR `0x680/694/698/69C` |
+| 3 | **MAAP** | silicon_battery defend check (thin) | (MAAP ✅ RTL, no behave) | `maap.feature` | inject conflict on the peer host → tap defend frame; CSR eff dmac |
+| 4 | **AVDECC/ATDECC** | ADP and ACMP use the protocol processor. AECP serves the inventory synchronized by `aecp_engine_steps.py`, including READ_DESCRIPTOR and GET_COUNTERS | Commands outside the served inventory, the Table 5.22 producer and Milan Delta 7 ACQUIRE_ENTITY semantics remain open | `aecp_read_descriptor.feature`, `aecp_response_contract.feature`, `counters_contract_milan.feature` and the processor `pp_top` suite | raw AF_PACKET (`avdecc_l2.py`) plus the pinned la_avdecc counter decoder |
+| 5 | **AAF talker** | Suite C talker_steps (VID2/prio3/subtype/dmac, rate) | SRP-2/SRP-9 NxN | `aaf_talker.feature`, extend for NxN | tap AAF capture → inter-frame Δt histogram, byte fields (`pcap2s32.py`) |
+| 6 | **AAF listener** | Suite C bind + counters | media-map coverage remains separate; the supported GET_COUNTERS targets are live | `aaf_listener.feature`, `pcm_ring.feature`, `counters_contract_milan.feature` | AVTPRX CSR window plus GET_COUNTERS and integrated `milan_dp` evidence |
+| 7 | **CRF/media clock** | Suite C clock_recovery | **CRF-8 ❌**. **M-CLK-3 was resolved 2026-07-27 and is now UNREACHABLE**: `SET_CLOCK_SOURCE` was the only writer of the live `clock_source_index`, so it is pinned at 0 (INTERNAL) for the life of a build, the MMCM-DRP and media-NCO servos are **structurally off**, and `A_MCSRV_STAT` reads its idle. `KL_crf_rx` still parses, counts and reports — it just cannot steer anything | `media_clock_servo.feature` cannot be driven on this build: its `Given clock_source == 2` has no writer | MCSRV_STAT `0x8F8` reads the idle state, which is a structural zero and not a measurement |
+| 8 | **Audio rings** | Suite C audio THD+N | roadmap-7 playback (KL_pcm_tx); capture byte-exact | the suite-C capture and playback features | `tone_thdn.py` (digital ≤−120, analog ≤−80); `pcm_ring_dump.c` |
+| 9 | **Link/L1-L2** | es link-flap → counters | **AX42 TX-wedge recovery** (gaps item 0); <50 ms timing | `link_guard.feature` | real flap (`devmem 0xf0003800`); tap TX-liveness; LINK_CTRL `0x71C`, RST_EPOCH `0x720`; LINKG_STAT `0x774` (`{bounce16,flags,state,eth_rst,alive}`) |
+| 10 | **QoS/datapath** | `cbs-iperf3-interference.sh` (no behave) | CBS/classifier/TCAM/VLAN behave absent | `cbs_shaper.feature`, `classifier.feature` | iperf3 dual-flow reserved-vs-BE; CBS slopes `0x400+q*0x20` |
+| 11 | **DMA/perf** | perf harness (no behave) | throughput/RSC/fanout behave absent | `perf_throughput.feature`(@bench) | iperf3 Mbit; queue-drop + RMON `0x21C/0x230` |
+| 12 | **Saved-state** | **NOTHING — the feature was removed, not just untested** | **M-ACMP-9: NOT IMPLEMENTED**, and the uCPU landing does not touch it. `KL_persist_journal` is deleted and the NVM face is a blank-flash responder (reads `0xFF`, writes accepted and discarded), so a restore walk always finds blank flash and completes with zero records. Nothing in this device persists a binding across a power cycle; Milan v1.2 5.3.8.2 wants saved state and this build does not have it | `saved_state.feature` is **still unauthorable** — there is no restore to observe | `ACMPL_STATE 0x6A4` still publishes `bound`/`active` from the processor's bind record, but its state-machine fields are structural zeros; the `0x7A0` bind-restore port accepts writes and **never** asserts ack |
+| 13 | **RMON/diag** | es-4.15, hive-get-counters | good/bad vs tap ground-truth | `rmon.feature` | RMON `0x21C/0x230` (snapshot `STATS_CTRL 0x200[0]`) vs tap count |
+| 14 | **Robustness** | Suite D tsn_gen fuzz; es-4.x refusals | AVTP-3 version gate 🟡; back-to-back eater; reset-defaults | `robustness.feature` (@negative/@rtl-defect) | tsn_gen `packet_gen` fuzz; malformed inject → no-crash + reject |
+
+## 5. P0 backlog — concrete feature skeletons
+
+The 7 ❌ rows split three ways. **Two are already silicon-proven this session** — their
+scenarios *flip the matrix to ✅*. Four already-drafted roadmap gates back the RTL lanes
+now in flight. The rest start `@wip` and *drive* their implementation.
+
+### 5.1 "Lock the win" (proven this session → author behave → flip ❌→✅)
+
+> **2026-08-13: both skeletons below are unauthorable on this build, and the
+> AECP uCPU landing does not change either verdict.** The saved-state one has no
+> persistence to observe (`KL_persist_journal` deleted, blank-flash NVM
+> responder, `acmp-persist` has nothing to save into), and the servo one opens
+> with `Given clock_source == 2`, which still has no writer — `SET_CLOCK_SOURCE`
+> is one of the commands that draws the generic `NOT_IMPLEMENTED` echo, so the
+> index stays pinned at 0. They are kept verbatim because they are the correct
+> scenarios for the behaviours, and the day either capability returns they are
+> the starting point. Do **not** flip the matrix rows they were written to flip.
+
+```gherkin
+# saved_state.feature  — M-ACMP-9
+@subsystem:saved_state @clause:milan-5.5.1.4 @matrix:M-ACMP-9 @roadmap:9
+Feature: Milan saved-state fast-connect
+
+  @tier:t2 @bench
+  Scenario: A saved media bind survives reboot and re-arms with no controller
+    Given the sink is bound and `acmp-persist save` succeeded
+    When the board reboots
+    Then S51 restore re-arms the sink to LSM PRB_W_AVAIL (ACMPL_STATE 0x6A4 [2:0]=1)
+    And the stream re-locks with no controller present
+
+  @tier:t1 @regression:acmp-persist-wedge
+  Scenario: `acmp-persist save` never wedges under the watch daemon
+    Given the acmp-persist watch daemon is running
+    When I run `acmp-persist save` 6 times back-to-back
+    Then all 6 complete within 5 s each with no SPI tx/rx spin   # the tx_ready-gate fix
+    And every journalled record verifies byte-exact on readback
+```
+
+```gherkin
+# media_clock_servo.feature  — CRF-8 / M-CLK-3
+@subsystem:crf @clause:1722-10.6 @matrix:CRF-8,M-CLK-3 @roadmap:6
+Feature: MMCM-DRP media-clock servo disciplines the local media clock
+
+  @tier:t1
+  Scenario: The servo locks at clock_source=2 with the DRP config verified
+    Given clock_source == 2 (CRF descriptor) and the CRF sink locked
+    Then MCSRV_STAT 0x8F8 state == 4 (LOCKED) and [3] DRP-verified == 1
+    And the signed trim 0x8F8[31:16] is within the coherent-chain band
+
+  @tier:t1 @matrix:M-CLK-3
+  Scenario: auto_repair repairs a divider mismatch only when enabled
+    Given the CLKOUT0 divider is corrupted via DRP
+    When auto_repair is enabled (0x8FC reserved-bit, bench-gated)
+    Then the servo read-modify-writes it back to the O=43 encoding (state 2 REPAIR→4)
+    And with auto_repair disabled the servo issues zero DRP writes
+
+  @tier:t2 @bench @soak
+  Scenario: Rails hold zero across an hour soak
+    When I soak the locked servo for 1 hour
+    Then MCSRV_STAT never leaves LOCKED and no PSDONE/relock fault ([7]/[8]) sets
+
+  @tier:t2 @bench
+  Scenario: Coherent analog loop meets the converter-floor acceptance
+    Given the coherent CRF chain is locked
+    Then tone_thdn.py on the analog loop is ≤ −80 dB (digital wire ≤ −120)
+```
+
+### 5.2 Roadmap gates for the RTL lanes in flight (TB proves in sim, behave on the wire)
+
+```gherkin
+# link_guard.feature  — AX42 (gaps item 0)
+@subsystem:link @clause:milan-gaps-5 @matrix:—(robustness) @roadmap:2 @regression:mac-tx-wedge
+Feature: Link-bounce TX-wedge auto-recovery (AX42)
+
+  @tier:t2 @bench
+  Scenario: A link bounce recovers TX on the wire within 50 ms, no daemon
+    Given the AX7101 streams an AAF talker on e2 and tap1 shows egress
+    When I flap the AX e2 link for 100 ms
+    Then tap1 egress frames resume within 50 ms of link-up
+    And no gateware reload and no phy_crg_reset daemon strobe occurred  # guard covers the PHY-side gtx path
+
+  @tier:t1 @negative
+  Scenario: The freeze hook drills the full FSM with no cable
+    When I set LINK_CTRL freeze (0x71C)
+    Then reinit asserts and eth_rst sequences eth-first-then-sys
+    And clearing freeze recovers within the settle window
+```
+
+```gherkin
+# pcm_ring.feature  — BRAM ring / mf52 no-shed
+@subsystem:aaf_listener @clause:milan-gaps-2 @matrix:—(streaming) @roadmap:5 @regression:mf52-shed
+Feature: PCM ring integrity under concurrent CPU read
+
+  @tier:t1
+  Scenario: Write pointer advances with no mod-24 holes under CPU-read load
+    Given a bound 48k-stereo listener and a concurrent arecord rw load
+    When I sample the pcm offset CSR across 24k beats
+    Then the offset advances exactly 8 bytes/beat with zero gaps   # BRAM ready==1 ⇒ no shed
+
+  @tier:t2 @bench
+  Scenario: Recorded audio is artifact-free at the converter floor
+    When I arecord 10 s during a concurrent CPU-read load
+    Then tone_thdn.py reports no 2 kHz whole-frame artifact and ≤ −80 dB
+```
+
+**RTL/TB side already delivered this round (2026-07-23)** — the sim half of these gates
+exists and passes; the behave scenarios above are the *wire* half:
+
+| Gate feature | RTL module | Verilator TB (self-checking) | Status |
+|--------------|-----------|------------------------------|--------|
+| `link_guard` (AX42) | `gmii.py`+`milan_soc.py` `ext_reset` (applied) | [`tb/verilator/eth_tx_reset/`](../../../../tb/verilator/eth_tx_reset) 40/40 | **applied + elaboration-clean** (SoC emits netlist w/ `eth_rst`); Vivado build + AX bench remain |
+| `pcm_ring` (BRAM) | [`hdl/ieee1722/aaf/KL_pcm_ring_bram.sv`](../../../../hdl/ieee1722/aaf/KL_pcm_ring_bram.sv) (wired `--pcm-ring bram`) | [`tb/verilator/pcm_ring_bram/`](../../../../tb/verilator/pcm_ring_bram) 17/17 + 9/9 | **applied + elaboration-clean** (ring instantiated, read slave @0x9010_0000, double-drive fixed, default path unchanged); Vivado build confirms ~8 RAMB36 |
+| `media_clock_servo` (auto_repair) | `KL_mmcm_drp_servo.sv` (repair FSM) | [`tb/verilator/mmcm_servo_autorepair/`](../../../../tb/verilator/mmcm_servo_autorepair) 47/47 | TB solid; tie NOT flipped (bench readback of 0x8FC gates enablement) |
+| `alsa_playback` (KL_pcm_tx) | [`hdl/ieee1722/aaf/KL_pcm_tx.sv`](../../../../hdl/ieee1722/aaf/KL_pcm_tx.sv) | [`tb/verilator/pcm_tx/`](../../../../tb/verilator/pcm_tx) 27/27 | scaffold solid; SoC integration design-only (documented caveats) |
+
+### 5.3 "Drive the impl" (`@wip` until the RTL lands)
+
+- `srp_nxn.feature` — **SRP-9** (802.1Q 35.2.7): N simultaneous reservations (AX 8×8),
+  per-stream registrar; gated on AX42→8×8 (lane A). `@wip @roadmap:5`. Still
+  live; the registrar is the protocol processor's now.
+- `crf_reservation.feature` — **M-CLK-2** (Milan 7.3.3): CRF carried under an SRP
+  reservation (a second listener attribute). `@wip`. Still live, same
+  retargeting.
+- ~~`aecp_mvu.feature`~~ — **M-AECP-9** (Milan 5.4.4.4/.5):
+  SET/GET_MEDIA_CLOCK_REFERENCE_INFO. **Still void** — re-triaged after the
+  AECP uCPU landed: MVU is an unimplemented message type, so the command draws
+  the generic `NOT_IMPLEMENTED` echo. The blocker is no longer "there is no AECP
+  engine", it is "the function is absent"; there is no MCRI to get and none to
+  set. NOT IMPLEMENTED.
+- ~~`media_clock_mgmt.feature`~~ — **M-CLK-5** (Milan 7.6): reference election /
+  MCRI priorities. **Still void** — it depended on M-AECP-9, and separately the
+  media clock cannot be selected at all on this build (domain 7 above).
+- **NEW and authorable** — a descriptor-read feature and a response-contract
+  feature (`ls tests/features/` says whether they are in the tree; do not take
+  the answer from here). Between them they cover the `READ_DESCRIPTOR` status
+  paths (SUCCESS only with an image in DRAM; `NO_SUCH_DESCRIPTOR` on a locate
+  miss, which likewise needs a loaded image to be reachable at all;
+  `BAD_ARGUMENTS` on a bad configuration index — and therefore on *every* read
+  while no image is loaded, since an invalid image reports a configuration count
+  of zero and the range check precedes the locate; the §7.4.5 4-byte
+  `{descriptor_type, descriptor_index}` stub on both error paths), the
+  `IDENTIFY_NOTIFICATION`-as-command → `BAD_ARGUMENTS` rule, the
+  `NOT_IMPLEMENTED` echo's `message_type`/length/`controller_data_length`, and
+  the two silent-refusal rules (foreign `target_entity_id`, response-as-input).
+  `tests/features/aecp_read_descriptor.feature` already pins the unloaded-image
+  case as `BAD_ARGUMENTS` with the §7.4.5 stub — it was right where the prose
+  was wrong — but it is an offline model of the command path, and its presence
+  is not a run.
+  A `@tier:t2 @bench` version needs a wire; **no result against this build's
+  gateware is recorded anywhere in this corpus.**
+- `gptp_latency.feature` — **AS-4** (802.1AS 8.4.3): per-board ingress/egress latency
+  calibration procedure (only the sum is measured today). `@wip @tier:t2`.
+  Unaffected — gPTP is not part of the deleted plane.
+
+## 6. P1 backlog — the 17 🟡 partials (each pins the one missing assertion)
+
+> **2026-08-13, RE-TRIAGED after the AECP uCPU landed.** Six rows in this table
+> pin an assertion about an AECP command. They were all marked void on the false
+> premise that no AECP command is answered; the honest split is now per row:
+>
+> * **AECP-8 and M-AECP-11 are runnable again**, because each needed only a
+>   well-formed AECP *response* — AECP-8 to see an ADDRESS_ACCESS command
+>   answered at all, M-AECP-11 to use "a well-formed AECP command went
+>   unanswered" as a liveness witness. Neither is a claim about the command's
+>   function, and neither has been run against this build.
+> * **CMD-7 is served since 0x0053** (`SET_STREAM_INFO`'s Milan sub-command); the offline sweep grades its refusal shape at cdl 96 and the deep behavior is graded by the processor's pp_top W24/W25 and milan_dp's #67 block rather than a dedicated feature here.
+>   **M-CNT-4 is runnable** because solicited `GET_COUNTERS` now serves every
+>   declared Stream Output. **M-AECP-12 remains split**: the processor implements
+>   Identify control, but the root wrapper discards its dynamic Identify output
+>   and `o_identify` remains tied low.
+> * **CMD-14 splits**: the physical IDENTIFY cadence half stays void because
+>   `o_identify` is tied low, while one narrow 7.4.39 rule is
+>   assertable — `IDENTIFY_NOTIFICATION` arriving as a **command** is answered
+>   `BAD_ARGUMENTS` per §7.4.39.2.
+>
+> The Milan Table 5.4 STREAM_OUTPUT counters M-CNT-4 requires are live for
+> solicited GET_COUNTERS reads. The processor's unsolicited TX lane still lacks
+> the Table 5.22 counter-change producer. The STREAM_INPUT counters at `0x6B8`
+> remain live.
+
+| Matrix | Clause | Feature / step | The specific assertion to add |
+|--------|--------|----------------|-------------------------------|
+| AVTP-3 | 4.4.3.4 | `robustness.feature` `@rtl-defect` | a v1 PDU is (currently) parsed as v0 — assert present behavior, flip on fix |
+| AVTP-5 | 4.4.4.3 | `aaf_listener.feature` `@rtl-defect` | talker `mr` toggle never ticks MEDIA_RESET (pairs M-CNT-4) |
+| CMD-7 | 7.4.15/16 | ~~`aecp_stream_info.feature`~~ | **SERVED (0x0053), graded elsewhere** -- the engine implements Milan 5.4.2.9's sub-command with the clause's flag-by-flag refusals; the offline model grades the sweep shape (BAD_ARGUMENTS at cdl 96) and the function is graded on the real engine (pp_top W24/W25, milan_dp #67) |
+| CMD-14 | 7.4.39 | `aecp_identify_cadence.feature` (cadence half) / new `aecp_identify_notification.feature` | **SPLIT** — the cadence half is **still void** (`IDENTIFY` needs `SET_CONTROL`, which is absent, and `o_identify` is tied 0: the LED is structurally dark). **Newly assertable:** `IDENTIFY_NOTIFICATION` (0x0026) arriving as a *command* is answered `BAD_ARGUMENTS` per §7.4.39.2, which beats §9.3.5.3.3. No result against this build is recorded |
+| AECP-8 | 9.4 | `aecp_address_access.feature` | **RUNNABLE AGAIN, as a response-contract check only** — an ADDRESS_ACCESS command draws a conformant `NOT_IMPLEMENTED` echo (right `message_type`+1, length, `controller_data_length`), which is IEEE 1722.1 §9.3.5's duty to respond. **ADDRESS_ACCESS itself is NOT IMPLEMENTED**; do not mark 9.4 covered on the strength of the echo. No result against this build is recorded |
+| MRP-7 | 10.7.10 | `srp.feature` | explicit PeriodicTransmission enable/disable vector |
+| SRP-2 | 35.1.2 | `srp.feature` | talker declare/withdraw (single-stream today; NxN → SRP-9) |
+| SRP-8 | 35.1.4/34.5 | `srp_classb.feature` `@wip` | declaring/using SR class B (engine is class A only) |
+| AS-6 | 10.2/10.3 | `gptp_bmca.feature` `@wip` | DUT-wins-BMCA (switch-gated; USER attack-list bottom) |
+| M-DEV-2 | 4.2.6.2.5 | `gptp.feature` | multiple Pdelay responses handling |
+| M-DEV-3 | 4.2.6.2.6 | `gptp.feature` | Pdelay turnaround bound measurement |
+| M-DEV-4 | 4.2.6.2.7 | `gptp.feature` `@negative` | negative Pdelay values |
+| M-DEV-13 | 4.3.5.2 | `aaf_talker.feature` | talker-side `tu` set on a real GM change |
+| M-AECP-11 | 5.4.5.3 | `avdecc` | **RUNNABLE AGAIN** — the row's assertion needs an AECP exchange to prove the entity stopped answering, and the entity now answers, so the two-witness discriminator (ADP miss **and** an unanswered well-formed AECP command) works again. Note the separate, unchanged gap: the *entity-side* 5.4.5.3 duty — per-controller monitor timer, `CONTROLLER_AVAILABLE` probe, auto-deregister — is **NOT IMPLEMENTED**, so this row grades the controller-side cleanup only. No result against this build is recorded |
+| M-AECP-12 | 5.4.5.4 | (= CMD-14, cadence half) | **STILL VOID** — identify notification needs `SET_CONTROL`-driven identification, which is absent |
+| M-CNT-4 | Table 5.17 | `counters_contract_milan.feature`, `tkdiag`, `milan_dp` | **CLOSED FOR SOLICITED READS 2026-08-16.** Every declared Stream Output returns the compact five-counter Milan bank. Table 5.22 unsolicited notification remains separate |
+| M-CLK-3 | 7.2.2/7.5.2 | (= §5.1 servo) | **UNREACHABLE** — the actuator is built and was silicon-proven, and the build can no longer select the clock source that engages it (domain 7) |
+
+**Doc bug — RECONCILED (2026-07-23):** the summary tallied 18 partials / 9 Milan, but a
+1:1 re-count of every Milan row's leading glyph gives **39✅ / 8🟡 / 4❌ / 1➖ = 52**. It
+was a summing typo (one ✅ counted as partial), not a mismarked row — no compliance status
+changed. [`SPEC_TRACEABILITY.md`](../SPEC_TRACEABILITY.md) now reads **163✅ / 17🟡 / 7❌ / 17➖** (Milan 39/8). The
+17 🟡 rows above are the authoritative partial backlog. Stale downstream quotes of
+"162✅/18🟡" (HANDOVER roadmap table) should now read 163✅/17🟡.
+
+## 7. P2 — regression pins + verification infrastructure
+
+- **Regression-pin** one scenario per hard-won past bug (`@regression`): mf52 ring-shed,
+  vid2-clobber, ACMP listener deafness, back-to-back eater, double-Philips, mac-tx-wedge,
+  ingressLatency, I2SPB double-delay. Red-if-it-regresses forever.
+- **tsn_gen model authoring — committed P1 lane** (USER 2026-07-23: in scope),
+  **rewritten 2026-08-13.** The gap is now larger, not smaller: the AECP, ADP
+  and ACMP `tsn_fuzz` campaigns were **deleted** with the RTL they drove, so
+  there is no field-level fuzzing of *any* 1722.1 protocol left in this
+  repository — only the AAF campaign survives, because it fuzzes the data plane.
+  Author order (highest value first):
+  1. **ACMP and ADP models against the protocol processor.** The old campaigns
+     drove this repository's engines; the models describe the *wire*, so the
+     model work carries over and the DUT binding does not. ACMP first: it is the
+     most stateful engine and it now has neither a model nor a per-message
+     suite.
+  2. **CRF model** (M-CLK-1 params) + **MRPDU/MSRP models** (M-DEV-5..9, 802.1Q) — fuzz the
+     reservation + media-clock framing. The SRP side is the processor's now, and
+     the six deleted `lwsrp*` suites make this the *only* proposed coverage of
+     that engine's message handling.
+  3. **gPTP model.** The MVU *payload* models that used to sit here
+     (GET_MILAN_INFO / SYSTEM_UNIQUE_ID / MEDIA_CLOCK_REFERENCE_INFO) still have
+     no target — MVU is an unimplemented message type, so there is no payload to
+     model, only a refusal to observe. What the uCPU landing does put back on
+     the table is a much narrower AECP fuzz target: malformed and hostile AECP
+     frames against the response contract (echo shape, the two silent-refusal
+     rules, `READ_DESCRIPTOR` bounds). That is a frame-level model, not a
+     command model.
+  Each model is exercised via the existing `@tsn_gen` tier (`packet_gen` codec),
+  so no new harness — just the YAML + a fuzz scenario per model asserting "no
+  illegal transition on N seeded frames".
+- **Breadth pass**: a single passing scenario across all 14 domains (the "whole-system
+  smoke" ring) once P0 lands.
+
+## 8. Cross-cutting infrastructure
+
+- **Add `behave.ini`** at each suite root with the tag taxonomy + a `default` profile that
+  excludes `@wip,@bench,@soak` (the CI green gate). None exists today.
+- **Converge suites A and B** (they differ in 8 files and will keep drifting); keep one
+  conformance tree, snapshot only for release tags. Commit the `aem/` package into the tracked
+  tree (today it lives only in the private snapshot; the tracked steps `import from aem`).
+- **CI**: `Containerfile.bdd-runner` + `Containerfile.dut-sim` already exist for Suite D.
+  **The in-repo suite is already gated** — [`.github/workflows/rtl.yml`](../../../../.github/workflows/rtl.yml)
+  carries a `bdd-conformance` job that runs `behave -f plain` on every push and
+  pull request (the run prints its own tally; do not carry one here — the last
+  one this page quoted counted ~33 features that no longer exist), alongside
+  [`docs.yml`](../../../../.github/workflows/docs.yml) (docs, cited paths, archive,
+  contents, traceability, builder, DT, trace). What is still unwired is the
+  **Suite D container** path — the DUT-sim gate, not the suite itself.
+- **Harness traps every new step must bake in** (from BENCH_TOPOLOGY / tool sources):
+  ProfiShark **+28** byte offset, never `tcpdump -e`; raw AVDECC sockets **must
+  PACKET_MR_PROMISC-join `91:E0:F0:01:00:00`**; ADP census matches `ether[14]==0xFA`;
+  board ACMP/MAAP responses do **not** reach the peer host's port (switch relay gap → verify via
+  CSR/counters, not capture); la_avdecc feature-defines are ABI; `AAF_CTRL 0x654` writes
+  must preserve VID 2; a new plain-RW CSR ≥0x800 needs the `rd_in_window` carve-out or
+  reads lie; validate wire frames by **length**, not headers alone.
+
+## 9. Execution phasing
+
+1. **Infra** — `behave.ini` + tag taxonomy; retag existing es-4.x / Suite C / Suite D
+   scenarios with `@subsystem/@clause/@matrix/@tier`; converge A/B; commit `aem/`.
+2. **P0** — §5 features (3 "lock the win" + 4 roadmap gates + 5 `@wip` drivers). The
+   roadmap gates come online as the RTL lanes (AX42, BRAM ring, servo, KL_pcm_tx) land.
+3. **P1** — the 17 🟡 rows (§6), reusing existing steps.
+4. **P2** — regression pins, tsn_gen ACMP model, whole-system smoke ring.
+
+Run: T0/T1 green gate `behave --tags=-wip --tags=-bench --tags=-soak`; add `--tags=bench`
+on the rig (`run_alinx.sh`/`run_arty.sh` pattern); compliance report per row via
+`--tags=@matrix:<row>`.

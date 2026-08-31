@@ -33,6 +33,7 @@ HEIGHT = 900
 class Role:
     purpose: str
     wrapper: str
+    path_label: str
     donor_gate: str
     root_gate: str
     status: str
@@ -44,6 +45,7 @@ ROLES = {
     "protocol-processor": Role(
         "ADP, ACMP, AECP, and SRP engine",
         "hdl/milan/KL_pp_shadow.sv",
+        "wrapper",
         "protocol-processor/scripts/run_suites.sh",
         "tb/verilator/pp_shadow",
         "ACTIVE CONTROL",
@@ -53,6 +55,7 @@ ROLES = {
     "gptp-processor": Role(
         "IEEE 802.1AS fabric engine",
         "hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv",
+        "wrapper",
         "make -C gptp-processor",
         "tb/verilator/gptp_shadow",
         "ACTIVE TIME",
@@ -62,6 +65,7 @@ ROLES = {
     "third_party/verilog-axis": Role(
         "AXI-Stream FIFO and demultiplexer primitives",
         "hdl/ieee8021q/ts/traffic_queues.sv",
+        "representative consumer",
         "upstream project evidence",
         "tb/verilator/queues",
         "ACTIVE VENDOR",
@@ -71,6 +75,7 @@ ROLES = {
     "external": Role(
         "Legacy Ethernet MAC implementation",
         "hdl/milan/milan_top.sv",
+        "legacy root",
         "donor project evidence",
         "none; legacy top cannot elaborate",
         "LEGACY ONLY",
@@ -211,6 +216,7 @@ def svg(modules: list[Submodule]) -> str:
     for path, (x, y) in positions.items():
         module = by_path[path]
         role = module.role
+        wrapper = PurePosixPath(role.wrapper)
         purpose_lines = textwrap.wrap(
             role.purpose,
             width=38,
@@ -220,10 +226,9 @@ def svg(modules: list[Submodule]) -> str:
         if len(purpose_lines) > 2:
             raise SystemExit(f"{path}: purpose needs more than two lines")
         purpose_y = y + (112 if len(purpose_lines) == 2 else 123)
-        wrapper = PurePosixPath(role.wrapper)
         lines.extend(
             [
-                f'<rect x="{x}" y="{y}" width="420" height="250" rx="13" '
+                f'<rect x="{x}" y="{y}" width="420" height="270" rx="13" '
                 f'fill="{role.fill}" stroke="{role.stroke}" stroke-width="2.5"/>',
                 f'<rect x="{x + 18}" y="{y + 17}" width="160" height="32" '
                 f'rx="16" fill="{role.stroke}"/>',
@@ -240,10 +245,12 @@ def svg(modules: list[Submodule]) -> str:
                 f'<text x="{x + 18}" y="{y + 162}" font-size="16" '
                 f'fill="#37474F">pin {module.pin[:12]}</text>',
                 f'<text x="{x + 18}" y="{y + 188}" font-size="16" '
-                f'fill="#37474F">root: {esc(wrapper.parent)}/</text>',
+                f'fill="#37474F">{esc(role.path_label)}:</text>',
                 f'<text x="{x + 18}" y="{y + 209}" font-size="16" '
+                f'fill="#37474F">{esc(wrapper.parent)}/</text>',
+                f'<text x="{x + 18}" y="{y + 230}" font-size="16" '
                 f'fill="#37474F">{esc(wrapper.name)}</text>',
-                f'<text x="{x + 18}" y="{y + 233}" font-size="16" '
+                f'<text x="{x + 18}" y="{y + 254}" font-size="16" '
                 f'fill="#37474F">test: {esc(role.root_gate)}</text>',
             ]
         )
@@ -328,10 +335,11 @@ def drawio(modules: list[Submodule]) -> str:
         label = (
             f"<b>{esc(role.status)}</b><br><br><b>{esc(path)}</b><br>"
             f"{esc(role.purpose)}<br><br>pin {module.pin[:12]}<br>"
-            f"root: {esc(wrapper.parent)}/<br>{esc(wrapper.name)}<br>"
+            f"{esc(role.path_label)}:<br>{esc(wrapper.parent)}/<br>"
+            f"{esc(wrapper.name)}<br>"
             f"test: {esc(role.root_gate)}"
         )
-        vertex(module_ids[path], x, y, 420, 250, label, role.fill, role.stroke, 16)
+        vertex(module_ids[path], x, y, 420, 270, label, role.fill, role.stroke, 16)
 
     edges = [
         ("protocol-processor", "wrapper", False),

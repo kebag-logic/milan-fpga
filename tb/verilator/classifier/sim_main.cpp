@@ -4,7 +4,7 @@
  *
  * Self-checking Verilator harness for traffic_classifier.sv AFTER the
  * xpm_fifo_axis -> axis_fifo (Forencich verilog-axis) swap (Track 1.2 of
- * docs/integration/OPEN_SOURCE_MIGRATION.md). That this builds+runs at all proves the module
+ * docs/integration/PORTING_GUIDE.md). That this builds+runs at all proves the module
  * is now Verilator-simulatable (it could not be with XPM).
  *
  * Functional checks (independent of the exact header byte layout — the PCP->queue

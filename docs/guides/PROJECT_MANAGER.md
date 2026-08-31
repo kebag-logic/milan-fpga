@@ -20,7 +20,7 @@ Use this path for delivery decisions.
 | What is actively changing? | Open Issues and pull requests |
 | What passed locally? | Exact command evidence |
 | What passed remotely? | Exact-head required checks |
-| What shipped historically? | [`docs/history/v1/`](../history/v1/) |
+| What shipped historically? | [`docs/history/v1/`](../history/v1) |
 
 Status prose can drift.
 

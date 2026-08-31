@@ -12,7 +12,7 @@ VFLAGS = --cc --exe --build -j 0 --top-module $(TOP) \
          -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-IMPORTSTAR -Wno-CASEINCOMPLETE \
          -Wno-EOFNEWLINE -CFLAGS "-std=c++17 -O2"
 SRCS = $(C)/ethernet_packet_pkg.sv $(A)/avtp_subtype_pkg.sv $(A)/avtp_stream_parser.sv
-# stream-table harness (NXN_ARCHITECTURE §1.1 / P1): table authority + parser
+# stream-table harness (docs/overview/ARCHITECTURE.md): table authority + parser
 TBLFLAGS = --cc --exe --build -j 0 --top-module stream_table_wrap \
          +incdir+$(C) +incdir+$(A) \
          -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND \

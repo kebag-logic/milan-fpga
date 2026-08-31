@@ -15,7 +15,7 @@ bench. Live campaign state is tracked in the GitHub issues and in this
 document; the dated bench notes are **local working files and are no longer
 tracked** -- they name bench hosts and local paths, so the public tree keeps
 only an archived pre-2026-08-11 set (reachable from
-[the archive index](../../historical_now_obsolete/README.md)).
+[the archive index](../history/v1/LEGACY_ARCHIVE_INDEX.md)).
 Do not cite a dated bench note as the current source of anything; the
 remaining compliance work is in the
 [current Milan v1.2 audit](../testing/MILAN_V12_AUDIT_2026-08-16.md). Naming rule: the conformance suite is
@@ -197,7 +197,7 @@ netlist and the A/B comparison dies). The fit recipe that currently gets
 closest is `synth_design -directive AlternateRoutability` +
 `place_design -directive ExtraNetDelay_high`; the full fit ledger is preserved
 in the archived 2026-08-02 dated bench note (reachable from
-[the archive index](../../historical_now_obsolete/README.md)).
+[the archive index](../history/v1/LEGACY_ARCHIVE_INDEX.md)).
 Flash the shipping pair (bitstream + AEM image); `deploy.sh flash-pair`
 refuses any layout that names a retired boot image (#259).
 

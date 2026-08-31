@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """
 pack_aem_bin.py - aem_rom.json -> aem_rom.bin for the aecpd software responder
-(the 80% campaign's AECP-to-software lane, docs/design/AREA_80_CAMPAIGN.md).
+(the measured AECP lane, docs/design/AREA_BUDGET.md).
 
 The daemon serves READ_DESCRIPTOR straight out of this image, exactly as the
 fabric ROM served it - same bytes, same directory, ONE model source (the

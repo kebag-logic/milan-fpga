@@ -901,7 +901,7 @@ Identity and control for the ADP transmit engine — which is now the protocol
 processor's `KL_adp_engine`, reached through [`hdl/milan/KL_pp_shadow.sv`](../../hdl/milan/KL_pp_shadow.sv). This
 repository's `adp_advertiser.sv` and `KL_adp_parser.sv` are deleted. The software
 AVDECC stack still programs the entity identity here, matching the selected
-[`configs/endstation_*.yaml`](../../configs/) definition and builder-generated
+[`configs/endstation_*.yaml`](../../configs) definition and builder-generated
 ENTITY descriptor. The hardware still owns the advertise timing and
 `available_index`. `station MAC` (source MAC / entity_id
 seed) comes from `MAC_ADDR_{LO,HI}`, not this group.
@@ -1151,7 +1151,7 @@ live** — they are the AVTP RX monitor's, not the control plane's.
 | `0x6D0` | `MAAP_STAT0` | RO | `[31:24]` conflicts (re-address events), `[23:16]` DEFENDs sent, `[15:0]` claimed offset |
 | `0x6D4` | `MAAP_STAT1` | RO | `[2]` addr_valid (= ANNOUNCE state; DMAC = 91:E0:F0:00 + offset), `[1:0]` state (0 idle / 1 probe / 2 announce) |
 | `0x6D8` | `I2SPB_STAT` | RO/W1C | I2S playback drift rails: `[31:16]` underruns (silence frames), `[15:0]` overruns (pairs dropped). They measure free-running-48k drift; the current root does not consume the exported clock-source selection, so CRF discipline cannot retire them. Both rails saturate at `0xFFFF`; **W1C per half (2026-07-22, gaps 5b)**: a write with any bit of a half set restarts that half's counter (the other half is untouched; a zero write is inert; readback stays the live count). W1C was chosen over clear-on-bind: the rails are engine diagnostics, not Milan Table 5.6 stream counters. A bind-triggered clear would erase evidence mid-diagnosis and add a bind-path dependency, while W1C leaves the observation window entirely under software control |
-| `0x6DC` | `TONE_CTRL` | RW | `[0]` pilot tone enable: 1 kHz exact-period 48×24-bit sine replaces the I2S ADC on both talker channels (digital THD+N −148.1 dB; E2E acceptance ≤ −120 dBFS via `tone_thdn.py` on the listener ring dump). `[3:1]` **attenuation**, −6 dB steps applied as `TONE_TAB_C[idx] >>> att` (0 = 0 dBFS full scale, 7 = −42 dB); reset is `0`, so the power-on tone is 0 dBFS and any smaller amplitude was dialled in at the bench. A capture at amplitude 0.25 means `att = 2`, not a quarter-scale table: `8388607 >>> 2 = 2097151`, and `2097151 / 2^23 = 0.24999988`. Reduce before measuring through a sample-rate conversion or an analog stage, because a 0 dBFS sampled sine overshoots between samples (measured +0.91 dB through a 48 kHz to 44.1 kHz conversion) and would clip; at 48 kHz end to end the maxima land on table entries and 0 dBFS is safe. See the [obsolete historical media-clock finding](../findings/MEDIA_CLOCK_LOCK_0810.md) |
+| `0x6DC` | `TONE_CTRL` | RW | `[0]` pilot tone enable: 1 kHz exact-period 48×24-bit sine replaces the I2S ADC on both talker channels (digital THD+N −148.1 dB; E2E acceptance ≤ −120 dBFS via `tone_thdn.py` on the listener ring dump). `[3:1]` **attenuation**, −6 dB steps applied as `TONE_TAB_C[idx] >>> att` (0 = 0 dBFS full scale, 7 = −42 dB); reset is `0`, so the power-on tone is 0 dBFS and any smaller amplitude was dialled in at the bench. A capture at amplitude 0.25 means `att = 2`, not a quarter-scale table: `8388607 >>> 2 = 2097151`, and `2097151 / 2^23 = 0.24999988`. Reduce before measuring through a sample-rate conversion or an analog stage, because a 0 dBFS sampled sine overshoots between samples (measured +0.91 dB through a 48 kHz to 44.1 kHz conversion) and would clip; at 48 kHz end to end the maxima land on table entries and 0 dBFS is safe. See the [obsolete historical media-clock finding](../history/v1/findings/MEDIA_CLOCK_LOCK_0810.md) |
 | `0x6E0` | `I2SPB_TRIM` | RO | media-clock recovery servo: `[31:16]` signed NCO trim (LSB ≈ 15.3 ppm; fill-level servo steers playback rate to the talker), `[15:0]` FIFO fill (pairs). Rail events count MEDIA_RESET |
 | `0x6E4` | `GPTP_PDELAY` | RO live / RW option-off | reset `0`: selected owner's measured gPTP neighbor propagation delay in ns. Fabric mode reads the committed engine value and ignores software writes as a live source. Option off retains the software register. GET_AVB_INFO consumes this selected value |
 | `0x6E8` | `ACMPL_DBG` | RO | 🔴 **STRUCTURAL ZERO**. Was the listener walker forensics — CLASSIFY entries, ACMP-subtype classifies, the flag bundle at the last ACMP classify, ACMP-base + listener-command hits. The walker is deleted. The protocol processor's own RX accounting (control frames in, FIFO drops, frames out) is at `PP_DIAG` `0x930` |
@@ -2017,7 +2017,7 @@ tree exposes them via the `dma-tx`, `dma-rx`, `dma-ts` `reg` entries).
 
 **`dma-tx` and `dma-rx` are ring engines** (2026-07-04: `RingDMAReader`/`RingDMAWriter`,
 native AXI-burst masters on the coherent dma_bus  -  see
-[`RX_RING_DMA.md` (archived)](../../historical_now_obsolete/findings/RX_RING_DMA.md) for why the simple-mode/wishbone predecessors were
+[`RX_RING_DMA.md` (archived)](../history/v1/findings/RX_RING_DMA.md) for why the simple-mode/wishbone predecessors were
 throughput-broken). Both share one 7-word layout over a circular coherent buffer of
 frame slots `[8 B header][payload padded to 8 B]`, wrapping via `mask`:
 

@@ -1496,7 +1496,7 @@ lines, none of them a marker**, in three classes:
 
 | Class | Example | Why it is not a marker |
 |---|---|---|
-| A filename | a citation of the [historical task list](../../TODO.md) in `scripts/check_doc_paths.py` | A tracked document pages legitimately cite |
+| A filename | a citation of the [historical task list](../history/v1/TODO.md) in `scripts/check_doc_paths.py` | A tracked document pages legitimately cite |
 | An identifier | `TODO = "TODO describe this section"` in `scripts/gen_toc.py`, `d == TODO`, and the lowercase `todo` counter beside them | Code, not a comment — and it names the placeholder that gate *refuses* |
 | Prose about markers | "as a TODO placeholder", "a TODO belongs in the roadmap, not here", the gate's own docstring and its CI step name | A sentence about markers is not one |
 
@@ -1508,7 +1508,7 @@ beside the verdict, and the gate's docstring and the CI step comment in
 three places cannot drift into three figures.
 
 Markdown is not scanned at all. Prose about the
-[historical task list](../../TODO.md) is not a marker, and treating it as one
+[historical task list](../history/v1/TODO.md) is not a marker, and treating it as one
 would make the gate unusable.
 
 ### What the gate reads, and how it finds a comment
@@ -1587,7 +1587,7 @@ there is nothing here for an owner to do.
 `tb/avtp_packet_gen_sv/tb_classes/avtp_adp_packet_gen.svh` carried
 `// TODO: find a way to make it better!!!` above the field-by-field assembly
 of an ADP entity from a byte queue, in the randomized packet-generator class
-library that [`docs/testing/TESTING.md`](../../docs/testing/TESTING.md) lists
+library that [`docs/testing/TESTING.md`](../testing/TESTING.md) lists
 as a development aid in progress. The first version of the gate could not see
 it, because `.svh` was not a type it read. It names no task — "better" is a
 wish, not a plan — so it is removed; the assembly it sat above is unchanged.
@@ -1610,7 +1610,7 @@ tests, and the driver did not call it: Python executes top to bottom, so when
 the driver ran the name was not bound yet, and calling it from there would
 have raised `NameError`. It was not dead. It was runnable and documented via
 import —
-[`docs/testing/RUNNING_TESTS.md`](../../docs/testing/RUNNING_TESTS.md) gives
+[`docs/testing/RUNNING_TESTS.md`](../testing/RUNNING_TESTS.md) gives
 `t.test_hs_livelock_orphan()` as its one-test example and lists the livelock
 probe among what the suite covers — and what it lacked was a place in the
 driver's run, so `python3 test_ring_bd.py` never exercised it. "Dead" was a

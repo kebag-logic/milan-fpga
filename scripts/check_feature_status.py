@@ -48,7 +48,12 @@ FACT_NON_OPERATION_TOKENS = {
     "NO_SUCH_DESCRIPTOR",
     "SUCCESS",
 }
-ARCHIVE_PARTS = {"historical_now_obsolete", "archive", "archived", "archives"}
+ARCHIVE_PARTS = {
+    "history",
+    "archive",
+    "archived",
+    "archives",
+}
 VERSION_SOURCE = REPO / "hdl/common/csr/milan_csr.sv"
 COMMAND_SOURCE = REPO / "tests/steps/aecp_engine_steps.py"
 FIRMWARE_SOURCE = REPO / "sw/firmware/milan_baremetal/milan_baremetal.c"
@@ -982,7 +987,7 @@ def run_self_test():
     cases.append(("obsolete banner", not is_active_document_text(obsolete,
                                                                   "old.md")))
     cases.append(("archive path", not is_active_document_text(
-        conflict, "historical_now_obsolete/old.md")))
+        conflict, "docs/history/v1/old.md")))
 
     version_text = "parameter logic [31:0] VERSION = 32'h0002_0051;"
     command_text = 'SERVED = {0: dict(name="READ_DESCRIPTOR")}\n'

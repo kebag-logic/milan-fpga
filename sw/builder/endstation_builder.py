@@ -2208,7 +2208,7 @@ def emit_adp_shape_svh(cfg, overlay=None):
     WHY THIS FILE EXISTS.  Until 2026-07-27 the ADPDU stream counts came from
     two hand-typed lines in a boot script, and the 8x8 board therefore
     advertised the 1x1 shape those lines were written for (1 talker source /
-    2 listener sinks) - see docs/findings/ADP_SHAPE_STATIC_0727.md.  Making
+    2 listener sinks) - see docs/ENDSTATION_BUILDER.md.  Making
     the registers read-only removed the runtime lie; putting the VALUES here
     is the other half, and the one the standing directive asks for: the
     declarative end-station config is the single definition, and it drives
@@ -4411,7 +4411,7 @@ def write_rtl_entity(cfg, adp_svh, paths):
     ONE FILE, not two.  This used to write the AEM descriptor ROM beside the
     shape include, on the reasoning that both describe the same entity and
     shipping one without the other is what let an 8x8 gateware carry a 1x1
-    descriptor set (docs/findings/ADP_SHAPE_STATIC_0727.md).  The ROM's
+    descriptor set (docs/ENDSTATION_BUILDER.md).  The ROM's
     destination - hdl/ieee17221/aecp/gen/ - is DELETED with the AECP plane,
     and writing a file into a directory that a deleted module used to compile
     would just recreate the directory and mislead the next reader.  The shape

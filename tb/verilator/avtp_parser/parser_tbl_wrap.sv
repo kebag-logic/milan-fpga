@@ -10,7 +10,7 @@
 
   Date        : 2026-07-26
   Description : Verilator harness wrapper for the RX listener VERDICT chain as
-                milan_datapath wires it (NXN_ARCHITECTURE §1.1): the
+                milan_datapath wires it (docs/overview/ARCHITECTURE.md): the
                 KL_stream_table authority (entry-0 ACMP alias + CSR-window
                 overrides) feeding avtp_stream_parser's N-way stream_id
                 compare, at a FULL-WIDTH index port so N=8 is expressible
