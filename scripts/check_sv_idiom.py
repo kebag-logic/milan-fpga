@@ -59,7 +59,8 @@ and under the two pinned project processors, through the shared scope helper
 the whole-file exceptions `scripts/lint_rtl.py` records in `LINT_EXCLUDE` with a
 reason each: the Vivado-generated `hdl/milan/milan_dma_wrapper.v` and the
 archived Zynq top `hdl/milan/milan_top.sv`. Nothing else is excluded. The
-generated headers under `hdl/common/csr/gen/` are INSIDE the gated set on
+generated headers under `hdl/common/gen/` and `hdl/common/csr/gen/` are
+INSIDE the gated set on
 purpose - a finding there is fixed in `sw/builder/endstation_builder.py`, which
 writes them, and the gate reading them is how a generator regression would be
 seen - and the vendored trees (`third_party/`, `external/`) are outside the

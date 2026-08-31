@@ -45,7 +45,15 @@ A="$R/third_party/verilog-axis/rtl"
 C="$R/hdl/common"; Q="$R/hdl/ieee8021q/ts"; P="$R/hdl/ieee8021as/ptp_timestamp"
 E="$R/hdl/common/eth_event_counter"; D="$R/hdl/ieee17221/adp"
 F="$R/hdl/ieee8021q/filtering"
-INC="-DSYNTHESIS -I $R/hdl/common -I $R/hdl/common/csr -I $Q -I $E -I $D -I $P"
+# The elaboration-shape config comes FIRST, exactly as syn/yosys/run.sh
+# orders it: milan_datapath and milan_csr both `include
+# "gen/adp_shape_defaults.svh" and neither has a copy beside it, so this
+# entry is what selects the shape -- for both, on every front end. Without
+# it this gate priced whichever config last ran --write-rtl, which is how
+# its figures came to describe a different entity than the one run.sh
+# elaborates.
+S="$R/configs/generated/endstation_arty_current"
+INC="-DSYNTHESIS -I $S -I $R/hdl/common -I $R/hdl/common/csr -I $Q -I $E -I $D -I $P"
 TMP="${OOC_TMP:-$(mktemp -d)}"; mkdir -p "$TMP"
 # An OOC_TMP the caller spelled RELATIVELY is resolved once, here. yosys runs
 # from a per-top run directory below, so it would resolve a relative $TMP

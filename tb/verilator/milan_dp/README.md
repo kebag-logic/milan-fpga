@@ -300,4 +300,4 @@ the tie-off, the measurement behind "unreachable", and where the coverage went.
   as a `[GAP]` line on every run, rather than left passing for the wrong reason.
 * **Name the shape.** Every leg puts its config's generated directory *first* on
   the include path. Without it the build falls through to
-  `hdl/common/csr/gen/`, which is whichever config last ran `--write-rtl`.
+  `hdl/common/gen/`, which is whichever config last ran `--write-rtl`.

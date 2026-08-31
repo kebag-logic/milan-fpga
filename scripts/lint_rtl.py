@@ -394,7 +394,7 @@ def include_dirs():
     The ENTITY SHAPE comes first. Lint elaborates every module at its DEFAULT
     parameters, and milan_datapath defaults to N_STREAMS = 1, so it must see
     the 1x1 entity definition - not whichever config was last written into
-    hdl/common/csr/gen/ by `endstation_builder.py --write-rtl`. Regenerating
+    hdl/common/gen/ by `endstation_builder.py --write-rtl`. Regenerating
     the tree for the 8x8 ship shape otherwise lints a 1-stream datapath
     against a 9-source entity, which milan_datapath's elaboration guard
     correctly rejects (and which, before that guard existed, showed up only

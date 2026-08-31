@@ -48,6 +48,21 @@ add_files -norecurse $rtl
 set_property file_type {SystemVerilog} [get_files -quiet *.sv]
 set_property file_type {Verilog Header} [get_files -quiet *.svh]
 
+# Include dirs, named rather than inferred. milan_datapath.sv and
+# milan_csr.sv both `include "gen/adp_shape_defaults.svh" and neither has
+# a copy beside it, so the header is reachable ONLY through this list --
+# hdl/common carries the tracked shape (hdl/common/gen/), whichever config
+# last ran endstation_builder.py --write-rtl. Prepend a
+# configs/generated/<cfg> entry here to build a different shape.
+set_property include_dirs [list \
+    [file join $REPO hdl common] \
+    [file join $REPO hdl common csr] \
+    [file join $REPO hdl common eth_event_counter] \
+    [file join $REPO hdl ieee17221 adp] \
+    [file join $REPO hdl ieee8021q ts] \
+    [file join $REPO hdl ieee8021as ptp_timestamp] \
+] [current_fileset]
+
 # --------------------------------------------------------------------------
 # 2. Block design (milan_dma) from the generated tcl, version-guard defused
 # --------------------------------------------------------------------------

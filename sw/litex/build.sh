@@ -252,7 +252,7 @@ done
 
 # ---- entity-definition gate (HARD, not advisory) --------------------------------
 # The gateware `include-s a GENERATED entity definition: the ADPDU stream counts
-# in hdl/common/csr/gen/adp_shape_defaults.svh, served read-only at 0x618/0x61C
+# in hdl/common/gen/adp_shape_defaults.svh, served read-only at 0x618/0x61C
 # and ALSO sizing the protocol processor's ACMP source/sink context arrays. It
 # comes from ONE end-station config via endstation_builder.py --write-rtl.
 # Until 2026-07-27 nothing checked WHICH config: the tree carried the 1x1 shape

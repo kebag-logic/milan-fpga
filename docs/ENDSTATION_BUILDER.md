@@ -110,7 +110,7 @@ plus, repo-level and single-sourced so nothing can drift:
 
 and, ONLY on an explicit `--write-rtl`, the ENTITY DEFINITION the gateware
 compiles in:
-    hdl/common/csr/gen/adp_shape_defaults.svh  the advertised stream counts +
+    hdl/common/gen/adp_shape_defaults.svh  the advertised stream counts +
                                                capabilities (RO 0x618/0x61C)
                                                AND the ACMP context sizing
     (no RTL path since 2026-08-13)             the AEM descriptor ROM svh. Still
@@ -751,7 +751,7 @@ trap and the next descriptor implementation will have the same shape:
 
 > **The golden header was written ONLY by `python3 avdecc/gen_aem_store.py`.**
 > The builder's `--write-rtl` wrote the ROM svh and
-> [`hdl/common/csr/gen/adp_shape_defaults.svh`](../hdl/common/csr/gen/adp_shape_defaults.svh)
+> [`hdl/common/gen/adp_shape_defaults.svh`](../hdl/common/gen/adp_shape_defaults.svh)
 > and **not** the golden. Regenerating one and not the other is what turned
 > the first D10 attempt red: measured 2026-07-28, the `aecp` suite reported
 > exactly **16 failures — `desc 0x0014[0..15] byte-exact off=42`**, one per

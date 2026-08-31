@@ -42,7 +42,7 @@ software loads the resulting aem_desc.bin before entity enable:
     definition the ADP shape counts (talker_stream_sources /
     listener_stream_sinks) and the ADP capability words are DERIVED from,
     and the builder's own self-consistency gates read it. Those counts reach
-    the gateware through hdl/common/csr/gen/adp_shape_defaults.svh, while the
+    the gateware through hdl/common/gen/adp_shape_defaults.svh, while the
     builder packs the descriptor bytes into the processor's DRAM image.
 
 Outputs (all generated, do not edit):
@@ -1619,7 +1619,7 @@ def emit_svh_text(M):
     a("// READ_DESCRIPTOR from the flat DRAM image emitted from this same model.")
     a("// The model also supplies the ADP")
     a("// shape - talker_stream_sources / listener_stream_sinks and the two")
-    a("// capability words - via hdl/common/csr/gen/adp_shape_defaults.svh.")
+    a("// capability words - via hdl/common/gen/adp_shape_defaults.svh.")
     a("")
     a(f"localparam int unsigned AEM_ROM_BYTES_C = {rom_size};")
     a(f"localparam int unsigned AEM_DESC_N_C    = {len(directory_)};")

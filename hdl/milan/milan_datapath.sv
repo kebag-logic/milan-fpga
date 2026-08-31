@@ -1527,7 +1527,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! serves them read-only at 0x618/0x61C, so the number a controller is
   //! told and the number of contexts that can answer it are ONE constant.
   //! Point +incdir at configs/generated/<config>/ to elaborate a different
-  //! shape; the tracked hdl/common/csr/gen/ copy is whichever config was
+  //! shape; the tracked hdl/common/gen/ copy is whichever config was
   //! last written with `endstation_builder.py --write-rtl`.
   `include "gen/adp_shape_defaults.svh"
   //! ACMP talker source contexts: the AAF talkers, then the CRF Media Clock

@@ -83,7 +83,7 @@ python3 "$R/scripts/check_sweep_shape.py" --board "$BOARD" \
         --config "$CFG" --num-streams "$NS" --rx-queues "$RXQ" --l2-bytes "$L2" \
         --opts "$OPTS"
 # SAME GATE, ONE LAYER UP: the gateware `include-s a GENERATED entity
-# definition - hdl/common/csr/gen/adp_shape_defaults.svh, the ADPDU stream
+# definition - hdl/common/gen/adp_shape_defaults.svh, the ADPDU stream
 # counts served RO at 0x618/0x61C and the sizing of the protocol processor's
 # ACMP source/sink context arrays. It is written by the builder FROM A CONFIG,
 # and until 2026-07-27 nothing checked that it was THIS config: the tracked

@@ -2113,7 +2113,7 @@ recorded decision rather than an omission:
   `LINT_EXCLUDE` records; they are quantified here so the exclusion is not a
   blind spot, and whoever revives the top pays them then.
 - **The generated CSR headers are gated on purpose.**
-  `hdl/common/csr/gen/adp_shape_defaults.svh` and
+  `hdl/common/gen/adp_shape_defaults.svh` and
   `hdl/common/csr/gen/lwsrp_csr_defaults.svh` are written by
   `sw/builder/endstation_builder.py`; they hold 32 and 7 typed localparams and
   no finding. They are inside the 120 rather than excluded, because a finding in

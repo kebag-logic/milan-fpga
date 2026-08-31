@@ -3839,9 +3839,14 @@ def test_csr_defaults_header_consumed():
          hdl/ieee8021q/srp/gen/lwsrp_table.svh is deleted with the srp tree,
          so it is two emitters compared, not two files) - one config, one pass;
       6. every build/sim/synth flow that compiles milan_csr.sv carries
-         hdl/common/csr as an include dir, so the `include always resolves
-         (Verilator searches -I/+incdir and the CWD only, NEVER the including
-         file's directory)."""
+         hdl/common as an include dir, so the `include always resolves.
+         This used to rest on Verilator's rule alone (it searches
+         -I/+incdir and the CWD only, NEVER the including file's
+         directory) while Vivado, yosys and sv2v bound the copy that sat
+         beside milan_csr.sv instead -- so a +incdir shape override
+         reached only milan_datapath on those three. The tracked copy now
+         lives in hdl/common/gen/, beside no includer, and
+         check_entity_shape.py arm H keeps it that way."""
     r = eb.build(CONFIGS["arty_current"], OUT)
     csr = open(MILAN_CSR_SV).read()
     # 1. staleness
