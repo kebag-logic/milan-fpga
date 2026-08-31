@@ -22,6 +22,18 @@ performance campaigns remain available in Git history (#259).
   that complete record.
 - The repository-wide bare-metal gate covers retired runtime-service tokens
   and tracked path classes with mutation-style self-tests.
+- The 802.1Q classifier, queue and 802.1Qav credit-based shaper chain and the
+  `ptp_ts_top` transmit/receive record stampers are no longer instantiated in
+  `milan_datapath`: their only packet source was the transmit path retired by
+  #259, and every product source joins the trunk after the point they
+  occupied. No CSR address moves: `CLS_*` (0x300), the CBS window
+  (0x400-0x49F) and `PTP_INGRESS/EGRESS_LAT` (0x540/0x544) are write-only
+  scratch; `CAP[8]`, `IRQ_STATUS[0]` and `TXARB_DIAG` lane 1 are structural
+  zero. The builder's `--cbs-queues-mask` lever retires with the chain. The
+  blocks stay verified stand-alone (their suites plus the new `datapath_wrap`
+  and `ptp_ts_top` Yosys tops); credit-shaping the fabric's own class-A
+  sources is a separate lane. `milan_datapath` drops from 1,789,792 to
+  1,608,952 Yosys cells.
 - Removed from the tracked tree under #259 (163 files, 57,135 lines,
   recoverable from Git history at `59ba6ffb`): the unattended campaign runner
   (36 files), the Vivado block-design sources, the Zynq-era top wrapper and PS
