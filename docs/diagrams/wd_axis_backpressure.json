@@ -1,0 +1,15 @@
+{
+  "head": {"text": "AXI-Stream transfer with three stalled cycles"},
+  "signal": [
+    {"name": "clk",      "wave": "p.........."},
+    {"name": "rst_n",    "wave": "01........."},
+    {"name": "tvalid",   "wave": "0.1.....0.."},
+    {"name": "tready",   "wave": "1...0..1..."},
+    {"name": "tdata",    "wave": "x.===...x..", "data": ["A", "B", "C"]},
+    {"name": "tkeep",    "wave": "x.=.....x..", "data": ["all bytes"]},
+    {"name": "tlast",    "wave": "0...1...0.."},
+    {"name": "accepted", "wave": "0.1.0..10.."}
+  ],
+  "foot": {"text": "Every payload sideband remains stable throughout backpressure"},
+  "config": {"hscale": 1}
+}
