@@ -83,7 +83,6 @@ TRUSTED_ACTION_USES = frozenset(
         "actions/cache@v4",
         "actions/checkout@v4",
         "actions/download-artifact@v4",
-        "actions/setup-node@v4",
         "actions/setup-python@v5",
         "actions/upload-artifact@v4",
     }
@@ -5297,7 +5296,6 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
             "docker-url.yml": "docker://alpine:3.20",
             "neutral-remote-action.yml": "example/setup@v1",
             "same-namespace-version-drift.yml": "actions/checkout@v5",
-            "setup-node-version-drift.yml": "actions/setup-node@v3",
             "neutral-local-action.yml": "./local-action",
         }
         local_action = repo / "local-action"

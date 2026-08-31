@@ -12,8 +12,10 @@ import subprocess
 import sys
 import tempfile
 import textwrap
+import xml.etree.ElementTree as ET
 from dataclasses import dataclass
 from pathlib import Path
+from unittest import mock
 
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -28,6 +30,9 @@ KNOWN_OMISSIONS = frozenset({
     ("hdl/ieee1722/aaf/KL_aaf_latency_taps.sv",
      "module", "KL_aaf_latency_taps"),
 })
+KNOWN_DIAGRAM_FALLBACKS = frozenset({
+    ("hdl/ieee1722/aaf/KL_pcm_tx.sv", "module", "KL_pcm_tx"),
+})
 DECLARATION_RE = re.compile(
     r"(?m)^[ \t]*(module|package|interface)[ \t]+"
     r"(?:automatic[ \t]+)?([A-Za-z_][A-Za-z0-9_$]*)\b")
@@ -35,6 +40,11 @@ SECTION_RE = re.compile(
     r'<h1 id="(?:entity|package)-[^"]+">'
     r'(Entity|Package):\s*([^<]+)</h1>')
 DIAGRAM_MARKER = '<h2 id="diagram">Diagram</h2>'
+SVG_TAG_RE = re.compile(r"<(/?)svg\b[^>]*?>", re.IGNORECASE | re.DOTALL)
+GRAPHIC_TAGS = frozenset({
+    "circle", "ellipse", "image", "line", "path", "polygon", "polyline",
+    "rect", "text", "use",
+})
 PRINT_STYLE = '''\
 <style id="milan-render-safety">
 svg { max-width: 100%; height: auto; }
@@ -90,6 +100,15 @@ class Census:
     files_unprocessed: int
     supported: tuple
     omissions: tuple
+
+
+@dataclass(frozen=True)
+class Section:
+    """One generated declaration section."""
+
+    kind: str
+    name: str
+    body: str
 
 
 def strip_comments(source):
@@ -288,17 +307,180 @@ def normalize_html(source, revision):
 
 
 def parsed_sections(source):
-    """Return each declaration section and its diagram presence."""
+    """Return generated declaration sections."""
     matches = tuple(SECTION_RE.finditer(source))
     sections = {}
     for index, match in enumerate(matches):
         end = matches[index + 1].start() if index + 1 < len(matches) else len(source)
         kind = "module" if match.group(1) == "Entity" else "package"
-        key = (kind, html.unescape(match.group(2)).strip())
+        name = html.unescape(match.group(2)).strip()
+        key = (kind, name)
         if key in sections:
             raise GenerationError(f"duplicate HTML section: {key}")
-        sections[key] = DIAGRAM_MARKER in source[match.end():end]
+        sections[key] = Section(kind, name, source[match.end():end])
     return sections
+
+
+def validate_svg(name, source):
+    """Require one parseable SVG containing graphical content."""
+    try:
+        root = ET.fromstring(source)
+    except ET.ParseError as exc:
+        raise GenerationError(
+            f"HTML module {name} contains malformed SVG: {exc}") from exc
+    if root.tag.rsplit("}", 1)[-1] != "svg":
+        raise GenerationError(f"HTML module {name} lacks an SVG root")
+    if "viewBox" not in root.attrib:
+        raise GenerationError(f"HTML module {name} SVG lacks a viewBox")
+    tags = {item.tag.rsplit("}", 1)[-1] for item in root.iter()}
+    if not tags.intersection(GRAPHIC_TAGS):
+        raise GenerationError(
+            f"HTML module {name} SVG lacks graphical content")
+
+
+def svg_blocks(source):
+    """Extract balanced SVG elements, including nested SVGs."""
+    blocks = []
+    depth = 0
+    start = None
+    for match in SVG_TAG_RE.finditer(source):
+        closing = bool(match.group(1))
+        self_closing = match.group(0).rstrip().endswith("/>")
+        if closing:
+            if depth == 0:
+                raise GenerationError("generated HTML has an unmatched SVG close")
+            depth -= 1
+            if depth == 0:
+                blocks.append(source[start:match.end()])
+                start = None
+        elif self_closing:
+            if depth == 0:
+                blocks.append(match.group(0))
+        else:
+            if depth == 0:
+                start = match.start()
+            depth += 1
+    if depth:
+        raise GenerationError("generated HTML has an unclosed SVG element")
+    return tuple(blocks)
+
+
+def validate_module_diagram(section):
+    """Require one structural diagram beneath one heading."""
+    heading_count = section.body.count(DIAGRAM_MARKER)
+    if heading_count != 1:
+        raise GenerationError(
+            f"HTML module {section.name} has {heading_count} diagram headings")
+    diagram = section.body.split(DIAGRAM_MARKER, 1)[1]
+    next_heading = diagram.find("<h2")
+    if next_heading >= 0:
+        diagram = diagram[:next_heading]
+    svgs = svg_blocks(diagram)
+    if len(svgs) != 1:
+        raise GenerationError(
+            f"HTML module {section.name} has {len(svgs)} SVG diagrams")
+    validate_svg(section.name, svgs[0])
+
+
+def module_ports(root, declaration):
+    """Extract ANSI port names for a compatibility diagram."""
+    path = root / declaration.path
+    try:
+        source = strip_comments(path.read_text(encoding="utf-8", errors="replace"))
+    except OSError as exc:
+        raise GenerationError(f"cannot read fallback source {path}: {exc}") from exc
+    match = re.search(
+        rf"(?m)^[ \t]*module[ \t]+{re.escape(declaration.name)}\b", source)
+    if match is None:
+        raise GenerationError(
+            f"fallback module declaration vanished: {declaration.name}")
+    header_end = source.find(");", match.end())
+    if header_end < 0:
+        raise GenerationError(
+            f"fallback module header is incomplete: {declaration.name}")
+    header = source[match.end():header_end]
+    ports = []
+    for line in header.splitlines():
+        direction = re.match(r"^[ \t]*(input|output|inout)\b", line)
+        if direction is None:
+            continue
+        names = re.findall(r"[A-Za-z_][A-Za-z0-9_$]*", line)
+        if len(names) < 2:
+            raise GenerationError(
+                f"fallback port cannot be parsed: {declaration.name}")
+        ports.append((direction.group(1), names[-1]))
+    if not ports:
+        raise GenerationError(
+            f"fallback module has no ANSI ports: {declaration.name}")
+    names = [name for _, name in ports]
+    if len(names) != len(set(names)):
+        raise GenerationError(
+            f"fallback module has duplicate ports: {declaration.name}")
+    return tuple(ports)
+
+
+def fallback_svg(root, declaration):
+    """Render an accessible SVG from current module ports."""
+    ports = module_ports(root, declaration)
+    inputs = [name for direction, name in ports if direction == "input"]
+    outputs = [name for direction, name in ports if direction != "input"]
+    rows = max(len(inputs), len(outputs), 1)
+    height = 100 + rows * 34
+    box_top = 42
+    box_height = height - 52
+    title_id = f"fallback-title-{declaration.name}"
+    parts = [
+        (f'<p><svg xmlns="http://www.w3.org/2000/svg" '
+         f'viewBox="0 0 960 {height}" role="img" '
+         f'aria-labelledby="{html.escape(title_id)}" '
+         'data-diagram-source="source-ports">'),
+        f'<title id="{html.escape(title_id)}">Port diagram for '
+        f'{html.escape(declaration.name)}</title>',
+        '<style>text{font:18px sans-serif;fill:#17233c}'
+        '.box{fill:#eef5ff;stroke:#275d9b;stroke-width:3}'
+        '.wire{stroke:#275d9b;stroke-width:2}</style>',
+        (f'<rect class="box" x="330" y="{box_top}" width="300" '
+         f'height="{box_height}" rx="18"/>'),
+        (f'<text x="480" y="76" text-anchor="middle" font-weight="700">'
+         f'{html.escape(declaration.name)}</text>'),
+    ]
+    for index, name in enumerate(inputs):
+        y = 116 + index * 34
+        parts.append(f'<line class="wire" x1="300" y1="{y}" x2="330" y2="{y}"/>')
+        parts.append(
+            f'<text x="292" y="{y + 6}" text-anchor="end">'
+            f'{html.escape(name)}</text>')
+    for index, name in enumerate(outputs):
+        y = 116 + index * 34
+        parts.append(f'<line class="wire" x1="630" y1="{y}" x2="660" y2="{y}"/>')
+        parts.append(
+            f'<text x="668" y="{y + 6}">{html.escape(name)}</text>')
+    parts.append("</svg></p>")
+    return "".join(parts)
+
+
+def add_fallback_diagrams(source, census, root,
+                          known_fallbacks=KNOWN_DIAGRAM_FALLBACKS):
+    """Fill only recorded TerosHDL compatibility gaps."""
+    matches = tuple(SECTION_RE.finditer(source))
+    sections = parsed_sections(source)
+    supported = {(item.kind, item.name): item for item in census.supported}
+    allowed = frozenset(known_fallbacks)
+    replacements = []
+    for index, (key, section) in enumerate(sections.items()):
+        if section.kind != "module" or svg_blocks(section.body):
+            continue
+        declaration = supported.get(key)
+        if declaration is None or declaration.key not in allowed:
+            continue
+        if section.body.count(DIAGRAM_MARKER) != 1:
+            continue
+        body_start = matches[index].end()
+        position = body_start + section.body.index(DIAGRAM_MARKER) + len(DIAGRAM_MARKER)
+        replacements.append((position, declaration, fallback_svg(root, declaration)))
+    for position, _, diagram in reversed(replacements):
+        source = source[:position] + diagram + source[position:]
+    return source, tuple(item.name for _, item, _ in replacements)
 
 
 def validate_html(source, census, revision, forbidden_paths=()):
@@ -332,11 +514,9 @@ def validate_html(source, census, revision, forbidden_paths=()):
         raise GenerationError(
             f"HTML declaration coverage changed; missing={missing}; "
             f"unexpected={unexpected}")
-    missing_diagrams = sorted(name for (kind, name), diagram in sections.items()
-                              if kind == "module" and not diagram)
-    if missing_diagrams:
-        raise GenerationError(
-            f"HTML modules lack diagrams: {missing_diagrams}")
+    for section in sections.values():
+        if section.kind == "module":
+            validate_module_diagram(section)
 
 
 def output_target(path, root):
@@ -358,7 +538,8 @@ def output_target(path, root):
 
 
 def generate(root, target_path, documenter, revision,
-             known_omissions=KNOWN_OMISSIONS):
+             known_omissions=KNOWN_OMISSIONS,
+             known_fallbacks=KNOWN_DIAGRAM_FALLBACKS):
     """Generate, validate, then atomically publish one reference."""
     target = output_target(target_path, root)
     census = source_census(root, known_omissions)
@@ -391,6 +572,8 @@ def generate(root, target_path, documenter, revision,
         index = stage / "index.html"
         source = index.read_text(encoding="utf-8")
         normalized = normalize_html(source, revision)
+        normalized, fallbacks = add_fallback_diagrams(
+            normalized, census, root, known_fallbacks)
         validate_html(normalized, census, revision,
                       (root.resolve(), stage.resolve(), target.resolve()))
         index.write_text(normalized, encoding="utf-8")
@@ -411,6 +594,7 @@ def generate(root, target_path, documenter, revision,
     print(f"Supported sections: {len(census.supported)} "
           f"({module_count} modules, {package_count} packages)")
     print(f"Module diagrams: {module_count}")
+    print(f"Source-derived fallback diagrams: {len(fallbacks)}")
     print("Known limitations:")
     for omission in census.omissions:
         print(f"  - {omission.path}: {omission.kind} {omission.name}")
@@ -433,15 +617,21 @@ def git_revision(root):
 
 
 def fake_html(revision_time="2026-08-31 12:34:56",
-              drop_section=None, drop_diagram=None, extra=""):
+              drop_section=None, drop_svg=None, extra=""):
     """Build a small documenter fixture for mutation tests."""
+    svg = ('<p><svg xmlns="http://www.w3.org/2000/svg" '
+           'viewBox="0 0 40 20"><rect width="40" height="20"/></svg></p>')
     rows = []
     for kind, name in (("module", "alpha"), ("package", "config_pkg"),
                        ("module", "first"), ("module", "legacy")):
         if name == drop_section:
             continue
         label = "Entity" if kind == "module" else "Package"
-        diagram = DIAGRAM_MARKER if kind == "module" and name != drop_diagram else ""
+        diagram = ""
+        if kind == "module":
+            diagram = DIAGRAM_MARKER
+            if name != drop_svg:
+                diagram += svg
         rows.append(
             f'<h1 id="{label.lower()}-{name}">{label}: {name}</h1>{diagram}')
     return (
@@ -488,7 +678,10 @@ def fixture_tree(base):
     hdl.mkdir(parents=True)
     (hdl / "one.sv").write_text(textwrap.dedent('''\
         // module ignored_line;
-        module alpha;
+        module alpha (
+          input wire clk_i,
+          output logic ready_o
+        );
           string note = "module ignored_string;";
         endmodule
     '''), encoding="utf-8")
@@ -523,6 +716,25 @@ def expect_error(name, action, phrase):
     raise AssertionError(f"{name}: mutation was accepted")
 
 
+def _unreadable_source(root):
+    """Inject one source-read failure."""
+    with mock.patch.object(Path, "read_text", side_effect=OSError("injected")):
+        declarations_in(root, root / "hdl" / "one.sv")
+
+
+def _failed_publication(root, target, documenter, revision, known):
+    """Inject an atomic publication failure."""
+    with mock.patch.object(os, "replace", side_effect=OSError("injected")):
+        generate(root, target, documenter, revision, known)
+
+
+def _mocked_git_revision(root, outputs):
+    """Run provenance logic against controlled Git answers."""
+    module = sys.modules[__name__]
+    with mock.patch.object(module, "run_process", side_effect=outputs):
+        git_revision(root)
+
+
 def run_selftest():
     """Exercise positive generation and independent refusal arms."""
     revision = "1" * 40
@@ -537,142 +749,330 @@ def run_selftest():
                 path, fake_html() if document is None else document, **options)
             return str(path)
 
+        def rejects(name, action, phrase):
+            expect_error(name, action, phrase)
+            arms.append(name)
+
+        fallback = frozenset({("hdl/one.sv", "module", "alpha")})
         positive = base / "positive"
-        census = generate(root, positive, tool("valid"), revision, known)
+        census = generate(
+            root, positive, tool("valid", fake_html(drop_svg="alpha")),
+            revision, known, fallback)
         assert len(census.supported) == 4
-        assert DOCUMENT_TITLE in (positive / "index.html").read_text(encoding="utf-8")
+        positive_html = (positive / "index.html").read_text(encoding="utf-8")
+        assert DOCUMENT_TITLE in positive_html
+        assert 'data-diagram-source="source-ports"' in positive_html
         arms.append("valid generation")
 
         normalized_fixture = normalize_html(fake_html(), revision)
-        expect_error(
-            "render safeguard",
-            lambda: validate_html(
-                normalized_fixture.replace(PRINT_STYLE, ""), census, revision),
-            "lacks rendering safeguards")
-        arms.append("render safeguard")
 
-        mutations = (
-            ("wrong version",
-             lambda: generate(root, base / "wrong-version",
-                              tool("wrong-version-tool", version="9.9.9"),
-                              revision, known),
-             "version must be"),
-            ("tool failure",
-             lambda: generate(root, base / "tool-failure",
-                              tool("failing-tool", fail=True), revision, known),
-             "failed with exit"),
-            ("missing summary",
-             lambda: generate(root, base / "missing-summary",
-                              tool("no-summary-tool", summary=False), revision, known),
-             "summary field"),
-            ("wrong summary",
-             lambda: generate(root, base / "wrong-summary",
-                              tool("wrong-summary-tool", summary_counts=(7, 5, 2)),
-                              revision, known),
-             "summary found="),
-            ("missing section",
-             lambda: generate(root, base / "missing-section",
-                              tool("missing-section-tool",
-                                   fake_html(drop_section="legacy")),
-                              revision, known),
-             "declaration coverage changed"),
-            ("missing diagram",
-             lambda: generate(root, base / "missing-diagram",
-                              tool("missing-diagram-tool",
-                                   fake_html(drop_diagram="alpha")),
-                              revision, known),
-             "lack diagrams"),
-            ("extra section",
-             lambda: generate(root, base / "extra-section",
-                              tool("extra-section-tool", fake_html(extra=(
-                                  '<h1 id="entity-surprise">Entity: surprise</h1>'
-                                  + DIAGRAM_MARKER))), revision, known),
-             "declaration coverage changed"),
-            ("path leak",
-             lambda: generate(root, base / "path-leak",
-                              tool("path-leak-tool",
-                                   fake_html(extra="file:///tmp/private/source.sv")),
-                              revision, known),
-             "absolute build path"),
-            ("private name",
-             lambda: generate(root, base / "private-name",
-                              tool("private-name-tool", fake_html(extra=(
-                                  "".join(chr(code) for code in
-                                          (68, 83, 50, 48, 68))))),
-                              revision, known),
-             "private device name"),
-            ("active content",
-             lambda: generate(root, base / "active-content",
-                              tool("active-content-tool",
-                                   fake_html(extra="<script>alert(1)</script>")),
-                              revision, known),
-             "active content"),
-            ("timestamp drift",
-             lambda: generate(root, base / "timestamp-drift",
-                              tool("timestamp-tool", fake_html(extra=(
-                                  "Project revision 2000-01-01 00:00:00<br><br>"))),
-                              revision, known),
-             "unexpected revision field"),
-            ("missing document head",
-             lambda: generate(root, base / "missing-head",
-                              tool("missing-head-tool",
-                                   fake_html().replace("</head>", "")),
-                              revision, known),
-             "no document head"),
-            ("extra output",
-             lambda: generate(root, base / "extra-output",
-                              tool("extra-output-tool", extra_file=True),
-                              revision, known),
-             "output set changed"),
-            ("inside repository",
-             lambda: generate(root, root / "generated",
-                              tool("inside-tool"), revision, known),
-             "outside the repository"),
-        )
-        for name, action, phrase in mutations:
-            expect_error(name, action, phrase)
-            arms.append(name)
+        rejects(
+            "unreadable source",
+            lambda: _unreadable_source(root),
+            "cannot read")
+
+        missing_root = base / "missing-root"
+        rejects(
+            "missing HDL directory",
+            lambda: source_census(missing_root, frozenset()),
+            "missing HDL source directory")
+
+        empty_root = base / "empty-root"
+        (empty_root / "hdl").mkdir(parents=True)
+        (empty_root / "hdl" / "only.svh").write_text(
+            "`define ONLY 1\n", encoding="utf-8")
+        rejects(
+            "empty parsed inventory",
+            lambda: source_census(empty_root, frozenset()),
+            "inventory is empty")
+
+        blank = root / "hdl" / "blank.sv"
+        blank.write_text("`default_nettype none\n", encoding="utf-8")
+        rejects(
+            "source without declaration",
+            lambda: source_census(root, known),
+            "contains no declaration")
+        blank.unlink()
+
+        rejects(
+            "missing executable",
+            lambda: run_process(
+                [str(base / "absent-documenter")], root, tool_environment()),
+            "cannot execute")
+        rejects(
+            "wrong version",
+            lambda: generate(root, base / "wrong-version",
+                             tool("wrong-version-tool", version="9.9.9"),
+                             revision, known),
+            "version must be")
+        rejects(
+            "tool failure",
+            lambda: generate(root, base / "tool-failure",
+                             tool("failing-tool", fail=True), revision, known),
+            "failed with exit")
+        rejects(
+            "missing summary",
+            lambda: generate(root, base / "missing-summary",
+                             tool("no-summary-tool", summary=False), revision, known),
+            "summary field")
+        rejects(
+            "wrong summary",
+            lambda: generate(root, base / "wrong-summary",
+                             tool("wrong-summary-tool", summary_counts=(7, 5, 2)),
+                             revision, known),
+            "summary found=")
+
+        rejects(
+            "invalid requested revision",
+            lambda: normalize_html(fake_html(), "not-a-revision"),
+            "invalid source revision")
+        rejects(
+            "unexpected document heading",
+            lambda: normalize_html(
+                fake_html().replace("Documentation for:", "Changed"), revision),
+            "unexpected document heading")
+        rejects(
+            "unexpected revision field",
+            lambda: normalize_html(
+                fake_html(extra=(
+                    "Project revision 2000-01-01 00:00:00<br><br>")), revision),
+            "unexpected revision field")
+        rejects(
+            "missing document head",
+            lambda: normalize_html(fake_html().replace("</head>", ""), revision),
+            "no document head")
+
+        def validates(document, forbidden_paths=()):
+            return validate_html(document, census, revision, forbidden_paths)
+
+        duplicate = normalized_fixture + (
+            '<h1 id="entity-alpha-copy">Entity: alpha</h1>'
+            + DIAGRAM_MARKER
+            + '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1">'
+              '<rect width="1" height="1"/></svg>')
+        rejects("duplicate section", lambda: validates(duplicate),
+                "duplicate HTML section")
+        rejects(
+            "missing visible title",
+            lambda: validates(normalized_fixture.replace(
+                f"<h1>{DOCUMENT_TITLE}</h1>", "<h1>Missing</h1>")),
+            "lacks its visible title")
+        rejects(
+            "missing browser title",
+            lambda: validates(normalized_fixture.replace(
+                f"<title>{DOCUMENT_TITLE}</title>", "<title>Missing</title>")),
+            "lacks its browser title")
+        rejects(
+            "missing provenance",
+            lambda: validates(normalized_fixture.replace(revision, "2" * 40)),
+            "lacks exact source provenance")
+        rejects(
+            "render safeguard",
+            lambda: validates(normalized_fixture.replace(PRINT_STYLE, "")),
+            "lacks rendering safeguards")
+        rejects(
+            "retained timestamp",
+            lambda: validates(normalized_fixture + "Project revision stale"),
+            "retains a generated timestamp")
+        rejects(
+            "absolute path leak",
+            lambda: validates(normalized_fixture + "file:///tmp/private/source.sv"),
+            "absolute build path")
+        sealed = Path("/sealed/generation")
+        rejects(
+            "generation directory leak",
+            lambda: validates(normalized_fixture + str(sealed), (sealed,)),
+            "generation directory")
+        private_name = "".join(chr(code) for code in (68, 83, 50, 48, 68))
+        rejects(
+            "private name",
+            lambda: validates(normalized_fixture + private_name),
+            "private device name")
+        rejects(
+            "active content",
+            lambda: validates(normalized_fixture + "<script>alert(1)</script>"),
+            "active content")
+        rejects(
+            "missing section",
+            lambda: validates(normalize_html(
+                fake_html(drop_section="legacy"), revision)),
+            "declaration coverage changed")
+        extra_section = (
+            '<h1 id="entity-surprise">Entity: surprise</h1>' + DIAGRAM_MARKER
+            + '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1">'
+              '<rect width="1" height="1"/></svg>')
+        rejects(
+            "extra section",
+            lambda: validates(normalize_html(
+                fake_html(extra=extra_section), revision)),
+            "declaration coverage changed")
+        rejects(
+            "heading without SVG",
+            lambda: validates(normalize_html(fake_html(drop_svg="legacy"), revision)),
+            "has 0 SVG diagrams")
+        rejects(
+            "duplicate diagram heading",
+            lambda: validates(normalized_fixture.replace(
+                DIAGRAM_MARKER, DIAGRAM_MARKER + DIAGRAM_MARKER, 1)),
+            "has 2 diagram headings")
+        valid_svg = ('<svg xmlns="http://www.w3.org/2000/svg" '
+                     'viewBox="0 0 40 20"><rect width="40" height="20"/></svg>')
+        rejects(
+            "malformed SVG",
+            lambda: validates(normalized_fixture.replace(
+                valid_svg,
+                '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1">'
+                '<rect></svg>', 1)),
+            "malformed SVG")
+        rejects(
+            "SVG without viewBox",
+            lambda: validates(normalized_fixture.replace(
+                ' viewBox="0 0 40 20"', "", 1)),
+            "SVG lacks a viewBox")
+        rejects(
+            "empty SVG",
+            lambda: validates(normalized_fixture.replace(
+                '<rect width="40" height="20"/>', "<metadata/>", 1)),
+            "lacks graphical content")
+        rejects(
+            "non-SVG root",
+            lambda: validate_svg(
+                "alpha", '<g viewBox="0 0 1 1"><rect/></g>'),
+            "lacks an SVG root")
+        rejects(
+            "unmatched SVG close",
+            lambda: svg_blocks("</svg>"),
+            "unmatched SVG close")
+        rejects(
+            "unclosed SVG",
+            lambda: svg_blocks('<svg viewBox="0 0 1 1">'),
+            "unclosed SVG element")
+
+        fallback_root = base / "fallback-fixtures"
+        fallback_hdl = fallback_root / "hdl"
+        fallback_hdl.mkdir(parents=True)
+        rejects(
+            "unreadable fallback source",
+            lambda: module_ports(
+                fallback_root,
+                Declaration("hdl/missing.sv", "module", "missing")),
+            "cannot read fallback source")
+        vanished = fallback_hdl / "vanished.sv"
+        vanished.write_text("module present(); endmodule\n", encoding="utf-8")
+        rejects(
+            "vanished fallback declaration",
+            lambda: module_ports(
+                fallback_root,
+                Declaration("hdl/vanished.sv", "module", "absent")),
+            "declaration vanished")
+        incomplete = fallback_hdl / "incomplete.sv"
+        incomplete.write_text("module incomplete (input wire clk_i\n",
+                              encoding="utf-8")
+        rejects(
+            "incomplete fallback header",
+            lambda: module_ports(
+                fallback_root,
+                Declaration("hdl/incomplete.sv", "module", "incomplete")),
+            "header is incomplete")
+        bad_port = fallback_hdl / "bad_port.sv"
+        bad_port.write_text("module bad_port (\ninput,\n); endmodule\n",
+                            encoding="utf-8")
+        rejects(
+            "unparseable fallback port",
+            lambda: module_ports(
+                fallback_root,
+                Declaration("hdl/bad_port.sv", "module", "bad_port")),
+            "port cannot be parsed")
+        no_ports = fallback_hdl / "no_ports.sv"
+        no_ports.write_text("module no_ports (); endmodule\n", encoding="utf-8")
+        rejects(
+            "fallback without ports",
+            lambda: module_ports(
+                fallback_root,
+                Declaration("hdl/no_ports.sv", "module", "no_ports")),
+            "has no ANSI ports")
+        duplicates = fallback_hdl / "duplicates.sv"
+        duplicates.write_text(
+            "module duplicates (\ninput wire same,\noutput logic same\n);\n"
+            "endmodule\n", encoding="utf-8")
+        rejects(
+            "duplicate fallback ports",
+            lambda: module_ports(
+                fallback_root,
+                Declaration("hdl/duplicates.sv", "module", "duplicates")),
+            "has duplicate ports")
+
+        rejects(
+            "extra output",
+            lambda: generate(root, base / "extra-output",
+                             tool("extra-output-tool", extra_file=True),
+                             revision, known),
+            "output set changed")
+        rejects(
+            "inside repository",
+            lambda: generate(root, root / "generated",
+                             tool("inside-tool"), revision, known),
+            "outside the repository")
+
+        symlink = base / "output-symlink"
+        symlink.symlink_to(base / "symlink-target")
+        rejects(
+            "symbolic output",
+            lambda: output_target(symlink, root),
+            "symbolic link")
+
+        nondirectory = base / "output-file"
+        nondirectory.write_text("preserve", encoding="utf-8")
+        rejects(
+            "nondirectory output",
+            lambda: output_target(nondirectory, root),
+            "not a directory")
 
         nonempty = base / "nonempty"
         nonempty.mkdir()
         marker = nonempty / "keep.txt"
         marker.write_text("keep", encoding="utf-8")
-        expect_error(
+        rejects(
             "non-empty preservation",
             lambda: generate(root, nonempty, tool("nonempty-tool"), revision, known),
             "not empty")
         assert marker.read_text(encoding="utf-8") == "keep"
-        arms.append("non-empty preservation")
 
         failed_target = base / "failed-publish"
-        expect_error(
+        rejects(
             "failed publication",
-            lambda: generate(root, failed_target,
-                             tool("failed-publish-tool", fail=True), revision, known),
-            "failed with exit")
+            lambda: _failed_publication(
+                root, failed_target, tool("failed-publish-tool"), revision, known),
+            "cannot publish generated documentation")
         assert not failed_target.exists()
-        arms.append("failed publication")
 
         new_interface = root / "hdl" / "new_interface.sv"
         new_interface.write_text(
             "interface surprise_if; endinterface\n", encoding="utf-8")
-        expect_error(
+        rejects(
             "exception growth",
             lambda: source_census(root, known),
             "new exceptions")
         new_interface.unlink()
-        arms.append("exception growth")
 
         interface = root / "hdl" / "bus.sv"
         original = interface.read_text(encoding="utf-8")
         interface.write_text(
             "interface renamed_if; endinterface\n", encoding="utf-8")
-        expect_error(
+        rejects(
             "changed exception",
             lambda: source_census(root, known),
             "changed exceptions")
         interface.write_text(original, encoding="utf-8")
-        arms.append("changed exception")
+
+        rejects(
+            "dirty HDL provenance",
+            lambda: _mocked_git_revision(root, [" M hdl/one.sv\n"]),
+            "HDL sources are dirty")
+        rejects(
+            "invalid Git revision",
+            lambda: _mocked_git_revision(root, ["", "not-a-revision\n"]),
+            "git returned an invalid revision")
 
     print(f"TerosHDL generator self-test: {len(arms)}/{len(arms)} arms passed")
 

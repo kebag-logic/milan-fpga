@@ -45,8 +45,9 @@ TerosHDL builds detailed module pages.
 - Sources: first-party `hdl/` files.
 - Output: one self-contained HTML file.
 - Default: `/tmp/milan-teroshdl-doc/index.html`.
-- Runtime: Node 22.
+- Runtime: Node `22.23.2`.
 - Version: TerosHDL `2.0.3`.
+- CI verifies the official runtime archive checksum.
 
 Install locked dependencies beneath `/tmp`:
 
@@ -74,7 +75,12 @@ python3 scripts/gen_teroshdl.py \
 The wrapper validates source coverage:
 
 - Expectations derive from current sources.
-- Every supported module receives one diagram.
+- Every supported module receives one validated SVG.
+- Validators inspect SVG structure and graphical content.
+- One source-derived fallback covers `KL_pcm_tx`.
+- Its TerosHDL parser currently drops module structure.
+- The fallback lists current ANSI ports.
+- Unrecorded diagram gaps stop generation.
 - Interfaces lack standalone TerosHDL sections.
 - Only first declarations receive file sections.
 - Known exceptions remain exact.

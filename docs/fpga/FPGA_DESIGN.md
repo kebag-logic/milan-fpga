@@ -391,7 +391,8 @@ toolchain: [Section 4.5 of ../integration/PORTING_GUIDE.md](../integration/PORTI
 
 - RTL `//!` comments remain authoritative.
 - [`gen_teroshdl.py`](../../scripts/gen_teroshdl.py) builds one HTML reference.
-- The wrapper validates source and diagram coverage.
+- The wrapper validates source and SVG structure.
+- One recorded module uses a port-derived fallback.
 - Generated HTML remains outside Git.
 - Historical module pages may lag current sources.
 - Never treat generated output as specification.

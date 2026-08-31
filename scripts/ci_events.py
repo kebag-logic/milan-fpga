@@ -425,7 +425,7 @@ CHECKOUT_WITH_ALLOWED = {"fetch-depth": CHECKOUT_FETCH_DEPTH}
 ENV_FILE_NAMES = ("GITHUB_ENV", "GITHUB_PATH")
 RECORDED_ACTIONS = frozenset({
     "actions/checkout@v4", "actions/cache@v4", "actions/setup-python@v5",
-    "actions/setup-node@v4", "actions/upload-artifact@v4",
+    "actions/upload-artifact@v4",
     "actions/download-artifact@v4",
 })
 #: Step-level env names each job's steps may carry, across all of its steps.
