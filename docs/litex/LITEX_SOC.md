@@ -72,7 +72,7 @@ flowchart LR
         PHY["LiteEthPHYGMII<br/>→ RTL8211E"]
     end
 
-    subgraph MCD["cd_milan — own PLL output, 100 MHz in the ship build"]
+    subgraph MCD["cd_milan — own PLL output, 50 MHz deployed"]
         DP["milan_datapath<br/>real RTL from _MILAN_DATAPATH_SOURCES"]
     end
 
@@ -102,10 +102,9 @@ flowchart LR
 requires it), plus `sys4x`/`sys4x_dqs` + 200 MHz `idelay`/`S7IDELAYCTRL` for
 the `A7DDRPHY`.
 
-With `--milan-clk-freq` the Milan datapath gets its **own clock domain**
-(`cd_milan`, 100 MHz in the current ship build; the SUPERSEDED perf-lineage
-builds ran it at 50 MHz to lift the dense CBS/TCAM/PTP logic off the sys
-timing budget): a 64-bit datapath at 100 MHz (6.4 Gb/s) far outruns 1 GbE.
+With `--milan-clk-freq` the Milan datapath gets its **own clock domain**.
+The deployed recipe selects 50 MHz for `cd_milan`. The 100 MHz `sys` domain
+still serves LiteX and DDR3. A 64-bit datapath at 50 MHz provides 3.2 Gb/s.
 
 The crossings:
 
@@ -176,10 +175,10 @@ only.
 Both named cores remain available.
 
 <!-- solution-cpu-contract:start -->
-| Invocation | CPU | Harts | XLEN | Firmware | L2 bytes |
-|---|---|---:|---:|---|---:|
-| CLI defaults | `vexiiriscv` | `1` | `32` | `baremetal` | `unset` |
-| `deploy.sh` | `vexiiriscv` | `1` | `32` | `baremetal` | `0` |
+| Invocation | CPU | Harts | XLEN | Firmware | L2 bytes | Datapath clock |
+|---|---|---:|---:|---|---:|---:|
+| CLI defaults | `vexiiriscv` | `1` | `32` | `baremetal` | `unset` | `unset` |
+| `deploy.sh` | `vexiiriscv` | `1` | `32` | `baremetal` | `0` | `50 MHz` |
 <!-- solution-cpu-contract:end -->
 
 - VexiiRiscv is the product and CLI default.
@@ -232,19 +231,13 @@ hand-check only.
 
 ```sh
 cd sw/litex
-# ship shape: 1-hart VexiiRiscv + L2-32K, datapath @ 100 MHz
-./milan_soc.py --all-blocks --coherent-dma --milan-clk-freq 100e6 \
-               --gtx-tx-invert --timing-opt --cpu vexiiriscv --l2-bytes 32768
-               # add --build to run Vivado P&R; without it, elaboration +
-               # gateware/Verilog export runs with NO vendor tools
-               # (SUPERSEDED perf-lineage: --cpu-count 2 for dual-hart SMP / L2-64K)
-./milan_soc.py ... --build     # Vivado bitstream
-./milan_soc.py ... --load      # openFPGALoader -c ft232 (JTAG -> SRAM)
+./deploy.sh build --dry-run    # inspect the exact product recipe
+./deploy.sh build              # build the product bitstream
+./deploy.sh load               # load the newest bitstream
 ```
 
-Or just `./deploy.sh` (build + load + console) / `./deploy.sh load` etc. -
-`deploy.sh` carries the verified `MILAN_OPTS` and the JTAG/console device
-identification for the AX7101.
+`deploy.sh` owns the verified product options. Its `MILAN_OPTS` assignment is
+the canonical deployment recipe for the AX7101.
 
 Vivado is currently the **only P&R backend wired up for this board** (the
 platform is instantiated with `toolchain="vivado"`). Elaboration-only runs
@@ -257,7 +250,7 @@ in [Section 6.1 of ../integration/PORTING_GUIDE.md](../integration/PORTING_GUIDE
 |---|---|
 | `--coherent-dma` | **NOT implied by `--all-blocks`.** Without it the DMA masters bypass the CPU's snooping `dma_bus`: RX buffers are never CPU-visible (all-zero skbs, every frame dropped) and TX reads stale data (garbage dst MAC). Hardware-confirmed 2026-07-04 |
 | `--gtx-tx-invert` | AX7101/RTL8211E GMII: edge-aligned TX launch is hold-marginal → 25-40 % corrupt frames; inverted (mid-bit) sampling → 0. Needs the LiteEth patch (Section 6) |
-| `--milan-clk-freq 100e6` | Puts the datapath in its own `cd_milan` domain; the ship shape closes timing at 100e6 (SUPERSEDED perf-lineage builds used 50e6 to lift the dense CBS/TCAM/PTP logic off the sys budget, where the CBS block is the critical path) |
+| `--milan-clk-freq 50e6` | Puts the deployed datapath in its own `cd_milan` domain while LiteX and DDR3 retain their configured system clock |
 | `--all-blocks` | NIC+DMA+MAC+DDR3 in one build; implies `--with-spiflash` |
 
 ## 5. Simulation (`milan_sim.py`)

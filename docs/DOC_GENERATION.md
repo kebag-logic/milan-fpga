@@ -51,13 +51,22 @@ Prefer generators for source-derived facts.
 ```sh
 python3 docs/DOC_MAP.gen.py
 python3 docs/DOC_MAP.gen.py --check
+python3 docs/DOC_MAP.gen.py --selftest
 python3 docs/diagrams/submodule_boundaries.gen.py
 python3 docs/diagrams/submodule_boundaries.gen.py --check
+python3 docs/diagrams/submodule_boundaries.gen.py --selftest
 ```
 
 The generators also write source-bound PNG renders.
 
 They require `rsvg-convert`.
+
+`PNG_MANIFEST.json` pins decompressed raster bytes.
+
+- PNG compression changes remain acceptable.
+- Local renderer pixels are never compared.
+- Renderer changes may alter the pinned raster.
+- Regenerate and visually approve those changes.
 
 Directly export changed Draw.io masters.
 
@@ -116,7 +125,7 @@ Generate current timing diagrams.
   docs/diagrams/wd_cdc_handshake.json --background=white
 ```
 
-Check committed renders deterministically.
+Check committed sources and reviewed raster evidence.
 
 ```sh
 /tmp/milan-wavedrom/bin/python3 scripts/gen_wavedrom.py \
@@ -124,6 +133,11 @@ Check committed renders deterministically.
 /tmp/milan-wavedrom/bin/python3 scripts/gen_wavedrom.py \
   docs/diagrams/wd_cdc_handshake.json --background=white --check
 ```
+
+- WaveDrom SVG output remains deterministic.
+- PNG raster evidence uses the shared manifest.
+- Different renderer versions may change raster output.
+- Such changes require regeneration and visual approval.
 
 White backgrounds protect dark-theme readability.
 

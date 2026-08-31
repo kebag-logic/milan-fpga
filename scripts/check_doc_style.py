@@ -21,6 +21,7 @@ DOCUMENTS = (
     ROOT / "docs" / "guides" / "VERIFICATION_DEVELOPER.md",
     ROOT / "docs" / "guides" / "SYSTEM_INTEGRATOR.md",
     ROOT / "docs" / "guides" / "PROJECT_MANAGER.md",
+    ROOT / "docs" / "integration" / "INTEGRATION_GUIDE.md",
     ROOT / "docs" / "reference" / "SUBMODULES.md",
     ROOT / "docs" / "DOCUMENTATION_AUDIT.md",
     ROOT / "docs" / "history" / "v1" / "README.md",

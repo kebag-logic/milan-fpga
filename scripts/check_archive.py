@@ -10,7 +10,7 @@ import subprocess
 import sys
 import tempfile
 from collections import Counter
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 
 
@@ -26,6 +26,7 @@ STATUS_RE = re.compile(r"^> Status: Historical$", re.MULTILINE)
 ORIGINAL_RE = re.compile(r"^> Original path: `([^`]+)`$", re.MULTILINE)
 ARCHIVED_RE = re.compile(r"^> Archived: (\d{4}-\d{2}-\d{2})$", re.MULTILINE)
 RELOCATED_RE = re.compile(r"^> Relocated: (\d{4}-\d{2}-\d{2})$", re.MULTILINE)
+REPLACED_RE = re.compile(r"^> Replaced in place: yes$", re.MULTILINE)
 SUCCESSOR_RE = re.compile(
     r"^> Current successor: \[[^\]]+]\(([^)]+)\)$", re.MULTILINE
 )
@@ -37,6 +38,7 @@ class Metadata:
     archived: str
     relocated: str
     successor: Path
+    replaced_in_place: bool
 
 
 def tracked_markdown() -> list[str]:
@@ -96,7 +98,7 @@ def parse_metadata(path: Path) -> tuple[Metadata | None, list[str]]:
         errors.append(f"{relative}: missing current successor")
     else:
         successor_path = resolve_link(path, successor.group(1))
-        if successor_path is None or not successor_path.exists():
+        if successor_path is None or not successor_path.is_file():
             errors.append(f"{relative}: current successor does not exist")
     if errors:
         return None, errors
@@ -105,6 +107,7 @@ def parse_metadata(path: Path) -> tuple[Metadata | None, list[str]]:
         archived.group(1),
         relocated.group(1),
         successor_path,
+        REPLACED_RE.search(head) is not None,
     ), []
 
 
@@ -126,6 +129,15 @@ def index_rows(index: Path = INDEX) -> list[tuple[Path, Path, str]]:
 def link_is_marked(text: str) -> bool:
     lowered = text.lower()
     return any(word in lowered for word in ("archiv", "histor", "obsolete"))
+
+
+def valid_in_place_replacement(metadata: Metadata, original: Path) -> bool:
+    """Accept only a real document replacing its exact historical path."""
+    return (
+        metadata.replaced_in_place
+        and original == metadata.successor
+        and original.is_file()
+    )
 
 
 def selftest() -> int:
@@ -160,12 +172,47 @@ def selftest() -> int:
         if errors or metadata is None or metadata.original != "old.md":
             print(f"archive selftest: valid fixture failed: {errors}")
             return 1
+        replaced = good.replace(
+            "> Current successor:",
+            "> Replaced in place: yes\n>\n> Current successor:",
+        )
+        page.write_text(replaced, encoding="utf-8")
+        metadata, errors = parse_metadata(page)
+        if errors or metadata is None or not metadata.replaced_in_place:
+            print(f"archive selftest: replacement metadata failed: {errors}")
+            return 1
         for name, (old, new) in mutations.items():
             page.write_text(good.replace(old, new, 1), encoding="utf-8")
             _metadata, errors = parse_metadata(page)
             if not errors:
                 print(f"archive selftest: {name} mutation escaped")
                 return 1
+        valid_replacement = Metadata(
+            "current.md",
+            "2026-08-01",
+            "2026-08-31",
+            current.resolve(),
+            True,
+        )
+        if not valid_in_place_replacement(valid_replacement, current.resolve()):
+            print("archive selftest: valid in-place replacement failed")
+            return 1
+        if valid_in_place_replacement(
+            replace(valid_replacement, replaced_in_place=False), current.resolve()
+        ):
+            print("archive selftest: unmarked in-place replacement escaped")
+            return 1
+        if valid_in_place_replacement(
+            replace(valid_replacement, successor=page.resolve()), current.resolve()
+        ):
+            print("archive selftest: mismatched in-place successor escaped")
+            return 1
+        missing = root / "missing.md"
+        if valid_in_place_replacement(
+            replace(valid_replacement, successor=missing), missing
+        ):
+            print("archive selftest: missing in-place successor escaped")
+            return 1
         index = root / "README.md"
         index.write_text(
             "| Historical page | Current successor |\n"
@@ -183,7 +230,7 @@ def selftest() -> int:
     if link_is_marked("old result"):
         print("archive selftest: unmarked link passed")
         return 1
-    print("archive selftest: OK (10 controls)")
+    print("archive selftest: OK (15 controls)")
     return 0
 
 
@@ -210,9 +257,15 @@ def main() -> int:
         if parsed is not None:
             metadata[page.resolve()] = parsed
             originals.append(parsed.original)
-            if (REPO / parsed.original).exists():
+            original = (REPO / parsed.original).resolve()
+            replaced_here = valid_in_place_replacement(parsed, original)
+            if original.exists() and not replaced_here:
                 problems.append(
                     f"{page.relative_to(REPO)}: original path still exists"
+                )
+            if parsed.replaced_in_place and not replaced_here:
+                problems.append(
+                    f"{page.relative_to(REPO)}: invalid in-place replacement"
                 )
         if listing:
             print(f"  {'ok' if not errors else 'BAD':<4} {page.relative_to(ARCHIVE)}")

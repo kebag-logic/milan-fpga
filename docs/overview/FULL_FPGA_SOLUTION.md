@@ -142,10 +142,10 @@ Companion documents:
 ```
 
 <!-- solution-cpu-contract:start -->
-| Invocation | CPU | Harts | XLEN | Firmware | L2 bytes |
-|---|---|---:|---:|---|---:|
-| CLI defaults | `vexiiriscv` | `1` | `32` | `baremetal` | `unset` |
-| `deploy.sh` | `vexiiriscv` | `1` | `32` | `baremetal` | `0` |
+| Invocation | CPU | Harts | XLEN | Firmware | L2 bytes | Datapath clock |
+|---|---|---:|---:|---|---:|---:|
+| CLI defaults | `vexiiriscv` | `1` | `32` | `baremetal` | `unset` | `unset` |
+| `deploy.sh` | `vexiiriscv` | `1` | `32` | `baremetal` | `0` | `50 MHz` |
 <!-- solution-cpu-contract:end -->
 
 - **VexiiRiscv** provides the product CPU.
@@ -238,7 +238,7 @@ wedging the responder.
 | **DDR3-800 memtest (M-A1)** | ✅ **on silicon** (100 MHz via datapath CDC) | `evidence/hw_ddr3_800_cdc_100mhz.log` |
 | Section A.6 DMA (AXIS↔memory, simple-mode CSRs) | ✅ DMA-TX + AXIS-CDC verified on silicon (M-A3 half) | `evidence/hw_ma3_dma_datapath_100mhz.md` |
 | Section A.7 MAC + PHY (LiteEth **GMII**  -  AX7101 is GMII, not RGMII) | ✅ **on silicon**  -  correct frames both directions (M-A3) | `milan_soc.py --all-blocks`; TROUBLESHOOTING Section 17; the retired MAC TX bring-up finding (#259, in git history) |
-| **Full SoC (`--all-blocks`: NIC+DMA+MAC+DDR3 @100 MHz)** | ✅ boots on silicon | `deploy.sh` |
+| **Full SoC (`--all-blocks`: NIC+DMA+MAC+DDR3, deployed clock recipe)** | ✅ boots on silicon | `deploy.sh` |
 | Control plane (ADP + ACMP + SRP) in fabric | ✅ in fabric, unconditional | [`hdl/milan/KL_pp_shadow.sv`](../../hdl/milan/KL_pp_shadow.sv) over the pinned `protocol-processor` submodule; harness [`tb/verilator/pp_shadow`](../../tb/verilator/pp_shadow) |
 | MAAP | ✅ in fabric, silicon-validated | [`hdl/ieee1722/maap/`](../../hdl/ieee1722/maap) + [`hdl/milan/KL_pp_maap_shim.sv`](../../hdl/milan/KL_pp_maap_shim.sv); the ALLOC_DA success **is** the talker DA gate |
 | **AECP / AEM enumeration** | ✅ **responder and image supply chain implemented**. `READ_DESCRIPTOR` serves the builder-generated DRAM image with command-specific success and error statuses | processor AECP uCPU, end-station builder image artifacts, and board-side `aemi-load`; see the preamble |

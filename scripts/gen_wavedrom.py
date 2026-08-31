@@ -20,7 +20,8 @@ Two dependencies, neither of them project-specific:
 SVG rendering is deterministic.
 
 PNG files carry their JSON and generated-SVG hashes.
-Raster bytes may vary across librsvg and font versions.
+The shared manifest pins reviewed decompressed rasters.
+Renderer changes require regeneration and visual review.
 """
 import hashlib
 import shutil
@@ -37,6 +38,8 @@ from png_artifact import (
     inspect_png,
     set_text_fields,
     source_digest,
+    update_pixel_manifest,
+    verify_pixel_manifest,
 )
 
 try:
@@ -49,6 +52,28 @@ except ImportError:                                          # pragma: no cover
 
 PNG_HASH_KEY = "WaveDrom-SVG-SHA256"
 PNG_SOURCE_HASH_KEY = "Milan-WaveDrom-JSON-SHA256"
+ROOT = Path(__file__).resolve().parents[1]
+MANIFEST = ROOT / "docs" / "diagrams" / "PNG_MANIFEST.json"
+TRACKED_RASTERS = {
+    "docs/diagrams/wd_axis_backpressure.png": (
+        "docs/diagrams/wd_axis_backpressure.json"
+    ),
+    "docs/diagrams/wd_cdc_handshake.png": (
+        "docs/diagrams/wd_cdc_handshake.json"
+    ),
+}
+
+
+def tracked_names(output: Path, source: Path) -> tuple[str, str] | None:
+    """Return manifest names for a published WaveDrom pair."""
+    try:
+        artifact_name = output.resolve().relative_to(ROOT).as_posix()
+        source_name = source.resolve().relative_to(ROOT).as_posix()
+    except ValueError:
+        return None
+    if TRACKED_RASTERS.get(artifact_name) != source_name:
+        return None
+    return artifact_name, source_name
 
 
 def tag_png(path: Path, svg: str, source: Path) -> None:
@@ -118,6 +143,41 @@ def selftest() -> int:
         ):
             print("gen_wavedrom selftest: metadata round-trip failed")
             return 1
+        manifest = Path(directory) / "manifest.json"
+        update_pixel_manifest(
+            manifest,
+            "fixture.png",
+            "fixture.json",
+            path,
+            source_path,
+        )
+        original = path.read_bytes()
+        wrong_raster = b"".join(b"\0" + b"\xff" * 6 for _row in range(3))
+        path.write_bytes(
+            encode_chunks(
+                [
+                    Chunk(b"IHDR", header),
+                    Chunk(b"IDAT", zlib.compress(wrong_raster)),
+                    Chunk(b"IEND", b""),
+                ]
+            )
+        )
+        try:
+            verify_pixel_manifest(
+                manifest,
+                "fixture.png",
+                "fixture.json",
+                path,
+                source_path,
+            )
+        except ValueError as error:
+            if "raster differs" not in str(error):
+                print(f"gen_wavedrom selftest: wrong pixel error: {error}")
+                return 1
+        else:
+            print("gen_wavedrom selftest: valid wrong raster escaped")
+            return 1
+        path.write_bytes(original)
         damaged = bytearray(path.read_bytes())
         damaged[-1] ^= 1
         path.write_bytes(damaged)
@@ -128,7 +188,10 @@ def selftest() -> int:
         else:
             print("gen_wavedrom selftest: damaged checksum escaped")
             return 1
-    print("gen_wavedrom selftest: OK (metadata and checksum controls)")
+    print(
+        "gen_wavedrom selftest: OK "
+        "(metadata, checksum, and raster-manifest controls)"
+    )
     return 0
 
 
@@ -171,7 +234,17 @@ def main():
             expected_hash = hashlib.sha256(svg.encode("utf-8")).hexdigest()
             try:
                 candidate_info = inspect_png(candidate_png)
-                committed_info = inspect_png(out_png)
+                names = tracked_names(out_png, src)
+                if names is None:
+                    committed_info = inspect_png(out_png)
+                else:
+                    committed_info = verify_pixel_manifest(
+                        MANIFEST,
+                        names[0],
+                        names[1],
+                        out_png,
+                        src,
+                    )
             except (OSError, ValueError):
                 stale.append(str(out_png))
             else:
@@ -194,6 +267,15 @@ def main():
         return 0
     out_svg.write_text(svg, encoding="utf-8")
     render_png(svg, width, out_png, background, src)
+    names = tracked_names(out_png, src)
+    if names is not None:
+        update_pixel_manifest(
+            MANIFEST,
+            names[0],
+            names[1],
+            out_png,
+            src,
+        )
     print(f"wrote {out_svg} and {out_png}")
     return 0
 

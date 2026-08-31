@@ -35,6 +35,8 @@ Every migrated page declares five fields.
 >
 > Current successor: repository-relative link
 
+Replacements may add `Replaced in place: yes`.
+
 Each page retains its original obsolete header.
 
 ## Migration record
@@ -43,6 +45,7 @@ Earlier files used two historical storage patterns.
 
 - Ten pages lived under `historical_now_obsolete/`.
 - Thirty pages remained beside current documentation.
+- One integration guide was replaced in place.
 - One legacy index documented the earlier archive.
 - Three obsolete diagram files remained current.
 
@@ -92,6 +95,7 @@ The 2026-08-31 migration preserved every tracked artifact.
 | [Header-split design](fpga/HSPLIT14_DESIGN.md) | `historical_now_obsolete/fpga/HSPLIT14_DESIGN.md` | 2026-07-25 | Consolidated cut-through design | [Header-split design](../../fpga/HEADER_SPLIT_DESIGN.md) |
 | [Receive coalescing](fpga/HW_GRO_RSC.md) | `historical_now_obsolete/fpga/HW_GRO_RSC.md` | 2026-07-23 | Consolidated coalescing campaign | [Pipeline stages](../../fpga/PIPELINE_STAGES.md) |
 | [Open-source migration](integration/OPEN_SOURCE_MIGRATION.md) | `historical_now_obsolete/integration/OPEN_SOURCE_MIGRATION.md` | 2026-07-23 | Completed vendor-removal plan | [Porting guide](../../integration/PORTING_GUIDE.md) |
+| [Integration guide](integration/INTEGRATION_GUIDE.md) | `docs/integration/INTEGRATION_GUIDE.md` | 2026-08-31 | Incomplete wrapper boundary | [Current integration contract](../../integration/INTEGRATION_GUIDE.md) |
 | [Legacy archive index](LEGACY_ARCHIVE_INDEX.md) | `historical_now_obsolete/README.md` | 2026-08-31 | Replaced archive index | [Current history index](README.md) |
 
 ## Historical diagram files

@@ -65,7 +65,7 @@ Each conflict keeps its original authority.
 | Donor gPTP README says default-off | `hdl/milan/milan_datapath.sv` defaults `GPTP_PLANE_EN_P` on | Track donor Issue [#48](https://github.com/Mister-M-alt/FPGA-gPTP/issues/48) |
 | Donor gPTP README retains retired host services | Full solution specifies bare-metal firmware | Treat donor runtime prose as historical |
 | Donor protocol page retains word-wide RX | `protocol_processor_top.sv` exposes byte RX without ready | Track donor Issue [#27](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/27) |
-| Existing integration guide omits response memory | `milan_datapath.sv` exposes `resp_mem_*` | New integrator guide includes it |
+| Archived v1 integration guide omits response memory | `milan_datapath.sv` exposes `resp_mem_*` | Current contract classifies every port group |
 | Existing Behave counts are stale | Executed baseline reports 14/312/1,467 | New guide avoids volatile counts |
 | Current Milan audit says gPTP is unintegrated | Root RTL defaults fabric gPTP on | Managers use the feature ledger |
 
@@ -113,6 +113,12 @@ Audience generation rejects missing reader paths.
 
 Path-derived node identities prevent edge rebinding.
 
+The PNG manifest pins every reviewed decompressed raster.
+
+Valid blank-raster mutations fail every generator.
+
+Renderer changes require regeneration and visual review.
+
 ### Draw.io print review
 
 Draw.io desktop produced the inspected PNG and PDF.
@@ -134,6 +140,8 @@ Desktop export requires an available display.
 | Visual inspection | No clipping or overlaps | PASS |
 | Audience data | Twenty-four repository paths exist | PASS |
 | Git data | Four exact Gitlinks matched | PASS |
+| Raster provenance | Four manifest digests matched | PASS |
+| Wrong-raster controls | Seven independent mutations failed | PASS |
 
 All labels remained readable at page scale.
 

@@ -355,7 +355,7 @@ style: `//!` port docs); this table is the index, not the spec.
 
 | Domain | Contents |
 |---|---|
-| `axis_clk` (100 MHz `cd_milan` in the deployed LiteX build; ~50 MHz only when split via `--milan-clk-freq`) | all of Section 2 except the PHC |
+| `axis_clk` (`cd_milan`: 50 MHz deployed; 100 MHz AX bring-up) | all of Section 2 except the PHC |
 | `gtx_clk` (125 MHz) | `timestamp_counter` (PHC), MAC-side timestamp capture |
 | MAC RX recovered clock | inside the external MAC only |
 | host clocks (PS7 / LiteX `sys`, `sys4x`, `idelay`) | outside the datapath |

@@ -2,7 +2,7 @@
 
 > 📌 **CAMPAIGN CLOSED 2026-07-10/11 (header-split zero-copy RX).** This doc is the consolidated
 > campaign **record**; every number in it is a **2-hart perf-campaign** measurement — the
-> **ship shape is 1-hart + `--l2-bytes 32768`**, so these are perf-lineage records, not the
+> **current product is 1-hart + `--l2-bytes 0`**, so these are cached perf-lineage records, not the
 > shipped configuration. The per-lever ledger is [`../CHANGELOG.md`](../../CHANGELOG.md); the
 > as-built datapath is [`../fpga/PIPELINE_STAGES.md`](../fpga/PIPELINE_STAGES.md); the historical
 > profiling method is [archived](../history/v1/findings/PERF_ON_MILAN.md); the memory root cause is

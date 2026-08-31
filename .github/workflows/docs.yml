@@ -30,7 +30,9 @@ jobs:
           python3 scripts/check_doc_style.py
           python3 scripts/check_doc_style.py --selftest
       - name: Audience diagram no-drift gate
-        run: python3 docs/DOC_MAP.gen.py --check
+        run: |
+          python3 docs/DOC_MAP.gen.py --check
+          python3 docs/DOC_MAP.gen.py --selftest
       - name: Product solution source-fact gate
         run: |
           python3 scripts/check_solution_docs.py
@@ -38,6 +40,7 @@ jobs:
       - name: Verified submodule documentation gate
         run: |
           python3 docs/diagrams/submodule_boundaries.gen.py --check
+          python3 docs/diagrams/submodule_boundaries.gen.py --selftest
           python3 scripts/check_submodule_docs.py
           python3 scripts/check_submodule_docs.py --selftest
       - name: HDL timing diagram no-drift gate

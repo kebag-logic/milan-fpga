@@ -225,10 +225,15 @@ version (STRICT gateware pairing):
 
 ### Stage R8: the consumer
 
-The consumer choice decides the record (all records in this section are the
-2-hart + 64 KB-L2 performance-campaign peak; the shipped SoC is 1-hart + 32 KB
-L2, so these are the ceiling, not the deployed-config figure). All four lanes
-measured on the keeper:
+The consumer choice decides the record.
+
+All records use the two-hart, 64 KB campaign peak.
+
+The product uses `1` hart and `0` L2 bytes.
+
+These records are ceilings, not deployed results.
+
+All four lanes measured on the keeper:
 - Socket read with copy (recv_spin, iperf3): 363-381 Mbit sustained at P4.
   The copy costs one cold DRAM read per cache line (about 18 cycles per 8
   bytes at 100 MHz); it is two thirds of the application hart.

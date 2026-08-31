@@ -9,6 +9,7 @@ Handwritten metadata only explains each dependency's role.
 Usage:
     python3 docs/diagrams/submodule_boundaries.gen.py
     python3 docs/diagrams/submodule_boundaries.gen.py --check
+    python3 docs/diagrams/submodule_boundaries.gen.py --selftest
 """
 
 from __future__ import annotations
@@ -16,6 +17,7 @@ from __future__ import annotations
 import configparser
 import hashlib
 import html
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -28,7 +30,12 @@ from pathlib import PurePosixPath
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "scripts"))
 
-from png_artifact import inspect_png, render_svg_png  # noqa: E402
+from png_artifact import (  # noqa: E402
+    render_svg_png,
+    reviewed_png_current,
+    update_pixel_manifest,
+    zero_raster_bytes,
+)
 
 
 BASE = ROOT / "docs" / "diagrams" / "submodule_boundaries"
@@ -36,6 +43,9 @@ WIDTH = 1500
 HEIGHT = 900
 RASTER_WIDTH = 2400
 DRAWIO_HASH_KEY = "Milan-Drawio-SHA256"
+MANIFEST = ROOT / "docs" / "diagrams" / "PNG_MANIFEST.json"
+ARTIFACT_NAME = "docs/diagrams/submodule_boundaries.png"
+SOURCE_NAME = "docs/diagrams/submodule_boundaries.drawio"
 
 
 @dataclass(frozen=True)
@@ -409,6 +419,13 @@ def check_or_write_png(
     fields = {DRAWIO_HASH_KEY: digest}
     if not checking:
         render_svg_png(svg_content, output, RASTER_WIDTH, fields)
+        update_pixel_manifest(
+            MANIFEST,
+            ARTIFACT_NAME,
+            SOURCE_NAME,
+            output,
+            BASE.with_suffix(".drawio"),
+        )
         return True
     with tempfile.TemporaryDirectory(prefix="submodule-png-") as directory:
         candidate = Path(directory) / "submodule_boundaries.png"
@@ -418,21 +435,65 @@ def check_or_write_png(
             RASTER_WIDTH,
             fields,
         )
-        try:
-            committed_info = inspect_png(output)
-        except (OSError, ValueError):
-            return False
-    return (
-        (committed_info.width, committed_info.height)
-        == (candidate_info.width, candidate_info.height)
-        and committed_info.text.get(DRAWIO_HASH_KEY) == digest
+    return reviewed_png_current(
+        MANIFEST,
+        ARTIFACT_NAME,
+        SOURCE_NAME,
+        output,
+        BASE.with_suffix(".drawio"),
+        (candidate_info.width, candidate_info.height),
+        fields,
     )
 
 
+def selftest() -> int:
+    """Prove the generator check rejects a valid wrong raster."""
+    modules = read_submodules()
+    svg_content = svg(modules)
+    drawio_content = drawio(modules)
+    digest = hashlib.sha256(drawio_content.encode("utf-8")).hexdigest()
+    fields = {DRAWIO_HASH_KEY: digest}
+    with tempfile.TemporaryDirectory(prefix="submodule-map-selftest-") as directory:
+        fixture = Path(directory)
+        manifest = fixture / "PNG_MANIFEST.json"
+        source = fixture / "submodule_boundaries.drawio"
+        output = fixture / "submodule_boundaries.png"
+        candidate = fixture / "candidate.png"
+        shutil.copy2(MANIFEST, manifest)
+        shutil.copy2(BASE.with_suffix(".drawio"), source)
+        shutil.copy2(BASE.with_suffix(".png"), output)
+        candidate_info = render_svg_png(
+            svg_content,
+            candidate,
+            RASTER_WIDTH,
+            fields,
+        )
+        arguments = (
+            manifest,
+            ARTIFACT_NAME,
+            SOURCE_NAME,
+            output,
+            source,
+            (candidate_info.width, candidate_info.height),
+            fields,
+        )
+        if not reviewed_png_current(*arguments):
+            print("submodule diagram selftest: copied baseline failed")
+            return 1
+        output.write_bytes(zero_raster_bytes(output))
+        if reviewed_png_current(*arguments):
+            print("submodule diagram selftest: valid wrong raster escaped")
+            return 1
+    print("submodule diagram selftest: OK (valid wrong-raster control)")
+    return 0
+
+
 def main() -> int:
+    if sys.argv[1:] == ["--selftest"]:
+        return selftest()
     checking = sys.argv[1:] == ["--check"]
     if sys.argv[1:] not in ([], ["--check"]):
-        print(__doc__)
+        print("usage: submodule_boundaries.gen.py [--check|--selftest]")
         return 2
 
     modules = read_submodules()

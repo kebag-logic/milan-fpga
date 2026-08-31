@@ -13,12 +13,16 @@ from png_artifact import (
     Chunk,
     encode_chunks,
     inspect_png,
+    load_pixel_manifest,
     parse_chunks,
     source_digest,
+    verify_pixel_manifest,
+    zero_raster_bytes,
 )
 
 
 ROOT = Path(__file__).resolve().parents[1]
+MANIFEST = Path("docs/diagrams/PNG_MANIFEST.json")
 DRAWIO_HASH_KEY = "Milan-Drawio-SHA256"
 WAVEDROM_HASH_KEY = "Milan-WaveDrom-JSON-SHA256"
 
@@ -55,6 +59,24 @@ ARTIFACTS = (
 def validate(root: Path) -> list[str]:
     """Return every PNG availability, raster, and provenance error."""
     errors: list[str] = []
+    manifest_ok = False
+    try:
+        manifest = load_pixel_manifest(root / MANIFEST)
+    except ValueError as error:
+        errors.append(f"{MANIFEST}: {error}")
+    else:
+        artifacts = manifest["artifacts"]
+        assert isinstance(artifacts, dict)
+        expected = {artifact.png for artifact in ARTIFACTS}
+        actual = set(artifacts)
+        if actual != expected:
+            missing = sorted(expected - actual)
+            extra = sorted(actual - expected)
+            errors.append(
+                f"{MANIFEST}: artifact set differs: missing={missing}, extra={extra}"
+            )
+        else:
+            manifest_ok = True
     for artifact in ARTIFACTS:
         png = root / artifact.png
         source = root / artifact.source
@@ -88,11 +110,25 @@ def validate(root: Path) -> list[str]:
             errors.append(
                 f"{artifact.png}: provenance differs from {artifact.source}"
             )
+        if manifest_ok:
+            try:
+                verify_pixel_manifest(
+                    root / MANIFEST,
+                    artifact.png,
+                    artifact.source,
+                    png,
+                    source,
+                )
+            except (OSError, ValueError) as error:
+                errors.append(f"{artifact.png}: {error}")
     return errors
 
 
 def copy_fixture(destination: Path) -> None:
-    """Copy only the eight files the gate consumes."""
+    """Copy only the nine files the gate consumes."""
+    manifest = destination / MANIFEST
+    manifest.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(ROOT / MANIFEST, manifest)
     for artifact in ARTIFACTS:
         for relative in (artifact.png, artifact.source):
             source = ROOT / relative
@@ -158,6 +194,16 @@ def selftest() -> int:
                 return 1
             source.write_bytes(source_bytes)
 
+            png.write_bytes(zero_raster_bytes(png))
+            inspect_png(png)
+            if not expect_failure(
+                fixture,
+                "raster differs from reviewed manifest",
+                f"valid blank raster {artifact.png}",
+            ):
+                return 1
+            png.write_bytes(png_bytes)
+
         sample = fixture / ARTIFACTS[0].png
         original = sample.read_bytes()
         chunks = parse_chunks(original)
@@ -200,7 +246,7 @@ def selftest() -> int:
         if not expect_invalid(sample, truncated, "PNG raster", "truncated raster"):
             return 1
 
-    print("diagram PNG selftest: OK (4 rasters, 16 mutation controls)")
+    print("diagram PNG selftest: OK (4 rasters, 20 mutation controls)")
     return 0
 
 
@@ -216,7 +262,10 @@ def main() -> int:
             print(error)
         print(f"diagram PNGs: FAIL ({len(errors)} findings)")
         return 1
-    print(f"diagram PNGs: OK ({len(ARTIFACTS)} decoded source-bound rasters)")
+    print(
+        f"diagram PNGs: OK ({len(ARTIFACTS)} decoded, source-bound, "
+        "review-pinned rasters)"
+    )
     return 0
 
 

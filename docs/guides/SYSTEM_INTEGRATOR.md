@@ -29,27 +29,27 @@ flowchart LR
     DP <--> MMCM[MMCM controls]
 ```
 
-<!-- solution-memory-faces:start -->
-| Interface group | RTL prefix | Direction | Integration responsibility |
+<!-- solution-interface-groups:start -->
+| Group | RTL names | Integration duty | Safe inactive start |
 |---|---|---|---|
-| Clocks and resets | `axis_*`, `gtx_*`, `clk_*` | Host to datapath | Preserve declared domains and sequencing |
-| AXI4-Lite CSR | `s_axi_*` | Host to datapath | Map the stable CSR window |
-| TX DMA stream | `s_axis_tx_*` | Memory to datapath | Preserve AXI-Stream handshakes |
-| RX DMA stream | `m_axis_rx_*` | Datapath to memory | Accept complete frames safely |
-| Timestamp stream | `m_axis_ts_*` | Datapath to memory | Drain metadata without loss |
-| PCM DMA stream | `m_axis_pcm_*` | Datapath to memory | Preserve stream identity and framing |
-| MAC streams | `m_axis_mac_tx_*`, `s_axis_mac_rx_*` | Bidirectional | Preserve final-boundary backpressure |
-| Descriptor memory | `desc_mem_*` | Datapath read master | Serve the generated entity image |
-| Response memory | `resp_mem_*` | Datapath read-write master | Complete every accepted operation |
-| Playback memory | `pb_mem_*` | Datapath read master | Serve PCM ring fetches |
-| MAC control and status | `o_mac_*`, `i_mac_*` | Bidirectional | Provide honest capabilities and controls |
-| Interrupt | `o_irq_*` | Datapath to host | Route and acknowledge events |
-| Identify output | `o_identify` | Datapath to board | Route the requested visual indication |
-| MMCM controls | `o_mmcm_*`, `i_mmcm_*` | Bidirectional | Bridge DRP and phase-shift handshakes |
-| Audio pins | `i2s_*`, `tdm_*` | Bidirectional | Match selected interface geometry |
-<!-- solution-memory-faces:end -->
+| Clocks and resets | `axis_clk`, `axis_resetn`, `gtx_*`, `clk_audio_i`, `clk_tdm_i` | Drive selected domains and reset sequencing | Drive required clocks; assert resets |
+| AXI4-Lite CSR | `s_axi_*` | Map the complete 64 KiB window | Connect fully; never tie handshakes |
+| TX DMA stream | `s_axis_tx_*` | Supply complete transmit frames | Set `s_axis_tx_tvalid=0` |
+| RX DMA stream | `m_axis_rx_*` | Accept complete receive frames | Set `m_axis_rx_tready=0` |
+| Timestamp stream | `m_axis_ts_*` | Drain timestamp records | Set `m_axis_ts_tready=0` |
+| PCM DMA stream | `m_axis_pcm_*` | Drain framed PCM records | Set `m_axis_pcm_tready=0` |
+| MAC streams | `m_axis_mac_tx_*`, `s_axis_mac_rx_*` | Preserve final-boundary backpressure | Set `s_axis_mac_rx_tvalid=0`; set `m_axis_mac_tx_tready=0` |
+| Descriptor memory | `o_desc_mem_*`, `i_desc_mem_*` | Serve the generated entity image | Set `i_desc_mem_req_ready=0`; clear every response input |
+| Response memory | `o_resp_mem_*`, `i_resp_mem_*` | Complete every accepted response operation | Set `i_resp_mem_req_ready=0`, `i_resp_mem_wr_ready=0`; clear response and completion inputs |
+| Playback memory | `pb_*` | Serve configured PCM rings | Set every `pb_*_i=0` |
+| MAC control and status | `o_mac_*`, `i_mac_*`, link, PHY, Ethernet guards | Report honest capabilities and status | Set `i_mac_speed=2'b10`, `i_link_up=1`, `i_full_duplex=1`; clear events, capabilities, toggles |
+| Interrupt | `o_irq_csr` | Route the aggregate CSR interrupt | Leave the output open during smoke tests |
+| Identify output | `o_identify` | Route the requested visual indication | Leave the output open during smoke tests |
+| MMCM controls | `o_mmcm_*`, `i_mmcm_*`, `i_ps_clk` | Bridge DRP and phase handshakes | Set `i_ps_clk=axis_clk`, DRP inputs zero, `i_mmcm_locked=1`, `i_mmcm_ps_done=0` |
+| Audio pins | `i2s_*`, `tdm_*`, `media_lrclk_o` | Match the selected audio geometry | Set `i2s_sdout_i=0`, every `tdm_*_i=0`; leave outputs open |
+<!-- solution-interface-groups:end -->
 
-Read the existing [integration contract](../integration/INTEGRATION_GUIDE.md).
+Read the complete [integration contract](../integration/INTEGRATION_GUIDE.md).
 
 Read the stable [register map](../reference/REGISTER_MAP.md).
 

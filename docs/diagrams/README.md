@@ -26,6 +26,9 @@ Every current render needs visual inspection.
 - Print changed Draw.io masters before review.
 - Bind every published PNG to its editable source.
 - Decode every published PNG before review.
+- Pin decompressed rasters inside `PNG_MANIFEST.json`.
+- Permit PNG compression differences.
+- Review every changed manifest digest visually.
 
 ## Audience and architecture
 
@@ -113,7 +116,9 @@ Run focused generator checks first.
 
 ```sh
 python3 docs/DOC_MAP.gen.py --check
+python3 docs/DOC_MAP.gen.py --selftest
 python3 docs/diagrams/submodule_boundaries.gen.py --check
+python3 docs/diagrams/submodule_boundaries.gen.py --selftest
 python3 scripts/check_submodule_docs.py
 python3 scripts/check_diagram_pngs.py
 python3 scripts/check_diagram_pngs.py --selftest
@@ -127,6 +132,10 @@ python3 scripts/gen_wavedrom.py \
 python3 scripts/gen_wavedrom.py \
   docs/diagrams/wd_cdc_handshake.json --background=white --check
 ```
+
+- Generator checks tolerate local renderer differences.
+- Reviewed committed rasters remain cryptographically pinned.
+- Changed raster digests require visual approval.
 
 - Regenerate the editable master.
 - Regenerate every committed render.
