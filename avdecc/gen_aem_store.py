@@ -1011,7 +1011,7 @@ def spec_from_overlay(ovl):
                     serial_number=ent["serial_number"],
                     vendor_name=ent.get("vendor_name", "Kebag Logic")),
         gptp=ovl.get("gptp"),           # AVB_INTERFACE clock attributes
-                                        # (single source with gptp.cfg)
+                                        # (one source, the config overlay)
         rates=rates_hz,                 # pull-0 encoding == Hz value
         current_rate=int(ovl["current_sampling_rate_hz"]),
         rates_string="/".join(str(hz // 1000) for hz in rates_hz) + " kHz",
