@@ -90,7 +90,7 @@ The current AECP entry is checked against the
 | **Verilator** | Open-source SV simulator  -  every RTL block has a self-checking harness under [`tb/verilator/`](../tb/verilator). |
 | **Yosys / sv2v / ECP5** | Open synthesis flow used as a device-portability check ([`syn/yosys`](../syn/yosys)). |
 | **XPM** | Xilinx Parameterized Macros  -  removed from `hdl/` (Track 1 de-Xilinx) in favor of open equivalents. |
-| **TerosHDL** | The documenter generating per-module docs from `//!` comments (`hdl/**/doc/`). |
+| **TerosHDL** | Generates validated HDL references from source comments. |
 
 ## LiteX / SoC / boot
 

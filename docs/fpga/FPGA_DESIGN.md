@@ -77,7 +77,7 @@ image lacks the requested descriptor. The store never hangs on a failed read: a
 - **[2. Module inventory (from the RTL banners; refreshed 2026-08-13)](#2-module-inventory-from-the-rtl-banners-refreshed-2026-08-13)** -- Every module in `hdl/`, one row each, grouped by directory, with descriptions lifted from the RTL banners. It states no total on purpose: the live count belongs to the generated matrix, and `ls hdl/` is the authority.
 - **[3. Clock domains & CDC (complete inventory)](#3-clock-domains--cdc-complete-inventory)** -- Which of the four domains each block lives in, and the complete crossing list -- all plain-FF or handshake, no vendor macros. Explains why the timestamp metadata FIFOs are deliberately same-clock: the crossing already happened upstream in `ptp_ts_core`.
 - **[4. What is \*not\* in hdl/ (and where it lives instead)](#4-what-is-not-in-hdl-and-where-it-lives-instead)** -- Four things you will hunt for in the RTL tree and not find. Mainly the ring-DMA engines, which are Migen inside `milan_soc.py` rather than SystemVerilog, and the MAC, which is external by design.
-- **[5. Per-module doc regeneration](#5-per-module-doc-regeneration)** -- How the `hdl/**/doc/*.md` pages are produced, which three are hand-written exceptions, and the current list of modules with no page at all. Tie-break rule if a page lags: the RTL wins.
+- **[5. HDL reference generation](#5-hdl-reference-generation)** -- Build and validate the source-derived HTML reference.
 
 ## 0. Global conventions
 
@@ -387,19 +387,12 @@ toolchain: [Section 4.5 of ../integration/PORTING_GUIDE.md](../integration/PORTI
 * **The telemetry block** `milan_tlm` - [pipeline-telemetry.md](pipeline-telemetry.md).
 * **The CPU/SoC** - [../litex/LITEX_SOC.md](../litex/LITEX_SOC.md).
 
-## 5. Per-module doc regeneration
+## 5. HDL reference generation
 
-The `hdl/**/doc/*.md` pages are TerosHDL-generated from the in-code `//!`
-comments (plus a couple of hand-written ones:
-[`tcam.md`](../../hdl/ieee8021q/filtering/doc/tcam.md),
-[`milan_csr.md`](../../hdl/common/csr/doc/milan_csr.md); the hand-written
-`adp_advertiser.md` went with its module). `find hdl -name doc -type d` is the
-authority on which directories still carry pages — `hdl/ieee17221/adp/` no
-longer does. Regenerate after RTL changes by running the TerosHDL documenter on
-the `.sv`, and treat the RTL as the source of truth if a generated page lags.
-Modules with no doc page: `milan_datapath` / `milan_top` / `KL_pp_shadow` /
-`KL_pp_maap_shim` (rich header comments serve instead — for the last two the
-banner *is* the contract, since the wrapper is deliberately a port list),
-`rx_mac_filter`, `cdc_pulse` / `cdc_handshake`, `ptp_csr_sync`,
-`avtp_stream_parser`, `adp_tx_arbiter`, `axis_mux_rr_2in_1out`,
-`traffic_class_map`.
+- RTL `//!` comments remain authoritative.
+- [`gen_teroshdl.py`](../../scripts/gen_teroshdl.py) builds one HTML reference.
+- The wrapper validates source and diagram coverage.
+- Generated HTML remains outside Git.
+- Historical module pages may lag current sources.
+- Never treat generated output as specification.
+- See [`DOC_GENERATION.md`](../DOC_GENERATION.md) for commands.

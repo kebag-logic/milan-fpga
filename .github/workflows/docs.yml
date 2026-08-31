@@ -13,6 +13,36 @@ jobs:
       # builder gates below consume the pinned processor image tools and expand
       # the Vivado datapath manifest through verilog-axis's source inventory.
       - uses: actions/checkout@v4
+      - name: Select the TerosHDL runtime
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      # The lock fixes every package byte.
+      # Lifecycle scripts remain disabled during installation.
+      - name: Install the locked TerosHDL documenter
+        run: |
+          set -euo pipefail
+          tool_dir="$RUNNER_TEMP/teroshdl-tool"
+          mkdir -p "$tool_dir"
+          cp tools/teroshdl/package.json tools/teroshdl/package-lock.json \
+            "$tool_dir/"
+          npm ci --ignore-scripts --audit=false --fund=false --prefix "$tool_dir"
+      # The wrapper checks coverage before publication.
+      # Outputs remain untracked inside the runner directory.
+      - name: Generate the validated TerosHDL reference
+        run: |
+          set -euo pipefail
+          python3 scripts/gen_teroshdl.py --selftest
+          python3 scripts/gen_teroshdl.py \
+            --documenter "$RUNNER_TEMP/teroshdl-tool/node_modules/.bin/teroshdl-hdl-documenter" \
+            --output "$RUNNER_TEMP/milan-teroshdl-doc"
+      - name: Upload the TerosHDL HTML reference
+        uses: actions/upload-artifact@v4
+        with:
+          name: teroshdl-html-${{ github.sha }}
+          path: ${{ runner.temp }}/milan-teroshdl-doc/index.html
+          if-no-files-found: error
+          retention-days: 14
       # pyyaml is load-bearing for the bare-metal-only gate below (it REFUSES
       # to run without it) and for three later gates, so it is installed here
       # rather than in the middle of the job.
