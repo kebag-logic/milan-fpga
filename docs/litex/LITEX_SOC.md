@@ -172,28 +172,27 @@ The Milan datapath keeps all packet intelligence; the MAC does L1/framing
 only.
 
 ### 2.5 CPU: VexiiRiscv and NaxRiscv - read this before building
-`--cpu {naxriscv,vexiiriscv}`; **the CLI default is `naxriscv`**, and
-`deploy.sh` does not override it.
 
-* **VexiiRiscv** (`--cpu vexiiriscv`) is the ship core: the shipping shape is
-  the cacheless **1-hart RV32I** bare-metal profile, and the historical
-  bring-up shape was 1-hart + `--l2-bytes 32768` (L2-32K) at 100e6. The
-  **dual-hart SMP** (`--cpu-count 2`, L2-64K) configuration behind the older
-  project-scoreboard results is
-  a SUPERSEDED perf-lineage variant; the perf-campaign docs
-  ([findings](../findings/README.md)) measure that earlier configuration.
-* **NaxRiscv** (default, RV64GC) is the earlier bring-up core, retained as a
-  pure-NIC option and used by `milan_sim.py`. `--with-fpu`/`--xlen` behave
-  as documented in the source (the FPU needs both the toolchain arch *and*
-  the scala flags - handled for you).
+Both named cores remain available.
 
-So: the ship build is `--cpu vexiiriscv` **1-hart + `--l2-bytes 32768`**
-at 100e6; to reproduce the older published perf results build the
-SUPERSEDED perf-lineage `--cpu vexiiriscv --cpu-count 2` (L2-64K) instead; a
-bare `deploy.sh build` gives you a NaxRiscv SoC. Use the named build
-configurations below for the supported flow.
-The full named build configurations (`build.sh`) live in
-[../integration/BUILDING.md](../integration/BUILDING.md).
+<!-- solution-cpu-contract:start -->
+| Invocation | CPU | Harts | XLEN | Firmware | L2 bytes |
+|---|---|---:|---:|---|---:|
+| CLI defaults | `vexiiriscv` | `1` | `32` | `baremetal` | `unset` |
+| `deploy.sh` | `vexiiriscv` | `1` | `32` | `baremetal` | `0` |
+<!-- solution-cpu-contract:end -->
+
+- VexiiRiscv is the product and CLI default.
+- `deploy.sh` explicitly selects the shipping profile.
+- That profile uses cacheless, single-hart RV32I.
+- An unset L2 still selects zero VexiiRiscv bytes.
+- NaxRiscv remains an opt-in pure-NIC option.
+- `milan_sim.py` still exercises its simulation path.
+- Older performance results used different cache configurations.
+
+Read the historical measurements in [findings](../findings/README.md).
+
+Use the named [build configurations](../integration/BUILDING.md).
 
 ### 2.6 QSPI flash-boot
 `FLASHBOOT_LAYOUT` / `FLASHBOOT_RESERVED` / `FLASHBOOT_MANIFESTS` in

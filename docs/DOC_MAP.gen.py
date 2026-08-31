@@ -4,15 +4,24 @@
 from __future__ import annotations
 
 import html
+import hashlib
 import sys
+import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "scripts"))
+
+from png_artifact import inspect_png, render_svg_png  # noqa: E402
+
+
 BASE = ROOT / "docs" / "DOC_MAP"
 WIDTH = 1840
 HEIGHT = 1050
+RASTER_WIDTH = 2400
+DRAWIO_HASH_KEY = "Milan-Drawio-SHA256"
 
 
 @dataclass(frozen=True)
@@ -297,22 +306,59 @@ def check_or_write(path: Path, content: str, checking: bool) -> bool:
     return True
 
 
+def check_or_write_png(
+    svg_content: str,
+    drawio_content: str,
+    checking: bool,
+) -> bool:
+    output = BASE.with_suffix(".png")
+    digest = hashlib.sha256(drawio_content.encode("utf-8")).hexdigest()
+    fields = {DRAWIO_HASH_KEY: digest}
+    if not checking:
+        render_svg_png(svg_content, output, RASTER_WIDTH, fields)
+        return True
+    with tempfile.TemporaryDirectory(prefix="doc-map-png-") as directory:
+        candidate = Path(directory) / "DOC_MAP.png"
+        candidate_info = render_svg_png(
+            svg_content,
+            candidate,
+            RASTER_WIDTH,
+            fields,
+        )
+        try:
+            committed_info = inspect_png(output)
+        except (OSError, ValueError):
+            return False
+    return (
+        (committed_info.width, committed_info.height)
+        == (candidate_info.width, candidate_info.height)
+        and committed_info.text.get(DRAWIO_HASH_KEY) == digest
+    )
+
+
 def main() -> int:
     checking = sys.argv[1:] == ["--check"]
     if sys.argv[1:] not in ([], ["--check"]):
         print("usage: DOC_MAP.gen.py [--check]")
         return 2
     validate()
-    outputs = ((BASE.with_suffix(".svg"), svg()), (BASE.with_suffix(".drawio"), drawio()))
+    svg_content = svg()
+    drawio_content = drawio()
+    outputs = (
+        (BASE.with_suffix(".svg"), svg_content),
+        (BASE.with_suffix(".drawio"), drawio_content),
+    )
     stale = [path for path, content in outputs if not check_or_write(path, content, checking)]
+    if not check_or_write_png(svg_content, drawio_content, checking):
+        stale.append(BASE.with_suffix(".png"))
     if stale:
         for path in stale:
             print(f"stale documentation map: {path.relative_to(ROOT)}")
         return 1
     if checking:
-        print("documentation map: OK (4 roles, 24 valid paths)")
+        print("documentation map: OK (4 roles, 24 valid paths, decoded PNG)")
     else:
-        print("wrote docs/DOC_MAP.svg and docs/DOC_MAP.drawio")
+        print("wrote docs/DOC_MAP.svg, docs/DOC_MAP.drawio, and docs/DOC_MAP.png")
     return 0
 
 

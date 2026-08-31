@@ -24,6 +24,8 @@ Every current render needs visual inspection.
 - Keep inspection files under `/tmp`.
 - Verify every label against implementation.
 - Print changed Draw.io masters before review.
+- Bind every published PNG to its editable source.
+- Decode every published PNG before review.
 
 ## Audience and architecture
 
@@ -113,6 +115,8 @@ Run focused generator checks first.
 python3 docs/DOC_MAP.gen.py --check
 python3 docs/diagrams/submodule_boundaries.gen.py --check
 python3 scripts/check_submodule_docs.py
+python3 scripts/check_diagram_pngs.py
+python3 scripts/check_diagram_pngs.py --selftest
 ```
 
 Run WaveDrom checks with pinned tooling.

@@ -55,13 +55,9 @@ python3 docs/diagrams/submodule_boundaries.gen.py
 python3 docs/diagrams/submodule_boundaries.gen.py --check
 ```
 
-Create PNG renders from generated SVG files.
+The generators also write source-bound PNG renders.
 
-```sh
-rsvg-convert -w 2400 docs/DOC_MAP.svg -o docs/DOC_MAP.png
-rsvg-convert -w 2400 docs/diagrams/submodule_boundaries.svg \
-  -o docs/diagrams/submodule_boundaries.png
-```
+They require `rsvg-convert`.
 
 Directly export changed Draw.io masters.
 
@@ -172,8 +168,12 @@ python3 scripts/docs_check.py
 python3 scripts/docs_check.py --selftest
 python3 scripts/check_doc_style.py
 python3 scripts/check_doc_style.py --selftest
+python3 scripts/check_solution_docs.py
+python3 scripts/check_solution_docs.py --selftest
 python3 scripts/check_submodule_docs.py
 python3 scripts/check_submodule_docs.py --selftest
+python3 scripts/check_diagram_pngs.py
+python3 scripts/check_diagram_pngs.py --selftest
 python3 scripts/check_archive.py
 python3 scripts/check_archive.py --selftest
 python3 scripts/check_doc_paths.py

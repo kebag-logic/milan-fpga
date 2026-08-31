@@ -14,9 +14,11 @@ Usage:
 from __future__ import annotations
 
 import configparser
+import hashlib
 import html
 import subprocess
 import sys
+import tempfile
 import textwrap
 from dataclasses import dataclass
 from pathlib import Path
@@ -24,9 +26,16 @@ from pathlib import PurePosixPath
 
 
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / "scripts"))
+
+from png_artifact import inspect_png, render_svg_png  # noqa: E402
+
+
 BASE = ROOT / "docs" / "diagrams" / "submodule_boundaries"
 WIDTH = 1500
 HEIGHT = 900
+RASTER_WIDTH = 2400
+DRAWIO_HASH_KEY = "Milan-Drawio-SHA256"
 
 
 @dataclass(frozen=True)
@@ -390,6 +399,36 @@ def check_or_write(path: Path, content: str, checking: bool) -> bool:
     return True
 
 
+def check_or_write_png(
+    svg_content: str,
+    drawio_content: str,
+    checking: bool,
+) -> bool:
+    output = BASE.with_suffix(".png")
+    digest = hashlib.sha256(drawio_content.encode("utf-8")).hexdigest()
+    fields = {DRAWIO_HASH_KEY: digest}
+    if not checking:
+        render_svg_png(svg_content, output, RASTER_WIDTH, fields)
+        return True
+    with tempfile.TemporaryDirectory(prefix="submodule-png-") as directory:
+        candidate = Path(directory) / "submodule_boundaries.png"
+        candidate_info = render_svg_png(
+            svg_content,
+            candidate,
+            RASTER_WIDTH,
+            fields,
+        )
+        try:
+            committed_info = inspect_png(output)
+        except (OSError, ValueError):
+            return False
+    return (
+        (committed_info.width, committed_info.height)
+        == (candidate_info.width, candidate_info.height)
+        and committed_info.text.get(DRAWIO_HASH_KEY) == digest
+    )
+
+
 def main() -> int:
     checking = sys.argv[1:] == ["--check"]
     if sys.argv[1:] not in ([], ["--check"]):
@@ -397,22 +436,30 @@ def main() -> int:
         return 2
 
     modules = read_submodules()
+    svg_content = svg(modules)
+    drawio_content = drawio(modules)
     outputs = {
-        BASE.with_suffix(".svg"): svg(modules),
-        BASE.with_suffix(".drawio"): drawio(modules),
+        BASE.with_suffix(".svg"): svg_content,
+        BASE.with_suffix(".drawio"): drawio_content,
     }
     stale = [
         str(path.relative_to(ROOT))
         for path, content in outputs.items()
         if not check_or_write(path, content, checking)
     ]
+    if not check_or_write_png(svg_content, drawio_content, checking):
+        stale.append(str(BASE.with_suffix(".png").relative_to(ROOT)))
     if stale:
         print("submodule diagram stale: " + ", ".join(stale))
         return 1
     if checking:
-        print(f"submodule diagram: OK ({len(modules)} exact gitlinks)")
+        print(
+            f"submodule diagram: OK ({len(modules)} exact gitlinks, decoded PNG)"
+        )
     else:
-        print("wrote " + " and ".join(str(path.relative_to(ROOT)) for path in outputs))
+        written = [str(path.relative_to(ROOT)) for path in outputs]
+        written.append(str(BASE.with_suffix(".png").relative_to(ROOT)))
+        print("wrote " + " and ".join(written))
     return 0
 
 

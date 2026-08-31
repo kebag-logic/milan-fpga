@@ -19,7 +19,7 @@ Two dependencies, neither of them project-specific:
 
 SVG rendering is deterministic.
 
-White-background PNG files carry their source SVG hash.
+PNG files carry their JSON and generated-SVG hashes.
 Raster bytes may vary across librsvg and font versions.
 """
 import hashlib
@@ -31,6 +31,14 @@ import tempfile
 import zlib
 from pathlib import Path
 
+from png_artifact import (
+    Chunk,
+    encode_chunks,
+    inspect_png,
+    set_text_fields,
+    source_digest,
+)
+
 try:
     import wavedrom
 except ImportError:                                          # pragma: no cover
@@ -39,68 +47,18 @@ except ImportError:                                          # pragma: no cover
              "then run this script with /tmp/wd/bin/python3")
 
 
-PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
 PNG_HASH_KEY = "WaveDrom-SVG-SHA256"
+PNG_SOURCE_HASH_KEY = "Milan-WaveDrom-JSON-SHA256"
 
 
-def png_chunk(kind: bytes, payload: bytes) -> bytes:
-    body = kind + payload
-    checksum = zlib.crc32(body)
-    return struct.pack(">I", len(payload)) + body + struct.pack(">I", checksum)
-
-
-def png_metadata(path: Path) -> tuple[tuple[int, int], dict[str, str]]:
-    data = path.read_bytes()
-    if not data.startswith(PNG_SIGNATURE):
-        raise ValueError("missing PNG signature")
-    position = len(PNG_SIGNATURE)
-    dimensions = None
-    fields: dict[str, str] = {}
-    while position < len(data):
-        if position + 12 > len(data):
-            raise ValueError("truncated PNG chunk")
-        length = struct.unpack(">I", data[position:position + 4])[0]
-        end = position + 12 + length
-        if end > len(data):
-            raise ValueError("truncated PNG payload")
-        kind = data[position + 4:position + 8]
-        payload = data[position + 8:position + 8 + length]
-        stored_crc = struct.unpack(">I", data[position + 8 + length:end])[0]
-        if stored_crc != zlib.crc32(kind + payload):
-            raise ValueError("invalid PNG checksum")
-        if kind == b"IHDR" and len(payload) == 13:
-            dimensions = struct.unpack(">II", payload[:8])
-        elif kind == b"tEXt" and b"\0" in payload:
-            key, value = payload.split(b"\0", 1)
-            fields[key.decode("latin-1")] = value.decode("latin-1")
-        position = end
-        if kind == b"IEND":
-            break
-    if dimensions is None:
-        raise ValueError("missing PNG dimensions")
-    return dimensions, fields
-
-
-def tag_png(path: Path, svg: str) -> None:
-    data = path.read_bytes()
-    png_metadata(path)
-    position = len(PNG_SIGNATURE)
-    output = bytearray(PNG_SIGNATURE)
-    tagged = False
-    while position < len(data):
-        length = struct.unpack(">I", data[position:position + 4])[0]
-        end = position + 12 + length
-        kind = data[position + 4:position + 8]
-        output.extend(data[position:end])
-        if kind == b"IHDR":
-            digest = hashlib.sha256(svg.encode("utf-8")).hexdigest()
-            payload = PNG_HASH_KEY.encode("latin-1") + b"\0" + digest.encode("ascii")
-            output.extend(png_chunk(b"tEXt", payload))
-            tagged = True
-        position = end
-    if not tagged:
-        raise ValueError("cannot tag PNG without IHDR")
-    path.write_bytes(output)
+def tag_png(path: Path, svg: str, source: Path) -> None:
+    set_text_fields(
+        path,
+        {
+            PNG_HASH_KEY: hashlib.sha256(svg.encode("utf-8")).hexdigest(),
+            PNG_SOURCE_HASH_KEY: source_digest(source),
+        },
+    )
 
 
 def render_svg(src: Path, background: str | None) -> str:
@@ -118,6 +76,7 @@ def render_png(
     width: int,
     output: Path,
     background: str | None,
+    source: Path,
 ) -> None:
     with tempfile.TemporaryDirectory(prefix="wavedrom-") as directory:
         temporary_svg = Path(directory) / "diagram.svg"
@@ -129,28 +88,41 @@ def render_png(
             ["-w", str(width), str(temporary_svg), "-o", str(output)]
         )
         subprocess.run(command, check=True)
-    if background is not None:
-        tag_png(output, svg)
+    tag_png(output, svg, source)
 
 
 def selftest() -> int:
     with tempfile.TemporaryDirectory(prefix="wavedrom-selftest-") as directory:
         path = Path(directory) / "fixture.png"
+        source_path = Path(directory) / "fixture.json"
+        source_path.write_text('{"signal": []}\n', encoding="utf-8")
         header = struct.pack(">II5B", 2, 3, 8, 2, 0, 0, 0)
-        content = PNG_SIGNATURE + png_chunk(b"IHDR", header) + png_chunk(b"IEND", b"")
-        path.write_bytes(content)
+        raster = b"".join(b"\0" + b"\0" * 6 for _row in range(3))
+        path.write_bytes(
+            encode_chunks(
+                [
+                    Chunk(b"IHDR", header),
+                    Chunk(b"IDAT", zlib.compress(raster)),
+                    Chunk(b"IEND", b""),
+                ]
+            )
+        )
         source = "<svg/>"
-        tag_png(path, source)
-        size, fields = png_metadata(path)
+        tag_png(path, source, source_path)
+        info = inspect_png(path)
         expected = hashlib.sha256(source.encode("utf-8")).hexdigest()
-        if size != (2, 3) or fields.get(PNG_HASH_KEY) != expected:
+        if (
+            (info.width, info.height) != (2, 3)
+            or info.text.get(PNG_HASH_KEY) != expected
+            or info.text.get(PNG_SOURCE_HASH_KEY) != source_digest(source_path)
+        ):
             print("gen_wavedrom selftest: metadata round-trip failed")
             return 1
         damaged = bytearray(path.read_bytes())
         damaged[-1] ^= 1
         path.write_bytes(damaged)
         try:
-            png_metadata(path)
+            inspect_png(path)
         except ValueError:
             pass
         else:
@@ -192,32 +164,36 @@ def main():
     if checking:
         with tempfile.TemporaryDirectory(prefix="wavedrom-check-") as directory:
             candidate_png = Path(directory) / "diagram.png"
-            render_png(svg, width, candidate_png, background)
+            render_png(svg, width, candidate_png, background, src)
             stale = []
             if not out_svg.is_file() or out_svg.read_text(encoding="utf-8") != svg:
                 stale.append(str(out_svg))
-            if background is None:
-                if not out_png.is_file() or out_png.read_bytes() != candidate_png.read_bytes():
-                    stale.append(str(out_png))
+            expected_hash = hashlib.sha256(svg.encode("utf-8")).hexdigest()
+            try:
+                candidate_info = inspect_png(candidate_png)
+                committed_info = inspect_png(out_png)
+            except (OSError, ValueError):
+                stale.append(str(out_png))
             else:
-                expected_hash = hashlib.sha256(svg.encode("utf-8")).hexdigest()
-                try:
-                    candidate_size, _candidate_fields = png_metadata(candidate_png)
-                    committed_size, committed_fields = png_metadata(out_png)
-                except (OSError, ValueError):
+                if (
+                    (committed_info.width, committed_info.height)
+                    != (candidate_info.width, candidate_info.height)
+                ):
                     stale.append(str(out_png))
-                else:
-                    if committed_size != candidate_size:
-                        stale.append(str(out_png))
-                    elif committed_fields.get(PNG_HASH_KEY) != expected_hash:
-                        stale.append(str(out_png))
+                elif committed_info.text.get(PNG_HASH_KEY) != expected_hash:
+                    stale.append(str(out_png))
+                elif (
+                    committed_info.text.get(PNG_SOURCE_HASH_KEY)
+                    != source_digest(src)
+                ):
+                    stale.append(str(out_png))
         if stale:
             print("gen_wavedrom: stale: " + ", ".join(stale))
             return 1
         print(f"WaveDrom current: {src}")
         return 0
     out_svg.write_text(svg, encoding="utf-8")
-    render_png(svg, width, out_png, background)
+    render_png(svg, width, out_png, background, src)
     print(f"wrote {out_svg} and {out_png}")
     return 0
 

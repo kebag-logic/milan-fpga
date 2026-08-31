@@ -29,23 +29,25 @@ flowchart LR
     DP <--> MMCM[MMCM controls]
 ```
 
-| Interface group | Direction | Integration responsibility |
-|---|---|---|
-| Clocks and resets | Host to datapath | Preserve declared domains and sequencing |
-| AXI4-Lite CSR | Host to datapath | Map the stable CSR window |
-| TX DMA stream | Memory to datapath | Preserve AXI-Stream handshakes |
-| RX DMA stream | Datapath to memory | Accept complete frames safely |
-| Timestamp stream | Datapath to memory | Drain metadata without loss |
-| PCM DMA stream | Datapath to memory | Preserve stream identity and framing |
-| MAC streams | Bidirectional | Preserve final-boundary backpressure |
-| Descriptor memory | Datapath read master | Serve the generated entity image |
-| Response memory | Datapath read-write master | Complete every accepted operation |
-| Playback memory | Datapath read master | Serve host PCM ring fetches |
-| MAC control and status | Bidirectional | Provide honest capabilities and controls |
-| Interrupt | Datapath to host | Route and acknowledge events |
-| Identify output | Datapath to board | Route the requested visual indication |
-| MMCM controls | Bidirectional | Bridge DRP and phase-shift handshakes |
-| Audio pins | Bidirectional | Match selected interface geometry |
+<!-- solution-memory-faces:start -->
+| Interface group | RTL prefix | Direction | Integration responsibility |
+|---|---|---|---|
+| Clocks and resets | `axis_*`, `gtx_*`, `clk_*` | Host to datapath | Preserve declared domains and sequencing |
+| AXI4-Lite CSR | `s_axi_*` | Host to datapath | Map the stable CSR window |
+| TX DMA stream | `s_axis_tx_*` | Memory to datapath | Preserve AXI-Stream handshakes |
+| RX DMA stream | `m_axis_rx_*` | Datapath to memory | Accept complete frames safely |
+| Timestamp stream | `m_axis_ts_*` | Datapath to memory | Drain metadata without loss |
+| PCM DMA stream | `m_axis_pcm_*` | Datapath to memory | Preserve stream identity and framing |
+| MAC streams | `m_axis_mac_tx_*`, `s_axis_mac_rx_*` | Bidirectional | Preserve final-boundary backpressure |
+| Descriptor memory | `desc_mem_*` | Datapath read master | Serve the generated entity image |
+| Response memory | `resp_mem_*` | Datapath read-write master | Complete every accepted operation |
+| Playback memory | `pb_mem_*` | Datapath read master | Serve PCM ring fetches |
+| MAC control and status | `o_mac_*`, `i_mac_*` | Bidirectional | Provide honest capabilities and controls |
+| Interrupt | `o_irq_*` | Datapath to host | Route and acknowledge events |
+| Identify output | `o_identify` | Datapath to board | Route the requested visual indication |
+| MMCM controls | `o_mmcm_*`, `i_mmcm_*` | Bidirectional | Bridge DRP and phase-shift handshakes |
+| Audio pins | `i2s_*`, `tdm_*` | Bidirectional | Match selected interface geometry |
+<!-- solution-memory-faces:end -->
 
 Read the existing [integration contract](../integration/INTEGRATION_GUIDE.md).
 

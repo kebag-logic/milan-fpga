@@ -31,6 +31,10 @@ jobs:
           python3 scripts/check_doc_style.py --selftest
       - name: Audience diagram no-drift gate
         run: python3 docs/DOC_MAP.gen.py --check
+      - name: Product solution source-fact gate
+        run: |
+          python3 scripts/check_solution_docs.py
+          python3 scripts/check_solution_docs.py --selftest
       - name: Verified submodule documentation gate
         run: |
           python3 docs/diagrams/submodule_boundaries.gen.py --check
@@ -41,6 +45,10 @@ jobs:
           python3 scripts/gen_wavedrom.py --selftest
           python3 scripts/gen_wavedrom.py docs/diagrams/wd_axis_backpressure.json --background=white --check
           python3 scripts/gen_wavedrom.py docs/diagrams/wd_cdc_handshake.json --background=white --check
+      - name: Published diagram PNG gate
+        run: |
+          python3 scripts/check_diagram_pngs.py
+          python3 scripts/check_diagram_pngs.py --selftest
       - name: Milan feature-status consistency gate
         run: python3 scripts/check_feature_status.py --self-test
       - name: Traceability matrix no-drift gate
