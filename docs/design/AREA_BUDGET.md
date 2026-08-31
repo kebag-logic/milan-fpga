@@ -38,7 +38,7 @@ The current command-surface claim is checked against the
 > * the single biggest line item below, `u_bld` (`KL_aecp_response_builder`,
 >   5,300 LUT here), was part of an AECP plane that measured **8,645 LUT
 >   in context** for `KL_aecp_top` alone — larger than the entire replacement
->   plane costs in context (**+6,956**);
+>   plane costs in context (**+6,956**); (the `+6,956` pair was measured on the `ax7101_1x1_tdm8` shape -- see the shape-provenance note in [PP_SHADOW_AREA_0812.md](../findings/PP_SHADOW_AREA_0812.md) -- and is owed a re-measurement)
 > * the tier-3 "core, not reclaimable by parametrisation" verdict was
 >   correct about *parametrisation* and was overtaken by **deletion**: three
 >   of its five entries are gone.

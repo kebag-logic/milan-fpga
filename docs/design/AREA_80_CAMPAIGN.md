@@ -18,7 +18,7 @@ method is *static-conversion first* (this page), block diets second.
 > **substitution**, and it is measured, in context, both sides on the same
 > instrument, in
 > [`../findings/PP_SHADOW_AREA_0812.md`](../findings/PP_SHADOW_AREA_0812.md)
-> — **+6,956 LUT for the processor plane against −15,474 LUT removed.**
+> — **+6,956 LUT for the processor plane against −15,474 LUT removed.** (the `+6,956` pair was measured on the `ax7101_1x1_tdm8` shape -- see the shape-provenance note in [PP_SHADOW_AREA_0812.md](../findings/PP_SHADOW_AREA_0812.md) -- and is owed a re-measurement)
 >
 > Read the rest of this page as the *analysis record* it always was. Rows
 > below that name a deleted module are marked; the razors themselves still

@@ -199,6 +199,16 @@ own interconnect to each plane. `syn/ooc/milan_datapath_ooc.tcl` closes that
 gap by synthesising the whole `milan_datapath` at the 1×1 shape, baseline
 versus plane-ON, same instrument:
 
+> **Shape provenance (PR #305).** The `milan_datapath` figures below were
+> taken with `syn/ooc/milan_datapath_ooc.tcl` before its include path was
+> derived from the authority record. That recipe placed the
+> elaboration-shape config dir LAST, so `milan_datapath` elaborated as
+> `endstation_ax7101_1x1_tdm8` (2 talker sources / 31 name entries / 8 wire
+> channels) rather than `endstation_arty_current` (1 / 29 / 2). The A/B
+> delta is still same-instrument -- both runs used the same shape -- but the
+> ABSOLUTE numbers are for the other entity and are owed a re-measurement.
+> `syn/yosys/ooc.sh` has the same defect and is still unfixed.
+
 | milan_datapath, 1×1 | LUT | FF | BRAM | WNS @ 100 MHz | Failing |
 |---|---|---|---|---|---|
 | baseline (`PP_PLANE_P=0`) | 33,704 | 31,321 | 24.5 | +0.825 ns | 0 |
@@ -416,7 +426,7 @@ macro-EXPANDED one that must both expand clean so the group cannot pass on a
 front end that refuses everything; and eleven that run mutated copies of the
 real `run.sh` under real bash, four of them the round-two counterexamples above
 and the last three the round-two and round-three constructs on the real read
-set, with and without a front end) and `syn/ooc/ooc_tcl_selftest.py` (5 arms,
+set, with and without a front end) and `syn/ooc/ooc_tcl_selftest.py` (55 arms,
 which drive this .tcl under `tclsh` with the Vivado commands stubbed), plus both
 expansions for real.
 

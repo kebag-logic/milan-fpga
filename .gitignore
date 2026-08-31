@@ -132,12 +132,11 @@ syn/yosys/.ooc-mut-*
 syn/yosys/.ooc-pkg-*
 syn/yosys/rom_digests.tsv.new.*
 
-# syn/ooc/ooc_tcl_selftest.py does the same beside ITSELF, for the same
-# reason (milan_datapath_ooc.tcl derives $REPO from [info script], so a
-# mutant must live in syn/ooc/). These lines were missing while the mutants
-# were being written -- only the syn/yosys/ suite was covered.
-syn/ooc/.ooc-mut-*
-syn/ooc/.ooc-pkg-*
+# syn/ooc/ooc_tcl_selftest.py writes its mutated recipes beside ITSELF for
+# the same reason (milan_datapath_ooc.tcl derives $REPO from [info script],
+# so a mutant must live in syn/ooc/). This line was missing while those
+# mutants were being written -- only the syn/yosys/ suite was covered. Its
+# package mutants take no dir= and land in $TMPDIR, so they need no entry.
 
 # local agent scratch, never shipped
 .claude/
