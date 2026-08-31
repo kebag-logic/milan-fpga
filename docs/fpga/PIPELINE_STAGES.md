@@ -104,9 +104,14 @@ Knobs (per queue, offsets from the queue base):
 - `rsc_bufsz` (PAYCAP) at +0x44, currently 57344. Warning: the CSR field is
   16 bits wide; writing 0x1C000 silently stores 0xC000. Widening it is the
   documented RTL lever for aggregates larger than 64 KB.
-- `rsc_tout` at +0x48, idle close in datapath-clock ticks. `ethtool -C rx-usecs`
-  writes this AND the driver poll cadence together; poke the CSR afterwards
-  if you need them decoupled (measured: flat either way at P4 with 16K pages).
+- `rsc_tout` at +0x48 uses system-clock ticks.
+- System clock: 100 MHz.
+- Default: 5,000 cycles, or 50 us.
+- `ethtool -C rx-usecs` also changes driver polling.
+- Poke the CSR afterward for independent tuning.
+- P4 measurements were flat with 16K pages.
+- `rsc_agemax` uses identical system-clock ticks.
+- Lifetime default: 200,000 cycles, or 2 ms.
 - `rsc_segcap` at +0x54, currently 60. Setting 10 was measured harmful
   (256 Mbit at P4, chaotic flows).
 

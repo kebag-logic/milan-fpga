@@ -1965,7 +1965,7 @@ class RingDMAWriter(LiteXModule):
         s_age   = Array(Signal(24, name=f"s_age{i}")    for i in range(NS))
         s_cq    = Array(Signal(max=cq_depth, name=f"s_cq{i}") for i in range(NS))  # CQ index: MUST track cq_depth (4-bit relic broke CQD=32: closes stamped done on entry&0xF, head starved)
         self.rsc_bufsz = CSRStorage(16, reset=2048, description="RSC aggregate buffer bytes (driver posts this size).")
-        self.rsc_tout  = CSRStorage(24, reset=5000, description="RSC aggregate idle-close timeout (milan_clk cycles; 5000 = 100 us @ 50 MHz).")
+        self.rsc_tout  = CSRStorage(24, reset=5000, description="RSC aggregate idle-close timeout (sys_clk cycles; 5000 = 50 us @ 100 MHz).")
         # slot selection combs
         slot_hit  = Signal(NS)          # per-slot: open & same flow & in-seq & fits
         agg_match = Signal()
@@ -2255,7 +2255,7 @@ class RingDMAWriter(LiteXModule):
         # (the driver hardcodes them). segcap replaces the v1 `agg_segs == 15` constant;
         # agemax bounds an open slot's total lifetime (CQ head-of-line + delivery bound).
         self.rsc_segcap = CSRStorage(8, reset=15, description="RSC aggregate segment cap (close after this many merged segments).")
-        self.rsc_agemax = CSRStorage(24, reset=200000, description="RSC aggregate lifetime cap in cycles (2 ms @ 100 MHz); bounds CQ head-of-line hold.")
+        self.rsc_agemax = CSRStorage(24, reset=200000, description="RSC aggregate lifetime cap in sys_clk cycles (200000 = 2 ms @ 100 MHz); bounds CQ head-of-line hold.")
         self.comb += agemax_v.eq(self.rsc_agemax.storage)
         # R-3 header-split (HEADER_SPLIT_DESIGN.md): payload at offset 0 of order-0
         # 4 KB posted pages + opener headers to a side ring -> every full frag is

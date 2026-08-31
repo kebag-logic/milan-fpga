@@ -43,6 +43,11 @@ PRODUCT_OPTIONS = (
     "--l2-bytes",
     "--milan-clk-freq",
 )
+SYSTEM_CLOCK_OPTION = "--sys-clk-freq"
+SYSTEM_CLOCK_CLI = "100000000"
+SYSTEM_CLOCK_DEPLOY = "100000000"
+RSC_TOUT_RESET_CYCLES = 5000
+RSC_AGEMAX_RESET_CYCLES = 200000
 PRODUCT_CLI = {
     "--cpu": "vexiiriscv",
     "--cpu-count": "1",
@@ -93,6 +98,17 @@ class PortGroup:
             f"| {self.label} | {self.rtl_names} | {self.duty} | "
             f"{self.safe_start} |"
         )
+
+
+@dataclass(frozen=True)
+class RscTimerFacts:
+    reset_cycles: int
+    description: str
+    age_reset_cycles: int
+    age_description: str
+    uses_default_sync: bool
+    writer_is_unrenamed: bool
+    crosses_to_datapath: bool
 
 
 PORT_GROUPS = (
@@ -247,6 +263,10 @@ STALE_PIPELINE_OPTION = re.compile(
     r"--milan-clk-freq(?:=|\s+)100e6\b",
     re.IGNORECASE,
 )
+STALE_RSC_TIMER_DOMAIN = re.compile(
+    r"`rsc_tout`[^\n]{0,120}\bdatapath-clock\s+ticks\b",
+    re.IGNORECASE,
+)
 
 
 def scalar(value: object) -> str:
@@ -257,10 +277,13 @@ def scalar(value: object) -> str:
     return str(value)
 
 
-def argparse_defaults(path: Path) -> dict[str, str]:
+def argparse_defaults(
+    path: Path,
+    options: tuple[str, ...] = PRODUCT_OPTIONS,
+) -> dict[str, str]:
     """Read required argparse defaults without importing the SoC."""
     tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
-    found: dict[str, list[str]] = {option: [] for option in PRODUCT_OPTIONS}
+    found: dict[str, list[str]] = {option: [] for option in options}
     for node in ast.walk(tree):
         if not isinstance(node, ast.Call):
             continue
@@ -271,7 +294,7 @@ def argparse_defaults(path: Path) -> dict[str, str]:
             and isinstance(argument.value, str)
             and argument.value.startswith("--")
         ]
-        selected = [flag for flag in flags if flag in PRODUCT_OPTIONS]
+        selected = [flag for flag in flags if flag in options]
         if not selected:
             continue
         defaults = [item.value for item in node.keywords if item.arg == "default"]
@@ -285,6 +308,160 @@ def argparse_defaults(path: Path) -> dict[str, str]:
     if duplicates:
         raise ValueError("duplicate argparse defaults: " + ", ".join(duplicates))
     return {option: values[0] for option, values in found.items()}
+
+
+def deploy_override(path: Path, option: str) -> str | None:
+    """Read one optional value from the fixed deployment recipe."""
+    text = path.read_text(encoding="utf-8")
+    matches = re.findall(r'^MILAN_OPTS="([^"\n]*)"$', text, re.MULTILINE)
+    if len(matches) != 1:
+        raise ValueError("expected one double-quoted MILAN_OPTS assignment")
+    tokens = shlex.split(matches[0])
+    values: list[str] = []
+    index = 0
+    while index < len(tokens):
+        token, equals, embedded = tokens[index].partition("=")
+        if token != option:
+            index += 1
+            continue
+        if equals:
+            values.append(embedded)
+            index += 1
+            continue
+        if index + 1 >= len(tokens) or tokens[index + 1].startswith("--"):
+            raise ValueError(f"{option}: deployment value is missing")
+        values.append(tokens[index + 1])
+        index += 2
+    if len(values) > 1:
+        raise ValueError(f"{option}: duplicate deployment values")
+    if not values:
+        return None
+    value = values[0]
+    return scalar(float(value)) if re.fullmatch(
+        r"[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?", value
+    ) else value
+
+
+def rsc_timer_facts(text: str) -> RscTimerFacts:
+    """Trace the RSC timer through its default domain and RX CDC."""
+    tree = ast.parse(text, filename=str(SOC))
+    writers = [
+        node
+        for node in tree.body
+        if isinstance(node, ast.ClassDef) and node.name == "RingDMAWriter"
+    ]
+    if len(writers) != 1:
+        raise ValueError("expected one RingDMAWriter class")
+    writer = writers[0]
+
+    def self_attr(node: ast.AST, name: str) -> bool:
+        return (
+            isinstance(node, ast.Attribute)
+            and node.attr == name
+            and isinstance(node.value, ast.Name)
+            and node.value.id == "self"
+        )
+
+    def csr_facts(name: str) -> tuple[int, str]:
+        assignments = [
+            node
+            for node in ast.walk(writer)
+            if isinstance(node, ast.Assign)
+            and len(node.targets) == 1
+            and self_attr(node.targets[0], name)
+            and isinstance(node.value, ast.Call)
+        ]
+        if len(assignments) != 1:
+            raise ValueError(f"expected one {name} CSR declaration")
+        call = assignments[0].value
+        keywords = {item.arg: item.value for item in call.keywords if item.arg}
+        if "reset" not in keywords or "description" not in keywords:
+            raise ValueError(f"{name} must declare reset and description")
+        reset = ast.literal_eval(keywords["reset"])
+        description = ast.literal_eval(keywords["description"])
+        if not isinstance(reset, int) or not isinstance(description, str):
+            raise ValueError(f"{name} reset or description has the wrong type")
+        return reset, description
+
+    reset_cycles, description = csr_facts("rsc_tout")
+    age_reset_cycles, age_description = csr_facts("rsc_agemax")
+
+    slot_timers_use_default_sync = False
+    ack_timer_uses_default_sync = False
+    for node in ast.walk(writer):
+        if not isinstance(node, ast.AugAssign) or not self_attr(node.target, "sync"):
+            continue
+        names = {item.id for item in ast.walk(node) if isinstance(item, ast.Name)}
+        attrs = {
+            item.attr for item in ast.walk(node) if isinstance(item, ast.Attribute)
+        }
+        if {"s_idle", "s_age", "agemax_v"} <= names and "rsc_tout" in attrs:
+            slot_timers_use_default_sync = True
+        if "ack_timer" in names:
+            ack_timer_uses_default_sync = True
+    ack_timer_uses_timeout = any(
+        isinstance(node, ast.Compare)
+        and "ack_timer" in {
+            item.id for item in ast.walk(node) if isinstance(item, ast.Name)
+        }
+        and "rsc_tout" in {
+            item.attr for item in ast.walk(node) if isinstance(item, ast.Attribute)
+        }
+        for node in ast.walk(writer)
+    )
+    uses_default_sync = (
+        slot_timers_use_default_sync
+        and ack_timer_uses_default_sync
+        and ack_timer_uses_timeout
+    )
+
+    unrenamed_writers = {
+        node.targets[0].attr
+        for node in ast.walk(tree)
+        if isinstance(node, ast.Assign)
+        and len(node.targets) == 1
+        and isinstance(node.targets[0], ast.Attribute)
+        and isinstance(node.targets[0].value, ast.Name)
+        and node.targets[0].value.id == "self"
+        and isinstance(node.value, ast.Call)
+        and isinstance(node.value.func, ast.Name)
+        and node.value.func.id == "RingDMAWriter"
+    }
+    writer_is_unrenamed = {"rx", "rx1"} <= unrenamed_writers
+    crosses_to_datapath = any(
+        isinstance(node, ast.Assign)
+        and len(node.targets) == 1
+        and isinstance(node.targets[0], ast.Name)
+        and node.targets[0].id == "rx_dp"
+        and isinstance(node.value, ast.Call)
+        and isinstance(node.value.func, ast.Name)
+        and node.value.func.id == "_axis_dp_cdc"
+        and any(
+            isinstance(argument, ast.Constant)
+            and argument.value == "dma_rx_cdc"
+            for argument in node.value.args
+        )
+        and any(
+            isinstance(argument, ast.Name) and argument.id == "milan_cd"
+            for argument in node.value.args
+        )
+        and any(
+            keyword.arg == "to_datapath"
+            and isinstance(keyword.value, ast.Constant)
+            and keyword.value.value is False
+            for keyword in node.value.keywords
+        )
+        for node in ast.walk(tree)
+    )
+    return RscTimerFacts(
+        reset_cycles=reset_cycles,
+        description=description,
+        age_reset_cycles=age_reset_cycles,
+        age_description=age_description,
+        uses_default_sync=uses_default_sync,
+        writer_is_unrenamed=writer_is_unrenamed,
+        crosses_to_datapath=crosses_to_datapath,
+    )
 
 
 def deploy_options(path: Path) -> dict[str, str]:
@@ -486,7 +663,16 @@ def validate(root: Path) -> list[str]:
     errors: list[str] = []
     try:
         cli = argparse_defaults(root / SOC)
+        system_cli = argparse_defaults(
+            root / SOC,
+            (SYSTEM_CLOCK_OPTION,),
+        )[SYSTEM_CLOCK_OPTION]
         deploy = deploy_options(root / DEPLOY)
+        system_override = deploy_override(root / DEPLOY, SYSTEM_CLOCK_OPTION)
+        system_deploy = system_override or system_cli
+        soc_text = (root / SOC).read_text(encoding="utf-8")
+        rsc_timer = rsc_timer_facts(soc_text)
+        system_frequency = int(system_deploy)
     except (OSError, SyntaxError, ValueError) as error:
         return [f"solution source facts unavailable: {error}"]
 
@@ -496,6 +682,50 @@ def validate(root: Path) -> list[str]:
         errors.append(
             f"{DEPLOY}: deployment values differ from product contract: {deploy}"
         )
+    if system_cli != SYSTEM_CLOCK_CLI:
+        errors.append(
+            f"{SOC}: system clock default differs from product contract: "
+            f"{system_cli}"
+        )
+    if system_deploy != SYSTEM_CLOCK_DEPLOY:
+        errors.append(
+            f"{DEPLOY}: deployment system clock differs from product contract: "
+            f"{system_deploy}"
+        )
+    if not rsc_timer.uses_default_sync:
+        errors.append(f"{SOC}: RSC timers must use the default system domain")
+    if not rsc_timer.writer_is_unrenamed:
+        errors.append(f"{SOC}: RX RingDMAWriter must remain unrenamed")
+    if not rsc_timer.crosses_to_datapath:
+        errors.append(f"{SOC}: RX DMA/datapath CDC is missing")
+    if rsc_timer.reset_cycles != RSC_TOUT_RESET_CYCLES:
+        errors.append(
+            f"{SOC}: rsc_tout reset differs from product contract: "
+            f"{rsc_timer.reset_cycles}"
+        )
+    if rsc_timer.age_reset_cycles != RSC_AGEMAX_RESET_CYCLES:
+        errors.append(
+            f"{SOC}: rsc_agemax reset differs from product contract: "
+            f"{rsc_timer.age_reset_cycles}"
+        )
+    rsc_timeout_us = RSC_TOUT_RESET_CYCLES * 1_000_000 / system_frequency
+    rsc_timeout_label = f"{rsc_timeout_us:g}"
+    rsc_age_ms = RSC_AGEMAX_RESET_CYCLES * 1_000 / system_frequency
+    rsc_age_label = f"{rsc_age_ms:g}"
+    expected_rsc_description = (
+        "RSC aggregate idle-close timeout "
+        f"(sys_clk cycles; {RSC_TOUT_RESET_CYCLES} = "
+        f"{rsc_timeout_label} us @ {clock_label(system_deploy)})."
+    )
+    if rsc_timer.description != expected_rsc_description:
+        errors.append(f"{SOC}: source-derived RSC timeout description differs")
+    expected_age_description = (
+        "RSC aggregate lifetime cap in sys_clk cycles "
+        f"({RSC_AGEMAX_RESET_CYCLES} = {rsc_age_label} ms @ "
+        f"{clock_label(system_deploy)}); bounds CQ head-of-line hold."
+    )
+    if rsc_timer.age_description != expected_age_description:
+        errors.append(f"{SOC}: source-derived RSC lifetime description differs")
 
     document_paths = (
         LITEX_DOC,
@@ -557,6 +787,15 @@ def validate(root: Path) -> list[str]:
         "- T3 uses the deployed "
         f"{clock_label(deploy['--milan-clk-freq'])} datapath.",
     )
+    pipeline_rsc_sentences = (
+        "- `rsc_tout` at +0x48 uses system-clock ticks.",
+        f"- System clock: {clock_label(system_deploy)}.",
+        f"- Default: {RSC_TOUT_RESET_CYCLES:,} cycles, "
+        f"or {rsc_timeout_label} us.",
+        "- `rsc_agemax` uses identical system-clock ticks.",
+        f"- Lifetime default: {RSC_AGEMAX_RESET_CYCLES:,} cycles, "
+        f"or {rsc_age_label} ms.",
+    )
     if pipeline is not None:
         if pipeline_product_sentence not in pipeline:
             errors.append(f"{PIPELINE_DOC}: source-derived product shape is missing")
@@ -566,10 +805,18 @@ def validate(root: Path) -> list[str]:
                     f"{PIPELINE_DOC}: source-derived datapath clock is missing: "
                     f"{sentence}"
                 )
+        for sentence in pipeline_rsc_sentences:
+            if sentence not in pipeline:
+                errors.append(
+                    f"{PIPELINE_DOC}: source-derived RSC timeout is missing: "
+                    f"{sentence}"
+                )
         if STALE_PIPELINE_CLOCK.search(pipeline):
             errors.append(f"{PIPELINE_DOC}: stale deployed datapath clock claim")
         if STALE_PIPELINE_OPTION.search(pipeline):
             errors.append(f"{PIPELINE_DOC}: stale deployed datapath clock option")
+        if STALE_RSC_TIMER_DOMAIN.search(pipeline):
+            errors.append(f"{PIPELINE_DOC}: stale RSC datapath-clock claim")
 
     solution = documents.get(SOLUTION_DOC)
     if solution is not None:
@@ -692,6 +939,86 @@ def selftest() -> int:
             "deployment values differ",
         ),
         (
+            "system clock default",
+            SOC,
+            'ap.add_argument("--sys-clk-freq", default=100e6, type=float)',
+            'ap.add_argument("--sys-clk-freq", default=80e6, type=float)',
+            "system clock default differs",
+        ),
+        (
+            "deployment system clock override",
+            DEPLOY,
+            "--milan-clk-freq 50e6",
+            "--sys-clk-freq 80e6 --milan-clk-freq 50e6",
+            "deployment system clock differs",
+        ),
+        (
+            "RSC source description",
+            SOC,
+            "RSC aggregate idle-close timeout (sys_clk cycles; "
+            "5000 = 50 us @ 100 MHz).",
+            "RSC aggregate idle-close timeout (milan_clk cycles; "
+            "5000 = 100 us @ 50 MHz).",
+            "source-derived RSC timeout description differs",
+        ),
+        (
+            "RSC reset cycles",
+            SOC,
+            "self.rsc_tout  = CSRStorage(24, reset=5000, description=",
+            "self.rsc_tout  = CSRStorage(24, reset=6000, description=",
+            "rsc_tout reset differs",
+        ),
+        (
+            "RSC lifetime source description",
+            SOC,
+            "RSC aggregate lifetime cap in sys_clk cycles "
+            "(200000 = 2 ms @ 100 MHz);",
+            "RSC aggregate lifetime cap in milan_clk cycles "
+            "(200000 = 4 ms @ 50 MHz);",
+            "source-derived RSC lifetime description differs",
+        ),
+        (
+            "RSC lifetime reset cycles",
+            SOC,
+            "self.rsc_agemax = CSRStorage(24, reset=200000, description=",
+            "self.rsc_agemax = CSRStorage(24, reset=250000, description=",
+            "rsc_agemax reset differs",
+        ),
+        (
+            "RSC timer default domain",
+            SOC,
+            "            for i in range(NS):\n"
+            "                self.sync += [",
+            "            for i in range(NS):\n"
+            "                self.sync.milan += [",
+            "RSC timers must use the default system domain",
+        ),
+        (
+            "RSC ACK timer default domain",
+            SOC,
+            "        if rsc_capable:                 # folded: "
+            "ack_timer/rsc_dbg undriven (0)\n"
+            "            self.sync += [",
+            "        if rsc_capable:                 # folded: "
+            "ack_timer/rsc_dbg undriven (0)\n"
+            "            self.sync.milan += [",
+            "RSC timers must use the default system domain",
+        ),
+        (
+            "RSC writer domain rename",
+            SOC,
+            "self.rx = RingDMAWriter(",
+            "self.rx_writer = RingDMAWriter(",
+            "RX RingDMAWriter must remain unrenamed",
+        ),
+        (
+            "RX DMA datapath CDC",
+            SOC,
+            'rx_dp = _axis_dp_cdc(self, "dma_rx_cdc"',
+            'rx_dp = _axis_dp_direct(self, "dma_rx_cdc"',
+            "RX DMA/datapath CDC is missing",
+        ),
+        (
             "stale shipping cache prose",
             LITEX_DOC,
             CPU_END,
@@ -755,6 +1082,42 @@ def selftest() -> int:
             "- Recipe: `--milan-clk-freq 50e6`.\n\n"
             "- Old recipe: `--milan-clk-freq 100e6`.",
             "stale deployed datapath clock option",
+        ),
+        (
+            "pipeline RSC timer domain",
+            PIPELINE_DOC,
+            "- `rsc_tout` at +0x48 uses system-clock ticks.",
+            "- `rsc_tout` at +0x48 uses datapath-clock ticks.",
+            "source-derived RSC timeout is missing",
+        ),
+        (
+            "pipeline RSC timeout conversion",
+            PIPELINE_DOC,
+            "- Default: 5,000 cycles, or 50 us.",
+            "- Default: 5,000 cycles, or 100 us.",
+            "source-derived RSC timeout is missing",
+        ),
+        (
+            "pipeline RSC system clock",
+            PIPELINE_DOC,
+            "- System clock: 100 MHz.",
+            "- System clock: 50 MHz.",
+            "source-derived RSC timeout is missing",
+        ),
+        (
+            "pipeline RSC lifetime conversion",
+            PIPELINE_DOC,
+            "- Lifetime default: 200,000 cycles, or 2 ms.",
+            "- Lifetime default: 200,000 cycles, or 4 ms.",
+            "source-derived RSC timeout is missing",
+        ),
+        (
+            "contradictory RSC timer domain",
+            PIPELINE_DOC,
+            "- `rsc_tout` at +0x48 uses system-clock ticks.",
+            "- `rsc_tout` at +0x48 uses system-clock ticks.\n"
+            "- `rsc_tout` also uses datapath-clock ticks.",
+            "stale RSC datapath-clock claim",
         ),
         (
             "product clock table",
