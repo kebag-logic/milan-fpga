@@ -101,8 +101,11 @@ preserves the existing local policy. Its result is still recorded exactly once.
 ## Nightly and manual dispatch
 
 **The nightly** validates whatever `dev` points at when the cron fires. Its
-value is environment drift: the Verilator cache, the apt Yosys, the pinned
-`tsn-gen` revision and the LiteX pins all move under a tree that did not, and
+value is environment drift: the Verilator cache, the apt Yosys and its
+jemalloc preload (a speed choice `syn/yosys/run.sh` makes only when the
+library is installed, never a pass criterion), the TerosHDL toolchain cache,
+the pinned `tsn-gen` revision and the LiteX pins all move under a tree that
+did not, and
 without the nightly the next pull request is the first thing to find out. A
 red nightly on a tree whose last push was green is therefore a toolchain or
 dependency finding, not a regression of the tree; file it as an Issue against
@@ -654,13 +657,15 @@ without sv2v turns the builder gate red rather than green, and the mutation
 suite drops the install, drifts its version, moves it after the call, and
 disables its condition.
 
-Two caches, deliberately split. The Scala toolchain is content-addressed and
-keeps a broad fallback. The generated CPU metadata does not: its key hashes the
-configs, `milan_soc.py`, `build.sh`, `sweep.sh`, the pins and the patch series,
-with no prefix fallback, because LiteX names those files from the CPU
-arguments alone and skips the generator whenever the file exists, so a stale
-entry would elaborate metadata built by the previous toolchain while reporting
-green.
+Three caches, deliberately split. The Scala toolchain is content-addressed
+and keeps a broad fallback. The pip download cache is keyed on the pin file
+with a prefix fallback, safe because pip re-verifies what it installs against
+the pins - a cache entry can only save the download, never substitute a
+revision. The generated CPU metadata keeps neither fallback: its key hashes
+the configs, `milan_soc.py`, `build.sh`, `sweep.sh`, the pins and the patch
+series, because LiteX names those files from the CPU arguments alone and
+skips the generator whenever the file exists, so a stale entry would
+elaborate metadata built by the previous toolchain while reporting green.
 
 The `elaborate` check fails when no interpreter can import LiteX, when the
 interpreter's VexiiRiscv rejects the `--l2-*` arguments the series adds, and

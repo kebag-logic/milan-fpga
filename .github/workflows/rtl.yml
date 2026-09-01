@@ -356,7 +356,7 @@ jobs:
       - name: Install Yosys
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends yosys
+          sudo apt-get install -y --no-install-recommends yosys libjemalloc2
           yosys -V
       - name: Install the pinned sv2v release
         run: |
