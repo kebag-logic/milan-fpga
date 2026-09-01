@@ -135,12 +135,14 @@ _PEER_TOKEN = _asm(68, 83, 50, 48)
 #! requirements", "item N.M" for internal bench rows — and says "the bench
 #! AVB switch". Two spellings each: the plan's contiguous document stem and
 #! its generic three-word phrase; the vendor's long name and its short mark
-#! (word-bounded, so identifiers like a shell's cm{token}uild joins cannot
-#! fire it — the negative arm below proves that).
+#! (word-bounded and spacing-tolerant, so a spaced human spelling still
+#! fires while identifiers like a shell's cm{token}uild joins cannot —
+#! the arms below prove both directions).
 _PLAN_TOKEN = _asm(109, 105, 108, 97, 110, 101, 110, 100, 115, 116, 97, 116, 105, 111, 110)
 _PLAN_PHRASE = _asm(118, 97, 108, 105, 100, 97, 116, 105, 111, 110, 32, 116, 101, 115, 116, 32, 112, 108, 97, 110)
 _VENDOR_TOKEN = _asm(97, 117, 100, 105, 111, 116, 101, 99, 104, 110, 105, 107)
 _VENDOR_MARK = _asm(100, 38, 98)
+_VENDOR_MARK_SPACED = r"\s*".join(re.escape(c) for c in _VENDOR_MARK)
 IDENTITY_RULES = (
     (DENY_CS, "compliance lab name", "committed text says 'compliance'"),
     (re.compile(r"\b%s\w*" % _SUITE_TOKEN, re.IGNORECASE),
@@ -150,7 +152,7 @@ IDENTITY_RULES = (
     (re.compile(r"\b%s\w*|%s" % (_PLAN_TOKEN, _PLAN_PHRASE), re.IGNORECASE),
      "external test-plan name",
      "committed text says 'the Milan compliance requirements'"),
-    (re.compile(r"\b%s\w*|\b%s\b" % (_VENDOR_TOKEN, re.escape(_VENDOR_MARK)),
+    (re.compile(r"\b%s\w*|\b%s\b" % (_VENDOR_TOKEN, _VENDOR_MARK_SPACED),
                 re.IGNORECASE),
      "bench-switch vendor name", "committed text says 'the bench AVB switch'"),
 )
@@ -792,6 +794,9 @@ def scrub_selftest():
          "bench-switch vendor name"),
         ("vendor-mark", "hdl/milan/x.sv",
          f"//! power-cycle via the {_VENDOR_MARK.upper()} console\n",
+         "bench-switch vendor name"),
+        ("vendor-mark-spaced", "tb/tools/y.py",
+         f"# reboot the {_VENDOR_MARK.replace(chr(38), ' ' + chr(38) + ' ')} switch\n",
          "bench-switch vendor name"),
     )
     for name, rel, body, label in fixtures:
