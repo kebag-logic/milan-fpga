@@ -17,14 +17,14 @@ TOP        = milan_datapath
 # gen/adp_shape_defaults.svh - the stream counts the entity advertises AND the
 # ACMP context-array sizing - and that file is GENERATED from an end-station
 # config by sw/builder/endstation_builder.py. The default 1x1 copy lives in
-# hdl/common/csr/gen; the NxN legs elaborate a DIFFERENT shape by putting that
+# hdl/common/gen; the NxN legs elaborate a DIFFERENT shape by putting that
 # config's generated directory FIRST on the include path. There is no way to
 # build an N=8 datapath against the 1x1 entity definition and not notice: the
 # ACMP arrays would be sized 1/2 and the harness reads the mismatch straight
 # off 0x618/0x61C.
 CFG_DIR    = ../../../configs/generated
 # The N=1 legs need this JUST AS MUCH as the NxN ones. Without it they fall
-# through to hdl/common/csr/gen/, which is whichever config was last written
+# through to hdl/common/gen/, which is whichever config was last written
 # with --write-rtl - so regenerating the tree for the 8x8 ship shape made the
 # N_STREAMS=1 legs elaborate a 9-source ACMP array with 7 sources undriven,
 # and the ONLY thing that caught it was Verilator's -Werror-UNDRIVEN. Vivado
@@ -44,7 +44,7 @@ SHAPE_AX1x1 = +incdir+$(CFG_DIR)/endstation_ax7101_1x1_tdm8
 # regenerated shape must still force a rebuild or the harness keeps testing
 # the previous entity definition out of a stale objdir.
 GEN_CSR     = $(RTL_DIR)/common/csr/gen/lwsrp_csr_defaults.svh
-SHAPE_DEF   = $(RTL_DIR)/common/csr/gen/adp_shape_defaults.svh
+SHAPE_DEF   = $(RTL_DIR)/common/gen/adp_shape_defaults.svh
 SHAPE_4x4_F = $(CFG_DIR)/endstation_arty_4x4/gen/adp_shape_defaults.svh
 SHAPE_8x8_F = $(CFG_DIR)/endstation_ax7101_8x8/gen/adp_shape_defaults.svh
 SHAPE_AX1_F = $(CFG_DIR)/endstation_ax7101_1x1_tdm8/gen/adp_shape_defaults.svh

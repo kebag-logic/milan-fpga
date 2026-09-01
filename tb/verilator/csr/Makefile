@@ -35,7 +35,7 @@ RTL_DIR    = ../../../hdl
 # come from the config, never from N_TALKERS_P/N_LISTENERS_P.
 CFG_DIR    = ../../../configs/generated
 # The N=1 default target needs its shape named just as much as the NxN ones:
-# without it the include falls through to hdl/common/csr/gen/, which is
+# without it the include falls through to hdl/common/gen/, which is
 # whichever config was last --write-rtl'd, so regenerating for the 8x8 ship
 # shape made this suite assert the 1x1 ADP words against an 8x8 entity.
 SHAPE_1x1  = +incdir+$(CFG_DIR)/endstation_arty_current
@@ -60,7 +60,7 @@ VFLAGS = --cc --exe --build -j 0 \
 # the PREVIOUS entity definition. (Caught exactly that way 2026-07-27: the
 # suite ran a 1x1 harness against an 8x8 objdir and reported 9/9.)
 GEN_CSR   = $(RTL_DIR)/common/csr/gen/lwsrp_csr_defaults.svh
-SHAPE_DEF = $(RTL_DIR)/common/csr/gen/adp_shape_defaults.svh
+SHAPE_DEF = $(RTL_DIR)/common/gen/adp_shape_defaults.svh
 SHAPE_4x4_F = $(CFG_DIR)/endstation_arty_4x4/gen/adp_shape_defaults.svh
 SHAPE_8x8_F = $(CFG_DIR)/endstation_ax7101_8x8/gen/adp_shape_defaults.svh
 

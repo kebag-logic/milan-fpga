@@ -40,7 +40,7 @@ the number into the RTL - RTL choosing the entity shape is the same mistake
 one layer down.  configs/endstation_*.yaml is the single declarative
 definition and it drives the gateware, the AEM model and lwSRP alike, so
 sw/builder/endstation_builder.py emits this shape's
-hdl/common/csr/gen/adp_shape_defaults.svh (which milan_csr and milan_datapath
+hdl/common/gen/adp_shape_defaults.svh (which milan_csr and milan_datapath
 `include) in one pass from one config.  This gate is what makes "one pass,
 one config" checkable.
 
@@ -83,7 +83,7 @@ WHAT IT CHECKS, per end-station config:
                       and that `gen/` holds NO leftover aecp_aem_rom.svh - a
                       build artifact in an include dir is a build artifact
                       something eventually compiles
-  E  tracked shape    hdl/common/csr/gen/adp_shape_defaults.svh names a
+  E  tracked shape    hdl/common/gen/adp_shape_defaults.svh names a
                       source config that exists and is EXACTLY what that
                       config generates - so "which shape is in the tree" is
                       always answerable and always current
@@ -125,6 +125,7 @@ Needs pyyaml (same dependency as sw/builder/test_builder.py).
 
 import argparse
 import os
+import subprocess
 import re
 import shutil
 import sys
@@ -164,6 +165,309 @@ def ck(what, got, exp):
             print(f"  [FAIL] {what}: got {got!r}, expected {exp!r}")
     elif not quiet:
         print(f"  [ok]   {what} = {got!r}")
+
+
+# -------------------------------------------------- consumer inventory --
+#: Any literal that names the shape header, with or without a build variable
+#: in front of it ($(RTL_DIR)/..., ../../hdl/..., configs/generated/...).
+CONSUMER_RE = re.compile(r"[\w$(){}./\\-]*gen/adp_shape_defaults\.svh")
+
+
+ASSIGN_RE = re.compile(r"^\s*(\w+)\s*[:?]?=\s*(\S+)\s*$", re.MULTILINE)
+VARIABLE_RE = re.compile(r"\$[({]?(\w+)[)}]?")
+SHAPE_BASENAME = "adp_shape_defaults.svh"
+
+#: References to the shape header that no static expansion can settle, each
+#: classified with the reason it is not a tracked-header consumer. This set
+#: is the ONLY way past the inventory: an unresolvable reference that is not
+#: listed here is a finding, because "could not tell" must not read as "fine".
+CLASSIFIED_CONSUMERS = {
+    ("sw/litex/sweep.sh", "$CFG_GEN/gen/adp_shape_defaults.svh"):
+        "a per-config copy chosen at build time under configs/generated/",
+    ("tb/verilator/milan_dp/Makefile",
+     "gen_divergent/gen/adp_shape_defaults.svh"):
+        "written by gen_divergent_shape.py during the suite, never tracked",
+    ("tb/verilator/milan_dp/gen_divergent_shape.py",
+     "gen_divergent/gen/adp_shape_defaults.svh"):
+        "the same generated file, named by the script that writes it",
+}
+
+#: Repo-root-anchored prefixes: a reference starting with one of these is
+#: relative to the repository, not to the file quoting it.
+ROOT_PREFIXES = ("hdl/", "configs/", "scripts/", "sw/", "syn/", "tb/",
+                 "docs/", "bd/", "avdecc/")
+
+
+def resolve_reference(reference, name, text):
+    """Static expansion for script and prose consumers: the repo-relative
+    path a reference names, or None when substituting the same-file
+    assignments does not settle it. Makefile references never come here --
+    make's own engine expands those (resolve_make_reference), because only
+    make applies +=, includes and $(shell ...) the way the build does.
+    None is NOT a pass -- see the classification below."""
+    assignments = dict(ASSIGN_RE.findall(text))
+    resolved = reference.lstrip("(")
+    for _ in range(4):
+        expanded = VARIABLE_RE.sub(
+            lambda m: assignments.get(m.group(1), m.group(0)), resolved)
+        if expanded == resolved:
+            break
+        resolved = expanded
+    if "$" in resolved:
+        return None
+    if resolved.startswith(ROOT_PREFIXES):
+        return os.path.normpath(resolved)
+    return os.path.normpath(os.path.join(os.path.dirname(name), resolved))
+
+
+MAKE_PROBE_TARGET = "__shape_probe__"
+
+#: An assignment line, however it is spelled: optional `export`/`override`
+#: prefixes, any of make's assignment operators. The frozen-value cross
+#: check below keys on the VARIABLE being assigned, so a spelling the
+#: pattern missed would only ever ADD a probe, never remove one.
+ASSIGN_LINE_RE = re.compile(
+    r"^[ \t]*(?:export[ \t]+|override[ \t]+)*"
+    r"(?P<var>\w+)[ \t]*[:+?]{0,2}=(?P<rhs>.*)$", re.MULTILINE)
+
+
+def probe_make(directory, makefile, expression):
+    """One expression expanded by make itself in the consumer's own
+    directory: final variable state, includes read, `+=`, `$(shell ...)`
+    and every assignment applied exactly as a build applies them. Returns
+    make's expansion, or None when make errors out."""
+    probe = "%s: ; @printf '%%s' \"%s\"" % (MAKE_PROBE_TARGET, expression)
+    env = dict(os.environ, MAKEFLAGS="", MFLAGS="")
+    try:
+        run = subprocess.run(
+            ["make", "-s", "--no-print-directory", "-f", makefile,
+             "--eval", probe, MAKE_PROBE_TARGET],
+            cwd=directory, env=env, capture_output=True, text=True,
+            timeout=60)
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    if run.returncode != 0 or not run.stdout.strip():
+        return None
+    return run.stdout.strip()
+
+
+def shape_prereqs_from_database(directory, makefile):
+    """Every prerequisite naming the shape header, exactly as make FROZE
+    it at parse time. Rule prerequisites are immediate-expansion contexts
+    -- a variable defined after the rule line never reaches them however
+    the final state reads -- and make's post-parse database records them
+    frozen, so it is their ground truth. Returns (ok, tokens); not-ok
+    means the database could not be read and nothing is verified."""
+    env = dict(os.environ, MAKEFLAGS="", MFLAGS="")
+    try:
+        run = subprocess.run(["make", "-pqrR", "-f", makefile],
+                             cwd=directory, env=env, capture_output=True,
+                             text=True, timeout=60)
+    except (OSError, subprocess.TimeoutExpired):
+        return False, []
+    if "# Files" not in run.stdout:
+        return False, []
+    tokens = set()
+    for line in run.stdout.splitlines():
+        if not line or line.startswith(("#", "\t", " ")):
+            continue
+        idx = line.find(":")
+        if idx <= 0 or line[idx + 1:idx + 2] == "=":
+            continue
+        for token in line[idx + 1:].lstrip(":").split():
+            if "$" not in token and token.endswith("/" + SHAPE_BASENAME) \
+                    and token.endswith("gen/" + SHAPE_BASENAME):
+                tokens.add(token)
+    return True, sorted(tokens)
+
+
+def resolve_make_reference(reference, name, text):
+    """The reference expanded by make itself, cross-checked against every
+    variable whose assignment carries it. The text probe alone reads the
+    FINAL variable state, which an immediate `:=` does not honor -- make
+    froze that value at its line, whatever `include`, `export` or a later
+    definition did afterwards -- so for each assignment line containing
+    the reference, the frozen variable is probed too and the text result
+    must appear among its words. Any disagreement, any expansion make
+    cannot settle to one word, any make error: None, and None is NOT a
+    pass."""
+    raw = reference.lstrip("(")
+    directory = os.path.join(ROOT, os.path.dirname(name))
+    makefile = os.path.basename(name)
+    text_out = probe_make(directory, makefile, "$(abspath %s)" % raw)
+    if text_out is None or any(c.isspace() for c in text_out):
+        return None
+    for m in ASSIGN_LINE_RE.finditer(text):
+        if reference not in m.group("rhs"):
+            continue
+        var_out = probe_make(directory, makefile,
+                             "$(abspath $(%s))" % m.group("var"))
+        if var_out is None or text_out not in var_out.split():
+            return None
+    return os.path.normpath(os.path.relpath(text_out, ROOT))
+
+
+def check_shape_consumers():
+    """I: every declared consumer of the TRACKED shape header resolves.
+
+    The header is a tracked build artifact whose consumers live in
+    Makefiles, scripts and prose. Relocating it and updating only the
+    consumers an extension-filtered grep happens to match is how three
+    Verilator suites came to depend on a deleted prerequisite while every
+    source-level gate stayed green -- Makefiles carry no extension, so
+    `--include=*.sv` and friends never see them. This check is deliberately
+    file-type blind.
+
+    It is also FAIL CLOSED, with make's own engine as the resolver for
+    make consumers. An earlier spelling skipped any reference whose
+    variables it could not expand, and `RTL_DIR = $(shell pwd)/../../../hdl`
+    -- ordinary make -- walked a stale prerequisite straight through it;
+    the hand-rolled model that replaced it then mis-resolved `+=`, a later
+    `:=` definition and an `include` override, banking confidently wrong
+    resolutions as clean. A Makefile reference is now expanded by make
+    itself (finals, includes, functions), cross-checked against the frozen
+    value of every variable assigned from it -- the two probes must agree,
+    which is what an immediate `:=` fed by any later definition (same
+    file, `include`, `export`, `override`) can never do -- and otherwise
+    either resolves to a tracked path or is listed in
+    CLASSIFIED_CONSUMERS with a reason.
+    A textual suffix is not evidence that the build expression in front of
+    it resolves to the repository. Nothing else passes.
+    """
+    tracked = set(tracked_files())
+    dangling = []
+    for name in sorted(tracked):
+        # The gate's own source carries the CONSUMER_RE pattern and the
+        # deliberately-stale path arm I plants. Neither is a consumer.
+        if name == "scripts/check_entity_shape.py":
+            continue
+        path = os.path.join(ROOT, name)
+        if not os.path.isfile(path):
+            continue
+        try:
+            text = open(path, encoding="utf-8", errors="replace").read()
+        except OSError:
+            continue
+        is_make = name.endswith("Makefile") or name.endswith(".mk")
+        seen_targets = set()
+
+        def judge(reference, target):
+            if target is None:
+                dangling.append(
+                    f"{name}: {reference} cannot be resolved and is not "
+                    f"classified in CLASSIFIED_CONSUMERS")
+                return
+            if target.startswith("configs/generated/"):
+                return            # per-config copies are arm D's
+            if target in seen_targets:
+                return            # one report per resolved defect
+            if not target.startswith("hdl/"):
+                seen_targets.add(target)
+                dangling.append(
+                    f"{name}: {reference} -> {target} is outside the "
+                    f"tracked tree and is not classified")
+                return
+            if target not in tracked:
+                seen_targets.add(target)
+                dangling.append(f"{name}: {reference} -> {target}")
+
+        references = sorted(set(CONSUMER_RE.findall(text)))
+        for reference in references:
+            # A bare `gen/...` is an `include directive: the compiler
+            # resolves it through the search path, not against the file's
+            # own directory. Whether it can bind two ways is arm H's
+            # subject. A build prerequisite always carries a prefix.
+            if reference.lstrip("(") == "gen/" + SHAPE_BASENAME:
+                continue
+            if (name, reference) in CLASSIFIED_CONSUMERS:
+                continue          # the ONLY way past the inventory
+            if is_make:
+                target = resolve_make_reference(reference, name, text)
+            else:
+                target = resolve_reference(reference, name, text)
+            judge(reference, target)
+        if is_make and references:
+            # Second source: the frozen prerequisites from make's own
+            # database, catching an immediate-expansion RULE line the
+            # per-reference probes cannot see ([R8-4]).
+            directory = os.path.join(ROOT, os.path.dirname(name))
+            ok, prereqs = shape_prereqs_from_database(
+                directory, os.path.basename(name))
+            if not ok:
+                dangling.append(
+                    f"{name}: make database unreadable; frozen shape "
+                    f"prerequisites cannot be verified")
+            for token in prereqs:
+                if token.lstrip("(") == "gen/" + SHAPE_BASENAME:
+                    continue
+                if (name, token) in CLASSIFIED_CONSUMERS:
+                    continue
+                if os.path.isabs(token):
+                    target = os.path.normpath(os.path.relpath(token, ROOT))
+                else:
+                    target = os.path.normpath(
+                        os.path.join(os.path.dirname(name), token))
+                judge(token, target)
+    ck("I every shape-header consumer resolves", sorted(dangling), [])
+
+
+# --------------------------------------------------- include ambiguity --
+INCLUDE_RE = re.compile(r'^\s*`include\s+"([^"]+)"', re.M)
+
+
+def tracked_files():
+    out = subprocess.run(["git", "ls-files"], cwd=ROOT, check=True,
+                         capture_output=True, text=True)
+    return [l for l in out.stdout.splitlines() if l.strip()]
+
+
+def check_include_ambiguity():
+    """H: no `include may resolve two ways.
+
+    A quoted `include is searched in the INCLUDING FILE'S OWN DIRECTORY before
+    the include path by Vivado, yosys and sv2v -- but NOT by Verilator, which
+    searches -I/+incdir and the CWD only.  So when an includer has a copy of
+    its own target sitting beside it AND another copy is reachable on the
+    include path, the two front ends bind different files and the same source
+    tree elaborates as two different designs, silently.
+
+    That is not hypothetical: milan_csr.sv and milan_datapath.sv both
+    `include "gen/adp_shape_defaults.svh", only milan_csr.sv had a copy next
+    door, and the shape override (`+incdir` at configs/generated/<cfg>/)
+    therefore reached only half the design on every front end except
+    Verilator.  See the PR that added this check.
+
+    The rule enforced here is front-end independent, which is the point: an
+    includer may not have its target adjacent while a competing copy of the
+    same relative path exists anywhere else in the tree.  Then precedence
+    cannot decide anything, and every tool agrees by construction.
+    """
+    tracked = tracked_files()
+    rtl = [f for f in tracked
+           if f.endswith((".sv", ".svh", ".v", ".vh"))
+           and (f.startswith("hdl/") or f.startswith("configs/"))]
+    ambiguous = []
+    for f in rtl:
+        try:
+            text = open(os.path.join(ROOT, f), encoding="utf-8",
+                        errors="replace").read()
+        except OSError:
+            continue
+        own_dir = os.path.dirname(f)
+        for rel in set(INCLUDE_RE.findall(text)):
+            if rel.startswith("/") or ".." in rel.split("/"):
+                continue
+            adjacent = os.path.normpath(os.path.join(own_dir, rel))
+            if not os.path.isfile(os.path.join(ROOT, adjacent)):
+                continue
+            others = [o for o in tracked
+                      if o.endswith("/" + rel) and o != adjacent]
+            if others:
+                ambiguous.append(
+                    "%s `include \"%s\" resolves to %s beside it, and to %s "
+                    "on the include path" % (f, rel, adjacent,
+                                             ", ".join(sorted(others))))
+    ck("H include resolution is unambiguous", sorted(ambiguous), [])
 
 
 # ------------------------------------------------------ RTL consumption --
@@ -512,7 +816,7 @@ def tracked_owner_cfg(builder, configs):
 def check_tracked_shape(builder, configs):
     """E: the tracked entity definition is ONE config's, and is current.
 
-    hdl/common/csr/gen/adp_shape_defaults.svh is what a build `include-s -
+    hdl/common/gen/adp_shape_defaults.svh is what a build `include-s -
     the whole of it now that the AEM ROM has no RTL destination. It must name
     a source config that exists AND be exactly what that config generates,
     otherwise the gateware advertises (and elaborates) a shape nobody chose,
@@ -573,6 +877,8 @@ def all_configs():
 
 def run():
     builder = load_builder()
+    check_shape_consumers()
+    check_include_ambiguity()
     check_rtl_wiring()
     cfgs = all_configs()
     for p in cfgs:
@@ -594,11 +900,14 @@ def adp_shape_of(builder, cfg):
     return builder.adp_shape(cfg)["talker_stream_sources"]
 
 
-def expect_fail(label, fn):
+def expect_fail(label, fn, required=()):
     """Run a mutated world and require the pipeline to REJECT it.
 
     A rejection counts whether it comes from this gate's own comparisons or
-    from the builder refusing to load the config - both stop the build."""
+    from the builder refusing to load the config - both stop the build.
+    When required strings are supplied, the rejection must also name each
+    one; a mutation caught by an unrelated check is not evidence for the arm
+    it claims to exercise."""
     global fails, checks, quiet
     saved_f, saved_c, saved_q = fails, checks, quiet
     fails, checks, quiet = [], 0, True
@@ -606,7 +915,15 @@ def expect_fail(label, fn):
         fn()
     except Exception as e:                            # noqa: BLE001
         fails.append(f"{type(e).__name__}: {e}")
-    caught, why = bool(fails), (fails[0] if fails else "")
+    if isinstance(required, str):
+        required = (required,)
+    reasons = "\n".join(fails)
+    missing = [token for token in required if token not in reasons]
+    caught = bool(fails) and not missing
+    if missing:
+        why = "rejection did not name " + ", ".join(repr(s) for s in missing)
+    else:
+        why = fails[0] if fails else ""
     fails, checks, quiet = saved_f, saved_c, saved_q
     ck(f"MUTATION rejected: {label}", caught, True)
     if caught:
@@ -633,9 +950,188 @@ def with_rtl(dp_text=None, csr_text=None):
 
 
 def self_test():
-    """Mutation proof: six ways the shape can disagree, each must FAIL."""
+    """Mutation proof: every planted shape disagreement must FAIL."""
     print("\n== self-test: a disagreeing shape must be REJECTED ==")
     builder = load_builder()
+
+    # 0. THE AMBIGUITY CASE (arm H). Put a copy of the shape header back
+    #    beside milan_csr.sv, exactly where it used to live. Nothing about
+    #    the CONTENT is wrong -- the copy is byte-identical to the tracked
+    #    one -- and every existing arm still passes. What is wrong is that
+    #    the file is now reachable two ways, so Verilator binds the include
+    #    path's copy while Vivado, yosys and sv2v bind this one, and a
+    #    +incdir shape override reaches only half the design.
+    adjacent = os.path.join(ROOT, "hdl", "common", "csr", "gen",
+                            os.path.basename(builder.ADP_SHAPE_REL))
+    os.makedirs(os.path.dirname(adjacent), exist_ok=True)
+    shutil.copyfile(os.path.join(ROOT, builder.ADP_SHAPE_REL), adjacent)
+    try:
+        expect_fail("a shape header beside its includer is ambiguous",
+                    check_include_ambiguity)
+    finally:
+        os.unlink(adjacent)
+
+    # 0b. THE STALE-CONSUMER CASE (arm I). Point a build prerequisite at the
+    #     header's old home. Nothing about the RTL is wrong and every
+    #     source-level gate stays green -- only the consumer inventory sees
+    #     that the named file is gone.
+    stale = os.path.join(ROOT, "tb/verilator/csr/Makefile")
+    original = open(stale, encoding="utf-8").read()
+    with open(stale, "w", encoding="utf-8") as handle:
+        handle.write(original.replace(
+            "$(RTL_DIR)/common/gen/adp_shape_defaults.svh",
+            "$(RTL_DIR)/common/csr/gen/adp_shape_defaults.svh", 1))
+    try:
+        expect_fail("a build prerequisite left at the header's old path",
+                    check_shape_consumers,
+                    ("tb/verilator/csr/Makefile",
+                     "hdl/common/csr/gen/adp_shape_defaults.svh"))
+    finally:
+        with open(stale, "w", encoding="utf-8") as handle:
+            handle.write(original)
+
+    # 0c. [R8]'s plant on PR #310: the same stale prerequisite, reached
+    #     through a make FUNCTION. The make-engine resolver expands it the
+    #     way the build does -- $(shell pwd) runs -- so the verdict is the
+    #     truthful one: resolved to the stale path, which is not tracked.
+    shell_expr = mutate(
+        original,
+        "RTL_DIR    = ../../../hdl",
+        "RTL_DIR    = $(shell pwd)/../../../hdl")
+    shell_expr = mutate(
+        shell_expr,
+        "$(RTL_DIR)/common/gen/adp_shape_defaults.svh",
+        "$(RTL_DIR)/common/csr/gen/adp_shape_defaults.svh")
+    with open(stale, "w", encoding="utf-8") as handle:
+        handle.write(shell_expr)
+    try:
+        expect_fail("a make-function expression naming a dead path",
+                    check_shape_consumers,
+                    ("tb/verilator/csr/Makefile",
+                     "hdl/common/csr/gen/adp_shape_defaults.svh"))
+    finally:
+        with open(stale, "w", encoding="utf-8") as handle:
+            handle.write(original)
+
+    # 0d. [R8]'s second plant: CURDIR is a standard make variable, but this
+    #     spelling walks one directory above the repository before returning
+    #     to hdl/. Make resolves it exactly there, and a path outside the
+    #     repository is refused whatever its tail spells.
+    curdir_expr = mutate(
+        original,
+        "$(RTL_DIR)/common/gen/adp_shape_defaults.svh",
+        "$(CURDIR)/../../../../hdl/common/gen/adp_shape_defaults.svh")
+    with open(stale, "w", encoding="utf-8") as handle:
+        handle.write(curdir_expr)
+    try:
+        expect_fail("an above-repository prefix with an existing hdl tail",
+                    check_shape_consumers,
+                    ("tb/verilator/csr/Makefile", "outside the tracked tree"))
+    finally:
+        with open(stale, "w", encoding="utf-8") as handle:
+            handle.write(original)
+
+    # 0e. [R8-2]'s first recurrence: `+=` after the good assignment. Make
+    #     appends with a separating space, the prerequisite becomes two
+    #     words, and no single path exists to bank -- the resolver must
+    #     refuse rather than keep the pre-append value.
+    if "RTL_DIR    = ../../../hdl" not in original:
+        raise SystemExit("SELF-TEST SETUP: RTL_DIR spelling moved")
+    with open(stale, "w", encoding="utf-8") as handle:
+        handle.write(original + "\nRTL_DIR += /junk\n")
+    try:
+        expect_fail("a += append that splits the prerequisite",
+                    check_shape_consumers,
+                    ("tb/verilator/csr/Makefile", "cannot be resolved"))
+    finally:
+        with open(stale, "w", encoding="utf-8") as handle:
+            handle.write(original)
+
+    # 0f. [R8-2]'s second recurrence: an immediate := through a variable
+    #     defined only LATER. Make froze the empty value at the := line, so
+    #     the frozen-variable probe and the final-state text probe disagree
+    #     and the reference is refused.
+    with open(stale, "w", encoding="utf-8") as handle:
+        handle.write(original + (
+            "\nSHAPE_LATE := $(LATE_DIR)/common/gen/adp_shape_defaults.svh"
+            "\nLATE_DIR := ../../../hdl\n"))
+    try:
+        expect_fail("an immediate assignment through a later definition",
+                    check_shape_consumers,
+                    ("tb/verilator/csr/Makefile", "cannot be resolved"))
+    finally:
+        with open(stale, "w", encoding="utf-8") as handle:
+            handle.write(original)
+
+    # 0g. [R8-2]'s third recurrence: an include overriding the prefix.
+    #     Make reads the include; the final value points nowhere inside
+    #     the repository, and the resolver reports exactly that.
+    shadow_mk = os.path.join(ROOT, "tb/verilator/csr/shape_paths.mk")
+    with open(shadow_mk, "w", encoding="utf-8") as handle:
+        handle.write("RTL_DIR = /nonexistent\n")
+    with open(stale, "w", encoding="utf-8") as handle:
+        handle.write(original + "\ninclude shape_paths.mk\n")
+    try:
+        expect_fail("an include that overrides the prefix",
+                    check_shape_consumers,
+                    ("tb/verilator/csr/Makefile", "outside the tracked tree"))
+    finally:
+        with open(stale, "w", encoding="utf-8") as handle:
+            handle.write(original)
+        os.unlink(shadow_mk)
+    # 0h. [R8-3]'s first evasion: the late definition arrives through an
+    #     include, so no same-file scan can see it. The frozen-variable
+    #     cross-check does: SHAPE_LATE froze the empty prefix, the text
+    #     probe reads the include's final value, and they disagree.
+    late_mk = os.path.join(ROOT, "tb/verilator/csr/late_dir.mk")
+    with open(late_mk, "w", encoding="utf-8") as handle:
+        handle.write("LATE_DIR := ../../../hdl\n")
+    with open(stale, "w", encoding="utf-8") as handle:
+        handle.write(original + (
+            "\nSHAPE_LATE := $(LATE_DIR)/common/gen/adp_shape_defaults.svh"
+            "\ninclude late_dir.mk\n"))
+    try:
+        expect_fail("an immediate assignment fed by an include",
+                    check_shape_consumers,
+                    ("tb/verilator/csr/Makefile", "cannot be resolved"))
+    finally:
+        with open(stale, "w", encoding="utf-8") as handle:
+            handle.write(original)
+        os.unlink(late_mk)
+
+    # 0i. [R8-3]'s second evasion: the later definition wears an `export`
+    #     prefix. The assignment-line pattern admits the prefix, and the
+    #     frozen-variable cross-check refuses the disagreement.
+    with open(stale, "w", encoding="utf-8") as handle:
+        handle.write(original + (
+            "\nSHAPE_LATE := $(LATE_DIR)/common/gen/adp_shape_defaults.svh"
+            "\nexport LATE_DIR = ../../../hdl\n"))
+    try:
+        expect_fail("an immediate assignment fed by an exported definition",
+                    check_shape_consumers,
+                    ("tb/verilator/csr/Makefile", "cannot be resolved"))
+    finally:
+        with open(stale, "w", encoding="utf-8") as handle:
+            handle.write(original)
+    # 0j. [R8-4]'s evasion: the reference sits on a RULE line, an
+    #     immediate-expansion context no assignment scan or reference
+    #     probe models -- make froze the empty prefix into the
+    #     prerequisite at parse time. The database sweep reads exactly
+    #     that frozen prerequisite and refuses it.
+    rule_expr = mutate(
+        original,
+        "obj_dir/Vcsr_sim: $(SRCS) $(GEN_CSR) $(SHAPE_DEF) sim_main.cpp",
+        "obj_dir/Vcsr_sim: $(SRCS) $(GEN_CSR) "
+        "$(LATE_DIR)/common/gen/adp_shape_defaults.svh sim_main.cpp")
+    with open(stale, "w", encoding="utf-8") as handle:
+        handle.write(rule_expr + "\nLATE_DIR := ../../../hdl\n")
+    try:
+        expect_fail("a frozen rule prerequisite through a later definition",
+                    check_shape_consumers,
+                    ("tb/verilator/csr/Makefile", "outside the tracked tree"))
+    finally:
+        with open(stale, "w", encoding="utf-8") as handle:
+            handle.write(original)
     src_cfg = os.path.join(CONFIG_DIR, "endstation_ax7101_8x8.yaml")
     base_cfg = open(src_cfg).read()
     base_dp = open(DATAPATH).read()

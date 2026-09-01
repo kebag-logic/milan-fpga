@@ -2063,7 +2063,7 @@ Three populations the rule names sit beside the counts above, each with a
 recorded decision rather than an omission:
 
 - **The generated CSR headers are gated on purpose.**
-  `hdl/common/csr/gen/adp_shape_defaults.svh` and
+  `hdl/common/gen/adp_shape_defaults.svh` and
   `hdl/common/csr/gen/lwsrp_csr_defaults.svh` are written by
   `sw/builder/endstation_builder.py`; they hold 32 and 7 typed localparams and
   no finding. They are inside the 120 rather than excluded, because a finding in

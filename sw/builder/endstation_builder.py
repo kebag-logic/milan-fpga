@@ -1799,7 +1799,7 @@ CSR_DEFAULTS_REL = "hdl/common/csr/" + CSR_DEFAULTS_INCLUDE
 #: ADP_LISTENER_SINK_C) `include this, so the config is the single definition
 #: of how many streams the entity HAS.
 ADP_SHAPE_INCLUDE = "gen/adp_shape_defaults.svh"
-ADP_SHAPE_REL = "hdl/common/csr/" + ADP_SHAPE_INCLUDE
+ADP_SHAPE_REL = "hdl/common/" + ADP_SHAPE_INCLUDE
 
 #: THE AEM DESCRIPTOR ROM HAS NO RTL PATH ANY MORE. It used to be
 #: `include-d by KL_aecp_aem_store.sv out of hdl/ieee17221/aecp/gen/; that
@@ -4440,7 +4440,7 @@ def main():
                          "are per-board files; the svh is per-tree)")
     ap.add_argument("--write-rtl", action="store_true",
                     help="also write THIS config's advertised shape into the "
-                         "tracked RTL tree (hdl/common/csr/gen/"
+                         "tracked RTL tree (hdl/common/gen/"
                          "adp_shape_defaults.svh - ONE file: the AEM "
                          "descriptor ROM no longer has an RTL destination, "
                          "the repository-local AECP plane that compiled it "
