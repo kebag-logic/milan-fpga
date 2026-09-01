@@ -177,12 +177,31 @@ ASSIGN_RE = re.compile(r"^\s*(\w+)\s*[:?]?=\s*(\S+)\s*$", re.MULTILINE)
 VARIABLE_RE = re.compile(r"\$[({]?(\w+)[)}]?")
 SHAPE_BASENAME = "adp_shape_defaults.svh"
 
+#: References to the shape header that no static expansion can settle, each
+#: classified with the reason it is not a tracked-header consumer. This set
+#: is the ONLY way past the inventory: an unresolvable reference that is not
+#: listed here is a finding, because "could not tell" must not read as "fine".
+CLASSIFIED_CONSUMERS = {
+    ("sw/litex/sweep.sh", "$CFG_GEN/gen/adp_shape_defaults.svh"):
+        "a per-config copy chosen at build time under configs/generated/",
+    ("tb/verilator/milan_dp/Makefile",
+     "gen_divergent/gen/adp_shape_defaults.svh"):
+        "written by gen_divergent_shape.py during the suite, never tracked",
+    ("tb/verilator/milan_dp/gen_divergent_shape.py",
+     "gen_divergent/gen/adp_shape_defaults.svh"):
+        "the same generated file, named by the script that writes it",
+}
+
+#: Repo-root-anchored prefixes: a reference starting with one of these is
+#: relative to the repository, not to the file quoting it.
+ROOT_PREFIXES = ("hdl/", "configs/", "scripts/", "sw/", "syn/", "tb/",
+                 "docs/", "bd/", "avdecc/")
+
 
 def resolve_reference(reference, name, text):
-    """The repo-relative path a reference names, or None if it cannot be
-    resolved without guessing. Build variables are expanded from assignments
-    in the SAME file, the way make reads them; anything still carrying a
-    variable is skipped rather than guessed at."""
+    """The repo-relative path a reference names, or None if no expansion of
+    the variables assigned in the SAME file settles it (the way make reads
+    them). None is NOT a pass -- see the classification below."""
     assignments = dict(ASSIGN_RE.findall(text))
     resolved = reference.lstrip("(")
     for _ in range(4):
@@ -193,7 +212,19 @@ def resolve_reference(reference, name, text):
         resolved = expanded
     if "$" in resolved:
         return None
+    if resolved.startswith(ROOT_PREFIXES):
+        return os.path.normpath(resolved)
     return os.path.normpath(os.path.join(os.path.dirname(name), resolved))
+
+
+def literal_tail(reference):
+    """The literal path tail after the last build expression, taken from its
+    `hdl/` component if it has one. `$(shell pwd)/../../../hdl/common/x.svh`
+    is unresolvable but still names hdl/common/x.svh out loud, and a gate
+    that skipped it would bank a stale prerequisite as clean."""
+    tail = re.split(r"[)}]", reference)[-1]
+    marker = tail.find("hdl/")
+    return tail[marker:] if marker >= 0 else None
 
 
 def check_shape_consumers():
@@ -207,14 +238,20 @@ def check_shape_consumers():
     `--include=*.sv` and friends never see them. This check is deliberately
     file-type blind.
 
-    Scope is the tracked copy under hdl/. Per-config copies and paths a
-    build generates (gen_divergent/, configs/generated/) are arm D's, and a
-    reference that still carries an unresolved variable is skipped: this
-    gate refuses dangling paths, it does not guess at them.
+    It is also FAIL CLOSED. An earlier spelling skipped any reference whose
+    variables it could not expand, and `RTL_DIR = $(shell pwd)/../../../hdl`
+    -- ordinary make -- walked a stale prerequisite straight through it. A
+    reference is now either resolved, or recognised by its literal `hdl/`
+    tail, or listed in CLASSIFIED_CONSUMERS with a reason. Nothing else
+    passes.
     """
     tracked = set(tracked_files())
     dangling = []
     for name in sorted(tracked):
+        # The gate's own source carries the CONSUMER_RE pattern and the
+        # deliberately-stale path arm I plants. Neither is a consumer.
+        if name == "scripts/check_entity_shape.py":
+            continue
         path = os.path.join(ROOT, name)
         if not os.path.isfile(path):
             continue
@@ -226,12 +263,30 @@ def check_shape_consumers():
             # A bare `gen/...` is an `include directive: the compiler
             # resolves it through the search path, not against the file's
             # own directory. Whether it can bind two ways is arm H's
-            # subject. A build prerequisite always carries a rooted or
-            # variable prefix.
+            # subject. A build prerequisite always carries a prefix.
             if reference.lstrip("(") == "gen/" + SHAPE_BASENAME:
                 continue
             target = resolve_reference(reference, name, text)
-            if target is None or not target.startswith("hdl/"):
+            if target is None:
+                tail = literal_tail(reference)
+                if tail is not None:
+                    if not any(t == tail or t.endswith("/" + tail)
+                               for t in tracked):
+                        dangling.append(
+                            f"{name}: {reference} -> {tail} (unexpanded, but "
+                            f"names a tracked-tree path that does not exist)")
+                elif (name, reference) not in CLASSIFIED_CONSUMERS:
+                    dangling.append(
+                        f"{name}: {reference} cannot be resolved and is not "
+                        f"classified in CLASSIFIED_CONSUMERS")
+                continue
+            if target.startswith("configs/generated/"):
+                continue          # per-config copies are arm D's
+            if not target.startswith("hdl/"):
+                if (name, reference) not in CLASSIFIED_CONSUMERS:
+                    dangling.append(
+                        f"{name}: {reference} -> {target} is outside the "
+                        f"tracked tree and is not classified")
                 continue
             if target not in tracked:
                 dangling.append(f"{name}: {reference} -> {target}")
@@ -799,6 +854,25 @@ def self_test():
             "$(RTL_DIR)/common/csr/gen/adp_shape_defaults.svh", 1))
     try:
         expect_fail("a build prerequisite left at the header's old path",
+                    check_shape_consumers)
+    finally:
+        with open(stale, "w", encoding="utf-8") as handle:
+            handle.write(original)
+
+    # 0c. [R8]'s plant on PR #310: the same stale prerequisite, reached
+    #     through a make FUNCTION no static expansion settles. The earlier
+    #     spelling skipped what it could not expand and banked this as
+    #     clean while `make -n` refused the build.
+    with open(stale, "w", encoding="utf-8") as handle:
+        handle.write(original
+                     .replace("RTL_DIR   = ../../../hdl",
+                              "RTL_DIR   = $(shell pwd)/../../../hdl")
+                     .replace("RTL_DIR = ../../../hdl",
+                              "RTL_DIR = $(shell pwd)/../../../hdl")
+                     .replace("common/gen/adp_shape_defaults.svh",
+                              "common/csr/gen/adp_shape_defaults.svh"))
+    try:
+        expect_fail("an unexpandable make expression naming a dead path",
                     check_shape_consumers)
     finally:
         with open(stale, "w", encoding="utf-8") as handle:
