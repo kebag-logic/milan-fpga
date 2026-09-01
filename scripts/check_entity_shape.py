@@ -40,7 +40,7 @@ the number into the RTL - RTL choosing the entity shape is the same mistake
 one layer down.  configs/endstation_*.yaml is the single declarative
 definition and it drives the gateware, the AEM model and lwSRP alike, so
 sw/builder/endstation_builder.py emits this shape's
-hdl/common/csr/gen/adp_shape_defaults.svh (which milan_csr and milan_datapath
+hdl/common/gen/adp_shape_defaults.svh (which milan_csr and milan_datapath
 `include) in one pass from one config.  This gate is what makes "one pass,
 one config" checkable.
 
@@ -83,7 +83,7 @@ WHAT IT CHECKS, per end-station config:
                       and that `gen/` holds NO leftover aecp_aem_rom.svh - a
                       build artifact in an include dir is a build artifact
                       something eventually compiles
-  E  tracked shape    hdl/common/csr/gen/adp_shape_defaults.svh names a
+  E  tracked shape    hdl/common/gen/adp_shape_defaults.svh names a
                       source config that exists and is EXACTLY what that
                       config generates - so "which shape is in the tree" is
                       always answerable and always current
@@ -125,6 +125,7 @@ Needs pyyaml (same dependency as sw/builder/test_builder.py).
 
 import argparse
 import os
+import subprocess
 import re
 import shutil
 import sys
@@ -164,6 +165,136 @@ def ck(what, got, exp):
             print(f"  [FAIL] {what}: got {got!r}, expected {exp!r}")
     elif not quiet:
         print(f"  [ok]   {what} = {got!r}")
+
+
+# -------------------------------------------------- consumer inventory --
+#: Any literal that names the shape header, with or without a build variable
+#: in front of it ($(RTL_DIR)/..., ../../hdl/..., configs/generated/...).
+CONSUMER_RE = re.compile(r"[\w$(){}./\\-]*gen/adp_shape_defaults\.svh")
+
+
+ASSIGN_RE = re.compile(r"^\s*(\w+)\s*[:?]?=\s*(\S+)\s*$", re.MULTILINE)
+VARIABLE_RE = re.compile(r"\$[({]?(\w+)[)}]?")
+SHAPE_BASENAME = "adp_shape_defaults.svh"
+
+
+def resolve_reference(reference, name, text):
+    """The repo-relative path a reference names, or None if it cannot be
+    resolved without guessing. Build variables are expanded from assignments
+    in the SAME file, the way make reads them; anything still carrying a
+    variable is skipped rather than guessed at."""
+    assignments = dict(ASSIGN_RE.findall(text))
+    resolved = reference.lstrip("(")
+    for _ in range(4):
+        expanded = VARIABLE_RE.sub(
+            lambda m: assignments.get(m.group(1), m.group(0)), resolved)
+        if expanded == resolved:
+            break
+        resolved = expanded
+    if "$" in resolved:
+        return None
+    return os.path.normpath(os.path.join(os.path.dirname(name), resolved))
+
+
+def check_shape_consumers():
+    """I: every declared consumer of the TRACKED shape header resolves.
+
+    The header is a tracked build artifact whose consumers live in
+    Makefiles, scripts and prose. Relocating it and updating only the
+    consumers an extension-filtered grep happens to match is how three
+    Verilator suites came to depend on a deleted prerequisite while every
+    source-level gate stayed green -- Makefiles carry no extension, so
+    `--include=*.sv` and friends never see them. This check is deliberately
+    file-type blind.
+
+    Scope is the tracked copy under hdl/. Per-config copies and paths a
+    build generates (gen_divergent/, configs/generated/) are arm D's, and a
+    reference that still carries an unresolved variable is skipped: this
+    gate refuses dangling paths, it does not guess at them.
+    """
+    tracked = set(tracked_files())
+    dangling = []
+    for name in sorted(tracked):
+        path = os.path.join(ROOT, name)
+        if not os.path.isfile(path):
+            continue
+        try:
+            text = open(path, encoding="utf-8", errors="replace").read()
+        except OSError:
+            continue
+        for reference in sorted(set(CONSUMER_RE.findall(text))):
+            # A bare `gen/...` is an `include directive: the compiler
+            # resolves it through the search path, not against the file's
+            # own directory. Whether it can bind two ways is arm H's
+            # subject. A build prerequisite always carries a rooted or
+            # variable prefix.
+            if reference.lstrip("(") == "gen/" + SHAPE_BASENAME:
+                continue
+            target = resolve_reference(reference, name, text)
+            if target is None or not target.startswith("hdl/"):
+                continue
+            if target not in tracked:
+                dangling.append(f"{name}: {reference} -> {target}")
+    ck("I every shape-header consumer resolves", sorted(dangling), [])
+
+
+# --------------------------------------------------- include ambiguity --
+INCLUDE_RE = re.compile(r'^\s*`include\s+"([^"]+)"', re.M)
+
+
+def tracked_files():
+    out = subprocess.run(["git", "ls-files"], cwd=ROOT, check=True,
+                         capture_output=True, text=True)
+    return [l for l in out.stdout.splitlines() if l.strip()]
+
+
+def check_include_ambiguity():
+    """H: no `include may resolve two ways.
+
+    A quoted `include is searched in the INCLUDING FILE'S OWN DIRECTORY before
+    the include path by Vivado, yosys and sv2v -- but NOT by Verilator, which
+    searches -I/+incdir and the CWD only.  So when an includer has a copy of
+    its own target sitting beside it AND another copy is reachable on the
+    include path, the two front ends bind different files and the same source
+    tree elaborates as two different designs, silently.
+
+    That is not hypothetical: milan_csr.sv and milan_datapath.sv both
+    `include "gen/adp_shape_defaults.svh", only milan_csr.sv had a copy next
+    door, and the shape override (`+incdir` at configs/generated/<cfg>/)
+    therefore reached only half the design on every front end except
+    Verilator.  See the PR that added this check.
+
+    The rule enforced here is front-end independent, which is the point: an
+    includer may not have its target adjacent while a competing copy of the
+    same relative path exists anywhere else in the tree.  Then precedence
+    cannot decide anything, and every tool agrees by construction.
+    """
+    tracked = tracked_files()
+    rtl = [f for f in tracked
+           if f.endswith((".sv", ".svh", ".v", ".vh"))
+           and (f.startswith("hdl/") or f.startswith("configs/"))]
+    ambiguous = []
+    for f in rtl:
+        try:
+            text = open(os.path.join(ROOT, f), encoding="utf-8",
+                        errors="replace").read()
+        except OSError:
+            continue
+        own_dir = os.path.dirname(f)
+        for rel in set(INCLUDE_RE.findall(text)):
+            if rel.startswith("/") or ".." in rel.split("/"):
+                continue
+            adjacent = os.path.normpath(os.path.join(own_dir, rel))
+            if not os.path.isfile(os.path.join(ROOT, adjacent)):
+                continue
+            others = [o for o in tracked
+                      if o.endswith("/" + rel) and o != adjacent]
+            if others:
+                ambiguous.append(
+                    "%s `include \"%s\" resolves to %s beside it, and to %s "
+                    "on the include path" % (f, rel, adjacent,
+                                             ", ".join(sorted(others))))
+    ck("H include resolution is unambiguous", sorted(ambiguous), [])
 
 
 # ------------------------------------------------------ RTL consumption --
@@ -512,7 +643,7 @@ def tracked_owner_cfg(builder, configs):
 def check_tracked_shape(builder, configs):
     """E: the tracked entity definition is ONE config's, and is current.
 
-    hdl/common/csr/gen/adp_shape_defaults.svh is what a build `include-s -
+    hdl/common/gen/adp_shape_defaults.svh is what a build `include-s -
     the whole of it now that the AEM ROM has no RTL destination. It must name
     a source config that exists AND be exactly what that config generates,
     otherwise the gateware advertises (and elaborates) a shape nobody chose,
@@ -573,6 +704,8 @@ def all_configs():
 
 def run():
     builder = load_builder()
+    check_shape_consumers()
+    check_include_ambiguity()
     check_rtl_wiring()
     cfgs = all_configs()
     for p in cfgs:
@@ -633,9 +766,43 @@ def with_rtl(dp_text=None, csr_text=None):
 
 
 def self_test():
-    """Mutation proof: six ways the shape can disagree, each must FAIL."""
+    """Mutation proof: seven ways the shape can disagree, each must FAIL."""
     print("\n== self-test: a disagreeing shape must be REJECTED ==")
     builder = load_builder()
+
+    # 0. THE AMBIGUITY CASE (arm H). Put a copy of the shape header back
+    #    beside milan_csr.sv, exactly where it used to live. Nothing about
+    #    the CONTENT is wrong -- the copy is byte-identical to the tracked
+    #    one -- and every existing arm still passes. What is wrong is that
+    #    the file is now reachable two ways, so Verilator binds the include
+    #    path's copy while Vivado, yosys and sv2v bind this one, and a
+    #    +incdir shape override reaches only half the design.
+    adjacent = os.path.join(ROOT, "hdl", "common", "csr", "gen",
+                            os.path.basename(builder.ADP_SHAPE_REL))
+    os.makedirs(os.path.dirname(adjacent), exist_ok=True)
+    shutil.copyfile(os.path.join(ROOT, builder.ADP_SHAPE_REL), adjacent)
+    try:
+        expect_fail("a shape header beside its includer is ambiguous",
+                    check_include_ambiguity)
+    finally:
+        os.unlink(adjacent)
+
+    # 0b. THE STALE-CONSUMER CASE (arm I). Point a build prerequisite at the
+    #     header's old home. Nothing about the RTL is wrong and every
+    #     source-level gate stays green -- only the consumer inventory sees
+    #     that the named file is gone.
+    stale = os.path.join(ROOT, "tb/verilator/csr/Makefile")
+    original = open(stale, encoding="utf-8").read()
+    with open(stale, "w", encoding="utf-8") as handle:
+        handle.write(original.replace(
+            "$(RTL_DIR)/common/gen/adp_shape_defaults.svh",
+            "$(RTL_DIR)/common/csr/gen/adp_shape_defaults.svh", 1))
+    try:
+        expect_fail("a build prerequisite left at the header's old path",
+                    check_shape_consumers)
+    finally:
+        with open(stale, "w", encoding="utf-8") as handle:
+            handle.write(original)
     src_cfg = os.path.join(CONFIG_DIR, "endstation_ax7101_8x8.yaml")
     base_cfg = open(src_cfg).read()
     base_dp = open(DATAPATH).read()

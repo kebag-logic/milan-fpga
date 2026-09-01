@@ -133,7 +133,7 @@ definition and it drives the gateware, the AEM model and lwSRP alike, so
 [`sw/builder/endstation_builder.py`](../../../../sw/builder/endstation_builder.py) emits the counts as a generated include:
 
 ```systemverilog
-// hdl/common/csr/gen/adp_shape_defaults.svh - GENERATED, Source: configs/endstation_arty_current.yaml
+// hdl/common/gen/adp_shape_defaults.svh - GENERATED, Source: configs/endstation_arty_current.yaml
 localparam int ADP_TALKER_SRC_C    = 1;
 localparam int ADP_LISTENER_SINK_C = 2;
 localparam logic [15:0] ADP_TALKER_CAPS_C   = 16'h4001;
@@ -183,7 +183,7 @@ same number appears everywhere it has to: what `adp_shape()` computes from the
 config, what the generated shape include carries, what the AEM overlay's
 `entity_counts` and `descriptor_counts` say, and how many `STREAM_OUTPUT` /
 `STREAM_INPUT` descriptors the ROM generated **from that same config** actually
-contains. It also checks the tracked pair — [`hdl/common/csr/gen/adp_shape_defaults.svh`](../../../../hdl/common/csr/gen/adp_shape_defaults.svh)
+contains. It also checks the tracked pair — [`hdl/common/gen/adp_shape_defaults.svh`](../../../../hdl/common/gen/adp_shape_defaults.svh)
 and the generated AEM descriptor ROM hdl/ieee17221/aecp/gen/aecp_aem_rom.svh (deleted 2026-08-13 with the AECP engine) — named the *same* source config
 and match what it generates, and that the RTL consumes the include rather than
 recomputing anything.

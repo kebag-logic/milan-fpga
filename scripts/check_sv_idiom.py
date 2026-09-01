@@ -58,7 +58,8 @@ and under the two pinned project processors, through the shared scope helper
 (`code_quality_scope.py`, which refuses an absent or off-pin processor), minus
 the whole-file exceptions `scripts/lint_rtl.py` records in `LINT_EXCLUDE` with a
 reason each (currently none). The
-generated headers under `hdl/common/csr/gen/` are INSIDE the gated set on
+generated headers under `hdl/common/gen/` and `hdl/common/csr/gen/` are
+INSIDE the gated set on
 purpose - a finding there is fixed in `sw/builder/endstation_builder.py`, which
 writes them, and the gate reading them is how a generator regression would be
 seen - and the vendored trees (`third_party/`, `external/`) are outside the

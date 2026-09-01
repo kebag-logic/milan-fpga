@@ -32,7 +32,7 @@ CFG_DIR    = ../../../configs/generated
 # The entity shape must be named (milan_dp's banner explains why at length: an
 # unnamed shape falls through to whichever config last ran --write-rtl).
 SHAPE_1x1  = +incdir+$(CFG_DIR)/endstation_arty_current
-SHAPE_DEF  = $(RTL_DIR)/common/csr/gen/adp_shape_defaults.svh
+SHAPE_DEF  = $(RTL_DIR)/common/gen/adp_shape_defaults.svh
 GEN_CSR    = $(RTL_DIR)/common/csr/gen/lwsrp_csr_defaults.svh
 GEN_ALL    = $(GEN_CSR) $(SHAPE_DEF)
 

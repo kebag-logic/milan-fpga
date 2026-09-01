@@ -127,9 +127,13 @@ F="$R/hdl/ieee8021q/filtering"
 DEFINES=(SYNTHESIS)
 INCDIRS=("$R/hdl/common" "$R/hdl/common/csr" "$Q" "$E" "$D" "$P")
 
-# milan_datapath and nothing else `include's the elaboration-shape header. Named
-# once here so the flags the gate passes and the record `--emit` prints are the
-# same list.
+# milan_datapath AND milan_csr both `include the elaboration-shape header.
+# Neither has a copy beside it any more (the tracked one lives in
+# hdl/common/gen/, which is already on this list), so BOTH resolve through
+# this include path and a config dir prepended here overrides the shape for
+# the whole design -- on every front end, not just the one that ignores the
+# including file's own directory. Named once here so the flags the gate
+# passes and the record `--emit` prints are the same list.
 incdirs_for() {
   case "$1" in
     milan_datapath) printf '%s\n' "$R/configs/generated/endstation_arty_current" ;;
