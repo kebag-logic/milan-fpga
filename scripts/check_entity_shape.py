@@ -217,16 +217,6 @@ def resolve_reference(reference, name, text):
     return os.path.normpath(os.path.join(os.path.dirname(name), resolved))
 
 
-def literal_tail(reference):
-    """The literal path tail after the last build expression, taken from its
-    `hdl/` component if it has one. `$(shell pwd)/../../../hdl/common/x.svh`
-    is unresolvable but still names hdl/common/x.svh out loud, and a gate
-    that skipped it would bank a stale prerequisite as clean."""
-    tail = re.split(r"[)}]", reference)[-1]
-    marker = tail.find("hdl/")
-    return tail[marker:] if marker >= 0 else None
-
-
 def check_shape_consumers():
     """I: every declared consumer of the TRACKED shape header resolves.
 
@@ -241,9 +231,9 @@ def check_shape_consumers():
     It is also FAIL CLOSED. An earlier spelling skipped any reference whose
     variables it could not expand, and `RTL_DIR = $(shell pwd)/../../../hdl`
     -- ordinary make -- walked a stale prerequisite straight through it. A
-    reference is now either resolved, or recognised by its literal `hdl/`
-    tail, or listed in CLASSIFIED_CONSUMERS with a reason. Nothing else
-    passes.
+    reference is now either resolved or listed in CLASSIFIED_CONSUMERS with
+    a reason. A textual suffix is not evidence that the build expression in
+    front of it resolves to the repository. Nothing else passes.
     """
     tracked = set(tracked_files())
     dangling = []
@@ -268,14 +258,7 @@ def check_shape_consumers():
                 continue
             target = resolve_reference(reference, name, text)
             if target is None:
-                tail = literal_tail(reference)
-                if tail is not None:
-                    if not any(t == tail or t.endswith("/" + tail)
-                               for t in tracked):
-                        dangling.append(
-                            f"{name}: {reference} -> {tail} (unexpanded, but "
-                            f"names a tracked-tree path that does not exist)")
-                elif (name, reference) not in CLASSIFIED_CONSUMERS:
+                if (name, reference) not in CLASSIFIED_CONSUMERS:
                     dangling.append(
                         f"{name}: {reference} cannot be resolved and is not "
                         f"classified in CLASSIFIED_CONSUMERS")
@@ -782,11 +765,14 @@ def adp_shape_of(builder, cfg):
     return builder.adp_shape(cfg)["talker_stream_sources"]
 
 
-def expect_fail(label, fn):
+def expect_fail(label, fn, required=()):
     """Run a mutated world and require the pipeline to REJECT it.
 
     A rejection counts whether it comes from this gate's own comparisons or
-    from the builder refusing to load the config - both stop the build."""
+    from the builder refusing to load the config - both stop the build.
+    When required strings are supplied, the rejection must also name each
+    one; a mutation caught by an unrelated check is not evidence for the arm
+    it claims to exercise."""
     global fails, checks, quiet
     saved_f, saved_c, saved_q = fails, checks, quiet
     fails, checks, quiet = [], 0, True
@@ -794,7 +780,15 @@ def expect_fail(label, fn):
         fn()
     except Exception as e:                            # noqa: BLE001
         fails.append(f"{type(e).__name__}: {e}")
-    caught, why = bool(fails), (fails[0] if fails else "")
+    if isinstance(required, str):
+        required = (required,)
+    reasons = "\n".join(fails)
+    missing = [token for token in required if token not in reasons]
+    caught = bool(fails) and not missing
+    if missing:
+        why = "rejection did not name " + ", ".join(repr(s) for s in missing)
+    else:
+        why = fails[0] if fails else ""
     fails, checks, quiet = saved_f, saved_c, saved_q
     ck(f"MUTATION rejected: {label}", caught, True)
     if caught:
@@ -821,7 +815,7 @@ def with_rtl(dp_text=None, csr_text=None):
 
 
 def self_test():
-    """Mutation proof: seven ways the shape can disagree, each must FAIL."""
+    """Mutation proof: every planted shape disagreement must FAIL."""
     print("\n== self-test: a disagreeing shape must be REJECTED ==")
     builder = load_builder()
 
@@ -854,7 +848,9 @@ def self_test():
             "$(RTL_DIR)/common/csr/gen/adp_shape_defaults.svh", 1))
     try:
         expect_fail("a build prerequisite left at the header's old path",
-                    check_shape_consumers)
+                    check_shape_consumers,
+                    ("tb/verilator/csr/Makefile",
+                     "hdl/common/csr/gen/adp_shape_defaults.svh"))
     finally:
         with open(stale, "w", encoding="utf-8") as handle:
             handle.write(original)
@@ -863,17 +859,38 @@ def self_test():
     #     through a make FUNCTION no static expansion settles. The earlier
     #     spelling skipped what it could not expand and banked this as
     #     clean while `make -n` refused the build.
+    shell_expr = mutate(
+        original,
+        "RTL_DIR    = ../../../hdl",
+        "RTL_DIR    = $(shell pwd)/../../../hdl")
+    shell_expr = mutate(
+        shell_expr,
+        "$(RTL_DIR)/common/gen/adp_shape_defaults.svh",
+        "$(RTL_DIR)/common/csr/gen/adp_shape_defaults.svh")
     with open(stale, "w", encoding="utf-8") as handle:
-        handle.write(original
-                     .replace("RTL_DIR   = ../../../hdl",
-                              "RTL_DIR   = $(shell pwd)/../../../hdl")
-                     .replace("RTL_DIR = ../../../hdl",
-                              "RTL_DIR = $(shell pwd)/../../../hdl")
-                     .replace("common/gen/adp_shape_defaults.svh",
-                              "common/csr/gen/adp_shape_defaults.svh"))
+        handle.write(shell_expr)
     try:
         expect_fail("an unexpandable make expression naming a dead path",
-                    check_shape_consumers)
+                    check_shape_consumers,
+                    ("tb/verilator/csr/Makefile", "cannot be resolved"))
+    finally:
+        with open(stale, "w", encoding="utf-8") as handle:
+            handle.write(original)
+
+    # 0d. [R8]'s second plant: CURDIR is a standard make variable, but this
+    #     spelling walks one directory above the repository before returning
+    #     to hdl/. Accepting the literal hdl/ tail therefore banks a broken
+    #     prerequisite as clean even though that tail names a tracked file.
+    curdir_expr = mutate(
+        original,
+        "$(RTL_DIR)/common/gen/adp_shape_defaults.svh",
+        "$(CURDIR)/../../../../hdl/common/gen/adp_shape_defaults.svh")
+    with open(stale, "w", encoding="utf-8") as handle:
+        handle.write(curdir_expr)
+    try:
+        expect_fail("an unresolved prefix with an existing hdl tail",
+                    check_shape_consumers,
+                    ("tb/verilator/csr/Makefile", "cannot be resolved"))
     finally:
         with open(stale, "w", encoding="utf-8") as handle:
             handle.write(original)
