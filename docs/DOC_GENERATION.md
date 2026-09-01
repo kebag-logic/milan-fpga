@@ -8,6 +8,7 @@ Then regenerate every committed output.
 
 - **[Source rules](#source-rules)** — Identify authoritative inputs.
 - **[Module documentation](#module-documentation)** — Regenerate traceability outputs.
+- **[Headless HDL reference](#headless-hdl-reference)** — Generate validated module pages.
 - **[Drawio diagrams](#drawio-diagrams)** — Export and inspect editable masters.
 - **[Wavedrom timing](#wavedrom-timing)** — Render verified HDL timing.
 - **[Historical pages](#historical-pages)** — Preserve obsolete documentation safely.
@@ -36,13 +37,64 @@ python3 docs/traceability/gen_module_matrix.py --check
 
 Run both after relevant tree changes.
 
-TerosHDL produces detailed module pages.
+## Headless HDL reference
 
-- Open the SystemVerilog module.
-- Run TerosHDL's documentation action.
-- Save output under the module's `doc/` directory.
-- Keep links repository-relative.
-- Run every documentation gate afterward.
+TerosHDL builds detailed module pages.
+
+- Tool: [`gen_teroshdl.py`](../scripts/gen_teroshdl.py).
+- Sources: first-party `hdl/` files.
+- Output: one self-contained HTML file.
+- Default: `/tmp/milan-teroshdl-doc/index.html`.
+- Runtime: Node `22.23.2`.
+- Version: TerosHDL `2.0.3`.
+- CI verifies the official runtime archive checksum.
+
+Install locked dependencies beneath `/tmp`:
+
+```sh
+tool_dir=/tmp/milan-teroshdl-tool
+mkdir -p "$tool_dir"
+cp tools/teroshdl/package.json tools/teroshdl/package-lock.json "$tool_dir/"
+npm ci --ignore-scripts --audit=false --fund=false --prefix "$tool_dir"
+```
+
+Run from the repository root.
+
+```sh
+python3 scripts/gen_teroshdl.py \
+  --documenter "$tool_dir/node_modules/.bin/teroshdl-hdl-documenter"
+```
+
+- Choose an empty output directory.
+- Nonempty destinations remain unchanged.
+- Failed generations publish nothing.
+- Generated HTML remains untracked.
+- CI uploads validated HTML artifacts.
+- Inspect browsers before sharing.
+
+The wrapper validates source coverage:
+
+- Expectations derive from current sources.
+- Every supported module receives one validated SVG.
+- Validators inspect SVG structure and graphical content.
+- One source-derived fallback covers `KL_pcm_tx`.
+- Its TerosHDL parser currently drops module structure.
+- The fallback lists current ANSI ports.
+- Unrecorded diagram gaps stop generation.
+- Interfaces lack standalone TerosHDL sections.
+- Only first declarations receive file sections.
+- Known exceptions remain exact.
+- New exceptions stop generation.
+- Absolute build paths stop generation.
+- Active HTML content stops generation.
+
+Two unreliable views remain disabled:
+
+- Dependency graphs exceed readable widths.
+- Their nodes expose temporary paths.
+- FSM extraction drops additional module pages.
+- WaveDrom remains timing authority.
+- Draw.io remains architecture authority.
 
 ## Drawio diagrams
 
@@ -190,6 +242,7 @@ python3 scripts/check_diagram_pngs.py
 python3 scripts/check_diagram_pngs.py --selftest
 python3 scripts/check_archive.py
 python3 scripts/check_archive.py --selftest
+python3 scripts/gen_teroshdl.py --selftest
 python3 scripts/check_doc_paths.py
 python3 scripts/check_feature_status.py --self-test
 python3 docs/traceability/gen_module_matrix.py --check
@@ -206,7 +259,7 @@ Hosted documentation CI repeats these checks.
 | Changed source | Required action |
 |---|---|
 | RTL or test structure | Regenerate the module matrix |
-| Module documentation comments | Regenerate its TerosHDL page |
+| HDL documentation comments | Regenerate and inspect TerosHDL HTML |
 | Draw.io generator | Regenerate master, SVG, and PNG |
 | Manual Draw.io master | Export and inspect PNG and PDF |
 | WaveDrom JSON | Regenerate and inspect SVG and PNG |
