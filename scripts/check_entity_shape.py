@@ -199,9 +199,12 @@ ROOT_PREFIXES = ("hdl/", "configs/", "scripts/", "sw/", "syn/", "tb/",
 
 
 def resolve_reference(reference, name, text):
-    """The repo-relative path a reference names, or None if no expansion of
-    the variables assigned in the SAME file settles it (the way make reads
-    them). None is NOT a pass -- see the classification below."""
+    """Static expansion for script and prose consumers: the repo-relative
+    path a reference names, or None when substituting the same-file
+    assignments does not settle it. Makefile references never come here --
+    make's own engine expands those (resolve_make_reference), because only
+    make applies +=, includes and $(shell ...) the way the build does.
+    None is NOT a pass -- see the classification below."""
     assignments = dict(ASSIGN_RE.findall(text))
     resolved = reference.lstrip("(")
     for _ in range(4):
@@ -217,6 +220,52 @@ def resolve_reference(reference, name, text):
     return os.path.normpath(os.path.join(os.path.dirname(name), resolved))
 
 
+MAKE_PROBE_TARGET = "__shape_probe__"
+
+
+def resolve_make_reference(reference, name):
+    """Expand a Makefile reference through make itself: final variable
+    state, includes read, `+=`, `$(shell ...)` and every assignment applied
+    exactly as a build applies them. A single unambiguous path comes back
+    repo-relative; anything make cannot settle to one word -- a parse
+    error, a missing include, an expansion with embedded whitespace --
+    returns None, and None is NOT a pass."""
+    raw = reference.lstrip("(")
+    directory = os.path.join(ROOT, os.path.dirname(name))
+    probe = "%s: ; @printf '%%s' \"$(abspath %s)\"" % (MAKE_PROBE_TARGET, raw)
+    env = dict(os.environ, MAKEFLAGS="", MFLAGS="")
+    try:
+        run = subprocess.run(
+            ["make", "-s", "--no-print-directory",
+             "-f", os.path.basename(name), "--eval", probe,
+             MAKE_PROBE_TARGET],
+            cwd=directory, env=env, capture_output=True, text=True,
+            timeout=60)
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    out = run.stdout.strip()
+    if run.returncode != 0 or not out or any(c.isspace() for c in out):
+        return None
+    return os.path.normpath(os.path.relpath(out, ROOT))
+
+
+def make_reference_unstable(reference, text):
+    """True when the reference sits on an immediate (:=) assignment whose
+    variables are assigned again later in the file: make expanded it at
+    the := line with the values of that moment, so probing the final
+    state would resolve a value the build never used. Such a reference is
+    refused rather than guessed at."""
+    for m in re.finditer(r"^[ \t]*\w+[ \t]*:=.*$", text, re.MULTILINE):
+        if reference not in m.group(0):
+            continue
+        tail = text[m.end():]
+        for var in set(VARIABLE_RE.findall(reference)):
+            if re.search(r"^[ \t]*%s[ \t]*[:+?]?=" % re.escape(var), tail,
+                         re.MULTILINE):
+                return True
+    return False
+
+
 def check_shape_consumers():
     """I: every declared consumer of the TRACKED shape header resolves.
 
@@ -228,12 +277,18 @@ def check_shape_consumers():
     `--include=*.sv` and friends never see them. This check is deliberately
     file-type blind.
 
-    It is also FAIL CLOSED. An earlier spelling skipped any reference whose
+    It is also FAIL CLOSED, with make's own engine as the resolver for
+    make consumers. An earlier spelling skipped any reference whose
     variables it could not expand, and `RTL_DIR = $(shell pwd)/../../../hdl`
-    -- ordinary make -- walked a stale prerequisite straight through it. A
-    reference is now either resolved or listed in CLASSIFIED_CONSUMERS with
-    a reason. A textual suffix is not evidence that the build expression in
-    front of it resolves to the repository. Nothing else passes.
+    -- ordinary make -- walked a stale prerequisite straight through it;
+    the hand-rolled model that replaced it then mis-resolved `+=`, a later
+    `:=` definition and an `include` override, banking confidently wrong
+    resolutions as clean. A Makefile reference is now expanded by make
+    itself (finals, includes, functions), refused when it lands on a
+    position-dependent immediate assignment, and otherwise either resolves
+    to a tracked path or is listed in CLASSIFIED_CONSUMERS with a reason.
+    A textual suffix is not evidence that the build expression in front of
+    it resolves to the repository. Nothing else passes.
     """
     tracked = set(tracked_files())
     dangling = []
@@ -249,6 +304,7 @@ def check_shape_consumers():
             text = open(path, encoding="utf-8", errors="replace").read()
         except OSError:
             continue
+        is_make = name.endswith("Makefile") or name.endswith(".mk")
         for reference in sorted(set(CONSUMER_RE.findall(text))):
             # A bare `gen/...` is an `include directive: the compiler
             # resolves it through the search path, not against the file's
@@ -256,20 +312,24 @@ def check_shape_consumers():
             # subject. A build prerequisite always carries a prefix.
             if reference.lstrip("(") == "gen/" + SHAPE_BASENAME:
                 continue
-            target = resolve_reference(reference, name, text)
+            if (name, reference) in CLASSIFIED_CONSUMERS:
+                continue          # the ONLY way past the inventory
+            if is_make:
+                target = (None if make_reference_unstable(reference, text)
+                          else resolve_make_reference(reference, name))
+            else:
+                target = resolve_reference(reference, name, text)
             if target is None:
-                if (name, reference) not in CLASSIFIED_CONSUMERS:
-                    dangling.append(
-                        f"{name}: {reference} cannot be resolved and is not "
-                        f"classified in CLASSIFIED_CONSUMERS")
+                dangling.append(
+                    f"{name}: {reference} cannot be resolved and is not "
+                    f"classified in CLASSIFIED_CONSUMERS")
                 continue
             if target.startswith("configs/generated/"):
                 continue          # per-config copies are arm D's
             if not target.startswith("hdl/"):
-                if (name, reference) not in CLASSIFIED_CONSUMERS:
-                    dangling.append(
-                        f"{name}: {reference} -> {target} is outside the "
-                        f"tracked tree and is not classified")
+                dangling.append(
+                    f"{name}: {reference} -> {target} is outside the "
+                    f"tracked tree and is not classified")
                 continue
             if target not in tracked:
                 dangling.append(f"{name}: {reference} -> {target}")
@@ -856,9 +916,9 @@ def self_test():
             handle.write(original)
 
     # 0c. [R8]'s plant on PR #310: the same stale prerequisite, reached
-    #     through a make FUNCTION no static expansion settles. The earlier
-    #     spelling skipped what it could not expand and banked this as
-    #     clean while `make -n` refused the build.
+    #     through a make FUNCTION. The make-engine resolver expands it the
+    #     way the build does -- $(shell pwd) runs -- so the verdict is the
+    #     truthful one: resolved to the stale path, which is not tracked.
     shell_expr = mutate(
         original,
         "RTL_DIR    = ../../../hdl",
@@ -870,17 +930,18 @@ def self_test():
     with open(stale, "w", encoding="utf-8") as handle:
         handle.write(shell_expr)
     try:
-        expect_fail("an unexpandable make expression naming a dead path",
+        expect_fail("a make-function expression naming a dead path",
                     check_shape_consumers,
-                    ("tb/verilator/csr/Makefile", "cannot be resolved"))
+                    ("tb/verilator/csr/Makefile",
+                     "hdl/common/csr/gen/adp_shape_defaults.svh"))
     finally:
         with open(stale, "w", encoding="utf-8") as handle:
             handle.write(original)
 
     # 0d. [R8]'s second plant: CURDIR is a standard make variable, but this
     #     spelling walks one directory above the repository before returning
-    #     to hdl/. Accepting the literal hdl/ tail therefore banks a broken
-    #     prerequisite as clean even though that tail names a tracked file.
+    #     to hdl/. Make resolves it exactly there, and a path outside the
+    #     repository is refused whatever its tail spells.
     curdir_expr = mutate(
         original,
         "$(RTL_DIR)/common/gen/adp_shape_defaults.svh",
@@ -888,12 +949,61 @@ def self_test():
     with open(stale, "w", encoding="utf-8") as handle:
         handle.write(curdir_expr)
     try:
-        expect_fail("an unresolved prefix with an existing hdl tail",
+        expect_fail("an above-repository prefix with an existing hdl tail",
+                    check_shape_consumers,
+                    ("tb/verilator/csr/Makefile", "outside the tracked tree"))
+    finally:
+        with open(stale, "w", encoding="utf-8") as handle:
+            handle.write(original)
+
+    # 0e. [R8-2]'s first recurrence: `+=` after the good assignment. Make
+    #     appends with a separating space, the prerequisite becomes two
+    #     words, and no single path exists to bank -- the resolver must
+    #     refuse rather than keep the pre-append value.
+    if "RTL_DIR    = ../../../hdl" not in original:
+        raise SystemExit("SELF-TEST SETUP: RTL_DIR spelling moved")
+    with open(stale, "w", encoding="utf-8") as handle:
+        handle.write(original + "\nRTL_DIR += /junk\n")
+    try:
+        expect_fail("a += append that splits the prerequisite",
                     check_shape_consumers,
                     ("tb/verilator/csr/Makefile", "cannot be resolved"))
     finally:
         with open(stale, "w", encoding="utf-8") as handle:
             handle.write(original)
+
+    # 0f. [R8-2]'s second recurrence: an immediate := through a variable
+    #     defined only LATER. Make expanded the empty value at the := line;
+    #     probing the final state would resolve a path the build never
+    #     used, so a position-dependent immediate reference is refused.
+    with open(stale, "w", encoding="utf-8") as handle:
+        handle.write(original + (
+            "\nSHAPE_LATE := $(LATE_DIR)/common/gen/adp_shape_defaults.svh"
+            "\nLATE_DIR := ../../../hdl\n"))
+    try:
+        expect_fail("an immediate assignment through a later definition",
+                    check_shape_consumers,
+                    ("tb/verilator/csr/Makefile", "cannot be resolved"))
+    finally:
+        with open(stale, "w", encoding="utf-8") as handle:
+            handle.write(original)
+
+    # 0g. [R8-2]'s third recurrence: an include overriding the prefix.
+    #     Make reads the include; the final value points nowhere inside
+    #     the repository, and the resolver reports exactly that.
+    shadow_mk = os.path.join(ROOT, "tb/verilator/csr/shape_paths.mk")
+    with open(shadow_mk, "w", encoding="utf-8") as handle:
+        handle.write("RTL_DIR = /nonexistent\n")
+    with open(stale, "w", encoding="utf-8") as handle:
+        handle.write(original + "\ninclude shape_paths.mk\n")
+    try:
+        expect_fail("an include that overrides the prefix",
+                    check_shape_consumers,
+                    ("tb/verilator/csr/Makefile", "outside the tracked tree"))
+    finally:
+        with open(stale, "w", encoding="utf-8") as handle:
+            handle.write(original)
+        os.unlink(shadow_mk)
     src_cfg = os.path.join(CONFIG_DIR, "endstation_ax7101_8x8.yaml")
     base_cfg = open(src_cfg).read()
     base_dp = open(DATAPATH).read()

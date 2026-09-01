@@ -1143,7 +1143,7 @@ def selftest():
         os.unlink(mut)
 
     # Arm 58. The old partition restored: every .sv first, then every .v.
-    # The record is 54 .sv / 5 .v / 56 .sv and Vivado compiles in read_*
+    # The record is 54 .sv / 4 .v / 46 .sv and Vivado compiles in read_*
     # order, so this is a different compilation unit sequence -- invisible
     # to a set comparison, which is why the check is ordered.
     mut = _mutant(

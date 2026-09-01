@@ -338,7 +338,7 @@ set_msg_config -id {Synth 8-4445} -new_severity ERROR
 
 # Read in the RECORD'S OWN ORDER, one call per run of same-language files.
 # Partitioning into all-.sv-then-all-.v was a reordering: the record is
-# 54 .sv, 5 .v, 56 .sv, and Vivado compiles Non-Project sources in the order
+# 54 .sv, 4 .v, 46 .sv, and Vivado compiles Non-Project sources in the order
 # the read_* commands issue them (UG895), so compilation-unit scope, macro
 # visibility and `define lifetime all move with it. The gate proves the
 # record's order elaborates; this recipe measures what the gate proves, so
