@@ -259,7 +259,7 @@ exec %(real)s "$@"
 """
 
 #: How many arms run. A deleted arm is a self-test that still prints a pass.
-ARMS = 57
+ARMS = 58
 
 _DERIVED = None
 _RECORD = None
@@ -571,11 +571,22 @@ def selftest():
         rl = os.path.join(d, READ_LIST)
         if not os.path.isfile(rl):
             return "the stubs recorded no read set"
-        got = sorted(l.strip() for l in open(rl) if l.strip())
-        if got != derived_sources():
+        got = [l.strip() for l in open(rl) if l.strip()]
+        want = derived_record()["src"]
+        if got != want:
+            if sorted(got) == sorted(want):
+                first = next(i for i, (a, b) in enumerate(zip(got, want))
+                             if a != b)
+                return ("the read set is the record's files in a DIFFERENT "
+                        "ORDER -- first divergence at index %d: read %s, "
+                        "record %s. Vivado compiles Non-Project sources in "
+                        "read_* order (UG895), so compilation-unit scope and "
+                        "macro visibility move with it."
+                        % (first, os.path.basename(got[first]),
+                           os.path.basename(want[first])))
             return ("the read set (%d files) is not the dp_srcs.py record "
                     "(%d files): the derived-source connection is broken"
-                    % (len(got), len(derived_sources())))
+                    % (len(got), len(want)))
         # Which design gets measured is decided by the REST of the call, and
         # none of it was observed until this review: -include_dirs was a hand
         # list whose ORDER selected a different entity shape than the gate.
@@ -963,7 +974,8 @@ def selftest():
         os.unlink(mut)
 
     # Arm 38. -sv dropped: the SystemVerilog half parsed as Verilog-2001.
-    mut = _mutant(r"read_verilog -sv \$SV", "read_verilog $SV", "sv-dropped")
+    mut = _mutant(r"read_verilog -sv \$batch", "read_verilog $batch",
+                  "sv-dropped")
     try:
         arm("dp-mut-sv-flag-dropped", None, True, tcl=mut,
             check=fires('read as SystemVerilog', 'dropped -sv flag'))
@@ -1127,6 +1139,24 @@ def selftest():
     try:
         arm("dp-mut-generic-duplicated", "SYNTH-GENERIC-DUPLICATE", False,
             tcl=mut)
+    finally:
+        os.unlink(mut)
+
+    # Arm 58. The old partition restored: every .sv first, then every .v.
+    # The record is 54 .sv / 5 .v / 56 .sv and Vivado compiles in read_*
+    # order, so this is a different compilation unit sequence -- invisible
+    # to a set comparison, which is why the check is ordered.
+    mut = _mutant(
+        r"foreach f \[concat \$SRC_LINES \{\{\}\}\] \{",
+        "set _sv {}; set _v {}\n"
+        "foreach f $SRC_LINES {\n"
+        "  if {[string match \"*.sv\" $f]} { lappend _sv $f } "
+        "else { lappend _v $f }\n}\n"
+        "foreach f [concat $_sv $_v {{}}] {",
+        "srcs-reordered")
+    try:
+        arm("dp-mut-srcs-reordered", None, True, tcl=mut,
+            check=fires("DIFFERENT ORDER", "reordered read set"))
     finally:
         os.unlink(mut)
 

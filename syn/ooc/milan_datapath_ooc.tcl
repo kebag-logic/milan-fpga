@@ -64,22 +64,21 @@ foreach r [list util_hier_$TAG.rpt util_$TAG.rpt timing_$TAG.rpt] {
 # just src=. Deriving the sources and then spelling the include path by hand
 # left the two halves free to disagree, and they did: run.sh puts the
 # elaboration-shape config dir FIRST for milan_datapath, this recipe had it
-# LAST, and BOTH hdl/common/csr/gen/ and configs/generated/*/gen/ carry an
+# LAST, and BOTH the tracked copy and configs/generated/*/gen/ carried an
 # adp_shape_defaults.svh -- so synth_design priced milan_datapath as the
 # ax7101_1x1_tdm8 entity (2 talker sources, 31 name entries, 8 wire channels)
 # while the portability gate elaborates it as arty_current (1 / 29 / 2). That
 # is #246's own class one layer up: a complete, plausible report for a design
 # nobody asked for.
 #
-# What this does NOT fix, and must not be read as fixing: milan_csr.sv sits
-# beside its OWN hdl/common/csr/gen/ copy, and a quoted `include resolves
-# against the including file's directory before any -I. So under the
-# authority order milan_csr still sees the tracked copy (2 / 31) while
-# milan_datapath sees the config (1 / 29) -- the two-includer invariant
-# asserted at milan_datapath.sv:1526 does not hold on this tree, for the
-# gate either. Matching the gate is this recipe's job; making the tracked
-# copy agree with the config is endstation_builder.py --write-rtl's, and is
-# not attempted here. The
+# Fixing the order alone was not enough, and #309 landed both halves
+# together: milan_csr.sv used to sit beside its OWN copy of the header, and a
+# quoted `include resolves against the including file's directory before any
+# -I, so the override reached only milan_datapath and the two includers bound
+# 2/31 against 1/29 -- the invariant milan_datapath.sv:1526 asserts. The
+# tracked header now lives in hdl/common/gen/, beside no includer, so both
+# resolve through this include path and both bind the selected config.
+# check_entity_shape.py arms H and I keep it that way. The
 # define half is live too -- KL_gptp_engine.sv gates simulation-only $error
 # blocks on `ifndef SYNTHESIS`, which the gate defines and this recipe did
 # not.
@@ -337,14 +336,32 @@ set GUCODE_GENERIC "GPTP_UCODE_HEX_P=\"[file normalize gptp_ucode.hex]\""
 # spelling ([R0] round three).
 set_msg_config -id {Synth 8-4445} -new_severity ERROR
 
-set SV {}
-set V  {}
-foreach f $SRC_LINES {
-  if {[string match "*.sv" $f]} { lappend SV $f } else { lappend V $f }
+# Read in the RECORD'S OWN ORDER, one call per run of same-language files.
+# Partitioning into all-.sv-then-all-.v was a reordering: the record is
+# 54 .sv, 5 .v, 56 .sv, and Vivado compiles Non-Project sources in the order
+# the read_* commands issue them (UG895), so compilation-unit scope, macro
+# visibility and `define lifetime all move with it. The gate proves the
+# record's order elaborates; this recipe measures what the gate proves, so
+# it reads that order and no other.
+set nsv 0
+set nv  0
+set batch {}
+set batch_sv -1
+foreach f [concat $SRC_LINES {{}}] {
+  set is_sv [string match "*.sv" $f]
+  if {$f ne "" && $is_sv} { incr nsv } elseif {$f ne ""} { incr nv }
+  if {$f eq "" || ($batch_sv != -1 && $is_sv != $batch_sv)} {
+    if {[llength $batch]} {
+      if {$batch_sv} { read_verilog -sv $batch } else { read_verilog $batch }
+    }
+    set batch {}
+  }
+  if {$f eq ""} break
+  set batch_sv $is_sv
+  lappend batch $f
 }
-puts "milan_datapath OOC: [llength $SV] SystemVerilog + [llength $V] Verilog sources"
-read_verilog -sv $SV
-read_verilog $V
+puts "milan_datapath OOC: $nsv SystemVerilog + $nv Verilog sources, read in\
+ record order"
 
 # $INCS and $DEFINES are the record's own, in the record's own ORDER --
 # see the derivation at the top. There is no hand list here to drift.
