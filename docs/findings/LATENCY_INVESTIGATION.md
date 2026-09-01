@@ -1,6 +1,6 @@
 # Latency & memory investigation  -  why single-port TCP caps at 30 Mbit/s (2026-07-05)
 
-> ⚠️ **Point-in-time snapshot (2026-07-05).** Superseded  -  for the campaign numbers and the close-out scoreboard see [`PERFORMANCE_GOAL.md`](PERFORMANCE_GOAL.md) + [`../CHANGELOG.md`](../../CHANGELOG.md). Numbers and "next steps" below are historical. Section 2.1 absorbs the [`SINGLE_PORT_PERF.md` (archived)](../history/v1/findings/SINGLE_PORT_PERF.md) prequel (merged 2026-07-25).
+> ⚠️ **Point-in-time snapshot (2026-07-05).** Superseded  -  for the campaign numbers and the close-out scoreboard see [`PERFORMANCE_GOAL.md`](PERFORMANCE_GOAL.md) + [historical performance ledger](../history/v1/PERFORMANCE_CHANGELOG.md). Numbers and "next steps" below are historical. Section 2.1 absorbs the [`SINGLE_PORT_PERF.md` (archived)](../history/v1/findings/SINGLE_PORT_PERF.md) prequel (merged 2026-07-25).
 
 **Platform:** AX7101 (XC7A100T-2), VexiiRiscv RV64IMA @100 MHz, sv39, 32 KB L2, DDR3-800
 (MT41J256M16, 1:4), Milan datapath @50 MHz · **Link:** 1000BASE-T to an Intel i210 peer

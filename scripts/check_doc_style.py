@@ -13,6 +13,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 DOCUMENTS = (
+    ROOT / "CHANGELOG.md",
     ROOT / "docs" / "README.md",
     ROOT / "docs" / "DOC_GENERATION.md",
     ROOT / "docs" / "diagrams" / "README.md",

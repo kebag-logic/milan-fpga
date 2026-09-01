@@ -47,7 +47,7 @@ The [glossary](docs/GLOSSARY.md) explains shared terminology.
 | Portability | no Xilinx primitives — machine-checked by the [Yosys/ECP5 flow](syn/yosys/README.md) |
 
 > Those rows are **measurements on specific boards on specific dates**, not promises about
-> your hardware. Live perf numbers live in the measured ledger — [CHANGELOG.md](CHANGELOG.md) +
+> your hardware. Historical measurements live in the [historical performance ledger](docs/history/v1/PERFORMANCE_CHANGELOG.md) +
 > [docs/findings/](docs/findings/README.md). Any number quoted elsewhere is a dated snapshot.
 
 ### Current control-plane boundary
