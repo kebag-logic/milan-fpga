@@ -279,26 +279,26 @@ now draws a well-formed `NOT_IMPLEMENTED` echo (except where noted); that is the
 | Command | Class | Status today | Coverage before the deletion (history) | PR branch |
 |---|---|---|---|---|
 | WRITE_DESCRIPTOR | setter (refusal → NOT_IMPLEMENTED) | **NOT IMPLEMENTED** — but the owed refusal *is* now delivered, as the conformant echo | — | `item-10-write-descriptor` |
-| GET/SET_CONFIGURATION | paired | **NOT IMPLEMENTED** | es-4.3, aecp_l0_state | `item-10-configuration` |
-| GET/SET_STREAM_FORMAT | paired | **NOT IMPLEMENTED** — and with it the FR-STR-03 listener format adaptation | es-4.4 | `item-10-stream-format` |
-| GET/SET_STREAM_INFO | paired | **NOT IMPLEMENTED** | es-4.6/4.5 | `item-10-stream-info` |
+| GET/SET_CONFIGURATION | paired | **NOT IMPLEMENTED** | item 4.3, aecp_l0_state | `item-10-configuration` |
+| GET/SET_STREAM_FORMAT | paired | **NOT IMPLEMENTED** — and with it the FR-STR-03 listener format adaptation | item 4.4 | `item-10-stream-format` |
+| GET/SET_STREAM_INFO | paired | **NOT IMPLEMENTED** | item 4.6/4.5 | `item-10-stream-info` |
 | GET/SET_NAME | paired | **IMPLEMENTED** with fixed cdl 84 bodies and READ_DESCRIPTOR coherence | compliant name-access tests | generated named descriptors |
-| GET/SET_SAMPLING_RATE | paired | **NOT IMPLEMENTED** | es-4.8 | `item-10-sampling-rate` |
-| GET/SET_CLOCK_SOURCE | paired | **NOT IMPLEMENTED — and this one has teeth.** `SET_CLOCK_SOURCE` was the only writer of the live CLOCK_DOMAIN `clock_source_index`, now pinned at 0 (INTERNAL) for the life of the build: **the CRF media clock can never be selected** | es-4.9, aecp_milan_v12_tsn_gen | `item-10-clock-source` |
-| GET/SET_CONTROL (IDENTIFY) | paired | **NOT IMPLEMENTED** — `o_identify` is tied 0, so the LED is structurally dark | es-4.10 | `item-10-control` |
+| GET/SET_SAMPLING_RATE | paired | **NOT IMPLEMENTED** | item 4.8 | `item-10-sampling-rate` |
+| GET/SET_CLOCK_SOURCE | paired | **NOT IMPLEMENTED — and this one has teeth.** `SET_CLOCK_SOURCE` was the only writer of the live CLOCK_DOMAIN `clock_source_index`, now pinned at 0 (INTERNAL) for the life of the build: **the CRF media clock can never be selected** | item 4.9, aecp_milan_v12_tsn_gen | `item-10-clock-source` |
+| GET/SET_CONTROL (IDENTIFY) | paired | **NOT IMPLEMENTED** — `o_identify` is tied 0, so the LED is structurally dark | item 4.10 | `item-10-control` |
 | GET/SET_MAX_TRANSIT_TIME | paired | **NOT IMPLEMENTED** — every Stream Output holds the Milan **2 ms default** presentation offset. That is a DEFAULT, not a zero: 0 ns would be a presentation time in the past and every listener would drop every frame as late | — (was already a gap) | `item-10-max-transit-time` |
-| GET_AVB_INFO | getter | **NOT IMPLEMENTED** | es-4.13 | `item-10-avb-info` |
-| GET_AS_PATH | getter | **NOT IMPLEMENTED**; the `0x7DC` AS_PATH staging port accepts writes and discards them | es-4.14 | `item-10-as-path` |
+| GET_AVB_INFO | getter | **NOT IMPLEMENTED** | item 4.13 | `item-10-avb-info` |
+| GET_AS_PATH | getter | **NOT IMPLEMENTED**; the `0x7DC` AS_PATH staging port accepts writes and discards them | item 4.14 | `item-10-as-path` |
 | GET_COUNTERS | getter | **IMPLEMENTED FOR SUPPORTED TARGETS**. Every declared STREAM_OUTPUT has a `KL_talker_diag_ctx` bank and returns the Milan Table 5.17 mask with STREAM_START, STREAM_STOP, MEDIA_RESET, TIMESTAMP_UNCERTAIN and FRAMES_TX in the compact layout. Missing indices return `NO_SUCH_DESCRIPTOR` with the fixed empty body. The Table 5.22 unsolicited change producer remains open | `pp_top`, `milan_dp`, `tkdiag`, pinned la_avdecc decoder | closed by issue 73 |
 | GET_AUDIO_MAP + ADD/REMOVE_AUDIO_MAPPINGS | getter + action | **NOT IMPLEMENTED**; the AEM dynamic-map write ports are tied off | matrix M-AECP-4 | `item-10-audio-maps` |
 | GET_DYNAMIC_INFO (0x4B) | getter | **NOT IMPLEMENTED**; the `0x768` BDBG scan-forensics words read structural zeros | CMD-22 | `item-10-dynamic-info` |
-| ACQUIRE_ENTITY | setter (acquire sem) | **NOT IMPLEMENTED**; `0x648` `aecp_locked` is tied 0 (no lock manager is wired). **KNOWN GAP — do not smooth this over:** Milan Δ7 wants `NOT_SUPPORTED` with `owner_id` = 0, and this build does **not** distinguish that from the generic `NOT_IMPLEMENTED` echo. The Δ7 microprogram exists in the ucode (`E_ACQ`); nothing dispatches to it, so opcode 0x0000 falls into the generic echo | aecp_l0_state, es-4.1 | `item-10-acquire` |
-| LOCK_ENTITY | setter (lock sem) | **NOT IMPLEMENTED** | es-4.18, aecp_stack_lock_acquire | `item-10-lock` |
-| START/STOP_STREAMING | action | **NOT IMPLEMENTED**. Milan 5.3.7.3 forbids implementing STREAMING_WAIT anyway, so the streaming licence stays what it always was on this device: Talker Advertise declared **and** a Listener Ready received | es-4.11 | `item-10-streaming` |
-| ENTITY_AVAILABLE | getter (liveness) | **NOT IMPLEMENTED** | es-4.2 | `item-10-entity-available` |
+| ACQUIRE_ENTITY | setter (acquire sem) | **NOT IMPLEMENTED**; `0x648` `aecp_locked` is tied 0 (no lock manager is wired). **KNOWN GAP — do not smooth this over:** Milan Δ7 wants `NOT_SUPPORTED` with `owner_id` = 0, and this build does **not** distinguish that from the generic `NOT_IMPLEMENTED` echo. The Δ7 microprogram exists in the ucode (`E_ACQ`); nothing dispatches to it, so opcode 0x0000 falls into the generic echo | aecp_l0_state, item 4.1 | `item-10-acquire` |
+| LOCK_ENTITY | setter (lock sem) | **NOT IMPLEMENTED** | item 4.18, aecp_stack_lock_acquire | `item-10-lock` |
+| START/STOP_STREAMING | action | **NOT IMPLEMENTED**. Milan 5.3.7.3 forbids implementing STREAMING_WAIT anyway, so the streaming licence stays what it always was on this device: Talker Advertise declared **and** a Listener Ready received | item 4.11 | `item-10-streaming` |
+| ENTITY_AVAILABLE | getter (liveness) | **NOT IMPLEMENTED** | item 4.2 | `item-10-entity-available` |
 | CONTROLLER_AVAILABLE | getter (liveness) | **NOT IMPLEMENTED** | — | `item-10-controller-available` |
 | REGISTER / DEREGISTER_UNSOLICITED_NOTIFICATION | action (notification registry) | **NOT IMPLEMENTED**, and with it the whole Milan **Table 5.22** unsolicited push duty. The processor's **unsolicited** TX lane has no producer at all — the solicited lane is the one the landed engine drives | aecp_unsolicited | `item-10-unsolicited-reg` |
-| GET_MILAN_INFO (MVU) | getter | **NOT IMPLEMENTED** — MVU rides AECP. A controller cannot complete the Milan identity handshake | es-4.17 | `item-10-milan-info` |
+| GET_MILAN_INFO (MVU) | getter | **NOT IMPLEMENTED** — MVU rides AECP. A controller cannot complete the Milan identity handshake | item 4.17 | `item-10-milan-info` |
 | GET/SET_SYSTEM_UNIQUE_ID (MVU) | paired | **NOT IMPLEMENTED** | — | `item-10-system-unique-id` |
 | GET/SET_MEDIA_CLOCK_REFERENCE_INFO (MVU) | paired | **NOT IMPLEMENTED** (was already unimplemented as M-AECP-9) | matrix ❌ | `item-10-media-clock-ref` |
 

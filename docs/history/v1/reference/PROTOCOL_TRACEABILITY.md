@@ -180,7 +180,7 @@ anchors that pointed into the old control-plane files are gone with their files,
 and anchors into `milan_datapath.sv` were dropped rather than re-guessed, because
 a plausible-looking wrong line is worse doc-rot than no line at all. The file half
 of a reference is durable; treat any surviving line half as perishable. Test ids
-like `es-4.5` refer to the internal COMPLIANCE suite; `tb/verilator/*` and
+like `item 4.5` refer to the internal COMPLIANCE suite; `tb/verilator/*` and
 `tests/features/*` live in this repo. Standards citations (Milan 5.4.2.7,
 IEEE 1722-2016 4.4.4.3, table numbers) name no repo object and stay plain text.
 

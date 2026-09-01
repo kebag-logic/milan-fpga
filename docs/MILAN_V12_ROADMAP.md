@@ -1,9 +1,9 @@
 <!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
 # Milan v1.2 — the road to full compliance
 
-**Status 2026-08-30, VERSION `0x0002_0056`.** This is the ordered, clause-cited
-plan from where the device is to a device that passes the Milan
-end-station validation test plan. The canonical current ledger is
+**Status 2026-09-01, VERSION `0x0002_0056`.** This is the ordered, clause-cited
+plan from where the device is to a device that satisfies the Milan v1.2
+end-station compliance requirements. The canonical current ledger is
 [`reference/MILAN_FEATURE_STATUS.md`](reference/MILAN_FEATURE_STATUS.md).
 Superseded campaign narratives remain in Git history.
 
@@ -13,7 +13,13 @@ Authoritative sources, all read for this document rather than recalled:
 |---|---|
 | `Milan_Specification_Consolidated_v1.2_Final_Approved 20231130.pdf` | every SHALL / SHOULD / MAY below |
 | `1722.1-2021.pdf` | response PDU layouts, status codes, the base rules Milan defers to |
-| `milanendstationvalidationtestplanv1.9.pdf` | the `es-N.M` test items each gap blocks |
+| the internal bench-suite compliance recreation | the `item N.M` bench rows each gap blocks |
+
+Delivery dates for the remaining phases are re-baselined **2026-09-01**: every
+phase of the [README product roadmap](../README.md#product-roadmap) is shifted
+**+1.5 months** against the original plan. The per-clause position against all
+five normative standards is
+[`reference/MILAN_COMPLIANCE_MATRIX.md`](reference/MILAN_COMPLIANCE_MATRIX.md).
 
 Two reading rules this document keeps, because the repo grades by them:
 **RECOMMENDED is not SHALL** — a `rec` row is tracked separately and is never
@@ -220,7 +226,7 @@ sequencing keeps the AECP side independently provable, but a green suite is
 ## 1. The remaining SHALL set
 
 **Nine** AEM commands, in the order they should land. "Blocks" names the test
-items from the validation test plan that cannot pass until the row does.
+compliance items that cannot pass until the row does.
 
 Five rows in the tables below carry a **LANDED** mark: they have shipped since
 this section was written, and they stay in place because their clause notes and
@@ -297,7 +303,7 @@ clear, the persisted ones do not (see P3.1).
 | Opcode | Command | Clause | Response | Blocks |
 |---|---|---|---|---|
 | `0x0011` | GET_NAME **LANDED** | 5.4.2.12 | cdl 84: type, index, name_index, configuration_index, 64-byte name | compliant name-access tests |
-| `0x0019` | GET_CONTROL **— LANDED** | 5.4.2.18 | cdl 17: type, index, one `CONTROL_LINEAR_UINT8` value (0 or 255) | es-4.10 |
+| `0x0019` | GET_CONTROL **— LANDED** | 5.4.2.18 | cdl 17: type, index, one `CONTROL_LINEAR_UINT8` value (0 or 255) | item 4.10 |
 
 `GET_NAME` and `SET_NAME` landed at 0x0054. The builder emits one exact 64-byte
 table entry for every semantic name and supplies the capacity as generated
@@ -334,15 +340,15 @@ by non-ATDECC means."* The µISA already has `CHECK_LOCK` for exactly this.
 
 | Opcode | Command | Clause | The Milan-specific refusal | Blocks |
 |---|---|---|---|---|
-| `0x0006` | SET_CONFIGURATION **— LANDED** | 5.4.2.5 | `STREAM_IS_RUNNING` (12) if **any** Stream Input is bound or **any** Stream Output is streaming | es-4.3, es-5.1, es-12.1, es-12.2 |
-| `0x0008` | SET_STREAM_FORMAT **-- LANDED 0x0053** | 5.4.2.7 | `STREAM_IS_RUNNING` on a **bound** input or streaming output; `BAD_ARGUMENTS` if any existing mapping references a channel absent from the new format | es-4.4, es-5.1, es-9.x, es-10.x, es-12.1, es-12.2 |
-| `0x000E` | SET_STREAM_INFO **-- LANDED 0x0053** | 5.4.2.9 | `NOT_SUPPORTED` on **any** Stream Input; `MSRP_ACC_LAT_VALID` sets the presentation offset, range `0x0`–`0x7FFFFFFF` ns, outside → `BAD_ARGUMENTS`; any unsupported sub-flag → refuse the **whole** command `NOT_SUPPORTED` | es-4.5, es-5.1, es-10.2, es-12.1 |
+| `0x0006` | SET_CONFIGURATION **— LANDED** | 5.4.2.5 | `STREAM_IS_RUNNING` (12) if **any** Stream Input is bound or **any** Stream Output is streaming | item 4.3, item 5.1, item 12.1, item 12.2 |
+| `0x0008` | SET_STREAM_FORMAT **-- LANDED 0x0053** | 5.4.2.7 | `STREAM_IS_RUNNING` on a **bound** input or streaming output; `BAD_ARGUMENTS` if any existing mapping references a channel absent from the new format | item 4.4, item 5.1, item 9.x, item 10.x, item 12.1, item 12.2 |
+| `0x000E` | SET_STREAM_INFO **-- LANDED 0x0053** | 5.4.2.9 | `NOT_SUPPORTED` on **any** Stream Input; `MSRP_ACC_LAT_VALID` sets the presentation offset, range `0x0`–`0x7FFFFFFF` ns, outside → `BAD_ARGUMENTS`; any unsupported sub-flag → refuse the **whole** command `NOT_SUPPORTED` | item 4.5, item 5.1, item 10.2, item 12.1 |
 | `0x0010` | SET_NAME **-- LANDED 0x0054** | 5.4.2.11 | accepts named descriptors in active and non-active configurations; a lock refusal returns the current name | compliant name-access tests |
-| `0x0014` | SET_SAMPLING_RATE **— LANDED** | 5.4.2.13 | the rate/mapping-mismatch refusal is a **MAY**, not a SHALL | es-4.16, es-5.1 |
-| `0x0016` | SET_CLOCK_SOURCE **— LANDED** | 5.4.2.15 | — | es-4.9, es-5.1, es-10.1 |
-| `0x0018` | SET_CONTROL **— LANDED** | 5.4.2.17 | IDENTIFY only; values 0 and 255 | es-4.10 |
-| `0x0022` | START_STREAMING **-- LANDED** | 5.4.2.19 | `NOT_SUPPORTED` on a Stream **Output** (and on every other type); on a bound+stopped input, request started. Success follows the record commit (0x0052, #97); the 7.5.2 unsolicited response remains issue #69's. | es-4.11, es-12.7 |
-| `0x0023` | STOP_STREAMING **-- LANDED** | 5.4.2.20 | Mirror of the above. A stopped CRF sink now observes and counts; only timing consumption and the restart echo gate (0x0052, #97). | es-4.11, es-12.7 |
+| `0x0014` | SET_SAMPLING_RATE **— LANDED** | 5.4.2.13 | the rate/mapping-mismatch refusal is a **MAY**, not a SHALL | item 4.16, item 5.1 |
+| `0x0016` | SET_CLOCK_SOURCE **— LANDED** | 5.4.2.15 | — | item 4.9, item 5.1, item 10.1 |
+| `0x0018` | SET_CONTROL **— LANDED** | 5.4.2.17 | IDENTIFY only; values 0 and 255 | item 4.10 |
+| `0x0022` | START_STREAMING **-- LANDED** | 5.4.2.19 | `NOT_SUPPORTED` on a Stream **Output** (and on every other type); on a bound+stopped input, request started. Success follows the record commit (0x0052, #97); the 7.5.2 unsolicited response remains issue #69's. | item 4.11, item 12.7 |
+| `0x0023` | STOP_STREAMING **-- LANDED** | 5.4.2.20 | Mirror of the above. A stopped CRF sink now observes and counts; only timing consumption and the restart echo gate (0x0052, #97). | item 4.11, item 12.7 |
 
 > **`SET_CLOCK_SOURCE` is worth more than one row.** Its dynamic-state store
 > and wrapper output have landed. The selected index now reaches the root, but
@@ -354,7 +360,7 @@ by non-ATDECC means."* The µISA already has `CHECK_LOCK` for exactly this.
 
 | Opcode | Command | Clause | Blocks |
 |---|---|---|---|
-| `0x002C` | ADD_AUDIO_MAPPINGS | 5.4.2.27 | es-4.16, es-5.1, es-9.2, es-11.6, es-12.11 |
+| `0x002C` | ADD_AUDIO_MAPPINGS | 5.4.2.27 | item 4.16, item 5.1, item 9.2, item 11.6, item 12.11 |
 | `0x002D` | REMOVE_AUDIO_MAPPINGS | 5.4.2.28 | as above |
 
 **Live command path implemented 2026-08-17.** The processor stages the entire
@@ -398,7 +404,7 @@ parameters; every user name.
 blank-flash responder: reads `0xFF`, accepts and discards writes, completes
 erase. A restore walk always finds blank flash and completes with zero records.
 
-Blocks **es-5.1 entirely**, and es-5.1 has **no "if the DUT does not implement
+Blocks **item 5.1 entirely**, and item 5.1 has **no "if the DUT does not implement
 persistence" escape clause** — this is a hard compliance gate, not a
 nice-to-have. It also blocks Milan 5.5.1.4 / 5.5.2.6 saved-state fast-connect.
 
@@ -411,7 +417,7 @@ controller list (both *"cleared by a power cycle"*), and the IDENTIFY value
 **Landed at 0x0055 (issue #69).** The registry, the fan-out and the
 sequence-per-controller were already in; the trigger set now is too: every
 successful state-changing command pushes to every registered controller
-*except the requester* (es-6.2 is an inverted gate: notifying the requester
+*except the requester* (item 6.2 is an inverted gate: notifying the requester
 **fails**, and so does pushing on a SET that changes nothing), plus the
 asynchronous triggers of Table 5.22: GET_STREAM_INFO field changes,
 GET_AVB_INFO changes (the root snapshot-compares every field it serves and the
@@ -448,7 +454,7 @@ This is the only place the device **originates** an AECP command, through
 service. The timed `milan_dp` leg (`obj_notify`) measures the first probe
 between 30 s and 60 s after the controller's last command, the single retry
 250 ms later, and the targeted deregistration within a second of it, while a
-controller that keeps talking is never probed (es-6.4 measures the first probe
+controller that keeps talking is never probed (item 6.4 measures the first probe
 at **27–66 s** and the retry within **250 ms**).
 
 ---
@@ -463,7 +469,7 @@ Do not schedule these as SHALLs and do not let a grader count them.
 | MVU `0x0003`/`0x0004` SET/GET_MEDIA_CLOCK_REFERENCE_INFO | 5.4.4.4/.5 | **RECOMMENDED**, same construction |
 | IDENTIFY_NOTIFICATION as a transmitted unsolicited response | 5.4.5.4 | **SHOULD** — *"it should implement the Identification Notification"* |
 | `ACQUIRE_ENTITY` answering specifically `NOT_SUPPORTED` | 5.4.2.1 | the SHALL is only *"shall not reply SUCCESS"*; the code choice is a SHOULD (we do answer `NOT_SUPPORTED`) |
-| Redundancy (Section 8, R-PAAD) | 8.x | out of scope: this is a single-AVB_INTERFACE PAAD, so es-11.x is Not Applicable |
+| Redundancy (Section 8, R-PAAD) | 8.x | out of scope: this is a single-AVB_INTERFACE PAAD, so item 11.x is Not Applicable |
 
 ---
 

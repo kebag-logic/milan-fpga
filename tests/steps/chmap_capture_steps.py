@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 #
 # Executable channel-IDENTITY contract for the chmap64 CAPTURE mux
-# (docs/CHANNEL_MAP_64.md §4/§5; RTL: hdl/ieee1722/aaf/KL_chan_map_capture.sv).
+# (docs/CHANNEL_MAP_64.md Section 4/Section 5; RTL: hdl/ieee1722/aaf/KL_chan_map_capture.sv).
 #
 # WHY THIS LAYER EXISTS.  Every audio result this project has produced so far
 # is PRESENCE-shaped: a counter moved, a frame arrived, audio was heard.  None
@@ -29,22 +29,22 @@
 #   IEEE 1722.1-2021 7.2.19  AUDIO_MAP mapping entries are port-relative:
 #                         (stream_index, stream_channel) -> (cluster_offset,
 #                         cluster_channel).  The capture map is the egress
-#                         mirror of that, at pair granularity (§4.2).
-#   Milan v1.2 es-4.16    dynamic audio maps are the canonical programmer of
+#                         mirror of that, at pair granularity (Section 4.2).
+#   Milan v1.2 Section 5.4.2.27  dynamic audio maps are the canonical programmer of
 #                         both map RAMs; the CSR 0x900 window is the debug
-#                         override (§6/§7).
+#                         override (Section 6/Section 7).
 
 import re
 
 from behave import given, when, then     # noqa: F401  (behave step decorators)
 
 
-# --- the §5 capture map word -------------------------------------------------
+# --- the Section 5 capture map word -------------------------------------------------
 SRC_ZERO, SRC_I2S, SRC_TDM, SRC_RING, SRC_TONE, SRC_LOOP = range(6)
 
 
 def csr_word(en, src, idx_hi, idx_lo):
-    """The §5 CHMAP_WORD as typed at the bench:
+    """The Section 5 CHMAP_WORD as typed at the bench:
     {EN[15], SRC[14:12], rsvd[11:8], IDX_HI[7:4], IDX_LO[3:0]}."""
     return (((en & 1) << 15) | ((src & 7) << 12)
             | ((idx_hi & 0xF) << 4) | (idx_lo & 0xF))
@@ -65,7 +65,7 @@ class CaptureMuxModel:
     """The capture mux as the STANDARD describes it, not as the RTL codes it.
 
     holds[(stream, pair)] = (L, R) is the latest-sample wire-truth latch of
-    wire channels (2*pair, 2*pair+1) of that received stream - §9 latest-sample
+    wire channels (2*pair, 2*pair+1) of that received stream - Section 9 latest-sample
     slip policy: a starved pair repeats, a fast one drops, nothing queues.
     """
 
@@ -104,7 +104,7 @@ class CaptureMuxModel:
     # -- one media tick: walk the slots low to high -------------------------
     def emit(self):
         """slot -> (L, R) for every ENABLED slot.  A disabled slot is ABSENT
-        from the result (it emits no pulse at all, §4: that is what stops a
+        from the result (it emits no pulse at all, Section 4: that is what stops a
         dead slot from skewing its stream's other channels); an enabled slot
         whose entry cannot be resolved emits SILENCE (0, 0)."""
         out = {}
@@ -221,7 +221,7 @@ def step_slot_silent(context, slot):
 def step_slot_absent(context, slot):
     assert slot not in context.emitted, (
         f'slot {slot} pulsed; a DISABLED slot must be absent from the walk, '
-        f'not silent - §4 "two ways to be silent"')
+        f'not silent - Section 4 "two ways to be silent"')
 
 
 @then('every emitted capture channel is distinct')

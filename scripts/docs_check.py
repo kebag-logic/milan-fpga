@@ -130,12 +130,29 @@ DENY_CS = re.compile("|".join(r"\b%s\b" % t for t in _LAB_TOKENS))
 #: Case-insensitive: neither private token is an ordinary word in any case.
 _SUITE_TOKEN = _asm(97, 101, 116, 115)
 _PEER_TOKEN = _asm(68, 83, 50, 48)
+#! The external test-plan document and the bench-switch vendor (issue #312):
+#! committed text cites the Milan/IEEE clause — "the Milan compliance
+#! requirements", "item N.M" for internal bench rows — and says "the bench
+#! AVB switch". Two spellings each: the plan's contiguous document stem and
+#! its generic three-word phrase; the vendor's long name and its short mark
+#! (word-bounded, so identifiers like a shell's cm{token}uild joins cannot
+#! fire it — the negative arm below proves that).
+_PLAN_TOKEN = _asm(109, 105, 108, 97, 110, 101, 110, 100, 115, 116, 97, 116, 105, 111, 110)
+_PLAN_PHRASE = _asm(118, 97, 108, 105, 100, 97, 116, 105, 111, 110, 32, 116, 101, 115, 116, 32, 112, 108, 97, 110)
+_VENDOR_TOKEN = _asm(97, 117, 100, 105, 111, 116, 101, 99, 104, 110, 105, 107)
+_VENDOR_MARK = _asm(100, 38, 98)
 IDENTITY_RULES = (
     (DENY_CS, "compliance lab name", "committed text says 'compliance'"),
     (re.compile(r"\b%s\w*" % _SUITE_TOKEN, re.IGNORECASE),
      "compliance suite name", "committed text says 'compliance'"),
     (re.compile(r"\b%s\w*" % _PEER_TOKEN, re.IGNORECASE),
      "peer product name", "the public tree says 'the peer' or 'a test device'"),
+    (re.compile(r"\b%s\w*|%s" % (_PLAN_TOKEN, _PLAN_PHRASE), re.IGNORECASE),
+     "external test-plan name",
+     "committed text says 'the Milan compliance requirements'"),
+    (re.compile(r"\b%s\w*|\b%s\b" % (_VENDOR_TOKEN, re.escape(_VENDOR_MARK)),
+                re.IGNORECASE),
+     "bench-switch vendor name", "committed text says 'the bench AVB switch'"),
 )
 
 # --------------------------------------------------------------------------
@@ -764,6 +781,18 @@ def scrub_selftest():
         ("usb-serial", "docs/diagrams/x.svg",
          "<svg><text>/dev/serial/by-id/usb-" + "FTDI_x</text></svg>\n",
          "USB serial path"),
+        ("plan-stem", "avdecc/gen_x.py",
+         f"    # graded per the {_PLAN_TOKEN}vtp document\n",
+         "external test-plan name"),
+        ("plan-phrase", "tb/tools/x.py",
+         f"# the official {_PLAN_PHRASE} requires of a listener\n",
+         "external test-plan name"),
+        ("vendor-long", "sw/litex/x.sh",
+         f"# the bench AVB switch ({_VENDOR_TOKEN}) runs pdelay\n",
+         "bench-switch vendor name"),
+        ("vendor-mark", "hdl/milan/x.sv",
+         f"//! power-cycle via the {_VENDOR_MARK.upper()} console\n",
+         "bench-switch vendor name"),
     )
     for name, rel, body, label in fixtures:
         arm(name, rel, body, label)
@@ -782,6 +811,8 @@ def scrub_selftest():
         f"# a stale base can {_LAB_TOKENS[0].lower()}ify the wrong tree\n", None)
     arm("peer-stem-inside-a-word", "scripts/clean2.py",
         f"# thousan{_PEER_TOKEN.lower()}00 samples\n", None)
+    arm("vendor-mark-inside-a-word", "scripts/clean3.sh",
+        f"cm{_VENDOR_MARK}uild --target all\n", None)
     arm("vendored-code-is-out-of-scope",
         f"third_party/verilog-axis/{_PEER_TOKEN.lower()}.v",
         f"// {_PEER_TOKEN}D\n", None)

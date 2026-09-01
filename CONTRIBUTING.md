@@ -11,6 +11,7 @@ lane-per-worktree, every change grows the test suite, and nothing merges on
 - **[3. Verification bar](#3-verification-bar)** -- What a change owes before it merges: a self-checking Verilator harness under `tb/verilator/<name>/`, a ratcheted `scripts/lint_rtl.py --check` that fails on any new lint violation, a justification for every `lint_off`, a matrix row that only turns ✅ with a runnable test, and timing claims quoted with the full cell recipe rather than a bare WNS.
 - **[4. Bench discipline (the expensive lessons)](#4-bench-discipline-the-expensive-lessons)** -- Three rules paid for on hardware: ≥ 8 min AX boot probes, dump a QSPI slot before overwriting it, and regenerate every window map from `csr.csv` on any gateware block-set change.
 - **[5. Code quality](#5-code-quality)** -- The numbered cross-language maintainability contract: the Boy Scout rule that keeps cleanup out of functional changes, and the rules that give each cleanup wording, examples, exceptions and a measurement instead of a taste argument.
+- **[6. Documentation wording and privacy](#6-documentation-wording-and-privacy)** -- The deny-listed public-hygiene rules `scripts/docs_check.py` enforces: bench equipment is named by role (the DUT, the reference peer, the bench AVB switch), compliance references cite the Milan/IEEE clause rather than any external test-plan document, internal bench rows are written `item N.M`, and no bench-identifying host/path/serial ever lands in committed text.
 
 ## 1. HDL house style (Cemal Dogan / Oguz Kahraman school)
 
@@ -431,6 +432,7 @@ Two board rules that go with it:
 
 ## 5. Code quality
 
+
 The rules above are the HDL house style, the lane and the verification bar.
 The cross-language maintainability contract - one primary responsibility per
 unit, explicit control flow, one source of truth, and the rest - lives in the
@@ -443,3 +445,37 @@ governing rule for cleanup:
 Cleanup that preserves behavior is a change of its own, reviewable on its own.
 A functional change carries no repository-wide formatting, mass rename or
 opportunistic refactor outside its stated scope.
+## 6. Documentation wording and privacy
+
+`scripts/docs_check.py` enforces a wording deny-list over every committed
+markdown file (fences and history pages included) and an identity/privacy
+scrub over every tracked text file — code comments, scripts and configs
+included. The rules behind them, so a finding is fixable without
+reverse-engineering the regex:
+
+- **Bench equipment is named by role, never by vendor or product**: write
+  **the DUT**, **the reference peer**, **the bench AVB switch**. This applies
+  to code comments and scripts as well as prose.
+- **Compliance references cite the specification clause** — `(Milan Section 5.4.2.11)`,
+  `(IEEE 1722.1 Section 7.4.42)` — never an external test-plan document or its item
+  numbering. The internal bench suite is referenced only as *the bench suite*
+  (evidence token `BENCH`), and its per-item rows are written `item N.M`;
+  the `es-N.M` spelling stays inside the private registry, out of
+  committed docs (its in-tree machinery left with the retired campaign
+  runner).
+- **No bench-identifying information**: hostnames, home paths, bench subnets,
+  USB serials, interface names. Use placeholders (`<peer-host>`,
+  `$STANDARDS_DIR`, `$HOME`-relative forms); the same gate's local-info sweep
+  catches the known shapes.
+- Extending the list is a normal commit: add an identity-token rule in
+  [`scripts/docs_check.py`](scripts/docs_check.py) — the token **assembled
+  from code points like the existing ones, never spelled out** (the gate scans
+  itself), the rule in `IDENTITY_RULES` so it sweeps every tracked text file,
+  and a planted fixture in `scrub_selftest` so the arm count proves it fires —
+  then scrub the tree in the same commit, so the gate never lands red.
+
+Status claims in prose are separately machine-judged against the
+[Milan feature status ledger](docs/reference/MILAN_FEATURE_STATUS.md); the
+per-clause compliance position lives in the
+[compliance matrix](docs/reference/MILAN_COMPLIANCE_MATRIX.md) and moves only
+with a named, runnable gate or a dated measurement.

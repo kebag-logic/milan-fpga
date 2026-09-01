@@ -77,6 +77,7 @@ Publish conflicts before continuing.
 | Run behavior tests | [Behavior tests](../tests/README.md) |
 | Understand simulation boundaries | [Simulation guide](testing/SIMULATION.md) |
 | Trace modules into tests | [Generated module matrix](traceability/MODULE_MATRIX.md) |
+| Check the per-clause compliance position | [Compliance matrix](reference/MILAN_COMPLIANCE_MATRIX.md) |
 | Review documentation health | [Documentation audit](DOCUMENTATION_AUDIT.md) |
 
 Avoid copied test counts.
@@ -106,6 +107,7 @@ It is not fully Milan-compliant.
 
 - Read the [dated Milan audit](testing/MILAN_V12_AUDIT_2026-08-16.md).
 - Read the [Milan roadmap](MILAN_V12_ROADMAP.md).
+- Read the [compliance matrix](reference/MILAN_COMPLIANCE_MATRIX.md).
 - Read the [requirements register](reference/FR_NFR.md).
 - Review open Issues before planning delivery.
 

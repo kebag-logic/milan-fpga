@@ -305,7 +305,7 @@ output: at most one entry per stream channel across the entire
 Configuration) hold trivially for per-port identity maps.
 
 And because Milan's static/dynamic split is per-port, one-port-per-stream
-is what later lets roadmap item 8 (dynamic maps, es-4.16) flip individual
+is what later lets roadmap item 8 (dynamic maps, Milan Section 5.4.2.27) flip individual
 streams to `number_of_maps = 0` without touching the rest of the model.
 
 ### D2 — cluster policy: mono cluster per stream channel (cap-at-interface rejected)
