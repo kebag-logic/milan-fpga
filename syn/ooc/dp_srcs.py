@@ -709,6 +709,16 @@ def main() -> int:
                     help="the run.sh entry to expand (default: milan_datapath)")
     ap.add_argument("--selftest", action="store_true",
                     help="prove each check fails on a planted defect")
+    ap.add_argument("--record", action="store_true",
+                    help="print the whole consumable record -- top=/define=/"
+                         "incdir=/src= lines, authority order -- rather than "
+                         "the bare source list. A consumer that must also "
+                         "PREPROCESS these sources (Vivado, sv2v) needs the "
+                         "defines and the include path, and an include path "
+                         "spelled by hand is the drift this file exists to "
+                         "prevent: syn/yosys/run.sh puts the elaboration-shape "
+                         "config dir FIRST for milan_datapath, and any other "
+                         "order silently selects a different entity shape.")
     args = ap.parse_args()
 
     if args.selftest:
@@ -728,6 +738,13 @@ def main() -> int:
         print(p, file=sys.stderr)
     if rc:
         return rc
+    if args.record:
+        out = ["top=" + t for t in rec["top"]]
+        out += ["define=" + d for d in rec["define"]]
+        out += ["incdir=" + i for i in rec["incdir"]]
+        out += ["src=" + f for f in files]
+        print("\n".join(out))
+        return 0
     print("\n".join(files))
     return 0
 
