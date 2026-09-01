@@ -222,48 +222,59 @@ def resolve_reference(reference, name, text):
 
 MAKE_PROBE_TARGET = "__shape_probe__"
 
+#: An assignment line, however it is spelled: optional `export`/`override`
+#: prefixes, any of make's assignment operators. The frozen-value cross
+#: check below keys on the VARIABLE being assigned, so a spelling the
+#: pattern missed would only ever ADD a probe, never remove one.
+ASSIGN_LINE_RE = re.compile(
+    r"^[ \t]*(?:export[ \t]+|override[ \t]+)*"
+    r"(?P<var>\w+)[ \t]*[:+?]{0,2}=(?P<rhs>.*)$", re.MULTILINE)
 
-def resolve_make_reference(reference, name):
-    """Expand a Makefile reference through make itself: final variable
-    state, includes read, `+=`, `$(shell ...)` and every assignment applied
-    exactly as a build applies them. A single unambiguous path comes back
-    repo-relative; anything make cannot settle to one word -- a parse
-    error, a missing include, an expansion with embedded whitespace --
-    returns None, and None is NOT a pass."""
-    raw = reference.lstrip("(")
-    directory = os.path.join(ROOT, os.path.dirname(name))
-    probe = "%s: ; @printf '%%s' \"$(abspath %s)\"" % (MAKE_PROBE_TARGET, raw)
+
+def probe_make(directory, makefile, expression):
+    """One expression expanded by make itself in the consumer's own
+    directory: final variable state, includes read, `+=`, `$(shell ...)`
+    and every assignment applied exactly as a build applies them. Returns
+    make's expansion, or None when make errors out."""
+    probe = "%s: ; @printf '%%s' \"%s\"" % (MAKE_PROBE_TARGET, expression)
     env = dict(os.environ, MAKEFLAGS="", MFLAGS="")
     try:
         run = subprocess.run(
-            ["make", "-s", "--no-print-directory",
-             "-f", os.path.basename(name), "--eval", probe,
-             MAKE_PROBE_TARGET],
+            ["make", "-s", "--no-print-directory", "-f", makefile,
+             "--eval", probe, MAKE_PROBE_TARGET],
             cwd=directory, env=env, capture_output=True, text=True,
             timeout=60)
     except (OSError, subprocess.TimeoutExpired):
         return None
-    out = run.stdout.strip()
-    if run.returncode != 0 or not out or any(c.isspace() for c in out):
+    if run.returncode != 0 or not run.stdout.strip():
         return None
-    return os.path.normpath(os.path.relpath(out, ROOT))
+    return run.stdout.strip()
 
 
-def make_reference_unstable(reference, text):
-    """True when the reference sits on an immediate (:=) assignment whose
-    variables are assigned again later in the file: make expanded it at
-    the := line with the values of that moment, so probing the final
-    state would resolve a value the build never used. Such a reference is
-    refused rather than guessed at."""
-    for m in re.finditer(r"^[ \t]*\w+[ \t]*:=.*$", text, re.MULTILINE):
-        if reference not in m.group(0):
+def resolve_make_reference(reference, name, text):
+    """The reference expanded by make itself, cross-checked against every
+    variable whose assignment carries it. The text probe alone reads the
+    FINAL variable state, which an immediate `:=` does not honor -- make
+    froze that value at its line, whatever `include`, `export` or a later
+    definition did afterwards -- so for each assignment line containing
+    the reference, the frozen variable is probed too and the text result
+    must appear among its words. Any disagreement, any expansion make
+    cannot settle to one word, any make error: None, and None is NOT a
+    pass."""
+    raw = reference.lstrip("(")
+    directory = os.path.join(ROOT, os.path.dirname(name))
+    makefile = os.path.basename(name)
+    text_out = probe_make(directory, makefile, "$(abspath %s)" % raw)
+    if text_out is None or any(c.isspace() for c in text_out):
+        return None
+    for m in ASSIGN_LINE_RE.finditer(text):
+        if reference not in m.group("rhs"):
             continue
-        tail = text[m.end():]
-        for var in set(VARIABLE_RE.findall(reference)):
-            if re.search(r"^[ \t]*%s[ \t]*[:+?]?=" % re.escape(var), tail,
-                         re.MULTILINE):
-                return True
-    return False
+        var_out = probe_make(directory, makefile,
+                             "$(abspath $(%s))" % m.group("var"))
+        if var_out is None or text_out not in var_out.split():
+            return None
+    return os.path.normpath(os.path.relpath(text_out, ROOT))
 
 
 def check_shape_consumers():
@@ -284,9 +295,12 @@ def check_shape_consumers():
     the hand-rolled model that replaced it then mis-resolved `+=`, a later
     `:=` definition and an `include` override, banking confidently wrong
     resolutions as clean. A Makefile reference is now expanded by make
-    itself (finals, includes, functions), refused when it lands on a
-    position-dependent immediate assignment, and otherwise either resolves
-    to a tracked path or is listed in CLASSIFIED_CONSUMERS with a reason.
+    itself (finals, includes, functions), cross-checked against the frozen
+    value of every variable assigned from it -- the two probes must agree,
+    which is what an immediate `:=` fed by any later definition (same
+    file, `include`, `export`, `override`) can never do -- and otherwise
+    either resolves to a tracked path or is listed in
+    CLASSIFIED_CONSUMERS with a reason.
     A textual suffix is not evidence that the build expression in front of
     it resolves to the repository. Nothing else passes.
     """
@@ -315,8 +329,7 @@ def check_shape_consumers():
             if (name, reference) in CLASSIFIED_CONSUMERS:
                 continue          # the ONLY way past the inventory
             if is_make:
-                target = (None if make_reference_unstable(reference, text)
-                          else resolve_make_reference(reference, name))
+                target = resolve_make_reference(reference, name, text)
             else:
                 target = resolve_reference(reference, name, text)
             if target is None:
@@ -973,9 +986,9 @@ def self_test():
             handle.write(original)
 
     # 0f. [R8-2]'s second recurrence: an immediate := through a variable
-    #     defined only LATER. Make expanded the empty value at the := line;
-    #     probing the final state would resolve a path the build never
-    #     used, so a position-dependent immediate reference is refused.
+    #     defined only LATER. Make froze the empty value at the := line, so
+    #     the frozen-variable probe and the final-state text probe disagree
+    #     and the reference is refused.
     with open(stale, "w", encoding="utf-8") as handle:
         handle.write(original + (
             "\nSHAPE_LATE := $(LATE_DIR)/common/gen/adp_shape_defaults.svh"
@@ -1004,6 +1017,40 @@ def self_test():
         with open(stale, "w", encoding="utf-8") as handle:
             handle.write(original)
         os.unlink(shadow_mk)
+    # 0h. [R8-3]'s first evasion: the late definition arrives through an
+    #     include, so no same-file scan can see it. The frozen-variable
+    #     cross-check does: SHAPE_LATE froze the empty prefix, the text
+    #     probe reads the include's final value, and they disagree.
+    late_mk = os.path.join(ROOT, "tb/verilator/csr/late_dir.mk")
+    with open(late_mk, "w", encoding="utf-8") as handle:
+        handle.write("LATE_DIR := ../../../hdl\n")
+    with open(stale, "w", encoding="utf-8") as handle:
+        handle.write(original + (
+            "\nSHAPE_LATE := $(LATE_DIR)/common/gen/adp_shape_defaults.svh"
+            "\ninclude late_dir.mk\n"))
+    try:
+        expect_fail("an immediate assignment fed by an include",
+                    check_shape_consumers,
+                    ("tb/verilator/csr/Makefile", "cannot be resolved"))
+    finally:
+        with open(stale, "w", encoding="utf-8") as handle:
+            handle.write(original)
+        os.unlink(late_mk)
+
+    # 0i. [R8-3]'s second evasion: the later definition wears an `export`
+    #     prefix. The assignment-line pattern admits the prefix, and the
+    #     frozen-variable cross-check refuses the disagreement.
+    with open(stale, "w", encoding="utf-8") as handle:
+        handle.write(original + (
+            "\nSHAPE_LATE := $(LATE_DIR)/common/gen/adp_shape_defaults.svh"
+            "\nexport LATE_DIR = ../../../hdl\n"))
+    try:
+        expect_fail("an immediate assignment fed by an exported definition",
+                    check_shape_consumers,
+                    ("tb/verilator/csr/Makefile", "cannot be resolved"))
+    finally:
+        with open(stale, "w", encoding="utf-8") as handle:
+            handle.write(original)
     src_cfg = os.path.join(CONFIG_DIR, "endstation_ax7101_8x8.yaml")
     base_cfg = open(src_cfg).read()
     base_dp = open(DATAPATH).read()
