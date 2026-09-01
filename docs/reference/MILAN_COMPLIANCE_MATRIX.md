@@ -206,7 +206,7 @@ connect and the started-state restore (audit B12).
 | 4.4.4.3 | mr — toggled on media-clock change, held ≥ 8 AVTPDUs | implemented — `KL_media_clock_restart`; RTL tkdiag + milan_dp |
 | 4.4.4.5 / .9 | tv + avtp_timestamp (mod-2³² gPTP ns) | implemented — RTL avtp_stream, aaf; SILICON latency = presentation offset |
 | 4.4.4.6 | sequence_num increment/wrap | implemented — RTL aaf; the SEQ_NUM_MISMATCH counter proves the observer |
-| 4.4.4.7 | tu on gPTP discontinuity | implemented — `KL_ptp_clock_validity` + the plane's clock-validity lease; RTL clkvalid; the BDD leg left with the retired host plane |
+| 4.4.4.7 | tu on gPTP discontinuity | implemented — `KL_ptp_clock_validity` + the plane's clock-validity lease; RTL clkvalid; the retired BDD leg left the tree with #259 |
 | 4.3.2 | AVTP presentation time semantics | implemented — RTL aaf_latency_taps / aaf_latency_tap_bank; SILICON E2E = offset |
 | 7.2.3–.5 / 7.3.2–.4 | AAF PCM: format, sp, evt · nsr, channels_per_frame, bit_depth | implemented — RTL aaf + the advertised-vs-emitted wire-accountability gate |
 | 10.4.x | CRF: type `CRF_AUDIO_SAMPLE`, pull, base_frequency, timestamp_interval, mr | implemented — RTL crf_rx / crf_tx |
