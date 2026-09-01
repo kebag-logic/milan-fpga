@@ -251,6 +251,36 @@ def probe_make(directory, makefile, expression):
     return run.stdout.strip()
 
 
+def shape_prereqs_from_database(directory, makefile):
+    """Every prerequisite naming the shape header, exactly as make FROZE
+    it at parse time. Rule prerequisites are immediate-expansion contexts
+    -- a variable defined after the rule line never reaches them however
+    the final state reads -- and make's post-parse database records them
+    frozen, so it is their ground truth. Returns (ok, tokens); not-ok
+    means the database could not be read and nothing is verified."""
+    env = dict(os.environ, MAKEFLAGS="", MFLAGS="")
+    try:
+        run = subprocess.run(["make", "-pqrR", "-f", makefile],
+                             cwd=directory, env=env, capture_output=True,
+                             text=True, timeout=60)
+    except (OSError, subprocess.TimeoutExpired):
+        return False, []
+    if "# Files" not in run.stdout:
+        return False, []
+    tokens = set()
+    for line in run.stdout.splitlines():
+        if not line or line.startswith(("#", "\t", " ")):
+            continue
+        idx = line.find(":")
+        if idx <= 0 or line[idx + 1:idx + 2] == "=":
+            continue
+        for token in line[idx + 1:].lstrip(":").split():
+            if "$" not in token and token.endswith("/" + SHAPE_BASENAME) \
+                    and token.endswith("gen/" + SHAPE_BASENAME):
+                tokens.add(token)
+    return True, sorted(tokens)
+
+
 def resolve_make_reference(reference, name, text):
     """The reference expanded by make itself, cross-checked against every
     variable whose assignment carries it. The text probe alone reads the
@@ -319,7 +349,30 @@ def check_shape_consumers():
         except OSError:
             continue
         is_make = name.endswith("Makefile") or name.endswith(".mk")
-        for reference in sorted(set(CONSUMER_RE.findall(text))):
+        seen_targets = set()
+
+        def judge(reference, target):
+            if target is None:
+                dangling.append(
+                    f"{name}: {reference} cannot be resolved and is not "
+                    f"classified in CLASSIFIED_CONSUMERS")
+                return
+            if target.startswith("configs/generated/"):
+                return            # per-config copies are arm D's
+            if target in seen_targets:
+                return            # one report per resolved defect
+            if not target.startswith("hdl/"):
+                seen_targets.add(target)
+                dangling.append(
+                    f"{name}: {reference} -> {target} is outside the "
+                    f"tracked tree and is not classified")
+                return
+            if target not in tracked:
+                seen_targets.add(target)
+                dangling.append(f"{name}: {reference} -> {target}")
+
+        references = sorted(set(CONSUMER_RE.findall(text)))
+        for reference in references:
             # A bare `gen/...` is an `include directive: the compiler
             # resolves it through the search path, not against the file's
             # own directory. Whether it can bind two ways is arm H's
@@ -332,20 +385,29 @@ def check_shape_consumers():
                 target = resolve_make_reference(reference, name, text)
             else:
                 target = resolve_reference(reference, name, text)
-            if target is None:
+            judge(reference, target)
+        if is_make and references:
+            # Second source: the frozen prerequisites from make's own
+            # database, catching an immediate-expansion RULE line the
+            # per-reference probes cannot see ([R8-4]).
+            directory = os.path.join(ROOT, os.path.dirname(name))
+            ok, prereqs = shape_prereqs_from_database(
+                directory, os.path.basename(name))
+            if not ok:
                 dangling.append(
-                    f"{name}: {reference} cannot be resolved and is not "
-                    f"classified in CLASSIFIED_CONSUMERS")
-                continue
-            if target.startswith("configs/generated/"):
-                continue          # per-config copies are arm D's
-            if not target.startswith("hdl/"):
-                dangling.append(
-                    f"{name}: {reference} -> {target} is outside the "
-                    f"tracked tree and is not classified")
-                continue
-            if target not in tracked:
-                dangling.append(f"{name}: {reference} -> {target}")
+                    f"{name}: make database unreadable; frozen shape "
+                    f"prerequisites cannot be verified")
+            for token in prereqs:
+                if token.lstrip("(") == "gen/" + SHAPE_BASENAME:
+                    continue
+                if (name, token) in CLASSIFIED_CONSUMERS:
+                    continue
+                if os.path.isabs(token):
+                    target = os.path.normpath(os.path.relpath(token, ROOT))
+                else:
+                    target = os.path.normpath(
+                        os.path.join(os.path.dirname(name), token))
+                judge(token, target)
     ck("I every shape-header consumer resolves", sorted(dangling), [])
 
 
@@ -1048,6 +1110,25 @@ def self_test():
         expect_fail("an immediate assignment fed by an exported definition",
                     check_shape_consumers,
                     ("tb/verilator/csr/Makefile", "cannot be resolved"))
+    finally:
+        with open(stale, "w", encoding="utf-8") as handle:
+            handle.write(original)
+    # 0j. [R8-4]'s evasion: the reference sits on a RULE line, an
+    #     immediate-expansion context no assignment scan or reference
+    #     probe models -- make froze the empty prefix into the
+    #     prerequisite at parse time. The database sweep reads exactly
+    #     that frozen prerequisite and refuses it.
+    rule_expr = mutate(
+        original,
+        "obj_dir/Vcsr_sim: $(SRCS) $(GEN_CSR) $(SHAPE_DEF) sim_main.cpp",
+        "obj_dir/Vcsr_sim: $(SRCS) $(GEN_CSR) "
+        "$(LATE_DIR)/common/gen/adp_shape_defaults.svh sim_main.cpp")
+    with open(stale, "w", encoding="utf-8") as handle:
+        handle.write(rule_expr + "\nLATE_DIR := ../../../hdl\n")
+    try:
+        expect_fail("a frozen rule prerequisite through a later definition",
+                    check_shape_consumers,
+                    ("tb/verilator/csr/Makefile", "outside the tracked tree"))
     finally:
         with open(stale, "w", encoding="utf-8") as handle:
             handle.write(original)
