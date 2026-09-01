@@ -86,8 +86,8 @@ behave feature — clause references are the load-bearing content; they were
 verified against the local standards PDFs (`$STANDARDS_DIR`) (pdftotext extraction,
 2026-07-22).
 
-Companion documents: [`testing/PROTOCOL_VALIDATION_MATRIX.md`](testing/PROTOCOL_VALIDATION_MATRIX.md)
-(protocol → test inventory, status-focused), [`MILAN_COMPLIANCE_GAPS.md`](MILAN_COMPLIANCE_GAPS.md)
+Companion documents: [current testing guide](../../testing/TESTING.md)
+(protocol → test inventory, status-focused), [current feature ledger](../../reference/MILAN_FEATURE_STATUS.md)
 (what is still missing, narrative), [`reference/FR_NFR.md`](../../reference/FR_NFR.md)
 (requirement text), [`ENDSTATION_BUILDER.md`](../../ENDSTATION_BUILDER.md)
 (roadmap item 4: clause-anchored builder design decisions + config-schema →
@@ -428,7 +428,7 @@ submodule rather than in this tree.
    not just adding a context row.
 
    **DONE IN RTL 2026-07-28, all three together, default OFF** (`CRFT_CTRL[1]`
-   resets 0; see [`MILAN_COMPLIANCE_GAPS.md`](MILAN_COMPLIANCE_GAPS.md) §2).
+   resets 0; see [current feature ledger](../../reference/MILAN_FEATURE_STATUS.md) §2).
    The tag was DERIVED from the provisioned lwSRP talker row, so
    tagged-but-undeclared was structurally unreachable. Still needs a Vivado
    rebuild + reflash before any wire claim.

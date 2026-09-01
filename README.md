@@ -47,8 +47,8 @@ The [glossary](docs/GLOSSARY.md) explains shared terminology.
 | Portability | no Xilinx primitives — machine-checked by the [Yosys/ECP5 flow](syn/yosys/README.md) |
 
 > Those rows are **measurements on specific boards on specific dates**, not promises about
-> your hardware. Historical measurements live in the [historical performance ledger](docs/history/v1/PERFORMANCE_CHANGELOG.md) +
-> [docs/findings/](docs/findings/README.md). Any number quoted elsewhere is a dated snapshot.
+> your hardware. Superseded measurements remain in Git history; current findings
+> live in [docs/findings/](docs/findings/README.md). Any quoted number is a dated snapshot.
 
 ### Current control-plane boundary
 
@@ -277,7 +277,7 @@ direction-safe verified write order. The full flow, with the load-bearing rules
 
 Details: [docs/integration/BUILDING.md](docs/integration/BUILDING.md) ·
 [docs/integration/QSPI_FLASHBOOT.md](docs/integration/QSPI_FLASHBOOT.md) ·
-[docs/testing/PROTOCOL_VALIDATION_MATRIX.md (historical)](docs/testing/PROTOCOL_VALIDATION_MATRIX.md).
+[docs/testing/TESTING.md](docs/testing/TESTING.md).
 
 ## Credits
 

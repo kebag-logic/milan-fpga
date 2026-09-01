@@ -184,10 +184,9 @@ RETIRED = {
     "SESSION_HANDOFF.md",
     "HANDOVER.md",
     "HANDOVER_SMALL.md",
-    # #259 removed the retired host software stack from the tracked tree.
+    # #259 removed the superseded target-side stack from the tracked tree.
     # DOC_GENERATION.md section 5: retiring a document means registering its
     # basename here, or the next bare mention of it is invisible to rule 4.
-    "APLAY_SOFTWARE_PATH_AUDIT_0803.md",
     "CPPI_DMA_REDESIGN.md",
     "DOC_AUDIT.md",
     "FULLY_FPGA_RISCV_MIGRATION.md",
@@ -201,7 +200,6 @@ RETIRED = {
     "HISTORY_PRE_SHORTEN_0731.md",
     "HOWTO_PLAY_MUSIC.md",
     "M-A2-2026-08-01.md",
-    "PIPEWIRE_AVB_PEER.md",
     "PTP_TS_METADATA_FIX.md",
     "REF_LISTENER_TIMESTAMP_SWEEP_0727.md",
     "RX_FANOUT_AND_TX_CEILING.md",
@@ -213,7 +211,6 @@ RETIRED = {
     "VIRTUAL_E2E_QEMU.md",
     "VIRTUAL_E2E_TEST_PROCEDURE.md",
     "VIRTUAL_SWITCH_RESEARCH.md",
-    "kl-eth-tx-debug.md",
     "virtual-e2e-all-2026-08-01.md",
     "virtual-e2e-env-check-2026-08-01.md",
     "virtual-e2e-env.md",

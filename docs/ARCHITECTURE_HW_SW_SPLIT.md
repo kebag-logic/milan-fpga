@@ -93,8 +93,7 @@ This form is a negative control, not a second supported architecture.
   plane does not yet consume it.
 - #64 and #213 retain their physical timestamp-latency measurements.
 
-These gaps are also tracked in
-[`MILAN_COMPLIANCE_GAPS.md`](MILAN_COMPLIANCE_GAPS.md) and the canonical
+These gaps are tracked in the canonical
 [`reference/MILAN_FEATURE_STATUS.md`](reference/MILAN_FEATURE_STATUS.md).
 
 ## 6. Verification boundary

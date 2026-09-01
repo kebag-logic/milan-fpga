@@ -30,9 +30,7 @@ KNOWN_OMISSIONS = frozenset({
     ("hdl/ieee1722/aaf/KL_aaf_latency_taps.sv",
      "module", "KL_aaf_latency_taps"),
 })
-KNOWN_DIAGRAM_FALLBACKS = frozenset({
-    ("hdl/ieee1722/aaf/KL_pcm_tx.sv", "module", "KL_pcm_tx"),
-})
+KNOWN_DIAGRAM_FALLBACKS = frozenset()
 DECLARATION_RE = re.compile(
     r"(?m)^[ \t]*(module|package|interface)[ \t]+"
     r"(?:automatic[ \t]+)?([A-Za-z_][A-Za-z0-9_$]*)\b")

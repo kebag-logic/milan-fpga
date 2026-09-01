@@ -3,9 +3,9 @@
 
 **Status 2026-08-30, VERSION `0x0002_0056`.** This is the ordered, clause-cited
 plan from where the device is to a device that passes the Milan
-end-station validation test plan. The concise current gap ledger is
-[`MILAN_COMPLIANCE_GAPS.md`](MILAN_COMPLIANCE_GAPS.md); superseded campaign
-narratives remain in Git history.
+end-station validation test plan. The canonical current ledger is
+[`reference/MILAN_FEATURE_STATUS.md`](reference/MILAN_FEATURE_STATUS.md).
+Superseded campaign narratives remain in Git history.
 
 Authoritative sources, all read for this document rather than recalled:
 

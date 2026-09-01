@@ -6,6 +6,13 @@ fabric datapath, board audio I/O, and one AXI-Lite CSR bridge. The target runs
 the firmware in `sw/firmware/milan_baremetal`; no operating system is part of
 the product image.
 
+<!-- solution-cpu-contract:start -->
+| Invocation | CPU | Harts | XLEN | Firmware | L2 bytes | Datapath clock |
+|---|---|---:|---:|---|---:|---:|
+| CLI defaults | `vexiiriscv` | `1` | `32` | `baremetal` | `unset` | `unset` |
+| `deploy.sh` | `vexiiriscv` | `1` | `32` | `baremetal` | `0` | `50 MHz` |
+<!-- solution-cpu-contract:end -->
+
 ## Contents
 
 - **[1. Boundary](#1-boundary)** — The four product interfaces and the division between fabric packet work and CPU control work.
@@ -102,6 +109,14 @@ Use `sw/litex/build.sh <config>` for named configurations. The builder emits
 the AEM image and fabric-gPTP ROM from the same YAML input. For a quick source
 closure check, run `python3 scripts/check_soc_sources.py`; for full release
 instructions see [`../integration/BUILDING.md`](../integration/BUILDING.md).
+
+The fixed AX7101 recipe remains directly inspectable and runnable:
+
+```sh
+cd sw/litex
+./deploy.sh build --dry-run
+./deploy.sh build
+```
 
 ## 6. Verification
 

@@ -16,6 +16,13 @@ The shipping software-profile claims are checked against the
 | `soc.baremetal-profile` | `implemented` | - |
 <!-- milan-feature-status:end -->
 
+<!-- solution-cpu-contract:start -->
+| Invocation | CPU | Harts | XLEN | Firmware | L2 bytes | Datapath clock |
+|---|---|---:|---:|---|---:|---:|
+| CLI defaults | `vexiiriscv` | `1` | `32` | `baremetal` | `unset` | `unset` |
+| `deploy.sh` | `vexiiriscv` | `1` | `32` | `baremetal` | `0` | `50 MHz` |
+<!-- solution-cpu-contract:end -->
+
 ## Contents
 
 - **[0. The pipeline, and where it can refuse you](#0-the-pipeline-and-where-it-can-refuse-you)** -- What runs between `build.sh` and a shippable bitstream, and the asymmetry that is the whole point: **only the shape gate is automatic**. Timing, area and the silicon checklist are all read by hand, so a build can pass timing and area and still not be ship-cleared.
@@ -74,6 +81,8 @@ of the three, do not average them.
 ```sh
 cd sw/litex
 ./build.sh <config> [<config> ...] [--sweep] [--dry-run] [-- <milan_soc.py args>]
+./deploy.sh build --dry-run
+./deploy.sh build
 ```
 
 | Invocation | Effect |

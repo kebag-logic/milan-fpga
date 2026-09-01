@@ -16,14 +16,12 @@ Use this path when embedding the datapath.
 ```mermaid
 flowchart LR
     CPU[RV32I firmware] --> CSR[AXI4-Lite CSR]
-    DMA[Memory engines] <--> DP[milan_datapath]
+    MEM[Entity memories] <--> DP[milan_datapath]
     CSR --> DP
     DP <--> MAC[Ethernet MAC]
     DP --> IRQ[Interrupt controller]
     DP <--> DESC[Descriptor memory]
     DP <--> RESP[Response memory]
-    DP --> PCM[PCM DMA]
-    DP <--> PLAY[Playback memory]
     DP <--> AUDIO[Audio interfaces]
     DP --> IDENTIFY[Identify output]
     DP <--> MMCM[MMCM controls]
@@ -34,14 +32,9 @@ flowchart LR
 |---|---|---|---|
 | Clocks and resets | `axis_clk`, `axis_resetn`, `gtx_*`, `clk_audio_i`, `clk_tdm_i` | Drive selected domains and reset sequencing | Drive required clocks; assert resets |
 | AXI4-Lite CSR | `s_axi_*` | Map the complete 64 KiB window | Connect fully; never tie handshakes |
-| TX DMA stream | `s_axis_tx_*` | Supply complete transmit frames | Set `s_axis_tx_tvalid=0` |
-| RX DMA stream | `m_axis_rx_*` | Accept complete receive frames | Set `m_axis_rx_tready=0` |
-| Timestamp stream | `m_axis_ts_*` | Drain timestamp records | Set `m_axis_ts_tready=0` |
-| PCM DMA stream | `m_axis_pcm_*` | Drain framed PCM records | Set `m_axis_pcm_tready=0` |
 | MAC streams | `m_axis_mac_tx_*`, `s_axis_mac_rx_*` | Preserve final-boundary backpressure | Set `s_axis_mac_rx_tvalid=0`; set `m_axis_mac_tx_tready=0` |
 | Descriptor memory | `o_desc_mem_*`, `i_desc_mem_*` | Serve the generated entity image | Set `i_desc_mem_req_ready=0`; clear every response input |
 | Response memory | `o_resp_mem_*`, `i_resp_mem_*` | Complete every accepted response operation | Set `i_resp_mem_req_ready=0`, `i_resp_mem_wr_ready=0`; clear response and completion inputs |
-| Playback memory | `pb_*` | Serve configured PCM rings | Set every `pb_*_i=0` |
 | MAC control and status | `o_mac_*`, `i_mac_*`, link, PHY, Ethernet guards | Report honest capabilities and status | Set `i_mac_speed=2'b10`, `i_link_up=1`, `i_full_duplex=1`; clear events, capabilities, toggles |
 | Interrupt | `o_irq_csr` | Route the aggregate CSR interrupt | Leave the output open during smoke tests |
 | Identify output | `o_identify` | Route the requested visual indication | Leave the output open during smoke tests |
@@ -131,7 +124,7 @@ The raw harness cannot prove SoC bridge wiring.
 
 Run SoC evidence after every bridge change.
 
-Read the complete [simulation procedure](../testing/SIMULATION.md#section-33-the-scripted-path-used-to-capture-the-evidence).
+Read the complete [simulation procedure](../testing/SIMULATION.md#section-33-the-scripted-repeatable-path).
 
 Build the softcore simulator once.
 

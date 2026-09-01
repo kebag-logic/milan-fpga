@@ -10,5 +10,5 @@ hand-edit. Part of the IEEE 1722 (AVTP) family; rolled up in
 
 | module | file | test | clauses |
 |---|---|---|---|
-| ✅ `KL_maap` | `KL_maap.sv` | `hostplane` · `maap` · `milan_dp` | — |
+| ✅ `KL_maap` | `KL_maap.sv` | `maap` · `milan_dp` | — |
 

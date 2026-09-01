@@ -36,7 +36,6 @@ Every current render needs visual inspection.
 |---|---|---|---|---|
 | `DOC_MAP` | Four ordered audience paths | [`../DOC_MAP.gen.py`](../DOC_MAP.gen.py), `../DOC_MAP.drawio` | `../DOC_MAP.svg`, `../DOC_MAP.png` | Every reader |
 | `SYSTEM_DOMAIN_MAP` | System ownership by domain | [`../SYSTEM_DOMAIN_MAP.gen.py`](../SYSTEM_DOMAIN_MAP.gen.py), `../SYSTEM_DOMAIN_MAP.drawio` | `../SYSTEM_DOMAIN_MAP.svg`, `../SYSTEM_DOMAIN_MAP.png` | Developers and integrators |
-| `AVB_SWITCH_DIRECTION` | Endpoint and switch direction | [`../AVB_SWITCH_DIRECTION.gen.py`](../AVB_SWITCH_DIRECTION.gen.py), `../AVB_SWITCH_DIRECTION.drawio` | `../AVB_SWITCH_DIRECTION.svg`, `../AVB_SWITCH_DIRECTION.png` | Integrators |
 | `BUILD_FLASH_BOOT` | Build through deployment | [`../BUILD_FLASH_BOOT.gen.py`](../BUILD_FLASH_BOOT.gen.py), `../BUILD_FLASH_BOOT.drawio` | `../BUILD_FLASH_BOOT.svg`, `../BUILD_FLASH_BOOT.png` | Integrators and managers |
 | `submodule_boundaries` | Four exact Git boundaries | [`submodule_boundaries.gen.py`](submodule_boundaries.gen.py), `submodule_boundaries.drawio` | `submodule_boundaries.svg`, `submodule_boundaries.png` | Developers and managers |
 | `cdc_census` | Derived clock crossings | [`cdc_census.gen.py`](cdc_census.gen.py), `cdc_census.drawio` | `cdc_census.svg`, `cdc_census.png` | Implementation developers |
@@ -70,12 +69,8 @@ New WaveDrom renders use white backgrounds.
 
 | Figure | Purpose | Generator | Embedded by |
 |---|---|---|---|
-| `rx_path_wall.svg` | Receive-path latency wall | `diag_rxpath.py` | [Performance goal](../findings/PERFORMANCE_GOAL.md) |
-| `memory_hierarchy_levers.svg` | Memory hierarchy levers | `diag_memhier.py` | [Performance goal](../findings/PERFORMANCE_GOAL.md) |
-| `ddio_before_after.svg` | DDIO experiment comparison | `diag_ddio.py` | [Performance goal](../findings/PERFORMANCE_GOAL.md) |
 | `ts_modular_ring.svg` | Modular timestamp ring | `diag_ts_modular_ring.py` | [Presentation timing](../design/PRESENTATION_TIME_WRAP.md) |
 | `ts_wrap_walk.svg` | Measured wrap progression | `diag_ts_wrap_walk.py` | [Presentation timing](../design/PRESENTATION_TIME_WRAP.md) |
-| `../perf_campaign.svg` | Performance campaign | `../perf_campaign_chart.py` | [Performance goal](../findings/PERFORMANCE_GOAL.md) |
 
 These figures describe dated measurements.
 
@@ -87,10 +82,6 @@ They never guarantee other hardware results.
 |---|---|---|
 | `audio_stream_path` | Retired audio topology | [Dataplane walkthrough](../fpga/DATAPLANE_WALKTHROUGH.md) |
 | `nxn_window_map` | Shipped row-map defect | [Architecture](../overview/ARCHITECTURE.md) |
-| `../RX_RING_DMA` | Retired byte-ring design | [Pipeline stages](../fpga/PIPELINE_STAGES.md) |
-| `../RX_RING_OPERATION` | Earlier ring operation | [Pipeline stages](../fpga/PIPELINE_STAGES.md) |
-| `../TX_STARVATION_FIX` | Earlier starvation fix | [Pipeline stages](../fpga/PIPELINE_STAGES.md) |
-| `../history/v1/diagrams/RX_PERF_TUNING_MAP.drawio` | Retired host tuning map | [Performance goal](../findings/PERFORMANCE_GOAL.md) |
 | `../history/v1/diagrams/ROOT_DOC_MAP.*` | Superseded audience map | [Documentation index](../README.md) |
 
 Historical diagrams remain evidence only.

@@ -12,7 +12,7 @@
 
 # NxN AAF Milan Streams — Shared Engines + Per-Stream Context RAM
 
-Normative architecture for roadmap item 5 ([`docs/MILAN_COMPLIANCE_GAPS.md`](MILAN_COMPLIANCE_GAPS.md),
+Normative architecture for roadmap item 5 ([current feature ledger](../../reference/MILAN_FEATURE_STATUS.md),
 "Suggested order of attack" item 5). Test shapes: **AX7101 = 8x8**,
 **Arty = 4x4** ([`configs/endstation_ax7101_8x8.yaml`](../../../configs/endstation_ax7101_8x8.yaml),
 [`configs/endstation_arty_4x4.yaml`](../../../configs/endstation_arty_4x4.yaml)). Status: IMPLEMENTED — shared-engine RTL

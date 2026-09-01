@@ -23,6 +23,13 @@ Machine-checked status rows are defined by the
 | `notifications.controller-liveness` | `implemented` | - |
 <!-- milan-feature-status:end -->
 
+<!-- solution-cpu-contract:start -->
+| Invocation | CPU | Harts | XLEN | Firmware | L2 bytes | Datapath clock |
+|---|---|---:|---:|---|---:|---:|
+| CLI defaults | `vexiiriscv` | `1` | `32` | `baremetal` | `unset` | `unset` |
+| `deploy.sh` | `vexiiriscv` | `1` | `32` | `baremetal` | `0` | `50 MHz` |
+<!-- solution-cpu-contract:end -->
+
 ## Contents
 
 - **[1. Included functions](#1-included-functions)** — The protocol, time, media, shaping, identity, boot, and diagnostic functions in the release image.
@@ -68,6 +75,13 @@ An end-station YAML drives descriptor generation, gPTP ROM generation, fabric
 shape, board pins, and the SoC command line. The bitstream, raw AEM image,
 generated plan, and hashes are one candidate set. Paired-image update tooling
 refuses a set whose installed or target identity cannot be proven.
+
+<!-- solution-memory-faces:start -->
+| Memory face | RTL prefix | Direction | Purpose |
+|---|---|---|---|
+| Descriptor memory | `desc_mem_*` | Read-only | Fetch the verified entity image |
+| Response memory | `resp_mem_*` | Read-write | Build AECP responses |
+<!-- solution-memory-faces:end -->
 
 ## 5. Performance model
 

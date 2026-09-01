@@ -1488,7 +1488,7 @@ lines, none of them a marker**, in three classes:
 
 | Class | Example | Why it is not a marker |
 |---|---|---|
-| A filename | a citation of the [historical task list](../history/v1/TODO.md) in `scripts/check_doc_paths.py` | A tracked document pages legitimately cite |
+| A filename | a retired-document basename in a gate fixture | The gate tests its own input vocabulary |
 | An identifier | `TODO = "TODO describe this section"` in `scripts/gen_toc.py`, `d == TODO`, and the lowercase `todo` counter beside them | Code, not a comment — and it names the placeholder that gate *refuses* |
 | Prose about markers | "as a TODO placeholder", "a TODO belongs in the roadmap, not here", the gate's own docstring and its CI step name | A sentence about markers is not one |
 
@@ -1499,9 +1499,8 @@ beside the verdict, and the gate's docstring and the CI step comment in
 `.github/workflows/docs.yml` carry the same numbers from the same run, so
 three places cannot drift into three figures.
 
-Markdown is not scanned at all. Prose about the
-[historical task list](../history/v1/TODO.md) is not a marker, and treating it as one
-would make the gate unusable.
+Markdown is not scanned. Prose about task markers is not itself a marker.
+Treating it as one would make the gate unusable.
 
 ### What the gate reads, and how it finds a comment
 

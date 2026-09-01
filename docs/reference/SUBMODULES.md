@@ -20,7 +20,7 @@ Dirty submodules invalidate local evidence.
 <!-- submodule-pins:start -->
 | Path | Pin | Purpose | Root integration |
 |---|---|---|---|
-| `external` | `efeb541ae5fe1e078332d8462dca2fc2d9cb8db5` | Legacy Ethernet MAC RTL | Archived `milan_top.sv` path |
+| `external` | `efeb541ae5fe1e078332d8462dca2fc2d9cb8db5` | Historical Ethernet MAC RTL | No active product consumer |
 | `gptp-processor` | `903a58125da89ba445c737e6d7db9ea5a8ba25f6` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
 | `protocol-processor` | `3770ae02c56ca712d4a3505f429298b62edd5da8` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
 | `third_party/verilog-axis` | `48ff7a7e2ef782cf778d47910cf85835c64b1bce` | AXI-Stream primitives | Multiple RTL consumers |
@@ -45,7 +45,7 @@ git submodule update --init \
   gptp-processor
 ```
 
-The legacy external tree uses SSH.
+The unused external import uses SSH.
 
 Initialize it only when needed.
 
@@ -87,7 +87,7 @@ The cleanliness command must print nothing.
 | `protocol-processor` | `protocol-processor/scripts/run_suites.sh` | `make -C tb/verilator/pp_shadow` |
 | `gptp-processor` | `make -C gptp-processor` | `make -C tb/verilator/gptp_shadow` |
 | `third_party/verilog-axis` | Upstream evidence | `make -C tb/verilator/queues` |
-| `external` | Upstream evidence | None; legacy top cannot elaborate |
+| `external` | Upstream evidence | Not applicable; no active product consumer |
 
 ## Known documentation conflicts
 

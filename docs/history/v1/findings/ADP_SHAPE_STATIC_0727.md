@@ -241,6 +241,6 @@ the flashed board would advertise with no boot script at all.
   than emitting counts with no descriptors behind them.
 * **Nothing here has been on silicon.** `VERSION` moved to `0x0001_0015`; the
   flashed bitstream is `0x0001_0014` (see
-  [FLASH_0x0014_0727.md](../../../findings/FLASH_0x0014_0727.md)) and still has writable
+  [current flash guide](../../../integration/QSPI_FLASHBOOT.md)) and still has writable
   `0x618`/`0x61C`. The boot script keeps a `VERSION < 0x15` shim so an
   un-reflashed board does not fall back to advertising nothing at all.

@@ -1178,14 +1178,13 @@ def check_unbound_static(deltas) -> tuple:
     return ("PASS", detail)
 
 
-#: The test machine's own loss lanes.  /sys/class/net/<iface>/statistics/ names
-#: (net_device_stats; Documentation/networking/statistics.rst).
+#: The test machine's own standard interface-counter loss lanes.
 #: ONLY counters that can falsify this instrument's readings belong here:
 #: rx_missed/over/fifo/errors mean a frame never reached rx_packets, and the
 #: tx lanes mean this host's own injections failed.
 NIC_LOSS_KEYS = ("tx_dropped", "rx_errors", "tx_errors",
                  "rx_missed_errors", "rx_over_errors", "rx_fifo_errors")
-#: rx_dropped is NOT a loss lane for this instrument: it counts kernel demux
+#: rx_dropped is NOT a loss lane for this instrument: it counts host demux
 #: drops (typically no-protocol-handler, e.g. a switch's MVRP heartbeat on a
 #: host with no MRP stack) that happen AFTER the frame was counted in
 #: rx_packets and AFTER the AF_PACKET tap - measured on this bench at a steady
@@ -1210,7 +1209,8 @@ def instrument_health(before: Optional[dict], after: Optional[dict]) -> tuple:
         return ("SKIP", {"why": "the test machine's NIC statistics were not "
                                 "readable, so it is unknown whether the "
                                 "instrument lost anything in this window; "
-                                "expected /sys/class/net/<iface>/statistics/"})
+                                "expected the configured host-interface "
+                                "statistics feed"})
     d = {k: after.get(k, 0) - before.get(k, 0) for k in NIC_LOSS_KEYS
          if k in before and k in after}
     moved = {k: v for k, v in d.items() if v}
@@ -1460,8 +1460,8 @@ A_NO_UNSUPPORTED = AssertSpec(
 A_TU_HANDLING = AssertSpec(
     "counters.stream_input.tu-consistent-with-wire",
     "Milan v1.2 Table 5.6 TIMESTAMP_UNCERTAIN + IEEE 1722-2016 4.4.4.7: the "
-    "counter advances exactly when the tu bit is set on the wire; tu = 1 is "
-    "CORRECT for a board whose gPTP has not leased clock validity, so this "
+    "counter advances exactly when the tu bit is set on the wire; the product "
+    "fabric owner derives it from live sync state, so this "
     "assertion compares the counter to the WIRE and never to a wish")
 A_COUNTER_LAW = AssertSpec(
     "counters.stream_input.update-law-per-counter",
@@ -1622,7 +1622,7 @@ A_INSTRUMENT_LOSSLESS = AssertSpec(
     "window was taken through a lossy instrument, and those verdicts are "
     "downgraded to INSTRUMENT-SUSPECT rather than reported as device "
     "failures (rx_dropped is recorded but excluded: it counts post-tap "
-    "kernel demux drops such as unhandled MVRP, not capture loss).  A saturated "
+    "host-demux drops such as unhandled MVRP, not capture loss).  A saturated "
     "test host manufacturing fake listener failures is a live history on this "
     "bench, not a hypothetical",
     severity="INFO")
@@ -1758,7 +1758,7 @@ class Device:
     #: one side's counters is a claim; one corroborated across sides is a fact.
     role: str = "dut"
     #: the test machine is addressed by INTERFACE, not by entity_id: its numbers
-    #: come from /sys/class/net/<iface>/statistics/ and from the capture.
+    #: come from the configured host-interface statistics feed and capture.
     iface: Optional[str] = None
     #: a board-side path to this device's fabric CSRs exists (0x694 licence,
     #: 0x21C/0x230 RMON good-frame lanes behind the 0x200 snapshot latch,
@@ -2242,8 +2242,8 @@ def _multi_set_steps(name: str, dut: Device, peer: Device, pairs: list,
     ]
     if stress:
         for direction, what in (
-                ("rx", "host -> DUT best-effort TCP: RX stress on the "
-                       "RSC-less ingress path"),
+                ("rx", "external peer -> DUT best-effort traffic: inbound "
+                       "wire stress"),
                 ("tx", "DUT -> host best-effort TCP: TX stress against the "
                        "shaped egress queues")):
             steps.append(Step(
@@ -2572,13 +2572,13 @@ def plan_audio(dut: Device = ARTY, peer: Device = PEER) -> list:
                  "fail on a swap (methodology R4)"))
     steps.append(
         Step("audio.thdn", "audio", "thdn_gate",
-             {"source": "pcm_ring_dump", "rate_hz": 48000, "f0_hz": 1000,
+             {"source": "wire_capture", "rate_hz": 48000, "f0_hz": 1000,
               "channels": 2, "accept_dbfs": -120.0,
-              "analyser": "harness/milanharness/thdn.py"},
+              "analyser": "tb/tools/thdn.py"},
              asserts=(AssertSpec("audio.thdn.worst-channel",
                                  "USER acceptance: THD+N <= -120 dBFS end to "
                                  "end; the digital source itself measures "
-                                 "-147.99 dBFS, so the wire+ring path must add "
+                                 "-147.99 dBFS, so the wire+fabric path must add "
                                  "nothing"),
                       AssertSpec("audio.thdn.coherent-not-windowed",
                                  "the pilot tone is exact-period (48 samples = "
@@ -2588,7 +2588,7 @@ def plan_audio(dut: Device = ARTY, peer: Device = PEER) -> list:
                                  "into neighbouring bins which the residual "
                                  "then counts as distortion - it MANUFACTURES "
                                  "the number it is supposed to measure")),
-             clause="reuses harness/milanharness/thdn.py - do not reimplement",
+             clause="reuses tb/tools/thdn.py - do not reimplement",
              note="numpy is required for this one step and nowhere else"))
     return steps
 
@@ -2834,18 +2834,18 @@ def plan_torture(dut: Device = ARTY, peer: Device = PEER) -> list:
 # ---------------------------------------------- the physical (power) family --
 #: docs/reference/REGISTER_MAP.md: `VERSION` (0x004) identifies the flashed
 #: gateware; `CLKV_STAT` (0x77C) bit 0 is the tu bit as currently stamped on
-#: every AVTPDU.  The CLKV lease behind that bit is SOFTWARE (gptp2csr.sh
-#: renews it), so a boot or a recovery that loses the lease writer stamps
-#: tu = 1 forever - exactly what the post-cycle tu assertion exists to catch.
+#: every AVTPDU. The fabric gPTP engine owns the clock-validity state behind
+#: that bit, so a boot or recovery that fails to re-establish validity stamps
+#: tu = 1 forever - exactly what the post-cycle assertion exists to catch.
 VERSION_ADDR = 0x004
 CLKV_STAT_ADDR = 0x77C
-#: The healthy boot posture of the DUT's kernel interface:
-#: /sys/class/net/eth0/flags == 0x1203 = IFF_UP | IFF_BROADCAST | IFF_ALLMULTI
-#: | IFF_MULTICAST with IFF_PROMISC (0x100) ABSENT.  Promisc outranks even an
-#: explicit TCAM drop in the RX filter's decision order (REGISTER_MAP.md), so
-#: a boot that comes up promiscuous has silently voided its own RX shield and
-#: starves the softcore under stream load.
-DUT_IFACE_HEALTHY_FLAGS = 0x1203
+#: The healthy bare-metal RX-filter posture. Firmware takes MAC_CTRL's reset
+#: 0x13 and enables all-multicast (bit 3) for link-local control traffic, while
+#: leaving promiscuous mode (bit 2) clear. Promiscuous mode outranks even an
+#: explicit TCAM drop in the filter's decision order, so this value is read
+#: back after boot rather than inferred from network reachability.
+MAC_CTRL_ADDR = 0x100
+DUT_RX_FILTER_HEALTHY_CTRL = 0x1B
 
 A_PHYS_SNAPSHOT = AssertSpec(
     "physical.pre-snapshot-taken",
@@ -2906,8 +2906,7 @@ A_LINK_EVENT_SEEN = AssertSpec(
     "info: IEEE 1722.1-2021 Table 7-153 LINK_UP/LINK_DOWN ('Total number of "
     "network link up/down events').  Whether a switch outage is a PHY event "
     "for the DUT is a CABLING fact, not a clause: this bench runs an inline "
-    "regenerating tap on the DUT<->switch link (docs/findings/"
-    "BENCH_TOPOLOGY.md), and such a tap holds the board-side link up while "
+    "regenerating tap on the DUT<->switch link, and such a tap holds the board-side link up while "
     "the switch side is dark - so a zero delta here is expected and a "
     "non-zero delta is equally conformant.  Recorded as a datum so the "
     "retroactive GM story can be read against what the DUT could actually "
@@ -2935,12 +2934,12 @@ A_AS_CAPABLE_RESTORED = AssertSpec(
     "Announce again, evidenced by at least one end station following a REMOTE "
     "grandmaster; two boards each still claiming themselves GM after the "
     "budget are two islands that never re-joined")
-A_TU_LEASE_REARMED = AssertSpec(
-    "gptp.tu-lease-reestablished",
+A_TU_VALIDITY_RESTORED = AssertSpec(
+    "gptp.tu-validity-restored",
     "IEEE 1722-2016 4.4.4.7 tu: tu = 1 is the fail-safe and tu = 0 has to be "
-    "EARNED - the CLKV lease (CLKV_STAT 0x77C bit 0, renewed by software in "
-    "gptp2csr.sh) must be re-established once the GM is back, or every AVTPDU "
-    "stamps tu = 1 forever.  The reading is a DUT CSR, so without a CSR path "
+    "EARNED - the fabric-owned validity state (CLKV_STAT 0x77C bit 0) must be "
+    "re-established once the GM is back, or every AVTPDU stamps tu = 1 "
+    "forever. The reading is a DUT CSR, so without a CSR path "
     "this is a SKIP naming the register, never a guess")
 A_NO_REBOOT = AssertSpec(
     "entity.survived-without-reboot",
@@ -2955,23 +2954,22 @@ A_BOOT_UNATTENDED = AssertSpec(
     "Milan v1.2 5.3.10.1 + IEEE 1722.1-2021 6.2.6: the persisted state is "
     "restored 'after a power cycle' and the entity advertises again, with "
     "ZERO manual intervention.  The budget is a bench fact, not a clause: "
-    "QSPI bitstream load + kernel + link guard measured ~5.5 min worst case "
-    "on this DUT, so the default budget is 360 s and a boot that needs a "
-    "hand at any rung is exactly the FAIL this exists to catch")
+    "the conservative QSPI-to-network-ready budget is 360 s, and a boot that "
+    "needs a hand at any rung is exactly the FAIL this exists to catch")
 A_VERSION_UNCHANGED = AssertSpec(
     "boot.same-gateware-version",
-    "the same-version rule (docs/testing/RUNNING_TESTS.md): a power cycle "
+    "the same-version rule: a power cycle "
     "boots the QSPI image, so the VERSION CSR (0x004) must read back what the "
     "pre-snapshot read - a changed word means the golden-image fallback "
     "engaged (or a mid-campaign reflash), and every later verdict would be "
     "filed against the wrong gateware")
 A_SHIELD_POSTURE = AssertSpec(
-    "boot.shield-posture-restored",
+    "boot.rx-filter-posture-restored",
     "REGISTER_MAP.md RX filter decision order: promisc outranks even an "
     "explicit TCAM drop, so the stream shield only exists while promisc "
-    "stays gated - the healthy posture is eth0 flags 0x1203 (UP | BROADCAST "
-    "| ALLMULTI | MULTICAST, PROMISC absent).  A boot that comes up "
-    "promiscuous has voided its own RX shield and starves the softcore "
+    "stays gated - the bare-metal healthy posture is MAC_CTRL 0x1B "
+    "(TX/RX/all-multicast enabled, promiscuous absent). A boot that sets "
+    "promiscuous mode has voided its own RX shield and starves the softcore "
     "under stream load")
 A_STATE_RESTORED = AssertSpec(
     "state.restored-after-power-cycle",
@@ -3034,7 +3032,7 @@ def plan_physical(dut: Device = ARTY, peer: Device = PEER) -> list:
         once.
       * dut-cycle - the old power-cycle human entry: the persistence story,
         boot-to-healthy with zero manual intervention, plus the boot-posture
-        checks (VERSION unchanged, shield posture, tu lease).
+        checks (VERSION unchanged, shield posture, fabric validity/tu posture).
 
     Each family ends in a PROOF PAIR - a full set-format/bind/licence/unbind
     walk at the HIGHEST AAF indices (index 0 is the alias path and the least
@@ -3058,9 +3056,8 @@ def plan_physical(dut: Device = ARTY, peer: Device = PEER) -> list:
         margin), then 180 s more to ONE GM (BMCA + Pdelay asCapable + the
         servo, all automatic by standing rule; 120 s floor plus margin);
       * DUT off 8 s (a real drain - the SRAM gateware is LOST and QSPI boots
-        it back, which is what makes it a true cold boot), 360 s to the
-        network (QSPI load + kernel + link guard measured ~5.5 min worst
-        case on this bench), then 120 s more for gPTP.
+        it back, which is what makes it a true cold boot), a conservative
+        360 s to a network-ready bare-metal image, then 120 s more for gPTP.
     """
     S = []
     fmt = dut.formats[0] if dut.formats else None
@@ -3086,19 +3083,19 @@ def plan_physical(dut: Device = ARTY, peer: Device = PEER) -> list:
     S.append(Step(
         "phys.switch-cycle.gm-partition", "physical", "switch_power_cycle",
         {"outlet_role": "switch", "family": "switch-cycle",
-         "hold_s": 20, "ssh_budget_s": 240, "gptp_budget_s": 180,
+         "hold_s": 20, "link_budget_s": 240, "gptp_budget_s": 180,
          "settle_gap_s": 10, "gm_changes_max": 8,
          "clkv_stat_addr": CLKV_STAT_ADDR},
         needs_human=True,
         human_action="Power off the AVB switch (DN-1) at the powerstrip for "
-                     "~20 s, then power it back on and wait for links, ssh "
-                     "and gPTP to recover.  AUTOMATED when the runner is "
+                     "~20 s, then power it back on and wait for links and "
+                     "gPTP to recover. AUTOMATED when the runner is "
                      "given --powerstrip-cmd and --switch-outlet (bench: "
                      "the powerstrip host, outlet 4).",
         asserts=(A_PARTITION_EXPECTED, A_GM_CHANGED_ADVANCES, A_GM_CONTINUITY,
                  A_PEER_GM_CHANGED, A_LINK_EVENT_SEEN, A_GM_ID_FOLLOWS,
                  A_ONE_GM_RESTORED, A_GM_NOT_FLAPPING, A_AS_CAPABLE_RESTORED,
-                 A_TU_LEASE_REARMED, A_NO_REBOOT, A_ADP_ALIVE),
+                 A_TU_VALIDITY_RESTORED, A_NO_REBOOT, A_ADP_ALIVE),
         clause="802.1AS-2020 10.3 BMCA + IEEE 1722.1-2021 Table 7-153 "
                "GPTP_GM_CHANGED",
         note="the partition IS the GM loss and the re-join IS the GM change: "
@@ -3131,7 +3128,8 @@ def plan_physical(dut: Device = ARTY, peer: Device = PEER) -> list:
          "off_s": 8, "net_budget_s": 360, "gptp_budget_s": 120,
          "settle_gap_s": 10, "version_addr": VERSION_ADDR,
          "clkv_stat_addr": CLKV_STAT_ADDR,
-         "iface": "eth0", "iface_flags": DUT_IFACE_HEALTHY_FLAGS,
+         "mac_ctrl_addr": MAC_CTRL_ADDR,
+         "mac_ctrl": DUT_RX_FILTER_HEALTHY_CTRL,
          "fmt_out_index": ti, "fmt_in_index": dli},
         needs_human=True,
         human_action="Power-cycle the DUT at the outlet (off for at least "
@@ -3143,11 +3141,11 @@ def plan_physical(dut: Device = ARTY, peer: Device = PEER) -> list:
         asserts=(A_ADP_ALIVE, A_BOOT_UNATTENDED, A_VERSION_UNCHANGED,
                  A_SHIELD_POSTURE, A_STATE_RESTORED, A_STATE_SELF_CONSISTENT,
                  A_STATE_DEFAULTED, A_COUNTERS_ZEROED,
-                 A_ONE_GM_RESTORED, A_TU_LEASE_REARMED),
+                 A_ONE_GM_RESTORED, A_TU_VALIDITY_RESTORED),
         clause="Milan v1.2 5.3.10.1 / 5.3.8.1 / 5.3.7.6",
         note="the only test that can see the non-volatile requirements at "
              "all - and the zero-touch boot ladder (network, VERSION, shield "
-             "posture, discovery, gPTP, tu lease) is the persistence story "
+             "posture, discovery, gPTP, clock validity) is the persistence story "
              "the flash rounds keep re-earning.  Milan 5.3.8.1 is a SHALL, "
              "so the restore assertion is never deleted; on a build with no "
              "writable flash it grades KNOWN-PENDING naming the missing "
@@ -3811,7 +3809,7 @@ def self_test() -> int:
             v, d = instrument_health(base, dict(base, rx_missed_errors=17))
             self.assertEqual(v, "FAIL")
             self.assertEqual(d["moved"]["rx_missed_errors"], 17)
-            # rx_dropped alone is the switch's unhandled MVRP hitting kernel
+            # rx_dropped alone is the switch's unhandled MVRP hitting host
             # demux AFTER rx_packets and the capture tap: recorded, never a
             # verdict (it used to poison every window on the live bench)
             v, d = instrument_health(base, dict(base, rx_dropped=2,
@@ -3996,7 +3994,7 @@ def self_test() -> int:
             self.assertIn("physical.partition-is-the-test", sw)
             self.assertIn("gptp.exactly-one-gm-after-heal", sw)
             self.assertIn("entity.survived-without-reboot", sw)
-            self.assertIn("gptp.tu-lease-reestablished", sw)
+            self.assertIn("gptp.tu-validity-restored", sw)
             # BOTH directions of the GM story are owed, plus the side that
             # actually loses its GM and the link-event datum.  Owing only
             # the ADVANCE is what filed a fake red against a permanent GM
@@ -4014,13 +4012,13 @@ def self_test() -> int:
             self.assertIn("counters.zeroed-after-power-cycle", du)
             self.assertIn("boot.reaches-network-unattended", du)
             self.assertIn("boot.same-gateware-version", du)
-            self.assertIn("boot.shield-posture-restored", du)
+            self.assertIn("boot.rx-filter-posture-restored", du)
             # the budget floors from the bench facts: switch boot before any
             # board is reachable, ~5.5 min worst-case DUT boot, and a hold an
             # order of magnitude past the announce-receipt timeout
             a = cyc["switch_power_cycle"].args
             self.assertGreaterEqual(a["hold_s"], 15)
-            self.assertGreaterEqual(a["ssh_budget_s"], 180)
+            self.assertGreaterEqual(a["link_budget_s"], 180)
             self.assertGreaterEqual(a["gptp_budget_s"], 120)
             b = cyc["dut_power_cycle"].args
             self.assertGreaterEqual(b["off_s"], 5)
