@@ -52,6 +52,14 @@ real RTL generate arms.
 Measured with `syn/yosys/ooc.sh` at the 8-stream, 16-slot fabric shape. These
 are comparison numbers, not guaranteed savings after placement.
 
+> **Entity-shape provenance.** The stream and slot parameters above do not
+> identify the generated entity shape bound through
+> `` `include "gen/adp_shape_defaults.svh" ``. At the time of this measurement,
+> `ooc.sh` named no `configs/generated/**` include directory, so the record
+> does not establish which generated shape supplied the ACMP context counts.
+> Treat these figures as **parameter-pinned and entity-shape-unknown** until
+> they are repeated with a named configuration.
+
 | block | LUT | FF | DSP | BRAM36 |
 |---|---:|---:|---:|---:|
 | media-clock servo | 814 | 789 | 1 | 0 |
