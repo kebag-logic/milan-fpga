@@ -10,5 +10,5 @@ hand-edit. Part of the Common / integration family; rolled up in
 
 | module | file | test | clauses |
 |---|---|---|---|
-| ✅ `milan_csr` | `milan_csr.sv` | `csr` · `hostplane` · `milan_dp` | — |
+| ✅ `milan_csr` | `milan_csr.sv` | `csr` · `milan_dp` | — |
 

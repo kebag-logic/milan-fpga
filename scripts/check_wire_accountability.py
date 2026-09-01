@@ -302,13 +302,6 @@ def check_rtl_consumption(dp_text=None):
             "the packetizer would keep its own literal and the constant "
             "would describe rather than drive")
 
-    if re.search(r"\.CHANS_P\s*\(\s*TALKER_WIRE_CHANS_P\s*\)", dp):
-        ok("milan_datapath passes it to KL_pcm_tx")
-    else:
-        bad("KL_pcm_tx is not given TALKER_WIRE_CHANS_P", "roadmap item 00",
-                    "the pair source would de-interleave a different "
-            "width from the one the framer stamps")
-
     if re.search(r"chans_r\[t\]\s*<=\s*WIRE_CHANS_C\s*;", pk):
         ok("KL_aaf_packetizer resets every talker's chans from the constant")
     else:

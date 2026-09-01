@@ -3,17 +3,10 @@
  *
  * milan_trace.h - the barectf platform layer: a DRAM ring of CTF packets.
  *
- * WHY A RING IN DRAM AND NOT A FILE ON FLASH.  The scarce resource is the NOR
- * flash (2 MiB of /user, 64 KiB erase blocks, finite erase cycles); DRAM is not
- * (512 MB on the AX7101, 256 MB on the Arty).  Continuous logging to flash
- * exhausts the part in weeks - the arithmetic is in
- * docs/design/TRACE_LOGGING.md section 5.  So: every record lands in DRAM, and
- * flash is written only when something has gone wrong (a record at WARN or
- * above), rate-limited and budgeted.
- *
- * WHAT SURVIVES A POWER CUT IS ONLY WHAT WAS ALREADY FLUSHED.  The DRAM ring
- * is volatile.  A fault that is still only in RAM when the rail drops is gone.
- * That is a deliberate trade, not an oversight: see TRACE_LOGGING.md section 9.
+ * The bare-metal image writes every record to caller-provided DRAM. It does
+ * not open files, compress data or depend on an operating-system service. A
+ * bench acquisition transport copies complete raw segments from this ring;
+ * the workstation then packs, rotates and decodes them with trace_segment.py.
  *
  * Layering:
  *
@@ -21,16 +14,15 @@
  *        |  packet full -> close_packet callback
  *        v
  *   milan_trace ring (this file)       fixed-size packet slots, overwrite-oldest
- *        |  milan_trace_segment_*()    on a WARN+ record, rate-limited
+ *        |  milan_trace_segment_*()    raw segment extraction boundary
  *        v
- *   compressor + writer                PRIVATE TEST REPO (fpga/), xz per segment
+ *   bench acquisition transport        copies raw CTF packets
+ *        |
  *        v
- *   /user/log/seg-NNNNNN.ctf.xz
+ *   workstation trace_segment.py       xz bundle + metadata + rotation
  *
- * The compressor and the /user writer are deliberately NOT here: they need a
- * filesystem, liblzma and an init script, all of which live in the private test
- * repo.  What this file owns is the part that must be identical everywhere -
- * where a packet goes, when a flush is armed, and what a segment IS.
+ * What this file owns is the target-independent producer contract: where a
+ * packet goes, when extraction is armed, and what a raw segment is.
  *
  * Freestanding C99.  Uses only <stdint.h>, <stddef.h> and <string.h>.
  */
@@ -47,6 +39,9 @@
 extern "C" {
 #endif
 
+/* Keep in step with environment.milan_trace_abi in milan_trace.yaml. */
+#define MILAN_TRACE_ABI          2u
+
 /* ---- severities (mirror of the `sev` enum in milan_trace.yaml) ---------- */
 #define MILAN_TRACE_SEV_DEBUG   0u
 #define MILAN_TRACE_SEV_INFO    1u
@@ -57,15 +52,15 @@ extern "C" {
 
 /* ---- sources (mirror of the `src` enum in milan_trace.yaml) ------------- */
 #define MILAN_TRACE_SRC_FABRIC     0u
-#define MILAN_TRACE_SRC_JOURNALD   1u
+#define MILAN_TRACE_SRC_JOURNAL    1u
 #define MILAN_TRACE_SRC_LINKMON    2u
 #define MILAN_TRACE_SRC_PROVISION  3u
 #define MILAN_TRACE_SRC_AUDIO      4u
-#define MILAN_TRACE_SRC_KERNEL     5u
+#define MILAN_TRACE_SRC_FIRMWARE   5u
 #define MILAN_TRACE_SRC_TRACE      6u
 #define MILAN_TRACE_SRC_TEST       7u
 
-/* A record at or above this severity ARMS a flush to /user. */
+/* A record at or above this severity ARMS raw-segment extraction. */
 #define MILAN_TRACE_FLUSH_SEV   MILAN_TRACE_SEV_WARN
 
 /* The 32-bit event-record timestamp over the 1 MHz clock wraps every
@@ -90,11 +85,8 @@ extern "C" {
 #define MILAN_TRACE_SEGMENT_PACKETS   64u
 #endif
 
-/* Default flash-wear budget: 512 KiB/hour = 12 MiB/day worst case.  With the
- * 1.5 MiB /user/log region (24 x 64 KiB erase blocks) and the part's
- * datasheet ">100 000 program/erase cycles per sector", that is >11 years at a
- * pessimistic 3x jffs2 write amplification, even on a board that faults
- * continuously from the day it ships.  TRACE_LOGGING.md section 5. */
+/* Default export budget: 512 KiB/hour. This bounds repeated fault extraction
+ * so tracing cannot monopolise the bench transport. */
 #ifndef MILAN_TRACE_BUDGET_BYTES_PER_HOUR
 #define MILAN_TRACE_BUDGET_BYTES_PER_HOUR   (512u * 1024u)
 #endif
@@ -119,22 +111,17 @@ struct milan_trace_cfg {
     void     *user;
 
     /* Distinguishes packets written by different boots of the same board.
-     * Any value that changes across a reboot (a boot counter kept in /user, the
-     * low word of the first PHC read, a random seed). */
+     * Any value that changes across a reboot is suitable. */
     uint32_t  boot_id;
 
     /* Minimum microseconds between two flushes.  0 = the built-in default. */
     uint32_t  flush_min_interval_us;
 
-    /* FLASH-WEAR BUDGET: bytes per hour this tracer may write to /user.
+    /* EXPORT BUDGET: bytes per hour the bench may extract from this ring.
      * 0 = the built-in default (MILAN_TRACE_BUDGET_BYTES_PER_HOUR).
      *
-     * The rate limiter alone is NOT enough.  One flush per 60 s of ~70 KiB
-     * segments is ~98 MiB/day, which wears the log region out in about
-     * eighteen months - and a permanently-faulting board is exactly the box
-     * that would do it.  A token bucket refilled at this rate is what turns
-     * "rare flushes" from an assumption into a property.  Arithmetic and the
-     * resulting lifetimes: docs/design/TRACE_LOGGING.md section 5. */
+     * A token bucket makes the rate bound a tested property rather than an
+     * assumption about how rarely faults occur. */
     uint32_t  budget_bytes_per_hour;
 };
 
@@ -191,10 +178,10 @@ struct barectf_milan_ctx *milan_trace_ctx(void);
  * exposed for producers that call the generated functions directly. */
 void milan_trace_arm(uint8_t sev);
 
-/* Non-zero when a flush to /user is DUE: something at MILAN_TRACE_FLUSH_SEV or
+/* Non-zero when a raw-segment export is DUE: something at MILAN_TRACE_FLUSH_SEV or
  * above has been recorded since the last flush, AND the rate limiter allows one
- * now, AND the flash-wear budget has tokens for it.  The caller (the board
- * daemon) does the compressing and writing. */
+ * now, AND the export budget has tokens for it. The workstation owns packing
+ * and durable storage after the bench transport copies the raw packets. */
 int milan_trace_flush_due(void);
 
 /* Why the last milan_trace_flush_due() said no: one of the `flushv` enum values
@@ -207,12 +194,11 @@ int milan_trace_flush_due(void);
 #define MILAN_TRACE_HOLD_BUDGET     6u
 uint8_t milan_trace_flush_hold(void);
 
-/* Report the bytes the caller actually wrote to /user for the flush it just
- * completed, so the flash-wear budget can refuse the next one.  Call it once
- * per successful flush, with the COMPRESSED size (that is what hits flash). */
+/* Report the packed byte count of the completed workstation export so the
+ * export budget can refuse the next one. */
 void milan_trace_flush_wrote(uint32_t out_bytes);
 
-/* Tokens left in the flash-wear bucket, bytes. */
+/* Tokens left in the export bucket, bytes. */
 uint32_t milan_trace_budget_left(void);
 
 /* Force the next milan_trace_flush_due() to return non-zero, ignoring the
@@ -240,8 +226,8 @@ uint32_t milan_trace_segment_begin(uint32_t max_packets);
  * makes a fixed-size slot legal and a partial read decodable. */
 const uint8_t *milan_trace_segment_packet(uint32_t i);
 
-/* Close the segment.  `ok` = the caller durably wrote it (fsync + rename);
- * only then does the flush arming reset and the rate limiter restart.
+/* Close the segment. `ok` means the acquisition transport copied every raw
+ * packet; only then does extraction arming reset and the rate limiter restart.
  * Returns the number of segment packets that the producer overwrote while the
  * segment was open - non-zero means the segment the caller just wrote is
  * partly garbage and it should record a trace_drop(RING_FULL). */

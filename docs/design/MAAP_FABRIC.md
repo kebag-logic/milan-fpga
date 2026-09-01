@@ -59,7 +59,7 @@ on the established monitor-tap + low-rate-TX recipe (house style, TerosHDL).
 
 ## Fabric integration
 
-- RX: tap `rx_axis_to_dma` (subtype 0xFE @ ether 0x22F0), aligned-lane
+- RX: observe `rx_axis_fabric` (subtype 0xFE @ ether 0x22F0), aligned-lane
   parse (fields land in beats 1..4).
 - **TX: the second leg of the ONE control-lane merge.** The TX arbiter
   cascade collapsed from eight muxes to four when the planes that fed the

@@ -15,8 +15,8 @@
                 silicon-proven "TX wedge until reload" (2026-07-19).
                 The proven recovery is holding the MAC's sys side in
                 reset (LINK_CTRL[1] -> macsys) across the outage and
-                releasing it once the eth clocks are stable again; until
-                now a software daemon did that in 5-20 s.
+                releasing it once the eth clocks are stable again; the
+                earlier manual recovery took 5-20 s.
 
                 This block does it in hardware: each eth domain exports a
                 divide-by-2 toggle (plain FF, flips every cycle). The
@@ -29,13 +29,13 @@
                 SETTLE_CYC_C (~21 ms), riding through the PHY's clock
                 wobble during renegotiation. Recovery is then automatic
                 and sub-50-ms with zero software involvement; the
-                LINK_CTRL[1] manual strobe remains OR-ed in as the
-                daemon-level fallback.
+                LINK_CTRL[1] manual strobe remains OR-ed in as a
+                firmware-controlled fallback.
 
                 link_est_o = "eth RX clock alive" - the first hardware
                 link truth on boards whose MDIO is unusable (Arty
                 MII-PMOD); it feeds eff_link (ADP/AVB_INTERFACE
-                counters) as a veto on the daemon-maintained sw_link.
+                counters) as a veto on the firmware-maintained sw_link.
 
                 eth_rst_o completes the CDC story in RTL (gaps 5: the
                 sys-side reinit alone was a workaround - the ETH-side
@@ -50,8 +50,8 @@
                 always eth-first-then-sys: when reinit_o finally drops,
                 both CDC halves have restarted from matched (zero)
                 pointers and no software strobe is needed. The manual
-                LINK_CTRL[1] path stays sys-only (the daemon owns
-                phy_crg_reset in that flow).
+                LINK_CTRL[1] path stays sys-only when the automatic
+                sequence is bypassed.
 
                 stat_o packs {bounce_cnt, flags, state} for the
                 LINKG_STAT CSR; freeze_i is a CSR test hook that fakes
@@ -117,7 +117,7 @@ module KL_link_guard #(
   //! only the sys side, so the MAC wedges until a gateware reload despite repeated
   //! reinit strobes. Routing it through the FSM applies eth_rst for >=SETTLE/2
   //! clean eth cycles and releases eth-first-then-sys -> both CDC pointer sets
-  //! restart matched. (The daemon no longer needs to also strobe phy_crg_reset.)
+  //! restart matched; firmware does not need a second reset strobe.
   wire man_edge_w  = man_reinit_i && !man_reinit_r;
 
   // ------------------------------------------------------------------ //

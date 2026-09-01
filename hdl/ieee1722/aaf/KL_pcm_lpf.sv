@@ -50,7 +50,7 @@ module KL_pcm_lpf (
     //! passive tap on the depacketized PCM AXIS stream
     input  wire [63:0] s_tdata,
     input  wire        s_tvalid,
-    input  wire        s_tready,        //! the DMA consumer's ready (observed)
+    input  wire        s_tready,        //! fabric render consumer ready (observed)
     //! filtered pair stream (consumer captures on m_tvalid when active_o)
     output logic [63:0] m_tdata,
     output logic        m_tvalid,

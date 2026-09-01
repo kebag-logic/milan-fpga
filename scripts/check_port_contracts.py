@@ -13,10 +13,8 @@ it.
 What is measured. Every tracked `.sv` and `.svh` under `hdl/` in the
 superproject and both project-owned processor submodules: the shared
 code-quality scope, minus the `LINT_EXCLUDE` list that `scripts/lint_rtl.py`
-owns with a reason per entry (`hdl/milan/milan_top.sv` is in it - a Zynq top no
-build compiles and that cannot elaborate here - and documenting its ports
-would decorate a file every gate already ignores). Ports come from the ONE
-shared header parser, `scripts/sv_ports.py`. The first version of this gate
+owns with a reason per entry (currently empty). Ports come from the ONE shared
+header parser, `scripts/sv_ports.py`. The first version of this gate
 carried a private one, and review found it ended a `module X import pkg::*;`
 header at the import's `;`, so 23 modules - all three integration tops among
 them - contributed no ports to the ratchet at all. One parser, both gates,
@@ -67,10 +65,14 @@ Five things are checked, and they are deliberately different kinds of check:
      job; that one exists is the gate's. No identity may be added; the budget
      lists every one that exists today so the debt is never hidden.
 
-The population is REFUSED (exit 2, named) when it is empty or when any of
+The population is REFUSED (exit 2, named) when it is empty, when any of
 `hdl/`, `gptp-processor/hdl` or `protocol-processor/hdl` contributes no file
-or no parsed port: a pathspec or checkout problem must never read as green.
-An absent or off-pin processor is refused earlier, by the shared scope.
+or no parsed port, or when a tracked HDL path is not present in the working
+tree as a regular file (deleted, never checked out, or replaced by a symlink
+or a directory): a pathspec or checkout problem must never read as green, and
+dropping such a path from the population would be the under-count #186
+forbids. An absent or off-pin processor is refused earlier, by the shared
+scope.
 
 Known limits, recorded here rather than left to be discovered:
 
@@ -161,6 +163,21 @@ def tree_of(rel):
 def sources():
     return [p for p in tracked("hdl") if p.endswith((".sv", ".svh"))
             and p not in LINT_EXCLUDE]
+
+
+def check_files(paths, root=REPO):
+    """A refusal message naming every tracked HDL path the working tree does
+    not hold as a regular file, or None. Such a path is refused, never dropped:
+    a population quietly missing a file under-counts (#186), and a symlink is
+    not the tracked blob either."""
+    missing = [p for p in paths
+               if (root / p).is_symlink() or not (root / p).is_file()]
+    if missing:
+        return (f"REFUSED: incomplete population - {len(missing)} tracked HDL "
+                "path(s) not present as a regular file (deleted, never checked "
+                "out, or replaced by a symlink or a directory): "
+                + ", ".join(missing))
+    return None
 
 
 def declared_modules(paths):
@@ -418,11 +435,21 @@ def check_population(files_per_tree, ports_per_tree):
 
 def audit():
     paths = sources()
-    known, ifaces = declared_modules(paths)
     files_per_tree = {t: 0 for t in TREES}
     ports_per_tree = {t: 0 for t in TREES}
     undoc_per_tree = {t: 0 for t in TREES}
     undoc, wild, pos, hier, dispositions, nonansi = {}, [], [], [], [], []
+    refusal = check_files(paths)
+    if refusal:
+        # nothing is read: a scan of the files that ARE present is exactly
+        # the under-count the refusal exists to prevent
+        return {
+            "files": files_per_tree, "ports": ports_per_tree,
+            "undoc_per_tree": undoc_per_tree, "undoc": undoc, "wild": wild,
+            "pos": pos, "hier": hier, "nonansi": nonansi,
+            "dispositions": dispositions, "backdoors": [], "refusal": refusal,
+        }
+    known, ifaces = declared_modules(paths)
     for rel in paths:
         tree = tree_of(rel)
         text = (REPO / rel).read_text(errors="replace")
@@ -731,6 +758,18 @@ def selftest():
                       "undocumented protocol-processor x\n")
         ck("a non-numeric count is unusable", read_budget(bp) is None)
         ck("a missing budget is unusable", read_budget(Path(td) / "none") is None)
+    with tempfile.TemporaryDirectory() as td:
+        root = Path(td)
+        (root / "a.sv").write_text("module a; endmodule\n")
+        (root / "d.sv").mkdir()
+        (root / "l.sv").symlink_to("a.sv")
+        ck("a tracked HDL path present as a regular file is not refused",
+           check_files(["a.sv"], root) is None)
+        refusal = check_files(["a.sv", "gone.sv", "d.sv", "l.sv"], root) or ""
+        ck("a tracked HDL path that is absent, a directory or a symlink is refused, by name",
+           refusal.startswith("REFUSED: incomplete population")
+           and all(name in refusal for name in ("gone.sv", "d.sv", "l.sv"))
+           and "a.sv" not in refusal.split(": ")[-1], refusal)
 
     # -- the population refusals --
     ck("an empty population is refused",
@@ -752,7 +791,8 @@ def selftest():
     ck("the live scan reads the tree", total > 3000, f"{total} ports")
     for tree in TREES:
         ck(f"the live scan reaches {tree}", result["ports"][tree] > 0, f"{result['ports']}")
-    ck("the exclusion list is shared with lint_rtl", "hdl/milan/milan_top.sv" in LINT_EXCLUDE)
+    ck("lint_rtl's exclusion list is empty today, so every tracked .sv/.svh is in the population",
+       not LINT_EXCLUDE)
     paths = sources()
     known_live, _ = declared_modules(paths)
     for rel, least in (("hdl/milan/milan_datapath.sv", 100),

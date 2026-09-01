@@ -50,7 +50,7 @@
 # `tdm` resource on pmodb (high-speed Pmod: E15 E16 D15 C15 J17 = mclk bclk
 # fsync din dout). pmoda is UNTOUCHED: the Pmod I2S2 keeps all eight pins and
 # the CS5343 MCLK stays on pmoda:4 (ball D13) - the board-to-board analog
-# loop of docs/findings/BENCH_TOPOLOGY.md is preserved because the blend
+# loop is preserved because the blend
 # gives the TDM header its OWN mclk pad instead of stealing the I2S one.
 #
 # THE CLOCKING IS FREE. TDM8 x 32-bit slots @ 48 kHz needs bclk = 12.288 MHz
@@ -106,9 +106,6 @@ board:
     floorplan: false
     flashboot: baremetal             # #259: the {bitstream, aem} manifest
     uart_baudrate: 115200
-    rx_queues: 2
-    hs_page_bytes: 16384
-    strip_probes: true
     num_queues: 5
 
 srp:
@@ -126,9 +123,7 @@ srp:
     interval_frames: 1
 
 platform:
-  csr_base: 0x90000000
   mac_address: "02:00:00:00:00:02"
-  interrupt: 3
   pp_mem_phys: 0x4fb00000            # 1 MiB protocol-processor window
 
 clocking:
@@ -209,7 +204,7 @@ gptp:
   # ONE source (USER 2026-08-05): these values generate the AVB_INTERFACE
   # descriptor's clock fields and the fabric uCPU image. priority1 248 =
   # the deferring Milan end-station default (see the AX7101 configs). The
-  # fabric plane is the one product gPTP owner (#259); no daemon
+  # fabric plane is the one product gPTP owner (#259)
   # configuration is generated from this section any more. The engine
   # consumes only priority1 (plus MAC and clock frequency); every other
   # clock field is a constant in gptp-processor/hdl/ucode/gen_gptp_ucode.py

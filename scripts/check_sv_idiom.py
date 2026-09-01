@@ -57,8 +57,7 @@ WHAT THE POPULATION IS. Every tracked HDL file under `hdl/` in this repository
 and under the two pinned project processors, through the shared scope helper
 (`code_quality_scope.py`, which refuses an absent or off-pin processor), minus
 the whole-file exceptions `scripts/lint_rtl.py` records in `LINT_EXCLUDE` with a
-reason each: the Vivado-generated `hdl/milan/milan_dma_wrapper.v` and the
-archived Zynq top `hdl/milan/milan_top.sv`. Nothing else is excluded. The
+reason each (currently none). The
 generated headers under `hdl/common/csr/gen/` are INSIDE the gated set on
 purpose - a finding there is fixed in `sw/builder/endstation_builder.py`, which
 writes them, and the gate reading them is how a generator regression would be
@@ -413,9 +412,9 @@ def selftest():
        and any(p.startswith("gptp-processor/") for p in paths))
     ck("the live population is complete", population_problem(paths) is None,
        str(population_problem(paths)))
-    ck("the excluded list is shared with lint_rtl",
-       "hdl/milan/milan_dma_wrapper.v" in LINT_EXCLUDE)
-    ck("the checked-in Verilog exception has a reason and evidence",
+    ck("lint_rtl's exclusion list is empty today, so no first-party HDL file is outside this population",
+       not LINT_EXCLUDE)
+    ck("every HDL exception has a reason and evidence",
        not undocumented_hdl_exceptions())
     ck("the ratcheted populations are non-empty",
        totals["reg declaration"] > 0,

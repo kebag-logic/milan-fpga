@@ -1,9 +1,9 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 #
-# Integration harness for milan_datapath.sv (the PS-less §A.9 wrapper). Builds the
+# Integration harness for milan_datapath.sv. Builds the
 # whole TSN core (csr + classify/CBS + PTP + rx-filter + ADP + events) and drives
-# it over the AXI4-Lite CSR + the DMA/MAC AXIS ports.
+# it over the AXI4-Lite CSR + MAC AXIS ports.
 #   make        - build and run the self-checking harness
 #   make clean  - remove build artifacts
 
@@ -69,12 +69,22 @@ VFLAGS = --cc --exe --build -j 0 \
          -GDIAG_TICK_CYC_P=256 \
          -CFLAGS "-std=c++17 -O2"
 
-# Most historical integration legs exercise the retained host-PCM and
-# software-gPTP shape. Both options are explicit; obj_gptp deliberately omits
-# the gPTP override and therefore proves the product default rather than a
-# forced -G1.
+# The broad historical integration legs use the direct option-OFF elaboration:
+# it is an ownerless verification boundary, not an alternate runtime owner.
+# obj_gptp deliberately omits the override and therefore proves the product
+# default rather than a forced -G1.
 GPTP_OFF_VFLAGS = $(VFLAGS) -GGPTP_PLANE_EN_P=0
-DP_VFLAGS = $(GPTP_OFF_VFLAGS) -GSOUND_CARD_P=1
+DP_VFLAGS = $(GPTP_OFF_VFLAGS)
+# The product-on media-wire test needs its compressed hold to outlive one CRF
+# interval while remaining below syncReceiptTimeout. Its processor millisecond
+# is also compressed to 100 cycles so the one-second GET_COUNTERS limiter can
+# reopen without letting that selected Sync expire. Keep both overrides local
+# to obj_gptp; option OFF retains the broad-suite 4096-cycle shortcut.
+GPTP_MS_CYC = 100
+GPTP_ON_VFLAGS = $(filter-out -GCLKV_QTICK_CYC_P=4096,$(VFLAGS)) \
+                 -GCLKV_QTICK_CYC_P=131072 \
+                 -GPP_TIM_DIV_US_P=1 -GPP_TIM_DIV_MS_P=$(GPTP_MS_CYC) \
+                 -CFLAGS "-DPP_MS_CYC_TB=$(GPTP_MS_CYC)"
 
 C  = $(RTL_DIR)/common
 Q  = $(RTL_DIR)/ieee8021q/ts
@@ -111,13 +121,11 @@ GPTP_SRCS = $(GPTP_DIR)/ucpu/gptp_ucpu_pkg.sv $(GPTP_DIR)/ucpu/KL_gptp_ucpu.sv \
        $(RTL_DIR)/ieee8021as/gptp_plane/KL_gptp_txstamp.sv
 
 SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv \
-       $(AXIS_DIR)/axis_fifo.v $(AXIS_DIR)/axis_demux.v $(AXIS_DIR)/axis_arb_mux.v \
+       $(AXIS_DIR)/axis_fifo.v $(AXIS_DIR)/axis_arb_mux.v \
        $(AXIS_DIR)/arbiter.v $(AXIS_DIR)/priority_encoder.v \
-       $(Q)/traffic_class_map.sv $(Q)/traffic_classifier.sv $(Q)/credit_based_shaper.sv \
-       $(Q)/traffic_shaping_core.sv $(Q)/traffic_queues.sv $(Q)/traffic_controller_802_1q.sv \
        $(P)/timestamp_counter.sv $(P)/ptp_csr_sync.sv \
-       $(C)/cdc_pulse.sv $(C)/cdc_handshake.sv $(C)/axis_mux_rr_2in_1out.sv \
-       $(P)/ptp_ts_core.sv $(P)/ptp_ts_top.sv $(P)/KL_ptp_clock_validity.sv \
+       $(C)/cdc_pulse.sv $(C)/cdc_handshake.sv \
+       $(P)/KL_ptp_clock_validity.sv \
        $(RTL_DIR)/ieee8021q/filtering/tcam.sv $(RTL_DIR)/ieee8021q/filtering/rx_mac_filter.sv $(C)/tx_ifg_gasket.sv $(RTL_DIR)/ieee1722/aaf/KL_pcm_lpf.sv $(RTL_DIR)/ieee1722/aaf/KL_pcm_route.sv \
        $(C)/KL_link_guard.sv \
        $(RTL_DIR)/ieee17221/adp/adp_tx_arbiter.sv \
@@ -126,7 +134,6 @@ SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv
        $(RTL_DIR)/ieee1722/aaf/KL_tdm_capture.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_tdm_capture_master.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_pair_blend.sv \
-       $(RTL_DIR)/ieee1722/aaf/KL_pcm_tx.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_pair_zero_fill.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_tdm_render.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_chan_map_render.sv \
@@ -158,7 +165,7 @@ SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv
        $(RTL_DIR)/milan/milan_datapath.sv
 CPP  = sim_main.cpp
 
-.PHONY: all run gptp soundcard-off clean
+.PHONY: all run gptp option-off clean
 all: run
 
 # tier-1 optional blocks, ALL pruned at once (docs/design/AREA_BUDGET.md).
@@ -196,31 +203,26 @@ gptp_ucode.hex: $(GPTP_DIR)/ucode/gen_gptp_ucode.py
 $(SHAPE_DV_F): gen_divergent_shape.py $(SHAPE_4x4_F) ../../../sw/builder/endstation_builder.py
 	python3 gen_divergent_shape.py
 
-soundcard-off:
-	$(VERILATOR) --cc --exe --build -j 0 --Mdir obj_soundcard_off \
-	  --top-module KL_pcm_route -GN_LISTENERS_P=2 -GDMA_ENABLE_P=0 \
-	  -Wall -Wno-fatal -Werror-USERERROR -Werror-UNDRIVEN \
-	  $(RTL_DIR)/ieee1722/aaf/KL_pcm_route.sv sim_soundcard_off.cpp \
-	  -CFLAGS "-std=c++17 -O2" -o Vpcm_route_soundcard_off
-	./obj_soundcard_off/Vpcm_route_soundcard_off
-
 gptp: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
-	$(VERILATOR) $(SHAPE_AX1x1) $(VFLAGS) --Mdir obj_gptp \
+	$(VERILATOR) $(SHAPE_AX1x1) $(GPTP_ON_VFLAGS) --Mdir obj_gptp \
 	  -GMILAN_CLK_FREQ_HZ=2000000 \
 	  $(SRCS) sim_gptp.cpp -o Vmilan_dp_gptp
 	./obj_gptp/Vmilan_dp_gptp
 
-run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) soundcard-off gptp
+# Focused ownerless boundary: the same 1x1 harness used by the broad suite,
+# with the gPTP product plane structurally absent and every legacy write inert.
+option-off: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
+	$(VERILATOR) $(SHAPE_1x1) $(DP_VFLAGS) $(SRCS) $(CPP) -o Vmilan_dp_sim
+	./obj_dir/Vmilan_dp_sim
+
+run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) gptp
 	$(VERILATOR) $(SHAPE_1x1) $(DP_VFLAGS) $(SRCS) $(CPP) -o Vmilan_dp_sim
 	$(VERILATOR) $(SHAPE_4x4) $(DP_VFLAGS) --Mdir obj_nxn -GN_STREAMS=4 $(SRCS) sim_nxn.cpp -o Vmilan_dp_nxn
 # the divergent-shape leg: arty_4x4's entity with input row 1 declaring the
 # 96 kHz base - same channel count as row 0, so the ONLY discriminator is
 # the base, which is precisely what a row-0 lookup regression would miss
 	$(VERILATOR) $(SHAPE_DV) $(DP_VFLAGS) --Mdir obj_nxndv -GN_STREAMS=4 -CFLAGS "-DNSTREAMS_TB=4 -DDIVERGENT_TB=1 -I$(CURDIR)/gen_divergent" $(SRCS) sim_nxn.cpp -o Vmilan_dp_nxndv
-# obj_nxn8 also elaborates AAF_PLAYBACK_P=1 (the task #31 cfg_ax8x8 ship
-# flip) and runs the host-ring -> RING-bucket -> talker-wire section
-# (-DAAF_PB_TB): the host playback direction proven INSIDE the datapath.
-# obj_nxn8 is also the ONLY leg that elaborates the task #65 loopback lane
+# obj_nxn8 is the ONLY leg that elaborates the task #65 loopback lane
 # (-GLOOPBACK_P=1, paired with -DLOOPBACK_TB so the C++ side knows which
 # gateware it is driving). The other two sim_nxn legs run with the lane OFF
 # and pin the other half of the contract - a mapped loopback slot is silent
@@ -229,7 +231,7 @@ run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) soundcard-off
 # -DLB_SEQ_FIXED: the 0x0036 loop-source paced-replay law is IN - [T68]
 # asserts zero dup / zero skip / whole-ramp / clean tail instead of the
 # pre-fix stair signature.
-	$(VERILATOR) $(SHAPE_8x8) $(DP_VFLAGS) --Mdir obj_nxn8 -GN_STREAMS=8 -GAAF_PLAYBACK_P=1 -GLOOPBACK_P=1 -CFLAGS "-DNSTREAMS_TB=8 -DAAF_PB_TB=1 -DLOOPBACK_TB=1 -DLB_SEQ_FIXED=1" $(SRCS) sim_nxn.cpp -o Vmilan_dp_nxn8
+	$(VERILATOR) $(SHAPE_8x8) $(DP_VFLAGS) --Mdir obj_nxn8 -GN_STREAMS=8 -GLOOPBACK_P=1 -CFLAGS "-DNSTREAMS_TB=8 -DAX8X8_TB=1 -DLOOPBACK_TB=1 -DLB_SEQ_FIXED=1" $(SRCS) sim_nxn.cpp -o Vmilan_dp_nxn8
 # THE SHIPPING ARTY SHAPE, and until 2026-07-30 nothing in the suite
 # elaborated it. obj_nxn above builds endstation_arty_4x4's ENTITY (4 streams)
 # but leaves TALKER_WIRE_CHANS_P at its default 2, so every leg ran with the
@@ -255,23 +257,17 @@ run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) soundcard-off
 # than not-armed-yet zeros. The two legs answer different questions and both
 # stay.
 	$(VERILATOR) $(SHAPE_1x1) $(DP_VFLAGS) --Mdir obj_prune $(PRUNE_G) $(SRCS) sim_prune.cpp -o Vmilan_dp_prune
-# task #19 (silicon 2026-08-06): the CPU DMA-TX lane vs the Table 5.22 push
-# machinery. NOTHING else in the suite ever REGISTERs a controller, so the
-# 0x0024 push arms had zero desk coverage - this leg keeps them exercised
-# against the TX trunk (registered controller + GM-flip pushes + bind churn
-# + continuous best-effort CPU frames under a paced-MAC model).
-	$(VERILATOR) $(SHAPE_1x1) $(DP_VFLAGS) --Mdir obj_txg $(SRCS) sim_txgrant.cpp -o Vmilan_dp_txg
 # THE SHIPPING ALINX SHAPE, byte for byte the cfg_ax7101 argv in
 # sw/litex/build.sh: 1 stream, 8 wire channels off a TDM8 MASTER front end,
-# the loopback lane backed, sound card absent, I2S playback and the render LPF
-# both PRUNED. Every one of those had desk coverage on its
+# the loopback lane backed, I2S playback and the render LPF both PRUNED.
+# Every one of those had desk coverage on its
 # own; the combination - which is the only combination that ever reaches a
 # board - had none, and three defects were living in it.
 	$(VERILATOR) $(SHAPE_AX1x1) $(GPTP_OFF_VFLAGS) --Mdir obj_ax1x1 \
 	  -GTALKER_WIRE_CHANS_P=$(AX_CHANS) -GAUDIO_IF_SLOTS_P=$(AX_SLOTS) \
 	  -GAUDIO_IF_MASTER_P=1 \
 	  -GLOOPBACK_P=1 -GI2SPB_P=$(AX_I2SPB) -GLPF_P=0 \
-	  -CFLAGS "-DWIRE_CHANS_TB=$(AX_CHANS) -DI2SPB_TB=$(AX_I2SPB) -DAIF_SLOTS_TB=$(AX_SLOTS) -DSOUND_CARD_TB=0" \
+	  -CFLAGS "-DWIRE_CHANS_TB=$(AX_CHANS) -DI2SPB_TB=$(AX_I2SPB) -DAIF_SLOTS_TB=$(AX_SLOTS)" \
 	  $(SRCS) $(CPP) -o Vmilan_dp_ax1x1
 # THE SAME SHIPPING SHAPE, CLOCKED HONESTLY. Every other leg toggles
 # clk_audio_i/clk_tdm_i 1:1 with axis_clk, so the 391/1591 divider plan that
@@ -315,8 +311,6 @@ run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) soundcard-off
 	./obj_nolpf/Vmilan_dp_nolpf
 	@echo "---- all six tier-1 blocks pruned ----"
 	./obj_prune/Vmilan_dp_prune
-	@echo "---- task #19: TX grants under registered-controller pushes ----"
-	./obj_txg/Vmilan_dp_txg
 	@echo "---- THE SHIPPING ALINX SHAPE: 1 stream x 8 wire channels, TDM8 master ----"
 	./obj_ax1x1/Vmilan_dp_ax1x1
 	@echo "---- the same shape at the TRUE clk_audio ratio (391/1591) ----"
@@ -338,4 +332,4 @@ print-pp-srcs:
 	@echo $(PP_SRCS)
 
 clean:
-	rm -rf ltn_rom.hex ucode.hex gptp_ucode.hex obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_txg obj_ax1x1 obj_aclk obj_nxndv obj_gptp obj_notify gen_divergent
+	rm -rf ltn_rom.hex ucode.hex gptp_ucode.hex obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_ax1x1 obj_aclk obj_nxndv obj_gptp obj_notify gen_divergent

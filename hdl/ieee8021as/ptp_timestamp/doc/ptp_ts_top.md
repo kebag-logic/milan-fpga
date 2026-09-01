@@ -6,9 +6,9 @@
 
 - **[Diagram](#diagram)** — The generated schematic. Quickest way to see the shape: one counter feeding two direction cores, whose records merge through a round-robin mux into a single output FIFO.
 - **[Generics](#generics)** — Six parameters, one of which surprises people: `ETH_TYPE` defaults to `'hF788`, i.e. gPTP's `0x88F7` in the byte order this module extracts with. Check it against `BIG_ENDIAN` first if PTP frames are never being recognised.
-- **[Ports](#ports)** — Two clock domains and three AXIS interfaces. Both frame paths are pass-throughs that never stall traffic — the module's only actual product is the metadata stream on `ts_m_axis`.
+- **[Ports](#ports)** — Two clock domains and three AXIS interfaces. Both frame paths are pass-throughs that never stall traffic; `ts_m_axis` is a private completion-record stream consumed or drained inside the parent fabric.
 - **[Signals](#signals)** — A single internal wire: the 64-bit counter value shared by both direction cores, which is what makes TX and RX stamps come from the same clock.
-- **[Instantiations](#instantiations)** — The composition, child by child — timestamp counter, two `ptp_ts_core` instances, per-direction buffers, the merge mux and a final FIFO ahead of the DMA. The buffers are `axis_fifo` from verilog-axis, noted here as the replacements for the vendor `xpm_fifo_axis` primitives.
+- **[Instantiations](#instantiations)** — The composition, child by child — timestamp counter, two `ptp_ts_core` instances, per-direction buffers, the merge mux and a final local FIFO. The buffers are `axis_fifo` from verilog-axis, noted here as the replacements for the vendor `xpm_fifo_axis` primitives.
 
 ## Diagram
 ![Diagram](ptp_ts_top.svg "Diagram")
@@ -80,5 +80,5 @@
   -  RX packets timestamping- tx_ts_buffer: axis_fifo (verilog-axis; replaced xpm_fifo_axis)
 - rx_ts_buffer: axis_fifo (verilog-axis; replaced xpm_fifo_axis)
 - axis_tx_rx_ts_switch_rr: axis_mux_rr_2in_1out
-  -  AXIS mux to combine buffered TX and RX streams- ts_buffer_to_ps: axis_fifo (verilog-axis; replaced xpm_fifo_axis)
-  -  AXIS fifo to store timestamp before DMA engine
+  -  AXIS mux to combine buffered TX and RX streams- ts_metadata_drain_fifo: axis_fifo (verilog-axis; replaced xpm_fifo_axis)
+  -  Final local FIFO decouples the TX/RX metadata arbiter from its parent.

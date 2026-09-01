@@ -16,13 +16,13 @@
                 inter-stage deltas (last / min / max, saturating) plus the
                 gPTP epoch of the measured reference frame over CSR.
 
-                  TX  : CAP (ring/I2S pair in) -> PKT_SOF (packetizer first
+                  TX  : CAP (fabric/I2S pair in) -> PKT_SOF (packetizer first
                         beat) -> PKT_EOF (packetizer last beat) -> MAC_TX
                         (frame egresses the MAC boundary)
                   RX  : MAC_RX (frame ingress) -> ACCEPT (AVTP monitor
                         parse-complete/accept pulse) -> DEPKT (payload last
-                        beat) -> PCM_RING (payload accepted at the ring
-                        writer)
+                        beat) -> FABRIC_RENDER (selected payload accepted by
+                        the physical render path)
 
                 MEASUREMENT MODEL - single in-flight tagged reference frame.
                 Each chain follows ONE frame at a time: it ARMS on a stage-0
@@ -109,7 +109,7 @@ module KL_aaf_latency_chain #(
   wire [SIDXW_C-1:0] didx_w = stg_r - 1'b1;
 
   //! same-cycle cascade scans (2026-07-26 silicon/TB find): a combinational
-  //! pipeline hop - e.g. the KL_pcm_route DEPKT->RING pass-through - fires
+  //! pipeline hop - e.g. the KL_pcm_route DEPKT->FABRIC_RENDER tap - fires
   //! two stage pulses in ONE cycle. The old walk consumed one stage per
   //! cycle, so the second pulse was gone by the time it was awaited and the
   //! token stranded until timeout. The scans count how many CONSECUTIVE

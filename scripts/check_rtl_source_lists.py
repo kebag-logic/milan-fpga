@@ -3,13 +3,13 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """Gate: every list that compiles `milan_datapath` carries every module it needs.
 
-Why this exists, with the receipts. There are FIVE independent lists of the
+Why this exists, with the receipts. There are FOUR independent lists of the
 same RTL - the Vivado sources in `sw/litex/milan_soc.py`, the `milan_datapath`
 row in `syn/yosys/run.sh`, `DP_SRCS` in `syn/yosys/ooc.sh`, and the source
-lists in `tb/verilator/milan_dp/Makefile` and `tb/verilator/hostplane/Makefile`.
+list in `tb/verilator/milan_dp/Makefile`.
 `scripts/check_soc_sources.py` has guarded exactly one of them since a missing
 `KL_i2s_feed_mux` entry killed three Vivado runs forty minutes in. The other
-four were unguarded, and extracting one module into
+three were unguarded, and extracting one module into
 `hdl/ieee1722/aaf/KL_aaf_latency_tap_bank.sv` broke three Verilator suites at
 once, each with the same "Cannot find file containing module" - one per list
 that nobody had told.
@@ -27,7 +27,7 @@ be self-refuting. The hop has to see every shape a front end accepts, because
 a shape it does not see is a file no consumer is told about: the first
 version needed two leading spaces and walked past the one column-0
 instantiation the tree already had (`traffic_class_map` in
-`traffic_classifier.sv`), reported 108 files and "5 of 5 complete", and let
+`traffic_classifier.sv`), reported 108 files and "4 of 4 complete", and let
 that file be dropped from both Yosys rows with the gate green while Yosys
 failed on it. The independent oracle for the walk is a real front end over
 exactly the closure: `verilator --lint-only` with an include directory that
@@ -271,7 +271,7 @@ def default_goal_is_print_srcs(directory, makefile="Makefile"):
     the default goal, so the suite stops running and prints a file list. The
     tally gate then reports NOCOUNT rather than a failure, which is a suite
     that measured nothing wearing the costume of a suite that passed. This
-    happened here the moment print-srcs was added to the hostplane suite.
+    happened here when print-srcs was first added to a Verilator suite.
 
     MAKE ASKS ITSELF. A second makefile adds one target that echoes
     `.DEFAULT_GOAL`, which make has already resolved from the FIRST target of
@@ -376,9 +376,6 @@ CONSUMERS = (
     Consumer("Verilator milan_dp (tb/verilator/milan_dp)",
              lambda copy=None: _from_make("milan_dp", copy),
              "tb/verilator/milan_dp/Makefile", False),
-    Consumer("Verilator hostplane (tb/verilator/hostplane)",
-             lambda copy=None: _from_make("hostplane", copy),
-             "tb/verilator/hostplane/Makefile", False),
 )
 
 
@@ -710,12 +707,9 @@ def selftest():
        "KL_aaf_latency_taps" in modules,
        "a module instantiated by a CHILD of milan_datapath must be in the closure")
     ck("a declared child needs no approved naming prefix",
-       "credit_based_shaper" in modules,
-       "the closure must follow declarations, not silently omit a new name family")
-    ck("a column-0 instantiation is followed (traffic_class_map, the shape the tree has)",
-       "traffic_class_map" in modules
-       and modules.get("traffic_class_map") == "hdl/ieee8021q/ts/traffic_class_map.sv",
-       "traffic_classifier.sv instantiates traffic_class_map at column 0")
+       "timestamp_counter" in modules,
+       "the closure must follow declarations, not silently omit a new name "
+       "family (timestamp_counter carries no KL_ prefix)")
     ck("package dependencies are part of the file closure",
        "pp_pkg" in modules and "ethernet_packet_pkg" in modules,
        "removing a package-only source must fail before compilation")
@@ -735,6 +729,11 @@ def selftest():
     base = dp.read_text()
     end = base.rfind("endmodule")
     probes = (
+        # The shaper chain that instantiated traffic_class_map at column 0 left
+        # milan_datapath with #259, so the shape is probed on a copy; the module
+        # is still declared in the tree.
+        ("a column-0 instantiation is followed (traffic_class_map at column 0)",
+         "\n\ntraffic_class_map u_zz_col0_plain ();\n", "traffic_class_map"),
         ("a column-0 instantiation under a non-blank line is followed",
          "\nassign zz_probe_a = 1'b0;\nKL_aes3_tx u_zz_col0 ();\n", "KL_aes3_tx"),
         ("a tab-indented instantiation under a non-blank line is followed",

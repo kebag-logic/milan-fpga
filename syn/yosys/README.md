@@ -1,7 +1,7 @@
 # Open-toolchain synthesis check (Yosys) — device portability
 
 This proves the Milan RTL is **vendor-neutral**: now that the Xilinx XPM primitives
-are gone (see [`docs/integration/OPEN_SOURCE_MIGRATION.md` (archived)](../../docs/history/v1/integration/OPEN_SOURCE_MIGRATION.md)),
+are gone (the retired migration record remains in Git history),
 every block maps to a **generic, device-independent** cell library with the
 open-source [Yosys](https://yosyshq.net/yosys/) synthesizer — so it will build on
 non-Xilinx FPGAs (Lattice ECP5/iCE40, Gowin, Efinix, ASIC flows, …), not just Vivado.
@@ -22,7 +22,7 @@ make ecp5       # map to a real non-Xilinx device: Lattice ECP5 (TRELLIS_FF/LUT4
 - **[How it works](#how-it-works)** — The two-stage pipeline and why each stage is there: sv2v converts the SystemVerilog Yosys cannot parse (interfaces, packages, assignment patterns), then `hierarchy -check` is what makes a PASS mean something — it fails on any surviving vendor primitive, so green = fully mapped to generic logic with nothing Xilinx-specific left.
 - **[Tooling](#tooling)** — The two binaries you need and where to get them. No Xilinx tools are required, which is the point — this flow is the evidence that the RTL is not tied to one vendor's toolchain.
 - **[Runtime levers](#runtime-levers)** — Why this gate is optimisation-bound and not parse-bound, which is the one fact that decides every speed question here: the jemalloc preload it now runs under (−45% on the heaviest top, −42% on the whole sharded gate, byte-identical netlist) and how to turn it off, and the measured reason `read_verilog -defer` is *not* used — it removes 85% of a step that is 0.5% of the run, and changes the cell count by 1.3% while doing it.
-- **[Coverage](#coverage)** — What the tops actually span, and the standing rule that the `tops=()` array is the count while this prose is not. Also names the one deliberate gap: `milan_top`, which pulls in the RGMII SelectIO and PS block design.
+- **[Coverage](#coverage)** — What the tops actually span, and the standing rule that the `tops=()` array is the count while this prose is not.
 - **[Notes](#notes)** — Two facts that stop you misreading the output: the concrete non-Xilinx targets (`synth_ecp5`, `synth_ice40`) with real cell counts, and why `axis_fifo` looks enormous — its 4096-deep default, which no instance in the design uses.
 - **[ooc.sh — AREA measurement (a different question from run.sh)](#oocsh--area-measurement-a-different-question-from-runsh)** — `run.sh` asks *does it map*; this asks *what does it cost*, which is the only number an area lever may be judged on. Three traps it exists to avoid, and the third is the sharpest: `-flatten` can read a genuinely deleted block as **−1 LUT / −0 FF**, so a structural lever needs the hierarchy-preserving form as well. Ends with the honest caveat — these are estimates with a yosys→Vivado ratio between 0.25 and 0.86, and control sets are not measurable here at all.
 
@@ -166,7 +166,7 @@ a fix for synthesis.** Check the `read_verilog` line in `yosys -d` output
 before reaching for it.
 
 ## Coverage
-44 tops as of 2026-08-13 (the `tops=()` array in `run.sh` is authoritative — that
+47 tops as of 2026-08-31 (the `tops=()` array in `run.sh` is authoritative — that
 array is the count, this prose is not; re-read it rather than trusting a number
 here):
 
@@ -177,18 +177,19 @@ here):
   (`adp_advertiser`, `KL_aecp_top`, the two ACMP contexts and their two
   wrappers, `KL_persist_journal`, `KL_lwsrp_top`) are gone with that RTL,
 - the CSR (`milan_csr`),
-- the de-Xilinx'd 802.1Q datapath (`classifier_wrap`→`traffic_classifier`,
-  `queues_wrap`→`traffic_queues`),
+- the de-Xilinx'd 802.1Q chain (`classifier_wrap`→`traffic_classifier`,
+  `queues_wrap`→`traffic_queues`, `datapath_wrap`→`traffic_controller_802_1q`
+  with its queues and shaping core) and the `ptp_ts_top` record stampers —
+  both are stand-alone tops since `0x0002_0056`, because `milan_datapath` no
+  longer instantiates them and their portability would otherwise go unproven,
 - the CBS/PTP/RMON leaves,
 - the vendored Forencich cores (`axis_fifo`, `axis_demux`, `axis_arb_mux` —
   kept as a portability check even though the queue egress now uses a plain
   grant-indexed mux instead of `axis_arb_mux`), and
-- **`milan_datapath` itself** (the full integration wrapper, which pulls in
-  `ptp_ts_top`/`ptp_ts_core` hierarchically).
+- **`milan_datapath` itself** (the full integration wrapper).
 
-Not covered: `milan_top` (RGMII SelectIO + PS block design, T2). The
-`avtp_stream_parser` gap noted here previously is **closed** — it is a top in
-the array.
+The `avtp_stream_parser` gap noted here previously is **closed** — it is a top
+in the array.
 
 ## Notes
 - `synth_ecp5` (Lattice ECP5) and `synth_ice40` (iCE40) are concrete non-Xilinx

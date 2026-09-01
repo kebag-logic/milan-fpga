@@ -4,13 +4,14 @@
 
 # What is being logged — the trace event catalogue
 
-Every event type the end-station can write into the fault trace in
-`/user/log`, what it carries, and why it exists. This page is **generated**
+Every event type the bare-metal end-station can write into its DRAM
+fault-trace ring, what it carries, and why it exists. This page is **generated**
 from [`sw/trace/milan_trace.yaml`](../../sw/trace/milan_trace.yaml), which is
 the CTF ABI — so it cannot drift from what the producer actually emits.
 
-For the design (why a trace at all, the flash budget, compression, rotation,
-torn writes) see [`../design/TRACE_LOGGING.md`](../design/TRACE_LOGGING.md).
+For the design (why a trace at all, the export budget, workstation
+compression/rotation and torn captures) see
+[`../design/TRACE_LOGGING.md`](../design/TRACE_LOGGING.md).
 For how to read a trace, that document's *Reading a trace* section.
 
 **23 event types.** Every record also carries the common context
@@ -31,8 +32,8 @@ says it.
 | `src` | `src` (enum) |  |
 
 `sev` is not decoration: it **is** the flush trigger. A record at or above
-the configured threshold is what promotes the RAM ring to a flash write, so
-choosing a severity is choosing whether the event can cost a flash erase.
+the configured threshold is what promotes the DRAM ring to a segment export, so
+choosing a severity also chooses whether the event can consume export budget.
 
 ## Event-record type IDs — and why declaration order is not it
 
@@ -48,7 +49,7 @@ the rule.
 | `1` | `avtp_rx` | 11 |
 | `2` | `boot` | 1 |
 | `3` | `csr_access` | 18 |
-| `4` | `daemon` | 22 |
+| `4` | `firmware_lifecycle` | 22 |
 | `5` | `heartbeat` | 2 |
 | `6` | `journal` | 14 |
 | `7` | `link` | 3 |
@@ -321,7 +322,7 @@ Generic CSR audit for anything the typed events above do not cover. Deliberately
 
 ### `trace_flush`
 
-The tracer describing its own flush to /user. in/out bytes give the live compression ratio; `ms` gives the live compressor cost on the softcore, which is the number no host measurement can supply.
+The tracer describing a segment extraction. The workstation packer reports the input/output byte counts and elapsed time back with the export verdict.
 
 | field | type | meaning |
 |---|---|---|
@@ -331,7 +332,7 @@ The tracer describing its own flush to /user. in/out bytes give the live compres
 | `out_bytes` | `u32` (32-bit unsigned, dec) |  |
 | `ms` | `u32` (32-bit unsigned, dec) |  |
 | `verdict` | `flushv` (enum) |  |
-| `free_bytes` | `u32` (32-bit unsigned, dec) | /user/log budget left after this flush |
+| `free_bytes` | `u32` (32-bit unsigned, dec) | retained-bundle budget after this export |
 
 ### `trace_drop`
 
@@ -345,7 +346,7 @@ Records LOST. A trace that silently omits records is worse than no trace; this e
 
 ### `trace_evict`
 
-Rotation evicted an older segment. Without this, "the evidence is not in /user/log" is ambiguous between never-written and evicted.
+Workstation rotation evicted an older segment. Without this, a missing segment is ambiguous between never-extracted and evicted.
 
 | field | type | meaning |
 |---|---|---|
@@ -354,9 +355,9 @@ Rotation evicted an older segment. Without this, "the evidence is not in /user/l
 | `free_after` | `u32` (32-bit unsigned, dec) |  |
 | `pinned` | `bool` (8-bit, 0/1) | the first-fault segment is never evicted |
 
-### `daemon`
+### `firmware_lifecycle`
 
-Producer lifecycle: which daemon started, stopped, or failed.
+Bare-metal trace-producer lifecycle: start, stop, error or config.
 
 | field | type | meaning |
 |---|---|---|
@@ -380,12 +381,12 @@ still decodes the trace — CTF carries them in the `metadata` document —
 but these are the names you will see.
 
 * **`sev`** (8-bit) — `DEBUG` = 0, `INFO` = 1, `NOTICE` = 2, `WARN` = 3, `ERROR` = 4, `FATAL` = 5
-* **`src`** (8-bit) — `FABRIC` = 0, `JOURNALD` = 1, `LINKMON` = 2, `PROVISION` = 3, `AUDIO` = 4, `KERNEL` = 5, `TRACE` = 6, `TEST` = 7
+* **`src`** (8-bit) — `FABRIC` = 0, `JOURNAL` = 1, `LINKMON` = 2, `PROVISION` = 3, `AUDIO` = 4, `FIRMWARE` = 5, `TRACE` = 6, `TEST` = 7
 * **`lsm`** (8-bit) — `UNBOUND` = 0, `PRB_W_AVAIL` = 1, `PRB_W_DELAY` = 2, `PRB_W_RESP` = 3, `PRB_W_RESP2` = 4, `PRB_W_RETRY` = 5, `SETTLED_NO_RSV` = 6, `SETTLED_RSV_OK` = 7
 * **`jverdict`** (8-bit) — `NONE` = 0, `ACCEPT` = 1, `MAGIC` = 2, `VERSION` = 3, `SHAPE` = 4, `LENGTH` = 5, `CRC` = 6, `ENTITY` = 7, `STALE` = 8
 * **`jop`** (8-bit) — `READ` = 0, `VERIFY` = 1, `REPLAY` = 2, `WRITE` = 3, `SKIP` = 4
 * **`tap`** (8-bit) — `TX_CAP_SOF` = 0, `TX_SOF_EOF` = 1, `TX_EOF_MAC` = 2, `RX_MAC_ACCEPT` = 3, `RX_ACCEPT_DEPKT` = 4, `RX_DEPKT_RING` = 5
-* **`ringid`** (8-bit) — `RX_BD` = 0, `TX_BD` = 1, `PCM_RX` = 2, `PCM_TX` = 3, `TRACE` = 4
+* **`ringid`** (8-bit) — `MEDIA_RX` = 2, `MEDIA_TX` = 3, `TRACE` = 4
 * **`droprsn`** (8-bit) — `RING_FULL` = 0, `BACKEND_FULL` = 1, `FLUSH_FAIL` = 2, `BUDGET` = 3, `TRUNCATED` = 4
 * **`flushv`** (8-bit) — `OK` = 0, `NOSPACE` = 1, `IOERROR` = 2, `COMPRESS` = 3, `RATELIMIT` = 4, `DISABLED` = 5
 

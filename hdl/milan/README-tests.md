@@ -10,8 +10,7 @@ hand-edit. Part of the Milan integration family; rolled up in
 
 | module | file | test | clauses |
 |---|---|---|---|
-| ✅ `KL_pp_maap_shim` | `KL_pp_maap_shim.sv` | `milan_dp` · ➰hostplane | — |
-| ✅ `KL_pp_shadow` | `KL_pp_shadow.sv` | `milan_dp` · ➰hostplane | 34.3, 34.4 |
-| ✅ `milan_datapath` | `milan_datapath.sv` | `hostplane` · `milan_dp` | 34.4, 35.2.2.8.4, 35.2.7, 802.1 |
-| 🗄️ `milan_top` | `milan_top.sv` | 🗄️ archived | — |
+| ✅ `KL_pp_maap_shim` | `KL_pp_maap_shim.sv` | `milan_dp` | — |
+| ✅ `KL_pp_shadow` | `KL_pp_shadow.sv` | `milan_dp` | 34.3, 34.4 |
+| ✅ `milan_datapath` | `milan_datapath.sv` | `milan_dp` | 34.4, 35.2.2.8.4, 35.2.7, 802.1 |
 

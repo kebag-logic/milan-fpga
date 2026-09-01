@@ -182,7 +182,7 @@ int main(int argc, char **argv) {
   ck("post-clr samples", dut->tx_samples_o, 1);
 
   // -- same-cycle cascade (2026-07-26 silicon find): a combinational hop ---
-  // (KL_pcm_route DEPKT->RING) pulses two stages in ONE cycle. The walk must
+  // (KL_pcm_route DEPKT->FABRIC_RENDER) pulses two stages in ONE cycle. The walk must
   // consume both: measured delta on the first hop, 0-cycle on the second,
   // sample completes, no timeout.
   idle(3);
@@ -192,7 +192,7 @@ int main(int argc, char **argv) {
   rx_pulse(0);
   idle(4); rx_pulse(1);                       // d0 = 5
   idle(2);
-  dut->rx_stage_p_i = (1u << 2) | (1u << 3);  // DEPKT + RING same cycle
+  dut->rx_stage_p_i = (1u << 2) | (1u << 3);  // DEPKT + FABRIC_RENDER same cycle
   tick();
   dut->rx_stage_p_i = 0;
   ck("cascade samples",   dut->rx_samples_o, smp_cas + 1);

@@ -32,13 +32,13 @@ R="$(cd "$(dirname "$(realpath "$0")")/../.." && pwd)"
 # it). Regenerate the fragments with
 #   python3 sw/builder/endstation_builder.py configs/endstation_arty_current.yaml
 #   python3 sw/builder/endstation_builder.py configs/endstation_ax7101_8x8.yaml
-# The builder test gate (test_builder.py gate 9) asserts fragment OPTS/L2/RXQ ==
+# The builder test gate (test_builder.py gate 9) asserts fragment OPTS/L2 ==
 # these tables byte-for-byte; check_sweep_shape.py asserts the EFFECTIVE
-# OPTS/L2/RXQ/NS == the end-station config named in CFG below.
+# OPTS/L2/NS == the end-station config named in CFG below.
 # ========================================================================
 case "$BOARD" in
-  arty)   OPTS="--board arty --sys-clk-freq 83.333e6 --milan-clk-freq 50e6 --num-streams 4 --audio-interface tdm8 --audio-interface-master --talker-wire-chans 4 --cbs-queues-mask 0x10 --fabric-gptp --cpu vexiiriscv --software-profile baremetal --xlen 32 --all-blocks --coherent-dma --with-spiflash --flashboot baremetal --timing-opt --l2-bytes 0 --uart-baudrate 115200 --rx-queues 2 --strip-probes --hs-page-bytes 16384 --cpu-count 1"; L2=0; RXQ=2;;  # Arty bare-metal shape (#259), fabric time-sync owner.
-  ax7101) OPTS="--board ax7101 --milan-clk-freq 50e6 --gtx-tx-invert --floorplan --eth-port e1 --no-i2s-playback --no-render-lpf --audio-interface tdm8 --audio-interface-master --talker-wire-chans 8 --cbs-queues-mask 0x10 --loopback-lane --fabric-gptp --cpu vexiiriscv --software-profile baremetal --xlen 32 --all-blocks --coherent-dma --with-spiflash --flashboot baremetal --timing-opt --l2-bytes 0 --uart-baudrate 115200 --rx-queues 2 --strip-probes --hs-page-bytes 16384 --cpu-count 1"; L2=0; RXQ=2;;  # Shipping AX shape: fabric time-sync, cacheless RV32, AAF/TDM/crossbar and loopback.
+  arty)   OPTS="--board arty --sys-clk-freq 83.333e6 --milan-clk-freq 50e6 --num-streams 4 --audio-interface tdm8 --audio-interface-master --talker-wire-chans 4 --fabric-gptp --cpu vexiiriscv --software-profile baremetal --xlen 32 --full --with-spiflash --flashboot baremetal --timing-opt --l2-bytes 0 --uart-baudrate 115200 --cpu-count 1"; L2=0;;  # Arty bare-metal shape (#259), fabric time-sync owner.
+  ax7101) OPTS="--board ax7101 --milan-clk-freq 50e6 --gtx-tx-invert --floorplan --eth-port e1 --no-i2s-playback --no-render-lpf --num-streams 1 --audio-interface tdm8 --audio-interface-master --talker-wire-chans 8 --loopback-lane --fabric-gptp --cpu vexiiriscv --software-profile baremetal --xlen 32 --full --with-spiflash --flashboot baremetal --timing-opt --l2-bytes 0 --uart-baudrate 115200 --cpu-count 1"; L2=0;;  # Shipping AX shape: fabric time-sync, cacheless RV32, AAF/TDM/crossbar and loopback.
   *) echo "unknown board $BOARD" >&2; exit 2;;
 esac
 # NS = NxN dataplane width (--num-streams / milan_datapath N_STREAMS). It is a
@@ -47,7 +47,7 @@ esac
 # config it comes from. UNTIL 2026-07-26 sweep.sh passed NO --num-streams AT
 # ALL, so `sweep.sh ax7101` built the DEFAULT 1x1 datapath while every config,
 # doc and build dir called it 8x8 - the same silent-divergence class as the
-# rx-queues bug (5ce9a13), one shape wider.
+# historic stream-count divergence (5ce9a13), one shape wider.
 case "$BOARD" in
   arty)   NS=4; CFG=${SWEEP_CFG:-configs/endstation_arty_4x4.yaml};;
   ax7101) NS=1; CFG=${SWEEP_CFG:-configs/endstation_ax7101_1x1_tdm8.yaml};;  # USER 2026-08-05: 1x1x8 TDM8 is the shipping AX shape for now; the fragment's NS=1 overrides the inline 8 (SWEEP_CFG=configs/endstation_ax7101_8x8.yaml returns to the NxN shape)
@@ -56,31 +56,14 @@ GEN_OPTS="$R/configs/generated/sweep_opts_${BOARD}.sh"
 if [ -f "$GEN_OPTS" ]; then
   . "$GEN_OPTS"
 fi
-# A fragment may express the stream count either as `NS=<n>` (preferred: the
-# same shape as L2/RXQ) or, historically, inline in OPTS (sweep_opts_arty_4x4.sh
-# does). Lift the inline form into NS so there is exactly ONE effective value
-# and the gate below sees it; never emit the flag twice (argparse would silently
-# keep the last one).
-case "$OPTS" in
-  *--num-streams*)
-    NS="$(printf '%s\n' "$OPTS" | sed -E 's/.*--num-streams[= ]+([0-9]+).*/\1/')"
-    ;;
-  *)
-    if [ "${NS}" -gt 1 ]; then OPTS="$OPTS --num-streams ${NS}"; fi
-    ;;
-esac
-# RXQ is PER BOARD because each board's flashed boot chain fixes its own DMA
-# window map (the 2026-07-24 CSR-rot rule): ax7101 carried 1 queue (its
-# csr.csv had no rx1_*/steer registers), arty carried 2 (rx1_* +
-# steer_q0/q1). Building either with the other's count shifts every DMA
-# window under an unchanged firmware map; unify them only with a full rebuild.
-#
+# Generated fragments publish NS beside the complete OPTS string. Keeping the
+# values explicit makes the shape gate below compare one canonical pair.
 # HARD GATE (not advisory): the effective shape must equal the end-station
 # config this sweep claims to build. set -e turns any disagreement into a
 # refusal to launch, so "the config says 8x8, the bitstream is 1x1" cannot
 # happen again.
 python3 "$R/scripts/check_sweep_shape.py" --board "$BOARD" \
-        --config "$CFG" --num-streams "$NS" --rx-queues "$RXQ" --l2-bytes "$L2" \
+        --config "$CFG" --num-streams "$NS" --l2-bytes "$L2" \
         --opts "$OPTS"
 # SAME GATE, ONE LAYER UP: the gateware `include-s a GENERATED entity
 # definition - hdl/common/csr/gen/adp_shape_defaults.svh, the ADPDU stream

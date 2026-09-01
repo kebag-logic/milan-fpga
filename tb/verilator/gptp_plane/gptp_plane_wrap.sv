@@ -69,7 +69,7 @@ module gptp_plane_wrap #(
     output logic        tap_step_we_o,
     output logic [63:0] tap_step_o,
 
-    //! publish bank -- the retired software contract
+    //! sole live publication bank
     output logic [63:0] pub_gm_id_o,
     output logic [63:0] pub_parent_id_o,
     output logic [31:0] pub_flags_o,

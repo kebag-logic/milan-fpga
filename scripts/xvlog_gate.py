@@ -358,13 +358,9 @@ def hdl_sources():
     Tracked only (git ls-files): analysing an untracked stray source is a build
     no other checkout can reproduce - the same rule pp_srcs.py keeps.
 
-    BOTH `.sv` AND `.v`. The glob was `*.sv` alone and silently excluded
-    hdl/milan/milan_dma_wrapper.v, the one tracked Verilog-2001 module under
-    hdl/, while the census claimed every hdl/ module (#224). It is a real
-    module - bd/build.tcl ships it and scripts/lint_rtl.py carries a named
-    LINT_EXCLUDE waiver for it - and being outside the fabric build is a reason
-    not to LINT it, not a reason to leave it out of a parse census that says
-    "every". `.svh` is not matched: an include header is analysed through the
+    BOTH `.sv` AND `.v`. Keeping both suffixes means a newly tracked
+    Verilog-2001 file cannot silently escape a census that says "every".
+    `.svh` is not matched: an include header is analysed through the
     file that includes it, and compiling one alone is not a compilation unit.
     """
     out = _git(["ls-files",

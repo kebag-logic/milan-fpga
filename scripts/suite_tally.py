@@ -97,7 +97,7 @@ from pathlib import Path
 # halves of the headline can never drift apart.
 SHAPES = (
     # "73 checks: 73 PASS, 0 FAIL"                 aaf_latency_taps, eth_tx_reset,
-    # "pcm_playback: 40 checks: 40 PASS, 0 FAIL"   link_guard, pcm_playback
+    # "link_guard: 40 checks: 40 PASS, 0 FAIL"     link_guard
     #
     # MUST come first -- see the module docstring.
     ("n-checks-pass-fail",
@@ -304,7 +304,7 @@ SELFTEST = [
     #! or not the marker regex matches prose, so widening SKIP_DECLARED to match
     #! "campaign skipped" sailed straight through the self-test.
     ("n-checks-pass-fail",  "73 checks: 70 PASS, 3 FAIL\n",          73, 3, False, 0),
-    ("labelled-pass-fail",  "pcm_playback: 40 checks: 40 PASS, 0 FAIL\n", 40, 0, False, 0),
+    ("labelled-pass-fail",  "link_guard: 40 checks: 40 PASS, 0 FAIL\n", 40, 0, False, 0),
     ("labelled",            "aaf: 27 checks, 2 failures\n",          27, 2, False, 0),
     ("eqeq",                "== 43 checks, 1 failures ==\n",         43, 1, False, 0),
     ("result-suffix",       "31 checks, 0 failures, RESULT: PASS\n", 31, 0, False, 0),

@@ -123,7 +123,7 @@ localparam int BEAT_BYTES = TDATA_WIDTH / BYTE_TO_BIT;
 //             ethertype @16-17 + messageType @18 in beat 2 (bytes 16-23);
 //             sequenceId @48-49 in beat 6 (bytes 48-55).
 // Both offset sets land on beat boundaries only because BEAT_BYTES == 8, which
-// is what both real instantiations use (milan_datapath / milan_top).
+// is what the integrated milan_datapath instantiation uses.
 localparam int ETHTYPE_BEAT_OFF     = 8;
 localparam int SEQID_BEAT_OFF       = 40;
 localparam int TAG_ETHTYPE_BEAT_OFF = 16;
@@ -175,7 +175,7 @@ wire beat_acc = s_axis_tvalid && s_axis_tready;
 //! Announce 0xB, Signaling 0xC, Management 0xD) must not consume a record slot,
 //! and neither must the RESERVED types 0x4-0x7: the older `!msg_type[3]` test
 //! let all four through, minting records for messages that can never have a
-//! timestamp and inviting seqId collisions in the driver's TX-stamp lookup.
+//! timestamp and inviting seqId collisions in the completion-record lookup.
 wire is_ptp_event = eth_type_valid && eth_match &&
                     ptp_seq_id_valid && (msg_type[3:2] == 2'b00);
 
@@ -194,7 +194,7 @@ assign s_axis_tready = m_axis_tready;
 //! crossed the pins some nanoseconds BEFORE this beat, on TX it leaves some
 //! nanoseconds AFTER. PTP_INGRESS_LAT/PTP_EGRESS_LAT carry those constants and
 //! the sign is applied here so software never has to think about it. Both reset
-//! to 0. The explicit option-OFF bench may apply measured constants host-side
+//! to 0. The explicit option-OFF bench may apply measured constants in the test
 //! instead; move one or the other, never both, or the correction double-counts.
 //! NOTE: this is the register half of REQ-PTP-06. True SFD capture needs a tap
 //! at the GMII/PHY boundary; nothing at this AXIS boundary can synthesise it,
@@ -358,14 +358,14 @@ assign rec_pop = pop_r;
 assign ts_m_axis_tvalid = (ts_state != IDLE_S);
 assign ts_m_axis_tlast  = (ts_state == SEND_LOW_S);
 assign ts_m_axis_tkeep  = (ts_state == SEND_LOW_S) ? 8'h07 : 8'hFF;
-// word1 bit[1] is an ALWAYS-1 marker: the DMA lands word0 then word1 a few
-// bus-cycles later, so the DRIVER's slot sentinel is word1 (marker set =>
-// word0 is complete). A ns-based sentinel would race that window.
+// word1 bit[1] is an ALWAYS-1 marker: the record stream emits word0 then word1
+// a few cycles later, so word1 is the completion sentinel (marker set => word0
+// is complete). A ns-based sentinel would race that window.
 assign ts_m_axis_tdata  = (ts_state == SEND_LOW_S)
                           ? {40'd0, cur_seq, cur_mt, 2'd0, 1'b1, IS_TX[0]}
                           : cur_ts;
 
-always_ff @(posedge ts_dst_clk) begin : to_ps_fifo_logic
+always_ff @(posedge ts_dst_clk) begin : timestamp_record_stream_logic
   if (!ts_dst_resetn) begin
     ts_state <= IDLE_S;
     pop_r    <= 1'b0;

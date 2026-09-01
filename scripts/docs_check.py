@@ -80,6 +80,12 @@ REPO = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from check_archive import OBSOLETE_HEADER_RE
 
+#: rule 7 — one of these must appear in the visible text of a link that leads
+#: to an in-place obsolete page (docs/README.md's routing rule).
+OBSOLETE_LINK_WORDS = ("archiv", "historical", "obsolete")
+#: a link WITH its text; images excluded, since an image routes nobody.
+TEXT_LINK_RE = re.compile(r"(?<!!)\[([^\]]+)\]\(([^)\s]+)(?:\s+\"[^\"]*\")?\)")
+
 # Exact substrings that are legitimate despite containing a denied stem:
 # spec field names, schema/repo identifiers, third-party project names.
 ALLOW = (
@@ -178,10 +184,9 @@ RETIRED = {
     "SESSION_HANDOFF.md",
     "HANDOVER.md",
     "HANDOVER_SMALL.md",
-    # #259 removed the retired host software stack from the tracked tree.
+    # #259 removed the superseded target-side stack from the tracked tree.
     # DOC_GENERATION.md section 5: retiring a document means registering its
     # basename here, or the next bare mention of it is invisible to rule 4.
-    "APLAY_SOFTWARE_PATH_AUDIT_0803.md",
     "CPPI_DMA_REDESIGN.md",
     "DOC_AUDIT.md",
     "FULLY_FPGA_RISCV_MIGRATION.md",
@@ -195,7 +200,6 @@ RETIRED = {
     "HISTORY_PRE_SHORTEN_0731.md",
     "HOWTO_PLAY_MUSIC.md",
     "M-A2-2026-08-01.md",
-    "PIPEWIRE_AVB_PEER.md",
     "PTP_TS_METADATA_FIX.md",
     "REF_LISTENER_TIMESTAMP_SWEEP_0727.md",
     "RX_FANOUT_AND_TX_CEILING.md",
@@ -207,12 +211,52 @@ RETIRED = {
     "VIRTUAL_E2E_QEMU.md",
     "VIRTUAL_E2E_TEST_PROCEDURE.md",
     "VIRTUAL_SWITCH_RESEARCH.md",
-    "kl-eth-tx-debug.md",
     "virtual-e2e-all-2026-08-01.md",
     "virtual-e2e-env-check-2026-08-01.md",
     "virtual-e2e-env.md",
     "virtual-e2e-t1-2026-08-01.md",
     "virtual-e2e-t2-prep-2026-08-01.md",
+    # #294 (the #259 completion) retired these pages: platform and
+    # performance campaigns, the archive folder, and the target-era design
+    # notes. They live in Git history at 59ba6ffb (`git log --diff-filter=D`).
+    # A retired basename that itself carries a retired-stack term is NOT
+    # listed here: scripts/check_baremetal_only.py refuses any mention of it
+    # in every tracked file, this script included, so that gate covers it.
+    "ADP_DORMANCY.md",
+    "AREA_80_CAMPAIGN.md",
+    "AVB_SWITCH_DIRECTION.md",
+    "AXIS_CORES_ON_NAXRISCV.md",
+    "BENCH_TOPOLOGY.md",
+    "CAMPAIGN_500_PLAN.md",
+    "CAMPAIGN_RV32F_TRIAGE.md",
+    "CAMPAIGN_RV32G_TRIAGE.md",
+    "CBS_DEFAULT_SHAPING_BUG.md",
+    "CPU_FPGA_SPLIT.md",
+    "DEFECT_CLASSES_0802.md",
+    "FLASH_0x0014_0727.md",
+    "GIGABIT_HEADROOM_ANALYSIS.md",
+    "HEADER_SPLIT_DESIGN.md",
+    "HSPLIT14_DESIGN.md",
+    "LATENCY_INVESTIGATION.md",
+    "LIVE_BENCH_0726.md",
+    "LSU_NONBLOCKING_DCACHE.md",
+    "OPEN_SOURCE_MIGRATION.md",
+    "PERFORMANCE_GOAL.md",
+    "PERF_ON_MILAN.md",
+    "PHYSICAL_FAMILY_TRIAGE_0802.md",
+    "PIPELINE_STAGES.md",
+    "PP_DRAM_WINDOW_0813.md",
+    "RELEASE_0x0013.md",
+    "RX_OVERLOAD_WEDGE.md",
+    "RX_PERF_TUNING_MAP.md",
+    "RX_RING_DMA.md",
+    "RX_TX_PERFORMANCE.md",
+    "SINGLE_PORT_PERF.md",
+    "STRESS_0726.md",
+    "TORTURE_CAMPAIGN.md",
+    "TX_READER_PREFETCH_PLAN.md",
+    "hw_ma3_dma_datapath_100mhz.md",
+    "pipeline-telemetry.md",
 }
 
 #: Bench/host-identifying patterns, same shape as IDENTITY_RULES. Generic
@@ -462,7 +506,7 @@ def anchor_overruns(resolved, frag):
     return f"file has {n} lines" if top > n else None
 
 
-def check_md(path, relpath, resolve, tracked_set):
+def check_md(path, relpath, resolve, tracked_set, obsolete_set=frozenset()):
     findings = []
     try:
         text = path.read_text(encoding="utf-8")
@@ -564,6 +608,24 @@ def check_md(path, relpath, resolve, tracked_set):
             if over:
                 findings.append(f"{relpath}:{lineno}: line anchor past end of "
                                 f"file -> {target}#{frag} ({over})")
+
+        # --- rule 7: routing into in-place obsolete pages (living pages only) ---
+        if not obsolete:
+            for lk in TEXT_LINK_RE.finditer(line):
+                text, target = lk.group(1), lk.group(2)
+                if target.startswith(("http://", "https://", "mailto:", "#")):
+                    continue
+                target = target.partition("#")[0]
+                if not target:
+                    continue
+                if (path.parent / target).resolve() not in obsolete_set:
+                    continue
+                if any(w in text.lower() for w in OBSOLETE_LINK_WORDS):
+                    continue
+                findings.append(
+                    f"{relpath}:{lineno}: link '{text}' leads to an obsolete "
+                    f"page without saying so — label it historical evidence "
+                    f"or repoint it at the current authority")
 
         # --- bare + dead doc references (living, non-generated files only) ---
         if generated or historical:
@@ -765,33 +827,78 @@ def scrub_selftest():
     return problems, arms, skipped
 
 
+def routing_selftest():
+    """Rule 7 arms: an obsolete page and a page that links it, four ways.
+
+    (problems, arms). The unmarked link must be caught; the labelled link, a
+    link from another obsolete page and a link to a living page must stay
+    clean, so the rule can neither rot into firing on nothing nor on
+    everything.
+    """
+    problems, arms = [], 0
+    cases = (
+        ("unmarked link", "See [the old page](OLD.md).\n", True),
+        ("labelled link", "See [the old page (historical)](OLD.md).\n", False),
+        ("obsolete page linking obsolete",
+         "[OBSOLETE + 2026-01-02]\n\nSee [the old page](OLD.md).\n", False),
+        ("link to a living page", "See [the new page](NEW.md).\n", False),
+    )
+    with tempfile.TemporaryDirectory(prefix="docscheck.") as tmp:
+        root = Path(tmp)
+        (root / "OLD.md").write_text("[OBSOLETE + 2026-01-01]\n\n# Old\n")
+        (root / "NEW.md").write_text("# New\n")
+        obsolete_set = {(root / "OLD.md").resolve()}
+        tracked_set = {"OLD.md", "NEW.md", "PAGE.md"}
+        for name, body, expect in cases:
+            arms += 1
+            page = root / "PAGE.md"
+            page.write_text(body)
+            hits = [f for f in check_md(page, "PAGE.md", lambda ref, d: None,
+                                        tracked_set, obsolete_set)
+                    if "obsolete page without saying so" in f]
+            if expect and not hits:
+                problems.append(f"[routing: {name}] planted link not caught")
+            if hits and not expect:
+                problems.append(f"[routing: {name}] clean fixture flagged:\n"
+                                + "\n".join(hits))
+    return problems, arms
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--selftest", action="store_true",
-                    help="run the rule-5 scrub arms and stop")
+                    help="run the rule-5 scrub and rule-7 routing arms and stop")
     args = ap.parse_args(argv)
 
     # Before any verdict: the scrub must still bite. An unproven rule 5 is
     # rc 2 (unproven), never rc 0 (clean) — those are different answers.
     problems, arms, skipped = scrub_selftest()
+    rproblems, rarms = routing_selftest()
+    problems += rproblems
     for p in problems:
         print("  -", p, file=sys.stderr)
     if problems:
-        print(f"docs_check: FATAL: {len(problems)} scrub arm(s) of {arms} did "
-              f"not hold", file=sys.stderr)
+        print(f"docs_check: FATAL: {len(problems)} arm(s) of {arms + rarms} "
+              f"did not hold", file=sys.stderr)
         return 2
     note = f", {len(skipped)} skipped: {'; '.join(skipped)}" if skipped else ""
     if args.selftest:
-        print(f"docs_check scrub selftest: PASS ({arms} arm(s){note})")
+        print(f"docs_check selftest: PASS ({arms} scrub + {rarms} routing "
+              f"arm(s){note})")
         return 0
 
     findings = []
     md = tracked("*.md")
     resolve = make_resolver(md)
     tracked_set = set(md)
+    obsolete_set = set()
+    for rel in md:
+        with open(REPO / rel, encoding="utf-8", errors="replace") as fh:
+            if OBSOLETE_HEADER_RE.fullmatch(fh.readline().rstrip("\n")):
+                obsolete_set.add((REPO / rel).resolve())
     for rel in md:
         path = REPO / rel
-        findings.extend(check_md(path, rel, resolve, tracked_set))
+        findings.extend(check_md(path, rel, resolve, tracked_set, obsolete_set))
     # rule 5 over the whole tracked tree, markdown and diagram sources
     # included — before #247 this was a hand-listed sweep of six docs/ globs,
     # and everything outside them was invisible.
@@ -801,8 +908,8 @@ def main(argv=None):
     for f in findings:
         print(f)
     print(f"docs_check: {len(findings)} finding(s) across {len(md)} md files "
-          f"+ {scanned} scrubbed text files, scrub self-test {arms}/{arms}"
-          f"{note} [{_INVENTORY_SOURCE}]")
+          f"+ {scanned} scrubbed text files, scrub self-test {arms}/{arms}, "
+          f"routing arms {rarms}/{rarms}{note} [{_INVENTORY_SOURCE}]")
     return 1 if findings else 0
 
 

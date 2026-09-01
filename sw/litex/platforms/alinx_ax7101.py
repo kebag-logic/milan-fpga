@@ -55,7 +55,7 @@ _io = [
         Subsignal("tx_en",   Pins("G22"), IOStandard("LVCMOS33")),   # e1_txen
         Subsignal("tx_data", Pins("D22 H20 H22 J22 K22 L19 K19 L20"),
                   IOStandard("LVCMOS33")),                            # e1_txd[0:7]
-        # PHY management (2026-07-22, kl-eth ethtool ops): e1_mdc = J17 (every
+        # PHY management (2026-07-22): e1_mdc = J17 (every
         # vendor example XDC), e1_mdio = L16 (EX SCH: E1_MDIO = B15_L23_P;
         # CORE SCH: B15_L23_P = ball L16/IO_L23P_T3_FOE_B_15). NB the EX
         # schematic's pdftotext pairs labels ONE ROW BELOW their nets — the

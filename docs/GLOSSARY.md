@@ -1,23 +1,16 @@
 # Glossary
 
-Every term of art used across this repo's documentation, grouped by domain. One line
-each; deeper treatment is linked where a dedicated doc exists.
+Current product terminology for the bare-metal Milan v1.2 end station.
 
 ## Contents
 
-- **[AVB / TSN / Milan](#avb--tsn--milan)** -- The standards vocabulary: what AVTP carries, which three protocols AVDECC is made of, the current AECP command inventory and gaps, the SR class A/B latency targets that everything else is sized against, and the local terms the 2026-08-13 control-plane substitution introduced: protocol processor, descriptor image, class-D face, structural zero.
-- **[Ethernet / PHY / wire](#ethernet--phy--wire)** -- MAC/PHY-layer terms with the board specifics folded in: why `--gtx-tx-invert` exists on this PHY, why MTU stays 1500 though 4074 was proven, and which peer NIC counters count as wire truth.
-- **[FPGA / tooling](#fpga--tooling)** -- Part, resource and timing vocabulary. Two entries carry real scars: IOB packing (XDC ignores TCL `if` guards *silently*) and timing closure, which links the two lessons this repo paid for.
-- **[LiteX / SoC / boot](#litex--soc--boot)** -- SoC-builder and boot-chain terms. The ones to know before touching software: there are **two** CSR spaces (`0x9000_0000` AXI-Lite vs `0xf000_xxxx` LiteX), `last_be` is a one-hot pointer and not a keep mask, and `--coherent-dma` is not implied by `--all-blocks`.
-- **[This design (datapath, DMA, driver)](#this-design-datapath-dma-driver)** -- Names for our own blocks and their contracts: commit-after-B (software can never see a partial frame), whole-frame drop (mid-frame corruption is impossible by construction), and what a telemetry "stall" actually counts.
-- **[Host networking / performance](#host-networking--performance)** -- Host-side terms needed to read the archived throughput write-ups: GRO/GSO versus their hardware twins, the three skb checksum states, and which of `rx_missed_errors` / `InCsumErrors` / `RcvbufErrors` blames the NIC versus the CPU.
-- **[CPU / cache / memory (the >500 RX campaign)](#cpu--cache--memory-the-500-rx-campaign)** -- The cache vocabulary the RX campaign runs on, and its two verdicts inline: the RPT stride prefetcher is the lever that bought +34 %, software prefetch is a no-op on this core. Also `copy_to_user` at 51 % of RX CPU and the 481 ceiling measured with the copy removed.
-- **[Project shorthand](#project-shorthand)** -- The decoder ring for local jargon in commits and filenames: bitstream lineages (`mfNN`/`AXNN`, `hsqN`, `ringN`, `mlpN`), the M-A milestones, `Section A.x`, which tap is on which link, and why `e1` vs `e2` must match the physical cable.
+- **[AVB, TSN, and Milan](#avb-tsn-and-milan)** — Expands the networking and profile terms used throughout the repository.
+- **[Time synchronization](#time-synchronization)** — Defines PHC, BMCA, gPTP state and timestamp-uncertainty vocabulary.
+- **[FPGA and interfaces](#fpga-and-interfaces)** — Covers RTL, AXI, streaming, clock and board-interface terminology.
+- **[Product architecture](#product-architecture)** — Names the bare-metal firmware, fabric and protocol-processor ownership layers.
+- **[Evidence shorthand](#evidence-shorthand)** — Explains simulation, synthesis, board and external-validation labels.
 
-## AVB / TSN / Milan
-
-The current AECP entry is checked against the
-[Milan feature status ledger](reference/MILAN_FEATURE_STATUS.md):
+## AVB, TSN, and Milan
 
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
@@ -26,171 +19,75 @@ The current AECP entry is checked against the
 <!-- milan-feature-status:end -->
 
 | Term | Meaning |
-|------|---------|
-| **AVB** | Audio Video Bridging  -  the IEEE 802.1 suite (gPTP + SRP + CBS + AVTP) for synchronized, bounded-latency media over Ethernet. |
-| **TSN** | Time-Sensitive Networking  -  the successor umbrella to AVB (adds preemption, TAS, per-stream policing, …). |
-| **Milan** | The pro-audio interoperability profile of AVB/AVDECC. This project targets Milan v1.2; see the [current implementation audit](testing/MILAN_V12_AUDIT_2026-08-16.md). |
-| **AVTP** | Audio Video Transport Protocol (IEEE 1722)  -  the L2 media transport; carries streams with presentation timestamps. |
-| **AVDECC** | Device discovery, enumeration, and control under IEEE 1722.1; comprises ADP, AECP, and ACMP. Here ADP and ACMP are integrated, while AECP is partial. See the AECP row and the current Milan v1.2 audit. |
-| **ADP** | AVDECC Discovery Protocol  -  entity advertise/depart. Implemented by the **protocol processor** ([`hdl/milan/KL_pp_shadow.sv`](../hdl/milan/KL_pp_shadow.sv)); the fabric `adp_advertiser` module it replaced was deleted 2026-08-13. |
-| **AECP** | AVDECC Enumeration and Control Protocol for AEM command and response traffic. The protocol processor serves the current inventory recorded in the [Milan feature status ledger](reference/MILAN_FEATURE_STATUS.md), including descriptor reads, solicited counters, selected getters and setters, Identify control, unsolicited registration, audio-map reads, and Milan information. Unsupported commands receive the conformant fallback. Remaining blockers are listed in the [current Milan v1.2 audit](testing/MILAN_V12_AUDIT_2026-08-16.md); a fallback response is not implementation evidence. |
-| **ACMP** | AVDECC Connection Management Protocol  -  stream connect/disconnect handshakes. Implemented by the **protocol processor**, which publishes a settled **bind record** rather than a state ladder — `bound` is the truth, `ACMPL_STATE` is a structural zero. |
-| **AEM** | AVDECC Entity Model, the descriptor tree describing an entity. The AECP uCPU serves `READ_DESCRIPTOR` from a flat descriptor image in DRAM. The end-station builder generates the image artifacts, and the board-side `aemi-load` utility loads and verifies the paired image before enabling the entity. |
-| **Descriptor image** | The flat memory image used by the AECP descriptor store: header, index map, descriptors, and name table. It sits in DRAM at the compile-time `PP_DESC_BASE_P` and must be loaded before the entity is enabled. The builder emits `aem_desc.bin`, `aem_desc.json`, and `aem_desc.map`; `aemi-load` verifies and loads the paired image. |
-| **Protocol processor** | The pinned `protocol-processor` submodule (architecture of record v2.0) is **this device's entire IEEE 1722.1 / SRP control plane**: ADP, ACMP talker and listener, SRP, and the AECP uCPU. It is wrapped for the fabric by [`hdl/milan/KL_pp_shadow.sv`](../hdl/milan/KL_pp_shadow.sv) and instantiated unconditionally by [`hdl/milan/milan_datapath.sv`](../hdl/milan/milan_datapath.sv). The processor contains an internal `KL_pp_maap` engine, but this shipping integration disables it. The ALLOC/RELEASE face is answered through [`hdl/milan/KL_pp_maap_shim.sv`](../hdl/milan/KL_pp_maap_shim.sv) from `KL_maap`'s block claim. |
-| **Class-D face** | The processor's fabric-facing output bundle — bind record, talker declaration, SRP reservation/slope/domain — republished 1:1 by `KL_pp_shadow` and consumed as **wires, every clock**, rather than through a software-paced side-port read. It is why the talker gate and the CBS slope mux can be per-cycle logic. |
-| **Structural zero** | A CSR word whose *source* is gone, tied to zero and documented as such, so a reader can tell "no engine" from "engine idle". The 2026-08-13 substitution created a group of them (ADP diagnostics, the `0x648` AECP status word, the ACMP ladder fields, the MRPDU counters, the journal). `0x648` stays zero even with the uCPU answering because the processor's live lock and configuration state is not wired into that legacy CSR word; authoritative command state is available through the processor snapshot and dynamic output faces instead. A word that reads a plausible value instead would be a defect. |
-| **Write-only scratch** | A CSR word that still reads back what software wrote but no longer reaches the wire — the processor holds the value as an internal constant and exposes no port. Writing one changes nothing observable. |
-| **gPTP** | Generalized PTP (IEEE 802.1AS)  -  network time sync; the basis for presentation time and CBS coordination. |
-| **PTP / PHC** | Precision Time Protocol / PTP Hardware Clock  -  the adjustable in-fabric clock (`ptp_timestamp/`). |
-| **Grandmaster (GM)** | The gPTP time source the domain syncs to. |
-| **Transparent clock** | A bridge that corrects gPTP event frames for their *residence time* inside the switch (per-port timestamps required). |
-| **CBS** | Credit-Based Shaper (IEEE 802.1Qav)  -  per-queue rate shaper for SR classes (`credit_based_shaper.sv`). |
-| **SR class A/B** | Stream-Reservation traffic classes (A: 2 ms, B: 50 ms latency targets); shaped by CBS, mapped via PCP. |
-| **SRP / MSRP / MVRP** | Stream Reservation Protocol family  -  talker/listener bandwidth admission (MSRP) and VLAN registration (MVRP). Implemented by the **protocol processor**; its granted idleSlope drives CBS and gates TX. |
-| **lwSRP** | The "lightweight SRP" fabric engine this repo used to carry (applicant, registrars, walker, MRPDU serializer, bandwidth gate — the former *ieee8021q/srp* directory). **Deleted 2026-08-13, superseded by the protocol processor.** The name survives in older docs, in the `LWSRP_*` CSR field names at `0x680`, and in the `lwsrp_*` signal names inside `milan_datapath`; read all of them as "SRP". |
-| **MAAP** | Multicast Address Acquisition Protocol (IEEE 1722 Annex B) - claims the stream destination MACs. In fabric here (`KL_maap`), and load-bearing beyond addressing: an `ALLOC_DA` success is what releases the ACMP talker gate, so no address means no stream. |
+|---|---|
+| **AVB** | The IEEE 802.1 family for synchronized, bounded-latency media over Ethernet. |
+| **TSN** | Time-Sensitive Networking, the broader family containing AVB functions. |
+| **Milan** | The professional-audio interoperability profile targeted at version 1.2. |
+| **AVTP** | IEEE 1722 media transport carrying presentation timestamps and validity fields. |
+| **AVDECC** | IEEE 1722.1 discovery, enumeration, control, and connection management. |
+| **ADP** | Entity discovery and advertise/depart protocol, implemented by the protocol processor. |
+| **AECP/AEM** | Enumeration/control protocol and its descriptor model. The processor serves the command inventory recorded in the feature ledger. |
+| **ACMP** | Stream connection protocol. The processor publishes settled binding records to the fabric. |
+| **SRP/MSRP/MVRP** | Reservation and VLAN registration protocols implemented by the protocol processor. |
+| **MAAP** | Multicast address acquisition for AVTP stream destinations. |
+| **AAF** | AVTP Audio Format transport for sampled audio. |
+| **CRF** | Clock Reference Format transport used to convey media-clock timing. |
+| **CBS** | Credit-Based Shaper for stream-reservation traffic classes. |
 | **Talker / Listener** | AVTP stream source / sink. |
-| **Presentation time** | gPTP timestamp inside AVTP packets telling the listener when to render the media. |
-| **PCP** | Priority Code Point  -  the 3-bit priority field in the 802.1Q VLAN tag; classifies traffic to queues. |
-| **802.1Q** | VLAN tagging standard (the tag carries VID + PCP). |
-| **Best effort (BE)** | Untagged/unshaped traffic  -  whatever bandwidth the shaped classes leave over. |
+| **Presentation time** | The gPTP time at which a listener renders media. |
+| **PCP / VID** | VLAN priority code point / VLAN identifier. |
+| **Structural zero** | A documented unsupported or ownerless field tied to zero, distinguishable from an implemented engine reporting no events. |
 
-## Ethernet / PHY / wire
-
-| Term | Meaning |
-|------|---------|
-| **MAC** | Media Access Controller  -  the framing layer (ours: LiteEth `LiteEthMACCore` wrapped by `MilanMAC`). |
-| **PHY** | The physical-layer transceiver chip (this board: Realtek **RTL8211E**, copper gigabit). |
-| **GMII / RGMII / MII** | (Reduced/) Gigabit Media-Independent Interface  -  parallel MAC⇄PHY pin protocols; RGMII is DDR-clocked GMII at half the pins. |
-| **gtx_clk / gtx-invert** | The MAC-driven 125 MHz GMII TX clock; `--gtx-tx-invert` forwards it 180° shifted so the PHY samples mid-bit  -  **required** on this board with IOB-packed TX FFs (see the retired MAC TX bring-up finding (#259, in git history)). |
-| **MDIO** | Two-wire MAC⇄PHY management bus (link status, PHY registers). |
-| **FCS / CRC** | Frame Check Sequence  -  the CRC32 trailer; `rx_crc_errors` at a peer is the wire-integrity truth. |
-| **MTU / MSS** | Maximum Transmission Unit (L3 payload per frame; product-pinned to **1500** here) / Maximum Segment Size (TCP payload per segment). |
-| **Jumbo frame** | Frame beyond 1500 B MTU (we validated up to 4074 but the product keeps 1500). |
-| **Runt** | Frame under the 64-byte Ethernet minimum; receivers drop it silently. |
-| **i210** | The Intel gigabit NIC in the peer test host (`enp6s0`)  -  its `ethtool -S` counters are our wire ground truth. |
-| **QSGMII / SGMII** | SerDes-based 1G PHY interfaces (4 ports / 1 port per lane)  -  *not* used in the 4-port copper plan. |
-
-## FPGA / tooling
+## Time synchronization
 
 | Term | Meaning |
-|------|---------|
-| **Artix-7 / xc7a100t** | The FPGA family/part on the Alinx AX7101 board (speed grade -2, FGG484 package). |
-| **LUT / FF / BRAM** | The FPGA's logic / register / block-RAM resources (100T: ~63k LUT, 135 RAMB36 = ~600 KB). |
-| **IOB (packing)** | Placing an interface flip-flop inside the I/O block for deterministic pad timing  -  `set_property IOB TRUE`; note XDC ignores TCL `if` guards silently. |
-| **ODDR** | Dual-data-rate output primitive; forwards clocks (e.g. gtx_clk) cleanly. |
-| **XDC** | Xilinx Design Constraints file (pins, clocks, properties). |
-| **P&R** | Place and route (the long Vivado phase). |
-| **WNS / TNS / WHS** | Worst/Total Negative Slack (setup) and Worst Hold Slack  -  timing-closure verdicts; negative = failed. |
-| **Timing closure** | Getting all paths to meet the clock period; see [`RX_RING_DMA.md` (archived)](history/v1/findings/RX_RING_DMA.md) for the two lessons this repo paid for (register burst-geometry cones; never load BRAM outputs with adder trees). |
-| **DCP** | Design checkpoint  -  a snapshot Vivado can reopen to inspect placement/routing post-hoc. |
-| **CDC** | Clock-domain crossing (async FIFOs, synchronizers); sys 100 MHz ⇄ milan 50 MHz ⇄ eth 125 MHz here. |
-| **PLL / MMCM** | On-chip clock synthesis (S7PLL in LiteX). |
-| **Verilator** | Open-source SV simulator  -  every RTL block has a self-checking harness under [`tb/verilator/`](../tb/verilator). |
-| **Yosys / sv2v / ECP5** | Open synthesis flow used as a device-portability check ([`syn/yosys`](../syn/yosys)). |
-| **XPM** | Xilinx Parameterized Macros  -  removed from `hdl/` (Track 1 de-Xilinx) in favor of open equivalents. |
-| **TerosHDL** | Generates validated HDL references from source comments. |
+|---|---|
+| **gPTP** | IEEE 802.1AS generalized precision time protocol. The fabric plane is the sole product owner. |
+| **PHC** | The in-fabric PTP Hardware Clock from which event and presentation timestamps are drawn. |
+| **Grandmaster (GM)** | The selected source of domain time. |
+| **Peer delay (pdelay)** | Link-delay measurement between adjacent time-aware ports. |
+| **asCapable** | Qualification that an adjacent link can participate in the time-aware system. |
+| **PathTrace** | Ordered clock identities traversed by the selected Announce. |
+| **`tu`** | AVTP timestamp-uncertain flag. It asserts when fabric synchronization is not trustworthy and through the required holdover. |
+| **Option OFF** | Verification-only `GPTP_PLANE_EN_P=0` elaboration with zero gPTP owners, zero publications, and `tu=1`. It is not a product image. |
 
-## LiteX / SoC / boot
+## FPGA and interfaces
 
 | Term | Meaning |
-|------|---------|
-| **LiteX / Migen** | The Python SoC builder and its HDL eDSL  -  [`sw/litex/milan_soc.py`](../sw/litex/milan_soc.py) is the SoC. |
-| **LiteEth / LiteDRAM / LiteSPI** | LiteX ecosystem cores: Ethernet MAC+PHY glue, DDR3 controller, (Q)SPI flash. |
-| **VexiiRiscv** | The **current** AVB-switch soft CPU: in-order RISC-V from the same SpinalHDL author/flow. The shipping product profile is cacheless RV32I in machine mode (the bare-metal profile is RV32I without an MMU); RV64/sv39 remains a supported non-product configuration. It is smaller and higher-fmax than NaxRiscv, so it leaves fabric for the 4-port switch; it exposes the same coherent `dma_bus` + memory map (drop-in). See [`AVB_SWITCH_DIRECTION.md`](overview/AVB_SWITCH_DIRECTION.md). |
-| **NaxRiscv** | The out-of-order RISC-V soft CPU (RV64GC, MMU) generated from SpinalHDL/Scala; the **historical** core, now retained only as a pure-NIC/FPU bitstream (`~/litex-milan/work/fpu32.bit`)  -  superseded by VexiiRiscv for the switch. Netlists regenerate via sbt (`--scala-args`, `--l2-bytes`). |
-| **SpinalHDL** | The Scala HDL NaxRiscv and VexiiRiscv are written in. |
-| **CSR** | Control/Status Register. Two spaces here: the `milan_csr` AXI-Lite window (`0x9000_0000`, [`REGISTER_MAP.md`](reference/REGISTER_MAP.md)) and the LiteX CSR bus (`0xf000_xxxx`, DMA/telemetry). |
-| **Wishbone / AXI4 / AXI-Lite / AXIS** | Bus protocols: LiteX's native bus; ARM's memory-mapped burst bus (the coherent dma_bus is AXI4); its register-access subset; and AXI-Stream for the datapath. |
-| **tvalid/tready/tlast/tkeep** | AXI-Stream handshake, end-of-frame, and byte-enable mask signals. |
-| **last_be** | LiteEth's one-hot pointer to the last valid byte  -  *not* a keep mask; conversion in `MilanMAC` (`keep & ~(keep>>1)`). |
-| **Endianness (word-order)** | LiteX 64-bit CSRs split MS-word-first (`base_hi` at +0); DMA `endianness="big"` = **no byte-swap** so memory order == wire order. |
-| **Coherent DMA / dma_bus** | NaxRiscv's cache-snooping AXI4 slave (`--coherent-dma`)  -  DMA sees CPU caches; **not implied by `--all-blocks`** (forgetting it = stale-DRAM bugs). |
-| **PLIC / CLINT** | RISC-V platform interrupt controller / core-local timer block. |
-| **EventManager** | LiteX per-peripheral IRQ aggregator (our single NIC interrupt line). |
-| **LiteX BIOS** | The ROM bootloader; on the shipping profile it is the last thing before the Milan firmware. |
-| **serialboot / flashboot** | Boot-image delivery over UART (litex_term `--images`) vs from QSPI flash ([`QSPI_FLASHBOOT.md`](integration/QSPI_FLASHBOOT.md)). |
-| **FBI / crcfbigen** | The LiteX flash-boot image format `[length][crc32][data]` and the tool that wraps images in it. |
-| **QSPI / N25Q128** | Quad-SPI flash interface / the board's 16 MB Micron flash chip (needs the `A13` LiteSPI module name for quad mode). |
-| **litex_term** | The UART console + serialboot uploader (needs a real pty  -  run in tmux; open the CP2102N via `/dev/serial/by-id`, ttyUSBn shuffles). |
+|---|---|
+| **Artix-7 / xc7a100t** | FPGA family and device used on the AX7101 product board. |
+| **LUT / FF / BRAM** | Logic table, flip-flop, and block-memory resources. |
+| **WNS / TNS / WHS** | Setup and hold timing verdicts; negative slack is a failure. |
+| **CDC** | Clock-domain crossing implemented with a reviewed synchronizer, toggle, handshake, or asynchronous FIFO. |
+| **AXI4 / AXI-Lite / AXIS** | Burst memory, register-access, and streaming interfaces. |
+| **CSR** | Control/status register. The Milan window starts at `0x9000_0000`; LiteX peripheral CSRs occupy a separate space. |
+| **GMII** | Parallel MAC-to-PHY interface used by the product board. |
+| **MDIO** | Clause-22 PHY management interface. |
+| **FCS** | Ethernet frame check sequence. |
+| **MTU** | Maximum frame payload size; the product uses 1500 bytes. |
+| **Verilator** | Simulator used by the self-checking RTL benches. |
+| **Yosys / sv2v** | Open synthesis/lowering flow used by the portability gate. |
+| **Vivado** | Tool used for final Xilinx implementation and bitstream generation. |
 
-## This design (datapath, DMA, driver)
+## Product architecture
 
 | Term | Meaning |
-|------|---------|
-| **milan_datapath** | The Section A.9 SystemVerilog wrapper: classifier → CBS queues → PTP timestamping → the four-mux arbiter cascade, both directions, plus the stream engines, MAAP and the protocol processor ([`hdl/milan/milan_datapath.sv`](../hdl/milan/milan_datapath.sv)). |
-| **`ctl_tx` / `aaf_final` / `crf_dp` / `adp_tx`** | The four TX arbiter muxes, in that LSB-first order in `A_TXARB_DIAG` (`0x784`); bits 7:4 are a structural zero. The cascade was eight muxes before 2026-08-13, so **anything decoding `0x784` by the old numbers reads the wrong mux**. `ctl_tx` merges the protocol processor's packed TX with MAAP; `adp_tx` is the MAC boundary and its name, like `adp_tx_arbiter`'s, is historical — the module is a generic 2-in/1-out AXIS packet merge. |
-| **MilanMAC / MilanDMA** | The LiteX glue wrapping LiteEth (+ PacketFIFO, IOB constraints) / the three DMA engines (`milan_soc.py`). |
-| **MILN** | The CSR ID magic (`0x4D494C4E`) proving the CPU⇄NIC path. |
-| **Ring DMA** | The circular coherent-DRAM frame rings (`RingDMAWriter` RX / `RingDMAReader` TX) walked by AXI-burst engines  -  see [`RX_RING_DMA.md` (archived)](history/v1/findings/RX_RING_DMA.md) + `RX_RING_OPERATION.svg`. |
-| **wr_ptr / rd_ptr / seq** | Ring producer/consumer byte offsets (one side per direction is HW-owned) and the per-frame sequence counter. |
-| **Ingress drop-FIFO** | The always-ready store-and-forward front of the RX writer: upstream is *never* backpressured; overload = counted whole-frame drops. |
-| **Store-and-forward vs cut-through** | Buffer the whole frame before launching vs stream-as-it-arrives; bare LiteEthMACCore is cut-through, which is why TX needs the PacketFIFO (`TX_STARVATION_FIX.svg`). |
-| **PacketFIFO** | LiteX packet-granular FIFO used as the TX store-and-forward stage. |
-| **Commit-after-B** | The ring writer advances `wr_ptr` only after the frame's last AXI write response  -  software can never see a partial frame. |
-| **Burst geometry / PREP state** | The per-burst address/length computation (capped by 16 beats, ring wrap, 4 KB AXI rule), registered in a dedicated FSM state for timing. |
-| **Whole-frame drop** | The overload contract: a frame is delivered intact or dropped entirely and counted (`dropped` CSR == `rx_missed_errors`); mid-frame corruption is impossible by construction. |
-| **Simple-mode DMA** | The old LiteX single-buffer `base/length/enable/done` engines (still used by `dma-ts`). |
-| **TCAM** | Ternary CAM ([`hdl/ieee8021q/filtering/tcam.sv`](../hdl/ieee8021q/filtering/tcam.sv))  -  masked MAC-address matching for steering/switching. |
-| **Telemetry (milan_tlm)** | In-fabric frame/beat/stall counters at every pipeline stage + coherent snapshot ([`pipeline-telemetry.md`](fpga/pipeline-telemetry.md); sysfs `telemetry/snapshot`). |
-| **Stall (telemetry)** | A cycle where a stage held valid data the next stage didn't accept  -  the bottleneck localizer (the RX ring's headline metric is *0 stalls*). |
+|---|---|
+| **Bare-metal firmware** | RV32I program that owns boot policy, identity, CSR setup, diagnostics, and persistence orchestration. |
+| **VexiiRiscv** | Cacheless RV32I softcore used by shipping configurations. |
+| **LiteX** | SoC construction framework used to integrate the softcore, memories, UART, flash, and Milan datapath. |
+| **Protocol processor** | Pinned fabric engine implementing IEEE 1722.1 and SRP, wrapped by `KL_pp_shadow`. |
+| **Class-D face** | Per-cycle processor publication bundle consumed directly by the datapath. |
+| **Descriptor image** | Generated AEM image loaded into the processor's descriptor memory before entity enable. |
+| **Publication bank** | Atomic fabric-owned GM, parent, path, delay, sync, asCapable, and related status snapshot. |
+| **QSPI flash** | Nonvolatile device holding bitstream, firmware, descriptors, and the state region required by #70. |
 
-## Host networking / performance
+## Evidence shorthand
 
 | Term | Meaning |
-|------|---------|
-| **skb** | `struct sk_buff`  -  the kernel's packet object; `skb->data` is IP-aligned (addr%8==2), which is why DMA paths copy through aligned rings. |
-| **NAPI** | The kernel's polled RX/TX servicing context; ours is scheduled by an adaptive hrtimer (20/200 µs) since the rings have no IRQ. |
-| **GRO / GSO** | Generic Receive Offload / Generic Segmentation Offload  -  *software* coalescing: merge RX segments before the stack; segment TX super-packets after it. GSO needs `NETIF_F_SG` + checksum offload declared. |
-| **TSO / RSC (LRO)** | The *hardware* twins of GSO/GRO (see [`AVB_SWITCH_DIRECTION.md`](overview/AVB_SWITCH_DIRECTION.md) panel ②)  -  wire stays MTU 1500, stack pays per-64 KB. |
-| **Interrupt coalescing** | Batching many packets per interrupt; our IRQ-less polling is its limit case. |
-| **CHECKSUM_PARTIAL / COMPLETE / UNNECESSARY** | skb checksum states: TX "please compute at (start,offset)"; RX "here is the raw sum over the payload" (what our HW delivers in the ring header); RX "already verified". |
-| **csum offload** | Computing the ones-complement Internet checksum in hardware; ours rides free in the RX ingress FIFO. |
-| **cwnd / RTO / dupACK / TLP** | TCP congestion window; retransmission timeout; duplicate-ACK loss signal; Tail Loss Probe (suspected source of the "531 spurious retransmits" at MTU 1500  -  see the C2 investigation). |
-| **BDP** | Bandwidth-delay product  -  the window needed to fill a path (tiny at 0.9 ms RTT / 100 Mbit). |
-| **iperf3** | The throughput measurement tool used for every number in these docs. |
-| **rx_missed_errors / InCsumErrors / RcvbufErrors** | netdev "HW dropped whole frames" (== `RING_DROPPED`); L4 checksum failures (0 = no corruption); socket-buffer overflow (app can't drain  -  a CPU limit, not a NIC one). |
-
-## CPU / cache / memory (the >500 RX campaign)
-
-*Full story: [`PERFORMANCE_GOAL.md`](findings/PERFORMANCE_GOAL.md); mechanism: [`LSU_NONBLOCKING_DCACHE.md`](fpga/LSU_NONBLOCKING_DCACHE.md).*
-
-| Term | Meaning |
-|------|---------|
-| **LSU** | Load/Store Unit  -  the CPU stage that executes memory access; contains the L1 data cache and its refill engine. |
-| **L1 D$ / L2** | Level-1 data cache (per-hart, 16 KB) / shared level-2 cache (BRAM; 32 or 64 KB)  -  the two cacheable levels above LiteDRAM's 8 KB controller cache and DDR3. |
-| **Refill slot / non-blocking D\$** | A tracked outstanding cache miss. `lsuL1RefillCount=1` (default) = **blocking** (one miss at a time, all serialize); `=8` = **non-blocking** (up to 8 misses in flight). Slots are flip-flops → **0 BRAM**. |
-| **MLP** | Memory-Level Parallelism  -  multiple cache misses outstanding at once, so their latencies overlap instead of adding up. Needs both non-blocking slots *and* something to fill them. |
-| **RPT hardware prefetcher** | Reference-Prediction-Table stride prefetcher (`--lsu-hardware-prefetch=rpt`): learns the access stride and issues prefetches *ahead* of demand, filling the refill slots. **The lever that fixed RX single (+34%).** |
-| **Software prefetch** | A `prefetch` instruction hint  -  a **no-op on this core** (the cached variant's D\$ is blocking + the instruction isn't decoded); refuted, don't use. |
-| **Cold vs capacity miss** | Cold = data never cached (DMA'd payload's first CPU touch  -  unavoidable without stashing); capacity = evicted because the working set exceeds the cache (fixed by a bigger L2). |
-| **copy_to_user (the RX wall)** | The `recv()` syscall copy of the payload from the (cold) DMA'd DRAM buffer into the app buffer  -  **51% of RX −P2 CPU**, cold-DRAM-read bound. The #1 RX bottleneck. |
-| **DDIO / allocate-on-DMA-write / cache stashing** | Making the RX DMA write *allocate* the frame into cache (L2 or a dedicated stash) so `copy_to_user` reads it **warm**, not cold from DRAM. The open RX lever (a.k.a. "dedicated network cache"). |
-| **MSG_TRUNC ceiling** | `recv(…, MSG_TRUNC)` drains a TCP socket *without* `copy_to_user`; used to measure the RX ceiling "if the copy were free" = **481** (`tools_recv_trunc.c`). |
-| **Pointer-chase / `lat_mem_rd`** | `tools_lat_mem_rd.c`  -  perf-free latency-vs-working-set sweep that maps the cache hierarchy (found the 32 KB L2 cliff, ~1424 ns/miss). |
-| **perf / SBI PMU** | The host-era sampling profiler, cross-built for the board. HW cycle/instr counters aren't mapped by the SBI PMU here, but `cpu-clock` sampling profiles the hotpath (symbols via host `System.map`). |
-| **Deterministic split harness / `--cport`** | Pinning iperf source ports so the two −P2 flows hash to *different* RX queues every round (beats the ~⅓ hash-lottery collisions); the basis for all clean −P2 numbers (`orch_det.sh`). |
-| **THP** | Transparent Huge Pages  -  2 MB user pages so `copy_to_user` targets take fewer TLB-walk misses (the TLB is ~half of the 1424 ns cold-miss cost). Enabled in the kernel fragment. |
-| **page_pool** | The kernel's recycling DMA-page allocator backing the RX BD-mode buffers (in DRAM, not BRAM). |
-
-## Project shorthand
-
-| Term | Meaning |
-|------|---------|
-| **m1 / l2x2 / mlp1 / mlp2 / mlp3** | The >500-campaign bitstream lineage: m1 (32 KB L2, blocking D\$) → l2x2 (+64 KB L2) → mlp1 (+refill=8) → mlp2 (+RPT, 32 KB) → **mlp3** (+RPT +64 KB = best RX). See [`findings/PERFORMANCE_GOAL.md`](findings/PERFORMANCE_GOAL.md). |
-| **M-A1 … M-A6** | The hardware bring-up milestones: A1 boot, A2 CPU reads MILN, A3 DMA/datapath on silicon, A4 …, A5 driver bring-up, A6 descriptor rings/IRQ (largely superseded by the ring DMA engines). |
-| **Section A.x** | Section numbers of the completed PS-to-fabric migration plan (#259, in git history) (e.g. Section A.6 DMA, Section A.7 MAC/PHY, Section A.9 datapath wrapper). Commit messages and older pages write the A.x with a leading section sign. |
-| **Section V** | The post-flash [silicon validation checklist](testing/RUNNING_TESTS.md#6-silicon-validation-checklist); archived campaign pages abbreviate it as a V behind a section sign. |
-| **FR-… / NFR-…** | Functional / non-functional requirement IDs ([`FR_NFR.md`](reference/FR_NFR.md), [`../REQUIREMENTS.md`](../REQUIREMENTS.md))  -  e.g. FR-STR-* streaming features, NFR-LAT-01 latency. |
-| **Option 6b** | The descriptor/scatter-gather multi-queue DMA upgrade path (deferred; rings cover today's needs). |
-| **Track 1 (de-Xilinx)** | The vendor-independence workstream (vendored `verilog-axis`, XPM removal, Yosys/ECP5 checks). |
-| **C1/C2, S1-S5, I1-I6** | The decision-matrix work items in [`AVB_SWITCH_DIRECTION.md`](overview/AVB_SWITCH_DIRECTION.md) (CPU-port, Switch, IPC tracks). |
-| **build_ringN** | The overnight bitstream lineage (ring2 = RX ring … ring7 = +csum offload, ring8 = +256 KB L2); copies kept as `~/litex-milan/work/ringN_test.bit`. |
-| **peer-host / pw0** | The peer test host (i210 NIC, `<peer-ip>` on the bench-specific subnet) used for all wire-truth measurements; its concrete identity lives in the private bench notes. |
-| **BENCH (evidence token)** | In the traceability tables: verified on the bench — the internal conformance behave suite and/or a wire capture at the taps. |
-| **mfNN / AXNN** | Bitstream build codenames: `mf` = the ARTY lineage, `AX` = the AX7101 lineage; the number is the build round. A build number is only meaningful with its full recipe (config + directive + seed). |
-| **eppo_* / asl_*** | Config-recipe prefixes stamped into build codenames (they say which `build.sh` recipe produced the bitstream). |
-| **hsqN** | The header-split RX bring-up build series (hsq4…hsq12); the story is [`fpga/HEADER_SPLIT_DESIGN.md`](fpga/HEADER_SPLIT_DESIGN.md). |
-| **tap1 / tap2** | The two inline wire-capture taps on the bench (tap1 = the AX7101 link, tap2 = the ARTY link); map in [`findings/BENCH_TOPOLOGY.md`](findings/BENCH_TOPOLOGY.md). |
-| **e1 / e2** | The AX7101's two Ethernet ports; a build selects one via `--eth-port`. **Default and current bench cable = `e1`**; `e2` is the fallback for the 2026-07-22 e1 GMII-RX fault. The build must match the physical cable — see [integration/BUILDING.md](integration/BUILDING.md). |
+|---|---|
+| **Desk evidence** | Deterministic simulation, generation, lint, elaboration, and synthesis checks on one exact source candidate. |
+| **Physical evidence** | Booted-board result tied to exact source, generated image, topology, capture point, method, and raw artifacts. |
+| **#117** | Two-board fabric-gPTP, GM transition, conformance, latency, and audio acceptance campaign. |
+| **#70** | Persistent-state implementation and power-cut acceptance. |
+| **#259** | Bare-metal-only product and repository migration. |

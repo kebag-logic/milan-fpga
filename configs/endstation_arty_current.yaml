@@ -82,17 +82,6 @@ board:
     floorplan: false
     flashboot: baremetal             # #259: the {bitstream, aem} manifest (N25Q128 QSPI)
     uart_baudrate: 115200
-    rx_queues: 2                     # ingress fan-out. Since 2026-07-26 the
-                                     # split is gPTP (q1) vs everything else
-                                     # (q0), NOT the old TCP 4-tuple flow hash
-                                     # - docs/reference/EGRESS_QUEUE_MAP.md.
-                                     # Per-board on purpose: the deployed arty
-                                     # gateware carries rx1_* + steer_q0/q1 in
-                                     # its csr.csv, so 2 is ITS boot-chain
-                                     # layout (the ax8x8 shape still ships 1 -
-                                     # see that config; never unify blindly)
-    hs_page_bytes: 16384             # STRICT pair with kl-eth hsplit12
-    strip_probes: true               # area-70 ship diet
     num_queues: 5                    # 802.1Q shaper queues =
                                      # ethernet_packet_pkg::NUMBER_OF_QUEUES
                                      # (q5 class A .. q0 best effort - see
@@ -142,11 +131,9 @@ srp:                                 # lwSRP (802.1Q MSRP/MVRP) reservation
                                      # hdl/ieee8021q/srp/gen/lwsrp_table.svh
                                      # (the deployed gateware's table)
 
-platform:                            # firmware-visible layout
-  csr_base: 0x90000000               # AXI-Lite Milan CSR window
+platform:                            # identity + processor-memory placement
   mac_address: "02:00:00:00:00:02"   # board 2 - MUST differ from the AX7101's
                                      # ..:01 on the shared AVB switch
-  interrupt: 3                       # constant,milan_interrupt from csr.csv
   pp_mem_phys: 0x4fe00000            # 1 MiB protocol-processor window
 
 clocking:
@@ -181,8 +168,8 @@ streams:
       map_mode: dynamic              # Milan v1.2 5.3.3.9, no input AUDIO_MAP
       formats: ["0x0205022000806000"]
       # The CURRENT format ONLY, and it is deliberately NARROWER than
-      # `channels`: 2ch-first is the deployed reset default (kernel-shield
-      # lesson 2026-07-19 - an 8ch default plus a reboot plus a pure-ACMP
+      # `channels`: 2ch-first is the deployed reset default: an 8ch default
+      # plus a reboot plus a pure-ACMP
       # bind starved the render to a quarter rate), so it cannot be derived
       # from `channels` the way the other configs' can. Milan v1.2 6.4's
       # family completion is appended by the builder (base_format_complete),
@@ -207,7 +194,7 @@ gptp:
   # ONE source (USER 2026-08-05): these values generate the AVB_INTERFACE
   # descriptor's clock fields and the fabric uCPU image. priority1 248 =
   # the deferring Milan end-station default (see the AX7101 configs). The
-  # fabric plane is the one product gPTP owner (#259); no daemon
+  # fabric plane is the one product gPTP owner (#259)
   # configuration is generated from this section any more. The engine
   # consumes only priority1 (plus MAC and clock frequency); every other
   # clock field is a constant in gptp-processor/hdl/ucode/gen_gptp_ucode.py

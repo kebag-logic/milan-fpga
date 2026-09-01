@@ -15,7 +15,7 @@ Gates (Phase 10, docs/design/TRACE_LOGGING.md):
       gate turns that into a visible diff instead of silently mis-decoding every
       archived trace;
    4. the producer COMPILES and RUNS with a host C compiler (the same barectf.c
-      + milan_trace.c the board daemon links), producing real CTF segments;
+      + milan_trace.c the bare-metal image links), producing real CTF segments;
    5. those segments decode: packet count matches the ring's own statistics,
       zero structural notes, and every one of the 23 event types is exercised;
    6. the pinned xz chain compresses them, and the measured ratio is reported
@@ -32,17 +32,17 @@ Gates (Phase 10, docs/design/TRACE_LOGGING.md):
   10. the 32-bit event timestamp cannot wrap ambiguously: the largest gap
       between consecutive records in the produced trace is far below 2^32 us,
       and the C header's heartbeat ceiling agrees with the yaml contract;
-  11. the FLASH-WEAR TOKEN BUCKET: driven with the shipping defaults, a
-      continuously-faulting board is held by the BUDGET (not by the rate
-      limiter), the count matches the closed-form arithmetic, and the bucket
-      refills over an idle hour.  This is what the >11-year flash lifetime in
-      TRACE_LOGGING.md section 5 actually rests on;
-  12. rotation: oldest-first eviction holds the /user/log budget, and the
+  11. the EXPORT TOKEN BUCKET: driven with the defaults, a continuously-
+      faulting producer is held by the BUDGET (not by the rate limiter), the
+      count matches the closed-form arithmetic, and the bucket refills over an
+      idle hour;
+  12. workstation rotation: oldest-first eviction holds the bundle budget, and the
       pinned first-fault segment survives an eviction that would otherwise
       take it;
-  13. the /user/log budget is arithmetically inside the `user` flash slot;
+  13. the workstation bundle budget stays below its repository compatibility ceiling;
   14. babeltrace2 cross-check when it is installed (loud skip otherwise) - our
       pure-python reader must agree with the canonical one on the event count.
+  15. the generated event catalogue is current with the source YAML.
 
 Everything here runs on a plain host: python3 stdlib, a C compiler, and
 optionally barectf / babeltrace2, each of which is a LOUD SKIP when
@@ -78,7 +78,8 @@ def _skip(what, why):
 
 # The ABI, pinned.  See gate 3.
 EVENT_IDS = {
-    0: "acmp_listener", 1: "avtp_rx", 2: "boot", 3: "csr_access", 4: "daemon",
+    0: "acmp_listener", 1: "avtp_rx", 2: "boot", 3: "csr_access",
+    4: "firmware_lifecycle",
     5: "heartbeat", 6: "journal", 7: "link", 8: "ltap", 9: "maap",
     10: "mac_reset", 11: "mediaclk", 12: "note", 13: "parser_probe", 14: "ptp",
     15: "ring", 16: "srp", 17: "srp_refusal", 18: "stream_ctx",
@@ -108,13 +109,12 @@ def test_flash_map_and_persist_inventory():
     # a literal copy of what FLASHBOOT_RESERVED said in flash-map v4; v5 took
     # the slot to 1 MiB on 2026-07-28 and this gate has been red ever since,
     # asserting a number the source no longer holds.  What actually matters is
-    # that the slot is erase-block aligned and leaves jffs2 the >= 5 free
-    # blocks it wants for garbage collection.
+    # that the slot is erase-block aligned and leaves at least five blocks for
+    # other repository-owned state.
     assert user[2] % erase == 0, \
         f"user slot 0x{user[2]:X} is not an erase-block multiple"
     assert user[2] >= 5 * erase, (
-        f"user slot is {user[2] // erase} erase blocks; jffs2 wants >= 5 free "
-        "for garbage collection")
+        f"user slot is only {user[2] // erase} erase blocks; need >= 5")
 
     print(f"  [gate 1] {len(rows)} slots, erase-block aligned, no overlap, "
           f"0x{sum(r[2] for r in rows):X} of 0x{flash_size:X} allocated")
@@ -274,11 +274,19 @@ def test_segments_decode():
         f"- resident {st['packets_resident']})")
     missing = MUST_EXERCISE - names
     assert not missing, f"event types never exercised: {sorted(missing)}"
+    boot = next(e for e in events if e["name"] == "boot")
+    hdr = open(os.path.join(HERE, "milan_trace.h")).read()
+    m = re.search(r"#define MILAN_TRACE_ABI\s+(\d+)u", hdr)
+    assert m, "MILAN_TRACE_ABI missing from milan_trace.h"
+    abi = int(meta.abi)
+    assert abi == int(m.group(1)) == boot["payload"]["abi"], (
+        f"trace ABI drift: metadata={abi}, header={m.group(1)}, "
+        f"boot-event={boot['payload']['abi']}")
     _RUN["events"] = events
     print(f"  [gate 5] {total_pkts} packets / {len(events)} records decode "
           f"clean; ring accounting closes (written {st['packets_written']}, "
           f"dropped {st['packets_dropped']}); all {len(names)} event types "
-          "exercised")
+          f"exercised; ABI {abi} agrees in metadata/header/boot")
 
 
 def test_compression_ratio():
@@ -296,7 +304,7 @@ def test_compression_ratio():
     ratio = tout / tin
     assert ratio < 0.40, (
         f"compressed ratio {ratio:.3f} is worse than the 0.40 guard - the "
-        "flash budget in TRACE_LOGGING.md section 5 assumes ~0.25")
+        "bundle budget assumes a ratio near 0.25")
     bpr = tout / max(1, len(_RUN["events"]))
     _RUN["ratio"], _RUN["bpr"] = ratio, bpr
     print(f"  [gate 6] {tin} -> {tout} B, ratio {ratio:.4f} ({tin / tout:.2f}x), "
@@ -392,7 +400,7 @@ def test_negative_controls():
         f"impossible content_size not caught: {len(packets)} packets"
 
     bad = bytearray(full[:5 * psize])
-    bad[4 * psize:] = b"\xff" * psize            # erased flash tail
+    bad[4 * psize:] = b"\xff" * psize            # erased/padded tail
     packets, _events, note = ctf_read.decode(bytes(bad), meta)
     assert len(packets) == 4 and note is None, \
         "an erased tail must end the decode quietly, not raise a note"
@@ -424,13 +432,11 @@ def test_timestamp_wrap_margin():
           f"({wrap / hb:.0f}x margin)")
 
 
-def test_flash_wear_budget():
-    """The token bucket in milan_trace.c, driven by the shipping defaults.
+def test_export_budget():
+    """The export token bucket in milan_trace.c, driven by its defaults.
 
-    The >11-year flash-lifetime claim rests on this bucket, not on "flushes are
-    rare"; a rate limiter alone permits ~98 MiB/day.  The drill runs a
-    continuously-faulting board and counts the 100 KiB flushes it gets before
-    the budget - not the rate limiter - refuses one.
+    The drill runs a continuously-faulting producer and counts the 100 KiB
+    exports it permits before the budget, rather than the rate limiter, binds.
     """
     if "stats" not in _RUN:
         return
@@ -445,7 +451,7 @@ def test_flash_wear_budget():
     n = int(st["budget_flushes"])
     assert int(st["budget_hold"]) == 6, (
         f"the drill stopped for hold code {st['budget_hold']}, not BUDGET (6) - "
-        "the budget is not the binding limit, so the lifetime claim is unproven")
+        "the export budget is not the binding limit")
     # Closed form: start full, each round refills 60 s worth then spends 100 KiB,
     # and the run stops when the bucket cannot afford MIN_FLUSH_BYTES.
     left, expect = per_hour, 0
@@ -460,7 +466,7 @@ def test_flash_wear_budget():
         "the bucket did not refill to full after an idle hour"
     day = per_hour * 24
     print(f"  [gate 11] budget {per_hour} B/h ({day / 1048576:.0f} MiB/day "
-          f"ceiling): a continuously-faulting board gets {n} x 100 KiB flushes "
+          f"ceiling): a continuously-faulting producer gets {n} x 100 KiB exports "
           f"then holds on BUDGET; the bucket refills to full over an idle hour")
 
 
@@ -488,27 +494,26 @@ def test_rotation_policy():
         shutil.rmtree(td, ignore_errors=True)
 
 
-def test_log_budget_fits_user_slot():
+def test_bundle_budget_fits_compatibility_ceiling():
     rows, _fs, erase = gmp.load_map()
     user = [r for r in rows if r[0] == "user"][0]
     budget = trace_segment.DEFAULT_LOG_BUDGET
     assert budget < user[2], \
-        f"log budget {budget} B does not fit the {user[2]} B user slot"
+        f"bundle budget {budget} B exceeds the {user[2]} B compatibility ceiling"
     left = user[2] - budget
     # DERIVED reserve: the budget is defined as "slot minus N erase blocks",
     # so the check is that the reserve is still what trace_segment says and
-    # still enough for jffs2's GC minimum.  It used to be a flat `8 * erase`,
-    # a third copy of the assumption that /user is 2 MiB.
+    # still at least five blocks. It used to be a flat `8 * erase`, a third
+    # copy of an obsolete size assumption.
     assert left == trace_segment.USER_RESERVE_BLOCKS * erase, (
-        f"{left} B left in /user but the reserve is "
+        f"{left} B left below the compatibility ceiling but the reserve is "
         f"{trace_segment.USER_RESERVE_BLOCKS} erase blocks - the budget and "
         "the slot came from different maps")
     assert left >= 5 * erase, (
-        f"only {left} B left in /user for the state the partition exists for "
-        "(entity names, channel maps, mixer state) plus jffs2 GC")
+        f"only {left} B left below the compatibility ceiling")
     assert trace_segment.SEGMENT_BYTES % 4096 == 0
-    print(f"  [gate 13] /user 0x{user[2]:X}: log budget {budget} B "
-          f"({budget / user[2]:.0%}), {left} B left for /user state; "
+    print(f"  [gate 13] compatibility ceiling 0x{user[2]:X}: bundle budget {budget} B "
+          f"({budget / user[2]:.0%}), {left} B reserved; "
           f"segment ceiling {trace_segment.SEGMENT_BYTES} B")
 
 
@@ -552,8 +557,8 @@ if __name__ == "__main__":
                test_segments_decode, test_compression_ratio,
                test_torn_raw_segment, test_torn_xz_segment,
                test_negative_controls, test_timestamp_wrap_margin,
-               test_flash_wear_budget,
-               test_rotation_policy, test_log_budget_fits_user_slot,
+               test_export_budget,
+               test_rotation_policy, test_bundle_budget_fits_compatibility_ceiling,
                test_babeltrace2_agrees, test_event_catalogue_fresh):
         print(f"{fn.__name__}:")
         fn()

@@ -82,7 +82,7 @@ static void quiet() {
   dut->mac_tx_tvalid_i = 0; dut->mac_tx_tready_i = 0; dut->mac_tx_tlast_i = 0;
   dut->mac_rx_tvalid_i = 0; dut->mac_rx_tready_i = 0; dut->mac_rx_tlast_i = 0;
   dut->dpkt_tvalid_i = 0; dut->dpkt_tready_i = 0; dut->dpkt_tlast_i = 0;
-  dut->ring_tvalid_i = 0; dut->ring_tready_i = 0; dut->ring_tlast_i = 0;
+  dut->render_tvalid_i = 0; dut->render_tready_i = 0; dut->render_tlast_i = 0;
 }
 
 static void tick() {
@@ -111,8 +111,8 @@ static void dpkt_last() {
   dut->dpkt_tvalid_i = 1; dut->dpkt_tready_i = 1; dut->dpkt_tlast_i = 1;
   tick();
 }
-static void ring_last() {
-  dut->ring_tvalid_i = 1; dut->ring_tready_i = 1; dut->ring_tlast_i = 1;
+static void render_last() {
+  dut->render_tvalid_i = 1; dut->render_tready_i = 1; dut->render_tlast_i = 1;
   tick();
 }
 static void cap_pulse()  { dut->cap_pair_p_i = 1;    tick(); }
@@ -219,11 +219,11 @@ int main(int argc, char **argv) {
   idle(6);
   dpkt_last();                              // +11, so d1 = 7
   idle(1);
-  ring_last();                              // +13, so d2 = 2
+  render_last();                            // +13, so d2 = 2
   idle(2);
   ck("RX last d0 (sof->accept)", last_of(RX, 0), 4);
   ck("RX last d1 (accept->depkt)", last_of(RX, 1), 7);
-  ck("RX last d2 (depkt->ring)", last_of(RX, 2), 2);
+  ck("RX last d2 (depkt->fabric render)", last_of(RX, 2), 2);
   ck("RX samples", samples_of(RX), 1);
   ck("RX epoch", epoch_of(RX), 0x3333u);
   ck("RX traffic left TX samples alone", samples_of(TX), tx_smp_guard);
@@ -240,7 +240,7 @@ int main(int argc, char **argv) {
   idle(1);
   dpkt_last();                              // +11
   idle(1);
-  ring_last();                              // +13
+  render_last();                            // +13
   idle(2);
   ck("RECOUPLE-3 last d0 moved", last_of(RX, 0), 9);
   ck("RECOUPLE-3 max d0 took the larger", max_of(RX, 0), 9);

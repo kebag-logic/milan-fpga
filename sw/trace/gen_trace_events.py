@@ -12,7 +12,7 @@ so the answer CANNOT drift from the contract: the doc is generated, and
 The YAML carries more than structure: each event is preceded by a comment block
 saying WHY it exists, and most fields carry a trailing comment. Both are lifted
 into the table, because the reason an event exists is the part that decides
-whether it is worth a flash write.
+whether it can arm a trace export.
 
 Usage:
     python3 sw/trace/gen_trace_events.py            # write the doc
@@ -118,13 +118,14 @@ def render():
     a("")
     a("# What is being logged — the trace event catalogue")
     a("")
-    a("Every event type the end-station can write into the fault trace in")
-    a("`/user/log`, what it carries, and why it exists. This page is **generated**")
+    a("Every event type the bare-metal end-station can write into its DRAM")
+    a("fault-trace ring, what it carries, and why it exists. This page is **generated**")
     a("from [`sw/trace/milan_trace.yaml`](../../sw/trace/milan_trace.yaml), which is")
     a("the CTF ABI — so it cannot drift from what the producer actually emits.")
     a("")
-    a("For the design (why a trace at all, the flash budget, compression, rotation,")
-    a("torn writes) see [`../design/TRACE_LOGGING.md`](../design/TRACE_LOGGING.md).")
+    a("For the design (why a trace at all, the export budget, workstation")
+    a("compression/rotation and torn captures) see")
+    a("[`../design/TRACE_LOGGING.md`](../design/TRACE_LOGGING.md).")
     a("For how to read a trace, that document's *Reading a trace* section.")
     a("")
     a(f"**{len(events)} event types.** Every record also carries the common context")
@@ -146,8 +147,8 @@ def render():
         a(f"| `{name}` | {type_label(alias, aliases)} | {fld_doc.get(name, '')} |")
     a("")
     a("`sev` is not decoration: it **is** the flush trigger. A record at or above")
-    a("the configured threshold is what promotes the RAM ring to a flash write, so")
-    a("choosing a severity is choosing whether the event can cost a flash erase.")
+    a("the configured threshold is what promotes the DRAM ring to a segment export, so")
+    a("choosing a severity also chooses whether the event can consume export budget.")
     a("")
 
     # --- the ID map: the ABI's least obvious property, made visible ---------

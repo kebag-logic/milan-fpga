@@ -41,7 +41,7 @@ cmake -S "$la_src" -B "$la_build" -DCMAKE_BUILD_TYPE=Release \
     -DBUILD_NIH_SWIG=OFF >/dev/null
 cmake --build "$la_build" --target la_avdecc_static --parallel >/dev/null
 
-c++ -std=c++17 -O2 -DTARGET_SYSTEM_LINUX \
+c++ -std=c++17 -O2 \
     -DHAVE_PROTOCOL_INTERFACE_SERIAL -DHAVE_PROTOCOL_INTERFACE_LOCAL \
     -DIGNORE_INVALID_CONTROL_DATA_LENGTH \
     -DIGNORE_INVALID_NON_SUCCESS_AEM_RESPONSES \

@@ -441,8 +441,8 @@ static void do_reset() {
     dut->axis_resetn = 0; dut->gtx_resetn = 0;
     dut->s_axi_awvalid = dut->s_axi_wvalid = dut->s_axi_arvalid = 0;
     dut->s_axi_bready = dut->s_axi_rready = 0;
-    dut->s_axis_tx_tvalid = 0; dut->s_axis_mac_rx_tvalid = 0;
-    dut->m_axis_mac_tx_tready = 1; dut->m_axis_rx_tready = 1; dut->m_axis_ts_tready = 1;
+    dut->s_axis_mac_rx_tvalid = 0;
+    dut->m_axis_mac_tx_tready = 1;
     dut->i_mac_speed = 2; dut->i_link_up = 1; dut->i_full_duplex = 1; dut->i_mac_events = 0;
     for (int i = 0; i < 8; i++) step();
     dut->axis_resetn = 1; dut->gtx_resetn = 1;
@@ -459,7 +459,6 @@ static void inject_rx(const uint8_t* f, size_t len, int tail_cycles) {
         bk[i / 8] |= (uint8_t)(1u << (i % 8));
     }
     size_t idx = 0;
-    dut->m_axis_rx_tready = 1;
     dut->m_axis_mac_tx_tready = 1;
     for (int c = 0; c < (int)beats + tail_cycles; c++) {
         if (idx < beats) {
@@ -1589,9 +1588,9 @@ int main(int argc, char** argv) {
         // index law (global cluster index == render RAM address). The map
         // is provisioned through the CSR 0x900 debug window - the same
         // write port the AEM projector owned - and the GET must read back
-        // exactly what was committed, with the host-ring entry (src = 1)
-        // EXCLUDED: the ring is not a STREAM_INPUT and 7.4.44.2.1 has no
-        // words for it.
+        // exactly what was committed, with the reserved source encoding
+        // (src = 1) EXCLUDED: it is not a STREAM_INPUT and 7.4.44.2.1 has
+        // no words for it.
         //
         // THE GEOMETRY IS THE ELABORATED SHAPE'S: this suite includes the
         // endstation_arty_current header (channels_per_frame = 2), so the
@@ -1609,8 +1608,8 @@ int main(int argc, char** argv) {
             // src[12], stream[6:4], ch[2:0]
             axi_write(A_CHMAP_SEL, 0);
             axi_write(A_CHMAP_WORD, 0x8001);
-            // cluster 1 <- {en, src 1 (HOST RING), pb ch 2}: real routing,
-            // NOT an AEM dynamic mapping - must not appear in the response
+            // cluster 1 <- {en, reserved src 1, index 2}: the encoding renders
+            // silence and must not appear in the AEM dynamic-map response
             axi_write(A_CHMAP_SEL, 1);
             axi_write(A_CHMAP_WORD, 0x9002);
             axi_write(A_CHMAP_CTRL, 0x0);
@@ -1630,7 +1629,7 @@ int main(int argc, char** argv) {
             };
             ck("L5e0: CHMAP_LOOP reads cluster 0 back as {en, avb 0.1}",
                loop_rd(0) & 0xFFFFu, 0x0081u);
-            ck("L5e0: CHMAP_LOOP reads cluster 1 back as {en, ring ch 2}",
+            ck("L5e0: CHMAP_LOOP reads cluster 1 back as {en, reserved src 2}",
                loop_rd(1) & 0xFFFFu, 0x00C2u);
 
             uint8_t pl[8] = {0x00, 0x0E, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
@@ -1656,7 +1655,7 @@ int main(int argc, char** argv) {
                 ck("L5e: number_of_maps @6 is the fixed partition count",
                    (uint32_t)get_be(b, 44, 2), 1u);
                 ck("L5e: number_of_mappings @8 counts the AVB entry only - "
-                   "the ring-fed cluster 1 is real routing, not a mapping",
+                   "the reserved-source cluster 1 is not a mapping",
                    (uint32_t)get_be(b, 46, 2), 1u);
                 ck("L5e: reserved @10 is zero", (uint32_t)get_be(b, 48, 2), 0u);
                 // mono clusters: cluster_channel 0, and cluster_offset IS

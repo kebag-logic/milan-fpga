@@ -23,8 +23,7 @@
 #        front-ends), so a master build MUST move that pin, and on a board with
 #        no `tdm` pads it moves it to an unconnected `Signal()`.  pmoda:4 (ball
 #        D13) is the MCLK of the CS5343 ADC, i.e. the ONLY working audio input
-#        the Arty has, and the one the bench analog loop runs through
-#        (docs/findings/BENCH_TOPOLOGY.md).
+#        the Arty has, and the one the bench analog loop runs through.
 #
 #  Both were reported as a printed WARNING.  A warning is not enough:
 #  docs/testing/methodology.md R5 - "a structural zero is not a measurement" -

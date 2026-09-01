@@ -182,7 +182,8 @@ SHELL_WORDS = {"if", "then", "else", "elif", "fi", "do", "done", "for", "while",
 #: A keyword whose command's status the shell consumes instead of reporting.
 CONDITION = {"if", "elif", "while", "until", "!"}
 #: A recipe line's prefix, read after expansion the way Make reads it (the
-#: kernel's `$(Q)` idiom): `@` silences, `+` runs under -n, `-` IGNORES ERRORS.
+#: the build system's `$(Q)` idiom): `@` silences, `+` runs under -n,
+#: `-` IGNORES ERRORS.
 RECIPE_PREFIX = re.compile(r"^[\s@+-]*")
 SHELL_OP = re.compile(r"\s*(;|&&|\|\||\|)\s*")
 INTERPRETERS = re.compile(r"^(?:python[\d.]*|sh|bash|dash|env)$")

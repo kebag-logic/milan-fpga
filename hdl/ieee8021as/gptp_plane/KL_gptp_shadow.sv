@@ -68,7 +68,7 @@ module KL_gptp_shadow #(
     input  wire rst_n,                    //! active-low reset
 
     //! MAC RX tap: INPUT ONLY, a beat is real when tvalid && tready
-    //! (the gh #65 hazard: a stalled DMA parks a beat with tvalid held)
+    //! (the gh #65 hazard: a stalled downstream path parks tvalid-held data)
     input  wire [TDATA_WIDTH_P-1:0]   rx_tdata_i,   //! little lane order
     input  wire [TDATA_WIDTH_P/8-1:0] rx_tkeep_i,
     input  wire                       rx_tvalid_i,
@@ -104,7 +104,7 @@ module KL_gptp_shadow #(
     //! queued case)
     output logic tx_sent_o,
 
-    //! the publish bank -- the retired software contract
+    //! sole live publication bank
     output logic [63:0] pub_gm_id_o,
     output logic [63:0] pub_parent_id_o,
     output logic [31:0] pub_flags_o,      //! b0 present, b1 gm, b2 asCap, b3 sync

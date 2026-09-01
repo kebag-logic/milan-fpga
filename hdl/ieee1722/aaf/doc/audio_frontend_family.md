@@ -72,7 +72,7 @@ deserializer core, parameterized by channel-status interpretation only:
   `aes_rx_i` (the biphase-mark line), the pair-stream contract above, plus
   `locked_o` (subframe-sync acquired) and a channel-status/validity
   snapshot for CSR export (`cs_bits_o[31:0]` = first 32 channel-status
-  bits: sample-rate/emphasis words a provisioning daemon needs).
+  bits: sample-rate/emphasis words the control plane needs).
 * **Clock recovery IN the module**: the biphase-mark (BMC) line is
   oversampled with `clk_audio_i` (24.576 MHz = 4x the 128·fs bit rate at
   48 kHz); edge-interval discrimination separates half-bit/full-bit cells,

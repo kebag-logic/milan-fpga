@@ -33,7 +33,7 @@ static void quiet() {
   dut->mac_tx_tvalid_i = 0; dut->mac_tx_tready_i = 0; dut->mac_tx_tlast_i = 0;
   dut->mac_rx_tvalid_i = 0; dut->mac_rx_tready_i = 0; dut->mac_rx_tlast_i = 0;
   dut->dpkt_tvalid_i = 0; dut->dpkt_tready_i = 0; dut->dpkt_tlast_i = 0;
-  dut->ring_tvalid_i = 0; dut->ring_tready_i = 0; dut->ring_tlast_i = 0;
+  dut->render_tvalid_i = 0; dut->render_tready_i = 0; dut->render_tlast_i = 0;
 }
 
 static void tick() {
@@ -86,7 +86,7 @@ int main(int argc, char **argv) {
   idle(6);
   dut->dpkt_tvalid_i = 1; dut->dpkt_tready_i = 1; dut->dpkt_tlast_i = 1; tick();
   idle(1);
-  dut->ring_tvalid_i = 1; dut->ring_tready_i = 1; dut->ring_tlast_i = 1; tick();
+  dut->render_tvalid_i = 1; dut->render_tready_i = 1; dut->render_tlast_i = 1; tick();
   idle(4);
   ck("pruned: RX activity leaves zero", all_zero() == -1, 1);
 

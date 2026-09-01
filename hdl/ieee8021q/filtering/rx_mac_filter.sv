@@ -92,7 +92,7 @@ module rx_mac_filter #(
     input  wire                     s_tlast,
     output wire                     s_tready,
 
-    // ---- RX AXIS out (filtered, to DMA) -----------------------------------
+    // ---- RX AXIS out (filtered, to fabric observers) ----------------------
     //! AXI4-Stream source carrying only accepted frames, beat for beat with
     //! the sink above. A dropped frame is squashed by holding tvalid low for
     //! its whole length, so a consumer never sees a partial frame and never
@@ -140,7 +140,7 @@ module rx_mac_filter #(
   //  WHERE THIS IS ENFORCED. Verilator refuses the build whenever USERERROR
   //  is fatal: its default (no -Wno-fatal), or -Werror-USERERROR, which every
   //  suite that builds this module carries (tb/verilator/rx_filter, milan_dp,
-  //  hostplane, tcam_csr) because -Wno-fatal on its own demotes a $error to a
+  //  root datapath and tcam_csr) because -Wno-fatal on its own demotes a $error to a
   //  warning and the illegal shape BUILDS. Vivado refuses it at elaboration.
   //  It is NOT enforced on the sv2v -> Yosys path (syn/yosys/run.sh, ooc.sh):
   //  sv2v lowers a module-scope $error to an `initial $display`, which Yosys
@@ -184,9 +184,9 @@ module rx_mac_filter #(
   //! Multicast hash bucket. DEFINED HERE (nothing specified one before): a
   //! 6-bit XOR fold of the 48-bit address, MSB-aligned groups of 6. Chosen
   //! over an ether_crc fold because it is a handful of XOR gates instead of a
-  //! 48-bit CRC cone and the driver can reproduce it in two lines - the exact
-  //! function only has to MATCH between HW and `ndo_set_rx_mode`, and the
-  //! filter is approximate by construction either way (docs/reference/REGISTER_MAP.md 0x114).
+  //! 48-bit CRC cone and bare-metal firmware can reproduce it in two lines.
+  //! The function only has to match between the CSR writer and hardware; the
+  //! filter is approximate by construction (REGISTER_MAP.md 0x114).
   wire [5:0] mc_index = dmac[47:42] ^ dmac[41:36] ^ dmac[35:30] ^ dmac[29:24]
                       ^ dmac[23:18] ^ dmac[17:12] ^ dmac[11:6]  ^ dmac[5:0];
   wire mc_hit = mc_hash_i[mc_index];
@@ -234,8 +234,8 @@ module rx_mac_filter #(
   wire sof       = s_tvalid && !in_frame;                          //! first beat of a frame
   //! Runt guard: a frame whose FIRST beat carries tlast is at most 8 bytes, so
   //! it cannot be a legal Ethernet frame. A dropped-frame tail can otherwise
-  //! appear as that one-beat ghost; swallow it here so the host DMA never sees
-  //! it, whatever its upstream origin.
+  //! appear as that one-beat ghost; swallow it here so no downstream fabric
+  //! observer sees it, whatever its upstream origin.
   wire runt_sof  = sof && s_tlast;
   //! SOF decision. promisc outranks an explicit TCAM drop on purpose: MAC_CTRL
   //! promiscuous means "hand me the wire", which is exactly what a capture

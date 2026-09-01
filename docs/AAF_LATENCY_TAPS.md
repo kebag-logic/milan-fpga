@@ -20,10 +20,10 @@ characterise the latency *envelope*, not one threaded frame id.
 ## Contents
 
 - **[TX pipeline (talker: capture → wire)](#tx-pipeline-talker-capture--wire)** — Flowchart of the three talker hops with their CSR pairs, and the attribution note that matters: `PKT_EOF→MAC_TX` is the arbiter merge chain, **not** a CBS queue — the fabric talker injects after the shaper and never waits for credit.
-- **[RX pipeline (listener: wire → PCM ring)](#rx-pipeline-listener-wire--pcm-ring)** — Same picture for the listener, wire to DRAM ring. Explains why the final I2S playout stage has no delta at all: it is FIFO-fill dominated, so `I2SPB_STAT` characterises it instead.
+- **[RX pipeline (listener: wire → fabric render)](#rx-pipeline-listener-wire--fabric-render)** — Same picture for the listener through the selected fabric-render boundary. The final I2S playout stage remains FIFO-fill dominated, so `I2SPB_STAT` characterises it separately.
 - **[Tap → trigger → CSR (the authoritative map)](#tap--trigger--csr-the-authoritative-map)** — The lookup table — eight stage edges, each with its literal `milan_datapath.sv` trigger expression and its last/max·min register pair. Also where the 0.5 ms per-stage timeout is defined, which is what stops a dropped frame wedging a chain.
 - **[Measured on silicon — TX chain (2026-07-26)](#measured-on-silicon--tx-chain-2026-07-26)** — Real AX7101 numbers: D0 max 125.04 µs is the 6-sample accumulation window, D1 is a constant 110 ns across 65 k+ frames, D2 max 125.29 µs is one class-A interval; 0 timeouts. Worst-case fabric TX ≈ 250 µs against a 500 µs presentation offset, and both halves are protocol-structural — a faster clock does not shrink them. The RX subsection follows here with its own numbers and a saturation caveat.
-- **[Reading it live](#reading-it-live)** — The `devmem` one-liner for a whole-pipeline snapshot and the `LTAP_CTRL[0]` clear-and-re-measure. Read the warning: quote cycle deltas, never rates — `samples`/`timeouts` saturate at `0xFFFF` within seconds on a busy talker.
+- **[Reading it live](#reading-it-live)** — The register sequence for a whole-pipeline snapshot and `LTAP_CTRL[0]` clear-and-re-measure. Quote cycle deltas, never rates: `samples`/`timeouts` saturate at `0xFFFF` within seconds on a busy talker.
 
 ## TX pipeline (talker: capture → wire)
 
@@ -40,8 +40,9 @@ flowchart LR
   the packetizer only starts a frame once it has a full PDU's worth of pairs.
 * **PKT_SOF → PKT_EOF** (`D1`) is the packetizer's own serialization time.
 * **PKT_EOF → MAC_TX** (`D2`) is the **`adp_tx_arbiter` merge chain + the MAC
-  boundary** — *not* a CBS queue. The fabric AAF talker injects **after** the
-  shaper (`aaf_final_mux` in `milan_datapath.sv`), so its frames never enter a
+  boundary** — *not* a CBS queue. There is no shaper in the shipped trunk at
+  all since `0x0002_0056` (the AAF talker heads the data lane at `crf_dp_mux`
+  in `milan_datapath.sv`), so its frames never enter a
   queue and never wait for credit; pacing comes from the SRP admission gate
   instead — published by the protocol processor's class-D face since the lwSRP
   engine was deleted (2026-08-13). See
@@ -49,27 +50,28 @@ flowchart LR
   and [Section 0 of `fpga/DATAPLANE_WALKTHROUGH.md`](fpga/DATAPLANE_WALKTHROUGH.md#0-the-one-thing-to-know-first). Under
   mixed traffic this shared boundary may catch a nearer non-AAF edge, which is
   why the envelope (min/max) matters more than a single sample here.
-* The existing `ptp_ts_top` **TX hardware timestamp** stamps the actual wire
-  egress independently; `TX_EPOCH` records the gPTP ns at the CAP edge so the
-  fabric delta and the on-wire stamp can be reconciled.
+* The gPTP plane's `KL_gptp_txstamp` stamps its own frames at the MAC boundary
+  independently (the `ptp_ts_top` TX record stamper is no longer instantiated);
+  `TX_EPOCH` records the gPTP ns at the CAP edge so the fabric delta and an
+  on-wire capture can be reconciled.
 
-## RX pipeline (listener: wire → PCM ring)
+## RX pipeline (listener: wire → fabric render)
 
 ```mermaid
 flowchart LR
     MRX["MAC_RX<br/>frame ingress<br/><small>mac_rx_acc &amp; ~inframe</small>"]
       -->|"D0 · MAC_RX→ACCEPT<br/>0x89C / 0x8A0"| ACC["ACCEPT<br/>AVTP monitor parse+accept<br/><small>avtprx_accept_p</small>"]
     ACC -->|"D1 · ACCEPT→DEPKT<br/>0x8A4 / 0x8A8"| DPK["DEPKT<br/>payload last beat<br/><small>dpkt_acc &amp; tlast</small>"]
-    DPK -->|"D2 · DEPKT→PCM_RING<br/>0x8AC / 0x8B0"| RNG["PCM_RING<br/>payload into the ring<br/><small>ring_acc &amp; tlast</small>"]
-    RNG -.->|"gPTP ns @ MAC_RX"| EP["RX_EPOCH 0x894<br/>RX_INFO 0x898<br/><small>samples · timeouts</small>"]
-    RNG -.->|"playout"| I2S["I2S DAC fetch<br/><small>FIFO-fill dominated —<br/>see I2SPB_STAT</small>"]
+    DPK -->|"D2 · DEPKT→FABRIC_RENDER<br/>0x8AC / 0x8B0"| RND["FABRIC_RENDER<br/>selected payload accepted<br/><small>render_acc &amp; tlast</small>"]
+    RND -.->|"gPTP ns @ MAC_RX"| EP["RX_EPOCH 0x894<br/>RX_INFO 0x898<br/><small>samples · timeouts</small>"]
+    RND -.->|"playout"| I2S["I2S DAC fetch<br/><small>FIFO-fill dominated —<br/>see I2SPB_STAT</small>"]
 ```
 
 * **MAC_RX → ACCEPT** (`D0`) is classify + stream-table match + the AVTP
   monitor's parse-to-accept verdict.
 * **ACCEPT → DEPKT** (`D1`) is the depacketizer draining the accepted PDU.
-* **DEPKT → PCM_RING** (`D2`) is the write into the `_PCMRingNxN` DRAM ring
-  the host-side ring consumer drains.
+* **DEPKT → FABRIC_RENDER** (`D2`) is acceptance at the route-selected
+  physical-render boundary.
 * The final **I2S DAC playout** stage is FIFO-fill dominated (the CDC pair
   FIFO decouples PDUs from DAC frames), so it is characterised by the
   `I2SPB_STAT` fill/converged rails rather than a delta here.
@@ -85,7 +87,7 @@ flowchart LR
 | RX0 | MAC_RX (ingress) | `mac_rx_acc_w & ~mac_rx_inframe_r` | `0x89C` · `0x8A0` |
 | RX1 | ACCEPT (monitor) | `avtprx_accept_p` | `0x8A4` · `0x8A8` |
 | RX2 | DEPKT (payload last) | `dpkt_acc_w & dpkt_pcm_tlast_w` | `0x8AC` · `0x8B0` |
-| RX3 | PCM_RING (ring write) | `ring_acc_w & m_axis_pcm_tlast` | — (chain end) |
+| RX3 | FABRIC_RENDER (selected payload accepted) | `render_acc_w & render_tlast_i` | — (chain end) |
 
 `TX_EPOCH`/`RX_EPOCH` (`0x874`/`0x894`) carry the gPTP ns latched at the
 stage-0 edge; `TX_INFO`/`RX_INFO` (`0x878`/`0x898`) carry `{timeouts, samples}`.
@@ -140,55 +142,37 @@ changes is the comparison — the same ≈ 250 µs envelope now sits inside a 2 
 budget instead of a 500 µs one, so the fabric path is a smaller fraction of it
 and cannot be tuned back down from a controller.
 
-### RX chain — measured 2026-07-26, with a caveat
+### RX chain — acceptance status
 
-**The earlier snapshot read `samples = 0` with `timeouts` pinned at saturation**:
-`MAC_RX` armed the chain on every ingress frame, but `avtprx_accept_p` never
-pulsed, so every token aborted at the D0 guard. That was the fabric-listener
-accept blocker, and it was **not** a tap defect — it was entry-0 provisioning
-([Section 21 of `limitations/TROUBLESHOOTING.md`](limitations/TROUBLESHOOTING.md#section-21-acmp-says-success-the-listener-declares-itself-bound---and-not-one-frame-is-accepted-root-caused-and-fixed-version-0x000f-mechanism-confirmed-on-silicon-2026-07-26)). With
-the listener accepting (~9.6 k frames/s sustained, `AVTPRX_ERR = 0`), the chain
-reads:
-
-| stage | min | last | reading |
-|---|---|---|---|
-| **D0** `MAC_RX→ACCEPT` | 49 cyc | 50 cyc | **~0.49 µs** — classify + stream-table match + the monitor's verdict |
-| **D1** `ACCEPT→DEPKT` | 29 cyc | 30 cyc | **~0.30 µs** — the depacketizer draining the accepted PDU |
-| **D2** `DEPKT→PCM_RING` | 10 378 cyc | 12 541 cyc | **~104–125 µs** — the ring-fill stage sitting at the 125 µs class-A interval |
-
-Total ≈ **105–126 µs** at 100 MHz (1 cycle = 10 ns). Measured on the AX7101 8×8
-board on **2026-07-26**, on gateware `VERSION 0x0001_000B` **through the manual
-staging workaround**, not through the fixed provisioning path.
-
-> **Caveat, and it matters.** The `max` fields and `LTAP_RX_INFO` (`0x898`) were
-> **saturated** (`0xFFFF`), polluted by the long blocked period when every frame
-> timed out at the tap. Only `min` and `last` above are trustworthy. A clean set
-> needs a counter reset **and** a board reflashed past `0x000F`.
+The RX endpoint now measures through the retained fabric-render acceptance
+boundary. Measurements taken from images that ended the chain at an obsolete
+packet-copy endpoint do not validate this topology and are intentionally not
+carried forward as current results. The digital harness proves the stage walk,
+same-cycle cascade handling, clear/re-enable behaviour, and stream-data purity;
+the two-board timing capture remains part of #117.
 
 The companion instrument for diagnosing a non-accepting listener is the `0x8B4`
 parser-probe group (the pre-match view — see
 [Section 0x8B4 of `REGISTER_MAP.md`](reference/REGISTER_MAP.md#0x8b4-----rx-stream-parser-probe--aprb-avtp_stream_parser--milan_datapath)); the ordered walk is in
-[Section 3 of `fpga/DATAPLANE_WALKTHROUGH.md`](fpga/DATAPLANE_WALKTHROUGH.md#3-ingress-a-frame-off-the-wire-becomes-pcm).
+[Section 3 of `fpga/DATAPLANE_WALKTHROUGH.md`](fpga/DATAPLANE_WALKTHROUGH.md#3-ingress-a-frame-off-the-wire-reaches-fabric-render).
 
-Note for whoever measures the RX chain next: since `VERSION 0x0001_000C` the
-chain consumes **same-cycle** stage pulses as 0-cycle hops, so **RX D2
-(DEPKT→PCM_RING) legitimately reads `min = 0`** — the `KL_pcm_route`
+The chain consumes **same-cycle** stage pulses as 0-cycle hops, so **RX D2
+(DEPKT→FABRIC_RENDER) can legitimately read `min = 0`** — the `KL_pcm_route`
 pass-through is combinational. A 0 there is a correct measurement, not a
 missing sample.
 
 ## Reading it live
 
-```sh
-# one-shot snapshot of every stage (on the board)
-for a in 874 878 87C 884 88C  894 898 89C 8A4 8AC; do
-  printf '0x%s = %s\n' $a "$(devmem 0x90000$a 32)"; done
-# clear stats and re-measure:  devmem 0x90000870 32 0x3   (W1S clear + enable)
-```
+Use the bare-metal diagnostic transport (or a JTAG AXI master during bring-up)
+to snapshot offsets `0x874`, `0x878`, `0x87C`, `0x884`, `0x88C`, `0x894`,
+`0x898`, `0x89C`, `0x8A4`, and `0x8AC`. Write `0x3` to `LTAP_CTRL` at `0x870`
+to clear and re-enable the measurement before the next capture. Record every
+value and the exact image identity in the #64/#117 evidence artifact.
 
 **Quote cycles, not rates.** The delta words are exact cycle counts and are
-the honest unit here. A rate derived from a scripted window (`clear; sleep N;
-read`) is not: every `devmem` is a separate process on a loaded softcore, so
-the wall-clock window is longer — sometimes much longer — than the `sleep`.
+the honest unit here. A rate derived from an externally timed sequence is not:
+transport and command latency make the wall-clock window longer than the
+requested interval.
 The `samples`/`timeouts` fields also **saturate at `0xFFFF`**, which a busy
 talker reaches in seconds. Use them as "did tokens complete / did they abort",
 and take timing from the cycle deltas.

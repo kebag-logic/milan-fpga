@@ -74,7 +74,6 @@ def selftest():
         "milan_dp": 0,
         "pp_shadow": 1,
         "mmcm_servo": 2,
-        "hostplane": 3,
         "tsn_fuzz": 1,
         "chmap_capture": 3,
     }

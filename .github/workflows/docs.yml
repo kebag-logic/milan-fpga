@@ -284,8 +284,8 @@ jobs:
           python3 scripts/gen_toc.py --check
 
       # Build-shape gate: the milan_soc.py command line sweep.sh/build.sh compose
-      # must equal the end-station config they claim to build (--num-streams,
-      # --rx-queues, --l2-bytes). --self-test also proves a wrong value IS rejected.
+      # must equal the end-station config they claim to build (stream count,
+      # queue geometry, and cache size). --self-test also proves a wrong value IS rejected.
       - name: Sweep/build shape gate
         run: python3 scripts/check_sweep_shape.py --self-test
 

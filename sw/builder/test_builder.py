@@ -28,8 +28,7 @@ Gates (gaps item 4, generator round):
       shape-sensitive (changed shape -> different id), OUI-prefixed;
       arty_current honors model_id_pin = the CURRENTLY DEPLOYED id;
    9. generated sweep_opts_<board>.sh == today's sweep.sh inline tables
-      BYTE-FOR-BYTE (OPTS string + L2 + the PER-BOARD RXQ: each flashed boot
-      chain fixes its own DMA window map) for both boards; sh -n passes on
+      BYTE-FOR-BYTE (OPTS string + L2) for both boards; sh -n passes on
       sweep.sh and both fragments;
   10. gen_aem_store.py CONSUMES the OWNING config's overlay (--overlay,
       subprocess) and the generated aecp_aem_rom.svh is byte-identical to
@@ -110,20 +109,13 @@ Gates (gaps item 4, generator round):
   18d. reject paths: class B, VID 0/4095, class_queue 8, a unicast stream
       DMAC, an unknown TSpec policy and an over-subscribed class-A
       reservation all raise ConfigError;
-  19a. platform emitter: the DMA window map is derived from rx-queues (1q->2q
-      inserts steer+rx1 = 0x74 and moves dma-ts/hs-pgsz-cap/pcm-dma by
-      exactly that, tx/rx0 never move - anchored in milan_soc.py's
-      MilanDMA registration order), and the queue count is ONE number across
-      config / SoC argv / sweep fragment / firmware platform shape;
-  19b. the emitted DT node carries everything kl-eth + snd-kl-milan read
-      (5 reg windows, kl,rsc-clk-mhz, phy-mode, MAC, no-map PCM ring sized
-      for N capture streams); when the real build trees are on disk its
-      window bases BYTE-MATCH the LiteX csr.csv and the deployed .dts
-      (SKIPs with a message otherwise);
-  19c. reject paths: multicast/missing station MAC, csr_base below the IO
-      region, a PCM ring overrun, an unknown pinned window, a non-integer-MHz
-      datapath clock - and THE gate, flipping rx_queues under a
-      boot_chain_pin (5ce9a13 verbatim) raises ConfigError;
+  19a. platform emitter: platform_shape.json contains exactly the one
+      configuration fact its gateware consumer reads - the aligned
+      protocol-processor memory reservation - plus provenance metadata;
+  19b. every checked configuration publishes its exact base and the fixed
+      extent, with no duplicate hardware inventory;
+  19c. reject paths: an unknown or retired platform key and an unaligned
+      processor-memory window all raise ConfigError;
   20a. THE LOOP IS CLOSED: milan_csr.sv `include-s the generated
       hdl/common/csr/gen/lwsrp_csr_defaults.svh instead of hand-keeping the
       0x680 literals. The tracked header regenerates byte-identically, every
@@ -369,25 +361,23 @@ def _canon(tokens):
 
 
 def sweep_inline(board):
-    """(OPTS string, L2 string, RXQ string) of sweep.sh's inline FALLBACK
-    table for <board>. RXQ is per board: each flashed boot chain fixes its
-    own DMA window map (the CSR-rot rule)."""
+    """(OPTS string, L2 string) of sweep.sh's inline FALLBACK table."""
     txt = open(SWEEP).read()
-    m = re.search(rf'{board}\)\s+OPTS="([^"]+)"; L2=(\d+); RXQ=(\d+)', txt)
+    m = re.search(rf'{board}\)\s+OPTS="([^"]+)"; L2=(\d+)', txt)
     assert m, f"sweep.sh: no OPTS case for {board}"
-    return m.group(1), m.group(2), m.group(3)
+    return m.group(1), m.group(2)
 
 
 def sweep_expected(board):
     """Design-flag dict sweep.sh composes for <board> (OPTS + BASE minus
     flow flags)."""
     txt = open(SWEEP).read()
-    opts, l2, rxq = sweep_inline(board)
+    opts, l2 = sweep_inline(board)
     mb = re.search(r'milan_soc\.py \$OPTS (.*?)"', txt, re.S)
     assert mb, "sweep.sh: BASE line not found"
     base = mb.group(1).replace("\\\n", " ")
     tokens = shlex.split(opts) + shlex.split(base)
-    subst = {"${L2}": l2, "${RXQ}": rxq}
+    subst = {"${L2}": l2}
     tokens = [subst.get(t, t) for t in tokens]
     out, i = [], 0
     while i < len(tokens):
@@ -501,7 +491,7 @@ def check_port_layout(ovl, n_listeners, n_talkers):
       legacy policies - the port's cluster block IS the stream's channel
         space, so the map is the IDENTITY over the whole block (unchanged,
         still exact).
-      role-pools - the block is a SELECTION SET (physical + host + pilot +
+      role-pools - the block is a SELECTION SET (physical + pilot +
         loopback), so only the primary segment is wired at power-on: rows
         land inside that segment, one per stream channel, and NEVER cover
         the whole block. A role-pools shape that emitted an identity map
@@ -1631,12 +1621,14 @@ def test_baremetal_profile_contract():
         assert cfg["soc"]["software_profile"] == "baremetal", name
         assert cfg["soc"]["cpu"] == "vexiiriscv", name
         assert cfg["soc"]["xlen"] == 32 and cfg["soc"]["cpu_count"] == 1, name
+        assert cfg["soc"]["full"] is True, name
         assert cfg["constraints"]["l2_bytes"] == 0, name
         assert cfg["constraints"]["flashboot"] in ("none", "baremetal"), name
         assert cfg["soc"]["scala_args"] == [], name
         assert cfg["features"]["fabric_gptp"] is True, name
         assert argv["--software-profile"] == ["baremetal"], name
         assert argv["--xlen"] == [32.0] and argv["--l2-bytes"] == [0.0], name
+        assert "--full" in argv, name
         assert "--fabric-gptp" in argv, name
         assert "gptp_ucode" in result["paths"], name
         assert "pp_mem" in result["platform"], name
@@ -1655,6 +1647,10 @@ def test_baremetal_profile_contract():
             "flashboot", "unsupported")),
         ("unknown software profile", set_soc("software_profile", "hosted")),
         ("missing clock attributes", lambda cfg: cfg.pop("gptp", None)),
+        ("unknown SoC key", set_soc("unknown_option", True)),
+        ("partial SoC", set_soc("full", False)),
+        ("unknown constraint key", lambda cfg:
+         cfg["board"]["constraints"].__setitem__("unknown_option", True)),
     )
     for label, mutate in cases:
         path = _variant(CONFIGS["ax7101_1x1_tdm8"], mutate)
@@ -2491,21 +2487,18 @@ def test_sweep_opts_fragments():
         p = r["paths"]["sweep_opts"]
         assert os.path.basename(p) == f"sweep_opts_{board}.sh"
         txt = open(p).read()
-        m = re.search(r'^OPTS="([^"]*)"\n(?:NS=\d+\n)?L2=(\d+)\nRXQ=(\d+)\n',
+        m = re.search(r'^OPTS="([^"]*)"\n(?:NS=\d+\n)?L2=(\d+)\n',
                       txt, re.M)
-        assert m, f"{p}: fragment lacks OPTS/L2/RXQ"
-        frag[board] = (m.group(1), m.group(2), m.group(3), p)
-    for board, (opts, l2, rxq, p) in frag.items():
-        want_opts, want_l2, want_rxq = sweep_inline(board)
+        assert m, f"{p}: fragment lacks OPTS/L2"
+        frag[board] = (m.group(1), m.group(2), p)
+    for board, (opts, l2, p) in frag.items():
+        want_opts, want_l2 = sweep_inline(board)
         assert opts == want_opts, (f"{board}: fragment OPTS != sweep.sh inline\n"
                                    f" frag   {opts!r}\n inline {want_opts!r}")
         assert l2 == want_l2, f"{board}: fragment L2 {l2} != inline {want_l2}"
-        # per-board RX-queue count: the CSR-rot rule (each flashed boot chain
-        # fixes its own DMA window map), so a drift here is a real hazard
-        assert rxq == want_rxq, f"{board}: fragment RXQ {rxq} != inline {want_rxq}"
-        print(f"  [gate 9] {board}: generated OPTS/L2/RXQ byte-match sweep.sh "
-              f"inline table ({len(opts)} chars, rx-queues {rxq})")
-    for path in [SWEEP] + [p for (_o, _l, _r, p) in frag.values()]:
+        print(f"  [gate 9] {board}: generated OPTS/L2 byte-match sweep.sh "
+              f"inline table ({len(opts)} chars)")
+    for path in [SWEEP] + [p for (_o, _l, p) in frag.values()]:
         subprocess.run(["sh", "-n", path], check=True)
     print("  [gate 9] sh -n clean: sweep.sh + both fragments")
 
@@ -2909,7 +2902,7 @@ def test_dynamic_map_topology_reaches_shape_header():
             out.append(int(q.group(2), {"h": 16, "d": 10, "b": 2}[q.group(1)]))
         return out
 
-    # #259: the 8x8's listeners are empty-handed (no host pool, 0 physical),
+    # #259: the 8x8's listeners are empty-handed (0 physical),
     # so the input face carries eight zero-cluster ports and the 1-key
     # placeholder engine - the same retired posture the 1x1 leg below pins.
     # The output face is the 9-cluster geometry: pilot (13'h1400) then the
@@ -3024,6 +3017,8 @@ def test_dynamic_audio_map_overlay():
     # (7.2.13 number_of_maps=0) and the overlay -> gen_aem_store path emits
     # the `AEM_DYNMAP engine constants; a config that declares no dynamic
     # port never does.
+    import gen_aem_store as aem_store
+
     def dyn(c):
         c["streams"]["listeners"][0]["map_mode"] = "dynamic"
         c["streams"]["listeners"][0]["map_page"] = 4
@@ -3236,12 +3231,12 @@ def test_dynamic_audio_map_overlay():
         # fall-through used to land on LOOPBACK and every talker woke mapped
         # to a cluster whose fabric bucket milan_datapath never wired: a
         # GET_AUDIO_MAP that reads perfectly over a stream of digital
-        # silence. The ship config declares loopback_lane false, and the
-        # the host pool is absent (#259), so:
+        # silence. The ship config declares loopback_lane false, and its
+        # source topology contains only the live fabric pools, so:
         #   - the identity must be the PILOT tone, the one pool this build
         #     can feed: {valid, src=4 TONE} = 13'h1400
-        #   - no host ring template may survive at all (retired posture,
-        #     pinned): src=3 RING would be 13'h13xx
+        #   - reserved source encoding 3 may not survive at all
+        #     (its old template encoding would be 13'h13xx)
         #   - the loopback templates must still be EMITTED (the clusters
         #     exist and a controller may map to them) but fabric-disabled,
         #     bit 12 clear, so 13'h05xx, never 13'h15xx
@@ -3252,7 +3247,7 @@ def test_dynamic_audio_map_overlay():
         # source would be the exact defect this gate exists to refuse.
         assert "13'h1400" in svh, "power-on identity is not the pilot tone"
         assert "13'h13" not in svh, \
-            "a host ring template survived the #259 retirement"
+            "reserved source encoding 3 survived the #259 cleanup"
         assert "13'h15" not in svh, \
             "a VALID loopback template survived with the lane switched off"
         assert "13'h05" in svh, \
@@ -3263,7 +3258,7 @@ def test_dynamic_audio_map_overlay():
         print("  [gate 17d] ax7101_8x8 ALL streams dynamic: 8 output ports "
               "n_maps=0, zero AUDIO_MAPs, `AEM_ODYNMAP keys=64 slotb 0..28")
         print("  [gate 17e] lane OFF: power-on identity = PILOT (13'h1400), "
-              "host ring gone (#259), loopback templates emitted "
+              "reserved source 3 absent (#259), loopback templates emitted "
               "fabric-disabled (13'h05xx) and protocol-mappable")
 
         # and the OTHER direction: declaring the lane must hand the pool
@@ -3285,9 +3280,8 @@ def test_dynamic_audio_map_overlay():
                 svh2 = open(os.path.join(td, "aecp_aem_rom.svh")).read()
             assert "13'h1500" in svh2, \
                 "lane declared but no VALID loopback template emitted"
-            # #259: the host pool is absent,
-            # so the 08-06 host-outranks-loopback order has no subject
-            # left on this shape - the preference walk lands on the
+            # #259: the retired pool is absent, so the old preference has no
+            # subject left on this shape - the walk lands on the
             # BACKED loopback pool (offset 1: pilot holds offset 0), which
             # is the D8 point this arm exists for: declaring the lane
             # hands the pool back. INIT co runs 1..8 on every port.
@@ -3301,10 +3295,83 @@ def test_dynamic_audio_map_overlay():
                        for q in r2["overlay"]["stream_ports"]["output"])
             print("  [gate 17e] lane ON: loopback valid (13'h1500), "
                   "primary_role/INIT move onto it (6'h21..6'h28) - "
-                  "declaring the lane hands the pool back (#259: no host "
-                  "pool outranks it any more)")
+                  "declaring the lane hands the pool back")
         finally:
             os.unlink(p2)
+    finally:
+        os.unlink(p)
+
+    # gate 17f (#259): the legacy cluster-count policy still carries an
+    # explicit physical/virtual source pool when an OUTPUT becomes dynamic.
+    # A schema-2.x overlay with that pool missing is stale or hand-mutated;
+    # counts cannot reconstruct its source topology. Both consumers must
+    # refuse it instead of reviving reserved source encoding 3 as a fallback.
+    def dyn_legacy_output(c):
+        for s in c["streams"]["talkers"]:
+            s["map_mode"] = "dynamic"
+    p = _variant(CONFIGS["arty_current"], dyn_legacy_output)
+    try:
+        r = eb.build(p, OUT)
+        cfg = eb.load_config(p)
+        ovl = r["overlay"]
+        pout = ovl["stream_ports"]["output"][0]
+        assert pout["pool"] == [
+            {"role": "physical", "offset": 0, "width": 2},
+            {"role": "virtual", "offset": 2, "width": 6},
+        ]
+        spec = aem_store.spec_from_overlay(ovl)
+        srcs = spec["ports_out"][0]["cluster_sources"]
+        assert [s["src"] for s in srcs] == [2, 2, 0, 0, 0, 0, 0, 0]
+        assert [s["valid"] for s in srcs] == \
+            [True, True, False, False, False, False, False, False]
+        rom_svh = aem_store.emit_svh_text(aem_store.build_model(spec))
+        adp_svh = eb.emit_adp_shape_svh(cfg, ovl)
+        assert "13'h13" not in rom_svh and "13'h13" not in adp_svh, \
+            "reserved source encoding 3 survived a valid legacy-policy map"
+
+        for label, remove_pool in (("missing", True), ("empty", False)):
+            bad = copy.deepcopy(ovl)
+            if remove_pool:
+                del bad["stream_ports"]["output"][0]["pool"]
+            else:
+                bad["stream_ports"]["output"][0]["pool"] = []
+            try:
+                aem_store.spec_from_overlay(bad)
+            except ValueError as e:
+                msg = str(e)
+                assert "output[0]" in msg and "pool" in msg, \
+                    f"{label} pool: unclear generator refusal: {msg}"
+            else:
+                raise AssertionError(
+                    f"dynamic output with {label} source pool reached the "
+                    "descriptor generator")
+            try:
+                eb.emit_adp_shape_svh(cfg, bad)
+            except eb.ConfigError as e:
+                msg = str(e)
+                assert "output[0]" in msg and "pool" in msg, \
+                    f"{label} pool: unclear builder refusal: {msg}"
+            else:
+                raise AssertionError(
+                    f"dynamic output with {label} source pool reached the "
+                    "ADP include emitter")
+
+        # Exercise build_model's boundary independently of the overlay
+        # helper so deleting that second defence makes this arm fail.
+        bad_spec = copy.deepcopy(spec)
+        bad_spec["ports_out"][0]["cluster_sources"] = None
+        try:
+            aem_store.build_model(bad_spec)
+        except ValueError as e:
+            msg = str(e)
+            assert "ports_out[0]" in msg and "source topology" in msg, \
+                f"unclear build_model refusal: {msg}"
+        else:
+            raise AssertionError(
+                "dynamic output without cluster_sources reached build_model")
+        print("  [gate 17f] dynamic legacy-policy output: explicit physical/"
+              "virtual source pool accepted; missing/empty topology refused "
+              "by descriptor, model, and ADP consumers")
     finally:
         os.unlink(p)
 
@@ -3356,7 +3423,8 @@ def test_dynamic_audio_map_overlay():
     finally:
         os.unlink(p)
     print("  [gate 17] reject paths: static input, disagreeing input pages, "
-          "and mixed output map modes raise ConfigError")
+          "mixed output map modes, and missing dynamic-output source "
+          "topology raise ConfigError")
 
 
 MILAN_CSR_SV = os.path.join(ROOT, "hdl/common/csr/milan_csr.sv")
@@ -3386,30 +3454,9 @@ REGMAP_MD = os.path.join(ROOT, "docs/reference/REGISTER_MAP.md")
 CSR_INCDIR_CONSUMERS = (
     ("tb/verilator/csr/Makefile", r"\+incdir\+\$\(RTL_DIR\)/common/csr"),
     ("tb/verilator/milan_dp/Makefile", r"\+incdir\+\$\(RTL_DIR\)/common/csr"),
-    ("tb/verilator/hostplane/Makefile", r"\+incdir\+\$\(RTL_DIR\)/common/csr"),
     ("sw/litex/milan_soc.py", r"\"hdl/common/csr\""),
     ("syn/yosys/run.sh", r"INCDIRS=\([^)]*\"\$R/hdl/common/csr\""),
 )
-
-#: Real build trees / sibling repo used by the optional cross-check gates.
-#: Absent in a bare container -> those assertions SKIP with a message.
-CSR_CSV_2Q = os.path.expanduser(
-    "~/litex-milan/work/build_arty_eppo_milanfinal53e/csr.csv")
-#: The AX went rx_queues 2 on 2026-07-28 (the D7 fix), so its reference
-#: artifact is the FIRST 2-queue build tree - which does not exist until the
-#: 8.2 sweep runs. The exists() guard makes this row SKIP until then and BITE
-#: from the first build on; the old 1-queue tree
-#: (~/milan-avb-multiwork/build_ax8x8_rxq1fix_eppo/csr.csv) must never be
-#: compared against a 2-queue config - it would refuse the migration itself.
-CSR_CSV_AX2Q = os.path.expanduser(
-    "~/milan-avb-multiwork/build_ax8x8_rxq2_eppo/csr.csv")
-DEPLOYED_DTS = {
-    "arty": os.path.expanduser(
-        "~/milan-tests-avb/fpga/dts/milan_arty_vexii.dts"),
-    "ax7101": os.path.expanduser(
-        "~/milan-tests-avb/fpga/dts/milan_ax7101_vexii.dts"),
-}
-
 
 def _sv_hex(txt, pat, label):
     """First hex literal (SystemVerilog 32'hAAAA_BBBB / 'h6A0 style) matched
@@ -3771,38 +3818,33 @@ def test_lwsrp_rejects():
           "request on a 100 Mb/s port)")
 
 
-def _csv_bases(path):
-    """{register name: address} from a LiteX csr.csv."""
-    out = {}
-    for line in open(path):
-        f = line.split(",")
-        if len(f) >= 3 and f[0] == "csr_register":
-            out[f[1]] = int(f[2], 16)
-    return out
-
-
-def test_platform_firmware_shape():
-    """Gate 19: one queue count determines one firmware-visible register map."""
+def test_platform_gateware_shape():
+    """Gate 19: publish only the memory reservation gateware consumes."""
     import json
-    one = eb.dma_window_map(eb.DMA_BANK_BASE, 1)
-    two = eb.dma_window_map(eb.DMA_BANK_BASE, 2)
-    assert one["dma-ts"]["base"] != two["dma-ts"]["base"]
-    assert "dma-rx1" not in one and "dma-rx1" in two
 
     for name, path in CONFIGS.items():
         result = eb.build(path, OUT)
         shape = json.load(open(result["paths"]["platform_shape"]))
         assert shape == result["platform"], name
-        assert shape["rx_queues"] == result["cfg"]["constraints"]["rx_queues"]
-        assert set(shape["windows"]) == set(
-            eb.dma_window_map(eb.DMA_BANK_BASE, shape["rx_queues"]))
+        assert set(shape) == {
+            "_schema", "_schema_version", "_generated_by",
+            "_source_config", "pp_mem",
+        }, f"{name}: platform shape grew an unconsumed field: {set(shape)}"
+        assert shape["_schema"] == eb.PLATFORM_SCHEMA_ID
+        assert shape["_schema_version"] == "2.0.0"
+        assert set(shape["pp_mem"]) == {"phys", "bytes"}
         base = int(shape["pp_mem"]["phys"], 16)
         size = int(shape["pp_mem"]["bytes"], 16)
+        assert base == result["cfg"]["platform"]["pp_mem_phys"]
         assert base > 0 and base % 0x1000 == 0
         assert size == eb.PP_MEM_BYTES and size % 0x1000 == 0
 
     for label, mutate in (
             ("unknown key", lambda cfg: cfg["platform"].__setitem__("mystery", 1)),
+            ("retired CSR mirror",
+             lambda cfg: cfg["platform"].__setitem__("csr_base", 0x90000000)),
+            ("retired interrupt mirror",
+             lambda cfg: cfg["platform"].__setitem__("interrupt", 3)),
             ("unaligned processor window",
              lambda cfg: cfg["platform"].__setitem__("pp_mem_phys", 0x12345))):
         path = _variant(CONFIGS["ax7101_1x1_tdm8"], mutate)
@@ -3815,7 +3857,8 @@ def test_platform_firmware_shape():
                 raise AssertionError(f"{label}: invalid platform was accepted")
         finally:
             os.unlink(path)
-    print(f"  [gate 19] {len(CONFIGS)} firmware platform maps pass")
+    print(f"  [gate 19] {len(CONFIGS)} gateware memory reservations contain "
+          "only pp_mem; unknown/retired/unaligned inputs are refused")
 
 
 def test_csr_defaults_header_consumed():
@@ -4160,7 +4203,7 @@ def test_cbs_reset_table_single_source():
     assert ch == want_hi, f"CBS_HI_RST {ch} != calc_hi_credit {want_hi}"
     assert cl == want_lo, f"CBS_LO_RST {cl} != calc_lo_credit {want_lo}"
 
-    # REQ-CBS-02 / CBS_DEFAULT_SHAPING_BUG.md: EVERY queue powers up UNSHAPED.
+    # REQ-CBS-02: EVERY queue powers up UNSHAPED.
     # Shaping q0 at reset once paced all best-effort TX to ~250 Mbit/s on
     # silicon (2026-07-07), so this is a standing invariant, not a default.
     m = re.search(r"CBS_EN_RST\s*=\s*(\d+)'b([01]+)\s*;", csr)
@@ -4206,7 +4249,7 @@ def test_optional_blocks_default_present():
     pruned ONLY where a config says so in as many words.
 
     Not "no prune flag ever". `ax7101_8x8` deliberately SPENDS one - it
-    declares `board.constraints.render_lpf: false`, the only Vivado-priced
+    declares `board.features.render_lpf: false`, the only Vivado-priced
     lever of the 2026-07-27 area round - and a gate that forbade every prune
     flag would have made that spend unlandable. What must hold is that the
     emitted flags are EXACTLY the declared ones, so an undeclared prune (the
@@ -4231,8 +4274,7 @@ def test_optional_blocks_default_present():
         r = eb.build(CONFIGS[name], OUT)
         cfg = eb.load_config(CONFIGS[name])
         declared_keys = {key for key in eb.OPTIONAL_BLOCKS
-                         if not cfg["features"].get(key, True)
-                         or not cfg.get("constraints", {}).get(key, True)}
+                         if not cfg["features"].get(key, True)}
         assert declared_keys == SHIPPED_PRUNES[name], (
             f"{name}: config declares prunes {sorted(declared_keys)}, this "
             f"gate expects {sorted(SHIPPED_PRUNES[name])} - a shipping "
@@ -4291,12 +4333,6 @@ def test_optional_block_gates_bite():
          lambda c: c["clocking"].update(media_clock_sources=["internal"],
                                         default_source="internal",
                                         crf_sink=False), False),
-        ("taps pruned but strip_probes false",
-         dict(latency_taps=False),
-         lambda c: c["board"]["constraints"].update(strip_probes=False), True),
-        ("taps pruned, probes stripped",
-         dict(latency_taps=False),
-         lambda c: c["board"]["constraints"].update(strip_probes=True), False),
         ("MAAP pruned but stream DMACs are MAAP-allocated",
          dict(maap=False),
          lambda c: c.setdefault("srp", {}).update(stream_dmac_base="maap"),
@@ -4310,17 +4346,14 @@ def test_optional_block_gates_bite():
          dict(i2s_playback=False, render_lpf=False), lambda c: None, False),
         ("filter pruned but rx_address_filter is hardware",
          dict(rx_mac_filter=False), lambda c: None, True),
-        ("filter pruned, filtering declared in software",
+        ("filter pruned, promiscuous input declared explicitly",
          dict(rx_mac_filter=False),
          lambda c: c.setdefault("platform", {}).update(
-             rx_address_filter="software"), False),
-        # the mirror-image lie: a filter with nothing behind it. The AX base
-        # config prunes render_lpf itself since 2026-07-28, so keeping the
-        # filter now takes BOTH spellings said out loud - which is exactly
-        # the config this case wants: LPF kept, playback gone.
+             rx_address_filter="promiscuous"), False),
+        # the mirror-image lie: a filter with nothing behind it.
         ("playback pruned but the render LPF kept",
          dict(i2s_playback=False, render_lpf=True),
-         lambda c: c["board"]["constraints"].update(render_lpf=True), True),
+         lambda c: None, True),
         ("unknown feature name",
          dict(no_such_block=False), lambda c: None, True),
         ("non-boolean feature value",
@@ -4369,7 +4402,6 @@ def test_optional_block_prune_accounting():
                i2s_playback=False, rx_mac_filter=False, render_lpf=False)
         c["clocking"].update(media_clock_sources=["internal"],
                              default_source="internal", crf_sink=False)
-        c["board"]["constraints"].update(strip_probes=True)
         c.setdefault("platform", {}).update(rx_address_filter="promiscuous")
     p = _variant(CONFIGS["ax7101_8x8"], m)
     try:
@@ -4430,11 +4462,11 @@ def test_tdm_master_binding_reaches_the_pins():
 
     WHY IT EXISTS, three times over, all measured:
 
-      * `p_AAF_PLAYBACK` was passed for WEEKS while the SV parameter was
-        `AAF_PLAYBACK_P`. LiteX does not diagnose a parameter the module does
-        not have - it drops it - so the flag pruned nothing and every gate
-        stayed green. Gate 23d closed that for the six prune parameters; this
-        one closes it for `AUDIO_IF_MASTER_P` / `AUDIO_IF_CLK_HZ_P`.
+      * A misspelled optional-block Instance parameter was passed for weeks.
+        LiteX does not diagnose a parameter the module does not have - it
+        drops it - so the flag pruned nothing and every gate stayed green.
+        Gate 23d closed that for the six prune parameters; this one closes it
+        for `AUDIO_IF_MASTER_P` / `AUDIO_IF_CLK_HZ_P`.
       * `i_tdm_bclk_i = 0, i_tdm_fsync_i = 0, i_tdm_data_i = 0` on every SoC in
         the tree: a TDM front-end bound to a bus nothing drove, whose talkers
         emitted NO FRAME AT ALL, while the config declared the interface and
@@ -4478,8 +4510,8 @@ def _tdm_master_binding(soc, rtl, plat):
         assert re.search(r'dp_params\[\s*["\']p_%s["\']\s*\]\s*=' % param, soc), \
             (f"milan_soc.py never assigns dp_params['p_{param}'] - a LiteX "
              f"Instance parameter the module does not have is SILENTLY "
-             f"DROPPED, which is exactly how p_AAF_PLAYBACK pruned nothing "
-             f"for weeks")
+             f"DROPPED, reproducing the silent optional-parameter no-op "
+             f"class")
 
     # 3. the CLI flag is a real, off-by-default store_true.
     assert re.search(r'ap\.add_argument\("--audio-interface-master",\s*'
@@ -4539,7 +4571,7 @@ def _tdm_master_binding(soc, rtl, plat):
 #: asserted to be able to fail - it is shown to, on the exact defects that got
 #: through before. R2: a check that cannot fail is not a check.
 TDM_BINDING_MUTATIONS = [
-    ("p_AAF_PLAYBACK class: the SoC passes a name the RTL does not have",
+    ("optional-parameter class: the SoC passes a name the RTL does not have",
      "soc", 'dp_params["p_AUDIO_IF_MASTER_P"] = 1',
      'dp_params["p_AUDIO_IF_MASTER"] = 1'),
     ("the master reverts to clk_audio_i (24.576 MHz is a CRF/DAC contract)",
@@ -4626,8 +4658,9 @@ def _declared_params(func):
     does not know: it logs one warning and carries on. So a prune handed over
     as a top-level `maap=not args.no_maap` would be accepted by argparse,
     accepted by the constructor, mentioned once in a wall of build log, and
-    shipped as a bitstream with KL_maap still in it. That is p_AAF_PLAYBACK
-    again, so a keyword `**kwargs` would swallow MUST fail closed here.
+    shipped as a bitstream with KL_maap still in it. That is the same silent
+    optional-parameter class, so a keyword `**kwargs` would swallow MUST fail
+    closed here.
     """
     a = func.args
     return {p.arg for p in (*a.posonlyargs, *a.args, *a.kwonlyargs)}
@@ -4927,7 +4960,7 @@ def _optional_block_prune_chain(soc):
             and _reads(out.targets[0].slice, pvar)), (
         f"add_milan_datapath: `{ast.unparse(out)}` does not key dp_params on "
         f"the loop's own `{pvar}` - a prune that names a parameter the RTL "
-        "does not have IS the p_AAF_PLAYBACK defect: "
+        "does not have IS the silent optional-parameter defect: "
         f"{', '.join(sorted(routes))}")
     assert isinstance(out.value, ast.Constant) and out.value.value == 0, (
         f"add_milan_datapath: `{ast.unparse(out)}` - only 0 prunes, any other "
@@ -4989,10 +5022,10 @@ def _prune_guard_site(param, rtl):
 
 def test_optional_block_names_reach_the_rtl():
     """gate 23d - the DECORATIVE-ABI gate, and the reason it exists is on the
-    record: `milan_soc.py` passed `p_AAF_PLAYBACK` for weeks while the SV
-    parameter was `AAF_PLAYBACK_P`, so a LiteX Instance param silently no-oped
-    and the flag pruned nothing. Nothing caught it because no CI job runs
-    LiteX. This gate parses the three files as TEXT and pins them together:
+    record: `milan_soc.py` once passed a misspelled optional-block Instance
+    parameter, so LiteX silently no-oped it and the flag pruned nothing.
+    Nothing caught it because no CI job runs LiteX. This gate parses the three
+    files as TEXT and pins them together:
 
       builder OPTIONAL_BLOCKS  <->  milan_soc.py MILAN_OPTIONAL_BLOCKS + argparse
                                <->  milan_datapath.sv `parameter int <NAME> = 1`
@@ -5080,7 +5113,7 @@ def test_optional_block_names_reach_the_rtl():
           "forwarded through MilanNIC and add_milan_datapath == emitted as "
           "`p_<PARAM> = 0` under `if not blocks[k]` == a milan_datapath "
           "`parameter int X = 1` guarding a generate WITH an else arm == the "
-          "AREA_BUDGET tier-1 table row (the p_AAF_PLAYBACK silent-no-op "
+          "AREA_BUDGET tier-1 table row (the silent optional-parameter "
           "class, closed for the SPELLING of these statements. A statement "
           "that rebinds or overrides a carrier without touching them - "
           "reassigning optional_blocks, overriding a fold, deleting a "
@@ -5093,7 +5126,7 @@ def test_optional_block_names_reach_the_rtl():
     # risk but the OPPOSITE polarity - it is an ADD, default OFF, so it is
     # not in OPTIONAL_BLOCKS and gate 23d above cannot see it. Nothing in CI
     # runs LiteX, so a rename on either side would silently no-op exactly
-    # like p_AAF_PLAYBACK did: the argv would carry --loopback-lane, the
+    # like the historical misspelling did: argv would carry --loopback-lane, the
     # Instance would pass a parameter the RTL does not have, the bucket would
     # stay tied off, and the AEM would go on advertising a lane that is not
     # there. Pin all four names as TEXT.
@@ -5270,7 +5303,7 @@ def test_optional_block_consumption_gate_bites():
             raise AssertionError(
                 f"{name}: gate 23d called the prune proven while it rode a "
                 f"`{name}=` keyword MilanSoC.__init__ never declares - the "
-                "p_AAF_PLAYBACK failure reproduced inside the check written "
+                "silent optional-parameter failure reproduced inside the check "
                 "to close it")
     assert swallowed, "no dict-routed block left to run the control against"
     print(f"  [gate 23d mutation] {len(swallowed)}/{len(swallowed)} dedicated "
@@ -5355,13 +5388,10 @@ def test_optional_block_consumption_gate_bites():
 #  spy raises the moment the Instance is constructed, about 0.9 s after the
 #  process starts.
 #
-#  BOTH POLARITIES, because the flags have both.  The seven OPTIONAL_BLOCKS
-#  rows default PRESENT and pass their parameter ONLY when pruned (a default
-#  build emits a byte-identical top .v, the AAF_PLAYBACK_P discipline).
-#  `sound_card` is the mirror image - the RTL default is SOUND_CARD_P=0 and
-#  the parameter is passed only when the block is PRESENT - so it is graded
-#  upside down rather than assumed to follow the others. Fabric gPTP moved to
-#  the profile-aware gate 1e when #116 made its RTL default ON.
+#  DEFAULT POLARITY. The seven OPTIONAL_BLOCKS rows default PRESENT and pass
+#  their parameter ONLY when pruned, so a default build emits a byte-identical
+#  top .v. Fabric gPTP moved to the profile-aware gate 1e when #116 made its
+#  RTL default ON.
 #
 #  WHAT THESE GATES DO NOT PROVE, stated here and in their own output because
 #  #154 asks the mechanism to say so:
@@ -5650,8 +5680,8 @@ def _prune_contract(got, rows):
 def _config_argv(name):
     """(cfg, the config's OWN emitted argv, with --entity-gen-dir attached).
 
-    eb.build() is what writes both the generated include dir the argv points
-    at and the platform_shape.json milan_soc.py reads, so it runs first.
+    eb.build() writes both the generated include dir the argv points at and
+    the processor-memory reservation milan_soc.py reads, so it runs first.
     """
     cfg = eb.load_config(CONFIGS[name])
     eb.build(CONFIGS[name], OUT)
@@ -5934,8 +5964,8 @@ def test_optional_block_instance_gate_bites():
          [("not args.no_maap", "True", 1)], ["maap"], []),
         ("MilanSoC never forwards optional_blocks to MilanNIC",
          [("optional_blocks=optional_blocks,\n                              "
-           "    cbs_queues_mask=cbs_queues_mask,",
-           "cbs_queues_mask=cbs_queues_mask,", 1)], ["latency_taps"], []),
+           "    entity_gen_dir=entity_gen_dir)",
+           "entity_gen_dir=entity_gen_dir)", 1)], ["latency_taps"], []),
         ("MilanSoC never forwards render_lpf to MilanNIC",
          [("render_lpf=bool(render_lpf),\n", "", 1)], ["render_lpf"], []),
         ("MilanNIC never forwards optional_blocks to add_milan_datapath",
@@ -6449,9 +6479,11 @@ def _reconstruct(python, series, roots=None):
                 problems.append(
                     f"{patch}: does not reverse out of the live {key}, so "
                     "that tree is not upstream plus this series. Either the "
-                    "patch was never applied (run sw/litex/patches/apply.sh) "
-                    "or the file drifted (re-diff per "
-                    "sw/litex/patches/README.md)")
+                    "patch was never applied (run sw/litex/patches/apply.sh), "
+                    "the file drifted (re-diff per sw/litex/patches/README.md), "
+                    "or the series TEXT changed since this tree was patched - "
+                    "reverse the previous text first, as the README's "
+                    "migration note says")
                 return problems
         for key, patch in series:
             rc = subprocess.run(
@@ -6655,8 +6687,8 @@ def _require_elaboration_verdict(skipped):
 #    (b) o_i2s_mclk_o is rebound off the Pmod I2S2 - milan_datapath routes the
 #        TDM master's MCLK out of the I2S mclk pin - taking the CS5343 MCLK off
 #        pmoda:4 (ball D13). That is the ONLY working audio input the Arty has
-#        and the one the board-to-board analog loop runs through
-#        (docs/findings/BENCH_TOPOLOGY.md); endstation_arty_current.yaml streams
+#        and the one the board-to-board analog loop runs through;
+#        endstation_arty_current.yaml streams
 #        through it to a Milan-validated reference device with zero
 #        unsupported-format frames. It is the project's negative control.
 #
@@ -6831,12 +6863,12 @@ def _front_end_routing(src, cfg_paths, argv_of=None):
     #    unconditional bare Signal(), which is how (b) happened.
     binds = re.findall(r"o_i2s_mclk_o\s*=\s*([^\n]*)", soc)
     assert binds, "milan_soc.py binds o_i2s_mclk_o nowhere"
-    assert any("self.i2s_pads[0]" in b for b in binds), \
-        ("no build binds o_i2s_mclk_o to self.i2s_pads[0] - the Pmod I2S2 "
+    assert any("i2s_pads[0]" in b for b in binds), \
+        ("no build binds o_i2s_mclk_o to i2s_pads[0] - the Pmod I2S2 "
          "MCLK (pmoda:4, ball D13) feeds the CS5343 ADC; without it the "
          "board's only working audio input is dead")
     for b in binds:
-        assert "self.i2s_pads[0]" in b or "tdm_pads" in b, (
+        assert "i2s_pads[0]" in b or "tdm_pads" in b, (
             f"o_i2s_mclk_o is bound to `{b.strip()}` - it may only ever reach "
             f"the I2S Pmod pad or a TDM master pad. Binding it to a bare "
             f"Signal() takes the MCLK off pmoda:4 (D13) on a board whose I2S "
@@ -6881,13 +6913,13 @@ ROUTING_MUTATIONS = [
     # slot count is not a routing question and is owned by the clocking
     # guards.)
     ("arty_4x4 declares tdm8 and the Arty's tdm extension is DELETED",
-     "soc", ('plat.add_extension(_arty_serial_io("tdm", "pmodb"))',
+     "soc", ('platform.add_extension(_arty_serial_io("tdm", "pmodb"))',
              "pass")),
     # THE (b) HALF: i2s_mclk moved off the Pmod.
     ("i2s_mclk is bound to a bare Signal() - off pmoda:4 (D13), the CS5343 "
      "MCLK, on the board whose I2S path is the project's negative control",
-     "soc", ("o_i2s_mclk_o = self.i2s_pads[0] if self.i2s_pads else Signal(),",
-             "o_i2s_mclk_o = Signal(),")),
+     "soc", ("o_i2s_mclk_o=(i2s_pads[0] if i2s_pads else Signal()),",
+             "o_i2s_mclk_o=Signal(),")),
     # THE REFUSAL ITSELF.
     ("the refusal is deleted and the warning comes back",
      "soc", ("board_audio_routing.assert_front_end_routed(",
@@ -6915,7 +6947,7 @@ ROUTING_MUTATIONS = [
     # the original defect actually produced on the original tree state.
     ("L-ARGV: the tdm8+master argv reaches an Arty whose tdm extension is "
      "deleted (tdm_bus_wired() answers for the whole tree at once)",
-     "argv_soc", (('plat.add_extension(_arty_serial_io("tdm", "pmodb"))',
+     "argv_soc", (('platform.add_extension(_arty_serial_io("tdm", "pmodb"))',
                    "pass"),
                   (True, ["--board", "arty", "--audio-interface", "tdm8",
                           "--audio-interface-master"]))),
@@ -6924,7 +6956,7 @@ ROUTING_MUTATIONS = [
 
 #: gate 24e: the 8.3b BLEND bindings - (label, which, regex) that must all
 #: hold, and each is mutated below to prove it can fail. The blend is three
-#: bindings: the parameter NAME reaches the RTL (the p_AAF_PLAYBACK class),
+#: bindings: the parameter NAME reaches the RTL (the silent no-op class),
 #: the I2S mclk goes BACK to the Pmod (D13, the CS5343 - the pin that must
 #: not move), and the TDM header gets the master's mclk on its OWN pad.
 BLEND_BINDINGS = [
@@ -6935,10 +6967,9 @@ BLEND_BINDINGS = [
     ("RTL declares the dedicated tdm_mclk_o output", "rtl",
      r"^\s*output\s+wire\s+.*\btdm_mclk_o\b"),
     ("the blend rebinds o_i2s_mclk_o to the Pmod (D13)", "soc",
-     # the pads live on MilanDMA, reached via getattr (a migen Module raises
-     # AttributeError for never-assigned names - the AX tdm32 build has no
-     # i2s front-end at all, found 2026-07-28)
-     r'dp_ports\[\s*["\']o_i2s_mclk_o["\']\s*\]\s*=\s*_dma_i2s\[0\]'),
+     # _board_audio_ports() returns None when the board has no I2S front end;
+     # the blend branch is guarded by that same physical-pad fact.
+     r'dp_ports\[\s*["\']o_i2s_mclk_o["\']\s*\]\s*=\s*i2s_pads\[0\]'),
     ("the blend binds o_tdm_mclk_o to the header's own mclk pad", "soc",
      r'dp_ports\[\s*["\']o_tdm_mclk_o["\']\s*\]\s*=\s*self\.tdm_pads\.mclk'),
     ("the arty tdm extension names its five subsignals", "soc",
@@ -7019,7 +7050,7 @@ def test_front_end_routing_gate_bites():
     # 8.3b: the Arty routes tdm through its OWN one-line soc extension; the
     # per-board isolation property is tested on a tree with that line gone -
     # an AX header must still never answer for the Arty.
-    _ARTY_TDM_EXT = 'plat.add_extension(_arty_serial_io("tdm", "pmodb"))'
+    _ARTY_TDM_EXT = 'platform.add_extension(_arty_serial_io("tdm", "pmodb"))'
     assert _ARTY_TDM_EXT in base["soc"], \
         "gate 24d setup: the Arty tdm extension line moved - update the anchor"
     assert bar.routes_tdm("arty", base), \
@@ -7207,9 +7238,9 @@ def test_d8_role_pools():
     static AUDIO_MAP falls through to the pool that can actually source the
     stream. The AX case (a board that routes NO audio pins) is the one the
     round exists for."""
-    # (a) the AX shape as shipped since #259: 0 physical, NO host pool (it
-    #     absent), pilot, loopback 8. The
-    #     listeners are therefore empty-handed: the STREAM_PORT_INPUTs
+    # (a) the AX shape as shipped since #259: 0 physical, pilot, loopback 8.
+    #     Those are the complete live fabric pools. The listeners are
+    #     therefore empty-handed: the STREAM_PORT_INPUTs
     #     exist and stay dynamically mapped (Milan 5.3.3.9) but truthfully
     #     own ZERO local AUDIO_CLUSTER descriptors - the retired posture,
     #     pinned.
@@ -7315,10 +7346,9 @@ def test_d8_role_pools():
         assert P["clusters"] == 16 + 1 + 2
         # With physical present the static map still does NOT go to loopback -
         # that was and remains the point of this assertion. The 0x0043
-        # host-outranks-physical order lost its subject when the host pool
-        # is absent (#259): PRIMARY_ROLE_ORDER
-        # keeps the retired role in the walk with nothing to bind it, so
-        # the identity lands on PHYSICAL (this variant is not the shipped
+        # old preference order lost its subject when the retired pool was
+        # removed (#259), so the identity lands on PHYSICAL (this variant is
+        # not the shipped
         # AX, whose declared truth stays 0 routed channels), and the
         # UNBACKED loopback pool is never a candidate (task #65).
         assert P["primary_role"] == "physical", P["primary_role"]
@@ -7342,8 +7372,8 @@ def test_d8_role_pools():
     # (e) BOUNDARY: an over-wide loopback pool is the shape D8 sketches and
     #     D6 predicted could not be stored - it must VALIDATE and be marked,
     #     not crash and not silently wrap the 16-bit ROM address space.
-    #     #259 took the host pool (and the 8 host clusters per port) away;
-    #     loopback widens 64 -> 72 so the per-output-port total stays 89
+    #     With only live fabric roles, loopback widens 64 -> 72 so the
+    #     per-output-port total stays 89
     #     and the deliberate overflow is preserved (840 clusters at 90 B
     #     put the ROM at 80873 B, still past the 65536 B store).
     p = _pools_variant("ax7101_8x8", {"capture": 16, "render": 16},
@@ -7444,8 +7474,8 @@ def test_d10_cluster_names():
             f"{name}: a cluster is still named the pre-D10 placeholder"
         assert all(len(c["name"].encode()) <= 63 for c in cl), \
             "object_name must fit the 64-byte field (7.2.16)"
-        # role and name must agree - a "Pilot Tone" string on a host cluster
-        # would be exactly the lie D10 exists to remove
+        # Role and name must agree; a pilot label on any other role would be
+        # exactly the lie D10 exists to remove.
         cnames = r["cfg"]["interface"].get("channel_names") or []
         for c in cl:
             if c["role"] == "pilot":
@@ -7455,16 +7485,10 @@ def test_d10_cluster_names():
                 # channel_names reach the loopback suffix too
                 if cnames:
                     assert c["name"].split()[-1] in cnames, c
-            elif c["role"] == "host":
-                # channel_names (USER 2026-08-05) name host clusters
-                # VERBATIM; without them the Host Play/Cap template holds
-                if cnames:
-                    assert c["name"] in cnames, c
-                else:
-                    assert c["name"].startswith("Host "), c
             elif c["role"] == "virtual":
                 assert c["name"].startswith("Virtual "), c
             else:
+                assert c["role"] == "physical", c
                 assert c["name"].split()[0] in eb.IFACE_LABEL.values(), c
     # the DEPLOYED arty shape: physical first, virtual tail (the wire-truth
     # rule is stated per DIRECTION, and the Pmod I2S2 is a 2-channel link)
@@ -7741,37 +7765,14 @@ def test_d10_names_reach_the_rom():
 
 
 def test_gptp_domain_is_one_source():
-    """Gate 26: the gPTP domain number reaches BOTH consumers from the one
-    `gptp.domain` line, and no hand-written copy survives.
+    """Gate 26: Milan domain 0 is a structural protocol fact.
 
-    THE DEFECT THIS GATE CLOSES. `gptp.domain` once reached only one consumer.
-    The other consumer - ADPDU byte 48
-    (1722.1-2021 6.2.1.16), served from CSR 0x62C - got its value from a
-    hardcoded `w 0x62C 0x00000000` in avdecc/aecp_csr_setup.sh.  The two
-    agreed only because every shipping config happens to say 0, so a config
-    on domain 1 would have run the daemon on domain 1 while the entity
-    advertised domain 0, with nothing anywhere to catch it.  Exactly the
-    "derive, never mirror" class.
-
-    WHY THIS GATE CANNOT VARY THE VALUE (USER 2026-08-11).  It used to build a
-    config on domain 3 and follow that number through, because asserting
-    `ADP_GPTP_DOMAIN_C == 0` proves nothing on its own - it passes just as well
-    against the old hardcoded zero.  But 3 is not a legal Milan value: Milan
-    v1.2 section 2 pins 802.1AS-2011, whose 8.1 says "The domain number of a
-    gPTP domain shall be 0", and multi-domain is an 802.1AS-2020 feature Milan
-    does not adopt.  So the variation the gate needs is the REFUSAL, not the
-    value: a non-zero config must raise ConfigError WITH the clause, and the
-    legal chain must still be wired end to end.
-
-        gptp.domain -> ADP_GPTP_DOMAIN_C in the generated adp shape header
-                    -> milan_csr's adp_domain reset
-                    -> milan_csr's csr_default readback ROM (they must mirror)
-                    -> o_adp_gptp_domain -> cfg_adp_gptp_domain
-                    -> adp_advertiser -> ADPDU byte 48
-
-    plus the negative: aecp_csr_setup.sh must no longer write 0x62C at all,
-    because a boot script that wrote it would clobber the elaborated value
-    back to whatever literal it carries."""
+    A non-zero configuration must be refused with the governing clause. The
+    one legal value still reaches the normalized fabric configuration, but it
+    must not create a generated reset constant or mutable CSR shadow: the
+    public CSR readback and the protocol-facing output are literal zero in
+    both fabric-on and verification option-off shapes.
+    """
     # 0. a non-zero domain is REFUSED, and the refusal cites the clause - this
     #    is the varying half of the gate, and it bites if the check is removed
     bad = _variant(CONFIGS["ax7101_1x1_tdm8"],
@@ -7786,76 +7787,43 @@ def test_gptp_domain_is_one_source():
     os.unlink(bad)
 
     DOM = 0                                   # the only value Milan permits
-    r = eb.build(CONFIGS["ax7101_1x1_tdm8"], OUT)
+    legal = _variant(CONFIGS["ax7101_1x1_tdm8"],
+                     lambda c: c["gptp"].__setitem__("domain", DOM))
+    try:
+        r = eb.build(legal, OUT)
+    finally:
+        os.unlink(legal)
 
-    # 1. the generated header carries the CONFIG's number from a named symbol
-    m = re.search(r"^\s*localparam\s+int\s+ADP_GPTP_DOMAIN_C\s*=\s*(\d+);",
-                  r["adp_shape_svh"], re.M)
-    assert m, ("adp_shape_defaults.svh emits no ADP_GPTP_DOMAIN_C - the ADP "
-               "domain has no config-derived source")
-    assert int(m.group(1)) == DOM, \
-        f"ADP_GPTP_DOMAIN_C = {m.group(1)}, config says {DOM}"
+    # 1. The legal config value survives normalization and reaches the fabric
+    # configuration artifact. It does not generate a second RTL authority.
+    assert r["cfg"]["gptp"]["domain"] == DOM
+    assert r["overlay"]["gptp"]["domain"] == DOM
+    assert "ADP_GPTP_DOMAIN_C" not in r["adp_shape_svh"], \
+        "the retired generated domain shadow has returned"
 
-    # 2. the RTL consumes the symbol in BOTH places, and by NAME - a literal
-    #    in either would let the two drift again (the rule milan_csr states
-    #    at VERSION 0x0026: reset literal and readback ROM move together)
+    # 2. CSR readback and the protocol-facing output are structural zero.
+    # Neither expression is conditional on GPTP_PLANE_EN_P, so both supported
+    # elaboration shapes expose the same Milan domain.
     csr = open(MILAN_CSR_SV).read()
-    assert re.search(r"adp_domain\s*<=\s*32'\(ADP_GPTP_DOMAIN_C\)\s*;", csr), \
-        "milan_csr's adp_domain reset does not name ADP_GPTP_DOMAIN_C"
-    assert re.search(r"A_ADP_DOMAIN\[10:0\]\s*:\s*csr_default\s*=\s*"
-                     r"32'\(ADP_GPTP_DOMAIN_C\)\s*;", csr), \
-        "milan_csr's csr_default ROM does not mirror the adp_domain reset"
+    assert re.search(r"A_ADP_DOMAIN\s*:\s*live_mux\s*=\s*32'd0\s*;", csr), \
+        "A_ADP_DOMAIN readback is not structural domain 0"
+    assert re.search(r"assign\s+o_adp_gptp_domain\s*=\s*8'd0\s*;", csr), \
+        "the protocol-facing domain is not structural domain 0"
+    assert not re.search(r"\badp_domain\s*(?:<=|=)", csr), \
+        "a mutable ADP domain shadow has returned"
 
-    # 3. and the initialization script no longer writes 0x62C - the clobber is gone
-    setup = open(os.path.join(ROOT, "avdecc/aecp_csr_setup.sh")).read()
-    assert not re.search(r"^\s*w\s+0x62[Cc]\b", setup, re.M), \
-        ("aecp_csr_setup.sh still writes 0x62C - it would clobber the "
-         "elaborated gPTP domain back to its literal")
-
-    # 4. the register reaches the ADVERTISER.  A reset value nothing reads is
-    #    not a fix, so walk the chain by NAME - each link is one rename away
-    #    from silently detaching, and none of it is covered above:
-    #      adp_domain[7:0] -> milan_csr.o_adp_gptp_domain
-    #                      -> milan_datapath.cfg_adp_gptp_domain
-    #                      -> the ADP advertiser's gptp_domain_i
-    #    THE LAST LINK MOVED (2026-08-12).  It used to be
-    #    hdl/ieee17221/adp/adp_advertiser.sv's gptp_domain_number_i and the
-    #    fb[62] = ADPDU byte 48 placement (1722.1-2021 6.2.1.16) inside it;
-    #    that advertiser is DELETED and the protocol-processor submodule
-    #    advertises now, so the chain is walked to the datapath's port into
-    #    that plane and stops there.  The byte-48 placement itself is NOT
-    #    re-asserted here: it lives in a PINNED, read-only submodule this
-    #    suite does not own, and a gate reaching into a pin is a gate that
-    #    breaks on a bump it has no say in.
-    #    (STALENESS of the tracked headers is deliberately NOT asserted here:
-    #     gate 24d owns it, and earlier gates in this process rebuild those
-    #     files, so a copy of the check here could never fail - a check that
-    #     cannot fail reads as coverage without being any.)
-    #    In fabric mode the exported domain is the ENGINE constant (802.1AS
-    #    8.1 domain 0): the shadow feeds the port only in the option-off
-    #    elaboration, so a compatibility write can never move the ADP,
-    #    GET_AVB_INFO or notification faces off the wire's domain.
-    assert re.search(
-        r"assign\s+o_adp_gptp_domain\s*=\s*GPTP_PLANE_EN_P\s*\?\s*8'd0\s*:"
-        r"\s*adp_domain\[7:0\]\s*;", csr), \
-        "milan_csr does not serve the engine-owned domain in fabric mode " \
-        "(and the option-off shadow otherwise)"
+    # 3. Walk the public output into the protocol plane by name. The byte-48
+    # placement lives in the pinned submodule; this repository owns the chain
+    # to that boundary.
     dp = open(os.path.join(ROOT, "hdl/milan/milan_datapath.sv")).read()
     assert re.search(r"\.o_adp_gptp_domain\s*\(\s*cfg_adp_gptp_domain\s*\)",
                      dp), "milan_datapath does not take the CSR's domain"
     assert re.search(r"\.gptp_domain_i\s*\(\s*cfg_adp_gptp_domain\s*\)", dp), \
         "the ADP advertiser is not fed the CSR's domain"
-    assert not os.path.exists(
-        os.path.join(ROOT, "hdl/ieee17221/adp/adp_advertiser.sv")), \
-        "hdl/ieee17221/adp/adp_advertiser.sv is back - if the legacy " \
-        "advertiser returns, this gate must walk the domain into it again"
-
-    print(f"  [gate 26] gptp.domain is ONE source: domain 3 REFUSED with the "
-          f"802.1AS-2011 8.1 clause; the legal 0 emits ADP_GPTP_DOMAIN_C = "
-          f"{DOM} AND domainNumber {DOM}; "
-          f"milan_csr names the symbol in both the reset and the readback "
-          f"ROM; aecp_csr_setup.sh writes 0x62C nowhere; the chain reaches "
-          f"the advertising plane's gptp_domain_i")
+    print(f"  [gate 26] gptp.domain 3 REFUSED with the 802.1AS-2011 "
+          f"8.1 clause; legal domain {DOM} reaches fabric configuration; "
+          f"CSR readback and protocol output are structural 0 in both shapes; "
+          f"the chain reaches the advertising plane's gptp_domain_i")
 
 
 def test_gptp_dataset_matches_engine_announce():
@@ -7989,7 +7957,7 @@ def test_gptp_dataset_matches_engine_announce():
 
 
 def test_pp_window_contract():
-    """Gate 27: firmware and gateware share one processor-memory window."""
+    """Gate 27: config and gateware share one processor-memory window."""
     import json
     for name, path in CONFIGS.items():
         result = eb.build(path, OUT)
@@ -8560,7 +8528,7 @@ if __name__ == "__main__":
                test_lwsrp_reset_words_match_rtl,
                test_lwsrp_class_constants_match_rtl,
                test_lwsrp_tspec_and_params, test_lwsrp_rejects,
-               test_platform_firmware_shape,
+               test_platform_gateware_shape,
                test_csr_defaults_header_consumed, test_csr_defaults_rejects,
                test_aes3_interface_switch, test_aes3_rejects,
                test_cbs_reset_table_single_source,

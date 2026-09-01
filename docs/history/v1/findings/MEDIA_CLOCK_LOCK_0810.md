@@ -178,10 +178,10 @@ Two claims above do not survive.
 
 **1. "Two free running oscillators" is not established, and the bench was on
 the loopback lane.** The channels under test were mapped to the loopback
-cluster (SRC=5), not to a physical front end — confirmed in the RTL, where
-`AEM_ODMAP_CSRC_C` carries only src=3 (host ring), src=4 (tone) and src=5
-(loop), and `milan_datapath.sv` ties `.tdm_pair_valid_i (1'b0)`. The TDM
-front end cannot appear in the map at all.
+cluster (SRC=5), not to a physical front end. The current capture-source enum
+uses src=1 for I2S, src=2 for TDM, src=4 for tone and src=5 for received-AAF
+loopback; this measurement selected the last of those and therefore says
+nothing about a physical input oscillator.
 
 That puts the slip in a place the document never considered.
 `KL_chan_map_capture`'s LOOP bucket is the only source with an elastic queue,
@@ -232,10 +232,9 @@ The actuator half, as proposed below, with one correction to the proposal.
   (0.01 ppm at 100 MHz), clamp **derived** from the shape rather than
   mirrored, elaboration guards that refuse a trim needing a two-step
   accumulator correction.
-- `KL_pcm_tx` joins that grid on its `USE_EXT_TICK_P` port — the hook its own
-  banner reserved for "the recovered media clock", tied off since it was
-  written. The host playback ring and the capture crossbar are now the same
-  strobe, not two dividers that agree.
+- The capture and render crossbars, mapped pilot tone and packet grid consume
+  the same `media_tick_p` strobe, so there is no second sample-rate divider at
+  the fabric media boundary.
 - Both actuators take **one** command: the servo's u (±200 ppm, published in
   1/16 ppm units on `A_MCSRV_STAT[31:16]`) drives the MMCM for `clk_audio` and
   the NCO for the packet grid, negated because the servo's `u > 0` means speed

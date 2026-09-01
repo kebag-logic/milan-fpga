@@ -3,9 +3,9 @@
 
 The time-sync plane of epic #110: the `gptp-processor` submodule's
 micro-coded 802.1AS engine spliced into the datapath as the product's
-time owner. The product is bare-metal only (#259): no image starts a time
-daemon or a GM/path/CLKV mirror chain, because those
-retired software agents no longer exist as product paths. This page is the integration
+time owner. Every product image has exactly this one GM/path/CLKV publication
+owner; the verification-only option-off elaboration has none and publishes
+the defined fail-safe zeros. This page is the integration
 architecture of record for #114 and #116; the donor
 repo's own pages under `gptp-processor/docs/` (the resource-validation
 record) carry the engine's internals and measured cost.
@@ -32,7 +32,7 @@ decision is recorded on #139.
 
 - **[The shape](#the-shape)** -- one option, four seams
 - **[Timestamps](#timestamps)** -- where stamps are born and how they travel
-- **[The ownership boundary](#the-ownership-boundary)** -- default fabric owner and explicit software comparison
+- **[The ownership boundary](#the-ownership-boundary)** -- one product owner and an ownerless verification elaboration
 - **[Verification map](#verification-map)** -- which bench proves what
 
 ## The shape
@@ -40,7 +40,7 @@ decision is recorded on #139.
 `GPTP_PLANE_EN_P` (milan_datapath parameter, **default ON**) elaborates
 `KL_gptp_shadow` with four seams. The builder emits the same value into every
 real build/sweep/deploy instance. `fabric_gptp: false` is refused for product
-configurations (#259 retired the software owner); the option-off ABI remains
+configurations because they require the fabric publication owner; the option-off ABI remains
 reachable only through a direct `milan_soc.py` run as verification-only
 hardware with zero gPTP owners, and its artifacts are not flashable.
 
@@ -56,7 +56,7 @@ emits an empty file.
 
 The plane has four seams:
 
-1. **RX**: the same `rx_axis_to_dma` tap every plane uses -- input
+1. **RX**: the live `rx_axis_fabric` observer seam -- input
    only, a beat is real when `tvalid && tready` (the gh #65 rule). The
    tap classifies EtherType 0x88F7 at the aligned lanes into a frame
    FIFO (drops counted via the FIFO's overflow strobe -- with
@@ -118,8 +118,9 @@ The plane has four seams:
   for. A frame that is a single beat and arrives while the ring is full
   is shed without being counted -- its EtherType verdict never lands, so
   it is indistinguishable from the runts the tap already reclaims.
-- **Egress**: the control lane does not traverse `ptp_ts_top`'s TX
-  stamper (only the shaped data path does), so `KL_gptp_txstamp`
+- **Egress**: there is no in-line TX stamper in the trunk (the
+  `ptp_ts_top` record stampers left with the general-data chain in
+  `0x0002_0056`), so `KL_gptp_txstamp`
   observes the TRUE MAC boundary: armed by the plane's lane sof, it
   latches the counter at an 0x88F7 frame's first beat and returns
   {ts, sequenceId, messageType} for the engine's pending exchange.
@@ -171,22 +172,21 @@ bank. The parent preserves raw count zero, clamps the public count, and clears
 inactive tails. Its generation and Table 5.22 edge compare exactly
 `(count ? GM : 0, count, active tails)`: fabric 0 <-> 1 is a real change, while
 GM A->B with both counts zero leaves the served empty sequence unchanged. The
-software 0x7DC staging bank remains readable compatibility state but cannot
-alter this fabric-owned path or its live 0x7E4 generation.
+0x7DC address group remains readable compatibility state but cannot alter this
+fabric-owned path or its live 0x7E4 generation.
 The donor's peer-delay arithmetic stays signed: a small negative symmetric
 measurement remains acceptable and does not tear down asCapable. At the parent
 publication commit, that value is clamped to zero before entering the unsigned
 CSR/GET_AVB_INFO contract, so a legal -1 ns sample can never appear as
 `0xFFFF_FFFF` ns.
 
-With the option off, the legacy staging ABI remains intact as
-verification-only hardware: LO stages and HI commits each identity,
-`CLKV_CTRL` renews the compatibility lease, and the 0x7DC COMMIT/PUBLISH
-bank supplies the full PathTrace tail behind the GM, with #227's canonical
-alias and in-flight snapshot semantics. Nothing runs against that ABI in any
-product image (#259 retired the software time owner and its publisher); the benches
-in the verification map below are its only writers. VERSION `0x0002_0055`
-records the ownership change without allocating new CSR addresses.
+With the option off, the address map remains buildable but ownerless. GM,
+parent, path and peer-delay publications are zero, sync/asCapable are zero, and
+`tu` is one. Legacy writes are acknowledged and ignored: they cannot publish a
+path, create clock health, or renew a lease. The verification map below proves
+that attempted writes leave the fail-safe outputs unchanged. VERSION
+`0x0002_0056` records removal of the final compatibility owner without
+allocating new CSR addresses.
 
 ## Verification map
 
@@ -199,10 +199,10 @@ records the ownership change without allocating new CSR addresses.
 | `tb/verilator/milan_dp` default legs | the whole datapath | the [GPTP-OPT] tripwire: with the option OFF, CSR adjfine and adjtime still reach `timestamp_counter` through the eff muxes (a polarity swap goes red) |
 | `tb/verilator/tsn_fuzz` (`fuzz_ptp.py`) | byte, the tsn-gen 802.1AS models at the CI pin | the plane's own Announce / Sync / Follow_Up / Pdelay field-by-field against the Milan v1.2 profile of 802.1AS-2011 (the Table 11-7 control byte among them), parser drop/ignore gates, BTCA under fuzz, the two-sided asCapable canary; the tally and the tracked gaps live in the generated [`hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md`](../../hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md) |
 
-The option-ON verdict from #114's old cached/sound-card shape was RED: the
+The option-ON verdict from #114's earlier high-resource shape was RED: the
 baseline alone synthesized at 93.84% LUT and failed default placement. #120
 re-runs the required three-directive AX7101 sweep with one cacheless RV32I
-bare-metal hart and the sound-card surface absent. The final placed resource
+bare-metal hart and fabric I2S/TDM endpoints. The final placed resource
 and timing record lives in
 [BAREMETAL_FIRMWARE.md](../integration/BAREMETAL_FIRMWARE.md), not in the
 builder's pre-Vivado estimate.

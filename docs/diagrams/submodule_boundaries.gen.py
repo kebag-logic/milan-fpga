@@ -92,12 +92,12 @@ ROLES = {
         "#EF6C00",
     ),
     "external": Role(
-        "Legacy Ethernet MAC implementation",
-        "hdl/milan/milan_top.sv",
-        "legacy root",
+        "Historical Ethernet MAC import",
+        "no active root consumer",
+        "product integration",
         "donor project evidence",
-        "none; legacy top cannot elaborate",
-        "LEGACY ONLY",
+        "not applicable",
+        "UNUSED IMPORT",
         "#ECEFF1",
         "#546E7A",
     ),
@@ -145,7 +145,7 @@ def read_submodules() -> list[Submodule]:
         pin = stage[1]
         role = ROLES[path]
         wrapper = ROOT / role.wrapper
-        if not wrapper.is_file():
+        if role.status.startswith("ACTIVE") and not wrapper.is_file():
             raise SystemExit(f"{path}: missing integration evidence {role.wrapper}")
         if role.root_gate.startswith("tb/") and not (ROOT / role.root_gate).is_dir():
             raise SystemExit(f"{path}: missing root gate {role.root_gate}")

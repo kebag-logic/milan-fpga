@@ -22,7 +22,7 @@ W, H = 1760, 832
 # palette (fill, stroke) - house colors (DOC_MAP.gen.py)
 BLUE   = ("#E3F2FD", "#1565C0")   # fabric, network-time lane
 GREEN  = ("#E8F5E9", "#2E7D32")   # fabric, media-clock lane
-PURPLE = ("#F3E5F5", "#6A1B9A")   # software (softcore daemons/driver)
+PURPLE = ("#F3E5F5", "#6A1B9A")   # bare-metal firmware/control
 GOLD   = ("#FFF8E1", "#F9A825")   # the PHC hub
 ORANGE = ("#FFF3E0", "#EF6C00")   # AVTP timestamp consumers
 GREY   = ("#ECEFF1", "#455A64")   # wire / notes
@@ -33,12 +33,11 @@ N = {
  "wire":    (40,116,130,84,"1 GbE wire","802.1AS peer\n(AVB switch / board)",GREY,0),
  "phymac":  (205,116,150,84,"PHY + MAC","RGMII/GMII\nLiteEth or MilanMAC",BLUE,0),
  "tstap":   (390,116,250,84,"KL_gptp_shadow RX/TX","delivered-frame RX stamp\nMAC-boundary TX stamp",BLUE,0),
- "tsring":  (675,116,200,84,"timestamp transport","RX side FIFO + TX seq/type\nno software pairing race",BLUE,0),
+ "tsring":  (675,116,200,84,"timestamp transport","RX side FIFO + TX seq/type\nfabric tuple pairing",BLUE,0),
  "kleth":   (910,116,190,84,"KL_gptp_engine","BTCA + Pdelay + Sync\nPHC servo in fabric",BLUE,0),
  "pub":     (1135,116,180,84,"atomic publish bank","GM + parent + flags\npdelay + offset + annq",BLUE,0),
- "hwnote":  (1350,116,370,84,"product ownership (0x0002_0055)","fabric is the ONE PHC/protocol/publication owner (#259)\nthe software time owner is retired (historical)",GREY,1),
- # row 2 - the PHC hub + its public consumers (the retired software-owner
- # comparison boxes left with #259: no image runs a second owner)
+ "hwnote":  (1350,116,370,84,"product ownership (0x0002_0056)","fabric is the ONE PHC/protocol/publication owner (#259)\noption OFF is ownerless verification hardware",GREY,1),
+ # row 2 - the PHC hub + its fabric-owned public consumers
  "phc":     (40,290,330,96,"PHC - timestamp_counter","Q8.24 ns accumulator, datapath clock\nCSR 0x500 CTRL - 0x504 INCR - 0x508 ADJ - 0x520 CMD",GOLD,0),
  "g2c":     (1190,290,330,96,"public gPTP consumers","CSR GM/parent/pdelay - GET_AVB_INFO/PATH\nCLKV asCapable/sync - every AVTP tu",BLUE,0),
  # AAF timestamp-consumer strip

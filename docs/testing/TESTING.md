@@ -50,7 +50,8 @@ current protocol-level verdict is the
 > **Descriptor enumeration is reachable once the descriptor image is in DRAM.**
 > The end-station builder emits `aem_desc.bin`, `aem_desc.json`, and
 > `aem_desc.map`; the tracked board flow packages the paired artifacts and runs
-> `aemi-load` before enabling the entity. If a custom integration skips that
+> the bare-metal firmware verifies and copies before enabling the entity. If a
+> custom integration skips that
 > step, every `READ_DESCRIPTOR` answers `BAD_ARGUMENTS` because the configuration
 > range check runs before the locate and an invalid image reports
 > `configurations_count` = 0.
@@ -89,14 +90,15 @@ response-boundary and stopped CRF observation gaps that keep START/STOP partial.
 - **[Which layer do I run?](#which-layer-do-i-run)** -- Start here: a flowchart keyed on *what you changed*, answering "what is the cheapest thing that would catch me being wrong". The point it makes is the one-way door at the bottom: timing, PHY and switch interop cannot be simulated here, so exhaust the free layers first.
 - **[0. Prerequisites](#0-prerequisites)** -- What each layer needs before it will run, including the two that bite: the Verilator floor of 5.050 (see Section 7 for why) and the `verilog-axis` submodule that five suites elaborate.
 - **[1. Verilator RTL harnesses - tb/verilator/ (the live regression)](#1-verilator-rtl-harnesses---tbverilator-the-live-regression)** -- The main regression layer: the one-line sweep, the generated module↔spec↔test coverage map with its ⚪ untested list, the tsn_fuzz field-validation campaign (AAF only since 2026-08-13), and the per-suite table -- reconciled against the tree on 2026-08-13, when it **shrank** by the thirteen suites deleted with the control-plane RTL, with the standing reminder that `ls tb/verilator/` is the authority, not the table.
-- **[2. Migen DMA-engine sims - sw/litex/test_\*.py](#2-migen-dma-engine-sims---swlitextest_py)** -- The ring/BD engine sims, and the niche they fill: this layer is invisible to the RTL harnesses and too slow to sweep in the SoC sim.
+- **[2. LiteX integration checks - sw/litex/test_\*.py](#2-litex-integration-checks---swlitextest_py)** -- Focused checks for the protocol-processor memory bridges and boot/freeze behavior retained by the bare-metal SoC.
 - **[3. SoC-level simulation - sw/litex/milan_sim.py](#3-soc-level-simulation---swlitexmilan_simpy)** -- Booting the real BIOS on the softcore over Verilator to prove the CPU⇄CSR path end to end -- the M-A2 `"MILN"` read, in simulation, before any board exists.
 - **[4. Device-portability check - syn/yosys/](#4-device-portability-check---synyosys)** -- sv2v + Yosys over every top, proving synthesizability off-Xilinx (not behaviour, not timing). Also the two structural reports `run.sh` prints: the tied-off-input inventory and the observer-purity check that taps must never drive the streams they observe.
 - **[4b. RTL lint - scripts/lint_rtl.py (the ratcheted gate)](#4b-rtl-lint---scriptslint_rtlpy-the-ratcheted-gate)** -- Verilator `--lint-only` over all 82 modules in `hdl/` for the price of a cache restore, why Verible was not worth a second toolchain (155 of the opening 188 findings were width warnings it cannot compute), and the split that keeps it honest: a per-directory ratchet grandfathers today's backlog and prints it in full, while a malformed `lint_off` or a module that will not elaborate fails outright.
 - **[5. Legacy / auxiliary testbenches](#5-legacy--auxiliary-testbenches)** -- What still lives under [`tb/utests`](../../tb/utests), [`tb/itests`](../../tb/itests) and the Questa packet-generator library, why none of it gates anything, and the rule when they disagree with a Verilator suite: trust the Verilator suite.
-- **[6. On-silicon validation](#6-on-silicon-validation)** -- The mandatory post-flash step and the reason it exists: a build whose fabric paths run perfectly can still ship with a dead host plane, and every audio drill stays green while the softcore sees nothing. Then the bring-up order and where silicon measurements get logged.
+- **[6. On-silicon validation](#6-on-silicon-validation)** -- The mandatory post-flash step: simulation cannot prove board clocking, PHY pins, external-wire behavior, or the physical audio path. Then the bring-up order and where silicon measurements get logged.
 - **[6c. Controller-side validation -- la_avdecc and Hive](#6c-controller-side-validation----la_avdecc-and-hive)** -- The standing rule that every round validates with BOTH la_avdecc and Hive, and why our own tools cannot substitute: how to run the counters probe and read its CLEAN/DIRTY verdict, where the example controllers live, the feature-define ABI trap that SIGSEGVs at run time, and the Hive compile option that makes malformed responses look like a pass.
-- **[6b. Unattended campaigns -- status file and alert webhook](#6b-unattended-campaigns----status-file-and-alert-webhook)** -- The design contract for multi-day runs where silence means healthy: one STATUS word answering "alive and healthy" without parsing a log, the deliberate `FAILED` vs `BLOCKED` split (blocked never alerts -- that is the false alarm that teaches people to ignore the next one), a fire-once webhook, and why the primary record lives on the host.
+- **[6b. Bench evidence retention](#6b-bench-evidence-retention)** -- The current rule for retaining UART, external-wire and JTAG/CSR evidence on the bench workstation without depending on removed target-side campaign machinery.
+- **[6d. Unattended campaign vehicle](#6d-unattended-campaign-vehicle)** -- What stands in place of the removed campaign runner: the UART grader per flash, the desk half of the torture campaign, and the two issues that own the bench and power-cut lanes.
 - **[7. Known gaps (kept honest)](#7-known-gaps-kept-honest)** -- The current CI boundary, including public IDENTIFY, persistence, commands outside the served inventory and the supported Verilator version.
 - **[Policy](#policy)** -- The two standing rules in three sentences: a DUT change ships with its harness update in the same commit, and a module is not done until it appears in layer 1 (and layer 4 unless vendor-gated).
 
@@ -113,7 +115,7 @@ flowchart TB
     Q -->|"RTL crossing the LiteX boundary"| DP["Section 1 milan_dp<br/>drives the whole milan_datapath wrapper"]
     Q -->|"a wire format or a PDU field"| FZ["Section 1.0 tsn_fuzz<br/>spec-modelled frames against the real RTL"]
     Q -->|"a CSR address or bit"| CSRT["Section 1 csr suite + the register map"]
-    Q -->|"a DMA engine / ring contract"| MG["Section 2 Migen DMA sims<br/>sw/litex/test_*.py"]
+    Q -->|"protocol-memory or boot/freeze integration"| MG["Section 2 LiteX integration checks<br/>sw/litex/test_*.py"]
     Q -->|"SoC wiring / a new peripheral"| SOC["Section 3 SoC-level sim<br/>sw/litex/milan_sim.py"]
     Q -->|"anything vendor-primitive-shaped"| YS["Section 4 yosys portability check<br/>syn/yosys/run.sh"]
     Q -->|"a protocol state machine"| BDD["BDD conformance suite<br/>cd tests && behave -f plain"]
@@ -125,11 +127,11 @@ flowchart TB
     FZ --> MTX
 
     classDef sim fill:#E8F5E9,stroke:#2E7D32
-    classDef host fill:#E3F2FD,stroke:#1565C0
+    classDef tools fill:#E3F2FD,stroke:#1565C0
     classDef silc fill:#FFF3E0,stroke:#EF6C00
     classDef meta fill:#F3E5F5,stroke:#6A1B9A
     class V,DP,FZ,CSRT sim
-    class MG,SOC,YS,BDD,BLD host
+    class MG,SOC,YS,BDD,BLD tools
     class SIL silc
     class MTX meta
 ```
@@ -145,9 +147,9 @@ is generated (Section 0.1).
 
 | Layer | Needs |
 |---|---|
-| Verilator harnesses | `verilator >= 5.050`, a C++17 compiler, and `git submodule update --init third_party/verilog-axis protocol-processor`. Five suites elaborate Forencich cores; `pp_shadow`, `milan_dp` and `hostplane` elaborate the processor through `milan_datapath`. No vendor tools are required |
+| Verilator harnesses | `verilator >= 5.050`, a C++17 compiler, and `git submodule update --init third_party/verilog-axis protocol-processor`. Five suites elaborate Forencich cores; `pp_shadow` and `milan_dp` elaborate the processor through `milan_datapath`. No vendor tools are required |
 | Yosys portability | `yosys` + [`sv2v`](https://github.com/zachjs/sv2v) on `PATH` + the same submodule |
-| Migen DMA sims / SoC sim | a LiteX Python environment ([Section 7 of ../litex/LITEX_SOC.md](../litex/LITEX_SOC.md#7-reproducibility---versions)) |
+| LiteX / SoC elaboration | a LiteX Python environment ([Section 7 of ../litex/LITEX_SOC.md](../litex/LITEX_SOC.md#7-reproducibility---versions)) |
 | Legacy utests/itests | Vivado (xsim); [`tb/avtp_packet_gen_sv`](../../tb/avtp_packet_gen_sv) needs Modelsim/Questa |
 
 ## 1. Verilator RTL harnesses - `tb/verilator/` (the live regression)
@@ -162,16 +164,16 @@ for d in */ ; do ( cd "$d" && make clean >/dev/null && make ) || exit 1; done
 Per-suite DUT/what-it-proves table: [`tb/verilator/README.md`](../../tb/verilator/README.md).
 `ls tb/verilator/` is authoritative (one dir per suite).
 Highlights: `milan_dp` drives the **whole `milan_datapath` wrapper** (the
-LiteX integration boundary - CSR ID read, classifier programming, byte-exact
+LiteX integration boundary - CSR ID read, scratch-word readback, byte-exact
 TX/RX); `pp_shadow` is the suite that **grades** the protocol processor as this
 device's control plane, and since 2026-08-13 it is the only control-plane suite
 of any kind; `controller_rate` is the gating regression born from the
-[CBS datapath bug](../findings/CBS_DATAPATH_BUG.md); `cbs`/`ptp` check
+control-rate boundary; `cbs`/`ptp` check
 arithmetic against independent reference models (10⁴-10⁵ checks each).
 
-**Three suites need the public protocol-processor submodule.**
+**Two suites need the public protocol-processor submodule.**
 `milan_datapath` instantiates `KL_pp_shadow` unconditionally, so `pp_shadow`,
-`milan_dp` and `hostplane` all resolve `protocol-processor/hdl`. Its remote uses
+and `milan_dp` resolve `protocol-processor/hdl`. Its remote uses
 anonymous HTTPS. Run `git submodule update --init protocol-processor` before
 building any of them. The CI workflow initializes it before the full sweep.
 
@@ -309,7 +311,7 @@ Two more things the sweep now refuses to guess at:
   other — point `SUITE_SWEEP_LOCK` at one shared path to serialise them all.
 * **Suites killed by the wall clock.** Each suite runs under `timeout`, and any
   non-zero status used to be recorded as a *failing suite* — so under CPU
-  contention from parallel lanes a healthy suite (`hostplane`, more than once)
+  contention from parallel lanes a healthy suite
   was reported as a test failure, costing someone a hunt for a defect that did
   not exist. That case is now its own `TIMEOUT` verdict (exit 92): not a pass,
   not a failure, an unknown. Raise it with `SUITE_TIMEOUT`.
@@ -341,7 +343,6 @@ verdicts and for check counts.
 | [`tb/verilator/csr`](../../tb/verilator/csr) | the executable form of [REGISTER_MAP.md](../reference/REGISTER_MAP.md). Its `obj_live` leg is **deleted** — that leg drove the old control-plane windows live |
 | [`tb/verilator/datapath`](../../tb/verilator/datapath) | — |
 | [`tb/verilator/eth_tx_reset`](../../tb/verilator/eth_tx_reset) | — |
-| [`tb/verilator/hostplane`](../../tb/verilator/hostplane) | the silicon-shape host lanes (RX delivery, ts records, filter-no-leak). Elaborates `milan_datapath`, so it needs the `protocol-processor` submodule |
 | [`tb/verilator/i2spb`](../../tb/verilator/i2spb) | — |
 | [`tb/verilator/ifg`](../../tb/verilator/ifg) | — |
 | [`tb/verilator/lat_history_ring`](../../tb/verilator/lat_history_ring) | — |
@@ -353,9 +354,6 @@ verdicts and for check counts.
 | [`tb/verilator/mmcm_servo`](../../tb/verilator/mmcm_servo) | `KL_mmcm_drp_servo` as a block. Same Section 7 caveat: the block is graded, the build never enables it |
 | [`tb/verilator/mmcm_servo_autorepair`](../../tb/verilator/mmcm_servo_autorepair) | — |
 | [`tb/verilator/pair_fill`](../../tb/verilator/pair_fill) | `KL_pair_blend` + `KL_pair_zero_fill` |
-| [`tb/verilator/pcm_playback`](../../tb/verilator/pcm_playback) | host ring → `KL_pcm_tx` → render crossbar → feed mux → DAC pin, bit-exact plus the negatives |
-| [`tb/verilator/pcm_ring_bram`](../../tb/verilator/pcm_ring_bram) | — |
-| [`tb/verilator/pcm_tx`](../../tb/verilator/pcm_tx) | — |
 | [`tb/verilator/pcmlpf`](../../tb/verilator/pcmlpf) | — |
 | [`tb/verilator/pp_shadow`](../../tb/verilator/pp_shadow) | **the control plane.** `milan_datapath` with the protocol processor elaborated in: presence + the `PP_STAT` `0x5B` tag, RX classify → FIFO → serializer → validator on a real ADP `ENTITY_DISCOVER`, the classifier rejecting non-control traffic, the side port answering with the processor's own `KLPP` magic, the class-D fabric face moving (`adp_next_avail_index_o` advances), the MAAP adapter refusing safely and granting, and a global `accepted == answered` anti-wedge invariant. It carries **no** `-Wno-*` at all, so every warning is fatal. Needs the public HTTPS `protocol-processor` submodule |
 | [`tb/verilator/ptp`](../../tb/verilator/ptp) | PHC arithmetic vs an independent reference model |
@@ -375,24 +373,19 @@ The standing rule is that every round grows this table. 2026-08-13 is the one
 round that shrank it, by deliberate deletion of the RTL underneath — recorded
 above rather than smoothed over.
 
-## 2. Migen DMA-engine sims - `sw/litex/test_*.py`
+## 2. LiteX integration checks - `sw/litex/test_*.py`
 
-Behavioral sims of the ring-DMA/BD engines that live in `milan_soc.py`
-(the layer the RTL harnesses cannot see, and the SoC sim is too slow to
-sweep). Self-checking (`ALL PASS`):
+Self-checking behavioral checks cover the protocol processor's two main-memory
+bridges and the boot/freeze path:
 
 ```sh
 cd sw/litex
-for t in test_ring_dma test_ring_bd test_ring_tx test_ring_writeback \
-         test_rx_steer test_tx_bd test_pb_bus_err test_pp_mem_bridge; do
+for t in test_pp_mem_bridge test_pp_boot_bus_freeze; do
     python3 $t.py || exit 1; done
 ```
 
-The last two are bus-fault sims rather than DMA sims: `test_pb_bus_err.py`
-covers the AAF playback fetch (a read that fails must not be latched),
-`test_pp_mem_bridge.py` the protocol processor's two main-memory bridges (an
-access that is never acked must not wedge them, and with them the whole DMA
-bus - the 2026-08-13 board defect).
+An access that is never acknowledged must not wedge either bridge or the shared
+bus.
 
 ## 3. SoC-level simulation - `sw/litex/milan_sim.py`
 
@@ -420,7 +413,7 @@ make ecp5     # Lattice ECP5 mapping
 ```
 
 Proves synthesizability off-Xilinx, not behaviour (layer 1 does that) and
-not timing. See [Section 5 of ../integration/PORTING_GUIDE.md](../integration/PORTING_GUIDE.md#5-proving-it-the-open-toolchain-portability-check).
+not timing. See [Section 5 of ../integration/PORTING_GUIDE.md](../integration/PORTING_GUIDE.md#5-proving-it---the-open-toolchain-portability-check).
 `run.sh` also prints two trailing structural reports: the tied-off-input
 inventory ([`scripts/check_tied_inputs.sh`](../../scripts/check_tied_inputs.sh), the RMON class) and the
 observer-purity check ([`syn/yosys/check_tap_purity.sh`](../../syn/yosys/check_tap_purity.sh) — taps/telemetry must
@@ -511,30 +504,30 @@ is on the resolution path and is **never linted** — it is upstream code.
 
 ## 6. On-silicon validation
 
-**Mandatory first step after EVERY flash: [`scripts/hostplane_smoke.sh`](../../scripts/hostplane_smoke.sh) on
-the board shell (~60 s).** It verifies the host plane specifically —
-`rx_packets` increments, the dma-ts ring offset advances
-(`milan_dma_ts_offset`, `0xf0003118` on the flashed AX build — read it from
-that build's own `csr.csv`), ID=`MILN` + VERSION readable, the `AAF_CTRL` VID
-field intact (`0x0002xxxx`), the capture path up, and the protocol
-processor's two memory bridges acked every bus access they issued with no
-error and no timeout (the `ppmem` counters, plus the `0x5B` presence tag and
-the DFI hand-off in `stat[4]`, so an absent bank cannot pass as a quiet bus) --
-one PASS/FAIL line per check, nonzero exit on any FAIL.
-Rationale: a build whose fabric paths (AAF/CRF/SRP/ADP) run perfectly can
-still ship with a dead host plane (2026-07-25 regression class), and every
-audio-first drill stays green while the softcore sees nothing. Do not start
-any other board procedure until this passes.
+**Mandatory first step after every flash:** run the UART grader on the bench
+workstation attached to the board:
+
+```sh
+python3 scripts/baremetal_uart_smoke.py --port /dev/serial/by-id/<adapter>
+```
+
+The workstation grader exercises direct bare-metal UART commands. It requires
+`ID=MILN`, the current publication ABI, `AEM=loaded`, enabled
+PTP/ADP/PP, nonzero GM and parent identities, a bounded path and pdelay,
+consistent `CLKV_STAT`, `sync=1`, `asCapable=1`, `time_uncertain=0`, and an
+advancing PHC. For `VERSION=0x0002_0056`, fabric is the sole product gPTP
+owner. A direct verification-only option-OFF build instead must expose zero
+GM/parent/path/pdelay, `sync=0`, `asCapable=0`, `time_uncertain=1`, and inert
+legacy writes. Use a validated external JTAG/CSR transport for evidence not
+exposed by the UART commands.
 
 Bring-up order and board procedures:
 [../integration/BOARD_PORTING_AX7101.md](../integration/BOARD_PORTING_AX7101.md)
-(CSR ID read → MAC → DMA), [../integration/QSPI_FLASHBOOT.md](../integration/QSPI_FLASHBOOT.md)
-(boot), [RUNNING_TESTS.md](RUNNING_TESTS.md) (all-layers walkthrough incl.
-board), and the in-fabric telemetry that instruments silicon runs:
-[../fpga/pipeline-telemetry.md](../fpga/pipeline-telemetry.md). Current protocol
-validation status: [Milan v1.2 audit](MILAN_V12_AUDIT_2026-08-16.md).
-Performance measurements on silicon are logged in the
-[findings log](../findings/README.md) with their methodology.
+(CSR ID read → MAC/PHY link → external-wire capture), [../integration/QSPI_FLASHBOOT.md](../integration/QSPI_FLASHBOOT.md)
+(boot), [RUNNING_TESTS.md](RUNNING_TESTS.md) (all-layers walkthrough including
+the board), and [../reference/REGISTER_MAP.md](../reference/REGISTER_MAP.md)
+(CSR meanings). Current protocol validation status:
+[Milan v1.2 audit](MILAN_V12_AUDIT_2026-08-16.md).
 
 ## 6c. Controller-side validation -- la_avdecc and Hive
 
@@ -545,9 +538,9 @@ third-party one, and Hive is a GUI over that same library. A defect that both
 our tools and our models share is invisible until a foreign implementation
 parses the wire.
 
-Everything below runs on the peer/controller host, whose AVB NIC is the one
-that sees the DUT. See [../findings/BENCH_TOPOLOGY.md](../findings/BENCH_TOPOLOGY.md)
-for hosts and paths.
+Everything below runs on an external peer/controller host whose AVB NIC sees
+the DUT. Interface names and physical paths are site-local bench configuration,
+not repository constants.
 
 ### The counters probe (scriptable, has a verdict)
 
@@ -618,89 +611,38 @@ non-success responses anyway** — a size violation shows up as an `Info` line,
 not a failure, and a stricter controller would reject it. Do not read a Hive
 pass as proof a response is well formed.
 
-## 6b. Unattended campaigns -- status file and alert webhook
+## 6b. Bench evidence retention
 
-A long on-silicon campaign can run for **days**. It is driven from a host, not
-from a board, and it is built so that **nobody is woken unless something is
-actually wrong**. Silence means healthy.
+The removed campaign runner is not a current product or repository
+interface. Keep each bench run self-contained on the workstation that owns the
+UART, capture and external JTAG/CSR transport:
 
-> **The implementation of this contract is [`../../harness/README.md`](../../harness/README.md)**
-> — [`harness/run.sh`](../../harness/run.sh), one entry point over eight phases, with the resume cursor,
-> heartbeat, per-phase JSONL, forensic bundle and one-shot alert described below.
-> That page also carries the **3am operator contract** (start / resume / where
-> the logs are / what to do on `FAILED` / how to tell a device defect from a
-> harness problem) and an explicit **proven-vs-inferred** split, because as of
-> 2026-07-27 the harness has driven a mock bench and no real hardware. Its
-> `es-N.M` item registry lives in the private test repository; only the
-> machinery is in this tree.
+- save the exact bitstream/AEM manifest and `csr.csv` used by the board;
+- save the full `baremetal_uart_smoke.py` transcript and exit status;
+- save external wire captures and controller transcripts with timestamps; and
+- save any non-UART CSR observations together with the transport and address
+  map used to obtain them.
 
-### The contract is one file
+Board-side evidence consists only of direct bare-metal firmware UART output.
+Any unattended orchestration runs in site-local workstation tooling; its
+behavior and notification policy are not specified by this repository.
 
-The runner maintains a single `STATUS` file containing exactly one word plus a
-one-line reason:
+## 6d. Unattended campaign vehicle
 
-| value | meaning |
-|---|---|
-| `RUNNING` | in progress; a heartbeat file carries `{phase, item, iteration, timestamp}` |
-| `DONE` | the campaign completed and every item passed |
-| `FAILED` | a real defect was found — the run stopped escalating and captured a forensic bundle |
+The unattended campaign runner left the tree with #259: its transport was the
+retired target's remote shell, memory-poke and flash-log access, it had no
+bare-metal consumer, and it was in no workflow or sweep. Its sixteen
+target-agnostic files went with it rather than being re-targeted, because the
+bare-metal board exposes only the UART. What stands in its place:
 
-Everything else (the append-only JSONL record, the human-readable log, the
-per-item artefacts) is detail. "Is it alive, and is it healthy" must be
-answerable by reading two small files, without parsing a log.
-
-**`FAILED` and `BLOCKED` are deliberately different.** `FAILED` is a defect in
-the device under test. `BLOCKED` is the harness being unable to run an item — a
-board unreachable, a tool missing, a capture device busy. Blocked items are
-counted and reported but **never raise an alert**: waking someone for a blocked
-item is the false alarm that teaches people to ignore the next one.
-
-### The webhook
-
-The runner calls a notification hook exactly once, on the **first** transition
-to `FAILED`. Subsequent failures are recorded but do not re-alert, so a single
-defect cannot produce a hundred messages overnight.
-
-The hook is a **config value, not code**. If it is unset the hook is a clean
-no-op — the campaign still runs and still records everything, it simply has no
-off-site channel.
-
-```ini
-# campaign config (not committed - it carries site-specific values)
-alert_webhook = https://<your-endpoint>
-alert_timeout_s = 10
-```
-
-The call is a single POST with a short plain-text body, kept under a couple of
-hundred characters so it survives mobile truncation, and it leads with the
-actionable part:
-
-```sh
-curl -fsS --max-time "$ALERT_TIMEOUT_S" -X POST \
-     -H 'Content-Type: text/plain' \
-     --data "milan campaign FAILED: <item> — <one-line reason> (host <name>, run <id>)" \
-     "$ALERT_WEBHOOK"
-```
-
-Any endpoint that accepts a POST works — a self-hosted notifier, a chat
-integration, or a small script on a machine that is always awake. **The failure
-of the webhook must never fail the campaign**: `curl` is invoked with a timeout,
-its exit status is recorded, and the run continues either way. An alert that
-cannot be delivered is a logging problem, not a test result.
-
-### Why the log lives on the host
-
-The primary record is on the **host**, and it is complete on its own — no result
-depends on board-side storage. A multi-day campaign produces far more than the
-2 MiB the board reserves for its own writable area, and the host is also the
-only thing guaranteed to survive a board that hangs.
-
-Board-side flash logging is reserved for the one case the host cannot observe: a
-fault where the board dies before it can report. That path is designed but **not
-yet available** — no deployed tree carries an mtd node and no mtd driver is known
-to bind to the flash controller in this kernel configuration. The falsifier is
-`cat /proc/mtd` after a flash and boot. Until then the hook degrades silently to
-host-only.
+- the UART grader in Section 6 (`scripts/baremetal_uart_smoke.py`) is the
+  per-flash acceptance step, and Section 6b says what to keep from each run;
+- the desk half of the torture/compliance campaign is
+  `tb/tools/torture_campaign.py` (`--self-test`, and `--checklist` for the
+  bench steps a person performs) with the `@torture` behave tier described in
+  [`tests/README.md`](../../tests/README.md);
+- two-board sync, GM switch and wire-capture acceptance are #117's lane, and
+  the power-cut soak is #70's.
 
 ## 7. Known gaps (kept honest)
 
@@ -712,7 +654,8 @@ host-only.
   paths and the response contract.
   Descriptor enumeration is reachable once the builder-generated image is
   loaded into DRAM. The tracked board flow packages the paired artifacts and
-  runs `aemi-load` before enabling the entity. A custom integration that omits
+  the bare-metal firmware verifies and copies the image before enabling the
+  entity. A custom integration that omits
   that step gets `BAD_ARGUMENTS`: the microprogram checks
   `configuration_index` against `configurations_count` before it locates, and an
   invalid image reports a count of zero, so no index passes and the locate is
@@ -741,8 +684,8 @@ host-only.
     and the CRF output, and `GET_COUNTERS` returns the compact Milan five-counter
     layout. Each dirty source feeds the root's descriptor arbiter, and the
     integrated `[NOTIFY]` tests grade its rate-limited Table 5.22 push.
-* **The datapath-level suites run in CI.** `pp_shadow`, `milan_dp` and
-  `hostplane` elaborate `milan_datapath` with the protocol processor.
+* **The datapath-level suites run in CI.** `pp_shadow` and `milan_dp`
+  elaborate `milan_datapath` with the protocol processor.
   [`.github/workflows/rtl.yml`](../../.github/workflows/rtl.yml) initializes the
   public HTTPS `protocol-processor` and `third_party/verilog-axis` submodules
   before the full Verilator sweep.
@@ -827,7 +770,7 @@ host-only.
 
   | Verilator | ships with | result |
   |---|---|---|
-  | 5.020 | Ubuntu 24.04 | **cannot build** `hostplane`/`milan_dp`/`tsn_fuzz` and the (since-deleted) `aecp` — `BLKLOOPINIT: Delayed assignment to array inside for loops`, on legal SystemVerilog that Yosys synthesises fine |
+  | 5.020 | Ubuntu 24.04 | **cannot build** `milan_dp`/`tsn_fuzz` and the (since-deleted) `aecp` — `BLKLOOPINIT: Delayed assignment to array inside for loops`, on legal SystemVerilog that Yosys synthesises fine |
   | 5.032 | Debian trixie, Ubuntu 25.04 | builds, but **6 of 490 `aecp` checks** read back `0` (AS_PATH / AVB_INFO CDL, `UNSUPPORTED_FORMAT`, `FRAMES_RX`) — a testbench/C++ ABI sensitivity, not a known RTL fault. **Moot since 2026-08-13**: the suite it was measured on is deleted, so this row can no longer be reproduced. Kept because the sensitivity is a property of the tool, and the next suite it bites will look exactly like this |
   | 5.050 | Arch, and the CI pin | the reference. The 55/55-green figure this row used to quote was the 2026-07-26 sweep of a tree that no longer exists (Section 1.1) -- rerun the sweep |
 
@@ -837,16 +780,6 @@ host-only.
   and synthesises, so the cost belongs on the toolchain pin, not the design.
   If you are on a distro Verilator and a datapath harness will not build, this
   is why.
-* `milan_top` (Zynq variant) is not coverable by the open flows (PS7 + the
-  external verilog-ethernet MAC); its TSN content is covered via
-  `milan_dp`. It is out of the Section 4b lint sweep for the same reason -- it cannot
-  even *elaborate* without the `external/` submodule (an SSH remote CI cannot
-  fetch) and the Xilinx `milan_dma` core. Linted against a checked-out
-  `external/` it reported **116 `PINMISSING`** — 91 on its `milan_csr`
-  instance, 24 on the AECP top, 1 on `ptp_ts_top` — i.e. it had drifted that
-  far behind the modules it wires, and that was *before* the control-plane
-  deletion removed one of those modules outright. Budget that before reviving
-  it.
 * The legacy xsim TBs test pre-rework interfaces in places; trust the
   Verilator suites where they disagree.
 * Check-counts quoted in READMEs are informational; the harnesses print

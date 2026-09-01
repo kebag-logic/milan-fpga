@@ -177,8 +177,8 @@ def vivado_sources(soc=SOC):
     way Python reads the file.
 
     `paths` are the string constants that are repository-relative source
-    paths: the rows of the `_MILAN_DATAPATH_SOURCES` literal and the
-    conditional registrations beside it (`srcs.append("...KL_pcm_tx.sv")`).
+    paths: the rows of the `_MILAN_DATAPATH_SOURCES` literal and source paths
+    returned by its derived helper calls.
     A comment is not in the tree Python evaluates, so a commented-out row is
     not a row. `derived` names the starred calls inside the literal
     (`*_pp_sources()`); their expansion belongs to the caller. `why` is set,

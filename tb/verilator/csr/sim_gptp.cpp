@@ -121,18 +121,18 @@ int main(int argc, char** argv) {
   axi_write(A_AS2_LO, 0x0BADF00D);
   axi_write(A_AS2_HI, 0xFACEFEED);
   axi_write(A_GPTP_PDELAY, 0xA5A5A5A5);
-  check("fabric pdelay wins over software shadow",
+  check("fabric pdelay ignores legacy writes",
         axi_read(A_GPTP_PDELAY), 0x01020304);
-  check("fabric GM wins over software shadow",
+  check("fabric GM ignores legacy writes",
         ((uint64_t)axi_read(A_ADP_GMHI) << 32) | axi_read(A_ADP_GMLO), gm_a);
-  check("fabric parent wins over software shadow",
+  check("fabric parent ignores legacy writes",
         ((uint64_t)axi_read(A_AS2_HI) << 32) | axi_read(A_AS2_LO), parent_a);
 
-  // The engine speaks only domain 0 (802.1AS 8.1). A compatibility write to
-  // the legacy domain shadow must not move the served domain: the readback
-  // AND the o_adp_gptp_domain port every protocol face consumes stay at the
-  // engine constant. The option-off elaboration (sim_main.cpp) proves the
-  // shadow itself still works, so this arm can fail in exactly one direction.
+  // The engine speaks only domain 0 (802.1AS 8.1). A legacy write must not
+  // move the served domain: the readback AND the o_adp_gptp_domain port every
+  // protocol face consumes stay at the engine constant. The option-off arm
+  // proves the other exact contract: structural domain zero and inert writes,
+  // with no alternate publication owner.
   axi_write(0x62C, 0x00000005);
   dut->eval();
   check("fabric domain readback is the engine constant", axi_read(0x62C), 0);
@@ -164,9 +164,9 @@ int main(int argc, char** argv) {
         ((uint64_t)parent_hi_first << 32) | parent_lo_second, parent_b);
 
   // Issue #116: in the product elaboration the public AS_PATH face and
-  // 0x7E4 are live fabric outputs. The old staging pair remains a readable
-  // ABI scratchpad, but neither COMMIT nor PUBLISH may forge the served path
-  // or advance the engine-owned generation.
+  // 0x7E4 are live fabric outputs. The old staging pair remains mapped but is
+  // inert: reads are zero and no write may forge the served path or advance
+  // the engine-owned generation.
   //! Mutation bar for the fabric raw-empty contract: unlike option-off #227,
   //! the selected donor's count zero is not an alternate spelling of `[GM]`.
   //! CSR has no GM input and must pass the fabric owner tuple through exactly.
@@ -198,10 +198,8 @@ int main(int argc, char** argv) {
   const uint64_t forged = 0xDEADBEEF01234567ULL;
   axi_write(A_ASP_LO, (uint32_t)forged);
   axi_write(A_ASP_HI, (uint32_t)(forged >> 32));
-  check("compatibility staging LO remains readable",
-        axi_read(A_ASP_LO), (uint32_t)forged);
-  check("compatibility staging HI remains readable",
-        axi_read(A_ASP_HI), (uint32_t)(forged >> 32));
+  check("retired staging LO reads zero", axi_read(A_ASP_LO), 0);
+  check("retired staging HI reads zero", axi_read(A_ASP_HI), 0);
   axi_write(A_ASP_CMD, 0xC0000107u); // COMMIT slot 1 + PUBLISH count 7
   check("software COMMIT/PUBLISH cannot forge live slot", live_path(0), path1);
   check("software COMMIT/PUBLISH cannot forge live count", dut->o_asp_count, 4);

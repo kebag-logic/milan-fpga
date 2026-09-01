@@ -77,9 +77,7 @@ The wrapper validates source coverage:
 - Expectations derive from current sources.
 - Every supported module receives one validated SVG.
 - Validators inspect SVG structure and graphical content.
-- One source-derived fallback covers `KL_pcm_tx`.
-- Its TerosHDL parser currently drops module structure.
-- The fallback lists current ANSI ports.
+- Source-specific fallbacks must name a current tracked declaration.
 - Unrecorded diagram gaps stop generation.
 - Interfaces lack standalone TerosHDL sections.
 - Only first declarations receive file sections.
@@ -223,7 +221,17 @@ Every historical page needs these fields.
 - Preserve original content afterward.
 - Update current inbound links.
 - Label every historical link visibly.
-- Never delete historical evidence.
+- Never delete non-#259 historical evidence.
+
+Issue #259 is the deliberate exception.
+
+Superseded target-only material is absent from this checkout.
+
+It remains available only in Git history.
+
+Never move that material under `docs/history/`.
+
+Preserve the archive for unrelated obsolete evidence.
 
 ## Required gates
 

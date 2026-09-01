@@ -6,15 +6,15 @@ SPDX-License-Identifier: CERN-OHL-W-2.0
 # AAF latency history ring (`KL_lat_history_ring`)
 
 Roadmap item 11, DDR3 arm. Per-stage AAF pipeline latency, captured as a
-**time-series** in a wrapping DRAM ring the CPU / userspace reads back.
+**time-series** in a wrapping DRAM ring that bare-metal firmware can export.
 
 ## Contents
 
 - **[Why a ring (vs the CSR snapshot)](#why-a-ring-vs-the-csr-snapshot)** — The case against the existing `0x870` taps: a min/last/max register answers "what is the latency now" and can never give you a jitter histogram, a p99 tail, or a transient burst you were not watching for.
 - **[Record format (16 bytes, little-endian in DRAM)](#record-format-16-bytes-little-endian-in-dram)** — The byte layout plus the C struct, and the two fields that make a trace self-describing: a mod-4096 `seq` so a reader detects loss or reordering, and a `gap` bit set on the first record *after* a hole. Also how one record splits across two 64-bit beats.
-- **[Ring CSR ABI (reused verbatim from the PCM ring)](#ring-csr-abi-reused-verbatim-from-the-pcm-ring)** — Deliberately field-for-field the PCM ring's ABI, so existing mmap-and-chase userspace works unchanged. One extension at `0x1C` (`DROPPED`), and the `LOOP` choice: 1 = rolling history, 0 = one-shot that stops when full and counts the overflow.
+- **[Ring CSR ABI](#ring-csr-abi)** — The standalone history-writer control block, including the `DROPPED` extension at `0x1C` and the `LOOP` choice: 1 = rolling history, 0 = one-shot that stops when full and counts the overflow.
 - **[Documented tap points (stage_id)](#documented-tap-points-stage_id)** — The eight tap ids across the TX and RX chains, and the convention that decides how you read every record: `stage_id` names the **destination** stage of the delta. The input contract below it states the producer is never back-pressured — a sample offered mid-drain is dropped and counted, not stalled.
-- **[Userspace read recipe (pw-milan-ring-source style)](#userspace-read-recipe-pw-milan-ring-source-style)** — Copy-paste program/mmap/chase loop, and the sizing rule behind it: a reader more than `RING_BYTES/16` records behind is silently reading overwritten slots, which `seq` gaps and `DROPPED` are there to reveal.
+- **[Bare-metal read recipe](#bare-metal-read-recipe)** — Shows how firmware freezes the fixed trace window for workstation extraction over the integration-defined transport.
 - **[Verification](#verification)** — What the 84-check harness actually asserts by snooping every write beat — byte-exactness, wrap, stop-mode full, drop-on-full and the `gap` marker.
 
 ## Why a ring (vs the CSR snapshot)
@@ -26,14 +26,14 @@ it move over the last N frames": you cannot build a jitter histogram, a tail
 (p99) latency, or catch a transient burst from a single-value register.
 
 `KL_lat_history_ring` turns **each** latency sample into a fixed 16-byte record
-and streams it into a DRAM ring (the same ring pattern as the PCM audio ring).
-Userspace mmaps the ring, chases the write pointer, and parses the records — a
-full history, post-processed offline.
+and streams it into a circular DRAM buffer. Bare-metal firmware freezes or
+snapshots the buffer and exports it for offline parsing, preserving a complete
+history through the direct bare-metal firmware interface.
 
 ## Record format (16 bytes, little-endian in DRAM)
 
 `RECORD_BYTES_P = 16`. Bytes are laid out for a packed little-endian struct
-(the byte order a RISC-V LE reader gets straight from `mmap`):
+(the byte order a RISC-V LE reader observes directly):
 
 | offset | size | field        | meaning                                             |
 |--------|------|--------------|-----------------------------------------------------|
@@ -43,7 +43,7 @@ full history, post-processed offline.
 | `13`   | `u8` | `stream_idx` | AAF stream index (NxN)                               |
 | `14`   | `u16`| `flags`      | `{gap[15], rsvd[14:12], seq[11:0]}`                  |
 
-- `seq` — rolling per-accepted-record counter (mod 4096). Userspace detects
+- `seq` — rolling per-accepted-record counter (mod 4096). A reader detects
   **lost or reordered** records by a gap in `seq`.
 - `gap` (bit 15) — set on the **first** record written after one or more samples
   were dropped (writer stalled, or ring full in stop mode). A self-describing
@@ -65,11 +65,9 @@ On the 64-bit downstream bus a record is **two beats**:
 - beat 1 = `{flags[15:0], stream_idx[7:0], stage_id[7:0], latency_ns[31:0]}`
   (latency in the low 32 bits)
 
-## Ring CSR ABI (reused verbatim from the PCM ring)
+## Ring CSR ABI
 
-The ring-writer control block mirrors the PCM ring (`_PCMRingNxN` /
-`milan_dma_pcm`, LiteX bank `0xf0003120`) **field-for-field**, so the userspace
-mmap+chase recipe is identical to `pw-milan-ring-source`:
+The history writer has a compact, self-contained control block:
 
 | offset | name        | dir | module port  | meaning                                        |
 |--------|-------------|-----|--------------|------------------------------------------------|
@@ -78,25 +76,23 @@ mmap+chase recipe is identical to `pw-milan-ring-source`:
 | `0x08` | `LENGTH`    | RW  | `ring_len_i`         | ring size in bytes (multiple of 16)     |
 | `0x0C` | `ENABLE`    | RW  | `enable_i`           | 1 = run; 0 = clear write pointer + drop |
 | `0x14` | `LOOP`      | RW  | `loop_i`             | 1 = wrap+overwrite; 0 = stop when full  |
-| `0x18` | `OFFSET`    | RO  | `wptr_o`             | byte write pointer (userspace chase)    |
+| `0x18` | `OFFSET`    | RO  | `wptr_o`             | byte write pointer (firmware chase)     |
 
-Plus one history-ring extension (own address, PCM-ABI untouched):
+The history-specific telemetry extension is:
 
 | offset | name        | dir | module port  | meaning                                        |
 |--------|-------------|-----|--------------|------------------------------------------------|
 | `0x1C` | `DROPPED`   | RO  | `dropped_o`  | records dropped (writer stalled / ring full)   |
 
-`ENABLE=0` clears `OFFSET` to 0 and drops incoming samples (matches the PCM
-ring's disable). `LOOP=1` is the normal history mode (newest overwrites oldest);
+`ENABLE=0` clears `OFFSET` to 0 and drops incoming samples. `LOOP=1` is the
+normal history mode (newest overwrites oldest);
 `LOOP=0` is a one-shot capture that stops when the ring fills and counts the
 overflow in `DROPPED`.
 
 The downstream write-request master (`wr_valid_o / wr_data_o / wr_addr_o /
-wr_last_o / wr_ready_i`) is the same shape as the PCM ring's
-`WishboneDMAWriter` sink, so the existing `milan_dma` DRAM writer carries it
-unchanged (`writer.sink.data = wr_data_o`, `writer.sink.address =
-wr_addr_o >> 3` for the 64-bit bus, `writer.sink.valid/ready` = the handshake).
-`wr_addr_o` is a **byte** address = `ring_base_i + wptr + beat*8`.
+wr_last_o / wr_ready_i`) presents one 64-bit beat at a time to the integration's
+DRAM writer. `wr_addr_o` is a **byte** address =
+`ring_base_i + wptr + beat*8`.
 
 ## Documented tap points (`stage_id`)
 
@@ -107,14 +103,14 @@ their documented pipeline points:
 
 | `stage_id` | chain | tap point                                             |
 |------------|-------|-------------------------------------------------------|
-| `0x00`     | TX    | `CAP`     — ring / I2S capture pair in                 |
+| `0x00`     | TX    | `CAP`     — fabric / I2S capture pair in               |
 | `0x01`     | TX    | `PKT_SOF` — packetizer first beat                      |
 | `0x02`     | TX    | `PKT_EOF` — packetizer last beat                       |
 | `0x03`     | TX    | `MAC_TX`  — frame egresses the MAC boundary            |
 | `0x10`     | RX    | `MAC_RX`  — frame ingress                              |
 | `0x11`     | RX    | `ACCEPT`  — AVTP monitor parse-complete / accept pulse |
 | `0x12`     | RX    | `DEPKT`   — payload last beat                          |
-| `0x13`     | RX    | `PCM_RING`— payload accepted at the ring writer        |
+| `0x13`     | RX    | `RENDER`  — payload accepted by the fabric render path |
 
 `stage_id` for a record is the **destination** stage of the delta (so a record
 with `stage_id = 0x01` carries the `CAP -> PKT_SOF` latency, etc.).
@@ -138,7 +134,7 @@ The producer is **never** back-pressured: a sample offered while the previous
 record is still draining to DRAM (or while the ring is full in stop mode) is
 dropped and counted in `DROPPED`. `wr_ready_i` gates the emitter only.
 
-## Userspace read recipe (`pw-milan-ring-source` style)
+## Bare-metal read recipe
 
 ```c
 // 1. program the ring (record-aligned base + length), enable loop mode
@@ -147,9 +143,8 @@ poke(LENGTH,  RING_BYTES);       // multiple of 16
 poke(LOOP,    1);
 poke(ENABLE,  1);
 
-// 2. mmap the ring region (uncached / coherent) and chase the write pointer
-volatile uint8_t *ring = mmap(NULL, RING_BYTES, PROT_READ, MAP_SHARED,
-                              devmem, ring_phys);
+// 2. use the firmware's uncached/coherent DRAM mapping and chase the pointer
+volatile uint8_t *ring = milan_uncached_ptr(ring_phys, RING_BYTES);
 uint32_t rd = 0;                          // our read pointer (bytes)
 for (;;) {
     uint32_t wr = peek(OFFSET);           // HW write pointer (bytes)

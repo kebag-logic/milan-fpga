@@ -215,11 +215,6 @@ module gptp_shadow_wrap #(
   ) u_validity (
       .clk_i            (clk_i),
       .rst_n            (rst_n),
-      .sw_wr_p_i        (1'b0),
-      .sw_sync_ok_i     (1'b0),
-      .sw_disc_p_i      (1'b0),
-      .sw_as_cap_i      (1'b0),
-      .sw_wdog_q_i      (12'd0),
       .fabric_sync_ok_i (pub_flags_o[3]),
       .fabric_as_cap_i  (pub_flags_o[2]),
       .fabric_disc_p_i  (pub_disc_w),

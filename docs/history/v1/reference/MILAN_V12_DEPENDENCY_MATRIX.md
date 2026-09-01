@@ -64,7 +64,7 @@
 > such. That is the point of the column: this page's job is to say *why Milan
 > forces a requirement*, and a requirement Milan forces does not stop being
 > forced because the implementation was removed. The gap ledger is
-> [`../MILAN_COMPLIANCE_GAPS.md`](../MILAN_COMPLIANCE_GAPS.md).
+> [current feature ledger](../../../reference/MILAN_FEATURE_STATUS.md).
 >
 > **`Verify` tokens on a ❌ row still do not exercise the requirement.** Fired at
 > this build they measure the `NOT_IMPLEMENTED` echo, which is worth asserting
@@ -119,7 +119,7 @@ is verified*, and which requirements are **not** Milan-driven.
 |-------|----------|----------|
 | `avdecc_l2` | ADP watch / GET_COUNTERS / ACMP connect script | `srcs/the-private-test-repo/controller/avdecc_l2.py` |
 | `tap_acmp` / `tap_sniff` | ACMP + frame taps | `srcs/the-private-test-repo/controller/` |
-| `thdn` | audio THD+N quality check | `.../controller/pipewire_avb_thdn.py` |
+| `thdn` | audio THD+N quality check | external bench analyzer |
 | `soak` | peer-host-pair stream + clock-recovery soak (between the two bench hosts) | `srcs/the-private-test-repo/scripts/pw1-pw0-clockrec-soak.sh` |
 | `latency.md` / `gptp-phc-clock.md` | measurement methodology | `srcs/the-private-test-repo/docs/` |
 | `tsn-gen` | byte-exact AECP PDU specs + BDD features. **There is an AECP responder again**: `aecp_read_descriptor` is a real byte-exact test once a descriptor image is in DRAM (against a stock build it measures `BAD_ARGUMENTS`, i.e. the image gap), and every other AECP yaml measures the `NOT_IMPLEMENTED` echo's header discipline — the conformance floor, never command coverage. The repo-side AECP/ACMP/ADP/legacy fuzz campaigns are deleted; only the **AAF** campaign survives | `software-defined-tsn-stack/.../1722_1/aecp/*.yaml`, `.../tests/aecp_behave/features/*.feature`, `protocols/milan/aecp_read_descriptor.yaml` |
@@ -235,7 +235,7 @@ device*, and this build cannot complete the Milan identity handshake.
 |-------------------|-----|--------|-------|---------------|--------|
 | 802.1AS time-aware endpoint (Class A), GM tracking | MANDATES | FR-CLK-01, NFR-TIME-01 | **live** | Presentation times live on the gPTP timebase (≤1 µs). | T  -  measured PHC lock; `gptp-phc-clock.md` (offset ≤1 µs) |
 | Media clock from CRF / input stream; CRF talker+recovery | MANDATES | FR-CLK-04, NFR-TIME-02 | **❌ NOT IMPL — this is the sharpest single loss on the page.** The CRF *talker* still emits and `KL_crf_rx` still parses, counts and reports, but **the CRF media clock can never be SELECTED**: `SET_CLOCK_SOURCE` is unimplemented (answered `NOT_IMPLEMENTED`, and a refusal writes nothing) and it was the only writer of `clock_source_index`, pinned at 0 (INTERNAL) for the life of the build. `KL_mmcm_drp_servo` and the `KL_media_nco` packet-grid servo are structurally off; `A_MCSRV_STAT` (`0x8F8`) reads its idle. Recovery is measured and not actuated | Drift ⇒ periodic MEDIA_RESET / artifacts. | T  -  `soak` (clock-recovery); `tap_sniff` CRF |
-| HW timestamps at the SFD | MANDATES | FR-CLK-05 | **live** | gPTP/AVTP accuracy needs HW capture. | T  -  `ethtool -T` + timestamp capture; `vtb:ptp` |
+| HW timestamps at the SFD | MANDATES | FR-CLK-05 | **live** | gPTP/AVTP accuracy needs HW capture. | T  -  external interface capability report + timestamp capture; `vtb:ptp` |
 | PHC on a fixed (speed-independent) clock | MANDATES(impl) | FR-CLK-02, NFR-TIME-03 | **live** | Speed-switched PHC ⇒ wrong ns rate at 10/100/1000. | A,T  -  `vtb:ptp` (rate at each speed); analysis (REQ-PTP-07) |
 
 ## I. QoS datapath  -  802.1Q / 802.1Qav  *(required by Milan for Class A)*
@@ -276,7 +276,7 @@ Milan only **CONSTRAINS** these; it does not require them.
 | NFR-REL-02 (media-core watchdog) | AMP robustness | ENABLES: keeps Milan planes alive on media-core fault | T  -  hang a media core, observe restart w/o dropping control |
 | NFR-MAINT-01 (single-source model) | engineering | ENABLES: HW+SW+tests stay Milan-consistent | I  -  CI diff entity JSON vs `entity-model-milan-v12.h` |
 | NFR-PORT-01 (RV64/RV32 build) | platform | none | A  -  build both targets |
-| NFR-OBS-01 (observability) | ops | ENABLES: surfaces Milan counters (FR-CTRL-04) | D  -  `ethtool -S`/`-T`, per-core load, AVDECC counters |
+| NFR-OBS-01 (observability) | ops | ENABLES: surfaces Milan counters (FR-CTRL-04) | D  -  external interface counters and timestamp report, per-core load, AVDECC counters |
 
 ---
 

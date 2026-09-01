@@ -8,7 +8,8 @@
 #                                            milan_soc.py --gtx-tx-invert)
 #   0004-vexiiriscv-baremetal-variant.patch -> litex (RV32I, M-mode-only CPU variant)
 #   0005-vexiiriscv-cacheless-litex.patch -> pythondata-cpu-vexiiriscv (connect the
-#                                            cacheless iBus/dBus and direct DMA path)
+#                                            cacheless iBus/dBus and dedicated
+#                                            protocol-memory attachment)
 #
 # Each tree is discovered from the active Python environment (no hardcoded paths), so this
 # works against a venv, a system install, or a git checkout. Idempotent: re-running is a

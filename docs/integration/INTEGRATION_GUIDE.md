@@ -21,13 +21,10 @@ Use this contract when wiring `milan_datapath`.
 
 ```mermaid
 flowchart LR
-    HOST[Control host] --> CSR[AXI4-Lite CSR]
-    TX[TX memory] --> DP[milan_datapath]
-    DP --> RX[RX and metadata memory]
+    CONTROL[External control] --> CSR[AXI4-Lite CSR]
     DP <--> MAC[Ethernet MAC]
     DP <--> DESC[Descriptor memory]
     DP <--> RESP[Response memory]
-    DP <--> PLAY[Playback memory]
     AUDIO[Audio clocks and pins] <--> DP
     DP --> BOARD[Interrupt and identify]
     DP <--> MMCM[Clock servo]
@@ -60,14 +57,9 @@ Read the [feature ledger](../reference/MILAN_FEATURE_STATUS.md).
 |---|---|---|---|
 | Clocks and resets | `axis_clk`, `axis_resetn`, `gtx_*`, `clk_audio_i`, `clk_tdm_i` | Drive selected domains and reset sequencing | Drive required clocks; assert resets |
 | AXI4-Lite CSR | `s_axi_*` | Map the complete 64 KiB window | Connect fully; never tie handshakes |
-| TX DMA stream | `s_axis_tx_*` | Supply complete transmit frames | Set `s_axis_tx_tvalid=0` |
-| RX DMA stream | `m_axis_rx_*` | Accept complete receive frames | Set `m_axis_rx_tready=0` |
-| Timestamp stream | `m_axis_ts_*` | Drain timestamp records | Set `m_axis_ts_tready=0` |
-| PCM DMA stream | `m_axis_pcm_*` | Drain framed PCM records | Set `m_axis_pcm_tready=0` |
 | MAC streams | `m_axis_mac_tx_*`, `s_axis_mac_rx_*` | Preserve final-boundary backpressure | Set `s_axis_mac_rx_tvalid=0`; set `m_axis_mac_tx_tready=0` |
 | Descriptor memory | `o_desc_mem_*`, `i_desc_mem_*` | Serve the generated entity image | Set `i_desc_mem_req_ready=0`; clear every response input |
 | Response memory | `o_resp_mem_*`, `i_resp_mem_*` | Complete every accepted response operation | Set `i_resp_mem_req_ready=0`, `i_resp_mem_wr_ready=0`; clear response and completion inputs |
-| Playback memory | `pb_*` | Serve configured PCM rings | Set every `pb_*_i=0` |
 | MAC control and status | `o_mac_*`, `i_mac_*`, link, PHY, Ethernet guards | Report honest capabilities and status | Set `i_mac_speed=2'b10`, `i_link_up=1`, `i_full_duplex=1`; clear events, capabilities, toggles |
 | Interrupt | `o_irq_csr` | Route the aggregate CSR interrupt | Leave the output open during smoke tests |
 | Identify output | `o_identify` | Route the requested visual indication | Leave the output open during smoke tests |
@@ -87,7 +79,6 @@ Read the [feature ledger](../reference/MILAN_FEATURE_STATUS.md).
 | Descriptor | One request; ordered 64-bit beats; final `rsp_last` | Propagate `i_desc_mem_rsp_err` |
 | Response read | One request; ordered beats; real response backpressure | Propagate `i_resp_mem_rsp_err` |
 | Response write | One aligned beat; honor every byte strobe | Pulse `wr_done`; propagate `wr_err` |
-| Playback | Return requested 64-bit ring words | Disable playback without a bridge |
 
 - Reserve both protocol memory regions.
 - Keep their bases aligned and disjoint.
@@ -96,7 +87,6 @@ Read the [feature ledger](../reference/MILAN_FEATURE_STATUS.md).
 - Never fabricate completion pulses.
 - Backpressure response reads correctly.
 - Honor byte strobes during response writes.
-- Disable playback before omitting its bridge.
 
 ## Connect clocks
 
@@ -180,5 +170,3 @@ python3 sw/litex/test_pp_boot_bus_freeze.py
 - Run complete repository gates before delivery.
 
 Read the [verification guide](../guides/VERIFICATION_DEVELOPER.md).
-
-The [historical integration guide](../history/v1/integration/INTEGRATION_GUIDE.md) preserves retired details.

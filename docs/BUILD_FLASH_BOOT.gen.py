@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Generate the AX7101 build→flash→boot→verify pipeline as editable .drawio +
 rendered .svg. One picture for the integrator: the end-to-end flow that is
-otherwise scattered across BUILDING / LITEX_SOC / QSPI_FLASHBOOT / BENCH_TOPOLOGY.
+otherwise scattered across BUILDING / LITEX_SOC / QSPI_FLASHBOOT.
 Render PNG: rsvg-convert -w 2400 BUILD_FLASH_BOOT.svg -o BUILD_FLASH_BOOT.png
 """
 import html, sys
@@ -16,7 +16,7 @@ STAGES = [
  ("1 · BUILD", "dev host · Vivado", GREEN, [
    ("sw/litex/build.sh ax7101", 1),
    ("--software-profile baremetal", 0),
-   ("--fabric-gptp --all-blocks", 0),
+   ("--fabric-gptp --full", 0),
    ("--with-spiflash --flashboot baremetal", 1),
    ("generated AEM + gPTP ROM from one YAML", 0),
    ("3×32-thread seed sweep", 0),
@@ -39,16 +39,16 @@ STAGES = [
    ("AEM length + CRC verified into DRAM", 0),
    ("entity enables only after valid AEM", 0),
    ("fabric gPTP owns PHC + publication", 0),
-   ("no host image · no time daemon · no mirrors", 0),
+   ("one firmware image · one time owner · no mirrors", 0),
  ], "cacheless RV32 bare-metal control,\nMilan fabric live"),
  ("4 · VERIFY", "on the bench", PURPLE, [
-   ("MILAN_PROFILE=baremetal hostplane_smoke.sh", 1),
-   ("UART reports VERSION 0x00020055", 0),
+   ("baremetal_uart_smoke.py --port <UART>", 1),
+   ("UART reports VERSION 0x00020056 + gPTP state", 0),
    ("focused RTL + processor suites", 1),
    ("traceability + builder gates", 0),
    ("#117: physical / two-board pending", 0),
    ("REGISTER_MAP.md = the ABI", 0),
-   ("BENCH_TOPOLOGY.md = the rig", 0),
+   ("#117 records topology + raw evidence", 0),
  ], "digitally validated candidate;\nphysical acceptance stays on #117"),
 ]
 RECOVERY = "Recovery — retry flash-pair with the same exact installed reference; it accepts the source or target commit bit · power-host powerstrip off N && powerstrip on N (outlet N is bench-specific) · JTAG-load to SRAM for nonpersistent tests · a torn offset-zero erase/program requires recovery or A/B MultiBoot"
@@ -68,7 +68,7 @@ def svg():
     o.append('<defs><marker id="fa" markerWidth="16" markerHeight="16" refX="4" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#455A64"/></marker></defs>')
     o.append('<rect width="%d" height="%d" fill="#FAFAFA"/>'%(W,H))
     o.append('<text x="%d" y="56" font-size="30" font-weight="bold" fill="#263238">Build → Flash → Boot → Verify — the AX7101 pipeline</text>'%X0)
-    o.append('<text x="%d" y="88" font-size="15" fill="#546E7A">One flow, four stages. Each stage lists the real commands (bold) and the load-bearing rules. Details: docs/integration/BUILDING · LITEX_SOC · QSPI_FLASHBOOT · findings/BENCH_TOPOLOGY.</text>'%X0)
+    o.append('<text x="%d" y="88" font-size="15" fill="#546E7A">One flow, four stages. Each stage lists the real commands (bold) and the load-bearing rules. Details: docs/integration/BUILDING · LITEX_SOC · QSPI_FLASHBOOT.</text>'%X0)
     o.append('<text x="%d" y="112" font-size="15" fill="#546E7A">Persistent writes require two exact build identities: live-proven installed BIT/LAYOUT and one fully prepared target set.</text>'%X0)
     for i,(name,tool,(fill,stroke),lines,out) in enumerate(STAGES):
         x=col_x(i)

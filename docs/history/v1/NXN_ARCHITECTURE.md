@@ -12,7 +12,7 @@
 
 # NxN AAF Milan Streams — Shared Engines + Per-Stream Context RAM
 
-Normative architecture for roadmap item 5 ([`docs/MILAN_COMPLIANCE_GAPS.md`](MILAN_COMPLIANCE_GAPS.md),
+Normative architecture for roadmap item 5 ([current feature ledger](../../reference/MILAN_FEATURE_STATUS.md),
 "Suggested order of attack" item 5). Test shapes: **AX7101 = 8x8**,
 **Arty = 4x4** ([`configs/endstation_ax7101_8x8.yaml`](../../../configs/endstation_ax7101_8x8.yaml),
 [`configs/endstation_arty_4x4.yaml`](../../../configs/endstation_arty_4x4.yaml)). Status: IMPLEMENTED — shared-engine RTL
@@ -38,7 +38,7 @@ is live; the 8x8 shape elaborates and sim-scales green (§6 item-5 note).
 > GET_COUNTERS. Unsupported commands receive the conformant fallback. It has
 > landed; its descriptors come from a flat image in DRAM at a compile-time base,
 > not from the deleted descriptor ROM. The end-station builder now generates
-> the flat image artifacts, and `aemi-load` verifies and loads the paired image
+> the flat image artifacts, and bare-metal firmware verifies and copies the paired image from QSPI
 > before enabling the entity. Solicited GET_COUNTERS is implemented for supported
 > targets, including every declared Stream Output. The Table 5.22 notification
 > scheduler remains separate and open. Commands outside the implemented inventory
@@ -191,8 +191,7 @@ flowchart LR
     MON ==>|"pdu_accept_p + idx = s"| DEP
     WIRE --> DEP["aaf_rx_depkt<br/>KL_aaf_rx_depacketizer"]
     DEP ==>|"m_axis_tuser = s"| RTE["pcm_route<br/>KL_pcm_route"]
-    RTE -->|"bit 0 DMA"| RING["PCM ring at base + s x stride"]
-    RTE -->|"bit 1 RENDER<br/>lowest index wins"| LPF["LPF then I2S / TDM playback"]
+    RTE -->|"bit 1 RENDER<br/>lowest index wins"| LPF["LPF then I2S / TDM render"]
     ACMP -.->|"bind rise: zero row s counters"| LCTX
 ```
 
@@ -212,22 +211,20 @@ frame; the read side emits `{s, pcm beats}`.
 
 ### 1.3 PCM routing policy
 
-Each listener context carries a 2-bit `route` field of INDEPENDENT flags
-(reworked from the P3 exclusive enum per the sound-card design feedback,
-the-private-test-repo `fpga/docs/ALSA_DRIVER_DESIGN.md` open question 4):
+Each listener context keeps a 2-bit `route` field for ABI stability. Only the
+fabric-render bit has a product implementation:
 
 | bit | Flag | Meaning |
 |-----|------|---------|
-| 0 | `DMA` | Depacketized PCM written to the per-stream PCM DMA ring in DRAM (ring base + `s`·ring_stride, the existing LiteX PCM-ring DMA generalized with an index) — the capture-PCM feed for roadmap item 7 (the host consumer). |
+| 0 | reserved | Forced to zero on write and ignored by arbitration. |
 | 1 | `RENDER` | Feeds the physical render path: LPF (x1, engages per today's `chans==2` rule) → `KL_i2s_playback`/TDM serializer. **Exactly one stream renders; if several carry the flag, the lowest-indexed one wins (deterministic rule, RTL-enforced).** |
 
 `0b00` = NULL (discarded — monitor still counts, [M-5.3.8.10] counters run
-regardless of rendering); `0b11` = RENDER|DMA = capture-while-rendering.
-Mapping from the P3 enum: `0 NULL`→`0b00`, `1 RENDER`→`0b11` (P3's RENDER
-de-facto also forwarded the ring copy), `2 DMA`→`0b01`.
+regardless of rendering); `0b10` = RENDER. Values with bit 0 set are
+canonicalized to the corresponding reserved-zero value.
 
-Default at reset: stream 0 = RENDER|DMA, others NULL — the N=1 shape is
-bit-identical to today. The render path (LPF, playback walker, wire-truth
+Default at reset: stream 0 = RENDER, others NULL — the N=1 shape matches the
+product's single-render default. The render path (LPF, playback walker, wire-truth
 1-to-1 channel rule per AAF-4/M-FMT-2) is instantiated ONCE; `wire_chans`
 delivered to the walker is the RENDER stream's context field.
 
@@ -318,7 +315,7 @@ no shadow copies except the SNAP latch block.
 Justification of indexed over flat:
 
 - (a) decode area O(1) instead of O(N);
-- (b) the reader is the single softcore daemon — sequential SEL-then-read
+- (b) the reader is bare-metal firmware — sequential SEL-then-read
   costs nothing;
 - (c) SNAP gives GET_COUNTERS atomicity that flat regs never had;
 - (d) legacy flat registers (0x648–0x764) stay wired to index 0 / the
@@ -703,7 +700,7 @@ KL_crf_tx exists; the item-5 round provisions it: (a) AEM overlay emits the
 CRF `STREAM_OUTPUT` descriptor (builder change — the 8x8/4x4 overlays gain
 one STREAM_OUTPUT with format 0x041060010000BB80, no STREAM_PORT per D1);
 (b) MAAP DMAC slot `base + T` (§3.3); (c) lwSRP talker attribute context
-`T` (§3.4); (d) provisioning daemon arms `A_CRFT_*` from the claimed DMAC
+`T` (§3.4); (d) the CRF talker derives identity from the claimed DMAC
 and station identity. The CRF sink side ([M-7.2.2]) is already compliant.
 
 *Which quarter of that list is actually done* — the four steps are settled
@@ -714,7 +711,7 @@ individually and the rest of this section is their detail:
 | (a) | AEM overlay emits the CRF `STREAM_OUTPUT`; `ADP_TALKER_SOURCES` and the AEM output count include it | **SHIPPED 2026-07-27** — the builder already emitted the CRF `STREAM_OUTPUT` and `entity_counts.talker_stream_sources = len(T) + 1`; what was missing was that nothing carried it to the `0x600` group or into the compiled descriptor ROM. The builder now emits `gen/adp_shape_defaults.svh` (the **read-only** `0x618`/`0x61C` words, which also size `ACMP_SRC_C`/`ACMP_SINKS_C`) and this shape's `aecp_aem_rom.svh` — **now an orphan**, the deleted fabric store's format rather than the DRAM image the AECP uCPU reads — from one config in one pass. Gated by [`scripts/check_entity_shape.py`](../../../scripts/check_entity_shape.py), including a pre-build refusal in `build.sh`/`sweep.sh` |
 | (b) | MAAP DMAC slot `base + T` (§3.3) | **SHIPPED 2026-07-26** — the responder answers `stream_dest_mac` = block base + `N_STREAMS`; `MAAP_CTRL`'s claimed count must therefore be `N_STREAMS+1` |
 | (c) | lwSRP talker attribute context `T` — the Class A reservation ([M-7.3.3]) | **OPEN** — the `0x800` window addresses talker idx `< T` only, so no selection reaches the row; needs `N_CTX_P = L+T` plus a way to name it |
-| (d) | provisioning daemon arms `A_CRFT_*` from the claimed DMAC and identity | **COLLAPSED TO NOTHING** — `KL_crf_tx` takes the responder's own pair whenever `CRFT_SIDLO/HI` + `CRFT_DMLO/HI` are left at 0 |
+| (d) | CRF talker derives its claimed DMAC and identity | **SHIPPED** — `KL_crf_tx` takes the responder's own pair whenever `CRFT_SIDLO/HI` + `CRFT_DMLO/HI` are left at 0 |
 
 **Fabric half SHIPPED 2026-07-26 — (b) + the bindable talker context, and
 (d) reduced to nothing.** `milan_datapath` elaborates the ACMP talker
@@ -737,7 +734,7 @@ and the responder is the byte-identical single-source shape.
 
 `KL_crf_tx` then takes **that same pair** whenever `CRFT_SIDLO/HI` and
 `CRFT_DMLO/HI` are left at their 0 reset, so what the controller was told
-and what the fabric emits cannot disagree and no daemon has to recompute
+and what the fabric emits cannot disagree and firmware does not have to recompute
 them — step (d) collapses to "leave the registers alone". A non-zero
 `CRFT_SID`/`CRFT_DMAC` still wins outright (today's static provisioning,
 exact).
@@ -785,8 +782,8 @@ current audit is the authority for the exact command list and remaining gaps.
 
 The descriptors themselves are no longer in fabric. The store fetches a flat
 image from DRAM at a compile-time base. The end-station builder generates
-`aem_desc.bin`, `aem_desc.json`, and `aem_desc.map`; the board-side `aemi-load`
-utility verifies and loads the paired image before enabling the entity.
+`aem_desc.bin`, `aem_desc.json`, and `aem_desc.map`; bare-metal firmware verifies
+and copies the paired image from QSPI before enabling the entity.
 
 What survives, and what it costs the NxN shapes:
 
@@ -796,7 +793,7 @@ What survives, and what it costs the NxN shapes:
   counts still come honestly from it, because the read-only `0x618`/`0x61C`
   words the processor advertises from are generated in the same pass (§3.5(a)).
   The same build produces the flat descriptor-image artifacts consumed by the
-  processor store, and `aemi-load` loads the paired image before entity enable.
+  processor store, and bare-metal firmware copies the verified paired image from QSPI before entity enable.
 * **Per-STREAM_OUTPUT Milan Table 5.4 counters are live.**
   `KL_talker_diag_ctx` is instantiated per declared AAF output and for CRF.
   GET_COUNTERS serves every index with the compact five-counter layout. The
@@ -867,17 +864,17 @@ Lanes A–D are parallelizable after P0; integration steps are serial at the end
 
 | # | Increment | Lane | TB gate | Parallel? |
 |---|-----------|------|---------|-----------|
-| P0 | `N_STREAMS` parameter plumbing: milan_datapath/milan_top/milan_soc `--num-streams` (builder emits it in soc_params); N=1 default, zero functional delta | — | full sweep unchanged; `datapath`, `milan_dp` | serial (root) |
+| P0 | `N_STREAMS` parameter plumbing: milan_datapath/milan_soc `--num-streams` (builder emits it in soc_params); N=1 default, zero functional delta | — | full sweep unchanged; `datapath`, `milan_dp` | serial (root) |
 | P1 | Stream-table CSR authority + `tuser` stream-index tag parser→FIFO→monitor bundle; index constant 0 at N=1 | A | `avtp_stream` extended (multi-entry match already covered), `avtp_rxmon` 75 + coverage gate | lane root |
 | P2 | Monitor context RAM: LCTX DYN+CNT regions, bind-edge reset per stream, silence→ms-tick flop array; 0x6B8 group aliases stream 0 | A | `avtp_rxmon` (≥95% line cov held) + new N-stream interleave TB | ∥ with B,C,D |
-| P3 | PCM routing policy: `route` field, RENDER-lowest-wins, per-stream DMA rings, NULL default for s>0 | A | `i2spb` untouched-green, `datapath` | after P2 |
+| P3 | PCM routing policy: route ABI `{RENDER,reserved}`, RENDER-lowest-wins, NULL default for s>0 | A | `i2spb` untouched-green, `datapath` | after P2 |
 | P4 | Shared TX packetizer + TCTX + epoch scheduler; golden-frame check: N=1 emits today's exact wire bytes | B | `aaf` + new golden-frame byte-compare TB | ∥ with A,C,D |
 | P5 | Σ-slope bw_gate + per-stream gates | B | `lwsrp` 36 (bw math rows) + `cbs` | after P4 |
 | P6 | ACMP listener ACTX (sink-1 record folds into context N flavor); timer scan | C | `acmp_lstn` 89 checks + xN bind/probe interleave checks | ∥ with A,B,D |
 | P7 | Responder per-tuid activation array | C | `acmp` | after P6 |
 | P8 | MAAP count=T+1 + per-stream DMAC derivation adder | C | `maap` | ∥ within C |
 | P9 | lwSRP walker N-key match + SCTX registrar/declaration contexts + vector-range TX (closes SRP-9 + CRF reservation) | D | `lwsrp` 36, `lwsrp_rx` 75, `lwsrp_tx` 363, `lwsrp_switchpdu` | ∥ with A,B,C |
-| P10 | CRF output provisioning: overlay STREAM_OUTPUT + MAAP slot + SRP context + daemon arming ([M-7.2.3]) | D | `crf_tx` + builder gates (overlay counts) | after P8, P9 |
+| P10 | CRF output provisioning: overlay STREAM_OUTPUT + MAAP slot + SRP context + derived identity ([M-7.2.3]) | D | `crf_tx` + builder gates (overlay counts) | after P8, P9 |
 | P11 | Indexed CSR window (0x800 block) + AECP per-stream validation tables (codegen) | E | `csr`, `aecp` 474, ROM byte-identity gate | after P2, P6 |
 | P12 | Integration: 4x4/8x8 config builds end-to-end, 2-stream smoke in `milan_dp`, estimator re-run with shared-engine rows replacing UPPER BOUNDs | — | `datapath`, `milan_dp`, full sweep, `test_builder` | serial (last) |
 
@@ -890,7 +887,7 @@ flowchart LR
     subgraph LA["Lane A — RX contexts"]
         P1["P1 stream-table authority<br/>+ tuser stream index"]
         P2["P2 LCTX monitor contexts<br/>+ bind-edge counter reset"]
-        P3["P3 PCM routing policy<br/>RENDER / DMA flags"]
+        P3["P3 fabric render policy<br/>RENDER / reserved"]
         P1 --> P2 --> P3
     end
     subgraph LB["Lane B — TX"]
@@ -1000,10 +997,10 @@ shape** (§4 T6). Levers, in order, if a shape refuses to close:
    file became a 256×32 single-port `READ_FIRST` BRAM ring (bit-exact deltas),
    measured OOC **−3 177 LUT / −8 159 FF / +1 RAMB18**. It was the exact
    placer-overflow victim of the first 8×8+chmap build.
-3. Compile-time `N_RENDER=1` pruning already assumed (LPF + playback walker
-   x1); further: compile out DMA-ring writers for shapes that don't enable
-   host capture yet. **Measured (2026-07-26) — see §6.2 before spending
-   this one: the LPF is a 428-LUT prize, 20× smaller than levers 1–2.**
+3. Compile-time `N_RENDER=1` pruning already assumed (LPF + render walker
+   x1); further reductions come from the tier-1 optional fabric blocks.
+   **Measured (2026-07-26) — see §6.2 before spending this one: the LPF is
+   a 428-LUT prize, 20× smaller than levers 1–2.**
 4. Area-70 playbook trims (sequentialize any remaining parallel cones —
    T5's pattern; `tx_sf` 512 lever from the AX seed-miss round).
 5. If 8x8-ax still refuses: ship 8x8 with the 4x4 gateware config on AX
@@ -1056,15 +1053,13 @@ The 8x8 shape is no longer design-only — it elaborates and sim-scales:
   deltas below.
 - **Sim-scales green.** [`tb/verilator/milan_dp`](../../../tb/verilator/milan_dp) builds an N=8 config
   (`obj_nxn8`, `-GN_STREAMS=8 -DNSTREAMS_TB=8`) of the same self-checking
-  `sim_nxn` harness: **82 checks / 0 fail**, adding a full-index routing sweep
-  that provisions streams 3..7 *simultaneously* and proves each lands on the
-  PCM ring with its own `tuser` + byte-exact payload, isolated per-stream
-  Table 7-157 counters, and unknown-sid drop at width N — the 8-stream
-  independent-routing proof. N=4 (`obj_nxn`) stays green 70/0; legacy 172/0.
+  `sim_nxn` harness, including a full-index routing sweep that provisions
+  streams 3..7 *simultaneously* and proves byte-exact depacketizer tagging,
+  deterministic render selection, isolated per-stream Table 7-157 counters,
+  and unknown-sid drop at width N — the 8-stream independent-routing proof.
 - **Measured 4→8 resource delta.**
-  - The LiteX netlist grows ~84 lines: the per-stream PCM-ring offset CSRs
-    `milandma_pcm_offsets{0..N-1}` gain +4 32-bit regs, the ring-select
-    muxes widen to a 3-bit index, and the `>= N` user/sel clamps move 4→8.
+  - The SoC boundary does not grow a per-stream media buffer: listener audio
+    remains inside `milan_datapath`; only the fabric context indexes widen.
   - The real per-stream growth lives inside `milan_datapath`
     (parameter-passed, not flattened into this netlist): the LCTX monitor
     context RAM `lctx_r` (32×32b = 1 Kib/stream) doubles 128→256 words
@@ -1075,11 +1070,12 @@ The 8x8 shape is no longer design-only — it elaborates and sim-scales:
     deepens BRAM.
 - **Ship levers to fit 8x8 on xc7a100t** (bench Vivado build is gated, not
   this round):
-  - the shipping config is **1-hart NaxRiscv** (`--cpu-count 1`, the arg
-    default) **+ `--l2-bytes 32768`** (lever 1 above: −8 BRAM + placement
-    relief; perf delta per the standing USER authorization);
-  - with both, the modeled 8x8 envelope holds at 89.2% LUT / 70% BRAM
-    (gate 13 ceiling < 92%);
+  - the current named 8x8 config is **1-hart cacheless RV32I VexiiRiscv**
+    (`--cpu vexiiriscv --cpu-count 1 --xlen 32 --l2-bytes 0`), stated by
+    `sw/litex/build.sh`; NaxRiscv is not a supported product shape;
+  - the 89.2% LUT / 70% BRAM envelope was an older modeled configuration,
+    not current-candidate evidence; use the named build and its generated
+    report for the #117 acceptance record;
   - if it still refuses to close, levers 2–5 apply, ending in the
     config-selectable-N fallback (ship the 4x4 gateware on AX, keep 8x8
     as the sweep target — the architecture is unchanged).
@@ -1103,10 +1099,9 @@ CBS slope engine), and lever 2 moved **8 159 FFs + 3 177 LUTs** out of
 `crf_rx` for one BRAM. The LPF is a **20× smaller prize**.
 
 Scope matters as much as size. `KL_pcm_lpf` sits on the **render path
-only** (`milan_datapath` → I2S DAC). Every digital acceptance surface —
-the PCM DMA ring, host capture, the channel-map walk evidence, the wire
-tone comparison — is taken *upstream* of it, so removing it changes no
-measurement in this repo's evidence trail. It is also **already
+only** (`milan_datapath` → I2S DAC). The depacketizer, route-selection,
+channel-map and talker wire checks are all taken *upstream* of it, so removing
+it changes none of those digital measurements. It is also **already
 runtime-bypassable** (`LPF_CTRL 0x72C[0]` → `cfg_lpf_enable`, default on),
 so nothing is blocked by its presence today.
 
@@ -1122,8 +1117,8 @@ placement failure.
 **WIRED, THEN SPENT (2026-07-27, §6.3 lever S5).** `LPF_P` exists as a
 `milan_datapath` parameter, **default 1 = filter PRESENT**, and
 `milan_soc.py --no-render-lpf` passes `p_LPF_P = 0` (passed *only* when
-pruning, so a default build's generated top stays byte-identical — the
-`AAF_PLAYBACK_P` discipline). Pruned, the render tap ties to the exact nets
+pruning, so a default build's generated top stays byte-identical). Pruned, the
+render tap ties to the exact nets
 `LPF_CTRL[0] = 0` already produces (`active_o = 0` → `KL_i2s_playback` takes
 the raw AXIS path), so no new state and no new behaviour and **no CSR
 moves** — `pcm_lpf_active` is not read back anywhere, so `VERSION` does not
@@ -1235,10 +1230,10 @@ constant-folds the NxN engines away and would read as a free win, and
 tops, so the whole-datapath rows force `N_STREAMS = 8` by rewriting the
 parameter default in a scratch copy of `hdl/`.
 
-**The shape measured is the shape `sweep.sh` builds**: `N_STREAMS = 8`,
-`AUDIO_IF_SLOTS_P = 0`, `AAF_PLAYBACK_P = 0`. The 8x8 *config* declares
-`tdm16` and playback, but neither flag is on the sweep's argv, so measuring
-there would describe a bitstream nobody builds.
+**The shape measured is the shape `sweep.sh` builds**: `N_STREAMS = 8` and
+`AUDIO_IF_SLOTS_P = 0`. The 8x8 *config* declares its physical interfaces
+separately; the sweep must carry those shape arguments before its result can
+be used as a shipping-build measurement.
 
 #### Calibration: what a yosys LUT is worth in Vivado
 
@@ -1414,8 +1409,8 @@ in the pruned branch fails the byte-exact I2S sample check.
   offender in that report — 266 control sets and 8 468 flops under
   `crf_rx` — is already gone with the ts-history ring of §6 lever 2, which
   is why the count fell 1 612 → 1 546. What remains is fragmented across
-  ~110 sets in the AECP builder, ~59 in the ring DMA writer and ~51 in
-  ACMP, none of them a single big win.)
+  ~110 sets in the AECP builder and ~51 in ACMP, neither of them a single
+  big win.)
   **This lane could not measure it.** A yosys control-set proxy was built
   and discarded: it reports **18 691** sets for the datapath's 24 002 flops
   against Vivado's **1 612** design-wide, because yosys keeps a private

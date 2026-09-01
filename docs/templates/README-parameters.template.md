@@ -39,7 +39,7 @@ Instantiated by: `<parent module / milan_soc.py>`
 
 ## Cross-parameter / cross-module pairings (STRICT)
 
-<!-- Pairs that MUST move together (e.g. hs_page_bytes <-> kl-eth hsplit12).
+<!-- Pairs that MUST move together (for example stream count and generated entity rows).
      One row per pairing, with the failure mode when violated. -->
 
 | This parameter | Must pair with | Failure mode when violated |

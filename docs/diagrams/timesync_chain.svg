@@ -23,7 +23,7 @@
 <rect x="675" y="116" width="200" height="84" rx="9" fill="#E3F2FD" stroke="#1565C0" stroke-width="2"/>
 <text x="775.0" y="140" font-size="14" font-weight="bold" fill="#212121" text-anchor="middle">timestamp transport</text>
 <text x="775.0" y="158" font-size="11" fill="#37474F" text-anchor="middle">RX side FIFO + TX seq/type</text>
-<text x="775.0" y="173" font-size="11" fill="#37474F" text-anchor="middle">no software pairing race</text>
+<text x="775.0" y="173" font-size="11" fill="#37474F" text-anchor="middle">fabric tuple pairing</text>
 <rect x="910" y="116" width="190" height="84" rx="9" fill="#E3F2FD" stroke="#1565C0" stroke-width="2"/>
 <text x="1005.0" y="140" font-size="14" font-weight="bold" fill="#212121" text-anchor="middle">KL_gptp_engine</text>
 <text x="1005.0" y="158" font-size="11" fill="#37474F" text-anchor="middle">BTCA + Pdelay + Sync</text>
@@ -33,9 +33,9 @@
 <text x="1225.0" y="158" font-size="11" fill="#37474F" text-anchor="middle">GM + parent + flags</text>
 <text x="1225.0" y="173" font-size="11" fill="#37474F" text-anchor="middle">pdelay + offset + annq</text>
 <rect x="1350" y="116" width="370" height="84" rx="9" fill="#ECEFF1" stroke="#455A64" stroke-width="2" stroke-dasharray="7 5"/>
-<text x="1535.0" y="140" font-size="14" font-weight="bold" fill="#212121" text-anchor="middle">product ownership (0x0002_0055)</text>
+<text x="1535.0" y="140" font-size="14" font-weight="bold" fill="#212121" text-anchor="middle">product ownership (0x0002_0056)</text>
 <text x="1535.0" y="158" font-size="11" fill="#37474F" text-anchor="middle">fabric is the ONE PHC/protocol/publication owner (#259)</text>
-<text x="1535.0" y="173" font-size="11" fill="#37474F" text-anchor="middle">the software time owner is retired (historical)</text>
+<text x="1535.0" y="173" font-size="11" fill="#37474F" text-anchor="middle">option OFF is ownerless verification hardware</text>
 <rect x="40" y="290" width="330" height="96" rx="9" fill="#FFF8E1" stroke="#F9A825" stroke-width="2"/>
 <text x="205.0" y="314" font-size="14" font-weight="bold" fill="#212121" text-anchor="middle">PHC - timestamp_counter</text>
 <text x="205.0" y="332" font-size="11" fill="#37474F" text-anchor="middle">Q8.24 ns accumulator, datapath clock</text>

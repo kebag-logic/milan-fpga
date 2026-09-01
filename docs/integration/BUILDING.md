@@ -4,8 +4,8 @@
 maintainer reference for it: what the named configurations are, the parallel
 launch discipline the script encodes (and why each rule exists), how to add a
 configuration, and the per-board load/console facts you need after a build
-lands. Test layers around a build: [../testing/RUNNING_TESTS.md](../testing/RUNNING_TESTS.md). Live lab
-state: [../findings/BENCH_TOPOLOGY.md](../findings/BENCH_TOPOLOGY.md).*
+lands. Test layers around a build:
+[../testing/RUNNING_TESTS.md](../testing/RUNNING_TESTS.md).*
 
 The shipping software-profile claims are checked against the
 [Milan feature status ledger](../reference/MILAN_FEATURE_STATUS.md):
@@ -14,16 +14,22 @@ The shipping software-profile claims are checked against the
 | Feature ID | Status | Canonical value |
 |---|---|---|
 | `soc.baremetal-profile` | `implemented` | - |
-| `host.sound-card-option` | `not-supported` | - |
 <!-- milan-feature-status:end -->
+
+<!-- solution-cpu-contract:start -->
+| Invocation | CPU | Harts | XLEN | Firmware | L2 bytes | Datapath clock |
+|---|---|---:|---:|---|---:|---:|
+| CLI defaults | `vexiiriscv` | `1` | `32` | `baremetal` | `unset` | `unset` |
+| `deploy.sh` | `vexiiriscv` | `1` | `32` | `baremetal` | `0` | `50 MHz` |
+<!-- solution-cpu-contract:end -->
 
 ## Contents
 
 - **[0. The pipeline, and where it can refuse you](#0-the-pipeline-and-where-it-can-refuse-you)** -- What runs between `build.sh` and a shippable bitstream, and the asymmetry that is the whole point: **only the shape gate is automatic**. Timing, area and the silicon checklist are all read by hand, so a build can pass timing and area and still not be ship-cleared.
 - **[1. Usage](#1-usage)** -- The invocation table -- both boards in parallel, the place sweep, `TAG=`, argument passthrough, `--dry-run`, and the `flash` verb. Plus where outputs land and the one-liner that tells you which Vivado phase a detached build is in.
-- **[2. The named configurations](#2-the-named-configurations)** -- What each `cfg_*` recipe actually pins: part and speedgrade, DRAM, flash, RX queues, and cache shape. Read the `--eth-port` sub-section before flashing an AX -- a bitstream is built for **one** port, a mismatch leaves the board with no network, and the recipe is verified by grepping the port back out of the build log rather than trusted.
+- **[2. The named configurations](#2-the-named-configurations)** -- What each `cfg_*` recipe actually pins: part and speedgrade, DRAM, flash, fabric streams, and cache shape. Read the `--eth-port` sub-section before flashing an AX -- a bitstream is built for **one** port, a mismatch leaves the board with no network, and the recipe is verified by grepping the port back out of the build log rather than trusted.
 - **[3. The launch discipline (why the script is not just a for-loop)](#3-the-launch-discipline-why-the-script-is-not-just-a-for-loop)** -- Five rules, each paid for: Vivado *errors* above 32 threads, three concurrent builds maximum, a 90 s stagger because concurrent elaborations race on `.git/index.lock`, and detached process groups because a bulk task-kill once reaped four running builds mid-route. Section 3.1 adds the shape gate and the three separate times this class of drift reached silicon.
-- **[4. After the build: load + console, per board](#4-after-the-build-load--console-per-board)** -- Per-board JTAG and console invocations (select by serial -- `ttyUSB` numbers renumber on any replug), the v3 flash layout with the bitstream at offset 0, and the retired warning about the old kernel-at-offset-0 map. `hostplane_smoke.sh` is mandatory after every flash.
+- **[4. After the build: load + console, per board](#4-after-the-build-load--console-per-board)** -- Per-board JTAG and console invocations (select by serial -- `ttyUSB` numbers renumber on any replug), the bare-metal bitstream+AEM flash layout, and the bench-workstation UART smoke that is mandatory after every flash.
 - **[5. Gates before a build is "good"](#5-gates-before-a-build-is-good)** -- The three gates with their thresholds, including two hard-won caveats: keep AX margin above +0.03 because QSPI flashboot corrupted below it, and OOC-synth a module before believing its hierarchical utilization line.
 
 ## 0. The pipeline, and where it can refuse you
@@ -59,10 +65,10 @@ flowchart LR
 
 | step | what it checks | automatic? |
 |---|---|---|
-| **shape gate** ([`scripts/check_sweep_shape.py`](../../scripts/check_sweep_shape.py)) | the composed command line equals `configs/endstation_<shape>.yaml` — `--num-streams`, `--rx-queues`, `--l2-bytes`, and `build.sh`'s `cfg_*` recipes | **yes** — refuses *before* anything launches |
+| **shape gate** ([`scripts/check_sweep_shape.py`](../../scripts/check_sweep_shape.py)) | the composed command line equals `configs/endstation_<shape>.yaml` — stream count, clock/cache parameters, and `build.sh`'s `cfg_*` recipes | **yes** — refuses *before* anything launches |
 | **WNS ≥ 0** | Design Timing Summary row of `<outdir>/gateware/*_timing.rpt`. On the AX7101 keep margin: QSPI flashboot corrupted below +0.03 at 112.5 MHz | no — read it |
 | **utilization** | `*_utilization_place.rpt` Slice LUTs / Slice / Block RAM Tile vs the area scoreboard. OOC-synth a module before believing its hierarchical line | no — read it |
-| **silicon checklist** | boot, `ID=MILN`, driver pairing probe, ghost-peer ARP, TX gate, RX cells | no — run it on the board |
+| **silicon checklist** | boot, UART `ID=MILN`/AEM/gPTP publication, advancing PHC, and external-host wire traffic | no — run it with the board |
 
 **Only the first one is automatic**, and that asymmetry is the point: a build
 that passes timing and area but regresses the TX gate is **not** ship-cleared,
@@ -75,6 +81,8 @@ of the three, do not average them.
 ```sh
 cd sw/litex
 ./build.sh <config> [<config> ...] [--sweep] [--dry-run] [-- <milan_soc.py args>]
+./deploy.sh build --dry-run
+./deploy.sh build
 ```
 
 | Invocation | Effect |
@@ -105,43 +113,31 @@ them override).
 xc7a100t**fgg484-2**, 1 GbE (RTL8211E strapped GMII), 512 MB DDR3
 (MT41J256M16), 16 MB N25Q128 QSPI. This is the shipping 1x1 TDM8 profile:
 one RV32I VexiiRiscv hart at 50 MHz in machine mode, no MMU, no operating
-system, no L1/L2 or LiteX SDRAM cache, and no sound-card rings. The CPU and 64-bit Milan
+system, no L1/L2 or LiteX SDRAM cache. The CPU and 64-bit Milan
 plane share the 50 MHz domain through Vexii's supported decoupled-clock
 boundary; the LiteX system and audio clock recipe stays at 100 MHz. The
-physical/fabric audio datapath, NIC DMA and protocol processor remain. The
+physical/fabric audio datapath and protocol processor remain. The
 configuration explicitly enables the #114 fabric gPTP plane with
 `--fabric-gptp`; the builder creates its ROM from the same YAML station MAC,
 priority1 and 50 MHz fabric clock. It uses
-two RX queues, header-split 16K pages, `--strip-probes`, the raw-AEM bare-metal
-flash manifest, `--gtx-tx-invert`, `--timing-opt --floorplan`, and a
+`--no-datapath-probes`, the raw-AEM bare-metal flash manifest, `--gtx-tx-invert`,
+`--timing-opt --floorplan`, and a
 three-directive placement sweep. See
 [BAREMETAL_FIRMWARE.md](BAREMETAL_FIRMWARE.md).
 
-<!-- solution-cpu-contract:start -->
-| Invocation | CPU | Harts | XLEN | Firmware | L2 bytes | Datapath clock |
-|---|---|---:|---:|---|---:|---:|
-| CLI defaults | `vexiiriscv` | `1` | `32` | `baremetal` | `unset` | `unset` |
-| `deploy.sh` | `vexiiriscv` | `1` | `32` | `baremetal` | `0` | `50 MHz` |
-<!-- solution-cpu-contract:end -->
-
-Use `./deploy.sh build` for the canonical product recipe.
+The current CSR ABI is `VERSION=0x0002_0056`. With the plane enabled, fabric
+is the sole gPTP owner. The direct, verification-only option-OFF elaboration is
+ownerless: GM identity, parent identity, path data and pdelay read zero;
+`sync=0`, `asCapable=0`, and `time_uncertain=1`; every legacy publication write
+is inert. No named configuration or flash manifest selects that state.
 
 ### `ax8x8`  -  AX7101 8-stream (64-channel) bare-metal shape
 
-Same board, wider dataplane, same bare-metal profile (#259: the host bring-up
-flow this recipe once carried is retired, along with its cached CPU,
-sound-card rings and multi-image flash manifest). It keeps the
-`--fabric-gptp` owner and uses `--num-streams 8`, `--rx-queues 2`,
-`--l2-bytes 0` (cacheless), `--flashboot baremetal`, and place directive
-AltSpreadLogic_high. The two-queue shape is the measured configuration from
-the historical D7 record: a one-queue build has no flow-steer block, and
-under bulk traffic the then-softcore time daemon shared the bulk ring and the
-GM could be deposed; the fabric plane is timer-driven and
-host-load-independent, and the steering front-end stays. The 2026-07-24
-close (WNS +0.080, LUT 85.15 pct, TNS 0) used one RX queue plus the old RV64
-CPU and RV64-era refill/prefetch cache profile, so those figures are only a
-historical upper bound, not a result for the current recipe. The CPU is the
-RV32 single-hart VexiiRiscv every other artifact of this shape describes:
+Same board, wider dataplane, and the same cacheless bare-metal profile. It keeps the
+`--fabric-gptp` owner and uses `--num-streams 8`, `--l2-bytes 0` (cacheless),
+`--flashboot baremetal`, and place directive AltSpreadLogic_high. The fabric
+time plane is timer-driven and independent of firmware workload.
+The CPU is the RV32 single-hart VexiiRiscv every other artifact of this shape describes:
 since 2026-08-22 (#157) the recipe states `--xlen 32 --cpu-count 1`.
 
 #### Choosing the Ethernet port (`--eth-port`)
@@ -193,7 +189,7 @@ xc7a100t**csg324-1** (SAME die, SLOWER speedgrade  -  expect tighter WNS at
 100 MHz), 10/100 Ethernet (DP83848, **MII**; the SoC drives its 25 MHz
 `eth_ref_clk`), 256 MB DDR3 (MT41K128M16), QSPI flashboot (`--with-spiflash
 --flashboot baremetal`; the retired #259 multi-image manifest is history) and
-`--strip-probes`. Role: AVDECC/Milan interop peer and the 100 Mbit CBS
+`--no-datapath-probes`. Role: AVDECC/Milan interop peer and the 100 Mbit CBS
 test point (`is_1g=0` slope branch); not a throughput peer.
 Its CPU is one RV32 VexiiRiscv hart (`--cpu-count 1 --xlen 32`, stated
 since 2026-08-22, #157, matching `configs/endstation_arty_current.yaml` and
@@ -242,7 +238,8 @@ exists so they cannot be forgotten:
 
 [`sw/litex/sweep.sh`](../../sw/litex/sweep.sh) refuses to launch unless the command line it composed
 equals the end-station config it claims to build. It checks `--num-streams`,
-`--rx-queues` and `--l2-bytes` against `configs/endstation_<shape>.yaml`, and
+`--l2-bytes`, the render-filter setting, and every emitted design flag against
+`configs/endstation_<shape>.yaml`, and
 `build.sh`'s `cfg_*` recipes against the same configs; for those recipes
 `--xlen` and `--cpu-count` must also be stated and equal the config's (since
 2026-08-22, #157: an absent flag inherits `milan_soc.py`'s RV64 default, not
@@ -254,15 +251,13 @@ four times.
 | Date | Knob | Symptom |
 |---|---|---|
 | 2026-07-22 | `i_mac_events` | RMON counters fully tested, permanently zero on hardware (tied off in SoC glue) |
-| 2026-07-24 | `--rx-queues` | `sweep.sh` passed `1` for both boards; the deployed Arty gateware has 2. A queue-count change moves every DMA window by `0x74` under an unchanged published map |
 | 2026-07-26 | `--num-streams` | `sweep.sh` passed **nothing**, so `sweep.sh ax7101` built the default 1x1 datapath while the config, the docs and the build directories all called it 8x8 |
 | 2026-08-22 | `--xlen` / `--cpu-count` | `build.sh cfg_ax8x8` and `cfg_arty` passed no `--xlen`; `milan_soc.py` defaults to 64 where the builder defaults to 32, so both elaborated RV64 under configs, a sweep table and a boot chain that are RV32 single-hart (#157) |
 
 Per board, `sweep.sh` sets the design defaults first and *then* sources
 `configs/generated/sweep_opts_<board>.sh`, so a fragment that predates a knob
 can never silently drop it, and a fragment that pins one wins. The stream count
-rides as `NS=` (or, for the historical `sweep_opts_arty_4x4.sh`, inline in
-`OPTS` - `sweep.sh` lifts it out so the flag is emitted exactly once).
+rides as `NS=`; `sweep.sh` sets it per board and emits the flag exactly once.
 
 ```sh
 python3 scripts/check_sweep_shape.py              # static check, no shell/Vivado
@@ -294,9 +289,9 @@ multi-image manifest carried a second-stage boot chain.) Always read the build's
    plus the `.bit` FPGA part (the shared directory is only a containment check)
    and the compiled CPU width, and rejects a missing/mismatched binding or a
    part different from the selected programmer;
-2. requires the fabric owner on the bare-metal {bitstream, aem} manifest, and
-   refuses every retired boot image, the retired software owner, and
-   owner `none` before programmer I/O (#259);
+2. requires the fabric owner on the bare-metal {bitstream, aem} manifest and
+   refuses every retired boot image or ownerless manifest before programmer
+   I/O (#259);
 3. pre-materializes/size-checks every target image, then dumps live QSPI
    offset zero and byte-matches the Xilinx `.bit` payload against the
    supplied installed or target artifact;
@@ -316,11 +311,11 @@ prefix and makes a failed transaction safely resumable. Power loss during the
 single offset-zero erase/program itself can still tear that bitstream; removing
 that hardware boundary requires an A/B or MultiBoot flash layout.
 
-After a bare-metal flash, run from the UART host:
+After a bare-metal flash, run this on the bench workstation attached to the
+board's UART:
 
 ```console
-MILAN_PROFILE=baremetal MILAN_UART=/dev/serial/by-id/<adapter> \
-  scripts/hostplane_smoke.sh
+python3 scripts/baremetal_uart_smoke.py --port /dev/serial/by-id/<adapter>
 ```
 
 ## 5. Gates before a build is "good"
@@ -332,9 +327,9 @@ MILAN_PROFILE=baremetal MILAN_UART=/dev/serial/by-id/<adapter> \
    Slice LUTs / Slice / Block RAM Tile rows; hierarchical variants for
    attribution  -  but OOC-synth a module before believing its hierarchical
    line, see TROUBLESHOOTING (../limitations/) section 15).
-3. **Silicon section V checklist** (RUNNING_TESTS): boot, ID=MILN, driver
-   pairing probe, ghost-peer ARP check, TX gate, RX cells. A build that
-   passes 1-2 but regresses the TX gate is NOT ship-cleared (see the
-   cbsf_epo TX "regression", now RESOLVED as a phantom baseline — a gate
-   number is only valid with its full cell recipe -- the timing-claims rule in
-   [CONTRIBUTING.md](../../CONTRIBUTING.md)).
+3. **Silicon checklist** (RUNNING_TESTS): boot, run the UART smoke from the
+   bench workstation, and exercise the MAC with an external traffic source and
+   capture point. A build that passes 1-2 but fails UART evidence or wire
+   traffic is not ship-cleared; record the complete test-cell recipe with any
+   timing or throughput claim as required by
+   [CONTRIBUTING.md](../../CONTRIBUTING.md).

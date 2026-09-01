@@ -324,7 +324,7 @@ def decode(buf, meta):
     note = None
 
     while off < len(buf):
-        # An erased-flash or zero-padded tail is a normal end, not damage.
+        # An erased or zero-padded tail is a normal end, not damage.
         if buf[off:off + 4] in (b"\xff\xff\xff\xff", b"\x00\x00\x00\x00"):
             break
         cur = _Cursor(buf, off, little)

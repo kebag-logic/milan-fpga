@@ -309,8 +309,8 @@ module ptp_ts_top#(
   // ===========================================================================
   // TX Timestamp Buffer FIFO (Pre-Switch)
   // ===========================================================================
-  //! Open-core AXIS FIFO (Forencich verilog-axis) — replaces xpm_fifo_axis
-  //! (docs/integration/PORTING_GUIDE.md). Common-clock, non-packet.
+  //! Open-core AXIS FIFO (Forencich verilog-axis) replaces xpm_fifo_axis.
+  //! Common-clock, non-packet.
   axis_fifo #(
     .DEPTH(16),
     .DATA_WIDTH(METADATA_TDATA_WIDTH),
@@ -402,7 +402,7 @@ module ptp_ts_top#(
 );
 
   // ---------------------------------------------------------------------------
-  //! AXIS fifo to store timestamp before DMA engine
+  //! Final local FIFO decouples the TX/RX metadata arbiter from its parent.
   // ---------------------------------------------------------------------------
   //! Open-core AXIS FIFO (Forencich verilog-axis) — replaces xpm_fifo_axis.
   axis_fifo #(
@@ -411,7 +411,7 @@ module ptp_ts_top#(
     .KEEP_ENABLE(1), .KEEP_WIDTH(METADATA_TDATA_WIDTH/8),
     .LAST_ENABLE(1), .ID_ENABLE(0), .DEST_ENABLE(0), .USER_ENABLE(0), .FRAME_FIFO(0)
   )
-  ts_buffer_to_ps(
+  ts_metadata_drain_fifo(
    .clk(axis_clk),
    .rst(~axis_resetn),
 
@@ -435,7 +435,8 @@ module ptp_ts_top#(
   );
 
   // ---------------------------------------------------------------------------
-  //! DMA engine to sent timestamp metadata info to PS
+  //! The parent either consumes this private metadata stream or drains it
+  //! locally; it is not an exported memory-transfer boundary.
   // ---------------------------------------------------------------------------
 
   assign o_ptp_now = timestamp;

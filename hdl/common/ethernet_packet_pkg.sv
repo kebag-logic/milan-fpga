@@ -192,9 +192,9 @@ endfunction
  *
  *   q4  SRA_CLASS       CBS-shaped SR class A - every MSRP-reserved AVB stream
  *   q3  SRB_CLASS       CBS-shaped SR class B (provisioned, unused today)
- *   q2  GPTP_CLASS      802.1AS / gPTP (CPU path)
+ *   q2  GPTP_CLASS      802.1AS / gPTP fabric plane
  *   q1  CONTROL_CLASS   MAAP, MSRP, MVRP, 1722.1 ADP / ACMP / AECP
- *   q0  BEST_EFFORT     everything else, to/from the CPU
+ *   q0  BEST_EFFORT     unmatched best-effort traffic
  *
  * There is NO spare queue. The 6-queue map had one at q1 and it cost 282
  * slices the xc7a100t does not have (see NUMBER_OF_QUEUES above). Inserting a
@@ -391,13 +391,6 @@ parameter int PTP_SEQ_ID_OFFSET = ETH_HEADER_NO_VLAN_WIDTH + PTP_SEQ_ID_OFFSET_I
 
 //! PTP message sequence ID bit width
 parameter int PTP_SEQ_ID_BIT_WIDTH = PTP_SEQ_ID_WIDTH * BYTE_TO_BIT;
-
-//! Timestamp metadata structure to be sent to PS
-typedef struct packed {
-  bit direction; //! 0 for rx packets, 1 for tx packets
-  logic [PTP_SEQ_ID_BIT_WIDTH-1:0] seq_id; // sequence id of ptp message
-  logic [TIMESTAMP_BIT_WIDTH-1:0] timestamp; // timestamp value of the packet
-} ts_metadata;
 
 endpackage
 

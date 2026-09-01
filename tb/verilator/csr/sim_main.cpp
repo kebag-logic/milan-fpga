@@ -59,26 +59,12 @@ static bool seen_ptp_load, seen_ptp_adjust, seen_ptp_snap;
 static bool seen_stats_snap, seen_stats_reset;
 static bool seen_adp_adv, seen_adp_dep;
 static bool seen_i2spb_clru, seen_i2spb_clro;
-static bool seen_clkv_wr, seen_clkv_disc;
 // TCAM entry-write capture (o_tcam_wr_en is a 1-cycle strobe)
 static bool     seen_tcam_wr;
 static uint32_t tcam_wr_index, tcam_wr_valid, tcam_wr_action;
 static uint64_t tcam_wr_key, tcam_wr_mask;
-// GM torn-latch monitor: counts 64-bit value changes of o_adp_gptp_gm per
-// posedge while armed — every change IS a grandmaster change to the
-// GPTP_GM_CHANGED detectors / CLKV holdover / ADP re-advertise, so one
-// LO+HI write pair must produce exactly ONE change (Milan v1.2 Table 5.1:
-// "Number of gPTP GM changes, since boot")
-static bool     gm_mon_on;
-static uint64_t gm_mon_prev;
-static int      gm_mon_edges;
-
 static void posedge() {
   dut->aclk = 1; dut->eval();
-  if (gm_mon_on && dut->o_adp_gptp_gm != gm_mon_prev) {
-    gm_mon_edges++;
-    gm_mon_prev = dut->o_adp_gptp_gm;
-  }
   seen_ptp_load    |= dut->o_ptp_cmd_load;
   seen_ptp_adjust  |= dut->o_ptp_cmd_adjust;
   seen_ptp_snap    |= dut->o_ptp_cmd_snapshot;
@@ -88,8 +74,6 @@ static void posedge() {
   seen_adp_dep     |= dut->o_adp_depart_p;
   seen_i2spb_clru  |= dut->o_i2spb_clr_under;
   seen_i2spb_clro  |= dut->o_i2spb_clr_over;
-  seen_clkv_wr     |= dut->o_clkv_wr_p;
-  seen_clkv_disc   |= dut->o_clkv_disc_p;
   if (dut->o_tcam_wr_en) {          // latch the committed entry
     seen_tcam_wr = true;
     tcam_wr_index = dut->o_tcam_wr_index; tcam_wr_valid = dut->o_tcam_wr_valid;
@@ -158,7 +142,7 @@ int main(int argc, char** argv) {
   dut->aresetn = 0;
   dut->s_axi_awvalid = dut->s_axi_wvalid = dut->s_axi_bready = 0;
   dut->s_axi_arvalid = dut->s_axi_rready = 0;
-  dut->i_evt_tx_ts_ready = dut->i_evt_link_change = dut->i_evt_rmon_rollover = 0;
+  dut->i_evt_link_change = dut->i_evt_rmon_rollover = 0;
   dut->i_link_up = 1; dut->i_speed = 2; dut->i_full_duplex = 1;
   dut->i_ptp_tod = 0; dut->i_ptp_tod_valid = 0;
   dut->i_adp_available_index = 0;
@@ -178,10 +162,12 @@ int main(int argc, char** argv) {
 
   printf("-- identification / capabilities --\n");
   ck("ID",            axi_read(A_ID),      0x4D494C4E);
-  ck("VERSION",       axi_read(A_VERSION), 0x00020055);
+  ck("VERSION",       axi_read(A_VERSION), 0x00020056);
   uint32_t cap = axi_read(A_CAP);
   ck("CAP.num_queues", cap & 0xF, 5);
-  ck("CAP.CBS",        (cap >> 8) & 1, 1);
+  // CAP[8] CBS is 0: no shaper is elaborated since the general-data chain
+  // left milan_datapath; [3:0] num_queues is the retained 0x400 geometry.
+  ck("CAP.CBS = 0 (no shaper elaborated)", (cap >> 8) & 1, 0);
   ck("CAP.PTP",        (cap >> 9) & 1, 1);
   ck("CAP.STATS",      (cap >> 10) & 1, 1);
   ck("CAP.ADP",        (cap >> 12) & 1, 1);
@@ -196,9 +182,6 @@ int main(int argc, char** argv) {
   // opt-in), [2] ctrl_class = 1 - the REQ-CLS-10 control fast path ships ON so
   // the CONTROL_CLASS row of EGRESS_QUEUE_MAP.md is true on the wire at reset.
   ck("CLS_CTRL(reset)",  axi_read(A_CLS_CTRL), 0x5);
-  ck("o_cls_use_pcp(reset)",    dut->o_cls_use_pcp,    1);
-  ck("o_cls_dmac_check(reset)", dut->o_cls_dmac_check, 0);
-  ck("o_cls_ctrl_class(reset)", dut->o_cls_ctrl_class, 1);
   ck("CLS_MAP(reset)",   axi_read(A_CLS_MAP),  0x00FAC688);
   // 5-queue map, 3 bits per traffic class: TC0/1 -> q0, TC2 -> q3 (SR-B),
   // TC3 -> q4 (SR-A), TC4/5 -> q1 (control), TC6/7 -> q2 (gPTP). No spare.
@@ -249,19 +232,11 @@ int main(int argc, char** argv) {
   ck("0x480 IS mapped (q4 IDLE takes the write)", axi_read(A_CBS4_IDLE), 0xA5A5A5A5);
   axi_write(A_CBS4_IDLE, 450000000u);
 
-  // RESET VALUE vs RESET OUTPUT. Readback is served from the shadow BRAM
-  // (seeded from the `csr_default` table) while the datapath sees the register
-  // file's own reset assignment - two independent literals. If they diverge the
-  // classifier/shaper run on one value while software reads another, which no
-  // readback-only check can see. Pin them equal for the queue-shaped ones.
+  // CLS_* and the CBS window are WRITE-ONLY SCRATCH: served from the shadow
+  // BRAM (seeded from `csr_default`), stored on write, consumed by nothing -
+  // the block has no o_cls_*/o_cbs_* ports any more. The readbacks above are
+  // therefore the whole contract; there is no second literal to pin against.
   dut->eval();
-  ck("o_cls_tc_queue_map == CLS_TCQ readback", dut->o_cls_tc_queue_map,
-     axi_read(A_CLS_TCQ));
-  ck("o_cbs_idle_slope_bps[0] == CBS0_IDLE readback", dut->o_cbs_idle_slope_bps[0],
-     axi_read(A_CBS0_IDLE));
-  ck("o_cbs_idle_slope_bps[4] == CBS4_IDLE readback", dut->o_cbs_idle_slope_bps[4],
-     axi_read(A_CBS4_IDLE));
-  ck("o_cbs_enable == 0 at reset (all five unshaped)", dut->o_cbs_enable, 0);
 
   // FQTSS bandwidth availability (802.1Q-2018 §34.3.1 / REQ-CBS-03) over the
   // registers SOFTWARE actually reads, not over the RTL package. `deltaBandwidth`
@@ -319,48 +294,48 @@ int main(int argc, char** argv) {
   ck("o_mac_addr", dut->o_mac_addr, 0x554433221100ULL);
 
   axi_write(A_CBS1_IDLE, 0x0AABBCCD);
-  ck("CBS1_IDLE rw", axi_read(A_CBS1_IDLE), 0x0AABBCCD);
-  dut->eval();
-  ck("o_cbs_idle_slope_bps[1]", dut->o_cbs_idle_slope_bps[1], 0x0AABBCCD);
+  ck("CBS1_IDLE rw (scratch)", axi_read(A_CBS1_IDLE), 0x0AABBCCD);
 
-  axi_write(A_CBS3_CTRL, 0x1);           // enable queue 3 shaping
-  dut->eval();
-  ck("o_cbs_enable bit3", (dut->o_cbs_enable >> 3) & 1, 1);
+  axi_write(A_CBS3_CTRL, 0x1);           // CTRL readback is masked to bit 0
+  ck("CBS3_CTRL rw (scratch, bit 0)", axi_read(A_CBS3_CTRL), 0x1);
   axi_write(A_CBS3_CTRL, 0x0);
 
-  // the TOP queue is reachable end-to-end (write -> readback -> output)
+  // the TOP queue's row is still addressable (write -> readback)
   axi_write(A_CBS4_IDLE, 0x0C0FFEE0);
-  ck("CBS4_IDLE rw", axi_read(A_CBS4_IDLE), 0x0C0FFEE0);
-  dut->eval();
-  ck("o_cbs_idle_slope_bps[4]", dut->o_cbs_idle_slope_bps[4], 0x0C0FFEE0);
-  axi_write(A_CBS4_CTRL, 0x1);           // shape the class-A queue
-  dut->eval();
-  ck("o_cbs_enable bit4", (dut->o_cbs_enable >> 4) & 1, 1);
+  ck("CBS4_IDLE rw (scratch)", axi_read(A_CBS4_IDLE), 0x0C0FFEE0);
+  axi_write(A_CBS4_CTRL, 0x1);
+  ck("CBS4_CTRL rw (scratch, bit 0)", axi_read(A_CBS4_CTRL), 0x1);
   axi_write(A_CBS4_CTRL, 0x0);
   axi_write(A_CBS4_IDLE, 450000000u);
 
   printf("-- IRQ: event latch, mask, W1C --\n");
   axi_write(A_IRQ_MASK, 0x7);
-  dut->i_evt_tx_ts_ready = 1; posedge(); dut->i_evt_tx_ts_ready = 0; posedge();
-  ck("IRQ_STATUS[0] set", axi_read(A_IRQ_STATUS) & 1, 1);
-  dut->eval();
-  ck("o_irq asserted", dut->o_irq, 1);
-  axi_write(A_IRQ_STATUS, 0x1);          // W1C bit0
-  ck("IRQ_STATUS[0] cleared", axi_read(A_IRQ_STATUS) & 1, 0);
-  dut->eval();
-  ck("o_irq deasserted", dut->o_irq, 0);
   dut->i_evt_link_change = 1; posedge(); dut->i_evt_link_change = 0; posedge();
   ck("IRQ_STATUS[1] set", (axi_read(A_IRQ_STATUS) >> 1) & 1, 1);
-  axi_write(A_IRQ_STATUS, 0x2);
+  dut->eval();
+  ck("o_irq asserted", dut->o_irq, 1);
+  axi_write(A_IRQ_STATUS, 0x2);          // W1C bit1
+  ck("IRQ_STATUS[1] cleared", (axi_read(A_IRQ_STATUS) >> 1) & 1, 0);
+  dut->eval();
+  ck("o_irq deasserted", dut->o_irq, 0);
+  dut->i_evt_rmon_rollover = 1; posedge(); dut->i_evt_rmon_rollover = 0; posedge();
+  ck("IRQ_STATUS[2] set", (axi_read(A_IRQ_STATUS) >> 2) & 1, 1);
+  axi_write(A_IRQ_STATUS, 0x4);
+  // IRQ_STATUS[0] tx_ts_ready is a STRUCTURAL ZERO: the TX record stamper
+  // that pulsed it left milan_datapath with the general-data chain and the
+  // block has no event input for it. It never sets; its W1C is inert.
+  ck("IRQ_STATUS[0] is structural zero", axi_read(A_IRQ_STATUS) & 1, 0);
+  axi_write(A_IRQ_STATUS, 0x1);
+  ck("IRQ_STATUS[0] W1C is inert", axi_read(A_IRQ_STATUS) & 1, 0);
 
   // Hardware event set must win over a coincident W1C clear (event not lost).
   // With the event held asserted across the W1C ack, the bit stays set.
-  dut->i_evt_tx_ts_ready = 1;
-  axi_write(A_IRQ_STATUS, 0x1);          // W1C bit0 while the event is asserted
-  ck("event beats W1C (bit stays set)", axi_read(A_IRQ_STATUS) & 1, 1);
-  dut->i_evt_tx_ts_ready = 0; posedge();
-  axi_write(A_IRQ_STATUS, 0x1);          // now the event is gone, W1C clears it
-  ck("W1C clears once event deasserts", axi_read(A_IRQ_STATUS) & 1, 0);
+  dut->i_evt_link_change = 1;
+  axi_write(A_IRQ_STATUS, 0x2);          // W1C bit1 while the event is asserted
+  ck("event beats W1C (bit stays set)", (axi_read(A_IRQ_STATUS) >> 1) & 1, 1);
+  dut->i_evt_link_change = 0; posedge();
+  axi_write(A_IRQ_STATUS, 0x2);          // now the event is gone, W1C clears it
+  ck("W1C clears once event deasserts", (axi_read(A_IRQ_STATUS) >> 1) & 1, 0);
 
   printf("-- PTP command strobes + TOD snapshot --\n");
   seen_ptp_snap = false;
@@ -465,52 +440,27 @@ int main(int argc, char** argv) {
   ck("o_adp_talker_caps unmoved",    dut->o_adp_talker_caps, 0x4001);
   ck("o_adp_listener_sinks unmoved", dut->o_adp_listener_sinks, 2);
   ck("o_adp_listener_caps unmoved",  dut->o_adp_listener_caps, 0x4801);
+  // #116: without the fabric engine there is no runtime gPTP owner. The
+  // historical publication addresses stay mapped but are inert and read zero.
+  // The block exports no GM/parent/pdelay mirror ports at all (the datapath's
+  // consumers read the fabric bank directly), so the addresses ARE the face.
+  ck("ownerless domain is zero", dut->o_adp_gptp_domain, 0);
+
   axi_write(A_ADP_GMLO, 0x44556677);
   axi_write(A_ADP_GMHI, 0x00112233);
-  dut->eval();
-  ck("o_adp_gptp_gm", dut->o_adp_gptp_gm, 0x0011223344556677ULL);
-  // GM pair TORN-LATCH pin (2026-08-02): gptp2csr.sh publishes the id as
-  // two 32-bit devmem writes, 0x624 LO then 0x628 HI. A consumer sampling
-  // BETWEEN them must still see the full OLD identity — half-old/half-new
-  // is an identity no grandmaster ever had, and it counts as a spurious GM
-  // change. LO must STAGE, HI must commit both halves in one cycle.
-  // Mutation anchor: revert to per-half commit and the mid-pair sample
-  // reads 0x00112233EEEE5555 and the edge monitor counts 2, not 1.
-  gm_mon_prev  = dut->o_adp_gptp_gm;
-  gm_mon_edges = 0;
-  gm_mon_on    = true;
-  axi_write(A_ADP_GMLO, 0xEEEE5555);
-  for (int g = 0; g < 8; g++) posedge();           // dwell mid-pair
-  ck("GM LO staged: consumers still see the OLD pair",
-     dut->o_adp_gptp_gm, 0x0011223344556677ULL);
-  ck("GM LO readback = staged word (shadow)", axi_read(A_ADP_GMLO), 0xEEEE5555);
-  ck("GM still OLD after the readback", dut->o_adp_gptp_gm, 0x0011223344556677ULL);
-  axi_write(A_ADP_GMHI, 0x8899AABB);
-  dut->eval();
-  ck("GM HI commits both halves atomically",
-     dut->o_adp_gptp_gm, 0x8899AABBEEEE5555ULL);
-  gm_mon_on = false;
-  ck("exactly ONE 64-bit change across the LO+HI pair", gm_mon_edges, 1);
-  // restore the earlier identity for any later section (paired, of course)
-  axi_write(A_ADP_GMLO, 0x44556677);
-  axi_write(A_ADP_GMHI, 0x00112233);
-  dut->eval();
-  ck("GM restore committed", dut->o_adp_gptp_gm, 0x0011223344556677ULL);
+  for (int g = 0; g < 8; ++g) posedge();
+  ck("GM LO retained address reads zero", axi_read(A_ADP_GMLO), 0);
+  ck("GM HI retained address reads zero", axi_read(A_ADP_GMHI), 0);
+
   axi_write(A_AS2_LO, 0xCCDDEEFF);
   axi_write(A_AS2_HI, 0x8899AABB);
-  ck("parent initial pair committed", dut->o_as_parent_ckid,
-     0x8899AABBCCDDEEFFULL);
-  axi_write(A_AS2_LO, 0x01234567);
-  ck("parent LO staged: consumers keep the old pair", dut->o_as_parent_ckid,
-     0x8899AABBCCDDEEFFULL);
-  ck("parent LO shadow exposes the staged word", axi_read(A_AS2_LO),
-     0x01234567);
-  axi_write(A_AS2_HI, 0xFEDCBA98);
-  ck("parent HI atomically commits both halves", dut->o_as_parent_ckid,
-     0xFEDCBA9801234567ULL);
+  ck("parent LO retained address reads zero", axi_read(A_AS2_LO), 0);
+  ck("parent HI retained address reads zero", axi_read(A_AS2_HI), 0);
+
   axi_write(A_ADP_DOMAIN, 0x00000005);
   dut->eval();
-  ck("o_adp_gptp_domain", dut->o_adp_gptp_domain, 5);
+  ck("domain write cannot manufacture an owner", dut->o_adp_gptp_domain, 0);
+  ck("domain retained address reads zero", axi_read(A_ADP_DOMAIN), 0);
   axi_write(A_ADP_IDX0, 0x00050002);     // identify_index=5, current_config=2
   dut->eval();
   ck("o_adp_current_config", dut->o_adp_current_config, 2);
@@ -542,14 +492,13 @@ int main(int argc, char** argv) {
   dut->eval();
   ck("o_lwsrp_enable",    dut->o_lwsrp_enable, 1);
   ck("o_lwsrp_talker_en", dut->o_lwsrp_talker_en, 1);
-  ck("o_lwsrp_qidx",      dut->o_lwsrp_qidx, 1);
-  // the widened field must actually REACH the top queue: bit 4 used to be
-  // reserved-0, so a build that kept [3:2] would report qidx 0 here instead of
-  // 4. (5..7 are still writable and name no queue - milan_datapath gates the
-  // slope MUX on qidx < NUM_QUEUES, which tb/verilator/milan_dp pins.)
+  // LWSRP_CTRL[4:2] (the class-A queue index) is stored and read back but
+  // has no port: it selected the CBS slope MUX target, and the shaper is no
+  // longer instantiated by milan_datapath.
+  ck("LWSRP_CTRL[4:2] stores (no consumer)", (axi_read(0x680) >> 2) & 7, 1);
   axi_write(0x680, 0x11);                // enable, queue 4
   dut->eval();
-  ck("o_lwsrp_qidx q4",   dut->o_lwsrp_qidx, 4);
+  ck("LWSRP_CTRL[4:2] q4 stores", (axi_read(0x680) >> 2) & 7, 4);
   axi_write(0x680, 0x7);
   axi_write(0x684, 42);
   axi_write(0x690, 0x000200F0);
@@ -643,61 +592,28 @@ int main(int argc, char** argv) {
   ck("I2SPB W1C zero inert", seen_i2spb_clru || seen_i2spb_clro, 0);
   ck("I2SPB_STAT still live", axi_read(0x6D8), 0x00050002);
 
-  // ---- 0x778 clock validity (the AVTP tu verdict) ----------------------
-  // The register that stops us claiming timestamps we cannot prove
-  // (docs/findings/REF_LISTENER_TIMESTAMP_SWEEP_0727.md). Reset must be
-  // SYNC_OK=0 - a default of 1 would reproduce the defect exactly.
-  ck("CLKV_CTRL reset = lease 8, SYNC_OK 0", axi_read(0x778), 0x00000080);
-  ck("CLKV_CTRL[0] SYNC_OK resets 0", axi_read(0x778) & 1, 0);
-  ck("o_clkv_sync_ok resets 0", dut->o_clkv_sync_ok, 0);
-  ck("o_clkv_wdog_q resets 8",  dut->o_clkv_wdog_q, 8);
-  seen_clkv_wr = seen_clkv_disc = false;
-  axi_write(0x778, 0x00000041);          // SYNC_OK | lease 4
-  ck("CLKV_CTRL write pulse",  seen_clkv_wr, 1);
-  ck("CLKV_CTRL[1] not set -> no disc", seen_clkv_disc, 0);
-  ck("o_clkv_sync_ok",  dut->o_clkv_sync_ok, 1);
-  ck("o_clkv_wdog_q",   dut->o_clkv_wdog_q, 4);
-  ck("CLKV_CTRL readback", axi_read(0x778), 0x00000041);
-  seen_clkv_wr = seen_clkv_disc = false;
-  axi_write(0x778, 0x00000043);          // + W1S discontinuity report
-  ck("CLKV_CTRL[1] W1S strobe", seen_clkv_disc, 1);
-  ck("CLKV_CTRL[1] reads back 0 (self-clearing)", axi_read(0x778) & 2, 0);
-  axi_write(0x778, 0x00000000);          // software withdraws the claim
-  ck("SYNC_OK clearable", dut->o_clkv_sync_ok, 0);
-  ck("lease 0 = never trust", dut->o_clkv_wdog_q, 0);
-  dut->i_clkv_stat = 0x0000004D; dut->eval();   // lease 4, hold, no_lease, tu
-  ck("CLKV_STAT RO live", axi_read(0x77C), 0x0000004D);
+  // ---- 0x778 retired clock-owner ABI (#116) --------------------------
+  // The word remains addressable, but no write may produce a pulse, lease,
+  // sync claim, discontinuity, or asCapable claim.
+  // The block has no o_clkv_* ports (deleted, not tied): a write here has
+  // no wire to travel down, so the readback is the whole observable face.
+  ck("CLKV_CTRL reset is inert zero", axi_read(0x778), 0);
+
+  axi_write(0x778, 0xFFFFFFFFu);
+  ck("CLKV_CTRL all-ones write reads zero", axi_read(0x778), 0);
+
+  axi_write(0x778, 0x00000045u);
+  ck("legacy sync/asCapable/lease pattern remains inert", axi_read(0x778), 0);
+
+  // Status/counter remain live read-only views of the fabric validity block.
+  dut->i_clkv_stat = 0x00000009; dut->eval();
+  ck("CLKV_STAT RO live", axi_read(0x77C), 0x00000009);
   dut->i_clkv_tucnt = 0x0000002A; dut->eval();
   ck("CLKV_TUCNT RO live", axi_read(0x780), 0x0000002A);
-  axi_write(0x77C, 0xFFFFFFFF);          // RO: writes must not stick
-  ck("CLKV_STAT stays RO",  axi_read(0x77C), 0x0000004D);
-  axi_write(0x780, 0xFFFFFFFF);
+  axi_write(0x77C, 0xFFFFFFFFu);
+  ck("CLKV_STAT stays RO", axi_read(0x77C), 0x00000009);
+  axi_write(0x780, 0xFFFFFFFFu);
   ck("CLKV_TUCNT stays RO", axi_read(0x780), 0x0000002A);
-  // ---- CLKV_CTRL[2]: the daemon's asCapable claim (gh #64 J3) ----------
-  // IEEE 802.1AS-2020 10.2.5.1 is a per-port variable only the daemon can
-  // compute, so it arrives here and rides the CLKV lease. Bit 2 used to be
-  // MASKED TO 0 on write, which is exactly what makes storing it backward
-  // compatible: an old gateware ignored it, a new daemon writing it into
-  // an old build changed nothing. Its NEIGHBOURS must stay masked - [1] is
-  // the W1S discontinuity report and [3] is still reserved - or a daemon
-  // composing (lease<<4)|(as_cap<<2)|sync would smear fields into state.
-  axi_write(0x778, 0x00000045);          // SYNC_OK | AS_CAPABLE | lease 4
-  ck("CLKV_CTRL[2] asCapable stored", (axi_read(0x778) >> 2) & 1, 1);
-  ck("o_clkv_as_cap follows [2]", dut->o_clkv_as_cap, 1);
-  ck("CLKV_CTRL readback with [2]", axi_read(0x778), 0x00000045);
-  ck("[2] did not disturb SYNC_OK", dut->o_clkv_sync_ok, 1);
-  ck("[2] did not disturb the lease", dut->o_clkv_wdog_q, 4);
-  axi_write(0x778, 0x0000004F);          // + [1] W1S + [3] reserved set
-  ck("CLKV_CTRL[1] still W1S-only (reads 0)", (axi_read(0x778) >> 1) & 1, 0);
-  ck("CLKV_CTRL[3] still masked to 0", (axi_read(0x778) >> 3) & 1, 0);
-  ck("...while [2] survives its neighbours", dut->o_clkv_as_cap, 1);
-  ck("[31:16] still masked", axi_read(0x778) >> 16, 0);
-  axi_write(0x778, 0x00000041);          // claim withdrawn, lease renewed
-  ck("asCapable clearable (a LEVEL, not W1S)", dut->o_clkv_as_cap, 0);
-  ck("...and the sync claim is untouched", dut->o_clkv_sync_ok, 1);
-  axi_write(0x778, 0x00000080);          // restore the reset shape
-  ck("reset shape leaves asCapable 0", dut->o_clkv_as_cap, 0);
-
   // ---- ADP diagnostics: 0x668 forensics + 0x674 liveness (VERSION 0x001D) --
   // 0x674 exists because 0x668 cannot answer "is it still advertising?": a
   // healthy advertiser that never departed and never re-armed reads 0 there,
@@ -747,11 +663,11 @@ int main(int argc, char** argv) {
   axi_write(0x6DC, 0);
   dut->i_i2spb_trim = 0xFFF00100; dut->eval();
   ck("I2SPB_TRIM RO", axi_read(0x6E0), 0xFFF00100);
-  // gPTP measured propagation delay (user bug 3): daemon-written RW ns
+  // Inert propagation-delay compatibility address (#116).
   ck("GPTP_PDELAY reset 0", axi_read(0x6E4), 0);
   axi_write(0x6E4, 0x00021F6A); dut->eval();
-  ck("o_gptp_pdelay_ns", dut->o_gptp_pdelay_ns, 0x00021F6A);
-  ck("GPTP_PDELAY readback", axi_read(0x6E4), 0x00021F6A);
+  // (no o_gptp_pdelay_ns mirror port exists; the retained address is the face)
+  ck("GPTP_PDELAY retained address reads zero", axi_read(0x6E4), 0);
 
   printf("-- RX dest-MAC TCAM programming (REQ-MAC-02) --\n");
   ck("TCAM_CTRL(reset default_pass)", axi_read(A_TCAM_CTRL) & 1, 1);
@@ -799,7 +715,7 @@ int main(int argc, char** argv) {
   ck("CRFT_COUNT live", axi_read(0x764), 1234);
 
   printf("-- ACMP bind-restore group (0x7A0, E1) --\n");
-  // the acmp-persist feature probe: 0x7A0 write/readback of the pattern
+  // retained 0x7A0 feature probe: write/readback of the pattern
   axi_write(0x7A0, 0xA5C35A3C);
   ck("REST_TKLO probe pattern", axi_read(0x7A0), 0xA5C35A3C);
   axi_write(0x7A0, 0xFE000001);          // talker_entity_id lo
@@ -995,25 +911,21 @@ int main(int argc, char** argv) {
   ck("APRB word 0 live",  axi_read(0x8B4), 0xA5A50000u);
   ck("APRB word 4 live",  axi_read(0x8C4), 0xA5A50004u);
 
-  // ---- item-7 playback chain probe (PBK 0x8C8-0x8D0) --------------------
-  // 3 packed RO words, same >=0x800 carve-out class as APRB/LTAP above.
-  // These are the ONLY fabric-side evidence of the host-ring -> KL_pcm_tx ->
-  // render crossbar -> DAC chain (every other playback counter is a migen
-  // CSR that exists only inside the LiteX SoC).
-  printf("-- playback chain probe (0x8C8-0x8D0) --\n");
-  const uint32_t pbk[3] = {0x03C0000Bu, 0x0001D4C0u, 0x000700FFu};
-  for (int k = 0; k < 3; ++k) dut->i_pbk_regs[k] = pbk[k];
-  posedge(); posedge();
-  ck("PBK_STAT 0x8C8",  axi_read(0x8C8), pbk[0]);
-  ck("PBK_FEEDS 0x8CC", axi_read(0x8CC), pbk[1]);
-  ck("PBK_RAILS 0x8D0", axi_read(0x8D0), pbk[2]);
+  // ---- reserved inert CSR gap (zero-valued, 0x8C8-0x8D0) ---------------
+  // Keep these addresses carved out of the >=0x800 shadow alias space so
+  // accesses return zero rather than unrelated RAM.
+  printf("-- reserved inert CSR gap (0x8C8-0x8D0) --\n");
+  ck("reserved gap 0x8C8 reads 0", axi_read(0x8C8), 0);
+  ck("reserved gap 0x8CC reads 0", axi_read(0x8CC), 0);
+  ck("reserved gap 0x8D0 reads 0", axi_read(0x8D0), 0);
   // the word above the group is unmapped: reads 0, never a shadow alias
-  ck("PBK 0x8D4 unmapped reads 0", axi_read(0x8D4), 0);
-  // live: no arm/strobe, the words track their inputs
-  for (int k = 0; k < 3; ++k) dut->i_pbk_regs[k] = 0x5A5A0000u + k;
-  posedge(); posedge();
-  ck("PBK word 0 live", axi_read(0x8C8), 0x5A5A0000u);
-  ck("PBK word 2 live", axi_read(0x8D0), 0x5A5A0002u);
+  ck("reserved gap 0x8D4 unmapped reads 0", axi_read(0x8D4), 0);
+  axi_write(0x8C8, 0x5A5A0000u);
+  axi_write(0x8CC, 0x5A5A0001u);
+  axi_write(0x8D0, 0x5A5A0002u);
+  ck("reserved gap 0x8C8 ignores writes", axi_read(0x8C8), 0);
+  ck("reserved gap 0x8CC ignores writes", axi_read(0x8CC), 0);
+  ck("reserved gap 0x8D0 ignores writes", axi_read(0x8D0), 0);
 
   // ---- REQ-MAC-03: is_1g follows the MAC's reported speed ----
   // MAC_CTRL[4] reset is 1, so before this a 100 Mb/s port (Arty MII, i_speed
@@ -1117,147 +1029,38 @@ int main(int argc, char** argv) {
            (fails == f0) ? "PASS" : "FAIL");
   }
 
-  // ---- 0x7DC AS_PATH staging ABI (gh #64 J4) ---------------------------
-  // The daemon parses the latest Announce's PathTrace TLV (IEEE 802.1AS-2020
-  // 10.3.9.23) and publishes it here so GET_AS_PATH can serve the real
-  // 1722.1-2021 7.4.41.2 path_sequence instead of a two-entry guess. Slot 0
-  // is the grandmaster and is NEVER stored here - it already lives at
-  // ADP_GM 0x624/8, and a second copy is the derive-never-mirror defect.
-  // A publish is the ATOMIC cutover: it transfers the committed image and
-  // length together. Generation advances only when the canonical publication
-  // changes; the root then qualifies that edge against the complete served
-  // {GM,count,tail} tuple before it can arm a Milan Table 5.22 push.
+  // ---- 0x7DC retired AS_PATH publication ABI (#116) ------------------
   {
     long f0 = fails;
-    printf("-- 0x7DC AS_PATH staging (gh #64 J4) --\n");
+    printf("-- 0x7DC AS_PATH addresses are inert without a fabric owner --\n");
     const uint32_t A_ASP_LO = 0x7DC, A_ASP_HI = 0x7E0, A_ASP_CMD = 0x7E4;
 
-    // Reset publishes the legacy count-0 spelling. With a nonzero GM, both
-    // count 0 and explicit count 1 serve the same one-entry path, {GM}; with
-    // GM zero the response is empty. No guessed parent is synthesized.
-    ck("ASP_CMD reset {gen,count} = 0", axi_read(A_ASP_CMD), 0);
-    ck("o_asp_count resets 0", dut->o_asp_count, 0);
-    ck("o_asp_gen resets 0",   dut->o_asp_gen, 0);
-    for (int k = 1; k <= 7; ++k) ck("slot resets 0", asp_slot(k), 0);
+    ck("ASP LO reset zero", axi_read(A_ASP_LO), 0);
+    ck("ASP HI reset zero", axi_read(A_ASP_HI), 0);
+    ck("ASP {gen,count} reset zero", axi_read(A_ASP_CMD), 0);
+    ck("ASP public count reset zero", dut->o_asp_count, 0);
+    ck("ASP public generation reset zero", dut->o_asp_gen, 0);
+    for (int k = 1; k <= 7; ++k) ck("ASP public slot reset zero", asp_slot(k), 0);
 
-    // Count 0 is the legacy spelling and count 1 the explicit spelling of
-    // the SAME served path, {GM}. Raw readback must preserve what software
-    // published, but an ABI alias is not a path change and spends no
-    // generation (the root notification test pins the matching wire silence).
-    axi_write(A_ASP_CMD, 0x40000001u);
-    ck("count 1 reads back explicitly", dut->o_asp_count, 1);
-    ck("legacy 0 -> explicit 1 spends no generation", dut->o_asp_gen, 0);
-    ck("ASP_CMD reports raw count 1 with gen 0", axi_read(A_ASP_CMD), 1);
-    axi_write(A_ASP_CMD, 0x40000000u);
-    ck("explicit 1 -> legacy 0 restores raw count", dut->o_asp_count, 0);
-    ck("explicit 1 -> legacy 0 spends no generation", dut->o_asp_gen, 0);
-
-    // the staging pair reads back (plain-RW, like the E1 restore staging)
+    // Attempt the full historical stage/commit/publish sequence, including
+    // a maximum count. None of it may create a runtime owner or private
+    // readback state in an option-off build.
     axi_write(A_ASP_LO, 0xFFFE0210u);
     axi_write(A_ASP_HI, 0x3CC0C6FFu);
-    ck("ASP_LO readback", axi_read(A_ASP_LO), 0xFFFE0210u);
-    ck("ASP_HI readback", axi_read(A_ASP_HI), 0x3CC0C6FFu);
-    ck("staging alone commits nothing", asp_slot(1), 0);
+    axi_write(A_ASP_CMD, 0xC0000108u);
+    axi_write(A_ASP_LO, 0x11111111u);
+    axi_write(A_ASP_HI, 0xAABBCCDDu);
+    axi_write(A_ASP_CMD, 0xFFFFFFFFu);
 
-    // commit slot 1 = the first bridge. COMMIT edits only the private image:
-    // neither the externally visible bytes nor {count,gen} can move yet.
-    axi_write(A_ASP_CMD, 0x80000100u);          // [31] commit, slot 1
-    ck("commit leaves published slot 1 unchanged", asp_slot(1), 0);
-    ck("commit does not publish a count", dut->o_asp_count, 0);
-    ck("commit does not bump the generation", dut->o_asp_gen, 0);
+    ck("ASP LO write reads zero", axi_read(A_ASP_LO), 0);
+    ck("ASP HI write reads zero", axi_read(A_ASP_HI), 0);
+    ck("ASP CMD write reads zero", axi_read(A_ASP_CMD), 0);
+    ck("ASP writes cannot publish a count", dut->o_asp_count, 0);
+    ck("ASP writes cannot spend a generation", dut->o_asp_gen, 0);
+    for (int k = 1; k <= 7; ++k)
+      ck("ASP writes cannot publish a slot", asp_slot(k), 0);
 
-    // commit slots 2 and 7 - the far end of the private store must be
-    // reachable, while every published slot remains at its reset snapshot.
-    axi_write(A_ASP_LO, 0x11111111u); axi_write(A_ASP_HI, 0xAABBCCDDu);
-    axi_write(A_ASP_CMD, 0x80000200u);          // slot 2
-    axi_write(A_ASP_LO, 0x77777777u); axi_write(A_ASP_HI, 0xDEADBEEFu);
-    axi_write(A_ASP_CMD, 0x80000700u);          // slot 7
-    ck("slot 2 commit stays private", asp_slot(2), 0);
-    ck("slot 7 commit stays private", asp_slot(7), 0);
-    ck("slot 1 still unpublished", asp_slot(1), 0);
-
-    // SLOT 0 IS REFUSED. It is the grandmaster; the builder takes entry 0
-    // from ADP_GM. Accepting it here would create a second, divergable copy.
-    axi_write(A_ASP_LO, 0xDEADDEADu); axi_write(A_ASP_HI, 0xDEADDEADu);
-    axi_write(A_ASP_CMD, 0x80000000u);          // commit "slot 0"
-    ck("slot 0 commit refused: published slot 1 intact", asp_slot(1), 0);
-    ck("slot 0 commit refused: published slot 7 intact", asp_slot(7), 0);
-
-    // publish: count 3 (GM + 2 bridges), both active staged slots become
-    // visible on ONE edge, and the generation bumps exactly once. Slot 7 is
-    // outside this published path and is canonicalized to zero.
-    axi_write(A_ASP_CMD, 0x40000003u);          // [30] publish, count 3
-    ck("published count 3", dut->o_asp_count, 3);
-    ck("generation bumped to 1", dut->o_asp_gen, 1);
-    ck("ASP_CMD reads {gen 1, count 3}", axi_read(A_ASP_CMD), 0x00000013u);
-    ck("publish exposes slot 1", asp_slot(1), 0x3CC0C6FFFFFE0210ull);
-    ck("publish exposes slot 2", asp_slot(2), 0xAABBCCDD11111111ull);
-    ck("unpublished slot 7 stays zero", asp_slot(7), 0);
-
-    // An identical re-publish is not a path-sequence change. It must neither
-    // move the generation nor arm a false Table 5.22 notification.
-    axi_write(A_ASP_CMD, 0x40000003u);
-    ck("identical re-publish keeps generation", dut->o_asp_gen, 1);
-    ck("ASP_CMD stays {gen 1, count 3}", axi_read(A_ASP_CMD), 0x00000013u);
-
-    // Re-COMMIT slot 1 while count 3 is live. Its old published value must
-    // remain observable until PUBLISH; the changed publish then cuts over and
-    // advances the generation.
-    axi_write(A_ASP_LO, 0x99AABBCCu); axi_write(A_ASP_HI, 0x55667788u);
-    axi_write(A_ASP_CMD, 0x80000100u);
-    ck("re-commit cannot leak through published slot 1",
-       asp_slot(1), 0x3CC0C6FFFFFE0210ull);
-    ck("re-commit keeps generation", dut->o_asp_gen, 1);
-    axi_write(A_ASP_CMD, 0x40000003u);
-    ck("changed publish exposes new slot 1", asp_slot(1), 0x5566778899AABBCCull);
-    ck("changed publish bumps generation", dut->o_asp_gen, 2);
-
-    // Compatibility: COMMIT and PUBLISH may share one command. Nonblocking
-    // assignment ordering must not make the publish copy the previous staged
-    // slot; the current {HI,LO} is the value published and retained in stage.
-    axi_write(A_ASP_LO, 0x22222222u); axi_write(A_ASP_HI, 0xEEEEEEEEu);
-    axi_write(A_ASP_CMD, 0xC0000203u);          // commit slot 2 + publish count 3
-    ck("combined COMMIT+PUBLISH exposes current slot 2",
-       asp_slot(2), 0xEEEEEEEE22222222ull);
-    ck("combined changed command bumps generation", dut->o_asp_gen, 3);
-    axi_write(A_ASP_CMD, 0x40000003u);
-    ck("combined value persisted in staging", asp_slot(2), 0xEEEEEEEE22222222ull);
-    ck("identical publish after combined command stays silent", dut->o_asp_gen, 3);
-
-    // the generation is a NIBBLE and wraps rather than saturating (a stuck
-    // generation would silently stop arming pushes). Every iteration is a
-    // REAL count change; identical publishes no longer spend generations.
-    for (int k = 0; k < 13; ++k)
-      axi_write(A_ASP_CMD, 0x40000000u | ((k & 1) ? 3u : 2u));
-    ck("generation wraps at 16", dut->o_asp_gen, 0);
-
-    // SATURATION: the store holds 7 bridges + the grandmaster, so a longer
-    // publish is CLAMPED. The readback then tells the truth about what the
-    // wire will carry instead of advertising entries that are not there.
-    axi_write(A_ASP_CMD, 0x4000000Fu);          // publish count 15
-    ck("published count clamps to 8", dut->o_asp_count, 8);
-    ck("ASP_CMD count readback clamped", axi_read(A_ASP_CMD) & 0xF, 8);
-    ck("clamped publish exposes committed slot 7",
-       asp_slot(7), 0xDEADBEEF77777777ull);
-    axi_write(A_ASP_CMD, 0x4000000Fu);
-    ck("identical clamped publish keeps generation", dut->o_asp_gen, 1);
-
-    // back to zero = back to the legacy arm, which is how a daemon that
-    // loses its Announce tap stops asserting a path it can no longer see.
-    // Published inactive slots clear, but the private image survives and a
-    // later publish restores it without a new COMMIT.
-    axi_write(A_ASP_CMD, 0x40000000u);
-    ck("publish count 0 restores the legacy arm", dut->o_asp_count, 0);
-    ck("zero publish hides every tail slot", asp_slot(2), 0);
-    axi_write(A_ASP_CMD, 0x40000003u);
-    ck("private slots survive zero and can be republished",
-       asp_slot(2), 0xEEEEEEEE22222222ull);
-
-    // a bare read of CMD must not move anything (it is a status word)
-    uint32_t before_gen = dut->o_asp_gen;
-    (void)axi_read(A_ASP_CMD);
-    ck("reading CMD does not bump the generation", dut->o_asp_gen, before_gen);
-    printf("  [%s] J4: staging commits, publish is the atomic cutover\n",
+    printf("  [%s] #116: software writes cannot manufacture an AS_PATH owner\n",
            (fails == f0) ? "PASS" : "FAIL");
   }
 

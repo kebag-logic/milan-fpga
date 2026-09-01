@@ -45,7 +45,7 @@ git submodule update --init third_party/verilog-axis protocol-processor gptp-pro
 - **[4. What works with no board at all](#4-what-works-with-no-board-at-all)** — A capability table for readers who will never buy an FPGA. Everything upstream of place & route is open; place & route on Artix-7 is the one genuinely closed step.
 - **[5. One command: the container](#5-one-command-the-container)** — `Containerfile.dev` pinned to the measured package set. The repo is bind-mounted rather than copied, so your edits are what the four gates actually test.
 - **[6. Track 3 — build a bitstream (Vivado)](#6-track-3--build-a-bitstream-vivado)** — Not re-verified while writing the page. The four extra prerequisites and why each is there — the RISC-V core is *generated* from Scala at build time — and the `import litex` namespace-package trap that catches everybody once.
-- **[7. Track 4 — run it on hardware](#7-track-4--run-it-on-hardware)** — Bench-only, and explicitly an engineering record rather than a reproducible recipe. Gives the ordering (a gateware-only flash will not boot) and five hand-offs, including the lethal gateware⇄driver pairings to check *before* flashing.
+- **[7. Track 4 — run it on hardware](#7-track-4--run-it-on-hardware)** — Bench-only, and explicitly an engineering record rather than a reproducible recipe. Gives the ordering (a gateware-only flash will not boot) and five hand-offs, including the gateware⇄bare-metal-firmware compatibility checks required *before* flashing.
 - **[8. Where to go next](#8-where-to-go-next)** — Routing table from who you are — evaluating, integrating, about to write RTL, lost in the vocabulary — to the one page to open next.
 
 ## 1. Pick a track
@@ -234,9 +234,9 @@ needs a vendor licence:
 | Run every self-checking RTL testbench | [Section 2.3](#23-the-verilator-testbenches) | verilator, gcc |
 | Prove the RTL is vendor-neutral, and map it to an ECP5 | [Section 3](#3-track-2--device-portability-still-no-vendor-tools) | yosys, sv2v |
 | Generate and validate a whole end-station model, SV headers, and build plan from a YAML declaration | `python3 sw/builder/endstation_builder.py configs/endstation_arty_4x4.yaml`; [`docs/ENDSTATION_BUILDER.md`](docs/ENDSTATION_BUILDER.md). This writes review artifacts under `sw/builder/out/`; the named SoC build emits the paired `aem_desc.*` set beside the bitstream for the bare-metal flash manifest | python, pyyaml |
-| Read the register ABI and write driver code against it | [`docs/reference/REGISTER_MAP.md`](docs/reference/REGISTER_MAP.md), asserted by the `csr` suite | nothing |
+| Read the CSR contract and write bare-metal initialization or diagnostic tooling against it | [`docs/reference/REGISTER_MAP.md`](docs/reference/REGISTER_MAP.md), asserted by the `csr` suite | nothing |
 | Check the current compliance audit and module-to-test coverage | [`docs/testing/MILAN_V12_AUDIT_2026-08-16.md`](docs/testing/MILAN_V12_AUDIT_2026-08-16.md), [`docs/traceability/MODULE_MATRIX.md`](docs/traceability/MODULE_MATRIX.md) | nothing |
-| Simulate the softcore booting with the NIC attached (sim DUT) | [`sw/litex/milan_sim.py`](sw/litex/milan_sim.py) -- **needs the LiteX stack + a JVM**, see [Section 6](#6-track-3--build-a-bitstream-vivado) | migen/litex, JDK |
+| Simulate the softcore booting with the Milan fabric attached (sim DUT) | [`sw/litex/milan_sim.py`](sw/litex/milan_sim.py) -- **needs the LiteX stack + a JVM**, see [Section 6](#6-track-3--build-a-bitstream-vivado) | migen/litex, JDK |
 
 What you **cannot** do without proprietary tools: place & route (`.bit`
 generation) is Vivado-only. There is no open bitstream flow for Artix-7 in this
@@ -341,10 +341,9 @@ firmware boot/CSR contract → connect the board to the timed network.
 3. [`docs/testing/MILAN_V12_AUDIT_2026-08-16.md`](docs/testing/MILAN_V12_AUDIT_2026-08-16.md)
    and [`docs/limitations/RECURRING_DEFECT_PATTERNS.md`](docs/limitations/RECURRING_DEFECT_PATTERNS.md)
    for current limitations and integration hazards.
-4. [`docs/findings/BENCH_TOPOLOGY.md`](docs/findings/BENCH_TOPOLOGY.md) — how the
-   reference lab is wired, which board runs which image. Host names, outlet
-   numbers and addresses in there are specific to that lab; the *topology* is the
-   part you can copy.
+4. [`docs/testing/TESTING.md`](docs/testing/TESTING.md)
+   — the evidence required for simulation and the two-board physical acceptance
+   tracked by #117.
 
 You will also need an **802.1AS-capable switch** for anything involving two
 endpoints. gPTP is not optional in Milan — without a working time domain there is

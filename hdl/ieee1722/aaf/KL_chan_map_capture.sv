@@ -40,8 +40,7 @@
                           1 I2S_IN  : the stereo I2S capture pair (idx unused)
                           2 TDM_IN  : TDM pair idx (0..N_TDM_P/2-1; slot pair
                                       idx carries TDM slots {2*idx, 2*idx+1})
-                          3 RING    : host PCM ring pair idx (the
-                                      KL_pcm_tx pair-channel index)
+                          3 RESERVED: no source; resolves to digital silence
                           4 TONE    : the pilot tone on BOTH channels
                           5 LOOP    : a RECEIVED AAF stream's channel pair -
                                       the rx -> talker LOOPBACK (below)
@@ -251,7 +250,8 @@
 //! ({half, idxh, en, src, idx}) routes each packetizer pair slot to a source
 //! bucket, with a per-half enable so one stream channel of a slot can be
 //! mapped while its sibling stays silent
-//! (I2S capture / TDM / host PCM ring / tone / RX-stream loopback / silence);
+//! (I2S capture / TDM / tone / RX-stream loopback / silence; source 3 is a
+//! reserved-zero ABI encoding);
 //! free-running source holds, per-tick low-to-high slot walk emitting the
 //! packetizer inject cadence (one pulse + GAP_CYC_P settle) on EVERY slot,
 //! unmapped ones carrying PCM silence so an unmapped channel never costs its
@@ -267,7 +267,6 @@
 module KL_chan_map_capture #(
   parameter int unsigned N_SLOTS_P = 32,   //! TX pair slots (prefix-sum space)
   parameter int unsigned N_TDM_P   = 8,    //! TDM slots (pairs = N_TDM_P/2)
-  parameter int unsigned N_RING_P  = 16,   //! PCM ring pair sources (idx 0..15)
   parameter int unsigned GAP_CYC_P = 24,   //! settle cycles between slot injects
   //! LOOP bucket sizing: the RX stream-channel space kept as pair queues
   //! (N_LB_STREAMS_P * N_LB_CH_P/2 pair queues x LB_QDEPTH_C x 48 b).
@@ -332,16 +331,6 @@ module KL_chan_map_capture #(
   input  wire [23:0]  tdm_l_i,
   input  wire [23:0]  tdm_r_i,
 
-  //! --- host PCM ring pair sources (KL_pcm_tx output, by pair slot) ---
-  //! The slot bus is the widened 5-bit KL_pcm_tx space; pairs >= N_RING_P
-  //! are REFUSED by the bounds check below (dropped, never aliased), so a
-  //! 16-deep bucket covers ring pairs 0..15 = playback streams 0..3 of the
-  //! 8x8x8 shape and the rest need N_RING_P raised, not a wider idx.
-  input  wire         ring_pair_valid_i, //! latch pulse
-  input  wire [4:0]   ring_pair_slot_i,  //! ring pair-channel index (0..N-1)
-  input  wire [23:0]  ring_l_i,
-  input  wire [23:0]  ring_r_i,
-
   //! --- tone generator sample (live; drives both L/R when TONE) -----------
   input  wire [23:0]  tone_smp_i,
 
@@ -386,8 +375,6 @@ module KL_chan_map_capture #(
   localparam int unsigned N_TDM_PAIRS_C = (N_TDM_P < 2) ? 1 : N_TDM_P / 2;
   localparam int unsigned TDMPW_C      = (N_TDM_PAIRS_C <= 1) ? 1
                                                       : $clog2(N_TDM_PAIRS_C);
-  localparam int unsigned RINGPW_C     = (N_RING_P <= 1) ? 1
-                                                      : $clog2(N_RING_P);
   //! LOOP bucket: pair queues per stream, then the flat bank and its address
   localparam int unsigned LB_PPS_C     = (N_LB_CH_P < 2) ? 1 : N_LB_CH_P / 2;
   localparam int unsigned LB_PAIRS_C   = N_LB_STREAMS_P * LB_PPS_C;
@@ -408,7 +395,7 @@ module KL_chan_map_capture #(
 
   //! map entry field encoding (src[6:4])
   localparam logic [2:0] SRC_ZERO_C = 3'd0, SRC_I2S_C = 3'd1, SRC_TDM_C = 3'd2,
-                         SRC_RING_C = 3'd3, SRC_TONE_C = 3'd4,
+                         SRC_TONE_C = 3'd4,
                          SRC_LOOP_C = 3'd5;
 
   // ---------------------------------------------------------------------- //
@@ -476,20 +463,16 @@ module KL_chan_map_capture #(
   //! a physical cluster beyond channels 0..1 can be backed at all - and it is
   //! the one a tie-off regression would trip.
   logic [47:0] tdm_hold_r  [N_TDM_PAIRS_C] /* verilator public_flat_rd */;
-  logic [47:0] ring_hold_r [N_RING_P];
 
   always_ff @(posedge clk_i) begin : source_latch
     if (!rst_n) begin
       i2s_hold_r <= '0;
       for (int t = 0; t < N_TDM_PAIRS_C; t++) tdm_hold_r[t]  <= '0;
-      for (int r = 0; r < N_RING_P;      r++) ring_hold_r[r] <= '0;
     end
     else begin
       if (i2s_pair_valid_i) i2s_hold_r <= {i2s_l_i, i2s_r_i};
       if (tdm_pair_valid_i && (32'(tdm_pair_slot_i) < N_TDM_PAIRS_C))
         tdm_hold_r[tdm_pair_slot_i[TDMPW_C-1:0]] <= {tdm_l_i, tdm_r_i};
-      if (ring_pair_valid_i && (32'(ring_pair_slot_i) < N_RING_P))
-        ring_hold_r[ring_pair_slot_i[RINGPW_C-1:0]] <= {ring_l_i, ring_r_i};
     end
   end : source_latch
 
@@ -902,8 +885,6 @@ module KL_chan_map_capture #(
         SRC_I2S_C : pair_f = i2s_hold_r;
         SRC_TDM_C : pair_f = (32'(idx_f) < N_TDM_PAIRS_C)
                                ? tdm_hold_r[idx_f[TDMPW_C-1:0]] : 48'd0;
-        SRC_RING_C: pair_f = (32'(idx_f) < N_RING_P)
-                               ? ring_hold_r[idx_f[RINGPW_C-1:0]] : 48'd0;
         SRC_TONE_C: pair_f = {tone_smp_i, tone_smp_i};
         SRC_LOOP_C: pair_f = lbok_f
                                ? lb_hold_r[LBPW_C'(32'(idxh_f) * LB_PPS_C

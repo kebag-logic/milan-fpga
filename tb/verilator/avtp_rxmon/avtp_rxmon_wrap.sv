@@ -20,7 +20,7 @@ module avtp_rxmon_wrap #(
   input  wire [31:0] ptp_now_i,        //! PHC ns (LATE/EARLY compare)
   input  wire [31:0] pres_ofs_i,       //! presentation offset ns
   input  wire [15:0] clk_src_i,        //! live clock_source_index
-  input  wire        servo_conv_i,     //! playback clock converged
+  input  wire        servo_conv_i,     //! media-clock servo converged
 
   input  wire [63:0] s_tdata_i,
   input  wire [7:0]  s_tkeep_i,

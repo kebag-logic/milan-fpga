@@ -91,7 +91,7 @@
   Field Extraction (ETH_TYPE and PTP Sequence ID) 
 - unnamed: ( @(posedge ts_dst_clk) )
   - **Type:** always_ff
-- to_ps_fifo_logic: ( @(posedge ts_dst_clk) )
+- timestamp_record_stream_logic: ( @(posedge ts_dst_clk) )
   - **Type:** always_ff
   - **Description**
   Timestamp Metadata Output FSM 

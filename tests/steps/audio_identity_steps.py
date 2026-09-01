@@ -10,7 +10,7 @@
 #    Figure 26. So the thing under test is the code the bench will run.
 #
 # 2. THD+N is implemented TWICE on purpose. The production analyser is
-#    harness/milanharness/thdn.py and it needs numpy, which is not installed in
+#    tb/tools/thdn.py and it needs numpy, which is not installed in
 #    the interpreter this suite runs under. Rather than skip - a skipped audio
 #    check is how audio gets forgotten - these steps carry an INDEPENDENT exact
 #    coherent DFT derived from the DEFINITION of THD+N, in pure Python. It is
@@ -31,13 +31,12 @@ from behave import given, then, when
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, os.path.join(ROOT, "tb", "tools"))
-sys.path.insert(0, os.path.join(ROOT, "harness"))
 
 import avtp_wire_truth as wt  # noqa: E402
+import thdn as hthdn  # noqa: E402
 import torture_campaign as tc  # noqa: E402
-from milanharness import thdn as hthdn  # noqa: E402
 
-THDN_MODULE = os.path.join(ROOT, "harness", "milanharness", "thdn.py")
+THDN_MODULE = os.path.join(ROOT, "tb", "tools", "thdn.py")
 
 #: The walking pattern: channel c carries 1 << c on every sample event.  Every
 #: channel is DISTINCT and every value names its own channel, so a swap, a

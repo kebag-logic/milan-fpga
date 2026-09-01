@@ -9,52 +9,44 @@
   Author      : Kebag Logic
 
   Date        : 2026-07-26
-  Description : DAC feed selector - the single link that decides WHAT and at
-                WHAT RATE KL_i2s_playback's producer side is fed, and the
-                only place the render/playback chain is counted.
+  Description : DAC feed selector - the single link that decides what and at
+                what rate KL_i2s_playback's producer side is fed.
 
                 Two mutually exclusive sources:
 
-                LEGACY TAP (sel_render_i = 0, reset default): the listener
-                render tap (KL_pcm_route render_tdata + the ring handshake)
-                exactly as the deployed compliance path wires it - tdata / tvalid /
-                tready / tlast / wire_chans pass through COMBINATIONALLY and
-                bit-identically, and the KL_pcm_lpf override is forwarded
-                untouched. Zero added latency, zero behavioural delta.
+                DIRECT TAP (sel_render_i = 0, reset default): the selected
+                KL_pcm_route Listener payload. tdata / tvalid / tready /
+                tlast / wire_chans pass through combinationally, and the
+                KL_pcm_lpf override is forwarded unchanged.
 
                 RENDER CROSSBAR (sel_render_i = 1): KL_chan_map_render's
                 phys{0,1} pair, paced by phys_valid_i - ONE media frame per
-                48 kHz tick. This is the path that carries the host PLAYBACK
-                ring (KL_pcm_tx -> render map src = PB) to the line-out.
+                48 kHz tick. This path realizes arbitrary accepted-Listener
+                channel mappings at the physical output.
 
-                WHY THE PACE MOVES WITH THE SOURCE (two defects this module
-                closes, both of which made the crossbar's DAC path unusable
-                for playback):
+                WHY THE PACE MOVES WITH THE SOURCE:
                   1. The legacy feed's valid is the RX depacketizer's
                      ACCEPTED BEAT and its walker stride is the LISTENER's
                      wire channel count. Driving the crossbar's output from
-                     those means (a) the DAC does not advance at all unless
-                     an inbound AVB stream is arriving - a host-ring playback
-                     into a silent network is silent forever - and (b) the
-                     stereo crossbar frame gets re-strided by an unrelated
+                     those means the stereo crossbar frame gets re-strided by an unrelated
                      stream's channel count: at an odd C the walker pushes
                      {lhold, s0}, i.e. it emits phys1 as LEFT and phys0 as
                      RIGHT, a hard channel swap that follows the listener,
                      not the render map. The crossbar already emits exactly
                      one stereo frame per media tick; that is the correct and
                      only pace and stride for it.
-                  2. KL_i2s_playback's walker gives the LPF source ABSOLUTE
+                  2. KL_i2s_playback's walker gives the LPF source absolute
                      priority (lpf_active_i wins over the AXIS tap), and
                      KL_pcm_lpf is active whenever LPF_CTRL[0]=1 and the
                      bound stream is 2-channel - the shipped default. So with
                      the crossbar selected, the mapped samples were silently
                      discarded and the raw RX tap played instead. The LPF
-                     belongs to the LISTENER tap it filters, so it is masked
-                     off in render mode here rather than at its own enable
-                     (LPF_CTRL keeps its meaning for the compliance path).
+                     belongs to the direct Listener tap it filters, so it is
+                     masked off in crossbar mode here rather than at its own
+                     enable.
 
                 HONEST REPORTING: feeds_o counts every frame handed to the
-                producer on the LIVE source (legacy: accepted tap beats;
+                producer on the live source (direct: accepted tap beats;
                 render: media ticks) - a stuck count is the "chain is dead"
                 evidence. unarmed_o saturates on render-mode frames delivered
                 while NO physical DAC channel is armed in the map, which is
@@ -67,7 +59,7 @@
 ------------------------------------------------------------------------------
 */
 
-//! DAC feed selector: legacy listener render tap (handshake-paced, LPF
+//! DAC feed selector: direct Listener render tap (handshake-paced, LPF
 //! override honoured, bit-identical pass-through) vs the chmap render
 //! crossbar phys{0,1} pair (media-tick paced, LPF masked) - plus the
 //! delivered-frame and disarmed-render counters the chain is read by.
@@ -79,12 +71,12 @@ module KL_i2s_feed_mux (
   input  wire         rst_n,          //! active-low synchronous reset
 
   //! --- source select (CHMAP_CTRL 0x900[0]) --------------------------------
-  input  wire         sel_render_i,   //! 0 = legacy tap, 1 = render crossbar
+  input  wire         sel_render_i,   //! 0 = direct tap, 1 = render crossbar
 
-  //! --- legacy listener render tap (KL_pcm_route + the ring handshake) -----
+  //! --- direct Listener render tap (KL_pcm_route accepted payload) ----------
   input  wire [63:0]  tap_tdata_i,    //! S32BE payload beat (2 samples)
   input  wire         tap_tvalid_i,
-  input  wire         tap_tready_i,   //! the ring sink's ready (shared)
+  input  wire         tap_tready_i,   //! accepted-payload ready qualifier
   input  wire         tap_tlast_i,
   input  wire [7:0]   tap_chans_i,    //! wire-truth channels/frame (0 -> 2)
   input  wire         lpf_active_i,   //! KL_pcm_lpf engaged on the tap
@@ -103,7 +95,7 @@ module KL_i2s_feed_mux (
   output logic [7:0]  chans_o,        //! walker stride (render mode = 2)
   output logic        lpf_active_o,   //! LPF override, masked in render mode
 
-  //! --- observability (CSR PBK_STAT 0x8C8) ---------------------------------
+  //! --- local observability outputs (not CSR-mapped) ------------------------
   output logic [31:0] feeds_o,        //! frames handed to the producer (wraps)
   output logic [15:0] unarmed_o,      //! render frames with no armed phys
                                       //! channel (saturates at 0xFFFF)

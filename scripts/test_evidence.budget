@@ -12,7 +12,7 @@
 #    fallback, a `; cmd` tail without errexit, a pipe (second review of
 #    #282). A suite whose assertions have never been observed to fail is
 #    indistinguishable from a suite that asserts nothing.
-82
+78
 # 2. First-party files that draw random values without recording a seed.
 #    The population widened in the review of #282 to every language the test
 #    trees carry (SystemVerilog `$urandom`/`$random`/`randomize`, C `rand()`

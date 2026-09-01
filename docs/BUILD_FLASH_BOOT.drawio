@@ -5,7 +5,7 @@
 
 $ sw/litex/build.sh ax7101
   --software-profile baremetal
-  --fabric-gptp --all-blocks
+  --fabric-gptp --full
 $ --with-spiflash --flashboot baremetal
   generated AEM + gPTP ROM from one YAML
   3×32-thread seed sweep
@@ -34,19 +34,19 @@ $ power on / power-cycle
   AEM length + CRC verified into DRAM
   entity enables only after valid AEM
   fabric gPTP owns PHC + publication
-  no host image · no time daemon · no mirrors" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1565C0;fontSize=13;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#212121;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="1028" y="150" width="440" height="369" as="geometry"/></mxCell>
+  one firmware image · one time owner · no mirrors" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1565C0;fontSize=13;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#212121;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="1028" y="150" width="440" height="369" as="geometry"/></mxCell>
 <mxCell id="n8" value="OUTPUT
 cacheless RV32 bare-metal control,
 Milan fabric live" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#1565C0;fontSize=12;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#212121;" vertex="1" parent="1"><mxGeometry x="1028" y="541" width="440" height="64" as="geometry"/></mxCell>
 <mxCell id="n9" value="4 · VERIFY   —   on the bench
 
-$ MILAN_PROFILE=baremetal hostplane_smoke.sh
-  UART reports VERSION 0x00020055
+$ baremetal_uart_smoke.py --port &lt;UART&gt;
+  UART reports VERSION 0x00020056 + gPTP state
 $ focused RTL + processor suites
   traceability + builder gates
   #117: physical / two-board pending
   REGISTER_MAP.md = the ABI
-  BENCH_TOPOLOGY.md = the rig" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#6A1B9A;fontSize=13;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#212121;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="1522" y="150" width="440" height="369" as="geometry"/></mxCell>
+  #117 records topology + raw evidence" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#6A1B9A;fontSize=13;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#212121;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="1522" y="150" width="440" height="369" as="geometry"/></mxCell>
 <mxCell id="n10" value="OUTPUT
 digitally validated candidate;
 physical acceptance stays on #117" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6A1B9A;fontSize=12;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#212121;" vertex="1" parent="1"><mxGeometry x="1522" y="541" width="440" height="64" as="geometry"/></mxCell>

@@ -274,11 +274,11 @@ int main(int argc, char** argv) {
 
     // ---------------------------------------------------------------- //
     // U10: local-clock (ptp_now) step robustness - 2026-07-23 silicon:
-    //      a GM reboot made the local daemon step/slew the PHC hard; ONE
+    //      a GM reboot made the active gPTP plane step/slew the PHC hard; ONE
     //      window measured against the stepped span wound the PI integ
     //      straight to the -200 ppm output clamp (trim 0xF380 = -3200)
     //      and it STAYED railed (state ACQUIRE) until an IDLE bounce +
-    //      daemon restart. crf_rate_i stayed healthy (+6.7 ppm) the whole
+    //      owner restart. crf_rate_i stayed healthy (+6.7 ppm) the whole
     //      time - so step ONLY the TB ptp timeline, leave crf_rate_i on
     //      the old (still-true) talker rate.
     //      Guard = discard any window with |ew| > 1<<19 (1024 ppm) like
@@ -301,7 +301,7 @@ int main(int argc, char** argv) {
         ck("[U10] locked before the step", state(), 4);
         run_ms(20);                          // settle well inside LOCKED
         int16_t t0 = trim();
-        ptp_step_ns += 50e6;                 // daemon STEP: +50 ms, once
+        ptp_step_ns += 50e6;                 // gPTP-owner STEP: +50 ms, once
         run_ms(12);                          // 3 windows on the new timeline
         printf("  info: trim pre-step=%d post-3-win=%d state=%d\n",
                t0, trim(), state());

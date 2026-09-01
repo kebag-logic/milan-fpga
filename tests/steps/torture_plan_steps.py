@@ -678,8 +678,8 @@ def step_tp_phys_budgets(context):
     sw, du = by["switch_power_cycle"], by["dut_power_cycle"]
     # hold >> the 802.1AS announce-receipt timeout (3 announce intervals)
     assert sw["hold_s"] >= 15, sw
-    # the DN-1 must BOOT before any board is reachable through it
-    assert sw["ssh_budget_s"] >= 180, sw
+    # the DN-1 must restore its links before gPTP recovery can be measured
+    assert sw["link_budget_s"] >= 180, sw
     assert sw["gptp_budget_s"] >= 120, sw
     # a real drain, and the measured ~5.5 min worst-case cold boot
     assert du["off_s"] >= 5, du

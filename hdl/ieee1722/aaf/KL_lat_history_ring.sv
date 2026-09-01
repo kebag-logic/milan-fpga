@@ -13,18 +13,14 @@
                 KL_aaf_latency_taps (PR #17, CSR base 0x870) exposes only the
                 LATEST min/last/max inter-stage deltas over CSR - a snapshot.
                 This module turns each individual latency sample into a
-                fixed-size RECORD and streams it into a wrapping DRAM ring, so
-                userspace gets a TIME-SERIES it can post-process (jitter
-                histograms, tail latency, per-frame envelopes) rather than one
-                instantaneous value.
+                fixed-size RECORD and streams it into a wrapping DRAM history
+                buffer. Bare-metal firmware can freeze and export the resulting
+                TIME-SERIES for jitter histograms, tail latency and per-frame
+                envelopes rather than one instantaneous value.
 
-                The ring-writer CSR ABI is mirrored bit-for-bit from the PCM
-                ring (_PCMRingNxN / milan_dma_pcm, LiteX bank 0xf0003120:
-                BASE_HI/BASE_LO/LENGTH/ENABLE/LOOP/OFFSET) so the userspace
-                mmap+chase recipe (pw-milan-ring-source style: program base +
-                length + enable, then chase the OFFSET write pointer and parse
-                fixed records) is reused unchanged. See
-                docs/LATENCY_HISTORY_RING.md.
+                The writer has a standalone
+                BASE_HI/BASE_LO/LENGTH/ENABLE/LOOP/OFFSET control contract.
+                See docs/LATENCY_HISTORY_RING.md.
 
                 RECORD (RECORD_BYTES_P = 16 bytes, LITTLE-ENDIAN in DRAM):
                   bytes  0..7  : ptp_ns     (uint64) gPTP ns at the sample
@@ -32,7 +28,7 @@
                   byte  12     : stage_id   (uint8)  documented tap point
                   byte  13     : stream_idx (uint8)  AAF stream index
                   bytes 14..15 : flags      (uint16) {gap[15],rsvd[14:12],seq[11:0]}
-                where seq is a per-accepted-record rolling counter (userspace
+                where seq is a per-accepted-record rolling counter (a reader
                 detects lost/reordered records) and gap = the first record
                 after one or more samples were dropped (writer stalled / ring
                 full in stop mode) - a self-describing hole marker.
@@ -41,10 +37,9 @@
                 {flags, stream_idx, stage_id, latency_ns} (latency in the low
                 32 bits). Each beat is emitted to a simple write-request master
                 (wr_valid/wr_data/wr_addr/wr_last/wr_ready) that the existing
-                milan_dma DRAM writer carries - the SAME downstream shape as
-                the PCM ring's WishboneDMAWriter sink.
+                integration's DRAM writer carries.
 
-                NON-STALLABLE datapath rule (mf52 lesson, KL_pcm_ring_bram):
+                NON-STALLABLE datapath rule:
                 the latency-sample producer is a fire-and-forget pulse and is
                 NEVER back-pressured. If a sample arrives while the previous
                 record is still draining to DRAM (wr_ready low) - or, in
@@ -59,10 +54,8 @@
                 the AAF stream, ptp_ns = the chain epoch). Documented in
                 docs/LATENCY_HISTORY_RING.md.
 
-  Spec refs   : docs/LATENCY_HISTORY_RING.md (record + ABI + read recipe);
-                hdl/ieee1722/aaf/KL_pcm_ring_bram.sv (ring pattern);
-                _PCMRingNxN / milan_dma_pcm (CSR ABI mirrored)
-  House style : mirrors hdl/ieee1722/aaf/KL_pcm_ring_bram.sv.
+  Spec refs   : docs/LATENCY_HISTORY_RING.md (record + ABI + read recipe)
+  House style : explicit valid/ready emitter with a non-stallable sample input.
   Company     : Kebag Logic
   Project     : Milan AVB endstation
 ------------------------------------------------------------------------------
@@ -86,12 +79,12 @@ module KL_lat_history_ring #(
   input  wire  [7:0]            sample_stream_i,//! AAF stream index
   input  wire  [63:0]           ptp_ns_i,       //! gPTP ns timestamp at the sample
 
-  //! --- CSR config (mirrors the PCM ring ABI; wired in the migen glue) -----
+  //! --- standalone history-writer configuration ----------------------------
   input  wire  [63:0]           ring_base_i,    //! BASE_HI:BASE_LO ring base (bytes)
   input  wire  [31:0]           ring_len_i,     //! LENGTH: ring size (bytes, multiple of RECORD_BYTES_P)
   input  wire                   enable_i,       //! ENABLE: 0 = clear wptr + drop
   input  wire                   loop_i,         //! LOOP: 1 = wrap+overwrite, 0 = stop when full
-  output wire  [31:0]           wptr_o,         //! OFFSET readback: byte write pointer (userspace chase)
+  output wire  [31:0]           wptr_o,         //! OFFSET readback: byte write pointer
   output wire  [31:0]           dropped_o,      //! dropped-record counter (RO, saturating)
 
   //! --- downstream write-request master toward the DRAM writer -------------
@@ -123,9 +116,9 @@ module KL_lat_history_ring #(
   logic                gap_r;        //! sticky: a drop happened since the last accept
   logic [31:0]         dropped_r;    //! dropped-record counter
 
-  //! record bytes, LSB = lowest DRAM address: ptp_ns at bytes 0..7, then
-  //! latency_ns / stage_id / stream_idx / flags. Matches the packed LE struct
-  //! userspace reads (see docs/LATENCY_HISTORY_RING.md).
+  //! record bytes, LSB = lowest memory address: ptp_ns at bytes 0..7, then
+  //! latency_ns / stage_id / stream_idx / flags. Matches the packed LE record
+  //! decoded by the standalone verification reader (docs/LATENCY_HISTORY_RING.md).
   wire [15:0] flags_w = {gap_r, 3'b000, seq_r};
   wire [REC_BITS-1:0] record_w =
        {flags_w, sample_stream_i, sample_stage_i, sample_lat_ns_i, ptp_ns_i};
@@ -179,8 +172,8 @@ module KL_lat_history_ring #(
         if (last_beat_w) begin
           busy_r <= 1'b0;
           //! advance the byte write pointer by one record; wrap to 0 in loop
-          //! mode, else advance to the end and latch full (stop mode). The
-          //! wrap predicate mirrors _PCMRingNxN's `offset + nb >= length`.
+          //! mode, else advance to the end and latch full (stop mode). Wrap
+          //! when the next record would reach or cross the configured end.
           if (wp_r + 32'(RECORD_BYTES_P) >= ring_len_i) begin
             if (loop_i) begin
               wp_r <= 32'd0;

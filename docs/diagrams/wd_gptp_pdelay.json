@@ -5,13 +5,13 @@
       {"name": "our PHC latch @ SOP", "wave": "010....10......", "node": ".a.....d......."},
       {"name": "peer PHC latch", "wave": "0..10.10.......", "node": "...b..c........"},
       {"name": "our ingress (RX tap: MAC->filter)", "wave": "x......3.x5.x..", "data": ["Pdelay_Resp", "Resp_Follow_Up"], "node": ".......R..F...."},
-      {"name": "records -> dma-ts ring", "wave": "x..4.x...4.x...", "data": ["{t1,seq,TX}", "{t4,seq,RX}"]}
+      {"name": "fabric timestamp capture", "wave": "x..4.x...4.x...", "data": ["{t1,seq,TX}", "{t4,seq,RX}"]}
     ],
     {},
     ["Sync 8/s",
       {"name": "our ingress (RX tap: MAC->filter)", "wave": "x3.x5.x|3.x5.x.", "data": ["Sync", "Follow_Up", "Sync", "Follow_Up"]},
       {"name": "our PHC latch @ SOP", "wave": "010....|10.....", "node": ".g......h......"},
-      {"name": "records -> dma-ts ring", "wave": "x..4.x.|.4.x...", "data": ["{ns,seq,RX}", "{ns,seq,RX}"]}
+      {"name": "fabric timestamp capture", "wave": "x..4.x.|.4.x...", "data": ["{ns,seq,RX}", "{ns,seq,RX}"]}
     ]
   ],
   "edge": [

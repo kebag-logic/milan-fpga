@@ -17,13 +17,13 @@
 #! only the fundamental's own numerical skirt), and take the residual RMS
 #! against the fundamental's amplitude.
 #!
-#! `numpy` is required here and NOWHERE else in the harness, so a host without
-#! it still runs every other phase. See `harness/README.md` for the venv.
+#! `numpy` is required here and nowhere else in this analyser. Protocol and
+#! identity checks can run without it; only the measured THD+N step needs it.
 
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 
 
 class ThdnError(Exception):
@@ -66,7 +66,8 @@ def decode_s32be(raw: bytes, channels: int) -> "list":
     return [arr[:, c] for c in range(channels)]
 
 
-def analyse(samples, *, rate_hz: int, f0_hz: int, channel: int = 0) -> ThdnResult:
+def analyse(samples, *, rate_hz: int, f0_hz: int,
+            channel: int = 0) -> ThdnResult:
     """THD+N of one channel. `samples` is a 1-D float array in [-1, 1)."""
     import numpy as np
 
@@ -112,11 +113,13 @@ def analyse(samples, *, rate_hz: int, f0_hz: int, channel: int = 0) -> ThdnResul
 
     # Parseval on the one-sided spectrum: interior bins count twice.
     power = resid[0] ** 2 + resid[-1] ** 2 if n % 2 == 0 else resid[0] ** 2
-    power += 2.0 * float(np.sum(resid[1:len(resid) - (1 if n % 2 == 0 else 0)] ** 2))
+    power += 2.0 * float(
+        np.sum(resid[1:len(resid) - (1 if n % 2 == 0 else 0)] ** 2))
     resid_rms = math.sqrt(power) / n * math.sqrt(2.0)
 
     if fund <= 0.0:
-        raise ThdnError("no fundamental found - is the pilot tone enabled (TONE_CTRL[0])?")
+        raise ThdnError(
+            "no fundamental found - is the pilot tone enabled (TONE_CTRL[0])?")
 
     thdn_db = 20.0 * math.log10(max(resid_rms, 1e-300) / fund)
     return ThdnResult(
@@ -143,7 +146,7 @@ def verdict(results: list[ThdnResult], accept_dbfs: float) -> tuple[bool, str]:
     """Pass/fail over all channels, worst channel named."""
     if not results:
         return (False, "no channels analysed")
-    worst = max(results, key=lambda r: r.thdn_dbfs)
+    worst = max(results, key=lambda result: result.thdn_dbfs)
     if worst.clipped:
         return (False, f"channel {worst.channel} is clipped - the measurement is invalid")
     ok = worst.thdn_dbfs <= accept_dbfs

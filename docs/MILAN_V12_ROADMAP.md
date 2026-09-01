@@ -1,12 +1,11 @@
 <!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
 # Milan v1.2 — the road to full compliance
 
-**Status 2026-08-27, VERSION `0x0002_0055`.** This is the ordered, clause-cited
+**Status 2026-08-30, VERSION `0x0002_0056`.** This is the ordered, clause-cited
 plan from where the device is to a device that passes the Milan
-end-station validation test plan. It supersedes the AECP sections of
-[historical `MILAN_COMPLIANCE_GAPS.md`](history/v1/MILAN_COMPLIANCE_GAPS.md), whose 2026-08-13 status
-banner ("every AECP command except READ_DESCRIPTOR draws a NOT_IMPLEMENTED
-echo") expired three days after it was written.
+end-station validation test plan. The canonical current ledger is
+[`reference/MILAN_FEATURE_STATUS.md`](reference/MILAN_FEATURE_STATUS.md).
+Superseded campaign narratives remain in Git history.
 
 Authoritative sources, all read for this document rather than recalled:
 
@@ -28,7 +27,7 @@ Machine-checked status rows are defined by the
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
-| `gateware.current-version` | `implemented` | `0x0002_0055` |
+| `gateware.current-version` | `implemented` | `0x0002_0056` |
 | `aem.served-command-set` | `implemented` | - |
 | `aem.acquire-entity-refusal` | `not-supported` | - |
 | `aem.mandatory-missing-set` | `implemented` | - |
@@ -418,8 +417,8 @@ asynchronous triggers of Table 5.22: GET_STREAM_INFO field changes,
 GET_AVB_INFO changes (the root snapshot-compares every field it serves and the
 processor detects the SR class-A pair), controller-visible GET_AS_PATH changes
 (a selected-owner served-sequence change: fabric empty/[GM] count 0/1 is a
-real edge, while option-off 0x7DC counts 0/1 alias to GM-only; GM-zero tails
-are silent in either mode), GET_COUNTERS
+real edge; direct option-OFF is ownerless and serves an empty path with zero GM,
+while GM-zero tails are silent), GET_COUNTERS
 (the fabric's per-descriptor dirty pulses reach the processor through a lossless
 round-robin; the processor limits each descriptor to **one push per
 second**), the LOCK auto-unlock, and auto-DEREGISTER. The parent proof is

@@ -80,12 +80,7 @@ module avtp_rxmon_nx_wrap #(
   output wire [7:0]  wire_chans_o,
   output wire [31:0] last_ts_o,
 
-  //! PCM ring output (post-route) + render tap
-  output wire [63:0] pcm_tdata_o,
-  output wire        pcm_tvalid_o,
-  output wire        pcm_tlast_o,
-  output wire [3:0]  pcm_tuser_o,
-  input  wire        pcm_tready_i,
+  //! Fabric render clone observed after listener routing
   output wire        render_tvalid_o,
   output wire [63:0] render_tdata_o,
   output wire        render_tlast_o,
@@ -199,9 +194,6 @@ module avtp_rxmon_nx_wrap #(
     .s_tready_o (dp_tready_w),
     .route_wr_en_i (route_wr_en_i), .route_wr_idx_i (route_wr_idx_i),
     .route_wr_val_i (route_wr_val_i),
-    .m_axis_tdata (pcm_tdata_o), .m_axis_tvalid (pcm_tvalid_o),
-    .m_axis_tlast (pcm_tlast_o), .m_axis_tuser (pcm_tuser_o),
-    .m_axis_tready (pcm_tready_i),
     .render_tvalid_o (render_tvalid_o), .render_tdata_o (render_tdata_o),
     .render_tlast_o (render_tlast_o),
     .render_sel_o (render_sel_o), .render_active_o ()

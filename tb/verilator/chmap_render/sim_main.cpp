@@ -84,22 +84,14 @@ static void wr_map(int p, int en, int s, int c) {
   dut->map_wr_en_i = 0;
 }
 
-// item-7 playback entry: src = 1, idx[5:0] = the LINEAR playback channel
-// (pbch = 2*pair_slot + 0 L / 1 R)
-static void wr_map_pb(int p, int en, int pbch) {
+// Retired source-bank entry: src = 1 is preserved in the map ABI but has no
+// producer and must always resolve to digital silence.
+static void wr_map_reserved(int p, int en, int idx) {
   dut->map_wr_en_i   = 1;
   dut->map_wr_addr_i = p;
-  dut->map_wr_data_i = ((en & 1) << 7) | (1 << 6) | (pbch & 0x3F);
+  dut->map_wr_data_i = ((en & 1) << 7) | (1 << 6) | (idx & 0x3F);
   step();
   dut->map_wr_en_i = 0;
-}
-
-// one KL_pcm_tx pair-bus pulse into the playback latch
-static void pb_pair(int slot, uint32_t l, uint32_t r) {
-  dut->pb_valid_i = 1; dut->pb_slot_i = slot;
-  dut->pb_l_i = l; dut->pb_r_i = r;
-  step();
-  dut->pb_valid_i = 0;
 }
 
 static void do_tick() {
@@ -128,7 +120,6 @@ int main(int argc, char** argv) {
   dut->rst_n = 0; dut->s_tvalid_i = 0; dut->s_tlast_i = 0; dut->s_tuser_i = 0;
   dut->tick_i = 0; dut->map_wr_en_i = 0; dut->map_wr_addr_i = 0;
   dut->map_wr_data_i = 0; dut->map_rd_addr_i = 0; dut->s_tdata_i = 0;
-  dut->pb_valid_i = 0; dut->pb_slot_i = 0; dut->pb_l_i = 0; dut->pb_r_i = 0;
   int chans[8] = {2, 8, 2, 3, 2, 2, 2, 2};
   set_chans(chans);
   for (int i = 0; i < 6; i++) step();
@@ -236,56 +227,33 @@ int main(int argc, char** argv) {
   ck("b2b.s0c1", phys(5), value(0, 1, 0xC05));
 
   // ================================================================
-  // Phase 7: item-7 host-playback source (map entry src = 1). The
-  //   KL_pcm_tx pair bus lands in a SECOND latest-sample latch indexed
-  //   by pbch = 2*pair_slot + (0 L / 1 R); it is the only route from the
-  //   host playback ring to a physical output.
+  // Phase 7: retired source bank (map entry src = 1). The encoding remains
+  //   readable for ABI compatibility, but it has no producer: enabled
+  //   entries render zero and do not claim that a physical output is armed.
   // ================================================================
-  // slot s carries a distinguishable L/R pair (0xPB.. tag, not an AVB value)
-  for (int s = 0; s < 8; s++) pb_pair(s, 0xB00000u | (s << 4) | 0x0,
-                                         0xB00000u | (s << 4) | 0x1);
-  // phys0/1 <- playback slot 0 L/R; phys2/3 <- slot 3 L/R
-  wr_map_pb(0, 1, 0); wr_map_pb(1, 1, 1);
-  wr_map_pb(2, 1, 6); wr_map_pb(3, 1, 7);
+  wr_map_reserved(0, 1, 0);  wr_map_reserved(1, 1, 1);
+  wr_map_reserved(2, 1, 6);  wr_map_reserved(3, 1, 63);
   do_tick();
-  ck("pb.phys0 slot0 L", phys(0), 0xB00000u | (0 << 4) | 0);
-  ck("pb.phys1 slot0 R", phys(1), 0xB00000u | (0 << 4) | 1);
-  ck("pb.phys2 slot3 L", phys(2), 0xB00000u | (3 << 4) | 0);
-  ck("pb.phys3 slot3 R", phys(3), 0xB00000u | (3 << 4) | 1);
-  ck("pb.mask (en&src)", dut->pb_mask_o, 0x00F);
-  ck("pb.mapped_mask unchanged shape", dut->mapped_mask_o, 0x03F);
-  ck("pb.rdmap0 carries src bit", rd_map(0), (1 << 7) | (1 << 6) | 0);
+  ck("reserved.phys0 is zero", phys(0), 0);
+  ck("reserved.phys1 is zero", phys(1), 0);
+  ck("reserved.phys2 is zero", phys(2), 0);
+  ck("reserved.phys3 is zero at idx63", phys(3), 0);
+  ck("reserved entries are not armed", dut->mapped_mask_o, 0x030);
+  ck("reserved.rdmap0 retains src bit", rd_map(0), (1 << 7) | (1 << 6));
 
-  // AVB entries in the SAME map are untouched by the playback source:
+  // AVB entries in the SAME map remain live:
   // phys4/5 still route stream0 ch0/ch1 (Phase 6 wrote them, src = 0)
-  ck("pb.avb phys4 s0c0", phys(4), value(0, 0, 0xC05));
-  ck("pb.avb phys5 s0c1", phys(5), value(0, 1, 0xC05));
-  ck("pb.avb not in pb_mask", (dut->pb_mask_o >> 4) & 3, 0);
+  ck("reserved.avb phys4 s0c0", phys(4), value(0, 0, 0xC05));
+  ck("reserved.avb phys5 s0c1", phys(5), value(0, 1, 0xC05));
 
-  // the playback latch free-runs like cur_r: a new pair is invisible until
-  // the next tick, then bit-exact
-  pb_pair(0, 0xB0FFF0u, 0xB0FFF1u);
-  ck("pb.frozen_no_tick", phys(0), 0xB00000u | 0);
+  // Every reserved index is zero; disabling remains zero and clears nothing
+  // because reserved entries were never counted in the valid mapping mask.
+  wr_map_reserved(6, 1, 40);
+  wr_map_reserved(0, 0, 0);
   do_tick();
-  ck("pb.after_tick", phys(0), 0xB0FFF0u);
-  ck("pb.after_tick R", phys(1), 0xB0FFF1u);
-
-  // out-of-range playback slot (>= N_PB_SLOTS_P = 8) is DROPPED, never
-  // aliased onto a live channel
-  uint32_t keep = phys(0);
-  pb_pair(9, 0xDEAD00u, 0xDEAD01u);
-  do_tick();
-  ck("pb.oob slot dropped", phys(0), keep);
-  ck("pb.oob no phys aliasing", phys(2), 0xB00000u | (3 << 4) | 0);
-
-  // out-of-range playback IDX (>= 2*N_PB_SLOTS_P = 16) renders 0, and
-  // disarming (en=0) a playback entry renders 0 with the mask clearing
-  wr_map_pb(6, 1, 40);
-  wr_map_pb(0, 0, 0);
-  do_tick();
-  ck("pb.oob idx renders 0", phys(6), 0);
-  ck("pb.disarmed renders 0", phys(0), 0);
-  ck("pb.disarmed clears pb_mask bit", dut->pb_mask_o & 1, 0);
+  ck("reserved.idx40 renders zero", phys(6), 0);
+  ck("reserved.disarmed renders zero", phys(0), 0);
+  ck("reserved.disarmed stays unarmed", dut->mapped_mask_o & 1, 0);
 
   // ================================================================
   // Phase 8: SAME-CYCLE map write + latch write to the address that map
@@ -334,8 +302,7 @@ int main(int argc, char** argv) {
   //   passed every check in this suite (mutation-found 2026-07-27): the
   //   odd-lane phys keeps rendering its LAST value forever, which reads
   //   as a plausible steady signal rather than as a failure.
-  //   The playback L/R arms are already pinned by pb.after_tick /
-  //   pb.after_tick R above; these two are the AVB pair.
+  //   These two checks pin both AVB write-match arms.
   // ================================================================
   {
     // phys0 -> stream1 ch0 (even lane), phys1 -> stream1 ch1 (odd lane),

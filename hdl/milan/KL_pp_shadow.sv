@@ -72,9 +72,9 @@
 
                 TAP DISCIPLINE. Like every other plane here this is a pure
                 monitor: it drives nothing back onto rx_axis. It qualifies on
-                tvalid && tready — the gh #65 handshake hazard: a stalled DMA
-                parks a beat with tvalid held, and a tvalid-only tap re-eats
-                it.
+                tvalid && tready — the gh #65 handshake hazard: a stalled
+                downstream path parks a beat with tvalid held, and a
+                tvalid-only tap re-eats it.
 
                 NVM. The device face is answered by a BLANK-FLASH responder
                 (reads 0xFF, writes accepted and discarded, erase completes).
@@ -1046,11 +1046,9 @@ module KL_pp_shadow #(
       .host_rvalid_o       (pp_host_rvalid_w),
       .host_err_o          (pp_host_err_w),
 
-      //! CONFIG-PLANE SEAM, UNUSED. The processor's svc_* face is how a
-      //! host would inject a binding or a reservation directly; nothing in
-      //! this fabric drives it. Bindings arrive over the wire (ACMP) and
-      //! reservations follow them, which is the ATDECC-authoritative shape
-      //! this device is built to. Tied off, not forgotten.
+      //! Reserved config-plane seam, held inactive. Bindings arrive over the
+      //! wire (ACMP) and reservations follow them, which is the
+      //! ATDECC-authoritative shape this device is built to.
       .svc_valid_i         (1'b0),
       .svc_ready_o         (),
       .svc_op_i            ('0),

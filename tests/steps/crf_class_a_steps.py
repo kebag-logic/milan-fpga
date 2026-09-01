@@ -164,7 +164,10 @@ def step_lane(context):
     # see the silicon acceptance procedure. Structure is what this offline
     # layer can see, and it is recorded as such.
     body = _instance(context.dp_src, "crf_dp_mux")
-    assert "dpaaf_" in body, \
+    # The data lane is the AAF talker's own AXIS (aaf_tx_*): the shaped
+    # general-data merge that used to sit between them (dpaaf_*) left with
+    # the 802.1Q chain in 0x0002_0056, so AAF enters this mux directly.
+    assert "aaf_tx_" in body, \
         "crf_dp_mux does not take the AAF/data lane as its other input"
     assert "crft_tx_" in body, "crf_dp_mux does not take the CRF AXIS"
     # ...and the control-lane gasket must NOT see the CRF stream any more

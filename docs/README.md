@@ -60,7 +60,7 @@ Publish conflicts before continuing.
 | Locate every domain | [System domain map](overview/SYSTEM_DOMAIN_MAP.md) |
 | Understand imported ownership | [Submodule boundaries](reference/SUBMODULES.md) |
 | Locate RTL modules | [FPGA design](fpga/FPGA_DESIGN.md) |
-| Follow datapath stages | [Pipeline stages](fpga/PIPELINE_STAGES.md) |
+| Follow datapath stages | [Dataplane walkthrough](fpga/DATAPLANE_WALKTHROUGH.md) |
 | Integrate the datapath | [Integration contract](integration/INTEGRATION_GUIDE.md) |
 | Port vendor dependencies | [Porting guide](integration/PORTING_GUIDE.md) |
 | Implement software registers | [Register map](reference/REGISTER_MAP.md) |
@@ -91,8 +91,8 @@ Suite inventories change frequently.
 | Build artifacts | [Building guide](integration/BUILDING.md) |
 | Flash matched images | [QSPI flash boot](integration/QSPI_FLASHBOOT.md) |
 | Diagnose failures | [Troubleshooting](limitations/TROUBLESHOOTING.md) |
-| Review bench topology | [Bench topology](findings/BENCH_TOPOLOGY.md) |
-| Find measured changes | [Historical performance ledger](history/v1/PERFORMANCE_CHANGELOG.md) |
+| Plan verification | [Testing guide](testing/TESTING.md) |
+| Find measured changes | [Current changelog](../CHANGELOG.md) |
 
 Board measurements remain dated evidence.
 

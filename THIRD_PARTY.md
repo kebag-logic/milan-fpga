@@ -25,8 +25,6 @@ That map records every exact Gitlink.
 
 It also records root integration boundaries.
 
-The [historical migration plan](docs/history/v1/integration/OPEN_SOURCE_MIGRATION.md) preserves earlier decisions.
-
 ## Generated C
 
 | Path | Upstream | License | Verification |

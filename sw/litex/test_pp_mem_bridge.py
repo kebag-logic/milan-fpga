@@ -22,8 +22,8 @@ every bus state left ONLY on `ack`:
     _dfsm.act("RD_LO", ..., If(_dwb.ack, ...))     # and nothing else
 
 so one unanswered access parked the FSM there permanently, holding `cyc`/`stb`.
-That is what made a local stall fatal: the generated netlist arbitrates the DMA
-bus with
+That is what made a local stall fatal: the generated netlist arbitrates the
+dedicated protocol-memory port with
 
     socbushandler1_rr_read_ce = ~(ar_valid | r_valid) & rd_lock_empty
 
@@ -43,7 +43,7 @@ WHAT THIS FILE PROVES, in two independent ways so neither can pass vacuously:
      receipt for saying so: the memory model here IS the bus, so ending the
      cycle looks like releasing the bus, and on the real chain it is not. The
      AXI transaction the converter already launched cannot be retracted, so the
-     dma_bus read grant freezes behind it and takes every other read master
+     shared read grant freezes behind it and takes the peer bridge
      with it. That claim needs the real LiteX arbiter in the simulation, and
      `test_pp_boot_bus_freeze.py` is where it is graded.
   2. RECOVERY, and it is a SEPARATE claim from the watchdog's. Letting go of
@@ -247,7 +247,7 @@ def test_behavioural():
     # name changed: this model's memory IS the bus, so ending the wishbone
     # cycle looks like releasing it. On the real chain it is not - the AXI
     # transaction the converter already launched cannot be retracted, and the
-    # dma_bus read grant stays frozen behind it. That claim needs the real
+    # shared read grant stays frozen behind it. That claim needs the real
     # arbiter in the simulation and lives in test_pp_boot_bus_freeze.py.
     check("watchdog FSM ends the WISHBONE cycle it abandoned",
           fix["cyc_at_end"] == 0, f"cyc={fix['cyc_at_end']}")
@@ -444,8 +444,8 @@ def test_precedence():
       * the mirror of DESC_MEM_TMO_CYC_P still matches the processor's RTL;
       * for every shape the tree builds, the derived watchdog expires strictly
         earlier IN NANOSECONDS, with the margin stated rather than assumed;
-      * and it expires later than the worst-case dma_bus wait, so a healthy bus
-        under TX load is not timed out. A watchdog can only fail in those two
+      * and it expires later than the worst-case protocol-memory wait, so a
+        healthy bus under peer-bridge load is not timed out. A watchdog can only fail in those two
         directions and this pins both ends of it.
     """
     sys.path.insert(0, HERE)
@@ -474,11 +474,10 @@ def test_precedence():
               proc_ns - bridge_ns >= proc_ns / 8,
               f"only {proc_ns - bridge_ns:.1f} ns of the processor's budget "
               "is left for the response CDC and its own reaction")
-        check(f"{name}: the watchdog clears the worst-case dma_bus wait "
+        check(f"{name}: the watchdog clears the worst-case memory-port wait "
               f"({tmo} vs {worst} sys cycles)",
               tmo > worst,
-              "a healthy bus under TX load would time out spuriously: the "
-              "grant is held while the TX ring reader leaves a beat unaccepted")
+              "a healthy bus under peer-bridge load would time out spuriously")
 
         # ... and the same claim as a RACE, not as arithmetic. The bridge model
         # runs at the REAL derived timeout into a bus that never answers.
@@ -489,10 +488,10 @@ def test_precedence():
               fired is not None and fired < deadline,
               f"bridge fired at {fired}, processor deadline {deadline}")
 
-    # THE GUARD ITSELF. A clock pair that inverts the relation must be REFUSED
-    # at elaboration, not built. Without this the derivation could be replaced
-    # by any constant and the checks above would still pass on today's shapes.
-    for sys_hz, milan_hz in ((100e6, 200e6), (100e6, 400e6)):
+    # THE GUARD ITSELF. A clock pair whose derived watchdog falls inside the
+    # current 91-cycle bus-wait floor must be REFUSED at elaboration, not built.
+    # At sys=100 MHz the 3/4 processor budget crosses that floor above 3.3 GHz.
+    for sys_hz, milan_hz in ((100e6, 3.4e9), (100e6, 4.0e9)):
         try:
             got = milan_soc.pp_mem_timeout_cycles(sys_hz, milan_hz)
         except RuntimeError:
@@ -685,7 +684,7 @@ class Bare(Module):
 def test_counter_gating():
     """An answer that lands while this master is asking for nothing is NOT ours.
 
-    Not hypothetical: on a coherent `dma_bus` each master owns its converter, so
+    Each memory client owns its converter, so
     the answer owed to an access the watchdog abandoned can arrive after the FSM
     has let go of the bus (which is why milan_soc.py watches the poison flag's
     clear in EVERY state, not from the bus state's arm). Counting that as an ACK

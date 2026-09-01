@@ -41,18 +41,18 @@ The [glossary](docs/GLOSSARY.md) explains shared terminology.
 | TSN datapath in fabric | MAC · 802.1Qav CBS · gPTP · AVTP/AAF/CRF · MAAP |
 | Control plane in fabric | ADP · ACMP · SRP and a partial AECP/AEM surface, served by the pinned `protocol-processor` submodule. See the current boundary below |
 | Media-clock servo | MMCM-DRP, analog loop **−83.9 dB** (converter floor) |
-| Networking / boot | ring-DMA line-rate ingest · QSPI flash-boot (zero-upload) |
-| Audio | capture ring over Milan · live talker↔listener E2E |
+| Networking / boot | GMII MAC/PHY with fabric protocol/media ingress and egress · QSPI flash boot |
+| Audio | I2S/TDM capture through fabric AAF packetize/render · live talker↔listener E2E |
 | CPU / board | 1-hart VexiiRiscv RV32I bare-metal SoC · xc7a100t · DDR3 512 MB |
 | Portability | no Xilinx primitives — machine-checked by the [Yosys/ECP5 flow](syn/yosys/README.md) |
 
 > Those rows are **measurements on specific boards on specific dates**, not promises about
-> your hardware. Historical measurements live in the [historical performance ledger](docs/history/v1/PERFORMANCE_CHANGELOG.md) +
-> [docs/findings/](docs/findings/README.md). Any number quoted elsewhere is a dated snapshot.
+> your hardware. Superseded measurements remain in Git history; current findings
+> live in [docs/findings/](docs/findings/README.md). Any quoted number is a dated snapshot.
 
 ### Current control-plane boundary
 
-Firmware VERSION `0x0002_0055` uses `hdl/milan/KL_pp_shadow.sv` and the pinned
+Firmware VERSION `0x0002_0056` uses `hdl/milan/KL_pp_shadow.sv` and the pinned
 `protocol-processor` as its only IEEE 1722.1 and SRP control plane. MAAP remains
 in this repository. There is no legacy fallback.
 
@@ -62,7 +62,7 @@ Machine-checked status rows are defined by the
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
-| `gateware.current-version` | `implemented` | `0x0002_0055` |
+| `gateware.current-version` | `implemented` | `0x0002_0056` |
 | `aem.served-command-set` | `implemented` | - |
 | `aem.acquire-entity-refusal` | `not-supported` | - |
 | `aem.mandatory-missing-set` | `implemented` | - |
@@ -113,13 +113,13 @@ Unknown and unimplemented operations still receive the correctly sized IEEE
 1722.1 echo. Commands for another entity and incoming AECP responses are
 silently discarded as required.
 
-The descriptor image supply chain is also present. During an explicit
-`--write-fragment` or `--write-rtl` ownership transfer, the end-station builder
-generates `aem_desc.bin`, `aem_desc.json`, and `aem_desc.map` from the selected
-configuration beside the bitstream. The board-side `aemi-load`
-utility loads and verifies the paired image before the entity is enabled. The
-store validates its `AEMI` header, version, checksum, and configuration before
-serving it, and a late valid image heals without a reset.
+The descriptor image supply chain is also present. The named SoC build generates
+`aem_desc.bin`, `aem_desc.json`, and `aem_desc.map` from the selected
+configuration beside the bitstream. Deployment preflight binds that image to
+the bitstream and writes it into the dedicated QSPI slot. At boot, bare-metal
+firmware verifies the `AEMI` magic and generated CRC, copies the exact image to
+the processor's descriptor-memory window, and enables the entity only after
+that check succeeds.
 
 This is still not a full Milan v1.2 implementation. These mandatory operations
 are missing:
@@ -153,19 +153,16 @@ owner publishes the bounded PathTrace from the selected Announce: no entries
 without a GM or when that Announce has no PathTrace TLV; otherwise the GM is
 followed by up to seven traversed identities in wire order. The engine and
 wrapper commit the complete count/tail atomically; software writes cannot forge
-it. In the verification-only option-off elaboration (#259 retired the
-software comparison owner), the GM is followed by the latest PathTrace
-snapshot published through the 0x7DC group.
-LO/HI writes and slot COMMITs change only the staging bank, while PUBLISH
-atomically replaces the complete tail and count. In both modes the Table 5.22
-edge compares the canonical sequence actually served. Fabric count 0 and 1 are
+it. The verification-only option-OFF elaboration is deliberately ownerless:
+its GM, parent, path and peer-delay publications are zero, sync/asCapable are
+zero, and `tu` is one. Writes to the retained address-map slots are inert and
+cannot manufacture live state. In the product build, fabric count 0 and 1 are
 distinct empty and `[GM]` sequences, so either transition notifies; a GM change
 while both fabric counts are zero is silent for AS_PATH but remains live for
-AVB/GM duties. Only option-off retains #227's count 0/1 GM-only alias. GM=0
-publications, hidden option-off staging in fabric mode, inactive tail bytes,
-and identical republishes are silent. The response snapshots its selected path
-before gathering entries, so an in-flight response is wholly old and the next
-wholly new.
+AVB/GM duties. GM=0 publications, inactive tail bytes, and identical
+republishes are silent. The response snapshots its selected path before
+gathering entries, so an in-flight response is wholly old and the next wholly
+new.
 
 The dated evidence and exact gate results are recorded in
 [the 2026-08-16 audit](docs/testing/MILAN_V12_AUDIT_2026-08-16.md). The register
@@ -280,7 +277,7 @@ direction-safe verified write order. The full flow, with the load-bearing rules
 
 Details: [docs/integration/BUILDING.md](docs/integration/BUILDING.md) ·
 [docs/integration/QSPI_FLASHBOOT.md](docs/integration/QSPI_FLASHBOOT.md) ·
-[docs/findings/BENCH_TOPOLOGY.md](docs/findings/BENCH_TOPOLOGY.md).
+[docs/testing/TESTING.md](docs/testing/TESTING.md).
 
 ## Credits
 
@@ -304,17 +301,17 @@ ride the big arrow; dates assume the current cadence.
     FABRIC             SURVIVAL          AS A GATE          PCB SPIN           HARDWARE     SHIP
     ROADMAP                                                                                  |
     - deterministic - AEM persistence - redundancy net  - compliance test-house  - PCB bring-up ==>
-      listener        journal (mtd)     cabled +          run (Milan v1.2)   (TCXO, audio
+      listener        raw-flash journal cabled +          run (Milan v1.2)   (TCXO, audio
       latency       - image: validate   failover proof  - 802.1AS            I/O, power)
       (setpoint law,  fabric ownership - temp-range       conformance      - EMC / safety
-      0x002E)         no old daemons     timing signoff - PCB layout +     - factory
+      0x002E)         no retired runtime timing signoff - PCB layout +     - factory
     - software DLL  - dual-slot QSPI  - week-long soak    fab               provisioning
       (GM step        + golden image    + power-cycle                       (MAC/EUI-64,
       re-base)      - field update      torture as                          serials, test
     - CRF sink        path              release gates                       fixture)
-      followership                    - service-budget                    - host audio
+      followership                    - service-budget                    - TDM/I2S audio
       on silicon                        decision                            as supported
-    - stream-clock                      (2nd hart?)                         feature
+    - stream-clock                      (2nd hart?)                         endpoint I/O
       honesty                                                             - config surface
     - ring one-grid                                                         + hardening
       (retire pb                                                          - user manual +
@@ -405,10 +402,9 @@ station and the bridge, but that is a hypothesis and not yet a finding.
 
 **Blocked on instrumentation.** Separating our declaration contents from the
 bridge and talker reaction needs MSRP attribute bytes off the wire. MSRP is
-link local, so a host hanging off another bridge port cannot see the
-exchange and only the in-line tap can. The bench tap currently enumerates
-with `bInterfaceClass = ff` (vendor specific) and no driver bound, so it
-presents no capture interface; restoring its vendor driver is the
+link local, so a workstation hanging off another bridge port cannot see the
+exchange and only the in-line tap can. The present tap firmware exposes no
+capture interface; replacing or reconfiguring that bench instrument is the
 prerequisite for closing this item.
 
 ### P1.7 — Media clock lock (2026-08, OPEN, measured)

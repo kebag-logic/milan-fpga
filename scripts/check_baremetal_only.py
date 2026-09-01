@@ -12,13 +12,15 @@ checkout does not. This gate REPLACES the transitional
 check_baremetal_scope.py, whose anchored retired-history allowance #259
 retires: an anchor excused prose, and #259 wants the terms gone.
 
-INVENTORY BY DISCOVERY. The scan set is ``git ls-files`` minus submodule
-gitlinks, ``third_party/``, binary file extensions, and this gate itself
-(its term table and self-test fixtures must be free to name what they
-refuse). Nothing else is excluded: docs, configs, RTL, testbenches, test
-suites, generated .svg/.drawio text and archive pages are all scanned, so a
-generator or fixture cannot reintroduce a term this gate cannot see. A
-failed or EMPTY inventory is rc 2, never a zero count, and an unreadable
+INVENTORY BY DISCOVERY. The content scan set is ``git ls-files`` minus
+submodule gitlinks, ``third_party/``, binary file extensions and this gate
+itself (its term table and self-test fixtures must be free to name
+what they refuse). Path policy runs before the binary-content exclusions.
+Nothing else is excluded: docs, configs, RTL, testbenches, test suites,
+generated .svg/.drawio text and archive pages are all scanned. A symlink's
+stored link text is scanned without following it. Thus neither a generator,
+fixture nor link target can reintroduce a term this gate cannot see. A failed
+or EMPTY content inventory is rc 2, never a zero count, and an unreadable
 inventory file is a finding, never a skip.
 
 POLICY CLASSES (each finding names its class). EVERY class is judged on
@@ -36,16 +38,49 @@ T. retired-stack TERM, anywhere, any context: the appearance itself is the
 P. protected product documentation: even an embedded ``linux`` substring is
    forbidden. Host-tooling masks never apply there. Deleting the protected
    document is also a failure, preventing removal from bypassing this class.
+   A file-pinned mask (``TERM_MASKS``) covers the one generic
+   container-image name in dev's CI-contract fixture; like the class-R
+   masks it is bound to its single file and cannot launder the same term on
+   another line or in another file.
+R. retired target RUNTIME/service surface: the former helper services and
+   target-OS interfaces are forbidden even when a line avoids the broader
+   class-T vocabulary. This includes exact absolute pseudo-filesystem/device
+   paths; similar words such as ``/procedure`` are not matches. The one
+   read-only workstation PHC probe and the yosys loader test's ``/etc/hosts``
+   example are masked only in their exact host-tool files.
+P. retired PRODUCT PATH: a tracked first-party path itself cannot retain an
+   OS tree, target service, host-audio plane or retired target-driver-tree
+   name while carrying clean (or binary) contents. Path scanning uses the
+   same narrow host-tooling mask as content scanning, and still excludes
+   submodules and ``third_party/``.
+K. retired stack BUILD-CONFIGURATION vocabulary: a kernel or Buildroot
+   defconfig is a target-Linux artifact whose own text need not name the
+   stack at all, so ``CONFIG_<SYM>=y|m|n``, a ``# CONFIG_<SYM> is not set``
+   line, ``BR2_<SYM>`` and the word ``defconfig`` are each the finding, on
+   any path. ``defconfig`` is a path token too, so the name alone fails even
+   when the contents are clean or binary. Case-sensitive on the symbol
+   namespaces: Kconfig symbols are upper-case by construction, so an
+   ordinary ``config_word = y`` assignment is a clean near-miss.
 O. retired launcher option token: ``--sound-card``, ``--flashboot full``,
    ``--flashboot kernel`` (any run of spaces/tabs or ``=`` between them);
    and ``--no-fabric-gptp`` anywhere but its one code home,
    ``sw/litex/milan_soc.py`` (the verification-only door), and the
    launch-recipe gate that proves recipes never carry it.
-Y. ``fabric_gptp: false`` in any tracked YAML, found by PARSING the file
+Y. a false-like ``fabric_gptp`` value in any tracked YAML or JSON config -
+   ``.yaml``/``.yml``/``.json`` and their ``.in`` templates, the suffix
+   compared case-insensitively - found by PARSING the file
    (yaml.safe_load, falling back to the structure-only BaseLoader for a
    custom application tag, full mapping walk), so spacing and case in the
    KEY as well as the value cannot hide it and a substring is never the
    check. A tag safe_load refuses is retried, never certified clean.
+S. retired sound/host-media surface: the exact parameters, ports, modules,
+   configuration keys and prose phrase that once kept the target sound-card
+   lane buildable are forbidden. The gPTP option-OFF exception does not
+   extend to a dormant PCM capture/playback ring.
+H. retired HOST-PLANE surface: exact target-driver, memory-ring, descriptor-
+   tree and launch/config carriers are forbidden. Generic ``driver`` and
+   ``DMA`` words remain legal because verification drivers and unrelated bus
+   engines exist; the semantic names of the removed product plane do not.
 
 ``--selftest`` builds pristine scratch git trees (with the git environment
 scrubbed, so a hook's GIT_DIR cannot redirect the fixtures at the real
@@ -59,8 +94,25 @@ anchor; the host-tooling allowlist suppresses the WHOLE triplet family in
 either case and still cannot launder a second term on the same line; the
 door is exempt at its home and caught away from it; a missing/unreadable
 inventory fails rather than counting zero; and the clean control stays clean.
+planted in a generated .svg is caught (generated outputs are scanned); every
+runtime token and exact target-OS path is caught; every build-configuration
+symbol namespace is caught, on a neutral path and on the file name alone,
+while a lower-case assignment stays clean; the container-image fixture is
+masked at its own file and nowhere else; the exact workstation PHC
+probe stays legal but cannot launder another target path; every retired
+sound- and host-plane-surface token is caught; every retired product-path
+class bites even with clean or binary contents, while near-miss and
+host-tooling paths stay clean; each option token bites, including the
+aligned-spaces and tab spellings; the parsed config arm bites through key
+case, a custom tag, a self-referential anchor, an upper-case or templated
+suffix and a JSON file; the host-tooling allowlist suppresses the WHOLE
+triplet family in either case and still cannot launder a second term on the
+same line or a term glued to the triplet; the door is exempt at its home and
+caught away from it; a missing, EMPTY, all-excluded or unreadable inventory
+fails rather than counting zero; and the clean control stays clean.
 """
 import argparse
+import json
 import os
 import pathlib
 import re
@@ -75,7 +127,7 @@ except ImportError:  # the YAML class is load-bearing; refuse to run blind
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 #: Derived, never mirrored: renaming or moving this file must not silently
-#: stop excluding it (its term table would then be 18 findings against itself).
+#: stop excluding it (its policy tables would then find this gate itself).
 SELF = pathlib.Path(__file__).resolve().relative_to(ROOT).as_posix()
 
 #: The verification-only door's one code home, plus the gate that proves
@@ -102,14 +154,176 @@ SKIP_EXTS = {
 TERMS = (
     "linux", "linuxptp", "ptp4l", "phc2sys", "rootfs", "initramfs",
     "buildroot", "opensbi", "alsa", "pipewire", "aplay", "systemd",
-    "udev", "devicetree", "dtb", "dtc",
+    "udev", "devicetree", "dtb", "dtc", "dts", "dtsi", "jffs2", "mtd",
+    # the same stack's boot loader, kernel images, init ramdisk, userland
+    # image, flattened device-tree spellings and pseudo-filesystems
+    "u-boot", "uboot", "vmlinux", "vmlinuz", "zimage", "uimage", "initrd",
+    "dtbo", "fdt", "sysfs", "procfs", "busybox",
 )
-TERM_RE = re.compile(r"\b(" + "|".join(TERMS) + r")\b", re.IGNORECASE)
+# Underscore is a separator for policy tokens. A word-bound expression would
+# miss spellings such as an ALSA-prefixed identifier because Python treats
+# `_` as a word character.
+TERM_RE = re.compile(r"(?<![A-Za-z0-9])(" + "|".join(
+    re.escape(term) for term in sorted(TERMS, key=len, reverse=True))
+    + r")(?![A-Za-z0-9])", re.IGNORECASE)
 #: multi-word spellings the word-bound row above cannot carry
 PHRASE_RE = re.compile(r"device.?tree", re.IGNORECASE)
 
+#: Class R: target-only runtime/service names and OS surfaces which do not
+#: all belong in the older stack vocabulary above. Keep the service names
+#: explicit: ``statd`` catches a standalone legacy spelling, while the
+#: longer spelling makes ``milan-statd`` an independently self-tested policy
+#: token rather than an accidental substring consequence.
+RUNTIME_TERMS = (
+    "gptp2csr", "milan-statd", "statd", "kernel", "napi", "skb",
+    "ethtool", "devmem", "arecord", "userspace", "user-space",
+    "userland", "user-land", "kernelspace", "insmod", "modprobe", "dmesg",
+    "netlink", "milan.service",
+    "target shell", "target filesystem", "background service",
+    "target background process", "software gPTP owner",
+    "retired software owner", "retired software agents",
+    "host boot profile", "host boot chain", "host boot chains",
+    "software process", "shared-service", "bulk/timing service path",
+    "target-side process", "software packet service",
+    "secondary management socket",
+    "retired software", "retired software clock-owner", "software fallback owner",
+    "retired software-owner test", "software media owner",
+    "software pairing race", "retired host-media", "retired host route",
+    "old software", "retired CLKV", "tu lease",
+    "lease was taken or lapsed", "AS_PATH software-publication",
+)
+RUNTIME_RE = re.compile(
+    r"(?<![A-Za-z0-9])(" + "|".join(re.escape(term) for term in
+                       sorted(RUNTIME_TERMS, key=len, reverse=True))
+    + r")(?![A-Za-z0-9])", re.IGNORECASE)
+# A shell into the target's OS is the retired runtime whatever it then runs:
+# ``devmem`` alone caught ``ssh root@board devmem ...`` and let
+# ``ssh root@board cat x`` through. Options and their values between ``ssh``
+# and the login (``-p 2222``) are the same spelling.
+REMOTE_ROOT_SHELL_RE = re.compile(
+    r"(?<![A-Za-z0-9])ssh\s+(?:[^@\s]+\s+)*?root@", re.IGNORECASE)
+
+#: Class S: exact remnants of the retired target-audio lane. These are
+#: semantic carriers rather than a generic ban on audio words: fabric AAF
+#: receive/render, I2S/TDM and sample processing remain product functionality.
+#: Every PCM ring in this tree belonged to the removed host capture/playback
+#: surface, so that phrase is part of the policy too.
+RETIRED_SOUND_SURFACES = (
+    "SOUND_CARD_P", "sound_card", "AAF_PLAYBACK_P", "AAF_PB_STREAMS_P",
+    "--pcm-ring", "--aaf-playback", "KL_pcm_tx", "KL_pcm_ring_bram",
+    "m_axis_pcm", "playback_rings", "PCMRingNxN", "PCM ring", "PCM-ring",
+    "pcm_ring", "sound-card",
+    "host audio", "audio-host", "host PCM", "host-capture", "host capture",
+    "host-playback", "host playback",
+    # the retired target sound-card driver module, both spellings
+    "snd-kl-milan", "snd_kl_milan",
+)
+SOUND_SURFACE_RE = re.compile(
+    r"(?<![A-Za-z0-9])(?:" + "|".join(
+        re.escape(term) for term in
+        sorted(RETIRED_SOUND_SURFACES, key=len, reverse=True))
+    + r")(?![A-Za-z0-9])",
+    re.IGNORECASE)
+#: Pseudo-filesystem, configuration and module roots of the retired target OS.
+#: ``/sys`` is the whole tree, not only ``/sys/class/net``: an attribute under
+#: any other bus is the same target surface, and so is any ``/etc`` entry.
+TARGET_OS_PATHS = ("/proc", "/sys", "/etc", "/lib/modules", "/dev/mem",
+                   "/dev/ptp")
+# A pseudo-filesystem/device root is a path COMPONENT, never a prefix of a
+# repository name. The delimiter lookahead admits a child slash, end of line,
+# or punctuation surrounding a literal path, while refusing `/processor` and
+# `scripts/processor_*`.
+_PATH_COMPONENT_END = r"(?=/|$|[\s'\"`<>(){}\[\],;:.!?=#|])"
+TARGET_OS_PATH_RE = re.compile(
+    "(" + "|".join(re.escape(path) + _PATH_COMPONENT_END
+                   for path in TARGET_OS_PATHS)
+    + ")", re.IGNORECASE)
+TARGET_OS_DEVICE_RE = re.compile(
+    r"/dev/ptp(?:N|[0-9]+)" + _PATH_COMPONENT_END, re.IGNORECASE)
+
+# A developer workstation may compare captured CRF to its own PHC, and the
+# yosys allocator test names the workstation's own ``/etc/hosts`` as the
+# non-library file a loader once accepted. Both are #259's explicit
+# host-tooling non-goal, not a product runtime. Mask only the literal spelling
+# in its one tracked tool; a second target path on the same line must still
+# fail.
+# dev's CI contract self-test names a generic container image in ONE synthetic
+# job fixture (#293, scripts/ci_events.py). That is a placeholder registry tag,
+# not a retired userland: mask the exact fixture spelling in its one file so
+# the term stays banned everywhere else, including a bare `busybox` elsewhere
+# in that same file. Renaming the fixture image on dev retires this entry.
+TERM_MASKS = {
+    "scripts/ci_events.py": re.compile(r'"image":\s*"busybox"'),
+}
+
+HOST_RUNTIME_MASKS = {
+    "tb/tools/crf_vs_phc.py": re.compile(r"/dev/ptp(?:N|[0-9]+)\b",
+                                         re.IGNORECASE),
+    "syn/yosys/malloc.sh": re.compile(r"/etc/hosts\b"),
+}
+
+# Class H: concrete names and phrases that carried the removed target host
+# plane. These are deliberately more specific than generic ``DMA`` or
+# ``driver``, which remain valid vocabulary for verification and buses. In
+# particular, an upstream CPU wrapper's ``with_dma``/``with_coherent_dma``
+# attribute names its dedicated memory attachment; only the removed product
+# option spellings and engines below are policy carriers.
+RETIRED_HOST_SURFACES = (
+    "RingDMAReader", "RingDMAWriter", "RingDMA", "WishboneDMA", "RxSteer",
+    "MilanDMA", "MilanDebug",
+    "milan_dma_wrapper", "milan_top", "hostplane", "host_plane", "kl-eth",
+    "milan-nic", "milan_nic",
+    "rx_queues", "hs_page_bytes", "--with-dma",
+    "--coherent-dma", "--all-blocks", "DMA ring", "DMA-ring", "dma_ring",
+    "Ring DMA", "ring-DMA", "NIC DMA", "NIC TX DMA", "network DMA",
+    "Direct DMA", "packet DMA", "TX-DMA", "RX-DMA", "DMA/MAC",
+    "DMA coherency", "DMA consumer",
+    "DMA engine", "DMA engines", "DMA lane", "DMA lanes", "DMA path",
+    "DMA paths", "DMA descriptor", "DMA descriptors", "DMA queue",
+    "DMA queues", "DMA control", "AXIS-to-DMA", "AXIS to DMA",
+    "AXIS→DMA", "AXIS↔DMA", "RX steering", "TX descriptor ring",
+    "descriptor ring", "descriptor-ring", "descriptor_ring",
+    "TX ring", "NIC queue", "NIC queues", "host queue", "host queues",
+    "host plane", "host-plane", "host software", "CPU packet",
+    "CPU data plane", "packet-data ABI", "packet-data boundary",
+    "to/from the CPU", "stack working set",
+    "software-facing media sink", "software-facing media buffer",
+    "software-facing pool", "processor consumer", "target software queue",
+    "packet rings", "packet data masters", "timestamp writer",
+    "rx_axis_to_dma",
+    "dma_tx_cdc", "dma_rx_cdc", "dma_ts_cdc", "dma_pcm_cdc",
+    "dma-tx", "dma-rx", "dma-ts", "DMA-done", "simple-mode DMA",
+    "strip_probes", "--strip-probes", "no_rx_rsc", "--no-rx-rsc",
+    "legacy_ring", "--legacy-ring", "RX_BD", "TX_BD", "hsplit",
+    "--rx-queues", "--hs-page-bytes", "header split", "header-split",
+    "page pool", "page-pool", "page_pool", "BD ring", "BD-ring", "bd_ring",
+    "driver ABI", "driver-ABI", "driver visible", "driver-visible",
+)
+HOST_SURFACE_RE = re.compile(
+    r"(?<![A-Za-z0-9])(?:" + "|".join(
+        re.escape(term) for term in
+        sorted(RETIRED_HOST_SURFACES, key=len, reverse=True))
+    + r")(?![A-Za-z0-9])",
+    re.IGNORECASE)
+# These abbreviations are host offload names only in upper-case prose. Keep the
+# matcher case-sensitive so ordinary short variables (for example a row-source
+# count named ``rsc`` in a mapping test) do not become policy violations.
+HOST_OFFLOAD_RE = re.compile(r"(?<![A-Za-z0-9])(?:RSC|TSO|GRO)(?![A-Za-z0-9])")
+# Kernel network-device operation callbacks are an entire target-driver API
+# family.  Gate the namespace, not only the one callback spelling found by the
+# #259 audit, so renaming the retained example cannot reopen the same surface.
+TARGET_DRIVER_CALLBACK_RE = re.compile(
+    r"(?<![A-Za-z0-9])ndo_[a-z0-9_]+(?![A-Za-z0-9])", re.IGNORECASE)
+# The retired target driver module's own name, in its lower-case module
+# spelling only: this tree's RTL and bench names carry the upper-case ``KL_``
+# prefix (``KL_eth_tx_reset_model`` is a live bench), and ``kl-eth`` above
+# already refuses the hyphenated spelling in either case. Case-sensitive for
+# the same reason HOST_OFFLOAD_RE is; used for content and for paths.
+RETIRED_DRIVER_MODULE_RE = re.compile(
+    r"(?<![A-Za-z0-9])kl_eth(?![A-Za-z0-9])")
+
 #: Issue #259 non-goal: the host-side tooling a developer builds WITH is not
-#: a product path. Two families qualify, and ONLY these two families are
+#: a product path. Three families qualify, and ONLY these three families are
 #: suppressed, nothing wider:
 #:   * the cross toolchain, whose TRIPLET names the toolchain's libc - the
 #:     whole triplet-prefixed tool name, because the tree drives `-ld` and
@@ -126,10 +340,99 @@ PHRASE_RE = re.compile(r"device.?tree", re.IGNORECASE)
 #: Case-insensitive, because a Makefile spells the same triplet in upper case.
 #: Suppression is a MASK, not a line skip: a second, unmasked occurrence on
 #: the same line still fires, which the selftest proves for all three.
-ALLOWED_HOST_TOOLING = (r"riscv(?:32|64)-linux(?:-gnu)?-[a-z0-9.+_]+",
-                        r"sv2v-Linux(?:\.zip)?",
-                        r"\(X11; Linux [A-Za-z0-9_]+\)")
+#: The triplet mask ends in a TOOL NAME from the closed list below, at a token
+#: boundary. An open ``-[a-z0-9.+_]+`` tail once consumed whatever was glued
+#: to the triplet, so ``riscv64-linux-rootfs.img`` was laundered whole; a
+#: triplet followed by anything but a toolchain binary is scanned as the
+#: retired term it carries.
+HOST_TOOLCHAIN_TOOLS = (
+    "gcc", "g++", "c++", "cpp", "ld", "ld.bfd", "ld.gold", "as", "ar", "nm",
+    "objcopy", "objdump", "ranlib", "readelf", "size", "strings", "strip",
+    "gdb", "addr2line", "gcov", "elfedit", "c++filt",
+)
+ALLOWED_HOST_TOOLING = (
+    r"riscv(?:32|64)-linux(?:-gnu)?-(?:" + "|".join(
+        re.escape(tool) for tool in
+        sorted(HOST_TOOLCHAIN_TOOLS, key=len, reverse=True))
+    + r")(?![A-Za-z0-9_+.])",
+    r"sv2v-Linux(?:\.zip)?",
+    r"\(X11; Linux [A-Za-z0-9_]+\)")
 TRIPLET_RE = re.compile("|".join(ALLOWED_HOST_TOOLING), re.IGNORECASE)
+
+
+#: Class K: the retired stack's BUILD CONFIGURATION vocabulary. A kernel or
+#: Buildroot defconfig is a target-Linux artifact whose own text need not name
+#: the stack at all - `CONFIG_PTP_1588_CLOCK=y` on a neutral path such as
+#: `configs/milan_defconfig` carried no class-T term and no retired path, so
+#: the tree could reacquire a kernel configuration through a gate that only
+#: watched vocabulary and paths. The symbol namespaces are the finding.
+#: Case-sensitive: Kconfig symbols are upper-case by construction, so an
+#: ordinary lower-case `config_word = y` assignment is not a match.
+KCONFIG_RE = re.compile(
+    r"(?<![A-Za-z0-9_])(?:"
+    r"CONFIG_[A-Z0-9_]+\s*(?:=|:=)\s*[ymn](?![A-Za-z0-9_])"
+    r"|# CONFIG_[A-Z0-9_]+ is not set"
+    r"|BR2_[A-Z0-9_]+"
+    r"|defconfig"
+    r")")
+
+def _path_term_re(terms):
+    """Build a path-token matcher where '-' and '_' are separators.
+
+    ``\b`` treats an underscore as part of a word, which would let a retired
+    name hide in paths such as ``rootfs_overlay`` or ``milan_statd.service``.
+    Conversely, alphanumeric embedding such as ``microkernel`` is a clean
+    near-miss and must not be rejected.
+    """
+    alternatives = "|".join(
+        re.escape(term) for term in sorted(terms, key=len, reverse=True))
+    return re.compile(r"(?<![A-Za-z0-9])(" + alternatives
+                      + r")(?![A-Za-z0-9])", re.IGNORECASE)
+
+
+#: Class P: path names are input too. These are deliberately concrete
+#: product-path families, not a generic rejection of words such as "driver"
+#: anywhere in the repository (testbench drivers remain legitimate).
+RETIRED_PATH_CLASSES = (
+    ("target-os-tree", _path_term_re((
+        "linux", "kernel", "rootfs", "initramfs", "buildroot", "opensbi",
+        "devicetree", "device-tree", "device_tree", "dts", "dtsi", "dtb",
+        "dtc", "jffs2", "mtd", "napi", "skb",
+        "u-boot", "uboot", "vmlinux", "vmlinuz", "zimage", "uimage",
+        "initrd", "sysroot", "dtbo", "fdt", "sysfs", "procfs",
+        "defconfig",
+    ))),
+    ("target-service", _path_term_re((
+        "linuxptp", "ptp4l", "phc2sys", "gptp2csr", "milan-statd",
+        "statd", "systemd", "udev", "ethtool", "devmem", "init.d",
+        "insmod", "modprobe",
+    ))),
+    # a service unit file is the target init system's surface whatever its
+    # stem: `sw/milan.service` carried clean text and a retired contract
+    ("target-service-unit", re.compile(r"\.service$", re.IGNORECASE)),
+    ("host-audio-plane", _path_term_re((
+        "alsa", "pipewire", "aplay", "arecord", "snd-kl-milan",
+        "snd_kl_milan",
+    ))),
+    ("target-driver-tree", re.compile(r"^sw/drivers?(?:/|$)",
+                                      re.IGNORECASE)),
+    ("target-driver-module", RETIRED_DRIVER_MODULE_RE),
+    ("target-host-plane", _path_term_re((
+        "hostplane", "host_plane", "milan-nic", "milan_nic", "kl-eth",
+        "milan_dma_wrapper",
+        "milan_top", "ring-dma", "ring_dma", "ring-bd", "ring_bd",
+        "ring-tx", "ring_tx", "ring-writeback", "ring_writeback",
+        "rx-steer", "rx_steer", "tx-bd", "tx_bd", "dma-bus",
+        "dma_bus", "tx-sf", "tx_sf",
+    ))),
+    # the trees #259 deleted outright, by their exact roots: the board
+    # bring-up harness, the block-design bring-up scripts, the PCM
+    # capture/playback benches and the PCM ring test. A path-only restoration
+    # with clean contents was caught only through what the files said.
+    ("deleted-tree", re.compile(
+        r"^(?:harness|bd)(?:/|$)|^tb/verilator/pcm_[^/]*(?:/|$)"
+        r"|^sw/litex/test_pcm_ring\.py$", re.IGNORECASE)),
+)
 
 #: Class O: retired option tokens. The separator run is `+`, not one
 #: character: a column-aligned recipe and a tab-indented Makefile body carry
@@ -152,7 +455,7 @@ def git_env():
 
 
 def inventory(root):
-    """Tracked first-party text files, discovered, never listed by hand."""
+    """Return tracked first-party text files and all eligible path names."""
     try:
         # -z: NUL-separated and UNQUOTED. Without it git C-quotes any path
         # holding a non-ASCII byte ("caf\303\251.md"), the scanner then opens
@@ -164,14 +467,21 @@ def inventory(root):
     except (subprocess.CalledProcessError, OSError) as exc:
         raise InventoryError(f"git ls-files failed: {exc}")
     files = []
+    paths = []
     for record in out.stdout.split("\0"):
         if not record:
             continue
         meta, _, path = record.partition("\t")
         mode = meta.split(None, 1)[0]
-        if mode in ("160000", "120000"):
-            continue  # submodule gitlink / symlink (the target is scanned once)
+        if mode == "160000":
+            continue  # submodule gitlink
         if path.startswith("third_party/") or path == SELF:
+            continue
+        # Path policy is evaluated before content exclusions: a binary or
+        # symlink with a retired product name is still a tracked path.
+        paths.append(path)
+        if mode == "120000":
+            files.append(path)  # stored link text is always text, whatever suffix
             continue
         if pathlib.Path(path).suffix.lower() in SKIP_EXTS:
             continue
@@ -180,26 +490,49 @@ def inventory(root):
         raise InventoryError("the inventory is empty: a tree with no "
                              "first-party files is a broken scan, not a "
                              "clean one")
-    return files
+    return files, paths
 
 
 class InventoryError(RuntimeError):
     pass
 
 
+def scan_path(path):
+    """Reject retired product path families without reading their payload."""
+    findings = []
+    probe = TRIPLET_RE.sub("", path)
+    for path_class, pattern in RETIRED_PATH_CLASSES:
+        m = pattern.search(probe)
+        if m:
+            findings.append(
+                f"{path}: [P] retired {path_class} path {m.group(0)!r}: "
+                f"tracked first-party paths are part of the #259 surface")
+    return findings
+
+
 def scan_file(root, path):
     findings = []
     try:
-        text = (root / path).read_text(encoding="utf-8", errors="replace")
+        candidate = root / path
+        # read_text follows a symlink and can leave the checkout. The tracked
+        # blob is its link text, so inspect that text directly and never open
+        # the destination.
+        if candidate.is_symlink():
+            text = os.readlink(candidate)
+        else:
+            text = candidate.read_text(encoding="utf-8", errors="replace")
     except OSError as exc:
         return [f"{path}: [inventory] unreadable ({exc}) - an unreadable "
                 f"file is a finding, never a skip"]
     for n, line in enumerate(text.splitlines(), 1):
         # Every class is judged on every line. A `continue` here would hide
-        # the class-O hit behind the class-T hit on the same line, so a
+        # another class hit behind the class-T hit on the same line, so a
         # correct scrub would REVEAL a new finding and the gate could never
         # be driven green in one pass.
         probe = TRIPLET_RE.sub("", line)
+        term_mask = TERM_MASKS.get(path)
+        if term_mask is not None:
+            probe = term_mask.sub("", probe)
         m = TERM_RE.search(probe) or PHRASE_RE.search(probe)
         if m:
             findings.append(
@@ -213,6 +546,43 @@ def scan_file(root, path):
                     f"{path}:{n}: [P] protected product document contains "
                     f"{m.group(0)!r}: {line.strip()[:100]!r} (the full FPGA "
                     f"solution is bare-metal only)")
+        runtime_probe = probe
+        runtime_mask = HOST_RUNTIME_MASKS.get(path)
+        if runtime_mask is not None:
+            runtime_probe = runtime_mask.sub("", runtime_probe)
+        m = (RUNTIME_RE.search(runtime_probe)
+             or TARGET_OS_PATH_RE.search(runtime_probe)
+             or TARGET_OS_DEVICE_RE.search(runtime_probe)
+             or REMOTE_ROOT_SHELL_RE.search(runtime_probe))
+        if m:
+            findings.append(
+                f"{path}:{n}: [R] prohibited target runtime/service "
+                f"surface {m.group(0)!r}: {line.strip()[:100]!r} "
+                f"(#259: no target OS or retired helper-service plane)")
+        m = SOUND_SURFACE_RE.search(line)
+        if m:
+            findings.append(
+                f"{path}:{n}: [S] retired target-audio surface "
+                f"{m.group(0)!r}: {line.strip()[:100]!r} "
+                f"(#259: no dormant host capture/playback lane)")
+        m = HOST_SURFACE_RE.search(line)
+        if m is None:
+            m = HOST_OFFLOAD_RE.search(line)
+        if m is None:
+            m = TARGET_DRIVER_CALLBACK_RE.search(line)
+        if m is None:
+            m = RETIRED_DRIVER_MODULE_RE.search(line)
+        if m:
+            findings.append(
+                f"{path}:{n}: [H] retired target host-plane surface "
+                f"{m.group(0)!r}: {line.strip()[:100]!r} "
+                f"(#259: no dormant target driver/memory-ring contract)")
+        m = KCONFIG_RE.search(line)
+        if m:
+            findings.append(
+                f"{path}:{n}: [K] retired build-configuration symbol "
+                f"{m.group(0)!r}: {line.strip()[:100]!r} "
+                f"(#259: no kernel or Buildroot configuration in the tree)")
         m = OPT_RE.search(line)
         if m:
             findings.append(
@@ -223,25 +593,50 @@ def scan_file(root, path):
                 f"{path}:{n}: [O] --no-fabric-gptp outside its code home "
                 f"({', '.join(OPTION_HOMES)}): the verification-only door "
                 f"is never a recipe")
-    if path.endswith((".yaml", ".yml")) and yaml is not None:
-        findings += scan_yaml(root, path, text)
+    kind = config_kind(path)
+    if kind is not None and yaml is not None:
+        findings += scan_config(path, text, kind)
     return findings
 
 
-#: YAML 1.1 false-y scalars, for the structure-only fallback loader where
-#: every scalar arrives as a string.
-_FALSE_SCALARS = {"false", "no", "off", "n", "0", "~", "null"}
+#: Parsed-config suffixes, matched on the case-folded path so ``c.YAML`` and a
+#: ``.yaml.in`` template are parsed like ``c.yaml``. A JSON config is read by
+#: the json module: it is a YAML document too, but its own parser is the
+#: contract its readers hold it to.
+_YAML_SUFFIXES = (".yaml", ".yml", ".yaml.in", ".yml.in")
+_JSON_SUFFIXES = (".json", ".json.in")
 
 
-def _is_false(value, string_scalars):
-    if value is False:
+def config_kind(path):
+    lowered = path.lower()
+    if lowered.endswith(_YAML_SUFFIXES):
+        return "yaml"
+    if lowered.endswith(_JSON_SUFFIXES):
+        return "json"
+    return None
+
+
+#: False-like ownership values accepted by neither loader. The structure-only
+#: fallback returns every scalar as text; SafeLoader may return bool/None/zero.
+#: An empty string or an empty container is no ownership either.
+_FALSE_SCALARS = {"false", "no", "off", "n", "0", "~", "null", "none",
+                  "disabled", "disable", ""}
+
+
+def _is_false(value):
+    if value is False or value is None:
         return True
-    return (string_scalars and isinstance(value, str)
+    if (isinstance(value, (int, float)) and not isinstance(value, bool)
+            and value == 0):
+        return True
+    if isinstance(value, (list, dict)) and not value:
+        return True
+    return (isinstance(value, str)
             and value.strip().lower() in _FALSE_SCALARS)
 
 
-def scan_yaml(root, path, text):
-    def walk(node, crumb, string_scalars, seen):
+def scan_config(path, text, kind):
+    def walk(node, crumb, seen):
         # Aliases can make a genuinely cyclic container; without this guard a
         # self-referential anchor is a RecursionError no handler catches, and
         # CI reads the resulting rc as "the gate found violations".
@@ -255,17 +650,24 @@ def scan_yaml(root, path, text):
                 # The key is matched case- and space-insensitively: spelling
                 # is not a hiding place, which is the whole point of parsing.
                 if (str(k).strip().lower() == "fabric_gptp"
-                        and _is_false(v, string_scalars)):
+                        and _is_false(v)):
                     hits.append(f"{path}: [Y] {crumb}fabric_gptp is false "
                                 f"(parsed): the fabric plane is the one "
                                 f"product owner (#259)")
-                hits += walk(v, f"{crumb}{k}.", string_scalars, seen)
+                hits += walk(v, f"{crumb}{k}.", seen)
         elif isinstance(node, list):
             for i, v in enumerate(node):
-                hits += walk(v, f"{crumb}[{i}].", string_scalars, seen)
+                hits += walk(v, f"{crumb}[{i}].", seen)
         return hits
 
-    string_scalars = False
+    if kind == "json":
+        try:
+            docs = [json.loads(text)]
+        except ValueError as exc:
+            return [f"{path}: [Y] malformed/unscannable JSON "
+                    f"({type(exc).__name__}): the ownership scan fails "
+                    "closed rather than certifying an unreadable config"]
+        return walk(docs[0], "", frozenset())
     try:
         docs = list(yaml.safe_load_all(text))
     except yaml.YAMLError:
@@ -274,17 +676,18 @@ def scan_yaml(root, path, text):
         # the structure-only loader, which reads any tag.
         try:
             docs = list(yaml.load_all(text, Loader=yaml.BaseLoader))
-            string_scalars = True
-        except yaml.YAMLError:
-            return []  # genuinely malformed: another gate's business
+        except yaml.YAMLError as exc:
+            return [f"{path}: [Y] malformed/unscannable YAML "
+                    f"({type(exc).__name__}): the ownership scan fails "
+                    "closed rather than certifying an unreadable config"]
     hits = []
     for doc in docs:
-        hits += walk(doc, "", string_scalars, frozenset())
+        hits += walk(doc, "", frozenset())
     return hits
 
 
 def check(root=ROOT):
-    files = inventory(root)
+    files, paths = inventory(root)
     findings = []
     present = set(files)
     for path in PRODUCT_DOCS:
@@ -292,6 +695,8 @@ def check(root=ROOT):
             findings.append(
                 f"{path}: [P] protected product document is missing; "
                 f"deletion cannot bypass the product-runtime guard")
+    for path in paths:
+        findings += scan_path(path)
     for path in files:
         findings += scan_file(pathlib.Path(root), path)
     return findings, len(files)
@@ -302,26 +707,28 @@ def selftest():
 
     _GIT_ENV = git_env()
 
-    def scratch_tree(build):
+    def scratch_tree(build, control=True):
         d = tempfile.TemporaryDirectory(prefix="bmonly.")
         root = pathlib.Path(d.name)
         subprocess.run(["git", "-C", str(root), "init", "-q"],
                        check=True, env=_GIT_ENV)
-        (root / "clean.md").write_text("The bare-metal firmware owns boot "
-                                       "policy and identity.\n")
-        product = root / PRODUCT_DOCS[0]
-        product.parent.mkdir(parents=True)
-        product.write_text("The full FPGA solution uses bare-metal firmware.\n")
+        if control:
+            (root / "clean.md").write_text("The bare-metal firmware owns boot "
+                                           "policy and identity.\n")
+            product = root / PRODUCT_DOCS[0]
+            product.parent.mkdir(parents=True)
+            product.write_text(
+                "The full FPGA solution uses bare-metal firmware.\n")
         build(root)
         subprocess.run(["git", "-C", str(root), "add", "-A"],
                        check=True, env=_GIT_ENV)
         return d, root
 
-    def arm(name, build, expect_hit, needle=None):
+    def arm(name, build, expect_hit, needle=None, control=True):
         nonlocal arms
         arms += 1
         findings = []
-        d, root = scratch_tree(build)
+        d, root = scratch_tree(build, control)
         try:
             findings, _ = check(root)
         except InventoryError as exc:
@@ -350,6 +757,130 @@ def selftest():
         lambda r: (r / "page.md").write_text(
             "boot is described by a device tree blob\n"), True, "[T]")
 
+    # R: every newly named runtime/service token and exact target-OS path
+    # bites independently. Near-miss words and longer non-path strings stay
+    # clean, so this is not an unbounded substring search.
+    for term in sorted(set(RUNTIME_TERMS)):
+        arm(f"runtime-{term}",
+            lambda r, t=term: (r / "page.md").write_text(
+                f"the retired target surface invokes {t}\n"), True, "[R]")
+    for target_path in TARGET_OS_PATHS:
+        arm(f"runtime-path-{target_path.strip('/').replace('/', '-')}",
+            lambda r, p=target_path: (r / "page.md").write_text(
+                f"the target opens {p}/status\n"), True, "[R]")
+    arm("runtime-near-misses-clean",
+        lambda r: (r / "page.md").write_text(
+            "microkernel napiform skbuff ethtools nodevmemory arecorder "
+            "upstatd gptp2csrx /procedure /system/network /etcetera "
+            "/lib/modulesets /dev/memory\n"),
+        False)
+    # the whole /sys tree is the surface, not one class directory
+    arm("runtime-path-sys-any-child-caught",
+        lambda r: (r / "page.md").write_text(
+            "the target writes /sys/bus/i2c/devices/1-0050/eeprom\n"),
+        True, "[R]")
+    arm("runtime-proc-prefix-clean",
+        lambda r: (r / "page.md").write_text(
+            "the helper lives under /processor/control\n"), False)
+    arm("runtime-repository-processor-path-clean",
+        lambda r: (r / "page.md").write_text(
+            "see ../../scripts/processor_yosys_tops.budget\n"), False)
+    arm("runtime-proc-child-caught",
+        lambda r: (r / "page.md").write_text(
+            "the target reads /proc/mtd\n"), True, "[R]")
+    for label, punctuation in (("dot", "."), ("bang", "!"),
+                               ("question", "?"), ("equals", "="),
+                               ("hash", "#"), ("pipe", "|")):
+        arm("runtime-path-terminal-punctuation-" + label,
+            lambda r, p=punctuation: (r / "page.md").write_text(
+                f"the target reads /proc{p}\n"), True, "[R]")
+
+    def plant_host_phc(r, payload):
+        target = r / "tb" / "tools" / "crf_vs_phc.py"
+        target.parent.mkdir(parents=True)
+        target.write_text(payload)
+
+    arm("runtime-host-phc-tool-allowed",
+        lambda r: plant_host_phc(
+            r, "probe = '/dev/ptp0'  # read-only workstation input\n"),
+        False)
+    arm("runtime-host-phc-generic-spelling-allowed",
+        lambda r: plant_host_phc(
+            r, "help = 'read a workstation /dev/ptpN clock'\n"), False)
+    arm("runtime-host-phc-wrong-file-caught",
+        lambda r: (r / "page.md").write_text(
+            "the target opens /dev/ptp0\n"), True, "[R]")
+    arm("runtime-host-phc-does-not-launder",
+        lambda r: plant_host_phc(
+            r, "compare /dev/ptp0 after reading /proc/status\n"),
+        True, "[R]")
+
+    def plant_host_malloc(r, payload):
+        target = r / "syn" / "yosys" / "malloc.sh"
+        target.parent.mkdir(parents=True)
+        target.write_text(payload)
+
+    arm("runtime-host-etc-hosts-tool-allowed",
+        lambda r: plant_host_malloc(
+            r, "# so `/etc/hosts` was accepted as a preload once\n"), False)
+    arm("runtime-host-etc-hosts-wrong-file-caught",
+        lambda r: (r / "page.md").write_text(
+            "the target edits /etc/hosts\n"), True, "[R]")
+    arm("runtime-host-etc-hosts-does-not-launder",
+        lambda r: plant_host_malloc(
+            r, "# `/etc/hosts` was accepted; /etc/fstab was not\n"),
+        True, "[R]")
+    # a shell into the target is the runtime whatever it then runs
+    arm("runtime-remote-root-shell-caught",
+        lambda r: (r / "page.md").write_text(
+            "ssh root@board cat x\n"), True, "[R]")
+    arm("runtime-remote-root-shell-with-options-caught",
+        lambda r: (r / "page.md").write_text(
+            "ssh -p 2222 root@10.0.0.2 reboot\n"), True, "[R]")
+    arm("runtime-remote-shell-near-miss-clean",
+        lambda r: (r / "page.md").write_text(
+            "ssh build-host make lint\n"), False)
+
+    # S: every semantic carrier of the retired sound-card lane bites on its
+    # own. Near-miss identifiers stay clean; this is not a substring policy.
+    for token in RETIRED_SOUND_SURFACES:
+        arm("sound-surface-" + re.sub(
+                r"[^a-z0-9]+", "-", token.lower()).strip("-"),
+            lambda r, t=token: (r / "page.md").write_text(
+                f"retired surface carrier: {t}\n"), True, "[S]")
+    arm("sound-surface-near-misses-clean",
+        lambda r: (r / "page.md").write_text(
+            "soundcardinality pcm ringing aaf playbacks axis pcmdata\n"),
+        False)
+
+    # H: every semantic carrier of the removed target host plane bites on its
+    # own; the generic verification vocabulary deliberately stays legal.
+    for token in RETIRED_HOST_SURFACES:
+        arm("host-surface-" + re.sub(
+                r"[^a-z0-9]+", "-", token.lower()).strip("-"),
+            lambda r, t=token: (r / "page.md").write_text(
+                f"retired target carrier: {t}\n"), True, "[H]")
+    arm("host-surface-near-misses-clean",
+        lambda r: (r / "page.md").write_text(
+            "DMA verification driver topography host plan ring reader "
+            "rsc tso gro cpu.with_coherent_dma = True\n"),
+        False)
+    for acronym in ("RSC", "TSO", "GRO"):
+        arm(f"host-offload-{acronym.lower()}",
+            lambda r, t=acronym: (r / "page.md").write_text(
+                f"retired target offload: {t}\n"), True, "[H]")
+    arm("host-driver-callback-family",
+        lambda r: (r / "page.md").write_text(
+            "retired target callback: ndo_open\n"), True, "[H]")
+    # the driver module's lower-case name bites; the upper-case KL_ bench of
+    # the same letters is live RTL vocabulary and stays clean
+    arm("host-driver-module-lower-case-caught",
+        lambda r: (r / "page.md").write_text(
+            "retired target module: kl_eth\n"), True, "[H]")
+    arm("host-driver-module-upper-case-bench-clean",
+        lambda r: (r / "page.md").write_text(
+            "TOP = KL_eth_tx_reset_model\n"), False)
+
     # generated outputs are scanned: a term planted in an .svg text node
     arm("term-in-generated-svg",
         lambda r: (r / "diagram.svg").write_text(
@@ -362,6 +893,9 @@ def selftest():
     arm("triplet-does-not-launder",
         lambda r: (r / "notes.md").write_text(
             "riscv32-linux-gcc builds the linux image\n"), True, "[T]")
+    arm("triplet-does-not-launder-runtime",
+        lambda r: (r / "notes.md").write_text(
+            "riscv32-linux-gcc builds the target kernel\n"), True, "[R]")
     # the exemption is the TRIPLET, so its other tools and its upper-case
     # spelling are exempt too - the tree drives -ld from the same triplet
     arm("triplet-sibling-tool-allowed",
@@ -370,6 +904,20 @@ def selftest():
     arm("triplet-upper-case-allowed",
         lambda r: (r / "make.mk").write_text(
             "RISCV64-LINUX-GNU-OBJCOPY ?= objcopy\n"), False)
+    arm("triplet-dotted-tool-allowed",
+        lambda r: (r / "make.mk").write_text(
+            "LD = riscv32-linux-ld.bfd\n"), False)
+    # the mask ends in a tool name: a term glued to the triplet is not a tool
+    arm("triplet-glued-term-caught",
+        lambda r: (r / "notes.md").write_text(
+            "flash riscv64-linux-rootfs.img to the card\n"), True, "[T]")
+    arm("triplet-glued-runtime-caught",
+        lambda r: (r / "notes.md").write_text(
+            "load riscv32-linux-kernel.bin at the boot address\n"),
+        True, "[R]")
+    arm("triplet-tool-then-glued-term-caught",
+        lambda r: (r / "notes.md").write_text(
+            "riscv32-linux-gcc-rootfs is not a tool\n"), True, "[T]")
     arm("sv2v-asset-allowed",
         lambda r: (r / "install.sh").write_text(
             "curl -fsSL .../sv2v-Linux.zip -o /tmp/sv2v.zip\n"), False)
@@ -394,6 +942,137 @@ def selftest():
             "Download sv2v-Linux.zip for this solution.\n"), True, "[P]")
     arm("product-doc-required",
         lambda r: (r / PRODUCT_DOCS[0]).unlink(), True, "[P]")
+    # P: each retired product-path class bites even when its payload is clean.
+    # Path policy runs before the binary-content exclusion, the narrow host
+    # tooling spellings remain allowed, and masking one such spelling cannot
+    # launder another retired path component.
+    path_class_fixtures = (
+        ("target-os-tree", "archive/rootfs_overlay/README.clean"),
+        ("target-service", "tools/gptp2csr.service"),
+        ("host-audio-plane", "configs/alsa.conf"),
+        ("target-driver-tree", "sw/driver/README.clean"),
+        ("target-host-plane", "tb/verilator/hostplane/fixture.clean"),
+        ("target-service-unit", "sw/milan.service"),
+        ("target-driver-module", "tools/kl_eth/Kbuild.clean"),
+        ("deleted-tree", "harness/run.sh"),
+    )
+    for path_class, fixture_path in path_class_fixtures:
+        def plant_path(r, path=fixture_path):
+            target = r / path
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text("bare-metal fixture payload\n")
+        arm(f"path-class-{path_class}", plant_path, True,
+            f"[P] retired {path_class}")
+    arm("path-binary-name-is-scanned",
+        lambda r: (r / "board-kernel.bin").write_bytes(b"\x00\x01"),
+        True, "[P]")
+    arm("path-descriptor-source-is-scanned",
+        lambda r: (r / "board.dtsi").write_text(
+            "bare-metal fixture payload\n"), True, "[P]")
+    arm("path-triplet-allowed",
+        lambda r: (r / "riscv32-linux-gcc").write_text(
+            "bare-metal host tool shim\n"), False)
+    arm("path-sv2v-asset-allowed",
+        lambda r: (r / "sv2v-Linux.zip").write_bytes(b"PK\x03\x04"), False)
+
+    def plant_laundered_path(r):
+        target = r / "riscv32-linux-gcc" / "kernel-notes.md"
+        target.parent.mkdir(parents=True)
+        target.write_text("bare-metal fixture payload\n")
+    arm("path-host-tool-does-not-launder", plant_laundered_path, True, "[P]")
+    arm("path-triplet-glued-caught",
+        lambda r: (r / "riscv64-linux-rootfs.img").write_bytes(b"\x00"),
+        True, "[P]")
+    # the wider vocabulary and the deleted trees, each by an exact path
+    for fixture_path, path_class in (
+            ("bd/build.tcl", "deleted-tree"),
+            ("tb/verilator/pcm_tx/Makefile", "deleted-tree"),
+            ("sw/litex/test_pcm_ring.py", "deleted-tree"),
+            ("sw/init.d/S50milan", "target-service"),
+            ("sw/uboot/README.clean", "target-os-tree"),
+            ("sw/sysroot/usr/README.clean", "target-os-tree"),
+            ("board.dtbo", "target-os-tree"),
+            ("tools/snd-kl-milan/Kbuild.clean", "host-audio-plane"),
+            ("tb/verilator/milan_nic/fixture.clean", "target-host-plane")):
+        def plant_named_path(r, path=fixture_path):
+            target = r / path
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text("bare-metal fixture payload\n")
+        arm("path-" + re.sub(r"[^a-z0-9]+", "-", fixture_path.lower()),
+            plant_named_path, True, f"[P] retired {path_class}")
+
+    def plant_deleted_tree_near_misses(r):
+        for path in ("tb/verilator/pcmlpf/Makefile", "docs/harnesses/bdd.md",
+                     "hdl/eth/KL_eth_tx_reset_model.sv"):
+            target = r / path
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text("bare-metal fixture payload\n")
+    arm("path-deleted-tree-near-misses-clean",
+        plant_deleted_tree_near_misses, False)
+
+    def plant_near_miss_path(r):
+        target = (r / "microkernel" / "buildrooted" / "statdaemon" /
+                  "alsacean" / "driver-guide.md")
+        target.parent.mkdir(parents=True)
+        target.write_text("bare-metal fixture payload\n")
+    arm("path-near-misses-clean", plant_near_miss_path, False)
+
+    # K: the retired stack's build-configuration vocabulary. A defconfig is a
+    # target-Linux artifact whose own text need not name the stack, so the
+    # symbol namespaces are the finding - on ANY path, and on the name alone.
+    arm("kconfig-symbol-y-caught",
+        lambda r: (r / "cfg.txt").write_text("CONFIG_PTP_1588_CLOCK=y\n"),
+        True, "[K]")
+    arm("kconfig-symbol-m-caught",
+        lambda r: (r / "cfg.txt").write_text("CONFIG_SND_SOC = m\n"),
+        True, "[K]")
+    arm("kconfig-symbol-not-set-caught",
+        lambda r: (r / "cfg.txt").write_text("# CONFIG_MMU is not set\n"),
+        True, "[K]")
+    arm("kconfig-buildroot-symbol-caught",
+        lambda r: (r / "pkg.mk").write_text("BR2_PACKAGE_FOO=y\n"),
+        True, "[K]")
+    arm("kconfig-defconfig-word-caught",
+        lambda r: (r / "notes.md").write_text("Start from the defconfig.\n"),
+        True, "[K]")
+    # the neutral-path defconfig that motivated the class: no class-T term,
+    # no retired path component, clean under every other class
+    arm("kconfig-neutral-path-defconfig-caught",
+        lambda r: (r / "configs").mkdir() or
+        (r / "configs" / "milan_defconfig").write_text(
+            "CONFIG_NET_VENDOR_XILINX=y\n"),
+        True, "[K]")
+    # ... and on the NAME alone, with contents this gate cannot read
+    arm("kconfig-path-defconfig-binary-contents-caught",
+        lambda r: (r / "board_defconfig.bin").write_bytes(b"\x00\x01"),
+        True, "[P]")
+    # near misses: lower-case assignment, a prose word, an ordinary constant
+    arm("kconfig-near-misses-clean",
+        lambda r: (r / "ok.md").write_text(
+            "config_word = y in the local script; reconfigure the yes-path; "
+            "CONFIGURE_ME is a placeholder; CONFIG_NAME is documented\n"),
+        False)
+
+    # T: the one generic container-image fixture is masked in its own file,
+    # and the mask cannot launder the term anywhere else - not in another
+    # file, and not on another line of the same file.
+    arm("term-busybox-caught",
+        lambda r: (r / "boot.md").write_text("We ship a busybox init.\n"),
+        True, "[T]")
+    arm("term-busybox-fixture-masked-at-home",
+        lambda r: (r / "scripts").mkdir() or
+        (r / "scripts" / "ci_events.py").write_text(
+            'job("docs", "services", {"x": {"image": "busybox"}}),\n'),
+        False)
+    arm("term-busybox-mask-does-not-launder-same-file",
+        lambda r: (r / "scripts").mkdir() or
+        (r / "scripts" / "ci_events.py").write_text(
+            'job("docs", {"image": "busybox"})  # unpack the busybox rootfs\n'),
+        True, "[T]")
+    arm("term-busybox-mask-is-file-pinned",
+        lambda r: (r / "other.py").write_text(
+            'job("docs", "services", {"x": {"image": "busybox"}}),\n'),
+        True, "[T]")
 
     # O: option tokens, both spellings of the flashboot value
     arm("opt-sound-card",
@@ -437,8 +1116,61 @@ def selftest():
     arm("yaml-self-referential-anchor",
         lambda r: (r / "c.yaml").write_text(
             "&root\nfabric_gptp: false\nself: *root\n"), True, "[Y]")
+    for scalar in ("0", "null", "~", "\"false\""):
+        arm("yaml-fabric-gptp-false-like-" +
+            re.sub(r"[^a-z0-9]+", "-", scalar.lower()).strip("-"),
+            lambda r, v=scalar: (r / "c.yaml").write_text(
+                f"board:\n  features:\n    fabric_gptp: {v}\n"),
+            True, "[Y]")
+    arm("yaml-fabric-gptp-true-clean",
+        lambda r: (r / "c.yaml").write_text(
+            "board:\n  features:\n    fabric_gptp: true\n"), False)
+    arm("yaml-malformed-fails-closed",
+        lambda r: (r / "c.yaml").write_text(
+            "fabric_gptp: false\nbroken: [\n"), True, "[Y]")
+    # the suffix is case-folded, a template is parsed, and JSON is parsed
+    arm("config-upper-case-suffix-parsed",
+        lambda r: (r / "c.YAML").write_text(
+            "board:\n  fabric_gptp: false\n"), True, "[Y]")
+    arm("config-template-suffix-parsed",
+        lambda r: (r / "c.yaml.in").write_text(
+            "board:\n  fabric_gptp: false\n"), True, "[Y]")
+    arm("config-json-fabric-gptp-false",
+        lambda r: (r / "c.json").write_text(
+            '{"board": {"features": {"fabric_gptp": false}}}\n'), True, "[Y]")
+    arm("config-json-malformed-fails-closed",
+        lambda r: (r / "c.json").write_text('{"fabric_gptp": false\n'),
+        True, "[Y]")
+    arm("config-json-true-clean",
+        lambda r: (r / "c.json").write_text('{"fabric_gptp": true}\n'),
+        False)
+    for label, value in (("disabled", "disabled"), ("empty-string", "''"),
+                         ("empty-list", "[]"), ("empty-mapping", "{}")):
+        arm("config-false-like-" + label,
+            lambda r, v=value: (r / "c.yaml").write_text(
+                f"board:\n  fabric_gptp: {v}\n"), True, "[Y]")
 
-    # inventory failure modes
+    # A tracked symlink is a blob too: inspect its link text without following
+    # it, including when the destination does not exist or leaves the tree.
+    arm("symlink-target-term",
+        lambda r: (r / "current").symlink_to("../retired/rootfs"),
+        True, "[T]")
+    arm("symlink-target-runtime-path",
+        lambda r: (r / "current.png").symlink_to("/dev/mem"),
+        True, "[R]")
+
+    # inventory failure modes: an EMPTY inventory is a broken scan, never a
+    # zero count - with no tracked file at all, and with every tracked file
+    # excluded from the content set (a vendor tree and a binary)
+    arm("empty-inventory-no-tracked-files", lambda r: None, True,
+        "the inventory is empty", control=False)
+
+    def plant_all_excluded(r):
+        (r / "third_party").mkdir()
+        (r / "third_party" / "vendor.md").write_text("vendored text\n")
+        (r / "logo.png").write_bytes(b"\x89PNG")
+    arm("empty-inventory-all-excluded", plant_all_excluded, True,
+        "the inventory is empty", control=False)
     arms += 1
     with tempfile.TemporaryDirectory(prefix="bmonly.") as d:
         try:

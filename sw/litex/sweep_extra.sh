@@ -16,9 +16,9 @@ esac
 # #259: bare-metal only, with no cache or alternate flash manifest.
 BASE="python3 $(dirname "$(realpath "$0")")/milan_soc.py $OPTS --cpu vexiiriscv \
  --software-profile baremetal --fabric-gptp --xlen 32 \
- --all-blocks --coherent-dma --with-spiflash --flashboot baremetal --timing-opt \
- --l2-bytes 0 --uart-baudrate 115200 --rx-queues 2 \
- --strip-probes --hs-page-bytes 16384 --cpu-count 1 --vivado-max-threads 32 --build"
+ --full --with-spiflash --flashboot baremetal --timing-opt \
+ --l2-bytes 0 --uart-baudrate 115200 \
+ --cpu-count 1 --vivado-max-threads 32 --build"
 cd "$W"
 rm -rf build_${BOARD}_{exp,asm,enl}_${TAG}
 launch() {

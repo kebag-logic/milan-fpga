@@ -3,12 +3,12 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """Open-synthesis sweep over PARAMETER CONFIGURATIONS, not just tops.
 
-The problem this closes. `run.sh` synthesises 47 tops, each at its **default**
+The problem this closes. `run.sh` synthesises 45 tops, each at its **default**
 parameters - it passes no override anywhere. `milan_datapath` defaults to
-`N_STREAMS = 1`, `AUDIO_IF_SLOTS_P = 0`, `AAF_PLAYBACK_P = 0`, so the two
-shapes that actually ship - AX7101 at 8x8 and Arty at 4x4 - were never
-open-synthesised at all. A parameter combination that fails to elaborate is a
-build failure, and nothing in CI would have seen it.
+`N_STREAMS = 1`, `AUDIO_IF_SLOTS_P = 0`, and a 100 MHz clock, so the two shapes
+that actually ship - AX7101 at 8x8 and Arty at 4x4 - were never open-synthesised
+at all. A parameter combination that fails to elaborate is a build failure, and
+nothing in CI would have seen it.
 
 Why this is cheap. Two facts make a sweep affordable:
 
@@ -28,8 +28,8 @@ Why this is cheap. Two facts make a sweep affordable:
 
 Three reductions, in the order they matter:
 
-1. **Only sweep tops that HAVE shape parameters.** Varying nothing across 47
-   tops is 47x the cost for zero extra coverage.
+1. **Only sweep tops that HAVE shape parameters.** Varying nothing across 45
+   tops is 45x the cost for zero extra coverage.
 
 2. **Equivalence-partition each parameter** - pick values that select distinct
    structural branches, not every legal number. `AUDIO_IF_SLOTS_P` accepts
@@ -39,9 +39,9 @@ Three reductions, in the order they matter:
 
 3. **Cover PAIRS, not the product.** Almost every configuration defect is a
    two-parameter interaction, so a 2-way covering array finds them at a small
-   fraction of the cost. Here that is 36 combinations reduced to ~10 runs -
+   fraction of the cost. Here that is 18 combinations reduced to 10 runs -
    and the gap widens fast: add six binary prune parameters (the tier-1 levers
-   in `docs/design/AREA_BUDGET.md`) and the product is 2,304 while pairwise
+   in `docs/design/AREA_BUDGET.md`) and the product is 1,152 while pairwise
    stays near a dozen.
 
 **This is sampling, and it is honest about that.** Pairwise cannot see a
@@ -76,8 +76,6 @@ SPACE = {
     # 0 selects KL_aaf_capture_i2s; anything > 0 selects KL_tdm_capture. 8 and
     # 32 are the narrow and wide TDM shapes; 16 takes the identical branch.
     "AUDIO_IF_SLOTS_P": [0, 8, 32],
-    # binary: instantiate KL_pcm_tx or prune it
-    "AAF_PLAYBACK_P": [0, 1],
     # divider/counter elaboration differs between the two board clocks
     "MILAN_CLK_FREQ_HZ": [50_000_000, 100_000_000],
 }
@@ -85,17 +83,17 @@ SPACE = {
 #: Configurations that must ALWAYS run, whatever the sampler decides. These are
 #: the ones where a failure is not a curiosity but a broken product.
 PINNED = {
-    "default": dict(N_STREAMS=1, AUDIO_IF_SLOTS_P=0, AAF_PLAYBACK_P=0,
+    "default": dict(N_STREAMS=1, AUDIO_IF_SLOTS_P=0,
                     MILAN_CLK_FREQ_HZ=100_000_000),
-    "ship-ax-8x8": dict(N_STREAMS=8, AUDIO_IF_SLOTS_P=8, AAF_PLAYBACK_P=1,
+    "ship-ax-8x8": dict(N_STREAMS=8, AUDIO_IF_SLOTS_P=8,
                         MILAN_CLK_FREQ_HZ=100_000_000),
-    "ship-arty-4x4": dict(N_STREAMS=4, AUDIO_IF_SLOTS_P=0, AAF_PLAYBACK_P=1,
+    "ship-arty-4x4": dict(N_STREAMS=4, AUDIO_IF_SLOTS_P=0,
                           MILAN_CLK_FREQ_HZ=50_000_000),
     # the extremes: smallest shape is where degenerate/undriven logic hides,
     # largest is where elaboration blows up
-    "min": dict(N_STREAMS=1, AUDIO_IF_SLOTS_P=0, AAF_PLAYBACK_P=0,
+    "min": dict(N_STREAMS=1, AUDIO_IF_SLOTS_P=0,
                 MILAN_CLK_FREQ_HZ=50_000_000),
-    "max": dict(N_STREAMS=8, AUDIO_IF_SLOTS_P=32, AAF_PLAYBACK_P=1,
+    "max": dict(N_STREAMS=8, AUDIO_IF_SLOTS_P=32,
                 MILAN_CLK_FREQ_HZ=100_000_000),
 }
 
@@ -309,10 +307,10 @@ def main():
             # PER-PARAMETER sensitivity, not "some number moved". The first
             # version of this check only asserted the counts were not all
             # identical, and it passed while the extraction was reading a
-            # parameter-independent leaf module: AAF_PLAYBACK_P happened to
-            # correlate with the two values seen, so "3 distinct sizes" looked
-            # like proof that all four overrides bit. It proved nothing about
-            # the other three. Now each parameter is judged on pairs that
+            # parameter-independent leaf module: one parameter happened to
+            # correlate with the values seen, so "distinct sizes" looked like
+            # proof that every override bit. It proved nothing about the other
+            # parameters. Now each parameter is judged on pairs that
             # differ in IT ALONE, and a parameter with no such pair in the plan
             # is reported undetermined rather than assumed working.
             by_cfg = {n: c for n, c in chosen.items()}

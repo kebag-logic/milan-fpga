@@ -49,7 +49,7 @@
                 zero and NOT a latency measurement - a reader who cannot tell
                 the two apart would report 0 ns end to end, so the builder
                 gate refuses to prune the taps in a configuration that keeps
-                its probes (board.constraints.strip_probes: false).
+                its probes (the optional latency-tap block is enabled).
 
   House style : mirrors hdl/ieee1722/aaf/KL_aaf_latency_taps.sv.
   Company     : Kebag Logic
@@ -75,7 +75,7 @@ module KL_aaf_latency_tap_bank #(
   input  wire        clr_i,               //! LTAP_CTRL.clr strobe
   input  wire [31:0] now_i,               //! gPTP nanoseconds, low word
 
-  //! TX stage 0 - a captured ring/I2S sample pair enters the talker
+  //! TX stage 0 - a physical capture sample pair enters the talker
   input  wire        cap_pair_p_i,
   //! TX stages 1-2 - AAF packetizer output stream
   input  wire        aaf_tx_tvalid_i,
@@ -96,10 +96,10 @@ module KL_aaf_latency_tap_bank #(
   input  wire        dpkt_tvalid_i,
   input  wire        dpkt_tready_i,
   input  wire        dpkt_tlast_i,
-  //! RX stage 3 - payload accepted at the PCM ring writer
-  input  wire        ring_tvalid_i,
-  input  wire        ring_tready_i,
-  input  wire        ring_tlast_i,
+  //! RX stage 3 - selected payload accepted by the fabric render path
+  input  wire        render_tvalid_i,
+  input  wire        render_tready_i,
+  input  wire        render_tlast_i,
 
   //! the sixteen read-only LTAP words, in CSR order (0x874..0x8B0)
   output wire [16*32-1:0] regs_o,
@@ -114,7 +114,7 @@ module KL_aaf_latency_tap_bank #(
   wire mac_tx_acc_w = mac_tx_tvalid_i & mac_tx_tready_i;
   wire mac_rx_acc_w = mac_rx_tvalid_i & mac_rx_tready_i;
   wire dpkt_acc_w   = dpkt_tvalid_i   & dpkt_tready_i;
-  wire ring_acc_w   = ring_tvalid_i   & ring_tready_i;
+  wire render_acc_w = render_tvalid_i & render_tready_i;
 
   //! start-of-frame trackers for the two shared AXIS boundaries
   logic aaf_tx_inframe_r, mac_rx_inframe_r;
@@ -130,14 +130,14 @@ module KL_aaf_latency_tap_bank #(
   end : ltap_inframe
 
   //! single-cycle stage edges (stage 0 = the chain's arm/epoch trigger)
-  wire ltap_txcap_w  = cap_pair_p_i;                             //! ring/I2S pair in
+  wire ltap_txcap_w  = cap_pair_p_i;                             //! capture pair in
   wire ltap_txsof_w  = aaf_tx_acc_w & ~aaf_tx_inframe_r;         //! packetizer first beat
   wire ltap_txeof_w  = aaf_tx_acc_w &  aaf_tx_tlast_i;           //! packetizer last beat
   wire ltap_txmac_w  = mac_tx_acc_w &  mac_tx_tlast_i;           //! frame egress at MAC
   wire ltap_rxsof_w  = mac_rx_acc_w & ~mac_rx_inframe_r;         //! frame ingress from MAC
   wire ltap_rxacc_w  = avtp_accept_p_i;                          //! AVTP monitor accept/parse
   wire ltap_rxdpk_w  = dpkt_acc_w & dpkt_tlast_i;                //! depacketizer payload last
-  wire ltap_rxring_w = ring_acc_w & ring_tlast_i;                //! payload into the PCM ring
+  wire ltap_rxrend_w = render_acc_w & render_tlast_i;             //! selected payload into fabric render
 
   wire [31:0]     ltap_tx_epoch_w, ltap_rx_epoch_w;
   wire [15:0]     ltap_tx_smp_w, ltap_rx_smp_w, ltap_tx_to_w, ltap_rx_to_w;
@@ -154,7 +154,7 @@ module KL_aaf_latency_tap_bank #(
       ltap_rxp_q_r <= 4'd0;
     end else begin
       ltap_txp_q_r <= {ltap_txmac_w, ltap_txeof_w, ltap_txsof_w, ltap_txcap_w};
-      ltap_rxp_q_r <= {ltap_rxring_w, ltap_rxdpk_w, ltap_rxacc_w, ltap_rxsof_w};
+      ltap_rxp_q_r <= {ltap_rxrend_w, ltap_rxdpk_w, ltap_rxacc_w, ltap_rxsof_w};
     end
   end
   KL_aaf_latency_taps #(

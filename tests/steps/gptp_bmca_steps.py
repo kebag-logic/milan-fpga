@@ -20,8 +20,7 @@ from behave import given, when, then
 
 
 # --- IEEE 802.1AS-2020 defaults (Clause 10.6 intervals, Clause 10.3 BMCA) ---
-# These are also exactly what Milan v1.2 4.2.6.2 requires of a PAAD and what
-# /etc/gptp.cfg ships on both boards.
+# These are also exactly what Milan v1.2 4.2.6.2 requires of a PAAD.
 DEFAULT_LOG_ANNOUNCE_INTERVAL = 0     # -> 1 Announce/s
 DEFAULT_LOG_SYNC_INTERVAL = -3        # -> 8 Sync/s
 DEFAULT_LOG_PDELAY_REQ_INTERVAL = 0   # -> 1 Pdelay_Req/s

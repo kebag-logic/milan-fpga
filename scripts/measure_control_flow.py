@@ -77,7 +77,7 @@ from code_quality_scope import PROJECT_SUBMODULES, tracked
 #: both processor submodules alike (a name absent from a tree matches nothing
 #: there), then filtered on `.py`. Directories are used because a git pathspec
 #: `x/**/*.py` needs at least one directory level and does not match `x/a.py`.
-PY_DIRS = ("scripts", "sw", "tb", "harness", "syn", "hdl", "bench")
+PY_DIRS = ("scripts", "sw", "tb", "syn", "hdl", "bench")
 #: The RTL population: `.sv` under hdl/ in each tree. Testbench and synthesis
 #: SystemVerilog under tb/ and syn/, `.svh` headers and the generated `.v`
 #: wrapper are outside it, and the guide says so.

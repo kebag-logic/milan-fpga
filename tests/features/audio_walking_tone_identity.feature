@@ -178,7 +178,7 @@ Feature: AUDIO IS NEVER FORGOTTEN - channel identity and a THD+N gate that measu
 
   @class:thdn @clause:definition @honesty
   Scenario: the production analyser states the coherence preconditions it will not measure without
-    # harness/milanharness/thdn.py raises rather than measuring when
+    # tb/tools/thdn.py raises rather than measuring when
     # rate % f0 != 0 or fewer than 8 whole periods are present: the un-windowed
     # method does not apply, and returning a number anyway would be the
     # manufactured measurement above with no warning.
