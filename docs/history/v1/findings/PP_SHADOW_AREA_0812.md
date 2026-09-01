@@ -217,7 +217,9 @@ versus plane-ON, same instrument:
 > channels) rather than `endstation_arty_current` (1 / 29 / 2). The A/B
 > delta is still same-instrument -- both runs used the same shape -- but the
 > ABSOLUTE numbers are for the other entity and are owed a re-measurement.
-> `syn/yosys/ooc.sh` has the same defect and is still unfixed.
+> `syn/yosys/ooc.sh` had the same defect -- no `configs/generated`
+> entry at all -- and was given an explicit include path by the same
+> change; its own figures below predate that and carry the note above.
 
 | milan_datapath, 1×1 | LUT | FF | BRAM | WNS @ 100 MHz | Failing |
 |---|---|---|---|---|---|
@@ -436,7 +438,7 @@ macro-EXPANDED one that must both expand clean so the group cannot pass on a
 front end that refuses everything; and eleven that run mutated copies of the
 real `run.sh` under real bash, four of them the round-two counterexamples above
 and the last three the round-two and round-three constructs on the real read
-set, with and without a front end) and `syn/ooc/ooc_tcl_selftest.py` (55 arms,
+set, with and without a front end) and `syn/ooc/ooc_tcl_selftest.py` (58 arms,
 which drive this .tcl under `tclsh` with the Vivado commands stubbed), plus both
 expansions for real.
 
