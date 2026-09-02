@@ -910,6 +910,34 @@ marker through
 marker is absent there, inspects the effective container mount, and finally
 proves interrupt cleanup removes the volume too.
 
+A freshly created empty tool-cache volume also exposes a Docker daemon race
+(#315). Sibling jobs in one workflow start their containers concurrently, and
+every container create against an empty volume triggers the daemon's image
+copy-up: an emptiness check followed by an unsynchronized directory copy of
+the runner image's multi-gigabyte `/opt/hostedtoolcache`. Two creates that
+pass the emptiness check together collide inside that copy, and the losing
+sibling job dies during container setup with `failed to mkdir
+.../act-toolcache/_data/Python: file exists`; a create arriving a moment
+later instead sees the winner's first copied entries, skips its own copy, and
+runs that job against a partially populated cache. The runner therefore seeds
+the cache deterministically: after creating the labelled empty volume and
+before `act` may launch any job, one owned seed container with no network
+performs the only empty-volume mount, proves through its exit status that the
+cache is populated, and is removed with the same owned-only, stable-absence
+verification as every other runner resource. Every sibling job container then
+mounts a complete non-empty cache and the daemon copy-up can never run
+concurrently. Seeding adds that one copy-up (tens of seconds on a warm host)
+to boundary creation, including under `--dry-run`, and the seed's own
+thirty-minute pull-and-copy budget is bounded separately from ordinary Docker
+CLI timeouts. The
+offline self-test pins this mechanism as the regression control for the race:
+building an act command from an unseeded boundary is refused, the seed must
+run exactly once between volume and network creation carrying the ownership
+label, the runner image, the exact cache mount, and no network, and a seed
+that cannot prove a populated cache refuses the whole boundary and reconciles
+both the seed container and the volume. Neutering the seeding call fails
+those controls, so the race cannot silently return.
+
 The artifact and cache servers bind only to the gateway address of the
 runner-created bridge, so they are reachable by that run's job containers but
 not advertised on the host's routable interface. Each workflow also receives a

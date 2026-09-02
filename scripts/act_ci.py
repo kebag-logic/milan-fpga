@@ -66,6 +66,10 @@ DOCKER_ID_RE = re.compile(r"^[0-9a-f]{64}$")
 DOCKER_OWNER_LABEL = "org.kebag-logic.milan-act-ci.owner"
 ACT_TOOLCACHE_VOLUME = "act-toolcache"
 ACT_TOOLCACHE_TARGET = "/opt/hostedtoolcache"
+ACT_TOOLCACHE_SEED_SUFFIX = "-toolcache-seed"
+# One attached seed run bounds the daemon-side image copy-up (minutes for a
+# multi-gigabyte runner tool cache) plus a possible first-time image pull.
+ACT_TOOLCACHE_SEED_TIMEOUT = 30 * 60
 DOCKER_COMMAND_TIMEOUT = 30
 DOCKER_MUTATION_STABLE_SECONDS = 0.5
 RUN_DIRECTORY_RECLAIM_TIMEOUT = 120
@@ -370,6 +374,7 @@ class DockerBoundary:
     network_id: str | None = None
     gateway: str | None = None
     toolcache_owned: bool = False
+    toolcache_seeded: bool = False
 
 
 @dataclass
@@ -1451,6 +1456,7 @@ def run_docker(
     env: Mapping[str, str],
     description: str,
     check: bool = True,
+    timeout: float = DOCKER_COMMAND_TIMEOUT,
     run_command: Callable[..., subprocess.CompletedProcess[str]] = subprocess.run,
 ) -> subprocess.CompletedProcess[str]:
     command = [*docker_prefix(use_sudo, env), *arguments]
@@ -1460,7 +1466,7 @@ def run_docker(
                 command,
                 cwd=cwd,
                 env=env,
-                timeout=DOCKER_COMMAND_TIMEOUT,
+                timeout=timeout,
                 use_sudo=use_sudo,
             )
         else:
@@ -1471,7 +1477,7 @@ def run_docker(
                 text=True,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
-                timeout=DOCKER_COMMAND_TIMEOUT,
+                timeout=timeout,
                 check=False,
             )
     except subprocess.TimeoutExpired as exc:
@@ -1504,6 +1510,17 @@ def docker_reports_missing_network(
         result.returncode != 0
         and target.lower() in detail
         and ("no such network" in detail or "not found" in detail)
+    )
+
+
+def docker_reports_missing_container(
+    result: subprocess.CompletedProcess[str], target: str
+) -> bool:
+    detail = (result.stderr or "").lower()
+    return (
+        result.returncode != 0
+        and target.lower() in detail
+        and ("no such container" in detail or "no such object" in detail)
     )
 
 
@@ -1715,6 +1732,179 @@ def create_act_toolcache_volume(
             ) from primary
         raise
     return boundary
+
+
+def toolcache_seed_container_name(boundary: DockerBoundary) -> str:
+    return f"{boundary.name}{ACT_TOOLCACHE_SEED_SUFFIX}"
+
+
+def discard_toolcache_seed_container(
+    boundary: DockerBoundary,
+    *,
+    use_sudo: bool,
+    cwd: pathlib.Path,
+    env: Mapping[str, str],
+    docker_command: Callable[..., subprocess.CompletedProcess[str]] = run_docker,
+    stability_window: float | None = None,
+    monotonic: Callable[[], float] = time.monotonic,
+    sleep: Callable[[float], None] = time.sleep,
+) -> None:
+    """Remove an owned seed container and require a stable absence window."""
+    name = toolcache_seed_container_name(boundary)
+    window = (
+        DOCKER_MUTATION_STABLE_SECONDS
+        if stability_window is None and docker_command is run_docker
+        else (stability_window or 0)
+    )
+    stable_since: float | None = None
+    removals = 0
+    while True:
+        result = docker_command(
+            ["container", "inspect", name],
+            use_sudo=use_sudo,
+            cwd=cwd,
+            env=env,
+            description="act tool-cache seed container inspection",
+            check=False,
+        )
+        if result.returncode != 0:
+            if not docker_reports_missing_container(result, name):
+                detail = (result.stderr or "").strip().splitlines()
+                suffix = f": {detail[-1]}" if detail else ""
+                raise Refusal(
+                    f"cannot reconcile act tool-cache seed container{suffix}"
+                )
+            now = monotonic()
+            if stable_since is None:
+                stable_since = now
+            remaining = window - (now - stable_since)
+            if remaining <= 1e-6:
+                return
+            sleep(min(0.05, remaining))
+            continue
+        stable_since = None
+        try:
+            containers = json.loads(result.stdout)
+            item = containers[0]
+            config = item.get("Config")
+            labels = config.get("Labels") if isinstance(config, dict) else None
+        except (json.JSONDecodeError, IndexError, TypeError, AttributeError) as exc:
+            raise Refusal(
+                "Docker returned malformed seed container metadata"
+            ) from exc
+        if not isinstance(labels, dict):
+            raise Refusal("act tool-cache seed container has malformed labels")
+        if labels.get(DOCKER_OWNER_LABEL) != boundary.token:
+            # Never delete a container this run does not own, even under the
+            # unpredictable seed name; the volume rollback will fail loudly.
+            return
+        if removals >= 3:
+            raise Refusal(
+                "owned act tool-cache seed container survived repeated rollback"
+            )
+        removed = docker_command(
+            ["container", "rm", "--force", "--volumes", name],
+            use_sudo=use_sudo,
+            cwd=cwd,
+            env=env,
+            description="act tool-cache seed container removal",
+            check=False,
+        )
+        if removed.returncode != 0:
+            detail = (removed.stderr or "").strip().splitlines()
+            suffix = f": {detail[-1]}" if detail else ""
+            raise Refusal(
+                f"act tool-cache seed container removal failed{suffix}"
+            )
+        removals += 1
+
+
+def seed_act_toolcache_volume(
+    boundary: DockerBoundary,
+    *,
+    use_sudo: bool,
+    cwd: pathlib.Path,
+    env: Mapping[str, str],
+    docker_command: Callable[..., subprocess.CompletedProcess[str]] = run_docker,
+) -> DockerBoundary:
+    """Populate the fresh tool cache exactly once before any sibling job.
+
+    Concurrent sibling-job container creates against one freshly created empty
+    ``act-toolcache`` volume race inside the Docker daemon's image copy-up
+    (an ``os.ReadDir`` emptiness gate followed by an unsynchronized directory
+    copy): a losing create dies with ``failed to mkdir .../_data/Python: file
+    exists`` while a trailing create can skip the copy entirely and run its
+    job against a partially populated cache (#315). One owned, networkless
+    seed container therefore performs the only empty-volume mount; its exit
+    status proves the cache is populated before act may launch sibling jobs,
+    which then all skip the daemon copy-up deterministically.
+    """
+    if not boundary.toolcache_owned:
+        raise Refusal("cannot seed an unowned act tool-cache volume")
+    if boundary.toolcache_seeded:
+        raise Refusal("refusing to reseed an initialized act tool cache")
+    name = toolcache_seed_container_name(boundary)
+    try:
+        result = docker_command(
+            [
+                "run",
+                "--name",
+                name,
+                "--label",
+                f"{DOCKER_OWNER_LABEL}={boundary.token}",
+                "--network",
+                "none",
+                "--volume",
+                f"{ACT_TOOLCACHE_VOLUME}:{ACT_TOOLCACHE_TARGET}",
+                "--entrypoint",
+                "/bin/bash",
+                RUNNER_IMAGE,
+                "-c",
+                f'test -n "$(ls -A {ACT_TOOLCACHE_TARGET})"',
+            ],
+            use_sudo=use_sudo,
+            cwd=cwd,
+            env=env,
+            description="act tool-cache deterministic seed",
+            check=False,
+            timeout=ACT_TOOLCACHE_SEED_TIMEOUT,
+        )
+        if result.returncode != 0:
+            detail = (result.stderr or "").strip().splitlines()
+            suffix = f": {detail[-1]}" if detail else ""
+            raise Refusal(
+                f"act tool-cache seed did not prove a populated cache{suffix}"
+            )
+        discard_toolcache_seed_container(
+            boundary,
+            use_sudo=use_sudo,
+            cwd=cwd,
+            env=env,
+            docker_command=docker_command,
+        )
+        inspect_act_toolcache_volume(
+            boundary,
+            use_sudo=use_sudo,
+            cwd=cwd,
+            env=env,
+            docker_command=docker_command,
+        )
+    except BaseException as primary:
+        try:
+            with blocked_cleanup_signals():
+                discard_toolcache_seed_container(
+                    boundary,
+                    use_sudo=use_sudo,
+                    cwd=cwd,
+                    env=env,
+                    docker_command=docker_command,
+                )
+        except Refusal as cleanup_error:
+            raise Refusal(
+                f"act tool-cache seed rollback failed: {cleanup_error}"
+            ) from primary
+        raise
+    return replace(boundary, toolcache_seeded=True)
 
 
 def cleanup_act_toolcache_volume(
@@ -1956,7 +2146,11 @@ def create_docker_boundary(
     lease: DockerBoundaryLease | None = None,
     after_toolcache: Callable[[], None] | None = None,
 ) -> DockerBoundary:
-    if planned.network_id is not None or planned.toolcache_owned:
+    if (
+        planned.network_id is not None
+        or planned.toolcache_owned
+        or planned.toolcache_seeded
+    ):
         raise Refusal("refusing to recreate an initialized Docker boundary")
     active_lease = lease or DockerBoundaryLease(planned)
     if (
@@ -1969,6 +2163,14 @@ def create_docker_boundary(
     try:
         boundary = create_act_toolcache_volume(
             planned,
+            use_sudo=use_sudo,
+            cwd=cwd,
+            env=env,
+            docker_command=docker_command,
+        )
+        active_lease.boundary = boundary
+        boundary = seed_act_toolcache_volume(
+            boundary,
             use_sudo=use_sudo,
             cwd=cwd,
             env=env,
@@ -2480,6 +2682,11 @@ def build_act_command(
         raise Refusal(f"invalid artifact-server port: {artifact_port}")
     if not boundary.toolcache_owned:
         raise Refusal("Docker boundary has no exclusive act tool-cache volume")
+    if not boundary.toolcache_seeded:
+        raise Refusal(
+            "Docker boundary tool cache was never deterministically seeded; "
+            "concurrent sibling jobs must not race the daemon copy-up"
+        )
     try:
         gateway = ipaddress.ip_address(boundary.gateway or "")
     except ValueError as exc:
@@ -3210,6 +3417,7 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
                 network_id="b" * 64,
                 gateway="172.30.0.1",
                 toolcache_owned=True,
+                toolcache_seeded=True,
             )
             command = build_act_command(
                 ["act"], "rtl-full", first, allocated_port, selftest_boundary
@@ -3290,6 +3498,16 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
                     first,
                     allocated_port,
                     replace(selftest_boundary, toolcache_owned=False),
+                ),
+            )
+            refused(
+                "a boundary with an unseeded tool cache cannot run act",
+                lambda: build_act_command(
+                    ["act"],
+                    "docs",
+                    first,
+                    allocated_port,
+                    replace(selftest_boundary, toolcache_seeded=False),
                 ),
             )
             volume_metadata = json.dumps(
@@ -3541,6 +3759,24 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
                 f"Error response from daemon: No such network: "
                 f"{selftest_boundary.name}"
             )
+            seed_container_name = toolcache_seed_container_name(selftest_boundary)
+            seed_container_metadata = json.dumps(
+                [
+                    {
+                        "Id": "ab" * 32,
+                        "Name": f"/{seed_container_name}",
+                        "Config": {
+                            "Labels": {
+                                DOCKER_OWNER_LABEL: selftest_boundary.token,
+                            },
+                        },
+                    }
+                ]
+            )
+            missing_seed_container = (
+                f"Error response from daemon: No such container: "
+                f"{seed_container_name}"
+            )
             teardown_state = {"network": True}
             teardown_calls: list[tuple[str, ...]] = []
 
@@ -3596,7 +3832,7 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
             ) -> tuple[
                 dict[str, bool], list[tuple[str, ...]], str
             ]:
-                state = {"volume": False, "network": False}
+                state = {"volume": False, "network": False, "seed": False}
                 calls: list[tuple[str, ...]] = []
 
                 def post_accept_network_failure(
@@ -3615,6 +3851,26 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
                         )
                     if call == ("volume", "rm", ACT_TOOLCACHE_VOLUME):
                         state["volume"] = False
+                        return docker_completed(arguments)
+                    if call[0] == "run" and seed_container_name in call:
+                        state["seed"] = True
+                        return docker_completed(arguments)
+                    if call == ("container", "inspect", seed_container_name):
+                        if state["seed"]:
+                            return docker_completed(
+                                arguments, stdout=seed_container_metadata
+                            )
+                        return docker_completed(
+                            arguments, 1, stderr=missing_seed_container
+                        )
+                    if call == (
+                        "container",
+                        "rm",
+                        "--force",
+                        "--volumes",
+                        seed_container_name,
+                    ):
+                        state["seed"] = False
                         return docker_completed(arguments)
                     if call[0:2] == ("network", "create"):
                         state["network"] = True
@@ -3665,6 +3921,7 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
                             network_id=None,
                             gateway=None,
                             toolcache_owned=False,
+                            toolcache_seeded=False,
                         ),
                         use_sudo=False,
                         cwd=first.invocation,
@@ -3723,6 +3980,154 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
                 and not handoff_state["network"]
                 and not handoff_state["volume"]
                 and not any(call[:2] == ("network", "create") for call in handoff_calls),
+            )
+
+            def run_seed_boundary_control(
+                *, seed_exit: int
+            ) -> tuple[
+                dict[str, bool],
+                list[tuple[str, ...]],
+                str,
+                DockerBoundary | None,
+            ]:
+                state = {"volume": False, "network": False, "seed": False}
+                calls: list[tuple[str, ...]] = []
+
+                def deterministic_seed_daemon(
+                    arguments: Sequence[str], **_kwargs: object
+                ) -> subprocess.CompletedProcess[str]:
+                    call = tuple(arguments)
+                    calls.append(call)
+                    if call == ("volume", "inspect", ACT_TOOLCACHE_VOLUME):
+                        if state["volume"]:
+                            return docker_completed(arguments, stdout=volume_metadata)
+                        return docker_completed(arguments, 1, stderr=missing_volume)
+                    if call[0:2] == ("volume", "create"):
+                        state["volume"] = True
+                        return docker_completed(
+                            arguments, stdout=f"{ACT_TOOLCACHE_VOLUME}\n"
+                        )
+                    if call == ("volume", "rm", ACT_TOOLCACHE_VOLUME):
+                        state["volume"] = False
+                        return docker_completed(arguments)
+                    if call[0] == "run" and seed_container_name in call:
+                        state["seed"] = True
+                        return docker_completed(
+                            arguments,
+                            seed_exit,
+                            stderr=(
+                                "" if seed_exit == 0 else "injected empty tool cache"
+                            ),
+                        )
+                    if call == ("container", "inspect", seed_container_name):
+                        if state["seed"]:
+                            return docker_completed(
+                                arguments, stdout=seed_container_metadata
+                            )
+                        return docker_completed(
+                            arguments, 1, stderr=missing_seed_container
+                        )
+                    if call == (
+                        "container",
+                        "rm",
+                        "--force",
+                        "--volumes",
+                        seed_container_name,
+                    ):
+                        state["seed"] = False
+                        return docker_completed(arguments)
+                    if call[0:2] == ("network", "create"):
+                        state["network"] = True
+                        return docker_completed(
+                            arguments, stdout=f"{selftest_boundary.network_id}\n"
+                        )
+                    if call == ("network", "inspect", selftest_boundary.name):
+                        if state["network"]:
+                            return docker_completed(arguments, stdout=network_metadata)
+                        return docker_completed(
+                            arguments, 1, stderr=missing_network_name
+                        )
+                    if call == (
+                        "network",
+                        "inspect",
+                        str(selftest_boundary.network_id),
+                    ):
+                        if state["network"]:
+                            return docker_completed(arguments, stdout=network_metadata)
+                        return docker_completed(arguments, 1, stderr=missing_network)
+                    raise AssertionError(f"unexpected seed self-test call: {call}")
+
+                message = ""
+                built: DockerBoundary | None = None
+                try:
+                    built = create_docker_boundary(
+                        replace(
+                            selftest_boundary,
+                            network_id=None,
+                            gateway=None,
+                            toolcache_owned=False,
+                            toolcache_seeded=False,
+                        ),
+                        use_sudo=False,
+                        cwd=first.invocation,
+                        env={},
+                        docker_command=deterministic_seed_daemon,
+                    )
+                except Refusal as exc:
+                    message = str(exc)
+                return state, calls, message, built
+
+            # Regression control for the #315 cold-cache concurrent-create
+            # race: the boundary must interpose exactly one owned seed mount
+            # between creating the empty volume and any act sibling job.
+            seeded_state, seeded_calls, seeded_message, seeded_boundary = (
+                run_seed_boundary_control(seed_exit=0)
+            )
+            seed_run_calls = [
+                index
+                for index, call in enumerate(seeded_calls)
+                if call and call[0] == "run"
+            ]
+            volume_create_index = next(
+                index
+                for index, call in enumerate(seeded_calls)
+                if call[0:2] == ("volume", "create")
+            )
+            network_create_index = next(
+                index
+                for index, call in enumerate(seeded_calls)
+                if call[0:2] == ("network", "create")
+            )
+            seed_run_call = (
+                seeded_calls[seed_run_calls[0]] if seed_run_calls else ()
+            )
+            check(
+                "the cold tool cache is seeded exactly once before sibling jobs",
+                not seeded_message
+                and seeded_boundary is not None
+                and seeded_boundary.toolcache_seeded
+                and len(seed_run_calls) == 1
+                and volume_create_index < seed_run_calls[0] < network_create_index
+                and RUNNER_IMAGE in seed_run_call
+                and f"{ACT_TOOLCACHE_VOLUME}:{ACT_TOOLCACHE_TARGET}"
+                in seed_run_call
+                and f"{DOCKER_OWNER_LABEL}={selftest_boundary.token}"
+                in seed_run_call
+                and seed_run_call[seed_run_call.index("--network") + 1] == "none"
+                and not seeded_state["seed"],
+            )
+            empty_state, empty_calls, empty_message, empty_boundary = (
+                run_seed_boundary_control(seed_exit=1)
+            )
+            check(
+                "an unpopulated seed refuses the boundary and reconciles it",
+                empty_boundary is None
+                and "seed did not prove a populated cache" in empty_message
+                and not empty_state["seed"]
+                and not empty_state["volume"]
+                and not any(
+                    call[0:2] == ("network", "create") for call in empty_calls
+                ),
             )
             delayed_clock = [0.0]
             delayed_state = {"volume": False, "network": False, "released": False}
