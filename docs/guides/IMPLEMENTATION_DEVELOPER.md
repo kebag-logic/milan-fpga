@@ -49,6 +49,7 @@ flowchart LR
 - Use [`MODULE_MATRIX.md`](../traceability/MODULE_MATRIX.md) for traceability.
 - Use [`FPGA_DESIGN.md`](../fpga/FPGA_DESIGN.md) for module discovery.
 - Use [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) for ABI behavior.
+- Use the [gPTP HDL guide](gptp/HDL_DEVELOPER.md) for time changes.
 
 ## Change HDL safely
 

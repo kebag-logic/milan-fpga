@@ -52,7 +52,7 @@ The [submodule reference](../reference/SUBMODULES.md) embeds its verified map.
 |---|---|---|---|
 | `wd_axis_backpressure` | Accepted AXI-Stream transfers | `wd_axis_backpressure.json` | Both developer roles |
 | `wd_cdc_handshake` | Multi-bit clock crossing | `wd_cdc_handshake.json` | Both developer roles |
-| `wd_gptp_pdelay` | Peer-delay timestamps | `wd_gptp_pdelay.json` | Time-sync developers |
+| `wd_gptp_pdelay` | Parent pdelay timestamp ownership | `wd_gptp_pdelay.json` | Time-sync developers |
 | `wd_cbs_credit` | Credit shaping behavior | `wd_cbs_credit.json` | Datapath developers |
 | `wd_ring_pointers` | DMA pointer commits | `wd_ring_pointers.json` | DMA developers |
 | `wd_linkguard_reset` | Sequenced reset release | `wd_linkguard_reset.json` | Integrators |
@@ -111,6 +111,8 @@ python3 docs/DOC_MAP.gen.py --check
 python3 docs/DOC_MAP.gen.py --selftest
 python3 docs/diagrams/submodule_boundaries.gen.py --check
 python3 docs/diagrams/submodule_boundaries.gen.py --selftest
+python3 docs/diagrams/timesync_chain.gen.py --check
+python3 docs/diagrams/timesync_chain.gen.py --selftest
 python3 scripts/check_submodule_docs.py
 python3 scripts/check_diagram_pngs.py
 python3 scripts/check_diagram_pngs.py --selftest
@@ -123,6 +125,8 @@ python3 scripts/gen_wavedrom.py \
   docs/diagrams/wd_axis_backpressure.json --background=white --check
 python3 scripts/gen_wavedrom.py \
   docs/diagrams/wd_cdc_handshake.json --background=white --check
+python3 scripts/gen_wavedrom.py \
+  docs/diagrams/wd_gptp_pdelay.json --background=white --check
 ```
 
 - Generator checks tolerate local renderer differences.

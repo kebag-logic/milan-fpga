@@ -1,121 +1,89 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1760" height="832" viewBox="0 0 1760 832" font-family="Helvetica,Arial,sans-serif">
-<rect width="1760" height="832" fill="#FAFAFA"/>
-<defs><marker id="arr" markerWidth="12" markerHeight="12" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#455A64"/></marker><marker id="arrc" markerWidth="12" markerHeight="12" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#8D6E63"/></marker></defs>
-<text x="40" y="44" font-size="26" font-weight="bold" fill="#263238">milan-fpga time sync - the three clocks and how they chain</text>
-<text x="40" y="70" font-size="12.5" fill="#546E7A">fabric gPTP  -&gt;  network PHC + atomic public state   -   PHC + CRF  -&gt;  media clock (MMCM-DRP servo)   -   CSR offsets per docs/reference/REGISTER_MAP.md   -   arrows = time/timestamp flow, not audio samples</text>
-<text x="40" y="104" font-size="13" font-weight="700" fill="#1565C0">NETWORK TIME - gPTP (802.1AS, domain 0)</text>
-<text x="40" y="278" font-size="13" font-weight="700" fill="#B26A00">THE HUB - PTP hardware clock (PHC) and its public consumers (one owner, #259)</text>
-<text x="40" y="433" font-size="13" font-weight="700" fill="#EF6C00">AVTP TIMESTAMP CONSUMERS (presentation time against the PHC)</text>
-<text x="40" y="566" font-size="13" font-weight="700" fill="#2E7D32">MEDIA CLOCK - CRF + MMCM-DRP servo (Milan v1.2 clause 7.3)</text>
-<text x="40" y="584" font-size="11" font-weight="400" fill="#555555">coherent chain: capture, CRF grid and (via the servo) the listener playback clock follow one audio-MMCM lineage - loop -83.9 dB (2026-07-23, converter floor)</text>
-<rect x="40" y="116" width="130" height="84" rx="9" fill="#ECEFF1" stroke="#455A64" stroke-width="2"/>
-<text x="105.0" y="140" font-size="14" font-weight="bold" fill="#212121" text-anchor="middle">1 GbE wire</text>
-<text x="105.0" y="158" font-size="11" fill="#37474F" text-anchor="middle">802.1AS peer</text>
-<text x="105.0" y="173" font-size="11" fill="#37474F" text-anchor="middle">(AVB switch / board)</text>
-<rect x="205" y="116" width="150" height="84" rx="9" fill="#E3F2FD" stroke="#1565C0" stroke-width="2"/>
-<text x="280.0" y="140" font-size="14" font-weight="bold" fill="#212121" text-anchor="middle">PHY + MAC</text>
-<text x="280.0" y="158" font-size="11" fill="#37474F" text-anchor="middle">RGMII/GMII</text>
-<text x="280.0" y="173" font-size="11" fill="#37474F" text-anchor="middle">LiteEth or MilanMAC</text>
-<rect x="390" y="116" width="250" height="84" rx="9" fill="#E3F2FD" stroke="#1565C0" stroke-width="2"/>
-<text x="515.0" y="140" font-size="14" font-weight="bold" fill="#212121" text-anchor="middle">KL_gptp_shadow RX/TX</text>
-<text x="515.0" y="158" font-size="11" fill="#37474F" text-anchor="middle">delivered-frame RX stamp</text>
-<text x="515.0" y="173" font-size="11" fill="#37474F" text-anchor="middle">MAC-boundary TX stamp</text>
-<rect x="675" y="116" width="200" height="84" rx="9" fill="#E3F2FD" stroke="#1565C0" stroke-width="2"/>
-<text x="775.0" y="140" font-size="14" font-weight="bold" fill="#212121" text-anchor="middle">timestamp transport</text>
-<text x="775.0" y="158" font-size="11" fill="#37474F" text-anchor="middle">RX side FIFO + TX seq/type</text>
-<text x="775.0" y="173" font-size="11" fill="#37474F" text-anchor="middle">fabric tuple pairing</text>
-<rect x="910" y="116" width="190" height="84" rx="9" fill="#E3F2FD" stroke="#1565C0" stroke-width="2"/>
-<text x="1005.0" y="140" font-size="14" font-weight="bold" fill="#212121" text-anchor="middle">KL_gptp_engine</text>
-<text x="1005.0" y="158" font-size="11" fill="#37474F" text-anchor="middle">BTCA + Pdelay + Sync</text>
-<text x="1005.0" y="173" font-size="11" fill="#37474F" text-anchor="middle">PHC servo in fabric</text>
-<rect x="1135" y="116" width="180" height="84" rx="9" fill="#E3F2FD" stroke="#1565C0" stroke-width="2"/>
-<text x="1225.0" y="140" font-size="14" font-weight="bold" fill="#212121" text-anchor="middle">atomic publish bank</text>
-<text x="1225.0" y="158" font-size="11" fill="#37474F" text-anchor="middle">GM + parent + flags</text>
-<text x="1225.0" y="173" font-size="11" fill="#37474F" text-anchor="middle">pdelay + offset + annq</text>
-<rect x="1350" y="116" width="370" height="84" rx="9" fill="#ECEFF1" stroke="#455A64" stroke-width="2" stroke-dasharray="7 5"/>
-<text x="1535.0" y="140" font-size="14" font-weight="bold" fill="#212121" text-anchor="middle">product ownership (0x0002_0056)</text>
-<text x="1535.0" y="158" font-size="11" fill="#37474F" text-anchor="middle">fabric is the ONE PHC/protocol/publication owner (#259)</text>
-<text x="1535.0" y="173" font-size="11" fill="#37474F" text-anchor="middle">option OFF is ownerless verification hardware</text>
-<rect x="40" y="290" width="330" height="96" rx="9" fill="#FFF8E1" stroke="#F9A825" stroke-width="2"/>
-<text x="205.0" y="314" font-size="14" font-weight="bold" fill="#212121" text-anchor="middle">PHC - timestamp_counter</text>
-<text x="205.0" y="332" font-size="11" fill="#37474F" text-anchor="middle">Q8.24 ns accumulator, datapath clock</text>
-<text x="205.0" y="347" font-size="11" fill="#37474F" text-anchor="middle">CSR 0x500 CTRL - 0x504 INCR - 0x508 ADJ - 0x520 CMD</text>
-<rect x="1190" y="290" width="330" height="96" rx="9" fill="#E3F2FD" stroke="#1565C0" stroke-width="2"/>
-<text x="1355.0" y="314" font-size="14" font-weight="bold" fill="#212121" text-anchor="middle">public gPTP consumers</text>
-<text x="1355.0" y="332" font-size="11" fill="#37474F" text-anchor="middle">CSR GM/parent/pdelay - GET_AVB_INFO/PATH</text>
-<text x="1355.0" y="347" font-size="11" fill="#37474F" text-anchor="middle">CLKV asCapable/sync - every AVTP tu</text>
-<rect x="40" y="445" width="300" height="76" rx="9" fill="#FFF3E0" stroke="#EF6C00" stroke-width="2"/>
-<text x="190.0" y="469" font-size="14" font-weight="bold" fill="#212121" text-anchor="middle">AAF packetizer</text>
-<text x="190.0" y="487" font-size="11" fill="#37474F" text-anchor="middle">avtp_timestamp = ptp_now + PTO</text>
-<text x="190.0" y="502" font-size="11" fill="#37474F" text-anchor="middle">(PTO: SET_STREAM_INFO acc-lat, reset 2 ms)</text>
-<rect x="380" y="445" width="300" height="76" rx="9" fill="#FFF3E0" stroke="#EF6C00" stroke-width="2"/>
-<text x="530.0" y="469" font-size="14" font-weight="bold" fill="#212121" text-anchor="middle">AVTP RX monitor</text>
-<text x="530.0" y="487" font-size="11" fill="#37474F" text-anchor="middle">ts_delta 0x6EC = avtp_ts - ptp_now</text>
-<text x="530.0" y="502" font-size="11" fill="#37474F" text-anchor="middle">LATE / EARLY counters</text>
-<rect x="1430" y="445" width="290" height="76" rx="9" fill="#ECEFF1" stroke="#455A64" stroke-width="2" stroke-dasharray="7 5"/>
-<text x="1575.0" y="469" font-size="14" font-weight="bold" fill="#212121" text-anchor="middle">media-lock rule</text>
-<text x="1575.0" y="487" font-size="11" fill="#37474F" text-anchor="middle">internal source: lock on first valid PDU</text>
-<text x="1575.0" y="502" font-size="11" fill="#37474F" text-anchor="middle">external (CRF): lock only when servo converged</text>
-<rect x="40" y="596" width="230" height="96" rx="9" fill="#E8F5E9" stroke="#2E7D32" stroke-width="2"/>
-<text x="155.0" y="620" font-size="14" font-weight="bold" fill="#212121" text-anchor="middle">audio MMCM 24.576 MHz</text>
-<text x="155.0" y="638" font-size="11" fill="#37474F" text-anchor="middle">integer x34/43 off 31.081 MHz</text>
-<text x="155.0" y="653" font-size="11" fill="#37474F" text-anchor="middle">-10.6 ppm base - fine-PS 16.9 ps + DRP</text>
-<rect x="305" y="596" width="150" height="96" rx="9" fill="#E8F5E9" stroke="#2E7D32" stroke-width="2"/>
-<text x="380.0" y="620" font-size="14" font-weight="bold" fill="#212121" text-anchor="middle">/512</text>
-<text x="380.0" y="638" font-size="11" fill="#37474F" text-anchor="middle">48 kHz media clock</text>
-<text x="380.0" y="653" font-size="11" fill="#37474F" text-anchor="middle">(MCLK/SCLK/LRCK dividers)</text>
-<rect x="490" y="596" width="200" height="96" rx="9" fill="#E8F5E9" stroke="#2E7D32" stroke-width="2"/>
-<text x="590.0" y="620" font-size="14" font-weight="bold" fill="#212121" text-anchor="middle">I2S / TDM front-ends</text>
-<text x="590.0" y="638" font-size="11" fill="#37474F" text-anchor="middle">DAC render + ADC capture</text>
-<text x="590.0" y="653" font-size="11" fill="#37474F" text-anchor="middle">pair FIFO, converged flag</text>
-<rect x="725" y="596" width="240" height="96" rx="9" fill="#E8F5E9" stroke="#2E7D32" stroke-width="2"/>
-<text x="845.0" y="620" font-size="14" font-weight="bold" fill="#212121" text-anchor="middle">KL_crf_tx (talker)</text>
-<text x="845.0" y="638" font-size="11" fill="#37474F" text-anchor="middle">every 96th sample event:</text>
-<text x="845.0" y="653" font-size="11" fill="#37474F" text-anchor="middle">ts = PHC ns + PTO - 500 PDU/s</text>
-<rect x="1000" y="596" width="120" height="96" rx="9" fill="#ECEFF1" stroke="#455A64" stroke-width="2"/>
-<text x="1060.0" y="620" font-size="14" font-weight="bold" fill="#212121" text-anchor="middle">wire</text>
-<text x="1060.0" y="638" font-size="11" fill="#37474F" text-anchor="middle">CRF stream</text>
-<text x="1060.0" y="653" font-size="11" fill="#37474F" text-anchor="middle">subtype 4</text>
-<rect x="1155" y="596" width="240" height="96" rx="9" fill="#E8F5E9" stroke="#2E7D32" stroke-width="2"/>
-<text x="1275.0" y="620" font-size="14" font-weight="bold" fill="#212121" text-anchor="middle">KL_crf_rx (listener)</text>
-<text x="1275.0" y="638" font-size="11" fill="#37474F" text-anchor="middle">validate Milan 7.3.2 - delta 0x744</text>
-<text x="1275.0" y="653" font-size="11" fill="#37474F" text-anchor="middle">rate 0x748 - lock 0x738[31]</text>
-<rect x="1430" y="596" width="290" height="96" rx="9" fill="#E8F5E9" stroke="#2E7D32" stroke-width="2"/>
-<text x="1575.0" y="620" font-size="14" font-weight="bold" fill="#212121" text-anchor="middle">KL_mmcm_drp_servo</text>
-<text x="1575.0" y="638" font-size="11" fill="#37474F" text-anchor="middle">in: rate error (ns/512 ms) - PI FLL +-200 ppm</text>
-<text x="1575.0" y="653" font-size="11" fill="#37474F" text-anchor="middle">MCSRV 0x8F8/0x8FC - engages at the shape.s CRF clock_source</text>
-<path d="M170,145 L205,145" fill="none" stroke="#455A64" stroke-width="1.8" marker-end="url(#arr)"/>
-<text x="187.5" y="139.0" font-size="10.5" fill="#5D4037" text-anchor="middle">RX</text>
-<path d="M205,175 L170,175" fill="none" stroke="#455A64" stroke-width="1.8" marker-end="url(#arr)"/>
-<text x="187.5" y="169.0" font-size="10.5" fill="#5D4037" text-anchor="middle">TX</text>
-<path d="M355,145 L390,145" fill="none" stroke="#455A64" stroke-width="1.8" marker-end="url(#arr)"/>
-<path d="M390,175 L355,175" fill="none" stroke="#455A64" stroke-width="1.8" marker-end="url(#arr)"/>
-<path d="M640,158 L675,158" fill="none" stroke="#455A64" stroke-width="1.8" marker-end="url(#arr)"/>
-<path d="M875,158 L910,158" fill="none" stroke="#455A64" stroke-width="1.8" marker-end="url(#arr)"/>
-<path d="M1100,158 L1135,158" fill="none" stroke="#455A64" stroke-width="1.8" marker-end="url(#arr)"/>
-<text x="1117.5" y="152.0" font-size="10.5" fill="#5D4037" text-anchor="middle">commit</text>
-<path d="M1225,200 L1225,246 L205,246 L205,290" fill="none" stroke="#8D6E63" stroke-width="1.8" marker-end="url(#arrc)" stroke-dasharray="6 4"/>
-<text x="715.0" y="240.0" font-size="10.5" fill="#5D4037" text-anchor="middle">adjfine / adjtime (fabric owner); settime stays on CSR face</text>
-<path d="M100,290 L100,224 L515,224 L515,200" fill="none" stroke="#8D6E63" stroke-width="1.8" marker-end="url(#arrc)" stroke-dasharray="6 4"/>
-<text x="307.5" y="218.0" font-size="10.5" fill="#5D4037" text-anchor="middle">ptp_now (64-bit ns)</text>
-<path d="M1280,200 L1280,290" fill="none" stroke="#8D6E63" stroke-width="1.8" marker-end="url(#arrc)" stroke-dasharray="6 4"/>
-<text x="1286.0" y="241.0" font-size="10.5" fill="#5D4037" text-anchor="start">one coherent generation</text>
-<path d="M190,386 L190,445" fill="none" stroke="#8D6E63" stroke-width="1.8" marker-end="url(#arrc)" stroke-dasharray="6 4"/>
-<text x="196.0" y="411.5" font-size="10.5" fill="#5D4037" text-anchor="start">ptp_now + PTO</text>
-<path d="M330,386 L330,415 L530,415 L530,445" fill="none" stroke="#8D6E63" stroke-width="1.8" marker-end="url(#arrc)" stroke-dasharray="6 4"/>
-<text x="430.0" y="409.0" font-size="10.5" fill="#5D4037" text-anchor="middle">ptp_now</text>
-<path d="M350,386 L350,412 L845,412 L845,596" fill="none" stroke="#8D6E63" stroke-width="1.8" marker-end="url(#arrc)" stroke-dasharray="6 4"/>
-<text x="597.5" y="406.0" font-size="10.5" fill="#5D4037" text-anchor="middle">ptp_now</text>
-<path d="M310,386 L310,400 L1275,400 L1275,596" fill="none" stroke="#8D6E63" stroke-width="1.8" marker-end="url(#arrc)" stroke-dasharray="6 4"/>
-<text x="792.5" y="394.0" font-size="10.5" fill="#5D4037" text-anchor="middle">ptp_now</text>
-<path d="M270,644 L305,644" fill="none" stroke="#455A64" stroke-width="1.8" marker-end="url(#arr)"/>
-<path d="M455,644 L490,644" fill="none" stroke="#455A64" stroke-width="1.8" marker-end="url(#arr)"/>
-<path d="M965,644 L1000,644" fill="none" stroke="#455A64" stroke-width="1.8" marker-end="url(#arr)"/>
-<path d="M1120,644 L1155,644" fill="none" stroke="#455A64" stroke-width="1.8" marker-end="url(#arr)"/>
-<path d="M1395,644 L1430,644" fill="none" stroke="#455A64" stroke-width="1.8" marker-end="url(#arr)"/>
-<path d="M100,692 L100,718 L830,718 L830,692" fill="none" stroke="#8D6E63" stroke-width="1.8" marker-end="url(#arrc)" stroke-dasharray="6 4"/>
-<text x="465.0" y="712.0" font-size="10.5" fill="#5D4037" text-anchor="middle">clk_audio 24.576 MHz - own /512 + /96 event grid</text>
-<path d="M1575,692 L1575,744 L60,744 L60,692" fill="none" stroke="#8D6E63" stroke-width="1.8" marker-end="url(#arrc)" stroke-dasharray="6 4"/>
-<text x="817.5" y="738.0" font-size="10.5" fill="#5D4037" text-anchor="middle">fine-PS step rate = ppm trim - DRP verify/repair (auto_repair 0x8FC[1])</text>
-<text x="40" y="814" font-size="11" fill="#78909C">sources: hdl/ieee8021as/ptp_timestamp - hdl/ieee1722/crf - hdl/milan/milan_datapath.sv - sw/litex/milan_soc.py   -   regenerate: python3 docs/diagrams/timesync_chain.gen.py docs/diagrams/timesync_chain</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" font-family="Helvetica,Arial,sans-serif">
+<rect width="1600" height="900" fill="#FAFAFA"/>
+<defs><marker id="arrow" markerWidth="12" markerHeight="12" refX="8" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#455A64"/></marker></defs>
+<text x="35" y="48" font-size="28" font-weight="bold" fill="#263238">Fabric time ownership and integration</text>
+<text x="35" y="78" font-size="17" fill="#546E7A">Product owner: implemented. Media consumption: implemented.</text>
+<text x="35" y="112" font-size="15" font-weight="bold" fill="#1565C0">NETWORK TIME</text>
+<text x="35" y="325" font-size="15" font-weight="bold" fill="#B26A00">TIMESTAMP AND PUBLICATION BOUNDARIES</text>
+<text x="35" y="620" font-size="15" font-weight="bold" fill="#2E7D32">PRESENTATION AND MEDIA BOUNDARY</text>
+<path d="M210,190 L250,190" fill="none" stroke="#455A64" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="230" y="180" text-anchor="middle" font-size="12" fill="#37474F">RX</text>
+<path d="M495,190 L545,190" fill="none" stroke="#455A64" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M845,190 L895,190" fill="none" stroke="#455A64" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="870" y="180" text-anchor="middle" font-size="12" fill="#37474F">bytes</text>
+<path d="M1140,190 L1190,190" fill="none" stroke="#455A64" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="1165" y="180" text-anchor="middle" font-size="12" fill="#37474F">TX</text>
+<path d="M300,350 L300,255" fill="none" stroke="#455A64" stroke-width="2" marker-end="url(#arrow)" stroke-dasharray="7,6"/>
+<text x="340" y="305" text-anchor="middle" font-size="12" fill="#37474F">PHC time</text>
+<path d="M620,265 L620,310 L450,310 L450,418" fill="none" stroke="#455A64" stroke-width="2" marker-end="url(#arrow)" stroke-dasharray="7,6"/>
+<text x="535" y="300" text-anchor="middle" font-size="12" fill="#37474F">rate / phase</text>
+<path d="M695,265 L695,350" fill="none" stroke="#455A64" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="730" y="315" text-anchor="middle" font-size="12" fill="#37474F">commit</text>
+<path d="M845,418 L900,418" fill="none" stroke="#455A64" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="872" y="408" text-anchor="middle" font-size="12" fill="#37474F">state</text>
+<path d="M1277,240 L1277,350" fill="none" stroke="#455A64" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="1320" y="305" text-anchor="middle" font-size="12" fill="#37474F">accepted TX</text>
+<path d="M1402,350 L1402,290 L800,290 L800,265" fill="none" stroke="#455A64" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="1100" y="280" text-anchor="middle" font-size="12" fill="#37474F">return tuple</text>
+<path d="M300,485 L300,650" fill="none" stroke="#455A64" stroke-width="2" marker-end="url(#arrow)" stroke-dasharray="7,6"/>
+<text x="360" y="575" text-anchor="middle" font-size="12" fill="#37474F">presentation time</text>
+<path d="M450,450 L500,450 L500,610 L730,610 L730,650" fill="none" stroke="#455A64" stroke-width="2" marker-end="url(#arrow)" stroke-dasharray="7,6"/>
+<text x="620" y="600" text-anchor="middle" font-size="12" fill="#37474F">common time</text>
+<path d="M1070,718 L895,718" fill="none" stroke="#455A64" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="982" y="708" text-anchor="middle" font-size="12" fill="#37474F">internal events</text>
+<path d="M895,680 L940,680 L940,625" fill="none" stroke="#455A64" stroke-width="2" marker-end="url(#arrow)" stroke-dasharray="7,6"/>
+<text x="985" y="642" text-anchor="middle" font-size="12" fill="#37474F">rate error</text>
+<path d="M1165,575 L1260,575 L1260,635" fill="none" stroke="#455A64" stroke-width="2" marker-end="url(#arrow)" stroke-dasharray="7,6"/>
+<text x="1212" y="565" text-anchor="middle" font-size="12" fill="#37474F">steer / align</text>
+<rect id="peer" x="35" y="140" width="175" height="100" rx="12" fill="#ECEFF1" stroke="#546E7A" stroke-width="2.5"/>
+<text x="122.5" y="174" text-anchor="middle" font-size="17" font-weight="bold" fill="#212121">802.1AS peer</text>
+<text x="122.5" y="202" text-anchor="middle" font-size="14" fill="#37474F">Ethernet wire</text>
+<rect id="rx" x="250" y="125" width="245" height="130" rx="12" fill="#E3F2FD" stroke="#1565C0" stroke-width="2.5"/>
+<text x="372.5" y="159" text-anchor="middle" font-size="17" font-weight="bold" fill="#212121">Parent RX seam</text>
+<text x="372.5" y="187" text-anchor="middle" font-size="14" fill="#37474F">accepted MAC beats</text>
+<text x="372.5" y="210" text-anchor="middle" font-size="14" fill="#37474F">first-beat PHC time</text>
+<rect id="engine" x="545" y="115" width="300" height="150" rx="12" fill="#E3F2FD" stroke="#1565C0" stroke-width="2.5"/>
+<text x="695.0" y="149" text-anchor="middle" font-size="17" font-weight="bold" fill="#212121">Fabric gPTP engine</text>
+<text x="695.0" y="177" text-anchor="middle" font-size="14" fill="#37474F">pin 8742b0811783</text>
+<text x="695.0" y="200" text-anchor="middle" font-size="14" fill="#37474F">protocol, timers, servo</text>
+<rect id="tx" x="895" y="125" width="245" height="130" rx="12" fill="#E3F2FD" stroke="#1565C0" stroke-width="2.5"/>
+<text x="1017.5" y="159" text-anchor="middle" font-size="17" font-weight="bold" fill="#212121">Parent TX seam</text>
+<text x="1017.5" y="187" text-anchor="middle" font-size="14" fill="#37474F">byte-to-wide transport</text>
+<text x="1017.5" y="210" text-anchor="middle" font-size="14" fill="#37474F">valid-ready backpressure</text>
+<rect id="mac" x="1190" y="140" width="175" height="100" rx="12" fill="#ECEFF1" stroke="#546E7A" stroke-width="2.5"/>
+<text x="1277.5" y="174" text-anchor="middle" font-size="17" font-weight="bold" fill="#212121">MAC boundary</text>
+<text x="1277.5" y="202" text-anchor="middle" font-size="14" fill="#37474F">actual TX acceptance</text>
+<rect id="phc" x="150" y="350" width="300" height="135" rx="12" fill="#FFF8E1" stroke="#F9A825" stroke-width="2.5"/>
+<text x="300.0" y="384" text-anchor="middle" font-size="17" font-weight="bold" fill="#212121">PHC counter</text>
+<text x="300.0" y="412" text-anchor="middle" font-size="14" fill="#37474F">network nanoseconds</text>
+<text x="300.0" y="435" text-anchor="middle" font-size="14" fill="#37474F">rate and phase controls</text>
+<rect id="publish" x="535" y="350" width="310" height="135" rx="12" fill="#F3E5F5" stroke="#6A1B9A" stroke-width="2.5"/>
+<text x="690.0" y="384" text-anchor="middle" font-size="17" font-weight="bold" fill="#212121">Atomic publication</text>
+<text x="690.0" y="412" text-anchor="middle" font-size="14" fill="#37474F">GM, parent, path</text>
+<text x="690.0" y="435" text-anchor="middle" font-size="14" fill="#37474F">delay, flags, commit</text>
+<rect id="consumers" x="900" y="350" width="310" height="135" rx="12" fill="#F3E5F5" stroke="#6A1B9A" stroke-width="2.5"/>
+<text x="1055.0" y="384" text-anchor="middle" font-size="17" font-weight="bold" fill="#212121">Public consumers</text>
+<text x="1055.0" y="412" text-anchor="middle" font-size="14" fill="#37474F">CSR and protocol</text>
+<text x="1055.0" y="435" text-anchor="middle" font-size="14" fill="#37474F">AVTP tu and status</text>
+<rect id="stamp" x="1260" y="350" width="285" height="135" rx="12" fill="#FFF8E1" stroke="#F9A825" stroke-width="2.5"/>
+<text x="1402.5" y="384" text-anchor="middle" font-size="17" font-weight="bold" fill="#212121">MAC-boundary timestamp</text>
+<text x="1402.5" y="412" text-anchor="middle" font-size="14" fill="#37474F">first accepted TX beat</text>
+<text x="1402.5" y="435" text-anchor="middle" font-size="14" fill="#37474F">sequence plus type</text>
+<rect id="avtp" x="115" y="650" width="330" height="135" rx="12" fill="#FFF3E0" stroke="#EF6C00" stroke-width="2.5"/>
+<text x="280.0" y="684" text-anchor="middle" font-size="17" font-weight="bold" fill="#212121">AVTP timeline</text>
+<text x="280.0" y="712" text-anchor="middle" font-size="14" fill="#37474F">PHC dates AAF and CRF</text>
+<text x="280.0" y="735" text-anchor="middle" font-size="14" fill="#37474F">tu reports uncertainty</text>
+<rect id="crf" x="565" y="650" width="330" height="135" rx="12" fill="#E8F5E9" stroke="#2E7D32" stroke-width="2.5"/>
+<text x="730.0" y="684" text-anchor="middle" font-size="17" font-weight="bold" fill="#212121">CRF measurement</text>
+<text x="730.0" y="712" text-anchor="middle" font-size="14" fill="#37474F">remote phase and rate</text>
+<text x="730.0" y="735" text-anchor="middle" font-size="14" fill="#37474F">selection reaches root</text>
+<rect id="media" x="1070" y="635" width="380" height="165" rx="12" fill="#E8F5E9" stroke="#2E7D32" stroke-width="2.5"/>
+<text x="1260.0" y="669" text-anchor="middle" font-size="17" font-weight="bold" fill="#212121">Media clock lineage</text>
+<text x="1260.0" y="697" text-anchor="middle" font-size="14" fill="#37474F">INTERNAL: free-run</text>
+<text x="1260.0" y="720" text-anchor="middle" font-size="14" fill="#37474F">CRF: steered and aligned</text>
+<rect id="select" x="920" y="525" width="245" height="100" rx="12" fill="#E8F5E9" stroke="#2E7D32" stroke-width="2.5"/>
+<text x="1042.5" y="559" text-anchor="middle" font-size="17" font-weight="bold" fill="#212121">CRF steering gates</text>
+<text x="1042.5" y="587" text-anchor="middle" font-size="14" fill="#37474F">status: implemented</text>
+<text x="1042.5" y="610" text-anchor="middle" font-size="14" fill="#37474F">rate and grid loops</text>
+<text x="35" y="865" font-size="12" fill="#78909C">Sources: milan_datapath, KL_gptp_shadow, KL_gptp_txstamp, KL_ptp_clock_validity, feature ledger, and exact Gitlink.</text>
 </svg>

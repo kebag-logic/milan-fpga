@@ -65,6 +65,7 @@ Publish conflicts before continuing.
 | Port vendor dependencies | [Porting guide](integration/PORTING_GUIDE.md) |
 | Implement software registers | [Register map](reference/REGISTER_MAP.md) |
 | Integrate the reference SoC | [LiteX SoC](litex/LITEX_SOC.md) |
+| Understand fabric time | [Fabric gPTP plane](design/GPTP_PLANE.md) |
 
 ## Verification
 

@@ -145,6 +145,8 @@ Directory listings remain authoritative.
 
 Avoid copying volatile suite counts into prose.
 
+Use the [gPTP test guide](gptp/TEST_DEVELOPER.md) for time evidence.
+
 ## Debug failures
 
 - Preserve the first failing log.

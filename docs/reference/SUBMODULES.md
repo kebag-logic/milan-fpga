@@ -91,7 +91,14 @@ The cleanliness command must print nothing.
 
 ## Known documentation conflicts
 
-Current donor prose contains known contradictions.
+The reviewed gPTP guides match root ownership.
+
+- [Manager guide](../../gptp-processor/docs/MANAGER.md)
+- [Integration guide](../../gptp-processor/docs/INTEGRATION.md)
+- [HDL guide](../../gptp-processor/docs/HDL_DEVELOPER.md)
+- [Test guide](../../gptp-processor/docs/TEST_DEVELOPER.md)
+
+Protocol donor prose retains these known contradictions.
 
 Use root RTL for integration truth.
 
@@ -99,8 +106,6 @@ Imported prose never defines root runtime behavior.
 
 | Conflict | Implementation evidence |
 |---|---|
-| gPTP README reports default-off integration | `milan_datapath.sv` defaults enabled |
-| gPTP README describes retired host services | Full solution uses bare-metal firmware and fabric gPTP |
 | Protocol interface guide shows word-wide RX | Landed processor receives bytes |
 | Protocol interface guide shows RX backpressure | Landed processor has no RX ready |
 

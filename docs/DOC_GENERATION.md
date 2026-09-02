@@ -113,6 +113,9 @@ python3 docs/DOC_MAP.gen.py --selftest
 python3 docs/diagrams/submodule_boundaries.gen.py
 python3 docs/diagrams/submodule_boundaries.gen.py --check
 python3 docs/diagrams/submodule_boundaries.gen.py --selftest
+python3 docs/diagrams/timesync_chain.gen.py
+python3 docs/diagrams/timesync_chain.gen.py --check
+python3 docs/diagrams/timesync_chain.gen.py --selftest
 ```
 
 The generators also write source-bound PNG renders.
@@ -181,6 +184,8 @@ Generate current timing diagrams.
   docs/diagrams/wd_axis_backpressure.json --background=white
 /tmp/milan-wavedrom/bin/python3 scripts/gen_wavedrom.py \
   docs/diagrams/wd_cdc_handshake.json --background=white
+/tmp/milan-wavedrom/bin/python3 scripts/gen_wavedrom.py \
+  docs/diagrams/wd_gptp_pdelay.json --background=white
 ```
 
 Check committed sources and reviewed raster evidence.
@@ -190,6 +195,8 @@ Check committed sources and reviewed raster evidence.
   docs/diagrams/wd_axis_backpressure.json --background=white --check
 /tmp/milan-wavedrom/bin/python3 scripts/gen_wavedrom.py \
   docs/diagrams/wd_cdc_handshake.json --background=white --check
+/tmp/milan-wavedrom/bin/python3 scripts/gen_wavedrom.py \
+  docs/diagrams/wd_gptp_pdelay.json --background=white --check
 ```
 
 - WaveDrom SVG output remains deterministic.
@@ -250,10 +257,14 @@ python3 scripts/docs_check.py
 python3 scripts/docs_check.py --selftest
 python3 scripts/check_doc_style.py
 python3 scripts/check_doc_style.py --selftest
+python3 scripts/check_gptp_docs.py
+python3 scripts/check_gptp_docs.py --selftest
 python3 scripts/check_solution_docs.py
 python3 scripts/check_solution_docs.py --selftest
 python3 scripts/check_submodule_docs.py
 python3 scripts/check_submodule_docs.py --selftest
+python3 docs/diagrams/timesync_chain.gen.py --check
+python3 docs/diagrams/timesync_chain.gen.py --selftest
 python3 scripts/check_diagram_pngs.py
 python3 scripts/check_diagram_pngs.py --selftest
 python3 scripts/check_archive.py

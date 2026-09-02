@@ -49,10 +49,14 @@ jobs:
         run: |
           python3 scripts/check_doc_style.py
           python3 scripts/check_doc_style.py --selftest
+          python3 scripts/check_gptp_docs.py
+          python3 scripts/check_gptp_docs.py --selftest
       - name: Audience diagram no-drift gate
         run: |
           python3 docs/DOC_MAP.gen.py --check
           python3 docs/DOC_MAP.gen.py --selftest
+          python3 docs/diagrams/timesync_chain.gen.py --check
+          python3 docs/diagrams/timesync_chain.gen.py --selftest
       - name: Product solution source-fact gate
         run: |
           python3 scripts/check_solution_docs.py
@@ -68,6 +72,7 @@ jobs:
           python3 scripts/gen_wavedrom.py --selftest
           python3 scripts/gen_wavedrom.py docs/diagrams/wd_axis_backpressure.json --background=white --check
           python3 scripts/gen_wavedrom.py docs/diagrams/wd_cdc_handshake.json --background=white --check
+          python3 scripts/gen_wavedrom.py docs/diagrams/wd_gptp_pdelay.json --background=white --check
       - name: Published diagram PNG gate
         run: |
           python3 scripts/check_diagram_pngs.py
@@ -82,6 +87,10 @@ jobs:
         # present rather than STALE. The builder's dp_srcs.py self-test also
         # resolves the five verilog-axis leaves in the shipping OOC manifest.
         run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
+      - name: Imported gPTP documentation gate
+        run: |
+          python3 scripts/check_gptp_docs.py --with-submodule
+          make -C gptp-processor docs
       # Code-quality measurement self-tests (Rules 1 and 2 of
       # docs/development/CODE_QUALITY.md): the fixture arms of the two tools
       # the guide quotes its numbers from. Each arm fails when the defect it

@@ -125,7 +125,7 @@ _gPTP timestamping / pdelay / sync_
 | ✅ `ptp_csr_sync` | `ieee8021as/ptp_timestamp/ptp_csr_sync.sv` | `milan_dp` · `ptp_sync` · `ptp_ts` | — |
 | ✅ `ptp_ts_core` | `ieee8021as/ptp_timestamp/ptp_ts_core.sv` | `ptp_ts` | — |
 | ✅ `ptp_ts_top` | `ieee8021as/ptp_timestamp/ptp_ts_top.sv` | `ptp_ts` | — |
-| ✅ `timestamp_counter` | `ieee8021as/ptp_timestamp/timestamp_counter.sv` | `gptp_plane` · `gptp_shadow` · `milan_dp` · `ptp` · `ptp_ts` · `tsn_fuzz` | — |
+| ✅ `timestamp_counter` | `ieee8021as/ptp_timestamp/timestamp_counter.sv` | `gptp_plane` · `gptp_shadow` · `milan_dp` · `ptp` · `ptp_ts` · `tsn_fuzz` | 8.2 |
 
 ## Common / integration
 

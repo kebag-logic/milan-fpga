@@ -90,6 +90,8 @@ sequenceDiagram
 - Confirm live status afterward.
 - gPTP remains independent from entity enablement.
 
+Read the focused [gPTP integration guide](gptp/SYSTEM_INTEGRATOR.md).
+
 Missing memory bridges cause misleading protocol failures.
 
 Never tie response interfaces silently.
