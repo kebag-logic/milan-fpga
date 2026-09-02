@@ -629,54 +629,74 @@ def base_wiring_report(source: str) -> dict[str, object]:
                 sites.append((node.lineno, node.func.id))
     #: The name-pinning above sees which NAME each site passes; it cannot see
     #: a value substituted behind that name. Both reviewers on PR #336 rode
-    #: that class through - rebinding `validation_base` after the resolve, or
-    #: resolving and discarding the result - so the binding itself is read
-    #: here: outside the self-test the name must be bound exactly once, by a
-    #: call to resolve_validation_base. [R2] established the precondition
-    #: that makes one predicate enough (a single binding at main()).
-    binders: list[tuple[int, str]] = []
+    #: that class through - rebinding the base after the resolve, resolving
+    #: and discarding the result, and (once this read only simple targets)
+    #: rebinding through a tuple unpack, which is a plausible honest refactor
+    #: rather than an adversary shape. So every BINDING of the two names this
+    #: lane depends on is collected here, in every form Python can bind a
+    #: name: a Store-context target (assignment, unpack, starred, for, with,
+    #: walrus, comprehension), a match capture, an aliased import, and a
+    #: function definition. Outside the self-test the base may be bound only
+    #: by its own resolve, and the resolve only by its own def - the
+    #: symmetric half [R2] identified, which closes a wrapper that would
+    #: delegate under test and return the frozen oid in production.
+    watched_names = ("validation_base", "resolve_validation_base")
+    binders: dict[str, list[tuple[int, str]]] = {name: [] for name in watched_names}
+
+    def outside_selftest(line: int) -> bool:
+        return span is None or not span[0] <= line <= span[1]
+
+    simple_values: dict[tuple[str, int], ast.expr] = {}
     for node in ast.walk(tree):
-        targets: list[ast.expr] = []
-        value: ast.expr | None = None
-        if isinstance(node, ast.Assign):
-            targets, value = list(node.targets), node.value
-        elif isinstance(node, (ast.AnnAssign, ast.AugAssign)):
-            targets, value = [node.target], node.value
-        elif isinstance(node, ast.NamedExpr):
-            targets, value = [node.target], node.value
-        elif isinstance(node, ast.For):
-            targets, value = [node.target], None
-        elif isinstance(node, ast.withitem) and node.optional_vars is not None:
-            targets, value = [node.optional_vars], None
-        for target in targets:
-            if not (isinstance(target, ast.Name) and target.id == "validation_base"):
-                continue
-            line = getattr(target, "lineno", 0)
-            if span is not None and span[0] <= line <= span[1]:
-                continue
-            #: classify STRUCTURALLY, not by the unparsed text ([R1] on PR
-            #: #336 walked a text prefix past this: `resolve_validation_base
-            #: (...) and pr.base_sha` still starts with the call, still makes
-            #: the call - so the transcript announces the live tip - and
-            #: still binds the frozen oid). Only a bare call to the resolve
-            #: counts; every other expression, boolean or conditional or
-            #: otherwise, is reported as what it is.
-            if (
-                isinstance(value, ast.Call)
-                and isinstance(value.func, ast.Name)
-                and value.func.id == "resolve_validation_base"
-            ):
-                text = "<resolve-call>"
-            elif value is None:
-                text = "<bound-without-value>"
-            else:
-                text = ast.unparse(value)
-            binders.append((line, text))
+        if (
+            isinstance(node, ast.Assign)
+            and len(node.targets) == 1
+            and isinstance(node.targets[0], ast.Name)
+        ):
+            simple_values[(node.targets[0].id, node.targets[0].lineno)] = node.value
+
+    def describe(name: str, line: int) -> str:
+        value = simple_values.get((name, line))
+        if value is None:
+            return "<bound-without-a-simple-value>"
+        if (
+            isinstance(value, ast.Call)
+            and isinstance(value.func, ast.Name)
+            and value.func.id == "resolve_validation_base"
+        ):
+            return "<resolve-call>"
+        return ast.unparse(value)
+
+    for node in ast.walk(tree):
+        line = getattr(node, "lineno", 0)
+        if not outside_selftest(line):
+            continue
+        if (
+            isinstance(node, ast.Name)
+            and isinstance(node.ctx, ast.Store)
+            and node.id in binders
+        ):
+            binders[node.id].append((line, describe(node.id, line)))
+        elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name in binders:
+            binders[node.name].append((line, "<def>"))
+        elif isinstance(node, (ast.MatchAs, ast.MatchStar)) and node.name in binders:
+            binders[node.name].append((line, "<match-capture>"))
+        elif isinstance(node, ast.MatchMapping) and node.rest in binders:
+            binders[node.rest].append((line, "<match-capture>"))
+        elif isinstance(node, (ast.Import, ast.ImportFrom)):
+            for alias in node.names:
+                bound = alias.asname or alias.name.split(".")[0]
+                if bound in binders:
+                    binders[bound].append((line, "<import>"))
+
     return {
         "production": production,
         "fixture": fixture,
         "main_order": [name for _line, name in sorted(sites)],
-        "binders": [text for _line, text in sorted(binders)],
+        "binders": {
+            name: [text for _line, text in sorted(sites)]
+            for name, sites in binders.items()
+        },
     }
 
 
@@ -3790,12 +3810,18 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
         mishanded == [],
     )
     binders = wiring["binders"]
-    assert isinstance(binders, list)
+    assert isinstance(binders, dict)
     check(
         "outside the self-test the validation base is bound exactly once, by "
-        "the resolve itself, so no rebinding can substitute a value behind "
-        "the name every call site passes",
-        binders == ["<resolve-call>"],
+        "the resolve itself, in any binding form - so no rebinding, unpack or "
+        "capture can substitute a value behind the name every call site passes",
+        binders.get("validation_base") == ["<resolve-call>"],
+    )
+    check(
+        "and the resolve itself is bound only by its own definition, so no "
+        "wrapper can delegate under test and return the recorded oid in "
+        "production",
+        binders.get("resolve_validation_base") == ["<def>"],
     )
     check(
         "main validates the pull request before resolving the base, and "
