@@ -124,7 +124,7 @@ def firmware_version_string(rev=0, path=None):
     IEEE 1722.1-2021 7.2.1 Table 7-2 offset 116: "64-octet UTF-8 string
     containing the firmware version of the ATDECC Entity" - the standard
     fixes the size and the encoding and says nothing about the syntax, and
-    the Milan end-station validation test plan v1.9 (test macro 3) reads the
+    Milan compliance tooling (enumeration checks) reads the
     field into the enumeration model without constraining its value.  So the
     syntax is ours to choose and the only real requirement is the one the
     standard cannot state: it has to be TRUE.
@@ -156,7 +156,7 @@ NO_STRING = 0xFFFF
 # encoded 32-bit value IS the base frequency in Hz)
 RATES = [0x0000BB80, 0x00017700, 0x0002EE00]          # 48 k / 96 k / 192 k
 # AAF PCM 32-bit 8ch stream formats for the compatibility model
-#! 8ch default restored (2026-07-20, internal COMPLIANCE es-4.4 expects the classic
+#! 8ch default restored (2026-07-20, the internal compliance suite expects the classic
 #! 0205022002006000 default): the monitor now ADAPTS to any wire channel
 #! count 1..8 under the declared format, so a pure-ACMP 2ch connect works
 #! against the 8ch default. 2ch stays in the supported list.

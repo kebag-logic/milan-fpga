@@ -344,7 +344,7 @@ An adversarial subagent was dispatched to audit the tests for false positives. I
 - ACMPDU/ADPDU wire byte-layout (that's `wire_truth_avtp.feature` with hand-built frames)
 - The RTL's random advertisement jitter
 - On-silicon behaviour (that's the bench torture campaign in `milan-tests-avb/tools/milan_torture.py`)
-- The full Milan endstation validation test plan v1.9 (which requires a Milan Test Machine
+- Full official Milan compliance testing (which requires dedicated test tooling
   with two Ethernet interfaces, wire capture, and offline traffic analysis)
 
 ---

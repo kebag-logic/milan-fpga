@@ -330,7 +330,7 @@ submodule rather than in this tree.
    M-CLK-1).
 5. **AAF-PCM payload** — sparse/format-mutation streams (AAF-2, AVTP-3).
 6. **gPTP message set** — packet_gen as adjustable-priority BMCA claimant;
-   the enabler for the blocked es-1.1 DUT-wins variant (AS-6).
+   the enabler for the blocked item 1.1 DUT-wins variant (AS-6).
 7. **VLAN tag fields in `mac_frame.yaml`** — Q-1..Q-4 tag fuzz.
 8. **GET_DYNAMIC_INFO (0x4B) batch model** — record-level fuzz of the one
    command whose silicon diverged from TB four times (CMD-22). **The command
@@ -538,7 +538,7 @@ submodule rather than in this tree.
    tick MEDIA_RESET (gap TB-pinned, avtp_rxmon [30]; the counter's
    servo-rail semantics are now asserted). M-CNT-4's talker-side
    MEDIA_RESET is still unasserted.
-9. **AS-6 (variant)** — Milan es-1.1 DUT-wins-BMCA: blocked on the bench
+9. **AS-6 (variant)** — Milan item 1.1 DUT-wins-BMCA: blocked on the bench
    switch's gPTP claim (USER-ordered to the bottom of the attack list); a
    tsn_gen gPTP model is the unblocking path.
 10. **ACMP tsn_gen model** — verification-infrastructure gap, and **more urgent

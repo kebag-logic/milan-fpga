@@ -16,7 +16,7 @@ Feature: Channel IDENTITY through the capture mux (rx -> talker loopback)
   tested before because the only multi-channel source on the boards emitted
   the SAME sample on every channel (the pilot tone is {tone, tone}) and the
   AX7101 has no audio input at all. The rx -> talker loopback source
-  (docs/CHANNEL_MAP_64.md §5, capture SRC = 5) is the first source that
+  (docs/CHANNEL_MAP_64.md Section 5, capture SRC = 5) is the first source that
   carries per-channel-DISTINCT content, so identity is finally observable.
 
   Clauses under test:
@@ -28,7 +28,7 @@ Feature: Channel IDENTITY through the capture mux (rx -> talker loopback)
     IEEE 1722.1-2021 7.2.19 - AUDIO_MAP entries are port-relative
       (stream_index, stream_channel) -> (cluster_offset, cluster_channel);
       the capture map is that mirror on the egress side, at pair granularity.
-    Milan v1.2 es-4.16 - dynamic audio maps are the canonical programmer.
+    Milan v1.2 Section 5.4.2.27 - dynamic audio maps are the canonical programmer.
 
   Every sample driven here is DISTINCT per (stream, channel, sample event):
   a scenario that drove equal values on two channels could not fail on a swap.
@@ -100,7 +100,7 @@ Feature: Channel IDENTITY through the capture mux (rx -> talker loopback)
     Then capture slot 0 L and R are different
     And capture slot 1 is silent
 
-  # -- the two ways to be silent (§4) ---------------------------------------
+  # -- the two ways to be silent (Section 4) ---------------------------------------
   @class:absence
   Scenario: a DISABLED slot emits nothing, an unresolvable one emits silence
     When RX stream 3 delivers a 8-channel PDU of 2 sample events from event 1
@@ -120,7 +120,7 @@ Feature: Channel IDENTITY through the capture mux (rx -> talker loopback)
     And the media tick walks the capture slots
     Then capture slot 0 is silent
 
-  # -- the §5 map word ------------------------------------------------------
+  # -- the Section 5 map word ------------------------------------------------------
   @class:encoding
   Scenario Outline: the loopback map word is EN | SRC 5 | stream | pair
     Then the CSR word for RX stream <s> pair <p> is 0x<word>

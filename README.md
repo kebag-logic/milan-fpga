@@ -287,14 +287,37 @@ Details: [docs/integration/BUILDING.md](docs/integration/BUILDING.md) ·
 Licence: CERN-OHL-W-2.0 ([LICENSE](LICENSE)) · vendored third-party code and pins:
 [THIRD_PARTY.md](THIRD_PARTY.md).
 
+## Independence & support
+
+This is an **independent open-hardware project**. It is not affiliated with,
+sponsored by, or endorsed by any company; no commercial entity stands behind
+it. Everything here — RTL, tooling, bench time, documentation — is built and
+maintained by individual contributors in their own time.
+
+The project **needs support and resources to keep moving**:
+
+- **Contributors** — RTL/verification, bare-metal firmware, documentation.
+  Start at [CONTRIBUTING.md](CONTRIBUTING.md); every open work item is a
+  GitHub issue.
+- **Hardware** — AVB/TSN switches, Milan-validated peer devices, FPGA boards,
+  capture/tap gear for wire-truth testing.
+- **Funding / lab access** — above all for an official compliance and
+  interoperability test run, which no volunteer bench can substitute for.
+
+If you or your organization can help with any of these, open a GitHub issue
+or contact the maintainer.
+
 ## Product roadmap
 
-From tonight's bench (protocol engine test-plan-graded, crossbars and
-clocking live) to a shippable Milan end-station. Each phase's deliverables
-ride the big arrow; dates assume the current cadence.
+From the current bench (protocol engine graded against the compliance
+requirements, crossbars and clocking live) to a shippable Milan end-station.
+Each phase's deliverables ride the big arrow. Dates re-baselined
+**2026-09-01** (every phase shifted +1.5 months against the original plan)
+and still assume the current cadence — this project runs on volunteer time,
+so treat them as ordering, not promises.
 
 ```text
- 2026-08            2026-09            2026-10            2026-11..12         2027-Q1
+ 2026-09..10        2026-10..11        2026-11..12        2026-12..2027-02    2027-Q2
     |                  |                  |                  |                  |
 ====\==================\==================\==================\==================\=========>
  P1 CLOSE THE       P2 STATE          P3 ROBUSTNESS      P4 COMPLIANCE          P5 PRODUCT      v1.0

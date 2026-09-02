@@ -1987,7 +1987,7 @@ dut->m_axis_mac_tx_tready = 1;
                     }
                 }
 
-                // ---- ENTITY_AVAILABLE: the liveness probe (es-4.2) --------
+                // ---- ENTITY_AVAILABLE: the liveness probe (Milan Section 5.4.2.3) --------
                 {
                     const std::vector<uint8_t> r =
                         aecp_xact(0x0002, sq, std::vector<uint8_t>());
@@ -4240,7 +4240,7 @@ dut->m_axis_mac_tx_tready = 1;
     //  lane. The processor's own repository grades the SRP state machines.
     // ==================================================================
     // ==================================================================
-    //  CRF Media Clock Output as an ACMP talker source  (item 5, §3.5)
+    //  CRF Media Clock Output as an ACMP talker source  (item 5, Section 3.5)
     //
     //  With N >= 2 AAF sinks the CRF output is mandatory, and a controller
     //  must be able to bind it with the SAME CONNECT_TX/PROBE_TX it uses
