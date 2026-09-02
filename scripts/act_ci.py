@@ -26,9 +26,11 @@ failed; exit 2 is a setup, trust-boundary, cleanup, or exact-head refusal.
 from __future__ import annotations
 
 import argparse
+import ast
 import contextlib
 import ctypes
 import hashlib
+import inspect
 import ipaddress
 import json
 import os
@@ -544,6 +546,66 @@ def query_remote_base_tip(repository: str, base_ref: str) -> str:
         description=f"live {base_ref} tip lookup",
     )
     return parse_ls_remote_tip(raw, base_ref)
+
+
+def base_wiring_report(source: str) -> dict[str, object]:
+    """What every base-consuming call site is actually HANDED, from the source.
+
+    The refusals below are armed one by one, but an arm can only see the
+    argument it is given: reverting a single call site to ``pr.base_sha``
+    reinstates #292's bug with every refusal still correct and the whole
+    suite green ([R2] on PR #336 - "the leaves are armed, the wiring is
+    not"). This reads the runner's own text and reports, for each consumer,
+    the name passed in the base position, plus the order of the calls in
+    ``main`` whose sequence the trust argument depends on. It is a source
+    shape, deliberately: no runtime path can observe a call site that a
+    mutation has already changed.
+    """
+    tree = ast.parse(source)
+    positions = {
+        "validate_trusted_runner": 1,
+        "require_exact_fetched_refs": 1,
+        "materialize_remote_head": 3,
+        "build_event": 2,
+        "validate_runner": 3,
+    }
+    passed: dict[str, set[str]] = {name: set() for name in positions}
+    order: list[str] = []
+    watched = ("validate_pull_request", "resolve_validation_base", "validate_runner")
+    main_fn = next(
+        (
+            node
+            for node in ast.walk(tree)
+            if isinstance(node, ast.FunctionDef) and node.name == "main"
+        ),
+        None,
+    )
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Call) or not isinstance(node.func, ast.Name):
+            continue
+        name = node.func.id
+        index = positions.get(name)
+        if index is None:
+            continue
+        argument: ast.expr | None = None
+        if len(node.args) > index:
+            argument = node.args[index]
+        else:
+            for keyword in node.keywords:
+                if keyword.arg in ("validation_base",):
+                    argument = keyword.value
+        if argument is None:
+            continue
+        passed[name].add(ast.unparse(argument))
+    if main_fn is not None:
+        for node in ast.walk(main_fn):
+            if (
+                isinstance(node, ast.Call)
+                and isinstance(node.func, ast.Name)
+                and node.func.id in watched
+            ):
+                order.append(node.func.id)
+    return {"passed": passed, "main_order": order}
 
 
 def emit_flushed(message: str) -> None:
@@ -3555,18 +3617,25 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
     #: the audited-install path, which skips it entirely. These arms drive it
     #: with both collaborators injected, so a revert to the recorded oid is
     #: red in both directions.
-    def trusted_runner_message(worktree_head: str) -> tuple[str | None, list[str]]:
-        seen: list[str] = []
+    def trusted_runner_message(
+        worktree_head: str,
+    ) -> tuple[str | None, list[tuple[pathlib.Path, str]]]:
+        #: both collaborators record the ROOT they were handed as well as the
+        #: commit ([R2] on PR #336: capturing only the commit let a mutation
+        #: swap the root - the trusted worktree the check is about - and stay
+        #: green).
+        seen: list[tuple[pathlib.Path, str]] = []
+        roots: list[pathlib.Path] = []
         try:
             validate_trusted_runner(
                 pr,
                 resolved,
-                state=lambda _root: (worktree_head, "", ""),
-                verify_bytes=lambda _root, commit, _rel: seen.append(commit),
+                state=lambda root: (roots.append(root), (worktree_head, "", ""))[1],
+                verify_bytes=lambda root, commit, _rel: seen.append((root, commit)),
             )
         except Refusal as exc:
             return str(exc), seen
-        return None, seen
+        return None, seen + [(root, "state") for root in roots]
 
     accepted, verified = trusted_runner_message(resolved)
     check(
@@ -3575,9 +3644,9 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
         accepted is None,
     )
     check(
-        "the runner's own bytes are verified at the validation base, not the "
-        "recorded oid",
-        verified == [resolved] and pr.base_sha not in verified,
+        "the runner's own bytes are verified at the validation base, in the "
+        "trusted root, not at the recorded oid",
+        verified == [(ROOT, resolved), (ROOT, "state")],
     )
     stale_worktree, _ = trusted_runner_message(pr.base_sha)
     check(
@@ -3607,14 +3676,45 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
         ),
     )
     #: the resolve targets refs/heads/<pr.base_ref> while the fetch targets
-    #: the refs/heads/<DEFAULT_BASE> constant ([R1] on PR #336). They are the
-    #: same ref only because validate_pull_request pins the base ref, so pin
-    #: that invariant here rather than leaving it as prose: if the accepted
-    #: base ref ever widens, the two targets diverge and this arm says so.
+    #: the refs/heads/<DEFAULT_BASE> constant ([R1] on PR #336). They are one
+    #: ref only because validate_pull_request pins the base ref, so the
+    #: coupling is pinned rather than left as prose. Scope, stated exactly
+    #: ([R2] measured it): this arm fires when DEFAULT_BASE itself moves; the
+    #: other half - a WIDENED accept-set in validate_pull_request - is caught
+    #: by the "non-dev pull request is refused" arm below. Between them the
+    #: two targets cannot diverge silently.
     check(
-        "the validated base ref is the constant the fetch targets, so the "
-        "resolve and the fetch name one ref",
-        pr.base_ref == DEFAULT_BASE,
+        "the fixture's validated base ref is the constant the fetch targets, "
+        "so the resolve and the fetch name one ref",
+        pr.base_ref == DEFAULT_BASE == "dev",
+    )
+
+    #: [R2] F8/F10 on PR #336: every refusal above is armed, but the CALL
+    #: SITES that hand them the base are not - reverting one line to
+    #: pr.base_sha reinstates #292 with the whole suite green. Read the
+    #: runner's own source and pin the wiring, plus main()'s ordering, which
+    #: the trust argument depends on (the base ref must be validated before
+    #: it is used to build a remote lookup).
+    wiring = base_wiring_report(inspect.getsource(sys.modules[__name__]))
+    passed = wiring["passed"]
+    assert isinstance(passed, dict)
+    unwired = sorted(name for name, names in passed.items() if not names)
+    check(
+        "every base consumer is wired at a call site the source can see",
+        unwired == [],
+    )
+    reverted = sorted(
+        name for name, names in passed.items() if "pr.base_sha" in names
+    )
+    check(
+        "no call site hands a base consumer the frozen recorded oid",
+        reverted == [],
+    )
+    check(
+        "main validates the pull request before resolving the base, and "
+        "resolves before validating the runner",
+        wiring["main_order"]
+        == ["validate_pull_request", "resolve_validation_base", "validate_runner"],
     )
 
     #: [R1] F2: the lookup parses REMOTE-CONTROLLED bytes; its two refusals

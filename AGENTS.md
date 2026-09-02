@@ -169,7 +169,8 @@ scheduling and cancellation contract is in the
 After each pushed PR head, start the repository-owned local replica before
 inspecting or polling the hosted run. An agent must use `act` instead of waiting
 for GitHub Actions to finish. From the candidate worktree, invoke the runner
-from a separate, clean worktree at the PR's current remote `dev` base:
+from a separate, clean worktree at the live remote `dev` tip (the validation
+base; GitHub's recorded PR base oid is frozen at open and is not it):
 
 ```sh
 python3 -I /absolute/path/to/trusted-dev/scripts/act_ci.py --pr <number>
