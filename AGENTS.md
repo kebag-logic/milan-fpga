@@ -299,10 +299,10 @@ or `NEGATIVE` on the reviewer's own `[R<n>]`-led line — typically the round's
 opening line, e.g. `[R1] POSITIVE — exact head <sha>` — in a PR comment or
 review body. That line is what `scripts/check_merge_review_integrity.py`
 reads. A verdict spelled anywhere else does not machine-read: PR #302's
-re-reviews wrote `Verdict: PASS across all five review lenses.` on a bare
-line under an `[R1] EXACT-HEAD RE-REVIEW` header, and the integrity audit
-still reports that merge as open-blocker — correctly, by this decision. Per-
-lens `PASS` lines are findings-format, never the overall verdict.
+re-reviews ([R1], and [R8] externally) each wrote `Verdict: PASS across all
+five review lenses.` on a bare line under their reviewer-led headers, and the integrity audit
+still reports that merge as open-blocker — correctly, by this decision.
+Per-lens `PASS` lines are findings-format, never the overall verdict.
 
 **Every round states which lenses it covered, including those that found
 nothing.** A lens is covered when it was applied, not when it was listed. "I
