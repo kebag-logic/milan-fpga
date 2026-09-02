@@ -168,7 +168,9 @@ arm, and the escapes recorded below are open again on that runner. The constrain
 integration expressions. The CSR Verilator harness separately drives
 `PTP_CTRL` and `ADP_CTRL` through all four combinations and observes
 `o_ptp_enable`, so CSR-output PHC ownership is behavioral. The `milan_csr`
-output binding and connection onward to `ptp_timestamp.i_ptp_enable`, plus the
+output binding and connection onward to `ptp_sync.a_enable` (the
+`ptp_csr_sync` CSR crossing that, with the `ts_counter` PHC, replaced the
+`ptp_ts_top` record chain removed from `milan_datapath`), plus the
 enumerated gPTP handshake, clock and reset seams, are structural checks over
 comment-blanked SystemVerilog. Each match must be a direct item in its inspected
 generate arm, and every backtick token in both the CSR and datapath files is
@@ -446,11 +448,11 @@ closing line that reads `ALL GATES PASS EXCEPT n NOT RUN` naming that arm.
 What remains joint with #162 is the Makefile half: a second translation unit
 is a second place a CSR store can live, and no instrument here reads it.
 
-**And a second blind spot, on the Makefile side, from the same cause one step
-over.** The recipe pin reads what `make -Bn` PRINTS, which is text make has
-already expanded. A name this Makefile references but nothing defines expands
-to nothing, so the pinned commands come out byte-identical and the environment
-decides what the compiler actually gets:
+**And a second blind spot of the same cause, on the Makefile side, CLOSED by
+the origin probe (#162).** The recipe pin reads what `make -Bn` PRINTS, which
+is text make has already expanded. A name this Makefile references but nothing
+defines expands to nothing, so the pinned commands come out byte-identical
+and the environment decides what the compiler actually gets:
 
 ```make
 CFLAGS += $(MILAN_EXTRA_CFLAGS)
@@ -463,9 +465,12 @@ $ MILAN_EXTRA_CFLAGS='-include ../shadow.h' make -Bn  # what a real build runs
 ... -c __BASE_CFLAGS__ -I__BIOS__ -include ../shadow.h <src>/... -o ...
 ```
 
-The gate's hostile double-run does not see it either: it perturbs three fixed
-names, and an assignment that defers to a fourth is invisible to it.
-`CFLAGS += $(EXTRA_CFLAGS)` is an ordinary idiom, not a contrivance.
+The gate's hostile double-run does not see it either — measured: it perturbs
+three fixed names, and an assignment that defers to a fourth expands to
+nothing in both runs, which come out identical. No `-e` is even needed for
+the real build: a name a makefile never assigns takes its value from the
+environment by make's default rules. `CFLAGS += $(EXTRA_CFLAGS)` is an
+ordinary idiom, not a contrivance.
 
 The class is worth stating because it is the same mechanism that stopped the
 compiled census from replacing the text rules: **an instrument that reads a
@@ -473,13 +478,37 @@ RESULT cannot see what an undefined name would have contributed.** Reading the
 Makefile's own TEXT saw `$(MILAN_EXTRA_CFLAGS)` and refused it; reading make's
 result sees an empty expansion and has nothing to refuse.
 
-The fix is derivable and is tracked rather than implemented here: probe
-`$(origin NAME)` for every name the Makefile references and refuse
-`undefined`. Measured against this Makefile, every real name is `file` or
-`default` and the escape is the only `undefined`, with one caveat for whoever
-implements it: the accepted `tags:` case references `$(CTAGS)`, which is also
-`undefined`, so the check has to be scoped to names that reach the pinned
-recipes. See #162.
+What closes it is a third instrument, not a better reading of the plan: the
+gate asks make for `$(origin NAME)` for every name that reaches the pinned
+recipe chain, and refuses `undefined` and `environment` by name — either one
+means the environment, not the Makefile, decides the value. The scope is the
+recorded caveat made executable: the closure is rooted at the recipe-driving
+names (`CFLAGS`, `OBJECTS`, `LIBMILAN_BAREMETAL_DIRECTORY`, `compile`) plus
+the names the unexpanded `$(value compile)` references, closed transitively
+over the Makefile's own assignment chain — and NOT at recipe-only references,
+because the accepted `tags:` case references `$(CTAGS)`, which this make also
+reports `undefined`, in a recipe the plan never runs, and it must stay green.
+Measured against this Makefile, every in-scope name is `file` or `default`;
+the deferral above is a mutation in gate 1b's table, refused by the origin
+probe alone. See #162.
+
+**Round two, from the adversarial pass on the restoring PR:** two spellings
+walked past that closure and were measured reaching the real compile line
+with every instrument green, and both are closed, each a permanent mutation
+in the table. A **computed reference** — `X = MILAN_EXTRA` then
+`CFLAGS += $($(X))`, any brace spelling — defers the NAME itself to
+expansion time: the walker probed `X` (origin `file`) and the environment's
+`MILAN_EXTRA` was never a name anyone asked about. There is no origin to
+enumerate for a name that does not exist until expansion, so a computed
+reference is REFUSED outright, anywhere in the Makefile text — a never-run
+recipe included, which is deliberately wider than the origin closure and is
+the one place the `$(CTAGS)`-style acceptance does not extend. A **`define`
+body** — `define EXTRA` carrying `$(MILAN_EXTRA_CFLAGS)`, appended to
+`CFLAGS` as `$(EXTRA)` — is make's sixth assignment flavour, and the parser
+treated it as a directive to skip, so the body's references were in no RHS
+the closure walked. `define` is an accepted idiom, so the fix parses the
+block as the assignment it is and walks its references like any other RHS;
+the deferral is then refused by the same origin probe as the plain spelling.
 
 **Outside what any recipe pin can reach at all**, and recorded here rather
 than turned into rules, because no pin over printed commands can see them:
@@ -487,6 +516,14 @@ than turned into rules, because no pin over printed commands can see them:
 environment; `SHELL := ...`, which changes what executes the printed command;
 `.EXPORT_ALL_VARIABLES:`; and `$(shell ...)`, which runs at parse time, during
 the gate's own plan run, before any recipe is printed.
+
+Two more channels were measured OPEN by the round-two adversarial pass and
+are recorded here rather than claimed closed — unlike the four above, a
+wider walker COULD close them, so they stay tracked on #162: a
+`$(call NAME)`/`$(value NAME)` first argument is a variable name the
+assignment walker never reads, and a top-level `$(eval ...)` line carries an
+assignment no scan over assignment lines sees. Both were measured green
+while the environment reached the compile line.
 
 Read the constraints below as what they are: they bound the spellings they
 recognise, and they cost real edits to do it.
@@ -501,8 +538,8 @@ The rest are refusals, and each one costs a legitimate edit:
 
 | Constraint | Why the gate needs it |
 |---|---|
-| `o_ptp_enable` is driven directly by `ptp_ctrl[0]`, the `milan_csr` instance binds it directly to `cfg_ptp_enable`, and `ptp_timestamp` directly consumes that net with ungated clocks, resets, increment/adjust/TOD controls and readback | PHC startup is independent of AEM/ADP from the CSR register through the actual timestamp consumer; the CSR harness separately proves writes to `ADP_CTRL` cannot force or gate the module output |
-| External RX, `ptp_timestamp`, both enabled and bypass `RXFILT_P` arms, the filter's reset-time policy/programming seams, fabric-gPTP shadow RX/TX and timestamp feedback, `gptp_ctl_mux`, MAC-boundary arbitration and external TX handshakes use direct data, clock and reset connections | checking only an endpoint or data port misses an internal/downstream valid, policy or reset gate that makes the plane externally silent before AEM succeeds |
+| `o_ptp_enable` is driven directly by `ptp_ctrl[0]`, the `milan_csr` instance binds it directly to `cfg_ptp_enable`, and the `ptp_csr_sync`/`ts_counter` pair directly consumes that net with ungated clocks, resets, increment/adjust/TOD controls and readback | PHC startup is independent of AEM/ADP from the CSR register through the actual PHC consumer; the CSR harness separately proves writes to `ADP_CTRL` cannot force or gate the module output |
+| External RX, the pre-filter tap, both enabled and bypass `RXFILT_P` arms, the filter's reset-time policy/programming seams, fabric-gPTP shadow RX/TX and timestamp feedback, `gptp_ctl_mux`, MAC-boundary arbitration and external TX handshakes use direct data, clock and reset connections | checking only an endpoint or data port misses an internal/downstream valid, policy or reset gate that makes the plane externally silent before AEM succeeds |
 | CSR and datapath structural checks ignore comments, census every backtick token at any column and require each checked item to be direct in its inspected generate arm | inactive comment, preprocessor or static-generate text must not stand in for a live gated connection; a future directive or nested generate requires an elaborated checker or an explicit update to this bounded model |
 | `milan_reg()` is exactly base plus its argument and `milan_read()` directly dereferences that result | every call-site claim depends on those helpers preserving the register address and loaded value; helper-body refactors must update the model and its mutations |
 | Firmware `MILAN_ID` and `MILAN_ID_MAGIC` equal the comment-blanked, directive-closed RTL `A_ID` address and readback default | otherwise inactive decoy text can hide a live address/value change that teaches the token-level guard to validate a different CSR or forged identity |
@@ -517,6 +554,7 @@ The rest are refusals, and each one costs a legitimate edit:
 | `CFLAGS` gains only `-I$(BIOS_DIRECTORY)` | held now by the recipe pin rather than by a flag rule: the compile command is pinned whole, so any added flag changes it |
 | The Makefile's `include` set is exactly its three lines | `make` can only plan fragments that exist |
 | `OBJECTS` may not use `?=` | `make` treats an environment variable as defined, so `?=` lets the environment choose the object list |
+| A computed variable reference — `$($(X))`, `$(CFLAGS_$(VARIANT))` — anywhere in the Makefile, a never-run recipe included | the NAME itself is deferred to expansion time, so no `$(origin)` enumeration can cover what the environment picks; refused rather than modelled. **Remedy:** spell the reference with a literal name |
 | No label, `goto`, `switch`, `case` or `default` in `milan_init()` or `entity_advertise()` | containment inside the choke point is not the same as being reached through its verdict test; this is the textual half, and the resolver measures the dominance itself |
 | The address of `aem_loaded` may not be taken | a pointer would write the verdict with no assignment the gate can see |
 | `entity_advertise` may not be exported, its address may not be formed anywhere in the firmware, and no other line of the emitted assembly may name it -- an `__attribute__((alias))` included | the arguments of a function another translation unit can name, or a table can hold, are not the arguments this unit's call sites show, so nothing here can say what verdict the choke point is entered with. The symbol-use rule is a whitelist of the four forms a private direct-called function produces, so a spelling nobody anticipated is refused rather than missed. **Remedy:** keep it `static` and call it directly |
