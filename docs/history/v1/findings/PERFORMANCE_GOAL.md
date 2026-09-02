@@ -208,7 +208,7 @@ reaching the wire meant removing bytes from that path, not polishing it.
 ## Refuted levers (measured — the campaign said do not retry)
 
 - TX reader prefetch (2026-07-07): reader only 3.8 % busy; payload latency
-  45 cycles, not the assumed ~14; the walls were back-pressure (39 % stall)
+  45 cycles (450 ns, not the ~140 ns assumed); the walls were back-pressure (39 % stall)
   and ring-empty idle (39 %).
 - The 39–42 % stall itself: the CBS reset configuration paced best-effort
   traffic at 300 Mb/s (fixed — all queues strict-priority at reset,

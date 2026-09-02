@@ -49,7 +49,9 @@ That material remains available only in Git history.
 Never restore it through an archive move.
 
 Issue #304 adds one clean throughput measurement record. Its full original
-prose stays in Git history.
+prose stays in Git history. That later, specific instruction takes
+precedence over this section's general rule; the rule's purpose - a clean
+checkout - is served by the gate-clean page.
 
 - Archive total: 17 Markdown pages.
 
