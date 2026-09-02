@@ -229,7 +229,7 @@ jobs:
           set -euo pipefail
           sudo apt-get update -qq
           sudo apt-get install -y --no-install-recommends \
-            git make g++ bison flex pkg-config zlib1g-dev python3
+            git make g++ bison flex libfl-dev pkg-config zlib1g-dev python3
           git clone --depth 1 --branch "$YOSYS_VERSION" \
             https://github.com/YosysHQ/yosys.git /tmp/yosys-src
           git -C /tmp/yosys-src submodule update --init --depth 1 abc libs/cxxopts
@@ -239,6 +239,8 @@ jobs:
           make -C /tmp/yosys-src -j"$(nproc)" PREFIX=/opt/yosys
           sudo make -C /tmp/yosys-src install PREFIX=/opt/yosys
           git -C /tmp/yosys-src/abc rev-parse HEAD | sudo tee /opt/yosys/ABC_REV
+          # runner-owned so the cache action's save and restore are symmetric
+          sudo chown -R "$(id -u):$(id -g)" /opt/yosys
 
       - name: Install the pinned Yosys and prove the version
         if: ${{ matrix.shard == 3 }}
@@ -412,7 +414,7 @@ jobs:
           set -euo pipefail
           sudo apt-get update -qq
           sudo apt-get install -y --no-install-recommends \
-            git make g++ bison flex pkg-config zlib1g-dev python3
+            git make g++ bison flex libfl-dev pkg-config zlib1g-dev python3
           git clone --depth 1 --branch "$YOSYS_VERSION" \
             https://github.com/YosysHQ/yosys.git /tmp/yosys-src
           git -C /tmp/yosys-src submodule update --init --depth 1 abc libs/cxxopts
@@ -422,6 +424,8 @@ jobs:
           make -C /tmp/yosys-src -j"$(nproc)" PREFIX=/opt/yosys
           sudo make -C /tmp/yosys-src install PREFIX=/opt/yosys
           git -C /tmp/yosys-src/abc rev-parse HEAD | sudo tee /opt/yosys/ABC_REV
+          # runner-owned so the cache action's save and restore are symmetric
+          sudo chown -R "$(id -u):$(id -g)" /opt/yosys
 
       - name: Install the pinned Yosys and prove the version
         run: |

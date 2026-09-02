@@ -437,7 +437,12 @@ for name in "${selected_names[@]}"; do
     yosys -p "$program"
   ) > "$TMP/$top.yos.log" 2>&1
   rc=$?
-  cells="$(python3 - "$TMP/$top.stat.json" <<'PY'
+  #: the extractor's exit status IS the verdict ([R1] on PR #333: the
+  #: first cut captured a status-free substitution and the fail-fast
+  #: ratchet rightly counted it discarded): a readable count prints and
+  #: exits 0; anything else exits 1, the guard empties cells, and
+  #: record_result turns the empty count into the top's FAIL.
+  if ! python3 - "$TMP/$top.stat.json" > "$TMP/$top.cells" <<'PY'
 import json
 import sys
 
@@ -445,11 +450,17 @@ try:
     with open(sys.argv[1], encoding="utf-8") as handle:
         value = json.load(handle)["design"]["num_cells"]
 except (OSError, ValueError, KeyError):
-    raise SystemExit(0)
+    raise SystemExit(1)
 if isinstance(value, int) and not isinstance(value, bool) and value >= 0:
     print(value)
+else:
+    raise SystemExit(1)
 PY
-)"
+  then
+    cells=""
+  else
+    cells="$(cat "$TMP/$top.cells")"
+  fi
   if [ "$rc" -eq 0 ] && [ -n "$cells" ]; then
     printf "  [PASS] %-22s cells=%s\n" "$top" "$cells"
     record_result top "$top" PASS 1 "$MODE" "$cells"
