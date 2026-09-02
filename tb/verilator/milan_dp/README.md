@@ -223,7 +223,7 @@ so *no* leg ran). **Every number below is measured**, all nine legs, on the same
 | `obj_prune` (`sim_prune`) | 31 / 0 | **31 / 0** | unchanged, untouched |
 | `obj_ax1x1` (`sim_main`) | 273 / 73 | **242 / 0** | 5 sections guarded out on this shape |
 | `obj_aclk` (`sim_aclk`) | 5 / 0 | **5 / 0** | unchanged, untouched |
-| `obj_gptp` (`sim_gptp`) | not available | **156 / 0** | current product-default fabric-owner run; includes inert-write negatives, both counter dirty paths, limiter pending-release, and AAF+CRF `tu` |
+| `obj_gptp` (`sim_gptp`) | not available | **164 / 0** | current product-default fabric-owner run; includes inert-write negatives, both counter dirty paths, limiter pending-release, AAF+CRF `tu`, and the three drop-counter routes at 0x7E8/0x7EC |
 
 Earlier re-measurement had stopped because the `protocol-processor` submodule
 working tree went out from under the build — `protocol_processor_top.sv` had an

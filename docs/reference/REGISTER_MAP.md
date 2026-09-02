@@ -190,6 +190,7 @@ MAC/*` in [`REQUIREMENTS.md`](../../REQUIREMENTS.md).
   - [0x7B8  -  Persistence-journal ingest  (saved-state fast-connect E3)](#0x7b8-----persistence-journal-ingest--saved-state-fast-connect-e3) -- **Unwired again at VERSION major 2: writes are accepted and DISCARDED, `JNL_STAT` and `JNL_SEQ` read structural zeros.** Milan v1.2 5.3.8.2 makes the saved bound state a *shall*; this build does not meet it, and nothing in this device restores a binding across a power cycle. The record format and verdict table are kept as the specification a replacement must satisfy.
   - [0x7C8  -  AEM dynamic-state patch port  (saved-state fast-connect E4)](#0x7c8-----aem-dynamic-state-patch-port--saved-state-fast-connect-e4) -- **Unwired: writes accepted and discarded.** The patch engine and the AEM store it wrote are both deleted, so there is no descriptor RAM to patch and no setter whose acceptance it could re-run. Kept as ABI and as specification.
   - [0x7DC  -  retired AS_PATH compatibility addresses](#0x7dc-----retired-as_path-compatibility-addresses) -- Inert slots retained in the address map; reads are zero and writes cannot create an owner or notification.
+  - [0x7E8  -  gPTP plane drop diagnostics](#0x7e8-----gptp-plane-drop-diagnostics) -- Three live wrapping drop counts (tap, parser, event queue) in two read-only words; option OFF reads defined zeros.
   - [0x800  -  Indexed per-stream window](#0x800-----indexed-per-stream-window) -- SELECT-then-read access to listener and talker contexts without duplicating decode logic. Index 0 aliases the legacy flat registers, `0xDEADDEAD` marks an unbacked word, and a staged stream id applies only to the selected index.
   - [0x870  -  AAF per-stage latency taps  (roadmap item-11, KL_aaf_latency_taps)](#0x870-----aaf-per-stage-latency-taps--roadmap-item-11-kl_aaf_latency_taps) -- Six inter-stage deltas as `{max,last}` plus a separate min word, in `axis_clk` cycles. They characterise an envelope, not one threaded frame -- the token is followed by order, so a shared MAC boundary can catch a nearer non-AAF edge. Like every group at `>= 0x800` it needs the read carve-out or the whole block reads 0.
   - [0x8B4  -  RX stream-parser probe  (APRB, avtp_stream_parser + milan_datapath)](#0x8b4-----rx-stream-parser-probe--aprb-avtp_stream_parser--milan_datapath) -- The only listener-side view **upstream** of the stream-table match, which is why a bound listener that accepts nothing used to be undiagnosable -- every other counter reads 0 in unison and none can say why. Ends with a three-row table that turns `PARSED`/`MATCHED` into a verdict.
@@ -225,6 +226,7 @@ MAC/*` in [`REQUIREMENTS.md`](../../REQUIREMENTS.md).
 | `0x7B8` | Persistence-journal ingest (E3) — **writes accepted and discarded; nothing is restored** |
 | `0x7C8` | AEM dynamic-state patch port (E4) — **writes accepted and discarded** |
 | `0x7DC` | inert AS_PATH compatibility addresses; the product serves the engine's bounded PathTrace (0x0056) |
+| `0x7E8` | gPTP plane drop diagnostics: tap/parser/event drop counts, RO live (#207) |
 | `0x800` | Indexed per-stream window (NxN streams, SEL/SNAP + 0x810-0x868) |
 | `0x870` | AAF per-stage latency taps (item-11, `KL_aaf_latency_taps`) |
 | `0x8B4` | RX stream-parser probe (the pre-match listener view) |
@@ -1305,6 +1307,23 @@ therefore has an empty path and zero runtime owners.
 | `0x7DC` | `ASP_LO` | RW inert | `0` | Retired slot; reads zero and writes are discarded. |
 | `0x7E0` | `ASP_HI` | RW inert | `0` | Retired slot; reads zero and writes are discarded. |
 | `0x7E4` | `ASP_CMD` | RO live / W inert | `0` | `[7:4]` fabric publication generation, `[3:0]` path count; option OFF reads zero and all writes are discarded. |
+
+### 0x7E8  -  gPTP plane drop diagnostics
+
+A field failure must distinguish silence on the link from traffic the plane
+refused inside (issue #207). The plane's three drop counters reach software
+here: frames the tap FIFO shed, frames the parser refused, and events the
+dispatch queue lost. Each source is a 16-bit free-running counter clocked in
+the plane; it wraps and is never cleared by a read or a write, so software
+computes deltas. The words are served live from the wires - no snapshot, no
+selector - and each 32-bit read is coherent for the pair it carries. Reset
+zeroes the counters with the plane. Option OFF reads defined zeros from the
+parameter gate itself, never a floating count, and every write is discarded.
+
+| Offset | Name | Acc | Reset | Description |
+|--------|------|-----|-------|-------------|
+| `0x7E8` | `GPTP_DROPW` | RO live / W inert | `0` | `[31:16]` tap-FIFO drop count, `[15:0]` parser refusal count; both 16-bit wrapping; option OFF reads zero. |
+| `0x7EC` | `GPTP_DROPE` | RO live / W inert | `0` | `[15:0]` events the dispatch queue refused - a full queue, or an announce arriving without its frozen capture context; 16-bit wrapping, zero-extended; option OFF reads zero. |
 
 ### 0x800  -  Indexed per-stream window
 

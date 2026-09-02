@@ -1306,6 +1306,79 @@ int main(int argc, char **argv) {
   expect("maximum push body equals solicited path",
          same_from(max_push, path_max_wire, 38), 1);
 
+  // ---- issue #207: the three drop counters through the real CSR route ----
+  // Each counter moves through its own refusing stage, injected at the MAC
+  // RX seam and read at 0x7E8/0x7EC over the same AXI path software uses.
+  {
+    // a) the parser refuses a foreign-domain Sync: only [15:0] of 0x7E8
+    //    moves (gPTP is domain 0; the donor parser drops the header).
+    uint32_t w0 = axi_read(dut, 0x7E8);
+    uint32_t e0 = axi_read(dut, 0x7EC);
+    Frame fd = ptp(0x0, 0x5107, 0, 0x0208, 10);
+    fd.ts(0);
+    fd.b[18] = 5;                       // domainNumber, frame byte 14+4
+    send_wide(dut, fd.b);
+    run(dut, 3000);
+    uint32_t w1 = axi_read(dut, 0x7E8);
+    uint32_t e1 = axi_read(dut, 0x7EC);
+    expect("foreign domain moves the parser count",
+           (uint16_t)((w1 & 0xFFFF) - (w0 & 0xFFFF)) >= 1, 1);
+    expect("foreign domain leaves the tap count", w1 >> 16, w0 >> 16);
+    expect("foreign domain leaves the event count", e1, e0);
+
+    // b) a full queue refuses the next accepted frame's event: only 0x7EC
+    //    moves. The four-deep level is held full around exactly one valid
+    //    Sync - the same poke-the-corner idiom as the merge-stall arms -
+    //    while a first Sync keeps the uCPU inside its handler so nothing
+    //    pops a forced entry. The level is restored to the true wp-rp
+    //    afterwards; the refused frame's bank stays held, which nothing
+    //    after this arm asserts on.
+    auto *eng = &root->milan_datapath__DOT__g_gptp_plane__DOT__u_gptp_shadow__DOT__u_engine__DOT__evq_lvl_r;
+    Frame s1 = ptp(0x0, 0x5108, 0, 0x0208, 10);
+    s1.ts(0);
+    send_wide(dut, s1.b);
+    run(dut, 40);                       // the handler is now holding the uCPU
+    *eng = 4; dut->eval();              // queue reads full; pushes refused
+    Frame s2 = ptp(0x0, 0x5109, 0, 0x0208, 10);
+    s2.ts(0);
+    send_wide(dut, s2.b);
+    run(dut, 400);                      // s2's event arrives against full
+    uint32_t w2 = axi_read(dut, 0x7E8);
+    uint32_t e2 = axi_read(dut, 0x7EC);
+    expect("a full queue moves only the event count",
+           (uint16_t)(e2 - e1) >= 1, 1);
+    expect("the full-queue refusal leaves the parser count",
+           w2 & 0xFFFF, w1 & 0xFFFF);
+    expect("the full-queue refusal leaves the tap count", w2 >> 16, w1 >> 16);
+    // The restore is exact only if no pop fired inside the window; a pop
+    // needs the uCPU idle, which s1's still-running handler forbids, and
+    // an early pop would fail the full-queue expect above loudly. The one
+    // green-but-poisoned residue (a pop after the refusal, before this
+    // line) is benign only because this is the file's last arm - keep it
+    // last, or gate the restore on dbg_busy_o.
+    *eng = (uint8_t)((root->milan_datapath__DOT__g_gptp_plane__DOT__u_gptp_shadow__DOT__u_engine__DOT__evq_wp_r
+            - root->milan_datapath__DOT__g_gptp_plane__DOT__u_gptp_shadow__DOT__u_engine__DOT__evq_rp_r) & 3);
+    dut->eval();
+    run(dut, 4000);                     // drain the real backlog
+
+    // c) a back-to-back burst overruns the 2 KB tap FIFO: the shed frames
+    //    are counted at 0x7E8[31:16] and, having never reached the parser,
+    //    cannot move [15:0]. Forty 130-octet Syncs are ~5.6 KB against a
+    //    2 KB FIFO drained byte-serially. Delivered frames may pile
+    //    events; the event counter is deliberately unasserted here.
+    for (int k = 0; k < 40; k++) {
+      Frame sy = ptp(0x0, (uint16_t)(0x6000 + k), 0, 0x0208, 96);
+      sy.ts(0);
+      for (int i = 0; i < 86; i++) sy.u8((uint8_t)i);
+      send_wide(dut, sy.b);
+    }
+    run(dut, 6000);
+    uint32_t w3 = axi_read(dut, 0x7E8);
+    expect("a burst moves the tap count", (uint16_t)((w3 >> 16) - (w2 >> 16)) >= 1, 1);
+    expect("shed frames never reach the parser count",
+           w3 & 0xFFFF, w2 & 0xFFFF);
+  }
+
   printf("%d checks: %d PASS, %d FAIL\n", checks, checks - fails, fails);
   delete dut;
   return fails ? 1 : 0;

@@ -229,6 +229,27 @@ int main(int argc, char** argv) {
   check("0x7E4 follows maximum fabric publication",
         axi_read(A_ASP_CMD), 0x000000B8);
 
+  // ---- issue #207: gPTP drop diagnostics at 0x7E8/0x7EC ------------------
+  // RO live, one-access-coherent packing, writes inert. The sources are the
+  // plane's three free-running 16-bit counters; the CSR truncates nothing.
+  dut->i_gptp_tap_drop = 0; dut->i_gptp_rx_drop = 0; dut->i_gptp_ev_drop = 0;
+  dut->eval();
+  check("0x7E8 drop word idles at zero", axi_read(0x7E8), 0);
+  check("0x7EC event word idles at zero", axi_read(0x7EC), 0);
+  dut->i_gptp_tap_drop = 0xA1B2; dut->i_gptp_rx_drop = 0x0304;
+  dut->i_gptp_ev_drop = 0xFFFF;
+  dut->eval();
+  check("0x7E8 packs {tap, rx} in one access", axi_read(0x7E8), 0xA1B20304u);
+  check("0x7EC zero-extends the event count", axi_read(0x7EC), 0x0000FFFFu);
+  axi_write(0x7E8, 0xDEADBEEFu);
+  axi_write(0x7EC, 0xDEADBEEFu);
+  check("0x7E8 write is inert", axi_read(0x7E8), 0xA1B20304u);
+  check("0x7EC write is inert", axi_read(0x7EC), 0x0000FFFFu);
+  dut->i_gptp_rx_drop = 0x0305;
+  dut->eval();
+  check("0x7E8 reads live, never a stale snapshot",
+        axi_read(0x7E8), 0xA1B20305u);
+
   std::printf("checks: %u   failures: %u\n", checks, failures);
   delete dut;
   return failures ? 1 : 0;

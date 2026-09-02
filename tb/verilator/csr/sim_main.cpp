@@ -1065,6 +1065,16 @@ int main(int argc, char** argv) {
   }
 
   printf("--------------------------------------------------------------\n");
+  // ---- issue #207: option OFF serves defined zeros at 0x7E8/0x7EC -------
+  // The inputs are driven hard so the zero is the parameter gate's doing,
+  // not the harness's: software on a plane-OFF build reads an explicit
+  // absent-plane zero, never a floating count.
+  dut->i_gptp_tap_drop = 0xFFFF; dut->i_gptp_rx_drop = 0xFFFF;
+  dut->i_gptp_ev_drop = 0xFFFF;
+  dut->eval();
+  ck("0x7E8 plane-OFF zero", axi_read(0x7E8), 0);
+  ck("0x7EC plane-OFF zero", axi_read(0x7EC), 0);
+
   printf("checks: %ld   failures: %ld\n", checks, fails);
   printf("RESULT: %s\n", fails ? "FAIL" : "PASS");
   dut->final();
