@@ -5,7 +5,9 @@
 
 The runner is host-side security code. Invoke the copy from a clean trusted
 ``dev`` worktree, never the copy in the pull request being tested. It refuses
-unless that trusted worktree is the PR's current remote base. Candidate files
+unless that trusted worktree is the validation base: the live remote ``dev``
+tip resolved once at invocation. GitHub's recorded PR base oid is frozen when
+the PR is opened, so it is printed but never compared. Candidate files
 are fetched without credentials into a fresh per-run repository and are only
 executed by ``act`` inside unprivileged containers with no Docker socket,
 ambient configuration, host secrets, or persistent writable cache.
@@ -505,11 +507,65 @@ def require_live_pull_request(
         )
     if current.base_sha != expected.base_sha:
         print(
-            f"act-ci: NOTE: {expected.base_ref} moved from {expected.base_sha} "
-            f"to {current.base_sha} during validation; the unchanged exact-head "
-            f"evidence for {expected.head_sha} remains valid",
+            f"act-ci: NOTE: recorded base oid moved from {expected.base_sha} "
+            f"to {current.base_sha} during validation; the validation base is "
+            f"the live {expected.base_ref} tip resolved at invocation and the "
+            f"unchanged exact-head evidence for {expected.head_sha} remains "
+            "valid",
             flush=True,
         )
+
+
+def query_remote_base_tip(repository: str, base_ref: str) -> str:
+    """Read the live remote base tip once, credential-free, over HTTPS."""
+    remote_url = f"https://github.com/{repository}.git"
+    raw = capture(
+        [*git_prefix(), "ls-remote", "--", remote_url, f"refs/heads/{base_ref}"],
+        cwd=ROOT,
+        env=git_environment(ROOT),
+        description=f"live {base_ref} tip lookup",
+    )
+    lines = raw.splitlines()
+    if len(lines) != 1:
+        raise Refusal(
+            f"live {base_ref} tip lookup returned {len(lines)} refs, not one"
+        )
+    sha, _tab, name = lines[0].partition("\t")
+    if name != f"refs/heads/{base_ref}":
+        raise Refusal(f"live {base_ref} tip lookup returned another ref: {name!r}")
+    return sha
+
+
+def resolve_validation_base(
+    pr: PullRequest,
+    repository: str,
+    query_tip: Callable[[str, str], str] = query_remote_base_tip,
+    emit: Callable[[str], None] = print,
+) -> str:
+    """Resolve the one base SHA every later base check agrees on.
+
+    GitHub freezes a pull request's recorded base oid (``baseRefOid``) when
+    the PR is opened; it does not track the base branch afterward. The runner
+    therefore validates against the live remote base tip resolved once here,
+    and the recorded oid is informational: both SHAs are printed, and a stale
+    recorded oid never refuses the run.
+    """
+    live = query_tip(repository, pr.base_ref)
+    if not isinstance(live, str) or not SHA_RE.fullmatch(live):
+        raise Refusal(
+            f"live {pr.base_ref} tip is not a full commit SHA: {live!r}"
+        )
+    if live == pr.base_sha:
+        emit(
+            f"act-ci: validation base {live} (live {pr.base_ref} tip; "
+            "matches the recorded base oid)"
+        )
+    else:
+        emit(
+            f"act-ci: NOTE: recorded base oid {pr.base_sha} is stale; "
+            f"validating against the live {pr.base_ref} tip {live}"
+        )
+    return live
 
 
 def select_workflows(requested: Iterable[str] | None) -> tuple[str, ...]:
@@ -708,7 +764,7 @@ def validate_checkout(
         validate_file_bytes(root, pr.head_sha, WORKFLOWS[workflow])
 
 
-def validate_trusted_runner(pr: PullRequest) -> None:
+def validate_trusted_runner(pr: PullRequest, validation_base: str) -> None:
     """Refuse a runner loaded from the candidate or a modified/stale base."""
     head, dirty, replacements = checkout_state(ROOT)
     if replacements:
@@ -719,16 +775,17 @@ def validate_trusted_runner(pr: PullRequest) -> None:
         raise Refusal(
             "trusted runner worktree is dirty; invoke the exact clean remote dev copy"
         )
-    if head != pr.base_sha:
+    if head != validation_base:
         raise Refusal(
-            f"runner was loaded from {head}, not current PR base {pr.base_sha}; "
-            "invoke scripts/act_ci.py from a clean trusted dev worktree"
+            f"runner was loaded from {head}, not the live {pr.base_ref} tip "
+            f"{validation_base}; invoke scripts/act_ci.py from a clean trusted "
+            f"{DEFAULT_BASE} worktree at the current remote tip"
         )
     try:
         relative = pathlib.Path(__file__).resolve().relative_to(ROOT).as_posix()
     except ValueError as exc:
         raise Refusal("runner is not installed beneath its trusted repository") from exc
-    validate_file_bytes(ROOT, pr.base_sha, relative)
+    validate_file_bytes(ROOT, validation_base, relative)
 
 
 def validate_installed_runner_file(
@@ -764,9 +821,10 @@ def validate_runner(
     pr: PullRequest,
     candidate_worktree: pathlib.Path,
     trusted_install_sha256: str | None,
+    validation_base: str,
 ) -> None:
     if trusted_install_sha256 is None:
-        validate_trusted_runner(pr)
+        validate_trusted_runner(pr, validation_base)
         return
     validate_installed_runner_file(
         pathlib.Path(__file__), trusted_install_sha256, candidate_worktree
@@ -1150,8 +1208,25 @@ def initialize_required_submodules(checkout: pathlib.Path, home: pathlib.Path) -
     )
 
 
+def require_exact_fetched_refs(
+    pr: PullRequest, validation_base: str, fetched_base: str, fetched_head: str
+) -> None:
+    """Refuse any ref movement since metadata lookup and the base resolve."""
+    if fetched_head != pr.head_sha:
+        raise Refusal(
+            f"remote head {pr.head_ref} moved from {pr.head_sha} to "
+            f"{fetched_head} between metadata lookup and fetch; discard this run"
+        )
+    if fetched_base != validation_base:
+        raise Refusal(
+            f"remote {pr.base_ref} moved from {validation_base} to "
+            f"{fetched_base} between the invocation-time base resolve and "
+            "fetch; discard this run"
+        )
+
+
 def materialize_remote_head(
-    pr: PullRequest, repository: str, layout: RunLayout
+    pr: PullRequest, repository: str, layout: RunLayout, validation_base: str
 ) -> pathlib.Path:
     """Fetch the public same-repository refs into a new credential-free repo."""
     checkout = layout.checkout
@@ -1199,10 +1274,7 @@ def materialize_remote_head(
         home=layout.home,
         description="fetched PR head verification",
     )
-    if fetched_base != pr.base_sha or fetched_head != pr.head_sha:
-        raise Refusal(
-            "remote refs changed between metadata lookup and fetch; discard this run"
-        )
+    require_exact_fetched_refs(pr, validation_base, fetched_base, fetched_head)
     tree = git_capture(
         checkout,
         ["ls-tree", "-r", pr.head_sha],
@@ -1399,8 +1471,15 @@ def validate_workflow_sandbox(root: pathlib.Path, workflows: Sequence[str]) -> N
                     )
 
 
-def build_event(pr: PullRequest, repository: str) -> dict[str, object]:
-    """The smallest pull_request payload every repository workflow consumes."""
+def build_event(
+    pr: PullRequest, repository: str, validation_base: str
+) -> dict[str, object]:
+    """The smallest pull_request payload every repository workflow consumes.
+
+    The base SHA is the resolved validation base (the live remote base tip):
+    it is the only base commit the runner fetched and verified, so a stale
+    recorded base oid never flows into workflow-visible state.
+    """
     action = "synchronize" if pr.draft else "ready_for_review"
     return {
         "action": action,
@@ -1415,7 +1494,7 @@ def build_event(pr: PullRequest, repository: str) -> dict[str, object]:
             "html_url": pr.url,
             "base": {
                 "ref": pr.base_ref,
-                "sha": pr.base_sha,
+                "sha": validation_base,
                 "repo": {"full_name": repository},
             },
             "head": {
@@ -3203,10 +3282,11 @@ def run_validation(
     act_binary: str,
     use_sudo: bool,
     dry_run: bool,
+    validation_base: str,
 ) -> int:
     with temporary_run_directory(use_sudo and not dry_run) as run_root:
         layout = make_layout(run_root, pr)
-        materialize_remote_head(pr, repository, layout)
+        materialize_remote_head(pr, repository, layout, validation_base)
         validate_checkout(
             pr, candidate_worktree, workflows, label="candidate worktree"
         )
@@ -3216,7 +3296,7 @@ def run_validation(
         validate_checkout(pr, layout.checkout, workflows, label="materialized checkout")
         require_live_pull_request(pr, repository)
 
-        event = build_event(pr, repository)
+        event = build_event(pr, repository, validation_base)
         layout.event_path.write_text(
             json.dumps(event, indent=2) + "\n", encoding="utf-8"
         )
@@ -3230,8 +3310,8 @@ def run_validation(
         planned_boundary = new_docker_boundary()
         print(f"act-ci: PR #{pr.number} {event['action']} exact head {pr.head_sha}")
         print(
-            f"act-ci: base {pr.base_sha} ({pr.base_ref}), "
-            f"draft={str(pr.draft).lower()}"
+            f"act-ci: base {validation_base} (live {pr.base_ref} tip; "
+            f"recorded base oid {pr.base_sha}), draft={str(pr.draft).lower()}"
         )
         print("act-ci: credentials=none docker-socket=none caches=ephemeral")
 
@@ -3340,7 +3420,7 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
     }
     pr = PullRequest.from_json(raw)
     validate_pull_request(pr, repository)
-    event = build_event(pr, repository)
+    event = build_event(pr, repository, base)
     event_pr = event["pull_request"]
     assert isinstance(event_pr, dict)
     check(
@@ -3359,11 +3439,88 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
 
     draft_raw = dict(raw)
     draft_raw["isDraft"] = True
-    draft_event = build_event(PullRequest.from_json(draft_raw), repository)
+    draft_event = build_event(PullRequest.from_json(draft_raw), repository, base)
     check(
         "draft event uses synchronize and preserves draft=true",
         draft_event["action"] == "synchronize"
         and draft_event["pull_request"]["draft"] is True,
+    )
+
+    live_tip = "3" * 40
+    noted: list[str] = []
+    resolved = resolve_validation_base(
+        pr, repository, query_tip=lambda _repo, _ref: live_tip, emit=noted.append
+    )
+    check(
+        "a stale recorded base oid resolves to the live dev tip and proceeds",
+        resolved == live_tip and resolved != pr.base_sha,
+    )
+    check(
+        "the stale-base note prints the recorded and live base SHAs",
+        len(noted) == 1
+        and pr.base_sha in noted[0]
+        and live_tip in noted[0]
+        and "recorded base oid" in noted[0]
+        and "stale" in noted[0],
+    )
+    matched: list[str] = []
+    check(
+        "a recorded base oid matching the live tip resolves unchanged",
+        resolve_validation_base(
+            pr,
+            repository,
+            query_tip=lambda _repo, _ref: pr.base_sha,
+            emit=matched.append,
+        )
+        == pr.base_sha
+        and len(matched) == 1
+        and "matches the recorded base oid" in matched[0],
+    )
+    refused(
+        "an invalid live-tip lookup result is refused",
+        lambda: resolve_validation_base(
+            pr, repository, query_tip=lambda _repo, _ref: "not-a-sha"
+        ),
+    )
+
+    def fetch_window_message(fetched_base: str, fetched_head: str) -> str | None:
+        try:
+            require_exact_fetched_refs(pr, resolved, fetched_base, fetched_head)
+        except Refusal as exc:
+            return str(exc)
+        return None
+
+    check(
+        "a stale recorded base with a moved dev passes the fetch equality "
+        "check against the resolved live tip",
+        fetch_window_message(live_tip, head) is None,
+    )
+    moved_head = "4" * 40
+    head_message = fetch_window_message(live_tip, moved_head)
+    check(
+        "a head moved between metadata lookup and fetch is refused naming "
+        "the head",
+        head_message is not None
+        and "head" in head_message
+        and head in head_message
+        and moved_head in head_message,
+    )
+    window_tip = "5" * 40
+    base_message = fetch_window_message(window_tip, head)
+    check(
+        "dev moving between the invocation-time resolve and the fetch is "
+        "refused naming both base SHAs",
+        base_message is not None
+        and resolved in base_message
+        and window_tip in base_message
+        and "resolve" in base_message,
+    )
+    stale_event = build_event(pr, repository, resolved)
+    stale_event_pr = stale_event["pull_request"]
+    assert isinstance(stale_event_pr, dict)
+    check(
+        "the event carries the resolved live base, not the stale recorded oid",
+        stale_event_pr["base"]["sha"] == resolved,
     )
     check(
         "all selects each workflow once in stable order",
@@ -5391,7 +5548,8 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
         )
 
     check(
-        "base-tip movement is noted without discarding exact-head evidence",
+        "recorded base oid movement is noted without discarding exact-head "
+        "evidence",
         execute_with_remote_change(replace(pr, base_sha="5" * 40)) == RC_OK,
     )
 
@@ -6345,8 +6503,11 @@ def main(argv: Sequence[str]) -> int:
         repository = args.repo or repository_name()
         pr = query_pull_request(args.pr, repository)
         validate_pull_request(pr, repository)
+        validation_base = resolve_validation_base(pr, repository)
         candidate_worktree = (args.worktree or pathlib.Path.cwd()).expanduser().resolve()
-        validate_runner(pr, candidate_worktree, args.trusted_install_sha256)
+        validate_runner(
+            pr, candidate_worktree, args.trusted_install_sha256, validation_base
+        )
         act_binary = resolve_act_binary(args.act_bin)
         validate_act_binary(act_binary, candidate_worktree)
         return run_validation(
@@ -6357,6 +6518,7 @@ def main(argv: Sequence[str]) -> int:
             act_binary=act_binary,
             use_sudo=args.sudo,
             dry_run=args.dry_run,
+            validation_base=validation_base,
         )
 
     try:
