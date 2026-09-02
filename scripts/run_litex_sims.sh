@@ -40,8 +40,9 @@
 # `python3` on PATH, else the venv sweep.sh puts on PATH for every real
 # build - READ OUT OF sweep.sh, never restated here. A set
 # $MILAN_LITEX_PYTHON that cannot import migen + litex is a REFUSAL (exit
-# 2), never a silent substitution: an explicit pin names the environment the
-# verdict is about. With no usable interpreter at all every member is a
+# 91, the run_all_suites REFUSED code - [R1] on PR #330 produced the old
+# exit-2 spelling colliding with "2 findings" live), never a silent
+# substitution: an explicit pin names the environment the verdict is about. With no usable interpreter at all every member is a
 # DECLARED SKIP and the exit says the sweep is incomplete.
 #
 # Exit status:
@@ -154,7 +155,7 @@ run_aggregate() {
     echo "cannot import migen + litex. An explicit pin names the environment the" >&2
     echo "verdict is about, so it is never silently substituted. Point it at an" >&2
     echo "interpreter with the sw/litex/litex_pins.txt set, or unset it." >&2
-    return 2
+    return 91
   fi
 
   for t in "${INVENTORY[@]}"; do
@@ -166,7 +167,7 @@ run_aggregate() {
       printf '         and run scripts/ci_litex_env.py)\n'
       continue
     fi
-    (cd "$SIM_DIR" && timeout "$TMO" "$py" "$t.py") > "$out/$t.log" 2>&1
+    (cd "$SIM_DIR" && timeout -k 10 "$TMO" "$py" "$t.py") > "$out/$t.log" 2>&1
     local rc=$?
     # Rule 6: a script that PRINTS a failure (or nothing) and exits 0 is a
     # masked verdict. Both members end with an explicit `RESULT: PASS`.
@@ -255,7 +256,7 @@ selftest() {
   make_tree "$sand/a"
   out="$(arm "$sand/a" bin-ok)"; rc=$?
   ck "green control: a sandbox where everything passes exits 0" 0 "$rc" \
-     "passed: 2" "$out"
+     "passed: 2\b" "$out"
 
   make_tree "$sand/b"
   printf 'import sys\nprint("RESULT: FAIL")\nsys.exit(1)\n' \
@@ -291,7 +292,7 @@ selftest() {
 
   make_tree "$sand/g"
   out="$(arm "$sand/g" bin-ok MILAN_LITEX_PYTHON="$sand/no-such-python")"; rc=$?
-  ck "an explicit MILAN_LITEX_PYTHON that cannot probe is REFUSED" 2 "$rc" \
+  ck "an explicit MILAN_LITEX_PYTHON that cannot probe is REFUSED" 91 "$rc" \
      "REFUSED" "$out"
 
   make_tree "$sand/h"

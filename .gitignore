@@ -83,6 +83,8 @@ sw/litex/boards.local.sh
 # files into the tree under `.suite-logs-final/` (added incidentally by
 # 8a1d7d1d) where a later sweep silently MODIFIED tracked files.
 .suite-logs*/
+#: same shape for the LiteX aggregate's default outdir (PR #330 [R1])
+.litex-sim-logs*/
 *.launch.log
 # scripts/run_all_suites.sh whole-sweep lock: concurrent sweeps share the
 # per-suite obj_* build dirs, so the second one refuses rather than corrupt it
