@@ -214,7 +214,7 @@ jobs:
         if: ${{ matrix.shard == 3 }}
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends yosys
+          sudo apt-get install -y --no-install-recommends yosys libjemalloc2
           yosys -V
 
       - name: Install sv2v for the netlist-level suite owner
