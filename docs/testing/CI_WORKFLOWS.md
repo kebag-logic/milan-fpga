@@ -406,9 +406,10 @@ is exactly these twelve things:
     context ran nothing. So the job whose id is the public name must carry
     it. The gate step inside each of the four jobs is pinned too (#295,
     the [R3] measured levers on PR #293): `docs-check`'s ci_events step,
-    `wire-accountability`'s gate step and `docs-check-no-git`'s single
-    step each carry exactly `name` and `run` and a script equal to its
-    canonical form after whitespace normalization, so a step-level `if`,
+    `wire-accountability`'s gate step and `docs-check-no-git`'s metadata-
+    stripping gate step each carry exactly `name` and `run`. Their scripts
+    equal the recorded canonical forms after whitespace normalization, so a
+    step-level `if`,
     `shell`, `continue-on-error` or `working-directory`, and a `|| true`
     or any other rewrite beside the call, is refused naming the step;
     `elaborate`'s scope step is held as the decide step is (item 7, the
@@ -435,6 +436,8 @@ is exactly these twelve things:
     action, or any content at all -- is refused naming the job and the
     position, as are a removed, reordered or renamed step, a loosened
     step `if`, and a rewritten cache or upload `with`.
+    The extracted-tree sequence is checkout, fetch the linked gPTP authority,
+    then strip both root and linked-checkout Git metadata before the gates.
 12. **The inherited execution environment.** None of the keys above is
     `env`, and a name set at the workflow or job level reaches every step's
     shell before any pinned script runs: `BASH_ENV` names a file bash
@@ -591,7 +594,7 @@ unmatched `${{`, `include`, a `fromJSON` matrix, a missing key, an empty
 list - and a literal decoy carrying a required name another file owns, in
 each of the four files; each of the four non-RTL gate steps (`docs-check`'s
 ci_events step, `wire-accountability`'s gate step, `docs-check-no-git`'s
-single step, `elaborate`'s scope step) given an `if: false`, a
+metadata-stripping gate step, `elaborate`'s scope step) given an `if: false`, a
 `continue-on-error`, a `shell`, a `working-directory` and a `|| true`, and
 each removed; the elaborate scope script made to publish a literal
 `rtl=false`, stripped of its `ci_scope.py --selftest`, running the
@@ -603,7 +606,9 @@ real file on disk; a `BASH_ENV`-writing, a `$GITHUB_PATH`-prepending, a
 third-party-`uses:` and a benign step inserted into the four carriers, a
 recognised step removed, swapped and renamed, a non-gate carrier step
 given `if: false`, a gated `elaborate` step's `if` loosened, and a cache
-and an upload `with` rewritten; a whitespace-only reformatting of all
+and an upload `with` rewritten; the imported gPTP gate and linked-authority
+fetch removed, and the no-Git removal narrowed to root metadata only; a
+whitespace-only reformatting of all
 nine canonical scripts that must still pass; and the decision itself for
 every event class.
 
