@@ -20,7 +20,8 @@ make ecp5       # map to a real non-Xilinx device: Lattice ECP5 (TRELLIS_FF/LUT4
 ## Contents
 
 - **[How it works](#how-it-works)** — The two-stage pipeline and why each stage is there: sv2v converts the SystemVerilog Yosys cannot parse (interfaces, packages, assignment patterns), then `hierarchy -check` is what makes a PASS mean something — it fails on any surviving vendor primitive, so green = fully mapped to generic logic with nothing Xilinx-specific left.
-- **[Tooling](#tooling)** — The two binaries you need and where to get them. No Xilinx tools are required, which is the point — this flow is the evidence that the RTL is not tied to one vendor's toolchain.
+- **[Tooling](#tooling)** — The two binaries you need, where to get them, and the exact versions CI takes the gate's verdict with — Yosys `v0.66` with its bundled ABC, sv2v `v0.0.12` — which is what a local run has to match to be comparable. No Xilinx tools are required, which is the point — this flow is the evidence that the RTL is not tied to one vendor's toolchain.
+- **[The `cells=` record](#the-cells-record)** — Where the published cell count comes from (`stat -json`, never the human table), why a PASS without a numeric count is a FAIL, and why the count is required but deliberately not a checked-in ratchet.
 - **[Runtime levers](#runtime-levers)** — Why this gate is optimisation-bound and not parse-bound, which is the one fact that decides every speed question here: the jemalloc preload it now runs under (−45% on the heaviest top, −42% on the whole sharded gate, byte-identical netlist) and how to turn it off, and the measured reason `read_verilog -defer` is *not* used — it removes 85% of a step that is 0.5% of the run, and changes the cell count by 1.3% while doing it.
 - **[Coverage](#coverage)** — What the tops actually span, and the standing rule that the `tops=()` array is the count while this prose is not.
 - **[Notes](#notes)** — Two facts that stop you misreading the output: the concrete non-Xilinx targets (`synth_ecp5`, `synth_ice40`) with real cell counts, and why `axis_fifo` looks enormous — its 4096-deep default, which no instance in the design uses.
@@ -37,10 +38,51 @@ make ecp5       # map to a real non-Xilinx device: Lattice ECP5 (TRELLIS_FF/LUT4
    Xilinx-specific left.
 
 ## Tooling
-- `yosys` (Arch: `pacman -S yosys`).
-- `sv2v` on `PATH` — pinned prebuilt release from
+- `yosys` — **CI takes this gate's verdict with Yosys `v0.66`** (#287), declared
+  once per workflow file as `YOSYS_VERSION` in
+  [`rtl.yml`](../../.github/workflows/rtl.yml) and
+  [`rtl-fast.yml`](../../.github/workflows/rtl-fast.yml), built from the
+  upstream tag with its **bundled ABC submodule**
+  (`5d51a5e420f5de493d07bf61109a977248c86ffb`, the commit the tag pins —
+  recorded as `/opt/yosys/ABC_REV` and printed by every run), cached, and
+  then proved by a step that fails on any other `yosys -V`. A local run is
+  comparable only on the same version: the same RTL measured **±39% cells
+  and up to 4x wall time** between Yosys 0.33 and 0.66, every run exiting 0.
+- `sv2v` **`v0.0.12`** on `PATH` — pinned prebuilt release from
   [github.com/zachjs/sv2v/releases](https://github.com/zachjs/sv2v/releases)
-  (drop into `~/.local/bin`). No Xilinx tools required.
+  (drop into `~/.local/bin`); CI checks the release artefact's SHA-256
+  before installing it. No Xilinx tools required.
+
+## The `cells=` record
+
+Every `--results` record for a PASS top carries `cells=<n>`: the
+hierarchy-rollup `design.num_cells` that `stat -json` reports, written by
+`tee` to a per-top file and parsed as JSON. It is deliberately not scraped
+from the human `stat` table — that total changed spelling between Yosys
+releases (`Number of cells:` on 0.33, `NNN cells` on 0.66) and its
+`=== design hierarchy ===` section is not printed at all for a top with no
+submodules, which is how every CI record and 29 of 46 local ones came to
+read `cells=?` while the gate stayed green (#287).
+
+The count is **required, not ratcheted**:
+
+- A green yosys whose JSON carries no `design.num_cells` is a **FAIL** in
+  `run.sh`, and [`scripts/yosys_tally.py`](../../scripts/yosys_tally.py)
+  independently refuses a PASS top record without a numeric `cells` (and
+  refuses `?` anywhere), so a regressed extractor turns the
+  `yosys-portability` aggregate red instead of publishing a placeholder that
+  looks like evidence. Its `--selftest` builds those degenerate records and
+  proves each one fails.
+- There is deliberately **no checked-in per-top baseline** the aggregate
+  compares counts against. The drift class #287 measured — the toolchain
+  moving under an unchanged tree — is closed by the version pins above,
+  which make any toolchain move a reviewed workflow diff; a cells baseline
+  would additionally move on essentially every functional RTL edit of any
+  of the 48 tops (unlike [`scripts/lint.budget`](../../scripts/lint.budget),
+  which moves only when the warning set changes), and netlist equality
+  between a CI-built and a distro-built 0.66 has not been measured. If
+  #286's harness proves that equality, a zero-tolerance baseline can be
+  added cheaply on top of this record shape.
 
 ## Runtime levers
 

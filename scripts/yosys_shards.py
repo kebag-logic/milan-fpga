@@ -17,8 +17,14 @@ from collections.abc import Iterable, Sequence
 SHARD_RE = re.compile(r"^(0|[1-9][0-9]*)/([1-9][0-9]*)$")
 NAME_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 
-# Approximate cache-hit seconds from run 32406467657. Unlisted tops are small
-# and receive one unit. These values are scheduling hints, never pass criteria.
+# Approximate cache-hit seconds from run 32406467657, which ran the floating
+# apt Yosys of its day (0.33-5build2 on ubuntu-latest). CI has pinned Yosys
+# v0.66 since #287 and per-top wall time moves non-uniformly between the two
+# (37.9 s -> 9.1 s on avtp_stream_parser, 40.8 s -> 42.3 s on KL_gptp_shadow),
+# so these hints describe the retired tool until #286's measurement harness
+# re-takes them on the pinned one under its own comparability rules.
+# Unlisted tops are small and receive one unit. These values are scheduling
+# hints, never pass criteria.
 WEIGHTS: dict[str, int] = {
     "milan_datapath": 1550,
     "KL_pp_shadow": 465,
