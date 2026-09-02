@@ -3597,6 +3597,25 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
             verify_bytes=lambda _root, _commit, _rel: None,
         ),
     )
+    refused(
+        "a trusted worktree carrying replacement refs is refused",
+        lambda: validate_trusted_runner(
+            pr,
+            resolved,
+            state=lambda _root: (resolved, "", "refs/replace/deadbeef"),
+            verify_bytes=lambda _root, _commit, _rel: None,
+        ),
+    )
+    #: the resolve targets refs/heads/<pr.base_ref> while the fetch targets
+    #: the refs/heads/<DEFAULT_BASE> constant ([R1] on PR #336). They are the
+    #: same ref only because validate_pull_request pins the base ref, so pin
+    #: that invariant here rather than leaving it as prose: if the accepted
+    #: base ref ever widens, the two targets diverge and this arm says so.
+    check(
+        "the validated base ref is the constant the fetch targets, so the "
+        "resolve and the fetch name one ref",
+        pr.base_ref == DEFAULT_BASE,
+    )
 
     #: [R1] F2: the lookup parses REMOTE-CONTROLLED bytes; its two refusals
     #: were unarmed because every arm above injects query_tip.
