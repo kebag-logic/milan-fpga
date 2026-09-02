@@ -24,6 +24,11 @@ concurrency:
 
 env:
   VERILATOR_VERSION: v5.050
+  # The portability gate takes its verdict with this exact Yosys (#287):
+  # built from the upstream tag with its bundled ABC submodule, cached, and
+  # version-verified in every job that runs it. Declared once per workflow
+  # file; syn/yosys/README.md quotes it as what a local run has to match.
+  YOSYS_VERSION: v0.66
   TSN_GEN_REV: fde652067d3618f47fba2c2e8eb05f6c9f6fa97f
 
 jobs:
@@ -210,12 +215,42 @@ jobs:
             3) grep -Fx chmap_capture "$RUNNER_TEMP/owned-suites" ;;
           esac
 
-      - name: Install Yosys for the netlist-level suite owner
+      - name: Cache the pinned Yosys build for the netlist-level suite owner
+        if: ${{ matrix.shard == 3 }}
+        id: cache-yosys
+        uses: actions/cache@v4
+        with:
+          path: /opt/yosys
+          key: yosys-${{ env.YOSYS_VERSION }}-${{ runner.os }}
+
+      - name: Build Yosys from source on cache miss
+        if: ${{ matrix.shard == 3 && steps.cache-yosys.outputs.cache-hit != 'true' }}
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            git make g++ bison flex pkg-config zlib1g-dev python3
+          git clone --depth 1 --branch "$YOSYS_VERSION" \
+            https://github.com/YosysHQ/yosys.git /tmp/yosys-src
+          git -C /tmp/yosys-src submodule update --init --depth 1 abc libs/cxxopts
+          make -C /tmp/yosys-src config-gcc
+          printf 'ENABLE_TCL := 0\nENABLE_READLINE := 0\nENABLE_PLUGINS := 0\n' \
+            >> /tmp/yosys-src/Makefile.conf
+          make -C /tmp/yosys-src -j"$(nproc)" PREFIX=/opt/yosys
+          sudo make -C /tmp/yosys-src install PREFIX=/opt/yosys
+          git -C /tmp/yosys-src/abc rev-parse HEAD | sudo tee /opt/yosys/ABC_REV
+
+      - name: Install the pinned Yosys and prove the version
         if: ${{ matrix.shard == 3 }}
         run: |
+          set -euo pipefail
           sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends yosys libjemalloc2
+          sudo apt-get install -y --no-install-recommends libjemalloc2
+          sudo ln -sf /opt/yosys/bin/yosys /opt/yosys/bin/yosys-abc /usr/local/bin/
+          test -x /opt/yosys/bin/yosys-abc
+          echo "bundled ABC: $(cat /opt/yosys/ABC_REV)"
           yosys -V
+          yosys -V | grep -F "Yosys ${YOSYS_VERSION#v}"
 
       - name: Install sv2v for the netlist-level suite owner
         if: ${{ matrix.shard == 3 }}
@@ -353,11 +388,49 @@ jobs:
           printf '%s\n' "$GITHUB_SHA" > "$RUNNER_TEMP/yosys-results/TARGET_SHA"
           echo "target_sha=$GITHUB_SHA"
 
-      - name: Install Yosys
+      # The tool this gate is named after, pinned the way Verilator is above
+      # (#287): one declared version (workflow `env`), built from the
+      # upstream tag on a cache miss with its bundled ABC submodule - the
+      # commit the tag pins, recorded in /opt/yosys/ABC_REV and printed on
+      # every run - then verified by a step that fails on any other version.
+      # The apt package this replaces resolved to whatever ubuntu-latest
+      # carried on the day (Yosys 0.33, 33 releases behind a bench box), and
+      # the same RTL's cell counts moved up to 39% between that tool and the
+      # bench one with both exiting 0.
+      - name: Cache the pinned Yosys build
+        id: cache-yosys
+        uses: actions/cache@v4
+        with:
+          path: /opt/yosys
+          key: yosys-${{ env.YOSYS_VERSION }}-${{ runner.os }}
+
+      - name: Build Yosys from source on cache miss
+        if: ${{ steps.cache-yosys.outputs.cache-hit != 'true' }}
         run: |
+          set -euo pipefail
           sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends yosys libjemalloc2
+          sudo apt-get install -y --no-install-recommends \
+            git make g++ bison flex pkg-config zlib1g-dev python3
+          git clone --depth 1 --branch "$YOSYS_VERSION" \
+            https://github.com/YosysHQ/yosys.git /tmp/yosys-src
+          git -C /tmp/yosys-src submodule update --init --depth 1 abc libs/cxxopts
+          make -C /tmp/yosys-src config-gcc
+          printf 'ENABLE_TCL := 0\nENABLE_READLINE := 0\nENABLE_PLUGINS := 0\n' \
+            >> /tmp/yosys-src/Makefile.conf
+          make -C /tmp/yosys-src -j"$(nproc)" PREFIX=/opt/yosys
+          sudo make -C /tmp/yosys-src install PREFIX=/opt/yosys
+          git -C /tmp/yosys-src/abc rev-parse HEAD | sudo tee /opt/yosys/ABC_REV
+
+      - name: Install the pinned Yosys and prove the version
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends libjemalloc2
+          sudo ln -sf /opt/yosys/bin/yosys /opt/yosys/bin/yosys-abc /usr/local/bin/
+          test -x /opt/yosys/bin/yosys-abc
+          echo "bundled ABC: $(cat /opt/yosys/ABC_REV)"
           yosys -V
+          yosys -V | grep -F "Yosys ${YOSYS_VERSION#v}"
       - name: Install the pinned sv2v release
         run: |
           set -euo pipefail

@@ -342,8 +342,8 @@ GH_ENV_PREFIX = "GH_"
 #: enumerate. So the environment is held the other way round - these are
 #: the only names each level may carry, and anything else is refused.
 INHERITED_WORKFLOW_ENV = {
-    RTL_FULL: ("VERILATOR_VERSION", "TSN_GEN_REV"),
-    RTL_FAST: ("VERILATOR_VERSION",),
+    RTL_FULL: ("VERILATOR_VERSION", "YOSYS_VERSION", "TSN_GEN_REV"),
+    RTL_FAST: ("VERILATOR_VERSION", "YOSYS_VERSION"),
     DOCS: (),
     ELABORATE: (),
 }
@@ -4071,10 +4071,10 @@ def _mutations():
          "the workflow-level `env` must name exactly nothing"),
         ("#261 rtl.yml workflow-level BASH_ENV",
          m_workflow_env(RTL_FULL, "BASH_ENV"),
-         "the workflow-level `env` must name exactly ['TSN_GEN_REV', 'VERILATOR_VERSION']"),
+         "the workflow-level `env` must name exactly ['TSN_GEN_REV', 'VERILATOR_VERSION', 'YOSYS_VERSION']"),
         ("#261 rtl-fast.yml workflow-level env with a benign name",
          m_workflow_env(RTL_FAST, "PIP_QUIET", "1"),
-         "the workflow-level `env` must name exactly ['VERILATOR_VERSION']"),
+         "the workflow-level `env` must name exactly ['VERILATOR_VERSION', 'YOSYS_VERSION']"),
         ("#261 docs-check ci_events step-level BASH_ENV",
          m_step_env(DOCS, "docs-check", "scripts/ci_events.py --check", "BASH_ENV"),
          "`env` names ['BASH_ENV'] outside this job's allowlist (none)"),
