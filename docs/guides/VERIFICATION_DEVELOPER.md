@@ -20,7 +20,7 @@ Choose the smallest layer proving the requirement.
 |---|---|---|
 | Python gate | Structure, generation, policy | `python3 scripts/<gate>.py` |
 | Behave | Specification-facing offline contracts | `cd tests && behave -f plain` |
-| Migen simulation | LiteX module behavior | `python3 sw/litex/test_<block>.py` |
+| Migen simulation | LiteX module behavior | `scripts/run_litex_sims.sh <logs>` |
 | C++ Verilator | Cycle-accurate RTL behavior | `make -C tb/verilator/<suite>` |
 | C with Python | Shipping trace producer | `python3 sw/trace/test_trace_roundtrip.py` |
 | Protocol donor | Donor RTL behavior | `protocol-processor/scripts/run_suites.sh` |

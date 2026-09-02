@@ -227,6 +227,20 @@ jobs:
         if: ${{ steps.scope.outputs.rtl == 'true' }}
         run: python3 sw/builder/test_builder.py --require-elaboration
 
+      # The standalone LiteX simulations, under their one owned aggregate
+      # (#297): a pinned inventory reconciled against sw/litex/ in both
+      # directions, so a deleted test cannot vanish silently and a new one
+      # cannot arrive unlisted. The selftest runs first - it plants a failing
+      # simulation, a masked verdict, a missing member and an unlisted extra
+      # in a sandbox and requires red each time - so the aggregate cannot rot
+      # into a green that proves nothing. This step needs exactly the
+      # interpreter the two steps above already installed and patched.
+      - name: Standalone LiteX simulation aggregate
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
+        run: |
+          scripts/run_litex_sims.sh --selftest
+          scripts/run_litex_sims.sh "$RUNNER_TEMP/litex-sim-logs"
+
       - name: Keep the generated CPU netlist arguments for the next run
         if: ${{ always() && steps.scope.outputs.rtl == 'true' }}
         run: |

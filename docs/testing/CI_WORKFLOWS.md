@@ -638,6 +638,17 @@ their mutation arms. Upstream LiteX elaborates no configuration in this tree
 (#185), so the series is a required install step and gate 23h proves the
 installed trees are upstream plus exactly that series.
 
+After those gates the same job runs `scripts/run_litex_sims.sh`, the one
+aggregate that owns the standalone LiteX simulations in `sw/litex/` (#297):
+its inventory is pinned in the runner and reconciled against the directory in
+both directions, so a deleted test cannot vanish silently and an unlisted new
+one is a red run, and its `--selftest` executes first - it plants a failing
+simulation, a masked verdict, a missing member and an unlisted extra in a
+sandbox and requires red each time. The aggregate reuses the interpreter this
+job just installed and patched; locally the same command runs against any
+interpreter that imports `migen` + `litex` and otherwise declares its skips
+(exit 90), see [TESTING.md section 2](TESTING.md#2-litex-integration-checks---swlitextest_py).
+
 `actions/checkout` does not populate submodules. Both this job and the hosted
 `docs-check` job run the full builder, whose source gates consume
 `protocol-processor`, `gptp-processor`, and the five shipping primitives under
