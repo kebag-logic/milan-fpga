@@ -145,8 +145,11 @@ flowchart LR
    **Prefix every PR message with the role.** Session 0 starts every PR body
    and comment with `[A0]` when authoring, or `[R0]` when reviewing. Every other
    session replaces `0` with its assigned session number and keeps that number
-   when its role changes. The prefix states which responsibility and session
-   the message represents.
+   when its role changes. A review session running separate lenses in parallel
+   letters them `[R0-a]`, `[R0-b]` — the suffixed form is supported dialect
+   (the #316 decision, read by `check_merge_review_integrity.py`), and each
+   suffixed identity publishes its own verdict. The prefix states which
+   responsibility and session the message represents.
 6. **Merge back into `dev`** only once the findings are answered, and
    **not while a review round is in flight.** A round that has not reported is
    a round outstanding; merging past it is merging unreviewed code with a

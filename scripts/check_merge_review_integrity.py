@@ -87,10 +87,10 @@ DEFAULT_LIMIT = 20
 #: SUFFIXED identities (`[R0-a]`, `[R0-b]`) are part of the supported dialect
 #: since #316: multi-lens rounds split one review session into lettered
 #: reviewer halves and the corpus has published verdicts under them (PR #294,
-#: PR #310). The suffix is one or two lowercase letters; anything else is
+#: PR #310). The suffix is exactly one lowercase letter; anything else is
 #: still the free-prose boundary the docstring draws.
 _LEAD = r"^\s*#*\s*\**\s*"
-_RID = r"\[R\d+(?:-[a-z]{1,2})?\]"
+_RID = r"\[R\d+(?:-[a-z])?\]"
 _RLINE_RE = re.compile(_LEAD + _RID)
 #: A findings / clean-lens line: `[R<n>]` then one of the section-6 severity
 #: or PASS tokens. These are NOT the top verdict, and their PROSE routinely
@@ -409,45 +409,6 @@ def selftest():
     if [x.reason for x in f13] != ["open-issue"] or "#13" not in f13[0].detail:
         problems.append("case13 comma-list-closes: %s" % [x.line() for x in f13])
 
-    # 14. THE #310 SHAPE (#316's grammar decision): a SUFFIXED multi-lens
-    # identity publishes the clearing POSITIVE after a canonical NEGATIVE.
-    # Under the pre-#316 parser the suffixed line was invisible and the merge
-    # read negative; the suffixed dialect is supported now, so this is clean.
-    p14 = {"number": 310, "mergedAt": "2026-09-01T21:05:25Z", "body": "x",
-           "comments": [
-               {"body": "[R8] NEGATIVE - blockers at head 74b9",
-                "createdAt": "2026-09-01T08:42:50Z"},
-               {"body": "## [R0-a] POSITIVE - conformance lens at head baff9ae7",
-                "createdAt": "2026-09-01T20:30:00Z"}], "reviews": []}
-    if assess_pr(p14, openf(set())):
-        problems.append("case14 suffixed-positive must clear: %s"
-                        % [x.line() for x in assess_pr(p14, openf(set()))])
-
-    # 15. A round-STATUS line is not a verdict: `MERGE-ROUND COMPLETE` after a
-    # NEGATIVE clears nothing (the other half of the #310 record).
-    p15 = {"number": 311, "mergedAt": "2026-09-01T21:05:25Z", "body": "x",
-           "comments": [
-               {"body": "[R8] NEGATIVE - blockers stand",
-                "createdAt": "2026-09-01T08:42:50Z"},
-               {"body": "[R0] MERGE-ROUND COMPLETE - both tracks summarized",
-                "createdAt": "2026-09-01T21:05:22Z"}], "reviews": []}
-    if [x.reason for x in assess_pr(p15, openf(set()))] != ["negative-merge"]:
-        problems.append("case15 status-line-is-not-a-verdict")
-
-    # 16. A suffixed FINDING/CLEAN-LENS lead is still not a verdict: an
-    # `[R0-b] PASS <lens> ... negative-control` line after a POSITIVE must
-    # not flip the merge (the same skip rule as the unsuffixed form).
-    p16 = {"number": 312, "mergedAt": "2026-08-20T15:00:00Z", "body": "x",
-           "reviews": [{"body": "[R0] POSITIVE",
-                        "submittedAt": "2026-08-20T12:00:00Z"},
-                       {"body": "[R0-b] PASS Tests - tb/foo:1 - the "
-                                "negative-control fires as required",
-                        "submittedAt": "2026-08-20T13:00:00Z"}],
-           "comments": []}
-    if assess_pr(p16, openf(set())):
-        problems.append("case16 suffixed-pass-lens must be skipped: %s"
-                        % [x.line() for x in assess_pr(p16, openf(set()))])
-
     # 14. `Closes: #14` (colon) and `discloses #99` (must NOT match).
     p14 = {"number": 131, "mergedAt": "2026-08-20T10:00:00Z",
            "body": "Fixes: #14. This discloses #99 as related.\n[R0] POSITIVE",
@@ -509,9 +470,75 @@ def selftest():
         problems.append("case18 header-formatted POSITIVE must be clean: %s"
                         % [x.line() for x in assess_pr(p18, openf(set()))])
 
+    # 19. THE #310 SHAPE (#316's grammar decision): a SUFFIXED multi-lens
+    # identity publishes the clearing POSITIVE after a canonical NEGATIVE.
+    # Under the pre-#316 parser the suffixed line was invisible and the merge
+    # read negative; the suffixed dialect is supported now, so this is clean.
+    p19 = {"number": 310, "mergedAt": "2026-09-01T21:05:25Z", "body": "x",
+           "comments": [
+               {"body": "[R8] NEGATIVE - blockers at head 74b9",
+                "createdAt": "2026-09-01T08:42:50Z"},
+               {"body": "## [R0-a] POSITIVE - conformance lens at head baff9ae7",
+                "createdAt": "2026-09-01T20:30:00Z"}], "reviews": []}
+    if assess_pr(p19, openf(set())):
+        problems.append("case19 suffixed-positive must clear: %s"
+                        % [x.line() for x in assess_pr(p19, openf(set()))])
+
+    # 20. A round-STATUS line is not a verdict: `MERGE-ROUND COMPLETE` after a
+    # NEGATIVE clears nothing (the other half of the #310 record).
+    p20 = {"number": 311, "mergedAt": "2026-09-01T21:05:25Z", "body": "x",
+           "comments": [
+               {"body": "[R8] NEGATIVE - blockers stand",
+                "createdAt": "2026-09-01T08:42:50Z"},
+               {"body": "[R0] MERGE-ROUND COMPLETE - both tracks summarized",
+                "createdAt": "2026-09-01T21:05:22Z"}], "reviews": []}
+    if [x.reason for x in assess_pr(p20, openf(set()))] != ["negative-merge"]:
+        problems.append("case20 status-line-is-not-a-verdict")
+
+    # 21. A suffixed CLEAN-LENS lead is skipped for verdicts - and this arm
+    # has SINGLE-FAULT teeth ([R1] on PR #327 caught the first cut failing
+    # only under a double fault): the PASS prose deliberately carries the
+    # `not validated` REJECTION phrase, so a parser that stops recognizing
+    # the suffixed finding-lead reads the line as a verdict, sees a
+    # rejection, and flips this clean merge to negative-merge - red.
+    p21 = {"number": 312, "mergedAt": "2026-08-20T15:00:00Z", "body": "x",
+           "reviews": [{"body": "[R0] POSITIVE",
+                        "submittedAt": "2026-08-20T12:00:00Z"},
+                       {"body": "[R0-b] PASS Tests - tb/foo:1 - the gate "
+                                "refuses a not validated image as required",
+                        "submittedAt": "2026-08-20T13:00:00Z"}],
+           "comments": []}
+    if assess_pr(p21, openf(set())):
+        problems.append("case21 suffixed-pass-lens must be skipped: %s"
+                        % [x.line() for x in assess_pr(p21, openf(set()))])
+
+    # 22. A suffixed BLOCKER is still a BLOCKER: with no later POSITIVE it
+    # must be reported open ([R1] on PR #327: the first cut left the
+    # suffixed-BLOCKER path with zero coverage, so a half-applied regression
+    # silently dropped the open-blocker finding).
+    p22 = {"number": 313, "mergedAt": "2026-08-20T15:00:00Z", "body": "x",
+           "reviews": [{"body": "[R1] POSITIVE",
+                        "submittedAt": "2026-08-20T12:00:00Z"},
+                       {"body": "[R0-b] BLOCKER Tests - tb/foo:2 - it lies",
+                        "submittedAt": "2026-08-20T13:00:00Z"}],
+           "comments": []}
+    if [x.reason for x in assess_pr(p22, openf(set()))] != ["open-blocker"]:
+        problems.append("case22 suffixed-blocker must stay open: %s"
+                        % [x.line() for x in assess_pr(p22, openf(set()))])
+
+    # META-ARM ([R1] on PR #327): the banner count is pinned against the
+    # numbered case markers in this function's own source, so a new case
+    # cannot silently run uncounted - the first cut said "18" while 21 ran,
+    # in a lane whose SUBJECT was a miscounted evidence figure.
+    n = 22
+    import inspect
+    markers = len(re.findall(r"(?m)^\s*# \d+\.\s", inspect.getsource(selftest)))
+    if markers != n:
+        problems.append("case-count drift: banner claims %d, source carries "
+                        "%d numbered cases" % (n, markers))
+
     for p in problems:
         print("  SELFTEST FAILED: %s" % p)
-    n = 18
     print("check_merge_review_integrity self-test: %d checks: %d PASS, %d FAIL"
           % (n, n - len(problems), len(problems)))
     return 1 if problems else 0
