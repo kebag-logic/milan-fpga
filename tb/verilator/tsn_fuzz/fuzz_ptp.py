@@ -1359,6 +1359,29 @@ class Campaign:
                      "us the first path-trace hop (10.3.10.2.1c)", None,
                      drop=None, gm_identity=OUR_CID, steps_removed=1,
                      path_trace=[OUR_CID, PEER2_CID])
+        # The cap edge (milan-fpga #219). The receive bank retains eight
+        # hops; the walk verdict compares EVERY declared hop as the bytes
+        # stream (donor #7), so the refusal must be identical on both
+        # sides of the bank's cap. Before that lineage, index 7 was
+        # refused while index 8 and beyond were ADOPTED with
+        # stepsRemoved far below the 255 backstop - the exact three
+        # placements measured in the #219 report, now hard-asserted.
+        reject_probe("better vector, our id the eighth hop of eight "
+                     "(cap edge, 10.3.10.2.1c)", None, drop=None,
+                     gm_identity=0x5000, steps_removed=7,
+                     path_trace=[0x5000, 0x5001, 0x5002, 0x5003, 0x5004,
+                                 0x5005, 0x5006, OUR_CID])
+        reject_probe("better vector, our id the ninth hop of nine "
+                     "(first hop past the bank, 10.3.10.2.1c)", None,
+                     drop=None, gm_identity=0x5100, steps_removed=8,
+                     path_trace=[0x5100, 0x5101, 0x5102, 0x5103, 0x5104,
+                                 0x5105, 0x5106, 0x5107, OUR_CID])
+        reject_probe("better vector, our id the tenth hop of twelve "
+                     "(deep in the once-blind region, 10.3.10.2.1c)",
+                     None, drop=None, gm_identity=0x5200, steps_removed=11,
+                     path_trace=[0x5200, 0x5201, 0x5202, 0x5203, 0x5204,
+                                 0x5205, 0x5206, 0x5207, 0x5208, OUR_CID,
+                                 0x520A, 0x520B])
         reject_probe("better vector, our own Announce reflected: us the "
                      "only path-trace hop (10.3.10.2.1c)", None, drop=None,
                      gm_identity=OUR_CID, path_trace=[OUR_CID])

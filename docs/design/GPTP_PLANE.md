@@ -34,6 +34,7 @@ decision is recorded on #139.
 - **[Timestamps](#timestamps)** -- where stamps are born and how they travel
 - **[The ownership boundary](#the-ownership-boundary)** -- one product owner and an ownerless verification elaboration
 - **[Drop diagnostics](#drop-diagnostics)** -- the three refusal counters and their CSR words
+- **[Announce qualification depth](#announce-qualification-depth)** -- the loop check walks every declared hop; the bank cap serves, never qualifies
 - **[Verification map](#verification-map)** -- which bench proves what
 
 ## The shape
@@ -214,6 +215,23 @@ are the interface. Option OFF reads defined zeros from the CSR's own
 parameter gate, so an absent plane is explicit, never a floating count.
 Semantics, reset and rollover live in
 [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md).
+
+## Announce qualification depth
+
+The 10.3.10.2.1 c) loop check has no depth: our identity anywhere in
+the received pathSequence refuses the Announce. The engine implements
+that literally - the parser compares EVERY declared hop with thisClock
+as the bytes stream and publishes one complete loop verdict, so the
+receive bank's eight retained hops are a serving cap, never a
+qualification cap (donor lineage FPGA-gPTP #7, with the strict
+PathTrace framing of #45 guaranteeing the declared count is the walked
+count). The stepsRemoved backstop of clause b) fires only at 255 and
+cannot reach a realistic deep trace; before the #7 lineage this plane
+adopted an Announce carrying our identity past the eighth hop, the
+milan-fpga #219 report. The cap edge is pinned by three campaign
+probes - our identity as the eighth hop of eight, the ninth of nine,
+and the tenth of twelve - all refused with the grandmaster, parent and
+flags unmoved.
 
 ## Verification map
 
