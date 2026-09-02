@@ -516,15 +516,13 @@ def require_live_pull_request(
         )
 
 
-def query_remote_base_tip(repository: str, base_ref: str) -> str:
-    """Read the live remote base tip once, credential-free, over HTTPS."""
-    remote_url = f"https://github.com/{repository}.git"
-    raw = capture(
-        [*git_prefix(), "ls-remote", "--", remote_url, f"refs/heads/{base_ref}"],
-        cwd=ROOT,
-        env=git_environment(ROOT),
-        description=f"live {base_ref} tip lookup",
-    )
+def parse_ls_remote_tip(raw: str, base_ref: str) -> str:
+    """The single ``refs/heads/<base_ref>`` SHA in ``git ls-remote`` output.
+
+    Split out of the lookup so the refusals that read REMOTE-CONTROLLED bytes
+    - a reply carrying no ref, several refs, or another ref's name - are
+    exercised by the self-test rather than trusted ([R1] on PR #336).
+    """
     lines = raw.splitlines()
     if len(lines) != 1:
         raise Refusal(
@@ -536,11 +534,28 @@ def query_remote_base_tip(repository: str, base_ref: str) -> str:
     return sha
 
 
+def query_remote_base_tip(repository: str, base_ref: str) -> str:
+    """Read the live remote base tip once, credential-free, over HTTPS."""
+    remote_url = f"https://github.com/{repository}.git"
+    raw = capture(
+        [*git_prefix(), "ls-remote", "--", remote_url, f"refs/heads/{base_ref}"],
+        cwd=ROOT,
+        env=git_environment(ROOT),
+        description=f"live {base_ref} tip lookup",
+    )
+    return parse_ls_remote_tip(raw, base_ref)
+
+
+def emit_flushed(message: str) -> None:
+    """Print one runner note, flushed - a transcript line, not buffered text."""
+    print(message, flush=True)
+
+
 def resolve_validation_base(
     pr: PullRequest,
     repository: str,
     query_tip: Callable[[str, str], str] = query_remote_base_tip,
-    emit: Callable[[str], None] = print,
+    emit: Callable[[str], None] = emit_flushed,
 ) -> str:
     """Resolve the one base SHA every later base check agrees on.
 
@@ -764,9 +779,21 @@ def validate_checkout(
         validate_file_bytes(root, pr.head_sha, WORKFLOWS[workflow])
 
 
-def validate_trusted_runner(pr: PullRequest, validation_base: str) -> None:
-    """Refuse a runner loaded from the candidate or a modified/stale base."""
-    head, dirty, replacements = checkout_state(ROOT)
+def validate_trusted_runner(
+    pr: PullRequest,
+    validation_base: str,
+    state: Callable[[pathlib.Path], tuple[str, str, str]] = checkout_state,
+    verify_bytes: Callable[[pathlib.Path, str, str], None] = validate_file_bytes,
+) -> None:
+    """Refuse a runner loaded from the candidate or a modified/stale base.
+
+    The worktree is required at the VALIDATION BASE - the live remote tip -
+    not at the frozen recorded oid, which is the half of #292 that made no
+    trusted worktree satisfy both checks. The two collaborators are injected
+    so the self-test exercises that comparison ([R1] on PR #336 found it
+    asserted by nothing, and the audited-install proof routes around it).
+    """
+    head, dirty, replacements = state(ROOT)
     if replacements:
         raise Refusal(
             "trusted runner worktree has replacement refs; use a clean dev worktree"
@@ -779,13 +806,13 @@ def validate_trusted_runner(pr: PullRequest, validation_base: str) -> None:
         raise Refusal(
             f"runner was loaded from {head}, not the live {pr.base_ref} tip "
             f"{validation_base}; invoke scripts/act_ci.py from a clean trusted "
-            f"{DEFAULT_BASE} worktree at the current remote tip"
+            f"{pr.base_ref} worktree at the current remote tip"
         )
     try:
         relative = pathlib.Path(__file__).resolve().relative_to(ROOT).as_posix()
     except ValueError as exc:
         raise Refusal("runner is not installed beneath its trusted repository") from exc
-    validate_file_bytes(ROOT, validation_base, relative)
+    verify_bytes(ROOT, validation_base, relative)
 
 
 def validate_installed_runner_file(
@@ -3521,6 +3548,75 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
     check(
         "the event carries the resolved live base, not the stale recorded oid",
         stale_event_pr["base"]["sha"] == resolved,
+    )
+
+    #: [R1] on PR #336: the trusted-worktree comparison is the lane's
+    #: load-bearing change and was asserted by nothing - the live proof runs
+    #: the audited-install path, which skips it entirely. These arms drive it
+    #: with both collaborators injected, so a revert to the recorded oid is
+    #: red in both directions.
+    def trusted_runner_message(worktree_head: str) -> tuple[str | None, list[str]]:
+        seen: list[str] = []
+        try:
+            validate_trusted_runner(
+                pr,
+                resolved,
+                state=lambda _root: (worktree_head, "", ""),
+                verify_bytes=lambda _root, commit, _rel: seen.append(commit),
+            )
+        except Refusal as exc:
+            return str(exc), seen
+        return None, seen
+
+    accepted, verified = trusted_runner_message(resolved)
+    check(
+        "a trusted worktree at the live tip is accepted while the recorded "
+        "base oid is stale",
+        accepted is None,
+    )
+    check(
+        "the runner's own bytes are verified at the validation base, not the "
+        "recorded oid",
+        verified == [resolved] and pr.base_sha not in verified,
+    )
+    stale_worktree, _ = trusted_runner_message(pr.base_sha)
+    check(
+        "a trusted worktree at the stale recorded base is refused naming the "
+        "loaded head and the live tip",
+        stale_worktree is not None
+        and pr.base_sha in stale_worktree
+        and resolved in stale_worktree
+        and "live" in stale_worktree,
+    )
+    refused(
+        "a dirty trusted worktree is refused before any base comparison",
+        lambda: validate_trusted_runner(
+            pr,
+            resolved,
+            state=lambda _root: (resolved, "M scripts/act_ci.py", ""),
+            verify_bytes=lambda _root, _commit, _rel: None,
+        ),
+    )
+
+    #: [R1] F2: the lookup parses REMOTE-CONTROLLED bytes; its two refusals
+    #: were unarmed because every arm above injects query_tip.
+    check(
+        "a well-formed ls-remote reply yields the tip",
+        parse_ls_remote_tip(f"{live_tip}\trefs/heads/dev\n", "dev") == live_tip,
+    )
+    refused(
+        "an ls-remote reply naming no ref is refused",
+        lambda: parse_ls_remote_tip("", "dev"),
+    )
+    refused(
+        "an ls-remote reply naming several refs is refused",
+        lambda: parse_ls_remote_tip(
+            f"{live_tip}\trefs/heads/dev\n{head}\trefs/heads/dev-2\n", "dev"
+        ),
+    )
+    refused(
+        "an ls-remote reply naming another ref is refused",
+        lambda: parse_ls_remote_tip(f"{live_tip}\trefs/heads/main\n", "dev"),
     )
     check(
         "all selects each workflow once in stable order",

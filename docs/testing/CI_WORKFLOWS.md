@@ -737,7 +737,8 @@ disposable `docs` CI job; that contained check grants it no host or Docker
 authority and is not the trusted invocation described here. Python isolated
 mode prevents the candidate directory and ambient `PYTHONPATH` from supplying
 imports to the host-side runner. The runner verifies that its own worktree and
-bytes are clean at the validation base before it reads candidate content. A PR that
+bytes are clean at the validation base before it reads candidate content. A PR
+that
 introduces the runner cannot bootstrap trust in its own code: an independent
 reviewer must first audit the exact file, install that file outside the
 candidate worktree with no writable mode bits, record its SHA-256, then use
