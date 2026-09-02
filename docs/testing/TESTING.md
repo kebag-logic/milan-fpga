@@ -393,8 +393,9 @@ a new test must join the inventory to land. Each script's output goes to its
 own `<logdir>/<script>.log` and a failure names the exact script. Exit 0 is a
 complete pass; 1-89 counts the findings; 90 means nothing failed but a member
 was skipped for a declared reason (no interpreter importing `migen` + `litex`
-- point `MILAN_LITEX_PYTHON` at one); 92 means a wall-clock kill left a
-result UNKNOWN. The hosted owner is the `elaborate` job
+- point `MILAN_LITEX_PYTHON` at one); 91 REFUSES a set `MILAN_LITEX_PYTHON`
+that cannot import them (an explicit pin is never silently substituted);
+92 means a wall-clock kill left a result UNKNOWN. The hosted owner is the `elaborate` job
 ([CI_WORKFLOWS.md](CI_WORKFLOWS.md#elaboration)), which runs the selftest and
 then the aggregate on the interpreter it just installed and patched.
 
