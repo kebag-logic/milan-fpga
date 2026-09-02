@@ -583,6 +583,175 @@ SV2V_INSTALL = (
     'sudo install -m755 "$(find /tmp/sv2v -name sv2v -type f | head -1)" /usr/local/bin/sv2v',
     "sv2v --version",
 )
+#: THE GATE STEPS OF THE NON-RTL REQUIRED CONTEXTS (#295). PR #293 holds the
+#: four carrier JOBS to the no-neuter-key rule and binds each name to its
+#: id; the [R3] rounds on that PR then measured the same levers one level
+#: down: a step-level `if: false`, `continue-on-error: true` or
+#: `--check || true` on `docs-check`'s ci_events step, on
+#: `wire-accountability`'s gate step and on `docs-check-no-git`'s single
+#: step each returned `ci_events: OK`, because check_docs held that step by
+#: a substring recogniser that `--check || true` still satisfies. So each
+#: gate step's script is pinned verbatim after whitespace normalization,
+#: exactly as the gate job's contract step is, and each must be PRESENT
+#: exactly once in the job of the required id ([R3] round 2): the id rule
+#: says which job must carry the name, but nothing said what that job
+#: contains, so the real body renamed to `wire-accountability-real` beside
+#: a `run: true` stub of the required id -- or the same through an appended
+#: duplicate `X:` mapping, which PyYAML parses last-wins -- was the
+#: required context with 237 items and no finding.
+CANONICAL_DOCS_GATE_SCRIPT = (CONTRACT_CHECK,
+                              "python3 scripts/ci_events.py --selftest")
+WIRE_GATE_CALL = "python3 scripts/check_wire_accountability.py --self-test"
+CANONICAL_WIRE_GATE_SCRIPT = ("python3 -m pip install --quiet pyyaml",
+                              WIRE_GATE_CALL)
+NO_GIT_GATE_CALL = "python3 scripts/docs_check.py"
+CANONICAL_NO_GIT_GATE_SCRIPT = ("rm -rf .git", NO_GIT_GATE_CALL,
+                                "python3 scripts/check_feature_status.py")
+#: elaborate's scope step is that workflow's whole run/no-run decision:
+#: every gate step's `if` is pinned to read `steps.scope.outputs.rtl`, and
+#: the step that PUBLISHES the output was not pinned ([R3] on PR #293) --
+#: `if: false` on it (an empty output compares unequal to 'true'), the
+#: script rewritten to publish a literal `rtl`, or its
+#: `ci_scope.py --selftest` line removed each retired the elaboration
+#: gates with every required context green. Held as the decide step is
+#: (#209 precedent): presence by id, the selector's own proof before its
+#: answer is read, and the script verbatim after whitespace normalization.
+#: BUILDER_IF above is the guard that reads this step's output.
+ELAB_SCOPE_STEP_ID = "scope"
+CANONICAL_ELAB_SCOPE_SCRIPT = (
+    "set -euo pipefail",
+    "# ci_scope.py arrives with PR #176. Until that lands this file may",
+    '# not exist, and the safe answer to "is this change RTL relevant"',
+    "# when the classifier is absent is yes.",
+    "if [ ! -f scripts/ci_scope.py ]; then",
+    'echo "rtl=true" >> "$GITHUB_OUTPUT"',
+    'echo "no scripts/ci_scope.py yet: elaborating unconditionally"',
+    "exit 0",
+    "fi",
+    "python3 scripts/ci_scope.py --selftest",
+    'if [ "$EVENT_NAME" != pull_request ]; then',
+    'echo "rtl=true" >> "$GITHUB_OUTPUT"',
+    "exit 0",
+    "fi",
+    'if [ -n "$PR_BASE_SHA" ] && git cat-file -e "$PR_BASE_SHA^{commit}" '
+    "2>/dev/null; then",
+    'git diff --name-only "$PR_BASE_SHA" "$GITHUB_SHA" > '
+    '"$RUNNER_TEMP/changed"',
+    "else",
+    'git ls-files > "$RUNNER_TEMP/changed"',
+    "fi",
+    'echo "rtl=$(python3 scripts/ci_scope.py < "$RUNNER_TEMP/changed")" '
+    '>> "$GITHUB_OUTPUT"',
+)
+#: THE FOUR CARRIERS' STEP LISTS (#295, closing [R4] round 6 on PR #293).
+#: The declared allowlists above hold what a step SAYS; none of them holds
+#: which steps a carrier job runs. A `run:` step inserted before the gates
+#: of `docs-check` or `docs-check-no-git` writing `BASH_ENV=...` to
+#: `$GITHUB_ENV`, one in `wire-accountability` prepending `$GITHUB_PATH`,
+#: or an inserted `uses:` of any third-party action sets the inherited
+#: environment at RUN TIME for every later step -- and the same insertion
+#: in `full-ci-gate` is refused by its sequence pin (item 4). So each
+#: carrier's step list is pinned the same way: count, order, each step's
+#: identity (its literal `name`, or its `uses`), each step's exact key set
+#: and env bindings, each recorded `if` verbatim and each recorded `with`
+#: mapping exactly. An entry records only the keys the tree carries today;
+#: anything else on the step is a surplus key refused by name.
+CARRIER_STEP_LISTS = {
+    (DOCS, "docs-check"): (
+        {"uses": "actions/checkout@v4"},
+        {"name": "Build the validated HDL reference"},
+        {"name": "Upload the HDL reference HTML",
+         "uses": "actions/upload-artifact@v4",
+         "with": {"name": "hdl-reference-html-${{ github.sha }}",
+                  "path": "${{ runner.temp }}/milan-hdl-reference/index.html",
+                  "if-no-files-found": "error",
+                  "retention-days": 14}},
+        {"name": "Install the python gate dependencies"},
+        {"name": "Install diagram gate dependencies"},
+        {"name": "Link health, wording, dead-reference and local-info gate"},
+        {"name": "Concise audience documentation gate"},
+        {"name": "Audience diagram no-drift gate"},
+        {"name": "Product solution source-fact gate"},
+        {"name": "Verified submodule documentation gate"},
+        {"name": "HDL timing diagram no-drift gate"},
+        {"name": "Published diagram PNG gate"},
+        {"name": "Milan feature-status consistency gate"},
+        {"name": "Traceability matrix no-drift gate"},
+        {"name": "Fetch the builder source dependencies"},
+        {"name": "Code-quality measurement self-tests"},
+        {"name": "Install the pinned sv2v release"},
+        {"name": "Bare-metal scope gate"},
+        {"name": "End-station builder gates"},
+        {"name": "NVM record-space gate"},
+        {"name": "SoC source-list gate (Vivado would fail 40 min in "
+                 "without this)"},
+        {"name": "RTL source-list drift gate"},
+        {"name": "Boundary-unit naming ratchet"},
+        {"name": "Port contract gate"},
+        {"name": "Fail-fast ratchet"},
+        {"name": "TODO ownership gate"},
+        {"name": "Test-evidence ratchet"},
+        {"name": "Mechanical hygiene ratchet"},
+        {"name": "SystemVerilog idiom gate"},
+        {"name": "CI event and SHA contract gate"},
+        {"name": "Local act runner contract gate"},
+        {"name": "Doc cited-path gate"},
+        {"name": "Archive integrity gate"},
+        {"name": "Per-page contents gate"},
+        {"name": "Sweep/build shape gate"},
+        {"name": "Entity shape gate"},
+    ),
+    (DOCS, "wire-accountability"): (
+        {"uses": "actions/checkout@v4"},
+        {"name": "Fetch the engine authority the builder derives from"},
+        {"name": "Advertised-vs-emitted gate (green since 2026-07-28, "
+                 "item 00)"},
+    ),
+    (DOCS, "docs-check-no-git"): (
+        {"uses": "actions/checkout@v4"},
+        {"name": "Strip git metadata, then run the docs gate"},
+    ),
+    (ELABORATE, "elaborate"): (
+        {"uses": "actions/checkout@v4",
+         "with": {"fetch-depth": CHECKOUT_FETCH_DEPTH}},
+        {"name": "Decide whether this head needs an elaboration",
+         "id": ELAB_SCOPE_STEP_ID,
+         "env": {"EVENT_NAME": "${{ github.event_name }}",
+                 "PR_BASE_SHA": "${{ github.event.pull_request.base.sha }}"}},
+        {"name": "Fetch the source dependencies the elaboration reads",
+         "if": BUILDER_IF},
+        {"name": "Install the pinned sv2v release", "if": BUILDER_IF},
+        {"uses": "actions/setup-python@v5", "if": BUILDER_IF,
+         "with": {"python-version": "3.12"}},
+        {"name": "Cache the pinned pip downloads", "uses": "actions/cache@v4",
+         "if": BUILDER_IF,
+         "with": {"path": "~/.cache/pip",
+                  "key": "elaborate-pip-${{ runner.os }}-"
+                         "${{ hashFiles('sw/litex/litex_pins.txt') }}",
+                  "restore-keys": "elaborate-pip-${{ runner.os }}-"}},
+        {"name": "Install LiteX at the pinned revisions", "if": BUILDER_IF},
+        {"name": "Cache the Scala toolchain", "uses": "actions/cache@v4",
+         "if": BUILDER_IF,
+         "with": {"path": "~/.cache/coursier\n~/.sbt\n~/.ivy2\n",
+                  "key": "elaborate-sbt-${{ runner.os }}",
+                  "restore-keys": "elaborate-sbt-"}},
+        {"name": "Cache the generated CPU metadata", "uses": "actions/cache@v4",
+         "if": BUILDER_IF,
+         "with": {"path": "~/vexii-netlist-args",
+                  "key": "elaborate-vexii-${{ hashFiles('configs/*.yaml', "
+                         "'sw/litex/milan_soc.py', 'sw/litex/build.sh', "
+                         "'sw/litex/sweep.sh', 'sw/litex/litex_pins.txt', "
+                         "'sw/litex/patches/**') }}"}},
+        {"name": "Install sbt", "if": BUILDER_IF},
+        {"name": "Place the VexiiRiscv source at the revision LiteX pins",
+         "if": BUILDER_IF},
+        {"name": "Apply the toolchain patch series", "if": BUILDER_IF},
+        {"name": "Elaboration gates", "if": BUILDER_IF},
+        {"name": "Standalone LiteX simulation aggregate", "if": BUILDER_IF},
+        {"name": "Keep the generated CPU netlist arguments for the next run",
+         "if": "${{ always() && steps.scope.outputs.rtl == 'true' }}"},
+    ),
+}
 #: The fast workflow's selector job and the step that computes its answer.
 FAST_SELECTOR_JOB = "changes"
 FAST_SCOPE_STEP_ID = "scope"
@@ -2283,6 +2452,159 @@ def check_builder_dependencies(c, path, wf, jid):
                    "a verdict already taken without a front end")
 
 
+def check_carrier_gate_step(c, path, wf, jid, call, canonical, why):
+    """The gate step of a non-RTL required context, pinned the way the gate
+    job's contract step is (#295): present exactly once in the job of the
+    required id, and its script equal to the canonical form after
+    whitespace normalization. Presence is the point ([R3] round 2 on PR
+    #293): the id rule of check_required_context_carriers says which job
+    must carry the name, but nothing said what that job CONTAINS, so a
+    stub body under the required id -- the real job's id renamed away, or
+    an appended duplicate `X:` mapping that PyYAML parses last-wins --
+    was the required context with no finding. The step's keys, `if` and
+    position are held by the step-list pin; this holds that it exists,
+    once, with the canonical script."""
+    job = jobs(wf).get(jid)
+    ss = steps(job) if isinstance(job, dict) else []
+    found = [s for s in ss if call in step_text(s)]
+    c.item(len(found) == 1, path,
+           f"job `{jid}` must run `{call}` in exactly one step (found "
+           f"{len(found)}): this job IS the required context `{jid}`, so a "
+           "job body replaced wholesale, an appended duplicate mapping (the "
+           "last one wins when the file is parsed), or a removed gate step "
+           "is the context green with its gate never run")
+    if len(found) != 1:
+        return
+    run = found[0].get("run") if isinstance(found[0].get("run"), str) else ""
+    lines = normalize_script(run)
+    c.item(tuple(lines) == canonical, path,
+           f"job `{jid}`'s gate step script is not the canonical form: "
+           + script_difference(lines, canonical) + "; " + why)
+
+
+def check_scope_step(c, wf):
+    """elaborate's scope step, held as the decide step is (#295, the #209
+    precedent). Every gate step of `elaborate` is guarded by
+    `steps.scope.outputs.rtl == 'true'` and check_builder_dependencies
+    pins the guard -- but the step that PUBLISHES the output was not
+    pinned, so `if: false` on it (an empty output compares unequal to
+    'true', so every gate quietly skips), a script rewritten to publish a
+    literal `rtl`, or a dropped `ci_scope.py --selftest` retired the
+    elaboration gates with every required context green ([R3] on PR
+    #293). Keys and env bindings are held by the step-list pin; this
+    holds presence, the selector's own proof before its answer is read,
+    and the script verbatim after whitespace normalization."""
+    path = ELABORATE
+    job = jobs(wf).get("elaborate")
+    ss = steps(job) if isinstance(job, dict) else []
+    found = [s for s in ss if s.get("id") == ELAB_SCOPE_STEP_ID]
+    c.item(len(found) == 1, path,
+           f"job `elaborate` must carry exactly one step with `id: "
+           f"{ELAB_SCOPE_STEP_ID}` (found {len(found)}): every gate step's "
+           "`if` reads this step's `rtl` output, so a stub body -- a "
+           "wholesale replacement, a duplicate mapping's last-wins parse, "
+           "or the step removed -- publishes nothing and every gate "
+           "quietly skips")
+    if len(found) != 1:
+        return
+    run = found[0].get("run") if isinstance(found[0].get("run"), str) else ""
+    lines = normalize_script(run)
+    proofs = [i for i, l in enumerate(lines) if l == SELECTOR_SELFTEST]
+    reads = [i for i, l in enumerate(lines) if SELECTOR_READ in l]
+    c.item(len(proofs) == 1 and bool(reads) and proofs[0] < min(reads), path,
+           f"the elaborate scope step must run `{SELECTOR_SELFTEST}` exactly "
+           "once and before it reads the selector's answer (self-test at "
+           f"{proofs}, reads at {reads}): a selector trusted without its "
+           "own proof decides whether this workflow elaborates anything")
+    c.item(tuple(lines) == CANONICAL_ELAB_SCOPE_SCRIPT, path,
+           "the elaborate scope step script is not the canonical form: "
+           + script_difference(lines, CANONICAL_ELAB_SCOPE_SCRIPT)
+           + "; this script publishes `rtl`, so a line changed here skips "
+           "every elaboration gate with every pinned key still in place")
+
+
+def carrier_entry_keys(entry):
+    """The exact key set a step-list entry licenses, derived from the entry
+    rather than restated per step: a `run:` step carries its recorded
+    `name`, `id`, `env` and `if` plus `run`; a `uses:` step carries its
+    recorded `name`, `if` and `with` plus `uses`."""
+    if "uses" in entry:
+        return tuple(k for k in ("name", "uses", "if", "with") if k in entry)
+    return tuple(k for k in ("name", "id", "env", "if") if k in entry) + (
+        "run",)
+
+
+def carrier_entry_want(entry):
+    if "uses" in entry:
+        return f"`uses: {entry['uses']}`"
+    return f"the step named `{entry['name']}`"
+
+
+def check_carrier_steps(c, path, wf, jid):
+    """A carrier's whole step list, pinned the way item 4 pins the gate
+    job's (#295, closing [R4] round 6 on PR #293): count, order, each
+    step's identity, key set, env bindings, recorded `if` and recorded
+    `with`. The declared allowlists hold what a step says; only this holds
+    WHICH steps the required context runs, so an inserted `run:` step
+    writing `BASH_ENV=...` to `$GITHUB_ENV`, one prepending
+    `$GITHUB_PATH`, an inserted `uses:` of any action, or an inserted step
+    of any content at all is refused naming the job and the position."""
+    spec = CARRIER_STEP_LISTS[(path, jid)]
+    job = jobs(wf).get(jid)
+    if not isinstance(job, dict):
+        return  # check_required_context_carriers names the missing job
+    raw = job.get("steps")
+    raw_count = len(raw) if isinstance(raw, list) else 0
+    ss = steps(job)
+    c.item(raw_count == len(spec) and len(ss) == len(spec), path,
+           f"job `{jid}` must carry exactly {len(spec)} steps, in the "
+           f"recorded order (found {raw_count}): an inserted step of ANY "
+           "content runs before every later step and can set their "
+           "inherited environment at run time -- a `BASH_ENV` written to "
+           "`$GITHUB_ENV`, a `$GITHUB_PATH` prepend, a third-party action "
+           "-- which the declared allowlists cannot see, and a removed one "
+           "takes its gate with it")
+    for n, entry in enumerate(spec, 1):
+        at = ss[n - 1] if len(ss) >= n else None
+        ident = entry.get("name", entry.get("uses"))
+        what = f"job `{jid}` step {n} (`{ident}`)"
+        if "uses" in entry:
+            ok = (isinstance(at, dict) and at.get("uses") == entry["uses"]
+                  and at.get("name") == entry.get("name"))
+        else:
+            ok = (isinstance(at, dict) and at.get("name") == entry["name"]
+                  and isinstance(at.get("run"), str))
+        c.item(ok, path,
+               f"job `{jid}` step {n} must be {carrier_entry_want(entry)} "
+               f"(found {step_label(at)}): the position is the contract -- "
+               "the steps before this one decide what it reads, and the "
+               "steps after it read what it leaves behind")
+        if not ok:
+            continue
+        pinned_step_keys(c, path, what, at, carrier_entry_keys(entry),
+                         entry.get("env", {}))
+        if "id" in entry:
+            c.item(at.get("id") == entry["id"], path, f"{what} `id` must be "
+                   f"`{entry['id']}` (found {at.get('id')!r}): the pinned "
+                   "step conditions of this job read the output through "
+                   "this id")
+        if "if" in entry:
+            got = str(at.get("if", "")).strip()
+            c.item(got == entry["if"], path, f"{what} `if` must be exactly "
+                   f"`{entry['if']}` (found `{got}`): any other condition "
+                   "changes when this step runs, and the guarded steps of "
+                   "this job legitimately carry exactly the scope guard")
+        if "uses" in entry:
+            got_with = at.get("with")
+            want_with = entry.get("with")
+            c.item(got_with == want_with, path, f"{what} `with` must be "
+                   f"exactly {want_with!r} (found {got_with!r}): a `with` "
+                   "decides what an action reads and restores -- a widened "
+                   "cache key hands over generated metadata from another "
+                   "toolchain head, and a moved upload path publishes "
+                   "other bytes")
+
+
 def check_docs(c, wf):
     check_push_and_pr(c, DOCS, wf, exact_types=False)
     check_public_names(c, DOCS, wf)
@@ -2306,6 +2628,25 @@ def check_docs(c, wf):
     if len(act_selftests) == 1:
         pinned_step_keys(c, DOCS, "local act runner contract step",
                          act_selftests[0], ("name", "run"), {})
+    # The gate step inside each carrier, and the carrier's whole step list
+    # (#295): the job-level rule above says which job carries the context,
+    # these say what that job runs.
+    check_carrier_gate_step(
+        c, DOCS, wf, "docs-check", CONTRACT_CHECK, CANONICAL_DOCS_GATE_SCRIPT,
+        "a `|| true` beside either call swallows the finding this file "
+        "exists to raise while the required context stays green")
+    check_carrier_gate_step(
+        c, DOCS, wf, "wire-accountability", WIRE_GATE_CALL,
+        CANONICAL_WIRE_GATE_SCRIPT,
+        "this step is the whole item-00 record, so a line beside the call "
+        "can swallow its exit status")
+    check_carrier_gate_step(
+        c, DOCS, wf, "docs-check-no-git", NO_GIT_GATE_CALL,
+        CANONICAL_NO_GIT_GATE_SCRIPT,
+        "this step is the whole no-git proof, and with `rm -rf .git` gone "
+        "it proves a different claim")
+    for jid in PUBLIC_NAMES[DOCS]:
+        check_carrier_steps(c, DOCS, wf, jid)
 
 
 def check_elaborate(c, wf):
@@ -2314,6 +2655,8 @@ def check_elaborate(c, wf):
     check_required_context_carriers(c, ELABORATE, wf,
                                     held_by_builder=("elaborate",))
     check_builder_dependencies(c, ELABORATE, wf, "elaborate")
+    check_scope_step(c, wf)
+    check_carrier_steps(c, ELABORATE, wf, "elaborate")
 
 
 def check_global_carriers(c, parsed):
@@ -3183,6 +3526,107 @@ def _mutations():
         def mutate(w):
             docs_act_selftest_step(w)[key] = value
         return mutate
+
+    # #295: the gate steps of the non-RTL required contexts, their presence
+    # in the id-named job, and the carriers' pinned step lists.
+    def m_gate_or_true(path, jid, needle):
+        # `|| true` after the gate's own last command: every pinned key and
+        # name survives, the exit status does not.
+        def f(w):
+            found = [s for s in job_steps(w, path, jid)
+                     if needle in step_text(s)]
+            assert len(found) == 1, f"fixture drift: {needle!r} in {jid}"
+            found[0]["run"] = found[0]["run"].rstrip("\n") + " || true\n"
+        return f
+
+    def m_gate_line(path, jid, needle, old, new):
+        # One line of a gate step's script rewritten.
+        def f(w):
+            found = [s for s in job_steps(w, path, jid)
+                     if needle in step_text(s)]
+            assert len(found) == 1, f"fixture drift: {needle!r} in {jid}"
+            assert old in found[0]["run"], f"fixture drift: {old!r} absent"
+            found[0]["run"] = found[0]["run"].replace(old, new, 1)
+        return f
+
+    def m_stub_job(path, jid):
+        # The [R3]-round-2 evasion measured on PR #293: the real body's id
+        # renamed away, a `run: true` stub under the required id. The id
+        # rule, the one-carrier rule and the key rule all pass; the gate
+        # step's presence (#295) does not.
+        def f(w):
+            all_jobs = jobs(w[path])
+            all_jobs[jid + "-real"] = all_jobs.pop(jid)
+            all_jobs[jid] = {"runs-on": "ubuntu-latest",
+                             "steps": [{"run": "true"}]}
+        return f
+
+    def m_duplicate_mapping(path, jid):
+        # What an appended duplicate `<jid>:` mapping parses to: PyYAML
+        # keeps the LAST mapping, so the id-named job IS the stub while the
+        # file still shows the real body above it. The on-disk raw-text
+        # fixture in selftest() proves the parse; this arm proves the
+        # parsed world is refused.
+        def f(w):
+            jobs(w[path])[jid] = {"runs-on": "ubuntu-latest",
+                                  "steps": [{"run": "true"}]}
+        return f
+
+    def elab_scope_step(w):
+        found = [s for s in job_steps(w, ELABORATE, "elaborate")
+                 if isinstance(s, dict)
+                 and s.get("id") == ELAB_SCOPE_STEP_ID]
+        assert len(found) == 1, "fixture drift: no unique elaborate scope step"
+        return found[0]
+
+    def m_scope_step_removed(w):
+        job_steps(w, ELABORATE, "elaborate").remove(elab_scope_step(w))
+
+    def m_scope_publishes_false(w):
+        # The selector still self-tests and reads the real answer, but
+        # exports a literal false; every elaboration gate then skips.
+        s = elab_scope_step(w)
+        old = ('echo "rtl=$(python3 scripts/ci_scope.py < '
+               '"$RUNNER_TEMP/changed")" >> "$GITHUB_OUTPUT"')
+        assert old in s["run"], "fixture drift: no scope rtl publication"
+        s["run"] = s["run"].replace(
+            old, 'echo "rtl=false" >> "$GITHUB_OUTPUT"', 1)
+
+    def m_scope_unproven(w):
+        s = elab_scope_step(w)
+        assert SELECTOR_SELFTEST in s["run"], (
+            "fixture drift: the elaborate scope step has no self-test")
+        s["run"] = s["run"].replace(SELECTOR_SELFTEST, "true", 1)
+
+    def m_scope_selftest_after_read(w):
+        s = elab_scope_step(w)
+        line = SELECTOR_SELFTEST + "\n"
+        assert line in s["run"], "fixture drift: no scope self-test line"
+        s["run"] = (s["run"].replace(line, "", 1).rstrip("\n") + "\n"
+                    + SELECTOR_SELFTEST + "\n")
+
+    def m_swap_steps(path, jid, i, j):
+        def f(w):
+            ss = job_steps(w, path, jid)
+            assert len(ss) > max(i, j), "fixture drift: step list shrank"
+            ss[i], ss[j] = ss[j], ss[i]
+        return f
+
+    def m_rename_step(path, jid, old, new):
+        def f(w):
+            found = [s for s in job_steps(w, path, jid)
+                     if s.get("name") == old]
+            assert len(found) == 1, f"fixture drift: no step named {old!r}"
+            found[0]["name"] = new
+        return f
+
+    def m_with_key(path, jid, name, key, value):
+        def f(w):
+            found = [s for s in job_steps(w, path, jid)
+                     if s.get("name") == name]
+            assert len(found) == 1, f"fixture drift: no step named {name!r}"
+            found[0].setdefault("with", {})[key] = value
+        return f
 
     def builder_fetch_step(w, path, jid):
         found = [s for s in job_steps(w, path, jid)
@@ -4207,6 +4651,186 @@ def _mutations():
         ("#261 bdd-conformance other step working-directory",
          m_step_key_any(RTL_FAST, "bdd-conformance", "pip install --quiet behave", "working-directory", "tb/fake"),
          "may carry only the keys"),
+        # #295: the four non-RTL gate steps, one arm per lever per step.
+        # docs-check's ci_events step (the [R3] measured levers).
+        ("#295 docs ci_events gate step if: false",
+         m_step_key_any(DOCS, "docs-check", "scripts/ci_events.py --check", "if", False),
+         "(`CI event and SHA contract gate`) must carry no `if`"),
+        ("#295 docs ci_events gate step continue-on-error",
+         m_step_key_any(DOCS, "docs-check", "scripts/ci_events.py --check", "continue-on-error", True),
+         "(`CI event and SHA contract gate`) must carry no `continue-on-error`"),
+        ("#295 docs ci_events gate step shell",
+         m_step_key_any(DOCS, "docs-check", "scripts/ci_events.py --check", "shell", "bash -n {0}"),
+         "(`CI event and SHA contract gate`) must carry no `shell`"),
+        ("#295 docs ci_events gate step working-directory",
+         m_step_key_any(DOCS, "docs-check", "scripts/ci_events.py --check", "working-directory", "sub"),
+         "(`CI event and SHA contract gate`) keys must be exactly name, run; surplus: working-directory"),
+        ("#295 docs ci_events gate step --check || true",
+         m_gate_line(DOCS, "docs-check", "scripts/ci_events.py --check",
+                     "python3 scripts/ci_events.py --check\n",
+                     "python3 scripts/ci_events.py --check || true\n"),
+         "job `docs-check`'s gate step script is not the canonical form"),
+        ("#295 docs ci_events gate step removed",
+         (lambda w: strip_steps(w, DOCS, "docs-check", "scripts/ci_events.py --check")),
+         f"job `docs-check` must run `{CONTRACT_CHECK}` in exactly one step (found 0)"),
+        # wire-accountability's gate step.
+        ("#295 wire-accountability gate step if: false",
+         m_step_key_any(DOCS, "wire-accountability", "check_wire_accountability", "if", False),
+         "(`Advertised-vs-emitted gate (green since 2026-07-28, item 00)`) must carry no `if`"),
+        ("#295 wire-accountability gate step continue-on-error",
+         m_step_key_any(DOCS, "wire-accountability", "check_wire_accountability", "continue-on-error", True),
+         "(`Advertised-vs-emitted gate (green since 2026-07-28, item 00)`) must carry no `continue-on-error`"),
+        ("#295 wire-accountability gate step shell",
+         m_step_key_any(DOCS, "wire-accountability", "check_wire_accountability", "shell", "bash -n {0}"),
+         "(`Advertised-vs-emitted gate (green since 2026-07-28, item 00)`) must carry no `shell`"),
+        ("#295 wire-accountability gate step working-directory",
+         m_step_key_any(DOCS, "wire-accountability", "check_wire_accountability", "working-directory", "sub"),
+         "(`Advertised-vs-emitted gate (green since 2026-07-28, item 00)`) keys must be exactly name, run; surplus: working-directory"),
+        ("#295 wire-accountability gate step || true",
+         m_gate_or_true(DOCS, "wire-accountability", "check_wire_accountability"),
+         "job `wire-accountability`'s gate step script is not the canonical form"),
+        ("#295 wire-accountability gate step removed",
+         (lambda w: strip_steps(w, DOCS, "wire-accountability", "check_wire_accountability")),
+         f"job `wire-accountability` must run `{WIRE_GATE_CALL}` in exactly one step (found 0)"),
+        # docs-check-no-git's single step.
+        ("#295 docs-check-no-git single step if: false",
+         m_step_key_any(DOCS, "docs-check-no-git", "docs_check.py", "if", False),
+         "(`Strip git metadata, then run the docs gate`) must carry no `if`"),
+        ("#295 docs-check-no-git single step continue-on-error",
+         m_step_key_any(DOCS, "docs-check-no-git", "docs_check.py", "continue-on-error", True),
+         "(`Strip git metadata, then run the docs gate`) must carry no `continue-on-error`"),
+        ("#295 docs-check-no-git single step shell",
+         m_step_key_any(DOCS, "docs-check-no-git", "docs_check.py", "shell", "bash -n {0}"),
+         "(`Strip git metadata, then run the docs gate`) must carry no `shell`"),
+        ("#295 docs-check-no-git single step working-directory",
+         m_step_key_any(DOCS, "docs-check-no-git", "docs_check.py", "working-directory", "sub"),
+         "(`Strip git metadata, then run the docs gate`) keys must be exactly name, run; surplus: working-directory"),
+        ("#295 docs-check-no-git single step || true",
+         m_gate_or_true(DOCS, "docs-check-no-git", "docs_check.py"),
+         "job `docs-check-no-git`'s gate step script is not the canonical form"),
+        ("#295 docs-check-no-git docs_check call replaced by true",
+         m_gate_line(DOCS, "docs-check-no-git", "docs_check.py",
+                     "python3 scripts/docs_check.py\n", "true\n"),
+         f"job `docs-check-no-git` must run `{NO_GIT_GATE_CALL}` in exactly one step (found 0)"),
+        ("#295 docs-check-no-git single step removed",
+         (lambda w: strip_steps(w, DOCS, "docs-check-no-git", "docs_check.py")),
+         f"job `docs-check-no-git` must run `{NO_GIT_GATE_CALL}` in exactly one step (found 0)"),
+        # elaborate's scope step, held as the decide step is.
+        ("#295 elaborate scope step if: false",
+         set_step_key(elab_scope_step, "if", False),
+         "(`Decide whether this head needs an elaboration`) must carry no `if`"),
+        ("#295 elaborate scope step continue-on-error",
+         set_step_key(elab_scope_step, "continue-on-error", True),
+         "(`Decide whether this head needs an elaboration`) must carry no `continue-on-error`"),
+        ("#295 elaborate scope step shell",
+         set_step_key(elab_scope_step, "shell", "bash -n {0}"),
+         "(`Decide whether this head needs an elaboration`) must carry no `shell`"),
+        ("#295 elaborate scope step working-directory",
+         set_step_key(elab_scope_step, "working-directory", "sub"),
+         "(`Decide whether this head needs an elaboration`) keys must be exactly name, id, env, run; surplus: working-directory"),
+        ("#295 elaborate scope step || true",
+         m_gate_or_true(ELABORATE, "elaborate", "ci_scope.py --selftest"),
+         "the elaborate scope step script is not the canonical form"),
+        ("#295 elaborate scope script publishes a literal rtl=false",
+         m_scope_publishes_false,
+         "the elaborate scope step script is not the canonical form"),
+        ("#295 elaborate scope script drops the selector's self-test",
+         m_scope_unproven,
+         f"the elaborate scope step must run `{SELECTOR_SELFTEST}` exactly once"),
+        ("#295 elaborate scope self-test runs after the answer is read",
+         m_scope_selftest_after_read,
+         "exactly once and before it reads the selector's answer"),
+        ("#295 elaborate scope step EVENT_NAME hard-coded",
+         set_env_key(elab_scope_step, "EVENT_NAME", "pull_request"),
+         "must bind `EVENT_NAME`"),
+        ("#295 elaborate scope step PR_BASE_SHA rebound to this run's SHA",
+         set_env_key(elab_scope_step, "PR_BASE_SHA", "${{ github.sha }}"),
+         "must bind `PR_BASE_SHA`"),
+        ("#295 elaborate scope step removed", m_scope_step_removed,
+         f"must carry exactly one step with `id: {ELAB_SCOPE_STEP_ID}` (found 0)"),
+        # #295 presence: the stub-id evasion and a duplicate mapping's
+        # last-wins parse, per carrier.
+        ("#295 docs-check body behind a stub of the required id",
+         m_stub_job(DOCS, "docs-check"),
+         f"job `docs-check` must run `{CONTRACT_CHECK}` in exactly one step (found 0)"),
+        ("#295 wire-accountability body behind a stub of the required id",
+         m_stub_job(DOCS, "wire-accountability"),
+         f"job `wire-accountability` must run `{WIRE_GATE_CALL}` in exactly one step (found 0)"),
+        ("#295 docs-check-no-git body behind a stub of the required id",
+         m_stub_job(DOCS, "docs-check-no-git"),
+         f"job `docs-check-no-git` must run `{NO_GIT_GATE_CALL}` in exactly one step (found 0)"),
+        ("#295 elaborate body behind a stub of the required id",
+         m_stub_job(ELABORATE, "elaborate"),
+         f"must carry exactly one step with `id: {ELAB_SCOPE_STEP_ID}` (found 0)"),
+        ("#295 duplicate docs-check mapping, last one wins",
+         m_duplicate_mapping(DOCS, "docs-check"),
+         f"job `docs-check` must run `{CONTRACT_CHECK}` in exactly one step (found 0)"),
+        ("#295 duplicate wire-accountability mapping, last one wins",
+         m_duplicate_mapping(DOCS, "wire-accountability"),
+         f"job `wire-accountability` must run `{WIRE_GATE_CALL}` in exactly one step (found 0)"),
+        ("#295 duplicate docs-check-no-git mapping, last one wins",
+         m_duplicate_mapping(DOCS, "docs-check-no-git"),
+         f"job `docs-check-no-git` must run `{NO_GIT_GATE_CALL}` in exactly one step (found 0)"),
+        ("#295 duplicate elaborate mapping, last one wins",
+         m_duplicate_mapping(ELABORATE, "elaborate"),
+         f"must carry exactly one step with `id: {ELAB_SCOPE_STEP_ID}` (found 0)"),
+        # #295 the step-list class ([R4] round 6 on PR #293): the measured
+        # insertions, then an insertion of ANY content, then removal,
+        # reorder, rename, and the recorded `if` and `with` values.
+        ("#295 docs-check inserted BASH_ENV writer breaks the sequence",
+         m_insert_step(DOCS, "docs-check",
+                       {"name": "prep", "run": 'echo "BASH_ENV=$PWD/scripts/ci-bypass.sh" >> "$GITHUB_ENV"'}),
+         "job `docs-check` must carry exactly 36 steps"),
+        ("#295 docs-check-no-git inserted BASH_ENV writer breaks the sequence",
+         m_insert_step(DOCS, "docs-check-no-git",
+                       {"name": "prep", "run": 'echo "BASH_ENV=$PWD/scripts/ci-bypass.sh" >> "$GITHUB_ENV"'}),
+         "job `docs-check-no-git` must carry exactly 2 steps"),
+        ("#295 wire-accountability inserted GITHUB_PATH prepend breaks the sequence",
+         m_insert_step(DOCS, "wire-accountability",
+                       {"name": "prep", "run": 'echo "$PWD/scripts/bin" >> "$GITHUB_PATH"'}),
+         "job `wire-accountability` must carry exactly 3 steps"),
+        ("#295 elaborate inserted third-party action breaks the sequence",
+         m_insert_step(ELABORATE, "elaborate", {"uses": "attacker/action@v1"}),
+         "job `elaborate` must carry exactly 15 steps"),
+        ("#295 docs-check inserted step of benign content",
+         m_insert_step(DOCS, "docs-check", {"name": "tidy", "run": "true"}),
+         "job `docs-check` must carry exactly 36 steps"),
+        ("#295 wire-accountability inserted step of benign content",
+         m_insert_step(DOCS, "wire-accountability", {"name": "tidy", "run": "true"}),
+         "job `wire-accountability` must carry exactly 3 steps"),
+        ("#295 docs-check-no-git inserted step of benign content",
+         m_insert_step(DOCS, "docs-check-no-git", {"name": "tidy", "run": "true"}),
+         "job `docs-check-no-git` must carry exactly 2 steps"),
+        ("#295 elaborate inserted step of benign content",
+         m_insert_step(ELABORATE, "elaborate", {"name": "tidy", "run": "true"}),
+         "job `elaborate` must carry exactly 15 steps"),
+        ("#295 docs-check recognised step removed",
+         (lambda w: strip_steps(w, DOCS, "docs-check", "check_baremetal_only")),
+         "job `docs-check` must carry exactly 36 steps, in the recorded order (found 35)"),
+        ("#295 elaborate patch-series step removed",
+         (lambda w: strip_steps(w, ELABORATE, "elaborate", "apply.sh")),
+         "job `elaborate` must carry exactly 15 steps, in the recorded order (found 14)"),
+        ("#295 docs-check recognised steps swapped",
+         m_swap_steps(DOCS, "docs-check", 32, 33),
+         "job `docs-check` step 33 must be the step named `Archive integrity gate`"),
+        ("#295 elaborate scope and fetch steps swapped",
+         m_swap_steps(ELABORATE, "elaborate", 1, 2),
+         "job `elaborate` step 2 must be the step named `Decide whether this head needs an elaboration`"),
+        ("#295 docs-check recognised step renamed",
+         m_rename_step(DOCS, "docs-check", "Doc cited-path gate", "Cited-path gate"),
+         "job `docs-check` step 32 must be the step named `Doc cited-path gate`"),
+        ("#295 docs-check non-gate step if: false",
+         m_step_key_any(DOCS, "docs-check", "check_baremetal_only", "if", False),
+         "(`Bare-metal scope gate`) must carry no `if`"),
+        ("#295 elaborate patch-series step if loosened",
+         m_step_key_any(ELABORATE, "elaborate", "apply.sh", "if", "${{ always() }}"),
+         "(`Apply the toolchain patch series`) `if` must be exactly"),
+        ("#295 elaborate metadata cache gains restore-keys",
+         m_with_key(ELABORATE, "elaborate", "Cache the generated CPU metadata", "restore-keys", "elaborate-vexii-"),
+         "(`Cache the generated CPU metadata`) `with` must be exactly"),
+        ("#295 docs upload step publishes another path",
+         m_with_key(DOCS, "docs-check", "Upload the HDL reference HTML", "path", "${{ runner.temp }}/decoy/index.html"),
+         "(`Upload the HDL reference HTML`) `with` must be exactly"),
     ]
 
 
@@ -4316,6 +4940,35 @@ def selftest(root):
                 problems.append(f"an unparseable extra workflow file (decoy{suffix}) "
                                 "was accepted instead of refused")
             decoy.unlink()
+
+        # The duplicate-mapping trick ON DISK (#295, [R3] round 2 on PR
+        # #293): an appended duplicate `<job>:` mapping parses last-wins,
+        # so only a raw file can prove the parsed world the arms above
+        # mutate is what the parser actually hands the checker.
+        for rel, jid, want in (
+            (DOCS, "wire-accountability",
+             f"job `wire-accountability` must run `{WIRE_GATE_CALL}` "
+             "in exactly one step (found 0)"),
+            (ELABORATE, "elaborate",
+             "must carry exactly one step with "
+             f"`id: {ELAB_SCOPE_STEP_ID}` (found 0)"),
+        ):
+            victim = tree / rel
+            original = victim.read_text(encoding="utf-8")
+            victim.write_text(original + f"\n  {jid}:\n"
+                              "    runs-on: ubuntu-latest\n"
+                              "    steps:\n      - run: 'true'\n",
+                              encoding="utf-8")
+            findings = check(parse_world(read_tree(tree))).findings
+            checked_arms += 1
+            if any(want in f for f in findings):
+                print(f"  ok   caught: #295 duplicate `{jid}:` mapping ON "
+                      f"DISK in {rel} (last one wins)")
+            else:
+                problems.append(f"SELF-TEST FAILED [duplicate-mapping {jid}]: "
+                                "the appended duplicate mapping was not "
+                                f"refused, got {findings or 'no findings'}")
+            victim.write_text(original, encoding="utf-8")
 
     # --require-target-sha arms, over a temporary directory.
     sha = "0123456789abcdef0123456789abcdef01234567"
@@ -4435,14 +5088,26 @@ def selftest(root):
                         '  --sha run="$GITHUB_SHA" \\\n'
                         '  --sha checkout="$(git rev-parse HEAD)" \\\n'
                         '  -- "${roots[@]}"\n')
+    for jid, needle in (("docs-check", CONTRACT_CHECK),
+                        ("wire-accountability", WIRE_GATE_CALL),
+                        ("docs-check-no-git", NO_GIT_GATE_CALL)):
+        for s in steps(jobs(world[DOCS])[jid]):
+            if needle in step_text(s):
+                s["run"] = "\n".join("   " + l if l.strip() else ""
+                                      for l in s["run"].splitlines()) + "\n"
+    for s in steps(jobs(world[ELABORATE])["elaborate"]):
+        if s.get("id") == ELAB_SCOPE_STEP_ID:
+            s["run"] = "\n".join("   " + l if l.strip() else ""
+                                  for l in s["run"].splitlines()) + "\n"
     checked_arms += 1
     if check(world).findings:
         problems.append("whitespace-only reformatting of the canonical scripts "
                         f"was refused: {check(world).findings}")
     else:
         print("  ok   canonical pins are whitespace-invariant (assert step, "
-              "decision step, fast scope step, fast verdict step and "
-              "verifier step)")
+              "decision step, fast scope step, fast verdict step, verifier "
+              "step, the three documentation gate steps and the elaborate "
+              "scope step)")
 
     # --require-default-branch arms: the decision for every event class. An
     # inverted or weakened comparison fails one of these, which is what makes
