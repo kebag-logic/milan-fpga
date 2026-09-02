@@ -415,6 +415,16 @@ for name in "${selected_names[@]}"; do
   else
     program="read_verilog $TMP/$top.v; hierarchy -check -top $top; proc; opt_clean; check -assert; stat -top $top"
   fi
+  # The recorded cell count comes from `stat -json`, never from the human
+  # table. The text total changed spelling between Yosys releases (0.33's
+  # `Number of cells:` against 0.66's `NNN cells`) and its `=== design
+  # hierarchy ===` section is not printed at all for a top with no
+  # submodules, which is how every CI record and 29 of 46 local records came
+  # to read `cells=?` (#287). `design.num_cells` in the JSON is the same
+  # hierarchy-rollup total the text section prints and it exists in both the
+  # hierarchical and the single-module case; when it is missing the top FAILS
+  # below instead of publishing a placeholder that looks like evidence.
+  program="$program; tee -q -o $TMP/$top.stat.json stat -top $top -json"
   # The preload is exported INSIDE the subshell, so it reaches yosys and the
   # children yosys spawns - `abc`, which is 16% of the heaviest top - and dies
   # with them. sv2v above is a GHC binary and the helpers are python3, and
@@ -427,11 +437,30 @@ for name in "${selected_names[@]}"; do
     yosys -p "$program"
   ) > "$TMP/$top.yos.log" 2>&1
   rc=$?
-  cells="$(awk '/=== design hierarchy ===/{f=1} f && /^[[:space:]]+[0-9]+ cells$/{print $1; exit}' "$TMP/$top.yos.log")"
-  if [ "$rc" -eq 0 ]; then
-    printf "  [PASS] %-22s cells=%s\n" "$top" "${cells:-?}"
-    record_result top "$top" PASS 1 "$MODE" "${cells:-?}"
+  cells="$(python3 - "$TMP/$top.stat.json" <<'PY'
+import json
+import sys
+
+try:
+    with open(sys.argv[1], encoding="utf-8") as handle:
+        value = json.load(handle)["design"]["num_cells"]
+except (OSError, ValueError, KeyError):
+    raise SystemExit(0)
+if isinstance(value, int) and not isinstance(value, bool) and value >= 0:
+    print(value)
+PY
+)"
+  if [ "$rc" -eq 0 ] && [ -n "$cells" ]; then
+    printf "  [PASS] %-22s cells=%s\n" "$top" "$cells"
+    record_result top "$top" PASS 1 "$MODE" "$cells"
     pass=$((pass + 1))
+  elif [ "$rc" -eq 0 ]; then
+    # yosys exited 0 but produced no measurable total: FAIL, never `cells=?`.
+    # The published record is the gate's evidence, and scripts/yosys_tally.py
+    # refuses a PASS record without a numeric count for the same reason.
+    printf "  [FAIL] %-22s stat: no design cell count in %s.stat.json\n" "$top" "$top"
+    record_result top "$top" FAIL 1 "$MODE" ""
+    fail=$((fail + 1))
   else
     # yosys 0.66 (the version a bench box may run) prints a $readmemh failure as
     # `<file>:<line>: ERROR: ...`, so an anchored `^ERROR` matches nothing and the
@@ -439,7 +468,7 @@ for name in "${selected_names[@]}"; do
     # (#192). Match ERROR wherever it sits and drop the path:line prefix.
     reason="$(grep -oE 'ERROR:.*' "$TMP/$top.yos.log" | head -1)"
     printf "  [FAIL] %-22s yosys: %s\n" "$top" "$reason"
-    record_result top "$top" FAIL 1 "$MODE" "${cells:-?}"
+    record_result top "$top" FAIL 1 "$MODE" ""
     fail=$((fail + 1))
   fi
 done
