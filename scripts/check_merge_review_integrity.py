@@ -46,7 +46,13 @@ line reading "PASS ... negative-control" is not mistaken for a rejection, and
 SCOPE. This is a NAMED-DIALECT parser, not an NLP one: it reads the AGENTS.md
 section 6 convention (`[R<n>] POSITIVE`/`NEGATIVE`, `[R<n>] BLOCKER`, and the
 suffixed multi-lens identities `[R<n>-a]`/`[R<n>-b]` - the #316 decision) plus
-the handful of rejection phrasings this corpus actually uses. A round-status
+the handful of rejection phrasings this corpus actually uses. THE CANONICAL
+OVERALL VERDICT (the #311 decision) is the `POSITIVE`/`NEGATIVE` token on the
+reviewer's own `[R<n>]`-led line; a bare `Verdict: PASS across all five
+review lenses` line under an `[R<n>] EXACT-HEAD RE-REVIEW` header - the PR
+#302 shape - is NOT machine-read, deliberately: the verdict word rides the
+identity line or it does not count, and #302's open-blocker record stands as
+the lesson (cases 23/24 pin both directions). A round-status
 line that carries no verdict word (`[R0] MERGE-ROUND COMPLETE`) is NOT a
 verdict and never clears a standing NEGATIVE - publishing the verdict word is
 the round's job, which is exactly what #316's record of PR #310 is about. It deliberately does
@@ -526,11 +532,46 @@ def selftest():
         problems.append("case22 suffixed-blocker must stay open: %s"
                         % [x.line() for x in assess_pr(p22, openf(set()))])
 
+    # 23. THE #302 ORDERING, WRITTEN CANONICALLY (#311): an earlier BLOCKER,
+    # then an exact-head re-review whose CANONICAL verdict token rides the
+    # [R<n>]-led line, followed by five per-lens PASS lines. The verdict
+    # clears the blocker and the PASS lines confuse nothing.
+    p23 = {"number": 302, "mergedAt": "2026-09-01T11:18:52Z", "body": "x",
+           "comments": [
+               {"body": "[R1] BLOCKER Tests - scripts/gen_teroshdl.py:1 - x",
+                "createdAt": "2026-08-30T10:00:00Z"},
+               {"body": "[R1] POSITIVE - exact head ea59a3e2\n"
+                        "[R1] PASS Conformance - a.py:1 - held\n"
+                        "[R1] PASS Tests - b.py:1 - held\n"
+                        "[R1] PASS Docs - c.md:1 - held\n"
+                        "[R1] PASS Robustness - d.sv:1 - held\n"
+                        "[R1] PASS Process - e.md:1 - held",
+                "createdAt": "2026-08-31T10:00:00Z"}], "reviews": []}
+    if assess_pr(p23, openf(set())):
+        problems.append("case23 canonical-five-lens must clear the blocker: %s"
+                        % [x.line() for x in assess_pr(p23, openf(set()))])
+
+    # 24. THE #302 SHAPE VERBATIM, AS A NEGATIVE CONTROL: the verdict on a
+    # BARE line under an [R<n>]-led header does NOT machine-read, so the
+    # earlier BLOCKER stays open - the recorded reason PR #302 reports
+    # open-blocker, kept deliberate rather than accidental.
+    p24 = {"number": 1302, "mergedAt": "2026-09-01T11:18:52Z", "body": "x",
+           "comments": [
+               {"body": "[R1] BLOCKER Tests - scripts/gen_teroshdl.py:1 - x",
+                "createdAt": "2026-08-30T10:00:00Z"},
+               {"body": "[R1] EXACT-HEAD RE-REVIEW\n\n"
+                        "Verdict: **PASS across all five review lenses.**\n\n"
+                        "[R1] PASS Conformance - a.py:1 - held",
+                "createdAt": "2026-08-31T10:00:00Z"}], "reviews": []}
+    if [x.reason for x in assess_pr(p24, openf(set()))] != ["open-blocker"]:
+        problems.append("case24 bare-verdict-line must NOT clear: %s"
+                        % [x.line() for x in assess_pr(p24, openf(set()))])
+
     # META-ARM ([R1] on PR #327): the banner count is pinned against the
     # numbered case markers in this function's own source, so a new case
     # cannot silently run uncounted - the first cut said "18" while 21 ran,
     # in a lane whose SUBJECT was a miscounted evidence figure.
-    n = 22
+    n = 24
     import inspect
     markers = len(re.findall(r"(?m)^\s*# \d+\.\s", inspect.getsource(selftest)))
     if markers != n:
