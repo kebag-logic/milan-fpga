@@ -5366,10 +5366,12 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     //! this by a talker index would conflate the two. A per-SINK window
     //! is future LCTX work, not a per-talker mux.
     .pres_ofs_i     (aecp_pres_offset[31:0]),
-    //! LIVE (#74): the monitor's own media-lock rule (clk_src == 0 ||
-    //! servo_conv) was written for a live selection and spent its first
-    //! months fed a constant INTERNAL. With CRF selected, listener media
-    //! lock now honestly requires the playback servo's convergence.
+    //! LIVE wiring, INERT consumer (#74, [R1] finding 2): the monitor
+    //! declares these ports for a media-lock rule it does not implement
+    //! yet - clk_src_i/servo_conv_i are folded unused inside. Wired live
+    //! anyway, like i2s_playback's servo_en_i below, so the day the rule
+    //! lands the truth is already at the port and no root edit can be
+    //! forgotten. No behavior rides on this today.
     .clk_src_i      (media_clk_src_r),
     .servo_conv_i   (i2spb_converged),
     .render_sel_i   (route_render_sel_w),  //! route policy's RENDER stream

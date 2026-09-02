@@ -115,6 +115,8 @@ module KL_media_grid_align #(
 
   if (DIV_C < 16)
     $error("KL_media_grid_align: CLK_FREQ_HZ_P/FS_HZ_P = %0d leaves the detector under 4 bits of sub-sample resolution - this loop cannot bound phase inside a sample there.", DIV_C);
+  if ((SLIP_LIM_C + 2) * DIV_C > 32767)
+    $error("KL_media_grid_align: DIV_C=%0d puts the saturated fold plus the capture span past err_o's 16-bit range - the truncation would wrap the error sign. Lower SLIP_LIM_C or widen err_o.", DIV_C);
   if (U_LIM_P > 32767 - (2 * DIV_C << KP_LOG2_P))
     $error("KL_media_grid_align: U_LIM_P=%0d cannot absorb a pre-clamp proportional term of +/-%0d without widening u_o.", U_LIM_P, 2 * DIV_C << KP_LOG2_P);
 

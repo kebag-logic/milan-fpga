@@ -1857,25 +1857,23 @@ int main(int argc, char** argv) {
         // byte-identical through it (gh #62 H3).
 
         // ================================================================ //
-        // [H2] IEEE 1722-2016 10.4.3 mr on the wire — WHAT SURVIVES.       //
+        // [H2] IEEE 1722-2016 10.4.3 mr on the wire — WHAT LIVES WHERE.    //
         //                                                                  //
         // Three wirings used to meet here:                                 //
         //   (1) the mr level KL_media_clock_restart grants the CRF Media    //
-        //       Clock Output actually reaches the wire byte — KEPT;         //
+        //       Clock Output actually reaches the wire byte — KEPT here;    //
         //   (2) a media clock SOURCE change drives it (4.4.4.3's primary    //
-        //       trigger, PICS Table F.16 CRF-3) - OPEN AT INTEGRATION. The  //
-        //       processor accepts SET_CLOCK_SOURCE and KL_pp_shadow exports //
-        //       its stored value, but no media consumer reads it and the    //
-        //       root remains INTERNAL;                                      //
-        //   (3) a RECEIVED mr toggle must NOT be echoed while the device is //
-        //       on an internal clock (10.4.3: "only the mr bit from the     //
-        //       stream being used by the Listener for recovering the media  //
-        //       clock is valid") — DELETED, and this one is a FINDING, not  //
-        //       covered here. The current root gate uses the explicit        //
-        //       CRF_CLK_SELECTED_C constant, so an incoming mr toggle cannot //
-        //       be selected while the build remains on its internal source.  //
-        //       The dedicated media-clock-restart suite pins the FSM law;     //
-        //       this integration case only checks the outgoing level.         //
+        //       trigger, PICS Table F.16 CRF-3) — REACHABLE since #74: the  //
+        //       root resolve feeds KL_media_clock_restart the live index,   //
+        //       and obj_aclk's [MR] arm grades the deselect's own toggle;   //
+        //   (3) a RECEIVED mr toggle echoed only while CRF is the followed  //
+        //       source (10.4.3: "only the mr bit from the stream being used //
+        //       by the Listener for recovering the media clock is valid")   //
+        //       — obj_aclk's [MR] arm grades both directions, the echo      //
+        //       under CRF and the silence at INTERNAL. This leg never       //
+        //       selects CRF, so what it still owns is (1): the outgoing     //
+        //       level on the wire byte. The dedicated media-clock-restart   //
+        //       suite pins the FSM law.                                     //
         // ================================================================ //
         printf("  -- [H2] 10.4.3 mr: the level reaches the wire byte --\n");
         {

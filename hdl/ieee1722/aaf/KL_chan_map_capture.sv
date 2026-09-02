@@ -499,6 +499,15 @@ module KL_chan_map_capture #(
   // Counts gate on tdm_fed_r so a bench with no TDM feed reads 0/0 rather   //
   // than a dup per tick forever. Saturating like the LOOP counters; with    //
   // aligned grids both stay at ZERO - the #74 acceptance state.             //
+  //                                                                         //
+  // KNOWN CAVEAT ([R1] on PR #323, on issue #74's ledger): when the align   //
+  // loop happens to LOCK with the frame marker raced right onto the tick    //
+  // (~0.1-0.3% of engagements), the coincidence branch can resolve          //
+  // asymmetrically and this counter chatters dups at a genuinely slip-free  //
+  // lock. False-alarm direction ONLY - it can cry wolf, never hide a slip - //
+  // and a reselect re-rolls the phase. A fixed lock-phase target or         //
+  // detector hysteresis is the recorded follow-up; until then read a        //
+  // non-zero dup count beside mga_err_w before believing it.                //
   // ---------------------------------------------------------------------- //
   wire tdm_frame_ev_w = tdm_pair_valid_i && (tdm_pair_slot_i == 4'd0);
   logic tdm_fed_r        /* verilator public_flat_rd */;
