@@ -36,6 +36,15 @@
   //! listener_capabilities (Table 6.5): IMPLEMENTED | AUDIO_SINK,
   //! + MEDIA_CLOCK_SINK only when a CRF STREAM_INPUT exists
   localparam logic [15:0] ADP_LISTENER_CAPS_C  = 16'h4801;
+  //! CLOCK_SOURCE set of this shape's CLOCK_DOMAIN: the count, and
+  //! the index the live SET_CLOCK_SOURCE selection compares against
+  //! to mean CRF. 16'hFFFF when the shape declares no CRF source, so
+  //! the compare is structurally false rather than accidentally true
+  //! (the 0 == 0 trap the milan_datapath banner records). Derived
+  //! from the config's media_clock_sources - internal first, then one
+  //! per AAF listener, then CRF - never a hand literal.
+  localparam int unsigned AEM_N_CLKSRC_C = 3;
+  localparam logic [15:0] AEM_CRF_CLKSRC_C = 16'd2;
   //! Dynamic AUDIO_MAP ownership, one bit per AAF Stream Port. A set
   //! bit means the descriptor carries no static AUDIO_MAP and the
   //! ADD/REMOVE/GET_AUDIO_MAP command family owns its live routing.

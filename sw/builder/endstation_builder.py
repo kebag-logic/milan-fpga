@@ -2306,6 +2306,23 @@ def emit_adp_shape_svh(cfg, overlay=None):
     a("  //! + MEDIA_CLOCK_SINK only when a CRF STREAM_INPUT exists")
     a(f"  localparam logic [15:0] ADP_LISTENER_CAPS_C  = "
       f"16'h{sh['listener_capabilities']:04X};")
+    # The CLOCK_SOURCE shape, by the same rule the AEM ROM svh derives it
+    # (gen_aem_store.clock_source_shape - one function, both emitters). The
+    # ROM svh left every RTL include path with the AECP plane, and the media
+    # plane's selection compare (#74) needs the CRF index from a header
+    # milan_datapath still compiles: this one.
+    n_cs, crf_ix = aem_store.clock_source_shape(overlay["clock_sources"])
+    a("  //! CLOCK_SOURCE set of this shape's CLOCK_DOMAIN: the count, and")
+    a("  //! the index the live SET_CLOCK_SOURCE selection compares against")
+    a("  //! to mean CRF. 16'hFFFF when the shape declares no CRF source, so")
+    a("  //! the compare is structurally false rather than accidentally true")
+    a("  //! (the 0 == 0 trap the milan_datapath banner records). Derived")
+    a("  //! from the config's media_clock_sources - internal first, then one")
+    a("  //! per AAF listener, then CRF - never a hand literal.")
+    a(f"  localparam int unsigned AEM_N_CLKSRC_C = {n_cs};")
+    a(f"  localparam logic [15:0] AEM_CRF_CLKSRC_C = 16'd{crf_ix};"
+      if crf_ix is not None else
+      "  localparam logic [15:0] AEM_CRF_CLKSRC_C = 16'hFFFF;")
     a("  //! Dynamic AUDIO_MAP ownership, one bit per AAF Stream Port. A set")
     a("  //! bit means the descriptor carries no static AUDIO_MAP and the")
     a("  //! ADD/REMOVE/GET_AUDIO_MAP command family owns its live routing.")

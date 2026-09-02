@@ -389,6 +389,21 @@ def d_avb_interface(gp=None):
     assert len(b) == 102
     return b
 
+def clock_source_shape(clock_sources):
+    """The two CLOCK_SOURCE facts the RTL needs: (count, CRF index or None).
+
+    One rule for every emitter. The model's spec rows carry the config type
+    under 'raw_type' (cs_type is already the 1722.1 encoding, where CRF and
+    INPUT_STREAM are both 0x0002 and cannot be told apart); the builder's
+    overlay rows carry it under 'type'. Both name the CRF row "crf". The
+    generator banner above AEM_N_CLKSRC_C records why this is derived and
+    never mirrored: the literals "3"/"2" were only right for a 1-listener
+    shape (an 8-listener shape has 10 sources with CRF at 9)."""
+    crf_ix = next((i for i, c in enumerate(clock_sources)
+                   if c.get("raw_type", c.get("type")) == "crf"), None)
+    return len(clock_sources), crf_ix
+
+
 def d_clock_source(index, name, cs_type, loc_type, loc_index):
     b = be16(CLOCK_SOURCE) + be16(index)
     b += cstr(name)                     # object_name
@@ -1536,12 +1551,11 @@ def build_model(spec):
     #  the CLOCK_SOURCE shape travels with the model, because the RTL needs
     #  two facts about it that no other field carries: how many sources the
     #  configuration declares, and which one is the CRF
-    _cs_list = spec["clock_sources"]
+    _n_cs, _crf_ix = clock_source_shape(spec["clock_sources"])
     return dict(rom=rom, directory=directory, ROM_SIZE=len(rom),
                 OVERLAYS=overlays, WB=wb, NAMED=named,
-                N_CLKSRC=len(_cs_list),
-                CRF_CLKSRC=next((i for i, c in enumerate(_cs_list)
-                                 if c.get("raw_type") == "crf"), None),
+                N_CLKSRC=_n_cs,
+                CRF_CLKSRC=_crf_ix,
                 L1=l1, NAME_MASK=name_mask, NAME_EXC=name_exc,
                 RATES=spec["rates"], FORMATS=fmts, CRF_FMTS=crf_fmts,
                 PER_STREAM=per_stream, DYNMAP=dynmap, ODMAP=odmap, SMAP=smap)
