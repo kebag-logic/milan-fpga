@@ -135,7 +135,7 @@ def validate(root: Path) -> list[str]:
 
 
 def copy_fixture(destination: Path) -> None:
-    """Copy only the nine files the gate consumes."""
+    """Copy only the files the gate consumes."""
     manifest = destination / MANIFEST
     manifest.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(ROOT / MANIFEST, manifest)

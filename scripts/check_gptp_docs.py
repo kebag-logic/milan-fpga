@@ -13,6 +13,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 WAVEDROM = ROOT / "docs" / "diagrams" / "wd_gptp_pdelay.json"
+MANAGER = ROOT / "docs" / "guides" / "gptp" / "MANAGER.md"
+FEATURE_STATUS = ROOT / "docs" / "reference" / "milan_feature_status.json"
 
 DOCUMENT_TOKENS = {
     "docs/design/GPTP_PLANE.md": (
@@ -52,6 +54,7 @@ DOCUMENT_TOKENS = {
         "Value",
         "Status",
         "Risks",
+        "Issue #74",
         "Issue #117",
     ),
     "docs/guides/gptp/SYSTEM_INTEGRATOR.md": (
@@ -92,6 +95,8 @@ SOURCE_TOKENS = {
     ),
     "hdl/ieee8021as/gptp_plane/KL_gptp_txstamp.sv": (
         "assign beat_w = tx_tvalid_i & tx_tready_i",
+        "if ((bcnt_r == 3'd5) && is_gptp_r && take_r) begin",
+        "if (tx_tlast_i)          bcnt_r <= 3'd0;",
         "output logic [15:0] ts_seq_o",
         "output logic [3:0]  ts_type_o",
     ),
@@ -104,12 +109,22 @@ SOURCE_TOKENS = {
 WAVEDROM_TOKENS = (
     "accepted MAC SOF",
     "TX PHC capture",
+    "accepted sequence beat 5",
     "{t1, seq, type=2}",
     "accepted tap SOF",
     "RX PHC capture",
     "frame FIFO commit",
     "engine RX SOF",
     "sequence plus message type",
+)
+
+# KL_gptp_txstamp captures sequenceId on accepted beat 5 and raises its
+# registered tuple before a normal Pdelay frame reaches tx_tlast_i. This order
+# is the interface contract; labels alone cannot prove it.
+WAVEDROM_ORDER = (
+    ("accepted MAC SOF", "accepted sequence beat 5"),
+    ("accepted sequence beat 5", "returned tuple"),
+    ("returned tuple", "accepted MAC EOF"),
 )
 
 SUBMODULE_DOCS = (
@@ -153,13 +168,92 @@ def flatten_json(value: object) -> list[str]:
     return [str(value)]
 
 
+def named_waves(value: object) -> dict[str, list[str]]:
+    """Collect every named WaveDrom signal without assuming group layout."""
+    waves: dict[str, list[str]] = {}
+    if isinstance(value, dict):
+        name = value.get("name")
+        wave = value.get("wave")
+        if isinstance(name, str) and isinstance(wave, str):
+            waves.setdefault(name, []).append(wave)
+        children = value.values()
+    elif isinstance(value, list):
+        children = value
+    else:
+        children = ()
+    for child in children:
+        for child_name, items in named_waves(child).items():
+            waves.setdefault(child_name, []).extend(items)
+    return waves
+
+
+def wavedrom_value_findings(value: object, label: str) -> list[str]:
+    findings = token_findings(label, "\n".join(flatten_json(value)), WAVEDROM_TOKENS)
+    waves = named_waves(value)
+    cycles: dict[str, int] = {}
+    ordered_names = {name for pair in WAVEDROM_ORDER for name in pair}
+    for name in sorted(ordered_names):
+        matches = waves.get(name, [])
+        if len(matches) != 1:
+            findings.append(
+                f"{label}: expected one named signal {name!r}, found {len(matches)}"
+            )
+            continue
+        rises = [index for index, symbol in enumerate(matches[0]) if symbol == "1"]
+        if len(rises) != 1:
+            findings.append(
+                f"{label}: signal {name!r} must contain one asserted event"
+            )
+            continue
+        cycles[name] = rises[0]
+    for before, after in WAVEDROM_ORDER:
+        if before in cycles and after in cycles and cycles[before] >= cycles[after]:
+            findings.append(
+                f"{label}: {before!r} must precede {after!r}; "
+                f"cycles are {cycles[before]} and {cycles[after]}"
+            )
+    return findings
+
+
 def wavedrom_findings(path: Path = WAVEDROM) -> list[str]:
     try:
         value = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as error:
         return [f"{path.relative_to(ROOT)}: unreadable WaveDrom: {error}"]
-    text = "\n".join(flatten_json(value))
-    return token_findings(path.relative_to(ROOT).as_posix(), text, WAVEDROM_TOKENS)
+    return wavedrom_value_findings(value, path.relative_to(ROOT).as_posix())
+
+
+def manager_status_findings(text: str | None = None) -> list[str]:
+    """Keep the manager status tied to its named canonical ledger."""
+    label = MANAGER.relative_to(ROOT).as_posix()
+    try:
+        if text is None:
+            text = MANAGER.read_text(encoding="utf-8")
+        ledger = json.loads(FEATURE_STATUS.read_text(encoding="utf-8"))
+        feature = next(
+            item for item in ledger["features"]
+            if item["id"] == "crf.media-clock-consumption"
+        )
+        status = feature["status"]
+        if not isinstance(status, str):
+            raise TypeError("feature status is not text")
+    except (OSError, json.JSONDecodeError, KeyError, StopIteration, TypeError) as error:
+        return [f"{label}: cannot verify media-clock status: {error}"]
+    display_status = status.replace("-", " ").replace("_", " ").title()
+    expected = (
+        f"| Media clock selection | {display_status} | Feature-status ledger |"
+    )
+    findings = []
+    if expected not in text:
+        findings.append(
+            f"{label}: media-clock row does not match canonical status "
+            f"{status!r}; expected {expected}"
+        )
+    if "Media clock selection remains unconsumed." in text:
+        findings.append(
+            f"{label}: media-clock risk contradicts canonical status {status!r}"
+        )
+    return findings
 
 
 def gitlink_pin() -> str:
@@ -215,22 +309,60 @@ def selftest() -> int:
     if "accepted MAC SOF" not in flattened or "2" not in flattened:
         print("gPTP docs selftest: JSON flattening failed")
         return 1
-    arms += 1
-    if not wavedrom_findings():
-        mutated = WAVEDROM.read_text(encoding="utf-8").replace(
-            WAVEDROM_TOKENS[0], "missing", 1
-        )
-        value = json.loads(mutated)
-        text = "\n".join(flatten_json(value))
-        if not token_findings("fixture", text, WAVEDROM_TOKENS):
-            print("gPTP docs selftest: WaveDrom mutation escaped")
-            return 1
-    else:
+    if wavedrom_findings():
         print("gPTP docs selftest: production WaveDrom precondition failed")
+        return 1
+    arms += 1
+    mutated = WAVEDROM.read_text(encoding="utf-8").replace(
+        WAVEDROM_TOKENS[0], "missing", 1
+    )
+    if not wavedrom_value_findings(json.loads(mutated), "fixture"):
+        print("gPTP docs selftest: WaveDrom token mutation escaped")
+        return 1
+    arms += 1
+    reordered = json.loads(WAVEDROM.read_text(encoding="utf-8"))
+    signals = named_waves(reordered)
+    tuple_wave = signals["returned tuple"][0]
+    eof_wave = signals["accepted MAC EOF"][0]
+    for group in reordered["signal"]:
+        if not isinstance(group, list):
+            continue
+        for signal in group:
+            if not isinstance(signal, dict):
+                continue
+            if signal.get("name") == "returned tuple":
+                signal["wave"] = eof_wave
+            elif signal.get("name") == "accepted MAC EOF":
+                signal["wave"] = tuple_wave
+    order_findings = wavedrom_value_findings(reordered, "fixture")
+    if not any("must precede" in finding for finding in order_findings):
+        print("gPTP docs selftest: WaveDrom order mutation escaped")
         return 1
     arms += 1
     if file_token_findings(ROOT, DOCUMENT_TOKENS):
         print("gPTP docs selftest: production documents failed")
+        return 1
+    if manager_status_findings():
+        print("gPTP docs selftest: manager status precondition failed")
+        return 1
+    arms += 1
+    manager = MANAGER.read_text(encoding="utf-8")
+    wrong_manager = manager.replace(
+        "| Media clock selection | Implemented | Feature-status ledger |",
+        "| Media clock selection | Missing | Feature-status ledger |",
+        1,
+    )
+    if wrong_manager == manager or not manager_status_findings(wrong_manager):
+        print("gPTP docs selftest: manager-status mutation escaped")
+        return 1
+    arms += 1
+    wrong_risk = manager.replace(
+        "Issue #74 media-clock bench acceptance remains open.",
+        "Media clock selection remains unconsumed.",
+        1,
+    )
+    if wrong_risk == manager or not manager_status_findings(wrong_risk):
+        print("gPTP docs selftest: manager-risk mutation escaped")
         return 1
     arms += 1
     if file_token_findings(ROOT, SOURCE_TOKENS):
@@ -248,6 +380,7 @@ def main() -> int:
         print("usage: check_gptp_docs.py [--selftest|--with-submodule]")
         return 2
     findings = file_token_findings(ROOT, DOCUMENT_TOKENS)
+    findings.extend(manager_status_findings())
     findings.extend(file_token_findings(ROOT, SOURCE_TOKENS))
     findings.extend(wavedrom_findings())
     if with_submodule:

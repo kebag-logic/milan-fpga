@@ -32,7 +32,7 @@ Read the [engine manager guide](../../../gptp-processor/docs/MANAGER.md).
 | Public consumers | Implemented | `milan_dp` |
 | Physical calibration | Incomplete | Issue #64 |
 | Two-board acceptance | Incomplete | Issue #117 |
-| Media clock selection | Missing | Feature-status ledger |
+| Media clock selection | Implemented | Feature-status ledger |
 
 No external approval is claimed.
 
@@ -45,7 +45,7 @@ Simulation remains necessary but insufficient.
 - Imported revisions require independent review.
 - Engine timestamp capacity has an upstream issue.
 - Engine receive errors have an upstream issue.
-- Media clock selection remains unconsumed.
+- Issue #74 media-clock bench acceptance remains open.
 
 Open upstream risks appear in the [engine guide](../../../gptp-processor/docs/MANAGER.md).
 
