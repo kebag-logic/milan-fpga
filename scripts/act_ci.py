@@ -627,10 +627,39 @@ def base_wiring_report(source: str) -> dict[str, object]:
                 and node.func.id in watched
             ):
                 sites.append((node.lineno, node.func.id))
+    #: The name-pinning above sees which NAME each site passes; it cannot see
+    #: a value substituted behind that name. Both reviewers on PR #336 rode
+    #: that class through - rebinding `validation_base` after the resolve, or
+    #: resolving and discarding the result - so the binding itself is read
+    #: here: outside the self-test the name must be bound exactly once, by a
+    #: call to resolve_validation_base. [R2] established the precondition
+    #: that makes one predicate enough (a single binding at main()).
+    binders: list[tuple[int, str]] = []
+    for node in ast.walk(tree):
+        targets: list[ast.expr] = []
+        value: ast.expr | None = None
+        if isinstance(node, ast.Assign):
+            targets, value = list(node.targets), node.value
+        elif isinstance(node, (ast.AnnAssign, ast.AugAssign)):
+            targets, value = [node.target], node.value
+        elif isinstance(node, ast.NamedExpr):
+            targets, value = [node.target], node.value
+        elif isinstance(node, ast.For):
+            targets, value = [node.target], None
+        elif isinstance(node, ast.withitem) and node.optional_vars is not None:
+            targets, value = [node.optional_vars], None
+        for target in targets:
+            if not (isinstance(target, ast.Name) and target.id == "validation_base"):
+                continue
+            line = getattr(target, "lineno", 0)
+            if span is not None and span[0] <= line <= span[1]:
+                continue
+            binders.append((line, ast.unparse(value) if value is not None else "<bound-without-value>"))
     return {
         "production": production,
         "fixture": fixture,
         "main_order": [name for _line, name in sorted(sites)],
+        "binders": [text for _line, text in sorted(binders)],
     }
 
 
@@ -3742,6 +3771,15 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
         "every production call site hands its consumer the resolved "
         "validation base, by that name",
         mishanded == [],
+    )
+    binders = wiring["binders"]
+    assert isinstance(binders, list)
+    check(
+        "outside the self-test the validation base is bound exactly once, by "
+        "the resolve itself, so no rebinding can substitute a value behind "
+        "the name every call site passes",
+        len(binders) == 1
+        and binders[0].startswith("resolve_validation_base("),
     )
     check(
         "main validates the pull request before resolving the base, and "
