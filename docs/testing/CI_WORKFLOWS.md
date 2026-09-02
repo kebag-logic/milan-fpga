@@ -1095,7 +1095,7 @@ are independent required siblings, so a failure in `wire-accountability` or
 same rule as the RTL jobs (#261): the job whose id is the required name
 carries it, carries no `needs`, `if`, `continue-on-error` or `defaults`, and
 exactly one job carries each name; the gate steps inside those jobs, their
-shape and their presence, are #295.
+shape and their presence, are pinned too (item 11 — landed by #295).
 
 ## Issue closing on merge
 
