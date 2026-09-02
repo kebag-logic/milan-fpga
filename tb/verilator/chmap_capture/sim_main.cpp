@@ -259,6 +259,46 @@ int main(int argc, char** argv) {
   printf("== KL_chan_map_capture (per-pair-slot TX source mux) ==\n");
 
   // ====================================================================== //
+  // [T0] #74 TDM junction slip detector - graded FIRST, while the DUT is   //
+  // virgin: the unfed gate needs a lane that has never seen a TDM write.   //
+  // Rate accounting on lane A (frame marker = slot-0 write, vs tick_i):    //
+  // dup = tick with no fresh frame (grid fast), skip = frame over an       //
+  // unread frame (grid slow), a same-cycle coincidence consumes silently,  //
+  // and a non-zero slot is not a frame marker. Later arms interleave       //
+  // frames and ticks freely, so nothing below re-reads these counters.     //
+  // ====================================================================== //
+  printf("\n[T0] TDM junction slip detector (frame marker vs tick)\n");
+  ck("T0: virgin dup",  dut->a_tdm_dup_cnt_o,  0);
+  ck("T0: virgin skip", dut->a_tdm_skip_cnt_o, 0);
+  for (int i = 0; i < 5; i++) a_tick();
+  ck("T0: unfed lane ticks freely, no dup", dut->a_tdm_dup_cnt_o, 0);
+  drv_tdm(0, 0x111111, 0x222222);
+  for (int i = 0; i < 8; i++) { a_tick(); drv_tdm(0, 0x111111, 0x222222); }
+  ck("T0: 1:1 alternation, no dup",  dut->a_tdm_dup_cnt_o,  0);
+  ck("T0: 1:1 alternation, no skip", dut->a_tdm_skip_cnt_o, 0);
+  for (int i = 0; i < 4; i++) a_tick();   // 1st consumes the pending frame
+  ck("T0: 3 surplus ticks = 3 dups", dut->a_tdm_dup_cnt_o, 3);
+  for (int i = 0; i < 3; i++) drv_tdm(0, 0x131313, 0x141414); // 1st re-arms
+  ck("T0: 2 surplus frames = 2 skips", dut->a_tdm_skip_cnt_o, 2);
+  for (int i = 0; i < 4; i++) drv_tdm(1, 0x151515, 0x161616);
+  ck("T0: non-zero slots are not frame markers (skip)",
+     dut->a_tdm_skip_cnt_o, 2);
+  a_tick();                               // consumes the slot-0 pend
+  ck("T0: non-zero slots are not frame markers (dup)",
+     dut->a_tdm_dup_cnt_o, 3);
+  for (int i = 0; i < 3; i++) {           // same-cycle frame + tick
+    dut->tdm_pair_valid_i = 1; dut->tdm_pair_slot_i = 0;
+    dut->tdm_l_i = 0x171717; dut->tdm_r_i = 0x181818;
+    dut->a_tick_i = 1; cyc();
+    dut->tdm_pair_valid_i = 0; dut->a_tick_i = 0; cyc(WALK_C + 60);
+  }
+  ck("T0: coincidence counts nothing (dup)",  dut->a_tdm_dup_cnt_o,  3);
+  ck("T0: coincidence counts nothing (skip)", dut->a_tdm_skip_cnt_o, 2);
+  a_tick();                               // fed, nothing pending -> one dup
+  ck("T0: still fed and consumed after coincidence",
+     dut->a_tdm_dup_cnt_o, 4);
+
+  // ====================================================================== //
   // [R5] LEVEL L1 (binding) / oracle: the fabric's own accepted-beat strobe.
   // A loopback slot that is MAPPED but has never been FED emits 24'd0 - the
   // same bytes a working, quiet slot emits. On the AX7101 that is the whole

@@ -984,6 +984,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! is the documented follow-up
   wire [15:0] lb_dup_cnt_w  /* verilator public_flat_rd */;
   wire [15:0] lb_skip_cnt_w /* verilator public_flat_rd */;
+  //! #74: the fsync-grid-vs-media-grid slip at the TDM hold junction. The
+  //! LOOP counters above watch only the queue bucket; this pair is the
+  //! observable that makes "no sample slip" falsifiable at the root.
+  wire [15:0] tdm_dup_cnt_w  /* verilator public_flat_rd */;
+  wire [15:0] tdm_skip_cnt_w /* verilator public_flat_rd */;
 
   wire [N_STREAMS*8*13-1:0] cmap_flat_w;   //! GET_AUDIO_MAP OUTPUT walk
   logic [N_STREAMS*8-1:0] amap_out_owner_v_r;
@@ -1061,7 +1066,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .pair_valid_o (cmap_pv_w), .pair_slot_o (cmap_slot_w),
     .pair_l_o (cmap_l_w), .pair_r_o (cmap_r_w),
     //! honest-slip evidence (dup-on-empty / drop-oldest, ZERO at lock)
-    .lb_dup_cnt_o (lb_dup_cnt_w), .lb_skip_cnt_o (lb_skip_cnt_w)
+    .lb_dup_cnt_o (lb_dup_cnt_w), .lb_skip_cnt_o (lb_skip_cnt_w),
+    //! #74 junction evidence: fsync-frame writes vs media-tick reads
+    .tdm_dup_cnt_o (tdm_dup_cnt_w), .tdm_skip_cnt_o (tdm_skip_cnt_w)
   );
 
   // ==========================================================================
