@@ -18,7 +18,7 @@ module media_grid_align_wrap (
   output wire         tick_o,     //! the packet grid under test
   output wire signed [15:0] u_o,
   output wire         engaged_o,
-  output wire signed [15:0] err_o,
+  output wire signed [15:0] err_cyc_o,
   output wire [15:0]  phase_o
 );
 
@@ -34,7 +34,7 @@ module media_grid_align_wrap (
     .tick_i (tick_o),
     .u_o (u_w),
     .engaged_o (engaged_o),
-    .err_o (err_o)
+    .err_cyc_o (err_cyc_o)
   );
 
   KL_media_nco #(

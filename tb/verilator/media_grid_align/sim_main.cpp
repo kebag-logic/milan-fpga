@@ -103,7 +103,7 @@ int main(int argc, char** argv) {
     cyc();
     if (dut->engaged_o) {
       was_engaged = true;
-      long e = (int16_t)dut->err_o; if (e < 0) e = -e;
+      long e = (int16_t)dut->err_cyc_o; if (e < 0) e = -e;
       if (e > max_abs_err) max_abs_err = e;
     }
   }
@@ -116,8 +116,8 @@ int main(int argc, char** argv) {
   // convention -> negative = slow the fast packet grid down)
   ck_range("G2: settled u (LSB of 1/16 ppm; plan needs ~-170)",
            (int16_t)dut->u_o, -200, -140);
-  ck_range("G2: settled |err| (cycles)", (int16_t)dut->err_o < 0
-           ? -(int16_t)dut->err_o : (int16_t)dut->err_o, 0, 60);
+  ck_range("G2: settled |err| (cycles)", (int16_t)dut->err_cyc_o < 0
+           ? -(int16_t)dut->err_cyc_o : (int16_t)dut->err_cyc_o, 0, 60);
   // rate proof on the oracle: engaged ticks now come at the FRAME rate
   tick_count = 0; frame_count = 0;
   run(20'000'000);                              // 0.2 s locked

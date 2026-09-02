@@ -62,7 +62,7 @@
                 moved at all. The integrator (Ki = 2^-KI_LOG2_P per frame)
                 then walks the residual to zero; its zero sits a decade
                 under the proportional crossover, so the loop is
-                overdamped, and both terms clamp at U_LIM_P (200 ppm - the
+                overdamped, and both terms clamp at U_LIM_PPM16_P (200 ppm - the
                 actuators' shared authority class) so windup cannot outrun
                 the NCO's own clamp.
 
@@ -89,7 +89,7 @@ module KL_media_grid_align #(
   parameter int unsigned KP_LOG2_P     = 2,   //! u_p = err << KP_LOG2_P
   parameter int unsigned KI_LOG2_P     = 12,  //! acc >> KI_LOG2_P per frame
   //! |u| clamp in 1/16 ppm LSB: 3200 = 200 ppm, the MMCM/NCO authority class
-  parameter int unsigned U_LIM_P       = 3200
+  parameter int unsigned U_LIM_PPM16_P       = 3200
 )(
   input  wire                 clk_i,     //! datapath clock
   input  wire                 rst_n,     //! active-low synchronous reset
@@ -100,7 +100,7 @@ module KL_media_grid_align #(
   output logic signed [15:0]  u_o,
   output logic                engaged_o, //! reference captured, loop closed
   //! signed phase error in clk_i cycles (+ = frames lead), tb/CSR evidence
-  output logic signed [15:0]  err_o
+  output logic signed [15:0]  err_cyc_o
 );
 
   localparam int unsigned DIV_C     = CLK_FREQ_HZ_P / FS_HZ_P;
@@ -108,7 +108,7 @@ module KL_media_grid_align #(
   //! 4 nominal frame periods of silence = the feed is dead
   localparam int unsigned TIMEOUT_C = 4 * DIV_C;
   localparam int unsigned TOW_C     = $clog2(TIMEOUT_C + 1);
-  //! whole-sample slip fold: bounded so err_o cannot wrap its width even
+  //! whole-sample slip fold: bounded so err_cyc_o cannot wrap its width even
   //! with the fold saturated in one direction
   localparam int signed   SLIP_LIM_C = 8;
   localparam int unsigned ACCW_C    = 32;
@@ -116,9 +116,9 @@ module KL_media_grid_align #(
   if (DIV_C < 16)
     $error("KL_media_grid_align: CLK_FREQ_HZ_P/FS_HZ_P = %0d leaves the detector under 4 bits of sub-sample resolution - this loop cannot bound phase inside a sample there.", DIV_C);
   if ((SLIP_LIM_C + 2) * DIV_C > 32767)
-    $error("KL_media_grid_align: DIV_C=%0d puts the saturated fold plus the capture span past err_o's 16-bit range - the truncation would wrap the error sign. Lower SLIP_LIM_C or widen err_o.", DIV_C);
-  if (U_LIM_P > 32767 - (2 * DIV_C << KP_LOG2_P))
-    $error("KL_media_grid_align: U_LIM_P=%0d cannot absorb a pre-clamp proportional term of +/-%0d without widening u_o.", U_LIM_P, 2 * DIV_C << KP_LOG2_P);
+    $error("KL_media_grid_align: DIV_C=%0d puts the saturated fold plus the capture span past err_cyc_o's 16-bit range - the truncation would wrap the error sign. Lower SLIP_LIM_C or widen err_cyc_o.", DIV_C);
+  if (U_LIM_PPM16_P > 32767 - (2 * DIV_C << KP_LOG2_P))
+    $error("KL_media_grid_align: U_LIM_PPM16_P=%0d cannot absorb a pre-clamp proportional term of +/-%0d without widening u_o.", U_LIM_PPM16_P, 2 * DIV_C << KP_LOG2_P);
 
   // ---------------------------------------------------------------------- //
   // Detector: time-since-tick capture + a TRACKING UNWRAPPER               //
@@ -151,7 +151,7 @@ module KL_media_grid_align #(
                                  ? tst_r : tst_r + 1'b1;
 
   logic signed [15:0] err_r;
-  assign err_o = err_r;
+  assign err_cyc_o = err_r;
 
   // ---------------------------------------------------------------------- //
   // PI, updated once per frame event                                        //
@@ -160,8 +160,8 @@ module KL_media_grid_align #(
 
   function automatic logic signed [15:0] clamp_u(input logic signed [31:0] v);
     begin
-      if      (v >  32'(signed'(U_LIM_P))) clamp_u =  16'(signed'(U_LIM_P));
-      else if (v < -32'(signed'(U_LIM_P))) clamp_u = -16'(signed'(U_LIM_P));
+      if      (v >  32'(signed'(U_LIM_PPM16_P))) clamp_u =  16'(signed'(U_LIM_PPM16_P));
+      else if (v < -32'(signed'(U_LIM_PPM16_P))) clamp_u = -16'(signed'(U_LIM_PPM16_P));
       else                                 clamp_u = 16'(v);
     end
   endfunction
@@ -170,7 +170,7 @@ module KL_media_grid_align #(
   //! never beyond it - a feed that stays wrong (a harness at a wild rate)
   //! parks the loop at the clamp and recovers in frames, not seconds
   localparam logic signed [ACCW_C-1:0] ACC_LIM_C =
-      ACCW_C'(signed'(U_LIM_P)) <<< KI_LOG2_P;
+      ACCW_C'(signed'(U_LIM_PPM16_P)) <<< KI_LOG2_P;
   function automatic logic signed [ACCW_C-1:0]
       clamp_acc(input logic signed [ACCW_C-1:0] v);
     begin
@@ -246,8 +246,8 @@ module KL_media_grid_align #(
         //! in exactly that state makes recovery a re-acquisition - a few
         //! thousand frames - while every in-authority state integrates as a
         //! plain PI.
-        if (!((u_o == -16'(signed'(U_LIM_P)) && err_w > 0)
-              || (u_o == 16'(signed'(U_LIM_P)) && err_w < 0)))
+        if (!((u_o == -16'(signed'(U_LIM_PPM16_P)) && err_w > 0)
+              || (u_o == 16'(signed'(U_LIM_PPM16_P)) && err_w < 0)))
           acc_r <= clamp_acc(acc_r + ACCW_C'(err_w));
         //! NEGATED: err > 0 = the tick grid runs fast (captures drift up),
         //! and u > 0 = SPEED UP at the NCO port - a positive error must

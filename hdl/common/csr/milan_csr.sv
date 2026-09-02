@@ -130,6 +130,7 @@ module milan_csr #(
 //! physical fsync grid through KL_media_grid_align when CRF is selected,
 //! and 4.4.4.3 mr fires on both triggers. INTERNAL stays bit-exact
 //! free-run; no CSR addresses move (0x0056's option-off form unchanged).
+//! The register occupies four bytes and no CSR addresses move.
   parameter logic [31:0] VERSION = 32'h0002_0057
 
 )(

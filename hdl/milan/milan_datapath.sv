@@ -5249,7 +5249,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .tick_i     (media_tick_p),
     .u_o        (mnco_servo_trim_w),
     .engaged_o  (mga_engaged_w),
-    .err_o      (mga_err_w)
+    .err_cyc_o      (mga_err_w)
   );
   assign mnco_servo_en_w = crf_clk_selected_r;
 
