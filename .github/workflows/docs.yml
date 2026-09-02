@@ -13,58 +13,24 @@ jobs:
       # builder gates below consume the pinned processor image tools and expand
       # the Vivado datapath manifest through verilog-axis's source inventory.
       - uses: actions/checkout@v4
-      # The runtime archive and dependency lock fix every package byte.
-      # Lifecycle scripts remain disabled during installation.
-      # The node toolchain and the TerosHDL npm tree are pinned by version
-      # and lockfile, so a cache hit skips the download and `npm ci` entirely
-      # (issue #270); the documenter still runs on every build.
-      - name: Cache the pinned TerosHDL toolchain
-        id: cache-teroshdl
-        uses: actions/cache@v4
-        with:
-          path: ~/milan-teroshdl-toolchain
-          # tools/teroshdl/node.version is the ONE source for the pinned
-          # node: the key hashes it and the build step reads it, so a bump
-          # re-keys the cache and can never leave a stale spelling behind.
-          key: teroshdl-${{ runner.os }}-${{ hashFiles('tools/teroshdl/node.version', 'tools/teroshdl/package-lock.json') }}
-      - name: Build the validated TerosHDL reference
+      # The reference builds from the pinned first-party generator (issue
+      # #300): one hash-locked parser wheel replaces the retired node and
+      # npm dependency graph, so every installed byte is pinned and source
+      # builds are refused (--require-hashes). The generator refuses any
+      # other parser release, so a drifted install fails by name.
+      - name: Build the validated HDL reference
         run: |
           set -euo pipefail
-          node_version="$(tr -d '[:space:]' < tools/teroshdl/node.version)"
-          node_platform="$(uname -s)"
-          node_platform="${node_platform,,}"
-          node_asset="node-v${node_version}-${node_platform}-x64.tar.xz"
-          toolchain="$HOME/milan-teroshdl-toolchain"
-          node_root="$toolchain/${node_asset%.tar.xz}"
-          tool_dir="$toolchain/teroshdl-tool"
-          if [ ! -x "$node_root/bin/node" ]; then
-            node_archive="$RUNNER_TEMP/$node_asset"
-            curl --proto '=https' --tlsv1.2 --fail --location --retry 3 \
-              --output "$node_archive" \
-              "https://nodejs.org/dist/v${node_version}/$node_asset"
-            echo "d60acfe00a2932254bb0ad20e01b0d74397a0875595de719654b214f4b03f307  $node_archive" \
-              | sha256sum --check --strict
-            mkdir -p "$toolchain"
-            tar -xJf "$node_archive" -C "$toolchain"
-          fi
-          export PATH="$node_root/bin:$PATH"
-          export NODE_OPTIONS="--no-experimental-fetch"
-          test "$(node --version)" = "v${node_version}"
-          if [ ! -x "$tool_dir/node_modules/.bin/teroshdl-hdl-documenter" ]; then
-            mkdir -p "$tool_dir"
-            cp tools/teroshdl/package.json tools/teroshdl/package-lock.json \
-              "$tool_dir/"
-            npm ci --ignore-scripts --audit=false --fund=false --prefix "$tool_dir"
-          fi
-          python3 scripts/gen_teroshdl.py --selftest
-          python3 scripts/gen_teroshdl.py \
-            --documenter "$HOME/milan-teroshdl-toolchain/teroshdl-tool/node_modules/.bin/teroshdl-hdl-documenter" \
-            --output "$RUNNER_TEMP/milan-teroshdl-doc"
-      - name: Upload the TerosHDL HTML reference
+          python3 -m pip install --quiet --require-hashes \
+            -r tools/hdl_reference/requirements.txt
+          python3 scripts/gen_hdl_reference.py --selftest
+          python3 scripts/gen_hdl_reference.py \
+            --output "$RUNNER_TEMP/milan-hdl-reference"
+      - name: Upload the HDL reference HTML
         uses: actions/upload-artifact@v4
         with:
-          name: teroshdl-html-${{ github.sha }}
-          path: ${{ runner.temp }}/milan-teroshdl-doc/index.html
+          name: hdl-reference-html-${{ github.sha }}
+          path: ${{ runner.temp }}/milan-hdl-reference/index.html
           if-no-files-found: error
           retention-days: 14
       # pyyaml is load-bearing for the bare-metal-only gate below (it REFUSES

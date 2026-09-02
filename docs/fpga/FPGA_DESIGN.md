@@ -90,7 +90,7 @@ image lacks the requested descriptor. The store never hangs on a failed read: a
   — the live path derives the width from the queue count.
 * **CSR:** AXI4-Lite, 16-bit offset (64 KB window), 32-bit data, decoded in
   `milan_csr` in 0x100 groups.
-* **Style:** SystemVerilog, `` `default_nettype none ``, TerosHDL `//!`
+* **Style:** SystemVerilog, `` `default_nettype none ``, `//!` documentation
   comments on every generic/port/signal, named `always_*` processes.
 * **No vendor primitives** - see
   [Section 2 of ../integration/PORTING_GUIDE.md](../integration/PORTING_GUIDE.md#2-what-is-and-is-not-xilinx-specific-in-the-rtl---the-full-inventory) for
@@ -382,14 +382,16 @@ toolchain: [Section 4.5 of ../integration/PORTING_GUIDE.md](../integration/PORTI
 
 ## 5. Per-module doc regeneration
 
-The `hdl/**/doc/*.md` pages are TerosHDL-generated from the in-code `//!`
-comments (plus a couple of hand-written ones:
+The `hdl/**/doc/*.md` pages came from the retired legacy documenter and the
+in-code `//!` comments (plus a couple of hand-written ones:
 [`tcam.md`](../../hdl/ieee8021q/filtering/doc/tcam.md),
 [`milan_csr.md`](../../hdl/common/csr/doc/milan_csr.md); the hand-written
 `adp_advertiser.md` went with its module). `find hdl -name doc -type d` is the
 authority on which directories still carry pages — `hdl/ieee17221/adp/` no
-longer does. Regenerate after RTL changes by running the TerosHDL documenter on
-the `.sv`, and treat the RTL as the source of truth if a generated page lags.
+longer does. Current module pages come from the validated HTML reference
+([DOC_GENERATION.md](../DOC_GENERATION.md#headless-hdl-reference)) built from
+the same `//!` comments; treat the RTL as the source of truth when a legacy
+page lags.
 Modules with no doc page: `milan_datapath` / `KL_pp_shadow` /
 `KL_pp_maap_shim` (rich header comments serve instead — for the last two the
 banner *is* the contract, since the wrapper is deliberately a port list),
