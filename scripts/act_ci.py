@@ -638,8 +638,30 @@ def base_wiring_report(source: str) -> dict[str, object]:
     #: walrus, comprehension), a match capture, an aliased import, and a
     #: function definition. Outside the self-test the base may be bound only
     #: by its own resolve, and the resolve only by its own def - the
-    #: symmetric half [R2] identified, which closes a wrapper that would
-    #: delegate under test and return the frozen oid in production.
+    #: symmetric half [R2] identified, which closes the NAME-rebinding
+    #: wrappers (a module-level reassignment, an aliased import, a shadowing
+    #: second def).
+    #:
+    #: What this pair does NOT model, stated because a correct check with an
+    #: oversized claim is how three defects in this lane's own evidence were
+    #: written ([R2] named the pattern): CALLABLE SUBSTITUTION that leaves
+    #: the binding intact - a decorator on the resolve's own def, or an
+    #: assignment through `sys.modules[__name__]`. Those keep exactly one
+    #: `<def>` and swap what it denotes. They are reachable only by an edit
+    #: whose sole purpose is to make production differ from the self-test,
+    #: which no honest refactor produces, and closing one exposes the next
+    #: shell with no fixed point ([R1] measured the regress: watch the
+    #: collaborator and the target moves to parse_ls_remote_tip).
+    #:
+    #: Their control is not a predicate in the file being reviewed - a test
+    #: cannot be its own control against its own author. It is the trust
+    #: chain this runner already enforces: validate_trusted_runner verifies
+    #: these bytes against the blob at the validation base, and the
+    #: bootstrap path pins a reviewer-recorded SHA-256, so a substituted
+    #: callable has to be committed to the base branch and reviewed before
+    #: it can run as the trusted copy - and then fails loudly on first use.
+    #: What the self-test owns is the accidental revert and the honest
+    #: refactor, and for those the pair is comprehensive as stated.
     watched_names = ("validation_base", "resolve_validation_base")
     binders: dict[str, list[tuple[int, str]]] = {name: [] for name in watched_names}
 
@@ -3819,8 +3841,8 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
     )
     check(
         "and the resolve itself is bound only by its own definition, so no "
-        "wrapper can delegate under test and return the recorded oid in "
-        "production",
+        "rebinding of that name - reassignment, aliased import or shadowing "
+        "def - can stand in for the audited resolve",
         binders.get("resolve_validation_base") == ["<def>"],
     )
     check(
