@@ -1143,6 +1143,14 @@ def run_selftest():
         assert "<td>WIDE</td><td>int</td><td>DEPTH * 2</td>" in positive_html
         assert "u_child: first_child" in positive_html
         assert "always_ff : grant_seq ( @(posedge clk_i) )" in positive_html
+        #: the UTF-8 byte-slicing tooth ([R1] on PR #331: the first cut's
+        #: fixture carried the multibyte character but asserted nothing
+        #: PAST it, so reverting byte-slicing to code-point slicing kept
+        #: the selftest green while corrupting every later span). These
+        #: two sit AFTER the fixture's micro-sign and are byte-exact:
+        #: under the revert they read "tring" and "unction ...".
+        assert "<td>note</td><td>string</td>" in positive_html
+        assert "function automatic logic mirror(input logic v)" in positive_html
         assert "FROM_INCLUDE" not in positive_html
         arms.append("valid generation")
 
@@ -1343,7 +1351,7 @@ def run_selftest():
         rejects(
             "SVG without viewBox",
             lambda: validates(emitted.replace(
-                alpha_svg, re.sub(r' viewBox="[^"]*"', "", alpha_svg, 1), 1)),
+                alpha_svg, re.sub(r' viewBox="[^"]*"', "", alpha_svg, count=1), 1)),
             "SVG lacks a viewBox")
         rejects(
             "empty SVG",
