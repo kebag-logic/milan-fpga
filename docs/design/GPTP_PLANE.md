@@ -33,6 +33,7 @@ decision is recorded on #139.
 - **[The shape](#the-shape)** -- one option, four seams
 - **[Timestamps](#timestamps)** -- where stamps are born and how they travel
 - **[The ownership boundary](#the-ownership-boundary)** -- one product owner and an ownerless verification elaboration
+- **[Drop diagnostics](#drop-diagnostics)** -- the three refusal counters and their CSR words
 - **[Verification map](#verification-map)** -- which bench proves what
 
 ## The shape
@@ -187,6 +188,32 @@ path, create clock health, or renew a lease. The verification map below proves
 that attempted writes leave the fail-safe outputs unchanged. VERSION
 `0x0002_0056` records removal of the final compatibility owner without
 allocating new CSR addresses.
+
+## Drop diagnostics
+
+A field failure must distinguish silence on the link from traffic the
+plane refused inside (issue #207). Three 16-bit free-running counters
+answer it, each owned by the stage that drops:
+
+- **tap** (`dbg_tap_drop_o`, `KL_gptp_shadow`): whole frames shed at the
+  tap seam -- the frame FIFO overflow, a stalled forward beat, and the
+  issue-#122 shed rule above, counted only once the EtherType verdict
+  confirms 0x88F7.
+- **parser** (`dbg_rx_drop_o`, the donor engine's `drop_cnt_o`): frames
+  the 802.1AS parser refused -- wrong domain, wrong version, a declared
+  length the frame does not carry, a malformed TLV chain.
+- **event queue** (`dbg_ev_drop_o`): dispatch events the queue refused -
+  it was full when they arrived, or an announce arrived without its
+  frozen capture context (the engine folds both refusals into this one
+  count).
+
+Software reads them at CSR `0x7E8` (`{tap, parser}` in one coherent
+access) and `0x7EC` (event count, zero-extended); the words are live,
+read-only, write-inert, never cleared by access, and they wrap -- deltas
+are the interface. Option OFF reads defined zeros from the CSR's own
+parameter gate, so an absent plane is explicit, never a floating count.
+Semantics, reset and rollover live in
+[`REGISTER_MAP.md`](../reference/REGISTER_MAP.md).
 
 ## Verification map
 
