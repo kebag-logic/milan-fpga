@@ -103,7 +103,8 @@ preserves the existing local policy. Its result is still recorded exactly once.
 **The nightly** validates whatever `dev` points at when the cron fires. Its
 value is environment drift: the Verilator cache, the apt Yosys and its
 jemalloc preload (a speed choice `syn/yosys/run.sh` makes only when the
-library is installed, never a pass criterion), the TerosHDL toolchain cache,
+library is installed, never a pass criterion), the hash-locked HDL reference
+parser install,
 the pinned `tsn-gen` revision and the LiteX pins all move under a tree that
 did not, and
 without the nightly the next pull request is the first thing to find out. A

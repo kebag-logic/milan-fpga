@@ -39,30 +39,27 @@ Run both after relevant tree changes.
 
 ## Headless HDL reference
 
-TerosHDL builds detailed module pages.
+A first-party generator builds detailed module pages.
 
-- Tool: [`gen_teroshdl.py`](../scripts/gen_teroshdl.py).
+- Tool: [`gen_hdl_reference.py`](../scripts/gen_hdl_reference.py).
 - Sources: first-party `hdl/` files.
 - Output: one self-contained HTML file.
-- Default: `/tmp/milan-teroshdl-doc/index.html`.
-- Runtime: Node `22.23.2`.
-- Version: TerosHDL `2.0.3`.
-- CI verifies the official runtime archive checksum.
+- Default: `/tmp/milan-hdl-reference/index.html`.
+- Parser: `pyslang` `11.0.0`, hash-locked.
+- Lock: [`requirements.txt`](../tools/hdl_reference/requirements.txt).
 
-Install locked dependencies beneath `/tmp`:
+Install the locked parser beneath `/tmp`:
 
 ```sh
-tool_dir=/tmp/milan-teroshdl-tool
-mkdir -p "$tool_dir"
-cp tools/teroshdl/package.json tools/teroshdl/package-lock.json "$tool_dir/"
-npm ci --ignore-scripts --audit=false --fund=false --prefix "$tool_dir"
+python3 -m venv /tmp/milan-hdl-reference-tool
+/tmp/milan-hdl-reference-tool/bin/pip install --require-hashes \
+  -r tools/hdl_reference/requirements.txt
 ```
 
 Run from the repository root.
 
 ```sh
-python3 scripts/gen_teroshdl.py \
-  --documenter "$tool_dir/node_modules/.bin/teroshdl-hdl-documenter"
+/tmp/milan-hdl-reference-tool/bin/python3 scripts/gen_hdl_reference.py
 ```
 
 - Choose an empty output directory.
@@ -72,25 +69,36 @@ python3 scripts/gen_teroshdl.py \
 - CI uploads validated HTML artifacts.
 - Inspect browsers before sharing.
 
-The wrapper validates source coverage:
+The generator validates source coverage:
 
 - Expectations derive from current sources.
+- Two independent source front ends must agree.
 - Every supported module receives one validated SVG.
 - Validators inspect SVG structure and graphical content.
-- Source-specific fallbacks must name a current tracked declaration.
-- Unrecorded diagram gaps stop generation.
-- Interfaces lack standalone TerosHDL sections.
+- Interfaces lack standalone sections.
 - Only first declarations receive file sections.
 - Known exceptions remain exact.
 - New exceptions stop generation.
+- A drifted parser release stops generation.
 - Absolute build paths stop generation.
 - Active HTML content stops generation.
 
-Two unreliable views remain disabled:
+### Dependency posture
 
-- Dependency graphs exceed readable widths.
-- Their nodes expose temporary paths.
-- FSM extraction drops additional module pages.
+Issue #300 replaced the legacy documenter graph.
+
+- The retired node graph carried thirteen advisories.
+- One retired advisory was critical.
+- The pinned parser has zero known advisories.
+- Audit evidence: `pip-audit`, 2026-09-02.
+- Re-evaluate on each parser release.
+- Re-evaluate on any new parser advisory.
+
+Two legacy documenter views stay retired:
+
+- Dependency graphs exceeded readable widths.
+- Their nodes exposed temporary paths.
+- FSM extraction dropped additional module pages.
 - WaveDrom remains timing authority.
 - Draw.io remains architecture authority.
 
@@ -250,7 +258,7 @@ python3 scripts/check_diagram_pngs.py
 python3 scripts/check_diagram_pngs.py --selftest
 python3 scripts/check_archive.py
 python3 scripts/check_archive.py --selftest
-python3 scripts/gen_teroshdl.py --selftest
+/tmp/milan-hdl-reference-tool/bin/python3 scripts/gen_hdl_reference.py --selftest
 python3 scripts/check_doc_paths.py
 python3 scripts/check_feature_status.py --self-test
 python3 docs/traceability/gen_module_matrix.py --check
@@ -267,7 +275,7 @@ Hosted documentation CI repeats these checks.
 | Changed source | Required action |
 |---|---|
 | RTL or test structure | Regenerate the module matrix |
-| HDL documentation comments | Regenerate and inspect TerosHDL HTML |
+| HDL documentation comments | Regenerate and inspect the HDL reference |
 | Draw.io generator | Regenerate master, SVG, and PNG |
 | Manual Draw.io master | Export and inspect PNG and PDF |
 | WaveDrom JSON | Regenerate and inspect SVG and PNG |

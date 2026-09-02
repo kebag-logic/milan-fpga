@@ -3,7 +3,8 @@
 Goal: Milan-mandatory dynamic multicast-DMAC allocation for the talker
 (before this, `cfg_aaf_dmac` was statically provisioned).
 [`hdl/ieee1722/maap/KL_maap.sv`](../../hdl/ieee1722/maap/KL_maap.sv)
-on the established monitor-tap + low-rate-TX recipe (house style, TerosHDL).
+on the established monitor-tap + low-rate-TX recipe (house style, `//!`
+documentation comments).
 
 > **AS-BUILT:** `KL_maap` ([`hdl/ieee1722/maap/KL_maap.sv`](../../hdl/ieee1722/maap/KL_maap.sv)) is implemented in
 > fabric and silicon-proven — no longer a plan/future item. The design +
