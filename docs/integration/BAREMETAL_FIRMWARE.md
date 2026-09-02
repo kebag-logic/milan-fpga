@@ -492,12 +492,38 @@ Measured against this Makefile, every in-scope name is `file` or `default`;
 the deferral above is a mutation in gate 1b's table, refused by the origin
 probe alone. See #162.
 
+**Round two, from the adversarial pass on the restoring PR:** two spellings
+walked past that closure and were measured reaching the real compile line
+with every instrument green, and both are closed, each a permanent mutation
+in the table. A **computed reference** — `X = MILAN_EXTRA` then
+`CFLAGS += $($(X))`, any brace spelling — defers the NAME itself to
+expansion time: the walker probed `X` (origin `file`) and the environment's
+`MILAN_EXTRA` was never a name anyone asked about. There is no origin to
+enumerate for a name that does not exist until expansion, so a computed
+reference is REFUSED outright, anywhere in the Makefile text — a never-run
+recipe included, which is deliberately wider than the origin closure and is
+the one place the `$(CTAGS)`-style acceptance does not extend. A **`define`
+body** — `define EXTRA` carrying `$(MILAN_EXTRA_CFLAGS)`, appended to
+`CFLAGS` as `$(EXTRA)` — is make's sixth assignment flavour, and the parser
+treated it as a directive to skip, so the body's references were in no RHS
+the closure walked. `define` is an accepted idiom, so the fix parses the
+block as the assignment it is and walks its references like any other RHS;
+the deferral is then refused by the same origin probe as the plain spelling.
+
 **Outside what any recipe pin can reach at all**, and recorded here rather
 than turned into rules, because no pin over printed commands can see them:
 `export CPATH` and `export COMPILER_PATH`, which GCC itself reads from the
 environment; `SHELL := ...`, which changes what executes the printed command;
 `.EXPORT_ALL_VARIABLES:`; and `$(shell ...)`, which runs at parse time, during
 the gate's own plan run, before any recipe is printed.
+
+Two more channels were measured OPEN by the round-two adversarial pass and
+are recorded here rather than claimed closed — unlike the four above, a
+wider walker COULD close them, so they stay tracked on #162: a
+`$(call NAME)`/`$(value NAME)` first argument is a variable name the
+assignment walker never reads, and a top-level `$(eval ...)` line carries an
+assignment no scan over assignment lines sees. Both were measured green
+while the environment reached the compile line.
 
 Read the constraints below as what they are: they bound the spellings they
 recognise, and they cost real edits to do it.
@@ -528,6 +554,7 @@ The rest are refusals, and each one costs a legitimate edit:
 | `CFLAGS` gains only `-I$(BIOS_DIRECTORY)` | held now by the recipe pin rather than by a flag rule: the compile command is pinned whole, so any added flag changes it |
 | The Makefile's `include` set is exactly its three lines | `make` can only plan fragments that exist |
 | `OBJECTS` may not use `?=` | `make` treats an environment variable as defined, so `?=` lets the environment choose the object list |
+| A computed variable reference — `$($(X))`, `$(CFLAGS_$(VARIANT))` — anywhere in the Makefile, a never-run recipe included | the NAME itself is deferred to expansion time, so no `$(origin)` enumeration can cover what the environment picks; refused rather than modelled. **Remedy:** spell the reference with a literal name |
 | No label, `goto`, `switch`, `case` or `default` in `milan_init()` or `entity_advertise()` | containment inside the choke point is not the same as being reached through its verdict test; this is the textual half, and the resolver measures the dominance itself |
 | The address of `aem_loaded` may not be taken | a pointer would write the verdict with no assignment the gate can see |
 | `entity_advertise` may not be exported, its address may not be formed anywhere in the firmware, and no other line of the emitted assembly may name it -- an `__attribute__((alias))` included | the arguments of a function another translation unit can name, or a table can hold, are not the arguments this unit's call sites show, so nothing here can say what verdict the choke point is entered with. The symbol-use rule is a whitelist of the four forms a private direct-called function produces, so a spelling nobody anticipated is refused rather than missed. **Remedy:** keep it `static` and call it directly |

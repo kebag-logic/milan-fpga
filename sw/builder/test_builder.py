@@ -4101,6 +4101,14 @@ def test_baremetal_profile_contract():
     #: to that target AND inherits down its whole prerequisite chain.
     target_assign_re = re.compile(r"\A[ \t]*" + assign_prefix + assign_body +
                                   r"(.*)\Z")
+    #: ... and `define NAME` / `endef`, make's sixth assignment flavour: the
+    #: opener tolerates the optional flavour suffix (`define NAME =`, `:=`,
+    #: ...) and the BODY is the value.
+    make_define_open_re = re.compile(
+        r"\A[ \t]*" + assign_prefix +
+        r"define[ \t]+([A-Za-z_][A-Za-z0-9_]*)[ \t]*(?:" +
+        assign_operators + r")?[ \t]*\Z")
+    make_endef_re = re.compile(r"\A[ \t]*endef[ \t]*\Z")
     #: A variable reference, for deriving which names decide the compiled text.
     make_var_re = re.compile(r"[$][({]([A-Za-z_][A-Za-z0-9_]*)[)}]")
     def make_rules(makefile):
@@ -4120,6 +4128,32 @@ def test_baremetal_profile_contract():
         masked, rules, current, at = unexpanded(text), [], None, 0
         assignments = [(m.group(1), m.group(2))
                        for m in makefile_assign_re.finditer(text)]
+        #: (#162, round two) `define NAME` ... `endef` joins `assignments`,
+        #: because a define BODY is the value of NAME and its references
+        #: belong in the same closure as any RHS. Measured before this
+        #: parse: the directive skip below hid the block from the line loop
+        #: and the assignment regex never matched its opener, so `define
+        #: EXTRA` carrying $(MILAN_EXTRA_CFLAGS), appended to CFLAGS as
+        #: $(EXTRA), left every origin probe green while the environment's
+        #: MILAN_EXTRA_CFLAGS reached the real compile line. The block is
+        #: an accepted make idiom, so it is PARSED rather than refused; a
+        #: nested define stays body text, and a `define` make never closes
+        #: is left to make, which refuses to plan the file at all.
+        depth, opened = 0, None
+        for body in text.split("\n"):
+            begun = make_define_open_re.match(body)
+            if depth == 0:
+                if begun:
+                    depth, opened = 1, (begun.group(1), [])
+                continue
+            if begun:
+                depth += 1
+            elif make_endef_re.match(body):
+                depth -= 1
+                if depth == 0:
+                    assignments.append((opened[0], "\n".join(opened[1])))
+                    continue
+            opened[1].append(body)
         for body in text.split("\n"):
             start, at = at, at + len(body) + 1
             if body.startswith("\t"):
@@ -4198,10 +4232,56 @@ def test_baremetal_profile_contract():
     #: variables ($@, $<, $^, $(1)) never match the name pattern, and the
     #: names the stub's own two fragments seed report 'file', never
     #: 'undefined', so they are skipped rather than probed.
+    #:
+    #: ROUND TWO, from the adversarial pass on this PR: two spellings
+    #: walked past that first closure and were measured reaching the real
+    #: compile line with every instrument green. A COMPUTED reference --
+    #: CFLAGS += $($(X)) -- defers the NAME itself, so make_plan() REFUSES
+    #: it outright rather than modelling it. A `define` BODY -- `define
+    #: EXTRA` carrying $(MILAN_EXTRA_CFLAGS) -- is make's sixth assignment
+    #: flavour, so make_rules() now parses it as the assignment it is and
+    #: the closure walks its references like any other RHS. Both are
+    #: pinned as mutations in the table.
     make_origin_ref_re = re.compile(
         r"[$][({]([A-Za-z_][A-Za-z0-9_]*)[ \t]*[:)}]")
     make_stub_seeded = frozenset(make_sentinels) | {
         "SOC_DIRECTORY", "LIBMILAN_BAREMETAL_DIRECTORY", "compile"}
+
+    def computed_name_references(makefile):
+        """Every reference whose NAME position itself expands: `$($(X))`,
+        `${${X}}`, `$(PRE_$(X))`, whatever the brace spelling or mix.
+
+        The name portion is the text from the opening `$(`/`${` up to the
+        first whitespace, `:`, `,` or close -- exactly the span
+        make_origin_ref_re models as a literal name. A `$` inside that span
+        means the reference cannot be walked BY CONSTRUCTION -- the name is
+        chosen at expansion time -- so the caller refuses instead of
+        modelling. `$$` is make's escaped literal dollar and opens nothing.
+        A reference nested in a function's ARGUMENTS (`$(patsubst
+        %.o,%.d,$(OBJECTS))`) is scanned on its own `$(` and walked
+        normally, so the accepted DEPFILES idiom stays green."""
+        text = re.sub(r"(?m)#[^\n]*", "", re.sub(r"\\\n", " ", makefile))
+        found, at, size = [], 0, len(text)
+        while at < size:
+            if text[at] != "$":
+                at += 1
+                continue
+            opener = text[at + 1:at + 2]
+            if opener == "$":
+                at += 2
+                continue
+            if opener not in "({":
+                at += 2
+                continue
+            scan = at + 2
+            while scan < size and text[scan] not in " \t,:)}\n":
+                if text[scan] == "$":
+                    found.append(re.sub(
+                        r"\s+", " ", text[at:scan + 8]).strip())
+                    break
+                scan += 1
+            at += 2
+        return found
 
     def pinned_recipe_names(makefile, compile_value):
         """Every variable name whose value can reach the pinned recipes."""
@@ -4233,6 +4313,28 @@ def test_baremetal_profile_contract():
         command-line assignment silently overrides the Makefile and hides
         exactly the mutation being tested. `--eval` is not usable: it is
         processed before makefiles are read and reports empty."""
+        #: (#162, round two) REFUSED, not modelled: a computed reference
+        #: defers the NAME itself to expansion time, so there is no name to
+        #: ask $(origin) about -- the environment picks WHICH variable is
+        #: read, and no enumeration of origins can cover a name that does
+        #: not exist until expansion. Measured on this PR's adversarial
+        #: pass: `X = MILAN_EXTRA` + `CFLAGS += $($(X))` (and the ${${X}}
+        #: spelling) left the recipe pin, the hostile double-run and the
+        #: origin probe all green -- the walker probed X, origin 'file' --
+        #: while MILAN_EXTRA='-include ../shadow.h' in a real build's
+        #: environment reached the compile line. The scan is over the whole
+        #: comment-stripped text, recipes of never-run rules included,
+        #: deliberately WIDER than the origin closure: refusal is the sound
+        #: arm where modelling cannot be, and the COST is stated in the
+        #: verdict -- a computed name is RED even where a plain undefined
+        #: name like $(CTAGS) stays green.
+        computed = computed_name_references(makefile)
+        assert not computed, \
+            "this Makefile computes a variable NAME at expansion time (" + \
+            ", ".join(computed) + \
+            "): a computed variable name defers the NAME itself, so no " \
+            "origin probe can enumerate what the environment decides; " \
+            "refused rather than modelled (#162)"
         stem = expected[:-2]
         with tempfile.TemporaryDirectory(prefix="milan-make-") as root:
             soc = os.path.join(root, "soc")
@@ -7104,6 +7206,29 @@ def test_baremetal_profile_contract():
         "CFLAGS += $(MILAN_EXTRA_CFLAGS)",
         "flags routed through an undefined name")
 
+    #: ---- and the two spellings the adversarial pass on this PR walked
+    #: past that probe, both measured pre-fix reaching the real compile
+    #: line (-include ../shadow.h from the environment) with the whole
+    #: gate green. The computed name is pinned on its OWN refusal -- the
+    #: NAME is deferred, so no origin enumeration can cover it and the
+    #: construct is refused as unmodelable; the define body is pinned on
+    #: the origin refusal, reached through the parsed body, because define
+    #: is an accepted idiom and the fix is to WALK it, not refuse it.
+    computed_deferred_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "X = MILAN_EXTRA\n"
+        "CFLAGS += $($(X))",
+        "flags routed through a computed name")
+    define_deferred_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "define EXTRA\n"
+        "$(MILAN_EXTRA_CFLAGS)\n"
+        "endef\n"
+        "CFLAGS += $(EXTRA)",
+        "flags routed through a define body")
+
     #: ---- and the two shapes that made the reset rule vacuous. The reader
     #: saw `<=` only, so a BLOCKING reset left it nothing to iterate and it
     #: passed by having nothing to check; a deleted reset did the same. Both
@@ -7804,6 +7929,18 @@ def test_baremetal_profile_contract():
          firmware_source, docs_source, csr_source,
          "defers a pinned-recipe input to the environment",
          env_deferred_flags),
+        #: ... and the round-two evasions of that probe, permanent. The
+        #: first is pinned on the computed-name refusal, the instrument
+        #: built for it; the second on the origin refusal, which the parsed
+        #: define body now routes it into.
+        ("compile flags routed through a computed variable name",
+         firmware_source, docs_source, csr_source,
+         "computes a variable NAME at expansion time",
+         computed_deferred_flags),
+        ("compile flags deferred to the environment through a define body",
+         firmware_source, docs_source, csr_source,
+         "defers a pinned-recipe input to the environment",
+         define_deferred_flags),
         ("pinned include shadowed by an -iquote search path",
          firmware_source, docs_source, csr_source,
          "the commands make would run are pinned",
@@ -8339,7 +8476,13 @@ def test_baremetal_profile_contract():
           "commands make runs is refused too, a benign AR += v or CC += "
           "-Wall included: that is the price of a rule with no list of "
           "spellings to fall behind. Remedy for that one: add the changed "
-          "command to expected_recipes and a mutation entry beside it. "
+          "command to expected_recipes and a mutation entry beside it. New "
+          "this round, from the computed-name refusal: a computed variable "
+          "reference -- $($(X)), $(CFLAGS_$(VARIANT)) -- is RED anywhere "
+          "in the Makefile, a never-run recipe included, where a plain "
+          "undefined name like $(CTAGS) stays green there; the scan is "
+          "textual and deliberately wider than the origin closure, because "
+          "the NAME itself is deferred and modelling it is not possible. "
           "RETIRED this round by the entity-advertise choke point and the "
           "resolver (#153), each with an accepted case measured GREEN "
           "instead of a claim: an extra statement between the two enables, "
@@ -8391,14 +8534,29 @@ def test_baremetal_profile_contract():
           "mutation in the table. The scope is the caveat made executable: "
           "the accepted tags: case references $(CTAGS), undefined on this "
           "make, in a recipe the plan never runs, and it stays GREEN "
-          "because recipe-only references are outside the closure")
+          "because recipe-only references are outside the closure. ROUND "
+          "TWO (this PR's adversarial pass) measured two spellings walking "
+          "past that closure to the real compile line and closed both, "
+          "each a permanent mutation: a computed reference -- CFLAGS += "
+          "$($(X)) -- defers the NAME itself and is REFUSED outright, "
+          "since no origin enumeration can cover a name the environment "
+          "picks; and a define body -- `define EXTRA` carrying "
+          "$(MILAN_EXTRA_CFLAGS) -- now PARSES as the assignment it is, "
+          "so its references are walked and probed like any RHS")
     print("  [gate 1b] ... and outside what ANY recipe pin can reach: export "
           "CPATH and COMPILER_PATH, which GCC reads from the environment; "
           "SHELL, which changes what executes the printed command; "
           ".EXPORT_ALL_VARIABLES; and $(shell ...), which runs at parse time "
           "during this gate's own plan run, before a recipe is printed. "
           "Recorded rather than ruled against, because no pin over printed "
-          "commands can see them")
+          "commands can see them. Two more, measured OPEN by the round-two "
+          "adversarial pass and recorded here because -- unlike the four "
+          "above -- a wider walker COULD close them: a $(call NAME)/"
+          "$(value NAME) first argument is a variable name the assignment "
+          "walker never reads, and a top-level $(eval ...) line carries an "
+          "assignment no regex over assignment lines sees; both were "
+          "measured green while the environment reached the compile line, "
+          "and both stay open on #162")
     print("  [gate 1b] NOT proved here: the values the build's -D set and the "
           "generated headers supply (image bytes, CRC, entity ids - gate 28 "
           "owns those), that crc32() is a CRC, and anything about an "
