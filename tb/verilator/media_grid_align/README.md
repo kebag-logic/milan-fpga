@@ -16,6 +16,7 @@ The reference rate is the true divider plan: `100 MHz * 391/1591 / 512 =
 ## Contents
 
 - **[Arms](#arms)** — The seven closed-loop arms G0-G6: deselected free-run, engagement and acquisition in both rate directions, the feed watchdog, mid-lock deselect, and the beyond-authority clamp with recovery.
+- **[The negative control](#the-negative-control)** — the inverted-sign build must fail.
 - **[What this suite caught while it was being written](#what-this-suite-caught-while-it-was-being-written)** — The two detector fold schemes that passed a desk check and failed loudly here, and the sign-chain pin G2/G3 holds in both directions.
 - **[Boundaries](#boundaries)** — What this suite deliberately does not own: selection truth, the MMCM servo and the fsync CDC belong to the datapath-level arms in `tb/verilator/milan_dp`.
 
@@ -30,6 +31,14 @@ The reference rate is the true divider plan: `100 MHz * 391/1591 / 512 =
 | G4  | feed watchdog: silence disengages (u = 0, exact free-run), frames re-engage from a fresh reference and reacquire |
 | G5  | deselect mid-lock: instant disengage, bit-exact free-run returns |
 | G6  | a 400 ppm feed (beyond the +/-200 ppm authority): u parks at the clamp, slips honestly, and conditional integration makes recovery a re-acquisition rather than a ~1.5 s integrator bleed |
+
+## The negative control
+
+`MGA_MUT_U_SIGN` compiles the wrap with the loop's command sign inverted
+into the NCO - the runaway the sign chain exists to prevent - and the
+default `make` runs that build expecting FAILURE (it dies in [G2] with the
+phase past five samples). If the mutant ever passes, the sign checks have
+gone vacuous.
 
 ## What this suite caught while it was being written
 

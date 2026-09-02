@@ -30,8 +30,17 @@ all: run
 
 run:
 	$(VERILATOR) $(VFLAGS) $(SRCS) $(CPP) -o Vmedia_grid_align_sim
+	$(VERILATOR) $(VFLAGS) --Mdir obj_mut_usign +define+MGA_MUT_U_SIGN \
+	  $(SRCS) $(CPP) -o Vmedia_grid_align_sim
 	@echo "======================================================================"
 	./obj_dir/Vmedia_grid_align_sim
+	@echo "---- negative control: the inverted-sign build MUST fail -------------"
+	@if ./obj_mut_usign/Vmedia_grid_align_sim > obj_mut_usign/mut.log 2>&1; then \
+	  echo "SELF-TEST FAILED: MGA_MUT_U_SIGN PASSED. The sign checks are vacuous."; \
+	  exit 1; \
+	else \
+	  echo "negative control MGA_MUT_U_SIGN: RED as required -- $$(grep -m1 'FAIL' obj_mut_usign/mut.log)"; \
+	fi
 
 clean:
-	rm -rf obj_dir
+	rm -rf obj_dir obj_mut_usign
