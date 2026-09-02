@@ -61,6 +61,12 @@ Follow the session prefixes defined in [CONTRIBUTING.md](CONTRIBUTING.md):
 
 - `[A<n>]` — author/executor activity from session `n`.
 - `[R<n>]` — reviewer activity from session `n`.
+- `[R<n>-a]`, `[R<n>-b]` — lettered halves of one review session running
+  separate lenses in parallel (decided on #316: the suffixed form IS the
+  supported public dialect; `scripts/check_merge_review_integrity.py` reads
+  it). Each suffixed identity publishes its own verdict; a round-status line
+  such as `[R<n>] MERGE-ROUND COMPLETE` carries no verdict word and clears
+  nothing — the clearing `POSITIVE` must be spelled by a reviewer identity.
 
 Every active Issue must publicly identify an **executor** and an **independent
 reviewer** before implementation starts. Roles should rotate across tasks:

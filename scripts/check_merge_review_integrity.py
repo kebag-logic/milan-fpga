@@ -44,8 +44,12 @@ line reading "PASS ... negative-control" is not mistaken for a rejection, and
 "VALIDATED" is the positive pole of that axis (#111, #112). See _line_verdict.
 
 SCOPE. This is a NAMED-DIALECT parser, not an NLP one: it reads the AGENTS.md
-section 6 convention (`[R<n>] POSITIVE`/`NEGATIVE`, `[R<n>] BLOCKER`) plus the
-handful of rejection phrasings this corpus actually uses. It deliberately does
+section 6 convention (`[R<n>] POSITIVE`/`NEGATIVE`, `[R<n>] BLOCKER`, and the
+suffixed multi-lens identities `[R<n>-a]`/`[R<n>-b]` - the #316 decision) plus
+the handful of rejection phrasings this corpus actually uses. A round-status
+line that carries no verdict word (`[R0] MERGE-ROUND COMPLETE`) is NOT a
+verdict and never clears a standing NEGATIVE - publishing the verdict word is
+the round's job, which is exactly what #316's record of PR #310 is about. It deliberately does
 NOT try to understand arbitrary prose - a reviewer who states a rejection only
 as free text ("this needs more work", an unprefixed `**Verdict: ...**` line)
 is off-convention and can be missed; the fix for that is to publish the verdict
@@ -80,8 +84,14 @@ DEFAULT_LIMIT = 20
 #: a reviewer publishes a verdict. A leading markdown header (`##`/`###`) or
 #: bold (`**`) is allowed, because reviews write findings as `### [R1] BLOCKER`
 #: and verdicts as `## [R1] POSITIVE` headers ([R2] on this PR).
+#: SUFFIXED identities (`[R0-a]`, `[R0-b]`) are part of the supported dialect
+#: since #316: multi-lens rounds split one review session into lettered
+#: reviewer halves and the corpus has published verdicts under them (PR #294,
+#: PR #310). The suffix is one or two lowercase letters; anything else is
+#: still the free-prose boundary the docstring draws.
 _LEAD = r"^\s*#*\s*\**\s*"
-_RLINE_RE = re.compile(_LEAD + r"\[R\d+\]")
+_RID = r"\[R\d+(?:-[a-z]{1,2})?\]"
+_RLINE_RE = re.compile(_LEAD + _RID)
 #: A findings / clean-lens line: `[R<n>]` then one of the section-6 severity
 #: or PASS tokens. These are NOT the top verdict, and their PROSE routinely
 #: contains verdict words that are not verdicts - a `PASS` lens line says
@@ -89,7 +99,7 @@ _RLINE_RE = re.compile(_LEAD + r"\[R\d+\]")
 #: those as a verdict flips a POSITIVE-reviewed clean merge to negative-merge
 #: (PR #199 did exactly that under the first cut of this parser, [R1]).
 _FINDING_LEAD_RE = re.compile(
-    _LEAD + r"\[R\d+\]\s*(?:\*\*\s*)?(PASS|BLOCKER|MAJOR|MINOR|SUGGESTION)\b",
+    _LEAD + _RID + r"\s*(?:\*\*\s*)?(PASS|BLOCKER|MAJOR|MINOR|SUGGESTION)\b",
     re.I)
 #: A rejection, in the dialects this corpus actually uses: `NEGATIVE` (but not
 #: the compound "negative control", this repo's own test vocabulary),
@@ -398,6 +408,45 @@ def selftest():
     f13 = assess_pr(p13, openf({13}))          # #12 closed, #13 open
     if [x.reason for x in f13] != ["open-issue"] or "#13" not in f13[0].detail:
         problems.append("case13 comma-list-closes: %s" % [x.line() for x in f13])
+
+    # 14. THE #310 SHAPE (#316's grammar decision): a SUFFIXED multi-lens
+    # identity publishes the clearing POSITIVE after a canonical NEGATIVE.
+    # Under the pre-#316 parser the suffixed line was invisible and the merge
+    # read negative; the suffixed dialect is supported now, so this is clean.
+    p14 = {"number": 310, "mergedAt": "2026-09-01T21:05:25Z", "body": "x",
+           "comments": [
+               {"body": "[R8] NEGATIVE - blockers at head 74b9",
+                "createdAt": "2026-09-01T08:42:50Z"},
+               {"body": "## [R0-a] POSITIVE - conformance lens at head baff9ae7",
+                "createdAt": "2026-09-01T20:30:00Z"}], "reviews": []}
+    if assess_pr(p14, openf(set())):
+        problems.append("case14 suffixed-positive must clear: %s"
+                        % [x.line() for x in assess_pr(p14, openf(set()))])
+
+    # 15. A round-STATUS line is not a verdict: `MERGE-ROUND COMPLETE` after a
+    # NEGATIVE clears nothing (the other half of the #310 record).
+    p15 = {"number": 311, "mergedAt": "2026-09-01T21:05:25Z", "body": "x",
+           "comments": [
+               {"body": "[R8] NEGATIVE - blockers stand",
+                "createdAt": "2026-09-01T08:42:50Z"},
+               {"body": "[R0] MERGE-ROUND COMPLETE - both tracks summarized",
+                "createdAt": "2026-09-01T21:05:22Z"}], "reviews": []}
+    if [x.reason for x in assess_pr(p15, openf(set()))] != ["negative-merge"]:
+        problems.append("case15 status-line-is-not-a-verdict")
+
+    # 16. A suffixed FINDING/CLEAN-LENS lead is still not a verdict: an
+    # `[R0-b] PASS <lens> ... negative-control` line after a POSITIVE must
+    # not flip the merge (the same skip rule as the unsuffixed form).
+    p16 = {"number": 312, "mergedAt": "2026-08-20T15:00:00Z", "body": "x",
+           "reviews": [{"body": "[R0] POSITIVE",
+                        "submittedAt": "2026-08-20T12:00:00Z"},
+                       {"body": "[R0-b] PASS Tests - tb/foo:1 - the "
+                                "negative-control fires as required",
+                        "submittedAt": "2026-08-20T13:00:00Z"}],
+           "comments": []}
+    if assess_pr(p16, openf(set())):
+        problems.append("case16 suffixed-pass-lens must be skipped: %s"
+                        % [x.line() for x in assess_pr(p16, openf(set()))])
 
     # 14. `Closes: #14` (colon) and `discloses #99` (must NOT match).
     p14 = {"number": 131, "mergedAt": "2026-08-20T10:00:00Z",
