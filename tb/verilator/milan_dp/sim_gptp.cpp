@@ -656,7 +656,7 @@ int main(int argc, char **argv) {
   // the RTL default.  Before any peer answers, the engine's committed bank is
   // zero. Retained legacy addresses remain mapped for ABI stability, but every
   // write is inert and cannot manufacture a publication or healthy CLKV claim.
-  expect("default-on VERSION", axi_read(dut, 0x004), 0x00020056);
+  expect("default-on VERSION", axi_read(dut, 0x004), 0x00020057);
   axi_write(dut, 0x624, 0x55667788); axi_write(dut, 0x628, 0x11223344);
   axi_write(dut, 0x6E4, 1234);
   axi_write(dut, 0x730, 0xDDEEFF00); axi_write(dut, 0x734, 0x99AABBCC);
