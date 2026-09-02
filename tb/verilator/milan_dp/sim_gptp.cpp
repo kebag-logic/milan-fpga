@@ -1350,6 +1350,12 @@ int main(int argc, char **argv) {
     expect("the full-queue refusal leaves the parser count",
            w2 & 0xFFFF, w1 & 0xFFFF);
     expect("the full-queue refusal leaves the tap count", w2 >> 16, w1 >> 16);
+    // The restore is exact only if no pop fired inside the window; a pop
+    // needs the uCPU idle, which s1's still-running handler forbids, and
+    // an early pop would fail the full-queue expect above loudly. The one
+    // green-but-poisoned residue (a pop after the refusal, before this
+    // line) is benign only because this is the file's last arm - keep it
+    // last, or gate the restore on dbg_busy_o.
     *eng = (uint8_t)((root->milan_datapath__DOT__g_gptp_plane__DOT__u_gptp_shadow__DOT__u_engine__DOT__evq_wp_r
             - root->milan_datapath__DOT__g_gptp_plane__DOT__u_gptp_shadow__DOT__u_engine__DOT__evq_rp_r) & 3);
     dut->eval();
