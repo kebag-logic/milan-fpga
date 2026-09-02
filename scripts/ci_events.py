@@ -568,11 +568,17 @@ BUILDER_CHECKOUTS = {
 #: the same pinned release the portability gate uses, held here as one exact
 #: script: an unpinned version is a silent toolchain drift, and a missing
 #: install is a red job dressed as a candidate finding.
+#: The release artefact is checksum-verified since #287: a version pin
+#: without a digest is half a pin - the name is fetched, the bytes are not
+#: held. The digest was computed from the official v0.0.12 sv2v-Linux.zip
+#: release asset and lives in the workflow text, never fetched at run time.
 SV2V_INSTALL = (
     "set -euo pipefail",
     "ver=v0.0.12",
+    "sha256=ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00",
     'url="https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip"',
     'curl -fsSL "$url" -o /tmp/sv2v.zip',
+    'echo "${sha256} /tmp/sv2v.zip" | sha256sum -c -',
     "unzip -q -o /tmp/sv2v.zip -d /tmp/sv2v",
     'sudo install -m755 "$(find /tmp/sv2v -name sv2v -type f | head -1)" /usr/local/bin/sv2v',
     "sv2v --version",

@@ -257,8 +257,10 @@ jobs:
         run: |
           set -euo pipefail
           ver=v0.0.12
+          sha256=ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00
           url="https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip"
           curl -fsSL "$url" -o /tmp/sv2v.zip
+          echo "${sha256}  /tmp/sv2v.zip" | sha256sum -c -
           unzip -q -o /tmp/sv2v.zip -d /tmp/sv2v
           sudo install -m755 "$(find /tmp/sv2v -name sv2v -type f | head -1)" \
             /usr/local/bin/sv2v
@@ -435,8 +437,10 @@ jobs:
         run: |
           set -euo pipefail
           ver=v0.0.12
+          sha256=ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00
           url="https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip"
           curl -fsSL "$url" -o /tmp/sv2v.zip
+          echo "${sha256}  /tmp/sv2v.zip" | sha256sum -c -
           unzip -q -o /tmp/sv2v.zip -d /tmp/sv2v
           sudo install -m755 "$(find /tmp/sv2v -name sv2v -type f | head -1)" \
             /usr/local/bin/sv2v
