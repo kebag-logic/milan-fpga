@@ -552,26 +552,63 @@ def base_wiring_report(source: str) -> dict[str, object]:
     """What every base-consuming call site is actually HANDED, from the source.
 
     The refusals below are armed one by one, but an arm can only see the
-    argument it is given: reverting a single call site to ``pr.base_sha``
-    reinstates #292's bug with every refusal still correct and the whole
-    suite green ([R2] on PR #336 - "the leaves are armed, the wiring is
-    not"). This reads the runner's own text and reports, for each consumer,
-    the name passed in the base position, plus the order of the calls in
-    ``main`` whose sequence the trust argument depends on. It is a source
-    shape, deliberately: no runtime path can observe a call site that a
-    mutation has already changed.
+    argument it is given: reverting a single call site to the frozen recorded
+    oid reinstates #292's bug with every refusal still correct and the whole
+    suite green ([R2] on PR #336 - "the leaves are armed, the wiring is not").
+    This reads the runner's own text and reports, per consumer, the argument
+    each PRODUCTION call site passes in the base position, separately from the
+    self-test's own fixture calls, plus the order of the ``main`` calls whose
+    sequence the trust argument depends on.
+
+    Three properties of this reader are load-bearing, and each was a hole
+    [R1] proved exploitable in its first cut on PR #336:
+
+    * a consumer that takes the base by KEYWORD (``run_validation``) is
+      listed with ``None`` and matched on the keyword, not skipped - the
+      first cut looked its name up in a positional table and dropped the
+      site entirely, which a live mutant reinstated #292 through;
+    * production sites are WHITELISTED against the resolved name rather
+      than blacklisted against ``pr.base_sha``, so a one-line local alias
+      cannot slip past;
+    * fixture calls inside ``selftest`` are reported apart from production
+      ones, so a test call site can never satisfy "this consumer is wired".
     """
     tree = ast.parse(source)
-    positions = {
+    consumers: dict[str, int | None] = {
         "validate_trusted_runner": 1,
         "require_exact_fetched_refs": 1,
         "materialize_remote_head": 3,
         "build_event": 2,
         "validate_runner": 3,
+        "run_validation": None,
     }
-    passed: dict[str, set[str]] = {name: set() for name in positions}
-    order: list[str] = []
-    watched = ("validate_pull_request", "resolve_validation_base", "validate_runner")
+    span = next(
+        (
+            (node.lineno, node.end_lineno or node.lineno)
+            for node in ast.walk(tree)
+            if isinstance(node, ast.FunctionDef) and node.name == "selftest"
+        ),
+        None,
+    )
+    production: dict[str, set[str]] = {name: set() for name in consumers}
+    fixture: dict[str, set[str]] = {name: set() for name in consumers}
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Call) or not isinstance(node.func, ast.Name):
+            continue
+        name = node.func.id
+        if name not in consumers:
+            continue
+        index = consumers[name]
+        argument: ast.expr | None = None
+        if index is not None and len(node.args) > index:
+            argument = node.args[index]
+        else:
+            for keyword in node.keywords:
+                if keyword.arg == "validation_base":
+                    argument = keyword.value
+        passed = ast.unparse(argument) if argument is not None else "<absent>"
+        in_selftest = span is not None and span[0] <= node.lineno <= span[1]
+        (fixture if in_selftest else production)[name].add(passed)
     main_fn = next(
         (
             node
@@ -580,23 +617,8 @@ def base_wiring_report(source: str) -> dict[str, object]:
         ),
         None,
     )
-    for node in ast.walk(tree):
-        if not isinstance(node, ast.Call) or not isinstance(node.func, ast.Name):
-            continue
-        name = node.func.id
-        index = positions.get(name)
-        if index is None:
-            continue
-        argument: ast.expr | None = None
-        if len(node.args) > index:
-            argument = node.args[index]
-        else:
-            for keyword in node.keywords:
-                if keyword.arg in ("validation_base",):
-                    argument = keyword.value
-        if argument is None:
-            continue
-        passed[name].add(ast.unparse(argument))
+    watched = ("validate_pull_request", "resolve_validation_base", "validate_runner")
+    sites: list[tuple[int, str]] = []
     if main_fn is not None:
         for node in ast.walk(main_fn):
             if (
@@ -604,8 +626,12 @@ def base_wiring_report(source: str) -> dict[str, object]:
                 and isinstance(node.func, ast.Name)
                 and node.func.id in watched
             ):
-                order.append(node.func.id)
-    return {"passed": passed, "main_order": order}
+                sites.append((node.lineno, node.func.id))
+    return {
+        "production": production,
+        "fixture": fixture,
+        "main_order": [name for _line, name in sorted(sites)],
+    }
 
 
 def emit_flushed(message: str) -> None:
@@ -3696,19 +3722,26 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
     #: the trust argument depends on (the base ref must be validated before
     #: it is used to build a remote lookup).
     wiring = base_wiring_report(inspect.getsource(sys.modules[__name__]))
-    passed = wiring["passed"]
-    assert isinstance(passed, dict)
-    unwired = sorted(name for name, names in passed.items() if not names)
+    production_sites = wiring["production"]
+    assert isinstance(production_sites, dict)
     check(
-        "every base consumer is wired at a call site the source can see",
-        unwired == [],
+        "every base consumer is wired at a production call site, none by a "
+        "self-test fixture alone",
+        sorted(name for name, names in production_sites.items() if not names) == [],
     )
-    reverted = sorted(
-        name for name, names in passed.items() if "pr.base_sha" in names
+    #: WHITELIST, not a blacklist ([R1] on PR #336 slipped a local alias past
+    #: the first cut): every production site must hand over the resolved
+    #: name itself. `<absent>` is reported for a site that passes no base at
+    #: all, so an omitted argument fails here too.
+    mishanded = sorted(
+        (name, sorted(names))
+        for name, names in production_sites.items()
+        if names != {"validation_base"}
     )
     check(
-        "no call site hands a base consumer the frozen recorded oid",
-        reverted == [],
+        "every production call site hands its consumer the resolved "
+        "validation base, by that name",
+        mishanded == [],
     )
     check(
         "main validates the pull request before resolving the base, and "
