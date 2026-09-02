@@ -187,7 +187,7 @@ parent, path and peer-delay publications are zero, sync/asCapable are zero, and
 `tu` is one. Legacy writes are acknowledged and ignored: they cannot publish a
 path, create clock health, or renew a lease. The verification map below proves
 that attempted writes leave the fail-safe outputs unchanged. VERSION
-`0x0002_0056` records removal of the final compatibility owner without
+`0x0056` records removal of the final compatibility owner without
 allocating new CSR addresses.
 
 ## Drop diagnostics

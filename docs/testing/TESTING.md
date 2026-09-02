@@ -74,7 +74,7 @@ Machine-checked status rows are defined by the
 | `stream-input.stopped-crf-observation` | `implemented` | - |
 | `stream-format.set` | `implemented` | - |
 | `stream-info.set-acc-lat` | `implemented` | - |
-| `crf.media-clock-consumption` | `missing` | - |
+| `crf.media-clock-consumption` | `implemented` | - |
 | `state.nonvolatile-persistence` | `missing` | - |
 | `notifications.change-events` | `implemented` | - |
 | `verification.long-gate-policy` | `implemented` | `local-required, remote-required` |
@@ -338,7 +338,7 @@ verdicts and for check counts.
 | [`tb/verilator/clkvalid`](../../tb/verilator/clkvalid) | `KL_ptp_clock_validity` — the AVTP `tu` verdict, two shapes |
 | [`tb/verilator/cls`](../../tb/verilator/cls) | classification incl. the reserved-DMAC control table and the tagged-0x22F0 negative |
 | [`tb/verilator/controller_rate`](../../tb/verilator/controller_rate) | the gating regression born from the CBS datapath bug |
-| [`tb/verilator/crf_rx`](../../tb/verilator/crf_rx) | the CRF Media Clock Input engine. It parses, counts and reports, but the root media plane does not consume the processor's stored clock-source selection, so it cannot steer anything |
+| [`tb/verilator/crf_rx`](../../tb/verilator/crf_rx) | the CRF Media Clock Input engine. It parses, counts and reports; since #74 the root's `media_clk_resolve` verdict decides whether its measurements steer the servo chain, so a CRF selection makes them actuate |
 | [`tb/verilator/crf_tx`](../../tb/verilator/crf_tx) | — |
 | [`tb/verilator/csr`](../../tb/verilator/csr) | the executable form of [REGISTER_MAP.md](../reference/REGISTER_MAP.md). Its `obj_live` leg is **deleted** — that leg drove the old control-plane windows live |
 | [`tb/verilator/datapath`](../../tb/verilator/datapath) | — |
@@ -349,9 +349,10 @@ verdicts and for check counts.
 | [`tb/verilator/link_guard`](../../tb/verilator/link_guard) | — |
 | [`tb/verilator/maap`](../../tb/verilator/maap) | `KL_maap`, which remains the shipping allocator while the processor's internal MAAP engine is disabled |
 | [`tb/verilator/mac_rmon`](../../tb/verilator/mac_rmon) | the revived RMON event derivation + STATS_CAP |
-| [`tb/verilator/media_nco`](../../tb/verilator/media_nco) | `KL_media_nco`, the steerable media sample grid. See Section 7 -- the servo that would steer it is structurally off in every build |
+| [`tb/verilator/media_grid_align`](../../tb/verilator/media_grid_align) | `KL_media_grid_align`, the #74 packet-grid alignment loop, closed-loop over the real `KL_media_nco` at the true 391/1591 divider ratio: both rate directions, zero junction slips, the watchdog disengage, and the beyond-authority clamp and recovery |
+| [`tb/verilator/media_nco`](../../tb/verilator/media_nco) | `KL_media_nco`, the steerable media sample grid. Since #74 `KL_media_grid_align` steers it under a CRF selection; at INTERNAL it free-runs |
 | [`tb/verilator/milan_dp`](../../tb/verilator/milan_dp) | the whole `milan_datapath` wrapper at legacy, N=4 and N=8; carries the entry-0 blocker guard (TRAP-1). Elaborates the processor with the wrapper, so it needs the `protocol-processor` submodule |
-| [`tb/verilator/mmcm_servo`](../../tb/verilator/mmcm_servo) | `KL_mmcm_drp_servo` as a block. Same Section 7 caveat: the block is graded, the build never enables it |
+| [`tb/verilator/mmcm_servo`](../../tb/verilator/mmcm_servo) | `KL_mmcm_drp_servo` as a block. Since #74 the build enables it through the live clock-source resolve (Section 7) |
 | [`tb/verilator/mmcm_servo_autorepair`](../../tb/verilator/mmcm_servo_autorepair) | — |
 | [`tb/verilator/pair_fill`](../../tb/verilator/pair_fill) | `KL_pair_blend` + `KL_pair_zero_fill` |
 | [`tb/verilator/pcmlpf`](../../tb/verilator/pcmlpf) | — |
@@ -515,7 +516,7 @@ The workstation grader exercises direct bare-metal UART commands. It requires
 `ID=MILN`, the current publication ABI, `AEM=loaded`, enabled
 PTP/ADP/PP, nonzero GM and parent identities, a bounded path and pdelay,
 consistent `CLKV_STAT`, `sync=1`, `asCapable=1`, `time_uncertain=0`, and an
-advancing PHC. For `VERSION=0x0002_0056`, fabric is the sole product gPTP
+advancing PHC. For `VERSION=0x0002_0057`, fabric is the sole product gPTP
 owner. A direct verification-only option-OFF build instead must expose zero
 GM/parent/path/pdelay, `sync=0`, `asCapable=0`, `time_uncertain=1`, and inert
 legacy writes. Use a validated external JTAG/CSR transport for evidence not
@@ -668,13 +669,14 @@ bare-metal board exposes only the UART. What stands in its place:
   Milan Delta 7 `ACQUIRE_ENTITY` is graded for `NOT_SUPPORTED`, a zero owner,
   correct addressing, and the command-specific length. Three consequences
   remain easy to mistake for test failures:
-  * **The CRF media clock can never be SELECTED.** `SET_CLOCK_SOURCE` is
-    accepted and stored, and the wrapper exports the selected index to the root.
-    No media-plane consumer reads it, so the active selection stays pinned at
-    0 (the INTERNAL media clock) for the life of a build. `KL_mmcm_drp_servo`
-    and the `KL_media_nco` packet-grid servo are therefore **structurally off**
-    and `A_MCSRV_STAT` (`0x8F8`) reads its idle. Their suites still pass; the
-    build never enables what they grade.
+  * **The CRF media clock engages only when a controller SELECTS it.**
+    `SET_CLOCK_SOURCE` is accepted, stored, and — since #74 — consumed:
+    `milan_datapath`'s `media_clk_resolve` block compares the stored index
+    against the shape's generated `AEM_CRF_CLKSRC_C` and gates
+    `KL_mmcm_drp_servo` and the grid-alignment loop on the verdict. At the
+    power-on INTERNAL selection they are honestly idle, so `A_MCSRV_STAT`
+    (`0x8F8`) reading IDLE with trim 0 on a fresh build is correct behaviour,
+    not a fault; it moves once the CRF source is selected.
   * **Presentation-time offset is pinned at the Milan 2 ms DEFAULT** for every
     Stream Output (`SET_MAX_TRANSIT_TIME` is gone). That is a default, not a
     zero — 0 ns would be a presentation time in the past and every listener

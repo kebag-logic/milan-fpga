@@ -7,11 +7,12 @@ SPDX-License-Identifier: CERN-OHL-W-2.0
 
 How time works in this system, top to bottom: what 802.1AS (gPTP) gives us,
 where fabric timestamps are made, how the integrated engine disciplines the
-PHC, and how media clock recovery is designed. The current root does not consume the exported
-clock-source selection, so its audio clock remains INTERNAL. Register offsets follow
+PHC, and how media clock recovery works. Since #74 the root consumes the stored
+clock-source selection: selecting the CRF source steers the audio clock, while
+the power-on INTERNAL state free-runs. Register offsets follow
 [`../reference/REGISTER_MAP.md`](../reference/REGISTER_MAP.md) (the CSR ABI
-authority); status claims carry their in-repo evidence. Updated 2026-08-30 for
-VERSION `0x0002_0056` and the ownerless option-OFF proof target.
+authority); status claims carry their in-repo evidence. Updated 2026-09-02 for
+VERSION `0x0002_0057` and the live #74 clock-source consumption.
 
 Current command, clock-consumption, and notification claims are checked against
 the [Milan feature status ledger](../reference/MILAN_FEATURE_STATUS.md):
@@ -20,7 +21,7 @@ the [Milan feature status ledger](../reference/MILAN_FEATURE_STATUS.md):
 | Feature ID | Status | Canonical value |
 |---|---|---|
 | `aem.served-command-set` | `implemented` | - |
-| `crf.media-clock-consumption` | `missing` | - |
+| `crf.media-clock-consumption` | `implemented` | - |
 | `gptp.fabric-product-owner` | `implemented` | - |
 | `notifications.change-events` | `implemented` | - |
 <!-- milan-feature-status:end -->
@@ -35,13 +36,13 @@ the [Milan feature status ledger](../reference/MILAN_FEATURE_STATUS.md):
 
 ## Contents
 
-- **[1. Concept -- the three clocks](#1-concept----the-three-clocks)** -- Distinguishes the gPTP-disciplined PHC, the softcore's own timebase, and the physical audio clock, then records that the shipping audio source remains INTERNAL.
+- **[1. Concept -- the three clocks](#1-concept----the-three-clocks)** -- Distinguishes the gPTP-disciplined PHC, the softcore's own timebase, and the physical audio clock, then records that the power-on audio source is INTERNAL and that a CRF selection now steers it.
 - **[2. Mechanism -- the hardware timestamp path](#2-mechanism----the-hardware-timestamp-path)** -- Follows the fractional-nanosecond counter, RX and TX timestamp points, fabric consumption and latency corrections at the MAC boundary.
-- **[3. The media clock](#3-the-media-clock)** -- How a shared nanosecond timeline is intended to become a 48 kHz sample edge, the inactive PI servo design, and the missing root selection that keeps the shipping clock INTERNAL. The section also records the master-role error budget and measured historical loop behavior.
-- **[4. Time-related CSRs -- quick table](#4-time-related-csrs----quick-table)** -- Lists every time and media-clock register from the PHC controls through CRF measurements, latency taps, and the inactive servo status.
+- **[3. The media clock](#3-the-media-clock)** -- How a shared nanosecond timeline becomes a 48 kHz sample edge: the PI servo, the grid-alignment loop, and the `media_clk_resolve` verdict that makes the stored clock-source selection reach them (#74). The section also records the master-role error budget and measured historical loop behavior.
+- **[4. Time-related CSRs -- quick table](#4-time-related-csrs----quick-table)** -- Lists every time and media-clock register from the PHC controls through CRF measurements, latency taps, and the servo status.
 - **[4a. Centered-FIFO regulation goal (USER 2026-08-07): +/- 125 us](#4a-centered-fifo-regulation-goal-user-2026-08-07---125-us)** -- The standing regulation target: the DAC elasticity FIFO stays centered and its wander holds within one class-A frame period (+/-6 pairs), earned by clock quality rather than buffer depth
 - **[4b. Grandmaster loss and recovery](#4b-grandmaster-loss-and-recovery)** -- Pointer to [GM_LOSS_RECOVERY.md](GM_LOSS_RECOVERY.md), the transient story: what a GM hand-off costs at each layer and why it is now one MEDIA_RESET click + ~100 ms with the lock held
-- **[5. Status (updated 2026-08-30)](#5-status-updated-2026-08-30)** -- Evidence ledger for PHC/timestamp, gPTP and CRF/media-clock claims, followed by the remaining calibration, BMCA, Pdelay-edge and bench-acceptance gaps
+- **[5. Status (updated 2026-09-02)](#5-status-updated-2026-09-02)** -- Evidence ledger for PHC/timestamp, gPTP and CRF/media-clock claims, followed by the remaining calibration, BMCA, Pdelay-edge and bench-acceptance gaps
 
 ## 1. Concept -- the three clocks
 
@@ -64,14 +65,14 @@ Three clocks exist on each board, chained in one direction:
 3. **The media clock:** the 24.576 MHz audio MMCM output, divided to the
    48 kHz sample grid that the I2S/TDM front-ends run on. It is a *physical*
    clock (a DAC cannot consume "nanoseconds"), so it cannot be written like
-   the PHC. The recovery hardware can steer it from CRF timestamps, but the
-   shipping root pins the source to INTERNAL and leaves both servo actuators
-   disabled (section 3).
+   the PHC. The recovery hardware steers it from CRF timestamps once a
+   controller selects the CRF clock source; the power-on state is INTERNAL
+   free-run (section 3).
 
 The current chain, in one sentence: the fabric gPTP engine disciplines the PHC
-and timestamps frames, while the audio MMCM remains an independent internal
-clock. Consuming the exported clock-source selection is required before CRF
-can steer it.
+and timestamps frames, and the stored clock-source selection resolves in the
+root — with CRF selected the MMCM servo steers the audio clock and the grid
+aligner follows it; with INTERNAL selected the audio MMCM free-runs.
 
 ## 2. Mechanism -- the hardware timestamp path
 
@@ -116,7 +117,7 @@ In the shipped datapath the frames that matter - the fabric gPTP plane's own -
 are stamped by the plane: `KL_gptp_txstamp` latches the PHC at the first beat
 of an `0x88F7` frame at the TRUE MAC boundary (`tx_axis_to_mac`, armed by the
 plane's lane), and `KL_gptp_shadow` stamps committed ingress frames off the
-filtered RX tap. Since VERSION `0x0002_0056` `milan_datapath` instantiates only
+filtered RX tap. Since VERSION `0x0056` `milan_datapath` instantiates only
 the PHC (`timestamp_counter` + `ptp_csr_sync`); the `ptp_ts_top` TX/RX record
 stampers that used to sit in-line (TX between the CBS shaper and the arbiter,
 RX directly after MAC ingress) are gone with the general-data chain, because
@@ -330,8 +331,8 @@ interval/type increments `fmt_err`) and produces the two servo inputs:
 * **lock**: 8 clean consecutive PDUs to lock, 100 ms of silence (or a
   validation error) to unlock, mirroring the AAF media-lock contract.
   Solicited `GET_COUNTERS` serves the supported CLOCK_DOMAIN bank through the
-  processor counter face. The selected source remains structurally INTERNAL in
-  this integration, so the served lock pair cannot follow a CRF selection.
+  processor counter face. Since #74 the resolved selection gates consumption,
+  so the served lock pair follows a live CRF selection (section 3.4).
   Its counter-change pulse reaches the Milan Table 5.22 scheduler, so the
   served CLOCK_DOMAIN bank also gets the per-descriptor, at-most-once-per-second
   unsolicited `GET_COUNTERS` path.
@@ -342,26 +343,21 @@ lever (`milan_datapath.sv`, `crf_rx` instance).
 
 ### 3.4 The MMCM-DRP servo — `KL_mmcm_drp_servo` (MCSRV 0x8F8/0x8FC)
 
-> 🔴 **THIS SERVO IS STRUCTURALLY OFF SINCE 2026-08-13, AND SO IS THE
-> PACKET-GRID NCO SERVO.** Both engage only when the live CLOCK_DOMAIN
-> `clock_source_index` selects the CRF descriptor. The current protocol
-> processor accepts `SET_CLOCK_SOURCE` and stores the selected index, but
-> `KL_pp_shadow.sv` exports `aecp_clk_src_index_o` to the root and no
-> media-plane consumer reads it. The active selection is pinned at index 0, the
-> INTERNAL media clock, for the life of the build
-> (`milan_datapath`'s `CRF_CLK_SELECTED_C`), and **the CRF media clock can
-> never be selected**.
->
-> Everything upstream of the actuator still works: `KL_crf_rx` parses, locks,
-> counts and reports, and the CSR group at `0x738` measures a real recovered
-> clock. What no longer exists is any path from that measurement to the audio
-> MMCM or the packet grid. `A_MCSRV_STAT` `0x8F8` reads state IDLE with trim 0
-> forever, and the loop described below cannot close on this build. It is
-> documented in full because the RTL is still in the tree and the loop is the
-> specification the selection mechanism must be restored against.
+> 🟢 **THE SELECTION IS LIVE SINCE #74** (it was structurally off
+> 2026-08-13 → #74). The protocol processor stores `SET_CLOCK_SOURCE`,
+> `KL_pp_shadow.sv` exports it, and `milan_datapath`'s `media_clk_resolve`
+> block turns it into one registered verdict — the stored index compared
+> against this shape's generated `AEM_CRF_CLKSRC_C`
+> (`gen/adp_shape_defaults.svh`; `16'hFFFF` on a shape with no CRF source,
+> so the compare is structurally false there). That verdict gates this
+> servo, the packet-grid alignment loop (Section 3.5.1) and the `mr` machinery.
+> With INTERNAL selected — the power-on state — everything below is
+> honestly idle: `A_MCSRV_STAT` `0x8F8` reads IDLE with trim 0 until a
+> controller selects the CRF source.
 
 [`hdl/ieee1722/crf/KL_mmcm_drp_servo.sv`](../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv) closes the loop when
-`clock_source == 2` (the CRF CLOCK_SOURCE descriptor); in every other mode
+the resolved selection names the CRF CLOCK_SOURCE descriptor (this shape's
+generated `AEM_CRF_CLKSRC_C`); in every other mode
 it is IDLE with zero DRP/PS activity.
 
 The loop error is **differential rate**, not phase: `e = local_rate -
@@ -406,9 +402,11 @@ units** in bits [31:16].
 element — the ADC capture front-end, the CRF talker's timestamp grid, and
 (through the servo) the listener's playback clock.
 
-There is no programmable resampler and no NCO anywhere in the path; the old
-playback NCO was removed by the exact-recovery rule and its trim output
-reads 0 (`KL_i2s_playback.sv` header). When the servo locks, talker and
+There is no programmable resampler and no NCO anywhere in the *playback*
+path; the old playback NCO was removed by the exact-recovery rule and its
+trim output reads 0 (`KL_i2s_playback.sv` header). (The *packet-grid* NCO,
+`KL_media_nco`, is a different animal - it paces the capture/packetizer
+walk, and Section 3.5.1 owns its phase contract.) When the servo locks, talker and
 listener run at the *same* frequency, so the playback FIFO neither drains
 nor fills and the drift-glitch class (underrun repeats / overrun drops) ends.
 
@@ -429,6 +427,62 @@ playback-FIFO convergence flag: fill inside the mid-window sustained for
 100 ms, `KL_i2s_playback.sv`), and losing convergence while locked is an
 immediate MEDIA_UNLOCKED event. Internal locks immediately; external must
 earn it.
+
+### 3.5.1 The grid phase contract — `clk_tdm_i`, `clk_audio_i`, `media_tick_p` (#74)
+
+Three clocks meet at the capture holds, and #74 gives their relationship a
+stated contract instead of an accident:
+
+* **`clk_audio_i`** is 24.576 MHz *by contract* (`KL_crf_tx`'s /512 event
+  grid, `KL_i2s_playback`, the MMCM servo's measurement all assume it);
+  the MMCM steers it under CRF. On the shipping divider plan its true rate
+  is `100e6 * 391/1591` = 24,575,738.53 Hz (Plan A, −10.64 ppm).
+* **`clk_tdm_i`** carries the physical grid: the TDM master divides it to
+  `fsync` by a pure integer plan (elaboration-guarded), so `fsync` follows
+  whatever steers `clk_tdm_i` — and follows *nothing else*.
+* **`media_tick_p`** is the packet grid — `KL_media_nco`'s fractional-N
+  divider of the datapath clock, exactly 48,000.0000 Hz free-running.
+
+**INTERNAL (the power-on state): the grids free-run apart, by the standing
+free-run rule** (internal media clock = free-run, slips accepted). The −10.64 ppm
+difference slips one sample every 1.9582 s at the capture holds; since
+#74 that slip is *counted* (`KL_chan_map_capture`'s `tdm_dup_cnt_o` /
+`tdm_skip_cnt_o` — a frequency-phase detector on the frame marker against
+the tick), not hidden. Every bench number on record was measured in this
+state and still stands.
+
+**CRF selected: one reference chain, one master per link.**
+
+    CRF ──(KL_mmcm_drp_servo, hardware)──► clk_audio/clk_tdm ──► fsync
+        ──(KL_media_grid_align, arithmetic)──► media_tick_p
+
+The MMCM consumes the CRF rate error and publishes its command on
+`A_MCSRV_STAT[31:16]` — that slice is the MMCM's alone now. The align loop
+consumes the front-end frame marker (already in the datapath clock domain)
+and holds the packet grid inside a fraction of a sample of the physical
+one: a cycle-resolution phase detector (time-since-tick captured at each
+frame, a tracking unwrapper for whole-sample folds) into an overdamped PI
+in the same 1/16 ppm units as the servo. A chain rather than a shared
+command is what actually removes the divider drift: mirroring the MMCM's
+command moved both grids by the same ppm and left their nominal offset
+intact.
+
+Each link is separately falsifiable: the servo slice under CRF stimulus
+and the loop's own law in `tb/verilator/mmcm_servo` and
+`tb/verilator/media_grid_align` (closed-loop over the real NCO at the true
+391/1591 ratio, both rate directions, zero junction slips, watchdog,
+beyond-authority clamp and recovery); the whole chain at the root in
+`tb/verilator/milan_dp`'s `obj_aclk` leg (−10.64 ppm measured at INTERNAL,
+|ppm| < 0.5 with CRF selected, zero junction slips, both 4.4.4.3 `mr`
+triggers, the 10.4.3 negative); the silicon whole on the bench — AX7101
+J11.8 (`tdm_fsync_o`) against J11.9 (`media_lrclk_o`), the acceptance line
+that stays open on issue #74.
+
+**Degradation is always toward today's behaviour**: a dead TDM feed
+disengages the align loop (watchdog, 4 frame periods) and the NCO
+free-runs at nominal; deselecting CRF disengages everything and is itself
+a 4.4.4.3 source change (one `mr` toggle, then silence toward received
+toggles).
 
 ### 3.6 AAF presentation time against the PHC
 
@@ -525,7 +579,7 @@ Headline: the product path now detects and publishes the transition entirely
 in fabric and asserts `tu` on the commit edge. Option OFF is ownerless and
 cannot create a clock-valid claim.
 
-## 5. Status (updated 2026-08-30)
+## 5. Status (updated 2026-09-02)
 
 Proven, with the evidence next to each claim:
 
@@ -552,6 +606,16 @@ Proven, with the evidence next to each claim:
   loop THD+N = the converter floor** (2026-07-23) —
   [current Milan audit](../testing/MILAN_V12_AUDIT_2026-08-16.md);
   [historical Milan traceability](../history/v1/traceability/milan-v12.md) row M-DEV-15.
+* **Clock-source selection consumed (#74)**: the stored `SET_CLOCK_SOURCE`
+  index resolves in `milan_datapath`'s `media_clk_resolve` block and gates the
+  servo, the grid aligner and the `mr` machinery (section 3.4/3.5.1). Proven
+  at RTL: [`tb/verilator/media_grid_align`](../../tb/verilator/media_grid_align)
+  (25 checks, closed-loop over the real NCO at the true 391/1591 ratio), the
+  `milan_dp` `obj_aclk` two-phase leg (INTERNAL −10.64 ppm measured; CRF
+  selected |ppm| < 0.5 with zero junction slips, the servo reaching ACQUIRE
+  through the live select, both 4.4.4.3 `mr` triggers and the 10.4.3
+  negative), the `sim_nxn` `[CRF-SEL]` AECP-command round trip, and the
+  `chmap_capture` `[T0]` junction-detector arm.
 
 Partial or missing, each with its row id:
 
@@ -597,6 +661,10 @@ Partial or missing, each with its row id:
   readback is blessed on the bench, and the winning `ps_invert` polarity is
   still a CSR knob rather than the RTL default —
   [current Milan audit](../testing/MILAN_V12_AUDIT_2026-08-16.md).
+* **#74 bench probe — OPEN**: the silicon acceptance of the aligned grids is
+  still to be taken on the AX7101 — J11.8 (`tdm_fsync_o`) against J11.9
+  (`media_lrclk_o`) under a live CRF selection (section 3.5.1). The RTL
+  closed-loop evidence above does not stand in for it.
 * **Unconsumed map rows**: `PTP_INGRESS_LAT`/`PTP_EGRESS_LAT` exist in
   [`../reference/REGISTER_MAP.md`](../reference/REGISTER_MAP.md) but their
   fabric wires are unconsumed (section 2.4) — writing them changes nothing on

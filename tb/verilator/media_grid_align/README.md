@@ -10,8 +10,14 @@ junction pend/consume law (the same law behind `KL_chan_map_capture`'s
 
 The reference rate is the true divider plan: `100 MHz * 391/1591 / 512 =
 47,999.4893 Hz`, the -10.6393 ppm Plan A that slips one sample every
-1.9582 s free-running (`docs/design/TIME_SYNC.md`,
+1.9582 s free-running ([Section 3.5.1 of TIME_SYNC.md](../../../docs/design/TIME_SYNC.md),
 `tb/verilator/milan_dp/sim_aclk.cpp`).
+
+## Contents
+
+- **[Arms](#arms)** — The seven closed-loop arms G0-G6: deselected free-run, engagement and acquisition in both rate directions, the feed watchdog, mid-lock deselect, and the beyond-authority clamp with recovery.
+- **[What this suite caught while it was being written](#what-this-suite-caught-while-it-was-being-written)** — The two detector fold schemes that passed a desk check and failed loudly here, and the sign-chain pin G2/G3 holds in both directions.
+- **[Boundaries](#boundaries)** — What this suite deliberately does not own: selection truth, the MMCM servo and the fsync CDC belong to the datapath-level arms in `tb/verilator/milan_dp`.
 
 ## Arms
 

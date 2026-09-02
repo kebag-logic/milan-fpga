@@ -1,6 +1,6 @@
 # TSN/Milan FPGA requirements
 
-This document is the normative product contract for VERSION `0x0002_0056`.
+This document is the normative product contract for VERSION `0x0002_0057`.
 The supported product is an Artix-7 end station with RV32I bare-metal firmware,
 a memory-mapped CSR plane at `0x9000_0000`, fabric protocol processing, and a
 1-Gbit/s MAC datapath. Superseded platform briefs and campaign narratives are
@@ -92,7 +92,7 @@ field values. Receivers ignore that deprecated field as required by the later
 - **REQ-PTP-09 (MUST):** No write outside the fabric engine can manufacture
   live gPTP health. Option OFF remains ownerless under adversarial writes.
 
-Scope note (VERSION `0x0002_0056`): the shipping datapath instantiates the PHC
+Scope note (VERSION `0x0002_0057`): the shipping datapath instantiates the PHC
 (`timestamp_counter` + `ptp_csr_sync`) and the fabric engine's own ingress and
 egress stamps. The `ptp_ts_top`/`ptp_ts_core` record path that carried
 REQ-PTP-03, REQ-PTP-04 and REQ-PTP-06 in the retired product is no longer
@@ -110,7 +110,7 @@ publication correlation.
 
 ## 5. Credit-based shaping
 
-Scope note (VERSION `0x0002_0056`): the 802.1Q classifier / queue / 802.1Qav
+Scope note (VERSION `0x0002_0057`): the 802.1Q classifier / queue / 802.1Qav
 shaper chain (`traffic_controller_802_1q`) is verified stand-alone (the
 `classifier`, `queues`, `cbs`, `shaper_core`, `datapath` and `controller_rate`
 suites) and is **not instantiated in the shipping datapath**: its only packet

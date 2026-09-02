@@ -18,7 +18,7 @@ Machine-checked status rows are defined by the
 | `stream-format.set` | `implemented` | - |
 | `stream-info.set-acc-lat` | `implemented` | - |
 | `soc.baremetal-profile` | `implemented` | - |
-| `crf.media-clock-consumption` | `missing` | - |
+| `crf.media-clock-consumption` | `implemented` | - |
 | `state.nonvolatile-persistence` | `missing` | - |
 | `notifications.change-events` | `implemented` | - |
 | `notifications.controller-liveness` | `implemented` | - |
@@ -70,8 +70,10 @@ time-uncertain state feeds the CSR and protocol surfaces directly. A direct
 option-OFF elaboration is deliberately ownerless and inert.
 
 AAF capture and render share a configured media grid. CRF receive/transmit
-engines remain present, while selection of a recovered CRF clock is tracked as
-an explicit compliance gap.
+engines are present, and since #74 the stored clock-source selection is
+consumed: selecting the CRF source steers the audio clock and aligns the
+packet grid to it, while the power-on INTERNAL state free-runs with counted
+slips. The silicon bench probe of the aligned grids stays open on #74.
 
 ## 5. Clock domains & CDC
 

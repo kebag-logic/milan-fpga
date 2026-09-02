@@ -51,7 +51,7 @@ N = {
  "crftx":   (725,596,240,96,"KL_crf_tx (talker)","every 96th sample event:\nts = PHC ns + PTO - 500 PDU/s",GREEN,0),
  "crfwire": (1000,596,120,96,"wire","CRF stream\nsubtype 4",GREY,0),
  "crfrx":   (1155,596,240,96,"KL_crf_rx (listener)","validate Milan 7.3.2 - delta 0x744\nrate 0x748 - lock 0x738[31]",GREEN,0),
- "servo":   (1430,596,290,96,"KL_mmcm_drp_servo","in: rate error (ns/512 ms) - PI FLL +-200 ppm\nMCSRV 0x8F8/0x8FC - engages at clock_source == 2",GREEN,0),
+ "servo":   (1430,596,290,96,"KL_mmcm_drp_servo","in: rate error (ns/512 ms) - PI FLL +-200 ppm\nMCSRV 0x8F8/0x8FC - engages at the shape.s CRF clock_source",GREEN,0),
 }
 
 # ---- edges: (src, dst, label, [waypoints], style) ----

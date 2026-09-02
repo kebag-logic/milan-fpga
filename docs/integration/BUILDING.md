@@ -125,7 +125,7 @@ priority1 and 50 MHz fabric clock. It uses
 three-directive placement sweep. See
 [BAREMETAL_FIRMWARE.md](BAREMETAL_FIRMWARE.md).
 
-The current CSR ABI is `VERSION=0x0002_0056`. With the plane enabled, fabric
+The current CSR ABI is `VERSION=0x0002_0057`. With the plane enabled, fabric
 is the sole gPTP owner. The direct, verification-only option-OFF elaboration is
 ownerless: GM identity, parent identity, path data and pdelay read zero;
 `sync=0`, `asCapable=0`, and `time_uncertain=1`; every legacy publication write

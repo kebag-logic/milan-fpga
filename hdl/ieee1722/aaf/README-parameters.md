@@ -45,13 +45,13 @@ The runtime clock-consumption claim is checked against the
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
-| `crf.media-clock-consumption` | `missing` | - |
+| `crf.media-clock-consumption` | `implemented` | - |
 <!-- milan-feature-status:end -->
 
 | Port | Config-schema origin | Notes |
 |------|----------------------|-------|
 | `clk_audio_i` | `clocking.audio_pll_hz` (24_576_000) | Clean MMCM audio clock; MCLK = /2, SCLK = /8, LRCK = /512 → fs = `audio_pll_hz` / 512. Any other fs (item 6 DRP servo) retunes this clock, not the module. |
-| `servo_en_i` | `crf_clk_selected_r` (the live resolve, #74) | Follows the stored AECP clock-source selection: low at INTERNAL (the power-on state - free-run by USER rule), high when a controller selects the CRF source, arming the MMCM-DRP servo and the packet-grid alignment chain. |
+| `servo_en_i` | `crf_clk_selected_r` (the live resolve, #74) | Follows the stored AECP clock-source selection: low at INTERNAL (the power-on state - free-run by the standing rule), high when a controller selects the CRF source, arming the MMCM-DRP servo and the packet-grid alignment chain. |
 | `wire_chans_i` | wire truth (runtime, from `KL_avtp_rx_monitor`) | NOT config: channels/frame of the last accepted PDU drives the 1-to-1 render mapping regardless of declared formats. |
 
 ## Cross-parameter / cross-module pairings (STRICT)

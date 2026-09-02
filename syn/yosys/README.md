@@ -166,7 +166,8 @@ a fix for synthesis.** Check the `read_verilog` line in `yosys -d` output
 before reaching for it.
 
 ## Coverage
-47 tops as of 2026-08-31 (the `tops=()` array in `run.sh` is authoritative — that
+48 tops as of 2026-09-02 (`KL_media_grid_align` joined with #74; the `tops=()`
+array in `run.sh` is authoritative — that
 array is the count, this prose is not; re-read it rather than trusting a number
 here):
 

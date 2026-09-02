@@ -7,7 +7,7 @@ boundary is in the [architecture guide](../overview/ARCHITECTURE.md).
 
 **Two scopes, two editions.** This table is the hardware-assist scope: the PTP
 hardware clock and event-message timestamping the **fabric** provides, traced
-against 802.1AS-2020. At VERSION `0x0002_0056` the fabric plane is the sole
+against 802.1AS-2020. At VERSION `0x0002_0057` the fabric plane is the sole
 product gPTP owner (#259). The option-OFF elaboration is an ownerless proof
 target: it emits no gPTP protocol messages; GM, parent, path and pdelay are
 zero; sync/asCapable are zero; `tu` is one; and all legacy writes are inert.

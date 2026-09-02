@@ -7,7 +7,7 @@ Zero-CPU audible listener: taps the AAF depacketizer's PCM transfers (never back
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
-| `crf.media-clock-consumption` | `missing` | - |
+| `crf.media-clock-consumption` | `implemented` | - |
 <!-- milan-feature-status:end -->
 
 ## Ports
