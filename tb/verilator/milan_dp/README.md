@@ -116,13 +116,15 @@ delivers no PCMRX or render traffic.
 only writer with the old AECP response builder, while `KL_mmcm_drp_servo` and
 `mcr_restart_p_w` still compared it against `aecp_clk_src`; `0 == 0` read TRUE,
 so the fabric behaved as if the CRF media clock were selected. Both nets are
-**deleted**. The current processor selection reaches an unconsumed root wire,
-while `milan_datapath` declares
-`CRF_CLK_SELECTED_C = 1'b0`, `MEDIA_CLK_SRC_IDX_C = 16'd0` (INTERNAL) and
-`MEDIA_CLK_SRC_NONE_C = 16'hFFFF`, and the consumers read those constants.
-`sim_main.cpp` and `sim_nxn.cpp` assert the consequence rather than the
-plumbing: `mnco_servo_en_w` is 0 and `MCSRV_STAT[2:0]` is IDLE. On the broken
-build `MCSRV_STAT` read `0x21`.
+**deleted** — first for an interim trio of constants, and since #74 for the
+LIVE resolve: `media_clk_resolve` compares the stored selection against the
+shape's generated `AEM_CRF_CLKSRC_C` once, registered, with the `16'hFFFF`
+no-descriptor fold keeping a CRF-less shape structurally false. The
+consumers read the resolved nets. `sim_main.cpp` and `sim_nxn.cpp` assert
+the consequence on this suite's never-selects-CRF legs — `mnco_servo_en_w`
+0 and `MCSRV_STAT[2:0]` IDLE at the live default — while `obj_aclk`'s [CRF]
+phase and `[CRF-SEL]` grade the selected half. On the broken build
+`MCSRV_STAT` read `0x21`.
 
 ## The device answers AECP now — and what this suite can and cannot see of it
 
@@ -259,9 +261,11 @@ the tie-off, the measurement behind "unreachable", and where the coverage went.
 * **A check that asserts a structural zero must say so, and say why.**
   Otherwise it is deleted — a zero that nobody can distinguish from "idle" is
   not evidence.
-* **No vacuous passes.** Where a property became unprovable (the 10.4.3 `mr`
-  gate, the class-A tag withdrawal) the check is removed and the gap is printed
-  as a `[GAP]` line on every run, rather than left passing for the wrong reason.
+* **No vacuous passes.** Where a property becomes unprovable (the class-A
+  tag withdrawal) the check is removed and the gap is printed as a `[GAP]`
+  line on every run, rather than left passing for the wrong reason. (The
+  10.4.3 `mr` gate carried such a line until #74 made the trigger reachable;
+  `obj_aclk`'s [MR] arm grades it now, both directions.)
 * **Name the shape.** Every leg puts its config's generated directory *first* on
   the include path. Without it the build falls through to
   `hdl/common/gen/`, which is whichever config last ran `--write-rtl`.

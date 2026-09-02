@@ -1825,8 +1825,10 @@ dut->m_axis_mac_tx_tready = 1;
 
                 // ---- the SETTINGS FACE reaches the datapath ---------------
                 // KL_pp_shadow republishes the dynamic store into
-                // milan_datapath, where nothing reads it yet. Unread is not
-                // untestable: `cur_config` and `clk_src_index` are BOTH 16
+                // milan_datapath, where media_clk_resolve consumes the
+                // clock-source face since #74 ([CRF-SEL] below grades that
+                // chain). The anti-swap half stays load-bearing either way:
+                // `cur_config` and `clk_src_index` are BOTH 16
                 // bits, so swapping them at the port map is width-legal and
                 // was invisible to every suite. Writing a distinguishing
                 // value through one and asserting the OTHER did not move is
