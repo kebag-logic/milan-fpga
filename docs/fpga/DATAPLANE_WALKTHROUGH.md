@@ -35,7 +35,7 @@ wrong — say so.
 **Product egress is generated in fabric; there is no shaper chain in the trunk.**
 
 The classifier, queues and credit-based shaper have no packet source in the
-bare-metal product shape and, since VERSION `0x0002_0056`, are not
+bare-metal product shape and, since VERSION `0x0056`, are not
 instantiated by `milan_datapath` at all; their CSR words remain as write-only
 scratch for compatibility and the blocks stay under focused RTL verification.
 The AAF and CRF talkers, protocol-processor traffic, MAAP, and fabric gPTP all
@@ -64,7 +64,7 @@ The dynamic-map and media-clock claims are checked against the
 | Feature ID | Status | Canonical value |
 |---|---|---|
 | `aem.served-command-set` | `implemented` | - |
-| `crf.media-clock-consumption` | `missing` | - |
+| `crf.media-clock-consumption` | `implemented` | - |
 <!-- milan-feature-status:end -->
 
 ```mermaid
@@ -107,7 +107,7 @@ merge order does not perturb gPTP accuracy
 ## 2. Egress: where the classifier/queue/shaper chain went
 
 There is no classifier, queue bank or credit-based shaper in the shipped
-`milan_datapath` since VERSION `0x0002_0056`. The chain
+`milan_datapath` since VERSION `0x0056`. The chain
 (`traffic_controller_802_1q`, plus the `ptp_ts_top` TX/RX record stampers that
 followed it) had exactly one packet source - the retired transmit path - and #259
 removed that plane; every product source enters the trunk at the merges below
@@ -198,6 +198,7 @@ Worth stating so nobody looks for them in the wrong place:
   different crossbars with two different map RAMs —
   [../CHANNEL_MAP_64.md](../CHANNEL_MAP_64.md) has both.
 * **The media-clock servo** (`KL_mmcm_drp_servo`) is not in the frame path.
-  The current root pins its selection to INTERNAL, so it does not steer the
-  audio MMCM from CRF/AVTP timestamp error. Restoring clock-source consumption
-  would change *when* samples are clocked, never which bytes move.
+  Since #74 the root's `media_clk_resolve` verdict engages it: with the CRF
+  source selected it steers the audio MMCM from the CRF rate error, and the
+  power-on INTERNAL state leaves it idle. Either way it changes *when*
+  samples are clocked, never which bytes move.

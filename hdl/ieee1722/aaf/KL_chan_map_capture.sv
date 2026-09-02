@@ -365,7 +365,19 @@ module KL_chan_map_capture #(
 
   //! --- LOOP queue slip evidence (saturating; ZERO with locked clocks) ----
   output logic [15:0] lb_dup_cnt_o,      //! empty-at-tick repeats (fed pairs)
-  output logic [15:0] lb_skip_cnt_o      //! dropped events (full / skid ovf)
+  output logic [15:0] lb_skip_cnt_o,     //! dropped events (full / skid ovf)
+
+  //! --- TDM junction slip evidence (saturating; ZERO with aligned grids) --
+  //! The TDM holds are latest-sample buckets - correct for a once-per-frame
+  //! source, but a hold written on the fsync grid and read on the media grid
+  //! slips one whole frame per beat period of the two rates (the shipping
+  //! divider plan: -10.64 ppm = one frame per ~1.96 s), and until 0x0057
+  //! NOTHING counted it - the LOOP counters watch only the queue bucket.
+  //! One event per FRAME, not per pair: every pair shares the fsync clock,
+  //! so they go stale together and a per-pair count would just multiply the
+  //! same slip by the pair count.
+  output logic [15:0] tdm_dup_cnt_o,     //! tick with no fresh frame (grid fast)
+  output logic [15:0] tdm_skip_cnt_o     //! frame over unread frame (grid slow)
 );
 
   // ---------------------------------------------------------------------- //
@@ -475,6 +487,60 @@ module KL_chan_map_capture #(
         tdm_hold_r[tdm_pair_slot_i[TDMPW_C-1:0]] <= {tdm_l_i, tdm_r_i};
     end
   end : source_latch
+
+  // ---------------------------------------------------------------------- //
+  // TDM junction slip counters: a frequency-phase detector on the           //
+  // fsync-grid writes vs media-grid reads of the holds above. The frame     //
+  // marker is the slot-0 write (every TDM frame delivers slot 0 first);     //
+  // a tick consuming no marker is a dup, a marker landing on an unconsumed  //
+  // marker is a skip. Rate accounting only - which slots a walk maps does   //
+  // not matter, so this stays honest for every map. A tick and a marker in  //
+  // the same cycle consume each other: coincidence is alignment, not slip.  //
+  // Counts gate on tdm_fed_r so a bench with no TDM feed reads 0/0 rather   //
+  // than a dup per tick forever. Saturating like the LOOP counters; with    //
+  // aligned grids both stay at ZERO - the #74 acceptance state.             //
+  //                                                                         //
+  // KNOWN CAVEAT ([R1] on PR #323, on issue #74's ledger): when the align   //
+  // loop happens to LOCK with the frame marker raced right onto the tick    //
+  // (~0.1-0.3% of engagements), the coincidence branch can resolve          //
+  // asymmetrically and this counter chatters dups at a genuinely slip-free  //
+  // lock. False-alarm direction ONLY - it can cry wolf, never hide a slip - //
+  // and a reselect re-rolls the phase. A fixed lock-phase target or         //
+  // detector hysteresis is the recorded follow-up; until then read a        //
+  // non-zero dup count beside mga_err_w before believing it.                //
+  // ---------------------------------------------------------------------- //
+  wire tdm_frame_ev_w = tdm_pair_valid_i && (tdm_pair_slot_i == 4'd0);
+  logic tdm_fed_r        /* verilator public_flat_rd */;
+  logic tdm_frame_pend_r /* verilator public_flat_rd */;
+
+  always_ff @(posedge clk_i) begin : tdm_slip_count
+    if (!rst_n) begin
+      tdm_fed_r        <= 1'b0;
+      tdm_frame_pend_r <= 1'b0;
+      tdm_dup_cnt_o    <= 16'd0;
+      tdm_skip_cnt_o   <= 16'd0;
+    end
+    else begin
+      unique case ({tdm_frame_ev_w, tick_i})
+        2'b10: begin
+          tdm_fed_r        <= 1'b1;
+          tdm_frame_pend_r <= 1'b1;
+          if (tdm_frame_pend_r && tdm_skip_cnt_o != 16'hFFFF)
+            tdm_skip_cnt_o <= tdm_skip_cnt_o + 16'd1;
+        end
+        2'b01: begin
+          tdm_frame_pend_r <= 1'b0;
+          if (tdm_fed_r && !tdm_frame_pend_r && tdm_dup_cnt_o != 16'hFFFF)
+            tdm_dup_cnt_o <= tdm_dup_cnt_o + 16'd1;
+        end
+        2'b11: begin
+          tdm_fed_r        <= 1'b1;
+          tdm_frame_pend_r <= 1'b0;
+        end
+        default: ;
+      endcase
+    end
+  end : tdm_slip_count
 
   // ---------------------------------------------------------------------- //
   // LOOP bucket stage 1: de-interleave the depacketizer payload clone into  //

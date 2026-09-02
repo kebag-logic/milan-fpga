@@ -13,7 +13,7 @@ The current command and media-clock claims are checked against the
 | Feature ID | Status | Canonical value |
 |---|---|---|
 | `aem.served-command-set` | `implemented` | - |
-| `crf.media-clock-consumption` | `missing` | - |
+| `crf.media-clock-consumption` | `implemented` | - |
 <!-- milan-feature-status:end -->
 
 ## Contents

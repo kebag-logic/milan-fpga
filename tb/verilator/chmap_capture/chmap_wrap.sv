@@ -65,6 +65,9 @@ module chmap_wrap (
   //! per-lane slip evidence (saturating; ZERO with locked pacing)
   output wire [15:0]  a_dup_cnt_o,
   output wire [15:0]  a_skip_cnt_o,
+  //! #74 TDM junction slip detector (frame marker vs tick), lane A grades it
+  output wire [15:0]  a_tdm_dup_cnt_o,
+  output wire [15:0]  a_tdm_skip_cnt_o,
   output wire [15:0]  b_dup_cnt_o,
   output wire [15:0]  b_skip_cnt_o,
 
@@ -166,7 +169,8 @@ module chmap_wrap (
     .tick_i (a_tick_i),
     .pair_valid_o (a_pv_w), .pair_slot_o (a_slot_w),
     .pair_l_o (a_l_w), .pair_r_o (a_r_w),
-    .lb_dup_cnt_o (a_dup_cnt_o), .lb_skip_cnt_o (a_skip_cnt_o)
+    .lb_dup_cnt_o (a_dup_cnt_o), .lb_skip_cnt_o (a_skip_cnt_o),
+    .tdm_dup_cnt_o (a_tdm_dup_cnt_o), .tdm_skip_cnt_o (a_tdm_skip_cnt_o)
   );
 
   KL_aaf_packetizer #(.N_TALKERS_P(2)) u_pkt_a (
@@ -220,7 +224,9 @@ module chmap_wrap (
     .tick_i (b_tick_i),
     .pair_valid_o (b_pv_w), .pair_slot_o (b_slot_w),
     .pair_l_o (b_l_w), .pair_r_o (b_r_w),
-    .lb_dup_cnt_o (b_dup_cnt_o), .lb_skip_cnt_o (b_skip_cnt_o)
+    .lb_dup_cnt_o (b_dup_cnt_o), .lb_skip_cnt_o (b_skip_cnt_o),
+    //! lane A grades the junction detector; B leaves it explicitly open
+    .tdm_dup_cnt_o (), .tdm_skip_cnt_o ()
   );
 
   KL_aaf_packetizer #(.N_TALKERS_P(8)) u_pkt_b (

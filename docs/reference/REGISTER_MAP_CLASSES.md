@@ -4,7 +4,7 @@ The classification overlay for [REGISTER_MAP.md](REGISTER_MAP.md): every
 CSR group judged for a PRODUCTION image, with the rationale on the row.
 Written 2026-08-06 against VERSION `0x0023` on the 1×1×8 TDM8 shape;
 **reclassified 2026-08-13** against the protocol-processor substitution and
-refreshed at VERSION `0x0002_0056` for the sole fabric gPTP owner and the
+refreshed at VERSION `0x0002_0057` for the sole fabric gPTP owner and the
 ownerless option-OFF elaboration.
 
 > **A FOURTH VERDICT NOW EXISTS: STRUCTURAL ZERO.** This repository's ADP,
@@ -72,7 +72,7 @@ assumption that AECP answers only one command.
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
-| `gateware.current-version` | `implemented` | `0x0002_0056` |
+| `gateware.current-version` | `implemented` | `0x0002_0057` |
 <!-- milan-feature-status:end -->
 
 | Region | Group | Class | VERSION 0x0056 truth | Rationale |
@@ -92,7 +92,7 @@ assumption that AECP answers only one command.
 | `0x6CC–0x6D4` | MAAP | **needed** | live | Address acquisition is production function, `KL_maap` survives, and the processor's talker cannot declare without an ALLOC_DA success through it — this group is now load-bearing for connectivity, not just for addressing |
 | `0x6E8` | ACMPL_DBG (walker forensics) | **debug** | **STRUCTURAL ZERO** | Classify-stage byte forensics of a walker that is deleted |
 | `0x730/0x734` | fabric-owner parent identity | **needed** | live fabric publication / zero option OFF | The fabric engine supplies a coherent live 64-bit parent for topology/diagnostics. GET_AS_PATH is sourced from the same commit's complete bounded PathTrace, not reconstructed from this identity. Option OFF has no owner: both halves read zero and every legacy write is inert |
-| `0x738–0x750` | CRF group (sink + talker enable) | **needed** | live, with root integration losses | Media-clock configuration; Milan 7.3.3 class-A output. `KL_crf_rx` still parses and maintains counters. The processor accepts and stores `SET_CLOCK_SOURCE`, and the wrapper exports that dynamic selection to the root, but the media plane does not consume it and remains pinned at 0 (INTERNAL). The CRF input counter outputs are also not connected to the solicited gather face |
+| `0x738–0x750` | CRF group (sink + talker enable) | **needed** | live, with root integration losses | Media-clock configuration; Milan 7.3.3 class-A output. `KL_crf_rx` still parses and maintains counters. The processor accepts and stores `SET_CLOCK_SOURCE`, the wrapper exports it, and since #74 the root's `media_clk_resolve` verdict consumes it: a CRF selection engages the MMCM servo and the grid-alignment chain, while the power-on INTERNAL selection free-runs. The CRF input counter outputs are still not connected to the solicited gather face |
 | `0x778–0x780` | CLKV (`tu` validity) | **needed** | live fabric verdict / fail-safe option OFF | The `tu` policy is a conformance mechanism (IEEE 1722 AAF-10), not instrumentation. The fabric engine is the sole owner of sync/asCapable/`tu`. `CLKV_CTRL` reads zero and every write is inert; option OFF reports sync/asCapable zero and `tu=1` |
 | `0x784` | TXARB_DIAG | **debug** | **RENUMBERED + gPTP lane** | Lanes, LSB first: 0 `ctl_tx` (processor + MAAP), 1 `aaf_final`, 2 `crf_dp`, 3 `adp_tx` (MAC boundary), 4 `gptp_ctl_mux` (gPTP + gasketed control branch). Lane 4 is live in the product-default fabric-gPTP build and structural zero option off; bits `[7:5]` are structural zero. **Anything decoding this word by the old numbering reads the wrong mux** |
 | `0x7A0` | Bind-restore (fast-connect) | **needed → inert** | **STRUCTURAL ZERO** | Persistence: saved-state binds replayed through it. Writes are accepted, **ack never asserts, nothing is restored** |
@@ -102,7 +102,7 @@ assumption that AECP answers only one command.
 | `0x800–0x868` | Stream window (SEL/SID/FMT/CTRL/DMAC + per-stream RO views incl `A_STRMW_SRP`/`_CNT`) | **needed** | **mostly live** | The write half provisions the stream table and the RO views are the per-stream field picture — both unaffected. Two sub-ports inside the window are structural zeros: the **ACMP context-table read** (grant never asserts, record reads zero) and the **SRP attribute-row port** (no grant, no "stolen", readback zero) |
 | `0x8B4–0x8C4` | APRB (RX stream-parser probe) | **debug** | live | The pre-match listener view — a scope instrument. Feature-gated (`datapath_probes`) |
 | `0x8C8–0x8D0` | PBK (fabric render-chain probe) | **debug** | live | Same class, same gate |
-| `0x8F8` | MCSRV_STAT (media-clock servo) | **optional** | **reads its IDLE** | Not a structural zero and not a live servo either: the servo is built, but its only selector input is pinned at 0, so it can never leave idle. `REGISTER_MAP` already records that this window has a dead-read carve-out — a reader cannot distinguish "no servo built" from "servo idle" here and must not try |
+| `0x8F8` | MCSRV_STAT (media-clock servo) | **optional** | **reads its IDLE** | Not a structural zero: the servo is built and, since #74, its selector input follows the live clock-source resolve, so it leaves idle when a controller selects the CRF source. At the power-on INTERNAL selection it reads IDLE honestly, and a reader still cannot distinguish "no servo built" (`MCSERVO_P = 0`) from "servo idle" here — check the build plan, not the register |
 | `0x900–0x908` | Raw chmap WRITE window | **needed** (was *debug*) | live | **RECLASSIFIED.** This is the direct diagnostic programmer of both map RAMs, and `CHMAP_CTRL[0]` is also the local crossbar arm. The processor separately serves GET, ADD, and REMOVE_AUDIO_MAPPINGS against the same live stores. Saved-state restoration remains absent |
 | `0x90C` | CHMAP_STAT | **optional** | live | Reports committed CSR writes and CSR writes refused while the local override is disarmed or entity-locked. It does not tally AECP mapping changes |
 | `0x910/0x914` | CHMAP_SNAP / CHMAP_LOOP (readback + LOOP_SUSPECT) | **optional** | live | Was "the auditor that catches store-vs-hardware divergence". There is no store to diverge from; it is now the **only** way to read the map back, and `LOOP_SUSPECT` (mapped & ~fed) is unchanged |

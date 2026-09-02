@@ -2,7 +2,7 @@
 # Milan v1.2 compliance matrix — all five standards, one page
 
 The per-clause compliance position of this end-station against its five
-normative specifications, at firmware VERSION `0x0002_0056`. The overall
+normative specifications, at firmware VERSION `0x0002_0057`. The overall
 verdict is the audit's:
 [not fully compliant with Milan v1.2](../testing/MILAN_V12_AUDIT_2026-08-16.md)
 — the open rows below are why, and the ordered plan through them is
@@ -14,14 +14,14 @@ Machine-checked anchors from the
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
-| `gateware.current-version` | `implemented` | `0x0002_0056` |
+| `gateware.current-version` | `implemented` | `0x0002_0057` |
 | `aem.served-command-set` | `implemented` | - |
 | `aem.mandatory-missing-set` | `implemented` | - |
 | `aem.acquire-entity-refusal` | `not-supported` | - |
 | `gptp.fabric-product-owner` | `implemented` | - |
 | `notifications.change-events` | `implemented` | - |
 | `notifications.controller-liveness` | `implemented` | - |
-| `crf.media-clock-consumption` | `missing` | - |
+| `crf.media-clock-consumption` | `implemented` | - |
 | `state.nonvolatile-persistence` | `missing` | - |
 <!-- milan-feature-status:end -->
 
@@ -117,7 +117,7 @@ input, are silently refused.
 | 5.4.2.9 / .10 | SET/GET_STREAM_INFO (Milan 80-byte form) | implemented | `MSRP_ACC_LAT` presentation-offset leg included — PP pp_top byte-exact |
 | 5.4.2.11 / .12 | SET/GET_NAME | implemented | landed 0x0054; nonvolatile restore stays with persistence (Section 1.7) |
 | 5.4.2.13 / .14 | SET/GET_SAMPLING_RATE | implemented | stored + served; media-plane adoption open (Section 1.8, audit B3) |
-| 5.4.2.15 / .16 | SET/GET_CLOCK_SOURCE | implemented | stored + served + exported to root; nothing consumes it yet (Section 1.8, audit B3) |
+| 5.4.2.15 / .16 | SET/GET_CLOCK_SOURCE | implemented | stored + served + consumed: #74's `media_clk_resolve` arms the servo, the grid-align chain and `mr` from the stored index (milan_dp `[CRF-SEL]` grades the chain) |
 | 5.4.2.17 / .18 | SET/GET_CONTROL (Identify, 0/255, volatile) | implemented | PP dyn_state; no public indication output yet (audit B7) |
 | 5.4.2.19 / .20 | START/STOP_STREAMING (inputs; `NOT_SUPPORTED` on outputs) | implemented | binding-record interlock (issue #78); started-state persistence open (audit B12) |
 | 5.4.2.21 / .22 | REGISTER/DEREGISTER_UNSOLICITED_NOTIFICATION | implemented | PP aecp_notify |
@@ -166,7 +166,7 @@ connect and the started-state restore (audit B12).
 | 5.3.7.1 / 5.3.7.6 | Stream Output format · presentation-time offset (2 ms default) | implemented | missing |
 | 5.3.8.1 / .2 / .3 / .7 | Stream Input format · bound state · binding params · started/stopped | implemented | missing |
 | 5.3.9.1 / 5.3.10.1 | channel mappings (both directions) | implemented | missing |
-| 5.3.11.1 | clock source per Clock Domain | implemented (consumption open — B3) | missing |
+| 5.3.11.1 | clock source per Clock Domain | implemented (consumed since #74 — `media_clk_resolve`) | missing |
 | 5.3.12 | Identify control (volatile by rule) | implemented | n/a — must NOT persist |
 | 5.3.13 | user names | implemented (0x0054) | missing |
 
@@ -177,9 +177,9 @@ connect and the started-state restore (audit B12).
 | 6.2–6.5 | Base Formats: AAF/PCM 32-bit, {48/96/192 kHz} × {1,2,4,6,8} ch, SR class A | partial — full family declared per configuration (gate: `check_wire_accountability.py`); fabric proven at 48 kHz (RTL aaf; SILICON audio E2E); 96/192 kHz unproven on silicon |
 | 5.3.7.6 / 4.4.2.1 | 2 ms default presentation-time offset, settable via SET_STREAM_INFO | implemented |
 | 5.3.7.3 | talker transmit licence (bound listener + reservation) | partial — the admission composition is graded (BDD `milan_streaming_licence.feature`), but the writable debug bypass `AAF_CTRL[1]` can defeat it (audit B9) |
-| 7.2.2 | media clock inputs — the CRF sink can drive the media clock | missing — the stored clock-source selection reaches the root and stops there: `CRF_CLK_SELECTED_C` is a compile-time zero, the servo path idle (audit B3); grid alignment consequently unproven (audit B10) |
+| 7.2.2 | media clock inputs — the CRF sink can drive the media clock | implemented — #74: the stored selection arms `KL_mmcm_drp_servo` (rate half) and `KL_media_grid_align` holds the packet grid on the physical fsync grid (sim proof at the true 391/1591 ratio, milan_dp obj_aclk `[CRF]`); the silicon probe (J11.8 vs J11.9) stays open on issue #74 |
 | 7.2.3 / 7.3.2–7.3.4 | CRF Media Clock Output, Pro Audio CRF format (48 kHz base, SR class A) | implemented — RTL crf_tx; format fields byte-verified |
-| 7.4 | media clock source quality ± 50 ppm | partial — board-oscillator property; measured 10.6 ppm offset vs the exact grid, no closed loop yet (audit B10) |
+| 7.4 | media clock source quality ± 50 ppm | partial — board-oscillator property; the 10.6 ppm internal divider offset is closed under CRF selection by #74's align chain (sim), while the ± 50 ppm oscillator bound itself remains a bench measurement |
 | 8.x | seamless redundancy | n/a — single-AVB_INTERFACE PAAD |
 
 ## 2. IEEE 1722.1-2021 — ATDECC base

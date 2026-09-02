@@ -1,6 +1,6 @@
 # Fabric and bare-metal firmware ownership
 
-This page defines the supported product boundary at VERSION `0x0002_0056`.
+This page defines the supported product boundary at VERSION `0x0002_0057`.
 The AX7101 image contains one RV32I bare-metal firmware and a fabric-owned
 Milan datapath/control plane. There is no alternate product runtime.
 
@@ -89,8 +89,9 @@ This form is a negative control, not a second supported architecture.
 - #70: the protocol processor NVM face still has no persistent backend.
 - #117: exact-candidate two-board gPTP, GM transition, wire, and audio evidence has
   not been recorded.
-- Media clock-source selection is stored and reported, but the audio clock
-  plane does not yet consume it.
+- #74: the stored media clock-source selection is consumed (a CRF selection
+  steers the audio clock plane); the silicon bench probe of the aligned grids
+  is the part still open.
 - #64 and #213 retain their physical timestamp-latency measurements.
 
 These gaps are tracked in the canonical

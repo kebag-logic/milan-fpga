@@ -22,7 +22,7 @@ log in the failure so the artifact can be inspected.
 | `obj_nolpf` | `sim_main.cpp` | `endstation_arty_current`, `LPF_P=0` | the spent area lever: no digital acceptance surface may move |
 | `obj_prune` | `sim_prune.cpp` | all six tier-1 blocks pruned | the inert values are STRUCTURAL zeros, not not-armed-yet zeros |
 | `obj_ax1x1` | `sim_main.cpp` | `endstation_ax7101_1x1_tdm8`, direct option OFF | AX7101 geometry and media datapath coverage plus exact ownerless gPTP state; this verification elaboration is not a flashable product image |
-| `obj_aclk` | `sim_aclk.cpp` | same ownerless option-OFF geometry, true 391/1591 `clk_audio` ratio | the media-grid drift rate, independent of a gPTP publication owner |
+| `obj_aclk` | `sim_aclk.cpp` | same ownerless option-OFF geometry, true 391/1591 `clk_audio` ratio | two phases (#74): the INTERNAL free-run drift (-10.64 ppm, the standing free-run rule), then CRF selected - the grids aligned (|ppm| < 0.5, zero junction slips), the servo in ACQUIRE through the live select, both 4.4.4.3 `mr` triggers and the 10.4.3 negative |
 | `obj_notify` | `sim_nxn.cpp` (`NOTIFY_TIMED_TB`) | `endstation_ax7101_1x1_tdm8`, direct option OFF, `PP_TIM_DIV_US_P=1` + `PP_TIM_DIV_MS_P=100` | Milan 5.4.5 scheduler timing: the GET_COUNTERS one-second limit and 30–60 s departing-controller monitor; retained gPTP writes are graded inert and emit no notification |
 | `obj_gptp` | `sim_gptp.cpp` | product-default `endstation_ax7101_1x1_tdm8`, fabric gPTP at 2 MHz | selected-peer Pdelay/Announce/Sync publication through CSR and AECP; GM-switch AVB_INTERFACE/CLOCK_DOMAIN counters and dirty notifications; per-descriptor one-second suppression and pending release; AAF+CRF `tu` wire propagation; bounded PathTrace, coherent cutover, and inert legacy writes |
 
@@ -116,13 +116,15 @@ delivers no PCMRX or render traffic.
 only writer with the old AECP response builder, while `KL_mmcm_drp_servo` and
 `mcr_restart_p_w` still compared it against `aecp_clk_src`; `0 == 0` read TRUE,
 so the fabric behaved as if the CRF media clock were selected. Both nets are
-**deleted**. The current processor selection reaches an unconsumed root wire,
-while `milan_datapath` declares
-`CRF_CLK_SELECTED_C = 1'b0`, `MEDIA_CLK_SRC_IDX_C = 16'd0` (INTERNAL) and
-`MEDIA_CLK_SRC_NONE_C = 16'hFFFF`, and the consumers read those constants.
-`sim_main.cpp` and `sim_nxn.cpp` assert the consequence rather than the
-plumbing: `mnco_servo_en_w` is 0 and `MCSRV_STAT[2:0]` is IDLE. On the broken
-build `MCSRV_STAT` read `0x21`.
+**deleted** — first for an interim trio of constants, and since #74 for the
+LIVE resolve: `media_clk_resolve` compares the stored selection against the
+shape's generated `AEM_CRF_CLKSRC_C` once, registered, with the `16'hFFFF`
+no-descriptor fold keeping a CRF-less shape structurally false. The
+consumers read the resolved nets. `sim_main.cpp` and `sim_nxn.cpp` assert
+the consequence on this suite's never-selects-CRF legs — `mnco_servo_en_w`
+0 and `MCSRV_STAT[2:0]` IDLE at the live default — while `obj_aclk`'s [CRF]
+phase and `[CRF-SEL]` grade the selected half. On the broken build
+`MCSRV_STAT` read `0x21`.
 
 ## The device answers AECP now — and what this suite can and cannot see of it
 
@@ -222,7 +224,7 @@ so *no* leg ran). **Every number below is measured**, all nine legs, on the same
 | `obj_nolpf` (`sim_main`) | 273 / 75 | **244 / 0 (last measured)** | not rerun after the ownerless `tu` assertion was added |
 | `obj_prune` (`sim_prune`) | 31 / 0 | **31 / 0** | unchanged, untouched |
 | `obj_ax1x1` (`sim_main`) | 273 / 73 | **242 / 0** | 5 sections guarded out on this shape |
-| `obj_aclk` (`sim_aclk`) | 5 / 0 | **5 / 0** | unchanged, untouched |
+| `obj_aclk` (`sim_aclk`) | 5 / 0 | **22 / 0** | the #74 two-phase rework: INTERNAL drift kept, CRF alignment + servo + mr added |
 | `obj_gptp` (`sim_gptp`) | not available | **164 / 0** | current product-default fabric-owner run; includes inert-write negatives, both counter dirty paths, limiter pending-release, AAF+CRF `tu`, and the three drop-counter routes at 0x7E8/0x7EC |
 
 Earlier re-measurement had stopped because the `protocol-processor` submodule
@@ -259,9 +261,11 @@ the tie-off, the measurement behind "unreachable", and where the coverage went.
 * **A check that asserts a structural zero must say so, and say why.**
   Otherwise it is deleted — a zero that nobody can distinguish from "idle" is
   not evidence.
-* **No vacuous passes.** Where a property became unprovable (the 10.4.3 `mr`
-  gate, the class-A tag withdrawal) the check is removed and the gap is printed
-  as a `[GAP]` line on every run, rather than left passing for the wrong reason.
+* **No vacuous passes.** Where a property becomes unprovable (the class-A
+  tag withdrawal) the check is removed and the gap is printed as a `[GAP]`
+  line on every run, rather than left passing for the wrong reason. (The
+  10.4.3 `mr` gate carried such a line until #74 made the trigger reachable;
+  `obj_aclk`'s [MR] arm grades it now, both directions.)
 * **Name the shape.** Every leg puts its config's generated directory *first* on
   the include path. Without it the build falls through to
   `hdl/common/gen/`, which is whichever config last ran `--write-rtl`.

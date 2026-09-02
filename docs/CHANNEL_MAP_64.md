@@ -28,7 +28,7 @@ against the [Milan feature status ledger](reference/MILAN_FEATURE_STATUS.md):
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
-| `crf.media-clock-consumption` | `missing` | - |
+| `crf.media-clock-consumption` | `implemented` | - |
 | `state.nonvolatile-persistence` | `missing` | - |
 | `notifications.change-events` | `implemented` | - |
 <!-- milan-feature-status:end -->

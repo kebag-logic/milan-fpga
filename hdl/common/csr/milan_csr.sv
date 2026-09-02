@@ -125,12 +125,13 @@ module milan_csr #(
 //! Value returned by the read-only 32-bit VERSION register. [31:16] is the major
   //! redesign number; [15:0] is the flat, continuously increasing compliance
   //! revision. The ENTITY firmware_version renders this as major.minor.rev.
-  //! 0x0056 makes the verification-only option-off shape ownerless: retained
-//! publication/control addresses read zero and ignore writes, sync and
-//! asCapable are zero, and AVTP tu is one. The shipping fabric owner and its
-//! atomic publication bank are unchanged from 0x0055. The register occupies
-//! four bytes and no CSR addresses move.
-  parameter logic [31:0] VERSION = 32'h0002_0056
+  //! 0x0057 makes the media-clock selection live (#74): the stored
+//! SET_CLOCK_SOURCE index arms the MMCM servo, the packet grid follows the
+//! physical fsync grid through KL_media_grid_align when CRF is selected,
+//! and 4.4.4.3 mr fires on both triggers. INTERNAL stays bit-exact
+//! free-run; no CSR addresses move (0x0056's option-off form unchanged).
+//! The register occupies four bytes and no CSR addresses move.
+  parameter logic [31:0] VERSION = 32'h0002_0057
 
 )(
   input  wire                    aclk,           //! AXI-Lite clock (aclk / axis_clk domain)

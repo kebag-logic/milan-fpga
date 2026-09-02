@@ -1,7 +1,7 @@
 <!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
 # Milan v1.2 — the road to full compliance
 
-**Status 2026-09-01, VERSION `0x0002_0056`.** This is the ordered, clause-cited
+**Status 2026-09-02, VERSION `0x0002_0057`.** This is the ordered, clause-cited
 plan from where the device is to a device that satisfies the Milan v1.2
 end-station compliance requirements. The canonical current ledger is
 [`reference/MILAN_FEATURE_STATUS.md`](reference/MILAN_FEATURE_STATUS.md).
@@ -33,7 +33,7 @@ Machine-checked status rows are defined by the
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
-| `gateware.current-version` | `implemented` | `0x0002_0056` |
+| `gateware.current-version` | `implemented` | `0x0002_0057` |
 | `aem.served-command-set` | `implemented` | - |
 | `aem.acquire-entity-refusal` | `not-supported` | - |
 | `aem.mandatory-missing-set` | `implemented` | - |
@@ -41,7 +41,7 @@ Machine-checked status rows are defined by the
 | `stream-input.stopped-crf-observation` | `implemented` | - |
 | `stream-format.set` | `implemented` | - |
 | `stream-info.set-acc-lat` | `implemented` | - |
-| `crf.media-clock-consumption` | `missing` | - |
+| `crf.media-clock-consumption` | `implemented` | - |
 | `state.nonvolatile-persistence` | `missing` | - |
 | `notifications.change-events` | `implemented` | - |
 | `notifications.controller-liveness` | `implemented` | - |
@@ -80,9 +80,11 @@ since 0x0055 every served state change also has its unsolicited notification:
 each successful state-changing `SET_*`, the mapping writers (including an
 idempotent ADD) and START/STOP_STREAMING push to every registered controller
 except the requester, and a SET that stores the value already held is silent
-(Milan Section 5.4.5.2, IEEE Section 7.4.7; issue #69). One caveat worth
-naming here rather than burying: `0x0016`'s stored
-clock source reaches `milan_datapath` and is read by nothing (audit B3).
+(Milan Section 5.4.5.2, IEEE Section 7.4.7; issue #69). The caveat that used
+to sit here — `0x0016`'s stored clock source reaching `milan_datapath` and
+being read by nothing (audit B3) — is closed by #74: the `media_clk_resolve`
+block consumes the stored index, and a CRF selection steers the media plane
+(only the silicon bench probe stays open on that issue).
 
 `0x0006` used to carry a second caveat — it stored an index that
 `READ_DESCRIPTOR(ENTITY)` did not reflect, so Section 7.4.8.2's equivalence broke on a
@@ -208,15 +210,15 @@ are different sets:
 | `current_format`, Stream Inputs | **no** | **no** |
 | `current_format`, Stream Outputs | **no** | **no** |
 
-Four fields have an output, and all four are read by nothing downstream. (A
-fifth, started/stopped, USED to sit here with an output nothing read. It is
-no longer in this store: issue #78 retired selector 6 and moved the state to
-the ACMP binding record, where `milan_datapath` gates the listener accept
-pulse on it - so that one is now both sourced and consumed.) The
-media clock still uses its compile-time select, so `SET_CLOCK_SOURCE` stores a
-value the servo does not act on. `current_sampling_rate` is the one field a
-controller can move that the fabric cannot see. Aligning the audio grid to it
-is #74's work. The two `current_format` rows are storage allocated ahead of
+Four fields have an output; `clock_source_index` is both sourced and
+consumed since #74 - the root's `media_clk_resolve` acts on it, arming the
+servo and the grid-align chain - and the other three outputs are read by
+nothing downstream. (A fifth, started/stopped, USED to sit here with an
+output nothing read. It is no longer in this store: issue #78 retired
+selector 6 and moved the state to the ACMP binding record, where
+`milan_datapath` gates the listener accept pulse on it - so that one is now
+both sourced and consumed.) `current_sampling_rate` is the one field a
+controller can move that the fabric cannot see. The two `current_format` rows are storage allocated ahead of
 `SET_STREAM_FORMAT`, and neither side can reach them today. This deliberate
 sequencing keeps the AECP side independently provable, but a green suite is
 **not** a claim that the device behaves differently on the bench.
@@ -351,10 +353,10 @@ by non-ATDECC means."* The µISA already has `CHECK_LOCK` for exactly this.
 | `0x0023` | STOP_STREAMING **-- LANDED** | 5.4.2.20 | Mirror of the above. A stopped CRF sink now observes and counts; only timing consumption and the restart echo gate (0x0052, #97). | item 4.11, item 12.7 |
 
 > **`SET_CLOCK_SOURCE` is worth more than one row.** Its dynamic-state store
-> and wrapper output have landed. The selected index now reaches the root, but
-> no media-plane consumer reads it. Replacing the INTERNAL selection constant
-> with that validated value is still required before `KL_mmcm_drp_servo` and
-> the `KL_media_nco` packet-grid servo can become live.
+> and wrapper output landed first, and #74 landed the consumer: the root's
+> `media_clk_resolve` turns the stored index into the one registered verdict
+> that arms `KL_mmcm_drp_servo`, the `KL_media_grid_align` packet-grid chain
+> and the 4.4.4.3 `mr` machinery. The INTERNAL selection constant is gone.
 
 ### P2.4 — dynamic audio mappings
 
@@ -498,9 +500,11 @@ So a `NOT_SUPPORTED` refusal must carry the full response body. This cost the
 ## 5. Recorded order and remaining follow-ups
 
 1. **P2.1** dynamic-state store: landed and serving the implemented setters.
-2. **P2.3 consumer follow-up**: validate and consume the exported clock-source
-   and sampling-rate state in the media plane. The clock-source command alone
-   does not light up the media-clock servo.
+2. **P2.3 consumer follow-up**: the clock-source half landed with #74 (the
+   exported selection arms the servo and the grid-align chain; the silicon
+   bench probe of the aligned grids stays open on that issue); the
+   sampling-rate half remains - consume the exported rate state in the
+   media plane.
 3. **P2.2/P2.3 name access**: landed at 0x0054. Nonvolatile restoration stays
    in the persistence follow-up.
 4. **P2.3** `SET_STREAM_FORMAT` and `SET_STREAM_INFO`: landed at 0x0053 WITH

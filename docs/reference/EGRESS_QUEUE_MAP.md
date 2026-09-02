@@ -2,7 +2,7 @@
 
 The classifier, queue bank, and 802.1Qav credit logic remain implemented and
 independently verified, but the bare-metal product boundary supplies no packet
-source to them, and since VERSION `0x0002_0056` `milan_datapath` **does not
+source to them, and since VERSION `0x0056` `milan_datapath` **does not
 instantiate them at all**: the retired transmit path that was their only source left
 with #259, so an elaborated chain would have been silicon on a tied-off input
 and a CSR face advertising a shaper no frame could reach. Product AAF, CRF,

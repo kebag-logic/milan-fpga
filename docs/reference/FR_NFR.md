@@ -127,7 +127,7 @@ These repeated claims are checked against the
 | `aem.served-command-set` | `implemented` | - |
 | `aem.acquire-entity-refusal` | `not-supported` | - |
 | `aem.mandatory-missing-set` | `implemented` | - |
-| `crf.media-clock-consumption` | `missing` | - |
+| `crf.media-clock-consumption` | `implemented` | - |
 | `state.nonvolatile-persistence` | `missing` | - |
 | `notifications.change-events` | `implemented` | - |
 | `notifications.controller-liveness` | `implemented` | - |
@@ -146,7 +146,7 @@ These repeated claims are checked against the
 | **FR-MAAP-01** | **MET, in this fabric** | `KL_maap` remains the shipping allocator. The processor also contains `KL_pp_maap`, but this integration disables it with `cfg_maap_internal_i = 0` and reaches the selected fabric engine through `KL_pp_maap_shim`. The talker cannot declare without an `ALLOC_DA` success, so the DA gate *is* the talker gate |
 | **FR-SRP-01/02/03** | **OWNED BY THE PROTOCOL PROCESSOR** | Its SRP engine registers/deregisters and admits; the granted slope, adopted domain and admission bit drive the CBS mux and the AAF gate exactly as before. The slope/gate *ordering* changed shape and not safety — see [EGRESS_QUEUE_MAP.md](EGRESS_QUEUE_MAP.md) |
 | **FR-CLK-01/02/05** (gPTP, PHC, HW timestamps) | **MET** | Untouched by the substitution |
-| **FR-CLK-03/04** (select and recover the media clock from Internal / input-stream / CRF sources) | **NOT MET AT THE ROOT INTEGRATION** | The processor accepts and stores `SET_CLOCK_SOURCE`, and `KL_pp_shadow.sv` exports `aecp_clk_src_index_o` to the root. The media plane does not consume that selection, so `CRF_CLK_SELECTED_C` remains zero (INTERNAL) and the MMCM-DRP and packet-grid NCO servos stay idle. `KL_crf_rx` still parses, counts and reports, but cannot steer the media clock |
+| **FR-CLK-03/04** (select and recover the media clock from Internal / input-stream / CRF sources) | **MET AT THE ROOT INTEGRATION (#74); bench probe open** | The processor stores `SET_CLOCK_SOURCE`, `KL_pp_shadow.sv` exports it, and the root's `media_clk_resolve` arms the MMCM-DRP servo and the `KL_media_grid_align` packet-grid chain from the stored index — grid alignment proven in sim at the true 391/1591 ratio, `mr` reachable on both 4.4.4.3 triggers. The input-stream source is stored and served but has no recovery engine (only INTERNAL and CRF steer); the silicon J11.8-vs-J11.9 probe stays open on issue #74 |
 | **FR-STR-01/02/04/05** (AAF encapsulation, de-encapsulation, listener counters, parameterisation) | **MET** | The media plane is intact |
 | **FR-STR-03/03a/03b** (listener format adaptation via SET_STREAM_FORMAT) | **MET AT THE CONTROL PLANE (0x0053); wire reshape deferred** | `SET_STREAM_FORMAT` is served for both stream directions with the Milan 5.4.2.7 refusals and a per-row format verdict; a stored setting becomes the served current format and drives STREAM_INPUT 0's acceptance filter. The *wire-truth* rule still governs de-interleaving, so render adaptation follows channels_per_frame off the wire; what remains deferred is the framers re-shaping from a stored format, recorded in the audit with the SET_CONFIGURATION precedent |
 | **FR-QOS-01..03** | **MET** | Classifier + CBS untouched; the Σ idleSlope ceiling is enforced by the processor's admission now |
@@ -204,7 +204,7 @@ conformant fallback, and the current audit lists the remaining mandatory gaps.
 | FR-SRP-02 | The entity MUST register the stream VLAN via MVRP. | M | T |
 | FR-SRP-03 | On reservation grant the CBS shaper MUST be configured to the reserved idleSlope; on failure the stream MUST NOT transmit. | M | T |
 
-> **Scope (VERSION `0x0002_0056`):** FR-CONN-02's queue/CBS programming and
+> **Scope (VERSION `0x0002_0057`):** FR-CONN-02's queue/CBS programming and
 > FR-SRP-03's shaper configuration have no object in the shipped datapath - the
 > classifier/CBS chain is not instantiated ([REQUIREMENTS.md section 5](../../REQUIREMENTS.md)).
 > The obligation that survives, *no transmit without a grant*, is met at the

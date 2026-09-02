@@ -56,7 +56,7 @@ These repeated claims are checked against the
 |---|---|---|
 | `aem.served-command-set` | `implemented` | - |
 | `aem.mandatory-missing-set` | `implemented` | - |
-| `crf.media-clock-consumption` | `missing` | - |
+| `crf.media-clock-consumption` | `implemented` | - |
 | `state.nonvolatile-persistence` | `missing` | - |
 | `notifications.change-events` | `implemented` | - |
 <!-- milan-feature-status:end -->
@@ -165,16 +165,16 @@ numbers reads the wrong mux.** The stagger is deliberate: an abandoned source
 starves every downstream mux on the same cycle, so equal windows would each
 inject their own close beat and put a runt on the wire per level.
 
-Three losses are functional rather than cosmetic. Each has a module in the
-inventory below that is present but idle:
+Two losses are functional rather than cosmetic (a third — the CRF media
+clock could never be SELECTED — closed with #74: `milan_datapath`'s
+`media_clk_resolve` compares the stored `SET_CLOCK_SOURCE` index against the
+shape's generated `AEM_CRF_CLKSRC_C`, and the one registered verdict gates
+`KL_mmcm_drp_servo`, the `KL_media_grid_align` packet-grid chain and the
+1722-2016 4.4.4.3 `mr` machinery; at the INTERNAL power-on state everything
+still reads idle, by the standing free-run rule rather than by tie-off). Each remaining loss
+has a module in the inventory below that is present but idle:
 
-1. **The CRF media clock can never be SELECTED.** AECP `SET_CLOCK_SOURCE` is
-   accepted and stored, and the wrapper exports the selected index to the root.
-   No media-plane consumer reads it, so the active selection stays pinned at
-   0, the INTERNAL media clock, for the life of the build. Therefore
-   `KL_mmcm_drp_servo` and the `KL_media_nco` packet-grid servo are
-   **structurally off** and `A_MCSRV_STAT` (`0x8F8`) reads its idle.
-   `KL_crf_rx` still parses, counts and reports — it cannot steer.
+1. *(closed by #74 — see above.)*
 2. **Presentation-time offset is pinned at the Milan 2 ms DEFAULT** for every
    Stream Output (`SET_MAX_TRANSIT_TIME` is gone). A default, not a zero: 0 ns
    would be a presentation time in the past and every listener would drop every
@@ -250,7 +250,7 @@ this table whenever `hdl/` changes shape.
 | `KL_aaf_packetizer` | shared NxN AAF talker packetizer |
 | `KL_aaf_rx_depacketizer` | AAF RX payload extractor for the bound listener sink |
 | `KL_aes3_rx` / `KL_aes3_tx` | AES3 / S-PDIF biphase-mark receiver and transmitter (item-4 front-end family) |
-| `KL_chan_map_capture` | per-pair-slot TX source multiplexer (NxN capture mux) |
+| `KL_chan_map_capture` | per-pair-slot TX source multiplexer (NxN capture mux); since #74 its `tdm_dup_cnt_o`/`tdm_skip_cnt_o` junction detector counts the grid slips at the capture holds |
 | `KL_chan_map_render` | 64 stream-channel → physical render crossbar |
 | `KL_i2s_feed_mux` | DAC feed selector: the legacy listener render tap, or the render crossbar paced by the 48 kHz media tick |
 | `KL_i2s_playback` | I2S DAC serializer, clean-clocked (wire-order S32BE interleave) |
@@ -281,10 +281,11 @@ this table whenever `hdl/` changes shape.
 
 | module | description |
 |---|---|
-| `KL_crf_rx` | Milan CRF Media Clock Input engine (measurement half) -- still parses, counts and reports; it just cannot steer anything (Section 1.2) |
+| `KL_crf_rx` | Milan CRF Media Clock Input engine (measurement half) -- parses, counts and reports; since #74 its measurements steer the servo chain whenever the CRF source is selected (Section 1.2) |
 | `KL_crf_tx` | Milan CRF Media Clock Output engine (talker half), on the data lane |
-| `KL_media_nco` | the steerable media-clock sample grid — **structurally off**: its packet-grid servo had no source but a selected CRF clock |
-| `KL_mmcm_drp_servo` | the audio-MMCM recovery ACTUATOR — **structurally off** for the same reason; `A_MCSRV_STAT` (`0x8F8`) reads its idle |
+| `KL_media_grid_align` | the #74 packet-grid alignment loop: a cycle-resolution phase detector on the front-end frame marker plus an overdamped PI that holds `KL_media_nco`'s tick to the physical fsync grid under a CRF selection |
+| `KL_media_nco` | the steerable media-clock sample grid — free-running bit-exact at INTERNAL; under a selected CRF clock it follows the physical fsync grid through `KL_media_grid_align` (#74) |
+| `KL_mmcm_drp_servo` | the audio-MMCM recovery ACTUATOR — engaged by the live clock-source resolve since #74; at the INTERNAL power-on state `A_MCSRV_STAT` (`0x8F8`) reads its idle honestly |
 
 ### `hdl/ieee1722/maap/`
 

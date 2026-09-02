@@ -118,7 +118,7 @@ For a direct transaction, replace `INSTALLED_BUILD` with the exact
 invoke `sw/litex/deploy.sh flash-pair`. A layout naming a retired boot image
 or a non-fabric owner refuses before any programmer I/O.
 
-The current CSR ABI is `VERSION=0x0002_0056`. Every flashable manifest selects
+The current CSR ABI is `VERSION=0x0002_0057`. Every flashable manifest selects
 the sole fabric gPTP owner. The direct option-OFF elaboration is
 verification-only and ownerless: GM identity, parent identity, path data and
 pdelay are zero; `sync=0`, `asCapable=0`, and `time_uncertain=1`; every legacy

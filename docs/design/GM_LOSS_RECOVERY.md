@@ -5,7 +5,7 @@ SPDX-License-Identifier: CERN-OHL-W-2.0
 
 # Grandmaster loss and recovery — one fabric-owned mechanism
 
-Status: product architecture at VERSION `0x0002_0056` (2026-08-30).
+Status: product architecture at VERSION `0x0002_0057` (2026-09-02).
 This page describes the fabric-gPTP product build and its ownerless
 verification-only option-OFF elaboration. Booted-board and two-board acceptance
 remain owned by #117; this document does not turn simulation into that
@@ -17,7 +17,7 @@ Companion to [TIME_SYNC.md](TIME_SYNC.md) for steady state and
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
-| `crf.media-clock-consumption` | `missing` | - |
+| `crf.media-clock-consumption` | `implemented` | - |
 | `gptp.fabric-product-owner` | `implemented` | - |
 | `notifications.change-events` | `implemented` | - |
 <!-- milan-feature-status:end -->
@@ -29,7 +29,7 @@ Companion to [TIME_SYNC.md](TIME_SYNC.md) for steady state and
 - **[3. Publication and tu ordering](#3-publication-and-tu-ordering)** — The commit boundary that prevents torn GM/parent/pdelay reads and asserts `tu` on the discontinuity edge before any frame can leak the old-health verdict
 - **[4. Public recovery surface](#4-public-recovery-surface)** — The selected-owner mapping into legacy CSRs, GET_AVB_INFO, GET_AS_PATH and AAF/CRF `tu`, with coherent multiword snapshots and ineffective software writes in fabric mode
 - **[5. End-to-end timeline](#5-end-to-end-timeline)** — The ordered loss-to-recovery sequence from receipt timeout through atomic publication, Annex B holdover and restored servo lock
-- **[6. Media and notification behavior](#6-media-and-notification-behavior)** — What continues during a time transition, what remains pinned to the internal media clock, and how selected-owner changes feed the complete Table 5.22 scheduler
+- **[6. Media and notification behavior](#6-media-and-notification-behavior)** — What continues during a time transition, how the consumed clock-source selection behaves across it, and how selected-owner changes feed the complete Table 5.22 scheduler
 - **[7. Verification-only option-off elaboration](#7-verification-only-option-off-elaboration)** — The option-OFF proof target is deliberately ownerless: its publication outputs are zero, `tu` is asserted, and legacy writes are inert.
 
 ## 1. The active owner
@@ -145,11 +145,14 @@ The talker keeps streaming through a time transition as Milan requires, using
 `tu` to mark uncertain presentation timestamps. Listener reservations are not
 torn down merely because the time source changes.
 
-The current root still pins media-clock selection to INTERNAL. The historical
+The root consumes the stored media clock-source selection since #74; the
+power-on state is still INTERNAL until a controller selects the CRF source.
+The historical
 playback recenter/free-wheel mechanism remains separate from gPTP ownership:
 a committed GM change may recenter the elasticity FIFO, while genuine stream
 silence or bind loss remains the unlock cause. CRF media-clock consumption is
-still missing, as the feature row above states.
+implemented, as the feature row above states; its silicon bench probe stays
+open on #74.
 
 The protocol processor consumes the same selected-owner values for solicited
 GET_AVB_INFO/GET_AS_PATH responses and Table 5.22 pushes. The root compares the

@@ -17,7 +17,7 @@ Machine-checked status rows are defined by the
 | `stream-input.stopped-crf-observation` | `implemented` | - |
 | `stream-format.set` | `implemented` | - |
 | `stream-info.set-acc-lat` | `implemented` | - |
-| `crf.media-clock-consumption` | `missing` | - |
+| `crf.media-clock-consumption` | `implemented` | - |
 | `state.nonvolatile-persistence` | `missing` | - |
 | `notifications.change-events` | `implemented` | - |
 | `notifications.controller-liveness` | `implemented` | - |
@@ -114,7 +114,8 @@ digital simulation evidence.
 ## 9. What remains and how to finish it - the roadmap
 
 The remaining release work is tracked in the issue board, with Milan 1.2 and
-its protocol dependencies at urgent priority. Physical acceptance, recovered
-media-clock selection, and the persistent-state implementation plus bench
+its protocol dependencies at urgent priority. Physical acceptance (including
+the #74 bench probe of the recovered media clock), and the persistent-state
+implementation plus bench
 validation require exact candidate hardware and retained raw evidence. Digital
 completion must not be reported as physical closure.

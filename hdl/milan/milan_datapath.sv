@@ -36,10 +36,10 @@
 //! comparators for GET_AVB_INFO and GET_AS_PATH) into the
 //! processor's notification scheduler beside the command-driven pushes
 //! and the 5.4.5.3 controller monitor. Live audio-map mutation is
-//! implemented, but saved-state persistence is absent. SET_CLOCK_SOURCE is accepted by the
-//! processor, and its dynamic value reaches this wrapper, but the media plane does not
-//! consume it. The media clock remains pinned INTERNAL through
-//! CRF_CLK_SELECTED_C. If the descriptor image was never
+//! implemented, but saved-state persistence is absent. SET_CLOCK_SOURCE is
+//! stored by the processor AND consumed by the media plane (#74): the
+//! resolved selection gates the MMCM servo, the grid-align loop and the mr
+//! machinery - see the media-clock banner. If the descriptor image was never
 //! loaded at PP_DESC_BASE_P the
 //! range check fails before any locate runs, so an unloaded image answers
 //! BAD_ARGUMENTS - not NO_SUCH_DESCRIPTOR. That difference is the bench
@@ -557,32 +557,29 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! wherever a declaration exists - this is the pre-adoption fallback only.
   localparam logic [2:0] SR_CLASS_A_PRIO_C = 3'd3;
   //! ------------------------------------------------------------------------
-  //! THE MEDIA CLOCK SOURCE, AND WHY IT IS A CONSTANT NOW.
-  //! The protocol processor accepts and stores IEEE 1722.1 SET_CLOCK_SOURCE,
-  //! and KL_pp_shadow exports its dynamic clock-source output into this root
-  //! integration. No media-clock consumer reads that root wire yet. The
-  //! selection is therefore pinned at index 0 = the INTERNAL media clock for
-  //! the life of the build and can NEVER become the CRF one until that
-  //! consumer seam is connected.
+  //! THE MEDIA CLOCK SOURCE - LIVE, AND RESOLVED EXACTLY ONCE (#74).
+  //! The protocol processor accepts and stores IEEE 1722.1 SET_CLOCK_SOURCE
+  //! and KL_pp_shadow exports the stored selection into this root as
+  //! pp_aecp_clk_src_index_w. The compare against THIS SHAPE'S CRF index -
+  //! AEM_CRF_CLKSRC_C, generated into gen/adp_shape_defaults.svh by the same
+  //! pass that builds the AEM model, 16'hFFFF on a shape with no CRF source -
+  //! happens in ONE registered block (media_clk_resolve, after the shape
+  //! include below), and every consumer reads the resolved nets:
+  //!   media_clk_src_r     the selected CLOCK_SOURCE index, registered
+  //!   crf_clk_selected_r  the one-bit verdict "the CRF source is in use"
   //!
-  //! THE TRAP THIS EXISTS TO AVOID, which the first cut of the plane deletion
-  //! walked straight into: keeping the two 16-bit nets and tying the live one
-  //! to 0 leaves every consumer comparing 0 == 0, which reads TRUE - a build
-  //! that claims the CRF source IS selected. Measured on that build:
-  //! A_MCSRV_STAT = 0x21, i.e. the MMCM servo out of IDLE while the clock
-  //! source is INTERNAL. (The undriven CRF-index net slipped past
-  //! -Werror-UNDRIVEN because it carried a `verilator public_flat_rd`
-  //! attribute, which exempts a net from that check.)
-  //!
-  //! So the nets are GONE and these three constants replace them. The
-  //! comparison is resolved HERE, once, instead of being re-derived by four
-  //! consumers that can each get it wrong.
-  localparam logic        CRF_CLK_SELECTED_C   = 1'b0;      //! never
-  localparam logic [15:0] MEDIA_CLK_SRC_IDX_C  = 16'd0;     //! INTERNAL
-  //! 0xFFFF is the AEM "no descriptor" index: it names no CLOCK_SOURCE, so a
-  //! consumer that compares the live index against it is structurally false
-  //! rather than accidentally true.
-  localparam logic [15:0] MEDIA_CLK_SRC_NONE_C = 16'hFFFF;
+  //! THE TRAP THE OLD CONSTANTS EXISTED TO AVOID stays honoured in the new
+  //! form. The first cut of the plane deletion kept two 16-bit nets with the
+  //! live one tied to 0, and every consumer compared 0 == 0 = TRUE - a build
+  //! claiming CRF selected while INTERNAL (measured: A_MCSRV_STAT = 0x21;
+  //! the undriven net slipped past -Werror-UNDRIVEN through its
+  //! public_flat_rd attribute). Hence: ONE compare, in one block, with the
+  //! 0xFFFF no-descriptor fold making a CRF-less shape structurally false -
+  //! and the verdict REGISTERED, so every gate downstream sees a clean
+  //! transition, never a decode glitch.
+  wire [15:0] pp_aecp_clk_src_index_w /* verilator public_flat_rd */;
+  logic        crf_clk_selected_r /* verilator public_flat_rd */;
+  logic [15:0] media_clk_src_r    /* verilator public_flat_rd */;
   //! the station MAC as a NUMERIC EUI-48 ([47:40] = first wire byte).
   //! cfg_mac_addr is the platform LSB-first CSR convention (firmware writes
   //! MAC_ADDR_LO/HI that way and the RX filter consumes it that way), and
@@ -984,6 +981,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! is the documented follow-up
   wire [15:0] lb_dup_cnt_w  /* verilator public_flat_rd */;
   wire [15:0] lb_skip_cnt_w /* verilator public_flat_rd */;
+  //! #74: the fsync-grid-vs-media-grid slip at the TDM hold junction. The
+  //! LOOP counters above watch only the queue bucket; this pair is the
+  //! observable that makes "no sample slip" falsifiable at the root.
+  wire [15:0] tdm_dup_cnt_w  /* verilator public_flat_rd */;
+  wire [15:0] tdm_skip_cnt_w /* verilator public_flat_rd */;
 
   wire [N_STREAMS*8*13-1:0] cmap_flat_w;   //! GET_AUDIO_MAP OUTPUT walk
   logic [N_STREAMS*8-1:0] amap_out_owner_v_r;
@@ -1061,7 +1063,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .pair_valid_o (cmap_pv_w), .pair_slot_o (cmap_slot_w),
     .pair_l_o (cmap_l_w), .pair_r_o (cmap_r_w),
     //! honest-slip evidence (dup-on-empty / drop-oldest, ZERO at lock)
-    .lb_dup_cnt_o (lb_dup_cnt_w), .lb_skip_cnt_o (lb_skip_cnt_w)
+    .lb_dup_cnt_o (lb_dup_cnt_w), .lb_skip_cnt_o (lb_skip_cnt_w),
+    //! #74 junction evidence: fsync-frame writes vs media-tick reads
+    .tdm_dup_cnt_o (tdm_dup_cnt_w), .tdm_skip_cnt_o (tdm_skip_cnt_w)
   );
 
   // ==========================================================================
@@ -1294,6 +1298,22 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! shape; the tracked hdl/common/gen/ copy is whichever config was
   //! last written with `endstation_builder.py --write-rtl`.
   `include "gen/adp_shape_defaults.svh"
+  //! the ONE clock-source compare (see the media-clock banner above; the
+  //! block lives here because AEM_CRF_CLKSRC_C exists only after the shape
+  //! include). Registered: a SET_CLOCK_SOURCE lands as a clean gate
+  //! transition at every consumer, and KL_media_clock_restart's own
+  //! clk_src_q_r edge detector sees exactly one change per command.
+  always_ff @(posedge axis_clk) begin : media_clk_resolve
+    if (!axis_resetn) begin
+      media_clk_src_r    <= 16'd0;
+      crf_clk_selected_r <= 1'b0;
+    end
+    else begin
+      media_clk_src_r    <= pp_aecp_clk_src_index_w;
+      crf_clk_selected_r <= (pp_aecp_clk_src_index_w == AEM_CRF_CLKSRC_C)
+                            && (AEM_CRF_CLKSRC_C != 16'hFFFF);
+    end
+  end : media_clk_resolve
   //! ACMP talker source contexts: the AAF talkers, then the CRF Media Clock
   //! Output at talker_unique_id = the AAF talker count (see g_acmp_crf_src).
   localparam int ACMP_SRC_C = ADP_TALKER_SRC_C;
@@ -2753,10 +2773,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! internal media clock the received CRF bit governs nothing here, and
   //! echoing it would restart every listener's clock over a stream this
   //! device is not slaved to.
-  //! CRF_CLK_SELECTED_C, not a live compare: this device cannot select the
-  //! CRF media clock, so 4.4.4.3's "disruption of the CRF stream" cannot be
-  //! a disruption of OUR clock and must not toggle mr on our streams.
-  wire mcr_restart_p_w = CRF_CLK_SELECTED_C
+  //! crf_clk_selected_r - the LIVE verdict (#74): with INTERNAL selected,
+  //! 4.4.4.3's "disruption of the CRF stream" is not a disruption of OUR
+  //! clock and must not toggle mr on our streams; with the CRF source
+  //! selected, it is exactly the mandatory trigger, now reachable.
+  wire mcr_restart_p_w = crf_clk_selected_r
                        & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w);
 
   //! the 4.4.4.3 / 10.4.3 level, for EVERY stream this fabric can emit -
@@ -2786,7 +2807,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   KL_media_clock_restart #(.N_TALKERS_P(MCR_CTX_C)) media_clock_restart (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .restart_p_i (mcr_restart_p_w),
-    .clk_src_i   (MEDIA_CLK_SRC_IDX_C),
+    //! LIVE (#74): the 4.4.4.3 source-change trigger fires on a real
+    //! SET_CLOCK_SOURCE now - the module's clk_src_q_r edge detector was
+    //! built for this and spent its first months watching a constant
+    .clk_src_i   (media_clk_src_r),
     .streaming_i (mcr_streaming_w),
     //! the SAME muxed PDU feed KL_talker_diag_ctx takes below (AAF strobe or
     //! the deferred CRF strobe, never both in a cycle) ...
@@ -2902,10 +2926,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     for (int k = ACMP_SRC_C; k < 16; k++)
       aecp_pres_offset[32*k +: 32] = PRES_DFLT_C;
   end
-  //! (the media clock source is a constant now - see CRF_CLK_SELECTED_C and
-  //!  its banner at the top of this file. The CRF Media Clock Input engine
-  //!  still parses, counts and reports; what it can no longer do is STEER the
-  //!  audio MMCM or the packet-grid NCO.)
+  //! (the media clock source is LIVE (#74) - see media_clk_resolve and the
+  //!  media-clock banner at the top of this file. The CRF Media Clock Input
+  //!  engine parses, counts, reports - and, with the CRF source selected,
+  //!  steers: the MMCM servo takes the rate error and the packet grid
+  //!  follows the physical one through KL_media_grid_align.)
   //! The AEM descriptor-map write ports are driven by the transactional
   //! ADD/REMOVE_AUDIO_MAPPINGS block beside GET_AUDIO_MAP below. Dynamic map
   //! ownership is generated from the same YAML that emits number_of_maps=0,
@@ -5142,13 +5167,14 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .clk_audio_i   (clk_audio_i),
     .ps_clk_i      (i_ps_clk),
     .ptp_now_i     (ptp_now_w),
-    //! servo_sel_w is (clk_src_i == crf_src_idx_i) INSIDE the servo. Feeding
-    //! INTERNAL against the never-a-descriptor index makes that select
-    //! structurally false: the servo stays in IDLE and drives no DRP/phase
-    //! command, which is the honest behaviour for a build that cannot select
-    //! the CRF source. Feeding 0 and 0 made it TRUE and ran the servo.
-    .clk_src_i     (MEDIA_CLK_SRC_IDX_C),
-    .crf_src_idx_i (MEDIA_CLK_SRC_NONE_C),
+    //! servo_sel_w is (clk_src_i == crf_src_idx_i) INSIDE the servo, and
+    //! both sides are LIVE now (#74): the stored selection against this
+    //! shape's generated CRF index. On a shape with no CRF source the
+    //! generated index is 16'hFFFF - the AEM no-descriptor value the live
+    //! index can never store - so the select stays structurally false there,
+    //! which is the same trap-proofing the old constant pair encoded.
+    .clk_src_i     (media_clk_src_r),
+    .crf_src_idx_i (AEM_CRF_CLKSRC_C),
     .crf_locked_i  (crf_locked_w),
     .crf_rate_i    (crf_rate_w),
     .auto_repair_i (mcsrv_auto_repair_w),
@@ -5178,31 +5204,54 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   end endgenerate
 
   // --------------------------------------------------------------------------
-  //  ONE ERROR SIGNAL, TWO ACTUATORS (the ONE-GRID rule, actuator half).
+  //  ONE GRID, AS A CHAIN (#74 - the actuator seam, rewritten).
   //
-  //  The servo's u already IS the media-clock correction the selected clock
-  //  source demands - it is the loop tb/verilator/mmcm_servo proves, clamped
-  //  to +/-200 ppm, and it is published in 1/16 ppm units on
-  //  A_MCSRV_STAT[31:16]. Rather than stand up a second PI for the packet
-  //  grid, the NCO takes the SAME command: the MMCM moves the physical audio
-  //  clock, the NCO moves the packet grid, and they cannot diverge because
-  //  there is only one number to diverge from. Two independently-servoed
-  //  48 kHz grids is exactly the failure the ONE-GRID rule was written for.
+  //  The previous wiring here handed the NCO the MMCM servo's own command
+  //  ("one error signal, two actuators"), which kept the two actuators from
+  //  diverging in RESPONSE but could never close their NOMINAL gap: the
+  //  physical grid is clk_tdm through an integer divider (47,999.4893 Hz on
+  //  the shipping plan) and the packet grid was an exact 48,000.0000 Hz, so
+  //  a shared command moved both by the same ppm and left the -10.64 ppm
+  //  difference - one slipped sample every 1.96 s at the capture holds -
+  //  fully intact. That residual is the "independent-divider drift" issue
+  //  #74 names, and its bounded-phase-alignment branch is what lands here.
   //
-  //  The SIGN and the SCALE of that shared command live inside KL_media_nco,
-  //  not here: they are the two ways this can be wrong, a sign error is a
-  //  runaway rather than a wrong number, and as four naked lines in this file
-  //  they had no suite that could exercise them. tb/verilator/media_nco now
-  //  sweeps them directly. What stays here is only the WIRING - which signal
-  //  is the servo's command, and when the grid is allowed to follow it.
+  //  The one-grid rule now holds in its strongest form, as a CHAIN with one
+  //  master per link: CRF -> KL_mmcm_drp_servo -> the physical audio clock
+  //  and its fsync grid -> KL_media_grid_align -> the packet grid. The MMCM
+  //  consumes the CRF rate error and publishes its command on
+  //  A_MCSRV_STAT[31:16] (that slice is the MMCM's alone now - the CRF arm
+  //  in tb/verilator/milan_dp grades it non-zero under CRF stimulus); the
+  //  align loop consumes the FRAME MARKER the front-end already delivers in
+  //  this clock domain (aafcap slot-0, the same event the junction counters
+  //  key on) and holds the packet grid inside a fraction of a sample of the
+  //  physical one - proven closed-loop at the true 391/1591 ratio in
+  //  tb/verilator/media_grid_align, both rate directions, zero junction
+  //  slips.
   //
-  //  INTERNAL. clock_source 0 is free-run by USER rule ("internal media clock
-  //  = free-run, slips accepted"), so the grid follows nothing and is
-  //  bit-for-bit the divider that shipped at 0x0040. That is what lets every
-  //  existing bench measurement stand.
+  //  INTERNAL. clock_source 0 is free-run by USER rule ("internal media
+  //  clock = free-run, slips accepted"): crf_clk_selected_r low disengages
+  //  the align loop entirely and the grid is bit-for-bit the divider that
+  //  shipped at 0x0040, so every bench measurement on record stands. The
+  //  junction slip counters keep counting there - the INTERNAL slip is
+  //  accepted, not hidden.
   // --------------------------------------------------------------------------
-  assign mnco_servo_trim_w = $signed(mcsrv_stat_w[31:16]);
-  assign mnco_servo_en_w   = CRF_CLK_SELECTED_C;
+  wire        mga_engaged_w /* verilator public_flat_rd */;
+  wire signed [15:0] mga_err_w /* verilator public_flat_rd */;
+  KL_media_grid_align #(
+    .CLK_FREQ_HZ_P (MILAN_CLK_FREQ_HZ),
+    .FS_HZ_P       (48_000)
+  ) media_grid_align (
+    .clk_i      (axis_clk),
+    .rst_n      (axis_resetn),
+    .sel_i      (crf_clk_selected_r),
+    .frame_ev_i (aafcap_pv_w && (aafcap_slot_w == 4'd0)),
+    .tick_i     (media_tick_p),
+    .u_o        (mnco_servo_trim_w),
+    .engaged_o  (mga_engaged_w),
+    .err_cyc_o      (mga_err_w)
+  );
+  assign mnco_servo_en_w = crf_clk_selected_r;
 
   // ==========================================================================
   //  CRF Media Clock Output engine (Milan 7.3.1) - talker half: emits the
@@ -5317,7 +5366,13 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     //! this by a talker index would conflate the two. A per-SINK window
     //! is future LCTX work, not a per-talker mux.
     .pres_ofs_i     (aecp_pres_offset[31:0]),
-    .clk_src_i      (MEDIA_CLK_SRC_IDX_C),
+    //! LIVE wiring, INERT consumer (#74, [R1] finding 2): the monitor
+    //! declares these ports for a media-lock rule it does not implement
+    //! yet - clk_src_i/servo_conv_i are folded unused inside. Wired live
+    //! anyway, like i2s_playback's servo_en_i below, so the day the rule
+    //! lands the truth is already at the port and no root edit can be
+    //! forgotten. No behavior rides on this today.
+    .clk_src_i      (media_clk_src_r),
     .servo_conv_i   (i2spb_converged),
     .render_sel_i   (route_render_sel_w),  //! route policy's RENDER stream
     .depkt_pdu_p_i    (pcmrx_pdu_p_w),
@@ -5527,7 +5582,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
                     .SETPOINT_P((6 * 2) + 4)) i2s_player (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .clk_audio_i  (clk_audio_i),
-    .servo_en_i   (CRF_CLK_SELECTED_C),
+    .servo_en_i   (crf_clk_selected_r),
     .recenter_p_i (gm_recentre_p_r),
     .pcm_tdata_i  (i2s_feed_tdata_w),
     .lpf_tdata_i  (pcm_lpf_tdata),
@@ -6328,7 +6383,6 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! explicit gap rather than implying coverage it does not have.
   logic [15:0]              pp_aecp_cur_config_w /* verilator public_flat_rd */;
   logic  [7:0]              pp_aecp_identify_w /* verilator public_flat_rd */;
-  logic [15:0]              pp_aecp_clk_src_index_w /* verilator public_flat_rd */;
   //! ACMP_SINKS_C, not N_STREAMS: KL_pp_shadow is elaborated at the ACMP
   //! shape (see the .N_STREAM_IN_P connection below), which is deliberately
   //! wider than N_STREAMS — a bare N_STREAMS-wide array would have truncated
@@ -6491,11 +6545,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       //! lock, no restart echo - so do not read this block as "wiring these
       //! is inert".
       //!
-      //! STILL NOT CONSUMED, and it is worth being plain about which:
-      //! `pp_aecp_clk_src_index_w` is the value SET_CLOCK_SOURCE writes, but
-      //! the media-clock select is still the compile-time constant this file
-      //! has always used — converting it is a media-clock change, not an
-      //! AECP one, and it gets its own round.
+      //! CONSUMED since #74: `pp_aecp_clk_src_index_w` is the value
+      //! SET_CLOCK_SOURCE writes, and media_clk_resolve (beside the shape
+      //! include) turns it into the media plane's one registered verdict -
+      //! the round the old note here promised.
       .aecp_cur_config_o   (pp_aecp_cur_config_w),
       .aecp_identify_o     (pp_aecp_identify_w),
       .aecp_clk_src_index_o(pp_aecp_clk_src_index_w),

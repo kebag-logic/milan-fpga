@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "facts": {
-    "gateware_version": "0x0002_0056",
+    "gateware_version": "0x0002_0057",
     "served_aem_operations": [
       "ACQUIRE_ENTITY",
       "LOCK_ENTITY",
@@ -81,7 +81,7 @@
     {
       "id": "gateware.current-version",
       "status": "implemented",
-      "value": "0x0002_0056",
+      "value": "0x0002_0057",
       "summary": "Current gateware and processor integration version.",
       "documents": [
         "README.md",
@@ -239,8 +239,8 @@
     },
     {
       "id": "crf.media-clock-consumption",
-      "status": "missing",
-      "summary": "The dynamic clock selection reaches the root wrapper but does not select or steer the media clock.",
+      "status": "implemented",
+      "summary": "The stored clock-source selection resolves against the shape-generated CRF index in milan_datapath; CRF selection steers the MMCM servo and KL_media_grid_align aligns the packet grid to the physical grid, while INTERNAL stays bit-exact free-run with counted junction slips. The bench probe on issue #74 stays open.",
       "documents": [
         "README.md",
         "docs/CHANNEL_MAP_64.md",

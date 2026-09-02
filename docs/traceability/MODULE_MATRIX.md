@@ -21,7 +21,7 @@ test is possible and is reproduced verbatim below.
 
 Legend: ✅ dedicated Verilator TB · ➰ exercised transitively in a broader TB's design · 🔬 in the tsn_fuzz field campaign · 📦 package · 🗄️ archived by a stated decision · ⚪ not compiled by any TB.
 
-**Totals:** 63 modules · 62 with a dedicated TB · 0 exercised-only · 30 field-fuzzed · 0 archived · **0 not in any TB**
+**Totals:** 64 modules · 63 with a dedicated TB · 0 exercised-only · 30 field-fuzzed · 0 archived · **0 not in any TB**
 
 ## Coverage by spec family
 
@@ -31,16 +31,16 @@ Legend: ✅ dedicated Verilator TB · ➰ exercised transitively in a broader TB
 xychart-beta
     title "Modules per spec family: dedicated testbenches vs total"
     x-axis ["ieee1722", "ieee17221", "milan", "ieee8021as", "ieee8021q", "common"]
-    y-axis "modules" 0 --> 35
+    y-axis "modules" 0 --> 36
+    bar [35, 1, 3, 7, 8, 10]
     bar [34, 1, 3, 7, 8, 10]
-    bar [33, 1, 3, 7, 8, 10]
 ```
 
 The solid bar is the modules carrying a dedicated Verilator testbench; the pale sliver above it is the shortfall against the family total. Exact numbers, including the archived and fuzzed columns the chart cannot show:
 
 | family | modules | ✅ dedicated TB | ➰ exercised only | 🔬 field-fuzzed | 🗄️ archived | ⚪ untested |
 |---|---|---|---|---|---|---|
-| IEEE 1722 (AVTP) | 34 | 33 | 0 | 29 | 0 | 0 |
+| IEEE 1722 (AVTP) | 35 | 34 | 0 | 29 | 0 | 0 |
 | IEEE 1722.1 (ATDECC) | 1 | 1 | 0 | 0 | 0 | 0 |
 | Milan integration | 3 | 3 | 0 | 0 | 0 | 0 |
 | IEEE 802.1AS | 7 | 7 | 0 | 0 | 0 | 0 |
@@ -93,7 +93,8 @@ _AAF / CRF / MAAP / AVTP common_
 | 📦 `avtp_subtype_pkg` | `ieee1722/avtp/avtp_subtype_pkg.sv` | 🔬`make aaf` | — |
 | ✅ `KL_crf_rx` | `ieee1722/crf/KL_crf_rx.sv` | `crf_rx` · `milan_dp` | — |
 | ✅ `KL_crf_tx` | `ieee1722/crf/KL_crf_tx.sv` | `crf_tx` · `milan_dp` | — |
-| ✅ `KL_media_nco` | `ieee1722/crf/KL_media_nco.sv` | `media_nco` · `milan_dp` | — |
+| ✅ `KL_media_grid_align` | `ieee1722/crf/KL_media_grid_align.sv` | `media_grid_align` · `milan_dp` | — |
+| ✅ `KL_media_nco` | `ieee1722/crf/KL_media_nco.sv` | `media_grid_align` · `media_nco` · `milan_dp` | — |
 | ✅ `KL_mmcm_drp_servo` | `ieee1722/crf/KL_mmcm_drp_servo.sv` | `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` | — |
 | ✅ `KL_maap` | `ieee1722/maap/KL_maap.sv` | `maap` · `milan_dp` | — |
 
