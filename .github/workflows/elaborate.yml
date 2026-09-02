@@ -128,6 +128,16 @@ jobs:
       # measured 2026-08-21. pythondata-cpu-vexiiriscv is not on PyPI at all.
       # The revisions are pinned in sw/litex/litex_pins.txt so that an
       # upstream commit cannot redden a PR that changed nothing.
+      # The pinned LiteX set downloads the same wheels and sdists on every
+      # cold runner; the pip cache is keyed on the pin file so it never
+      # outlives a pin change (issue #270).
+      - name: Cache the pinned pip downloads
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: elaborate-pip-${{ runner.os }}-${{ hashFiles('sw/litex/litex_pins.txt') }}
+          restore-keys: elaborate-pip-${{ runner.os }}-
       - name: Install LiteX at the pinned revisions
         if: ${{ steps.scope.outputs.rtl == 'true' }}
         run: |
