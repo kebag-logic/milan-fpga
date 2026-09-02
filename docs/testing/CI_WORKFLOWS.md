@@ -404,15 +404,37 @@ is exactly these twelve things:
     job named `docs-check` passed with no finding -- the unique carrier had
     no neuter key, the id-named job kept its pinned steps, and the required
     context ran nothing. So the job whose id is the public name must carry
-    it. What this item does not yet hold is the gate step inside each of
-    the four jobs: a step-level `if`, `continue-on-error` or `|| true` on
-    `docs-check`'s ci_events step, `wire-accountability`'s gate step,
-    `docs-check-no-git`'s single step or `elaborate`'s scope step still
-    passes, and so does the step's absence -- for the two carriers no
-    builder step touches, the real job's id renamed away beside a
-    `run: true` job of the required id satisfies the id rule, the
-    one-carrier rule and the key rule at once ([R3] round 2 on PR #293);
-    that is #295.
+    it. The gate step inside each of the four jobs is pinned too (#295,
+    the [R3] measured levers on PR #293): `docs-check`'s ci_events step,
+    `wire-accountability`'s gate step and `docs-check-no-git`'s single
+    step each carry exactly `name` and `run` and a script equal to its
+    canonical form after whitespace normalization, so a step-level `if`,
+    `shell`, `continue-on-error` or `working-directory`, and a `|| true`
+    or any other rewrite beside the call, is refused naming the step;
+    `elaborate`'s scope step is held as the decide step is (item 7, the
+    #209 precedent) -- keys exactly `name`, `id`, `env` and `run`, its two
+    env bindings pinned to their source expressions, `ci_scope.py
+    --selftest` exactly once and before the script reads the selector's
+    answer, and the whole script canonical -- so `if: false` on the step
+    that publishes the output every elaboration gate's guard reads, a
+    script rewritten to publish a literal `rtl`, and a dropped self-test
+    are each refused. Each gate step must also be PRESENT exactly once in
+    the job of the required id: a job body replaced wholesale by
+    `run: true` with the real body's id renamed away, a removed gate
+    step, or an appended duplicate `X:` mapping -- which PyYAML parses
+    last-wins, so the id-named job IS the stub -- is refused naming the
+    job, and the self-test proves the last-wins parse on a real appended
+    duplicate on disk. And each carrier's whole step list is pinned the
+    way item 4 pins the gate job's: count, order, each step's identity
+    (its literal `name`, or its `uses`), each step's exact key set and
+    env bindings, each recorded `if` verbatim (the scope guard on
+    `elaborate`'s gated steps, `always()` plus the guard on its cache
+    write-back) and each recorded `with` mapping exactly, so a `run:` or
+    `uses:` step inserted anywhere in the four jobs -- a `BASH_ENV`
+    written to `$GITHUB_ENV`, a `$GITHUB_PATH` prepend, a third-party
+    action, or any content at all -- is refused naming the job and the
+    position, as are a removed, reordered or renamed step, a loosened
+    step `if`, and a rewritten cache or upload `with`.
 12. **The inherited execution environment.** None of the keys above is
     `env`, and a name set at the workflow or job level reaches every step's
     shell before any pinned script runs: `BASH_ENV` names a file bash
@@ -469,19 +491,26 @@ is exactly these twelve things:
     only with its recorded value -- the behave step, `tests`; anywhere else
     the key, and on that step any other value, redirects a gate to a
     checked-in decoy tree ([R4] round 7, [R3] round 10 on PR #293) -- and a
-    non-mapping `env` is refused at every level. What this cannot hold, and #295 owns, is the step-list class
-    itself: in the ten jobs whose step lists are not pinned the way the
-    gate's is (item 4) -- every job but `full-ci-gate` and `changes`, the
-    RTL workers included -- an inserted step of ANY content still passes,
-    such a step can reach the runner's environment file without spelling
-    its name (the `_runner_file_commands` glob, an indirect expansion, a
-    checked-in script), and the CONTENT of the existing unpinned steps is
-    not held either: `docs-check`'s gates other than the ci_events step
-    (`docs_check`, `check_feature_status`, the traceability matrix, the
-    builder gates and the rest) can be rewritten, `if: false`'d or
-    swallowed with the context green, and the second runner backs up only
-    `ci_events --check`. Only a sequence-and-content pin on every job
-    closes that, which is #295's widened acceptance row.
+    non-mapping `env` is refused at every level. #295 closed the step-list
+    class for the four non-RTL carriers (item 11): their step lists are
+    pinned by count, order, identity, key set, recorded `if` and recorded
+    `with`, so an inserted step of ANY content -- one reaching the
+    runner's environment file without spelling its name included (the
+    `_runner_file_commands` glob, an indirect expansion, a checked-in
+    script) -- is refused there naming the job and the position, and so is
+    an `if: false` on any of their steps. What this still cannot hold is
+    the same class in the seven RTL jobs whose step lists are not pinned
+    the way the gate's is (item 4) -- the two shard workers, the two
+    exhaustive aggregates, `verilator-lint`, `yosys-elaboration` and
+    `bdd-conformance` -- where an inserted step that stays inside every
+    allowlist above still passes, and the CONTENT of the recognised
+    non-gate steps in the four carriers: `docs-check`'s gates other than
+    the ci_events step (`docs_check`, `check_feature_status`, the
+    traceability matrix, the builder gates and the rest) can still be
+    rewritten or swallowed with the context green, and the second runner
+    backs up only `ci_events --check`. A sequence-and-content pin on
+    every job closes that; it is #295's widened acceptance row and stays
+    open there.
 
 `--selftest` covers, one at a time: the step removed, the token missing, the
 live read replaced by an echo, the event not passed, `|| true`, the decoy
@@ -560,8 +589,22 @@ matrix job whose `name` renders one (its own file's and another file's), and
 the enumeration's edges - a matrix value that is itself an expression, an
 unmatched `${{`, `include`, a `fromJSON` matrix, a missing key, an empty
 list - and a literal decoy carrying a required name another file owns, in
-each of the four files; a whitespace-only reformatting of all
-five canonical scripts that must still pass; and the decision itself for
+each of the four files; each of the four non-RTL gate steps (`docs-check`'s
+ci_events step, `wire-accountability`'s gate step, `docs-check-no-git`'s
+single step, `elaborate`'s scope step) given an `if: false`, a
+`continue-on-error`, a `shell`, a `working-directory` and a `|| true`, and
+each removed; the elaborate scope script made to publish a literal
+`rtl=false`, stripped of its `ci_scope.py --selftest`, running the
+self-test after the answer is read, and its two env bindings rebound; each
+of the four carriers' bodies replaced by a `run: true` stub behind a
+renamed-away id and by a duplicate mapping's last-wins parse, plus an
+appended duplicate `wire-accountability:` and `elaborate:` mapping as a
+real file on disk; a `BASH_ENV`-writing, a `$GITHUB_PATH`-prepending, a
+third-party-`uses:` and a benign step inserted into the four carriers, a
+recognised step removed, swapped and renamed, a non-gate carrier step
+given `if: false`, a gated `elaborate` step's `if` loosened, and a cache
+and an upload `with` rewritten; a whitespace-only reformatting of all
+nine canonical scripts that must still pass; and the decision itself for
 every event class.
 
 ## One authoritative SHA
