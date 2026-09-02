@@ -84,13 +84,20 @@ combined tally. Specialized dependencies are installed only by their stable
 owners: `tsn_fuzz` owns the pinned packet generator, and `chmap_capture` owns
 the Yosys/sv2v netlist leg. The shard selector self-test pins both assumptions.
 
-Yosys runs the complete top inventory on four weighted workers. The measured
+Yosys runs the complete top inventory on four weighted workers, under the
+pinned toolchain the workflow declares: `YOSYS_VERSION` names the one Yosys
+the gate's verdict is taken with, built from the upstream tag with its bundled ABC
+submodule on a cache miss and proved by a version step that fails on any
+other binary, and the sv2v release install is verified against the SHA-256
+recorded in the workflow text (#287). The measured
 heavy tops are isolated, while smaller tops are assigned with deterministic
 longest-processing-time scheduling. Each worker uploads one result record per
 top. The `yosys-portability` aggregate rejects:
 
 - missing, duplicate, or unexpected top evidence;
-- malformed or unreadable evidence;
+- malformed or unreadable evidence, including a PASS top record without a
+  numeric `cells` count (`cells=?` was every CI record's value for as long
+  as the column existed, and nothing refused it — #287);
 - any failed or timed-out worker;
 - a missing or failed blocking tied-input gate;
 - structural-gate ownership that appears more than once.
@@ -101,8 +108,10 @@ preserves the existing local policy. Its result is still recorded exactly once.
 ## Nightly and manual dispatch
 
 **The nightly** validates whatever `dev` points at when the cron fires. Its
-value is environment drift: the Verilator cache, the apt Yosys and its
-jemalloc preload (a speed choice `syn/yosys/run.sh` makes only when the
+value is environment drift: the Verilator and Yosys build caches (both tools
+are pinned and version-verified, so the drift a nightly can find is the
+cache or its build inputs, not the version), the jemalloc preload (a speed
+choice `syn/yosys/run.sh` makes only when the
 library is installed, never a pass criterion), the hash-locked HDL reference
 parser install,
 the pinned `tsn-gen` revision and the LiteX pins all move under a tree that
@@ -663,7 +672,9 @@ tree, redirects or disables checkout, moves setup on either side of that order,
 and disables or replaces the setup and builder calls. A local run with an
 already initialized worktree is not evidence that a fresh hosted checkout has
 the sources. The same contract pins one exact sv2v v0.0.12 install per
-builder job, before the call and under the elaboration job's live RTL-scope
+builder job — release artefact checksum included: the script verifies the
+zip against the SHA-256 recorded in the workflow text before installing
+(#287) — before the call and under the elaboration job's live RTL-scope
 `if`: `dp_srcs.py` refuses to resolve a top without a front end, so a runner
 without sv2v turns the builder gate red rather than green, and the mutation
 suite drops the install, drifts its version, moves it after the call, and

@@ -342,8 +342,8 @@ GH_ENV_PREFIX = "GH_"
 #: enumerate. So the environment is held the other way round - these are
 #: the only names each level may carry, and anything else is refused.
 INHERITED_WORKFLOW_ENV = {
-    RTL_FULL: ("VERILATOR_VERSION", "TSN_GEN_REV"),
-    RTL_FAST: ("VERILATOR_VERSION",),
+    RTL_FULL: ("VERILATOR_VERSION", "YOSYS_VERSION", "TSN_GEN_REV"),
+    RTL_FAST: ("VERILATOR_VERSION", "YOSYS_VERSION"),
     DOCS: (),
     ELABORATE: (),
 }
@@ -568,11 +568,17 @@ BUILDER_CHECKOUTS = {
 #: the same pinned release the portability gate uses, held here as one exact
 #: script: an unpinned version is a silent toolchain drift, and a missing
 #: install is a red job dressed as a candidate finding.
+#: The release artefact is checksum-verified since #287: a version pin
+#: without a digest is half a pin - the name is fetched, the bytes are not
+#: held. The digest was computed from the official v0.0.12 sv2v-Linux.zip
+#: release asset and lives in the workflow text, never fetched at run time.
 SV2V_INSTALL = (
     "set -euo pipefail",
     "ver=v0.0.12",
+    "sha256=ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00",
     'url="https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip"',
     'curl -fsSL "$url" -o /tmp/sv2v.zip',
+    'echo "${sha256} /tmp/sv2v.zip" | sha256sum -c -',
     "unzip -q -o /tmp/sv2v.zip -d /tmp/sv2v",
     'sudo install -m755 "$(find /tmp/sv2v -name sv2v -type f | head -1)" /usr/local/bin/sv2v',
     "sv2v --version",
@@ -4071,10 +4077,10 @@ def _mutations():
          "the workflow-level `env` must name exactly nothing"),
         ("#261 rtl.yml workflow-level BASH_ENV",
          m_workflow_env(RTL_FULL, "BASH_ENV"),
-         "the workflow-level `env` must name exactly ['TSN_GEN_REV', 'VERILATOR_VERSION']"),
+         "the workflow-level `env` must name exactly ['TSN_GEN_REV', 'VERILATOR_VERSION', 'YOSYS_VERSION']"),
         ("#261 rtl-fast.yml workflow-level env with a benign name",
          m_workflow_env(RTL_FAST, "PIP_QUIET", "1"),
-         "the workflow-level `env` must name exactly ['VERILATOR_VERSION']"),
+         "the workflow-level `env` must name exactly ['VERILATOR_VERSION', 'YOSYS_VERSION']"),
         ("#261 docs-check ci_events step-level BASH_ENV",
          m_step_env(DOCS, "docs-check", "scripts/ci_events.py --check", "BASH_ENV"),
          "`env` names ['BASH_ENV'] outside this job's allowlist (none)"),

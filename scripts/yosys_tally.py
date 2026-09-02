@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import re
 import sys
 import tempfile
 from collections import Counter
@@ -16,6 +17,10 @@ EXPECTED_GATES = {
     "tap-purity": False,
 }
 REQUIRED_KEYS = {"kind", "name", "status", "blocking"}
+#: Keys a record may carry beyond REQUIRED_KEYS, by kind. Only a top has a
+#: mode and a cell count; a gate record carrying either is malformed.
+TOLERATED_KEYS = {"top": {"mode", "cells"}, "gate": set()}
+CELLS_RE = re.compile(r"[0-9]+")
 
 
 @dataclass(frozen=True)
@@ -25,6 +30,7 @@ class Result:
     name: str
     status: str
     blocking: bool
+    cells: int | None
 
 
 def parse_result(path: Path) -> Result:
@@ -43,23 +49,41 @@ def parse_result(path: Path) -> Result:
             raise ValueError(f"{path}:{number}: duplicate key {key}")
         values[key] = value
     missing = REQUIRED_KEYS - values.keys()
-    extra = values.keys() - REQUIRED_KEYS - {"mode", "cells"}
     if missing:
         raise ValueError(f"{path}: missing key(s): {', '.join(sorted(missing))}")
-    if extra:
-        raise ValueError(f"{path}: unknown key(s): {', '.join(sorted(extra))}")
     if values["kind"] not in {"top", "gate"}:
         raise ValueError(f"{path}: kind must be top or gate")
+    extra = values.keys() - REQUIRED_KEYS - TOLERATED_KEYS[values["kind"]]
+    if extra:
+        raise ValueError(f"{path}: unknown key(s): {', '.join(sorted(extra))}")
     if values["status"] not in {"PASS", "FAIL"}:
         raise ValueError(f"{path}: status must be PASS or FAIL")
     if values["blocking"] not in {"0", "1"}:
         raise ValueError(f"{path}: blocking must be 0 or 1")
+    # The cell count is the evidence the portability gate publishes, so a
+    # PASS top must carry a decimal one. `cells=?` was an accepted record for
+    # as long as the field existed, which let every CI record ship the
+    # extractor's fallback placeholder without anything noticing (#287). A
+    # FAIL top may omit the count - sv2v or yosys died before producing one -
+    # but whatever is present must still be a number.
+    cells_text = values.get("cells")
+    cells: int | None = None
+    if cells_text is not None:
+        if not CELLS_RE.fullmatch(cells_text):
+            raise ValueError(
+                f"{path}: cells must be a decimal cell count "
+                f"(found {cells_text!r})")
+        cells = int(cells_text)
+    if values["kind"] == "top" and values["status"] == "PASS" and cells is None:
+        raise ValueError(
+            f"{path}: a PASS top record must carry a numeric cells count")
     return Result(
         path=path,
         kind=values["kind"],
         name=values["name"],
         status=values["status"],
         blocking=values["blocking"] == "1",
+        cells=cells,
     )
 
 
@@ -151,16 +175,22 @@ def validate(
 
 
 def write_result(root: Path, kind: str, name: str, status: str = "PASS",
-                 blocking: bool = True, malformed: bool = False) -> None:
+                 blocking: bool = True, malformed: bool = False,
+                 cells: str | None = "default") -> None:
+    """`cells` mirrors run.sh's record: a PASS top carries a count by
+    default, everything else omits the key. Pass an explicit value (or None)
+    to build a degenerate record."""
     path = root / f"{kind}-{name}.result"
     if malformed:
         path.write_text("not key value\n", encoding="utf-8")
         return
-    path.write_text(
-        f"kind={kind}\nname={name}\nstatus={status}\n"
-        f"blocking={1 if blocking else 0}\n",
-        encoding="utf-8",
-    )
+    if cells == "default":
+        cells = "7" if kind == "top" and status == "PASS" else None
+    body = (f"kind={kind}\nname={name}\nstatus={status}\n"
+            f"blocking={1 if blocking else 0}\n")
+    if cells is not None:
+        body += f"cells={cells}\n"
+    path.write_text(body, encoding="utf-8")
 
 
 def selftest() -> int:
@@ -201,6 +231,19 @@ def selftest() -> int:
     run_case("unexpected top", lambda root: write_result(root, "top", "z"), True)
     run_case("failed top", lambda root: write_result(root, "top", "b", "FAIL"), True)
     run_case("malformed evidence", lambda root: write_result(root, "top", "b", malformed=True), True)
+    # The degenerate records #287 measured in the wild: `cells=?` was every
+    # CI record for as long as the column existed, and nothing refused it.
+    run_case("PASS top with cells=?",
+             lambda root: write_result(root, "top", "b", cells="?"), True)
+    run_case("PASS top without cells",
+             lambda root: write_result(root, "top", "b", cells=None), True)
+    run_case("PASS top with a non-decimal cells",
+             lambda root: write_result(root, "top", "b", cells="12x4"), True)
+    run_case("FAIL top with a numeric cells still only fails the top",
+             lambda root: write_result(root, "top", "b", "FAIL", cells="9"), True)
+    run_case("gate record carrying cells",
+             lambda root: write_result(root, "gate", "tied-input",
+                                       blocking=True, cells="9"), True)
     run_case("missing tied gate", lambda root: (root / "gate-tied-input.result").unlink(), True)
     run_case("failed tied gate", lambda root: write_result(root, "gate", "tied-input", "FAIL", True), True)
     run_case("failed informational gate", lambda root: write_result(root, "gate", "tap-purity", "FAIL", False), False)
