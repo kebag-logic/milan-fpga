@@ -53,10 +53,11 @@
 #            assertion that only logs is the false green Rule 6 exists for)
 #   90       nothing failed, but some member was SKIPPED (no LiteX
 #            interpreter), so a green here is NOT the full aggregate
+#   91       REFUSED: a set $MILAN_LITEX_PYTHON that cannot import
+#            migen + litex (an explicit pin is never silently substituted)
 #   92       some member was KILLED BY THE WALL CLOCK - result UNKNOWN,
 #            neither a pass nor a failure; re-run it uncontended
-#   2        refused: usage error, or a set $MILAN_LITEX_PYTHON that cannot
-#            import migen + litex
+#   2        usage error (bad option, more than one output directory)
 #
 # Environment:
 #   MILAN_LITEX_PYTHON   the interpreter, as an explicit pin (see above)
