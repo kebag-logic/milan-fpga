@@ -1630,45 +1630,44 @@ int main(int argc, char** argv) {
     }
 
     // ---------------------------------------------------------------- //
-    // [SERVO] DYNAMIC MEDIA-CLOCK SELECTION IS NOT INTEGRATED.          //
+    // [SERVO] DYNAMIC MEDIA-CLOCK SELECTION IS LIVE (#74).              //
     //                                                                  //
-    // The protocol processor accepts and stores SET_CLOCK_SOURCE, and   //
-    // KL_pp_shadow exports the value to milan_datapath. No media-plane   //
-    // consumer reads it, so the root keeps CRF_CLK_SELECTED_C low and    //
-    // MEDIA_CLK_SRC_IDX_C at the INTERNAL source for this build. The    //
-    // old controller-effect check cannot be kept because no dynamic     //
-    // value reaches the media plane. The command path itself is tested  //
-    // in the processor and pp_shadow suites.                            //
-    //                                                                  //
-    // What is still assertable is the PIN itself and its one visible    //
-    // consequence on the packet grid, plus the CSR boundary of the      //
-    // servo's own knob register.                                       //
+    // The protocol processor stores SET_CLOCK_SOURCE, KL_pp_shadow      //
+    // exports it, and milan_datapath's media_clk_resolve turns it into  //
+    // the one registered verdict that gates the MMCM servo, the         //
+    // grid-align loop and the mr machinery. This leg never selects CRF, //
+    // so what it owns is the INTERNAL half: the gates stay down and     //
+    // the servo stays IDLE - the checks that would have caught the      //
+    // old 0 == 0 trap, now guarding the live resolve's default. The     //
+    // selected half runs where its physics exists: obj_aclk's [CRF]     //
+    // phase at the true 391/1591 ratio, and sim_nxn's AECP-FACE arms    //
+    // for the command chain.                                           //
     // ---------------------------------------------------------------- //
-    printf("\n[SERVO] clock_source is pinned INTERNAL "
-           "(processor selection unconsumed)\n");
+    printf("\n[SERVO] clock_source resolves INTERNAL here "
+           "(the live default; CRF runs in obj_aclk)\n");
     {
         enum { A_CRF_CTRL = 0x738, A_CRF_SIDLO = 0x73C, A_CRF_SIDHI = 0x740,
                A_MCSRV_STAT = 0x8F8 };
         dut->i_mmcm_locked = 1;
         for (int c = 0; c < 8; c++) step();
-        //! THE PIN IS A COMPILE-TIME CONSTANT NOW, so there is no net to
-        //! read: milan_datapath declares CRF_CLK_SELECTED_C /
-        //! MEDIA_CLK_SRC_IDX_C / MEDIA_CLK_SRC_NONE_C and the old pair of
-        //! 16-bit nets (aecp_clk_src, aem_crf_clksrc_w) is deleted. That is
-        //! the fix for what this block reported as a [DEFECT] on 2026-08-13:
-        //! the two nets WERE kept, the CRF-index one had no driver, and every
-        //! consumer therefore compared 0 == 0 and read "CRF selected".
+        //! THE PIN IS A LIVE REGISTERED VERDICT NOW (#74's media_clk_resolve):
+        //! one compare of the stored selection against the shape's generated
+        //! CRF index, with the 16'hFFFF no-descriptor fold keeping a CRF-less
+        //! shape structurally false - the same trap-proofing the old
+        //! constants encoded against the 2026-08-13 [DEFECT] (both nets kept,
+        //! the CRF-index one undriven, every consumer reading 0 == 0 as
+        //! "CRF selected").
         //!
-        //! So the assertions moved from the net to its CONSEQUENCES, which is
-        //! the stronger place to assert anyway - a constant cannot be observed
-        //! wrong, but a servo that engages on it can.
+        //! The assertions stay on the CONSEQUENCES, which is the stronger
+        //! place either way: this leg never selects CRF, so the gates must
+        //! hold their INTERNAL default on the live resolve.
         ck("the NCO grid is structurally free-running (servo_en = 0)",
            dut->rootp->milan_datapath__DOT__mnco_servo_en_w, 0);
         //! ...and the MMCM phase-shift loop stays in IDLE. This is the check
         //! that would have caught the 0 == 0 trap: KL_mmcm_drp_servo selects
-        //! on (clk_src_i == crf_src_idx_i), and it is now fed INTERNAL
-        //! against MEDIA_CLK_SRC_NONE_C (0xFFFF, an index no CLOCK_SOURCE
-        //! descriptor can carry), so that select is structurally false.
+        //! on (clk_src_i == crf_src_idx_i), fed the LIVE index against the
+        //! shape's generated AEM_CRF_CLKSRC_C - INTERNAL(0) against 2 here,
+        //! so the select is honestly false until a controller selects CRF.
         //! Measured on the broken build: MCSRV_STAT = 0x21, servo out of IDLE
         //! at clock_source = INTERNAL.
         {
@@ -1928,10 +1927,12 @@ int main(int argc, char** argv) {
                 for (auto& f : cap) if (lvl_of(f) != lvl0) stable = 0;
                 ck("H2: the granted mr level reaches the wire byte, held", stable, 1);
             }
-            printf("  [GAP]  10.4.3 source-change trigger cannot reach the "
-                   "media plane: SET_CLOCK_SOURCE is accepted and stored, but "
-                   "KL_pp_shadow exports the selection to an unconsumed root "
-                   "wire and CRF_CLK_SELECTED_C stays low.\n");
+            printf("  [i]    10.4.3 triggers REACH the media plane since #74: "
+                   "the resolved selection gates mr (obj_aclk's [MR] arm "
+                   "grades the received-toggle echo under CRF and its 10.4.3 "
+                   "silence at INTERNAL), and KL_media_clock_restart's "
+                   "clk_src_i is the live index, so the source-change "
+                   "trigger fires on a real SET_CLOCK_SOURCE.\n");
 
         }
 

@@ -1917,6 +1917,47 @@ dut->m_axis_mac_tx_tready = 1;
                        (long)dut->rootp
                            ->milan_datapath__DOT__pp_aecp_identify_w, 0);
 
+#ifndef DIVERGENT_TB
+                    //! #74 [CRF-SEL]: the COMMAND CHAIN reaches the media
+                    //! plane's one resolve. This shape's CLOCK_SOURCE set is
+                    //! internal, one Stream Clock per listener, then CRF, so
+                    //! the CRF index is NSTREAMS_TB + 1 - the same rule
+                    //! gen_aem_store.clock_source_shape derives (hardcoding
+                    //! "2" was the 8-listener bug the generator banner
+                    //! records). Selected: the registered verdict and the
+                    //! NCO gate rise; restored: they fall. The selected-mode
+                    //! PHYSICS (grid alignment, the live status slice, mr)
+                    //! runs where the clock ratio exists - obj_aclk's [CRF]
+                    //! phase; this arm owns only the chain.
+                    {
+                        const uint16_t crf_ix = (uint16_t)(NSTREAMS_TB + 1);
+                        std::vector<uint8_t> c5(8, 0);
+                        c5[0] = 0x00; c5[1] = 0x24;      // CLOCK_DOMAIN @24
+                        c5[4] = (uint8_t)(crf_ix >> 8);
+                        c5[5] = (uint8_t)crf_ix;
+                        const std::vector<uint8_t> r5 =
+                            aecp_xact(0x0016, sq++, c5);
+                        ck("[CRF-SEL] SET_CLOCK_SOURCE(CRF) answers SUCCESS",
+                           r5.size() >= 42 ? aecp_status(r5) : -1, 0);
+                        for (int c = 0; c < 8; c++) step();
+                        ck("[CRF-SEL] the one registered resolve reads CRF",
+                           (long)dut->rootp
+                               ->milan_datapath__DOT__crf_clk_selected_r, 1);
+                        ck("[CRF-SEL] the NCO servo gate rose with it",
+                           (long)dut->rootp
+                               ->milan_datapath__DOT__mnco_servo_en_w, 1);
+                        c5[4] = 0; c5[5] = 0;
+                        aecp_xact(0x0016, sq++, c5);
+                        for (int c = 0; c < 8; c++) step();
+                        ck("[CRF-SEL] restore: the verdict falls to INTERNAL",
+                           (long)dut->rootp
+                               ->milan_datapath__DOT__crf_clk_selected_r, 0);
+                        ck("[CRF-SEL] ...and the gate falls with it",
+                           (long)dut->rootp
+                               ->milan_datapath__DOT__mnco_servo_en_w, 0);
+                    }
+#endif
+
                     //! HONEST LIMIT, stated rather than papered over. The
                     //! configuration face cannot be MOVED on this model:
                     //! avdecc/gen_aem_store.py emits configurations_count = 1,
@@ -5902,16 +5943,18 @@ dut->m_axis_mac_tx_tready = 1;
             const bool mt = rp->milan_datapath__DOT__media_tick_p != 0;
             if (mt) ticks++;
 
-            //  The gate must BE the clock-source selection, every cycle.
-            //  That selection is a COMPILE-TIME CONSTANT now: milan_datapath
-            //  declares CRF_CLK_SELECTED_C = 0 and the old aecp_clk_src net
-            //  is deleted, so the gate must be 0 on every cycle - not merely
-            //  equal to a net that is also 0. (Keeping both nets and tying
-            //  the live one to 0 is what made every consumer compare 0 == 0
-            //  and read "CRF selected"; the constant exists to end that.)
-            if (rp->milan_datapath__DOT__mnco_servo_en_w != 0) gate_bad++;
-            //  and the command must BE the servo's published trim field
-            if (servo16() != stat16()) cmd_bad++;
+            //  The gate must BE the clock-source selection, every cycle -
+            //  and that selection is LIVE since #74 (media_clk_resolve).
+            //  This leg never selects CRF, so the registered verdict must
+            //  hold 0 on every cycle; the 0 == 0 trap the old constant
+            //  guarded against is now guarded by the 16'hFFFF no-descriptor
+            //  fold inside the one resolve block.
+            if (rp->milan_datapath__DOT__mnco_servo_en_w !=
+                rp->milan_datapath__DOT__crf_clk_selected_r) gate_bad++;
+            //  and INTERNAL must leave NO residual command on the NCO's trim
+            //  port: the align loop (#74 - the NCO's command source now; the
+            //  MMCM slice is the MMCM's alone) drives 0 while disengaged
+            if (servo16() != 0) cmd_bad++;
         }
         printf("  [i]    media grid: %ld ticks in %ld clocks (want %ld +/-1)\n",
                ticks, GRID_CLK, GRID_WANT);
@@ -5941,11 +5984,11 @@ dut->m_axis_mac_tx_tready = 1;
         //  (media_lrclk_o, a 50% square at fs/2) beside tdm_fsync_o on J11.8:
         //  the requirement is that the two stay ALIGNED, and a two-channel
         //  probe is today the only instrument that can say whether they do.
-        printf("  [GAP]  0x0041 grid: fsync-vs-grid ALIGNMENT is not modelled - "
-               "this leg has no TDM front end at all (AUDIO_IF_SLOTS_P=0 ties "
-               "tdm_fsync_o to 0); the shipping master lives in obj_ax1x1, and "
-               "even there clk_tdm_i runs at the axis rate so the -10.64 ppm "
-               "391/1591 ratio is absent. Measure J11.8 against J11.9.\n");
+        printf("  [i]    0x0041 grid: fsync-vs-grid ALIGNMENT is modelled and "
+               "graded where the ratio exists: obj_aclk drives the true "
+               "391/1591 plan and proves the accepted INTERNAL drift AND the "
+               "#74 aligned-under-CRF close (KL_media_grid_align). The "
+               "silicon counterpart stays J11.8 against J11.9.\n");
 
         //  vacuity guard first: a grid stuck low would make every "== 0"
         //  check below pass for the wrong reason
@@ -5966,25 +6009,19 @@ dut->m_axis_mac_tx_tready = 1;
         ck("0x0042 phys: the slot-indexed capture bucket IS fed (was tied off)",
            tdm_written > 0, 1);
 
-        ck("0x0041 grid: the NCO's servo gate IS the clock-source selection",
+        ck("0x0041 grid: the NCO's servo gate IS the live selection verdict",
            gate_bad, 0);
         ck("0x0041 grid: INTERNAL leaves the grid free-running",
            rp->milan_datapath__DOT__mnco_servo_en_w, 0);
 
-        //  "the command is A_MCSRV_STAT[31:16]" can only be graded while the
-        //  servo status is non-zero: idle, the whole word reads 0 and every
-        //  slice of it compares equal. Mutating the slice to [15:0] leaves
-        //  this green - verified - so it is reported, not passed.
-        if (stat16() == 0 && (rp->milan_datapath__DOT__mcsrv_stat_w & 0xFFFFu) == 0) {
-            printf("  [GAP]  0x0041 grid: servo status is all-zero (idle at "
-                   "clock_source=INTERNAL), so WHICH slice feeds the NCO is "
-                   "unfalsifiable here. The sign and rescale it carries are "
-                   "swept by tb/verilator/media_nco; only the slice is open, "
-                   "and it needs a CRF stimulus at clock_source=CRF.\n");
-        } else {
-            ck("0x0041 grid: the NCO's servo command IS A_MCSRV_STAT[31:16]",
-               cmd_bad, 0);
-        }
+        //  the old "WHICH slice feeds the NCO" question is CLOSED BY
+        //  REDESIGN (#74): the slice feeds nothing but the CSR - it is the
+        //  MMCM's own command, graded NON-ZERO under real CRF stimulus at
+        //  clock_source=CRF by obj_aclk's [CRF] phase - and the NCO follows
+        //  the physical grid through KL_media_grid_align instead. What this
+        //  leg still owns is the disengaged half:
+        ck("0x0041 grid: INTERNAL leaves no residual trim on the NCO port",
+           cmd_bad, 0);
     }
 
     printf("--------------------------------------------------------------\n");

@@ -6,10 +6,31 @@ Older campaigns remain available in Git history.
 
 ## Contents
 
+- **[Release 0x0002_0057 — live media-clock selection](#release-0x0002_0057--live-media-clock-selection)** — CRF selection steers the grids.
 - **[Release 0x0002_0056 — ownerless gPTP verification form](#release-0x0002_0056--ownerless-gptp-verification-form)** — Verification only.
 - **[Release 0x0002_0055 — fabric gPTP product ownership](#release-0x0002_0055--fabric-gptp-product-ownership)** — Shipping time owner.
 - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** — Serves generated names and writable overlays.
 - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** — Adds supported stream setters.
+
+## Release 0x0002_0057 — live media-clock selection
+
+- The stored `SET_CLOCK_SOURCE` index reaches the media plane (#74).
+- One registered resolve compares it against the shape's generated CRF index.
+- A CRF-less shape resolves structurally false through the `16'hFFFF` fold.
+- The verdict arms the MMCM servo, the align chain, and `mr`.
+- `KL_media_grid_align` holds the packet grid on the physical fsync grid.
+- The reference chain is CRF, then the MMCM, then fsync, then the tick.
+- The MMCM status slice belongs to the MMCM alone.
+- INTERNAL remains bit-exact free-run with slips accepted and now counted.
+- `KL_chan_map_capture` gains TDM junction slip counters.
+- The true 391/1591 leg proves the drift at INTERNAL and its close under CRF.
+- 4.4.4.3 `mr` fires on the received toggle and on a source change.
+- The 10.4.3 scoping negative holds at INTERNAL.
+- The CLOCK_SOURCE shape constants join `adp_shape_defaults.svh`, derived.
+- Every shape carries its own CRF index; the 8-listener shapes read 9.
+- No CSR addresses move.
+
+The bench probe (J11.8 against J11.9) stays open on issue #74.
 
 ## Release 0x0002_0056 — ownerless gPTP verification form
 

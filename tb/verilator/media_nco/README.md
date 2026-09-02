@@ -126,16 +126,16 @@ moves with the clock too).
   including the conversion. Whether the *right* `u` arrives — the CRF error
   signal, the PI response, the clock-source selection — is `mmcm_servo`,
   `mmcm_servo_autorepair`, `crf_rx` and `milan_dp`, not here.
-- **Nothing about which field carries `u`.** This suite is handed
-  `servo_trim_i` directly. That the datapath wires it from
-  `A_MCSRV_STAT[31:16]` rather than some other slice is a `milan_dp` question,
-  and while the servo is idle its whole status word is zero, so `milan_dp`
-  reports that as an open `[GAP]` rather than passing it.
+- **Nothing about who commands `u`.** This suite is handed `servo_trim_i`
+  directly. Since #74 the datapath wires it from `KL_media_grid_align` (the
+  packet grid follows the physical fsync grid; the MMCM's
+  `A_MCSRV_STAT[31:16]` slice is the MMCM's alone) - the loop's law is
+  `tb/verilator/media_grid_align`, the root wiring is `milan_dp`'s
+  `obj_aclk` leg. The old open `[GAP]` about which slice feeds the NCO is
+  closed by that redesign.
 - **Nothing about the other actuator.** `clk_audio` is steered by
-  `KL_mmcm_drp_servo` from the same command; that they agree in *silicon* is a
-  bench measurement, not a simulation one. The arithmetic that converts the
-  servo's 1/16 ppm units into NCO LSB lives in `milan_datapath.sv` beside the
-  servo instance, and is exercised by `milan_dp`.
+  `KL_mmcm_drp_servo` from the CRF rate error; the chain's links agreeing in
+  *silicon* is a bench measurement (J11.8 vs J11.9), not a simulation one.
 - **Nothing about jitter.** Every period is one `clk_i` quantised by
   construction; what that does to a converter is an analog question.
 - The 50 MHz shape never exercises the **borrow** path (`un_w`): its `REM_C` is

@@ -371,7 +371,7 @@ module KL_chan_map_capture #(
   //! The TDM holds are latest-sample buckets - correct for a once-per-frame
   //! source, but a hold written on the fsync grid and read on the media grid
   //! slips one whole frame per beat period of the two rates (the shipping
-  //! divider plan: -10.64 ppm = one frame per ~1.96 s), and until 0x004F
+  //! divider plan: -10.64 ppm = one frame per ~1.96 s), and until 0x0057
   //! NOTHING counted it - the LOOP counters watch only the queue bucket.
   //! One event per FRAME, not per pair: every pair shares the fsync clock,
   //! so they go stale together and a per-pair count would just multiply the
