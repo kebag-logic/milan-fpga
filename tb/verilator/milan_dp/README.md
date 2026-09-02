@@ -212,20 +212,24 @@ the first offset beyond the model.
 
 "Before" is the state after the compile fix that made the suite build at all
 (`sim_nxn.cpp` reached deleted RTL through Verilator XMRs and did not compile,
-so *no* leg ran). **Every number below is measured**, all nine legs, on the same
-`make` — this table carries no projection.
+so *no* leg ran). **Every "after" number below is measured on ONE `make`** —
+all eleven legs, release `0x0002_0057` (2026-09-02) — this table carries no
+projection. (Issue #314 caught the previous revision claiming that while five
+rows were stale and one pointed at a summary that did not exist.)
 
-| leg | before (measured) | after (measured) | note |
+| leg | before (measured) | after (measured, one make @ 0x0002_0057) | note |
 |---|---|---|---|
-| `obj_dir` (`sim_main`) | 273 checks / 75 fail | **247 / 0** | remeasured on the focused ownerless option-OFF target; includes exact CRF `tu=1` on every captured PDU |
-| `obj_nxn` (`sim_nxn`) | 378 / — (did not compile) | **145 / 0** | + the `[AECP]` no-memory degrade checks |
-| `obj_nxn8` (`sim_nxn`) | 512 / not available | superseded | `[T66]` now grades atomic audio-map mutation; use the current run summary below |
-| `obj_nxn4c` (`sim_nxn`) | 378 / — | **145 / 0** | |
-| `obj_nolpf` (`sim_main`) | 273 / 75 | **244 / 0 (last measured)** | not rerun after the ownerless `tu` assertion was added |
-| `obj_prune` (`sim_prune`) | 31 / 0 | **31 / 0** | unchanged, untouched |
-| `obj_ax1x1` (`sim_main`) | 273 / 73 | **242 / 0** | 5 sections guarded out on this shape |
+| `obj_gptp` (`sim_gptp`) | not available | **164 / 0** | product-default fabric-owner run; inert-write negatives, both counter dirty paths, limiter pending-release, AAF+CRF `tu`, the three drop-counter routes at 0x7E8/0x7EC |
+| `obj_dir` (`sim_main`) | 273 checks / 75 fail | **230 / 0** | the focused ownerless option-OFF target; exact CRF `tu=1` on every captured PDU |
+| `obj_notify` (`sim_nxn`, timed) | not in the old table | **117 / 0** | the compressed-timebase 5.4.5 notify leg |
+| `obj_nxn` (`sim_nxn`) | 378 / — (did not compile) | **1679 / 0** | the old 145 was already stale at #294's merge (issue #314 measured 1673 there); the suite has kept growing since |
+| `obj_nxndv` (`sim_nxn`) | not in the old table | **1682 / 0** | the divergent-shape leg |
+| `obj_nxn8` (`sim_nxn`) | 512 / not available | **3179 / 0** | `[T66]` grades atomic audio-map mutation (the old row's "current run summary below" pointer named a section that never existed — this cell is the measurement) |
+| `obj_nxn4c` (`sim_nxn`) | 378 / — | **1679 / 0** | |
+| `obj_nolpf` (`sim_main`) | 273 / 75 | **230 / 0** | re-run current (the old "not rerun after the `tu` assertion" caveat is retired) |
+| `obj_prune` (`sim_prune`) | 31 / 0 | **28 / 0** | the old 31 was already stale at #294's merge (issue #314 measured 28 there) |
+| `obj_ax1x1` (`sim_main`) | 273 / 73 | **227 / 0** | 5 sections guarded out on this shape |
 | `obj_aclk` (`sim_aclk`) | 5 / 0 | **22 / 0** | the #74 two-phase rework: INTERNAL drift kept, CRF alignment + servo + mr added |
-| `obj_gptp` (`sim_gptp`) | not available | **164 / 0** | current product-default fabric-owner run; includes inert-write negatives, both counter dirty paths, limiter pending-release, AAF+CRF `tu`, and the three drop-counter routes at 0x7E8/0x7EC |
 
 Earlier re-measurement had stopped because the `protocol-processor` submodule
 working tree went out from under the build — `protocol_processor_top.sv` had an
