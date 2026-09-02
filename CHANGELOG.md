@@ -4,6 +4,8 @@ This file records current bare-metal product revisions.
 
 Older campaigns remain available in Git history.
 
+The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) preserves closed campaign measurements.
+
 ## Contents
 
 - **[Release 0x0002_0057 — live media-clock selection](#release-0x0002_0057--live-media-clock-selection)** — CRF selection steers the grids.

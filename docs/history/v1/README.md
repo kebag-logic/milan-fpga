@@ -48,7 +48,13 @@ That material remains available only in Git history.
 
 Never restore it through an archive move.
 
-- Archive total: 16 Markdown pages.
+Issue #304 adds one clean throughput measurement record. Its full original
+prose stays in Git history.
+
+The later, specific #304 instruction overrides this rule. A gate-clean
+page still keeps checkouts clean.
+
+- Archive total: 17 Markdown pages.
 
 ## Archived pages
 
@@ -60,6 +66,7 @@ Never restore it through an archive move.
 | [Specification traceability (historical)](SPEC_TRACEABILITY.md) | `docs/SPEC_TRACEABILITY.md` | 2026-08-31 | Stale manual tallies | [Module matrix](../../traceability/MODULE_MATRIX.md) |
 | [Talker state machine (historical)](design/MILAN_TALKER_SM.md) | `docs/design/MILAN_TALKER_SM.md` | 2026-08-31 | Deleted local engines | [Architecture](../../overview/ARCHITECTURE.md) |
 | [Static ADP shape (historical)](findings/ADP_SHAPE_STATIC_0727.md) | `docs/findings/ADP_SHAPE_STATIC_0727.md` | 2026-08-31 | Fixed generated-shape finding | [End-station builder](../../ENDSTATION_BUILDER.md) |
+| [Throughput campaign record (historical)](findings/PERFORMANCE_GOAL.md) | `docs/findings/PERFORMANCE_GOAL.md` | 2026-09-02 | Closed retired-platform campaign | [Full FPGA solution](../../overview/FULL_FPGA_SOLUTION.md) |
 | [Media-clock lock (historical)](findings/MEDIA_CLOCK_LOCK_0810.md) | `docs/findings/MEDIA_CLOCK_LOCK_0810.md` | 2026-08-31 | Superseded diagnosis | [Time synchronization](../../design/TIME_SYNC.md) |
 | [Protocol area measurement (historical)](findings/PP_SHADOW_AREA_0812.md) | `docs/findings/PP_SHADOW_AREA_0812.md` | 2026-08-31 | Pre-integration measurement | [Area budget](../../design/AREA_BUDGET.md) |
 | [Dependency matrix (historical)](reference/MILAN_V12_DEPENDENCY_MATRIX.md) | `docs/reference/MILAN_V12_DEPENDENCY_MATRIX.md` | 2026-08-31 | Stale manual dependencies | [Requirements register](../../reference/FR_NFR.md) |
@@ -77,3 +84,5 @@ Never restore it through an archive move.
 |---|---|---|
 | [`ROOT_DOC_MAP.drawio` (historical)](diagrams/ROOT_DOC_MAP.drawio) | `DOC_MAP.drawio` | Superseded audience map |
 | [`ROOT_DOC_MAP.svg` (historical)](diagrams/ROOT_DOC_MAP.svg) | `DOC_MAP.svg` | Superseded audience render |
+| [`perf_campaign.svg` (historical)](diagrams/perf_campaign.svg) | `docs/perf_campaign.svg` | Closed campaign chart render |
+| [`perf_campaign_chart.py` (historical)](diagrams/perf_campaign_chart.py) | `docs/perf_campaign_chart.py` | Closed campaign chart generator |

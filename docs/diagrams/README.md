@@ -83,6 +83,7 @@ They never guarantee other hardware results.
 | `audio_stream_path` | Retired audio topology | [Dataplane walkthrough](../fpga/DATAPLANE_WALKTHROUGH.md) |
 | `nxn_window_map` | Shipped row-map defect | [Architecture](../overview/ARCHITECTURE.md) |
 | `../history/v1/diagrams/ROOT_DOC_MAP.*` | Superseded audience map | [Documentation index](../README.md) |
+| `../history/v1/diagrams/perf_campaign.*` | Closed throughput-campaign chart | [Full FPGA solution](../overview/FULL_FPGA_SOLUTION.md) |
 
 Historical diagrams remain evidence only.
 

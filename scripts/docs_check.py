@@ -196,9 +196,11 @@ BARE_SECTION_PTR_RE = re.compile(r"\.md[`)]?,? +(Section|§) *[0-9A-Za-z]")
 HYGIENE_ALLOW = ()
 
 # Documents removed from the tree that must never be referenced again.
-# The 2026-07-20 privacy scrub untracked these three; the live state they used
-# to carry now lives in docs/findings/BENCH_TOPOLOGY.md (bench/board state) and
-# docs/findings/PERFORMANCE_GOAL.md (the measured campaign record).
+# The 2026-07-20 privacy scrub untracked these three; the bench/board state
+# they carried left the tree with #259, and the measured campaign record is
+# archived at docs/history/v1/findings/PERFORMANCE_GOAL.md (#304). The
+# PERFORMANCE_GOAL.md entry below still catches its dead ORIGINAL path
+# (docs/findings/); the archived basename resolves and is linkable.
 RETIRED = {
     "SESSION_HANDOFF.md",
     "HANDOVER.md",
