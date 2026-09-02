@@ -79,6 +79,10 @@ its own expansion rather than parsed; and the protocol processor's own Yosys
 `tops` array names every module it declares, with the six that drifted at the
 current pin recorded by name).
 
+The shape inventory executes Make-language references through GNU Make.
+Recognized default names are `GNUmakefile`, `Makefile`, and `makefile`.
+Included `.mk` and `.mak` fragments follow the same policy.
+
 **L4 and L5 are the only levels with an independent oracle**, and they are the
 only reason escapes 1 and 7 were ever found. Treat access to them as scarce and
 spend it on the things the other levels cannot see.

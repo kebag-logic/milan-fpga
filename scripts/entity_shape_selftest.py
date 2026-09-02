@@ -336,6 +336,61 @@ def _prove_frozen_expansion(original: str, stale: Path) -> None:
             handle.write(original)
 
 
+def _prove_make_filenames(original: str, stale: Path) -> None:
+    """Make consumers are recognised by GNU Make's own filename rules.
+
+    A lowercase `makefile` and an included `.mak` fragment carry Make syntax
+    that only Make can expand; the static resolver used to take both.
+    """
+    from shape_consumer_inventory import is_make_consumer
+
+    # 0k. A lowercase makefile is one of GNU Make's default names. The
+    #     $(shell pwd) prefix is deliberately computed: static expansion
+    #     cannot name the planted old path, while Make expansion can.
+    lower = stale.parent / "makefile"
+    lower_name = _repo_spelling(lower)
+    lower_text = mutate(
+        original,
+        "RTL_DIR    = ../../../hdl",
+        "RTL_DIR    = $(shell pwd)/../../../hdl")
+    lower_text = mutate(
+        lower_text,
+        "$(RTL_DIR)/common/gen/adp_shape_defaults.svh",
+        "$(RTL_DIR)/common/csr/gen/adp_shape_defaults.svh")
+    with open(lower, "w", encoding="utf-8") as handle:
+        handle.write(lower_text)
+    try:
+        expect_fail("a lowercase makefile naming a computed stale path",
+                    lambda: gate.check_shape_consumers((lower_name,)),
+                    (lower_name,
+                     "hdl/common/csr/gen/adp_shape_defaults.svh"))
+    finally:
+        lower.unlink()
+
+    # 0l. An included .mak fragment freezes SHAPE_LATE before LATE_DIR is
+    #     defined. Static substitution sees only the later, valid value;
+    #     Make's assignment probe sees the stale frozen value and refuses it.
+    fragment = stale.parent / "shape_paths.mak"
+    fragment_name = _repo_spelling(fragment)
+    with open(fragment, "w", encoding="utf-8") as handle:
+        handle.write(
+            "SHAPE_LATE := $(LATE_DIR)/common/gen/adp_shape_defaults.svh\n"
+            "LATE_DIR := ../../../hdl\n")
+    with open(stale, "w", encoding="utf-8") as handle:
+        handle.write(original + "\ninclude shape_paths.mak\n")
+    try:
+        expect_fail("a .mak fragment carrying a frozen stale reference",
+                    lambda: gate.check_shape_consumers((fragment_name,)),
+                    (fragment_name, "cannot be resolved"))
+    finally:
+        with open(stale, "w", encoding="utf-8") as handle:
+            handle.write(original)
+        fragment.unlink()
+
+    gate.ck("I GNUmakefile selects the Make resolver",
+            is_make_consumer("fixture/GNUmakefile"), True)
+
+
 def _prove_builder_shape_lies(builder: ModuleType, src_cfg: Path) -> None:
     """A builder whose computed shape contradicts the model it emits.
 
@@ -551,6 +606,7 @@ def self_test() -> None:
     _prove_dead_prerequisite(original, stale)
     _prove_unresolvable_make(original, stale)
     _prove_frozen_expansion(original, stale)
+    _prove_make_filenames(original, stale)
     src_cfg = gate.CONFIG_DIR / "endstation_ax7101_8x8.yaml"
     base_cfg = gate.read_text(src_cfg)
     base_dp = gate.read_text(gate.RTL.datapath)
