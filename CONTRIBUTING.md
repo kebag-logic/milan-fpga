@@ -104,7 +104,7 @@ flowchart LR
    ```
 
    Run that command from the candidate worktree, but load the script only from
-   a separate clean worktree at the PR's current remote `dev` base; candidate
+   a separate clean worktree at the live remote `dev` tip; candidate
    host-side orchestration Python must never execute on the host. The candidate
    runner's offline self-test may execute only inside its disposable CI job.
    `act` must be used instead of waiting for GitHub Actions to finish. For a

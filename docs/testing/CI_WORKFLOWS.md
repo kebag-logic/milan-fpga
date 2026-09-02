@@ -716,9 +716,16 @@ name that the pull request cannot produce.
 
 After a PR head is pushed, an agent must use `act` instead of waiting for
 GitHub Actions to finish. Start the repository-owned runner immediately while
-the hosted workflows continue in parallel. The runner is host-side security
-code: from the candidate worktree, execute only the copy in a separate, clean
-worktree at the PR's current remote `dev` base:
+the hosted workflows continue in parallel. The runner's validation base is the
+live remote `refs/heads/dev` tip, resolved once at invocation: that is the
+commit the trusted worktree must be at, the commit the fetch must return, and
+the base SHA in the generated event. GitHub's recorded PR base oid
+(`baseRefOid`) is frozen when the PR is opened and does not track the branch,
+so the runner prints the recorded and live SHAs and never compares the
+recorded value; re-targeting a PR's base to refresh it (the old
+`gh pr edit --base` flip) is no longer needed. The runner is host-side
+security code: from the candidate worktree, execute only the copy in a
+separate, clean worktree at the validation base:
 
 ```sh
 python3 -I /absolute/path/to/trusted-dev/scripts/act_ci.py --pr <number>
@@ -730,7 +737,7 @@ disposable `docs` CI job; that contained check grants it no host or Docker
 authority and is not the trusted invocation described here. Python isolated
 mode prevents the candidate directory and ambient `PYTHONPATH` from supplying
 imports to the host-side runner. The runner verifies that its own worktree and
-bytes are the clean current base before it reads candidate content. A PR that
+bytes are clean at the validation base before it reads candidate content. A PR that
 introduces the runner cannot bootstrap trust in its own code: an independent
 reviewer must first audit the exact file, install that file outside the
 candidate worktree with no writable mode bits, record its SHA-256, then use
@@ -808,13 +815,16 @@ remote commit even when index flags hide the edit. Replacement refs are
 refused. The selected-file byte verifier uses the same no-follow, nonblocking,
 regular-file-only bounded reader as the workflow sandbox. A credential-free
 HTTPS fetch into a new temporary Git repository
-materializes the exact same-repository PR head and current base without using
-the candidate's object database, index, configuration, hooks, filters, or
-worktree. The PR number, state, draft bit, base ref, head ref/SHA, repository,
-cross-repository bit, and URL are queried again immediately before and after
-every workflow; any change invalidates the whole run. If only the `dev` tip
-moves, the runner prints the old and new base SHAs but retains the result: those
-unrelated bytes were not executed and the exact PR head did not change.
+materializes the exact same-repository PR head and validation base without
+using the candidate's object database, index, configuration, hooks, filters,
+or worktree; a `dev` tip that moves between the invocation-time resolve and
+that fetch refuses the run, naming both base SHAs. The PR number, state, draft
+bit, base ref, head ref/SHA, repository, cross-repository bit, and URL are
+queried again immediately before and after every workflow; any change
+invalidates the whole run. If only the recorded base oid moves, the runner
+prints the old and new values but retains the result: the validation base was
+resolved at invocation, those unrelated bytes were not executed, and the exact
+PR head did not change.
 
 This local replica validates the exact head tree, not GitHub's synthetic merge
 commit. Hosted `pull_request` contexts validate `refs/pull/<number>/merge`, so
