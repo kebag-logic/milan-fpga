@@ -654,7 +654,24 @@ def base_wiring_report(source: str) -> dict[str, object]:
             line = getattr(target, "lineno", 0)
             if span is not None and span[0] <= line <= span[1]:
                 continue
-            binders.append((line, ast.unparse(value) if value is not None else "<bound-without-value>"))
+            #: classify STRUCTURALLY, not by the unparsed text ([R1] on PR
+            #: #336 walked a text prefix past this: `resolve_validation_base
+            #: (...) and pr.base_sha` still starts with the call, still makes
+            #: the call - so the transcript announces the live tip - and
+            #: still binds the frozen oid). Only a bare call to the resolve
+            #: counts; every other expression, boolean or conditional or
+            #: otherwise, is reported as what it is.
+            if (
+                isinstance(value, ast.Call)
+                and isinstance(value.func, ast.Name)
+                and value.func.id == "resolve_validation_base"
+            ):
+                text = "<resolve-call>"
+            elif value is None:
+                text = "<bound-without-value>"
+            else:
+                text = ast.unparse(value)
+            binders.append((line, text))
     return {
         "production": production,
         "fixture": fixture,
@@ -3778,8 +3795,7 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
         "outside the self-test the validation base is bound exactly once, by "
         "the resolve itself, so no rebinding can substitute a value behind "
         "the name every call site passes",
-        len(binders) == 1
-        and binders[0].startswith("resolve_validation_base("),
+        binders == ["<resolve-call>"],
     )
     check(
         "main validates the pull request before resolving the base, and "
