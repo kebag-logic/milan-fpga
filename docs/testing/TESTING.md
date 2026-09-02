@@ -377,13 +377,30 @@ above rather than smoothed over.
 ## 2. LiteX integration checks - `sw/litex/test_*.py`
 
 Self-checking behavioral checks cover the protocol processor's two main-memory
-bridges and the boot/freeze path:
+bridges and the boot/freeze path. One aggregate owns all of them (#297):
 
 ```sh
-cd sw/litex
-for t in test_pp_mem_bridge test_pp_boot_bus_freeze; do
-    python3 $t.py || exit 1; done
+scripts/run_litex_sims.sh <logdir>     # every standalone LiteX simulation
+scripts/run_litex_sims.sh --list       # the pinned inventory, read-only
+scripts/run_litex_sims.sh --selftest   # the runner's own negative controls
 ```
+
+The inventory is **pinned inside the runner**, then reconciled against
+`sw/litex/` in both directions on every run: a pinned name whose file is gone
+is a failure (`MISSING`), and a `test_*.py` present but unlisted is a failure
+(`UNLISTED`) - so a deleted test cannot vanish from the evidence silently, and
+a new test must join the inventory to land. Each script's output goes to its
+own `<logdir>/<script>.log` and a failure names the exact script. Exit 0 is a
+complete pass; 1-89 counts the findings; 90 means nothing failed but a member
+was skipped for a declared reason (no interpreter importing `migen` + `litex`
+- point `MILAN_LITEX_PYTHON` at one); 92 means a wall-clock kill left a
+result UNKNOWN. The hosted owner is the `elaborate` job
+([CI_WORKFLOWS.md](CI_WORKFLOWS.md#elaboration)), which runs the selftest and
+then the aggregate on the interpreter it just installed and patched.
+
+The population was twelve scripts when #297 was filed; ten tested the
+bare-metal ring/DMA product that #259 retired, and PR #294 deleted them with
+the RTL they proved. The two survivors are the checks below.
 
 An access that is never acknowledged must not wedge either bridge or the shared
 bus.
