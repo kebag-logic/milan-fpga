@@ -718,12 +718,19 @@ After a PR head is pushed, an agent must use `act` instead of waiting for
 GitHub Actions to finish. Start the repository-owned runner immediately while
 the hosted workflows continue in parallel. The runner's validation base is the
 live remote `refs/heads/dev` tip, resolved once at invocation: that is the
-commit the trusted worktree must be at, the commit the fetch must return, and
-the base SHA in the generated event. GitHub's recorded PR base oid
-(`baseRefOid`) is frozen when the PR is opened and does not track the branch,
-so the runner prints the recorded and live SHAs and never compares the
-recorded value; re-targeting a PR's base to refresh it (the old
-`gh pr edit --base` flip) is no longer needed. The runner is host-side
+commit the trusted worktree must be at, and the commit the fetch must return.
+GitHub's recorded PR base oid (`baseRefOid`) is frozen when the PR is opened
+and does not track the branch, so the runner prints both SHAs and the recorded
+one never refuses a run; re-targeting a PR's base to refresh it (the old
+`gh pr edit --base` flip) is no longer needed. The generated event still
+carries the **recorded** oid, because its only consumer is scope
+classification and the hosted run receives that same value: the three scope
+steps compare two trees with `git diff <base> <head>`, so a different base
+there would make this replica classify a different file set than the run it
+exists to predict. Because the trusted worktree must sit at a moving branch
+tip, fast-forward it before invoking; a `dev` push between the resolve and the
+fetch refuses the run, and the fix is to fast-forward and re-run. The runner is
+host-side
 security code: from the candidate worktree, execute only the copy in a
 separate, clean worktree at the validation base:
 
@@ -738,8 +745,7 @@ authority and is not the trusted invocation described here. Python isolated
 mode prevents the candidate directory and ambient `PYTHONPATH` from supplying
 imports to the host-side runner. The runner verifies that its own worktree and
 bytes are clean at the validation base before it reads candidate content. A PR
-that
-introduces the runner cannot bootstrap trust in its own code: an independent
+that introduces the runner cannot bootstrap trust in its own code: an independent
 reviewer must first audit the exact file, install that file outside the
 candidate worktree with no writable mode bits, record its SHA-256, then use
 `--trusted-install-sha256` together with explicit `--repo` and `--worktree`
@@ -822,10 +828,10 @@ or worktree; a `dev` tip that moves between the invocation-time resolve and
 that fetch refuses the run, naming both base SHAs. The PR number, state, draft
 bit, base ref, head ref/SHA, repository, cross-repository bit, and URL are
 queried again immediately before and after every workflow; any change
-invalidates the whole run. If only the recorded base oid moves, the runner
-prints the old and new values but retains the result: the validation base was
-resolved at invocation, those unrelated bytes were not executed, and the exact
-PR head did not change.
+invalidates the whole run. A recorded base oid that moves is reported and does
+not refuse: the runner prints the old and new values and retains the result,
+because the validation base was resolved at invocation, those unrelated bytes
+were not executed, and the exact PR head did not change.
 
 This local replica validates the exact head tree, not GitHub's synthetic merge
 commit. Hosted `pull_request` contexts validate `refs/pull/<number>/merge`, so

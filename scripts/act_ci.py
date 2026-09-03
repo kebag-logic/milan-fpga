@@ -7,7 +7,10 @@ The runner is host-side security code. Invoke the copy from a clean trusted
 ``dev`` worktree, never the copy in the pull request being tested. It refuses
 unless that trusted worktree is the validation base: the live remote ``dev``
 tip resolved once at invocation. GitHub's recorded PR base oid is frozen when
-the PR is opened, so it is printed but never compared. Candidate files
+the PR is opened, so it never refuses a run: it is printed, it selects which
+note is printed, and it is the base SHA in the generated event, because that
+payload feeds scope classification and hosted receives the recorded value.
+Candidate files
 are fetched without credentials into a fresh per-run repository and are only
 executed by ``act`` inside unprivileged containers with no Docker socket,
 ambient configuration, host secrets, or persistent writable cache.
@@ -331,6 +334,38 @@ class PullRequest:
 
 
 @dataclass(frozen=True)
+class ValidatedRun:
+    """The pull request, its repository, and the ONE base every check reads.
+
+    #292 was a base DISAGREEMENT: the trusted-worktree check read GitHub's
+    frozen recorded oid while the fetch check read the live branch, so no
+    worktree satisfied both. Threading one resolved SHA through six
+    signatures repairs that symptom but keeps the shape that caused it - an
+    argument position any call site can fill with a different string - and a
+    source-shape check is not a durable guard for it: [R3] on PR #336 drove
+    an ordinary pass-through helper through exactly such a check with every
+    arm green, reinstating #292 in one line.
+
+    So there is no base argument left to fill. The resolve returns this
+    object, every consumer takes it, and the base is reachable only as
+    ``run.validation_base``. Substituting the recorded oid now takes a second
+    ValidatedRun - a visible new construction site, not a one-word edit - and
+    the self-test pins that production has exactly one.
+    """
+
+    pr: PullRequest
+    repository: str
+    validation_base: str
+
+    def __post_init__(self) -> None:
+        if not SHA_RE.fullmatch(self.validation_base):
+            raise Refusal(
+                f"validation base is not a full commit SHA: "
+                f"{self.validation_base!r}"
+            )
+
+
+@dataclass(frozen=True)
 class RunDirectory:
     path: pathlib.Path
     parent: pathlib.Path
@@ -519,69 +554,86 @@ def require_live_pull_request(
 
 
 def parse_ls_remote_tip(raw: str, base_ref: str) -> str:
-    """The single ``refs/heads/<base_ref>`` SHA in ``git ls-remote`` output.
+    """The ``refs/heads/<base_ref>`` SHA in ``git ls-remote`` output.
+
+    ``git ls-remote <url> <pattern>`` matches the pattern against the TAIL of
+    each ref name, not the whole of it, so the reply legitimately carries refs
+    the caller did not ask for: a branch or TAG merely ENDING in
+    ``refs/heads/<base_ref>`` matches too. Selecting the EXACT ref is
+    therefore the correctness requirement, and counting the reply's lines is
+    not a substitute for it - [R3] on PR #336 measured the cost of the line
+    count on git 2.55.0: `git tag refs/heads/dev` is enough to make every
+    lookup return two lines, so one pushed ref refused every run of a
+    mandatory gate, repository-wide, until someone found and deleted it.
 
     Split out of the lookup so the refusals that read REMOTE-CONTROLLED bytes
-    - a reply carrying no ref, several refs, or another ref's name - are
-    exercised by the self-test rather than trusted ([R1] on PR #336).
+    - a reply carrying no matching ref, the exact ref twice, or a line with no
+    ref at all - are exercised by the self-test rather than trusted ([R1] on
+    PR #336).
     """
-    lines = raw.splitlines()
-    if len(lines) != 1:
+    wanted = f"refs/heads/{base_ref}"
+    tips: list[str] = []
+    for line in raw.splitlines():
+        sha, tab, name = line.partition("\t")
+        if not tab:
+            raise Refusal(
+                f"live {base_ref} tip lookup returned a line carrying no ref: "
+                f"{line!r}"
+            )
+        if name == wanted:
+            tips.append(sha)
+    if len(tips) != 1:
         raise Refusal(
-            f"live {base_ref} tip lookup returned {len(lines)} refs, not one"
+            f"live {base_ref} tip lookup returned {len(tips)} {wanted} refs, "
+            "not one"
         )
-    sha, _tab, name = lines[0].partition("\t")
-    if name != f"refs/heads/{base_ref}":
-        raise Refusal(f"live {base_ref} tip lookup returned another ref: {name!r}")
-    return sha
+    return tips[0]
 
 
 def query_remote_base_tip(repository: str, base_ref: str) -> str:
-    """Read the live remote base tip once, credential-free, over HTTPS."""
+    """Read the live remote base tip once, credential-free, over HTTPS.
+
+    Run from a scratch directory with a scratch HOME, the way every other
+    remote operation in this runner already is. ``git_environment`` clears
+    the system and per-user configuration but CANNOT clear a repository's own
+    ``.git/config``, and that file is untracked, so the trusted worktree's
+    cleanliness check never sees it: reading from ROOT let a local
+    ``insteadOf`` retarget this lookup, and made the ordinary
+    ``url."ssh://git@github.com/".insteadOf https://github.com/`` mirror
+    rewrite refuse every run under ``protocol.allow=never``. A scratch HOME
+    likewise keeps a ``.netrc`` beside the checkout out of the request that
+    the docs call credential-free ([R3] on PR #336).
+    """
     remote_url = f"https://github.com/{repository}.git"
-    raw = capture(
-        [*git_prefix(), "ls-remote", "--", remote_url, f"refs/heads/{base_ref}"],
-        cwd=ROOT,
-        env=git_environment(ROOT),
-        description=f"live {base_ref} tip lookup",
-    )
+    with tempfile.TemporaryDirectory(prefix="act-ci-ls-remote-") as scratch:
+        scratch_root = pathlib.Path(scratch)
+        raw = capture(
+            [*git_prefix(), "ls-remote", "--", remote_url, f"refs/heads/{base_ref}"],
+            cwd=scratch_root,
+            env=git_environment(scratch_root),
+            description=f"live {base_ref} tip lookup",
+        )
     return parse_ls_remote_tip(raw, base_ref)
 
 
-def base_wiring_report(source: str) -> dict[str, object]:
-    """What every base-consuming call site is actually HANDED, from the source.
+def base_construction_report(source: str) -> list[str]:
+    """The top-level functions that construct a ValidatedRun, self-test aside.
 
-    The refusals below are armed one by one, but an arm can only see the
-    argument it is given: reverting a single call site to the frozen recorded
-    oid reinstates #292's bug with every refusal still correct and the whole
-    suite green ([R2] on PR #336 - "the leaves are armed, the wiring is not").
-    This reads the runner's own text and reports, per consumer, the argument
-    each PRODUCTION call site passes in the base position, separately from the
-    self-test's own fixture calls, plus the order of the ``main`` calls whose
-    sequence the trust argument depends on.
+    The value object removes the base ARGUMENT, so no call site can hand a
+    consumer the wrong string any more - which is what the 172-line
+    source-shape reader this replaces existed to catch, and what [R3] on
+    PR #336 walked past with a pass-through helper whose parameter merely
+    shared the audited name. What a value object cannot remove is a second
+    CONSTRUCTION: ``ValidatedRun(pr, repository, pr.base_sha)`` elsewhere
+    would reinstate #292 whole.
 
-    Three properties of this reader are load-bearing, and each was a hole
-    [R1] proved exploitable in its first cut on PR #336:
-
-    * a consumer that takes the base by KEYWORD (``run_validation``) is
-      listed with ``None`` and matched on the keyword, not skipped - the
-      first cut looked its name up in a positional table and dropped the
-      site entirely, which a live mutant reinstated #292 through;
-    * production sites are WHITELISTED against the resolved name rather
-      than blacklisted against ``pr.base_sha``, so a one-line local alias
-      cannot slip past;
-    * fixture calls inside ``selftest`` are reported apart from production
-      ones, so a test call site can never satisfy "this consumer is wired".
+    So that is what this reads, and the whole of what it claims: production
+    builds the object in exactly one place, the audited resolve. One
+    property, checkable, with no oversized claim attached - a correct check
+    carrying one is how three defects in this lane's own evidence were
+    written ([R2] named the pattern).
     """
     tree = ast.parse(source)
-    consumers: dict[str, int | None] = {
-        "validate_trusted_runner": 1,
-        "require_exact_fetched_refs": 1,
-        "materialize_remote_head": 3,
-        "build_event": 2,
-        "validate_runner": 3,
-        "run_validation": None,
-    }
     span = next(
         (
             (node.lineno, node.end_lineno or node.lineno)
@@ -590,136 +642,25 @@ def base_wiring_report(source: str) -> dict[str, object]:
         ),
         None,
     )
-    production: dict[str, set[str]] = {name: set() for name in consumers}
-    fixture: dict[str, set[str]] = {name: set() for name in consumers}
+
+    def owner(line: int) -> str:
+        for node in tree.body:
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and (
+                node.lineno <= line <= (node.end_lineno or node.lineno)
+            ):
+                return node.name
+        return "<module>"
+
+    sites: list[tuple[int, str]] = []
     for node in ast.walk(tree):
         if not isinstance(node, ast.Call) or not isinstance(node.func, ast.Name):
             continue
-        name = node.func.id
-        if name not in consumers:
+        if node.func.id != "ValidatedRun":
             continue
-        index = consumers[name]
-        argument: ast.expr | None = None
-        if index is not None and len(node.args) > index:
-            argument = node.args[index]
-        else:
-            for keyword in node.keywords:
-                if keyword.arg == "validation_base":
-                    argument = keyword.value
-        passed = ast.unparse(argument) if argument is not None else "<absent>"
-        in_selftest = span is not None and span[0] <= node.lineno <= span[1]
-        (fixture if in_selftest else production)[name].add(passed)
-    main_fn = next(
-        (
-            node
-            for node in ast.walk(tree)
-            if isinstance(node, ast.FunctionDef) and node.name == "main"
-        ),
-        None,
-    )
-    watched = ("validate_pull_request", "resolve_validation_base", "validate_runner")
-    sites: list[tuple[int, str]] = []
-    if main_fn is not None:
-        for node in ast.walk(main_fn):
-            if (
-                isinstance(node, ast.Call)
-                and isinstance(node.func, ast.Name)
-                and node.func.id in watched
-            ):
-                sites.append((node.lineno, node.func.id))
-    #: The name-pinning above sees which NAME each site passes; it cannot see
-    #: a value substituted behind that name. Both reviewers on PR #336 rode
-    #: that class through - rebinding the base after the resolve, resolving
-    #: and discarding the result, and (once this read only simple targets)
-    #: rebinding through a tuple unpack, which is a plausible honest refactor
-    #: rather than an adversary shape. So every BINDING of the two names this
-    #: lane depends on is collected here, in every form Python can bind a
-    #: name: a Store-context target (assignment, unpack, starred, for, with,
-    #: walrus, comprehension), a match capture, an aliased import, and a
-    #: function definition. Outside the self-test the base may be bound only
-    #: by its own resolve, and the resolve only by its own def - the
-    #: symmetric half [R2] identified, which closes the NAME-rebinding
-    #: wrappers (a module-level reassignment, an aliased import, a shadowing
-    #: second def).
-    #:
-    #: What this pair does NOT model, stated because a correct check with an
-    #: oversized claim is how three defects in this lane's own evidence were
-    #: written ([R2] named the pattern): CALLABLE SUBSTITUTION that leaves
-    #: the binding intact - a decorator on the resolve's own def, or an
-    #: assignment through `sys.modules[__name__]`. Those keep exactly one
-    #: `<def>` and swap what it denotes. They are reachable only by an edit
-    #: whose sole purpose is to make production differ from the self-test,
-    #: which no honest refactor produces, and closing one exposes the next
-    #: shell with no fixed point ([R1] measured the regress: watch the
-    #: collaborator and the target moves to parse_ls_remote_tip).
-    #:
-    #: Their control is not a predicate in the file being reviewed - a test
-    #: cannot be its own control against its own author. It is the trust
-    #: chain this runner already enforces: validate_trusted_runner verifies
-    #: these bytes against the blob at the validation base, and the
-    #: bootstrap path pins a reviewer-recorded SHA-256, so a substituted
-    #: callable has to be committed to the base branch and reviewed before
-    #: it can run as the trusted copy - and then fails loudly on first use.
-    #: What the self-test owns is the accidental revert and the honest
-    #: refactor, and for those the pair is comprehensive as stated.
-    watched_names = ("validation_base", "resolve_validation_base")
-    binders: dict[str, list[tuple[int, str]]] = {name: [] for name in watched_names}
-
-    def outside_selftest(line: int) -> bool:
-        return span is None or not span[0] <= line <= span[1]
-
-    simple_values: dict[tuple[str, int], ast.expr] = {}
-    for node in ast.walk(tree):
-        if (
-            isinstance(node, ast.Assign)
-            and len(node.targets) == 1
-            and isinstance(node.targets[0], ast.Name)
-        ):
-            simple_values[(node.targets[0].id, node.targets[0].lineno)] = node.value
-
-    def describe(name: str, line: int) -> str:
-        value = simple_values.get((name, line))
-        if value is None:
-            return "<bound-without-a-simple-value>"
-        if (
-            isinstance(value, ast.Call)
-            and isinstance(value.func, ast.Name)
-            and value.func.id == "resolve_validation_base"
-        ):
-            return "<resolve-call>"
-        return ast.unparse(value)
-
-    for node in ast.walk(tree):
-        line = getattr(node, "lineno", 0)
-        if not outside_selftest(line):
+        if span is not None and span[0] <= node.lineno <= span[1]:
             continue
-        if (
-            isinstance(node, ast.Name)
-            and isinstance(node.ctx, ast.Store)
-            and node.id in binders
-        ):
-            binders[node.id].append((line, describe(node.id, line)))
-        elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name in binders:
-            binders[node.name].append((line, "<def>"))
-        elif isinstance(node, (ast.MatchAs, ast.MatchStar)) and node.name in binders:
-            binders[node.name].append((line, "<match-capture>"))
-        elif isinstance(node, ast.MatchMapping) and node.rest in binders:
-            binders[node.rest].append((line, "<match-capture>"))
-        elif isinstance(node, (ast.Import, ast.ImportFrom)):
-            for alias in node.names:
-                bound = alias.asname or alias.name.split(".")[0]
-                if bound in binders:
-                    binders[bound].append((line, "<import>"))
-
-    return {
-        "production": production,
-        "fixture": fixture,
-        "main_order": [name for _line, name in sorted(sites)],
-        "binders": {
-            name: [text for _line, text in sorted(sites)]
-            for name, sites in binders.items()
-        },
-    }
+        sites.append((node.lineno, owner(node.lineno)))
+    return [name for _line, name in sorted(sites)]
 
 
 def emit_flushed(message: str) -> None:
@@ -730,19 +671,36 @@ def emit_flushed(message: str) -> None:
 def resolve_validation_base(
     pr: PullRequest,
     repository: str,
+    *,
     query_tip: Callable[[str, str], str] = query_remote_base_tip,
     emit: Callable[[str], None] = emit_flushed,
-) -> str:
-    """Resolve the one base SHA every later base check agrees on.
+) -> ValidatedRun:
+    """Resolve the one base every later check reads, and bind it to the run.
 
     GitHub freezes a pull request's recorded base oid (``baseRefOid``) when
     the PR is opened; it does not track the base branch afterward. The runner
-    therefore validates against the live remote base tip resolved once here,
-    and the recorded oid is informational: both SHAs are printed, and a stale
-    recorded oid never refuses the run.
+    therefore validates against the live remote base tip resolved once here.
+    The recorded oid stays informational: it is read only to choose which
+    note to print, and never refuses a run.
+
+    The repository name and the base ref are re-asserted here rather than
+    inherited from an earlier call, because both are interpolated into the
+    remote lookup below. The ordering arm this replaces pinned where
+    ``validate_pull_request`` APPEARS in ``main``, which is not the same as
+    it having run: moving that call into a never-invoked closure kept the
+    arm green and left these two values unchecked ([R3] on PR #336).
+
+    The two collaborators are keyword-only so a call site cannot fill them
+    positionally, and the self-test pins their defaults.
     """
+    if not REPOSITORY_RE.fullmatch(repository):
+        raise Refusal(f"invalid repository name: {repository!r}")
+    if pr.base_ref != DEFAULT_BASE:
+        raise Refusal(
+            f"pull request #{pr.number} targets {pr.base_ref}, not {DEFAULT_BASE}"
+        )
     live = query_tip(repository, pr.base_ref)
-    if not isinstance(live, str) or not SHA_RE.fullmatch(live):
+    if not SHA_RE.fullmatch(live):
         raise Refusal(
             f"live {pr.base_ref} tip is not a full commit SHA: {live!r}"
         )
@@ -756,7 +714,7 @@ def resolve_validation_base(
             f"act-ci: NOTE: recorded base oid {pr.base_sha} is stale; "
             f"validating against the live {pr.base_ref} tip {live}"
         )
-    return live
+    return ValidatedRun(pr, repository, live)
 
 
 def select_workflows(requested: Iterable[str] | None) -> tuple[str, ...]:
@@ -956,8 +914,8 @@ def validate_checkout(
 
 
 def validate_trusted_runner(
-    pr: PullRequest,
-    validation_base: str,
+    run: ValidatedRun,
+    *,
     state: Callable[[pathlib.Path], tuple[str, str, str]] = checkout_state,
     verify_bytes: Callable[[pathlib.Path, str, str], None] = validate_file_bytes,
 ) -> None:
@@ -978,17 +936,17 @@ def validate_trusted_runner(
         raise Refusal(
             "trusted runner worktree is dirty; invoke the exact clean remote dev copy"
         )
-    if head != validation_base:
+    if head != run.validation_base:
         raise Refusal(
-            f"runner was loaded from {head}, not the live {pr.base_ref} tip "
-            f"{validation_base}; invoke scripts/act_ci.py from a clean trusted "
-            f"{pr.base_ref} worktree at the current remote tip"
+            f"runner was loaded from {head}, not the live {run.pr.base_ref} tip "
+            f"{run.validation_base}; fast-forward the trusted worktree to the "
+            f"current remote {run.pr.base_ref} tip and invoke it again"
         )
     try:
         relative = pathlib.Path(__file__).resolve().relative_to(ROOT).as_posix()
     except ValueError as exc:
         raise Refusal("runner is not installed beneath its trusted repository") from exc
-    verify_bytes(ROOT, validation_base, relative)
+    verify_bytes(ROOT, run.validation_base, relative)
 
 
 def validate_installed_runner_file(
@@ -1021,13 +979,12 @@ def validate_installed_runner_file(
 
 
 def validate_runner(
-    pr: PullRequest,
+    run: ValidatedRun,
     candidate_worktree: pathlib.Path,
     trusted_install_sha256: str | None,
-    validation_base: str,
 ) -> None:
     if trusted_install_sha256 is None:
-        validate_trusted_runner(pr, validation_base)
+        validate_trusted_runner(run)
         return
     validate_installed_runner_file(
         pathlib.Path(__file__), trusted_install_sha256, candidate_worktree
@@ -1412,26 +1369,28 @@ def initialize_required_submodules(checkout: pathlib.Path, home: pathlib.Path) -
 
 
 def require_exact_fetched_refs(
-    pr: PullRequest, validation_base: str, fetched_base: str, fetched_head: str
+    run: ValidatedRun, fetched_base: str, fetched_head: str
 ) -> None:
     """Refuse any ref movement since metadata lookup and the base resolve."""
-    if fetched_head != pr.head_sha:
+    if fetched_head != run.pr.head_sha:
         raise Refusal(
-            f"remote head {pr.head_ref} moved from {pr.head_sha} to "
+            f"remote head {run.pr.head_ref} moved from {run.pr.head_sha} to "
             f"{fetched_head} between metadata lookup and fetch; discard this run"
         )
-    if fetched_base != validation_base:
+    if fetched_base != run.validation_base:
         raise Refusal(
-            f"remote {pr.base_ref} moved from {validation_base} to "
+            f"remote {run.pr.base_ref} moved from {run.validation_base} to "
             f"{fetched_base} between the invocation-time base resolve and "
-            "fetch; discard this run"
+            "fetch; re-run to resolve the new tip"
         )
 
 
 def materialize_remote_head(
-    pr: PullRequest, repository: str, layout: RunLayout, validation_base: str
+    run: ValidatedRun, layout: RunLayout
 ) -> pathlib.Path:
     """Fetch the public same-repository refs into a new credential-free repo."""
+    pr = run.pr
+    repository = run.repository
     checkout = layout.checkout
     checkout.mkdir(parents=True)
     env = git_environment(layout.home)
@@ -1477,7 +1436,7 @@ def materialize_remote_head(
         home=layout.home,
         description="fetched PR head verification",
     )
-    require_exact_fetched_refs(pr, validation_base, fetched_base, fetched_head)
+    require_exact_fetched_refs(run, fetched_base, fetched_head)
     tree = git_capture(
         checkout,
         ["ls-tree", "-r", pr.head_sha],
@@ -1674,15 +1633,30 @@ def validate_workflow_sandbox(root: pathlib.Path, workflows: Sequence[str]) -> N
                     )
 
 
-def build_event(
-    pr: PullRequest, repository: str, validation_base: str
-) -> dict[str, object]:
+def build_event(run: ValidatedRun) -> dict[str, object]:
     """The smallest pull_request payload every repository workflow consumes.
 
-    The base SHA is the resolved validation base (the live remote base tip):
-    it is the only base commit the runner fetched and verified, so a stale
-    recorded base oid never flows into workflow-visible state.
+    The base SHA is the RECORDED base oid, because this payload's only
+    consumer is scope classification and hosted receives the recorded value.
+    All three scope steps (`rtl.yml`, `rtl-fast.yml`, `elaborate.yml`) run a
+    two-argument `git diff <base> <head>` - a tree comparison, not a
+    merge-base one - so handing them a different base makes the local replica
+    classify a different file set than the hosted run it exists to predict,
+    in BOTH directions: a file the head and the live tip now agree on drops
+    out of the diff, and `ci_scope.is_rtl_relevant` fails safe only on a
+    wholly EMPTY list, not on a docs-only remainder. A stacked PR whose own
+    changes are documentation would then report PASS locally having run no
+    RTL job while hosted ran the sweep ([R3] on PR #336; the equality this
+    lane replaced made the divergence impossible, so it is this lane's to
+    avoid). The fetch is full-history, so the recorded oid is present in the
+    materialized checkout and the two diffs are identical.
+
+    The trust properties stay on the validation base, where they belong:
+    which commit the trusted worktree must be at, and which commit the fetch
+    must return. Neither reads this payload.
     """
+    pr = run.pr
+    repository = run.repository
     action = "synchronize" if pr.draft else "ready_for_review"
     return {
         "action": action,
@@ -1697,7 +1671,7 @@ def build_event(
             "html_url": pr.url,
             "base": {
                 "ref": pr.base_ref,
-                "sha": validation_base,
+                "sha": pr.base_sha,
                 "repo": {"full_name": repository},
             },
             "head": {
@@ -3477,19 +3451,19 @@ def execute_act_boundary(
 
 
 def run_validation(
-    pr: PullRequest,
-    repository: str,
+    run: ValidatedRun,
     workflows: Sequence[str],
     candidate_worktree: pathlib.Path,
     *,
     act_binary: str,
     use_sudo: bool,
     dry_run: bool,
-    validation_base: str,
 ) -> int:
+    pr = run.pr
+    repository = run.repository
     with temporary_run_directory(use_sudo and not dry_run) as run_root:
         layout = make_layout(run_root, pr)
-        materialize_remote_head(pr, repository, layout, validation_base)
+        materialize_remote_head(run, layout)
         validate_checkout(
             pr, candidate_worktree, workflows, label="candidate worktree"
         )
@@ -3499,7 +3473,7 @@ def run_validation(
         validate_checkout(pr, layout.checkout, workflows, label="materialized checkout")
         require_live_pull_request(pr, repository)
 
-        event = build_event(pr, repository, validation_base)
+        event = build_event(run)
         layout.event_path.write_text(
             json.dumps(event, indent=2) + "\n", encoding="utf-8"
         )
@@ -3623,7 +3597,8 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
     }
     pr = PullRequest.from_json(raw)
     validate_pull_request(pr, repository)
-    event = build_event(pr, repository, base)
+    fixture_run = ValidatedRun(pr, repository, base)
+    event = build_event(fixture_run)
     event_pr = event["pull_request"]
     assert isinstance(event_pr, dict)
     check(
@@ -3642,7 +3617,9 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
 
     draft_raw = dict(raw)
     draft_raw["isDraft"] = True
-    draft_event = build_event(PullRequest.from_json(draft_raw), repository, base)
+    draft_event = build_event(
+        ValidatedRun(PullRequest.from_json(draft_raw), repository, base)
+    )
     check(
         "draft event uses synchronize and preserves draft=true",
         draft_event["action"] == "synchronize"
@@ -3656,7 +3633,8 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
     )
     check(
         "a stale recorded base oid resolves to the live dev tip and proceeds",
-        resolved == live_tip and resolved != pr.base_sha,
+        resolved.validation_base == live_tip
+        and resolved.validation_base != pr.base_sha,
     )
     check(
         "the stale-base note prints the recorded and live base SHAs",
@@ -3674,7 +3652,7 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
             repository,
             query_tip=lambda _repo, _ref: pr.base_sha,
             emit=matched.append,
-        )
+        ).validation_base
         == pr.base_sha
         and len(matched) == 1
         and "matches the recorded base oid" in matched[0],
@@ -3688,7 +3666,7 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
 
     def fetch_window_message(fetched_base: str, fetched_head: str) -> str | None:
         try:
-            require_exact_fetched_refs(pr, resolved, fetched_base, fetched_head)
+            require_exact_fetched_refs(resolved, fetched_base, fetched_head)
         except Refusal as exc:
             return str(exc)
         return None
@@ -3714,16 +3692,27 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
         "dev moving between the invocation-time resolve and the fetch is "
         "refused naming both base SHAs",
         base_message is not None
-        and resolved in base_message
+        and resolved.validation_base in base_message
         and window_tip in base_message
         and "resolve" in base_message,
     )
-    stale_event = build_event(pr, repository, resolved)
+    stale_event = build_event(resolved)
     stale_event_pr = stale_event["pull_request"]
     assert isinstance(stale_event_pr, dict)
+    #: [R3] on PR #336: the payload feeds scope classification and nothing
+    #: else, and hosted receives the RECORDED oid, so the replica must too or
+    #: its verdict stops predicting the run it stands in for. The trust
+    #: checks read resolved.validation_base and never this payload, so the
+    #: two arms below pin the split in both directions.
     check(
-        "the event carries the resolved live base, not the stale recorded oid",
-        stale_event_pr["base"]["sha"] == resolved,
+        "the event carries the recorded base oid, so the local replica "
+        "classifies the same file set hosted does",
+        stale_event_pr["base"]["sha"] == pr.base_sha,
+    )
+    check(
+        "and that is not the validation base, so the payload cannot be "
+        "mistaken for the commit the trust checks read",
+        stale_event_pr["base"]["sha"] != resolved.validation_base,
     )
 
     #: [R1] on PR #336: the trusted-worktree comparison is the lane's
@@ -3732,35 +3721,45 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
     #: with both collaborators injected, so a revert to the recorded oid is
     #: red in both directions.
     def trusted_runner_message(
-        worktree_head: str,
-    ) -> tuple[str | None, list[tuple[pathlib.Path, str]]]:
-        #: both collaborators record the ROOT they were handed as well as the
-        #: commit ([R2] on PR #336: capturing only the commit let a mutation
-        #: swap the root - the trusted worktree the check is about - and stay
-        #: green).
-        seen: list[tuple[pathlib.Path, str]] = []
+        worktree_head: str, dirty: str = "", replacements: str = ""
+    ) -> tuple[str | None, list[tuple[pathlib.Path, str, str]]]:
+        #: every collaborator argument is recorded, not just some: [R2] on
+        #: PR #336 found that capturing only the commit let a mutation swap
+        #: the ROOT and stay green, and [R3] found the same defect one
+        #: argument to the right - the file whose bytes are verified was
+        #: discarded, so verifying README.md instead of the runner itself
+        #: kept this arm green.
+        seen: list[tuple[pathlib.Path, str, str]] = []
         roots: list[pathlib.Path] = []
         try:
             validate_trusted_runner(
-                pr,
                 resolved,
-                state=lambda root: (roots.append(root), (worktree_head, "", ""))[1],
-                verify_bytes=lambda root, commit, _rel: seen.append((root, commit)),
+                state=lambda root: (
+                    roots.append(root),
+                    (worktree_head, dirty, replacements),
+                )[1],
+                verify_bytes=lambda root, commit, rel: seen.append(
+                    (root, commit, rel)
+                ),
             )
         except Refusal as exc:
             return str(exc), seen
-        return None, seen + [(root, "state") for root in roots]
+        return None, seen + [(root, "state", "state") for root in roots]
 
-    accepted, verified = trusted_runner_message(resolved)
+    accepted, verified = trusted_runner_message(resolved.validation_base)
     check(
         "a trusted worktree at the live tip is accepted while the recorded "
         "base oid is stale",
         accepted is None,
     )
     check(
-        "the runner's own bytes are verified at the validation base, in the "
-        "trusted root, not at the recorded oid",
-        verified == [(ROOT, resolved), (ROOT, "state")],
+        "the runner's own bytes - that file, in the trusted root, at the "
+        "validation base and not the recorded oid - are what is verified",
+        verified
+        == [
+            (ROOT, resolved.validation_base, "scripts/act_ci.py"),
+            (ROOT, "state", "state"),
+        ],
     )
     stale_worktree, _ = trusted_runner_message(pr.base_sha)
     check(
@@ -3768,26 +3767,34 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
         "loaded head and the live tip",
         stale_worktree is not None
         and pr.base_sha in stale_worktree
-        and resolved in stale_worktree
+        and resolved.validation_base in stale_worktree
         and "live" in stale_worktree,
     )
-    refused(
-        "a dirty trusted worktree is refused before any base comparison",
-        lambda: validate_trusted_runner(
-            pr,
-            resolved,
-            state=lambda _root: (resolved, "M scripts/act_ci.py", ""),
-            verify_bytes=lambda _root, _commit, _rel: None,
-        ),
+    #: [R3] on PR #336: the precedence arms below used a fixture head that
+    #: already EQUALLED the validation base, so the base branch could not
+    #: fire whatever the order was, and `refused` passes on any Refusal.
+    #: Both now drive a head that differs and name the check that must win.
+    dirty_message, dirty_verified = trusted_runner_message(
+        pr.base_sha, dirty="M scripts/act_ci.py"
     )
-    refused(
-        "a trusted worktree carrying replacement refs is refused",
-        lambda: validate_trusted_runner(
-            pr,
-            resolved,
-            state=lambda _root: (resolved, "", "refs/replace/deadbeef"),
-            verify_bytes=lambda _root, _commit, _rel: None,
-        ),
+    check(
+        "a dirty trusted worktree is refused for being dirty, before the "
+        "base comparison and before any bytes are read",
+        dirty_message is not None
+        and "dirty" in dirty_message
+        and resolved.validation_base not in dirty_message
+        and dirty_verified == [],
+    )
+    replaced_message, replaced_verified = trusted_runner_message(
+        pr.base_sha, replacements="refs/replace/deadbeef"
+    )
+    check(
+        "a trusted worktree carrying replacement refs is refused for those, "
+        "before the base comparison and before any bytes are read",
+        replaced_message is not None
+        and "replacement refs" in replaced_message
+        and resolved.validation_base not in replaced_message
+        and replaced_verified == [],
     )
     #: the resolve targets refs/heads/<pr.base_ref> while the fetch targets
     #: the refs/heads/<DEFAULT_BASE> constant ([R1] on PR #336). They are one
@@ -3803,53 +3810,53 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
         pr.base_ref == DEFAULT_BASE == "dev",
     )
 
-    #: [R2] F8/F10 on PR #336: every refusal above is armed, but the CALL
-    #: SITES that hand them the base are not - reverting one line to
-    #: pr.base_sha reinstates #292 with the whole suite green. Read the
-    #: runner's own source and pin the wiring, plus main()'s ordering, which
-    #: the trust argument depends on (the base ref must be validated before
-    #: it is used to build a remote lookup).
-    wiring = base_wiring_report(inspect.getsource(sys.modules[__name__]))
-    production_sites = wiring["production"]
-    assert isinstance(production_sites, dict)
+    #: [R2] F8/F10 on PR #336 asked who HANDS each consumer the base, because
+    #: reverting one call site reinstated #292 with the suite green. That was
+    #: answered by reading the call sites, and [R3] then drove an ordinary
+    #: pass-through helper through the reader: its parameter merely shared the
+    #: audited name, so every site still "looked" wired while the frozen oid
+    #: flowed. The question is now unaskable instead of re-answered - there is
+    #: no base argument - and what remains checkable is the construction.
+    constructors = base_construction_report(inspect.getsource(sys.modules[__name__]))
     check(
-        "every base consumer is wired at a production call site, none by a "
-        "self-test fixture alone",
-        sorted(name for name, names in production_sites.items() if not names) == [],
+        "production constructs the validated run exactly once, in the "
+        "audited resolve, so no second construction can bind the recorded "
+        "oid as the validation base",
+        constructors == ["resolve_validation_base"],
     )
-    #: WHITELIST, not a blacklist ([R1] on PR #336 slipped a local alias past
-    #: the first cut): every production site must hand over the resolved
-    #: name itself. `<absent>` is reported for a site that passes no base at
-    #: all, so an omitted argument fails here too.
-    mishanded = sorted(
-        (name, sorted(names))
-        for name, names in production_sites.items()
-        if names != {"validation_base"}
-    )
+    #: [R3] on PR #336: the injected collaborators are the runner's own trust
+    #: checks, and nothing pinned their production defaults - a one-line
+    #: default swap made validate_trusted_runner verify nothing, and made the
+    #: "live remote tip" a local rev-parse, with every arm green. They are
+    #: keyword-only so a call site cannot fill them positionally either.
     check(
-        "every production call site hands its consumer the resolved "
-        "validation base, by that name",
-        mishanded == [],
-    )
-    binders = wiring["binders"]
-    assert isinstance(binders, dict)
-    check(
-        "outside the self-test the validation base is bound exactly once, by "
-        "the resolve itself, in any binding form - so no rebinding, unpack or "
-        "capture can substitute a value behind the name every call site passes",
-        binders.get("validation_base") == ["<resolve-call>"],
+        "the trusted-runner check defaults to reading the real checkout "
+        "state and verifying real bytes",
+        validate_trusted_runner.__kwdefaults__
+        == {"state": checkout_state, "verify_bytes": validate_file_bytes},
     )
     check(
-        "and the resolve itself is bound only by its own definition, so no "
-        "rebinding of that name - reassignment, aliased import or shadowing "
-        "def - can stand in for the audited resolve",
-        binders.get("resolve_validation_base") == ["<def>"],
+        "the resolve defaults to the real remote lookup and a flushed note",
+        resolve_validation_base.__kwdefaults__
+        == {"query_tip": query_remote_base_tip, "emit": emit_flushed},
     )
-    check(
-        "main validates the pull request before resolving the base, and "
-        "resolves before validating the runner",
-        wiring["main_order"]
-        == ["validate_pull_request", "resolve_validation_base", "validate_runner"],
+    refused(
+        "a validated run cannot be built on anything but a full commit SHA",
+        lambda: ValidatedRun(pr, repository, "not-a-sha"),
+    )
+    refused(
+        "the resolve re-checks the repository name it interpolates, rather "
+        "than inheriting the check from main's ordering",
+        lambda: resolve_validation_base(
+            pr, "not a repo", query_tip=lambda _repo, _ref: live_tip
+        ),
+    )
+    off_base = PullRequest.from_json({**raw, "baseRefName": "main"})
+    refused(
+        "and re-checks the base ref it interpolates, for the same reason",
+        lambda: resolve_validation_base(
+            off_base, repository, query_tip=lambda _repo, _ref: live_tip
+        ),
     )
 
     #: [R1] F2: the lookup parses REMOTE-CONTROLLED bytes; its two refusals
@@ -3863,14 +3870,33 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
         lambda: parse_ls_remote_tip("", "dev"),
     )
     refused(
-        "an ls-remote reply naming several refs is refused",
+        "an ls-remote reply naming another ref is refused",
+        lambda: parse_ls_remote_tip(f"{live_tip}\trefs/heads/main\n", "dev"),
+    )
+    #: [R3] on PR #336: `git ls-remote <url> refs/heads/dev` matches the
+    #: pattern against each ref's TAIL, so the reply carries refs nobody
+    #: asked for and a line count refuses them all. Verified on git 2.55.0:
+    #: `git tag refs/heads/dev` is enough. The first arm is the regression -
+    #: an unrelated tail match must be IGNORED, not fatal - and the second
+    #: keeps the ambiguity that actually matters fatal.
+    check(
+        "a ref merely ending in the wanted name is ignored, so one pushed "
+        "branch or tag cannot refuse every run of the gate",
+        parse_ls_remote_tip(
+            f"{live_tip}\trefs/heads/dev\n{head}\trefs/tags/refs/heads/dev\n",
+            "dev",
+        )
+        == live_tip,
+    )
+    refused(
+        "an ls-remote reply carrying the wanted ref twice is refused",
         lambda: parse_ls_remote_tip(
-            f"{live_tip}\trefs/heads/dev\n{head}\trefs/heads/dev-2\n", "dev"
+            f"{live_tip}\trefs/heads/dev\n{head}\trefs/heads/dev\n", "dev"
         ),
     )
     refused(
-        "an ls-remote reply naming another ref is refused",
-        lambda: parse_ls_remote_tip(f"{live_tip}\trefs/heads/main\n", "dev"),
+        "an ls-remote reply line carrying no ref at all is refused",
+        lambda: parse_ls_remote_tip(f"{live_tip} refs/heads/dev\n", "dev"),
     )
     check(
         "all selects each workflow once in stable order",
@@ -6853,22 +6879,18 @@ def main(argv: Sequence[str]) -> int:
         repository = args.repo or repository_name()
         pr = query_pull_request(args.pr, repository)
         validate_pull_request(pr, repository)
-        validation_base = resolve_validation_base(pr, repository)
+        run = resolve_validation_base(pr, repository)
         candidate_worktree = (args.worktree or pathlib.Path.cwd()).expanduser().resolve()
-        validate_runner(
-            pr, candidate_worktree, args.trusted_install_sha256, validation_base
-        )
+        validate_runner(run, candidate_worktree, args.trusted_install_sha256)
         act_binary = resolve_act_binary(args.act_bin)
         validate_act_binary(act_binary, candidate_worktree)
         return run_validation(
-            pr,
-            repository,
+            run,
             workflows,
             candidate_worktree,
             act_binary=act_binary,
             use_sudo=args.sudo,
             dry_run=args.dry_run,
-            validation_base=validation_base,
         )
 
     try:
