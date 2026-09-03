@@ -404,14 +404,20 @@ is exactly these twelve things:
     job named `docs-check` passed with no finding -- the unique carrier had
     no neuter key, the id-named job kept its pinned steps, and the required
     context ran nothing. So the job whose id is the public name must carry
-    it. The gate step inside each of the four jobs is pinned too (#295,
-    the [R3] measured levers on PR #293): `docs-check`'s ci_events step,
-    `wire-accountability`'s gate step and `docs-check-no-git`'s metadata-
-    stripping gate step each carry exactly `name` and `run`. Their scripts
-    equal the recorded canonical forms after whitespace normalization, so a
+    it. The five gate steps inside the four jobs are pinned too (#295 and
+    #303): `docs-check`'s ci_events and imported-gPTP steps,
+    `wire-accountability`'s gate step, `docs-check-no-git`'s metadata-
+    stripping gate step, and `elaborate`'s scope step. The four documentation
+    steps each carry exactly `name` and `run`. Their scripts equal the recorded
+    canonical forms after whitespace normalization, so a
     step-level `if`,
     `shell`, `continue-on-error` or `working-directory`, and a `|| true`
     or any other rewrite beside the call, is refused naming the step;
+    the imported-gPTP body is bound to the exact step name, so leaving the
+    canonical calls under another recorded name while that named gate becomes
+    `run: true` is also refused. Its two commands are indivisible evidence:
+    the parent checker validates current links and integration facts, and the
+    donor build validates the documentation at the exact linked commit;
     `elaborate`'s scope step is held as the decide step is (item 7, the
     #209 precedent) -- keys exactly `name`, `id`, `env` and `run`, its two
     env bindings pinned to their source expressions, `ci_scope.py
@@ -592,9 +598,10 @@ matrix job whose `name` renders one (its own file's and another file's), and
 the enumeration's edges - a matrix value that is itself an expression, an
 unmatched `${{`, `include`, a `fromJSON` matrix, a missing key, an empty
 list - and a literal decoy carrying a required name another file owns, in
-each of the four files; each of the four non-RTL gate steps (`docs-check`'s
-ci_events step, `wire-accountability`'s gate step, `docs-check-no-git`'s
-metadata-stripping gate step, `elaborate`'s scope step) given an `if: false`, a
+each of the four files; each of the five non-RTL gate steps (`docs-check`'s
+ci_events and imported-gPTP steps, `wire-accountability`'s gate step,
+`docs-check-no-git`'s metadata-stripping gate step, `elaborate`'s scope step)
+given an `if: false`, a
 `continue-on-error`, a `shell`, a `working-directory` and a `|| true`, and
 each removed; the elaborate scope script made to publish a literal
 `rtl=false`, stripped of its `ci_scope.py --selftest`, running the
@@ -606,11 +613,12 @@ real file on disk; a `BASH_ENV`-writing, a `$GITHUB_PATH`-prepending, a
 third-party-`uses:` and a benign step inserted into the four carriers, a
 recognised step removed, swapped and renamed, a non-gate carrier step
 given `if: false`, a gated `elaborate` step's `if` loosened, and a cache
-and an upload `with` rewritten; the imported gPTP gate and linked-authority
-fetch removed, and the no-Git removal narrowed to root metadata only; a
-whitespace-only reformatting of all
-nine canonical scripts that must still pass; and the decision itself for
-every event class.
+and an upload `with` rewritten; the imported gPTP gate removed, replaced by
+`true`, stripped of either command, given `|| true` on either command, and
+moved under another recorded step name; the linked-authority fetch removed,
+and the no-Git removal narrowed to root metadata only; a whitespace-only
+reformatting of all ten canonical scripts that must still pass; and the
+decision itself for every event class.
 
 ## One authoritative SHA
 

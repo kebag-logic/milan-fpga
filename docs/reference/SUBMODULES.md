@@ -93,10 +93,10 @@ The cleanliness command must print nothing.
 
 The reviewed gPTP guides match root ownership.
 
-- [Manager guide](../../gptp-processor/docs/MANAGER.md)
-- [Integration guide](../../gptp-processor/docs/INTEGRATION.md)
-- [HDL guide](../../gptp-processor/docs/HDL_DEVELOPER.md)
-- [Test guide](../../gptp-processor/docs/TEST_DEVELOPER.md)
+- [Manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/f5ba2db636112d1292671b49a047c9fd9daacf7e/docs/MANAGER.md)
+- [Integration guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/f5ba2db636112d1292671b49a047c9fd9daacf7e/docs/INTEGRATION.md)
+- [HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/f5ba2db636112d1292671b49a047c9fd9daacf7e/docs/HDL_DEVELOPER.md)
+- [Test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/f5ba2db636112d1292671b49a047c9fd9daacf7e/docs/TEST_DEVELOPER.md)
 
 Protocol donor prose retains these known contradictions.
 

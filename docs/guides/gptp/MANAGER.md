@@ -20,7 +20,7 @@ Use this page for delivery decisions.
 - Atomic publication prevents contradictory consumer state.
 - Direct health drives every AVTP uncertainty bit.
 
-Read the [engine manager guide](../../../gptp-processor/docs/MANAGER.md).
+Read the [engine manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/f5ba2db636112d1292671b49a047c9fd9daacf7e/docs/MANAGER.md).
 
 ## Status
 
@@ -47,7 +47,7 @@ Simulation remains necessary but insufficient.
 - Engine receive errors have an upstream issue.
 - Issue #74 media-clock bench acceptance remains open.
 
-Open upstream risks appear in the [engine guide](../../../gptp-processor/docs/MANAGER.md).
+Open upstream risks appear in the [engine guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/f5ba2db636112d1292671b49a047c9fd9daacf7e/docs/MANAGER.md).
 
 ## Release evidence
 

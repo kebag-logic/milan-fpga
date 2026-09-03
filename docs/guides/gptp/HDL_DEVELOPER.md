@@ -27,13 +27,13 @@ Never patch imported behavior inside the parent lane.
 
 Land donor changes before advancing its pin.
 
-Read the [engine HDL guide](../../../gptp-processor/docs/HDL_DEVELOPER.md).
+Read the [engine HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/f5ba2db636112d1292671b49a047c9fd9daacf7e/docs/HDL_DEVELOPER.md).
 
 ## Preserve timing
 
-![RX acceptance timing](../../../gptp-processor/docs/diagrams/wavedrom/rx_accept.svg)
+![RX acceptance timing](https://raw.githubusercontent.com/Mister-M-alt/FPGA-gPTP/f5ba2db636112d1292671b49a047c9fd9daacf7e/docs/diagrams/wavedrom/rx_accept.svg)
 
-![TX backpressure timing](../../../gptp-processor/docs/diagrams/wavedrom/tx_backpressure.svg)
+![TX backpressure timing](https://raw.githubusercontent.com/Mister-M-alt/FPGA-gPTP/f5ba2db636112d1292671b49a047c9fd9daacf7e/docs/diagrams/wavedrom/tx_backpressure.svg)
 
 - RX acceptance requires a real parent transfer.
 - RX timestamps remain paired through frame commit.
@@ -66,4 +66,4 @@ Never convert a refused frame into partial data.
 - Run lint and portability gates.
 - Record exact-head evidence publicly.
 
-Start with the [source ledger](../../../gptp-processor/docs/SOURCE_EVIDENCE.md).
+Start with the [source ledger](https://github.com/Mister-M-alt/FPGA-gPTP/blob/f5ba2db636112d1292671b49a047c9fd9daacf7e/docs/SOURCE_EVIDENCE.md).

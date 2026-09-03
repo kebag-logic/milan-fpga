@@ -599,9 +599,18 @@ SV2V_INSTALL = (
 #: contains, so the real body renamed to `wire-accountability-real` beside
 #: a `run: true` stub of the required id -- or the same through an appended
 #: duplicate `X:` mapping, which PyYAML parses last-wins -- was the
-#: required context with 237 items and no finding.
+#: required context with 237 items and no finding. #303 extends the same rule
+#: to the imported-gPTP step: its name remained in the pinned carrier list
+#: while replacing its complete two-command body with `true` produced no
+#: finding, so that canonical body is bound to that exact published name.
 CANONICAL_DOCS_GATE_SCRIPT = (CONTRACT_CHECK,
                               "python3 scripts/ci_events.py --selftest")
+IMPORTED_GPTP_GATE_NAME = "Imported gPTP documentation gate"
+IMPORTED_GPTP_GATE_CALL = "python3 scripts/check_gptp_docs.py --with-submodule"
+CANONICAL_IMPORTED_GPTP_GATE_SCRIPT = (
+    IMPORTED_GPTP_GATE_CALL,
+    "make -C gptp-processor docs",
+)
 WIRE_GATE_CALL = "python3 scripts/check_wire_accountability.py --self-test"
 CANONICAL_WIRE_GATE_SCRIPT = ("python3 -m pip install --quiet pyyaml",
                               WIRE_GATE_CALL)
@@ -682,7 +691,7 @@ CARRIER_STEP_LISTS = {
         {"name": "Published diagram PNG gate"},
         {"name": "Milan feature-status consistency gate"},
         {"name": "Traceability matrix no-drift gate"},
-        {"name": "Imported gPTP documentation gate"},
+        {"name": IMPORTED_GPTP_GATE_NAME},
         {"name": "Code-quality measurement self-tests"},
         {"name": "Install the pinned sv2v release"},
         {"name": "Bare-metal scope gate"},
@@ -2488,6 +2497,29 @@ def check_carrier_gate_step(c, path, wf, jid, call, canonical, why):
            + script_difference(lines, canonical) + "; " + why)
 
 
+def check_named_carrier_gate_step(c, path, wf, jid, name, canonical, why):
+    """Pin a gate body to the exact named step that publishes its claim.
+
+    Searching only for a command is insufficient: the canonical body can be
+    moved to an adjacent step while the recorded gate name becomes `run: true`.
+    The carrier sequence still has every expected name in that construction,
+    but the named evidence is false.
+    """
+    job = jobs(wf).get(jid)
+    ss = steps(job) if isinstance(job, dict) else []
+    found = [s for s in ss if s.get("name") == name]
+    c.item(len(found) == 1, path,
+           f"job `{jid}` must carry exactly one step named `{name}` "
+           f"(found {len(found)})")
+    if len(found) != 1:
+        return
+    run = found[0].get("run") if isinstance(found[0].get("run"), str) else ""
+    lines = normalize_script(run)
+    c.item(tuple(lines) == canonical, path,
+           f"job `{jid}` step `{name}` script is not the canonical form: "
+           + script_difference(lines, canonical) + "; " + why)
+
+
 def check_scope_step(c, wf):
     """elaborate's scope step, held as the decide step is (#295, the #209
     precedent). Every gate step of `elaborate` is guarded by
@@ -2641,6 +2673,11 @@ def check_docs(c, wf):
         c, DOCS, wf, "docs-check", CONTRACT_CHECK, CANONICAL_DOCS_GATE_SCRIPT,
         "a `|| true` beside either call swallows the finding this file "
         "exists to raise while the required context stays green")
+    check_named_carrier_gate_step(
+        c, DOCS, wf, "docs-check", IMPORTED_GPTP_GATE_NAME,
+        CANONICAL_IMPORTED_GPTP_GATE_SCRIPT,
+        "this named step is the published proof for both the parent gPTP "
+        "documentation contract and the pinned donor documentation build")
     check_carrier_gate_step(
         c, DOCS, wf, "wire-accountability", WIRE_GATE_CALL,
         CANONICAL_WIRE_GATE_SCRIPT,
@@ -3553,6 +3590,27 @@ def _mutations():
             assert len(found) == 1, f"fixture drift: {needle!r} in {jid}"
             assert old in found[0]["run"], f"fixture drift: {old!r} absent"
             found[0]["run"] = found[0]["run"].replace(old, new, 1)
+        return f
+
+    def m_named_gate_run(path, jid, name, run):
+        def f(w):
+            found = [s for s in job_steps(w, path, jid)
+                     if s.get("name") == name]
+            assert len(found) == 1, f"fixture drift: step {name!r} in {jid}"
+            found[0]["run"] = run
+        return f
+
+    def m_move_named_gate_body(path, jid, name, recipient):
+        # Preserve the canonical commands elsewhere in the same pinned step
+        # list while making the step whose name publishes the claim a stub.
+        def f(w):
+            named = [s for s in job_steps(w, path, jid)
+                     if s.get("name") == name]
+            recipients = [s for s in job_steps(w, path, jid)
+                          if s.get("name") == recipient]
+            assert len(named) == len(recipients) == 1, "fixture drift: gate move"
+            recipients[0]["run"] = named[0]["run"]
+            named[0]["run"] = "true\n"
         return f
 
     def m_stub_job(path, jid):
@@ -4679,6 +4737,51 @@ def _mutations():
         ("#295 docs ci_events gate step removed",
          (lambda w: strip_steps(w, DOCS, "docs-check", "scripts/ci_events.py --check")),
          f"job `docs-check` must run `{CONTRACT_CHECK}` in exactly one step (found 0)"),
+        # #303: the imported gPTP step is two gates under one published name.
+        ("#303 imported gPTP gate body replaced by true",
+         m_named_gate_run(DOCS, "docs-check", IMPORTED_GPTP_GATE_NAME,
+                          "true\n"),
+         f"step `{IMPORTED_GPTP_GATE_NAME}` script is not the canonical form"),
+        ("#303 imported gPTP parent check removed",
+         m_gate_line(DOCS, "docs-check", IMPORTED_GPTP_GATE_CALL,
+                     IMPORTED_GPTP_GATE_CALL + "\n", ""),
+         f"step `{IMPORTED_GPTP_GATE_NAME}` script is not the canonical form"),
+        ("#303 imported gPTP donor build removed",
+         m_gate_line(DOCS, "docs-check", IMPORTED_GPTP_GATE_CALL,
+                     "make -C gptp-processor docs\n", ""),
+         f"step `{IMPORTED_GPTP_GATE_NAME}` script is not the canonical form"),
+        ("#303 imported gPTP parent check swallows failure",
+         m_gate_line(DOCS, "docs-check", IMPORTED_GPTP_GATE_CALL,
+                     IMPORTED_GPTP_GATE_CALL + "\n",
+                     IMPORTED_GPTP_GATE_CALL + " || true\n"),
+         f"step `{IMPORTED_GPTP_GATE_NAME}` script is not the canonical form"),
+        ("#303 imported gPTP donor build swallows failure",
+         m_gate_line(DOCS, "docs-check", IMPORTED_GPTP_GATE_CALL,
+                     "make -C gptp-processor docs\n",
+                     "make -C gptp-processor docs || true\n"),
+         f"step `{IMPORTED_GPTP_GATE_NAME}` script is not the canonical form"),
+        ("#303 imported gPTP body moved under another name",
+         m_move_named_gate_body(
+             DOCS, "docs-check", IMPORTED_GPTP_GATE_NAME,
+             "Code-quality measurement self-tests"),
+         f"step `{IMPORTED_GPTP_GATE_NAME}` script is not the canonical form"),
+        ("#303 imported gPTP gate step if: false",
+         m_step_key_any(DOCS, "docs-check", IMPORTED_GPTP_GATE_CALL,
+                        "if", False),
+         f"(`{IMPORTED_GPTP_GATE_NAME}`) must carry no `if`"),
+        ("#303 imported gPTP gate step continue-on-error",
+         m_step_key_any(DOCS, "docs-check", IMPORTED_GPTP_GATE_CALL,
+                        "continue-on-error", True),
+         f"(`{IMPORTED_GPTP_GATE_NAME}`) must carry no `continue-on-error`"),
+        ("#303 imported gPTP gate step shell",
+         m_step_key_any(DOCS, "docs-check", IMPORTED_GPTP_GATE_CALL,
+                        "shell", "bash -n {0}"),
+         f"(`{IMPORTED_GPTP_GATE_NAME}`) must carry no `shell`"),
+        ("#303 imported gPTP gate step working-directory",
+         m_step_key_any(DOCS, "docs-check", IMPORTED_GPTP_GATE_CALL,
+                        "working-directory", "sub"),
+         f"(`{IMPORTED_GPTP_GATE_NAME}`) keys must be exactly name, run; "
+         "surplus: working-directory"),
         # wire-accountability's gate step.
         ("#295 wire-accountability gate step if: false",
          m_step_key_any(DOCS, "wire-accountability", "check_wire_accountability", "if", False),
@@ -5108,6 +5211,7 @@ def selftest(root):
                         '  --sha checkout="$(git rev-parse HEAD)" \\\n'
                         '  -- "${roots[@]}"\n')
     for jid, needle in (("docs-check", CONTRACT_CHECK),
+                        ("docs-check", IMPORTED_GPTP_GATE_CALL),
                         ("wire-accountability", WIRE_GATE_CALL),
                         ("docs-check-no-git", NO_GIT_GATE_CALL)):
         for s in steps(jobs(world[DOCS])[jid]):
@@ -5125,7 +5229,7 @@ def selftest(root):
     else:
         print("  ok   canonical pins are whitespace-invariant (assert step, "
               "decision step, fast scope step, fast verdict step, verifier "
-              "step, the three documentation gate steps and the elaborate "
+              "step, the four documentation gate steps and the elaborate "
               "scope step)")
 
     # --require-default-branch arms: the decision for every event class. An

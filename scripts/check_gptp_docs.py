@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -15,6 +16,16 @@ ROOT = Path(__file__).resolve().parents[1]
 WAVEDROM = ROOT / "docs" / "diagrams" / "wd_gptp_pdelay.json"
 MANAGER = ROOT / "docs" / "guides" / "gptp" / "MANAGER.md"
 FEATURE_STATUS = ROOT / "docs" / "reference" / "milan_feature_status.json"
+DONOR_BLOB_ROOT = "https://github.com/Mister-M-alt/FPGA-gPTP/blob"
+DONOR_RAW_ROOT = "https://raw.githubusercontent.com/Mister-M-alt/FPGA-gPTP"
+MARKDOWN_TARGET_RE = re.compile(
+    r"!?\[[^\]\n]*\]\((?:<([^>\n]+)>|([^\s)]+))"
+)
+MARKDOWN_REFERENCE_TARGET_RE = re.compile(
+    r"^[ \t]{0,3}\[[^\]\n]+\]:[ \t]*(?:<([^>\n]+)>|([^\s]+))",
+    re.MULTILINE,
+)
+MARKDOWN_AUTOLINK_RE = re.compile(r"<(https?://[^>\s]+)>")
 
 DOCUMENT_TOKENS = {
     "docs/design/GPTP_PLANE.md": (
@@ -113,8 +124,11 @@ WAVEDROM_TOKENS = (
     "{t1, seq, type=2}",
     "accepted tap SOF",
     "RX PHC capture",
+    "accepted tap EOF",
     "frame FIFO commit",
     "engine RX SOF",
+    "68-byte Pdelay_Resp",
+    "nine accepted 64-bit beats",
     "sequence plus message type",
 )
 
@@ -125,6 +139,24 @@ WAVEDROM_ORDER = (
     ("accepted MAC SOF", "accepted sequence beat 5"),
     ("accepted sequence beat 5", "returned tuple"),
     ("returned tuple", "accepted MAC EOF"),
+    ("accepted tap SOF", "accepted tap EOF"),
+    ("accepted tap EOF", "frame FIFO commit"),
+    ("frame FIFO commit", "engine RX SOF"),
+)
+
+# The published diagram is explicitly the unstalled 64-bit parent path. A
+# 68-byte Pdelay_Resp occupies nine accepted beats, hence eight cycle intervals
+# from the accepted SOF beat to the accepted EOF beat. axis_fifo commits on the
+# following cycle; its default one-stage RAM pipeline and the shadow serializer
+# then put engine SOF two cycles after the visible commit pulse.
+WAVEDROM_SAME_CYCLE = (
+    ("accepted MAC SOF", "TX PHC capture"),
+    ("accepted tap SOF", "RX PHC capture"),
+)
+WAVEDROM_EXACT_DELTA = (
+    ("accepted tap SOF", "accepted tap EOF", 8),
+    ("accepted tap EOF", "frame FIFO commit", 1),
+    ("frame FIFO commit", "engine RX SOF", 2),
 )
 
 SUBMODULE_DOCS = (
@@ -160,6 +192,106 @@ def file_token_findings(root: Path, mapping: dict[str, tuple[str, ...]]) -> list
     return findings
 
 
+def markdown_targets(text: str) -> list[str]:
+    """Return inline, reference-style and autolink Markdown destinations."""
+    targets = [
+        match.group(1) or match.group(2)
+        for match in MARKDOWN_TARGET_RE.finditer(text)
+    ]
+    targets.extend(
+        match.group(1) or match.group(2)
+        for match in MARKDOWN_REFERENCE_TARGET_RE.finditer(text)
+    )
+    targets.extend(match.group(1) for match in MARKDOWN_AUTOLINK_RE.finditer(text))
+    return list(dict.fromkeys(targets))
+
+
+def donor_target_findings(
+    document: Path,
+    target: str,
+    pin: str,
+    *,
+    root: Path = ROOT,
+    checkout: Path | None = None,
+) -> list[str]:
+    """Reject unpublished gitlink children and drifted donor deep links."""
+    try:
+        label = document.relative_to(root).as_posix()
+    except ValueError:
+        label = document.as_posix()
+    destination = re.split(r"[?#]", target, maxsplit=1)[0]
+    if not destination:
+        return []
+
+    # GitHub publishes the gitlink itself, but it does not publish a relative
+    # child such as gptp-processor/docs/MANAGER.md. Those links work in a
+    # populated checkout and 404 in the rendered repository documentation.
+    if (
+        not destination.startswith("/")
+        and not re.match(r"^[A-Za-z][A-Za-z0-9+.-]*:", destination)
+    ):
+        try:
+            relative = (document.parent / destination).resolve().relative_to(root)
+        except ValueError:
+            return []
+        if (
+            len(relative.parts) > 1
+            and relative.parts[0] == "gptp-processor"
+        ):
+            return [
+                f"{label}: relative donor deep link is not published by GitHub: "
+                f"{target}"
+            ]
+        return []
+
+    for prefix in (DONOR_BLOB_ROOT, DONOR_RAW_ROOT):
+        marker = prefix + "/"
+        if not destination.startswith(marker):
+            continue
+        suffix = destination[len(marker):]
+        linked_pin, separator, donor_path = suffix.partition("/")
+        if linked_pin != pin:
+            return [
+                f"{label}: donor deep link must use gitlink {pin}, found "
+                f"{linked_pin or '<empty>'}: {target}"
+            ]
+        if not separator or not donor_path:
+            return [f"{label}: donor deep link has no path: {target}"]
+        if checkout is not None and not (checkout / donor_path).is_file():
+            return [
+                f"{label}: pinned donor target is missing from checkout: "
+                f"gptp-processor/{donor_path}"
+            ]
+        return []
+    return []
+
+
+def donor_link_findings(
+    pin: str,
+    *,
+    root: Path = ROOT,
+    checkout: Path | None = None,
+) -> list[str]:
+    """Check every current documentation link into the donor repository."""
+    findings: list[str] = []
+    for document in sorted((root / "docs").rglob("*.md")):
+        relative = document.relative_to(root)
+        if "history" in relative.parts:
+            continue
+        try:
+            targets = markdown_targets(document.read_text(encoding="utf-8"))
+        except OSError as error:
+            findings.append(f"{relative.as_posix()}: cannot read links: {error}")
+            continue
+        for target in targets:
+            findings.extend(
+                donor_target_findings(
+                    document, target, pin, root=root, checkout=checkout
+                )
+            )
+    return findings
+
+
 def flatten_json(value: object) -> list[str]:
     if isinstance(value, dict):
         return [item for child in value.values() for item in flatten_json(child)]
@@ -192,6 +324,11 @@ def wavedrom_value_findings(value: object, label: str) -> list[str]:
     waves = named_waves(value)
     cycles: dict[str, int] = {}
     ordered_names = {name for pair in WAVEDROM_ORDER for name in pair}
+    ordered_names.update(name for pair in WAVEDROM_SAME_CYCLE for name in pair)
+    ordered_names.update(
+        name for before, after, _ in WAVEDROM_EXACT_DELTA
+        for name in (before, after)
+    )
     for name in sorted(ordered_names):
         matches = waves.get(name, [])
         if len(matches) != 1:
@@ -212,6 +349,20 @@ def wavedrom_value_findings(value: object, label: str) -> list[str]:
                 f"{label}: {before!r} must precede {after!r}; "
                 f"cycles are {cycles[before]} and {cycles[after]}"
             )
+    for event, capture in WAVEDROM_SAME_CYCLE:
+        if event in cycles and capture in cycles and cycles[event] != cycles[capture]:
+            findings.append(
+                f"{label}: {event!r} and {capture!r} must occur in the same "
+                f"cycle; cycles are {cycles[event]} and {cycles[capture]}"
+            )
+    for before, after, expected in WAVEDROM_EXACT_DELTA:
+        if before in cycles and after in cycles:
+            actual = cycles[after] - cycles[before]
+            if actual != expected:
+                findings.append(
+                    f"{label}: {before!r} to {after!r} must be exactly "
+                    f"{expected} cycles on the unstalled path, found {actual}"
+                )
     return findings
 
 
@@ -295,6 +446,65 @@ def submodule_findings(root: Path = ROOT) -> list[str]:
 
 def selftest() -> int:
     arms = 0
+    try:
+        pin = gitlink_pin()
+    except (OSError, subprocess.CalledProcessError, ValueError) as error:
+        print(f"gPTP docs selftest: cannot read production gitlink: {error}")
+        return 1
+
+    arms += 1
+    parsed_targets = markdown_targets(
+        "[guide](../gptp-processor/docs/MANAGER.md) "
+        "![wave](https://example.invalid/wave.svg)\n"
+        "[source]: ../gptp-processor/docs/SOURCE_EVIDENCE.md\n"
+        "<https://example.invalid/auto>"
+    )
+    if parsed_targets != [
+        "../gptp-processor/docs/MANAGER.md",
+        "https://example.invalid/wave.svg",
+        "../gptp-processor/docs/SOURCE_EVIDENCE.md",
+        "https://example.invalid/auto",
+    ]:
+        print("gPTP docs selftest: Markdown target parsing failed")
+        return 1
+    fixture_document = ROOT / "docs" / "fixture.md"
+    arms += 1
+    if not donor_target_findings(
+        fixture_document,
+        "../gptp-processor/docs/MANAGER.md",
+        pin,
+    ):
+        print("gPTP docs selftest: relative donor deep link escaped")
+        return 1
+    arms += 1
+    stale = "0" * 40 if pin != "0" * 40 else "1" * 40
+    stale_target = f"{DONOR_BLOB_ROOT}/{stale}/docs/MANAGER.md"
+    if not donor_target_findings(fixture_document, stale_target, pin):
+        print("gPTP docs selftest: stale donor pin escaped")
+        return 1
+    arms += 1
+    valid_targets = (
+        f"{DONOR_BLOB_ROOT}/{pin}/docs/MANAGER.md",
+        f"{DONOR_RAW_ROOT}/{pin}/docs/diagrams/wavedrom/rx_accept.svg",
+    )
+    if any(
+        donor_target_findings(fixture_document, target, pin)
+        for target in valid_targets
+    ):
+        print("gPTP docs selftest: valid pinned donor URL failed")
+        return 1
+    arms += 1
+    missing_target = f"{DONOR_BLOB_ROOT}/{pin}/definitely-not-present.md"
+    if not donor_target_findings(
+        fixture_document, missing_target, pin, checkout=ROOT
+    ):
+        print("gPTP docs selftest: missing pinned donor target escaped")
+        return 1
+    arms += 1
+    if donor_link_findings(pin):
+        print("gPTP docs selftest: production donor links failed")
+        return 1
+
     arms += 1
     if token_findings("fixture", "alpha beta", ("alpha", "beta")):
         print("gPTP docs selftest: valid token fixture failed")
@@ -337,6 +547,66 @@ def selftest() -> int:
     order_findings = wavedrom_value_findings(reordered, "fixture")
     if not any("must precede" in finding for finding in order_findings):
         print("gPTP docs selftest: WaveDrom order mutation escaped")
+        return 1
+
+    def move_event(value: object, name: str, cycle: int) -> int:
+        moved = 0
+        if isinstance(value, dict):
+            if value.get("name") == name and isinstance(value.get("wave"), str):
+                symbols = list(value["wave"])
+                if cycle >= len(symbols):
+                    raise ValueError(f"cycle {cycle} is outside {name!r}")
+                symbols = ["." if symbol == "1" else symbol for symbol in symbols]
+                symbols[cycle] = "1"
+                value["wave"] = "".join(symbols)
+                moved += 1
+            children = value.values()
+        elif isinstance(value, list):
+            children = value
+        else:
+            children = ()
+        return moved + sum(move_event(child, name, cycle) for child in children)
+
+    arms += 1
+    ingress_reordered = json.loads(WAVEDROM.read_text(encoding="utf-8"))
+    ingress_signals = named_waves(ingress_reordered)
+    tap_eof_wave = ingress_signals["accepted tap EOF"][0]
+    commit_wave = ingress_signals["frame FIFO commit"][0]
+    if (
+        move_event(ingress_reordered, "accepted tap EOF", commit_wave.index("1"))
+        != 1
+        or move_event(
+            ingress_reordered, "frame FIFO commit", tap_eof_wave.index("1")
+        )
+        != 1
+    ):
+        print("gPTP docs selftest: ingress fixture drift")
+        return 1
+    ingress_findings = wavedrom_value_findings(ingress_reordered, "fixture")
+    if not any("must precede" in finding for finding in ingress_findings):
+        print("gPTP docs selftest: ingress commit-order mutation escaped")
+        return 1
+
+    arms += 1
+    shortened = json.loads(WAVEDROM.read_text(encoding="utf-8"))
+    tap_sof_cycle = named_waves(shortened)["accepted tap SOF"][0].index("1")
+    if move_event(shortened, "accepted tap EOF", tap_sof_cycle + 2) != 1:
+        print("gPTP docs selftest: ingress interval fixture drift")
+        return 1
+    interval_findings = wavedrom_value_findings(shortened, "fixture")
+    if not any("must be exactly 8 cycles" in finding for finding in interval_findings):
+        print("gPTP docs selftest: short ingress frame mutation escaped")
+        return 1
+
+    arms += 1
+    displaced_capture = json.loads(WAVEDROM.read_text(encoding="utf-8"))
+    if move_event(displaced_capture, "RX PHC capture", tap_sof_cycle + 1) != 1:
+        print("gPTP docs selftest: capture fixture drift")
+        return 1
+    capture_findings = wavedrom_value_findings(displaced_capture, "fixture")
+    if not any("must occur in the same cycle" in finding
+               for finding in capture_findings):
+        print("gPTP docs selftest: displaced capture mutation escaped")
         return 1
     arms += 1
     if file_token_findings(ROOT, DOCUMENT_TOKENS):
@@ -383,6 +653,13 @@ def main() -> int:
     findings.extend(manager_status_findings())
     findings.extend(file_token_findings(ROOT, SOURCE_TOKENS))
     findings.extend(wavedrom_findings())
+    try:
+        pin = gitlink_pin()
+    except (OSError, subprocess.CalledProcessError, ValueError) as error:
+        findings.append(f"gptp-processor: cannot read gitlink for links: {error}")
+    else:
+        checkout = ROOT / "gptp-processor" if with_submodule else None
+        findings.extend(donor_link_findings(pin, checkout=checkout))
     if with_submodule:
         findings.extend(submodule_findings())
     if findings:
