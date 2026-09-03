@@ -569,6 +569,8 @@ DUT_PATH = re.compile(r"\b(?:RTL|FILTER)\s*=|[\"'][^\"'\n]*hdl/")
 DUT_READER_DISPOSITIONS = {
     "gptp-processor/tb/check_phc_contract.py":
         "structural boundary check; it asserts required/forbidden tokens, not behavior",
+    "gptp-processor/tb/tsngen/mutants.py":
+        "mutation campaign; it stages three engine defects and requires failure",
     "protocol-processor/tb/nvm_port/measure_figures.py":
         "mutation campaign; it rewrites one RTL arm and requires the suite to fail",
     "tb/verilator/rx_filter/binding_mutant.py":
