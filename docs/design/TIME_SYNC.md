@@ -86,7 +86,7 @@ Each link has exactly one master.
 
 | Loop fact | Value | RTL |
 |---|---|---|
-| Physical sample grid | `100 MHz * 391/1591 / 512` = 47,999.4893 Hz | TDM master divider |
+| Physical sample grid | `100 MHz * 391/1591 / 512` = 47,999.4893 Hz | `KL_tdm_capture_master` frame divider after the `milan_soc.py` PLAN A MMCM |
 | Packet grid | 48,000.0000 Hz free-running | `KL_media_nco` |
 | Free-running offset | -10.64 ppm; one sample slips every 1.9582 s | `KL_chan_map_capture` dup/skip counters |
 | MMCM servo error | Differential rate, ns per 512 ms window | `KL_mmcm_drp_servo` |

@@ -136,7 +136,7 @@ SOURCE_TOKENS = {
 WAVEDROM_TOKENS = (
     "accepted MAC SOF",
     "TX PHC capture",
-    "accepted seq beat 5",
+    "accepted beat 5",
     "{t1, seq, type=2}",
     "accepted tap SOF",
     "RX PHC capture",
@@ -152,8 +152,8 @@ WAVEDROM_TOKENS = (
 # registered tuple before a normal Pdelay frame reaches tx_tlast_i. This order
 # is the interface contract; labels alone cannot prove it.
 WAVEDROM_ORDER = (
-    ("accepted MAC SOF", "accepted seq beat 5"),
-    ("accepted seq beat 5", "returned tuple"),
+    ("accepted MAC SOF", "accepted beat 5"),
+    ("accepted beat 5", "returned tuple"),
     ("returned tuple", "accepted MAC EOF"),
     ("accepted tap SOF", "accepted tap EOF"),
     ("accepted tap EOF", "frame FIFO commit"),
@@ -714,7 +714,12 @@ def wavedrom_shape_selftest() -> int:
         for finding in wavedrom_value_findings(production, "fixture")
     ):
         raise SelftestFailure("displaced value symbol escaped")
-    for key, mutation in (("period", 2), ("phase", 0.5), ("wave", STALL_SYMBOL)):
+    stall = f"a {STALL_SYMBOL!r} stall"
+    for key, mutation, label in (
+        ("period", 2, "a period"),
+        ("phase", 0.5, "a phase"),
+        ("wave", STALL_SYMBOL, stall),
+    ):
         mutated = json.loads(WAVEDROM.read_text(encoding="utf-8"))
         signal = named_signals(mutated)["accepted tap SOF"][0]
         if key == "wave":
@@ -725,7 +730,7 @@ def wavedrom_shape_selftest() -> int:
             "'accepted tap SOF' must not" in finding
             for finding in wavedrom_value_findings(mutated, "fixture")
         ):
-            raise SelftestFailure(f"{key} on an oracle signal escaped")
+            raise SelftestFailure(f"{label} on an oracle signal escaped")
     return 4
 
 

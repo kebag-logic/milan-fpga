@@ -169,7 +169,7 @@ Both exchanges, as this design stamps them:
 > [wd_gptp_pdelay.json (historical)](../diagrams/wd_gptp_pdelay.json) under
 > `docs/history/v1/diagrams/`; neither is regenerated. The live
 > `docs/diagrams/wd_gptp_pdelay.*` set was reworked on 2026-09-02 into the
-> parent-ownership chronogram the current successor embeds. The plane's
+> parent-ownership chronogram the current HDL developer guide embeds. The plane's
 > stampers latch the PHC at
 > the frame's first beat (event messages only), so
 > `t1`/`t4` come from hardware records while the peer's `t2`/`t3` arrive

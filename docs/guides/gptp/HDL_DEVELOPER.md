@@ -20,7 +20,7 @@ Use this page for parent RTL changes.
 | Parent transport | `KL_gptp_shadow` |
 | Egress capture | `KL_gptp_txstamp` |
 | PHC arithmetic | `timestamp_counter` |
-| PHC clock domain | `milan_datapath` ties `gtx_clk` to `axis_clk` |
+| PHC clock domain | `milan_soc.py` ties `gtx_clk` to `axis_clk` at the `milan_datapath` instantiation |
 | Time validity | `KL_ptp_clock_validity` |
 | Public ABI | `milan_csr` and processor wrapper |
 
@@ -40,7 +40,7 @@ Read the [engine HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/bacf8
 
 The parent chronogram proves three orderings:
 
-- The tuple returns on accepted beat 5, before EOF.
+- The tuple is registered on accepted beat 5 and visible one cycle later, before EOF.
 - Ingress commit follows nine accepted beats.
 - Engine SOF follows the commit by three cycles.
 
