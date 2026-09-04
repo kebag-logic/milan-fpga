@@ -856,10 +856,18 @@ from their executable.
 An audited change to the runner's cache, interruption, or Docker cleanup
 boundary must also run the live fault-injection gate. It first writes a marker
 through the effective runner tool cache and proves a second fresh run cannot see
-it. It then starts a harmless sleeping job, inspects the real cache mount, waits
-for the owned container, freezes the `act` process group, delivers `SIGTERM` to
-the runner, and requires the container, network, tool-cache volume, and run
-directory to be absent afterward. With `--sudo`, the probe also requires a root
+it. It then plants two act-shaped volumes the runner did not create, one
+outside the sleeping job's workflow lease and one inside it, requires the
+inside one to refuse acquisition while both survive, and removes the inside
+one itself before it can start the sleeping job. It then starts a
+harmless sleeping job, inspects the real cache mount and the two job volumes `act`
+created for it, waits for the owned container, freezes the `act` process
+group, delivers `SIGINT` to the runner, and requires the container, network,
+tool-cache volume, both job volumes, and run directory to be absent afterward
+while the planted outside volume survives. The gate then reconciles both
+planted volumes on every exit, checks the outside one's survival before that
+reconciliation on the success path, and reports a planted volume it cannot
+remove on stderr and fails. With `--sudo`, the probe also requires a root
 `act` child distinct from the sudo leader, sends `SIGSTOP` through privileged
 `kill`, proves every process-group member is stopped, and proves the complete
 group is absent before Docker teardown. Cancellation is serialized with that
@@ -966,8 +974,9 @@ last owned container. The refusal names the
 cache, the operator must serialize every act runner and prove no container uses
 it; absence of a label does not prove inactivity. A labelled cache must not be
 removed until no runner, container, or network with its owner token remains.
-The runner never deletes an
-unowned volume. Concurrent runner invocations fail closed because only one can
+The runner never deletes a
+volume it does not own, by label or by the job-volume lease described below.
+Concurrent runner invocations fail closed because only one can
 own the upstream global name. If a Docker create call times out or is
 interrupted after the daemon accepted it, the runner inspects the exact global
 volume name and unpredictable network name, removes only resources carrying its
@@ -984,6 +993,37 @@ marker through
 `RUNNER_TOOL_CACHE` in one run, creates a fresh second boundary, proves the
 marker is absent there, inspects the effective container mount, and finally
 proves interrupt cleanup removes the volume too.
+
+`act` 0.2.89 also names each job's workspace and environment volumes
+`act-<workflow>-<job>-<sha256>` and `...-env` from the workflow and job names,
+never from a run token, and removes them only inside its own graceful teardown.
+Forced process-group containment bypasses that path, and container removal
+with `--volumes` drops only anonymous volumes, so an interrupted job used to
+leave both named volumes behind. The runner therefore leases those names by
+workflow: every selected workflow must declare a `name:` that sanitizes to a
+prefix act keeps intact (at most 63 characters of letters, digits, and single
+hyphens; act trims the part before the hash to 63 characters), no selected
+name may be a hyphen-prefix of another, the boundary records the act prefix
+derived from each name, every act command requires that lease, and the runner
+refuses before any Docker mutation and again immediately before each act
+spawn, in the PR run and in the live gate's three spawns, when any volume
+inside the scope already exists or the volume inventory itself fails, naming
+the volume and never removing it, because act would otherwise reuse it as the
+candidate's workspace or environment. After the process group is proven absent
+and owned-container removal has run, cleanup removes each volume inside the
+scope without force, requires a stable absence window, and reports any
+survivor, any volume another container still holds, and any failed inventory;
+after each workflow the runner reconciles before it refuses, so drift observed
+on a leftover container is named. A volume outside the scope is never touched:
+an act-shaped volume from another workflow survives unless that workflow's
+name hyphen-extends a selected name, an anonymous volume leaves with its
+container, and a volume an owned container mounted outside the scope is
+preserved and reported as lease drift, because only the lease proves this run
+created a name: a rival can create a name between a gate's inventory and act's
+own create, and act adopts it. The serialization the tool-cache name already
+demands also covers a rival running the same workflow name concurrently. The offline self-test pins the name derivation to a volume name
+a live `act` 0.2.89 produced and pins that no shipping workflow name is a
+hyphen-prefix of another.
 
 A freshly created empty tool-cache volume also exposes a Docker daemon race
 (#315). Sibling jobs in one workflow start their containers concurrently, and
@@ -1031,8 +1071,9 @@ workers uploaded them. `scripts/ci_events.py --check` pins the edge and its
 self-test removes it as a negative control.
 
 Cleanup is restricted to the exact generated directory, the
-labeled tool-cache volume, and the network whose ID, name, gateway, and ownership
-label the runner recorded at creation. Mutable leases are registered before the
+labeled tool-cache volume, the act job volumes inside the leased workflow
+scope, and the network whose ID, name, gateway, and
+ownership label the runner recorded at creation. Mutable leases are registered before the
 run directory, cache volume, or network can be accepted; post-create inspection
 failures and the function-return handoff therefore still reconcile the exact
 resource before propagating failure. Act process creation likewise blocks the
@@ -1045,15 +1086,25 @@ After every workflow and on every exceptional exit, the runner inventories
 Docker, selects only containers carrying that token, attached to that network,
 or sharing an owned container's network namespace, then stops and forcibly
 removes them. It verifies that no owned container remains, then independently
-attempts and verifies removal of both the network and tool-cache volume so a
-failure inspecting either cannot suppress teardown of the other. Only then does
+attempts and verifies removal of the network, the tool-cache volume, and the
+leased job volumes so a failure inspecting one cannot suppress teardown of the
+others. After a workflow exits, a leftover owned container or job volume is
+removed and refuses the run. Only then does
 sudo ownership recovery and recursive run-directory removal begin. Any
 unverifiable absence changes an otherwise green run to exit 2. `SIGINT`,
-`SIGTERM`, and `SIGHUP` all unwind through this cleanup; TERM/HUP retain their
-conventional `128 + signal` exit status after cleanup. The first handled signal
-latches the interruption and defers repeats of all three until every nested
-cleanup and absence check completes; a first signal that arrives after cleanup
-has already begun is blocked and delivered only after that cleanup scope exits.
+`SIGTERM`, and `SIGHUP` all unwind through this cleanup and retain their
+conventional `128 + signal` exit status after cleanup (`130` for `SIGINT`). The
+top-level Python handler only records the first signal and raises the cleanup
+request; it does not change a signal mask or disposition during delivery, so a
+deferred-signal race cannot escape the handler. Repeats of all three become
+harmless until every nested cleanup and absence check completes; a first signal
+that arrives after cleanup has already begun is blocked and delivered only after
+that cleanup scope exits. The offline self-test injects failures into the mask
+and disposition APIs while delivering a real `SIGINT`, and requires the handler
+to avoid both APIs, return 130, and print its attributable post-cleanup
+diagnostic. A synchronized process-directed `SIGINT` separately targets a
+runner blocked on a non-cooperative child tree and requires the entire recorded
+process group to be absent before the runner returns.
 Every runner-created worker inherits those signals blocked, preventing the
 Python handler from being dispatched through a monitor thread while main is in
 a protected cleanup tail; the offline gate sends a process-directed signal with

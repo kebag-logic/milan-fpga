@@ -24,6 +24,8 @@ Typical use, from the candidate worktree::
 Use ``--sudo`` only on hosts whose Docker socket is unavailable to the current
 user. Exit 0 means every selected workflow passed; exit 1 means a workflow
 failed; exit 2 is a setup, trust-boundary, cleanup, or exact-head refusal.
+A handled terminal signal returns ``128 + signum`` only after cleanup; SIGINT
+therefore returns 130 and names itself in the final diagnostic.
 """
 
 from __future__ import annotations
@@ -35,6 +37,7 @@ import ctypes
 import hashlib
 import io
 import inspect
+import io
 import ipaddress
 import json
 import os
@@ -76,6 +79,15 @@ DOCKER_OWNER_LABEL = "org.kebag-logic.milan-act-ci.owner"
 ACT_TOOLCACHE_VOLUME = "act-toolcache"
 ACT_TOOLCACHE_TARGET = "/opt/hostedtoolcache"
 ACT_TOOLCACHE_SEED_SUFFIX = "-toolcache-seed"
+# act 0.2.89 names each job's workspace and environment volumes
+# ``act-<workflow>-<job>-<sha256>`` and ``...-env`` from the workflow and
+# job names, never from a run token, and removes them only inside its own
+# graceful teardown; forced process-group containment bypasses that path.
+ACT_JOB_VOLUME_RE = re.compile(
+    r"^act-[A-Za-z0-9-]{0,58}[A-Za-z0-9]-[0-9a-f]{64}(?:-env)?$"
+)
+ACT_JOB_VOLUME_PREFIX_RE = re.compile(r"^act-(?:[A-Za-z0-9]+-)+$")
+DOCKER_VOLUME_NAME_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]*$")
 # One attached seed run bounds the daemon-side image copy-up (minutes for a
 # multi-gigabyte runner tool cache) plus a possible first-time image pull.
 ACT_TOOLCACHE_SEED_TIMEOUT = 30 * 60
@@ -145,21 +157,25 @@ class TerminationRequest(BaseException):
         super().__init__(signal.Signals(signum).name)
 
 
+@dataclass
+class _CleanupSignalLatch:
+    """Record one cleanup signal without changing masks or dispositions."""
+
+    signum: int | None = None
+
+    def __call__(self, signum: int, _frame: object) -> None:
+        if self.signum is not None:
+            return
+        self.signum = signum
+        raise TerminationRequest(signum)
+
+
 @contextlib.contextmanager
 def cleanup_termination_signals() -> Iterator[None]:
     """Make INT/TERM/HUP run cleanup and defer repeats until it completes."""
     watched = CLEANUP_SIGNALS
     previous = {item: signal.getsignal(item) for item in watched}
-
-    def request_cleanup(signum: int, _frame: object) -> None:
-        # Ignore repeats while nested finally blocks reclaim Docker and disk state.
-        prior_mask = signal.pthread_sigmask(signal.SIG_BLOCK, watched)
-        try:
-            for item in watched:
-                signal.signal(item, signal.SIG_IGN)
-        finally:
-            signal.pthread_sigmask(signal.SIG_SETMASK, prior_mask)
-        raise TerminationRequest(signum)
+    request_cleanup = _CleanupSignalLatch()
 
     for item in watched:
         signal.signal(item, request_cleanup)
@@ -205,8 +221,17 @@ def deferred_cleanup_signal_delivery() -> Iterator[None]:
     """Latch one parent signal without exporting a blocked mask through exec."""
     previous = {item: signal.getsignal(item) for item in CLEANUP_SIGNALS}
     pending: list[int] = []
+    installed_handlers = tuple(previous.values())
+    first_handler = installed_handlers[0]
+    cleanup_already_latched = (
+        isinstance(first_handler, _CleanupSignalLatch)
+        and first_handler.signum is not None
+        and all(handler is first_handler for handler in installed_handlers)
+    )
 
-    if all(handler == signal.SIG_IGN for handler in previous.values()):
+    if cleanup_already_latched or all(
+        handler == signal.SIG_IGN for handler in installed_handlers
+    ):
         # A first cleanup signal has already latched and repeats must remain
         # harmless. Use caught no-op handlers so exec resets the child to its
         # default dispositions instead of inheriting SIG_IGN.
@@ -416,6 +441,7 @@ class DockerBoundary:
     gateway: str | None = None
     toolcache_owned: bool = False
     toolcache_seeded: bool = False
+    job_volume_prefixes: tuple[str, ...] = ()
 
 
 @dataclass
@@ -425,6 +451,15 @@ class DockerBoundaryLease:
     boundary: DockerBoundary
     complete: bool = False
     released: bool = False
+
+
+@dataclass(frozen=True)
+class AbsenceWindow:
+    """How long a removed resource must stay absent, with injectable clocks."""
+
+    seconds: float | None = None
+    monotonic: Callable[[], float] = time.monotonic
+    sleep: Callable[[float], None] = time.sleep
 
 
 def require_tool(name: str) -> str:
@@ -1635,6 +1670,70 @@ def validate_workflow_sandbox(root: pathlib.Path, workflows: Sequence[str]) -> N
                     )
 
 
+def act_container_name(*parts: str) -> str:
+    """Mirror act 0.2.89 ``createContainerName``; the self-test pins it to a live name."""
+    sanitized = re.sub(r"[^a-zA-Z0-9]", "-", "-".join(parts)).replace("--", "-")
+    digest = hashlib.sha256(sanitized.encode("ascii")).hexdigest()
+    return f"{sanitized[:63].strip('-')}-{digest}"
+
+
+def act_job_volume_prefix(workflow_name: object) -> str:
+    """The name prefix act gives every job volume of one workflow name."""
+    if not isinstance(workflow_name, str) or not workflow_name.strip():
+        raise Refusal(
+            "workflow must declare a non-empty name; act derives job volume "
+            "names from it"
+        )
+    if workflow_name.strip() in ("null", "Null", "NULL", "~"):
+        # The sandbox loader keeps YAML scalars as strings; act's decoder reads
+        # these as no name and falls back to the file name.
+        raise Refusal(
+            f"workflow name {workflow_name!r} is a YAML null literal, which act "
+            "reads as no name"
+        )
+    prefix = re.sub(r"[^a-zA-Z0-9]", "-", f"act-{workflow_name}/").replace(
+        "--", "-"
+    )
+    if len(prefix) > 63 or not ACT_JOB_VOLUME_PREFIX_RE.fullmatch(prefix):
+        raise Refusal(
+            f"workflow name {workflow_name!r} yields an unleasable act "
+            "job-volume prefix"
+        )
+    return prefix
+
+
+def workflow_job_volume_scope(
+    root: pathlib.Path, workflows: Sequence[str]
+) -> dict[str, str]:
+    """Map each selected workflow alias to the act job-volume prefix it leases."""
+    scope: dict[str, str] = {}
+    for workflow in workflows:
+        relative = WORKFLOWS[workflow]
+        document = load_workflow(root, relative)
+        try:
+            scope[workflow] = act_job_volume_prefix(document.get("name"))
+        except Refusal as exc:
+            raise Refusal(f"workflow {relative}: {exc}") from exc
+    # act separates the workflow and job segments with the same "-" it uses
+    # inside them, so one prefix extending another could not be told apart.
+    prefixes = set(scope.values())
+    for prefix in sorted(prefixes):
+        for other in sorted(prefixes):
+            if other != prefix and other.startswith(prefix):
+                raise Refusal(
+                    f"workflow name prefixes {prefix!r} and {other!r} overlap; "
+                    "their act job volumes could not be told apart"
+                )
+    return scope
+
+
+def is_leased_act_job_volume(boundary: DockerBoundary, name: str) -> bool:
+    """True when act's name shape matches and a leased prefix owns the name."""
+    return bool(ACT_JOB_VOLUME_RE.fullmatch(name)) and any(
+        name.startswith(prefix) for prefix in boundary.job_volume_prefixes
+    )
+
+
 def build_event(run: ValidatedRun) -> dict[str, object]:
     """The smallest pull_request payload every repository workflow consumes.
 
@@ -1758,6 +1857,282 @@ def docker_reports_missing_toolcache(
         and ACT_TOOLCACHE_VOLUME in detail
         and "no such volume" in detail
     )
+
+
+def docker_reports_missing_volume(
+    result: subprocess.CompletedProcess[str], name: str
+) -> bool:
+    """True only when Docker itself says this exact volume does not exist."""
+    detail = (result.stderr or "").lower()
+    return (
+        result.returncode != 0
+        and name.lower() in detail
+        and "no such volume" in detail
+    )
+
+
+def list_docker_volume_names(
+    *,
+    use_sudo: bool,
+    cwd: pathlib.Path,
+    env: Mapping[str, str],
+    docker_command: Callable[..., subprocess.CompletedProcess[str]] = run_docker,
+) -> list[str]:
+    """Every volume name the daemon lists; a failed inventory is a refusal."""
+    result = docker_command(
+        ["volume", "ls", "--quiet"],
+        use_sudo=use_sudo,
+        cwd=cwd,
+        env=env,
+        description="Docker volume inventory",
+        check=False,
+    )
+    if result.returncode != 0:
+        detail = (result.stderr or "").strip().splitlines()
+        suffix = f": {detail[-1]}" if detail else ""
+        raise Refusal(f"Docker volume inventory failed{suffix}")
+    names: list[str] = []
+    for line in (result.stdout or "").splitlines():
+        name = line.strip()
+        if not name:
+            continue
+        if not DOCKER_VOLUME_NAME_RE.fullmatch(name):
+            raise Refusal("Docker returned a malformed volume name")
+        names.append(name)
+    return names
+
+
+def docker_volume_record(
+    name: str,
+    *,
+    use_sudo: bool,
+    cwd: pathlib.Path,
+    env: Mapping[str, str],
+    docker_command: Callable[..., subprocess.CompletedProcess[str]] = run_docker,
+) -> Mapping[str, object] | None:
+    """The inspected volume, or None only when Docker reports it absent."""
+    result = docker_command(
+        ["volume", "inspect", name],
+        use_sudo=use_sudo,
+        cwd=cwd,
+        env=env,
+        description=f"volume {name} inspection",
+        check=False,
+    )
+    if result.returncode != 0:
+        if docker_reports_missing_volume(result, name):
+            return None
+        detail = (result.stderr or "").strip().splitlines()
+        suffix = f": {detail[-1]}" if detail else ""
+        raise Refusal(f"cannot inspect volume {name}{suffix}")
+    try:
+        volumes = json.loads(result.stdout)
+        volume = volumes[0]
+    except (json.JSONDecodeError, IndexError, KeyError, TypeError) as exc:
+        raise Refusal(f"Docker returned malformed metadata for volume {name}") from exc
+    if (
+        not isinstance(volumes, list)
+        or len(volumes) != 1
+        or not isinstance(volume, dict)
+        or volume.get("Name") != name
+    ):
+        raise Refusal(f"Docker returned malformed metadata for volume {name}")
+    return volume
+
+
+def require_act_job_volumes_absent(
+    boundary: DockerBoundary,
+    *,
+    use_sudo: bool,
+    cwd: pathlib.Path,
+    env: Mapping[str, str],
+    docker_command: Callable[..., subprocess.CompletedProcess[str]] = run_docker,
+) -> None:
+    """Refuse before any mutation when act would reuse a job volume nobody owns."""
+    if not boundary.job_volume_prefixes:
+        raise Refusal("Docker boundary leases no act job-volume scope")
+    present = [
+        name
+        for name in list_docker_volume_names(
+            use_sudo=use_sudo, cwd=cwd, env=env, docker_command=docker_command
+        )
+        if is_leased_act_job_volume(boundary, name)
+    ]
+    if present:
+        raise Refusal(
+            "act job volume(s) already exist inside this run's lease scope: "
+            + ", ".join(present)
+            + "; act derives these names from workflow and job names rather "
+            "than the run token, so a pre-existing one would become the "
+            "candidate's workspace or environment; serialize every act runner, "
+            "prove no container uses them, then remove them before retrying"
+        )
+
+
+def owned_volume_mounts(
+    inventory: Sequence[Mapping[str, object]], owned: set[str]
+) -> list[str]:
+    """Named volumes mounted by owned containers.
+
+    The leased tool cache is excluded, and so is every anonymous volume,
+    whose 64-hex name is removed with its container.
+    """
+    names: set[str] = set()
+    for item in inventory:
+        if item.get("Id") not in owned:
+            continue
+        mounts = item.get("Mounts")
+        if not isinstance(mounts, list):
+            raise Refusal("owned act container has malformed mount metadata")
+        for mount in mounts:
+            if not isinstance(mount, dict) or mount.get("Type") != "volume":
+                continue
+            name = mount.get("Name")
+            if not isinstance(name, str) or not DOCKER_VOLUME_NAME_RE.fullmatch(name):
+                raise Refusal("owned act container mounts a malformed volume name")
+            if name != ACT_TOOLCACHE_VOLUME and not DOCKER_ID_RE.fullmatch(name):
+                names.add(name)
+    return sorted(names)
+
+
+def absence_window_seconds(
+    absence: AbsenceWindow | None,
+    docker_command: Callable[..., subprocess.CompletedProcess[str]],
+) -> float:
+    """The window a real daemon must keep a removed volume absent; fakes get none."""
+    clock = absence or AbsenceWindow()
+    if clock.seconds is None:
+        return DOCKER_MUTATION_STABLE_SECONDS if docker_command is run_docker else 0.0
+    return clock.seconds
+
+
+def remove_act_job_volume(
+    name: str,
+    *,
+    use_sudo: bool,
+    cwd: pathlib.Path,
+    env: Mapping[str, str],
+    docker_command: Callable[..., subprocess.CompletedProcess[str]] = run_docker,
+    absence: AbsenceWindow | None = None,
+) -> bool:
+    """Remove one leased job volume without force and require stable absence.
+
+    Returns whether the daemon still held the volume when removal began.
+    """
+    result = docker_command(
+        ["volume", "rm", name],
+        use_sudo=use_sudo,
+        cwd=cwd,
+        env=env,
+        description=f"act job volume {name} removal",
+        check=False,
+    )
+    removed = result.returncode == 0
+    if result.returncode != 0 and not docker_reports_missing_volume(result, name):
+        detail = (result.stderr or "").strip().splitlines()
+        suffix = f": {detail[-1]}" if detail else ""
+        raise Refusal(f"cannot remove act job volume {name}{suffix}")
+    clock = absence or AbsenceWindow()
+    window = absence_window_seconds(absence, docker_command)
+    stable_since: float | None = None
+    probes = 0
+    while True:
+        probes += 1
+        if probes > 1000:
+            raise Refusal(f"act job volume {name} absence window never elapsed")
+        probe = docker_command(
+            ["volume", "inspect", name],
+            use_sudo=use_sudo,
+            cwd=cwd,
+            env=env,
+            description=f"act job volume {name} absence check",
+            check=False,
+        )
+        if probe.returncode == 0:
+            raise Refusal(f"act job volume {name} survived removal")
+        if not docker_reports_missing_volume(probe, name):
+            detail = (probe.stderr or "").strip().splitlines()
+            suffix = f": {detail[-1]}" if detail else ""
+            raise Refusal(f"cannot verify act job volume {name} absence{suffix}")
+        now = clock.monotonic()
+        if stable_since is None:
+            stable_since = now
+        remaining = window - (now - stable_since)
+        if remaining <= 1e-6:
+            return removed
+        clock.sleep(min(0.05, remaining))
+
+
+def cleanup_act_job_volumes(
+    boundary: DockerBoundary,
+    observed: Sequence[str],
+    *,
+    use_sudo: bool,
+    cwd: pathlib.Path,
+    env: Mapping[str, str],
+    docker_command: Callable[..., subprocess.CompletedProcess[str]] = run_docker,
+) -> list[str]:
+    """Remove every job volume act created for this boundary and prove absence.
+
+    Only a name inside the workflow-scoped lease is removed, because only that
+    scope was proved absent at acquisition. A volume an owned container mounted
+    outside the scope cannot be proved to be this run's creation: it is
+    preserved and reported as lease drift. Nothing is forced, so a volume
+    another container still holds is preserved and reported too.
+    """
+    errors: list[str] = []
+    if not boundary.job_volume_prefixes:
+        errors.append("Docker boundary leases no act job-volume scope")
+    listed: list[str] = []
+    try:
+        listed = list_docker_volume_names(
+            use_sudo=use_sudo, cwd=cwd, env=env, docker_command=docker_command
+        )
+    except Refusal as exc:
+        errors.append(str(exc))
+    in_scope = {name for name in listed if is_leased_act_job_volume(boundary, name)}
+    strays = sorted(
+        name for name in observed if not is_leased_act_job_volume(boundary, name)
+    )
+    if strays:
+        errors.append(
+            "owned container(s) mounted volume(s) outside the leased act "
+            "job-volume scope, preserved for the operator: " + ", ".join(strays)
+        )
+    leased_observed = {
+        name for name in observed if is_leased_act_job_volume(boundary, name)
+    }
+    removed: list[str] = []
+    for name in sorted(in_scope.union(leased_observed)):
+        try:
+            if remove_act_job_volume(
+                name,
+                use_sudo=use_sudo,
+                cwd=cwd,
+                env=env,
+                docker_command=docker_command,
+            ):
+                removed.append(name)
+        except Refusal as exc:
+            errors.append(str(exc))
+    try:
+        survivors = [
+            name
+            for name in list_docker_volume_names(
+                use_sudo=use_sudo, cwd=cwd, env=env, docker_command=docker_command
+            )
+            if is_leased_act_job_volume(boundary, name)
+        ]
+    except Refusal as exc:
+        errors.append(str(exc))
+    else:
+        if survivors:
+            errors.append(
+                "act job volume(s) survived cleanup: " + ", ".join(survivors)
+            )
+    if errors:
+        raise Refusal("act job volume cleanup failed: " + "; ".join(errors))
+    return removed
 
 
 def docker_reports_missing_network(
@@ -2207,11 +2582,19 @@ def cleanup_act_toolcache_volume(
     )
 
 
-def new_docker_boundary() -> DockerBoundary:
+def new_docker_boundary(
+    job_volume_prefixes: Iterable[str] = (),
+) -> DockerBoundary:
     token = secrets.token_hex(16)
     if not re.fullmatch(r"[0-9a-f]{32}", token):
         raise Refusal("cannot generate a safe Docker ownership token")
-    return DockerBoundary(token=token, name=f"milan-act-ci-{token}")
+    prefixes = tuple(sorted(set(job_volume_prefixes)))
+    for prefix in prefixes:
+        if len(prefix) > 63 or not ACT_JOB_VOLUME_PREFIX_RE.fullmatch(prefix):
+            raise Refusal(f"invalid act job-volume lease prefix: {prefix!r}")
+    return DockerBoundary(
+        token=token, name=f"milan-act-ci-{token}", job_volume_prefixes=prefixes
+    )
 
 
 def inspect_docker_network(
@@ -2417,6 +2800,13 @@ def create_docker_boundary(
         or active_lease.released
     ):
         raise Refusal("Docker boundary lease was not initialized from the plan")
+    require_act_job_volumes_absent(
+        planned,
+        use_sudo=use_sudo,
+        cwd=cwd,
+        env=env,
+        docker_command=docker_command,
+    )
     boundary = planned
     try:
         boundary = create_act_toolcache_volume(
@@ -2692,6 +3082,7 @@ def cleanup_owned_containers(
     cwd: pathlib.Path,
     env: Mapping[str, str],
     docker_command: Callable[..., subprocess.CompletedProcess[str]] = run_docker,
+    observed_volumes: list[str] | None = None,
 ) -> int:
     inventory = docker_container_inventory(
         use_sudo=use_sudo, cwd=cwd, env=env, docker_command=docker_command
@@ -2699,6 +3090,14 @@ def cleanup_owned_containers(
     owned = owned_container_ids(inventory, boundary)
     initial_count = len(owned)
     attempt_errors: list[str] = []
+    mount_errors: list[str] = []
+    if observed_volumes is not None:
+        # Record act's job volumes while the containers that prove their
+        # ownership still exist; removal below would orphan the names.
+        try:
+            observed_volumes.extend(owned_volume_mounts(inventory, owned))
+        except Refusal as exc:
+            mount_errors.append(str(exc))
     running = running_container_ids(inventory, owned)
     if running:
         try:
@@ -2741,7 +3140,7 @@ def cleanup_owned_containers(
         except Refusal as exc:
             attempt_errors.append(str(exc))
 
-    verification_errors: list[str] = []
+    verification_errors: list[str] = list(mount_errors)
     try:
         final_inventory = docker_container_inventory(
             use_sudo=use_sudo,
@@ -2771,6 +3170,7 @@ def cleanup_docker_boundary(
     docker_command: Callable[..., subprocess.CompletedProcess[str]] = run_docker,
 ) -> None:
     errors: list[str] = []
+    observed_volumes: list[str] = []
     try:
         cleanup_owned_containers(
             boundary,
@@ -2778,6 +3178,7 @@ def cleanup_docker_boundary(
             cwd=cwd,
             env=env,
             docker_command=docker_command,
+            observed_volumes=observed_volumes,
         )
     except Refusal as exc:
         errors.append(str(exc))
@@ -2839,6 +3240,17 @@ def cleanup_docker_boundary(
     try:
         cleanup_act_toolcache_volume(
             boundary,
+            use_sudo=use_sudo,
+            cwd=cwd,
+            env=env,
+            docker_command=docker_command,
+        )
+    except Refusal as exc:
+        errors.append(str(exc))
+    try:
+        cleanup_act_job_volumes(
+            boundary,
+            observed_volumes,
             use_sudo=use_sudo,
             cwd=cwd,
             env=env,
@@ -2945,6 +3357,8 @@ def build_act_command(
             "Docker boundary tool cache was never deterministically seeded; "
             "concurrent sibling jobs must not race the daemon copy-up"
         )
+    if not boundary.job_volume_prefixes:
+        raise Refusal("Docker boundary leases no act job-volume scope")
     try:
         gateway = ipaddress.ip_address(boundary.gateway or "")
     except ValueError as exc:
@@ -3433,10 +3847,18 @@ def execute_act_boundary(
     use_sudo: bool = False,
     query: Callable[[int, str], PullRequest] = query_pull_request,
     run_process: Callable[..., subprocess.CompletedProcess[object]] = run_act_process,
+    pre_spawn: Callable[[], None] | None = None,
 ) -> int:
-    """Bind one act process between fresh remote-state and byte checks."""
+    """Bind one act process between fresh remote-state and byte checks.
+
+    ``pre_spawn`` runs after every other pre-spawn check and immediately
+    before the process starts; the lease gate lives there so no round trip
+    separates its inventory from act's first mount.
+    """
     require_live_pull_request(pr, repository, query)
     integrity_check()
+    if pre_spawn is not None:
+        pre_spawn()
     try:
         result = run_process(
             command,
@@ -3471,6 +3893,7 @@ def run_validation(
         )
         validate_checkout(pr, layout.checkout, workflows, label="materialized checkout")
         validate_workflow_sandbox(layout.checkout, workflows)
+        job_volume_scope = workflow_job_volume_scope(layout.checkout, workflows)
         initialize_required_submodules(layout.checkout, layout.home)
         validate_checkout(pr, layout.checkout, workflows, label="materialized checkout")
         require_live_pull_request(pr, repository)
@@ -3486,7 +3909,7 @@ def run_validation(
             if dry_run
             else require_runtime(act_binary, use_sudo, layout, env)
         )
-        planned_boundary = new_docker_boundary()
+        planned_boundary = new_docker_boundary(job_volume_scope.values())
         print(f"act-ci: PR #{pr.number} {event['action']} exact head {pr.head_sha}")
         print(
             f"act-ci: base {run.validation_base} (live {pr.base_ref} tip; "
@@ -3505,6 +3928,11 @@ def run_validation(
 
         def execute_workflows(boundary: DockerBoundary) -> int:
             for workflow in workflows:
+                if job_volume_scope[workflow] not in boundary.job_volume_prefixes:
+                    raise Refusal(
+                        f"Docker boundary does not lease the act job volumes "
+                        f"of {workflow}"
+                    )
                 inspect_docker_boundary(
                     boundary,
                     use_sudo=use_sudo,
@@ -3522,6 +3950,14 @@ def run_validation(
                     f"act-ci: running {workflow} ({WORKFLOWS[workflow]})",
                     flush=True,
                 )
+
+                def lease_gate() -> None:
+                    """The acquisition gate ran before a seed that can take
+                    minutes; prove the lease is still empty at the spawn."""
+                    require_act_job_volumes_absent(
+                        boundary, use_sudo=use_sudo, cwd=layout.invocation, env=env
+                    )
+
                 result = execute_act_boundary(
                     command,
                     pr=pr,
@@ -3530,16 +3966,29 @@ def run_validation(
                     env=env,
                     integrity_check=integrity_check,
                     use_sudo=use_sudo,
+                    pre_spawn=lease_gate,
                 )
+                observed_volumes: list[str] = []
                 leftovers = cleanup_owned_containers(
                     boundary,
                     use_sudo=use_sudo,
                     cwd=layout.invocation,
                     env=env,
+                    observed_volumes=observed_volumes,
                 )
-                if leftovers:
+                # Reconcile before refusing: drift observed on a leftover
+                # container is reported here or never.
+                leftover_volumes = cleanup_act_job_volumes(
+                    boundary,
+                    observed_volumes,
+                    use_sudo=use_sudo,
+                    cwd=layout.invocation,
+                    env=env,
+                )
+                if leftovers or leftover_volumes:
                     raise Refusal(
-                        f"act left {leftovers} owned container(s) after {workflow}; "
+                        f"act left {leftovers} owned container(s) and "
+                        f"{len(leftover_volumes)} job volume(s) after {workflow}; "
                         "the runner removed them and refuses the run"
                     )
                 if result != 0:
@@ -3726,7 +4175,16 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
     def materialize_for_transcript(
         _run: ValidatedRun, layout: RunLayout
     ) -> pathlib.Path:
-        layout.checkout.mkdir(parents=True, exist_ok=True)
+        # The real job-volume lease reads the declared workflow name from
+        # this checkout, so materialize the selected workflow's header.
+        for alias in ("docs", "elaborate"):
+            transcript_workflow = layout.checkout / WORKFLOWS[alias]
+            transcript_workflow.parent.mkdir(parents=True, exist_ok=True)
+            transcript_workflow.write_text(
+                f"name: {alias}\non: pull_request\njobs:\n  check:\n"
+                "    runs-on: ubuntu-latest\n    steps:\n      - run: true\n",
+                encoding="utf-8",
+            )
         return layout.checkout
 
     @contextlib.contextmanager
@@ -3781,6 +4239,188 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
         and expected_base_line in transcript.getvalue().splitlines()
         and len(dry_boundaries) == 1
         and "act-ci: docs:" in transcript.getvalue(),
+    )
+    check(
+        "the normal validation path leases the selected workflow's act job volumes",
+        len(dry_boundaries) == 1
+        and dry_boundaries[0].job_volume_prefixes == ("act-docs-",),
+    )
+
+    def workflow_control_fakes(
+        log: list[tuple[str, ...]],
+        boundaries: list[DockerBoundary],
+        *,
+        leased_prefixes: tuple[str, ...] | None,
+        leftover_containers: int,
+        leftover_volumes: Sequence[str],
+    ) -> dict[str, object]:
+        """The fakes one run_validation control patches in: act, Docker, GitHub, gate."""
+        real_execute = execute_act_boundary
+
+        @contextlib.contextmanager
+        def leased_boundary(
+            planned: DockerBoundary, **_kwargs: object
+        ) -> Iterator[DockerBoundary]:
+            """Yield the planned boundary as acquired, optionally under another lease."""
+            active = replace(
+                planned,
+                network_id="a" * 64,
+                gateway="172.18.0.1",
+                toolcache_owned=True,
+                toolcache_seeded=True,
+                job_volume_prefixes=(
+                    planned.job_volume_prefixes
+                    if leased_prefixes is None
+                    else leased_prefixes
+                ),
+            )
+            boundaries.append(active)
+            yield active
+
+        def spawn(
+            command: Sequence[str], **_kwargs: object
+        ) -> subprocess.CompletedProcess[object]:
+            """Record the act spawn in place of a real process."""
+            workflow_file = command[command.index("--workflows") + 1]
+            log.append(("spawn", workflow_file.rsplit("/", 1)[-1]))
+            return subprocess.CompletedProcess(list(command), 0)
+
+        def execute(command: Sequence[str], **kwargs: object) -> int:
+            """The real spawn boundary with the spawn and the GitHub query faked."""
+            return real_execute(
+                command, run_process=spawn, query=lambda *_args: resolved.pr, **kwargs
+            )
+
+        def containers(
+            boundary: DockerBoundary,
+            *,
+            observed_volumes: list[str] | None = None,
+            **_kwargs: object,
+        ) -> int:
+            """Record container cleanup and hand one observed volume onward."""
+            log.append(("containers",))
+            if observed_volumes is not None:
+                observed_volumes.append(
+                    f"{boundary.job_volume_prefixes[0]}observed-" + "0" * 64
+                )
+            return leftover_containers
+
+        def volumes(
+            _boundary: DockerBoundary, observed: Sequence[str], **_kwargs: object
+        ) -> list[str]:
+            """Record volume reconciliation with what it was handed."""
+            log.append(("volumes", *observed))
+            return list(leftover_volumes)
+
+        return {
+            "materialize_remote_head": materialize_for_transcript,
+            "validate_checkout": lambda *_args, **_kwargs: None,
+            "validate_workflow_sandbox": lambda *_args, **_kwargs: None,
+            "initialize_required_submodules": lambda *_args, **_kwargs: None,
+            "require_live_pull_request": lambda *_args, **_kwargs: None,
+            "require_runtime": lambda *_args, **_kwargs: ["act"],
+            "inspect_docker_boundary": lambda *_args, **_kwargs: None,
+            "temporary_docker_boundary": leased_boundary,
+            "allocate_tcp_port": lambda: 43210,
+            "require_act_job_volumes_absent": lambda *_args, **_kwargs: log.append(
+                ("gate",)
+            ),
+            "execute_act_boundary": execute,
+            "cleanup_owned_containers": containers,
+            "cleanup_act_job_volumes": volumes,
+        }
+
+    def run_workflow_control(
+        *,
+        leftover_volumes: Sequence[str],
+        leftover_containers: int = 0,
+        leased_prefixes: tuple[str, ...] | None = None,
+    ) -> tuple[int | None, str, str, list[tuple[str, ...]], tuple[str, ...]]:
+        """Drive execute_workflows through the real spawn boundary.
+
+        Every faked call lands in one ordered log so the gate-before-spawn and
+        containers-before-volumes orders are measured, not assumed.
+        """
+        log: list[tuple[str, ...]] = []
+        boundaries: list[DockerBoundary] = []
+        output = io.StringIO()
+        message = ""
+        rc: int | None = None
+        with mock.patch.multiple(
+            sys.modules[__name__],
+            **workflow_control_fakes(
+                log,
+                boundaries,
+                leased_prefixes=leased_prefixes,
+                leftover_containers=leftover_containers,
+                leftover_volumes=leftover_volumes,
+            ),
+        ):
+            try:
+                with contextlib.redirect_stdout(output):
+                    rc = run_validation(
+                        resolved,
+                        ("docs", "elaborate"),
+                        shipping_root,
+                        act_binary="/trusted/act",
+                        use_sudo=False,
+                        dry_run=False,
+                    )
+            except Refusal as exc:
+                message = str(exc)
+        leased = tuple(boundaries[0].job_volume_prefixes) if boundaries else ()
+        return rc, message, output.getvalue(), log, leased
+
+    clean_rc, clean_message, clean_output, clean_log, clean_leased = (
+        run_workflow_control(leftover_volumes=())
+    )
+    ordered = ["gate", "spawn", "containers", "volumes"]
+    check(
+        "a two-workflow run leases both, and gates, spawns, cleans containers, "
+        "then reconciles volumes, once per workflow in that order",
+        clean_rc == RC_OK
+        and clean_message == ""
+        and "act-ci: docs: PASS" in clean_output
+        and "act-ci: elaborate: PASS" in clean_output
+        and [entry[0] for entry in clean_log] == ordered + ordered
+        and clean_log[1] == ("spawn", "docs.yml")
+        and clean_log[5] == ("spawn", "elaborate.yml")
+        and clean_leased == ("act-docs-", "act-elaborate-"),
+    )
+    check(
+        "volumes observed on a workflow's containers reach that workflow's "
+        "reconciliation",
+        len(clean_log) == 8
+        and clean_log[3] == ("volumes", "act-docs-observed-" + "0" * 64)
+        and clean_log[7] == ("volumes", "act-docs-observed-" + "0" * 64),
+    )
+    leftover_rc, leftover_message, _leftover_output, _leftover_log, _l = (
+        run_workflow_control(leftover_volumes=("act-docs-check-" + "0" * 64,))
+    )
+    check(
+        "a job volume act left after a workflow refuses the run after removal",
+        leftover_rc is None
+        and "job volume(s) after docs" in leftover_message
+        and "refuses the run" in leftover_message,
+    )
+    stranded_rc, stranded_message, _stranded_output, stranded_log, _s = (
+        run_workflow_control(leftover_volumes=(), leftover_containers=1)
+    )
+    check(
+        "a leftover container refuses the run only after that workflow's "
+        "volumes were reconciled",
+        stranded_rc is None
+        and "owned container(s)" in stranded_message
+        and [entry[0] for entry in stranded_log] == ordered,
+    )
+    unleased_rc, unleased_message, _unleased_output, unleased_log, _u = (
+        run_workflow_control(leftover_volumes=(), leased_prefixes=("act-other-",))
+    )
+    check(
+        "a boundary that does not lease the selected workflow refuses before act",
+        unleased_rc is None
+        and "does not lease the act job volumes of docs" in unleased_message
+        and not any(entry[0] == "spawn" for entry in unleased_log),
     )
 
     #: [R1] on PR #336: the trusted-worktree comparison is the lane's
@@ -4022,6 +4662,7 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
                 gateway="172.30.0.1",
                 toolcache_owned=True,
                 toolcache_seeded=True,
+                job_volume_prefixes=("act-docs-", "act-rtl-full-"),
             )
             command = build_act_command(
                 ["act"], "rtl-full", first, allocated_port, selftest_boundary
@@ -4077,6 +4718,16 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
                 "artifact uploads receive a real isolated listener port",
                 command[command.index("--artifact-server-port") + 1]
                 == str(allocated_port),
+            )
+            refused(
+                "a boundary without a job-volume lease cannot build an act command",
+                lambda: build_act_command(
+                    ["act"],
+                    "rtl-full",
+                    first,
+                    allocated_port,
+                    replace(selftest_boundary, job_volume_prefixes=()),
+                ),
             )
             refused(
                 "artifact-server port zero is refused rather than advertised",
@@ -4389,6 +5040,8 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
             ) -> subprocess.CompletedProcess[str]:
                 call = tuple(arguments)
                 teardown_calls.append(call)
+                if call == ("volume", "ls", "--quiet"):
+                    return docker_completed(arguments)
                 if call[0:2] == ("container", "ls"):
                     return docker_completed(arguments)
                 if call == (
@@ -4444,6 +5097,8 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
                 ) -> subprocess.CompletedProcess[str]:
                     call = tuple(arguments)
                     calls.append(call)
+                    if call == ("volume", "ls", "--quiet"):
+                        return docker_completed(arguments)
                     if call == ("volume", "inspect", ACT_TOOLCACHE_VOLUME):
                         if state["volume"]:
                             return docker_completed(arguments, stdout=volume_metadata)
@@ -4602,6 +5257,8 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
                 ) -> subprocess.CompletedProcess[str]:
                     call = tuple(arguments)
                     calls.append(call)
+                    if call == ("volume", "ls", "--quiet"):
+                        return docker_completed(arguments)
                     if call == ("volume", "inspect", ACT_TOOLCACHE_VOLUME):
                         if state["volume"]:
                             return docker_completed(arguments, stdout=volume_metadata)
@@ -4966,20 +5623,78 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
                     try:
                         interrupt_handler(signal.SIGINT, None)
                     except TerminationRequest as exc:
+                        repeat_was_harmless = False
+                        try:
+                            interrupt_handler(signal.SIGTERM, None)
+                        except TerminationRequest:
+                            pass
+                        else:
+                            repeat_was_harmless = True
                         latched_interrupt = (
                             exc.signum == signal.SIGINT
+                            and repeat_was_harmless
+                            and isinstance(
+                                interrupt_handler, _CleanupSignalLatch
+                            )
+                            and interrupt_handler.signum == signal.SIGINT
                             and all(
-                                signal.getsignal(item) == signal.SIG_IGN
-                                for item in (
-                                    signal.SIGINT,
-                                    signal.SIGTERM,
-                                    signal.SIGHUP,
-                                )
+                                signal.getsignal(item) is interrupt_handler
+                                for item in CLEANUP_SIGNALS
                             )
                         )
             check(
-                "the first handled signal defers repeats until cleanup completes",
+                "the first handled signal latches and repeats stay harmless",
                 latched_interrupt,
+            )
+            handler_api_calls: list[str] = []
+            handler_race_rc: int | None = None
+            handler_race_error = ""
+            handler_race_stderr = io.StringIO()
+            original_pthread_sigmask = signal.pthread_sigmask
+            original_signal = signal.signal
+
+            def fail_handler_mask(
+                *_args: object, **_kwargs: object
+            ) -> None:
+                """Injected pthread_sigmask failure: any mask call inside the handler raises."""
+                handler_api_calls.append("pthread_sigmask")
+                raise OSError("Signal 2 ignored due to race condition")
+
+            def fail_handler_disposition(
+                *_args: object, **_kwargs: object
+            ) -> None:
+                """Injected signal.signal failure: any disposition call inside the handler raises."""
+                handler_api_calls.append("signal")
+                raise OSError("signal disposition changed during delivery")
+
+            def adversarial_sigint() -> int:
+                """Deliver one real SIGINT while the mask and disposition APIs are made to fail."""
+                setattr(signal, "pthread_sigmask", fail_handler_mask)
+                setattr(signal, "signal", fail_handler_disposition)
+                try:
+                    signal.raise_signal(signal.SIGINT)
+                finally:
+                    setattr(signal, "signal", original_signal)
+                    setattr(signal, "pthread_sigmask", original_pthread_sigmask)
+                return RC_OK
+
+            try:
+                with contextlib.redirect_stderr(handler_race_stderr):
+                    handler_race_rc = run_with_cleanup_signals(
+                        adversarial_sigint
+                    )
+            except OSError as exc:
+                handler_race_error = str(exc)
+            finally:
+                setattr(signal, "signal", original_signal)
+                setattr(signal, "pthread_sigmask", original_pthread_sigmask)
+            check(
+                "SIGINT handler avoids the Python signal-mask race",
+                handler_race_rc == 128 + signal.SIGINT
+                and not handler_race_error
+                and not handler_api_calls
+                and handler_race_stderr.getvalue()
+                == "act-ci: interrupted by SIGINT after cleanup\n",
             )
             deferred_interrupt = False
             with cleanup_termination_signals():
@@ -5301,6 +6016,756 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
         "an owned container on a different tool-cache volume is refused",
         lambda: verify_runner_toolcache_mounts(
             invalid_mount_inventory, selftest_boundary, require_any=True
+        ),
+    )
+
+    live_job_volume = (
+        "act-interrupt-selftest-sleep-"
+        "e6269f0c21890b2977d8be082bc36ff62700a3ce80ad05652f9e186d237d234b"
+    )
+    check(
+        "the act job-volume name mirror reproduces a live act 0.2.89 volume name",
+        act_container_name("act", "interrupt-selftest/sleep") == live_job_volume,
+    )
+    interrupt_scope = new_docker_boundary(
+        (act_job_volume_prefix("interrupt-selftest"),)
+    )
+    check(
+        "job workspace and environment volumes fall inside their workflow lease",
+        interrupt_scope.job_volume_prefixes == ("act-interrupt-selftest-",)
+        and is_leased_act_job_volume(interrupt_scope, live_job_volume)
+        and is_leased_act_job_volume(interrupt_scope, f"{live_job_volume}-env"),
+    )
+    check(
+        "the tool cache, foreign act jobs, and near-miss names stay unleased",
+        not is_leased_act_job_volume(interrupt_scope, ACT_TOOLCACHE_VOLUME)
+        and not is_leased_act_job_volume(
+            interrupt_scope, act_container_name("act", "interrupt-rival/sleep")
+        )
+        and not is_leased_act_job_volume(
+            interrupt_scope, act_container_name("act", "interrupt-selftests/sleep")
+        )
+        and not is_leased_act_job_volume(interrupt_scope, live_job_volume[:-1])
+        and not is_leased_act_job_volume(interrupt_scope, f"{live_job_volume}-envx"),
+    )
+    check(
+        "workflow names sanitize the way act builds container names",
+        act_job_volume_prefix("rtl full/2") == "act-rtl-full-2-"
+        and act_job_volume_prefix("-x") == "act-x-",
+    )
+    for bad_prefix in ("act-docs", "docs-", "act--docs-", "act-docs--", ""):
+        refused(
+            f"malformed job-volume lease prefix {bad_prefix!r} is refused",
+            lambda bad=bad_prefix: new_docker_boundary((bad,)),
+        )
+    refused(
+        "a workflow without a name cannot lease act job volumes",
+        lambda: act_job_volume_prefix(None),
+    )
+    refused(
+        "a blank workflow name cannot lease act job volumes",
+        lambda: act_job_volume_prefix("  "),
+    )
+
+    gate_calls: list[tuple[str, ...]] = []
+
+    def planted_job_volume_daemon(
+        arguments: Sequence[str], **_kwargs: object
+    ) -> subprocess.CompletedProcess[str]:
+        """Fake daemon whose inventory already holds in-scope act job volumes."""
+        call = tuple(arguments)
+        gate_calls.append(call)
+        if call == ("volume", "ls", "--quiet"):
+            return docker_completed(
+                arguments,
+                stdout=f"{live_job_volume}\n{live_job_volume}-env\nunrelated\n",
+            )
+        # Any other call means acquisition mutated before the gate; answer
+        # with a failure so the arm grades red instead of crashing.
+        return docker_completed(
+            arguments, 1, stderr=f"unexpected job-volume gate call: {call}"
+        )
+
+    gate_message = ""
+    try:
+        create_docker_boundary(
+            interrupt_scope,
+            use_sudo=False,
+            cwd=pathlib.Path.cwd(),
+            env={},
+            docker_command=planted_job_volume_daemon,
+        )
+    except Refusal as exc:
+        gate_message = str(exc)
+    check(
+        "a pre-existing in-scope act job volume refuses acquisition before any mutation",
+        live_job_volume in gate_message
+        and f"{live_job_volume}-env" in gate_message
+        and "already exist" in gate_message
+        and gate_calls == [("volume", "ls", "--quiet")],
+    )
+
+    def foreign_job_volume_daemon(
+        arguments: Sequence[str], **_kwargs: object
+    ) -> subprocess.CompletedProcess[str]:
+        """Fake daemon holding only volumes outside the lease."""
+        call = tuple(arguments)
+        if call == ("volume", "ls", "--quiet"):
+            return docker_completed(
+                arguments,
+                stdout=(
+                    f"{act_container_name('act', 'interrupt-rival/sleep')}\n"
+                    f"{ACT_TOOLCACHE_VOLUME}\n"
+                ),
+            )
+        raise AssertionError(f"unexpected foreign job-volume call: {call}")
+
+    require_act_job_volumes_absent(
+        interrupt_scope,
+        use_sudo=False,
+        cwd=pathlib.Path.cwd(),
+        env={},
+        docker_command=foreign_job_volume_daemon,
+    )
+    check("act job volumes outside the lease do not block acquisition", True)
+    refused(
+        "a boundary without a job-volume lease cannot pass the acquisition gate",
+        lambda: require_act_job_volumes_absent(
+            replace(interrupt_scope, job_volume_prefixes=()),
+            use_sudo=False,
+            cwd=pathlib.Path.cwd(),
+            env={},
+            docker_command=foreign_job_volume_daemon,
+        ),
+    )
+    for lone_name in (live_job_volume, f"{live_job_volume}-env"):
+        refused(
+            f"a lone in-scope twin {lone_name[-8:]} refuses acquisition",
+            lambda lone=lone_name: require_act_job_volumes_absent(
+                interrupt_scope,
+                use_sudo=False,
+                cwd=pathlib.Path.cwd(),
+                env={},
+                docker_command=lambda arguments, **_kwargs: docker_completed(
+                    arguments, stdout=f"{lone}\n"
+                ),
+            ),
+        )
+    corpus = ("a--b", "-x", "x-", "rtl full/2", "interrupt-selftest", "a.b_c", "A/B")
+    check(
+        "the lease prefix is what act's own name builder produces for every "
+        "leasable name",
+        all(
+            act_container_name("act", f"{name}/job").startswith(
+                act_job_volume_prefix(name)
+            )
+            for name in corpus
+        ),
+    )
+    refused(
+        "a name whose separators act keeps doubled is unleasable",
+        lambda: act_job_volume_prefix("a   b"),
+    )
+    for null_literal in ("null", "NULL", "~"):
+        refused(
+            f"the YAML null literal {null_literal!r} cannot lease act job volumes",
+            lambda literal=null_literal: act_job_volume_prefix(literal),
+        )
+
+    def volume_record_with(
+        returncode: int, stdout: str = "", stderr: str = ""
+    ) -> Mapping[str, object] | None:
+        """docker_volume_record against one canned inspect reply."""
+        return docker_volume_record(
+            live_job_volume,
+            use_sudo=False,
+            cwd=pathlib.Path.cwd(),
+            env={},
+            docker_command=lambda arguments, **_kwargs: docker_completed(
+                arguments, returncode, stdout=stdout, stderr=stderr
+            ),
+        )
+
+    check(
+        "a volume record is None only when Docker names the volume as missing",
+        volume_record_with(
+            1, stderr=f"Error response from daemon: get {live_job_volume}: no such volume"
+        )
+        is None
+        and volume_record_with(0, stdout=json.dumps([{"Name": live_job_volume}]))
+        == {"Name": live_job_volume},
+    )
+    refused(
+        "a volume record for another name is refused",
+        lambda: volume_record_with(0, stdout=json.dumps([{"Name": "other"}])),
+    )
+    refused(
+        "a malformed volume record is refused",
+        lambda: volume_record_with(0, stdout="not json"),
+    )
+    refused(
+        "a volume inspection failing for another reason is refused",
+        lambda: volume_record_with(1, stderr="permission denied"),
+    )
+    refused(
+        "a malformed volume inventory refuses acquisition",
+        lambda: require_act_job_volumes_absent(
+            interrupt_scope,
+            use_sudo=False,
+            cwd=pathlib.Path.cwd(),
+            env={},
+            docker_command=lambda arguments, **_kwargs: docker_completed(
+                arguments, stdout="bad name\n"
+            ),
+        ),
+    )
+
+    rival_job_volume = act_container_name("act", "interrupt-rival/sleep")
+    orphan_job_volume = act_container_name("act", "interrupt-selftest/orphan")
+    embedded_rival_volume = f"act-rival-{live_job_volume}"
+    cased_rival_volume = "act-Interrupt-Selftest-sleep-" + live_job_volume[-64:]
+    bystander_id = "9" * 63 + "1"
+    bystander_volume = "tenant-data"
+    residents = {
+        rival_job_volume,
+        embedded_rival_volume,
+        cased_rival_volume,
+        bystander_volume,
+    }
+    bystander = {
+        "Id": bystander_id,
+        "Name": "/tenant",
+        "Config": {"Labels": {}},
+        "HostConfig": {"NetworkMode": "bridge"},
+        "NetworkSettings": {"Networks": {"bridge": {}}},
+        "State": {"Running": False},
+        "Mounts": [
+            {
+                "Type": "volume",
+                "Name": bystander_volume,
+                "Destination": "/data",
+                "RW": True,
+            }
+        ],
+    }
+    check(
+        "a lease never matches a name that merely contains or re-cases its prefix",
+        not is_leased_act_job_volume(interrupt_scope, embedded_rival_volume)
+        and not is_leased_act_job_volume(interrupt_scope, cased_rival_volume),
+    )
+    scoped_boundary = replace(
+        selftest_boundary, job_volume_prefixes=("act-interrupt-selftest-",)
+    )
+
+    @dataclass(frozen=True)
+    class JobVolumeFaults:
+        """Failures the fake daemon injects into one job-volume cleanup."""
+
+        in_use: frozenset[str] = frozenset()
+        immortal: frozenset[str] = frozenset()
+        probe_errors: frozenset[str] = frozenset()
+        ghosts: frozenset[str] = frozenset()
+        inventory_failures: frozenset[int] = frozenset()
+
+    def job_volume_daemon(
+        state: dict[str, object],
+        calls: list[tuple[str, ...]],
+        *,
+        container: Mapping[str, object],
+        faults: JobVolumeFaults,
+    ) -> Callable[..., subprocess.CompletedProcess[str]]:
+        """A fake daemon holding containers, a network, the tool cache, and volumes."""
+        volumes = state["volumes"]
+        containers = state["containers"]
+        assert isinstance(volumes, set) and isinstance(containers, set)
+        inventories = [0]
+        missing = "Error response from daemon: get {name}: no such volume"
+
+        def volume_reply(
+            arguments: Sequence[str], call: tuple[str, ...]
+        ) -> subprocess.CompletedProcess[str] | None:
+            """Answer the volume subcommands; None means the call is not one."""
+            if call == ("volume", "inspect", ACT_TOOLCACHE_VOLUME):
+                if state["toolcache"]:
+                    return docker_completed(arguments, stdout=volume_metadata)
+                return docker_completed(arguments, 1, stderr=missing_volume)
+            if call == ("volume", "rm", ACT_TOOLCACHE_VOLUME):
+                state["toolcache"] = False
+                return docker_completed(arguments)
+            if call == ("volume", "ls", "--quiet"):
+                inventories[0] += 1
+                if inventories[0] in faults.inventory_failures:
+                    return docker_completed(
+                        arguments, 1, stderr="injected volume inventory failure"
+                    )
+                listed = sorted(volumes | faults.ghosts)
+                return docker_completed(
+                    arguments, stdout="".join(f"{v}\n" for v in listed)
+                )
+            if call[0:2] == ("volume", "rm"):
+                name = call[2]
+                if name in faults.in_use:
+                    holder = "f" * 64
+                    detail = f"Error response from daemon: remove {name}: volume is in use - [{holder}]"
+                    return docker_completed(arguments, 1, stderr=detail)
+                if name not in volumes:
+                    return docker_completed(
+                        arguments, 1, stderr=missing.format(name=name)
+                    )
+                if name not in faults.immortal:
+                    volumes.discard(name)
+                return docker_completed(arguments)
+            if call[0:2] == ("volume", "inspect"):
+                name = call[2]
+                if name in faults.probe_errors:
+                    return docker_completed(
+                        arguments, 1, stderr="permission denied while inspecting"
+                    )
+                if name in volumes:
+                    record = {"Name": name, "Driver": "local", "Scope": "local", "Labels": {}}
+                    return docker_completed(arguments, stdout=json.dumps([record]))
+                return docker_completed(
+                    arguments, 1, stderr=missing.format(name=name)
+                )
+            return None
+
+        def daemon(
+            arguments: Sequence[str], **_kwargs: object
+        ) -> subprocess.CompletedProcess[str]:
+            """Dispatch one Docker CLI call against the fake state."""
+            call = tuple(arguments)
+            calls.append(call)
+            if call[0:2] == ("container", "ls"):
+                return docker_completed(
+                    arguments, stdout="".join(f"{c}\n" for c in sorted(containers))
+                )
+            if call[0:2] == ("container", "inspect"):
+                if call[2] in containers:
+                    records = state.get("records")
+                    record = records.get(call[2], container) if isinstance(records, dict) else container
+                    return docker_completed(arguments, stdout=json.dumps([record]))
+                return docker_completed(
+                    arguments, 1, stderr=f"Error: No such container: {call[2]}"
+                )
+            if call[0:2] in (("container", "stop"), ("container", "rm")):
+                for target in call[2:]:
+                    containers.discard(target)
+                return docker_completed(arguments)
+            if call == ("network", "inspect", str(selftest_boundary.network_id)):
+                if state["network"]:
+                    return docker_completed(arguments, stdout=network_metadata)
+                return docker_completed(arguments, 1, stderr=missing_network)
+            if call == ("network", "rm", str(selftest_boundary.network_id)):
+                state["network"] = False
+                return docker_completed(arguments)
+            reply = volume_reply(arguments, call)
+            if reply is not None:
+                return reply
+            raise AssertionError(f"unexpected job-volume cleanup call: {call}")
+
+        return daemon
+
+    def run_job_volume_cleanup_control(
+        *,
+        mounted: tuple[str, ...] = (live_job_volume, f"{live_job_volume}-env"),
+        faults: JobVolumeFaults | None = None,
+    ) -> tuple[set[str], list[tuple[str, ...]], str]:
+        """Run the boundary cleanup against the fake daemon; return its residue."""
+        state: dict[str, object] = {
+            "volumes": {*mounted, orphan_job_volume, *residents},
+            "containers": {owned_id, bystander_id},
+            "records": {bystander_id: bystander},
+            "network": True,
+            "toolcache": True,
+        }
+        calls: list[tuple[str, ...]] = []
+        container = {
+            **inventory[0],
+            "Mounts": [
+                *inventory[0]["Mounts"],
+                {"Type": "bind", "Source": "/tmp/bound", "Destination": "/bound"},
+                *(
+                    {
+                        "Type": "volume",
+                        "Name": name,
+                        "Destination": f"/mnt/{index}",
+                        "RW": True,
+                    }
+                    for index, name in enumerate(mounted)
+                ),
+            ],
+        }
+        message = ""
+        try:
+            cleanup_docker_boundary(
+                scoped_boundary,
+                use_sudo=False,
+                cwd=pathlib.Path.cwd(),
+                env={},
+                docker_command=job_volume_daemon(
+                    state,
+                    calls,
+                    container=container,
+                    faults=faults or JobVolumeFaults(),
+                ),
+            )
+        except Refusal as exc:
+            message = str(exc)
+        volumes = state["volumes"]
+        assert isinstance(volumes, set)
+        return volumes, calls, message
+
+    clean_volumes, clean_calls, clean_message = run_job_volume_cleanup_control()
+    check(
+        "interrupt cleanup removes the observed job volumes and an in-scope orphan "
+        "while rival, re-cased, embedding, and bystander volumes survive",
+        clean_message == ""
+        and clean_volumes == residents
+        and not any(
+            call[0:2] == ("volume", "rm") and call[2] in residents
+            for call in clean_calls
+        ),
+    )
+    def observed_mounts(*records: Mapping[str, object]) -> object:
+        """owned_volume_mounts over records, graded rather than raised."""
+        try:
+            return owned_volume_mounts(list(records), {owned_id})
+        except Refusal as exc:
+            return f"refused: {exc}"
+
+    bound_owned = {
+        **inventory[0],
+        "Mounts": [
+            {"Type": "bind", "Source": "/tmp/b", "Destination": "/b"},
+            {"Type": "volume", "Name": live_job_volume, "Destination": "/w", "RW": True},
+        ],
+    }
+    check(
+        "a bystander container and its volume are neither observed nor removed, "
+        "and a bind mount is not a volume",
+        not any(
+            call[0:2] == ("container", "rm") and bystander_id in call
+            for call in clean_calls
+        )
+        and observed_mounts(inventory[0], bystander) == []
+        and observed_mounts(bound_owned) == [live_job_volume],
+    )
+    with mock.patch.object(
+        sys.modules[__name__],
+        "remove_act_job_volume",
+        wraps=remove_act_job_volume,
+    ) as removal_spy:
+        run_job_volume_cleanup_control()
+    check(
+        "reconciliation never overrides the removal's absence window",
+        removal_spy.call_count >= 1
+        and all(
+            call.kwargs.get("absence") is None for call in removal_spy.call_args_list
+        ),
+    )
+    check(
+        "the absence window is the daemon constant for the real CLI and zero for fakes",
+        absence_window_seconds(None, run_docker) == DOCKER_MUTATION_STABLE_SECONDS
+        and absence_window_seconds(None, docker_completed) == 0.0
+        and absence_window_seconds(AbsenceWindow(0.25), run_docker) == 0.25
+        and absence_window_seconds(AbsenceWindow(0), run_docker) == 0,
+    )
+    container_removals = [
+        index
+        for index, call in enumerate(clean_calls)
+        if call[0:2] == ("container", "rm")
+    ]
+    job_volume_removals = [
+        index
+        for index, call in enumerate(clean_calls)
+        if call[0:2] == ("volume", "rm") and call[2] != ACT_TOOLCACHE_VOLUME
+    ]
+    check(
+        "job-volume removal never forces and follows every container removal",
+        bool(container_removals)
+        and bool(job_volume_removals)
+        and max(container_removals) < min(job_volume_removals)
+        and not any(
+            any("force" in item for item in clean_calls[index])
+            for index in job_volume_removals
+        ),
+    )
+    held_volumes, _held_calls, held_message = run_job_volume_cleanup_control(
+        faults=JobVolumeFaults(in_use=frozenset({f"{live_job_volume}-env"}))
+    )
+    check(
+        "a job volume another container still holds is preserved and reported",
+        f"{live_job_volume}-env" in held_message
+        and "in use" in held_message
+        and f"{live_job_volume}-env" in held_volumes
+        and live_job_volume not in held_volumes,
+    )
+    immortal_volumes, _immortal_calls, immortal_message = (
+        run_job_volume_cleanup_control(
+            faults=JobVolumeFaults(immortal=frozenset({live_job_volume}))
+        )
+    )
+    check(
+        "a job volume surviving its removal is reported rather than certified absent",
+        "survived" in immortal_message and live_job_volume in immortal_volumes,
+    )
+    stray_job_volume = act_container_name("act", "interrupt-rival/stray")
+    foreign_stray_volume = "foreign-data"
+    stray_volumes, stray_calls, stray_message = run_job_volume_cleanup_control(
+        mounted=(live_job_volume, stray_job_volume, foreign_stray_volume)
+    )
+    check(
+        "a volume an owned container mounted outside the lease is preserved and "
+        "reported as lease drift, act-shaped or not",
+        "outside the leased" in stray_message
+        and stray_job_volume in stray_message
+        and foreign_stray_volume in stray_message
+        and {stray_job_volume, foreign_stray_volume} <= stray_volumes
+        and not any(
+            call[0:2] == ("volume", "rm")
+            and call[2] in (stray_job_volume, foreign_stray_volume)
+            for call in stray_calls
+        )
+        and live_job_volume not in stray_volumes
+        and rival_job_volume in stray_volumes,
+    )
+    anonymous_volume = "9" * 64
+    anonymous_volumes, anonymous_calls, anonymous_message = (
+        run_job_volume_cleanup_control(
+            mounted=(live_job_volume, f"{live_job_volume}-env", anonymous_volume)
+        )
+    )
+    check(
+        "an anonymous volume on an owned container is neither drift nor a target",
+        anonymous_message == ""
+        and anonymous_volumes == residents | {anonymous_volume}
+        and not any(
+            call[0:2] == ("volume", "rm") and call[2] == anonymous_volume
+            for call in anonymous_calls
+        ),
+    )
+    _probe_volumes, _probe_calls, probe_message = run_job_volume_cleanup_control(
+        faults=JobVolumeFaults(probe_errors=frozenset({live_job_volume}))
+    )
+    check(
+        "an absence probe that fails is reported as unverifiable, never as absent",
+        "cannot verify act job volume" in probe_message
+        and live_job_volume in probe_message,
+    )
+    ghost_job_volume = act_container_name("act", "interrupt-selftest/ghost")
+    _ghost_volumes, _ghost_calls, ghost_message = run_job_volume_cleanup_control(
+        faults=JobVolumeFaults(ghosts=frozenset({ghost_job_volume}))
+    )
+    check(
+        "an in-scope volume the final inventory still lists is a reported survivor",
+        "survived cleanup" in ghost_message and ghost_job_volume in ghost_message,
+    )
+    _first_volumes, _first_calls, first_inventory_message = (
+        run_job_volume_cleanup_control(
+            faults=JobVolumeFaults(inventory_failures=frozenset({1}))
+        )
+    )
+    check(
+        "a failed volume inventory before reconciliation is reported, not skipped",
+        "Docker volume inventory failed" in first_inventory_message,
+    )
+    _last_volumes, _last_calls, last_inventory_message = (
+        run_job_volume_cleanup_control(
+            faults=JobVolumeFaults(inventory_failures=frozenset({2}))
+        )
+    )
+    check(
+        "a failed volume inventory after reconciliation is reported, not certified",
+        "Docker volume inventory failed" in last_inventory_message,
+    )
+
+    reappearing_clock = [0.0]
+    reappearing_state = {"present": False, "probes": 0}
+
+    def reappearing_daemon(
+        arguments: Sequence[str], **_kwargs: object
+    ) -> subprocess.CompletedProcess[str]:
+        """Fake daemon whose removed volume reappears once the clock advances."""
+        call = tuple(arguments)
+        if call == ("volume", "rm", live_job_volume):
+            return docker_completed(arguments)
+        if call == ("volume", "inspect", live_job_volume):
+            reappearing_state["probes"] += 1
+            if reappearing_state["present"]:
+                return docker_completed(
+                    arguments, stdout=json.dumps([{"Name": live_job_volume}])
+                )
+            return docker_completed(
+                arguments,
+                1,
+                stderr=f"Error response from daemon: get {live_job_volume}: "
+                "no such volume",
+            )
+        return docker_completed(
+            arguments, 1, stderr=f"unexpected reappearing daemon call: {call}"
+        )
+
+    def reappear(duration: float) -> None:
+        """Advance the fake clock and bring the volume back."""
+        reappearing_clock[0] += duration
+        reappearing_state["present"] = True
+
+    refused(
+        "a job volume reappearing inside the absence window is a reported survivor",
+        lambda: remove_act_job_volume(
+            live_job_volume,
+            use_sudo=False,
+            cwd=pathlib.Path.cwd(),
+            env={},
+            docker_command=reappearing_daemon,
+            absence=AbsenceWindow(0.1, lambda: reappearing_clock[0], reappear),
+        ),
+    )
+    check(
+        "the absence window probed more than once before the volume reappeared",
+        reappearing_state["probes"] >= 2,
+    )
+    reappearing_state.update(present=False, probes=0)
+    reappearing_clock[0] = 0.0
+
+    def stay_absent(duration: float) -> None:
+        """Advance the fake clock with the volume still absent."""
+        reappearing_clock[0] += duration
+
+    certified: object = None
+    try:
+        certified = remove_act_job_volume(
+            live_job_volume,
+            use_sudo=False,
+            cwd=pathlib.Path.cwd(),
+            env={},
+            docker_command=reappearing_daemon,
+            absence=AbsenceWindow(0.1, lambda: reappearing_clock[0], stay_absent),
+        )
+    except Refusal as exc:
+        certified = f"refused: {exc}"
+    check(
+        "a job volume absent for the whole window is certified removed",
+        certified is True and reappearing_state["probes"] >= 2,
+    )
+
+    def malformed_mount_control(mounts: object) -> str:
+        """Cleanup message for an owned container whose Mounts metadata is ``mounts``."""
+        state: dict[str, object] = {
+            "volumes": set(),
+            "containers": {owned_id},
+            "network": True,
+            "toolcache": True,
+        }
+        calls: list[tuple[str, ...]] = []
+        observed: list[str] = []
+        try:
+            cleanup_owned_containers(
+                scoped_boundary,
+                use_sudo=False,
+                cwd=pathlib.Path.cwd(),
+                env={},
+                docker_command=job_volume_daemon(
+                    state,
+                    calls,
+                    container={**inventory[0], "Mounts": mounts},
+                    faults=JobVolumeFaults(),
+                ),
+                observed_volumes=observed,
+            )
+        except Refusal as exc:
+            return str(exc)
+        return ""
+
+    check(
+        "malformed owned-container mount metadata fails container cleanup",
+        "malformed mount metadata" in malformed_mount_control(None)
+        and "malformed volume name"
+        in malformed_mount_control(
+            [{"Type": "volume", "Name": "bad name", "Destination": "/x", "RW": True}]
+        ),
+    )
+    check(
+        "the job-volume name pattern is act's: no underscore, at most 63 stem bytes",
+        not is_leased_act_job_volume(
+            interrupt_scope,
+            "act-interrupt-selftest-a_b-" + "0" * 64,
+        )
+        and is_leased_act_job_volume(
+            interrupt_scope,
+            "act-interrupt-selftest-" + "s" * 40 + "-" + "0" * 64,
+        )
+        and not is_leased_act_job_volume(
+            interrupt_scope,
+            "act-interrupt-selftest-" + "s" * 41 + "-" + "0" * 64,
+        ),
+    )
+    refused(
+        "a workflow name whose prefix act would trim is refused",
+        lambda: act_job_volume_prefix("x" * 60),
+    )
+    check(
+        "a missing-volume report must name the volume it is about",
+        not docker_reports_missing_volume(
+            subprocess.CompletedProcess(
+                [], 1, "", "Error response from daemon: get other: no such volume"
+            ),
+            live_job_volume,
+        )
+        and docker_reports_missing_volume(
+            subprocess.CompletedProcess(
+                [],
+                1,
+                "",
+                f"Error response from daemon: get {live_job_volume}: no such volume",
+            ),
+            live_job_volume,
+        ),
+    )
+    leftover_state: dict[str, object] = {
+        "volumes": {orphan_job_volume, rival_job_volume},
+        "containers": set(),
+        "network": True,
+        "toolcache": True,
+    }
+    leftover_calls: list[tuple[str, ...]] = []
+    leftover_removed: list[str] = []
+    try:
+        leftover_removed = cleanup_act_job_volumes(
+            scoped_boundary,
+            [act_container_name("act", "interrupt-selftest/gone")],
+            use_sudo=False,
+            cwd=pathlib.Path.cwd(),
+            env={},
+            docker_command=job_volume_daemon(
+                leftover_state,
+                leftover_calls,
+                container=inventory[0],
+                faults=JobVolumeFaults(),
+            ),
+        )
+    except Refusal as exc:
+        leftover_removed = [f"refused: {exc}"]
+    check(
+        "a job volume act left after a workflow is removed and reported as leftover; "
+        "an observed name the daemon no longer holds is not",
+        leftover_removed == [orphan_job_volume]
+        and leftover_state["volumes"] == {rival_job_volume},
+    )
+    refused(
+        "reconciliation without a lease scope is refused",
+        lambda: cleanup_act_job_volumes(
+            replace(scoped_boundary, job_volume_prefixes=()),
+            [],
+            use_sudo=False,
+            cwd=pathlib.Path.cwd(),
+            env={},
+            docker_command=job_volume_daemon(
+                {"volumes": set(), "containers": set(), "network": True, "toolcache": True},
+                [],
+                container=inventory[0],
+                faults=JobVolumeFaults(),
+            ),
         ),
     )
 
@@ -5870,7 +7335,7 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
         tree_helper = capture_probe_root / "noncooperative-tree.py"
         tree_helper.write_text(noncooperative_tree_program, encoding="utf-8")
         tree_helper.chmod(0o755)
-        for sent_signal in (signal.SIGTERM, signal.SIGHUP):
+        for sent_signal in CLEANUP_SIGNALS:
             tree_ready = capture_probe_root / f"tree-{sent_signal}.ready"
             check(
                 f"process-directed {signal.Signals(sent_signal).name} "
@@ -5947,7 +7412,7 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
             "--no-tags",
             "origin",
         ]
-        for sent_signal in (signal.SIGTERM, signal.SIGHUP):
+        for sent_signal in CLEANUP_SIGNALS:
             git_ready = capture_probe_root / f"git-{sent_signal}.ready"
             probe_env = {
                 **git_env,
@@ -6334,6 +7799,43 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
         finally:
             WORKFLOWS["docs"] = original_docs
 
+        (repo / "nameless.yml").write_text(
+            "on: push\njobs:\n  safe:\n    runs-on: ubuntu-latest\n"
+            "    steps:\n      - run: echo safe\n",
+            encoding="utf-8",
+        )
+        WORKFLOWS["docs"] = "nameless.yml"
+        try:
+            refused(
+                "a workflow without a declared name cannot lease act job volumes",
+                lambda: workflow_job_volume_scope(repo, ("docs",)),
+            )
+        finally:
+            WORKFLOWS["docs"] = original_docs
+        for filename, name in (("rtl-short.yml", "rtl"), ("rtl-long.yml", "rtl-fast")):
+            (repo / filename).write_text(
+                f"name: {name}\non: push\njobs:\n  safe:\n    runs-on: ubuntu-latest\n"
+                "    steps:\n      - run: echo safe\n",
+                encoding="utf-8",
+            )
+        original_elaborate = WORKFLOWS["elaborate"]
+        WORKFLOWS["docs"] = "rtl-short.yml"
+        WORKFLOWS["elaborate"] = "rtl-long.yml"
+        try:
+            refused(
+                "a workflow name that is a hyphen-prefix of another cannot share a lease",
+                lambda: workflow_job_volume_scope(repo, ("docs", "elaborate")),
+            )
+            check(
+                "either overlapping workflow alone still leases its own volumes",
+                workflow_job_volume_scope(repo, ("docs",)) == {"docs": "act-rtl-"}
+                and workflow_job_volume_scope(repo, ("elaborate",))
+                == {"elaborate": "act-rtl-fast-"},
+            )
+        finally:
+            WORKFLOWS["docs"] = original_docs
+            WORKFLOWS["elaborate"] = original_elaborate
+
         reader_root = repo / "workflow-reader"
         reader_root.mkdir()
         safe_workflow = reader_root / "safe.yml"
@@ -6371,13 +7873,41 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
         check(f"shipping workflows satisfy the sandbox policy ({exc})", False)
     else:
         check("shipping workflows satisfy the sandbox policy", True)
+    try:
+        shipping_scope = workflow_job_volume_scope(shipping_root, tuple(WORKFLOWS))
+    except Refusal as exc:
+        check(
+            f"shipping workflows lease act job volumes by declared name ({exc})",
+            False,
+        )
+    else:
+        check(
+            "shipping workflows lease act job volumes by declared name",
+            shipping_scope
+            == {
+                "docs": "act-docs-",
+                "elaborate": "act-elaborate-",
+                "rtl-fast": "act-rtl-fast-",
+                "rtl-full": "act-rtl-full-",
+            },
+        )
+        shipping_prefixes = sorted(shipping_scope.values())
+        check(
+            "no shipping workflow name is a hyphen-prefix of another, so a rival "
+            "workflow's volumes stay outside every lease",
+            not any(
+                longer.startswith(shorter)
+                for index, shorter in enumerate(shipping_prefixes)
+                for longer in shipping_prefixes[index + 1 :]
+            ),
+        )
 
     print("selftest:", "PASS" if failures == 0 else f"{failures} FAILURE(S)")
     return RC_OK if failures == 0 else RC_FAILED
 
 
 def interrupt_selftest(act_binary: str, use_sudo: bool) -> int:
-    """Prove tool-cache separation, then interrupt act and verify cleanup."""
+    """Prove tool-cache separation, then SIGINT act and verify cleanup."""
     probe_pr = PullRequest(
         number=1,
         state="OPEN",
@@ -6487,6 +8017,68 @@ def interrupt_selftest(act_binary: str, use_sudo: bool) -> int:
         validate_isolation_layout(layout)
         prefix = require_runtime(act_binary, use_sudo, layout, env)
 
+        # Two act-shaped volumes the runner did not create: one outside the
+        # sleeping job's lease must survive untouched, one inside it must
+        # refuse acquisition while surviving.
+        planted_token = secrets.token_hex(16)
+        planted_digest = hashlib.sha256(planted_token.encode("ascii")).hexdigest()
+        rival_volume = f"act-interrupt-rival-{planted_token}-{planted_digest}"
+        collision_volume = (
+            f"act-interrupt-selftest-planted-{planted_token}-{planted_digest}"
+        )
+        planted_volumes: list[str] = []
+        rival_preserved = False
+
+        def planted_selftest_volume(name: str) -> Mapping[str, object] | None:
+            """The planted volume's record, None when absent; a foreign owner refuses."""
+            volume = docker_volume_record(
+                name, use_sudo=use_sudo, cwd=layout.invocation, env=env
+            )
+            if volume is None:
+                return None
+            labels = volume.get("Labels")
+            if (
+                not isinstance(labels, dict)
+                or labels.get(DOCKER_OWNER_LABEL) != planted_token
+            ):
+                raise Refusal(f"planted volume {name} ownership changed")
+            return volume
+
+        def plant_selftest_volume(name: str) -> None:
+            """Create one act-shaped volume the runner did not create, labelled as planted."""
+            # Record intent first: a create the daemon accepts after a CLI
+            # timeout must still be reconciled by the final cleanup.
+            planted_volumes.append(name)
+            run_docker(
+                [
+                    "volume",
+                    "create",
+                    "--label",
+                    f"{DOCKER_OWNER_LABEL}={planted_token}",
+                    name,
+                ],
+                use_sudo=use_sudo,
+                cwd=layout.invocation,
+                env=env,
+                description=f"planted volume {name} creation",
+            )
+            if planted_selftest_volume(name) is None:
+                raise Refusal(f"planted volume {name} did not appear")
+
+        def remove_planted_selftest_volume(name: str) -> None:
+            """Remove a planted volume and prove its absence; already absent is fine."""
+            if planted_selftest_volume(name) is None:
+                return
+            run_docker(
+                ["volume", "rm", name],
+                use_sudo=use_sudo,
+                cwd=layout.invocation,
+                env=env,
+                description=f"planted volume {name} removal",
+            )
+            if planted_selftest_volume(name) is not None:
+                raise Refusal(f"planted volume {name} survived removal")
+
         cli_probe_token = secrets.token_hex(16)
         cli_probe_volume = f"milan-act-ci-cli-timeout-{cli_probe_token}"
         cli_probe_script = layout.temporary / "delayed-docker-cli.py"
@@ -6581,10 +8173,13 @@ def interrupt_selftest(act_binary: str, use_sudo: bool) -> int:
             WORKFLOWS[workflow] = relative_workflow
             WORKFLOWS[seed_workflow] = seed_path
             WORKFLOWS[probe_workflow] = probe_path
+            job_volume_scope = workflow_job_volume_scope(
+                layout.checkout, (workflow, seed_workflow, probe_workflow)
+            )
 
             def run_completed_live_probe(selected_workflow: str) -> None:
                 with temporary_docker_boundary(
-                    new_docker_boundary(),
+                    new_docker_boundary((job_volume_scope[selected_workflow],)),
                     use_sudo=use_sudo,
                     cwd=layout.invocation,
                     env=env,
@@ -6597,6 +8192,12 @@ def interrupt_selftest(act_binary: str, use_sudo: bool) -> int:
                         probe_boundary,
                     )
                     probe_command.append("--pull=false")
+                    require_act_job_volumes_absent(
+                        probe_boundary,
+                        use_sudo=use_sudo,
+                        cwd=layout.invocation,
+                        env=env,
+                    )
                     probe_result = run_act_process(
                         probe_command,
                         cwd=layout.invocation,
@@ -6618,12 +8219,47 @@ def interrupt_selftest(act_binary: str, use_sudo: bool) -> int:
                 use_sudo=use_sudo, cwd=layout.invocation, env=env
             )
 
-            planned = new_docker_boundary()
+            planned = new_docker_boundary((job_volume_scope[workflow],))
+            if (
+                not ACT_JOB_VOLUME_RE.fullmatch(rival_volume)
+                or is_leased_act_job_volume(planned, rival_volume)
+                or not is_leased_act_job_volume(planned, collision_volume)
+            ):
+                raise Refusal("interrupt self-test planted names are misclassified")
+            plant_selftest_volume(rival_volume)
+            plant_selftest_volume(collision_volume)
+            collision_message = ""
+            try:
+                with temporary_docker_boundary(
+                    new_docker_boundary((job_volume_scope[workflow],)),
+                    use_sudo=use_sudo,
+                    cwd=layout.invocation,
+                    env=env,
+                ):
+                    raise Refusal(
+                        "collision probe acquired a boundary despite a planted "
+                        "in-scope act job volume"
+                    )
+            except Refusal as exc:
+                collision_message = str(exc)
+            if (
+                collision_volume not in collision_message
+                or "already exist" not in collision_message
+            ):
+                raise Refusal(
+                    "collision probe did not refuse the planted in-scope "
+                    f"volume: {collision_message}"
+                )
+            for name in (rival_volume, collision_volume):
+                if planted_selftest_volume(name) is None:
+                    raise Refusal(f"collision refusal did not preserve {name}")
+            remove_planted_selftest_volume(collision_volume)
             monitor_cancel = threading.Event()
             frozen = threading.Event()
             privileged_child_seen = threading.Event()
             process_group_reaped = threading.Event()
             monitor_problems: list[str] = []
+            observed_job_volumes: list[str] = []
             monitor_threads: list[threading.Thread] = []
             monitor_completions: list[threading.Event] = []
             monitor_signal_lock = threading.Lock()
@@ -6685,6 +8321,25 @@ def interrupt_selftest(act_binary: str, use_sudo: bool) -> int:
                                             boundary,
                                             require_any=True,
                                         )
+                                        mounted = owned_volume_mounts(
+                                            inventory, selected
+                                        )
+                                        if (
+                                            len(mounted) != 2
+                                            or mounted[1] != f"{mounted[0]}-env"
+                                            or not all(
+                                                is_leased_act_job_volume(
+                                                    boundary, name
+                                                )
+                                                for name in mounted
+                                            )
+                                        ):
+                                            raise Refusal(
+                                                "act job mounted an unexpected "
+                                                "volume set: "
+                                                + ", ".join(mounted)
+                                            )
+                                        observed_job_volumes[:] = mounted
                                     except Refusal as exc:
                                         interrupt_main(str(exc), signal.SIGINT)
                                         return
@@ -6747,7 +8402,7 @@ def interrupt_selftest(act_binary: str, use_sudo: bool) -> int:
                                                     "privileged act child was not frozen"
                                                 )
                                             frozen.set()
-                                            os.kill(os.getpid(), signal.SIGTERM)
+                                            os.kill(os.getpid(), signal.SIGINT)
                                         except (OSError, Refusal) as exc:
                                             monitor_problems.append(
                                                 "cannot freeze live act process: "
@@ -6787,8 +8442,11 @@ def interrupt_selftest(act_binary: str, use_sudo: bool) -> int:
                         monitor, "interrupt monitor"
                     )
 
-                interrupted = False
+                interrupted_signal: int | None = None
                 try:
+                    require_act_job_volumes_absent(
+                        boundary, use_sudo=use_sudo, cwd=layout.invocation, env=env
+                    )
                     result = run_act_process(
                         command,
                         cwd=layout.invocation,
@@ -6802,7 +8460,11 @@ def interrupt_selftest(act_binary: str, use_sudo: bool) -> int:
                         and exc.signum not in (signal.SIGINT, signal.SIGTERM)
                     ):
                         raise
-                    interrupted = True
+                    interrupted_signal = (
+                        signal.SIGINT
+                        if isinstance(exc, KeyboardInterrupt)
+                        else exc.signum
+                    )
                 finally:
                     cancel_and_join_cleanup_threads(
                         monitor_cancel,
@@ -6816,10 +8478,14 @@ def interrupt_selftest(act_binary: str, use_sudo: bool) -> int:
                         ),
                         monitor_problems,
                     )
-                if not interrupted:
+                if interrupted_signal is None:
                     raise Refusal(
                         f"interrupt self-test act process exited {result.returncode} "
                         "before fault injection"
+                    )
+                if interrupted_signal != signal.SIGINT:
+                    raise Refusal(
+                        "interrupt self-test did not deliver the expected SIGINT"
                     )
                 if monitor_problems:
                     raise Refusal(monitor_problems[0])
@@ -6834,13 +8500,62 @@ def interrupt_selftest(act_binary: str, use_sudo: bool) -> int:
                 ):
                     raise Refusal("interrupt self-test left an act process-group member")
                 process_group_reaped.set()
+            if len(observed_job_volumes) != 2:
+                raise Refusal("interrupt self-test did not observe the act job volumes")
+            for name in observed_job_volumes:
+                if (
+                    docker_volume_record(
+                        name, use_sudo=use_sudo, cwd=layout.invocation, env=env
+                    )
+                    is not None
+                ):
+                    raise Refusal(f"interrupt self-test left act job volume {name}")
+            scope_boundary = new_docker_boundary(job_volume_scope.values())
+            job_volume_survivors = [
+                name
+                for name in list_docker_volume_names(
+                    use_sudo=use_sudo, cwd=layout.invocation, env=env
+                )
+                if is_leased_act_job_volume(scope_boundary, name)
+            ]
+            if job_volume_survivors:
+                raise Refusal(
+                    "interrupt self-test left act job volume(s): "
+                    + ", ".join(job_volume_survivors)
+                )
+            if planted_selftest_volume(rival_volume) is None:
+                raise Refusal(
+                    "interrupt cleanup removed an act-shaped volume outside its lease"
+                )
+            rival_preserved = True
         finally:
-            for selected_workflow in (
-                workflow,
-                seed_workflow,
-                probe_workflow,
-            ):
-                WORKFLOWS.pop(selected_workflow, None)
+            planted_errors: list[str] = []
+            with blocked_cleanup_signals():
+                for name in planted_volumes:
+                    try:
+                        remove_planted_selftest_volume(name)
+                    except Refusal as exc:
+                        planted_errors.append(str(exc))
+                        # A primary failure is propagating past this scope;
+                        # the residue must still be attributable on stderr.
+                        print(
+                            f"act-ci: interrupt self-test: {exc}",
+                            file=sys.stderr,
+                            flush=True,
+                        )
+                for selected_workflow in (
+                    workflow,
+                    seed_workflow,
+                    probe_workflow,
+                ):
+                    WORKFLOWS.pop(selected_workflow, None)
+        if planted_errors:
+            raise Refusal(
+                "interrupt self-test planted volume cleanup failed: "
+                + "; ".join(planted_errors)
+            )
+        if not rival_preserved:
+            raise Refusal("interrupt self-test did not prove rival volume preservation")
 
         final_inventory = docker_container_inventory(
             use_sudo=use_sudo, cwd=layout.invocation, env=env
@@ -6855,9 +8570,14 @@ def interrupt_selftest(act_binary: str, use_sudo: bool) -> int:
         )
         if not process_group_reaped.is_set():
             raise Refusal("interrupt self-test did not prove process-group absence")
+    if run_root.exists() or run_root.is_symlink():
+        raise Refusal("interrupt self-test left its exact run directory")
     print(
-        "interrupt-selftest: PASS (tool cache did not cross runs; the frozen "
-        "act process group left no process, container, network, or volume)"
+        "interrupt-selftest: PASS (SIGINT returned after the frozen act process "
+        "group, containers, network, tool-cache volume, both act job volumes, "
+        "and run directory were absent; a planted in-scope volume refused "
+        "acquisition and a planted rival volume survived; the tool cache did "
+        "not cross runs)"
     )
     return RC_OK
 
@@ -6903,7 +8623,7 @@ def main(argv: Sequence[str]) -> int:
     parser.add_argument(
         "--interrupt-selftest",
         action="store_true",
-        help="freeze a live act job and verify Docker cleanup (requires Docker)",
+        help="SIGINT a frozen live act job and verify cleanup (requires Docker)",
     )
     args = parser.parse_args(argv[1:])
 
