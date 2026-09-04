@@ -67,7 +67,7 @@ VFLAGS = --cc --exe --build -j 0 \
          -Wno-TIMESCALEMOD \
          -GPB_PREFILL_C=2 -GCLKV_QTICK_CYC_P=4096 -GLDIAG_IVAL_CYC_P=256 \
          -GDIAG_TICK_CYC_P=256 \
-         -CFLAGS "-std=c++17 -O2"
+         -CFLAGS "-std=c++17 -O2 -Wall -Wextra"
 
 # The broad historical integration legs use the direct option-OFF elaboration:
 # it is an ownerless verification boundary, not an alternate runtime owner.
@@ -84,7 +84,7 @@ GPTP_MS_CYC = 100
 GPTP_ON_VFLAGS = $(filter-out -GCLKV_QTICK_CYC_P=4096,$(VFLAGS)) \
                  -GCLKV_QTICK_CYC_P=131072 \
                  -GPP_TIM_DIV_US_P=1 -GPP_TIM_DIV_MS_P=$(GPTP_MS_CYC) \
-                 -CFLAGS "-DPP_MS_CYC_TB=$(GPTP_MS_CYC)"
+                 -CFLAGS "-DPP_MS_CYC_TB=$(GPTP_MS_CYC) -Wall -Wextra"
 
 C  = $(RTL_DIR)/common
 Q  = $(RTL_DIR)/ieee8021q/ts
@@ -222,7 +222,7 @@ run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) gptp
 # the divergent-shape leg: arty_4x4's entity with input row 1 declaring the
 # 96 kHz base - same channel count as row 0, so the ONLY discriminator is
 # the base, which is precisely what a row-0 lookup regression would miss
-	$(VERILATOR) $(SHAPE_DV) $(DP_VFLAGS) --Mdir obj_nxndv -GN_STREAMS=4 -CFLAGS "-DNSTREAMS_TB=4 -DDIVERGENT_TB=1 -I$(CURDIR)/gen_divergent" $(SRCS) sim_nxn.cpp -o Vmilan_dp_nxndv
+	$(VERILATOR) $(SHAPE_DV) $(DP_VFLAGS) --Mdir obj_nxndv -GN_STREAMS=4 -CFLAGS "-DNSTREAMS_TB=4 -DDIVERGENT_TB=1 -I$(CURDIR)/gen_divergent -Wall -Wextra" $(SRCS) sim_nxn.cpp -o Vmilan_dp_nxndv
 # obj_nxn8 is the ONLY leg that elaborates the task #65 loopback lane
 # (-GLOOPBACK_P=1, paired with -DLOOPBACK_TB so the C++ side knows which
 # gateware it is driving). The other two sim_nxn legs run with the lane OFF
@@ -232,7 +232,7 @@ run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) gptp
 # -DLB_SEQ_FIXED: the 0x0036 loop-source paced-replay law is IN - [T68]
 # asserts zero dup / zero skip / whole-ramp / clean tail instead of the
 # pre-fix stair signature.
-	$(VERILATOR) $(SHAPE_8x8) $(DP_VFLAGS) --Mdir obj_nxn8 -GN_STREAMS=8 -GLOOPBACK_P=1 -CFLAGS "-DNSTREAMS_TB=8 -DAX8X8_TB=1 -DLOOPBACK_TB=1 -DLB_SEQ_FIXED=1" $(SRCS) sim_nxn.cpp -o Vmilan_dp_nxn8
+	$(VERILATOR) $(SHAPE_8x8) $(DP_VFLAGS) --Mdir obj_nxn8 -GN_STREAMS=8 -GLOOPBACK_P=1 -CFLAGS "-DNSTREAMS_TB=8 -DAX8X8_TB=1 -DLOOPBACK_TB=1 -DLB_SEQ_FIXED=1 -Wall -Wextra" $(SRCS) sim_nxn.cpp -o Vmilan_dp_nxn8
 # THE SHIPPING ARTY SHAPE, and until 2026-07-30 nothing in the suite
 # elaborated it. obj_nxn above builds endstation_arty_4x4's ENTITY (4 streams)
 # but leaves TALKER_WIRE_CHANS_P at its default 2, so every leg ran with the
@@ -268,7 +268,7 @@ run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) gptp
 	  -GTALKER_WIRE_CHANS_P=$(AX_CHANS) -GAUDIO_IF_SLOTS_P=$(AX_SLOTS) \
 	  -GAUDIO_IF_MASTER_P=1 \
 	  -GLOOPBACK_P=1 -GI2SPB_P=$(AX_I2SPB) -GLPF_P=0 \
-	  -CFLAGS "-DWIRE_CHANS_TB=$(AX_CHANS) -DI2SPB_TB=$(AX_I2SPB) -DAIF_SLOTS_TB=$(AX_SLOTS)" \
+	  -CFLAGS "-DWIRE_CHANS_TB=$(AX_CHANS) -DI2SPB_TB=$(AX_I2SPB) -DAIF_SLOTS_TB=$(AX_SLOTS) -Wall -Wextra" \
 	  $(SRCS) $(CPP) -o Vmilan_dp_ax1x1
 # THE SAME SHIPPING SHAPE, CLOCKED HONESTLY. Every other leg toggles
 # clk_audio_i/clk_tdm_i 1:1 with axis_clk, so the 391/1591 divider plan that
@@ -297,7 +297,7 @@ run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) gptp
 # the same section untimed.
 	$(VERILATOR) $(SHAPE_AX1x1) $(GPTP_OFF_VFLAGS) --Mdir obj_notify \
 	  -GPP_TIM_DIV_US_P=1 -GPP_TIM_DIV_MS_P=100 \
-	  -CFLAGS "-DNSTREAMS_TB=1 -DNOTIFY_TIMED_TB=1 -DMS_CYC_TB=100" \
+	  -CFLAGS "-DNSTREAMS_TB=1 -DNOTIFY_TIMED_TB=1 -DMS_CYC_TB=100 -Wall -Wextra" \
 	  $(SRCS) sim_nxn.cpp -o Vmilan_dp_notify
 	./obj_dir/Vmilan_dp_sim
 	@echo "---- Milan 5.4.5 notifications, TIMED on the compressed processor timebase ----"
