@@ -90,7 +90,8 @@ static int segment_ready(void)
 static int write_segment(void)
 {
     char path[512];
-    uint32_t n, i;
+    uint32_t n;
+    uint32_t i;
     FILE *f;
 
     n = milan_trace_segment_begin(0);
@@ -103,9 +104,25 @@ static int write_segment(void)
         milan_trace_segment_end(0);
         return -1;
     }
-    for (i = 0; i < n; i++)
-        fwrite(milan_trace_segment_packet(i), 1, MILAN_TRACE_PACKET_BYTES, f);
-    fclose(f);
+    for (i = 0; i < n; i++) {
+        if (fwrite(milan_trace_segment_packet(i), 1, MILAN_TRACE_PACKET_BYTES, f)
+            != MILAN_TRACE_PACKET_BYTES) {
+            /* A short write leaves a segment the reader will report as torn,
+             * which is indistinguishable from the torn-segment case gate 7
+             * deliberately manufactures. Say which one this is. */
+            fprintf(stderr, "trace_selftest: segment %u short write at packet %u\n",
+                    g_segno, i);
+            fclose(f);
+            milan_trace_segment_end(0);
+            return -1;
+        }
+    }
+    /* fclose flushes, so a full disc surfaces HERE and nowhere earlier. */
+    if (fclose(f) != 0) {
+        fprintf(stderr, "trace_selftest: segment %u failed to close\n", g_segno);
+        milan_trace_segment_end(0);
+        return -1;
+    }
 
     if (milan_trace_segment_end(1) != 0) {
         /* Producer overwrote part of the segment while it was open.  Nothing
@@ -170,9 +187,14 @@ int main(int argc, char **argv)
 {
     struct milan_trace_cfg cfg;
     struct milan_trace_stats st;
-    uint32_t rounds = 12000, i;
-    uint32_t parsed = 0, matched = 0, frames_rx = 0, epoch = 3;
-    uint32_t budget_flushes = 0, budget_after_1h = 0;
+    uint32_t rounds = 12000;
+    uint32_t i;
+    uint32_t parsed = 0;
+    uint32_t matched = 0;
+    uint32_t frames_rx = 0;
+    uint32_t epoch = 3;
+    uint32_t budget_flushes = 0;
+    uint32_t budget_after_1h = 0;
     uint64_t sim_us_at_end = 0;
     uint8_t  budget_hold = 0;
     char path[512];
@@ -232,8 +254,8 @@ int main(int argc, char **argv)
     for (i = 0; i < rounds / 3u; i++) {
         parsed += 900u + (rnd() % 200u);
         steady_round(i, parsed, matched, frames_rx);
-        if (segment_ready())
-            write_segment();
+        if (segment_ready() && write_segment() != 0)
+            return 1;
     }
     MILAN_TRACE(note, MILAN_TRACE_SEV_ERROR, MILAN_TRACE_SRC_FABRIC, 21u,
                 "APRB parsed climbing, matched static: compare misses");
@@ -251,7 +273,8 @@ int main(int argc, char **argv)
                 epoch, epoch - 1u);
     MILAN_TRACE(link, MILAN_TRACE_SEV_NOTICE, MILAN_TRACE_SRC_LINKMON,
                 0x00010083u, 0x00000001u, 1u, 0u, 1u, 1u, 0u, 0u);
-    write_segment();
+    if (write_segment() != 0)
+        return 1;
 
     /* -- 5. lwSRP attribute-row shortfall (0x694[11]) --------------------- */
     MILAN_TRACE(srp, MILAN_TRACE_SEV_WARN, MILAN_TRACE_SRC_FABRIC,
@@ -271,7 +294,8 @@ int main(int argc, char **argv)
     MILAN_TRACE(ptp, MILAN_TRACE_SEV_WARN, MILAN_TRACE_SRC_FABRIC,
                 0x001B19FFFE000001ull, 0x001B19FFFE000002ull,
                 1785000000000000000ull, (int64_t)-1843, 812u, 0u, 1u);
-    write_segment();
+    if (write_segment() != 0)
+        return 1;
 
     /* -- 7. journal: a CRC verdict, then a clean ACCEPT on the other slot -- */
     MILAN_TRACE(journal, MILAN_TRACE_SEV_ERROR, MILAN_TRACE_SRC_JOURNAL,
@@ -295,8 +319,8 @@ int main(int argc, char **argv)
         matched += 890u + (rnd() % 190u);
         frames_rx += 960u;
         steady_round(i, parsed, matched, frames_rx);
-        if (segment_ready())
-            write_segment();
+        if (segment_ready() && write_segment() != 0)
+            return 1;
     }
 
     /* -- 9. a storm the flush cannot keep up with -------------------------
@@ -389,7 +413,18 @@ int main(int argc, char **argv)
     fprintf(f, "budget_flushes=%u\n", budget_flushes);
     fprintf(f, "budget_hold=%u\n", (unsigned)budget_hold);
     fprintf(f, "budget_after_1h=%u\n", budget_after_1h);
-    fclose(f);
+    /* stats.txt is the file test_trace_roundtrip.py reads its numbers out of.
+     * A truncated one reads as a run that measured something smaller, so the
+     * stream error and the flush are both checked rather than assumed. */
+    if (ferror(f) != 0) {
+        fprintf(stderr, "trace_selftest: stats.txt write failed\n");
+        fclose(f);
+        return 1;
+    }
+    if (fclose(f) != 0) {
+        fprintf(stderr, "trace_selftest: stats.txt failed to close\n");
+        return 1;
+    }
 
     printf("trace_selftest: %u segments, %u packets, %u dropped, %llu us simulated;"
            " budget drill %u flushes then hold %u\n",

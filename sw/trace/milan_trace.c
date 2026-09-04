@@ -170,7 +170,10 @@ void milan_trace_flush_request(void)
  * down to zero forever. */
 static void budget_refill(uint64_t now)
 {
-    uint64_t elapsed, gain, per_hour, used_us;
+    uint64_t elapsed;
+    uint64_t gain;
+    uint64_t per_hour;
+    uint64_t used_us;
 
     per_hour = (uint64_t)g_ts.cfg.budget_bytes_per_hour;
     if (per_hour == 0u)
@@ -238,7 +241,8 @@ uint32_t milan_trace_budget_left(void)
 
 uint32_t milan_trace_segment_begin(uint32_t max_packets)
 {
-    uint32_t want, resident;
+    uint32_t want;
+    uint32_t resident;
 
     if (!g_ts.inited || g_ts.seg_open)
         return 0;

@@ -78,7 +78,9 @@ static void print_tod(uint64_t ns)
 
 static uint64_t gettime_ns(void)
 {
-	uint32_t hi1, hi2, lo;
+	uint32_t hi1;
+	uint32_t hi2;
+	uint32_t lo;
 
 	milan_write(MILAN_PTP_CMD, MILAN_PTP_SNAPSHOT);
 	cdelay(128);
@@ -213,8 +215,13 @@ define_init_func(milan_init);
 
 static void milan_status_handler(int nb_params, char **params)
 {
-	uint32_t gm_lo, gm_hi, parent_lo, parent_hi;
-	uint32_t pdelay_ns, as_path, clkv_stat;
+	uint32_t gm_lo;
+	uint32_t gm_hi;
+	uint32_t parent_lo;
+	uint32_t parent_hi;
+	uint32_t pdelay_ns;
+	uint32_t as_path;
+	uint32_t clkv_stat;
 
 	(void)nb_params;
 	(void)params;
@@ -262,7 +269,9 @@ define_command(milan_gettime, milan_gettime_handler,
 
 static void milan_settime_handler(int nb_params, char **params)
 {
-	uint64_t seconds, nanoseconds = 0, value;
+	uint64_t seconds;
+	uint64_t nanoseconds = 0;
+	uint64_t value;
 
 	if (nb_params < 1 || nb_params > 2 ||
 	    !parse_u64(params[0], &seconds) ||
@@ -280,7 +289,11 @@ define_command(milan_settime, milan_settime_handler,
 
 static void milan_utc_handler(int nb_params, char **params)
 {
-	uint64_t utc, nanoseconds, tai_minus_utc, tai, value;
+	uint64_t utc;
+	uint64_t nanoseconds;
+	uint64_t tai_minus_utc;
+	uint64_t tai;
+	uint64_t value;
 
 	if (nb_params != 3 || !parse_u64(params[0], &utc) ||
 	    !parse_u64(params[1], &nanoseconds) ||
